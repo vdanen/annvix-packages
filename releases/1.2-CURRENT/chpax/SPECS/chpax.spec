@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		chpax
 %define version		0.7
-%define release		1avx
+%define release		%_revrel
 
 Summary:	Tool that allows PaX flags to be modified on a per-binary basis
 Name:		%{name}
@@ -19,7 +20,7 @@ License:	Public Domain
 Group:		System/Configuration/Other
 URL:		http://pax.grsecurity.net/
 Source0:	%{name}-%{version}.tar.bz2
-Patch0:		chpax-0.7-autotools.patch.bz2
+Patch0:		chpax-0.7-autotools.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5 automake1.7
@@ -34,6 +35,7 @@ kernel-secure package, for this program to have any effect.
 %prep
 %setup -q
 %patch0 -p1 -b .autotools
+chmod 0644 README
 
 
 %build 
@@ -61,14 +63,19 @@ automake-1.7 --foreign -a
 %{_sbindir}/chpax
 
 
-%changelog 
-* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 0.7-1avx
+%changelog
+* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- fix perms on README
+ 
+* Fri Aug 19 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.7-1avx
 - 0.7
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.5-5avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.5-5avx
 - rebuild
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 0.5-4avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.5-4avx
 - Annvix build
 
 * Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 0.5-3sls
