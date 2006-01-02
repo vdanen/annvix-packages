@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		clamav
 %define version		0.87.1
-%define release		1avx
+%define release		%_revrel
 
 %define	major		1
 %define libname		%mklibname %{name} %{major}
@@ -27,8 +28,8 @@ Source4:	clamd.run
 Source5:	clamd-log.run
 Source6:	freshclam.run
 Source7:	freshclam-log.run
-Patch0:		clamav-0.87-avx-config.patch.bz2
-Patch1:		clamav-0.87-avx-stderr.patch.bz2
+Patch0:		clamav-0.87-avx-config.patch
+Patch1:		clamav-0.87-avx-stderr.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5, automake1.7
@@ -273,11 +274,15 @@ done
 
       
 %changelog
-* Mon Nov 07 2005 Vincent Danen <vdanen@annvix.org> 0.87.1-1avx
+* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Mon Nov 07 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.87.1-1avx
 - 0.87.1; security fixes for CVE-2005-3239, CVE-2005-3303, CVE-2005-3500,
   CVE-2005-3501
 
-* Tue Sep 27 2005 Vincent Danen <vdanen@annvix.org> 0.87-2avx
+* Tue Sep 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.87-2avx
 - clamav is static uid/gid 91, not 89 (clashes with dhcpd)
 - useradd only in clamav-db, not in clamav or clamd
 - execline the runscripts and make both freshclam and clamd run
@@ -286,43 +291,43 @@ done
 - P0: adjust the configs to log to stderr by default
 - drop the logrotate files and logfiles
 
-* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 0.87-1avx
+* Sat Sep 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.87-1avx
 - 0.87
 
-* Sat Sep 11 2005 Vincent Danen <vdanen@annvix.org> 0.86.2-4avx
+* Sat Sep 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.86.2-4avx
 - don't build against libcurl as apparently that would be in violation
   of the GPL since we build it against OpenSSL; see:
     http://curl.haxx.se/legal/distro-dilemma.html
 
-* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 0.86.2-3avx
+* Sat Sep 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.86.2-3avx
 - s/supervise/service/ in log/run
 
-* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 0.86.2-2avx
+* Sat Sep 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.86.2-2avx
 - spec tidys
 
-* Fri Sep 02 2005 Vincent Danen <vdanen@annvix.org> 0.86.2-1avx
+* Fri Sep 02 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.86.2-1avx
 - 0.86.2
 - use execlineb for run scripts
 - move logdir to /var/log/service/{freshclam,clamd}
 - run scripts are now considered config files and are not replaceable
 
-* Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 0.86.1-3avx
+* Fri Aug 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.86.1-3avx
 - fix perms on run scripts
 
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 0.86.1-2avx
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.86.1-2avx
 - bootstrap build (new gcc, new glibc)
 
-* Tue Jul 19 2005 Vincent Danen <vdanen@annvix.org> 0.86.1-1avx
+* Tue Jul 19 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.86.1-1avx
 - 0.86.1 (fixes a possible crash in libmspack's Quantum decompressor)
 - make the freshclam and clamd logfiles mode 0640 rather than 0644
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.83-3avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.83-3avx
 - rebuild
 
-* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 0.83-2avx
+* Thu Mar 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.83-2avx
 - use logger for logging
 
-* Wed Feb 16 2005 Vincent Danen <vdanen@annvix.org> 0.83-1avx
+* Wed Feb 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.83-1avx
 - 0.83
 - first Annvix build
 - big spec cleanups; get rid of milter support
