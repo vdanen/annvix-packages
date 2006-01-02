@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		cdialog
 %define version		0.9b
-%define release		10avx
+%define release		%_revrel
 
 %define datetag 	20040421
 
@@ -66,16 +67,20 @@ mkdir -p %{buildroot}%{_mandir}/man1
 
 
 %changelog
-* Thu Sep 22 2005 Vincent Danen <vdanen@annvix.org> 0.9b-10avx
+* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Thu Sep 22 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.9b-10avx
 - version 0.9b-20040421
 
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 0.9b-9avx
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.9b-9avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.9b-8avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.9b-8avx
 - bootstrap build
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 0.9b-7avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.9b-7avx
 - Annvix build
 
 * Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 0.9b-6sls
