@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		cdrecord
 %define version 	2.01.01a03
-%define release 	1avx
+%define release 	%_revrel
 %define epoch		4
 
 %define archname	cdrtools
@@ -27,22 +28,21 @@ License:	GPL
 Group:		Archiving/Cd burning
 URL:		http://cdrecord.berlios.de/old/private/cdrecord.html
 Source:		ftp://ftp.berlios.de/pub/cdrecord/%{archname}-%{version}.tar.bz2
-Patch0:		cdrecord-2.01-CAN-2004-0806.patch.bz2
-Patch6:		cdrtools-2.01.01-CAN-2005-0866.patch.bz2
-Patch10:	cdrtools-2.01.01a03-dvd.patch.bz2
-Patch11:	cdrtools-2.01a28-o_excl.patch.bz2
-Patch12:	cdrtools-2.01a27-writemode.patch.bz2
-Patch13:	cdrtools-2.01.01a03-rawio.patch.bz2
-Patch14:	cdrtools-2.01.01a03-warnings.patch.bz2
-Patch15:	cdrtools-2.01.01a01-scanbus.patch.bz2
-Patch16:	cdrtools-2.01.01a03-rezero.patch.bz2
-Patch17:	cdrtools-2.01.01-scsibuf.patch.bz2
+Patch0:		cdrecord-2.01-CAN-2004-0806.patch
+Patch6:		cdrtools-2.01.01-CAN-2005-0866.patch
+Patch10:	cdrtools-2.01.01a03-dvd.patch
+Patch11:	cdrtools-2.01a28-o_excl.patch
+Patch12:	cdrtools-2.01a27-writemode.patch
+Patch13:	cdrtools-2.01.01a03-rawio.patch
+Patch14:	cdrtools-2.01.01a03-warnings.patch
+Patch15:	cdrtools-2.01.01a01-scanbus.patch
+Patch16:	cdrtools-2.01.01a03-rezero.patch
+Patch17:	cdrtools-2.01.01-scsibuf.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	libpcap-devel
 
 Requires:	mkisofs
-PreReq:		rpm-helper
 Obsoletes:	cdrecord-dvdhack =< 4:2.01-0.a15.2mdk
 Provides:	cdrecord-dvdhack = %{epoch}:%{version}-%{release}
 
@@ -65,7 +65,7 @@ driver similar to the scg driver.
 
 
 %package -n mkisofs
-Summary:	Creates an image of an ISO9660 filesystem.
+Summary:	Creates an image of an ISO9660 filesystem
 Version:	%{mkisofs_ver}
 Release:	%{mkisofs_rel}
 Epoch:		%{mkisofs_epoch}
@@ -167,7 +167,12 @@ mv %{buildroot}%{_prefix}/lib %{buildroot}%{_libdir}/
 
 
 %changelog
-* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 2.01.01a03-1avx
+* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- remove unneeded prereq on rpm-helper
+
+* Fri Sep 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.01.01a03-1avx
 - 2.01.01a03
 - rediff P6
 - fix url
@@ -175,19 +180,19 @@ mv %{buildroot}%{_prefix}/lib %{buildroot}%{_libdir}/
 - sync most mandrake patches
 - cdrecord and readcd are no longer suid
 
-* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 2.01-0.a38.5avx
+* Sat Sep 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.01-0.a38.5avx
 - rebuild against new libpcap
 
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 2.01-0.a38.4avx
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.01-0.a38.4avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.01-0.a38.3avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.01-0.a38.3avx
 - rebuild
 
-* Wed Apr 20 2005 Vincent Danen <vdanen@annvix.org> 2.01-0.a38.2avx
+* Wed Apr 20 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.01-0.a38.2avx
 - P6: security patch for CAN-2005-0866
 
-* Tue Sep 07 2004 Vincent Danen <vdanen@annvix.org> 2.01-0.a38.1avx
+* Tue Sep 07 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.01-0.a38.1avx
 - 2.0.1alpha38
 - apply security fix for CAN-2004-0806
 - don't apply P3; needs 2.6 kernel support?
@@ -220,7 +225,7 @@ mv %{buildroot}%{_prefix}/lib %{buildroot}%{_libdir}/
    user with linux 2.6.8
   - remove some warnings
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.01-0.a18.6avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.01-0.a18.6avx
 - Annvix build
 
 * Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 2.01-0.a18.5sls
