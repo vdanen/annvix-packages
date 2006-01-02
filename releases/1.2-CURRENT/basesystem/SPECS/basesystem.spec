@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		basesystem
 %define version 	1.1
-%define release 	1avx
+%define release 	%_revrel
 %define epoch		1
 
 Summary:	The skeleton package which defines a simple Annvix system
@@ -19,6 +20,7 @@ Release:	%{release}
 Epoch:		%{epoch}
 License:	GPL
 Group:		System/Base
+URL:		http://annvix.org/
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -54,21 +56,25 @@ should never be removed.
 
 
 %changelog
-* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 1.1-1avx
+* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.1-1avx
 - 1.1
 - drop bdflush from requires
 
-* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 1.0-9avx
+* Fri Aug 19 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.0-9avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.0-8avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.0-8avx
 - bootstrap build
 
-* Tue Sep 14 2004 Vincent Danen <vdanen@annvix.org> 1.0-7avx
+* Tue Sep 14 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.0-7avx
 - Requires: runit
 - remove Requires: daemontools, ucspi-tcp, mkbootdisk
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.0-6avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.0-6avx
 - Annvix build
 - Requires: s/opensls-release/annvix-release/
 
