@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		bdflush
 %define version 	1.5
-%define release 	29avx
+%define release 	%_revrel
 
 Summary:	The process which starts the flushing of dirty buffers back to disk
 Name:		%{name}
@@ -19,11 +20,11 @@ License:	Public Domain
 Group:		System/Kernel and hardware
 URL:		ftp://tsx-11.mit.edu/pub/linux/sources/system/v1.2
 Source:		ftp://tsx-11.mit.edu/pub/linux/sources/system/v1.2/bdflush-1.5.tar.bz2
-Patch:		bdflush-1.5-axp.patch.bz2
-Patch1:		bdflush-1.5-glibc.patch.bz2
-Patch2:		bdflush-1.5-no-bdflush.patch.bz2
-Patch3:		bdflush-1.5-limit.patch.bz2
-Patch4:		bdflush-1.5_include_errno.patch.bz2
+Patch0:		bdflush-1.5-axp.patch
+Patch1:		bdflush-1.5-glibc.patch
+Patch2:		bdflush-1.5-no-bdflush.patch
+Patch3:		bdflush-1.5-limit.patch
+Patch4:		bdflush-1.5_include_errno.patch
 
 Buildroot:	%{_buildroot}/%{name}-%{version}
 
@@ -41,7 +42,7 @@ to operate properly.
 
 %prep
 %setup -q
-%patch -p1
+%patch0 -p1
 %patch1 -p1 -b .glibc
 %patch2 -p1 -b .no-bdflush
 %patch3 -p1 -b .limit
@@ -71,15 +72,18 @@ install -m 0644 bdflush.8 %{buildroot}/%{_mandir}/man8/update.8
 /sbin/update
 %{_mandir}/man8/update.8*
 
-
 %changelog
-* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 1.5-29avx
+* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Aug 19 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.5-29avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.5-28avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.5-28avx
 - bootstrap build
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.5-27avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.5-27avx
 - Annvix build
 
 * Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 1.5-26sls
