@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		common-licenses
 %define version 	1.0
-%define release 	13avx
+%define release 	%_revrel
 
 Summary:	Contains the various common licenses uses by the distribution
 Name:		%{name}
@@ -50,19 +51,23 @@ cp -a %{name} %{buildroot}%{_datadir}
 
 
 %changelog
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 1.0-13avx
+* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.0-13avx
 - FSF has changed it's address
 - updated GPL from http://www.gnu.org/licenses/gpl.txt
 - added GNU Free Documentation License (GFDL)
 - added the Apache v2 license
 
-* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 1.0-12avx
+* Fri Aug 19 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.0-12avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.0-11avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.0-11avx
 - bootstrap build
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.0-10avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.0-10avx
 - Annvix build
 
 * Fri Nov 28 2003 Vincent Danen <vdanen@opensls.org> 1.0-9sls
