@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		blt
 %define version		2.4z
-%define release		12avx
+%define release		%_revrel
 
 %define major		2
 %define	libname		%mklibname %{name} %{major}
@@ -23,11 +24,11 @@ License:	MIT
 Group:		System/Libraries
 URL:		http://www.sourceforge.net/projects/blt
 Source0:	BLT%{version}.tar.bz2
-Patch0:		blt2.4z-patch-2.patch.bz2
-Patch1:		blt2.4z-configure.in-disable-rpath.patch.bz2
-Patch2:		blt2.4z-libdir.patch.bz2
-Patch3:		blt2.4z-mkdir_p.patch.bz2
-Patch4:		blt2.4z-64bit-fixes.patch.bz2
+Patch0:		blt2.4z-patch-2.patch
+Patch1:		blt2.4z-configure.in-disable-rpath.patch
+Patch2:		blt2.4z-libdir.patch
+Patch3:		blt2.4z-mkdir_p.patch
+Patch4:		blt2.4z-64bit-fixes.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:  XFree86-devel tcl tk autoconf2.1
@@ -167,21 +168,25 @@ done
 
 
 %changelog
-* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 2.4z-12avx
+* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Sep 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.4z-12avx
 - rebuild against new tcltk
 
-* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 2.4z-11avx
+* Thu Aug 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.4z-11avx
 - bootstrap build (new gcc, new glibc)
 - multiarch
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.4z-10avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.4z-10avx
 - bootstrap build
 - spec cleanups
 
-* Mon Aug 30 2004 Vincent Danen <vdanen@annvix.org> 2.4z-9avx
+* Mon Aug 30 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.4z-9avx
 - fix dangling symlinks
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.4z-8avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.4z-8avx
 - Annvix build
 
 * Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 2.4z-7sls
