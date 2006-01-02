@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		bootloader-utils
 %define version		1.6
-%define release		12avx
+%define release		%_revrel
 
 %define _mypost_service() if [ $1 = 1 ]; then /sbin/chkconfig --add %{1}; fi;
 
@@ -22,7 +23,7 @@ Group:		System/Kernel and hardware
 URL:		http://cvs.mandriva.com/cgi-bin/cvsweb.cgi/soft/initscripts/mandrake/loader/
 Source0:	%{name}-%{version}.tar.bz2
 Source1:	memtest86.pm
-Patch0:		bootloader-utils-1.6-avx-grub.patch.bz2
+Patch0:		bootloader-utils-1.6-avx-grub.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -83,26 +84,30 @@ make ROOT=%{buildroot} mandir=%{_mandir} install
 
 
 %changelog
-* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 1.6-12avx
+* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Sep 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.6-12avx
 - new-style requires
 - NOTE: we need to find something to replace this; newer bootloader-utils
   rely too heavily on DrakX modules
 
-* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 1.6-11avx
+* Fri Aug 19 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.6-11avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.6-10avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.6-10avx
 - bootstrap build
 
-* Sat Feb 05 2005 Vincent Danen <vdanen@annvix.org> 1.6-9avx
+* Sat Feb 05 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.6-9avx
 - put back in the parts of the old patch we forgot
 - also don't have detectloader look for lilo.conf
 
-* Fri Feb 04 2005 Vincent Danen <vdanen@annvix.org> 1.6-8avx
+* Fri Feb 04 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.6-8avx
 - try to fix installation of grub configuration when /boot is a
   raid device
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.6-7avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.6-7avx
 - Annvix build
 
 * Tue Jun 15 2004 Vincent Danen <vdanen@opensls.org> 1.6-6sls
