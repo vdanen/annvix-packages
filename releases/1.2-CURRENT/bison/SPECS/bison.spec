@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		bison
 %define version 	2.0
-%define release 	1avx
+%define release 	%_revrel
 
 Summary:	A GNU general-purpose parser generator
 Name:		%{name}
@@ -19,7 +20,7 @@ License:	GPL
 Group:		Development/Other
 URL:		http://www.gnu.org/software/bison/bison.html
 Source:		http://alpha.gnu.org/gnu/bison/%{name}-%{version}.tar.bz2
-Patch0:		bison-1.32-extfix.patch.bz2
+Patch0:		bison-1.32-extfix.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -89,23 +90,27 @@ rm -f %{buildroot}%{_libdir}/liby.a
 
 
 %changelog
-* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 2.0-1avx
+* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Sep 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0-1avx
 - 2.0
 - new-style requires
 - fix url
 - drop P1; fixed upstream
 - own %%{_datadir}/bison
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.875-9avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.875-9avx
 - bootstrap build (new gcc, new glibc)
 
-* Mon Jul 25 2005 Vincent Danen <vdanen@annvix.org> 1.875-8avx
+* Mon Jul 25 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.875-8avx
 - rebuild for new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.875-7avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.875-7avx
 - bootstrap build
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> - 1.875-6avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> - 1.875-6avx
 - Annvix build
 - require packages not files
 - remove Prefix
