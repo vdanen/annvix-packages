@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		byacc
 %define version		1.9
-%define release		20avx
+%define release		%_revrel
 
 %define date		20040328
 
@@ -21,11 +22,7 @@ License:	Public Domain
 Group:		Development/Other
 URL:		http://dickey.his.com/byacc/byacc.html
 Source:		ftp://invisible-island.net/byacc/byacc.tar.bz2
-Patch0:		byacc-1.9-fixmanpage.patch.bz2
-Patch1:		byacc-1.9-automake.patch.bz2
-Patch2:		byacc-1.9-security.patch.bz2
-Patch3:		byacc-1.9-includes.patch.bz2
-Patch4:		byacc-20040328-no-recreate-unionfile.patch.bz2
+Patch0:		byacc-20040328-no-recreate-unionfile.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -36,7 +33,7 @@ is used by many programs during their build process.
 
 %prep
 %setup -q -n %{name}-%{date}
-%patch4 -p1 -b .unionfile
+%patch0 -p1 -b .unionfile
 
 
 %build
@@ -67,15 +64,20 @@ ln -s yacc.1 %{buildroot}%{_mandir}/man1/byacc.1
 
 
 %changelog
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.9-20avx
+* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- drop unapplied patches
+
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.9-20avx
 - bootstrap build (new gcc, new glibc)
 
-* Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 1.9-19avx
+* Wed Jul 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.9-19avx
 - rebuild for new gcc
 - use the 2004-03-28 tarball from Thomas Dickey (of ncurses) which
   contains a lot of fixes and enhancements
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.9-18avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.9-18avx
 - bootstrap build
 - force use of automake1.4 and autoconf2.5 (peroyvind)
 
