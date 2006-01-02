@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		chkauth
 %define version 	0.3
-%define release 	8avx
+%define release 	%_revrel
 	
 Summary:	Script to change authentification method (local, NIS, LDAP)
 Name:		%{name}
@@ -18,7 +19,7 @@ Release:	%{release}
 License:	GPL
 Group:		System/Configuration/Boot and Init
 Source0:	%{name}-%{version}.tar.bz2
-Patch0:		chkauth-0.3-avx-misc_fixes.patch.bz2
+Patch0:		chkauth-0.3-avx-misc_fixes.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
@@ -61,26 +62,30 @@ install -m 0644 chkauth.8 %{buildroot}/%{_mandir}/man8/
 
 
 %changelog
-* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 0.3-8avx
+* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Aug 19 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.3-8avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.3-7avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.3-7avx
 - rebuild
 
-* Mon Mar 28 2005 Vincent Danen <vdanen@annvix.org> 0.3-6avx
+* Mon Mar 28 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.3-6avx
 - update P0 with minor fixes
 
-* Tue Mar 15 2005 Vincent Danen <vdanen@annvix.org> 0.3-5avx
+* Tue Mar 15 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.3-5avx
 - update P0 to made chkauth tell exactly what rpms are needed for LDAP
   all at once rather than one at a time
 - fix some grammer annoyances
 
-* Wed Jun 30 2004 Vincent Danen <vdanen@annvix.org> 0.3-4avx
+* Wed Jun 30 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.3-4avx
 - fix chkauth to use pam_unix rather than pam_pwdb for password
   handling in system-auth when using LDAP (so we can use passwd to
   change LDAP passwords); updated P0
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 0.3-3avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.3-3avx
 - Annvix build
 
 * Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 0.3-2sls
