@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		bzip2
 %define version		1.0.3
-%define release		4avx
+%define release		%_revrel
 
 %define libname_orig	lib%{name}
 %define libname		%mklibname %{name}_ 1
@@ -25,13 +26,13 @@ Source:		http://www.bzip.org/1.0.3/%{name}-%{version}.tar.gz
 Source1:	bzgrep
 Source2:	bzme
 Source3:	bzme.1
-Patch0:		bzip2-1.0.2-mdv-mktemp.patch.bz2
-Patch1:		bzip2-1.0.3-mdv-makefile.patch.bz2
+Patch0:		bzip2-1.0.2-mdv-mktemp.patch
+Patch1:		bzip2-1.0.3-mdv-makefile.patch
 # P2 implements a progress counter (in %). It also
 # display the percentage of the original file the new file is (size). 
 # URL: http://www.vanheusden.com/Linux/bzip2-1.0.2.diff.gz
-Patch2:		bzip2-1.0.2.diff.bz2
-Patch3:		bzip2-1.0.2-CAN-2005-0953.patch.bz2
+Patch2:		bzip2-1.0.2.diff
+Patch3:		bzip2-1.0.2-CAN-2005-0953.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	texinfo
@@ -131,16 +132,20 @@ install -m 0644 bzlib_private.h %{buildroot}%{_includedir}/
 
 
 %changelog
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.0.3-4avx
+* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.0.3-4avx
 - bootstrap build (new gcc, new glibc)
 
-* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 1.0.3-3avx
+* Tue Jul 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.0.3-3avx
 - rebuild against new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.0.3-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.0.3-2avx
 - bootstrap build
 
-* Wed May 18 2005 Vincent Danen <vdanen@annvix.org> 1.0.3-1avx
+* Wed May 18 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.0.3-1avx
 - 1.0.3 (fixes CAN-2005-1260)
 - P1: mktemp support (Requires: mktemp); rediffed from Mandriva
 - P2: get rid of the automake stuff (gbeauchesne)
@@ -152,7 +157,7 @@ install -m 0644 bzlib_private.h %{buildroot}%{_includedir}/
 - fix URL/source URL
 - make sure bzlib_private.h still gets included
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.0.2-19avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.0.2-19avx
 - Annvix build
 
 * Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 1.0.2-18sls
