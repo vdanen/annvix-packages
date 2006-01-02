@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		chkconfig
 %define version		1.3.20
-%define release		1avx
+%define release		%_revrel
 
 Summary:	A system tool for maintaining the /etc/rc*.d hierarchy
 Name:		%{name}
@@ -19,15 +20,15 @@ License:	GPL
 Group:		System/Configuration/Boot and Init
 URL:		ftp://ftp.redhat.com/pub/redhat/code/chkconfig/
 Source:		ftp://ftp.redhat.com/pub/redhat/code/chkconfig/chkconfig-%{version}.tar.bz2
-Patch1:		ntsysv-mdkconf.patch.bz2
-Patch3:		chkconfig-runleveldir.patch.bz2
-Patch4:		ntsysv-tvman.patch.bz2
-Patch5:		chkconfig-fix.patch.bz2
-Patch6:		chkconfig-1.3.20-adddelxinetd.patch.bz2
-Patch7:		chkconfig-1.3.4-list.patch.bz2
-Patch8:		chkconfig-1.3.4-skip-files-with-dot.patch.bz2
-Patch10:	chkconfig-1.3.11-fix-errno-xinetddotd.patch.bz2
-Patch11:	chkconfig-1.3.20-lsb.patch.bz2
+Patch1:		ntsysv-mdkconf.patch
+Patch3:		chkconfig-runleveldir.patch
+Patch4:		ntsysv-tvman.patch
+Patch5:		chkconfig-fix.patch
+Patch6:		chkconfig-1.3.20-adddelxinetd.patch
+Patch7:		chkconfig-1.3.4-list.patch
+Patch8:		chkconfig-1.3.4-skip-files-with-dot.patch
+Patch10:	chkconfig-1.3.11-fix-errno-xinetddotd.patch
+Patch11:	chkconfig-1.3.20-lsb.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	gettext, newt-devel, popt-devel, slang
@@ -117,23 +118,27 @@ rm -f %{buildroot}%{_sbindir}/{alternatives,update-alternatives} %{buildroot}%{_
 
 
 %changelog
-* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 1.3.20-1avx
+* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.3.20-1avx
 - 1.3.20
 - drop P9; fixed upstream
 - rediff P12; now handles hybrid scripts like shorewall (sbenedict)
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.3.13-3avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.3.13-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.3.13-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.3.13-2avx
 - bootstrap build
 
-* Mon Feb 28 2005 Vincent Danen <vdanen@annvix.org> 1.3.13-1avx
+* Mon Feb 28 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.3.13-1avx
 - 1.3.13
 - fix LSB logic (flepied)
 - drop the zh po file (S1) and special accomodations
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.3.8-6avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.3.8-6avx
 - Annvix build
 
 * Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 1.3.8-5sls
