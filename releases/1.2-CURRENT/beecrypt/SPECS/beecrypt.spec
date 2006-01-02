@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		beecrypt
 %define version		3.1.0
-%define release		6avx
+%define release		%_revrel
 
 %define libname		%mklibname %{name} 6
 %define libnamedev	%{libname}-devel
@@ -24,9 +25,9 @@ License:	LGPL
 Group:		System Environment/Libraries
 URL:		http://beecrypt.virtualunlimited.com/
 Source0:	http://prdownloads.sourceforge.net/beecrypt/%{name}-3.1.0.tar.bz2
-Patch0:		beecrypt-3.1.0-rh.patch.bz2
-Patch1:		beecrypt-3.1.0-automake1.7.patch.bz2
-Patch2:		beecrypt-3.1.0-configure.patch.bz2
+Patch0:		beecrypt-3.1.0-rh.patch
+Patch1:		beecrypt-3.1.0-automake1.7.patch
+Patch2:		beecrypt-3.1.0-configure.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildPreReq:	doxygen, python-devel >= %{with_python_version}
@@ -126,22 +127,26 @@ rm -f %{buildroot}%{_libdir}/python%{with_python_version}/site-packages/_bc.*a
 %{_libdir}/python%{with_python_version}/site-packages/_bc.so
 
 %changelog
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 3.1.0-6avx
+* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.1.0-6avx
 - bootstrap build (new gcc, new glibc)
 
-* Mon Aug 08 2005 Vincent Danen <vdanen@annvix.org> 3.1.0-5avx
+* Mon Aug 08 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.1.0-5avx
 - P2: alpha doesn't use lib64
 - minor spec cleanups
 
-* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 3.1.0-4avx
+* Tue Jul 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.1.0-4avx
 - rebuild for new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 3.1.0-3avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.1.0-3avx
 - bootstrap build
 - always build with python support as we need python-devel to compile
   even without the python package (eh?)
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 3.1.0-2avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 3.1.0-2avx
 - Annvix build
 
 * Fri May 09 2004 Vincent Danen <vdanen@opensls.org> 3.1.0-1sls
