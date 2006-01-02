@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		bind
 %define version		9.3.1
-%define release		1avx
+%define release		%_revrel
 
 %define their_version	9.3.1
 %define build_daemon	1
@@ -36,18 +37,22 @@ Source11:	ftp://FTP.RS.INTERNIC.NET/domain/named.root
 Source12:	named.run
 Source13:	named.stop
 Source14:	named-log.run
-Patch1:		bind-9.3.0rc2-fallback-to-second-server.patch.bz2
-Patch2:		bind-9.3.0-mdk-libresolv.patch.bz2
-Patch4:		bind-9.2.3-bsdcompat.patch.bz2
-Patch5:		bind-9.3.0beta2-libtool.diff.bz2
-Patch6:		libbind-9.3.1rc1-fix_h_errno.patch.bz2
-Patch7:		bind-9.3.1-reject_resolv_conf_errors.patch.bz2
+Patch1:		bind-9.3.0rc2-fallback-to-second-server.patch
+Patch2:		bind-9.3.0-mdk-libresolv.patch
+Patch4:		bind-9.2.3-bsdcompat.patch
+Patch5:		bind-9.3.0beta2-libtool.diff
+Patch6:		libbind-9.3.1rc1-fix_h_errno.patch
+Patch7:		bind-9.3.1-reject_resolv_conf_errors.patch
 
 BuildRoot:	%{_buildroot}/%{name}-root
 BuildRequires:	openssl-devel
 BuildRequires:	autoconf, autoconf2.5, automake1.7, multiarch-utils >= 1.0.3
 
-PreReq:		rpm-helper
+%if %{build_daemon}
+Requires(post):	rpm-helper
+Requires(pre):	rpm-helper
+Requires(postun): rpm-helper
+Requires(postun): rpm-helper
 Requires:	bind-utils >= %{version}-%{release}
 Obsoletes:	libdns0
 Provides:	libdns0
@@ -279,19 +284,24 @@ fi
 
 
 %changelog
-* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 9.3.1-1avx
+* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- fix prereq
+
+* Sat Sep 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 9.3.1-1avx
 - 9.3.1
 - use execlineb for run scripts
 - move logdir to /var/log/service/sshd
 - run scripts are now considered config files and are not replaceable
 - P6, P7: from fedora
 
-* Mon Aug 29 2005 Vincent Danen <vdanen@annvix.org> 9.3.0-8avx
+* Mon Aug 29 2005 Vincent Danen <vdanen-at-build.annvix.org> 9.3.0-8avx
 - fix perms on run scripts
 - make the finish script mode 640 so it's not executed; need to evaluate
   whether it's still needed
 
-* Mon Aug 15 2005 Vincent Danen <vdanen@annvix.org> 9.3.0-7avx
+* Mon Aug 15 2005 Vincent Danen <vdanen-at-build.annvix.org> 9.3.0-7avx
 - disable threads support to enable switching user with -u
   (thanks Ying)
 - re-enable linux caps
@@ -299,21 +309,21 @@ fi
 - by default, log to svlogd rather than syslog (use -g rather than -f
   in the runscript)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 9.3.0-6avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 9.3.0-6avx
 - rebuild
 
-* Sat Apr 09 2005 Vincent Danen <vdanen@annvix.org> 9.3.0-5avx
+* Sat Apr 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 9.3.0-5avx
 - add %%build_daemon macro so we can build bind-{utils,devel} but not
   named itself (since we want things like dig, host, etc.); by default
   we do not build the daemon
 
-* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 9.3.0-4avx
+* Thu Mar 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 9.3.0-4avx
 - use logger for logging
 
-* Thu Jan 06 2005 Vincent Danen <vdanen@annvix.org> 9.3.0-3avx
+* Thu Jan 06 2005 Vincent Danen <vdanen-at-build.annvix.org> 9.3.0-3avx
 - rebuild against latest openssl
 
-* Tue Dec 21 2004 Vincent Danen <vdanen@annvix.org> 9.3.0-2avx
+* Tue Dec 21 2004 Vincent Danen <vdanen-at-build.annvix.org> 9.3.0-2avx
 - merge with mdk:
   - fix detection of res_mkquery(), aka file build on e.g. x86_64 (gbeauchesne)
   - touched S7 and added stuff from trustix to it
@@ -322,22 +332,22 @@ fi
   good at all, nor can we chroot it -- hopefully someone smarter than I can configure
   out how to fix this
 
-* Fri Sep 24 2004 Vincent Danen <vdanen@annvix.org> 9.3.0-1avx
+* Fri Sep 24 2004 Vincent Danen <vdanen-at-build.annvix.org> 9.3.0-1avx
 - 9.3.0
 - drop P3; fixed upstream
 - fix manpage mess (oden)
 - don't build queryperf from contribs right not as it's broken
 
-* Fri Sep 17 2004 Vincent Danen <vdanen@annvix.org> 9.2.3-9avx
+* Fri Sep 17 2004 Vincent Danen <vdanen-at-build.annvix.org> 9.2.3-9avx
 - update run scripts
 
-* Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 9.2.3-8avx
+* Tue Aug 17 2004 Vincent Danen <vdanen-at-build.annvix.org> 9.2.3-8avx
 - lots of spec cleanups
 - add the bsdcompat patch - bug #8840 (florin)
 - add note to S11 (named.ca) (oden)
 - use more aclocal and autoconf magic, including P5 (oden)
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 9.2.3-7avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 9.2.3-7avx
 - Annvix build
 
 * Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 9.2.3-6sls
