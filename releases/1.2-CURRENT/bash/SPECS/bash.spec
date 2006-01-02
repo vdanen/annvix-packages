@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		bash
 %define version		3.0
-%define release		5avx
+%define release		%_revrel
 
 %define i18ndate 	20010626
 
@@ -22,40 +23,41 @@ Release:	%{release}
 Group:		Shells
 License:	GPL
 URL:		http://www.gnu.org/software/bash/bash.html
+
 Source0:	ftp://ftp.gnu.org/pub/gnu/bash/bash-%{version}.tar.bz2
 Source1:	ftp://ftp.gnu.org/pub/gnu/bash/bash-doc-%{version}.tar.bz2
 Source2:	dot-bashrc
 Source3:	dot-bash_profile
 Source4:	dot-bash_logout
 Source5:	alias.sh
-Patch1:		bash-2.02-security.patch.bz2
-Patch3:		bash-2.03-profile.patch.bz2
-Patch4:		bash-2.05b-readlinefixes.patch.bz2
-Patch6:		bash-2.04-compat.patch.bz2
-Patch8:		bash-2.05b-ia64.patch.bz2
-Patch9:		bash-2.05-s390x-unwind.patch.bz2
-Patch13:	bash-2.05b-dietlibc.patch.bz2
-Patch14:	bash-2.05b-waitpid-WCONTINUED.patch.bz2
-Patch50:	ftp://ftp.cwru.edu/pub/bash/bash-2.05b-patches/bash30-001.bz2
-Patch51:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-002.bz2
-Patch52:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-003.bz2
-Patch53:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-004.bz2
-Patch54:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-005.bz2
-Patch55:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-006.bz2
-Patch56:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-007.bz2
-Patch57:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-008.bz2
-Patch58:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-009.bz2
-Patch59:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-010.bz2
-Patch60:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-011.bz2
-Patch61:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-012.bz2
-Patch62:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-013.bz2
-Patch63:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-014.bz2
-Patch64:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-015.bz2
-Patch65:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-016.bz2
-Patch80:	bash-2.05b-builtins.patch.bz2
-Patch90:	bash-2.05b-disable-nontrivial-matches.patch.bz2
-Patch1000:	bash-strcoll-bug.diff.bz2
-Patch1003:	bash-2.05b-checkwinsize.patch.bz2
+Patch1:		bash-2.02-security.patch
+Patch3:		bash-2.03-profile.patch
+Patch4:		bash-2.05b-readlinefixes.patch
+Patch6:		bash-2.04-compat.patch
+Patch8:		bash-2.05b-ia64.patch
+Patch9:		bash-2.05-s390x-unwind.patch
+Patch13:	bash-2.05b-dietlibc.patch
+Patch14:	bash-2.05b-waitpid-WCONTINUED.patch
+Patch50:	ftp://ftp.cwru.edu/pub/bash/bash-2.05b-patches/bash30-001
+Patch51:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-002
+Patch52:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-003
+Patch53:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-004
+Patch54:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-005
+Patch55:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-006
+Patch56:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-007
+Patch57:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-008
+Patch58:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-009
+Patch59:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-010
+Patch60:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-011
+Patch61:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-012
+Patch62:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-013
+Patch63:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-014
+Patch64:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-015
+Patch65:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-016
+Patch80:	bash-2.05b-builtins.patch
+Patch90:	bash-2.05b-disable-nontrivial-matches.patch
+Patch1000:	bash-strcoll-bug.diff
+Patch1003:	bash-2.05b-checkwinsize.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5, bison, libtermcap-devel
@@ -255,21 +257,25 @@ install -m 0644 bash-dynamic/doc/bash.info %{buildroot}%{_infodir}/
 
 
 %changelog
-* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 3.0-5avx
+* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Sep 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.0-5avx
 - minor spec cleanups
 - alias.sh is not a config file
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 3.0-4avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.0-4avx
 - bootstrap build (new gcc, new glibc)
 
-* Mon Jul 25 2005 Vincent Danen <vdanen@annvix.org> 3.0-3avx
+* Mon Jul 25 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.0-3avx
 - rebuild for new gcc
 - drop unapplied patches
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 3.0-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.0-2avx
 - bootstrap build
 
-* Fri Mar 04 2005 Vincent Danen <vdanen@annvix.org> 3.0-1avx
+* Fri Mar 04 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.0-1avx
 - 3.0
 - BuildRequires: s/byacc/bison/ (stefan)
 - P13: dietlibc support (gb)
@@ -279,7 +285,7 @@ install -m 0644 bash-dynamic/doc/bash.info %{buildroot}%{_infodir}/
   with DIR_COLORS if it exists (robert.vojta)
 - spec cleanups
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.05b-17avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.05b-17avx
 - Annvix build
 
 * Tue Mar 02 2004 Vincent Danen <vdanen@opensls.org> 2.05b-16sls
