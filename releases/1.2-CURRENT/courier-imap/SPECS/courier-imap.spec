@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		courier-imap
 %define version		3.0.8
-%define release		2avx
+%define release		%_revrel
 
 %define _localstatedir	/var/run
 %define	authdaemondir	%{_localstatedir}/authdaemon.courier-imap
@@ -27,12 +28,12 @@ License:	GPL
 Group:		System/Servers
 URL:		http://www.courier-mta.org
 Source0:	%{name}-%{version}.tar.bz2
-Source1:	courier-imap-sysconftool-rpmupgrade.bz2
+Source1:	courier-imap-sysconftool-rpmupgrade
 # S4 & S5  originates from the works of Carlo Contavalli and can be found here:
 # http://www.commedia.it/ccontavalli/
 Source2:	courier_patch.tar.gz
 Source3:	courier_patch.tar.gz.asc
-Source4:	auto_maildir_creator.bz2
+Source4:	auto_maildir_creator
 Source5:	courier-imapd.run
 Source6:	courier-imapd-log.run
 Source7:	courier-imapds.run
@@ -46,11 +47,11 @@ Source14:	authdaemond.run
 Source15:	authdaemond-log.run
 Source16:	09_courier-imap.afterboot
 # (fc) 1.4.2-2mdk fix missing command in initrd
-Patch0: 	courier-imap-1.6.1-initrd.patch.bz2
-Patch1:		courier-imap-3.0.8-auto_maildir_creator.diff.bz2
-Patch2:		courier-imap-2.1.1-configure.patch.bz2
-Patch3:		courier-imap-2.1.2-authnodaemon.patch.bz2
-Patch4:		courier-imap-3.0.8-overflow.patch.bz2
+Patch0: 	courier-imap-1.6.1-initrd.patch
+Patch1:		courier-imap-3.0.8-auto_maildir_creator.diff
+Patch2:		courier-imap-2.1.1-configure.patch
+Patch3:		courier-imap-2.1.2-authnodaemon.patch
+Patch4:		courier-imap-3.0.8-overflow.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildPreReq:	autoconf2.5
@@ -232,7 +233,7 @@ touch %{buildroot}%{courierdatadir}/configlist.pgsql
 # Backwards compatability for older versions of courier-imap.  Run the
 # sysconftool-rpmupgrade script if you are upgrading from an older
 # courier-imap RPM
-bzip2 -cd %{SOURCE1} > %{buildroot}%{courierdatadir}/sysconftool-rpmupgrade
+cp %{SOURCE1} %{buildroot}%{courierdatadir}/sysconftool-rpmupgrade
 
 # Check if authdaemond was installed, make sure to include authdaemon
 # directory
@@ -318,7 +319,7 @@ mv %{buildroot}%{_bindir}/maildirmake %{buildroot}%{_bindir}/maildirmake++
 mv %{buildroot}%{_mandir}/man1/maildirmake.1 %{buildroot}%{_mandir}/man1/maildirmake++.1
 
 # fix the auto maildir creation stuff
-bzip2 -cd %{SOURCE4} > %{buildroot}%{courierdatadir}/auto_maildir_creator
+cp %{SOURCE4} %{buildroot}%{courierdatadir}/auto_maildir_creator
 chmod 0755 %{buildroot}%{courierdatadir}/auto_maildir_creator
 mkdir automatic_maildir_creation_patch
 cp -f courier_patch/html/*.html automatic_maildir_creation_patch/
@@ -649,75 +650,79 @@ test ! -f %{courierdatadir}/configlist.mysql || %{courierdatadir}/sysconftool-rp
 
 
 %changelog
-* Fri Sep 30 2005 Vincent Danen <vdanen@annvix.org> 3.0.8-2avx
+* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Sep 30 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.0.8-2avx
 - make the imapd/pop3d daemons use peers.cdb rather than ./peers; no
   execline yet as these scripts are way too complex
 - make all sub-packages require courier-imap (Requires(post)) due to
   the sysconftool-rpmupgrade script
 
-* Sat Sep 24 2005 Vincent Danen <vdanen@annvix.org> 3.0.8-1avx
+* Sat Sep 24 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.0.8-1avx
 - 3.0.8
 - P4: overflow patch (andreas)
 - work around authmksock bug during %%install with long paths (andreas)
 - minor spec cleanups
 - drop P3; merged upstream
 
-* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 2.1.2-22avx
+* Sat Sep 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.1.2-22avx
 - use execlineb for run scripts
 - move logdir to /var/log/service/courier*
 - run scripts are now considered config files and are not replaceable
 
-* Sat Aug 27 2005 Vincent Danen <vdanen@annvix.org> 2.1.2-21avx
+* Sat Aug 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.1.2-21avx
 - fix perms on run scripts
 
-* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 2.1.2-20avx
+* Fri Aug 19 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.1.2-20avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.1.2-19avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.1.2-19avx
 - rebuild
 
-* Sat Apr 02 2005 Vincent Danen <vdanen@annvix.org> 2.1.2-18avx
+* Sat Apr 02 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.1.2-18avx
 - set AUTHDIR in runscriptappropriate on x86_64
 
-* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 2.1.2-17avx
+* Thu Mar 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.1.2-17avx
 - use logger for logging
 
-* Thu Feb 04 2005 Vincent Danen <vdanen@annvix.org> 2.1.2-16avx
+* Thu Feb 04 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.1.2-16avx
 - rebuild against new gdbm
 
-* Wed Jan 05 2005 Vincent Danen <vdanen@annvix.org> 2.1.2-15avx
+* Wed Jan 05 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.1.2-15avx
 - rebuild against new openssl
 
-* Thu Oct 14 2004 Vincent Danen <vdanen@annvix.org> 2.1.2-14avx
+* Thu Oct 14 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.1.2-14avx
 - fix typeo in courier-pop3ds run script
 
-* Wed Oct 13 2004 Vincent Danen <vdanen@annvix.org> 2.1.2-13avx
+* Wed Oct 13 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.1.2-13avx
 - use tcpsvd rather than tcpserver
 - Requires: ipsvd
 - PreReq: afterboot
 - add afterboot snippet
 
-* Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 2.1.2-12avx
+* Mon Sep 20 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.1.2-12avx
 - update run scripts
 
-* Thu Aug 19 2004 Vincent Danen <vdanen@annvix.org> 2.1.2-11avx
+* Thu Aug 19 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.1.2-11avx
 - authdaemond needs to restart on upgrades and such also
 
-* Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 2.1.2-10avx
+* Tue Aug 17 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.1.2-10avx
 - rebuild against new openssl
 
-* Sat Jul 10 2004 Vincent Danen <vdanen@annvix.org> 2.1.2-9avx
+* Sat Jul 10 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.1.2-9avx
 - fix all of the run scripts; the imap services are reading the config
   options as env vars so we need to do some monkeying around; also
   updated them to better match courier-imap's rc scripts (aka everything
   should work properly now)
 
-* Sat Jul 10 2004 Vincent Danen <vdanen@annvix.org> 2.1.2-8avx
+* Sat Jul 10 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.1.2-8avx
 - fix *ssl runscripts as they need to source the non-ssl configs
   and then the *ssl configs to work properly
 - respect the PORT and SSLPORT settings in the config files
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.1.2-7avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.1.2-7avx
 - Annvix build
 
 * Fri Apr 23 2004 Vincent Danen <vdanen@opensls.org> 2.1.2-6sls
