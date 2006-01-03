@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		cracklib
-%define version		2.7
-%define release		22avx
+%define version		2.8.3
+%define release		%_revrel
 
 %define root		crack
 %define maj		2
@@ -21,14 +22,39 @@ Version:	%{version}
 Release:	%{release}
 License:	Artistic
 Group:		System/Libraries
-URL:		ftp://coast.cs.purdue.edu/pub/tools/unix/libs/cracklib/
-Source:		ftp://coast.cs.purdue.edu/pub/tools/unix/libs/cracklib/cracklib_%{version}.tar.bz2
-Patch0:		cracklib-2.7-redhat.patch.bz2
-Patch1:		cracklib-2.7-makevars.patch.bz2
-Patch2:		cracklib-2.7-includes.patch.bz2
+URL:		http://sourceforge.net/projects/cracklib/
+Source:		http://prdownloads.sourceforge.net/cracklib/cracklib-%{version}.tar.bz2
+Source1:	http://prdownloads.sourceforge.net/cracklib/cracklib-words.bz2
+Source10:	ftp://ftp.cerias.purdue.edu/pub/dict/wordlists/computer/Domains.bz2
+Source11:	ftp://ftp.cerias.purdue.edu/pub/dict/wordlists/computer/Dosref.bz2
+Source12:	ftp://ftp.cerias.purdue.edu/pub/dict/wordlists/computer/Ftpsites.bz2
+Source13:	ftp://ftp.cerias.purdue.edu/pub/dict/wordlists/computer/Jargon.bz2
+Source14:	ftp://ftp.cerias.purdue.edu/pub/dict/wordlists/computer/common-passwords.txt.bz2
+Source15:	ftp://ftp.cerias.purdue.edu/pub/dict/wordlists/computer/etc-hosts.bz2
+Source16:	ftp://ftp.cerias.purdue.edu/pub/dict/wordlists/movieTV/Movies.bz2
+Source17:	ftp://ftp.cerias.purdue.edu/pub/dict/wordlists/movieTV/Python.bz2
+Source18:	ftp://ftp.cerias.purdue.edu/pub/dict/wordlists/movieTV/Trek.bz2
+Source19:	ftp://ftp.cerias.purdue.edu/pub/dict/wordlists/literature/LCarrol.bz2
+Source20:	ftp://ftp.cerias.purdue.edu/pub/dict/wordlists/literature/Paradise.Lost.bz2
+Source21:	ftp://ftp.cerias.purdue.edu/pub/dict/wordlists/literature/cartoon.bz2
+Source22:	ftp://ftp.cerias.purdue.edu/pub/dict/wordlists/literature/myths-legends.bz2
+Source23:	ftp://ftp.cerias.purdue.edu/pub/dict/wordlists/literature/sf.bz2
+Source24:	ftp://ftp.cerias.purdue.edu/pub/dict/wordlists/literature/shakespeare.bz2
+Source25:	ftp://ftp.cerias.purdue.edu/pub/dict/wordlists/names/ASSurnames.bz2
+Source26:	ftp://ftp.cerias.purdue.edu/pub/dict/wordlists/names/Congress.bz2
+Source27:	ftp://ftp.cerias.purdue.edu/pub/dict/wordlists/names/Family-Names.bz2
+Source28:	ftp://ftp.cerias.purdue.edu/pub/dict/wordlists/names/Given-Names.bz2
+Source29:	ftp://ftp.cerias.purdue.edu/pub/dict/wordlists/names/famous.bz2
+Source30:	ftp://ftp.cerias.purdue.edu/pub/dict/wordlists/names/fast-names.bz2
+Source31:	ftp://ftp.cerias.purdue.edu/pub/dict/wordlists/names/female-names.bz2
+Source32:	ftp://ftp.cerias.purdue.edu/pub/dict/wordlists/names/male-names.bz2
+Source33:	ftp://ftp.cerias.purdue.edu/pub/dict/wordlists/names/names.french.bz2
+Source34:	ftp://ftp.cerias.purdue.edu/pub/dict/wordlists/names/names.hp.bz2
+Source35:	ftp://ftp.cerias.purdue.edu/pub/dict/wordlists/names/other-names.bz2
+Source36:	ftp://ftp.cerias.purdue.edu/pub/dict/wordlists/names/surnames.finnish.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-root
-BuildRequires:	words
+
 
 %description
 CrackLib tests passwords to determine whether they match certain
@@ -75,7 +101,7 @@ the utilities necessary for the creation of new dictionaries.
 Summary:	Cracklib link library & header file
 Group:		Development/C
 Provides:	lib%{root}-devel %{root}-devel = %{version}-%{release} %{root}lib-devel = %{version}-%{release}
-Requires:	%{libname} = %{version}-%{release}
+Requires:	%{libname} = %{version}
 Obsoletes:	cracklib-devel
 
 %description -n %{libname}-devel
@@ -84,27 +110,37 @@ header files for development.
 
 
 %prep
-%setup -q -n %{name},%{version}
-%patch0 -p1 -b .rh
-%patch1 -p1 -b .makevars
-%patch2 -p1 -b .includes
-perl -p -i -e "s/\) -g/\)/" cracklib/Makefile
-chmod -R og+rX .
+%setup -q
+
+for dict in %{SOURCE1} %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} %{SOURCE14} \
+    %{SOURCE15} %{SOURCE16} %{SOURCE17} %{SOURCE18} %{SOURCE19} %{SOURCE20} %{SOURCE21} \
+    %{SOURCE22} %{SOURCE23} %{SOURCE24} %{SOURCE25} %{SOURCE26} %{SOURCE27} %{SOURCE28} \
+    %{SOURCE29} %{SOURCE30} %{SOURCE31} %{SOURCE32} %{SOURCE33} %{SOURCE34} %{SOURCE35} \
+    %{SOURCE36} %{SOURCE1}; do
+    cp ${dict} dicts/
+done
+bunzip2 dicts/*.bz2
+
 
 %build
-make all RPM_OPT_FLAGS="%{optflags}" \
-    libdir=%{_libdir} datadir=%{_datadir}
+%configure2_5x
+%make
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p %{buildroot}{%{_sbindir},%{_libdir},%{_includedir}}
-make install \
-    ROOT=%{buildroot} \
-    sbindir=%{_sbindir} \
-    libdir=%{_libdir} \
-    includedir=%{_includedir}
-ln -sf libcrack.so.%{version} %{buildroot}%{_libdir}/libcrack.so.%{maj}
+%makeinstall_std
+
+./util/cracklib-format dicts/* | ./util/cracklib-packer %{buildroot}%{_datadir}/cracklib/pw_dict
+
+ln -s cracklib-format %{buildroot}%{_sbindir}/mkdict
+ln -s cracklib-packer %{buildroot}%{_sbindir}/packer
+
+ln -s %{_datadir}/cracklib/pw_dict.hwm %{buildroot}%{_libdir}/cracklib_dict.hwm
+ln -s %{_datadir}/cracklib/pw_dict.pwd %{buildroot}%{_libdir}/cracklib_dict.pwd
+ln -s %{_datadir}/cracklib/pw_dict.pwi %{buildroot}%{_libdir}/cracklib_dict.pwi
+
+install -m644 lib/packer.h %{buildroot}%{_includedir}/
 
 
 %clean
@@ -117,29 +153,42 @@ ln -sf libcrack.so.%{version} %{buildroot}%{_libdir}/libcrack.so.%{maj}
 
 %files -n %{libname}
 %defattr(-,root,root)
-%doc README MANIFEST LICENCE HISTORY POSTER
-%{_libdir}/libcrack.so.*
+%doc AUTHORS COPYING ChangeLog NEWS README* doc/LICENCE
+%{_libdir}/*.so.*
 
 %files -n %{libname}-devel
 %defattr(-,root,root)
 %{_includedir}/*
-%{_libdir}/libcrack.so
+%{_libdir}/*.so
+%{_libdir}/*.la
+%{_libdir}/*.a
 
 %files dicts
 %defattr(-,root,root)
 %{_sbindir}/*
-%{_libdir}/cracklib_dict*
+%dir %{_datadir}/cracklib
+%{_datadir}/cracklib/cracklib.magic
+%{_datadir}/cracklib/pw_dict*
+%{_libdir}/cracklib_dict.*
 
 
 %changelog
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.7-22avx
+* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- 2.8.3
+- new URL
+- drop patches, implemented upstream
+- add lots of dictionary files, no longer requires words
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.7-22avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.7-21avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.7-21avx
 - bootstrap build
 - re-enable stack protection
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.7-20avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.7-20avx
 - Annvix build
 - remove %%build_propolice macro; build without ssp by default
 
