@@ -7,10 +7,13 @@
 #
 # fileutils: rh-4.1-4
 # sh-utils:  rh-2.0.12-2
+#
+# $Id$
 
+%define revision	$Rev$
 %define name		coreutils
 %define version		5.2.1
-%define release		1avx
+%define release		%_revrel
 
 # for sh-utils :
 %define optflags $RPM_OPT_FLAGS -D_GNU_SOURCE=1
@@ -28,49 +31,49 @@ Source101:	DIR_COLORS
 Source102:	DIR_COLORS.xterm
 Source200:	su.pamd
 Source201:	help2man
-Patch0:		coreutils-4.5.4-lug.patch.bz2
+Patch0:		coreutils-4.5.4-lug.patch
 # fileutils
-Patch101:	fileutils-4.0-spacedir.patch.bz2
-Patch102:	coreutils-5.1.1-sparc.patch.bz2
-Patch105:	coreutils-4.5.2-C.patch.bz2
-Patch107:	fileutils-4.1.10-timestyle.patch.bz2
-Patch108:	fileutils-4.1.5-afs.patch.bz2
-Patch111:	coreutils-5.2.1-dumbterm.patch.bz2
-Patch112:	fileutils-4.0u-glibc22.patch.bz2
-Patch114:	fileutils-4.1-restorecolor.patch.bz2
-Patch115:	fileutils-5.0.91-FBoptions.patch.bz2
-Patch1155:	fileutils-4.1-force-option--override--interactive-option.patch.bz2
-Patch116:	fileutils-4.1-dircolors_c.patch.bz2
-Patch117:	fileutils-4.1-ls_c.patch.bz2
-Patch118:	fileutils-4.1-ls_h.patch.bz2
-Patch152:	coreutils-4.5.7-touch_errno.patch.bz2
-Patch153:	fileutils-4.1.10-utmp.patch.bz2
-Patch500:	textutils-2.0.17-mem.patch.bz2
+Patch101:	fileutils-4.0-spacedir.patch
+Patch102:	coreutils-5.1.1-sparc.patch
+Patch105:	coreutils-4.5.2-C.patch
+Patch107:	fileutils-4.1.10-timestyle.patch
+Patch108:	fileutils-4.1.5-afs.patch
+Patch111:	coreutils-5.2.1-dumbterm.patch
+Patch112:	fileutils-4.0u-glibc22.patch
+Patch114:	fileutils-4.1-restorecolor.patch
+Patch115:	fileutils-5.0.91-FBoptions.patch
+Patch1155:	fileutils-4.1-force-option--override--interactive-option.patch
+Patch116:	fileutils-4.1-dircolors_c.patch
+Patch117:	fileutils-4.1-ls_c.patch
+Patch118:	fileutils-4.1-ls_h.patch
+Patch152:	coreutils-4.5.7-touch_errno.patch
+Patch153:	fileutils-4.1.10-utmp.patch
+Patch500:	textutils-2.0.17-mem.patch
 # sh-utils
-Patch703:	sh-utils-2.0.11-dateman.patch.bz2
-Patch704:	sh-utils-1.16-paths.patch.bz2
+Patch703:	sh-utils-2.0.11-dateman.patch
+Patch704:	sh-utils-1.16-paths.patch
 # RMS will never accept the PAM patch because it removes his historical
 # rant about Twenex and the wheel group, so we'll continue to maintain
 # it here indefinitely.
-Patch706:	coreutils-5.1.2-pam.patch.bz2
-Patch710:	sh-utils-2.0-rfc822.patch.bz2
-Patch711:	sh-utils-2.0.12-hname.patch.bz2
+Patch706:	coreutils-5.1.2-pam.patch
+Patch710:	sh-utils-2.0-rfc822.patch
+Patch711:	sh-utils-2.0.12-hname.patch
 # (sb) lin18nux/lsb compliance - normally from here:
 # http://www.openi18n.org/subgroups/utildev/patch/
 # this one is actually a merger of 5.2 and 5.3, as join segfaults
 # compiled with gcc4 and the 5.1/5.2 patch
-Patch800:	coreutils-5.2.1-new-i18n.patch.bz2
+Patch800:	coreutils-5.2.1-new-i18n.patch
 # small pt_BR fix
-Patch801:	coreutils-5.2.1-ptbrfix.patch.bz2
-Patch901:	coreutils-4.5.3-signal.patch.bz2
-Patch904:	coreutils-5.0.91-allow_old_options.patch.bz2
-Patch908: coreutils-5.1.2-build-fix.patch.bz2
-Patch909: coreutils-5.1.0-64bit-fixes.patch.bz2
-Patch910: coreutils-5.2.1-uname.patch.bz2
+Patch801:	coreutils-5.2.1-ptbrfix.patch
+Patch901:	coreutils-4.5.3-signal.patch
+Patch904:	coreutils-5.0.91-allow_old_options.patch
+Patch908:	coreutils-5.1.2-build-fix.patch
+Patch909:	coreutils-5.1.0-64bit-fixes.patch
+Patch910:	coreutils-5.2.1-uname.patch
 # posix acls and extended attributes
-Patch1001: coreutils-5.2.1-acl.diff.bz2
-Patch1002: coreutils-5.2.1-acl+posix.diff.bz2
-Patch1003: coreutils-5.2.1-xattr.diff.bz2
+Patch1001:	coreutils-5.2.1-acl.diff
+Patch1002:	coreutils-5.2.1-acl+posix.diff
+Patch1003:	coreutils-5.2.1-xattr.diff
 
 BuildRoot:	%_buildroot/%{name}-%{version}
 BuildRequires:	gettext termcap-devel pam-devel texinfo >= 4.3 libacl-devel libattr-devel
@@ -287,7 +290,11 @@ true
 
 
 %changelog
-* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 5.2.1-1avx
+* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.2.1-1avx
 - 5.2.1
 - sync with mandrake 5.2.1-8mdk:
   - P801: fix some types in pt_BR.po file (chiquitto)
@@ -298,18 +305,18 @@ true
     attributes (chiquitto)
 - drop patches P103, P113, P180, P502, P903, P905
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 5.0-12avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.0-12avx
 - bootstrap build (new gcc, new glibc)
 
-* Mon Jul 25 2005 Vincent Danen <vdanen@annvix.org> 5.0-11avx
+* Mon Jul 25 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.0-11avx
 - use new %%_buildroot macro
 - spec cleanups
 - rebuild for new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 5.0-10avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.0-10avx
 - bootstrap build
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 5.0-9avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 5.0-9avx
 - Annvix build
 
 * Mon Mar 02 2004 Vincent Danen <vdanen@opensls.org> 5.0-8sls
