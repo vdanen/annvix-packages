@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		cvs
 %define version		1.11.20
-%define release		3avx
+%define release		%_revrel
 
 %define _requires_exceptions tcsh
 
@@ -27,12 +28,12 @@ Source3: 	ftp://ftp.cvshome.org/pub/cvs-%{version}/cvs-%{version}.tar.bz2.sig
 Source4:	cvs.run
 Source5:	cvs-log.run
 Source6:	06_cvspserver.afterboot
-Patch0:		cvs-1.11.19-mdk-varargs.patch.bz2
-Patch4: 	cvs-1.11.19-zlib.patch.bz2
-Patch6: 	cvs-1.11.15-errno.patch.bz2
-Patch8:		cvs-1.11-ssh.patch.bz2
-Patch11:	cvs-1.11.1-newline.patch.bz2
-Patch12:	cvs-1.11.4-first-login.patch.bz2
+Patch0:		cvs-1.11.19-mdk-varargs.patch
+Patch4: 	cvs-1.11.19-zlib.patch
+Patch6: 	cvs-1.11.15-errno.patch
+Patch8:		cvs-1.11-ssh.patch
+Patch11:	cvs-1.11.1-newline.patch
+Patch12:	cvs-1.11.4-first-login.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5, texinfo, zlib-devel, krb5-devel
@@ -161,16 +162,20 @@ popd >/dev/null 2>&1
 
 
 %changelog
-* Tue Sep 27 2005 Vincent Danen <vdanen@annvix.org> 1.11.20-3avx
+* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Tue Sep 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.11.20-3avx
 - grab defaults from the tcpsvd environment
 
-* Sun Sep 25 2005 Sean P. Thomas <spt@annvix.org> 1.11.20-2avx
+* Sun Sep 25 2005 Sean P. Thomas <spt-at-build.annvix.org> 1.11.20-2avx
 - use execlineb for run script, and created an envdir.
 - fix requires (vdanen)
 - supplied default env files (vdanen)
 - pre-compile a peers.cdb in %%post (vdanen)
 
-* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 1.11.20-1avx
+* Sat Sep 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.11.20-1avx
 - 1.11.20
 - use execlineb for run scripts
 - move logdir to /var/log/service/cvspserver
@@ -178,43 +183,43 @@ popd >/dev/null 2>&1
 - P0: varags fixes for x86_64 (potential, but harmless here) (gbeauchesne)
 - drop P13; merged upstream
 
-* Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 1.11.19-6avx
+* Fri Aug 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.11.19-6avx
 - fix perms on run scripts
 
-* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 1.11.19-5avx
+* Fri Aug 19 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.11.19-5avx
 - bootstrap build (new gcc, new glibc)
 - remove postscript docs
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.11.19-4avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.11.19-4avx
 - rebuild
 
-* Thu May 05 2005 Vincent Danen <vdanen@annvix.org> 1.11.19-3avx
+* Thu May 05 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.11.19-3avx
 - P13: security fix for CAN-2005-0753
 
-* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 1.11.19-2avx
+* Thu Mar 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.11.19-2avx
 - no need to lose our cvs.conf; put it back
 
-* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 1.11.19-1avx
+* Thu Mar 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.11.19-1avx
 - 1.11.19
 - use logger for logging
 - remove broken P14 (mdk bug #13118) (flepied)
 
-* Tue Jan 25 2005 Vincent Danen <vdanen@annvix.org> 1.11.17-5avx
+* Tue Jan 25 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.11.17-5avx
 - update the run script; exec tcpsvd so that it will actually stop
   when we want it to
 - service name is cvspserver, not cvs
 
-* Tue Oct 05 2004 Vincent Danen <vdanen@annvix.org> 1.11.17-4avx
+* Tue Oct 05 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.11.17-4avx
 - switch from tcpserver to tcpsvd
 - Requires: ipsvd
 - add the /service/cvspserver/peers directory to, by default, allow
   all connections
 - add afterboot snippet
 
-* Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 1.11.17-3avx
+* Mon Sep 20 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.11.17-3avx
 - updated run scripts
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.11.17-2avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.11.17-2avx
 - Annvix build
 - require packages not files
 
