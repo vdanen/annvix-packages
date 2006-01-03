@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		cpio
 %define version 	2.6
-%define release 	3avx
+%define release 	%_revrel
 
 Summary:	A GNU archiving program
 Name:		%{name}
@@ -19,14 +20,14 @@ License:	GPL
 Group:		Archiving/Backup
 URL:		http://www.fsf.org/software/cpio
 Source:		ftp://prep.ai.mit.edu/pub/gnu/%{name}-%{version}.tar.bz2
-Patch0:		cpio-2.6-mtime.patch.bz2
-Patch1:		cpio-2.6-svr4compat.patch.bz2
-Patch2:		cpio-2.6-no-libnsl.patch.bz2
-Patch3:		cpio-2.6-i18n.patch.bz2
-Patch4:		cpio-2.6-CAN-1999-1572.patch.bz2
-Patch5:		cpio-2.6-chmodRaceC.patch.bz2
-Patch6:		cpio-2.6-dirTraversal.patch.bz2
-Patch7:		cpio-2.6-compil-gcc4.patch.bz2
+Patch0:		cpio-2.6-mtime.patch
+Patch1:		cpio-2.6-svr4compat.patch
+Patch2:		cpio-2.6-no-libnsl.patch
+Patch3:		cpio-2.6-i18n.patch
+Patch4:		cpio-2.6-CAN-1999-1572.patch
+Patch5:		cpio-2.6-chmodRaceC.patch
+Patch6:		cpio-2.6-dirTraversal.patch
+Patch7:		cpio-2.6-compil-gcc4.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	texinfo
@@ -104,15 +105,19 @@ rm -f %{buildroot}%{_mandir}/man1/mt.1
 %{_mandir}/man1/cpio.1*
 
 %changelog
-* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 2.6-3avx
+* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.6-3avx
 - require rmt rather than tar (tar provides rmt-tar rather than rmt
   since we don't use alternatives anymore)
 - P7: fix build with gcc4 (we don't use it yet, but it doesn't hurt to have)
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.6-2avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.6-2avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jul 14 2005 Vincent Danen <vdanen@annvix.org> 2.6-1avx
+* Thu Jul 14 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.6-1avx
 - 2.6
 - make it require tar rather than /sbin/rmt; tar is a pretty
   safe bet to have installed no matter what
@@ -128,17 +133,17 @@ rm -f %{buildroot}%{_mandir}/man1/mt.1
   not replaced with files or directories but remain symlinks
   (re mdk bugzilla #12970)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.5-10avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.5-10avx
 - bootstrap build
 
-* Wed Feb 09 2005 Vincent Danen <vdanen@annvix.org> 2.5-9avx
+* Wed Feb 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.5-9avx
 - P13: patch to fix CAN-1999-1572
 
-* Fri Aug 13 2004 Vincent Danen <vdanen@annvix.org> 2.5-8avx
+* Fri Aug 13 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.5-8avx
 - now that both tar and rmt can provide rmt, require the file
   rather than the package
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.5-7avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.5-7avx
 - Annvix build
 - require packages not files
 
