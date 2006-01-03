@@ -7,9 +7,10 @@
 #
 # $Id$
 
+%define revision	$Rev$
 %define name		curl
 %define version 	7.14.1
-%define release		2avx
+%define release		%_revrel
 
 %define major		3
 %define libname 	%mklibname %{name} %{major}
@@ -165,41 +166,44 @@ make check
 
 
 %changelog
-* Wed Dec 21 2005 Vincent Danen <vdanen@annvix.org> 7.14.1-2avx
+* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+
+* Wed Dec 21 2005 Vincent Danen <vdanen-at-build.annvix.org> 7.14.1-2avx
 - P3: fix for CVE-2005-3185
 - P4: fix for CVE-2005-4077
 - uncompress patches
 
-* Sun Sep 11 2005 Vincent Danen <vdanen@annvix.org> 7.14.1-1avx
+* Sun Sep 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 7.14.1-1avx
 - 7.14.1
 - drop P2 and remove the special test case for test 517 on x86_64; works ok now
 - force -O0 on CFLAGS otherwise the executables segfault (rgarciasuarez)
 - drop P3; fixed upstream
 
-* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 7.13.0-3avx
+* Thu Aug 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 7.13.0-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 7.13.0-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 7.13.0-2avx
 - bootstrap build
 
-* Mon Feb 28 2005 Vincent Danen <vdanen@annvix.org> 7.13.0-1avx
+* Mon Feb 28 2005 Vincent Danen <vdanen-at-build.annvix.org> 7.13.0-1avx
 - 7.13.0
 - P2: 64bit fixes in the testsuite for curl_getdate() with 64bit
   time_t (gbeauchesne)
 - P3: fix for CAN-2005-0490
 
-* Wed Dec 22 2004 Vincent Danen <vdanen@annvix.org> 7.12.3-1avx
+* Wed Dec 22 2004 Vincent Danen <vdanen-at-build.annvix.org> 7.12.3-1avx
 - 7.12.3
 - remove P0
 - skip new test #241 on both archs
 - skip tests 23 118 119 125 145 201 205 223 517 on x86_64
 
-* Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 7.12.1-1avx
+* Tue Aug 17 2004 Vincent Danen <vdanen-at-build.annvix.org> 7.12.1-1avx
 - 7.12.1
 - remove fpons' "dynamic patch"
 - set %%__libtoolize to /bin/true
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 7.11.1-2avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 7.11.1-2avx
 - Annvix build
 
 * Sat Apr 24 2004 Vincent Danen <vdanen@opensls.org> 7.11.1-1sls
