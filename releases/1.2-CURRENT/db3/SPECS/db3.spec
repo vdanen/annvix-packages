@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		db3
 %define version		3.3.11
-%define release		22avx
+%define release		%_revrel
 
 %define	__soversion	3.3
 %define	_libdb_a	libdb-%{__soversion}.a
@@ -28,12 +29,13 @@ License:	BSD
 Group:		System/Libraries
 URL:		http://www.sleepycat.com
 Source:		http://www.sleepycat.com/update/%{version}/db-%{version}.tar.bz2
-Patch1:		db3.3-3.3.11.patch.bz2
+Patch1:		db3.3-3.3.11.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	db1-devel, glibc-static-devel, tcl
 
-PreReq:		ldconfig
+Requires(post):	ldconfig
+Requires(postun): ldconfig
 
 %description
 The Berkeley Database (Berkeley DB) is a programmatic toolkit that provides
@@ -45,7 +47,8 @@ should be installed on all systems.
 %package -n %{libdb}
 Summary:	The Berkeley DB database library for C
 Group:		System/Libraries
-PreReq:		ldconfig
+Requires(post):	ldconfig
+Requires(postun): ldconfig
 
 %description -n %{libdb}
 The Berkeley Database (Berkeley DB) is a programmatic toolkit that provides
@@ -57,7 +60,8 @@ should be installed on all systems.
 %package -n %{libdbcxx}
 Summary:	The Berkeley DB database library for C++
 Group:		System/Libraries
-PreReq:		ldconfig
+Requires(post):	ldconfig
+Requires(postun): ldconfig
 
 %description -n %{libdbcxx}
 The Berkeley Database (Berkeley DB) is a programmatic toolkit that provides
@@ -72,7 +76,8 @@ Berkeley DB.
 %package -n %{libdbtcl}
 Summary:	The Berkeley DB database library for TCL
 Group:		System/Libraries
-PreReq:		ldconfig
+Requires(post):	ldconfig
+Requires(postun): ldconfig
 
 %description -n %{libdbtcl}
 The Berkeley Database (Berkeley DB) is a programmatic toolkit that provides
@@ -295,13 +300,18 @@ rm -rf	%{buildroot}/usr/docs \
 
 
 %changelog
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 3.3.11-22avx
+* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- fix prereq
+
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.3.11-22avx
 - bootstrap build (new gcc, new glibc)
 
-* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 3.3.11-21avx
+* Tue Jul 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.3.11-21avx
 - rebuild against new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 3.3.11-20avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.3.11-20avx
 - bootstrap build
 - drop buildreq on gcc-c++
 - sync with cooker 3.3.11-19mdk:
@@ -313,7 +323,7 @@ rm -rf	%{buildroot}/usr/docs \
 - completely remove java stuff
 - spec cleanups
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 3.3.11-19avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 3.3.11-19avx
 - Annvix build
 - require packages not files
 
