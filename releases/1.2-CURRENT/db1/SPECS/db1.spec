@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		db1
 %define version 	1.85
-%define release 	15avx
+%define release 	%_revrel
 
 Summary:	The BSD database library for C (version 1)
 Name:		%{name}
@@ -19,12 +20,13 @@ License:	BSD
 Group:		System/Libraries
 URL:		http://www.sleepycat.com
 Source:		http://www.sleepycat.com/update/%{version}/db.%{version}.tar.bz2
-Patch:		db.%{version}.patch.bz2
-Patch1:		db.%{version}-include.patch.bz2
+Patch0:		db.%{version}.patch
+Patch1:		db.%{version}-include.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
-PreReq:		ldconfig
+Requires(post):	ldconfig
+Requires(postun): ldconfig
 # this is a symlink not a real soname, so it has to be explicitely put
 # in a provides line -- pablo
 Provides:	libdb1.so.2
@@ -68,7 +70,7 @@ Tools to manipulate Berkeley Databases (Berkeley DB).
 
 %prep
 %setup -q -n db.%{version}
-%patch -p1
+%patch0 -p1
 %patch1 -p1 -b .old
 
 
@@ -124,16 +126,21 @@ popd
 
 
 %changelog
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.85-15avx
+* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- fix prereq
+
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.85-15avx
 - bootstrap build (new gcc, new glibc)
 
-* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 1.85-14avx
+* Tue Jul 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.85-14avx
 - rebuild against new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.85-13avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.85-13avx
 - bootstrap build
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.85-12avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.85-12avx
 - Annvix build
 
 * Wed Mar 03 2004 Vincent Danen <vdanen@opensls.org> 1.85-11sls
