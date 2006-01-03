@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		console-tools
 %define version		0.2.3
-%define release		55avx
+%define release		%_revrel
 
 %define	CTVER		%{version}
 %define	CDVER		1999.08.29
@@ -49,36 +50,36 @@ Source10:	mac-keymaps.tar.bz2
 Source11:	us-intl.kmap.gz
 # docbook is unable to convert the sgml files to html
 # disabling them in the makefiles -- pablo
-Patch5:		console-tools-0.2.3-docbook.patch.bz2
+Patch5:		console-tools-0.2.3-docbook.patch
 # Allow consolechars & loadkeys to run from the root partition
-Patch6:		console-tools-rootpart.patch.bz2
+Patch6:		console-tools-rootpart.patch
 # fixes a stupid error -- pablo
-Patch8:		console-tools-0.2.3-versioncoredump.patch.bz2
+Patch8:		console-tools-0.2.3-versioncoredump.patch
 # some keyboards cannot have the euro in AltGr-e -- pablo
-Patch9:		console-tools-0.2.3-noteuro.patch.bz2
-Patch10:	console-data-1999.08.29-mandrake.patch.bz2
-Patch11:	console-tools-0.2.3-tilde-with-twosuperior-in-french-keyboard.patch.bz2
-Patch12:	console-tools-0.2.3-setkeycodes-fixargument.patch.bz2
+Patch9:		console-tools-0.2.3-noteuro.patch
+Patch10:	console-data-1999.08.29-mandrake.patch
+Patch11:	console-tools-0.2.3-tilde-with-twosuperior-in-french-keyboard.patch
+Patch12:	console-tools-0.2.3-setkeycodes-fixargument.patch
 # some modifications to cover PPC using Linux keycodes
-Patch13:	console-tools-0.2.3-ppc-using-linux-keycodes.patch.bz2
+Patch13:	console-tools-0.2.3-ppc-using-linux-keycodes.patch
 # Thai kbds, keysysm and fonts -- pablo
-Patch14: 	http://www.links.nectec.or.th/~thep/th-console/console-data/console-data-thai_deb-1999.08.29-21.8.patch.bz2
-Patch15: 	http://www.links.nectec.or.th/~thep/th-console/console-tools/console-tools-thai_ksym.patch.bz2
+Patch14: 	http://www.links.nectec.or.th/~thep/th-console/console-data/console-data-thai_deb-1999.08.29-21.8.patch
+Patch15: 	http://www.links.nectec.or.th/~thep/th-console/console-tools/console-tools-thai_ksym.patch
 # gcc 3.3
-Patch16: 	console-tools-gcc33.patch.bz2
+Patch16: 	console-tools-gcc33.patch
 # this patch removes testing of start_unicode, otherwise console font
 # cannot be changed once in utf-8 mode -- pablo
-Patch17: 	console-tools-start_unicode.patch.bz2
+Patch17: 	console-tools-start_unicode.patch
 # patch for a coredump when using compressed font files -- pablo
-Patch18: 	console-tools-0.2.3-compresscoredump.patch.bz2
+Patch18: 	console-tools-0.2.3-compresscoredump.patch
 # gcc 3.4
-Patch19:	console-tools-0.2.3-gcc3.4-fix.patch.bz2
+Patch19:	console-tools-0.2.3-gcc3.4-fix.patch
 # updated french mac keymap v3 from ftp://ftp.linux-france.org/pub/macintosh/kbd-mac-fr.tar.gz
-Patch20:	console-data-1999.08.29-mac.patch.bz2
+Patch20:	console-data-1999.08.29-mac.patch
 # taken from debian's 30_openvt-devfs.patch patch
-Patch21:	console-tools-0.2.3-fix-openvt-option--w.patch.bz2
+Patch21:	console-tools-0.2.3-fix-openvt-option--w.patch
 # fgconsole exit(0) missing
-Patch22:	console-tools-0.2.3-fix-fgconsole_exit_status.patch.bz2
+Patch22:	console-tools-0.2.3-fix-fgconsole_exit_status.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	flex libtool >= 1.3.3 automake1.7 automake1.4 autoconf2.5 gettext-devel
@@ -380,7 +381,11 @@ fi
 
 
 %changelog
-* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 0.2.3-55avx
+* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Sep 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.2.3-55avx
 - adapt for gettext >= 0.14.2 (gt_LC_MESSAGES) (gbeauchesne)
 - added us-intl console keyboard map for people with US keyboards but
   who need better cedilla support (andreas)
@@ -388,19 +393,19 @@ fi
 - use make with DESTDIR instead of %%makeinstall (andreas)
 - rebuild for new gettext
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 0.2.3-54avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.2.3-54avx
 - bootstrap build (new gcc, new glibc)
 
-* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 0.2.3-53avx
+* Tue Jul 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.2.3-53avx
 - rebuild against new gcc
 - enable P19
 - P21: fix openvt -w; from debian (pixel)
 - P22: fix fgconsole exit(0) missing (nicolas.brouard)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.2.3-52avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.2.3-52avx
 - bootstrap build
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 0.2.3-51avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.2.3-51avx
 - sync with cooker 0.2.3-49mdk:
   - fix gcc-3.4 build (P19) (peroyvind)
   - force use of automake1.{4,7} and autoconf2.5 (peroyvind)
@@ -409,7 +414,7 @@ fi
   - BuildRequires: gettext-devel (cjw)
   - P20: update french mac keymap (cjw)
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 0.2.3-50avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.2.3-50avx
 - Annvix build
 
 * Fri Jun 11 2004 Vincent Danen <vdanen@opensls.org> 0.2.3-49sls
