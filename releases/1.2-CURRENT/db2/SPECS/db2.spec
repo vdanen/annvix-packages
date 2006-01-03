@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name 		db2
 %define version 	2.4.14
-%define release 	14avx
+%define release 	%_revrel
 
 %define major		2
 %define libname_orig	libdb%{major}
@@ -26,12 +27,12 @@ URL:		http://www.sleepycat.com
 # Taken from glibc 2.1.3
 Source:		%{name}-glibc-2.1.3.tar.bz2
 # Patch to make it standalone
-Patch0:		db2-glibc-2.1.3.patch.bz2
-Patch1:		db2-2.4.14-db2.patch.bz2
-Patch2:		db2-2.4.14-db_fileid-64bit-fix.patch.bz2
-Patch3:		db2-gcc34.patch.bz2
-Patch4:		db2-64bit-fixes.patch.bz2
-Patch5:		db2-sparc64-Makefile-fPIC.patch.bz2
+Patch0:		db2-glibc-2.1.3.patch
+Patch1:		db2-2.4.14-db2.patch
+Patch2:		db2-2.4.14-db_fileid-64bit-fix.patch
+Patch3:		db2-gcc34.patch
+Patch4:		db2-64bit-fixes.patch
+Patch5:		db2-sparc64-Makefile-fPIC.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -148,10 +149,14 @@ done
 %{_bindir}/db2_stat
 
 %changelog
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.4.14-14avx
+* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.4.14-14avx
 - bootstrap build (new gcc, new glibc)
 
-* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 2.4.14-13avx
+* Tue Jul 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.4.14-13avx
 - rebuild for new gcc
 - libification (gbeauchesne)
 - P3: fix build with gcc 3.4 (gbeauchesne)
@@ -160,10 +165,10 @@ done
 - own %%_includedir/db2 (thauvin)
 
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.4.14-12avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.4.14-12avx
 - bootstrap build
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.4.14-11avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.4.14-11avx
 - Annvix build
 
 * Tue Mar 03 2004 Vincent Danen <vdanen@opensls.org> 2.4.14-10sls
