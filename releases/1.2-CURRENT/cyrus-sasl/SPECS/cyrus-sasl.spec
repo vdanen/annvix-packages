@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		cyrus-sasl
 %define version		2.1.22
-%define release		4avx
+%define release		%_revrel
 
 %define major		2
 %define libname		%mklibname sasl %{major}
@@ -28,14 +29,14 @@ Source2:        saslauthd.init
 Source3:        saslauthd.sysconfig
 Source4:	saslauthd.run
 Source5:	saslauthd-log.run
-Source6:	saslauthd.8.bz2
-Patch0:		cyrus-sasl-2.1.20-avx-doc.patch.bz2
-Patch1:		cyrus-sasl-2.1.19-mdk-no_rpath.patch.bz2
-Patch2:		cyrus-sasl-2.1.15-mdk-lib64.patch.bz2
-Patch3:		cyrus-sasl-2.1.20-fdr-gssapi-dynamic.patch.bz2
-Patch4:		cyrus-sasl-2.1.19-mdk-pic.patch.bz2
-Patch5:		cyrus-sasl-2.1.22-mdk-openldap-2.3.0.diff.bz2
-Patch6:		cyrus-sasl-2.1.22-mdk-sed_syntax.diff.bz2
+Source6:	saslauthd.8
+Patch0:		cyrus-sasl-2.1.20-avx-doc.patch
+Patch1:		cyrus-sasl-2.1.19-mdk-no_rpath.patch
+Patch2:		cyrus-sasl-2.1.15-mdk-lib64.patch
+Patch3:		cyrus-sasl-2.1.20-fdr-gssapi-dynamic.patch
+Patch4:		cyrus-sasl-2.1.19-mdk-pic.patch
+Patch5:		cyrus-sasl-2.1.22-mdk-openldap-2.3.0.diff
+Patch6:		cyrus-sasl-2.1.22-mdk-sed_syntax.diff
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:  autoconf, automake1.8, db4-devel, pam-devel, krb5-devel
@@ -43,7 +44,8 @@ BuildRequires:  openssl-devel >= 0.9.6a, libtool >= 1.4
 BuildRequires:	MySQL-devel, postgresql-devel, openldap-devel
 
 Requires:	%{libname} = %{version}
-PreReq:		rpm-helper
+Requires(post):	rpm-helper
+Requires(preun): rpm-helper
 
 %description
 SASL is the Simple Authentication and Security Layer, 
@@ -338,7 +340,7 @@ install -m 0740 %{SOURCE4} %{buildroot}%{_srvdir}/saslauthd/run
 install -m 0740 %{SOURCE5} %{buildroot}%{_srvdir}/saslauthd/log/run
 
 # fix the horribly broken manpage
-bzcat %{SOURCE6} >%{buildroot}%{_mandir}/man8/saslauthd.8
+cat %{SOURCE6} >%{buildroot}%{_mandir}/man8/saslauthd.8
 
 pushd sample
     /bin/sh ../libtool --mode=install /usr/bin/install -c client \
@@ -511,20 +513,25 @@ fi
 
  
 %changelog
-* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 2.1.22-4avx
+* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- fix prereq
+
+* Sat Sep 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.1.22-4avx
 - fix typeo in summary
 
-* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 2.1.22-3avx
+* Sat Sep 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.1.22-3avx
 - use execlineb for run scripts
 - move logdir to /var/log/service/saslauthd
 - run scripts are now considered config files and are not replaceable
 - P5: make it acknowledge openldap 2.3.6 (oden)
 - P6: fix the sed syntax (andreas)
 
-* Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 2.1.22-2avx
+* Fri Aug 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.1.22-2avx
 - fix perms on run scripts
 
-* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 2.1.22-1avx
+* Thu Aug 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.1.22-1avx
 - 2.1.22
 - add ldapdb plugin
 - BuildReq always on openldap-devel now
@@ -535,15 +542,15 @@ fi
 - disable the srp plugin; for some reason it doesn't play too nice
   with openssl 0.9.8
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.1.20-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.1.20-2avx
 - bootstrap build
 
-* Tue Mar 15 2005 Vincent Danen <vdanen@annvix.org> 2.1.20-1avx
+* Tue Mar 15 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.1.20-1avx
 - 2.1.20
 - rediff P0, P3
 - drop P4; merged upstream
 
-* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 2.1.19-4avx
+* Thu Mar 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.1.19-4avx
 - multiarch
 - use automake1.8 (bluca)
 - added the sql plugin and build for mysql/postgres by default
@@ -552,13 +559,13 @@ fi
 - provide libsasl2-devel and lib64sasl2-devel on biarches (bluca)
 - use logger for logging
 
-* Thu Jan 06 2005 Vincent Danen <vdanen@annvix.org> 2.1.19-3avx
+* Thu Jan 06 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.1.19-3avx
 - rebuild against new openssl
 
-* Thu Oct 07 2004 Vincent Danen <vdanen@annvix.org> 2.1.19-2avx
+* Thu Oct 07 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.1.19-2avx
 - P4: fixes CAN-2004-0884
 
-* Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 2.1.19-1avx
+* Mon Sep 20 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.1.19-1avx
 - 2.1.19
 - drop %%{_prefix}
 - patch policy
@@ -570,13 +577,13 @@ fi
   - really install sample client and server (bluca)
   - remove obsoletes on myself and fix library require (bluca)
 
-* Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 2.1.15-10avx
+* Mon Sep 20 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.1.15-10avx
 - update run scripts
 
-* Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 2.1.15-9avx
+* Tue Aug 17 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.1.15-9avx
 - rebuild against latest openssl
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.1.15-8avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.1.15-8avx
 - Annvix build
 
 * Wed Mar 03 2004 Vincent Danen <vdanen@opensls.org> 2.1.15-7sls
