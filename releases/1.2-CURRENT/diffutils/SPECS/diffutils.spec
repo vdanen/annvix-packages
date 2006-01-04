@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		diffutils
 %define version 	2.8.4
-%define release 	10avx
+%define release 	%_revrel
 
 Summary:	A GNU collection of diff utilities
 Name:		%{name}
@@ -20,12 +21,14 @@ Group:		Development/Other
 URL:		http://www.gnu.org/software/diffutils/
 Source:		ftp://ftp.gnu.org/pub/gnu/diffutils-%{version}.tar.bz2
 Source1:	%{name}-manpages.tar.bz2
-Patch2:		diffutils-2.8.4-i18n.patch.bz2
+Patch2:		diffutils-2.8.4-i18n.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5
 
-Prereq:		info-install
+Requires(post):	info-install
+Requires(preun): info-install
+
 
 %description
 Diffutils includes four utilities:  diff, cmp, diff3 and sdiff.
@@ -84,16 +87,21 @@ rm -fr %{buildroot}%{_infodir}/dir
 
 
 %changelog
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.8.4-10avx
+* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- fix prereq
+
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.8.4-10avx
 - bootstrap build (new gcc, new glibc)
 
-* Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 2.8.4-9avx
+* Wed Jul 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.8.4-9avx
 - rebuild for new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.8.4-8avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.8.4-8avx
 - bootstrap build
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.8.4-7avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.8.4-7avx
 - requiere packages not files
 - Annvix build
 
