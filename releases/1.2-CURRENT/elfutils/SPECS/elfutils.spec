@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		elfutils
 %define version		0.109
-%define release		1avx
+%define release		%_revrel
 
 %define major		1
 %define libname		%mklibname %{name} %{major}
@@ -28,8 +29,8 @@ Release:	%{release}
 License:	OSL
 Group:		Development/Other
 Source:		elfutils-%{version}.tar.bz2
-Patch0:		elfutils-portability.patch.bz2
-Patch1:		elfutils-0.109-warnings.patch.bz2
+Patch0:		elfutils-portability.patch
+Patch1:		elfutils-0.109-warnings.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	gcc >= 3.2, sharutils, libtool-devel
@@ -201,29 +202,33 @@ chmod +x %{buildroot}%{_libdir}/elfutils/lib*.so*
 
 
 %changelog
-* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 0.109-1avx
+* Wed Jan 04 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.109-1avx
 - 0.109
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 0.99-3avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.99-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 0.99-2avx
+* Tue Jul 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.99-2avx
 - rebuild for new gcc
 
-* Fri Jul 22 2005 Vincent Danen <vdanen@annvix.org> 0.99-1avx
+* Fri Jul 22 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.99-1avx
 - 0.99
 - change License: s/GPL/OSL/
 - drop P0
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.89-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.89-2avx
 - bootstrap build
 
-* Sun Sep 12 2004 Vincent Danen <vdanen@annvix.org> 0.89-1avx
+* Sun Sep 12 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.89-1avx
 - 0.89
 - P0: fix some -Werror issues (gbeauchesne)
 - P1: atime alpha patch, obtained from Gentoo; bug #27372 (stefan)
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 0.84-4avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.84-4avx
 - Annvix build
 
 * Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 0.84-3sls
