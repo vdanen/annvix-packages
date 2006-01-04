@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		expat
 %define version 	1.95.8
-%define release 	1avx
+%define release 	%_revrel
 
 %define libname_orig	libexpat
 %define major		0
@@ -101,20 +102,24 @@ Development environment for the expat XML parser
 
 
 %changelog
-* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 1.95.8-1avx
+* Wed Jan 04 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Sep 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.95.8-1avx
 - 1.95.8
 - drop unneeded patch
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.95.6-10avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.95.6-10avx
 - bootstrap build (new gcc, new glibc)
 
-* Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 1.95.6-9avx
+* Wed Jul 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.95.6-9avx
 - rebuild for new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.95.6-8avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.95.6-8avx
 - bootstrap build
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> - 1.95.6-7avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> - 1.95.6-7avx
 - Annvix build
 
 * Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> - 1.95.6-6sls
