@@ -5,17 +5,21 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		devfsd
 %define version		1.3.25
-%define release		41avx
+%define release		%_revrel
 %define rname		devfsd
 
 %define state_dir	/lib/dev-state
 %define build_static	0
 
 %if %{build_static}
+# $Id$
+
+%define revision	$Rev$
 %define name		devfsd-static
 %endif
 
@@ -27,77 +31,78 @@ License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://www.atnf.csiro.au/~rgooch/linux/docs/devfs.html
 Source:		ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/daemons/devfsd/%{rname}-v%{version}.tar.bz2
-Source1:	devfs_fs.h.bz2
-Source2:	devfs_fs_kernel.h.bz2
+Source1:	devfs_fs.h
+Source2:	devfs_fs_kernel.h
 Source3:	%{rname}
 Source4:	devfs-add-mouse-entry
 #
 # Compatibility names
 #
 # old /dev/cdrom
-Patch0:		devfsd-1.3.25-cdrom.patch.bz2
+Patch0:		devfsd-1.3.25-cdrom.patch
 # add back tun handling
-Patch1:		devfsd-1.3.25-tun.patch.bz2
+Patch1:		devfsd-1.3.25-tun.patch
 # Compacq smart array support
-Patch2:		devfsd-1.3.25-ida.patch.bz2
+Patch2:		devfsd-1.3.25-ida.patch
 # Compacq smart array support
-Patch3:		devfsd-1.3.25-cciss.patch.bz2
+Patch3:		devfsd-1.3.25-cciss.patch
 # Mylex support
-Patch4:		devfsd-1.3.25-rd.patch.bz2
+Patch4:		devfsd-1.3.25-rd.patch
 # Support ide devices while using IDE-SCSI
-Patch6:		devfsd-1.3.25-idescsi.patch.bz2
+Patch6:		devfsd-1.3.25-idescsi.patch
 # Support scd devices as well as sd ones
-Patch7:		devfsd-1.3.25-sr_to_scd.patch.bz2
+Patch7:		devfsd-1.3.25-sr_to_scd.patch
 # USB serial driver
-Patch8:		devfsd-1.3.25-usb-serial.patch.bz2
+Patch8:		devfsd-1.3.25-usb-serial.patch
 # add back /dev/hd* handling
-Patch9:		devfsd-1.3.25-hd.patch.bz2
+Patch9:		devfsd-1.3.25-hd.patch
 #
 # Compilation
 #
 # Fix compilation with glibc-2.2.x 's libnsl
-Patch10:	devfsd-1.3.25-glibc22.patch.bz2
+Patch10:	devfsd-1.3.25-glibc22.patch
 #
 # Devices support
 #
 # enable defaults that're disabled
-Patch20:	devfsd-1.3.25-enable.patch.bz2
+Patch20:	devfsd-1.3.25-enable.patch
 # disable alsa support
-Patch21:	devfsd-1.3.25-disable-alsa.patch.bz2
+Patch21:	devfsd-1.3.25-disable-alsa.patch
 # nvidia driver
-Patch22:	devfsd-1.3.25-nvidia.patch.bz2
+Patch22:	devfsd-1.3.25-nvidia.patch
 # fix usb mice support: input/mouse0 and input/mice race for usbmouse link
 # what's more, mice multiplex mouse0 and wacom tablets
-Patch23:	devfsd-1.3.25-usbmouse.patch.bz2
+Patch23:	devfsd-1.3.25-usbmouse.patch
 # DVB (tv through satelite) driver
-Patch24:	devfsd-1.3.25-dvb.patch.bz2
+Patch24:	devfsd-1.3.25-dvb.patch
 # prevent minilogd/initlog deadlock because of /dev/log
-Patch25:	devfsd-1.3.25-log-fix.patch.bz2
+Patch25:	devfsd-1.3.25-log-fix.patch
 # IPMI support
-Patch26:	devfsd-1.3.25-ipmi.patch.bz2
+Patch26:	devfsd-1.3.25-ipmi.patch
 #
 # Add support for /etc/devfs/conf.d/
 #
 # include conf.d directory
-Patch31:	devfsd-1.3.25-conf_d.patch.bz2
+Patch31:	devfsd-1.3.25-conf_d.patch
 # only read .conf files
-Patch32: 	devfsd-1.3.24-conf-files.patch.bz2
+Patch32: 	devfsd-1.3.24-conf-files.patch
 #
 # Add support for /etc/devfs/conf.d/
 #
 # prevent lsb warnings
-Patch50:	devfsd-1.3.25-lsb_vs_ptsfs.patch.bz2
+Patch50:	devfsd-1.3.25-lsb_vs_ptsfs.patch
 #
 # run-time kernel 2.5 detection
-Patch100:	devfsd-1.3.25-kernel-2.5.patch.bz2
-Patch101:	devfsd-1.3.25-pts.patch.bz2
+Patch100:	devfsd-1.3.25-kernel-2.5.patch
+Patch101:	devfsd-1.3.25-pts.patch
 
 BuildRoot:	%{_buildroot}/%{rname}-%{version}
 
 Exclusiveos:	Linux
 Requires:	initscripts >= 6.40.2-21mdk, pam
 Requires:	modutils >= 2.4.13-3mdk
-Prereq:		rpm-helper
+Requires(post):	rpm-helper
+Requires(preun): rpm-helper
 Prefix:		/
 
 
@@ -242,17 +247,22 @@ fi
 
 
 %changelog
-* Sun Sep 11 2005 Vincent Danen <vdanen@annvix.org> 1.3.25-41avx
+* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- fix prereq
+
+* Sun Sep 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.3.25-41avx
 - P7: fix missing srX links
 - P26: IPMI support
 
-* Thu Aug 18 2005 Vincent Danen <vdanen@annvix.org> 1.3.25-40avx
+* Thu Aug 18 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.3.25-40avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.3.25-39avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.3.25-39avx
 - rebuild
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.3.25-38avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.3.25-38avx
 - Annvix build
 
 * Mon Mar 15 2004 Vincent Danen <vdanen@opensls.org> 1.3.25-37sls
