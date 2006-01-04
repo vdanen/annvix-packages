@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define	revision	$Rev$
 %define	name		dcron
 %define	version		2.9
-%define	release		15avx
+%define	release		%_revrel
 
 Summary:	Dillon's Cron Daemon
 Name:		%{name}
@@ -22,12 +23,14 @@ Source0:	dcron29.tar.bz2
 Source1:	dcron.run
 Source2:	dcron-log.run
 Source3:	etc-crontab
-Patch0:		http://www.ogris.de/diet/dcron29-dietlibc-patch.diff.bz2
-Patch1:		dcron29-avx-paths.patch.bz2
+Patch0:		http://www.ogris.de/diet/dcron29-dietlibc-patch.diff
+Patch1:		dcron29-avx-paths.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
-PreReq:		rpm-helper, srv, runit, setup
+Requires(post):	rpm-helper, setup
+Requires(preun): rpm-helper
+Requires:	srv, runit
 Conflicts:	vixie-cron
 Obsoletes:	crontabs
 Provides:	crond, crontabs
@@ -79,9 +82,6 @@ if [[ -z `crontab -l | grep run-parts` ]]; then
     echo "Adding the \"system crontab\" to emulate vixie-cron"
     /bin/grep "^[0-9]" %{_sysconfdir}/crontab | %{_bindir}/crontab -
 fi
-if [ -d /var/log/supervise/crond -a ! -d /var/log/service/crond ]; then
-    mv /var/log/supervise/crond /var/log/service/
-fi
 %_post_srv crond
 
 %preun
@@ -109,40 +109,46 @@ fi
 
 
 %changelog
-* Sun Sep 25 2005 Vincent Danen <vdanen@annvix.org> 2.9-15avx
+* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- fix requires
+- remove the moving of the logging directory
+
+* Sun Sep 25 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.9-15avx
 - adjust some permissions on crond
 - execlineb for run script (spt)
 
-* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 2.9-14avx
+* Sat Sep 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.9-14avx
 - use execlineb for run scripts
 - move logdir to /var/log/service/crond
 - run scripts are now considered config files and are not replaceable
 
-* Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 2.9-13avx
+* Fri Aug 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.9-13avx
 - fix perms on run scripts
 
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 2.9-12avx
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.9-12avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.9-11avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.9-11avx
 - bootstrap build
 
-* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 2.9-10avx
+* Thu Mar 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.9-10avx
 - user logger for logging
 
-* Tue Jan 25 2005 Vincent Danen <vdanen@annvix.org> 2.9-9avx
+* Tue Jan 25 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.9-9avx
 - drop the buildreq on dietlibc since we don't actually compile with it
 
-* Tue Sep 21 2004 Vincent Danen <vdanen@annvix.org> 2.9-8avx
+* Tue Sep 21 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.9-8avx
 - use the original dietlibc patch
 - P1 for path customizations and chown fixes
 - clean up run scripts
 
-* Sat Sep 11 2004 Vincent Danen <vdanen@annvix.org> 2.9-7avx
+* Sat Sep 11 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.9-7avx
 - Requires: s/daemontools/runit/
 - update run scripts
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.9-6avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.9-6avx
 - Annvix build
 
 * Tue Mar 23 2004 Vincent Danen <vdanen@opensls.org> 2.9-5sls
