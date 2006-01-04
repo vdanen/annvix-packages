@@ -1,15 +1,16 @@
 #
-# spec file for package cyrus-sasl
+# spec file for package distriblint
 #
 # Package for the Annvix Linux distribution: http://annvix.org/
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		distriblint
 %define version 	0.1.2
-%define release 	3avx
+%define release 	%_revrel
 
 Summary:	Tools to check integrity of rpms repository
 Name:		%{name}
@@ -67,13 +68,17 @@ make test
 %{_mandir}/*/*
 
 %changelog
-* Thu Aug 18 2005 Vincent Danen <vdanen@annvix.org> 0.1.2-3avx
+* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Thu Aug 18 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.1.2-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.1.2-2avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.1.2-2avx
 - rebuild
 
-* Tue Mar 01 2005 Vincent Danen <vdanen@annvix.org> 0.1.2-1avx
+* Tue Mar 01 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.1.2-1avx
 - first Annvix build
 
 * Tue Feb 24 2004 Olivier Thauvin <thauvin@aerov.jussieu.fr> 0.1.2-1mdk
