@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define	revision	$Rev$
 %define	name		dmapi
 %define	version		2.2.1
-%define	release		1avx
+%define	release		%_revrel
 
 %define lib_name_orig	libdm
 %define lib_major	0
@@ -46,7 +47,7 @@ linked with %{lib_name_orig}.
 
 
 %package -n %{lib_name}-devel
-Summary:	Data Management API static libraries and headers.
+Summary:	Data Management API static libraries and headers
 Group:		Development/C
 Requires:	%{lib_name} = %{version}
 Provides:	%{lib_name_orig}-devel = %{version}-%{release}
@@ -104,20 +105,24 @@ rm -rf %{buildroot}%{_datadir}/doc/dmapi
 
 
 %changelog
-* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 2.2.1-1avx
+* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Sep 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.2.1-1avx
 - 2.2.1
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.1.0-5avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.1.0-5avx
 - bootstrap build (new gcc, new glibc)
 
-* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 2.1.0-4avx
+* Tue Jul 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.1.0-4avx
 - rebuild for new gcc
 - BuildRequires: libext2fs-devel
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.1.0-3avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.1.0-3avx
 - bootstrap build
 
-* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 2.1.0-2avx
+* Fri Jun 18 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.1.0-2avx
 - Annvix build
 
 * Sun Feb 29 2004 Vincent Danen <vdanen@opensls.org> 2.1.0-1sls
