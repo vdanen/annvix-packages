@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		eject
 %define version 	2.0.13
-%define release		9avx
+%define release		%_revrel
 
 Summary:	A program that ejects removable media using software control
 Name:		%{name}
@@ -63,13 +64,17 @@ mkdir -p %{buildroot}%{_mandir}/man1
 
 
 %changelog
-* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 2.0.13-9avx
+* Wed Jan 04 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Aug 19 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.13-9avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.0.13-8avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.13-8avx
 - bootstrap build
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.0.13-7avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.0.13-7avx
 - Annvix build
 
 * Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 2.0.13-6sls
