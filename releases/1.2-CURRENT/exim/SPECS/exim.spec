@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		exim
 %define version 	4.54
-%define release 	1avx
+%define release 	%_revrel
 
 %define build_mysql 	0
 %define build_pgsql 	0
@@ -40,10 +41,10 @@ Source11:	http://www.exim.org/ftp/exim4/config.samples.tar.bz2
 Source12:	sa-exim-%{saversion}.tar.gz
 Source13:	exim.run
 Source14:	exim-log.run
-Patch0:		exim-4.54-avx-config.patch.bz2
-Patch2:		exim-4.22-install.patch.bz2
-Patch3:		exim-4.52-avx-system_pcre.patch.bz2
-Patch4:		exim-4.43-debian-dontoverridecflags.diff.bz2
+Patch0:		exim-4.54-avx-config.patch
+Patch2:		exim-4.22-install.patch
+Patch3:		exim-4.52-avx-system_pcre.patch
+Patch4:		exim-4.43-debian-dontoverridecflags.diff
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	tcp_wrappers-devel, pam-devel, openssl, openssl-devel, openldap-devel, lynx
@@ -55,7 +56,8 @@ BuildRequires:	libmysql-devel
 BuildRequires:	postgresql-devel
 %endif
 
-PreReq:		rpm-helper
+Requires(post):	rpm-helper
+Requires(preun): rpm-helper
 Obsoletes:	sendmail postfix qmail smail
 Requires:	chkconfig, initscripts, sh-utils, openssl, pam
 Requires:	openldap >= 2.0.11
@@ -283,20 +285,25 @@ fi
 
 
 %changelog
-* Sun Oct 09 2005 Vincent Danen <vdanen@annvix.org> 4.54-1avx
+* Wed Jan 04 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- fix prereq
+
+* Sun Oct 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.54-1avx
 - 4.54
 
-* Tue Sep 27 2005 Vincent Danen <vdanen@annvix.org> 4.52-4avx
+* Tue Sep 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.52-4avx
 - tidy runscript
 
-* Sun Sep 25 2005 Sean P. Thomas <spt@annvix.org> 4.52-3avx
+* Sun Sep 25 2005 Sean P. Thomas <spt-at-build.annvix.org> 4.52-3avx
 - execlineb for run script, removed sysinit file, added envdir, 
 - removed DAEMON variable (not used).
 
-* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 4.52-2avx
+* Sat Sep 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.52-2avx
 - rebuild against new pcre
 
-* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 4.52-1avx
+* Sat Sep 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.52-1avx
 - 4.52
 - sa-exim 4.2
 - add doc/NewStuff
@@ -306,16 +313,16 @@ fi
 - move logdir to /var/log/service/sshd
 - run scripts are now considered config files and are not replaceable
 
-* Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 4.50-4avx
+* Fri Aug 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.50-4avx
 - fix perms on run scripts
 
-* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 4.50-3avx
+* Fri Aug 19 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.50-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 4.50-2avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.50-2avx
 - rebuild
 
-* Wed Mar 16 2005 Vincent Danen <vdanen@annvix.org> 4.50-1avx
+* Wed Mar 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.50-1avx
 - 4.50
 - exiscan is now integrated in exim, so drop P1
 - enable support for old demime ACL's but this is deprecated for the
@@ -323,22 +330,22 @@ fi
   for migratory purposes and backwards compatibility) by updating P0
 - add some more docs
 
-* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 4.44-3avx
+* Thu Mar 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.44-3avx
 - use logger for logging
 
-* Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 4.44-2avx
+* Wed Feb 02 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.44-2avx
 - rebuild against new perl
 
-* Fri Jan 21 2005 Vincent Danen <vdanen@annvix.org> 4.44-1avx
+* Fri Jan 21 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.44-1avx
 - 4.44
 - exiscan-acl 4.44-28
 - drop P5
 
-* Wed Jan 05 2005 Vincent Danen <vdanen@annvix.org> 4.43-2avx
+* Wed Jan 05 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.43-2avx
 - actually apply P3 and P4
 - P5: minor security fixes posted to exim ml by Philip
 
-* Mon Dec 20 2004 Vincent Danen <vdanen@annvix.org> 4.43-1avx
+* Mon Dec 20 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.43-1avx
 - 4.43
 - exiscan-acl 4.43-28
 - P3: use system pcre libs
@@ -348,19 +355,19 @@ fi
 - enable IPv6 support
 - enable cyrus-sasl support
 
-* Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 4.42-1avx
+* Mon Sep 20 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.42-1avx
 - 4.42
 - exiscan-acl 4.42-27
 - update run scripts
 
-* Thu Aug 19 2004 Vincent Danen <vdanen@annvix.org> 4.41-1avx
+* Thu Aug 19 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.41-1avx
 - 4.41
 - exiscan-acl 4.41-25
 - sa-exim 4.1
 - move saexim libs from /usr/libexec/exim to %%{_libdir}/exim
 - update the patch location in the sa-exim INSTALL doc
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 4.34-2avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.34-2avx
 - Annvix build
 - don't build the X11 monitor (%%build_mon macro)
 
