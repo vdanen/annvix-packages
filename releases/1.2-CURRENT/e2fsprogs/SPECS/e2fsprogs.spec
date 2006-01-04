@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		e2fsprogs
 %define version		1.38
-%define release		1avx
+%define release		%_revrel
 
 %define	_root_sbindir	/sbin
 %define	_root_libdir	/%{_lib}
@@ -23,10 +24,10 @@ License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://e2fsprogs.sourceforge.net/
 Source:		http://prdownloads.sourceforge.net/e2fsprogs/%{name}-%{version}.tar.bz2
-Patch0:		e2fsprogs-1.36-autoconf.patch.bz2
+Patch0:		e2fsprogs-1.36-autoconf.patch
 # (gb) strip references to home build dir
-Patch1:		e2fsprogs-1.36-strip-me.patch.bz2
-Patch2:		e2fsprogs-1.38-tst_ostype-buildfix.patch.bz2
+Patch1:		e2fsprogs-1.36-strip-me.patch
+Patch2:		e2fsprogs-1.38-tst_ostype-buildfix.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	texinfo, autoconf, multiarch-utils
@@ -251,24 +252,28 @@ chmod +x %{buildroot}%{_bindir}/{mk_cmds,compile_et}
 
 
 %changelog
-* Sun Sep 11 2005 Vincent Danen <vdanen@annvix.org> 1.38-1avx
+* Wed Jan 04 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sun Sep 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.38-1avx
 - 1.38
 - renumber patches
 - P1: strip references to home build dir (gbeauchesne)
 - P2: fix compilation of libs/e2p/os_type (cjw)
 - multiarch support
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.35-3avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.35-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.35-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.35-2avx
 - bootstrap build
 
-* Thu Aug 18 2004 Vincent Danen <vdanen@annvix.org> 1.35-1avx
+* Thu Aug 18 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.35-1avx
 - 1.35
 - fix perms (tvignaud)
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.34-4avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.34-4avx
 - Annvix build
 
 * Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 1.34-3sls
