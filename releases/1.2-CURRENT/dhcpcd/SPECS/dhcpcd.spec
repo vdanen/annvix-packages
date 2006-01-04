@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		dhcpcd
 %define	version		1.3.22pl4
-%define release		9avx
+%define release		%_revrel
 
 %define	rversion	1.3.22-pl4
 
@@ -21,8 +22,8 @@ License:	GPL
 Group:		System/Servers
 URL:		http://www.phystech.com/download/dhcpcd.html
 Source:		ftp://sunsite.unc.edu/pub/Linux/system/network/daemons/dhcpcd-%{rversion}.tar.bz2
-Patch0:		dhcpcd-1.3.22-pl4-resolvrdv.patch.bz2
-Patch1:		dhcpcd-1.3.22pl4-CAN-2005-1848.patch.bz2
+Patch0:		dhcpcd-1.3.22-pl4-resolvrdv.patch
+Patch1:		dhcpcd-1.3.22pl4-CAN-2005-1848.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -82,19 +83,23 @@ fi
 
 
 %changelog
-* Thu Aug 18 2005 Vincent Danen <vdanen@annvix.org> 1.3.22pl4-9avx
+* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Thu Aug 18 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.3.22pl4-9avx
 - bootstrap build (new gcc, new glibc)
 
-* Tue Jul 19 2005 Vincent Danen <vdanen@annvix.org> 1.3.22pl4-8avx
+* Tue Jul 19 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.3.22pl4-8avx
 - P1: fix CAN-2005-1848 (low security; no official update issued)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.3.22pl4-7avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.3.22pl4-7avx
 - rebuild
 
-* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 1.3.22pl4-6avx
+* Thu Mar 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.3.22pl4-6avx
 - spec cleanups
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.3.22pl4-5avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.3.22pl4-5avx
 - Annvix build
 
 * Sat May 29 2004 Vincent Danen <vdanen@opensls.org> 1.3.22pl4-4sls
