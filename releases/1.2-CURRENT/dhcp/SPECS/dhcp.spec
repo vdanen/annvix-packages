@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		dhcp
 %define version		3.0.3
-%define release		4avx
+%define release		%_revrel
 %define epoch		2
 
 %define _catdir		/var/cache/man
@@ -40,14 +41,13 @@ Source14:	LEASEFILE.env
 Source15:	OPTIONS.env
 Source16:	OPTIONS-dhcrelay.env
 Source17:	SERVERS-dhcrelay.env
-Patch0:		dhcp-3.0.1-ifup.patch.bz2
+Patch0:		dhcp-3.0.1-ifup.patch
 # http://www.episec.com/people/edelkind/patches/
-Patch1:		dhcp-3.0.1-paranoia.diff.bz2
+Patch1:		dhcp-3.0.1-paranoia.diff
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl groff-for-man
 
-PreReq:		rpm-helper, setup >= 2.4-16avx
 Requires:	bash
 Obsoletes:	dhcpd
 
@@ -67,6 +67,8 @@ dhcp-server and/or dhcp-relay packages.
 %package common
 Summary:	The ISC DHCP (Dynamic Host Configuration Protocol) server
 Group:		System/Servers
+Requires(pre):	rpm-helper
+Requires(postun): rpm-helper
 
 %description common
 DHCP (Dynamic Host Configuration Protocol) is a protocol which allows 
@@ -86,7 +88,8 @@ dhcp-server and/or dhcp-relay packages.
 Summary:	The ISC DHCP (Dynamic Host Configuration Protocol) server
 Group:		System/Servers
 Requires:	dhcp-common = %{epoch}:%{version}, bash
-Prereq:		rpm-helper
+Requires(post):	rpm-helper
+Requires(preun): rpm-helper
 Obsoletes:	dhcp
 Provides:	dhcp
 
@@ -111,7 +114,8 @@ parameters from a DHCP server.
 Summary:	The ISC DHCP (Dynamic Host Configuration Protocol) relay
 Group:		System/Servers
 Requires:	dhcp-common = %{epoch}:%{version}-%{release} /bin/sh
-Prereq:		rpm-helper
+Requires(post):	rpm-helper
+Requires(preun): rpm-helper
 
 %description relay
 DHCP relay is the Internet Software Consortium (ISC) relay agent for DHCP
@@ -302,17 +306,22 @@ rm -rf %{_localstatedir}/dhcp/dhclient.leases
 
 
 %changelog
-* Wed Sep 28 2005 Vincent Danen <vdanen@annvix.org> 3.0.3-4avx
+* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- fix prereq
+
+* Wed Sep 28 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.0.3-4avx
 - revert the quoting in the runscript; doesn't work
 
-* Tue Sep 27 2005 Vincent Danen <vdanen@annvix.org> 3.0.3-3avx
+* Tue Sep 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.0.3-3avx
 - quote the args in the runscripts
 
-* Sun Sep 25 2005 Sean P. Thomas <spt@annvix.org> 3.0.3-2avx
+* Sun Sep 25 2005 Sean P. Thomas <spt-at-build.annvix.org> 3.0.3-2avx
 - use execlineb for run scripts and used envdirs.
 - pass -d to dhcpd in run script to log to stderr (vdanen)
 
-* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 3.0.3-1avx
+* Sat Sep 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.0.3-1avx
 - 3.0.3
 - drop P2; fixed upstream
 - create a default dhcrelay config file instead of an empty one
@@ -320,16 +329,16 @@ rm -rf %{_localstatedir}/dhcp/dhclient.leases
 - move logdir to /var/log/service/sshd
 - run scripts are now considered config files and are not replaceable
 
-* Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 3.0.2-4avx
+* Fri Aug 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.0.2-4avx
 - fix perms on run scripts
 
-* Wed Aug 17 2005 Vincent Danen <vdanen@annvix.org> 3.0.2-3avx
+* Wed Aug 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.0.2-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 3.0.2-2avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.0.2-2avx
 - rebuild
 
-* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 3.0.2-1avx
+* Thu Mar 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.0.2-1avx
 - 3.0.2
 - require setup >= 2.4-16avx
 - P1: this is a chroot patch, but I don't see the point of chrooting
@@ -342,13 +351,13 @@ rm -rf %{_localstatedir}/dhcp/dhclient.leases
 - drop initscripts
 - dhcpd runs as static uid/gid user dhcp (89)
 
-* Fri Sep 17 2004 Vincent Danen <vdanen@annvix.org> 3.0.1-1avx
+* Fri Sep 17 2004 Vincent Danen <vdanen-at-build.annvix.org> 3.0.1-1avx
 - 3.0.1
 - update run scripts
 - updated P1 from mdk (flepied): only change the hostname if
   NEEDHOSTNAME=yes; assign default gateway by interface
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 3.0-1.rc14.1avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 3.0-1.rc14.1avx
 - 3.0-1.rc14 (security fixes for CAN-2004-0460, CAN-2004-0461)
 - Annvix build
 
