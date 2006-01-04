@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		db4
 %define version		4.1.25
-%define release		9avx
+%define release		%_revrel
 
 # compatibility with legacy rpm
 %{!?_lib:%define _lib	lib}
@@ -37,15 +38,16 @@ Source:		http://www.sleepycat.com/update/%{version}/db-%{version}.tar.bz2
 #http://www.sleepycat.com/update/4.1.25/patch.4.1.25.html
 Patch1:		http://www.sleepycat.com/update/4.1.25/patch.4.1.25.1
 # Add fast AMD64 mutexes
-Patch2:		db-4.1.25-mdk-amd64-mutexes.patch.bz2
+Patch2:		db-4.1.25-mdk-amd64-mutexes.patch
 # NPTL pthreads mutexes are evil
-Patch3:		db-4.2.52-mdk-disable-pthreadsmutexes.patch.bz2
-Patch4:		db-4.2.52-mdk-db185.patch.bz2
+Patch3:		db-4.2.52-mdk-disable-pthreadsmutexes.patch
+Patch4:		db-4.2.52-mdk-db185.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	tcl, db1-devel, glibc-static-devel	
 
-PreReq:		ldconfig
+Requires(post):	ldconfig
+Requires(postun): ldconfig
 
 %description
 The Berkeley Database (Berkeley DB) is a programmatic toolkit that provides
@@ -57,7 +59,8 @@ should be installed on all systems.
 %package -n %{libname}
 Summary:	The Berkeley DB database library for C
 Group:		System/Libraries
-PreReq:		ldconfig
+Requires(post):	ldconfig
+Requires(postun): ldconfig
 
 %description -n %{libname}
 The Berkeley Database (Berkeley DB) is a programmatic toolkit that provides
@@ -69,8 +72,9 @@ should be installed on all systems.
 %package -n %{libdbcxx}
 Summary:	The Berkeley DB database library for C++
 Group:		System/Libraries
-PreReq:		ldconfig
 Provides:	libdbcxx = %{version}-%{release}
+Requires(post):	ldconfig
+Requires(postun): ldconfig
 
 %description -n %{libdbcxx}
 The Berkeley Database (Berkeley DB) is a programmatic toolkit that provides
@@ -85,8 +89,9 @@ Berkeley DB.
 %package -n %{libdbtcl}
 Summary:	The Berkeley DB database library for TCL
 Group:		System/Libraries
-PreReq:		ldconfig
 Provides:	libdbtcl = %{version}-%{release}
+Requires(post):	ldconfig
+Requires(postun): ldconfig
 
 %description -n %{libdbtcl}
 The Berkeley Database (Berkeley DB) is a programmatic toolkit that provides
@@ -321,13 +326,18 @@ ln -sf db4/db.h %{buildroot}%{_includedir}/db.h
 %{_libdir}/*.a
 
 %changelog
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 4.1.25-9avx
+* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- fix prereq
+
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.1.25-9avx
 - bootstrap build (new gcc, new glibc)
 
-* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 4.1.25-8avx
+* Tue Jul 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.1.25-8avx
 - rebuild against new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 4.1.25-7avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.1.25-7avx
 - bootstrap build
 - remove java support entirely
 - sync with mdk 4.1.25-8mdk:
@@ -336,7 +346,7 @@ ln -sf db4/db.h %{buildroot}%{_includedir}/db.h
   - own %%_includedir/db4 (thauvin)
 - get (silently) updated P2 from mdk srpm
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 4.1.25-6avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.1.25-6avx
 - Annvix build
 - require packages not files
 
