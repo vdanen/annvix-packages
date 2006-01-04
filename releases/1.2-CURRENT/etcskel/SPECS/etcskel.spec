@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		etcskel
 %define version 	1.63
-%define release 	20avx
+%define release 	%_revrel
 
 Summary:	Annvix default files for new users' home directories
 Name:		%{name}
@@ -56,13 +57,17 @@ make install RPM_BUILD_ROOT=%{buildroot}
 
 
 %changelog
-* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 1.63-20avx
+* Wed Jan 04 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Aug 19 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.63-20avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.63-19avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.63-19avx
 - bootstrap build
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.63-18avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.63-18avx
 - Annvix build
 
 * Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 1.63-17sls
