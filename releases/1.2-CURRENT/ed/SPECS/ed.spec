@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		ed
 %define version		0.2
-%define release		37avx
+%define release		%_revrel
 
 %define _exec_prefix	/
 
@@ -21,9 +22,9 @@ License:	GPL
 Group:		Text tools
 URL:		http://www.gnu.org/software/ed/ed.html 
 Source:		ftp://ftp.gnu.org/pub/gnu/ed/ed-0.2.tar.bz2
-Patch0:		ed-0.2-security-tempfile.patch.bz2
-Patch1:		ed-0.2-fixinfo.patch.bz2
-Patch2:		ed-0.2-li18nux-patch.bz2
+Patch0:		ed-0.2-security-tempfile.patch
+Patch1:		ed-0.2-fixinfo.patch
+Patch2:		ed-0.2-li18nux-patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.1
@@ -87,20 +88,24 @@ make check
 
 
 %changelog
-* Thu Sep 22 2005 Vincent Danen <vdanen@annvix.org> 0.2-37avx
+* Wed Jan 04 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Thu Sep 22 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.2-37avx
 - fix requires
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 0.2-36avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.2-36avx
 - bootstrap build (new gcc, new glibc)
 
-* Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 0.2-35avx
+* Wed Jul 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.2-35avx
 - rebuild for new gcc
 
-* Sat Jun 04 2005 Vincent Danen <vdanen@annvix.org> 0.2-34avx
+* Sat Jun 04 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.2-34avx
 - bootstrap build
 - for the use of autoconf2.1 (peroyvind)
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 0.2-33avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.2-33avx
 - Annvix build
 - require packages not files
 
