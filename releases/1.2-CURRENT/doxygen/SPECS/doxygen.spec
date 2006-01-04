@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		doxygen
 %define version 	1.4.4
-%define release 	1avx
+%define release 	%_revrel
 
 Summary:	Doxygen is THE documentation system for C/C++
 Name:		%{name}
@@ -20,7 +21,7 @@ License:	GPL
 Group:		Development/Other
 URL:		http://www.stack.nl/~dimitri/doxygen/
 Source:		ftp://ftp.stack.nl/pub/users/dimitri/%{name}-%{version}.src.tar.bz2
-Patch0:		doxygen-1.2.12-fix-latex.patch.bz2
+Patch0:		doxygen-1.2.12-fix-latex.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	flex, gcc-c++
@@ -76,22 +77,26 @@ install -s bin/doxy* %{buildroot}%{_bindir}
 
 
 %changelog
-* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 1.4.4-1avx
+* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.4.4-1avx
 - 1.4.4
 - fix perl path in installdox
 - drop P1; fixed upstream
 - drop the LICENSE file
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.3.3-8avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.3.3-8avx
 - bootstrap build (new gcc, new glibc)
 
-* Mon Jul 25 2005 Vincent Danen <vdanen@annvix.org> 1.3.3-7avx
+* Mon Jul 25 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.3.3-7avx
 - rebuild for new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.3.3-6avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.3.3-6avx
 - bootstrap build
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.3.3-5avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.3.3-5avx
 - Annvix build
 - remove BuildReq on XFree86-devel
 
