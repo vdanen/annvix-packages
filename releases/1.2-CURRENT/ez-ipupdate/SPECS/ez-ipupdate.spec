@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		ez-ipupdate
 %define version 	3.0.11b8
-%define release 	5avx
+%define release 	%_revrel
 
 Summary:	Client for Dynamic DNS Services
 Name:		%{name}
@@ -95,16 +96,20 @@ install -m 0740 %{SOURCE2} %{buildroot}%{_srvdir}/ez-ipupdate/log/run
 
 
 %changelog
-* Thu Sep 22 2005 Vincent Danen <vdanen@annvix.org> 3.0.11b8-5avx
+* Wed Jan 04 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Thu Sep 22 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.0.11b8-5avx
 - run scripts
 
-* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 3.0.11b8-4avx
+* Fri Aug 19 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.0.11b8-4avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 3.0.11b8-3avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.0.11b8-3avx
 - rebuild
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 3.0.11b8-2avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 3.0.11b8-2avx
 - Annvix build
 
 * Fri Mar  5 2004 Thomas Backlund <tmb@mandrake.org> 3.0.11b8-1sls
