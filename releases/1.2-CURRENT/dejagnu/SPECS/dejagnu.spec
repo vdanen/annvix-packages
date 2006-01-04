@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		dejagnu
 %define version 	1.4.2
-%define release 	11avx
+%define release 	%_revrel
 %define epoch		20010912
 
 Summary:	A front end for testing other programs
@@ -21,7 +22,7 @@ Group:		Development/Other
 License:	GPL
 URL:		http://sourceware.cygnus.com
 Source:		%{name}-%{version}.tar.bz2 
-Patch2:		dejagnu-1.4.2-mkargs.patch.bz2
+Patch2:		dejagnu-1.4.2-mkargs.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf automake libtool
@@ -80,16 +81,20 @@ rm -f %{buildroot}%{_includedir}/dejagnu.h
 
 
 %changelog
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.4.2-11avx
+* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.4.2-11avx
 - bootstrap build (new gcc, new glibc)
 
-* Mon Jul 25 2005 Vincent Danen <vdanen@annvix.org> 1.4.2-10avx
+* Mon Jul 25 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.4.2-10avx
 - rebuild for new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.4.2-9avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.4.2-9avx
 - bootstrap build
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 1.4.2-8avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.4.2-8avx
 - Annvix build
 
 * Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 1.4.2-7sls
