@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		dmidecode
 %define version 	2.3
-%define release 	4avx
+%define release 	%_revrel
 
 Summary:	Tool for dumping a computer's DMI table contents
 Name:		%{name}
@@ -21,8 +22,6 @@ URL:		http://www.nongnu.org/dmidecode/
 Source0:	http://www.nongnu.org/dmidecode/download/%{name}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-
-PreReq:		rpm-helper
 
 %description
 Dmidecode is a tool for dumping a computer's DMI (some say SMBIOS) table
@@ -60,13 +59,18 @@ mkdir -p %{buildroot}%{_sbindir}
 
 
 %changelog
-* Thu Aug 18 2005 Vincent Danen <vdanen@annvix.org> 2.3-4avx
+* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- drop unrequired prereq
+
+* Thu Aug 18 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.3-4avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.3-3avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.3-3avx
 - bootstrap build
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.3-2avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.3-2avx
 - Annvix build
 
 * Fri Mar  5 2004 Thomas Backlundd <tmb@mandrake.org> 2.3-1sls
