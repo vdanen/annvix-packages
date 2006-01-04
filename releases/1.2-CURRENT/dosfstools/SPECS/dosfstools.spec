@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		dosfstools
 %define version 	2.10
-%define release 	4avx
+%define release 	%_revrel
 
 Summary:	Utilities to create and check MS-DOS FAT filesystems
 Name:		%{name}
@@ -19,9 +20,8 @@ License:	GPL
 Group:		File tools
 URL:		ftp://ftp.uni-erlangen.de/pub/Linux/LOCAL/dosfstools
 Source:		ftp://ftp.uni-erlangen.de/pub/Linux/LOCAL/dosfstools/%{name}-%{version}.src.tar.bz2
-Source1:	msdos_fs.h.bz2
-Patch0:		dosfstools-2.10-compile-against-2.4-header.patch.bz2
-Patch1:		dosfstools-2.10-headers.patch.bz2
+Source1:	msdos_fs.h
+Patch0:		dosfstools-2.10-compile-against-2.4-header.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -39,8 +39,7 @@ code.
 %prep
 %setup -q
 %patch0 -p1 -b .kern24
-%patch1 -p1 -b .headers
-bzcat %{SOURCE1} >dosfsck/msdos_fs.h
+cat %{SOURCE1} >dosfsck/msdos_fs.h
 
 
 %build
@@ -71,14 +70,19 @@ rm -f %{buildroot}/sbin/fsck.*
 
 
 %changelog
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 2.10-4avx
+* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- drop P1: it breaks the build
+
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.10-4avx
 - bootstrap build (new gcc, new glibc)
 - P3: fix build
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.10-3avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.10-3avx
 - rebuild
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.10-2avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.10-2avx
 - Annvix build
 
 * Fri Apr 30 2004 Vincent Danen <vdanen@opensls.org> 2.10-1sls
