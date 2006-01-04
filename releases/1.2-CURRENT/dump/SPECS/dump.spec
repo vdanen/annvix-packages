@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		dump
 %define version 	0.4b40
-%define release 	2avx
+%define release 	%_revrel
 
 %define rmtrealname	rmt-dump
 
@@ -21,9 +22,9 @@ License:	BSD
 Group:		Archiving/Backup
 URL:		http://sourceforge.net/projects/dump/
 Source: 	http://osdn.dl.sourceforge.net/pub/sourceforge/d/du/%{name}/%{name}-%{version}.tar.bz2
-Patch:		dump-mdk-nonroot.patch.bz2
-Patch1:		dump-0.4b37-mdk-compile-fix.patch.bz2
-Patch2:		dump-0.4b34-mdk-check-systypes.patch.bz2
+Patch0:		dump-mdk-nonroot.patch
+Patch1:		dump-0.4b37-mdk-compile-fix.patch
+Patch2:		dump-0.4b34-mdk-check-systypes.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	e2fsprogs-devel >= 1.15, openssl-devel >= 0.9.7a
@@ -43,7 +44,7 @@ may also be restored from full or partial backups.
 
 
 %package -n rmt
-Summary:	Provides certain programs with access to remote tape devices.
+Summary:	Provides certain programs with access to remote tape devices
 Group:		Archiving/Backup
 Provides:	/sbin/rmt
 
@@ -108,27 +109,31 @@ popd
 
 
 %changelog
-* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 0.4b40-2avx
+* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Sep 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.4b40-2avx
 - rebuild for new readline
 
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 0.4b40-1avx
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.4b40-1avx
 - 0.4b40
 - no more alternatives
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.4b37-3avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.4b37-3avx
 - rebuild
 
-* Wed Jan 05 2005 Vincent Danen <vdanen@annvix.org> 0.4b37-2avx
+* Wed Jan 05 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.4b37-2avx
 - rebuild against new openssl
 
-* Thu Aug 18 2004 Vincent Danen <vdanen@annvix.org> 0.4b37-1avx
+* Thu Aug 18 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.4b37-1avx
 - 0.4b37
 - drop P1, krb5 doesn't bundle libcom_err now (deaddog)
 - use alternative for rmt (tar now provides rmt also) (deaddog)
 - new P1: fix build (peroyvind)
 - patch policy
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 0.4b34-5avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.4b34-5avx
 - Annvix build
 
 * Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 0.4b34-4sls
