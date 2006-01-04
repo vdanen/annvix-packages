@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		dev86
 %define version		0.16.16
-%define release		1avx
+%define release		%_revrel
 
 Summary:	A real mode 80x86 assembler and linker
 Name:		%{name}
@@ -19,8 +20,8 @@ License:	GPL
 Group:		Development/Other
 URL:		http://www.cix.co.uk/~mayday/
 Source:		http://www.cix.co.uk/~mayday/Dev86src-%{version}.tar.bz2
-Patch5:		dev86-0.16.3-missing-header.patch.bz2
-Patch6:		dev86-0.16.16-overflow.patch.bz2
+Patch5:		dev86-0.16.3-missing-header.patch
+Patch6:		dev86-0.16.16-overflow.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 ExclusiveArch:	%{ix86} ppc
@@ -107,18 +108,22 @@ ln -f bin86/ChangeLog ChangeLog.bin86
 
 
 %changelog
-* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 0.16.16-1avx
+* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Sep 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.16.16-1avx
 - 0.16.16
 - P6: fix invalid memory allocation in bcc.c:build_prefix () (from fedora)
 - drop P0-P4
 
-* Wed Aug 17 2005 Vincent Danen <vdanen@annvix.org> 0.16.3-7avx
+* Wed Aug 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.16.3-7avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.16.3-6avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.16.3-6avx
 - rebuild
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 0.16.3-5avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.16.3-5avx
 - Annvix build
 
 * Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 0.16.3-4sls
