@@ -5,15 +5,16 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name 		execline
 %define version		1.06
-%define release		1avx
+%define release		%_revrel
 
 %define _bindir		/bin
 
-Summary:	light non-interactive scripting language
+Summary:	A light non-interactive scripting language
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -38,9 +39,15 @@ designed for use in embedded systems, but works on most Unix flavors.
 
 
 %build
+%ifarch x86_64
+COMP="diet x86_64-annvix-linux-gnu-gcc"
+%else
+COMP="diet gcc"
+%endif
+
 pushd %{name}-%{version}
-    echo "diet gcc -O2 -W -Wall -fomit-frame-pointer -pipe" > conf-compile/conf-cc
-    echo "diet gcc -Os -static -s" > conf-compile/conf-ld
+    echo "$COMP -O2 -W -Wall -fomit-frame-pointer -pipe" > conf-compile/conf-cc
+    echo "$COMP -Os -static -s" > conf-compile/conf-ld
 
     echo "linux-:%{_target_cpu}-:" > src/sys/systype
 
@@ -76,5 +83,10 @@ popd
 
 
 %changelog
-* Tue Aug 23 2005 Sean P. Thomas <spt@annvix.org> 1.06-1avx
+* Wed Jan 04 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- dietlibc fixes
+
+* Tue Aug 23 2005 Sean P. Thomas <spt-at-build.annvix.org> 1.06-1avx
 - initial Annvix build
