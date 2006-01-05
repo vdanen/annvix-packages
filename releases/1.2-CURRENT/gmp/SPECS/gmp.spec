@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		gmp
 %define version		4.1.4
-%define release		1avx
+%define release		%_revrel
 
 %define major		3
 %define major_gmpxx	3
@@ -26,9 +27,9 @@ License:	LGPL
 Group:		System/Libraries
 URL:		http://www.swox.com/gmp/
 Source:		ftp://ftp.gnu.org/pub/gnu/gmp/%{name}-%{version}.tar.bz2
-Patch0:		gmp-4.1.3-x86_64.patch.bz2
-Patch1:		gmp-4.1-gcc-version.patch.bz2
-Patch3:		gmp-4.1.4-fpu.patch.bz2
+Patch0:		gmp-4.1.3-x86_64.patch
+Patch1:		gmp-4.1-gcc-version.patch
+Patch3:		gmp-4.1.4-fpu.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5, automake1.7
@@ -223,16 +224,20 @@ rm -f %{buildroot}%{_infodir}/dir
 
 
 %changelog
-* Mon Aug 15 2005 Vincent Danen <vdanen@annvix.org> 4.1.4-1avx
+* Thu Jan 05 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Mon Aug 15 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.1.4-1avx
 - 4.1.4
 - P3: fix build (neoclust)
 - drop P2; merged upstream
 - disable FFT code and enable CXX, MPBDS, and MPFR code (walluck)
 
-* Sat Jun 04 2005 Vincent Danen <vdanen@annvix.org> 4.1.2-7avx
+* Sat Jun 04 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.1.2-7avx
 - bootstrap build
 
-* Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 4.1.2-6avx
+* Thu Jun 24 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.1.2-6avx
 - Annvix build
 
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 4.1.2-5sls
