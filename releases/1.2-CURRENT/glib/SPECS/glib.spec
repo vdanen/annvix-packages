@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		glib
 %define version		1.2.10
-%define release		18avx
+%define release		%_revrel
 
 %define major    	1.2
 %define libname  	%mklibname %{name} %{major}
@@ -23,12 +24,12 @@ Group:		System/Libraries
 URL:		http://www.gtk.org
 Source:		ftp://ftp.gtk.org/pub/gtk/v1.2/%{name}-%{version}.tar.bz2
 # (fc) 1.2.10-3mdk Suppress warnings about varargs macros for -pedantic (Rawhide)
-Patch0:		glib-1.2.10-isowarning.patch.bz2
+Patch0:		glib-1.2.10-isowarning.patch
 # (fc) 1.2.10-5mdk don't set -L/usr/lib in glib-config
-Patch1:		glib-1.2.10-libdir.patch.bz2
-Patch2:		glib-1.2.10-fdr-gcc34.patch.bz2
-Patch3:		glib-1.2.10-fdr-underquoted.patch.bz2
-Patch4:		glib-1.2.10-mdk-pic.patch.bz2
+Patch1:		glib-1.2.10-libdir.patch
+Patch2:		glib-1.2.10-fdr-gcc34.patch
+Patch3:		glib-1.2.10-fdr-underquoted.patch
+Patch4:		glib-1.2.10-mdk-pic.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	automake1.4
@@ -126,23 +127,27 @@ make check
 
 
 %changelog
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.2.10-18avx
+* Thu Jan 05 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.2.10-18avx
 - bootstrap build (new gcc, new glibc)
 
-* Sat Jul 30 2005 Vincent Danen <vdanen@annvix.org> 1.2.10-17avx
+* Sat Jul 30 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.2.10-17avx
 - rebuild against new gcc
 - enable multiarch
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.2.10-16avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.2.10-16avx
 - bootstrap build
 
-* Mon Feb 28 2005 Vincent Danen <vdanen@annvix.org> 1.2.10-15avx
+* Mon Feb 28 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.2.10-15avx
 - P2: fix build with gcc 3.4 (fedora)
 - P3: fix underquoted m4 definitions (fedora)
 - P4: build static glib library with PIC as pam modules need it
   (gbeauchesne)
 
-* Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 1.2.10-14avx
+* Thu Jun 24 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.2.10-14avx
 - Annvix build
 
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 1.2.10-13sls
