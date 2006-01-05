@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		gdbm
 %define version 	1.8.3
-%define release 	3avx
+%define release 	%_revrel
 
 %define major		3
 %define libname	%mklibname gdbm %{major}
@@ -22,9 +23,9 @@ License:	GPL
 Group:		System/Libraries
 URL:		http://www.gnu.org/software/gdbm/
 Source:		ftp://ftp.gnu.org/pub/gnu/gdbm/%{name}-%{version}.tar.bz2
-Patch0:		gdbm-1.8.0-jbj.patch.bz2
+Patch0:		gdbm-1.8.0-jbj.patch
 # (deush) regenerate patch to apply with -p1
-Patch1:		gdbm-1.8.3-asnonroot.patch.bz2
+Patch1:		gdbm-1.8.3-asnonroot.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 Buildrequires:	texinfo autoconf2.5 automake1.7
@@ -56,7 +57,7 @@ Requires:	%{libname} = %{version}
 Prereq:		info-install
 Obsoletes:	%{name}-devel, libgdbm1-devel
 Provides:	%{name}-devel, libgdbm1-devel
-Provides:	%{libname}-devel, lib%{name}-devel
+Provides:	lib%{name}-devel
 Conflicts:	%{mklibname gdbm 2}-devel
 
 %description -n %{libname}-devel
@@ -123,13 +124,18 @@ chmod 0644 COPYING INSTALL NEWS README
 
 
 %changelog
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.8.3-3avx
+* Thu Jan 05 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- remove useless provides on %%{libname}-devel
+
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.8.3-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.8.3-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.8.3-2avx
 - bootstrap build
 
-* Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 1.8.3-1avx
+* Thu Jun 24 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.8.3-1avx
 - 1.8.3
 - sync with cooker 1.8.3-2mdk:
   - force the use of autoconf2.5 and automake1.7 (peroyvind)
@@ -139,7 +145,7 @@ chmod 0644 COPYING INSTALL NEWS README
   - drop P2 and P3
 
 
-* Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 1.8.0-27avx
+* Thu Jun 24 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.8.0-27avx
 - Annvix build
 
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 1.8.0-26sls
