@@ -5,10 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
+%define revision	$Rev: 2$
 %define name		file
 %define version		4.15
-%define release		1avx
+%define release		%_revrel
 
 %define major		1
 %define libname		%mklibname magic %{major}
@@ -21,8 +23,8 @@ License:	BSD
 Group:		File tools
 URL:		ftp://ftp.astron.com/pub/file/
 Source0:	ftp://ftp.astron.com/pub/file/%{name}-%{version}.tar.bz2
-Source1:	magic.mime.bz2
-Patch2:		file-4.01-perl.patch.bz2
+Source1:	magic.mime
+Patch2:		file-4.01-perl.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl, libtool, autoconf, zlib-devel
@@ -99,7 +101,7 @@ CFLAGS="%{optflags} -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE"
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
-bzcat %{SOURCE1} > %{buildroot}%{_datadir}/misc/magic.mime
+cat %{SOURCE1} > %{buildroot}%{_datadir}/misc/magic.mime
 ln -sf %{name}/magic %{buildroot}%{_datadir}/misc/magic
 
 install -m 0644 src/file.h %{buildroot}%{_includedir}/ 
@@ -139,28 +141,32 @@ install -m 0644 src/file.h %{buildroot}%{_includedir}/
 
 
 %changelog
-* Sun Oct 09 2005 Vincent Danen <vdanen@annvix.org> 4.15-1avx
+* Wed Jan 04 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sun Oct 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.15-1avx
 - 4.15
 - drop upstream P0
 
-* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 4.14-1avx
+* Fri Sep 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.14-1avx
 - 4.14
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 4.10-4avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.10-4avx
 - bootstrap build (new gcc, new glibc)
 
-* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 4.10-3avx
+* Tue Jul 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.10-3avx
 - rebuild for new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 4.10-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.10-2avx
 - bootstrap build
 
-* Sun Sep 12 2004 Vincent Danen <vdanen@annvix.org> 4.10-1avx
+* Sun Sep 12 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.10-1avx
 - 4.10
 - remove P3: similar fix upstream
 - spec cleanups
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 4.03-5avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.03-5avx
 - Annvix build
 
 * Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 4.03-4sls
