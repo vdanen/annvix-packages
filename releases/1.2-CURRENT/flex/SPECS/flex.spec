@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		flex
 %define version		2.5.4a
-%define release		27avx
+%define release		%_revrel
 
 Summary:	A tool for creating scanners (text pattern recognizers)
 Name:		%{name}
@@ -19,9 +20,9 @@ License:	GPL
 Group:		Development/Other
 URL: 		http://www.gnu.org/software/flex/flex.htm
 Source:		ftp.gnu.org:/non-gnu/flex/flex-2.5.4a.tar.bz2
-Patch0:		flex-2.5.4a-skel.patch.bz2
-Patch1:         flex-2.5.4-glibc22.patch.bz2
-Patch2:		flex-2.5.4-c++fixes.patch.bz2
+Patch0:		flex-2.5.4a-skel.patch
+Patch1:         flex-2.5.4-glibc22.patch
+Patch2:		flex-2.5.4-c++fixes.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	byacc
@@ -90,16 +91,20 @@ ln -s flex.1 flex++.1
 
 
 %changelog
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.5.4a-27avx
+* Wed Jan 04 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.5.4a-27avx
 - bootstrap build (new gcc, new glibc)
 
-* Mon Jul 25 2005 Vincent Danen <vdanen@annvix.org> 2.5.4a-26avx
+* Mon Jul 25 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.5.4a-26avx
 - rebuild for new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.5.4a-25avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.5.4a-25avx
 - bootstrap build
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 2.5.4a-24avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.5.4a-24avx
 - Annvix build
 
 * Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 2.5.4a-23sls
