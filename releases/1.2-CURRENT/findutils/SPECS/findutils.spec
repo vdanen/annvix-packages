@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		findutils
 %define version		4.2.25
-%define release		1avx
+%define release		%_revrel
 
 Summary:	The GNU versions of find utilities (find, xargs, and locate)
 Name:		%{name}
@@ -20,7 +21,7 @@ Group:		File tools
 URL:		http://www.gnu.org/software/findutils/findutils.html
 Source0:	ftp://ftp.gnu.org/gnu/findutils-%{version}.tar.gz
 Source1:	ftp://ftp.gnu.org/gnu/findutils-%{version}.tar.gz.sig
-Patch0:		findutils-4.2.15-no-locate.patch.bz2
+Patch0:		findutils-4.2.15-no-locate.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	automake1.8
@@ -86,33 +87,37 @@ ln -sf ../../bin/find %{buildroot}%{_bindir}/find
 
 
 %changelog
-* Sun Oct 09 2005 Vincent Danen <vdanen@annvix.org> 4.2.25-1avx
+* Wed Jan 04 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sun Oct 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.2.25-1avx
 - 4.2.25
 - fix requires(post|preun)
 - add buildreq on cvs and gettext-devel for autoreconf's call to
   autopoint (cjw)
 
-* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 4.2.24-1avx
+* Fri Sep 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.2.24-1avx
 - 4.2.24
 - drop old S1 (updatedb for cron)
 - change description to reflect that locate isn't in this package
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 4.2.17-4avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.2.17-4avx
 - bootstrap build (new gcc, new glibc)
 
-* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 4.2.17-3avx
+* Tue Jul 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.2.17-3avx
 - rebuild for new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 4.2.17-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.2.17-2avx
 - bootstrap build
 
-* Sat Mar 05 2005 Vincent Danen <vdanen@annvix.org> 4.2.17-1avx
+* Sat Mar 05 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.2.17-1avx
 - 4.2.17
 - P4: don't build locate
 - remove S1 as it's not even used
 - update %%configure/%%makeinstall macros; use automake1.8
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 4.1.20-4avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.1.20-4avx
 - Annvix build
 
 * Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> 4.1.20-3sls
