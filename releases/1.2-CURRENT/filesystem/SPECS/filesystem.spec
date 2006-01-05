@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		filesystem
 %define version		2.1.5
-%define release		5avx
+%define release		%_revrel
 
 Summary:	The basic directory layout for an Annvix system
 Name:		%{name}
@@ -110,15 +111,19 @@ popd
 
 
 %changelog
-* Mon Aug 29 2005 Vincent Danen <vdanen@annvix.org> 2.1.5-5avx
+* Wed Jan 04 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Mon Aug 29 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.1.5-5avx
 - add /etc/sysconfig/env
 - add /var/log/service (NOTE: remove /var/log/supervise when everything
   is switched over)
 
-* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 2.1.5-4avx
+* Fri Aug 19 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.1.5-4avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.1.5-3avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.1.5-3avx
 - bootstrap build
 
 * Thu Mar 03 2005 Vincent Danen <vdanen@opensls.org> 2.1.5-2avx
