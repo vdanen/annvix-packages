@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		gettext
 %define version 	0.14.5
-%define release 	1avx
+%define release 	%_revrel
 
 %define major		3
 %define libname		%mklibname intl %{major}
@@ -24,8 +25,8 @@ URL:		http://www.gnu.org/software/gettext/
 Source:		ftp://ftp.gnu.org/pub/gnu/%{name}/%{name}-%{version}.tar.gz
 Source1:	ftp://ftp.gnu.org/pub/gnu/%{name}/%{name}-%{version}.tar.gz.sig
 # (gb) some tests try to link non-pic static libs into a dso (XXX patch as XFAIL?)
-Patch0:		gettext-0.14.5-pic.patch.bz2
-Patch1:		gettext-0.14.2-charsets.patch.bz2
+Patch0:		gettext-0.14.5-pic.patch
+Patch1:		gettext-0.14.2-charsets.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5, bison, texinfo, automake1.8, flex
@@ -33,7 +34,8 @@ BuildRequires:	autoconf2.5, bison, texinfo, automake1.8, flex
 Requires:	%{name}-base = %{version}-%{release}
 Requires:	%{libname} = %{version}-%{release}
 Requires:	%mklibname expat 0
-PreReq:		info-install
+Requires(post):	info-install
+Requires(preun): info-install
 
 %description
 The GNU gettext package provides a set of tools and documentation for producing
@@ -65,7 +67,8 @@ This package contains the libintl library for the gettext package.
 Summary:	GNU libraries and utilities for producing multi-lingual messages
 Group:		Development/Other
 Requires:	%{name} = %{version}
-PreReq:		info-install
+Requires(post):	info-install
+Requires(preun): info-install
 
 %description devel
 Header files, used when the libc does not provide code of handling
@@ -73,7 +76,7 @@ multi-lingual messages.
 
 
 %package base
-Summary:	GNU libraries and utilities for producing multi-lingual messages.
+Summary:	GNU libraries and utilities for producing multi-lingual messages
 Group:		Development/Other
 Requires:	%{libname} = %{version}
 
@@ -144,10 +147,21 @@ popd
 %post
 %_install_info gettext.info
 
+
+%post devel
+%_install_info autosprintf.info
+
+
 %post -n %{libname} -p /sbin/ldconfig
+
 
 %preun
 %_remove_install_info gettext.info
+
+
+%preun devel
+%_remove_install_info autosprintf.info
+
 
 %postun -n %{libname} -p /sbin/ldconfig
 
@@ -205,22 +219,28 @@ popd
 
 
 %changelog
-* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 0.14.5-1avx
+* Thu Jan 05 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- fix prereq
+- install autosprintf.info
+
+* Fri Sep 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.14.5-1avx
 - 1.14.5
 - build --disabled-shared autoconf-lib-link tests --with-pic (gbeauchesne)
 - BuildRequires: automake1.8 not automake1.7
 - don't use parallel make
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 0.14.1-5avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.14.1-5avx
 - bootstrap build (new gcc, new glibc)
 
-* Mon Jul 25 2005 Vincent Danen <vdanen@annvix.org> 0.14.1-4avx
+* Mon Jul 25 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.14.1-4avx
 - rebuild for new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.14.1-3avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.14.1-3avx
 - bootstrap build
 
-* Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 0.14.1-2avx
+* Thu Jun 24 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.14.1-2avx
 - Annvix build
 
 * Fri Apr 30 2004 Vincent Danen <vdanen@opensls.org> 0.14.1-1sls
