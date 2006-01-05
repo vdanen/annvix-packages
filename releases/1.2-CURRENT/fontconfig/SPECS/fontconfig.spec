@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		fontconfig
 %define version		2.3.2
-%define release		2avx
+%define release		%_revrel
 
 %define major		1
 %define libname		%mklibname %{name} %{major}
@@ -24,10 +25,10 @@ License:	MIT
 Group:		System/X11
 URL:		http://fontconfig.org/
 Source:		http://fontconfig.org/release/fontconfig-%{version}.tar.bz2
-Patch0:		fontconfig-2.3.2-libtool.patch.bz2
-Patch1:		fontconfig-2.2.98-blacklist.patch.bz2
-Patch2:		fontconfig-2.3.2-defaultconfig.patch.bz2
-Patch3:		fontconfig-2.3.2-includeconf.patch.bz2
+Patch0:		fontconfig-2.3.2-libtool.patch
+Patch1:		fontconfig-2.2.98-blacklist.patch
+Patch2:		fontconfig-2.3.2-defaultconfig.patch
+Patch3:		fontconfig-2.3.2-includeconf.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	ed
@@ -132,22 +133,26 @@ rm -rf %{buildroot}%{_sysconfdir}/fonts/conf.d
 
 
 %changelog
-* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 2.3.2-2avx
+* Thu Jan 05 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Sep 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.3.2-2avx
 - rebuild against new expat
 
-* Sun Sep 11 2005 Vincent Danen <vdanen@annvix.org> 2.3.2-1avx
+* Sun Sep 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.3.2-1avx
 - 2.3.2
 - built-in libtool fixes (gbeauchesne)
 - sync patches with mandriva 2.3.2-5mdk
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.2.1-11avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.2.1-11avx
 - bootstrap build (new gcc, new glibc)
 
-* Sat Jun 04 2005 Vincent Danen <vdanen@annvix.org> 2.2.1-10avx
+* Sat Jun 04 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.2.1-10avx
 - bootstrap build
 - fix build, use %%configure2_5x
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> - 2.2.1-9avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> - 2.2.1-9avx
 - Annvix build
 
 * Thu Mar 04 2004 Vincent Danen <vdanen@opensls.org> - 2.2.1-8sls
