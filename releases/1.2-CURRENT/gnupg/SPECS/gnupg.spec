@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		gnupg
 %define version 	1.4.2
-%define release		1avx
+%define release		%_revrel
 
 Summary:	GNU privacy guard - a free PGP replacement
 Name:		%{name}
@@ -114,30 +115,34 @@ tar xvjf %{SOURCE2} -C %{buildroot}%{_sysconfdir}/RPM-GPG-KEYS
 
 
 %changelog
-* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 1.4.2-1avx
+* Thu Jan 05 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Sep 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.4.2-1avx
 - 1.4.2
 - P0 dropped; merged upstream
 - don't build against ldap libs
 
-* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 1.2.6-4avx
+* Thu Aug 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.2.6-4avx
 - bootstrap build (new gcc, new glibc)
 - gnupg builds the gpgkeys_* files based on what's installed, so
   although it seems wierd, we need to require exim
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.2.6-3avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.2.6-3avx
 - bootstrap build
 
-* Thu Mar 17 2005 Vincent Danen <vdanen@annvix.org> 1.2.6-2avx
+* Thu Mar 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.2.6-2avx
 - P0: patch to fix CAN-2005-0366
 
-* Sun Sep 12 2004 Vincent Danen <vdanen@annvix.org> 1.2.6-1avx
+* Sun Sep 12 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.2.6-1avx
 - 1.2.6
 - s/opensls-keys/annvix-keys/
 - remove P2; fixed upstream
 - remove unapplied P1
 - remove P0; the mandrakesecure.net keyserver no longer exists
 
-* Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 1.2.3-6avx
+* Thu Jun 24 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.2.3-6avx
 - Annvix build
 
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 1.2.3-5sls
