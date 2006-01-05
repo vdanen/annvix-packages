@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		gawk
 %define version		3.1.4
-%define release		1avx
+%define release		%_revrel
 
 Summary:	The GNU version of the awk text processing utility
 Name:		%{name}
@@ -20,11 +21,11 @@ Group:		Text tools
 URL:		http://www.gnu.org/software/gawk/gawk.html
 Source0:	http://ftp.gnu.org/gnu/gawk/%{name}-%{version}.tar.bz2
 Source1:	http://ftp.gnu.org/gnu/gawk/%{name}-%{version}-ps.tar.bz2
-Patch0:		gawk-3.1.3-getpgrp_void.patch.bz2
-Patch1:		gawk-3.1.4-dfacache.patch.bz2
-Patch2:		gawk-3.1.4-flonum.patch.bz2
-Patch3:		gawk-3.1.4-nextc.patch.bz2
-Patch4:		gawk-3.1.4-uplow.patch.bz2
+Patch0:		gawk-3.1.3-getpgrp_void.patch
+Patch1:		gawk-3.1.4-dfacache.patch
+Patch2:		gawk-3.1.4-flonum.patch
+Patch3:		gawk-3.1.4-nextc.patch
+Patch4:		gawk-3.1.4-uplow.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	byacc
@@ -115,20 +116,24 @@ popd
 
 
 %changelog
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 3.1.2-8avx
+* Thu Jan 05 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.1.2-8avx
 - 3.1.4
 - sync patches with mandrake 3.1.4-1mdk (which in turn synced with Fedora)
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 3.1.2-8avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.1.2-8avx
 - bootstrap build (new gcc, new glibc)
 
-* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 3.1.2-7avx
+* Tue Jul 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.1.2-7avx
 - rebuild for new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 3.1.2-6avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.1.2-6avx
 - bootstrap build
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 3.1.2-5avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 3.1.2-5avx
 - require packages not files
 - Annvix build
 
