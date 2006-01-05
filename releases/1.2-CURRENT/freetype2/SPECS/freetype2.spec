@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		freetype2
 %define	version		2.1.10
-%define release		2avx
+%define release		%_revrel
 
 %define major		6
 %define libname		%mklibname freetype %{major}
@@ -23,13 +24,13 @@ Group:		System/Libraries
 URL:		http://www.freetype.org/
 Source0:	ftp://ftp.freetype.org/pub/freetype/freetype2/freetype-%{version}.tar.bz2
 # (fc) 2.1.10-2mdk CVS bug fixes, mostly for embolding
-Patch0:		freetype-2.1.10-cvsfixes.patch.bz2
+Patch0:		freetype-2.1.10-cvsfixes.patch
 # (fc) 2.1.10-3mdk put back internal API, used by xorg (Mdk bug #14636) (David Turner)
-Patch1:		freetype-2.1.10-xorgfix.patch.bz2
+Patch1:		freetype-2.1.10-xorgfix.patch
 # (fc) 2.1.10-5mdk fix autofit render setup (CVS)
-Patch2:		freetype-2.1.10-fixautofit.patch.bz2
+Patch2:		freetype-2.1.10-fixautofit.patch
 # (fc) 2.1.10-5mdk fix memleak (CVS)
-Patch3:		freetype-2.1.10-memleak.patch.bz2
+Patch3:		freetype-2.1.10-memleak.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}-%{release}-root
 BuildRequires:	zlib-devel, multiarch-utils
@@ -62,6 +63,7 @@ Requires:	%{libname} = %{version}
 Requires:	zlib-devel
 Obsoletes:	%{name}-devel
 Provides:	%{name}-devel = %{version}-%{release}
+Provides:	libfreetype-devel = %{version}-%{release}
 
 %description -n %{libname}-devel
 This package is only needed if you intend to develop or compile applications
@@ -135,20 +137,25 @@ developing programs which will use the FreeType2 library.
 
 
 %changelog
-* Thu Sep 22 2005 Vincent Danen <vdanen@annvix.org> 2.1.10-2avx
+* Thu Jan 05 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- rpmlint fix: %%{libname}-devel also provides libfreetype-devel
+
+* Thu Sep 22 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.1.10-2avx
 - drop P4; not needed
 
-* Sun Sep 11 2005 Vincent Danen <vdanen@annvix.org> 2.1.10-1avx
+* Sun Sep 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.1.10-1avx
 - 2.1.10
 - sync patches with mandriva 2.1.10-6mdk (not that we really care about
   having a 100% freetype, but it's no real skin off our back)
 - drop the docs
 - multiarch support
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.1.4-11avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.1.4-11avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.1.4-10avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.1.4-10avx
 - bootstrap build
 
 * Fri Jun 25 2004 Vincent Danen <vdanen@opensls.org> 2.1.4-9avx
