@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		gif2png
 %define version 	2.4.7
-%define release 	7avx
+%define release 	%_revrel
 
 Summary:	Tools for converting websites from using GIFs to using PNGs
 Name:		%{name}
@@ -57,16 +58,20 @@ also patching HTML pages to keep IMG SRC references correct.
 			 
 
 %changelog
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 2.4.7-7avx
+* Thu Jan 05 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.4.7-7avx
 - rebuild against new libpng
 
-* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 2.4.7-6avx
+* Fri Aug 19 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.4.7-6avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.4.7-5avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.4.7-5avx
 - rebuild
 
-* Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 2.4.7-4avx
+* Thu Jun 24 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.4.7-4avx
 - Annvix build
 
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 2.4.7-3sls
