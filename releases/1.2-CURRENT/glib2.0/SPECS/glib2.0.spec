@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		glib%{api_version}
 %define version		2.8.1
-%define release		1avx
+%define release		%_revrel
 
 %define api_version	2.0
 %define lib_major	0
@@ -25,8 +26,8 @@ License:	LGPL
 Group:		System/Libraries
 URL:		http://www.gtk.org
 Source0:	ftp://ftp.gnome.org/pub/GNOME/sources/glib/glib-%{version}.tar.bz2
-Source1:	glib20.sh.bz2
-Source2:	glib20.csh.bz2
+Source1:	glib20.sh
+Source2:	glib20.csh
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	gettext
@@ -115,8 +116,8 @@ make check
 %makeinstall_std
 
 mkdir -p %{buildroot}%{_sysconfdir}/profile.d
-bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/profile.d/glib20.sh
-bzcat %{SOURCE2} > %{buildroot}%{_sysconfdir}/profile.d/glib20.csh
+cat %{SOURCE1} > %{buildroot}%{_sysconfdir}/profile.d/glib20.sh
+cat %{SOURCE2} > %{buildroot}%{_sysconfdir}/profile.d/glib20.csh
 chmod a+x  %{buildroot}%{_sysconfdir}/profile.d/*
 
 %find_lang glib20
@@ -163,26 +164,30 @@ chmod a+x  %{buildroot}%{_sysconfdir}/profile.d/*
 
 
 %changelog
-* Thu Sep 22 2005 Vincent Danen <vdanen@annvix.org> 2.8.1-1avx
+* Thu Jan 05 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Thu Sep 22 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.8.1-1avx
 - 2.8.1
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.6.3-4avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.6.3-4avx
 - bootstrap build (new gcc, new glibc)
 
-* Sat Jul 30 2005 Vincent Danen <vdanen@annvix.org> 2.6.3-3avx
+* Sat Jul 30 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.6.3-3avx
 - rebuild against new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.6.3-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.6.3-2avx
 - bootstrap build
 
-* Mon Feb 28 2005 Vincent Danen <vdanen@annvix.org> 2.6.3-1avx
+* Mon Feb 28 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.6.3-1avx
 - 2.6.3
 - fix download url
 
-* Sun Sep 12 2004 Vincent Danen <vdanen@annvix.org> 2.4.6-1avx
+* Sun Sep 12 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.4.6-1avx
 - 2.4.6
 
-* Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 2.2.3-4avx
+* Thu Jun 24 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3-4avx
 - Annvix build
 
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 2.2.3-3sls
