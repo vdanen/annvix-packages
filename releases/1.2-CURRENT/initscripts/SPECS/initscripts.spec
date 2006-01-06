@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		initscripts
 %define version		7.61.1
-%define release		5avx
+%define release		%_revrel
 
 # The restart part in the real _post_service doesn't work with netfs and isn't needed
 # for other scripts
@@ -23,8 +24,8 @@ License:	GPL
 Group:		System/Base
 Url:		http://www.mandriva.com/cgi-bin/cvsweb.cgi/soft/initscripts/
 Source0:	initscripts-%{version}.tar.bz2
-Patch:		initscripts-7.61.1-mdk-mdkconf.patch.bz2
-Patch2:		initscripts-7.61.1-avx-annvix.patch.bz2
+Patch:		initscripts-7.61.1-mdk-mdkconf.patch
+Patch2:		initscripts-7.61.1-avx-annvix.patch
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildRequires:	glib2-devel, pkgconfig, popt-devel, python
@@ -394,10 +395,14 @@ fi
 
 
 %changelog
-* Thu Sep 22 2005 Vincent Danen <vdanen@annvix.org> 7.61.1-5avx
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Thu Sep 22 2005 Vincent Danen <vdanen-at-build.annvix.org> 7.61.1-5avx
 - rebuild against new glib2.0
 
-* Sun Sep 11 2005 Vincent Danen <vdanen@annvix.org> 7.61.1-4avx
+* Sun Sep 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 7.61.1-4avx
 - mark /etc/rc.d/rc.local and /etc/rc.local as %%config(noreplace)
 - compress the ChangeLog
 - remove the X11 config files
@@ -450,13 +455,13 @@ fi
     NETWORKING_IPV6 (Warly, bug #11896).
   - do not try to restart the no more existing random service (Thierry, #13426)
 
-* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 7.61.1-3avx
+* Fri Aug 19 2005 Vincent Danen <vdanen-at-build.annvix.org> 7.61.1-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 7.61.1-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 7.61.1-2avx
 - bootstrap build
 
-* Tue Mar 01 2005 Vincent Danen <vdanen@annvix.org> 7.61.1-1avx
+* Tue Mar 01 2005 Vincent Danen <vdanen-at-build.annvix.org> 7.61.1-1avx
 - rediff our patch
 - drop SELinux stuff
 - try to cleanup some USB stuff since we compile USB HID/keyboard/mouse
@@ -485,15 +490,15 @@ fi
     background resyncing
   - don't mark initscripts as config files anymore
 
-* Tue Jul 27 2004 Vincent Danen <vdanen@annvix.org> 7.06-41avx
+* Tue Jul 27 2004 Vincent Danen <vdanen-at-build.annvix.org> 7.06-41avx
 - rediffed P2: call supervise directly from init
 - Requires: srv
 
-* Wed Jul 14 2004 Vincent Danen <vdanen@annvix.org> 7.06-40avx
+* Wed Jul 14 2004 Vincent Danen <vdanen-at-build.annvix.org> 7.06-40avx
 - patch naming convention policy
 - don't clear tty1 so we can see what happens
 
-* Sun Jun 27 2004 Vincent Danen <vdanen@annvix.org> 7.06-39avx
+* Sun Jun 27 2004 Vincent Danen <vdanen-at-build.annvix.org> 7.06-39avx
 - Annvix build
 
 * Fri Jun 11 2004 Vincent Danen <vdanen@opensls.org> 7.06-38sls
