@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		ipv6calc
 %define version		0.46
-%define release		7avx
+%define release		%_revrel
 
 Summary:	IPv6 address format change and calculation utility
 Name:		%{name}
@@ -77,19 +78,23 @@ install -m 0755 ipv6logstats/ipv6logstats %{buildroot}%{_bindir}/
 %attr(0755,root,root) %{_bindir}/ipv6logstats
 
 %changelog
-* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 0.46-7avx
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Aug 19 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.46-7avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.46-6avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.46-6avx
 - rebuild
 
-* Thu Jan 06 2005 Vincent Danen <vdanen@annvix.org> 0.46-5avx
+* Thu Jan 06 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.46-5avx
 - rebuild against new openssl
 
-* Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 0.46-4avx
+* Tue Aug 17 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.46-4avx
 - rebuild against new openssl
 
-* Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 0.46-3avx
+* Thu Jun 24 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.46-3avx
 - Annvix build
 
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 0.46-2sls
