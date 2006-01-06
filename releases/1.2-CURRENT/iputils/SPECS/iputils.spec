@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		iputils
 %define version		20%{ver}
-%define release		11avx
+%define release		%_revrel
 %define ver		020927
 
 Summary:	Network monitoring tools including ping
@@ -19,19 +20,17 @@ Release:	%{release}
 License:	BSD
 Group:		System/Base
 URL:		ftp://ftp.inr.ac.ru/ip-routing/
-Source0:	http://ftp.sunet.se/pub/os/Linux/ip-routing/iputils-ss%ver.tar.bz2
+Source0:	http://ftp.sunet.se/pub/os/Linux/ip-routing/iputils-ss%{ver}.tar.bz2
 Source1:	bonding-0.2.tar.bz2
-Patch0:		iputils-20001007-rh7.patch.bz2
-Patch1:		iputils-20020927-datalen.patch.bz2
-Patch2:		iputils-20020927-ping_sparcfix.patch.bz2
-Patch3:		iputils-20020124-rdisc-server.patch.bz2 
-Patch4:		iputils-20020124-countermeasures.patch.bz2 
-Patch5:		iputils-20001110-bonding-sockios.patch.bz2
-Patch6:		iputils-20020927-fix-traceroute.patch.bz2
+Patch0:		iputils-20001007-rh7.patch
+Patch1:		iputils-20020927-datalen.patch
+Patch2:		iputils-20020927-ping_sparcfix.patch
+Patch3:		iputils-20020124-rdisc-server.patch 
+Patch4:		iputils-20020124-countermeasures.patch 
+Patch5:		iputils-20001110-bonding-sockios.patch
+Patch6:		iputils-20020927-fix-traceroute.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-
-Conflicts:	xinetd < 2.1.8.9pre14-2mdk
 
 %description
 The iputils package contains ping, a basic networking tool.  The ping
@@ -123,16 +122,20 @@ install -c doc/tracepath.8 %{buildroot}%{_mandir}/man8/
 
 
 %changelog
-* Sun Sep 11 2005 Vincent Danen <vdanen@annvix.org> 20020927-11avx
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sun Sep 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 20020927-11avx
 - strip suid bits from ping, ping6, and traceroute6
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 20020927-10avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 20020927-10avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 20020927-9avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 20020927-9avx
 - bootstrap build
 
-* Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 20020927-8avx
+* Thu Jun 24 2004 Vincent Danen <vdanen-at-build.annvix.org> 20020927-8avx
 - Annvix build
 
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 20020927-7sls
