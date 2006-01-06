@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		krb5
 %define version		1.4.2
-%define release		3avx
+%define release		%_revrel
 
 %define major		1
 %define libname		%mklibname %{name} %{major}
@@ -23,14 +24,14 @@ Group:		System/Libraries
 URL:		http://web.mit.edu/kerberos/www/
 # from http://web.mit.edu/kerberos/dist/krb5/1.4/krb5-%{version}-signed.tar
 Source0:	%{name}-%{version}.tar.gz
-Source5:	krb5.conf.bz2
-Source8:	kdcrotate.bz2
-Source9:	kdc.conf.bz2
-Source10:	kadm5.acl.bz2
-Source11:	krsh.bz2
-Source12:	krlogin.bz2
-Source19:	statglue.c.bz2
-Source23:	Mandrake-Kerberos-HOWTO.html.bz2
+Source5:	krb5.conf
+Source8:	kdcrotate
+Source9:	kdc.conf
+Source10:	kadm5.acl
+Source11:	krsh
+Source12:	krlogin
+Source19:	statglue.c
+Source23:	Mandrake-Kerberos-HOWTO.html
 Source24:	%{name}-%{version}.tar.gz.asc
 Source25:	http://web.mit.edu/kerberos/www/advisories/2003-004-krb4_patchkit.tar.gz
 Source26:	http://web.mit.edu/kerberos/www/advisories/2003-004-krb4_patchkit.sig
@@ -46,27 +47,27 @@ Source35:	krb5kdc.run
 Source36:	krb5kdc-log.run
 Source39:	08_kftp.afterboot
 Source40:	08_ktelnet.afterboot
-Patch0:		krb5-1.2.2-telnetbanner.patch.bz2
-Patch1:		krb5-1.2.5-biarch-utmp.patch.bz2
-Patch3:		krb5-1.3-telnet.patch.bz2
-Patch4:		krb5-1.3-mdk-no-rpath.patch.bz2
-Patch5:		krb5-1.3-fdr-info-dir.patch.bz2
-Patch6:		krb5-1.3-fdr-large-file.patch.bz2
-Patch7:		krb5-1.3-fdr-ksu-path.patch.bz2
-Patch8:		krb5-1.3-fdr-ksu-access.patch.bz2
-Patch9:		krb5-1.3-fdr-pass-by-address.patch.bz2
-Patch12:	krb5-1.3-fdr-ftp-glob.patch.bz2
-Patch16:	krb5-1.3.2-fdr-efence.patch.bz2
-Patch17:	krb5-1.3.3-fdr-rcp-sendlarge.patch.bz2
-Patch21:	krb5-1.3.3-rcp-markus.patch.bz2
-Patch22:	krb5-1.4.1-api.patch.bz2
-Patch23:	krb5-1.4.1-fclose.patch.bz2
-Patch24:	krb5-1.3.6-telnet-environ.patch.bz2
-Patch25:	krb5-1.3.5-gethostbyname_r.patch.bz2
+Patch0:		krb5-1.2.2-telnetbanner.patch
+Patch1:		krb5-1.2.5-biarch-utmp.patch
+Patch3:		krb5-1.3-telnet.patch
+Patch4:		krb5-1.3-mdk-no-rpath.patch
+Patch5:		krb5-1.3-fdr-info-dir.patch
+Patch6:		krb5-1.3-fdr-large-file.patch
+Patch7:		krb5-1.3-fdr-ksu-path.patch
+Patch8:		krb5-1.3-fdr-ksu-access.patch
+Patch9:		krb5-1.3-fdr-pass-by-address.patch
+Patch12:	krb5-1.3-fdr-ftp-glob.patch
+Patch16:	krb5-1.3.2-fdr-efence.patch
+Patch17:	krb5-1.3.3-fdr-rcp-sendlarge.patch
+Patch21:	krb5-1.3.3-rcp-markus.patch
+Patch22:	krb5-1.4.1-api.patch
+Patch23:	krb5-1.4.1-fclose.patch
+Patch24:	krb5-1.3.6-telnet-environ.patch
+Patch25:	krb5-1.3.5-gethostbyname_r.patch
 # (gb) preserve file names when generating files from *.et (multiarch fixes)
-Patch26:	krb5-1.3.6-et-preserve-file-names.patch.bz2
+Patch26:	krb5-1.3.6-et-preserve-file-names.patch
 # http://qa.mandriva.com/show_bug.cgi?id=9410
-Patch27:	krb5-1.4.1-ftplfs.patch.bz2
+Patch27:	krb5-1.4.1-ftplfs.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	bison, flex, libtermcap-devel, texinfo, tcl
@@ -282,8 +283,8 @@ find . -name Makefile | xargs perl -p -i -e "s@ %{_libdir}@ %{buildroot}%{_libdi
 
 # Our shell scripts.
 mkdir -p %{buildroot}%{_bindir}
-bzcat %{SOURCE11} > %{buildroot}%{_bindir}/krsh
-bzcat %{SOURCE12} > %{buildroot}%{_bindir}/krlogin
+cat %{SOURCE11} > %{buildroot}%{_bindir}/krsh
+cat %{SOURCE12} > %{buildroot}%{_bindir}/krlogin
 
 # Extra headers.
 mkdir -p %{buildroot}%{_includedir}
@@ -304,16 +305,16 @@ rm -f %{buildroot}%{_infodir}/krb425.info*
 
 # KDC config files.
 mkdir -p %{buildroot}%{_sysconfdir}/kerberos/krb5kdc
-bzcat %{SOURCE9} > %{buildroot}%{_sysconfdir}/kerberos/krb5kdc/kdc.conf
-bzcat %{SOURCE10} > %{buildroot}%{_sysconfdir}/kerberos/krb5kdc/kadm5.acl
+cat %{SOURCE9} > %{buildroot}%{_sysconfdir}/kerberos/krb5kdc/kdc.conf
+cat %{SOURCE10} > %{buildroot}%{_sysconfdir}/kerberos/krb5kdc/kadm5.acl
 
 # Client config files and scripts.
 mkdir -p %{buildroot}%{_sysconfdir}
-bzcat %{SOURCE5} > %{buildroot}/%{_sysconfdir}/krb5.conf
+cat %{SOURCE5} > %{buildroot}/%{_sysconfdir}/krb5.conf
 
 # KDC init script.
 mkdir -p %{buildroot}%{_sbindir}
-bzcat %{SOURCE8} > %{buildroot}%{_sbindir}/kdcrotate
+cat %{SOURCE8} > %{buildroot}%{_sbindir}/kdcrotate
 
 # The rest of the binaries and libraries and docs.
 pushd src
@@ -349,7 +350,7 @@ mkdir -p %{buildroot}%{_datadir}/afterboot
 install -m 0644 %{SOURCE39} %{buildroot}%{_datadir}/afterboot/08_kftp
 install -m 0644 %{SOURCE40} %{buildroot}%{_datadir}/afterboot/08_ktelnet
 
-bzcat %{SOURCE23} > %{_builddir}/%{name}-%{version}/doc/Mandrake-Kerberos-HOWTO.html
+cat %{SOURCE23} > %{_builddir}/%{name}-%{version}/doc/Mandrake-Kerberos-HOWTO.html
 
 find %{buildroot} -name "*\.h" | xargs perl -p -i -e "s|\<com_err|\<et/com_err|";
 find %{buildroot} -name "*\.h" | xargs perl -p -i -e "s|\"com_err|\"et/com_err|";
@@ -629,16 +630,20 @@ popd >/dev/null 2>&1
 
 
 %changelog
-* Fri Sep 30 2005 Vincent Danen <vdanen@annvix.org> 1.4.2-3avx
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Sep 30 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.4.2-3avx
 - env dirs and execline runscripts for ktelnet, kftp
 - execline runscripts for kpropd and krb5kdc
 - fix the chrpath call
 - telnet-server-krb5 requires krb5-workstation (for login.krb5)
 
-* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 1.4.2-2avx
+* Sat Sep 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.4.2-2avx
 - s/supervise/service/ in log/run
 
-* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 1.4.2-1avx
+* Sat Sep 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.4.2-1avx
 - 1.4.2
 - drop support for krb4 compatibility; including krb524 run scripts
 - P25: from fedora
@@ -656,13 +661,13 @@ popd >/dev/null 2>&1
 - move logdir to /var/log/service/k*
 - run scripts are now considered config files and are not replaceable
 
-* Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 1.3.6-8avx
+* Fri Aug 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.3.6-8avx
 - fix perms on run scripts
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.3.6-7avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.3.6-7avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jul 14 2005 Vincent Danen <vdanen@annvix.org> 1.3.6-6avx
+* Thu Jul 14 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.3.6-6avx
 - P19, P20: security fix for CAN-2005-1174, CAN-2005-1175, CAN-2005-1689
 - P21: security fix for CAN-2004-0175 (port of fixes to krb5-aware rcp)
 - P22: keep apps which call krb5_principal_compare() or krb5_realm_compare() with
@@ -677,35 +682,35 @@ popd >/dev/null 2>&1
   root) which doesn't make sense and seems stupid and redundant
 - update configs to s/MANDRAKESOFT.COM/ANNVIX.ORG/
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.3.6-5avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.3.6-5avx
 - bootstrap build
 
-* Tue Mar 29 2005 Vincent Danen <vdanen@annvix.org> 1.3.6-4avx
+* Tue Mar 29 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.3.6-4avx
 - P18: security fix for MITKRB5-SA-2005-001 (CAN-2005-0469 and
   CAN-2005-0468)
 
-* Fri Mar 04 2005 Vincent Danen <vdanen@annvix.org> 1.3.6-3avx
+* Fri Mar 04 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.3.6-3avx
 - logger for krb5kdc
 
-* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 1.3.6-2avx
+* Thu Mar 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.3.6-2avx
 - user logger for logging
 
-* Wed Dec 22 2004 Vincent Danen <vdanen@annvix.org> 1.3.6-1avx
+* Wed Dec 22 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.3.6-1avx
 - 1.3.6
 - drop P18 and P19 (merged upstream)
 
-* Fri Oct 08 2004 Vincent Danen <vdanen@annvix.org> 1.3.4-3avx
+* Fri Oct 08 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.3.4-3avx
 - switch from tcpserver to tcpsvd
 - Requires: ipsvd
 - add the /service/{kftp,ktelnet}/peers directories to, by default,
   allow all connections
 - add afterboot snippet
 
-* Fri Sep 17 2004 Vincent Danen <vdanen@annvix.org> 1.3.4-2avx
+* Fri Sep 17 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.3.4-2avx
 - update run scripts
 - fix kftp/ktelnet log run scripts for log directory location
 
-* Sat Sep 04 2004 Vincent Danen <vdanen@annvix.org> 1.3.4-1avx
+* Sat Sep 04 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.3.4-1avx
 - 1.3.4
 - move krb5-config to devel package (abel)
 - remove P4, fixed upstream
@@ -718,7 +723,7 @@ popd >/dev/null 2>&1
 - P18, P19: security fixes for CAN-2004-0642, CAN-2004-0643,
   CAN-2004-0644, CAN-2004-0772
 
-* Wed Jun 23 2004 Vincent Danen <vdanen@annvix.org> 1.3-9avx
+* Wed Jun 23 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.3-9avx
 - Annvix build
 
 * Thu Jun 03 2004 Vincent Danen <vdanen@opensls.org> 1.3-8sls
