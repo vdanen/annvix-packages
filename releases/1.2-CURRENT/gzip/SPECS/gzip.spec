@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		gzip
 %define version		1.2.4a
-%define release 	21avx
+%define release 	%_revrel
 
 Summary:	The GNU data compression program
 Name:		%{name}
@@ -19,26 +20,27 @@ License:	GPL
 Group:		Archiving/Compression
 URL:		http://www.gzip.org/
 Source:		ftp://ftp.gnu.org/pub/gnu/gzip/gzip-1.2.4a.tar.bz2
-Patch:		gzip-1.2.4-basename.patch.bz2
-Patch1:		gzip-1.2.4-gzexe.patch.bz2
-Patch2:		gzip-1.2.4a-mktemp.patch.bz2
-Patch3:		gzip-1.2.4-zforce.patch.bz2
-Patch4:		gzip-1.2.4-4g.patch.bz2
-Patch5:		gzip-1.2.4a-fixinfo.patch.bz2
-Patch6:		gzip-64bit.patch.bz2
-Patch7:		gzip-better-output-when-segfaults.patch.bz2
-Patch8:		gzip-security-fix-filenames-too-long.patch.bz2
-Patch9:		gzip-1.2.4a-znew.patch.bz2
-Patch10:	gzip-1.2.4a-zdiff-CAN-2004-0970.patch.bz2
-Patch11:	gzip-1.2.4a-CAN-2005-1228.patch.bz2
-Patch12:	gzip-1.2.4a-CAN-2005-0988.patch.bz2
-Patch13:	gzip-1.2.4a-CAN-2005-0758.patch.bz2
+Patch:		gzip-1.2.4-basename.patch
+Patch1:		gzip-1.2.4-gzexe.patch
+Patch2:		gzip-1.2.4a-mktemp.patch
+Patch3:		gzip-1.2.4-zforce.patch
+Patch4:		gzip-1.2.4-4g.patch
+Patch5:		gzip-1.2.4a-fixinfo.patch
+Patch6:		gzip-64bit.patch
+Patch7:		gzip-better-output-when-segfaults.patch
+Patch8:		gzip-security-fix-filenames-too-long.patch
+Patch9:		gzip-1.2.4a-znew.patch
+Patch10:	gzip-1.2.4a-zdiff-CAN-2004-0970.patch
+Patch11:	gzip-1.2.4a-CAN-2005-1228.patch
+Patch12:	gzip-1.2.4a-CAN-2005-0988.patch
+Patch13:	gzip-1.2.4a-CAN-2005-0758.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	texinfo
 
 Requires:	mktemp less
-Prereq:		info-install
+Requires(post):	info-install
+Requires(preun): info-install
 
 %description
 The gzip package contains the popular GNU gzip data compression
@@ -122,27 +124,32 @@ chmod 0755 %{buildroot}%{_bindir}/zless
 
 
 %changelog
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.2.4a-21avx
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- fix prereq
+
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.2.4a-21avx
 - bootstrap build (new gcc, new glibc)
 
-* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 1.2.4a-20avx
+* Tue Jul 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.2.4a-20avx
 - rebuild against new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.2.4a-19avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.2.4a-19avx
 - bootstrap build
 
-* Wed May 18 2005 Vincent Danen <vdanen@annvix.org> 1.2.4a-18avx
+* Wed May 18 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.2.4a-18avx
 - P11: security fix for CAN-2005-1228
 - P12: security fix for CAN-2005-0988
 - P13: security fix for CAN-2005-0758
 
-* Tue Jun 29 2004 Vincent Danen <vdanen@annvix.org> 1.2.4a-17avx
+* Tue Jun 29 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.2.4a-17avx
 - P10: fix temp file probs in zdiff (CAN-2004-0970)
 
-* Tue Jun 29 2004 Vincent Danen <vdanen@annvix.org> 1.2.4a-16avx
+* Tue Jun 29 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.2.4a-16avx
 - change description
 
-* Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 1.2.4a-15avx
+* Thu Jun 24 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.2.4a-15avx
 - require packages not files
 - Annvix build
 
