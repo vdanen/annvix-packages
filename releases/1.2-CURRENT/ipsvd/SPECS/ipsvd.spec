@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define	revision	$Rev$
 %define	name		ipsvd
 %define	version		0.11.0
-%define	release		2avx
+%define	release		%_revrel
 
 Summary:	Internet protocol service daemons
 Name:		%{name}
@@ -19,7 +20,7 @@ License:	BSD
 Group:		System/Servers
 URL:		http://smarden.org/ipsvd/
 Source0:	%{name}-%{version}.tar.gz
-Patch0:		ipsvd-0.11.0-avx-system_matrixssl.patch.bz2
+Patch0:		ipsvd-0.11.0-avx-system_matrixssl.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	dietlibc-devel >= 0.27-2avx
@@ -58,11 +59,17 @@ tcpserver.
 
 
 %build
+%ifarch x86_64
+COMP="diet x86_64-annvix-linux-gnu-gcc"
+%else
+COMP="diet gcc"
+%endif
+
 pushd %{name}-%{version}/src
     MYARCH=`uname -m | sed -e 's/i[4-9]86/i386/' -e 's/armv[3-6][lb]/arm/'`
     perl -pi -e "s|{ARCH}|${MYARCH}|g" Makefile
-    echo "diet gcc -Os -pipe -nostdinc" > conf-cc
-    echo "diet gcc -Os -static -s -nostdinc" > conf-ld
+    echo "$COMP -Os -pipe -nostdinc" > conf-cc
+    echo "$COMP -Os -static -s -nostdinc" > conf-ld
     make
 popd
 
@@ -120,33 +127,38 @@ echo "20" >%{buildroot}%{_sysconfdir}/sysconfig/env/tcpsvd/MAX_BACKLOG
 
 
 %changelog
-* Tue Sep 27 2005 Vincent Danen <vdanen@annvix.org> 0.11.0-2avx
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- dietlibc fixes
+
+* Tue Sep 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.11.0-2avx
 - add /etc/sysconfig/env/tcpsvd with defaults for tcpsvd services
 
-* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 0.11.0-1avx
+* Sat Sep 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.11.0-1avx
 - 0.11.0
 - rebuild against new matrixssl
 - merge P0 and P1 and update it to work with the new matrixssl
 
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 0.10.1-4avx
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.10.1-4avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.10.1-3avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.10.1-3avx
 - rebuild
 
-* Fri Feb 04 2005 Vincent Danen <vdanen@annvix.org> 0.10.1-2avx
+* Fri Feb 04 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.10.1-2avx
 - rebuild against new dietlibc
 
-* Thu Jan 20 2005 Vincent Danen <vdanen@annvix.org> 0.10.1-1avx
+* Thu Jan 20 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.10.1-1avx
 - 0.10.0
 - take an updated P0 from mdk but fix it
 - require a newer matrixssl and dietlibc
 
 
-* Wed Oct 13 2004 Vincent Danen <vdanen@annvix.org> 0.9.6-2avx
+* Wed Oct 13 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.9.6-2avx
 - build against newer matrixssl (1.2.2)
 
-* Sat Sep 11 2004 Vincent Danen <vdanen@annvix.org> 0.9.6-1avx
+* Sat Sep 11 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.9.6-1avx
 - first Annvix build; to eventually replace ucspi-tcp
 
 * Wed Aug 04 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 0.9.6-1mdk
