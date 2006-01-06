@@ -6,11 +6,13 @@
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
 # mdk-1.19.1-1mdk
+#
+# $Id$
 
-
+%define revision	$Rev$
 %define name		groff
 %define version		1.19.1
-%define release		2avx
+%define release		%_revrel
 
 Summary:	A document formatting system
 Name:		%{name}
@@ -22,21 +24,22 @@ URL:		http://www.gnu.org/directory/GNU/groff.html
 Source0:	ftp://prep.ai.mit.edu/pub/gnu/groff/%{name}-%{version}.tar.bz2
 Source1:	troff-to-ps.fpi
 Source2:	README.A4
-Patch4:		groff-1.18-info.patch.bz2
-Patch5:		groff-1.19.1-nohtml.patch.bz2
-Patch6:		groff-1.17.2-libsupc++.patch.bz2
-Patch102:	groff-1.16.1-no-lbp-on-alpha.patch.bz2
+Patch4:		groff-1.18-info.patch
+Patch5:		groff-1.19.1-nohtml.patch
+Patch6:		groff-1.17.2-libsupc++.patch
+Patch102:	groff-1.16.1-no-lbp-on-alpha.patch
 # keeps apostrophes and dashes as ascii, but only for man pages
 # -- pablo
-Patch109:	groff-1.19-dashes.patch.bz2
+Patch109:	groff-1.19-dashes.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5, byacc, texinfo >= 4.3, xpm-devel
 
 Requires:	mktemp, groff-for-man = %{version}-%{release}
+Requires(post):	info-install
+Requires(preun): info-install
 Obsoletes:	groff-tools
 Provides:	groff-tools
-Prereq:		info-install
 
 %description
 Groff is a document formatting system.  Groff takes standard text and
@@ -208,26 +211,31 @@ mv %{buildroot}%{_docdir}/{groff/%{version}/,%{name}-%{version}/}
 
 
 %changelog
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.19.1-2avx
+* Thu Jan 05 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- fix prereq
+
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.19.1-2avx
 - remove BuildReq on xorg-x11 (aka rman) and don't build xditview
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.19.1-1avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.19.1-1avx
 - 1.19.1
 - drop unapplied P3
 - drop P7
 - update P5 (waschk)
 - explicit groff-for-man conflict with older groff due to eqn (pixel)
 
-* Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 1.19-8avx
+* Wed Jul 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.19-8avx
 - rebuild for new gcc
 
-* Sat Jun 04 2005 Vincent Danen <vdanen@annvix.org> 1.19-7avx
+* Sat Jun 04 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.19-7avx
 - bootstrap build
 - change buildrequires from texinfo < 4.7 to >= 4.3
 - make groff depends on groff-for-man %%{version}-%%{release}
 - spec cleanups
 
-* Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 1.19-6avx
+* Thu Jun 24 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.19-6avx
 - require packages not files
 - Annvix build
 - merge from amd64-branch: build fixes (gbeauchesne)
