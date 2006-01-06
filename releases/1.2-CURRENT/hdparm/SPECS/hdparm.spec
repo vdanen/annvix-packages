@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		hdparm
 %define version 	6.1
-%define release 	2avx
+%define release 	%_revrel
 
 Summary:	A utility for displaying and/or setting hard disk parameters
 Name:		%{name}
@@ -60,25 +61,29 @@ install -D -m 0644 %{SOURCE1} %{buildroot}/etc/sysconfig/harddisks
 
 
 %changelog
-* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 6.1-2avx
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Sep 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 6.1-2avx
 - put back our hdparm-sysconfig file; accidentally replaced it
   with the less-complete Mandriva one
 
-* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 6.1-1avx
+* Fri Sep 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 6.1-1avx
 - 6.1
 - update url
 
-* Thu Aug 18 2005 Vincent Danen <vdanen@annvix.org> 5.6-3avx
+* Thu Aug 18 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.6-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 5.6-2avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.6-2avx
 - rebuild
 
-* Wed Aug 25 2004 Vincent Danen <vdanen@annvix.org> 5.6-1avx
+* Wed Aug 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 5.6-1avx
 - 5.6
 - update /etc/sysconfig/harddisks with more info
 
-* Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 5.4-6avx
+* Thu Jun 24 2004 Vincent Danen <vdanen-at-build.annvix.org> 5.4-6avx
 - Annvix build
 
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 5.4-5sls
