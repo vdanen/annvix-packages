@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		hwdata
 %define version		0.152
-%define release		3avx
+%define release		%_revrel
 
 Summary:	Hardware identification and configuration data
 Name:		%{name}
@@ -53,20 +54,24 @@ rm -rf %{buildroot}%{_sysconfdir}/{hotplug,pcmcia}
 
 
 %changelog
-* Thu Aug 18 2005 Vincent Danen <vdanen@annvix.org> 0.152-3avx
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Thu Aug 18 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.152-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.152-2avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.152-2avx
 - rebuild
 
-* Wed Mar 16 2005 Vincent Danen <vdanen@annvix.org> 0.152-1avx
+* Wed Mar 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.152-1avx
 - 0.152
 
-* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 0.145-1avx
+* Thu Feb 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.145-1avx
 - 0.145
 - remove config files for pcmcia and hotplug
 
-* Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 0.111-2avx
+* Thu Jun 24 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.111-2avx
 - Annvix build
 
 * Mon Mar 15 2004 Vincent Danen <vdanen@opensls.org> 0.111-1sls
