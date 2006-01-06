@@ -6,11 +6,13 @@
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
 # sync: rh-2.4.7-7
+#
+# $Id$
 
-
+%define revision	$Rev$
 %define name		iproute2
 %define version		2.4.7
-%define release		17avx
+%define release		%_revrel
 
 %define snap		010824
 
@@ -24,21 +26,21 @@ URL:		ftp://ftp.inr.ac.ru/ip-routing/
 Source: 	%{name}-%{version}-now-ss%snap.tar.bz2
 Source2:	iproute2-man8.tar.bz2
 # RH patches
-Patch0:		iproute2-2.2.4-docmake.patch.bz2
-Patch1:		iproute2-misc.patch.bz2
-Patch2:		iproute2-config.patch.bz2
-Patch4:		iproute2-in_port_t.patch.bz2
-Patch6:		iproute2-flags.patch.bz2
-Patch8:		iproute2-2.4.7-hex.patch.bz2
-Patch9:		iproute2-2.4.7-config.patch.bz2
+Patch0:		iproute2-2.2.4-docmake.patch
+Patch1:		iproute2-misc.patch
+Patch2:		iproute2-config.patch
+Patch4:		iproute2-in_port_t.patch
+Patch6:		iproute2-flags.patch
+Patch8:		iproute2-2.4.7-hex.patch
+Patch9:		iproute2-2.4.7-config.patch
 # MDK patches
-Patch100:	iproute2-def-echo.patch.bz2
-Patch102:	iproute2-2.4.7-bashfix.patch.bz2
-Patch103:	iproute2-htb3.6_tc.patch.bz2
-Patch104:	iproute2-2.4.7-now-ss010824-make.patch.bz2
-Patch105:	iproute2-mult-deflt-gateways.patch.bz2
-Patch106:	iproute2-2.4.7-netlink.patch.bz2
-Patch107:	iproute2-2.4.7-avx-includes.patch.bz2
+Patch100:	iproute2-def-echo.patch
+Patch102:	iproute2-2.4.7-bashfix.patch
+Patch103:	iproute2-htb3.6_tc.patch
+Patch104:	iproute2-2.4.7-now-ss010824-make.patch
+Patch105:	iproute2-mult-deflt-gateways.patch
+Patch106:	iproute2-2.4.7-netlink.patch
+Patch107:	iproute2-2.4.7-avx-includes.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -110,17 +112,21 @@ tar xfj %SOURCE2 -C %{buildroot}/%{_mandir}/
 
 
 %changelog
-* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 2.4.7-17avx
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Aug 19 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.4.7-17avx
 - bootstrap build (new gcc, new glibc)
 - P107: fix ip/iptunnel.c so it compiles properly
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.4.7-16avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.4.7-16avx
 - bootstrap build
 
-* Tue Dec 07 2004 Vincent Danen <vdanen@annvix.org> 2.4.7-15avx
+* Tue Dec 07 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.4.7-15avx
 - P106: patch to fix CAN-2003-0856
 
-* Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 2.4.7-14avx
+* Thu Jun 24 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.4.7-14avx
 - Annvix build
 
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 2.4.7-13sls
