@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		ksymoops
 %define version 	2.4.9
-%define release 	5avx
+%define release 	%_revrel
 
 Summary:	Kernel oops and error message decoder
 Name:		%{name}
@@ -22,7 +23,7 @@ Source0:	%{name}-%{version}.tar.bz2
 Source1:	ksymoops-gznm
 Source2:	ksymoops-script
 Source3:	README.annvix
-Patch1:		ksymoops-2.4.3-add_gz_modules_support.bz2
+Patch1:		ksymoops-2.4.3-add_gz_modules_support
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	binutils-devel
@@ -69,10 +70,14 @@ install -m 0644 %{SOURCE3} .
 
 
 %changelog
-* Thu Aug 18 2005 Vincent Danen <vdanen@annvix.org> 2.4.9-5avx
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Thu Aug 18 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.4.9-5avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.4.9-4avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.4.9-4avx
 - rebuild
 
 * Tue Feb 15 2005 Vincent Danen <vdanen@mandrakesoft.com> 2.4.9-3avx
