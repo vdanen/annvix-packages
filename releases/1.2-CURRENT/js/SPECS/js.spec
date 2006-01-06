@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		js
 %define version		1.5.rc5a
-%define release		2avx
+%define release		%_revrel
 %define epoch		1
 
 %define srcver		1.5-rc5a
@@ -25,8 +26,8 @@ License:	MPL
 Group:		Development/Other
 URL:		http://www.gingerall.com/charlie/ga/xml/d_related.xml
 Source0:	%{name}-%{srcver}.tar.bz2
-Patch0:		libjs-1.5.patch.bz2
-Patch1:		js-va_copy.patch.bz2
+Patch0:		libjs-1.5.patch
+Patch1:		js-va_copy.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	multiarch-utils >= 1.0.3
@@ -133,23 +134,27 @@ install -m 0755 src/Linux_All_OPT.OBJ/%{name} %{buildroot}%{_bindir}/
 
 
 %changelog
-* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 1.5.rc5a-2avx
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Sep 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.5.rc5a-2avx
 - put the innclude directory back to what it used to be (Mandriva moved
   this due to some conflicts with some mozilla stuff)
 
-* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 1.5.rc5a-1avx
+* Fri Sep 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.5.rc5a-1avx
 - 1.5rc5a
 - multiarch support
 - we need to use an epoch here anyways, so tag the version as
   1.5.rc5a-1avx rather than 1.5-0.rc5a.1avx
 
-* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 1.5-0.rc5.10avx
+* Fri Aug 19 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.5-0.rc5.10avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.5-0.rc5.9avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.5-0.rc5.9avx
 - rebuild
 
-* Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 1.5-0.rc5.8avx
+* Thu Jun 24 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.5-0.rc5.8avx
 - Annvix build
 - remove %%build_propolice macro, build with stack protection off by default
 
