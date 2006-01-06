@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		grep
 %define version 	2.5.1a
-%define release 	1avx
+%define release 	%_revrel
 
 %define _bindir 	/bin
 
@@ -21,7 +22,7 @@ License:	GPL
 Group:		File tools
 URL:		http://www.gnu.org/software/grep/grep.html
 Source:		ftp://ftp.gnu.org/pub/gnu/grep/%{name}-%{version}.tar.bz2
-Patch1:		grep-2.5.1-i18n-0.1.patch.bz2
+Patch1:		grep-2.5.1-i18n-0.1.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	gettext pcre-devel texinfo
@@ -70,17 +71,21 @@ rm -rf %{buildroot}%{_infodir}
 
 
 %changelog
-* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 2.5.1a-1avx
+* Thu Jan 05 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.5.1a-1avx
 - 2.5.1a
 - rebuild against new pcre
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.5.1-12avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.5.1-12avx
 - bootstrap build (new gcc, new glibc)
 
-* Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 2.5.1-11avx
+* Wed Jul 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.5.1-11avx
 - rebuild for new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.5.1-10avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.5.1-10avx
 - bootstrap build
 
 * Thu Jun 24 2004 Vincent Danen <vdanen@opensls.org> 2.5.1-9avx
