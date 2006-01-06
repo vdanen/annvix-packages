@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		iptables
 %define version		1.3.3
-%define release		3avx
+%define release		%_revrel
 
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		%{name}
@@ -26,18 +27,19 @@ Source2:	ip6tables.init
 Source3:	iptables.config
 Source4:	ip6tables.config
 Source5:	iptables-kernel-headers.tar.bz2
-Patch1:		iptables-1.3.2-stealth_grsecurity.patch.bz2 
-Patch2:		iptables-1.2.8-imq.patch.bz2 
-Patch3:		iptables-1.2.8-libiptc.h.patch.bz2 
-Patch4:		iptables-1.3.2-fix_extension_test.patch.bz2
-Patch5:		iptables-1.3.2-ipp2p_extension.patch.bz2
-Patch6:		iptables-1.3.3-IFWLOG_extension.patch.bz2
+Patch1:		iptables-1.3.2-stealth_grsecurity.patch 
+Patch2:		iptables-1.2.8-imq.patch 
+Patch3:		iptables-1.2.8-libiptc.h.patch 
+Patch4:		iptables-1.3.2-fix_extension_test.patch
+Patch5:		iptables-1.3.2-ipp2p_extension.patch
+Patch6:		iptables-1.3.3-IFWLOG_extension.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildPrereq:	perl
 BuildRequires:  kernel-source >= 2.4.24-3avx
 
-PreReq:		chkconfig, rpm-helper
+Requires(post):	rpm-helper
+Requires(preun): rpm-helper
 Requires:	kernel >= 2.4.25-3avx
 Provides:	userspace-ipfilter
 Conflicts:	ipchains
@@ -51,7 +53,9 @@ It allows you to set up firewalls and IP masquerading, etc.
 Summary:	IPv6 support for iptables
 Group:		System/Kernel and hardware
 Requires:	%{name} = %{version}-%{release}
-Prereq:		chkconfig, rpm-helper
+Requires(post):	rpm-helper
+Requires(preun): rpm-helper
+
 
 %description ipv6
 IPv6 support for iptables.
@@ -130,19 +134,9 @@ rm -rf %{_builddir}/file.list.%{name}
 
 %post
 %_post_service iptables
-# run only on fresh install
-if [ $1 = 1 ]; then
-    /sbin/service iptables check
-fi
-
-
-%triggerpostun -- iptables =< 1.2.9-1avx
-# fix upgrade from older versions
-/sbin/service iptables check
 
 
 %preun
-%_preun_service iptables
 %_preun_service iptables
 
 
@@ -186,18 +180,23 @@ fi
 
 
 %changelog
-* Sat Sep 24 2005 Vincent Danen <vdanen@annvix.org> 1.3.3-3avx
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- fix prereq
+
+* Sat Sep 24 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.3.3-3avx
 - get rid of the check command in the initscripts altogether; it's only
   required if there are multiple iptables libraries; we only ship one
 
-* Fri Sep 23 2005 Vincent Danen <vdanen@annvix.org> 1.3.3-2avx
+* Fri Sep 23 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.3.3-2avx
 - fix the initscripts:
   - no longer check if we're running kernel 2.3 or higher; we've
     never shipped a 2.2 kernel
   - get rid of that braindead symlinking crap; we have one iptables
     directory, leave it alone!
 
-* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 1.3.3-1avx
+* Sat Sep 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.3.3-1avx
 - 1.3.3
 - drop P4; fixed upstream
 - sync with mandrake 1.3.3-3mdk:
@@ -208,26 +207,26 @@ fi
   - add ipp2p extension (sbellabes)
   - rediff P1 (herton)
 
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 1.3.1-2avx
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.3.1-2avx
 - bootstrap build (new gcc, new glibc)
 
-* Sat Jun 11 2005 Vincent Danen <vdanen@annvix.org> 1.3.1-1avx
+* Sat Jun 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.3.1-1avx
 - 1.3.1
 - rediff P1
 - sync kernel headers with 2.4.31-1avx
 - get rid of this vanilla vs. avx crap; one iptables to rule them all
 
-* Thu Nov 18 2004 Vincent Danen <vdanen@annvix.org> 1.2.9-6avx
+* Thu Nov 18 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.2.9-6avx
 - fix iptables.init: s/sls/avx/
 
-* Tue Nov 02 2004 Vincent Danen <vdanen@annvix.org> 1.2.9-5avx
+* Tue Nov 02 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.2.9-5avx
 - P4: patch to fix CAN-2004-0986
 - s/sls/avx/
 - remove some docs from ip6tables that are in iptables (which ip6tables
   requires anyways)
 - add the devel package (florin)
 
-* Thu Jun 24 2004 Vincent Danen <vdanen@annvix.org> 1.2.9-4avx
+* Thu Jun 24 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.2.9-4avx
 - Annvix build
 
 * Wed Mar  3 2004 Thomas Backlund <tmb@iki.fi> 1.2.9-3sls
