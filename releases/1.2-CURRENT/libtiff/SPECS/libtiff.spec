@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		libtiff
 %define	version		3.6.1
-%define release 	1avx
+%define release 	%_revrel
 
 %define lib_version	3.6.1
 %define lib_major	3
@@ -24,20 +25,20 @@ Group:		System/Libraries
 URL:		http://www.libtiff.org/
 Source0:	ftp://ftp.remotesensing.org/pub/libtiff/tiff-v%{version}.tar.bz2
 Source1:	ftp://ftp.remotesensing.org/pub/libtiff/pics-%{version}.tar.bz2
-Patch0:		tiff-v3.6-shlib.patch.bz2
-Patch1:		%{name}-3.6.1-codecs.patch.bz2
-Patch2:		%{name}-3.5.5-stupid_cd_output.patch.bz2
-Patch3:		%{name}-3.5.5-buildroot.patch.bz2
-Patch4:		tiff-v3.6.1-64bit.patch.bz2
-Patch5:		tiff-v3.5.7-x86_64.patch.bz2
-Patch6:		tiff-v3.5.7-deps.patch.bz2
-Patch8:		libtiff-3.6.1-tiffsplit_range.patch.bz2
+Patch0:		tiff-v3.6-shlib.patch
+Patch1:		%{name}-3.6.1-codecs.patch
+Patch2:		%{name}-3.5.5-stupid_cd_output.patch
+Patch3:		%{name}-3.5.5-buildroot.patch
+Patch4:		tiff-v3.6.1-64bit.patch
+Patch5:		tiff-v3.5.7-x86_64.patch
+Patch6:		tiff-v3.5.7-deps.patch
+Patch8:		libtiff-3.6.1-tiffsplit_range.patch
 # security fixes
-Patch10:	libtiff-3.6.1-alt-bound.patch.bz2
-Patch11:	libtiff-3.6.1-chris-bound.patch.bz2
-Patch12:	libtiff-3.5.7-bound-fix2.patch.bz2
-Patch13:	libtiff-3.6.x-iDefense.patch.bz2
-Patch14:	libtiff-3.6.x-CAN-2005-2452.patch.bz2
+Patch10:	libtiff-3.6.1-alt-bound.patch
+Patch11:	libtiff-3.6.1-chris-bound.patch
+Patch12:	libtiff-3.5.7-bound-fix2.patch
+Patch13:	libtiff-3.6.x-iDefense.patch
+Patch14:	libtiff-3.6.x-CAN-2005-2452.patch
 
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -196,25 +197,29 @@ install -m 0644 libtiff/tif_dir.h %{buildroot}%{_includedir}/
 
 
 %changelog
-* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 3.6.1-1avx
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Sep 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.6.1-1avx
 - 3.6.1
 - sync patches with mandrake 3.6.1-12mdk
 - includes patch to fix CAN-2005-2452
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 3.5.7-18avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.5.7-18avx
 - bootstrap build (new gcc, new glibc)
 
-* Sat Jul 30 2005 Vincent Danen <vdanen@annvix.org> 3.5.7-17avx
+* Sat Jul 30 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.5.7-17avx
 - rebuild against new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 3.5.7-16avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.5.7-16avx
 - bootstrap build
 
-* Wed Oct 20 2004 Vincent Danen <vdanen@annvix.org> 3.5.7-15avx
+* Wed Oct 20 2004 Vincent Danen <vdanen-at-build.annvix.org> 3.5.7-15avx
 - P7-P10: security fixes for CAN-2004-0803, CAN-2004-0804, and
   CAN-2004-0886
 
-* Wed Jun 23 2004 Vincent Danen <vdanen@annvix.org> 3.5.7-14avx
+* Wed Jun 23 2004 Vincent Danen <vdanen-at-build.annvix.org> 3.5.7-14avx
 - Annvix build
 
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 3.5.7-13sls
