@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		libutempter
 %define version		1.1.1
-%define release		5avx
+%define release		%_revrel
 %define sname		utempter
 
 %define major		0
@@ -27,7 +28,6 @@ Source1:	ftp://ftp.altlinux.org/pub/people/ldv/utempter/%{name}-%{version}.tar.b
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
-Prereq:		ldconfig, fileutils, grep
 Requires:	%{libname} = %{version}
 
 %description
@@ -42,6 +42,9 @@ Summary:	Library used by %{name}
 Group:		System/Libraries
 Provides:	utempter = %{version}-%{release}
 Obsoletes:	utempter
+Requires(pre):	rpm-helper
+Requires(post):	rpm-helper
+Requires(postun): rpm-helper
 
 %description -n %{libname}
 Libutempter is an library which allows some non-privileged
@@ -99,16 +102,21 @@ make CC=gcc libexecdir="%{_libexecdir}"
 
 
 %changelog
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.1.1-5avx
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- fix prereq
+
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.1.1-5avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jul 29 2005 Vincent Danen <vdanen@annvix.org> 1.1.1-4avx
+* Fri Jul 29 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.1.1-4avx
 - rebuild against new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.1.1-3avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.1.1-3avx
 - bootstrap build
 
-* Wed Jun 23 2004 Vincent Danen <vdanen@annvix.org> 1.1.1-2avx
+* Wed Jun 23 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.1.1-2avx
 - require packages not files
 - Annvix build
 
