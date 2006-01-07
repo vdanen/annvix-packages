@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		newt
 %define version 	0.51.6
-%define release 	5avx
+%define release 	%_revrel
 
 %define major		0.51
 %define libname		%mklibname %{name} %{major}
@@ -21,10 +22,10 @@ Release:	%{release}
 License:	LGPL
 Group:		System/Libraries
 Source:		ftp://ftp.redhat.com/pub/redhat/linux/code/newt/newt-%{version}.tar.bz2
-Patch0:		newt-gpm-fix.diff.bz2
-Patch1:		newt-mdkconf.patch.bz2
-Patch2:		newt-0.51.4-fix-wstrlen-for-non-utf8-strings.patch.bz2
-Patch3:		newt-0.51.6-avx-nostatic.patch.bz2
+Patch0:		newt-gpm-fix.diff
+Patch1:		newt-mdkconf.patch
+Patch2:		newt-0.51.4-fix-wstrlen-for-non-utf8-strings.patch
+Patch3:		newt-0.51.6-avx-nostatic.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	glibc-static-devel, popt-devel, python-devel >= 2.2, slang-devel
@@ -125,27 +126,31 @@ rm -rf  %{buildroot}%{_libdir}/python{1.5,2.0,2.1,2.2,2.3}
 
 
 %changelog
-* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 0.51.6-5avx
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Sep 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.51.6-5avx
 - rebuild against new python
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 0.51.6-4avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.51.6-4avx
 - bootstrap build (new gcc, new glibc)
 
-* Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 0.51.6-3avx
+* Wed Jul 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.51.6-3avx
 - rebuild for new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.51.6-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.51.6-2avx
 - bootstrap build
 - don't apply P3 and build with stack protection
 
-* Mon Feb 28 2005 Vincent Danen <vdanen@annvix.org> 0.51.6-1avx
+* Mon Feb 28 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.51.6-1avx
 - 0.51.6
 - use %%pyver macro
 - spec cleanups
 - P3: don't compile the test file -static as it freaks out with our
   __guard symbols and such (from SSP)
 
-* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 0.51.4-10avx
+* Tue Jun 22 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.51.4-10avx
 - Annvix build
 
 * Sun Mar 07 2004 Vincent Danen <vdanen@opensls.org> 0.51.4-9sls
