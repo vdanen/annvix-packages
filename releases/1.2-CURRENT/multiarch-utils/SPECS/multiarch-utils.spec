@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		multiarch-utils
 %define version		1.0.9
-%define release 	2avx
+%define release 	%_revrel
 
 Summary:	Tools to help creation of multiarch binaries and includes
 Name:		%{name}
@@ -19,7 +20,7 @@ License:	GPL
 Group:		Development/Other
 URL:		http://www.mandrivalinux.com/
 Source0:	%{name}-%{version}.tar.bz2
-Patch0:		multiarch-utils-1.0.9-avx-annvix_config.patch.bz2
+Patch0:		multiarch-utils-1.0.9-avx-annvix_config.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
@@ -59,27 +60,31 @@ binaries and include files during RPM package build.
 
 
 %changelog
-* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 1.0.9-2avx
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.0.9-2avx
 - fix perms on the spec file
 
-* Sun Sep 11 2005 Vincent Danen <vdanen@annvix.org> 1.0.9-1avx
+* Sun Sep 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.0.9-1avx
 - 1.0.9:
   - handle symlinks to multiarch binaries
   - handle cases where multiarch binary name contains spaces
 - P0: config for annvix
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.0.8-2avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.0.8-2avx
 - bootstrap build (new gcc, new glibc)
 
-* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 1.0.8-1avx
+* Tue Jul 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.0.8-1avx
 - 1.0.8
 
-* Thu Jul 21 2005 Vincent Danen <vdanen@annvix.org> 1.0.7-3avx
+* Thu Jul 21 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.0.7-3avx
 - set the multiarch_distro tag so multiarch macros work
 - change the fact that the Makefile is pulling the value of
   multiarch_distro from the bloody tarball's specfile (huh?!?)
 
-* Thu Jun 02 2005 Vincent Danen <vdanen@annvix.org> 1.0.7-2avx
+* Thu Jun 02 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.0.7-2avx
 - bootstrap build
 
 * Tue Mar 01 2005 Vincent Danen <vdanen@mandrakesoft.com> 1.0.7-1avx
