@@ -6,10 +6,13 @@
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
 # synced with mdk 4.4-1mdk
+#
+# $Id$
 
+%define revision	$Rev$
 %define name		makedev
 %define version		4.4
-%define release 	1avx
+%define release 	%_revrel
 
 %define devrootdir	/lib/root-mirror
 %define dev_lock	/var/lock/subsys/dev
@@ -23,7 +26,7 @@ License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://cvs.mandriva.com/cgi-bin/cvsweb.cgi/soft/makedev/
 Source:		%{name}-%{version}.tar.bz2
-Patch:		makedev-4.1-avx-random.patch.bz2
+Patch:		makedev-4.1-avx-random.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
@@ -137,7 +140,11 @@ fi
 
 
 %changelog
-* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 4.4-1avx
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.4-1avx
 - 4.4
 - sync with mandrake 4.4-1mdk (tvignaud):
   - add cloop, DVB nodes
@@ -145,20 +152,20 @@ fi
   - udev support
   - enable to create onle one device rather than all devices
 
-* Thu Sep 15 2005 Vincent Danen <vdanen@annvix.org> 4.1-8avx
+* Thu Sep 15 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.1-8avx
 - correct the buildroot
 
-* Wed Aug 17 2005 Vincent Danen <vdanen@annvix.org> 4.1-7avx
+* Wed Aug 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.1-7avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 4.1-6avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.1-6avx
 - bootstrap build
 
-* Fri Feb 04 2005 Vincent Danen <vdanen@annvix.org> 4.1-5avx
+* Fri Feb 04 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.1-5avx
 - s/SLS/Annvix/
 - add the erandom and frandom device nodes
 
-* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 4.1-4avx
+* Tue Jun 22 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.1-4avx
 - require packages not files
 - Annvix build
 
