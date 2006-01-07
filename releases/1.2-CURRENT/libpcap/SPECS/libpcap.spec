@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		libpcap
 %define version		0.9.1
-%define release		1avx
+%define release		%_revrel
 
 %define	major		0
 %define minor		9
@@ -131,23 +132,27 @@ install -m 0644 pcap-int.h %{buildroot}%{_includedir}/
 
 
 %changelog
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 0.8.3-5avx
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.8.3-5avx
 - 0.9.1
 - bump minor to 9
 - install additional headers
 - add signature
 - fix redundant provides
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 0.8.3-5avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.8.3-5avx
 - bootstrap build (new gcc, new glibc)
 
-* Sat Jul 30 2005 Vincent Danen <vdanen@annvix.org> 0.8.3-4avx
+* Sat Jul 30 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.8.3-4avx
 - rebuild against new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.8.3-3avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.8.3-3avx
 - bootstrap build
 
-* Wed Jun 23 2004 Vincent Danen <vdanen@annvix.org> 0.8.3-2avx
+* Wed Jun 23 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.8.3-2avx
 - Annvix build
 
 * Fri Apr 30 2004 Vincent Danen <vdanen@opensls.org> 0.8.3-1sls
