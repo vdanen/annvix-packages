@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		libuser
 %define version		0.53.2
-%define release		6avx
+%define release		%_revrel
 
 %define major		1
 %define libname		%mklibname user %{major}
@@ -161,24 +162,28 @@ rm -rf %{buildroot}%{_libdir}/python%{pyver}/site-packages/*a
 
 
 %changelog
-* Thu Sep 22 2005 Vincent Danen <vdanen@annvix.org> 0.53.2-6avx
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Thu Sep 22 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.53.2-6avx
 - rebuild against new glib2.0
 
-* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 0.53.2-5avx
+* Fri Sep 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.53.2-5avx
 - pass -DLDAP_DEPRECATED to CFLAGS (oden)
 - BuildRequires: openldap-devel, not libldap-devel
 - libuser_ldap module is in it's own package now
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 0.53.2-4avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.53.2-4avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jul 29 2005 Vincent Danen <vdanen@annvix.org> 0.53.2-3avx
+* Fri Jul 29 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.53.2-3avx
 - rebuild against new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.53.2-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.53.2-2avx
 - bootstrap build
 
-* Mon Feb 28 2005 Vincent Danen <vdanen@annvix.org> 0.53.2-1avx
+* Mon Feb 28 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.53.2-1avx
 - 0.53.2
 - remove redundant BuildRequires (stefan)
 - move non-versioned-file from library package to main package (stefan)
@@ -188,13 +193,13 @@ rm -rf %{buildroot}%{_libdir}/python%{pyver}/site-packages/*a
 - spec cosmetics
 - mklibname (gbeauchesne)
 
-* Thu Jan 06 2005 Vincent Danen <vdanen@annvix.org> 0.51.7-13avx
+* Thu Jan 06 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.51.7-13avx
 - rebuild against latest openssl
 
-* Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 0.51.7-12avx
+* Tue Aug 17 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.51.7-12avx
 - rebuild against latest openssl
 
-* Wed Jun 22 2004 Vincent Danen <vdanen@annvix.org> 0.51.7-11avx
+* Wed Jun 22 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.51.7-11avx
 - Annvix build
 
 * Mon May 17 2004 Vincent Danen <vdanen@opensls.org> 0.51.7-10sls
