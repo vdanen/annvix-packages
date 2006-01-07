@@ -5,10 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
+%define revision	$Rev$
 %define name		nasm
 %define version		0.98.39
-%define release		4avx
+%define release		%_revrel
 
 Summary:	The Netwide Assembler, a portable x86 assembler with Intel-like syntax
 Name:		%{name}
@@ -18,7 +20,7 @@ License:	LGPL
 Group:		Development/Other
 URL:		http://nasm.sourceforge.net
 Source:		http://prdownloads.sourceforge.net/nasm/%{name}-%{version}.tar.bz2
-Patch0:		nasm-0.98.39-CAN-2005-1194.patch.bz2
+Patch0:		nasm-0.98.39-CAN-2005-1194.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	groff, texinfo
@@ -81,21 +83,25 @@ mkdir -p %{buildroot}{%{_bindir},%{_infodir},%{_mandir}/man1}
 %{_bindir}/rdf2com
 
 %changelog
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 0.98.39-4avx
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.98.39-4avx
 - bootstrap build (new gcc, new glibc)
 
-* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 0.98.39-3avx
+* Tue Jul 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.98.39-3avx
 - rebuild for new gcc
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.98.39-2avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.98.39-2avx
 - rebuild
 
-* Wed May 18 2005 Vincent Danen <vdanen@annvix.org> 0.98.39-1avx
+* Wed May 18 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.98.39-1avx
 - 0.98.39 (includes security fix for CAN-2004-1287)
 - P0: patch to fix CAN-2005-1194
 - fix configure macro
 
-* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 0.98.35-5avx
+* Tue Jun 22 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.98.35-5avx
 - Annvix build
 
 * Sun Mar 07 2004 Vincent Danen <vdanen@opensls.org> 0.98.35-4sls
