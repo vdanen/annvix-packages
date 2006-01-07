@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		libxml2
 %define version		2.6.21
-%define release		2avx
+%define release		%_revrel
 
 %define major		2
 %define libname		%mklibname xml %{major}
@@ -24,8 +25,8 @@ Group: 		System/Libraries
 URL:		http://www.xmlsoft.org/
 Source0:	ftp://xmlsoft.org/%{name}-%{version}.tar.bz2
 # (fc) 2.4.23-3mdk remove references to -L/usr/lib
-Patch1:		libxml2-2.4.23-libdir.patch.bz2
-Patch2:		libxml2-2.6.21-cvsfixes.patch.bz2
+Patch1:		libxml2-2.4.23-libdir.patch
+Patch2:		libxml2-2.6.21-cvsfixes.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	python-devel >= %{pyver}, readline-devel, zlib-devel, autoconf2.5, automake1.9
@@ -183,31 +184,35 @@ rm -rf	%{buildroot}%{_prefix}/doc \
 
 
 %changelog
-* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 2.6.21-2avx
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Sep 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.6.21-2avx
 - P2: various fixes from cvs (fcrozat)
 
-* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 2.6.21-1avx
+* Fri Sep 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.6.21-1avx
 - 2.6.21
 - rebuild against new readline and python
 
-* Tue Aug 23 2005 Vincent Danen <vdanen@annvix.org> 2.6.20-1avx
+* Tue Aug 23 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.6.20-1avx
 - 2.6.20
 - remove the compiler profiling as it ends up complaining about
   hidden symbols in libgcov.a
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.6.17-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.6.17-2avx
 - bootstrap build
 
-* Sat Mar 05 2005 Vincent Danen <vdanen@annvix.org> 2.6.17-1avx
+* Sat Mar 05 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.6.17-1avx
 - 2.6.17
 - multiarch support
 - use %%pyver macro
 - integrated profiling stuff from Fedora
 
-* Fri Nov  5 2004 Vincent Danen <vdanen@annvix.org> 2.5.11-6avx
+* Fri Nov  5 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.5.11-6avx
 - P3: patch to fix CAN-2004-0989
 
-* Wed Jun 23 2004 Vincent Danen <vdanen@annvix.org> 2.5.11-5avx
+* Wed Jun 23 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.5.11-5avx
 - Annvix build
 
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 2.5.11-4sls
