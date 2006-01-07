@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		lvm
 %define version 	1.0.8
-%define release 	5avx
+%define release 	%_revrel
 
 Summary:	Logical Volume Manager administration tools
 Name:		%{name}
@@ -21,11 +22,11 @@ URL:		http://www.sistina.com/products_lvm.htm
 Source0:	ftp://ftp.sistina.com/pub/LVM/1.0/%{name}_%{version}.tar.bz2
 Source1:	lvm1-kheader.tar.bz2
 
-Patch1:		LVM-1.0.1-fix-kernel-headers-build.patch.bz2
-Patch2:		lvm-1.0.8-wrapper.patch.bz2
-Patch3:		lvm-1.0.8-dietlibc.patch.bz2
-Patch4:		lvm-1.0.8-gcc34.patch.bz2
-Patch5:		lvm-1.0.8-perm.patch.bz2
+Patch1:		LVM-1.0.1-fix-kernel-headers-build.patch
+Patch2:		lvm-1.0.8-wrapper.patch
+Patch3:		lvm-1.0.8-dietlibc.patch
+Patch4:		lvm-1.0.8-gcc34.patch
+Patch5:		lvm-1.0.8-perm.patch
 Patch6:		lvm10-CAN-2004-0972.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -59,7 +60,12 @@ ln -s asm-%{_arch} asm
 
 %build
 cd %{version}
+%ifarch x86_64
+export CC="diet x86_64-annvix-linux-gnu-gcc"
+%else
 export CC="diet gcc"
+%endif
+
 %configure \
     --with-user=`id -un` \
     --with-group=`id -gn` \
@@ -145,20 +151,25 @@ fi
 
 
 %changelog
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 1.0.8-5avx
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- dietlibc fixes
+
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.0.8-5avx
 - bootstrap build (new gcc, new glibc)
 - merge with lvm1-1.0.8-5mdk:
   - make it build with recent gcc and glibc (bluca)
   - do not use getgrnam when statically built against glibc (bluca)
   - use dietlibc
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.0.8-4avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.0.8-4avx
 - rebuild
 
-* Wed Nov 10 2004 Vincent Danen <vdanen@annvix.org> 1.0.8-3avx
+* Wed Nov 10 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.0.8-3avx
 - P3: security fix for CAN-2004-0972
 
-* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 1.0.8-2avx
+* Tue Jun 22 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.0.8-2avx
 - Annvix build
 
 * Fri Mar  5 2004 Thomas Backlund <tmb@mandrake.org> 1.0.8-1sls
