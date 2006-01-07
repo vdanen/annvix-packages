@@ -7,9 +7,10 @@
 #
 # $Id$
 
+%define revision	$Rev$
 %define name		lynx
 %define version 	2.8.5
-%define release		7avx
+%define release		%_revrel
 %define epoch		1
 
 %define versio_		2-8-5
@@ -112,29 +113,33 @@ EOF
 
 
 %changelog
-* Wed Dec 21 2005 Vincent Danen <vdanen@annvix.org> 2.8.5-7avx
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Wed Dec 21 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.8.5-7avx
 - P13: fix for CVE-2005-2929
 - drop compressed patches
 
-* Wed Oct 26 2005 Vincent Danen <vdanen@annvix.org> 2.8.5-6avx
+* Wed Oct 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.8.5-6avx
 - updated P12 to fully fix the issue
 
-* Sat Oct 22 2005 Vincent Danen <vdanen@annvix.org> 2.8.5-5avx
+* Sat Oct 22 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.8.5-5avx
 - P12: fix for CAN-2005-3120
 
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 2.8.5-4avx
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.8.5-4avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.8.5-3avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.8.5-3avx
 - rebuild
 
-* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 2.8.5-2avx
+* Thu Feb 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.8.5-2avx
 - update P1 so startfile points to our site
 
-* Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 2.8.5-1avx
+* Tue Aug 17 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.8.5-1avx
 - 2.8.5
 
-* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 2.8.5-0.dev.12.17avx
+* Tue Jun 22 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.8.5-0.dev.12.17avx
 - Annvix build
 
 * Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 2.8.5-0.dev.12.16sls
