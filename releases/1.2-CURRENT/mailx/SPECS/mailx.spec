@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		mailx
 %define version		8.1.1
-%define release		29avx
+%define release		%_revrel
 
 Summary:	The /bin/mail program, which is used to send mail via shell scripts
 Name:		%{name}
@@ -19,17 +20,17 @@ License:	BSD
 Group:		Networking/Mail
 Source:		ftp://ftp.debian.org/pub/debian/hamm/source/mail/mailx-8.1.1.tar.bz2
 # not strictly debian patch, i modified it --Geoff
-Patch0:		mailx-8.1.1.debian.patch.bz2
-Patch1:		mailx-8.1.1.security.patch.bz2
-Patch2:		mailx-8.1.1.nolock.patch.bz2
-Patch3:		mailx-8.1.1.debian2.patch.bz2
-Patch4:		mailx-noroot.patch.bz2
-Patch6:		mailx-8.1.1-version.patch.bz2
-Patch7:		mailx-8.1.1-forbid-shellescape-in-interactive-and-setuid.patch.bz2
-Patch8:		mailx-8.1.1-help-files.patch.bz2
-Patch9:		mailx-8.1.1-makefile-create-dirs.patch.bz2
-Patch10:	mailx-8.1.1-includes.patch.bz2 
-Patch11:	mailx-8.1.1-fseek.patch.bz2
+Patch0:		mailx-8.1.1.debian.patch
+Patch1:		mailx-8.1.1.security.patch
+Patch2:		mailx-8.1.1.nolock.patch
+Patch3:		mailx-8.1.1.debian2.patch
+Patch4:		mailx-noroot.patch
+Patch6:		mailx-8.1.1-version.patch
+Patch7:		mailx-8.1.1-forbid-shellescape-in-interactive-and-setuid.patch
+Patch8:		mailx-8.1.1-help-files.patch
+Patch9:		mailx-8.1.1-makefile-create-dirs.patch
+Patch10:	mailx-8.1.1-includes.patch 
+Patch11:	mailx-8.1.1-fseek.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -89,16 +90,20 @@ ln -sf mail.1 %{buildroot}%{_mandir}/man1/Mail.1
 
 
 %changelog
-* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 8.1.1-29avx
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Sep 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 8.1.1-29avx
 - requires smtpdaemon
 
-* Wed Aug 17 2005 Vincent Danen <vdanen@annvix.org> 8.1.1-28avx
+* Wed Aug 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 8.1.1-28avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 8.1.1-27avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 8.1.1-27avx
 - rebuild
 
-* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 8.1.1-26avx
+* Tue Jun 22 2004 Vincent Danen <vdanen-at-build.annvix.org> 8.1.1-26avx
 - Annvix build
 
 * Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 8.1.1-25sls
