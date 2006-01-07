@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		make
 %define version		3.80
-%define release		13avx
+%define release		%_revrel
 %define epoch		1
 
 Summary:	A GNU tool which simplifies the build process for users
@@ -23,14 +24,16 @@ URL:		http://www.gnu.org/directory/GNU/make.html
 Source:		ftp://ftp.gnu.org/pub/gnu/make/%{name}-%{version}.tar.bz2
 # to remove once those po files are included in standard sources
 Source1:	%{name}-pofiles.tar.bz2
-Patch0:		make-3.80-no-hires-timestamp.patch.bz2
-Patch1:		make-3.80-lib64.patch.bz2
-Patch2:		make-3.80-fix-mem-exhausting.patch.bz2
+Patch0:		make-3.80-no-hires-timestamp.patch
+Patch1:		make-3.80-lib64.patch
+Patch2:		make-3.80-fix-mem-exhausting.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	gettext-devel
 
-Prereq:		info-install
+Requires(post):	info-install
+Requires(preun): info-install
+
 
 %description
 A GNU tool for controlling the generation of executables and other
@@ -92,22 +95,27 @@ done
 %{_infodir}/make.info*
 
 %changelog
-* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 3.80-13avx
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- fix prereq
+
+* Fri Sep 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.80-13avx
 - P2: fix memory exhausting (mdk bug #14626) (tvignaud)
 - P1: linux32 fixes, aka resolve -llib only in */lib when running under
   a 32bit personality and some lib64 fixes (gbeauchesne)
 - rebuild against new gettext
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 3.80-12avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.80-12avx
 - bootstrap build (new gcc, new glibc)
 
-* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 3.80-11avx
+* Tue Jul 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.80-11avx
 - rebuild for new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 3.80-10avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.80-10avx
 - bootstrap build
 
-* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 3.80-9avx
+* Tue Jun 22 2004 Vincent Danen <vdanen-at-build.annvix.org> 3.80-9avx
 - require packages not files
 - Annvix build
 
