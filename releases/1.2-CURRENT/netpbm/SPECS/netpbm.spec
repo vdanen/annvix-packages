@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		netpbm
 %define version 	10.29
-%define release 	3avx
+%define release 	%_revrel
 
 %define major		10
 %define libname		%mklibname %{name} %{major}
@@ -26,21 +27,21 @@ Source0:	%{name}-%{version}.tar.bz2
 Source1:	mf50-netpbm_filters
 Source2:	test-images.tar.bz2
 Source3:	%{name}doc-%{version}.tar.bz2
-Patch0:		netpbm-10.17-time.patch.bz2
-Patch1:		netpbm-9.24-strip.patch.bz2
-Patch2:		netpbm-10.18-manpath.patch.bz2
-Patch3:		netpbm-10.19-message.patch.bz2
-Patch4:		netpbm-10.22-security2.patch.bz2
-Patch5:		netpbm-10.22-cmapsize.patch.bz2
-Patch6:		netpbm-10.28-gcc4.patch.bz2
-Patch7:		netpbm-10.23-security.patch.bz2
+Patch0:		netpbm-10.17-time.patch
+Patch1:		netpbm-9.24-strip.patch
+Patch2:		netpbm-10.18-manpath.patch
+Patch3:		netpbm-10.19-message.patch
+Patch4:		netpbm-10.22-security2.patch
+Patch5:		netpbm-10.22-cmapsize.patch
+Patch6:		netpbm-10.28-gcc4.patch
+Patch7:		netpbm-10.23-security.patch
 #Patch8:	netpbm-10.23-pngtopnm.patch.bz2
-Patch9:		netpbm-10.26-libm.patch.bz2
-Patch11:	netpbm-10.24-nodoc.patch.bz2
+Patch9:		netpbm-10.26-libm.patch
+Patch11:	netpbm-10.24-nodoc.patch
 #Patch12:	pstopnm_dsafer.diff.bz2
-Patch13:	netpbm-10.27-bmptopnm.patch.bz2
-Patch14:	netpbm-10.28-CAN-2005-2471.patch.bz2
-Patch15:	netpbm-10.29-CAN-2005-2978.patch.bz2
+Patch13:	netpbm-10.27-bmptopnm.patch
+Patch14:	netpbm-10.28-CAN-2005-2471.patch
+Patch15:	netpbm-10.29-CAN-2005-2978.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	flex, png-devel, jpeg-devel, tiff-devel
@@ -228,27 +229,31 @@ cp test-images/* %{buildroot}%{_datadir}/printconf/tests/
 
 
 %changelog
-* Wed Oct 26 2005 Vincent Danen <vdanen@annvix.org> 10.29-3avx
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Wed Oct 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 10.29-3avx
 - P15: fix for CAN-2005-2978
 
-* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 10.29-2avx
+* Fri Sep 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 10.29-2avx
 - rebuild against new libtiff
 
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 10.29-1avx
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 10.29-1avx
 - 10.29
 - sync with cooker 10.29-1mdk
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 9.24-13avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 9.24-13avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 9.24-12avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 9.24-12avx
 - rebuild
 
-* Fri Sep 24 2004 Vincent Danen <vdanen@annvix.org> 9.24-11avx
+* Fri Sep 24 2004 Vincent Danen <vdanen-at-build.annvix.org> 9.24-11avx
 - include missing security patch for CAN-2003-0924
 - spec cleanups
 
-* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 9.24-10avx
+* Tue Jun 22 2004 Vincent Danen <vdanen-at-build.annvix.org> 9.24-10avx
 - require packages not files
 - Annvix build
 
