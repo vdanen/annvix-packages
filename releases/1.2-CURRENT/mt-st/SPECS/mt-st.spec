@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		mt-st
 %define version		0.8
-%define release		1avx
+%define release		%_revrel
 
 Summary:	Programs to control tape device operations
 Name:		%{name}
@@ -34,7 +35,7 @@ can control rewinding, ejecting, skipping files and blocks and more.
 
 
 %build
-%make CFLAGS="$RPM_OPT_FLAGS -Wall" MANDIR=%{_mandir}
+%make CFLAGS="%{optflags} -Wall" MANDIR=%{_mandir}
 
 
 %install
@@ -62,7 +63,11 @@ mkdir -p %{buildroot}%{_mandir}/man{1,8}
 
 
 %changelog
-* Thu Sep 22 2005 Vincent Danen <vdanen@annvix.org> 0.8-1avx
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Thu Sep 22 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.8-1avx
 - first Annvix package
 
 * Fri Aug 13 2004 Giusppe Ghibò <ghibo@mandrakesoft.com> 0.8-1mdk
