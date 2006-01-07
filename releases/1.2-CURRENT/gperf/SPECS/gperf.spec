@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		gperf
 %define version		3.0.1
-%define release		7avx
+%define release		%_revrel
 
 Summary:	A perfect hash function generator
 Name:		%{name}
@@ -22,7 +23,8 @@ Source:		ftp://ftp.gnu.org/gnu/gperf/%{name}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
-PreReq:		info-install
+Requires(post):	info-install
+Requires(preun): info-install
 
 %description
 Gperf is a perfect hash function generator written in C++.  Simply
@@ -66,13 +68,18 @@ rm -f %{buildroot}%{_datadir}/doc/gperf/gperf.html
 
 
 %changelog
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 3.0.1-7avx
+* Thu Jan 05 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- fix prereq
+
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.0.1-7avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jul 29 2005 Vincent Danen <vdanen@annvix.org> 3.0.1-6avx
+* Fri Jul 29 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.0.1-6avx
 - rebuild against new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 3.0.1-5avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.0.1-5avx
 - bootstrap build
 
 * Thu Jun 24 2004 Vincent Danen <vdanen@opensls.org> 3.0.1-4avx
