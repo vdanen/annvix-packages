@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		%{libnamemajor}
 %define version		0.51
-%define release		11avx
+%define release		%_revrel
 
 %define realname	xmlrpc
 %define libname		lib%{realname}
@@ -24,7 +25,7 @@ License:	BSD
 Group: 		System/Libraries
 URL:		http://xmlrpc-epi.sourceforge.net/
 Source0:	xmlrpc-epi-%{version}.tar.bz2
-Patch0:		xmlrpc-epi-0.51-64bit-fixes.patch.bz2
+Patch0:		xmlrpc-epi-0.51-64bit-fixes.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -102,16 +103,20 @@ rm -f %{buildroot}%{_bindir}/{client,hello_{client,server},memtest,sample,server
 
 
 %changelog
-* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 0.51-11avx
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Sep 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.51-11avx
 - rebuild (I don't see libxml2 in the buildreq, but better to be safe than sorry)
 
-* Tue Aug 23 2005 Vincent Danen <vdanen@annvix.org> 0.51-10avx
+* Tue Aug 23 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.51-10avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.51-9avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.51-9avx
 - bootstrap build
 
-* Wed Jun 23 2004 Vincent Danen <vdanen@annvix.org> 0.51-8avx
+* Wed Jun 23 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.51-8avx
 - Annvix build
 
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 0.51-7sls
