@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		libjpeg
 %define	version		6b
-%define release 	38avx
+%define release 	%_revrel
 
 %define major		62
 %define libname_orig	libjpeg
@@ -23,16 +24,16 @@ License:	GPL-like
 Group:		System/Libraries
 URL:		http://www.ijg.org/
 Source0:	ftp://ftp.uu.net/graphics/jpeg/jpegsrc.v6b.tar.bz2
-Patch0:		libjpeg-6b-arm.patch.bz2
-Patch1:		libjpeg-ia64-acknowledge.patch.bz2
+Patch0:		libjpeg-6b-arm.patch
+Patch1:		libjpeg-ia64-acknowledge.patch
 # Patch for lossless cropping and joining of JPEG files from 
 # http://sylvana.net/jpegcrop/
 # This patch is derived by "diff"ing the source files of
 # http://sylvana.net/jpegcrop/droppatch.tar.gz with the appropriate
 # original source files
-Patch2:		jpegv6b-losslesscropndrop.patch.bz2
+Patch2:		jpegv6b-losslesscropndrop.patch
 # Use autoconf variables to know libdir et al.
-Patch3:		jpeg-6b-autoconf-vars.patch.bz2
+Patch3:		jpeg-6b-autoconf-vars.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -165,16 +166,20 @@ mkdir -p %{buildroot}{%{_bindir},%{_libdir},%{_includedir},%{_mandir}/man1}
 
 
 %changelog
-* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 6b-38avx
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Sep 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 6b-38avx
 - rename libjpeg-progs to jpeg-progs
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 6b-37avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 6b-37avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 6b-36avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 6b-36avx
 - bootstrap build
 
-* Wed Jun 23 2004 Vincent Danen <vdanen@annvix.org> 6b-35avx
+* Wed Jun 23 2004 Vincent Danen <vdanen-at-build.annvix.org> 6b-35avx
 - Annvix build
 
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 6b-34sls
