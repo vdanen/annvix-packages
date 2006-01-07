@@ -56,8 +56,14 @@ chmod 0644 ChangeLog
 
 
 %build
+%ifarch x86_64
+COMP="diet x86_64-annvix-linux-gnu-gcc"
+%else
+COMP="diet gcc"
+%endif
+
 %if %{use_dietlibc}
-make mdassemble CXFLAGS="%{optflags} -DMDASSEMBLE_AUTO" SYSCONFDIR="%{_sysconfdir}"
+make mdassemble CXFLAGS="%{optflags} -DMDASSEMBLE_AUTO" SYSCONFDIR="%{_sysconfdir}" DIET_GCC="$COMP"
 %endif
 make CXFLAGS="%{optflags}" SYSCONFDIR="%{_sysconfdir}"
 
@@ -113,6 +119,7 @@ fi
 - Uncompress patches
 - drop unused S1
 - fix prereq
+- dietlibc fixes
 
 * Sat Oct 08 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.12.0-4avx
 - the run script needs to look for mdadm.conf rather than amd.conf
