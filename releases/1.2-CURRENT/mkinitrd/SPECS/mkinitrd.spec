@@ -76,6 +76,10 @@ perl -pi -e 's/grubby//' Makefile
 
 %build
 %if %{use_dietlibc}
+%ifarch x86_64
+perl -pi -e 's| gcc | x86_64-annvix-linux-gnu-gcc |g' mkinitrd_helper-subdir/insmod-busybox/Makefile
+perl -pi -e 's| gcc | x86_64-annvix-linux-gnu-gcc |g' mkinitrd_helper-subdir/insmod-module-init-tools/Makefile
+%endif
 make -C mkinitrd_helper-subdir
 %endif
 make
@@ -107,6 +111,7 @@ rm -f %{buildroot}%{_mandir}/*/grubby*
 * Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - Obfuscate email addresses and new tagging
 - Uncompress patches
+- dietlibc fixes
 
 * Thu Aug 18 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.4.43-22avx
 - bootstrap build (new gcc, new glibc)
