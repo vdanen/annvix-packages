@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		ncurses
 %define version		5.4
-%define release		3avx
+%define release		%_revrel
 
 %define patchdate	20050108
 %define major		5
@@ -27,22 +28,21 @@ URL:		http://www.gnu.org/software/ncurses/ncurses.html
 Source0:	http://ftp.gnu.org/gnu/ncurses/%{name}-%{version}.tar.bz2
 Source4:	ncurses-resetall.sh
 Source5:	ncurses-usefull-terms
-Patch1:		ncurses-5.3-xterm-debian.patch.bz2
-Patch4:		ncurses-5.3-parallel.patch.bz2
-Patch5:		ncurses-5.3-utf8.patch.bz2
-Patch6:		ncurses-5.4-20041204-remove-extra-dep.patch.bz2 
-Patch8:		ncurses-5.4-deps.patch.bz2
+Patch1:		ncurses-5.3-xterm-debian.patch
+Patch4:		ncurses-5.3-parallel.patch
+Patch5:		ncurses-5.3-utf8.patch
+Patch6:		ncurses-5.4-20041204-remove-extra-dep.patch 
+Patch8:		ncurses-5.4-deps.patch
 
 Patch11:	ftp://dickey.his.com/ncurses/%{version}/%{name}-%{version}-20041211-patch.sh
-Patch12:	ncurses-5.4-20041218.patch.bz2
-Patch13:	ncurses-5.4-20041225.patch.bz2
-Patch14:	ncurses-5.4-20050101.patch.bz2
-Patch15:	ncurses-5.4-20050108.patch.bz2
+Patch12:	ncurses-5.4-20041218.patch
+Patch13:	ncurses-5.4-20041225.patch
+Patch14:	ncurses-5.4-20050101.patch
+Patch15:	ncurses-5.4-20050108.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	sharutils
 
-PreReq:		ldconfig
 
 %description
 The curses library routines are a terminal-independent method of updating
@@ -301,22 +301,26 @@ find %{buildroot}%{_libdir} -name 'lib*.a' -not -type d -not -name "*_g.a" -not 
 
 
 %changelog
-* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 5.4-3avx
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Sep 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.4-3avx
 - don't embed the patch date in the release string anymore
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 5.4-1.20050108.2avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.4-1.20050108.2avx
 - bootstrap build (new gcc, new glibc)
 
-* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 5.4-1.20050108.1avx
+* Tue Jul 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.4-1.20050108.1avx
 - 5.4 with pathset 20050108
 - rebuild for new gcc
 - enable wide char support and split into different libraries (deaddog)
 - use %%configure2_5x and %%makeinstall_std to fix ugly build issues (deaddog)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 5.3-1.20030215.8avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.3-1.20030215.8avx
 - bootstrap build
 
-* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 5.3-1.20030215.7avx
+* Tue Jun 22 2004 Vincent Danen <vdanen-at-build.annvix.org> 5.3-1.20030215.7avx
 - Require packages not files
 - Annvix build
 
