@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		mc
 %define version		4.6.1
-%define release		2avx
+%define release		%_revrel
 
 Summary:	A user-friendly file manager and visual shell
 Name:		%{name}
@@ -19,7 +20,7 @@ License:	GPL
 Group:		File tools
 URL:		http://www.ibiblio.org/mc/
 Source0:	ftp://ftp.gnome.org:/pub/GNOME/stable/sources/mc/%{name}-%{version}.tar.bz2
-Patch0:		mc-4.6.1-fdr-utf8.patch.bz2
+Patch0:		mc-4.6.1-fdr-utf8.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	libext2fs-devel pam-devel
@@ -115,23 +116,27 @@ install lib/{mc.sh,mc.csh} %{buildroot}%{_sysconfdir}/profile.d
 
 
 %changelog
-* Thu Sep 22 2005 Vincent Danen <vdanen@annvix.org> 4.6.1-2avx
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Thu Sep 22 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.6.1-2avx
 - rebuild against new glib2.0
 
-* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 4.6.1-1avx
+* Fri Sep 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.6.1-1avx
 - 4.6.1
 - drop all unrequired patches
 
-* Wed Aug 17 2005 Vincent Danen <vdanen@annvix.org> 4.6.0-12avx
+* Wed Aug 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.6.0-12avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 4.6.0-11avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.6.0-11avx
 - rebuild
 
-* Mon Feb 28 2005 Vincent Danen <vdanen@annvix.org> - 4.6.0-10avx
+* Mon Feb 28 2005 Vincent Danen <vdanen-at-build.annvix.org> - 4.6.0-10avx
 - P16: make the wrapper script work (oden)
 
-* Tue Sep 07 2004 Vincent Danen <vdanen@annvix.org> - 4.6.0-9avx
+* Tue Sep 07 2004 Vincent Danen <vdanen-at-build.annvix.org> - 4.6.0-9avx
 - renumber patches; patch policy
 - update description
 - sync with cooker 4.6.0-11mdk:
@@ -150,7 +155,7 @@ install lib/{mc.sh,mc.csh} %{buildroot}%{_sysconfdir}/profile.d
   - P15: fix crash on use of large syntax file (mpol)
   - P16: fix coloring of diffs of diffs (mpol)
 
-* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> - 4.6.0-8avx
+* Tue Jun 22 2004 Vincent Danen <vdanen-at-build.annvix.org> - 4.6.0-8avx
 - Annvix build
 
 * Mon May 10 2004 Vincent Danen <vdanen@opensls.org> - 4.6.0-7sls
