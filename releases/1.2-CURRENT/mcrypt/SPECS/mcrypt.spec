@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		mcrypt
 %define version 	2.6.4
-%define release 	9avx
+%define release 	%_revrel
 
 Summary:	Data encryption/decryption program
 Name:		%{name}
@@ -62,24 +63,28 @@ CBC, ECB, OFB and CFB modes of encryption are supported.
 
 
 %changelog
-* Thu Sep 22 2005 Vincent Danen <vdanen@annvix.org> 2.6.4-9avx
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Thu Sep 22 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.6.4-9avx
 - rebuild against new mhash
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.6.4-8avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.6.4-8avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jul 29 2005 Vincent Danen <vdanen@annvix.org> 2.6.4-7avx
+* Fri Jul 29 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.6.4-7avx
 - rebuild against new gcc
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.6.4-6avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.6.4-6avx
 - rebuild
 - buildrequires: libltdl-devel
 
-* Thu Aug 18 2004 Vincent Danen <vdanen@annvix.org> 2.6.4-5avx
+* Thu Aug 18 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.6.4-5avx
 - use %%configure2_5x
 - remove unneeded deps and make deps version specific
 
-* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 2.6.4-4avx
+* Tue Jun 22 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.6.4-4avx
 - Annvix build
 
 * Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 2.6.4-3sls
