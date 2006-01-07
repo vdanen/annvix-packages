@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		mktemp
 %define version		1.6
-%define release		4avx
+%define release		%_revrel
 
 Summary:	A small utility for safely making /tmp files
 Name:		%{name}
@@ -19,8 +20,8 @@ License:	BSD
 Group:		File tools
 URL:		ftp://ftp.openbsd.org/pub/OpenBSD/src/usr.bin/mktemp/
 Source:		mktemp-%{version}.tar.bz2
-Patch0:		mktemp-1.6-avx-makefile.patch.bz2
-Patch1:		mktemp-1.6-avx-linux.patch.bz2
+Patch0:		mktemp-1.6-avx-makefile.patch
+Patch1:		mktemp-1.6-avx-linux.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -57,20 +58,24 @@ perl -pi -e "s!/usr/man!%{_mandir}!g" Makefile
 
 
 %changelog
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.6-4avx
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.6-4avx
 - bootstrap build (new gcc, new glibc)
 
-* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 1.6-3avx
+* Tue Jul 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.6-3avx
 - rebuild for new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.6-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.6-2avx
 - bootstrap build
 
-* Thu Sep 23 2004 Vincent Danen <vdanen@annvix.org> 1.6-1avx
+* Thu Sep 23 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.6-1avx
 - OpenBSD CVS rev 1.13 (we'll call this 1.6)
 - rework patches and drop those no longer needed
 
-* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 1.5-14avx
+* Tue Jun 22 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.5-14avx
 - Annvix build
 
 * Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 1.5-13sls
