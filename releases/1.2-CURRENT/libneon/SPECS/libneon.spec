@@ -5,10 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
+%define revision	$Rev$
 %define name		libneon
 %define version		0.24.7
-%define release		2avx
+%define release		%_revrel
 
 %define	major		0.24
 %define libname		%mklibname neon %{major}
@@ -22,10 +24,10 @@ License: 	GPL
 URL: 		http://www.webdav.org/neon/
 Source0: 	http://www.webdav.org/neon/neon-%{version}.tar.gz
 Source1: 	http://www.webdav.org/neon/neon-%{version}.tar.gz.asc
-Patch0:		neon-0.23.9-config.patch.bz2
-Patch1:		neon-0.24.7-gssapi.patch.bz2
-Patch2:		neon-0.24.7-min.patch.bz2
-Patch3:		neon-0.24.7-avx-no_wildcard_match.patch.bz2
+Patch0:		neon-0.23.9-config.patch
+Patch1:		neon-0.24.7-gssapi.patch
+Patch2:		neon-0.24.7-min.patch
+Patch3:		neon-0.24.7-avx-no_wildcard_match.patch
 
 Buildroot: 	%{_buildroot}/%{name}-%{version}
 BuildRequires:	openssl-devel >= 0.9.7
@@ -159,10 +161,14 @@ rm -rf %{buildroot}%{_datadir}/doc
 
 
 %changelog
-* Thu Sep 15 2005 Vincent Danen <vdanen@annvix.org> 0.24.7-2avx
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Thu Sep 15 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.24.7-2avx
 - correct the buildroot
 
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 0.24.7-1avx
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.24.7-1avx
 - first Annvix build (required by new rpm)
 - P3: disable the ssl wildcard_match test (just sits there doing nothing)
 
