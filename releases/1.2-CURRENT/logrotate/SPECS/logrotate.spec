@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		logrotate
 %define version		3.7.1
-%define release		4avx
+%define release		%_revrel
 
 Summary:	Rotates, compresses, and mails system logs
 Name:		%{name}
@@ -19,10 +20,10 @@ License:	GPL
 Group:		File tools
 URL:		http://download.fedora.redhat.com/pub/fedora/linux/core/1/i386/os/SRPMS
 Source0:	%{name}-%{version}.tar.bz2
-Source1:	logrotate.conf.annvix.bz2
-Patch1: 	logrotate-3.7.1-man.patch.bz2
-Patch2: 	logrotate-3.7.1-noTMPDIR.patch.bz2
-Patch3:		logrotate-3.7.1-glob.patch.bz2
+Source1:	logrotate.conf.annvix
+Patch1: 	logrotate-3.7.1-man.patch
+Patch2: 	logrotate-3.7.1-noTMPDIR.patch
+Patch3:		logrotate-3.7.1-glob.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	popt-devel
@@ -53,7 +54,7 @@ mkdir -p %{buildroot}%{_sysconfdir}/%{name}.d
 mkdir -p %{buildroot}%{_sysconfdir}/cron.daily
 mkdir -p %{buildroot}/var/lib
 
-bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/%{name}.conf
+cat %{SOURCE1} > %{buildroot}%{_sysconfdir}/%{name}.conf
 chmod 0644 %{buildroot}%{_sysconfdir}/%{name}.conf
 
 install -m 0755 examples/%{name}.cron %{buildroot}%{_sysconfdir}/cron.daily/%{name}
@@ -77,20 +78,24 @@ touch %{buildroot}/var/lib/logrotate.status
 
 
 %changelog
-* Fri Sep 23 2005 Vincent Danen <vdanen@annvix.org> 3.7.1-4avx
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Sep 23 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.7.1-4avx
 - sync with mdk 3.7.1-2mdk (sync with 3.7.1-7)
 - fix S1 to set better perms for btmp
 
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 3.7.1-3avx
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.7.1-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 3.7.1-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.7.1-2avx
 - bootstrap build
 
-* Fri Dec 03 2004 Vincent Danen <vdanen@annvix.org> 3.7.1-1avx
+* Fri Dec 03 2004 Vincent Danen <vdanen-at-build.annvix.org> 3.7.1-1avx
 - 3.7.1
 
-* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 3.7-2avx
+* Tue Jun 22 2004 Vincent Danen <vdanen-at-build.annvix.org> 3.7-2avx
 - Annvix build
 
 * Tue May 11 2004 Vincent Danen <vdanen@opensls.org> 3.7-1sls
