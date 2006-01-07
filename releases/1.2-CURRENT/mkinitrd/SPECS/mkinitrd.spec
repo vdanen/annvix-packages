@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		mkinitrd
 %define version 	3.4.43
-%define release 	22avx
+%define release 	%_revrel
 %define epoch		1
 
 %define use_dietlibc 	0
@@ -28,11 +29,11 @@ URL:		http://www.redhat.com/
 Source:		ftp://ftp.redhat.com/mkinitrd-%{version}.tar.bz2
 Source1:	mkinitrd_helper-3.5.15.1.tar.bz2
 Source2:	nash-4.1.18.tar.bz2
-Patch0:		mkinitrd-3.4.43-avx-mdkize.patch.bz2
-Patch1:		mkinitrd-3.1.6-shutup-insmod-busybox.patch.bz2
-Patch2:		mkinitrd-3.4.43-mdk-kernel-2.5.patch.bz2
-Patch3:		mkinitrd-3.4.43-avx-mkdevices.patch.bz2
-Patch4:		mkinitrd-4.1.12-mdk-nash.patch.bz2
+Patch0:		mkinitrd-3.4.43-avx-mdkize.patch
+Patch1:		mkinitrd-3.1.6-shutup-insmod-busybox.patch
+Patch2:		mkinitrd-3.4.43-mdk-kernel-2.5.patch
+Patch3:		mkinitrd-3.4.43-avx-mkdevices.patch
+Patch4:		mkinitrd-4.1.12-mdk-nash.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl
@@ -103,10 +104,14 @@ rm -f %{buildroot}%{_mandir}/*/grubby*
 
 
 %changelog
-* Thu Aug 18 2005 Vincent Danen <vdanen@annvix.org> 3.4.43-22avx
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Thu Aug 18 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.4.43-22avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 3.4.43-21avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.4.43-21avx
 - bootstrap build
 
 * Sun Feb 27 2005 Vincent Danen <vdanen@annvix.rg> 3.4.43-20avx
