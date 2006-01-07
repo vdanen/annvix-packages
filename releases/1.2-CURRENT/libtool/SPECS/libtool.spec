@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		libtool
 %define version		1.5.18
-%define release		1avx
+%define release		%_revrel
 
 %define lib_major	3
 %define libname_orig	libltdl
@@ -45,13 +46,13 @@ Source1:	ftp://ftp.gnu.org/gnu/libtool/libtool-%{version}.tar.gz.sig
 Source2:	libtool-cputoolize.sh
 # (Abel) Patches please only modify ltmain.in and don't touch ltmain.sh
 # otherwise ltmain.sh will not be regenerated, and patches will be lost
-Patch0:		libtool-1.5.6-relink.patch.bz2
-Patch1:		libtool-1.5.18-lib64.patch.bz2
-Patch2:		libtool-1.5.6-ltmain-SED.patch.bz2
-Patch3:		libtool-1.5.6-libtoolize--config-only.patch.bz2
-Patch4:		libtool-1.5.6-test-dependency.patch.bz2
-Patch5:		libtool-1.5-testfailure.patch.bz2
-Patch6:		libtool-1.5.6-old-libtool.patch.bz2
+Patch0:		libtool-1.5.6-relink.patch
+Patch1:		libtool-1.5.18-lib64.patch
+Patch2:		libtool-1.5.6-ltmain-SED.patch
+Patch3:		libtool-1.5.6-libtoolize--config-only.patch
+Patch4:		libtool-1.5.6-test-dependency.patch
+Patch5:		libtool-1.5-testfailure.patch
+Patch6:		libtool-1.5.6-old-libtool.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	automake1.8, autoconf2.5
@@ -202,42 +203,46 @@ linux32 /bin/sh -c '%multiarch_binaries %{buildroot}%{_bindir}/libtool'
 
 
 %changelog
-* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 1.5.18-1avx
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.5.18-1avx
 - 1.5.18
 - re-add the strict gcc requirement
 - drop P7
 - rediff P1
 - fix requires
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.5.12-6avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.5.12-6avx
 - bootstrap build (new gcc, new glibc)
 
-* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 1.5.12-5avx
+* Tue Jul 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.5.12-5avx
 - rebuild
 - drop BuildReq on setarch if we're a biarch
 - run the configure/make scripts without linux32 or else configure
   and make think gcc doesn't work; at any rate, libtool is a shell script
   and things are done properly with or without using linux32
 
-* Thu Jul 21 2005 Vincent Danen <vdanen@annvix.org> 1.5.12-4avx
+* Thu Jul 21 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.5.12-4avx
 - rebuild against gcc 3.4.4
 - BuildRequires: setarch
 
-* Thu Jul 21 2005 Vincent Danen <vdanen@annvix.org> 1.5.12-3avx
+* Thu Jul 21 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.5.12-3avx
 - multiarch
 - don't use the crappy hack to get the gcc version and just make it
   require gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.5.12-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.5.12-2avx
 - bootstrap build
 
-* Mon Feb 28 2005 Vincent Danen <vdanen@annvix.org> 1.5.12-1avx
+* Mon Feb 28 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.5.12-1avx
 - 1.5.12
 - sync all patches with Mandrake 1.5.12-4mdk
 - prepare for multiarch (from gb)
 - /usr/bin/libtool is compiler dependent
 
-* Wed Jun 23 2004 Vincent Danen <vdanen@annvix.org> 1.4.3-12avx
+* Wed Jun 23 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.4.3-12avx
 - require packages not files
 - Annvix build
 
