@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		libtermcap
 %define version		2.0.8
-%define release		41avx
+%define release		%_revrel
 
 %define major		2
 %define libname_orig	libtermcap
@@ -23,20 +24,20 @@ License:	LGPL
 Group:		System/Libraries
 URL:		ftp://metalab.unc.edu/pub/Linux/GCC/
 Source:		termcap-%{version}.tar.bz2
-Patch0:		termcap-2.0.8-shared.patch.bz2
-Patch1:		termcap-2.0.8-setuid.patch.bz2
-Patch2:		termcap-2.0.8-instnoroot.patch.bz2
-Patch3:		termcap-2.0.8-compat21.patch.bz2
-Patch4:		termcap-2.0.8-xref.patch.bz2
-Patch5:		termcap-2.0.8-fix-tc.patch.bz2
-Patch6:		termcap-2.0.8-ignore-p.patch.bz2
-Patch7:		termcap-buffer.patch.bz2
+Patch0:		termcap-2.0.8-shared.patch
+Patch1:		termcap-2.0.8-setuid.patch
+Patch2:		termcap-2.0.8-instnoroot.patch
+Patch3:		termcap-2.0.8-compat21.patch
+Patch4:		termcap-2.0.8-xref.patch
+Patch5:		termcap-2.0.8-fix-tc.patch
+Patch6:		termcap-2.0.8-ignore-p.patch
+Patch7:		termcap-buffer.patch
 # This patch is a REALLY BAD IDEA without patch #10 below....
-Patch8:		termcap-2.0.8-bufsize.patch.bz2
-Patch9:		termcap-2.0.8-colon.patch.bz2
-Patch10:	libtermcap-aaargh.patch.bz2
+Patch8:		termcap-2.0.8-bufsize.patch
+Patch9:		termcap-2.0.8-colon.patch
+Patch10:	libtermcap-aaargh.patch
 # (gc) conflicting definition of `bcopy' against latest glibc 2.1.95
-Patch11:	termcap-fix-glibc-2.2.patch.bz2
+Patch11:	termcap-fix-glibc-2.2.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	texinfo
@@ -159,16 +160,20 @@ fi
 
 
 %changelog
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.0.8-41avx
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.8-41avx
 - bootstrap build (new gcc, new glibc)
 
-* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 2.0.8-40avx
+* Tue Jul 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.8-40avx
 - rebuild for new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.0.8-39avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.8-39avx
 - bootstrap build
 
-* Wed Jun 23 2004 Vincent Danen <vdanen@annvix.org> 2.0.8-38avx
+* Wed Jun 23 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.0.8-38avx
 - Annvix build
 
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 2.0.8-37sls
