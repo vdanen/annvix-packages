@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		libpng
 %define version		1.2.8
-%define release		1avx
+%define release		%_revrel
 %define epoch		2
 
 %define lib_major	3
@@ -24,8 +25,8 @@ License: 	GPL-like
 Group: 		System/Libraries
 URL: 		http://www.libpng.org/pub/png/libpng.html
 Source: 	http://prdownloads.sourceforge.net/libpng/%{name}-%{version}.tar.bz2
-Patch0:		libpng-1.2.5-mdkconf.patch.bz2
-Patch1:		libpng-1.2.6-lib64.patch.bz2
+Patch0:		libpng-1.2.5-mdkconf.patch
+Patch1:		libpng-1.2.6-lib64.patch
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildRequires: 	zlib-devel
@@ -134,29 +135,33 @@ rm -rf %{buildroot}%{_prefix}/man
 
 
 %changelog
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 1.2.8-1avx
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.2.8-1avx
 - 1.2.8
 - dropped P1; security fixes merged upstream
 - new P1: lib64 fixes to pkconfig files (gbeauchesne)
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.2.5-17avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.2.5-17avx
 - bootstrap build (new gcc, new glibc)
 
-* Sat Jul 30 2005 Vincent Danen <vdanen@annvix.org> 1.2.5-16avx
+* Sat Jul 30 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.2.5-16avx
 - rebuild against new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.2.5-15avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.2.5-15avx
 - bootstrap build
 
-* Wed Aug 04 2004 Vincent Danen <vdanen@annvix.org> 1.2.5-14avx
+* Wed Aug 04 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.2.5-14avx
 - replace P1 and P2 with an official patch from the libpng team, which also
   fixes CAN-2004-0597, CAN-2004-0598, and CAN-2004-599
 
-* Mon Jun 28 2004 Vincent Danen <vdanen@annvix.org> 1.2.5-13avx
+* Mon Jun 28 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.2.5-13avx
 - P2: security fix for CAN-2002-1363 which I had fixed in mdk a long time
   ago and which a maintainer for this package never applied to in cooker =(
 
-* Wed Jun 23 2004 Vincent Danen <vdanen@annvix.org> 1.2.5-12avx
+* Wed Jun 23 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.2.5-12avx
 - Annvix build
 
 * Mon Apr 19 2004 Vincent Danen <vdanen@opensls.org> 1.2.5-11sls
