@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		libusb
 %define	version		0.1.8
-%define	release		1avx
+%define	release		%_revrel
 
 %define api		0.1
 %define major		4
@@ -126,7 +127,11 @@ ln -s ../usr/lib/libusb.la %{buildroot}/%{_lib}
 
 
 %changelog
-* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 0.1.8-1avx
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Sep 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.1.8-1avx
 - first Annvix build (required by usbutils)
 
 * Thu Feb 17 2005 Thierry Vignaud <tvignaud@mandrakesoft.com> 0.1.8-7mdk
