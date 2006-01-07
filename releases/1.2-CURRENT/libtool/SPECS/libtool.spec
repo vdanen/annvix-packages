@@ -56,6 +56,9 @@ Patch6:		libtool-1.5.6-old-libtool.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	automake1.8, autoconf2.5
+%ifarch %biarches
+BuildRequires:	setarch
+%endif
 
 Requires:	file, gcc = %{gcc_ver}
 Requires(post):	info-install
@@ -203,6 +206,9 @@ linux32 /bin/sh -c '%multiarch_binaries %{buildroot}%{_bindir}/libtool'
 
 
 %changelog
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- setarch is required for biarchs (for linux32)
+
 * Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - Obfuscate email addresses and new tagging
 - Uncompress patches
