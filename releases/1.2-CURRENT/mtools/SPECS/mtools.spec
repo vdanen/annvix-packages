@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		mtools
 %define version		3.9.9
-%define release		9avx
+%define release		%_revrel
 
 Summary:	Programs for accessing MS-DOS disks without mounting the disks
 Name: 		%{name}
@@ -19,16 +20,17 @@ License: 	GPL
 Group: 		File tools
 URL: 		http://www.tux.org/pub/tux/knaff/mtools/index.html
 Source: 	http://www.tux.org/pub/tux/knaff/mtools/%{name}-%{version}.tar.bz2 
-Patch0: 	mtools-3.9.1-linux.patch.bz2
-Patch1: 	mtools-3.9.7-20000619.diff.bz2
-Patch2: 	mtools-3.9.6-atari.patch.bz2
-Patch4: 	mtools-3.9.8-fs.patch.bz2
-Patch5: 	mtools-3.9.9-supermount.patch.bz2
+Patch0: 	mtools-3.9.1-linux.patch
+Patch1: 	mtools-3.9.7-20000619.diff
+Patch2: 	mtools-3.9.6-atari.patch
+Patch4: 	mtools-3.9.8-fs.patch
+Patch5: 	mtools-3.9.9-supermount.patch
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildRequires: 	texinfo
 
-PreReq: 	info-install
+Requires(post):	info-install
+Requires(preun): info-install
 
 %description
 Mtools is a collection of utilities for accessing MS-DOS files.
@@ -99,19 +101,24 @@ cp -a %{buildroot}%{_bindir}/mtools %{buildroot}%{_bindir}/mformat
 
 
 %changelog
-* Thu Sep 15 2005 Vincent Danen <vdanen@annvix.org> 3.9.9-9avx
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- fix prereq
+
+* Thu Sep 15 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.9.9-9avx
 - correct the buildroot
 
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 3.9.9-8avx
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.9.9-8avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 3.9.9-7avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.9.9-7avx
 - rebuild
 
-* Sat Jan 29 2005 Vincent Danen <vdanen@annvix.org> 3.9.9-6avx
+* Sat Jan 29 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.9.9-6avx
 - build without X support
 
-* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 3.9.9-5avx
+* Tue Jun 22 2004 Vincent Danen <vdanen-at-build.annvix.org> 3.9.9-5avx
 - Require packages not files
 - Annvix build
 
