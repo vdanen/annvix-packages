@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		mkbootdisk
 %define version 	1.5.1
-%define release 	4avx
+%define release 	%_revrel
 
 Summary: 	Creates an initial ramdisk image for preloading modules
 Name: 		%{name}
@@ -19,8 +20,8 @@ License: 	GPL
 Group: 		System/Kernel and hardware
 URL:		http://www.redhat.com/swr/src/mkbootdisk-1.4.2-1.src.html
 Source: 	%{name}-%{version}.tar.bz2
-Patch0: 	mkbootdisk-1.5.1-mdk.patch.bz2
-Patch1: 	mkbootdisk-1.5.1-devfs-compliant.patch.bz2
+Patch0: 	mkbootdisk-1.5.1-mdk.patch
+Patch1: 	mkbootdisk-1.5.1-devfs-compliant.patch
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
 
@@ -64,13 +65,17 @@ the system.
 %attr(644,root,root) %{_mandir}/man8/mkbootdisk.8*
 
 %changelog
-* Wed Aug 17 2005 Vincent Danen <vdanen@annvix.org> 1.5.1-4avx
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Wed Aug 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.5.1-4avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.5.1-3avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.5.1-3avx
 - rebuild
 
-* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 1.5.1-2avx
+* Tue Jun 22 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.5.1-2avx
 - Annvix build
 
 * Fri Jun 11 2004 Vincent Danen <vdanen@opensls.org> 1.5.1-1sls
