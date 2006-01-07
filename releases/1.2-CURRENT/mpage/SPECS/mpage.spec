@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		mpage
 %define version		2.5.4
-%define release		1avx
+%define release		%_revrel
 
 Summary:	A tool for printing multiple pages of text on each printed page
 Name:		%{name}
@@ -19,13 +20,13 @@ License:	BSD
 Group:		System/Configuration/Printing
 URL:		http://www.mesa.nl/pub/mpage
 Source:		http://www.mesa.nl/pub/mpage/%{name}-%{version}.tar.bz2
-Patch0:		mpage-2.5.4-config.patch.bz2
-Patch1:		mpage-2.5.4-gcc4.patch.bz2
+Patch0:		mpage-2.5.4-config.patch
+Patch1:		mpage-2.5.4-gcc4.patch
 # Japanese patch.bz2
-Patch10:	mpage-2.5.3-j.patch.bz2
-Patch20:	mpage-mfix.patch.bz2
-Patch21:	mpage-psprint.patch.bz2
-Patch22:	mpage-2.5.3-japanese-fix.patch.bz2
+Patch10:	mpage-2.5.3-j.patch
+Patch20:	mpage-mfix.patch
+Patch21:	mpage-psprint.patch
+Patch22:	mpage-2.5.3-japanese-fix.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -71,18 +72,22 @@ pages.
 
 
 %changelog
-* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 2.5.4-1avx
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.5.4-1avx
 - 2.5.4
 - P1: gcc4 & makefilery fixes (gbeauchesne)
 - move encodings where that are expected to be: %%_datadir/mpage (gbeauchesne)
 
-* Thu Aug 18 2005 Vincent Danen <vdanen@annvix.org> 2.5.3-10avx
+* Thu Aug 18 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.5.3-10avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.5.3-9avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.5.3-9avx
 - rebuild
 
-* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 2.5.3-8avx
+* Tue Jun 22 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.5.3-8avx
 - Annvix build
 
 * Sun Mar 07 2004 Vincent Danen <vdanen@opensls.org> 2.5.3-7sls
