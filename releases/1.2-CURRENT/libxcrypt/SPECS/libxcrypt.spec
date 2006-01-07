@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		libxcrypt
 %define version		2.0
-%define release		5avx
+%define release		%_revrel
 
 Summary:	Crypt library for DES, MD5, and blowfish
 Name:		%{name}
@@ -29,7 +30,7 @@ encryption.
 
 %package devel
 Summary:	Development files for Crypt library
-Group:		Development/Libraries/C and C++
+Group:		Development/C
 Requires:	libxcrypt = %{version}
 
 %description devel
@@ -77,15 +78,19 @@ rm -f %{buildroot}%{_libdir}/libxcrypt.1
 
 
 %changelog
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 2.0-5avx
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0-5avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.0-4avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0-4avx
 - bootstrap build
 - get rid of the ugly hacks we don't need anymore
 - put the lib files in %%{_libdir} rather than /lib
 
-* Wed Jun 22 2004 Vincent Danen <vdanen@annvix.org> 2.0-3avx
+* Wed Jun 22 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.0-3avx
 - Annvix build
 
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 2.0-2sls
