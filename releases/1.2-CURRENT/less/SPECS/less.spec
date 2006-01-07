@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		less
 %define version		382
-%define release		5avx
+%define release		%_revrel
 
 %define lessp_ver	1.52
 
@@ -23,9 +24,9 @@ URL:		http://www.greenwoodsoftware.com/less
 Source:		ftp://ftp.gnu.org/pub/gnu/less/%{name}-%{version}.tar.bz2
 Source1:	faq_less.html
 Source2:	http://www-zeuthen.desy.de/~friebel/unix/less/lesspipe-%{lessp_ver}.tar.bz2
-Patch0:		less-374-manpages.patch.bz2
-Patch1:		lesspipe.lynx_for_html.patch.bz2
-Patch2:		lesspipe-1.50-posix.patch.bz2
+Patch0:		less-374-manpages.patch
+Patch1:		lesspipe.lynx_for_html.patch
+Patch2:		lesspipe-1.50-posix.patch
 
 Buildroot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	ncurses-devel
@@ -135,26 +136,30 @@ install -m 0644 lessecho.1 %{buildroot}%{_mandir}/man1
 
 
 %changelog
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 382-4avx
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 382-4avx
 - lesspipe 1.52
 - use lesspipe's included manpage
 - move LESSOPEN variable to the profile.d scripts and remove less wrapper
   (waschk)
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 382-4avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 382-4avx
 - bootstrap build (new gcc, new glibc)
 
-* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 382-3avx
+* Tue Jul 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 382-3avx
 - rebuild for new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 382-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 382-2avx
 - bootstrap build
 
-* Wed Sep 22 2004 Vincent Danen <vdanen@annvix.org> 382-1avx
+* Wed Sep 22 2004 Vincent Danen <vdanen-at-build.annvix.org> 382-1avx
 - 382
 - spec cleanups
 
-* Wed Jun 23 2004 Vincent Danen <vdanen@annvix.org> 381-5avx
+* Wed Jun 23 2004 Vincent Danen <vdanen-at-build.annvix.org> 381-5avx
 - Annvix build
 
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 381-4sls
