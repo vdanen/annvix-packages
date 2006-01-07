@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		linux-atm
 %define version		2.4.1
-%define release		9avx
+%define release		%_revrel
 
 %define major		1
 %define libname		lib%{name}
@@ -23,10 +24,10 @@ License:	GPL
 Group:		System/Libraries
 URL:		http://linux-atm.sourceforge.net
 Source:		%{name}-%{version}.tar.bz2
-Patch0:		linux-atm-2.4.1-gcc3.4-fix.patch.bz2
-Patch1:		linux-atm-2.4.1-libtool-fixes.patch.bz2
-Patch2:		linux-atm-2.4.1-64bit-fixes.patch.bz2
-Patch3:		linux-atm-2.4.1-gcc4.patch.bz2
+Patch0:		linux-atm-2.4.1-gcc3.4-fix.patch
+Patch1:		linux-atm-2.4.1-libtool-fixes.patch
+Patch2:		linux-atm-2.4.1-64bit-fixes.patch
+Patch3:		linux-atm-2.4.1-gcc4.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	flex, bison, automake1.4
@@ -112,18 +113,22 @@ automake-1.4 --foreign
 
 
 %changelog
-* Fri Sep 23 2005 Vincent Danen <vdanen@annvix.org> 2.4.1-9avx
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Sep 23 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.4.1-9avx
 - P3: gcc4 fixes mostly from fedora (gbeauchesne)
 
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 2.4.1-8avx
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.4.1-8avx
 - bootstrap build (new gcc, new glibc)
 - patches from mdk for gcc, libtool, and 64bit fixes
 - BuildRequires: bison
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.4.1-7avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.4.1-7avx
 - rebuild
 
-* Wed Jun 23 2004 Vincent Danen <vdanen@annvix.org> 2.4.1-6avx
+* Wed Jun 23 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.4.1-6avx
 - Annvix build
 
 * Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 2.4.1-5sls
