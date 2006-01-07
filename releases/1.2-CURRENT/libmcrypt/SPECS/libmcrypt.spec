@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		libmcrypt
 %define version		2.5.7
-%define release		12avx
+%define release		%_revrel
 
 %define major		4
 %define libname		%mklibname mcrypt %{major}
@@ -153,20 +154,24 @@ make check
 
 
 %changelog
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.5.7-12avx
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.5.7-12avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jul 29 2005 Vincent Danen <vdanen@annvix.org> 2.5.7-11avx
+* Fri Jul 29 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.5.7-11avx
 - rebuild against new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.5.7-10avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.5.7-10avx
 - bootstrap build
 
-* Sat Mar 05 2005 Vincent Danen <vdanen@annvix.org> 2.5.7-9avx
+* Sat Mar 05 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.5.7-9avx
 - multiarch support
 - run make check
 
-* Wed Jun 23 2004 Vincent Danen <vdanen@annvix.org> 2.5.7-8avx
+* Wed Jun 23 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.5.7-8avx
 - Annvix build
 
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 2.5.7-7sls
