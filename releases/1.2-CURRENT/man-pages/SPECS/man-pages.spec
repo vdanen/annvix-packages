@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		man-pages
 %define version		2.07
-%define release 	1avx
+%define release 	%_revrel
 
 %define LANG		en
 
@@ -30,11 +31,11 @@ Source8:	man9-19971126.tar.bz2
 Source9:	man2.tar.bz2
 Source10:	strptime.3
 Source11:	man-network.tar.bz2
-Patch0:		man-pages-1.44-ext3.patch.bz2
+Patch0:		man-pages-1.44-ext3.patch
 # (fg) 20010627 Document that quad interpretation "feature" in socket API...
-Patch4:		man-pages-1.38-quad-feature.patch.bz2
-Patch5:		man-pages-1.53-fix-time.patch.bz2
-Patch6:		man-pages-1.54-biarch-utmp.patch.bz2
+Patch4:		man-pages-1.38-quad-feature.patch
+Patch5:		man-pages-1.53-fix-time.patch
+Patch6:		man-pages-1.54-biarch-utmp.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
@@ -142,24 +143,28 @@ tar xfj %{SOURCE11} -C %{buildroot}%{_mandir}
 
 
 %changelog
-* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 2.07-1avx
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.07-1avx
 - 2.07
 - include POSIX man pages
 
-* Wed Aug 17 2005 Vincent Danen <vdanen@annvix.org> 2.01-4avx
+* Wed Aug 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.01-4avx
 - remove crypt.3 manpage (in glibc)
 
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 2.01-3avx
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.01-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.01-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.01-2avx
 - bootstrap build
 
-* Thu Mar 17 2005 Vincent Danen <vdanen@annvix.org> 2.01-1avx
+* Thu Mar 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.01-1avx
 - 2.01
 - spec cleanups
 
-* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 1.60-4avx
+* Tue Jun 22 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.60-4avx
 - Annvix build
 
 * Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 1.60-3sls
