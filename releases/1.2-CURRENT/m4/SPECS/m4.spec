@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		m4
 %define version 	1.4.3
-%define release 	1avx
+%define release 	%_revrel
 
 Summary:	The GNU macro processor
 Name:		%{name}
@@ -70,18 +71,22 @@ make check
 
 
 %changelog
-* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 1.4.3-1avx
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Sep 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.4.3-1avx
 - 1.4.3
 - dropped P0; not required
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.4ppre2-9avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.4ppre2-9avx
 - bootstrap build (new gcc, new glibc)
 - s/mandrake/annvix/
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.4ppre2-8avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.4ppre2-8avx
 - bootstrap build
 
-* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 1.4ppre2-7avx
+* Tue Jun 22 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.4ppre2-7avx
 - require packages not files
 - Annvix build
 
