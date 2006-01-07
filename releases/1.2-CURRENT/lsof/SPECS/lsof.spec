@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		lsof
 %define version		4.74
-%define release		1avx
+%define release		%_revrel
 
 %define dname		%{name}_%{version}
 
@@ -21,8 +22,8 @@ License:	Free
 Group:		Monitoring
 URL:		ftp://vic.cc.purdue.edu/pub/tools/unix/lsof/
 Source0:	ftp://vic.cc.purdue.edu/pub/tools/unix/%{name}/%{dname}.tar.bz2
-Patch0:		lsof_4.64-perl-example-fix.patch.bz2
-Patch1:		lsof_4.60-has-security.patch.bz2
+Patch0:		lsof_4.64-perl-example-fix.patch
+Patch1:		lsof_4.60-has-security.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -77,16 +78,20 @@ install -m 0644 lsof.8 %{buildroot}%{_mandir}/man8/
 
 
 %changelog
-* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 4.74-1avx
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Sep 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.74-1avx
 - 4.74
 
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 4.68-6avx
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.68-6avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 4.68-5avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.68-5avx
 - rebuild
 
-* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 4.68-4avx
+* Tue Jun 22 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.68-4avx
 - Annvix build
 
 * Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 4.68-3sls
