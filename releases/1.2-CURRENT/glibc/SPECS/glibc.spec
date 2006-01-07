@@ -12,7 +12,7 @@
 # owl 2.3.5-owl5
 %define basevers	2.3.5
 #%%define snapshot	20050427
-%define crypt_bf_ver	0.4.7
+%define crypt_bf_ver	1.0
 
 %define revision	$Rev$
 %define name		glibc
@@ -232,9 +232,10 @@ libraries included in the glibc package).
 Summary:	A Name Service Caching Daemon (nscd)
 Group:		System/Servers
 Conflicts:	kernel < 2.2.0
-PreReq:		srv
-PreReq:		rpm-helper
-#Requires(pre,postun): rpm-helper
+Requires(pre):	rpm-helper
+Requires(preun): rpm-helper, srv
+Requires(post):	rpm-helper, srv
+Requires(postun): rpm-helper, srv
 Autoreq:	true
 
 %description -n nscd
@@ -1137,6 +1138,10 @@ fi
 
 
 %changelog
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- crypt_blowfish 1.0 (minor security fixes)
+- fix prereq
+
 * Fri Dec 23 2005 Vincent Danen <vdanen-at-build.annvix.org>
 - uncompress patches
 - reorder SSP patches and include the original SSP patch (P500); this
