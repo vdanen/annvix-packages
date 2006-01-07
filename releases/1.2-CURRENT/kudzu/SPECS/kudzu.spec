@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		kudzu
 %define version		1.1.111
-%define release		3avx
+%define release		%_revrel
 
 Summary:	The Red Hat Linux hardware probing tool
 Name:		%{name}
@@ -19,13 +20,14 @@ License:	GPL
 Group:		Applications/System
 URL:		http://fedora.redhat.com/projects/additional-projects/kudzu/
 Source:		kudzu-%{version}.tar.gz
-Patch0:		kudzu-1.1.95-avx-python2.patch.bz2
+Patch0:		kudzu-1.1.95-avx-python2.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildPrereq:	pciutils-devel >= 2.1.11-1, python-devel python newt-devel
 
-Prereq:		chkconfig, modutils >= 2.3.11-5, initscripts
-Requires:	pam >= 0.74-17, hwdata, python-base
+Requires(post):	chkconfig, initscripts, rpm-helper
+Requires(preun): chkconfig, initscripts, rpm-helper
+Requires:	pam >= 0.74-17, hwdata, python-base, modutils >= 2.3.11-5
 %ifarch x86_64 amd64
 Requires:	lib64newt0.51
 %else
@@ -101,22 +103,27 @@ install -m 0755 fix-mouse-psaux %{buildroot}%{_sbindir}
 
 
 %changelog
-* Thu Aug 18 2005 Vincent Danen <vdanen@annvix.org> 1.1.95-3avx
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- fix prereq
+
+* Thu Aug 18 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.1.95-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.1.95-2avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.1.95-2avx
 - rebuild
 
-* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> - 1.1.95-1avx
+* Thu Feb 03 2005 Vincent Danen <vdanen-at-build.annvix.org> - 1.1.95-1avx
 - 1.1.111
 - don't build with dietlibc anymore
 
-* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> - 1.1.95-1avx
+* Thu Feb 03 2005 Vincent Danen <vdanen-at-build.annvix.org> - 1.1.95-1avx
 - 1.1.95
 - update url
 - P1: we don't rename python to python2 so fix Makefile
 
-* Wed Jun 22 2004 Vincent Danen <vdanen@annvix.org> - 1.1.51-4avx
+* Wed Jun 22 2004 Vincent Danen <vdanen-at-build.annvix.org> - 1.1.51-4avx
 - require packages not files
 - Annvix build
 
