@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		%{libnet}%{branch}
 %define version 	1.0.2a
-%define release 	8avx
+%define release 	%_revrel
 
 %define libnet		%mklibname net
 %define branch		1.0
@@ -22,7 +23,7 @@ License:	BSD style
 Group:		System/Libraries
 URL:		http://www.packetfactory.net/libnet
 Source:		http://www.packetfactory.net/libnet/dist/libnet-%{version}.tar.bz2
-Patch0:		libnet-1.0.2a-strings.patch.bz2
+Patch0:		libnet-1.0.2a-strings.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildPreReq:	libpcap
@@ -82,17 +83,21 @@ rm -f %{buildroot}/%{_libdir}/libpwrite
 
 
 %changelog
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 1.0.2a-8avx
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.0.2a-8avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.0.2a-7avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.0.2a-7avx
 - bootstrap build
 
-* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 1.0.2a-6avx
+* Thu Mar 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.0.2a-6avx
 - more appropriate provides
 - spec cleanups
 
-* Wed Jun 23 2004 Vincent Danen <vdanen@annvix.org> 1.0.2a-5avx
+* Wed Jun 23 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.0.2a-5avx
 - Annvix build
 
 * Fri Mar 05 2004 Vincent Danen <vdanen@opensls.org> 1.0.2a-4sls
