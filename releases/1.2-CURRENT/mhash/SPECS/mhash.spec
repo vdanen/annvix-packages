@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		mhash
 %define version		0.9.2
-%define release		1avx
+%define release		%_revrel
 
 %define major		2
 %define libname 	%mklibname %{name} %{major}
@@ -106,22 +107,26 @@ make check
 
 
 %changelog
-* Thu Sep 22 2005 Vincent Danen <vdanen@annvix.org> 0.9.2-1avx
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Thu Sep 22 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.9.2-1avx
 - 0.9.2
 - run the test suite
 - drop html docs
 - BuildRequires: automake1.7, autoconf2.5
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 0.8.18-9avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.8.18-9avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jul 29 2005 Vincent Danen <vdanen@annvix.org> 0.8.18-8avx
+* Fri Jul 29 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.8.18-8avx
 - rebuild against new gcc
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.8.18-7avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.8.18-7avx
 - rebuild
 
-* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 0.8.18-6avx
+* Tue Jun 22 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.8.18-6avx
 - Annvix build
 
 * Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 0.8.18-5sls
