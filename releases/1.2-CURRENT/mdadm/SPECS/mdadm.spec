@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		mdadm
 %define version		1.12.0
-%define release		4avx
+%define release		%_revrel
 
 %define use_dietlibc 	0
 %ifarch %{ix86} x86_64 ppc
@@ -27,7 +28,6 @@ License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://www.cse.unsw.edu.au/~neilb/source/mdadm/
 Source:		http://www.cse.unsw.edu.au/~neilb/source/mdadm/%{name}-%{version}.tar.bz2
-Source1:	mdmonitor.init.bz2
 Source2:	mdadm.run
 Source3:	mdadm-log.run
 
@@ -37,7 +37,8 @@ BuildRequires:	man groff groff-for-man
 BuildRequires:	dietlibc-devel
 %endif
 
-Prereq:		rpm-helper, gawk
+Requires(post):	rpm-helper
+Requires(preun): rpm-helper
 
 %description 
 mdadm is a program that can be used to create, manage, and monitor
@@ -107,43 +108,49 @@ fi
 
 
 %changelog
-* Sat Oct 08 2005 Vincent Danen <vdanen@annvix.org> 1.12.0-4avx
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- drop unused S1
+- fix prereq
+
+* Sat Oct 08 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.12.0-4avx
 - the run script needs to look for mdadm.conf rather than amd.conf
 
-* Tue Sep 27 2005 Vincent Danen <vdanen@annvix.org> 1.12.0-3avx
+* Tue Sep 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.12.0-3avx
 - execline the runscript
 
-* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 1.12.0-2avx
+* Sat Sep 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.12.0-2avx
 - s/supervise/service/ in log/run
 
-* Fri Sep 02 2005 Vincent Danen <vdanen@annvix.org> 1.12.0-1avx
+* Fri Sep 02 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.12.0-1avx
 - 1.12.0
 - use execlineb for run scripts
 - move logdir to /var/log/service/mdadm
 - run scripts are now considered config files and are not replaceable
 
-* Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 1.9.0-5avx
+* Fri Aug 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.9.0-5avx
 - fix perms on run scripts
 
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 1.9.0-4avx
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.9.0-4avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.9.0-3avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.9.0-3avx
 - rebuild
 
-* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 1.9.0-2avx
+* Thu Mar 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.9.0-2avx
 - use logger for logging
 
-* Tue Mar 01 2005 Vincent Danen <vdanen@annvix.org> 1.9.0-1avx
+* Tue Mar 01 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.9.0-1avx
 - 1.9.0
 
-* Fri Feb 04 2005 Vincent Danen <vdanen@annvix.org> 1.6.0-5avx
+* Fri Feb 04 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.6.0-5avx
 - rebuild against new dietlibc
 
-* Tue Oct 05 2004 Vincent Danen <vdanen@annvix.org> 1.6.0-4avx
+* Tue Oct 05 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.6.0-4avx
 - rebuild with updated scripts; seems I forgot to increment the revision
 
-* Fri Sep 17 2004 Vincent Danen <vdanen@annvix.org> 1.6.0-3avx
+* Fri Sep 17 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.6.0-3avx
 - update run scripts
 
 * Mon Jun 14 2004 Thomas Backlund <tmb@annvix.org> 1.6.0-2avx
