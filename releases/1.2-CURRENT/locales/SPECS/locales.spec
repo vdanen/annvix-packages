@@ -5,10 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
+%define revision	$Rev$
 %define name		locales
 %define version		%{glibc_ver}
-%define release		1avx
+%define release		%_revrel
 
 %define glibc_ver	2.3.5
 %define glibc_epoch	6
@@ -3340,7 +3342,11 @@ fi
 
 
 %changelog
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 2.3.5-1avx
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.3.5-1avx
 - rebuild for glibc 2.3.5
 - drop all icons
 - drop all non-english summaries and descriptions
@@ -3376,10 +3382,10 @@ fi
   - Added first Gujarati locale
   - updated Serbian locales
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.3.2-9avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.3.2-9avx
 - rebuild
 
-* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 2.3.2-8avx
+* Tue Jun 22 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.3.2-8avx
 - Annvix build
 - include epoch in BuildRequires
 
