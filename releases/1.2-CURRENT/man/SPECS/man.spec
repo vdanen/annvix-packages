@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		man
 %define version		1.5m2
-%define release		4avx
+%define release		%_revrel
 
 Summary:	A set of documentation tools:  man, apropos and whatis
 Name:		%{name}
@@ -24,36 +25,36 @@ Source2:	makewhatis.crondaily
 Source3:	man.config.5
 # changed 'groff -Tlatin' to 'nroff' (no -T option); that makes auto-detect
 # the charset to use for the output -- pablo
-Patch1:		man-1.5k-confpath.patch.bz2
-Patch4:		man-1.5h1-make.patch.bz2
-Patch5:		man-1.5k-nonascii.patch.bz2
-Patch6:		man-1.5m2-security.patch.bz2
-Patch7:		man-1.5k-mandirs.patch.bz2
-Patch8:		man-1.5m2-bug11621.patch.bz2
-Patch9:		man-1.5k-sofix.patch.bz2
-Patch10:	man-1.5m2-buildroot.patch.bz2
-Patch12:	man-1.5m2-ro-usr.patch.bz2
-Patch14:	man-1.5i2-newline.patch.bz2
-Patch15:	man-1.5k-lookon.patch.bz2
-Patch17:	man-1.5j-utf8.patch.bz2
+Patch1:		man-1.5k-confpath.patch
+Patch4:		man-1.5h1-make.patch
+Patch5:		man-1.5k-nonascii.patch
+Patch6:		man-1.5m2-security.patch
+Patch7:		man-1.5k-mandirs.patch
+Patch8:		man-1.5m2-bug11621.patch
+Patch9:		man-1.5k-sofix.patch
+Patch10:	man-1.5m2-buildroot.patch
+Patch12:	man-1.5m2-ro-usr.patch
+Patch14:	man-1.5i2-newline.patch
+Patch15:	man-1.5k-lookon.patch
+Patch17:	man-1.5j-utf8.patch
 # comment out the NJROFF line of man.conf, so that the nroff script
 # can take care of japanese -- pablo
-Patch18:	man-1.5k-nroff.patch.bz2
-Patch19:	man-1.5i2-overflow.patch.bz2
-Patch22:	man-1.5j-nocache.patch.bz2
-Patch24:	man-1.5i2-initial.patch.bz2
+Patch18:	man-1.5k-nroff.patch
+Patch19:	man-1.5i2-overflow.patch
+Patch22:	man-1.5j-nocache.patch
+Patch24:	man-1.5i2-initial.patch
 # Japanese patches
-Patch51:	man-1.5h1-gencat.patch.bz2
-Patch101:	man-1.5m2-lang-aware_whatis.patch.bz2
-Patch102:	man-1.5g-nonrootbuild.patch.bz2
-Patch104:	man-1.5m2-tv_fhs.patch.bz2
-Patch105:	man-1.5j-i18n.patch.bz2
-Patch106:	man-1.5j-perlman.patch.bz2
-Patch107:	man-1.5j-whatis2.patch.bz2
-Patch200:	man-1.5m2-colored_groff.patch.bz2
-Patch201:	man-1.5m2-l10ned-whatis.patch.bz2
+Patch51:	man-1.5h1-gencat.patch
+Patch101:	man-1.5m2-lang-aware_whatis.patch
+Patch102:	man-1.5g-nonrootbuild.patch
+Patch104:	man-1.5m2-tv_fhs.patch
+Patch105:	man-1.5j-i18n.patch
+Patch106:	man-1.5j-perlman.patch
+Patch107:	man-1.5j-whatis2.patch
+Patch200:	man-1.5m2-colored_groff.patch
+Patch201:	man-1.5m2-l10ned-whatis.patch
 
-Patch300:	man-1.5m2-new-sections.patch.bz2
+Patch300:	man-1.5m2-new-sections.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -199,16 +200,20 @@ chmod 0755 %{buildroot}%{_sbindir}/makewhatis
 
 
 %changelog
-* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 1.5m2-4avx
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.5m2-4avx
 - P300: add new POSIX sections (tvignaud)
 
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 1.5m2-3avx
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.5m2-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.5m2-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.5m2-2avx
 - bootstrap build
 
-* Thu Mar 17 2005 Vincent Danen <vdanen@annvix.org> 1.5m2-1avx
+* Thu Mar 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.5m2-1avx
 - 1.5m2
 - rediff P6, P8, P10,P104,  P201, P300 (tvignaud)
 - rediff and rename P101: bzip2 whatis part was meged upstream, only keep
@@ -216,7 +221,7 @@ chmod 0755 %{buildroot}%{_sbindir}/makewhatis
 - drop P3, P11, P16, P26, and P108 (merged upstream) (tvignaud)
 - spec cleanups
 
-* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 1.5k-16avx
+* Tue Jun 22 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.5k-16avx
 - Annvix build
 
 * Tue Jun 15 2004 Vincent Danen <vdanen@opensls.org> 1.5k-15sls
