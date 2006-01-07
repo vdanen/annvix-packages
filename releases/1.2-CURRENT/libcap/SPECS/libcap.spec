@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name 		libcap
 %define version		1.10
-%define release		4avx
+%define release		%_revrel
 %define sname		cap
 
 %define major		1
@@ -22,9 +23,9 @@ Release:	%{release}
 License:	BSD-like and LGPL
 Group:		System/Libraries
 Source:		ftp://ftp.kernel.org/pub/linux/libs/security/linux-privs/kernel-2.4/%{name}-%{version}.tar.bz2
-Patch0:		libcap-1.10-fdr-userland.patch.bz2
-Patch1:		libcap-1.10-fdr-shared.patch.bz2
-Patch2:		libcap-1.10-fdr-ia64.patch.bz2
+Patch0:		libcap-1.10-fdr-userland.patch
+Patch1:		libcap-1.10-fdr-shared.patch
+Patch2:		libcap-1.10-fdr-ia64.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -105,14 +106,18 @@ chmod +x %{buildroot}%{_libdir}/*.so.*
 
 
 %changelog
-* Thu Sep 22 2005 Vincent Danen <vdanen@annvix.org> 1.10-4avx
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Thu Sep 22 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.10-4avx
 - minor spec cleanups
 
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 1.10-3avx
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.10-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.10-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.10-2avx
 - bootstrap build
 
-* Wed Jun 23 2004 Vincent Danen <vdanen@annvix.org> 1.10-1avx
+* Wed Jun 23 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.10-1avx
 - first Annvix build, based on Fedora spec
