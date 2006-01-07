@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define	revision	$Rev$
 %define	name		matrixssl
 %define	version		1.7.1
-%define	release		1avx
+%define	release		%_revrel
 
 %define	major		1
 %define libname		%mklibname %{name} %{major}
@@ -23,8 +24,8 @@ License:	GPL
 Group:		System/Libraries
 URL:		http://www.matrixssl.org/
 Source0:	%{name}-1-7-1-open.tar.bz2
-Patch0:		matrixssl-1.7.1-shared_and_static.diff.bz2
-Patch1:		matrixssl-1.2.5-debian.diff.bz2
+Patch0:		matrixssl-1.7.1-shared_and_static.diff
+Patch1:		matrixssl-1.2.5-debian.diff
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	dietlibc-devel >= 0.27-2avx
@@ -91,8 +92,14 @@ cp matrixSsl.h matrixCommon.h dietlibc/
 # first make the standard glibc stuff...
 make -C src DFLAGS="%{optflags} -fPIC"
 
+%ifarch x86_64
+COMP="diet x86_64-annvix-linux-gnu-gcc"
+%else
+COMP="diet gcc"
+%endif
+
 # now make the dietlibc static library
-make -C dietlibc/src CC="diet -Os gcc" \
+make -C dietlibc/src CC="$COMP -Os" \
     LDFLAGS="-nostdlib" \
     static
 
@@ -153,33 +160,38 @@ rm -f examples/*.p12
 
 
 %changelog
-* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 1.7.1-1avx
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- dietlibc fixes
+
+* Sat Sep 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.7.1-1avx
 - 1.7.1
 - drop all pdf docs
 - rediff P0 (oden)
 - rediff P1 (fixes x86_64 build) (oden)
 - include matrixConfig.h and fix the #include location in matrixCommon.h
 
-* Wed Aug 17 2005 Vincent Danen <vdanen@annvix.org> 1.2.2-6avx
+* Wed Aug 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.2.2-6avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.2.2-5avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.2.2-5avx
 - rebuild
 
-* Fri Feb 04 2005 Vincent Danen <vdanen@annvix.org> 1.2.2-4avx
+* Fri Feb 04 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.2.2-4avx
 - rebuild against new dietlibc
 
-* Thu Jan 20 2005 Vincent Danen <vdanen@annvix.org> 1.2.2-3avx
+* Thu Jan 20 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.2.2-3avx
 - revert lib64 "fixes"
 - rebuild against new dietlibc and use %%diethome with MYARCH
 
-* Wed Jan 05 2005 Vincent Danen <vdanen@annvix.org> 1.2.2-2avx
+* Wed Jan 05 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.2.2-2avx
 - lib64 fixes (oden)
 
-* Wed Oct 13 2004 Vincent Danen <vdanen@annvix.org> 1.2.2-1avx
+* Wed Oct 13 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.2.2-1avx
 - 1.2.2
 
-* Sat Sep 11 2004 Vincent Danen <vdanen@annvix.org> 1.2-1avx
+* Sat Sep 11 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.2-1avx
 - Annvix build; needed for ipsvd
 
 * Wed Aug 04 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 1.2-1mdk
