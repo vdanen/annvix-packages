@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		libxslt
 %define version		1.1.15
-%define release		1avx
+%define release		%_revrel
 
 %define xml_ver_req	2.6.17
 %define major		1
@@ -161,22 +162,26 @@ rm -rf %{buildroot}%{_docdir}/%{name}-%{version} \
 
 
 %changelog
-* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 1.1.15-1avx
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Sep 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.1.15-1avx
 - 1.1.15
 - requires libxml2 2.6.17
 - multiarch
 
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 1.1.12-3avx
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.1.12-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.1.12-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.1.12-2avx
 - bootstrap build
 
-* Sat Mar 05 2005 Vincent Danen <vdanen@annvix.org> 1.1.12-1avx
+* Sat Mar 05 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.1.12-1avx
 - 1.1.12
 - use %%pyver macro
 
-* Wed Jun 22 2004 Vincent Danen <vdanen@annvix.org> 1.0.33-4avx
+* Wed Jun 22 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.0.33-4avx
 - Annvix build
 
 * Sat Mar 06 2004 Vincent Danen <vdanen@opensls.org> 1.0.33-3sls
