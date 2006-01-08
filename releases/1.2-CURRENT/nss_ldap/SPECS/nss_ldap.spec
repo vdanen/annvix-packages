@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name 		nss_ldap
 %define version 	243
-%define release 	1avx
+%define release 	%_revrel
 
 Summary:	NSS library for LDAP
 Name: 		%{name}
@@ -19,11 +20,13 @@ License:	LGPL
 Group:		System/Libraries
 URL: 		http://www.padl.com/
 Source0:	http://www.padl.com/download/%{name}-%{version}.tar.gz
-Patch0:		nss_ldap-makefile.patch.bz2
+Patch0:		nss_ldap-makefile.patch
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
 #BuildRequires:	db4-devel >= 4.1.25
 BuildRequires:	openldap-devel >= 2.0.7-7.1mdk, automake1.4
+Requires(post):	rpm-helper
+Requires(postun): rpm-helper
 
 %description
 This package includes two LDAP access clients: nss_ldap and pam_ldap.
@@ -94,38 +97,43 @@ rm -rf %{buildroot}%{_libdir}/libnss_ldap.so.2
 
 
 %changelog
-* Sat Oct 22 2005 Vincent Danen <vdanen@annvix.org> 243-1avx
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- fix prereq
+
+* Sat Oct 22 2005 Vincent Danen <vdanen-at-build.annvix.org> 243-1avx
 - 243
 
-* Wed Sep 21 2005 Vincent Danen <vdanen@annvix.org> 242-1avx
+* Wed Sep 21 2005 Vincent Danen <vdanen-at-build.annvix.org> 242-1avx
 - 242
 
-* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 239-1avx
+* Fri Sep 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 239-1avx
 - 239
 - break out the pam_ldap package into it's own package
 - libtoolize
 - BuildRequires openldap-devel, not libldap-devel
 
-* Tue Aug 23 2005 Vincent Danen <vdanen@annvix.org> 220-5avx
+* Tue Aug 23 2005 Vincent Danen <vdanen-at-build.annvix.org> 220-5avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 220-4avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 220-4avx
 - rebuild
 
-* Thu Jan 06 2005 Vincent Danen <vdanen@annvix.org> 220-3avx
+* Thu Jan 06 2005 Vincent Danen <vdanen-at-build.annvix.org> 220-3avx
 - rebuild against latest openssl
 
-* Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 220-2avx
+* Tue Aug 17 2004 Vincent Danen <vdanen-at-build.annvix.org> 220-2avx
 - pam_ldap 170
 
-* Wed Jun 30 2004 Vincent Danen <vdanen@annvix.org> 220-1avx
+* Wed Jun 30 2004 Vincent Danen <vdanen-at-build.annvix.org> 220-1avx
 - pam_ldap 169
 - nss_ldap 220
 - remove P1 (obsolete)
 - rediff P5 and rename to P1
 - always have pam_ldap require this packaged version of nss_ldap
 
-* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 207-7avx
+* Tue Jun 22 2004 Vincent Danen <vdanen-at-build.annvix.org> 207-7avx
 - Annvix build
 
 * Sun Mar 07 2004 Vincent Danen <vdanen@opensls.org> 207-6sls
