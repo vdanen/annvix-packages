@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		nfs-utils
 %define	version		1.0.7
-%define release		2avx
+%define release		%_revrel
 %define epoch		1
 
 Summary:	The utilities for Linux NFS server
@@ -30,32 +31,32 @@ Source14:	nfs.statd-log.run
 Source15:	nfs.mountd.run
 Source16:	nfs.mountd-log.run
 Source17:	nfs.mountd.finish
-Source18:	nfsv4.schema.bz2
-Source19:	rpcgssd.init.bz2
-Source20:	rpcidmapd.init.bz2
-Source21:	rpcsvcgssd.init.bz2
-Source22:	gssapi_mech.conf.bz2
-Source23:	idmapd.conf.bz2
+Source18:	nfsv4.schema
+Source19:	rpcgssd.init
+Source20:	rpcidmapd.init
+Source21:	rpcsvcgssd.init
+Source22:	gssapi_mech.conf
+Source23:	idmapd.conf
 
-Patch0:		nfs-utils-0.3.3-statd-manpage.patch.bz2
-Patch1:		eepro-support.patch.bz2
-Patch2:		nfs-utils-1.0.4-no-chown.patch.bz2
-Patch3:		nfs-utils-1.0.7-binary-or-shlib-defines-rpath.diff.bz2
+Patch0:		nfs-utils-0.3.3-statd-manpage.patch
+Patch1:		eepro-support.patch
+Patch2:		nfs-utils-1.0.4-no-chown.patch
+Patch3:		nfs-utils-1.0.7-binary-or-shlib-defines-rpath.diff
 # (oe) stolen from fedora
-Patch20:	nfs-utils-1.0.6-citi-mountd_flavors.patch.bz2
-Patch21:	nfs-utils-1.0.6-zerostats.patch.bz2
-Patch22:	nfs-utils-1.0.6-mountd.patch.bz2
-Patch23:	nfs-utils-1.0.6-expwarn.patch.bz2
-Patch24:	nfs-utils-1.0.6-fd-sig-cleanup.patch.bz2
-Patch25:	nfs-utils-1.0.6-statd-notify-hostname.patch.bz2
-Patch26:	nfs-utils-1.0.7-rpcsecgss-debug.patch.bz2
-Patch27:	nfs-utils-1.0.7-xlog-loginfo.patch.bz2
-Patch28:	nfs-utils-1.0.7-svcgssd-bufover.patch.bz2
+Patch20:	nfs-utils-1.0.6-citi-mountd_flavors.patch
+Patch21:	nfs-utils-1.0.6-zerostats.patch
+Patch22:	nfs-utils-1.0.6-mountd.patch
+Patch23:	nfs-utils-1.0.6-expwarn.patch
+Patch24:	nfs-utils-1.0.6-fd-sig-cleanup.patch
+Patch25:	nfs-utils-1.0.6-statd-notify-hostname.patch
+Patch26:	nfs-utils-1.0.7-rpcsecgss-debug.patch
+Patch27:	nfs-utils-1.0.7-xlog-loginfo.patch
+Patch28:	nfs-utils-1.0.7-svcgssd-bufover.patch
 # (oe) stolen from gentoo
-Patch50:	nfs-utils-1.0.7-gcc4.patch.bz2
+Patch50:	nfs-utils-1.0.7-gcc4.patch
 # security fixes
-Patch200:	nfs-utils-1.0.7-CAN-2004-1014.diff.bz2
-Patch201:	nfs-utils-1.0.7-CAN-2004-0946.diff.bz2
+Patch200:	nfs-utils-1.0.7-CAN-2004-1014.diff
+Patch201:	nfs-utils-1.0.7-CAN-2004-0946.diff
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	tcp_wrappers-devel
@@ -67,7 +68,8 @@ Obsoletes:	nfs-server knfsd nfs-server-clients
 Provides:	nfs-server knfsd nfs-server-clients
 Requires:	nfs-utils-clients, kernel >= 2.2.5, portmap >= 4.0, setup >= 2.1.9-35mdk, tcp_wrappers
 #Requires:	kernel >= 2.6.0, module-init-tools >=3.0-5mdk
-PreReq:		rpm-helper
+Requires(post):	rpm-helper
+Requires(preun): rpm-helper
 
 %description
 The nfs-utils package provides a daemon for the kernel NFS server and
@@ -86,7 +88,10 @@ Group:		Networking/Other
 Obsoletes:	knfsd-clients knfsd-lock
 Provides:	knfsd-clients knfsd-lock
 Requires:	kernel >= 2.2.5, portmap >= 4.0
-PreReq:		rpm-helper
+Requires(post):	rpm-helper
+Requires(postun): rpm-helper
+Requires(pre):	rpm-helper
+Requires(preun): rpm-helper
 
 %description clients
 The nfs-utils package provides a daemon for the kernel NFS server and
@@ -106,12 +111,12 @@ mkdir -p Annvix
 cat %{SOURCE10} > Annvix/nfs.init
 cat %{SOURCE12} > Annvix/nfs.sysconfig
 cat %{SOURCE11} > Annvix/nfslock.init
-bzcat %{SOURCE18} > Annvix/nfsv4.schema
-bzcat %{SOURCE19} > Annvix/rpcgssd.init
-bzcat %{SOURCE20} > Annvix/rpcidmapd.init
-bzcat %{SOURCE21} > Annvix/rpcsvcgssd.init
-bzcat %{SOURCE22} > Annvix/gssapi_mech.conf
-bzcat %{SOURCE23} > Annvix/idmapd.conf
+cat %{SOURCE18} > Annvix/nfsv4.schema
+cat %{SOURCE19} > Annvix/rpcgssd.init
+cat %{SOURCE20} > Annvix/rpcidmapd.init
+cat %{SOURCE21} > Annvix/rpcsvcgssd.init
+cat %{SOURCE22} > Annvix/gssapi_mech.conf
+cat %{SOURCE23} > Annvix/idmapd.conf
 
 # fix strange perms
 find . -type d -perm 0700 -exec chmod 755 {} \;
@@ -309,10 +314,15 @@ fi
 
 
 %changelog
-* Sun Sep 11 2005 Vincent Danen <vdanen@annvix.org> 1.0.7-2avx
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- fix prereq
+
+* Sun Sep 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.0.7-2avx
 - rebuild
 
-* Sat Aug 27 2005 Vincent Danen <vdanen@annvix.org> 1.0.7-1avx
+* Sat Aug 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.0.7-1avx
 - 1.0.7
 - don't package postscript docs
 - prepare spec for nfsv4/kernel 2.6
@@ -326,43 +336,43 @@ fi
 - move logdir to /var/log/service/nfs.{statd,mountd}
 - run scripts are now considered config files and are not replaceable
 
-* Sat Aug 27 2005 Vincent Danen <vdanen@annvix.org> 1.0.6-9avx
+* Sat Aug 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.0.6-9avx
 - fix perms on run scripts
 
-* Thu Aug 18 2005 Vincent Danen <vdanen@annvix.org> 1.0.6-8avx
+* Thu Aug 18 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.0.6-8avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.0.6-7avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.0.6-7avx
 - rebuild
 
-* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 1.0.6-6avx
+* Thu Mar 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.0.6-6avx
 - use logger for logging
 
-* Sat Jan 29 2005 Vincent Danen <vdanen@annvix.org> 1.0.6-5avx
+* Sat Jan 29 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.0.6-5avx
 - fix run scripts so the properly stop the services
 - enable checkdepends on nfs.statd
 
-* Thu Jan 06 2005 Vincent Danen <vdanen@annvix.org> 1.0.6-4avx
+* Thu Jan 06 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.0.6-4avx
 - P7: patch to fix CAN-2004-0946
 
-* Sat Dec 18 2004 Vincent Danen <vdanen@annvix.org> 1.0.6-3avx
+* Sat Dec 18 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.0.6-3avx
 - signal nfsd with signal 9 rather than 2
 
-* Sat Dec 04 2004 Vincent Danen <vdanen@annvix.org> 1.0.6-2avx
+* Sat Dec 04 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.0.6-2avx
 - P6: patch to fix CAN-2004-1014
 - completely rework runscripts: remove rpc.statd, rpc.mountd, and
   rpc.nfsd services; we now have nfs.mountd and nfs.statd -- this
   should solve bug #3
 - spec cleanups
 
-* Wed Sep 22 2004 Vincent Danen <vdanen@annvix.org> 1.0.6-1avx
+* Wed Sep 22 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.0.6-1avx
 - 1.0.6
 
-* Fri Sep 17 2004 Vincent Danen <vdanen@annvix.org> 1.0.5-7avx
+* Fri Sep 17 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.0.5-7avx
 - update run scripts
 - stop scripts are now finish scripts
 
-* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 1.0.5-6avx
+* Tue Jun 22 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.0.5-6avx
 - Annvix build
 
 * Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 1.0.5-5sls
