@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		openldap
 %define version		2.3.9
-%define release		4avx
+%define release		%_revrel
 
 %define major 		2.3_0
 %define migtools_ver	45
@@ -96,43 +97,43 @@ Source66:	dnszone.schema
 # from http://cvs.pld.org.pl/SOURCES/openldap-dhcp.schema
 Source67:	dhcp.schema
 # Chris Patches
-Patch0: 	%{name}-2.3.4-config.patch.bz2
-Patch1:		%{name}-2.0.7-module.patch.bz2
+Patch0: 	%{name}-2.3.4-config.patch
+Patch1:		%{name}-2.0.7-module.patch
 #
 # For now only build support for SMB (no krb5) changing support in smbk5passwd overlay:
-Patch2:		openldap-2.3.4-smbk5passwd-only-smb.patch.bz2
+Patch2:		openldap-2.3.4-smbk5passwd-only-smb.patch
 # RH + PLD Patches
-Patch6: 	%{name}-2.0.3-krb5-1.1.patch.bz2
-Patch8:		%{name}-conffile.patch.bz2
-Patch10:	%{name}-sql.patch.bz2
-Patch12:	%{name}-syslog.patch.bz2
-Patch15:	%{name}-cldap.patch.bz2
+Patch6: 	%{name}-2.0.3-krb5-1.1.patch
+Patch8:		%{name}-conffile.patch
+Patch10:	%{name}-sql.patch
+Patch12:	%{name}-syslog.patch
+Patch15:	%{name}-cldap.patch
 # additional modules
-Patch20:	openldap-2.2.23-smbk5passwd-cvs-20050314.patch.bz2
-Patch21:	openldap-2.2.23-smbk5passwd-cvs-20050314-upcasehash.patch.bz2
+Patch20:	openldap-2.2.23-smbk5passwd-cvs-20050314.patch
+Patch21:	openldap-2.2.23-smbk5passwd-cvs-20050314-upcasehash.patch
 # Migration tools Patch
-Patch40: 	MigrationTools-34-instdir.patch.bz2
-Patch41: 	MigrationTools-36-mktemp.patch.bz2
-Patch42: 	MigrationTools-27-simple.patch.bz2
-Patch43: 	MigrationTools-26-suffix.patch.bz2
-Patch45:	MigrationTools-45-i18n.patch.bz2
+Patch40: 	MigrationTools-34-instdir.patch
+Patch41: 	MigrationTools-36-mktemp.patch
+Patch42: 	MigrationTools-27-simple.patch
+Patch43: 	MigrationTools-26-suffix.patch
+Patch45:	MigrationTools-45-i18n.patch
 # schema patch
-Patch46: 	openldap-2.0.21-schema.patch.bz2
+Patch46: 	openldap-2.0.21-schema.patch
 # maildrop schema
-Patch47:	openldap-2.0.27-maildrop.schema.patch.bz2
+Patch47:	openldap-2.0.27-maildrop.schema.patch
 # http://qa.mandriva.com/show_bug.cgi?id=15499
-Patch48:	MigrationTools-45-structural.patch.bz2
+Patch48:	MigrationTools-45-structural.patch
 Patch50:	http://www.sleepycat.com/update/4.2.52/patch.4.2.52.1
 Patch51:	http://www.sleepycat.com/update/4.2.52/patch.4.2.52.2
 Patch55:	http://www.sleepycat.com/update/4.2.52/patch.4.2.52.3
 Patch56:	http://www.sleepycat.com/update/4.2.52/patch.4.2.52.4
-Patch52:	db-4.2.52-amd64-mutexes.patch.bz2
-Patch53:	openldap-2.2.19-ntlm.patch.bz2
+Patch52:	db-4.2.52-amd64-mutexes.patch
+Patch53:	openldap-2.2.19-ntlm.patch
 # preserves the temp file used to import data if an error occured
-Patch54:	MigrationTools-40-preserveldif.patch.bz2
+Patch54:	MigrationTools-40-preserveldif.patch
 
 #patches in CVS
-Patch100:	openldap-2.3.9-its4035.patch.bz2
+Patch100:	openldap-2.3.9-its4035.patch
 
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}-root
@@ -170,12 +171,13 @@ files used by the libraries.
 %package servers
 Summary: 	OpenLDAP servers and related files
 Group: 		System/Servers
-Prereq: 	fileutils,  /usr/sbin/useradd
-PreReq:		rpm-helper
+Requires(pre): 	/usr/sbin/useradd
+Requires(pre):	rpm-helper
+Requires(post):	afterboot, rpm-helper
+Requires(postun): mkafterboot, rpm-helper
 %if !%db4_internal
 Requires(pre):	db4-utils
-Requires(post):	db4-utils, afterboot
-Requires(postun): mkafterboot
+Requires(post):	db4-utils
 Requires:	db4-utils
 %endif
 Provides:	%{name}-back_dnssrv = %{version}-%{release}
@@ -851,18 +853,23 @@ fi
 
 
 %changelog
-* Sat Oct 29 2005 Vincent Danen <vdanen@annvix.org> 2.3.9-4avx
+* Sun Jan 08 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- fix prereq
+
+* Sat Oct 29 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.3.9-4avx
 - move the internal db slapd_db stuff to the lib package otherwise we
   always get openldap-server installed whether we want it or not
 - fix bug #13 (unused options in /etc/sysconfig/ldap)
 
-* Thu Oct 27 2005 Vincent Danen <vdanen@annvix.org> 2.3.9-3avx
+* Thu Oct 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.3.9-3avx
 - fix the test for slapd running in the logrotate script
 
-* Sun Oct 23 2005 Vincent Danen <vdanen@annvix.org> 2.3.9-2avx
+* Sun Oct 23 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.3.9-2avx
 - make runsvstat quieter if /service/slapd doesn't exist
 
-* Mon Oct 10 2005 Vincent Danen <vdanen@annvix.org> 2.3.9-1avx
+* Mon Oct 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.3.9-1avx
 - 2.3.9
 - test041 is disabled upstream too
 - P100: fix ITS 4035 - rootdn incorrect in cn=config backend/database
@@ -870,16 +877,16 @@ fi
 - disable (experimental) test036
 - add afterboot snippet
 
-* Sat Oct 08 2005 Vincent Danen <vdanen@annvix.org> 2.3.8-1avx
+* Sat Oct 08 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.3.8-1avx
 - 2.3.8
 - drop P100, P101 (fixed upstream)
 - test041 seems broken; don't run it
 - spec fixes (srv, unused macros)
 
-* Fri Sep 23 2005 Vincent Danen <vdanen@annvix.org> 2.3.6-5avx
+* Fri Sep 23 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.3.6-5avx
 - fix dumb typeo in %%pre script
 
-* Fri Sep 23 2005 Vincent Danen <vdanen@annvix.org> 2.3.6-4avx
+* Fri Sep 23 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.3.6-4avx
 - fix the slapd run script; -d by itself is no longer sufficient, a
   loglevel needs to be passed so it if isn't defined in slapd.conf, use
   256 per default
@@ -889,67 +896,67 @@ fi
 - fix test for db4 internal case (bgmilne)
 - P100, P101: fixes from cvs
 
-* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 2.3.6-3avx
+* Sat Sep 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.3.6-3avx
 - rebuild against new unixODBC
 
-* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 2.3.6-2avx
+* Sat Sep 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.3.6-2avx
 - drop S1
 - put back out ldap.logrotate
 
-* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 2.3.6-1avx
+* Sat Sep 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.3.6-1avx
 - 2.3.6
 - use execlineb for run scripts
 - move logdir to /var/log/service/{slapd,slurpd}
 - run scripts are now considered config files and are not replaceable
 - update migration/upgrade stuff from mandriva spec (2.3.6-1mdk)
 
-* Sat Aug 27 2005 Vincent Danen <vdanen@annvix.org> 2.1.29-16avx
+* Sat Aug 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.1.29-16avx
 - fix perms on run scripts
 
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 2.1.29-15avx
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.1.29-15avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.1.29-14avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.1.29-14avx
 - bootstrap build
 
-* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 2.1.29-13avx
+* Thu Mar 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.1.29-13avx
 - really use logger in the run scripts (have I done a few too many
   of these today?)
 
-* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 2.1.29-12avx
+* Thu Mar 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.1.29-12avx
 - use logger for logging
 
-* Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 2.1.29-11avx
+* Wed Feb 02 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.1.29-11avx
 - rebuild against new perl
 
-* Thu Jan 06 2005 Vincent Danen <vdanen@annvix.org> 2.1.29-10avx
+* Thu Jan 06 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.1.29-10avx
 - rebuild against new openssl
 
-* Thu Sep 23 2004 Vincent Danen <vdanen@annvix.org> 2.1.29-9avx
+* Thu Sep 23 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.1.29-9avx
 - make runsvstat a little quieter
 
-* Tue Sep 21 2004 Vincent Danen <vdanen@annvix.org> 2.1.29-8avx
+* Tue Sep 21 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.1.29-8avx
 - grep for "run" with runsvstat rather than "up"
 
-* Sun Sep 19 2004 Vincent Danen <vdanen@annvix.org> 2.1.29-7avx
+* Sun Sep 19 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.1.29-7avx
 - missed one call to svstat
 
-* Fri Sep 17 2004 Vincent Danen <vdanen@annvix.org> 2.1.29-6avx
+* Fri Sep 17 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.1.29-6avx
 - update run scripts
 - s/svc/runsvctrl/ in spec
 - update logrotate script
 
-* Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 2.1.29-5avx
+* Tue Aug 17 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.1.29-5avx
 - rebuild against latest openssl
 
-* Wed Jun 30 2004 Vincent Danen <vdanen@annvix.org> 2.1.29-4avx
+* Wed Jun 30 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.1.29-4avx
 - fix slapd's run file; we need to give the loglevel to slapd's "-d"
   parameter in order for logging to work
 - P2: bring back re-ordered XXLIBS in slapd/Makefile to ensure we use the
   right md5 for passwords (otherwise if one changes a password with
   passwd, it's stored in crypt format rather than crypt's md5 format)
 
-* Tue Jun 29 2004 Vincent Danen <vdanen@annvix.org> 2.1.29-3avx
+* Tue Jun 29 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.1.29-3avx
 - force ldap.conf to be mode 0644
 - BuildRequires: autoconf2.5, ed (jmdault)
 - disable posix mutexes, this breaks setups with non-NPTL kernels,
@@ -958,11 +965,11 @@ fi
   on Linux (jmdault)
 - change the internal db4 unique name
 
-* Wed Jun 23 2004 Vincent Danen <vdanen@annvix.org> 2.1.29-2avx
+* Wed Jun 23 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.1.29-2avx
 - fix requires
 - fix logrotate script (again) to call srv not service
 
-* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 2.1.29-1avx
+* Tue Jun 22 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.1.29-1avx
 - Annvix build
 - 2.1.29
 - fix spec scriptlets to use supervise tools rather than initscripts (for
