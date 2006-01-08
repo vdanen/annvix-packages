@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		nmap
 %define version		3.81
-%define release		2avx
+%define release		%_revrel
 %define epoch		1
 
 Summary:	Network exploration tool and security scanner
@@ -74,26 +75,30 @@ more.
 
 
 %changelog
-* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 3.81-2avx
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.81-2avx
 - rebuild against new pcre
 
-* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 3.81-1avx
+* Fri Sep 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.81-1avx
 - 3.81
 
-* Thu Aug 18 2005 Vincent Danen <vdanen@annvix.org> 3.55-4avx
+* Thu Aug 18 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.55-4avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 3.55-3avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.55-3avx
 - rebuild
 
-* Thu Jan 06 2005 Vincent Danen <vdanen@annvix.org> 3.55-2avx
+* Thu Jan 06 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.55-2avx
 - rebuild against latest openssl
 
-* Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 3.55-1avx
+* Tue Aug 17 2004 Vincent Danen <vdanen-at-build.annvix.org> 3.55-1avx
 - 3.55
 - better fix to recognize x86_64
 
-* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 3.48-4avx
+* Tue Jun 22 2004 Vincent Danen <vdanen-at-build.annvix.org> 3.48-4avx
 - Annvix build
 
 * Sun Mar 07 2004 Vincent Danen <vdanen@opensls.org> 3.48-3sls
