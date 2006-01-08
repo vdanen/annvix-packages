@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		ocaml
 %define version		%{major}.%{minor}
-%define release		2avx
+%define release		%_revrel
 
 %define major		3.08
 %define minor		3
@@ -26,12 +27,12 @@ Group:		Development/Other
 URL:		http://www.ocaml.org/
 Source0:	ftp://ftp.inria.fr/INRIA/cristal/caml-light/%{name}-%{major}/%{name}-%{version}.tar.bz2
 Source1:	ftp://ftp.inria.fr/INRIA/cristal/caml-light/%{name}-%{major}/%{name}-%{major}-refman.html.tar.bz2
-Patch0:		ocaml-3.00-ocamltags--no-site-start.patch.bz2
-Patch1:		ocaml-3.04-do-not-add-rpath-X11R6_lib-when-using-option-L.patch.bz2
-Patch2:		ocaml-3.05-no-opt-for-debug-and-profile.patch.bz2
-Patch3:		ocaml-3.04-larger-buffer-for-uncaught-exception-messages.patch.bz2
-Patch4:		ocaml-3.08.0-add-warning-for-unused-local-variables.patch.bz2
-Patch5:		ocaml-3.06-lib64.patch.bz2
+Patch0:		ocaml-3.00-ocamltags--no-site-start.patch
+Patch1:		ocaml-3.04-do-not-add-rpath-X11R6_lib-when-using-option-L.patch
+Patch2:		ocaml-3.05-no-opt-for-debug-and-profile.patch
+Patch3:		ocaml-3.04-larger-buffer-for-uncaught-exception-messages.patch
+Patch4:		ocaml-3.08.0-add-warning-for-unused-local-variables.patch
+Patch5:		ocaml-3.06-lib64.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	XFree86-devel ncurses-devel tcl tk
@@ -156,17 +157,21 @@ n="labltk|camlp4|ocamlbrowser|tkanim"
 
 
 %changelog
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 3.08.3-2avx
+* Sun Jan 08 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.08.3-2avx
 - bootstrap build (new gcc, new glibc)
 
-* Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 3.08.3-1avx
+* Wed Jul 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.08.3-1avx
 - 3.08.3
 - rebuild for new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 3.08-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.08-2avx
 - bootstrap build
 
-* Tue Sep 14 2004 Vincent Danen <vdanen@annvix.org> 3.08-1avx
+* Tue Sep 14 2004 Vincent Danen <vdanen-at-build.annvix.org> 3.08-1avx
 - 3.08.0
 - drop patches applied upstream
 - drop S0 (don't need the menu)
@@ -179,7 +184,7 @@ n="labltk|camlp4|ocamlbrowser|tkanim"
 - have less warnings when compiling (pixel)
 - BuildRequires: tcl (cjw)
 
-* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 3.06-15avx
+* Tue Jun 22 2004 Vincent Danen <vdanen-at-build.annvix.org> 3.06-15avx
 - Annvix build
 
 * Sun Mar 07 2004 Vincent Danen <vdanen@opensls.org> 3.06-14sls
