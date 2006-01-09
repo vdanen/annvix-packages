@@ -6,11 +6,13 @@
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
 # pam-0.77-31mdk
+#
+# $Id$
 
-
+%define revision	$Rev$
 %define name		pam
 %define version		0.77
-%define release		22avx
+%define release		%_revrel
 
 %define rhrelease	5
 %define libname		%mklibname %{name} 0
@@ -27,66 +29,66 @@ Source1:	pam-redhat-%{version}-%{rhrelease}.tar.bz2
 Source2:	other.pamd
 Source3:	system-auth.pamd
 Source4:	install-sh
-Patch0:		pam-0.77-modutil-thread.patch.bz2
-Patch1:		pam-0.77-include_path.patch.bz2
-Patch2:		pam-0.77-build.patch.bz2
-Patch3:		pam-0.75-linkage.patch.bz2
-Patch4:		pam-0.75-prompt.patch.bz2
-Patch5:		pam-0.75-return.patch.bz2
-Patch6:		pam-0.75-security.patch.bz2
-Patch7:		pam-0.77-string.patch.bz2
-Patch8:		pam-0.77-userdb.patch.bz2
-Patch9:		pam-0.75-group-reinit.patch.bz2
-Patch10:	pam-0.77-lastlog-utmp.patch.bz2
-Patch11:	pam-0.77-securetty-fail.patch.bz2
-Patch12:	pam-0.75-time.patch.bz2
-Patch13:	pam-0.77-issue.patch.bz2
-Patch14:	pam-0.77-doc-rhl.patch.bz2
-Patch15:	pam-0.77-bigcrypt-main.patch.bz2
-Patch16:	pam-0.77-cracklib-init.patch.bz2
-Patch17:	pam-0.77-filter-comments.patch.bz2
-Patch18:	pam-0.75-unix-loop.patch.bz2
-Patch19:	pam-0.77-unix-preserve.patch.bz2
-Patch20:	pam-0.77-unix-brokenshadow.patch.bz2
-Patch21:	pam-0.77-unix-hpux-aging.patch.bz2
-Patch22:	pam-0.77-unix-nis.patch.bz2
-Patch23:	pam-0.77-unix-nullok.patch.bz2
-Patch24:	pam-0.77-issue-heap.patch.bz2
-Patch25:	pam-0.75-listfile-tty.patch.bz2
-Patch26:	pam-0.77-misc-err.patch.bz2
-Patch27:	pam-0.77-unix-aixhash.patch.bz2
-Patch28:	pam-0.75-sgml2latex.patch.bz2
-Patch29:	pam-0.77-multicrack.patch.bz2
-Patch30:	pam-0.75-isa.patch.bz2
-Patch31:	pam-0.77-utmp-dev.patch.bz2
-Patch32:	pam-0.77-pwdb-static.patch.bz2
-Patch33:	pam-0.77-nss-reentrant.patch.bz2
-Patch34:	pam-0.77-dbpam.patch.bz2
-Patch35:	pam-0.77-sigchld.patch.bz2
-Patch36:	pam-0.77-skip-aconf-install.patch.bz2
-Patch37:	pam-0.77-log-changes.patch.bz2
-Patch39:	pam-0.77-fencepost.patch.bz2
-Patch40:	pam-0.77-grubb_leak.patch.bz2
+Patch0:		pam-0.77-modutil-thread.patch
+Patch1:		pam-0.77-include_path.patch
+Patch2:		pam-0.77-build.patch
+Patch3:		pam-0.75-linkage.patch
+Patch4:		pam-0.75-prompt.patch
+Patch5:		pam-0.75-return.patch
+Patch6:		pam-0.75-security.patch
+Patch7:		pam-0.77-string.patch
+Patch8:		pam-0.77-userdb.patch
+Patch9:		pam-0.75-group-reinit.patch
+Patch10:	pam-0.77-lastlog-utmp.patch
+Patch11:	pam-0.77-securetty-fail.patch
+Patch12:	pam-0.75-time.patch
+Patch13:	pam-0.77-issue.patch
+Patch14:	pam-0.77-doc-rhl.patch
+Patch15:	pam-0.77-bigcrypt-main.patch
+Patch16:	pam-0.77-cracklib-init.patch
+Patch17:	pam-0.77-filter-comments.patch
+Patch18:	pam-0.75-unix-loop.patch
+Patch19:	pam-0.77-unix-preserve.patch
+Patch20:	pam-0.77-unix-brokenshadow.patch
+Patch21:	pam-0.77-unix-hpux-aging.patch
+Patch22:	pam-0.77-unix-nis.patch
+Patch23:	pam-0.77-unix-nullok.patch
+Patch24:	pam-0.77-issue-heap.patch
+Patch25:	pam-0.75-listfile-tty.patch
+Patch26:	pam-0.77-misc-err.patch
+Patch27:	pam-0.77-unix-aixhash.patch
+Patch28:	pam-0.75-sgml2latex.patch
+Patch29:	pam-0.77-multicrack.patch
+Patch30:	pam-0.75-isa.patch
+Patch31:	pam-0.77-utmp-dev.patch
+Patch32:	pam-0.77-pwdb-static.patch
+Patch33:	pam-0.77-nss-reentrant.patch
+Patch34:	pam-0.77-dbpam.patch
+Patch35:	pam-0.77-sigchld.patch
+Patch36:	pam-0.77-skip-aconf-install.patch
+Patch37:	pam-0.77-log-changes.patch
+Patch39:	pam-0.77-fencepost.patch
+Patch40:	pam-0.77-grubb_leak.patch
 
-Patch500:	pam-0.77-mdkconf.patch.bz2
-Patch501:	pam-0.74-loop.patch.bz2
-Patch502:	pam-0.75-console-dead-x.patch.bz2
-Patch503:	pam-0.77-devfsd.patch.bz2
-Patch504:	pam-0.77-console-reset.patch.bz2
-Patch506:	pam-0.77-lib64.patch.bz2
-patch507:	pam-0.75-time-tty.patch.bz2
+Patch500:	pam-0.77-mdkconf.patch
+Patch501:	pam-0.74-loop.patch
+Patch502:	pam-0.75-console-dead-x.patch
+Patch503:	pam-0.77-devfsd.patch
+Patch504:	pam-0.77-console-reset.patch
+Patch506:	pam-0.77-lib64.patch
+patch507:	pam-0.75-time-tty.patch
 # (fc) 0.75-29mdk don't complain when / is owned by root.adm
-Patch508:	Linux-PAM-0.75-pamtimestampadm.patch.bz2
-Patch509:	pam-0.75-biarch-utmp.patch.bz2
-Patch511:	pam-0.77-verbose-limits.patch.bz2
-Patch512:	pam-0.77-xauth-groups.patch.bz2
+Patch508:	Linux-PAM-0.75-pamtimestampadm.patch
+Patch509:	pam-0.75-biarch-utmp.patch
+Patch511:	pam-0.77-verbose-limits.patch
+Patch512:	pam-0.77-xauth-groups.patch
 # (fl) for udev
-Patch513:	pam-0.77-console-setowner.patch.bz2
+Patch513:	pam-0.77-console-setowner.patch
 # (fl) for /etc/environment
-Patch514:	pam-0.77-environment.patch.bz2
-Patch515:	pam-0.77-use_uid.patch.bz2
+Patch514:	pam-0.77-environment.patch
+Patch515:	pam-0.77-use_uid.patch
 
-Patch600:	pam-0.77-annvix.patch.bz2
+Patch600:	pam-0.77-annvix.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	bison cracklib-devel flex glib-devel pwdb-devel
@@ -302,33 +304,37 @@ touch %{buildroot}%{_sysconfdir}/environment
 
 
 %changelog
-* Fri Sep 23 2005 Vincent Danen <vdanen@annvix.org> 0.77-22avx
+* Mon Jan 09 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Sep 23 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.77-22avx
 - P515 (flepied)
 
-* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 0.77-21avx
+* Sat Sep 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.77-21avx
 - sync with mandrake 0.77-30mdk:
   - don't apply the P38 (fix mdk bug #16961, su segfault on x86_64)
     (couriousous)
   - fix requires (flepied)
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 0.77-20avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.77-20avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jul 29 2005 Vincent Danen <vdanen@annvix.org> 0.77-19avx
+* Fri Jul 29 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.77-19avx
 - rebuild for new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.77-18avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.77-18avx
 - bootstrap build
 
-* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 0.77-17avx
+* Thu Mar 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.77-17avx
 - revert the pam.d/{other,system-auth} changes that crept in from mdk
   packages
 
-* Tue Mar 01 2005 Vincent Danen <vdanen@annvix.org> 0.77-16avx
+* Tue Mar 01 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.77-16avx
 - include some documentation on the various modules
 - rebuild against new glib
 
-* Fri Sep 24 2004 Vincent Danen <vdanen@annvix.org> 0.77-15avx
+* Fri Sep 24 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.77-15avx
 - sync with Mandrake 0.77-25mdk:
   - console.perms: /proc/usb -> /proc/bus/usb (Marcel Pol)
     [bug #8285] (flepied)
@@ -354,7 +360,7 @@ touch %{buildroot}%{_sysconfdir}/environment
 - remove selinux-related bits from P40 and likewise drop the
   pam-0.77-closefd.patch which patches against the (unapplied) selinux patch
 
-* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 0.77-14avx
+* Tue Jun 22 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.77-14avx
 - Annvix build
 
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 0.77-13sls
