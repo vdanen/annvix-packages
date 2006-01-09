@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		openssl
 %define version		0.9.8
-%define release		3avx
+%define release		%_revrel
 
 %define maj		0.9.8
 %define libname 	%mklibname %{name} %{maj}
@@ -27,13 +28,13 @@ URL:		http://www.openssl.org/
 Source:		ftp://ftp.openssl.org/source/%{name}-%{version}.tar.gz
 Source1:	ftp://ftp.openssl.org/source/%{name}-%{version}.tar.gz.asc
 # (fg) 20010202 Patch from RH: some funcs now implemented with ia64 asm
-Patch1:		openssl-0.9.7-mdk-ia64-asm.patch.bz2
+Patch1:		openssl-0.9.7-mdk-ia64-asm.patch
 # (gb) 0.9.7b-4mdk: Handle RPM_OPT_FLAGS in Configure
-Patch2:		openssl-0.9.7g-mdk-optflags.patch.bz2
+Patch2:		openssl-0.9.7g-mdk-optflags.patch
 # (gb) 0.9.7b-4mdk: Make it lib64 aware. TODO: detect in Configure
-Patch3:		openssl-0.9.8-avx-lib64.patch.bz2
-Patch4:		openssl-0.9.8-CAN-2005-2946.patch.bz2
-Patch5:		openssl-0.9.7-CAN-2005-2969.patch.bz2
+Patch3:		openssl-0.9.8-avx-lib64.patch
+Patch4:		openssl-0.9.8-CAN-2005-2946.patch
+Patch5:		openssl-0.9.7-CAN-2005-2969.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	multiarch-utils >= 1.0.3
@@ -224,15 +225,19 @@ rm -rf %{buildroot}%{_prefix}/lib
 
 
 %changelog
-* Wed Oct 12 2005 Vincent Danen <vdanen@annvix.org> 0.9.8-3avx
+* Sun Jan 08 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Wed Oct 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.9.8-3avx
 - P4: enhanced fix for CAN-2005-2946 (0.9.8 already defaults to a
   default_md of sha1, but we also add it to the [req] section as well)
 - P5: fix for CAN-2005-2969
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 0.9.8-2avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.9.8-2avx
 - bootstrap build (new gcc, new glibc)
 
-* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 0.9.8-1avx
+* Tue Jul 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.9.8-1avx
 - 0.9.8
 - drop P4; code is gone
 - multiarch support
@@ -240,34 +245,34 @@ rm -rf %{buildroot}%{_prefix}/lib
 - rediff P3
 - drop P5; applied upstream
 
-* Sat Jun 11 2005 Vincent Danen <vdanen@annvix.org> 0.9.7e-3avx
+* Sat Jun 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.9.7e-3avx
 - P5: security fix for CAN-2005-0109
 - spec cleanups
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.9.7e-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.9.7e-2avx
 - bootstrap build
 
-* Sat Dec 04 2004 Vincent Danen <vdanen@annvix.org> 0.9.7e-1avx
+* Sat Dec 04 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.9.7e-1avx
 - 0.9.7e
 - use original sources and include gpg sig
 - updated P2 and P3 from mdk
 - spec cleanups
 
-* Sat Dec 04 2004 Vincent Danen <vdanen@annvix.org> 0.9.7d-3avx
+* Sat Dec 04 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.9.7d-3avx
 - P4: security fix for CAN-2004-0975
 
-* Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 0.9.7d-2avx
+* Tue Aug 17 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.9.7d-2avx
 - remove "Modes of Des.7" manpage since it's a symlink to des_modes.7
 - change README.Mandrake-manpage to README.Annvix-manpage
 
-* Fri Aug 13 2004 Vincent Danen <vdanen@annvix.org> 0.9.7d-1avx
+* Fri Aug 13 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.9.7d-1avx
 - 0.9.7d
 - don't use broken sparc/sparc64 asm optimizations for now (stefan)
 - rediff P3 (jmdault)
 - remove P4, P5, P6, P7; included upstream
 - patch policy
 
-* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 0.9.7b-8avx
+* Tue Jun 22 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.9.7b-8avx
 - require packages not files
 - Annvix build
 
