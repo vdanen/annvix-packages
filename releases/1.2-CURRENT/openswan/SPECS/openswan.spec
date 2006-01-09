@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		openswan
 %define version		2.3.1
-%define release		1avx
+%define release		%_revrel
 %define epoch		1
 
 %define their_version	2.3.1
@@ -25,14 +26,15 @@ License:	GPL
 Group:		System/Servers
 Source0:	http://www.openswan.org/code/openswan-%{their_version}.tar.gz
 Source1:	http://www.openswan.org/code/openswan-%{their_version}.tar.gz.asc
-Patch0:		openswan-2.3.1.gcc4.patch.bz2
+Patch0:		openswan-2.3.1.gcc4.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	gmp-devel, pam-devel, bison
 
 Provides:	ipsec-userland
 Requires:	iproute2
-Prereq:		chkconfig rpm-helper
+Requires(post):	rpm-helper
+Requires(preun): rpm-helper
 
 %description
 Openswan is a free implementation of IPSEC & IKE for Linux, a fork of the 
@@ -126,6 +128,11 @@ rm -rf %{buildroot}%{_sysconfdir}/%{name}/ipsec.d/examples
 
 
 %changelog
+* Sun Jan 08 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- fix prereq
+
 * Wed Aug 24 2005 Ying-Hung Chen <ying@annvix.org> 2.3.1-1avx
 - 2.3.1
 
@@ -133,21 +140,21 @@ rm -rf %{buildroot}%{_sysconfdir}/%{name}/ipsec.d/examples
 - P0: for x86_64 platform so it will utilize /usr/lib64
 - spec cleanups (vdanen)
 
-* Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 1.0.9-2avx
+* Wed Feb 02 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.0.9-2avx
 - remove des_crypt.3 as it conflicts with man-pages
 
-* Tue Feb 01 2005 Vincent Danen <vdanen@annvix.org> 1.0.9-1avx
+* Tue Feb 01 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.0.9-1avx
 - 1.0.9 (fixes iDefense security advisory 01.26.05: Openswan XAUTH/PAM
   Buffer Overflow Vulnerability)
 
-* Wed Aug 25 2004 Vincent Danen <vdanen@annvix.org> 1.0.7-1avx
+* Wed Aug 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.0.7-1avx
 - drop to the stable 1.x branch (1.0.7)
 - fix the filelist
 
-* Mon Jun 28 2004 Vincent Danen <vdanen@annvix.org> 2.1.4-1avx
+* Mon Jun 28 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.1.4-1avx
 - 2.1.4; security fix for CAN-2004-0590
 
-* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 2.1.2-2avx
+* Tue Jun 22 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.1.2-2avx
 - require packages, not files
 - Annvix build
 
