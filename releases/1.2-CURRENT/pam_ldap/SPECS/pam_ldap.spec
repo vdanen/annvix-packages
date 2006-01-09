@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name 		pam_ldap
 %define version 	180
-%define release 	1avx
+%define release 	%_revrel
 
 Summary:	PAM module for LDAP
 Name: 		%{name}
@@ -19,7 +20,7 @@ License:	LGPL
 Group:		System/Libraries
 URL: 		http://www.padl.com/
 Source0:	http://www.padl.com/download/%{name}-%{version}.tar.bz2
-Patch0:		pam_ldap-156-makefile.patch.bz2
+Patch0:		pam_ldap-156-makefile.patch
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildRequires:	openldap-devel >= 2.0.7-7.1mdk, pam-devel, automake1.4
@@ -75,5 +76,9 @@ rm -rf %{buildroot}%{_sysconfdir}/ldap.conf
 
 
 %changelog
-* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 180-1avx
+* Mon Jan 09 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Sep 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 180-1avx
 - first Annvix package; split from nss_ldap
