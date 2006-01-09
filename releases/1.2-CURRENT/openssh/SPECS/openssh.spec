@@ -5,13 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-## Do not apply any unauthorized patches to this package!
-## - vdanen 05/18/01
+# $Id$
 
-
+%define revision	$Rev$
 %define name		openssh
 %define version		4.2p1
-%define release 	7avx
+%define release 	%_revrel
 
 # overrides
 %global build_skey	0
@@ -27,16 +26,16 @@ URL:		http://www.openssh.com/
 Source: 	ftp://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-%{version}.tar.gz
 Source2: 	ftp://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-%{version}.tar.gz.asc
 # ssh-copy-id taken from debian, with "usage" added
-Source3:	ssh-copy-id.bz2 
+Source3:	ssh-copy-id
 Source4:	denyusers.pam
 Source5:	04_openssh.afterboot
 Source6:	ssh-client.sh
 Source8:	sshd.run
 Source9:	sshd-log.run
 Source10:	convert_known_hosts-4.0.pl
-Patch1:		openssh-4.2p1-avx-annvixconf.patch.bz2
+Patch1:		openssh-4.2p1-avx-annvixconf.patch
 # authorized by Damien Miller <djm@openbsd.com>
-Patch2:		openssh-3.1p1-mdk-check-only-ssl-version.patch.bz2
+Patch2:		openssh-3.1p1-mdk-check-only-ssl-version.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	groff-for-man, openssl-devel >= 0.9.7, pam-devel, tcp_wrappers-devel, zlib-devel
@@ -49,10 +48,6 @@ BuildRequires:	skey-devel, skey-static-devel
 Obsoletes:	ssh
 Provides:	ssh
 Requires:	filesystem >= 2.1.5
-Requires(pre):	rpm-helper
-Requires(post):	rpm-helper, afterboot, ipsvd, openssl
-Requires(preun): rpm-helper
-Requires(postun): rpm-helper, afterboot
 
 %description
 Ssh (Secure Shell) a program for logging into a remote machine and for
@@ -94,15 +89,16 @@ to SSH servers.
 
 %package server
 Summary:	OpenSSH Secure Shell protocol server (sshd)
-PreReq:		%{name} = %{version}-%{release} chkconfig >= 0.9 
-PreReq:		pam >= 0.74
-PreReq:		rpm-helper
 %if %{build_skey}
 Requires:	skey
 %endif
 Group:		System/Servers
 Obsoletes:	ssh-server
 Provides:	ssh-server
+Requires(pre):	rpm-helper, %{name} = %{version}, pam >= 0.74
+Requires(post):	rpm-helper, afterboot, ipsvd, openssl
+Requires(preun): rpm-helper
+Requires(postun): rpm-helper, afterboot
 
 %description server
 Ssh (Secure Shell) a program for logging into a remote machine and for
@@ -175,7 +171,7 @@ else
     install -m 0644 ssh_config %{buildroot}%{_sysconfdir}/ssh/ssh_config
 fi
 
-bzcat %{SOURCE3} > %{buildroot}%{_bindir}/ssh-copy-id
+cat %{SOURCE3} > %{buildroot}%{_bindir}/ssh-copy-id
 chmod a+x %{buildroot}%{_bindir}/ssh-copy-id
 install -m 0644 contrib/ssh-copy-id.1 %{buildroot}/%{_mandir}/man1/
 
@@ -345,97 +341,102 @@ echo "known_hosts files on an entire system if run as root."
 
 
 %changelog
-* Wed Sep 28 2005 Vincent Danen <vdanen@annvix.org> 4.2p1-7avx
+* Sun Jan 08 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- fix prereq
+
+* Wed Sep 28 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.2p1-7avx
 - revert the quotes change in the runscript as it then runs sshd without
   any args (bad)
 
-* Tue Sep 27 2005 Vincent Danen <vdanen@annvix.org> 4.2p1-6avx
+* Tue Sep 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.2p1-6avx
 - quotes and braces in runscript
 
-* Tue Sep 27 2005 Vincent Danen <vdanen@annvix.org> 4.2p1-5avx
+* Tue Sep 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.2p1-5avx
 - only include PORT and OPTIONS env files; defaults will come from
   the tcpsvd env dir (update run script too)
 
-* Sun Sep 25 2005 Sean P. Thomas <spt@annvix.org> 4.2p1-4avx
+* Sun Sep 25 2005 Sean P. Thomas <spt-at-build.annvix.org> 4.2p1-4avx
 - Converted run script to execlineb.
 - fix requires (vdanen)
 - add default env file (vdanen)
 - precompile peers.cdb in %%post (vdanen)
 - change sshd_config/ssh_config to not permit X11 fwding by default (vdanen)
 
-* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 4.2p1-3avx
+* Sat Sep 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.2p1-3avx
 - s/supervise/service/ in log/run
 
-* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 4.2p1-2avx
+* Sat Sep 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.2p1-2avx
 - really update the log/run script
 - run sshd from ipsvd so we can use it's ACLs and peers support
 - update the afterboot manpage to reflect this change
 
-* Fri Sep 02 2005 Vincent Danen <vdanen@annvix.org> 4.2p1-1avx
+* Fri Sep 02 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.2p1-1avx
 - 4.2p1
 - use execlineb for run scripts
 - move logdir to /var/log/service/sshd
 - run scripts are now considered config files and are not replaceable
 
-* Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 4.1p1-5avx
+* Fri Aug 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.1p1-5avx
 - fix perms on run scripts
 
-* Tue Aug 23 2005 Vincent Danen <vdanen@annvix.org> 4.1p1-4avx
+* Tue Aug 23 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.1p1-4avx
 - enable HashKnownHosts by default [ssh_config]
 - include convert_known_hosts-4.0pl script from nms.lcs.mit.edu
   to convert existing known_hosts files to the hashed format
 - update afterboot snippet to note the HashKnownHosts change
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 4.1p1-3avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.1p1-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 4.1p1-2avx
+* Tue Jul 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.1p1-2avx
 - rebuild for new gcc and openssl
 
-* Thu Jul 14 2005 Vincent Danen <vdanen@annvix.org> 4.1p1-1avx
+* Thu Jul 14 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.1p1-1avx
 - 4.1p1
 - fix ssh-client.sh so it doesn't assume that all non-zsh or ksh
   shells are bourne shells (re: Claudio)
 - always build with kerberos support
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 4.0p1-2avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.0p1-2avx
 - rebuild
 
-* Wed Mar 16 2005 Vincent Danen <vdanen@annvix.org> 4.0p1-1avx
+* Wed Mar 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.0p1-1avx
 - 4.0p1
 - rediff P1
 
-* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 3.9p1-7avx
+* Thu Mar 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.9p1-7avx
 - use logger for logging
 - spec cleanups
 
-* Thu Jan 06 2005 Vincent Danen <vdanen@annvix.org> 3.9p1-6avx
+* Thu Jan 06 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.9p1-6avx
 - rebuild against new openssl
 
-* Tue Sep 14 2004 Vincent Danen <vdanen@annvix.org> 3.9p1-5avx
+* Tue Sep 14 2004 Vincent Danen <vdanen-at-build.annvix.org> 3.9p1-5avx
 - don't own /var/empty; filesystem does (thus filesystem Requires)
 
-* Sat Sep 11 2004 Vincent Danen <vdanen@annvix.org> 3.9p1-4avx
+* Sat Sep 11 2004 Vincent Danen <vdanen-at-build.annvix.org> 3.9p1-4avx
 - fix bad paths in sshd/log/run
 
-* Sat Sep 11 2004 Vincent Danen <vdanen@annvix.org> 3.9p1-3avx
+* Sat Sep 11 2004 Vincent Danen <vdanen-at-build.annvix.org> 3.9p1-3avx
 - update run scripts
 
-* Thu Sep  2 2004 Vincent Danen <vdanen@annvix.org> 3.9p1-2avx
+* Thu Sep  2 2004 Vincent Danen <vdanen-at-build.annvix.org> 3.9p1-2avx
 - turn AllowTcpForwarding off by default
 
-* Thu Aug 18 2004 Vincent Danen <vdanen@annvix.org> 3.9p1-1avx
+* Thu Aug 18 2004 Vincent Danen <vdanen-at-build.annvix.org> 3.9p1-1avx
 - 3.9p1
 - rediff P1
 - set MaxAuthTries to 4 by default, rather than 6
 - set Protocol to "2" rather than "2,1" by default (it's time people
   stop using RSA1 or even allowing a fallback)
 
-* Fri Aug 13 2004 Vincent Danen <vdanen@annvix.org> 3.8.1p1-1avx
+* Fri Aug 13 2004 Vincent Danen <vdanen-at-build.annvix.org> 3.8.1p1-1avx
 - 3.8.1p1
 - patch policy
 
-* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 3.8p1-3avx
+* Tue Jun 22 2004 Vincent Danen <vdanen-at-build.annvix.org> 3.8p1-3avx
 - Annvix build
 
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 3.8p1-2sls
