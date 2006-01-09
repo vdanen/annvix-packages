@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		passwd
 %define version		0.68
-%define release		11avx
+%define release		%_revrel
 
 Summary:	The passwd utility for setting/changing passwords using PAM
 Name:		%{name}
@@ -20,8 +21,8 @@ Group:		System/Base
 # This url is stupid, someone come up with a better one _please_!
 URL:		http://www.freebsd.org
 Source0:	passwd-%{version}.tar.bz2
-Patch:		passwd-0.67-manpath.patch.bz2
-Patch1:		passwd-0.68-sec.patch.bz2
+Patch:		passwd-0.67-manpath.patch
+Patch1:		passwd-0.68-sec.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	glib2-devel, libuser-devel, pam-devel, popt-devel
@@ -71,19 +72,23 @@ rm -f %{buildroot}%{_mandir}/man1/{chfn.1,chsh.1}
 
 		
 %changelog
-* Thu Sep 22 2005 Vincent Danen <vdanen@annvix.org> 0.68-11avx
+* Mon Jan 09 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Thu Sep 22 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.68-11avx
 - rebuild against new glib2.0
 
-* Wed Aug 17 2005 Vincent Danen <vdanen@annvix.org> 0.68-10avx
+* Wed Aug 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.68-10avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.68-9avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.68-9avx
 - bootstrap build
 
-* Mon Feb 28 2005 Vincent Danen <vdanen@annvix.org> 0.68-8avx
+* Mon Feb 28 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.68-8avx
 - rebuild against new libuser and glib2
 
-* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 0.68-7avx
+* Tue Jun 22 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.68-7avx
 - Annvix build
 
 * Fri Jun 11 2004 Vincent Danen <vdanen@opensls.org> 0.68-6sls
