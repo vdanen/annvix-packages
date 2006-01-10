@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		pure-ftpd
 %define	version 	1.0.20
-%define release 	5avx
+%define release 	%_revrel
 
 Summary:	Lightweight, fast and secure FTP server
 Name:		%{name}
@@ -19,18 +20,19 @@ License:	GPL
 Group:		System/Servers
 URL:		http://www.pureftpd.org
 Source:		ftp://ftp.pureftpd.org/pub/pure-ftpd/releases//%{name}-%{version}.tar.bz2
-Source1:	pure-ftpd.init 
 Source2:	pure-ftpd.logrotate
-Source3:	pure-ftpd-xinetd.bz2
 Source4:	pureftpd.run
 Source5:	pureftpd-log.run
-Patch0:		pure-ftpd-1.0.16b-slsconf.patch.bz2
+Patch0:		pure-ftpd-1.0.16b-slsconf.patch
 Patch1:		pure-ftpd-1.0.16b-pureconfig.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	pam-devel, openldap-devel, MySQL-devel, postgresql-devel
 
-PreReq:		rpm-helper
+Requires(post):	rpm-helper
+Requires(postun): rpm-helper
+Requires(pre):	rpm-helper
+Requires(preun): rpm-helper
 Provides:	ftp-server ftpserver
 Conflicts:	wu-ftpd, ncftpd, proftpd, anonftp, vsftpd
 
@@ -207,31 +209,37 @@ fi
 
 
 %changelog
-* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 1.0.20-5avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- drop S1 (initscript) and S3 (xinetd support)
+- fix prereq
+
+* Sat Sep 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.0.20-5avx
 - use execlineb for run scripts
 - move logdir to /var/log/service/pureftpd
 - run scripts are now considered config files and are not replaceable
 
-* Sat Aug 27 2005 Vincent Danen <vdanen@annvix.org> 1.0.20-4avx
+* Sat Aug 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.0.20-4avx
 - fix perms on run scripts
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.0.20-3avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.0.20-3avx
 - rebuild
 
-* Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 1.0.20-1avx
+* Mon Sep 20 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.0.20-1avx
 - 1.0.20
 - enable largefile support
 - user logger for logging
 
-* Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 1.0.19-2avx
+* Mon Sep 20 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.0.19-2avx
 - update run scripts
 
-* Mon Jul 05 2004 Vincent Danen <vdanen@annvix.org> 1.0.19-1avx
+* Mon Jul 05 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.0.19-1avx
 - fix source url
 - 1.0.19 (fix possible DoS)
 - fix service name in %%_preun_srv and %%_post_srv
 
-* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 1.0.18-2avx
+* Mon Jun 21 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.0.18-2avx
 - Annvix build
 
 * Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 1.0.18-1sls
