@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		rp-pppoe
 %define version		3.5
-%define release		10avx
+%define release		%_revrel
 
 Summary:	ADSL/PPPoE userspace driver
 Name:		%{name}
@@ -19,8 +20,8 @@ License:	GPL
 Group:		System/Servers
 URL:		http://www.roaringpenguin.com/pppoe
 Source:		http://www.roaringpenguin.com/%{name}-%{version}.tar.bz2
-Patch0:		rp-pppoe-3.5-avx-init.patch.bz2
-Patch1:		rp-pppoe-3.5-CAN-2004-0564.patch.bz2
+Patch0:		rp-pppoe-3.5-avx-init.patch
+Patch1:		rp-pppoe-3.5-CAN-2004-0564.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	ppp
@@ -62,6 +63,9 @@ pushd src
     make install RPM_INSTALL_ROOT=%{buildroot}
 popd
 
+mkdir -p %{buildroot}%{_initrddir}
+install -m 0750 scripts/adsl-init %{buildroot}%{_initrddir}/adsl
+
 perl -pi -e "s/restart/restart\|reload/g;" %{buildroot}%{_initrddir}/adsl
 
 rm -rf %{buildroot}/usr/doc
@@ -93,19 +97,24 @@ rm -rf %{buildroot}/usr/doc
 
 
 %changelog
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 3.5-10avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- install the initscript (for some reason it's now installing on it's own anymore)
+
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.5-10avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 3.5-9avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.5-9avx
 - rebuild
 
-* Sat Dec 04 2004 Vincent Danen <vdanen@annvix.org> 3.5-8avx
+* Sat Dec 04 2004 Vincent Danen <vdanen-at-build.annvix.org> 3.5-8avx
 - P1: patch to fix CAN-2004-0564
 
-* Mon Jul 19 2004 Vincent Danen <vdanen@annvix.org> 3.5-7avx
+* Mon Jul 19 2004 Vincent Danen <vdanen-at-build.annvix.org> 3.5-7avx
 - start adsl after network but before shorewall
 
-* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 3.5-6avx
+* Mon Jun 21 2004 Vincent Danen <vdanen-at-build.annvix.org> 3.5-6avx
 - Annvix build
 
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 3.5-5sls
