@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		patch
 %define version 	2.5.9
-%define release 	8avx
+%define release 	%_revrel
 
 Summary:	The GNU patch command, for modifying/upgrading files
 Name:		%{name}
@@ -19,10 +20,10 @@ License:	GPL
 Group:		Text tools
 URL:		http://www.gnu.org/directory/GNU/patch.html
 Source:		ftp://alpha.gnu.org/gnu/patch/patch-%{version}.tar.bz2
-Patch1:		patch-2.5.8-sigsegv.patch.bz2
-Patch2:		patch-2.5.4-unreadable_to_readable.patch.bz2
-Patch3:		patch-2.5.8-stderr.patch.bz2
-Patch5:		patch-2.5.4-destdir.patch.bz2
+Patch1:		patch-2.5.8-sigsegv.patch
+Patch2:		patch-2.5.4-unreadable_to_readable.patch
+Patch3:		patch-2.5.8-stderr.patch
+Patch5:		patch-2.5.4-destdir.patch
 
 Buildroot:	%{_buildroot}/%{name}-%{version}
 
@@ -70,19 +71,23 @@ make "CFLAGS=%{optflags} -D_GNU_SOURCE -W -Wall" LDFLAGS=-s
 %{_mandir}/*/*
 
 %changelog
-* Thu Sep 15 2005 Vincent Danen <vdanen@annvix.org> 2.5.9-8avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Thu Sep 15 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.5.9-8avx
 - correct the buildroot
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.5.9-7avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.5.9-7avx
 - bootstrap build (new gcc, new glibc)
 
-* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 2.5.9-6avx
+* Tue Jul 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.5.9-6avx
 - rebuild for new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.5.9-5avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.5.9-5avx
 - bootstrap build
 
-* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 2.5.9-4avx
+* Tue Jun 22 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.5.9-4avx
 - Annvix build
 
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 2.5.9-3sls
