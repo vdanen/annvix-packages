@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		procps
 %define version		3.2.5
-%define release		1avx
+%define release		%_revrel
 
 Summary:	Utilities for monitoring your system and processes on your system
 Name:		%{name}
@@ -19,16 +20,16 @@ License:	GPL
 Group:		Monitoring
 URL:		http://procps.sf.net/
 Source:		http://procps.sourceforge.net/%{name}-%{version}.tar.bz2
-Patch0:		procps-3.2.3-sysctlshutup.patch.bz2
-Patch1:		procps-3.2.3-perm-top.patch.bz2
-Patch2:		procps-3.2.3-perror.patch.bz2
+Patch0:		procps-3.2.3-sysctlshutup.patch
+Patch1:		procps-3.2.3-perm-top.patch
+Patch2:		procps-3.2.3-perror.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	ncurses-devel
 
 Provides:	libproc.so.3.1 procps3
 Obsoletes:	procps3
-Prereq:		coreutils
+Requires(post):	coreutils
 
 %description
 The procps package contains a set of system utilities which provide system
@@ -157,7 +158,11 @@ rm -f /etc/psdevtab /etc/psdatabase
 
 
 %changelog
-* Thu Sep 22 2005 Vincent Danen <vdanen@annvix.org> 3.2.5-1avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Thu Sep 22 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.2.5-1avx
 - 3.2.5
 - update patches from mandriva:
   - P0: fix -f option; manpage merge back bits lost for 2 years
@@ -165,16 +170,16 @@ rm -f /etc/psdevtab /etc/psdatabase
   - P2: display a better message for other apps when proc isn't accessible
 - rename spec file
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 3.2.1-5avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.2.1-5avx
 - bootstrap build (new gcc, new glibc)
 
-* Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 3.2.1-4avx
+* Wed Jul 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.2.1-4avx
 - rebuild against new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 3.2.1-3avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.2.1-3avx
 - bootstrap build
 
-* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 3.2.1-2avx
+* Mon Jun 21 2004 Vincent Danen <vdanen-at-build.annvix.org> 3.2.1-2avx
 - Annvix build
 
 * Fri Jun 11 2004 Vincent Danen <vdanen@opensls.org> 3.2.1-1sls
