@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		reiserfsprogs
 %define version		3.6.19
-%define release		3avx
+%define release		%_revrel
 %define epoch		1
 
 Summary:	The utilities to manage Reiserfs volumes
@@ -21,7 +22,7 @@ License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://www.namesys.com/
 Source0:	ftp://ftp.namesys.com/pub/reiserfsprogs/%{name}-%{version}.tar.bz2
-Patch1:		reiserfsprogs-3.6.2-make-the-force-option-works-in-resize_reiserfs.patch.bz2
+Patch1:		reiserfsprogs-3.6.2-make-the-force-option-works-in-resize_reiserfs.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -82,16 +83,20 @@ ln -s reiserfsck.8 %{buildroot}%{_mandir}/man8/fsck.reiserfs.8
 
 
 %changelog
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 3.6.19-3avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.6.19-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 3.6.19-2avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.6.19-2avx
 - rebuild
 
-* Sat Mar 05 2005 Vincent Danen <vdanen@annvix.org> 3.6.19-1avx
+* Sat Mar 05 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.6.19-1avx
 - 3.6.19
 
-* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 3.6.11-3avx
+* Mon Jun 21 2004 Vincent Danen <vdanen-at-build.annvix.org> 3.6.11-3avx
 - Annvix build
 
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 3.6.11-2sls
