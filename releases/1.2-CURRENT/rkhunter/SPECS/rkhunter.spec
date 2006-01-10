@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		rkhunter
 %define version		1.2.7
-%define release		2avx
+%define release		%_revrel
 
 Summary:	Rootkit scans for rootkits, backdoors and local exploits
 Name:		%{name}
@@ -85,10 +86,14 @@ rm -rf %{buildroot}/lib/%{name}/docs
 
 
 %changelog
-* Sun Oct 30 2005 Vincent Danen <vdanen@annvix.org> 1.2.7-2avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sun Oct 30 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.2.7-2avx
 - update P0 to make 1.1-RELEASE supported rather than 1.1-CURRENT
 
-* Thu Sep 25 2005 Vincent Danen <vdanen@annvix.org> 1.2.7-1avx
+* Thu Sep 25 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.2.7-1avx
 - build for Annvix to replace chkrootkit
 - P0: add support for curl and Annvix
 
