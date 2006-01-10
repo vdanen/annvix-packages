@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		rpmlint
 %define version 	0.71
-%define release 	1avx
+%define release 	%_revrel
 
 Summary:	RPM correctness checker
 Name:		%{name}
@@ -61,16 +62,20 @@ install -m 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/rpmlint/config
 
 
 %changelog
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 0.71-1avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.71-1avx
 - 0.71
 
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 0.67-3avx
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.67-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.67-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.67-2avx
 - bootstrap build
 
-* Tue Mar 01 2005 Vincent Danen <vdanen@annvix.org> 0.67-1avx
+* Tue Mar 01 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.67-1avx
 - 0.67:
   - added obsolete-on-name error: a package sould not obsolete itself, as
     it can cause weird error in tools. (Michael)
@@ -147,7 +152,7 @@ install -m 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/rpmlint/config
       o update drakconf rule (Thierry)
       o add exceptions for dkms packages
 
-* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 0.59-2avx
+* Mon Jun 21 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.59-2avx
 - Annvix build
 
 * Mon May 31 2004 Vincent Danen <vdanen@opensls.org> 0.59-1sls
