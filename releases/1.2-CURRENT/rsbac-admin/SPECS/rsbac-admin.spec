@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		rsbac-admin
 %define version		1.2.4
-%define release		2avx
+%define release		%_revrel
 
 %define libname_orig	librsbac
 %define lib_major	1
@@ -30,7 +31,7 @@ License: 	GPL
 Group: 		System/Configuration/Other
 URL: 		http://www.rsbac.org/
 Source: 	http://www.rsbac.org/download/code/v%{version}/%{name}-v%{version}.tar.bz2
-Patch0:		rsbac-admin-v1.2.3-librsbac-soname-major1.patch.bz2
+Patch0:		rsbac-admin-v1.2.3-librsbac-soname-major1.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires: 	kernel-source
@@ -153,15 +154,19 @@ cp -r %{kernel_dir}/Documentation/rsbac/* %{buildroot}%{_docdir}/%{name}-doc-%{v
 
 
 %changelog
-* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 1.2.4-2avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Aug 19 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.2.4-2avx
 - bootstrap build (new gcc, new glibc)
 
-* Wed Mar 09 2005 Vincent Danen <vdanen@annvix.org> 1.2.4-1avx
+* Wed Mar 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.2.4-1avx
 - 1.2.4
 - spec cleanups
 - include default rsbac.conf file
 
-* Mon Jan 17 2005 Vincent Danen <vdanen@annvix.org> 1.2.3-2avx
+* Mon Jan 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.2.3-2avx
 - apply bugfix #5 (Admin tools/PAX: attr_set_fd does not accept PaX characters)
 
 * Tue Jul 20 2004 Thomas Backlund <tmb@annvix.org> 1.2.3-1avx
