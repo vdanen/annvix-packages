@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		psmisc
 %define version		21.3
-%define release		7avx
+%define release		%_revrel
 
 Summary:	Utilities for managing processes on your system
 Name:		%{name}
@@ -19,7 +20,7 @@ License:	GPL
 Group:		Monitoring
 URL:		http://psmisc.sourceforge.net
 Source:		http://download.sourceforge.net/psmisc/psmisc-%{version}.tar.bz2
-Patch1:		psmisc-20.2-libsafe.patch.bz2
+Patch1:		psmisc-20.2-libsafe.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	libtermcap-devel
@@ -66,13 +67,17 @@ mv %{buildroot}%{_bindir}/fuser %{buildroot}/sbin/
 
 
 %changelog
-* Wed Aug 17 2005 Vincent Danen <vdanen@annvix.org> 21.3-7avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Wed Aug 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 21.3-7avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 21.3-6avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 21.3-6avx
 - bootstrap build
 
-* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 21.3-5avx
+* Mon Jun 21 2004 Vincent Danen <vdanen-at-build.annvix.org> 21.3-5avx
 - Annvix build
 
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 21.3-4sls
