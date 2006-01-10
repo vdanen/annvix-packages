@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		rpm-rebuilder
 %define version		0.25
-%define release		1avx
+%define release		%_revrel
 
 Summary:	Tools to build/check distributions
 Name:		%{name}
@@ -69,18 +70,22 @@ rm -rf %{buildroot}%{_sysconfdir}/bash_completion.d
 
 
 %changelog
-* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 0.25-1avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.25-1avx
 - 0.25
 - fix perms on spec file
 - Requires: diffutils
 
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 0.22-1avx
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.22-1avx
 - 0.22
 
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 0.21-3avx
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.21-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.21-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.21-2avx
 - bootstrap build
 
 * Tue Mar 01 2005 Vincent Danen <vdanen@mandrakesoft.com> 0.21-1avx
