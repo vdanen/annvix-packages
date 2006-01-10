@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		readline
 %define version		5.0
-%define	release		1avx
+%define	release		%_revrel
 
 %define major		5
 %define libname		%mklibname %{name} %{major}
@@ -22,18 +23,18 @@ License:	GPL
 Group:		System/Libraries
 URL:		http://cnswww.cns.cwru.edu/php/chet/readline/rltop.html
 Source:		ftp://ftp.gnu.org/pub/gnu/readline/readline-%{version}.tar.bz2
-Patch2:		readline-4.3-guard.patch.bz2
-Patch3:		readline-4.1-outdated.patch.bz2
-Patch4:		readline-4.3-fixendkey.patch.bz2
-Patch5:		readline-4.1-resize.patch.bz2
+Patch2:		readline-4.3-guard.patch
+Patch3:		readline-4.1-outdated.patch
+Patch4:		readline-4.3-fixendkey.patch
+Patch5:		readline-4.1-resize.patch
 Patch11:	ftp://ftp.cwru.edu/pub/bash/readline-5.0-patches/readline50-001
 Patch12:	ftp://ftp.cwru.edu/pub/bash/readline-5.0-patches/readline50-002
 Patch13:	ftp://ftp.cwru.edu/pub/bash/readline-5.0-patches/readline50-003
 Patch14:	ftp://ftp.cwru.edu/pub/bash/readline-5.0-patches/readline50-004
 Patch15:	ftp://ftp.cwru.edu/pub/bash/readline-5.0-patches/readline50-005
-Patch16:	readline-4.3-no_rpath.patch.bz2
-Patch17:	readline-read-e-segfault.patch.bz2
-Patch18:	readline-wrap.patch.bz2
+Patch16:	readline-4.3-no_rpath.patch
+Patch17:	readline-read-e-segfault.patch
+Patch18:	readline-wrap.patch
 
 Buildroot:	%{_buildroot}/%{name}-%{version}
 
@@ -152,23 +153,27 @@ perl -p -i -e 's|/usr/local/bin/perl|/usr/bin/perl|' doc/texi2html
 
 
 %changelog
-* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 5.0-1avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Sep 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.0-1avx
 - 5.0
 - sync with mdk 5.0-2mdk:
   - sync with fedora patches
   - drop P1 (unapplied), P100/P101 (merged upstream)
 - throw in a conflicts on libreadline4-devel
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 4.3-13avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.3-13avx
 - bootstrap build (new gcc, new glibc)
 
-* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 4.3-12avx
+* Tue Jul 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.3-12avx
 - rebuild for new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 4.3-11avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.3-11avx
 - bootstrap build
 
-* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 4.3-10avx
+* Mon Jun 21 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.3-10avx
 - Annvix build
 
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 4.3-9sls
