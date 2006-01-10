@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		pcre
 %define version		6.3
-%define	release		1avx
+%define	release		%_revrel
 
 %define major		0
 %define libname_orig	lib%{name}
@@ -133,23 +134,27 @@ ln -s ../../%{_lib}/lib%{name}.so.%{major}.* .
 
 
 %changelog
-* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 6.3-1avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 6.3-1avx
 - 6.3
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 6.2-1avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 6.2-1avx
 - 6.2
 - multiarch
 - move pkgconfig file to the devel package
 - P0: skip RunTest test #2 as it keeps failing for some reason; all other
   tests check out (TODO: this needs to be fixed!)
 
-* Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 4.5-4avx
+* Wed Jul 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.5-4avx
 - rebuild for new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 4.5-3avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.5-3avx
 - bootstrap build
 
-* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 4.5-2avx
+* Tue Jun 22 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.5-2avx
 - Annvix build
 
 * Fri Jun 11 2004 Vincent Danen <vdanen@opensls.org> 4.5-1sls
