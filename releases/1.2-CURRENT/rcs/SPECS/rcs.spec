@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		rcs
 %define version		5.7
-%define release		12avx
+%define release		%_revrel
 
 Summary:	Revision Control System (RCS) file version management tools
 Name:		%{name}
@@ -19,8 +20,8 @@ License:	GPL
 Group:		Development/Other
 URL:		http://www.cs.purdue.edu/homes/trinkle/RCS/
 Source:		ftp://ftp.gnu.org/pub/gnu/%{name}-%{version}.tar.bz2
-Patch0:		rcs-5.7-stupidrcs.patch.bz2
-Patch1:		rcs-5.7-security.patch.bz2
+Patch0:		rcs-5.7-stupidrcs.patch
+Patch1:		rcs-5.7-security.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.1
@@ -65,17 +66,21 @@ touch src/conf.h
 
 
 %changelog
-* Thu Sep 22 2005 Vincent Danen <vdanen@annvix.org> 5.7-12avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Thu Sep 22 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.7-12avx
 - BuildRequires: autoconf2.1
 - added URL
 
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 5.7-11avx
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.7-11avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 5.7-10avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.7-10avx
 - rebuild
 
-* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 5.7-9avx
+* Mon Jun 21 2004 Vincent Danen <vdanen-at-build.annvix.org> 5.7-9avx
 - Annvix build
 
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 5.7-8sls
