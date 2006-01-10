@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		portmap
 %define version		4.0
-%define release		33avx
+%define release		%_revrel
 %define ver		4
 
 Summary:	A program which manages RPC connections
@@ -21,25 +22,28 @@ License:	BSD
 URL:		ftp://ftp.porcupine.org/pub/security/index.html
 Source0:	ftp://coast.cs.purdue.edu:/pub/tools/unix/netutils/portmap/portmap_%{ver}.tar.bz2
 Source1:	portmap.sysconfig
-Source2:	pmap_set.8.bz2
-Source3:	pmap_dump.8.bz2
-Source4:	portmap.8.bz2
+Source2:	pmap_set.8
+Source3:	pmap_dump.8
+Source4:	portmap.8
 Source5:	portmap.run
 Source6:	portmap-log.run
-Patch0:		portmap-4.0-linux.patch.bz2
-Patch1:		portmap-malloc.patch.bz2
-Patch2:		portmap-4.0-cleanup.patch.bz2
-Patch3:		portmap-4.0-rpc_user.patch.bz2
-Patch4:		portmap-4.0-sigpipe.patch.bz2
-Patch5:		portmap-4.0-errno.patch.bz2
-Patch6:		portmap-4.0-pie.diff.bz2
-Patch7:		portmap_4-bind_to_ip_or_host_address.diff.bz2
-Patch8:		portmap-4.0-mdk-typo.patch.bz2
+Patch0:		portmap-4.0-linux.patch
+Patch1:		portmap-malloc.patch
+Patch2:		portmap-4.0-cleanup.patch
+Patch3:		portmap-4.0-rpc_user.patch
+Patch4:		portmap-4.0-sigpipe.patch
+Patch5:		portmap-4.0-errno.patch
+Patch6:		portmap-4.0-pie.diff
+Patch7:		portmap_4-bind_to_ip_or_host_address.diff
+Patch8:		portmap-4.0-mdk-typo.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	tcp_wrappers-devel
 
-Prereq:		rpm-helper
+Requires(pre):	rpm-helper
+Requires(preun): rpm-helper
+Requires(post):	rpm-helper
+Requires(postun): rpm-helper
 Requires:	setup >= 2.4-16avx
 
 %description
@@ -101,9 +105,6 @@ if [ -d /var/log/supervise/portmap -a ! -d /var/log/service/portmap ]; then
 fi
 %_post_srv portmap
 
-%triggerpostun -- portmap <= portmap-4.0-9
-/sbin/chkconfig --add portmap
-
 %preun
 %_preun_srv portmap
 
@@ -127,26 +128,31 @@ fi
 
 
 %changelog
-* Sat Oct 08 2005 Vincent Danen <vdanen@annvix.org> 4.0-33avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- fix prereq
+
+* Sat Oct 08 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.0-33avx
 - execline the main runscript (spt)
 - include env dir but make it empty by default
 
-* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 4.0-32avx
+* Sat Sep 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.0-32avx
 - use execlineb for run scripts
 - move logdir to /var/log/service/portmap
 - run scripts are now considered config files and are not replaceable
 
-* Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 4.0-31avx
+* Fri Aug 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.0-31avx
 - fix perms on run scripts
 - P8: fix typo in tcp bind error message (oblin)
 
-* Wed Aug 17 2005 Vincent Danen <vdanen@annvix.org> 4.0-30avx
+* Wed Aug 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.0-30avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 4.0-29avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.0-29avx
 - rebuild
 
-* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 4.0-28avx
+* Thu Mar 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.0-28avx
 - use logger for logging
 - P7: allow portmapper to listen to only one hostname or IP and
   a sysconfig file to define it
@@ -155,10 +161,10 @@ fi
 - add url
 - drop initscript
 
-* Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 4.0-27avx
+* Mon Sep 20 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.0-27avx
 - update run scripts
 
-* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 4.0-26avx
+* Tue Jun 22 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.0-26avx
 - remove req on chkconfig
 - Annvix build
 
