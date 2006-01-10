@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		rpmtools
 %define version		5.0.24
-%define release 	1avx
+%define release 	%_revrel
 
 # perl-Compress-Zlib is only "suggested"
 %define _requires_exceptions perl(Compress::Zlib)
@@ -70,25 +71,29 @@ Various tools needed by urpmi and drakxtools for handling rpm files.
 
 
 %changelog
-* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 5.0.24-1avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Sep 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.0.24-1avx
 - 5.0.24
 
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 5.0.23-1avx
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.0.23-1avx
 - 5.0.23
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 5.0.18-4avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.0.18-4avx
 - bootstrap build (new gcc, new glibc)
 
-* Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 5.0.18-3avx
+* Wed Jul 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.0.18-3avx
 - build for new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 5.0.18-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.0.18-2avx
 - bootstrap build
 
-* Thu Mar 17 2005 Vincent Danen <vdanen@annvix.org> 5.0.18-1avx
+* Thu Mar 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.0.18-1avx
 - 5.0.18
 
-* Tue Mar 01 2005 Vincent Danen <vdanen@annvix.org> 5.0.16-1avx
+* Tue Mar 01 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.0.16-1avx
 - 5.0.16:
   - generate hdlists and synthesis as hard links in <name>/media_info subdirs
   - handle new hdlists format
@@ -106,13 +111,13 @@ Various tools needed by urpmi and drakxtools for handling rpm files.
   - parsehdlist: add support to output SQL statements (Leon Brooks)
 - NOTE: unlike mdk, we are not breaking out packdrake into it's own pkg
 
-* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 5.0.9-1avx
+* Mon Jun 21 2004 Vincent Danen <vdanen-at-build.annvix.org> 5.0.9-1avx
 - 5.0.9 (sync with 1mdk):
   - add rpm2cpio.pl
   - BuildRequires: perl-Compress-Zlib
   - drop the requirement on Compress::Zlib for packdrake
 
-* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 4.5-17avx
+* Mon Jun 21 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.5-17avx
 - Annvix build
 
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 4.5-16sls
