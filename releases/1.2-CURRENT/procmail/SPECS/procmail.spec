@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define	revision	$Rev$
 %define	name		procmail
 %define	version		3.22
-%define	release		9avx
+%define	release		%_revrel
 
 Summary:	The procmail mail processing program
 Name:		%{name}
@@ -19,18 +20,17 @@ License:	GPL/Artistic
 Group:		System/Servers
 URL:		http://www.procmail.org
 Source0:	ftp://ftp.procmail.org/pub/procmail/%{name}-%{version}.tar.bz2
-Patch1:		%{name}-3.22-lockf.patch.bz2
-Patch2:		%{name}-3.22-pixelpb.patch.bz2
+Patch1:		%{name}-3.22-lockf.patch
+Patch2:		%{name}-3.22-pixelpb.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 Provides:	MailTransportAgent
 
 %description
-The procmail program is used by Mandrake Linux for all local mail
-delivery.  In addition to just delivering mail, procmail can be used
-for automatic filtering, presorting and other mail handling jobs.
-Procmail is also the basis for the SmartList mailing list processor.
+The procmail program can be used for all local mail delivery.  In
+addition to just delivering mail, procmail can be used for automatic
+filtering, presorting and other mail handling jobs.
 
 
 %prep
@@ -76,13 +76,18 @@ rm -f examples/mailstat
 
 
 %changelog
-* Wed Aug 17 2005 Vincent Danen <vdanen@annvix.org> 3.22-9avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- fix description
+
+* Wed Aug 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.22-9avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 3.22-8avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.22-8avx
 - rebuild
 
-* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 3.22-7avx
+* Mon Jun 21 2004 Vincent Danen <vdanen-at-build.annvix.org> 3.22-7avx
 - Annvix build
 
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 3.22-6sls
