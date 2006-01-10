@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		pax
 %define version		3.4
-%define release		1avx
+%define release		%_revrel
 
 Summary:	POSIX File System Archiver
 Name:		%{name}
@@ -57,16 +58,20 @@ mkdir -p %{buildroot}%{_mandir}/man1
 
 
 %changelog
-* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 3.4-1avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.4-1avx
 - 3.4
 
-* Wed Aug 17 2005 Vincent Danen <vdanen@annvix.org> 3.0-9avx
+* Wed Aug 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.0-9avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 3.0-8avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.0-8avx
 - rebuild
 
-* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 3.0-7avx
+* Tue Jun 22 2004 Vincent Danen <vdanen-at-build.annvix.org> 3.0-7avx
 - Annvix build
 
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 3.0-6sls
