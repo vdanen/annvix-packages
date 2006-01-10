@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		ppp
 %define version		2.4.3
-%define release		1avx
+%define release		%_revrel
 
 Summary:	The Linux PPP daemon
 Name:		%{name}
@@ -24,28 +25,28 @@ Source2:	ppp-2.4.1-mppe-crypto.tar.bz2
 Source3:	README.pppoatm
 Source4:	ppp.logrotate
 Source5:	ppp-dhcpc.tar.bz2
-Patch0:		ppp-2.4.3-make.patch.bz2
-Patch1:		ppp-2.3.6-sample.patch.bz2
-Patch2:		ppp-2.4.2-wtmp.patch.bz2
-Patch3:		ppp-2.4.3-makeopt.patch.bz2
-Patch4:		ppp-options.patch.bz2
-Patch5:		ppp-2.4.3-pppdump-Makefile.patch.bz2
-Patch6:		ppp-2.4.3-noexttraffic.patch.bz2
+Patch0:		ppp-2.4.3-make.patch
+Patch1:		ppp-2.3.6-sample.patch
+Patch2:		ppp-2.4.2-wtmp.patch
+Patch3:		ppp-2.4.3-makeopt.patch
+Patch4:		ppp-options.patch
+Patch5:		ppp-2.4.3-pppdump-Makefile.patch
+Patch6:		ppp-2.4.3-noexttraffic.patch
 # (blino) use external libatm for pppoatm plugin
-Patch7:		ppp-2.4.3-libatm.patch.bz2
-Patch8: 	ppp-2.4.2-pie.patch.bz2
+Patch7:		ppp-2.4.3-libatm.patch
+Patch8: 	ppp-2.4.2-pie.patch
 # (blino) from CVS, should fix persist option with pppoe
-Patch9: 	ppp-2.4.3-lcp_close.patch.bz2
-Patch10:	ppp-2.4.3-dontwriteetc.patch.bz2
-Patch11:	http://www.polbox.com/h/hs001/ppp-2.4.3-mppe-mppc-1.1.patch.bz2
-Patch13:	ppp-2.4.2-signal.patch.bz2
-Patch15:	ppp-2.4.3-pic.patch.bz2
-Patch16:	ppp-2.4.3-etcppp.patch.bz2
-Patch17:	ppp-2.4.3-passargv.patch.bz2
-Patch18:	ppp-2.4.3-includes-sha1.patch.bz2
-Patch19:	ppp-2.4.3-makeopt2.patch.bz2
-Patch21:	ppp-2.4.3-fixprotoinc.patch.bz2
-Patch22:	ppp-2.4.3-hspeed.patch.bz2
+Patch9: 	ppp-2.4.3-lcp_close.patch
+Patch10:	ppp-2.4.3-dontwriteetc.patch
+Patch11:	http://www.polbox.com/h/hs001/ppp-2.4.3-mppe-mppc-1.1.patch
+Patch13:	ppp-2.4.2-signal.patch
+Patch15:	ppp-2.4.3-pic.patch
+Patch16:	ppp-2.4.3-etcppp.patch
+Patch17:	ppp-2.4.3-passargv.patch
+Patch18:	ppp-2.4.3-includes-sha1.patch
+Patch19:	ppp-2.4.3-makeopt2.patch
+Patch21:	ppp-2.4.3-fixprotoinc.patch
+Patch22:	ppp-2.4.3-hspeed.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	liblinux-atm-devel
@@ -275,23 +276,27 @@ rm -rf %{buildroot}%{_libdir}/*rad*
 
 
 %changelog
-* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 2.4.3-1avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.4.3-1avx
 - 2.4.3
 - sync with cooker 2.4.3-9mdk: (way too much crap to note)
 
-* Wed Aug 17 2005 Vincent Danen <vdanen@annvix.org> 2.4.2-4avx
+* Wed Aug 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.4.2-4avx
 - bootstrap build (new gcc, new glibc)
 - get rid of the symlinks in /etc/ppp for connect-errors and resolv.conf;
   they don't point to anything anyways and there's no point to dangling
   symlinks
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.4.2-3avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.4.2-3avx
 - rebuild
 
-* Thu Jan 06 2005 Vincent Danen <vdanen@annvix.org> 2.4.2-2avx
+* Thu Jan 06 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.4.2-2avx
 - rebuild against new openssl
 
-* Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 2.4.2-1avx
+* Tue Aug 17 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.4.2-1avx
 - 2.4.2
 - own directories
 - strip suid bit from pppd; we don't need it since users shouldn't
@@ -307,7 +312,7 @@ rm -rf %{buildroot}%{_libdir}/*rad*
   - add the pie, dontwriteetc patches (rh)
   - use a different pppoatm patch
 
-* Sun Jun 27 2004 Vincent Danen <vdanen@annvix.org> 2.4.1-15avx
+* Sun Jun 27 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.4.1-15avx
 - Annvix build
 - P16: need to include pcap-bpf.h instead of net/bpf.h
 
