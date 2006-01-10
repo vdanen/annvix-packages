@@ -5,10 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
+%define revision	$Rev$
 %define name		pwdb
 %define version		0.62
-%define release		4avx
+%define release		%_revrel
 
 %define majver		0
 %define libname_orig	%mklibname pwdb
@@ -21,7 +23,7 @@ Release:	%{release}
 License:	GPL
 Group:		System/Libraries
 Source:		pwdb-%{version}.tar.bz2
-Patch0:		pwdb-0.62-includes.patch.bz2
+Patch0:		pwdb-0.62-includes.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	gcc
@@ -139,20 +141,24 @@ ln -sf lib%{name}.so.%{version} %{buildroot}/%{_lib}/lib%{name}.so.%{majver}
 
 
 %changelog
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 0.62-4avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.62-4avx
 - bootstrap build (new gcc, new glibc)
 
-* Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 0.62-3avx
+* Wed Jul 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.62-3avx
 - rebuild for new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.62-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.62-2avx
 - bootstrap build
 - re-enable stack protection
 
-* Fri Sep 24 2004 Vincent Danen <vdanen@annvix.org> 0.62-1avx
+* Fri Sep 24 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.62-1avx
 - 0.62
 
-* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 0.61.2-6avx
+* Mon Jun 21 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.61.2-6avx
 - Annvix build
 - remove %%build_propolice macro; pass -fno-stack-protector by default
 
