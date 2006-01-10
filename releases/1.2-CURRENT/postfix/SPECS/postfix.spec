@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		postfix
 %define version		2.2.5
-%define release 	5avx
+%define release 	%_revrel
 %define epoch		1
 
 %define	openssl_ver	0.9.7d
@@ -63,13 +64,13 @@ Source11:	http://jimsun.LinxNet.com/misc/header_checks.txt
 Source12:	http://jimsun.LinxNet.com/misc/body_checks.txt
 Source15:	postfix-smtpd.conf
 
-Patch0:		postfix-2.2.5-avx-config.patch.bz2
-Patch1:		postfix-alternatives-mdk.patch.bz2
-Patch3: 	postfix-2.0.18-fdr-hostname-fqdn.patch.bz2
-Patch4:		postfix-2.1.1-fdr-pie.patch.bz2
-Patch5:		postfix-2.1.1-fdr-obsolete.patch.bz2
-Patch6:		postfix-2.2.4-mdk-saslpath.patch.bz2
-Patch8:		postfix-2.2.5-avx-warnsetsid.patch.bz2
+Patch0:		postfix-2.2.5-avx-config.patch
+Patch1:		postfix-alternatives-mdk.patch
+Patch3: 	postfix-2.0.18-fdr-hostname-fqdn.patch
+Patch4:		postfix-2.1.1-fdr-pie.patch
+Patch5:		postfix-2.1.1-fdr-obsolete.patch
+Patch6:		postfix-2.2.4-mdk-saslpath.patch
+Patch8:		postfix-2.2.5-avx-warnsetsid.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	db4-devel, gawk, perl, sed, ed
@@ -95,7 +96,10 @@ Provides:	smtpdaemon, MailTransportAgent
 # we need the postdrop group (gid 36)
 Requires:	setup >= 2.2.0-26mdk
 PreReq: 	coreutils, sysklogd, fileutils
-PreReq: 	rpm-helper >= 0.3
+Requires(post):	rpm-helper >= 0.3
+Requires(postun): rpm-helper >= 0.3
+Requires(pre):	rpm-helper >= 0.3
+Requires(preun): rpm-helper >= 0.3
 Obsoletes:	sendmail exim qmail
 
 
@@ -418,21 +422,26 @@ fi
 
 
 %changelog
-* Sun Oct 09 2005 Vincent Danen <vdanen@annvix.org> 2.2.5-5avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- fix prereq
+
+* Sun Oct 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.2.5-5avx
 - fix call to srv
 
-* Wed Sep 21 2005 Vincent Danen <vdanen@annvix.org> 2.2.5-4avx
+* Wed Sep 21 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.2.5-4avx
 - don't change the manpage names in /etc/postfix/postfix-files since
   they're not being alternativized (ha!) anymore (ie. mailq.1 rather
   than mailq.postfix.1)
 
-* Wed Sep 21 2005 Vincent Danen <vdanen@annvix.org> 2.2.5-3avx
+* Wed Sep 21 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.2.5-3avx
 - rebuild against fixed rpm-helper
 
-* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 2.2.5-2avx
+* Sat Sep 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.2.5-2avx
 - rebuild against new pcre
 
-* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 2.2.5-1avx
+* Sat Sep 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.2.5-1avx
 - 2.2.5
 - run scripts are now considered config files and are not replaceable
 - shorten some alternatives; we'll use alternatives to provide the sendmail symlink
@@ -444,26 +453,26 @@ fi
 - rediff P8
 - don't apply the TLS patch
 
-* Sat Aug 27 2005 Vincent Danen <vdanen@annvix.org> 2.1.5-6avx
+* Sat Aug 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.1.5-6avx
 - fix perms on run scripts
 
-* Wed Aug 17 2005 Vincent Danen <vdanen@annvix.org> 2.1.5-5avx
+* Wed Aug 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.1.5-5avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.1.5-4avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.1.5-4avx
 - rebuild
 
-* Fri Jan 28 2005 Vincent Danen <vdanen@annvix.org> 2.1.5-3avx
+* Fri Jan 28 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.1.5-3avx
 - don't refresh aliases at install time (bluca)
 - provide a default /etc/pam.d/smtp for saslauthd users (bluca)
 - don't move sasl conf if not necessary (bluca)
 - make main.cf.dist a working config file (bluca)
 - include manpage for qshape (bluca)
 
-* Wed Jan 05 2005 Vincent Danen <vdanen@annvix.org> 2.1.5-2avx
+* Wed Jan 05 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.1.5-2avx
 - rebuild against new openssl
 
-* Sat Oct 16 2004 Vincent Danen <vdanen@annvix.org> 2.1.5-1avx
+* Sat Oct 16 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.1.5-1avx
 - 2.1.5
 - remove support for experimental versions; we'll never ship an
   experimental version
@@ -493,13 +502,13 @@ fi
 - alternatives points the libdir sendmail to %%{_libdir} but this isn't right on
   lib64 because programs will look for /usr/lib/sendmail not /usr/lib64/sendmail; fixed
 
-* Fri Sep 17 2004 Vincent Danen <vdanen@annvix.org> 2.0.13-10avx
+* Fri Sep 17 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.0.13-10avx
 - update run scripts
 
-* Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 2.0.13-9avx
+* Tue Aug 17 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.0.13-9avx
 - rebuild against latest openssl
 
-* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 2.0.13-8avx
+* Tue Jun 22 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.0.13-8avx
 - Annvix build
 
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 2.0.13-7sls
