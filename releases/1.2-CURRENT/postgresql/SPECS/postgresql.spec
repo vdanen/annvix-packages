@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		postgresql
 %define version		8.0.4
-%define release		1avx
+%define release		%_revrel
 
 %define _requires_exceptions devel(libtcl8.4)\\|devel(libtcl8.4(64bit))
 
@@ -43,7 +44,7 @@ Source2:	http://jdbc.postgresql.org/download/postgresql-8.0-%{jdbc}.jdbc2ee.jar
 Source3:	http://jdbc.postgresql.org/download/postgresql-8.0-%{jdbc}.jdbc3.jar
 Source4:	http://www.rbt.ca/postgresql/upgrade/upgrade.pl
 Source5:	ftp://ftp.postgresql.org/pub/source/v%{version}/postgresql-%{version}.tar.bz2.md5
-Source6:	ftp.postgresql.org:/pub/binary/v7.2/RPMS/README.rpm-dist.bz2
+Source6:	ftp.postgresql.org:/pub/binary/v7.2/RPMS/README.rpm-dist
 Source7:	migration-scripts.tar.gz
 Source8:	logrotate.postgresql
 Source10:	postgresql-mdk_update.tar.bz2
@@ -61,7 +62,7 @@ Source27:	pg_autovacuum-log.run
 Source51:	README.v7.3
 Source52:	upgrade_tips_7.3
 Source53:	CAN-2005-1409-1410-update-dbs.sh
-Patch0:		postgresql-7.4.1-mdk-pkglibdir.patch.bz2
+Patch0:		postgresql-7.4.1-mdk-pkglibdir.patch
 Patch1:		postgresql-7.4.5-CAN-2005-0227.patch
 Patch2:		postgresql-7.4.5-CAN-2005-0245_0247.patch
 
@@ -70,7 +71,8 @@ BuildRequires:	bison flex gettext termcap-devel ncurses-devel openssl-devel pam-
 BuildRequires:	perl-devel python-devel readline-devel >= 4.3 zlib-devel
 
 Requires:	perl
-Prereq:		rpm-helper
+Requires(post):	rpm-helper
+Requires(preun): rpm-helper
 Provides:	postgresql-clients
 Obsoletes:	postgresql-clients
 
@@ -142,7 +144,10 @@ Development library to libecpg.
 Summary:	The programs needed to create and run a PostgreSQL server
 Group:		Databases
 Provides:	sqlserver
-Prereq:		rpm-helper %{_sbindir}/useradd afterboot %{libname} > 8.0
+Requires(post):	rpm-helper, afterboot, %{libname} > 8.0
+Requires(postun): rpm-helper, afterboot
+Requires(pre):	rpm-helper
+Requires(preun): rpm-helper
 Requires:	postgresql = %{version}-%{release}
 Conflicts:	postgresql < 7.3
 
@@ -328,9 +333,7 @@ pushd  %{buildroot}%{_libdir}/pgsql/test/regress/
     strip *.so
 popd
 
-cp %{SOURCE51} %{SOURCE52} %{SOURCE53} .
-
-bzip2 -cd %{SOURCE6} >  README.rpm-dist
+cp %{SOURCE51} %{SOURCE52} %{SOURCE53} %{SOURCE6} .
 
 pushd %{_builddir}
     tar xvjf %{SOURCE10}
@@ -626,26 +629,31 @@ fi
 
 
 %changelog
-* Sat Oct 08 2005 Vincent Danen <vdanen@annvix.org> 8.0.4-1avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- fix prereq
+
+* Sat Oct 08 2005 Vincent Danen <vdanen-at-build.annvix.org> 8.0.4-1avx
 - 8.0.4 (contains some pretty important bugfixes)
 - updated jar files
 
-* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 8.0.3-5avx
+* Fri Sep 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 8.0.3-5avx
 - rebuild against new readline and new python
 
-* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 8.0.3-4avx
+* Sat Sep 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 8.0.3-4avx
 - s/supervise/service/ in log/run
 
-* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 8.0.3-3avx
+* Sat Sep 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 8.0.3-3avx
 - use execlineb for run scripts
 - move logdir to /var/log/service/postgresql
 - run scripts are now considered config files and are not replaceable
 - add %%post/%%preun scripts for pg_autovacuum service
 
-* Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 8.0.3-2avx
+* Fri Aug 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 8.0.3-2avx
 - fix perms on run scripts
 
-* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 8.0.3-1avx
+* Thu Aug 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 8.0.3-1avx
 - 8.0.3
 - fix major lib number (nanardon)
 - move pgxs files from contrib to devel; postgresql external
@@ -654,57 +662,57 @@ fi
 - rediff P2; partially merged upstream
 - conflict with older lib packages with bad major
 
-* Sat Jun 11 2005 Vincent Danen <vdanen@annvix.org> 8.0.1-6avx
+* Sat Jun 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 8.0.1-6avx
 - P3: fix CAN-2005-1409
 - P4: fix CAN-2005-1410
 - S53: upgrade script to update databases
 - spec cleanups
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 8.0.1-5avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 8.0.1-5avx
 - bootstrap build
 
-* Wed Mar 16 2005 Vincent Danen <vdanen@annvix.org> 8.0.1-4avx
+* Wed Mar 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 8.0.1-4avx
 - fix plperl linkage over libperl.so for all archs (nanardon)
 - patches to fix CAN-2005-0227, CAN-2005-0245, CAN-2005-0247
 - fix requires on perl
 - don't require sfio
 - renumber patches
 
-* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 8.0.1-3avx
+* Thu Mar 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 8.0.1-3avx
 - use logger for logging
 
-* Wed Feb 23 2005 Vincent Danen <vdanen@annvix.org> 8.0.1-2avx
+* Wed Feb 23 2005 Vincent Danen <vdanen-at-build.annvix.org> 8.0.1-2avx
 - update the afterboot snippet to mention upgrading tips
 - s/su/chpst/ in the spec
 
-* Tue Feb 15 2005 Vincent Danen <vdanen@annvix.org> 8.0.1-1avx
+* Tue Feb 15 2005 Vincent Danen <vdanen-at-build.annvix.org> 8.0.1-1avx
 - 8.0.1
 - build without tcl support
 
-* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 7.4.3-8avx
+* Thu Feb 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 7.4.3-8avx
 - drop BuildRequires on XFree86-devel
 - rebuild against new python and perl
 
-* Thu Jan 06 2005 Vincent Danen <vdanen@annvix.org> 7.4.3-7avx
+* Thu Jan 06 2005 Vincent Danen <vdanen-at-build.annvix.org> 7.4.3-7avx
 - rebuild against latest openssl
 
-* Tue Dec 07 2004 Vincent Danen <vdanen@annvix.org> 7.4.3-6avx
+* Tue Dec 07 2004 Vincent Danen <vdanen-at-build.annvix.org> 7.4.3-6avx
 - P4: patch to fix CAN-2004-0977
 
-* Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 7.4.3-5avx
+* Mon Sep 20 2004 Vincent Danen <vdanen-at-build.annvix.org> 7.4.3-5avx
 - update run scripts and afterboot manpages
 - add a finish script
 
-* Fri Aug 13 2004 Vincent Danen <vdanen@annvix.org> 7.4.3-4avx
+* Fri Aug 13 2004 Vincent Danen <vdanen-at-build.annvix.org> 7.4.3-4avx
 - rebuild against new openssl
 
-* Mon Jul 26 2004 Vincent Danen <vdanen@annvix.org> 7.4.3-3avx
+* Mon Jul 26 2004 Vincent Danen <vdanen-at-build.annvix.org> 7.4.3-3avx
 - fix the requires exceptions
 
-* Wed Jul 21 2004 Vincent Danen <vdanen@annvix.org> 7.4.3-2avx
+* Wed Jul 21 2004 Vincent Danen <vdanen-at-build.annvix.org> 7.4.3-2avx
 - remove unapplied patches; renumber remaining patches
 
-* Mon Jul 05 2004 Vincent Danen <vdanen@annvix.org> 7.4.3-1avx
+* Mon Jul 05 2004 Vincent Danen <vdanen-at-build.annvix.org> 7.4.3-1avx
 - 7.4.3
 - use bzip sources
 - new jdbc jar files for 7.4 (build 214)
@@ -723,7 +731,7 @@ fi
      non-superusers will be readded."
 - add a requires exception on devel(libtcl8.4)
 
-* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 7.3.4-10avx
+* Tue Jun 22 2004 Vincent Danen <vdanen-at-build.annvix.org> 7.3.4-10avx
 - Annvix build
 
 * Thu Apr 22 2004 Vincent Danen <vdanen@opensls.org> 7.3.4-9sls
