@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		rpm-helper
 %define version		0.14
-%define release		3avx
+%define release		%_revrel
 
 Summary:	Helper scripts for rpm scriptlets
 Name:		%{name}
@@ -19,7 +20,7 @@ License:	GPL
 Group:		System/Configuration/Packaging
 URL:		http://www.mandrivalinux.com/
 Source0:	%{name}-%{version}.tar.bz2
-Patch0:		rpm-helper-0.14-avx-srv.patch.bz2
+Patch0:		rpm-helper-0.14-avx-srv.patch
 
 BuildArch:	noarch
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -62,51 +63,55 @@ chmod 0755 {add,del}-srv mkdepends
 
 
 %changelog
-* Wed Oct 05 2005 Vincent Danen <vdanen@annvix.org> 0.14-3avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Wed Oct 05 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.14-3avx
 - update P0 to accomodate new srv commands
 
-* Sun Sep 25 2005 Vincent Danen <vdanen@annvix.org> 0.14-2avx
+* Sun Sep 25 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.14-2avx
 - update P0 to add mkdepends script
 
-* Thu Sep 22 2005 Vincent Danen <vdanen@annvix.org> 0.14-1avx
+* Thu Sep 22 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.14-1avx
 - 0.14
 - update P0 to rip out all references to msec
 
-* Wed Sep 21 2005 Vincent Danen <vdanen@annvix.org> 0.13-2avx
+* Wed Sep 21 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.13-2avx
 - update P0 to patch the macros as well to update _pre_useradd and
   _pre_groupadd for our static uid/gid's
 
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 0.13-1avx
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.13-1avx
 - 0.13
 - provide it's own macro
 - regen P0
 
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 0.10-12avx
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.10-12avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.10-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.10-2avx
 - bootstrap build
 
-* Tue Mar 01 2005 Vincent Danen <vdanen@annvix.org> 0.10-1avx
+* Tue Mar 01 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.10-1avx
 - 0.10
 - tidy spec
 
-* Tue Sep 21 2004 Vincent Danen <vdanen@annvix.org> 0.9.1-10avx
+* Tue Sep 21 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.9.1-10avx
 - fix add-srv scriptlet again; we need to grep for "run" not "up"
 
-* Tue Sep 21 2004 Vincent Danen <vdanen@annvix.org> 0.9.1-9avx
+* Tue Sep 21 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.9.1-9avx
 - fix add-srv scriptlet; now we test if a service exists before trying
   to run runsvstat on it, and we also redirect runsvstat's output to
   /dev/null to make it prettier
 
-* Sun Sep 19 2004 Vincent Danen <vdanen@annvix.org> 0.9.1-8avx
+* Sun Sep 19 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.9.1-8avx
 - update P0: s/svstat/runsvstat/
 
-* Mon Jul 05 2004 Vincent Danen <vdanen@annvix.org> 0.9.1-7avx
+* Mon Jul 05 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.9.1-7avx
 - fix P0; some services were not restarting on upgrade and it was due
   to grep not being quiet
 
-* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 0.9.1-6avx
+* Mon Jun 21 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.9.1-6avx
 - Annvix build
 
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 0.9.1-5sls
