@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		quota
 %define version 	3.13
-%define release 	1avx
+%define release 	%_revrel
 
 Summary:	System administration tools for monitoring users' disk usage
 Name:		%{name}
@@ -19,11 +20,11 @@ License:	BSD
 Group:		System/Configuration/Other
 URL:		http://sourceforge.net/projects/linuxquota
 Source:		http://prdownloads.sourceforge.net/linuxquota/%{name}-%{version}.tar.bz2
-Patch0:		quota-tools-man-pages-path.patch.bz2
-Patch1:		quota-tools-no-stripping.patch.bz2
-Patch2:		quota-3.06-warnquota.patch.bz2
-Patch3:		quota-tools-default-conf.patch.bz2
-Patch4:		quota-3.06-pie.patch.bz2
+Patch0:		quota-tools-man-pages-path.patch
+Patch1:		quota-tools-no-stripping.patch
+Patch2:		quota-3.06-warnquota.patch
+Patch3:		quota-tools-default-conf.patch
+Patch4:		quota-3.06-pie.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	e2fsprogs-devel, gettext, tcp_wrappers-devel >= 7.6-29avx
@@ -89,20 +90,24 @@ chmod 0755 %{buildroot}%{_bindir}/*
 
 
 %changelog
-* Sun Sep 11 2005 Vincent Danen <vdanen@annvix.org> 3.13-1avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sun Sep 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.13-1avx
 - 3.13
 - sync patch with Mandriva (who synced with Fedora)
 - rebuild against new libext2fs-devel
 - BuildRequires: tcp_wrappers-devel >= 7.6-29avx
 - don't apply the pie patch on x86_64 as we get a text relocation error
 
-* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 3.09-5avx
+* Thu Aug 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.09-5avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 3.09-4avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.09-4avx
 - rebuild
 
-* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 3.09-3avx
+* Mon Jun 21 2004 Vincent Danen <vdanen-at-build.annvix.org> 3.09-3avx
 - Annvix build
 
 * Tue Jun 15 2004 Vincent Danen <vdanen@opensls.org> 3.09-2sls
