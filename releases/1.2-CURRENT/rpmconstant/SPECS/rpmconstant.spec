@@ -5,10 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
+%define revision	$Rev$
 %define name		rpmconstant
 %define version		0.0.5
-%define release 	2avx
+%define release 	%_revrel
 
 %define major		0
 %define libname		%mklibname %{name} %{major}
@@ -103,16 +105,20 @@ autoconf
 
 
 %changelog
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 0.0.5-2avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.0.5-2avx
 - rebuild against new rpm
 
-* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 0.0.5-1avx
+* Thu Aug 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.0.5-1avx
 - 0.0.5
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.0.4-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.0.4-2avx
 - bootstrap build
 
-* Mon Mar 28 2005 Vincent Danen <vdanen@annvix.org> 0.0.4-1avx
+* Mon Mar 28 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.0.4-1avx
 - first Annvix build
 
 * Sun Mar 06 2005 Olivier Thauvin <thauvin@aerov.jussieu.fr> 0.0.4-2mdk
