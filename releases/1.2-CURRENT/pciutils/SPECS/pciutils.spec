@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		pciutils
 %define version		2.1.99.test8
-%define release		4avx
+%define release		%_revrel
 
 %define rver		2.1.99-test8
 
@@ -21,13 +22,13 @@ License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://atrey.karlin.mff.cuni.cz/~mj/pciutils.html
 Source0:	ftp://atrey.karlin.mff.cuni.cz/pub/linux/pci/alpha/%{name}-%{rver}.tar.gz
-Patch0:		pciutils-strip.patch.bz2
-Patch1:		pciutils-pciids.patch.bz2
-Patch2:		pciutils-2.1.10-scan.patch.bz2
-Patch3: 	pciutils-havepread.patch.bz2
-Patch4:		pciutils-2.1.99-test3-amd64.patch.bz2
-Patch5:		pciutils-typo.patch.bz2
-Patch6:		pciutils-devicetype.patch.bz2
+Patch0:		pciutils-strip.patch
+Patch1:		pciutils-pciids.patch
+Patch2:		pciutils-2.1.10-scan.patch
+Patch3: 	pciutils-havepread.patch
+Patch4:		pciutils-2.1.99-test3-amd64.patch
+Patch5:		pciutils-typo.patch
+Patch6:		pciutils-devicetype.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 %ifarch %{ix86}
@@ -109,16 +110,20 @@ install lib/libpci_loader_a %{buildroot}%{_libdir}/libpci_loader.a
 
 
 %changelog
-* Wed Aug 17 2005 Vincent Danen <vdanen@annvix.org> 2.1.99.test8-4avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Wed Aug 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.1.99.test8-4avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.1.99.test8-3avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.1.99.test8-3avx
 - rebuild
 
-* Fri Feb 04 2005 Vincent Danen <vdanen@annvix.org> 2.1.99-test8-2avx
+* Fri Feb 04 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.1.99-test8-2avx
 - rebuild against new dietlibc
 
-* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 2.1.99-test8-1avx
+* Thu Feb 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.1.99-test8-1avx
 - 2.1.99-test8
 - sync patches with Fedora (P5, P6)
 - drop P4, fixed upstream
@@ -126,7 +131,7 @@ install lib/libpci_loader_a %{buildroot}%{_libdir}/libpci_loader.a
 - relocate binaries to /sbin
 - drop BuildRequires: wget
 
-* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 2.1.99-test3-2avx
+* Tue Jun 22 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.1.99-test3-2avx
 - Annvix build
 
 * Mon Mar 15 2004 Vincent Danen <vdanen@opensls.org> 2.1.99-test3-1sls
