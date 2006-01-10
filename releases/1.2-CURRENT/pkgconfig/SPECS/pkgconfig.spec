@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		pkgconfig
 %define version		0.19
-%define release		1avx
+%define release		%_revrel
 
 Summary:	Pkgconfig helps make building packages easier
 Name:		%{name}
@@ -19,13 +20,13 @@ License:	GPL
 Group:		Development/Other
 URL:		http://www.freedesktop.org/software/pkgconfig
 Source:		http://www.freedesktop.org/software/pkgconfig/releases/pkg-config-%{version}.tar.bz2
-Patch1:		pkg-config-0.19-biarch.patch.bz2
+Patch1:		pkg-config-0.19-biarch.patch
 # (fc) 0.19-1mdk add --print-provides/--print-requires (Fedora)
-Patch2:		pkgconfig-0.15.0-reqprov.patch.bz2
+Patch2:		pkgconfig-0.15.0-reqprov.patch
 # (fc) 0.19-1mdk fix overflow with gcc4 (Fedora)
-Patch3:		pkgconfig-0.15.0-overflow.patch.bz2
+Patch3:		pkgconfig-0.15.0-overflow.patch
 # (gb) 0.19-2mdk 64-bit fixes, though that code is not used, AFAICS
-Patch4:		pkg-config-0.19-64bit-fixes.patch.bz2
+Patch4:		pkg-config-0.19-64bit-fixes.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -85,7 +86,11 @@ mkdir -p %{buildroot}%{_datadir}/pkgconfig
 
 
 %changelog
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 0.15.0-9avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.15.0-9avx
 - 0.19
 - include some 64bit fixes (gbeauchesne)
 - remove make check since it doesn't pass upstream (fcrozat)
@@ -95,13 +100,13 @@ mkdir -p %{buildroot}%{_datadir}/pkgconfig
 - create %%{_datadir}/pkgconfig for arch independant .pc files (fcrozat)
 
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 0.15.0-9avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.15.0-9avx
 - bootstrap build (new gcc, new glibc)
 
-* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 0.15.0-8avx
+* Tue Jul 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.15.0-8avx
 - rebuild for new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.15.0-7avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.15.0-7avx
 - bootstrap build
 
 * Tue Jun 22 2004 Vincent Danen <vdanen@opensls.org> 0.15.0-6avx
