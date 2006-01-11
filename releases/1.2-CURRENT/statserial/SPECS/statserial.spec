@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		statserial
 %define version		1.1
-%define release		21avx
+%define release		%_revrel
 
 Summary:	A tool which displays the status of serial port modem lines
 Name:		%{name}
@@ -19,8 +20,8 @@ License:	BSD
 Group:		Communications
 URL:		ftp://sunsite.unc.edu/pub/Linux/system/serial/
 Source:		ftp://sunsite.unc.edu/pub/Linux/system/serial/%{name}-%{version}.tar.bz2
-Patch:		statserial-1.1-config.patch.bz2
-Patch1: 	statserial-1.1-dev.patch.bz2
+Patch:		statserial-1.1-config.patch
+Patch1: 	statserial-1.1-dev.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	ncurses-devel
@@ -62,14 +63,18 @@ install -m 0444 statserial.1 %{buildroot}%{_mandir}/man1/statserial.1
 
 
 %changelog
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 1.1-21avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.1-21avx
 - bootstrap build (new gcc, new glibc)
 - update P0 from mdk
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.1-20avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.1-20avx
 - rebuild
 
-* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 1.1-19avx
+* Mon Jun 21 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.1-19avx
 - Annvix build
 
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 1.1-18sls
