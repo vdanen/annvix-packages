@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		traceroute
 %define version		1.4a12
-%define release		9avx
+%define release		%_revrel
 
 Summary:	Traces the route taken by packets over a TCP/IP network
 Name:		%{name}
@@ -19,10 +20,10 @@ License:	BSD
 Group:		Monitoring
 URL:		http://www.chiark.greenend.org.uk/ucgi/~richard/cvsweb/debfix/packages/traceroute/
 Source:		ftp://ftp.ee.lbl.gov/traceroute-%{version}.tar.bz2
-Patch1:		traceroute-1.4a5-secfix.patch.bz2
-Patch3:		traceroute-1.4a5-autoroute.patch.bz2
-Patch4:		traceroute-1.4a5-autoroute2.patch.bz2
-Patch5:		traceroute-1.4a5-unaligned.patch.bz2
+Patch1:		traceroute-1.4a5-secfix.patch
+Patch3:		traceroute-1.4a5-autoroute.patch
+Patch4:		traceroute-1.4a5-autoroute2.patch
+Patch5:		traceroute-1.4a5-unaligned.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -68,13 +69,17 @@ cp traceroute.8 %{buildroot}%{_mandir}/man8
 
 
 %changelog
-* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 1.4a12-9avx
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Thu Aug 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.4a12-9avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.4a12-8avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.4a12-8avx
 - rebuild
 
-* Sat Jun 19 2004 Vincent Danen <vdanen@annvix.org> 1.4a12-7avx
+* Sat Jun 19 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.4a12-7avx
 - Annvix build
 
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 1.4a12-6sls
