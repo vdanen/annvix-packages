@@ -21,9 +21,6 @@
 %define texmfggversion	3.0d
 %define xmltexname	xmltex
 %define xmltexversion	1.9
-# reset the delta if changing the xmltexversion.
-%define xmltexrelease_delta 28
-%define xmltexrelease	%(R=%{release}; echo $((${R/avx/} + %{xmltexrelease_delta}))avx)
 %define csidxversion	19990820
 
 %define vartexfonts	/var/lib/texmf
@@ -214,7 +211,7 @@ applications using kpathsea library.
 %package -n %{xmltexname}
 Summary:	Namespace-aware XML parser written in TeX
 Version: 	%{xmltexversion}
-Release:	%{xmltexrelease}
+Release:	%{release}
 Group:		Publishing
 License: 	LaTeX Project Public License
 URL: 		http://www.dcarlisle.demon.co.uk/xmltex/manual.html
@@ -614,6 +611,7 @@ fi
 * Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - Obfuscate email addresses and new tagging
 - Uncompress patches
+- get rid of the xmltexrelease delta crud
 
 * Fri Sep 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.0-1avx
 - 3.0
