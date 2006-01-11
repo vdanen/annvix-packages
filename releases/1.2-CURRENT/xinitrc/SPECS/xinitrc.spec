@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name    	xinitrc
 %define version 	2.4.4
-%define release 	81avx
+%define release 	%_revrel
 
 Summary:	The default startup script for the X Window System
 Name:		%{name}
@@ -63,13 +64,17 @@ make install R=%{buildroot}/
 
 
 %changelog
-* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 2.4.4-81avx
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Thu Aug 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.4.4-81avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.4.4-80avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.4.4-80avx
 - bootstrap build
 
-* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 2.4.4-79avx
+* Fri Jun 18 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.4.4-79avx
 - Annvix build
 
 * Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 2.4.4-78sls
