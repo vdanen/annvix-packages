@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		snort
 %define version		2.3.3
-%define release		3avx
+%define release		%_revrel
 
 Summary:	An intrusion detection system
 Name:		%{name}
@@ -24,14 +25,14 @@ Source2:	snortd-log.run
 Source3:	http://www.snort.org/dl/%{name}-%{version}.tar.gz.asc
 Source4:	snort.logrotate
 Source5:	snort.sysconfig
-Source6:	snortdb-extra.bz2
+Source6:	snortdb-extra
 
-Patch1:		snort-2.3.0RC2-lib64.patch.bz2
-Patch2:		snort-2.3.0RC2-clamav.diff.bz2
+Patch1:		snort-2.3.0RC2-lib64.patch
+Patch2:		snort-2.3.0RC2-clamav.diff
 # (oe): make -L work as stated in the man page.
-Patch3:		snort-2.3.0-no_timestamp.diff.bz2
+Patch3:		snort-2.3.0-no_timestamp.diff
 # (oe) disable some code to make it build
-Patch4:		snort-2.3.0-net-snmp_fix.diff.bz2
+Patch4:		snort-2.3.0-net-snmp_fix.diff
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5, automake1.7
@@ -47,7 +48,10 @@ BuildRequires:	chrpath
 BuildRequires:	iptables-devel, clamav-devel
 #BuildRequires:	net-snmp-devel
 
-PreReq:		rpm-helper
+Requires(pre):	rpm-helper
+Requires(preun): rpm-helper
+Requires(post):	rpm-helper
+Requires(postun): rpm-helper
 Requires:	pcre
 Requires:	libpcap0 >= 0.6
 
@@ -630,13 +634,18 @@ update-alternatives --remove %{name} %{_sbindir}/%{name}-inline+flexresp
 
 
 %changelog
-* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 2.3.3-3avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- fix prereq
+
+* Sat Sep 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.3.3-3avx
 - rebuild against new pcre
 
-* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 2.3.3-2avx
+* Sat Sep 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.3.3-2avx
 - s/supervise/service/ in log/run
 
-* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 2.3.3-1avx
+* Sat Sep 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.3.3-1avx
 - 2.3.3
 - use execlineb for run scripts
 - move logdir to /var/log/service/snortd
@@ -646,16 +655,16 @@ update-alternatives --remove %{name} %{_sbindir}/%{name}-inline+flexresp
 - P4: make the snmp-enabled snort binary build (currently unapplied due
   to the fact we don't ship net-snmp)
 
-* Sat Aug 27 2005 Vincent Danen <vdanen@annvix.org> 2.3.0-4avx
+* Sat Aug 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.3.0-4avx
 - fix perms on run scripts
 
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 2.3.0-3avx
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.3.0-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.3.0-2avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.3.0-2avx
 - rebuild
 
-* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 2.3.0-1avx
+* Thu Feb 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.3.0-1avx
 - 2.3.0
 - use logger for logging
 - strip the binaries (florin)
@@ -664,17 +673,17 @@ update-alternatives --remove %{name} %{_sbindir}/%{name}-inline+flexresp
 - P2: add inline support (thanks to William Metcalf)
 - bundle the logrotate and sysconfig files
 
-* Thu Jan 06 2005 Vincent Danen <vdanen@annvix.org> 2.1.0-9avx
+* Thu Jan 06 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.1.0-9avx
 - rebuild against latest openssl
 
-* Fri Sep 17 2004 Vincent Danen <vdanen@annvix.org> 2.1.0-8avx
+* Fri Sep 17 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.1.0-8avx
 - update run scripts
 - update logrotate patch
 
-* Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 2.1.0-7avx
+* Tue Aug 17 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.1.0-7avx
 - rebuild against new openssl
 
-* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 2.1.0-6avx
+* Mon Jun 21 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.1.0-6avx
 - Annvix build
 
 * Fri Apr 30 2004 Vincent Danen <vdanen@opensls.org> 2.1.0-5sls
