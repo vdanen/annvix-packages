@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		sash
 %define version		3.7
-%define release 	2avx
+%define release 	%_revrel
 
 Summary:	A statically linked shell, including some built-in basic commands
 Name:		%{name}
@@ -19,14 +20,14 @@ License:	GPL
 Group:		Shells
 URL:		http://www.canb.auug.org.au/~dbell/
 Source0:	http://www.canb.auug.org.au/~dbell/programs/%{name}-%{version}.tar.bz2
-Patch0:		sash-3.5-optflags.patch.bz2
-Patch2: 	sash-3.4-losetup.patch.bz2
-Patch3: 	sash-3.4-fix-loop__remove_it_when_kernel_headers_are_fixed.patch.bz2
-Patch4:		sash-3.7-linux2.6-buildfix.patch.bz2
-Patch5:		sash-3.6-scriptarg.patch.bz2
-Patch6:		sash-pwdfunc.patch.bz2
-Patch7:		sash-3.7-segfault.patch.bz2
-Patch8:		sash-3.7-special-script-call-esp-for-glibc-post.patch.bz2
+Patch0:		sash-3.5-optflags.patch
+Patch2: 	sash-3.4-losetup.patch
+Patch3: 	sash-3.4-fix-loop__remove_it_when_kernel_headers_are_fixed.patch
+Patch4:		sash-3.7-linux2.6-buildfix.patch
+Patch5:		sash-3.6-scriptarg.patch
+Patch6:		sash-pwdfunc.patch
+Patch7:		sash-3.7-segfault.patch
+Patch8:		sash-3.7-special-script-call-esp-for-glibc-post.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	zlib-devel glibc-static-devel e2fsprogs-devel
@@ -75,23 +76,27 @@ install -m 0644 sash.1 %{buildroot}%{_mandir}/man8/sash.8
 
 
 %changelog
-* Sun Sep 11 2005 Vincent Danen <vdanen@annvix.org> 3.7-2avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sun Sep 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.7-2avx
 - rebuild against new e2fsprogs-devel
 
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 3.7-1avx
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.7-1avx
 - 3.7
 - P4: fix build with linux 2.6 (peroyvind)
 - sync with Fedora (P5, P6, P7) (peroyvind)
 - P8: P5 broke --ignore-remaining args special option (pixel)
 - remove grep prereq
 
-* Fri Jul 29 2005 Vincent Danen <vdanen@annvix.org> 3.5-11avx
+* Fri Jul 29 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.5-11avx
 - rebuild against new gcc
 
-* Thu Jun 02 2005 Vincent Danen <vdanen@annvix.org> 3.5-10avx
+* Thu Jun 02 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.5-10avx
 - bootstrap build
 
-* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 3.5-9avx
+* Mon Jun 21 2004 Vincent Danen <vdanen-at-build.annvix.org> 3.5-9avx
 - Annvix build
 
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 3.5-8sls
