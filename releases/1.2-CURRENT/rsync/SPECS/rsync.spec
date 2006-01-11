@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		rsync
 %define version		2.6.6
-%define release		3avx
+%define release		%_revrel
 
 Summary:	A program for synchronizing files over a network
 Name:		%{name}
@@ -30,7 +31,9 @@ BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	popt-devel
 
 Requires:	ipsvd
-PreReq:		afterboot
+Requires(post):	afterboot, rpm-helper, ipsvd
+Requires(postun): afterboot
+Requires(preun): afterboot, rpm-helper
 
 %description
 Rsync uses a quick and reliable algorithm to very quickly bring
@@ -118,15 +121,20 @@ popd
 
 
 %changelog
-* Tue Sep 27 2005 Vincent Danen <vdanen@annvix.org> 2.6.6-3avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- fix prereq
+
+* Tue Sep 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.6.6-3avx
 - execline for runscript
 - env dirs
 - compile peers.cdb in %%post
 
-* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 2.6.6-2avx
+* Sat Sep 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.6.6-2avx
 - s/supervise/service/ in log/run
 
-* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 2.6.6-1avx
+* Sat Sep 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.6.6-1avx
 - 2.6.6
 - drop all patches; P1 not needed anymore, P0 was for draksync which
   we obviously don't ship
@@ -134,37 +142,37 @@ popd
 - move logdir to /var/log/service/rsync
 - run scripts are now considered config files and are not replaceable
 
-* Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 2.6.3-4avx
+* Fri Aug 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.6.3-4avx
 - fix perms on run scripts
 
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 2.6.3-3avx
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.6.3-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.6.3-2avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.6.3-2avx
 - rebuild
 
-* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 2.6.3-1avx
+* Thu Mar 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.6.3-1avx
 - 2.6.3
 - use logger for logging
 - drop P2; no longer needed
 
-* Fri Oct 08 2004 Vincent Danen <vdanen@annvix.org> 2.6.2-6avx
+* Fri Oct 08 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.6.2-6avx
 - switch from tcpserver to tcpsvd
 - Requires: ipsvd
 - add the /service/rsync/peers directory to, by default, allow all
   connections
 - add afterboot snippet
 
-* Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 2.6.2-5avx
+* Mon Sep 20 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.6.2-5avx
 - update run scripts
 
-* Fri Sep 03 2004 Vincent Danen <vdanen@annvix.org> 2.6.2-4avx
+* Fri Sep 03 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.6.2-4avx
 - P2: security fix for CAN-2004-0792
 
-* Wed Jun 22 2004 Vincent Danen <vdanen@annvix.org> 2.6.2-3avx
+* Wed Jun 22 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.6.2-3avx
 - remove xinetd support
 
-* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 2.6.2-2avx
+* Mon Jun 21 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.6.2-2avx
 - Annvix build
 
 * Mon May 10 2004 Vincent Danen <vdanen@opensls.org> 2.6.2-1sls
