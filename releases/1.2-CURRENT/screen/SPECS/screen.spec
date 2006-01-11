@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		screen
 %define version		4.0.2
-%define release		5avx
+%define release		%_revrel
 
 Summary:	A screen manager that supports multiple logins on one terminal
 Name:		%{name}
@@ -19,23 +20,24 @@ License:	GPL
 Group:		Terminals
 URL:		http://www.gnu.org/software/screen
 Source0:	ftp://ftp.uni-erlangen.de/pub/utilities/screen/%{name}-%{version}.tar.bz2
-Patch0:		screen-3.7.6-compat21.patch.bz2
-Patch1: 	screen-ia64.patch.bz2
-Patch3:		screen-makefile-ppc.patch.bz2
-Patch4:		screen-3.9.11-fix-utmp.diff.bz2
-Patch5:		screen-3.9.11-max-window-size.diff.bz2
-Patch6:		screen-3.9.13-no-libelf.patch.bz2
-Patch7:		screen-3.9.11-biarch-utmp.patch.bz2
-Patch8:		screen-3.9.15-overflow.patch.bz2
-Patch9:		screen-4.0.2-screenrc-utf8-switch.patch.bz2
-Patch10:	screen-4.0.2-varargs.patch.bz2
+Patch0:		screen-3.7.6-compat21.patch
+Patch1: 	screen-ia64.patch
+Patch3:		screen-makefile-ppc.patch
+Patch4:		screen-3.9.11-fix-utmp.diff
+Patch5:		screen-3.9.11-max-window-size.diff
+Patch6:		screen-3.9.13-no-libelf.patch
+Patch7:		screen-3.9.11-biarch-utmp.patch
+Patch8:		screen-3.9.15-overflow.patch
+Patch9:		screen-4.0.2-screenrc-utf8-switch.patch
+Patch10:	screen-4.0.2-varargs.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	ncurses-devel
 BuildRequires:	utempter-devel
 BuildRequires:	texinfo
 
-Prereq:		info-install
+Requires(post):	info-install
+Requires(preun): info-install
 
 %description
 The screen utility allows you to have multiple logins on just one
@@ -126,18 +128,23 @@ EOF
 
 
 %changelog
-* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 4.0.2-5avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- fix prereq
+
+* Fri Sep 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.0.2-5avx
 - P9: add 'C-a U' binding to /etc/skel/.screenrc (rgarciasuarez)
 - P10: varargs fixes (gbeauchesne)
 - fix the screen profile.d script (rgarciasuarez)
 
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 4.0.2-4avx
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.0.2-4avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 4.0.2-3avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.0.2-3avx
 - rebuild
 
-* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 4.0.2-2avx
+* Mon Jun 21 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.0.2-2avx
 - requires info-install rather than /sbin/install-info
 - Annvix build
 
