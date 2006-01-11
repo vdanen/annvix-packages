@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		shorewall
 %define version 	2.4.1
-%define release 	1avx
+%define release 	%_revrel
 
 %define samples_version	2.0.1
 
@@ -138,27 +139,31 @@ export DONT_GPRINTIFY=1
 
 
 %changelog
-* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 2.4.1-1avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.4.1-1avx
 - 2.4.1
 - add %%_post_service and %%_preun_service macros
 - rename initscript
 
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 2.0.6-4avx
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.6-4avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.0.6-3avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.6-3avx
 - rebuild
 
-* Wed Sep 22 2004 Vincent Danen <vdanen@annvix.org> 2.0.6-2avx
+* Wed Sep 22 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.0.6-2avx
 - remove some macros; now we add shorewall via chkconfig if it's an
   install, otherwise leave it alone as there is no need to restart
   the "service" on upgrade
 
-* Mon Jul 19 2004 Vincent Danen <vdanen@annvix.org> 2.0.6-1avx
+* Mon Jul 19 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.0.6-1avx
 - 2.0.6
 - start shorewall at S12, after the network
 
-* Mon Jun 28 2004 Vincent Danen <vdanen@annvix.org> 2.0.3-1avx
+* Mon Jun 28 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.0.3-1avx
 - 2.0.3
 - remove S4 (bogons), S5 (rfc1918); already included
 - remove P0 (kernel-suffix); already integrated
@@ -169,7 +174,7 @@ export DONT_GPRINTIFY=1
 - use pristine sources all the way around
 - fix source urls
 
-* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 2.0.1-3avx
+* Mon Jun 21 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.0.1-3avx
 - Annvix build
 
 * Sat Jun 12 2004 Vincent Danen <vdanen@opensls.org> 2.0.1-2sls
