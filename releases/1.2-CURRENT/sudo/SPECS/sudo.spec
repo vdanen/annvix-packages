@@ -7,9 +7,10 @@
 #
 # $Id$
 
+%define revision	$Rev$
 %define name		sudo
 %define version		1.6.8p12
-%define release		1avx
+%define release		%_revrel
 %define epoch		1
 
 Summary:	Allows command execution as root for specified users
@@ -101,33 +102,37 @@ install -m 0440 %{SOURCE2} %{buildroot}%{_sysconfdir}/sudoers
 
 
 %changelog
-* Wed Dec 21 2005 Vincent Danen <vdanen@annvix.org> 1:1.6.8p12-1avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Wed Dec 21 2005 Vincent Danen <vdanen-at-build.annvix.org> 1:1.6.8p12-1avx
 - 1.6.8p12 (fixes CVE-2005-4158)
 - drop P0; merged upstream
 
-* Wed Oct 26 2005 Vincent Danen <vdanen@annvix.org> 1:1.6.8p9-5avx
+* Wed Oct 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 1:1.6.8p9-5avx
 - P0: to fix CAN-2005-2959
 
-* Sun Sep 11 2005 Vincent Danen <vdanen@annvix.org> 1:1.6.8p9-4avx
+* Sun Sep 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 1:1.6.8p9-4avx
 - update default /etc/sudoers to provide access to restricted urpmi,
   network tools (ping, traceroute), and user management tools (ie.
   chage, chsh, newgrp, etc.) as we are stripping the suid bit from
   these tools
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1:1.6.8p9-3avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 1:1.6.8p9-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 1:1.6.8p9-2avx
+* Tue Jul 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 1:1.6.8p9-2avx
 - rebuild for new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1:1.6.8p9-1avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1:1.6.8p9-1avx
 - 1.6.8p9 (fixes CAN-2005-1993)
 - move embedded "source" files into real source files (S3, S4)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1:1.6.8p2-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1:1.6.8p2-2avx
 - bootstrap build
 
-* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 1:1.6.8p2-1avx
+* Mon Jun 21 2004 Vincent Danen <vdanen-at-build.annvix.org> 1:1.6.8p2-1avx
 - 1.6.8p2; fixes a security flaw regarding bash scripts
 - fix naming convention
 - minor spec cleanups
@@ -136,7 +141,7 @@ install -m 0440 %{SOURCE2} %{buildroot}%{_sysconfdir}/sudoers
 - include sudoedit
 - turn of noexec support
 
-* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 1:1.6.7-0.p5.4avx
+* Mon Jun 21 2004 Vincent Danen <vdanen-at-build.annvix.org> 1:1.6.7-0.p5.4avx
 - require pam, not the system-auth file
 - Annvix build
 
