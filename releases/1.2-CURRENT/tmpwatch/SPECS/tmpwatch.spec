@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name 		tmpwatch
 %define version		2.9.0
-%define release		6avx
+%define release		%_revrel
 
 # CVSROOT=':ext:user@devserv.devel.redhat.com:/home/devel/CVS'
 Summary:	A utility for removing files based on when they were last accessed
@@ -70,13 +71,17 @@ chmod 0755 %{buildroot}%{_sysconfdir}/cron.daily/tmpwatch
 
 
 %changelog
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 2.9.0-6avx
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.9.0-6avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.9.0-5avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.9.0-5avx
 - bootstrap build
 
-* Sat Jun 19 2004 Vincent Danen <vdanen@annvix.org> 2.9.0-4avx
+* Sat Jun 19 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.9.0-4avx
 - Annvix build
 
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 2.9.0-3sls
