@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		tripwire
 %define version		2.3.1.2
-%define release		19avx
+%define release		%_revrel
 
 Summary:	A system integrity assessment tool
 Name:		%{name}
@@ -27,11 +28,11 @@ Source5:	twinstall.sh.in
 Source6:	twpol.txt.in
 Source7:	twupdate
 Source8:	98_tripwire.afterboot
-Patch0:		tripwire-2.3.0-50-rfc822.patch.bz2
-Patch4:		tripwire-mkstemp.patch.bz2
-Patch6:		tripwire-2.3.1-format.patch.bz2
+Patch0:		tripwire-2.3.0-50-rfc822.patch
+Patch4:		tripwire-mkstemp.patch
+Patch6:		tripwire-2.3.1-format.patch
 # from http://www.frenchfries.net/paul/tripwire/
-Patch7:		tw-20030919.patch.bz2
+Patch7:		tw-20030919.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 Buildrequires:	gcc-c++, libstdc++, libstdc++-static-devel, glibc-static-devel
@@ -147,45 +148,49 @@ chmod 0644 README Release_Notes ChangeLog COPYING policy/policyguide.txt TRADEMA
 
 
 %changelog
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 2.3.1.2-19avx
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.3.1.2-19avx
 - bootstrap build (new gcc, new glibc)
 - P7: make it compile on gcc3.4 and other portable fixes
 - drop P1, P2, P3, P5; no longer needed with P7
 - drop the x86 exclusive arch; it can compile on x86_64 so maybe it
   will work as well
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.3.1.2-18avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.3.1.2-18avx
 - rebuild
 - re-enable stack protection
 
-* Sat Mar 05 2005 Vincent Danen <vdanen@annvix.org> 2.3.1.2-17avx
+* Sat Mar 05 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.3.1.2-17avx
 - s/bash2/bash3/ in twpol.txt.in
 
-* Fri Mar 04 2005 Vincent Danen <vdanen@annvix.org> 2.3.1.2-16avx
+* Fri Mar 04 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.3.1.2-16avx
 - drop /etc/init.d/random and /var/lock/subsys/random from default policy
   file
 - add /dev/erandom and /dev/frandom to default policy file
 - build with -fno-stack-protector until we fix building static SSP-enabled apps
 
-* Thu Oct 14 2004 Vincent Danen <vdanen@annvix.org> 2.3.1.2-15avx
+* Thu Oct 14 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.3.1.2-15avx
 - fix some typeos in the default policy
 - fix some space issues in the afterboot snippet
 
-* Wed Oct 13 2004 Vincent Danen <vdanen@annvix.org> 2.3.1.2-14avx
+* Wed Oct 13 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.3.1.2-14avx
 - add afterboot snippet
 - remove README.RPM
 - add twupdate script
 - fix description (extra-paranoid will run it once a week?!?)
 - update policy file to make it more Annvix specific
 
-* Thu Sep 16 2004 Vincent Danen <vdanen@annvix.org> 2.3.1.2-13avx
+* Thu Sep 16 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.3.1.2-13avx
 - someone was on crack to make this all other-readable; make permission
   fixes across the board to make tripwire as tamper-proof as possible
 
-* Mon Jul 05 2004 Vincent Danen <vdanen@annvix.org> 2.3.1.2-12avx
+* Mon Jul 05 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.3.1.2-12avx
 - BuildRequires: libstdc++-static-devel, glibc-static-devel
 
-* Sat Jun 19 2004 Vincent Danen <vdanen@annvix.org> 2.3.1.2-11avx
+* Sat Jun 19 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.3.1.2-11avx
 - Annvix build
 
 * Thu Jun 03 2004 Vincent Danen <vdanen@opensls.org> 2.3.1.2-10sls
