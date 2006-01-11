@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		tetex
 %define version		3.0
-%define release		1avx
+%define release		%_revrel
 
 %define pkgname		%{name}
 %define docversion	3.0
@@ -46,26 +47,26 @@ Source8:	ftp://ftp.dante.de/pub/tex/macros/xmltex.tar.bz2
 Source10:	tetex.cron
 Source11:	ftp://math.feld.cvut.cz/pub/cstex/tetex-rpm/mandrake/csindex-%{csidxversion}.tar.bz2
 Source20:	ttf2pk.tar.bz2
-Source21:	dvipdfpress.bz2
+Source21:	dvipdfpress
 
-Patch0:		tetex-3.0-texmfcnf.patch.bz2
-Patch1:		tetex-3.0-fmtutil.patch.bz2
-Patch3:		tetex-3.0-mf-mainmemory.patch.bz2
-Patch4:		tetex-3.0-mp-mainmemory.patch.bz2
-Patch5:		tetex-3.0-xdvik-dot.patch.bz2
-Patch6:		tetex-3.0-epstopdf-dct.patch.bz2
-Patch11:	tetex-3.0-badscript.patch.bz2
-Patch12:	tetex-3.0-dvipdfm-security.patch.bz2
-Patch14:	tetex-3.0-mfw.patch.bz2
-Patch15:	tetex-3.0-CAN-2004-0888.patch.bz2
-Patch16:	tetex-3.0-CAN-2005-0064.patch.bz2
-Patch17:	tetex-3.0-xpdf-CAN-2005-0206.patch.bz2
-Patch18:	tetex-src-3.0-pic.patch.bz2
-Patch20:	tetex-1.0-texmf-dvipsgeneric.patch.bz2
-Patch21:	tetex-3.0-xdvi-www.patch.bz2
-Patch25:	passivetex-1.23.patch.bz2
-Patch26:	passivetex-1.24.patch.bz2
-Patch27:	passivetex-1.25.patch.bz2
+Patch0:		tetex-3.0-texmfcnf.patch
+Patch1:		tetex-3.0-fmtutil.patch
+Patch3:		tetex-3.0-mf-mainmemory.patch
+Patch4:		tetex-3.0-mp-mainmemory.patch
+Patch5:		tetex-3.0-xdvik-dot.patch
+Patch6:		tetex-3.0-epstopdf-dct.patch
+Patch11:	tetex-3.0-badscript.patch
+Patch12:	tetex-3.0-dvipdfm-security.patch
+Patch14:	tetex-3.0-mfw.patch
+Patch15:	tetex-3.0-CAN-2004-0888.patch
+Patch16:	tetex-3.0-CAN-2005-0064.patch
+Patch17:	tetex-3.0-xpdf-CAN-2005-0206.patch
+Patch18:	tetex-src-3.0-pic.patch
+Patch20:	tetex-1.0-texmf-dvipsgeneric.patch
+Patch21:	tetex-3.0-xdvi-www.patch
+Patch25:	passivetex-1.23.patch
+Patch26:	passivetex-1.24.patch
+Patch27:	passivetex-1.25.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	bison, ed, flex, gettext-devel, autoconf2.1
@@ -211,7 +212,7 @@ applications using kpathsea library.
 
 
 %package -n %{xmltexname}
-Summary:	Namespace-aware XML parser written in TeX.
+Summary:	Namespace-aware XML parser written in TeX
 Version: 	%{xmltexversion}
 Release:	%{xmltexrelease}
 Group:		Publishing
@@ -472,7 +473,7 @@ mkdir -p %{buildroot}%{_datadir}/doc
 ln -sf ../../..%{_datadir}/texmf/doc %{buildroot}%{_datadir}/doc/tetex-doc-%{docversion}
 
 # add dvipdfpress
-bzip2 -cd %{SOURCE21} > %{buildroot}%{_bindir}/dvipdfpress
+cp %{SOURCE21} %{buildroot}%{_bindir}/dvipdfpress
 
 
 %clean
@@ -610,7 +611,11 @@ fi
 
 
 %changelog
-* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 3.0-1avx
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Sep 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.0-1avx
 - 3.0
 - merge with cooker 3.0-12mdk:
   - lots of little changes
@@ -621,19 +626,19 @@ fi
 - drop P10 (ttf2pk, which we don't have)
 - build against new libpng and libxpm
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.0.2-18avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.2-18avx
 - bootstrap build (new gcc, new glibc)
 
-* Mon Jul 25 2005 Vincent Danen <vdanen@annvix.org> 2.0.2-17avx
+* Mon Jul 25 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.2-17avx
 - rebuild for new gcc
 - drop S4 (icons)
 - don't build a menu entry we're never going to use
 - spec cleanups
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.0.2-16avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.2-16avx
 - bootstrap build
 
-* Sat Jun 18 2004 Vincent Danen <vdanen@annvix.org> 2.0.2-15avx
+* Sat Jun 18 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.0.2-15avx
 - Annvix build
 
 * Fri Apr 07 2004 Vincent Danen <vdanen@opensls.org> 2.0.2-14sls
