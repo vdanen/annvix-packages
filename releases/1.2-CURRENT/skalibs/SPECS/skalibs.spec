@@ -5,13 +5,14 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name 		skalibs
 %define version		0.45
-%define release		1avx
+%define release		%_revrel
 
-Summary:	skarnet.org development library
+Summary:	The skarnet.org development library
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -90,5 +91,9 @@ popd
 
 
 %changelog
-* Tue Aug 23 2005 Sean P. Thomas <spt@annvix.org> 0.45-1avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Tue Aug 23 2005 Sean P. Thomas <spt-at-build.annvix.org> 0.45-1avx
 - initial Annvix build (needed by execline)
