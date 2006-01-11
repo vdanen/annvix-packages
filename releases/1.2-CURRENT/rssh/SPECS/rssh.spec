@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		rssh
-%define version		2.2.3
-%define release		2avx
+%define version		2.3.2
+%define release		%_revrel
 
 Summary:	Restricted shell for scp or sftp
 Name:		%{name}
@@ -18,7 +19,8 @@ Release:	%{release}
 License:	BSD
 Group:		Networking/Remote access
 URL:		http://www.pizzashack.org/rssh/
-Source:		http://prdownloads.sourceforge.net/rssh/%{name}-%{version}.tar.gz
+Source0:	http://prdownloads.sourceforge.net/rssh/%{name}-%{version}.tar.gz
+Source1:	http://prdownloads.sourceforge.net/rssh/%{name}-%{version}.tar.gz.sig
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	openssh-clients openssh-server
@@ -63,10 +65,15 @@ install -m 0755 -D conf_convert.sh %{buildroot}%_datadir/%{name}/conf_convert.sh
 
 
 %changelog
-* Sat Sep 24 2005 Vincent Danen <vdanen@annvix.org> 2.2.3-2avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- 2.3.2 (fixes some security issues)
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 24 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3-2avx
 - forgot to clean the spec
 
-* Sat Sep 24 2005 Vincent Danen <vdanen@annvix.org> 2.2.3-1avx
+* Sat Sep 24 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3-1avx
 - first Annvix package
 
 * Sat Apr 09 2005 Olivier Thauvin <nanardon@zarb.org> 2.2.3-2mdk
