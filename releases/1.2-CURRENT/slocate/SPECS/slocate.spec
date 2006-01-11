@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		slocate
 %define version		2.7
-%define release		8avx
+%define release		%_revrel
 
 Summary:	Finds files on a system via a central database
 Name:		%{name}
@@ -22,13 +23,15 @@ Source:		ftp://ftp.geekreview.org/slocate/src/%{name}-%{version}.tar.bz2
 Source1:	slocate.cron
 Source3:	updatedb.conf
 Source4:	updatedb.sh
-Patch:		slocate-2.5-info.patch.bz2
-Patch1:		slocate-2.5-glibc-2.2.patch.bz2
-Patch2:		slocate-2.5-segfault.patch.bz2
+Patch:		slocate-2.5-info.patch
+Patch1:		slocate-2.5-glibc-2.2.patch
+Patch2:		slocate-2.5-segfault.patch
 
 Buildroot:	%{_buildroot}/%{name}-%{version}
 
-Prereq:		shadow-utils
+Requires(pre):	rpm-helper
+Requires(postun): rpm-helper
+
 
 %description
 Slocate is a security-enhanced version of locate. Just like locate,
@@ -104,16 +107,21 @@ fi
 
 
 %changelog
-* Thu Sep 15 2005 Vincent Danen <vdanen@annvix.org> 2.7-8avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- fix prereq
+
+* Thu Sep 15 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.7-8avx
 - correct the buildroot
 
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 2.7-7avx
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.7-7avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.7-6avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.7-6avx
 - rebuild
 
-* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 2.7-5avx
+* Mon Jun 21 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.7-5avx
 - Annvix build
 
 * Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 2.7-4sls
