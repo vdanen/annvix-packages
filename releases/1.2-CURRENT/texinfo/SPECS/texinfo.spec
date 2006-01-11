@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		texinfo
 %define version		4.8
-%define release		5avx
+%define release		%_revrel
 
 Summary:	Tools needed to create Texinfo format documentation files
 Name:		%{name}
@@ -19,10 +20,10 @@ License:	GPL
 Group:		Publishing
 URL:		http://www.texinfo.org
 Source0:	ftp://ftp.gnu.org/pub/gnu/texinfo/%{name}-%{version}.tar.bz2
-Source1:	info-dir.bz2
-Patch1:		texinfo-3.12h-fix.patch.bz2
-Patch2:		texinfo-4.7-vikeys-segfault-fix.patch.bz2
-Patch3:		texinfo-4.7.test.patch.bz2
+Source1:	info-dir
+Patch1:		texinfo-3.12h-fix.patch
+Patch2:		texinfo-4.7-vikeys-segfault-fix.patch
+Patch3:		texinfo-4.7.test.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	ncurses-devel, zlib-devel
@@ -89,7 +90,7 @@ mkdir -p %{buildroot}{%{_sysconfdir},/sbin}
 
 %makeinstall
 pushd %{buildroot}
-    bzcat %SOURCE1 > .%{_sysconfdir}/info-dir
+    cat %SOURCE1 > .%{_sysconfdir}/info-dir
     ln -sf ../../../etc/info-dir %{buildroot}%{_infodir}/dir
     mv -f .%{_bindir}/install-info ./sbin
     mkdir -p .%{_sysconfdir}/X11/wmconfig
@@ -151,27 +152,31 @@ rm -f %{buildroot}%{_bindir}/texi2pdf
 
 
 %changelog
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 4.8-5avx
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.8-5avx
 - bootstrap build (new gcc, new glibc)
 
-* Mon Jul 25 2005 Vincent Danen <vdanen@annvix.org> 4.8-4avx
+* Mon Jul 25 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.8-4avx
 - rebuild for new gcc
 - don't package texi2pdf since tetex already has it
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 4.8-3avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.8-3avx
 - bootstrap build
 
-* Sun Mar 06 2005 Vincent Danen <vdanen@annvix.org> 4.8-2avx
+* Sun Mar 06 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.8-2avx
 - fix conflicts on info-install vs. info
 
-* Mon Feb 28 2005 Vincent Danen <vdanen@annvix.org> 4.8-1avx
+* Mon Feb 28 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.8-1avx
 - 4.8
 - move info(1) and info(5) from info-install to info
 - P3: fix macros support in texinfo so that groff documentation
   works (tvignaud)
 - P4: make test robust against environment locales (guillomovitch)
 
-* Sat Jun 19 2004 Vincent Danen <vdanen@annvix.org> 4.6-4avx
+* Sat Jun 19 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.6-4avx
 - Annvix build
 
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 4.6-3sls
