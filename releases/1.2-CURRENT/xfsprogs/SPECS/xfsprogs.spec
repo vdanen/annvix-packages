@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		xfsprogs
 %define version 	2.6.36
-%define release 	1avx
+%define release 	%_revrel
 
 %define libname_orig	libxfs
 %define major		1
@@ -27,7 +28,6 @@ Source0:	ftp://oss.sgi.com/projects/xfs/download/cmd_tars/%{name}-%{version}.src
 BuildRoot:	%{_buildroot}/%{name}-buildroot
 BuildRequires:	libext2fs-devel, libreadline-devel, libtermcap-devel
 
-Prereq:		ldconfig
 Requires:	common-licenses
 
 %description
@@ -151,20 +151,24 @@ rm -rf %{buildroot}%{_datadir}/doc/xfsprogs/
 %{_mandir}/man3/*
 
 %changelog
-* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 2.6.36-1avx
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Sep 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.6.36-1avx
 - 2.6.36
 - BuildRequires: libreadline-devel, libtermcap-devel
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.6.13-4avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.6.13-4avx
 - bootstrap build (new gcc, new glibc)
 
-* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 2.6.13-3avx
+* Tue Jul 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.6.13-3avx
 - rebuild for new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.6.13-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.6.13-2avx
 - bootstrap build
 
-* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 2.6.13-1avx
+* Fri Jun 18 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.6.13-1avx
 - 2.6.13
 - Annvix build
 
