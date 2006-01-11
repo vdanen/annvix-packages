@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		sharutils
 %define version		4.2.1
-%define release		22avx
+%define release		%_revrel
 
 Summary:	The GNU shar utilities for packaging and unpackaging shell archives
 Name:		%{name}
@@ -19,23 +20,24 @@ License:	GPL
 Group:		Archiving/Backup
 URL:		http://www.gnu.org/software/sharutils/
 Source:		ftp://prep.ai.mit.edu/pub/gnu/%{name}/%{name}-%{version}.tar.bz2
-Patch1:		sharutils-4.2-gmo.patch.bz2
-Patch2:		sharutils-4.2-man.patch.bz2
-Patch3:		sharutils-4.2-po.patch.bz2
-Patch4:		sharutils-4.2-share.patch.bz2
-Patch5:		sharutils-4.2-uudecode.patch.bz2
-Patch6:		sharutils-4.2.1-mktemp.patch.bz2
-Patch7:		sharutils-4.2.1-uudecode.patch.bz2
-Patch10:	sharutils-4.2.1-remsync-typo.patch.bz2
-Patch11:	sharutils-4.2.1-bogus-entries.patch.bz2
-Patch12:	sharutils-4.2.1-CAN-2004-1772.patch.bz2
-Patch13:	sharutils-4.2.1-CAN-2004-1773.patch.bz2
-Patch14:	sharutils-4.2.1-deb-302412.patch.bz2
+Patch1:		sharutils-4.2-gmo.patch
+Patch2:		sharutils-4.2-man.patch
+Patch3:		sharutils-4.2-po.patch
+Patch4:		sharutils-4.2-share.patch
+Patch5:		sharutils-4.2-uudecode.patch
+Patch6:		sharutils-4.2.1-mktemp.patch
+Patch7:		sharutils-4.2.1-uudecode.patch
+Patch10:	sharutils-4.2.1-remsync-typo.patch
+Patch11:	sharutils-4.2.1-bogus-entries.patch
+Patch12:	sharutils-4.2.1-CAN-2004-1772.patch
+Patch13:	sharutils-4.2.1-CAN-2004-1773.patch
+Patch14:	sharutils-4.2.1-deb-302412.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	texinfo
 
-PreReq:		info-install
+Requires(post):	info-install
+Requires(preun): info-install
 
 %description
 The sharutils package contains the GNU shar utilities, a set of tools
@@ -111,23 +113,28 @@ fi
 %{_mandir}/man?/*
 
 %changelog
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 4.2.1-22avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- fix prereq
+
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.2.1-22avx
 - bootstrap build (new gcc, new glibc)
 
-* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 4.2.1-21avx
+* Tue Jul 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.2.1-21avx
 - rebuild for new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 4.2.1-20avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.2.1-20avx
 - bootstrap build
 
-* Mon Apr 04 2005 Vincent Danen <vdanen@annvix.org> 4.2.1-19avx
+* Mon Apr 04 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.2.1-19avx
 - P12: security patch for CAN-2004-1772
 - P13: security patch for CAN-2004-1773
 - P14: security patch for debian bug #302412
 - don't explicitly link with libintl for gettext support (abel)
 - P3: fixed to add charset to po files (abel)
 
-* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 4.2.1-18avx
+* Mon Jun 21 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.2.1-18avx
 - require info-install, not /sbin/install-info
 - Annvix build
 
