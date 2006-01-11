@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		uschedule
 %define version		0.7.1
-%define release		1avx
+%define release		%_revrel
 
 Summary:	Scheduling service
 Name:		%{name}
@@ -36,10 +37,16 @@ replacement. It works differently. It's designed to be different.
 
 
 %build
+%ifarch x86_64
+COMP="diet x86_64-annvix-linux-gnu-gcc"
+%else
+COMP="diet gcc"
+%endif
+
 pushd %{name}-%{version}/src
     make CFLAGS="-Os -pipe" \
-    GCC="diet gcc -Os -static -s" \
-    CC="diet gcc -Os -static -s" \
+    GCC="$COMP -Os -static -s" \
+    CC="$COMP -Os -static -s" \
     LDFLAGS=""
 popd
 
@@ -85,14 +92,19 @@ popd
 
 
 %changelog
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 0.7.1-1avx
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- dietlibc fixes
+
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.7.1-1avx
 - 0.7.1
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.7.0-4avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.7.0-4avx
 - rebuild
 - requires: s/daemontools/srv/
 
-* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 0.7.0-3avx
+* Fri Jun 18 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.7.0-3avx
 - Annvix build
 
 * Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 0.7.0-2sls
