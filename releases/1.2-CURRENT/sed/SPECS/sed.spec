@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		sed
 %define version		4.1.4
-%define release		4avx
+%define release		%_revrel
 
 Summary:	A GNU stream text editor
 Name:		%{name}
@@ -22,7 +23,8 @@ Source0:	ftp://ftp.gnu.org/pub/gnu/sed/sed-%{version}.tar.bz2
 
 Buildroot:	%{_buildroot}/%{name}-%{version}
 
-Prereq:		info-install
+Requires(post):	info-install
+Requires(preun): info-install
 
 %description
 The sed (Stream EDitor) editor is a stream or batch (non-interactive)
@@ -70,20 +72,25 @@ rm -rf %{buildroot}%{_datadir}/doc
 %{_mandir}/man1/sed.1.bz2
 
 %changelog
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 4.1.4-4avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- fix prereq
+
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.1.4-4avx
 - bootstrap build (new gcc, new glibc)
 
-* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 4.1.4-3avx
+* Tue Jul 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.1.4-3avx
 - rebuild for new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 4.1.4-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.1.4-2avx
 - bootstrap build
 
-* Fri Mar 04 2005 Vincent Danen <vdanen@annvix.org> 4.1.4-1avx
+* Fri Mar 04 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.1.4-1avx
 - 4.1.4
 - spec cleanups
 
-* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 4.0.7-4avx
+* Mon Jun 21 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.0.7-4avx
 - require info-install rather than /sbin/install-info
 - Annvix build
 
