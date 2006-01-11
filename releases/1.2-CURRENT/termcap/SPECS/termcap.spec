@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		termcap
 %define version 	11.0.1
-%define release 	15avx
+%define release 	%_revrel
 
 Summary:	The terminal feature database used by certain applications
 Name:		%{name}
@@ -17,14 +18,14 @@ Version:	%{version}
 Release:	%{release}
 License:	none
 Group:		System/Libraries
-Source0:	http://www.ccil.org/~esr/terminfo/termtypes.tc.bz2
-Patch0:		termcap-linuxlat.patch.bz2
-Patch1:		termcap-xtermchanges.patch.bz2
-Patch2:		termcap-utf8.patch.bz2
+Source0:	http://www.ccil.org/~esr/terminfo/termtypes.tc
+Patch0:		termcap-linuxlat.patch
+Patch1:		termcap-xtermchanges.patch
+Patch2:		termcap-utf8.patch
 # (fc) 11.0.1-4mdk patch to correctly handle Home/End with X11R6 keycode
-Patch3:		termcap-xtermX11R6.patch.bz2
+Patch3:		termcap-xtermX11R6.patch
 # (vdanen) 11.0.1-6mdk patch so Eterm is seen as a color-capable term
-Patch4:		termcap-Eterm.patch.bz2
+Patch4:		termcap-Eterm.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
@@ -44,7 +45,7 @@ etc.).
 
 %prep
 %setup -q -T -c %{name}-%{version}
-bzcat %{SOURCE0} >termcap
+cat %{SOURCE0} >termcap
 %patch0 -p0
 %patch1 -p0
 %patch2 -p0
@@ -72,20 +73,24 @@ install -m 0644 termcap %{buildroot}%{_sysconfdir}/
 
 
 %changelog
-* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 11.0.1-15avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Sep 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 11.0.1-15avx
 - buildarch is noarch
 - spec cleanups (peroyvind)
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 11.0.1-14avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 11.0.1-14avx
 - bootstrap build (new gcc, new glibc)
 
-* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 11.0.1-13avx
+* Tue Jul 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 11.0.1-13avx
 - do the patching and "building" in %%_builddir like a good boy
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 11.0.1-12avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 11.0.1-12avx
 - bootstrap build
 
-* Sat Jun 19 2004 Vincent Danen <vdanen@annvix.org> 11.0.1-11avx
+* Sat Jun 19 2004 Vincent Danen <vdanen-at-build.annvix.org> 11.0.1-11avx
 - Annvix build
 
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 11.0.1-10sls
