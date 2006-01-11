@@ -57,10 +57,15 @@ binaries and include files during RPM package build.
 %{_sysconfdir}/rpm/macros.d/multiarch.macros
 %{_prefix}/lib/rpm/mkmultiarch
 %{_prefix}/lib/rpm/check-multiarch-files
+%{_prefix}/X11R6/lib/X11/config/multiarch-dispatch-host.def
 
 
 %changelog
-* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.9-5104avx
+- adjust P0 and put back the X11 multiarch-dispatch-host.def file or we
+  can't build xorg-x11 or xpm
+
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.9-4998avx
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
