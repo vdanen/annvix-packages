@@ -5,10 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
+%define revision	$Rev$
 %define name		sqlite3
 %define version 	3.2.2
-%define release		2avx
+%define release		%_revrel
 
 %define rname		sqlite
 %define	major		0
@@ -22,8 +24,8 @@ License:	Public Domain
 Group:		System/Libraries
 URL:		http://www.sqlite.org/
 Source0:	http://www.sqlite.org/%{rname}-%{version}.tar.bz2
-Patch0:		sqlite-3.2.2-aliasing-fixes.patch.bz2
-Patch1:		sqlite-3.2.2-avx-x86_64-skip_printf_tests.patch.bz2
+Patch0:		sqlite-3.2.2-aliasing-fixes.patch
+Patch1:		sqlite-3.2.2-avx-x86_64-skip_printf_tests.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}-%{release}
 BuildRequires:	chrpath
@@ -196,10 +198,14 @@ chrpath -d %{buildroot}%{_bindir}/*
 
 
 %changelog
-* Thu Sep 15 2005 Vincent Danen <vdanen@annvix.org> 3.2.2-2avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Thu Sep 15 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.2.2-2avx
 - correct buildroot
 
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 3.2.2-1avx
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.2.2-1avx
 - first Annvix build because rpm needs it
 - P1: skip two printf tests on x86_64 that fail
 
