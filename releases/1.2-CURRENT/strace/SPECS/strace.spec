@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		strace
 %define version		4.5.13
-%define release		1avx
+%define release		%_revrel
 
 %{expand:%%define optflags %{optflags} -Wall}
 
@@ -80,18 +81,22 @@ rm -f %{buildroot}%{_bindir}/strace-graph
 
 
 %changelog
-* Wed Aug 24 2005 Vincent Danen <vdanen@annvix.org> 4.5.13-1avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Wed Aug 24 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.5.13-1avx
 - 4.5.13
 - sync with ALT/Openwall patches
 - redefine %%optflags to add -Wall
 
-* Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 4.4.98-6avx
+* Wed Jul 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.4.98-6avx
 - rebuild for new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 4.4.98-5avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.4.98-5avx
 - bootstrap build
 
-* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 4.4.98-4avx
+* Mon Jun 21 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.4.98-4avx
 - Annvix build
 
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 4.4.98-3sls
