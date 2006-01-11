@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		time
 %define version		1.7
-%define release		31avx
+%define release		%_revrel
 
 Summary:	A GNU utility for monitoring a program's use of system resources
 Name:		%{name}
@@ -19,11 +20,11 @@ License:	GPL
 Group:		Monitoring
 URL:		http://www.gnu.org/directory/GNU/time.html
 Source:		http://ftp.gnu.org/pub/gnu/time/%{name}-%{version}.tar.bz2
-Patch0:		time-1.7.info.patch.bz2
-Patch1:		time-1.7-ressource.patch.bz2
-Patch2:		time-1.7-quiet.1.patch.bz2
-Patch3:		time-1.7-fixinfo.patch.bz2 
-Patch4:		time-1.7-build.patch.bz2
+Patch0:		time-1.7.info.patch
+Patch1:		time-1.7-ressource.patch
+Patch2:		time-1.7-quiet.1.patch
+Patch3:		time-1.7-fixinfo.patch 
+Patch4:		time-1.7-build.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	texinfo
@@ -89,18 +90,22 @@ make LDFLAGS=-s
 
 
 %changelog
-* Sun Oct 09 2005 Vincent Danen <vdanen@annvix.org> 1.7-31avx
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sun Oct 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.7-31avx
 - fix requires
 
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 1.7-30avx
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.7-30avx
 - bootstrap build (new gcc, new glibc)
 
-* Sat Jun 04 2005 Vincent Danen <vdanen@annvix.org> 1.7-29avx
+* Sat Jun 04 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.7-29avx
 - bootstrap build
 - force use of autoconf2.5 and automake-1.4 (peroyvind)
 - spec cleanups
 
-* Sat Jun 19 2004 Vincent Danen <vdanen@annvix.org> 1.7-28avx
+* Sat Jun 19 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.7-28avx
 - require info-install rather than a file
 - Annvix build
 
