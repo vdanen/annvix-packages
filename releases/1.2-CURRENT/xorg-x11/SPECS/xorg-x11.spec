@@ -957,9 +957,6 @@ EOF
 
 chmod 0644 %{buildroot}%{_libdir}/pkgconfig/*
 
-mkdir -p %{buildroot}%{_iconsdir}
-mv %{buildroot}/usr/X11R6/lib/X11/icons/* %{buildroot}%{_iconsdir}
-
 
 # multiarch support
 # XXX: properly fix imake later
@@ -1161,6 +1158,7 @@ grep -q "^%{x11shlibdir}$" /etc/ld.so.conf || echo "%{x11shlibdir}" >> /etc/ld.s
 * Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - Obfuscate email addresses and new tagging
 - Uncompress patches
+- remove %%_iconsdir reference
 
 * Mon Aug 29 2005 Vincent Danen <vdanen-at-build.annvix.org> 6.8.2-3avx
 - remove xorg-x11-{100dpi,75dpi,cyrillic}-fonts
