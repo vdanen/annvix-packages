@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		words
 %define version		2
-%define release		24avx
+%define release		%_revrel
 
 %define _dict_dir	/usr/share/dict/
 
@@ -21,9 +22,9 @@ License:	Public Domain
 Group:		Text tools
 URL:		http://sunsite.unc.edu/pub/Linux/libs/
 Source:		ftp://sunsite.unc.edu/pub/Linux/libs/linux.words.2.tar.bz2
-Patch0:		linux.words.2-jbj.patch.bz2
-Patch1:		linux.words.2-mmm.patch.bz2
-Patch2:		linux.words.2-meat.patch.bz2
+Patch0:		linux.words.2-jbj.patch
+Patch1:		linux.words.2-mmm.patch
+Patch2:		linux.words.2-meat.patch
 
 BuildRoot:	%{_buildroot}/%{name}-root
 BuildArch:	noarch
@@ -64,13 +65,17 @@ ln -sf linux.words %{buildroot}%{_dict_dir}words
 
 
 %changelog
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2-24avx
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 2-24avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2-23avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2-23avx
 - bootstrap build
 
-* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 2-22avx
+* Fri Jun 18 2004 Vincent Danen <vdanen-at-build.annvix.org> 2-22avx
 - Annvix build
 
 * Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 2-21sls
