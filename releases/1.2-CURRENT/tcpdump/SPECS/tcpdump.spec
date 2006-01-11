@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		tcpdump
 %define version		3.9.3
-%define release		2avx
+%define release		%_revrel
 %define epoch		2
 
 Summary:	A network traffic monitoring tool
@@ -63,20 +64,24 @@ libtoolize --copy --force
 
 
 %changelog
-* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 3.9.3-2avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.9.3-2avx
 - rebuild against new libpcap
 
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 3.9.3-1avx
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.9.3-1avx
 - 3.9.3
 - drop P0-P3
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 3.8.3-4avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.8.3-4avx
 - rebuild
 
-* Thu May 12 2005 Vincent Danen <vdanen@annvix.org> 3.8.3-3avx
+* Thu May 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.8.3-3avx
 - P0-P3: security fixes for CAN-2005-1278, CAN-2005-1279, CAN-2005-1280
 
-* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 3.8.3-2avx
+* Mon Jun 21 2004 Vincent Danen <vdanen-at-build.annvix.org> 3.8.3-2avx
 - Annvix build
 
 * Fri Jun 11 2004 Vincent Danen <vdanen@opensls.org> 3.8.3-1sls
