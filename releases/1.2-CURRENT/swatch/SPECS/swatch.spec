@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		swatch
 %define version		3.1.1
-%define release 	1avx
+%define release 	%_revrel
 
 Summary:	A utility for monitoring system logs files
 Name:		%{name}
@@ -19,8 +20,8 @@ License:	GPL
 Group:		Monitoring
 URL:		http://swatch.sourceforge.net/
 Source0:	%{name}-%{version}.tar.bz2
-Source1:	swatchrc.bz2
-Source2:	README-mandrake.bz2
+Source1:	swatchrc
+Source2:	README-mandrake
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
@@ -57,9 +58,9 @@ perl -pi -e "s|^(INSTALLMAN1DIR\s=\s/usr/share/man/man1)|INSTALLMAN1DIR = \\$\(P
 install tools/swatch_oldrc2newrc -D %{buildroot}%{_bindir}/swatch_oldrc2newrc
 
 mkdir -p %{buildroot}%{_sysconfdir}
-bzcat %{SOURCE1} >> %{buildroot}%{_sysconfdir}/swatchrc
+cat %{SOURCE1} >> %{buildroot}%{_sysconfdir}/swatchrc
 
-bzcat %{SOURCE2} >> %{_builddir}/%{name}-%{version}/README-Mandrake
+cat %{SOURCE2} >> %{_builddir}/%{name}-%{version}/README-Mandrake
 
 rm -rf %{buildroot}%{perl_vendorlib}/auto
 
@@ -80,7 +81,11 @@ rm -rf %{buildroot}%{perl_vendorlib}/auto
 
 
 %changelog
-* Sat Sep 24 2005 Vincent Danen <vdanen@annvix.org> 3.1.1-1avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 24 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.1.1-1avx
 - first Annvix build
 
 * Thu Dec 02 2004 Per Øyvind Karlsen <peroyvind@linux-mandrake.com> 3.1.1-1mdk
