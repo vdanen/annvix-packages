@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		unixODBC
 %define version		2.2.11
-%define release		1avx
+%define release		%_revrel
 
 %define major		1
 %define libname 	%mklibname %{name} %{major}
@@ -25,8 +26,8 @@ Source: 	http://www.unixodbc.org/%{name}-%{version}.tar.bz2
 Source2:	odbcinst.ini
 Source3:	qt-attic.tar.bz2
 Source4:	qt-attic2.tar.bz2
-Patch0:		unixODBC-2.2.6-lib64.patch.bz2
-Patch1:		unixODBC-2.2.11-libtool.patch.bz2
+Patch0:		unixODBC-2.2.6-lib64.patch
+Patch1:		unixODBC-2.2.11-libtool.patch
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
 # don't take away readline, we do want to build unixODBC with readline.
@@ -161,20 +162,24 @@ rm -f libodbc-libs.filelist
 
 
 %changelog
-* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 2.2.11-1avx
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Sep 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.2.11-1avx
 - 2.2.11
 - built-in libtool fixes (gbeauchesne)
 - define EGREP to fix 64bit builds (sbenedict)
 - rebuild against new readline
 
-* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 2.2.10-3avx
+* Thu Aug 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.2.10-3avx
 - bootstrap build (new gcc, new glibc)
 - drop P1 and P2; we're not building against QT
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.2.10-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.2.10-2avx
 - bootstrap build
 
-* Fri Mar 04 2005 Vincent Danen <vdanen@annvix.org> 2.2.10-1avx
+* Fri Mar 04 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.2.10-1avx
 - 2.2.10
 - pull out the gui pkgs completely
 - correct major (1, not 2) (sbenedict)
@@ -182,7 +187,7 @@ rm -f libodbc-libs.filelist
 - remove BuildRequires: chrpath
 - spec cleanups
 
-* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 2.2.6-9avx
+* Fri Jun 18 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.2.6-9avx
 - Annvix build
 
 * Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 2.2.6-8sls
