@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		shadow-utils
 %define version		4.0.12
-%define release		1avx
+%define release		%_revrel
 %define epoch		1
 
 #rh-20000902-10
@@ -30,17 +31,17 @@ Source3:	adduser.8
 Source4:	pwunconv.8
 Source5:	grpconv.8
 Source6:	grpunconv.8
-Patch0:		shadow-4.0.12-mdk.patch.bz2
-Patch1:		shadow-4.0.12-nscd.patch.bz2
-Patch2:		shadow-4.0.3-rpmsave.patch.bz2
-Patch100:	shadow-4.0.11.1-no-syslog-setlocale.patch.bz2
+Patch0:		shadow-4.0.12-mdk.patch
+Patch1:		shadow-4.0.12-nscd.patch
+Patch2:		shadow-4.0.3-rpmsave.patch
+Patch100:	shadow-4.0.11.1-no-syslog-setlocale.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	gettext-devel
 BuildRequires:  automake1.7
 
 Obsoletes:	adduser, newgrp
-Provides: 	adduser, newgrp, shadow-utils > 20000902-5
+Provides: 	adduser, newgrp
 
 %description
 The shadow-utils package includes the necessary programs for
@@ -139,34 +140,38 @@ rm -rf build-$RPM_ARCH
 
 
 %changelog
-* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 4.0.12-1avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Sep 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.0.12-1avx
 - 4.0.12
 
-* Sun Sep 11 2005 Vincent Danen <vdanen@annvix.org> 4.0.11.1-2avx
+* Sun Sep 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.0.11.1-2avx
 - strip the suid bit from newgrp
 
-* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 4.0.11.1-1avx
+* Fri Sep 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.0.11.1-1avx
 - 4.0.11.1
 - drop all unrequired patches
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 4.0.3-14avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.0.3-14avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jul 29 2005 Vincent Danen <vdanen@annvix.org> 4.0.3-13avx
+* Fri Jul 29 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.0.3-13avx
 - rebuild for new gcc
 - P13: fix gcc-3.4 build (peroyvind)
 - use %%make and %%makeinstall_std
 - fix the nscd patch to refer to the right pid file (mdk bug #14840) (warly)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 4.0.3-12avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.0.3-12avx
 - bootstrap build
 
-* Tue Jun 29 2004 Vincent Danen <vdanen@annvix.org> 4.0.3-11avx
+* Tue Jun 29 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.0.3-11avx
 - P12 (from Owl): Properly check the return value from pam_chauthtok()
   in libmisc/pwdcheck.c: passwd_check() that is used by chfn and chsh
   commands.  Thanks to Steve Grubb and Martin Schulze.
 
-* Sun Jun 27 2004 Vincent Danen <vdanen@annvix.org> 4.0.3-10avx
+* Sun Jun 27 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.0.3-10avx
 - Annvix build
 
 * Fri Jun 04 2004 Vincent Danen <vdanen@opensls.org> 4.0.3-9sls
