@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		xpm
 %define version		3.4k
-%define release		33avx
+%define release		%_revrel
 
 %define prefix		/usr/X11R6
 %define	major		4
@@ -25,20 +26,18 @@ License:	MIT
 Group:		System/Libraries
 URL:		http://freshmeat.net/redir/libxpm/18465/url_homepage/
 Source0:	ftp://ftp.x.org/contrib/libraries/xpm-%{version}.tar.bz2
-Source1:	ftp://ftp.x.org/contrib/libraries/xpm-doc-A4.PS.gz 
-Source2:	ftp://ftp.x.org/contrib/libraries/xpm-tutorial.PS.gz 
 Source3:	ftp://ftp.x.org/contrib/libraries/xpm-FAQ.html
 Source4:	ftp://ftp.x.org/contrib/libraries/xpm-README.html
 Source5:	ftp://ftp.x.org/contrib/libraries/xpm_examples.tar.bz2
-Patch0:		xpm-3.4k-shlib.patch.bz2
-Patch1:		xpm-3.4k-fixes.patch.bz2
-Patch2:		xpm-3.4k-alpha.patch.bz2
-Patch3:		xpm-3.4k-xfree43merge.patch.bz2
-Patch4:		xpm-3.4k-64bit-fixes.patch.bz2
-Patch5:		xpm-3.4-CAN-2004-0687-0688.patch.bz2
-Patch6:		xpm-3.4k-CAN-2004-0914.patch.bz2
-Patch7:		xpm-3.4k-s_popen-xpm_write.patch.bz2
-Patch8:		xpm-3.4k-avx-norman.patch.bz2
+Patch0:		xpm-3.4k-shlib.patch
+Patch1:		xpm-3.4k-fixes.patch
+Patch2:		xpm-3.4k-alpha.patch
+Patch3:		xpm-3.4k-xfree43merge.patch
+Patch4:		xpm-3.4k-64bit-fixes.patch
+Patch5:		xpm-3.4-CAN-2004-0687-0688.patch
+Patch6:		xpm-3.4k-CAN-2004-0914.patch
+Patch7:		xpm-3.4k-s_popen-xpm_write.patch
+Patch8:		xpm-3.4k-avx-norman.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	XFree86-devel
@@ -86,7 +85,7 @@ pixmaps in the X Window System.
 %patch6 -p1 -b .CAN-2004-0914
 %patch7 -p1 -b .s_popen-xpm_write
 
-cp %{SOURCE1} %{SOURCE2} %{SOURCE3} %{SOURCE4} %{SOURCE5} .
+cp %{SOURCE3} %{SOURCE4} %{SOURCE5} .
 
 
 %build
@@ -94,7 +93,7 @@ xmkmf
 make Makefiles
 
 # we have to patch the Makefiles after they're made
-bzcat %{PATCH8} | patch -p1
+cat %{PATCH8} | patch -p1
 
 mkdir -p exports/include/X11
 cp lib/*.h exports/include/X11
@@ -131,18 +130,23 @@ ln -sf libXpm.so.%{LIBVER} %{buildroot}%{prefix}/%{_lib}/libXpm.so
 
 
 %changelog
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 3.4k-33avx
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- drop the PS files
+
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.4k-33avx
 - P5: fix for CAN-2004-0687 and CAN-2004-0688
 - P6: fix for CAN-2004-0914
 - P8: don't use rman so we don't have to add xorg as a BuildReq
 
-* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 3.4k-32avx
+* Thu Aug 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.4k-32avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 3.4k-31avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.4k-31avx
 - bootstrap build
 
-* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 3.4k-30avx
+* Fri Jun 18 2004 Vincent Danen <vdanen-at-build.annvix.org> 3.4k-30avx
 - Annvix build
 
 * Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 3.4k-29sls
