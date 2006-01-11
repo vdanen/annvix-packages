@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		squid
 %define version		2.5.STABLE12
-%define release		1avx
+%define release		%_revrel
 
 %define their_version	2.5.STABLE12
 %define p_url   	http://www.squid-cache.org/Versions/v2/2.5/bugs
@@ -29,31 +30,34 @@ License:	GPL
 Group:		System/Servers
 URL:		http://www.squid-cache.org
 Source:		ftp.squid-cache.org:/pub/squid-2/STABLE/%{name}-%{their_version}.tar.bz2
-Source3:	squid.logrotate.bz2
-Source4:	squid.conf.authenticate.bz2
-Source5:	smb.conf.bz2
-Source6:	squid.conf.transparent.bz2
-Source7:	rc.firewall.bz2
-Source8:	ERR_CUSTOM_ACCESS_DENIED.English.bz2
-Source9:	ERR_CUSTOM_ACCESS_DENIED.French.bz2
-Source10:	squid-2.5-samba-2.2.7-winbindd_nss.h.bz2
+Source3:	squid.logrotate
+Source4:	squid.conf.authenticate
+Source5:	smb.conf
+Source6:	squid.conf.transparent
+Source7:	rc.firewall
+Source8:	ERR_CUSTOM_ACCESS_DENIED.English
+Source9:	ERR_CUSTOM_ACCESS_DENIED.French
+Source10:	squid-2.5-samba-2.2.7-winbindd_nss.h
 Source11:	squid.run
 Source12:	squid-log.run
 Source13:	squid.stop
-Source14:	squid.sysconfig.bz2
-Patch0:		squid-2.5.STABLE7-avx-make.patch.bz2
-Patch1:		squid-2.5-config.patch.bz2
-Patch2:		squid-2.5.STABLE7-avx-user_group.patch.bz2
-Patch3:		squid-2.5.STABLE2-ssl.patch.bz2
-Patch4:		squid-2.5.STABLE5-pipe.patch.bz2
+Source14:	squid.sysconfig
+Patch0:		squid-2.5.STABLE7-avx-make.patch
+Patch1:		squid-2.5-config.patch
+Patch2:		squid-2.5.STABLE7-avx-user_group.patch
+Patch3:		squid-2.5.STABLE2-ssl.patch
+Patch4:		squid-2.5.STABLE5-pipe.patch
 # Upstream bugfix patches
-Patch100:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE12-setenv.patch.bz2
+Patch100:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE12-setenv.patch
 
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	openldap-devel libsasl-devel openssl-devel >= 0.9.7 pam-devel
 
-Prereq:		logrotate shadow-utils rpm-helper
+Requires(pre):	rpm-helper
+Requires(preun): rpm-helper
+Requires(post):	rpm-helper
+Requires(postun): rpm-helper
 
 %description
 Squid is a high-performance proxy caching server for Web clients,
@@ -78,9 +82,9 @@ lookup program (dnsserver), a program for retrieving FTP data
 %patch4 -p1 -b .pipe
 %patch100 -p1
 
-bzcat %{SOURCE10} > helpers/basic_auth/winbind/winbindd_nss.h
-bzcat %{SOURCE10} > helpers/ntlm_auth/winbind/winbindd_nss.h
-bzcat %{SOURCE10} > helpers/external_acl/winbind_group/winbindd_nss.h
+cat %{SOURCE10} > helpers/basic_auth/winbind/winbindd_nss.h
+cat %{SOURCE10} > helpers/ntlm_auth/winbind/winbindd_nss.h
+cat %{SOURCE10} > helpers/external_acl/winbind_group/winbindd_nss.h
 
 
 %build
@@ -162,8 +166,8 @@ mkdir -p %{buildroot}/etc/{logrotate.d,pam.d,sysconfig}
 
 install -m 0740 %{SOURCE11} %{buildroot}%{_srvdir}/squid/run
 install -m 0740 %{SOURCE12} %{buildroot}%{_srvdir}/squid/log/run
-bzcat %{SOURCE3} > %{buildroot}/etc/logrotate.d/squid
-bzcat %{SOURCE14} > %{buildroot}/etc/sysconfig/squid
+cat %{SOURCE3} > %{buildroot}/etc/logrotate.d/squid
+cat %{SOURCE14} > %{buildroot}/etc/sysconfig/squid
 
 cp %{_builddir}/%{name}-%{their_version}/helpers/basic_auth/SMB/smb_auth.sh %{buildroot}/%{_libexecdir}
 cp %{_builddir}/%{name}-%{their_version}/helpers/basic_auth/SASL/squid_sasl_auth %{buildroot}/%{_libexecdir}
@@ -177,13 +181,13 @@ cp helpers/basic_auth/SMB/README %{_builddir}/%{name}-%{their_version}/README.au
 cp helpers/basic_auth/SASL/README %{_builddir}/%{name}-%{their_version}/README.auth_sasl
 cp helpers/basic_auth/SASL/squid_sasl_auth.conf %{_builddir}/%{name}-%{their_version}/
 cp helpers/basic_auth/MSNT/README.html %{_builddir}/%{name}-%{their_version}/README.auth_msnt.html
-bzcat %{SOURCE4} > %{_builddir}/%{name}-%{their_version}/squid.conf.authenticate
-bzcat %{SOURCE5} > %{_builddir}/%{name}-%{their_version}/smb.conf
-bzcat %{SOURCE6} > %{_builddir}/%{name}-%{their_version}/squid.conf.transparent
-bzcat %{SOURCE7} > %{_builddir}/%{name}-%{their_version}/rc.firewall
+cat %{SOURCE4} > %{_builddir}/%{name}-%{their_version}/squid.conf.authenticate
+cat %{SOURCE5} > %{_builddir}/%{name}-%{their_version}/smb.conf
+cat %{SOURCE6} > %{_builddir}/%{name}-%{their_version}/squid.conf.transparent
+cat %{SOURCE7} > %{_builddir}/%{name}-%{their_version}/rc.firewall
 mkdir -p %{buildroot}/%{_libexecdir}/errors/{English,French}
-bzcat %{SOURCE8} > %{buildroot}/%{_libexecdir}/errors/English/ERR_CUSTOM_ACCESS_DENIED
-bzcat %{SOURCE9} > %{buildroot}/%{_libexecdir}/errors/French/ERR_CUSTOM_ACCESS_DENIED
+cat %{SOURCE8} > %{buildroot}/%{_libexecdir}/errors/English/ERR_CUSTOM_ACCESS_DENIED
+cat %{SOURCE9} > %{buildroot}/%{_libexecdir}/errors/French/ERR_CUSTOM_ACCESS_DENIED
 
 strip %{buildroot}/%{_libexecdir}/{msnt_auth,pam_auth,unlinkd,diskd}
 strip %{buildroot}/%{_libexecdir}/{ncsa_auth,smb_auth,squid_ldap_auth,yp_auth}
@@ -217,7 +221,7 @@ rm -rf %{buildroot}/%{_datadir}/errors
 for i in /var/log/squid /var/spool/squid ; do
     if [ -d $i ] ; then
         for adir in `find $i -maxdepth 0 \! -user squid`; do
-            chown -R squid.squid $adir
+            chown -R squid:squid $adir
         done
     fi
 done
@@ -228,77 +232,6 @@ if [ -d /var/log/supervise/squid -a ! -d /var/log/service/squid ]; then
     mv /var/log/supervise/squid /var/log/service/
 fi
 %_post_srv squid
-case "$LANG" in
-    bg*)
-        DIR=Bulgarian
-        ;;
-    cs*)
-        DIR=Czech
-        ;;
-    da*)
-        DIR=Danish
-        ;;
-    nl*)
-        DIR=Dutch
-        ;;
-    en*)
-        DIR=English
-        ;;
-    ea*)
-        DIR=Estonian
-        ;;
-    fi*)
-        DIR=Finnish
-        ;;
-    fr*)
-        DIR=French
-        ;;
-    de*)
-        DIR=German
-        ;;
-    hu*)
-        DIR=Hungarian
-        ;;
-    it*)
-        DIR=Italian
-        ;;
-    ja*)
-        DIR=Japanese
-        ;;
-    kr*)
-        DIR=Korean
-        ;;
-    pl*)
-        DIR=Polish
-        ;;
-    pt*)
-        DIR=Portuguese
-        ;;
-    ro*)
-        DIR=Romanian
-        ;;
-    ru*)
-        DIR=Russian-koi8-r
-        ;;
-    sk*)
-        DIR=Slovak
-        ;;
-    es*)
-        DIR=Spanish
-        ;;
-    sv*)
-        DIR=Swedish
-        ;;
-    zh*)
-        DIR=Traditional_Chinese
-        ;;
-    tr*)
-        DIR=Turkish
-        ;;
-    *)
-        DIR=English
-        ;;
-esac
 
 
 %preun
@@ -355,76 +288,82 @@ fi
 
 
 %changelog
-* Wed Oct 26 2005 Vincent Danen <vdanen@annvix.org> 2.5.STABLE12-1avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- fix prereq
+- some spec cleanups
+
+* Wed Oct 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.5.STABLE12-1avx
 - 2.5.STABLE12 - includes fix for CAN-2005-3258
 
-* Thu Oct 13 2005 Vincent Danen <vdanen@annvix.org> 2.5.STABLE11-1avx
+* Thu Oct 13 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.5.STABLE11-1avx
 - 2.5.STABLE11 - includes fix for CAN-2005-2917
 - resync upstream patches
 
-* Wed Sep 14 2005 Vincent Danen <vdanen@annvix.org> 2.5.STABLE10-5avx
+* Wed Sep 14 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.5.STABLE10-5avx
 - P110-P132: more upstream bugfixes including fixes for CAN-2005-2794
   and CAN-2005-2796
 
-* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 2.5.STABLE10-4avx
+* Sat Sep 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.5.STABLE10-4avx
 - use execlineb for run scripts
 - move logdir to /var/log/service/sshd
 - run scripts are now considered config files and are not replaceable
 
-* Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 2.5.STABLE10-3avx
+* Fri Aug 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.5.STABLE10-3avx
 - fix perms on run scripts
 
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 2.5.STABLE10-2avx
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.5.STABLE10-2avx
 - bootstrap build (new gcc, new glibc)
 
-* Wed Jun 22 2005 Vincent Danen <vdanen@annvix.org> 2.5.STABLE10-1avx
+* Wed Jun 22 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.5.STABLE10-1avx
 - 2.5.STABLE10
 - P100-P109 updated for all current bugfix patches
 - this release also fixes the following vulnerabilities: CAN-2005-0194,
   CAN-2005-0626, CAN-2005-0718, CAN-2005-1345, CAN-2005-1519, CVE-1999-0710
 - spec tidying
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.5.STABLE8-3avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.5.STABLE8-3avx
 - rebuild
 
-* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 2.5.STABLE8-2avx
+* Thu Mar 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.5.STABLE8-2avx
 - use logger for logging
 
-* Fri Feb 18 2005 Vincent Danen <vdanen@annvix.org> 2.5.STABLE8-1avx
+* Fri Feb 18 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.5.STABLE8-1avx
 - 2.5.STABLE8
 - sync with current bugfix patches
 - fix P0 so that the store.log location is correct
 - don't grep the entire builddir, just *our* builddir
 
-* Tue Feb 01 2005 Vincent Danen <vdanen@annvix.org> 2.5.STABLE7-4avx
+* Tue Feb 01 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.5.STABLE7-4avx
 - P123: fix for CAN-2005-0211
 - P124: security fix for oversized reply headers (no CVE name yet)
 - previous fixes have CVE names assigned now: CAN-2005-0173 (P117),
   CAN-2005-0174 (P118), and CAN-2005-0175 (P122)
 
-* Mon Jan 24 2005 Vincent Danen <vdanen@annvix.org> 2.5.STABLE7-3avx
+* Mon Jan 24 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.5.STABLE7-3avx
 - P102-P122: upstream patch fixes including fixes for CAN-2005-0094 and
   CAN-2005-0095
 
-* Wed Jan 05 2005 Vincent Danen <vdanen@annvix.org> 2.5.STABLE7-2avx
+* Wed Jan 05 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.5.STABLE7-2avx
 - rebuild against new openssl
 
-* Tue Oct 17 2004 Vincent Danen <vdanen@annvix.org> 2.5.STABLE7-1avx
+* Tue Oct 17 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.5.STABLE7-1avx
 - 2.5.STABLE7 (fixes CAN-2004-0918)
 - regen P0, P2
 - drop P5, P6, P100-P1112 (merged upstream)
 - add new P100, P101 (STABLE7 fixes)
 
-* Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 2.5.STABLE5-6avx
+* Mon Sep 20 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.5.STABLE5-6avx
 - update run scripts
 
-* Thu Sep  9 2004 Vincent Danen <vdanen@annvix.org> 2.5.STABLE5-5avx
+* Thu Sep  9 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.5.STABLE5-5avx
 - P6: security fix for CAN-2004-0832
 
-* Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 2.5.STABLE5-4avx
+* Tue Aug 17 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.5.STABLE5-4avx
 - rebuild against new openssl
 
-* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 2.5.STABLE5-3avx
+* Mon Jun 21 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.5.STABLE5-3avx
 - Annvix build
 
 * Thu Apr 29 2004 Vincent Danen <vdanen@opensls.org> 2.5.STABLE5-2sls
