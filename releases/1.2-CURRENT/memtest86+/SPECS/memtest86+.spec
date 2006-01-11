@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		memtest86+
 %define version		1.60
-%define release		1avx
+%define release		%_revrel
 
 Summary: 	A stand alone memory test for i386 architecture systems
 Name: 		%{name}
@@ -19,7 +20,8 @@ License: 	GPL
 Group: 		System/Kernel and hardware
 URL: 		http://www.memtest.org
 Source0: 	http://www.memtest.org/download/%{version}/%{name}-%{version}.tar.bz2
-Patch0:		memtest86-1.15-avx-nostack.patch.bz2
+Patch0:		memtest86-1.15-avx-nostack.patch
+Patch1:		memtest86-1.15-avx-no_static_link.patch
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildRequires: 	dev86
@@ -41,6 +43,7 @@ missfailures that are detected by Memtest86.
 %setup -q
 # don't apply the patch to disable SSP when we're not using it
 #%patch0 -p0
+%patch1 -p0
 
 
 %build
@@ -58,10 +61,10 @@ install -m 0644 memtest.bin %{buildroot}/boot/memtest-%{version}.bin
 
 
 %post
-/usr/share/loader/memtest86 %{version}
+/usr/share/loader/memtest86 -g %{version}
 
 %preun
-/usr/share/loader/memtest86 -r %{version}
+/usr/share/loader/memtest86 -g -r %{version}
 
 
 %files
@@ -71,15 +74,22 @@ install -m 0644 memtest.bin %{buildroot}/boot/memtest-%{version}.bin
 
 
 %changelog
-* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 1.60-1avx
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- P1: don't allow it to attempt a static link as it fails with
+  undefined references to __guard and __stack_smash_handler
+- force /usr/share/loader/memtest86 to use grub
+
+* Sat Sep 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.60-1avx
 - 1.60
 - the memtest86 bootloader stuff is now in bootloader-utils so
   we need to require it
 
-* Wed Aug 17 2005 Vincent Danen <vdanen@annvix.org> 1.15-3avx
+* Wed Aug 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.15-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.15-2avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.15-2avx
 - rebuild
 - P0: don't build with stack protection
 
