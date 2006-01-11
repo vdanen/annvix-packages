@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		sfio
 %define version		1999
-%define release		15avx
+%define release		%_revrel
 
 Summary:	A Safe/Fast I/O Library
 Name:		%{name}
@@ -20,11 +21,11 @@ License:	AT&T Labs
 URL:		http://www.research.att.com/sw/tools/sfio/
 Source0:	sfio_1999.src.unix.tar.bz2
 Source1:	sfio_1999.src.unix.README
-Patch0:		sfio_1999.patch.bz2
-Patch1:		sfio_1999.mdk.patch.bz2
-Patch2:		sfio-1999-implicit.patch.bz2
-Patch3:		sfio-1999-rettype.patch.bz2
-Patch4:		sfio-1999-pic.patch.bz2
+Patch0:		sfio_1999.patch
+Patch1:		sfio_1999.mdk.patch
+Patch2:		sfio-1999-implicit.patch
+Patch3:		sfio-1999-rettype.patch
+Patch4:		sfio-1999-pic.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	ed
@@ -98,16 +99,20 @@ install lib/*.a %{buildroot}%{_libdir}/
 %{_libdir}/*.a
 
 %changelog
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1999-15avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 1999-15avx
 - bootstrap build (new gcc, new glibc)
 
-* Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 1999-14avx
+* Wed Jul 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 1999-14avx
 - rebuild against new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1999-13avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1999-13avx
 - bootstrap build
 
-* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 1999-12avx
+* Mon Jun 21 2004 Vincent Danen <vdanen-at-build.annvix.org> 1999-12avx
 - Annvix build
 
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 1999-11sls
