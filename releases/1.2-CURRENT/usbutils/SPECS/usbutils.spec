@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		usbutils
 %define version 	0.70
-%define release		1avx
+%define release		%_revrel
 
 Summary:	Linux USB utilities
 Name:		%{name}
@@ -21,7 +22,7 @@ URL:		http://sourceforge.net/project/showfiles.php?group_id=3581&package_id=1425
 Source0:	http://prownloads.sourceforge.net/linux-usb/usbutils-%{version}.tar.bz2
 # 1.95 2002/01/13 (with 2 fixes + PHY below)
 Source1:	http://www.linux-usb.org/usb.ids
-Patch0:		usbutils-0.70-fix-usage.patch.bz2
+Patch0:		usbutils-0.70-fix-usage.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	libusb-devel
@@ -63,17 +64,21 @@ rm -f %{buildroot}{%{_includedir}/libusb.h,%{_libdir}/libusb*}
 
 
 %changelog
-* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 0.70-1avx
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Sep 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.70-1avx
 - 0.70
 - BuildRequires: libusb-devel
 
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 0.11-8avx
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.11-8avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.11-7avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.11-7avx
 - rebuild
 
-* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 0.11-6avx
+* Fri Jun 18 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.11-6avx
 - Annvix build
 
 * Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 0.11-5sls
