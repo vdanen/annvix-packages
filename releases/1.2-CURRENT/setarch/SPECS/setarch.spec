@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		setarch
 %define version		1.7
-%define	release		3avx
+%define	release		%_revrel
 
 Summary:	Kernel personality setter
 Name:		%{name}
@@ -18,7 +19,7 @@ Release:	%{release}
 License:	GPL
 Group:		System/Kernel and hardware
 Source0:	%{name}-%{version}.tar.gz
-Patch0:		setarch-1.3-linux64.patch.bz2
+Patch0:		setarch-1.3-linux64.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -80,13 +81,17 @@ done
 
 
 %changelog
-* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 1.7-3avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Thu Aug 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.7-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.7-2avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.7-2avx
 - rebuild
 
-* Tue Mar 01 2005 Vincent Danen <vdanen@annvix.org> 1.7-1avx
+* Tue Mar 01 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.7-1avx
 - first Annvix build
 
 * Thu Feb 17 2005 Per Øyvind Karlsen <peroyvind@linux-mandrake.com> 1.7-1mdk
