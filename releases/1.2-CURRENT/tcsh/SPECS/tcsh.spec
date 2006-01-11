@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		tcsh
 %define version		6.14
-%define release		1avx
+%define release		%_revrel
 %define rversion	%{version}.00
 
 Summary:	An enhanced version of csh, the C shell
@@ -21,18 +22,19 @@ Group:		Shells
 URL:		http://www.tcsh.org/
 Source:		ftp://ftp.funet.fi/pub/unix/shells/tcsh/tcsh-%{version}.00.tar.bz2
 Source1:	alias.csh
-Patch1:		tcsh-6.09.00-termios.patch.bz2
-Patch3:		tcsh-6.14.00-lsF.patch.bz2
-Patch4:		tcsh-6.14.00-dashn.patch.bz2
-Patch5:		tcsh-6.14.00-read.patch.bz2
-Patch6:		tcsh-6.10.00-glibc_compat.patch.bz2
-Patch7:		tcsh-6.14.00-getauthuid-is-not-in-auth_h.patch.bz2
+Patch1:		tcsh-6.09.00-termios.patch
+Patch3:		tcsh-6.14.00-lsF.patch
+Patch4:		tcsh-6.14.00-dashn.patch
+Patch5:		tcsh-6.14.00-read.patch
+Patch6:		tcsh-6.10.00-glibc_compat.patch
+Patch7:		tcsh-6.14.00-getauthuid-is-not-in-auth_h.patch
 
 Buildroot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	libtermcap-devel groff-for-man
 
 Provides:	csh = %{version}
-Prereq:		coreutils, grep, rpm-helper >= 0.7
+Requires(post):	rpm-helper
+Requires(postun): rpm-helper
 
 %description
 Tcsh is an enhanced but completely compatible version of csh, the C
@@ -96,19 +98,24 @@ install %{SOURCE1} %{buildroot}%{_sysconfdir}/profile.d/$(basename %{SOURCE1})
 
 
 %changelog
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 6.14-1avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- fix prereq
+
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 6.14-1avx
 - 6.14
 - drop P0, P5, P7
 - P3, P4, new P5: from fedora
 - build eight-bit.txt in build stage (pixel)
 
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 6.12-11avx
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 6.12-11avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 6.12-10avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 6.12-10avx
 - rebuild
 
-* Sat Jun 19 2004 Vincent Danen <vdanen@annvix.org> 6.12-9avx
+* Sat Jun 19 2004 Vincent Danen <vdanen-at-build.annvix.org> 6.12-9avx
 - Annvix build
 
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 6.12-8sls
