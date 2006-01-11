@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		which
 %define version		2.16
-%define release		6avx
+%define release		%_revrel
 
 Summary:	Displays where a particular program in your path is located
 Name:		%{name}
@@ -19,9 +20,9 @@ License:	GPL
 Group:		System/Base
 URL:		ftp://ftp.gnu.org/gnu/which/
 Source:		ftp://ftp.gnu.org/gnu/which/%{name}-%{version}.tar.bz2
-Patch0:		which-2.6.jbj.patch.bz2
-Patch1:		which-2.12-fixinfo.patch.bz2
-Patch2:		which-2.16-afs.patch.bz2
+Patch0:		which-2.6.jbj.patch
+Patch1:		which-2.12-fixinfo.patch
+Patch2:		which-2.16-afs.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -72,19 +73,23 @@ rm -rf %{buildroot}%{_infodir}/dir
 
 
 %changelog
-* Fri Sep 23 2005 Vincent Danen <vdanen@annvix.org> 2.16-6avx
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Sep 23 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.16-6avx
 - minor spec cleanups
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.16-5avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.16-5avx
 - bootstrap build (new gcc, new glibc)
 
-* Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 2.16-4avx
+* Wed Jul 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.16-4avx
 - rebuild for new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.16-3avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.16-3avx
 - bootstrap build
 
-* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 2.16-2avx
+* Fri Jun 18 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.16-2avx
 - require info-install, not the file
 - Annvix build
 
