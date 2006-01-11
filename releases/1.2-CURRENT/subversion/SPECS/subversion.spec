@@ -5,10 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
+%define revision	$Rev$
 %define name		subversion
 %define svn_version	1.2.3
-%define release		1avx
+%define release		%_revrel
 
 %define apache_version	2.0.54
 %define mod_version 	%{apache_version}_%{svn_version}
@@ -36,8 +38,8 @@ Group:		Development/Other
 URL:		http://subversion.tigris.org
 Source0:	http://subversion.tigris.org/tarballs/%{name}-%{svn_version}.tar.bz2
 Source1:	http://subversion.tigris.org/tarballs/%{name}-%{svn_version}.tar.bz2.asc
-Source2:	%{mod_dav_conf}.bz2
-Source3:	%{mod_authz_conf}.bz2
+Source2:	%{mod_dav_conf}
+Source3:	%{mod_authz_conf}
 Source4:	svn.run
 Source5:	svn-log.run
 
@@ -74,6 +76,7 @@ Summary:	Subversion Server
 Group:		System/Servers
 Requires:	%{name} = %{svn_version}-%{release}
 Requires(pre):	rpm-helper
+Requires(post):	rpm-helper
 Requires(postun): rpm-helper
 Requires:	ipsvd
 
@@ -236,8 +239,8 @@ make LD_LIBRARY_PATH="`pwd`/subversion/bindings/swig/perl/libsvn_swig_perl/.libs
 make pure_vendor_install -C subversion/bindings/swig/perl/native 
 
 install -d %{buildroot}%{_sysconfdir}/httpd/modules.d
-bzcat %{SOURCE2} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_dav_conf}
-bzcat %{SOURCE3} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_authz_conf}
+cat %{SOURCE2} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_dav_conf}
+cat %{SOURCE3} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_authz_conf}
 
 ######################
 ###  client-tools  ###
@@ -455,7 +458,12 @@ popd >/dev/null 2>&1
 
 
 %changelog
-* Fri Oct 14 2005 Vincent Danen <vdanen@annvix.org> 1.2.3-1avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- fix prereq
+
+* Fri Oct 14 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.2.3-1avx
 - use the (totally weird) mandriva spec as a base
 - rip out java support
 - rip out ruby support
