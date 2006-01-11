@@ -5,10 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
+%define revision	$Rev$
 %define name		tar
 %define version		1.15.1
-%define release		2avx
+%define release		%_revrel
 
 %define rmtrealname	rmt-tar
 %define _bindir		/bin
@@ -22,11 +24,11 @@ Group:		Archiving/Backup
 URL:		http://www.gnu.org/software/tar/tar.html
 Source:		ftp://ftp.gnu.org/pub/gnu/tar/tar-%{version}.tar.bz2
 Source1:	ftp://ftp.gnu.org/pub/gnu/tar/tar-%{version}.tar.bz2.sig
-Source2:	tar-help2man.bz2
-Patch0:		tar-1.14-mdk-sock.patch.bz2
-Patch1:		tar-1.15-mdk-scandir.patch.bz2
-Patch2:		tar-1.14-mdk-doubleslash.patch.bz2
-Patch3:		tar-1.15.1-mdk-compile-gcc4.patch.bz2
+Source2:	tar-help2man
+Patch0:		tar-1.14-mdk-sock.patch
+Patch1:		tar-1.15-mdk-scandir.patch
+Patch2:		tar-1.14-mdk-doubleslash.patch
+Patch3:		tar-1.15.1-mdk-compile-gcc4.patch
 
 Buildroot:	%{_buildroot}/%{name}-%{version}
 
@@ -52,7 +54,7 @@ ability to perform incremental and full backups.
 %patch2 -p1 -b .doubleslash
 %patch3 -p0 -b .compilgcc4
 
-bzcat %{SOURCE2} > ./help2man
+cat %{SOURCE2} > ./help2man
 chmod +x ./help2man
 
 gzip ChangeLog
@@ -110,22 +112,26 @@ mv %{buildroot}%{_libexecdir}/rmt %{buildroot}/sbin/%{rmtrealname}
 
 
 %changelog
-* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 1.15.1-3avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Sep 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.15.1-3avx
 - new-style prereq
 - compress the ChangeLog
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.15.1-2avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.15.1-2avx
 - bootstrap build (new gcc, new glibc)
 
-* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 1.15.1-1avx
+* Tue Jul 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.15.1-1avx
 - 1.15.1
 - remove alternatives install for rmt
 - P4: fix compilation with gcc4 (rgarciasuarez)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.14-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.14-2avx
 - bootstrap build
 
-* Fri Aug 13 2004 Vincent Danen <vdanen@annvix.org> 1.14-1avx
+* Fri Aug 13 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.14-1avx
 - 1.14
 - patch policy
 - sync with cooker (deaddog):
@@ -136,7 +142,7 @@ mv %{buildroot}%{_libexecdir}/rmt %{buildroot}/sbin/%{rmtrealname}
   - install scripts as well
   - use alternatives for rmt
 
-* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 1.13.25-14avx
+* Mon Jun 21 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.13.25-14avx
 - PreReq: info-install rather than /sbin/install-info
 - PreReq: rmt rather than /sbin/rmt
 - Annvix build
