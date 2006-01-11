@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		net-tools
 %define version 	1.60
-%define release 	15avx
+%define release 	%_revrel
 
 %define npversion	1.2.9
 
@@ -22,51 +23,50 @@ Group:		System/Configuration/Networking
 URL:		http://www.tazenda.demon.co.uk/phil/net-tools/
 Source0:	http://www.tazenda.demon.co.uk/phil/net-tools//net-tools-%{version}.tar.bz2
 Source1:	netplug-%{npversion}.tar.bz2
-Source2:	net-tools-1.60-config.h.bz2
-Source3:	net-tools-1.60-config.make.bz2
-Source4:	ether-wake.c.bz2
-Source5:	ether-wake.8.bz2
-Source6:	mii-diag.c.bz2
-Source7:	mii-diag.8.bz2
-Patch0:		net-tools-1.60-netplug_def_runlevel.diff.bz2
-Patch1:		net-tools-1.57-bug22040.patch.bz2
-Patch2:		net-tools-1.60-miiioctl.patch.bz2
-Patch3:		net-tools-1.60-manydevs.patch.bz2
-Patch4:		net-tools-1.60-virtualname.patch.bz2
-Patch5:		net-tools-1.60-cycle.patch.bz2
-Patch6:		net-tools-1.60-nameif.patch.bz2
-Patch7:		net-tools-1.60-ipx.patch.bz2
-Patch8:		net-tools-1.60-inet6-lookup.patch.bz2
-Patch9:		net-tools-1.60-man.patch.bz2
-Patch10:	net-tools-1.60-gcc33.patch.bz2
-Patch11:	net-tools-1.60-trailingblank.patch.bz2
-Patch12:	net-tools-1.60-interface.patch.bz2
-Patch13:	net-tools-1.60-x25.patch.bz2
-Patch14:	net-tools-1.60-gcc34.patch.bz2
-Patch15:	net-tools-1.60-overflow.patch.bz2
-Patch19:	net-tools-1.60-siunits.patch.bz2
-Patch20:	net-tools-1.60-trunc.patch.bz2
-Patch21:	net-tools-1.60-return.patch.bz2
-Patch22:	net-tools-1.60-parse.patch.bz2
-Patch23:	net-tools-1.60-netmask.patch.bz2
-Patch24:	net-tools-1.60-ulong.patch.bz2
-Patch25:	net-tools-1.60-bcast.patch.bz2
-Patch26:	net-tools-1.60-mii-tool-obsolete.patch.bz2
-Patch27:	net-tools-1.60-netstat_ulong.patch.bz2
-Patch28:	net-tools-1.60-note.patch.bz2
-Patch29:	net-tools-1.60-num-ports.patch.bz2
-Patch30:	net-tools-1.60-duplicate-tcp.patch.bz2
-Patch31:	net-tools-1.60-statalias.patch.bz2
-Patch32:	net-tools-1.60-isofix.patch.bz2
-Patch33:	net-tools-1.60-bitkeeper.patch.bz2
-Patch34:	net-tools-1.60-ifconfig_ib.patch.bz2
-Patch35:	net-tools-1.60-de.patch.bz2
-Patch36:	netplug-1.2.9-execshield.patch.bz2
-Patch37:	net-tools-1.60-pie.patch.bz2
-Patch38:	net-tools-1.60-ifaceopt.patch.bz2
-Patch39:	net-tools-1.60-trim_iface.patch.bz2
-Patch40:	net-tools-1.60-stdo.patch.bz2
-Patch41:	net-tools-1.60-statistics.patch.bz2
+Source2:	net-tools-1.60-config.h
+Source3:	net-tools-1.60-config.make
+Source4:	ether-wake.c
+Source5:	ether-wake.8
+Source6:	mii-diag.c
+Source7:	mii-diag.8
+Patch1:		net-tools-1.57-bug22040.patch
+Patch2:		net-tools-1.60-miiioctl.patch
+Patch3:		net-tools-1.60-manydevs.patch
+Patch4:		net-tools-1.60-virtualname.patch
+Patch5:		net-tools-1.60-cycle.patch
+Patch6:		net-tools-1.60-nameif.patch
+Patch7:		net-tools-1.60-ipx.patch
+Patch8:		net-tools-1.60-inet6-lookup.patch
+Patch9:		net-tools-1.60-man.patch
+Patch10:	net-tools-1.60-gcc33.patch
+Patch11:	net-tools-1.60-trailingblank.patch
+Patch12:	net-tools-1.60-interface.patch
+Patch13:	net-tools-1.60-x25.patch
+Patch14:	net-tools-1.60-gcc34.patch
+Patch15:	net-tools-1.60-overflow.patch
+Patch19:	net-tools-1.60-siunits.patch
+Patch20:	net-tools-1.60-trunc.patch
+Patch21:	net-tools-1.60-return.patch
+Patch22:	net-tools-1.60-parse.patch
+Patch23:	net-tools-1.60-netmask.patch
+Patch24:	net-tools-1.60-ulong.patch
+Patch25:	net-tools-1.60-bcast.patch
+Patch26:	net-tools-1.60-mii-tool-obsolete.patch
+Patch27:	net-tools-1.60-netstat_ulong.patch
+Patch28:	net-tools-1.60-note.patch
+Patch29:	net-tools-1.60-num-ports.patch
+Patch30:	net-tools-1.60-duplicate-tcp.patch
+Patch31:	net-tools-1.60-statalias.patch
+Patch32:	net-tools-1.60-isofix.patch
+Patch33:	net-tools-1.60-bitkeeper.patch
+Patch34:	net-tools-1.60-ifconfig_ib.patch
+Patch35:	net-tools-1.60-de.patch
+Patch36:	netplug-1.2.9-execshield.patch
+Patch37:	net-tools-1.60-pie.patch
+Patch38:	net-tools-1.60-ifaceopt.patch
+Patch39:	net-tools-1.60-trim_iface.patch
+Patch40:	net-tools-1.60-stdo.patch
+Patch41:	net-tools-1.60-statistics.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	gettext
@@ -78,7 +78,6 @@ networking:  ifconfig, netstat, route and others.
 
 %prep
 %setup -q -a 1
-%patch0 -p0 -b .netplug_def_runlevel
 %patch1 -p1 -b .bug22040
 %patch2 -p1 -b .miioctl
 %patch3 -p0 -b .manydevs
@@ -91,7 +90,7 @@ networking:  ifconfig, netstat, route and others.
 %patch10 -p1 -b .gcc33
 %patch11 -p1 -b .trailingblank
 %patch12 -p1 -b .interface
-%patch13 -p1 -b .x25
+#%patch13 -p1 -b .x25
 %patch14 -p1 -b .gcc34
 %patch15 -p1 -b .overflow
 %patch19 -p1 -b .siunits
@@ -118,12 +117,12 @@ networking:  ifconfig, netstat, route and others.
 %patch40 -p1 -b .stdo
 %patch41 -p1 -b .statistics
 
-bzcat %{SOURCE2} > ./config.h
-bzcat %{SOURCE3} > ./config.make
-bzcat %{SOURCE4} > ./ether-wake.c
-bzcat %{SOURCE5} > ./man/en_US/ether-wake.8
-bzcat %{SOURCE6} > ./mii-diag.c
-bzcat %{SOURCE7} > ./man/en_US/mii-diag.8
+cat %{SOURCE2} > ./config.h
+cat %{SOURCE3} > ./config.make
+cat %{SOURCE4} > ./ether-wake.c
+cat %{SOURCE5} > ./man/en_US/ether-wake.8
+cat %{SOURCE6} > ./mii-diag.c
+cat %{SOURCE7} > ./man/en_US/mii-diag.8
 
 %ifarch alpha
 perl -pi -e "s|-O2||" Makefile
@@ -133,7 +132,7 @@ perl -pi -e "s|-O2||" Makefile
 %build
 export CFLAGS="%{optflags} $CFLAGS"
 
-%make
+make
 gcc %{optflags} -o ether-wake ether-wake.c
 gcc %{optflags} -o mii-diag mii-diag.c
 pushd netplug-%{npversion}
@@ -210,17 +209,26 @@ rm -rf %{buildroot}%{_mandir}/{de,fr,pt}*
 
 
 %changelog
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.60-15avx
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- drop P0; unwanted
+- disable parallel make; synced with mdk 1.60-17mdk (without pinit stuff)
+- don't apply P13 as it kills the build
+- (not manually modified /usr/linux/include/if_fddi.h to get this to build; need
+  to patch kernel sources)
+
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.60-15avx
 - bootstrap build (new gcc, new glibc)
 
-* Tue Aug 09 2005 Vincent Danen <vdanen@annvix.org> 1.60-14avx
+* Tue Aug 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.60-14avx
 - rebuild against new gcc
 - sync with mdk 1.60-13mdk (which synced with fedora 1.60-54)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.60-13avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.60-13avx
 - bootstrap build
 
-* Tue Jun 22 2004 Vincent Danen <vdanen@annvix.org> 1.60-12avx
+* Tue Jun 22 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.60-12avx
 - Annvix build
 
 * Sun Mar 07 2004 Vincent Danen <vdanen@opensls.org> 1.60-11sls
