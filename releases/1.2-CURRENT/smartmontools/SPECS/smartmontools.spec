@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		smartmontools
 %define version 	5.33
-%define release 	7avx
+%define release 	%_revrel
 
 Summary:	SMARTmontools - for monitoring S.M.A.R.T. disks and devices
 Name:           %{name}
@@ -27,7 +28,9 @@ BuildRoot:      %{_buildroot}/%{name}-%{version}
 
 Obsoletes:	smartsuite
 Provides:	smartsuite
-PreReq:		rpm-helper
+Requires(post):	rpm-helper
+Requires(preun): rpm-helper
+
 
 %description 
 SMARTmontools controls and monitors storage devices using the
@@ -99,36 +102,41 @@ fi
 
 
 %changelog
-* Tue Sep 27 2005 Vincent Danen <vdanen@annvix.org> 5.33-7avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- fix prereq
+
+* Tue Sep 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.33-7avx
 - execline runscript
 - created env directory
 - drop the sysconfig file
 
-* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 5.33-6avx
+* Sat Sep 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.33-6avx
 - s/supervise/service/ in log/run
 
-* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 5.33-5avx
+* Sat Sep 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.33-5avx
 - use execlineb for run scripts
 - move logdir to /var/log/service/smartd
 - run scripts are now considered config files and are not replaceable
 
-* Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 5.33-4avx
+* Fri Aug 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.33-4avx
 - fix perms on run scripts
 
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 5.33-3avx
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.33-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 5.33-2avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.33-2avx
 - rebuild
 
-* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 5.33-1avx
+* Thu Mar 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.33-1avx
 - 5.33
 - use logger for logging
 
-* Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 5.26-6avx
+* Mon Sep 20 2004 Vincent Danen <vdanen-at-build.annvix.org> 5.26-6avx
 - update run scripts
 
-* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 5.26-5avx
+* Mon Jun 21 2004 Vincent Danen <vdanen-at-build.annvix.org> 5.26-5avx
 - Annvix build
 
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 5.26-4sls
