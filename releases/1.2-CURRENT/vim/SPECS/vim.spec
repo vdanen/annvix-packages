@@ -8,11 +8,13 @@
 # Notes / Warning :
 # - this package is not prefixable
 # - to update official patches, aka SOURCE4, see README.mdk in SOURCE4
+#
+# $Id$
 
-
+%define revision	$Rev$
 %define name		vim
 %define version		6.3
-%define release		6avx
+%define release		%_revrel
 
 %define patch_level	86
 %define localedir	%{buildroot}%{_datadir}/locale/
@@ -30,22 +32,22 @@ Source0:	ftp://ftp.vim.org/pub/vim/unix//%{name}-%{version}.tar.bz2
 Source2:	ftp://ftp.vim.org/pub/vim/unix//extra/%{name}-%{version}-lang.tar.bz2
 Source4:	vim-%{version}.%{patch_level}-patches.tar.bz2
 # http://vim.sourceforge.net/scripts/script.php?script_id=98
-Source5:	vim-spec-3.0.bz2
+Source5:	vim-spec-3.0.tar.bz2
 # MDK patches
-Patch2:		vim-5.6a-paths.patch.bz2
-Patch3:		vim-6.3-rpm-spec-syntax.patch.bz2
-Patch8:		vim-6.0af-man-path.patch.bz2
-Patch10:	xxd-locale.patch.bz2
-Patch11:	vim-6.2-gcc31.patch.bz2
-Patch20:	vimrc_hebrew.patch.bz2
-Patch22:	vim-6.1-fix-xterms-comments.patch.bz2
-Patch23:	vim-6.3-remove-docs.patch.bz2
-Patch24:	vim-6.1-outline-mode.patch.bz2 
-Patch25:	vim-6.1-xterm-s-insert.patch.bz2 
-Patch26:	vim-6.1-changelog-mode.patch.bz2
-Patch27:	vim-6.1-rpm42.patch.bz2
-Patch28:	vim-6.1-po-mode.patch.bz2
-Patch31:	vim63-CAN-2005-0069.patch.bz2
+Patch2:		vim-5.6a-paths.patch
+Patch3:		vim-6.3-rpm-spec-syntax.patch
+Patch8:		vim-6.0af-man-path.patch
+Patch10:	xxd-locale.patch
+Patch11:	vim-6.2-gcc31.patch
+Patch20:	vimrc_hebrew.patch
+Patch22:	vim-6.1-fix-xterms-comments.patch
+Patch23:	vim-6.3-remove-docs.patch
+Patch24:	vim-6.1-outline-mode.patch 
+Patch25:	vim-6.1-xterm-s-insert.patch 
+Patch26:	vim-6.1-changelog-mode.patch
+Patch27:	vim-6.1-rpm42.patch
+Patch28:	vim-6.1-po-mode.patch
+Patch31:	vim63-CAN-2005-0069.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel python-devel termcap-devel
@@ -387,7 +389,12 @@ update-alternatives --remove vim /usr/bin/vim-enhanced
 
 
 %changelog
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 6.3-6avx
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- make S5 look like the tar file it is
+
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 6.3-6avx
 - update to patchlevel 86
 - update spec mode to 3.0
 - fix perl version eval (nanardon)
@@ -396,19 +403,19 @@ update-alternatives --remove vim /usr/bin/vim-enhanced
 - rebuild against new python and new perl
 - drop S3; unused menu entry
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 6.3-5avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 6.3-5avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 6.3-4avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 6.3-4avx
 - bootstrap build
 
-* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 6.3-3avx
+* Thu Feb 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 6.3-3avx
 - rebuild against new python
 
-* Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 6.3-2avx
+* Wed Feb 02 2005 Vincent Danen <vdanen-at-build.annvix.org> 6.3-2avx
 - rebuild against new perl
 
-* Tue Feb 01 2005 Vincent Danen <vdanen@annvix.org> 6.3-1avx
+* Tue Feb 01 2005 Vincent Danen <vdanen-at-build.annvix.org> 6.3-1avx
 - 6.3; patchlevel 54
 - S5: spec mode from Guillaume Rousse
 - use a system-wide configfile in /etc/vim/ (misc)
@@ -418,11 +425,11 @@ update-alternatives --remove vim /usr/bin/vim-enhanced
 - drop P30 (applied upstream)
 - spec cosmetics
 
-* Tue Feb 01 2005 Vincent Danen <vdanen@annvix.org> 6.2-16avx
+* Tue Feb 01 2005 Vincent Danen <vdanen-at-build.annvix.org> 6.2-16avx
 - P30: fix for CAN-2004-1138
 - P31: fix for CAN-2005-0069
 
-* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 6.2-15avx
+* Fri Jun 18 2004 Vincent Danen <vdanen-at-build.annvix.org> 6.2-15avx
 - Annvix build
 
 * Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 6.2-14sls
