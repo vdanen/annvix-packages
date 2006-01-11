@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		spec-helper
 %define version 	0.11
-%define release 	4avx
+%define release 	%_revrel
 
 %define distrib		Annvix
 
@@ -19,7 +20,7 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		Development/Other
-URL:		http://www.mandrakelinux.com
+URL:		http://www.mandriva.com
 # get the source from our cvs repository (see
 # http://www.mandrakelinux.com/en/cvs.php3)
 Source0:	%{name}-%{version}.tar.bz2
@@ -58,22 +59,26 @@ make install DESTDIR=%{buildroot} bindir=%{buildroot}/%{_bindir}
 
 
 %changelog
-* Thu Sep 15 2005 Vincent Danen <vdanen@annvix.org> 0.11-4avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Thu Sep 15 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.11-4avx
 - correct the buildroot
 
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 0.11-3avx
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.11-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 0.11-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.11-2avx
 - bootstrap build
 
-* Fri Mar 04 2005 Vincent Danen <vdanen@annvix.org> 0.11-1avx
+* Fri Mar 04 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.11-1avx
 - 0.11
   - handle filenames starting with - (flepid)
   - other cleanups and speedups (tvignaud)
   - use " around the section name in spec-helper (flepied)
 
-* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 0.9.2-6avx
+* Mon Jun 21 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.9.2-6avx
 - Annvix build
 
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 0.9.2-5sls
