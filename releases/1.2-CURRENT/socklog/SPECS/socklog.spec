@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name 		socklog
 %define version		2.0.2
-%define release		4avx
+%define release		%_revrel
 
 Summary:	Small and secure replacement for syslogd
 Name:		%{name}
@@ -30,6 +31,8 @@ BuildRequires:  dietlibc-devel >= 0.28
 
 Requires:       execline
 Requires:       runit
+Requires(post):	rpm-helper
+Requires(preun): rpm-helper
 #Conflicts:      syslog
 
 %description
@@ -47,9 +50,15 @@ jobs to rotate the logs. socklog is small, secure, and reliable.
 
 
 %build
+%ifarch x86_64
+COMP="diet x86_64-annvix-linux-gnu-gcc"
+%else
+COMP="diet gcc"
+%endif
+
 pushd %{name}-%{version}
-    echo "diet gcc -O2 -W -Wall -fomit-frame-pointer -pipe" > src/conf-cc
-    echo "diet gcc -Os -static -s" > src/conf-ld
+    echo "$COMP -O2 -W -Wall -fomit-frame-pointer -pipe" > src/conf-cc
+    echo "$COMP -Os -static -s" > src/conf-ld
 
     package/compile
 popd
@@ -155,16 +164,22 @@ fi
 
 
 %changelog
-* Sun Sep 18 2005 Vincent Danen <vdanen@annvix.org> 2.0.2-4avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- fix prereq
+- dietlibc fixes
+
+* Sun Sep 18 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.2-4avx
 - added config files to mirror the setup in /etc/syslog.conf
 - modified the logging daemon to accomodate the configs
 
-* Thu Sep 08 2005 Sean P. Thomas <spt@annvix.org> 2.0.2-3avx
+* Thu Sep 08 2005 Sean P. Thomas <spt-at-build.annvix.org> 2.0.2-3avx
 - fix up log run script, moved logs, and some perms.
 
-* Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 2.0.2-2avx
+* Fri Aug 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.2-2avx
 - fix perms on run scripts
 - add %%post and %%preun scriptlets
 
-* Tue Aug 23 2005 Sean P. Thomas <spt@annvix.org> 2.0.2-1avx
+* Tue Aug 23 2005 Sean P. Thomas <spt-at-build.annvix.org> 2.0.2-1avx
 - initial Annvix build
