@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		tcltk
 %define version		%{tclvers}
-%define release		9avx
+%define release		%_revrel
 
 %define tcl_major	8.4
 %define tk_major 	8.4
@@ -45,36 +46,36 @@ Source5:	http://prdownloads.sourceforge.net/incrtcl/itcl%{itclvers}_src.tar.bz2
 Source6:	http://prdownloads.sourceforge.net/tcllib/tcllib-%{tcllibvers}.tar.bz2
 Source40:	tclx-help.tar.bz2
 Source41:	tix-8.1.3-tk8.4.tar.bz2
-Patch0:		tcl-8.3.3-cruft.patch.bz2
-Patch1:		tcl-8.3.3-heiierarchy.patch.bz2
-Patch2:		tcl-8.3.3-makecfg.patch.bz2
-Patch3:		tcl-8.3.3-refcount.patch.bz2
-Patch4:		tcl-8.4.2-dlopen.patch.bz2
-Patch5:		tcl8.4.5-64bit-fixes.patch.bz2
-Patch10:	expect-5.32.2-random.patch.bz2
-Patch11:	expect-5.42-alpha.patch.bz2
-Patch12:	expect-5.32.2-kibitz.patch.bz2
-Patch13:	expect-5.32.2-fixcat.patch.bz2
-Patch14:	expect-5.32.2-weather.patch.bz2
-Patch15:	expect-5.32.2-makecfg.patch.bz2
-Patch16:	expect-5.32.2-spawn.patch.bz2
-Patch17:	expect-5.32.2-expectk.patch.bz2
-Patch18:	expect-5.32.2-setpgrp.patch.bz2
-Patch19:	expect-5.32-libdir.patch.bz2
-Patch20:	tix-8.2.0b1-perf.patch.bz2
-Patch21:	tix-8.2.0b1-makecfg.patch.bz2
-Patch22:	tix-8.2.0b1-dirtree.patch.bz2
-Patch31:	itcl-3.2-makecfg.patch.bz2
-Patch32:	itcl-3.2-no-wish-test.patch.bz2
-Patch33:	itcl-3.2.1-destdir.patch.bz2
-Patch40:	tclx-8.3-makecfg.patch.bz2
-Patch41:	tclx-8.3-argv.patch.bz2
-Patch42:	tclx-8.3-varinit.patch.bz2
-Patch43:	tclx-8.3.5-nobuildhelp.patch.bz2
-Patch50:	tk-8.3.3-makecfg.patch.bz2
-Patch60:	tcllib-1.0-no-tclsh-test.patch.bz2
-Patch61:	tcllib-1.4-mpexpard-buildin-tclsh.patch.bz2
-Patch62:	tcllib-1.7-no-apps.patch.bz2
+Patch0:		tcl-8.3.3-cruft.patch
+Patch1:		tcl-8.3.3-heiierarchy.patch
+Patch2:		tcl-8.3.3-makecfg.patch
+Patch3:		tcl-8.3.3-refcount.patch
+Patch4:		tcl-8.4.2-dlopen.patch
+Patch5:		tcl8.4.5-64bit-fixes.patch
+Patch10:	expect-5.32.2-random.patch
+Patch11:	expect-5.42-alpha.patch
+Patch12:	expect-5.32.2-kibitz.patch
+Patch13:	expect-5.32.2-fixcat.patch
+Patch14:	expect-5.32.2-weather.patch
+Patch15:	expect-5.32.2-makecfg.patch
+Patch16:	expect-5.32.2-spawn.patch
+Patch17:	expect-5.32.2-expectk.patch
+Patch18:	expect-5.32.2-setpgrp.patch
+Patch19:	expect-5.32-libdir.patch
+Patch20:	tix-8.2.0b1-perf.patch
+Patch21:	tix-8.2.0b1-makecfg.patch
+Patch22:	tix-8.2.0b1-dirtree.patch
+Patch31:	itcl-3.2-makecfg.patch
+Patch32:	itcl-3.2-no-wish-test.patch
+Patch33:	itcl-3.2.1-destdir.patch
+Patch40:	tclx-8.3-makecfg.patch
+Patch41:	tclx-8.3-argv.patch
+Patch42:	tclx-8.3-varinit.patch
+Patch43:	tclx-8.3.5-nobuildhelp.patch
+Patch50:	tk-8.3.3-makecfg.patch
+Patch60:	tcllib-1.0-no-tclsh-test.patch
+Patch61:	tcllib-1.4-mpexpard-buildin-tclsh.patch
+Patch62:	tcllib-1.7-no-apps.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	XFree86-devel,  groff
@@ -712,7 +713,11 @@ rm -f *.files
 
 
 %changelog
-* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 8.4.11-1avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Sep 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 8.4.11-1avx
 - 8.4.11 (synced with mandrake 8.4.11-1mdk)
   - tcl/tk-8.4.11
   - expect-5.43.0
@@ -725,22 +730,22 @@ rm -f *.files
 - add missing .h files (jmd)
 - nuke buildroot from config files (jmd)
 
-* Thu Aug 11 2005 Vincent Danen <vdanen@annvix.org> 8.4.2-9avx
+* Thu Aug 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 8.4.2-9avx
 - rebuild against the xorg libs
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 8.4.2-8avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 8.4.2-8avx
 - bootstrap build (new gcc, new glibc)
 
-* Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 8.4.2-7avx
+* Wed Jul 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 8.4.2-7avx
 - rebuild for new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 8.4.2-6avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 8.4.2-6avx
 - bootstrap build
 
-* Mon Aug 30 2004 Vincent Danen <vdanen@annvix.org> 8.4.2-5avx
+* Mon Aug 30 2004 Vincent Danen <vdanen-at-build.annvix.org> 8.4.2-5avx
 - fix dangling symlink (tixwish)
 
-* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 8.4.2-4avx
+* Mon Jun 21 2004 Vincent Danen <vdanen-at-build.annvix.org> 8.4.2-4avx
 - Annvix build
 
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 8.4.2-3sls
