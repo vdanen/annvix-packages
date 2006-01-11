@@ -7,9 +7,10 @@
 #
 # $Id$
 
+%define revision	$Rev$
 %define name		spamassassin
 %define version		3.1.0
-%define release		3avx
+%define release		%_revrel
 
 %define fname		Mail-SpamAssassin
 %define instdir		vendor
@@ -40,7 +41,6 @@ BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel, perl-Time-HiRes, perl-HTML-Parser, perl-Digest-SHA1, openssl-devel, perl-IO-Socket-SSL
 BuildRequires:	perl-Net-DNS, perl-DB_File
 
-Prereq:		rpm-helper
 Requires:	perl-Mail-SpamAssassin = %{version}-%{release}
 Requires:  	perl-DB_File, perl-Net-DNS
 Requires(post):	rpm-helper
@@ -218,14 +218,18 @@ perl -p -i -e 's/ --auto-whitelist//' /etc/sysconfig/spamd
 
 
 %changelog
-* Sat Dec 17 2005 Vincent Danen <vdanen@annvix.org> 3.1.0-3avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Dec 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.1.0-3avx
 - uncompressed patches
 - fix bug #14 and make /var/spool/spamassassin read/write by mail only
 - remove dcc_home from the default local.cf
 - add perl-Net-DNS and perl-DB_File as BuildReqs
 - add a conditional to make test
 
-* Sun Oct 23 2005 Vincent Danen <vdanen@annvix.org> 3.1.0-2avx
+* Sun Oct 23 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.1.0-2avx
 - both spamd/log/run and /etc/sysconfig/spamd were marked as SOURCE3 so the
   run script was actually the bzipped sysconfig file
 - fix spamd runscript; read sysconfig/spamd rather than sysconfig/spamassassin
@@ -233,45 +237,45 @@ perl -p -i -e 's/ --auto-whitelist//' /etc/sysconfig/spamd
 - fix sysconfig/spamd to remove the -d (daemonize) option
 - Requires: perl-Net-DNS
 
-* Thu Sep 22 2005 Vincent Danen <vdanen@annvix.org> 3.1.0-1avx
+* Thu Sep 22 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.1.0-1avx
 - 3.1.0
 - put spamd and spamc into -spamc package
 - fix URL
 - rediff P1
 
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 2.64-10avx
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.64-10avx
 - rebuild against new perl
 
-* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 2.64-9avx
+* Sat Sep 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.64-9avx
 - s/supervise/service/ in log/run
 
-* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 2.64-8avx
+* Sat Sep 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.64-8avx
 - use execlineb for run scripts
 - move logdir to /var/log/service/spamd
 - run scripts are now considered config files and are not replaceable
 
-* Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 2.64-7avx
+* Fri Aug 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.64-7avx
 - fix perms on run scripts
 
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 2.64-6avx
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.64-6avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.64-5avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.64-5avx
 - rebuild
 
-* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 2.64-4avx
+* Thu Mar 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.64-4avx
 - use logger for logging
 
-* Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 2.64-3avx
+* Wed Feb 02 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.64-3avx
 - rebuild against new perl
 
-* Mon Sep 20 2004 Vincent Danen <vdanen@annvix.org> 2.64-2avx
+* Mon Sep 20 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.64-2avx
 - update run scripts
 
-* Sat Sep 04 2004 Vincent Danen <vdanen@annvix.org> 2.64-1avx
+* Sat Sep 04 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.64-1avx
 - 2.64 (security fixes)
 
-* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 2.63-7avx
+* Mon Jun 21 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.63-7avx
 - Annvix build
 
 * Thu Jun  3 2004 Vincent Danen <vdanen@opensls.org> 2.63-6sls
