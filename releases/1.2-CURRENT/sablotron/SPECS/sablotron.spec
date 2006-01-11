@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		sablotron
 %define version 	1.0.2
-%define release 	1avx
+%define release 	%_revrel
 
 %define	altname		Sablot
 %define libname_orig	libsablotron
@@ -24,8 +25,8 @@ License: 	MPL/GPL
 Group: 		Development/Other
 URL:		http://www.gingerall.cz
 Source0:	http://download-1.gingerall.cz/download/sablot/%{altname}-%{version}.tar.bz2
-Patch0:		Sablot-1.0.2-libs.diff.bz2
-Patch1:		sablot-lib-1.0.1-gcc3.4.patch.bz2
+Patch0:		Sablot-1.0.2-libs.diff
+Patch1:		sablot-lib-1.0.1-gcc3.4.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:  expat-devel >= 1.95.2, perl-XML-Parser, ncurses-devel, libstdc++-devel
@@ -120,20 +121,24 @@ rm -rf %{buildroot}%{_datadir}/doc
 
 
 %changelog
-* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 1.0.2-1avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Sep 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.0.2-1avx
 - 1.0.2
 - no need to run ldconfig on the main package
 - add a bunch of BuildRequires
 - multiarch support
 - disable readline support
 
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 0.98-7avx
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.98-7avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.98-6avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.98-6avx
 - rebuild
 
-* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 0.98-5avx
+* Mon Jun 21 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.98-5avx
 - Annvix build
 
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 0.98-4sls
