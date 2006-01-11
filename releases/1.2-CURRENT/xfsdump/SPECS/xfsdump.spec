@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define	revision	$Rev$
 %define	name		xfsdump
 %define	version		2.2.30
-%define	release		1avx
+%define	release		%_revrel
 
 Summary:	Administrative utilities for the XFS filesystem
 Name:		%{name}
@@ -79,19 +80,23 @@ rm -rf %{buildroot}%{_datadir}/doc/xfsdump/
 
 
 %changelog
-* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 2.2.30-1avx
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Sep 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.2.30-1avx
 - 2.2.30
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.2.21-4avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.2.21-4avx
 - bootstrap build (new gcc, new glibc)
 
-* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 2.2.21-3avx
+* Tue Jul 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.2.21-3avx
 - rebuild for new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.2.21-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.2.21-2avx
 - bootstrap build
 
-* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 2.2.21-1avx
+* Fri Jun 18 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.2.21-1avx
 - 2.2.21
 - Annvix build
 
