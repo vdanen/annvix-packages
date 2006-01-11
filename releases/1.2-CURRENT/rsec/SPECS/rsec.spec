@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		rsec
 %define version		0.61
-%define release		2avx
+%define release		%_revrel
 
 Summary:	Security Reporting tool for Annvix
 Name:		%{name}
@@ -24,7 +25,6 @@ BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 Requires:	bash coreutils perl-base diffutils shadow-utils gawk mailx
 Requires:	setup >= 2.2.0-21mdk, coreutils, iproute2
-PreReq:		rpm-helper >= 0.4
 Conflicts:	passwd < 0.67, msec
 
 %description
@@ -93,10 +93,14 @@ touch /var/log/security.log && chmod 0640 /var/log/security.log
 
 
 %changelog
-* Fri Oct 28 2005 Vincent Danen <vdanen@annvix.org> 0.61-2avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Oct 28 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.61-2avx
 - update the docs/configs to explain EXCLUDE_REGEXP better
 
-* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 0.61-1avx
+* Sat Sep 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.61-1avx
 - 0.61
   - don't check sysfs, usbfs, or hfs filesystems
   - fix user or homedir with spaces
@@ -107,22 +111,22 @@ touch /var/log/security.log && chmod 0640 /var/log/security.log
   - removed xfs from remote filesystems
   - updated manpage and moved it from .3 to .8
 
-* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 0.60-1avx
+* Fri Sep 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.60-1avx
 - 0.60: uses rkhunter rather than chkrootkit
 
-* Wed Aug 17 2005 Vincent Danen <vdanen@annvix.org> 0.51-3avx
+* Wed Aug 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.51-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.51-2avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.51-2avx
 - rebuild
 
-* Sun Feb 13 2005 Vincent Danen <vdanen@annvix.org> 0.51-1avx
+* Sun Feb 13 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.51-1avx
 - 0.51: new option to exclude certain directories from the world-writeable file check
 
-* Wed Jul 07 2004 Vincent Danen <vdanen@annvix.org> 0.50-4avx
+* Wed Jul 07 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.50-4avx
 - Requires: mailx (for /bin/mail)
 
-* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 0.50-3avx
+* Mon Jun 21 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.50-3avx
 - Requires: packages, not files
 - Annvix build
 
