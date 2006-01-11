@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		tcp_wrappers
 %define version		7.6
-%define release		29avx
+%define release		%_revrel
 
 Summary: 	A security tool which acts as a wrapper for TCP daemons
 Name: 		%{name}
@@ -19,20 +20,20 @@ Group: 		System/Servers
 License: 	BSD
 URL:		http://ftp.porcupine.org/pub/security/
 Source:	        http://ftp.porcupine.org/pub/security/%{name}_%{version}.tar.bz2
-Patch0:		tcpw7.2-config.patch.bz2
-Patch1:		tcpw7.2-setenv.patch.bz2
-Patch2:		tcpw7.6-netgroup.patch.bz2
-Patch3:		tcp_wrappers-7.6-bug11881.patch.bz2
-Patch4:		tcp_wrappers-7.6-bug17795.patch.bz2
-Patch5:		tcp_wrappers-7.6-bug17847.patch.bz2
-Patch6:		tcp_wrappers-7.6-fixgethostbyname.patch.bz2
-Patch7:		tcp_wrappers-7.6-docu.patch.bz2
-Patch9:		tcp_wrappers.usagi-ipv6.patch.bz2
-Patch10:	tcp_wrappers.ume-ipv6.patch.bz2
-Patch11:	tcp_wrappers-7.6-shared.patch.bz2
-Patch12:	tcp_wrappers-7.6-sig.patch.bz2
-Patch13:	tcp_wrappers-7.6-strerror.patch.bz2
-Patch14:	tcp_wrappers-7.6-ldflags.patch.bz2
+Patch0:		tcpw7.2-config.patch
+Patch1:		tcpw7.2-setenv.patch
+Patch2:		tcpw7.6-netgroup.patch
+Patch3:		tcp_wrappers-7.6-bug11881.patch
+Patch4:		tcp_wrappers-7.6-bug17795.patch
+Patch5:		tcp_wrappers-7.6-bug17847.patch
+Patch6:		tcp_wrappers-7.6-fixgethostbyname.patch
+Patch7:		tcp_wrappers-7.6-docu.patch
+Patch9:		tcp_wrappers.usagi-ipv6.patch
+Patch10:	tcp_wrappers.ume-ipv6.patch
+Patch11:	tcp_wrappers-7.6-shared.patch
+Patch12:	tcp_wrappers-7.6-sig.patch
+Patch13:	tcp_wrappers-7.6-strerror.patch
+Patch14:	tcp_wrappers-7.6-ldflags.patch
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
 
@@ -115,16 +116,20 @@ install -m 0755 try-from %{buildroot}%{_sbindir}
 
 
 %changelog
-* Sun Sep 11 2005 Vincent Danen <vdanen@annvix.org> 7.6-29avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sun Sep 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 7.6-29avx
 - sync patches with Mandriva (who synced with Fedora)
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 7.6-28avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 7.6-28avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 7.6-27avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 7.6-27avx
 - bootstrap build
 
-* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 7.6-26avx
+* Mon Jun 21 2004 Vincent Danen <vdanen-at-build.annvix.org> 7.6-26avx
 - Annvix build
 
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 7.6-25sls
