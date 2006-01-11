@@ -1,2 +1,0 @@
-?package(timeconfig): needs="text" icon="timeconfig.png" section="Configuration/Other" title="Timeconfig" longtitle="Configure Time parameters" command="/usr/sbin/timeconfig-auth"
-

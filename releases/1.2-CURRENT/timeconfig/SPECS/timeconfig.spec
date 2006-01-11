@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		timeconfig
 %define version		3.2
-%define release		15avx
+%define release		%_revrel
 
 Summary:	Text mode tools for setting system time parameters
 Name:		%{name}
@@ -18,20 +19,14 @@ Release:	%{release}
 License:	GPL
 Group:		System/Configuration/Other
 Source0:	timeconfig-%{version}.tar.bz2
-Source1:	timeconfig.menu
-Source2:	timeconfig.png
-Source3:	timeconfig-mini.png
-Source4:	timeconfig-large.png
-Source5:	timeconfig.pamd
-Source6:	timeconfig.apps
-Patch0:		timeconfig-gmt.patch.bz2
-Patch1:		timeconfig-mdkconf.patch.bz2
+Patch0:		timeconfig-gmt.patch
+Patch1:		timeconfig-mdkconf.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	gettext libnewt-devel popt-devel slang-devel
 
 Requires:	initscripts >= 2.81
-Prereq:		fileutils, gawk
+Requires(post):	fileutils, gawk
 
 %description
 The timeconfig package contains two utilities: timeconfig and
@@ -89,16 +84,22 @@ fi
 %{_mandir}/man*/*
 
 %changelog
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 3.2-15avx
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- fix prereq
+- drop unused sources
+
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.2-15avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 3.2-14avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.2-14avx
 - bootstrap build
 
-* Mon Feb 28 2005 Vincent Danen <vdanen@annvix.org> 3.2-13avx
+* Mon Feb 28 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.2-13avx
 - rebuild against new newt/slang
 
-* Sat Jun 19 2004 Vincent Danen <vdanen@annvix.org> 3.2-12avx
+* Sat Jun 19 2004 Vincent Danen <vdanen-at-build.annvix.org> 3.2-12avx
 - Annvix build
 
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 3.2-11sls
