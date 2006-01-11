@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		samba
 %define version		3.0.20
-%define release		6avx
+%define release		%_revrel
 
 %define smbldapver	0.8.8
 %define vscanver	0.3.6b
@@ -30,7 +31,7 @@ Source:         ftp://ca.samba.org/pub/samba/samba-%{version}.tar.bz2
 Source1:        samba.log
 Source2:        ftp://ca.samba.org/pub/samba/samba-%{version}.tar.asc
 Source8:        samba-vscan-%{vscanver}.tar.bz2
-Source10:       samba-print-pdf.sh.bz2
+Source10:       samba-print-pdf.sh
 Source11:       swat.run
 Source12:       swat-log.run
 Source14:       smbd.run
@@ -39,26 +40,26 @@ Source16:       nmbd.run
 Source17:       nmbd-log.run
 Source18:       winbindd.run
 Source19:       winbindd-log.run
-Source20:       smb-migrate.bz2
-Source21:       README.avx.sambamerge.bz2
-Patch1:         smbw.patch.bz2
-Patch2:         samba-3.0.11-mdk-smbldap-config.patch.bz2
-Patch4:         samba-3.0-smbmount-sbin.patch.bz2
-Patch5:         samba-3.0.5-mdk-lib64.patch.bz2
-Patch6:         samba-3.0.6-mdk-smbmount-unixext.patch.bz2
-Patch7:         samba-3.0.6-mdk-revert-libsmbclient-move.patch.bz2
-Patch8:         samba-3.0.20-avx-annvix-config.patch.bz2
-Patch11:	samba-3.0.20-mandrake-packaging.patch.bz2
-Patch12:	samba-3.0.14a-gcc4.diff.bz2
-Patch14:	samba-3.0.20-fix-doc-paths.patch.bz2
+Source20:       smb-migrate
+Source21:       README.avx.sambamerge
+Patch1:         smbw.patch
+Patch2:         samba-3.0.11-mdk-smbldap-config.patch
+Patch4:         samba-3.0-smbmount-sbin.patch
+Patch5:         samba-3.0.5-mdk-lib64.patch
+Patch6:         samba-3.0.6-mdk-smbmount-unixext.patch
+Patch7:         samba-3.0.6-mdk-revert-libsmbclient-move.patch
+Patch8:         samba-3.0.20-avx-annvix-config.patch
+Patch11:	samba-3.0.20-mandrake-packaging.patch
+Patch12:	samba-3.0.14a-gcc4.diff
+Patch14:	samba-3.0.20-fix-doc-paths.patch
 # http://www.samba.org/samba/patches/groupname_enumeration_v3.patch
-Patch15:	samba-3.0.20-groupname_enumeration_v3.patch.bz2
+Patch15:	samba-3.0.20-groupname_enumeration_v3.patch
 # http://www.samba.org/samba/patches/winbindd_v1.patch
-Patch16:	samba-3.0.20-winbindd_v1.patch.bz2
+Patch16:	samba-3.0.20-winbindd_v1.patch
 # http://www.samba.org/samba/patches/regcreatekey_winxp_v1.patch
-Patch17:	samba-3.0.20-regcreatekey_winxp_v1.patch.bz2
+Patch17:	samba-3.0.20-regcreatekey_winxp_v1.patch
 # http://www.samba.org/samba/patches/usrmgr_groups_v1.patch
-Patch18:	samba-3.0.20-usrmgr_groups_v1.patch.bz2
+Patch18:	samba-3.0.20-usrmgr_groups_v1.patch
 
 BuildRoot:      %{_buildroot}/%{name}-%{version}
 BuildRequires:  pam-devel readline-devel libncurses-devel popt-devel
@@ -96,12 +97,13 @@ docs directory for implementation details.
 
 
 %package server
-Summary:        Samba (SMB) server programs.
+Summary:        Samba (SMB) server programs
 Group:          System/Servers
 URL:            http://www.samba.org
 Requires:       %{name}-common = %{version}
 Requires:	perl-Crypt-SmbHash, libxml2
-PreReq:         rpm-helper
+Requires(post):	rpm-helper
+Requires(preun):rpm-helper
 Provides:       samba
 Obsoletes:      samba
 Provides:       samba3-server
@@ -116,7 +118,7 @@ protocol.
 
 
 %package client
-Summary:        Samba (SMB) client programs.
+Summary:        Samba (SMB) client programs
 Group:          Networking/Other
 URL:            http://www.samba.org
 Requires:       %{name}-common = %{version}
@@ -131,7 +133,7 @@ printing to SMB printers.
 
 
 %package common
-Summary:        Files used by both Samba servers and clients.
+Summary:        Files used by both Samba servers and clients
 Group:          System/Servers
 URL:            http://www.samba.org
 Provides:       samba3-common
@@ -143,13 +145,15 @@ packages of Samba.
 
 
 %package swat
-Summary:        The Samba Web Administration Tool.
+Summary:        The Samba Web Administration Tool
 Group:          System/Servers
 URL:            http://www.samba.org
 Requires:       %{name}-server = %{version}
 Requires:       ipsvd
 Provides:       samba3-swat
 Obsoletes:      samba3-swat
+Requires(post):	rpm-helper
+Requires(preun): rpm-helper
 
 %description swat  
 SWAT (the Samba Web Administration Tool) allows samba's smb.conf file
@@ -167,6 +171,8 @@ Summary:        Samba-winbind daemon, utilities and documentation
 Group:          System/Servers
 URL:            http://www.samba.org
 Requires:       %{name}-common = %{version}
+Requires(post):	rpm-helper
+Requires(preun): rpm-helper
 
 %description winbind
 Provides the winbind daemon and testing tools to allow authentication
@@ -178,7 +184,7 @@ Summary:        Name Service Switch service for WINS
 Group:          System/Servers
 URL:            http://www.samba.org
 Requires:       %{name}-common = %{version}
-PreReq:         glibc
+Requires(post):	glibc
 
 %description -n nss_wins
 Provides the libnss_wins shared library which resolves NetBIOS names to
@@ -444,8 +450,8 @@ chmod 0640 %{buildroot}%{_srvdir}/swat/peers/0
 
 echo "901" >%{buildroot}%{_srvdir}/swat/env/PORT
 
-bzcat %{SOURCE10}> %{buildroot}%{_datadir}/%{name}/scripts/print-pdf
-bzcat %{SOURCE20}> %{buildroot}%{_datadir}/%{name}/scripts/smb-migrate
+cat %{SOURCE10}> %{buildroot}%{_datadir}/%{name}/scripts/print-pdf
+cat %{SOURCE20}> %{buildroot}%{_datadir}/%{name}/scripts/smb-migrate
 
 rm -f %{buildroot}/sbin/mount.smbfs
 # Link smbmount to /sbin/mount.smb and /sbin/mount.smbfs
@@ -485,7 +491,7 @@ rm -f %{buildroot}%{_mandir}/man1/testprns*
 cp %{buildroot}%{_sysconfdir}/%{name}/smb.conf %{buildroot}%{_datadir}/%{name}/smb.conf.clean
 
 # (sb) leave a README.avx.conf to explain what has been done
-bzcat %{SOURCE21} >%{buildroot}%{_datadir}/%{name}/README.avx.conf
+cat %{SOURCE21} >%{buildroot}%{_datadir}/%{name}/README.avx.conf
 
 mkdir -p %{buildroot}%{_srvdir}/smbd/depends
 %_mkdepends smbd nmbd
@@ -838,14 +844,19 @@ popd >/dev/null 2>&1
 
 
 %changelog
-* Fri Sep 30 2005 Vincent Danen <vdanen@annvix.org> 3.0.20-6avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- fix (some) prereqs
+
+* Fri Sep 30 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.0.20-6avx
 - cleanups to swat runfile
 
-* Thu Sep 29 2005 Vincent Danen <vdanen@annvix.org> 3.0.20-5avx
+* Thu Sep 29 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.0.20-5avx
 - fix the nmbd runscript to remove svwaitup since it doesn't have
   any dependencies
 
-* Tue Sep 27 2005 Vincent Danen <vdanen@annvix.org> 3.0.20-4avx
+* Tue Sep 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.0.20-4avx
 - add %%post and %%preun for swat
 - execline run scripts
 - simplify the winbindd script; admins need to know their stuff before
@@ -856,15 +867,15 @@ popd >/dev/null 2>&1
 - make smbd require nmbd; for now don't add a reverse require because it
   makes the new srv have fits
 
-* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 3.0.20-3avx
+* Fri Sep 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.0.20-3avx
 - really apply P16
 - P17 and P18: more post-3.0.20 fixes
 - rediff P8 against the updated mandrake smb.conf
 
-* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 3.0.20-2avx
+* Fri Sep 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.0.20-2avx
 - rebuild against new readline and libxml2
 
-* Sat Sep 03 2005 Vincent Danen <vdanen@annvix.org> 3.0.20-1avx
+* Sat Sep 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.0.20-1avx
 - 3.0.20
 - use execlineb for run scripts
 - move logdir to /var/log/service/{smbd,nmbd,swat,winbindd}
@@ -876,25 +887,25 @@ popd >/dev/null 2>&1
 - update the run scripts to use -F instead of both -D and -F
 - source /usr/share/srv/functions in windbindd's run script
 
-* Sat Aug 27 2005 Vincent Danen <vdanen@annvix.org> 3.0.11-6avx
+* Sat Aug 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.0.11-6avx
 - fix perms on run scripts
 
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 3.0.11-5avx
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.0.11-5avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 3.0.11-4avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.0.11-4avx
 - rebuild
 
-* Sat Mar 05 2005 Vincent Danen <vdanen@annvix.org> 3.0.11-3avx
+* Sat Mar 05 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.0.11-3avx
 - rebuild against new libxml2
 
-* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 3.0.11-2avx
+* Thu Mar 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.0.11-2avx
 - use logger for logging
 - add the idmap_rid module (bgmilne)
 - put smbldap-tools as it's own package (bgmilne)
 - drop the unnecessary cache file backup (bgmilne)
 
-* Tue Feb 15 2005 Vincent Danen <vdanen@annvix.org> 3.0.11-1avx
+* Tue Feb 15 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.0.11-1avx
 - 3.0.11
 - fix nmbd/log/run script
 - drop editreg (bgmilne)
@@ -913,7 +924,7 @@ popd >/dev/null 2>&1
 - compile without-syslog as on active servers, it files messages and daemons up
   pretty quick; let samba handle it's own logging
 
-* Fri Dec 17 2004 Vincent Danen <vdanen@annvix.org> 3.0.10-1avx
+* Fri Dec 17 2004 Vincent Danen <vdanen-at-build.annvix.org> 3.0.10-1avx
 - 3.0.10 - security update for CAN-2004-1154
 - add a symlink for mount.cifs in /sbin, so mount -t cifs works (bgmilne)
 - drop P3; merged
@@ -922,13 +933,13 @@ popd >/dev/null 2>&1
 - rediff P8
 - include pam_windbind.8 manpage
 
-* Wed Nov 10 2004 Vincent Danen <vdanen@annvix.org> 3.0.8-1avx
+* Wed Nov 10 2004 Vincent Danen <vdanen-at-build.annvix.org> 3.0.8-1avx
 - 3.0.8 - security update for CAN-2004-0930
 - add tdbtool to common (bgmilne)
 - fix the doc permissions that were broken in the tarball (bgmilne)
 - s/Anthill/Bugzilla/
 
-* Mon Sep 13 2004 Vincent Danen <vdanen@annvix.org> 3.0.7-1avx
+* Mon Sep 13 2004 Vincent Danen <vdanen-at-build.annvix.org> 3.0.7-1avx
 - 3.0.7 - security update for CAN-2004-0807 and CAN-2004-0808
 - P8: move old smb.conf to smb.conf_full and use a new secure (small!)
   smb.conf
@@ -946,17 +957,17 @@ popd >/dev/null 2>&1
   installs cups on their own
 - NOTE: this spec still needs a major overhaul
 
-* Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 3.0.5-3avx
+* Tue Aug 17 2004 Vincent Danen <vdanen-at-build.annvix.org> 3.0.5-3avx
 - rebuild against new openssl
 
-* Fri Aug 13 2004 Vincent Danen <vdanen@annvix.org> 3.0.5-2avx
+* Fri Aug 13 2004 Vincent Danen <vdanen-at-build.annvix.org> 3.0.5-2avx
 - don't need libsmbclient move hack for x86_64 anymore
 - fix pid file location (#10666) (bgmilne)
 - merge amd64 fixes (P7) (bgmilne)
 - make pdf printer work again, and other misc fixes to default
   config (bgmilne)
 
-* Tue Jul 27 2004 Vincent Danen <vdanen@annvix.org> 3.0.5-1avx
+* Tue Jul 27 2004 Vincent Danen <vdanen-at-build.annvix.org> 3.0.5-1avx
 - 3.0.5 (fixes CAN-2004-0600, CAN-2004-0686)
 - include gpg signature
 - update run scripts for as-close-to-proper daemonization as
@@ -964,7 +975,7 @@ popd >/dev/null 2>&1
   measures)
 - Requires: srv >= 0.7
 
-* Wed Jul 21 2004 Vincent Danen <vdanen@annvix.org> 3.0.5pre1-1avx
+* Wed Jul 21 2004 Vincent Danen <vdanen-at-build.annvix.org> 3.0.5pre1-1avx
 - 3.0.5pre1
 - remove symantec antvirus completely as it's the only one we need
   external libs for
@@ -982,7 +993,7 @@ popd >/dev/null 2>&1
   - fix building without scanners (bgmilne)
 
 
-* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 3.0.1-7avx
+* Mon Jun 21 2004 Vincent Danen <vdanen-at-build.annvix.org> 3.0.1-7avx
 - Annvix build
 
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 3.0.1-6sls
