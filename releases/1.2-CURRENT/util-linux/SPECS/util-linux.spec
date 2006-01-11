@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		util-linux
 %define version		2.12q
-%define release		5avx
+%define release		%_revrel
 
 Summary:	A collection of basic system utilities
 Name:		%{name}
@@ -29,94 +30,93 @@ Source8:	nologin.c
 Source9:	nologin.8
 Source10:	kbdrate.tar.bz2
 # Change default config to switch mandrake config
-Patch0:		util-linux-2.12q-mdkconf.patch.bz2
+Patch0:		util-linux-2.12q-mdkconf.patch
 # We don't want to compile chkdupexe
-Patch1:		util-linux-2.11o-nochkdupexe.patch.bz2
+Patch1:		util-linux-2.11o-nochkdupexe.patch
 # limit the length of gecos size (security problem)
-Patch2:		util-linux-2.11a-gecossize.patch.bz2
+Patch2:		util-linux-2.11a-gecossize.patch
 # the group of the tty program is root (instead of tty)
-Patch21:	util-linux-2.9v-nonroot.patch.bz2
+Patch21:	util-linux-2.9v-nonroot.patch
 # Make more use xstrncpy and be build always (we have TERMCAP)
-Patch27:	util-linux-2.11t-moretc.patch.bz2
+Patch27:	util-linux-2.11t-moretc.patch
 # s390 patches (only applied for s390)
-Patch60:	util-linux-2.10s-s390x.patch.bz2
-Patch61:	util-linux-2.11b-s390x.patch.bz2
+Patch60:	util-linux-2.10s-s390x.patch
+Patch61:	util-linux-2.11b-s390x.patch
 # fdisk: use 16 partitions as maximun
 # misc documentation fixes for man pages
-Patch70:	util-linux-2.12q-miscfixes.patch.bz2
+Patch70:	util-linux-2.12q-miscfixes.patch
 # lot of cleanups for mkcramfs
-Patch100:	mkcramfs.patch.bz2
+Patch100:	mkcramfs.patch
 # Make mkcramfs quieter, use --verbose for old behaviour
-Patch101:	mkcramfs-quiet.patch.bz2
+Patch101:	mkcramfs-quiet.patch
 #
 ########### START UNSUBMITTED
 #
-Patch105:	util-linux-2.12q-varargs.patch.bz2
-Patch106:	util-linux-2.12q-swaponsymlink-57301.patch.bz2
-Patch107:	util-linux-2.11x-procpartitions-37436.patch.bz2
-Patch109:	util-linux-2.11f-rawman.patch.bz2 
-Patch111:	util-linux-2.11t-mkfsman.patch.bz2
-Patch114:	util-linux-2.11t-dumboctal.patch.bz2
-Patch115:	util-linux-2.12q-fix-ioctl.patch.bz2
-Patch116:	util-linux-2.12q-autodav.patch.bz2
-Patch117:	util-linux-2.12-kbdrate-period-fix.patch.bz2
-Patch120:	util-linux-2.12q-compilation.patch.bz2
+Patch105:	util-linux-2.12q-varargs.patch
+Patch106:	util-linux-2.12q-swaponsymlink-57301.patch
+Patch107:	util-linux-2.11x-procpartitions-37436.patch
+Patch109:	util-linux-2.11f-rawman.patch 
+Patch111:	util-linux-2.11t-mkfsman.patch
+Patch114:	util-linux-2.11t-dumboctal.patch
+Patch115:	util-linux-2.12q-fix-ioctl.patch
+Patch116:	util-linux-2.12q-autodav.patch
+Patch117:	util-linux-2.12-kbdrate-period-fix.patch
+Patch120:	util-linux-2.12q-compilation.patch
 ########### END UNSUBMITTED.
 ########
 # Allow raw(8) to bind raw devices whose device nodes do not yet exist
-Patch160:	raw-handle-nonpresent-devs.patch.bz2
+Patch160:	raw-handle-nonpresent-devs.patch
 # Mount patches
-Patch201:	util-linux-2.11m-nolock-docs.patch.bz2
-Patch204:	util-linux-2.12q-2gb.patch.bz2
-Patch206:	util-linux-2.11m-kudzu.patch.bz2
-Patch207:	util-linux-2.12q-swapon.patch.bz2
-Patch209:	util-linux-2.12q-swapoff.patch.bz2
-Patch210:	util-linux-2.12-largefile.patch.bz2
-Patch211:	util-linux-2.12q-user_label_umount.patch.bz2
-Patch213:	util-linux-2.12q-loop-AES-v3.0c.patch.bz2
-Patch214:	util-linux-2.12q-set-as-encrypted.patch.bz2
-Patch215:	util-linux-2.12q-swapon-skip-encrypted.patch.bz2
-Patch216:	util-linux-2.12q-nfsmount.patch.bz2
+Patch201:	util-linux-2.11m-nolock-docs.patch
+Patch204:	util-linux-2.12q-2gb.patch
+Patch206:	util-linux-2.11m-kudzu.patch
+Patch207:	util-linux-2.12q-swapon.patch
+Patch209:	util-linux-2.12q-swapoff.patch
+Patch210:	util-linux-2.12-largefile.patch
+Patch211:	util-linux-2.12q-user_label_umount.patch
+Patch213:	util-linux-2.12q-loop-AES-v3.0c.patch
+Patch214:	util-linux-2.12q-set-as-encrypted.patch
+Patch215:	util-linux-2.12q-swapon-skip-encrypted.patch
+Patch216:	util-linux-2.12q-nfsmount.patch
 # remove mode= from udf mounts (architecture done so that more may come)
-Patch218:	util-linux-2.12q-mount-remove-silly-options-in-auto.patch.bz2
-Patch219:	util-linux-2.12-lower-LOOP_PASSWORD_MIN_LENGTH-for-AES.patch.bz2
+Patch218:	util-linux-2.12q-mount-remove-silly-options-in-auto.patch
+Patch219:	util-linux-2.12-lower-LOOP_PASSWORD_MIN_LENGTH-for-AES.patch
 # load cryptoloop and cypher modules when use cryptoapi
-Patch220:	util-linux-2.12a-cryptoapi-load-module.patch.bz2
+Patch220:	util-linux-2.12a-cryptoapi-load-module.patch
 # (fc) 2.12a-11mdk add support for pamconsole mount option (fedora)
-patch221:	util-linux-2.12q-pamconsole.patch.bz2
+Patch221:	util-linux-2.12q-pamconsole.patch
 # (fc) 2.12a-11mdk add support for pamconsole mount option (fedora)
-patch222:	util-linux-2.12a-managed.patch.bz2
+Patch222:	util-linux-2.12a-managed.patch
 # nfs4 support (http://www.citi.umich.edu/projects/nfsv4/linux/util-linux-patches/2.12-3/)
-patch223:	util-linux-2.12q-nfs4.patch.bz2
+Patch223:	util-linux-2.12q-nfs4.patch
 # fortify fixes
-Patch224:	util-linux-2.12q-fortify.patch.bz2
+Patch224:	util-linux-2.12q-fortify.patch
 # honor "mode=" for devpts filesystem
-Patch225:	util-linux-2.12q-devpts-mode.patch.bz2
+Patch225:	util-linux-2.12q-devpts-mode.patch
 #
 # Mandrake Specific patches
 # fix compilation related with miscfixes
-Patch1000:	util-linux-2.11h-fix-compilation.patch.bz2
+Patch1000:	util-linux-2.11h-fix-compilation.patch
 # clock program for ppc
-Patch1200:	util-linux-2.10r-clock-1.1-ppc.patch.bz2
+Patch1200:	util-linux-2.10r-clock-1.1-ppc.patch
 # leng options for clock-ppc
-Patch1201:	util-linux-2.10s-clock-syntax-ppc.patch.bz2
+Patch1201:	util-linux-2.10s-clock-syntax-ppc.patch
 # Added r & w options to chfn (lsb mandate)
-Patch1202:	util-linux-2.11o-chfn-lsb-usergroups.patch.bz2
+Patch1202:	util-linux-2.11o-chfn-lsb-usergroups.patch
 # fix build on alpha with newer kernel-headers
-Patch1203:	util-linux-2.11m-cmos-alpha.patch.bz2
+Patch1203:	util-linux-2.11m-cmos-alpha.patch
 # handle biarch struct utmp[x]
-Patch1206:	util-linux-2.12a-biarch-utmp.patch.bz2
+Patch1206:	util-linux-2.12a-biarch-utmp.patch
 # do not hide users option in mtab
-Patch1207:	util-linux-2.12a-users.patch.bz2
+Patch1207:	util-linux-2.12a-users.patch
 # use glibc syscall() to use syscalls, ban use of <asm/unistd.h>
-Patch1208:	util-linux-2.12q-llseek-syscall.patch.bz2
+Patch1208:	util-linux-2.12q-llseek-syscall.patch
 # Try to detect if the cdrom we have is a cd-extra (track audio and later track data) not
-Patch1210:	util-linux-2.12q-mount_guess_fs_cdextra.patch.bz2
+Patch1210:	util-linux-2.12q-mount_guess_fs_cdextra.patch
 
 # Annvix patches
-Patch1250:	util-linux-2.12a-avx-noselinux.patch.bz2
-Patch1251:	util-linux-2.12a-avx-nostacksln.patch.bz2
-Patch1252:	util-linux-2.12a-can-2005-2876.patch.bz2
+Patch1250:	util-linux-2.12a-avx-noselinux.patch
+Patch1252:	util-linux-2.12a-can-2005-2876.patch
 
 Obsoletes:	fdisk tunelp
 provides:	fdisk, tunelp
@@ -250,7 +250,6 @@ cp %{SOURCE8} %{SOURCE9} .
 %patch1210 -p1 -b .cdextra
 
 %patch1250 -p0 -b .noselinux
-#%patch1251 -p0 -b .nostacksln
 %patch1252 -p1 -b .can-2005-2876
 
 # USRLIB_DIR is %{_libdir}
@@ -599,20 +598,25 @@ fi
 
 
 %changelog
-* Thu Sep 22 2005 Vincent Danen <vdanen@annvix.org> 2.12q-5avx
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- drop unapplied P1251 (sln builds fine with SSP anyways)
+
+* Thu Sep 22 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.12q-5avx
 - updated P218 (oblin):
   - really ignore utf8 if fs doesn't handle it
   - udf does support utf8
   - allow to remove conflicting options (for example utf8 if fs is
     udf and iocharset is specified)
 
-* Tue Sep 20 2005 Vincent Danen <vdanen@annvix.org> 2.12q-4avx
+* Tue Sep 20 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.12q-4avx
 - P1252: patch to remove the -r flag from umount (CAN-2005-2876);
   NOTE: this doesn't affect Annvix by default since umount is not
   suid, but this is a precaution in case someone stupidly adds back
   the suid bit
 
-* Sun Sep 11 2005 Vincent Danen <vdanen@annvix.org> 2.12q-3avx
+* Sun Sep 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.12q-3avx
 - strip suid bit from mount, umount, chfn, and chsh
 - strip sgid bit from write (not required)
 - don't build kdbrate at all; who needs it anyways
@@ -622,11 +626,11 @@ fi
   - P225: honor "mode=" for devpts filesystems (LSB, re: sbenedict)
     (gbeauchesne)
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 2.12q-2avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.12q-2avx
 - bootstrap build (new gcc, new glibc)
 - add missing P117 from mdk 2.12q-3mdk (without it kbdrate won't compile)
 
-* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 2.12q-1avx
+* Tue Jul 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.12q-1avx
 - 2.12q (sync with cooker 2.12q-3mdk):
   - updated P218: only keep utf8 option for iso9660, ntfs, and vfat (oblin)
   - rediff patches P0, P106, P115, P116, P121, P204, P207, P209, P211, P214,
@@ -640,10 +644,10 @@ fi
 - drop P121; applied upstream
 - don't apply P1251 since we're not compiling with SSP
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.12a-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.12a-2avx
 - bootstrap build
 
-* Tue Mar 01 2005 Vincent Danen <vdanen@annvix.org> 2.12a-1avx
+* Tue Mar 01 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.12a-1avx
 - 2.12a (sync with cooker 2.12a-11mdk):
   - P120: fix compilation issues (blino)
   - P160: fix raw devices with udev (mdk bug #11511) (tvignaud)
@@ -660,7 +664,7 @@ fi
 - P1251: don't build sln with -fstack-protector because compiling static stuff
   right now gives us symbol issues
 
-* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 2.12-3avx
+* Fri Jun 18 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.12-3avx
 - Annvix build
 
 * Fri Jun 11 2004 Vincent Danen <vdanen@opensls.org> 2.12-2sls
