@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-# $Id: setup.spec,v 1.17 2005/10/25 03:33:25 vdanen Exp $
+# $Id$
 
+%define revision	$Rev$
 %define name		setup
 %define version 	2.5
-%define release 	7avx
+%define release 	%_revrel
 
 Summary:	A set of system configuration and setup files
 Name:		%{name}
@@ -101,27 +102,31 @@ fi
 
 
 %changelog
-* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 2.5-7avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Sep 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.5-7avx
 - bump the dataseg size ulimit from 6144 to 12288
 
-* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 2.5-6avx
+* Fri Sep 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.5-6avx
 - varargs fixes to run-parts (gbeauchesne)
 
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 2.5-5avx
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.5-5avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 2.5-4avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.5-4avx
 - bootstrap build
 
-* Sat Mar 19 2005 Vincent Danen <vdanen@annvix.org> 2.5-3avx
+* Sat Mar 19 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.5-3avx
 - add /etc/sysconfig/ulimits to determine defaults for max number of user procs,
   max number of open files, and max data segment size
 
-* Fri Mar 18 2005 Vincent Danen <vdanen@annvix.org> 2.5-2avx
+* Fri Mar 18 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.5-2avx
 - set some limits via limit/ulimit in /etc/profile and /etc/csh.cshrc
   as right now all resources are pretty much unlimited
 
-* Fri Mar 18 2005 Vincent Danen <vdanen@annvix.org> 2.5-1avx
+* Fri Mar 18 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.5-1avx
 - csh.cshrc: fix some csh code in csh.cshrc
 - inputrc: redefine PgUp/PgDn so that instead of just cycling through
   history (like Up/Down arrows), it is possible to type the beginning
@@ -132,26 +137,26 @@ fi
 - requires on shadow-utils for %%post scripts
 - securetty: root can only login on tty1 now
 
-* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 2.4-17avx
+* Thu Mar 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.4-17avx
 - bad cut-n-paste job on passwd
 
-* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 2.4-16avx
+* Thu Mar 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.4-16avx
 - add uid/gid 67 for supervise logging (dedicated user is safer than
   using nobody/nogroup)
 
-* Fri Nov 12 2004 Vincent Danen <vdanen@annvix.org> 2.4-15avx
+* Fri Nov 12 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.4-15avx
 - ouch... make sure /etc/shadow is mode 0400
 
-* Thu Aug 19 2004 Vincent Danen <vdanen@annvix.org> 2.4-14avx
+* Thu Aug 19 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.4-14avx
 - fix homedir for RSBAC users
 
-* Wed Aug 11 2004 Vincent Danen <vdanen@annvix.org> 2.4-13avx
+* Wed Aug 11 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.4-13avx
 - add uid/gid 400, 401, and 402 for RSBAC
 
-* Mon Jun 28 2004 Vincent Danen <vdanen@annvix.org> 2.4-12avx
+* Mon Jun 28 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.4-12avx
 - fix the motd
 
-* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 2.4-11avx
+* Mon Jun 21 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.4-11avx
 - Annvix build
 
 * Tue Jun 15 2004 Vincent Danen <vdanen@opensls.org> 2.4-10sls
