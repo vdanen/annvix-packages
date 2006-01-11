@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		sysklogd
 %define version		1.4.1
-%define release		18avx
+%define release		%_revrel
 
 Summary:	System logging and kernel message trapping daemons
 Name:		%{name}
@@ -23,20 +24,23 @@ Source2:	klogd.run
 Source3:	syslog.logrotate
 Source4:	syslog.conf
 Source5:	syslog.sysconfig
-Patch0:		sysklogd-1.4.1-avx-conf.patch.bz2
-Patch1: 	sysklogd-1.4rh-do_not_use_initlog_when_restarting.patch.bz2
-Patch2:		sysklogd-1.4.1-owl-longjmp.diff.bz2
-Patch3:		sysklogd-1.4.1-owl-syslogd-create-mode.patch.bz2
-Patch4:		sysklogd-1.4.1-alt-owl-syslogd-killing.diff.bz2
-Patch5:		sysklogd-1.4.1-caen-owl-klogd-drop-root.diff.bz2
-Patch6:		sysklogd-1.4.1-caen-owl-syslogd-bind.patch.bz2
-Patch7:		sysklogd-1.4.1-caen-owl-syslogd-drop-root.patch.bz2
-Patch8:		sysklogd-1.4.1-owl-syslogd-crunch_list.diff.bz2
+Patch0:		sysklogd-1.4.1-avx-conf.patch
+Patch1: 	sysklogd-1.4rh-do_not_use_initlog_when_restarting.patch
+Patch2:		sysklogd-1.4.1-owl-longjmp.diff
+Patch3:		sysklogd-1.4.1-owl-syslogd-create-mode.patch
+Patch4:		sysklogd-1.4.1-alt-owl-syslogd-killing.diff
+Patch5:		sysklogd-1.4.1-caen-owl-klogd-drop-root.diff
+Patch6:		sysklogd-1.4.1-caen-owl-syslogd-bind.patch
+Patch7:		sysklogd-1.4.1-caen-owl-syslogd-drop-root.patch
+Patch8:		sysklogd-1.4.1-owl-syslogd-crunch_list.diff
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 Requires:	logrotate >= 3.3-8mdk, bash >= 2.0
-PreReq:		fileutils, initscripts >= 5.60, rpm-helper
+Requires(pre):	rpm-helper
+Requires(preun): rpm-helper
+Requires(post):	rpm-helper
+Requires(postun): rpm-helper
 
 %description
 The sysklogd package contains two system utilities (syslogd and klogd)
@@ -140,35 +144,40 @@ fi
 
 
 %changelog
-* Sun Oct 09 2005 Vincent Danen <vdanen@annvix.org> 1.4.1-18avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- fix prereq
+
+* Sun Oct 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.4.1-18avx
 - fix calls to srv
 
-* Wed Sep 28 2005 Vincent Danen <vdanen@annvix.org> 1.4.1-17avx
+* Wed Sep 28 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.4.1-17avx
 - execline run scripts
 - add env directory
 
-* Thu Sep 08 2005 Sean P. Thomas <spt@annvix.org> 1.4.1-16avx
+* Thu Sep 08 2005 Sean P. Thomas <spt-at-build.annvix.org> 1.4.1-16avx
 - fix perms on run scripts
 
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 1.4.1-15avx
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.4.1-15avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.4.1-14avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.4.1-14avx
 - bootstrap build
 
-* Sun Oct 17 2004 Vincent Danen <vdanen@annvix.org> 1.4.1-13avx
+* Sun Oct 17 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.4.1-13avx
 - s/OpenSLS/Annvix/ in syslog.conf (re: Jean-Pierre Denis)
 - remove cron.* entries from syslog.conf because dcron logs to svlogd,
   thus logs are in /var/log/supervise/crond (in other words, get rid of
   useless empty 0 byte cron logs)
 
-* Fri Sep 17 2004 Vincent Danen <vdanen@annvix.org> 1.4.1-12avx
+* Fri Sep 17 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.4.1-12avx
 - updated run scripts
 - minor spec cleanups
 - remove the trigger
 - bzip patches
 
-* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 1.4.1-11avx
+* Mon Jun 21 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.4.1-11avx
 - Annvix build
 
 * Sat May 08 2004 Vincent Danen <vdanen@opensls.org> 1.4.1-10sls
