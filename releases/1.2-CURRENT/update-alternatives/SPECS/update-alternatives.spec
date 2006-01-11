@@ -6,10 +6,13 @@
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
 # mdk 1.8.3-2mdk
+#
+# $Id$
 
+%define revision	$Rev$
 %define name		update-alternatives
 %define version		1.8.3
-%define release		1avx
+%define release		%_revrel
 
 Summary:	Alternative management system
 Name:		%{name}
@@ -56,7 +59,11 @@ install -d -m 755 %{buildroot}%{_localstatedir}/rpm/alternatives
 
 
 %changelog
-* Sat Sep 10 2005 Vincent Danen <vdanen@annvix.org> 1.8.3-1avx
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.8.3-1avx
 - first Annvix build to go with new rpm
 
 * Wed Apr 27 2005 Olivier Thauvin <nanardon@mandriva.org> 1.8.3-2mdk
