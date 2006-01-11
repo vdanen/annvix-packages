@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name 		smbldap-tools
 %define version 	0.9.1
-%define release 	2avx
+%define release 	%_revrel
 
 Summary:	User & Group administration tools for Samba-OpenLDAP
 Name: 		%{name}
@@ -20,7 +21,7 @@ License: 	GPL
 URL:		http://samba.IDEALX.org/
 Source0: 	http://samba.idealx.org/dist/smbldap-tools-%{version}.tar.bz2
 Source1: 	mkntpwd.tar.bz2
-Patch0:		smbldap-tools-0.9.1-mdkconfig.patch.bz2
+Patch0:		smbldap-tools-0.9.1-mdkconfig.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -102,22 +103,26 @@ install -m 0755 mkntpwd/mkntpwd %{buildroot}%{_sbindir}/
 
 
 %changelog
-* Thu Sep 22 2005 Vincent Danen <vdanen@annvix.org> 0.9.1-2avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Thu Sep 22 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.9.1-2avx
 - P0: reapply changes as when shipped with samba to match the default
   smb.conf, LDAP layout, OpenLDAP ACLs, and default nss_ldap behaviour
   (bgmilne)
 
-* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 0.9.1-1avx
+* Sat Sep 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.9.1-1avx
 - 0.9.1
 - drop redundant P0
 
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 0.8.7-7avx
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.8.7-7avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 0.8.7-6avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.8.7-6avx
 - rebuild
 
-* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 0.8.7-5avx
+* Thu Mar 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.8.7-5avx
 - first Annvix package
 
 * Thu Feb 17 2005 Oden Eriksson <oeriksson@mandrakesoft.com> 0.8.7-5mdk
