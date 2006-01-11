@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		unzip
 %define version 	5.52
-%define release 	2avx
+%define release 	%_revrel
 %define src_ver 	552
 
 Summary:	Unpacks ZIP files such as those made by pkzip under DOS
@@ -20,8 +21,8 @@ License:	BSD-like
 Group:		Archiving/Compression
 URL:		http://www.info-zip.org/pub/infozip/UnZip.html
 Source0:	ftp://ftp.icce.rug.nl/infozip/src/%{name}%{src_ver}.tar.bz2
-Patch1:		unzip542-size-64bit.patch.bz2
-Patch2:		unzip-5.52-CAN-2005-2475.patch.bz2
+Patch1:		unzip542-size-64bit.patch
+Patch2:		unzip-5.52-CAN-2005-2475.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -87,24 +88,28 @@ EOF
 
 
 %changelog
-* Wed Oct 26 2005 Vincent Danen <vdanen@annvix.org> 5.52-2avx
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Wed Oct 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.52-2avx
 - P2: fix for CAN-2005-2475
 
-* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 5.52-1avx
+* Fri Sep 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.52-1avx
 - 5.52
 - drop P0 and define LZW_CLEAN instead (waschk)
 - drop P2; fixed upstream
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 5.50-15avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.50-15avx
 - bootstrap build (new gcc, new glibc)
 
-* Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 5.50-14avx
+* Wed Jul 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.50-14avx
 - rebuild for new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 5.50-13avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.50-13avx
 - bootstrap build
 
-* Fri Jun 18 2004 Vincent Danen <vdanen@annvix.org> 5.50-12avx
+* Fri Jun 18 2004 Vincent Danen <vdanen-at-build.annvix.org> 5.50-12avx
 - Annvix build
 
 * Tue Mar 09 2004 Vincent Danen <vdanen@opensls.org> 5.50-11sls
