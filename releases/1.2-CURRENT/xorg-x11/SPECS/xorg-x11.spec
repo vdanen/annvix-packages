@@ -5,10 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
+%define revision	$Rev$
 %define name		xorg-x11
 %define version		6.8.2
-%define release		3avx
+%define release		%_revrel
 
 %global _unpackaged_files_terminate_build	0
 
@@ -125,21 +127,21 @@ Source50: http://freedesktop.org/~xlibs/release/render-%{renderver}.tar.bz2
 Source51: http://freedesktop.org/~xlibs/release/libXrender-%{xrenderver}.tar.bz2
 Source52: http://freedesktop.org/~xlibs/release/libXft-%{xftver}.tar.bz2
 
-Source100: Euro.xmod.bz2
+Source100: Euro.xmod
 Source102: eurofonts-X11.tar.bz2
 # extra *.enc files for xfs server not (yet) in XFree86 -- pablo
 Source152: xfsft-encodings.tar.bz2
 # locale.dir, compose.dir, locale.alias files.
 # maintaining them trough patches is a nightmare, as they change
 # too much too often; it is easier to manage them separately -- pablo
-Source153: XFree86-compose.dir.bz2
-Source154: XFree86-locale.alias.bz2
-Source155: XFree86-locale.dir.bz2
+Source153: XFree86-compose.dir
+Source154: XFree86-locale.alias
+Source155: XFree86-locale.dir
 #
 Source156: gemini-koi8-u.tar.bz2
 # the new default unicode compose file is too human-unfriendly; keeping
 # the old one...
-Source157: X_Compose-en_US.UTF-8.bz2
+Source157: X_Compose-en_US.UTF-8
 
 # I18n updates from Pablo
 # Devanagari OpenType font, to install for the indic opentype patch -- pablo
@@ -148,65 +150,65 @@ Source160: XFree86-extrascalablefonts-font.tar.bz2
 # Wonderland mouse cursor (Fedora)
 Source212: wonderland-cursors.tar.bz2
 
-Patch4:	X11R6.7.0-libfreetype-xtt2-1.2a.patch.bz2
-Patch5:	Xorg-6.7.0-isolate_device.patch.bz2
+Patch4:	X11R6.7.0-libfreetype-xtt2-1.2a.patch
+Patch5:	Xorg-6.7.0-isolate_device.patch
 #Patch5:	XFree86-4.3-PrefBusID-v3.patch.bz2
 
 # Libs patches #################################################################
 
 # X server patches #############################################################
 
-Patch200: XFree86-4.2.99.3-parallel-make.patch.bz2
-Patch201: XFree86-4.2.99.3-mandrakelinux-blue.patch.bz2
-Patch202: XFree86-4.3.99.901-xwrapper.patch.bz2
+Patch200: XFree86-4.2.99.3-parallel-make.patch
+Patch201: XFree86-4.2.99.3-mandrakelinux-blue.patch
+Patch202: XFree86-4.3.99.901-xwrapper.patch
 
 # Build the following libraries with PIC: libxf86config, libXau, libxkbfile
-Patch210: XFree86-4.3-build-libs-with-pic.patch.bz2
+Patch210: XFree86-4.3-build-libs-with-pic.patch
 
-Patch213: XFree86-4.3.0-gb18030.patch.bz2
-Patch214: XFree86-4.3.0-gb18030-enc.patch.bz2
+Patch213: XFree86-4.3.0-gb18030.patch
+Patch214: XFree86-4.3.0-gb18030-enc.patch
 
-Patch216: XFree86-4.3-_LP64-fix.patch.bz2
+Patch216: XFree86-4.3-_LP64-fix.patch
 
 # Drivers patches ##############################################################
 
 # Patch for building in Debug mode
-Patch700: XFree86-4.2.99.3-acecad-debug.patch.bz2
+Patch700: XFree86-4.2.99.3-acecad-debug.patch
 
 # Xorg patches
 # https://bugs.freedesktop.org/show_bug.cgi?id=2164
-Patch5000: xorg-x11-6.8.2-radeon-render.patch.bz2
+Patch5000: xorg-x11-6.8.2-radeon-render.patch
 # https://bugs.freedesktop.org/show_bug.cgi?id=2380
-Patch5001: xorg-x11-6.8.2-nv-ids.patch.bz2
+Patch5001: xorg-x11-6.8.2-nv-ids.patch
 # https://bugs.freedesktop.org/show_bug.cgi?id=2467
-Patch5002: xorg-x11-6.8.2-void-driver.patch.bz2
+Patch5002: xorg-x11-6.8.2-void-driver.patch
 # https://bugs.freedesktop.org/show_bug.cgi?id=2698
-Patch5003: xorg-x11-6.8.2-radeon-merge.patch.bz2
+Patch5003: xorg-x11-6.8.2-radeon-merge.patch
 # https://bugs.freedesktop.org/show_bug.cgi?id=2599
-Patch5004: xorg-x11-6.8.2-xnest-stacking.patch.bz2
+Patch5004: xorg-x11-6.8.2-xnest-stacking.patch
 
 # RH patches
 
-Patch9325: xorg-x11-6.8.2-gcc4-fix.patch.bz2
-Patch9327: xorg-x11-6.8.2-ati-radeon-gcc4-fix.patch.bz2
+Patch9325: xorg-x11-6.8.2-gcc4-fix.patch
+Patch9327: xorg-x11-6.8.2-ati-radeon-gcc4-fix.patch
 #(sb) partially from fedora commits
-Patch9328: xorg-x11-6.8.2-gcc40.patch.bz2
+Patch9328: xorg-x11-6.8.2-gcc40.patch
 
-Patch9601: XFree86-4.3.99.902-mozilla-flash.patch.bz2
+Patch9601: XFree86-4.3.99.902-mozilla-flash.patch
 
-Patch10012: xorg-redhat-libGL-exec-shield-fixes.patch.bz2
-Patch10015: XFree86-4.3.0-redhat-nv-riva-videomem-autodetection-debugging.patch.bz2
+Patch10012: xorg-redhat-libGL-exec-shield-fixes.patch
+Patch10015: XFree86-4.3.0-redhat-nv-riva-videomem-autodetection-debugging.patch
 
-Patch10101: XFree86-4.3.0-makefile-fastbuild.patch.bz2
+Patch10101: XFree86-4.3.0-makefile-fastbuild.patch
 
 
 # my addons (svetljo)
 
 # build freetype2 with fPIC on x86_64
-Patch40002: lib_freetype_module.patch.bz2  
+Patch40002: lib_freetype_module.patch  
 
 # p5000 https://bugs.freedesktop.org/show_bug.cgi?id=2073
-Patch50000: xorg-x11-6.8.2-sunffb.patch.bz2
+Patch50000: xorg-x11-6.8.2-sunffb.patch
 
 %description
 If you want to install the X Window System (TM) on
@@ -377,12 +379,12 @@ cp xc/nls/compose.dir xc/nls/compose.dir.orig
 cp xc/nls/locale.alias xc/nls/locale.alias.orig
 cp xc/nls/locale.dir xc/nls/locale.dir.orig
 cp xc/nls/Compose/en_US.UTF-8 xc/nls/Compose/en_US.UTF-8.orig
-bzcat %{SOURCE153} | sed 's/#/XCOMM/g' > xc/nls/compose.dir
-bzcat %{SOURCE154} | sed 's/#/XCOMM/g' > xc/nls/locale.alias
-bzcat %{SOURCE155} | sed 's/#/XCOMM/g' > xc/nls/locale.dir
-bzcat %{SOURCE157} | sed 's/^#/XCOMM/g' > xc/nls/Compose/en_US.UTF-8
+cat %{SOURCE153} | sed 's/#/XCOMM/g' > xc/nls/compose.dir
+cat %{SOURCE154} | sed 's/#/XCOMM/g' > xc/nls/locale.alias
+cat %{SOURCE155} | sed 's/#/XCOMM/g' > xc/nls/locale.dir
+cat %{SOURCE157} | sed 's/^#/XCOMM/g' > xc/nls/Compose/en_US.UTF-8
 # pt_BR Compose file only purpose is to allow dead_actute+c -> ccedilla
-bzcat %{SOURCE157} | sed 's/^#/XCOMM/g' | \
+cat %{SOURCE157} | sed 's/^#/XCOMM/g' | \
 	sed 's/<dead_acute> <C> : "Ć" Cacute/<dead_acute> <C> : "Ç" Ccedilla/' | \
 	sed 's/<dead_acute> <c> : "ć" cacute/<dead_acute> <c> : "ç" ccedilla/' \
 	> xc/nls/Compose/pt_BR.UTF-8
@@ -1156,7 +1158,11 @@ grep -q "^%{x11shlibdir}$" /etc/ld.so.conf || echo "%{x11shlibdir}" >> /etc/ld.s
 
 
 %changelog
-* Mon Aug 29 2005 Vincent Danen <vdanen@annvix.org> 6.8.2-3avx
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Mon Aug 29 2005 Vincent Danen <vdanen-at-build.annvix.org> 6.8.2-3avx
 - remove xorg-x11-{100dpi,75dpi,cyrillic}-fonts
 - remove xorg-x11-Xdmx
 - remove xorg-x11-Xnest
@@ -1173,10 +1179,10 @@ grep -q "^%{x11shlibdir}$" /etc/ld.so.conf || echo "%{x11shlibdir}" >> /etc/ld.s
   that we don't need since we're not using xorg as a server, but rather
   only shipping the libs and devel files for other packages to build from
 
-* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 6.8.2-2avx
+* Fri Aug 19 2005 Vincent Danen <vdanen-at-build.annvix.org> 6.8.2-2avx
 - remove /usr/X11R6/lib/X11/Cards (hwdata provides this)
 
-* Thu Aug 10 2005 Vincent Danen <vdanen@annvix.org> 6.8.2-1avx
+* Thu Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 6.8.2-1avx
 - drop XFree86 and use xorg.org instead
 - don't build the Glide module
 - drop the build debug stuff
