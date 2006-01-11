@@ -5,10 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
+%define revision	$Rev$
 %define name		swig
 %define version		1.3.25
-%define release		1avx
+%define release		%_revrel
 
 Summary:	Simplified Wrapper and Interface Generator (SWIG)
 Name:		%{name}
@@ -18,7 +20,7 @@ License:	BSD-like
 Group:		Development/Other
 URL:		http://www.swig.org/
 Source0:	http://prdownloads.sourceforge.net/%{name}/%{name}-%{version}.tar.bz2
-Patch1:		swig-1.3.23-pylib.patch.bz2
+Patch1:		swig-1.3.23-pylib.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	bison
@@ -87,7 +89,11 @@ install -m 0644 ./Source/DOH/doh.h -D %{buildroot}%{_includedir}/doh.h
 
 
 %changelog
-* Fri Oct 14 2005 Vincent Danen <vdanen@annvix.org> 1.3.25-1avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Oct 14 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.3.25-1avx
 - first Annvix build (for subversion)
 - drop the doc package
 
