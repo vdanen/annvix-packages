@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		slang
 %define version 	1.4.9
-%define release 	12avx
+%define release 	%_revrel
 
 %define docversion	1.4.8
 %define major		1
@@ -26,13 +27,13 @@ Source:		ftp://space.mit.edu/pub/davis/slang/slang-%{version}.tar.bz2
 Source1:	ftp://space.mit.edu/pub/davis/slang/slang-%{docversion}-doc.tar.bz2
 Source2:	README.UTF-8
 # (mpol) utf8 patches from http://www.suse.de/~nadvornik/slang/
-Patch1:		slang-debian-utf8.patch.bz2
-Patch2:		slang-utf8-acs.patch.bz2
-Patch3:		slang-utf8-fix.patch.bz2
-Patch4:		slang-utf8-revert_soname.patch.bz2
-Patch5:		slang-1.4.9-offbyone.patch.bz2
-Patch6:		slang-1.4.5-utf8-segv.patch.bz2
-Patch7:		slang-1.4.9-gcc4.patch.bz2
+Patch1:		slang-debian-utf8.patch
+Patch2:		slang-utf8-acs.patch
+Patch3:		slang-utf8-fix.patch
+Patch4:		slang-utf8-revert_soname.patch
+Patch5:		slang-1.4.9-offbyone.patch
+Patch6:		slang-1.4.5-utf8-segv.patch
+Patch7:		slang-1.4.9-gcc4.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -46,7 +47,7 @@ to recode S-Lang procedures in C if you need to.
 
 
 %package -n %{libname}
-Summary:	The shared library for the S-Lang extension language.
+Summary:	The shared library for the S-Lang extension language
 Group:		System/Libraries
 Provides:	slang
 Obsoletes:	slang
@@ -61,7 +62,7 @@ to recode S-Lang procedures in C if you need to.
 
 
 %package -n %{libname}-devel
-Summary:	The static library and header files for development using S-Lang.
+Summary:	The static library and header files for development using S-Lang
 Group:		Development/C
 Provides:	lib%{name}-devel slang-devel
 Obsoletes:	slang-devel
@@ -133,30 +134,34 @@ rm -rf	%{buildroot}/usr/doc/slang
 
 
 %changelog
-* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 1.4.9-12avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Fri Sep 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.4.9-12avx
 - P6: fix a segv (warly)
 - P7: gcc4 build support (warly)
 
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.4.9-11avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.4.9-11avx
 - bootstrap build (new gcc, new glibc)
 
-* Tue Jul 26 2005 Vincent Danen <vdanen@annvix.org> 1.4.9-10avx
+* Tue Jul 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.4.9-10avx
 - rebuild for new gcc
 
-* Fri Jun 03 2005 Vincent Danen <vdanen@annvix.org> 1.4.9-9avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.4.9-9avx
 - bootstrap build
 
-* Mon Mar 28 2005 Vincent Danen <vdanen@annvix.org> 1.4.9-8avx
+* Mon Mar 28 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.4.9-8avx
 - fix ownership
 
-* Mon Feb 28 2005 Vincent Danen <vdanen@annvix.org> 1.4.9-7avx
+* Mon Feb 28 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.4.9-7avx
 - put docs back in
 - add utf8 patches from SUSE (mpol)
 - make compat symlinks for devel package (mpol)
 - P5: fix off-by-one error (mpol)
 - spec cleanups
 
-* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 1.4.9-6avx
+* Mon Jun 21 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.4.9-6avx
 - Annvix build
 
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 1.4.9-5sls
