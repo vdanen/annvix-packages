@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define	revision	$Rev$
 %define	name		symlinks
 %define	version		1.2
-%define release		21avx
+%define release		%_revrel
 
 Summary:	A utility which maintains a system's symbolic links
 Name:		%{name}
@@ -19,8 +20,8 @@ Group:		File tools
 License:	BSD-style
 URL:		http://www.ibiblio.org/pub/Linux/utils/file/
 Source0:	ftp://sunsite.unc.edu/pub/Linux/utils/file/%{name}-%{version}.tar.bz2
-Patch0:		symlinks-1.2-mdk-noroot.patch.bz2
-Patch1:		symlinks-1.2-mdk-static.patch.bz2
+Patch0:		symlinks-1.2-mdk-noroot.patch
+Patch1:		symlinks-1.2-mdk-static.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	glibc-static-devel
@@ -60,17 +61,21 @@ install -m 0644 %{name}.8 -D %{buildroot}%{_mandir}/man8/%{name}.8
 
 
 %changelog
-* Wed Aug 10 2005 Vincent Danen <vdanen@annvix.org> 1.2-21avx
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.2-21avx
 - bootstrap build (new gcc, new glibc)
 
-* Wed Jul 27 2005 Vincent Danen <vdanen@annvix.org> 1.2-20avx
+* Wed Jul 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.2-20avx
 - rebuild for new gcc
 - P1: fix static build (gbeauchesne)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 1.2-19avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.2-19avx
 - rebuild
 
-* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 1.2-18avx
+* Mon Jun 21 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.2-18avx
 - Annvix build
 
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 1.2-17sls
