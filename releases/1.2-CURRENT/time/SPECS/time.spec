@@ -27,7 +27,7 @@ Patch3:		time-1.7-fixinfo.patch
 Patch4:		time-1.7-build.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	texinfo
+BuildRequires:	texinfo, automake1.4
 
 Requires(post):	info-install
 Requires(preun): info-install
@@ -90,6 +90,9 @@ make LDFLAGS=-s
 
 
 %changelog
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- BuildRequires: automake1.4
+
 * Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - Obfuscate email addresses and new tagging
 - Uncompress patches
