@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		httpd-%{mod_name}
 %define version		%{apache_version}
-%define release		3avx
+%define release		%_revrel
 
 # Module-Specific definitions
 %define apache_version	2.0.54
@@ -24,12 +25,12 @@ Release:	%{release}
 License:	GPL
 Group:		System/Servers
 URL:		http://httpd.apache.org
-Source1:	README.distcache.bz2
-Source2: 	mod_ssl-gentestcrt.sh.bz2
-Source3: 	%{mod_conf}.bz2
-Source4: 	41_mod_ssl.default-vhost.conf.bz2
+Source1:	README.distcache
+Source2: 	mod_ssl-gentestcrt.sh
+Source3: 	%{mod_conf}
+Source4: 	41_mod_ssl.default-vhost.conf
 Source5:	certwatch.tar.bz2
-Patch0:		certwatch-avx-annvix.patch.bz2
+Patch0:		certwatch-avx-annvix.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	openssl-devel
@@ -78,12 +79,12 @@ mkdir -p %{buildroot}%{_sysconfdir}/httpd/modules.d
 install -m 0755 .libs/mod_ssl.so %{buildroot}%{_libdir}/httpd-extramodules/
 
 install -d %{buildroot}%{_libdir}/ssl/httpd-mod_ssl
-bzcat %{SOURCE2} > %{buildroot}%{_libdir}/ssl/httpd-mod_ssl/gentestcrt.sh
+cat %{SOURCE2} > %{buildroot}%{_libdir}/ssl/httpd-mod_ssl/gentestcrt.sh
 
 # install module conf files for the "modules.d" dir loading structure
 install -d %{buildroot}/%{_sysconfdir}/httpd/modules.d
-bzcat %{SOURCE3} > %{buildroot}/%{_sysconfdir}/httpd/modules.d/%{mod_conf}
-bzcat %{SOURCE4} > %{buildroot}/%{_sysconfdir}/httpd/modules.d/41_mod_ssl.default-vhost.conf
+cat %{SOURCE3} > %{buildroot}/%{_sysconfdir}/httpd/modules.d/%{mod_conf}
+cat %{SOURCE4} > %{buildroot}/%{_sysconfdir}/httpd/modules.d/41_mod_ssl.default-vhost.conf
 
 install -d %{buildroot}%{_sysconfdir}/ssl/httpd
 cat > %{buildroot}%{_sysconfdir}/ssl/httpd/README.test-certificates <<EOF
@@ -154,36 +155,40 @@ fi
 
 
 %changelog
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
 * Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - Clean rebuild
 
-* Thu Oct 13 2005 Vincent Danen <vdanen@annvix.org> 2.0.54-3avx
+* Thu Oct 13 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.54-3avx
 - updated P0: fix the certwatch cron script to look in the right file
   (we no longer use commonhttpd.conf)
 
-* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 2.0.54-2avx
+* Fri Sep 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.54-2avx
 - rebuild to get the fixes for CAN-2005-2700 and CAN-2005-2728
 
-* Wed Sep 07 2005 Vincent Danen <vdanen@annvix.org> 2.0.54-1avx
+* Wed Sep 07 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.54-1avx
 - apache 2.0.54
 - s/conf.d/modules.d/
 - s/apache2/httpd/
 
-* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-6avx
+* Fri Aug 19 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.53-6avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-5avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.53-5avx
 - rebuild
 
-* Fri Mar 18 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-4avx
+* Fri Mar 18 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.53-4avx
 - remove ADVX macro
 
-* Fri Mar 18 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-3avx
+* Fri Mar 18 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.53-3avx
 - update P0 to make certwatch.c accept an extra argument (the email
   address to send to) and make certwatch.cron handle this as well as
   exiting 0 in all cases
 
-* Wed Mar 16 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-2avx
+* Wed Mar 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.53-2avx
 - P0: fix certwatch script so it doesn't use an initscript to get
   the defines; and s/Mandrakelinux/Annvix
 - NOTE: certwatch.c needs to be fixed so that we can pass another
@@ -191,18 +196,18 @@ fi
   root@localhost is stupid (and bounces with default exim settings
   anyways)
 
-* Sat Feb 26 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-1avx
+* Sat Feb 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.53-1avx
 - apache 2.0.53
 - add certwatch
 - remove ADVX stuff
 
-* Fri Nov  5 2004 Vincent Danen <vdanen@annvix.org> 2.0.52-2avx
+* Fri Nov  5 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.0.52-2avx
 - rebuild against new apache2 sources to get the mod_ssl fix
 
-* Thu Oct 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.52-1avx
+* Thu Oct 14 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.0.52-1avx
 - 2.0.52
 
-* Thu Oct 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.50-1avx
+* Thu Oct 14 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.0.50-1avx
 - first Annvix build for new-style apache2
 - migrate keys and certs from /etc/ssl/apache to /etc/ssl/apache2 because
   previous packages used /etc/ssl/apache for mod_ssl and without this, httpd2
