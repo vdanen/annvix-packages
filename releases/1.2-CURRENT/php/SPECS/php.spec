@@ -7,9 +7,10 @@
 #
 # $Id$
 
+%define revision	$Rev$
 %define name		php
 %define version		4.4.1
-%define release		2avx
+%define release		%_revrel
 %define epoch		2
 
 %define libversion	4
@@ -32,10 +33,6 @@
 # This gives extra debuggin and huge binaries
 %{expand:%%define optflags %{optflags} %([ ! $DEBUG ] && echo '-g3')}
 %endif
-
-# symbols from stack protection cause the build to fail so until we figure
-# it out, don't build with -fstack-protector
-#%#{expand:%%define optflags %{optflags} %(echo '-fno-stack-protector')}
 
 Summary:	The PHP4 scripting language
 Name:		%{name}
@@ -598,48 +595,52 @@ update-alternatives --remove php %{_bindir}/php-cli
 
 
 %changelog
-* Tue Dec 13 2005 Vincent Danen <vdanen@annvix.org> 4.4.41-2avx
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Tue Dec 13 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.4.41-2avx
 - P12: fix php bug #35067; should fix a squirrelmail issue
 - don't bzip patches or unnecessary source files anymore
 
-* Wed Nov 02 2005 Vincent Danen <vdanen@annvix.org> 4.4.41-1avx
+* Wed Nov 02 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.4.41-1avx
 - 4.4.1; fixes several security issues (see http://www.php.net/release_4_4_1.php)
 - hardening patch 4.4.1-0.4.5
 
-* Fri Sep 23 2005 Vincent Danen <vdanen@annvix.org> 4.4.40-2avx
+* Fri Sep 23 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.4.40-2avx
 - hardening patch 4.4.0-0.4.3
 
-* Wed Sep 14 2005 Vincent Danen <vdanen@annvix.org> 4.4.40-1avx
+* Wed Sep 14 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.4.40-1avx
 - 4.4.0
 - P100: re-introduce the hardened php stuff (4.4.0-0.4.1)
 - rediffed P5, P10, P11 from Mandriva
 
-* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 4.3.11-3avx
+* Fri Aug 19 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.3.11-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 4.3.11-2avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.3.11-2avx
 - rebuild
 
-* Sat May 14 2005 Vincent Danen <vdanen@annvix.org> 4.3.11-1avx
+* Sat May 14 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.3.11-1avx
 - 4.3.11: security fixes for CAN-2005-0524, CAN-2005-0525, CAN-2005-1042,
   and CAN-2005-1043
 - rediffed patches P5, P7, P9, P10, P23, P24 from Mandriva
 
-* Sat Mar 05 2005 Vincent Danen <vdanen@annvix.org> 4.3.10-5avx
+* Sat Mar 05 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.3.10-5avx
 - rebuild against new libxml2 and libxslt
 - enable multiarch stuff
 
-* Sat Feb 26 2005 Vincent Danen <vdanen@annvix.org> 4.3.10-4avx
+* Sat Feb 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.3.10-4avx
 - drop P3 and P8
 - drop the hardened-php patch; for one it breaks compatibility with external
   3rd party products (like Zend) and for another including it in the build is
   against the php license
 - enable building with -fstack-protector
 
-* Thu Jan 06 2005 Vincent Danen <vdanen@annvix.org> 4.3.10-3avx
+* Thu Jan 06 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.3.10-3avx
 - rebuild against latest openssl
 
-* Fri Dec 17 2004 Vincent Danen <vdanen@annvix.org> 4.3.10-2avx
+* Fri Dec 17 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.3.10-2avx
 - include the hardened-php patch (4.3.10-0.2.4)
 - drop P55
 - drop S5 as it's redundant
@@ -647,20 +648,20 @@ update-alternatives --remove php %{_bindir}/php-cli
 - use the lib64 patch from mandrake (P5)
 - rediff P21
 
-* Thu Dec 16 2004 Vincent Danen <vdanen@annvix.org> 4.3.10-1avx
+* Thu Dec 16 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.3.10-1avx
 - 4.3.10
 - rediff P5, P55, P56
 - drop P26
 
-* Wed Sep 29 2004 Vincent Danen <vdanen@annvix.org> 4.3.9-1avx
+* Wed Sep 29 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.3.9-1avx
 - 4.3.9
 - rediff P5, P9, P10
 - drop P57, P58, P72 (applied upstream)
 
-* Fri Aug 13 2004 Vincent Danen <vdanen@annvix.org> 4.3.8-2avx
+* Fri Aug 13 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.3.8-2avx
 - P72: fix anthill #965; patch from CVS
 
-* Wed Jul 14 2004 Vincent Danen <vdanen@annvix.org> 4.3.8-1avx
+* Wed Jul 14 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.3.8-1avx
 - 4.3.8; security fix for CAN-2004-0594 and CAN-2004-0595
 - remove %%build_propolice macro
 - enforce new patch-naming policy
@@ -680,7 +681,7 @@ update-alternatives --remove php %{_bindir}/php-cli
   - rediffed P1 and P20 (oden)
   - drop P40, it's included (oden)
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 4.3.7-2avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.3.7-2avx
 - Annvix build
 
 * Thu Jun 03 2004 Vincent Danen <vdanen@opensls.org> 4.3.7-1sls
