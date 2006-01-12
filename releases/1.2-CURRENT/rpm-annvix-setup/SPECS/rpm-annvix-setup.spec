@@ -81,7 +81,11 @@ mkdir -p %{buildroot}%{_sysconfdir}/rpm/macros.d
 
 
 %changelog
-* Fri Dec 23 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2005 Vincent Danen <vdanen-at-build.annvix.org>
+- pull out the use -fstack-protector-all; SSP is going to wait until
+  gcc 4.1 is stable as then we get it for free
+
+* Fri Dec 23 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.5-4825avx
 - use %%_revrel
 - obfuscate email addresses
 
