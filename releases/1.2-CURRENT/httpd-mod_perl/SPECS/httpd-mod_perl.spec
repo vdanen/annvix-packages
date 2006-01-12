@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		httpd-%{mod_name}
 %define version 	%{apache_version}_%{mod_version}
-%define release 	2avx
+%define release 	%_revrel
 
 # Module-Specific definitions
 %define apache_version	2.0.54
@@ -31,9 +32,9 @@ Group:		System/Servers
 URL:		http://perl.apache.org/
 Source0:	%{sourcename}.tar.gz
 Source1:	%{sourcename}.tar.gz.asc
-Source2:	%{mod_conf}.bz2
+Source2:	%{mod_conf}
 Source3:	apache2-mod_perl-testscript.pl
-Patch0:		mod_perl-2.0.0-external_perl-apache-test.diff.bz2
+Patch0:		mod_perl-2.0.0-external_perl-apache-test.diff
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel >= 5.8.6, httpd-devel >= %{apache_version}, perl-Apache-Test
@@ -105,7 +106,7 @@ mkdir -p %{buildroot}%{_includedir}/httpd
     MODPERL_AP_INCLUDEDIR=%{_includedir}/httpd \
     INSTALLDIRS=vendor
 
-bzcat %{SOURCE2} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
+cat %{SOURCE2} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 # Remove empty file
 rm -f docs/api/mod_perl-2.0/pm_to_blib
@@ -156,14 +157,18 @@ rm -f %{buildroot}%{_mandir}/man3/Bundle::ApacheTest.3pm
 
 
 %changelog
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
 * Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - Clean rebuild
 
-* Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 2.0.54_2.0.1-1avx
+* Fri Sep 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.54_2.0.1-1avx
 - rebuild against new perl
 - fix changelog
 
-* Wed Sep 07 2005 Vincent Danen <vdanen@annvix.org> 2.0.54_2.0.1-1avx
+* Wed Sep 07 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.54_2.0.1-1avx
 - apache 2.0.54
 - mod_perl 2.0.1
 - s/conf.d/modules.d/
@@ -172,14 +177,14 @@ rm -f %{buildroot}%{_mandir}/man3/Bundle::ApacheTest.3pm
 - never run the test suite as it requires apache and friends to be installed in
   order to run it
 
-* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_2.0.0-0.RC4.3avx
+* Fri Aug 19 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.53_2.0.0-0.RC4.3avx
 - bootstrap build (new gcc, new glibc)
 - don't include the symlinks to docs in /var/www/html/addon-modules
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_2.0.0-0.RC4.2avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.53_2.0.0-0.RC4.2avx
 - rebuild
 
-* Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_2.0.0-0.RC4.1avx
+* Wed Feb 02 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.53_2.0.0-0.RC4.1avx
 - 2.0.0-RC4
 - apache 2.0.53
 - fix license
@@ -191,18 +196,18 @@ rm -f %{buildroot}%{_mandir}/man3/Bundle::ApacheTest.3pm
     why so disable for now
 - remove ADVX stuff
 
-* Wed Feb 02 2005 Vincent Danen <vdanen@annvix.org> 2.0.52_1.99_11-2avx
+* Wed Feb 02 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.52_1.99_11-2avx
 - rebuild against new perl
 
-* Thu Oct 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.52_1.99_11-1avx
+* Thu Oct 14 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.0.52_1.99_11-1avx
 - apache 2.0.52
 
-* Sat Sep 11 2004 Vincent Danen <vdanen@annvix.org> 2.0.49_1.99_11-3avx
+* Sat Sep 11 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.0.49_1.99_11-3avx
 - rebuild against new perl
 - remove req's on mod_perl-common... apache 1.x is gone
 - BuildRequires: db4-devel
 
-* Sun Jun 27 2004 Vincent Danen <vdanen@annvix.org> 2.0.49_1.99_11-2avx
+* Sun Jun 27 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.0.49_1.99_11-2avx
 - Annvix build
 
 * Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 2.0.49_1.99_11-1sls
