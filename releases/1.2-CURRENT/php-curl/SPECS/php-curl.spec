@@ -7,9 +7,10 @@
 #
 # $Id$
 
+%define revision	$Rev$
 %define name		php-%{modname}
 %define version		%{phpversion}
-%define release		1avx
+%define release		%_revrel
 
 %define phpversion      4.4.1
 %define phpsource       %{_prefix}/src/php-devel
@@ -92,5 +93,9 @@ EOF
 
 
 %changelog
-* Wed Nov 09 2005 Vincent Danen <vdanen@annvix.org> 4.4.1-1avx
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Wed Nov 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.4.1-1avx
 - first Annvix build to support the curl extensions in php
