@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		httpd-%{mod_name}
 %define version		%{apache_version}_%{mod_version}
-%define release		1avx
+%define release		%_revrel
 
 # Module-Specific definitions
 %define apache_version	2.0.54
@@ -27,8 +28,8 @@ License:	Apache License
 Group:		System/Servers
 URL:		http://www.unixpapa.com/mod_auth_external.html
 Source0:	%{sourcename}.tar.bz2
-Source1:	%{mod_conf}.bz2
-Patch0:		%{mod_name}-2.2.9-register.diff.bz2
+Source1:	%{mod_conf}
+Patch0:		%{mod_name}-2.2.9-register.diff
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:  httpd-devel >= %{apache_version}
@@ -57,7 +58,7 @@ An Apache external authentication module - uses PAM.
 mkdir -p %{buildroot}%{_libdir}/httpd-extramodules
 mkdir -p %{buildroot}%{_sysconfdir}/httpd/modules.d
 install -m 0755 .libs/*.so %{buildroot}%{_libdir}/httpd-extramodules/
-bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
+cat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 chmod 0644 AUTHENTICATORS CHANGES INSTALL* README* TODO
 
@@ -74,31 +75,35 @@ chmod 0644 AUTHENTICATORS CHANGES INSTALL* README* TODO
 
 
 %changelog
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
 * Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - Clean rebuild
 
-* Wed Sep 07 2005 Vincent Danen <vdanen@annvix.org> 2.0.54_2.2.9-1avx
+* Wed Sep 07 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.54_2.2.9-1avx
 - apache 2.0.54
 - s/conf.d/modules.d/
 - s/apache2/httpd/
 
-* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_2.2.9-3avx
+* Fri Aug 19 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.53_2.2.9-3avx
 - bootstrap build (new gcc, new glibc)
 - don't include the symlinks to docs in /var/www/html/addon-modules
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_2.2.9-2avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.53_2.2.9-2avx
 - rebuild
 
-* Fri Feb 25 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_2.2.9-1avx
+* Fri Feb 25 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.53_2.2.9-1avx
 - apache 2.0.53
 - mod_auth_external 2.2.9
 - pwauth is an external package
 - get rid of ADVX stuff
 
-* Thu Oct 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.52_2.2.7-1avx
+* Thu Oct 14 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.0.52_2.2.7-1avx
 - apache 2.0.52
 
-* Sun Jun 27 2004 Vincent Danen <vdanen@annvix.org> 2.0.49_2.2.7-2avx
+* Sun Jun 27 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.0.49_2.2.7-2avx
 - Annvix build
 
 * Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 2.0.49_2.2.7-1sls
