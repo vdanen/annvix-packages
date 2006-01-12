@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		httpd-%{mod_name}
 %define version		%{apache_version}_%{mod_version}
-%define release 	1avx
+%define release 	%_revrel
 
 # Module-Specific definitions
 %define apache_version	2.0.54
@@ -27,10 +28,10 @@ License:	GPL
 Group:		System/Servers
 URL:		http://www.modsecurity.org/
 Source0:	%{sourcename}.tar.gz
-Source1:	%{mod_conf}.bz2
+Source1:	%{mod_conf}
 Source2:	snortrules-snapshot-CURRENT.tar.bz2
 Source3:	%{sourcename}.tar.gz.asc
-Patch0:		mod_security-1.8.7-fixsnortrules.patch.bz2
+Patch0:		mod_security-1.8.7-fixsnortrules.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	httpd-devel >= %{apache_version}
@@ -72,7 +73,7 @@ cp apache2/%{mod_name}.c .
 mkdir -p %{buildroot}%{_libdir}/httpd-extramodules
 mkdir -p %{buildroot}%{_sysconfdir}/httpd/modules.d
 install -m 0755 .libs/*.so %{buildroot}%{_libdir}/httpd-extramodules/
-bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
+cat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 mkdir -p %{buildroot}{%{_sbindir},%{_sysconfdir}/httpd/2.0/conf}
 
@@ -94,32 +95,36 @@ install -m 0644 mod_security-snortrules.conf %{buildroot}%{_sysconfdir}/httpd/2.
 
 
 %changelog
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
 * Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - Clean rebuild
 
-* Wed Sep 07 2005 Vincent Danen <vdanen@annvix.org> 2.0.54_1.8.7-1avx
+* Wed Sep 07 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.54_1.8.7-1avx
 - apache 2.0.54
 - mod_security 1.8.7
 - s/conf.d/modules.d/
 - s/apache2/httpd/
 
-* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_1.8.6-3avx
+* Fri Aug 19 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.53_1.8.6-3avx
 - bootstrap build (new gcc, new glibc)
 - don't include the symlinks to docs in /var/www/html/addon-modules
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_1.8.6-2avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.53_1.8.6-2avx
 - rebuild
 
-* Sat Feb 26 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_1.8.6-1avx
+* Sat Feb 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.53_1.8.6-1avx
 - 1.8.6
 - apache 2.0.53
 - remove ADVX stuff
 - remove pdf docs
 
-* Thu Oct 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.52_1.7.5-1avx
+* Thu Oct 14 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.0.52_1.7.5-1avx
 - apache 2.0.52
 
-* Sun Jun 27 2004 Vincent Danen <vdanen@annvix.org> 2.0.49_1.7.5-2avx
+* Sun Jun 27 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.0.49_1.7.5-2avx
 - Annvix build
 
 * Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 2.0.49_1.7.5-1sls
