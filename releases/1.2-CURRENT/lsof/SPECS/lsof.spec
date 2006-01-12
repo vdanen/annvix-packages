@@ -78,6 +78,9 @@ install -m 0644 lsof.8 %{buildroot}%{_mandir}/man8/
 
 
 %changelog
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Clean rebuild
+
 * Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - Obfuscate email addresses and new tagging
 - Uncompress patches

@@ -156,6 +156,9 @@ rm -f %{buildroot}%{_mandir}/man3/Bundle::ApacheTest.3pm
 
 
 %changelog
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Clean rebuild
+
 * Fri Sep 16 2005 Vincent Danen <vdanen@annvix.org> 2.0.54_2.0.1-1avx
 - rebuild against new perl
 - fix changelog

@@ -58,6 +58,9 @@ perl -pi -e "s!/usr/man!%{_mandir}!g" Makefile
 
 
 %changelog
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Clean rebuild
+
 * Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - Obfuscate email addresses and new tagging
 - Uncompress patches

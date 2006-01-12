@@ -65,6 +65,9 @@ install -m 0755 -D conf_convert.sh %{buildroot}%_datadir/%{name}/conf_convert.sh
 
 
 %changelog
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Clean rebuild
+
 * Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - 2.3.2 (fixes some security issues)
 - Obfuscate email addresses and new tagging

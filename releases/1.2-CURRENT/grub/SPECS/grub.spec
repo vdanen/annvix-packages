@@ -180,6 +180,9 @@ ln -s ../boot/grub/grub.conf %{buildroot}%{_sysconfdir}/grub.conf
 
 
 %changelog
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Clean rebuild
+
 * Thu Jan 05 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - Obfuscate email addresses and new tagging
 - Uncompress patches

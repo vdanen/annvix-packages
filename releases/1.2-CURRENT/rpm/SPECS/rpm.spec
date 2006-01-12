@@ -714,6 +714,9 @@ fi
 
 
 %changelog
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Clean rebuild
+
 * Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
 - rebuild against new python
 

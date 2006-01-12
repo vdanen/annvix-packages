@@ -124,6 +124,9 @@ cp install-sh %{buildroot}%{_datadir}/autoconf
 
 
 %changelog
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Clean rebuild
+
 * Fri Dec 30 2005 Vincent Danen <vdanen-at-build.annvix.org>
 - Obfuscate email addresses and new tagging
 - Uncompress patches

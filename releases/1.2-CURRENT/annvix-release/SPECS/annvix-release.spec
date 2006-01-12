@@ -69,6 +69,9 @@ EOF
 
 
 %changelog
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Clean rebuild
+
 * Fri Dec 23 2005 Vincent Danen <vdanen-at-build.annvix.org>
 - obfuscate email addresses
 

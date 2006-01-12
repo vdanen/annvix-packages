@@ -63,6 +63,9 @@ install -m 0444 statserial.1 %{buildroot}%{_mandir}/man1/statserial.1
 
 
 %changelog
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Clean rebuild
+
 * Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - Obfuscate email addresses and new tagging
 - Uncompress patches

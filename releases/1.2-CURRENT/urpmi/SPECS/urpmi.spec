@@ -212,6 +212,9 @@ if (-e "/etc/urpmi/urpmi.cfg") {
 
 
 %changelog
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Clean rebuild
+
 * Tue Dec 27 2005 Vincent Danen <vdanen-at-build.annvix.org>
 - Obfuscate email addresses and new tagging
 - Uncompress patches

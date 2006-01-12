@@ -153,6 +153,9 @@ perl -p -i -e 's|/usr/local/bin/perl|/usr/bin/perl|' doc/texi2html
 
 
 %changelog
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Clean rebuild
+
 * Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - Obfuscate email addresses and new tagging
 - Uncompress patches

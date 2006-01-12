@@ -7,9 +7,10 @@
 #
 # $Id$
 
+%define revision	$Rev$
 %define kname		kernel
 %define sublevel	32
-%define avxrelease	1
+%define avxrelease	%(echo %{revision}|cut -d ' ' -f 2)
 
 %define tar_version	2.4.%{sublevel}
 %define patchversion	avx%{avxrelease}
@@ -822,26 +823,34 @@ exit 0
 
 
 %changelog
-* Wed Nov 30 2005 Vincent Danen <vdanen@annvix.org> 2.4.32-1avx
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Clean rebuild
+
+* Wed Nov 30 2005 Vincent Danen <vdanen-at-build.annvix..org>
+- Obfuscate email addresses and new tagging
+- add CA06_avx-2.4.32-net-tools-fix.patch to fix a problem with compiling
+  net-tools 1.60
+
+* Wed Nov 30 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.4.32-1avx
 - 2.4.32 and 2.4.32-ow1
 - fix build so we can work out of subversion
 - drop CA02; merged upstream
 
-* Mon Oct 24 2005 Vincent Danen <vdanen@annvix.org> 2.4.31-6avx
+* Mon Oct 24 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.4.31-6avx
 - updated README.Annvix and put a copy in the source dir
 
-* Sun Oct 02 2005 Vincent Danen <vdanen@annvix.org> 2.4.31-5avx
+* Sun Oct 02 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.4.31-5avx
 - enable CONFIG_FILTER and CONFIG_NETFILTER for the BOOT kernel
   (should fix the problem with dhcpcd not working properly)
 
-* Fri Sep 30 2005 Vincent Danen <vdanen@annvix.org> 2.4.31-4avx
+* Fri Sep 30 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.4.31-4avx
 - include the ia64 files; needed for an x86_64 build
 
-* Mon Sep 05 2005 Vincent Danen <vdanen@annvix.org> 2.4.31-3avx
+* Mon Sep 05 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.4.31-3avx
 - silence pushd/popd in kernel-source %%post
 - clean out the patches tarball and remove all unapplied patches from it
 
-* Thu Sep 01 2005 Vincent Danen <vdanen@annvix.org> 2.4.31-2avx
+* Thu Sep 01 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.4.31-2avx
 - bootstrap build (new gcc, new glibc)
 - drop every single patch except for the openwall patch, frandom
   support, more boottime args, the chum FB logo, (I'm tired of
@@ -868,7 +877,7 @@ exit 0
   right now and it was there to be a non-RSBAC maintenance kernel
 - disable CONFIG_LOLAT on smp and BOOT kernels
 
-* Sat Jun 11 2005 Vincent Danen <vdanen@annvix.org> 2.4.31-1avx
+* Sat Jun 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.4.31-1avx
 - 2.4.31 (includes CAN-2005-1263 fix upstream)
 - rediff DC12, DL01
 - update DN13 with latest netfilter time patch (required to build
@@ -877,12 +886,12 @@ exit 0
 - SL82: don't build with -fstack-protector-all
 - x86_64: CONFIG_SWIOTLB=y
 
-* Sat May 14 2005 Vincent Danen <vdanen@annvix.org> 2.4.30-2avx
+* Sat May 14 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.4.30-2avx
 - Openwall kernel patch 2.4.30-ow3 (SL80, rediffed)
 - this update fixes CAN-2005-0794, CAN-2005-0750, CAN-2005-0384
   (mainline) and CAN-2005-1263 (via Openwall patch)
 
-* Wed Apr 13 2005 Vincent Danen <vdanen@annvix.org> 2.4.30-1avx
+* Wed Apr 13 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.4.30-1avx
 - 2.4.30
 - rediff DL01, HB06
 - Openwall kernel patch 2.4.30-ow1 (SL80, rediffed)
@@ -891,12 +900,12 @@ exit 0
   find lilo.conf otherwise (and since we don't ship lilo, we don't care
   about lilo)
 
-* Wed Mar 16 2005 Vincent Danen <vdanen@annvix.org> 2.4.29-6avx
+* Wed Mar 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.4.29-6avx
 - disable RSBAC for 1.0-CURRENT; we'll try to get the policies and
   everything in place for 1.1-RELEASE if we can, but right now even
   in softmode RSBAC is too noisy; patches are moved into todo_patches
 
-* Wed Mar 09 2005 Vincent Danen <vdanen@annvix.org> 2.4.29-5avx
+* Wed Mar 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.4.29-5avx
 - RSBAC 1.2.4
   - set CONFIG_RSBAC_LIST_TRANS=y
   - set CONFIG_RSBAC_LIST_TRANS_MAX_TTL=3600
@@ -911,10 +920,10 @@ exit 0
 - include RSBAC bugfix 1 and 2
 - set CONFIG_HARDEN_STACK_SMART=n
 
-* Wed Feb 23 2005 Vincent Danen <vdanen@annvix.org> 2.4.29-4avx
+* Wed Feb 23 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.4.29-4avx
 - set CONFIG_USB_UHCI_ALT=m
 
-* Wed Feb 23 2005 Vincent Danen <vdanen@annvix.org> 2.4.29-3avx
+* Wed Feb 23 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.4.29-3avx
 - enable USB and USB keyboard support by default:
   - CONFIG_USB=y
   - CONFIG_USB_KBD=y
@@ -926,7 +935,7 @@ exit 0
   - CONFIG_KEYBDEV=y
   - CONFIG_MOUSEDEV=y
 
-* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 2.4.29-2avx
+* Thu Feb 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.4.29-2avx
 - apply 2.4.29-ow1 patch
 - cleanup README.patches.index
 - remove ZY01 (SSP support) as apparently SSP won't protect the
@@ -950,10 +959,10 @@ exit 0
 - disable DEVFS_FS in BOOT kernels
 - increase BLK_DEV_RAM_SIZE to 32k from 4k for x86_64
 
-* Wed Jan 19 2005 Vincent Danen <vdanen@annvix.org> 2.4.29-1avx
+* Wed Jan 19 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.4.29-1avx
 - 2.4.29
 
-* Tue Jan 18 2005 Vincent Danen <vdanen@annvix.org> 2.4.29-0.rc3.1avx
+* Tue Jan 18 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.4.29-0.rc3.1avx
 - 2.4.29-rc3
 - rediff SL61, HB33, DL01
 - update config: CONFIG_SCSI_SATA_AHCI=m
@@ -961,18 +970,18 @@ exit 0
   (General: More small fixes) (SL70)
 - remove SL68; it's meant for a 2.6 kernel and interferes with SL69
 
-* Wed Dec 22 2004 Vincent Danen <vdanen@annvix.org> 2.4.28-6avx
+* Wed Dec 22 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.4.28-6avx
 - revert I2O changes on x86_64 to attempt to isolate what's causing the
   panics in 4avx and 5avx
 - also revert CONFIG_BLK_DEV_RAM_SIZE since the I2O reversion made no
   difference
 
-* Sun Dec 19 2004 Vincent Danen <vdanen@annvix.org> 2.4.28-5avx
+* Sun Dec 19 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.4.28-5avx
 - remove DEVFS-related comments from x86_64 (see if this makes a difference
   because 4avx refuses to boot on x86_64)
 - increase CONFIG_BLK_DEV_RAM_SIZE to 32000 on x86_64 (like x86)
 
-* Sat Dec 18 2004 Vincent Danen <vdanen@annvix.org> 2.4.28-4avx
+* Sat Dec 18 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.4.28-4avx
 - add DEVFS-related comments to x86_64 config (similar to x86)
 - disable CONFG_BLK_DEV_XD in x86
 - disable CONFIG_IDE_TASK_IOCTL in x86
@@ -982,7 +991,7 @@ exit 0
   fix for something that needs to be found in the kernel...  x86
   requires "mkdevices /dev" in initrd whereas x86_64 is the reverse
 
-* Sat Dec 18 2004 Vincent Danen <vdanen@annvix.org> 2.4.28-3avx
+* Sat Dec 18 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.4.28-3avx
 - spoke too soon... mkinitrd changes work on x86, but the inverse is true
   for x86_64.. back to the drawing board
 - normalize differences between x86 and x86_64:
@@ -1006,11 +1015,11 @@ exit 0
   - disable CONFIG_SOUND
   - config CONFIG_CRYPTO_SHA256 compiled in (not module) on x86_64
 
-* Fri Dec 17 2004 Vincent Danen <vdanen@annvix.org> 2.4.28-2avx
+* Fri Dec 17 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.4.28-2avx
 - enable CONFIG_USB_{KBD,MOUSE} on x86_64
 - wOOp!  kernels boot now... bloody mkinitrd
 
-* Fri Nov 26 2004 Vincent Danen <vdanen@annvix.org> 2.4.28-1avx
+* Fri Nov 26 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.4.28-1avx
 - 2.4.28
 - remove a bunch of patches that are pretty useless for us
 - add Openwall 2.4.28-ow1 patch
@@ -1024,22 +1033,22 @@ exit 0
 - remove BG03, BG05, DC47, DC50, DC59, DI01, DI02, DI03, FN04, HB33 (merged upstream)
 - don't apply DU30, HB16, HB25
 
-* Wed Aug 04 2004 Thomas Backlund <tmb@annvix.org> 2.4.26-5avx
+* Wed Aug 04 2004 Thomas Backlund <tmb-at-build.annvix.org> 2.4.26-5avx
 - revert DVD-RW write support for now (DI04)
 
-* Sun Jul 25 2004 Thomas Backlund <tmb@annvix.org> 2.4.26-4avx
+* Sun Jul 25 2004 Thomas Backlund <tmb-at-build.annvix.org> 2.4.26-4avx
 - remove -rsbac from EXTRAVERSION (SL65)
 - fix RSBAC pm_getname-rsbac_pm_all_list_t (SL66)
 - remove RSBAC unneded __fput (SL67)
 - fix rsbac_is_initialized checks (SL68)
 - remove ipsec buildtime symlinks with mrproper (ZZ02)
 
-* Wed Jul 21 2004 Thomas Backlund <tmb@annvix.org> 2.4.26-3avx
+* Wed Jul 21 2004 Thomas Backlund <tmb-at-build.annvix.org> 2.4.26-3avx
 - add RSBAC x86_64 missing defines bugfix v1.2.3-4 (SL64)
 - enable RSBAC_SOFTMODE
 - enable RSBAC_DEBUG
 
-* Tue Jul 20 2004 Thomas Backlund <tmb@annvix.org> 2.4.26-2avx
+* Tue Jul 20 2004 Thomas Backlund <tmb-at-build.annvix.org> 2.4.26-2avx
 - disable openswan 2.1.4 patches (DF02, DF03)
 - add openswan 1.0.6 support (DF05)
 - add RSBAC v1.2.3 core files (SL60)
@@ -1049,7 +1058,7 @@ exit 0
 - update spec and config scripts for RSBAC and openswan
 - update configs
 
-* Sat Jul 17 2004 Thomas Backlund <tmb@annvix.org> 2.4.26-1avx
+* Sat Jul 17 2004 Thomas Backlund <tmb-at-build.annvix.org> 2.4.26-1avx
 - upgrade to kernel.org 2.4.26
 - drop patches merged upstream: 
   * (BA58, BG08, BJ04, DI02, HB05, ND01)
@@ -1065,7 +1074,7 @@ exit 0
 - add misssing ifdef CONFIG_SWIOTLB on x86_64 pci-gart (HB33)
 - update configs
 
-* Wed Jul 03 2004 Thomas Backlund <tmb@annvix.org> 2.4.25-19avx
+* Wed Jul 03 2004 Thomas Backlund <tmb-at-build.annvix.org> 2.4.25-19avx
 - security and bugfixes:
   * chown DAC check (ZY71)
   * asus acpi fix (ZY73)
@@ -1077,20 +1086,20 @@ exit 0
   * pss fix (ZY79)
 - fix forgotten namechange OpenSLS -> Annvix in kernel docs
 
-* Wed Jun 30 2004 Thomas Backlund <tmb@annvix.org> 2.4.25-18avx
+* Wed Jun 30 2004 Thomas Backlund <tmb-at-build.annvix.org> 2.4.25-18avx
 - update openswan patches to 2.1.4 (DF02, DF03)
   * fixes CAN-2004-0590
 - disable devfs completely for all kernels but BOOT, by
   setting CONFIG_DEVFS_FS=n
   
-* Tue Jun 22 2004 Thomas Backlund <tmb@annvix.org> 2.4.25-17avx
+* Tue Jun 22 2004 Thomas Backlund <tmb-at-build.annvix.org> 2.4.25-17avx
 - e1000 ethtool gregs max length (ZY69)
 - redo DI02, as all nForce2 and nForce3 are capable of UDMA133
 
-* Sun Jun 20 2004 Thomas Backlund <tmb@annvix.org> 2.4.25-16avx
+* Sun Jun 20 2004 Thomas Backlund <tmb-at-build.annvix.org> 2.4.25-16avx
 - redo ZY67 patch for fpu_state fix, I forgot to apply it to x86_64
 
-* Sat Jun 19 2004 Thomas Backlund <tmb@annvix.org> 2.4.25-15avx
+* Sat Jun 19 2004 Thomas Backlund <tmb-at-build.annvix.org> 2.4.25-15avx
 - Update patch CD04 with better logo
 - Switch names to annvix / avx
 

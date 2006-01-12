@@ -61,15 +61,7 @@ Source1:	http://www.mindspring.com/~jamoyers/software/colorgcc/colorgcc-%{color_
 Source6:	gcc33-help2man.pl
 
 Patch0:		colorgcc-1.3.2-mdk-conf.patch
-# Stack-Smashing Protector http://www.research.ibm.com/trl/projects/security/ssp/
-# We're using the HLFS patches instead: http://www.linuxfromscratch.org/~robert/hlfs/current
-Patch1:		gcc-3.4.4-hlfs-hardened_cflags-1.patch
-Patch2:		gcc-3.4.4-hlfs-no_fixincludes-1.patch
-Patch3:		gcc-3.4.4-hlfs-ssp-1.patch
-Patch4:		gcc-3.4.4-hlfs-linkonce-1.patch
-Patch5:		gcc-3.4.4-avx-hardened-specs.patch
-Patch6:		gcc-3.4.0-mdk-pchflags.patch
-Patch7:		gcc-3.4.4-ssp.patch
+Patch1:		gcc-3.4.0-mdk-pchflags.patch
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 # Want updated alternatives priorities
@@ -104,8 +96,6 @@ If you have multiple versions of GCC installed on your system, it is
 preferred to type "gcc-$(gcc%{branch}-version)" (without double quotes) in
 order to use the GNU C compiler version %{version}.
 
-This version includes the SSP stack protector (-fstack-protector and
--fstack-protector-all) options.
 
 %package -n %{libgcc_name}
 Summary:	GNU C library
@@ -299,12 +289,7 @@ pushd colorgcc-%{color_gcc_version}
 perl -pi -e 's|GCC_VERSION|%{version}|' colorgcc*
 popd
 
-#%patch1 -p1 -b .hardened_cflags
-#%patch2 -p1 -b .no_fixincludes
-#%patch3 -p1 -b .ssp
-#%patch4 -p1 -b .linkonce
-%patch6 -p1 -b .pch-mdkflags
-%patch7 -p1 -b .ssp
+%patch1 -p1 -b .pch-mdkflags
 
 # FIXME: use a configure flag
 optflags=`echo $RPM_OPT_FLAGS| sed -e 's/-mcpu=/-mtune=/'`
@@ -314,7 +299,7 @@ perl -pi -e "s,\@MDK_OPT_FLAGS\@,$optflags," \
 
 # Annvix information for bug reports
 perl -pi -e "/bug_report_url/ and s/\"[^\"]+\"/\"<URL:https:\/\/bugs.annvix.org\/>\"/;" \
-         -e '/version_string/ and s/([0-9]*(\.[0-9]*){1,3}).*(\";)$/\1 \(Annvix %{avx_version} %{version}-%{release} \[ssp\]\)\3/;' \
+         -e '/version_string/ and s/([0-9]*(\.[0-9]*){1,3}).*(\";)$/\1 \(Annvix %{avx_version} %{version}-%{release}\)\3/;' \
          gcc/version.c
 
 
@@ -336,7 +321,6 @@ OPT_FLAGS=`echo $RPM_OPT_FLAGS|sed -e 's/-fno-rtti//g' -e 's/-fno-exceptions//g'
 OPT_FLAGS=`echo "$OPT_FLAGS -g" | sed -e "s/-fomit-frame-pointer//g"`
 %endif
 OPT_FLAGS=`echo $OPT_FLAGS|sed -e 's/-fomit-frame-pointer//g'`
-# -e 's/-fstack-protector-all//g'`
 
 # update config.{sub,guess} scripts
 %{?__cputoolize: %{__cputoolize} -c ..}
@@ -358,8 +342,7 @@ CC="$CC" CFLAGS="$OPT_FLAGS" CXXFLAGS="$OPT_FLAGS" XCFLAGS="$OPT_FLAGS" TCFLAGS=
 	--enable-languages="c,c++,objc" \
 	--host=%{_target_platform} \
 	--target=%{_target_platform} \
-	--with-system-zlib \
-        --enable-stack-protector
+	--with-system-zlib
 touch ../gcc/c-gperf.h
 %ifarch %{ix86} x86_64
 %make profiledbootstrap BOOT_CFLAGS="$OPT_FLAGS"
@@ -399,13 +382,6 @@ popd
 echo ====================TESTING END=====================
 
 
-#pushd obj-%{_target_platform}/gcc
-#    # update specs to force -fstack-protector-all on everything we build
-#    # apply the patch here so we can still use -bi --short-circuit
-#    patch -p0 < %{PATCH5}
-#popd
-
- 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
@@ -918,6 +894,20 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc.info.bz2 --dir=%{_info
 %{_infodir}/gcc.info*
 
 %changelog
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Clean rebuild
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- drop all SSP-related patches and all SSP-related stuff; this is a
+  time sink for a one-man-show
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- for frick's sake... rebuild without SSP support to start the
+  reversal (getting everything except the kernel and syslinux to
+  build is good progress, but not good enough and something is wrong
+  with the implementation in some way (why are we getting undefined
+  references when -fstack-protector-all isn't even being passed?)
+
 * Fri Dec 23 2005 Vincent Danen <vdanen-at-build.annvix.org>
 - rebuild with SSP enabled gcc, glibc, and binutils
 - don't patch the gcc specs just yet; for now direct the application

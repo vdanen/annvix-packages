@@ -1350,6 +1350,9 @@ strip %{buildroot}%{_sbindir}/httpd-worker
 
 
 %changelog
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Clean rebuild
+
 * Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 2.0.54-4avx
 - rebuild against new pcre
 

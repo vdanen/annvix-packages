@@ -61,6 +61,9 @@ binaries and include files during RPM package build.
 
 
 %changelog
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Clean rebuild
+
 * Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.9-5104avx
 - adjust P0 and put back the X11 multiarch-dispatch-host.def file or we
   can't build xorg-x11 or xpm

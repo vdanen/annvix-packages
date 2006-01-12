@@ -358,8 +358,8 @@ cp %_sourcedir/crypt_freesec.[ch] crypt/
 %patch412 -p1
 
 # Annvix
-%patch500 -p1 -b .ssp
-%patch501 -p1 -b .fstack-protector
+#%patch500 -p1 -b .ssp
+#%patch501 -p1 -b .fstack-protector
 #%patch502 -p1 -b .arc4random
 #%patch503 -p1 -b .ssp
 
@@ -1138,6 +1138,9 @@ fi
 
 
 %changelog
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Clean rebuild
+
 * Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - crypt_blowfish 1.0 (minor security fixes)
 - fix prereq

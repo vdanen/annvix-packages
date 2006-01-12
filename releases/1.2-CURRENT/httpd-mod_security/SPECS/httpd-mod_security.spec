@@ -94,6 +94,9 @@ install -m 0644 mod_security-snortrules.conf %{buildroot}%{_sysconfdir}/httpd/2.
 
 
 %changelog
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Clean rebuild
+
 * Wed Sep 07 2005 Vincent Danen <vdanen@annvix.org> 2.0.54_1.8.7-1avx
 - apache 2.0.54
 - mod_security 1.8.7

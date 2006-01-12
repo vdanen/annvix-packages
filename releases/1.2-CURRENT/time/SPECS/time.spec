@@ -90,6 +90,9 @@ make LDFLAGS=-s
 
 
 %changelog
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Clean rebuild
+
 * Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - BuildRequires: automake1.4
 

@@ -7,7 +7,7 @@
 #
 # $Id$
 
-%define revision	$Rev: 2$
+%define revision	$Rev$
 %define name		file
 %define version		4.15
 %define release		%_revrel
@@ -141,6 +141,9 @@ install -m 0644 src/file.h %{buildroot}%{_includedir}/
 
 
 %changelog
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Clean rebuild
+
 * Wed Jan 04 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - Obfuscate email addresses and new tagging
 - Uncompress patches

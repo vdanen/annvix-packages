@@ -82,6 +82,9 @@ install -m 4755 validate %{buildroot}%{_sbindir}/
 
 
 %changelog
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Clean rebuild
+
 * Fri Oct 28 2005 Vincent Danen <vdanen@annvix.org> 2.0.54_2.0-2avx
 - P2: fix for CAN-2005-2963
 

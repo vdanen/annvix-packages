@@ -174,6 +174,9 @@ fi
 
 
 %changelog
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Clean rebuild
+
 * Fri Dec 30 2005 Vincent Danen <vdanen-at-build.annvix.org>
 - re-enable dietlibc build on x86_64; have to specify the explicit
   arch'd compiler to use for it to work properly

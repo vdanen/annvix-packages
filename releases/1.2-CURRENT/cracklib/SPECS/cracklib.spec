@@ -173,6 +173,9 @@ install -m644 lib/packer.h %{buildroot}%{_includedir}/
 
 
 %changelog
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Clean rebuild
+
 * Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - 2.8.3
 - new URL

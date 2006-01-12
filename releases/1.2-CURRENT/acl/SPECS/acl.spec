@@ -114,6 +114,9 @@ rm -rf %{buildroot}%{_docdir}/acl
 %{_includedir}/sys/acl.h
 
 %changelog
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Clean rebuild
+
 * Thu Dec 29 2005 Vincent Danen <vdanen-at-build.annvix.org>
 - Obfuscate email addresses and new tagging
 - Uncompress patches

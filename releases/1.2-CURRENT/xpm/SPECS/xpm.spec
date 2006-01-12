@@ -130,7 +130,10 @@ ln -sf libXpm.so.%{LIBVER} %{buildroot}%{prefix}/%{_lib}/libXpm.so
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Clean rebuild
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.4k-5105avx
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - drop the PS files

@@ -167,6 +167,9 @@ mv %{buildroot}%{_prefix}/lib %{buildroot}%{_libdir}/
 
 
 %changelog
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Clean rebuild
+
 * Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - Obfuscate email addresses and new tagging
 - Uncompress patches

@@ -126,6 +126,9 @@ rm -rf  %{buildroot}%{_libdir}/python{1.5,2.0,2.1,2.2,2.3}
 
 
 %changelog
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Clean rebuild
+
 * Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - Obfuscate email addresses and new tagging
 - Uncompress patches

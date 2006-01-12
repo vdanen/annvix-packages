@@ -235,6 +235,9 @@ fi
 
 
 %changelog
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Clean rebuild
+
 * Sat Oct 29 2005 Vincent Danen <vdanen@annvix.org> 2.0.54-5avx
 - rebuild so the fixed useradd script works
 

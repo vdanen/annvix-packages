@@ -89,6 +89,9 @@ install -m 0644 ./Source/DOH/doh.h -D %{buildroot}%{_includedir}/doh.h
 
 
 %changelog
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Clean rebuild
+
 * Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - Obfuscate email addresses and new tagging
 - Uncompress patches

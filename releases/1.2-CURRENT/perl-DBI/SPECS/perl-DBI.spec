@@ -123,6 +123,9 @@ rm -f %{buildroot}%{_mandir}/man3pm/Roadmap.3pm*
 
 
 %changelog
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Clean rebuild
+
 * Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
 - add BuildRequires: perl-Net-Daemon
 - add BuildConflicts: perl-PlRPC (or the tests fail on the proxy test)

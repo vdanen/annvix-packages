@@ -154,6 +154,9 @@ fi
 
 
 %changelog
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Clean rebuild
+
 * Thu Oct 13 2005 Vincent Danen <vdanen@annvix.org> 2.0.54-3avx
 - updated P0: fix the certwatch cron script to look in the right file
   (we no longer use commonhttpd.conf)

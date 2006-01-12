@@ -67,6 +67,9 @@ install -m 0644 mingetty.8 %{buildroot}/%{_mandir}/man8/
 
 
 %changelog
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Clean rebuild
+
 * Fri Dec 30 2005 Vincent Danen <vdanen-at-build.annvix.org>
 - re-enable dietlibc build on x86_64; have to specify the explicit
   arch'd compiler to use for it to work properly

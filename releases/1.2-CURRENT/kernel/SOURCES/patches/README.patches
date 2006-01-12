@@ -33,6 +33,8 @@ CA00_CORE.desc
 		http://dev.gentoo.org/~plasmaroo/patches/kernel/gentoo-sources/
 	CA05_gentoo-2.4.31-gccopts.patch
 	- add some gcc optimizations
+	CA06_avx-2.4.32-net-tools-fix.patch
+	- adds an include to a header required to properly compile net-tools 1.60
 
 CB00_CORE.desc
 ** Core patches (non-essential)

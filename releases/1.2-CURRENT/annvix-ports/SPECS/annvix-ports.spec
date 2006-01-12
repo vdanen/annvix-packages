@@ -76,6 +76,9 @@ builder ALL = NOPASSWD: /usr/sbin/urpmi.addmedia, /usr/sbin/urpmi.update, /usr/s
 
 
 %changelog
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Clean rebuild
+
 * Wed Dec 28 2005 Vincent Danen <vdanen-at-build.annvix.org>
 - fix the sudo invocation for a cleaner environment
 

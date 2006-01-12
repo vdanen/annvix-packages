@@ -127,6 +127,9 @@ rm -f %{buildroot}%{_libdir}/python%{with_python_version}/site-packages/_bc.*a
 %{_libdir}/python%{with_python_version}/site-packages/_bc.so
 
 %changelog
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Clean rebuild
+
 * Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - Obfuscate email addresses and new tagging
 - Uncompress patches

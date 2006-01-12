@@ -124,9 +124,9 @@ echo ====================TESTING=========================
 # because the S-records tests always fail for some reason (bi must be a
 # magic machine)
 rm -rf ld/testsuite/ld-srec
-make CFLAGS="-fno-stack-protector-all" check
+make check
 %else
-make CFLAGS="-fno-stack-protector-all" -k check || echo make check failed
+make -k check || echo make check failed
 %endif
 echo ====================TESTING END=====================
 
@@ -202,6 +202,9 @@ rm -rf %{buildroot}%{_datadir}/locale/
 
 
 %changelog
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Clean rebuild
+
 * Fri Dec 23 2005 Vincent Danen <vdanen-at-build.annvix.org>
 - build with SSP
 - make check can't have stack protection or it will fail

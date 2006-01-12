@@ -65,6 +65,9 @@ the system.
 %attr(644,root,root) %{_mandir}/man8/mkbootdisk.8*
 
 %changelog
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Clean rebuild
+
 * Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - Obfuscate email addresses and new tagging
 - Uncompress patches

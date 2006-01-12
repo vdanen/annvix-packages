@@ -535,6 +535,9 @@ EOF
 
 
 %changelog
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Clean rebuild
+
 * Sat Dec 24 2005 Vincent Danen <vdanen-at-build.annvix.org>
 - t/op/pat.t doesn't completely pass on x86_64 for some reason; remove
   that test on that arch

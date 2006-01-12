@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		syslinux
 %define version 	1.76
-%define release 	17avx
+%define release 	%_revrel
 
 %define old_version	1.67
 %define pxelinux_ver	2.13
@@ -25,11 +26,11 @@ URL:		http://ftp.kernel.org/pub/linux/utils/boot/syslinux/
 Source0:	%{name}-%{version}.tar.bz2
 Source1:	%{name}-%{old_version}.tar.bz2
 Source2:	%{name}-%{pxelinux_ver}.tar.bz2
-Patch0:         syslinux-1.67-use-vfat-instead-of-msdos.patch.bz2
-Patch1:		syslinux-1.75-graphic.patch.bz2
-Patch2:		syslinux-1.76-gcc-3.3.patch.bz2
-Patch3:		syslinux-1.67-gcc-3.3.patch.bz2
-Patch5:		syslinux-1.76-mdk-kernel-length.patch.bz2
+Patch0:         syslinux-1.67-use-vfat-instead-of-msdos.patch
+Patch1:		syslinux-1.75-graphic.patch
+Patch2:		syslinux-1.76-gcc-3.3.patch
+Patch3:		syslinux-1.67-gcc-3.3.patch
+Patch5:		syslinux-1.76-mdk-kernel-length.patch
 Patch6:		syslinux-1.76-avx-nostack.patch
 Patch7:		syslinux-2.13-avx-nostack.patch
 
@@ -147,14 +148,22 @@ popd
 
 
 %changelog
-* Thu Sep 15 2005 Vincent Danen <vdanen@annvix.org> 1.76-17avx
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Clean rebuild
+
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- re-enable the disabling of SSP
+
+* Thu Sep 15 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.76-17avx
 - correct the buildroot
 
-* Fri Aug 12 2005 Vincent Danen <vdanen@annvix.org> 1.76-16avx
+* Fri Aug 12 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.76-16avx
 - bootstrap build (new gcc, new glibc)
 - disable P6 and P7 for now
 
-* Fri Jun 10 2005 Vincent Danen <vdanen@annvix.org> 1.76-15avx
+* Fri Jun 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.76-15avx
 - rebuild
 - P6, P7: build without stack protection
 - add mkdiskimage
@@ -163,10 +172,10 @@ popd
   would occassionally cause a boot failure, depending on the length
   of the kernel (blino)
 
-* Sun Aug 01 2004 Vincent Danen <vdanen@annvix.org> 1.76-14avx
+* Sun Aug 01 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.76-14avx
 - s/OpenSLS/Annvix/
 
-* Mon Jun 21 2004 Vincent Danen <vdanen@annvix.org> 1.76-13avx
+* Mon Jun 21 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.76-13avx
 - Annvix build
 
 * Mon Mar 08 2004 Vincent Danen <vdanen@opensls.org> 1.76-12sls
