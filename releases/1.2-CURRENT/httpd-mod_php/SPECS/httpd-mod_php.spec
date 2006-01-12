@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		httpd-%{mod_name}
 %define version 	%{apache_version}_%{phpversion}
-%define release		2avx
+%define release		%_revrel
 
 # Module-Specific definitions
 %define apache_version	2.0.54
@@ -27,7 +28,7 @@ Release:	%{release}
 License:	PHP License
 Group:		System/Servers
 URL:		http://www.php.net/ 
-Source1:	%{mod_conf}.bz2
+Source1:	%{mod_conf}
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	php-devel >= %{phpversion}, httpd-devel >= %{apache_version}
@@ -72,7 +73,7 @@ cp sapi_apache2.c mod_php4.c
 mkdir -p %{buildroot}%{_libdir}/httpd-extramodules
 mkdir -p %{buildroot}%{_sysconfdir}/httpd/modules.d
 install -m 0755 .libs/*.so %{buildroot}%{_libdir}/httpd-extramodules/
-bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
+cat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 
 %clean
@@ -94,53 +95,57 @@ bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 
 %changelog
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
 * Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - Clean rebuild
 
-* Mon Oct 24 2005 Vincent Danen <vdanen@annvix.org> 2.0.54_4.4.0-2avx
+* Mon Oct 24 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.54_4.4.0-2avx
 - fix the configuration file to add support for php files as DirectoryIndex
 
-* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 2.0.54_4.4.0-1avx
+* Sat Sep 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.54_4.4.0-1avx
 - php 4.4.0
 
-* Wed Sep 07 2005 Vincent Danen <vdanen@annvix.org> 2.0.54_4.3.11-1avx
+* Wed Sep 07 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.54_4.3.11-1avx
 - apache 2.0.54
 - s/apache2/httpd/
 - move config to modules.d/
 
-* Tue Aug 23 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_4.3.11-2avx
+* Tue Aug 23 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.53_4.3.11-2avx
 - bootstrap build (new gcc, new glibc)
 - remove the addon-modules symlink
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_4.3.11-1avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.53_4.3.11-1avx
 - rebuild
 - php 4.3.11
 
-* Sat Feb 26 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_4.3.10-1avx
+* Sat Feb 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.53_4.3.10-1avx
 - apache 2.0.53
 - remove ADVX stuff
 
-* Thu Dec 16 2004 Vincent Danen <vdanen@annvix.org> 2.0.52_4.3.10-1avx
+* Thu Dec 16 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.0.52_4.3.10-1avx
 - php 4.3.10
 
-* Thu Oct 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.52_4.3.9-1avx
+* Thu Oct 14 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.0.52_4.3.9-1avx
 - 2.0.52
 
-* Thu Sep 30 2004 Vincent Danen <vdanen@annvix.org> 2.0.49_4.3.9-1avx
+* Thu Sep 30 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.0.49_4.3.9-1avx
 - php 4.3.9
 
-* Tue Aug 17 2004 Vincent Danen <vdanen@annvix.org> 2.0.49_4.3.8-3avx
+* Tue Aug 17 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.0.49_4.3.8-3avx
 - rebuild against new openssl
 
-* Wed Jul 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.49_4.3.8-2avx
+* Wed Jul 14 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.0.49_4.3.8-2avx
 - use %%_post_srv rather than %%ADVXpost
 
-* Wed Jul 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.49_4.3.8-1avx
+* Wed Jul 14 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.0.49_4.3.8-1avx
 - php 4.3.8
 - remove ADVXpackage provides
 - don't link against aprutil and db4
 
-* Sun Jun 27 2004 Vincent Danen <vdanen@annvix.org> 2.0.49_4.3.7-2avx
+* Sun Jun 27 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.0.49_4.3.7-2avx
 - Annvix build
 
 * Thu Jun 03 2004 Vincent Danen <vdanen@opensls.org> 2.0.49_4.3.7-1sls
