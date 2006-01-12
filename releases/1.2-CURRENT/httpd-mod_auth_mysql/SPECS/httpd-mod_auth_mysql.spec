@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		httpd-%{mod_name}
 %define version 	%{apache_version}_%{mod_version}
-%define release 	1avx
+%define release 	%_revrel
 
 # Module-Specific definitions
 %define apache_version	2.0.54
@@ -27,7 +28,7 @@ License:	Apache License
 Group:		System/Servers
 URL:		http://sourceforge.net/projects/modauthmysql/
 Source0:	mod_auth_mysql-%{mod_version}.tar.bz2
-Source1:	%{mod_conf}.bz2
+Source1:	%{mod_conf}
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:  httpd-devel >= %{apache_version}, MySQL-devel
@@ -57,7 +58,7 @@ support several encryption methods.
 mkdir -p %{buildroot}%{_libdir}/httpd-extramodules
 mkdir -p %{buildroot}%{_sysconfdir}/httpd/modules.d
 install -m 0755 .libs/*.so %{buildroot}%{_libdir}/httpd-extramodules/
-bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
+cat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 
 %clean
@@ -72,32 +73,36 @@ bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 
 %changelog
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
 * Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - Clean rebuild
 
-* Wed Sep 07 2005 Vincent Danen <vdanen@annvix.org> 2.0.54_2.9.0-1avx
+* Wed Sep 07 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.54_2.9.0-1avx
 - apache 2.0.54
 - mod_auth_mysql 2.9.0
 - s/conf.d/modules.d/
 - s/apache2/httpd/
 - P0: fixes from 2.9.0 to make it work with MySQL-4.1.x password hashing
 
-* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_2.8.1-3avx
+* Fri Aug 19 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.53_2.8.1-3avx
 - bootstrap build (new gcc, new glibc)
 - don't include the symlinks to docs in /var/www/html/addon-modules
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_2.8.1-2avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.53_2.8.1-2avx
 - rebuild
 
-* Sat Feb 26 2005 Vincent Danen <vdanen@annvix.org> 2.0.53_2.8.1-1avx
+* Sat Feb 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.53_2.8.1-1avx
 - 2.8.1
 - apache 2.0.53
 - get rid of ADVX stuff
 
-* Thu Oct 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.52_1.11-1avx
+* Thu Oct 14 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.0.52_1.11-1avx
 - apache 2.0.52
 
-* Sun Jun 27 2004 Vincent Danen <vdanen@annvix.org> 2.0.49_1.11-2avx
+* Sun Jun 27 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.0.49_1.11-2avx
 - Annvix build
 
 * Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 2.0.49_1.11-1sls
