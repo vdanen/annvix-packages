@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		httpd-conf
 %define version		2.0.54
-%define release		5avx
+%define release		%_revrel
 
 %define compat_dir	/etc/httpd
 %define compat_conf	/etc/httpd/conf
@@ -235,54 +236,58 @@ fi
 
 
 %changelog
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
 * Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - Clean rebuild
 
-* Sat Oct 29 2005 Vincent Danen <vdanen@annvix.org> 2.0.54-5avx
+* Sat Oct 29 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.54-5avx
 - rebuild so the fixed useradd script works
 
-* Fri Sep 16 2005 Sean P. Thomas <spt@annvix.org> 2.0.54-4avx
+* Fri Sep 16 2005 Sean P. Thomas <spt-at-build.annvix.org> 2.0.54-4avx
 - add relocation of log directories
 
-* Thu Sep 15 2005 Vincent Danen <vdanen@annvix.org> 2.0.54-3avx
+* Thu Sep 15 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.54-3avx
 - remove the conf/webapps.d/*.conf stuff from httpd.conf; this is a
   Mandriva-ism that we do not want (is used by rpm packaged web-apps
   which I strongly disagree with)
 - new style PreReqs
 - make this package also require httpd
 
-* Wed Sep 07 2005 Vincent Danen <vdanen@annvix.org> 2.0.54-2avx
+* Wed Sep 07 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.54-2avx
 - i had fixed the config of the wrong httpd.conf file; fixed to
   minimize the exposed info
 
-* Wed Sep 07 2005 Vincent Danen <vdanen@annvix.org> 2.0.54-1avx
+* Wed Sep 07 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.54-1avx
 - 2.0.54; merge with mandrake apache-conf-2.0.54-12mdk:
 - s/httpd2/httpd/
 - NOTE: this one will require some personal massaging of the configs
   as we move from a multi-config system (commonhttpd.conf, httpd2.conf,
   and httpd2-perl.conf) to a single httpd.conf file
 
-* Sat Sep 02 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-9avx
+* Sat Sep 02 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.53-9avx
 - s/supervise/service/ in log/run
 
-* Sat Sep 02 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-8avx
+* Sat Sep 02 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.53-8avx
 - use execlineb for run scripts
 - move logdir to /var/log/service/httpd2
 - run scripts are now considered config files and are not replaceable
 
-* Fri Aug 26 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-7avx
+* Fri Aug 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.53-7avx
 - fix perms on run scripts
 
-* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-6avx
+* Fri Aug 19 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.53-6avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-5avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.53-5avx
 - rebuild
 
-* Thu Mar 03 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-4avx
+* Thu Mar 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.53-4avx
 = user logger for logging
 
-* Sun Feb 27 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-3avx
+* Sun Feb 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.53-3avx
 - remove more ADVX-related stuff
 - remove the peruser, perchild, and metuxmpm sections from the config
   files
@@ -291,11 +296,11 @@ fi
 - rename S29
 - remove webapps.d support
 
-* Sun Feb 27 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-2avx
+* Sun Feb 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.53-2avx
 - put back our index.shtml and optim.html
 - merge back changes to commonhttpd.conf
 
-* Fri Feb 25 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-1avx
+* Fri Feb 25 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.53-1avx
 - 2.0.53
 - get rid of ADVX stuff
 - s/apache2/httpd2/ for the %%_srv macros
@@ -304,10 +309,10 @@ fi
 - merge changes from the httpd2-VANILLA.conf file (oden)
 - S101: add means to secure sensible data (oden)
 
-* Fri Feb 04 2005 Vincent Danen <vdanen@annvix.org> 2.0.52-3avx
+* Fri Feb 04 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.52-3avx
 - rebuild against new dietlibc
 
-* Fri Dec 03 2004 Vincent Danen <vdanen@annvix.org> 2.0.52-2avx
+* Fri Dec 03 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.0.52-2avx
 - make apache own the %%ap_htdocsdir and %%ap_datadir
 - fix the logrotate script:
   - go back to specifying *log rather than explicit log names (ie. so we can catch
@@ -322,23 +327,23 @@ fi
 - drop S54 and S55 (toggle between apache 2 and apache 1.3)
 - drop S0 (don't need the initscript anymore)
 
-* Thu Oct 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.52-1avx
+* Thu Oct 14 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.0.52-1avx
 - 2.0.52
 - move runscripts and afterboot snippet here from apache2
 - update the default index.shtml and related pages; make it more
   Annvix specific and clean it up (what an awful mess)
 
-* Fri Sep 17 2004 Vincent Danen <vdanen@annvix.org> 2.0.49-7avx
+* Fri Sep 17 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.0.49-7avx
 - update logrotate script
 
-* Tue Sep 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.49-6avx
+* Tue Sep 14 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.0.49-6avx
 - by default, set ServerTokens to Prod (from Full) and ServerSignature
   to Off (from On)
 
-* Mon Jun 28 2004 Vincent Danen <vdanen@annvix.org> 2.0.49-5avx
+* Mon Jun 28 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.0.49-5avx
 - missed a few references to OpenSLS; fixed
 
-* Sun Jun 27 2004 Vincent Danen <vdanen@annvix.org> 2.0.49-4avx
+* Sun Jun 27 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.0.49-4avx
 - Annvix build
 - new icons (annvix.png and medbutton.png)
 
