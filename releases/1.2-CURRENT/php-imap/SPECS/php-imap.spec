@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		php-%{modname}
 %define version		%{phpversion}
-%define release		1avx
+%define release		%_revrel
 
 %define phpversion	4.4.1
 %define phpsource       %{_prefix}/src/php-devel
@@ -31,20 +32,20 @@ Group:		System/Servers
 URL:		http://www.php.net
 Source0:	ftp://ftp.cac.washington.edu/mail/imap-2002d.tar.bz2
 Source7:	flock.c
-Source8:	Makefile.imap.bz2
-Patch0: 	imap-2001a-ssl.patch.bz2
-Patch1: 	imap-2000-linux.patch.bz2
-Patch3:		imap-2001a-disable-mbox.patch.bz2
-Patch4:		imap-2001a-redhat.patch.bz2
-Patch5: 	imap-2000c-flock.patch.bz2
-Patch7: 	imap-2002d-version.patch.bz2
-Patch9:		imap-2000-glibc-2.2.2.patch.bz2
-Patch10:	imap-2002a-ssldocs.patch.bz2
-Patch11:	imap-2002-krbpath.patch.bz2
-Patch12:	imap-2001a-overflow.patch.bz2
-Patch14:	imap-2002a-ansi.patch.bz2
-Patch15:	imap-2002a-noprompt-makefile.patch.bz2
-Patch16:	imap-2002d-CAN-2005-2933.patch.bz2
+Source8:	Makefile.imap
+Patch0: 	imap-2001a-ssl.patch
+Patch1: 	imap-2000-linux.patch
+Patch3:		imap-2001a-disable-mbox.patch
+Patch4:		imap-2001a-redhat.patch
+Patch5: 	imap-2000c-flock.patch
+Patch7: 	imap-2002d-version.patch
+Patch9:		imap-2000-glibc-2.2.2.patch
+Patch10:	imap-2002a-ssldocs.patch
+Patch11:	imap-2002-krbpath.patch
+Patch12:	imap-2001a-overflow.patch
+Patch14:	imap-2002a-ansi.patch
+Patch15:	imap-2002a-noprompt-makefile.patch
+Patch16:	imap-2002d-CAN-2005-2933.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:  php4-devel
@@ -133,46 +134,50 @@ EOF
 
 
 %changelog
-* Wed Nov 02 2005 Vincent Danen <vdanen@annvix.org> 4.4.1-1avx
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Wed Nov 02 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.4.1-1avx
 - php 4.4.1
 
-* Mon Oct 24 2005 Vincent Danen <vdanen@annvix.org> 4.4.0-2avx
+* Mon Oct 24 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.4.0-2avx
 - P16: patch the c-client libs to fix CAN-2005-2933
 
-* Wed Sep 14 2005 Vincent Danen <vdanen@annvix.org> 4.4.0-1avx
+* Wed Sep 14 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.4.0-1avx
 - php 4.4.0
 
-* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 4.3.11-3avx
+* Fri Aug 19 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.3.11-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 4.3.11-2avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.3.11-2avx
 - rebuild
 
-* Sat May 14 2005 Vincent Danen <vdanen@annvix.org> 4.3.11-1avx
+* Sat May 14 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.3.11-1avx
 - php 4.3.11
 
-* Sat Feb 26 2005 Vincent Danen <vdanen@annvix.org> 4.3.10-3avx
+* Sat Feb 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.3.10-3avx
 - spec cleanups
 
-* Thu Jan 06 2005 Vincent Danen <vdanen@annvix.org> 4.3.10-2avx
+* Thu Jan 06 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.3.10-2avx
 - rebuild against latest openssl
 
-* Fri Dec 17 2004 Vincent Danen <vdanen@annvix.org> 4.3.10-1avx
+* Fri Dec 17 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.3.10-1avx
 - php 4.3.10
 
-* Thu Sep 30 2004 Vincent Danen <vdanen@annvix.org> 4.3.9-1avx
+* Thu Sep 30 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.3.9-1avx
 - php 4.3.9
 
-* Fri Aug 13 2004 Vincent Danen <vdanen@annvix.org> 4.3.8-2avx
+* Fri Aug 13 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.3.8-2avx
 - rebuild against new openssl
 
-* Wed Jul 14 2004 Vincent Danen <vdanen@annvix.org> 4.3.8-1avx
+* Wed Jul 14 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.3.8-1avx
 - php 4.3.8
 - remove ADVXpackage provides
 - move scandir to /etc/php.d
 - own docdir
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 4.3.7-2avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.3.7-2avx
 - Annvix build
 
 * Thu Jun 03 2004 Vincent Danen <vdanen@opensls.org> 4.3.7-1sls
