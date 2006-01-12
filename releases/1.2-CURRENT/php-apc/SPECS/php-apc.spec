@@ -5,12 +5,13 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		php-%{modname}
 %define version		%{phpversion}_%{rver}
 %define rver		2.0.4
-%define release		1avx
+%define release		%_revrel
 
 %define phpversion	4.4.1
 %define phpsource       %{_prefix}/src/php-devel
@@ -29,7 +30,7 @@ License:	PHP License
 Group:		System/Servers
 URL:		http://pecl.php.net/package/APC
 Source0:	APC-%{rver}.tar.bz2
-Source1:	apc.ini.bz2
+Source1:	apc.ini
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:  php4-devel
@@ -98,7 +99,7 @@ hack it to work: http://apc.neuropeans.com/
 
 EOF
 
-bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/php.d/%{inifile}
+cat %{SOURCE1} > %{buildroot}%{_sysconfdir}/php.d/%{inifile}
 install -m 0755 %{soname} %{buildroot}%{phpdir}/extensions/
 
 
@@ -115,28 +116,32 @@ install -m 0755 %{soname} %{buildroot}%{phpdir}/extensions/
 
 
 %changelog
-* Wed Nov 02 2005 Vincent Danen <vdanen@annvix.org> 4.4.1_2.0.4-1avx
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Wed Nov 02 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.4.1_2.0.4-1avx
 - php 4.4.1
 
-* Wed Sep 14 2005 Vincent Danen <vdanen@annvix.org> 4.4.0_2.0.4-1avx
+* Wed Sep 14 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.4.0_2.0.4-1avx
 - php 4.4.0
 
-* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 4.3.11_2.0.4-3avx
+* Fri Aug 19 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.3.11_2.0.4-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 4.3.11_2.0.4-2avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.3.11_2.0.4-2avx
 - rebuild
 
-* Sat May 14 2005 Vincent Danen <vdanen@annvix.org> 4.3.11_2.0.4-1avx
+* Sat May 14 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.3.11_2.0.4-1avx
 - php 4.3.11
 
-* Sat Feb 26 2005 Vincent Danen <vdanen@annvix.org> 4.3.10_2.0.4-2avx
+* Sat Feb 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.3.10_2.0.4-2avx
 - rebuild and cleanups
 
-* Thu Dec 16 2004 Vincent Danen <vdanen@annvix.org> 4.3.10_2.0.4-1avx
+* Thu Dec 16 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.3.10_2.0.4-1avx
 - php 4.3.10
 
-* Thu Sep 30 2004 Vincent Danen <vdanen@annvix.org> 4.3.9_2.0.4-1avx
+* Thu Sep 30 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.3.9_2.0.4-1avx
 - first Annvix build
 
 * Sun Aug 01 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 4.3.8_2.0.4-2mdk
