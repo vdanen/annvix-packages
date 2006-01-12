@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		httpd
 %define version		2.0.54
-%define release		4avx
+%define release		%_revrel
 
 #
 #(ie. use with rpm --rebuild):
@@ -63,89 +64,89 @@ Source0:	http://archive.apache.org/dist/httpd/%{sourcename}.tar.gz
 Source1:	http://archive.apache.org/dist/httpd/%{sourcename}.tar.gz.asc
 Source2: 	httpd-README.urpmi
 Source3:	apache2_transparent_png_icons.tar.bz2
-Source4:	mod_backtrace.c.bz2
-Source5:	mod_whatkilledus.c.bz2
-Source6:	test_char.h.bz2
+Source4:	mod_backtrace.c
+Source5:	mod_whatkilledus.c
+Source6:	test_char.h
 # please keep this logic.
-Source30:	30_mod_proxy.conf.bz2
-Source45: 	45_mod_dav.conf.bz2
-Source46: 	46_mod_ldap.conf.bz2
-Source55:	55_mod_cache.conf.bz2
-Source56:	56_mod_disk_cache.conf.bz2
-Source57:	57_mod_mem_cache.conf.bz2
-Source58:	58_mod_file_cache.conf.bz2
-Source59:	59_mod_deflate.conf.bz2
-Source67:	67_mod_userdir.conf.bz2
+Source30:	30_mod_proxy.conf
+Source45: 	45_mod_dav.conf
+Source46: 	46_mod_ldap.conf
+Source55:	55_mod_cache.conf
+Source56:	56_mod_disk_cache.conf
+Source57:	57_mod_mem_cache.conf
+Source58:	58_mod_file_cache.conf
+Source59:	59_mod_deflate.conf
+Source67:	67_mod_userdir.conf
 # Provide a simpler buildconf script
-Source100:	buildconf.bz2
+Source100:	buildconf
 
 # OE: from Fedora
 # build/scripts patches
-Patch1:		httpd-2.0.40-apctl.patch.bz2
-Patch2:		httpd-2.0.36-apxs.patch.bz2
-Patch3:		httpd-2.0.48-linkmods.patch.bz2
-Patch4:		httpd-2.0.45-deplibs.patch.bz2
-Patch5:		httpd-2.0.47-pie.patch.bz2
-Patch6:		httpd-2.0.45-syspcre.patch.bz2
-Patch8:		httpd-2.0.48-vpathinc.patch.bz2
-Patch9:		httpd-2.0.52-apctlopts.patch.bz2
+Patch1:		httpd-2.0.40-apctl.patch
+Patch2:		httpd-2.0.36-apxs.patch
+Patch3:		httpd-2.0.48-linkmods.patch
+Patch4:		httpd-2.0.45-deplibs.patch
+Patch5:		httpd-2.0.47-pie.patch
+Patch6:		httpd-2.0.45-syspcre.patch
+Patch8:		httpd-2.0.48-vpathinc.patch
+Patch9:		httpd-2.0.52-apctlopts.patch
 #
 # Bug fixes
-Patch20:	httpd-2.0.45-encode.patch.bz2
-Patch21:	httpd-2.0.45-davetag.patch.bz2
-Patch22:	httpd-2.0.47-ldapshm.patch.bz2
-Patch23:	httpd-2.0.48-vhost.patch.bz2
-Patch24:	httpd-2.0.46-sslmutex.patch.bz2
-Patch25:	httpd-2.0.46-md5dig.patch.bz2
-Patch26:	httpd-2.0.48-proxy11.patch.bz2
-Patch27:	httpd-2.0.48-sslpphrase.patch.bz2
-Patch28:	httpd-2.0.48-worker.patch.bz2
-Patch29:	httpd-2.0.48-workerhup.patch.bz2
-Patch30:	httpd-2.0.48-davmisc.patch.bz2
-Patch31:	httpd-2.0.54-ssltrans.patch.bz2
-Patch32:	httpd-2.0.54-userdir.patch.bz2
-Patch33:	httpd-2.0.54-ldapconn.patch.bz2
-Patch34:	httpd-2.0.52-pipedlog1.patch.bz2
-Patch35:	httpd-2.0.52-pipedlog2.patch.bz2
+Patch20:	httpd-2.0.45-encode.patch
+Patch21:	httpd-2.0.45-davetag.patch
+Patch22:	httpd-2.0.47-ldapshm.patch
+Patch23:	httpd-2.0.48-vhost.patch
+Patch24:	httpd-2.0.46-sslmutex.patch
+Patch25:	httpd-2.0.46-md5dig.patch
+Patch26:	httpd-2.0.48-proxy11.patch
+Patch27:	httpd-2.0.48-sslpphrase.patch
+Patch28:	httpd-2.0.48-worker.patch
+Patch29:	httpd-2.0.48-workerhup.patch
+Patch30:	httpd-2.0.48-davmisc.patch
+Patch31:	httpd-2.0.54-ssltrans.patch
+Patch32:	httpd-2.0.54-userdir.patch
+Patch33:	httpd-2.0.54-ldapconn.patch
+Patch34:	httpd-2.0.52-pipedlog1.patch
+Patch35:	httpd-2.0.52-pipedlog2.patch
 #
 # Features/functional changes
-Patch71:	httpd-2.0.40-xfsz.patch.bz2
-Patch72:	httpd-2.0.40-pod.patch.bz2
-Patch73:	httpd-2.0.40-noshmht.patch.bz2
-Patch74:	httpd-2.0.45-export.patch.bz2
-Patch75:	httpd-2.0.48-dynlimit.patch.bz2
-Patch76:	httpd-2.0.48-dynamic.patch.bz2
-Patch77:	httpd-2.0.48-sslstatus.patch.bz2
-Patch78:	httpd-2.0.48-corelimit.patch.bz2
-Patch80:	httpd-2.0.48-distcache.patch.bz2
-Patch81:	httpd-2.0.48-debuglog.patch.bz2
-Patch82:	httpd-2.0.48-abench.patch.bz2
-Patch84:	httpd-2.0.48-sslheader.patch.bz2
-Patch85:	httpd-2.0.48-sslvars2.patch.bz2
-Patch89:	httpd-2.0.49-headerssl.patch.bz2
-Patch90:	httpd-2.0.49-workerstack.patch.bz2
-Patch91:	httpd-2.0.46-testhook.patch.bz2
-Patch92:	httpd-2.0.46-dumpcerts.patch.bz2
+Patch71:	httpd-2.0.40-xfsz.patch
+Patch72:	httpd-2.0.40-pod.patch
+Patch73:	httpd-2.0.40-noshmht.patch
+Patch74:	httpd-2.0.45-export.patch
+Patch75:	httpd-2.0.48-dynlimit.patch
+Patch76:	httpd-2.0.48-dynamic.patch
+Patch77:	httpd-2.0.48-sslstatus.patch
+Patch78:	httpd-2.0.48-corelimit.patch
+Patch80:	httpd-2.0.48-distcache.patch
+Patch81:	httpd-2.0.48-debuglog.patch
+Patch82:	httpd-2.0.48-abench.patch
+Patch84:	httpd-2.0.48-sslheader.patch
+Patch85:	httpd-2.0.48-sslvars2.patch
+Patch89:	httpd-2.0.49-headerssl.patch
+Patch90:	httpd-2.0.49-workerstack.patch
+Patch91:	httpd-2.0.46-testhook.patch
+Patch92:	httpd-2.0.46-dumpcerts.patch
 #
 # http://lists.debian.org/debian-apache/2003/11/msg00109.html
-Patch100:	httpd-2.0.48-bsd-ipv6-fix.diff.bz2
+Patch100:	httpd-2.0.48-bsd-ipv6-fix.diff
 #
 # OE: prepare for the mod_limitipconn module found here:
 # http://dominia.org/djao/limitipconn.html
-Patch101:	apachesrc.diff.bz2
+Patch101:	apachesrc.diff
 # JMD: fix suexec path so we can have both versions of Apache and both
 # versions of suexec
-Patch102:	apache2-suexec.patch.bz2
-Patch103:	httpd-2.0.49-mod_ldap_cache_file_location.diff.bz2
+Patch102:	apache2-suexec.patch
+Patch103:	httpd-2.0.49-mod_ldap_cache_file_location.diff
 # OE: add the peruser mpm
 # http://www.telana.com/peruser.php
-Patch104:       http://www.telana.com/files/httpd-2.0.52-peruser-0.1.5.patch.bz2
-Patch105:	httpd-2.0.55-cvs-pemcallback.patch.bz2
+Patch104:       http://www.telana.com/files/httpd-2.0.52-peruser-0.1.5.patch
+Patch105:	httpd-2.0.55-cvs-pemcallback.patch
 # security fixes
-Patch122:	httpd-2.0.52-CAN-2005-1268.patch.bz2
-Patch123:	httpd-2.0.52-CAN-2005-2088.patch.bz2
-Patch124:	httpd-2.0.52-CAN-2005-2700.patch.bz2
-Patch125:	httpd-2.0.52-CAN-2005-2728.patch.bz2
+Patch122:	httpd-2.0.52-CAN-2005-1268.patch
+Patch123:	httpd-2.0.52-CAN-2005-2088.patch
+Patch124:	httpd-2.0.52-CAN-2005-2700.patch
+Patch125:	httpd-2.0.52-CAN-2005-2728.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	apr-devel >= 0.9.6-4avx, apr-util-devel >= 0.9.6-4avx, pcre-devel >= 5.0, byacc
@@ -617,9 +618,9 @@ tar -jxf %{SOURCE3}
 mv icons/*.png docs/icons/
 
 # "install" the 2 extra modules
-bzcat %{SOURCE4} > modules/experimental/mod_backtrace.c
-bzcat %{SOURCE5} > modules/experimental/mod_whatkilledus.c
-bzcat %{SOURCE6} > modules/experimental/test_char.h
+cat %{SOURCE4} > modules/experimental/mod_backtrace.c
+cat %{SOURCE5} > modules/experimental/mod_whatkilledus.c
+cat %{SOURCE6} > modules/experimental/test_char.h
 
 # this is really better and easier than a stupid static patch...
 # for some reason you have to use ">>" here (!)
@@ -674,7 +675,7 @@ export WANT_AUTOCONF_2_5="1"
 #./buildconf
 
 # use a minimal buildconf instead
-bzcat %{SOURCE100} > buildconf
+cat %{SOURCE100} > buildconf
 sh ./buildconf
 
 %serverbuild
@@ -982,15 +983,15 @@ ln -s ../../..%{_libdir}/httpd/build %{buildroot}%{_sysconfdir}/httpd/build
 
 # install module conf files for the "modules.d" dir loading structure
 install -d %{buildroot}/%{_sysconfdir}/httpd/modules.d
-bzcat %{SOURCE30} > %{buildroot}/%{_sysconfdir}/httpd/modules.d/30_mod_proxy.conf
-bzcat %{SOURCE45} > %{buildroot}/%{_sysconfdir}/httpd/modules.d/45_mod_dav.conf
-bzcat %{SOURCE46} > %{buildroot}/%{_sysconfdir}/httpd/modules.d/46_mod_ldap.conf
-bzcat %{SOURCE55} > %{buildroot}/%{_sysconfdir}/httpd/modules.d/55_mod_cache.conf
-bzcat %{SOURCE56} > %{buildroot}/%{_sysconfdir}/httpd/modules.d/56_mod_disk_cache.conf
-bzcat %{SOURCE57} > %{buildroot}/%{_sysconfdir}/httpd/modules.d/57_mod_mem_cache.conf
-bzcat %{SOURCE58} > %{buildroot}/%{_sysconfdir}/httpd/modules.d/58_mod_file_cache.conf
-bzcat %{SOURCE59} > %{buildroot}/%{_sysconfdir}/httpd/modules.d/59_mod_deflate.conf
-bzcat %{SOURCE67} > %{buildroot}/%{_sysconfdir}/httpd/modules.d/67_mod_userdir.conf
+cat %{SOURCE30} > %{buildroot}/%{_sysconfdir}/httpd/modules.d/30_mod_proxy.conf
+cat %{SOURCE45} > %{buildroot}/%{_sysconfdir}/httpd/modules.d/45_mod_dav.conf
+cat %{SOURCE46} > %{buildroot}/%{_sysconfdir}/httpd/modules.d/46_mod_ldap.conf
+cat %{SOURCE55} > %{buildroot}/%{_sysconfdir}/httpd/modules.d/55_mod_cache.conf
+cat %{SOURCE56} > %{buildroot}/%{_sysconfdir}/httpd/modules.d/56_mod_disk_cache.conf
+cat %{SOURCE57} > %{buildroot}/%{_sysconfdir}/httpd/modules.d/57_mod_mem_cache.conf
+cat %{SOURCE58} > %{buildroot}/%{_sysconfdir}/httpd/modules.d/58_mod_file_cache.conf
+cat %{SOURCE59} > %{buildroot}/%{_sysconfdir}/httpd/modules.d/59_mod_deflate.conf
+cat %{SOURCE67} > %{buildroot}/%{_sysconfdir}/httpd/modules.d/67_mod_userdir.conf
 
 %if %{build_debug}
 # fix the mod_backtrace.conf
@@ -1350,22 +1351,26 @@ strip %{buildroot}%{_sbindir}/httpd-worker
 
 
 %changelog
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
 * Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - Clean rebuild
 
-* Sat Sep 17 2005 Vincent Danen <vdanen@annvix.org> 2.0.54-4avx
+* Sat Sep 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.54-4avx
 - rebuild against new pcre
 
-* Thu Sep 15 2005 Vincent Danen <vdanen@annvix.org> 2.0.54-3avx
+* Thu Sep 15 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.54-3avx
 - make httpd-worker provide httpd
 - new style PreReq
 
-* Fri Sep 09 2005 Vincent Danen <vdanen@annvix.org> 2.0.54-2avx
+* Fri Sep 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.54-2avx
 - P124: patch to fix CAN-2005-2700
 - P125: patch to fix CAN-2005-2728
 - provide all the modules we obsoleted in httpd-modules
 
-* Wed Sep 07 2005 Vincent Danen <vdanen@annvix.org> 2.0.54-1avx
+* Wed Sep 07 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.54-1avx
 - 2.0.54
 - the great apache2->httpd/httpd2->http migration
 - sync patches with mandrake 2.0.54-10mdk
@@ -1376,20 +1381,20 @@ strip %{buildroot}%{_sbindir}/httpd-worker
 - mod_userdir is it's own sub-package
 - BuildRequires: zlib-devel
 
-* Tue Aug 23 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-4avx
+* Tue Aug 23 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.53-4avx
 - drop the requirements of libtool for apache2
 - fix deps
 
-* Tue Aug 23 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-4avx
+* Tue Aug 23 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.53-4avx
 - P54: from SVN, to fix compilation of mod_ssl with openssl 0.9.8
 
-* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-3avx
+* Fri Aug 19 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.53-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-2avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.53-2avx
 - rebuild
 
-* Fri Feb 25 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-1avx
+* Fri Feb 25 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.53-1avx
 - 2.0.53
 - drop P105, P106 (upstream)
 - this isn't really AdvancedExtranetServer anymore...
@@ -1402,19 +1407,19 @@ strip %{buildroot}%{_sbindir}/httpd-worker
 - comment in some multiarch stuff for when we move to it
 - P95: LDAP socket timeout patch (oden)
 
-* Thu Feb 03 2005 Vincent Danen <vdanen@annvix.org> 2.0.52-5avx
+* Thu Feb 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.52-5avx
 - rebuild against new gdbm
 
-* Thu Jan 06 2005 Vincent Danen <vdanen@annvix.org> 2.0.52-4avx
+* Thu Jan 06 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.52-4avx
 - rebuild against new openssl
 
-* Wed Nov 10 2004 Vincent Danen <vdanen@annvix.org> 2.0.52-3avx
+* Wed Nov 10 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.0.52-3avx
 - P106: patch to fix CAN-2004-0942
 
-* Fri Nov  5 2004 Vincent Danen <vdanen@annvix.org> 2.0.52-2avx
+* Fri Nov  5 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.0.52-2avx
 - P105: patch to fix CAN-2004-0885
 
-* Thu Oct 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.52-1avx
+* Thu Oct 14 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.0.52-1avx
 - 2.0.52
 - added patches from Fedora: P53, P93, P94
 - updated patches from Fedora: P1, P3, P25, P39, P84, P86
@@ -1463,19 +1468,19 @@ strip %{buildroot}%{_sbindir}/httpd-worker
     - made a lot of spec file changes
     - require new ADVX-build >= 10 (and fix #5732)
 
-* Tue Sep 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.49-8avx
+* Tue Sep 14 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.0.49-8avx
 - P9-P13: security patches for CAN-2004-0748, CAN-2004-0751, 
   CAN-2004-0747, CAN-2004-0786, and CAN-2004-0809
 - updated runscripts
 
-* Thu Aug 19 2004 Vincent Danen <vdanen@annvix.org> 2.0.49-7avx
+* Thu Aug 19 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.0.49-7avx
 - log/run was still logging to /var/log/supervise/apache2 rather than
   ../httpd2; fixed
 
-* Fri Aug 13 2004 Vincent Danen <vdanen@annvix.org> 2.0.49-6avx
+* Fri Aug 13 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.0.49-6avx
 - rebuild against new openssl
 
-* Wed Jul 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.49-5avx
+* Wed Jul 14 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.0.49-5avx
 - use %%_post_srv rather than %%ADVXctl although this is less
   than efficient (in either case) because apache will start and
   stop a dozen times if you upgrade a dozen modules (need hooks
@@ -1491,10 +1496,10 @@ strip %{buildroot}%{_sbindir}/httpd-worker
   - fix #6308 (mod_ssl error due to incorrect perms) (misc)
   - fix various [DIRM],[CFLP] (misc)
 
-* Mon Jun 28 2004 Vincent Danen <vdanen@annvix.org> 2.0.49-4avx
+* Mon Jun 28 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.0.49-4avx
 - P8: security fix for CAN-2004-0493
 
-* Sun Jun 27 2004 Vincent Danen <vdanen@annvix.org> 2.0.49-3avx
+* Sun Jun 27 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.0.49-3avx
 - Annvix build
 
 * Thu Jun 03 2004 Vincent Danen <vdanen@opensls.org> 2.0.49-2sls
