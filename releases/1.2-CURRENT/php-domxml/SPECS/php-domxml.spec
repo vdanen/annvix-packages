@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define	revision	$Rev$
 %define	name		php-%{modname}
 %define version		%{phpversion}
-%define release		1avx
+%define release		%_revrel
 
 %define phpversion	4.4.1
 %define phpsource       %{_prefix}/src/php-devel
@@ -101,41 +102,45 @@ EOF
 
 
 %changelog
-* Wed Nov 02 2005 Vincent Danen <vdanen@annvix.org> 4.4.1-1avx
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
+* Wed Nov 02 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.4.1-1avx
 - php 4.4.1
 
-* Wed Sep 14 2005 Vincent Danen <vdanen@annvix.org> 4.4.0-1avx
+* Wed Sep 14 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.4.0-1avx
 - php 4.4.0
 
-* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 4.3.11-3avx
+* Fri Aug 19 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.3.11-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 4.3.11-2avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.3.11-2avx
 - rebuild
 
-* Sat May 14 2005 Vincent Danen <vdanen@annvix.org> 4.3.11-1avx
+* Sat May 14 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.3.11-1avx
 - php 4.3.11
 
-* Sat Mar 05 2005 Vincent Danen <vdanen@annvix.org> 4.3.10-3avx
+* Sat Mar 05 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.3.10-3avx
 - rebuild for new libxml2 and libxslt
 
-* Sat Feb 26 2005 Vincent Danen <vdanen@annvix.org> 4.3.10-2avx
+* Sat Feb 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.3.10-2avx
 - spec cleanups
 
-* Fri Dec 17 2004 Vincent Danen <vdanen@annvix.org> 4.3.10-1avx
+* Fri Dec 17 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.3.10-1avx
 - php 4.3.10
 
-* Wed Sep 29 2004 Vincent Danen <vdanen@annvix.org> 4.3.9-1avx
+* Wed Sep 29 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.3.9-1avx
 - php 4.3.9
 
-* Wed Jul 14 2004 Vincent Danen <vdanen@annvix.org> 4.3.8-1avx
+* Wed Jul 14 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.3.8-1avx
 - php 4.3.8
 - remove ADVXpackage provides
 - use phpize and %%configure2_5x macro (oden)
 - move scandir to /etc/php.d
 - own docdir
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 4.3.7-2avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.3.7-2avx
 - Annvix build
 
 * Thu Jun 03 2004 Vincent Danen <vdanen@opensls.org> 4.3.7-1sls
