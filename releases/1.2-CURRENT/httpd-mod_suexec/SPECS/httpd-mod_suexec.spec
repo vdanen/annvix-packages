@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		httpd-%{mod_name}
 %define version 	%{apache_version}
-%define release 	1avx
+%define release 	%_revrel
 
 # Module-Specific definitions
 %define apache_version	2.0.54
@@ -25,7 +26,7 @@ Release:	%{release}
 License:	Apache License
 Group:		System/Servers
 URL:		http://httpd.apache.org/docs/suexec.html
-Source1:	%{mod_conf}.bz2
+Source1:	%{mod_conf}
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:  httpd-devel >= %{apache_version}, httpd-source >= %{apache_version}
@@ -89,7 +90,7 @@ install suexec.8 %{buildroot}%{_mandir}/man8/httpd-suexec.8
 mkdir -p %{buildroot}%{_libdir}/httpd-extramodules
 mkdir -p %{buildroot}%{_sysconfdir}/httpd/modules.d
 install -m 0755 .libs/*.so %{buildroot}%{_libdir}/httpd-extramodules/
-bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
+cat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 
 %clean
@@ -106,30 +107,34 @@ bzcat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 
 %changelog
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+
 * Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - Clean rebuild
 
-* Wed Sep 07 2005 Vincent Danen <vdanen@annvix.org> 2.0.54-1avx
+* Wed Sep 07 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.54-1avx
 - apache 2.0.54
 - s/conf.d/modules.d/
 - s/apache2/httpd/
 
-* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-3avx
+* Fri Aug 19 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.53-3avx
 - bootstrap build (new gcc, new glibc)
 - don't include the symlinks to docs in /var/www/html/addon-modules
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-2avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.53-2avx
 - rebuild
 
-* Sat Feb 26 2005 Vincent Danen <vdanen@annvix.org> 2.0.53-1avx
+* Sat Feb 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.53-1avx
 - apache 2.0.53
 - remove ADVX stuff
 
-* Thu Oct 14 2004 Vincent Danen <vdanen@annvix.org> 2.0.52-1avx
+* Thu Oct 14 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.0.52-1avx
 - apache 2.0.52
 - use ap*-config --includedir to get headers (oden)
 
-* Sun Jun 27 2004 Vincent Danen <vdanen@annvix.org> 2.0.49-2avx
+* Sun Jun 27 2004 Vincent Danen <vdanen-at-build.annvix.org> 2.0.49-2avx
 - Annvix build
 
 * Fri May 07 2004 Vincent Danen <vdanen@opensls.org> 2.0.49-1sls
