@@ -71,7 +71,13 @@ cp %{SOURCE8} README.urpmi
 
 
 %build
-diet gcc -Os -s -static -nostdinc -o advxsplitlogfile-DIET advxsplitlogfile.c
+%ifarch x86_64
+COMP="diet x86_64-annvix-linux-gnu-gcc"
+%else
+COMP="diet gcc"
+%endif
+
+$COMP -Os -s -static -nostdinc -o advxsplitlogfile-DIET advxsplitlogfile.c
 
 
 %install
@@ -236,6 +242,9 @@ fi
 
 
 %changelog
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- dietlibc fixes
+
 * Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - Obfuscate email addresses and new tagging
 - Uncompress patches
