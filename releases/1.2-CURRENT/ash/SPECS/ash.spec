@@ -57,6 +57,10 @@ shell for the superuser.
 
 
 %build
+%ifarch x86_64
+perl -pi -e 's|diet gcc|diet x86_64-annvix-linux-gnu-gcc|g' Makefile
+%endif
+
 make STATIC=-static
 
 
@@ -106,6 +110,9 @@ fi
 
 
 %changelog
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- dietlibc fixes
+
 * Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - Clean rebuild
 
