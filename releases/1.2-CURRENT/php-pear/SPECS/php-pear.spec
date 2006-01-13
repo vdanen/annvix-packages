@@ -5,11 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
-
+%define revision	$Rev$
 %define name		php-%{subname}
 %define version		%{phpversion}
-%define release		1avx
+%define release		%_revrel
 
 %define phpversion	4.4.1
 %define phpsource       %{_prefix}/src/php-devel
@@ -17,7 +18,7 @@
 %define peardir		%{_datadir}/pear
 
 %define subname		pear
-%define pear_date	20050914-1
+%define pear_date	20060112
 
 Summary:	The PHP PEAR files
 Name:		%{name}
@@ -102,6 +103,7 @@ rm -f %{buildroot}/%{peardir}/.lock
 
 # Remove unwanted file
 rm -f %{buildroot}/%{_prefix}/php.ini-gopear
+rm -f %{buildroot}%{peardir}/.depdb*
 
 # Create the directory that will contain .xml of additional packages
 mkdir %{buildroot}%{peardir}/packages
@@ -119,15 +121,30 @@ mkdir %{buildroot}%{peardir}/packages
 %{peardir}/*
 %{peardir}/.filemap
 %{peardir}/.registry
+%{peardir}/.channels
 %{_bindir}/pear
+%{_bindir}/peardev
+%{_bindir}/pecl
 
 
 %changelog
-* Wed Nov 02 2005 Vincent Danen <vdanen@annvix.org> 4.4.1-1avx
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Obfuscate email addresses and new tagging
+- Uncompress patches
+- refreshed the tarball and upgraded:
+  - PEAR 1.4.6
+  - PHPUnit 1.3.2
+  - XML_Parser 1.2.7
+  - XML_RPC 1.4.4
+  - Log 1.9.3
+  - PHP_Compat 1.5.0
+- updated go-pear
+
+* Wed Nov 02 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.4.1-1avx
 - php 4.4.1
 - regen the pear tarball as it was tainted with the 4.4.0 install path
 
-* Wed Sep 14 2005 Vincent Danen <vdanen@annvix.org> 4.4.0-1avx
+* Wed Sep 14 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.4.0-1avx
 - php 4.4.0
 - refreshed the pear tarball so we now have:
   - Archive_Tar 1.3.1
@@ -145,29 +162,29 @@ mkdir %{buildroot}%{peardir}/packages
 - add PHP_Compat 1.4.1; PHPUnit needs it
 - drop P0 and P1; no longer required
 
-* Fri Aug 19 2005 Vincent Danen <vdanen@annvix.org> 4.3.11-4avx
+* Fri Aug 19 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.3.11-4avx
 - bootstrap build (new gcc, new glibc)
 - P1: patch to fix CAN-2005-2498
 
-* Thu Jun 30 2005 Vincent Danen <vdanen@annvix.org> 4.3.11-3avx
+* Thu Jun 30 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.3.11-3avx
 - P0: patch to fix CAN-2005-1921
 
-* Thu Jun 09 2005 Vincent Danen <vdanen@annvix.org> 4.3.11-2avx
+* Thu Jun 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.3.11-2avx
 - rebuild
 
-* Sat May 14 2005 Vincent Danen <vdanen@annvix.org> 4.3.11-1avx
+* Sat May 14 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.3.11-1avx
 - php 4.3.11
 
-* Sat Feb 26 2005 Vincent Danen <vdanen@annvix.org> 4.3.10-2avx
+* Sat Feb 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.3.10-2avx
 - spec cleanups
 
-* Fri Dec 17 2004 Vincent Danen <vdanen@annvix.org> 4.3.10-1avx
+* Fri Dec 17 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.3.10-1avx
 - php 4.3.10
 
-* Thu Sep 30 2004 Vincent Danen <vdanen@annvix.org> 4.3.9-1avx
+* Thu Sep 30 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.3.9-1avx
 - php 4.3.9
 
-* Wed Jul 14 2004 Vincent Danen <vdanen@annvix.org> 4.3.8-1avx
+* Wed Jul 14 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.3.8-1avx
 - php 4.3.8
 - remove ADVXpackage provides
 - point pear config to actual install paths (#6661) (pterjan)
@@ -178,7 +195,7 @@ mkdir %{buildroot}%{peardir}/packages
   (pterjan)
 - Requires: php-cli (pterjan)
 
-* Fri Jun 25 2004 Vincent Danen <vdanen@annvix.org> 4.3.7-2avx
+* Fri Jun 25 2004 Vincent Danen <vdanen-at-build.annvix.org> 4.3.7-2avx
 - Annvix build
 
 * Thu Jun 03 2004 Vincent Danen <vdanen@opensls.org> 4.3.7-1sls
