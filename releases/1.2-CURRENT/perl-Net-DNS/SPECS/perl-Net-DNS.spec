@@ -42,7 +42,7 @@ its various sections. See RFC 1035 or DNS and BIND (Albitz & Liu) for details.
 
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor
+yes|%{__perl} Makefile.PL INSTALLDIRS=vendor
 %make
 
 
@@ -68,6 +68,10 @@ its various sections. See RFC 1035 or DNS and BIND (Albitz & Liu) for details.
 
 
 %changelog
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- use yes to enable tests or the Makefile will stall waiting for input
+  and mess up any rebuilding scripts
+
 * Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - Clean rebuild
 
