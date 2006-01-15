@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		rsec
-%define version		0.61
+%define version		0.62
 %define release		%_revrel
 
 Summary:	Security Reporting tool for Annvix
@@ -93,6 +93,13 @@ touch /var/log/security.log && chmod 0640 /var/log/security.log
 
 
 %changelog
+* Sun Jan 15 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- 0.62:
+  - don't change ownership of unowned files
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Clean rebuild
+
 * Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - Clean rebuild
 
