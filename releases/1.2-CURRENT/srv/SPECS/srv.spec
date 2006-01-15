@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		srv
-%define version 	0.20
+%define version 	0.21
 %define release 	%_revrel
 
 Summary:	Tool to manage runsv-controlled services
@@ -64,6 +64,12 @@ install -m 0644 functions %{buildroot}%{_datadir}/srv
 
 
 %changelog
+* Sun Jan 15 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- 0.21: properly manage the down file to save state across reboots
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Clean rebuild
+
 * Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - Clean rebuild
 
