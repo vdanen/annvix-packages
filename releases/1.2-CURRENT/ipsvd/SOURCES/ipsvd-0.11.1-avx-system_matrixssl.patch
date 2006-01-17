@@ -1,6 +1,6 @@
---- net/ipsvd-0.11.0/src/Makefile.avx	2005-02-20 11:14:21.000000000 -0500
-+++ net/ipsvd-0.11.0/src/Makefile	2005-09-18 01:00:16.000000000 -0400
-@@ -24,25 +24,9 @@
+--- net/ipsvd-0.11.1/src/Makefile.avx	2005-10-18 13:03:04.000000000 -0600
++++ net/ipsvd-0.11.1/src/Makefile	2006-01-17 13:16:56.000000000 -0700
+@@ -24,20 +24,9 @@
  	./load ipsvd-cdb ipsvd_fmt.o ipsvd_check.o cdb.a dns.a unix.a byte.a \
  	  time.a `cat socket.lib`
  
@@ -11,11 +11,6 @@
 -	install -m0644 Makefile.matrixssl matrixssl/src/Makefile.matrixssl
 -	(cd matrixssl/src && $(MAKE) -fMakefile.matrixssl matrixssl.a)
 -	install -m0644 matrixssl/src/matrixssl.a matrixssl.a
--
--matrixSsl.h: matrixssl
--	rm -f matrixSsl.h
--	ln -s matrixssl/matrixSsl.h matrixSsl.h
--	touch matrixSsl.h
 -
 -matrixssl: matrixssl.tar.gz compile load
 -	gzip -dc matrixssl.tar.gz |tar xf -
@@ -29,25 +24,29 @@
  
  check-tcpsvd: load check-tcpsvd.o unix.a byte.a socket.lib
  	./load check-tcpsvd unix.a byte.a `cat socket.lib`
-@@ -62,7 +46,7 @@
+@@ -57,8 +46,8 @@
  ipsvd-cdb.o: compile sysdeps ipsvd-cdb.c
  	./compile ipsvd-cdb.c
  
--sslio.o: compile sysdeps matrixSsl.h sslio.c
-+sslio.o: compile sysdeps sslio.c
- 	./compile sslio.c
+-sslio.o: compile sysdeps sslio.c matrixssl
+-	./compile -I./matrixssl sslio.c
++sslio.o: compile sysdeps sslio.c 
++	./compile sslio.c
  
  check-tcpsvd.o: compile check-tcpsvd.c
-@@ -95,7 +79,7 @@
+ 	./compile check-tcpsvd.c
+@@ -90,8 +79,8 @@
  uidgid.o: compile uidgid.c uidgid.h
  	./compile uidgid.c
  
--sslerror_str.o: compile matrixSsl.h sslerror_str.c sslerror_str.h 
-+sslerror_str.o: compile sslerror_str.c sslerror_str.h 
- 	./compile sslerror_str.c
+-sslerror_str.o: compile sslerror_str.c sslerror_str.h matrixssl
+-	./compile -I./matrixssl sslerror_str.c
++sslerror_str.o: compile sslerror_str.c sslerror_str.h
++	./compile sslerror_str.c
  
  socket.lib: compile load trysocketlib.c
-@@ -108,7 +92,7 @@
+ 	./compile trysocketlib.c
+@@ -103,7 +92,7 @@
  
  command.ssl: command.sslcheck
  command.sslcheck:

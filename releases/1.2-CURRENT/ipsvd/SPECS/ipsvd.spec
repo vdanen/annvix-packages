@@ -9,7 +9,7 @@
 
 %define	revision	$Rev$
 %define	name		ipsvd
-%define	version		0.11.0
+%define	version		0.11.1
 %define	release		%_revrel
 
 Summary:	Internet protocol service daemons
@@ -20,7 +20,7 @@ License:	BSD
 Group:		System/Servers
 URL:		http://smarden.org/ipsvd/
 Source0:	%{name}-%{version}.tar.gz
-Patch0:		ipsvd-0.11.0-avx-system_matrixssl.patch
+Patch0:		ipsvd-0.11.1-avx-system_matrixssl.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	dietlibc-devel >= 0.27-2avx
@@ -55,7 +55,9 @@ tcpserver.
 
 %prep
 %setup -q -n net
-%patch0 -p1
+pushd %{name}-%{version}
+%patch0 -p2
+popd
 
 
 %build
@@ -127,6 +129,13 @@ echo "20" >%{buildroot}%{_sysconfdir}/sysconfig/env/tcpsvd/MAX_BACKLOG
 
 
 %changelog
+* Tue Jan 17 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- 0.11.1
+- rediff P0
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Clean rebuild
+
 * Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - Clean rebuild
 
