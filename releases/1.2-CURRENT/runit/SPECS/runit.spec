@@ -9,7 +9,7 @@
 
 %define	revision	$Rev$
 %define	name		runit
-%define	version		1.3.1
+%define	version		1.3.3
 %define	release		%_revrel
 
 %define aver		0.3
@@ -44,8 +44,9 @@ handles the tasks necessary to shutdown and halt or reboot.
 
 %prep
 %setup -q -n admin -a 1
-%patch0 -p0 -b .localtime
-
+pushd %{name}-%{version}
+%patch0 -p1 -b .localtime
+popd
 
 %build
 %ifarch x86_64
@@ -174,6 +175,12 @@ fi
 
 
 %changelog
+* Tue Jan 17 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- 1.3.3
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Clean rebuild
+
 * Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - Clean rebuild
 
