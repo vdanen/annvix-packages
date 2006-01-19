@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		httpd
-%define version		2.0.54
+%define version		2.0.55
 %define release		%_revrel
 
 #
@@ -94,7 +94,7 @@ Patch9:		httpd-2.0.52-apctlopts.patch
 # Bug fixes
 Patch20:	httpd-2.0.45-encode.patch
 Patch21:	httpd-2.0.45-davetag.patch
-Patch22:	httpd-2.0.47-ldapshm.patch
+Patch22:	httpd-2.0.55-ldapshm.patch
 Patch23:	httpd-2.0.48-vhost.patch
 Patch24:	httpd-2.0.46-sslmutex.patch
 Patch25:	httpd-2.0.46-md5dig.patch
@@ -104,10 +104,6 @@ Patch28:	httpd-2.0.48-worker.patch
 Patch29:	httpd-2.0.48-workerhup.patch
 Patch30:	httpd-2.0.48-davmisc.patch
 Patch31:	httpd-2.0.54-ssltrans.patch
-Patch32:	httpd-2.0.54-userdir.patch
-Patch33:	httpd-2.0.54-ldapconn.patch
-Patch34:	httpd-2.0.52-pipedlog1.patch
-Patch35:	httpd-2.0.52-pipedlog2.patch
 #
 # Features/functional changes
 Patch71:	httpd-2.0.40-xfsz.patch
@@ -138,15 +134,7 @@ Patch101:	apachesrc.diff
 # versions of suexec
 Patch102:	apache2-suexec.patch
 Patch103:	httpd-2.0.49-mod_ldap_cache_file_location.diff
-# OE: add the peruser mpm
-# http://www.telana.com/peruser.php
-Patch104:       http://www.telana.com/files/httpd-2.0.52-peruser-0.1.5.patch
-Patch105:	httpd-2.0.55-cvs-pemcallback.patch
 # security fixes
-Patch122:	httpd-2.0.52-CAN-2005-1268.patch
-Patch123:	httpd-2.0.52-CAN-2005-2088.patch
-Patch124:	httpd-2.0.52-CAN-2005-2700.patch
-Patch125:	httpd-2.0.52-CAN-2005-2728.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	apr-devel >= 0.9.6-4avx, apr-util-devel >= 0.9.6-4avx, pcre-devel >= 5.0, byacc
@@ -177,36 +165,6 @@ You can build Apache with some conditional build switches;
 
 (ie. use with rpm --rebuild):
 --with debug   Compile with debugging code
-
-
-%package worker
-Summary:	Apache web server (worker mpm)
-Group:		System/Servers
-Requires:	libapr-util >= 0.9.6-4avx, %{libapr} >= 1:0.9.6-4avx
-Requires:	httpd-conf >= 2.0.54-1avx, httpd-common = %{version}-%{release}, httpd-modules = %{version}-%{release}
-Requires(pre):	rpm-helper, httpd-conf >= 2.0.54-1avx, httpd-common = %{version}-%{release}, httpd-modules = %{version}-%{release}
-Requires(preun): libapr-util >= 0.9.6-4avx, %{libapr} >= 1:0.9.6-4avx
-Requires(post):	libapr-util >= 0.9.6-4avx, %{libapr} >= 1:0.9.6-4avx
-Requires(postun): rpm-helper
-Provides:	webserver apache apache2 apache-mpm apache2-worker httpd-mpm
-Provides:	%{name} = %{version}-%{release}
-Obsoletes:	apache2-worker
-
-%description worker
-This package contains the main binary of Apache, a powerful,
-full-featured, efficient and freely-available Web server. Apache
-is also the most popular Web server on the Internet.
-
-This version of Apache is fully modular, and many modules are
-available in pre-compiled formats, like PHP4 and mod_auth_external.
-
-I M P O R T A N T
------------------
-
-Note that the worker mpm (this package) requires thread safe
-modules. This  package is totally experimental and may not be stable
-or suitable at any time, in any way, or for any kind production
-usage. Be warned.
 
 
 %package common
@@ -536,10 +494,6 @@ build httpd-mod_perl, or your own custom version.
 %patch29 -p1 -b .workerhup.droplet
 %patch30 -p1 -b .davmisc.droplet
 %patch31 -p1 -b .ssltrans.droplet
-%patch32 -p1 -b .userdir.droplet
-%patch33 -p1 -b .ldapconn.droplet
-%patch34 -p1 -b .pipedlog1.droplet
-%patch35 -p1 -b .pipedlog2.droplet
 %patch71 -p0 -b .xfsz.droplet
 %patch72 -p1 -b .pod.droplet
 %patch73 -p1 -b .noshmht.droplet
@@ -562,13 +516,7 @@ build httpd-mod_perl, or your own custom version.
 %patch101 -p1 -b .apachesrc.droplet
 %patch102 -p0 -b .apache2-suexec.droplet
 %patch103 -p0 -b .mod_ldap_cache_file_location.droplet
-%patch104 -p1 -b .peruser.droplet
-%patch105 -p0 -b .pemcallback.droplet
 #
-%patch122 -p1 -b .can-2005-1268
-%patch123 -p1 -b .can-2005-2088
-%patch124 -p1 -b .can-2005-2700
-%patch125 -p1 -b .can-2005-2728
 
 # Touch mod_ssl expression parser sources to prevent regenerating it
 touch modules/ssl/ssl_expr_*.[chyl]
@@ -811,7 +759,7 @@ pushd build-nothing
     grep "^mod_ldap.la" modules/experimental/modules.mk | cut -d\: -f2 | perl -pi -e "s|\.[s]lo|\.c|g" > ../../tmp-%{sourcename}%{srcdir}/modules/experimental/mod_ldap.txt
 popd
 
-for mpm in prefork worker; do
+for mpm in prefork; do
     mkdir build-${mpm}
     pushd build-${mpm}
         ln -s ../configure .
@@ -842,11 +790,6 @@ done
 
 # Verify that the same modules were built into the two httpd binaries
 ./build-prefork/httpd -l | grep -v prefork > ./prefork.mods
-./build-worker/httpd -l | grep -v worker > ./worker.mods
-if [ "`diff -u prefork.mods worker.mods >/dev/null 2>&1 && echo $?`" == "1" ]; then
-    : Different modules built into httpd binaries, will not proceed
-    exit 1
-fi
 
 
 %if %{build_debug}
@@ -877,7 +820,7 @@ mkdir -p %{buildroot}%{_sysconfdir}/httpd/modules.d
 mkdir -p %{buildroot}%{_localstatedir}/dav
 mkdir -p %{buildroot}/var/{www,cache/httpd}
 
-EXCLUDE_FROM_STRIP="%{buildroot}/%{_sbindir}/httpd %{buildroot}/%{_sbindir}/httpd-worker"
+EXCLUDE_FROM_STRIP="%{buildroot}/%{_sbindir}/httpd"
 
 # make mr. lint happy and do some house cleaning...
 pushd ../tmp-%{sourcename}%{srcdir}
@@ -1066,8 +1009,6 @@ rm -rf %{buildroot}/var/www/html/manual
 # fix a msec safe cache for the mod_ldap stuff
 touch %{buildroot}/var/cache/httpd/mod_ldap_cache
 
-# install the worker stuff
-install -m 0755 build-worker/httpd %{buildroot}%{_sbindir}/httpd-worker
 
 %if !%{build_debug}
 # these won't get stripped for some reason...
@@ -1080,7 +1021,6 @@ strip %{buildroot}%{_sbindir}/htpasswd
 strip %{buildroot}%{_sbindir}/logresolve
 strip %{buildroot}%{_sbindir}/rotatelogs
 strip %{buildroot}%{_sbindir}/httpd
-strip %{buildroot}%{_sbindir}/httpd-worker
 %endif
 
 
@@ -1176,22 +1116,11 @@ strip %{buildroot}%{_sbindir}/httpd-worker
 #httpd-mod_perl as well!!
 %_post_srv httpd
 
-%post worker
-%_post_srv httpd
-
-%postun worker
-%_post_srv httpd
-
 
 %files
 %defattr(-,root,root)
 %doc highperformance.conf httpd-VANILLA.conf ssl.conf ssl-std.conf highperformance-std.conf httpd-std.conf
 %attr(0755,root,root) %{_sbindir}/httpd
-
-%files worker
-%defattr(-,root,root)
-%doc highperformance.conf httpd-VANILLA.conf ssl.conf ssl-std.conf highperformance-std.conf httpd-std.conf
-%attr(0755,root,root) %{_sbindir}/httpd-worker
 
 
 %files modules
@@ -1351,6 +1280,18 @@ strip %{buildroot}%{_sbindir}/httpd-worker
 
 
 %changelog
+* Thu Jan 19 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- 2.0.55; includes fixes for CAN-2005-2088, CAN-2005-2700, CAN-2005-2491,
+  CAN-2005-2728, CAN-2005-1268 (only CAN-2005-2491 was previously unpatched)
+- drop the worker mpm; it needs thread-safe modules which excludes a
+  whole whack of stuff
+- rediff P22
+- drop P32, P33, P34, P35, P105, P122, P123, P124, P125; merged upstream
+- drop P104; we don't ship/use the peruser mpm
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Clean rebuild
+
 * Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - Obfuscate email addresses and new tagging
 - Uncompress patches
