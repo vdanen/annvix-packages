@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		php-ini
-%define version		4.4.1
+%define version		4.4.2
 %define release		%_revrel
 
 Summary:	INI files for PHP
@@ -39,6 +39,7 @@ The php-ini package contains the ini files required for PHP.
 
 mkdir -p %{buildroot}%{_sysconfdir}/php.d
 mkdir -p %{buildroot}%{_libdir}/php/extensions
+mkdir -p %{buildroot}/var/tmp/php_sessions
 cat %{SOURCE0} > %{buildroot}%{_sysconfdir}/php.ini
 
 perl -pi -e 's|/usr/lib|%{_libdir}|' %{buildroot}%{_sysconfdir}/php.ini
@@ -55,9 +56,18 @@ perl -pi -e 's|EXTENSIONDIR|%{_libdir}/php/extensions|g' %{buildroot}%{_sysconfd
 %dir %{_sysconfdir}/php.d
 %dir %{_libdir}/php
 %dir %{_libdir}/php/extensions
+%attr(1777,root,root) %dir /var/tmp/php_sessions
 
 
 %changelog
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- 4.4.2
+- use /var/tmp/php_sessions for the session.save_path and make it sticky
+  (fixes bug #16)
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Clean rebuild
+
 * Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - Obfuscate email addresses and new tagging
 - Uncompress patches
