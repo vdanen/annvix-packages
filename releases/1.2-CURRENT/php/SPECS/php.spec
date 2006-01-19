@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		php
-%define version		4.4.1
+%define version		4.4.2
 %define release		%_revrel
 %define epoch		2
 
@@ -19,6 +19,9 @@
 %define phpdir		%{_libdir}/php
 %define	peardir		%{_datadir}/pear
 %define	phpsrcdir	%{_usrsrc}/php-devel
+
+%global harden          1
+%{?_without_harden:     %global harden 0}
 
 %define _requires_exceptions BEGIN\\|mkinstalldirs
 
@@ -49,13 +52,11 @@ Patch0:		php-4.3.0-mdk-init.patch
 Patch1:		php-4.3.6-mdk-shared.patch
 Patch2:		php-4.3.0-mdk-imap.patch
 Patch4:		php-4.3.4RC3-mdk-64bit.patch
-Patch5:		php-4.4.0RC2-mdk-lib64.patch
-Patch6:		php-4.3.0-mdk-fix-pear.patch
+Patch5:		php-4.4.2-avx-lib64.patch
 Patch7:		php-4.3.11-mdk-libtool.patch
 Patch9:		php-4.3.11-mdk-no_egg.patch
 Patch10:	php-4.4.0RC1-mdk-phpize.diff
 Patch11:	php-4.4.0RC2-mdk-run-tests.diff
-Patch12:	php-4.4.1-bug35067.patch
 # from PLD (20-40)
 Patch20:	php-4.3.0-pld-mail.patch
 Patch21:	php-4.3.10-pld-mcal-shared-lib.patch
@@ -79,7 +80,7 @@ Patch70:	php-4.3.3-mdk-make_those_darn_tests_work.patch
 # Bug fixes:
 Patch71:	php-4.3.4-mdk-bug-22414.patch
 # http://www.hardened-php.net/
-Patch100:	http://www.hardened-php.net/hardening-patch-4.4.1-0.4.5.patch
+Patch100:	http://www.hardened-php.net/hardening-patch-4.4.2-0.4.8.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 # this is to prevent that it will build against old libs
@@ -220,12 +221,10 @@ perl -pi -e "s|_PHP_SONAME_|%{libversion}|g" Makefile.global
 %patch2 -p0 -b .imap
 %patch4 -p1
 %patch5 -p1
-%patch6 -p1 -b .fix-pear
 %patch7 -p0 -b .libtool
 %patch9 -p1
 %patch10 -p1 -b .phpize
 %patch11 -p0
-%patch12 -p1 -b .bug35067
 # from PLD
 %patch20 -p1
 %patch21 -p1
@@ -246,7 +245,9 @@ perl -pi -e "s|_PHP_SONAME_|%{libversion}|g" Makefile.global
 #
 %patch70 -p0 -b .make_those_darn_tests_work
 %patch71 -p1 -b .22414
+%if %{harden}
 %patch100 -p1 -b .hardened
+%endif
 
 # Change perms otherwise rpm would get fooled while finding requires
 chmod 0644 tests/lang/*.inc
@@ -268,7 +269,6 @@ mkdir -p php-devel/sapi
 mkdir -p php-devel/pear
 
 # Install test files in php-devel
-cp -a pear/tests php-devel/pear/
 mkdir -p php-devel/pear/Console
 cp -a pear/Console/tests php-devel/pear/Console
 cp -a tests php-devel
@@ -595,6 +595,15 @@ update-alternatives --remove php %{_bindir}/php-cli
 
 
 %changelog
+* Wed Jan 18 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- 4.4.2
+- hardening patch 0.4.8 for php 4.4.2
+- rediffed P5
+- dropped P6; doesn't look like it's needed any longer
+- dropped P12; fixed upstream
+- add a --without harden option to build without the hardening patch;
+  the default is to build with it
+
 * Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - Obfuscate email addresses and new tagging
 - Uncompress patches
