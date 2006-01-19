@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		httpd-conf
-%define version		2.0.54
+%define version		2.0.55
 %define release		%_revrel
 
 %define compat_dir	/etc/httpd
@@ -242,6 +242,12 @@ fi
 
 
 %changelog
+* Thu Jan 19 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- apache 2.0.55
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Clean rebuild
+
 * Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - dietlibc fixes
 

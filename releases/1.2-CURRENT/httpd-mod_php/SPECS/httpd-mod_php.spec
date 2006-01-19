@@ -13,8 +13,8 @@
 %define release		%_revrel
 
 # Module-Specific definitions
-%define apache_version	2.0.54
-%define phpversion	4.4.0
+%define apache_version	2.0.55
+%define phpversion	4.4.2
 %define mod_name	mod_php
 %define mod_conf	70_%{mod_name}.conf
 %define mod_so		%{mod_name}4.so
@@ -95,6 +95,13 @@ cat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 
 %changelog
+* Thu Jan 19 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- apache 2.0.55
+- php 4.4.2
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Clean rebuild
+
 * Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - Obfuscate email addresses and new tagging
 - Uncompress patches

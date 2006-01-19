@@ -13,7 +13,7 @@
 %define release		%_revrel
 
 # Module-Specific definitions
-%define apache_version	2.0.54
+%define apache_version	2.0.55
 %define mod_name	mod_ssl
 %define mod_conf	40_%{mod_name}.conf
 %define mod_so		%{mod_name}.so
@@ -155,6 +155,12 @@ fi
 
 
 %changelog
+* Thu Jan 19 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- apache 2.0.55
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Clean rebuild
+
 * Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - Obfuscate email addresses and new tagging
 - Uncompress patches
