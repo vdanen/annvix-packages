@@ -13,7 +13,7 @@
 %define release 	%_revrel
 
 # Module-Specific definitions
-%define apache_version	2.0.54
+%define apache_version	2.0.55
 %define mod_version	2.0.2b1
 %define mod_name	mod_auth_pgsql
 %define mod_conf	13_%{mod_name}.conf
@@ -31,6 +31,7 @@ Source0:	http://www.giuseppetanzilli.it/mod_auth_pgsql2/dist/%{sourcename}.tar.b
 Source1:	%{mod_conf}
 Patch0:		mod_auth_pgsql-2.0.1-fdr-nonpgsql.patch
 Patch1:		mod_auth_pgsql-2.0.1-fdr-static.patch
+Patch2:		mod_auth_pgsql-2.0.1-CVE-2005-3656.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:  httpd-devel >= %{apache_version}, postgresql-devel, postgresql-libs-devel, openssl-devel
@@ -49,7 +50,7 @@ database.
 %setup -q -n %{sourcename}
 %patch0 -p1 -b .nonpgsql
 %patch1 -p1 -b .static
-
+%patch2 -p1 -b .cve-2005-3656
 
 %build
 %{_sbindir}/apxs -I%{_includedir}/pgsql -L%{_libdir} \
@@ -77,6 +78,13 @@ cat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 
 %changelog
+* Thu Jan 19 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- apache 2.0.55
+- P2: security fix for CVE-2005-3656
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Clean rebuild
+
 * Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - Obfuscate email addresses and new tagging
 - Uncompress patches
