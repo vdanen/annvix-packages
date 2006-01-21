@@ -114,7 +114,7 @@ Source15:	linux-annvix-config.h
 Source16:	annvix-linux-merge-config.awk
 Source17:	annvix-linux-merge-modules.awk
 
-#Source100:	linux-%{patches_ver}.tar.bz2
+Source100:	linux-%{patches_ver}.tar.bz2
 
 ####################################################################
 #
@@ -249,15 +249,17 @@ kernel modules at load time.
 %prep
 # now that we build out of svn, we need to dynamically create the
 # patch tarball
-#pushd %{_sourcedir}     
-#cp -a patches linux-%{patches_ver}
-#tar cvjf linux-%{patches_ver}.tar.bz2 linux-%{patches_ver} && rm -rf linux-%{patches_ver}
-#popd
+pushd %{_sourcedir}
+if [ -d patches ]; then
+  cp -a patches %{patches_ver}
+  find %{patches_ver} -name .svn -print|xargs rm -rf
+  rm -f linux-%{patches_ver}.tar.bz2
+  tar cjf linux-%{patches_ver}.tar.bz2 %{patches_ver} && rm -rf %{patches_ver}
+fi
+popd
 
 %setup -q -n %{top_dir_name} -c
-#%setup -q -n %{top_dir_name} -D -T -a100
-
-cp -a %{_sourcedir}/patches %{build_dir}/%{patches_ver}
+%setup -q -n %{top_dir_name} -D -T -a100
 
 %define patches_dir ../%{patches_ver}/
 
@@ -823,6 +825,11 @@ exit 0
 
 
 %changelog
+* Sat Jan 21 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- fix bug #17 by making the patch tarball dynamically if one
+  doesn't already exist and a patches/ subdir exists (allows us to
+  still keep the patches uncompressed in svn)
+
 * Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - Clean rebuild
 
