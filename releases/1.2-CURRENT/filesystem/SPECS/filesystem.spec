@@ -44,7 +44,7 @@ pushd %{buildroot}
         etc/{profile.d,skel,security,ssl,sysconfig/env} \
         home initrd lib/modules %{_lib} mnt media opt proc root sbin srv tmp \
         usr/{bin,etc,include,%{_lib}/gcc-lib,lib/gcc-lib,local/{bin,doc,etc,lib,%{_lib},sbin,src,share/{man/man{1,2,3,4,5,6,7,8,9,n},info},libexec,include,},sbin,share/{doc,info,man/man{1,2,3,4,5,6,7,8,9,n},misc,empty,pixmaps},src,X11R6/{bin,include,lib,%{_lib},man}} \
-        var/{empty,lib/misc,local,lock/subsys,log/service,mail,nis,preserve,run,service,tmp,cache/man,opt,yp}
+        var/{empty,lib/misc,local,lock/subsys,log/service,mail,nis,preserve,run,service,spool,tmp,cache/man,opt,yp}
 
     ln -snf ../X11R6/bin usr/bin/X11
     ln -snf ../X11R6/lib/X11 usr/lib/X11
