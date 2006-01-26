@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		man-pages
-%define version		2.07
+%define version		2.08
 %define release 	%_revrel
 
 %define LANG		en
@@ -32,10 +32,6 @@ Source9:	man2.tar.bz2
 Source10:	strptime.3
 Source11:	man-network.tar.bz2
 Patch0:		man-pages-1.44-ext3.patch
-# (fg) 20010627 Document that quad interpretation "feature" in socket API...
-Patch4:		man-pages-1.38-quad-feature.patch
-Patch5:		man-pages-1.53-fix-time.patch
-Patch6:		man-pages-1.54-biarch-utmp.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
@@ -71,9 +67,6 @@ cp -a %{SOURCE5} man8
 cp -a %{SOURCE10} man3
 
 %patch0 -p1
-%patch4 -p1
-%patch5 -p0
-%patch6 -p1 -b .biarch-utmp
 
 
 %build
@@ -139,10 +132,19 @@ tar xfj %{SOURCE11} -C %{buildroot}%{_mandir}
 %doc README* *.Announce POSIX-COPYRIGHT Changes
 %config(noreplace) %attr(755,root,root)%{_sysconfdir}/cron.weekly/makewhatis-%{LANG}.cron
 %dir %{_mandir}/%{LANG}
+%dir %{_mandir}/man*p/
 %{_mandir}/man*/*
 
 
 %changelog
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- 2.08
+- fix unowned directories
+- drop merged patches P4, P5, P6
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Clean rebuild
+
 * Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - Clean rebuild
 
