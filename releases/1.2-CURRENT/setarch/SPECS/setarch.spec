@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		setarch
-%define version		1.7
+%define version		1.8
 %define	release		%_revrel
 
 Summary:	Kernel personality setter
@@ -81,6 +81,12 @@ done
 
 
 %changelog
+* Wed Jan 25 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- 1.8
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Clean rebuild
+
 * Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - Clean rebuild
 
