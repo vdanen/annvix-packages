@@ -144,10 +144,17 @@ fi
 
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4.1
+- revert run scripts back to sh scripts so that ./env/OPTIONS is properly
+  parsed (fixing bug #18)
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4.1
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4.1
+- Clean rebuild
+
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4.1
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - fix prereq

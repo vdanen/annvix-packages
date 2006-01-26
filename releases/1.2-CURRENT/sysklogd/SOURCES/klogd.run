@@ -1,11 +1,8 @@
-#!/bin/execlineb
+#!/bin/sh
 
-/bin/redirfd -c 1 /dev/null
+OPTIONS="-2"
+if [ -f ./env/OPTIONS ]; then
+    OPTIONS=`head -1 ./env/OPTIONS`
+fi
 
-/bin/export PATH "/sbin:/usr/sbin:/bin:/usr/bin"
-
-/sbin/chpst -e ./env/
-
-import -D "-2" OPTIONS
-
-/sbin/klogd -n ${OPTIONS}
+exec /sbin/klogd -n ${OPTIONS} >/dev/null 2>&1
