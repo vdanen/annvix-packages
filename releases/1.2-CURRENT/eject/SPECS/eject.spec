@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		eject
-%define version 	2.0.13
+%define version 	2.1.4
 %define release		%_revrel
 
 Summary:	A program that ejects removable media using software control
@@ -18,11 +18,11 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		System/Kernel and hardware
-URL:		http://metalab.unc.edu/pub/Linux/utils/disk-management/
-Source:		http://metalab.unc.edu/pub/Linux/utils/disk-management/eject-%{version}.tar.bz2
+URL:		http://ca.geocities.com/jefftranter%40rogers.com/eject.html
+Source:		http://ca.geocities.com/jefftranter%40rogers.com/eject-2.1.4.tar.gz
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	gettext
+BuildRequires:	gettext, automake1.9
 
 %description
 The eject program allows the user to eject removable media
@@ -32,7 +32,7 @@ disk CD changers and even some devices' auto-eject features.
 
 
 %prep
-%setup -q
+%setup -q -n %{name}
 
 
 %build
@@ -64,6 +64,14 @@ mkdir -p %{buildroot}%{_mandir}/man1
 
 
 %changelog
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- 2.1.4
+- update URL
+- BuildRequires: automake1.9
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Clean rebuild
+
 * Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - Clean rebuild
 
