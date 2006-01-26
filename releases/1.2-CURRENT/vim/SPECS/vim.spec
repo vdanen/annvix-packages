@@ -13,10 +13,10 @@
 
 %define revision	$Rev$
 %define name		vim
-%define version		6.3
+%define version		6.4
 %define release		%_revrel
 
-%define patch_level	86
+%define patch_level	1
 %define localedir	%{buildroot}%{_datadir}/locale/
 
 %define perl_version	%(rpm -q --qf '%%{epoch}:%%{version}' perl)
@@ -35,7 +35,7 @@ Source4:	vim-%{version}.%{patch_level}-patches.tar.bz2
 Source5:	vim-spec-3.0.tar.bz2
 # MDK patches
 Patch2:		vim-5.6a-paths.patch
-Patch3:		vim-6.3-rpm-spec-syntax.patch
+Patch3:		vim-6.4-mdk-rpm-spec-syntax.patch
 Patch8:		vim-6.0af-man-path.patch
 Patch10:	xxd-locale.patch
 Patch11:	vim-6.2-gcc31.patch
@@ -46,7 +46,7 @@ Patch24:	vim-6.1-outline-mode.patch
 Patch25:	vim-6.1-xterm-s-insert.patch 
 Patch26:	vim-6.1-changelog-mode.patch
 Patch27:	vim-6.1-rpm42.patch
-Patch28:	vim-6.1-po-mode.patch
+Patch28:	vim-6.4-mdk-po-mode.patch
 Patch31:	vim63-CAN-2005-0069.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -64,7 +64,7 @@ contains files which every VIM binary will need in order to run.
 Summary:	The common files needed by any version of the VIM editor
 Group:		Editors
 Requires:	perl = %{perl_version}
-PreReq:		coreutils 
+Requires(pre):	coreutils
 
 %description common
 VIM (VIsual editor iMproved) is an updated and improved version of the vi
@@ -78,7 +78,8 @@ contains files which every VIM binary will need in order to run.
 Summary:	A minimal version of the VIM editor
 Group:		Editors
 Provides:	vim
-PreReq:		/usr/sbin/update-alternatives
+Requires(post):	/usr/sbin/update-alternatives
+Requires(postun): /usr/sbin/update-alternatives
 
 %description minimal
 VIM (VIsual editor iMproved) is an updated and improved version of the vi
@@ -95,7 +96,8 @@ Group:		Editors
 Requires:	vim-common >= %{version}
 Obsoletes:	vim-color
 Provides:	vim vim-color
-PreReq:		/usr/sbin/update-alternatives
+Requires(post):	/usr/sbin/update-alternatives
+Requires(postun): /usr/sbin/update-alternatives
 
 %description enhanced
 VIM (VIsual editor iMproved) is an updated and improved version of the vi
@@ -107,7 +109,7 @@ Python and Perl interpreters.
 
 
 %prep
-%setup -q -b 2 -n vim63 -a4
+%setup -q -b 2 -n vim64 -a4
 # spec plugin
 rm -f runtime/doc/pi_spec.txt
 rm -f runtime/ftpplugin/spec.vim
@@ -252,9 +254,12 @@ done
 rm -fr %{buildroot}/usr/share/vim/doc
 ln -sf ../../../%{_defaultdocdir}/%{name}-common-%{version}/doc %{buildroot}/usr/share/vim/doc
 
+# but first delete some uncommon locale files
+rm -rf %{buildroot}%{_datadir}/locale/zh_{TW,CN}.UTF-8*
+
 # symlink locales in right place so that %find_land put needed %lang:
 # see %pre common why this is needed
-pushd %{buildroot}/%{_datadir}/vim/lang
+pushd %{buildroot}%{_datadir}/vim/lang
     ln -s ../../locale/* .
 popd
 
@@ -301,6 +306,7 @@ then rm -fr %{_datadir}/vim/lang
 else rm -f %{_datadir}/vim/lang
 fi
 
+
 %post minimal
 update-alternatives --install /usr/bin/vi uvi /bin/vim-minimal 10
 update-alternatives --install /bin/vi     vi  /bin/vim-minimal 10
@@ -309,6 +315,7 @@ for i in view ex rvi rview rvim; do
     update-alternatives --install /bin/$i $i /bin/vi 10 || :
 done
 :
+
 
 %postun minimal
 [ $1 = 0 ] || exit 0
@@ -319,14 +326,6 @@ update-alternatives --remove vim /bin/vim-minimal
 for i in view ex rvi rview rvim; do
     update-alternatives --remove $i /bin/$i || :
 done
-
-:
-
-%triggerpostun -n vim-minimal -- vim-minimal < 6.1-22mdk
-for i in view ex rvi rview rvim; do
-    update-alternatives --remove $i /bin/$i || :
-done
-
 :
 
 
@@ -335,6 +334,7 @@ update-alternatives --install /usr/bin/vi uvi /usr/bin/vim-enhanced 20
 update-alternatives --install /bin/vi  vi     /usr/bin/vim-enhanced 20
 update-alternatives --install /bin/vim vim    /usr/bin/vim-enhanced 20
 :
+
 
 %postun enhanced
 [ $1 = 0 ] || exit 0
@@ -389,10 +389,21 @@ update-alternatives --remove vim /usr/bin/vim-enhanced
 
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 6.4
+- 6.4; patchlevel 1
+- updated P3, P28 from Mandriva
+- fix prereq
+- remove useless triggers
+- adapt P31 as tcltags is no longer shipped
+- delete some uncommon locale files
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 6.3
 - Clean rebuild
 
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 6.3
+- Clean rebuild
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 6.3
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - make S5 look like the tar file it is

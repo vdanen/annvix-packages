@@ -1,14 +1,14 @@
---- runtime/syntax/po.vim	2003-04-07 13:45:05.000000000 +0200
-+++ runtime/syntax/po.vim	2003-05-23 15:16:53.000000000 +0200
+--- ./runtime/syntax/po.vim.orig	2004-11-19 15:34:55.000000000 +0100
++++ ./runtime/syntax/po.vim	2005-10-17 17:32:00.000000000 +0200
 @@ -1,6 +1,7 @@
  " Vim syntax file
  " Language:	po (gettext)
- " Maintainer:	Nam SungHyun <namsh@kldp.org>
+ " Maintainer:	Dwayne Bailey <dwayne@translate.org.za>
 +" Patchedby:	Sung-Hyun Nam <namsh@kldp.org>
- " Last Change:	2001 Apr 26
+ " Last Change:	2004 Nov 13
  
  " For version 5.x: Clear all syntax items
-@@ -44,3 +40,83 @@
+@@ -121,3 +122,83 @@
  let b:current_syntax = "po"
  
  " vim:set ts=8 sts=2 sw=2 noet:
