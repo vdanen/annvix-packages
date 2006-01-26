@@ -10,10 +10,10 @@
 %define	module		Compress-Zlib
 %define	revision	$Rev$
 %define	name		perl-%{module}
-%define	version		1.37
+%define	version		1.41
 %define	release		%_revrel
 
-Summary:	%{module} module for perl
+Summary:	Perl interface to the zlib compression library
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -37,8 +37,11 @@ library.
 
 
 %build
-CFLAGS="%{optflags}" %{__perl} Makefile.PL INSTALLDIRS=vendor
+%{__perl} Makefile.PL INSTALLDIRS=vendor
 %make
+
+
+%check
 make test
 
 
@@ -60,10 +63,17 @@ make test
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.41
+- 1.41
+- minor spec cleanups
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.37
 - Clean rebuild
 
-* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.37
+- Clean rebuild
+
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.37
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
