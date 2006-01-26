@@ -64,7 +64,7 @@ mkdir -p %{buildroot}%{_mandir}/man1
 
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 25 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - 2.1.4
 - update URL
 - BuildRequires: automake1.9

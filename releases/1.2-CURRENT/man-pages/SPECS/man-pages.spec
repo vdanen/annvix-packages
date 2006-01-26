@@ -137,7 +137,7 @@ tar xfj %{SOURCE11} -C %{buildroot}%{_mandir}
 
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 25 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - 2.08
 - fix unowned directories
 - drop merged patches P4, P5, P6
