@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		util-linux
-%define version		2.12q
+%define version		2.12r
 %define release		%_revrel
 
 Summary:	A collection of basic system utilities
@@ -113,10 +113,11 @@ Patch1207:	util-linux-2.12a-users.patch
 Patch1208:	util-linux-2.12q-llseek-syscall.patch
 # Try to detect if the cdrom we have is a cd-extra (track audio and later track data) not
 Patch1210:	util-linux-2.12q-mount_guess_fs_cdextra.patch
+# (blino) don't fail when using labels and -e option
+Patch1211:	util-linux-2.12r-mdk-label.patch
 
 # Annvix patches
 Patch1250:	util-linux-2.12a-avx-noselinux.patch
-Patch1252:	util-linux-2.12a-can-2005-2876.patch
 
 Obsoletes:	fdisk tunelp
 provides:	fdisk, tunelp
@@ -248,9 +249,9 @@ cp %{SOURCE8} %{SOURCE9} .
 %patch117 -p1 -b .kbdrate
 %patch120 -p1 -b .comp
 %patch1210 -p1 -b .cdextra
+%patch1211 -p1 -b .label
 
 %patch1250 -p0 -b .noselinux
-%patch1252 -p1 -b .can-2005-2876
 
 # USRLIB_DIR is %{_libdir}
 perl -pi -e "s|(USRLIB_DIR)\s*=\s*(.*)|\1=%{_libdir}|" ./MCONFIG
@@ -598,6 +599,14 @@ fi
 
 
 %changelog
+* Wed Jan 25 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- 2.12r
+- drop P1252; merged upstream
+- P1211: don't fail in "swapon -a" when using labels and -e option (blino)
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- Clean rebuild
+
 * Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - Clean rebuild
 
