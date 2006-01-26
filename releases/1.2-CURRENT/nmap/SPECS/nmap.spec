@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		nmap
-%define version		3.81
+%define version		3.99
 %define release		%_revrel
 %define epoch		1
 
@@ -24,7 +24,7 @@ URL:		http://www.insecure.org/nmap/
 Source0:	http://download.insecure.org/nmap/dist/%{name}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	pcre-devel
+BuildRequires:	libpcre-devel
 BuildRequires:	openssl-devel
 
 %description
@@ -39,19 +39,18 @@ more.
 
 %prep
 %setup -q -n %{name}-%{version}
+perl  -pi -e 's|/lib\b|/%{_lib}|g' configure*
 
 
 %build
 # update config.* to recognize amd64-*
-%{?__cputoolize: %{__cputoolize} -c libpcap-possiblymodified}
-%{?__cputoolize: %{__cputoolize} -c libpcre}
 %{?__cputoolize: %{__cputoolize} -c nsock/src}
-#%#ifarch amd64 x86_64
-# nmap doesn't like the amd64 build name
-#CFLAGS="%{optflags}" ./configure --prefix=%{_prefix} --libdir=%{_libdir} --libexecdir=%{_libdir}
-#%#else
-%configure2_5x
-#%#endif
+%configure2_5x \
+    --with-openssl=%{_prefix} \
+    --with-libpcap=%{_prefix} \
+    --with-libpcre=%{_prefix} \
+    --without-nmapfe
+
 %make 
 
 
@@ -66,19 +65,26 @@ more.
 
 %files 
 %defattr(-,root,root)
-%doc docs/README docs/nmap-fingerprinting-article.txt
-%doc docs/nmap.deprecated.txt docs/nmap.usage.txt docs/nmap_doc.html
-%doc docs/nmap_manpage.html CHANGELOG
+%doc CHANGELOG COPYING* HACKING docs/README docs/nmap.usage.txt
 %{_bindir}/nmap
 %{_datadir}/%{name}
 %{_mandir}/man1/nmap.*
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.81
+- 3.99
+- fix BuildRequires
+- lib64 fix
+- build against system libs (except libdnet which we don't ship)
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.81
 - Clean rebuild
 
-* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.81
+- Clean rebuild
+
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.81
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
