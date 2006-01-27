@@ -23,7 +23,6 @@ License:	BSD
 Group:		Archiving/Compression
 URL:		http://www.bzip.org/
 Source:		http://www.bzip.org/1.0.3/%{name}-%{version}.tar.gz
-Source1:	bzgrep
 Source2:	bzme
 Source3:	bzme.1
 Patch0:		bzip2-1.0.2-mdv-mktemp.patch
@@ -33,6 +32,7 @@ Patch1:		bzip2-1.0.3-mdv-makefile.patch
 # URL: http://www.vanheusden.com/Linux/bzip2-1.0.2.diff.gz
 Patch2:		bzip2-1.0.2.diff
 Patch3:		bzip2-1.0.2-CAN-2005-0953.patch
+Patch4:		bzip2-1.0.2-bzgrep.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	texinfo
@@ -79,6 +79,7 @@ cp %{SOURCE2} .
 %patch1 -p1 -b .makefile
 %patch2 -p1
 %patch3 -p1 -b .can-2005-0953
+%patch4 -p1 -b .cve-2005-0758
 
 echo "lib = %{_lib}" >>config.in
 echo "CFLAGS = %{optflags}" >>config.in
@@ -91,7 +92,9 @@ echo "CFLAGS = %{optflags}" >>config.in
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
-install -m 0755 %{SOURCE1} bzme %{buildroot}%{_bindir}
+install -m 0755 bzme %{buildroot}%{_bindir}
+install -m 0755 bzgrep %{buildroot}%{_bindir}
+install -m 0644 bzgrep.1 %{buildroot}%{_mandir}/man1
 
 cat > %{buildroot}%{_bindir}/bzless <<EOF
 #!/bin/sh
@@ -132,10 +135,17 @@ install -m 0644 bzlib_private.h %{buildroot}%{_includedir}/
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.3
+- P4: security fix for CVE-2005-0758 (bzgrep)
+- drop S1; use the bundled bzgrep instead and install the manpage
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.3
 - Clean rebuild
 
-* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.3
+- Clean rebuild
+
+* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.3
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
