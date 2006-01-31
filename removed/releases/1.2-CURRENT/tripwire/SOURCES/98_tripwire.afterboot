@@ -1,0 +1,65 @@
+.LP
+\fBTripwire\fR
+.LP
+Tripwire is an integrity checking system that will alert you if any unauthorized
+changes are made to your filesystem.  The default tripwire policy tries to be as
+comprehensive as possible, however it will require tailoring to your specific
+configuration in order for it to be completely useful.
+.LP
+To begin, you will need to create your local and site keys, and this can be done
+with the \fBtwinstall.sh\fR script located in the \fI/etc/tripwire\fR directory.
+Once you have run this script you should execute:
+.IP
+tripwire --init
+.LP
+to initialize the database.  Once you have initalized the database and created
+the policy file to suit your system, you should remove the cleartext copies of
+the configuration and policy files, typically \fItwcfg.txt\fR and \fItwpol.txt\fR.
+You can obtain more information on the configuration file by reading twconfig(4) and
+the policy file by reading twpolicy(4).
+.LP
+If you need to make changes to the policy and/or configuration files, you can generate
+a cleartext copy again by decrypting the encrypted equivalents.  To do this, execute:
+.LP
+.nf
+       cd /etc/tripwire
+       twadmin --print-cfgfile > twcfg.txt
+       twadmin --print-polfile > twpol.txt
+.fi
+.LP
+You can redirect the output to any file you like, but the \fBtwinstall.sh\fR script
+looks for these exact files if you wish to re-run that script to generate the encrypted
+policy and configuration files.  You can, of course, use twadmin(8) directly for this
+purpose as well:
+.LP
+.nf
+       cd /etc/tripwire
+       twadmin --create-cfgfile --cfgfile ./tw.cfg \
+         --site-keyfile [site_key] ./twcfg.txt
+       twadmin --create-polfile --cfgfile ./tw.cfg \
+         --site-keyfile [site_key] ./twpol.txt
+.fi
+.LP
+By default, tripwire performs a check every day via cron, which will be sent to the
+root user on the local system by default, so you'll either want to configure the
+policy file to send the report to another email address or make sure that you receive
+the root user's email on this system.  To run a check manually or to check for specific
+things, you can use tripwire(8) directly.
+.LP
+As you upgrade your system with new packages, make changes to configuration files, etc.
+you will need to keep updating your database.  In order to do this, use the \fBtwupdate\fR
+script.  This script will update the database against the latest integrity check performed.
+To ensure it is completely up-to-date, you will want to perform a check immediately prior
+to updating the database.
+.LP
+Ideally, when you are upgrading packages, you should perform a check before and after the
+upgrade.  This ensures you have a sane baseline and a very small window of opportunity for
+things to be changed without your notice.  If you update a number of packages one day and do
+not update the database for a few days, there is the possibility of a file being modified
+without your knowledge; with a large number of changed files in the report, you may be
+unaware of these changes.  If you perform a check prior to the update, you will see what
+files have changed and can immediately judge if you have anything to be concerned with.
+Once you update packages, you should run another check and ensure that no other files have
+changed that do not look like they belong to any of the packages you updated.  Once you
+have run this check and confirmed that everything is ok, use \fBtwupdate\fR to update the
+database.  Practicing this will make tripwire a much more valuable and reliable tool.
