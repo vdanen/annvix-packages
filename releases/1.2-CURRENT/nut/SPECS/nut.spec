@@ -29,10 +29,8 @@ Source4:	upsmon.run
 Source5:	upsmon.finish
 Source6:	upsmon-log.run
 Source7:	ups_command
-#Source1:	upsd
-#Source2:	upsmon
-Patch0:		nut-2.0.1-lib64.patch.bz2
-Patch1:		bouissou2.patch.bz2
+Patch0:		nut-2.0.1-lib64.patch
+Patch1:		bouissou2.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5 libusb-devel
