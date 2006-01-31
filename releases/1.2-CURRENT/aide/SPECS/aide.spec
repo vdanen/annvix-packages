@@ -5,9 +5,9 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-# $Id: tripwire.spec 5113 2006-01-12 19:01:07Z vdanen $
+# $Id$
 
-%define revision	$Rev: 5123 $
+%define revision	$Rev$
 %define name		aide
 %define version		0.11
 %define rver		0.11-rc3
