@@ -33,7 +33,7 @@ Patch9:		gzip-1.2.4a-znew.patch
 Patch10:	gzip-1.2.4a-zdiff-CAN-2004-0970.patch
 Patch11:	gzip-1.2.4a-CAN-2005-1228.patch
 Patch12:	gzip-1.2.4a-CAN-2005-0988.patch
-Patch13:	gzip-1.2.4a-CAN-2005-0758.patch
+Patch13:	gzip-1.2.4a-CVE-2005-0758-bash3.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	texinfo
@@ -62,7 +62,7 @@ program.  Gzipped files have a .gz extension.
 %patch10 -p0 -b .can-2004-0970
 %patch11 -p1 -b .can-2005-1228
 %patch12 -p1 -b .can-2005-0988
-%patch13 -p1 -b .can-2005-0758
+%patch13 -p1 -b .cve-2005-0758
 
 
 %build
@@ -124,10 +124,16 @@ chmod 0755 %{buildroot}%{_bindir}/zless
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Jan 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.4a
+- update P13 to have a more comprehensive fix for CVE-2005-0758
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.4a
 - Clean rebuild
 
-* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.4a
+- Clean rebuild
+
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.4a
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - fix prereq
