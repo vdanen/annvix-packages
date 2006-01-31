@@ -5,9 +5,9 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-# $Id: httpd.spec 5157 2006-01-19 20:27:35Z vdanen $
+# $Id$
 
-%define revision        $Rev: 5159 $
+%define revision        $Rev$
 %define name            nut
 %define version         2.0.1
 %define release         %_revrel
