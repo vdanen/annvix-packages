@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		nmap
-%define version		3.99
+%define version		4.00
 %define release		%_revrel
 %define epoch		1
 
@@ -72,7 +72,10 @@ perl  -pi -e 's|/lib\b|/%{_lib}|g' configure*
 
 
 %changelog
-* Wed Jan 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.81
+* Tue Jan 31 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.00
+- 4.00
+
+* Wed Jan 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.99
 - 3.99
 - fix BuildRequires
 - lib64 fix
