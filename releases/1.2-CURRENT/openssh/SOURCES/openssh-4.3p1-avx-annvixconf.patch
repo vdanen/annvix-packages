@@ -58,12 +58,12 @@
  #PermitUserEnvironment no
  #Compression delayed
  #ClientAliveInterval 0
---- ssh_config.avx	2005-02-08 17:46:48.000000000 -0500
-+++ ssh_config	2005-09-26 04:13:13.000000000 -0400
-@@ -37,3 +37,8 @@
- #   Cipher 3des
- #   Ciphers aes128-cbc,3des-cbc,blowfish-cbc,cast128-cbc,arcfour,aes192-cbc,aes256-cbc
- #   EscapeChar ~
+--- ssh_config.avx	2005-12-13 01:29:03.000000000 -0700
++++ ssh_config	2006-02-01 16:51:49.000000000 -0700
+@@ -40,3 +40,8 @@
+ #   Tunnel no
+ #   TunnelDevice any:any
+ #   PermitLocalCommand no
 +
 +Host *
 +  Protocol 2,1

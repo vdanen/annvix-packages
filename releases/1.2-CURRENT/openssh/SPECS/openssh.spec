@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		openssh
-%define version		4.2p1
+%define version		4.3p1
 %define release 	%_revrel
 
 # overrides
@@ -33,7 +33,7 @@ Source6:	ssh-client.sh
 Source8:	sshd.run
 Source9:	sshd-log.run
 Source10:	convert_known_hosts-4.0.pl
-Patch1:		openssh-4.2p1-avx-annvixconf.patch
+Patch1:		openssh-4.3p1-avx-annvixconf.patch
 # authorized by Damien Miller <djm@openbsd.com>
 Patch2:		openssh-3.1p1-mdk-check-only-ssl-version.patch
 
@@ -341,10 +341,17 @@ echo "known_hosts files on an entire system if run as root."
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Feb 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.3p1
+- 4.3p1
+- rediff P1
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.2p1
 - Clean rebuild
 
-* Sun Jan 08 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.2p1
+- Clean rebuild
+
+* Sun Jan 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.2p1
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - fix prereq
