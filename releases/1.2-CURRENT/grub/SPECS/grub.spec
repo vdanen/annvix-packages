@@ -133,6 +133,7 @@ automake-1.7 --force-missing
 #%endif
 
 ./configure \
+    --prefix=%{_prefix} \
     --sbindir=/sbin \
     --disable-auto-linux-mem-opt
 %make
@@ -180,10 +181,17 @@ ln -s ../boot/grub/grub.conf %{buildroot}%{_sysconfdir}/grub.conf
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Feb  1 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.95
+- use --prefix with configure or else grub-install looks for files
+  in /usr/local/share
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.95
 - Clean rebuild
 
-* Thu Jan 05 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.95
+- Clean rebuild
+
+* Thu Jan 05 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.95
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - fix prereq
