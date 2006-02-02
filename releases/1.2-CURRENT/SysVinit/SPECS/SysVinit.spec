@@ -32,6 +32,7 @@ Patch10:	sysvinit-2.83-biarch-utmp.patch
 Patch11:	sysvinit-disable-respawn-more-quickly.patch
 Patch12:	sysvinit-2.85-avx-silent_no_runlevel.patch
 Patch13:	sysvinit-2.86-mdk-varargs.patch
+Patch14:	sysvinit-avx-silentcontrolchannel.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	glibc-static-devel
@@ -61,6 +62,7 @@ contains some useful utilities to manage the running of the system.
 %patch10 -p1 -b .biarch-utmp
 %patch12 -p1 -b .silent_no_runlevel
 %patch13 -p1 -b .varargs
+%patch14 -p1 -b .silent_controlchannel
 
 
 %build
@@ -136,10 +138,16 @@ exit 0
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Feb  1 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.86
+- P14: silence the failure to communicate with init through /dev/initctl
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.86
 - Clean rebuild
 
-* Wed Dec 28 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.86
+- Clean rebuild
+
+* Wed Dec 28 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.86
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
