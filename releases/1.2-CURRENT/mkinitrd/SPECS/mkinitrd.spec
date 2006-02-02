@@ -34,6 +34,7 @@ Patch1:		mkinitrd-3.1.6-shutup-insmod-busybox.patch
 Patch2:		mkinitrd-3.4.43-mdk-kernel-2.5.patch
 Patch3:		mkinitrd-3.4.43-avx-mkdevices.patch
 Patch4:		mkinitrd-4.1.12-mdk-nash.patch
+Patch5:		mkinitrd-3.4.43-avx-nodietinsmod.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl
@@ -45,6 +46,7 @@ Requires:	/sbin/insmod.static
 %endif
 
 Requires:	mktemp >= 1.5-9mdk e2fsprogs /bin/sh coreutils grep mount gzip tar findutils >= 4.1.7-3mdk gawk
+Requires:	modutils >= 2.4.26-5187avx
 
 %description
 Mkinitrd creates filesystem images for use as initial ramdisk (initrd)
@@ -71,6 +73,7 @@ tar xvjf %{SOURCE2}
 %patch2 -p0 -b .kernel25
 %patch3 -p0 -b .mkdevices
 %patch4 -p1 -b .mdk-nash
+%patch5 -p0 -b .nodietinsmod
 perl -pi -e 's/grubby//' Makefile
 
 
@@ -108,10 +111,22 @@ rm -f %{buildroot}%{_mandir}/*/grubby*
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.4.43
+- P5: don't use the insmod-DIET binary for now due to problems with it
+  loading the libata driver (use insmod.static instead); increases the
+  size somewhat but at least it will work
+- Require modutils >= 2.4.26-5187avx as that contains our insmod.static
+  that we need to work with P5 (this really is a bit of an ugly hack, there
+  has to be a better way to fix this since this only seems to affect booting
+  off of SATA hardware and we now by default explode the size of our ramdisk)
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.4.43
 - Clean rebuild
 
-* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.4.43
+- Clean rebuild
+
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.4.43
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - dietlibc fixes
