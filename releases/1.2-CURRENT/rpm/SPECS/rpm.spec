@@ -497,7 +497,6 @@ fi
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
 
-***
 %post -n %{libpoptname} -p /sbin/ldconfig
 %postun -n %{libpoptname} -p /sbin/ldconfig
 
@@ -714,13 +713,19 @@ fi
 
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Feb  1 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.2
+- fix a stupid typeo in the %%postuninstall scriptlet of librpm4.4
+  that would make it try to execute "***" via ldconfig and would thus
+  bail on uninstall (resulting in multiple copies of librpm4.4 being
+  installed)
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.2
 - Clean rebuild
 
-* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.4.2
 - rebuild against new python
 
-* Sat Dec 24 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Dec 24 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.4.2
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
