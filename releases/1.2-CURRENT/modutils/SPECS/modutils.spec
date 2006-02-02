@@ -123,9 +123,9 @@ done
 
 # security hole, works poorly anyway
 rm -f %{buildroot}/sbin/request-route
-%ifarch %{ix86}
-rm -f %{buildroot}/sbin/*.static
-%endif
+#%ifarch %{ix86}
+#rm -f %{buildroot}/sbin/*.static
+#%endif
 
 install -D -m 0644 %{SOURCE1} %{buildroot}/etc/modules.conf
 install -D -m 0644 %{SOURCE2} %{buildroot}/lib/modutils/macros
@@ -191,10 +191,10 @@ done
 /sbin/ksyms
 /sbin/*old
 /sbin/*24
-%ifnarch %{ix86}
+#%ifnarch %{ix86}
 /sbin/insmod.static
 /sbin/rmmod.static
-%endif
+#%endif
 
 %{_mandir}/*/*24*
 %{_mandir}/*/*old*
@@ -207,10 +207,16 @@ done
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.26
+- install {insmod,rmmod}.static on x86 hardware too
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.26
 - Clean rebuild
 
-* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.26
+- Clean rebuild
+
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.26
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - fix prereq
