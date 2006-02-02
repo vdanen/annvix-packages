@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		postgresql
-%define version		8.0.4
+%define version		8.0.6
 %define release		%_revrel
 
 %define _requires_exceptions devel(libtcl8.4)\\|devel(libtcl8.4(64bit))
@@ -629,10 +629,16 @@ fi
 
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Feb 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.0.6
+- 8.0.6
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.0.4
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.0.4
+- Clean rebuild
+
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.0.4
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - fix prereq
