@@ -78,18 +78,21 @@ cat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 
 %changelog
-* Thu Jan 19 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Feb  1 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.55_2.0.2b1
+- build against new postgresql
+
+* Thu Jan 19 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.55_2.0.2b1
 - apache 2.0.55
 - P2: security fix for CVE-2005-3656
 
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.54_2.0.2b1
 - Clean rebuild
 
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.54_2.0.2b1
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.54_2.0.2b1
 - Clean rebuild
 
 * Wed Sep 07 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.54_2.0.2b1-1avx

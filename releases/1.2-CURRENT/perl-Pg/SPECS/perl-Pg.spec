@@ -74,10 +74,16 @@ export POSTGRES_LIB=`pg_config --libdir`
 
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Feb  1 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1.1
+- build against new postgresql
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1.1
 - Clean rebuild
 
-* Tue Dec 27 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1.1.
+- Clean rebuild
+
+* Tue Dec 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.1.1
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 

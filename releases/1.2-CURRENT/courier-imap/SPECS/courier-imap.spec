@@ -650,10 +650,16 @@ test ! -f %{courierdatadir}/configlist.mysql || %{courierdatadir}/sysconftool-rp
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Feb  1 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.8
+- build against new postgresql
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.8
 - Clean rebuild
 
-* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.8
+- Clean rebuild
+
+* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.8
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 

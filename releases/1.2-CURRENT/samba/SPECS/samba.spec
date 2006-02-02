@@ -844,10 +844,16 @@ popd >/dev/null 2>&1
 
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Feb  1 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.20
+- build against new postgresql
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.20
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.20
+- Clean rebuild
+
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.20
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - fix (some) prereqs

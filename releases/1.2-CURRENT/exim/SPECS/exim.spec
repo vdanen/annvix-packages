@@ -285,10 +285,16 @@ fi
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Feb  1 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.54
+- build against new postgresql
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.54
 - Clean rebuild
 
-* Wed Jan 04 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.54
+- Clean rebuild
+
+* Wed Jan 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.54
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - fix prereq
