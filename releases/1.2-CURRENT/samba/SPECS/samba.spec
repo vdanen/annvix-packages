@@ -649,7 +649,6 @@ popd >/dev/null 2>&1
 %{_bindir}/smbcontrol
 %{_bindir}/smbstatus
 %{_bindir}/tdbbackup
-%{_bindir}/tdbdump
 %attr(755,root,root) /%{_lib}/security/pam_smbpass*
 %dir %{_libdir}/%{name}/vfs
 %{_libdir}/%{name}/vfs/*.so
@@ -663,7 +662,6 @@ popd >/dev/null 2>&1
 %{_mandir}/man8/smbd.8*
 %{_mandir}/man8/pdbedit.8*
 %{_mandir}/man8/tdbbackup.8*
-%{_mandir}/man8/tdbdump.8*
 %attr(775,root,adm) %dir %{_localstatedir}/%{name}/netlogon
 %attr(755,root,root) %dir %{_localstatedir}/%{name}/profiles
 %attr(755,root,root) %dir %{_localstatedir}/%{name}/printers
@@ -844,6 +842,11 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Wed Feb  1 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.20
+- remove tdbdump and it's manpage from samba-server because it's already
+  in samba-common which samba-server requires anyways (thanks Ying for
+  spotting this)
+
 * Wed Feb  1 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.20
 - build against new postgresql
 
