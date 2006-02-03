@@ -9,7 +9,7 @@
 
 %define	revision	$Rev$
 %define	name		ipsvd
-%define	version		0.11.1
+%define	version		0.12.0
 %define	release		%_revrel
 
 Summary:	Internet protocol service daemons
@@ -20,7 +20,7 @@ License:	BSD
 Group:		System/Servers
 URL:		http://smarden.org/ipsvd/
 Source0:	%{name}-%{version}.tar.gz
-Patch0:		ipsvd-0.11.1-avx-system_matrixssl.patch
+Patch0:		ipsvd-0.12.0-avx-system_matrixssl.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	dietlibc-devel >= 0.27-2avx
@@ -83,7 +83,7 @@ install -d %{buildroot}/sbin/
 install -d %{buildroot}%{_mandir}/man{5,7,8}
 
 pushd %{name}-%{version}
-    for i in ipsvd-cdb sslio tcpsvd udpsvd; do
+    for i in ipsvd-cdb sslio tcpsvd udpsvd sslsvd; do
 	install -m 0755 src/$i %{buildroot}/sbin/
     done
 popd
@@ -118,28 +118,34 @@ echo "20" >%{buildroot}%{_sysconfdir}/sysconfig/env/tcpsvd/MAX_BACKLOG
 %attr(0640,root,admin) %config(noreplace) %{_sysconfdir}/sysconfig/env/tcpsvd/MAX_BACKLOG
 %attr(0755,root,root) /sbin/ipsvd-cdb
 %attr(0755,root,root) /sbin/sslio
+%attr(0755,root,root) /sbin/sslsvd
 %attr(0755,root,root) /sbin/tcpsvd
 %attr(0755,root,root) /sbin/udpsvd
 %attr(0644,root,root) %{_mandir}/man5/ipsvd-instruct.5*
 %attr(0644,root,root) %{_mandir}/man7/ipsvd.7*
 %attr(0644,root,root) %{_mandir}/man8/sslio.8*
+%attr(0644,root,root) %{_mandir}/man8/sslsvd.8*
 %attr(0644,root,root) %{_mandir}/man8/udpsvd.8*
 %attr(0644,root,root) %{_mandir}/man8/ipsvd-cdb.8*
 %attr(0644,root,root) %{_mandir}/man8/tcpsvd.8*
 
 
 %changelog
-* Tue Jan 17 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Feb 03 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.12.0
+- 0.12.0
+- rediff P0
+
+* Tue Jan 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.11.1
 - 0.11.1
 - rediff P0
 
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.11.0
 - Clean rebuild
 
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.11.0
 - Clean rebuild
 
-* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.11.0
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - dietlibc fixes
