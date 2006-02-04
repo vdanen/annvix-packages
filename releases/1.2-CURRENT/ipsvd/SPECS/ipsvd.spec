@@ -26,6 +26,8 @@ BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	dietlibc-devel >= 0.27-2avx
 BuildRequires:	matrixssl-devel >= 1.2.2-3avx
 
+Requires(pre):	setup
+
 %description
 ipsvd is a set of internet protocol service daemons for Unix. It 
 currently includes a TCP/IP service daemon, and a UDP/IP service 
@@ -131,6 +133,11 @@ echo "20" >%{buildroot}%{_sysconfdir}/sysconfig/env/tcpsvd/MAX_BACKLOG
 
 
 %changelog
+* Sat Feb 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.12.0
+- Requires(pre): setup because during install ipsvd ends up being
+  installed prior to setup and our admin ownerships don't get properly
+  set
+
 * Fri Feb 03 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.12.0
 - 0.12.0
 - rediff P0
