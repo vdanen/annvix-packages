@@ -25,7 +25,7 @@ Patch0:		pam_ldap-156-makefile.patch
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildRequires:	openldap-devel >= 2.0.7-7.1mdk, pam-devel, automake1.4
 
-Requires:	nss_ldap >= 217
+Requires:	nss_ldap >= 217, openldap-clients
 
 %description
 Pam_ldap is a module for Linux-PAM that supports password changes, V2
@@ -76,10 +76,16 @@ rm -rf %{buildroot}%{_sysconfdir}/ldap.conf
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Feb 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 180
+- Requires: openldap-clients
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 180
 - Clean rebuild
 
-* Mon Jan 09 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 180
+- Clean rebuild
+
+* Mon Jan 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 180
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
