@@ -76,13 +76,20 @@ builder ALL = NOPASSWD: /usr/sbin/urpmi.addmedia, /usr/sbin/urpmi.update, /usr/s
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2
+- if the urpmi media ports doesn't exist when building the first package,
+  prompt the user to set it up first
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2
 - Clean rebuild
 
-* Wed Dec 28 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2
+- Clean rebuild
+
+* Wed Dec 28 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.2
 - fix the sudo invocation for a cleaner environment
 
-* Wed Dec 28 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Dec 28 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.2
 - 1.2
 - hefty working to handle %%_revrel, sudo controls, and running as user
   builder
