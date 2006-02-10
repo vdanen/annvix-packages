@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		srv
-%define version 	0.21
+%define version 	0.22
 %define release 	%_revrel
 
 Summary:	Tool to manage runsv-controlled services
@@ -64,16 +64,32 @@ install -m 0644 functions %{buildroot}%{_datadir}/srv
 
 
 %changelog
-* Sun Jan 15 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sun Jan 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.22
+- 0.22
+  - drop the packaged rpm spec file
+  - make --restart send a HUP rather than stop/start (spt)
+  - make --restart forceable (send KILL) (spt)
+  - added a sysnotice facility that only logs to syslog but not the console
+  - fixed status messages so you can see what is happening before you see
+    the dots indicating it is doing something
+  - refactor the code somewhat for readability
+  - don't log the output of --info to syslog
+  - add serror and sfatal facilities that are exactly the same as error and
+    fatal but do not log to syslog; modified a lot of error strings to use
+    the new facilities
+  - put error messages below usage() so the last thing seen is the error
+    message
+
+* Sun Jan 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.21
 - 0.21: properly manage the down file to save state across reboots
 
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.20
 - Clean rebuild
 
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.20
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.20
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - fix prereq
