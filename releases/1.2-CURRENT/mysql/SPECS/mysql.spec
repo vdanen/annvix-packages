@@ -296,7 +296,7 @@ rm -f %{buildroot}%{_bindir}/client_test
 rm -f %{buildroot}%{_bindir}/mysql_client_test
 
 mkdir -p %{buildroot}%{_datadir}/afterboot
-install -m 0644 %{SOURCE6} %{buildroot}%{_datadir}/afterboot/05_mysql
+install -m 0644 %{SOURCE5} %{buildroot}%{_datadir}/afterboot/05_mysql
 
 %find_lang mysql
 
@@ -528,10 +528,16 @@ fi
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Feb 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.1.14
+- install the afterboot snippet properly (use the right source)
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.1.14
 - Clean rebuild
 
-* Wed Dec 28 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.1.14
+- Clean rebuild
+
+* Wed Dec 28 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.1.14
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
