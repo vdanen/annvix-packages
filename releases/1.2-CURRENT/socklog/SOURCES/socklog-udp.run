@@ -1,0 +1,6 @@
+#!/bin/execlineb
+
+/bin/fdmove -c 2 1
+
+/sbin/chpst -m 2000000 -U syslogd
+/bin/socklog inet 0 514

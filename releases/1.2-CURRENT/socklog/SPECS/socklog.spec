@@ -20,11 +20,11 @@ License:	BSD
 Group:		System
 URL:		http://smarden.org/%{name}/
 Source0:	http://smarden.org/%{name}/%{name}-%{version}.tar.gz
-Source1:	socklog-unix.run
-Source2:	socklog-unix-log.run
-Source3:	socklog-klog.run
-Source4:	socklog-klog-log.run
-Source5:	socklog-config.tar.bz2
+Source1:	socklog-config.tar.bz2
+Source2:	socklog-unix.run
+Source3:	socklog-unix-log.run
+Source4:	socklog-klog.run
+Source5:	socklog-klog-log.run
 Source6:	socklog-rklog.run
 Source7:	socklog-rklog-log.run
 
@@ -48,8 +48,18 @@ log file rotation based on file size, so there is no need for any cron
 jobs to rotate the logs. socklog is small, secure, and reliable.
 
 
+%package remote
+Summary:        Scripts to receive remote logs
+Group:          System
+Requires:       %{name} = %{version}
+
+%description remote
+This package contains the run scripts used to receive remote TCP and UDP
+log messages.
+
+
 %prep
-%setup -q -n admin -a 5
+%setup -q -n admin -a 1
 
 
 %build
@@ -73,7 +83,7 @@ popd
 install -d %{buildroot}/bin
 install -d %{buildroot}%{_mandir}/{man1,man8}
 
-mkdir -p %{buildroot}%{_srvdir}/{socklog-unix,socklog-klog,socklog-rklog}/log
+mkdir -p %{buildroot}%{_srvdir}/socklog-{unix,klog,rklog,tcp,udp}/log
 
 pushd %{name}-%{version}
     for i in `cat package/commands` ;  do
@@ -84,12 +94,17 @@ pushd %{name}-%{version}
     install -m 0644 man/*.8 %{buildroot}%{_mandir}/man8/
 popd
 
-install -m 0740 %{SOURCE1} %{buildroot}%{_srvdir}/socklog-unix/run 
-install -m 0740 %{SOURCE2} %{buildroot}%{_srvdir}/socklog-unix/log/run 
-install -m 0740 %{SOURCE3} %{buildroot}%{_srvdir}/socklog-klog/run 
-install -m 0740 %{SOURCE4} %{buildroot}%{_srvdir}/socklog-klog/log/run 
+install -m 0740 %{SOURCE2} %{buildroot}%{_srvdir}/socklog-unix/run 
+install -m 0740 %{SOURCE3} %{buildroot}%{_srvdir}/socklog-unix/log/run 
+install -m 0740 %{SOURCE4} %{buildroot}%{_srvdir}/socklog-klog/run 
+install -m 0740 %{SOURCE5} %{buildroot}%{_srvdir}/socklog-klog/log/run 
 install -m 0740 %{SOURCE6} %{buildroot}%{_srvdir}/socklog-rklog/run 
-install -m 0740 %{SOURCE7} %{buildroot}%{_srvdir}/socklog-rklog/log/run 
+install -m 0740 %{SOURCE7} %{buildroot}%{_srvdir}/socklog-rklog/log/run
+
+install -m 0740 %{SOURCE2} %{buildroot}%{_srvdir}/socklog-tcp/run 
+install -m 0740 %{SOURCE3} %{buildroot}%{_srvdir}/socklog-tcp/log/run  
+install -m 0740 %{SOURCE2} %{buildroot}%{_srvdir}/socklog-udp/run 
+install -m 0740 %{SOURCE3} %{buildroot}%{_srvdir}/socklog-udp/log/run  
 
 # install our default config files
 mkdir -p %{buildroot}/var/log/system
@@ -100,6 +115,7 @@ pushd socklog-config
 popd
 
 
+
 %clean 
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
@@ -107,10 +123,21 @@ popd
 %post
 %_post_srv socklog-unix
 %_post_srv socklog-klog
+%_post_srv socklog-rklog
 
 %preun
 %_preun_srv socklog-unix
 %_preun_srv socklog-klog
+%_preun_srv socklog-rklog
+
+
+%post remote
+%_post_srv socklog-tcp
+%_post_srv socklog-udp
+
+%preun remote
+%_preun_srv socklog-tcp
+%_preun_srv socklog-udp
 
 
 %files
@@ -164,8 +191,28 @@ popd
 %attr(0770,root,syslogd) %dir /var/log/system/user
 %attr(0640,root,syslogd) %config(noreplace) /var/log/system/user/config
 
+%files remote
+%defattr(-,root,root)
+%dir %attr(0750,root,admin) %{_srvdir}/socklog-tcp
+%dir %attr(0750,root,admin) %{_srvdir}/socklog-tcp/log
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/socklog-tcp/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/socklog-tcp/log/run
+%dir %attr(0750,root,admin) %{_srvdir}/socklog-udp
+%dir %attr(0750,root,admin) %{_srvdir}/socklog-udp/log
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/socklog-udp/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/socklog-udp/log/run
+%attr(0750,root,syslogd) %dir /var/log/system/remote
+%attr(0770,root,syslogd) %dir /var/log/system/remote/all-tcp
+%attr(0640,root,syslogd) %config(noreplace) /var/log/system/remote/all-tcp/config
+%attr(0770,root,syslogd) %dir /var/log/system/remote/all-udp
+%attr(0640,root,syslogd) %config(noreplace) /var/log/system/remote/all-udp/config
+
 
 %changelog
+* Sat Feb 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.2
+- add a -remote subpackage with scripts to receive TCP/UDP logs from
+  remote systems (services socklog-tcp and socklog-udp)
+
 * Fri Feb 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.2
 - fix perms of the created log dirs for rklog and klog
 
