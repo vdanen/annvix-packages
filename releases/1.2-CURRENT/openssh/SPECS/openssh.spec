@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		openssh
-%define version		4.3p1
+%define version		4.3p2
 %define release 	%_revrel
 
 # overrides
@@ -341,6 +341,9 @@ echo "known_hosts files on an entire system if run as root."
 
 
 %changelog
+* Sat Feb 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.3p2
+- 4.3p2 (minor portability fixes)
+
 * Wed Feb 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.3p1
 - 4.3p1
 - rediff P1
