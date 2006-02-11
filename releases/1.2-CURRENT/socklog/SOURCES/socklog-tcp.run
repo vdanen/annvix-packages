@@ -14,4 +14,4 @@
 
 import -D 5140 PORT
 
-/sbin/tcpsvd -v -l ${HOSTNAME} -x peers.cdb -u syslogd ${IP} ${PORT} /bin/socklog ucspi TCPREMOTEIP
+/sbin/tcpsvd -v -l ${HOSTNAME} -x peers.cdb ${IP} ${PORT} /bin/socklog ucspi TCPREMOTEIP

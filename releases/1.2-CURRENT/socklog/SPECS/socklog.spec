@@ -235,6 +235,10 @@ popd >/dev/null 2>&1
 
 %changelog
 * Sat Feb 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.2
+- don't switch to uid syslogd on socklog-tcp otherwise we can't read the
+  peers file
+
+* Sat Feb 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.2
 - use the right run scripts
 
 * Sat Feb 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.2
