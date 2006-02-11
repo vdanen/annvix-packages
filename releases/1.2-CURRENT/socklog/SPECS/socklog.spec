@@ -27,6 +27,10 @@ Source4:	socklog-klog.run
 Source5:	socklog-klog-log.run
 Source6:	socklog-rklog.run
 Source7:	socklog-rklog-log.run
+Source8:	socklog-tcp.run
+Source9:	socklog-tcp-log.run
+Source10:	socklog-udp.run
+Source11:	socklog-udp-log.run
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:  dietlibc-devel >= 0.28
@@ -105,10 +109,10 @@ install -m 0740 %{SOURCE7} %{buildroot}%{_srvdir}/socklog-rklog/log/run
 
 mkdir -p %{buildroot}%{_srvdir}/socklog-{tcp,udp}/env
 mkdir -p %{buildroot}%{_srvdir}/socklog-tcp/peers
-install -m 0740 %{SOURCE2} %{buildroot}%{_srvdir}/socklog-tcp/run 
-install -m 0740 %{SOURCE3} %{buildroot}%{_srvdir}/socklog-tcp/log/run  
-install -m 0740 %{SOURCE2} %{buildroot}%{_srvdir}/socklog-udp/run 
-install -m 0740 %{SOURCE3} %{buildroot}%{_srvdir}/socklog-udp/log/run  
+install -m 0740 %{SOURCE8} %{buildroot}%{_srvdir}/socklog-tcp/run 
+install -m 0740 %{SOURCE9} %{buildroot}%{_srvdir}/socklog-tcp/log/run  
+install -m 0740 %{SOURCE10} %{buildroot}%{_srvdir}/socklog-udp/run 
+install -m 0740 %{SOURCE11} %{buildroot}%{_srvdir}/socklog-udp/log/run  
 
 touch %{buildroot}%{_srvdir}/socklog-tcp/peers/0
 chmod 0640 %{buildroot}%{_srvdir}/socklog-tcp/peers/0
@@ -230,6 +234,9 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Sat Feb 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.2
+- use the right run scripts
+
 * Sat Feb 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.2
 - add peers support for socklog-tcp and add ./env support for both
   socklog-tcp and socklog-udp (to set PORT and IP)
