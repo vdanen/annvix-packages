@@ -12,7 +12,7 @@
 %define	version		1.3.3
 %define	release		%_revrel
 
-%define aver		0.3
+%define aver		0.4
 
 Summary:	A UN*X init scheme with service supervision
 Name:		%{name}
@@ -95,6 +95,14 @@ install -m 0644 %{name}-%{version}/man/*.8 %{buildroot}%{_mandir}/man8/
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
+%pre
+# try to copy the old init to see if it will allow us to properly reboot but
+# we need to do this before we upgrade
+if [ -f /sbin/init ]; then
+    cp -f /sbin/init /sbin/init.old
+fi
+
+
 %post
 if [ $1 == "1" ]; then
     # this is a new install, we need to setup the gettys
@@ -175,20 +183,25 @@ fi
 
 
 %changelog
-* Tue Jan 17 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Feb 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.3
+- annvix-runit 0.4:
+  - set /etc/sysconfig/env/tcpsvd/HOSTNAME on boot
+- try to fix our lack of reboot on upgrade issue
+
+* Tue Jan 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.3
 - 1.3.3
 
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.1
 - Clean rebuild
 
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.1
 - Clean rebuild
 
-* Fri Dec 30 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Dec 30 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.3.1
 - re-enable dietlibc build on x86_64; have to specify the explicit
   arch'd compiler to use for it to work properly
 
-* Thu Dec 29 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Dec 29 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.3.1
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - dietlibc doesn't like us on x86_64
