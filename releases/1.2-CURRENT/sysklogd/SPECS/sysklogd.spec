@@ -41,6 +41,7 @@ Requires(pre):	rpm-helper
 Requires(preun): rpm-helper
 Requires(post):	rpm-helper
 Requires(postun): rpm-helper
+Provides:	syslog
 
 %description
 The sysklogd package contains two system utilities (syslogd and klogd)
@@ -144,6 +145,9 @@ fi
 
 
 %changelog
+* Fri Feb 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4.1
+- Provides: syslog
+
 * Wed Jan 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4.1
 - revert run scripts back to sh scripts so that ./env/OPTIONS is properly
   parsed (fixing bug #18)

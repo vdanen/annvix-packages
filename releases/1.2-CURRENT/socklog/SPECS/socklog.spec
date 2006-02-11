@@ -36,6 +36,7 @@ Requires:       runit
 Requires(post):	rpm-helper
 Requires(preun): rpm-helper
 Conflicts:      sysklogd
+Provides:	syslog
 
 %description
 socklog cooperates with the runit package to create a small and secure 
@@ -165,6 +166,9 @@ popd
 
 
 %changelog
+* Fri Feb 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.2
+- Provides: syslog
+
 * Fri Feb 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.2
 - make klog/rklog log as syslogd rather than logger to match everything
   else put into /var/log/system
