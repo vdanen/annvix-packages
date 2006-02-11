@@ -52,6 +52,8 @@ jobs to rotate the logs. socklog is small, secure, and reliable.
 Summary:        Scripts to receive remote logs
 Group:          System
 Requires:       %{name} = %{version}
+Requires(post):	rpm-helper
+Requires(preun): rpm-helper
 
 %description remote
 This package contains the run scripts used to receive remote TCP and UDP
