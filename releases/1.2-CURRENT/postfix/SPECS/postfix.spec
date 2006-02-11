@@ -95,7 +95,7 @@ BuildRequires:	openssl-devel >= %{openssl_ver}
 Provides:	smtpdaemon, MailTransportAgent
 # we need the postdrop group (gid 36)
 Requires:	setup >= 2.2.0-26mdk
-PreReq: 	coreutils, sysklogd, fileutils
+PreReq: 	coreutils, fileutils
 Requires(post):	rpm-helper >= 0.3
 Requires(postun): rpm-helper >= 0.3
 Requires(pre):	rpm-helper >= 0.3
@@ -422,10 +422,16 @@ fi
 
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.5
+- remove prereq on sysklogd
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.5
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.5
+- Clean rebuild
+
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.5
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - fix prereq
