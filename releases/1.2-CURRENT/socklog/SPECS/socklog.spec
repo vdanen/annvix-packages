@@ -103,10 +103,18 @@ install -m 0740 %{SOURCE5} %{buildroot}%{_srvdir}/socklog-klog/log/run
 install -m 0740 %{SOURCE6} %{buildroot}%{_srvdir}/socklog-rklog/run 
 install -m 0740 %{SOURCE7} %{buildroot}%{_srvdir}/socklog-rklog/log/run
 
+mkdir -p %{buildroot}%{_srvdir}/socklog-{tcp,udp}/env
+mkdir -p %{buildroot}%{_srvdir}/socklog-tcp/peers
 install -m 0740 %{SOURCE2} %{buildroot}%{_srvdir}/socklog-tcp/run 
 install -m 0740 %{SOURCE3} %{buildroot}%{_srvdir}/socklog-tcp/log/run  
 install -m 0740 %{SOURCE2} %{buildroot}%{_srvdir}/socklog-udp/run 
 install -m 0740 %{SOURCE3} %{buildroot}%{_srvdir}/socklog-udp/log/run  
+
+touch %{buildroot}%{_srvdir}/socklog-tcp/peers/0
+chmod 0640 %{buildroot}%{_srvdir}/socklog-tcp/peers/0
+
+echo "5140" >%{buildroot}%{_srvdir}/socklog-tcp/env/PORT
+echo "514" >%{buildroot}%{_srvdir}/socklog-udp/env/PORT
 
 # install our default config files
 mkdir -p %{buildroot}/var/log/system
@@ -127,6 +135,7 @@ popd
 %_post_srv socklog-klog
 %_post_srv socklog-rklog
 
+
 %preun
 %_preun_srv socklog-unix
 %_preun_srv socklog-klog
@@ -136,6 +145,12 @@ popd
 %post remote
 %_post_srv socklog-tcp
 %_post_srv socklog-udp
+if [ -L %{_srvdir}/socklog-tcp ]; then
+    pushd %{_srvdir}/socklog-tcp >/dev/null 2>&1
+        ipsvd-cdb peers.cdb peers.cdb.tmp peers/
+    popd >/dev/null 2>&1
+fi
+
 
 %preun remote
 %_preun_srv socklog-tcp
@@ -197,12 +212,18 @@ popd
 %defattr(-,root,root)
 %dir %attr(0750,root,admin) %{_srvdir}/socklog-tcp
 %dir %attr(0750,root,admin) %{_srvdir}/socklog-tcp/log
+%dir %attr(0750,root,admin) %{_srvdir}/socklog-tcp/env
+%dir %attr(0750,root,admin) %{_srvdir}/socklog-tcp/peers
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/socklog-tcp/run
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/socklog-tcp/log/run
+%config(noreplace) %attr(0640,root,admin) %{_srvdir}/socklog-tcp/peers/0
+%attr(0640,root,admin) %{_srvdir}/socklog-tcp/env/PORT
 %dir %attr(0750,root,admin) %{_srvdir}/socklog-udp
 %dir %attr(0750,root,admin) %{_srvdir}/socklog-udp/log
+%dir %attr(0750,root,admin) %{_srvdir}/socklog-udp/env
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/socklog-udp/run
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/socklog-udp/log/run
+%attr(0640,root,admin) %{_srvdir}/socklog-udp/env/PORT
 %attr(0750,root,syslogd) %dir /var/log/system/remote
 %attr(0770,root,syslogd) %dir /var/log/system/remote/all-tcp
 %attr(0640,root,syslogd) %config(noreplace) /var/log/system/remote/all-tcp/config
@@ -211,6 +232,10 @@ popd
 
 
 %changelog
+* Sat Feb 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.2
+- add peers support for socklog-tcp and add ./env support for both
+  socklog-tcp and socklog-udp (to set PORT and IP)
+
 * Sat Feb 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.2
 - add a -remote subpackage with scripts to receive TCP/UDP logs from
   remote systems (services socklog-tcp and socklog-udp)
