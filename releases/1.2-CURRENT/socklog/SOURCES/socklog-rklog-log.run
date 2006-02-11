@@ -1,6 +1,6 @@
 #!/bin/execlineb
 
 
-/bin/foreground { /usr/bin/install -m 0700 -d -o logger -g logger /var/log/system/rkmsg }
+/bin/foreground { /usr/bin/install -m 0700 -d -o root -g syslogd /var/log/system/rkmsg }
 /bin/cd /var/log/system
-/sbin/chpst -u logger /sbin/svlogd -tt /var/log/system/rkmsg
+/sbin/chpst -u syslogd /sbin/svlogd -tt /var/log/system/rkmsg

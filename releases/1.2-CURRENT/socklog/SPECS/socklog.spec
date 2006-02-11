@@ -166,6 +166,10 @@ popd
 
 %changelog
 * Fri Feb 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.2
+- make klog/rklog log as syslogd rather than logger to match everything
+  else put into /var/log/system
+
+* Fri Feb 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.2
 - put logs in /var/log/system rather than /var/log/socklog
 - conflict with sysklogd
 - add socklog-rklog to log rsbac kernel messages (NOTE: this uses setuidgid
