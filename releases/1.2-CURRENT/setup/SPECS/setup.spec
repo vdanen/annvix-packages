@@ -98,14 +98,20 @@ fi
 %dir /etc/profile.d
 %config(noreplace) /etc/profile.d/*
 %verify(not md5 size mtime) /var/log/lastlog
-%dir /var/lib/rsbac
+%attr(0700,rsbadmin,rsbadmin) %dir /var/lib/rsbac
 
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5
+- make /var/lib/rsbac owned by rsbadmin:rsbadmin and mode 0700
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5
+- Clean rebuild
+
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
