@@ -1,6 +1,7 @@
 #!/bin/execlineb
 
-/bin/redirfd -r 0 /proc/kmsg
+/sbin/chpst -u rsbadmin
+/bin/redirfd -r 0 /proc/rsbac-info/rmsg
 /bin/fdmove -c 2 1
 
 /sbin/chpst -m 2000000 

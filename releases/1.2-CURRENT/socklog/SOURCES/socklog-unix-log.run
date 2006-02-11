@@ -1,19 +1,19 @@
 #!/bin/execlineb
 
 
-/bin/cd /var/log/socklog
+/bin/cd /var/log/system
 /sbin/chpst -u syslogd /sbin/svlogd
-    /var/log/socklog/all
-    /var/log/socklog/auth
-    /var/log/socklog/boot
-    /var/log/socklog/cron
-    /var/log/socklog/daemon
-    /var/log/socklog/debug
-    /var/log/socklog/ftp
-    /var/log/socklog/kern
-    /var/log/socklog/local
-    /var/log/socklog/mail
-    /var/log/socklog/messages
-    /var/log/socklog/news
-    /var/log/socklog/syslog
-    /var/log/socklog/user
+    /var/log/system/all
+    /var/log/system/auth
+    /var/log/system/boot
+    /var/log/system/cron
+    /var/log/system/daemon
+    /var/log/system/debug
+    /var/log/system/ftp
+    /var/log/system/kern
+    /var/log/system/local
+    /var/log/system/mail
+    /var/log/system/messages
+    /var/log/system/news
+    /var/log/system/syslog
+    /var/log/system/user

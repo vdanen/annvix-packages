@@ -33,7 +33,7 @@ Requires:       execline
 Requires:       runit
 Requires(post):	rpm-helper
 Requires(preun): rpm-helper
-#Conflicts:      syslog
+Conflicts:      sysklogd
 
 %description
 socklog cooperates with the runit package to create a small and secure 
@@ -87,11 +87,11 @@ install -m 0740 %{SOURCE3} %{buildroot}%{_srvdir}/socklog-klog/run
 install -m 0740 %{SOURCE4} %{buildroot}%{_srvdir}/socklog-klog/log/run 
 
 # install our default config files
-mkdir -p %{buildroot}/var/log/socklog
+mkdir -p %{buildroot}/var/log/system
 pushd socklog-config
-    cp -av * %{buildroot}/var/log/socklog/
-    find %{buildroot}/var/log/socklog -name config -exec chmod 0640 {} \;
-    chmod 0750 %{buildroot}/var/log/socklog/*
+    cp -av * %{buildroot}/var/log/system/
+    find %{buildroot}/var/log/system -name config -exec chmod 0640 {} \;
+    chmod 0750 %{buildroot}/var/log/system/*
 popd
 
 
@@ -100,15 +100,6 @@ popd
 
 
 %post
-if [ -d /var/log/supervise/socklog-unix -a ! -d /var/log/service/socklog-unix ]; then
-    mv /var/log/supervise/socklog-unix /var/log/service/
-fi
-
-if [ -d /var/log/supervise/socklog-klog -a ! -d /var/log/service/socklog-klog ]; then
-    mv /var/log/supervise/socklog-klog /var/log/service/
-fi
-
-
 %_post_srv socklog-unix
 %_post_srv socklog-klog
 
@@ -125,49 +116,67 @@ fi
 /bin/*
 %{_mandir}/man1/*
 %{_mandir}/man8/*
+%dir %attr(0750,root,admin) %{_srvdir}/socklog-unix
+%dir %attr(0750,root,admin) %{_srvdir}/socklog-unix/log
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/socklog-unix/run
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/socklog-unix/log/run
 %dir %attr(0750,root,admin) %{_srvdir}/socklog-klog
 %dir %attr(0750,root,admin) %{_srvdir}/socklog-klog/log
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/socklog-klog/run
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/socklog-klog/log/run
+%dir %attr(0750,root,admin) %{_srvdir}/socklog-rklog
+%dir %attr(0750,root,admin) %{_srvdir}/socklog-rklog/log
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/socklog-rklog/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/socklog-rklog/log/run
 # config files
-%attr(0750,root,syslogd) %dir /var/log/socklog
-%attr(0770,root,syslogd) %dir /var/log/socklog/all
-%attr(0640,root,syslogd) %config(noreplace) /var/log/socklog/all/config
-%attr(0770,root,syslogd) %dir /var/log/socklog/auth
-%attr(0640,root,syslogd) %config(noreplace) /var/log/socklog/auth/config
-%attr(0770,root,syslogd) %dir /var/log/socklog/boot
-%attr(0640,root,syslogd) %config(noreplace) /var/log/socklog/boot/config
-%attr(0770,root,syslogd) %dir /var/log/socklog/cron
-%attr(0640,root,syslogd) %config(noreplace) /var/log/socklog/cron/config
-%attr(0770,root,syslogd) %dir /var/log/socklog/daemon
-%attr(0640,root,syslogd) %config(noreplace) /var/log/socklog/daemon/config
-%attr(0770,root,syslogd) %dir /var/log/socklog/debug
-%attr(0640,root,syslogd) %config(noreplace) /var/log/socklog/debug/config
-%attr(0770,root,syslogd) %dir /var/log/socklog/ftp
-%attr(0640,root,syslogd) %config(noreplace) /var/log/socklog/ftp/config
-%attr(0770,root,syslogd) %dir /var/log/socklog/kern
-%attr(0640,root,syslogd) %config(noreplace) /var/log/socklog/kern/config
-%attr(0770,root,syslogd) %dir /var/log/socklog/local
-%attr(0640,root,syslogd) %config(noreplace) /var/log/socklog/local/config
-%attr(0770,root,syslogd) %dir /var/log/socklog/mail
-%attr(0640,root,syslogd) %config(noreplace) /var/log/socklog/mail/config
-%attr(0770,root,syslogd) %dir /var/log/socklog/messages
-%attr(0640,root,syslogd) %config(noreplace) /var/log/socklog/messages/config
-%attr(0770,root,syslogd) %dir /var/log/socklog/news
-%attr(0640,root,syslogd) %config(noreplace) /var/log/socklog/news/config
-%attr(0770,root,syslogd) %dir /var/log/socklog/syslog
-%attr(0640,root,syslogd) %config(noreplace) /var/log/socklog/syslog/config
-%attr(0770,root,syslogd) %dir /var/log/socklog/user
-%attr(0640,root,syslogd) %config(noreplace) /var/log/socklog/user/config
+%attr(0750,root,syslogd) %dir /var/log/system
+%attr(0770,root,syslogd) %dir /var/log/system/all
+%attr(0640,root,syslogd) %config(noreplace) /var/log/system/all/config
+%attr(0770,root,syslogd) %dir /var/log/system/auth
+%attr(0640,root,syslogd) %config(noreplace) /var/log/system/auth/config
+%attr(0770,root,syslogd) %dir /var/log/system/boot
+%attr(0640,root,syslogd) %config(noreplace) /var/log/system/boot/config
+%attr(0770,root,syslogd) %dir /var/log/system/cron
+%attr(0640,root,syslogd) %config(noreplace) /var/log/system/cron/config
+%attr(0770,root,syslogd) %dir /var/log/system/daemon
+%attr(0640,root,syslogd) %config(noreplace) /var/log/system/daemon/config
+%attr(0770,root,syslogd) %dir /var/log/system/debug
+%attr(0640,root,syslogd) %config(noreplace) /var/log/system/debug/config
+%attr(0770,root,syslogd) %dir /var/log/system/ftp
+%attr(0640,root,syslogd) %config(noreplace) /var/log/system/ftp/config
+%attr(0770,root,syslogd) %dir /var/log/system/kern
+%attr(0640,root,syslogd) %config(noreplace) /var/log/system/kern/config
+%attr(0770,root,syslogd) %dir /var/log/system/local
+%attr(0640,root,syslogd) %config(noreplace) /var/log/system/local/config
+%attr(0770,root,syslogd) %dir /var/log/system/mail
+%attr(0640,root,syslogd) %config(noreplace) /var/log/system/mail/config
+%attr(0770,root,syslogd) %dir /var/log/system/messages
+%attr(0640,root,syslogd) %config(noreplace) /var/log/system/messages/config
+%attr(0770,root,syslogd) %dir /var/log/system/news
+%attr(0640,root,syslogd) %config(noreplace) /var/log/system/news/config
+%attr(0770,root,syslogd) %dir /var/log/system/syslog
+%attr(0640,root,syslogd) %config(noreplace) /var/log/system/syslog/config
+%attr(0770,root,syslogd) %dir /var/log/system/user
+%attr(0640,root,syslogd) %config(noreplace) /var/log/system/user/config
 
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Feb 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.2
+- put logs in /var/log/system rather than /var/log/socklog
+- conflict with sysklogd
+- add socklog-rklog to log rsbac kernel messages (NOTE: this uses setuidgid
+  to become rsbadmin in order to open /proc/rsbac-info/rmsg and probably
+  isn't the best way to do this, but we can put ACLs in place once we setup
+  RSBAC with proper ACL support)
+- own /var/service/socklog-unix(/log)
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.2
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.2
+- Clean rebuild
+
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.2
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - fix prereq

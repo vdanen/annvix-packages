@@ -1,6 +1,6 @@
 #!/bin/execlineb
 
 
-/bin/foreground { /usr/bin/install -m 0700 -d -o logger -g logger /var/log/service/socklog-klog }
-/bin/cd /var/log/service
-/sbin/chpst -u logger /sbin/svlogd -tt /var/log/service/socklog-klog
+/bin/foreground { /usr/bin/install -m 0700 -d -o logger -g logger /var/log/system/kmsg }
+/bin/cd /var/log/system
+/sbin/chpst -u logger /sbin/svlogd -tt /var/log/system/kmsg
