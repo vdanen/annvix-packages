@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		basesystem
-%define version 	1.1
+%define version 	1.2
 %define release 	%_revrel
 %define epoch		1
 
@@ -29,7 +29,7 @@ Requires:	chkconfig coreutils SysVinit crontabs dev
 Requires:	e2fsprogs etcskel findutils grep gzip kernel less 
 Requires:	logrotate losetup mingetty modutils mount net-tools passwd procps
 Requires:	psmisc annvix-release rootfiles rpm sash shadow-utils 
-Requires:	stat sysklogd tar termcap time util-linux vim
+Requires:	stat syslog tar termcap time util-linux vim
 Requires:	crond which perl-base common-licenses srv runit afterboot
 Requires:	bootloader
 Requires:	ldconfig
@@ -56,10 +56,17 @@ should never be removed.
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Feb 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2
+- 1.2
+- Requires: s/sysklogd/syslog/
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.1
 - Clean rebuild
 
-* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.1
+- Clean rebuild
+
+* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.1
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
