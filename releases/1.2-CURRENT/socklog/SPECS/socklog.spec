@@ -167,6 +167,9 @@ popd
 
 %changelog
 * Fri Feb 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.2
+- fix perms of the created log dirs for rklog and klog
+
+* Fri Feb 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.2
 - Provides: syslog
 
 * Fri Feb 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.2
