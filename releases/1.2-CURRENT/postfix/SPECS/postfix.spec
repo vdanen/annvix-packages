@@ -422,7 +422,7 @@ fi
 
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.5
+* Fri Feb 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.5
 - remove prereq on sysklogd
 
 * Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.5
