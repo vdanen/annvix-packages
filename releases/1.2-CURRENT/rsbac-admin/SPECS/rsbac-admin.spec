@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		rsbac-admin
-%define version		1.2.4
+%define version		1.2.5
 %define release		%_revrel
 
 %define libname_orig	librsbac
@@ -17,7 +17,7 @@
 %define libname		%mklibname rsbac %{lib_major}
 
 %define build_with_kernel_dir	0
-%{expand: %{?kernel_dir:		%%global build_with_kernel_dir 1}}
+%{expand: %{?kernel_dir:	%%global build_with_kernel_dir 1}}
 
 %if !%{build_with_kernel_dir}
 %define kernel_dir	/usr/src/linux
@@ -30,8 +30,10 @@ Release: 	%{release}
 License: 	GPL
 Group: 		System/Configuration/Other
 URL: 		http://www.rsbac.org/
-Source: 	http://www.rsbac.org/download/code/v%{version}/%{name}-v%{version}.tar.bz2
-Patch0:		rsbac-admin-v1.2.3-librsbac-soname-major1.patch
+Source0: 	http://www.rsbac.org/download/code/%{version}/%{name}-%{version}.tar.bz2
+Source1:	rsbac.conf
+Patch0:		rsbac-admin-1.2.5-soname.patch
+Patch1:		rsbac-admin-1.2.5-libdir.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires: 	kernel-source
@@ -85,40 +87,64 @@ This package contains the static library that programmers will need to develop
 applications which will use %{name}.
 
 
-%prep
-%setup -q -n %{name}-v%{version}
-%patch0 -p1 -b .soname
+%package -n pam_rsbac
+Summary:	PAM files for RSBAC
+Group:		System/Libraries
+Requires:	%{name}-%{version}, %{libname}-%{version}
 
-aclocal
-automake
-%configure --with-kerneldir=%{kernel_dir}
+%description -n pam_rsbac
+PAM files for use with RSBAC
+
+
+%package -n nss_rsbac
+Summary:	NSS files for RSBAC
+Group:		System/Libraries
+Requires:	%{name}-%{version}, %{libname}-%{version}
+
+%description -n nss_rsbac
+NSS library files for use with RSBAC
+
+
+%prep
+%setup -q
+%patch0 -p1
+%patch1 -p1
 
 
 %build
-%make
+# this is an x86_64 executable which screws up the requires on 32bit
+rm -f main/tools/examples/reg/reg_syscall
+find . -name Makefile -exec perl -pi -e 's|/usr/local|%{_prefix}|g' {} \;
+make build LIBDIR=%{_lib}
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-find examples -type f | xargs chmod a-x
-find src/scripts -type f | xargs chmod a+x 
+find main/tools/src/scripts -type f -print | xargs chmod a+x 
 
-%makeinstall
+%makeinstall DESTDIR=%{buildroot} LIBDIR=%{_lib}
 
 mkdir -p %{buildroot}%{_sysconfdir}
-install -m 0600 debian/rsbac.conf %{buildroot}%{_sysconfdir}/rsbac.conf
+install -m 0600 %{SOURCE1} %{buildroot}%{_sysconfdir}/rsbac.conf
 
-%find_lang %{name}
+# remove the locale files as %%find_lang doesn't seem to pick them up
+rm -rf %{buildroot}%{_datadir}/locale
 
 # fixpup
 pushd %{buildroot}/%{_libdir}
     ln -s %{libname_orig}.so.%{version} %{libname_orig}.so.%{lib_major} 
 popd
 
+# remove _de pam files
+rm -f %{buildroot}/%{_lib}/security/*_de*
+
 # Documentation
 mkdir -p %{buildroot}/%{_docdir}/%{name}-doc-%{version}
 cp -r %{kernel_dir}/Documentation/rsbac/* %{buildroot}%{_docdir}/%{name}-doc-%{version}
+rm -rf %{buildroot}%{_prefix}/doc/rsbac-tools*
 
+# /var/lib/rsbac is in setup
+mkdir -p %{buildroot}/var/lib/rsbac/tmp
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -127,13 +153,18 @@ cp -r %{kernel_dir}/Documentation/rsbac/* %{buildroot}%{_docdir}/%{name}-doc-%{v
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
 
+%post -n nss_rsbac -p /sbin/ldconfig
+%postun -n nss_rsbac -p /sbin/ldconfig
 
-%files -f %{name}.lang
+
+%files
 %defattr(-,root,root,0755)
-%doc README Changes examples/*
+%doc README main/tools/examples main/tools/Changes
 %attr(0600,root,root) %config(noreplace) %{_sysconfdir}/rsbac.conf
 %{_bindir}/*
+%{_sbindir}/*
 %{_mandir}/man*/*
+%attr(0700,rsbadmin,rsbadmin) %dir /var/lib/rsbac/tmp
 
 %files -n %{name}-doc
 %defattr(-,root,root)
@@ -141,23 +172,48 @@ cp -r %{kernel_dir}/Documentation/rsbac/* %{buildroot}%{_docdir}/%{name}-doc-%{v
 
 %files -n %{libname}
 %defattr(-,root,root)
-%doc README Changes
-%{_libdir}/%{libname_orig}.so.*
+%{_libdir}/%{libname_orig}.so*
 
 %files -n %{libname}-devel
 %defattr(-,root,root)
-%{_libdir}/%{libname_orig}.so
+%{_libdir}/libnss_rsbac.la
+%{_includedir}/rsbac
 
 %files -n %{libname}-static-devel
 %defattr(-,root,root)
 %{_libdir}/%{libname_orig}*.a
+%{_libdir}/libnss_rsbac.a
+
+%files -n pam_rsbac
+%defattr(-,root,root)
+/%{_lib}/security/*so
+
+%files -n nss_rsbac
+%defattr(-,root,root)
+%{_libdir}/libnss_rsbac*so*
 
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Feb 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.5
+- 1.2.5
+- some spec changes to accomodate the new way rsbac is built
+- rediff P0
+- include a pam_rsbac and nss_rsbac package
+- drop the locales files
+- drop main/tools/examples/reg/reg_syscall as it's an x86_64 executable
+  that introduces some bogus 64bit deps on a 32bit package
+- P1 for lib64 fixes
+- include our own rsbac.conf (S1)
+- include /var/lib/rsbac/tmp for temp file usage in the rsbac_menu program
+  (mode 0700, owned rsbadmin:rsbadmin)
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.4
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.4
+- Clean rebuild
+
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.4
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
