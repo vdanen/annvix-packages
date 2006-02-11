@@ -25,6 +25,8 @@ Source2:	socklog-unix-log.run
 Source3:	socklog-klog.run
 Source4:	socklog-klog-log.run
 Source5:	socklog-config.tar.bz2
+Source6:	socklog-rklog.run
+Source7:	socklog-rklog-log.run
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:  dietlibc-devel >= 0.28
@@ -70,7 +72,7 @@ popd
 install -d %{buildroot}/bin
 install -d %{buildroot}%{_mandir}/{man1,man8}
 
-mkdir -p %{buildroot}%{_srvdir}/{socklog-unix,socklog-klog}/log
+mkdir -p %{buildroot}%{_srvdir}/{socklog-unix,socklog-klog,socklog-rklog}/log
 
 pushd %{name}-%{version}
     for i in `cat package/commands` ;  do
@@ -85,6 +87,8 @@ install -m 0740 %{SOURCE1} %{buildroot}%{_srvdir}/socklog-unix/run
 install -m 0740 %{SOURCE2} %{buildroot}%{_srvdir}/socklog-unix/log/run 
 install -m 0740 %{SOURCE3} %{buildroot}%{_srvdir}/socklog-klog/run 
 install -m 0740 %{SOURCE4} %{buildroot}%{_srvdir}/socklog-klog/log/run 
+install -m 0740 %{SOURCE6} %{buildroot}%{_srvdir}/socklog-rklog/run 
+install -m 0740 %{SOURCE7} %{buildroot}%{_srvdir}/socklog-rklog/log/run 
 
 # install our default config files
 mkdir -p %{buildroot}/var/log/system
