@@ -51,7 +51,7 @@ jobs to rotate the logs. socklog is small, secure, and reliable.
 %package remote
 Summary:        Scripts to receive remote logs
 Group:          System
-Requires:       %{name} = %{version}
+Requires:       %{name} = %{version}, ipsvd
 Requires(post):	rpm-helper
 Requires(preun): rpm-helper
 
@@ -145,11 +145,9 @@ popd
 %post remote
 %_post_srv socklog-tcp
 %_post_srv socklog-udp
-if [ -L %{_srvdir}/socklog-tcp ]; then
-    pushd %{_srvdir}/socklog-tcp >/dev/null 2>&1
-        ipsvd-cdb peers.cdb peers.cdb.tmp peers/
-    popd >/dev/null 2>&1
-fi
+pushd %{_srvdir}/socklog-tcp >/dev/null 2>&1
+    ipsvd-cdb peers.cdb peers.cdb.tmp peers/
+popd >/dev/null 2>&1
 
 
 %preun remote
@@ -235,6 +233,7 @@ fi
 * Sat Feb 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.2
 - add peers support for socklog-tcp and add ./env support for both
   socklog-tcp and socklog-udp (to set PORT and IP)
+- requires ipsvd
 
 * Sat Feb 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.2
 - add a -remote subpackage with scripts to receive TCP/UDP logs from
