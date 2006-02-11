@@ -46,9 +46,6 @@ FA00_FILESYSTEM.desc
 
 SL00_SECURITY.desc
 ** Security-related enhancement patches
-	SL01_linux-2.4.32-ow1.diff
-	- http://www.openwall.com/linux/
-	- Openwall security enhancements/fixes
 	SL02_frandom-2.patch
 	- http://www.linuxfromscratch.org/~robert/hlfs/current/hlfs-patches-20050106/linux-2.4.27-frandom-2.patch
 	- adds frandom/erandom devices
@@ -56,3 +53,14 @@ SL00_SECURITY.desc
 	- ipsec support for openswan 2.3.1
 	SL11_openswan-2.3.1.natt.patch
 	- NAT Traversal support for openswan 2.3.1
+	SL60_rsbac-common-1.2.5.1.tar
+	- http://www.rsbac.org/
+	- RSBAC common files
+	SL61_rsbac-patch-2.4.32-1.2.5.patch
+	- http://www.rsbac.org/
+	- RSBAC kernel patch
+	SL65_remove-rsbac_from_EXTRAVERSION.patch
+	- remove -rsbac from EXTRAVERSION
+	SL70_linux-2.4.32-ow1.diff
+	- http://www.openwall.com/linux/
+	- Openwall security enhancements/fixes (rediffed to work with RSBAC

@@ -786,7 +786,7 @@ exit 0
 %{_kerneldir}/lib
 %{_kerneldir}/mm
 %{_kerneldir}/net
-#%{_kerneldir}/rsbac
+%{_kerneldir}/rsbac
 %{_kerneldir}/security
 %{_kerneldir}/scripts
 %{_kerneldir}/include/acpi
@@ -799,7 +799,7 @@ exit 0
 %{_kerneldir}/include/math-emu
 %{_kerneldir}/include/net
 %{_kerneldir}/include/pcmcia
-#%{_kerneldir}/include/rsbac
+%{_kerneldir}/include/rsbac
 %{_kerneldir}/include/scsi
 %{_kerneldir}/include/video
 #Openswan 2.x.x
@@ -825,15 +825,27 @@ exit 0
 
 
 %changelog
-* Sat Jan 21 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Feb 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.32
+- re-introduce RSBAC (1.2.5.1) (SL60, SL61)
+- rediff Openwall patch to work with RSBAC and move it (now SL70)
+- put back SL65 (remove -rsbac from EXTRAVERSION)
+- only enable JAIL, DAZ, CAP, RES, and REG as the least intrusive
+  (AUTH, RC, and ACL will come once we build some default policies)
+- disable CONFIG_RSBAC_NET entirely as this seems to cause some
+  (relatively) harmless oopses when looking at socket files like
+  /dev/log
+- enable CONFIG_RSBAC_RMSG_EXCL to exclusively write RSBAC messages to
+  /proc/rsbac-info/rmsg
+
+* Sat Jan 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.32
 - fix bug #17 by making the patch tarball dynamically if one
   doesn't already exist and a patches/ subdir exists (allows us to
   still keep the patches uncompressed in svn)
 
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.32
 - Clean rebuild
 
-* Wed Nov 30 2005 Vincent Danen <vdanen-at-build.annvix..org>
+* Wed Nov 30 2005 Vincent Danen <vdanen-at-build.annvix..org> 2.4.32
 - Obfuscate email addresses and new tagging
 - add CA06_avx-2.4.32-net-tools-fix.patch to fix a problem with compiling
   net-tools 1.60
