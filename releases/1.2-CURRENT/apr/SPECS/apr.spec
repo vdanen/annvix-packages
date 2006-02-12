@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		apr
-%define version		0.9.6
+%define version		0.9.7
 %define release		%_revrel
 %define epoch		1
 
@@ -23,8 +23,8 @@ Release:	%{release}
 License:	Apache License
 Group:		System/Libraries
 URL:		http://apr.apache.org/
-Source0:	%{name}-%{version}.tar.gz
-Source1:	%{name}-%{version}.tar.gz.asc
+Source0:	http://www.apache.org/dist/apr/apr-%{version}.tar.gz
+Source1:	http://www.apache.org/dist/apr/apr-%{version}.tar.gz.asc
 Patch0:		apr-0.9.3-deplibs.patch
 Patch1:		apr-0.9.5-config.diff
 Patch2:		apr-0.9.3-noipv6.patch
@@ -35,10 +35,8 @@ Patch6:		apr-0.9.6-guardsize.diff
 Patch7:		apr-0.9.4-cleanups.patch
 Patch8:		apr-0.9.4-cflags.patch
 Patch9:		apr-0.9.4-lp64psem.patch
-Patch10:	apr-0.9.4-attrerror.patch
 Patch11:	apr-0.9.6-readdir64.patch
-Patch12:	apr-0.9.6-uidgid.patch
-Patch13:	apr-0.9.6-flushbufs.patch
+Patch12:	apr-0.9.6-fdr-procexit.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildPrereq:	autoconf2.5
@@ -96,10 +94,8 @@ C data structures and routines.
 %patch7 -p1 -b .cleanups
 %patch8 -p1 -b .cflags
 %patch9 -p1 -b .lp64psem
-%patch10 -p1 -b .attrerror
 %patch11 -p1 -b .readdir64
-%patch12 -p1 -b .uidgid
-%patch13 -p1 -b .flushbufs
+%patch12 -p1 -b .procexit
 
 
 %build
@@ -206,10 +202,18 @@ rm -f %{buildroot}%{_libdir}/apr.exp
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Feb 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.9.7
+- 0.9.7 (needed by apache 2.0.55)
+- drop P10, P12, P13; merged upstream
+- new P12 from fedora (0.9.6-6)
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.9.6
 - Clean rebuild
 
-* Thu Dec 29 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.9.6
+- Clean rebuild
+
+* Thu Dec 29 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.9.6
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
