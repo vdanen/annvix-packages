@@ -137,16 +137,16 @@ Patch103:	httpd-2.0.49-mod_ldap_cache_file_location.diff
 # security fixes
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	apr-devel >= 0.9.6-4avx, apr-util-devel >= 0.9.6-4avx, pcre-devel >= 5.0, byacc
+BuildRequires:	apr-devel >= 0.9.7, apr-util-devel >= 0.9.7, pcre-devel >= 5.0, byacc
 BuildRequires:	%{dbver}-devel, expat-devel, gdbm-devel, openldap-devel, libsasl-devel
 BuildRequires:	libtool >= 1.4.2, openssl-devel, autoconf2.5, automake1.7, pkgconfig, zlib-devel
 BuildRequires:	multiarch-utils >= 1.0.3
 
-Requires:	libapr-util >= 0.9.6-4avx, %{libapr} >= 1:0.9.6-4avx
+Requires:	libapr-util >= 0.9.7, %{libapr} >= 1:0.9.7
 Requires:	httpd-conf >= 2.0.54-1avx, httpd-common = %{version}-%{release}, httpd-modules = %{version}-%{release}
 Requires(pre):	rpm-helper, httpd-conf >= 2.0.54-1avx, httpd-common = %{version}-%{release}, httpd-modules = %{version}-%{release}
-Requires(preun): libapr-util >= 0.9.6-4avx, %{libapr} >= 1:0.9.6-4avx
-Requires(post):	libapr-util >= 0.9.6-4avx, %{libapr} >= 1:0.9.6-4avx
+Requires(preun): libapr-util >= 0.9.7, %{libapr} >= 1:0.9.7
+Requires(post):	libapr-util >= 0.9.7, %{libapr} >= 1:0.9.7
 Requires(postun): rpm-helper
 Provides:	webserver apache apache2 apache-mpm apache2-prefork httpd-mpm
 Provides:	httpd-prefork = %{version}-%{release}
@@ -170,14 +170,14 @@ You can build Apache with some conditional build switches;
 %package common
 Summary:	Files common for httpd and httpd-mod_perl installations
 Group:		System/Servers
-Requires:	libapr-util >= 0.9.6-4avx, %{libapr} >= 1:0.9.6-4avx
+Requires:	libapr-util >= 0.9.7, %{libapr} >= 1:0.9.7
 Requires(pre):	rpm-helper
-Requires(preun): libapr-util >= 0.9.6-4avx, %{libapr} >= 1:0.9.6-4avx
-Requires(post):	libapr-util >= 0.9.6-4avx, %{libapr} >= 1:0.9.6-4avx
+Requires(preun): libapr-util >= 0.9.7, %{libapr} >= 1:0.9.7
+Requires(post):	libapr-util >= 0.9.7, %{libapr} >= 1:0.9.7
 Requires(postun): rpm-helper
 Prereq:		rpm-helper
-Prereq:		libapr-util >= 0.9.6-4avx
-Prereq:		%{libapr} >= 1:0.9.6-4avx
+Prereq:		libapr-util >= 0.9.7
+Prereq:		%{libapr} >= 1:0.9.7
 Obsoletes:	apache2-common
 Provides:	apache2-common
 
@@ -449,7 +449,7 @@ http://example.com/~username/ syntax.
 %package devel
 Summary:	Module development tools for the Apache web server
 Group:		Development/C
-Requires:	apr-devel >= 0.9.6-4avx, apr-util-devel >= 0.9.6-4avx, pcre-devel >= 5.0, byacc
+Requires:	apr-devel >= 0.9.7, apr-util-devel >= 0.9.7, pcre-devel >= 5.0, byacc
 Requires:	%{dbver}-devel, expat-devel, gdbm-devel, openldap-devel, libsasl-devel
 Requires:	libtool >= 1.4.2, openssl-devel, autoconf2.5, automake1.7, pkgconfig
 Provides:	httpd-devel httpd-mod_ssl-devel
@@ -1280,7 +1280,11 @@ strip %{buildroot}%{_sbindir}/httpd
 
 
 %changelog
-* Thu Jan 19 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Feb 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.55
+- rebuild against apr and apr-util 0.9.7 (needed to make mod_cgi.so work
+  properly)
+
+* Thu Jan 19 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.55
 - 2.0.55; includes fixes for CAN-2005-2088, CAN-2005-2700, CAN-2005-2491,
   CAN-2005-2728, CAN-2005-1268 (only CAN-2005-2491 was previously unpatched)
 - drop the worker mpm; it needs thread-safe modules which excludes a
@@ -1289,14 +1293,14 @@ strip %{buildroot}%{_sbindir}/httpd
 - drop P32, P33, P34, P35, P105, P122, P123, P124, P125; merged upstream
 - drop P104; we don't ship/use the peruser mpm
 
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.54
 - Clean rebuild
 
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.54
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.54
 - Clean rebuild
 
 * Sat Sep 17 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.54-4avx
