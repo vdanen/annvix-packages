@@ -95,14 +95,6 @@ install -m 0644 %{name}-%{version}/man/*.8 %{buildroot}%{_mandir}/man8/
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
-%pre
-# try to copy the old init to see if it will allow us to properly reboot but
-# we need to do this before we upgrade
-if [ -f /sbin/init ]; then
-    cp -f /sbin/init /sbin/init.old
-fi
-
-
 %post
 if [ $1 == "1" ]; then
     # this is a new install, we need to setup the gettys
@@ -183,6 +175,9 @@ fi
 
 
 %changelog
+* Sat Feb 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.3
+- revert the copy; it made no difference (either with cp or ln)
+
 * Sat Feb 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.3
 - annvix-runit 0.4:
   - set /etc/sysconfig/env/tcpsvd/HOSTNAME on boot
