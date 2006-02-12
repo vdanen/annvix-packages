@@ -78,6 +78,10 @@ cat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 
 %changelog
+* Sat Feb 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.55_2.0.2b1
+- rebuild against apr and apr-util 0.9.7 (needed to make mod_cgi.so work
+  properly)
+
 * Wed Feb  1 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.55_2.0.2b1
 - build against new postgresql
 

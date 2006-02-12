@@ -155,17 +155,21 @@ fi
 
 
 %changelog
-* Thu Jan 19 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Feb 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.55
+- rebuild against apr and apr-util 0.9.7 (needed to make mod_cgi.so work
+  properly)
+
+* Thu Jan 19 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.55
 - apache 2.0.55
 
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.54
 - Clean rebuild
 
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.54
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.54
 - Clean rebuild
 
 * Thu Oct 13 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.54-3avx

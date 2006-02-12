@@ -80,17 +80,21 @@ cat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 
 %changelog
-* Thu Jan 19 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Feb 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.55_4.0.1a
+- rebuild against apr and apr-util 0.9.7 (needed to make mod_cgi.so work
+  properly)
+
+* Thu Jan 19 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.55_4.0.1a
 - apache 2.0.55
 
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.54_4.0.1a
 - Clean rebuild
 
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.54_4.0.1a
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.54_4.0.1a
 - Clean rebuild
 
 * Wed Sep 07 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.54_4.0.1a-1avx
