@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		apr-util
-%define version		0.9.6
+%define version		0.9.7
 %define release		%_revrel
 
 %define apuver		0
@@ -22,21 +22,19 @@ Release:	%{release}
 License:	Apache License
 Group:		System/Libraries
 URL:		http://apr.apache.org/
-Source0:	%{name}-%{version}.tar.gz
-Source1:	%{name}-%{version}.tar.gz.asc
+Source0:	http://www.apache.org/dist/apr/%{name}-%{version}.tar.gz
+Source1:	http://www.apache.org/dist/apr/%{name}-%{version}.tar.gz.asc
 
 Patch0:		apr-util-0.9.5-lib64.diff
 # OE: these are from fedora
 Patch1:		%{name}-0.9.3-deplibs.patch
 Patch2:		%{name}-0.9.5-config.diff
 Patch7:         %{name}-0.9.4-xlate.patch
-# http://www.outoforder.cc/projects/libs/apr_memcache/apr_reslist_invalidate.patch
-Patch8:		apr_reslist_invalidate.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildPrereq:	doxygen
-BuildPrereq:	apr-devel >= 0.9.5
-BuildPrereq:	openldap-devel db4-devel expat-devel gdbm-devel
+BuildPreReq:	doxygen
+BuildPreReq:	apr-devel >= 0.9.7
+BuildPreReq:	openldap-devel db4-devel expat-devel gdbm-devel
 
 %description
 The purpose of the Apache Portable Runtime (APR) is to provide a
@@ -84,7 +82,6 @@ library of C data structures and routines.
 %patch1 -p1 -b .deplibs
 %patch2 -p0 -b .config
 %patch7 -p1 -b .xlate
-%patch8 -p0 -b .apr_reslist_invalidate
 
 
 %build
@@ -170,10 +167,17 @@ rm -f %{buildroot}%{_libdir}/aprutil.exp
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Feb 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.9.7
+- 0.9.7
+- drop P8; merged upstream
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.9.6
 - Clean rebuild
 
-* Thu Dec 29 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.9.6
+- Clean rebuild
+
+* Thu Dec 29 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.9.6
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
