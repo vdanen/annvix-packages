@@ -134,6 +134,10 @@ popd
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
+%pre
+%_pre_useradd syslogd /var/empty /bin/false 85
+
+
 %post
 %_post_srv socklog-unix
 %_post_srv socklog-klog
@@ -234,6 +238,10 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Mon Feb 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.2
+- create the syslogd user in %%pre (since we can't rely on sysklogd being
+  installed first)
+
 * Sat Feb 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.2
 - don't switch to uid syslogd on socklog-tcp otherwise we can't read the
   peers file
