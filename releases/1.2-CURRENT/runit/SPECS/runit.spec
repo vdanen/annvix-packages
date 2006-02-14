@@ -12,7 +12,7 @@
 %define	version		1.3.3
 %define	release		%_revrel
 
-%define aver		0.4
+%define aver		0.5
 
 Summary:	A UN*X init scheme with service supervision
 Name:		%{name}
@@ -95,6 +95,21 @@ install -m 0644 %{name}-%{version}/man/*.8 %{buildroot}%{_mandir}/man8/
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
+%pre
+# in order for runit to properly handle our reboot/halt signals, we need to
+# make a copy of runit, but the inode must remain identical so we do this by
+# making a hard link of runit; we check for and delete the old file before
+# making a new link so we can delete if we need to, but runit stage 1 should
+# always delete this file when a system starts and it's found (thanks Gerrit
+# for the help on this one!)
+if [ -f /sbin/runit ]; then
+    pushd /sbin >/dev/null 2>&1
+        [ -f /sbin/runit.old ] && rm -f /sbin/runit.old
+        ln /sbin/runit /sbin/runit.old
+    popd >/dev/null 2>&1
+fi
+
+
 %post
 if [ $1 == "1" ]; then
     # this is a new install, we need to setup the gettys
@@ -175,6 +190,11 @@ fi
 
 
 %changelog
+* Sat Feb 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.3
+- need to ln /sbin/runit, not /sbin/init for the reboot to work
+- annvix-runit 0.5:
+  - remove /sbin/runit.old in stage 1 if we find it
+
 * Sat Feb 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.3
 - revert the copy; it made no difference (either with cp or ln)
 
