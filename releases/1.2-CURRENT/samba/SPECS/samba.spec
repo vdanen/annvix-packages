@@ -694,7 +694,7 @@ popd >/dev/null 2>&1
 %dir %attr(0750,root,admin) %{_srvdir}/swat/peers
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/swat/run
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/swat/log/run
-%config(noreplace) %attr(0740,root,admin) %{_srvdir}/swat/peers/0
+%config(noreplace) %attr(0640,root,admin) %{_srvdir}/swat/peers/0
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/swat/env/PORT
 %{_sbindir}/swat
 %attr(-,root,root) %{_datadir}/swat/help/
@@ -842,6 +842,9 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Mon Feb 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.20
+- correct the perms on swat's peers/0 file
+
 * Wed Feb  1 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.20
 - remove tdbdump and it's manpage from samba-server because it's already
   in samba-common which samba-server requires anyways (thanks Ying for
