@@ -174,7 +174,7 @@ Group: 		System/Servers
 Requires(pre): 	/usr/sbin/useradd
 Requires(pre):	rpm-helper
 Requires(post):	afterboot, rpm-helper
-Requires(postun): mkafterboot, rpm-helper
+Requires(postun): afterboot, rpm-helper
 %if !%db4_internal
 Requires(pre):	db4-utils
 Requires(post):	db4-utils
@@ -853,10 +853,16 @@ fi
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Feb 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.9
+- fix requires
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.9
 - Clean rebuild
 
-* Sun Jan 08 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.9
+- Clean rebuild
+
+* Sun Jan 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.9
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - fix prereq
