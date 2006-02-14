@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		srv
-%define version 	0.22
+%define version 	0.23
 %define release 	%_revrel
 
 Summary:	Tool to manage runsv-controlled services
@@ -64,6 +64,14 @@ install -m 0644 functions %{buildroot}%{_datadir}/srv
 
 
 %changelog
+* Tue Feb 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.23
+- 0.23
+  - create cdb file on add if it doesn't exist and to rebuild the cdb file
+    if --peers command is given (spt)
+  - remove the down file before adding service and also creates the file
+    when looping is encountered.  This will protect against the service
+    looping when reboot (spt)
+
 * Sun Jan 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.22
 - 0.22
   - drop the packaged rpm spec file
