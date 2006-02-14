@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		postgresql
-%define version		8.0.6
+%define version		8.0.7
 %define release		%_revrel
 
 %define _requires_exceptions devel(libtcl8.4)\\|devel(libtcl8.4(64bit))
@@ -629,6 +629,9 @@ fi
 
 
 %changelog
+* Tue Feb 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.0.7
+- 8.0.7 (minor bugfixes)
+
 * Wed Feb 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.0.6
 - 8.0.6
 
