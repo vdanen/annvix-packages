@@ -20,7 +20,8 @@ License:	GPL
 Group:		System/Configuration/Other
 URL:		http://www.rootkit.nl/projects/rootkit_hunter.html
 Source0:	http://downloads.rootkit.nl/%{name}-%{version}.tar.gz
-Patch0:		rkhunter-1.2.7-avx-annvix_curl.patch
+Patch0:		rkhunter-1.2.7-avx-conf.patch
+Patch1:		rkhunter-1.2.7-avx-annvix_curl.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
@@ -41,7 +42,8 @@ exploits by running tests like:
 
 %prep
 %setup -q -n %{name}
-%patch0 -p0 -b .avx
+%patch0 -p0 -b .avx-conf
+%patch1 -p0 -b .curl
 
 chmod a+r files/{README,WISHLIST,CHANGELOG}
 
@@ -86,10 +88,14 @@ rm -rf %{buildroot}/lib/%{name}/docs
 
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Feb 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.7
+- re-order patches and break out the config stuff vs. the curl stuff
+  and update the config to support 1.2-RELEASE
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.7
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.7
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
