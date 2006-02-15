@@ -695,7 +695,7 @@ popd >/dev/null 2>&1
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/swat/run
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/swat/log/run
 %config(noreplace) %attr(0640,root,admin) %{_srvdir}/swat/peers/0
-%config(noreplace) %attr(0740,root,admin) %{_srvdir}/swat/env/PORT
+%config(noreplace) %attr(0640,root,admin) %{_srvdir}/swat/env/PORT
 %{_sbindir}/swat
 %attr(-,root,root) %{_datadir}/swat/help/
 %attr(-,root,root) %{_datadir}/swat/images/
@@ -842,6 +842,9 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Tue Feb 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.20
+- correct the perms on swat's peers/PORT file
+
 * Mon Feb 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.20
 - correct the perms on swat's peers/0 file
 
