@@ -12,8 +12,8 @@
 %define version		1.2
 %define release		%_revrel
 
-%define distrib		Ares
-%define realversion 	1.2-CURRENT
+%define distrib		Cerberus
+%define realversion 	1.2-RELEASE
 %define macrofile	%build_sysmacrospath
 
 Summary:	Annvix release file
@@ -69,13 +69,16 @@ EOF
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Feb 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2
+- 1.2-RELEASE (Cerberus)
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2
 - Clean rebuild
 
-* Fri Dec 23 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Dec 23 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.2
 - obfuscate email addresses
 
-* Fri Dec 23 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Dec 23 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.2
 - 1.2-CURRENT (Ares)
 - add %%_revrel macro to dynamically set the release based on the subversion
   revision number
