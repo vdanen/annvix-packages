@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		srv
-%define version 	0.23
+%define version 	0.24
 %define release 	%_revrel
 
 Summary:	Tool to manage runsv-controlled services
@@ -64,6 +64,12 @@ install -m 0644 functions %{buildroot}%{_datadir}/srv
 
 
 %changelog
+* Wed Feb 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.24
+- 0.24
+  - explicitly use /bin/bash
+  - fix wrong fuzz application of sean's patch for rebuilding cdb files
+  - add support to manipulate envdir settings (-e/--env) (spt)
+
 * Tue Feb 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.23
 - 0.23
   - create cdb file on add if it doesn't exist and to rebuild the cdb file
