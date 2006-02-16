@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		gnupg
-%define version 	1.4.2
+%define version 	1.4.2.1
 %define release		%_revrel
 
 Summary:	GNU privacy guard - a free PGP replacement
@@ -115,10 +115,13 @@ tar xvjf %{SOURCE2} -C %{buildroot}%{_sysconfdir}/RPM-GPG-KEYS
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Feb 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4.2.1
+- 1.4.2.1 (fixes CVE-2006-0455)
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4.2
 - Clean rebuild
 
-* Thu Jan 05 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 05 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4.2
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
