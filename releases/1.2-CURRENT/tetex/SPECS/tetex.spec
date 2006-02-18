@@ -64,6 +64,10 @@ Patch21:	tetex-3.0-xdvi-www.patch
 Patch25:	passivetex-1.23.patch
 Patch26:	passivetex-1.24.patch
 Patch27:	passivetex-1.25.patch
+# security
+Patch28:	xpdf-3.00-CVE-2005-3191_2_3.patch
+Patch29:	xpdf-3.00-goo-overflow.patch
+Patch30:	xpdf-3.00-chris-overflows.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	bison, ed, flex, gettext-devel, autoconf2.1
@@ -280,6 +284,13 @@ cp -p texmf/metafont/config/mf.ini texmf/metafont/config/mf-nowin.ini
 %patch25 -p1
 %patch26 -p1
 %patch27 -p1
+
+# security
+pushd libs/xpdf
+%patch28 -p1 -b .cve-2005-3191_2_3
+%patch29 -p1 -b .goo_overflow
+%patch30 -p1 -b .chris_overflows
+popd
 
 ## cputoolize to get updated config.{sub,guess}
 #%{?__cputoolize: %{__cputoolize} -c libs/ncurses}
@@ -608,10 +619,15 @@ fi
 
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Feb 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0
+- P28: security fixes for CVE-2005-319[123]
+- P29: fix an overflow in goo/gmem.c
+- P30: security fixes for CVE-2005-362[45678]
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0
 - Clean rebuild
 
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - get rid of the xmltexrelease delta crud

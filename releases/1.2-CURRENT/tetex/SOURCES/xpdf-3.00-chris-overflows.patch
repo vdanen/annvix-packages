@@ -1,0 +1,157 @@
+--- xpdf-3.00/xpdf/JBIG2Stream.cc.chris-overflows	2004-01-21 18:26:45.000000000 -0700
++++ xpdf-3.00/xpdf/JBIG2Stream.cc	2005-12-15 16:04:01.855366063 -0700
+@@ -7,6 +7,7 @@
+ //========================================================================
+ 
+ #include <aconf.h>
++#include <limits.h>
+ 
+ #ifdef USE_GCC_PRAGMAS
+ #pragma implementation
+@@ -681,7 +682,16 @@
+   w = wA;
+   h = hA;
+   line = (wA + 7) >> 3;
+-  data = (Guchar *)gmalloc(h * line);
++  
++  if (h < 0 || line <= 0 || h >= (INT_MAX - 1) / line) {
++    error(-1, "invalid width/height");
++    data = NULL;
++    return;
++  }
++  
++  // need to allocate one extra guard byte for use in combine()
++  data = (Guchar *)gmalloc(h * line + 1);
++  data[h * line] = 0;
+ }
+ 
+ JBIG2Bitmap::JBIG2Bitmap(Guint segNumA, JBIG2Bitmap *bitmap):
+@@ -690,8 +700,17 @@
+   w = bitmap->w;
+   h = bitmap->h;
+   line = bitmap->line;
+-  data = (Guchar *)gmalloc(h * line);
++  
++  if (h < 0 || line <= 0 || h >= (INT_MAX - 1) / line) {
++    error(-1, "invalid width/height");
++    data = NULL;
++    return;
++  }
++  
++  // need to allocate one extra guard byte for use in combine()
++  data = (Guchar *)gmalloc(h * line + 1);
+   memcpy(data, bitmap->data, h * line);
++  data[h * line] = 0;
+ }
+ 
+ JBIG2Bitmap::~JBIG2Bitmap() {
+@@ -716,10 +735,15 @@
+ }
+ 
+ void JBIG2Bitmap::expand(int newH, Guint pixel) {
+-  if (newH <= h) {
++
++  if (newH <= h || line <= 0 || newH >= (INT_MAX - 1) / line) {
++    error(-1, "invalid width/height");
++    gfree(data);
++    data = NULL;
+     return;
+   }
+-  data = (Guchar *)grealloc(data, newH * line);
++  // need to allocate one extra guard byte for use in combine()
++  data = (Guchar *)grealloc(data, newH * line + 1);
+   if (pixel) {
+     memset(data + h * line, 0xff, (newH - h) * line);
+   } else {
+@@ -2256,6 +2280,15 @@
+     error(getPos(), "Bad symbol dictionary reference in JBIG2 halftone segment");
+     return;
+   }
++  if (gridH == 0 || gridW >= INT_MAX / gridH) {
++    error(getPos(), "Bad size in JBIG2 halftone segment");
++    return;
++  }
++  if (w == 0 || h >= INT_MAX / w) {
++    error(getPos(), "Bad size in JBIG2 bitmap segment");
++    return;
++  }
++
+   patternDict = (JBIG2PatternDict *)seg;
+   bpp = 0;
+   i = 1;
+@@ -2887,6 +2920,11 @@
+   JBIG2BitmapPtr tpgrCXPtr0, tpgrCXPtr1, tpgrCXPtr2;
+   int x, y, pix;
+ 
++  if (w < 0 || h <= 0 || w >= INT_MAX / h) {
++    error(-1, "invalid width/height");
++    return NULL;
++  }
++
+   bitmap = new JBIG2Bitmap(0, w, h);
+   bitmap->clearToZero();
+ 
+--- xpdf-3.00/xpdf/Stream.cc.chris-overflows	2005-12-15 15:51:06.541569130 -0700
++++ xpdf-3.00/xpdf/Stream.cc	2005-12-15 15:53:05.697021778 -0700
+@@ -1280,6 +1280,10 @@
+   endOfLine = endOfLineA;
+   byteAlign = byteAlignA;
+   columns = columnsA;
++  if (columns < 1 || columns >= INT_MAX / sizeof(short)) {
++     error(getPos(), "Bad number of columns: %d in CCITTFaxStream", columns);
++     exit(1);
++  }
+   rows = rowsA;
+   endOfBlock = endOfBlockA;
+   black = blackA;
+@@ -2918,6 +2922,7 @@
+   width = read16();
+   numComps = str->getChar();
+   if (numComps <= 0 || numComps > 4) {
++    numComps = 0;
+     error(getPos(), "Bad number of components in DCT stream", prec);
+     return gFalse;
+   }
+@@ -2948,6 +2953,7 @@
+   width = read16();
+   numComps = str->getChar();
+   if (numComps <= 0 || numComps > 4) {
++    numComps = 0;
+     error(getPos(), "Bad number of components in DCT stream", prec);
+     return gFalse;
+   }
+@@ -2974,6 +2980,7 @@
+   length = read16() - 2;
+   scanInfo.numComps = str->getChar();
+   if (scanInfo.numComps <= 0 || scanInfo.numComps > 4) {
++    scanInfo.numComps = 0;
+     error(getPos(), "Bad number of components in DCT stream");
+     return gFalse;
+   }
+@@ -3051,12 +3058,12 @@
+   while (length > 0) {
+     index = str->getChar();
+     --length;
+-    if ((index & 0x0f) >= 4) {
++    if ((index & ~0x10) >= 4 || (index & ~0x10) < 0) {
+       error(getPos(), "Bad DCT Huffman table");
+       return gFalse;
+     }
+     if (index & 0x10) {
+-      index &= 0x0f;
++      index &= 0x03;
+       if (index >= numACHuffTables)
+ 	numACHuffTables = index+1;
+       tbl = &acHuffTables[index];
+@@ -3174,9 +3181,11 @@
+   do {
+     do {
+       c = str->getChar();
++      if(c == EOF) return EOF;
+     } while (c != 0xff);
+     do {
+       c = str->getChar();
++      if(c == EOF) return EOF;
+     } while (c == 0xff);
+   } while (c == 0x00);
+   return c;
