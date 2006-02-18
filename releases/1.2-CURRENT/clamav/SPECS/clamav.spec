@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		clamav
-%define version		0.87.1
+%define version		0.88
 %define release		%_revrel
 
 %define	major		1
@@ -274,10 +274,13 @@ done
 
       
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Feb 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.88
+- 0.88 (fixes CVE-2006-0162)
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.87.1
 - Clean rebuild
 
-* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.87.1
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
