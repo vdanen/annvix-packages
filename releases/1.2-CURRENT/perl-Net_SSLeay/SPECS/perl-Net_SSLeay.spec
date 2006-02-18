@@ -75,7 +75,7 @@ make test
 
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.25
+* Fri Feb 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.25
 - P2: security fix for CVE-2005-0106
 
 * Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.25

@@ -213,7 +213,7 @@ mv %{buildroot}%{_docdir}/{groff/%{version}/,%{name}-%{version}/}
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.19.1
+* Fri Feb 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.19.1
 - renumber patches
 - P5: security fix for CAN-2004-0969
 
