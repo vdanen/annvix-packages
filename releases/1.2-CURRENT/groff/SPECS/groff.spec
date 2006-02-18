@@ -24,13 +24,14 @@ URL:		http://www.gnu.org/directory/GNU/groff.html
 Source0:	ftp://prep.ai.mit.edu/pub/gnu/groff/%{name}-%{version}.tar.bz2
 Source1:	troff-to-ps.fpi
 Source2:	README.A4
-Patch4:		groff-1.18-info.patch
-Patch5:		groff-1.19.1-nohtml.patch
-Patch6:		groff-1.17.2-libsupc++.patch
-Patch102:	groff-1.16.1-no-lbp-on-alpha.patch
+Patch0:		groff-1.18-info.patch
+Patch1:		groff-1.19.1-nohtml.patch
+Patch2:		groff-1.17.2-libsupc++.patch
+Patch3:		groff-1.16.1-no-lbp-on-alpha.patch
 # keeps apostrophes and dashes as ascii, but only for man pages
 # -- pablo
-Patch109:	groff-1.19-dashes.patch
+Patch4:		groff-1.19-dashes.patch
+Patch5:		groff-1.19.1-CAN-2004-0969.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5, byacc, texinfo >= 4.3, xpm-devel
@@ -74,13 +75,14 @@ troff-to-ps print filter.
 
 %prep
 %setup -q
-%patch4 -p1
-%patch5 -p1 -b .nohtml
-%patch6 -p1 -b .libsupc++
+%patch0 -p1
+%patch1 -p1 -b .nohtml
+%patch2 -p1 -b .libsupc++
 %ifarch alpha
-%patch102 -p1 -b .alpha
+%patch3 -p1 -b .alpha
 %endif
-%patch109 -p1 -b ._dashes
+%patch4 -p1 -b ._dashes
+%patch5 -p1 -b .can-2004-0969
 
 cp -f %SOURCE2 ./
 
@@ -211,10 +213,14 @@ mv %{buildroot}%{_docdir}/{groff/%{version}/,%{name}-%{version}/}
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.19.1
+- renumber patches
+- P5: security fix for CAN-2004-0969
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.19.1
 - Clean rebuild
 
-* Thu Jan 05 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 05 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.19.1
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - fix prereq
