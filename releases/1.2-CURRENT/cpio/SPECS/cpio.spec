@@ -28,6 +28,7 @@ Patch4:		cpio-2.6-CAN-1999-1572.patch
 Patch5:		cpio-2.6-chmodRaceC.patch
 Patch6:		cpio-2.6-dirTraversal.patch
 Patch7:		cpio-2.6-compil-gcc4.patch
+Patch8:		cpio-2.6-CVE-2005-4268.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	texinfo
@@ -61,6 +62,7 @@ Install cpio if you need a program to manage file archives.
 %patch5 -p1 -b .can-2005-1111
 %patch6 -p1 -b .can-2005-1229
 %patch7 -p0 -b .gcc4
+%patch8 -p1 -b .cve-2005-4268
 
 # needed by P4
 autoconf
@@ -105,10 +107,13 @@ rm -f %{buildroot}%{_mandir}/man1/mt.1
 %{_mandir}/man1/cpio.1*
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Feb 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6
+- P8: security fix for CVE-2005-4268
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6
 - Clean rebuild
 
-* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
