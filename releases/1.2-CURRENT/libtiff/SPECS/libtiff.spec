@@ -39,6 +39,7 @@ Patch11:	libtiff-3.6.1-chris-bound.patch
 Patch12:	libtiff-3.5.7-bound-fix2.patch
 Patch13:	libtiff-3.6.x-iDefense.patch
 Patch14:	libtiff-3.6.x-CAN-2005-2452.patch
+Patch15:	libtiff-3.6.1-CVE-2005-1544.patch
 
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -117,7 +118,8 @@ library.
 %patch11 -p1 -b .chris-bound
 %patch12 -p1 -b .bound-fix2
 %patch13 -p1 -b .idefense
-%patch14 -p1 -b .can-2004-2452
+%patch14 -p1 -b .can-2005-2452
+%patch15 -p1 -b .cve-2005-1544
 
 ln -s pics-* pics
 
@@ -197,10 +199,13 @@ install -m 0644 libtiff/tif_dir.h %{buildroot}%{_includedir}/
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Feb 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.6.1
+- P15: security fix for CVE-2005-1544
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.6.1
 - Clean rebuild
 
-* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.6.1
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
