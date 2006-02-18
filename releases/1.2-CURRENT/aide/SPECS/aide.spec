@@ -10,7 +10,6 @@
 %define revision	$Rev$
 %define name		aide
 %define version		0.11
-%define rver		0.11-rc3
 %define release		%_revrel
 
 Summary:	Advanced Intrusion Detection Environment
@@ -20,8 +19,8 @@ Release:	%{release}
 License:	GPL
 Group:		Monitoring
 URL:		http://sourceforge.net/projects/aide
-Source0:	http://prdownloads.sourceforge.net/aide/%{name}-%{rver}.tar.gz
-Source1:	http://prdownloads.sourceforge.net/aide/%{name}-%{rver}.tar.gz.asc
+Source0:	http://prdownloads.sourceforge.net/aide/%{name}-%{version}.tar.gz
+Source1:	http://prdownloads.sourceforge.net/aide/%{name}-%{version}.tar.gz.asc
 Source2:	aide.conf
 Source3:	aidecheck
 Source4:	aideupdate
@@ -31,16 +30,15 @@ Source6:	98_aide.afterboot
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	flex glibc-devel glibc-static-devel libmhash-devel zlib-devel bison
 
-Requires:	afterboot
+Requires:	afterboot, gnupg
 
 %description
-
 AIDE (Advanced Intrusion Detection Environment) is a free alternative
 to Tripwire.  It is a file system integrity monitoring tool.
 
 
 %prep
-%setup -q -n %{name}-%{rver}
+%setup -q -n %{name}-%{version}
 
 
 %build
@@ -105,6 +103,10 @@ install -m 0644 %{SOURCE6} %{buildroot}%{_datadir}/afterboot/98_aide
 
 
 %changelog
+* Sat Feb 18 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.11
+- 0.11
+- Requires: gnupg
+
 * Mon Jan 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.11-rc3
 - 0.11-rc3
 - drop P0, P1, P3: all merged upstream
