@@ -23,6 +23,7 @@ URL: 		http://www.bacus.pt/Net_SSLeay/index.html
 Source: 	%{module}.pm-%{version}.tar.bz2
 Patch:		%{module}.pm-1.25.large_tcp_read.patch
 Patch1:		Net_SSLeay-nobakus.patch
+Patch2:		perl-Net_SSLeay-1.2.5-CVE-2005-0106.patch
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildRequires:	openssl-devel perl-devel
@@ -37,6 +38,7 @@ Net::SSLeay module for perl.
 %setup -q -n %{module}.pm-%{version}
 %patch -p1 -b .fpons
 %patch1 -p0 -b .nobakus
+%patch2 -p1 -b .cve-2005-0106
 
 # openssl_path is /usr here, therefore don't -I/usr/include and
 # especially don't (badly) hardcode standard library search path
@@ -73,10 +75,13 @@ make test
 
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.25
+- P2: security fix for CVE-2005-0106
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.25
 - Clean rebuild
 
-* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.25
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
