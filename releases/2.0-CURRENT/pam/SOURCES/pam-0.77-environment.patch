@@ -1,0 +1,13 @@
+--- Linux-PAM-0.77/modules/pam_env/pam_env.c.environment	2004-09-20 11:32:55.595691640 +0200
++++ Linux-PAM-0.77/modules/pam_env/pam_env.c	2004-09-20 11:55:52.473374416 +0200
+@@ -216,8 +216,8 @@
+     D(("Env file name is: %s", file));
+ 
+     if ((conf = fopen(file,"r")) == NULL) {
+-      D(("Unable to open env file: %s", strerror(errno)));
+-      return PAM_ABORT;
++      _log_err(LOG_ERR, "Unable to open env file %s: %s", file, strerror(errno));
++      return PAM_IGNORE;
+     }
+ 
+     while (_assemble_line(conf, buffer, BUF_SIZE) > 0) {

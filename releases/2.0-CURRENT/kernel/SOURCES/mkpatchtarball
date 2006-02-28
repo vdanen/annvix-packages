@@ -1,0 +1,10 @@
+#!/bin/sh
+
+release=`rpm -q --specfile ../SPECS/kernel-avx.spec --qf "%{release}\n"|tail -1|cut -d 'a' -f 1`
+release="avx${release}"
+version=`rpm -q --specfile ../SPECS/kernel-avx.spec --qf "%{version}\n"|tail -1`
+
+cp -a patches ${version}-${release}
+find ${version}-${release} -name .svn -print|xargs rm -rf
+tar cvjf linux-${version}-${release}.tar.bz2 ${version}-${release}
+rm -rf ${version}-${release}

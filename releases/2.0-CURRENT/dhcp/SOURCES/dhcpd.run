@@ -1,0 +1,26 @@
+#!/bin/execlineb
+
+/bin/fdmove -c 2 1
+
+/sbin/chpst -e ./env/
+
+/bin/multisubstitute {
+    import -D "/etc/dhcpd.conf" CONFIGFILE
+    import -D "/var/lib/dhcp/dhcpd.leases" LEASEFILE
+    import -D "-q" OPTIONS
+    import INTERFACES
+}
+
+/bin/ifthenelse { /usr/bin/test ! -f ${CONFIGFILE} }
+{
+    /bin/echo "The configuration file does not exist, unable to start!"
+}
+{
+    /bin/ifthenelse { /usr/bin/test ! -f ${LEASEFILE} }
+    {
+        /bin/echo "The lease file does not exist, unable to start!"
+    }
+    {
+        /usr/sbin/dhcpd -d -f -user dhcp -group dhcp -cf ${CONFIGFILE} -lf ${LEASEFILE} ${OPTIONS} ${INTERFACES}
+    }
+}

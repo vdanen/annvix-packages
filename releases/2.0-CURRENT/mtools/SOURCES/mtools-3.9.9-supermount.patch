@@ -1,0 +1,27 @@
+--- mtools-3.9.9/mformat.c.supermount	2003-08-25 16:20:55.000000000 +0200
++++ mtools-3.9.9/mformat.c	2003-08-25 17:35:02.000000000 +0200
+@@ -935,6 +935,24 @@
+ 		strcpy(name, getVoldName(dev, name));
+ #endif
+ 
++		/* check if device can safely be written to,
++		 * check if supermount is used (only read access is checked
++		 * as this binary could be setuid root). */
++		if (!access(name, W_OK) &&
++		    !access("/proc/fs/supermount/subfs", R_OK)) {
++			FILE *fd;
++			/* gain root privileges to open supermount file */
++			seteuid(0);
++			setegid(0);
++			if ((fd = fopen("/proc/fs/supermount/subfs", "w"))) {
++				fprintf(fd, "%s release\n", name);
++				fclose(fd);
++			}
++			/* drop privileges given to release lock on floppy */
++			seteuid(getuid());
++			setegid(getgid());
++		}
++
+ #ifdef USE_XDF
+ 		if(!format_xdf) {
+ #endif

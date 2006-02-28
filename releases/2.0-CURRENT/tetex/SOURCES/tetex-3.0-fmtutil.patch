@@ -1,0 +1,63 @@
+--- tetex-src-3.0/texk/web2c/fmtutil.in.fmtutil	2005-02-06 01:27:46.000000000 +0100
++++ tetex-src-3.0/texk/web2c/fmtutil.in	2005-02-14 16:46:40.272032903 +0100
+@@ -30,7 +30,7 @@
+ # initex (or another "ini"-engine) on.
+ 
+ # metafont and metapost:
+-mf		mf		-		-translate-file=cp227.tcx mf.ini
++mf		mf-nowin		-		-translate-file=cp227.tcx mf.ini
+ mpost		mpost		-		-translate-file=cp227.tcx mpost.mp
+ metafun		mpost		-		-translate-file=cp227.tcx metafun.mp
+ 
+@@ -40,6 +40,8 @@
+ # if you want babel support in tex:
+ tex		tex		-		-translate-file=cp227.tcx tex.ini
+ @PETEX@latex		pdfetex		language.dat	-translate-file=cp227.tcx *latex.ini
++@PETEX@hugelatex	pdfetex		language.dat	-translate-file=cp227.tcx *latex.ini
++latexnoetex	tex		language.dat	-translate-file=cp227.tcx latex.ini
+ @PETEX@etex		pdfetex		language.def	-translate-file=cp227.tcx *etex.ini
+ @PETEX@pdftex		pdfetex		-	-translate-file=cp227.tcx *pdftex.ini
+ @PETEX@pdflatex	pdfetex		language.dat	-translate-file=cp227.tcx *pdflatex.ini
+@@ -55,7 +57,10 @@
+ 
+ # Change "amstex.ini -> bamstex.ini" and "- -> language.dat"
+ # if you want babel support in amstex:
+-#! amstex	pdfetex		-		-translate-file=cp227.tcx *amstex.ini
++amstex		tex		-		-translate-file=cp227.tcx amstex.ini
++# Variants of plain and amstex which allow to customize hyphenation:
++bplain		pdfetex		language.dat	-translate-file=cp227.tcx *bplain.ini
++bamstex		pdfetex		language.dat	-translate-file=cp227.tcx *bamstex.ini
+ 
+ # Change "pdfamstex.ini -> pdfbamstex.ini" and "- -> language.dat"
+ # if you want babel support in pdfamstex:
+@@ -88,10 +93,10 @@
+ #! pdfmex-pl	pdfetex		mexconf.tex	nls=pdfetex-pl,il2-pl *pdfmex.ini
+ 
+ # - Czech / Slovak:
+-#! csplain	pdfetex		-		-translate-file=cp227.tcx *csplain.ini
+-#! cslatex	pdfetex		-	-translate-file=cp227.tcx *cslatex.ini
+-#! pdfcsplain	pdfetex		-		-translate-file=cp227.tcx *csplain.ini
+-#! pdfcslatex	pdfetex		-    -translate-file=cp227.tcx *cslatex.ini
++csplain		pdfetex		-	-translate-file=cp227.tcx *csplain.ini
++cslatex		pdfetex		-	-translate-file=cp227.tcx *cslatex.ini
++pdfcsplain	pdfetex		-	-translate-file=cp227.tcx *csplain.ini
++pdfcslatex	pdfetex		-	-translate-file=cp227.tcx *cslatex.ini
+ 
+ # Other formats:
+ 
+@@ -99,6 +104,15 @@
+ # if you want babel support in eplain:
+ #! eplain	pdfetex		-	-translate-file=cp227.tcx *eplain.ini
+ 
++# Old formats
++#! latex209	tex		-	latex209.ini
++#! pdflatex209	pdftex		-	pdflatex209.ini
++
++# DocBook formats
++jadetex         pdfetex		language.dat	&hugelatex	jadetex.ini
++pdfjadetex      pdfetex		language.dat	&pdflatex	pdfjadetex.ini
++xmltex          pdfetex		language.dat	&hugelatex	xmltex.ini
++pdfxmltex       pdfetex		language.dat	&pdflatex	pdfxmltex.ini
+ 
+ # mptopdf utility
+ @PETEX@mptopdf		pdfetex		-		-translate-file=cp227.tcx mptopdf.tex

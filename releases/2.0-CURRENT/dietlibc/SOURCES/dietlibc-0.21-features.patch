@@ -1,0 +1,43 @@
+--- dietlibc-0.21/dietfeatures.h.features	2002-08-19 05:01:50.000000000 -0400
++++ dietlibc-0.21/dietfeatures.h	2002-11-01 16:19:42.000000000 -0500
+@@ -37,11 +37,11 @@
+ /* read the comment in lib/strncat.c for an explanation */
+ /* #define WANT_NON_COMPLIANT_STRNCAT */
+ 
+-#define WANT_LINKER_WARNINGS
++#undef WANT_LINKER_WARNINGS
+ 
+ /* you need to define this if you want to run your programs with large
+  * file support on kernel 2.2 or 2.0 */
+-#define WANT_LARGEFILE_BACKCOMPAT
++#undef WANT_LARGEFILE_BACKCOMPAT
+ 
+ /* do you want localtime(3) to read /etc/localtime?
+  * Needed for daylight saving time etc. */
+@@ -53,7 +53,7 @@
+ #define WANT_FULL_RESOLV_CONF
+ 
+ /* do you want IPv6 transport support in the DNS resolver? */
+-#define WANT_IPV6_DNS
++#undef WANT_IPV6_DNS
+ 
+ /* do you want gethostbyname and friends to consult /etc/hosts? */
+ #define WANT_ETC_HOSTS
+@@ -63,7 +63,7 @@
+ #define WANT_INET_ADDR_DNS
+ 
+ /* do you want math functions high precision rather than fast/small? */
+-#define WANT_HIGH_PRECISION_MATH
++#undef WANT_HIGH_PRECISION_MATH
+ 
+ /* do you want support for matherr? */
+ #define WANT_MATHERR
+@@ -73,7 +73,7 @@
+ 
+ /* do you want diet to include a safeguard dependency to make linking
+  * against glibc fail?  This may fail with older binutils. */
+-#define WANT_SAFEGUARD
++#undef WANT_SAFEGUARD
+ 
+ /* dy you want that malloc(0) return a pointer to a "zero-length" object
+  * that is realloc-able; means realloc(..,size) gives a NEW object (like a

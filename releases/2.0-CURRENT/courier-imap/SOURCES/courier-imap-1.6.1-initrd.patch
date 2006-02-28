@@ -1,0 +1,30 @@
+--- courier-imap.sysvinit.in	2002-11-06 20:28:55.000000000 -0500
++++ courier-imap.sysvinit.in.oden	2002-12-31 00:09:48.000000000 -0500
+@@ -8,11 +8,13 @@
+ #
+ #
+ 
++. /etc/rc.d/init.d/functions
++
+ prefix=@prefix@
+ exec_prefix=@exec_prefix@
+ bindir=@bindir@
+ sbindir=@sbindir@
+-
++  
+ case "$1" in
+ start)
+         cd /
+@@ -115,9 +117,11 @@
+ 
+ 	echo ""
+ 	;;
+-restart)
++restart|reload)
+ 	$0 stop
+ 	$0 start
+         ;;
++status)
++	status couriertcpd
+ esac
+ exit 0

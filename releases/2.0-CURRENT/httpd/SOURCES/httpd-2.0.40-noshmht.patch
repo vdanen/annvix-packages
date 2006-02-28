@@ -1,0 +1,259 @@
+
+Remove shmht (unstable and unreliable) and make 'shmht:' be equivalent
+to 'shmcb:' in SSLSessionCache.
+
+Upstream-HEAD: committed
+Upstream-2.0: needed
+
+--- httpd-2.0.45/modules/ssl/mod_ssl.h.noshmht	2003-03-31 00:17:22.000000000 +0100
++++ httpd-2.0.45/modules/ssl/mod_ssl.h	2003-04-28 11:21:07.000000000 +0100
+@@ -128,7 +128,6 @@
+ /* mod_ssl headers */
+ #include "ssl_expr.h"
+ #include "ssl_util_ssl.h"
+-#include "ssl_util_table.h"
+ 
+ /* The #ifdef macros are only defined AFTER including the above
+  * therefore we cannot include these system files at the top  :-(
+@@ -334,7 +333,6 @@
+     SSL_SCMODE_UNSET = UNSET,
+     SSL_SCMODE_NONE  = 0,
+     SSL_SCMODE_DBM   = 1,
+-    SSL_SCMODE_SHMHT = 2,
+     SSL_SCMODE_SHMCB = 3
+ } ssl_scmode_t;
+ 
+@@ -418,7 +416,7 @@
+     int             nSessionCacheDataSize;
+     apr_shm_t      *pSessionCacheDataMM;
+     apr_rmm_t      *pSessionCacheDataRMM;
+-    apr_table_t    *tSessionCacheDataTable;
++    void           *tSessionCacheDataTable;
+     ssl_mutexmode_t nMutexMode;
+     apr_lockmech_e  nMutexMech;
+     const char     *szMutexFile;
+--- httpd-2.0.45/modules/ssl/ssl_engine_config.c.noshmht	2003-03-31 00:17:22.000000000 +0100
++++ httpd-2.0.45/modules/ssl/ssl_engine_config.c	2003-04-28 11:22:03.000000000 +0100
+@@ -1013,48 +1013,8 @@
+                                 arg+4);
+         }
+     }
+-    else if ((arglen > 6) && strcEQn(arg, "shmht:", 6)) {
+-#if !APR_HAS_SHARED_MEMORY
+-        return MODSSL_NO_SHARED_MEMORY_ERROR;
+-#endif
+-        mc->nSessionCacheMode = SSL_SCMODE_SHMHT;
+-        colon = ap_strchr_c(arg, ':');
+-        mc->szSessionCacheDataFile =
+-            ap_server_root_relative(mc->pPool, colon+1);
+-        if (!mc->szSessionCacheDataFile) {
+-            return apr_psprintf(cmd->pool,
+-                                "SSLSessionCache: Invalid cache file path %s",
+-                                colon+1);
+-        }
+-        mc->tSessionCacheDataTable = NULL;
+-        mc->nSessionCacheDataSize  = 1024*512; /* 512KB */
+-
+-        if ((cp = strchr(mc->szSessionCacheDataFile, '('))) {
+-            *cp++ = NUL;
+-
+-            if (!(cp2 = strchr(cp, ')'))) {
+-                return "SSLSessionCache: Invalid argument: "
+-                       "no closing parenthesis";
+-            }
+-
+-            *cp2 = NUL;
+-
+-            mc->nSessionCacheDataSize = atoi(cp);
+-
+-            if (mc->nSessionCacheDataSize < 8192) {
+-                return "SSLSessionCache: Invalid argument: "
+-                       "size has to be >= 8192 bytes";
+-            }
+-
+-            if (mc->nSessionCacheDataSize >= APR_SHM_MAXSIZE) {
+-                return apr_psprintf(cmd->pool,
+-                                    "SSLSessionCache: Invalid argument: "
+-                                    "size has to be < %d bytes on this "
+-                                    "platform", APR_SHM_MAXSIZE);
+-            }
+-        }
+-    }
+     else if (((arglen > 4) && strcEQn(arg, "shm:", 4)) ||
++             ((arglen > 6) && strcEQn(arg, "shmht:", 6)) ||
+              ((arglen > 6) && strcEQn(arg, "shmcb:", 6))) {
+ #if !APR_HAS_SHARED_MEMORY
+         return MODSSL_NO_SHARED_MEMORY_ERROR;
+--- httpd-2.0.45/modules/ssl/ssl_scache.c.noshmht	2003-02-03 17:31:54.000000000 +0000
++++ httpd-2.0.45/modules/ssl/ssl_scache.c	2003-04-28 11:21:07.000000000 +0100
+@@ -87,8 +87,7 @@
+ 
+     if (mc->nSessionCacheMode == SSL_SCMODE_DBM)
+         ssl_scache_dbm_init(s, p);
+-    else if ((mc->nSessionCacheMode == SSL_SCMODE_SHMHT) ||
+-             (mc->nSessionCacheMode == SSL_SCMODE_SHMCB)) {
++    else if (mc->nSessionCacheMode == SSL_SCMODE_SHMCB) {
+         void *data;
+         const char *userdata_key = "ssl_scache_init";
+ 
+@@ -98,10 +97,7 @@
+                                   apr_pool_cleanup_null, s->process->pool);
+             return;
+         }
+-        if (mc->nSessionCacheMode == SSL_SCMODE_SHMHT)
+-            ssl_scache_shmht_init(s, p);
+-        else if (mc->nSessionCacheMode == SSL_SCMODE_SHMCB)
+-            ssl_scache_shmcb_init(s, p);
++        ssl_scache_shmcb_init(s, p);
+     }
+ }
+ 
+@@ -111,8 +107,6 @@
+ 
+     if (mc->nSessionCacheMode == SSL_SCMODE_DBM)
+         ssl_scache_dbm_kill(s);
+-    else if (mc->nSessionCacheMode == SSL_SCMODE_SHMHT)
+-        ssl_scache_shmht_kill(s);
+     else if (mc->nSessionCacheMode == SSL_SCMODE_SHMCB)
+         ssl_scache_shmcb_kill(s);
+     return;
+@@ -125,8 +119,6 @@
+ 
+     if (mc->nSessionCacheMode == SSL_SCMODE_DBM)
+         rv = ssl_scache_dbm_store(s, id, idlen, expiry, sess);
+-    else if (mc->nSessionCacheMode == SSL_SCMODE_SHMHT)
+-        rv = ssl_scache_shmht_store(s, id, idlen, expiry, sess);
+     else if (mc->nSessionCacheMode == SSL_SCMODE_SHMCB)
+         rv = ssl_scache_shmcb_store(s, id, idlen, expiry, sess);
+     return rv;
+@@ -139,8 +131,6 @@
+ 
+     if (mc->nSessionCacheMode == SSL_SCMODE_DBM)
+         sess = ssl_scache_dbm_retrieve(s, id, idlen);
+-    else if (mc->nSessionCacheMode == SSL_SCMODE_SHMHT)
+-        sess = ssl_scache_shmht_retrieve(s, id, idlen);
+     else if (mc->nSessionCacheMode == SSL_SCMODE_SHMCB)
+         sess = ssl_scache_shmcb_retrieve(s, id, idlen);
+     return sess;
+@@ -152,8 +142,6 @@
+ 
+     if (mc->nSessionCacheMode == SSL_SCMODE_DBM)
+         ssl_scache_dbm_remove(s, id, idlen);
+-    else if (mc->nSessionCacheMode == SSL_SCMODE_SHMHT)
+-        ssl_scache_shmht_remove(s, id, idlen);
+     else if (mc->nSessionCacheMode == SSL_SCMODE_SHMCB)
+         ssl_scache_shmcb_remove(s, id, idlen);
+     return;
+@@ -165,8 +153,6 @@
+ 
+     if (mc->nSessionCacheMode == SSL_SCMODE_DBM)
+         ssl_scache_dbm_status(s, p, func, arg);
+-    else if (mc->nSessionCacheMode == SSL_SCMODE_SHMHT)
+-        ssl_scache_shmht_status(s, p, func, arg);
+     else if (mc->nSessionCacheMode == SSL_SCMODE_SHMCB)
+         ssl_scache_shmcb_status(s, p, func, arg);
+     return;
+@@ -178,8 +164,6 @@
+ 
+     if (mc->nSessionCacheMode == SSL_SCMODE_DBM)
+         ssl_scache_dbm_expire(s);
+-    else if (mc->nSessionCacheMode == SSL_SCMODE_SHMHT)
+-        ssl_scache_shmht_expire(s);
+     else if (mc->nSessionCacheMode == SSL_SCMODE_SHMCB)
+         ssl_scache_shmcb_expire(s);
+     return;
+--- httpd-2.0.45/modules/ssl/ssl_scache_shmcb.c.noshmht	2003-02-03 17:31:54.000000000 +0000
++++ httpd-2.0.45/modules/ssl/ssl_scache_shmcb.c	2003-04-28 11:21:07.000000000 +0100
+@@ -399,11 +399,9 @@
+                  "Shared memory session cache initialised");
+ 
+     /* 
+-     * Success ... we hack the memory block into place by cheating for
+-     * now and stealing a member variable the original shared memory
+-     * cache was using. :-)
++     * Success ... 
+      */
+-    mc->tSessionCacheDataTable = (table_t *) shm_segment;
++    mc->tSessionCacheDataTable = shm_segment;
+     return;
+ }
+ 
+@@ -422,13 +420,11 @@
+                            time_t timeout, SSL_SESSION * pSession)
+ {
+     SSLModConfigRec *mc = myModConfig(s);
+-    void *shm_segment;
+     BOOL to_return = FALSE;
+ 
+-    /* We've kludged our pointer into the other cache's member variable. */
+-    shm_segment = (void *) mc->tSessionCacheDataTable;
+     ssl_mutex_on(s);
+-    if (!shmcb_store_session(s, shm_segment, id, idlen, pSession, timeout))
++    if (!shmcb_store_session(s, mc->tSessionCacheDataTable, id, idlen,
++                             pSession, timeout))
+         /* in this cache engine, "stores" should never fail. */
+         ap_log_error(APLOG_MARK, APLOG_ERR, 0, s,
+                      "'shmcb' code was unable to store a "
+@@ -445,13 +441,10 @@
+ SSL_SESSION *ssl_scache_shmcb_retrieve(server_rec *s, UCHAR *id, int idlen)
+ {
+     SSLModConfigRec *mc = myModConfig(s);
+-    void *shm_segment;
+     SSL_SESSION *pSession;
+ 
+-    /* We've kludged our pointer into the other cache's member variable. */
+-    shm_segment = (void *) mc->tSessionCacheDataTable;
+     ssl_mutex_on(s);
+-    pSession = shmcb_retrieve_session(s, shm_segment, id, idlen);
++    pSession = shmcb_retrieve_session(s, mc->tSessionCacheDataTable, id, idlen);
+     ssl_mutex_off(s);
+     if (pSession)
+         ap_log_error(APLOG_MARK, APLOG_DEBUG, 0, s,
+@@ -469,12 +462,9 @@
+ void ssl_scache_shmcb_remove(server_rec *s, UCHAR *id, int idlen)
+ {
+     SSLModConfigRec *mc = myModConfig(s);
+-    void *shm_segment;
+ 
+-    /* We've kludged our pointer into the other cache's member variable. */
+-    shm_segment = (void *) mc->tSessionCacheDataTable;
+     ssl_mutex_on(s);
+-    shmcb_remove_session(s, shm_segment, id, idlen);
++    shmcb_remove_session(s, mc->tSessionCacheDataTable, id, idlen);
+     ssl_mutex_off(s);
+ }
+ 
+@@ -492,7 +482,6 @@
+     SHMCBQueue queue;
+     SHMCBCache cache;
+     SHMCBIndex *idx;
+-    void *shm_segment;
+     unsigned int loop, total, cache_total, non_empty_divisions;
+     int index_pct, cache_pct;
+     double expiry_total;
+@@ -501,11 +490,8 @@
+     ap_log_error(APLOG_MARK, APLOG_DEBUG, 0, s, 
+                  "inside ssl_scache_shmcb_status");
+ 
+-    /* We've kludged our pointer into the other cache's member variable. */
+-    shm_segment = (void *) mc->tSessionCacheDataTable;
+-
+     /* Get the header structure. */
+-    shmcb_get_header(shm_segment, &header);
++    shmcb_get_header(mc->tSessionCacheDataTable, &header);
+     total = cache_total = non_empty_divisions = 0;
+     average_expiry = max_expiry = min_expiry = 0;
+     expiry_total = 0;
+--- httpd-2.0.45/modules/ssl/config.m4.noshmht	2003-04-28 11:21:07.000000000 +0100
++++ httpd-2.0.45/modules/ssl/config.m4	2003-04-28 11:21:07.000000000 +0100
+@@ -69,10 +69,8 @@
+ ssl_scache.lo dnl
+ ssl_scache_dbm.lo dnl
+ ssl_scache_shmcb.lo dnl
+-ssl_scache_shmht.lo dnl
+ ssl_util.lo dnl
+ ssl_util_ssl.lo dnl
+-ssl_util_table.lo dnl
+ "
+ dnl #  hook module into the Autoconf mechanism (--enable-ssl option)
+ APACHE_MODULE(ssl, [SSL/TLS support (mod_ssl)], $ssl_objs, , no, [

@@ -1,0 +1,228 @@
+--- Makefile.avx	2005-09-10 01:26:58.000000000 -0400
++++ Makefile	2005-09-11 01:58:05.000000000 -0400
+@@ -17,7 +17,7 @@
+        $(PACKAGE).spec $(SCRIPTS) $(MACROFILEIN)
+ SCRIPTS = add-user del-user add-service del-service create-file \
+ 	add-group del-group add-shell del-shell verify-shell \
+-	add-syslog del-syslog
++	add-syslog del-syslog add-srv del-srv mkdepends
+ 
+ LIBDIR=/usr/share/$(PACKAGE)
+ RPMACROSDIR=/etc/rpm/macros.d
+--- add-group.avx	2005-09-10 01:27:44.000000000 -0400
++++ add-group	2005-09-11 01:57:11.000000000 -0400
+@@ -11,16 +11,17 @@
+ #---------------------------------------------------------------
+ 
+ if [ $# -lt 3 ]; then
+-    echo "usage: $0 <pkg name> <num installed> <group name> [<user1>,<user2>...]" 1>&2
++    echo "usage: $0 <pkg name> <num installed> <group name> <gid> [<user1>,<user2>...]" 1>&2
+     exit 1
+ fi
+ 
+ pkg=$1				# name of the package
+ num=$2				# number of packages installed
+ name=$3				# name of the group
+-users=$4			# users to add to this group
++gid=$4				# gid of group
++users=$5			# users to add to this group
+ 
+-/usr/sbin/groupadd -r $name > /dev/null 2>&1
++/usr/sbin/groupadd -g $gid -r $name > /dev/null 2>&1
+ 
+ if [ -n "$users" ]; then
+     SAVED_IFS="$IFS"
+--- add-user.avx	2005-09-10 01:27:44.000000000 -0400
++++ add-user	2005-09-11 01:57:11.000000000 -0400
+@@ -11,7 +11,7 @@
+ #---------------------------------------------------------------
+ 
+ if [ $# -lt 5 ]; then
+-    echo "usage: $0 <pkg name> <num installed> <user name> <home dir> <shell>" 1>&2
++    echo "usage: $0 <pkg name> <num installed> <user name> <home dir> <shell> <uid>" 1>&2
+     exit 1
+ fi
+ 
+@@ -20,8 +20,9 @@
+ name=$3				# name of the user
+ dir=$4				# home directory
+ shell=$5			# shell
++uid=$6				# uid to use
+ 
+-/usr/sbin/useradd -r -M -s $shell -d $dir -c "system user for $pkg" $name > /dev/null 2>&1
++/usr/sbin/useradd -r -M -u $uid -s $shell -d $dir -c "system user for $pkg" $name > /dev/null 2>&1
+ 
+ exit 0
+ 
+--- add-srv.avx	2005-09-11 01:57:11.000000000 -0400
++++ add-srv	2005-09-11 01:57:11.000000000 -0400
+@@ -0,0 +1,35 @@
++#!/bin/sh
++
++# Annvix script to restart supervised service via rpm scriptlet
++
++if [ $# != 3 ]; then
++    echo "usage: $0 <pkg name> <number installed> <service name>" 1>&2
++    exit 1
++fi
++
++pkg=$1				# name of the package
++num=$2				# number of packages installed
++srv=$3				# name of the service
++
++if [ $num != 1 ]; then
++    # Upgrade mode: restart the service if already running
++    if [ -d /service/$srv ]; then
++        SRVSTAT=`/sbin/runsvstat /service/$srv 2>/dev/null|grep -q run; echo $?`
++        if [ "$SRVSTAT" = "0" ]; then
++	    /usr/sbin/srv --restart $srv || :
++	    # restart services that depend of portmap
++	    if [ "$srv" = "portmap" ]; then
++	        for s in amd autofs bootparamd clusternfs mcserv nfs nfslock ypserv ypbind yppasswdd ypxfrd; do
++		    if [ -d /service/$s ]; then
++		        PSRVSTAT=`/sbin/runsvstat /service/$s 2>/dev/null|grep -q run; echo $?`
++		        if [ "$PSRVSTAT" = "0" ]; then
++			    /usr/sbin/srv --restart $srv || :
++		        fi
++		    fi
++	        done
++	    fi
++        fi
++    fi
++fi
++
++# add-srv ends here
+--- del-srv.avx	2005-09-11 01:57:11.000000000 -0400
++++ del-srv	2005-09-11 01:57:11.000000000 -0400
+@@ -0,0 +1,21 @@
++#!/bin/sh
++
++# Annvix script to remove supervised service via rpm scriptlet
++
++if [ $# != 3 ]; then
++    echo "usage: $0 <pkg name> <number installed> <service name>" 1>&2
++    exit 1
++fi
++
++pkg=$1				# name of the package
++num=$2				# number of packages installed
++srv=$3				# name of the service
++
++if [ $num = 0 ]; then
++    if [ -d /service/$srv ]; then
++	/usr/sbin/srv --down $srv >/dev/null 2>&1 || :
++	/usr/sbin/srv --del $srv
++    fi
++fi
++
++# del-srv ends here
+--- add-service.avx	2005-09-22 23:53:43.000000000 -0400
++++ add-service	2005-09-22 23:53:43.000000000 -0400
+@@ -27,40 +27,12 @@
+     if [ -r /etc/sysconfig/system ]; then
+ 	. /etc/sysconfig/system
+     fi
+-
+-    if [ -z "$ADD_SERVICES_TO_CURRENT_PROFILE_ONLY" ]; then
+-	# add the service to all the profiles at once
+-	if [ -d /etc/netprofile/profiles/default/services ]; then
+-	    for dir in /etc/netprofile/profiles/*/services; do
+-		touch $dir/$srv
+-	    done
+-	fi
+-    fi
+ }
+ 
+ add_service() {
+     # Add the service
+-    if [ -r /etc/sysconfig/msec ]; then
+-	. /etc/sysconfig/msec
+-    fi
+     
+-    # High security: add only authorized services
+-    LIST=/etc/security/msec/server
+-
+-    # during the install the symlink isn't done so find the right file
+-    # by ourselves
+-    if [ -n "$DURING_INSTALL" -a ! -f $LIST ]; then
+-	LIST=/etc/security/msec/server.$SECURE_LEVEL
+-    fi
+-
+-    if [ -f $LIST ]; then
+-	if grep -q "^${srv}$" $LIST ; then
+-	    add_chkconfig_service $srv
+-	fi
+-    else
+-	# Low security: install all the services
+-	add_chkconfig_service $srv
+-    fi
++    add_chkconfig_service $srv
+ }
+ 
+ if [ $num = 1 ]; then
+--- mkdepends.avx	2005-09-25 12:46:27.000000000 -0400
++++ mkdepends	2005-09-25 12:47:05.000000000 -0400
+@@ -0,0 +1,24 @@
++#!/bin/sh
++#
++# This is a rpm helper script that creates dependencies for runit-based services
++# given two parameters; the name of the service and the name of the service it
++# depends on.  For instance:
++#
++# mkdepends.sh %{buildroot} amd portmap
++#
++# this creates a dependency on the portmap service for the amd service and does so
++# by creating a symlink in the dependency directory for the amd service.
++#
++# Copyright (c) 2005 Vincent Danen <vdanen@annvix.org>
++
++SERVICE=$1
++DEPENDS=$2
++
++if [ -d ${RPM_BUILD_ROOT}/var/service/${SERVICE}/depends ]; then
++    pushd ${RPM_BUILD_ROOT}/var/service/${SERVICE}/depends >/dev/null 2>&1
++        ln -s ../../${DEPENDS} .
++    popd >/dev/null 2>&1
++else
++    echo "Dependency directory does not exist!"
++    exit 1
++fi
+--- rpm-helper.macros.in.avx	2005-08-03 07:50:35.000000000 -0400
++++ rpm-helper.macros.in	2005-09-25 12:51:24.000000000 -0400
+@@ -14,7 +14,7 @@
+ %{nil}
+ 
+ %_add_user_helper @LIBDIR@/add-user
+-%_pre_useradd() %_add_user_helper %{name} $1 %{1} %{2} %{3} \
++%_pre_useradd() %_add_user_helper %{name} $1 %{1} %{2} %{3} %{4} \
+ %{nil}
+ 
+ %_del_user_helper @LIBDIR@/del-user
+@@ -22,7 +22,7 @@
+ %{nil}
+ 
+ %_add_group_helper @LIBDIR@/add-group
+-%_pre_groupadd() %_add_group_helper %{name} $1 %{1} %{?2:%2} \
++%_pre_groupadd() %_add_group_helper %{name} $1 %{1} %{2} %{?3:%3} \
+ %{nil}
+ 
+ %_del_group_helper @LIBDIR@/del-group
+@@ -45,3 +45,18 @@
+ %_preun_syslogdel() %_del_syslog_helper %{name} $1 %{1} %{?2:%2} %{?3:%3} %{?4:%4} %{?5:%5} \
+ %{nil}
+ 
++
++# service macros
++%_add_srv_helper @LIBDIR@/add-srv
++%_post_srv() %_add_srv_helper %{name} $1 %{1} \
++%{nil}
++
++%_del_srv_helper @LIBDIR@/del-srv
++%_preun_srv() %_del_srv_helper %{name} $1 %{1} \
++%{nil}
++
++%_mkdepends @LIBDIR@/mkdepends
++
++# afterboot macros
++%_mkafterboot        if [[ -f %{_datadir}/afterboot/mkafterboot ]]; then %{_datadir}/afterboot/mkafterboot; fi \
++%{nil}

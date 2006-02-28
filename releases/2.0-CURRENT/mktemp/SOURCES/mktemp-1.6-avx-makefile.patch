@@ -1,0 +1,18 @@
+--- Makefile~	2004-09-23 09:36:43.000000000 -0600
++++ Makefile	2004-09-23 09:36:43.000000000 -0600
+@@ -1,5 +1,13 @@
+ #	$OpenBSD: Makefile,v 1.1 1996/11/21 07:59:31 millert Exp $
+ 
+-PROG=	mktemp
++PROG=mktemp
+ 
+-.include <bsd.prog.mk>
++all:	$(PROG)
++
++clean:
++	rm -f $(PROG) *.o
++
++install:
++	mkdir -p $(ROOT)/bin $(ROOT)/usr/share/man/man1
++	install -m 0755 $(PROG) $(ROOT)/bin/mktemp
++	install -m 0644 $(PROG).1 $(ROOT)/usr/share/man/man1

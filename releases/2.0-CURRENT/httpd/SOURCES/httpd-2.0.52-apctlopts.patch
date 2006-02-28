@@ -1,0 +1,50 @@
+
+Always invoke $HTTPD with $OPTIONS from /etc/sysconfig/httpd (#115910).
+
+--- httpd-2.0.52/support/apachectl.in.apctlopts
++++ httpd-2.0.52/support/apachectl.in
+@@ -92,9 +92,9 @@
+ # httpd is denied terminal access in SELinux, so run in the
+ # current context to get stdout from $HTTPD -t.
+ if test -x /usr/sbin/selinuxenabled && /usr/sbin/selinuxenabled; then
+-  runcon -- `id -Z` $HTTPD -t
++  runcon -- `id -Z` $HTTPD $OPTIONS -t
+ else
+-  $HTTPD -t
++  $HTTPD $OPTIONS -t
+ fi
+ ERROR=$?
+ }
+@@ -102,7 +102,7 @@
+ case $ARGV in
+ restart|graceful)
+     if $HTTPD -t >&/dev/null; then
+-       $HTTPD -k $ARGV
++       $HTTPD $OPTIONS -k $ARGV
+        ERROR=$?
+     else
+        echo "apachectl: Configuration syntax error, will not run \"$ARGV\":"
+@@ -111,12 +111,12 @@
+     ;;
+ start|stop)
+     check13
+-    $HTTPD -k $ARGV
++    $HTTPD $OPTIONS -k $ARGV
+     ERROR=$?
+     ;;
+ startssl|sslstart|start-SSL)
+     check13
+-    $HTTPD -k start -DSSL
++    $HTTPD $OPTIONS -DSSL -k start
+     ERROR=$?
+     ;;
+ configtest)
+@@ -131,7 +131,7 @@
+     $LYNX $STATUSURL
+     ;;
+ *)
+-    $HTTPD $ARGV
++    $HTTPD $OPTIONS $ARGV
+     ERROR=$?
+ esac
+ 

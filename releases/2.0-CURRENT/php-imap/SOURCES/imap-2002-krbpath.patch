@@ -1,0 +1,11 @@
+--- imap-2002a/src/osdep/unix/Makefile.gss.gssapi-patch	2001-11-21 13:13:49.000000000 -0500
++++ imap-2002a/src/osdep/unix/Makefile.gss	2003-01-05 16:01:43.000000000 -0500
+@@ -20,7 +20,7 @@
+ 
+ # Extended flags needed for additional authenticators.  You may need to modify.
+ 
+-GSSDIR=/usr/local
++GSSDIR=/usr
+ GSSCFLAGS= -I$(GSSDIR)/include -DGSS_C_NT_HOSTBASED_SERVICE=gss_nt_service_name
+ GSSOLDLDFLAGS= -L$(GSSDIR)/lib -lgssapi_krb5 -lkrb5 -lcrypto -lcom_err
+ GSSNEWLDFLAGS= -L$(GSSDIR)/lib -lgssapi_krb5 -lkrb5 -lk5crypto -lcom_err

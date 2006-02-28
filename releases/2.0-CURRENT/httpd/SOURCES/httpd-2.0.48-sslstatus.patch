@@ -1,0 +1,317 @@
+
+Use new mod_status hook to put SSL session cache stats into
+server-status output. (UPSTREAM, HEAD)
+
+Upstream-HEAD: committed
+Upstream-2.0: omit
+Upstream-Status: May suffer resistance upstream because of API change
+
+diff -u httpd-2.0/modules/ssl/mod_ssl.c:1.89 httpd-2.0/modules/ssl/mod_ssl.c:1.90
+--- httpd-2.0/modules/ssl/mod_ssl.c:1.89	Sun Nov 16 02:22:25 2003
++++ httpd-2.0/modules/ssl/mod_ssl.c	Tue Nov 25 16:59:10 2003
+@@ -298,10 +298,9 @@
+ 
+     /* Register us to handle mod_log_config %c/%x variables */
+     ssl_var_log_config_register(pconf);
+-#if 0 /* XXX */
+-    /* XXX: Register us to handle mod_status extensions that don't exist yet */
++
++    /* Register to handle mod_status status page generation */
+     ssl_scache_status_register(pconf);
+-#endif /* -0- */
+ 
+     return OK;
+ }
+Index: httpd-2.0/modules/ssl/mod_ssl.h
+diff -u httpd-2.0/modules/ssl/mod_ssl.h:1.140 httpd-2.0/modules/ssl/mod_ssl.h:1.141
+--- httpd-2.0/modules/ssl/mod_ssl.h:1.140	Tue Nov 25 15:46:36 2003
++++ httpd-2.0/modules/ssl/mod_ssl.h	Tue Nov 25 16:59:10 2003
+@@ -578,15 +578,13 @@
+ 
+ /*  Session Cache Support  */
+ void         ssl_scache_init(server_rec *, apr_pool_t *);
+-#if 0 /* XXX */
+ void         ssl_scache_status_register(apr_pool_t *p);
+-#endif
+ void         ssl_scache_kill(server_rec *);
+ BOOL         ssl_scache_store(server_rec *, UCHAR *, int, time_t, SSL_SESSION *);
+ SSL_SESSION *ssl_scache_retrieve(server_rec *, UCHAR *, int);
+ void         ssl_scache_remove(server_rec *, UCHAR *, int);
+ void         ssl_scache_expire(server_rec *);
+-void         ssl_scache_status(server_rec *, apr_pool_t *, void (*)(char *, void *), void *);
++
+ char        *ssl_scache_id2sz(UCHAR *, int);
+ void         ssl_scache_dbm_init(server_rec *, apr_pool_t *);
+ void         ssl_scache_dbm_kill(server_rec *);
+@@ -594,7 +592,7 @@
+ SSL_SESSION *ssl_scache_dbm_retrieve(server_rec *, UCHAR *, int);
+ void         ssl_scache_dbm_remove(server_rec *, UCHAR *, int);
+ void         ssl_scache_dbm_expire(server_rec *);
+-void         ssl_scache_dbm_status(server_rec *, apr_pool_t *, void (*)(char *, void *), void *);
++void         ssl_scache_dbm_status(request_rec *r, int flags, apr_pool_t *pool);
+ 
+ void         ssl_scache_shmht_init(server_rec *, apr_pool_t *);
+ void         ssl_scache_shmht_kill(server_rec *);
+@@ -610,7 +608,7 @@
+ SSL_SESSION *ssl_scache_shmcb_retrieve(server_rec *, UCHAR *, int);
+ void         ssl_scache_shmcb_remove(server_rec *, UCHAR *, int);
+ void         ssl_scache_shmcb_expire(server_rec *);
+-void         ssl_scache_shmcb_status(server_rec *, apr_pool_t *, void (*)(char *, void *), void *);
++void         ssl_scache_shmcb_status(request_rec *r, int flags, apr_pool_t *pool);
+ 
+ /*  Pass Phrase Support  */
+ void         ssl_pphrase_Handle(server_rec *, apr_pool_t *);
+Index: httpd-2.0/modules/ssl/ssl_scache.c
+diff -u httpd-2.0/modules/ssl/ssl_scache.c:1.16 httpd-2.0/modules/ssl/ssl_scache.c:1.17
+--- httpd-2.0/modules/ssl/ssl_scache.c:1.16	Tue Nov 25 15:46:36 2003
++++ httpd-2.0/modules/ssl/ssl_scache.c	Tue Nov 25 16:59:10 2003
+@@ -62,6 +62,7 @@
+                                   yourself in the foot for free.''
+                                                  -- Unknown         */
+ #include "mod_ssl.h"
++#include "mod_status.h"
+ 
+ /*  _________________________________________________________________
+ **
+@@ -147,17 +148,6 @@
+     return;
+ }
+ 
+-void ssl_scache_status(server_rec *s, apr_pool_t *p, void (*func)(char *, void *), void *arg)
+-{
+-    SSLModConfigRec *mc = myModConfig(s);
+-
+-    if (mc->nSessionCacheMode == SSL_SCMODE_DBM)
+-        ssl_scache_dbm_status(s, p, func, arg);
+-    else if (mc->nSessionCacheMode == SSL_SCMODE_SHMCB)
+-        ssl_scache_shmcb_status(s, p, func, arg);
+-    return;
+-}
+-
+ void ssl_scache_expire(server_rec *s)
+ {
+     SSLModConfigRec *mc = myModConfig(s);
+@@ -174,43 +164,33 @@
+ **  SSL Extension to mod_status
+ **  _________________________________________________________________
+ */
+-#if 0 /* NOT YET */
+-static void ssl_ext_ms_display(request_rec *, int, int);
+-
+-void ssl_scache_status_register(apr_pool_t *p)
+-{
+-    /* XXX point mod_status to this update, when it grows the opt fn */
+-#if 0
+-    ap_hook_register("ap::mod_status::display", ssl_ext_ms_display, AP_HOOK_NOCTX);
+-#endif
+-    return;
+-}
+-
+-static void ssl_ext_ms_display_cb(char *str, void *_r)
+-{
+-    request_rec *r = (request_rec *)_r;
+-    if (str != NULL)
+-        ap_rputs(str, r);
+-    return;
+-}
+-
+-static void ssl_ext_ms_display(request_rec *r, int no_table_report, int short_report)
++static int ssl_ext_status_hook(request_rec *r, int flags)
+ {
+     SSLSrvConfigRec *sc = mySrvConfig(r->server);
+ 
+-    if (sc == NULL)
+-        return;
+-    if (short_report)
+-        return;
++    if (sc == NULL || flags & AP_STATUS_SHORT)
++        return OK;
++
+     ap_rputs("<hr>\n", r);
+     ap_rputs("<table cellspacing=0 cellpadding=0>\n", r);
+     ap_rputs("<tr><td bgcolor=\"#000000\">\n", r);
+     ap_rputs("<b><font color=\"#ffffff\" face=\"Arial,Helvetica\">SSL/TLS Session Cache Status:</font></b>\r", r);
+     ap_rputs("</td></tr>\n", r);
+     ap_rputs("<tr><td bgcolor=\"#ffffff\">\n", r);
+-    ssl_scache_status(r->server, r->pool, ssl_ext_ms_display_cb, r);
++
++    if (sc->mc->nSessionCacheMode == SSL_SCMODE_DBM)
++        ssl_scache_dbm_status(r, flags, r->pool);
++    else if (sc->mc->nSessionCacheMode == SSL_SCMODE_SHMCB)
++        ssl_scache_shmcb_status(r, flags, r->pool);
++    
+     ap_rputs("</td></tr>\n", r);
+     ap_rputs("</table>\n", r);
+-    return;
++    return OK;
+ }
+-#endif
++
++void ssl_scache_status_register(apr_pool_t *p)
++{
++    APR_OPTIONAL_HOOK(ap, status_hook, ssl_ext_status_hook, NULL, NULL,
++                      APR_HOOK_MIDDLE);
++}
++
+Index: httpd-2.0/modules/ssl/ssl_scache_dbm.c
+diff -u httpd-2.0/modules/ssl/ssl_scache_dbm.c:1.20 httpd-2.0/modules/ssl/ssl_scache_dbm.c:1.21
+--- httpd-2.0/modules/ssl/ssl_scache_dbm.c:1.20	Wed Sep 10 15:21:12 2003
++++ httpd-2.0/modules/ssl/ssl_scache_dbm.c	Tue Nov 25 16:59:10 2003
+@@ -441,9 +441,9 @@
+     return;
+ }
+ 
+-void ssl_scache_dbm_status(server_rec *s, apr_pool_t *p, void (*func)(char *, void *), void *arg)
++void ssl_scache_dbm_status(request_rec *r, int flags, apr_pool_t *p)
+ {
+-    SSLModConfigRec *mc = myModConfig(s);
++    SSLModConfigRec *mc = myModConfig(r->server);
+     apr_dbm_t *dbm;
+     apr_datum_t dbmkey;
+     apr_datum_t dbmval;
+@@ -454,18 +454,18 @@
+ 
+     nElem = 0;
+     nSize = 0;
+-    ssl_mutex_on(s);
++    ssl_mutex_on(r->server);
+     /*
+      * XXX - Check what pool is to be used - TBD
+      */
+     if ((rv = apr_dbm_open(&dbm, mc->szSessionCacheDataFile,
+ 	                       APR_DBM_RWCREATE, SSL_DBM_FILE_MODE,
+                            mc->pPool)) != APR_SUCCESS) {
+-        ap_log_error(APLOG_MARK, APLOG_ERR, rv, s,
++        ap_log_rerror(APLOG_MARK, APLOG_ERR, rv, r,
+                      "Cannot open SSLSessionCache DBM file `%s' for status "
+                      "retrival",
+                      mc->szSessionCacheDataFile);
+-        ssl_mutex_off(s);
++        ssl_mutex_off(r->server);
+         return;
+     }
+     /*
+@@ -480,14 +480,14 @@
+         nSize += dbmval.dsize;
+     }
+     apr_dbm_close(dbm);
+-    ssl_mutex_off(s);
++    ssl_mutex_off(r->server);
+     if (nSize > 0 && nElem > 0)
+         nAverage = nSize / nElem;
+     else
+         nAverage = 0;
+-    func(apr_psprintf(p, "cache type: <b>DBM</b>, maximum size: <b>unlimited</b><br>"), arg);
+-    func(apr_psprintf(p, "current sessions: <b>%d</b>, current size: <b>%d</b> bytes<br>", nElem, nSize), arg);
+-    func(apr_psprintf(p, "average session size: <b>%d</b> bytes<br>", nAverage), arg);
++    ap_rprintf(r, "cache type: <b>DBM</b>, maximum size: <b>unlimited</b><br>");
++    ap_rprintf(r, "current sessions: <b>%d</b>, current size: <b>%d</b> bytes<br>", nElem, nSize);
++    ap_rprintf(r, "average session size: <b>%d</b> bytes<br>", nAverage);
+     return;
+ }
+ 
+Index: httpd-2.0/modules/ssl/ssl_scache_shmcb.c
+diff -u httpd-2.0/modules/ssl/ssl_scache_shmcb.c:1.18 httpd-2.0/modules/ssl/ssl_scache_shmcb.c:1.19
+--- httpd-2.0/modules/ssl/ssl_scache_shmcb.c:1.18	Tue Nov 25 15:46:36 2003
++++ httpd-2.0/modules/ssl/ssl_scache_shmcb.c	Tue Nov 25 16:59:10 2003
+@@ -474,10 +474,9 @@
+     return;
+ }
+ 
+-void ssl_scache_shmcb_status(server_rec *s, apr_pool_t *p,
+-                            void (*func) (char *, void *), void *arg)
++void ssl_scache_shmcb_status(request_rec *r, int flags, apr_pool_t *p)
+ {
+-    SSLModConfigRec *mc = myModConfig(s);
++    SSLModConfigRec *mc = myModConfig(r->server);
+     SHMCBHeader *header;
+     SHMCBQueue queue;
+     SHMCBCache cache;
+@@ -487,8 +486,7 @@
+     double expiry_total;
+     time_t average_expiry, now, max_expiry, min_expiry, idxexpiry;
+ 
+-    ap_log_error(APLOG_MARK, APLOG_DEBUG, 0, s, 
+-                 "inside ssl_scache_shmcb_status");
++    ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "inside shmcb_status");
+ 
+     /* Get the header structure. */
+     shmcb_get_header(mc->tSessionCacheDataTable, &header);
+@@ -502,7 +500,7 @@
+     now = time(NULL);
+     for (loop = 0; loop <= header->division_mask; loop++) {
+         if (shmcb_get_division(header, &queue, &cache, loop)) {
+-            shmcb_expire_division(s, &queue, &cache);
++            shmcb_expire_division(r->server, &queue, &cache);
+             total += shmcb_get_safe_uint(queue.pos_count);
+             cache_total += shmcb_get_safe_uint(cache.pos_count);
+             if (shmcb_get_safe_uint(queue.pos_count) > 0) {
+@@ -523,40 +521,39 @@
+     }
+     index_pct = (100 * total) / (header->index_num * (header->division_mask + 1));
+     cache_pct = (100 * cache_total) / (header->cache_data_size * (header->division_mask + 1));
+-    func(apr_psprintf(p, "cache type: <b>SHMCB</b>, shared memory: <b>%d</b> "
+-                     "bytes, current sessions: <b>%d</b><br>",
+-                     mc->nSessionCacheDataSize, total), arg);
+-    func(apr_psprintf(p, "sub-caches: <b>%d</b>, indexes per sub-cache: "
+-                     "<b>%d</b><br>", (int) header->division_mask + 1,
+-                     (int) header->index_num), arg);
++    ap_rprintf(r, "cache type: <b>SHMCB</b>, shared memory: <b>%d</b> "
++               "bytes, current sessions: <b>%d</b><br>",
++               mc->nSessionCacheDataSize, total);
++    ap_rprintf(r, "sub-caches: <b>%d</b>, indexes per sub-cache: "
++               "<b>%d</b><br>", (int) header->division_mask + 1,
++               (int) header->index_num);
+     if (non_empty_divisions != 0) {
+         average_expiry = (time_t)(expiry_total / (double)non_empty_divisions);
+-        func(apr_psprintf(p, "time left on oldest entries' SSL sessions: "), arg);
++        ap_rprintf(r, "time left on oldest entries' SSL sessions: ");
+         if (now < average_expiry)
+-            func(apr_psprintf(p, "avg: <b>%d</b> seconds, (range: %d...%d)<br>",
+-                            (int)(average_expiry - now), (int) (min_expiry - now),
+-                            (int)(max_expiry - now)), arg);
++            ap_rprintf(r, "avg: <b>%d</b> seconds, (range: %d...%d)<br>",
++                       (int)(average_expiry - now), (int) (min_expiry - now),
++                       (int)(max_expiry - now));
+         else
+-            func(apr_psprintf(p, "expiry threshold: <b>Calculation Error!</b>" 
+-                             "<br>"), arg);
+-
++            ap_rprintf(r, "expiry threshold: <b>Calculation Error!</b>" 
++                       "<br>");
++        
+     }
+-    func(apr_psprintf(p, "index usage: <b>%d%%</b>, cache usage: <b>%d%%</b>"
+-                     "<br>", index_pct, cache_pct), arg);
+-    func(apr_psprintf(p, "total sessions stored since starting: <b>%lu</b><br>",
+-                     header->num_stores), arg);
+-    func(apr_psprintf(p,"total sessions expired since starting: <b>%lu</b><br>",
+-                     header->num_expiries), arg);
+-    func(apr_psprintf(p, "total (pre-expiry) sessions scrolled out of the "
+-                     "cache: <b>%lu</b><br>", header->num_scrolled), arg);
+-    func(apr_psprintf(p, "total retrieves since starting: <b>%lu</b> hit, "
+-                     "<b>%lu</b> miss<br>", header->num_retrieves_hit,
+-                     header->num_retrieves_miss), arg);
+-    func(apr_psprintf(p, "total removes since starting: <b>%lu</b> hit, "
+-                     "<b>%lu</b> miss<br>", header->num_removes_hit,
+-                     header->num_removes_miss), arg);
+-    ap_log_error(APLOG_MARK, APLOG_DEBUG, 0, s, 
+-                 "leaving shmcb_status");
++    ap_rprintf(r, "index usage: <b>%d%%</b>, cache usage: <b>%d%%</b>"
++               "<br>", index_pct, cache_pct);
++    ap_rprintf(r, "total sessions stored since starting: <b>%lu</b><br>",
++               header->num_stores);
++    ap_rprintf(r, "total sessions expired since starting: <b>%lu</b><br>",
++               header->num_expiries);
++    ap_rprintf(r, "total (pre-expiry) sessions scrolled out of the "
++               "cache: <b>%lu</b><br>", header->num_scrolled);
++    ap_rprintf(r, "total retrieves since starting: <b>%lu</b> hit, "
++               "<b>%lu</b> miss<br>", header->num_retrieves_hit,
++               header->num_retrieves_miss);
++    ap_rprintf(r, "total removes since starting: <b>%lu</b> hit, "
++               "<b>%lu</b> miss<br>", header->num_removes_hit,
++               header->num_removes_miss);
++    ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "leaving shmcb_status");
+     return;
+ }
+ 

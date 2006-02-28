@@ -1,0 +1,251 @@
+To: pgsql-hackers@postgresql.org, pgsql-interfaces@postgresql.org
+Subject: [HACKERS] 7.3 gotchas for applications and client libraries
+Date: Mon, 02 Sep 2002 21:54:00 -0400
+From: Tom Lane <tgl@sss.pgh.pa.us>
+
+Bruce suggested that we need a porting guide to help people look for
+application and client-library code that will be broken by the changes
+in PG 7.3.  Here is a first cut at documenting the issues.
+Comments welcome --- in particular, what have I missed?
+
+			regards, tom lane
+
+
+Revising client-side code for PG 7.3 system catalogs
+
+
+Here are some notes about things to look out for in updating client-side
+code for PG 7.3.  Almost anything that looks at the system catalogs is
+probably going to need work, if you want it to behave reasonably when you
+start using 7.3's new features such as schemas and DROP COLUMN.
+
+As an example, consider the task of listing the names and datatypes for
+a table named "foo".  In the past you may have done this with a query like
+
+	SELECT a.attname, format_type(a.atttypid, a.atttypmod)
+	FROM pg_class c, pg_attribute a
+	WHERE c.relname = 'foo'
+	  AND a.attnum > 0 AND a.attrelid = c.oid
+	ORDER BY a.attnum
+
+(this in fact is exactly what 7.2 psql uses to implement "\d foo").
+This query will work perfectly well in 7.2 or 7.1, but it's broken in half
+a dozen ways for 7.3.
+
+The biggest problem is that with the addition of schemas, there might be
+several tables named "foo" listed in pg_class.  The old query will produce
+a list of all of their attributes mixed together.  For example, after
+	create schema a;
+	create schema b;
+	create table a.foo (f1 int, f2 text);
+	create table b.foo (f1 text, f2 numeric(10,1));
+we'd get:
+
+ attname |  format_type
+---------+---------------
+ f1      | text
+ f1      | integer
+ f2      | text
+ f2      | numeric(10,1)
+(4 rows)
+
+Not good.  We need to decide exactly which foo we want, and restrict the
+query to find only that row in pg_class.  There are a couple of ways to
+do this, depending on how fancy you want to get.
+
+If you just want to handle an unqualified table name "foo", and find the
+same foo that would be found if you said "select * from foo", then one way
+to do it is to restrict the query to "visible" rows of pg_class:
+
+	SELECT ...
+	FROM ...
+	WHERE c.relname = 'foo' AND pg_table_is_visible(c.oid)
+	  AND ...
+
+pg_table_is_visible() will only return true for pg_class rows that are in
+your current search path and are not hidden by similarly-named tables that
+are in earlier schemas of the search path.
+
+An alternative way is to eliminate the explicit join to pg_class, and
+instead use the new datatype "regclass" to look up the correct pg_class
+OID:
+
+	SELECT ...
+	FROM pg_attribute a
+	WHERE a.attrelid = 'foo'::regclass
+	  AND a.attnum > 0
+	ORDER BY a.attnum
+
+The regclass input converter looks up the given string as a table name
+(obeying schema visibility rules) and produces an OID constant that you
+can compare directly to attrelid.  This is more efficient than doing
+the join, but there are a couple of things to note about it.  One is
+that if there isn't any "foo" table, you'll get an ERROR message from
+the regclass input converter, whereas with the old query you got zero
+rows out and no error message.  You might or might not prefer the old
+behavior.  Another limitation is that there isn't any way to adapt
+this approach to search for a partially-specified table name;
+whereas in the original query you could use a LIKE or regex pattern to
+match the table name, not only a simple equality test.
+
+Now, what if you'd like to be able to specify a qualified table name
+--- that is, show the attributes of "a.foo" or "b.foo" on demand?
+It will not work to say
+	WHERE c.relname = 'a.foo'
+so this is another way in which the original query fails for 7.3.
+
+It turns out that the regclass method will work for this: if you say
+	WHERE a.attrelid = 'a.foo'::regclass
+then the right things happen.
+
+If you don't want to use regclass then you're going to have to do an
+explicit join against pg_namespace to find out which foo you want:
+
+	SELECT a.attname, format_type(a.atttypid, a.atttypmod)
+	FROM pg_namespace n, pg_class c, pg_attribute a
+	WHERE n.nspname = 'a' AND c.relname = 'foo'
+	  AND c.relnamespace = n.oid
+	  AND a.attnum > 0 AND a.attrelid = c.oid
+	ORDER BY a.attnum
+
+This is somewhat tedious because you have to be prepared to split the
+qualified name into its components on the client side.  An advantage
+is that once you've done that, you can again consider using LIKE or
+regex patterns instead of simple name equality.  This is essentially
+what 7.3 psql does to support wildcard patterns like "\dt a*.f*".
+
+Okay, I think we've about beaten the issue of "which foo do you want"
+to death.  But what other ways are there for the schema feature to cause
+trouble in this apparently now well-fixed-up query?
+
+One way is that the system catalogs themselves live in a schema, and
+if that schema isn't frontmost in your search path then your references
+to pg_class and so forth might find the wrong tables.  (It's legal now
+for ordinary users to create tables named like "pg_xxx", so long as they
+don't try to put 'em in the system's schema.)  This is probably not a
+big issue for standalone applications, which can assume they know what the
+search path is.  But in client-side libraries, psql, and similar code
+that has to be able to deal with someone else's choice of search path,
+we really ought to make the references to system catalogs be fully
+qualified:
+
+	SELECT ...
+	FROM pg_catalog.pg_namespace n, pg_catalog.pg_class c,
+	     pg_catalog.pg_attribute a
+	WHERE ...
+
+(If you weren't using table aliases in your queries before, here is a good
+place to start...)
+
+In fact it's worse than that: function names, type names, etc also live in
+schemas.  So you really ought to qualify references to built-in functions
+and types too:
+
+	SELECT ..., pg_catalog.format_type(...) ...
+
+	WHERE a.attrelid = 'foo'::pg_catalog.regclass ...
+
+The truly paranoid might want to qualify their operator names too,
+though I draw the line at this because of the horribly ugly syntax needed:
+
+	WHERE a.attrelid OPERATOR(pg_catalog.=) 'foo'::pg_catalog.regclass
+
+There's another, non-schema-related, gotcha in this apparently simple task
+of showing attribute names: in 7.3 you need to exclude dropped attributes
+from your display.  ALTER TABLE DROP COLUMN doesn't remove the
+pg_attribute entry for the dropped column, it only changes it to have
+attisdropped = true.  So you will typically want to add
+
+	WHERE NOT attisdropped
+
+when looking at pg_attribute.
+
+Note however that excluding dropped columns like this means there may be
+gaps in the series of attnum values you see.  That doesn't bother this
+particular query, but it could easily confuse applications that expect the
+attributes to have consecutive attnums 1 to N.  For example, pg_dump makes
+an array of attributes and wants to index into the array with attnums.
+It proved easier to make pg_dump include dropped attributes in its array
+(and filter them out later) than to change the indexing logic.
+
+If you have client-side code that looks in pg_proc, pg_type, or
+pg_operator then exactly the same sorts of schema-related issues appear:
+the name alone is no longer unique, you have to think about identifying
+the function, type, or operator within the schema you want.
+
+That's about all the mileage I can get out of the "show a table's
+attributes" example, but there are still more schema-related trouble
+items to check for.
+
+One problem to look for is code that scans pg_class (or another system
+table, but most commonly pg_class) to make a list of things to operate
+on.  For example, various people have built scripts to automatically
+reindex every table in a database.  Such code will fail as soon as you
+start using schemas, because it will find tables that aren't in your
+current schema search path and try to operate on them.  Depending on what
+you want to do, you could change the code to emit fully qualified names
+of tables it wants to operate on (so it will work no matter which schema
+they are in), or you could restrict the pg_class search to find only
+visible tables.
+
+If you want to use qualified names, the straightforward way to do it
+is to join against pg_namespace to get the schema name:
+
+	SELECT nspname, relname FROM pg_class c, pg_namespace n
+	WHERE relnamespace = n.oid AND relname LIKE 'foo%' AND ...
+
+A less obvious way is to use the regclass output converter:
+
+	SELECT c.oid::regclass FROM pg_class c
+	WHERE relname LIKE 'foo%' AND ...
+
+This will give you back a table name that is qualified only if it needs to
+be (i.e., the table is not visible in your search path), so you can use
+it directly in the command you want to give next.  Another interesting
+property of the regclass converter is that it will double-quote the name
+correctly if necessary --- for example, you'll get "TEST" (with the
+quotes) if the table is named TEST.  So you can splice the name directly
+into a SQL command without any special pushups and be confident that it
+will produce the right results.
+
+BTW, there are similar output converters for type, function, and operator
+names, if you need them.
+
+Another thing to look for is code that tries to exclude system tables by
+excluding tablenames beginning with "pg_"; typical code is like
+	WHERE relname NOT LIKE 'pg\\_%'
+or
+	WHERE relname !~ '^pg_'
+This is not the preferred method anymore: the right way to do this is to
+join against pg_namespace and exclude tables that live in schemas whose
+names begin with "pg_".
+
+A related point is that temporary tables no longer have names (in the
+catalogs) of the form "pg_temp_NNN"; rather they have exactly the name
+that the creating user gave them.  They are kept separate from other
+tables by placing them in schemas named like "pg_temp_NNN" (where now
+NNN identifies an active backend, not a single table).  So if you wanted
+your scan to exclude temp tables then you'd definitely better change to
+excluding on the basis of schema name not table name.  On the upside,
+if you do want your scan to show temp tables then it's much easier than
+before.  (BTW, the pg_table_is_visible function is the best way of
+distinguishing your own session's temp tables from other people's.  Yours
+will be visible, other people's won't.)
+
+Other things that are less likely to concern most applications, but could
+break some:
+
+Aggregate functions now have entries in pg_proc; pg_aggregate has lost
+most of its columns and now is just an extension of a pg_proc entry.
+If you have code that knows the difference between a plain function and
+an aggregate function then it will surely need work.
+
+pg_class.relkind has a new possible value, 'c' for a composite type.
+
+pg_type.typtype has two new possible values, 'd' for a domain and 'p' for
+a pseudo-type.
+
+---------------------------(end of broadcast)---------------------------
+TIP 5: Have you checked our extensive FAQ?
+
+http://www.postgresql.org/users-lounge/docs/faq.html

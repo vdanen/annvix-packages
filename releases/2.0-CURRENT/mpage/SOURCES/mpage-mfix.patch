@@ -1,0 +1,21 @@
+--- mpage-2.5.1pre.orig/Contrib/mfix/mfix.c
++++ mpage-2.5.1pre/Contrib/mfix/mfix.c
+@@ -1,7 +1,7 @@
+ #include <stdio.h>
+ 
+-FILE *in=stdin,*out=stdout;
+-char line[200]; line2[200];
++FILE *in,*out;
++char line[200], line2[200];
+ 
+ int
+ strcp(st1,st2)
+@@ -15,6 +15,8 @@
+ main()
+ {
+   int i;
++  in = stdin;
++  out = stdout;
+   for(i=0; i<10; i=1)
+   {
+     if (fgets(line,200,in)==NULL) { close(in); close(out); exit(1); }

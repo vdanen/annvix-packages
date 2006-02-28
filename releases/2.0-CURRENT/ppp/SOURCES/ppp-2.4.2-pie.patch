@@ -1,0 +1,34 @@
+--- ppp-2.4.2/chat/Makefile.linux.pie	2004-09-20 10:10:58.138392212 -0400
++++ ppp-2.4.2/chat/Makefile.linux	2004-09-20 10:10:58.158396247 -0400
+@@ -14,10 +14,10 @@ INSTALL= install
+ all:	chat
+ 
+ chat:	chat.o
+-	$(CC) -o chat chat.o
++	$(CC) -pie -o chat chat.o
+ 
+ chat.o:	chat.c
+-	$(CC) -c $(CFLAGS) -o chat.o chat.c
++	$(CC) -c $(CFLAGS) -fPIC -o chat.o chat.c
+ 
+ install: chat
+ 	mkdir -p $(BINDIR)
+--- ppp-2.4.2/pppd/Makefile.linux.pie	2004-09-20 10:10:58.148394230 -0400
++++ ppp-2.4.2/pppd/Makefile.linux	2004-09-20 10:16:33.686079397 -0400
+@@ -209,7 +209,7 @@ install: pppd
+ 	$(INSTALL) -c -m 444 pppd.8 $(MANDIR)/man8
+ 
+ pppd: $(PPPDOBJS)
+-	$(CC) $(CFLAGS) $(LDFLAGS) -o pppd $(PPPDOBJS) $(LIBS)
++	$(CC) $(CFLAGS) -pie $(LDFLAGS) -o pppd $(PPPDOBJS) $(LIBS)
+ 
+ srp-entry:	srp-entry.c
+ 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ srp-entry.c $(LIBS)
+@@ -223,3 +223,6 @@ clean:
+ 
+ depend:
+ 	$(CPP) -M $(CFLAGS) $(PPPDSRCS) >.depend
++
++%.o: %.c
++	 $(CC) -c $(CFLAGS) -fPIC -o $@ $<
+\ No newline at end of file

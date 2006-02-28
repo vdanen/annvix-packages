@@ -1,0 +1,17 @@
+--- zdiff.in.new	2004-12-04 12:18:19.000000000 -0700
++++ zdiff.in	2004-12-04 12:23:53.000000000 -0700
+@@ -47,10 +47,11 @@
+                 case "$2" in
+ 	        *[-.]gz* | *[-.][zZ] | *.t[ga]z)
+ 			F=`echo "$2" | sed 's|.*/||;s|[-.][zZtga]*||'`
+-                        gzip -cdfq "$2" > /tmp/"$F".$$
+-                        gzip -cdfq "$1" | $comp $OPTIONS - /tmp/"$F".$$
++			zfoo=`mktemp /tmp/$F.XXXXXX`
++                        gzip -cdfq "$2" > $zfoo
++                        gzip -cdfq "$1" | $comp $OPTIONS - $zfoo
+                         STAT="$?"
+-			/bin/rm -f /tmp/"$F".$$;;
++			/bin/rm -f $zfoo;;
+ 
+                 *)      gzip -cdfq "$1" | $comp $OPTIONS - "$2"
+                         STAT="$?";;

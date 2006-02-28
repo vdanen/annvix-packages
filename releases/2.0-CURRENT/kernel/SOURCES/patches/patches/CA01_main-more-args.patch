@@ -1,0 +1,19 @@
+--- linux/init/main.c	2004-01-14 03:00:12.000000000 +0200
++++ linux/init/main.c.args	2004-01-20 09:19:39.152207808 +0200
+@@ -103,9 +103,14 @@
+ 
+ /*
+  * Boot command-line arguments
++ *
++ * The kernel normally defaults both these to 8, however
++ * mklivecd typically uses more than this number to allow
++ * override of the CD behavior, causing a kernel panic
++ * early on. Increase the number.
+  */
+-#define MAX_INIT_ARGS 8
+-#define MAX_INIT_ENVS 8
++#define MAX_INIT_ARGS 32
++#define MAX_INIT_ENVS 32
+ 
+ extern void time_init(void);
+ /* Default late time init is NULL. archs can override this later. */

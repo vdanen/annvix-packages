@@ -1,0 +1,11 @@
+--- ./devfsd.conf.tv	2003-06-25 21:21:09.000000000 +0200
++++ ./devfsd.conf	2003-06-25 21:21:23.000000000 +0200
+@@ -30,7 +30,7 @@
+ # pseudo-tty devices. This is necessary so that mesg(1) can later be used to
+ # enable/disable talk requests and wall(1) messages.
+ REGISTER	^pty/s.*	PERMISSIONS	-1.tty	0600
+-REGISTER	^pts/.*		PERMISSIONS	-1.tty	0600
++#REGISTER	^pts/.*		PERMISSIONS	-1.tty	0600
+ 
+ # Restoring /dev/log on startup would trigger the minilogd/initlog deadlock
+ # (minilogd falsely assuming syslogd has been started).

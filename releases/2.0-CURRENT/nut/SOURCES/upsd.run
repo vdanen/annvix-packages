@@ -1,0 +1,21 @@
+#!/bin/execlineb
+
+/bin/fdmove -c 2 1
+
+/bin/export PATH "/sbin:/bin:/usr/sbin:/usr/bin"
+
+/bin/ifthenelse { /usr/bin/test ! -f /etc/ups/ups.conf }
+{
+    /bin/echo "/etc/ups/ups.conf doesn't exist and is required to run upsd!"
+    }
+    {
+        foreground { /sbin/upsdrvctl start }
+        /bin/ifthenelse { /usr/bin/test "$?" = "1" }
+        {
+            /bin/echo "FATAL: upsdrvctl failed to start!"
+        }
+        {
+            /usr/sbin/upsd -f -u ups
+        }
+}
+                                            

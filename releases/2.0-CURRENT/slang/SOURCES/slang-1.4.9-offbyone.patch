@@ -1,0 +1,11 @@
+--- slang-1.4.9/src/slsmg.c.offbyone	2004-08-28 15:13:35.000000000 +0200
++++ slang-1.4.9/src/slsmg.c	2004-08-28 15:16:14.311180382 +0200
+@@ -1454,7 +1454,7 @@
+    This_Color |= ALT_CHAR_FLAG;
+    This_Col = cmin;
+ 
+-   SLsmg_draw_object(This_Row, This_Col, ch);
++   // SLsmg_draw_object(This_Row, This_Col, ch);
+    while (n-- > 0)
+      {
+ 	SLsmg_draw_object(This_Row, This_Col, ch);

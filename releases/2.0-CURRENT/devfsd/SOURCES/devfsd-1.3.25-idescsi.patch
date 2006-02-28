@@ -1,0 +1,16 @@
+diff -u devfsd-mdk/compat_name.c devfsd/compat_name.c
+--- devfsd-mdk/compat_name.c	Thu Mar 21 21:02:57 2002
++++ devfsd/compat_name.c	Thu Mar 21 21:04:48 2002
+@@ -234,6 +234,12 @@
+ 		      get_old_ide_name (major, minor) );
+ 	    compat_name = buffer;
+ 	}
++	else if (strcmp (devname + namelen - 7, "generic") == 0)
++	{
++	    sprintf ( buffer, "hd%c",
++		      get_old_ide_name (major, minor) );
++	    compat_name = buffer;
++	}
+ 	return (compat_name);
+     }
+     else if ( (strncmp (devname, "ida/", 4) == 0) &&

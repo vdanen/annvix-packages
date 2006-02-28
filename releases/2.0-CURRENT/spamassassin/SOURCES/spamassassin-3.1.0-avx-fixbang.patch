@@ -1,0 +1,23 @@
+--- Mail-SpamAssassin-3.1.0/Makefile.PL.fixbang	2005-08-11 20:38:58.000000000 -0400
++++ Mail-SpamAssassin-3.1.0/Makefile.PL	2005-09-22 12:49:46.000000000 -0400
+@@ -1024,16 +1024,16 @@
+ 
+ 
+ spamassassin: spamassassin.raw
+-	$(PREPROCESS) $(FIXBYTES) $(FIXVARS) $(FIXBANG) -m$(PERM_RWX) -i$? -o$@
++	$(PREPROCESS) $(FIXBYTES) $(FIXVARS) -m$(PERM_RWX) -i$? -o$@
+ 
+ sa-learn: sa-learn.raw
+-	$(PREPROCESS) $(FIXBYTES) $(FIXVARS) $(FIXBANG) -m$(PERM_RWX) -i$? -o$@
++	$(PREPROCESS) $(FIXBYTES) $(FIXVARS) -m$(PERM_RWX) -i$? -o$@
+ 
+ sa-update: sa-update.raw
+-	$(PREPROCESS) $(FIXBYTES) $(FIXVARS) $(FIXBANG) -m$(PERM_RWX) -i$? -o$@
++	$(PREPROCESS) $(FIXBYTES) $(FIXVARS) -m$(PERM_RWX) -i$? -o$@
+ 
+ spamd/spamd: spamd/spamd.raw
+-	$(PREPROCESS) $(FIXBYTES) $(FIXVARS) $(FIXBANG) -m$(PERM_RWX) -i$? -o$@
++	$(PREPROCESS) $(FIXBYTES) $(FIXVARS) -m$(PERM_RWX) -i$? -o$@
+ 
+ 
+ SPAMC_MAKEFILE  = spamc/Makefile

@@ -1,0 +1,30 @@
+--- mkinitrd~	2006-02-01 19:02:14.000000000 -0700
++++ mkinitrd	2006-02-01 19:02:14.000000000 -0700
+@@ -549,19 +549,19 @@
+ rm -rf $MNTPOINT/lost+found
+ 
+ inst /sbin/nash "$MNTIMAGE/bin/nash"
+-if is_dietlibc_arch; then
+-    if [[ -n "$kernel25" ]]; then
+-	inst /sbin/insmod-25-DIET "$MNTIMAGE/bin/insmod"
+-    else
+-	inst /sbin/insmod-DIET "$MNTIMAGE/bin/insmod"
+-    fi
+-else
++#if is_dietlibc_arch; then
++#    if [[ -n "$kernel25" ]]; then
++#	inst /sbin/insmod-25-DIET "$MNTIMAGE/bin/insmod"
++#    else
++#	inst /sbin/insmod-DIET "$MNTIMAGE/bin/insmod"
++#    fi
++#else
+     if [[ -n "$kernel25" ]]; then
+ 	inst /sbin/insmod.static-25 "$MNTIMAGE/bin/insmod"
+     else
+ 	inst /sbin/insmod.static "$MNTIMAGE/bin/insmod"
+     fi
+-fi
++#fi
+ ln -s ../bin/nash $MNTIMAGE/sbin/modprobe
+ 
+ for MODULE in $MODULES; do

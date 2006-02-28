@@ -1,0 +1,53 @@
+--- tiff-v3.6.1/libtiff/Makefile.in.shlib	2003-11-17 11:24:41.000000000 +0200
++++ tiff-v3.6.1/libtiff/Makefile.in	2004-05-27 11:43:34.677994280 +0200
+@@ -66,6 +66,8 @@
+ OPTIMIZER=@OPTIMIZER@
+ LFSOPTS=@LFSOPTS@
+ CFLAGS	= @ENVOPTS@ @LIBCOPTS@ ${COPTS} ${OPTIMIZER} ${LFSOPTS} ${IPATH} ${CONF_LIBRARY}
++SONAME = libtiff.so.3
++SHLIB = libtiff.so.3.6
+ #
+ SRCS	= \
+ 	tif_aux.c \
+@@ -143,7 +145,8 @@
+ 	tif_write.o \
+ 	tif_zip.o \
+ 	${NULL}
+-TARGETS	= libtiff.a
++TARGETS	= libtiff.a $(SHLIB)
++SHOBJS= $(OBJS:%.o=%.so) 
+ 
+ all:	${TARGETS}
+ 	if [ @DSO@dso != nodso ]; then \
+@@ -156,6 +159,9 @@
+ 	${AR} ${AROPTS} libtiff.a $?
+ 	${RANLIB} libtiff.a
+ 
++$(SHLIB): $(SHOBJS)
++	gcc -o $(SHLIB) -Wl,-soname,$(SONAME) -shared $(SHOBJS)
++
+ #
+ # NB: The configure script verifies that the configured
+ # tools are capable of producing a DSO before enabling
+@@ -412,3 +418,6 @@
+ 	    mkg3states tif_fax3sm.c \
+ 	    mkversion ${SRCDIR}/tiffvers.h \
+ 	    libtiff.a libtiff.@DSOSUF@ libtiff.@DSOSUF_VERSION@ *dso
++
++%.so : %.c
++	$(CC) -c -fPIC $(CFLAGS) $(CPPFLAGS) $< -o $@
+--- tiff-v3.6.1/tools/Makefile.in.shlib	2003-11-27 17:08:12.000000000 +0200
++++ tiff-v3.6.1/tools/Makefile.in	2004-05-27 11:47:53.813599680 +0200
+@@ -48,10 +48,10 @@
+ IPATH	= -I. -I${SRCDIR} -I${LIBDIR}
+ CFLAGS	= @ENVOPTS@ ${COPTS} ${OPTIMIZER} ${IPATH}
+ #
+-TIFFLIB	= ${DEPTH}/libtiff/libtiff.@DSOSUF@
++TIFFLIB	= ${DEPTH}/libtiff/libtiff.so.3.6
+ LIBJPEG	= @LIBJPEG@
+ LIBGZ	= @LIBGZ@
+-LIBTIFF	= @TIFFLIBREF@
++LIBTIFF	= -L${DEPTH}/libtiff  -ltiff
+ LIBPORT	= @LIBPORT@
+ MACHLIBS= @MACHDEPLIBS@
+ LIBS	= ${LIBTIFF} ${LIBJPEG} ${LIBGZ} ${LIBPORT} ${MACHLIBS}

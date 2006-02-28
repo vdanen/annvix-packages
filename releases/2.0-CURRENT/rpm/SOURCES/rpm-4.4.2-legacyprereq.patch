@@ -1,0 +1,11 @@
+--- ./lib/rpmlib.h.legacyprereq	2005-08-26 00:42:27.644125553 +0200
++++ ./lib/rpmlib.h	2005-08-26 00:42:48.582863683 +0200
+@@ -560,7 +560,7 @@
+ #define	_ERASE_ONLY_MASK  \
+     _notpre(RPMSENSE_SCRIPT_PREUN|RPMSENSE_SCRIPT_POSTUN)
+ 
+-#define	isLegacyPreReq(_x)  (((_x) & _ALL_REQUIRES_MASK) == RPMSENSE_PREREQ)
++#define	isLegacyPreReq(_x)  (((_x) & _ALL_REQUIRES_MASK) == (1<<6))
+ #define	isInstallPreReq(_x)	((_x) & _INSTALL_ONLY_MASK)
+ #define	isErasePreReq(_x)	((_x) & _ERASE_ONLY_MASK)
+ 

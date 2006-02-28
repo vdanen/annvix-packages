@@ -1,0 +1,18 @@
+diff -Naur php-4.3.6/ext/msession/config.m4 php-4.3.6.oden/ext/msession/config.m4
+--- php-4.3.6/ext/msession/config.m4	2004-05-21 11:06:30.132075504 +0200
++++ php-4.3.6.oden/ext/msession/config.m4	2004-05-21 11:09:47.799586272 +0200
+@@ -6,12 +6,12 @@
+ [  --with-msession[=DIR]   Include msession support])
+  
+ if test "$PHP_MSESSION" != "no"; then
+-	if test -r $PHP_MSESSION/$PHP_LIBNAME/libphoenix.a; then
++	if test -r $PHP_MSESSION/$PHP_LIBNAME/libphoenix.so -o -r $PHP_MSESSION/$PHP_LIBNAME/libphoenix.a; then
+ 		PHOENIX_DIR=$PHP_MSESSION
+ 	else
+ 		AC_MSG_CHECKING(for msession in default path)
+ 		for i in /usr/local/phoenix /usr/local /usr; do
+-			if test -r $i/$PHP_LIBNAME/libphoenix.a; then
++			if test -r $i/$PHP_LIBNAME/libphoenix.so -o -r $i/$PHP_LIBNAME/libphoenix.a; then
+ 				PHOENIX_DIR=$i
+ 				AC_MSG_RESULT(found in $i)
+ 			fi

@@ -1,0 +1,80 @@
+--- rsbac-admin-1.2.5/main/pam/Makefile.64	2006-02-07 18:05:36.000000000 -0700
++++ rsbac-admin-1.2.5/main/pam/Makefile	2006-02-07 18:06:41.000000000 -0700
+@@ -10,8 +10,9 @@
+ CC		:= gcc
+ 
+ DESTDIR		:= 
++LIBDIR		:= lib
+ PREFIX		:= $(DESTDIR)
+-DIR_PAM		:= $(DESTDIR)/lib/security
++DIR_PAM		:= $(DESTDIR)/$(LIBDIR)/security
+ 
+ 
+ CFLAGS		:= -fPIC -O2 -fomit-frame-pointer
+@@ -19,7 +20,7 @@
+ 		   -I$(PREFIX)/include
+ LDFLAGS		:=
+ 
+-LIBS		:= -L../libs -L$(PREFIX)/lib -lrsbac
++LIBS		:= -L../libs -L$(PREFIX)/$(LIBDIR) -lrsbac
+ 
+ FILES_PAM	:= $(wildcard *.c)
+ 
+--- rsbac-admin-1.2.5/main/nss/Makefile.64	2006-02-07 18:07:11.000000000 -0700
++++ rsbac-admin-1.2.5/main/nss/Makefile	2006-02-07 18:08:00.000000000 -0700
+@@ -14,9 +14,10 @@
+ LIBTOOL		:= libtool
+ CC		:= gcc
+ 
+-DESTDIR		:= 
++DESTDIR		:=
++LIBDIR		:= lib
+ PREFIX		:= $(DESTDIR)/usr/local
+-DIR_NSS		:= $(PREFIX)/lib
++DIR_NSS		:= $(PREFIX)/$(LIBDIR)
+ 
+ 
+ CFLAGS		:= -O2 -fomit-frame-pointer
+@@ -24,7 +25,7 @@
+ 		   -I$(PREFIX)/include
+ LDFLAGS		:=
+ 
+-LIBS		:= -L../libs -L$(PREFIX)/lib -lrsbac
++LIBS		:= -L../libs -L$(PREFIX)/$(LIBDIR) -lrsbac
+ 
+ FILES_NSS	:= $(wildcard *.c)
+ 
+--- rsbac-admin-1.2.5/main/libs/Makefile.64	2006-02-07 18:08:40.000000000 -0700
++++ rsbac-admin-1.2.5/main/libs/Makefile	2006-02-07 18:09:18.000000000 -0700
+@@ -11,9 +11,10 @@
+ INSTALL		:= install
+ CC		:= gcc
+ 
+-DESTDIR		:= 
++DESTDIR		:=
++LIBDIR		:= lib
+ PREFIX		:= $(DESTDIR)/usr/local
+-DIR_LIBS	:= $(PREFIX)/lib
++DIR_LIBS	:= $(PREFIX)/$(LIBDIR)
+ LOCALEDIR	:= $(PREFIX)/share/locale
+ 
+ RSBACLIB        := librsbac-$(VERSION).a
+--- rsbac-admin-1.2.5/main/tools/Makefile.64	2006-02-07 18:09:45.000000000 -0700
++++ rsbac-admin-1.2.5/main/tools/Makefile	2006-02-07 18:10:12.000000000 -0700
+@@ -17,6 +17,7 @@
+ CP		:= cp
+ 
+ DESTDIR		:= 
++LIBDIR		:= lib
+ PREFIX		:= $(DESTDIR)/usr/local
+ LOCALEDIR	:= $(PREFIX)/share/locale
+ DIR_PO		:= de ru fr
+@@ -35,7 +36,7 @@
+ 		   -DLOCALEDIR=\"$(LOCALEDIR)\" \
+ 		   -DENABLE_NLS=$(NLS)
+ 
+-LIBS		:= -L../libs -L$(PREFIX)/lib -lrsbac
++LIBS		:= -L../libs -L$(PREFIX)/$(LIBDIR) -lrsbac
+ 
+ QUIET		:=  > /dev/null 2>&1
+ 

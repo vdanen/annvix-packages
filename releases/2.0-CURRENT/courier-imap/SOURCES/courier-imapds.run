@@ -1,0 +1,43 @@
+#!/bin/sh
+
+# this runs courier-imap's IMAPS daemon supervised
+# unfortunately, due to how courier-imap works, we need to jump through
+# hoops in order for it all to work
+
+set -a
+
+PATH="/sbin:/usr/sbin:/bin:/usr/bin"
+TLS_CACHEFILE=""
+
+# defaults; then source the imap configurations
+SSLPORT="993"
+SSLADDRESS="0"
+
+[ -f /etc/courier/imapd ] && . /etc/courier/imapd
+[ -f /etc/courier/imapd-ssl ] && . /etc/courier/imapd-ssl
+
+# defaults; can be overwritten by sysconfig
+MAX_MEMORY="14000000"
+CONCURRENCY="250"
+
+# source sysconfig file
+[ -f /etc/sysconfig/imapd-ssl ] && . /etc/sysconfig/imapd-ssl
+
+HOSTNAME="`hostname --fqdn`"
+
+LIBAUTHMODULES=""
+for f in `echo $AUTHMODULES`
+do
+    LIBAUTHMODULES="$LIBAUTHMODULES /usr/lib/courier/authlib/$f"
+done
+
+IMAP_TLS=1; export IMAP_TLS
+
+if [ "$TLS_CACHEFILE" != "" ]; then
+  rm -f $TLS_CACHEFILE
+fi
+
+exec /sbin/chpst -m "$MAX_MEMORY" \
+  /sbin/tcpsvd -c"$CONCURRENCY" -v -l"$HOSTNAME" -x peers.cdb \
+  $SSLADDRESS $SSLPORT /usr/bin/couriertls -server -tcpd /usr/sbin/imaplogin $LIBAUTHMODULES \
+  /usr/bin/imapd Maildir 2>&1

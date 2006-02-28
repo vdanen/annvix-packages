@@ -1,0 +1,52 @@
+
+There is no need to "suck in" the apr/apr-util symbols when using
+a shared libapr{,util}, it just bloats the symbol table; so don't.
+
+Upstream-HEAD: needed
+Upstream-2.0: omit
+Upstream-Status: EXPORT_DIRS change is conditional on using shared apr
+
+--- httpd-2.0.53/server/main.c.export
++++ httpd-2.0.53/server/main.c
+@@ -627,28 +627,6 @@
+     return 0; /* Termination 'ok' */
+ }
+ 
+-/* force Expat to be linked into the server executable */
+-#if defined(USE_EXPAT) && !defined(SHARED_CORE_BOOTSTRAP)
+-#include "xmlparse.h"
+-const XML_LChar *suck_in_expat(void);
+-const XML_LChar *suck_in_expat(void)
+-{
+-    return XML_ErrorString(XML_ERROR_NONE);
+-}
+-#endif /* USE_EXPAT */
+-
+-#ifndef SHARED_CORE_BOOTSTRAP
+-/*
+- * Force apr_password_validate() into the image so that modules like
+- * mod_auth can use it even if they're dynamically loaded.
+- */
+-void suck_in_apr_password_validate(void);
+-void suck_in_apr_password_validate(void)
+-{
+-    apr_password_validate("a", "b");
+-}
+-#endif
+-
+ #ifdef AP_USING_AUTOCONF
+ /* This ugly little hack pulls any function referenced in exports.c into
+  * the web server.  exports.c is generated during the build, and it
+--- httpd-2.0.53/server/Makefile.in.export
++++ httpd-2.0.53/server/Makefile.in
+@@ -59,10 +59,6 @@
+ 	for dir in $(EXPORT_DIRS); do \
+ 	    ls $$dir/*.h >> $$tmp; \
+ 	done; \
+-	for dir in $(EXPORT_DIRS_APR); do \
+-	    ls $$dir/ap[ru].h >> $$tmp; \
+-	    ls $$dir/ap[ru]_*.h >> $$tmp; \
+-	done; \
+ 	sort -u $$tmp > $@; \
+ 	rm -f $$tmp
+ 

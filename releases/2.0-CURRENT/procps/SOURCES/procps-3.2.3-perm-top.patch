@@ -1,0 +1,50 @@
+--- procps-3.2.5/top.c.fred	2005-01-26 06:15:18.000000000 +0100
++++ procps-3.2.5/top.c	2005-09-17 14:19:33.000000000 +0200
+@@ -1088,6 +1088,10 @@
+    else
+       PT = openproc(flags);
+ 
++   if (!PT) {
++     std_err(strerror(errno));
++   }
++   
+    // i) Allocated Chunks:  *Existing* table;  refresh + reuse
+    while (curmax < savmax) {
+       if (table[curmax]->cmdline) {
+--- procps-3.2.5/proc/readproc.c.fred	2005-01-24 04:15:07.000000000 +0100
++++ procps-3.2.5/proc/readproc.c	2005-09-17 14:34:06.000000000 +0200
+@@ -893,6 +893,8 @@
+     else
+ 	PT = openproc(flags);
+     va_end(ap);
++    if (!PT)
++      return NULL;
+     do {					/* read table: */
+ 	tab = xrealloc(tab, (n+1)*sizeof(proc_t*));/* realloc as we go, using */
+ 	tab[n] = readproc_direct(PT, NULL);     /* final null to terminate */
+--- procps-3.2.5/pgrep.c.fred	2004-10-19 19:53:47.000000000 +0200
++++ procps-3.2.5/pgrep.c	2005-09-17 14:43:38.000000000 +0200
+@@ -364,6 +364,10 @@
+ 		exit (3);
+ 
+ 	ptp = do_openproc ();
++	if (!ptp) {
++		perror("/proc");
++		exit(3);
++	}
+ 	preg = do_regcomp ();
+ 
+ 	if (opt_newest) saved_start_time =  0ULL;
+--- procps-3.2.5/pmap.c.fred	2005-01-11 02:41:30.000000000 +0100
++++ procps-3.2.5/pmap.c	2005-09-17 14:43:23.000000000 +0200
+@@ -319,6 +319,10 @@
+ 
+   pidlist[count] = 0;  // old libproc interface is zero-terminated
+   PT = openproc(PROC_FILLSTAT|PROC_FILLARG|PROC_PID, pidlist);
++  if (!PT) {
++    perror("/proc");
++    return 1;
++  }
+   while(readproc(PT, &p)){
+     ret |= one_proc(&p);
+     if(p.cmdline) free((void*)*p.cmdline);

@@ -1,0 +1,11 @@
+--- Makefile.in~	2005-02-28 16:53:13.000000000 -0700
++++ Makefile.in	2005-02-28 16:53:13.000000000 -0700
+@@ -448,7 +448,7 @@
+ 
+ CVSTAG = "libuser-$$(echo '$(VERSION)' | tr '.' '_')"
+ AM_CPPFLAGS = $(GOBJECT_CFLAGS)
+-SUBDIRS = po docs
++SUBDIRS = po
+ TESTS = tests/files_test tests/utils_test $(am__append_1)
+ EXTRA_DIST = \
+ 	$(EXTRA_MANS) \

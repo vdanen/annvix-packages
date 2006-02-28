@@ -1,0 +1,21 @@
+--- devfsd/modules.devfs.mdk	Sun Jan 27 21:59:51 2002
++++ devfsd/modules.devfs	Mon Jan 28 00:37:00 2002
+@@ -81,12 +84,12 @@
+ alias     /dev/lp*		/dev/printers
+ 
+ # Soundcard
+-alias     /dev/sound		sound-slot-0
+-alias     /dev/audio		/dev/sound
+-alias     /dev/mixer		/dev/sound
+-alias     /dev/dsp		/dev/sound
+-alias     /dev/dspW		/dev/sound
+-alias     /dev/midi		/dev/sound
++#alias     /dev/sound		sound-slot-0
++#alias     /dev/audio		/dev/sound
++#alias     /dev/mixer		/dev/sound
++#alias     /dev/dsp		/dev/sound
++#alias     /dev/dspW		/dev/sound
++#alias     /dev/midi		/dev/sound
+ 
+ # Joysticks
+ alias     /dev/js*		/dev/joysticks

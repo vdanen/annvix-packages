@@ -1,0 +1,41 @@
+--- logrotate-3.7.1/logrotate.8.orig	2003-08-07 13:13:14.000000000 +0200
++++ logrotate-3.7.1/logrotate.8	2004-12-13 11:15:27.524934608 +0100
+@@ -31,6 +31,10 @@
+ 
+ .SH OPTIONS
+ .TP
++\fB-v\fR
++Turn on verbose mode.
++
++.TP
+ \fB-d\fR
+ Turns on debug mode and implies \fB-v\fR.  In debug mode, no changes will
+ be made to the logs or to the \fBlogrotate\fR state file.
+@@ -120,7 +124,8 @@
+ They are rotated whenever is grows over 100k is size, and the old logs
+ files are mailed (uncompressed) to www@my.org after going through 5
+ rotations, rather then being removed. The \fBsharedscripts\fR means that
+-the \fBpostrotate\fR script will only be run once, not once for each
++the \fBpostrotate\fR script will only be run once(after the old
++logs have been compressed), not once for each
+ log which is rotated. Note that the double quotes around the first filename
+ at the beginning of this section allows logrotate to rotate logs with
+ spaces in the name. Normal shell quoting rules apply, with ', ", and \\
+@@ -364,7 +369,7 @@
+ are only run once, no matter how many logs match the wildcarded pattern.
+ However, if none of the logs in the pattern require rotating, the scripts
+ will not be run at all. This option overrides the \fbnosharedscripts\fR
+-option.
++option and implies \fBcreate\fR option.
+ 
+ .TP
+ \fBstart \fIcount\fR
+@@ -393,7 +398,7 @@
+ .SH FILES
+ .PD 0
+ .TP 27
+-\fI/var/lib/logrotate/status\fR
++\fI/var/lib/logrotate.status\fR
+ Default state file.
+ .TP 27
+ \fI/etc/logrotate.conf\fR

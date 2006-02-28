@@ -1,0 +1,49 @@
+Index: util-linux-2.12q/mount/Makefile
+===================================================================
+--- util-linux-2.12q.orig/mount/Makefile	2005-04-29 14:34:03.000000000 +0200
++++ util-linux-2.12q/mount/Makefile	2005-04-29 15:06:59.000000000 +0200
+@@ -1,7 +1,7 @@
+ include ../make_include
+ include ../MCONFIG
+ 
+-DEFINES = -DHAVE_NFS $(BLKID_DEFINE) -D_FILE_OFFSET_BITS=64
++DEFINES = -DHAVE_NFS $(BLKID_DEFINE) -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE
+ 
+ RPCSVCDIR = rpcsvc
+ RPC_CFLAGS = -Wno-unused 
+Index: util-linux-2.12q/partx/addpart.c
+===================================================================
+--- util-linux-2.12q.orig/partx/addpart.c	1999-07-09 04:56:36.000000000 +0200
++++ util-linux-2.12q/partx/addpart.c	2005-04-29 15:06:33.000000000 +0200
+@@ -3,6 +3,7 @@
+ #include <fcntl.h>
+ #include <stdlib.h>
+ #include <sys/ioctl.h>
++#include <linux/compiler.h>
+ #include <linux/blkpg.h>
+ 
+ int
+Index: util-linux-2.12q/partx/delpart.c
+===================================================================
+--- util-linux-2.12q.orig/partx/delpart.c	1999-07-09 04:56:36.000000000 +0200
++++ util-linux-2.12q/partx/delpart.c	2005-04-29 15:06:33.000000000 +0200
+@@ -3,6 +3,7 @@
+ #include <fcntl.h>
+ #include <stdlib.h>
+ #include <sys/ioctl.h>
++#include <linux/compiler.h>
+ #include <linux/blkpg.h>
+ 
+ int
+Index: util-linux-2.12q/partx/partx.c
+===================================================================
+--- util-linux-2.12q.orig/partx/partx.c	2004-08-23 22:13:27.000000000 +0200
++++ util-linux-2.12q/partx/partx.c	2005-04-29 15:06:33.000000000 +0200
+@@ -38,6 +38,7 @@
+ #include <unistd.h>
+ #include <sys/ioctl.h>
+ #include <linux/hdreg.h>        /* HDIO_GETGEO */
++#include <linux/compiler.h>
+ #include <linux/blkpg.h>
+ #define BLKGETSIZE _IO(0x12,96)    /* return device size */
+ 

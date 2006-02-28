@@ -1,0 +1,87 @@
+diff -Naur php-4.4.0RC1/build/build2.mk php-4.4.0RC1.oden/build/build2.mk
+--- php-4.4.0RC1/build/build2.mk	2005-04-07 22:49:00.000000000 +0200
++++ php-4.4.0RC1.oden/build/build2.mk	2005-06-14 13:40:56.253874104 +0200
+@@ -34,6 +34,7 @@
+ 
+ PHP_AUTOCONF ?= 'autoconf'
+ PHP_AUTOHEADER ?= 'autoheader'
++PHP_ACLOCAL ?= 'aclocal-1.7'
+ 
+ SUPPRESS_WARNINGS ?= 2>&1 | (egrep -v '(AC_TRY_RUN called without default to allow cross compiling|AC_PROG_CXXCPP was called before AC_PROG_CXX|defined in acinclude.m4 but never used|AC_PROG_LEX invoked multiple times|AC_DECL_YYTEXT is expanded from...|the top level)'||true)
+ 
+diff -Naur php-4.4.0RC1/scripts/phpize.in php-4.4.0RC1.oden/scripts/phpize.in
+--- php-4.4.0RC1/scripts/phpize.in	2005-06-14 13:43:27.526305565 +0200
++++ php-4.4.0RC1.oden/scripts/phpize.in	2005-06-14 13:39:48.082327014 +0200
+@@ -7,10 +7,11 @@
+ phpdir="`eval echo @libdir@`/php/build"
+ includedir="`eval echo @includedir@`/php"
+ builddir="`pwd`"
++export WANT_AUTOCONF_2_5="1"
+ 
+ FILES_BUILD="mkdep.awk scan_makefile_in.awk shtool libtool.m4"
+ FILES="acinclude.m4 Makefile.global config.sub config.guess ltmain.sh"
+-CLEAN_FILES="$FILES *.o *.lo *.la .deps .libs/ build/ include/ modules/ install-sh \
++CLEAN_FILES="$FILES *.so *.o *.lo *.la .deps .libs/ build/ include/ modules/ autom*.cache install-sh \
+     mkinstalldirs missing config.nice config.sub config.guess configure configure.in \
+ 	aclocal.m4 config.h config.h.in conftest* ltmain.sh libtool config.cache autom4te.cache/ \
+ 	config.log config.status Makefile Makefile.fragments Makefile.objects confdefs.h"
+@@ -97,6 +98,7 @@
+ {
+   test -z "$PHP_AUTOCONF" && PHP_AUTOCONF=autoconf
+   test -z "$PHP_AUTOHEADER" && PHP_AUTOHEADER=autoheader
++  test -z "$PHP_ACLOCAL" && PHP_ACLOCAL=aclocal-1.7
+   
+   if ! test -x "`$php_shtool path $PHP_AUTOCONF`"; then
+     cat <<EOF
+@@ -114,6 +116,14 @@
+ EOF
+     exit 1
+   fi
++  if ! test -x "`$php_shtool path $PHP_ACLOCAL`"; then
++    cat <<EOF
++Cannot find aclocal. Please check your aclocal installation and the \$PHP_ACLOCAL 
++environment variable is set correctly and then rerun this script. 
++
++EOF
++    exit 1
++  fi
+ }
+ 
+ phpize_copy_files()
+@@ -127,13 +137,13 @@
+ 
+ phpize_replace_prefix()
+ {
+-  sed \
+-  -e "s#@prefix@#$prefix#" \
+-  < "$phpdir/phpize.m4" > configure.in
++ cp $phpdir/phpize.m4 configure.in
+ }
+ 
+ phpize_autotools()
+ {
++  libtoolize --copy --force || exit 1
++  $PHP_ACLOCAL   || exit 1
+   $PHP_AUTOCONF   || exit 1
+   $PHP_AUTOHEADER || exit 1
+ }
+@@ -162,6 +172,7 @@
+ 
+   # Default
+   *)
++
+      phpize_check_configm4 0
+ 
+      phpize_check_build_files
+diff -Naur php-4.4.0RC1/scripts/phpize.m4 php-4.4.0RC1.oden/scripts/phpize.m4
+--- php-4.4.0RC1/scripts/phpize.m4	2005-06-14 13:43:27.526305565 +0200
++++ php-4.4.0RC1.oden/scripts/phpize.m4	2005-06-14 13:30:41.538906340 +0200
+@@ -69,7 +69,7 @@
+ CPPFLAGS="$CPPFLAGS -DHAVE_CONFIG_H"
+ CFLAGS_CLEAN='$(CFLAGS)'
+ 
+-test "$prefix" = "NONE" && prefix="/usr/local"
++test "$prefix" = "NONE" && prefix="/usr"
+ test "$exec_prefix" = "NONE" && exec_prefix='$(prefix)'
+ 
+ PHP_SUBST(PHP_MODULES)

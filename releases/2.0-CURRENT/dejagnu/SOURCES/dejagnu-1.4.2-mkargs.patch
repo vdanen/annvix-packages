@@ -1,0 +1,13 @@
+--- dejagnu-1.4.2/runtest.exp.mkargs	Wed Sep 12 18:39:56 2001
++++ dejagnu-1.4.2/runtest.exp	Fri Oct  5 16:10:41 2001
+@@ -1164,6 +1164,10 @@
+ 	    exit 0	
+ 	}
+ 
++	"[A-Z0-9_-.]*=*" { # skip makefile style args like CC=gcc, etc... (processed in first pass)
++		continue
++	}
++
+ 	default {
+ 	    if [info exists tool] {
+ 		if { [info proc ${tool}_option_proc] != "" } {

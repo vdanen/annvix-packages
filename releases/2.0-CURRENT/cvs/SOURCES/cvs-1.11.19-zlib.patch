@@ -1,0 +1,40 @@
+--- cvs-1.11.19/src/Makefile.in.zlib	2005-02-01 00:11:15.000000000 +0100
++++ cvs-1.11.19/src/Makefile.in	2005-02-03 20:34:41.366393139 +0100
+@@ -88,7 +88,7 @@
+ 	version.$(OBJEXT) vers_ts.$(OBJEXT) watch.$(OBJEXT) \
+ 	wrapper.$(OBJEXT) zlib.$(OBJEXT)
+ cvs_OBJECTS = $(am_cvs_OBJECTS)
+-cvs_DEPENDENCIES = ../diff/libdiff.a ../lib/libcvs.a ../zlib/libz.a
++cvs_DEPENDENCIES = ../diff/libdiff.a ../lib/libcvs.a -lz
+ binSCRIPT_INSTALL = $(INSTALL_SCRIPT)
+ SCRIPTS = $(bin_SCRIPTS)
+ DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)
+@@ -201,7 +201,7 @@
+ # some namespace hackery going on that maybe shouldn't be.  Long term fix is to
+ # try and remove naming ocnflicts and fix Automake to allow particular includes
+ # to be attached only to particular object files.  Short term fix is either or.
+-INCLUDES = -I$(top_srcdir)/lib -I$(top_srcdir)/diff -I$(top_srcdir)/zlib $(includeopt)
++INCLUDES = -I$(top_srcdir)/lib -I$(top_srcdir)/diff
+ bin_SCRIPTS = cvsbug
+ 
+ # The cvs executable
+@@ -280,7 +280,7 @@
+ cvs_LDADD = \
+ 	../diff/libdiff.a \
+ 	../lib/libcvs.a \
+-	../zlib/libz.a
++	-lz
+ 
+ 
+ # extra clean targets
+--- cvs-1.11.19/Makefile.in.zlib	2005-02-01 00:11:19.000000000 +0100
++++ cvs-1.11.19/Makefile.in	2005-02-03 20:33:36.834314240 +0100
+@@ -183,7 +183,7 @@
+ 
+ # Unix source subdirs, where we'll want to run lint and etags:
+ # This is a legacy variable from b4 Automake
+-USOURCE_SUBDIRS = lib zlib diff src
++USOURCE_SUBDIRS = lib diff src
+ # All other subdirs:
+ SUBDIRS = $(USOURCE_SUBDIRS) man doc contrib tools \
+ 	windows-NT os2 emx vms

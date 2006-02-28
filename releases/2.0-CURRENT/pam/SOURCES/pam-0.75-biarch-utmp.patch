@@ -1,0 +1,23 @@
+--- Linux-PAM-0.75/modules/pam_lastlog/pam_lastlog.c.biarch-utmp	2003-04-08 12:50:35.000000000 -0400
++++ Linux-PAM-0.75/modules/pam_lastlog/pam_lastlog.c	2003-04-08 12:58:25.000000000 -0400
+@@ -259,8 +259,10 @@ static int last_login_date(pam_handle_t 
+ 	    if (last_login.ll_time) {
+ 		char *the_time;
+ 		char *remark;
++		time_t ll_time;
+ 
+-		the_time = ctime(&last_login.ll_time);
++		ll_time = last_login.ll_time;
++		the_time = ctime(&ll_time);
+ 		the_time[-1+strlen(the_time)] = '\0';    /* delete '\n' */
+ 
+ 		remark = malloc(LASTLOG_MAXSIZE);
+@@ -325,7 +327,7 @@ static int last_login_date(pam_handle_t 
+ 	    /* set this login date */
+ 	    D(("set the most recent login time"));
+ 
+-	    (void) time(&last_login.ll_time);    /* set the time */
++		last_login.ll_time = time(NULL);    /* set the time */
+ 
+ 	    /* set the remote host */
+ 	    (void) pam_get_item(pamh, PAM_RHOST, (const void **)&remote_host);

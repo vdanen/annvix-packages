@@ -1,0 +1,18 @@
+Index: lib/ExtUtils/MM_Unix.pm
+===================================================================
+--- lib/ExtUtils/MM_Unix.pm	(revision 3793)
++++ lib/ExtUtils/MM_Unix.pm	(working copy)
+@@ -1156,8 +1156,12 @@
+         }
+     }
+ 
++    my $ld_run_path_shell = "";
++    if ($self->{LD_RUN_PATH} ne "") {
++	$ld_run_path_shell = 'LD_RUN_PATH="$(LD_RUN_PATH)" ';
++    }
+     push(@m,
+-'	LD_RUN_PATH="$(LD_RUN_PATH)" $(LD) '.$ldrun.' $(LDDLFLAGS) '.$ldfrom.
++'	'.$ld_run_path_shell.'$(LD) '.$ldrun.' $(LDDLFLAGS) '.$ldfrom.
+ ' $(OTHERLDFLAGS) -o $@ $(MYEXTLIB) $(PERL_ARCHIVE) '.$libs.' $(PERL_ARCHIVE_AFTER) $(EXPORT_LIST) $(INST_DYNAMIC_FIX)');
+     push @m, '
+ 	$(CHMOD) $(PERM_RWX) $@
