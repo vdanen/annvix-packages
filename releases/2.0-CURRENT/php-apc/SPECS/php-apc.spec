@@ -9,9 +9,9 @@
 
 %define revision	$Rev$
 %define name		php-%{modname}
-%define version		%{phpversion}_%{rver}
-%define rver		2.0.4
+%define version		3.0.8
 %define release		%_revrel
+%define epoch		1
 
 %define phpversion	4.4.2
 %define phpsource       %{_prefix}/src/php-devel
@@ -26,14 +26,15 @@ Summary:	The apc (Alternative PHP Cache) module for PHP
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
+Epoch:		%{epoch}
 License:	PHP License
 Group:		System/Servers
 URL:		http://pecl.php.net/package/APC
-Source0:	APC-%{rver}.tar.bz2
+Source0:	APC-%{version}.tgz
 Source1:	apc.ini
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:  php4-devel
+BuildRequires:  php-devel
 
 Requires:	php4
 Conflicts:	php-afterburner php-mmcache
@@ -68,7 +69,7 @@ NOTE!: %{name} has to be loaded last, very important!
 
 
 %prep
-%setup -q -n APC-%{rver}
+%setup -q -n APC-%{version}
 
 
 %build
@@ -116,13 +117,17 @@ install -m 0755 %{soname} %{buildroot}%{phpdir}/extensions/
 
 
 %changelog
-* Wed Jan 18 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Feb 27 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.8
+- APC 3.0.8
+- fix versioning and give it an epoch
+
+* Wed Jan 18 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.2_2.0.4
 - php 4.4.2
 
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.1_2.0.4
 - Clean rebuild
 
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.1_2.0.4
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
