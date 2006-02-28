@@ -59,7 +59,7 @@ BuildRequires:	openssl-devel, pam-devel, gdbm-devel
 # ldap subpackage:
 BuildRequires:	openldap-devel
 # mysql subpackage:
-BuildRequires:	MySQL-devel 
+BuildRequires:	mysql-devel 
 # postgresql subpackage:
 BuildRequires:	postgresql-devel
 
@@ -110,7 +110,7 @@ ability to use an LDAP directory for authentication.
 %package mysql
 Summary:	Courier-IMAP MySQL authentication driver
 Group:		System/Servers
-Requires:	%{name} = %{version}-%{release}, MySQL-shared
+Requires:	%{name} = %{version}-%{release}, mysql
 Requires(post):	rpm-helper, %{name}
 Requires(postun): rpm-helper
 Conflicts:	%{name}-ldap %{name}-pgsql
@@ -650,6 +650,9 @@ test ! -f %{courierdatadir}/configlist.mysql || %{courierdatadir}/sysconftool-rp
 
 
 %changelog
+* Tue Feb 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.8
+- fix requirements (thanks Ying); should by mysql not MySQL-shared
+
 * Wed Feb  1 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.8
 - build against new postgresql
 
