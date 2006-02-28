@@ -1,0 +1,11 @@
+--- iputils-20020927.orig/traceroute6.c
++++ iputils-20020927/traceroute6.c
+@@ -441,7 +441,7 @@
+ 		 * to fix something send the patch to me for sanity checking.
+ 		 * "datalen" patch is a shit. */
+ 		if ((unsigned int)datalen == 0)
+-			datalen == sizeof(struct pkt_format);
++			datalen = sizeof(struct pkt_format);
+ 	}
+ 
+ 	if (datalen < (int)sizeof(struct pkt_format) || datalen >= MAXPACKET) {

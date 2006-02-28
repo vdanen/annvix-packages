@@ -1,0 +1,35 @@
+diff -ur iputils.orig/bonding-0.2/ifenslave.c iputils/bonding-0.2/ifenslave.c
+--- iputils.orig/bonding-0.2/ifenslave.c	Wed Nov 24 19:54:20 1999
++++ iputils/bonding-0.2/ifenslave.c	Sat Jan 19 16:44:50 2002
+@@ -39,6 +39,7 @@
+ #include <linux/if_arp.h>
+ #include <linux/if_ether.h>
+ #include <linux/if_bonding.h>
++#include <linux/sockios.h>
+ 
+ struct option longopts[] = {
+  /* { name  has_arg  *flag  val } */
+@@ -165,9 +166,9 @@
+ 				printf("master has no hw address assigned; getting one from slave!\n");
+ 				strncpy(ifr2.ifr_name, master_ifname, IFNAMSIZ);
+ 				strncpy(ifr2.ifr_slave, slave_ifname, IFNAMSIZ);
+-				if (ioctl(skfd, BOND_SETHWADDR, &ifr2) < 0) {
++				if (ioctl(skfd, SIOCBONDSETHWADDR, &ifr2) < 0) {
+ 					fprintf(stderr, 
+-							"BOND_SETHWADDR on %s failed: %s\n", slave_ifname,
++							"SIOCBONDSETHWADDR on %s failed: %s\n", slave_ifname,
+ 							strerror(errno));
+ 					return 1;
+ 				}
+@@ -340,8 +341,8 @@
+ 		if ( ! opt_r) {
+ 			strncpy(if_flags.ifr_name, master_ifname, IFNAMSIZ);
+ 			strncpy(if_flags.ifr_slave, slave_ifname, IFNAMSIZ);
+-			if (ioctl(skfd, BOND_ENSLAVE, &if_flags) < 0) {
+-				fprintf(stderr,	"SIOCSIFSLAVE: %d (%s).\n", errno, strerror(errno));
++			if (ioctl(skfd, SIOCBONDENSLAVE, &if_flags) < 0) {
++				fprintf(stderr,	"SIOCBONDENSLAVE: %d (%s).\n", errno, strerror(errno));
+ 			}
+ 		}
+ 	} while ( (slave_ifname = *spp++) != NULL);
+Only in iputils/bonding-0.2: ifenslave.c~

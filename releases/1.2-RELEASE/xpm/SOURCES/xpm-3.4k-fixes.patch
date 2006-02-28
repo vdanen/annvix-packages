@@ -1,0 +1,19 @@
+--- xpm-3.4k/lib/XpmI.h.fixes	1998-03-19 20:51:00.000000000 +0100
++++ xpm-3.4k/lib/XpmI.h	2002-06-26 19:18:56.000000000 +0200
+@@ -50,6 +50,7 @@
+ 
+ #include <stdio.h>
+ #include <stdlib.h>
++#include <string.h>
+ /* stdio.h doesn't declare popen on a Sequent DYNIX OS */
+ #ifdef sequent
+ extern FILE *popen();
+@@ -227,7 +228,7 @@ FUNC(xpmHashSlot, xpmHashAtom *, (xpmHas
+ FUNC(xpmHashIntern, int, (xpmHashTable *table, char *tag, void *data));
+ 
+ #define HashAtomData(i) ((void *)i)
+-#define HashColorIndex(slot) ((unsigned int)((*slot)->data))
++#define HashColorIndex(slot) ((unsigned long)((*slot)->data))
+ #define USE_HASHTABLE (cpp > 2 && ncolors > 4)
+ 
+ /* I/O utility */

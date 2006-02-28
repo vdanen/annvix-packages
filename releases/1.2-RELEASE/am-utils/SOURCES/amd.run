@@ -1,0 +1,23 @@
+#!/bin/execlineb
+
+/bin/fdmove -c 2 1
+
+/bin/export PATH "/sbin:/bin:/usr/sbin:/usr/bin"
+
+/sbin/chpst -e ./env/
+
+/bin/multisubstitute {
+    import -D "-a /net" MOUNTPTS
+    import -D "" AMDOPTS
+    elglob -0 DEPENDS ./depends/*
+}
+
+/bin/if { /sbin/svwaitup -s 5 ${DEPENDS} }
+
+/bin/ifthenelse { /usr/bin/test ! -f /etc/amd.conf }
+{
+    /bin/echo "/etc/amd.conf doesn't exist and is required to run amd!"
+}
+{
+    /usr/sbin/amd "-D nodaemon -F /etc/amd.conf ${AMDOPTS} ${MOUNTPTS}" 
+}

@@ -1,0 +1,10 @@
+--- Makefile.avx	2006-01-11 12:37:34.000000000 -0700
++++ Makefile	2006-01-11 12:37:44.000000000 -0700
+@@ -79,7 +79,6 @@
+ # symbols and then link it dynamically so I have full
+ # relocation information
+ memtest_shared: $(OBJS) memtest_shared.lds Makefile
+-	$(LD) --warn-constructors --warn-common -static -T memtest_shared.lds -o $@ $(OBJS) && \
+ 	$(LD) -shared -Bsymbolic -T memtest_shared.lds -o $@ $(OBJS)
+ 
+ memtest_shared.bin: memtest_shared

@@ -1,0 +1,158 @@
+--- expect5.32/configure.in.makecfg	Thu Jul 12 11:08:02 2001
++++ expect5.32/configure.in	Thu Jul 12 11:09:14 2001
+@@ -1131,9 +1131,9 @@
+     EXP_LIB_VERSION=$EXP_VERSION_NODOTS
+ fi
+ 
+-EXP_BUILD_LIB_SPEC="-L`pwd` -lexpect${EXP_LIB_VERSION}${DBGX}"
+-EXP_LIB_SPEC="-L\${INSTALL_ROOT}\${exec_prefix}/lib -lexpect${EXP_LIB_VERSION}${DBGX}"
+-EXP_UNSHARED_LIB_FILE=libexpect${EXP_LIB_VERSION}${DBGX}.a
++EXP_BUILD_LIB_SPEC="-L`pwd` -lexpect${DBGX}"
++EXP_LIB_SPEC="-L\${INSTALL_ROOT}\${exec_prefix}/lib -lexpect${DBGX}"
++EXP_UNSHARED_LIB_FILE=libexpect$${DBGX}.a
+ 
+ # The TCL_SHARED_LIB_SUFFIX macro below relies on the DBGX macro,
+ # which is set way far above here.  Don't set it to the value of
+--- expect5.32/Makefile.in.makecfg	Mon Aug 28 23:58:00 2000
++++ expect5.32/Makefile.in	Thu Jul 19 23:07:08 2001
+@@ -169,23 +169,23 @@
+ # Do not change anything after this
+ ######################################################################
+ 
+-bindir            = $(INSTALL_ROOT)@bindir@
++bindir            = $(INSTALL_ROOT)$(bindir)
+ bindir_arch_indep = $(INSTALL_ROOT)$(prefix)/bin
+-tcl_libdir        = $(INSTALL_ROOT)@libdir@
+-libdir            = $(INSTALL_ROOT)@libdir@/expect$(VERSION)
++tcl_libdir        = $(INSTALL_ROOT)$(libdir)
++expect_libdir     = $(INSTALL_ROOT)$(libdir)/expect$(VERSION)
+ libdir_arch_indep = $(INSTALL_ROOT)$(prefix)/lib/expect$(VERSION)
+ 
+-mandir 	= $(INSTALL_ROOT)@mandir@
++mandir 	= $(INSTALL_ROOT)$(mandir)
+ man1dir = $(mandir)/man1
+ man3dir = $(mandir)/man3
+-infodir = $(INSTALL_ROOT)@infodir@
+-includedir = $(INSTALL_ROOT)@includedir@
++infodir = $(INSTALL_ROOT)$(infodir)
++includedir = $(INSTALL_ROOT)$(includedir)
+ 
+ # Expect's utility script directories - arch-independent and arch-non-
+ # independent.  These correspond to the variables "exp_library" and
+ # "exp_exec_library".
+ SCRIPTDIR	= $(libdir_arch_indep)
+-EXECSCRIPTDIR	= $(libdir)
++EXECSCRIPTDIR	= $(expect_libdir)
+ 
+ SHELL = @EXP_CONFIG_SHELL@
+ 
+@@ -259,13 +259,13 @@
+ 	shared/exp_chan.o shared/Dbg.o
+ 
+ # Expect libraries (both .a and shared)
+-EXP_LIB_FILES = @EXP_LIB_FILES@
++EXP_LIB_FILES = libexpect.so libexpect.so.0 libexpect.a
+ # default Expect library (shared if possible, otherwise static)
+-EXP_LIB_FILE = @EXP_LIB_FILE@
++EXP_LIB_FILE = libexpect.so
+ # Expect object library (.a)
+-EXP_UNSHARED_LIB_FILE = @EXP_UNSHARED_LIB_FILE@
++EXP_UNSHARED_LIB_FILE = libexpect.a
+ # Expect object library (shared, if possible)
+-EXP_SHARED_LIB_FILE = @EXP_SHARED_LIB_FILE@
++EXP_SHARED_LIB_FILE = libexpect.so
+ 
+ # expect must be setuid on crays in order to open ptys (and accordingly,
+ # you must run this Makefile as root).
+@@ -314,7 +314,7 @@
+ CFLAGS_INT = $(MH_CFLAGS) $(CPPFLAGS) $(XCFLAGS)
+ 
+ LIB_INSTALL_DIR = $(tcl_libdir)
+-LIB_RUNTIME_DIR = $(tcl_libdir)
++LIB_RUNTIME_DIR = @expect_libdir@
+ # I don't understand why Tcl splits these up, but it does.  LIB_RUNTIME_DIR
+ # can appear as part of the LD_SEARCH_FLAGS inherited by configure.
+ 
+@@ -351,25 +351,26 @@
+ # lib has to be handled this way, but do both here for consistency.
+ # Can't seem to embed shell comments in backslashed lines, so comments here:
+ # - To allow bare "load" commands, install shared libs in tcl_libdir rather
+-#   than Expect's lib-specific directory (libdir).
++#   than Expect's lib-specific directory (expect_libdir).
+ # - install hand-generated pkgIndex.tcl file.
+ #   Local copy is pkgIndex rather than pkgIndex.tcl because pkgIndex.tcl.in
+ #   is too long for some filesystems, sigh.
+ install_shared_lib: $(EXP_LIB_FILES)
+-	${srcdir}/mkinstalldirs $(libdir)
++	${srcdir}/mkinstalldirs $(expect_libdir)
+ 	if [ -s $(EXP_UNSHARED_LIB_FILE) ] ; then \
+-	  $(INSTALL_DATA) $(EXP_UNSHARED_LIB_FILE) $(libdir)/$(EXP_UNSHARED_LIB_FILE) ; \
+-	  $(UNSHARED_RANLIB) $(libdir)/$(EXP_UNSHARED_LIB_FILE) ; \
++	  $(INSTALL_DATA) $(EXP_UNSHARED_LIB_FILE) $(expect_libdir)/$(EXP_UNSHARED_LIB_FILE) ; \
++	  $(UNSHARED_RANLIB) $(expect_libdir)/$(EXP_UNSHARED_LIB_FILE) ; \
+ 	  $(INSTALL_DATA) $(EXP_UNSHARED_LIB_FILE) $(tcl_libdir)/$(EXP_UNSHARED_LIB_FILE) ; \
+ 	  $(UNSHARED_RANLIB) $(tcl_libdir)/$(EXP_UNSHARED_LIB_FILE) ; \
+ 	else true; fi
+ 	if [ -s $(EXP_SHARED_LIB_FILE) ] ; then \
+-	  $(INSTALL_PROGRAM) $(EXP_SHARED_LIB_FILE) $(tcl_libdir)/$(EXP_SHARED_LIB_FILE) ; \
+-	  $(INSTALL_PROGRAM) pkgIndex $(libdir)/pkgIndex.tcl ; \
++	  $(INSTALL_PROGRAM) libexpect.so.0 $(tcl_libdir)/libexpect.so.0 ; \
++	  cp -df libexpect.so $(tcl_libdir)/libexpect.so ; \
++	  $(INSTALL_PROGRAM) pkgIndex $(expect_libdir)/pkgIndex.tcl ; \
+ 	else true; fi
+ 
+ expect_installed:	exp_main_exp.o $(EXP_LIB_FILE) install_shared_lib
+-	$(CC) $(XCFLAGS) @EXP_SHLIB_CFLAGS@ @TCL_LD_FLAGS@ -o expect_installed exp_main_exp.o @EXP_LIB_SPEC@ $(TCLLIB_INSTALLED) $(EXP_AND_TCL_LIBS)
++	$(CC) $(XCFLAGS) @EXP_SHLIB_CFLAGS@ @TCL_LD_FLAGS@ -o expect_installed exp_main_exp.o @EXP_LIB_SPEC@ $(TCLLIB) $(EXP_AND_TCL_LIBS)
+ 	$(SETUID) expect_installed
+ 
+ # Build Expect with TestCenter
+@@ -389,7 +390,7 @@
+ 	$(SETUID) expectk
+ 
+ expectk_installed: exp_main_tk.o $(EXP_LIB_FILE)
+-	$(CC) $(XCFLAGS) @EXP_SHLIB_CFLAGS@ @TCL_LD_FLAGS@ -o expectk_installed exp_main_tk.o @EXP_LIB_SPEC@ $(TKLIB_INSTALLED) $(TCLLIB_INSTALLED) $(X11_LD_FLAGS) $(EXP_AND_TK_LIBS) 
++	$(CC) $(XCFLAGS) @EXP_SHLIB_CFLAGS@ @TCL_LD_FLAGS@ -o expectk_installed exp_main_tk.o @EXP_LIB_SPEC@ $(TKLIB_INSTALLED) $(TCLLIB) $(X11_LD_FLAGS) $(EXP_AND_TK_LIBS) 
+ 	$(SETUID) expectk_installed
+ 
+ # Build Expectk with TestCenter
+@@ -408,9 +409,12 @@
+ # depend on XYZ.c in a different directory (except by writing the
+ # rule out for each file, sigh).
+ expect-shared-lib-file :: $(EXP_SHARED_LIB_FILE)
+-$(EXP_SHARED_LIB_FILE): $(OFILES)
+-	-rm -f $(EXP_SHARED_LIB_FILE)
+-	@TCL_SHLIB_LD@ -o $(EXP_SHARED_LIB_FILE) $(SHARED_OFILES) @EXP_LD_SEARCH_FLAGS@ @EXP_SHLIB_LD_LIBS@
++libexpect.so.0: $(OFILES)
++	-rm -f $@
++	gcc -pipe -shared -Wl,-soname,$@ -o $@ $(SHARED_OFILES) @EXP_LD_SEARCH_FLAGS@ @EXP_SHLIB_LD_LIBS@
++
++libexpect.so: libexpect.so.0
++	ln -sf $< $@
+ 
+ .PHONY: install-info install info
+ install-info:
+@@ -480,11 +484,11 @@
+ 	-rm -f  $(bindir)/expectk \
+ 		$(man1dir)/expect.1 \
+ 		$(man1dir)/expectk.1 \
+-		$(libdir)/$(EXP_SHARED_LIB_FILE) \
++		$(expect_libdir)/$(EXP_SHARED_LIB_FILE) \
+ 		$(tcl_libdir)/$(EXP_SHARED_LIB_FILE) \
+-		$(libdir)/$(EXP_UNSHARED_LIB_FILE) \
++		$(expect_libdir)/$(EXP_UNSHARED_LIB_FILE) \
+ 		$(tcl_libdir)/$(EXP_UNSHARED_LIB_FILE) \
+-		$(libdir)/pkgIndex.tcl \
++		$(expect_libdir)/pkgIndex.tcl \
+ 		$(man3dir)/libexpect.3 \
+ 		$(includedir)/expect_cf.h \
+ 		$(includedir)/expect.h \
+@@ -515,7 +519,7 @@
+ 	if [ x"${srcdir}" = x"@srcdir@" ] ; then \
+ 	  srcdir=. ; export srcdir ; \
+ 	else true ; fi ; \
+-	(cd $${srcdir}; autoconf)
++	(cd $${srcdir}; chmod u+w configure; autoconf)
+ 
+ config.status: $(srcdir)/configure
+ 	@echo "Rebuilding config.status..."

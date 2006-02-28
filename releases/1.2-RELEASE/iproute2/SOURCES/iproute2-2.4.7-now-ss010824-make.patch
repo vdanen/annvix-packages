@@ -1,0 +1,17 @@
+--- ./Makefile.tv	2003-05-21 15:15:08.000000000 +0200
++++ ./Makefile	2003-05-21 15:15:05.000000000 +0200
+@@ -43,13 +43,7 @@
+ 	do $(MAKE) -C $$i; done
+ 
+ check-kernel:
+-ifeq ($(KERNEL_INCLUDE),)
+-	@echo "Please, set correct KERNEL_INCLUDE"; false
+-else
+-	@set -e; \
+-	if [ ! -r $(KERNEL_INCLUDE)/linux/autoconf.h ]; then \
+-		echo "Please, Compile the kernel first"; false; fi
+-endif
++	true
+ 
+ clean:
+ 	for i in $(SUBDIRS) doc; \

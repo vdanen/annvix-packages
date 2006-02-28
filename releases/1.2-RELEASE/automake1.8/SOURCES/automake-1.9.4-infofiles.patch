@@ -1,0 +1,27 @@
+--- automake-1.9.4/doc/automake.texi.parallel	2004-12-18 18:52:10.000000000 +0100
++++ automake-1.9.4/doc/automake.texi	2005-01-08 18:28:45.510950418 +0100
+@@ -1,7 +1,7 @@
+ \input texinfo   @c -*-texinfo-*-
+ @c %**start of header
+-@setfilename automake.info
+-@settitle automake
++@setfilename automake1.8.info
++@settitle automake1.8
+ @setchapternewpage off
+ @c %**end of header
+ 
+@@ -34,12 +34,12 @@
+ 
+ @dircategory Software development
+ @direntry
+-* automake: (automake).         Making Makefile.in's.
++* automake1.8: (automake1.8).         Making Makefile.in's.
+ @end direntry
+ 
+ @dircategory Individual utilities
+ @direntry
+-* aclocal: (automake)Invoking aclocal.          Generating aclocal.m4.
++* aclocal1.8: (automake1.8)Invoking aclocal.          Generating aclocal.m4.
+ @end direntry
+ 
+ @titlepage

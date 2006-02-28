@@ -1,0 +1,51 @@
+--- rpm-4.4.1/rpmdb/rpmdb.c.provides	2005-02-01 01:18:56.000000000 +0100
++++ rpm-4.4.1/rpmdb/rpmdb.c	2005-04-25 17:50:32.853512571 +0200
+@@ -3770,7 +3770,7 @@
+     }
+     dbpath = rootdbpath = rpmGetPath(prefix, tfn, NULL);
+     if (!(prefix[0] == '/' && prefix[1] == '\0'))
+-	dbpath += strlen(prefix);
++        dbpath += strlen(prefix) - 1; /* FIXME: a trailing / is always added */
+     tfn = _free(tfn);
+ 
+     /*@-nullpass@*/
+--- rpm-4.4.1/lib/depends.c.provides	2004-12-07 15:09:16.000000000 +0100
++++ rpm-4.4.1/lib/depends.c	2005-04-25 17:53:43.914895223 +0200
+@@ -294,7 +294,7 @@
+ 
+     /* On upgrade, erase older packages of same color (if any). */
+ 
+-    mi = rpmtsInitIterator(ts, RPMTAG_PROVIDENAME, rpmteN(p), 0);
++    mi = rpmtsInitIterator(ts, RPMTAG_NAME, rpmteN(p), 0);
+     while((oh = rpmdbNextIterator(mi)) != NULL) {
+ 
+ 	/* Ignore colored packages not in our rainbow. */
+@@ -336,7 +336,7 @@
+ 	if (Name[0] == '/')
+ 	    mi = rpmtsInitIterator(ts, RPMTAG_BASENAMES, Name, 0);
+ 	else
+-	    mi = rpmtsInitIterator(ts, RPMTAG_PROVIDENAME, Name, 0);
++	    mi = rpmtsInitIterator(ts, RPMTAG_NAME, Name, 0);
+ 
+ 	xx = rpmdbPruneIterator(mi,
+ 	    ts->removedPackages, ts->numRemovedPackages, 1);
+@@ -354,7 +354,7 @@
+ 	     * If no obsoletes version info is available, match all names.
+ 	     */
+ 	    if (rpmdsEVR(obsoletes) == NULL
+-	     || rpmdsAnyMatchesDep(oh, obsoletes, _rpmds_nopromote)) {
++	     || rpmdsNVRMatchesDep(oh, obsoletes, _rpmds_nopromote)) {
+ 		const char * ohNEVRA = hGetNEVRA(oh, NULL);
+ #ifdef	DYING	/* XXX see http://bugzilla.redhat.com #134497 */
+ 		if (rpmVersionCompare(h, oh))
+--- rpm-4.4.1/lib/rpmts.c.provides	2005-02-13 04:12:03.000000000 +0100
++++ rpm-4.4.1/lib/rpmts.c	2005-04-25 17:50:32.847513595 +0200
+@@ -1005,6 +1005,8 @@
+ 	}
+ 	rootLen = strlen(rootDir);
+ 
++	/* FIXME: if multiple / are present, other code will be unhappy */
++
+ /*@-branchstate@*/
+ 	/* Make sure that rootDir has trailing / */
+ 	if (!(rootLen && rootDir[rootLen - 1] == '/')) {

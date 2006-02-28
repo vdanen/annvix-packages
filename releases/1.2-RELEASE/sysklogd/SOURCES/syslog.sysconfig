@@ -1,0 +1,18 @@
+# Options available to pass to syslogd:
+#   -m 0	disables 'MARK' messages.
+#   -r		enables logging from remote machines
+#   -x		disables DNS lookups on messages recieved with -r
+#   -i [ip]	only listen on the specific IP address
+#
+# See syslogd(8) for more details, however note that the -u option is
+# already enforced to make syslogd run as user syslogd
+SYSLOGD_OPTIONS="-m 0"
+
+# Options available to pass to klogd
+# -2		prints all kernel oops messages twice; once for klogd to decode, and
+#		once for processing with 'ksymoops'
+# -x		disables all klogd processing of oops messages entirely
+#
+# See klogd(8) for more details, however note that the -u and -j options
+# are enforced to run klogd as user klogd and to jail it to /var/empty
+KLOGD_OPTIONS="-2"

@@ -1,0 +1,10 @@
+--- util-linux-2.12a/mount/mount.c.managed	2005-02-14 13:37:02.462744029 +0100
++++ util-linux-2.12a/mount/mount.c	2005-02-14 13:38:03.781641659 +0100
+@@ -195,6 +195,7 @@
+   { "nodiratime", 0, 0, MS_NODIRATIME },/* Do not update dir access times */
+ #endif
+   { "kudzu", 0, 0, 0 },			/* Silently remove this option */
++  { "managed", 0, 0, 0 },			/* Silently remove this option */
+   { NULL,	0, 0, 0		}
+ };
+ 

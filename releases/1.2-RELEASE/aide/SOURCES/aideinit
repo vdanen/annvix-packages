@@ -1,0 +1,79 @@
+#!/bin/sh
+#
+# script to initialize an AIDE database and create a GPG key
+# specifically for use with the AIDE database
+#
+# written by Vincent Danen <vdanen-at-annvix.org>
+#
+# $Id$
+
+if [ ! -d /var/lib/aide ]; then
+    echo "The AIDE database directory /var/lib/aide does not exist!"
+    exit 1
+fi
+
+host="`hostname`"
+gpg="/usr/bin/gpg"
+aide="/usr/sbin/aide"
+fname="aide-`hostname`-`date +%Y%m%d-%H%M%S`"
+
+if [ "`${gpg} --list-secret-key|grep aide@${host} >/dev/null 2>&1; echo $?`" == "1" ]; then
+    # we need to generate a gpg key
+
+    echo "Generating GPG private key for aide@${host}"
+    echo ""
+    echo "This is done automatically, but you must provide a strong passphrase"
+    echo "to protect the key."
+    echo ""
+    stty -echo
+    read -p "Passphrase: " PASS1
+    echo ""
+    read -p "Re-enter passphrase: " PASS2
+    echo ""
+    stty echo
+
+    if [ "${PASS1}" != "${PASS2}" ]; then
+        echo "FATAL: Passwords do not match!"
+        exit 1
+    fi
+
+    echo "Generating GPG key..."
+    tmpfile=`mktemp` || exit 1
+
+    echo "Key-Type: DSA" >>${tmpfile}
+    echo "Key-Length: 1024" >>${tmpfile}
+    echo "Subkey-Type: ELG-E" >>${tmpfile}
+    echo "Subkey-Length: 1024" >>${tmpfile}
+    echo "Name-Real: AIDE" >>${tmpfile}
+    echo "Name-Comment: AIDE verification key" >>${tmpfile}
+    echo "Name-Email: aide@${host}" >>${tmpfile}
+    echo "Expire-Date: 0" >>${tmpfile}
+    echo "Passphrase: ${PASS1}" >>${tmpfile}
+
+    ${gpg} --batch --gen-key ${tmpfile}
+    if [ "$?" == "0" ]; then
+        echo "GPG key successfully created!"
+        rm -f ${tmpfile}
+    else
+        echo "An error occurred; cannot proceed!"
+        rm -f ${tmpfile}
+        exit 1
+    fi
+    echo ""
+fi
+
+echo "Initializing the AIDE database... this may take a minute or two"
+
+# set database to a non-existant file to prevent warnings
+${aide} --init -B "database=file:/tmp/foo" -B "database_out=file:/var/lib/aide/aide.db"
+pushd /var/lib/aide >/dev/null 2>&1
+    # create the signature file
+    [[ -f aide.db.sig ]] && rm -f aide.db.sig
+    ${gpg} -u aide@${host} --detach-sign aide.db
+    if [ "$?" == "1" ]; then
+        echo "FATAL:  Error occurred when creating the signature file!"
+        exit 1
+    fi
+popd >/dev/null 2>&1
+
+exit 0

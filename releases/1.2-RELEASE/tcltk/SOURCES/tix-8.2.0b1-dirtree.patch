@@ -1,0 +1,17 @@
+--- tix8.2.0/library/DirTree.tcl.dirtree	Tue Jul 24 17:33:43 2001
++++ tix8.2.0/library/DirTree.tcl	Tue Jul 24 17:37:23 2001
+@@ -92,10 +92,10 @@
+     # We must creat an extra copy of these images to avoid flashes on
+     # the screen when user changes directory
+     #
+-    set data(images) [image create compound -window $data(w:hlist)]
+-    $data(images) add image -image [tix getimage act_fold]
+-    $data(images) add image -image [tix getimage folder]
+-    $data(images) add image -image [tix getimage openfold]
++#    set data(images) [image create compound -window $data(w:hlist)]
++#    $data(images) add image -image [tix getimage act_fold]
++#    $data(images) add image -image [tix getimage folder]
++#    $data(images) add image -image [tix getimage openfold]
+ }
+ 
+ proc tixDirTree:SetBindings {w} {

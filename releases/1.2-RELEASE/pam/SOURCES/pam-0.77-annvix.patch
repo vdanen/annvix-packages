@@ -1,0 +1,28 @@
+--- modules/pam_console/console.perms.mdk	2004-09-24 15:20:57.000000000 -0600
++++ modules/pam_console/console.perms	2004-09-24 15:20:57.000000000 -0600
+@@ -58,8 +58,8 @@
+ <console>  0600 <joystick>   0600 root
+ <console>  0600 <kbd>        0600 root
+ <console>  0600 <mainboard>  0600 root
+-<console>  0660 <pilot>      0660 root.uucp
+-<console>  0660 <sound>      0660 root.audio
++<console>  0660 <pilot>      0660 root.root
++<console>  0660 <sound>      0660 root.root
+ <console>  0660 <burner>     0660 root.cdwriter
+ <console>  0660 <camera>     0660 root.usb
+ <console>  0660 <cdrom>      0660 root.cdrom
+@@ -71,11 +71,11 @@
+ <console>  0660 <memstick>   0660 root.disk
+ <console>  0660 <rem_ide>    0660 root.disk
+ <console>  0660 <scanner>    0660 root.usb
+-<console>  0660 <serial>     0660 root.uucp
++<console>  0660 <serial>     0660 root.root
+ <console>  0660 <usb>        0660 root.usb
+-<console>  0660 <v4l>        0660 root.video
++<console>  0660 <v4l>        0660 root.root
+ <console>  0660 <zip>        0660 root.disk
+ <console>  0700 <gpm>	     0700 root
+ 
+ <xconsole> 0600 /dev/console 0600 root.root
+-<xconsole> 0660 <dri>	     0660 root.video
++<xconsole> 0660 <dri>	     0660 root.root

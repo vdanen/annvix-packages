@@ -1,0 +1,11 @@
+--- imap-2000c/src/osdep/unix/Makefile.flock	Wed Apr 11 14:26:58 2001
++++ imap-2000c/src/osdep/unix/Makefile	Wed Apr 11 14:28:19 2001
+@@ -90,7 +90,7 @@
+ BINARIES=mail.o misc.o newsrc.o smanager.o osdep.o utf8.o siglocal.o \
+  dummy.o pseudo.o netmsg.o flstring.o fdstring.o \
+  rfc822.o nntp.o smtp.o imap4r1.o pop3.o \
+- unix.o mbox.o mbx.o mmdf.o tenex.o mtx.o news.o phile.o mh.o mx.o
++ unix.o mbox.o mbx.o mmdf.o tenex.o mtx.o news.o phile.o mh.o mx.o flock.o
+ CFLAGS=-g
+ 
+ CAT=cat

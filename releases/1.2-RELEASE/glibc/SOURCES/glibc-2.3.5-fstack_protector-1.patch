@@ -1,0 +1,1544 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2005-01-27
+Initial Package Version: 2.3.4
+Upstream Status: Not submitted
+Origin: None
+Description: This patch adds -fstack-protector-all to selected utilities
+and libraries. libc.so and ld.so are skipped, and anything that doesn't
+preload libc.so, like the libbsd-compat library, etc.
+
+Also see:
+http://www.research.ibm.com/trl/projects/security/ssp/
+http://www.linuxfromscratch.org/hlfs/
+http://www.linuxfromscratch.org/hints/downloads/files/ssp.txt
+
+diff -Naur glibc-20050124.orig/catgets/Makefile glibc-20050124/catgets/Makefile
+--- glibc-20050124.orig/catgets/Makefile	2005-01-27 19:15:49.578231696 +0000
++++ glibc-20050124/catgets/Makefile	2005-01-27 19:16:03.305377805 +0000
+@@ -42,6 +42,10 @@
+ 
+ $(objpfx)gencat: $(gencat-modules:%=$(objpfx)%.o)
+ 
++CFLAGS-catgets.c = -fstack-protector-all
++CFLAGS-gencat.c = -fstack-protector-all
++CFLAGS-open_catalog.c = -fstack-protector-all
++
+ catgets-CPPFLAGS := -DNLSPATH='"$(msgcatdir)/%L/%N:$(msgcatdir)/%L/LC_MESSAGES/%N:$(msgcatdir)/%l/%N:$(msgcatdir)/%l/LC_MESSAGES/%N:"' \
+ 	    -DHAVE_CONFIG_H
+ 
+diff -Naur glibc-20050124.orig/crypt/Makefile glibc-20050124/crypt/Makefile
+--- glibc-20050124.orig/crypt/Makefile	2005-01-27 19:15:49.633216260 +0000
++++ glibc-20050124/crypt/Makefile	2005-01-27 19:16:03.307377244 +0000
+@@ -37,6 +37,12 @@
+ 
+ include ../Makeconfig
+ 
++CFLAGS-crypt-entry.c = -fstack-protector-all
++CFLAGS-md5-crypt.c = -fstack-protector-all
++CFLAGS-md5.c = -fstack-protector-all
++CFLAGS-crypt.c = -fstack-protector-all
++CFLAGS-crypt_util.c = -fstack-protector-all
++
+ ifeq ($(crypt-in-libc),yes)
+ routines += $(libcrypt-routines)
+ endif
+diff -Naur glibc-20050124.orig/debug/Makefile glibc-20050124/debug/Makefile
+--- glibc-20050124.orig/debug/Makefile	2005-01-27 19:15:49.655210085 +0000
++++ glibc-20050124/debug/Makefile	2005-01-27 19:16:03.313375560 +0000
+@@ -31,20 +31,36 @@
+ 	    printf_chk fprintf_chk vprintf_chk vfprintf_chk \
+ 	    gets_chk chk_fail readonly-area
+ 
+-CFLAGS-backtrace.c = -fno-omit-frame-pointer
+-CFLAGS-sprintf_chk.c = -D_IO_MTSAFE_IO
+-CFLAGS-snprintf_chk.c = -D_IO_MTSAFE_IO
+-CFLAGS-vsprintf_chk.c = -D_IO_MTSAFE_IO
+-CFLAGS-vsnprintf_chk.c = -D_IO_MTSAFE_IO
+-CFLAGS-printf_chk.c = -D_IO_MTSAFE_IO $(exceptions)
+-CFLAGS-fprintf_chk.c = -D_IO_MTSAFE_IO $(exceptions)
+-CFLAGS-vprintf_chk.c = -D_IO_MTSAFE_IO $(exceptions)
+-CFLAGS-vfprintf_chk.c = -D_IO_MTSAFE_IO $(exceptions)
+-CFLAGS-gets_chk.c = -D_IO_MTSAFE_IO $(exceptions)
++CFLAGS-backtrace.c = -fno-omit-frame-pointer -fstack-protector-all
++CFLAGS-backtracesyms.c = -fstack-protector-all
++CFLAGS-backtracesymsfd.c = -fstack-protector-all
++CFLAGS-noophooks.c = -fstack-protector-all
++CFLAGS-memcpy_chk.c = -fstack-protector-all
++CFLAGS-memmove_chk.c = -fstack-protector-all
++CFLAGS-mempcpy_chk.c = -fstack-protector-all
++CFLAGS-memset_chk.c = -fstack-protector-all
++CFLAGS-stpcpy_chk.c = -fstack-protector-all
++CFLAGS-strcat_chk.c = -fstack-protector-all
++CFLAGS-strcpy_chk.c = -fstack-protector-all
++CFLAGS-strncat_chk.c = -fstack-protector-all
++CFLAGS-strncpy_chk.c = -fstack-protector-all
++CFLAGS-sprintf_chk.c = -D_IO_MTSAFE_IO -fstack-protector-all
++CFLAGS-snprintf_chk.c = -D_IO_MTSAFE_IO -fstack-protector-all
++CFLAGS-vsprintf_chk.c = -D_IO_MTSAFE_IO -fstack-protector-all
++CFLAGS-vsnprintf_chk.c = -D_IO_MTSAFE_IO -fstack-protector-all
++CFLAGS-printf_chk.c = -D_IO_MTSAFE_IO $(exceptions) -fstack-protector-all
++CFLAGS-fprintf_chk.c = -D_IO_MTSAFE_IO $(exceptions) -fstack-protector-all
++CFLAGS-vprintf_chk.c = -D_IO_MTSAFE_IO $(exceptions) -fstack-protector-all
++CFLAGS-vfprintf_chk.c = -D_IO_MTSAFE_IO $(exceptions) -fstack-protector-all
++CFLAGS-gets_chk.c = -D_IO_MTSAFE_IO $(exceptions) -fstack-protector-all
++CFLAGS-chk_fail.c = -fstack-protector-all
++CFLAGS-readonly-area.c = -fstack-protector-all
+ 
+ tests = backtrace-tst tst-chk1 tst-chk2 tst-chk3 \
+ 	test-strcpy_chk test-stpcpy_chk
+ 
++pcprofiledump-CFLAGS = -fstack-protector-all
++
+ extra-libs = libSegFault libpcprofile
+ extra-libs-others = $(extra-libs)
+ 
+diff -Naur glibc-20050124.orig/elf/Makefile glibc-20050124/elf/Makefile
+--- glibc-20050124.orig/elf/Makefile	2005-01-27 19:15:49.694199139 +0000
++++ glibc-20050124/elf/Makefile	2005-01-27 19:16:03.322373034 +0000
+@@ -86,9 +86,37 @@
+ 		   tst-deep1mod1.c tst-deep1mod2.c tst-deep1mod3.c \
+ 		   tst-auditmod1.c
+ 
+-CFLAGS-dl-runtime.c = -fexceptions -fasynchronous-unwind-tables
+-CFLAGS-dl-lookup.c = -fexceptions -fasynchronous-unwind-tables
+-CFLAGS-dl-iterate-phdr.c = $(uses-callbacks)
++CFLAGS-dl-lookup.c = -fexceptions -fasynchronous-unwind-tables -fstack-protector-all
++CFLAGS-dl-object.c = -fstack-protector-all
++CFLAGS-dl-reloc.c = -fstack-protector-all
++CFLAGS-dl-deps.c = -fstack-protector-all
++CFLAGS-dl-runtime.c = -fexceptions -fasynchronous-unwind-tables -fstack-protector-all
++CFLAGS-dl-error.c = -fstack-protector-all
++CFLAGS-dl-init.c = -fstack-protector-all
++CFLAGS-dl-fini.c = -fstack-protector-all
++CFLAGS-dl-debug.c = -fstack-protector-all
++CFLAGS-dl-misc.c = -fstack-protector-all
++CFLAGS-dl-version.c = -fstack-protector-all
++CFLAGS-dl-profile.c = -fstack-protector-all
++CFLAGS-dl-conflict.c = -fstack-protector-all
++CFLAGS-dl-tls.c = -fstack-protector-all
++CFLAGS-dl-origin.c = -fstack-protector-all
++CFLAGS-dl-execstack.c = -fstack-protector-all
++CFLAGS-dl-caller.c = -fstack-protector-all
++CFLAGS-dl-open.c = -fstack-protector-all
++CFLAGS-dl-close.c = -fstack-protector-all
++CFLAGS-dl-support.c = -fstack-protector-all
++CFLAGS-dl-iteratephdr.c = $(uses-callbacks) -fstack-protector-all
++CFLAGS-dl-addr.c = -fstack-protector-all
++CFLAGS-enbl-secure.c = -fstack-protector-all
++CFLAGS-dl-profstub.c = -fstack-protector-all
++CFLAGS-dl-origin.c = -fstack-protector-all
++CFLAGS-dl-libc.c = -fstack-protector-all
++CFLAGS-dl-sym.c = -fstack-protector-all
++CFLAGS-dl-tsd.c = -fstack-protector-all
++sprof-CFLAGS = -fstack-protector-all
++sln-CFLAGS = -fstack-protector-all
++ldconfig-CFLAGS = -fstack-protector-all
+ 
+ include ../Makeconfig
+ 
+@@ -288,7 +316,7 @@
+ 
+ # interp.c exists just to get this string into the libraries.
+ CFLAGS-interp.c = -D'RUNTIME_LINKER="$(slibdir)/$(rtld-installed-name)"' \
+-		  -DNOT_IN_libc=1
++		  -DNOT_IN_libc=1 -fstack-protector-all
+ $(objpfx)interp.os: $(common-objpfx)config.make
+ 
+ ifneq (ld.so,$(rtld-installed-name))
+@@ -312,7 +340,7 @@
+ 	echo '#define DL_DST_LIB "$(notdir $(slibdir))"' >> ${@:st=T}
+ 	$(move-if-change) ${@:st=T} ${@:st=h}
+ 	touch $@
+-CPPFLAGS-dl-load.c = -I$(objpfx). -I$(csu-objpfx).
++CPPFLAGS-dl-load.c = -I$(objpfx). -I$(csu-objpfx). -fstack-protector-all
+ 
+ ifeq (yes,$(build-shared))
+ $(inst_slibdir)/$(rtld-version-installed-name): $(objpfx)ld.so $(+force)
+@@ -362,10 +390,10 @@
+ 
+ $(objpfx)ldconfig: $(ldconfig-modules:%=$(objpfx)%.o)
+ SYSCONF-FLAGS := -D'SYSCONFDIR="$(sysconfdir)"'
+-CFLAGS-ldconfig.c = $(SYSCONF-FLAGS) -D'LIBDIR="$(libdir)"' \
++CFLAGS-ldconfig.c = $(SYSCONF-FLAGS) -D'LIBDIR="$(libdir)"' -fstack-protector-all \
+ 		    -D'SLIBDIR="$(slibdir)"' -DIS_IN_ldconfig=1
+-CFLAGS-dl-cache.c = $(SYSCONF-FLAGS)
+-CFLAGS-cache.c = $(SYSCONF-FLAGS)
++CFLAGS-dl-cache.c = $(SYSCONF-FLAGS) -fstack-protector-all
++CFLAGS-cache.c = $(SYSCONF-FLAGS) -fstack-protector-all
+ 
+ CPPFLAGS-.os += $(if $(filter $(@F),$(patsubst %,%.os,$(all-rtld-routines))),-DNOT_IN_libc=1 -DIS_IN_rtld=1)
+ 
+diff -Naur glibc-20050124.orig/elf/rtld.c glibc-20050124/elf/rtld.c
+--- glibc-20050124.orig/elf/rtld.c	2005-01-27 19:15:49.742185667 +0000
++++ glibc-20050124/elf/rtld.c	2005-01-27 19:16:03.329371069 +0000
+@@ -42,6 +42,13 @@
+ 
+ #include <assert.h>
+ 
++long __guard[8] = {0, 0, 0, 0, 0, 0, 0, 0};
++void
++__stack_smash_handler(char func[], int damaged)
++{
++	_exit(127);
++}
++
+ /* Avoid PLT use for our local calls at startup.  */
+ extern __typeof (__mempcpy) __mempcpy attribute_hidden;
+ 
+diff -Naur glibc-20050124.orig/iconv/Makefile glibc-20050124/iconv/Makefile
+--- glibc-20050124.orig/iconv/Makefile	2005-01-27 19:15:49.864151426 +0000
++++ glibc-20050124/iconv/Makefile	2005-01-27 19:16:03.332370227 +0000
+@@ -30,9 +30,9 @@
+ ifeq ($(elf),yes)
+ routines	+= gconv_dl
+ else
+-CFLAGS-gconv_db.c = -DSTATIC_GCONV
+-CFLAGS-gconv_cache.c = -DSTATIC_GCONV
+-CFLAGS-gconv_simple.c = -DSTATIC_GCONV
++CFLAGS-gconv_db.c = -DSTATIC_GCONV -fstack-protector-all
++CFLAGS-gconv_cache.c = -DSTATIC_GCONV -fstack-protector-all
++CFLAGS-gconv_simple.c = -DSTATIC_GCONV -fstack-protector-all
+ endif
+ 
+ vpath %.c ../locale/programs ../intl
+@@ -41,13 +41,18 @@
+ 		     dummy-repertoire simple-hash xstrdup xmalloc
+ iconvconfig-modules = strtab xmalloc hash-string
+ extra-objs	   = $(iconv_prog-modules:=.o) $(iconvconfig-modules:=.o)
+-CFLAGS-iconv_prog.c = -I../locale/programs
+-CFLAGS-iconv_charmap.c = -I../locale/programs
+-CFLAGS-dummy-repertoire.c = -I../locale/programs
+-CFLAGS-charmap.c = -DCHARMAP_PATH='"$(i18ndir)/charmaps"' \
++CFLAGS-iconv_open.c = -fstack-protector-all
++CFLAGS-iconv_prog.c = -I../locale/programs -fstack-protector-all
++CFLAGS-iconv_close.c = -fstack-protector-all
++CFLAGS-iconv_charmap.c = -I../locale/programs -fstack-protector-all
++CFLAGS-dummy-repertoire.c = -I../locale/programs -fstack-protector-all
++CFLAGS-charmap.c = -DCHARMAP_PATH='"$(i18ndir)/charmaps"' -fstack-protector-all \
+ 		   -DDEFAULT_CHARMAP=null_pointer -DNEED_NULL_POINTER
+-CFLAGS-linereader.c = -DNO_TRANSLITERATION
+-CFLAGS-simple-hash.c = -I../locale
++CFLAGS-charmap-dir.c = -fstack-protector-all
++CFLAGS-xstrdup = -fstack-protector-all
++CFLAGS-xmalloc = -fstack-protector-all
++CFLAGS-linereader.c = -DNO_TRANSLITERATION -fstack-protector-all
++CFLAGS-simple-hash.c = -I../locale -fstack-protector-all
+ 
+ tests	= tst-iconv1 tst-iconv2 tst-iconv3 tst-iconv5
+ 
+@@ -59,9 +64,22 @@
+ install-others	= $(inst_bindir)/iconv
+ install-sbin	= iconvconfig
+ 
+-CFLAGS-gconv_cache.c += -DGCONV_DIR='"$(gconvdir)"'
+-CFLAGS-gconv_conf.c = -DGCONV_PATH='"$(gconvdir)"'
+-CFLAGS-iconvconfig.c = -DGCONV_PATH='"$(gconvdir)"' -DGCONV_DIR='"$(gconvdir)"'
++CFLAGS-gconv_open.c = -fstack-protector-all
++CFLAGS-gconv.c = -fstack-protector-all
++CFLAGS-gconv_close.c = -fstack-protector-all
++CFLAGS-gconv_db.c = -fstack-protector-all
++CFLAGS-gconv_cache.c += -DGCONV_DIR='"$(gconvdir)"' \
++		        -fstack-protector-all
++CFLAGS-gconv_conf.c = -DGCONV_PATH='"$(gconvdir)"' \
++		      -fstack-protector-all
++CFLAGS-gconv_builtin.c = -fstack-protector-all
++CFLAGS-gconv_simple.c = -fstack-protector-all
++CFLAGS-gconv_trans.c = -fstack-protector-all
++
++CFLAGS-iconvconfig.c = -DGCONV_PATH='"$(gconvdir)"' \
++                       -DGCONV_DIR='"$(gconvdir)"' -fstack-protector-all
++iconv_prog-CFLAGS = -fstack-protector-all
++iconvconfig-CFLAGS = -fstack-protector-all
+ 
+ CPPFLAGS-iconv_prog = -DNOT_IN_libc
+ CPPFLAGS-iconv_charmap = -DNOT_IN_libc
+diff -Naur glibc-20050124.orig/intl/Makefile glibc-20050124/intl/Makefile
+--- glibc-20050124.orig/intl/Makefile	2005-01-27 19:15:50.800888445 +0000
++++ glibc-20050124/intl/Makefile	2005-01-27 19:16:03.334369666 +0000
+@@ -41,6 +41,19 @@
+ 
+ include ../Makeconfig
+ 
++CFLAGS-bindtextdom.c = -fstack-protector-all
++CFLAGS-dcgettext.c = -fstack-protector-all
++CFLAGS-dgettext.c = -fstack-protector-all
++CFLAGS-gettext.c = -fstack-protector-all
++CFLAGS-dcigettext.c = -fstack-protector-all
++CFLAGS-dcngettext.c = -fstack-protector-all
++CFLAGS-dngettext.c = -fstack-protector-all
++CFLAGS-ngettext.c = -fstack-protector-all
++CFLAGS-finddomain.c = -fstack-protector-all
++CFLAGS-loadmsgcat.c = -fstack-protector-all
++CFLAGS-localealias.c = -fstack-protector-all
++CFLAGS-textdomain.c = -fstack-protector-all
++
+ ifneq (no,$(BISON))
+ plural.c: plural.y
+ 	$(BISON) $(BISONFLAGS) $@ $^
+@@ -94,3 +107,8 @@
+ 
+ $(inst_msgcatdir)/locale.alias: locale.alias $(+force)
+ 	$(do-install)
++
++# Depend on libc.so so a DT_NEEDED is generated in the shared objects.
++# This ensures they will load libc.so for needed symbols if loaded by
++# a statically-linked program that hasn't already loaded it.
++$(objpfx)libutil.so: $(common-objpfx)libc.so $(common-objpfx)libc_nonshared.a
+diff -Naur glibc-20050124.orig/libidn/Makefile glibc-20050124/libidn/Makefile
+--- glibc-20050124.orig/libidn/Makefile	2005-01-27 19:15:50.964842416 +0000
++++ glibc-20050124/libidn/Makefile	2005-01-27 19:16:03.341367701 +0000
+@@ -29,6 +29,14 @@
+ 
+ libcidn-routines := punycode toutf8 nfkc stringprep rfc3454 profiles idna
+ 
++CFLAGS-libcidn.c = -fstack-protector-all
++CFLAGS-punycode.c = -fstack-protector-all
++CFLAGS-toutf8.c = -fstack-protector-all
++CFLAGS-nfkc.c = -fstack-protector-all
++CFLAGS-stringprep.c = -fstack-protector-all
++CFLAGS-rfc3454.c = -fstack-protector-all
++CFLAGS-profiles.c = -fstack-protector-all
++CFLAGS-idna.c = -fstack-protector-all
+ 
+ include ../Makeconfig
+ 
+diff -Naur glibc-20050124.orig/locale/Makefile glibc-20050124/locale/Makefile
+--- glibc-20050124.orig/locale/Makefile	2005-01-27 19:15:51.427712468 +0000
++++ glibc-20050124/locale/Makefile	2005-01-27 19:16:03.343367139 +0000
+@@ -97,10 +97,24 @@
+ 		   -DLOCSRCDIR='"$(i18ndir)/locales"' -DHAVE_CONFIG_H \
+ 		   -Iprograms
+ 
+-CFLAGS-charmap.c = -Wno-write-strings -Wno-char-subscripts
+-CFLAGS-locfile.c = -Wno-write-strings -Wno-char-subscripts
+-CFLAGS-charmap-dir.c = -Wno-write-strings
+-CFLAGS-loadlocale.c = $(fno-unit-at-a-time)
++CFLAGS-setlocale.c = -fstack-protector-all
++CFLAGS-findlocale.c = -fstack-protector-all
++CFLAGS-loadarchive.c = -fstack-protector-all
++CFLAGS-localeconv.c = -fstack-protector-all
++CFLAGS-nl_langinfo.c = -fstack-protector-all
++CFLAGS-nl_langinfo_l.c = -fstack-protector-all
++CFLAGS-mb_cur_max.c = -fstack-protector-all
++CFLAGS-newlocale.c = -fstack-protector-all
++CFLAGS-duplocale.c = -fstack-protector-all
++CFLAGS-freelocale.c = -fstack-protector-all
++CFLAGS-uselocale.c = -fstack-protector-all
++CFLAGS-charmap.c = -Wno-write-strings -Wno-char-subscripts -fstack-protector-all
++CFLAGS-locfile.c = -Wno-write-strings -Wno-char-subscripts -fstack-protector-all
++CFLAGS-charmap-dir.c = -Wno-write-strings -fstack-protector-all
++CFLAGS-loadlocale.c = $(fno-unit-at-a-time) -fstack-protector-all
++localedef-CFLAGS = -fstack-protector-all
++locale-CFLAGS = -fstack-protector-all
++CFLAGS-broken_cur_max.c = -fstack-protector-all
+ 
+ # This makes sure -DNOT_IN_libc is passed for all these modules.
+ cpp-srcs-left := $(addsuffix .c,$(localedef-modules) $(localedef-aux) \
+diff -Naur glibc-20050124.orig/login/Makefile glibc-20050124/login/Makefile
+--- glibc-20050124.orig/login/Makefile	2005-01-27 19:15:53.588105948 +0000
++++ glibc-20050124/login/Makefile	2005-01-27 19:16:03.346366297 +0000
+@@ -27,7 +27,20 @@
+ routines := getutent getutent_r getutid getutline getutid_r getutline_r \
+ 	    utmp_file utmpname updwtmp getpt grantpt unlockpt ptsname
+ 
+-CFLAGS-grantpt.c = -DLIBEXECDIR='"$(libexecdir)"'
++CFLAGS-getutent.c = -fstack-protector-all
++CFLAGS-getutent_r.c = -fstack-protector-all
++CFLAGS-getutid.c = -fstack-protector-all
++CFLAGS-getutline.c = -fstack-protector-all
++CFLAGS-getutid_r.c = -fstack-protector-all
++CFLAGS-getutline_r.c = -fstack-protector-all
++CFLAGS-utmp_file.c = -fstack-protector-all
++CFLAGS-utmpname.c = -fstack-protector-all
++CFLAGS-updwtmp.c = -fstack-protector-all
++CFLAGS-grantpt.c = -DLIBEXECDIR='"$(libexecdir)"' -fstack-protector-all
++CFLAGS-unlockpt.c = -fstack-protector-all
++CFLAGS-ptsname.c = -fstack-protector-all
++pt_chown-CFLAGS = -fstack-protector-all
++utmpdump-CFLAGS = -fstack-protector-all
+ 
+ others = utmpdump pt_chown
+ install-others = $(inst_libexecdir)/pt_chown
+@@ -45,9 +58,16 @@
+ 
+ libutil-routines:= login login_tty logout logwtmp openpty forkpty
+ 
++CFLAGS-login.c = -fexceptions -fstack-protector-all
++CFLAGS-login_tty.c = -fexceptions -fstack-protector-all
++CFLAGS-logout.c = -fexceptions -fstack-protector-all
++CFLAGS-logwtmp.c = -fexceptions -fstack-protector-all
++CFLAGS-openpty.c = -fexceptions -fstack-protector-all
++CFLAGS-forkpty.c = -fexceptions -fstack-protector-all
++
+ include ../Rules
+ 
+-CFLAGS-getpt.c = -fexceptions
++CFLAGS-getpt.c = -fexceptions -fstack-protector-all
+ 
+ ifeq (yes,$(build-static-nss))
+ otherlibs += $(nssobjdir)/libnss_files.a $(resolvobjdir)/libnss_dns.a \
+diff -Naur glibc-20050124.orig/math/Makefile glibc-20050124/math/Makefile
+--- glibc-20050124.orig/math/Makefile	2005-01-27 19:15:53.761057392 +0000
++++ glibc-20050124/math/Makefile	2005-01-27 19:16:03.349365455 +0000
+@@ -86,6 +86,168 @@
+ long-c-yes = $(calls:=l)
+ distribute += $(filter-out $(generated),$(long-m-yes:=.c) $(long-c-yes:=.c))
+ 
++# libm-support begin
++CFLAGS-k_standard.c += -fstack-protector-all
++CFLAGS-s_lib_version.c = -fstack-protector-all
++CFLAGS-s_matherr.c = -fstack-protector-all
++CFLAGS-s_signgam.c = -fstack-protector-all
++CFLAGS-fclrexcpt.c = -fstack-protector-all
++CFLAGS-fgetexcptflg.c = -fstack-protector-all
++CFLAGS-fraiseexcpt.c = -fstack-protector-all
++CFLAGS-fsetexcptflg.c = -fstack-protector-all
++CFLAGS-ftestexcept.c = -fstack-protector-all
++CFLAGS-fegetround.c = -fstack-protector-all
++CFLAGS-fesetround.c = -fstack-protector-all
++CFLAGS-fegetenv.c = -fstack-protector-all
++CFLAGS-feholdexcpt.c = -fstack-protector-all
++CFLAGS-fesetenv.c = -fstack-protector-all
++CFLAGS-feupdateenv.c = -fstack-protector-all
++CFLAGS-t_exp.c = -fstack-protector-all
++CFLAGS-fedisblxcpt.c = -fstack-protector-all
++CFLAGS-feenablxcpt.c = -fstack-protector-all
++CFLAGS-fegetexcept.c = -fstack-protector-all
++# libm-support end
++CFLAGS-e_acos.c = -fstack-protector-all
++CFLAGS-e_acosh.c = -fstack-protector-all
++CFLAGS-e_asin.c = -fstack-protector-all
++CFLAGS-e_atan2.c = -fstack-protector-all
++CFLAGS-e_atanh.c = -fstack-protector-all
++CFLAGS-e_cosh.c = -fstack-protector-all
++CFLAGS-e_exp.c = -fstack-protector-all
++CFLAGS-e_fmod.c = -fstack-protector-all
++CFLAGS-e_hypot.c = -fstack-protector-all
++CFLAGS-e_j0.c = -fstack-protector-all
++CFLAGS-e_j1.c = -fstack-protector-all
++CFLAGS-e_jn.c = -fstack-protector-all
++CFLAGS-e_lgamma_r.c = -fstack-protector-all
++CFLAGS-e_log.c = -fstack-protector-all
++CFLAGS-e_log10.c = -fstack-protector-all
++CFLAGS-e_pow.c = -fstack-protector-all
++CFLAGS-e_rem_pio2.c = -fstack-protector-all
++CFLAGS-e_remainder.c = -fstack-protector-all
++CFLAGS-e_scalb.c = -fstack-protector-all
++CFLAGS-e_sinh.c = -fstack-protector-all
++CFLAGS-e_sqrt.c = -fstack-protector-all
++CFLAGS-e_gamma_r.c = -fstack-protector-all
++CFLAGS-k_cos.c = -fstack-protector-all
++CFLAGS-k_rem_pio2.c = -fstack-protector-all
++CFLAGS-k_sin.c = -fstack-protector-all
++CFLAGS-k_tan.c = -fstack-protector-all
++CFLAGS-s_asinh.c = -fstack-protector-all
++CFLAGS-s_atan.c = -fstack-protector-all
++CFLAGS-s_cbrt.c = -fstack-protector-all
++CFLAGS-s_ceil.c = -fstack-protector-all
++CFLAGS-s_cos.c = -fstack-protector-all
++CFLAGS-s_erf.c = -fstack-protector-all
++CFLAGS-s_expm1.c = -fstack-protector-all
++CFLAGS-s_fabs.c = -fstack-protector-all
++CFLAGS-s_floor.c = -fstack-protector-all
++CFLAGS-s_ilogb.c = -fstack-protector-all
++CFLAGS-s_log1p.c = -fstack-protector-all
++CFLAGS-s_logb.c = -fstack-protector-all
++CFLAGS-s_nextafter.c = -fstack-protector-all
++CFLAGS-s_nexttoward.c = -fstack-protector-all
++CFLAGS-s_rint.c = -fstack-protector-all
++CFLAGS-s_scalbln.c = -fstack-protector-all
++CFLAGS-s_significand.c = -fstack-protector-all
++CFLAGS-s_sin.c = -fstack-protector-all
++CFLAGS-s_tan.c = -fstack-protector-all
++CFLAGS-s_tanh.c = -fstack-protector-all
++CFLAGS-w_acos.c = -fstack-protector-all
++CFLAGS-w_acosh.c = -fstack-protector-all
++CFLAGS-w_asin.c = -fstack-protector-all
++CFLAGS-w_atan2.c = -fstack-protector-all
++CFLAGS-w_atanh.c = -fstack-protector-all
++CFLAGS-w_cosh.c = -fstack-protector-all
++CFLAGS-w_drem.c = -fstack-protector-all
++CFLAGS-w_exp.c = -fstack-protector-all
++CFLAGS-w_exp2.c = -fstack-protector-all
++CFLAGS-w_exp10.c = -fstack-protector-all
++CFLAGS-w_fmod.c = -fstack-protector-all
++CFLAGS-w_tgamma.c = -fstack-protector-all
++CFLAGS-w_hypot.c = -fstack-protector-all
++CFLAGS-w_j0.c = -fstack-protector-all
++CFLAGS-w_j1.c = -fstack-protector-all
++CFLAGS-w_jn.c = -fstack-protector-all
++CFLAGS-w_lgamma.c = -fstack-protector-all
++CFLAGS-w_lgamma_r.c = -fstack-protector-all
++CFLAGS-w_log.c = -fstack-protector-all
++CFLAGS-w_log10.c = -fstack-protector-all
++CFLAGS-w_pow.c = -fstack-protector-all
++CFLAGS-w_remainder.c = -fstack-protector-all
++CFLAGS-w_scalb.c = -fstack-protector-all
++CFLAGS-w_sinh.c = -fstack-protector-all
++CFLAGS-w_sqrt.c = -fstack-protector-all
++CFLAGS-s_fpclassify.c = -fstack-protector-all
++CFLAGS-s_fmax.c = -fstack-protector-all
++CFLAGS-s_fmin.c = -fstack-protector-all
++CFLAGS-s_fdim.c = -fstack-protector-all
++CFLAGS-s_nan.c = -fstack-protector-all
++CFLAGS-s_trunc.c = -fstack-protector-all
++CFLAGS-s_remquo.c = -fstack-protector-all
++CFLAGS-e_log2.c = -fstack-protector-all
++CFLAGS-e_exp2.c = -fstack-protector-all
++CFLAGS-s_round.c = -fstack-protector-all
++CFLAGS-s_nearbyint.c = -fstack-protector-all
++CFLAGS-s_sincos.c = -fstack-protector-all
++CFLAGS-conj.c = -fstack-protector-all
++CFLAGS-cimag.c = -fstack-protector-all
++CFLAGS-creal.c = -fstack-protector-all
++CFLAGS-cabs.c = -fstack-protector-all
++CFLAGS-carg.c = -fstack-protector-all
++CFLAGS-s_cexp.c = -fstack-protector-all
++CFLAGS-s_csinh.c = -fstack-protector-all
++CFLAGS-s_ccosh.c = -fstack-protector-all
++CFLAGS-s_clog.c = -fstack-protector-all
++CFLAGS-s_catan.c = -fstack-protector-all
++CFLAGS-s_casin.c = -fstack-protector-all
++CFLAGS-s_ccos.c = -fstack-protector-all
++CFLAGS-s_csin.c = -fstack-protector-all
++CFLAGS-s_ctan.c = -fstack-protector-all
++CFLAGS-s_ctanh.c = -fstack-protector-all
++CFLAGS-s_cacos.c = -fstack-protector-all
++CFLAGS-s_casinh.c = -fstack-protector-all
++CFLAGS-s_cacosh.c = -fstack-protector-all
++CFLAGS-s_catanh.c = -fstack-protector-all
++CFLAGS-s_csqrt.c = -fstack-protector-all
++CFLAGS-s_cpow.c = -fstack-protector-all
++CFLAGS-s_cproj.c = -fstack-protector-all
++CFLAGS-s_clog10.c = -fstack-protector-all
++CFLAGS-s_fma.c = -fstack-protector-all
++CFLAGS-s_lrint.c = -fstack-protector-all
++CFLAGS-s_llrint.c = -fstack-protector-all
++CFLAGS-s_lround.c = -fstack-protector-all
++CFLAGS-s_llround.c = -fstack-protector-all
++CFLAGS-e_exp10.c = -fstack-protector-all
++CFLAGS-w_log2 .c = -fstack-protector-all
++#
++CFLAGS-branred.c = -fstack-protector-all
++CFLAGS-doasin.c = -fstack-protector-all
++CFLAGS-dosincos.c = -fstack-protector-all
++CFLAGS-halfulp.c = -fstack-protector-all
++CFLAGS-mpa.c = -fstack-protector-all
++CFLAGS-mpatan2.c = -fstack-protector-all
++CFLAGS-mpatan.c = -fstack-protector-all
++CFLAGS-mpexp.c = -fstack-protector-all
++CFLAGS-mplog.c = -fstack-protector-all
++CFLAGS-mpsqrt.c = -fstack-protector-all
++CFLAGS-mptan.c = -fstack-protector-all
++CFLAGS-sincos32.c = -fstack-protector-all
++CFLAGS-slowexp.c = -fstack-protector-all
++CFLAGS-slowpow.c = -fstack-protector-all
++CFLAGS-t_sincosl.c = -fstack-protector-all
++CFLAGS-k_sincosl.c = -fstack-protector-all
++CFLAGS-s_isinf.c = -fstack-protector-all
++CFLAGS-s_isnan.c = -fstack-protector-all
++CFLAGS-s_finite.c = -fstack-protector-all
++CFLAGS-s_copysign.c = -fstack-protector-all
++CFLAGS-s_modf.c = -fstack-protector-all
++CFLAGS-s_scalbn.c = -fstack-protector-all
++CFLAGS-s_frexp.c = -fstack-protector-all
++CFLAGS-s_ldexp.c = -fstack-protector-all
++CFLAGS-s_signbit.c = -fstack-protector-all
++#
++
+ # Rules for the test suite.
+ tests = test-matherr test-fenv atest-exp atest-sincos atest-exp2 basic-test \
+ 	test-misc test-fpucw tst-definitions test-tgmath test-tgmath-ret \
+@@ -130,11 +292,11 @@
+ CFLAGS-test-tgmath.c = -fno-builtin
+ CFLAGS-test-tgmath-ret.c = -fno-builtin
+ CPPFLAGS-test-ifloat.c = -U__LIBC_INTERNAL_MATH_INLINES -D__FAST_MATH__ \
+-			 -DTEST_FAST_MATH -fno-builtin
++                         -DTEST_FAST_MATH -fno-builtin
+ CPPFLAGS-test-idouble.c = -U__LIBC_INTERNAL_MATH_INLINES -D__FAST_MATH__ \
+-			 -DTEST_FAST_MATH -fno-builtin
++                         -DTEST_FAST_MATH -fno-builtin
+ CPPFLAGS-test-ildoubl.c = -U__LIBC_INTERNAL_MATH_INLINES -D__FAST_MATH__ \
+-			  -DTEST_FAST_MATH -fno-builtin
++                          -DTEST_FAST_MATH -fno-builtin
+ 
+ distribute += libm-test.inc gen-libm-test.pl README.libm-test
+ 
+diff -Naur glibc-20050124.orig/nis/Makefile glibc-20050124/nis/Makefile
+--- glibc-20050124.orig/nis/Makefile	2005-01-27 19:15:53.837036061 +0000
++++ glibc-20050124/nis/Makefile	2005-01-27 19:16:03.352364613 +0000
+@@ -69,6 +69,44 @@
+ 
+ include ../Rules
+ 
++CFLAGS-yp_xdr.c = -fstack-protector-all
++CFLAGS-ypclnt.c = -fstack-protector-all
++CFLAGS-ypupdate_xdr.c = -fstack-protector-all
++CFLAGS-nis_subr.c = -fstack-protector-all
++CFLAGS-nis_local_names.c = -fstack-protector-all
++CFLAGS-nis_free.c = -fstack-protector-all
++CFLAGS-nis_file.c = -fstack-protector-all
++CFLAGS-nis_print.c = -fstack-protector-all
++CFLAGS-nis_error.c = -fstack-protector-all
++CFLAGS-nis_call.c = -fstack-protector-all
++CFLAGS-nis_lookup.c = -fstack-protector-all
++CFLAGS-nis_table.c = -fstack-protector-all
++CFLAGS-nis_xdr.c = -fstack-protector-all
++CFLAGS-nis_server.c = -fstack-protector-all
++CFLAGS-nis_ping.c = -fstack-protector-all
++CFLAGS-nis_checkpoint.c = -fstack-protector-all
++CFLAGS-nis_mkdir.c = -fstack-protector-all
++CFLAGS-nis_rmdir.c = -fstack-protector-all
++CFLAGS-nis_getservlist.c = -fstack-protector-all
++CFLAGS-nis_verifygroup.c = -fstack-protector-all
++CFLAGS-nis_ismember.c = -fstack-protector-all
++CFLAGS-nis_addmember.c = -fstack-protector-all
++CFLAGS-nis_util.c = -fstack-protector-all
++CFLAGS-nis_removemember.c = -fstack-protector-all
++CFLAGS-nis_creategroup.c = -fstack-protector-all
++CFLAGS-nis_destroygroup.c = -fstack-protector-all
++CFLAGS-nis_print_group_entry.c = -fstack-protector-all
++CFLAGS-nis_domain_of.c = -fstack-protector-all
++CFLAGS-nis_domain_of_r.c = -fstack-protector-all
++CFLAGS-nis_modify.c = -fstack-protector-all
++CFLAGS-nis_remove.c = -fstack-protector-all
++CFLAGS-nis_add.c = -fstack-protector-all
++CFLAGS-nis_defaults.c = -fstack-protector-all
++CFLAGS-nis_findserv.c = -fstack-protector-all
++CFLAGS-nis_callback.c = -fstack-protector-all
++CFLAGS-nis_clone_dir.c = -fstack-protector-all
++CFLAGS-nis_clone_obj.c = -fstack-protector-all
++CFLAGS-nis_clone_res.c = -fstack-protector-all
+ 
+ $(objpfx)libnss_compat.so: $(objpfx)libnsl.so$(libnsl.so-version)
+ $(objpfx)libnss_nis.so: $(objpfx)libnsl.so$(libnsl.so-version) \
+diff -Naur glibc-20050124.orig/nptl/Makefile glibc-20050124/nptl/Makefile
+--- glibc-20050124.orig/nptl/Makefile	2005-01-27 19:15:53.925011363 +0000
++++ glibc-20050124/nptl/Makefile	2005-01-27 19:16:03.356363491 +0000
+@@ -125,65 +125,251 @@
+ libpthread-shared-only-routines = version pt-allocrtsig unwind-forcedunwind
+ libpthread-static-only-routines = pthread_atfork
+ 
+-CFLAGS-pthread_atfork.c = -DNOT_IN_libc
++CFLAGS-alloca_cutoff.c = -fstack-protector-all
++CFLAGS-libc-lowlevellock.c = -fstack-protector-all
++CFLAGS-vars.c = -fstack-protector-all
++CFLAGS-events.c = -fstack-protector-all
++CFLAGS-version.c = -fstack-protector-all
++CFLAGS-pthread_create.c = -fstack-protector-all
++CFLAGS-pthread_detach.c = -fstack-protector-all
++CFLAGS-pthread_tryjoin.c = -fstack-protector-all
++CFLAGS-pthread_self.c = -fstack-protector-all
++CFLAGS-pthread_equal.c = -fstack-protector-all
++CFLAGS-pthread_yield.c = -fstack-protector-all
++CFLAGS-pthread_getconcurrency.c = -fstack-protector-all
++CFLAGS-pthread_setconcurrency.c = -fstack-protector-all
++CFLAGS-pthread_getschedparam.c = -fstack-protector-all
++CFLAGS-pthread_setschedparam.c = -fstack-protector-all
++CFLAGS-pthread_setschedprio.c = -fstack-protector-all
++CFLAGS-pthread_attr_init.c = -fstack-protector-all
++CFLAGS-pthread_attr_destroy.c = -fstack-protector-all
++CFLAGS-pthread_attr_getdetachstate.c = -fstack-protector-all
++CFLAGS-pthread_attr_setdetachstate.c = -fstack-protector-all
++CFLAGS-pthread_attr_getguardsize.c = -fstack-protector-all
++CFLAGS-pthread_attr_setguardsize.c = -fstack-protector-all
++CFLAGS-pthread_attr_getschedparam.c = -fstack-protector-all
++CFLAGS-pthread_attr_setschedparam.c = -fstack-protector-all
++CFLAGS-pthread_attr_getschedpolicy.c = -fstack-protector-all
++CFLAGS-pthread_attr_setschedpolicy.c = -fstack-protector-all
++CFLAGS-pthread_attr_getinheritsched.c = -fstack-protector-all
++CFLAGS-pthread_attr_setinheritsched.c = -fstack-protector-all
++CFLAGS-pthread_attr_getscope.c = -fstack-protector-all
++CFLAGS-pthread_attr_setscope.c = -fstack-protector-all
++CFLAGS-pthread_attr_getstackaddr.c = -fstack-protector-all
++CFLAGS-pthread_attr_setstackaddr.c = -fstack-protector-all
++CFLAGS-pthread_attr_getstacksize.c = -fstack-protector-all
++CFLAGS-pthread_attr_setstacksize.c = -fstack-protector-all
++CFLAGS-pthread_attr_getstack.c = -fstack-protector-all
++CFLAGS-pthread_attr_setstack.c = -fstack-protector-all
++CFLAGS-pthread_getattr_np.c = -fstack-protector-all
++CFLAGS-pthread_mutex_init.c = -fstack-protector-all
++CFLAGS-pthread_mutex_destroy.c = -fstack-protector-all
++CFLAGS-pthread_mutex_lock.c = -fstack-protector-all
++CFLAGS-pthread_mutex_trylock.c = -fstack-protector-all
++CFLAGS-pthread_mutex_timedlock.c = -fstack-protector-all
++CFLAGS-pthread_mutex_unlock.c = -fstack-protector-all
++CFLAGS-pthread_mutexattr_init.c = -fstack-protector-all
++CFLAGS-pthread_mutexattr_destroy.c = -fstack-protector-all
++CFLAGS-pthread_mutexattr_getpshared.c = -fstack-protector-all
++CFLAGS-pthread_mutexattr_setpshared.c = -fstack-protector-all
++CFLAGS-pthread_mutexattr_gettype.c = -fstack-protector-all
++CFLAGS-pthread_mutexattr_settype.c = -fstack-protector-all
++CFLAGS-pthread_rwlock_init.c = -fstack-protector-all
++CFLAGS-pthread_rwlock_destroy.c = -fstack-protector-all
++CFLAGS-pthread_rwlock_rdlock.c = -fstack-protector-all
++CFLAGS-pthread_rwlock_timedrdlock.c = -fstack-protector-all
++CFLAGS-pthread_rwlock_wrlock.c = -fstack-protector-all
++CFLAGS-pthread_rwlock_timedwrlock.c = -fstack-protector-all
++CFLAGS-pthread_rwlock_tryrdlock.c = -fstack-protector-all
++CFLAGS-pthread_rwlock_trywrlock.c = -fstack-protector-all
++CFLAGS-pthread_rwlock_unlock.c = -fstack-protector-all
++CFLAGS-pthread_rwlockattr_init.c = -fstack-protector-all
++CFLAGS-pthread_rwlockattr_destroy.c = -fstack-protector-all
++CFLAGS-pthread_rwlockattr_getpshared.c = -fstack-protector-all
++CFLAGS-pthread_rwlockattr_setpshared .c = -fstack-protector-all
++CFLAGS-pthread_rwlockattr_getkind_np.c = -fstack-protector-all
++CFLAGS-pthread_rwlockattr_setkind_np.c = -fstack-protector-all
++CFLAGS-pthread_cond_init.c = -fstack-protector-all
++CFLAGS-pthread_cond_destroy.c = -fstack-protector-all
++CFLAGS-pthread_cond_signal.c = -fstack-protector-all
++CFLAGS-pthread_cond_broadcast.c = -fstack-protector-all
++CFLAGS-old_pthread_cond_init.c = -fstack-protector-all
++CFLAGS-old_pthread_cond_destroy.c = -fstack-protector-all
++CFLAGS-old_pthread_cond_wait.c = -fstack-protector-all
++CFLAGS-old_pthread_cond_timedwait.c = -fstack-protector-all
++CFLAGS-old_pthread_cond_signal.c = -fstack-protector-all
++CFLAGS-old_pthread_cond_broadcast.c = -fstack-protector-all
++CFLAGS-pthread_condattr_init.c = -fstack-protector-all
++CFLAGS-pthread_condattr_destroy.c = -fstack-protector-all
++CFLAGS-pthread_condattr_getpshared.c = -fstack-protector-all
++CFLAGS-pthread_condattr_setpshared.c = -fstack-protector-all
++CFLAGS-pthread_condattr_getclock.c = -fstack-protector-all
++CFLAGS-pthread_condattr_setclock.c = -fstack-protector-all
++CFLAGS-pthread_spin_init.c = -fstack-protector-all
++CFLAGS-pthread_spin_destroy.c = -fstack-protector-all
++CFLAGS-pthread_spin_lock.c = -fstack-protector-all
++CFLAGS-pthread_spin_trylock.c = -fstack-protector-all
++CFLAGS-pthread_spin_unlock.c = -fstack-protector-all
++CFLAGS-pthread_barrier_init.c = -fstack-protector-all
++CFLAGS-pthread_barrier_destroy.c = -fstack-protector-all
++CFLAGS-pthread_barrier_wait.c = -fstack-protector-all
++CFLAGS-pthread_barrierattr_init.c = -fstack-protector-all
++CFLAGS-pthread_barrierattr_destroy.c = -fstack-protector-all
++CFLAGS-pthread_barrierattr_getpshared.c = -fstack-protector-all
++CFLAGS-pthread_barrierattr_setpshared.c = -fstack-protector-all
++CFLAGS-pthread_key_create.c = -fstack-protector-all
++CFLAGS-pthread_key_delete.c = -fstack-protector-all
++CFLAGS-pthread_getspecific.c = -fstack-protector-all
++CFLAGS-pthread_setspecific.c = -fstack-protector-all
++CFLAGS-pthread_sigmask.c = -fstack-protector-all
++CFLAGS-pthread_kill.c = -fstack-protector-all
++CFLAGS-old_pthread_atfork.c = -fstack-protector-all
++CFLAGS-pthread_atfork.c = -fstack-protector-all
++CFLAGS-pthread_getcpuclockid.c = -fstack-protector-all
++CFLAGS-pthread_clock_gettime.c = -fstack-protector-all
++CFLAGS-pthread_clock_settime.c = -fstack-protector-all
++CFLAGS-sem_init sem_destroy.c = -fstack-protector-all
++CFLAGS-sem_open.c = -fstack-protector-all
++CFLAGS-sem_close.c = -fstack-protector-all
++CFLAGS-sem_unlink.c = -fstack-protector-all
++CFLAGS-sem_getvalue.c = -fstack-protector-all
++CFLAGS-sem_trywait.c = -fstack-protector-all
++CFLAGS-sem_post.c = -fstack-protector-all
++CFLAGS-cleanup.c = -fstack-protector-all
++CFLAGS-cleanup_defer.c = -fstack-protector-all
++CFLAGS-cleanup_compat.c = -fstack-protector-all
++CFLAGS-cleanup_defer_compat.c = -fstack-protector-all
++CFLAGS-pt-longjmp.c = -fstack-protector-all
++CFLAGS-pt-cleanup.c = -fstack-protector-all
++CFLAGS-lowlevellock.c = -fstack-protector-all
++CFLAGS-pt-vfork.c = -fstack-protector-all
++CFLAGS-ptw-write.c = -fstack-protector-all
++CFLAGS-ptw-read.c = -fstack-protector-all
++CFLAGS-ptw-close.c = -fstack-protector-all
++CFLAGS-ptw-fcntl.c = -fstack-protector-all
++CFLAGS-ptw-accept.c = -fstack-protector-all
++CFLAGS-ptw-connect.c = -fstack-protector-all
++CFLAGS-ptw-recv.c = -fstack-protector-all
++CFLAGS-ptw-recvfrom.c = -fstack-protector-all
++CFLAGS-ptw-recvmsg.c = -fstack-protector-all
++CFLAGS-ptw-send.c = -fstack-protector-all
++CFLAGS-ptw-sendmsg.c = -fstack-protector-all
++CFLAGS-ptw-sendto.c = -fstack-protector-all
++CFLAGS-ptw-fsync.c = -fstack-protector-all
++CFLAGS-ptw-lseek.c = -fstack-protector-all
++CFLAGS-ptw-llseek.c = -fstack-protector-all
++CFLAGS-ptw-msync.c = -fstack-protector-all
++CFLAGS-ptw-nanosleep.c = -fstack-protector-all
++CFLAGS-ptw-open.c = -fstack-protector-all
++CFLAGS-ptw-open64.c = -fstack-protector-all
++CFLAGS-ptw-pause.c = -fstack-protector-all
++CFLAGS-ptw-pread.c = -fstack-protector-all
++CFLAGS-ptw-pread64.c = -fstack-protector-all
++CFLAGS-ptw-pwrite.c = -fstack-protector-all
++CFLAGS-ptw-pwrite64.c = -fstack-protector-all
++CFLAGS-ptw-tcdrain.c = -fstack-protector-all
++CFLAGS-ptw-wait.c = -fstack-protector-all
++CFLAGS-ptw-waitpid.c = -fstack-protector-all
++CFLAGS-ptw-msgrcv.c = -fstack-protector-all
++CFLAGS-ptw-msgsnd.c = -fstack-protector-all
++CFLAGS-ptw-sigwait.c = -fstack-protector-all
++CFLAGS-pt-raise.c = -fstack-protector-all
++CFLAGS-sigaction.c = -fstack-protector-all
++CFLAGS-herrno.c = -fstack-protector-all
++CFLAGS-res.c = -fstack-protector-all
++CFLAGS-pt-allocrtsig.c = -fstack-protector-all
++CFLAGS-pthread_kill_other_threads.c = -fstack-protector-all
++CFLAGS-pthread_getaffinity.c = -fstack-protector-all
++CFLAGS-pthread_setaffinity.c = -fstack-protector-all
++CFLAGS-pthread_attr_getaffinity.c = -fstack-protector-all
++CFLAGS-pthread_attr_setaffinity.c = -fstack-protector-all
++CFLAGS-cleanup_routine.c = -fstack-protector-all
++CFLAGS-unwind-forcedunwind.c = -fstack-protector-all
++CFLAGS-version.c = -fstack-protector-all
++CFLAGS-pt-allocrtsig.c = -fstack-protector-all
++
++CFLAGS-pthread_atfork.c = -DNOT_IN_libc -fstack-protector-all
+ 
+ # Since cancellation handling is in large parts handled using exceptions
+ # we have to compile some files with exception handling enabled, some
+ # even with asynchronous unwind tables.
+ 
+ # init.c contains sigcancel_handler().
+-CFLAGS-init.c = -fexceptions -fasynchronous-unwind-tables
++CFLAGS-init.c = -fexceptions -fasynchronous-unwind-tables \
++		-fstack-protector-all
+ # The unwind code itself,
+-CFLAGS-unwind.c = -fexceptions
+-CFLAGS-unwind-forcedunwind.c = -fexceptions -fasynchronous-unwind-tables
++CFLAGS-unwind.c = -fexceptions -fstack-protector-all
++CFLAGS-unwind-forcedunwind.c = -fexceptions -fasynchronous-unwind-tables \
++			       -fstack-protector-all
+ 
+ # The following three functions must be async-cancel safe.
+-CFLAGS-pthread_cancel.c = -fexceptions -fasynchronous-unwind-tables
+-CFLAGS-pthread_setcancelstate.c = -fexceptions -fasynchronous-unwind-tables
+-CFLAGS-pthread_setcanceltype.c = -fexceptions -fasynchronous-unwind-tables
++CFLAGS-pthread_cancel.c = -fexceptions -fasynchronous-unwind-tables \
++			  -fstack-protector-all
++CFLAGS-pthread_setcancelstate.c = -fexceptions -fasynchronous-unwind-tables \
++				  -fstack-protector-all
++CFLAGS-pthread_setcanceltype.c = -fexceptions -fasynchronous-unwind-tables \
++				 -fstack-protector-all
+ 
+ # These are internal functions which similar functionality as setcancelstate
+ # and setcanceltype.
+-CFLAGS-cancellation.c = -fasynchronous-unwind-tables
+-CFLAGS-libc-cancellation.c = -fasynchronous-unwind-tables
++CFLAGS-cancellation.c = -fasynchronous-unwind-tables -fstack-protector-all
++CFLAGS-libc-cancellation.c = -fasynchronous-unwind-tables \
++			     -fstack-protector-all
+ 
+ # Calling pthread_exit() must cause the registered cancel handlers to
+ # be executed.  Therefore exceptions have to be thrown through this
+ # function.
+-CFLAGS-pthread_exit.c = -fexceptions
++CFLAGS-pthread_exit.c = -fexceptions -fstack-protector-all
+ 
+ # Among others, __pthread_unwind is forwarded.  This function must handle
+ # exceptions.
+-CFLAGS-forward.c = -fexceptions
++CFLAGS-forward.c = -fexceptions -fstack-protector-all
+ 
+ # The following are cancellation points.  Some of the functions can
+ # block and therefore temporarily enable asynchronous cancellation.
+ # Those must be compiled asynchronous unwind tables.
+-CFLAGS-pthread_testcancel.c = -fexceptions
+-CFLAGS-pthread_join.c = -fexceptions -fasynchronous-unwind-tables
+-CFLAGS-pthread_timedjoin.c = -fexceptions -fasynchronous-unwind-tables
++CFLAGS-pthread_testcancel.c = -fexceptions -fstack-protector-all
++CFLAGS-pthread_join.c = -fexceptions -fasynchronous-unwind-tables \
++			-fstack-protector-all
++CFLAGS-pthread_timedjoin.c = -fexceptions -fasynchronous-unwind-tables \
++			     -fstack-protector-all
+ CFLAGS-pthread_once.c = $(uses-callbacks) -fexceptions \
+-			-fasynchronous-unwind-tables
+-CFLAGS-pthread_cond_wait.c = -fexceptions -fasynchronous-unwind-tables
+-CFLAGS-pthread_cond_timedwait.c = -fexceptions -fasynchronous-unwind-tables
+-CFLAGS-sem_wait.c = -fexceptions -fasynchronous-unwind-tables
+-CFLAGS-sem_timedwait.c = -fexceptions -fasynchronous-unwind-tables
++			-fasynchronous-unwind-tables -fstack-protector-all
++CFLAGS-pthread_cond_wait.c = -fexceptions -fasynchronous-unwind-tables \
++			     -fstack-protector-all
++CFLAGS-pthread_cond_timedwait.c = -fexceptions -fasynchronous-unwind-tables \
++				  -fstack-protector-all
++CFLAGS-sem_wait.c = -fexceptions -fasynchronous-unwind-tables \
++		    -fstack-protector-all
++CFLAGS-sem_timedwait.c = -fexceptions -fasynchronous-unwind-tables \
++			 -fstack-protector-all
+ 
+ # These are the function wrappers we have to duplicate here.
+-CFLAGS-fcntl.c = -fexceptions -fasynchronous-unwind-tables
+-CFLAGS-lockf.c = -fexceptions
+-CFLAGS-pread.c = -fexceptions -fasynchronous-unwind-tables
+-CFLAGS-pread64.c = -fexceptions -fasynchronous-unwind-tables
+-CFLAGS-pwrite.c = -fexceptions -fasynchronous-unwind-tables
+-CFLAGS-pwrite64.c = -fexceptions -fasynchronous-unwind-tables
+-CFLAGS-wait.c = -fexceptions -fasynchronous-unwind-tables
+-CFLAGS-waitpid.c = -fexceptions -fasynchronous-unwind-tables
+-CFLAGS-sigwait.c = -fexceptions -fasynchronous-unwind-tables
+-CFLAGS-msgrcv.c = -fexceptions -fasynchronous-unwind-tables
+-CFLAGS-msgsnd.c = -fexceptions -fasynchronous-unwind-tables
+-CFLAGS-tcdrain.c = -fexceptions -fasynchronous-unwind-tables
++CFLAGS-fcntl.c = -fexceptions -fasynchronous-unwind-tables \
++		 -fstack-protector-all
++CFLAGS-lockf.c = -fexceptions -fstack-protector-all
++CFLAGS-pread.c = -fexceptions -fasynchronous-unwind-tables \
++		 -fstack-protector-all
++CFLAGS-pread64.c = -fexceptions -fasynchronous-unwind-tables \
++		   -fstack-protector-all
++CFLAGS-pwrite.c = -fexceptions -fasynchronous-unwind-tables \
++		  -fstack-protector-all
++CFLAGS-pwrite64.c = -fexceptions -fasynchronous-unwind-tables \
++		    -fstack-protector-all
++CFLAGS-wait.c = -fexceptions -fasynchronous-unwind-tables \
++		-fstack-protector-all
++CFLAGS-waitpid.c = -fexceptions -fasynchronous-unwind-tables \
++		   -fstack-protector-all
++CFLAGS-sigwait.c = -fexceptions -fasynchronous-unwind-tables \
++		   -fstack-protector-all
++CFLAGS-msgrcv.c = -fexceptions -fasynchronous-unwind-tables \
++		  -fstack-protector-all
++CFLAGS-msgsnd.c = -fexceptions -fasynchronous-unwind-tables \
++		  -fstack-protector-all
++CFLAGS-tcdrain.c = -fexceptions -fasynchronous-unwind-tables \
++		   -fstack-protector-all
+ 
+-CFLAGS-pt-system.c = -fexceptions
++CFLAGS-pt-system.c = -fexceptions -fstack-protector-all
+ 
+ # Don't generate deps for calls with no sources.  See sysdeps/unix/Makefile.
+ omit-deps = $(unix-syscalls:%=ptw-%)
+@@ -329,9 +515,9 @@
+ CFLAGS-pt-initfini.s = -g0 -fPIC -fno-inline-functions $(fno-unit-at-a-time)
+ endif
+ 
+-CFLAGS-flockfile.c = -D_IO_MTSAFE_IO
+-CFLAGS-ftrylockfile.c = -D_IO_MTSAFE_IO
+-CFLAGS-funlockfile.c = -D_IO_MTSAFE_IO
++CFLAGS-flockfile.c = -D_IO_MTSAFE_IO -fstack-protector-all
++CFLAGS-ftrylockfile.c = -D_IO_MTSAFE_IO -fstack-protector-all
++CFLAGS-funlockfile.c = -D_IO_MTSAFE_IO -fstack-protector-all
+ 
+ link-libc-static := $(common-objpfx)libc.a $(static-gnulib) \
+ 		    $(common-objpfx)libc.a
+diff -Naur glibc-20050124.orig/nptl_db/Makefile glibc-20050124/nptl_db/Makefile
+--- glibc-20050124.orig/nptl_db/Makefile	2005-01-27 19:15:54.406876080 +0000
++++ glibc-20050124/nptl_db/Makefile	2005-01-27 19:16:03.359362649 +0000
+@@ -47,6 +47,48 @@
+ 
+ libthread_db-inhibit-o = $(filter-out .os,$(object-suffixes))
+ 
++CFLAGS-nit.c = -fstack-protector-all
++CFLAGS-td_log.c = -fstack-protector-all
++CFLAGS-td_ta_new.c = -fstack-protector-all
++CFLAGS-td_ta_delete.c = -fstack-protector-all
++CFLAGS-td_ta_get_nthreads.c = -fstack-protector-all
++CFLAGS-td_ta_get_ph.c = -fstack-protector-all
++CFLAGS-td_ta_map_id2thr.c = -fstack-protector-all
++CFLAGS-td_ta_map_lwp2thr.c = -fstack-protector-all
++CFLAGS-td_ta_thr_iter.c = -fstack-protector-all
++CFLAGS-td_ta_tsd_iter.c = -fstack-protector-all
++CFLAGS-td_thr_get_info.c = -fstack-protector-all
++CFLAGS-td_thr_getfpregs.c = -fstack-protector-all
++CFLAGS-td_thr_getgregs.c = -fstack-protector-all
++CFLAGS-td_thr_getxregs.c = -fstack-protector-all
++CFLAGS-td_thr_getxregsize.c = -fstack-protector-all
++CFLAGS-td_thr_setfpregs.c = -fstack-protector-all
++CFLAGS-td_thr_setgregs.c = -fstack-protector-all
++CFLAGS-td_thr_setprio.c = -fstack-protector-all
++CFLAGS-td_thr_setsigpending.c = -fstack-protector-all
++CFLAGS-td_thr_setxregs.c = -fstack-protector-all
++CFLAGS-td_thr_sigsetmask.c = -fstack-protector-all
++CFLAGS-td_thr_tsd.c = -fstack-protector-all
++CFLAGS-td_thr_validate.c = -fstack-protector-all
++CFLAGS-td_thr_dbsuspend.c = -fstack-protector-all
++CFLAGS-td_thr_dbresume.c = -fstack-protector-all
++CFLAGS-td_ta_setconcurrency.c = -fstack-protector-all
++CFLAGS-td_ta_enable_stats.c = -fstack-protector-all
++CFLAGS-td_ta_reset_stats.c = -fstack-protector-all
++CFLAGS-td_ta_get_stats.c = -fstack-protector-all
++CFLAGS-td_ta_event_addr.c = -fstack-protector-all
++CFLAGS-td_thr_event_enable.c = -fstack-protector-all
++CFLAGS-td_thr_set_event.c = -fstack-protector-all
++CFLAGS-td_thr_clear_event.c = -fstack-protector-all
++CFLAGS-td_thr_event_getmsg.c = -fstack-protector-all
++CFLAGS-td_ta_set_event.c = -fstack-protector-all
++CFLAGS-td_ta_event_getmsg.c = -fstack-protector-all
++CFLAGS-td_ta_clear_event.c = -fstack-protector-all
++CFLAGS-td_symbol_list.c = -fstack-protector-all
++CFLAGS-td_thr_tlsbase.c = -fstack-protector-all
++CFLAGS-td_thr_tls_get_addr.c = -fstack-protector-all
++CFLAGS-fetch-value.c = -fstack-protector-all
++
+ # The ps_* callback functions are not defined.
+ libthread_db.so-no-z-defs = yes
+ 
+diff -Naur glibc-20050124.orig/nscd/Makefile glibc-20050124/nscd/Makefile
+--- glibc-20050124.orig/nscd/Makefile	2005-01-27 19:15:54.433868502 +0000
++++ glibc-20050124/nscd/Makefile	2005-01-27 19:16:03.362361807 +0000
+@@ -65,17 +65,18 @@
+ 
+ include ../Rules
+ 
+-CFLAGS-nscd_getpw_r.c = -fexceptions
+-CFLAGS-nscd_getgr_r.c = -fexceptions
+-CFLAGS-nscd_gethst_r.c = -fexceptions
+-CFLAGS-nscd_getai.c = -fexceptions
+-CFLAGS-nscd_initgroups.c = -fexceptions
++CFLAGS-nscd_getpw_r.c = -fexceptions -fstack-protector-all
++CFLAGS-nscd_getgr_r.c = -fexceptions -fstack-protector-all
++CFLAGS-nscd_gethst_r.c = -fexceptions -fstack-protector-all
++CFLAGS-nscd_getai.c = -fexceptions -fstack-protector-all
++CFLAGS-nscd_initgroups.c = -fexceptions -fstack-protector-all
+ 
+ nscd-cflags = -DIS_IN_nscd=1
+ ifeq (yesyes,$(have-fpie)$(build-shared))
+ nscd-cflags += -fpie
+ endif
+ 
++nscd-cflags += -fstack-protector-all
+ CFLAGS-nscd.c += $(nscd-cflags)
+ CFLAGS-connections.c += $(nscd-cflags)
+ CFLAGS-pwdcache.c += $(nscd-cflags)
+diff -Naur glibc-20050124.orig/nss/Makefile glibc-20050124/nss/Makefile
+--- glibc-20050124.orig/nss/Makefile	2005-01-27 19:15:54.458861486 +0000
++++ glibc-20050124/nss/Makefile	2005-01-27 19:16:03.364361245 +0000
+@@ -42,6 +42,24 @@
+ tests			= test-netdb
+ xtests			= bug-erange
+ 
++CFLAGS-nsswitch.c = -fstack-protector-all
++CFLAGS-getnssent.c = -fstack-protector-all
++CFLAGS-getnssent_r.c = -fstack-protector-all
++CFLAGS-digits_dots.c = -fstack-protector-all
++CFLAGS-proto-lookup.c = -fstack-protector-all
++CFLAGS-service-lookup.c = -fstack-protector-all
++CFLAGS-hosts-lookup.c = -fstack-protector-all
++CFLAGS-network-lookup.c = -fstack-protector-all
++CFLAGS-grp-lookup.c = -fstack-protector-all
++CFLAGS-pwd-lookup.c = -fstack-protector-all
++CFLAGS-rpc-lookup.c = -fstack-protector-all
++CFLAGS-ethers-lookup.c = -fstack-protector-all
++CFLAGS-spwd-lookup.c = -fstack-protector-all
++CFLAGS-netgrp-lookup.c = -fstack-protector-all
++CFLAGS-key-lookup.c = -fstack-protector-all
++CFLAGS-alias-lookup.c = -fstack-protector-all
++getent-CFLAGS = -fstack-protector-all
++
+ include ../Makeconfig
+ 
+ ifeq (yes,$(build-static-nss))
+@@ -73,7 +91,6 @@
+ 
+ include ../Rules
+ 
+-
+ ifeq (yes,$(build-static-nss))
+ $(objpfx)getent: $(objpfx)libnss_files.a
+ endif
+diff -Naur glibc-20050124.orig/posix/Makefile glibc-20050124/posix/Makefile
+--- glibc-20050124.orig/posix/Makefile	2005-01-27 19:15:54.607819666 +0000
++++ glibc-20050124/posix/Makefile	2005-01-27 19:29:15.519624694 +0000
+@@ -127,32 +127,118 @@
+ endif
+ endif
+ 
+-CFLAGS-regex.c = -Wno-strict-prototypes
+-CFLAGS-getaddrinfo.c = -DRESOLVER -fexceptions -DUSE_NSCD
+-CFLAGS-pread.c = -fexceptions -fasynchronous-unwind-tables
+-CFLAGS-pread64.c = -fexceptions -fasynchronous-unwind-tables
+-CFLAGS-pwrite.c = -fexceptions -fasynchronous-unwind-tables
+-CFLAGS-pwrite64.c = -fexceptions -fasynchronous-unwind-tables
+-CFLAGS-sleep.c = -fexceptions
+-CFLAGS-wait.c = -fexceptions -fasynchronous-unwind-tables
+-CFLAGS-waitid.c = -fexceptions
+-CFLAGS-waitpid.c = -fexceptions -fasynchronous-unwind-tables
+-CFLAGS-getopt.c = -fexceptions
+-CFLAGS-wordexp.c = -fexceptions
++CFLAGS-uname.c = -fstack-protector-all
++CFLAGS-times.c = -fstack-protector-all
++CFLAGS-wait.c = -fexceptions -fasynchronous-unwind-tables \
++		-fstack-protector-all
++CFLAGS-waitpid.c = -fexceptions -fasynchronous-unwind-tables \
++		   -fstack-protector-all
++CFLAGS-wait3.c = -fstack-protector-all
++CFLAGS-wait4.c = -fstack-protector-all
++CFLAGS-waitid.c = -fexceptions -fstack-protector-all
++CFLAGS-alarm.c = -fstack-protector-all
++CFLAGS-sleep.c = -fexceptions -fstack-protector-all
++CFLAGS-pause.c = -fexceptions -fstack-protector-all
++CFLAGS-nanosleep.c = -fstack-protector-all
++CFLAGS-fork.c += -fstack-protector-all
++CFLAGS-vfork.c = -fstack-protector-all
++CFLAGS-_exit.c = -fstack-protector-all
++CFLAGS-execve.c = -fstack-protector-all
++CFLAGS-fexecve.c = -fstack-protector-all
++CFLAGS-execv.c = -fstack-protector-all
++CFLAGS-execle.c = -fstack-protector-all
++CFLAGS-execl.c = -fstack-protector-all
++CFLAGS-execvp.c = -fstack-protector-all
++CFLAGS-execlp.c = -fstack-protector-all
++CFLAGS-getpid.c = -fstack-protector-all
++CFLAGS-getppid.c = -fstack-protector-all
++CFLAGS-getuid.c = -fstack-protector-all
++CFLAGS-geteuid.c = -fstack-protector-all
++CFLAGS-getgid.c = -fstack-protector-all
++CFLAGS-getegid.c = -fstack-protector-all
++CFLAGS-getgroups.c = -fstack-protector-all
++CFLAGS-setuid.c = -fstack-protector-all
++CFLAGS-setgid.c = -fstack-protector-all
++CFLAGS-group_member.c = -fstack-protector-all
++CFLAGS-getpgid.c = -fstack-protector-all
++CFLAGS-setpgid.c = -fstack-protector-all
++CFLAGS-getpgrp.c = -fstack-protector-all
++CFLAGS-bsd-getpgrp.c = -fstack-protector-all
++CFLAGS-setpgrp.c = -fstack-protector-all
++CFLAGS-getsid.c = -fstack-protector-all
++CFLAGS-setsid.c = -fstack-protector-all
++CFLAGS-getresuid.c = -fstack-protector-all
++CFLAGS-getresgid.c = -fstack-protector-all
++CFLAGS-setresuid.c = -fstack-protector-all
++CFLAGS-setresgid.c = -fstack-protector-all
++CFLAGS-getlogin.c = -fstack-protector-all
++CFLAGS-getlogin_r.c = -fstack-protector-all
++CFLAGS-setlogin.c = -fstack-protector-all
++CFLAGS-pathconf.c = -fexceptions -fstack-protector-all
++CFLAGS-sysconf.c = -fexceptions -DGETCONF_DIR='"$(libexecdir)/getconf"' \
++                   -fstack-protector-all
++CFLAGS-fpathconf.c = -fexceptions -fstack-protector-all
++CFLAGS-glob.c = $(uses-callbacks) -fexceptions -fstack-protector-all
++CFLAGS-glob64.c = $(uses-callbacks) -fexceptions -fstack-protector-all
++CFLAGS-fnmatch.c = -fstack-protector-all
++CFLAGS-regex.c = -Wno-strict-prototypes -fstack-protector-all
++CFLAGS-confstr.c = -fstack-protector-all
++CFLAGS-getopt.c = -fexceptions -fstack-protector-all
++CFLAGS-getopt1.c = -fstack-protector-all
++CFLAGS-getopt_init.c = -fstack-protector-all
++CFLAGS-sched_setp.c = -fstack-protector-all
++CFLAGS-sched_getp.c = -fstack-protector-all
++CFLAGS-sched_sets.c = -fstack-protector-all
++CFLAGS-sched_gets.c = -fstack-protector-all
++CFLAGS-sched_yield.c = -fstack-protector-all
++CFLAGS-sched_primax.c = -fstack-protector-all
++CFLAGS-sched_primin.c = -fstack-protector-all
++CFLAGS-sched_rr_gi.c = -fstack-protector-all
++CFLAGS-sched_getaffinity.c = -fstack-protector-all
++CFLAGS-sched_setaffinity.c = -fstack-protector-all
++CFLAGS-getaddrinfo.c = -DRESOLVER -fexceptions -DUSE_NSCD \
++		       -fstack-protector-all
++CFLAGS-gai_strerror.c = -fstack-protector-all
++CFLAGS-wordexp.c = -fexceptions -fstack-protector-all
++CFLAGS-pread.c = -fexceptions -fasynchronous-unwind-tables \
++ 		 -fstack-protector-all
++CFLAGS-pwrite.c = -fexceptions -fasynchronous-unwind-tables \
++		  -fstack-protector-all
++CFLAGS-pread64.c = -fexceptions -fasynchronous-unwind-tables \
++		   -fstack-protector-all
++CFLAGS-pwrite64.c = -fexceptions -fasynchronous-unwind-tables \
++		    -fstack-protector-all
++CFLAGS-spawn_faction_init.c = -fstack-protector-all
++CFLAGS-spawn_faction_destroy.c = -fstack-protector-all
++CFLAGS-spawn_faction_addclose.c = -fstack-protector-all
++CFLAGS-spawn_faction_addopen.c = -fstack-protector-all
++CFLAGS-spawn_faction_adddup2.c = -fstack-protector-all
++CFLAGS-spawnattr_init.c = -fstack-protector-all
++CFLAGS-spawnattr_destroy.c = -fstack-protector-all
++CFLAGS-spawnattr_getdefault.c = -fstack-protector-all
++CFLAGS-spawnattr_setdefault.c = -fstack-protector-all
++CFLAGS-spawnattr_getflags.c = -fstack-protector-all
++CFLAGS-spawnattr_setflags.c = -fstack-protector-all
++CFLAGS-spawnattr_getpgroup.c = -fstack-protector-all
++CFLAGS-spawnattr_setpgroup.c = -fstack-protector-all
++CFLAGS-spawn.c = -fexceptions -fstack-protector-all
++CFLAGS-spawnp.c = -fexceptions -fstack-protector-all
++CFLAGS-spawni.c = -fexceptions -fstack-protector-all
++CFLAGS-spawnattr_getsigmask.c = -fstack-protector-all
++CFLAGS-spawnattr_getschedpolicy.c = -fstack-protector-all
++CFLAGS-spawnattr_getschedparam.c = -fstack-protector-all
++CFLAGS-spawnattr_setsigmask.c = -fstack-protector-all
++CFLAGS-spawnattr_setschedpolicy.c = -fstack-protector-all
++CFLAGS-spawnattr_setschedparam.c = -fstack-protector-all
++CFLAGS-posix_madvise.c = -fstack-protector-all
++CFLAGS-getconf.c = -DGETCONF_DIR='"$(libexecdir)/getconf"' \
++		   -fstack-protector-all
++getconf-CFLAGS = -fstack-protector-all
++
+ CFLAGS-wordexp.os = -fomit-frame-pointer
+-CFLAGS-sysconf.c = -fexceptions -DGETCONF_DIR='"$(libexecdir)/getconf"'
+-CFLAGS-pathconf.c = -fexceptions
+-CFLAGS-fpathconf.c = -fexceptions
+-CFLAGS-spawn.c = -fexceptions
+ CFLAGS-spawn.os = -fomit-frame-pointer
+-CFLAGS-spawnp.c = -fexceptions
+ CFLAGS-spawnp.os = -fomit-frame-pointer
+-CFLAGS-spawni.c = -fexceptions
+ CFLAGS-spawni.os = -fomit-frame-pointer
+-CFLAGS-pause.c = -fexceptions
+-CFLAGS-glob.c = $(uses-callbacks) -fexceptions
+-CFLAGS-glob64.c = $(uses-callbacks) -fexceptions
+-CFLAGS-getconf.c = -DGETCONF_DIR='"$(libexecdir)/getconf"'
+ CFLAGS-execve.os = -fomit-frame-pointer
+ CFLAGS-fexecve.os = -fomit-frame-pointer
+ CFLAGS-execv.os = -fomit-frame-pointer
+diff -Naur glibc-20050124.orig/resolv/Makefile glibc-20050124/resolv/Makefile
+--- glibc-20050124.orig/resolv/Makefile	2005-01-27 19:15:54.716789073 +0000
++++ glibc-20050124/resolv/Makefile	2005-01-27 19:16:03.374358438 +0000
+@@ -51,9 +51,34 @@
+ 		      ns_parse ns_name ns_netint ns_ttl ns_print	\
+ 		      ns_samedomain
+ 
++CFLAGS-gethnamaddr.c = -fstack-protector-all
++CFLAGS-res_comp.c = -fstack-protector-all
++CFLAGS-res_debug.c = -fstack-protector-all
++CFLAGS-res_data.c = -fstack-protector-all
++CFLAGS-res_mkquery.c = -fstack-protector-all
++CFLAGS-res_query.c = -fstack-protector-all
++CFLAGS-res_send.c = -fstack-protector-all
++CFLAGS-inet_net_ntop.c = -fstack-protector-all
++CFLAGS-inet_net_pton.c = -fstack-protector-all
++CFLAGS-inet_neta.c = -fstack-protector-all
++CFLAGS-base64.c = -fstack-protector-all
++CFLAGS-ns_parse.c = -fstack-protector-all
++CFLAGS-ns_name.c = -fstack-protector-all
++CFLAGS-ns_netint.c = -fstack-protector-all
++CFLAGS-ns_ttl.c = -fstack-protector-all
++CFLAGS-ns_print.c = -fstack-protector-all
++CFLAGS-ns_samedomain.c = -fstack-protector-all
++
+ libanl-routines := gai_cancel gai_error gai_misc gai_notify gai_suspend \
+ 		   getaddrinfo_a
+ 
++CFLAGS-gai_cancel.c = -fstack-protector-all
++CFLAGS-gai_error.c = -fstack-protector-all
++CFLAGS-gai_misc.c = -fstack-protector-all
++CFLAGS-gai_notify.c = -fstack-protector-all
++CFLAGS-gai_suspend.c = -fstack-protector-all
++CFLAGS-getaddrinfo_a.c = -fstack-protector-all
++
+ subdir-dirs = nss_dns
+ vpath %.c nss_dns
+ 
+@@ -61,6 +86,9 @@
+ ifneq ($(build-static-nss),yes)
+ libnss_dns-inhibit-o	= $(filter-out .os,$(object-suffixes))
+ endif
++CFLAGS-dns-host.c = -fstack-protector-all
++CFLAGS-dns-network.c = -fstack-protector-all
++CFLAGS-dns-canon.c = -fstack-protector-all
+ 
+ ifeq (yesyes,$(build-shared)$(have-thread-library))
+ tests: $(objpfx)ga_test
+@@ -77,7 +105,15 @@
+ 	    -Dgetnetbyname=res_getnetbyname \
+ 	    -Dgetnetbyaddr=res_getnetbyaddr
+ 
+-CFLAGS-res_hconf.c = -fexceptions
++CFLAGS-herror.c = -fstack-protector-all
++CFLAGS-inet_addr.c = -fstack-protector-all
++CFLAGS-inet_ntop.c = -fstack-protector-all
++CFLAGS-inet_pton.c = -fstack-protector-all
++CFLAGS-nsap_addr.c = -fstack-protector-all
++CFLAGS-res_init.c = -fstack-protector-all
++CFLAGS-res_hconf.c = -fexceptions -fstack-protector-all
++CFLAGS-res_libc.c = -fstack-protector-all
++CFLAGS-res-state.c = -fstack-protector-all
+ 
+ # The BIND code elicits some harmless warnings.
+ +cflags += -Wno-strict-prototypes -Wno-write-strings
+diff -Naur glibc-20050124.orig/rt/Makefile glibc-20050124/rt/Makefile
+--- glibc-20050124.orig/rt/Makefile	2005-01-27 19:15:54.777771952 +0000
++++ glibc-20050124/rt/Makefile	2005-01-27 19:16:03.376357877 +0000
+@@ -54,9 +54,46 @@
+ 
+ include ../Rules
+ 
+-CFLAGS-aio_suspend.c = -fexceptions
+-CFLAGS-clock_nanosleep.c = -fexceptions -fasynchronous-unwind-tables
+-CFLAGS-librt-cancellation.c = -fasynchronous-unwind-tables
++CFLAGS-aio_cancel.c = -fstack-protector-all
++CFLAGS-aio_error.c = -fstack-protector-all
++CFLAGS-aio_fsync.c = -fstack-protector-all
++CFLAGS-aio_misc.c = -fstack-protector-all
++CFLAGS-aio_read.c = -fstack-protector-all
++CFLAGS-aio_read64.c = -fstack-protector-all
++CFLAGS-aio_return.c = -fstack-protector-all
++CFLAGS-aio_suspend.c = -fexceptions -fstack-protector-all
++CFLAGS-aio_write.c = -fstack-protector-all
++CFLAGS-aio_write64.c = -fstack-protector-all
++CFLAGS-lio_listio.c = -fstack-protector-all
++CFLAGS-lio_listio64.c = -fstack-protector-all
++CFLAGS-aio_sigqueue.c = -fstack-protector-all
++CFLAGS-aio_notify.c = -fstack-protector-all
++CFLAGS-get_clockfreq.c = -fstack-protector-all
++CFLAGS-clock_getcpuclockid.c = -fstack-protector-all
++CFLAGS-clock_getres.c = -fstack-protector-all
++CFLAGS-clock_gettime.c = -fstack-protector-all
++CFLAGS-clock_settime.c = -fstack-protector-all
++CFLAGS-clock_nanosleep.c = -fexceptions -fasynchronous-unwind-tables\
++			   -fstack-protector-all
++CFLAGS-timer_create.c = -fstack-protector-all
++CFLAGS-timer_delete.c = -fstack-protector-all
++CFLAGS-timer_getoverr.c = -fstack-protector-all
++CFLAGS-timer_gettime.c = -fstack-protector-all
++CFLAGS-timer_settime.c = -fstack-protector-all
++CFLAGS-shm_open.c = -fstack-protector-all
++CFLAGS-shm_unlink.c = -fstack-protector-all
++CFLAGS-mq_open.c = -fstack-protector-all
++CFLAGS-mq_close.c = -fstack-protector-all
++CFLAGS-mq_unlink.c = -fstack-protector-all
++CFLAGS-mq_getattr.c = -fstack-protector-all
++CFLAGS-mq_setattr.c = -fstack-protector-all
++CFLAGS-mq_notify.c = -fstack-protector-all
++CFLAGS-mq_send.c = -fstack-protector-all
++CFLAGS-mq_receive.c = -fstack-protector-all
++CFLAGS-mq_timedsend.c = -fstack-protector-all
++CFLAGS-mq_timedreceive.c = -fstack-protector-all
++CFLAGS-librt-cancellation.c = -fstack-protector-all \
++			      -fasynchronous-unwind-tables
+ 
+ LDFLAGS-rt.so = -Wl,--enable-new-dtags,-z,nodelete
+ 
+diff -Naur glibc-20050124.orig/sunrpc/Makefile glibc-20050124/sunrpc/Makefile
+--- glibc-20050124.orig/sunrpc/Makefile	2005-01-27 19:15:55.057693365 +0000
++++ glibc-20050124/sunrpc/Makefile	2005-01-27 19:16:03.379357035 +0000
+@@ -107,24 +107,77 @@
+ omit-deps = $(librpcsvc-routines)
+ endif
+ 
+-CFLAGS-xbootparam_prot.c = -Wno-unused
+-CFLAGS-xnlm_prot.c = -Wno-unused
+-CFLAGS-xrstat.c = -Wno-unused
+-CFLAGS-xyppasswd.c = -Wno-unused
+-CFLAGS-xklm_prot.c = -Wno-unused
+-CFLAGS-xrex.c = -Wno-unused
+-CFLAGS-xsm_inter.c = -Wno-unused
+-CFLAGS-xmount.c = -Wno-unused
+-CFLAGS-xrusers.c = -Wno-unused
+-CFLAGS-xspray.c = -Wno-unused
+-CFLAGS-xnfs_prot.c = -Wno-unused
+-CFLAGS-xrquota.c = -Wno-unused
+-CFLAGS-xkey_prot.c = -Wno-unused
+-CFLAGS-auth_unix.c = -fexceptions
+-CFLAGS-key_call.c = -fexceptions
+-CFLAGS-pmap_rmt.c = -fexceptions
+-CFLAGS-clnt_perr.c = -fexceptions
+-CFLAGS-openchild.c = -fexceptions
++CFLAGS-auth_none.c = -fstack-protector-all
++CFLAGS-authuxprot.c = -fstack-protector-all
++CFLAGS-bindrsvprt.c = -fstack-protector-all
++CFLAGS-clnt_gen.c = -fstack-protector-all
++CFLAGS-clnt_raw.c = -fstack-protector-all
++CFLAGS-clnt_simp.c = -fstack-protector-all
++CFLAGS-clnt_tcp.c = -fstack-protector-all
++CFLAGS-clnt_udp.c = -fstack-protector-all
++CFLAGS-rpc_dtable.c = -fstack-protector-all
++CFLAGS-get_myaddr.c = -fstack-protector-all
++CFLAGS-getrpcport.c = -fstack-protector-all
++CFLAGS-pmap_clnt.c = -fstack-protector-all
++CFLAGS-pm_getmaps.c = -fstack-protector-all
++CFLAGS-pm_getport.c = -fstack-protector-all
++CFLAGS-pmap_prot.c = -fstack-protector-all
++CFLAGS-pmap_prot2.c = -fstack-protector-all
++CFLAGS-rpc_prot.c = -fstack-protector-all
++CFLAGS-rpc_common.c = -fstack-protector-all
++CFLAGS-rpc_cmsg.c = -fstack-protector-all
++CFLAGS-rpc_thread.c = -fstack-protector-all
++CFLAGS-svc.c = -fstack-protector-all
++CFLAGS-svc_auth.c = -fstack-protector-all
++CFLAGS-svc_authux.c = -fstack-protector-all
++CFLAGS-svc_raw.c = -fstack-protector-all
++CFLAGS-svc_run.c = -fstack-protector-all
++CFLAGS-svc_simple.c = -fstack-protector-all
++CFLAGS-svc_tcp.c = -fstack-protector-all
++CFLAGS-svc_udp.c = -fstack-protector-all
++CFLAGS-xdr.c = -fstack-protector-all
++CFLAGS-xdr_array.c = -fstack-protector-all
++CFLAGS-xdr_float.c = -fstack-protector-all
++CFLAGS-xdr_mem.c = -fstack-protector-all
++CFLAGS-xdr_rec.c = -fstack-protector-all
++CFLAGS-xdr_ref.c = -fstack-protector-all
++CFLAGS-xdr_stdio.c = -fstack-protector-all
++CFLAGS-publickey.c = -fstack-protector-all
++CFLAGS-xdr_sizeof.c = -fstack-protector-all
++CFLAGS-auth_des.c = -fstack-protector-all
++CFLAGS-authdes_prot.c = -fstack-protector-all
++CFLAGS-des_crypt.c = -fstack-protector-all
++CFLAGS-des_impl.c = -fstack-protector-all
++CFLAGS-des_soft.c = -fstack-protector-all
++CFLAGS-key_prot.c = -fstack-protector-all
++CFLAGS-netname.c = -fstack-protector-all
++CFLAGS-rtime.c = -fstack-protector-all
++CFLAGS-svcauth_des.c = -fstack-protector-all
++CFLAGS-xcrypt.c = -fstack-protector-all
++CFLAGS-clnt_unix.c = -fstack-protector-all
++CFLAGS-svc_unix.c = -fstack-protector-all
++CFLAGS-create_xid.c = -fstack-protector-all
++CFLAGS-xdr_intXX_t.c = -fstack-protector-all
++CFLAGS-xbootparam_prot.c = -Wno-unused -fstack-protector-all
++CFLAGS-xnlm_prot.c = -Wno-unused -fstack-protector-all
++CFLAGS-xrstat.c = -Wno-unused -fstack-protector-all
++CFLAGS-xyppasswd.c = -Wno-unused -fstack-protector-all
++CFLAGS-xklm_prot.c = -Wno-unused -fstack-protector-all
++CFLAGS-xrex.c = -Wno-unused -fstack-protector-all
++CFLAGS-xsm_inter.c = -Wno-unused -fstack-protector-all
++CFLAGS-xmount.c = -Wno-unused -fstack-protector-all
++CFLAGS-xrusers.c = -Wno-unused -fstack-protector-all
++CFLAGS-xspray.c = -Wno-unused -fstack-protector-all
++CFLAGS-xnfs_prot.c = -Wno-unused -fstack-protector-all
++CFLAGS-xrquota.c = -Wno-unused -fstack-protector-all
++CFLAGS-xkey_prot.c = -Wno-unused -fstack-protector-all
++CFLAGS-auth_unix.c = -fexceptions -fstack-protector-all
++CFLAGS-key_call.c = -fexceptions -fstack-protector-all
++CFLAGS-pmap_rmt.c = -fexceptions -fstack-protector-all
++CFLAGS-clnt_perr.c = -fexceptions -fstack-protector-all
++CFLAGS-openchild.c = -fexceptions -fstack-protector-all
++rpcgen-CFLAGS = -fstack-protector-all
++rpcinfo-CFLAGS = -fstack-protector-all
+ 
+ ifeq (yes,$(have_doors))
+ CPPFLAGS-key_call.c += -DHAVE_DOORS=1
+diff -Naur glibc-20050124.orig/sysdeps/ieee754/Makefile glibc-20050124/sysdeps/ieee754/Makefile
+--- glibc-20050124.orig/sysdeps/ieee754/Makefile	2005-01-27 19:15:56.141389119 +0000
++++ glibc-20050124/sysdeps/ieee754/Makefile	2005-01-27 19:16:03.385355351 +0000
+@@ -1,5 +1,5 @@
+ ifeq ($(subdir),math)
+ sysdep_headers += ieee754.h
+-CFLAGS-k_standard.c = -Wno-write-strings
++CFLAGS-k_standard.c = -Wno-write-strings -fstack-protector-all
+ endif
+ 
+diff -Naur glibc-20050124.orig/sysdeps/unix/sysv/linux/Makefile glibc-20050124/sysdeps/unix/sysv/linux/Makefile
+--- glibc-20050124.orig/sysdeps/unix/sysv/linux/Makefile	2005-01-27 19:15:57.997867912 +0000
++++ glibc-20050124/sysdeps/unix/sysv/linux/Makefile	2005-01-27 19:16:03.388354509 +0000
+@@ -3,19 +3,31 @@
+ endif
+ 
+ ifeq ($(subdir),assert)
+-CFLAGS-assert.c += -DFATAL_PREPARE_INCLUDE='<fatal-prepare.h>'
+-CFLAGS-assert-perr.c += -DFATAL_PREPARE_INCLUDE='<fatal-prepare.h>'
++CFLAGS-assert.c += -DFATAL_PREPARE_INCLUDE='<fatal-prepare.h>' -fstack-protector-all
++CFLAGS-assert-perr.c += -DFATAL_PREPARE_INCLUDE='<fatal-prepare.h>' -fstack-protector-all
+ endif
+ 
+ ifeq ($(subdir),malloc)
+-CFLAGS-malloc.c += -DMORECORE_CLEARS=2
++CFLAGS-malloc.c += -DMORECORE_CLEARS=2 -fstack-protector-all
+ endif
+ 
+ ifeq ($(subdir),misc)
+ sysdep_routines += sysctl clone llseek umount umount2 readahead \
+ 		   setfsuid setfsgid makedev
+ 
+-CFLAGS-gethostid.c = -fexceptions
++# Begin SSP bug.
++# This will segfault if built with SSP.
++CFLAGS-sysctl.c = -fno-stack-protector -fno-stack-protector-all
++# End SSP bug.
++CFLAGS-clone.c = -fstack-protector-all
++CFLAGS-llseek.c = -fstack-protector-all
++CFLAGS-umount.c = -fstack-protector-all
++CFLAGS-umount2.c = -fstack-protector-all
++CFLAGS-readahead.c = -fstack-protector-all
++CFLAGS-setfsuid.c = -fstack-protector-all
++CFLAGS-setfsgid.c = -fstack-protector-all
++CFLAGS-makedev.c = -fstack-protector-all
++CFLAGS-gethostid.c = -fexceptions -fstack-protector-all
+ 
+ sysdep_headers += sys/mount.h sys/acct.h sys/sysctl.h \
+ 		  sys/klog.h sys/kdaemon.h \
+@@ -90,6 +102,7 @@
+ sysdep_headers += sys/timex.h
+ 
+ sysdep_routines += ntp_gettime
++CFLAGS-ntp_gettime.c = -fstack-protector-all
+ endif
+ 
+ ifeq ($(subdir),socket)
+@@ -97,6 +110,8 @@
+ 		  net/ppp_defs.h net/if_arp.h net/route.h net/ethernet.h \
+ 		  net/if_slip.h net/if_packet.h net/if_shaper.h
+ sysdep_routines += cmsg_nxthdr sa_len
++CFLAGS-cmsg_nxthdr.c = -fstack-protector-all
++CFLAGS-sa_len.c = -fstack-protector-all
+ endif
+ 
+ ifeq ($(subdir),sunrpc)
+@@ -116,6 +131,7 @@
+ sysdep_headers += bits/initspin.h
+ 
+ sysdep_routines += exit-thread
++CFLAGS-exit-thread.c = -fstack-protector-all
+ endif
+ 
+ ifeq ($(subdir),inet)
+@@ -130,28 +146,35 @@
+ 
+ ifeq ($(subdir),dirent)
+ sysdep_routines += getdirentries getdirentries64
++CFLAGS-getdirentries.c = -fstack-protector-all
++CFLAGS-getdirentries64.c = -fstack-protector-all
+ endif
+ 
+ ifeq ($(subdir),nis)
+-CFLAGS-ypclnt.c = -DUSE_BINDINGDIR=1
++CFLAGS-ypclnt.c = -DUSE_BINDINGDIR=1 -fstack-protector-all
+ endif
+ 
+ ifeq ($(subdir),io)
+ sysdep_routines += xstatconv internal_statvfs internal_statvfs64
++CFLAGS-xstatconv.c = -fstack-protector-all
++CFLAGS-internal_statvfs.c = -fstack-protector-all
++CFLAGS-internal_statvfs64.c = -fstack-protector-all
+ endif
+ 
+ ifeq ($(subdir),elf)
+ sysdep-rtld-routines += dl-brk dl-sbrk
++CFLAGS-dl-brk.c = -fstack-protector-all
++CFLAGS-dl-sbrk.c = -fstack-protector-all
+ 
+ CPPFLAGS-lddlibc4 += -DNOT_IN_libc
+ endif
+ 
+ ifeq ($(subdir),rt)
+-CFLAGS-mq_send.c += -fexceptions
+-CFLAGS-mq_receive.c += -fexceptions
++CFLAGS-mq_send.c += -fexceptions -fstack-protector-all
++CFLAGS-mq_receive.c += -fexceptions -fstack-protector-all
+ endif
+ 
+ ifeq ($(subdir),nscd)
+-CFLAGS-connections.c += -DHAVE_EPOLL
+-CFLAGS-gai.c += -DNEED_NETLINK
++CFLAGS-connections.c += -DHAVE_EPOLL -fstack-protector-all
++CFLAGS-gai.c += -DNEED_NETLINK -fstack-protector-all
+ endif
+diff -Naur glibc-20050124.orig/sysdeps/unix/sysv/linux/i386/Makefile glibc-20050124/sysdeps/unix/sysv/linux/i386/Makefile
+--- glibc-20050124.orig/sysdeps/unix/sysv/linux/i386/Makefile	2005-01-27 19:15:58.214807006 +0000
++++ glibc-20050124/sysdeps/unix/sysv/linux/i386/Makefile	2005-01-27 19:16:03.391353667 +0000
+@@ -1,6 +1,10 @@
+ ifeq ($(subdir),misc)
+ sysdep_routines += ioperm iopl vm86
+ sysdep_headers += sys/elf.h sys/perm.h sys/reg.h sys/vm86.h sys/debugreg.h sys/io.h
++CFLAGS-ioperm.c = -fstack-protector-all
++CFLAGS-iopl.c = -fstack-protector-all
++CFLAGS-vm86.c = -fstack-protector-all
++lddlibc4-CFLAGS = -fstack-protector-all
+ endif
+ 
+ ifeq ($(subdir),elf)
+@@ -11,4 +15,5 @@
+ 
+ ifeq ($(subdir),resource)
+ sysdep_routines += oldgetrlimit64
++CFLAGS-oldgetrlimit64.c = -fstack-protector-all
+ endif
+diff -Naur glibc-20050124.orig/timezone/Makefile glibc-20050124/timezone/Makefile
+--- glibc-20050124.orig/timezone/Makefile	2005-01-27 19:15:59.191532788 +0000
++++ glibc-20050124/timezone/Makefile	2005-01-27 19:16:03.393353105 +0000
+@@ -164,12 +164,12 @@
+ tz-cflags = -DTZDIR='"$(zonedir)"' \
+ 	    -DTZDEFAULT='"$(localtime-file)"' \
+ 	    -DTZDEFRULES='"$(posixrules-file)"' \
+-	    -DTM_GMTOFF=tm_gmtoff -DTM_ZONE=tm_zone
++	    -DTM_GMTOFF=tm_gmtoff -DTM_ZONE=tm_zone -fstack-protector-all
+ 
+ CFLAGS-zdump.c = -Wno-strict-prototypes -DNOID $(tz-cflags) -DHAVE_GETTEXT
+ CFLAGS-zic.c = -Wno-strict-prototypes -DNOID $(tz-cflags) -DHAVE_GETTEXT
+-CFLAGS-ialloc.c = -Wno-strict-prototypes -DNOID -DHAVE_GETTEXT
+-CFLAGS-scheck.c = -Wno-strict-prototypes -DNOID -DHAVE_GETTEXT
++CFLAGS-ialloc.c = -Wno-strict-prototypes -DNOID -DHAVE_GETTEXT -fstack-protector-all
++CFLAGS-scheck.c = -Wno-strict-prototypes -DNOID -DHAVE_GETTEXT -fstack-protector-all
+ 
+ # We have to make sure the data for testing the tz functions is available.
+ # Don't add leapseconds here since test-tz made checks that work only without

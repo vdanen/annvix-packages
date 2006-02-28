@@ -1,0 +1,134 @@
+diff -Nuar console-tools-0.2.3/include/lct/Makefile.am console-tools+thai-0.2.3/include/lct/Makefile.am
+--- console-tools-0.2.3/include/lct/Makefile.am	Fri Apr  9 04:29:42 1999
++++ console-tools+thai-0.2.3/include/lct/Makefile.am	Wed Oct 17 17:39:34 2001
+@@ -7,6 +7,6 @@
+ 
+ pkginclude_HEADERS = font.h console.h unicode.h utils.h \
+ 	ksyms.h modifiers.h \
+-	cyrillic.syms.h ethiopic.syms.h latin8.syms.h
++	cyrillic.syms.h ethiopic.syms.h thai.syms.h latin8.syms.h
+ 
+ noinst_HEADERS = local.h
+diff -Nuar console-tools-0.2.3/include/lct/thai.syms.h console-tools+thai-0.2.3/include/lct/thai.syms.h
+--- console-tools-0.2.3/include/lct/thai.syms.h	Thu Jan  1 07:00:00 1970
++++ console-tools+thai-0.2.3/include/lct/thai.syms.h	Wed Oct 17 15:20:25 2001
+@@ -0,0 +1,98 @@
++char *tis_620_syms[] = { /* A0-FF */
++    "nobreakspace",		/* AO  */
++    "thai_kokai",
++    "thai_khokhai",
++    "thai_khokhuat",
++    "thai_khokhwai",
++    "thai_khokhon",
++    "thai_khorakhang",
++    "thai_ngongu",
++    "thai_chochan",
++    "thai_choching",
++    "thai_chochang",
++    "thai_soso",
++    "thai_chochoe",
++    "thai_yoying",
++    "thai_dochada",
++    "thai_topatak",
++    "thai_thothan",		/* B0 */
++    "thai_thonangmontho",
++    "thai_thophuthao",
++    "thai_nonen",
++    "thai_dodek",
++    "thai_totao",
++    "thai_thothung",
++    "thai_thothahan",
++    "thai_thothong",
++    "thai_nonu",
++    "thai_bobaimai",
++    "thai_popla",
++    "thai_phophung",
++    "thai_fofa",
++    "thai_phophan",
++    "thai_fofan",
++    "thai_phosamphao",		/* C0 */
++    "thai_moma",
++    "thai_yoyak",
++    "thai_rorua",
++    "thai_ru",
++    "thai_loling",
++    "thai_lu",
++    "thai_wowaen",
++    "thai_sosala",
++    "thai_sorusi",
++    "thai_sosua",
++    "thai_hohip",
++    "thai_lochula",
++    "thai_oang",
++    "thai_honokhuk",
++    "thai_paiyannoi",
++    "thai_saraa",		/* D0 */
++    "thai_maihanakat",
++    "thai_saraaa",
++    "thai_saraam",
++    "thai_sarai",
++    "thai_saraii",
++    "thai_saraue",
++    "thai_sarauee",
++    "thai_sarau",
++    "thai_sarauu",
++    "thai_phinthu",
++    "",
++    "",
++    "",
++    "",
++    "thai_baht",
++    "thai_sarae",		/* E0 */
++    "thai_saraae",
++    "thai_sarao",
++    "thai_saraaimaimuan",
++    "thai_saraaimaimalai",
++    "thai_lakkhangyao",
++    "thai_maiyamok",
++    "thai_maitaikhu",
++    "thai_maiek",
++    "thai_maitho",
++    "thai_maitri",
++    "thai_maichattawa",
++    "thai_thanthakhat",
++    "thai_nikhahit",
++    "thai_yamakkan",
++    "thai_fongman",
++    "thai_leksun",		/* F0 */
++    "thai_leknung",
++    "thai_leksong",
++    "thai_leksam",
++    "thai_leksi",
++    "thai_lekha",
++    "thai_lekhok",
++    "thai_lekchet",
++    "thai_lekpaet",
++    "thai_lekkao",
++    "thai_angkhankhu",
++    "thai_khomut",
++    "",
++    "",
++    "",
++    ""
++};
+diff -Nuar console-tools-0.2.3/lib/ksyms.c console-tools+thai-0.2.3/lib/ksyms.c
+--- console-tools-0.2.3/lib/ksyms.c	Tue Jul 20 02:40:38 1999
++++ console-tools+thai-0.2.3/lib/ksyms.c	Wed Oct 17 18:22:07 2001
+@@ -9,6 +9,7 @@
+ #include <lct/cyrillic.syms.h>
+ #include <lct/ethiopic.syms.h>
+ #include <lct/latin8.syms.h>
++#include <lct/thai.syms.h>
+ 
+ 
+ static char *iso_8859_1_syms[] =
+@@ -942,6 +943,9 @@
+     { "koi8-r",     koi8_r_syms, 160 },
+     { "koi8-u",     koi8_r_syms, 160 },
+     { "iso-10646-18", iso_10646_18_syms, 159 },		/* ethiopic */
++  /* Thai keysyms include all chars in tis-620, not just
++   those existing in ketmanee - Theppitak Karoonboonyanan */
++    { "tis-620",     tis_620_syms, 160 },
+     { NULL, NULL, 0 }		/* we depend on 1st field (charset) being NULL */
+ };
+ 

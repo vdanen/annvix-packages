@@ -1,0 +1,89 @@
+--- imap-2002a/docs/SSLBUILD.mdk	2003-01-05 15:48:24.000000000 -0500
++++ imap-2002a/docs/SSLBUILD	2003-01-05 15:56:42.000000000 -0500
+@@ -6,8 +6,8 @@
+  2) Obtain a copy of OpenSSL.  OpenSSL is available from third parties.  We
+     do not provide OpenSSL.
+  3) Make sure that you know how to build OpenSSL properly on the standard
+-    /usr/local/ssl directory.  In particular, /usr/local/ssl/include (and
+-    /usr/local/ssl/include/openssl) and /usr/local/ssl/lib must be set up
++    /usr/lib/ssl directory.  In particular, /usr/lib/ssl/include (and
++    /usr/lib/ssl/include/openssl) and /usr/lib/ssl/lib must be set up
+     from the OpenSSL build.  If you have a non-standard installation, then
+     you must modify the imap-2002a/src/osdep/unix/Makefile file to point
+     to the appropriate locations.
+@@ -62,29 +62,29 @@
+ STEP 1:	inetd setup
+ 
+      The ipop2d, ipop3d, and imapd daemons should be installed in a system
+-daemon directory (in the following examples, /usr/local/etc is used), and
++daemon directory (in the following examples, /sbin is used), and
+ invoked by your /etc/inetd.conf file with lines such as:
+ 
+-pop	stream	tcp	nowait	root	/usr/local/etc/ipop2d	ipop2d
+-pop3	stream	tcp	nowait	root	/usr/local/etc/ipop3d	ipop3d
+-imap	stream	tcp	nowait	root	/usr/local/etc/imapd	imapd
+-pop3s	stream	tcp	nowait	root	/usr/local/etc/ipop3d	ipop3d
+-imaps	stream	tcp	nowait	root	/usr/local/etc/imapd	imapd
++pop	stream	tcp	nowait	root	/sbin/ipop2d	ipop2d
++pop3	stream	tcp	nowait	root	/sbin/ipop3d	ipop3d
++imap	stream	tcp	nowait	root	/sbin/imapd	imapd
++pop3s	stream	tcp	nowait	root	/sbin/ipop3d	ipop3d
++imaps	stream	tcp	nowait	root	/sbin/imapd	imapd
+ 
+      Please refer to imap-2002a/docs/BUILD for an important note about inetd's
+ limit on the number of new connections.  If that note applies to you, and you
+ can configure the number of connection in /etc/inetd.conf as described in
+ imap-2002a/docs/build, here is the sample /etc/inetd.conf entry with SSL:
+ 
+-pop3	stream	tcp	nowait.100	root	/usr/local/etc/ipop3d	ipop3d
+-pop3s	stream	tcp	nowait.100	root	/usr/local/etc/ipop3d	ipop3d
+-imap	stream	tcp	nowait.100	root	/usr/local/etc/imapd	imapd
+-imaps	stream	tcp	nowait.100	root	/usr/local/etc/imapd	imapd
++pop3	stream	tcp	nowait.100	root	/sbin/ipop3d	ipop3d
++pop3s	stream	tcp	nowait.100	root	/sbin/ipop3d	ipop3d
++imap	stream	tcp	nowait.100	root	/sbin/imapd	imapd
++imaps	stream	tcp	nowait.100	root	/sbin/imapd	imapd
+  (or, if you use TCP wrappers)
+-pop3	stream	tcp	nowait.100	root	/usr/local/etc/tcpd	ipop3d
+-imap	stream	tcp	nowait.100	root	/usr/local/etc/tcpd	imapd
+-pop3s	stream	tcp	nowait.100	root	/usr/local/etc/ipop3d	ipop3d
+-imaps	stream	tcp	nowait.100	root	/usr/local/etc/imapd	imapd
++pop3	stream	tcp	nowait.100	root	/sbin/tcpd	ipop3d
++imap	stream	tcp	nowait.100	root	/sbin/tcpd	imapd
++pop3s	stream	tcp	nowait.100	root	/sbin/ipop3d	ipop3d
++imaps	stream	tcp	nowait.100	root	/sbin/imapd	imapd
+ 
+ NOTE: do *NOT* use TCP wrappers (tcpd) for the imaps and pop3s services!  I
+ don't know why, but it doesn't work with TCP wrappers.
+@@ -114,7 +114,7 @@
+ install proper certificates!  It is NOT supported to run SSL-enabled servers
+ on a system without the proper certificates.
+ 
+-     You must set up certificates on /usr/local/ssl/certs (this may be
++     You must set up certificates on /etc/ssl/imap (this may be
+ different if you have a non-standard installation of OpenSSL; for example,
+ FreeBSD has modified OpenSSL to use /usr/local/certs).  You should install
+ both the certificate authority certificates from the SSL distribution after
+@@ -122,10 +122,10 @@
+ purchased from a certificate authority, although self-signed certificates are
+ permissible.  A sample certificate file is at the end of this document.
+ 
+-     Install the resulting certificate file on /usr/local/ssl/certs, with a
++     Install the resulting certificate file on /etc/ssl/imap, with a
+ file name consisting of the server name and a suffix of ".pem".  For example,
+-install the imapd certificate on /usr/local/ssl/certs/imapd.pem and the ipop3d
+-certificate on /usr/local/ssl/certs/ipop3d.pem.  These files should be
++install the imapd certificate on /etc/ssl/imap/imapd.pem and the ipop3d
++certificate on /etc/ssl/imap/ipop3d.pem.  These files should be
+ protected against random people accessing them.  It is permissible for
+ imapd.pem and ipop3d.pem to be links to the same file.
+ 
+@@ -147,7 +147,7 @@
+      If you have a multihomed system with multiple domain names (and hence
+ separate certifications for each domain name), you can append the IP address
+ to the service name.  For example, the IMAP certificate for [12.34.56.78]
+-would be /usr/local/ssl/certs/imapd-12.34.56.78.pem and so on.  You only need
++would be /etc/ssl/imap/imapd-12.34.56.78.pem and so on.  You only need
+ to use this feature if you need to use multiple certificates.
+ 
+ 

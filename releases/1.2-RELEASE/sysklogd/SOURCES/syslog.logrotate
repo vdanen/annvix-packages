@@ -1,0 +1,15 @@
+# WARNING : don't use * wildcard as extension
+# (glob in logrotate will try to rotate all files instead of
+#  only the basenames of the logs, i.e. it will rotate 
+#  already rotated files and recompress them, taking 
+#  exponential time...)
+
+/var/log/auth.log /var/log/syslog /var/log/user.log /var/log/secure /var/log/messages /var/log/boot.log /var/log/mail.log /var/log/cron /var/log/kernel /var/log/daemons {
+    	sharedscripts
+	create 620 root syslogd
+        rotate 5
+        weekly
+        postrotate
+          /sbin/runsvctrl h /service/syslogd #
+        endscript
+}

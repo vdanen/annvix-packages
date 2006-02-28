@@ -1,0 +1,101 @@
+--- bootloader-utils-1.6/grub.avx	2004-02-27 02:51:33.000000000 -0500
++++ bootloader-utils-1.6/grub	2005-02-05 21:06:52.000000000 -0500
+@@ -50,7 +50,7 @@
+ 
+ # we keep entry as hash for future use.
+ my (%main, %entry);
+-my $grub_conf = $ENV{GRUB_CONF} || "/boot/grub/menu.lst";
++my $grub_conf = $ENV{GRUB_CONF} || "/boot/grub/grub.conf";
+ 
+ `cp -f $grub_conf ${grub_conf}.old` if -f $grub_conf && !$debug;
+ 
+@@ -206,6 +206,14 @@
+ 	}
+     };
+     close F;
++    if ($part =~ "^/dev/md") {
++      my @x = split('/',$part);
++      my $foo = `grep $x[2] /proc/mdstat`;
++      my @x = split(' ',$foo);
++      my @x = split('\[',$x[4]);
++      $part = $x[0];
++      $part = "/dev/$part";
++    }
+     return  $part
+ }
+ sub basename { local $_ = shift; s|/*\s*$||; s|.*/||; $_ }
+--- bootloader-utils-1.6/installkernel.avx	2004-06-15 22:18:21.000000000 -0600
++++ bootloader-utils-1.6/installkernel	2004-06-15 22:18:21.000000000 -0600
+@@ -211,7 +211,7 @@
+ [[ -z "$NOLINK" ]] && [[ -n "$REMOVE" ]] && do_load_loop_module
+ [[ -z "$NOINITRD" ]] && [[ -z "$REMOVE" ]] && $sharfile/make-initrd $NOLINK $version
+ if [[ $HOSTTYPE == *586 ]];then
+-    [[  ! -e /boot/grub/menu.lst && ! -e /etc/lilo.conf ]] && exit 0 #this is for install time.
++    [[  ! -e /boot/grub/grub.conf && ! -e /etc/lilo.conf ]] && exit 0 #this is for install time.
+ elif [[ $HOSTTYPE == *powerpc ]];then
+      [[  ! -e /etc/yaboot.conf ]] && exit 0
+ fi
+--- bootloader-utils-1.6/rebootin.avx	2004-06-15 22:19:29.000000000 -0600
++++ bootloader-utils-1.6/rebootin	2004-06-15 22:19:29.000000000 -0600
+@@ -15,7 +15,7 @@
+ 
+ my $lilo_conf = "/etc/lilo.conf";
+ 
+-my $grub_menu = "/boot/grub/menu.lst";
++my $grub_menu = "/boot/grub/grub.conf";
+ my $grub_once = "/boot/grub/menu.once";
+ my @entries;
+ my $bootloader  = `/usr/sbin/detectloader -q` or die "Can't detect your bootloader\n";chomp $bootloader;
+@@ -64,7 +64,7 @@
+ 
+     grep { m|^altconfigfile\s.*grub/menu\.once| } @l or die "rebootin is of no use without altconfigfile\n";
+     list_entries() if $list;
+-    @entries > 0 or die "bad menu.lst (no entry found)\n";
++    @entries > 0 or die "bad grub.conf (no entry found)\n";
+     @ARGV == 1 or usage();
+ 
+     for (my $i = 0; $i < @entries; $i++) {
+--- bootloader-utils-1.6/rebootin.8.avx	2004-06-15 22:20:03.000000000 -0600
++++ bootloader-utils-1.6/rebootin.8	2004-06-15 22:20:03.000000000 -0600
+@@ -26,7 +26,7 @@
+ Don't reboot immediately just set the flags for next reboot.
+ .SH FILES
+ /etc/lilo.conf
+-/boot/grub/menu.lst
++/boot/grub/grub.conf
+ .br
+ The \fBrebootin\fP executable (perl script)
+ .PP
+--- bootloader-utils-1.6/detectloader.avx	2005-02-05 19:10:17.000000000 -0700
++++ bootloader-utils-1.6/detectloader	2005-02-05 19:10:17.000000000 -0700
+@@ -28,7 +28,7 @@
+     my @all = read_partitions();
+     my @parts = grep { $_->{dev} =~ /\d$/ } @all;
+     my @disks = grep { $_->{dev} !~ /\d$/ } @all;
+-    my $from_lilo = get_boot_from_lilo();
++    # my $from_lilo = get_boot_from_lilo();
+     my $loader;
+     my $from_lilo_devfs = "/dev/" . readlink($from_lilo);
+ 
+--- bootloader-utils-1.6/memtest86.avx	2005-09-17 11:54:30.000000000 -0400
++++ bootloader-utils-1.6/memtest86	2005-09-17 11:56:39.000000000 -0400
+@@ -19,7 +19,7 @@
+ my $debug = 0;
+ my $boot = "/boot/";
+ 
+-my $grub_conf = $ENV{GRUB_CONF} ? $ENV{GRUB_CONF} : "/boot/grub/menu.lst";
++my $grub_conf = $ENV{GRUB_CONF} ? $ENV{GRUB_CONF} : "/boot/grub/grub.conf";
+ my $lilo_conf = $ENV{LILO_CONF} ? $ENV{LILO_CONF} : "/etc/lilo.conf";
+ 
+ my ($lilo, $grub);
+--- bootloader-utils-1.6/Makefile.avx	2005-09-17 11:59:42.000000000 -0400
++++ bootloader-utils-1.6/Makefile	2005-09-17 11:59:42.000000000 -0400
+@@ -35,7 +35,7 @@
+ 	install -m755 yaboot $(ROOT)/usr/share/loader
+ else
+ 	# hammer and x86 use lilo
+-	install -D -m755 lilo grub $(ROOT)/usr/share/loader
++	install -D -m755 lilo grub memtest86 $(ROOT)/usr/share/loader
+ endif
+ 
+ version:

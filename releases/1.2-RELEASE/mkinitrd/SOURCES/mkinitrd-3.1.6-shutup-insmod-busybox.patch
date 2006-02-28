@@ -1,0 +1,10 @@
+--- ./mkinitrd_helper-subdir/insmod-busybox/insmod-frontend.c.gege	Fri Dec  8 00:15:22 2000
++++ ./mkinitrd_helper-subdir/insmod-busybox/insmod-frontend.c	Fri Sep 14 14:02:12 2001
+@@ -19,6 +19,6 @@
+ 
+ int main( int argc, char **argv)
+ {
+-	printf("Using insmod provided by busybox.\n");
++  //	printf("Using insmod provided by busybox.\n");
+ 	return insmod_main(argc, argv);
+ }

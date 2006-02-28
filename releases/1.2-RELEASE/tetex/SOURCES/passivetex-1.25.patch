@@ -1,0 +1,1276 @@
+diff -uNr tetex-src-2.0.2.orig/xmltex/contrib/passivetex/fotex.sty tetex-src-2.0.2/xmltex/contrib/passivetex/fotex.sty
+--- tetex-src-2.0.2.orig/xmltex/contrib/passivetex/fotex.sty	2003-10-13 17:19:26.000000000 +0200
++++ tetex-src-2.0.2/xmltex/contrib/passivetex/fotex.sty	2003-10-22 14:19:00.000000000 +0200
+@@ -1,4 +1,4 @@
+-%RCS: $Id: //TEI/web/Software/passivetex/fotex.sty#41 $, $Date: 2003/03/06 $
++%RCS: $Id: //TEI/web/Software/passivetex/fotex.sty#44 $, $Date: 2003/08/23 $
+ %
+ % Copyright 2003 Sebastian Rahtz/Oxford University  
+ %      <sebastian.rahtz@oucs.ox.ac.uk>
+@@ -15,7 +15,7 @@
+ % in all copies or substantial portions of the Software.
+ %
+ \batchmode
+-\ProvidesPackage{fotex}[2003/03/06: version 1.24. support for XSL formatting, S Rahtz]
++\ProvidesPackage{fotex}[2003/03/10: version 1.25. support for XSL formatting, S Rahtz]
+ \RequirePackage{graphicx,color}
+ %\IfFileExists{multicol.sty}
+ %  {\RequirePackage{multicol}[1997/12/16]}
+@@ -24,31 +24,31 @@
+ %}
+ 
+ \def\confirmnomulticols{
+-	\RequirePackage{nomulticol}[2003/01/09]
+-	\typeout{INFO (nomulticol.sty:  fo:block span="all" works}
++        \RequirePackage{nomulticol}[2003/01/09]
++        \typeout{INFO (nomulticol.sty:  fo:block span="all" works}
+ }
+ \def\warnnomulticols{
+-	\RequirePackage{multicol}[1997/12/16]
+-	\typeout{WARNING (multicol.sty:  fo:block span="all" does not work}
+-	\fakenomulticols
++        \RequirePackage{multicol}[1997/12/16]
++        \typeout{WARNING (multicol.sty:  fo:block span="all" does not work}
++        \fakenomulticols
+ }
+ \def\warnmulticols{
+-	\typeout{WARNING (no multicol.sty:  multiple columns not available}
+-	\newenvironment{multicols}[1]{\typeout{Warning,  at line \the\inputlineno, multicol package not available}}{}
+-	\fakenomulticols
++        \typeout{WARNING (no multicol.sty:  multiple columns not available}
++        \newenvironment{multicols}[1]{\typeout{Warning,  at line \the\inputlineno, multicol package not available}}{}
++        \fakenomulticols
+ }
+ \def\fakenomulticols{
+-	\def\nobeginmulticols##1{\begin{multicols}{##1}}
+-   	\def\noendmulticols{\end{multicols}}
+-	\def\interbeginmulticols##1{}
+-	\let\interendmulticols\relax
+-	\let\refreshmulticols\relax
++        \def\nobeginmulticols##1{\begin{multicols}{##1}}
++        \def\noendmulticols{\end{multicols}}
++        \def\interbeginmulticols##1{}
++        \let\interendmulticols\relax
++        \let\refreshmulticols\relax
+ }
+ \IfFileExists{nomulticol.sty}
+ {\confirmnomulticols}
+ {\IfFileExists{multicol.sty}
+-	{\warnnomulticols}
+-	{\warnmulticols}
++        {\warnnomulticols}
++        {\warnmulticols}
+ }
+ \RequirePackage{rotating}
+ \RequirePackage{array}
+@@ -70,7 +70,7 @@
+ \RequirePackage{ucharacters}
+ %\usepackage{ucs}\usepackage[utf8]{inputenc}
+ \RequirePackage{nameref}
+-\RequirePackage[colorlinks=false,plainpages=true,hypertexnames=false,pdfborder={1 0 0}]{hyperref}[1999/08/1]
++\RequirePackage[pdfcreator={PassiveTeX 1.25},colorlinks=false,plainpages=true,hypertexnames=false,pdfborder={1 0 0}]{hyperref}[1999/08/1]
+ %-------------------------------------------
+ \newcount\FOListBlocks
+ \edef\This@FOListBlocks{\the\FOListBlocks}
+@@ -158,7 +158,7 @@
+     \def\FOborderendstyle{#2}%
+     \def\FOborderbeforestyle{#2}%
+     \def\FOborderafterstyle{#2}%
+-	\interpretwidth
++        \interpretwidth
+ }
+ \def\FOexpandattributes{%
+ %
+@@ -314,64 +314,64 @@
+ }
+ 
+ \def\saveinterlineskip{%
+-	\edef\savedbaselineskip{\the\baselineskip}%
+-	\edef\savedlineskip{\the\lineskip}%
+-	\edef\savedlineskiplimit{\the\lineskiplimit}%
+-	\baselineskip=-1000pt\relax
+-	\lineskiplimit=16383pt\relax
+-	\lineskip=0pt
++        \edef\savedbaselineskip{\the\baselineskip}%
++        \edef\savedlineskip{\the\lineskip}%
++        \edef\savedlineskiplimit{\the\lineskiplimit}%
++        \baselineskip=-1000pt\relax
++        \lineskiplimit=16383pt\relax
++        \lineskip=0pt
+ }
+ 
+ \def\restoreinterlineskip{%
+-	\baselineskip\savedbaselineskip\relax
+-	\lineskip\savedlineskip\relax
+-	\lineskiplimit\savedlineskiplimit\relax
++        \baselineskip\savedbaselineskip\relax
++        \lineskip\savedlineskip\relax
++        \lineskiplimit\savedlineskiplimit\relax
+ }
+ 
+ \def\NoTableStart#1{#1}
+ 
+ \def\NoTableEnd{%
+-	\clearArray{fotable\the\AbsoluteTableCount:}%
+-  	\clearArray{fotabletextalign\the\AbsoluteTableCount:}%
+-  	\clearArray{fotableborderbeforestyle\the\AbsoluteTableCount:}%
+-  	\clearArray{fotableborderafterstyle\the\AbsoluteTableCount:}%
+-  	\clearArray{fotableborderstartstyle\the\AbsoluteTableCount:}%
+-  	\clearArray{fotableborderendstyle\the\AbsoluteTableCount:}%
+-  	\clearArray{fotableborderbeforewidth\the\AbsoluteTableCount:}%
+-  	\clearArray{fotableborderafterwidth\the\AbsoluteTableCount:}%
+-  	\clearArray{fotableborderstartwidth\the\AbsoluteTableCount:}%
+-  	\clearArray{fotableborderendwidth\the\AbsoluteTableCount:}%
+-  	\clearArray{fotableborderbeforecolor\the\AbsoluteTableCount:}%
+-  	\clearArray{fotableborderaftercolor\the\AbsoluteTableCount:}%
+-  	\clearArray{fotableborderstartcolor\the\AbsoluteTableCount:}%
+-  	\clearArray{fotableborderendcolor\the\AbsoluteTableCount:}%
++        \clearArray{fotable\the\AbsoluteTableCount:}%
++        \clearArray{fotabletextalign\the\AbsoluteTableCount:}%
++        \clearArray{fotableborderbeforestyle\the\AbsoluteTableCount:}%
++        \clearArray{fotableborderafterstyle\the\AbsoluteTableCount:}%
++        \clearArray{fotableborderstartstyle\the\AbsoluteTableCount:}%
++        \clearArray{fotableborderendstyle\the\AbsoluteTableCount:}%
++        \clearArray{fotableborderbeforewidth\the\AbsoluteTableCount:}%
++        \clearArray{fotableborderafterwidth\the\AbsoluteTableCount:}%
++        \clearArray{fotableborderstartwidth\the\AbsoluteTableCount:}%
++        \clearArray{fotableborderendwidth\the\AbsoluteTableCount:}%
++        \clearArray{fotableborderbeforecolor\the\AbsoluteTableCount:}%
++        \clearArray{fotableborderaftercolor\the\AbsoluteTableCount:}%
++        \clearArray{fotableborderstartcolor\the\AbsoluteTableCount:}%
++        \clearArray{fotableborderendcolor\the\AbsoluteTableCount:}%
+ }
+ 
+ \def\NoTableColumn{%
+-   	\ifx\@empty\FOcolumnnumber
+-   	 	\global\advance\NCols by 1
+-   	\else
+-   	 	\global\NCols\FOcolumnnumber
+-   	\fi
+-   	\ifx\prop@width\FOcolumnwidth\def\FOcolumnwidth{1in}\fi
+-   	\ifx\@empty\FOcolumnwidth\def\FOcolumnwidth{1in}\fi
+-   	\TablePercentToDimen{\FOcolumnwidth}%
+-   	\addToArray{fotable\the\AbsoluteTableCount:}{\the\@tempdima}%
+-   	\addToArray{fotabletextalign\the\AbsoluteTableCount:}{\FOtextalign}%
+-  	\addToArray{fotableborderbeforestyle\the\AbsoluteTableCount:}{\FOborderbeforestyle}%
+-  	\addToArray{fotableborderafterstyle\the\AbsoluteTableCount:}{\FOborderafterstyle}%
+-  	\addToArray{fotableborderstartstyle\the\AbsoluteTableCount:}{\FOborderstartstyle}%
+-  	\addToArray{fotableborderendstyle\the\AbsoluteTableCount:}{\FOborderendstyle}%
+-  	\addToArray{fotableborderbeforewidth\the\AbsoluteTableCount:}{\FOborderbeforewidth}%
+-  	\addToArray{fotableborderafterwidth\the\AbsoluteTableCount:}{\FOborderafterwidth}%
+-  	\addToArray{fotableborderstartwidth\the\AbsoluteTableCount:}{\FOborderstartwidth}%
+-  	\addToArray{fotableborderendwidth\the\AbsoluteTableCount:}{\FOborderendwidth}%
+-  	\addToArray{fotableborderbeforecolor\the\AbsoluteTableCount:}{\FOborderbeforecolor}%
+-  	\addToArray{fotableborderaftercolor\the\AbsoluteTableCount:}{\FOborderaftercolor}%
+-  	\addToArray{fotableborderstartcolor\the\AbsoluteTableCount:}{\FOborderstartcolor}%
+-  	\addToArray{fotableborderendcolor\the\AbsoluteTableCount:}{\FOborderendcolor}%
+-   	\DEBUG{Table Column \the\NCols, in Table \the\AbsoluteTableCount, 
+-     	\FOcolumnwidth, = \the\@tempdima}%
++        \ifx\@empty\FOcolumnnumber
++                \global\advance\NCols by 1
++        \else
++                \global\NCols\FOcolumnnumber
++        \fi
++        \ifx\prop@width\FOcolumnwidth\def\FOcolumnwidth{1in}\fi
++        \ifx\@empty\FOcolumnwidth\def\FOcolumnwidth{1in}\fi
++        \TablePercentToDimen{\FOcolumnwidth}%
++        \addToArray{fotable\the\AbsoluteTableCount:}{\the\@tempdima}%
++        \addToArray{fotabletextalign\the\AbsoluteTableCount:}{\FOtextalign}%
++        \addToArray{fotableborderbeforestyle\the\AbsoluteTableCount:}{\FOborderbeforestyle}%
++        \addToArray{fotableborderafterstyle\the\AbsoluteTableCount:}{\FOborderafterstyle}%
++        \addToArray{fotableborderstartstyle\the\AbsoluteTableCount:}{\FOborderstartstyle}%
++        \addToArray{fotableborderendstyle\the\AbsoluteTableCount:}{\FOborderendstyle}%
++        \addToArray{fotableborderbeforewidth\the\AbsoluteTableCount:}{\FOborderbeforewidth}%
++        \addToArray{fotableborderafterwidth\the\AbsoluteTableCount:}{\FOborderafterwidth}%
++        \addToArray{fotableborderstartwidth\the\AbsoluteTableCount:}{\FOborderstartwidth}%
++        \addToArray{fotableborderendwidth\the\AbsoluteTableCount:}{\FOborderendwidth}%
++        \addToArray{fotableborderbeforecolor\the\AbsoluteTableCount:}{\FOborderbeforecolor}%
++        \addToArray{fotableborderaftercolor\the\AbsoluteTableCount:}{\FOborderaftercolor}%
++        \addToArray{fotableborderstartcolor\the\AbsoluteTableCount:}{\FOborderstartcolor}%
++        \addToArray{fotableborderendcolor\the\AbsoluteTableCount:}{\FOborderendcolor}%
++        \DEBUG{Table Column \the\NCols, in Table \the\AbsoluteTableCount, 
++        \FOcolumnwidth, = \the\@tempdima}%
+ }
+ \def\NoTableRow#1{%
+  \setbox0=\vbox{
+@@ -406,10 +406,10 @@
+ }
+ 
+ \def\inheritfromcolumn#1#2{%
+-  	\explicitattribute{#1}%
+-  	\ifx\isexplicit\relax
+-		\expandafter\edef\csname FO#2\endcsname{\csname fotable#2\the\AbsoluteTableCount:\the\CellCount\endcsname}%
+-	\fi
++        \explicitattribute{#1}%
++        \ifx\isexplicit\relax
++                \expandafter\edef\csname FO#2\endcsname{\csname fotable#2\the\AbsoluteTableCount:\the\CellCount\endcsname}%
++        \fi
+ }
+ 
+ \def\NoTableCell#1{%
+@@ -729,7 +729,7 @@
+ \gdef\performpercent#1{\defpercentother\edef\dopercent{\noexpand\percenttest#1\relax%.\noexpand\@}\dopercent}
+ 
+ \gdef\TablePercentToDimen#1{\performpercent{#1}
+-	{\@tempdimb\percentval pt\relax\divide\@tempdimb by 100
++        {\@tempdimb\percentval pt\relax\divide\@tempdimb by 100
+    \edef\SCALE{\strip@pt\@tempdimb}\global\@tempdima=\SCALE\TableWidth}{\global\@tempdima#1}
+ }
+ \gdef\PercentToDimen#1{\performpercent{#1}
+@@ -914,19 +914,19 @@
+ }
+ 
+ \gdef\focompress@elt#1{%
+-	\global\advance\sortcount\@ne
+-	\ifnum#1=\sortcount\relax
+-		\edef\foheld{#1}%
+-  	\else
+-		\ifx\foheld\relax
+-		\else
+-			\FOrangechar
+-		\fi
+-   		\foheld\fosep#1\relax   
+-		\let\foheld\relax
+- 	\fi
+- 	\global\sortcount#1\relax
+- 	\def\fosep{, }%
++        \global\advance\sortcount\@ne
++        \ifnum#1=\sortcount\relax
++                \edef\foheld{#1}%
++        \else
++                \ifx\foheld\relax
++                \else
++                        \FOrangechar
++                \fi
++                \foheld\fosep#1\relax   
++                \let\foheld\relax
++        \fi
++        \global\sortcount#1\relax
++        \def\fosep{, }%
+ } 
+ 
+ % headers
+@@ -1023,22 +1023,22 @@
+     \ifhmode
+       \unskip\unskip \par
+     \fi
+-	\ifInInsertion
+-	\else
+-    	\if@newlist
++        \ifInInsertion
++        \else
++        \if@newlist
+ % removed this test 2000/11/05. always put in topsep.
+-%      		\if@nobreak
+-%      		  	\@nbitem
+-%      		\else
+-       	 		\addpenalty\@beginparpenalty
+-        		\addvspace\@topsep
+-        		\addvspace{-\parskip}%
+-%      		\fi
+-    	\else
+-      		\addpenalty\@itempenalty
+-      		\addvspace\itemsep
+-    	\fi
+-	\fi
++%               \if@nobreak
++%                       \@nbitem
++%               \else
++                        \addpenalty\@beginparpenalty
++                        \addvspace\@topsep
++                        \addvspace{-\parskip}%
++%               \fi
++        \else
++                \addpenalty\@itempenalty
++                \addvspace\itemsep
++        \fi
++        \fi
+     \global\@inlabeltrue
+   \fi
+   \global\everypar{%
+@@ -1126,77 +1126,80 @@
+ % vertical spacing
+ \newskip\FOafterskip
+ \def\FOvspaceafter{%
+-	\ifFOinOutput
+-	\else
+-		\ifnum\FOTableNesting>0
+-		\else
+-			\ifx\@empty\FOspaceafter
+-				\@tempdima\FOspaceafteroptimum
+-				\advance\@tempdima by -\FOspaceafterminimum
+-				\@tempdimb\FOspaceafteroptimum
+-				\advance\@tempdimb by \FOspaceaftermaximum
+-				\FOafterskip\FOspaceafteroptimum plus \@tempdimb minus \@tempdima
+-			\else
+-				\FOafterskip\FOspaceafter
+-			\fi
+-			\@tempswafalse
+-			\ifx\FOkeepwithnext\att@always\@tempswatrue\fi
+-			\ifx\FOkeepwithnextColumn\att@always\@tempswatrue\fi
+-			\ifx\FOkeepwithnextPage\att@always\@tempswatrue\fi
+-			\addvspace\FOafterskip
+-			\if@tempswa\addpenalty{9996}\fi
+-		\fi
+-	\fi
++        \ifFOinOutput
++        \else
++                \ifnum\FOTableNesting>0
++                \else
++                        \ifx\@empty\FOspaceafter
++                                \@tempdima\FOspaceafteroptimum
++                                \advance\@tempdima by -\FOspaceafterminimum
++                                \@tempdimb\FOspaceafteroptimum
++                                \advance\@tempdimb by \FOspaceaftermaximum
++                                \FOafterskip\FOspaceafteroptimum plus \@tempdimb minus \@tempdima
++                        \else
++                                \FOafterskip\FOspaceafter
++                        \fi
++                        \@tempswafalse
++                        \ifx\FOkeepwithnext\att@always\@tempswatrue\fi
++                        \ifx\FOkeepwithnextColumn\att@always\@tempswatrue\fi
++                        \ifx\FOkeepwithnextPage\att@always\@tempswatrue\fi
++                        \addvspace\FOafterskip
++                        \if@tempswa \addpenalty{9996}\fi
++                \fi
++        \fi
+ }
+ 
+ \@secpenalty = -300
+ \def\FOvspacebefore{%
+-	\ifFOinOutput
+-	\else
+-		\ifx\@empty\FOspacebefore
+-			\@tempdima\FOspacebeforeoptimum
+-			\advance\@tempdima by -\FOspacebeforeminimum
+-			\@tempdimb\FOspacebeforeoptimum
+-			\advance\@tempdimb by \FOspacebeforemaximum
+-			\@tempskipa\FOspacebeforeoptimum plus \@tempdimb minus \@tempdima
+-		\else
+-			\@tempskipa\FOspacebefore
+-		\fi
+-	%\typeout{SPACE BEFORE \the\inputlineno: \the\@tempskipa, \FOspacebeforeminimum/\FOspacebeforemaximum/\FOspacebeforeoptimum}%
+-		\ifnum\FOTableNesting>0
+-			\rule{\z@}{\@tempskipa}%
+-		\else
+-			\@tempswafalse
+-			\ifx\FOkeepwithnext\att@always\@tempswatrue\fi
+-			\ifx\FOkeepwithnextColumn\att@always\@tempswatrue\fi
+-			\ifx\FOkeepwithnextPage\att@always\@tempswatrue\fi
+-			\@tempskipb\f@baselineskip\relax\@tempskipb3\@tempskipb\relax
+-			\ifx\@empty\FOspacebefore\else\if@tempswa\vskip0pt plus \@tempskipb\addpenalty\@secpenalty\vskip-\lastskip\fi\fi
+-			\addvspace\@tempskipa
+-		\fi
+-	\fi
+-	\def\FOspacebefore{\z@}%
++        \ifFOinOutput
++        \else
++                \ifx\@empty\FOspacebefore
++                        \@tempdima\FOspacebeforeoptimum
++                        \advance\@tempdima by -\FOspacebeforeminimum
++                        \@tempdimb\FOspacebeforeoptimum
++                        \advance\@tempdimb by \FOspacebeforemaximum
++                        \@tempskipa\FOspacebeforeoptimum plus \@tempdimb minus \@tempdima
++                \else
++                        \@tempskipa\FOspacebefore
++                \fi
++        %\typeout{SPACE BEFORE \the\inputlineno: \the\@tempskipa, \FOspacebeforeminimum/\FOspacebeforemaximum/\FOspacebeforeoptimum}%
++                \ifnum\FOTableNesting>0
++                        \rule{\z@}{\@tempskipa}%
++                \else
++                        \@tempswafalse
++                        \ifx\FOkeepwithnext\att@always\@tempswatrue\fi
++                        \ifx\FOkeepwithnextColumn\att@always\@tempswatrue\fi
++                        \ifx\FOkeepwithnextPage\att@always\@tempswatrue\fi
++                        \@tempskipb\f@baselineskip\relax\@tempskipb3\@tempskipb\relax
++                        %\ifx\@empty\FOspacebefore\else
++                        %\if@tempswa\vskip0pt plus \@tempskipb
++                        %\addpenalty\@secpenalty\vskip-\lastskip\fi\fi
++                        \if@tempswa\addpenalty\@secpenalty\fi
++                        \addvspace\@tempskipa
++                \fi
++        \fi
++        \def\FOspacebefore{\z@}%
+ }
+ 
+ \def\addpenalty#1{%
+-  	\ifvmode
+-    	\if@minipage
+-    	\else
+-      		\if@nobreak
+-      		\else
+-        		\ifdim\lastskip=\z@
+-          			\penalty#1\relax
+-        		\else
+-          			\@tempskipb\lastskip
+-          			\vskip -\lastskip
+-          			\penalty#1%
+-          			\vskip\@tempskipb
+-        		\fi
+-      		\fi
+-    	\fi
+-  	\else
+-   		\@noitemerr
+-  	\fi
++        \ifvmode
++        \if@minipage
++        \else
++                \if@nobreak
++                \else
++                        \ifdim\lastskip=\z@
++                                \penalty#1\relax
++                        \else
++                                \@tempskipb\lastskip
++                                \vskip -\lastskip
++                                \penalty#1%
++                                \vskip\@tempskipb
++                        \fi
++                \fi
++        \fi
++        \else
++                \@noitemerr
++        \fi
+ }
+ % lets do some setup
+ % setup
+@@ -1246,106 +1249,106 @@
+ %\catcode`\^^M\active\gdef\@resetactivechars{\def^^M{x}}\endgroup
+ 
+ \def\@outputpage{%
+-	\begingroup           % the \endgroup is put in by \aftergroup
+-  	\let\protect\noexpand
++        \begingroup           % the \endgroup is put in by \aftergroup
++        \let\protect\noexpand
+ %  \@resetactivechars
+-  	\@parboxrestore
+-  	\shipout\vbox{%
+-    	\set@typeset@protect
+-    	\aftergroup\endgroup
+-    	\aftergroup\set@typeset@protect
++        \@parboxrestore
++        \shipout\vbox{%
++        \set@typeset@protect
++        \aftergroup\endgroup
++        \aftergroup\set@typeset@protect
+                                 % correct? or just restore by ending
+                                 % the group?
+-		\if@specialpage
+-%	\typeout{PAGE=FIRST \the\c@page}%
+-			\global\@specialpagefalse
+-			\def\@thehead{\csname\FirstHead\endcsname}%
+-			\def\@thefoot{\csname\FirstTail\endcsname}%
+-			\let\@themargin\oddsidemargin
+-			\def\headheight{\FirstHeadExtent}%
+-			\def\tailheight{\FirstTailExtent}%
+-		\else
+-			\ifBlankPage
++                \if@specialpage
++%       \typeout{PAGE=FIRST \the\c@page}%
++                        \global\@specialpagefalse
++                        \def\@thehead{\csname\FirstHead\endcsname}%
++                        \def\@thefoot{\csname\FirstTail\endcsname}%
++                        \let\@themargin\oddsidemargin
++                        \def\headheight{\FirstHeadExtent}%
++                        \def\tailheight{\FirstTailExtent}%
++                \else
++                        \ifBlankPage
+ %\typeout{PAGE=BLANK \the\c@page}%
+-				\global\BlankPagefalse
+-				\def\@thehead{\csname\BlankHead\endcsname}%
+-				\def\@thefoot{\csname\BlankTail\endcsname}%
+-				\let\@themargin\oddsidemargin
+-				\def\headheight{\BlankHeadExtent}%
+-				\def\tailheight{\BlankTailExtent}%
+-			\else
+-				\ifodd\count\z@ 
+-%	\typeout{PAGE=ODD \the\c@page}%
+-					\def\@thehead{\csname\OddHead\endcsname}%
+-					\def\@thefoot{\csname\OddTail\endcsname}%
+-					\let\@themargin\oddsidemargin
+-					\def\headheight{\OddHeadExtent}%
+-					\def\tailheight{\OddTailExtent}%
+-				\else 
+-%	\typeout{PAGE=EVEN \the\c@page}%
+-					\def\@thehead{\csname\EvenHead\endcsname}%
+-					\def\@thefoot{\csname\EvenTail\endcsname}%
+-					\let\@themargin\evensidemargin
+-					\def\headheight{\EvenHeadExtent}%
+-					\def\tailheight{\EvenTailExtent}%
+-				\fi
+-			\fi
+-		\fi
+- 		\@tempdima\textwidth
+- 		\advance\@tempdima by -\FOheadindent
+-  		\reset@font
+-  		\normalsize
+-  		\normalsfcodes
+-  		\let\label\@gobble
+-  		\let\index\@gobble
+-  		\let\glossary\@gobble
++                                \global\BlankPagefalse
++                                \def\@thehead{\csname\BlankHead\endcsname}%
++                                \def\@thefoot{\csname\BlankTail\endcsname}%
++                                \let\@themargin\oddsidemargin
++                                \def\headheight{\BlankHeadExtent}%
++                                \def\tailheight{\BlankTailExtent}%
++                        \else
++                                \ifodd\count\z@ 
++%       \typeout{PAGE=ODD \the\c@page}%
++                                        \def\@thehead{\csname\OddHead\endcsname}%
++                                        \def\@thefoot{\csname\OddTail\endcsname}%
++                                        \let\@themargin\oddsidemargin
++                                        \def\headheight{\OddHeadExtent}%
++                                        \def\tailheight{\OddTailExtent}%
++                                \else 
++%       \typeout{PAGE=EVEN \the\c@page}%
++                                        \def\@thehead{\csname\EvenHead\endcsname}%
++                                        \def\@thefoot{\csname\EvenTail\endcsname}%
++                                        \let\@themargin\evensidemargin
++                                        \def\headheight{\EvenHeadExtent}%
++                                        \def\tailheight{\EvenTailExtent}%
++                                \fi
++                        \fi
++                \fi
++                \@tempdima\textwidth
++                \advance\@tempdima by -\FOheadindent
++                \reset@font
++                \normalsize
++                \normalsfcodes
++                \let\label\@gobble
++                \let\index\@gobble
++                \let\glossary\@gobble
+   %\baselineskip\z@skip \lineskip\z@skip \lineskiplimit\z@
+-  		\offinterlineskip
+-   		\@begindvi
+-    	\vskip \topmargin
+-    	\vskip -\InnerTopMargin
+-    	\moveright\@themargin \vbox {%
+-      		\setbox\@tempboxa \vbox to\z@{%
+-        		\color@hbox
+-          		\normalcolor
+-        		\hb@xt@\textwidth{\hfill\llap{\hb@xt@\@tempdima{\@thehead}}}%
+-        		\color@endbox
+-        		\vss
+-        	}%
+-      		\dp\@tempboxa \z@
+-      		\box\@tempboxa
+-      		\vskip\headsep
+-      		\vskip\InnerTopMargin
+-      		\box\@outputbox
+-      		\baselineskip\footskip
+-      		\vskip\bottommargin
+-      		\vskip-\tailheight
+- 			\@tempdima\textwidth
+- 			\advance\@tempdima by -\FOheadindent
+-      		\setbox\@tempboxa \vbox to\tailheight{%
+-        		\color@hbox
+-          		\normalcolor
+-         		\hb@xt@\textwidth{\hfill\llap{\hb@xt@\@tempdima{\@thefoot}}}%
+-        		\color@endbox
+-        		\vfil
+-        	}%
+-      		\dp\@tempboxa \z@
+-      		\box\@tempboxa
+-      	}%
+-	}%
+-  	\global \@colht \textheight
+-  	\stepcounter{page}%
+-  	\ifForcePageSetup
+-  		\global\advance\SimplePMRefs1\relax
+-  		\DEBUG{Start page \the\SimplePMRefs\space of page sequence, using layout \CurrentPageMaster, at page \the\c@page}%
+-  		\setaccordingtomaster
+-  		\ifnum\NColumns>1\relax
+-			\refreshmulticols % this is defined in nomulticols.sty
+-		\fi
+-  	\else
+-  		\DEBUG{Skipping page set up at page \the\c@page}%
+-  	\fi
+-  	\let\firstmark\botmark
++                \offinterlineskip
++                \@begindvi
++        \vskip \topmargin
++        \vskip -\InnerTopMargin
++        \moveright\@themargin \vbox {%
++                \setbox\@tempboxa \vbox to\z@{%
++                        \color@hbox
++                        \normalcolor
++                        \hb@xt@\textwidth{\hfill\llap{\hb@xt@\@tempdima{\@thehead}}}%
++                        \color@endbox
++                        \vss
++                }%
++                \dp\@tempboxa \z@
++                \box\@tempboxa
++                \vskip\headsep
++                \vskip\InnerTopMargin
++                \box\@outputbox
++                \baselineskip\footskip
++                \vskip\bottommargin
++                \vskip-\tailheight
++                        \@tempdima\textwidth
++                        \advance\@tempdima by -\FOheadindent
++                \setbox\@tempboxa \vbox to\tailheight{%
++                        \color@hbox
++                        \normalcolor
++                        \hb@xt@\textwidth{\hfill\llap{\hb@xt@\@tempdima{\@thefoot}}}%
++                        \color@endbox
++                        \vfil
++                }%
++                \dp\@tempboxa \z@
++                \box\@tempboxa
++        }%
++        }%
++        \global \@colht \textheight
++        \stepcounter{page}%
++        \ifForcePageSetup
++                \global\advance\SimplePMRefs1\relax
++                \DEBUG{Start page \the\SimplePMRefs\space of page sequence, using layout \CurrentPageMaster, at page \the\c@page}%
++                \setaccordingtomaster
++                \ifnum\NColumns>1\relax
++                        \refreshmulticols % this is defined in nomulticols.sty
++                \fi
++        \else
++                \DEBUG{Skipping page set up at page \the\c@page}%
++        \fi
++        \let\firstmark\botmark
+ }
+ 
+ \def\FO@character#1{%
+@@ -1365,26 +1368,26 @@
+ \fi
+ }
+ \def\FO@inlinesequence#1{%
+-	\FOSetFont{normal}%
+-	\ifx\FOletterspacing\att@normal
+-		\def\pre@sequence{{#1}}%
+-	\else
+-		\def\pre@sequence{\@ifundefined{thisso}{\sodef\thisso{}{\FOletterspacing}{.4em}{.5em}}{}{\thisso{#1}}}%
+-	\fi
+-	\ifx\FOverticalalign\att@baseline
+-  		\csname DECO@\FOtextdecoration\endcsname{\FOlabel\pre@sequence}%
+-	\else
+- 		\ifx\FOverticalalign\att@super
+-   			\textsuperscript{\csname DECO@\FOtextdecoration\endcsname{\FOlabel\pre@sequence}}%
+- 		\else
+-    		\ifx\FOverticalalign\att@sub
+-      			\textsubscript{\csname DECO@\FOtextdecoration\endcsname{\FOlabel\pre@sequence}}%
+-    		\else
+-      			\PlayWithShift
+-      			\raisebox{\dimen@}{\csname DECO@\FOtextdecoration\endcsname{\FOlabel\pre@sequence}}%
+-    		\fi
+- 		\fi
+-	\fi
++        \FOSetFont{normal}%
++        \ifx\FOletterspacing\att@normal
++                \def\pre@sequence{{#1}}%
++        \else
++                \def\pre@sequence{\@ifundefined{thisso}{\sodef\thisso{}{\FOletterspacing}{.4em}{.5em}}{}{\thisso{#1}}}%
++        \fi
++        \ifx\FOverticalalign\att@baseline
++                \csname DECO@\FOtextdecoration\endcsname{\FOlabel\pre@sequence}%
++        \else
++                \ifx\FOverticalalign\att@super
++                        \textsuperscript{\csname DECO@\FOtextdecoration\endcsname{\FOlabel\pre@sequence}}%
++                \else
++                \ifx\FOverticalalign\att@sub
++                        \textsubscript{\csname DECO@\FOtextdecoration\endcsname{\FOlabel\pre@sequence}}%
++                \else
++                        \PlayWithShift
++                        \raisebox{\dimen@}{\csname DECO@\FOtextdecoration\endcsname{\FOlabel\pre@sequence}}%
++                \fi
++                \fi
++        \fi
+ }
+ \def\interpretwidth{%
+    \ifx\FOborderwidth\att@thin\def\FOborderwidth{0.4pt}\fi
+@@ -1408,8 +1411,8 @@
+ \FOSetFont{normal}%
+ \ifx\FOborderwidth\@empty
+ \else
+-	\interpretwidth
+-	\fboxrule\FOborderwidth
++        \interpretwidth
++        \fboxrule\FOborderwidth
+ \fi
+ \ifx\FOverticalalign\att@baseline
+  \fbox{\csname DECO@\FOtextdecoration\endcsname{\FOlabel#1}}%
+@@ -1450,117 +1453,117 @@
+        \def\FOfontvariant{#4}%
+        \def\FOfontweight{#5}%
+        \def\FOfontstyle{#3}#8\global\FOinOutputfalse}}}%
+-	\ifx\FOflowname\att@xsl@footnote@separator\relax
+-		\xdef\footnoterulepre{Static:#9}%
+-		\global\footnotesep\z@\relax
+-		\setbox\@tempboxa\vbox{\csname\footnoterulepre\endcsname}%
+-		\@tempdima=\z@\relax
+-		\advance\@tempdima\ht\@tempboxa\relax
+-		\advance\@tempdima\dp\@tempboxa\relax
+-		\global\skip\footins\@tempdima\relax
+-		\gdef\footnoterule{\vfill\vbox to\z@{\vss\csname\footnoterulepre\endcsname}}%
+-	\fi
++        \ifx\FOflowname\att@xsl@footnote@separator\relax
++                \xdef\footnoterulepre{Static:#9}%
++                \global\footnotesep\z@\relax
++                \setbox\@tempboxa\vbox{\csname\footnoterulepre\endcsname}%
++                \@tempdima=\z@\relax
++                \advance\@tempdima\ht\@tempboxa\relax
++                \advance\@tempdima\dp\@tempboxa\relax
++                \global\skip\footins\@tempdima\relax
++                \gdef\footnoterule{\vfill\vbox to\z@{\vss\csname\footnoterulepre\endcsname}}%
++        \fi
+ }
+ 
+ \def\setaccordingtomaster{%
+     \global\@specialpagetrue
+-	\@ifundefined{Atomic:\CurrentPageMaster}
+-	{
+-  		\@ifundefined{Lead:\the\SimplePMRefs:\CurrentPageMaster}
+-		{
+-			\ifnum\SimplePMRefs>1\relax\global\@specialpagefalse\fi
+-			\@ifundefined{First:\CurrentPageMaster}
+-			{
+-				\ifx\FOinitialpagenumber\att@auto
+-					\ifodd\c@page
+-						\DEBUG{Master \CurrentPageMaster: no first page, use odd page}
+-						\xdef\PFirst{\csname Odd:\CurrentPageMaster\endcsname}
+-					\else
+-						\DEBUG{Master \CurrentPageMaster: no first page, use even page}
+-						\@ifundefined{Even:\CurrentPageMaster}
+-						{\xdef\PFirst{\csname Odd:\CurrentPageMaster\endcsname}}
+-						{\xdef\PFirst{\csname Even:\CurrentPageMaster\endcsname}}
+-					\fi
+-				\else
+-					\ifx\FOinitialpagenumber\att@autoeven
+-						\@ifundefined{Even:\CurrentPageMaster}
+-						{\xdef\PFirst{\csname Odd:\CurrentPageMaster\endcsname}}
+-						{\xdef\PFirst{\csname Even:\CurrentPageMaster\endcsname}}
+-					\else
+-						\ifx\FOinitialpagenumber\att@autoodd
+-							\xdef\PFirst{\csname Odd:\CurrentPageMaster\endcsname}
+-						\else
+-							\ifodd\FOinitialpagenumber
+-								\xdef\PFirst{\csname Odd:\CurrentPageMaster\endcsname}
+-							\else
+-								\@ifundefined{Even:\CurrentPageMaster}
+-								{\xdef\PFirst{\csname Odd:\CurrentPageMaster\endcsname}}
+-								{\xdef\PFirst{\csname Even:\CurrentPageMaster\endcsname}}
+-							\fi
+-						\fi
+-					\fi
+-				\fi
+-			}
+-			{
+-				\xdef\PFirst{\csname First:\CurrentPageMaster\endcsname}
+-			}
+-			\@ifundefined{Blank:\CurrentPageMaster}
+-				{\xdef\PBlank{\csname Odd:\CurrentPageMaster\endcsname}}
+-				{\xdef\PBlank{\csname Blank:\CurrentPageMaster\endcsname}}
+-			\@ifundefined{Even:\CurrentPageMaster}
+-				{\xdef\PEven{\csname Odd:\CurrentPageMaster\endcsname}}
+-				{\xdef\PEven{\csname Even:\CurrentPageMaster\endcsname}}
+-			\xdef\POdd{\csname Odd:\CurrentPageMaster\endcsname}
+-		}
+-		{
+-			\xdef\PFirst{\csname Lead:\the\SimplePMRefs:\CurrentPageMaster\endcsname}
+-			\global\let\POdd\PFirst
+-			\global\let\PEven\PFirst
+-			\global\let\PBlank\PFirst
+-		}
+-  	}
+-  	{
+-    	\global\let\PFirst\CurrentPageMaster
+-      	\global\let\PBlank\CurrentPageMaster
+-      	\global\let\POdd\CurrentPageMaster
+-      	\global\let\PEven\CurrentPageMaster
+-  	}
+-  	\DEBUG{ first page master is [\PFirst]}
+-  	\DEBUG{ odd  page master is [\POdd]}
+-  	\DEBUG{ even page master is [\PEven]}
+-  	\DEBUG{ blank page master is [\PBlank]}
+-  	\expandafter\Pass\csname\POdd:xsl-region-body\endcsname\\
+-  	\csname Atomic:\POdd\endcsname
+-  	\global\oddsidemargin\MasterLeftMargin
+-  	\global\evensidemargin\MasterLeftMargin
+-  	\global\advance\evensidemargin by \SpecialOffset
+-  	\global\advance\oddsidemargin by \SpecialOffset
+-  	\@ifundefined{Atomic:\PEven}
+-	{
+-		\DEBUG{no master for Atomic:\PEven}
+-	}
++        \@ifundefined{Atomic:\CurrentPageMaster}
++        {
++                \@ifundefined{Lead:\the\SimplePMRefs:\CurrentPageMaster}
++                {
++                        \ifnum\SimplePMRefs>1\relax\global\@specialpagefalse\fi
++                        \@ifundefined{First:\CurrentPageMaster}
++                        {
++                                \ifx\FOinitialpagenumber\att@auto
++                                        \ifodd\c@page
++                                                \DEBUG{Master \CurrentPageMaster: no first page, use odd page}
++                                                \xdef\PFirst{\csname Odd:\CurrentPageMaster\endcsname}
++                                        \else
++                                                \DEBUG{Master \CurrentPageMaster: no first page, use even page}
++                                                \@ifundefined{Even:\CurrentPageMaster}
++                                                {\xdef\PFirst{\csname Odd:\CurrentPageMaster\endcsname}}
++                                                {\xdef\PFirst{\csname Even:\CurrentPageMaster\endcsname}}
++                                        \fi
++                                \else
++                                        \ifx\FOinitialpagenumber\att@autoeven
++                                                \@ifundefined{Even:\CurrentPageMaster}
++                                                {\xdef\PFirst{\csname Odd:\CurrentPageMaster\endcsname}}
++                                                {\xdef\PFirst{\csname Even:\CurrentPageMaster\endcsname}}
++                                        \else
++                                                \ifx\FOinitialpagenumber\att@autoodd
++                                                        \xdef\PFirst{\csname Odd:\CurrentPageMaster\endcsname}
++                                                \else
++                                                        \ifodd\FOinitialpagenumber
++                                                                \xdef\PFirst{\csname Odd:\CurrentPageMaster\endcsname}
++                                                        \else
++                                                                \@ifundefined{Even:\CurrentPageMaster}
++                                                                {\xdef\PFirst{\csname Odd:\CurrentPageMaster\endcsname}}
++                                                                {\xdef\PFirst{\csname Even:\CurrentPageMaster\endcsname}}
++                                                        \fi
++                                                \fi
++                                        \fi
++                                \fi
++                        }
++                        {
++                                \xdef\PFirst{\csname First:\CurrentPageMaster\endcsname}
++                        }
++                        \@ifundefined{Blank:\CurrentPageMaster}
++                                {\xdef\PBlank{\csname Odd:\CurrentPageMaster\endcsname}}
++                                {\xdef\PBlank{\csname Blank:\CurrentPageMaster\endcsname}}
++                        \@ifundefined{Even:\CurrentPageMaster}
++                                {\xdef\PEven{\csname Odd:\CurrentPageMaster\endcsname}}
++                                {\xdef\PEven{\csname Even:\CurrentPageMaster\endcsname}}
++                        \xdef\POdd{\csname Odd:\CurrentPageMaster\endcsname}
++                }
++                {
++                        \xdef\PFirst{\csname Lead:\the\SimplePMRefs:\CurrentPageMaster\endcsname}
++                        \global\let\POdd\PFirst
++                        \global\let\PEven\PFirst
++                        \global\let\PBlank\PFirst
++                }
++        }
++        {
++        \global\let\PFirst\CurrentPageMaster
++        \global\let\PBlank\CurrentPageMaster
++        \global\let\POdd\CurrentPageMaster
++        \global\let\PEven\CurrentPageMaster
++        }
++        \DEBUG{ first page master is [\PFirst]}
++        \DEBUG{ odd  page master is [\POdd]}
++        \DEBUG{ even page master is [\PEven]}
++        \DEBUG{ blank page master is [\PBlank]}
++        \expandafter\Pass\csname\POdd:xsl-region-body\endcsname\\
++        \csname Atomic:\POdd\endcsname
++        \global\oddsidemargin\MasterLeftMargin
++        \global\evensidemargin\MasterLeftMargin
++        \global\advance\evensidemargin by \SpecialOffset
++        \global\advance\oddsidemargin by \SpecialOffset
++        \@ifundefined{Atomic:\PEven}
++        {
++                \DEBUG{no master for Atomic:\PEven}
++        }
+     {
+-		\csname Atomic:\PEven\endcsname
+-     	\global\evensidemargin\MasterLeftMargin
+-     	\global\advance\evensidemargin by \SpecialOffset
++                \csname Atomic:\PEven\endcsname
++        \global\evensidemargin\MasterLeftMargin
++        \global\advance\evensidemargin by \SpecialOffset
+     }
+-   	\xdef\EvenHeadExtent{\csname\PEven:before-extent\endcsname}
+-   	\xdef\EvenHead{Static:\csname\PEven:before\endcsname}
+-   	\xdef\EvenTailExtent{\csname\PEven:after-extent\endcsname}
+-   	\xdef\EvenTail{Static:\csname\PEven:after\endcsname}
+-   	\xdef\FirstHeadExtent{\csname\PFirst:before-extent\endcsname}
+-   	\xdef\FirstHead{Static:\csname\PFirst:before\endcsname}
+-   	\xdef\FirstTailExtent{\csname\PFirst:after-extent\endcsname}
+-   	\xdef\FirstTail{Static:\csname\PFirst:after\endcsname}
+-   	\xdef\OddHeadExtent{\csname\POdd:before-extent\endcsname}
+-   	\xdef\OddHead{Static:\csname\POdd:before\endcsname}
+-   	\xdef\OddTailExtent{\csname\POdd:after-extent\endcsname}
+-   	\xdef\OddTail{Static:\csname\POdd:after\endcsname}
+-   	\xdef\BlankHeadExtent{\csname\PBlank:before-extent\endcsname}
+-   	\xdef\BlankHead{Static:\csname\PBlank:before\endcsname}
+-   	\xdef\BlankTailExtent{\csname\PBlank:after-extent\endcsname}
+-   	\xdef\BlankTail{Static:\csname\PBlank:after\endcsname}
+-   	\FOSetPage
++        \xdef\EvenHeadExtent{\csname\PEven:before-extent\endcsname}
++        \xdef\EvenHead{Static:\csname\PEven:before\endcsname}
++        \xdef\EvenTailExtent{\csname\PEven:after-extent\endcsname}
++        \xdef\EvenTail{Static:\csname\PEven:after\endcsname}
++        \xdef\FirstHeadExtent{\csname\PFirst:before-extent\endcsname}
++        \xdef\FirstHead{Static:\csname\PFirst:before\endcsname}
++        \xdef\FirstTailExtent{\csname\PFirst:after-extent\endcsname}
++        \xdef\FirstTail{Static:\csname\PFirst:after\endcsname}
++        \xdef\OddHeadExtent{\csname\POdd:before-extent\endcsname}
++        \xdef\OddHead{Static:\csname\POdd:before\endcsname}
++        \xdef\OddTailExtent{\csname\POdd:after-extent\endcsname}
++        \xdef\OddTail{Static:\csname\POdd:after\endcsname}
++        \xdef\BlankHeadExtent{\csname\PBlank:before-extent\endcsname}
++        \xdef\BlankHead{Static:\csname\PBlank:before\endcsname}
++        \xdef\BlankTailExtent{\csname\PBlank:after-extent\endcsname}
++        \xdef\BlankTail{Static:\csname\PBlank:after\endcsname}
++        \FOSetPage
+ }
+ 
+ \let\olditem\item
+@@ -1641,69 +1644,69 @@
+   \ignorespaces}
+ 
+ \def\FONormalBlock{%
+-  	\ifnum\FOTableNesting>0
+-   		\ifx\FOtextalign\att@centered
+-       		\centering
+-   		\fi
+-   		\FOSetFont{normalblock}%
+-%  		\vrule height \f@baselineskip depth \z@ width \z@\relax
+-  	\else
+-    	\ifnum\FOinList>0
+-      		\ifFOListInnerPar
+-				\unskip\par
+-				\FOvspacebefore
+-			\fi
+-      		\ifx\FOwhitespace\att@pre\obeyspaces\obeylines\fi
+-      		\ifx\FOwhitespacecollapse\att@false\obeyspaces\fi
+-      		\ifx\FOwrapoption\att@nowrap\obeylines\fi
+-			\ifInInsertion\start@strut\fi
+-    	\else
+-			\ifx\FObreakbefore\att@page
+-				\let\tempID\FOid
+-%		        \penalty -\@M
+-				\newpage
+-				\let\FOid\tempID
+-			\else
+-				\ifx\FObreakbefore\att@oddpage
+-					\let\tempID\FOid
+-%	          		\penalty -\@M
+-					\newpage
+-					\ifodd\c@page\else\BlankPage\fi
+-					\let\FOid\tempID
+-				\else
+-					\ifx\FObreakbefore\att@evenpage
+-						\let\tempID\FOid
+-%            			\penalty -\@M
+-						\newpage
+-						\ifodd\c@page\BlankPage\fi
+-						\let\FOid\tempID
+-					\fi
+-				\fi
+-			\fi
+-			\par
+-			\Quadding
+-			\ifFOBlockGrab
+-				\FOBoxedBlock{\linewidth}%
+-			\else
+-				\FOBorderTop
+-				\ifdim\FOpaddingbefore>\z@
+-					\vskip\FOpaddingbefore
+-				\fi
+-				\FOvspacebefore
+-				\parindent\FOtextindent
+-				\advance\leftskip by  \FOpaddingstart
+-				\advance\leftskip by  \FOmarginleft
+-				\advance\rightskip by \FOpaddingend
+-				\advance\rightskip by \FOmarginright
+-			\fi
+-%      		\par
+-			\ifx\FOwhitespace\att@pre\obeyspaces\obeylines\fi
+-			\ifx\FOwhitespacecollapse\att@false\obeyspaces\fi
+-			\ifx\FOwrapoption\att@nowrap\obeylines\fi
+-			\FOlabel
+-		\fi
+-    	\ifx\XML@parent\FOFootnoteBody\else\FOSetFont{normal}\fi
+-  	\fi
++        \ifnum\FOTableNesting>0
++                \ifx\FOtextalign\att@centered
++                \centering
++                \fi
++                \FOSetFont{normalblock}%
++%               \vrule height \f@baselineskip depth \z@ width \z@\relax
++        \else
++        \ifnum\FOinList>0
++                \ifFOListInnerPar
++                                \unskip\par
++                                \FOvspacebefore
++                        \fi
++                \ifx\FOwhitespace\att@pre\obeyspaces\obeylines\fi
++                \ifx\FOwhitespacecollapse\att@false\obeyspaces\fi
++                \ifx\FOwrapoption\att@nowrap\obeylines\fi
++                        \ifInInsertion\start@strut\fi
++        \else
++                        \ifx\FObreakbefore\att@page
++                                \let\tempID\FOid
++%                       \penalty -\@M
++                                \newpage
++                                \let\FOid\tempID
++                        \else
++                                \ifx\FObreakbefore\att@oddpage
++                                        \let\tempID\FOid
++%                               \penalty -\@M
++                                        \newpage
++                                        \ifodd\c@page\else\BlankPage\fi
++                                        \let\FOid\tempID
++                                \else
++                                        \ifx\FObreakbefore\att@evenpage
++                                                \let\tempID\FOid
++%                               \penalty -\@M
++                                                \newpage
++                                                \ifodd\c@page\BlankPage\fi
++                                                \let\FOid\tempID
++                                        \fi
++                                \fi
++                        \fi
++                        \par
++                        \Quadding
++                        \ifFOBlockGrab
++                                \FOBoxedBlock{\linewidth}%
++                        \else
++                                \FOBorderTop
++                                \ifdim\FOpaddingbefore>\z@
++                                        \vskip\FOpaddingbefore
++                                \fi
++                                \FOvspacebefore
++                                \parindent\FOtextindent
++                                \advance\leftskip by  \FOpaddingstart
++                                \advance\leftskip by  \FOmarginleft
++                                \advance\rightskip by \FOpaddingend
++                                \advance\rightskip by \FOmarginright
++                        \fi
++%               \par
++                        \ifx\FOwhitespace\att@pre\obeyspaces\obeylines\fi
++                        \ifx\FOwhitespacecollapse\att@false\obeyspaces\fi
++                        \ifx\FOwrapoption\att@nowrap\obeylines\fi
++                        \FOlabel
++                \fi
++        \ifx\XML@parent\FOFootnoteBody\else\FOSetFont{normal}\fi
++        \fi
+ }
+ 
+ \def\FOEndOutputBlock{%
+@@ -1744,15 +1747,15 @@
+         \FOBorderBottom
+    \fi
+    \ifx\FObreakafter\att@page
+-   		\clearpage
++                \clearpage
+ %        \penalty -\@M
+    \else
+         \ifx\FObreakafter\att@oddpage
+-          	\ifodd\c@page\cleardoublepage\else\clearpage\fi
+-		\else
++                \ifodd\c@page\cleardoublepage\else\clearpage\fi
++                \else
+           \ifx\FObreakafter\att@evenpage
+-          	  \ifodd\c@page\clearpage\else\cleardoublepage\fi
+-		  \fi
++                  \ifodd\c@page\clearpage\else\cleardoublepage\fi
++                  \fi
+         \fi
+    \fi
+    \@tempswafalse
+@@ -1908,7 +1911,7 @@
+   \@footnotetext{\FOlabel#2}}
+ 
+ \def\start@strut{%
+-   	\vrule height \ht\strutbox depth \dp\strutbox width \z@\relax
++        \vrule height \ht\strutbox depth \dp\strutbox width \z@\relax
+ }
+ 
+ \def\FOplainfootmark#1{#1}
+@@ -1922,7 +1925,7 @@
+    \ifvoid\footins
+      \setbox\@outputbox \box\@cclv
+    \else
+-%	\showbox\footins
++%       \showbox\footins
+      \setbox\@outputbox \vbox {%
+        \boxmaxdepth \@maxdepth
+        \@tempdima\dp\@cclv
+@@ -1953,38 +1956,38 @@
+ }
+ 
+ \long\def\FOplainfoottext#1{%
+-	\insert\footins{\relax
+-	\reset@font\footnotesize
+-	\FORestoreFontSize
+-	\size@update
+-	\interlinepenalty\interfootnotelinepenalty
+-	\splittopskip0pt\relax
+-	\splitmaxdepth \dp\strutbox \floatingpenalty \@MM
+-	\hsize\columnwidth\@parboxrestore
+-	\color@begingroup\InInsertiontrue
+-	\xdef\Sav@FOListBlocks{\the\FOListBlocks}\FOListBlocks0\relax
+-	\global\let\sav@if@inlabel\if@inlabel
+-	\global\let\sav@if@nobreak\if@nobreak
+-	\global\let\sav@if@newlist\if@newlist
+-	\global\setbox\sav@labels\box\@labels
+-	\expandafter\global\expandafter\sav@everypar\expandafter{\the\everypar}\global\everypar{}\relax
+-	\FOinList0\relax
+-	\FOListBodyfalse
+-	#1\ifhmode\nobreak\fi
+-	\global\FOListBlocks\Sav@FOListBlocks\relax
+-	\global\let\if@inlabel\sav@if@inlabel
+-	\global\let\if@nobreak\sav@if@nobreak
+-	\global\let\if@newlist\sav@if@newlist
+-	\global\setbox\@labels\box\sav@labels
+-	\expandafter\global\expandafter\everypar\expandafter{\the\sav@everypar}\relax
+-	%\vskip\lineskip
+-	\color@endgroup}%
++        \insert\footins{\relax
++        \reset@font\footnotesize
++        \FORestoreFontSize
++        \size@update
++        \interlinepenalty\interfootnotelinepenalty
++        \splittopskip0pt\relax
++        \splitmaxdepth \dp\strutbox \floatingpenalty \@MM
++        \hsize\columnwidth\@parboxrestore
++        \color@begingroup\InInsertiontrue
++        \xdef\Sav@FOListBlocks{\the\FOListBlocks}\FOListBlocks0\relax
++        \global\let\sav@if@inlabel\if@inlabel
++        \global\let\sav@if@nobreak\if@nobreak
++        \global\let\sav@if@newlist\if@newlist
++        \global\setbox\sav@labels\box\@labels
++        \expandafter\global\expandafter\sav@everypar\expandafter{\the\everypar}\global\everypar{}\relax
++        \FOinList0\relax
++        \FOListBodyfalse
++        #1\ifhmode\nobreak\fi
++        \global\FOListBlocks\Sav@FOListBlocks\relax
++        \global\let\if@inlabel\sav@if@inlabel
++        \global\let\if@nobreak\sav@if@nobreak
++        \global\let\if@newlist\sav@if@newlist
++        \global\setbox\@labels\box\sav@labels
++        \expandafter\global\expandafter\everypar\expandafter{\the\sav@everypar}\relax
++        %\vskip\lineskip
++        \color@endgroup}%
+ }
+ \let\FOfoottext\FOplainfoottext
+ 
+ \def\FOboxedfoottext#1{
+-	\edef\boxedfootnotetext{\the\BoxedFootnotes\noexpand\FOplainfoottext}%
+-	\global\BoxedFootnotes=\expandafter{\boxedfootnotetext{#1}}%
++        \edef\boxedfootnotetext{\the\BoxedFootnotes\noexpand\FOplainfoottext}%
++        \global\BoxedFootnotes=\expandafter{\boxedfootnotetext{#1}}%
+ }
+ 
+ \def\FOnofoottext#1{}
+@@ -2037,11 +2040,11 @@
+ 
+ \def\FoTeXSetSpacingStyle{%
+   \ifx\FoTeXSpacingStyle\att@french
+-	  \frenchspacing
+-	  \typeout{INFO: Using french-spacing in document}%
++          \frenchspacing
++          \typeout{INFO: Using french-spacing in document}%
+   \else
+-	  \typeout{INFO: Using normal, i.e. nonfrench-spacing in document}%
+-	  %\nonfrenchspacing
++          \typeout{INFO: Using normal, i.e. nonfrench-spacing in document}%
++          %\nonfrenchspacing
+   \fi
+ }
+ \def\FOSetHyphenation{%
+@@ -2175,9 +2178,9 @@
+ }
+ 
+ \def\FOResetPageParts{
+-	\expandafter\ifx\csname This@LineWidth\endcsname\relax\else
+-		\global\linewidth\This@LineWidth\relax
+-	\fi
++        \expandafter\ifx\csname This@LineWidth\endcsname\relax\else
++                \global\linewidth\This@LineWidth\relax
++        \fi
+ }
+ 
+ % don't ask
+diff -uNr tetex-src-2.0.2.orig/xmltex/contrib/passivetex/fotex.xmt tetex-src-2.0.2/xmltex/contrib/passivetex/fotex.xmt
+--- tetex-src-2.0.2.orig/xmltex/contrib/passivetex/fotex.xmt	2003-10-13 17:19:26.000000000 +0200
++++ tetex-src-2.0.2/xmltex/contrib/passivetex/fotex.xmt	2004-02-08 21:46:53.000000000 +0100
+@@ -1,7 +1,6 @@
+-% $Id: //TEI/web/Software/passivetex/fotex.xmt#43 $, $Date: 2003/03/06 $
++% $Id: //TEI/web/Software/passivetex/fotex.xmt#45 $, $Date: 2003/08/19 $
+ %
+-% PassiveTeX version 1.24
+-% modified by Dirk Roorda 
++% PassiveTeX version 1.25
+ %
+ % Copyright 2003 Sebastian Rahtz/Oxford University  
+ %      <sebastian.rahtz@oucs.ox.ac.uk>
+@@ -23,7 +22,7 @@
+ %                     Dirk Roorda <dirk.roorda@planet.nl>
+ 
+ 
+-% MODIFICATIONS IN XMLTEX
++% MODIFICATIONS IN XMLTEX (Dirk)
+ % allow an explicit inheritance of attributes
+ 
+ \gdef\XML@attrib@x#1#2{
+@@ -689,7 +688,7 @@
+  \gdef\FOlanguage{none}
+  \gdef\FOlastlineendindent{\z@}
+  \gdef\FOleaderalignment{none}
+- \gdef\FOleaderlength{}
++ \gdef\FOleaderlength{\z@}
+  \gdef\FOleaderpattern{space}
+  \gdef\FOleaderpatternwidth{}
+  \gdef\FOletterspacing{normal}
+diff -uNr tetex-src-2.0.2.orig/xmltex/contrib/passivetex/index.html tetex-src-2.0.2/xmltex/contrib/passivetex/index.html
+--- tetex-src-2.0.2.orig/xmltex/contrib/passivetex/index.html	2003-10-13 17:19:26.000000000 +0200
++++ tetex-src-2.0.2/xmltex/contrib/passivetex/index.html	2003-10-26 23:59:00.000000000 +0100
+@@ -78,8 +78,8 @@
+ <p><a name="id2631793"></a>
+ What about that <tt>pdfxmltex</tt> command we saw in the last section? 
+ You don't have it on your system? You need to download 
+-<a href="ftp://ftp.tex.ac.uk/tex-archive/macros/xmltex/base.zip" target="_top" class="quicklink">xmltex</a> 
+-(that link gives you a ZIP archive of the system) and install it in the your TeX system.
++xmltex from <a href="http://www.ctan.org">CTAN</a>
++and install it in the your TeX system.
+ It too is just a set of TeX macro packages. 
+ <strong>IMPORTANT NOTE. You need a
+ copy of xmltex.tex latex than 2001/11/30.</strong></p>
+@@ -900,7 +900,7 @@
+ </div>
+ </td></tr></table><hr><div class="footer"><a class="plain" target="_top" href=""></a>
+ | <a class="plain" target="_top" href="http://www.tei-c.org/">TEI Home</a>
+-| <a class="plain" target="_top" href="http://wwwsearch.ox.ac.uk/cgi-bin/oxunit?tei">Search</a>
++| <a class="plain" target="_top" href="http://search.ox.ac.uk/web/related/natproj/tei">Search</a>
+ | <a class="plain" target="_top" href="http://www.tei-c.org/Consortium/TEI-contact.html">Feedback</a></div><hr><address> 
+  (revised 2003/03/06) Sebastian Rahtz.
+  <br>Copyright TEI Consortium 2003<!--
+diff -uNr tetex-src-2.0.2.orig/xmltex/contrib/passivetex/index.xml tetex-src-2.0.2/xmltex/contrib/passivetex/index.xml
+--- tetex-src-2.0.2.orig/xmltex/contrib/passivetex/index.xml	2003-10-13 17:19:26.000000000 +0200
++++ tetex-src-2.0.2/xmltex/contrib/passivetex/index.xml	2003-10-26 23:59:00.000000000 +0100
+@@ -123,8 +123,9 @@
+ <p>
+ What about that <code>pdfxmltex</code> command we saw in the last section? 
+ You don't have it on your system? You need to download 
+-<xref url="ftp://ftp.tex.ac.uk/tex-archive/macros/xmltex/base.zip">xmltex</xref> 
+-(that link gives you a ZIP archive of the system) and install it in the your TeX system.
++xmltex from <xref url="http://www.ctan.org">CTAN</xref>
++and install it in the your TeX system.
++install it in the your TeX system.
+ It too is just a set of TeX macro packages. 
+ <hi>IMPORTANT NOTE. You need a
+ copy of xmltex.tex latex than 2001/11/30.</hi></p>
+diff -uNr tetex-src-2.0.2.orig/xmltex/contrib/passivetex/mlnames.sty tetex-src-2.0.2/xmltex/contrib/passivetex/mlnames.sty
+--- tetex-src-2.0.2.orig/xmltex/contrib/passivetex/mlnames.sty	2003-10-13 17:19:26.000000000 +0200
++++ tetex-src-2.0.2/xmltex/contrib/passivetex/mlnames.sty	2003-10-22 14:19:00.000000000 +0200
+@@ -1,4 +1,4 @@
+-%% File: $Id: //TEI/web/Software/passivetex/mlnames.sty#17 $ $Date: 2003/02/11 $  Copyright 1999 Sebastian Rahtz
++%% File: $Id: //TEI/web/Software/passivetex/mlnames.sty#18 $ $Date: 2003/08/19 $  Copyright 1999 Sebastian Rahtz
+ %%
+ %% This package may be distributed under the terms of the LaTeX Project Public
+ %% License, as described in lppl.txt in the base LaTeX distribution.
+diff -uNr tetex-src-2.0.2.orig/xmltex/contrib/passivetex/unicode.sty tetex-src-2.0.2/xmltex/contrib/passivetex/unicode.sty
+--- tetex-src-2.0.2.orig/xmltex/contrib/passivetex/unicode.sty	2003-10-13 17:19:26.000000000 +0200
++++ tetex-src-2.0.2/xmltex/contrib/passivetex/unicode.sty	2003-10-22 14:19:00.000000000 +0200
+@@ -26,7 +26,7 @@
+   \IfFileExists{t2aenc.def}
+    {\RequirePackage[T3,T2A,T1]{fontenc}}
+    {\RequirePackage[T3,T1]{fontenc}}
+-   \RequirePackage[safe,noenc]{tipa}
++   \RequirePackage[noenc,safe]{tipa}
+    \RequirePackage{tone}
+    \DeclareFontSubstitution{T3}{ptm}{m}{n}
+  }{

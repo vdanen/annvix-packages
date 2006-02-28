@@ -1,0 +1,13 @@
+#!/bin/sh
+PATH="/sbin:/usr/sbin:/bin:/usr/bin"
+
+# this runs spamd supervised
+
+# source sysconfig settings
+if [ -f /etc/sysconfig/spamd ]; then
+	. /etc/sysconfig/spamd
+else
+	OPTIONS="-c -m5 -H"
+fi
+
+exec /usr/bin/spamd $OPTIONS 2>&1

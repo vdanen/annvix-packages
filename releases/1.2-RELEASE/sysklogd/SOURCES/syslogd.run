@@ -1,0 +1,8 @@
+#!/bin/sh
+
+OPTIONS="-m 0"
+if [ -f ./env/OPTIONS ]; then
+    OPTIONS=`head -1 ./env/OPTIONS`
+fi
+
+exec /sbin/syslogd -u syslogd -n ${OPTIONS} >/dev/null 2>&1

@@ -1,0 +1,21 @@
+diff -uNrp glibc-2.3.2.orig/resolv/res_send.c glibc-2.3.2/resolv/res_send.c
+--- glibc-2.3.2.orig/resolv/res_send.c	2004-03-09 10:32:05 +0000
++++ glibc-2.3.2/resolv/res_send.c	2004-03-09 11:51:34 +0000
+@@ -435,6 +435,17 @@ __libc_res_nsend(res_state statp, const 
+ 					needclose++;
+ 					break;
+ 				}
++				/*
++				 * Dirty fix - avoid read buffer overruns in
++				 * applications that naively assume the length
++				 * returned by res_* is always less than or
++				 * equal the answer buffer size.
++				 *
++				 * Simply truncating the answer here surely
++				 * beats fixing all calls of res_* in all
++				 * applications.
++				 */
++				resplen = anssiz;
+ 			}
+ 		if (needclose)
+ 			res_nclose(statp);

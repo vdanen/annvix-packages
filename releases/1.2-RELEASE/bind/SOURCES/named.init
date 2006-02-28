@@ -1,0 +1,111 @@
+#!/bin/bash
+#
+# named           This shell script takes care of starting and stopping
+#                 named (BIND DNS server).
+#
+# chkconfig: 345 55 45
+# description: named (BIND) is a Domain Name Server (DNS) \
+# that is used to resolve host names to IP addresses.
+# probe: true
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+# Source networking configuration.
+[ -r /etc/sysconfig/network ] && . /etc/sysconfig/network
+
+RETVAL=0
+prog="named"
+
+# Check that networking is up.
+[ "${NETWORKING}" = "no" ] && exit 0
+
+[ -f /etc/sysconfig/named ] && . /etc/sysconfig/named
+
+[ -f /usr/sbin/named ] || exit 0
+
+[ -f ${ROOTDIR}/etc/named.conf ] || exit 0
+
+start() {
+        # Start daemons.
+	if [ -n "`/sbin/pidof named`" ]; then
+                gprintf "$prog: already running"
+                return 1
+        fi
+        gprintf "Starting %s: " $prog
+	if [ -n "${ROOTDIR}" -a "x${ROOTDIR}" != "x/" ]; then
+		OPTIONS="${OPTIONS} -t ${ROOTDIR}"
+	fi
+        daemon named -u named ${OPTIONS}
+	RETVAL=$?
+ 	[ $RETVAL -eq 0 ] && touch /var/lock/subsys/named
+	echo
+	return $RETVAL
+}
+stop() {
+				# Stop daemons.
+        gprintf "Stopping %s: " $prog
+				/usr/sbin/rndc -c ${ROOTDIR}/etc/rndc.conf stop
+        RETVAL=$?
+        [ $RETVAL -eq 0 ] && rm -f /var/lock/subsys/named || {
+                killproc named
+                RETVAL=$?
+                [ $RETVAL -eq 0 ] && rm -f /var/lock/subsys/named
+                echo
+                return $RETVAL
+        }       
+        success
+        echo
+        return $RETVAL
+}
+rhstatus() {
+	/usr/sbin/rndc -c ${ROOTDIR}/etc/rndc.conf status
+	return $?
+}	
+restart() {
+	stop
+# wait a couple of seconds for the named to finish closing down
+  sleep 2
+	start
+}	
+reload() {
+	/usr/sbin/rndc -c ${ROOTDIR}/etc/rndc.conf reload >/dev/null 2>&1 || /usr/bin/killall -HUP named
+	return $?
+}
+probe() {
+	# named knows how to reload intelligently; we don't want linuxconf
+	# to offer to restart every time
+	/usr/sbin/rndc -c ${ROOTDIR}/etc/rndc.conf reload >/dev/null 2>&1 || echo start
+	return $?
+}  
+
+# See how we were called.
+case "$1" in
+	start)
+		start
+		;;
+	stop)
+		stop
+		;;
+	status)
+		rhstatus
+		;;
+	restart)
+		restart
+		;;
+	condrestart)
+		[ -f /var/lock/subsys/named ] && restart
+		;;
+	reload)
+		reload
+		;;
+	probe)
+		probe
+		;;
+	*)
+        	gprintf "Usage: %s {start|stop|status|restart|condrestart|reload|probe}\n" $0
+		exit 1
+esac
+
+exit $?
+

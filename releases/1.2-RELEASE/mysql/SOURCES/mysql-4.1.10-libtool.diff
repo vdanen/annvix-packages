@@ -1,0 +1,41 @@
+Some brainiac at MySQL AB thought it would be a good idea to bypass libtool
+wrapper scripts during "make check".  But since the build uses RPATH, this
+means that the programs will use the already-installed libmysqlclient.so, if
+any, in preference to the one we just built.  This not only makes the testing
+quite dubious, but it can result in crashes if the installed libmysqlclient.so
+is not binary-compatible with the new one.  (It does not help any that
+mysqltest violates the published libmysqlclient API and thus is more
+binary-dependent than it ought to be.  Adding/removing --with-vio should
+not break things, but it breaks mysqltest.)
+
+--- mysql-test/mysql-test-run.sh	2005-02-12 21:37:33.000000000 +0100
++++ mysql-test/mysql-test-run.sh.oden	2005-02-23 16:19:21.446497405 +0100
+@@ -528,25 +528,11 @@
+    if [ -n "$VALGRIND" ] ; then
+      MYSQLD="$VALGRIND $MYSQLD"
+    fi
+-   if [ -f "$BASEDIR/client/.libs/lt-mysqltest" ] ; then
+-     MYSQL_TEST="$BASEDIR/client/.libs/lt-mysqltest"
+-   elif [ -f "$BASEDIR/client/.libs/mysqltest" ] ; then
+-     MYSQL_TEST="$BASEDIR/client/.libs/mysqltest"
+-   else
+-     MYSQL_TEST="$BASEDIR/client/mysqltest"
+-   fi
++   MYSQL_TEST="$BASEDIR/client/mysqltest"
+    MYSQL_CLIENT_TEST="$BASEDIR/tests/mysql_client_test"
+  fi
+- if [ -f "$BASEDIR/client/.libs/mysqldump" ] ; then
+-   MYSQL_DUMP="$BASEDIR/client/.libs/mysqldump"
+- else
+-   MYSQL_DUMP="$BASEDIR/client/mysqldump"
+- fi
+- if [ -f "$BASEDIR/client/.libs/mysqlbinlog" ] ; then
+-   MYSQL_BINLOG="$BASEDIR/client/.libs/mysqlbinlog"
+- else
+-   MYSQL_BINLOG="$BASEDIR/client/mysqlbinlog"
+- fi
++ MYSQL_DUMP="$BASEDIR/client/mysqldump"
++ MYSQL_BINLOG="$BASEDIR/client/mysqlbinlog"
+  if [ -n "$STRACE_CLIENT" ]; then
+   MYSQL_TEST="strace -o $MYSQL_TEST_DIR/var/log/mysqltest.strace $MYSQL_TEST"
+  fi

@@ -1,0 +1,686 @@
+=== lib/Getopt/Long/CHANGES
+==================================================================
+--- lib/Getopt/Long/CHANGES	(revision 2)
++++ lib/Getopt/Long/CHANGES	(local)
+@@ -1,3 +1,41 @@
++Changes in version 2.35
++-----------------------
++
++* long_prefix_pattern configuration variable.
++
++  prefix_pattern has now been complemented by a new configuration
++  option 'long_prefix_pattern' that allows the user to specify what
++  prefix patterns should have long option style sematics applied.
++  This will enable people to do things like
++
++    foo.pl /option=value
++
++  instead of forcing people to use the short option style
++
++    foo.pl /option value
++
++  This enhancement was suggested and implemented by Yves Orton.
++
++* Bugfix for Ticket #11377 (bug found and fixed by Ryan).
++* Bugfix for Ticket #12380.
++
++**************** WARNING -- EXPERIMENTAL CODE AHEAD ****************
++
++* [Experimental] Options can take multiple values at once. E.g.,
++
++    --coordinates 52.2 16.4 --rgbcolor 255 255 149
++
++  To handle the above command line, the following call to GetOptions
++  can be used:
++
++    GetOptions('coordinates=f{2}' => \@coor, 'rgbcolor=i{3}' => \@color);
++
++  You can specify the minimum and maximum number of values desired.
++  The syntax for this is similar to that of regular expression
++  patterns: { min , max }. 
++
++**************** END EXPERIMENTAL CODE ****************
++
+ Changes in version 2.34
+ -----------------------
+ 
+@@ -23,8 +61,6 @@
+ Changes in version 2.33
+ -----------------------
+ 
+-**************** WARNING -- EXPERIMENTAL CODE AHEAD ****************
+-
+ The following new features are marked experimental. This means that if
+ you are going to use them you _must_ watch out for the next release of
+ Getopt::Long to see if the API has changed.
+@@ -67,8 +103,6 @@
+     use Getopt::Long 2.33 qw(GetOptions HelpMessage);
+     GetOptions(...) or HelpMessage(2);
+ 
+-**************** END EXPERIMENTAL CODE ****************
+-
+ * Subroutine Configure can now be exported on demand.
+ 
+ * Negatable options (with "!") now also support the "no-" prefix.
+=== lib/Getopt/Long/README
+==================================================================
+--- lib/Getopt/Long/README	(revision 2)
++++ lib/Getopt/Long/README	(local)
+@@ -69,6 +69,7 @@
+     "nodebug" will switch it off.    
+   - options can set values, but also add values producing an array
+     of values instead of a single scalar value, or set values in a hash.
++  - options can have multiple values, e.g., "--position 25 624".
+ 
+ * Options linkage
+ 
+@@ -162,9 +163,16 @@
+   - prefix_pattern
+ 
+ 	A Perl pattern that identifies the strings that introduce
+-	options. Default is (--|-|\+) unless environment variable
+-	POSIXLY_CORRECT has been set, in which case it is (--|-).
++	options. Default is --|-|\+ unless environment variable
++	POSIXLY_CORRECT has been set, in which case it is --|-.
+ 
++  - long_prefix_pattern
++
++        A perl pattern that is used to identify which prefixes
++        should be treated as long style. Any prefixes that don't
++        match this pattern will have short option semantics.
++        Defaults to --.
++
+   - debug
+ 
+ 	Enable copious debugging output.
+@@ -192,7 +200,7 @@
+ COPYRIGHT AND DISCLAIMER
+ ========================
+ 
+-Module Getopt::Long is Copyright 2003,1990 by Johan Vromans.
++Module Getopt::Long is Copyright 2005,1990 by Johan Vromans.
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the Perl Artistic License or the
+ GNU General Public License as published by the Free Software
+@@ -201,6 +209,6 @@
+ 
+ -------------------------------------------------------------------
+ Johan Vromans                                  jvromans@squirrel.nl
+-Squirrel Consultancy                       Haarlem, the Netherlands
++Squirrel Consultancy                         Exloo, the Netherlands
+ http://www.squirrel.nl       http://www.squirrel.nl/people/jvromans
+ ------------------ "Arms are made for hugging" --------------------
+=== lib/Getopt/Long/t/gol-basic.t
+==================================================================
+--- lib/Getopt/Long/t/gol-basic.t	(revision 2)
++++ lib/Getopt/Long/t/gol-basic.t	(local)
+@@ -1,5 +1,7 @@
+ #!./perl -w
+ 
++no strict;
++
+ BEGIN {
+     if ($ENV{PERL_CORE}) {
+ 	@INC = '../lib';
+@@ -8,9 +10,10 @@
+ }
+ 
+ use Getopt::Long qw(:config no_ignore_case);
+-die("Getopt::Long version 2.23_03 required--this is only version ".
++my $want_version="2.24";
++die("Getopt::Long version $want_version required--this is only version ".
+     $Getopt::Long::VERSION)
+-  unless $Getopt::Long::VERSION ge "2.24";
++  unless $Getopt::Long::VERSION ge $want_version;
+ 
+ print "1..9\n";
+ 
+=== lib/Getopt/Long/t/gol-compat.t
+==================================================================
+--- lib/Getopt/Long/t/gol-compat.t	(revision 2)
++++ lib/Getopt/Long/t/gol-compat.t	(local)
+@@ -1,5 +1,7 @@
+ #!./perl -w
+ 
++no strict;
++
+ BEGIN {
+     if ($ENV{PERL_CORE}) {
+ 	@INC = '../lib';
+=== lib/Getopt/Long/t/gol-linkage.t
+==================================================================
+--- lib/Getopt/Long/t/gol-linkage.t	(revision 2)
++++ lib/Getopt/Long/t/gol-linkage.t	(local)
+@@ -1,5 +1,7 @@
+ #!./perl -w
+ 
++no strict;
++
+ BEGIN {
+     if ($ENV{PERL_CORE}) {
+ 	@INC = '../lib';
+@@ -9,7 +11,7 @@
+ 
+ use Getopt::Long;
+ 
+-print "1..18\n";
++print "1..32\n";
+ 
+ @ARGV = qw(-Foo -baR --foo bar);
+ Getopt::Long::Configure ("no_ignore_case");
+@@ -37,3 +39,41 @@
+ print (!(exists $lnk{foo})   ? "" : "not ", "ok 16\n");
+ print (!(exists $lnk{baR})   ? "" : "not ", "ok 17\n");
+ print (!(exists $lnk{bar})   ? "" : "not ", "ok 18\n");
++
++@ARGV = qw(/Foo=-baR --bar bar);
++Getopt::Long::Configure ("default","prefix_pattern=--|/|-|\\+","long_prefix_pattern=--|/");
++%lnk = ();
++my $bar;
++print "ok 19\n" if GetOptions (\%lnk, "bar" => \$bar, "Foo=s");
++print ((defined $bar)        ? "" : "not ", "ok 20\n");
++print (($bar == 1)           ? "" : "not ", "ok 21\n");
++print ((defined $lnk{Foo})   ? "" : "not ", "ok 22\n");
++print (($lnk{Foo} eq "-baR") ? "" : "not ", "ok 23\n");
++print ((@ARGV == 1)          ? "" : "not ", "ok 24\n");
++print (($ARGV[0] eq "bar")   ? "" : "not ", "ok 25\n");
++print (!(exists $lnk{foo})   ? "" : "not ", "ok 26\n");
++print (!(exists $lnk{baR})   ? "" : "not ", "ok 27\n");
++print (!(exists $lnk{bar})   ? "" : "not ", "ok 28\n");
++{
++    my $errors;
++    %lnk = ();
++    local $SIG{__WARN__}= sub { $errors.=join("\n",@_,'') };
++
++    @ARGV = qw(/Foo=-baR);
++    Getopt::Long::Configure ("default","bundling","ignore_case_always",
++                             "prefix_pattern=--|/|-|\\+","long_prefix_pattern=--");
++    %lnk = ();
++    undef $bar;
++    GetOptions (\%lnk, "bar" => \$bar, "Foo=s");
++    print (($errors=~/Unknown option:/) ? "" : "not ", "ok 29\n");
++    $errors="";
++    %lnk = ();
++    undef $bar;
++     @ARGV = qw(/Foo=-baR);
++    Getopt::Long::Configure ("default","bundling","ignore_case_always",
++                             "prefix_pattern=--|/|-|\\+","long_prefix_pattern=--|/");
++    GetOptions (\%lnk, "bar" => \$bar, "Foo=s");
++    print (($errors eq '') ? "" : "not ", "ok 30\n");
++    print ((defined $lnk{Foo})   ? "" : "not ", "ok 31\n");
++    print (($lnk{Foo} eq "-baR") ? "" : "not ", "ok 32\n");
++}
+=== lib/Getopt/Long/t/gol-oo.t
+==================================================================
+--- lib/Getopt/Long/t/gol-oo.t	(revision 2)
++++ lib/Getopt/Long/t/gol-oo.t	(local)
+@@ -1,5 +1,7 @@
+ #!./perl -w
+ 
++no strict;
++
+ BEGIN {
+     if ($ENV{PERL_CORE}) {
+ 	@INC = '../lib';
+@@ -8,9 +10,10 @@
+ }
+ 
+ use Getopt::Long;
+-die("Getopt::Long version 2.23_03 required--this is only version ".
++my $want_version="2.24";
++die("Getopt::Long version $want_version required--this is only version ".
+     $Getopt::Long::VERSION)
+-  unless $Getopt::Long::VERSION ge "2.24";
++  unless $Getopt::Long::VERSION ge $want_version;
+ print "1..9\n";
+ 
+ @ARGV = qw(-Foo -baR --foo bar);
+=== lib/Getopt/Long.pm
+==================================================================
+--- lib/Getopt/Long.pm	(revision 2)
++++ lib/Getopt/Long.pm	(local)
+@@ -2,17 +2,17 @@
+ 
+ package Getopt::Long;
+ 
+-# RCS Status      : $Id: GetoptLong.pm,v 2.68 2003-09-23 15:24:53+02 jv Exp $
++# RCS Status      : $Id: GetoptLong.pm,v 2.72 2005-04-28 21:18:33+02 jv Exp $
+ # Author          : Johan Vromans
+ # Created On      : Tue Sep 11 15:00:12 1990
+ # Last Modified By: Johan Vromans
+-# Last Modified On: Tue Sep 23 15:21:23 2003
+-# Update Count    : 1364
++# Last Modified On: Thu Apr 28 21:14:19 2005
++# Update Count    : 1456
+ # Status          : Released
+ 
+ ################ Copyright ################
+ 
+-# This program is Copyright 1990,2002 by Johan Vromans.
++# This program is Copyright 1990,2005 by Johan Vromans.
+ # This program is free software; you can redistribute it and/or
+ # modify it under the terms of the Perl Artistic License or the
+ # GNU General Public License as published by the Free Software
+@@ -35,10 +35,10 @@
+ use strict;
+ 
+ use vars qw($VERSION);
+-$VERSION        =  2.34;
++$VERSION        =  2.3404;
+ # For testing versions only.
+-#use vars qw($VERSION_STRING);
+-#$VERSION_STRING = "2.33_03";
++use vars qw($VERSION_STRING);
++$VERSION_STRING = "2.34_04";
+ 
+ use Exporter;
+ use vars qw(@ISA @EXPORT @EXPORT_OK);
+@@ -63,7 +63,7 @@
+ use vars qw($autoabbrev $getopt_compat $ignorecase $bundling $order
+ 	    $passthrough);
+ # Official invisible variables.
+-use vars qw($genprefix $caller $gnu_compat $auto_help $auto_version);
++use vars qw($genprefix $caller $gnu_compat $auto_help $auto_version $longprefix);
+ 
+ # Public subroutines.
+ sub config(@);			# deprecated name
+@@ -73,6 +73,7 @@
+ sub ParseOptionSpec($$);
+ sub OptCtl($);
+ sub FindOption($$$$);
++sub ValidValue ($$$$$);
+ 
+ ################ Local Variables ################
+ 
+@@ -105,6 +106,7 @@
+     $ignorecase = 1;		# ignore case when matching options
+     $passthrough = 0;		# leave unrecognized options alone
+     $gnu_compat = 0;		# require --opt=val if value is optional
++    $longprefix = "(--)";       # what does a long prefix look like
+ }
+ 
+ # Override import.
+@@ -230,7 +232,7 @@
+ 
+ use constant CTL_CNAME   => 1;
+ 
+-use constant CTL_MAND    => 2;
++use constant CTL_DEFAULT => 2;
+ 
+ use constant CTL_DEST    => 3;
+  use constant   CTL_DEST_SCALAR => 0;
+@@ -238,7 +240,8 @@
+  use constant   CTL_DEST_HASH   => 2;
+  use constant   CTL_DEST_CODE   => 3;
+ 
+-use constant CTL_DEFAULT => 4;
++use constant CTL_AMIN    => 4;
++use constant CTL_AMAX    => 5;
+ 
+ # FFU.
+ #use constant CTL_RANGE   => ;
+@@ -264,7 +267,7 @@
+ 	local ($^W) = 0;
+ 	print STDERR
+ 	  ("Getopt::Long $Getopt::Long::VERSION (",
+-	   '$Revision: 2.68 $', ") ",
++	   '$Revision: 2.72 $', ") ",
+ 	   "called from package \"$pkg\".",
+ 	   "\n  ",
+ 	   "ARGV: (@ARGV)",
+@@ -278,7 +281,8 @@
+ 	   "ignorecase=$ignorecase,",
+ 	   "requested_version=$requested_version,",
+ 	   "passthrough=$passthrough,",
+-	   "genprefix=\"$genprefix\".",
++	   "genprefix=\"$genprefix\",",
++	   "longprefix=\"$longprefix\".",
+ 	   "\n");
+     }
+ 
+@@ -474,7 +478,8 @@
+ 	    # FindOption undefines $opt in case of errors.
+ 	    next unless defined $opt;
+ 
+-	    if ( defined $arg ) {
++	    my $argcnt = 0;
++	    while ( defined $arg ) {
+ 
+ 		# Get the canonical name.
+ 		print STDERR ("=> cname for \"$opt\" is ") if $debug;
+@@ -606,6 +611,36 @@
+ 			$userlinkage->{$opt} = $arg;
+ 		    }
+ 		}
++
++		$argcnt++;
++		last if $argcnt >= $ctl->[CTL_AMAX] && $ctl->[CTL_AMAX] != -1;
++		undef($arg);
++
++		# Need more args?
++		if ( $argcnt < $ctl->[CTL_AMIN] ) {
++		    if ( @ARGV ) {
++			if ( ValidValue($ctl, $ARGV[0], 1, $argend, $prefix) ) {
++			    $arg = shift(@ARGV);
++			    ($key,$arg) = $arg =~ /^([^=]+)=(.*)/
++			      if $ctl->[CTL_DEST] == CTL_DEST_HASH;
++			    next;
++			}
++			warn("Value \"$ARGV[0]\" invalid for option $opt\n");
++			$error++;
++		    }
++		    else {
++			warn("Insufficient arguments for option $opt\n");
++			$error++;
++		    }
++		}
++
++		# Any more args?
++		if ( @ARGV && ValidValue($ctl, $ARGV[0], 0, $argend, $prefix) ) {
++		    $arg = shift(@ARGV);
++		    ($key,$arg) = $arg =~ /^([^=]+)=(.*)/
++		      if $ctl->[CTL_DEST] == CTL_DEST_HASH;
++		    next;
++		}
+ 	    }
+ 	}
+ 
+@@ -670,9 +705,10 @@
+       join(",",
+ 	   "\"$v[CTL_TYPE]\"",
+ 	   "\"$v[CTL_CNAME]\"",
+-	   $v[CTL_MAND] ? "O" : "M",
++	   "\"$v[CTL_DEFAULT]\"",
+ 	   ("\$","\@","\%","\&")[$v[CTL_DEST] || 0],
+-	   "\"$v[CTL_DEFAULT]\"",
++	   $v[CTL_AMIN] || '',
++	   $v[CTL_AMAX] || '',
+ #	   $v[CTL_RANGE] || '',
+ #	   $v[CTL_REPEAT] || '',
+ 	  ). "]";
+@@ -694,8 +730,8 @@
+ 		     # Either modifiers ...
+ 		     [!+]
+ 		     |
+-		     # ... or a value/dest specification
+-		     [=:] [ionfs] [@%]?
++		     # ... or a value/dest/repeat specification
++		     [=:] [ionfs] [@%]? (?: \{\d*,?\d*\} )?
+ 		     |
+ 		     # ... or an optional-with-default spec
+ 		     : (?: -?\d+ | \+ ) [@%]?
+@@ -729,9 +765,9 @@
+     my $entry;
+     if ( $spec eq '' || $spec eq '+' || $spec eq '!' ) {
+ 	# Fields are hard-wired here.
+-	$entry = [$spec,$orig,0,CTL_DEST_SCALAR,undef];
++	$entry = [$spec,$orig,undef,CTL_DEST_SCALAR,0,0];
+     }
+-    elsif ( $spec =~ /:(-?\d+|\+)([@%])?/ ) {
++    elsif ( $spec =~ /^:(-?\d+|\+)([@%])?$/ ) {
+ 	my $def = $1;
+ 	my $dest = $2;
+ 	my $type = $def eq '+' ? 'I' : 'i';
+@@ -739,16 +775,35 @@
+ 	$dest = $dest eq '@' ? CTL_DEST_ARRAY
+ 	  : $dest eq '%' ? CTL_DEST_HASH : CTL_DEST_SCALAR;
+ 	# Fields are hard-wired here.
+-	$entry = [$type,$orig,0,$dest,$def eq '+' ? undef : $def];
++	$entry = [$type,$orig,$def eq '+' ? undef : $def,
++		  $dest,0,1];
+     }
+     else {
+-	my ($mand, $type, $dest) = $spec =~ /([=:])([ionfs])([@%])?/;
++	my ($mand, $type, $dest) =
++	  $spec =~ /^([=:])([ionfs])([@%])?(\{(\d+)?(,)?(\d+)?\})?$/;
++	return (undef, "Cannot repeat while bundling: \"$opt\"\n")
++	  if $bundling && defined($4);
++	my ($mi, $cm, $ma) = ($5, $6, $7);
++	return (undef, "{0} is useless in option spec: \"$opt\"\n")
++	  if defined($mi) && !$mi && !defined($ma) && !defined($cm);
++
+ 	$type = 'i' if $type eq 'n';
+ 	$dest ||= '$';
+ 	$dest = $dest eq '@' ? CTL_DEST_ARRAY
+ 	  : $dest eq '%' ? CTL_DEST_HASH : CTL_DEST_SCALAR;
++	# Default minargs to 1/0 depending on mand status.
++	$mi = $mand eq '=' ? 1 : 0 unless defined $mi;
++	# Adjust mand status according to minargs.
++	$mand = $mi ? '=' : ':';
++	# Adjust maxargs.
++	$ma = $mi ? $mi : 1 unless defined $ma || defined $cm;
++	return (undef, "Max must be greater than zero in option spec: \"$opt\"\n")
++	  if defined($ma) && !$ma;
++	return (undef, "Max less than min in option spec: \"$opt\"\n")
++	  if defined($ma) && $ma < $mi;
++
+ 	# Fields are hard-wired here.
+-	$entry = [$type,$orig,$mand eq '=',$dest,undef];
++	$entry = [$type,$orig,undef,$dest,$mi,$ma||-1];
+     }
+ 
+     # Process all names. First is canonical, the rest are aliases.
+@@ -805,7 +860,7 @@
+ 
+     # If it is a long option, it may include the value.
+     # With getopt_compat, only if not bundling.
+-    if ( ($starter eq "--" 
++    if ( ($starter=~/^$longprefix$/
+           || ($getopt_compat && ($bundling == 0 || $bundling == 2)))
+ 	  && $opt =~ /^([^=]+)=(.*)$/s ) {
+ 	$opt = $1;
+@@ -860,9 +915,10 @@
+ 	    # See if all matches are for the same option.
+ 	    my %hit;
+ 	    foreach ( @hits ) {
+-		$_ = $opctl->{$_}->[CTL_CNAME]
+-		  if defined $opctl->{$_}->[CTL_CNAME];
+-		$hit{$_} = 1;
++		my $hit = $_;
++		$hit = $opctl->{$hit}->[CTL_CNAME]
++		  if defined $opctl->{$hit}->[CTL_CNAME];
++		$hit{$hit} = 1;
+ 	    }
+ 	    # Remove auto-supplied options (version, help).
+ 	    if ( keys(%hit) == 2 ) {
+@@ -903,7 +959,7 @@
+     unless  ( defined $ctl ) {
+ 	return (0) if $passthrough;
+ 	# Pretend one char when bundling.
+-	if ( $bundling == 1) {
++	if ( $bundling == 1 && length($starter) == 1 ) {
+ 	    $opt = substr($opt,0,1);
+             unshift (@ARGV, $starter.$rest) if defined $rest;
+ 	}
+@@ -942,7 +998,7 @@
+     }
+ 
+     # Get mandatory status and type info.
+-    my $mand = $ctl->[CTL_MAND];
++    my $mand = $ctl->[CTL_AMIN];
+ 
+     # Check if there is an option argument available.
+     if ( $gnu_compat && defined $optarg && $optarg eq '' ) {
+@@ -1101,6 +1157,47 @@
+     return (1, $opt, $ctl, $arg, $key);
+ }
+ 
++sub ValidValue ($$$$$) {
++    my ($ctl, $arg, $mand, $argend, $prefix) = @_;
++
++    if ( $ctl->[CTL_DEST] == CTL_DEST_HASH ) {
++	return 0 unless $arg =~ /[^=]+=(.*)/;
++	$arg = $1;
++    }
++
++    my $type = $ctl->[CTL_TYPE];
++
++    if ( $type eq 's' ) {	# string
++	# A mandatory string takes anything.
++	return (1) if $mand;
++
++	return (1) if $arg eq "-";
++
++	# Check for option or option list terminator.
++	return 0 if $arg eq $argend || $arg =~ /^$prefix.+/;
++	return 1;
++    }
++
++    elsif ( $type eq 'i'	# numeric/integer
++            || $type eq 'I'	# numeric/integer w/ incr default
++	    || $type eq 'o' ) { # dec/oct/hex/bin value
++
++	my $o_valid =
++	  $type eq 'o' ? "[-+]?[1-9][0-9]*|0x[0-9a-f]+|0b[01]+|0[0-7]*"
++	    : "[-+]?[0-9]+";
++
++	return $arg =~ /^$o_valid$/si;
++    }
++
++    elsif ( $type eq 'f' ) { # real number, int is also ok
++	# We require at least one digit before a point or 'e',
++	# and at least one digit following the point and 'e'.
++	# [-]NN[.NN][eNN]
++	return $arg =~ /^[-+]?[0-9.]+(\.[0-9]+)?([eE][-+]?[0-9]+)?$/;
++    }
++    die("ValidValue: Cannot happen\n");
++}
++
+ # Getopt::Long Configuration.
+ sub Configure (@) {
+     my (@options) = @_;
+@@ -1108,13 +1205,14 @@
+     my $prevconfig =
+       [ $error, $debug, $major_version, $minor_version,
+ 	$autoabbrev, $getopt_compat, $ignorecase, $bundling, $order,
+-	$gnu_compat, $passthrough, $genprefix, $auto_version, $auto_help ];
++	$gnu_compat, $passthrough, $genprefix, $auto_version, $auto_help,
++	$longprefix ];
+ 
+     if ( ref($options[0]) eq 'ARRAY' ) {
+ 	( $error, $debug, $major_version, $minor_version,
+ 	  $autoabbrev, $getopt_compat, $ignorecase, $bundling, $order,
+-	  $gnu_compat, $passthrough, $genprefix, $auto_version, $auto_help ) =
+-	    @{shift(@options)};
++	  $gnu_compat, $passthrough, $genprefix, $auto_version, $auto_help,
++	  $longprefix ) = @{shift(@options)};
+     }
+ 
+     my $opt;
+@@ -1189,9 +1287,17 @@
+ 	    # Parenthesize if needed.
+ 	    $genprefix = "(" . $genprefix . ")"
+ 	      unless $genprefix =~ /^\(.*\)$/;
+-	    eval { '' =~ /$genprefix/; };
++	    eval { '' =~ m"$genprefix"; };
+ 	    die("Getopt::Long: invalid pattern \"$genprefix\"") if $@;
+ 	}
++	elsif ( $try =~ /^long_prefix_pattern=(.+)$/ && $action ) {
++	    $longprefix = $1;
++	    # Parenthesize if needed.
++	    $longprefix = "(" . $longprefix . ")"
++	      unless $longprefix =~ /^\(.*\)$/;
++	    eval { '' =~ m"$longprefix"; };
++	    die("Getopt::Long: invalid long prefix pattern \"$longprefix\"") if $@;
++	}
+ 	elsif ( $try eq 'debug' ) {
+ 	    $debug = $action;
+ 	}
+@@ -1523,6 +1629,26 @@
+ Of course, it is important to choose the right separator string for
+ each purpose.
+ 
++Warning: What follows is an experimental feature.
++
++Options can take multiple values at once, for example
++
++    --coordinates 52.2 16.4 --rgbcolor 255 255 149
++
++This can be accomplished by adding a repeat specifier to the option
++specification. Repeat specifiers are very similar to the C<{...}>
++repeat specifiers that can be used with regular expression patterns.
++For example, the above command line would be handled as follows:
++
++    GetOptions('coordinates=f{2}' => \@coor, 'rgbcolor=i{3}' => \@color);
++
++The destination for the option must be an array or array reference.
++
++It is also possible to specify the minimal and maximal number of
++arguments an option takes. C<foo=s{2,4}> indicates an option that
++takes at least two and at most 4 arguments. C<foo=s{,}> indicates one
++or more values; C<foo:s{,}> indicates zero or more option values.
++
+ =head2 Options with hash values
+ 
+ If the option destination is a reference to a hash, the option will
+@@ -1588,7 +1714,8 @@
+     GetOptions ('length|height=f' => \$length);
+ 
+ The first name is called the I<primary> name, the other names are
+-called I<aliases>.
++called I<aliases>. When using a hash to store options, the key will
++always be the primary name.
+ 
+ Multiple alternate names are possible.
+ 
+@@ -1641,7 +1768,7 @@
+ 
+ The C<+> specifier is ignored if the option destination is not a scalar.
+ 
+-=item = I<type> [ I<desttype> ]
++=item = I<type> [ I<desttype> ] [ I<repeat> ]
+ 
+ The option requires an argument of the given type. Supported types
+ are:
+@@ -1678,6 +1805,17 @@
+ the option value is not otherwise specified. It should be omitted when
+ not needed.
+ 
++The I<repeat> specifies the number of values this option takes per
++occurrence on the command line. It has the format C<{> [ I<min> ] [ C<,> [ I<max> ] ] C<}>.
++
++I<min> denotes the minimal number of arguments. It defaults to 1 for
++options with C<=> and to 0 for options with C<:>, see below. Note that
++I<min> overrules the C<=> / C<:> semantics.
++
++I<max> denotes the maximum number of arguments. It must be at least
++I<min>. If I<max> is omitted, I<but the comma is not>, there is no
++upper bound to the number of argument values taken.
++
+ =item : I<type> [ I<desttype> ]
+ 
+ Like C<=>, but designates the argument as optional.
+@@ -2111,9 +2249,22 @@
+ =item prefix_pattern
+ 
+ A Perl pattern that identifies the strings that introduce options.
+-Default is C<(--|-|\+)> unless environment variable
+-POSIXLY_CORRECT has been set, in which case it is C<(--|-)>.
++Default is C<--|-|\+> unless environment variable
++POSIXLY_CORRECT has been set, in which case it is C<--|->.
+ 
++=item long_prefix_pattern
++
++A Perl pattern that allows the disambiguation of long and short
++prefixes. Default is C<-->.
++
++Typically you only need to set this if you are using nonstandard
++prefixes and want some or all of them to have the same semantics as
++'--' does under normal circumstances.
++
++For example, setting prefix_pattern to C<--|-|\+|\/> and
++long_prefix_pattern to C<--|\/> would add Win32 style argument
++handling.
++
+ =item debug (default: disabled)
+ 
+ Enable debugging output.
+@@ -2324,7 +2475,7 @@
+ 
+ =head1 COPYRIGHT AND DISCLAIMER
+ 
+-This program is Copyright 2003,1990 by Johan Vromans.
++This program is Copyright 1990,2005 by Johan Vromans.
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the Perl Artistic License or the
+ GNU General Public License as published by the Free Software

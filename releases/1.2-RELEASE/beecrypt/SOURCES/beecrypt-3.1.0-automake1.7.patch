@@ -1,0 +1,12 @@
+--- beecrypt-3.1.0/autogen.sh.automake1.7	2003-08-17 08:50:19.000000000 +0200
++++ beecrypt-3.1.0/autogen.sh	2004-02-18 17:10:54.000000000 +0100
+@@ -2,7 +2,7 @@
+ export CFLAGS
+ export LDFLAGS
+ libtoolize --force --copy
+-aclocal
+-automake -a -c
++aclocal-1.7
++automake-1.7 -a -c
+ autoconf
+ autoheader

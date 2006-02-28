@@ -1,0 +1,24 @@
+#!/bin/sh
+PATH="/sbin:/usr/sbin:/bin:/usr/bin"
+
+# this runs saslauthd supervised
+
+# Get service config
+[ -f /etc/sysconfig/saslauthd ] && . /etc/sysconfig/saslauthd
+
+# mech_options must be specified before the auth method
+
+if [ "x$SASL_MECH_OPTIONS" != "x" ] ; then
+	SASLAUTHD_OPTS="$SASLAUTHD_OPTS -O $SASL_MECH_OPTIONS"
+fi
+
+# compatibility with previous versions
+if [ "x$SASL_RIMAP_HOSTNAME" != "x" ] ; then
+	SASLAUTHD_OPTS="$SASLAUTHD_OPTS -O $SASL_RIMAP_HOSTNAME"
+fi
+
+if [ "x$SASL_AUTHMECH" != "x" ] ; then
+	SASLAUTHD_OPTS="$SASLAUTHD_OPTS -a $SASL_AUTHMECH"
+fi
+
+exec /usr/sbin/saslauthd -d $SASLAUTHD_OPTS 2>&1

@@ -1,0 +1,486 @@
+--- xc/lib/GL/mesa/src/drv/radeon/radeon_vtxfmt.h.jrd	2004-03-04 10:46:31.000000000 -0700
++++ xc/lib/GL/mesa/src/drv/radeon/radeon_vtxfmt.h	2004-04-02 16:43:09.000000000 -0700
+@@ -39,7 +39,7 @@
+ #ifdef GLX_DIRECT_RENDERING
+ 
+ #include "radeon_context.h"
+-
++#include "mem.h"
+ 
+ extern void radeonVtxfmtUpdate( GLcontext *ctx );
+ extern void radeonVtxfmtInit( GLcontext *ctx );
+@@ -58,7 +58,7 @@
+    char *end = (char *)&FUNC##_end;			\
+    insert_at_head( &CACHE, dfn );			\
+    dfn->key = key;					\
+-   dfn->code = ALIGN_MALLOC( end - start, 16 );		\
++   dfn->code = EXEC_MALLOC( end - start, 16 );		\
+    memcpy (dfn->code, start, end - start);		\
+ }							\
+ while ( 0 )
+--- xc/lib/GL/mesa/src/drv/radeon/radeon_vtxfmt.c.jrd	2004-03-04 10:46:31.000000000 -0700
++++ xc/lib/GL/mesa/src/drv/radeon/radeon_vtxfmt.c	2004-04-02 16:28:08.000000000 -0700
+@@ -1042,7 +1042,7 @@
+    struct dynfn *f, *tmp;
+    foreach_s (f, tmp, l) {
+       remove_from_list( f );
+-      ALIGN_FREE( f->code );
++      EXEC_FREE( f->code );
+       FREE( f );
+    }
+ }
+--- xc/lib/GL/mesa/src/drv/r200/r200_vtxfmt.c.jrd	2004-03-04 10:46:30.000000000 -0700
++++ xc/lib/GL/mesa/src/drv/r200/r200_vtxfmt.c	2004-04-02 16:28:08.000000000 -0700
+@@ -1074,7 +1074,7 @@
+    struct dynfn *f, *tmp;
+    foreach_s (f, tmp, l) {
+       remove_from_list( f );
+-      ALIGN_FREE( f->code );
++      EXEC_FREE( f->code );
+       FREE( f );
+    }
+ }
+--- xc/lib/GL/mesa/src/drv/r200/r200_vtxfmt.h.jrd	2004-03-04 10:46:30.000000000 -0700
++++ xc/lib/GL/mesa/src/drv/r200/r200_vtxfmt.h	2004-04-02 16:43:30.000000000 -0700
+@@ -39,6 +39,7 @@
+ #ifdef GLX_DIRECT_RENDERING
+ 
+ #include "r200_context.h"
++#include "mem.h"
+ 
+ 
+ 
+@@ -60,7 +61,7 @@
+    insert_at_head( &CACHE, dfn );			\
+    dfn->key[0] = key[0];					\
+    dfn->key[1] = key[1];					\
+-   dfn->code = ALIGN_MALLOC( end - start, 16 );		\
++   dfn->code = EXEC_MALLOC( end - start, 16 );		\
+    memcpy (dfn->code, start, end - start);		\
+ }							\
+ while ( 0 )
+--- xc/lib/GL/glx/Imakefile.jrd	2004-03-04 10:46:25.000000000 -0700
++++ xc/lib/GL/glx/Imakefile	2004-04-02 16:28:08.000000000 -0700
+@@ -41,6 +41,8 @@
+ #if defined(SparcArchitecture) && !defined(OpenBSDArchitecture)
+ LinkSourceFile(glapi_sparc.S, $(MESASRCDIR)/src/SPARC)
+ #endif
++LinkSourceFile(mem.h, $(MESASRCDIR)/src)
++LinkSourceFile(mem.c, $(MESASRCDIR)/src)
+ 
+ 
+ # Maybe some of these could come from
+@@ -61,6 +63,7 @@
+ 		glxextensions.c \
+ 		glcontextmodes.c \
+ 		indirect_init.c \
++		mem.c \
+ 		pixel.c \
+ 		pixelstore.c \
+ 		render2.c \
+@@ -85,6 +88,7 @@
+ 		glxextensions.o \
+ 		glcontextmodes.o \
+ 		indirect_init.o \
++		mem.o \
+ 		pixel.o \
+ 		pixelstore.o \
+ 		render2.o \
+--- /dev/null	2004-02-23 14:02:56.000000000 -0700
++++ xc/extras/Mesa/src/mem.c	2004-04-02 16:56:33.000000000 -0700
+@@ -0,0 +1,349 @@
++#include <unistd.h>
++#include <sys/mman.h>
++#include "glheader.h"
++#include "mem.h"
++
++/*
++ * Why does this patch create mem.{c,h} if the only thing in here is
++ * _mesa_exec_malloc and _mesa_exec_free? Why isn't it in
++ * imports.{c,h} with the other mesa malloc routines? That would make
++ * a lot of sense. This code needs to used in both the client library
++ * and the server, one option is keep two copies of the code, one in
++ * the client and one in the server, but that risks code maintenance
++ * problems. There is already a precidence for linking shared files
++ * between the client and the server, that's a better
++ * approach. However, imports.c is not cleanly separable from a link
++ * point of view, the reference to the external symbol
++ * _mesa_record_error causes unresolved references and the need to
++ * pull into too much other stuff that shouldn't be linked in. Argh!
++ * The mesa malloc code used to all be in a file called mem.{c,h}
++ * which was cleanly separable and easily shared between the client
++ * and server but someone moved all the malloc functions to
++ * imports.c. So the most practical solution at the moment is to
++ * recreate mem.{c,h} and just populate with the exec versions of
++ * malloc and maybe someone will want to clean up the imports file so
++ * all the memory functions can live together.
++ */
++
++
++/*
++ * Execute permission implementation notes:
++ * John Dennis - jdennis@redhat.com - Red Hat Inc.
++ *
++ * Overview:
++ *
++ * Various parts of Mesa generate machine code during run time and
++ * then executes that code. We will use the term code gen to refer to
++ * this process. Some operating systems in an attempt to achieve
++ * better security enforce restrictions on which memory areas may
++ * contain executable code. In general execute permission is granted
++ * to .text sections and removed on stack or heap memory. It's the
++ * heap (and possibly the stack) where code is run time
++ * generated. This means on a system that enforce execute memory
++ * security you will get either a SEGV or SIGBUS exception when run
++ * time generated code executes and the process will be terminated.
++ *
++ * Implementation:
++ *
++ * The solution is to provide unique malloc/free functions which
++ * return memory with execute permission and to make sure these
++ * allocation functions are called for code gen.
++ *
++ * There are 3 possible implementation solutions.
++ *
++ * Solution A: use mprotect on malloc block.
++ * 
++ *   In this scenario after a block is allocated via malloc we call
++ *   mprotect on the pages containing the block and add execute
++ *   permission. In theory a free of the block removes the execute
++ *   permission. 
++ *
++ *   Pros: Simple to implement
++ *
++ *   Cons: Because execute permission is granted on a page basis when
++ *         mprotect is called on the page containing the malloc block
++ *         every other malloc block in that page also received execute
++ *         permission, this is insecure because other malloc blocks
++ *         are receiving execute permission as a side effect due to
++ *         proximity. 
++ * 
++ *         When a malloc block is freed that had been allocated for
++ *         execute permission we should remove the execute permission
++ *         from that block so that when the heap manager resuses that
++ *         memory it will not be executable in a new context. But
++ *         because exectue permission is granted to memory pages and a
++ *         page may have more than one malloc block with execute
++ *         permission we cannot remove execute permission because that
++ *         would remove execute permission on any executable malloc
++ *         blocks which still remain in that page. By not removing the
++ *         execution permission on a free operation we will tend to
++ *         "leak" executable memory as more and more heap pages
++ *         accumulate execute permission, possibly without needing it.
++ *
++ * Solution B: use mmap to allocate block
++ *
++ *   In this scenario every call to alloc an executable block is
++ *   performed with anonymous mmap. Mmap always allocates pages of
++ *   memory. When free is called we unmap the pages.
++ *
++ *   Pros: This is much more secure. The kernel places the allocation
++ *         in special pages that have additional protection. These
++ *         pages are not near any other pages.
++ *
++ *         The pages used do not contain any heap allocation that is
++ *         not susposed to be executable, therefore we are not
++ *         inadvertantly granting execute permission to a malloc block
++ *         that happens to live in the same page as a execute malloc
++ *         block.
++ *
++ *         The allocation can be freed without effecting any other
++ *         allocation and it will be reused by the kernel.
++ *
++ *         Its simple to implement. As simple as solution A.
++ *
++ *   Cons: Mmap only allocates in units of pages. Thus even a small
++ *         allocation will use an entire page. However note, only a
++ *         small number exec malloc's are currently done so the
++ *         wasted memory is not likely to be an issue.
++ *
++ *         Because every code generated function will live alone in
++ *         its own page this will probably introduce more cache misses
++ *         and page faults than if the all the code were coalesced
++ *         together into one or more pages as would be the case with
++ *         regular .text sections.
++ *         
++ * Solution C: use separate malloc implementation using mmap'ed heap arena
++ * 
++ *   In this scenario a new heap manager is introduced which manages a
++ *   heap arena usning anonymous mmap with execute permission. All
++ *   executable allocations are provided using only this heap arena.
++ *
++ *   Pros: This is the ideal solution. As in Solution B executable and
++ *         non-executable allocations are never mixed. Executable
++ *         allocations are provided using the most secure pages the
++ *         kernel provides.
++ *
++ *         Pages will likely contain multiple allocations as opposed
++ *         to Solution B where pages will be sparsely used. This
++ *         improves cache and page fault behavior.
++ *
++ *   Cons: This is the most involved implementation and requires the
++ *         introduction of a heap manger implementation that has been
++ *         modified to work with anonymous mmap. However, note that
++ *         the GNU malloc implementation has been modified to work
++ *         with anonymous mmap.
++ */
++
++/* Define a struct for our private data. This is preferred over pointer
++ * arithmetic to access individual pieces of our private data because the
++ * compiler will help us get alignment correct in a portable way and it
++ * makes it much easier to add or remove items from our private data */
++
++typedef struct align_malloc_header {
++  void  *alloc_ptr;		/* actual allocation ptr */
++  size_t alloc_size;		/* actual allocation size */
++  void  *user_ptr;		/* ptr returned to caller */
++  size_t user_size;		/* size caller requested */
++} align_malloc_header;
++
++static unsigned long RoundUpPowerOf2(unsigned long val);
++
++#if 1
++#define EXEC_ALLOC_USE_MMAP
++#else
++#define EXEC_ALLOC_USE_MALLOC
++#endif
++
++/* If input is power of 2 return that, else round up to next power of 2 */
++static unsigned long RoundUpPowerOf2(unsigned long val)
++{
++  int i, setBits;
++
++  if (val == 0) return(1UL);
++  if (val > (1UL << (sizeof(unsigned long) * 8 - 1))) {
++    /* out of range, should be fatal error?, for now return max power of 2 */
++    return (1UL << (sizeof(unsigned long) * 8 - 1));
++  }
++
++  for (i = setBits = 0; val && i < sizeof(unsigned long) * 8; i++, val >>= 1) {
++    if (val & 1UL) setBits++;
++  }
++  if (setBits > 1) 
++    return (1UL << i);		/* input was not power of 2 */
++  else
++    return (1UL << (i-1));	/* input was power of 2 */
++}
++
++/*
++ * Allocate N-byte aligned memory in executable region (uninitialized)
++ */
++
++#ifdef EXEC_ALLOC_USE_MALLOC
++void *
++_mesa_exec_malloc(size_t user_size, unsigned long user_align)
++{
++   unsigned long alloc_ptr, user_ptr, alloc_size, alloc_align;
++   align_malloc_header *pHeader;
++
++   ASSERT( user_align > 0 );
++
++   /* We store the pointer to the acutal address and size in a private
++    * header before the address the client sees. We need the actual 
++    * pointer to free with and we need the size to remove execute permission
++    * on the block */
++
++   if (user_align < sizeof(align_malloc_header))
++     alloc_align = RoundUpPowerOf2(sizeof(align_malloc_header));
++   else
++     alloc_align = user_align;
++   alloc_size = user_size + alloc_align;
++
++   alloc_ptr = (unsigned long) MALLOC(alloc_size);
++
++   if (!alloc_ptr) return(NULL);
++
++   user_ptr            = (alloc_ptr + alloc_align) & ~(unsigned long)(alloc_align - 1);
++   pHeader             = (align_malloc_header *) (user_ptr - sizeof(align_malloc_header));
++   pHeader->alloc_ptr  = (void *) alloc_ptr;
++   pHeader->alloc_size = alloc_size;
++   pHeader->user_ptr   = (void *) user_ptr;
++   pHeader->user_size  = user_size;
++
++   {
++     unsigned page_size, round;
++
++     page_size = getpagesize();
++     round = user_ptr & (page_size-1);
++     mprotect((void *)(user_ptr - round), (user_size + round + page_size-1) & ~(page_size-1),
++	      PROT_READ | PROT_WRITE | PROT_EXEC);
++   }
++
++#ifdef DEBUG
++   {
++     unsigned char *p    = (unsigned char *) alloc_ptr;
++     unsigned char *stop = (unsigned char *) pHeader;
++
++     /* mark the non-aligned area */
++     for(; p < stop; p++) {
++       *p = 0xcd;
++     }
++   }
++#endif
++
++   return (void *)user_ptr;
++}
++
++/*
++ * Free N-byte executable aligned memory
++ */
++void
++_mesa_exec_free(void *user_ptr)
++{
++   /* The header giving the real address and size is just prior to the address the client sees. */
++   align_malloc_header *pHeader;
++   void *alloc_ptr;
++   size_t user_size;
++
++   pHeader = (align_malloc_header *)((char *)user_ptr - sizeof(align_malloc_header));
++   alloc_ptr = pHeader->alloc_ptr;
++   user_size = pHeader->user_size;
++
++#if 0
++   /*
++    * Unfortunately we cannot remove the execute permission on this
++    * malloc block because execute permission is granted on a page
++    * basis. If the page containing this malloc block also contained
++    * another malloc block with execute permission that was still in
++    * effect then we will remove execute permission on a malloc block
++    * that should still be in force. This does mean we will tend to
++    * "leak" execute permission in the heap. See above block comment
++    * on implementation issues.
++    *
++    * Note, we could keep a ref count on each page and when the ref count
++    * fell to zero we could remove the execute permission.
++    *
++    * If we did remove the execute permission this is how it would be done.
++    */
++   {
++     unsigned page_size, round;
++
++     page_size = getpagesize();
++     round = (unsigned long)user_ptr & (page_size-1);
++     mprotect((char *)user_ptr - round, (user_size + round + page_size-1) & ~(page_size-1),
++	      PROT_READ | PROT_WRITE);
++   }
++#endif
++   FREE(alloc_ptr);
++}
++
++#elif defined(EXEC_ALLOC_USE_MMAP)
++
++void *
++_mesa_exec_malloc(size_t user_size, unsigned long user_align)
++{
++   unsigned long alloc_ptr, user_ptr, alloc_size, alloc_align;
++   align_malloc_header *pHeader;
++
++   ASSERT( user_align > 0 );
++
++   /* We store the pointer to the acutal address and size in a private
++    * header before the address the client sees. We need the actual 
++    * pointer to free with and we need the size to unmap the region */
++
++   if (user_align < sizeof(align_malloc_header))
++     alloc_align = RoundUpPowerOf2(sizeof(align_malloc_header));
++   else
++     alloc_align = user_align;
++   alloc_size = user_size + alloc_align;
++
++   /* Note, I'm not sure how portable MAP_ANONYMOUS with fd=0 is, on some POSIX
++    * systems you may need to remove the MAP_ANONYMOUS flag and pass the 
++    * result of posix_typed_mem_open with POSIX_TYPED_MEM_ALLOCATE as the fd. */
++
++   alloc_ptr = (unsigned long) mmap(0, alloc_size,
++				    PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
++   if ((void *)alloc_ptr == MAP_FAILED) {
++     return(NULL);
++   }
++
++   user_ptr            = (alloc_ptr + alloc_align) & ~(unsigned long)(alloc_align - 1);
++   pHeader             = (align_malloc_header *) (user_ptr - sizeof(align_malloc_header));
++   pHeader->alloc_ptr  = (void *) alloc_ptr;
++   pHeader->alloc_size = alloc_size;
++   pHeader->user_ptr   = (void *) user_ptr;
++   pHeader->user_size  = user_size;
++
++#ifdef DEBUG
++   {
++     unsigned char *p    = (unsigned char *) alloc_ptr;
++     unsigned char *stop = (unsigned char *) pHeader;
++
++     /* mark the non-aligned area */
++     for(; p < stop; p++) {
++       *p = 0xcd;
++     }
++   }
++#endif
++
++   return (void *)user_ptr;
++}
++
++/*
++ * Free N-byte executable aligned memory
++ */
++void
++_mesa_exec_free(void *user_ptr)
++{
++   /* The header giving the real address and size is just prior to the address the client sees. */
++   align_malloc_header *pHeader;
++   void *alloc_ptr;
++   size_t alloc_size;
++
++   pHeader    = (align_malloc_header *)((char *)user_ptr - sizeof(align_malloc_header));
++   alloc_ptr  = pHeader->alloc_ptr;
++   alloc_size = pHeader->alloc_size;
++
++   munmap(alloc_ptr, alloc_size);
++}
++#endif
++
+--- xc/extras/Mesa/src/glapi.c.jrd	2004-03-04 13:19:12.000000000 -0700
++++ xc/extras/Mesa/src/glapi.c	2004-04-02 16:28:08.000000000 -0700
+@@ -58,6 +58,7 @@
+ #include "glapioffsets.h"
+ #include "glapitable.h"
+ #include "glthread.h"
++#include "mem.h"
+ 
+ /***** BEGIN NO-OP DISPATCH *****/
+ 
+@@ -547,7 +548,7 @@
+       0xe8, 0x00, 0x00, 0x00, 0x00,
+       0xff, 0xa0, 0x00, 0x00, 0x00, 0x00
+    };
+-   unsigned char *code = (unsigned char *) malloc(sizeof(insn_template));
++   unsigned char *code = (unsigned char *) EXEC_MALLOC(sizeof(insn_template), 16);
+    unsigned int next_insn;
+    if (code) {
+       memcpy(code, insn_template, sizeof(insn_template));
+@@ -588,7 +589,7 @@
+ 	   0x01000000	/*  nop						  */
+    };
+ #endif
+-   unsigned int *code = (unsigned int *) malloc(sizeof(insn_template));
++   unsigned int *code = (unsigned int *) EXEC_MALLOC(sizeof(insn_template), 16);
+    unsigned long glapi_addr = (unsigned long) &_glapi_Dispatch;
+    if (code) {
+       memcpy(code, insn_template, sizeof(insn_template));
+--- /dev/null	2004-02-23 14:02:56.000000000 -0700
++++ xc/extras/Mesa/src/mem.h	2004-04-02 16:28:08.000000000 -0700
+@@ -0,0 +1,15 @@
++#ifndef MEM_H
++#define MEM_H
++
++/* These macros allocate aligned memory in a area with execute permission,
++ * used for code generation. */
++#define EXEC_MALLOC(BYTES, N)     (void *) _mesa_exec_malloc(BYTES, N)
++#define EXEC_FREE(PTR)            _mesa_exec_free(PTR)
++
++extern void *
++_mesa_exec_malloc(size_t user_size, unsigned long user_align);
++
++extern void
++_mesa_exec_free(void *user_ptr);
++
++#endif /* MEM_H */

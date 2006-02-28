@@ -1,0 +1,16 @@
+--- linux-2.4.26/Makefile.old	2004-07-21 23:00:05.015301085 +0300
++++ linux-2.4.26/Makefile	2004-07-21 22:57:37.981300855 +0300
+@@ -72,13 +72,6 @@ do-it-all:	config
+ endif
+ 
+ #
+-# Add RSBAC version
+-#
+-ifeq ($(CONFIG_RSBAC),y)
+-EXTRAVERSION:=$(EXTRAVERSION)-rsbac
+-endif
+-
+-#
+ # INSTALL_PATH specifies where to place the updated kernel and system map
+ # images.  Uncomment if you want to place them anywhere other than root.
+ #

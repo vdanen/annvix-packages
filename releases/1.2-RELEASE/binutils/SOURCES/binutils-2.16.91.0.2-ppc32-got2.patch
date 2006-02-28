@@ -1,0 +1,480 @@
+bfd/
+2005-07-29  Alan Modra  <amodra@bigpond.net.au>
+
+	* elf-bfd.h (struct elf_backend_data): Add action_discarded.
+	(enum action_discarded): Move from..
+	* elflink.c (enum action_discarded): ..here.
+	(_bfd_elf_default_action_discarded): Rename from elf_action_discarded.
+	Remove target specific section checks.
+	(elf_link_input_bfd): Adjust.
+	* elfxx-target.h (elf_backend_action_discarded): Define.
+	(elfNN_bed): Init new field.
+	* bfd-in.h (_bfd_elf_default_action_discarded): Declare.
+	* bfd-in2.h: Regenerate.
+	* elf-hppa.h (elf_hppa_action_discarded): New function.
+	* elf32-hppa.c (elf_backend_action_discarded): Define.
+	* elf64-hppa.c (elf_backend_action_discarded): Define.
+	* elf32-ppc.c (ppc_elf_action_discarded): New function.
+	(elf_backend_action_discarded): Define.
+
+2005-07-27  Alan Modra  <amodra@bigpond.net.au>
+
+	* elflink.c (fix_syms): Handle symbols defined in input sections.
+
+2005-07-27  Alan Modra  <amodra@bigpond.net.au>
+
+	* elflink.c (_bfd_elf_merge_symbol): Skip weak redefinition
+	regardless of strength of previous definition.
+
+2005-07-26  Alan Modra  <amodra@bigpond.net.au>
+
+	* elflink.c (elf_gc_mark_dynamic_ref_symbol): Handle -shared.
+	(bfd_elf_gc_sections): Allow -gc-sections when -shared.
+	* elf32-ppc.c (ppc_elf_gc_sweep_hook): Correct for -shared.
+
+2005-07-26  Alan Modra  <amodra@bigpond.net.au>
+
+	* elflink.c (elf_gc_sweep): Move gcc_except_table code..
+	(bfd_elf_gc_sections): ..to here.
+ld/
+2005-07-28  DJ Delorie  <dj@redhat.com>
+
+	* ldlang.c (lang_output_section_statement_lookup_1): Don't cast a
+	unary & address operator, as that breaks GCC's strict aliasing
+	rules.
+ld/testsuite/
+2005-07-27  Alan Modra  <amodra@bigpond.net.au>
+
+	* ld-elfweak/size2a.s: Extend test to check size for two weaks.
+	* ld-elfweak/size2b.s: Likewise.
+	* ld-elfweak/size2.d: Update.
+
+--- bfd/bfd-in.h	15 Jul 2005 12:18:01 -0000	1.106
++++ bfd/bfd-in.h	29 Jul 2005 02:46:02 -0000	1.107
+@@ -656,6 +656,8 @@ extern struct bfd_link_needed_list *bfd_
+   (bfd *, struct bfd_link_info *);
+ extern bfd_boolean bfd_elf_discard_info
+   (bfd *, struct bfd_link_info *);
++extern unsigned int _bfd_elf_default_action_discarded
++  (struct bfd_section *);
+ 
+ /* Return an upper bound on the number of bytes required to store a
+    copy of ABFD's program header table entries.  Return -1 if an error
+--- bfd/bfd-in2.h	26 Jul 2005 03:21:49 -0000	1.355
++++ bfd/bfd-in2.h	29 Jul 2005 02:46:02 -0000	1.356
+@@ -663,6 +663,8 @@ extern struct bfd_link_needed_list *bfd_
+   (bfd *, struct bfd_link_info *);
+ extern bfd_boolean bfd_elf_discard_info
+   (bfd *, struct bfd_link_info *);
++extern unsigned int _bfd_elf_default_action_discarded
++  (struct bfd_section *);
+ 
+ /* Return an upper bound on the number of bytes required to store a
+    copy of ABFD's program header table entries.  Return -1 if an error
+--- bfd/elf-bfd.h	25 Jul 2005 15:41:02 -0000	1.193
++++ bfd/elf-bfd.h	29 Jul 2005 02:46:02 -0000	1.194
+@@ -546,6 +546,12 @@ struct bfd_elf_special_section
+   int attr;
+ };
+ 
++enum action_discarded
++  {
++    COMPLAIN = 1,
++    PRETEND = 2
++  };
++
+ struct elf_backend_data
+ {
+   /* The architecture for this backend.  */
+@@ -918,6 +924,11 @@ struct elf_backend_data
+   bfd_boolean (*elf_backend_ignore_discarded_relocs)
+     (asection *);
+ 
++  /* What to do when ld finds relocations against symbols defined in
++     discarded sections.  */
++  unsigned int (*action_discarded)
++    (asection *);
++
+   /* This function returns the width of FDE pointers in bytes, or 0 if
+      that can't be determined for some reason.  The default definition
+      goes by the bfd's EI_CLASS.  */
+--- bfd/elf-hppa.h	8 Jul 2005 06:19:56 -0000	1.79
++++ bfd/elf-hppa.h	29 Jul 2005 02:46:02 -0000	1.80
+@@ -1057,6 +1057,18 @@ static bfd_boolean elf_hppa_sort_unwind 
+   return TRUE;
+ }
+ 
++/* What to do when ld finds relocations against symbols defined in
++   discarded sections.  */
++
++static unsigned int
++elf_hppa_action_discarded (asection *sec)
++{
++  if (strcmp (".PARISC.unwind", sec->name) == 0)
++    return 0;
++
++  return _bfd_elf_default_action_discarded (sec);
++}
++
+ #if ARCH_SIZE == 64
+ /* Hook called by the linker routine which adds symbols from an object
+    file.  HP's libraries define symbols with HP specific section
+--- bfd/elf32-hppa.c	8 Jul 2005 06:19:58 -0000	1.136
++++ bfd/elf32-hppa.c	29 Jul 2005 02:46:02 -0000	1.137
+@@ -4251,6 +4251,7 @@ elf32_hppa_elf_get_symbol_type (Elf_Inte
+ #define elf_backend_post_process_headers     elf32_hppa_post_process_headers
+ #define elf_backend_get_symbol_type	     elf32_hppa_elf_get_symbol_type
+ #define elf_backend_reloc_type_class	     elf32_hppa_reloc_type_class
++#define elf_backend_action_discarded	     elf_hppa_action_discarded
+ 
+ #define elf_backend_can_gc_sections	     1
+ #define elf_backend_can_refcount	     1
+--- bfd/elf32-ppc.c	16 Jul 2005 03:30:23 -0000	1.174
++++ bfd/elf32-ppc.c	29 Jul 2005 02:46:03 -0000	1.176
+@@ -3728,8 +3728,12 @@ ppc_elf_gc_sweep_hook (bfd *abfd,
+ 	case R_PPC_ADDR14_BRNTAKEN:
+ 	case R_PPC_UADDR32:
+ 	case R_PPC_UADDR16:
++	  if (info->shared)
++	    break;
++
+ 	case R_PPC_PLT32:
+ 	case R_PPC_PLTREL24:
++	case R_PPC_PLTREL32:
+ 	case R_PPC_PLT16_LO:
+ 	case R_PPC_PLT16_HI:
+ 	case R_PPC_PLT16_HA:
+@@ -5299,6 +5303,21 @@ ppc_elf_set_sdata_syms (bfd *obfd, struc
+       _bfd_elf_provide_symbol (info, lsect->sym_name, val, s);
+     }
+ }
++
++/* What to do when ld finds relocations against symbols defined in
++   discarded sections.  */
++
++static unsigned int
++ppc_elf_action_discarded (asection *sec)
++{
++  if (strcmp (".fixup", sec->name) == 0)
++    return 0;
++
++  if (strcmp (".got2", sec->name) == 0)
++    return 0;
++
++  return _bfd_elf_default_action_discarded (sec);
++}
+ 
+ /* Fill in the address for a pointer generated in a linker section.  */
+ 
+@@ -7356,6 +7375,7 @@ ppc_elf_finish_dynamic_sections (bfd *ou
+ #define elf_backend_write_section		ppc_elf_write_section
+ #define elf_backend_get_sec_type_attr		ppc_elf_get_sec_type_attr
+ #define elf_backend_plt_sym_val			ppc_elf_plt_sym_val
++#define elf_backend_action_discarded		ppc_elf_action_discarded
+ 
+ #include "elf32-target.h"
+ 
+--- bfd/elf64-hppa.c	8 Jul 2005 06:20:02 -0000	1.63
++++ bfd/elf64-hppa.c	29 Jul 2005 02:46:03 -0000	1.64
+@@ -2745,6 +2745,7 @@ const struct elf_size_info hppa64_elf_si
+ #define elf_backend_reloc_type_class	elf64_hppa_reloc_type_class
+ #define elf_backend_rela_normal		1
+ #define elf_backend_special_sections	elf64_hppa_special_sections
++#define elf_backend_action_discarded	elf_hppa_action_discarded
+ 
+ #include "elf64-target.h"
+ 
+--- bfd/elflink.c	25 Jul 2005 15:35:37 -0000	1.179
++++ bfd/elflink.c	29 Jul 2005 02:46:03 -0000	1.184
+@@ -1216,7 +1216,7 @@ _bfd_elf_merge_symbol (bfd *abfd,
+     }
+ 
+   /* Skip weak definitions of symbols that are already defined.  */
+-  if (newdef && olddef && newweak && !oldweak)
++  if (newdef && olddef && newweak)
+     *skip = TRUE;
+ 
+   /* If the old symbol is from a dynamic object, and the new symbol is
+@@ -6690,12 +6690,6 @@ elf_section_ignore_discarded_relocs (ase
+   return FALSE;
+ }
+ 
+-enum action_discarded
+-  {
+-    COMPLAIN = 1,
+-    PRETEND = 2
+-  };
+-
+ /* Return a mask saying how ld should treat relocations in SEC against
+    symbols defined in discarded sections.  If this function returns
+    COMPLAIN set, ld will issue a warning message.  If this function
+@@ -6705,8 +6699,8 @@ enum action_discarded
+    zero the reloc (at least that is the intent, but some cooperation by
+    the target dependent code is needed, particularly for REL targets).  */
+ 
+-static unsigned int
+-elf_action_discarded (asection *sec)
++unsigned int
++_bfd_elf_default_action_discarded (asection *sec)
+ {
+   if (sec->flags & SEC_DEBUGGING)
+     return PRETEND;
+@@ -6717,12 +6711,6 @@ elf_action_discarded (asection *sec)
+   if (strcmp (".gcc_except_table", sec->name) == 0)
+     return 0;
+ 
+-  if (strcmp (".PARISC.unwind", sec->name) == 0)
+-    return 0;
+-
+-  if (strcmp (".fixup", sec->name) == 0)
+-    return 0;
+-
+   return COMPLAIN | PRETEND;
+ }
+ 
+@@ -7042,7 +7030,7 @@ elf_link_input_bfd (struct elf_final_lin
+ 	  if (!elf_section_ignore_discarded_relocs (o))
+ 	    {
+ 	      Elf_Internal_Rela *rel, *relend;
+-	      unsigned int action = elf_action_discarded (o);
++	      unsigned int action = (*bed->action_discarded) (o);
+ 
+ 	      rel = internal_relocs;
+ 	      relend = rel + o->reloc_count * bed->s->int_rels_per_ext_rel;
+@@ -8912,41 +8900,6 @@ elf_gc_sweep (struct bfd_link_info *info
+ 	  if (o->gc_mark)
+ 	    continue;
+ 
+-	  /* Keep .gcc_except_table.* if the associated .text.* is
+-	     marked.  This isn't very nice, but the proper solution,
+-	     splitting .eh_frame up and using comdat doesn't pan out 
+-	     easily due to needing special relocs to handle the
+-	     difference of two symbols in separate sections.
+-	     Don't keep code sections referenced by .eh_frame.  */
+-	  if (o->gc_mark_from_eh && (o->flags & SEC_CODE) == 0)
+-	    {
+-	      if (strncmp (o->name, ".gcc_except_table.", 18) == 0)
+-		{
+-		  unsigned long len;
+-		  char *fn_name;
+-		  asection *fn_text;
+-
+-		  len = strlen (o->name + 18) + 1;
+-		  fn_name = bfd_malloc (len + 6);
+-		  if (fn_name == NULL)
+-		    return FALSE;
+-		  memcpy (fn_name, ".text.", 6);
+-		  memcpy (fn_name + 6, o->name + 18, len);
+-		  fn_text = bfd_get_section_by_name (sub, fn_name);
+-		  free (fn_name);
+-		  if (fn_text != NULL && fn_text->gc_mark)
+-		    o->gc_mark = 1;
+-		}
+-
+-	      /* If not using specially named exception table section,
+-		 then keep whatever we are using.  */
+-	      else
+-		o->gc_mark = 1;
+-
+-	      if (o->gc_mark)
+-		continue;
+-	    }
+-
+ 	  /* Skip sweeping sections already excluded.  */
+ 	  if (o->flags & SEC_EXCLUDE)
+ 	    continue;
+@@ -9107,19 +9060,25 @@ elf_gc_smash_unused_vtentry_relocs (stru
+   return TRUE;
+ }
+ 
+-/* Mark sections containing dynamically referenced symbols.  This is called
+-   through elf_link_hash_traverse.  */
++/* Mark sections containing dynamically referenced symbols.  When
++   building shared libraries, we must assume that any visible symbol is
++   referenced.  */
+ 
+ static bfd_boolean
+-elf_gc_mark_dynamic_ref_symbol (struct elf_link_hash_entry *h,
+-				void *okp ATTRIBUTE_UNUSED)
++elf_gc_mark_dynamic_ref_symbol (struct elf_link_hash_entry *h, void *inf)
+ {
++  struct bfd_link_info *info = (struct bfd_link_info *) inf;
++
+   if (h->root.type == bfd_link_hash_warning)
+     h = (struct elf_link_hash_entry *) h->root.u.i.link;
+ 
+   if ((h->root.type == bfd_link_hash_defined
+        || h->root.type == bfd_link_hash_defweak)
+-      && h->ref_dynamic)
++      && (h->ref_dynamic
++	  || (info->shared
++	      && h->def_regular
++	      && ELF_ST_VISIBILITY (h->other) != STV_INTERNAL
++	      && ELF_ST_VISIBILITY (h->other) != STV_HIDDEN)))
+     h->root.u.def.section->flags |= SEC_KEEP;
+ 
+   return TRUE;
+@@ -9139,7 +9098,6 @@ bfd_elf_gc_sections (bfd *abfd, struct b
+   if (!get_elf_backend_data (abfd)->can_gc_sections
+       || info->relocatable
+       || info->emitrelocations
+-      || info->shared
+       || !is_elf_hash_table (info->hash))
+     {
+       (*_bfd_error_handler)(_("Warning: gc-sections option ignored"));
+@@ -9164,9 +9122,7 @@ bfd_elf_gc_sections (bfd *abfd, struct b
+   if (elf_hash_table (info)->dynamic_sections_created)
+     elf_link_hash_traverse (elf_hash_table (info),
+ 			    elf_gc_mark_dynamic_ref_symbol,
+-			    &ok);
+-  if (!ok)
+-    return FALSE;
++			    info);
+ 
+   /* Grovel through relocs to find out who stays ...  */
+   gc_mark_hook = get_elf_backend_data (abfd)->gc_mark_hook;
+@@ -9183,6 +9139,48 @@ bfd_elf_gc_sections (bfd *abfd, struct b
+ 	    return FALSE;
+     }
+ 
++  /* ... again for sections marked from eh_frame.  */
++  for (sub = info->input_bfds; sub != NULL; sub = sub->link_next)
++    {
++      asection *o;
++
++      if (bfd_get_flavour (sub) != bfd_target_elf_flavour)
++	continue;
++
++      /* Keep .gcc_except_table.* if the associated .text.* is
++	 marked.  This isn't very nice, but the proper solution,
++	 splitting .eh_frame up and using comdat doesn't pan out 
++	 easily due to needing special relocs to handle the
++	 difference of two symbols in separate sections.
++	 Don't keep code sections referenced by .eh_frame.  */
++      for (o = sub->sections; o != NULL; o = o->next)
++	if (!o->gc_mark && o->gc_mark_from_eh && (o->flags & SEC_CODE) == 0)
++	  {
++	    if (strncmp (o->name, ".gcc_except_table.", 18) == 0)
++	      {
++		unsigned long len;
++		char *fn_name;
++		asection *fn_text;
++
++		len = strlen (o->name + 18) + 1;
++		fn_name = bfd_malloc (len + 6);
++		if (fn_name == NULL)
++		  return FALSE;
++		memcpy (fn_name, ".text.", 6);
++		memcpy (fn_name + 6, o->name + 18, len);
++		fn_text = bfd_get_section_by_name (sub, fn_name);
++		free (fn_name);
++		if (fn_text == NULL || !fn_text->gc_mark)
++		  continue;
++	      }
++
++	    /* If not using specially named exception table section,
++	       then keep whatever we are using.  */
++	    if (!_bfd_elf_gc_mark (info, o, gc_mark_hook))
++	      return FALSE;
++	  }
++    }
++
+   /* ... and mark SEC_EXCLUDE for those that go.  */
+   if (!elf_gc_sweep (info, get_elf_backend_data (abfd)->gc_sweep_hook))
+     return FALSE;
+@@ -9901,10 +9899,11 @@ fix_syms (struct bfd_link_hash_entry *h,
+     {
+       asection *s = h->u.def.section;
+       if (s != NULL
+-	  && s == s->output_section
+-	  && bfd_section_removed_from_list (obfd, s))
++	  && s->output_section != NULL
++	  && (s->output_section->flags & SEC_EXCLUDE) != 0
++	  && bfd_section_removed_from_list (obfd, s->output_section))
+ 	{
+-	  h->u.def.value += s->vma;
++	  h->u.def.value += s->output_offset + s->output_section->vma;
+ 	  h->u.def.section = bfd_abs_section_ptr;
+ 	}
+     }
+--- bfd/elfxx-target.h	25 Jul 2005 15:35:37 -0000	1.87
++++ bfd/elfxx-target.h	29 Jul 2005 02:46:04 -0000	1.88
+@@ -445,6 +445,9 @@
+ #ifndef elf_backend_ignore_discarded_relocs
+ #define elf_backend_ignore_discarded_relocs	NULL
+ #endif
++#ifndef elf_backend_action_discarded
++#define elf_backend_action_discarded _bfd_elf_default_action_discarded
++#endif
+ #ifndef elf_backend_eh_frame_address_size
+ #define elf_backend_eh_frame_address_size _bfd_elf_eh_frame_address_size
+ #endif
+@@ -596,6 +599,7 @@ static const struct elf_backend_data elf
+   elf_backend_reloc_type_class,
+   elf_backend_discard_info,
+   elf_backend_ignore_discarded_relocs,
++  elf_backend_action_discarded,
+   elf_backend_eh_frame_address_size,
+   elf_backend_can_make_relative_eh_frame,
+   elf_backend_can_make_lsda_relative_eh_frame,
+--- ld/ldlang.c	15 Jul 2005 12:19:13 -0000	1.192
++++ ld/ldlang.c	28 Jul 2005 20:08:15 -0000	1.193
+@@ -1010,6 +1010,7 @@ static lang_output_section_statement_typ
+ lang_output_section_statement_lookup_1 (const char *const name, int constraint)
+ {
+   lang_output_section_statement_type *lookup;
++  lang_output_section_statement_type **nextp;
+ 
+   lookup = lang_output_section_find_1 (name, constraint);
+   if (lookup == NULL)
+@@ -1038,9 +1039,13 @@ lang_output_section_statement_lookup_1 (
+       lookup->update_dot_tree = NULL;
+       lookup->phdrs = NULL;
+ 
++      /* GCC's strict aliasing rules prevent us from just casting the
++	 address, so we store the pointer in a variable and cast that
++	 instead.  */
++      nextp = &lookup->next;
+       lang_statement_append (&lang_output_section_statement,
+ 			     (lang_statement_union_type *) lookup,
+-			     (lang_statement_union_type **) &lookup->next);
++			     (lang_statement_union_type **) nextp);
+     }
+   return lookup;
+ }
+--- ld/testsuite/ld-elfweak/size2.d	5 May 2005 03:11:24 -0000	1.1
++++ ld/testsuite/ld-elfweak/size2.d	27 Jul 2005 00:08:40 -0000	1.2
+@@ -4,5 +4,7 @@
+ #readelf: -s
+ Symbol table '.symtab' contains .* entries:
+ #...
+-    .*: [0-9a-f]* *1 *FUNC *GLOBAL *DEFAULT *[0-9] *_start
++    .*: [0-9a-f]* +1 +FUNC +GLOBAL +DEFAULT +[0-9] +_start
++#...
++    .*: [0-9a-f]* +1 +FUNC +WEAK +DEFAULT +[0-9] +foo
+ #...
+--- ld/testsuite/ld-elfweak/size2a.s	5 May 2005 03:11:24 -0000	1.1
++++ ld/testsuite/ld-elfweak/size2a.s	27 Jul 2005 00:08:40 -0000	1.2
+@@ -4,3 +4,9 @@
+ _start:
+ 	.byte 0
+ 	.size _start, 1
++
++	.weak foo
++	.type foo, "function"
++foo:
++	.byte 0
++	.size foo, 1
+--- ld/testsuite/ld-elfweak/size2b.s	5 May 2005 03:11:24 -0000	1.1
++++ ld/testsuite/ld-elfweak/size2b.s	27 Jul 2005 00:08:40 -0000	1.2
+@@ -5,3 +5,10 @@ _start:
+ 	.byte 0
+ 	.byte 0
+ 	.size _start, 2
++
++	.weak foo
++	.type foo, "function"
++foo:
++	.byte 0
++	.byte 0
++	.size foo, 2

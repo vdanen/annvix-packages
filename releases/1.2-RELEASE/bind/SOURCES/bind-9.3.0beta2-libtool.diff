@@ -1,0 +1,24 @@
+diff -Naur bind-9.3.0beta2/configure.in bind-9.3.0beta2.oden/configure.in
+--- bind-9.3.0beta2/configure.in	2004-03-14 00:59:10.000000000 +0100
++++ bind-9.3.0beta2.oden/configure.in	2004-06-16 03:15:12.632582324 +0200
+@@ -29,7 +29,7 @@
+ AC_CANONICAL_HOST
+ 
+ AC_PROG_MAKE_SET
+-AC_PROG_RANLIB
++AC_PROG_LIBTOOL
+ AC_PROG_INSTALL
+ 
+ AC_SUBST(STD_CINCLUDES)
+diff -Naur bind-9.3.0beta2/lib/bind/configure.in bind-9.3.0beta2.oden/lib/bind/configure.in
+--- bind-9.3.0beta2/lib/bind/configure.in	2004-03-15 02:02:44.000000000 +0100
++++ bind-9.3.0beta2.oden/lib/bind/configure.in	2004-06-16 03:15:12.634582259 +0200
+@@ -23,7 +23,7 @@
+ AC_CANONICAL_HOST
+ 
+ AC_PROG_MAKE_SET
+-AC_PROG_RANLIB
++AC_PROG_LIBTOOL
+ AC_PROG_INSTALL
+ 
+ AC_SUBST(STD_CINCLUDES)

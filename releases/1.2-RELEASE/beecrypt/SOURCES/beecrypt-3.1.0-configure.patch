@@ -1,0 +1,11 @@
+--- beecrypt-3.1.0/configure.ac.orig	2004-06-20 16:25:39 -0400
++++ beecrypt-3.1.0/configure.ac	2004-06-20 16:25:58 -0400
+@@ -757,7 +757,7 @@
+ case $target_os in
+ linux*)
+   case $bc_target_arch in
+-  alpha* | powerpc64 | s390x | x86_64)
++  powerpc64 | s390x | x86_64)
+     bc_libalt="64"
+     ;;
+   esac

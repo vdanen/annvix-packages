@@ -1,0 +1,127 @@
+
+Add fix to reuse cleanup structures, which prevents memory
+consumption bugs in httpd filters, part of upstream #23567.
+
+--- apr-0.9.4/memory/unix/apr_pools.c.cleanups
++++ apr-0.9.4/memory/unix/apr_pools.c
+@@ -473,6 +473,7 @@
+     apr_pool_t           *sibling;
+     apr_pool_t          **ref;
+     cleanup_t            *cleanups;
++    cleanup_t            *free_cleanups;
+     apr_allocator_t      *allocator;
+     struct process_chain *subprocesses;
+     apr_abortfunc_t       abort_fn;
+@@ -717,6 +718,7 @@
+     /* Run cleanups */
+     run_cleanups(&pool->cleanups);
+     pool->cleanups = NULL;
++    pool->free_cleanups = NULL;
+ 
+     /* Free subprocesses */
+     free_proc_chain(pool->subprocesses);
+@@ -844,6 +846,7 @@
+     pool->abort_fn = abort_fn;
+     pool->child = NULL;
+     pool->cleanups = NULL;
++    pool->free_cleanups = NULL;
+     pool->subprocesses = NULL;
+     pool->user_data = NULL;
+     pool->tag = NULL;
+@@ -1393,6 +1396,7 @@
+ 
+     /* Run cleanups */
+     run_cleanups(&pool->cleanups);
++    pool->free_cleanups = NULL;
+     pool->cleanups = NULL;
+ 
+     /* Free subprocesses */
+@@ -1905,7 +1909,13 @@
+ #endif /* APR_POOL_DEBUG */
+ 
+     if (p != NULL) {
+-        c = (cleanup_t *)apr_palloc(p, sizeof(cleanup_t));
++        if (p->free_cleanups) {
++            /* reuse a cleanup structure */
++            c = p->free_cleanups;
++            p->free_cleanups = c->next;
++        } else {
++            c = apr_palloc(p, sizeof(cleanup_t));
++        }
+         c->data = data;
+         c->plain_cleanup_fn = plain_cleanup_fn;
+         c->child_cleanup_fn = child_cleanup_fn;
+@@ -1931,6 +1941,9 @@
+     while (c) {
+         if (c->data == data && c->plain_cleanup_fn == cleanup_fn) {
+             *lastp = c->next;
++            /* move to freelist */
++            c->next = p->free_cleanups;
++            p->free_cleanups = c;
+             break;
+         }
+ 
+--- apr-0.9.4/test/testpools.c.cleanups
++++ apr-0.9.4/test/testpools.c
+@@ -130,6 +130,53 @@
+     CuAssertIntEquals(tc, 0, apr_pool_is_ancestor(pchild, pmain));
+ }
+ 
++static apr_status_t success_cleanup(void *data)
++{
++    return APR_SUCCESS;
++}
++
++static char *checker_data = "Hello, world.";
++
++static apr_status_t checker_cleanup(void *data)
++{
++    return data == checker_data ? APR_SUCCESS : APR_EGENERAL;
++}
++
++static void test_cleanups(CuTest *tc)
++{
++    apr_status_t rv;
++    int n;
++
++    /* do this several times to test the cleanup freelist handling. */
++    for (n = 0; n < 5; n++) {
++        apr_pool_cleanup_register(pchild, NULL, success_cleanup,
++                                  success_cleanup);
++        apr_pool_cleanup_register(pchild, checker_data, checker_cleanup,
++                                  success_cleanup);
++        apr_pool_cleanup_register(pchild, NULL, checker_cleanup, 
++                                  success_cleanup);
++
++        rv = apr_pool_cleanup_run(p, NULL, success_cleanup);
++        CuAssert(tc, "nullop cleanup run OK", rv == APR_SUCCESS);
++        rv = apr_pool_cleanup_run(p, checker_data, checker_cleanup);
++        CuAssert(tc, "cleanup passed correct data", rv == APR_SUCCESS);
++        rv = apr_pool_cleanup_run(p, NULL, checker_cleanup);
++        CuAssert(tc, "cleanup passed correct data", rv == APR_EGENERAL);
++
++        if (n == 2) {
++            /* clear the pool to check that works */
++            apr_pool_clear(pchild);
++        }
++
++        if (n % 2 == 0) {
++            /* throw another random cleanup into the mix */
++            apr_pool_cleanup_register(pchild, NULL,
++                                      apr_pool_cleanup_null,
++                                      apr_pool_cleanup_null);
++        }
++    }
++}
++
+ CuSuite *testpool(void)
+ {
+     CuSuite *suite = CuSuiteNew("Pools");
+@@ -140,6 +187,7 @@
+     SUITE_ADD_TEST(suite, test_notancestor);
+     SUITE_ADD_TEST(suite, alloc_bytes);
+     SUITE_ADD_TEST(suite, calloc_bytes);
++    SUITE_ADD_TEST(suite, test_cleanups);
+ 
+     return suite;
+ }

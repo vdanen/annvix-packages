@@ -1,0 +1,20 @@
+--- test.pl.nobakus	2004-02-27 10:13:45.000000000 -0700
++++ test.pl	2004-02-27 10:13:45.000000000 -0700
+@@ -174,7 +174,6 @@
+ #www.openssl.org
+ 
+ if ($trace) {
+-print "    Now about to contact external sites...\n\twww.bacus.pt\n";
+ print map "\t$_\n", @sites;
+ print "    You have 5 seconds of time to hit Ctrl-C if you do not like this.\n";
+ print "    So far there were no errors in tests.\n" unless $errors;
+@@ -185,9 +184,6 @@
+ }
+ 
+ $ENV{RND_SEED} = '1234567890123456789012345678901234567890';
+-print &test('14 www.bacus.pt',
+-	    &Net::SSLeay::sslcat("www.bacus.pt", 443,
+-				 "get\n\r\n\r") =~ /<TITLE>/);
+ 
+ sub test_site ($$) {
+     my ($test_nro, $site) = @_;

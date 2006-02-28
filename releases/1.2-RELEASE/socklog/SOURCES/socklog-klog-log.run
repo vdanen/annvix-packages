@@ -1,0 +1,6 @@
+#!/bin/execlineb
+
+
+/bin/foreground { /usr/bin/install -m 0770 -d -o root -g syslogd /var/log/system/kmsg }
+/bin/cd /var/log/system
+/sbin/chpst -u syslogd /sbin/svlogd -tt /var/log/system/kmsg

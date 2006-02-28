@@ -1,0 +1,11 @@
+--- glibc-2.3.5/sysdeps/generic/dl-sysdep.c.ssp	2005-12-22 12:45:28.000000000 -0700
++++ glibc-2.3.5/sysdeps/generic/dl-sysdep.c	2005-12-22 12:47:10.000000000 -0700
+@@ -54,6 +54,8 @@
+ INTVARDEF(__libc_security_mask)
+ int __libc_multiple_libcs = 0;	/* Defining this here avoids the inclusion
+ 				   of init-first.  */
++int __libc_argc = 0;
++char **__libc_argv = 0;
+ /* This variable contains the lowest stack address ever used.  */
+ void *__libc_stack_end attribute_relro = NULL;
+ rtld_hidden_data_def(__libc_stack_end)

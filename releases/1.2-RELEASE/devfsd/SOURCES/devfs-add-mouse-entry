@@ -1,0 +1,12 @@
+#!/bin/sh
+perl -pi -e 's!input/mouse0!input/mice!g' /etc/sysconfig/mouse
+. /etc/sysconfig/mouse
+device=`echo $device | sed -e 's!psaux!misc/psaux!' -e 's/ttyS\(.\)/tts\/\1/g'`
+if [ -n "$device" ]; then
+	rm -f /dev/mouse
+	[ -e /dev/.devfsd ] && ln -sf $device /dev/mouse
+	cat > /etc/devfs/conf.d/mouse.conf << EOF
+REGISTER    ^$device\$  CFUNCTION GLOBAL mksymlink $device mouse
+UNREGISTER  ^$device\$  CFUNCTION GLOBAL unlink mouse
+EOF
+fi

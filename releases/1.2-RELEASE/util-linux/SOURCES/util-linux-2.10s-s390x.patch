@@ -1,0 +1,91 @@
+diff -Nur util-linux-2.10s.orig/disk-utils/mkswap.c util-linux-2.10s/disk-utils/mkswap.c
+--- util-linux-2.10s.orig/disk-utils/mkswap.c	Mon Oct  2 21:23:50 2000
++++ util-linux-2.10s/disk-utils/mkswap.c	Tue Jun 12 10:32:36 2001
+@@ -219,6 +219,8 @@
+    ppc		2^12		o<<8		e>>8		1<<24	1<<19
+    armo		2^{13,14,15}	o<<8		e>>8		1<<24	1<<{18,17,16}
+    armv		2^12		o<<9		e>>9		1<<23	1<<19
++   s390         2^12            (o&0x3ffff)<<12 (e>>12)&0x3ffff 1<<19   1<<19
++   s390x        2^12            o<<12           e>>12           1<<52   1<<19
+ 
+    assuming that longs have 64 bits on alpha and sparc64 and 32 bits elsewhere.
+ 
+@@ -234,6 +236,8 @@
+ #define V1_MAX_PAGES           ((1 << 17) - 1)
+ #elif defined(__sparc__)
+ #define V1_MAX_PAGES           (is_sparc64() ? ((3 << 29) - 1) : ((1 << 18) - 1))
++#elif defined(__s390x__)
++#define V1_MAX_PAGES           ((1L << 52) - 1)
+ #else
+ #define V1_MAX_PAGES           V1_OLD_MAX_PAGES
+ #endif
+@@ -428,8 +432,8 @@
+ main(int argc, char ** argv) {
+ 	struct stat statbuf;
+ 	int i, sz;
+-	int maxpages;
+-	int goodpages;
++	long maxpages;
++ 	int goodpages;
+ 	int offset;
+ 	int force = 0;
+ 	char *block_count = 0;
+diff -Nur util-linux-2.10s.orig/fdisk/fdiskbsdlabel.c util-linux-2.10s/fdisk/fdiskbsdlabel.c
+--- util-linux-2.10s.orig/fdisk/fdiskbsdlabel.c	Tue Jun 12 10:29:09 2001
++++ util-linux-2.10s/fdisk/fdiskbsdlabel.c	Tue Jun 12 10:36:48 2001
+@@ -419,7 +419,8 @@
+ 		c = read_char (_("Do you want to create a disklabel? (y/n) "));
+ 		if (tolower(c) == 'y') {
+ 			if (xbsd_initlabel (
+-#if defined (__alpha__) || defined (__powerpc__) || defined (__hppa__)
++#if defined (__alpha__) || defined (__powerpc__) || defined (__hppa__) || \
++	defined (__s390__) || defined (__s390x__)
+ 				NULL, &xbsd_dlabel, 0
+ #else
+ 				xbsd_part, &xbsd_dlabel, xbsd_part_index
+diff -Nur util-linux-2.10s.orig/fdisk/llseek.c util-linux-2.10s/fdisk/llseek.c
+--- util-linux-2.10s.orig/fdisk/llseek.c	Tue Oct  3 01:58:31 2000
++++ util-linux-2.10s/fdisk/llseek.c	Tue Jun 12 10:37:25 2001
+@@ -25,7 +25,7 @@
+ 
+ #else	/* HAVE_LLSEEK */
+ 
+-#if defined(__alpha__) || defined(__ia64__)
++#if defined(__alpha__) || defined(__ia64__) || defined(__s390x__)
+ 
+ #define my_llseek lseek
+ 
+--- util-linux-2.10s.orig/sys-utils/ipcs.c	Tue Jun 12 10:29:09 2001
++++ util-linux-2.10s/sys-utils/ipcs.c	Tue Jun 12 10:29:27 2001
+@@ -19,6 +19,8 @@
+ 
+ */
+ 
++#define _GNU_SOURCE
++
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <getopt.h>
+--- util-linux-2.10s/disk-utils/mkswap.c.orig	Tue Jun 12 12:00:52 2001
++++ util-linux-2.10s/disk-utils/mkswap.c	Tue Jun 12 12:01:14 2001
+@@ -604,7 +604,7 @@
+ 	if (goodpages <= 0)
+ 		die(_("Unable to set up swap-space: unreadable"));
+ 	printf(_("Setting up swapspace version %d, size = %ld bytes\n"),
+-		version, (long)(goodpages*pagesize));
++		version, (long)goodpages*(long)pagesize);
+ 	write_signature((version == 0) ? "SWAP-SPACE" : "SWAPSPACE2");
+ 
+ 	offset = ((version == 0) ? 0 : 1024);
+--- util-linux-2.10s.orig/fdisk/fdiskbsdlabel.h	Tue Oct  3 02:05:25 2000
++++ util-linux-2.10s/fdisk/fdiskbsdlabel.h	Tue Jun 12 10:29:27 2001
+@@ -49,6 +49,9 @@
+ #elif defined (__alpha__) || defined (__powerpc__) || defined (__ia64__)
+ #define BSD_LABELSECTOR   0
+ #define BSD_LABELOFFSET   64
++#elif defined (__s390__) || defined (__s390x__)
++#define BSD_LABELSECTOR   1
++#define BSD_LABELOFFSET   0
+ #else
+ #error unknown architecture
+ #endif

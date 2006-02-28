@@ -1,0 +1,20 @@
+--- perl-5.8.1-RC3/lib/ExtUtils/Install.pm.pix	2003-07-10 08:11:41.000000000 +0200
++++ perl-5.8.1-RC3/lib/ExtUtils/Install.pm	2003-07-31 13:28:22.000000000 +0200
+@@ -181,7 +181,7 @@
+ 		print "Installing $targetfile\n";
+ 		utime($atime,$mtime + $Is_VMS,$targetfile) unless $nonono>1;
+ 		print "utime($atime,$mtime,$targetfile)\n" if $verbose>1;
+-		$mode = 0444 | ( $mode & 0111 ? 0111 : 0 );
++		$mode = 0644 | ( $mode & 0111 ? 0111 : 0 );
+ 		chmod $mode, $targetfile;
+ 		print "chmod($mode, $targetfile)\n" if $verbose>1;
+ 	    } else {
+@@ -464,7 +464,7 @@
+ 	}
+ 	my($mode,$atime,$mtime) = (stat $from)[2,8,9];
+ 	utime($atime,$mtime+$Is_VMS,$to);
+-	chmod(0444 | ( $mode & 0111 ? 0111 : 0 ),$to);
++	chmod(0644 | ( $mode & 0111 ? 0111 : 0 ),$to);
+ 	next unless $from =~ /\.pm$/;
+ 	_autosplit($to,$autodir);
+     }

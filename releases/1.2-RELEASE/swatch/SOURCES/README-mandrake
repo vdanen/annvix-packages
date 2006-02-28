@@ -1,0 +1,92 @@
+-- README.mandrake
+
+Author: Vincent Danen <vdanen@mandrakesoft.com>  02/23/01
+
+This file details a few customizations for running swatch under
+Linux-Mandrake.  If you have any questions or ideas, feel free to email me.
+
+Since swatch is so customizable, we did not want to force one way to use it,
+so here are some ideas for you to configure swatch to work the way you like.
+
+/etc/swatchrc is the configuration file for swatch.  Read the swatch manpage
+for more information.
+
+To start swatch, you can launch it in the background using:
+
+/usr/bin/swatch --config-file=/etc/swatchrc --tail-file=/var/log/messages &
+
+You can add this to your /etc/rc.d/rc.local if you like.  You will not see
+any of the output from swatch unless you tell it to email you.  To make
+swatch look very nice on your desktop and alert you in real-time, I suggest
+using the following script to start swatch.  You will need to have root
+access in order to start swatch anyways.
+
+#!/bin/sh
+/usr/bin/swatch --config-file=/etc/swatch/swatchrc \
+  --tail-file=/var/log/swatch
+
+Name this file ~/bin/swatch (or whatever).  This will have to be run as
+root.  Notice that I have used /var/log/swatch as the file to watch.  You
+can can change this to /var/log/messages (and miss some authentication
+messages), or you can add the following entry to /etc/syslog.conf and
+restart it:
+
+# Special logfile for swatch:
+*.*		-/var/log/swatch
+
+This puts absolutely everything into the /var/log/swatch log file (perfect
+for monitoring).
+
+To make swatch look nice on your desktop, I recommend using Eterm like this:
+
+#!/bin/sh
+Eterm -g80x15+5+25 -x --menubar=off --scrollbar=off \
+  --theme /usr/X11R6/share/Eterm/themes/Eterm \
+  --exec /home/[username]/bin/swatch &
+
+Name this file as ~/bin/go-swatch (or whatever).  Make sure that
+~/bin/swatch and ~/bin/go-swatch are executable.
+
+Another alternative is to use sudo to run swatch.  You can do this easily by
+changing the ~/bin/swatch script to look like this:
+
+#!/bin/sh
+/usr/bin/sudo /usr/bin/swatch --config-file=/etc/swatch/swatchrc \
+  --tail-file=/var/log/swatch
+
+You will need to edit your /etc/sudoers file and put an entry like this:
+
+Cmnd_Alias	SWATCH = /usr/bin/swatch
+user		ALL=(ALL) NOPASSWD: SWATCH
+
+Change user to your username (ie. vdanen), and you can remove the NOPASSWD:
+command if you want (that just allows you to run swatch without being asked
+for your password).
+
+You can run swatch as a user, but you will not have access to read the
+/var/log/{swatch,messages} file unless you make it world-readable which is a
+bad idea.
+
+Now, when you log into your desktop, you can tell your desktop to start the
+~/bin/go-swatch program and have a very nice transparent Eterm in the upper
+right-hand corner of your desktop with no borders and you can keep a
+constant eye on your log files.
+
+If you do use the /var/log/swatch log file, you will want to add an entry
+for logrotate to rotate the file.  You can do by by adding the following
+to your /etc/logrotate.d/syslog file:
+
+/var/log/swatch {
+  weekly
+  compress
+  rotate 1
+  postrotate
+    /usr/bin/killall -HUP syslogd
+  endscript
+}
+
+This will keep only one week's worth of log files because everything in the
+swatch log file is duplicated everywhere else.  We just do this to keep the
+file from growing to a monumental size.  swatch does not need to be
+restarted when you rotate the log, so you do not need to worry about this at
+all.
