@@ -23,6 +23,7 @@ URL:		http://www.info-zip.org/pub/infozip/UnZip.html
 Source0:	ftp://ftp.icce.rug.nl/infozip/src/%{name}%{src_ver}.tar.bz2
 Patch1:		unzip542-size-64bit.patch
 Patch2:		unzip-5.52-CAN-2005-2475.patch
+Patch3:		unzip-5.52-CVE-2005-4667.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -40,6 +41,7 @@ This version also has encryption support.
 %setup -q
 %patch1 -p0
 %patch2 -p1 -b .can-2005-2475
+%patch3 -p1 -b .cve-2005-4667
 
 %build
 %ifarch %{ix86}
@@ -88,10 +90,13 @@ EOF
 
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Mar 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.52
+- P3: security fix for CVE-2005-4667
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.52
 - Clean rebuild
 
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.52
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
