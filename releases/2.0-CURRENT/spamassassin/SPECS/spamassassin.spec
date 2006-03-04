@@ -1,5 +1,5 @@
 #
-# spec file for package pcre
+# spec file for package spamassassin
 #
 # Package for the Annvix Linux distribution: http://annvix.org/
 #
@@ -39,10 +39,12 @@ Patch1:		spamassassin-3.1.0-avx-fixbang.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel, perl-Time-HiRes, perl-HTML-Parser, perl-Digest-SHA1, openssl-devel, perl-IO-Socket-SSL
-BuildRequires:	perl-Net-DNS, perl-DB_File
+BuildRequires:	perl-Net-DNS, perl-DB_File, perl-Mail-SPF-Query
 
 Requires:	perl-Mail-SpamAssassin = %{version}-%{release}
 Requires:  	perl-DB_File, perl-Net-DNS
+# these aren't 100% required, but are very useful
+Requires:	perl-Sys-Hostname-Long, perl-Mail-SPF-Query
 Requires(post):	rpm-helper
 Requires(preun): rpm-helper
 
@@ -218,10 +220,13 @@ perl -p -i -e 's/ --auto-whitelist//' /etc/sysconfig/spamd
 
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Mar 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.1.0
+- Requires: perl-Mail-SPF-Query, perl-Sys-Hostname-Long (provide SPF support)
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.1.0
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.1.0
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
