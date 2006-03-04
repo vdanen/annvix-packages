@@ -5,11 +5,11 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-# $Id: perl-YAML.spec 5248 2006-02-28 05:12:35Z vdanen $
+# $Id$
 
 
 %define module		Net-CIDR-Lite
-%define revision	$Rev: 5248 $
+%define revision	$Rev$
 %define name		perl-%{module}
 %define version		0.20
 %define release		%_revrel
