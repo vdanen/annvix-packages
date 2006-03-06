@@ -31,7 +31,6 @@ Source0:	http://www.eu.apache.org/dist/spamassassin/source/%{fname}-%{version}.t
 Source1:	http://www.eu.apache.org/dist/spamassassin/source/%{fname}-%{version}.tar.bz2.asc
 Source2:	spamd.run
 Source3:	spamd-log.run
-Source6:	spamd.sysconfig
 Source4:	spamassassin-default.rc
 Source5:	spamassassin-spamc.rc
 # (fc) 2.60-5mdk don't use version dependent perl call in #!
@@ -130,7 +129,7 @@ user's own mail user-agent application.
 %makeinstall_std
 
 mkdir -p %{buildroot}/var/spool/spamassassin
-mkdir -p %{buildroot}%{_sysconfdir}/{mail/%{name},sysconfig}
+mkdir -p %{buildroot}%{_sysconfdir}/mail/%{name}
 
 cat << EOF >> %{buildroot}/%{_sysconfdir}/mail/%{name}/local.cf 
 required_hits			5
@@ -140,13 +139,13 @@ auto_whitelist_path		/var/spool/spamassassin/auto-whitelist
 auto_whitelist_file_mode	0666
 EOF
 
-cat %{SOURCE6} >%{buildroot}%{_sysconfdir}/sysconfig/spamd
 install -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/mail/spamassassin/
 install -m 0644 %{SOURCE5} %{buildroot}%{_sysconfdir}/mail/spamassassin/
 
-mkdir -p %{buildroot}%{_srvdir}/spamd/log
+mkdir -p %{buildroot}%{_srvdir}/spamd/{log,env}
 install -m 0740 %{SOURCE2} %{buildroot}%{_srvdir}/spamd/run
 install -m 0740 %{SOURCE3} %{buildroot}%{_srvdir}/spamd/log/run
+echo "-c -m5 -H" >%{buildroot}%{_srvdir}/spamd/env/OPTIONS
 
 
 %clean
@@ -165,10 +164,6 @@ if [ -d /var/log/supervise/spamd -a ! -d /var/log/service/spamd ]; then
     mv /var/log/supervise/spamd /var/log/service/
 fi
 
-# -a and --auto-whitelist options were removed from 3.0.0
-# prevent service startup failure
-perl -p -i -e 's/(["\s]-\w+)a/$1/ ; s/(["\s]-)a(\w+)/$1$2/ ; s/(["\s])-a\b/$1/' /etc/sysconfig/spamd
-perl -p -i -e 's/ --auto-whitelist//' /etc/sysconfig/spamd
 %_post_srv spamd
 
 
@@ -195,7 +190,6 @@ perl -p -i -e 's/ --auto-whitelist//' /etc/sysconfig/spamd
 %files spamd
 %defattr(-,root,root)
 %doc spamd/README* spamd/PROTOCOL
-%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/sysconfig/spamd
 %config(noreplace) %{_sysconfdir}/mail/%{name}/spamassassin-spamc.rc
 %attr(0755,root,root) %{_bindir}/spamc
 %attr(0755,root,root) %{_bindir}/spamd
@@ -203,8 +197,10 @@ perl -p -i -e 's/ --auto-whitelist//' /etc/sysconfig/spamd
 %{_mandir}/man1/spamd.1*
 %dir %attr(0750,root,admin) %{_srvdir}/spamd
 %dir %attr(0750,root,admin) %{_srvdir}/spamd/log
+%dir %attr(0750,root,admin) %{_srvdir}/spamd/env
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/spamd/run
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/spamd/log/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/spamd/env/OPTIONS
 
 %files tools
 %defattr(-,root,root)
@@ -220,6 +216,11 @@ perl -p -i -e 's/ --auto-whitelist//' /etc/sysconfig/spamd
 
 
 %changelog
+* Mon Mar 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.1.0
+- make spamd use ./env/OPTIONS rather than the sysconfig file which
+  didn't properly set $OPTIONS anyways (used $SPAMOPTIONS)
+- drop S6 as a result
+
 * Sat Mar 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.1.0
 - Requires: perl-Mail-SPF-Query, perl-Sys-Hostname-Long (provide SPF support)
 
