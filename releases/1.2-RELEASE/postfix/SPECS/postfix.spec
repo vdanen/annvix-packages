@@ -17,7 +17,7 @@
 %define tlsno 		pfixtls-0.8.18-2.1.3-%{openssl_ver}
 
 %define with_LDAP	1  
-%define with_MYSQL	0
+%define with_MYSQL	1
 %define with_PCRE	1
 %define with_SASL	1
 %define with_TLS	1
@@ -71,6 +71,7 @@ Patch4:		postfix-2.1.1-fdr-pie.patch
 Patch5:		postfix-2.1.1-fdr-obsolete.patch
 Patch6:		postfix-2.2.4-mdk-saslpath.patch
 Patch8:		postfix-2.2.5-avx-warnsetsid.patch
+Patch9:	 	postfix-2.2.5-vda.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	db4-devel, gawk, perl, sed, ed
@@ -141,6 +142,7 @@ fi
 %patch5 -p1 -b .obsolete
 %patch6 -p1 -b .saslpath
 %patch8 -p1 -b .warnsetsid
+%patch9 -p1 -b .vda
 
 mkdir UCE
 install -m 0644 %{SOURCE10} UCE
@@ -422,6 +424,10 @@ fi
 
 
 %changelog
+* Tue Feb 28 2006 Ying-Hung Chen <ying-at-annvix.org> 2.2.5
+- Added vda patch for quota support
+- build with MySQL support per default
+
 * Fri Feb 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.5
 - remove prereq on sysklogd
 
