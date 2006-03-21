@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		curl
-%define version 	7.14.1
+%define version 	7.15.3
 %define release		%_revrel
 
 %define major		3
@@ -31,10 +31,8 @@ License:	MIT
 Group:		Networking/Other
 URL:		http://curl.haxx.se/
 Source:		http://curl.haxx.se/download/%{name}-%{version}.tar.bz2
-Patch1:		curl-7.10.4-compat-location-trusted.patch
-Patch2:		curl-7.13.0-64bit-fixes.patch
-Patch3:		libcurl-7.14.1-CVE-2005-3185.patch
-Patch4:		libcurl-7.14.1-CVE-2005-4077.patch
+Source1:	http://curl.haxx.se/download/%{name}-%{version}.tar.bz2.asc
+Patch0:		curl-7.10.4-compat-location-trusted.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	bison groff-for-man openssl-devel zlib-devel
@@ -78,10 +76,7 @@ various protocols, including http and ftp.
 
 %prep
 %setup -q
-%patch1 -p1
-#%patch2 -p1 -b .64bit-fixes
-%patch3 -p0 -b .cve-2005-3185
-%patch4 -p0 -b .cve-2005-4077
+%patch0 -p1
 
 ## fix test517 with correct results according to curl_getdate() specs
 #cat > ptrsize.c << EOF
@@ -103,6 +98,7 @@ various protocols, including http and ftp.
 
 
 %build
+export LIBS="-L%{_libdir} $LIBS"
 CFLAGS="%{optflags} -O0" \
     ./configure \
     --prefix=%{_prefix} \
@@ -113,7 +109,8 @@ CFLAGS="%{optflags} -O0" \
     --with-ssl
 %make
 
-skip_tests="241"
+skip_tests=
+# 241
 [ -n "$skip_tests" ] && {
     mkdir ./tests/data/skip/
     for t in $skip_tests; do
@@ -162,10 +159,19 @@ make check
 %dir %{_includedir}/curl
 %{_includedir}/curl/*
 %{_libdir}/libcurl*a
+%{_libdir}/pkgconfig/*.pc
 %{_mandir}/man3/*
 
 
 %changelog
+* Tue Mar 21 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- 7.15.3: many upstream bugfixes
+- fix x86_64 build (re: oden)
+- don't skip test 241 anymore
+- drop P3, P4; merged upstream
+- drop unapplied P2
+- include the gpg sig
+
 * Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - Clean rebuild
 
