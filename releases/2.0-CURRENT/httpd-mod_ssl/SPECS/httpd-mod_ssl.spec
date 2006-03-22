@@ -155,6 +155,10 @@ fi
 
 
 %changelog
+* Wed Mar 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.55
+- point ssl keys to /etc/ssl/httpd rather than /etc/ssl/apache2 to fix
+  bug #22
+
 * Sat Feb 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.55
 - rebuild against apr and apr-util 0.9.7 (needed to make mod_cgi.so work
   properly)
