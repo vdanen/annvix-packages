@@ -137,8 +137,6 @@ cat << EOF >> %{buildroot}/%{_sysconfdir}/mail/%{name}/local.cf
 required_hits			5
 rewrite_header			Subject [**SPAM**]
 report_safe			0
-auto_whitelist_path		/var/spool/spamassassin/auto-whitelist
-auto_whitelist_file_mode	0666
 EOF
 
 install -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/mail/spamassassin/
@@ -157,8 +155,6 @@ echo "-c -m5 -H" >%{buildroot}%{_srvdir}/spamd/env/OPTIONS
 %post
 [ -f %{_sysconfdir}/spamassassin.cf ] && /bin/mv %{_sysconfdir}/spamassassin.cf %{_sysconfdir}/mail/spamassassin/migrated.cf || true
 [ -f %{_sysconfdir}/mail/spamassassin.cf ] && /bin/mv %{_sysconfdir}/mail/spamassassin.cf %{_sysconfdir}/mail/spamassassin/migrated.cf || true
-touch /var/spool/spamassassin/auto-whitelist.db
-chmod 0666 /var/spool/spamassassin/auto-whitelist.db
 
 
 %post spamd
@@ -225,6 +221,7 @@ fi
 - add missing requires on perl-IO-Socket-SSL
 - BuildRequires/Requires: perl-Archive-Tar, perl-IO-Zlib, and perl-Net-Ident for
   all the extra goodies
+- don't automatically ship the auto-whitelist or enable it
 
 * Sun Mar 12 2006 Ying-Hung Chen <ying-at-annvix.org> 3.1.0
 - Requires perl-IP-Country, perl-Geography-Countries
