@@ -44,6 +44,7 @@ Requires:	perl-Mail-SpamAssassin = %{version}-%{release}
 Requires:  	perl-DB_File, perl-Net-DNS
 # these aren't 100% required, but are very useful
 Requires:	perl-Sys-Hostname-Long, perl-Mail-SPF-Query
+Requires: 	perl-IP-Country, perl-Geography-Countries
 Requires(post):	rpm-helper
 Requires(preun): rpm-helper
 
@@ -216,6 +217,9 @@ fi
 
 
 %changelog
+* Sun Mar 12 2006 Ying-Hung Chen <ying@annvix.org> 3.1.0
+- Requires perl-IP-Country, perl-Geography-Countries
+
 * Mon Mar 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.1.0
 - make spamd use ./env/OPTIONS rather than the sysconfig file which
   didn't properly set $OPTIONS anyways (used $SPAMOPTIONS)
