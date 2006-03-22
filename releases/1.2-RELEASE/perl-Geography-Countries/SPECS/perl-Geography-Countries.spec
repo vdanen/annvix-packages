@@ -9,10 +9,10 @@
 
 
 %define module		Geography-Countries
-%define revision    $Rev$
-%define name        perl-%{module}
-%define version     1.4
-%define release     %_revrel
+%define revision	$Rev$
+%define name		perl-%{module}
+%define version		1.4
+%define release		%_revrel
 
 Summary:	Maps 2-letter, 3-letter, and numerical codes for countries
 Name:		%{name}
@@ -20,41 +20,52 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL or Artistic
 Group:		Development/Perl
+URL:		http://search.cpan.org/dist/%{module}/
 Source:		http://search.cpan.org/CPAN/authors/id/A/AB/ABIGAIL/%{module}-%{version}.tar.bz2
-Url:		http://search.cpan.org/dist/%{module}/
+
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel
 BuildArch:	noarch
-BuildRoot:  %{_buildroot}/%{name}-%{version}
 
 %description
 This module maps country names, and their 2-letter, 3-letter and
 numerical codes, as defined by the ISO-3166 maintenance agency,
 and defined by the UNSD.
 
+
 %prep
 %setup -q -n %{module}-%{version}
+
 
 %build
 %{__perl} Makefile.PL INSTALLDIRS=vendor
 %make
 
+
 %check
 %{__make} test
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
 %{perl_vendorlib}/Geography
 %{_mandir}/*/*
 
+
 %changelog
-* Sun Mar 12 2006 Ying-Hung Chen <ying@annvix.org> 1.4
+* Tue Mar 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4
+- spec cleanups
+
+* Sun Mar 12 2006 Ying-Hung Chen <ying-at-annvix.org> 1.4
 - first Annvix Build
 
 * Mon Jan 23 2006 Guillaume Rousse <guillomovitch@mandriva.org> 1.4-3mdk
