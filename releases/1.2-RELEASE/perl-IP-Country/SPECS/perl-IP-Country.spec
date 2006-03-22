@@ -6,44 +6,53 @@
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
 
-%define module      IP-Country
-%define revision    $Rev: 5259 $
-%define name        perl-%{module}
-%define version   	2.20
-%define release     %_revrel
+%define module		IP-Country
+%define revision	$Rev$
+%define name		perl-%{module}
+%define version		2.20
+%define release		%_revrel
 
 Summary:	IP::Country modules for Perl 
-Name:		perl-%{module}
+Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL or Artistic
 Group:		Development/Perl
+URL:		http://www.cpan.org
 Source0:	http://cpan.uwinnipeg.ca/cpan/authors/id/N/NW/NWETTERS/%{module}-%{version}.tar.bz2
-Url:		http://www.cpan.org
-BuildRoot:  %{_buildroot}/%{name}-%{version}
-BuildRequires:  perl-devel
-BuildArch:  noarch
+
+BuildRoot:	%{_buildroot}/%{name}-%{version}
+BuildRequires:	perl-devel, perl-Geography-Countries
+BuildArch:	noarch
+
 Requires:	perl-Geography-Countries
 
 %description
 IP lookup modules for Perl. This package also provides the ip2cc utility, to
 lookup country from IP address or hostname.
 
+
 %prep
 %setup -q -n %{module}-%{version}
+
+
 %build
 %{__perl} Makefile.PL INSTALLDIRS=vendor
 %make
 
+
 %check
 %{__make} test
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %files
 %defattr(-,root,root)
@@ -52,8 +61,12 @@ lookup country from IP address or hostname.
 %{_mandir}/*/*
 %{_bindir}/*
 
+
 %changelog
-* Sun Mar 12 2006 Ying-Hung Chen <ying@annvix.org> 2.20
+* Tue Mar 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.20
+- spec cleanups
+
+* Sun Mar 12 2006 Ying-Hung Chen <ying-at-annvix.org> 2.20
 - first Annvix build
 
 * Mon May 09 2005 Rafael Garcia-Suarez <rgarciasuarez@mandriva.com> 2.20-1mdk
