@@ -38,12 +38,14 @@ Patch1:		spamassassin-3.1.0-avx-fixbang.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel, perl-Time-HiRes, perl-HTML-Parser, perl-Digest-SHA1, openssl-devel, perl-IO-Socket-SSL
-BuildRequires:	perl-Net-DNS, perl-DB_File, perl-Mail-SPF-Query
+BuildRequires:	perl-Net-DNS, perl-DB_File, perl-Mail-SPF-Query, perl-IP-Country
+BuildRequires:	perl-Archive-Tar, perl-IO-Zlib, perl-Net-Ident
 
 Requires:	perl-Mail-SpamAssassin = %{version}-%{release}
 Requires:  	perl-DB_File, perl-Net-DNS
 # these aren't 100% required, but are very useful
-Requires:	perl-Sys-Hostname-Long, perl-Mail-SPF-Query
+Requires:	perl-Sys-Hostname-Long, perl-Mail-SPF-Query, perl-IP-Country, perl-IO-Socket-SSL
+Requires:	perl-Archive-Tar, perl-IO-Zlib, perl-Net-Ident
 Requires(post):	rpm-helper
 Requires(preun): rpm-helper
 
@@ -216,6 +218,17 @@ fi
 
 
 %changelog
+* Tue Mar 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.1.0
+- drop requires on perl-Geography-Countries; it's not required (IP-Country already
+  requires it and SA doesn't explicitly need it itself)
+- BuildRequires: perl-IP-Country
+- add missing requires on perl-IO-Socket-SSL
+- BuildRequires/Requires: perl-Archive-Tar, perl-IO-Zlib, and perl-Net-Ident for
+  all the extra goodies
+
+* Sun Mar 12 2006 Ying-Hung Chen <ying-at-annvix.org> 3.1.0
+- Requires perl-IP-Country, perl-Geography-Countries
+
 * Mon Mar 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.1.0
 - make spamd use ./env/OPTIONS rather than the sysconfig file which
   didn't properly set $OPTIONS anyways (used $SPAMOPTIONS)
