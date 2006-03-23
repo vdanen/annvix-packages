@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name 		socklog
-%define version		2.0.2
+%define version		2.1.0
 %define release		%_revrel
 
 Summary:	Small and secure replacement for syslogd
@@ -238,6 +238,9 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Thu Mar 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1.0
+- 2.1.0
+
 * Mon Feb 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.2
 - create the syslogd user in %%pre (since we can't rely on sysklogd being
   installed first)
