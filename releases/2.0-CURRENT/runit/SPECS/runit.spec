@@ -9,7 +9,7 @@
 
 %define	revision	$Rev$
 %define	name		runit
-%define	version		1.3.3
+%define	version		1.4.1
 %define	release		%_revrel
 
 %define aver		0.5
@@ -58,6 +58,11 @@ pushd %{name}-%{version}/src
     echo "$COMP -Os -pipe" > conf-cc
     echo "$COMP -Os -static -s" > conf-ld
     make
+    # runsvctrl and friends are depreciated due to sv, but we still need them for
+    # srv until it can be changed to use sv, so force building them
+    for i in svwaitup svwaitdown runsvctrl runsvstat; do
+        make $i
+    done
 popd
 
 
@@ -67,7 +72,7 @@ popd
 mkdir -p %{buildroot}{/service,/sbin,%{_mandir}/man8,%{_sysconfdir}/{runit,sysconfig/env/runit},%{_srvdir}/mingetty-tty{1,2,3,4,5,6}}
 
 pushd %{name}-%{version}
-    for i in `cat package/commands`; do
+    for i in `cat package/commands` svwaitup svwaitdown runsvctrl runsvstat; do
 	install -m 0755 src/$i %{buildroot}/sbin/
     done
     mv %{buildroot}/sbin/runit-init %{buildroot}/sbin/init
@@ -190,6 +195,11 @@ fi
 
 
 %changelog
+* Thu Mar 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4.1
+- 1.4.1
+- runsvctrl, runsvstat, svwaitdown, and svwaitup are no longer built per
+  default but we still need them for srv, so force a build/install
+
 * Sat Feb 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.3
 - need to ln /sbin/runit, not /sbin/init for the reboot to work
 - annvix-runit 0.5:
