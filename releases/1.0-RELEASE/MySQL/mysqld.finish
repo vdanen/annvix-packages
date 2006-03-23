@@ -1,6 +1,0 @@
-#!/bin/sh
-PATH="/sbin:/usr/sbin:/bin:/usr/bin"
-
-# this uses mysqladmin to shutdown mysqld, but we have to tell it where to find .my.cnf
-
-HOME=/root /usr/bin/mysqladmin shutdown
