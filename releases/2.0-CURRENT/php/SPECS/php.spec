@@ -268,17 +268,17 @@ rm -rf php-devel/extensions/dotnet
 rm -rf php-devel/extensions/printer
 rm -rf php-devel/extensions/w32api
 
-# remove other unwanted files
-find php-devel -name "*.dsp" | xargs rm -f
-find php-devel -name "*.mak" | xargs rm -f
-find php-devel -name "*.w32" | xargs rm
-find php-devel -name "*.avx" | xargs rm -f
-
 cp -dpR sapi/* php-devel/sapi/ 
 rm -f php-devel/sapi/thttpd/stub.c
 rm -f php-devel/sapi/cgi/php.sym
 rm -f php-devel/sapi/fastcgi/php.sym
 rm -f php-devel/sapi/pi3web/php.sym
+
+# remove other unwanted files
+find php-devel -name "*.dsp" | xargs rm -f
+find php-devel -name "*.mak" | xargs rm -f
+find php-devel -name "*.w32" | xargs rm
+find php-devel -name "*.avx" | xargs rm -f
 
 cat %{SOURCE3} > php-devel/PHP_FAQ.php
 
@@ -596,6 +596,8 @@ update-alternatives --remove php %{_bindir}/php-cli
 - remove .avx files, not .droplet files
 - disable the sunfuncts test as it's not 100% precise on x86_64 but it's
   so close the difference is really minor so don't let php fail on this
+- find the .avx files after we copy in from sapi/ or we end up missing
+  what we patched in there
 
 * Wed Mar 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.2
 - 5.1.2
