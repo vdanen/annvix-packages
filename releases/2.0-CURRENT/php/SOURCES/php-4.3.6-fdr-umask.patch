@@ -1,0 +1,43 @@
+Save and restore umask across requests correctly.
+
+--- php-5.0.3/sapi/apache2handler/sapi_apache2.c	2004-12-06 19:55:38.000000000 +0100
++++ php-5.0.3/sapi/apache2handler/sapi_apache2.c.umask	2004-12-16 16:05:50.000000000 +0100
+@@ -394,6 +394,19 @@
+ 	return APR_SUCCESS;
+ }
+ 
++static int saved_umask;
++
++static void php_save_umask(void)
++{
++	saved_umask = umask(0777);
++	umask(saved_umask);
++}
++
++static void php_restore_umask(void)
++{
++	umask(saved_umask);
++}
++
+ static int php_apache_request_ctor(request_rec *r, php_struct *ctx TSRMLS_DC)
+ {
+ 	char *content_type;
+@@ -528,6 +541,8 @@
+ 	} else {
+ 		zend_file_handle zfd;
+ 
++		php_save_umask();
++
+ 		zfd.type = ZEND_HANDLE_FILENAME;
+ 		zfd.filename = (char *) r->filename;
+ 		zfd.free_filename = 0;
+@@ -538,6 +553,9 @@
+ 		} else {
+ 			zend_execute_scripts(ZEND_INCLUDE TSRMLS_CC, NULL, 1, &zfd);
+ 		}
++
++		php_restore_umask();
++
+ #if MEMORY_LIMIT
+ 		{
+ 			char *mem_usage;

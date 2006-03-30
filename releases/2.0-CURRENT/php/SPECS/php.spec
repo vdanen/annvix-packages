@@ -9,125 +9,119 @@
 
 %define revision	$Rev$
 %define name		php
-%define version		4.4.2
+%define version		5.1.2
 %define release		%_revrel
 %define epoch		2
 
-%define libversion	4
+%define libversion	5
 %define libname		%mklibname php_common %{libversion}
-
-%define phpdir		%{_libdir}/php
-%define	peardir		%{_datadir}/pear
-%define	phpsrcdir	%{_usrsrc}/php-devel
+%define oldlibname	%mklibname php_common 4
 
 %global harden          1
 %{?_without_harden:     %global harden 0}
 
-%define _requires_exceptions BEGIN\\|mkinstalldirs
+%global test		1
+%{?_without_test:	%global test 0}
 
-%define build_debug 	0
+%define _requires_exceptions BEGIN\\|mkinstalldirs\\|pear(
 
-%{?_with_debug: %{expand: %%define build_debug 1}}
-
-%if %{build_debug}
-# disable build root strip policy
-%define __spec_install_post %{_prefix}/lib/rpm/brp-compress || :
-
-# This gives extra debuggin and huge binaries
-%{expand:%%define optflags %{optflags} %([ ! $DEBUG ] && echo '-g3')}
-%endif
-
-Summary:	The PHP4 scripting language
+Summary:	The PHP5 scripting language
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 Epoch:		%{epoch}
 License:	PHP License
-Group:		Development/Other
+Group:		Development/PHP
 URL:		http://www.php.net
 Source0:	http://static.php.net/www.php.net/distributions/php-%{version}.tar.bz2
 Source3:	FAQ.php
-Source4:	php-4.3.10-php-test
+#
+# Mandriva/Annvix patches
+#
 Patch0:		php-4.3.0-mdk-init.patch
-Patch1:		php-4.3.6-mdk-shared.patch
+Patch1:		php-5.0.0-mdk-shared.patch
 Patch2:		php-4.3.0-mdk-imap.patch
-Patch4:		php-4.3.4RC3-mdk-64bit.patch
-Patch5:		php-4.4.2-avx-lib64.patch
-Patch7:		php-4.3.11-mdk-libtool.patch
-Patch9:		php-4.3.11-mdk-no_egg.patch
-Patch10:	php-4.4.0RC1-mdk-phpize.diff
-Patch11:	php-4.4.0RC2-mdk-run-tests.diff
+Patch3:		php-4.3.4RC3-mdk-64bit.patch
+Patch4:		php-5.1.2-mdk-lib64.patch
+Patch5:		php-4.3.11-mdk-libtool.patch
+Patch6:		php-5.0.4-mdk-no_egg.patch
+Patch7:		php-5.1.2-mdk-phpize.patch
+Patch8:		php-5.1.0RC4-mdk-remove_bogus_iconv_deps.patch
+Patch9:		php-5.1.0RC1-mdk-phpbuilddir.patch
+# http://www.outoforder.cc/projects/apache/mod_transform/patches/php5-apache2-filters.patch
+Patch10:	php5-apache2-filters.patch
+# P14 fixes the way we package the extensions to not check if the dep are installed or compiled in
+Patch11:	php-5.1.2-mdk-extension_dep_macro_revert.patch
+Patch12:	php-5.1.2-mdk-no_libedit.patch
+#
 # from PLD (20-40)
+#
 Patch20:	php-4.3.0-pld-mail.patch
-Patch21:	php-4.3.10-pld-mcal-shared-lib.patch
-Patch22:	php-4.3.6-pld-msession-shared-lib.patch
-Patch23:	php-4.3.11-pld-cpdf-fix.patch
-Patch24:	php-4.3.11-pld-db-shared.patch
-Patch25:	php-4.3.0-pld-hyperwave-fix.patch
-Patch27:	php-4.3.3RC3-pld-sybase-fix.patch
-Patch28:	php-4.3.0-pld-wddx-fix.patch
-Patch29:	php-4.3.0-pld-xmlrpc-fix.patch
+Patch21:	php-4.3.3RC3-pld-sybase-fix.patch
+Patch22:	php-4.3.0-pld-wddx-fix.patch
+Patch24:	php-5.1.2-pld-ini-search-path.patch
+Patch25:	php-5.0.3-pld-dba-link.patch
+Patch26:	php-5.0.3-pld-hwapi-link.patch
+Patch27:	php-4.4.1-pld-zlib-for-getimagesize.patch
+Patch28:	php-5.0.0b3-pld-zlib.patch
+#
 # from Fedora (50-60)
-Patch50:	php-4.3.6-rh-dlopen.patch
-Patch51:	php-4.2.1-fdr-ldap-TSRM.patch
-Patch52:	php-4.2.2-fdr-cxx.patch
-Patch53:	php-4.3.2-fdr-libtool15.patch
-Patch54:	php-4.3.1-fdr-odbc.patch
-Patch56:	php-4.3.10-fdr-umask.patch
+#
+Patch50:	php-5.1.0b1-fdr-cxx.patch
+Patch51:	php-4.3.3-fdr-install.patch
+Patch52:	php-5.0.4-fdr-norpath.patch
+Patch53:	php-4.3.6-fdr-umask.patch
+#
 # General fixes (70+)
-# make the tests work better
-Patch70:	php-4.3.3-mdk-make_those_darn_tests_work.patch
-# Bug fixes:
-Patch71:	php-4.3.4-mdk-bug-22414.patch
+#
+Patch70:	php-4.3.1-mdk-odbc.patch
+Patch71:	php-4.3.11-mdk-shutdown.patch
+# Functional changes
+Patch72:	php-5.0.4-mdk-dlopen.patch
+# Fixes for tests
+Patch73:	php-5.1.0RC4-mdk-tests-dashn.patch
+Patch74:	php-5.1.0b1-mdk-tests-wddx.patch
+# Fix bugs
+Patch75:	php-bug-22414.patch
+# http://bugs.php.net/bug.php?id=29119
+Patch76:	php-5.0.4-bug29119.diff
+Patch77:	php-5.1.0RC6-CVE-2005-3388.diff
 # http://www.hardened-php.net/
-Patch100:	http://www.hardened-php.net/hardening-patch-4.4.2-0.4.8.patch
+Patch100:	http://www.hardened-php.net/hardening-patch-5.1.2-0.4.8.patch
+
+Requires(post):	%{libname} >= %{version}
+Requires(preun): %{libname} >= %{version}
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-# this is to prevent that it will build against old libs
-BuildConflicts:	%{libname}
-BuildConflicts:	php_common
-BuildConflicts:	php-devel
-# Those two modules have tests that fail
-BuildConflicts:	php-mhash
-BuildConflicts:	php-mbstring
-BuildRequires:	chrpath >= 0.12
-BuildRequires:	bison
-BuildRequires:	byacc
-BuildRequires:	flex
-BuildRequires:	gettext-devel
-BuildRequires:	openssl-devel >= 0.9.6, openssl >= 0.9.6
-BuildRequires:	pam-devel
-BuildRequires:	zlib-devel
-BuildRequires:	multiarch-utils >= 1.0.3, automake1.7
+BuildRequires:	httpd-devel >= 2.0.54, autoconf2.5, automake1.7, bison, byacc, flex, libtool, libxml2-devel, libxslt-devel
+BuildRequires:	openssl-devel >= 0.9.7, openssl >= 0.9.7, pcre-devel >= 5.0, pam-devel
+BuildRequires:	multiarch-utils >= 1.0.3
 
 %description
-PHP4 is an HTML-embeddable scripting language.  PHP offers built-in database
+PHP5 is an HTML-embeddable scripting language.  PHP offers built-in database
 integration for several commercial and non-commercial database management
 systems, so writing a database-enabled script with PHP is fairly simple.  The
 most common use of PHP coding is probably as a replacement for CGI scripts.
-
-You can build %{name} with some conditional build swithes;
-
-(ie. use with rpm --rebuild):
---with debug   Compile with debugging code
 
 
 %package cli
 Summary:	Command-line interface to PHP
 Epoch:		%{epoch}
-Group:		Development/Other
-URL:		http://php.net
+Group:		Development/PHP
+URL:		http://www.php.net
 PreReq:		php-ini
 Requires:	%{libname} = %{epoch}:%{version}-%{release}
 Provides:	php
 Provides:	php3
 Provides:	php4
+Provides:	php5
 Provides:	php%{libversion} 
 Obsoletes:	php
 Obsoletes:	php3
+Obsoletes:	php4
 
 %description cli
-PHP4 is an HTML-embeddable scripting language.  PHP offers built-in database
+PHP5 is an HTML-embeddable scripting language.  PHP offers built-in database
 integration for several commercial and non-commercial database management
 systems, so writing a database-enabled script with PHP is fairly simple.  The
 most common use of PHP coding is probably as a replacement for CGI scripts.
@@ -142,19 +136,21 @@ package.
 %package cgi
 Summary:	CGI interface to PHP
 Epoch:		%{epoch}
-Group:		Development/Other
-URL:		http://php.net
+Group:		Development/PHP
+URL:		http://www.php.net
 PreReq:		php-ini
 Requires:	%{libname} = %{epoch}:%{version}-%{release}
 Provides:	php
 Provides:	php3
 Provides:	php4
+Provides:	php5
 Provides:	php%{libversion}
 Obsoletes:	php
 Obsoletes:	php3
+Obsoletes:	php4
 
 %description cgi
-PHP4 is an HTML-embeddable scripting language.  PHP offers built-in database
+PHP5 is an HTML-embeddable scripting language.  PHP offers built-in database
 integration for several commercial and non-commercial database management
 systems, so writing a database-enabled script with PHP is fairly simple.  The
 most common use of PHP coding is probably as a replacement for CGI scripts.
@@ -169,41 +165,34 @@ package.
 %package -n %{libname}
 Summary:	Shared library for php
 Epoch:		%{epoch}
-Group:		Development/Other
+Group:		Development/PHP
 URL:		http://www.php.net
 Provides:	%{libname} = %{epoch}:%{version}-%{release}
 Provides:	libphp_common = %{version}-%{release}
 Provides:	php-common
+Provides:	%{oldlibname}
+Obsoletes:	%{oldlibname}
 
 %description -n	%{libname}
 This package provides the common files to run with different
 implementations of PHP. You need this package if you install the php
 standalone package or a webserver with php support (ie: mod_php).
 
-%package -n php%{libversion}-devel
-Summary:	Development package for PHP4
-Epoch:		%{epoch}
+%package devel
+Summary:	Development package for PHP5
 Group:		Development/C
 URL:		http://www.php.net
+Requires(post):	%{libname} >= %{version}
+Requires(preun): %{libname} >= %{version}
 Provides:	libphp_common-devel = %{version}-%{release}
 Requires:	%{libname} = %{epoch}:%{version}-%{release}
-Requires:	autoconf2.5
-Requires:	automake1.7
-Requires:	bison
-Requires:	byacc
-Requires:	chrpath >= 0.12
-Requires:	flex
-Requires:	gettext-devel
-Requires:	libtool
-Requires:	openssl-devel >= 0.9.6
-Requires:	pam-devel
-Requires:	php-cli = %{epoch}:%{version}-%{release}
-Requires:	zlib-devel
-Provides:	php-devel
-Obsoletes:	php-devel
+Requires:	autoconf2.5, automake1.7, bison, byacc, flex, libtool, libxml2-devel, libxslt-devel
+Requires:	openssl >= 0.9.7, openssl-devel >= 0.9.7, pcre-devel >= 5.0, pam-devel, chrpath
+Provides:	php4-devel
+Obsoletes:	php4-devel
 
-%description -n	php%{libversion}-devel
-The php-devel package lets you compile dynamic extensions to PHP4. Included
+%description devel
+The php-devel package lets you compile dynamic extensions to PHP5. Included
 here is the source for the php extensions. Instead of recompiling the whole
 php binary to add support for, say, oracle, install this package and use the
 new self-contained extensions support. For more information, read the file
@@ -212,66 +201,60 @@ SELF-CONTAINED-EXTENSIONS.
 
 %prep
 %setup -q -n php-%{version}
-%patch0 -p1 -b .init
-%patch1 -p1 -b .shared
-
-# fix soname (libversion)
-perl -pi -e "s|_PHP_SONAME_|%{libversion}|g" Makefile.global
-
-%patch2 -p0 -b .imap
-%patch4 -p1
-%patch5 -p1
-%patch7 -p0 -b .libtool
-%patch9 -p1
-%patch10 -p1 -b .phpize
-%patch11 -p0
+# use .avx suffix to delete patch backups so they don't end up in php-devel
+%patch0 -p1 -b .init.avx
+%patch1 -p1 -b .shared.avx
+%patch2 -p0 -b .imap.avx
+%patch3 -p1 -b .64bit.avx
+%patch4 -p1 -b .lib64.avx
+%patch5 -p0 -b .libtool.avx
+%patch6 -p1 -b .no_egg.avx
+%patch7 -p1 -b .phpize.avx
+%patch8 -p0 -b .remove_bogus_iconv_deps.avx
+%patch9 -p1 -b .phpbuilddir.avx
+%patch10 -p0 -b .apache2-filters.avx
+%patch11 -p1 -b .extension_dep_macro_revert.avx
+%patch12 -p0 -b .no_libedit.avx
 # from PLD
-%patch20 -p1
-%patch21 -p1
-%patch22 -p1
-%patch23 -p0
-%patch24 -p0
-%patch25 -p1
-%patch27 -p1
-%patch28 -p1
-%patch29 -p1
+%patch20 -p1 -b .mail.avx
+%patch21 -p1 -b .sybase-fix.avx
+%patch22 -p1 -b .wddx-fix.avx
+%patch24 -p1 -b .ini-search-path.avx
+%patch25 -p1 -b .dba-link.avx
+%patch26 -p1 -b .hwapi-link.avx
+%patch27 -p1 -b .zlib-for-getimagesize.avx
+%patch28 -p1 -b .zlib.avx
 # from Fedora
-%patch50 -p0 -b .dlopen
-%patch51 -p1
-%patch52 -p1
-%patch53 -p1
-%patch54 -p1
-%patch56 -p1
+%patch50 -p0 -b .cxx.avx
+%patch51 -p1 -b .install.avx
+%patch52 -p1 -b .norpath.avx
+%patch53 -p1 -b .umask.avx
 #
-%patch70 -p0 -b .make_those_darn_tests_work
-%patch71 -p1 -b .22414
+%patch70 -p1 -b .odbc.avx
+%patch71 -p1 -b .shutdown.avx
+%patch72 -p1 -b .dlopen.avx
+#
+%patch73 -p1 -b .tests-dashn.avx
+%patch74 -p1 -b .tests-wddx.avx
+
+# make the tests worky
+%patch75 -p1 -b .bug-22414.avx
+%patch76 -p0 -b .bug29119.avx
+%patch77 -p0 -b .CVE-2005-3388.avx
+
 %if %{harden}
-%patch100 -p1 -b .hardened
+%patch100 -p1 -b .hardened.avx
 %endif
 
 # Change perms otherwise rpm would get fooled while finding requires
-chmod 0644 tests/lang/*.inc
-chmod 0644 ext/interbase/tests/*.inc
-
-cp Zend/LICENSE Zend/ZEND_LICENSE
-mv README.SELF-CONTAINED-EXTENSIONS SELF-CONTAINED-EXTENSIONS
-
-rm -f ext/tokenizer/EXPERIMENTAL
-rm -f ext/w32api/EXPERIMENTAL
-rm -f ext/dio/EXPERIMENTAL
-rm -f ext/mime_magic/EXPERIMENTAL
-rm -f ext/fribidi/EXPERIMENTAL
-rm -f ext/mysql/libmysql/dll.c
-rm -f ext/sysvmsg/EXPERIMENTAL
+find -name "*.inc" | xargs chmod 0644
+find -name "*.php*" | xargs chmod 0644
 
 mkdir -p php-devel/extensions
 mkdir -p php-devel/sapi
-mkdir -p php-devel/pear
 
-# Install test files in php-devel
-mkdir -p php-devel/pear/Console
-cp -a pear/Console/tests php-devel/pear/Console
-cp -a tests php-devel
+# cleanup php-devel
+cp -a tests php-devel/
 
 cp -dpR ext/* php-devel/extensions/
 rm -f php-devel/extensions/informix/stub.c
@@ -279,15 +262,17 @@ rm -f php-devel/extensions/standard/.deps
 rm -f php-devel/extensions/skeleton/EXPERIMENTAL
 rm -f php-devel/extensions/ncurses/EXPERIMENTAL
 
-# don't ship MS Windows source
+# windows sources are not wanted
 rm -rf php-devel/extensions/com
 rm -rf php-devel/extensions/dotnet
 rm -rf php-devel/extensions/printer
 rm -rf php-devel/extensions/w32api
 
-# likewise with these:
-find php-devel -name "*.dsp" | xargs rm
-find php-devel -name "*.mak" | xargs rm
+# remove other unwanted files
+find php-devel -name "*.dsp" | xargs rm -f
+find php-devel -name "*.mak" | xargs rm -f
+find php-devel -name "*.w32" | xargs rm
+find php-devel -name "*.droplet" | xargs rm -f
 
 cp -dpR sapi/* php-devel/sapi/ 
 rm -f php-devel/sapi/thttpd/stub.c
@@ -301,9 +286,10 @@ cat > php-devel/buildext <<EOF
 #!/bin/bash
 gcc -Wall -fPIC -shared %{optflags} \\
     -I. \`%{_bindir}/php-config --includes\` \\
+    -I%{_includedir}/libxml2 \\
     -I%{_includedir}/freetype \\
     -I%{_includedir}/openssl \\
-    -I%{phpsrcdir}/ext \\
+    -I%{_usrsrc}/php-devel/ext \\
     -I%{_includedir}/\$1 \\
     \$4 \$2 -o \$1.so \$3 -lc
 EOF
@@ -319,141 +305,144 @@ rm -f configure; aclocal-1.7 && autoconf --force && autoheader
 
 %serverbuild
 
-#For eventual compatibility with RedHat
-#%{!?nokerberos:krb5libs="-L%{_prefix}/kerberos/lib -lgssapi_krb5 -lkrb5 -lk5crypto -lcom_err"}
-
-#LIBS="$LIBS -lpthread $krb5libs"; export LIBS
-#LIBS="$LIBS $krb5libs"; export LIBS
 export oldstyleextdir=yes
-export EXTENSION_DIR="%{phpdir}/extensions"
+export EXTENSION_DIR="%{_libdir}/php/extensions"
 export PROG_SENDMAIL="%{_sbindir}/sendmail"
 export CFLAGS="%{optflags} -fPIC -L%{_libdir}"
 
-# define the array of extensions not being built in (only the most common)
-%define external_modules mysql pgsql gd imap ldap bcmath bz2 calendar curl db dba dbase dbx dio domxml exif filepro gmp iconv mbstring mcal mime_magic ming odbc overload pcntl pspell qtdom readline recode shmop sockets sybase sybase_ct sysvmsg tokenizer wddx xml xmlrpc xslt
-
-#DO NOT PUT THESE EXTENSIONS AS EXTERNAL:
-# Here are reasons for each extension
-# 1) Extension not require any external library except libc.so and ld-linux.so
-#    plus zlib (needed by hundreds of packages, including rpm itself.
-# 2) Extension contains features needed by many common scripts
-# 3) Extension is needed for compliance with POSIX standards
-# 4) Extension provides functionality needed by some important customers
-# 5) Extension is built by default on most platforms
-# 6) Extension was built into previous PHP versions and is kept here for
-#    compatibility purposes
-# - ftp [1] [4] [6] 
-# - posix [1] [3] [5] [6]
-# - session [1] [2] [4] [5] [6]
-# - sysvsem [1] [3] [6]
-# - sysvshm [1] [3] [6]
-# - yp [1] [3] [4] [6] 
-# - zlib [1] [2] [4(Including MandrakeExpert)] [6]
-# - pcre [1] [5]
-# - gettext [2] [4] [6]
-# - ctype [1] [2] [5]
-# Openssl was added to have https:// support with fopen.
-
-echo "#define EXTERNAL_MANDRAKE_MODULES \"%{external_modules}\"" >> ext/standard/info.h
-
-cat > Readme1st <<EOF
-- Install the mod_php package to get Apache support
-- Install php-[extension].rpm packages to get a specific extension
-
-Here follows a list of extensions not been compiled into the main
-php package, but that can be installed as external modules:
-
-`for i in %{external_modules}; do echo php-${i}; done`
-
-EOF
-
 # Configure php
+for i in cgi apxs cli; do
+    %configure2_5x \
+        `[ $i = apxs ] && echo --with-apxs2=%{_sbindir}/apxs` \
+        `[ $i = cgi ] && echo --enable-discard-path --disable-cli --enable-force-cgi-redirect` \
+        `[ $i = cli ] && echo --disable-cgi --enable-cli --with-pcre-regex=shared,%{_prefix}` \
+        --cache-file=config.cache \
+        --enable-shared=yes \
+        --enable-static=no \
+        --with-libdir=%{_lib} \
+        --disable-all \
+        --with-config-file-path=%{_sysconfdir} \
+        --with-config-file-scan-dir=%{_sysconfdir}/php.d \
+        --disable-debug --enable-pic --disable-rpath \
+        --enable-inline-optimization \
+        --with-exec-dir=%{_bindir} \
+        --with-ttf --with-freetype-dir=%{_prefix} --with-zlib=%{_prefix} \
+        --with-png-dir=%{_prefix} \
+        --with-regex=php \
+        --enable-magic-quotes \
+        --enable-safe-mode \
+        --with-zlib=%{_prefix} --with-zlib-dir=%{_prefix} \
+        --with-openssl=%{_prefix} \
+        --enable-libxml --with-libxml-dir=%{_prefix} \
+        --enable-spl \
+        --enable-track-vars \
+        --enable-trans-sid \
+        --enable-memory-limit \
+        --with-versioning \
+        --with-mod_charset \
+        --without-pear
 
-%configure2_5x \
-    --enable-discard-path \
-    --disable-force-cgi-redirect \
-    --enable-shared \
-    --disable-static \
-    --disable-debug \
-    --disable-rpath \
-    --enable-pic \
-    --enable-inline-optimization \
-    --enable-memory-limit \
-    --with-config-file-path=%{_sysconfdir} \
-    --with-config-file-scan-dir=%{_sysconfdir}/php.d \
-    --with-pear=%{peardir} \
-    --enable-magic-quotes \
-%if %{build_debug}
-    --enable-maintainer-mode \
-    --enable-debug \
-%endif
-    --enable-debugger \
-    --enable-track-vars \
-    --with-exec-dir=%{_bindir} \
-    --with-versioning \
-    --with-mod_charset \
-    --with-regex=php \
-    --enable-track-vars \
-    --enable-trans-sid \
-    --enable-safe-mode \
-    --enable-ctype \
-    --enable-ftp \
-    --with-gettext=%{_prefix} \
-    --enable-posix \
-    --enable-session \
-    --enable-sysvsem \
-    --enable-sysvshm \
-    --enable-yp \
-    --with-openssl=%{_prefix} \
-    --without-kerberos \
-    --with-ttf \
-    --with-freetype-dir=%{_prefix} \
-    --with-zlib=%{_prefix} \
-    --with-zlib=%{_prefix} \
-    --with-zlib-dir=%{_prefix} \
-    --without-dba \
-    `for i in %{external_modules}; do echo --without-${i} --disable-${i}; done` \
-    --without-ndbm \
-    --without-db2 \
-    --without-db3 \
-    --without-db4 \
-    --without-dbm \
-    --without-cdb \
-    --without-flatfile \
-    --without-inifile \
-    --without-gdbm \
-    --without-pear
-
-###	This configuration makes a dependency on those libs:
-#	-ldl -lpam -lcrypt -lresolv -lm -lz
+    cp -f Makefile Makefile.$i
+    cp -f main/php_config.h php_config.h.$i
+done
 
 # remove all confusion...
-perl -pi -e "s|^#define CONFIGURE_COMMAND .*|#define CONFIGURE_COMMAND \"This is irrelevant, look inside the %{_docdir}/%{name}-%{version}/configure_command file. urpmi is your friend, use it to install extensions not shown below.\"|g" main/build-defs.h
-cp config.nice configure_command; chmod 644 configure_command
+perl -pi -e "s|^#define CONFIGURE_COMMAND .*|#define CONFIGURE_COMMAND \"This is irrelevant, look inside the %{_docdir}/libphp_common%{libversion}-%{version}/configure_command file. urpmi is your friend, use it to install extensions not shown below.\"|g" main/build-defs.h
+cp config.nice configure_command; chmod 0644 configure_command
 
-%make
+# make the shared lib
+%make -f Makefile.apxs
 
-chrpath -d sapi/cli/php
-chrpath -d sapi/cgi/php
+# make the cli version
+make -f Makefile.cli
+
+mkdir -p modules-cli
+cp modules/pcre.* modules-cli/
+
+# fix install paths, avoid evil rpaths
+perl -pi -e "s|^libdir=.*|libdir='%{_libdir}'|" libphp5_common.la
+perl -pi -e "s|^libdir=.*|libdir='%{_libdir}/apache'|" libphp5.la
+perl -pi -e 's|^(relink_command=.* -rpath )[^ ]*/libs |$1%{_libdir}/apache |' libphp5.la
+
+# notes:
+# -DENABLE_CHROOT_FUNC=1 (cgi,fcgi) is used in ext/standard/dir.c (libphp5_common)
+# -DPHP_WRITE_STDOUT is used also for cli, but not set by its config.m4
+make sapi/cgi/php -f Makefile.cgi \
+    CFLAGS_CLEAN="%{optflags} -DDISCARD_PATH=1 -DENABLE_PATHINFO_CHECK=1 -DFORCE_CGI_REDIRECT=0 -DPHP_WRITE_STDOUT=1"
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-# OE: make this somewhat short-circuitable
-if ! [ -f libphp_common.so.%{libversion} ]; then
-    cp libphp_common.so libphp_common.so.%{libversion}
-    ln -snf libphp_common.so.%{libversion} libphp_common.so
-fi
+mkdir -p %{buildroot}%{_libdir}/php/extensions
+mkdir -p %{buildroot}%{_usrsrc}/php-devel
+mkdir -p %{buildroot}%{_mandir}/man1
+mkdir -p %{buildroot}%{_bindir}
 
-export LD_LIBRARY_PATH="."
-export INSTALL_ROOT="%{buildroot}"
-export PHP_PEAR_INSTALL_DIR="%{peardir}"
+make -f Makefile.apxs install \
+    INSTALL_ROOT=%{buildroot} \
+    INSTALL_IT="\$(LIBTOOL) --mode=install install libphp5_common.la %{buildroot}%{_libdir}/ ; \$(LIBTOOL) --mode=install install sapi/cgi/php %{buildroot}%{_bindir}/php-cgi" \
+    INSTALL_CLI="\$(LIBTOOL) --mode=install install sapi/cli/php %{buildroot}%{_bindir}/php"
 
-#Do a make test
+# do a make test
+cp modules-cli/pcre.* modules/
+
+#export LD_LIBRARY_PATH="."
 export PHPRC="."
 export NO_INTERACTION=1
 export REPORT_EXIT_STATUS=1
+export MALLOC_CHECK_=2
+unset TZ LANG LC_ALL
+
+# FIXME: The following tests (except 021) are known to fail on 64-bit
+# architectures
+#%ifarch x86_64
+#disable_tests="	ext/session/tests/019.phpt \
+#		ext/session/tests/021.phpt \
+#		ext/standard/tests/math/pow.phpt \
+#		ext/standard/tests/math/round.phpt \
+#		ext/standard/tests/math/abs.phpt "
+#%endif
+
+# FAILING TESTS:
+# http://bugs.php.net/bug.php?id=31672 (no fix yet)
+# http://bugs.php.net/bug.php?id=22836 (no fix since 2003)
+# http://bugs.php.net/bug.php?id=29992 (not a bug)
+# http://bugs.php.net/bug.php?id=31213 (no fix yet)
+# http://bugs.php.net/bug.php?id=22414 (claimed to be fixed in 2003, but seems not)
+# http://bugs.php.net/bug.php?id=24403 (claimed to be fixed in 2003, but seems not)
+# http://bugs.php.net/bug.php?id=31402 (no fix yet)
+# tests/run-test/test008.phpt requires the Zend Optimizer
+
+disable_tests="	ext/standard/tests/file/bug21131.phpt \
+		ext/standard/tests/file/bug22414.phpt \
+	        tests/func/008.phpt \
+		tests/lang/038.phpt \
+		tests/lang/bug24403.phpt \
+		tests/basic/bug31672.phpt \
+		Zend/tests/bug22836.phpt \
+		ext/standard/tests/array/bug29992.phpt \
+		ext/standard/tests/array/bug31213.phpt \
+		ext/standard/tests/file/bug22414.phpt \
+		ext/iconv/tests/bug16069.phpt \
+		ext/standard/tests/serialize/bug31402.phpt \
+		ext/standard/tests/array/array_sum.phpt \
+		ext/standard/tests/image/getimagesize.phpt \
+		ext/standard/tests/image/image_type_to_mime_type.phpt \
+		ext/standard/tests/strings/bug29119.phpt \
+		ext/standard/tests/strings/nl2br.phpt \
+		ext/standard/tests/time/bug20382.phpt"
+
+[[ -n "$disable_tests" ]] && \
+for f in $disable_tests; do
+    [[ -f "$f" ]] && mv $f $f.disabled
+done
+
+for f in `find .. -name \*.diff -type f -print`; do
+    echo "TEST FAILURE: $f --"
+    cat "$f"
+    echo "-- $f result ends."
+done
 
 # OE: Tue May 27 2003
 # Make a php.ini file for testing..., if not the tests 
@@ -473,15 +462,23 @@ cat > php.ini <<EOF
 ; echo "33554432" > /proc/sys/kernel/shmmax
 ; echo "4096" > /proc/sys/kernel/shmmni
 ; echo "300 90000 100 150" > /proc/sys/kernel/sem
-
+;
+; the following tests was disabled:
+`for test in "${disable_tests}"; do echo "\; ${test}; done`
 [PHP]
+
+extension_dir=./modules
 
 open_basedir=
 safe_mode=0
 output_buffering=0
 output_handler=0
 magic_quotes_runtime=
-extensions_dir=
+memory_limit=32M
+
+extension=pcre.so
+
+[pcre]
 
 [Session]
 ; We use this as the saved files is cleaned by the rpm build 
@@ -493,54 +490,46 @@ EOF
 # tuck away the php.ini file used for the test, it may come handy(?)
 cp php.ini php-devel/
 
-# FIXME: The following tests (except 021) are known to fail on 64-bit
-# architectures
-%ifarch x86_64
-disable_tests="ext/session/tests/019.phpt \
-    ext/session/tests/021.phpt \
-    ext/standard/tests/math/pow.phpt \
-    ext/standard/tests/math/round.phpt \
-    ext/standard/tests/math/abs.phpt "
-%endif
+TEST_PHP_EXECUTABLE=sapi/cli/php sapi/cli/php -c ./php.ini run-tests.php
+#make -f Makefile.cli test
 
-[[ -n "$disable_tests" ]] && \
-for f in $disable_tests; do
-    [[ -f "$f" ]] && mv $f $f.disabled
-done
+cp -dpR php-devel/* %{buildroot}%{_usrsrc}/php-devel/
+install -m 0644 run-tests*.php %{buildroot}%{_usrsrc}/php-devel/
+install -m 0644 main/internal_functions.c %{buildroot}%{_usrsrc}/php-devel/
 
-make test
-make install
+ln -snf extensions %{buildroot}%{_usrsrc}/php-devel/ext
 
-install -d %{buildroot}%{_libdir}
-install -d %{buildroot}%{_bindir}
-install -d %{buildroot}%{phpdir}/extensions
-install -d %{buildroot}%{phpsrcdir}
-install -d %{buildroot}%{_mandir}/man1
+# fix docs
+cp Zend/LICENSE Zend/ZEND_LICENSE
+cp README.SELF-CONTAINED-EXTENSIONS SELF-CONTAINED-EXTENSIONS
+cp ext/openssl/README README.openssl
+cp ext/spl/README README.spl
+cp ext/libxml/CREDITS CREDITS.libxml
+cp ext/zlib/CREDITS CREDITS.zlib
 
-install -m 0755 libphp_common.so.%{libversion} %{buildroot}%{_libdir}/
-ln -snf libphp_common.so.%{libversion} %{buildroot}%{_libdir}/libphp_common.so
+# cgi docs
+cp sapi/cgi/CREDITS CREDITS.cgi
 
-install -m 0755 sapi/cli/php %{buildroot}%{_bindir}/php
-install -m 0755 sapi/cgi/php %{buildroot}%{_bindir}/php-cgi
-
-cat %{SOURCE4} > %{buildroot}%{_bindir}/php-test
-cp -dpR php-devel/* %{buildroot}%{phpsrcdir}/
-install -m 0644 run-tests*.php %{buildroot}%{phpsrcdir}/
-install -m 0644 main/internal_functions.c %{buildroot}%{phpsrcdir}/
-
-ln -snf extensions %{buildroot}%{phpsrcdir}/ext
+# cli docs
+cp sapi/cli/CREDITS CREDITS.cli
+cp sapi/cli/README README.cli
+cp sapi/cli/TODO TODO.cli
 
 # house cleaning
-rm -rf %{buildroot}%{peardir}
 rm -f %{buildroot}%{_bindir}/pear
+rm -f %{buildroot}%{_libdir}/*.a
 
 # make libtool a (dangling) symlink
-ln -snf ../../../bin/libtool %{buildroot}%{phpdir}/build/libtool
+ln -snf ../../../bin/libtool %{buildroot}%{_libdir}/php/build/libtool
 
-# install the man page
-install -m 0644 sapi/cli/php.1 %{buildroot}%{_mandir}/man1/
+# fix one strange weirdo
+perl -pi -e "s|^libdir=.*|libdir='%{_libdir}'|g" %{buildroot}%{_libdir}/*.la
+
+# install the static apache module, may come handy later on
+install -m 0644 .libs/libphp5.a %{buildroot}%{_libdir}/mod_php5.a
 
 %multiarch_includes %{buildroot}%{_includedir}/php/main/build-defs.h
+%multiarch_includes %{buildroot}%{_includedir}/php/main/config.w32.h
 %multiarch_includes %{buildroot}%{_includedir}/php/main/php_config.h
 
 
@@ -551,9 +540,11 @@ install -m 0644 sapi/cli/php.1 %{buildroot}%{_mandir}/man1/
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
 
+
 %pre cgi
 update-alternatives --remove php %{_bindir}/php-cgi
 update-alternatives --remove php %{_bindir}/php-cli
+
 
 %pre cli
 update-alternatives --remove php %{_bindir}/php-cgi
@@ -562,32 +553,35 @@ update-alternatives --remove php %{_bindir}/php-cli
 
 %files cgi
 %defattr(-,root,root)
-%doc Readme1st
+%doc CREDITS.cgi
 %attr(0755,root,root) %{_bindir}/php-cgi
 
 %files cli
 %defattr(-,root,root)
-%doc Readme1st
+%doc CREDITS.cli README.cli TODO.cli
 %attr(0755,root,root) %{_bindir}/php
 %attr(0644,root,root) %{_mandir}/man1/php.1*
 
 %files -n %{libname}
 %defattr(-,root,root)
 %doc CREDITS INSTALL LICENSE NEWS Zend/ZEND_LICENSE php.ini-dist php.ini-recommended configure_command
-%attr(0755,root,root) %{_libdir}/libphp_common.so.%{libversion}
+%doc README.openssl README.spl CREDITS.libxml CREDITS.zlib
+%attr(0755,root,root) %{_libdir}/libphp5_common.so.*
 
-%files -n php%{libversion}-devel
+%files devel
 %defattr(-,root,root)
-%doc SELF-CONTAINED-EXTENSIONS CODING_STANDARDS README.* TODO EXTENSIONS configure_command
+%doc SELF-CONTAINED-EXTENSIONS CODING_STANDARDS README.* TODO EXTENSIONS
 %doc Zend/ZEND_*
 %attr(0755,root,root) %{_bindir}/php-config
 %attr(0755,root,root) %{_bindir}/phpize
-%attr(0755,root,root) %{_bindir}/php-test
-%attr(0755,root,root) %{_libdir}/libphp_common.so
-%dir %{phpdir}/build
-%{phpdir}/build/*
-%{phpsrcdir}
+%attr(0755,root,root) %{_libdir}/libphp5_common.so
+%attr(0755,root,root) %{_libdir}/libphp5_common.la
+%attr(0755,root,root) %{_libdir}/mod_php5.a
+%dir %{_libdir}/php/build
+%{_libdir}/php/build/*
+%{_usrsrc}/php-devel
 %multiarch %{multiarch_includedir}/php/main/build-defs.h
+%multiarch %{multiarch_includedir}/php/main/config.w32.h
 %multiarch %{multiarch_includedir}/php/main/php_config.h
 %{_includedir}/php
 %{_mandir}/man1/php-config.1*
@@ -595,7 +589,18 @@ update-alternatives --remove php %{_bindir}/php-cli
 
 
 %changelog
-* Wed Jan 18 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Mar 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.2
+- 5.1.2
+- remove debug conditional build
+- add "pear(" to _requires_exceptions
+- change group to Development/PHP
+- drop S4 (php-test)
+- sync most patches with Mandriva's 5.1.2-5mdk
+- update various requires and buildrequires
+- use php-devel rather than php[ver]-devel
+- drop the phpdir, peardir, and phpsrcdir defines
+
+* Wed Jan 18 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.2
 - 4.4.2
 - hardening patch 0.4.8 for php 4.4.2
 - rediffed P5
@@ -604,22 +609,22 @@ update-alternatives --remove php %{_bindir}/php-cli
 - add a --without harden option to build without the hardening patch;
   the default is to build with it
 
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.1
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
-* Tue Dec 13 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.4.41-2avx
+* Tue Dec 13 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.4.1-2avx
 - P12: fix php bug #35067; should fix a squirrelmail issue
 - don't bzip patches or unnecessary source files anymore
 
-* Wed Nov 02 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.4.41-1avx
+* Wed Nov 02 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.4.1-1avx
 - 4.4.1; fixes several security issues (see http://www.php.net/release_4_4_1.php)
 - hardening patch 4.4.1-0.4.5
 
-* Fri Sep 23 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.4.40-2avx
+* Fri Sep 23 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.4.0-2avx
 - hardening patch 4.4.0-0.4.3
 
-* Wed Sep 14 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.4.40-1avx
+* Wed Sep 14 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.4.0-1avx
 - 4.4.0
 - P100: re-introduce the hardened php stuff (4.4.0-0.4.1)
 - rediffed P5, P10, P11 from Mandriva

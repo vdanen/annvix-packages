@@ -1,0 +1,45 @@
+diff -Naur php-5.1.2/ext/msession/config.m4 php-5.1.2.oden/ext/msession/config.m4
+--- php-5.1.2/ext/msession/config.m4	2003-02-12 19:34:20.000000000 +0100
++++ php-5.1.2.oden/ext/msession/config.m4	2006-01-15 10:15:49.000000000 +0100
+@@ -6,12 +6,12 @@
+ [  --with-msession[=DIR]   Include msession support])
+  
+ if test "$PHP_MSESSION" != "no"; then
+-	if test -r $PHP_MSESSION/lib/libphoenix.a; then
++	if test -r $PHP_MSESSION/$PHP_LIBDIR/libphoenix.a; then
+ 		PHOENIX_DIR=$PHP_MSESSION
+ 	else
+ 		AC_MSG_CHECKING(for msession in default path)
+ 		for i in /usr/local/phoenix /usr/local /usr; do
+-			if test -r $i/lib/libphoenix.a; then
++			if test -r $i/$PHP_LIBDIR/libphoenix.a; then
+ 				PHOENIX_DIR=$i
+ 				AC_MSG_RESULT(found in $i)
+ 			fi
+@@ -25,7 +25,7 @@
+ 
+ 
+   	AC_DEFINE(HAVE_MSESSION, 1, [ ])
+-  	PHP_ADD_LIBRARY_WITH_PATH(phoenix, "$PHOENIX_DIR/lib", PHOENIX_LIB)
++  	PHP_ADD_LIBRARY_WITH_PATH(phoenix, "$PHOENIX_DIR/$PHP_LIBDIR", PHOENIX_LIB)
+ 	PHOENIX_INCLUDE="-I$PHOENIX_DIR"
+ 	PHP_SUBST(PHOENIX_LIB)
+ 
+diff -Naur php-5.1.2/ext/snmp/config.m4 php-5.1.2.oden/ext/snmp/config.m4
+--- php-5.1.2/ext/snmp/config.m4	2005-11-29 19:26:00.000000000 +0100
++++ php-5.1.2.oden/ext/snmp/config.m4	2006-01-15 10:18:20.000000000 +0100
+@@ -46,12 +46,12 @@
+         test -f $i/snmp/include/ucd-snmp/snmp.h && SNMP_INCDIR=$i/snmp/include/ucd-snmp
+       done
+       for i in /usr /usr/snmp /usr/local /usr/local/snmp; do
+-        test -f $i/lib/libsnmp.a || test -f $i/lib/libsnmp.$SHLIB_SUFFIX_NAME && SNMP_LIBDIR=$i/lib
++        test -f $i/$PHP_LIBDIR/libsnmp.a || test -f $i/$PHP_LIBDIR/libsnmp.$SHLIB_SUFFIX_NAME && SNMP_LIBDIR=$i/$PHP_LIBDIR
+       done
+     else
+       SNMP_INCDIR=$PHP_SNMP/include
+       test -d $PHP_SNMP/include/ucd-snmp && SNMP_INCDIR=$PHP_SNMP/include/ucd-snmp
+-      SNMP_LIBDIR=$PHP_SNMP/lib
++      SNMP_LIBDIR=$PHP_SNMP/$PHP_LIBDIR
+     fi
+ 
+     if test -z "$SNMP_INCDIR"; then
