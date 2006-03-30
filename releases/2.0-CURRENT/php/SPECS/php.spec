@@ -272,7 +272,7 @@ rm -rf php-devel/extensions/w32api
 find php-devel -name "*.dsp" | xargs rm -f
 find php-devel -name "*.mak" | xargs rm -f
 find php-devel -name "*.w32" | xargs rm
-find php-devel -name "*.droplet" | xargs rm -f
+find php-devel -name "*.avx" | xargs rm -f
 
 cp -dpR sapi/* php-devel/sapi/ 
 rm -f php-devel/sapi/thttpd/stub.c
@@ -589,6 +589,9 @@ update-alternatives --remove php %{_bindir}/php-cli
 
 
 %changelog
+* Thu Mar 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.2
+- remove .avx files, not .droplet files
+
 * Wed Mar 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.2
 - 5.1.2
 - remove debug conditional build
