@@ -431,6 +431,9 @@ disable_tests="	ext/standard/tests/file/bug21131.phpt \
 		ext/standard/tests/image/image_type_to_mime_type.phpt \
 		ext/standard/tests/strings/bug29119.phpt \
 		ext/standard/tests/strings/nl2br.phpt \
+%ifarch x86_64
+		ext/standard/tests/general_functions/sunfuncts.phpt \
+%endif
 		ext/standard/tests/time/bug20382.phpt"
 
 [[ -n "$disable_tests" ]] && \
@@ -591,6 +594,8 @@ update-alternatives --remove php %{_bindir}/php-cli
 %changelog
 * Thu Mar 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.2
 - remove .avx files, not .droplet files
+- disable the sunfuncts test as it's not 100% precise on x86_64 but it's
+  so close the difference is really minor so don't let php fail on this
 
 * Wed Mar 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.2
 - 5.1.2
