@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		php-ini
-%define version		4.4.2
+%define version		5.1.2
 %define release		%_revrel
 
 Summary:	INI files for PHP
@@ -17,7 +17,7 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	PHP License
-Group:		Development/Other
+Group:		Development/PHP
 URL:		http://www.php.net
 Source0:	php.ini.annvix
 
@@ -60,15 +60,23 @@ perl -pi -e 's|EXTENSIONDIR|%{_libdir}/php/extensions|g' %{buildroot}%{_sysconfd
 
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Mar 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.2
+- 5.1.2
+- made the following changes to php.ini (aside from making it based on PHP5):
+  - output_buffering = 4096
+  - register_argc_argv = Off
+  - magic_quotes_gpc = Off
+  - register_long_arrays = Off
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.2
 - 4.4.2
 - use /var/tmp/php_sessions for the session.save_path and make it sticky
   (fixes bug #16)
 
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.1
 - Clean rebuild
 
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.1
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
