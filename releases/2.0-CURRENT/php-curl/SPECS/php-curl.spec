@@ -12,40 +12,33 @@
 %define version		%{phpversion}
 %define release		%_revrel
 
-%define phpversion      4.4.2
+%define phpversion      5.1.2
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir          %{_libdir}/php
 
-%define realname	Curl
 %define modname		curl
 %define dirname		%{modname}
 %define soname		%{modname}.so
 %define inifile		14_%{modname}.ini
-%define mod_src		php_mysql.c
-%define mod_lib		"-lcurl -lssl -lcrypto -ldl"
-%define mod_def		"-DCOMPILE_DL_CURL -DHAVE_CURL"
 
-Summary:	The %{realname} module for PHP
+Summary:	The Curl module for PHP
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	PHP License
-Group:		System/Servers
+Group:		Development/PHP
 URL:		http://www.php.net
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:  php4-devel
-BuildRequires:	curl-devel >= 7.9.8, openssl-devel
+BuildRequires:  php-devel >= 5.1.2
+BuildRequires:	curl-devel >= 7.9.8
 
-Requires:	php4
+Requires:	php >= 5.1.2
 
 
 %description
-The %{name} package is a dynamic shared object (DSO) that adds
-%{realname} support to PHP. PHP is an HTML-embedded scripting language. 
-If you need %{realname} support for PHP applications, you will need to 
-install this package in addition to the php package.
-
+This is a dynamic shared object (DSO) for PHP that will add curl
+support.
 
 %prep
 %setup -c -T
@@ -55,7 +48,8 @@ cp -dpR %{_usrsrc}/php-devel/extensions/%{dirname}/* .
 %build
 phpize
 %configure2_5x \
-  --with-%{modname}=shared,%{_prefix}
+    --with-libdir=%{_lib} \
+    --with-%{modname}=shared,%{_prefix}
 
 %make
 mv modules/*.so .
@@ -70,12 +64,6 @@ install -d %{buildroot}%{_sysconfdir}/php.d
 
 install -m 0755 %{soname} %{buildroot}%{phpdir}/extensions/
 
-cat > README.%{modname} <<EOF
-The %{name} package contains a dynamic shared object (DSO) for PHP. 
-To activate it, make sure a file /etc/php.d/%{inifile} is present and
-contains the line 'extension = %{soname}'.
-EOF
-
 cat > %{buildroot}%{_sysconfdir}/php.d/%{inifile} << EOF
 extension = %{soname}
 EOF
@@ -87,12 +75,17 @@ EOF
 
 %files 
 %defattr(-,root,root)
-%doc README*
-%config(noreplace) %{_sysconfdir}/php.d/%{inifile}
-%{phpdir}/extensions/%{soname}
+%doc CREDITS package.xml
+%config(noreplace) %attr(0644,root,root) %{_sysconfdir}/php.d/%{inifile}
+%attr(0755,root,root) %{phpdir}/extensions/%{soname}
 
 
 %changelog
+* Thu Mar 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.2
+- php 5.1.2
+- stricter permissions and spec cleanups
+- group is now Development/PHP
+
 * Tue Mar 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.2
 - rebuild againt curl 7.15.3
 
