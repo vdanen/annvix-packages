@@ -26,7 +26,7 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	PHP License
-Group:		System/Servers
+Group:		Development/PHP
 URL:		http://www.php.net
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -53,7 +53,7 @@ export CXXFLAGS="%{optflags} -DLDAP_DEPRECATED"
 phpize
 %configure2_5x \
     --with-libdir=%{_lib} \
-    --with-ldap=shared,%{_prefix} \
+    --with-%{modname}=shared,%{_prefix} \
     --with-ldap-sasl=%{_prefix}
 
 %make
@@ -81,12 +81,14 @@ EOF
 %defattr(-,root,root)
 %doc CREDITS
 %config(noreplace) %attr(0644,root,root) %{_sysconfdir}/php.d/%{inifile}
-%{phpdir}/extensions/%{soname}
+%attr(0755,root,root) %{phpdir}/extensions/%{soname}
 
 
 %changelog
 * Thu Mar 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.2
 - php 5.1.2
+- stricter permissions and spec cleanups
+- group is now Development/PHP
 
 * Wed Jan 18 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.2
 - php 4.4.2
