@@ -12,48 +12,40 @@
 %define version		%{phpversion}
 %define release		%_revrel
 
-%define phpversion	4.4.2
+%define phpversion	5.1.2
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir		%{_libdir}/php
 
-%define realname	GD
 %define modname		gd
 %define dirname		%{modname}
 %define soname		%{modname}.so
 %define inifile		23_%{modname}.ini
 
 
-Summary:	The %{realname} module for PHP
+Summary:	The GD extension module for PHP
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	PHP License
-Group:		System/Servers
+Group:		Development/PHP
 URL:		http://www.php.net
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:  php4-devel
+BuildRequires:  php-devel >= 5.1.2
 BuildRequires:  freetype2-devel
 BuildRequires:  libjpeg-devel
 BuildRequires:  libpng-devel 
 BuildRequires:  libxpm-devel
 BuildRequires:  XFree86-devel
-BuildRequires:  chrpath >= 0.10-4mdk
 
-Requires:	php4
+Requires:	php >= 5.1.2
 Requires:       libpng >= 1.2.0
-Provides:       mod_php-gd
-Provides:       mod_php3-gd
-Obsoletes:      mod_php-gd
-Obsoletes:      mod_php3-gd
 
 
 %description
-The %{name} package is a dynamic shared object (DSO) that adds
-%{realname} support to PHP. PHP is an HTML-embedded scripting language. 
-If you need %{realname} support for PHP applications, you will need to 
-install this package in addition to the php package.
-
+This is a dynamic shared object (DSO) for PHP that will add GD
+support, allowing you to create and manipulate images with PHP
+using the gd library.
 
 %prep
 %setup -c -T
@@ -61,21 +53,11 @@ cp -dpR %{_usrsrc}/php-devel/extensions/%{dirname}/* .
 
 
 %build
-#%{phpsource}/buildext %{extname} "gd.c gdttf.c gdcache.c gdt1.c" \
-#        "-ljpeg -lpng -lgd -lttf -lt1 -lc" "-DCOMPILE_DL_GD \
-#        -DHAVE_LIBGD -DHAVE_LIBGD13 -DHAVE_LIBGD15 \
-#        -DHAVE_COLORCLOSESTHWB -DHAVE_GDIMAGECOLORRESOLVE \
-#        -DHAVE_GD_PNG -DHAVE_LIGPNG \
-#        -DHAVE_GD_JPG -DHAVE_LIBJPEG \
-#        -DHAVE_GD_WBMP -DHAVE_WMBP -DHAVE_GD_XPM -DHAVE_GD_XBM \
-#        -DHAVE_LIBT1 -DHAVE_LIBFREETYPE -DHAVE_LIBT1_OUTLINE \
-#        -DENABLE_GD_TTF -DUSE_GD_IMGSTRTTF \
-#        -DHAVE_GD_STRINGTTF -DHAVE_GD_STRINGFT \
-#        -I/usr/include/freetype2 -I/usr/include/freetype2/freetype"
-
 phpize
 export LIBS="$LIBS -lm"
 %configure2_5x \
+    --with-libdir=%{_lib} \
+    --with-%{modname} \
     --with-jpeg-dir=%{_prefix} \
     --with-png-dir=%{_prefix} \
     --with-zlib-dir=%{_prefix} \
@@ -97,12 +79,6 @@ install -d %{buildroot}%{_sysconfdir}/php.d
 
 install -m 0755 %{soname} %{buildroot}%{phpdir}/extensions/
 
-cat > README.%{modname} <<EOF
-The %{name} package contains a dynamic shared object (DSO) for PHP. 
-To activate it, make sure a file /etc/php.d/%{inifile} is present and
-contains the line 'extension = %{soname}'.
-EOF
-
 cat > %{buildroot}%{_sysconfdir}/php.d/%{inifile} << EOF
 extension = %{soname}
 EOF
@@ -114,19 +90,24 @@ EOF
 
 %files 
 %defattr(-,root,root)
-%doc README*
-%config(noreplace) %{_sysconfdir}/php.d/%{inifile}
-%{phpdir}/extensions/%{soname}
+%doc CREDITS
+%config(noreplace) %attr(0644,root,root) %{_sysconfdir}/php.d/%{inifile}
+%attr(0755,root,root) %{phpdir}/extensions/%{soname}
 
 
 %changelog
-* Wed Jan 18 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Mar 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.2
+- php 5.1.2
+- stricter permissions and spec cleanups
+- group is now Development/PHP
+
+* Wed Jan 18 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.2
 - php 4.4.2
 
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.1
 - Clean rebuild
 
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.1
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
