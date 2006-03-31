@@ -12,40 +12,33 @@
 %define version		%{phpversion}
 %define release		%_revrel
 
-%define phpversion	4.4.2
+%define phpversion	5.1.2
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir		%{_libdir}/php
 
-%define realname	dba (with cdb, gdbm and db4)
 %define modname		dba
 %define dirname		%{modname}
 %define soname		%{modname}.so
 %define inifile		16_%{modname}.ini
 
 
-Summary:	The %{realname} module for PHP
+Summary:	The DBA extension module for PHP
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	PHP License
-Group:		System/Servers
+Group:		Development/PHP
 URL:		http://www.php.net
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:  php4-devel
-BuildRequires:	gdbm-devel db4-devel
+BuildRequires:  php-devel >= 5.1.2
+BuildRequires:	gdbm-devel, db4-devel
 
-Requires:	php4
-Provides:       php-dba_gdbm_db2 php-cdb php-db2 php-db3 php-db3 php-db4
-Obsoletes:      php-dba_gdbm_db2 php-cdb php-db2 php-db3 php-db3 php-db4
+Requires:	php >= 5.1.2
 
 %description
-The %{name} package is a dynamic shared object (DSO) that adds
-%{realname} support to PHP. 
-PHP is an HTML-embedded scripting language. 
-If you need %{realname} support for PHP applications, 
-you will need to install this package in addition to the php package.
-
+This is a dynamic shared object (DSO) for PHP that will add flat-file
+databases (DBA) support (gdbm, db4, cdb, etc.).
 
 %prep
 %setup -c -T
@@ -53,21 +46,14 @@ cp -dpR %{_usrsrc}/php-devel/extensions/%{dirname}/* .
 
 
 %build
-#Keep this just in case phpize breaks sometime
-#perl -pi -e 's|#include DB3_INCLUDE_FILE$|#include \"db.h"|g;' *db3.c
-#perl -pi -e 's|#if ([A-Z_])|#ifdef \1|' *.{c,h}
-#
-#%{phpsource}/buildext db3 "dba.c dba_gdbm.c dba_db3.c dba_cdb.c" \
-#	"-lm -lc -lgdbm -ldb-3.3 -lcdb" "-DHAVE_DBA -DCOMPILE_DL_DBA \
-#	-DDBA_GDBM -DDBA_DB3 -DDB3_INCLUDE_FILE -DDBA_CDB"
-
 phpize
 %configure2_5x \
+    --with-libdir=%{_lib} \
     --with-gdbm \
     --with-db4 \
     --with-cdb \
     --with-flatfile \
-    --with-inifile \
+    --with-inifile
 
 %make
 mv modules/*.so .
@@ -81,12 +67,6 @@ install -d %{buildroot}%{_sysconfdir}/php.d
 
 install -m 0755 %{soname} %{buildroot}%{phpdir}/extensions/
 
-cat > README.%{modname} <<EOF
-The %{name} package contains a dynamic shared object (DSO) for PHP. 
-To activate it, make sure a file /etc/php.d/%{inifile} is present and
-contains the line 'extension = %{soname}'.
-EOF
-
 cat > %{buildroot}%{_sysconfdir}/php.d/%{inifile} << EOF
 extension = %{soname}
 EOF
@@ -97,19 +77,24 @@ EOF
 
 %files 
 %defattr(-,root,root)
-%doc README*
-%config(noreplace) %{_sysconfdir}/php.d/%{inifile}
-%{phpdir}/extensions/%{soname}
+%doc README CREDITS
+%config(noreplace) %attr(0644,root,root) %{_sysconfdir}/php.d/%{inifile}
+%attr(0755,root,root) %{phpdir}/extensions/%{soname}
 
 
 %changelog
-* Wed Jan 18 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Mar 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.2
+- php 5.1.2
+- stricter permissions and spec cleanups
+- group is now Development/PHP
+
+* Wed Jan 18 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.2
 - php 4.4.2
 
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.1
 - Clean rebuild
 
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.1
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
