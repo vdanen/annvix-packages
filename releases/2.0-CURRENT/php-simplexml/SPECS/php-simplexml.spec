@@ -5,9 +5,9 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-# $Id: php-dom.spec 5316 2006-04-06 05:47:23Z vdanen $
+# $Id$
 
-%define	revision	$Rev: 5316 $
+%define	revision	$Rev$
 %define	name		php-%{modname}
 %define version		%{phpversion}
 %define release		%_revrel

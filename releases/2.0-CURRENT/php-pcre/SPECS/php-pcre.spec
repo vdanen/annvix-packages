@@ -5,9 +5,9 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-# $Id: php-xml.spec 5312 2006-04-06 05:30:24Z vdanen $
+# $Id$
 
-%define revision	$Rev: 5312 $
+%define revision	$Rev$
 %define name		php-%{modname}
 %define version		%{phpversion}
 %define release		%_revrel
