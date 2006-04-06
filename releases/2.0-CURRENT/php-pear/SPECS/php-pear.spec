@@ -12,7 +12,7 @@
 %define version		%{phpversion}
 %define release		%_revrel
 
-%define phpversion	4.4.2
+%define phpversion	5.1.2
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir		%{_libdir}/php
 %define peardir		%{_datadir}/pear
@@ -31,7 +31,7 @@ Source0:	php-pear-%{pear_date}.tar.bz2
 Source1:	fixregistry.php
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	php4-devel php-xml perl php-cli
+BuildRequires:	php-devel php-xml perl php-cli php-pcre
 BuildArch:	noarch
 
 Requires:	php-cli
@@ -128,13 +128,17 @@ mkdir %{buildroot}%{peardir}/packages
 
 
 %changelog
-* Wed Jan 18 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Apr 05 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.2
+- php 5.1.2
+- BuildRequires: php-pcre
+
+* Wed Jan 18 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.2
 - php 4.4.2
 
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.1
 - Clean rebuild
 
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.1
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - refreshed the tarball and upgraded:
