@@ -12,40 +12,34 @@
 %define version		%{phpversion}
 %define release		%_revrel
 
-%define phpversion	4.4.2
+%define phpversion	5.1.2
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir		%{_libdir}/php
 
-%define realname	PostgreSQL
 %define modname		pgsql
 %define dirname		%{modname}
 %define soname		%{modname}.so
 %define inifile		39_%{modname}.ini
-%define mod_src		pgsql.c
-%define mod_lib		"-lpq -lssl -lcrypto"
-%define mod_def		"-DHAVE_PQESCAPE -DHAVE_PQSETNONBLOCKING -DHAVE_PGSQL_WITH_MULTIBYTE_SUPPORT -DHAVE_PQCMDTUPLES -DCOMPILE_DL_PGSQL -DHAVE_PGSQL"
 
-Summary:	The %{realname} module for PHP
+Summary:	The PostgreSQL module for PHP
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	PHP License
-Group:		System/Servers
+Group:		Development/PHP
 URL:		http://www.php.net
+Source0:	php-pgsql.ini
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:  php4-devel
+BuildRequires:  php-devel >= 5.1.2
 BuildRequires:	postgresql-devel, openssl-devel
 
-Requires:	php4
+Requires:	php
 
 
 %description
-The %{name} package is a dynamic shared object (DSO) that adds
-%{realname} support to PHP. PHP is an HTML-embedded scripting language. 
-If you need %{realname} support for PHP applications, you will need to 
-install this package in addition to the php package.
-
+This is a dynamic shared object (DSO) for PHP that will add PostgreSQL
+database support.
 
 %prep
 %setup -c -T
@@ -55,7 +49,8 @@ cp -dpR %{phpsource}/extensions/%{dirname}/* .
 %build
 phpize
 %configure2_5x \
-  --with-pgsql=shared,%{_prefix}
+    --with-libdir=%{_lib} \
+    --with-%{modname}=shared,%{_prefix}
 
 %make
 mv modules/*.so .
@@ -69,15 +64,7 @@ install -d %{buildroot}%{_sysconfdir}/php.d
 
 install -m 0755 %{soname} %{buildroot}%{phpdir}/extensions/
 
-cat > README.%{modname} <<EOF
-The %{name} package contains a dynamic shared object (DSO) for PHP. 
-To activate it, make sure a file /etc/php.d/%{inifile} is present and
-contains the line 'extension = %{soname}'.
-EOF
-
-cat > %{buildroot}%{_sysconfdir}/php.d/%{inifile} << EOF
-extension = %{soname}
-EOF
+install -m 0644 %{SOURCE0} %{buildroot}%{_sysconfdir}/php.d/%{inifile}
 
 
 %clean
@@ -86,19 +73,25 @@ EOF
 
 %files 
 %defattr(-,root,root)
-%doc README
-%config(noreplace) %{_sysconfdir}/php.d/%{inifile}
-%{phpdir}/extensions/%{soname}
+%doc README CREDITS
+%config(noreplace) %attr(0644,root,root) %{_sysconfdir}/php.d/%{inifile}
+%attr(0755,root,root) %{phpdir}/extensions/%{soname}
 
 
 %changelog
-* Wed Jan 18 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Apr 05 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.2
+- php 5.1.2
+- stricter permissions and spec cleanups
+- group is now Development/PHP
+- add S0 to provide all the options for the module
+
+* Wed Jan 18 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.2
 - php 4.4.2
 
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.1
 - Clean rebuild
 
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.1
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
