@@ -53,6 +53,7 @@ phpize
 
 %make
 mv modules/*.so .
+chrpath -d %{soname}
 
 
 %install
@@ -83,6 +84,7 @@ EOF
 - php 5.1.2
 - stricter permissions and spec cleanups
 - group is now Development/PHP
+- use chrpath to strip rpath from the .so
 
 * Wed Jan 18 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.2
 - php 4.4.2
