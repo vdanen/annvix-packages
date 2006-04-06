@@ -12,43 +12,39 @@
 %define version		%{phpversion}
 %define release		%_revrel
 
-%define phpversion	4.4.2
+%define phpversion	5.1.2
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir		%{_libdir}/php
 
-%define realname	XML
 %define modname		xml
 %define dirname		%{modname}
 %define soname		%{modname}.so
 %define inifile		52_%{modname}.ini
-%define mod_src		xml.c
-%define mod_lib		"-lexpat"
-%define mod_def		"-DCOMPILE_DL_XML -DHAVE_LIBEXPAT -DHAVE_DLFCN_H"
 
-Summary:	The %{realname} module for PHP
+Summary:	The XML module for PHP
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	PHP License
-Group:		System/Servers
+Group:		Development/PHP
 URL:		http://www.php.net
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:  php4-devel
+BuildRequires:  php-devel >= 5.1.2
 BuildRequires:	expat-devel
 
-Requires:	php4
+Requires:	php
 
 %description
-The %{name} package is a dynamic shared object (DSO) that adds
-%{realname} support to PHP. PHP is an HTML-embedded scripting language. 
-If you need %{realname} support for PHP applications, you will need to 
-install this package in addition to the php package.
+This is a dynamic shared object (DSO) for PHP that will add XML
+support. This extension lets you create XML parsers and then define
+handlers for different XML events.
 
 
 %prep
 %setup -c -T
 cp -dpR %{phpsource}/extensions/%{dirname}/* .
+ln -s %{phpsource}/ext .
 
 
 %build
@@ -56,7 +52,9 @@ phpize
 export XML_SHARED_LIBADD="$XML_SHARED_LIBADD -lexpat"
 export CPPFLAGS="$CPPFLAGS -DHAVE_LIBXML -DHAVE_XML -DHAVE_LIBEXPAT"
 %configure2_5x \
-  --with-expat-dir=%{_prefix}
+    --with-libdir=%{_lib} \
+    --with-%{modname}=shared,%{_prefix} \
+    --with-expat-dir=%{_prefix}
 
 %make
 mv modules/*.so .
@@ -70,12 +68,6 @@ install -d %{buildroot}%{_sysconfdir}/php.d
 
 install -m 0755 %{soname} %{buildroot}%{phpdir}/extensions/
 
-cat > README.%{modname} <<EOF
-The %{name} package contains a dynamic shared object (DSO) for PHP. 
-To activate it, make sure a file /etc/php.d/%{inifile} is present and
-contains the line 'extension = %{soname}'.
-EOF
-
 cat > %{buildroot}%{_sysconfdir}/php.d/%{inifile} << EOF
 extension = %{soname}
 EOF
@@ -87,19 +79,24 @@ EOF
 
 %files 
 %defattr(-,root,root)
-%doc README*
-%config(noreplace) %{_sysconfdir}/php.d/%{inifile}
-%{phpdir}/extensions/%{soname}
+%doc CREDITS
+%config(noreplace) %attr(0644,root,root) %{_sysconfdir}/php.d/%{inifile}
+%attr(0755,root,root) %{phpdir}/extensions/%{soname}
 
 
 %changelog
-* Wed Jan 18 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Apr 05 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.2
+- php 5.1.2
+- stricter permissions and spec cleanups
+- group is now Development/PHP
+
+* Wed Jan 18 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.2
 - php 4.4.2
 
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.1
 - Clean rebuild
 
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.1
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
