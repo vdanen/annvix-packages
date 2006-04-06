@@ -9,11 +9,11 @@
 
 %define revision	$Rev$
 %define name		php-%{modname}
-%define version		3.0.8
+%define version		3.0.10
 %define release		%_revrel
 %define epoch		1
 
-%define phpversion	4.4.2
+%define phpversion	5.1.2
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir		%{_libdir}/php
 
@@ -22,21 +22,23 @@
 %define soname		%{modname}.so
 %define inifile		99_%{modname}.ini
 
+%define _requires_exceptions	pear(
+
 Summary:	The apc (Alternative PHP Cache) module for PHP
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 Epoch:		%{epoch}
 License:	PHP License
-Group:		System/Servers
+Group:		Development/PHP
 URL:		http://pecl.php.net/package/APC
 Source0:	APC-%{version}.tgz
 Source1:	apc.ini
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:  php-devel
+BuildRequires:  php-devel >= 5.1.2
 
-Requires:	php4
+Requires:	php
 Conflicts:	php-afterburner php-mmcache
 
 %description
@@ -61,10 +63,6 @@ added post facto as a drop in module. As with PHP, it is available
 completely free for commercial and non-commercial use, under the
 same terms as PHP itself. 
 
-APC has been tested under PHP 4.0.3, 4.0.3pl1 and 4.0.4. It
-currently compiles under Linux and FreeBSD. Patches for ports to
-other OSs/ PHP versions are welcome. 
-
 NOTE!: %{name} has to be loaded last, very important!
 
 
@@ -76,8 +74,6 @@ NOTE!: %{name} has to be loaded last, very important!
 phpize
 %configure2_5x \
     --enable-%{modname}=shared,%{_prefix}
-#    --enable-mmap \
-#    --disable-sem
 
 %make
 mv modules/*.so .
@@ -88,17 +84,6 @@ mv modules/*.so .
 
 install -d %{buildroot}%{phpdir}/extensions
 install -d %{buildroot}%{_sysconfdir}/php.d
-
-cat > README.%{modname} << EOF
-The %{name} package contains a dynamic shared object (DSO) for PHP. 
-
-NOTE!: %{name} has to be loaded last, very important!
-
-There's also a apc-gui v1.0.3, but it does not work 100% and
-it seems unmaintained. But anyway check here if you want to
-hack it to work: http://apc.neuropeans.com/
-
-EOF
 
 cat %{SOURCE1} > %{buildroot}%{_sysconfdir}/php.d/%{inifile}
 install -m 0755 %{soname} %{buildroot}%{phpdir}/extensions/
@@ -111,12 +96,18 @@ install -m 0755 %{soname} %{buildroot}%{phpdir}/extensions/
 
 %files 
 %defattr(-,root,root)
-%doc CHANGELOG INSTALL NOTICE README*
-%{phpdir}/extensions/%{soname}
+%doc CHANGELOG INSTALL NOTICE TODO
+%attr(0755,root,root) %{phpdir}/extensions/%{soname}
 %config(noreplace) %attr(0644,root,root) %{_sysconfdir}/php.d/%{inifile}
 
 
 %changelog
+* Wed Apr 05 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.10
+- php 5.1.2
+- APC 3.0.10
+- stricter permissions and spec cleanups
+- group is now Development/PHP
+
 * Mon Feb 27 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.8
 - APC 3.0.8
 - fix versioning and give it an epoch
