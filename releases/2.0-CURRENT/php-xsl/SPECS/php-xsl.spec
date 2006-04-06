@@ -1,5 +1,5 @@
 #
-# spec file for package php-xslt
+# spec file for package php-xsl
 #
 # Package for the Annvix Linux distribution: http://annvix.org/
 #
@@ -12,55 +12,50 @@
 %define version		%{phpversion}
 %define release		%_revrel
 
-%define phpversion	4.4.2
+%define phpversion	5.1.2
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir		%{_libdir}/php
 
-%define realname	XSLT
-%define modname		xslt
+%define modname		xsl
 %define dirname		%{modname}
 %define soname		%{modname}.so
-%define inifile		52_%{modname}.ini
-%define mod_src		"xslt.c sablot.c" 
-%define mod_lib		"-lsablot -lexpat -ljs -lstdc++ -lgcc"
-%define mod_def		"-DCOMPILE_DL_XSLT -DHAVE_XSLT -DHAVE_SABLOT_BACKEND -DHAVE_DLFCN_H -DHAVE_LIBEXPAT2 -DHAVE_SABLOT_SET_ENCODING"
-%define rlibs		libexpat0 libsablotron0 >= 0.90 libjs1 >= 1.5 libstdc++5 libgcc1
-%define blibs		expat-devel libsablotron-devel js-devel >= 1.5 libstdc++-devel libgcc1
+%define inifile		63_%{modname}.ini
 
-Summary:	The %{realname} module for PHP
+Summary:	The XSL module for PHP
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	PHP License
-Group:		System/Servers
+Group:		Development/PHP
 URL:		http://www.php.net
-Source0:	foo.xml
-Source1:	foo.xsl
-Source2:	run.php
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:  php4-devel
-BuildRequires:	%{blibs}
+BuildRequires:  php-devel >= 5.1.2
+BuildRequires:	libxml2-devel, libxslt-devel
 
-Requires:	php4
+Requires:	php, php-dom
 
 %description
-The %{name} package is a dynamic shared object (DSO) that adds
-%{realname} support to PHP. PHP is an HTML-embedded scripting language. 
-If you need %{realname} support for PHP applications, you will need to 
-install this package in addition to the php package.
-
+This is a dynamic shared object (DSO) for PHP that will add xsl
+support.
 
 %prep
 %setup -c -T
 cp -dpR %{phpsource}/extensions/%{dirname}/* .
-cp %{SOURCE0} .
-cp %{SOURCE1} .
-cp %{SOURCE2} .
+cp -dpR %{phpsource}/extensions/dom .
+cp -dpR %{phpsource}/extensions/libxml .
+cp -dpR %{phpsource}/extensions/xml .
 
 
 %build
-%{phpsource}/buildext %{modname} %{mod_src} %{mod_lib} %{mod_def}
+phpize
+%configure2_5x \
+    --with-libdir=%{_lib} \
+    --with-%{modname}=shared,%{_prefix} \
+    --enable-dom
+
+%make
+mv modules/*.so .
 
 
 %install
@@ -70,12 +65,6 @@ install -d %{buildroot}%{phpdir}/extensions
 install -d %{buildroot}%{_sysconfdir}/php.d
 
 install -m 0755 %{soname} %{buildroot}%{phpdir}/extensions/
-
-cat > README.%{modname} <<EOF
-The %{name} package contains a dynamic shared object (DSO) for PHP. 
-To activate it, make sure a file /etc/php.d/%{inifile} is present and
-contains the line 'extension = %{soname}'.
-EOF
 
 cat > %{buildroot}%{_sysconfdir}/php.d/%{inifile} << EOF
 extension = %{soname}
@@ -88,19 +77,25 @@ EOF
 
 %files 
 %defattr(-,root,root)
-%doc README* foo.x* run.php
-%config(noreplace) %{_sysconfdir}/php.d/%{inifile}
-%{phpdir}/extensions/%{soname}
+%doc CREDITS
+%config(noreplace) %attr(0644,root,root) %{_sysconfdir}/php.d/%{inifile}
+%attr(0755,root,root) %{phpdir}/extensions/%{soname}
 
 
 %changelog
-* Wed Jan 18 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Apr 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.2
+- rename php-xslt to php-xsl
+- php 5.1.2
+- stricter permissions and spec cleanups
+- group is now Development/PHP
+
+* Wed Jan 18 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.2
 - php 4.4.2
 
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.1
 - Clean rebuild
 
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.1
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
