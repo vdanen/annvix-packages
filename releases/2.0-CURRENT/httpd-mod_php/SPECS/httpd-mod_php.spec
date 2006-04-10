@@ -14,12 +14,13 @@
 
 # Module-Specific definitions
 %define apache_version	2.0.55
-%define phpversion	4.4.2
+%define phpversion	5.1.2
 %define mod_name	mod_php
 %define mod_conf	70_%{mod_name}.conf
-%define mod_so		%{mod_name}4.so
+%define mod_so		%{mod_name}5.so
 %define phpsource	%{_prefix}/src/php-devel
 %define extname		apache2handler
+%define plibname	%mklibname php_common 5
 
 Summary:	The PHP4 HTML-embedded scripting language for use with Apache
 Name:		%{name}
@@ -34,9 +35,23 @@ BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	php-devel >= %{phpversion}, httpd-devel >= %{apache_version}
 
 Requires:	openssl, php-ini
-Provides:	php, php3, php4, php430, php432, mod_php, mod_php3, phpapache, phpfi apache2-mod_php
+Requires:       php-ftp >= %{phpversion}
+Requires:       php-pcre >= %{phpversion}
+Requires:       php-gettext >= %{phpversion}
+Requires:       php-posix >= %{phpversion}
+Requires:       php-ctype >= %{phpversion}
+Requires:       php-session >= %{phpversion}
+Requires:       php-sysvsem >= %{phpversion}
+Requires:       php-sysvshm >= %{phpversion}
+Requires:       php-tokenizer >= %{phpversion}
+Requires:       php-simplexml >= %{phpversion}
+Requires:       php-hash >= %{phpversion}
+Requires:	%{plibname} >= %{phpversion}
+Provides:	php, php3, php4, php430, php432, php5, mod_php, mod_php3, phpapache, phpfi apache2-mod_php
 Obsoletes:	mod_php3, php430 apache2-mod_php
-Prereq:		httpd >= %{apache_version}, httpd-conf
+Requires(pre):	rpm-helper
+Requires(postun): rpm-helper
+Requires(pre):	httpd >= %{apache_version}, httpd-conf >= %{apache_version}
 
 %description
 PHP is an HTML-embedded scripting language.  PHP attempts to make it
@@ -54,16 +69,17 @@ understand and process the embedded PHP language in web pages.
 cp -dpR %{phpsource}/sapi/%{extname}/* .
 cp %{phpsource}/PHP_FAQ.php .
 cp %{phpsource}/internal_functions.c .
-cp sapi_apache2.c mod_php4.c
+cp %{_includedir}/php/ext/date/lib/timelib_config.h .
 
 
 %build
 %{_sbindir}/apxs \
     `php-config --includes` \
     `apr-config --link-ld --libs` \
+    `xml2-config --cflags` \
     -I%{phpsource} \
-    -I. -lphp_common \
-    -c mod_php4.c apache_config.c php_functions.c \
+    -I. -lphp5_common \
+    -c mod_php5.c sapi_apache2.c apache_config.c php_functions.c \
     internal_functions.c
 
 
@@ -95,6 +111,9 @@ cat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 
 %changelog
+* Mon Apr 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.55_5.1.2
+- php 5.1.2
+
 * Sat Feb 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.55_4.4.2
 - rebuild against apr and apr-util 0.9.7 (needed to make mod_cgi.so work
   properly)
