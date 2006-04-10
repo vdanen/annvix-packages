@@ -109,8 +109,19 @@ Summary:	Command-line interface to PHP
 Epoch:		%{epoch}
 Group:		Development/PHP
 URL:		http://www.php.net
-PreReq:		php-ini
+Requires(pre):	php-ini
 Requires:	%{libname} = %{epoch}:%{version}-%{release}
+Requires:	php-ftp >= %{version}
+Requires:	php-pcre >= %{version}
+Requires:	php-gettext >= %{version}
+Requires:	php-posix >= %{version}
+Requires:	php-ctype >= %{version}
+Requires:	php-session >= %{version}
+Requires:	php-sysvsem >= %{version}
+Requires:	php-sysvshm >= %{version}
+Requires:	php-tokenizer >= %{version}
+Requires:	php-simplexml >= %{version}
+Requires:	php-hash >= %{version}
 Provides:	php
 Provides:	php3
 Provides:	php4
@@ -138,8 +149,19 @@ Summary:	CGI interface to PHP
 Epoch:		%{epoch}
 Group:		Development/PHP
 URL:		http://www.php.net
-PreReq:		php-ini
+Requires(pre):	php-ini
 Requires:	%{libname} = %{epoch}:%{version}-%{release}
+Requires:	php-ftp >= %{version}
+Requires:	php-pcre >= %{version}
+Requires:	php-gettext >= %{version}
+Requires:	php-posix >= %{version}
+Requires:	php-ctype >= %{version}
+Requires:	php-session >= %{version}
+Requires:	php-sysvsem >= %{version}
+Requires:	php-sysvshm >= %{version}
+Requires:	php-tokenizer >= %{version}
+Requires:	php-simplexml >= %{version}
+Requires:	php-hash >= %{version}
 Provides:	php
 Provides:	php3
 Provides:	php4
@@ -592,6 +614,9 @@ update-alternatives --remove php %{_bindir}/php-cli
 
 
 %changelog
+* Mon Apr 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.2
+- add some sane default requires for php-cgi and php-cli
+
 * Thu Mar 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.2
 - remove .avx files, not .droplet files
 - disable the sunfuncts test as it's not 100% precise on x86_64 but it's
