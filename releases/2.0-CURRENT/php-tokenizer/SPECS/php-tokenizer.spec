@@ -28,7 +28,6 @@ Release:	%{release}
 License:	PHP License
 Group:		Development/PHP
 URL:		http://www.php.net
-Source0:	php-sqlite.ini
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:  php-devel >= 5.1.2
