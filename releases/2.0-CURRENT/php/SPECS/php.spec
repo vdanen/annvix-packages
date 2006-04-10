@@ -96,6 +96,7 @@ BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	httpd-devel >= 2.0.54, autoconf2.5, automake1.7, bison, byacc, flex, libtool, libxml2-devel, libxslt-devel
 BuildRequires:	openssl-devel >= 0.9.7, openssl >= 0.9.7, pcre-devel >= 5.0, pam-devel
 BuildRequires:	multiarch-utils >= 1.0.3
+BuildConflicts:	php
 
 %description
 PHP5 is an HTML-embeddable scripting language.  PHP offers built-in database
@@ -616,6 +617,7 @@ update-alternatives --remove php %{_bindir}/php-cli
 %changelog
 * Mon Apr 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.2
 - add some sane default requires for php-cgi and php-cli
+- put back the BuildConflicts on php otherwise all the tests fail
 
 * Thu Mar 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.2
 - remove .avx files, not .droplet files
