@@ -113,6 +113,7 @@ cat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 %changelog
 * Mon Apr 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.55_5.1.2
 - php 5.1.2
+- update the config file to reflect PHP5 rather than PHP4
 
 * Sat Feb 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.55_4.4.2
 - rebuild against apr and apr-util 0.9.7 (needed to make mod_cgi.so work
