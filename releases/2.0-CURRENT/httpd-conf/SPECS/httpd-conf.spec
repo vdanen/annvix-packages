@@ -167,7 +167,7 @@ install -m 0644 %{SOURCE102} %{buildroot}%{_datadir}/afterboot/03_apache
 
 
 %pre
-%_pre_useradd apache /var/www /bin/sh 74
+%_pre_useradd apache /var/www /bin/true 74
 %_mkafterboot
 
 %post
@@ -242,20 +242,23 @@ fi
 
 
 %changelog
-* Thu Jan 19 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Apr 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.55
+- don't let apache have a real shell, use /bin/true instead
+
+* Thu Jan 19 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.55
 - apache 2.0.55
 
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.54
 - Clean rebuild
 
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.54
 - dietlibc fixes
 
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.54
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.54
 - Clean rebuild
 
 * Sat Oct 29 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.0.54-5avx
