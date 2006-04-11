@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		clamav
-%define version		0.88
+%define version		0.88.1
 %define release		%_revrel
 
 %define	major		1
@@ -29,7 +29,7 @@ Source5:	clamd-log.run
 Source6:	freshclam.run
 Source7:	freshclam-log.run
 Patch0:		clamav-0.87-avx-config.patch
-Patch1:		clamav-0.87-avx-stderr.patch
+Patch1:		clamav-0.88.1-avx-stderr.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5, automake1.7
@@ -274,6 +274,10 @@ done
 
       
 %changelog
+* Tue Apr 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.88.1
+- 0.88.1: fixes CVE-2006-1614, CVE-2006-1615, CVE-2006-1630
+- rediff P1
+
 * Fri Feb 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.88
 - 0.88 (fixes CVE-2006-0162)
 
