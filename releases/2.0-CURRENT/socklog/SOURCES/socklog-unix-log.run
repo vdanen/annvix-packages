@@ -2,7 +2,7 @@
 
 
 /bin/cd /var/log/system
-/sbin/chpst -u syslogd /sbin/svlogd
+/sbin/chpst -u syslogd /sbin/svlogd -tt
     /var/log/system/all
     /var/log/system/auth
     /var/log/system/boot

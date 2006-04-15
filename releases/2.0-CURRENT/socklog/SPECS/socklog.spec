@@ -238,6 +238,11 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Fri Apr 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1.0
+- add -tt option to socklog-unix/log/run so that we get timestamps; not
+  everything that goes through syslog has a timestamp so while it might
+  look a little ugly with double-timestamps, we make sure we get it
+
 * Thu Mar 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1.0
 - 2.1.0
 
