@@ -1,0 +1,41 @@
+--- module-init-tools-3.2-pre8/modprobe.c.no-rename	2005-08-08 18:04:09.000000000 +0200
++++ module-init-tools-3.2-pre8/modprobe.c	2005-08-08 18:04:19.000000000 +0200
+@@ -190,10 +190,7 @@
+ 
+ 	/* Convert to underscores, stop at first . */
+ 	for (i = 0; afterslash[i] && afterslash[i] != '.'; i++) {
+-		if (afterslash[i] == '-')
+-			modname[i] = '_';
+-		else
+-			modname[i] = afterslash[i];
++		modname[i] = afterslash[i];
+ 	}
+ 	modname[i] = '\0';
+ }
+@@ -970,12 +967,6 @@
+ 
+ static char *underscores(char *string)
+ {
+-	if (string) {
+-		unsigned int i;
+-		for (i = 0; string[i]; i++)
+-			if (string[i] == '-')
+-				string[i] = '_';
+-	}
+ 	return string;
+ }
+ 
+--- module-init-tools-3.2-pre8/depmod.c.no-rename	2005-08-08 18:04:10.000000000 +0200
++++ module-init-tools-3.2-pre8/depmod.c	2005-08-08 18:04:19.000000000 +0200
+@@ -611,10 +611,7 @@
+ 
+ 	/* Convert to underscores, stop at first . */
+ 	for (i = 0; afterslash[i] && afterslash[i] != '.'; i++) {
+-		if (afterslash[i] == '-')
+-			modname[i] = '_';
+-		else
+-			modname[i] = afterslash[i];
++		modname[i] = afterslash[i];
+ 	}
+ 	modname[i] = '\0';
+ }
