@@ -7,7 +7,7 @@
 #
 # $Id$
 
-%define revision	$Rev: 5205 $
+%define revision	$Rev$
 %define name		module-init-tools
 %define version		3.2.2
 %define release		%_revrel
