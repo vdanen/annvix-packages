@@ -21,7 +21,7 @@
 %define soname		%{modname}.so
 %define inifile		12_%{modname}.ini
 
-Summary:	The gettext module for PHP
+Summary:	The ctype module for PHP
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -79,5 +79,8 @@ EOF
 
 
 %changelog
+* Mon Apr 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.2
+- fix summary
+
 * Sun Apr 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.2
 - first Annvix build
