@@ -1,0 +1,143 @@
+#!/bin/sh
+# Copyright (C) 2002 by MandrakeSoft,
+# Juan Quintela <quintela@mandrakesoft.com>, 
+# Redistribution of this file is permitted under the terms of the GNU 
+# Public License (GPL)
+
+# This scripts applies all the *.patch & *.tar.* in order
+
+VERSION=0.3
+
+usage () {
+    echo "usage: `basename $0` [--version] [--start <number>]"
+    echo "             [-v] --patch_dir=<patch-dir>" >&2
+    echo -e "\t(ex: `basename $0`" >&2
+    exit 1
+}
+
+# Globals
+
+# verbose messages
+verbose=0
+keep_origs=0
+patch_dir=""
+start_at=""
+stop_at=""
+
+print () {
+	[  $verbose -eq 0 ] && return
+	echo -e "$1"
+}
+
+# looking for options
+
+while [ $# -gt 0 ]; do
+	case $1 in
+		-v|--verborse)
+			verbose=1
+		    	;;
+		--keep_origs)
+			keep_origs=1
+			;;
+	        --start=*)
+		        start_at="`echo $1 | sed -e 's/--start=//'`"
+			start_at="`echo $start_at | cut -f1 -d'_'| tr A-Z a-z`"
+			;;
+	        --stop=*)
+		        stop_at=`echo $1 | sed -e 's/--stop=//'`
+			stop_at="`echo $stop_at | cut -f1 -d'_'| tr A-Z a-z`"
+			;;
+		--version)
+			echo "`basename $0`: version $VERSION"
+			exit 0
+			;;
+	        --patch_dir=*)
+		        patch_dir=`echo $1 | sed -e 's/--patch_dir=//'`
+			;;
+	        *)
+			usage
+			;;
+	esac
+	shift
+done
+
+if [ -z "$patch_dir" ]; then
+	patch_dir=`dirname $0`/../patches
+fi
+
+if [ ! -d "$patch_dir" ]; then
+	echo "$patch_dir is not a directory"
+	exit 2
+fi
+
+print "patches dir is: $patch_dir"
+
+patches_names=./patches_names
+
+# .sh can't be compressed
+
+find $patch_dir -regex ".*\.\(patch\|tar\)\(\|\.bz2\|\.gz\)" -o -regex ".*\.sh" | \
+	sed 's/\.\(gz\|bz2\)$//' | \
+	sort -u > $patches_names
+
+for file in `cat $patches_names` ; do
+	print "processing $file"
+	if [ -r "$file" ]; then
+		prog="cat"
+		name="$file"
+		option=""
+	elif [ -r "$file.gz" ]; then
+		prog="zcat"
+		option="z"
+		name="$file.gz"
+	elif [ -r "$file.bz2" ]; then
+		prog="bzcat"
+		name="$file.bz2"				
+		option="j"
+	else
+		echo "imposible to apply $file patch or tarball"
+		exit 3;
+	fi
+	number="`basename $file | cut -f1 -d'_'| tr A-Z a-z`"
+
+	if [[ "$number" < "$start_at" ]]; then
+		continue
+	elif [[ "$number" == "$start_at" ]]; then
+		start_at=""
+	fi
+
+	if [[ "$number" == "$stop_at" ]]; then
+		exit 4
+	fi
+
+	case $file in
+		*.patch)
+			suffix=".${number}.orig"
+			options="--version-control=simple --suffix=$suffix"
+			print "$prog $name | patch -sp1 $options"
+			$prog $name | patch -sp1 $options 
+			if [ "$?" != "0" ]; then
+				echo "patch `basename $name` failed"
+				exit 1
+			fi
+			;;
+		*.tar)
+			print "tar $option -xf$option $name"
+			tar -xf$option $name
+			;;
+		*.sh)
+			print "sh $name"
+			/bin/sh $name
+			;;
+		*)
+			print "unrecognized $file"
+			exit 0
+			;;
+	esac
+done
+
+[[ $keep_origs -eq 0 ]] && find . -name "*.orig" | xargs rm -f
+
+rm $patches_names
+
+exit 0
