@@ -111,6 +111,10 @@ rm -f %{buildroot}%{_mandir}/*/grubby*
 
 
 %changelog
+* Mon Apr 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.4.43
+- update P5 to test for insmod.static-25 before trying to install it in
+  the initrd
+
 * Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.4.43
 - P5: don't use the insmod-DIET binary for now due to problems with it
   loading the libata driver (use insmod.static instead); increases the
