@@ -5,10 +5,10 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-# $Id: kernel-avx.spec 5205 2006-02-11 04:17:00Z vdanen $
+# $Id: kernel26-avx.spec 5340 2006-04-18 01:00:20Z vdanen $
 
-%define revision	$Rev: 5205 $
-%define kname		kernel
+%define revision	$Rev: 5340 $
+%define kname		kernel26
 %define sublevel	14
 %define avxrelease	%(echo %{revision}|cut -d ' ' -f 2)
 
@@ -769,10 +769,12 @@ exit 0
 
 
 %changelog
-* Sat Apr 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.14
+* Mon Apr 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.14
 - 2.6 (based on 2.4 spec); first Annvix build
 - remove build_acpi stuff
 - only patches right now are RSBAC-related so comment out the openswan stuff
+- name the kernel package 'kernel26' rather than 'kernel' to prevent issues
+  with the 2.4 kernel ('kernel')
 
 # Local Variables:
 # rpm-spec-insert-changelog-version-with-shell: t

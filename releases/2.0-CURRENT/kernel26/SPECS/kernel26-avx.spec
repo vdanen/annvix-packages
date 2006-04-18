@@ -8,7 +8,7 @@
 # $Id$
 
 %define revision	$Rev$
-%define kname		kernel
+%define kname		kernel26
 %define sublevel	14
 %define avxrelease	%(echo %{revision}|cut -d ' ' -f 2)
 
@@ -773,6 +773,8 @@ exit 0
 - 2.6 (based on 2.4 spec); first Annvix build
 - remove build_acpi stuff
 - only patches right now are RSBAC-related so comment out the openswan stuff
+- name the kernel package 'kernel26' rather than 'kernel' to prevent issues
+  with the 2.4 kernel ('kernel')
 
 # Local Variables:
 # rpm-spec-insert-changelog-version-with-shell: t
