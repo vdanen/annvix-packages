@@ -1,0 +1,277 @@
+--- agent/mibgroup/mibII/at.c
++++ agent/mibgroup/mibII/at.c
+@@ -117,9 +117,9 @@
+ #ifndef solaris2
+ static void     ARP_Scan_Init(void);
+ #ifdef ARP_SCAN_FOUR_ARGUMENTS
+-static int      ARP_Scan_Next(u_long *, char *, u_long *, u_short *);
++static int      ARP_Scan_Next(u_int *, char *, u_long *, u_short *);
+ #else
+-static int      ARP_Scan_Next(u_long *, char *, u_long *);
++static int      ARP_Scan_Next(u_int *, char *, u_long *);
+ #endif
+ #endif
+ #endif
+@@ -195,7 +195,8 @@
+     oid             lowest[16];
+     oid             current[16];
+     static char     PhysAddr[6], LowPhysAddr[6];
+-    u_long          Addr, LowAddr, foundone;
++    u_int          Addr, LowAddr, foundone;
++    static int      addr_ret;
+ #ifdef ARP_SCAN_FOUR_ARGUMENTS
+     u_short         ifIndex, lowIfIndex = 0;
+ #endif                          /* ARP_SCAN_FOUR_ARGUMENTS */
+@@ -305,9 +306,9 @@
+         *var_len = sizeof(LowPhysAddr);
+         return (u_char *) LowPhysAddr;
+     case IPMEDIANETADDRESS:    /* also ATNETADDRESS */
+-        *var_len = sizeof long_return;
+-        long_return = LowAddr;
+-        return (u_char *) & long_return;
++        *var_len = sizeof addr_ret;
++        addr_ret = LowAddr;
++        return (u_char *) & addr_ret;
+     case IPMEDIATYPE:
+         *var_len = sizeof long_return;
+         long_return = lowIfType;
+@@ -676,11 +677,11 @@
+ 
+ #ifdef ARP_SCAN_FOUR_ARGUMENTS
+ static int
+-ARP_Scan_Next(u_long * IPAddr, char *PhysAddr, u_long * ifType,
++ARP_Scan_Next(u_int * IPAddr, char *PhysAddr, u_long * ifType,
+               u_short * ifIndex)
+ #else
+ static int
+-ARP_Scan_Next(u_long * IPAddr, char *PhysAddr, u_long * ifType)
++ARP_Scan_Next(u_int * IPAddr, char *PhysAddr, u_long * ifType)
+ #endif
+ {
+ #ifndef CAN_USE_SYSCTL
+--- agent/mibgroup/mibII/ipAddr.c
++++ agent/mibgroup/mibII/ipAddr.c
+@@ -188,6 +188,7 @@
+     static struct in_ifaddr in_ifaddr, lowin_ifaddr;
+ #else
+     static struct ifnet lowin_ifnet;
++    static in_addr_t addr_ret;
+ #endif
+     static struct ifnet ifnet;
+ #endif                          /* hpux11 */
+@@ -282,9 +283,10 @@
+     *var_len = sizeof(long_return);
+     switch (vp->magic) {
+     case IPADADDR:
++	*var_len = sizeof(addr_ret);
+ #ifdef hpux11
+-        long_return = lowin_ifaddr.Addr;
+-        return (u_char *) & long_return;
++        addr_ret = lowin_ifaddr.Addr;
++        return (u_char *) & addr_ret;
+ #elif defined(linux) || defined(sunV3)
+         return (u_char *) & ((struct sockaddr_in *) &lowin_ifnet.if_addr)->
+             sin_addr.s_addr;
+@@ -296,15 +298,16 @@
+         long_return = lowinterface;
+         return (u_char *) & long_return;
+     case IPADNETMASK:
++	*var_len = sizeof(addr_ret);
+ #ifdef hpux11
+-        long_return = lowin_ifaddr.NetMask;
+-        return (u_char *) & long_return;
++        addr_ret = lowin_ifaddr.NetMask;
++        return (u_char *) & addr_ret;
+ #elif defined(linux)
+         return (u_char *) & ((struct sockaddr_in *) &lowin_ifnet.
+                              ia_subnetmask)->sin_addr.s_addr;
+ #elif !defined(sunV3)
+-        long_return = lowin_ifaddr.ia_subnetmask;
+-        return (u_char *) & long_return;
++        addr_ret = lowin_ifaddr.ia_subnetmask;
++        return (u_char *) & addr_ret;
+ #endif
+     case IPADBCASTADDR:
+ #ifdef hpux11
+--- agent/mibgroup/mibII/ipCidrRouteTable_access.c
++++ agent/mibgroup/mibII/ipCidrRouteTable_access.c
+@@ -22,6 +22,7 @@
+ /** a global static we'll make use of a lot to map to the right
+    datatype to return (which for SNMP integer's is always a long). */
+ static u_long long_ret;
++static in_addr_t addr_ret;
+   
+ 
+ /*
+@@ -32,18 +33,18 @@
+ get_ipCidrRouteDest(void *data_context, size_t * ret_len)
+ {
+     RTENTRY *ourroute = (RTENTRY *) data_context;
+-    long_ret = ((struct sockaddr_in *) (&ourroute->rt_dst))->sin_addr.s_addr;
+-    *ret_len = sizeof(long_ret);
+-    return &long_ret;
++    addr_ret = ((struct sockaddr_in *) (&ourroute->rt_dst))->sin_addr.s_addr;
++    *ret_len = sizeof(addr_ret);
++    return &addr_ret;
+ }
+ 
+ u_long         *
+ get_ipCidrRouteMask(void *data_context, size_t * ret_len)
+ {
+     RTENTRY *ourroute = (RTENTRY *) data_context;
+-    long_ret = ((struct sockaddr_in *) (&ourroute->rt_genmask))->sin_addr.s_addr;
+-    *ret_len = sizeof(long_ret);
+-    return &long_ret;
++    addr_ret = ((struct sockaddr_in *) (&ourroute->rt_genmask))->sin_addr.s_addr;
++    *ret_len = sizeof(addr_ret);
++    return &addr_ret;
+ }
+ 
+ long           *
+@@ -59,9 +60,9 @@
+ get_ipCidrRouteNextHop(void *data_context, size_t * ret_len)
+ {
+     RTENTRY *ourroute = (RTENTRY *) data_context;
+-    long_ret = ((struct sockaddr_in *) (&ourroute->rt_gateway))->sin_addr.s_addr;
+-    *ret_len = sizeof(long_ret);
+-    return &long_ret;
++    addr_ret = ((struct sockaddr_in *) (&ourroute->rt_gateway))->sin_addr.s_addr;
++    *ret_len = sizeof(addr_ret);
++    return &addr_ret;
+ }
+ 
+ long           *
+--- agent/mibgroup/mibII/var_route.c
++++ agent/mibgroup/mibII/var_route.c
+@@ -412,6 +412,7 @@
+     static oid      saveName[MAX_OID_LEN], Current[MAX_OID_LEN];
+     u_char         *cp;
+     oid            *op;
++    static         in_addr_t addr_ret;
+ #if NEED_KLGETSA
+     struct sockaddr_in *sa;
+ #endif
+@@ -514,12 +515,13 @@
+ 
+     switch (vp->magic) {
+     case IPROUTEDEST:
++	*var_len = sizeof(addr_ret);
+ #if NEED_KLGETSA
+         sa = klgetsa((struct sockaddr_in *) rthead[RtIndex]->rt_dst);
+         return (u_char *) & (sa->sin_addr.s_addr);
+ #elif defined(hpux11)
+-        long_return = rt[RtIndex].Dest;
+-        return (u_char *) & long_return;
++        addr_ret = rt[RtIndex].Dest;
++        return (u_char *) & addr_ret;
+ #else
+         return (u_char *) & ((struct sockaddr_in *) &rthead[RtIndex]->
+                              rt_dst)->sin_addr.s_addr;
+@@ -572,12 +574,13 @@
+         long_return = -1;
+         return (u_char *) & long_return;
+     case IPROUTENEXTHOP:
++	*var_len = sizeof(addr_ret);
+ #if NEED_KLGETSA
+         sa = klgetsa((struct sockaddr_in *) rthead[RtIndex]->rt_gateway);
+         return (u_char *) & (sa->sin_addr.s_addr);
+ #elif defined(hpux11)
+-        long_return = rt[RtIndex].NextHop;
+-        return (u_char *) & long_return;
++        addr_ret = rt[RtIndex].NextHop;
++        return (u_char *) & addr_ret;
+ #else
+         return (u_char *) & ((struct sockaddr_in *) &rthead[RtIndex]->
+                              rt_gateway)->sin_addr.s_addr;
+@@ -614,6 +617,7 @@
+         long_return = 0;
+         return (u_char *) & long_return;
+     case IPROUTEMASK:
++	*var_len = sizeof(addr_ret);
+ #if NEED_KLGETSA
+         /*
+          * XXX - Almost certainly not right
+@@ -622,14 +626,14 @@
+ #if NO_DUMMY_VALUES
+         return NULL;
+ #endif
+-        long_return = 0;
++        addr_ret = 0;
+ #elif defined(hpux11)
+-        long_return = rt[RtIndex].Mask;
+-        return (u_char *) & long_return;
++        addr_ret = rt[RtIndex].Mask;
++        return (u_char *) & addr_ret;
+ #else                           /* !NEED_KLGETSA && !hpux11 */
+         if (((struct sockaddr_in *) &rthead[RtIndex]->rt_dst)->sin_addr.
+             s_addr == 0)
+-            long_return = 0;    /* Default route */
++            addr_ret = 0;    /* Default route */
+         else {
+ #ifndef linux
+             klookup((unsigned long) rthead[RtIndex]->rt_ifp,
+@@ -648,7 +652,7 @@
+ #endif                          /* linux */
+         }
+ #endif                          /* NEED_KLGETSA */
+-        return (u_char *) & long_return;
++        return (u_char *) & addr_ret;
+     case IPROUTEINFO:
+         *var_len = nullOidLen;
+         return (u_char *) nullOid;
+--- agent/mibgroup/ucd-snmp/pass.c
++++ agent/mibgroup/ucd-snmp/pass.c
+@@ -251,6 +251,7 @@
+     oid             newname[MAX_OID_LEN];
+     int             i, rtest, fd, newlen;
+     static long     long_ret;
++    static in_addr_t addr_ret;
+     char            buf[SNMP_MAXBUF];
+     static char     buf2[SNMP_MAXBUF];
+     static oid      objid[MAX_OID_LEN];
+@@ -373,13 +374,13 @@
+                         *var_len = 0;
+                         return (NULL);
+                     }
+-                    long_ret =
++                    addr_ret =
+                         (objid[0] << (8 * 3)) + (objid[1] << (8 * 2)) +
+                         (objid[2] << 8) + objid[3];
+-                    long_ret = htonl(long_ret);
+-                    *var_len = sizeof(long_ret);
++                    addr_ret = htonl(addr_ret);
++                    *var_len = sizeof(addr_ret);
+                     vp->type = ASN_IPADDRESS;
+-                    return ((unsigned char *) &long_ret);
++                    return ((unsigned char *) &addr_ret);
+                 }
+             }
+             *var_len = 0;
+--- agent/mibgroup/ucd-snmp/pass_persist.c
++++ agent/mibgroup/ucd-snmp/pass_persist.c
+@@ -184,6 +184,7 @@
+     oid             newname[MAX_OID_LEN];
+     int             i, rtest, newlen;
+     static long     long_ret;
++    static in_addr_t addr_ret;
+     char            buf[SNMP_MAXBUF];
+     static char     buf2[SNMP_MAXBUF];
+     static oid      objid[MAX_OID_LEN];
+@@ -329,13 +330,13 @@
+                         *var_len = 0;
+                         return (NULL);
+                     }
+-                    long_ret =
++                    addr_ret =
+                         (objid[0] << (8 * 3)) + (objid[1] << (8 * 2)) +
+                         (objid[2] << 8) + objid[3];
+-                    long_ret = htonl(long_ret);
+-                    *var_len = sizeof(long_ret);
++                    addr_ret = htonl(addr_ret);
++                    *var_len = sizeof(addr_ret);
+                     vp->type = ASN_IPADDRESS;
+-                    return ((unsigned char *) &long_ret);
++                    return ((unsigned char *) &addr_ret);
+                 }
+             }
+             *var_len = 0;

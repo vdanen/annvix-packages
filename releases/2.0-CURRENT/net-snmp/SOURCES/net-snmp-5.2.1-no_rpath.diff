@@ -1,0 +1,13 @@
+--- aclocal.m4	2003-02-13 17:01:23.000000000 +0100
++++ aclocal.m4.oden	2005-06-03 19:18:29.624625400 +0200
+@@ -1612,8 +1612,8 @@
+   esac
+ 
+   if test "$ld_shlibs" = yes; then
+-    runpath_var=LD_RUN_PATH
+-    hardcode_libdir_flag_spec='${wl}--rpath ${wl}$libdir'
++    runpath_var=
++    hardcode_libdir_flag_spec=
+     export_dynamic_flag_spec='${wl}--export-dynamic'
+     case $host_os in
+     cygwin* | mingw* | pw32*)

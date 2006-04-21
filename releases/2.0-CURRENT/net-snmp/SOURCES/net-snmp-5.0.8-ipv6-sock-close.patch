@@ -1,0 +1,10 @@
+--- net-snmp-5.0.8/agent/mibgroup/mibII/ipv6.c.orig	2003-02-25 16:35:58.000000000 +0200
++++ net-snmp-5.0.8/agent/mibgroup/mibII/ipv6.c	2003-02-25 16:36:30.000000000 +0200
+@@ -1961,6 +1961,7 @@
+                 break;
+             }
+             long_return = (ifr.ifr_flags & flag) ? 1 : 2;
++            close(s);
+             return (u_char *) & long_return;
+         }
+     }

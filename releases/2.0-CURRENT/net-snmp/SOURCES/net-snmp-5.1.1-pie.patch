@@ -1,0 +1,22 @@
+--- net-snmp-5.1.1.rc1/apps/Makefile.in.pie	2004-03-09 17:51:28.000000000 +0200
++++ net-snmp-5.1.1.rc1/apps/Makefile.in	2004-03-17 21:27:41.251685488 +0200
+@@ -101,7 +101,7 @@
+ 	$(LINK) -o $@ snmptest.$(OSUFFIX) $(LOCAL_LIBS) ${LDFLAGS} ${LIBS} 
+ 
+ snmptrapd$(EXEEXT):    $(TRAPD_OBJECTS) $(USETRAPLIBS) $(INSTALLLIBS)
+-	$(LINK) -o $@ $(TRAPD_OBJECTS) $(INSTALLLIBS) $(LOCAL_LIBS) ${LDFLAGS} ${TRAPLIBS}
++	$(LINK) -o $@ -pie $(TRAPD_OBJECTS) $(INSTALLLIBS) $(LOCAL_LIBS) ${LDFLAGS} ${TRAPLIBS}
+ 
+ snmptrap$(EXEEXT):    snmptrap.$(OSUFFIX) $(USELIBS)
+ 	$(LINK) -o $@ snmptrap.$(OSUFFIX) $(LOCAL_LIBS) ${LDFLAGS} ${LIBS} 
+--- net-snmp-5.1.1.rc1/agent/Makefile.in.pie	2003-10-14 16:30:48.000000000 +0300
++++ net-snmp-5.1.1.rc1/agent/Makefile.in	2004-03-17 21:25:41.662096693 +0200
+@@ -116,7 +116,7 @@
+ 	$(CC) $(CFLAGS) -o $@ -D_GETMIBSTAT_TEST -DDODEBUG -c $? 
+ 
+ snmpd$(EXEEXT):	${LAGENTOBJS} $(USELIBS) $(HELPERLIB) $(LIBTARG) ${INSTALLLIBS}
+-	$(LINK) $(CFLAGS) -o $@ ${LAGENTOBJS} $(LOCAL_LIBS) ${LDFLAGS} ${OUR_AGENT_LIBS}
++	$(LINK) $(CFLAGS) -o $@ -pie ${LAGENTOBJS} $(LOCAL_LIBS) ${LDFLAGS} ${OUR_AGENT_LIBS}
+ 
+ 
+ libnetsnmpagent.$(LIB_EXTENSION)$(LIB_VERSION):    ${LLIBAGENTOBJS} libnetsnmpmibs.$(LIB_EXTENSION)$(LIB_VERSION)

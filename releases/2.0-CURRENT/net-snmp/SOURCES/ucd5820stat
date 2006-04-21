@@ -1,0 +1,2 @@
+#!/bin/sh -f
+[ -x /usr/bin/get5820stats ] && /usr/bin/get5820stats $@

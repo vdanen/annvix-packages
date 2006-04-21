@@ -1,0 +1,410 @@
+diff -r -U3 net-snmp-5.3.0.1/agent/mibgroup/ucd-snmp/lmSensors.c net-snmp-5.3.0.1.patch/agent/mibgroup/ucd-snmp/lmSensors.c
+--- net-snmp-5.3/agent/mibgroup/ucd-snmp/lmSensors.c	2005-02-16 13:48:42.000000000 -0800
++++ net-snmp-5.3.patch/agent/mibgroup/ucd-snmp/lmSensors.c	2006-01-26 14:04:00.674288389 -0800
+@@ -86,6 +86,10 @@
+ 
+ #include "lmSensors.h"
+ 
++#define TEMP_TYPE    (0)
++#define FAN_TYPE     (1)
++#define VOLT_TYPE    (2)
++#define MISC_TYPE    (3)
+ #define N_TYPES      (4)
+ 
+ #ifdef solaris2
+@@ -93,7 +97,7 @@
+     #define MAX_SENSORS  (256) /* there's a lot of sensors on a v880 */
+ #else
+     #define MAX_NAME     (64)
+-    #define MAX_SENSORS  (128)
++    #define DEFAULT_SENSORS  (256)
+ #endif
+ 
+ 
+@@ -173,16 +177,23 @@
+ 
+ typedef struct {
+     int             n;
++#ifdef solaris2
+     _sensor         sensor[MAX_SENSORS];
++#else
++    _sensor*        sensor;
++    size_t          current_len;
++#endif
+ } _sensor_array;
+ 
+ static _sensor_array sensor_array[N_TYPES];
+-static clock_t  timestamp;
++static time_t  timestamp;
+ 
+ static int      sensor_init(void);
+-static void     sensor_load(void);
+-static void     _sensor_load(clock_t t);
+-
++static int      sensor_load(void);
++static int     _sensor_load(time_t t);
++#ifndef solaris2
++static void     free_sensor_arrays(void);
++#endif
+ 
+ /*
+  * init_lmSensors():
+@@ -202,6 +213,20 @@
+ }
+ 
+ /*
++ * shutdown_lmSensors():
++ * A shutdown/cleanup routine.  This is called when the agent shutsdown.
++ */
++void
++shutdown_lmSensors(void)
++{
++    DEBUGMSG(("ucd-snmp/lmSensors", "=> shutdown_lmSensors\n"));
++#ifndef solaris2
++    free_sensor_arrays();
++#endif
++    DEBUGMSG(("ucd-snmp/lmSensors", "<= shutdown_lmSensors\n"));
++}
++
++/*
+  * var_lmSensorsTable():
+  *   Handle this table separately from the scalar value case.
+  *   The workings of this are basically the same as for var_lmSensors above.
+@@ -219,38 +244,44 @@
+     int             s_index;
+     int             s_type = -1;
+     int             n_sensors;
++    int             err = 0;
++    unsigned char* ret = NULL;
+ 
+     _sensor         s;
+ 
+-    sensor_load();
++    if (sensor_load())
++    {
++        ret = NULL;
++        goto leaving;
++    }
+ 
+     switch (vp->magic) {
+     case LMTEMPSENSORSINDEX:
+     case LMTEMPSENSORSDEVICE:
+     case LMTEMPSENSORSVALUE:
+-        s_type = 0;
+-        n_sensors = sensor_array[0].n;
++        s_type = TEMP_TYPE;
++        n_sensors = sensor_array[s_type].n;
+         break;
+ 
+     case LMFANSENSORSINDEX:
+     case LMFANSENSORSDEVICE:
+     case LMFANSENSORSVALUE:
+-        s_type = 1;
+-        n_sensors = sensor_array[1].n;
++        s_type = FAN_TYPE;
++        n_sensors = sensor_array[s_type].n;
+         break;
+ 
+     case LMVOLTSENSORSINDEX:
+     case LMVOLTSENSORSDEVICE:
+     case LMVOLTSENSORSVALUE:
+-        s_type = 2;
+-        n_sensors = sensor_array[2].n;
++        s_type = VOLT_TYPE;
++        n_sensors = sensor_array[s_type].n;
+         break;
+ 
+     case LMMISCSENSORSINDEX:
+     case LMMISCSENSORSDEVICE:
+     case LMMISCSENSORSVALUE:
+-        s_type = 3;
+-        n_sensors = sensor_array[3].n;
++        s_type = MISC_TYPE;
++        n_sensors = sensor_array[s_type].n;
+         break;
+ 
+     default:
+@@ -261,10 +292,16 @@
+     if (header_simple_table(vp, name, length, exact,
+                             var_len, write_method,
+                             n_sensors) == MATCH_FAILED)
+-        return NULL;
++    {
++        ret = NULL;
++        goto leaving;
++    }
+ 
+     if (s_type < 0)
+-        return NULL;
++    {
++        ret = NULL;
++        goto leaving;
++    }
+ 
+     s_index = name[*length - 1] - 1;
+     s = sensor_array[s_type].sensor[s_index];
+@@ -275,7 +312,8 @@
+     case LMVOLTSENSORSINDEX:
+     case LMMISCSENSORSINDEX:
+         long_ret = s_index;
+-        return (unsigned char *) &long_ret;
++        ret = (unsigned char *) &long_ret;
++        goto leaving;
+ 
+     case LMTEMPSENSORSDEVICE:
+     case LMFANSENSORSDEVICE:
+@@ -283,54 +321,79 @@
+     case LMMISCSENSORSDEVICE:
+         strncpy(string, s.name, SPRINT_MAX_LEN - 1);
+         *var_len = strlen(string);
+-        return (unsigned char *) string;
++        ret = (unsigned char *) string;
++        goto leaving;
+ 
+     case LMTEMPSENSORSVALUE:
+     case LMFANSENSORSVALUE:
+     case LMVOLTSENSORSVALUE:
+     case LMMISCSENSORSVALUE:
+         long_ret = s.value;
+-        return (unsigned char *) &long_ret;
++        ret = (unsigned char *) &long_ret;
++        goto leaving;
+ 
+     default:
+         ERROR_MSG("Unable to handle table request");
+     }
+ 
+-    return NULL;
++leaving:
++    return ret;
+ }
+ 
+ static int
+ sensor_init(void)
+ {
+-#ifndef solaris2
+     int             res;
++    DEBUGMSG(("ucd-snmp/lmSensors", "=> sensor_init\n"));
++#ifndef solaris2
+     char            filename[] = CONFIG_FILE_NAME;
+-    clock_t         t = clock();
+-    FILE           *fp = fopen(filename, "r");
++    time_t          t = time(NULL);
++    FILE            *fp = fopen(filename, "r");
++    int             i = 0;
++    DEBUGMSG(("ucd-snmp/lmSensors", "=> sensor_init\n"));
++  
++    for (i = 0; i < N_TYPES; i++)
++    {
++        sensor_array[i].n = 0;
++        sensor_array[i].current_len = 0;
++        sensor_array[i].sensor = NULL;
++    }
++
+     if (!fp)
+-        return 1;
++    {
++        res = 1;
++        goto leaving;
++    }
+ 
+-    if ((res = sensors_init(fp)))
+-        return 2;
++    if (sensors_init(fp))
++    {
++        res = 2;
++        goto leaving;
++    }
+ 
+     _sensor_load(t); /* I'll let the linux people decide whether they want to load right away */
+ #endif
+-    return 0;
++
++leaving:
++    DEBUGMSG(("ucd-snmp/lmSensors", "<= sensor_init\n"));
++    return res;
+ }
+ 
+-static void
++static int
+ sensor_load(void)
+ {
+-#ifdef solaris2
+-    clock_t         t = time(NULL);
+-#else
+-    clock_t	t = clock();
+-#endif
++    int rc = 0;
++    time_t	   t = time(NULL);
+ 
+-    if (t > timestamp + 6) /* this may require some tuning - currently 6 seconds*/
+-        _sensor_load(t);
++    if (t > timestamp + 7) /* this may require some tuning - currently 7 seconds*/
++    {
++#ifndef solaris2
++        free_sensor_arrays();
++#endif
++        rc = _sensor_load(t);
++    }
+ 
+-    return;
++    return rc;
+ }
+ 
+ /* This next code block includes all kstat and picld code for the Solaris platform.
+@@ -743,9 +806,8 @@
+ /* ******** end of picld sensor procedures * */
+ 
+ #endif /* solaris2 */
+-
+-static void
+-_sensor_load(clock_t t)
++static int
++_sensor_load(time_t t)
+ {
+ #ifdef solaris2
+     int i,j;
+@@ -758,6 +820,7 @@
+     envctrl_fan_t *fan_info;
+     envctrl_ps_t *power_info;
+     envctrl_encl_t *enc_info;
++    int rc = 0;
+ 
+ #ifdef HAVE_PICL_H
+     int er_code;
+@@ -943,19 +1006,34 @@
+ #endif
+ 
+ } /* end else kstat */
+-#else /* end solaris2 */
++#else /* end solaris2 only */
+ 
+     const sensors_chip_name *chip;
+     const sensors_feature_data *data;
+     int             chip_nr = 0;
++    int             rc = 0;
++    unsigned int    i = 0;
+ 
+-    int             i;
+     for (i = 0; i < N_TYPES; i++)
++    {
+         sensor_array[i].n = 0;
++        sensor_array[i].current_len = 0;
++
++        /* Malloc the default number of sensors. */
++        sensor_array[i].sensor = (_sensor*)malloc(sizeof(_sensor) * DEFAULT_SENSORS);
++        if (sensor_array[i].sensor == NULL)
++        {
++           /* Continuing would be unsafe */
++           snmp_log(LOG_ERR, "Cannot malloc sensor array!"); 
++           return (rc = 1);
++        }
++        sensor_array[i].current_len = DEFAULT_SENSORS;
++    }
+ 
+     while ((chip = sensors_get_detected_chips(&chip_nr))) {
+ 	int             a = 0;
+ 	int             b = 0;
++
+         while ((data = sensors_get_all_features(*chip, &a, &b))) {
+             char           *label = NULL;
+             double          val;
+@@ -968,28 +1046,49 @@
+                 float           mul;
+                 _sensor_array  *array;
+ 
++                /* The label, as determined for a given chip in sensors.conf,
++                 * is used to place each sensor in the appropriate bucket.
++                 * Volt, Fan, Temp, and Misc.  If the text being looked for below
++                 * is not in the label of a given sensor (e.g., the temp1 sensor
++                 * has been labeled 'CPU' and not 'CPU temp') it will end up being
++                 * lumped in the MISC bucket. */
+ 
+                 if (strstr(label, "V")) {
+-                    type = 2;
++                    type = VOLT_TYPE;
+                     mul = 1000.0;
+                 }
+                 if (strstr(label, "fan") || strstr(label, "Fan")) {
+-                    type = 1;
++                    type = FAN_TYPE;
+                     mul = 1.0;
+                 }
+                 if (strstr(label, "temp") || strstr(label, "Temp")) {
+-                    type = 0;
++                    type = TEMP_TYPE;
+                     mul = 1000.0;
+                 }
+                 if (type == -1) {
+-                    type = 3;
++                    type = MISC_TYPE;
+                     mul = 1000.0;
+                 }
+ 
+                 array = &sensor_array[type];
+-                if (MAX_SENSORS <= array->n) {
+-                    snmp_log(LOG_ERR, "too many sensors. ignoring %s\n", label);
+-                    break;
++                if ( array->current_len <= array->n) {
++                    _sensor* old_buffer = array->sensor;
++                    size_t new_size = (sizeof(_sensor) * array->current_len) + (sizeof(_sensor) * DEFAULT_SENSORS);
++                    array->sensor = (_sensor*)realloc(array->sensor, new_size);
++                    if (array->sensor == NULL)
++                    {
++                       /* Continuing would be unsafe */
++                       snmp_log(LOG_ERR, "too many sensors to fit, and failed to alloc more, failing on %s\n", label);
++                       free(old_buffer);
++                       old_buffer = NULL;
++                       if (label) {
++                           free(label);
++                           label = NULL;
++                       }
++                       return (rc=1);
++                    }
++                    array->current_len = new_size / sizeof(_sensor);
++                    DEBUGMSG(("ucd-snmp/lmSensors", "type #%d increased to %d elements\n", type, array->current_len));
+                 }
+                 strncpy(array->sensor[array->n].name, label, MAX_NAME);
+                 array->sensor[array->n].value = (int) (val * mul);
+@@ -1004,7 +1103,29 @@
+ 	    }
+         }
+     }
+-#endif /*else solaris2 */
++#endif
++    /* Update the timestamp after a load. */
+     timestamp = t;
++    return rc;
+ }
+ 
++#ifndef solaris2
++/* Free all the sensor arrays. */
++static void
++free_sensor_arrays()
++{
++   unsigned int i = 0;
++   DEBUGMSG(("ucd-snmp/lmSensors", "=> free_sensor_arrays\n"));
++   for (i = 0; i < N_TYPES; i++){
++       if (sensor_array[i].sensor != NULL)
++       {
++           free(sensor_array[i].sensor);
++           sensor_array[i].sensor = NULL;
++       }
++       /* For good measure, reset the other values. */
++       sensor_array[i].n = 0;
++       sensor_array[i].current_len = 0;
++   }
++   DEBUGMSG(("ucd-snmp/lmSensors", "<= free_sensor_arrays\n"));
++}
++#endif
+diff -r -U3 net-snmp-5.3.0.1/agent/mibgroup/ucd-snmp/lmSensors.h net-snmp-5.3.0.1.patch/agent/mibgroup/ucd-snmp/lmSensors.h
+--- net-snmp-5.3.0.1/agent/mibgroup/ucd-snmp/lmSensors.h	2003-04-02 06:31:47.000000000 -0800
++++ net-snmp-5.3.0.1.patch/agent/mibgroup/ucd-snmp/lmSensors.h	2006-01-26 12:21:39.000000000 -0800
+@@ -10,6 +10,7 @@
+ config_add_mib(LM-SENSORS-MIB)
+ 
+      void            init_lmSensors(void);
++     void            shutdown_lmSensors(void);
+      FindVarMethod   var_lmSensorsTable;
+ 
+ #endif                          /* _MIBGROUP_LMSENSORS_H */

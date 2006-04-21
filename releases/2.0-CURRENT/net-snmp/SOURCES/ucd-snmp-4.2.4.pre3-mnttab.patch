@@ -1,0 +1,19 @@
+--- ucd-snmp-4.2.4.pre3/configure.mnttab	Tue Apr  9 13:56:13 2002
++++ ucd-snmp-4.2.4.pre3/configure	Tue Apr  9 13:58:14 2002
+@@ -7148,15 +7148,7 @@
+ if eval "test \"`echo '$''{'ac_cv_ETC_MNTTAB'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+-  ac_cv_ETC_MNTTAB="unknown"
+-for i in /etc/mnttab /etc/mtab /etc/filesystems
+-  do
+-  if test -f $i; then
+-    ac_cv_ETC_MNTTAB="$i"
+-    break;
+-  fi
+-done
+-
++  ac_cv_ETC_MNTTAB="/etc/mtab"
+ fi
+ 
+ echo "$ac_t""$ac_cv_ETC_MNTTAB" 1>&6
