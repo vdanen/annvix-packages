@@ -7,7 +7,7 @@
 #
 # $Id$
 
-%define revision	$Rev: 3 $
+%define revision	$Rev$
 %define name		net-snmp
 %define version		5.3.0.1
 %define release		%_revrel
