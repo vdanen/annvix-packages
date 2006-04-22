@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		postfix
-%define version		2.2.5
+%define version		2.2.10
 %define release 	%_revrel
 %define epoch		1
 
@@ -71,7 +71,7 @@ Patch4:		postfix-2.1.1-fdr-pie.patch
 Patch5:		postfix-2.1.1-fdr-obsolete.patch
 Patch6:		postfix-2.2.4-mdk-saslpath.patch
 Patch8:		postfix-2.2.5-avx-warnsetsid.patch
-Patch9:	 	postfix-2.2.5-vda.patch
+Patch9:	 	postfix-2.2.10-vda.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	db4-devel, gawk, perl, sed, ed
@@ -424,6 +424,10 @@ fi
 
 
 %changelog
+* Thu Apr 20 2006 Ying-Hung Chen <ying-at-annvix.org> 2.2.10
+- 2.2.10
+- updated P9
+
 * Tue Feb 28 2006 Ying-Hung Chen <ying-at-annvix.org> 2.2.5
 - Added vda patch for quota support
 - build with MySQL support per default
