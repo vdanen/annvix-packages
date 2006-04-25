@@ -13,7 +13,7 @@
 %define release		%_revrel
 
 %define _provides_exceptions perl(MRTG_lib)\\|perl(locales_mrtg)\\|perl(stat.pl)\\|perl(find.pl)\\|perl(MRP::BaseClass)\\|%{_bindir}/ksh\\|%{_bindir}/expect
-%define _requires_exceptions perl(MRTG_lib)\\|perl(locales_mrtg)\\|perl(stat.pl)\\|perl(find.pl)\\|perl(MRP::BaseClass)\\|%{_bindir}/ksh\\|%{_bindir}/expect\\|pear(.*.inc.php)
+%define _requires_exceptions perl(MRTG_lib)\\|perl(locales_mrtg)\\|perl(stat.pl)\\|perl(find.pl)\\|perl(MRP::BaseClass)\\|%{_bindir}/ksh\\|%{_bindir}/expect\\|pear(.*.inc.php)\\|perl(Net::SNMP)
 
 Summary:	Multi Router Traffic Grapher
 Name:		%{name}
@@ -167,6 +167,10 @@ mv %{buildroot}%{_datadir}/doc/mrtg2 .
 
 
 %changelog
+* Tue Apr 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.13.2
+- exclude requires on Net::SNMP until we can bundle it and the dozen or so
+  modules it requires (only really required for SNMP v3 support)
+
 * Fri Apr 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.13.2
 - first Annvix build
 
