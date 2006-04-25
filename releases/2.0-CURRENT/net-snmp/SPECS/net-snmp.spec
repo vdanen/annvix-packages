@@ -59,9 +59,6 @@ Patch53:	net-snmp-5.3.0.1-no_perlinstall.diff
 Patch54:	net-snmp-5.3.0.1-avx-disable_test_T160.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-#%ifarch %{ix86} x86_64
-#BuildPrereq:	lm_sensors-devel
-#%endif
 BuildRequires:	autoconf2.5 >= 2.59, chrpath
 BuildRequires:	multiarch-utils >= 1.0.3
 BuildRequires:	openssl-devel, perl-devel, tcp_wrappers-devel
@@ -104,9 +101,6 @@ Provides:	%{name}-devel
 Provides:	libnet-snmp-devel
 Requires:	%{libname} = %{version}
 Requires:	tcp_wrappers-devel
-#%ifarch %{ix86} x86_64
-#Requires:	lm_sensors-devel
-#%endif
 
 %description -n	%{libname}-devel
 The %{libname}-devel package contains the development
@@ -243,13 +237,6 @@ export LDFLAGS="-L%{_libdir}"
     --with-sys-contact="root@localhost" \
     --with-default-snmp-version="3"
 
-
-# commented out lm_sensors stuff from configure command
-#%ifarch %{ix86} x86_64
-#    --with-mib-modules="host agentx smux ucd-snmp/lmSensors ucd-snmp/diskio" \
-#%else
-#    --with-mib-modules="host agentx smux" \
-#%endif
 
 make
 
@@ -478,6 +465,10 @@ file %{buildroot}%{_sbindir}/* | grep ELF | cut -d':' -f1 | xargs strip || :
 
 
 %changelog
+* Tue Apr 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.3.0.1
+- drop all lmsensors stuff since a) we don't ship it and b) apparently
+  it doesn't work too well anyways
+
 * Fri Apr 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.3.0.1
 - first Annvix build
 - comment out lm_sensors stuff
