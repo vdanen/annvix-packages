@@ -825,6 +825,9 @@ exit 0
 
 
 %changelog
+* Fri Apr 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.32
+- add CA07 to hopefully provide support for the VIA 8251 chipset
+
 * Fri Feb 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.32
 - re-introduce RSBAC (1.2.5.1) (SL60, SL61)
 - rediff Openwall patch to work with RSBAC and move it (now SL70)

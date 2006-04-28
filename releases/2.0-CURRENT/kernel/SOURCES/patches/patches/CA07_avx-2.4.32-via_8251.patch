@@ -1,0 +1,20 @@
+--- linux-2.4.32/drivers/ide/pci/via82cxxx.c.org	2006-04-28 12:09:00.000000000 -0600
++++ linux-2.4.32/drivers/ide/pci/via82cxxx.c	2006-04-28 12:10:16.000000000 -0600
+@@ -80,6 +80,7 @@
+ 	{ "vt8233c",	PCI_DEVICE_ID_VIA_8233C_0,  0x00, 0x2f, VIA_UDMA_100 },
+ 	{ "vt8233",	PCI_DEVICE_ID_VIA_8233_0,   0x00, 0x2f, VIA_UDMA_100 },
+ 	{ "vt8231",	PCI_DEVICE_ID_VIA_8231,     0x00, 0x2f, VIA_UDMA_100 },
++	{ "vt8251",     PCI_DEVICE_ID_VIA_8251,     0x00, 0x2f, VIA_UDMA_133 | VIA_BAD_AST },
+ 	{ "vt82c686b",	PCI_DEVICE_ID_VIA_82C686,   0x40, 0x4f, VIA_UDMA_100 },
+ 	{ "vt82c686a",	PCI_DEVICE_ID_VIA_82C686,   0x10, 0x2f, VIA_UDMA_66 },
+ 	{ "vt82c686",	PCI_DEVICE_ID_VIA_82C686,   0x00, 0x0f, VIA_UDMA_33 | VIA_BAD_CLK66 },
+--- linux-2.4.32/include/linux/pci_ids.h.org	2006-04-28 12:11:10.000000000 -0600
++++ linux-2.4.32/include/linux/pci_ids.h	2006-04-28 12:11:46.000000000 -0600
+@@ -1145,6 +1145,7 @@
+ #define PCI_DEVICE_ID_VIA_8377_0	0x3189
+ #define PCI_DEVICE_ID_VIA_K8T400M_0	0x3188
+ #define PCI_DEVICE_ID_VIA_8237		0x3227
++#define PCI_DEVICE_ID_VIA_8251		0x3287
+ #define PCI_DEVICE_ID_VIA_86C100A	0x6100
+ #define PCI_DEVICE_ID_VIA_8231		0x8231
+ #define PCI_DEVICE_ID_VIA_8231_4	0x8235
