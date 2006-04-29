@@ -10,7 +10,7 @@
 %define module		URPM
 %define revision	$Rev$
 %define name		perl-%{module}
-%define version 	1.28
+%define version 	1.40
 %define release 	%_revrel
 
 %define _require_exceptions perl(URPM::DB)\\|perl(URPM::Package)\\|perl(URPM::Transaction)
@@ -25,10 +25,10 @@ URL:		http://cvs.mandriva.com/cgi-bin/cvsweb.cgi/soft/perl-URPM
 Source:		%{module}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	perl-devel rpm-devel >= 4.0.3 bzip2-devel
+BuildRequires:	perl-devel, rpm-devel >= 4.0.3
 
-Requires:	rpm >= 4.2.3, bzip2 >= 1.0
-Requires:	rpmtools >= 5.0.0, perl-base >= 2:5.8.7
+Requires:	rpm >= 4.2.3
+Requires:	perl(MDV::Packdrakeng)
 Provides:	perl(URPM::Build) = %{version}-%{release}
 Provides:	perl(URPM::Resolve) = %{version}-%{release}
 Provides:	perl(URPM::Signature) = %{version}-%{release}
@@ -67,10 +67,14 @@ hdlist files and manage them in memory.
 
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Apr 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.40
+- 1.40
+- update requires
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.28
 - Clean rebuild
 
-* Tue Dec 27 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Dec 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.28
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
