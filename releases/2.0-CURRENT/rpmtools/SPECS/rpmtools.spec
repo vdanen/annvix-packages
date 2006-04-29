@@ -9,11 +9,8 @@
 
 %define revision	$Rev$
 %define name		rpmtools
-%define version		5.0.24
+%define version		5.0.28
 %define release 	%_revrel
-
-# perl-Compress-Zlib is only "suggested"
-%define _requires_exceptions perl(Compress::Zlib)
 
 Summary:	Contains various rpm command-line tools
 Name:		%{name}
@@ -25,9 +22,9 @@ URL:		http://cvs.mandriva.com/cgi-bin/cvsweb.cgi/soft/rpmtools
 Source0:	%{name}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	bzip2-devel gcc perl-devel rpm-devel >= 4.0.3 perl-Compress-Zlib
+BuildRequires:	perl-devel, rpm-devel >= 4.0.3, perl-Compress-Zlib, perl-MDV-Packdrakeng, perl-MDV-Distribconf
 
-Requires:	rpm >= 4.2.3 bzip2 >= 1.0 perl-URPM >= 0.50-2mdk
+Requires:	rpm >= 4.2.3 bzip2 >= 1.0
 Conflicts:	rpmtools-compat <= 2.0 rpmtools-devel <= 2.0
 Provides:	perl(packdrake)
 
@@ -40,7 +37,7 @@ Various tools needed by urpmi and drakxtools for handling rpm files.
 
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor
 %make OPTIMIZE="%{optflags}"
 %make test
 
@@ -66,15 +63,20 @@ Various tools needed by urpmi and drakxtools for handling rpm files.
 %{perl_vendorlib}/Distribconf*
 %{perl_vendorlib}/packdrake.pm
 %{perl_vendorlib}/Packdrakeng.pm
+%{perl_vendorlib}/Packdrakeng
 %{perl_vendorlib}/Packdrakeng/zlib.pm
 %{_mandir}/*/*
 
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Apr 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.0.28
+- 5.0.28
+- fix requires, including deps on new perl-MDV-{Packdrakeng,Distribconf} modules
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.0.24
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.0.24
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
