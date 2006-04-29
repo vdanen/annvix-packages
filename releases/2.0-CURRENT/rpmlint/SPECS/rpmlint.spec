@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		rpmlint
-%define version 	0.71
+%define version 	0.76
 %define release 	%_revrel
 
 Summary:	RPM correctness checker
@@ -18,16 +18,15 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		Development/Other
-URL:		http://people.mandriva.com/~flepied/projects/rpmlint/
-Source0:	%{name}-%{version}.tar.bz2
+URL:		http://rpmlint.zarb.org/
+Source0:	http://rpmlint.zarb.org/download/%{name}-%{version}.tar.bz2
 Source1:	rpmlint.annvix.config
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
-BuildRequires:	python >= 1.5.2, rpm-python >= 3.0.3-35mdk, make
+BuildRequires:	python, rpm-python
 
-Requires:	python >= 1.5.2, rpm-python >= 3.0.3-35mdk, binutils, file
-Requires:	findutils, cpio, gcc, grep, bash
+Requires:	python, rpm-python, binutils, gcc-cpp
 
 %description
 Rpmlint is a tool to check common errors on rpm packages.
@@ -47,6 +46,8 @@ make
 make install DESTDIR=%{buildroot}
 install -m 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/rpmlint/config
 
+rm -rf %{buildroot}%{_sysconfdir}/bash_completion.d
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -57,15 +58,22 @@ install -m 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/rpmlint/config
 %doc COPYING ChangeLog INSTALL README*
 %{_bindir}/*
 %{_datadir}/rpmlint
+%{_mandir}/man1/rpmlint.1*
 %dir %{_sysconfdir}/rpmlint
 %config(noreplace) %{_sysconfdir}/rpmlint/config
 
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Apr 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.76
+- 0.76
+- fix requires, buildrequires
+- adapt default config to include some of the mandriva exceptions
+- setup default policy of allowable group names
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.71
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.71
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
