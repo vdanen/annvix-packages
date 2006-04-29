@@ -5,9 +5,9 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-# $Id: perl-DB_File.spec 5113 2006-01-12 19:01:07Z vdanen $
+# $Id$
 
-%define revision	$Rev: 5113 $
+%define revision	$Rev$
 %define name		perl-%{module}
 %define module		MDV-Packdrakeng
 %define version		1.01
