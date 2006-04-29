@@ -65,6 +65,10 @@ rm -rf %{buildroot}%{_sysconfdir}/bash_completion.d
 
 %changelog
 * Fri Apr 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.76
+- update the config some more to make it a) cleaner and b) adapt
+  more to how we handle specs
+
+* Fri Apr 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.76
 - 0.76
 - fix requires, buildrequires
 - adapt default config to include some of the mandriva exceptions
