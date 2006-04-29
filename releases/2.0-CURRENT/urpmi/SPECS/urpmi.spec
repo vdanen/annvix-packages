@@ -9,14 +9,12 @@
 
 %define revision	$Rev$
 %define name		urpmi
-%define version		4.7.16
+%define version		4.8.19
 %define release 	%_revrel
 
-%{expand:%%define compat_perl_vendorlib %(perl -MConfig -e 'printf "%%s\n", "%{?perl_vendorlib:1}" ? "%%{perl_vendorlib}" : "$Config{installvendorlib}"')}
+%define compat_perl_vendorlib %(perl -MConfig -e 'print "%{?perl_vendorlib:1}" ? "%{perl_vendorlib}" : "$Config{installvendorlib}"')
 
-%define use_locale	1
 %define allow_karun	0
-%define buildreq_locale	perl-MDK-Common-devel
 
 Summary:	Command-line software installation tool
 Name:		%{name}
@@ -24,17 +22,19 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		System/Configuration/Packaging
-URL:		http://cvs.mandriva.com/cgi-bin/cvsweb.cgi/soft/urpmi
-Source0:	%{name}.tar.bz2
+URL:		http://search.cpan.org/dist/%{name}/
+Source0:	%{name}-%{version}.tar.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}
-BuildRequires:	%{buildreq_locale} bzip2-devel gettext
+BuildRequires:	bzip2-devel gettext, perl
+BuildRequires:	perl-File-Slurp, perl-URPM >= 1/36, perl-MDV-Packdrakeng, perl-Locale-gettext >= 1.01-15avx
+BuildRequires:	perl(Net::LDAP)
 BuildArch:	noarch
 
-Requires:	webfetch eject gnupg perl-URPM >= 1.22
+Requires:	webfetch eject gnupg perl-URPM >= 1.37
 Requires(pre):	perl-Locale-gettext >= 1.01-15avx
 Requires(pre):	rpmtools >= 5.0.2
-Requires(pre):	perl-URPM >= 1.22
+Requires(pre):	perl-URPM >= 1.37
 Conflicts:	curl < 7.13.0
 
 %description
@@ -52,19 +52,19 @@ remote sources such as web or FTP sites.
 %if %{allow_karun}
 %package -n urpmi-parallel-ka-run
 Summary:	Parallel extension to urpmi using ka-run
-Requires:	urpmi >= %{version}-%{release} ka-run >= 2.0-15mdk
 Group:		%{group}
+Requires:	urpmi >= %{version}-%{release}, parallel-tools
 
 %description -n urpmi-parallel-ka-run
 urpmi-parallel-ka-run is an extension module to urpmi for handling
-distributed installation using ka-run tools.
+distributed installation using ka-run or Taktuk tools.
 %endif
 
 
 %package -n urpmi-parallel-ssh
 Summary:	Parallel extension to urpmi using ssh and scp
-Requires:	urpmi >= %{version}-%{release} openssh-clients perl
 Group:		%{group}
+Requires:	urpmi >= %{version}-%{release} openssh-clients perl
 
 %description -n urpmi-parallel-ssh
 urpmi-parallel-ssh is an extension module to urpmi for handling
@@ -73,60 +73,65 @@ distributed installation using ssh and scp tools.
 
 %package -n urpmi-ldap
 Summary:	Extension to urpmi to specify media configuration via LDAP
+Group:		%{group}
 Requires:	urpmi >= %{version}-%{release}
 Requires:	openldap-clients
-Group:		%{group}
 
 %description -n urpmi-ldap
 urpmi-ldap is an extension module to urpmi to allow to specify
 urpmi configuration (notably media) in an LDAP directory.
 
 
+%package -n urpmi-recover
+Summary:	A tool to manage rpm repackaging and rollback
+Group:		%{group}
+Requires:	urpmi >= %{version}-%{release}
+Requires:	perl
+Requires:	perl-DateManip
+
+%description -n urpmi-recover
+urpmi-recover is a tool that enables to set up a policy to keep trace of all
+packages that are uninstalled or upgraded on an rpm-based system, and to
+perform rollbacks, that is, to revert the system back to a previous state.
+
+
 %prep
-%setup -q -n %{name}
+%setup -q
+
+
+%build
+perl Makefile.PL INSTALLDIRS=vendor \
+    --install-po
+make
+
+
+%check
+make test
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+%makeinstall_std
 
-%{__make} PREFIX=%{buildroot} MANDIR=%{buildroot}%{_mandir} install
+# rpm-find-leaves is invoked by this name in rpmdrake
+pushd %{buildroot}%{_bindir}
+    ln -s -f rpm-find-leaves urpmi_rpm-find-leaves
+popd
 
-# remove gurpmi
-rm -f %{buildroot}%{_sbindir}/gurpmi*
-rm -f %{buildroot}%{_bindir}/gurpmi*
+# Don't install READMEs twice
+rm -f %{buildroot}%{compat_perl_vendorlib}/urpm/README*
 
-for dir in partial headers rpms
-do
-    install -d %{buildroot}/var/cache/urpmi/$dir
-done
+# For ghost file
+mkdir -p %{buildroot}%{_sys_macros_dir}
+touch %{buildroot}%{_sys_macros_dir}/urpmi.recover.macros
 
-cat <<EOF >%{buildroot}%{_sysconfdir}/urpmi/inst.list
-# Here you can specify packages that need to be installed instead
-# of being upgraded.
-EOF
-
-mkdir -p %{buildroot}%{compat_perl_vendorlib}
-install -m 0644 urpm.pm %{buildroot}%{compat_perl_vendorlib}/urpm.pm
-mkdir -p %{buildroot}%{compat_perl_vendorlib}/urpm
-
-for p in args cfg download msg sys util parallel_ka_run parallel_ssh prompt ldap
-do
-    install -m 0644 urpm/$p.pm %{buildroot}%{compat_perl_vendorlib}/urpm/$p.pm
-done
-
-mkdir -p %{buildroot}%{_mandir}/man3
-pod2man urpm.pm >%{buildroot}%{_mandir}/man3/urpm.3
-
-mv -f %{buildroot}%{_bindir}/rpm-find-leaves %{buildroot}%{_bindir}/urpmi_rpm-find-leaves
-
-# logrotate
-install -d -m 0755 %{buildroot}%{_sysconfdir}/logrotate.d
-install -m 0644 %{name}.logrotate %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
 
 %if ! %{allow_karun}
 rm -f %{buildroot}%{compat_perl_vendorlib}/urpm/parallel_ka_run.pm
 %endif
 
+# remove invalid locale
+rm -rf %{buildroot}%{_datadir}/locale/fur
 
 %find_lang %{name}
 
@@ -164,26 +169,28 @@ if (-e "/etc/urpmi/urpmi.cfg") {
 %dir /var/cache/urpmi/rpms
 %config(noreplace) %{_sysconfdir}/urpmi/skip.list
 %config(noreplace) %{_sysconfdir}/urpmi/inst.list
-%config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
+%{_bindir}/rpm-find-leaves
 %{_bindir}/urpmi_rpm-find-leaves
 %{_bindir}/urpmf
 %{_bindir}/urpmq
 %{_sbindir}/urpmi
 %{_sbindir}/rurpmi
 %{_sbindir}/urpme
-%{_sbindir}/urpmi.*
-%{_mandir}/man?/urpm*
-%{_mandir}/man?/rurpmi*
-%{_mandir}/man?/proxy*
-# find_lang isn't able to find man pages yet...
-%lang(cs) %{_mandir}/cs/man?/urpm* 
-%lang(et) %{_mandir}/et/man?/urpm* 
-%lang(eu) %{_mandir}/eu/man?/urpm* 
-%lang(fi) %{_mandir}/fi/man?/urpm* 
-%lang(fr) %{_mandir}/fr/man?/urpm* 
-%lang(nl) %{_mandir}/nl/man?/urpm* 
-%lang(ru) %{_mandir}/ru/man?/urpm* 
-%lang(uk) %{_mandir}/uk/man?/urpm*
+%{_sbindir}/urpmi.addmedia
+%{_sbindir}/urpmi.removemedia
+%{_sbindir}/urpmi.update
+%{_mandir}/man3/urpm*
+%{_mandir}/man5/urpm*
+%{_mandir}/man5/proxy*
+%{_mandir}/man8/rurpmi*
+%{_mandir}/man8/urpme*
+%{_mandir}/man8/urpmf*
+%{_mandir}/man8/urpmq*
+%{_mandir}/man8/urpmi.8*
+%{_mandir}/man8/urpmi.addmedia*
+%{_mandir}/man8/urpmi.removemedia*
+%{_mandir}/man8/urpmi.update*
+%lang(fr) %{_mandir}/fr/man?/urpm*
 %{compat_perl_vendorlib}/urpm.pm
 %dir %{compat_perl_vendorlib}/urpm 
 %{compat_perl_vendorlib}/urpm/args.pm
@@ -210,12 +217,23 @@ if (-e "/etc/urpmi/urpmi.cfg") {
 %doc urpmi.schema
 %{compat_perl_vendorlib}/urpm/ldap.pm
 
+%files -n urpmi-recover
+%{_sbindir}/urpmi.recover
+%{_mandir}/man8/urpmi.recover*
+%config(noreplace) %{_sys_macros_dir}/urpmi.recover.macros
+%ghost %{_sys_macros_dir}/urpmi.recover.macros
+
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Apr 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.8.19
+- 4.8.19
+- add the urpmi-recover package
+- remove the "fur" locale
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.7.16
 - Clean rebuild
 
-* Tue Dec 27 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Dec 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.7.16
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
