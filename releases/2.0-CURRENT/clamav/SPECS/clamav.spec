@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		clamav
-%define version		0.88.1
+%define version		0.88.2
 %define release		%_revrel
 
 %define	major		1
@@ -274,6 +274,9 @@ done
 
       
 %changelog
+* Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.88.2
+- 0.88.2: fixes CVE-2006-1989
+
 * Tue Apr 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.88.1
 - 0.88.1: fixes CVE-2006-1614, CVE-2006-1615, CVE-2006-1630
 - rediff P1
