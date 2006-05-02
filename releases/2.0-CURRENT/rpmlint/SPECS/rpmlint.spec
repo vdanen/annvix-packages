@@ -64,6 +64,9 @@ rm -rf %{buildroot}%{_sysconfdir}/bash_completion.d
 
 
 %changelog
+* Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.76
+- adjust the default groups some more
+
 * Fri Apr 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.76
 - update the config some more to make it a) cleaner and b) adapt
   more to how we handle specs
