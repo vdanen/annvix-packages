@@ -10,7 +10,7 @@
 %define module		URPM
 %define revision	$Rev$
 %define name		perl-%{module}
-%define version 	1.40
+%define version 	1.41
 %define release 	%_revrel
 
 %define _require_exceptions perl(URPM::DB)\\|perl(URPM::Package)\\|perl(URPM::Transaction)
@@ -67,6 +67,9 @@ hdlist files and manage them in memory.
 
 
 %changelog
+* Tue May 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.41
+- 1.41
+
 * Fri Apr 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.40
 - 1.40
 - update requires
