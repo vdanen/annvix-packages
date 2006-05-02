@@ -20,7 +20,7 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	LGPL
-Group:		System/Configuration/Other
+Group:		System/Configuration
 URL:		http://qa.mandriva.com
 Source:		libuser-%{version}.tar.bz2
 Patch1:	libuser-0.53.2-nosgml.patch	
@@ -162,10 +162,13 @@ rm -rf %{buildroot}%{_libdir}/python%{pyver}/site-packages/*a
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.53.2
+- fix group
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.53.2
 - Clean rebuild
 
-* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.53.2
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 

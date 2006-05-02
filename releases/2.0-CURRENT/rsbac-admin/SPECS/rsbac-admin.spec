@@ -28,7 +28,7 @@ Name: 		%{name}
 Version:	%{version}
 Release: 	%{release}
 License: 	GPL
-Group: 		System/Configuration/Other
+Group: 		System/Configuration
 URL: 		http://www.rsbac.org/
 Source0: 	http://www.rsbac.org/download/code/%{version}/%{name}-%{version}.tar.bz2
 Source1:	rsbac.conf
@@ -48,7 +48,7 @@ or the %{name}-doc package.
 
 %package doc
 Summary:	RSBAC administration documentation
-Group:		System/Configuration/Other
+Group:		System/Configuration
 
 %description -n %{name}-doc
 RSBAC administration documentation.
@@ -194,6 +194,9 @@ mkdir -p %{buildroot}/var/lib/rsbac/tmp
 
 
 %changelog
+* Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.5
+- fix group
+
 * Fri Feb 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.5
 - 1.2.5
 - some spec changes to accomodate the new way rsbac is built

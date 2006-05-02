@@ -17,7 +17,7 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
-Group:		System/Configuration/Other
+Group:		System/Configuration
 URL:		http://www.rootkit.nl/projects/rootkit_hunter.html
 Source0:	http://downloads.rootkit.nl/%{name}-%{version}.tar.gz
 Patch0:		rkhunter-1.2.7-avx-conf.patch
@@ -88,6 +88,9 @@ rm -rf %{buildroot}/lib/%{name}/docs
 
 
 %changelog
+* Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.7
+- fix group
+
 * Wed Feb 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.7
 - re-order patches and break out the config stuff vs. the curl stuff
   and update the config to support 1.2-RELEASE

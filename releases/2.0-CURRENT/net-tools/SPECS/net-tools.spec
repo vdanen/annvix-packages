@@ -19,7 +19,7 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
-Group:		System/Configuration/Networking
+Group:		System/Configuration
 URL:		http://www.tazenda.demon.co.uk/phil/net-tools/
 Source0:	http://www.tazenda.demon.co.uk/phil/net-tools//net-tools-%{version}.tar.bz2
 Source1:	netplug-%{npversion}.tar.bz2
@@ -209,10 +209,13 @@ rm -rf %{buildroot}%{_mandir}/{de,fr,pt}*
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.60
+- fix group
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.60
 - Clean rebuild
 
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.60
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - drop P0; unwanted

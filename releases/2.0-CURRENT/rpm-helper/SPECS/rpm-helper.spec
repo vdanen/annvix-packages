@@ -17,7 +17,7 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
-Group:		System/Configuration/Packaging
+Group:		System/Configuration
 URL:		http://www.mandrivalinux.com/
 Source0:	%{name}-%{version}.tar.bz2
 Patch0:		rpm-helper-0.14-avx-srv.patch
@@ -63,10 +63,13 @@ chmod 0755 {add,del}-srv mkdepends
 
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.14
+- fix group
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.14
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.14
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 

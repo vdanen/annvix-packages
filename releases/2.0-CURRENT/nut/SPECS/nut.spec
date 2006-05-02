@@ -19,7 +19,7 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
-Group:		System/Configuration/Hardware
+Group:		System/Configuration
 URL:		http://random.networkupstools.org
 Source0:	%{name}-%{version}.tar.bz2
 Source1:	upsd.run
@@ -268,6 +268,9 @@ cp -af data/driver.list docs/
 
 
 %changelog
+* Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.1
+- fix group
+
 * Tue Jan 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.1
 - first Annvix build
 - change statepath from /var/state/ups to /var/run/ups (makes more sense as

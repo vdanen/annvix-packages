@@ -211,7 +211,7 @@ This package contains command-line ldap clients (ldapsearch, ldapadd etc).
 
 %package migration
 Summary: 	Set of scripts for migration of a nis domain to a ldap directory
-Group: 		System/Configuration/Other
+Group: 		System/Configuration
 Requires: 	%{name}-servers = %{version}-%{release}
 Requires: 	%{name}-clients = %{version}-%{release}
 Requires: 	perl-MIME-Base64
@@ -853,6 +853,9 @@ fi
 
 
 %changelog
+* Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.9
+- fix group
+
 * Mon Feb 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.9
 - fix requires
 

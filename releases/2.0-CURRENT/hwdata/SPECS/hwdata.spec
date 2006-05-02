@@ -17,7 +17,7 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL/MIT
-Group:		System Environment/Base
+Group:		System/Base
 Source: 	hwdata-%{version}.tar.gz
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -54,10 +54,13 @@ rm -rf %{buildroot}%{_sysconfdir}/{hotplug,pcmcia}
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.152
+- fix group
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.152
 - Clean rebuild
 
-* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.152
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 

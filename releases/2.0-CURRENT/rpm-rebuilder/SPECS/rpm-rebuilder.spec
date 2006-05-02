@@ -17,7 +17,7 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
-Group:		System/Configuration/Packaging
+Group:		System/Configuration
 URL:		http://www.mandrivalinux.com/
 Source0:	%{name}-%{version}.tar.bz2
 
@@ -70,10 +70,13 @@ rm -rf %{buildroot}%{_sysconfdir}/bash_completion.d
 
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.25
+- fix group
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.25
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.25
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 

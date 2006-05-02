@@ -17,7 +17,7 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
-Group:		System/Configuration/Other
+Group:		System/Configuration
 Source0:	timeconfig-%{version}.tar.bz2
 Patch0:		timeconfig-gmt.patch
 Patch1:		timeconfig-mdkconf.patch
@@ -84,10 +84,13 @@ fi
 %{_mandir}/man*/*
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.2
+- fix group
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.2
 - Clean rebuild
 
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.2
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - fix prereq

@@ -20,7 +20,7 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 URL:		http://annvix.org/
-Group:		System/Configuration/Other
+Group:		System/Configuration
 Source0:	%{name}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -76,6 +76,9 @@ builder ALL = NOPASSWD: /usr/sbin/urpmi.addmedia, /usr/sbin/urpmi.update, /usr/s
 
 
 %changelog
+* Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2
+- fix group
+
 * Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2
 - if the urpmi media ports doesn't exist when building the first package,
   prompt the user to set it up first

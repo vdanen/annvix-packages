@@ -17,7 +17,7 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	Public Domain
-Group:		System/Configuration/Other
+Group:		System/Configuration
 URL:		http://annvix.org/cgi-bin/viewcvs.cgi/tools/setup
 Source:		setup-%{version}.tar.bz2
 
@@ -102,6 +102,9 @@ fi
 
 
 %changelog
+* Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5
+- fix group
+
 * Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5
 - make /var/lib/rsbac owned by rsbadmin:rsbadmin and mode 0700
 

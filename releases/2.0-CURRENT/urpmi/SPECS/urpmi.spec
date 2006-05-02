@@ -21,7 +21,7 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
-Group:		System/Configuration/Packaging
+Group:		System/Configuration
 URL:		http://search.cpan.org/dist/%{name}/
 Source0:	%{name}-%{version}.tar.bz2
 
@@ -225,6 +225,9 @@ if (-e "/etc/urpmi/urpmi.cfg") {
 
 
 %changelog
+* Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.8.19
+- fix group
+
 * Fri Apr 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.8.19
 - 4.8.19
 - add the urpmi-recover package

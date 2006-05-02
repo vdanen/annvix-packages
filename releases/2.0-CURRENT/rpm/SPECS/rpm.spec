@@ -68,7 +68,7 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
-Group:		System/Configuration/Packaging
+Group:		System/Configuration
 URL:            http://www.rpm.org/
 Source:		ftp://ftp.jbj.org/pub/rpm-%{libver}.x/rpm-%{srcver}.tar.bz2
 # Add some undocumented feature to gendiff
@@ -198,7 +198,7 @@ will manipulate RPM packages and databases.
 
 %package build
 Summary:	Scripts and executable programs used to build packages
-Group:		System/Configuration/Packaging
+Group:		System/Configuration
 Requires:	autoconf
 Requires:	automake
 Requires:	file
@@ -713,6 +713,9 @@ fi
 
 
 %changelog
+* Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.2
+- fix group
+
 * Wed Feb  1 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.2
 - fix a stupid typeo in the %%postuninstall scriptlet of librpm4.4
   that would make it try to execute "***" via ldconfig and would thus

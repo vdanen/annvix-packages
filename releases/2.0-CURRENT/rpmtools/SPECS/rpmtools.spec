@@ -17,7 +17,7 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
-Group:		System/Configuration/Packaging
+Group:		System/Configuration
 URL:		http://cvs.mandriva.com/cgi-bin/cvsweb.cgi/soft/rpmtools
 Source0:	%{name}-%{version}.tar.bz2
 
@@ -69,6 +69,9 @@ perl Makefile.PL INSTALLDIRS=vendor
 
 
 %changelog
+* Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.0.28
+- fix group
+
 * Fri Apr 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.0.28
 - 5.0.28
 - fix requires, including deps on new perl-MDV-{Packdrakeng,Distribconf} modules

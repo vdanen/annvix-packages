@@ -22,7 +22,7 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	LGPL
-Group:		System Environment/Libraries
+Group:		System/Libraries
 URL:		http://beecrypt.virtualunlimited.com/
 Source0:	http://prdownloads.sourceforge.net/beecrypt/%{name}-3.1.0.tar.bz2
 Patch0:		beecrypt-3.1.0-rh.patch
@@ -127,10 +127,13 @@ rm -f %{buildroot}%{_libdir}/python%{with_python_version}/site-packages/_bc.*a
 %{_libdir}/python%{with_python_version}/site-packages/_bc.so
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.1.0
+- fix group
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.1.0
 - Clean rebuild
 
-* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.1.0
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 

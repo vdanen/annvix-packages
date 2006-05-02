@@ -17,7 +17,7 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
-Group:		System/Configuration/Boot and Init
+Group:		System/Configuration
 URL:		ftp://ftp.redhat.com/pub/redhat/code/chkconfig/
 Source:		ftp://ftp.redhat.com/pub/redhat/code/chkconfig/chkconfig-%{version}.tar.bz2
 Patch1:		ntsysv-mdkconf.patch
@@ -44,7 +44,7 @@ of the drudgery of manually editing the symbolic links.
 
 %package -n ntsysv
 Summary:	A system tool for maintaining the /etc/rc*.d hierarchy
-Group:		System/Configuration/Boot and Init
+Group:		System/Configuration
 Requires:	chkconfig
 
 %description -n ntsysv
@@ -118,10 +118,13 @@ rm -f %{buildroot}%{_sbindir}/{alternatives,update-alternatives} %{buildroot}%{_
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.20
+- fix group
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.20
 - Clean rebuild
 
-* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.20
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 

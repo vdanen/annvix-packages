@@ -17,7 +17,7 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	Public Domain
-Group:		System/XFree86
+Group:		System/X11
 URL:		http://www.mandrakelinux.com/
 # get the source from our cvs repository (see
 # http://www.linuxmandrake.com/en/cvs.php3)
@@ -64,10 +64,13 @@ make install R=%{buildroot}/
 
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.4
+- fix group
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.4
 - Clean rebuild
 
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.4
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 

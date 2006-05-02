@@ -17,7 +17,7 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	Public Domain
-Group:		System/Configuration/Other
+Group:		System/Configuration
 URL:		http://pax.grsecurity.net/
 Source0:	%{name}-%{version}.tar.bz2
 Patch0:		chpax-0.7-autotools.patch
@@ -64,10 +64,13 @@ automake-1.7 --foreign -a
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.7
+- fix group
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.7
 - Clean rebuild
 
-* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.7
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - fix perms on README

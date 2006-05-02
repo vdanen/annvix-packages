@@ -22,7 +22,7 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 URL:		http://annvix.org/
-Group:		System/Configuration/Other
+Group:		System/Configuration
 Source0:	CREDITS
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
@@ -69,6 +69,9 @@ EOF
 
 
 %changelog
+* Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2
+- fix group
+
 * Wed Feb 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2
 - 1.2-RELEASE (Cerberus)
 

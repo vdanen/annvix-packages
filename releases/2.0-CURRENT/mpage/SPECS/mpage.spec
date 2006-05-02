@@ -17,7 +17,7 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	BSD
-Group:		System/Configuration/Printing
+Group:		System/Configuration
 URL:		http://www.mesa.nl/pub/mpage
 Source:		http://www.mesa.nl/pub/mpage/%{name}-%{version}.tar.bz2
 Patch0:		mpage-2.5.4-config.patch
@@ -72,10 +72,13 @@ pages.
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5.4
+- fix group
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5.4
 - Clean rebuild
 
-* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5.4
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 

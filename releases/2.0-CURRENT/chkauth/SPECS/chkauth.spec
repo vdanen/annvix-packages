@@ -17,7 +17,7 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
-Group:		System/Configuration/Boot and Init
+Group:		System/Configuration
 Source0:	%{name}-%{version}.tar.bz2
 Patch0:		chkauth-0.3-avx-misc_fixes.patch
 
@@ -62,10 +62,13 @@ install -m 0644 chkauth.8 %{buildroot}/%{_mandir}/man8/
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.3
+- fix group
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.3
 - Clean rebuild
 
-* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.3
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 

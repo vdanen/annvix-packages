@@ -19,7 +19,7 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
-Group:		System/Configuration/Packaging
+Group:		System/Configuration
 URL:		http://cvs.mandriva.com/cgi-bin/cvsweb.cgi/soft/update-alternatives/
 Source0:	%{name}-%{version}.tar.bz2
 
@@ -59,10 +59,13 @@ install -d -m 755 %{buildroot}%{_localstatedir}/rpm/alternatives
 
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.8.3
+- fix group
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.8.3
 - Clean rebuild
 
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.8.3
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 

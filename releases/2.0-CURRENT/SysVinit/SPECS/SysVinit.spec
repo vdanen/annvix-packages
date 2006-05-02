@@ -17,7 +17,7 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
-Group:		System/Configuration/Boot and Init
+Group:		System/Configuration
 URL:		ftp://ftp.cistron.nl/pub/people/miquels/software
 Source:		ftp://ftp.cistron.nl/pub/people/miquels/software/sysvinit-%{version}.tar.bz2
 Source1:	reboot.avx
@@ -138,6 +138,9 @@ exit 0
 
 
 %changelog
+* Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.86
+- fix group
+
 * Wed Feb  1 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.86
 - P14: silence the failure to communicate with init through /dev/initctl
 

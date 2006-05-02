@@ -19,7 +19,7 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
-Group:		System/Configuration/Packaging
+Group:		System/Configuration
 URL:		http://annvix.org/cgi-bin/viewcvs.cgi/tools/rpm-setup/
 Source0:	%{name}-%{version}.tar.bz2
 
@@ -31,7 +31,7 @@ The Annvix rpm configuration and scripts
 
 %package build
 Summary:	The Annvix rpm configuration and scripts to build rpms
-Group:		System/Configuration/Packaging
+Group:		System/Configuration
 Requires:	spec-helper >= 0.6-5mdk
 Requires:	multiarch-utils >= 1.0.3
 Requires:	%{name} = %{version}-%{release}
@@ -81,7 +81,10 @@ mkdir -p %{buildroot}%{_sysconfdir}/rpm/macros.d
 
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.5
+- fix group
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.5
 - Clean rebuild
 
 * Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.5-5110avx

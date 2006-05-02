@@ -156,7 +156,7 @@ devices and files for paging and swapping.
 
 %package -n losetup
 Summary:	Programs for setting up and configuring loopback devices
-Group:		System/Configuration/Networking
+Group:		System/Configuration
 
 %description -n losetup
 Linux supports a special block device called the loop device, which
@@ -599,18 +599,21 @@ fi
 
 
 %changelog
-* Wed Jan 25 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.12r
+- fix group
+
+* Wed Jan 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.12r
 - 2.12r
 - drop P1252; merged upstream
 - P1211: don't fail in "swapon -a" when using labels and -e option (blino)
 
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.12q
 - Clean rebuild
 
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.12q
 - Clean rebuild
 
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.12q
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - drop unapplied P1251 (sln builds fine with SSP anyways)

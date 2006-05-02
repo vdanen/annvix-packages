@@ -17,7 +17,7 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	BSD
-Group:		System/Configuration/Other
+Group:		System/Configuration
 URL:		http://sourceforge.net/projects/linuxquota
 Source:		http://prdownloads.sourceforge.net/linuxquota/%{name}-%{version}.tar.bz2
 Patch0:		quota-tools-man-pages-path.patch
@@ -90,10 +90,13 @@ chmod 0755 %{buildroot}%{_bindir}/*
 
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.13
+- fix group
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.13
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.13
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
