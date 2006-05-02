@@ -9,11 +9,11 @@
 
 %define revision	$Rev$
 %define name		annvix-release
-%define version		1.2
+%define version		2.0
 %define release		%_revrel
 
-%define distrib		Cerberus
-%define realversion 	1.2-RELEASE
+%define distrib		Artemis
+%define realversion 	2.0-CURRENT
 %define macrofile	%build_sysmacrospath
 
 Summary:	Annvix release file
@@ -69,6 +69,9 @@ EOF
 
 
 %changelog
+* Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
+- 2.0-CURRENT (Artemis)
+
 * Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2
 - fix group
 
