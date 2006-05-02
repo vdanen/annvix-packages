@@ -27,7 +27,7 @@ Source0:	%{name}-%{version}.tar.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}
 BuildRequires:	bzip2-devel gettext, perl
-BuildRequires:	perl-File-Slurp, perl-URPM >= 1/36, perl-MDV-Packdrakeng, perl-Locale-gettext >= 1.01-15avx
+BuildRequires:	perl-File-Slurp, perl-URPM >= 1.36, perl-MDV-Packdrakeng, perl-Locale-gettext >= 1.01-15avx
 BuildRequires:	perl(Net::LDAP)
 BuildArch:	noarch
 
@@ -225,6 +225,9 @@ if (-e "/etc/urpmi/urpmi.cfg") {
 
 
 %changelog
+* Tue May 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.8.19
+- fix typeo on buildreq
+
 * Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.8.19
 - fix group
 
