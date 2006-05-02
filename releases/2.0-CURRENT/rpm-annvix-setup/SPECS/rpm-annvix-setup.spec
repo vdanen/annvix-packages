@@ -7,11 +7,11 @@
 #
 # $Id$
 #
-# mdk 1.5-1mdk
+# mdk 1.18-1mdk
 
 %define revision	$Rev$
 %define name		rpm-annvix-setup
-%define version		1.5
+%define version		1.18
 %define release		%_revrel
 
 Summary:	The Annvix rpm configuration and scripts
@@ -26,7 +26,7 @@ Source0:	%{name}-%{version}.tar.bz2
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 %description
-The Annvix rpm configuration and scripts
+The Annvix rpm configuration and scripts.
 
 
 %package build
@@ -81,6 +81,29 @@ mkdir -p %{buildroot}%{_sysconfdir}/rpm/macros.d
 
 
 %changelog
+* Tue May 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.18
+- sync with mandriva 1.18:
+  - find-requires: require only .so that are in standard paths, and use ldd
+    instead of objdump to get their list (rafael)
+  - don't search perl files for provides if they don't end with .pm (rafael)
+  - fix rename macro (don't obsolete what is provided) (Ze)
+  - fix automatic deps for some devel packages (guillaume rousse)
+  - set _repackage_all_erasures to 0 (rgs)
+  - add a way to disable fortify from cflags (nanardon)
+  - add a macro to list all sparc-compatible archs (per ayvind karlsen)
+  - remove pre flags on python requirements (helio)
+  - remove /etc/rpm/macros.* from macros search path (nanardon)
+  - add %%py_platlibdir and %%py_purelibdir (misc)
+  - set changelog_truncate to "3 years ago" (rafael)
+  - restore _query_all_fmt to it's default 4.4.2 value (rafael)
+  - add _rpmlock_path to default macros (rafael)
+  - ignore perl version requires (rafael)
+  - get the correct perl dependencies from "use base" (rafael)
+  - insert a dependency on libperl.so for XS perl modules (rafael)
+  - fix %%py_libdir for lib64 platforms (gbeauchesne)
+  - perl.req: add the proper detection of 'use base qw(Foo::Bar)' construct
+    (michael scherer)
+
 * Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.5
 - fix group
 
