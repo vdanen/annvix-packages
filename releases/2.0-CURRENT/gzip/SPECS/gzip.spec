@@ -17,7 +17,7 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
-Group:		Archiving/Compression
+Group:		Archiving
 URL:		http://www.gzip.org/
 Source:		ftp://ftp.gnu.org/pub/gnu/gzip/gzip-1.2.4a.tar.bz2
 Patch:		gzip-1.2.4-basename.patch
@@ -124,6 +124,9 @@ chmod 0755 %{buildroot}%{_bindir}/zless
 
 
 %changelog
+* Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.4a
+- fix group
+
 * Mon Jan 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.4a
 - update P13 to have a more comprehensive fix for CVE-2005-0758
 

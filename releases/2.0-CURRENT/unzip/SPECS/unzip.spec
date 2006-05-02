@@ -18,7 +18,7 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	BSD-like
-Group:		Archiving/Compression
+Group:		Archiving
 URL:		http://www.info-zip.org/pub/infozip/UnZip.html
 Source0:	ftp://ftp.icce.rug.nl/infozip/src/%{name}%{src_ver}.tar.bz2
 Patch1:		unzip542-size-64bit.patch
@@ -90,6 +90,9 @@ EOF
 
 
 %changelog
+* Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.52
+- fix group
+
 * Sat Mar 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.52
 - P3: security fix for CVE-2005-4667
 

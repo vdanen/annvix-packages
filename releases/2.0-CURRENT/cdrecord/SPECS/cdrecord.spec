@@ -25,7 +25,7 @@ Version:	%{version}
 Release:	%{release}
 Epoch:		%{epoch}
 License:	GPL
-Group:		Archiving/Cd burning
+Group:		Archiving
 URL:		http://cdrecord.berlios.de/old/private/cdrecord.html
 Source:		ftp://ftp.berlios.de/pub/cdrecord/%{archname}-%{version}.tar.bz2
 Patch0:		cdrecord-2.01-CAN-2004-0806.patch
@@ -167,10 +167,13 @@ mv %{buildroot}%{_prefix}/lib %{buildroot}%{_libdir}/
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.01.01a03
+- fix group
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.01.01a03
 - Clean rebuild
 
-* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.01.01a03
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - remove unneeded prereq on rpm-helper

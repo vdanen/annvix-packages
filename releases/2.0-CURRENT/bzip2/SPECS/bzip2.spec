@@ -20,7 +20,7 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	BSD
-Group:		Archiving/Compression
+Group:		Archiving
 URL:		http://www.bzip.org/
 Source:		http://www.bzip.org/1.0.3/%{name}-%{version}.tar.gz
 Source2:	bzme
@@ -135,6 +135,9 @@ install -m 0644 bzlib_private.h %{buildroot}%{_includedir}/
 
 
 %changelog
+* Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.3
+- fix group
+
 * Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.3
 - P4: security fix for CVE-2005-0758 (bzgrep)
 - drop S1; use the bundled bzgrep instead and install the manpage
