@@ -233,7 +233,7 @@ doing).
 Summary:	Various documentation bits found in the kernel source
 Version:	%{version}
 Release:	%{release}
-Group:		Books/Computer books
+Group:		Documentation
 
 %description -n %{kname}-doc
 This package contains documentation files form the kernel source. Various
@@ -825,6 +825,9 @@ exit 0
 
 
 %changelog
+* Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.32
+- fix group
+
 * Fri Apr 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.32
 - add CA07 to hopefully provide support for the VIA 8251 chipset
 

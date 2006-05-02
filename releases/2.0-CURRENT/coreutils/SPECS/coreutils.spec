@@ -111,7 +111,7 @@ The following tools are included:
 
 %package doc
 Summary:	Coreutils documentation in info format
-Group:		Books/Computer books
+Group:		Documentation
 Requires:	coreutils >= 4.5.4-2mdk
 Prereq:		info-install
 
@@ -290,10 +290,13 @@ true
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.2.1
+- fix group
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.2.1
 - Clean rebuild
 
-* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.2.1
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 

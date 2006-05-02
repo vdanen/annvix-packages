@@ -227,7 +227,7 @@ doing).
 Summary:	Various documentation bits found in the kernel source
 Version:	%{version}
 Release:	%{release}
-Group:		Books/Computer books
+Group:		Documentation
 
 %description -n %{kname}-doc
 This package contains documentation files form the kernel source. Various
@@ -769,6 +769,9 @@ exit 0
 
 
 %changelog
+* Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.14
+- fix group
+
 * Mon Apr 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.14
 - 2.6 (based on 2.4 spec); first Annvix build
 - remove build_acpi stuff
