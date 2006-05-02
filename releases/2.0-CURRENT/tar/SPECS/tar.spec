@@ -20,7 +20,7 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
-Group:		Archiving/Backup
+Group:		Archiving
 URL:		http://www.gnu.org/software/tar/tar.html
 Source:		ftp://ftp.gnu.org/pub/gnu/tar/tar-%{version}.tar.bz2
 Source1:	ftp://ftp.gnu.org/pub/gnu/tar/tar-%{version}.tar.bz2.sig
@@ -114,6 +114,9 @@ mv %{buildroot}%{_libexecdir}/rmt %{buildroot}/sbin/%{rmtrealname}
 
 
 %changelog
+* Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.15.1
+- fix group
+
 * Fri Mar 03 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.15.1
 - P4: security fix for CVE-2006-0300
 

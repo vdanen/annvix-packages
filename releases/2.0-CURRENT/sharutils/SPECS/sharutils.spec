@@ -17,7 +17,7 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
-Group:		Archiving/Backup
+Group:		Archiving
 URL:		http://www.gnu.org/software/sharutils/
 Source:		ftp://prep.ai.mit.edu/pub/gnu/%{name}/%{name}-%{version}.tar.bz2
 Patch1:		sharutils-4.2-gmo.patch
@@ -113,10 +113,13 @@ fi
 %{_mandir}/man?/*
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.2.1
+- fix group
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.2.1
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.2.1
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - fix prereq

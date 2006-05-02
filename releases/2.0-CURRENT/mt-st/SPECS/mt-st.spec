@@ -17,7 +17,7 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	BSD
-Group:		Archiving/Backup
+Group:		Archiving
 URL:		http://ibiblio.org/pub/Linux
 Source:		http://ibiblio.org/pub/Linux/system/backup/%{name}-%{version}.tar.bz2
 
@@ -63,10 +63,13 @@ mkdir -p %{buildroot}%{_mandir}/man{1,8}
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.8
+- fix group
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.8
 - Clean rebuild
 
-* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.8
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 

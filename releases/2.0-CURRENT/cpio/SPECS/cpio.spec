@@ -17,7 +17,7 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
-Group:		Archiving/Backup
+Group:		Archiving
 URL:		http://www.fsf.org/software/cpio
 Source:		ftp://prep.ai.mit.edu/pub/gnu/%{name}-%{version}.tar.bz2
 Patch0:		cpio-2.6-mtime.patch
@@ -107,6 +107,9 @@ rm -f %{buildroot}%{_mandir}/man1/mt.1
 %{_mandir}/man1/cpio.1*
 
 %changelog
+* Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6
+- fix group
+
 * Fri Feb 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6
 - P8: security fix for CVE-2005-4268
 
