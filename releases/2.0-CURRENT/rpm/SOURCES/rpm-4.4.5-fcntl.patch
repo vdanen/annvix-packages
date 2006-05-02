@@ -1,0 +1,29 @@
+--- db3/configure.fcntl	2005-08-27 00:55:46.000000000 +0200
++++ db3/configure	2006-03-13 11:35:00.000000000 +0100
+@@ -10,7 +10,7 @@
+ # XXX edit CFLAGS= ... out of invocation args ???
+ ARGS="`echo $* | sed -e 's% [^ ]*CFLAGS=[^ ]*%%' -e 's% -[^-][^ ]*%%g' -e 's% --param=[^ ]*%%g' -e 's%--cache-file=.*$%%'`"
+ 
+-CC="$CC" CFLAGS="$CFLAGS" $db_dist/configure $ARGS \
++CC="$CC" CFLAGS="$CFLAGS" LD_ASSUME_KERNEL=2.4.19 $db_dist/configure $ARGS \
+ 	--enable-shared --enable-static --enable-rpc \
+ 	--with-uniquename=_rpmdb --srcdir=$db_dist
+ 
+--- rpmdb/db3.c.fcntl	2005-10-30 17:10:54.000000000 +0100
++++ rpmdb/db3.c	2006-03-13 11:35:00.000000000 +0100
+@@ -1023,6 +1023,7 @@ static int db3open(rpmdb rpmdb, rpmTag r
+ 
+ #if 0
+ #if HAVE_LIBPTHREAD
++#if 0
+ 	if (rpmdb->db_dbenv == NULL) {
+ 	    /* Set DB_PRIVATE if posix mutexes are not shared. */
+ 	    xx = db3_pthread_nptl();
+@@ -1033,6 +1034,7 @@ static int db3open(rpmdb rpmdb, rpmTag r
+ 	}
+ #endif
+ #endif
++#endif
+ 
+ 	if (access(dbhome, W_OK) == -1) {
+ 

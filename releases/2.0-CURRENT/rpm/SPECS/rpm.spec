@@ -7,15 +7,16 @@
 #
 # $Id$
 #
-# mdk 4.4.2-4mdk
+# mdk 4.4.5-2mdk
 
 %define revision	$Rev$
 %define name		rpm
-%define version		4.4.2
-%define poptver		1.10.2
+%define version		4.4.5
+%define poptver		1.10.5
+%define pmodver		0.66
 %define release		%_revrel
 
-%define srcver		4.4.2
+%define srcver		4.4.5
 %define libver		4.4
 %define libpoptver	0
 %define libname		%mklibname rpm %{libver}
@@ -74,65 +75,55 @@ Source:		ftp://ftp.jbj.org/pub/rpm-%{libver}.x/rpm-%{srcver}.tar.bz2
 # Add some undocumented feature to gendiff
 Patch17:	rpm-4.2-gendiff-improved.patch
 # (fredl) add loging facilities through syslog
-Patch31:	rpm-4.4.1-syslog.patch
-# Still need :(
-# Correctly check for PPC 74xx systems
-Patch41:	rpm-4.2-ppc-74xx.patch
+Patch31:	rpm-4.4.3-syslog.patch
 # Check amd64 vs x86_64, these arch are the same
 Patch44:	rpm-4.4.1-amd64.patch
 # Backport from 4.2.1 provides becoming obsoletes bug (fpons)
-Patch49:	rpm-4.4.1-provides-obsoleted.patch
+Patch49:	rpm-4.4.3-provides-obsoleted.patch
 # Still need
 Patch56:	rpm-4.2.2-ppc64.patch
 # Colorize static archives and .so symlinks
-Patch62:	rpm-4.4.2-coloring.patch
+Patch62:	rpm-4.4.3-coloring.patch
 # ok for this
 Patch63:	rpm-4.2.3-dont-install-delta-rpms.patch
 # This patch ask to read /usr/lib/rpm/vendor/rpmpopt too
 Patch64:    rpm-4.4.1-morepopt.patch
-# https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=114385
-# This patch fix set %_topdir to /usr/src/RPM
-# modified files: macros.in Makefile.am
-Patch66:    rpm-4.4.1-topdirinrpm.patch
 # Being able to read old rpm (build with rpm v3)
 # See https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=127113#c12
 Patch68:    rpm-4.4.1-region_trailer.patch
 # Fix some French translations
-Patch69:	rpm-4.4.1-fr.patch
+Patch69:	rpm-4.4.5-fr.patch
 # In original rpm, -bb --short-circuit does not work and run all stage
 # From popular request, we allow to do this
 # http://qa.mandriva.com/show_bug.cgi?id=15896
 Patch70:	rpm-4.4.1-bb-shortcircuit.patch
 # http://www.redhat.com/archives/rpm-list/2005-April/msg00131.html
 # http://www.redhat.com/archives/rpm-list/2005-April/msg00132.html
-Patch71:	rpm-4.4.1-ordererase.patch
+Patch71:	rpm-4.4.4-ordererase.patch
 # File conflicts when rpm -i
 # https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=151609
 Patch72:	rpm-4.4.1-fileconflicts.patch
-# Fix pre/post when erasing
-# https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=155700
-Patch74:	rpm-4.4.1-prepostun.patch
-# Allow to rebuild db with --root option
-Patch76:	rpm-4.4.1-rebuildchroot.patch
 # Allow to set %_srcdefattr for src.rpm
 Patch77:	rpm-source-defattr.patch
 # Do not use futex, but fcntl
-Patch78:	rpm-fcntl.patch
-# from https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=146549
-Patch79:	rpm-4.4.2-deadlock.patch
+Patch78:	rpm-4.4.5-fcntl.patch
 # Fix: http://qa.mandriva.com/show_bug.cgi?id=17774
 # Patch from cvs HEAD (4.4.3)
 Patch80:	rpm-4.4.2-buildsubdir-for-scriptlet.patch
-Patch81:	rpm-4.4.2-legacyprereq.patch
-Patch82:	rpm-4.4.2-ordering.patch
+Patch82:	rpm-4.4.3-ordering.patch
 # don't conflict for doc files from colored packages
 Patch83:	rpm-4.2.3-no-doc-conflicts.patch
-
+# Fix http://qa.mandriva.com/show_bug.cgi?id=19392
+Patch84:	rpm-4.4.4-rpmqv-ghost.patch
+# Install perl module in vendor directory
+Patch85:	rpm-4.4.4-perldirs.patch
+# Use temporary table for Depends DB (Olivier Thauvin upstream)
+Patch86:	rpm-4.4.4-depsdb.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5 >= 2.57
 BuildRequires:	doxygen
-BuildRequires:	python-devel
+BuildRequires:	python-devel, perl-devel
 BuildRequires:	zlib-devel
 BuildRequires:	automake1.8
 BuildRequires:	glibc-static-devel
@@ -142,8 +133,12 @@ BuildRequires:	libbeecrypt-devel
 BuildRequires:	ed, gettext-devel
 BuildRequires:	rpm-annvix-setup-build
 BuildRequires:	readline-devel, ncurses-devel
-BuildRequires:	neon-devel < 0.25
-BuildRequires:	libsqlite3-devel
+BuildRequires:	neon-static-devel < 0.25
+BuildRequires:	libsqlite3-static-devel
+BuildRequires:	openssl-static-devel >= 0.9.8
+%if %buildnptl
+BuildRequires:	nptl-devel
+%endif
 
 Requires:	bzip2 >= 0.9.0c-2
 Requires:	cpio
@@ -154,10 +149,11 @@ Requires:	popt = %{poptver}-%{release}
 Requires:	setup >= 2.2.0-8mdk
 Requires:	multiarch-utils >= 1.0.7
 Requires:	update-alternatives
-Requires:	rpm-annvix-setup
+Requires:	rpm-annvix-setup >= 1.10
 Requires:	%{libname} = %{version}-%{release}
 Conflicts:	locales < 2.3.1.1, patch < 2.5
-PreReq:		rpm-helper >= 0.8
+Requires(pre):	rpm-helper >= 0.8, coreutils
+Requires(postun): rpm-helper >= 0.8
 
 %description
 RPM is a powerful command line driven package management system capable of
@@ -228,8 +224,15 @@ The rpm-python package contains a module which permits applications
 written in the Python programming language to use the interface
 supplied by RPM (RPM Package Manager) libraries.
 
-This package should be installed if you want to develop Python
-programs that will manipulate RPM packages and databases.
+
+%package -n perl-RPM
+Summary:	Perl bindings for RPM
+Group:		Development/Perl
+Version:	%{pmodver}
+
+%description -n perl-RPM
+The RPM Perl module provides an object-oriented interface to querying both
+the installed RPM database as well as files on the filesystem.
 
 
 %package -n popt-data
@@ -287,22 +290,18 @@ shell-like rules.
 %prep
 %setup -q -n %{name}-%{srcver}
 %patch17 -p1 -b .improved
-%patch31 -p1 -b .syslog
-%patch41 -p1 -b .ppc-74xx
+%patch31 -p0 -b .syslog
 %patch44 -p1 -b .amd64
-%patch49 -p1 -b .provides
+%patch49 -p0 -b .provides
 %patch56 -p1 -b .ppc64
-%patch62 -p1 -b .coloring
+%patch62 -p0 -b .coloring
 %patch63 -p1 -b .dont-install-delta-rpms
 %patch64 -p0 -b .morepopt
-%patch66 -p0 -b .topdirinrpm
 %patch68 -p0 -b .region_trailer
 %patch69 -p0 -b .trans
 %patch70 -p0 -b .shortcircuit
-%patch71 -p1  -b .ordererase
+%patch71 -p0  -b .ordererase
 %patch72 -p1  -b .fileconflicts
-%patch74 -p1  -b .prepostun
-%patch76 -p0  -b .rebuildchroot
 %patch77 -p0  -b .srcdefattr
 
 %if %{buildnptl}
@@ -310,11 +309,12 @@ shell-like rules.
 %patch78 -p0  -b .fcntl
 %endif
 
-%patch79 -p1 -b .deadlock
 %patch80 -p0 -b .subdir-scriplet
-%patch81 -p0 -b .legacyprereq
 %patch82 -p0 -b .ordering
 %patch83 -p1 -b .no-doc-conflicts
+%patch84 -p0 -b .poptQVghost
+%patch85 -p0 -b .perldirs
+%patch86 -p0 -b .depsdb
 
 # The sqlite from rpm tar ball is the same than the system one
 # rpm author just add LINT comment for his checking purpose
@@ -332,9 +332,9 @@ for dir in . popt file zlib db/dist; do
     )
 done
 
-# rpm take care of --libdir but explicitelly setting --libdir on
+# rpm takes care of --libdir but explicitelly setting --libdir on
 # configure breaks make install, but this does not matter.
-# --build, we explicetly set 'annvix' as our config subdir and 
+# --build, we explictly set 'annvix' as our config subdir and 
 # _host_vendor are 'annvix'
 %ifarch x86_64
 fpic="-fPIC"
@@ -390,6 +390,8 @@ mv %{buildroot}%{_libdir}/libpopt.so.* %{buildroot}/%{_lib}
 ln -s ../../%{_lib}/libpopt.so.0 %{buildroot}%{_libdir}
 ln -sf libpopt.so.0 %{buildroot}%{_libdir}/libpopt.so
 
+rm -f %{buildroot}%{_prefix}/lib/rpmpopt
+ln -s rpm/rpmpopt-%{rpmversion} %{buildroot}%{_prefix}/lib/rpmpopt
 %ifarch ppc powerpc
 ln -sf ppc-annvix-linux %{buildroot}%{rpmdir}/powerpc-annvix-linux
 %endif
@@ -449,16 +451,11 @@ popd
 
 
 %check
-make -C popt check-TESTS
+#make -C popt check-TESTS
 
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-
-
-# nuke __db.00? when updating to this rpm
-%triggerun -- rpm < 4.4.2-1avx
-rm -f /var/lib/rpm/__db.00?
 
 
 %pre
@@ -478,6 +475,9 @@ rm -rf /usr/lib/rpm/*-annvix-*
 
 
 %post
+# nuke __db.00? when updating to this rpm
+rm -f /var/lib/rpm/__db.00?
+
 if [ ! -e %{_sysconfdir}/rpm/macros -a -e %{_sysconfdir}/rpmrc -a -f %{rpmdir}/convertrpmrc.sh ] 
 then
     sh %{rpmdir}/convertrpmrc.sh 2>&1 > /dev/null
@@ -530,7 +530,7 @@ fi
 %attr(0644,rpm,rpm) %{rpmdir}/rpmrc
 
 %{_prefix}/lib/rpmpopt
-%{_prefix}/lib/rpmrc
+%{_prefix}/lib/rpm/rpmrc
 %rpmattr %{rpmdir}/rpm2cpio.sh
 %rpmattr %{rpmdir}/tgpg
 
@@ -567,7 +567,7 @@ fi
 %endif
 %attr(-,rpm,rpm) %{rpmdir}/noarch*
 
-%{_prefix}/src/RPM/RPMS/*
+%{_prefix}/src/rpm/RPMS/*
 %{_datadir}/man/man[18]/*.[18]*
 %lang(pl) %{_datadir}/man/pl/man[18]/*.[18]*
 %lang(ru) %{_datadir}/man/ru/man[18]/*.[18]*
@@ -602,12 +602,12 @@ fi
 %defattr(-,root,root)
 %doc CHANGES
 %doc doc-copy/*
-%dir %{_prefix}/src/RPM
-%dir %{_prefix}/src/RPM/BUILD
-%dir %{_prefix}/src/RPM/SPECS
-%dir %{_prefix}/src/RPM/SOURCES
-%dir %{_prefix}/src/RPM/SRPMS
-%dir %{_prefix}/src/RPM/RPMS
+%dir %{_prefix}/src/rpm
+%dir %{_prefix}/src/rpm/BUILD
+%dir %{_prefix}/src/rpm/SPECS
+%dir %{_prefix}/src/rpm/SOURCES
+%dir %{_prefix}/src/rpm/SRPMS
+%dir %{_prefix}/src/rpm/RPMS
 %attr(1777,root,root) %dir /override
 %rpmattr	%{_bindir}/rpmbuild
 %rpmattr	%{_prefix}/lib/rpm/brp-*
@@ -618,6 +618,7 @@ fi
 #%rpmattr	%{_prefix}/lib/rpm/filter.sh
 %rpmattr	%{_prefix}/lib/rpm/freshen.sh
 %rpmattr	%{_prefix}/lib/rpm/debugedit
+%rpmattr	%{_prefix}/lib/rpm/executabledeps.sh
 %rpmattr	%{_prefix}/lib/rpm/find-debuginfo.sh
 %rpmattr	%{_prefix}/lib/rpm/find-lang.sh
 %rpmattr	%{_prefix}/lib/rpm/find-prov.pl
@@ -630,6 +631,8 @@ fi
 %rpmattr	%{_prefix}/lib/rpm/getpo.sh
 %rpmattr	%{_prefix}/lib/rpm/http.req
 %rpmattr	%{_prefix}/lib/rpm/javadeps
+%rpmattr	%{_prefix}/lib/rpm/javadeps.sh
+%rpmattr	%{_prefix}/lib/rpm/libtooldeps.sh
 %rpmattr	%{_prefix}/lib/rpm/magic
 %rpmattr	%{_prefix}/lib/rpm/magic.mgc
 %rpmattr	%{_prefix}/lib/rpm/magic.mime
@@ -639,6 +642,7 @@ fi
 %rpmattr	%{_prefix}/lib/rpm/perldeps.pl
 %rpmattr	%{_prefix}/lib/rpm/perl.prov
 %rpmattr	%{_prefix}/lib/rpm/perl.req
+%rpmattr	%{_prefix}/lib/rpm/pkgconfigdeps.sh
 
 %rpmattr	%{_prefix}/lib/rpm/rpm[bt]
 %rpmattr	%{_prefix}/lib/rpm/rpmdeps
@@ -655,6 +659,13 @@ fi
 %files -n python-rpm
 %defattr(-,root,root)
 %{_libdir}/python*/site-packages/rpm
+
+
+%files -n perl-RPM
+%defattr(-,root,root)
+%doc perl/Changes
+%{perl_vendorarch}/RPM.pm
+%{perl_vendorarch}/auto/RPM
 
 
 %files -n %{libname}
@@ -681,7 +692,7 @@ fi
 %{_libdir}/librpmbuild.a
 %{_libdir}/librpmbuild.la
 %{_libdir}/librpmbuild.so
-%{_datadir}/man/man3/*
+%{_datadir}/man/man3/RPM*
 %rpmattr	%{rpmdir}/rpmcache
 %rpmattr	%{rpmdir}/rpmdb_deadlock
 %rpmattr	%{rpmdir}/rpmdb_dump
@@ -710,9 +721,24 @@ fi
 %{_libdir}/libpopt.a
 %{_libdir}/libpopt.la
 %{_libdir}/libpopt.so
+%{_datadir}/man/man3/popt.3*
 
 
 %changelog
+* Tue May 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.5
+- 4.4.5 (sync with 4.4.5-2mdk):
+  - dropped P41, P66, , P74, P76, P79, P81
+  - updated P31, P49, P62, P69, P71, P78, P82
+  - new patches P84, P85, P86
+  - BuildRequires changes to use static neon-devel and libsqlite3-devel,
+    add perl-devel and openssl-static-devel
+  - add the perl-RPM package
+  - move the triggerun script to the post script (rafael)
+  - put the popt(3) man page into libpopt-devel (rafael)
+  - add coreutils to prereq (rafael)
+  - disable popt tests (rafael)
+- update requires to most recent rpm-annvix-setup
+
 * Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.2
 - fix group
 
