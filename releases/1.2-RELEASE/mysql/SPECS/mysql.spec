@@ -53,6 +53,7 @@ Patch7:		db-4.1.24-amd64-mutexes.diff
 Patch8:		db-4.1.24-disable-pthreadsmutexes.diff
 Patch9:		mysql-4.1.9-disable-pthreadsmutexes.diff
 Patch10:	mysql-4.1.12-mdk-noproc.patch
+Patch11:	mysql-4.1.19-CVE-2006-1516-1517.patch
 
 BuildRoot:      %{_buildroot}/%{name}-%{version}
 BuildRequires:	bison, glibc-static-devel, libstdc++-static-devel, autoconf2.5, automake1.7
@@ -149,6 +150,7 @@ client/server version.
 %patch8 -p1 -b .pthreadsmutexes
 %patch9 -p0 -b .disable-pthreadsmutexes
 %patch10 -p1 -b .noproc
+%patch11 -p1 -b .cve-2006-1516-1517
 
 # fix annoyances
 perl -pi -e "s|AC_PROG_RANLIB|AC_PROG_LIBTOOL|g" configure*
@@ -528,6 +530,9 @@ fi
 
 
 %changelog
+* Fri May 05 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.1.14
+- P11: security fixes for CVE-2006-1516, CVE-2006-1517
+
 * Fri Feb 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.1.14
 - install the afterboot snippet properly (use the right source)
 
