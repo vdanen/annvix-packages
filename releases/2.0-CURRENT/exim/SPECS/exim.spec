@@ -58,7 +58,7 @@ BuildRequires:	postgresql-devel
 
 Requires(post):	rpm-helper
 Requires(preun): rpm-helper
-Obsoletes:	sendmail postfix qmail smail
+Conflicts:	sendmail postfix qmail smail
 Requires:	chkconfig, initscripts, sh-utils, openssl, pam
 Requires:	openldap >= 2.0.11
 %ifarch amd64 x86_64
@@ -285,6 +285,10 @@ fi
 
 
 %changelog
+* Sat May 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.54
+- use Conflicts instead of Obsoletes or it puts apt into an infinite obsoletes
+  loop when you have exim installed
+
 * Wed Feb  1 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.54
 - build against new postgresql
 
