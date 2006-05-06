@@ -101,7 +101,7 @@ Requires(post):	rpm-helper >= 0.3
 Requires(postun): rpm-helper >= 0.3
 Requires(pre):	rpm-helper >= 0.3
 Requires(preun): rpm-helper >= 0.3
-Obsoletes:	sendmail exim qmail
+Conflicts:	sendmail exim qmail
 
 
 %description
@@ -424,6 +424,10 @@ fi
 
 
 %changelog
+* Sat May 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.10
+- use Conflicts instead of Obsoletes or it puts apt into an infinite obsoletes
+  loop when you have exim installed
+
 * Thu Apr 20 2006 Ying-Hung Chen <ying-at-annvix.org> 2.2.10
 - 2.2.10
 - updated P9
