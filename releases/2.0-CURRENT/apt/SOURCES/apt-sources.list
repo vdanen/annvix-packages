@@ -1,0 +1,23 @@
+# Package repository URL's
+#
+# Signed repositories have a [<key>] where <key> is the name of the key
+# as it appears in vendors.list. If you remove it, no digital signature check
+# will be made.
+#
+# See http://qa.mandriva.com/twiki/bin/view/Main/CookerMirrors for a full list 
+# of mirrors.
+#
+# You can also get mirrors from easyurpmi.zarb.org
+
+# format is simple :
+# 1) rpm is the type of archive
+# 2) server is the path to the main directory
+# 3) list is the relative path to the list, from the main directory
+# 4) rpms is the relative path to the rpms, from the main directory
+
+# you cannot use synthesis.hdlist, but you can take a hdlist.src, to install SRPM
+# with apt.
+
+# example 
+# rpm ftp://ftp.lip6.fr/pub/linux/distributions/Mandrakelinux/devel/cooker/i586/media/ media_info/hdlist_main main
+

@@ -1,0 +1,5 @@
+--- apt-0.5.15lorg3/po/LINGUAS.invalid	2006-05-04 22:45:01.000000000 -0600
++++ apt-0.5.15lorg3/po/LINGUAS	2006-05-04 22:45:09.000000000 -0600
+@@ -1 +1 @@
+-de_DE es_ES it_IT pt_BR ru
++de es it pt_BR ru
