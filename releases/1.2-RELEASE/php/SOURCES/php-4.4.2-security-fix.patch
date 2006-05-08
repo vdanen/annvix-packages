@@ -1,0 +1,233 @@
+diff -Nura php-4.4.2/ext/session/mod_files.c php-4.4.2sf1/ext/session/mod_files.c
+--- php-4.4.2/ext/session/mod_files.c	2006-01-01 14:46:56.000000000 +0100
++++ php-4.4.2sf1/ext/session/mod_files.c	2006-05-08 11:01:11.000000000 +0200
+@@ -16,7 +16,7 @@
+    +----------------------------------------------------------------------+
+  */
+ 
+-/* $Id: mod_files.c,v 1.83.2.9.2.2 2006/01/01 13:46:56 sniper Exp $ */
++/* $Id: mod_files.c,v 1.83.2.9.2.3 2006/04/17 23:29:37 iliaa Exp $ */
+ 
+ #include "php.h"
+ 
+@@ -364,10 +364,12 @@
+ 	if (!ps_files_path_create(buf, sizeof(buf), data, key))
+ 		return FAILURE;
+ 	
+-	ps_files_close(data);
++	if (data->fd != -1) {
++		ps_files_close(data);
+ 	
+-	if (VCWD_UNLINK(buf) == -1) {
+-		return FAILURE;
++		if (VCWD_UNLINK(buf) == -1) {
++			return FAILURE;
++		}
+ 	}
+ 
+ 	return SUCCESS;
+diff -Nura php-4.4.2/ext/session/session.c php-4.4.2sf1/ext/session/session.c
+--- php-4.4.2/ext/session/session.c	2006-01-01 14:46:56.000000000 +0100
++++ php-4.4.2sf1/ext/session/session.c	2006-05-08 11:01:21.000000000 +0200
+@@ -17,7 +17,7 @@
+    +----------------------------------------------------------------------+
+  */
+ 
+-/* $Id: session.c,v 1.336.2.53.2.4 2006/01/01 13:46:56 sniper Exp $ */
++/* $Id: session.c,v 1.336.2.53.2.5 2006/01/15 16:52:10 iliaa Exp $ */
+ 
+ #ifdef HAVE_CONFIG_H
+ #include "config.h"
+@@ -626,6 +626,12 @@
+ 	char *val;
+ 	int vallen;
+ 
++	/* check session name for invalid characters */
++	if (PS(id) && strpbrk(PS(id), "\r\n\t <>'\"\\")) {
++		efree(PS(id));
++		PS(id) = NULL;
++	}
++
+ 	if (!PS(mod)) {
+ 		php_error_docref(NULL TSRMLS_CC, E_ERROR, "No storage module chosen - failed to initialize session.");
+ 		return;
+diff -Nura php-4.4.2/ext/standard/file.c php-4.4.2sf1/ext/standard/file.c
+--- php-4.4.2/ext/standard/file.c	2006-01-01 14:46:57.000000000 +0100
++++ php-4.4.2sf1/ext/standard/file.c	2006-05-08 11:01:51.000000000 +0200
+@@ -21,7 +21,7 @@
+    +----------------------------------------------------------------------+
+  */
+ 
+-/* $Id: file.c,v 1.279.2.70.2.3 2006/01/01 13:46:57 sniper Exp $ */
++/* $Id: file.c,v 1.279.2.70.2.7 2006/04/14 17:46:59 pollita Exp $ */
+ 
+ /* Synced with php 3.0 revision 1.218 1999-06-16 [ssb] */
+ 
+@@ -552,7 +552,7 @@
+ 	pval **arg1, **arg2;
+ 	char *d;
+ 	char *opened_path;
+-	char p[64];
++	char *p;
+ 	FILE *fp;
+ 
+ 	if (ZEND_NUM_ARGS() != 2 || zend_get_parameters_ex(2, &arg1, &arg2) == FAILURE) {
+@@ -566,7 +566,11 @@
+ 	}
+ 
+ 	d = estrndup(Z_STRVAL_PP(arg1), Z_STRLEN_PP(arg1));
+-	strlcpy(p, Z_STRVAL_PP(arg2), sizeof(p));
++
++	p = php_basename(Z_STRVAL_PP(arg2), Z_STRLEN_PP(arg2), NULL, 0);
++	if (strlen(p) > 64) {
++		p[63] = '\0';
++	}
+ 
+ 	if ((fp = php_open_temporary_file(d, p, &opened_path TSRMLS_CC))) {
+ 		fclose(fp);
+@@ -574,6 +578,7 @@
+ 	} else {
+ 		RETVAL_FALSE;
+ 	}
++	efree(p);
+ 	efree(d);
+ }
+ /* }}} */
+@@ -2196,7 +2201,7 @@
+ safe_to_copy:
+ 
+ 	srcstream = php_stream_open_wrapper(src, "rb",
+-				STREAM_DISABLE_OPEN_BASEDIR | REPORT_ERRORS,
++				ENFORCE_SAFE_MODE | REPORT_ERRORS,
+ 				NULL);
+ 
+ 	if (!srcstream)
+diff -Nura php-4.4.2/ext/standard/html.c php-4.4.2sf1/ext/standard/html.c
+--- php-4.4.2/ext/standard/html.c	2006-01-01 14:46:57.000000000 +0100
++++ php-4.4.2sf1/ext/standard/html.c	2006-05-08 11:02:03.000000000 +0200
+@@ -18,7 +18,7 @@
+    +----------------------------------------------------------------------+
+ */
+ 
+-/* $Id: html.c,v 1.63.2.23.2.1 2006/01/01 13:46:57 sniper Exp $ */
++/* $Id: html.c,v 1.63.2.23.2.2 2006/02/25 21:33:06 rasmus Exp $ */
+ 
+ /*
+  * HTML entity resources:
+@@ -793,7 +793,7 @@
+ 	enum entity_charset charset = determine_charset(hint_charset TSRMLS_CC);
+ 	unsigned char replacement[15];
+ 	
+-	ret = estrdup(old);
++	ret = estrndup(old, oldlen);
+ 	retlen = oldlen;
+ 	if (!retlen) {
+ 		goto empty_source;
+diff -Nura php-4.4.2/ext/standard/info.c php-4.4.2sf1/ext/standard/info.c
+--- php-4.4.2/ext/standard/info.c	2006-01-01 14:46:57.000000000 +0100
++++ php-4.4.2sf1/ext/standard/info.c	2006-05-08 11:00:46.000000000 +0200
+@@ -58,6 +58,23 @@
+ 
+ PHPAPI extern char *php_ini_opened_path;
+ PHPAPI extern char *php_ini_scanned_files;
++	
++static int php_info_write_wrapper(const char *str, uint str_length)
++{
++	int new_len, written;
++	char *elem_esc;
++
++	TSRMLS_FETCH();
++
++	elem_esc = php_escape_html_entities((char *)str, str_length, &new_len, 0, ENT_QUOTES, NULL TSRMLS_CC);
++
++	written = php_body_write(elem_esc, new_len TSRMLS_CC);
++
++	efree(elem_esc);
++
++	return written;
++}
++
+ 
+ /* {{{ _display_module_info
+  */
+@@ -133,23 +150,12 @@
+ 				PUTS(" => ");
+ 			}
+ 			if (Z_TYPE_PP(tmp) == IS_ARRAY) {
+-				zval *tmp3;
+-				MAKE_STD_ZVAL(tmp3);
+ 				if (!sapi_module.phpinfo_as_text) {
+ 					PUTS("<pre>");
+-				}
+-				php_start_ob_buffer(NULL, 4096, 1 TSRMLS_CC);
+-				zend_print_zval_r(*tmp, 0);
+-				php_ob_get_buffer(tmp3 TSRMLS_CC);
+-				php_end_ob_buffer(0, 0 TSRMLS_CC);
+-				
+-				elem_esc = php_info_html_esc(Z_STRVAL_P(tmp3) TSRMLS_CC);
+-				PUTS(elem_esc);
+-				efree(elem_esc);
+-				zval_ptr_dtor(&tmp3);
+-
+-				if (!sapi_module.phpinfo_as_text) {
++					zend_print_zval_ex((zend_write_func_t) php_info_write_wrapper, *tmp, 0);
+ 					PUTS("</pre>");
++				} else {
++					zend_print_zval_r(*tmp, 0);				
+ 				}
+ 			} else if (Z_TYPE_PP(tmp) != IS_STRING) {
+ 				tmp2 = **tmp;
+diff -Nura php-4.4.2/ext/standard/string.c php-4.4.2sf1/ext/standard/string.c
+--- php-4.4.2/ext/standard/string.c	2006-01-01 14:46:58.000000000 +0100
++++ php-4.4.2sf1/ext/standard/string.c	2006-05-08 11:02:24.000000000 +0200
+@@ -18,7 +18,7 @@
+    +----------------------------------------------------------------------+
+  */
+ 
+-/* $Id: string.c,v 1.333.2.52.2.3 2006/01/01 13:46:58 sniper Exp $ */
++/* $Id: string.c,v 1.333.2.52.2.4 2006/03/13 14:41:27 iliaa Exp $ */
+ 
+ /* Synced with php 3.0 revision 1.193 1999-06-16 [ssb] */
+ 
+@@ -672,15 +672,13 @@
+ 		/* Multiple character line break or forced cut */
+ 		if (linelength > 0) {
+ 			chk = (int)(textlen/linelength + 1);
++			newtext = safe_emalloc(chk, breakcharlen, textlen + 1);
+ 			alloced = textlen + chk * breakcharlen + 1;
+ 		} else {
+ 			chk = textlen;
++			newtext = safe_emalloc(textlen, (breakcharlen + 1), 1);
+ 			alloced = textlen * (breakcharlen + 1) + 1;
+ 		}
+-		if (alloced <= 0) {
+-			RETURN_FALSE;
+-		}
+-		newtext = emalloc(alloced);
+ 
+ 		/* now keep track of the actual new text length */
+ 		newtextlen = 0;
+diff -Nura php-4.4.2/Zend/zend_hash.c php-4.4.2sf1/Zend/zend_hash.c
+--- php-4.4.2/Zend/zend_hash.c	2006-01-01 14:46:49.000000000 +0100
++++ php-4.4.2sf1/Zend/zend_hash.c	2006-05-08 10:58:46.000000000 +0200
+@@ -491,15 +491,17 @@
+ 	IS_CONSISTENT(ht);
+ 
+ 	if (flag == HASH_DEL_KEY) {
+-		HANDLE_NUMERIC(arKey, nKeyLength, zend_hash_del_key_or_index(ht, arKey, nKeyLength, idx, HASH_DEL_INDEX));
++		HANDLE_NUMERIC(arKey, nKeyLength, zend_hash_del_key_or_index(ht, NULL, 0, idx, HASH_DEL_INDEX));
+ 		h = zend_inline_hash_func(arKey, nKeyLength);
+ 	}
+ 	nIndex = h & ht->nTableMask;
+ 
+ 	p = ht->arBuckets[nIndex];
+ 	while (p != NULL) {
+-		if ((p->h == h) && ((p->nKeyLength == 0) || /* Numeric index */
+-			((p->nKeyLength == nKeyLength) && (!memcmp(p->arKey, arKey, nKeyLength))))) {
++		if ((p->h == h) 
++			 && (p->nKeyLength == nKeyLength)
++			 && ((p->nKeyLength == 0) /* Numeric index (short circuits the memcmp() check) */
++				 || !memcmp(p->arKey, arKey, nKeyLength))) { /* String index */
+ 			HANDLE_BLOCK_INTERRUPTIONS();
+ 			if (p == ht->arBuckets[nIndex]) {
+ 				ht->arBuckets[nIndex] = p->pNext;
