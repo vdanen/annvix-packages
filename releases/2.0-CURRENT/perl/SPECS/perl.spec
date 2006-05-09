@@ -65,7 +65,7 @@ Patch37:	perl-27363.patch
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 # for NDBM
 BuildRequires:	db1-devel, db2-devel, gdbm-devel, man
-%if "%{_lib}" == "lib64"
+%ifarch x86_64
 BuildRequires:	devel(libgdbm_compat(64bit))
 %else
 BuildRequires:	devel(libgdbm_compat)
@@ -527,6 +527,10 @@ EOF
 
 
 %changelog
+* Tue May 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.8.8
+- revert the lib64 buildrequires "fix"
+- also use newer rpm-annvix-setup-build to pick up libperl.so and friends
+
 * Tue May 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.8.8
 - 5.8.8
 - sync with 5.8.8-4mdk (rgarciasuarez):
