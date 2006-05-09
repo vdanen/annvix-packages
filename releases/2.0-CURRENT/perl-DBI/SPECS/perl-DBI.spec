@@ -11,7 +11,7 @@
 
 %define revision	$Rev$
 %define name		perl-%{module}
-%define version 	1.48
+%define version 	1.50
 %define release 	%_revrel
 
 Summary:	The Perl Database Interface
@@ -21,10 +21,12 @@ Release:	%{release}
 License:	GPL
 Group:		Development/Perl
 URL:		http://dbi.perl.org
-Source:		%{module}-%{version}.tar.bz2
+Source:		ftp://ftp.perl.org/pub/CPAN/modules/by-module/DBI/%{module}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	perl-devel, perl-Net-Daemon
+BuildRequires:	perl-devel
+BuildRequires:	perl(Storable) >= 1
+BuildRequires:	perl(Test::Simple) >= 0.4
 BuildConflicts:	perl-PlRPC
 
 Requires:	perl
@@ -61,13 +63,24 @@ process. These files are created in your Apache log directory. You can
 then use dbiprof to analyze the profile files.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n %{module}-%{version}
 
 
 %build
 %{__perl} Makefile.PL INSTALLDIRS=vendor
-%make OPTIMIZE="%{optflags}"
+%make CFLAGS="%{optflags}"
+
+
+%check
 make test
 
 
@@ -91,7 +104,6 @@ rm -f %{buildroot}%{_mandir}/man3pm/Roadmap.3pm*
 
 %files
 %defattr(-,root,root)
-%doc Changes README ToDo 
 %{_bindir}/dbiprof
 %{_mandir}/*/*
 %exclude %{_mandir}/man1/dbiproxy.1*
@@ -121,16 +133,25 @@ rm -f %{buildroot}%{_mandir}/man3pm/Roadmap.3pm*
 %{perl_vendorarch}/DBI/ProfileDumper
 %{_mandir}/man3*/DBI::ProfileDumper::Apache.3pm.*
 
+%files doc
+%doc Changes README ToDo 
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue May 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.50
+- 1.50
+- build against perl 5.8.8
+- update BuildRequires according to new perl policy
+- add -doc subpackage
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.48
 - Clean rebuild
 
-* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.48
 - add BuildRequires: perl-Net-Daemon
 - add BuildConflicts: perl-PlRPC (or the tests fail on the proxy test)
 
-* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.48
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
