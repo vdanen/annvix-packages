@@ -10,7 +10,7 @@
 %define module		Apache-Test
 %define revision	$Rev$
 %define name		perl-%{module}
-%define version		1.25
+%define version		1.28
 %define release		%_revrel
 
 %define _requires_exceptions perl(Apache2::Const)\\|perl(ModPerl::Config)
@@ -28,7 +28,9 @@ BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 BuildRequires:	perl-devel
 
-Requires:	perl-Compress-Zlib, httpd-mod_perl, perl-Module-Build
+Requires:	httpd-mod_perl
+Requires:	perl(Compress::Zlib)
+Requires:	perl(Module::Build)
 Provides:	perl(Apache::TestConfigParse)
 Provides:	perl(Apache::TestConfigPerl)
 
@@ -37,6 +39,14 @@ Apache::Test is a test toolkit for testing an Apache server with
 any configuration. It works with Apache 1.3 and Apache 2.0 and any
 of its modules, including mod_perl 1.0 and 2.0. It was originally
 developed for testing mod_perl 2.0.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -59,17 +69,24 @@ developed for testing mod_perl 2.0.
 
 %files
 %defattr(644,root,root,755)
-%doc CONTRIBUTORS Changes INSTALL LICENSE README SUPPORT ToDo
 %{perl_vendorlib}/Apache/*.pm
 %{perl_vendorlib}/Bundle/*.pm
 %{_mandir}/*/*
 
+%files doc
+%doc CONTRIBUTORS Changes INSTALL LICENSE README SUPPORT ToDo
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue May 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.28
+- 1.28
+- perl policy
+- create -doc subpackage
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.25
 - Clean rebuild
 
-* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.25
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
