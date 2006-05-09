@@ -11,7 +11,7 @@
 
 %define revision	$Rev$
 %define name		perl
-%define version		5.8.7
+%define version		5.8.8
 %define release		%_revrel
 %define epoch		2
 
@@ -46,30 +46,26 @@ Source0: ftp://cpan.mirrors.easynet.fr/pub/ftp.cpan.org/src/perl-%{version}.tar.
 Source1:	perl-headers-wanted
 Source2:	perl-5.8.0-RC2-special-h2ph-not-failing-on-machine_ansi_header.patch
 Patch3:		perl-5.8.1-RC3-norootcheck.patch
-Patch6:		perl-5.8.0-RC2-fix-LD_RUN_PATH-for-MakeMaker.patch
-Patch12:	perl-5.8.1-RC3-automatic-migration-from--make-install-PREFIX--to--makeinstall_std.patch
+Patch6:		perl-5.8.8-RC1-fix-LD_RUN_PATH-for-MakeMaker.patch
 Patch14:	perl-5.8.1-RC3-install-files-using-chmod-644.patch
 Patch15:	perl-5.8.3-lib64.patch
 Patch16:	perl-5.8.5-RC1-perldoc-use-nroff-compatibility-option.patch
-Patch20:	perl-5.8.4-use_gzip_layer.patch
 #(peroyvind) use -fPIC in stead of -fpic or else compile will fail on sparc (taken from redhat)
 Patch21:	perl-5.8.1-RC4-fpic-fPIC.patch
-Patch22:	perl-5.8.0-amd64.patch
-Patch23:	perl-5.8.7-patchlevel.patch
+Patch23:	perl-5.8.8-patchlevel.patch
 Patch24:	perl-5.8.4-no-test-fcgi.patch
-Patch25:	perl-5.8.5-RC1-cpan-signature-test.patch
-Patch26:	perl-5.8.5-removeemptyrpath.patch
-Patch29:	perl-5.8.7-CAN-2005-0448.patch
-Patch30:	perl-5.8.7-intwrap.patch
-Patch31:	perl-5.8.7-Storable-2.15.patch
-Patch32:	perl-5.8.7-getopt-long.patch
-Patch33:	perl-5.8.7-list-util.patch
-Patch34:	perl-5.8.7-incversionlist.patch
+Patch29:	perl-5.8.8-rpmdebug.patch
+Patch32:	perl-5.8.7-incversionlist.patch
+Patch33:	perl-5.8.8-26536.patch
+Patch34:	perl-27210.patch
+Patch35:	perl-27211.patch
+Patch36:	perl-27359.patch
+Patch37:	perl-27363.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 # for NDBM
 BuildRequires:	db1-devel, db2-devel, gdbm-devel, man
-%ifarch x86_64
+%if "%{_lib}" == "lib64"
 BuildRequires:	devel(libgdbm_compat(64bit))
 %else
 BuildRequires:	devel(libgdbm_compat)
@@ -82,8 +78,8 @@ Provides:	perl(ctime.pl)
 Provides:	perl(flush.pl)
 Provides:	perl(find.pl)
 Provides:	perl(attributes) perl(fields) perl(locale) perl(subs)
-Provides: 	perl-MIME-Base64 perl-libnet perl-Storable perl-Digest-MD5 perl-Time-HiRes perl-Locale-Codes perl-Test-Simple perl-Time-HiRes
-Obsoletes:	perl-MIME-Base64 perl-libnet perl-Storable perl-Digest-MD5 perl-Time-HiRes perl-Locale-Codes perl-Test-Simple perl-Time-HiRes
+Provides: 	perl-MIME-Base64 perl-libnet perl-Storable perl-Digest-MD5 perl-Time-HiRes perl-Locale-Codes perl-Test-Simple perl-Test-Builder-Tester
+Obsoletes:	perl-MIME-Base64 perl-libnet perl-Storable perl-Digest-MD5 perl-Time-HiRes perl-Locale-Codes perl-Test-Simple perl-Test-Builder-Tester
 Conflicts:	perl-Parse-RecDescent < 1.80-6mdk
 Conflicts:	perl-Filter < 1.28-6mdk
 Conflicts:	apache-mod_perl <= 1.3.24_1.26-1mdk
@@ -143,24 +139,21 @@ This is the documentation package for %{name}.  It also contains the
 %prep
 %setup -q -n %{name}-%{version}%{rel} -a 2
 %patch3 -p1
-%patch6 -p1
-%patch12 -p1
+%patch6 -p0
 %patch14 -p1
 %patch15 -p1
 %patch16 -p0
-%patch20 -p1
 %patch21 -p1
-%patch22 -p1
 %patch23 -p0
 %patch24 -p0
-%patch25 -p0
-%patch26 -p0
 %patch29 -p0
-%patch30 -p0
-%patch31 -p0
 %patch32 -p0
-%patch33 -p0
-%patch34 -p0
+%patch33 -p1
+%patch34 -p1
+%patch35 -p1
+%patch36 -p1
+%patch37 -p1
+
 
 %build
 %ifarch ppc
@@ -168,7 +161,7 @@ RPM_OPT_FLAGS=`echo "%{optflags}"|sed -e 's/-O2/-O1/g'`
 %endif
 
 sh Configure -des \
-    -Dinc_version_list="5.8.6 5.8.6/%{full_arch} 5.8.5 5.8.4 5.8.3 5.8.2 5.8.1 5.8.0 5.6.1 5.6.0" \
+    -Dinc_version_list="5.8.7 5.8.7/%{full_arch} 5.8.6 5.8.6/%{full_arch} 5.8.5 5.8.4 5.8.3 5.8.2 5.8.1 5.8.0 5.6.1 5.6.0" \
     -Darchname=%{arch}-%{_os} \
     -Dcc='%{__cc}' \
 %if %{debugging}
@@ -186,7 +179,6 @@ sh Configure -des \
     -Dd_dosuid \
     -Ud_csh \
     -Duseshrplib \
-    -Accflags=-DPERL_DISABLE_PMC \
 %if %{threading}
     -Duseithreads \
 %endif
@@ -535,10 +527,22 @@ EOF
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue May 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.8.8
+- 5.8.8
+- sync with 5.8.8-4mdk (rgarciasuarez):
+  - drop P12, P20, P22, P25, P26, P29, P32, P33
+  - update P6, P23, P34 (now P32)
+  - new patches P29, P33, P34, P35, P36, P37
+  - remove PERL_DISABLE_PMC from CCFLAGS
+  - Obsoletes perl-Test-Builder-Tester
+  - lib64 fix to buildrequires
+- re-ordered patches somewhat to match mdk ordering
+- modify P23: s/Mandriva Linux/Annvix/ (patchlevel)
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.8.7
 - Clean rebuild
 
-* Sat Dec 24 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Dec 24 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.8.7
 - t/op/pat.t doesn't completely pass on x86_64 for some reason; remove
   that test on that arch
 - sync with 5.8.7-8mdk (rgarciasuarez):
@@ -549,7 +553,7 @@ EOF
   - P34: always setup @INC correctly even if older directories don't exist
     on the build machine
 
-* Sat Dec 24 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Dec 24 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.8.7
 - Obfuscate email addresses and new tagging
 
 * Wed Dec 21 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.8.7-2avx

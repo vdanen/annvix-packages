@@ -1,0 +1,29 @@
+Change 27211 by gisle@gisle-ask on 2006/02/17 21:19:03
+
+	Fix precedence.
+	
+	Subject: [PATCH] 5.8.8: Debian patches
+	From: "Brendan O'Dea" <bod@debian.org>
+	Date: Sat, 11 Feb 2006 00:37:15 +1100
+	Message-ID: <20060210133715.GA6826@londo.c47.org>
+
+Affected files ...
+
+... //depot/perl/lib/Net/NNTP.pm#11 edit
+
+Differences ...
+
+==== //depot/perl/lib/Net/NNTP.pm#11 (text) ====
+Index: perl/lib/Net/NNTP.pm
+--- perl/lib/Net/NNTP.pm#10~25261~	2005-08-02 03:39:51.000000000 -0700
++++ perl/lib/Net/NNTP.pm	2006-02-17 13:19:03.000000000 -0800
+@@ -120,7 +120,7 @@
+  my $nntp = shift;
+  my @fh;
+ 
+- @fh = (pop) if @_ == 2 || (@_ && ref($_[0]) || ref(\$_[0]) eq 'GLOB');
++ @fh = (pop) if @_ == 2 || (@_ && (ref($_[0]) || ref(\$_[0]) eq 'GLOB'));
+ 
+  $nntp->_ARTICLE(@_)
+     ? $nntp->read_until_dot(@fh)
+End of Patch.
