@@ -81,6 +81,10 @@ mkdir -p %{buildroot}%{_sysconfdir}/rpm/macros.d
 
 
 %changelog
+* Tue May 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.18
+- revert the find-provides changes because they didn't pick up things
+  like libperl.so in the perl packages
+
 * Tue May 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.18
 - sync with mandriva 1.18:
   - find-requires: require only .so that are in standard paths, and use ldd
