@@ -364,8 +364,6 @@ s=/usr/share/spec-helper/spec-helper ; [ -x $s ] && $s
 EOF
 
    cat > perl.list <<EOF
-%doc README
-%doc Artistic
 %{_bindir}/a2p
 %{_bindir}/perlbug
 %{_bindir}/find2perl
@@ -399,6 +397,8 @@ EOF
 EOF
 
    cat > perl-doc.list <<EOF
+%doc README
+%doc Artistic
 %{_bindir}/perldoc
 %{_mandir}/man1/perldoc.1.bz2
 %{perl_root}/%{version}/Pod/Perldoc.pm
@@ -538,6 +538,7 @@ EOF
   - lib64 fix to buildrequires
 - re-ordered patches somewhat to match mdk ordering
 - modify P23: s/Mandriva Linux/Annvix/ (patchlevel)
+- move %%doc from perl to perl-doc
 
 * Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.8.7
 - Clean rebuild
