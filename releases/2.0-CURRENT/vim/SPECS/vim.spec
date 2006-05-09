@@ -13,7 +13,7 @@
 
 %define revision	$Rev$
 %define name		vim
-%define version		6.4
+%define version		7.0
 %define release		%_revrel
 
 %define patch_level	1
@@ -44,13 +44,13 @@ Patch22:	vim-6.1-fix-xterms-comments.patch
 Patch23:	vim-6.3-remove-docs.patch
 Patch24:	vim-6.1-outline-mode.patch 
 Patch25:	vim-6.1-xterm-s-insert.patch 
-Patch26:	vim-6.1-changelog-mode.patch
+Patch26:	vim-7.0-mdk-changelog-mode.patch
 Patch27:	vim-6.1-rpm42.patch
 Patch28:	vim-6.4-mdk-po-mode.patch
-Patch31:	vim63-CAN-2005-0069.patch
+Patch29:	vim-7.0-mdk-po-buildfix.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	perl-devel python-devel termcap-devel
+BuildRequires:	perl-devel, python-devel, termcap-devel, acl-devel
 
 %description
 VIM (VIsual editor iMproved) is an updated and improved version of the vi
@@ -65,6 +65,9 @@ Summary:	The common files needed by any version of the VIM editor
 Group:		Editors
 Requires:	perl = %{perl_version}
 Requires(pre):	coreutils
+Requires(preun): coreutils
+Requires(post):	coreutils
+Requires(postun): coreutils
 
 %description common
 VIM (VIsual editor iMproved) is an updated and improved version of the vi
@@ -108,8 +111,16 @@ contains a version of VIM with extra, recently introduced features like
 Python and Perl interpreters.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
-%setup -q -b 2 -n vim64 -a4
+%setup -q -b 2 -n vim70 -a4
 # spec plugin
 rm -f runtime/doc/pi_spec.txt
 rm -f runtime/ftpplugin/spec.vim
@@ -133,7 +144,7 @@ done
 %patch26 -p0
 %patch27 -p0
 %patch28 -p0
-%patch31 -p1
+%patch29 -p0
 
 perl -pi -e 's|SYS_VIMRC_FILE "\$VIM/vimrc"|SYS_VIMRC_FILE "%{_sysconfdir}/vim/vimrc"|' src/os_unix.h
 # disable command echo
@@ -146,7 +157,7 @@ perl -pi -e 's|\Qsvn-commit.*.tmp\E|svn-commit*.tmp|' ./runtime/filetype.vim
 
 CFLAGS="%{optflags}" CXXFLAGS="%{optflags}"  ./configure \
     --prefix=%{_prefix} \
-    --disable-acl \
+    --enable-acl \
     --enable-pythoninterp \
     --enable-perlinterp \
     --with-features=huge \
@@ -257,6 +268,9 @@ ln -sf ../../../%{_defaultdocdir}/%{name}-common-%{version}/doc %{buildroot}/usr
 # but first delete some uncommon locale files
 rm -rf %{buildroot}%{_datadir}/locale/zh_{TW,CN}.UTF-8*
 
+# and delete unwanted translated manpages
+rm -rf %{buildroot}%{_mandir}/{it,pl,fr,ru}*
+
 # symlink locales in right place so that %find_land put needed %lang:
 # see %pre common why this is needed
 pushd %{buildroot}%{_datadir}/vim/lang
@@ -350,10 +364,6 @@ update-alternatives --remove vim /usr/bin/vim-enhanced
 
 %files common -f vim.lang
 %defattr(-,root,root)
-%doc README*.txt runtime/termcap
-%doc --parents annvix/README*
-%doc doc
-
 %dir %{_datadir}/vim/
 %{_datadir}/vim/*
 %{_datadir}/vim/doc
@@ -377,18 +387,30 @@ update-alternatives --remove vim /usr/bin/vim-enhanced
 
 %files minimal
 %defattr(-,root,root)
-%doc README*.txt
 /bin/vim-minimal
 
 %files enhanced
 %defattr(-,root,root)
-%doc README*.txt
 %{_bindir}/vim-enhanced
 %{_bindir}/ex
 %{_bindir}/vimdiff
 
+%files doc
+%doc README*.txt runtime/termcap
+%doc --parents annvix/README*
+%doc doc
+
 
 %changelog
+* Tue May 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 7.0
+- 7.0; patchlevel 1
+- added P9
+- updated P26
+- BuildRequires: acl-devel; enable ACL support for vim-enhanced
+- add -doc subpackage
+- build against perl 5.8.8
+- drop P31
+
 * Wed Jan 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 6.4
 - 6.4; patchlevel 1
 - updated P3, P28 from Mandriva
