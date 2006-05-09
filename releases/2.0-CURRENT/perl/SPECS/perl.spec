@@ -5,7 +5,7 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-# cooker: perl-5.8.7-8mdk
+# cooker: perl-5.8.8-4mdk
 #
 # $Id$
 
