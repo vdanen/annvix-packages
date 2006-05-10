@@ -30,6 +30,14 @@ BuildRequires:	perl-devel >= 5.6
 Authen::Smb is a Perl module to authenticate against an SMB server.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n %{module}-%{version}
 %patch0 -p1 -b .64bit-fxies
@@ -52,17 +60,24 @@ make test
 
 %files
 %defattr(644,root,root,755)
-%doc Changes README
 %{perl_vendorarch}/Authen/*
 %{perl_vendorarch}/auto/Authen/*
 %{_mandir}/man3/*
 
+%files doc
+%defattr(-,root,root)
+%doc Changes README
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed May 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.91
+- rebuild against perl 5.8.8
+- create -doc subpackage
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.91
 - Clean rebuild
 
-* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.91
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
