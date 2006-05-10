@@ -32,6 +32,14 @@ files. It also has a simple and efficient module for parsing command line
 arguments.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n %{module}-%{version}
 
@@ -58,12 +66,19 @@ CFLAGS="%{optflags}" %{__perl} Makefile.PL INSTALLDIRS=vendor
 %{perl_vendorlib}/AppConfig.pm
 %{_mandir}/*/*
 
+%files doc
+%doc README
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue May 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.56
+- rebuild against perl 5.8.8
+- create -doc subpackage
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.56
 - Clean rebuild
 
-* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.56
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
