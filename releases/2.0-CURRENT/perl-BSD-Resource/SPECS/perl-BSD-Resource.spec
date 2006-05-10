@@ -10,7 +10,7 @@
 %define	revision	$Rev$
 %define	name		perl-%{module}
 %define	module		BSD-Resource
-%define	version		1.24
+%define	version		1.25
 %define	release		%_revrel
 
 Summary:	%{module} module for perl 
@@ -20,27 +20,33 @@ Release:	%{release}
 License:	GPL or Artistic
 Group:		Development/Perl
 URL:		http://search.cpan.org/dist/%{module}/
-Source0:	%{module}-%{version}.tar.bz2
+Source0:	ftp://ftp.perl.org/pub/CPAN/modules/by-module/BSD/%{module}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel
 
-Requires:	perl
-
 %description
-%{module} module for perl
+%{module} module for perl.
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
 %setup -q -n %{module}-%{version} 
-# perl path hack
-find . -type f | xargs %{__perl} -p -i -e "s|^#\!/usr/local/bin/perl|#\!/usr/bin/perl|g"
 
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor </dev/null
-%{__make}
-%{__make} test
+perl Makefile.PL INSTALLDIRS=vendor
+make CFLAGS="%{optflags}"
+
+
+%check
+make test
 
 
 %install
@@ -54,16 +60,27 @@ find . -type f | xargs %{__perl} -p -i -e "s|^#\!/usr/local/bin/perl|#\!/usr/bin
 
 %files
 %defattr(-,root,root)
-%doc ChangeLog README
-%{perl_vendorlib}
+%{perl_vendorarch}/BSD
+%{perl_vendorarch}/auto/BSD
 %{_mandir}/man*/*
+
+%files doc
+%defattr(-,root,root)
+%doc ChangeLog README
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue May 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.25
+- 1.25
+- rebuild against perl 5.8.8
+- create -doc subpackage
+- fix optimization
+- fix directory ownership
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.24
 - Clean rebuild
 
-* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.24
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
