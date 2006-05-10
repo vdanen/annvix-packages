@@ -25,7 +25,7 @@ Source:		ftp://ftp.perl.org/pub/CPAN/modules/by-module/%{pdir}/%{module}-%{versi
 
 Buildroot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel
-BuildRequires:	perl-Carp-Clan
+BuildRequires:	perl(Carp::Clan)
 
 %description
 %{module} module for perl.
@@ -34,13 +34,21 @@ bit vectors, sets (of integers), "big integer arithmetic" and
 boolean matrices, all of arbitrary sizes.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n %{module}-%{version}
 chmod -R u+w examples
 
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor
 %make OPTIMIZE="$RPM_OPT_FLAGS"
 
 
@@ -59,19 +67,27 @@ LANG=C %make test
 
 %files
 %defattr(-,root,root,755)
-%doc CHANGES.txt CREDITS.txt INSTALL.txt README.txt examples
 %{_mandir}/man3/Bit::Vector*
 %dir %{perl_vendorarch}/Bit
 %{perl_vendorarch}/Bit/Vector*
 %dir %{perl_vendorarch}/auto/Bit
 %{perl_vendorarch}/auto/Bit/Vector*
 
+%files doc
+%defattr(-,root,root)
+%doc CHANGES.txt CREDITS.txt INSTALL.txt README.txt examples
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed May 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 6.4
+- rebuild against perl 5.8.8
+- create -doc subpackage
+- perl policy
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 6.4
 - Clean rebuild
 
-* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 6.4
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
