@@ -30,17 +30,25 @@ BuildArch:	noarch
 Perl module for manipulation of tar archives.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n %{module}-%{version}
 
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor
 %make
 
 
 %check
-%{__make} test
+make test
 
 
 %install
@@ -54,14 +62,20 @@ Perl module for manipulation of tar archives.
 
 %files 
 %defattr(-,root,root)
-%doc README
 %{perl_vendorlib}/Archive
 %{_mandir}/man1/*
 %{_mandir}/man3/*
 %{_bindir}/*
 
+%files doc
+%doc README
+
 
 %changelog
+* Tue May 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.29
+- rebuild against perl 5.8.8
+- create -doc subpackage
+
 * Tue Mar 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.29
 - first Annvix build (for spamassassin)
 
