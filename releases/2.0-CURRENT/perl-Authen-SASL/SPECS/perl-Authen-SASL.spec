@@ -10,7 +10,7 @@
 %define module		Authen-SASL
 %define revision	$Rev$
 %define name		perl-%{module}
-%define version 	2.09
+%define version 	2.10
 %define release 	%_revrel
 
 Summary:	%{module} module for perl
@@ -20,16 +20,22 @@ Release:	%{release}
 License:	GPL or Artistic
 Group:		Development/Perl
 URL:		http://search.cpan.org/dist/%{module}/
-Source0:	%{module}-%{version}.tar.bz2
+Source0:	http://search.cpan.org/CPAN/authors/id/G/GB/GBARR/%{module}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel
 BuildArch:	noarch
 
-Requires:	perl
-
 %description
-SASL authentication module for perl
+SASL authentication module for perl.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -37,8 +43,11 @@ SASL authentication module for perl
 
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor
-make
+perl Makefile.PL INSTALLDIRS=vendor </dev/null
+%make
+
+
+%check
 make test
 
 
@@ -53,16 +62,22 @@ make test
 
 %files
 %defattr(-,root,root)
-%doc Changes api.txt
 %{_mandir}/*/*
 %{perl_vendorlib}/Authen
 
+%files doc
+%doc Changes api.txt
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed May 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.10
+- 2.10
+- rebuild against perl 5.8.8
+- create -doc subpackage
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.09
 - Clean rebuild
 
-* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.09
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
