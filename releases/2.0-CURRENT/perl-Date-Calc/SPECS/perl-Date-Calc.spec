@@ -25,10 +25,12 @@ Source:		ftp://ftp.perl.org/pub/CPAN/modules/by-module/%{pdir}/%{module}-%{versi
 
 Buildroot:	%{_buildroot}/%{name}-%{version}-buildroot
 BuildRequires:	perl-devel
-# this versioned require is expressed in README, but not in module
-BuildRequires:	perl-Bit-Vector >= 5.7
+# this versioned require is expressed in Makefile.PL, but not in module
+BuildRequires:	perl(Bit::Vector) >= 6.4
+BuildRequires:	perl(Carp::Clan) >= 5.3
 
-Requires:	perl-Bit-Vector >= 5.7
+Requires:	perl(Bit::Vector) >= 6.4
+Requires:	perl(Carp::Clan) >= 5.3
 
 %description
 This library provides all sorts of date calculations based on the Gregorian
@@ -37,17 +39,26 @@ with all relevant norms and standards: ISO/R 2015-1971, DIN 1355 and, to
 some extent, ISO 8601 (where applicable).
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n %{module}-%{version}
 chmod -R u+w examples
 
 %build
-%{__perl} -pi -e 's,^#!perl,#!/usr/bin/perl,' examples/*.{pl,cgi}
-%{__perl} Makefile.PL INSTALLDIRS=vendor
-%{__make}
+perl -pi -e 's,^#!perl,#!/usr/bin/perl,' examples/*.{pl,cgi}
+perl Makefile.PL INSTALLDIRS=vendor
+make CFLAGS="%{optflags}"
+
 
 %check
-%{__make} test
+make test
 
 
 %install
@@ -61,19 +72,26 @@ chmod -R u+w examples
 
 %files
 %defattr(-,root,root,755)
-%doc README.txt CHANGES.txt CREDITS.txt EXAMPLES.txt examples
 %{_mandir}/man3/Date::*
 %dir %{perl_vendorarch}/Date
-%{perl_vendorarch}/Date/*
-%dir %{perl_vendorarch}/auto/Date
-%{perl_vendorarch}/auto/Date/Calc
+%{perl_vendorarch}/Date
+%{perl_vendorarch}/auto/Date
+
+%files doc
+%defattr(-,root,root)
+%doc README.txt CHANGES.txt CREDITS.txt EXAMPLES.txt examples
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu May 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.4
+- rebuild against perl 5.8.8
+- create -doc subpackage
+- perl policy
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.4
 - Clean rebuild
 
-* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.4
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
