@@ -10,7 +10,7 @@
 %define module		Convert-ASN1
 %define revision	$Rev$
 %define name		perl-%{module}
-%define version 	0.19
+%define version 	0.20
 %define release 	%_revrel
 
 Summary: 	ASN.1 Encode/Decode library for perl
@@ -26,11 +26,17 @@ BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildArch: 	noarch
 BuildRequires:	perl-devel
 
-Requires:	perl
-
 %description
 Perl module used to encode and decode ASN.1 data structures using
 BER/DER rules.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -38,8 +44,11 @@ BER/DER rules.
 
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor
 make
+
+
+%check
 make test
 
 
@@ -54,16 +63,24 @@ make test
 
 %files
 %defattr(-,root,root)
-%doc ChangeLog README examples/*
 %{perl_vendorlib}/Convert/*
 %{_mandir}/*/*
 
+%files doc
+%defattr(-,root,root)
+%doc ChangeLog README examples/*
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed May 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.20
+- 0.20
+- rebuild against perl 5.8.8
+- create -doc subpackage
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.19
 - Clean rebuild
 
-* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.19
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
