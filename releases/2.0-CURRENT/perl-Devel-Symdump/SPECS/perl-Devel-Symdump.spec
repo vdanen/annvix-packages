@@ -23,11 +23,19 @@ URL:		http://www.cpan.org
 Source0:	%{module}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	perl-devel >= 0:5.600
+BuildRequires:	perl-devel
 BuildArch:	noarch
 
 %description
 %{module} module for perl
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -35,8 +43,11 @@ BuildArch:	noarch
 
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor
 make
+
+
+%check
 make test
 
 
@@ -51,16 +62,23 @@ make test
 
 %files
 %defattr(-,root,root)
-%doc ChangeLog README
 %{perl_vendorlib}/Devel
 %{_mandir}/*/*
 
+%files doc
+%defattr(-,root,root)
+%doc ChangeLog README
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu May 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.03
+- rebuild against perl 5.8.8
+- create -doc subpackage
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.03
 - Clean rebuild
 
-* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.03
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
