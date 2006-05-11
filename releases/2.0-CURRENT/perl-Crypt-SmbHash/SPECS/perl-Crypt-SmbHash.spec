@@ -31,15 +31,25 @@ This module provides functions to generate LM/NT hashes used in
 Samba's 'password' files, like smbpasswd.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n %{module}-%{version}
 
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor
 %make
 
-%{!?_without_tests:%{__make} test}
+
+%check
+%make test
 
 
 %install
@@ -53,15 +63,23 @@ Samba's 'password' files, like smbpasswd.
 
 %files
 %defattr(644,root,root,755)
-%doc Changes README
 %{perl_vendorlib}/Crypt/SmbHash.pm
 %{_mandir}/man3/*
 
+%files doc
+%defattr(-,root,root)
+%doc Changes README
+
+
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed May 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.12
+- rebuild against perl 5.8.8
+- create -doc subpackage
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.12
 - Clean rebuild
 
-* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.12
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
