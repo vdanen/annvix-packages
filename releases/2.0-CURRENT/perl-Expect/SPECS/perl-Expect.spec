@@ -25,13 +25,21 @@ Patch0:		%{name}-paths.patch
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
-BuildRequires:	perl-IO-Tty >= 1.02, perl-devel
+BuildRequires:	perl(IO::Tty) >= 1.02, perl-devel
 
-Requires: 	perl, perl-IO-Tty
+Requires: 	perl, perl(IO::Tty)
 
 
 %description
 Expect perl module.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -40,8 +48,11 @@ Expect perl module.
 
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor
 make
+
+
+%check
 make test
 
 
@@ -56,17 +67,24 @@ make test
 
 %files
 %defattr(644,root,root,755)
-%doc Changes README examples tutorial
 %{perl_vendorlib}/*.pm
 %{perl_vendorlib}/*.pod
 %{_mandir}/*/*
 
+%files doc
+%defattr(-,root,root)
+%doc Changes README examples tutorial
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu May 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.15
+- rebuild against perl 5.8.8
+- create -doc subpackage
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.15
 - Clean rebuild
 
-* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.15
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
