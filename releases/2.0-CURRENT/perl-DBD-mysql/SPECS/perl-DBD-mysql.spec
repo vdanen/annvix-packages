@@ -23,10 +23,10 @@ URL:		http://search.cpan.org/dist/%{module}
 Source:		http://www.cpan.org/modules/by-module/DBD/%{module}-%{version}.tar.bz2
 
 Buildroot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	MySQL-devel perl-DBI
+BuildRequires:	MySQL-devel
+BuildRequires:	perl(DBI)
 BuildRequires:	perl-devel
 
-Requires:	perl
 Provides:	perl-Mysql
 Obsoletes:	perl-Mysql
 
@@ -38,14 +38,24 @@ another option, this is based on a common standard, so your sources
 will easily be portable to other DBMS's.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n %{module}-%{version}
 
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor
 %make OPTIMIZE="%{optflags}"
 
+
+%check
 # make test requires a running mysql server
 #make test
 
@@ -61,16 +71,24 @@ will easily be portable to other DBMS's.
 
 %files
 %defattr(-,root,root)
-%doc README ChangeLog
 %{perl_vendorarch}/*
 %{_mandir}/*/*
 
+%files doc
+%defattr(-,root,root)
+%doc README ChangeLog
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu May 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0002
+- rebuild against perl 5.8.8
+- create -doc subpackage
+- perl policy
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0002
 - Clean rebuild
 
-* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.0002
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
