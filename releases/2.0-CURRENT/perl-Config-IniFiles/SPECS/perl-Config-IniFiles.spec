@@ -10,7 +10,7 @@
 %define module		Config-IniFiles
 %define revision	$Rev$
 %define name		perl-%{module}
-%define version		2.38
+%define version		2.39
 %define release		%_revrel
 
 Summary:	Config-IniFiles module for perl
@@ -19,7 +19,7 @@ Version:	%{version}
 Release:	%{release}
 License: 	GPL
 Group: 		Development/Perl
-URL:           	http://www.cpan.org/
+URL:		http://search.cpan.org/dist/%{module}
 Source: 	Config-IniFiles-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -31,18 +31,30 @@ This perl module allows you to access to config files written in the
 .ini style. 
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n %{module}-%{version}
 
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor
+chmod 0644 README IniFiles.pm
+perl Makefile.PL INSTALLDIRS=vendor
 %make
+
+
+%check
+%make test
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-chmod 0644 README
 %makeinstall_std
 
 
@@ -52,16 +64,24 @@ chmod 0644 README
 
 %files
 %defattr(-,root,root)
-%doc README
 %{perl_vendorlib}/Config
 %{_mandir}/*/*
 
+%files doc
+%defattr(-,root,root)
+%doc README
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed May 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.39
+- 2.39
+- rebuild against perl 5.8.8
+- create -doc subpackage
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.38
 - Clean rebuild
 
-* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.38
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
