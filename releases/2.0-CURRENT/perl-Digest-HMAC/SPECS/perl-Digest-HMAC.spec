@@ -26,7 +26,6 @@ BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel
 BuildArch:	noarch
 
-Provides:	perl-HMAC
 Requires:	perl(Digest::SHA1)
 
 %description
@@ -78,6 +77,7 @@ make test
 - rebuild against perl 5.8.8
 - create -doc subpackage
 - perl policy
+- remove stupid provides
 
 * Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.01
 - Clean rebuild
