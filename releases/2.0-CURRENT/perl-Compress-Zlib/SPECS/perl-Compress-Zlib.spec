@@ -25,11 +25,17 @@ Source0:	%{module}-%{version}.tar.bz2
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel zlib-devel
 
-Requires:	perl
-
 %description
 The Compress::Zlib module provides a Perl interface to the zlib compression
 library.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -37,7 +43,7 @@ library.
 
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor
 %make
 
 
@@ -56,13 +62,20 @@ make test
 
 %files
 %defattr(-,root,root)
-%doc README
 %{_mandir}/*/*
 %{perl_vendorarch}/Compress
 %{perl_vendorarch}/auto/Compress
 
+%files doc
+%defattr(-,root,root)
+%doc README
+
 
 %changelog
+* Wed May 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.41
+- rebuild against perl 5.8.8
+- create -doc subpackage
+
 * Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.41
 - 1.41
 - minor spec cleanups
