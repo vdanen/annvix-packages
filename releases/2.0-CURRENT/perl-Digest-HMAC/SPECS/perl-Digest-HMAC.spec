@@ -27,10 +27,18 @@ BuildRequires:	perl-devel
 BuildArch:	noarch
 
 Provides:	perl-HMAC
-Requires:	perl perl-Digest-SHA1
+Requires:	perl(Digest::SHA1)
 
 %description
 Digest-HMAC module for perl.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -38,8 +46,11 @@ Digest-HMAC module for perl.
 
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor
 make
+
+
+%check
 make test
 
 
@@ -54,16 +65,24 @@ make test
 
 %files
 %defattr(-,root,root)
-%doc README Changes
 %{_mandir}/*/*
 %{perl_vendorlib}/Digest
 
+%files doc
+%defattr(-,root,root)
+%doc README Changes
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu May 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.01
+- rebuild against perl 5.8.8
+- create -doc subpackage
+- perl policy
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.01
 - Clean rebuild
 
-* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.01
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
