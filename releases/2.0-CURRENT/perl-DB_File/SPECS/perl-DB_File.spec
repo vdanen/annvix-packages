@@ -10,10 +10,8 @@
 %define revision	$Rev$
 %define name		perl-%{module}
 %define module		DB_File
-%define version		1.811
+%define version		1.814
 %define release		%_revrel
-
-%define perl_archlib	%(eval "`perl -V:installarchlib`"; echo $installarchlib)
 
 Summary:	Perl module for use of the Berkeley DB version 1
 Name:		%{name}
@@ -21,8 +19,8 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL or Artistic
 Group:		Development/Perl
-URL:		http://search.cpan.org/dist/DB_File/
-Source0:	%{module}-%{version}.tar.bz2
+URL:		http://search.cpan.org/dist/%{module}/
+Source0:	http://search.cpan.org/CPAN/authors/id/P/PM/PMQS/%{module}-%{version}.tar.bz2
 Patch:		%{module}-1.805-makefile.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -46,21 +44,31 @@ For further details see the documentation included at the end of the
 file DB_File.pm.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n %{module}-%{version}
 %patch -p1
+chmod 0644 README DB_File.pm
 
 
 %build
-CFLAGS="%{optflags}" %{__perl} Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor
 %make
+
+
+%check
 make test
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-eval `perl '-V:installarchlib'`
-mkdir -p %{buildroot}/$installarchlib
 %makeinstall_std
 
 
@@ -70,17 +78,25 @@ mkdir -p %{buildroot}/$installarchlib
 
 %files
 %defattr(-,root,root)
-%doc README Changes
 %{perl_vendorarch}/*.pm
 %{perl_vendorarch}/auto/DB_File
 %{_mandir}/man3*/DB_File.*
 
+%files doc
+%defattr(-,root,root)
+%doc README Changes
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu May 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.814
+- 1.814
+- rebuild against perl 5.8.8
+- create -doc subpackage
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.811
 - Clean rebuild
 
-* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.811
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
