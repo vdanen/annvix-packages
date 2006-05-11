@@ -10,7 +10,7 @@
 %define module		CGI
 %define revision	$Rev$
 %define name		perl-%{module}
-%define version		3.05
+%define version		3.16
 %define release		%_revrel
 %define epoch		1
 
@@ -22,14 +22,11 @@ Epoch:		%{epoch}
 License:        GPL or Artistic
 Group:          Development/Perl
 URL:            http://stein.cshl.org/WWW/software/CGI/
-Source:         CGI.pm-%{version}.tar.bz2
+Source:		http://search.cpan.org/CPAN/authors/id/L/LD/LDS/CGI.pm-%{version}.tar.bz2
 
 BuildRoot:      %{_buildroot}/%{name}-%{version}
 BuildArch:      noarch
 BuildRequires:  perl-devel
-
-Requires:       perl >= 0:5.004
-Conflicts:      perl < 0:5.600-28mdk
 
 %description
 This perl library uses perl5 objects to make it easy to create
@@ -55,15 +52,26 @@ server processes.  Scripts that perform time-consuming initialization
 processes, such as loading large modules or opening persistent database
 connections, will see large performance improvements.
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
 
 %prep
 %setup -q -n %{module}.pm-%{version}
 
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor
 %make
-%{__make} test
+
+
+%check
+make test
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -76,7 +84,6 @@ connections, will see large performance improvements.
 
 %files
 %defattr(-,root,root)
-%doc Changes README *.html examples
 %{perl_vendorlib}/CGI
 %exclude %{perl_vendorlib}/CGI/Fast.pm
 %{perl_vendorlib}/*.pm
@@ -88,12 +95,21 @@ connections, will see large performance improvements.
 %{perl_vendorlib}/CGI/Fast.pm
 %{_mandir}/man3/CGI::Fast.3pm.*
 
+%files doc
+%defattr(-,root,root)
+%doc Changes README *.html examples
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed May 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.16
+- 3.16
+- rebuild against perl 5.8.8
+- create -doc subpackage
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.05
 - Clean rebuild
 
-* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.05
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
