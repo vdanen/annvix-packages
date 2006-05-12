@@ -24,12 +24,19 @@ Source0:	%{module}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
-BuildRequires:	perl-devel perl-Time-HiRes
-
-Requires:	perl
+BuildRequires:	perl-devel
+BuildRequires:	perl(Time::HiRes)
 
 %description
 This Perl modules allows to read from continously updated files.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -37,12 +44,12 @@ This Perl modules allows to read from continously updated files.
 
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor
-%{__make}
+perl Makefile.PL INSTALLDIRS=vendor
+make
 
 
 %check
-%{__make} test
+make test
 
 
 %install
@@ -56,16 +63,24 @@ This Perl modules allows to read from continously updated files.
 
 %files
 %defattr(-,root,root)
-%doc README Changes
 %{perl_vendorlib}/File
 %{_mandir}/*/*
 
+%files doc
+%defattr(-,root,root)
+%doc README Changes
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri May 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.99.1
+- rebuild against perl 5.8.8
+- create -doc subpackage
+- perl policy
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.99.1
 - Clean rebuild
 
-* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.99.1
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
