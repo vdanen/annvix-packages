@@ -25,10 +25,16 @@ Source:		ftp://ftp.perl.org/pub/CPAN/modules/by-module/IO/%{module}-%{version}.t
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel
 
-Requires: 	perl 
-
 %description
 The IO::Tty and IO::Pty modules provide an interface to pseudo tty's.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -36,8 +42,11 @@ The IO::Tty and IO::Pty modules provide an interface to pseudo tty's.
 
 
 %build
-CFLAGS="%{optflags}" %{__perl} Makefile.PL INSTALLDIRS=vendor
+CFLAGS="%{optflags}" perl Makefile.PL INSTALLDIRS=vendor
 %make
+
+
+%check
 make test
 
 
@@ -52,7 +61,6 @@ make test
 
 %files
 %defattr(644,root,root,755)
-%doc ChangeLog README
 %dir %{perl_vendorarch}/auto/IO/Tty
 %{perl_vendorarch}/auto/IO/Tty/*
 %{perl_vendorarch}/IO/*.pm
@@ -60,12 +68,20 @@ make test
 %{perl_vendorarch}/IO/Tty/*
 %{_mandir}/*/*
 
+%files doc
+%defattr(-,root,root)
+%doc ChangeLog README
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri May 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.02
+- rebuild against perl 5.8.8
+- create -doc subpackage
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.02
 - Clean rebuild
 
-* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.02
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
