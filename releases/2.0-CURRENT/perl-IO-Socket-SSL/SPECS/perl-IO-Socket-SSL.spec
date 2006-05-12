@@ -24,9 +24,10 @@ Source0:	%{module}-%{version}.tar.bz2
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel
+BuildRequires:	perl(Net::SSLeay)
 BuildArch:	noarch
 
-Requires:	perl-Net_SSLeay >= 1.08
+Requires:	perl(Net::SSLeay) >= 1.08
 
 %description
 IO::Socket::SSL is a class implementing an object oriented
@@ -35,12 +36,20 @@ IO::Socket::INET and provides a subset of the base class's
 interface methods.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n %{module}-%{version}
 
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor
 make
 
 
@@ -55,16 +64,25 @@ make
 
 %files
 %defattr(-,root,root)
-%doc README Changes util docs certs
 %{_mandir}/*/*
 %{perl_vendorlib}/IO/Socket/*
 
+%files doc
+%defattr(-,root,root)
+%doc README Changes util docs certs
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri May 12 2006 Vincent Danen <vdanen-at-build.annvix.org>  0.97
+- rebuild against perl 5.8.8
+- create -doc subpackage
+- perl policy
+- BuildRequires: perl(Net::SSLeay)
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.97
 - Clean rebuild
 
-* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.97
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
