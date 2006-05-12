@@ -38,12 +38,12 @@ and defined by the UNSD.
 
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor
 %make
 
 
 %check
-%{__make} test
+make test
 
 
 %install
@@ -62,6 +62,9 @@ and defined by the UNSD.
 
 
 %changelog
+* Fri May 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4
+- rebuild against perl 5.8.8
+
 * Tue Mar 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4
 - spec cleanups
 
