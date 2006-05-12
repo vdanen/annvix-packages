@@ -26,13 +26,18 @@ BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 BuildRequires:	perl-devel
 
-Requires: 	perl
-
-
 %description
 This module contains data tables useful in dealing with HTML.
 
 It provides no functions or methods.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -40,8 +45,11 @@ It provides no functions or methods.
 
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor
 make
+
+
+%check
 make test
 
 
@@ -56,16 +64,23 @@ make test
 
 %files
 %defattr(-,root,root)
-%doc README ChangeLog
 %{_mandir}/*/*
 %{perl_vendorlib}/HTML
 
+%files doc
+%defattr(-,root,root)
+%doc README ChangeLog
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri May 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.04
+- rebuild against perl 5.8.8
+- create -doc subpackage
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.04
 - Clean rebuild
 
-* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.04
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
