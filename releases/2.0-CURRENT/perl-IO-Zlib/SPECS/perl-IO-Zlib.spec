@@ -23,7 +23,8 @@ URL:		http://search.cpan.org/dist/%{module}
 Source0:	http://search.cpan.org/CPAN/authors/id/G/GA/GAAS/%{module}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	perl-devel, perl-Compress-Zlib
+BuildRequires:	perl-devel
+BuildRequires:	perl(Compress::Zlib)
 BuildArch:	noarch
 
 %description
@@ -32,17 +33,25 @@ to gzip/zlib compressed files. It provides many of the same methods as
 the IO::Handle interface.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n %{module}-%{version}
 
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor
-%__make OPTIMIZE="%{optflags}"
+perl Makefile.PL INSTALLDIRS=vendor
+make OPTIMIZE="%{optflags}"
 
 
 %check
-%__make test
+make test
 
 
 %install
@@ -56,12 +65,20 @@ the IO::Handle interface.
 
 %files
 %defattr(-,root,root)
-%doc ChangeLog README
 %{perl_vendorlib}/IO/*
 %{_mandir}/man?/*
 
+%files doc
+%defattr(-,root,root)
+%doc ChangeLog README
+
 
 %changelog
+* Fri May 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.04
+- rebuild against perl 5.8.8
+- create -doc subpackage
+- perl policy
+
 * Tue Mar 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.04
 - first Annvix build (for spamassassin)
 
