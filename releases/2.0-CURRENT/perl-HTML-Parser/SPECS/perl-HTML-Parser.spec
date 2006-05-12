@@ -10,7 +10,7 @@
 %define module		HTML-Parser
 %define revision	$Rev$
 %define name		perl-%{module}
-%define version 	3.45
+%define version 	3.51
 %define release 	%_revrel
 
 Summary: 	Perl module to parse HTML documents
@@ -23,13 +23,22 @@ URL: 		http://search.cpan.org/dist/%{module}/
 Source:		ftp://ftp.cpan.org/pub/CPAN/modules/by-module/HTML/%{module}-%{version}.tar.bz2
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
-BuildRequires:	perl-devel perl-HTML-Tagset
+BuildRequires:	perl-devel
+BuildRequires:	perl(HTML::Tagset)
 
-Requires: 	perl perl-HTML-Tagset >= 3.03
+Requires: 	perl(HTML::Tagset) >= 3.03
 
 %description
-HTML-Parser module for perl to parse and extract information
+HTML::Parser module for perl to parse and extract information
 from HTML documents.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -39,8 +48,11 @@ from HTML documents.
 %build
 # compile with default options (prompt() checks for STDIN being a terminal).
 # yes to not ask for automate rebuild
-yes | %{__perl} Makefile.PL INSTALLDIRS=vendor
+yes | perl Makefile.PL INSTALLDIRS=vendor
 %make OPTIMIZE="%{optflags}"
+
+
+%check
 make test
 
 
@@ -55,17 +67,26 @@ make test
 
 %files
 %defattr(-,root,root)
-%doc README TODO Changes
 %{_mandir}/*/*
 %{perl_vendorarch}/auto/*
 %{perl_vendorarch}/HTML
 
+%files doc
+%defattr(-,root,root)
+%doc README TODO Changes
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri May 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.51
+- 3.51
+- rebuild against perl 5.8.8
+- create -doc subpackage
+- perl policy
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.45
 - Clean rebuild
 
-* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.45
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
