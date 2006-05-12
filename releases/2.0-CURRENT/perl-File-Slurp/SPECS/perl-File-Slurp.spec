@@ -36,6 +36,14 @@ These slurp/spew subs work for files, pipes and sockets, and stdio,
 pseudo-files, and DATA.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n %{module}-%{version}
 chmod 0644 lib/File/Slurp.pm
@@ -62,12 +70,19 @@ find %{buildroot} -name "perllocal.pod" | xargs -i rm -f {}
 
 %files
 %defattr(-,root,root)
-%doc README Changes
 %{_mandir}/man3*/*
 %{perl_vendorlib}/File
 
+%files doc
+%defattr(-,root,root)
+%doc README Changes
+
 
 %changelog
+* Fri May 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 9999.12
+- rebuild against perl 5.8.8
+- create -doc subpackage
+
 * Fri Apr 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 9999.12
 - first Annvix build
 
