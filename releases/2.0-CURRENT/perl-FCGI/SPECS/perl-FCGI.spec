@@ -23,9 +23,7 @@ URL:		http://cpan.valueclick.com/authors/id/SKIMO/
 Source0:	%{modname}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	perl, perl-devel
-
-Requires:	perl
+BuildRequires:	perl-devel
 
 %description
 This is a Fast CGI module for perl. It's based on the FCGI module that
@@ -37,6 +35,14 @@ Lincoln D. Stein's perl CGI module also contains some information
 about fastcgi programming.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n %{modname}-%{version}
 chmod 0644 LICENSE.TERMS
@@ -45,7 +51,7 @@ chmod 0644 LICENSE.TERMS
 %build
 # Choose not to build a pure Perl implementation
 # (default answer [n] -> return)
-echo | CFLAGS="%{optflags}" %{__perl} Makefile.PL INSTALLDIRS=vendor
+echo | CFLAGS="%{optflags}" perl Makefile.PL INSTALLDIRS=vendor
 %make
 
 
@@ -60,17 +66,24 @@ echo | CFLAGS="%{optflags}" %{__perl} Makefile.PL INSTALLDIRS=vendor
 
 %files
 %defattr(-,root,root)
-%doc README LICENSE.TERMS ChangeLog
 %{_mandir}/*/*
 %{perl_vendorarch}/FCGI*
 %{perl_vendorarch}/auto/FCGI
 
+%files doc
+%defattr(-,root,root)
+%doc README LICENSE.TERMS ChangeLog
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri May 12 2006 Vincent Danen <vdanen-at-build.annvix.org>  0.67
+- rebuild against perl 5.8.8
+- create -doc subpackage
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.67
 - Clean rebuild
 
-* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.67
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
