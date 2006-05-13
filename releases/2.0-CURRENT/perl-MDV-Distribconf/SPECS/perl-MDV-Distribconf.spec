@@ -24,7 +24,8 @@ Source0:	%{module}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
-BuildRequires:	perl perl-Config-IniFiles
+BuildRequires:	perl
+BuildRequires:	perl(Config::IniFiles)
 
 
 %description
@@ -56,13 +57,16 @@ make test
 
 %files
 %defattr(-,root,root)
-%doc ChangeLog
 %{_mandir}/*/*
 %{perl_vendorlib}/MDV/Distribconf
 %{perl_vendorlib}/MDV/Distribconf.pm
 
 
 %changelog
+* Fri May 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.01
+- rebuild against perl 5.8.8
+- drop the docs (was just the changelog)
+
 * Fri Apr 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.01
 - first Annvix build
 
