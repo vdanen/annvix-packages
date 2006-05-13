@@ -10,7 +10,7 @@
 %define	module		Module-Build
 %define	revision	$Rev$
 %define	name		perl-%{module}
-%define version 	0.2611
+%define version 	0.2612
 %define release 	%_revrel
 
 Summary:	Build and install Perl modules
@@ -26,7 +26,7 @@ BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 
 BuildRequires:	perl-devel
-BuildRequires:	perl-YAML
+BuildRequires:	perl(YAML)
 
 %description
 Module::Build is a system for building, testing, and installing Perl modules.
@@ -40,12 +40,20 @@ are included with perl 5.6.0, and it works fine on perl 5.005 if you can
 install a few additional modules.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n %{module}-%{version}
 
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor
 perl Build.PL installdirs=vendor
 ./Build
 
@@ -65,17 +73,26 @@ perl Build.PL installdirs=vendor
 
 %files 
 %defattr(-,root,root)
-%doc Changes INSTALL README
 %{_bindir}/config_data
 %{perl_vendorlib}/Module
 %{_mandir}/*/*
 
+%files doc
+%defattr(-,root,root)
+%doc Changes INSTALL README
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri May 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.2612
+- 0.2612
+- rebuild against perl 5.8.8
+- create -doc subpackage
+- perl policy
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.2611
 - Clean rebuild
 
-* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.2611
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
