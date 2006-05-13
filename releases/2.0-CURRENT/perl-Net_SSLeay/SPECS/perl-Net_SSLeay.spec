@@ -10,23 +10,22 @@
 %define module		Net_SSLeay
 %define revision	$Rev$
 %define name 		perl-%{module}
-%define version		1.25
+%define version		1.30
 %define release		%_revrel
 
 Summary:        Net::SSLeay (module for perl)
 Name: 		%{name}
 Version: 	%{version}
 Release: 	%{release}
-License: 	GPL
+License: 	BSD-like
 Group: 		Development/Perl
 URL: 		http://www.bacus.pt/Net_SSLeay/index.html
 Source: 	%{module}.pm-%{version}.tar.bz2
-Patch:		%{module}.pm-1.25.large_tcp_read.patch
-Patch1:		Net_SSLeay-nobakus.patch
+Patch0:		perl-Net_SSLeay-1.30-large-tcp-read.patch
 Patch2:		perl-Net_SSLeay-1.2.5-CVE-2005-0106.patch
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
-BuildRequires:	openssl-devel perl-devel
+BuildRequires:	openssl-devel, perl-devel
 
 Requires: 	openssl >= 0.9.3a
 
@@ -34,12 +33,20 @@ Requires: 	openssl >= 0.9.3a
 Net::SSLeay module for perl.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n %{module}.pm-%{version}
-%patch -p1 -b .fpons
-%patch1 -p0 -b .nobakus
+%patch0 -p0 -b .large_tcp
 %patch2 -p1 -b .cve-2005-0106
 
+chmod 0755 examples
 # openssl_path is /usr here, therefore don't -I/usr/include and
 # especially don't (badly) hardcode standard library search path
 # /usr/lib
@@ -50,9 +57,12 @@ fi
 
 %build
 # note the %{_prefix} which must passed to Makefile.PL, weird but necessary :-(
-%{__perl} Makefile.PL %{_prefix} INSTALLDIRS=vendor 
+perl Makefile.PL %{_prefix} INSTALLDIRS=vendor 
 %make OPTIMIZE="%{optflags}"
 perl -p -i -e 's|/usr/local/bin|/usr/bin|g;' *.pm examples/*
+
+
+%check
 make test
 
 
@@ -67,14 +77,24 @@ make test
 
 %files
 %defattr(-,root,root)
-%doc Changes Credits MANIFEST README examples QuickRef
 %{perl_vendorarch}/auto/Net/SSLeay
 %{perl_vendorarch}/Net/SSLeay*
 %{perl_vendorarch}/Net/*.pl
 %{_mandir}/*/*
 
+%files doc
+%defattr(-,root,root)
+%doc Changes Credits README examples QuickRef
+
 
 %changelog
+* Fri May 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.30
+- 1.30
+- rebuild against perl 5.8.8
+- create -doc subpackage
+- update P0
+- drop P1
+
 * Fri Feb 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.25
 - P2: security fix for CVE-2005-0106
 
