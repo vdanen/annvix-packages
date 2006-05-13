@@ -24,10 +24,7 @@ Source:		http://www.cpan.org/modules/by-module/Locale/gettext-%{version}.tar.bz2
 Patch2:		gettext-1.04-add-iconv.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	gettext-devel perl-devel
-
-Obsoletes:	perl-gettext
-Conflicts:	nlpr <= 0.0.1-2mdk, drakfloppy <= 0.43-10mdk, urpmi <= 3.6-4mdk
+BuildRequires:	gettext-devel, perl-devel
 
 %description
 The gettext module permits access from perl to the gettext() family of
@@ -38,14 +35,25 @@ It provides gettext(), dgettext(), dcgettext(), textdomain() and
 bindtextdomain().
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n gettext-%{version}
 %patch2 -p0
 
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor
 make
+
+
+%check
 make test
 
 
@@ -60,17 +68,25 @@ make test
 
 %files
 %defattr(-,root,root)
-%doc README
 %{perl_vendorarch}/Locale/*
 %{perl_vendorarch}/auto/Locale/*
 %{_mandir}/*/*
 
+%files doc
+%defattr(-,root,root)
+%doc README
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri May 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.05
+- rebuild against perl 5.8.8
+- create -doc subpackage
+- clean up requirements
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.05
 - Clean rebuild
 
-* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.05
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
