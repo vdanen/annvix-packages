@@ -40,19 +40,30 @@ easily be ported to perl. The new style uses class packages and
 might be more familiar to C++ programmers.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n %{module}-%{version}
 # perl path hack
-find . -type f | xargs %{__perl} -p -i -e "s|^#\!/usr/local/bin/perl|#\!/usr/bin/perl|g"
+find . -type f | xargs perl -p -i -e "s|^#\!/usr/local/bin/perl|#\!/usr/bin/perl|g"
 
 
 %build
 export POSTGRES_INCLUDE=`pg_config --includedir`
 export POSTGRES_LIB=`pg_config --libdir`
-%{__perl} Makefile.PL INSTALLDIRS=vendor </dev/null
+perl Makefile.PL INSTALLDIRS=vendor </dev/null
 %make
+
+
+%check
 # make test needs a running PostgreSQL server
-#%{__make} test
+#make test
 
 
 %install
@@ -66,14 +77,21 @@ export POSTGRES_LIB=`pg_config --libdir`
 
 %files
 %defattr(-,root,root)
-%doc Changes README
 %{perl_vendorlib}/*/*/Pg/Pg.so
 %{perl_vendorlib}/*/*/Pg/autosplit.ix
 %{perl_vendorlib}/*/Pg.pm
 %{_mandir}/man3*/*
 
+%files doc
+%defattr(-,root,root)
+%doc Changes README
+
 
 %changelog
+* Sat May 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1.1
+- rebuild against perl 5.8.8
+- create -doc subpackage
+
 * Wed Feb  1 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1.1
 - build against new postgresql
 
