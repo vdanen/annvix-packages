@@ -24,10 +24,10 @@ URL:		http://search.cpan.org/dist/%{module}
 Source:		http://search.cpan.org/CPAN/authors/id/J/JM/JMEHNLE/mail-spf-query/%{module}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	perl-Net-CIDR-Lite
-BuildRequires:	perl-Net-DNS
-BuildRequires:  perl-URI
-BuildRequires:  perl-Sys-Hostname-Long
+BuildRequires:	perl(Net::CIDR::Lite)
+BuildRequires:	perl(Net::DNS)
+BuildRequires:  perl(URI)
+BuildRequires:  perl(Sys::Hostname::Long)
 BuildArch:	noarch
 
 %description
@@ -36,17 +36,25 @@ mailers in DNS. Given an email address, Mail::SPF::Query determines the
 legitimacy of an SMTP client IP.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n %{module}-%{version}
 
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor
 %make
 
 
 %check
-%{__make} test
+make test
 
 
 %install
@@ -60,12 +68,21 @@ legitimacy of an SMTP client IP.
 
 %files
 %defattr(-,root,root)
-%doc CHANGES README
 %{perl_vendorlib}/Mail
 %{_mandir}/*/*
 %{_bindir}/*
 
+%files doc
+%defattr(-,root,root)
+%doc CHANGES README
+
+
 %changelog
+* Fri May 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.999.1
+- rebuild against perl 5.8.8
+- create -doc subpackage
+- perl policy
+
 * Sat Mar 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.999.1
 - first Annvix build
 
