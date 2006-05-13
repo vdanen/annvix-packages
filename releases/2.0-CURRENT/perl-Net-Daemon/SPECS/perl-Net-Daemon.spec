@@ -10,7 +10,7 @@
 %define module 		Net-Daemon
 %define revision	$Rev$
 %define name		perl-%{module}
-%define version 	0.38
+%define version 	0.39
 %define release 	%_revrel
 
 Summary:	%{module} perl module
@@ -19,17 +19,31 @@ Version: 	%{version}
 Release: 	%{release}
 License: 	GPL or Artistic
 Group:		Development/Perl
-URL:		ftp://ftp.funet.fi/pub/languages/perl/CPAN/authors/id/JWIED 
-Source0:	%{module}-%{version}.tar.bz2
+URL:		http://search.cpan.org/dist/%{module}/
+Source0:	http://search.cpan.org/CPAN/authors/id/J/JW/JWIED/%{module}-%{version}.tar.bz2
 
 Buildrequires:  perl-devel >= 5.8.0
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
 Buildarch:	noarch
 
-Requires: 	perl
-
 %description
-%{module} - module for perl
+Net::Daemon is an abstract base class for implementing portable server
+applications in a very simple way. The module is designed for Perl 5.005 and
+threads, but can work with fork() and Perl 5.004.
+
+The Net::Daemon class offers methods for the most common tasks a daemon needs:
+Starting up, logging, accepting clients, authorization, restricting its own
+environment for security and doing the true work. You only have to override
+those methods that aren't appropriate for you, but typically inheriting will
+safe you a lot of work anyways.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -37,8 +51,8 @@ Requires: 	perl
 
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor
-make
+perl Makefile.PL INSTALLDIRS=vendor
+%make
 
 
 %install
@@ -52,17 +66,28 @@ make
 
 %files 
 %defattr(-,root,root)
-%doc README MANIFEST
 %{perl_vendorlib}/Net/*.pm
 %{perl_vendorlib}/Net/Daemon/
 %{_mandir}/*/*
 
+%files doc
+%defattr(-,root,root)
+%doc README
+
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri May 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.39
+- 0.39
+- rebuild against perl 5.8.8
+- create -doc subpackage
+- update description
+- spec cleanups
+- can't make test with this one because it wants to talk to syslog
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.38
 - Clean rebuild
 
-* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.38
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
