@@ -23,8 +23,8 @@ URL:		http://search.cpan.org/dist/%{module}
 Source0:	http://search.cpan.org/CPAN/authors/id/O/OL/OLAF/%{module}-%{version}.tar.bz2
 
 BuildRequires:	perl-devel
-BuildRequires:	perl-Digest-HMAC
-BuildRequires:	perl-Net-IP
+BuildRequires:	perl(Digest::HMAC)
+BuildRequires:	perl(Net::IP)
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -37,17 +37,25 @@ The programmer should be somewhat familiar with the format of a DNS packet and
 its various sections. See RFC 1035 or DNS and BIND (Albitz & Liu) for details.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n %{module}-%{version} 
 
 
 %build
-yes|%{__perl} Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor </dev/null
 %make
 
 
 %check
-%{__make} test
+make test
 
 
 %install
@@ -61,24 +69,34 @@ yes|%{__perl} Makefile.PL INSTALLDIRS=vendor
 
 %files
 %defattr(-,root,root)
-%doc README Changes
 %{_mandir}/*/*
 %{perl_vendorarch}/auto/Net
 %{perl_vendorarch}/Net
 
+%files doc
+%defattr(-,root,root)
+%doc README Changes
+
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri May 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.57
+- 0.57
+- rebuild against perl 5.8.8
+- create -doc subpackage
+- perl policy
+- redirect from /dev/null rather than using yes
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.53
 - use yes to enable tests or the Makefile will stall waiting for input
   and mess up any rebuilding scripts
 
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.53
 - Clean rebuild
 
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.53
 - Clean rebuild
 
-* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.53
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
