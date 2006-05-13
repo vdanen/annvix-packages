@@ -13,6 +13,8 @@
 %define version 	2.10
 %define release 	%_revrel
 
+%define _requires_exceptions	perl\(GSSAPI\)
+
 Summary:	%{module} module for perl
 Name:		%{name}
 Version:	%{version}
@@ -69,6 +71,9 @@ make test
 %doc Changes api.txt
 
 %changelog
+* Sat May 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.10
+- don't require the optional perl GSSAPI module
+
 * Wed May 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.10
 - 2.10
 - rebuild against perl 5.8.8
