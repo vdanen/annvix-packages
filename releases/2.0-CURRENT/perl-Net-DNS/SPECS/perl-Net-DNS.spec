@@ -10,7 +10,7 @@
 %define module		Net-DNS
 %define revision	$Rev$
 %define name		perl-%{module}
-%define version		0.53
+%define version		0.57
 %define release		%_revrel
 
 Summary:	Perl interface to the DNS resolver
