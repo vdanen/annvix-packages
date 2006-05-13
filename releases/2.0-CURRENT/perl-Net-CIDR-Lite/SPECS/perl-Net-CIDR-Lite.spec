@@ -31,12 +31,20 @@ Faster alternative to Net::CIDR when merging a large number of CIDR address
 ranges. Works for IPv4 and IPv6 addresses.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n %{module}-%{version}
 
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor
 %make
 
 
@@ -46,7 +54,7 @@ ranges. Works for IPv4 and IPv6 addresses.
 
 
 %check
-%{__make} test
+make test
 
 
 %clean 
@@ -55,12 +63,19 @@ ranges. Works for IPv4 and IPv6 addresses.
 
 %files
 %defattr(-,root,root)
-%doc Changes README
 %{perl_vendorlib}/Net
 %{_mandir}/*/*
 
+%files doc
+%defattr(-,root,root)
+%doc Changes README
+
 
 %changelog
+* Fri May 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.20
+- rebuild against perl 5.8.8
+- create -doc subpackage
+
 * Sat Mar 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.20
 - first Annvix build
 
