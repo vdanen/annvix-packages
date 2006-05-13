@@ -10,7 +10,7 @@
 %define module		Net-IP
 %define revision	$Rev$
 %define name 		perl-%{module}
-%define version		1.23
+%define version		1.24
 %define release 	%_revrel
 
 Summary:	Net::IP perl module
@@ -26,8 +26,6 @@ BuildRequires:	perl-devel
 BuildRoot:	%{_buildroot}/%{name}-buildroot
 BuildArch:	noarch
 
-Requires:	perl
-
 %description
 This module provides functions to deal with IPv4/IPv6 addresses.
 The module can be used as a class, allowing the user to instantiate
@@ -37,17 +35,25 @@ functions. Most subroutines can take either IPv4 or IPv6 addresses
 transparently.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n %{module}-%{version}
 
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor
-%__make
+perl Makefile.PL INSTALLDIRS=vendor
+make
 
 
 %check
-%__make test
+make test
 
 
 %install
@@ -61,18 +67,26 @@ transparently.
 
 %files
 %defattr(-,root,root)
-%doc README Changes
 %{_bindir}/ipcount
 %{_bindir}/iptab
 %{perl_vendorlib}/*
 %{_mandir}/*/*
 
+%files doc
+%defattr(-,root,root)
+%doc README Changes
+
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri May 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.24
+- 1.24
+- rebuild against perl 5.8.8
+- create -doc subpackage
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.23
 - Clean rebuild
 
-* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.23
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
