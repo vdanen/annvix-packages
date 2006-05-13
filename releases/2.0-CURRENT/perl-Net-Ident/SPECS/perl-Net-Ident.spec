@@ -36,12 +36,21 @@ requires the remote site to run a daemon (often called identd) to
 provide the requested information, so it is not always available
 for all TCP/IP connections.
 
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n %{module}-%{version}
 
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor
 %make
 
 
@@ -61,12 +70,19 @@ for all TCP/IP connections.
 
 %files
 %defattr(-,root,root)
-%doc Changes README
 %{perl_vendorlib}/Net/Ident.pm
 %{_mandir}/*/*
 
+%files doc
+%defattr(-,root,root)
+%doc Changes README
+
 
 %changelog
+* Fri May 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.20
+- rebuild against perl 5.8.8
+- create -doc subpackage
+
 * Tue Mar 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.20
 - first Annvix build (for spamassassin)
 
