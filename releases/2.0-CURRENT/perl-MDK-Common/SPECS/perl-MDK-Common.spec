@@ -10,7 +10,7 @@
 %define module		MDK-Common
 %define revision	$Rev$
 %define name		perl-%{module}
-%define version 	1.1.24
+%define version 	1.2.2
 %define release 	%_revrel
 
 %ifarch x86_64
@@ -47,6 +47,14 @@ Requires:	perl-base >= 2:5.8.0 %{require_ocaml}
 Various verifying scripts created for DrakX
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n %{name}
 
@@ -69,23 +77,30 @@ rm -rf %{buildroot}%{_sysconfdir}/emacs
 
 %files
 %defattr(-,root,root)
-%doc COPYING
 %dir %{perl_vendorlib}/MDK
 %{perl_vendorlib}/MDK/*
 
 %files devel
 %defattr(-,root,root)
-%doc index.html tutorial.html perl_checker.src/perl_checker.html
 %{_bindir}/*
 %{perl_vendorlib}/perl_checker_fake_packages
 %{_datadir}/vim/ftplugin/*
 
+%files doc
+%defattr(-,root,root)
+%doc COPYING index.html tutorial.html perl_checker.src/perl_checker.html
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri May 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.2
+- 1.2.2
+- rebuild against perl 5.8.8
+- create -doc subpackage
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.1.24
 - Clean rebuild
 
-* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.1.24
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
