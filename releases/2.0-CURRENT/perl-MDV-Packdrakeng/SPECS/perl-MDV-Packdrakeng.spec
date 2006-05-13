@@ -26,12 +26,20 @@ Source0:	%{module}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
-BuildRequires:	perl-Compress-Zlib
+BuildRequires:	perl(Compress::Zlib)
 
 
 %description
 MDV::Packdrakeng is a simple indexed archive builder and extractor using
 standard compression methods.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -58,13 +66,21 @@ make test
 
 %files
 %defattr(-,root,root)
-%doc ChangeLog README
 %{_mandir}/*/*
 %{perl_vendorlib}/MDV/Packdrakeng
 %{perl_vendorlib}/MDV/Packdrakeng.pm
 
+%files doc
+%defattr(-,root,root)
+%doc ChangeLog README
+
 
 %changelog
+* Fri May 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.01
+- rebuild against perl 5.8.8
+- create -doc subpackage
+- perl policy
+
 * Fri Apr 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.01
 - first Annvix build
 
