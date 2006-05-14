@@ -25,19 +25,15 @@ URL:		http://www.cpan.org
 Source:		ftp://sunsite.doc.ic.ac.uk/packages/CPAN/modules/by-module/%{module}/%{module}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	perl-devel XFree86-devel
+BuildRequires:	perl-devel, XFree86-devel
 
-Provides:	perl/tk ptk pTk
-Requires:	perl
-Provides:	perl(Tk::LabRadio) perl(Tk::TextReindex)
+Provides:	perl(Tk::LabRadio)
+Provides:	perl(Tk::TextReindex)
 
 %description
 This package provides the modules and Tk code for Perl/Tk,
 as written by Nick Ing-Simmons (pTk), John Ousterhout(Tk),
 and Ioi Kim Lam(Tix).
-It gives you the ability to develop perl applications using the Tk GUI.
-It includes the source code for the Tk and Tix elements it uses.
-The licences for the various components differ, so check the copyright.
 
 
 %package devel
@@ -49,11 +45,16 @@ Requires:	perl-Tk = %{version}
 This package provides the modules and Tk code for Perl/Tk,
 as written by Nick Ing-Simmons (pTk), John Ousterhout(Tk),
 and Ioi Kim Lam(Tix).
-It gives you the ability to develop perl applications using the Tk GUI.
-It includes the source code for the Tk and Tix elements it uses.
-The licences for the various components differ, so check the copyright.
 
 This is the development package.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -67,7 +68,7 @@ perl -pi -e "s#--center#-c#" ./Tk/MMutil.pm
 
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor
 %make OPTIMIZE="%{optflags}" LD_RUN_PATH=""
 
 
@@ -96,7 +97,6 @@ rm -f %{buildroot}%{perl_vendorarch}/Tk/README.Adjust
 
 %files
 %defattr(-,root,root)
-%doc COPYING ToDo Changes README README.linux
 %{_bindir}/*
 %{_mandir}/man*/*
 %{perl_vendorarch}/Tk.pm*
@@ -126,12 +126,20 @@ rm -f %{buildroot}%{perl_vendorarch}/Tk/README.Adjust
 %{perl_vendorarch}/Tk/*.t
 %{perl_vendorarch}/Tk/typemap
 
+%files doc
+%defattr(-,root,root)
+%doc COPYING ToDo Changes README README.linux
+
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat May 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 800.027
+- rebuild against perl 5.8.8
+- create -doc subpackage
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 800.027
 - Clean rebuild
 
-* Tue Dec 27 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Dec 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 800.027
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
