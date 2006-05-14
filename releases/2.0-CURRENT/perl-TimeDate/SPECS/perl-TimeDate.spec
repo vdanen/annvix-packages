@@ -26,10 +26,16 @@ BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 BuildRequires:	perl-devel
 
-Requires:	perl
-
 %description
 Simple Time and Date module for perl.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -37,7 +43,7 @@ Simple Time and Date module for perl.
 
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor
 make
 
 
@@ -56,17 +62,24 @@ make test
 
 %files
 %defattr(-,root,root)
-%doc MANIFEST README ChangeLog
 %{perl_vendorlib}/Date
 %{perl_vendorlib}/Time
 %{_mandir}/*/*
 
+%files doc
+%defattr(-,root,root)
+%doc README ChangeLog
+
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat May 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.16
+- rebuild against perl 5.8.8
+- create -doc subpackage
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.16
 - Clean rebuild
 
-* Tue Dec 27 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Dec 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.16
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
