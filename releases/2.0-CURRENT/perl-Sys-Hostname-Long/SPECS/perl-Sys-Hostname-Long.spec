@@ -32,18 +32,26 @@ BuildArch:	noarch
 How to get the host full name in perl on multiple operating systems.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n %{module}-%{version}
 %patch0 -p0
 
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor
 %make
 
 
 %check
-%{__make} test
+make test
 
 
 %install
@@ -57,12 +65,19 @@ How to get the host full name in perl on multiple operating systems.
 
 %files
 %defattr(-,root,root)
-%doc Changes README
 %{perl_vendorlib}/Sys/Hostname/*
 %{_mandir}/*/*
 
+%files doc
+%defattr(-,root,root)
+%doc Changes README
+
 
 %changelog
+* Sat May 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4
+- rebuild against perl 5.8.8
+- create -doc subpackage
+
 * Sat Mar 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4
 - first Annvix build
 
