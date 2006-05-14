@@ -23,11 +23,20 @@ URL:		ftp://ftp.funet.fi/pub/languages/perl/CPAN/authors/id/JWIED
 Source0:	%{module}-%{version}.tar.bz2
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
-BuildRequires:	perl-Net-Daemon perl-devel
+BuildRequires:	perl-devel
+BuildRequires:	perl(Net::Daemon)
 Buildarch:	noarch
 
 %description
 %{module} - module for perl
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -35,8 +44,8 @@ Buildarch:	noarch
 
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor --defaultdeps
-%{__make}
+perl Makefile.PL INSTALLDIRS=vendor --defaultdeps
+make
 
 
 %install
@@ -48,19 +57,27 @@ Buildarch:	noarch
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
-%files 
+%files
 %defattr(-,root,root)
-%doc README ChangeLog 
 %{perl_vendorlib}/Bundle/*
 %{perl_vendorlib}/RPC/*
 %{_mandir}/man3*/*
 
+%files doc
+%defattr(-,root,root)
+%doc README ChangeLog 
+
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat May 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.2018
+- rebuild against perl 5.8.8
+- create -doc subpackage
+- perl policy
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.2018
 - Clean rebuild
 
-* Tue Dec 27 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Dec 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.2018
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
