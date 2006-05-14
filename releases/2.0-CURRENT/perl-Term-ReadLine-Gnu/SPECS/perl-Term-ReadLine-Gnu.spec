@@ -23,9 +23,10 @@ URL:		http://www.cpan.org
 Source0:	%{module}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	libtermcap-devel perl-devel readline-devel
+BuildRequires:	libtermcap-devel, perl-devel, readline-devel
 
 Obsoletes:	perl-Term-Readline-Gnu
+Provides:	perl-Term-Readline-Gnu
 
 %description
 This is an implementation of the interface to the GNU Readline
@@ -38,13 +39,25 @@ function, your custom completion function, and so on with Perl.  This
 may be useful for prototyping before programming with C.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n %{module}-%{version}
 
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor
+find -type f -exec chmod 0644 '{}' \;
+perl Makefile.PL INSTALLDIRS=vendor
 %make OPTIMIZE="%{optflags}"
+
+
+%check
 if [ -n "$DISPLAY" ]; then
     TERM=linux make test
 else
@@ -67,19 +80,28 @@ perl -pi -e 's!/usr/local/bin/perl!/usr/bin/perl!g' %{buildroot}%{perl_vendorarc
 
 %files
 %defattr(-,root,root)
-%doc README
 %{_mandir}/*/*
 %dir %{perl_vendorarch}/Term
 %{perl_vendorarch}/Term
 %dir %{perl_vendorarch}/auto/Term
 %{perl_vendorarch}/auto/Term
 
+%files doc
+%defattr(-,root,root)
+%doc README
+
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat May 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.15
+- rebuild against perl 5.8.8
+- create -doc subpackage
+- fix permissions
+- provide the package we obsolete
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.15
 - Clean rebuild
 
-* Tue Dec 27 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Dec 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.15
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
