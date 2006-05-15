@@ -38,13 +38,21 @@ The URPM module allows you to manipulate rpm files, rpm header files and
 hdlist files and manage them in memory.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n %{module}-%{version}
 
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor
-%{__make} OPTIMIZE="%{optflags}"
+perl Makefile.PL INSTALLDIRS=vendor
+make OPTIMIZE="%{optflags}"
 
 
 %install
@@ -58,15 +66,22 @@ hdlist files and manage them in memory.
 
 %files
 %defattr(-,root,root)
-%doc README ChangeLog
 %{perl_vendorarch}/URPM.pm
 %{perl_vendorarch}/URPM
 %dir %{perl_vendorarch}/auto/URPM
 %{perl_vendorarch}/auto/URPM/URPM.so
 %{_mandir}/man3/*
 
+%files doc
+%defattr(-,root,root)
+%doc README ChangeLog
+
 
 %changelog
+* Mon May 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.41
+- rebuild against perl 5.8.8
+- create -doc subpackage
+
 * Tue May 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.41
 - 1.41
 
