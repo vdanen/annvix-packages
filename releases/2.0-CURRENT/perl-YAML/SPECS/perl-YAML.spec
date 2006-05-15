@@ -10,7 +10,7 @@
 %define module		YAML
 %define revision	$Rev$
 %define name		perl-%{module}
-%define version 	0.39
+%define version 	0.58
 %define release 	%_revrel
 
 Summary:	YAML Ain't Markup Language (tm)
@@ -37,14 +37,25 @@ programming languages. (Including Perl!!!)
 For information on the YAML syntax, please refer to the YAML specification.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n %{module}-%{version}
 
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor <<EOF
+perl Makefile.PL INSTALLDIRS=vendor <<EOF
 EOF
 %make
+
+
+%check
 make test
 
 
@@ -57,19 +68,28 @@ make test
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
-%files 
+%files
 %defattr(-,root,root)
-%doc Changes README
 %{_bindir}/*
 %{perl_vendorlib}/YAML*
+%{perl_vendorlib}/Test/YAML*
 %{_mandir}/*/*
+
+%files doc
+%defattr(-,root,root)
+%doc Changes README
 
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon May 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.58
+- 0.58
+- rebuild against perl 5.8.8
+- create -doc subpackage
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.39
 - Clean rebuild
 
-* Tue Dec 27 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Dec 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.39
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
