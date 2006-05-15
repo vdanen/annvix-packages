@@ -36,13 +36,24 @@ represent Uniform Resource Identifier (URI) references as specified
 in RFC 2396.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n %{module}-%{version}
 
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor
 make
+
+
+%check
 make test
 
 
@@ -57,17 +68,24 @@ make test
 
 %files
 %defattr(-,root,root)
-%doc Changes README rfc2396.txt
 %{perl_vendorlib}/URI.pm
 %{perl_vendorlib}/URI
 %{_mandir}/*/*
 
+%files doc
+%defattr(-,root,root)
+%doc Changes README rfc2396.txt
+
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon May 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.35
+- rebuild against perl 5.8.8
+- create -doc subpackage
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.35
 - Clean rebuild
 
-* Tue Dec 27 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Dec 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.35
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
