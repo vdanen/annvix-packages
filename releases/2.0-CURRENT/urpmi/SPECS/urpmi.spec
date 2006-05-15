@@ -27,14 +27,18 @@ Source0:	%{name}-%{version}.tar.bz2
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}
 BuildRequires:	bzip2-devel gettext, perl
-BuildRequires:	perl-File-Slurp, perl-URPM >= 1.36, perl-MDV-Packdrakeng, perl-Locale-gettext >= 1.01-15avx
+BuildRequires:	perl(File::Slurp)
+BuildRequires:	perl(URPM) >= 1.36
+BuildRequires:	perl(MDV::Packdrakeng)
+BuildRequires:	perl(Locale::gettext) >= 1.01-15avx
 BuildRequires:	perl(Net::LDAP)
 BuildArch:	noarch
 
-Requires:	webfetch eject gnupg perl-URPM >= 1.37
-Requires(pre):	perl-Locale-gettext >= 1.01-15avx
+Requires:	webfetch eject gnupg
+Requires:	perl(URPM) >= 1.37
+Requires(pre):	perl(Local::gettext) >= 1.01-15avx
 Requires(pre):	rpmtools >= 5.0.2
-Requires(pre):	perl-URPM >= 1.37
+Requires(pre):	perl(URPM) >= 1.37
 Conflicts:	curl < 7.13.0
 
 %description
@@ -93,6 +97,14 @@ Requires:	perl-DateManip
 urpmi-recover is a tool that enables to set up a policy to keep trace of all
 packages that are uninstalled or upgraded on an rpm-based system, and to
 perform rollbacks, that is, to revert the system back to a previous state.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -160,7 +172,6 @@ if (-e "/etc/urpmi/urpmi.cfg") {
 
 %files -f %{name}.lang
 %defattr(-,root,root)
-%doc ChangeLog
 %dir %{_sysconfdir}/urpmi
 %dir /var/lib/urpmi
 %dir /var/cache/urpmi
@@ -204,17 +215,14 @@ if (-e "/etc/urpmi/urpmi.cfg") {
 %if %{allow_karun}
 %files -n urpmi-parallel-ka-run
 %defattr(-,root,root)
-%doc urpm/README.ka-run
 %{compat_perl_vendorlib}/urpm/parallel_ka_run.pm
 %endif
 
 %files -n urpmi-parallel-ssh
 %defattr(-,root,root)
-%doc urpm/README.ssh
 %{compat_perl_vendorlib}/urpm/parallel_ssh.pm
 
 %files -n urpmi-ldap
-%doc urpmi.schema
 %{compat_perl_vendorlib}/urpm/ldap.pm
 
 %files -n urpmi-recover
@@ -223,8 +231,20 @@ if (-e "/etc/urpmi/urpmi.cfg") {
 %config(noreplace) %{_sys_macros_dir}/urpmi.recover.macros
 %ghost %{_sys_macros_dir}/urpmi.recover.macros
 
+%files doc
+%defattr(-,root,root)
+%doc ChangeLog urpmi.schema urpm/README.ssh
+%if %{allow_karun}
+%doc urpm/README.ka-run
+%endif
+
 
 %changelog
+* Mon May 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.8.19
+- rebuild against perl 5.8.8
+- create -doc subpackage
+- perl policy
+
 * Tue May 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.8.19
 - fix typeo on buildreq
 
