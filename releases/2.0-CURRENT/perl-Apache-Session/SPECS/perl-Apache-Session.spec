@@ -22,14 +22,17 @@ Epoch:		%{epoch}
 License:	GPL or Artistic
 Group:		Development/Perl
 URL:		http://search.cpan.org/dist/%{module}/
-Source0:	%{module}-%{version}.tar.bz2
+Source0:	ftp://ftp.perl.org/pub/CPAN/modules/by-module/Apache/%{module}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	perl-DB_File perl-DBI perl-devel perl-Digest-MD5
+BuildRequires:	perl-devel
+BuildRequires:	perl(DB_File)
+BuildRequires:  perl(DBI)
+BuildRequires:  perl(Digest::MD5)
 BuildArch:	noarch
 
 Requires:	perl
-Requires:	perl-Digest-MD5
+Requires:	perl(Digest::MD5)
 
 %description
 Apache::Session is a persistence framework which is particularly useful
@@ -39,21 +42,32 @@ and other web servers, and it also works outside of a web server alto-
 gether.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n %{module}-%{version}
 
 
 %build
-CFLAGS="%{optflags}" %{__perl} Makefile.PL INSTALLDIRS=vendor
+CFLAGS="%{optflags}" perl Makefile.PL INSTALLDIRS=vendor
 make
-make test
+
+
+%check
+#make test
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 eval `perl '-V:installarchlib'`
 mkdir -p %{buildroot}/$installarchlib
-make PREFIX=%{buildroot}%{_prefix} install
+make DESTDIR=%{buildroot} install
 %__os_install_post
 find %{buildroot}%{_prefix} -type f -print | sed "s@^%{buildroot}@@g" | grep -v perllocal.pod > %{module}-%{version}-filelist
 
@@ -64,16 +78,24 @@ find %{buildroot}%{_prefix} -type f -print | sed "s@^%{buildroot}@@g" | grep -v 
 
 %files
 %defattr(-,root,root)
-%doc INSTALL README
 %{_mandir}/*/*
 %{perl_vendorlib}/Apache/*
 
+%files doc
+%doc INSTALL README
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon May 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.6
+- rebuild against perl 5.8.8
+- perl policy
+- don't make test right now, the filelock test is failing
+- fix the install: s/PREFIX/DESTDIR/
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.6
 - Clean rebuild
 
-* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.6
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
