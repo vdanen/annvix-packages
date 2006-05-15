@@ -22,7 +22,10 @@ URL:		http://cvs.mandriva.com/cgi-bin/cvsweb.cgi/soft/rpmtools
 Source0:	%{name}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	perl-devel, rpm-devel >= 4.0.3, perl-Compress-Zlib, perl-MDV-Packdrakeng, perl-MDV-Distribconf
+BuildRequires:	perl-devel, rpm-devel >= 4.0.3,
+BuildRequires:	perl(Compress::Zlib)
+BuildRequires:	perl(MDV::Packdrakeng)
+BuildRequires:	perl(MDV::Distribconf)
 
 Requires:	rpm >= 4.2.3 bzip2 >= 1.0
 Conflicts:	rpmtools-compat <= 2.0 rpmtools-devel <= 2.0
@@ -39,6 +42,9 @@ Various tools needed by urpmi and drakxtools for handling rpm files.
 %build
 perl Makefile.PL INSTALLDIRS=vendor
 %make OPTIMIZE="%{optflags}"
+
+
+%check
 %make test
 
 
@@ -69,6 +75,9 @@ perl Makefile.PL INSTALLDIRS=vendor
 
 
 %changelog
+* Mon May 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.0.28
+- rebuild against perl 5.8.8
+
 * Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.0.28
 - fix group
 
