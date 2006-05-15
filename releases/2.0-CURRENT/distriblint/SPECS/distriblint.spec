@@ -23,7 +23,9 @@ Source:		%{name}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:      noarch
-BuildRequires:	perl-devel, perl-URPM, perl-BerkeleyDB
+BuildRequires:	perl-devel
+BuildRequires:	perl(URPM)
+BuildRequires:	perl(BerkeleyDB)
 
 %description
 Some tools to check the integrity of rpms from a repository.
@@ -35,13 +37,24 @@ entire distribution.
 Currently only one script is included: distlint.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor PREFIX=%{_prefix}
+perl Makefile.PL INSTALLDIRS=vendor PREFIX=%{_prefix}
 make PREFIX=%{_prefix}
+
+
+%check
 make test
 
 
@@ -56,8 +69,6 @@ make test
 
 %files
 %defattr(-,root,root)
-%doc batch_exemple index.html chkupload.main ChangeLog
-%doc conf_exemple
 %{_bindir}/distlint
 %{_bindir}/distlintbatch
 %{_bindir}/chkupload
@@ -67,11 +78,22 @@ make test
 %{perl_vendorlib}/urpmchecker/*.pm
 %{_mandir}/*/*
 
+%files doc
+%defattr(-,root,root)
+%doc batch_exemple index.html chkupload.main ChangeLog
+%doc conf_exemple
+
+
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon May 15 2006 Vincent Danen <vdanen-at-build.annvix.org>  0.1.2
+- rebuild against perl 5.8.8
+- create -doc subpackage
+- perl policy
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.1.2
 - Clean rebuild
 
-* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.1.2
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
