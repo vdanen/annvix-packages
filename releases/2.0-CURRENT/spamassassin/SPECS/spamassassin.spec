@@ -9,16 +9,11 @@
 
 %define revision	$Rev$
 %define name		spamassassin
-%define version		3.1.0
+%define version		3.1.1
 %define release		%_revrel
 
 %define fname		Mail-SpamAssassin
 %define instdir		vendor
-
-%global	with_TEST	1
-
-%{?_without_test: %global with_TEST 0}
-%{?_with_test:    %global with_TEST 1}
 
 Summary:	A spam filter for email which can be invoked from mail delivery agents
 Name:		%{name}
@@ -27,8 +22,8 @@ Release:	%{release}
 License:	Artistic
 Group:		Networking/Mail
 URL:		http://spamassassin.apache.org/
-Source0:	http://www.eu.apache.org/dist/spamassassin/source/%{fname}-%{version}.tar.bz2
-Source1:	http://www.eu.apache.org/dist/spamassassin/source/%{fname}-%{version}.tar.bz2.asc
+Source0:	http://www.apache.org/dist/spamassassin/source/%{fname}-%{version}.tar.bz2
+Source1:	http://www.apache.org/dist/spamassassin/source/%{fname}-%{version}.tar.bz2.asc
 Source2:	spamd.run
 Source3:	spamd-log.run
 Source4:	spamassassin-default.rc
@@ -37,15 +32,30 @@ Source5:	spamassassin-spamc.rc
 Patch1:		spamassassin-3.1.0-avx-fixbang.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	perl-devel, perl-Time-HiRes, perl-HTML-Parser, perl-Digest-SHA1, openssl-devel, perl-IO-Socket-SSL
-BuildRequires:	perl-Net-DNS, perl-DB_File, perl-Mail-SPF-Query, perl-IP-Country
-BuildRequires:	perl-Archive-Tar, perl-IO-Zlib, perl-Net-Ident
+BuildRequires:	perl-devel, openssl-devel
+BuildRequires:	perl(Time::HiRes)
+BuildRequires:	perl(HTML::Parser)
+BuildRequires:	perl(Digest::SHA1)
+BuildRequires:  perl(DB_File)
+BuildRequires:	perl(Net::DNS)
+BuildRequires:	perl(Mail::SPF::Query)
+BuildRequires:	perl(IP::Country)
+BuildRequires:	perl(IO::Socket::SSL)
+BuildRequires:	perl(Archive::Tar)
+BuildRequires:	perl(IO::Zlib)
+BuildRequires:	perl(Net::Ident)
 
-Requires:	perl-Mail-SpamAssassin = %{version}-%{release}
-Requires:  	perl-DB_File, perl-Net-DNS
+Requires:	perl(Mail::SpamAssassin) = %{version}-%{release}
+Requires:  	perl(DB_File)
+Requires:	perl(Net::DNS)
 # these aren't 100% required, but are very useful
-Requires:	perl-Sys-Hostname-Long, perl-Mail-SPF-Query, perl-IP-Country, perl-IO-Socket-SSL
-Requires:	perl-Archive-Tar, perl-IO-Zlib, perl-Net-Ident
+Requires:	perl(Sys::Hostname::Long)
+Requires:	perl(Mail::SPF::Query)
+Requires:	perl(IP::Country)
+Requires:	perl(IO::Socket::SSL)
+Requires:	perl(Archive::Tar)
+Requires:	perl(IO::Zlib)
+Requires:	perl(Net::Ident)
 Requires(post):	rpm-helper
 Requires(preun): rpm-helper
 
@@ -67,17 +77,7 @@ Install dcc package to get Distributed Checksum Clearinghouse (DCC) support.
 Install pyzor package to get Pyzor support.
 
 
-%package tools
-Summary:	Miscleanous tools for SpamAssassin
-Group:		Networking/Mail
-Requires:	perl-Mail-SpamAssassin = %{version}
-
-%description tools
-Miscleanous tools from various authors, distributed with SpamAssassin.
-See /usr/share/doc/spamassassin-tools-*/.
-
-
-%package	spamd
+%package spamd
 Summary:	Daemonized version of SpamAssassin
 Group:		System/Servers
 Requires(post):	rpm-helper
@@ -105,13 +105,21 @@ mail can then be optionally tagged as spam for later filtering using the
 user's own mail user-agent application.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n %{fname}-%{version}
 %patch1 -p1 -b .fixbang
 
 
 %build
-%{__perl} \
+perl \
     Makefile.PL \
     INSTALLDIRS=vendor \
     SYSCONFDIR=%{_sysconfdir} \
@@ -121,9 +129,9 @@ user's own mail user-agent application.
 
 %make OPTIMIZE="%{optflags}"
 
-%if %{with_TEST}
-  make test
-%endif
+
+%check
+make test
 
 
 %install
@@ -171,7 +179,6 @@ fi
 
 %files
 %defattr(-,root,root)
-%doc README Changes sample-*.txt procmailrc.example INSTALL TRADEMARK USAGE 
 %dir %{_sysconfdir}/mail/%{name}
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/mail/%{name}/*.cf
 %config(noreplace) %{_sysconfdir}/mail/%{name}/*.pre
@@ -187,7 +194,6 @@ fi
 
 %files spamd
 %defattr(-,root,root)
-%doc spamd/README* spamd/PROTOCOL
 %config(noreplace) %{_sysconfdir}/mail/%{name}/spamassassin-spamc.rc
 %attr(0755,root,root) %{_bindir}/spamc
 %attr(0755,root,root) %{_bindir}/spamd
@@ -200,10 +206,6 @@ fi
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/spamd/log/run
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/spamd/env/OPTIONS
 
-%files tools
-%defattr(-,root,root)
-%doc sql tools masses contrib
-
 %files -n perl-%{fname}
 %defattr(644,root,root,755)
 %dir %{perl_vendorlib}/Mail
@@ -212,8 +214,22 @@ fi
 %{_mandir}/man1/spamassassin-run.1*
 %{_mandir}/man3*/*
 
+%files doc
+%defattr(-,root,root)
+%doc README Changes sample-*.txt procmailrc.example INSTALL TRADEMARK USAGE
+%doc spamd/README* spamd/PROTOCOL
+%doc sql tools masses contrib
+
 
 %changelog
+* Mon May 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.1.1
+- 3.1.1
+- rebuild against perl 5.8.8
+- perl policy
+- drop the -tools subpackage, it only contained docs
+- create -doc subpackage
+- get rid of the with_TEST stuff, use %%check instead
+
 * Tue Mar 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.1.0
 - drop requires on perl-Geography-Countries; it's not required (IP-Country already
   requires it and SA doesn't explicitly need it itself)
