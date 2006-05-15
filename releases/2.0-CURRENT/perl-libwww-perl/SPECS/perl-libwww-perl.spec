@@ -26,13 +26,26 @@ Source0:	%{module}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
-BuildRequires:	perl-devel, perl-HTML-Parser, perl-URI, rpm-build >= 4.2-7mdk
+BuildRequires:	perl-devel, rpm-build >= 4.2-7mdk
+BuildRequires:	perl(HTML::Parser)
+BuildRequires:	perl(URI)
 
-Requires:	perl, perl-HTML-Parser, perl-URI >= 1.10, perl-MIME-Base64, perl-libnet, perl-Digest-MD5
+Requires:	perl(HTML::Parser)
+Requires:	perl(URI) >= 1.10
+Requires:	perl(MIME::Base64)
+Requires:	perl(Digest::MD5)
 
 
 %description
-libwww-perl module for perl
+libwww-perl module for perl.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -40,8 +53,12 @@ libwww-perl module for perl
 
 
 %build
-/usr/bin/yes | %{__perl} Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor </dev/null
 %make
+
+
+%check
+make test
 
 
 %install
@@ -55,7 +72,6 @@ libwww-perl module for perl
 
 %files
 %defattr(-,root,root)
-%doc README README.SSL Changes
 %{_bindir}/*
 %{_mandir}/*/*
 %{perl_vendorlib}/LWP.pm
@@ -68,12 +84,21 @@ libwww-perl module for perl
 %{perl_vendorlib}/Bundle
 %{perl_vendorlib}/LWP
 
+%files doc
+%defattr(-,root,root)
+%doc README README.SSL Changes
+
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon May 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.803
+- rebuild against perl 5.8.8
+- create -doc subpackage
+- perl policy
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.803
 - Clean rebuild
 
-* Tue Dec 27 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Dec 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.803
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
