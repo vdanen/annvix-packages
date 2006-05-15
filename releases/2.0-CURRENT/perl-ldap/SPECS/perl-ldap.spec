@@ -9,35 +9,39 @@
 
 %define revision	$Rev$
 %define name		perl-ldap
-%define version 	0.31
+%define version 	0.33
 %define release 	%_revrel
 
 Summary:	Perl module for ldap
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-License:	Artistic
+License:	GPL or Artistic
 Group:		Development/Perl
-URL:		http://www.cpan.org
+URL:		http://search.cpan.org/dist/%name/
 Source:		http:///www.cpan.org/authors/id/G/GB/GBARR/%{name}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 BuildRequires:	perl-devel >= 5.8.0
+BuildRequires:	perl(Convert::ASN1) >= 0.07
+BuildRequires:	perl(IO::Socket::SSL)
 
-Requires:	perl-Authen-SASL >= 2.00 perl-XML-Parser perl-Convert-ASN1 >= 0.07
+Requires:	perl(Authen::SASL) >= 2.00
+Requires:	perl(XML::Parser)
+Requires:	perl(Convert::ASN1) >= 0.07
 
 %description
-The perl-ldap distribution is a collection of perl modules 
-which provide an object orientated interface to LDAP servers. 
+The perl-ldap distribution is a collection of perl modules
+which provide an object-oriented interface to LDAP servers.
 
-The perl-ldap distribution has several advantages 
 
--By using the perl object interface the perl-ldap modules 
-provide programmers with an interface which allows complex 
-searches of LDAP directories with only a small amount of code. 
--All the perl-ldap modules are written entirely in perl, which 
-means that the library is truly cross-platform compatible. 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -45,8 +49,12 @@ means that the library is truly cross-platform compatible.
 
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor
-make
+perl Makefile.PL INSTALLDIRS=vendor
+%make
+
+
+%check
+%make test
 
 
 %install
@@ -60,18 +68,30 @@ make
 
 %files
 %defattr(-,root,root)
-%doc CREDITS README RELEASE_NOTES
 %{_mandir}/*/*
 %{perl_vendorlib}/LWP
 %{perl_vendorlib}/Bundle
 %{perl_vendorlib}/Net
 
+%files doc
+%defattr(-,root,root)
+%doc CREDITS README
+
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon May 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.33
+- 0.33
+- rebuild against perl 5.8.8
+- create -doc subpackage
+- perl policy
+- update description
+- fix license
+- BuildRequires: perl(Convert::ASN1), perl(IO::Socket::SSL)
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.31
 - Clean rebuild
 
-* Tue Dec 27 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Dec 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.31
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
