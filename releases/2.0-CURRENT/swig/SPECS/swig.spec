@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		swig
-%define version		1.3.25
+%define version		1.3.29
 %define release		%_revrel
 
 Summary:	Simplified Wrapper and Interface Generator (SWIG)
@@ -19,12 +19,13 @@ Release:	%{release}
 License:	BSD-like
 Group:		Development/Other
 URL:		http://www.swig.org/
-Source0:	http://prdownloads.sourceforge.net/%{name}/%{name}-%{version}.tar.bz2
+Source0:	http://prdownloads.sourceforge.net/%{name}/%{name}-%{version}.tar.gz
 Patch1:		swig-1.3.23-pylib.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	bison
 BuildRequires:	python-devel perl-devel php php-devel
+BuildRequires:	libstdc++-devel
 BuildRequires:  automake1.7 autoconf2.5
 
 %description
@@ -42,6 +43,14 @@ Requires:	%{name} = %{version}-%{release}
 SWIG takes an interface description file written in a combination of C/C++
 and special directives and produces interfaces to Perl, Python, and Tcl.
 It allows scripting languages to use C/C++ code with minimal effort.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -77,22 +86,28 @@ install -m 0644 ./Source/DOH/doh.h -D %{buildroot}%{_includedir}/doh.h
 
 %files
 %defattr(-,root,root,755)
-%doc CHANGES CHANGES.current LICENSE README ANNOUNCE FUTURE NEW TODO
 %{_bindir}/*
 %{_datadir}/swig
 
-
 %files devel
 %defattr(-,root,root)
-%doc LICENSE Doc
 %{_includedir}/*
+
+%files doc
+%defattr(-,root,root)
+%doc CHANGES* LICENSE README ANNOUNCE FUTURE NEW TODO Doc/Devel Examples Doc/Manual
 
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon May 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.29
+- 1.3.29
+- rebuild against perl 5.8.8
+- create -doc subpackage
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.25
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.25
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
