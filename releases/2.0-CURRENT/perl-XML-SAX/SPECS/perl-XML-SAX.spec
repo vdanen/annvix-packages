@@ -25,7 +25,8 @@ Patch:		%{name}-0.05-build.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
-BuildRequires:	perl-devel perl-XML-NamespaceSupport
+BuildRequires:	perl-devel
+BuildRequires:	perl(XML::NamespaceSupport)
 
 Requires:	perl
 Provides:	perl(XML::SAX::PurePerl::DTDDecls)
@@ -43,6 +44,14 @@ the DBI will be right at home. Some of the designs come from the Java
 JAXP specification (SAX part), only without the javaness.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n %{module}-%{version}
 %patch -p0
@@ -51,8 +60,11 @@ chmod 0644 Changes README
 
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor
 make
+
+
+%check
 make test
 
 
@@ -67,16 +79,24 @@ make test
 
 %files
 %defattr(-,root,root)
-%doc Changes README
 %{perl_vendorlib}/XML
 %{_mandir}/*/*
 
+%files doc
+%defattr(-,root,root)
+%doc Changes README
+
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon May 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.12
+- rebuild against perl 5.8.8
+- create -doc subpackage
+- perl policy
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.12
 - Clean rebuild
 
-* Tue Dec 27 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Dec 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.12
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
