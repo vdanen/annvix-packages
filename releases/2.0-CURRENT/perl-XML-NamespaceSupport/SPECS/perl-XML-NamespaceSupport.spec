@@ -26,13 +26,19 @@ BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 BuildRequires:	perl-devel 
 
-Requires:	perl
-
 %description
 %{module} module for perl
 This module offers a simple to process namespaced XML names (unames) from
 within any application that may need them. It also helps maintain a prefix
 to namespace URI map, and provides a number of basic checks.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -42,8 +48,11 @@ chmod 0644 Changes README
 
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor
 make
+
+
+%check
 make test
 
 
@@ -58,16 +67,23 @@ make test
 
 %files
 %defattr(-,root,root)
-%doc Changes README
 %{perl_vendorlib}/XML/*.pm
 %{_mandir}/*/*
 
+%files doc
+%defattr(-,root,root)
+%doc Changes README
+
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon May 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.09
+- rebuild against perl 5.8.8
+- create -doc subpackage
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.09
 - Clean rebuild
 
-* Tue Dec 27 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Dec 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.09
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
