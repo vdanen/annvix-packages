@@ -24,12 +24,21 @@ Source: 	http://www.cpan.org/authors/id/C/CO/COOPERCL/%{module}-%{version}.tar.b
 Source1:	http://uucode.com/xml/perl/enc.tar.bz2
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
-BuildRequires: 	libexpat-devel perl-devel perl-libwww-perl perl-HTML-Parser
+BuildRequires: 	libexpat-devel, perl-devel, perl-libwww-perl
+BuildRequires:	perl(HTML::Parser)
 
-Requires: 	perl, libexpat1_95
+Requires: 	libexpat0
 
 %description
-A perl module for parsing XML documents
+A perl module for parsing XML documents.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -37,8 +46,11 @@ A perl module for parsing XML documents
 
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor
 %make OPTIMIZE="$RPM_OPT_FLAGS"
+
+
+%check
 make test
 
 
@@ -54,17 +66,24 @@ install -m 0644 enc/koi8-r.enc %{buildroot}%{perl_vendorarch}/XML/Parser/Encodin
 
 %files
 %defattr(-,root,root)
-%doc README Changes
 %{_mandir}/*/*
 %{perl_vendorarch}/XML/Parser*
 %{perl_vendorarch}/auto/XML/Parser*
 
+%files doc
+%defattr(-,root,root)
+%doc README Changes
+
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon May 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.34
+- rebuild against perl 5.8.8
+- create -doc subpackage
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.34
 - Clean rebuild
 
-* Tue Dec 27 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Dec 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.34
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
