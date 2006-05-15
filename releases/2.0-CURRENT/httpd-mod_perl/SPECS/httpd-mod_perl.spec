@@ -37,11 +37,12 @@ Source3:	apache2-mod_perl-testscript.pl
 Patch0:		mod_perl-2.0.0-external_perl-apache-test.diff
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	perl-devel >= 5.8.6, httpd-devel >= %{apache_version}, perl-Apache-Test
+BuildRequires:	perl-devel >= 5.8.6, httpd-devel >= %{apache_version}
+BuildRequires:	perl(Apache::Test)
 
-Prereq:		perl
 Requires:	httpd-mod_proxy, perl = %{perl_version}
-Prereq:		httpd >= %{apache_version}, httpd-conf
+Requires(pre):	httpd >= %{apache_version}, httpd-conf
+Requires(pre):	perl, rpm-helper
 Provides:	apache-mod_perl = %{version}
 Provides:	apache2-mod_perl
 Obsoletes:	apache2-mod_perl
@@ -67,6 +68,14 @@ Requires:	httpd-devel >= %{apache_version}
 %description devel 
 The mod_perl-devel package contains the files needed for building XS
 modules that use mod_perl.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -104,7 +113,7 @@ mkdir -p %{buildroot}%{_includedir}/httpd
 %makeinstall \
     MODPERL_AP_LIBEXECDIR=%{_libdir}/httpd-extramodules \
     MODPERL_AP_INCLUDEDIR=%{_includedir}/httpd \
-    INSTALLDIRS=vendor
+    INSTALLDIRS=vendor DESTDIR=%{buildroot}
 
 cat %{SOURCE2} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
@@ -141,9 +150,8 @@ rm -f %{buildroot}%{_mandir}/man3/Bundle::ApacheTest.3pm
 %_post_srv httpd2
 
 
-%files -n %{name}
+%files
 %defattr(-,root,root)
-%doc Changes INSTALL LICENSE README docs todo
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/modules.d/%{mod_conf}
 %attr(0755,root,root) %{_libdir}/httpd-extramodules/%{mod_so}
 %attr(0755,root,root) /var/www/perl/*.pl
@@ -155,8 +163,17 @@ rm -f %{buildroot}%{_mandir}/man3/Bundle::ApacheTest.3pm
 %{_bindir}/*
 %{_includedir}/httpd/*
 
+%files doc
+%defattr(-,root,root)
+%doc Changes INSTALL LICENSE README docs todo
+
 
 %changelog
+* Mon May 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.55_2.0.1
+- rebuild against perl 5.8.8
+- perl policy on buildreq
+- use requires(pre) instead of prereq
+
 * Sat Feb 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.55_2.0.1
 - rebuild against apr and apr-util 0.9.7 (needed to make mod_cgi.so work
   properly)
