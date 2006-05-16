@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		subversion
-%define svn_version	1.2.3
+%define svn_version	1.3.1
 %define release		%_revrel
 
 %define apache_version	2.0.54
@@ -20,11 +20,6 @@
 %define mod_authz_name	mod_authz_svn
 %define mod_authz_conf	47_%{mod_authz_name}.conf
 %define mod_authz_so	%{mod_authz_name}.so
-
-# Rpm macro is wrong for py_sitedir and 64 archs, so using a tmp macro
-%define pysite		%{py_prefix}/%{_lib}/python%{py_ver}/site-packages
-%define swigdirs	swig_pydir=%{pysite}/libsvn swig_pydir_extra=%{pysite}/svn
-%define perl_man3dir	%(perl -e 'use ExtUtils::MM; $MM = new ExtUtils::MM({q(NORECURS)=>1}); $m3d = $MM->{INSTALLVENDORMAN3DIR}; $m3d =~ s/\\$\\(([^\\)]+)\\)/$MM->{$1}/g; print "$m3d\\n"; package ExtUtils::MakeMaker; sub flush { return q();}; sub check_manifest { return q();}; package ExtUtils::MM; sub guess_name { return q(foo); } sub parse_version { return q(1.0); }')
 
 %define build_test 0
 %{?_with_test: %{expand: %%global build_test 1}}
@@ -42,14 +37,13 @@ Source2:	%{mod_dav_conf}
 Source3:	%{mod_authz_conf}
 Source4:	svn.run
 Source5:	svn-log.run
+Patch0:		subversion-1.3.0-rc4-fix-svn-config-multiarch.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{svn_version}
 
 BuildRequires:	autoconf2.5 >= 2.54, libtool >= 1.4.2, chrpath
 BuildRequires:	python >= 2.2, python-devel, perl-devel
 BuildRequires:	db4-devel, neon-devel = 0.24.7, httpd-devel >=  %{apache_version}
-#BuildRequires:	libxslt-proc
-#BuildRequires:	docbook-style-xsl
 BuildRequires:	swig-devel >= 1.3.19 
 BuildRequires:	multiarch-utils >= 1.0.3
 
@@ -61,14 +55,8 @@ directories while keeping a history of all changes.  Subversion only stores the
 differences between versions, instead of every complete file.  Subversion also
 keeps a log of who, when, and why changes occured.
 
-As such it basically does the same thing CVS does (Concurrent Versioning
-System) but has major enhancements compared to CVS and fixes a lot of the
-annoyances that CVS users face.
-
 This package contains the client, if you're looking for the server end
-of things you want %{name}-repos.  You'll want to install
-%{libsvn_ra_dav_name} or %{libsvn_ra_local_name} or %{libsvn_ra_svn_name}
-to access HTTP/DAV or local or svnserve respositories, respectively.
+of things you want %{name}-repos.
 
 
 %package server
@@ -88,10 +76,6 @@ and repository admins:
   * various hook scripts
   * xslt example 
 
-Note that cvs2svn has moved out of subversion and is a separate
-project.  It has not released its own package yet, but you can
-find it at http://cvs2svn.tigris.org/
-
 
 %package tools
 Summary:	Subversion Repo/Server Tools
@@ -106,10 +90,6 @@ and repository admins:
   * various hook scripts
   * xslt example 
 
-Note that cvs2svn has moved out of subversion and is a separate
-project.  It has not released its own package yet, but you can
-find it at http://cvs2svn.tigris.org/
-
 
 %package -n python-svn
 Summary:	Python bindings for Subversion
@@ -122,13 +102,14 @@ This package contains the files necessary to use the subversion
 library functions within python scripts.
 
 
-%package -n perl-svn
+%package -n perl-SVN
 Summary:	Perl bindings for Subversion
 Group:		Development/Perl
 Requires:	%{name} = %{svn_version}-%{release}
-Obsoletes:	perl-SVN <= 1.2.1
+Obsoletes:	perl-svn
+Provides:	perl-svn = %{version}-%{release}
 
-%description -n	perl-svn
+%description -n	perl-SVN
 This package contains the files necessary to use the subversion
 library functions within perl scripts.
 
@@ -165,16 +146,21 @@ changes. Subversion only stores the differences between versions,
 instead of every complete file. Subversion also keeps a log of
 who, when, and why changes occured.
 
-As such it basically does the same thing CVS does (Concurrent
-Versioning System) but has major enhancements compared to CVS and
-fixes a lot of the annoyances that CVS users face.
-
 This package contains the apache server extension DSO for running
 a subversion server.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
+%patch0 -p1 -b .fix_svn-config_multiarch
 
 rm -rf neon apr apr-util db4
 
@@ -206,7 +192,7 @@ export CXXFLAGS="-fPIC"
 perl -pi -e "s|%{_libdir}/httpd|%{_libdir}/httpd-extramodules|g" Makefile subversion/mod_authz_svn/*la subversion/mod_dav_svn/*la
 
 %make all
-%make swig-py %{swigdirs}
+%make swig-py swig_pydir=%{py_sitedir}/libsvn swig_pydir_extra=%{py_sitedir}/svn
 %make swig-pl
 
 
@@ -232,11 +218,11 @@ make LD_LIBRARY_PATH="`pwd`/subversion/bindings/swig/perl/libsvn_swig_perl/.libs
 
 %makeinstall_std
 
-%makeinstall_std install-swig-py %{swigdirs}
+%makeinstall_std install-swig-py swig_pydir=%{py_sitedir}/libsvn swig_pydir_extra=%{py_sitedir}/svn
 %makeinstall_std install-swig-pl-lib
 
 # perl bindings
-make pure_vendor_install -C subversion/bindings/swig/perl/native 
+make DESTDIR=%{buildroot} pure_vendor_install -C subversion/bindings/swig/perl/native 
 
 install -d %{buildroot}%{_sysconfdir}/httpd/modules.d
 cat %{SOURCE2} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_dav_conf}
@@ -318,7 +304,7 @@ find %{buildroot} -name "*.pyc" | xargs rm -f
 find %{buildroot} -name "perllocal.pod" | xargs rm -f
 
 # get rid of the devel files for python and perl
-rm -f %{buildroot}%{pysite}/libsvn/*.la
+rm -f %{buildroot}%{py_sitedir}/libsvn/*.la
 rm -f %{buildroot}%{_libdir}/libsvn_swig_py*.so
 rm -f %{buildroot}%{_libdir}/libsvn_swig_perl*.so
 
@@ -332,6 +318,11 @@ chmod 0640 %{buildroot}%{_srvdir}/svn/peers/0
 
 echo "3690" >%{buildroot}%{_srvdir}/svn/env/PORT
 echo "%{_localstatedir}/svn/repositories" >%{buildroot}%{_srvdir}/svn/env/REPOSITORIES
+
+# move some docs
+mv subversion/bindings/swig/INSTALL INSTALL.swig
+mv subversion/bindings/swig/NOTES NOTES.swig
+mv subversion/%{mod_authz_name}/INSTALL INSTALL.%{mod_authz_name}
 
 
 %clean
@@ -383,8 +374,6 @@ popd >/dev/null 2>&1
 
 %files server
 %defattr(-,root,root)
-%doc BUGS CHANGES COMMITTERS COPYING HACKING INSTALL README
-%doc notes/repos_upgrade_HOWTO
 %{_bindir}/svnadmin
 %{_bindir}/svnserve
 %{_bindir}/svndumpfilter
@@ -416,30 +405,24 @@ popd >/dev/null 2>&1
 
 %files -n python-svn
 %defattr(-,root,root)
-%doc subversion/bindings/swig/INSTALL subversion/bindings/swig/NOTES
-%doc tools/examples/*.py
 %{_libdir}/libsvn_swig_py*.so.*
-%dir %{pysite}/svn
-%{pysite}/svn/*.py*
-%dir %{pysite}/libsvn
-%{pysite}/libsvn/*.py*
-%{pysite}/libsvn/*.so
+%dir %{py_sitedir}/svn
+%{py_sitedir}/svn/*.py*
+%dir %{py_sitedir}/libsvn
+%{py_sitedir}/libsvn/*.py*
+%{py_sitedir}/libsvn/*.so
 
 
-%files -n perl-svn
+%files -n perl-SVN
 %defattr(-,root,root)
-%doc subversion/bindings/swig/INSTALL subversion/bindings/swig/NOTES
 %{_libdir}/libsvn_swig_perl*.so.*
-%dir %{perl_vendorarch}/SVN
-%{perl_vendorarch}/SVN/*
-%dir %{perl_vendorarch}/auto/SVN
-%{perl_vendorarch}/auto/SVN/*
-%{perl_man3dir}/SVN::*.3*
+%{perl_vendorarch}/SVN
+%{perl_vendorarch}/auto/SVN
+%{_mandir}/man3/SVN::*.3*
 
 
 %files devel
 %defattr(-,root,root)
-%doc tools/examples/minimal_client.c
 %multiarch %{multiarch_bindir}/svn-config
 %{_bindir}/svn-config
 %{_libdir}/libsvn*.la
@@ -449,7 +432,6 @@ popd >/dev/null 2>&1
 
 %files -n httpd-mod_dav_svn
 %defattr(-,root,root)
-%doc subversion/%{mod_authz_name}/INSTALL
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/modules.d/%{mod_dav_conf}
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/modules.d/%{mod_authz_conf}
 %attr(0755,root,root) %{_libdir}/httpd-extramodules/%{mod_dav_so}
@@ -457,11 +439,27 @@ popd >/dev/null 2>&1
 %attr(0644,root,root) %{_var}/www/icons/subversion.png
 
 
+%files doc
+%defattr(-,root,root)
+%doc BUGS CHANGES COMMITTERS COPYING HACKING INSTALL README
+%doc notes/repos_upgrade_HOWTO
+%doc INSTALL.%{mod_authz_name} INSTALL.swig NOTES.swig
+%doc tools/examples/*.py
+
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue May 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.1
+- 1.3.1
+- rebuild against perl 5.8.8
+- rebuild against swig 1.3.27
+- rename perl-svn to perl-SVN
+- P0: fix multiarch support
+- spec cleanups
+- add -doc subpackage
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.3
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.3
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - fix prereq
