@@ -36,7 +36,7 @@ BuildArch:	noarch
 
 Requires:	webfetch eject gnupg
 Requires:	perl(URPM) >= 1.37
-Requires(pre):	perl(Local::gettext) >= 1.01-15avx
+Requires(pre):	perl(Locale::gettext) >= 1.01-15avx
 Requires(pre):	rpmtools >= 5.0.2
 Requires(pre):	perl(URPM) >= 1.37
 Conflicts:	curl < 7.13.0
@@ -240,6 +240,9 @@ if (-e "/etc/urpmi/urpmi.cfg") {
 
 
 %changelog
+* Tue May 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.8.19
+- fix requires typeo
+
 * Mon May 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.8.19
 - rebuild against perl 5.8.8
 - create -doc subpackage
