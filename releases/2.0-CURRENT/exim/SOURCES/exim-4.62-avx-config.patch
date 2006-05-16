@@ -29,8 +29,8 @@
  # mode = 0660
  
  
---- exim-4.54/src/EDITME.config	2005-10-04 04:55:28.000000000 -0400
-+++ exim-4.54/src/EDITME	2005-10-09 23:16:35.000000000 -0400
+--- exim-4.62/src/EDITME.config	2006-04-28 04:32:22.000000000 -0600
++++ exim-4.62/src/EDITME	2006-05-16 12:47:35.000000000 -0600
 @@ -100,7 +100,7 @@
  # /usr/local/sbin. The installation script will try to create this directory,
  # and any superior directories, if they do not exist.
@@ -116,27 +116,25 @@
  # LDAP_LIB_TYPE=NETSCAPE
  # LDAP_LIB_TYPE=SOLARIS
  
-@@ -308,8 +308,8 @@
- # specified in INCLUDE. The settings below are just examples; -lpq is for
- # PostgreSQL, -lgds is for Interbase.
+@@ -310,6 +310,8 @@
  
--# LOOKUP_INCLUDE=-I /usr/local/ldap/include -I /usr/local/mysql/include -I /usr/local/pgsql/include
--# LOOKUP_LIBS=-L/usr/local/lib -lldap -llber -lmysqlclient -lpq -lgds
+ # LOOKUP_INCLUDE=-I /usr/local/ldap/include -I /usr/local/mysql/include -I /usr/local/pgsql/include
+ # LOOKUP_LIBS=-L/usr/local/lib -lldap -llber -lmysqlclient -lpq -lgds -lsqlite3
 +LOOKUP_INCLUDE=-I /usr/include/mysql -I /usr/include/pgsql
 +LOOKUP_LIBS=-lldap -llber -lpam -lmysqlclient -lpq
  
+ 
  #------------------------------------------------------------------------------
- # Compiling the Exim monitor: If you want to compile the Exim monitor, a
-@@ -319,7 +319,7 @@
+@@ -320,7 +322,7 @@
  # files are defaulted in the OS/Makefile-Default file, but can be overridden in
  # local OS-specific make files.
  
 -EXIM_MONITOR=eximon.bin
 +# EXIM_MONITOR=eximon.bin
  
+ 
  #------------------------------------------------------------------------------
- # Compiling Exim with content scanning support: If you want to compile Exim
-@@ -328,14 +328,16 @@
+@@ -330,14 +332,16 @@
  # and the MIME ACL. Please read the documentation to learn more about these
  # features.
  
@@ -155,7 +153,7 @@
  
  #------------------------------------------------------------------------------
  # Compiling Exim with experimental features. These are documented in
-@@ -471,9 +473,9 @@
+@@ -473,9 +477,9 @@
  # included in the Exim binary. You will then need to set up the run time
  # configuration to make use of the mechanism(s) selected.
  
@@ -168,7 +166,7 @@
  # AUTH_SPA=yes
  
  
-@@ -482,7 +484,7 @@
+@@ -484,7 +488,7 @@
  # Cyrus SASL library installed before trying to build Exim, and you probably
  # want to uncomment the following line:
  
@@ -177,7 +175,7 @@
  
  
  #------------------------------------------------------------------------------
-@@ -511,7 +513,7 @@
+@@ -513,7 +517,7 @@
  # the Sieve filter support. For those OS where iconv() is known to be installed
  # as standard, the file in OS/Makefile-xxxx contains
  #
@@ -186,7 +184,7 @@
  #
  # If you are not using one of those systems, but have installed iconv(), you
  # need to uncomment that line above. In some cases, you may find that iconv()
-@@ -560,10 +562,10 @@
+@@ -562,10 +566,10 @@
  # leave these settings commented out.
  
  # This setting is required for any TLS support (either OpenSSL or GnuTLS)
@@ -199,7 +197,7 @@
  
  # Uncomment these settings if you are using GnuTLS
  # USE_GNUTLS=yes
-@@ -627,7 +629,7 @@
+@@ -629,7 +633,7 @@
  # %s. This will be replaced by one of the strings "main", "panic", or "reject"
  # to form the final file names. Some installations may want something like this:
  
@@ -208,7 +206,7 @@
  
  # which results in files with names /var/log/exim_mainlog, etc. The directory
  # in which the log files are placed must exist; Exim does not try to create
-@@ -676,7 +678,7 @@
+@@ -678,7 +682,7 @@
  # files. Both the name of the command and the suffix that it adds to files
  # need to be defined here. See also the EXICYCLOG_MAX configuration.
  
@@ -217,7 +215,7 @@
  COMPRESS_SUFFIX=gz
  
  
-@@ -684,7 +686,7 @@
+@@ -686,7 +690,7 @@
  # If the exigrep utility is fed compressed log files, it tries to uncompress
  # them using this command.
  
@@ -226,7 +224,7 @@
  
  
  #------------------------------------------------------------------------------
-@@ -713,7 +715,7 @@
+@@ -715,7 +719,7 @@
  # support, which is intended for use in conjunction with the SMTP AUTH
  # facilities, is included only when requested by the following setting:
  
@@ -235,7 +233,7 @@
  
  # You probably need to add -lpam to EXTRALIBS, and in some releases of
  # GNU/Linux -ldl is also needed.
-@@ -781,7 +783,7 @@
+@@ -783,7 +787,7 @@
  # group. Once you have installed saslauthd, you should arrange for it to be
  # started by root at boot time.
  
@@ -244,7 +242,7 @@
  
  
  #------------------------------------------------------------------------------
-@@ -789,14 +791,14 @@
+@@ -791,14 +795,14 @@
  # this setting. See the manual section entitled "Use of tcpwrappers" in the
  # chapter on building and installing Exim.
  #
@@ -261,7 +259,7 @@
  #
  # but of course there may need to be other things in CFLAGS and EXTRALIBS_EXIM
  # as well.
-@@ -822,7 +824,7 @@
+@@ -824,7 +828,7 @@
  # aliases). The following setting can be changed to specify a different
  # location for the system alias file.
  
@@ -270,7 +268,7 @@
  
  
  #------------------------------------------------------------------------------
-@@ -847,7 +849,7 @@
+@@ -849,7 +853,7 @@
  # Note that this option adds to the size of the Exim binary, because the
  # dynamic loading library is not otherwise included.
  
@@ -279,7 +277,7 @@
  
  ###############################################################################
  #              THINGS YOU ALMOST NEVER NEED TO MENTION                        #
-@@ -868,11 +870,11 @@
+@@ -870,11 +874,11 @@
  # haven't got Perl, Exim will still build and run; you just won't be able to
  # use those utilities.
  
@@ -296,7 +294,7 @@
  
  
  #------------------------------------------------------------------------------
-@@ -1066,7 +1068,7 @@
+@@ -1068,7 +1072,7 @@
  # (process id) to a file so that it can easily be identified. The path of the
  # file can be specified here. Some installations may want something like this:
  
@@ -305,7 +303,7 @@
  
  # If PID_FILE_PATH is not defined, Exim writes a file in its spool directory
  # using the name "exim-daemon.pid".
-@@ -1101,4 +1103,5 @@
+@@ -1103,4 +1107,5 @@
  
  # SUPPORT_MOVE_FROZEN_MESSAGES=yes
  

@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		exim
-%define version 	4.54
+%define version 	4.62
 %define release 	%_revrel
 
 %define build_mysql 	0
@@ -41,7 +41,7 @@ Source11:	http://www.exim.org/ftp/exim4/config.samples.tar.bz2
 Source12:	sa-exim-%{saversion}.tar.gz
 Source13:	exim.run
 Source14:	exim-log.run
-Patch0:		exim-4.54-avx-config.patch
+Patch0:		exim-4.62-avx-config.patch
 Patch2:		exim-4.22-install.patch
 Patch3:		exim-4.52-avx-system_pcre.patch
 Patch4:		exim-4.43-debian-dontoverridecflags.diff
@@ -89,6 +89,14 @@ Requires:	%{name}
 %description saexim
 Allows running SpamAssassin on incoming mail and rejection
 at SMTP time as well as other nasty things like teergrubbing.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -195,6 +203,11 @@ pushd sa-exim*
     popd
 popd
 
+# docs
+mkdir sa-exim
+cp -f sa-exim*/*.html sa-exim/
+cp -f sa-exim*/{ACKNOWLEDGEMENTS,INSTALL,LICENSE,TODO} sa-exim/
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -221,10 +234,6 @@ fi
 
 %files
 %defattr(755,root,root)
-%doc doc/ChangeLog doc/NewStuff LICENCE NOTICE README.UPDATING README
-%doc doc util/unknownuser.sh build-Linux-*/transport-filter.pl
-%doc util/cramtest.pl util/logargs.sh
-%doc doc/NewStuff doc/Exim4.upgrade doc/*.txt doc/README.SIEVE
 %attr(4755,root,root) %{_bindir}/exim
 %{_bindir}/exim_checkaccess
 %{_bindir}/exim_dumpdb
@@ -277,14 +286,27 @@ fi
 
 %files saexim
 %defattr(-,root,root)
-%doc sa-exim*/*.html sa-exim*/{ACKNOWLEDGEMENTS,INSTALL,LICENSE,TODO}
 %config(noreplace) %{_sysconfdir}/exim/sa-exim.conf
 %config(noreplace) %{_sysconfdir}/exim/sa-exim_short.conf
 %dir %{_libdir}/exim
 %{_libdir}/exim/*
 
+%files doc
+%defattr(-,root,root)
+%doc doc/ChangeLog doc/NewStuff LICENCE NOTICE README.UPDATING README
+%doc doc util/unknownuser.sh build-Linux-*/transport-filter.pl
+%doc util/cramtest.pl util/logargs.sh
+%doc doc/NewStuff doc/Exim4.upgrade doc/*.txt doc/README.SIEVE
+%doc sa-exim
+
 
 %changelog
+* Tue May 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.62
+- 4.62
+- rebuild against perl 5.8.8
+- added -doc subpackage
+- rediff P0
+
 * Sat May 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.54
 - use Conflicts instead of Obsoletes or it puts apt into an infinite obsoletes
   loop when you have exim installed
