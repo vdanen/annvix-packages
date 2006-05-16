@@ -168,7 +168,7 @@ Summary:	Contributed binaries distributed with PostgreSQL
 Group:		Databases
 Requires:	libpq = %{version}-%{release} postgresql = %{version}-%{release}
 Requires:	libpq = %{version}-%{release} 
-Requires:	perl-Pg
+Requires:	perl(Pg)
 
 %description contrib
 The postgresql-contrib package includes the contrib tree distributed with
@@ -226,6 +226,14 @@ PostgreSQL is an advanced Object-Relational database management
 system. The postgresql-test package includes the sources and pre-built
 binaries of various tests for the PostgreSQL database management
 system, including regression tests and benchmarks.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -357,6 +365,11 @@ install -m 0644 %{SOURCE25} %{buildroot}%{_sysconfdir}/sysconfig/pg_autovacuum
 mkdir -p %{buildroot}%{_datadir}/afterboot
 install -m 0644 %{SOURCE23} %{buildroot}%{_datadir}/afterboot/01_postgresql
 
+# contrib docs
+mkdir contrib-docs
+cp -f contrib/*/README.* contrib-docs/
+cp -f contrib/spi/*.example contrib-docs/
+
 %find_lang libpq
 %find_lang libecpg
 %find_lang pg_dump
@@ -412,7 +425,8 @@ if [ $1 -gt 1 ]; then
     echo "" 
     echo "After install, you must run %{_docdir}/%{name}-server-%{version}/CAN-2005-1409-1410-update-dbs.sh"
     echo "in order to upgrade your databases to protect against the vulnerabilities described in CAN-2005-1409"
-    echo "and CAN-2005-1410.  PostgreSQL must be running when you run this script."
+    echo "and CAN-2005-1410.  PostgreSQL must be running when you run this script.  Note that this script is"
+    echo "provided in the postgresql-doc package."
     echo "" 
 fi
 if [ -d /var/log/supervise/postgresql -a ! -d /var/log/service/postgresql ]; then
@@ -455,9 +469,6 @@ fi
 
 %files -f main.lst 
 %defattr(-,root,root)
-%doc doc/FAQ doc/KNOWN_BUGS doc/MISSING_FEATURES doc/README* 
-%doc COPYRIGHT README HISTORY doc/bug.template
-%doc README.rpm-dist README.v7.3
 %{_bindir}/clusterdb
 %{_bindir}/createdb
 %{_bindir}/createlang
@@ -512,7 +523,6 @@ fi
 
 %files contrib
 %defattr(-,root,root)
-%doc contrib/*/README.* contrib/spi/*.example
 %{_libdir}/pgsql/_int.so
 %{_libdir}/pgsql/autoinc.so
 %{_libdir}/pgsql/btree_gist.so
@@ -560,7 +570,6 @@ fi
 
 %files server -f server.lst
 %defattr(-,root,root)
-%doc README.v7.3 upgrade_tips_7.3 CAN-2005-1409-1410-update-dbs.sh
 %{_bindir}/initdb
 %{_bindir}/ipcclean
 %{_bindir}/pg_controldata 
@@ -602,7 +611,6 @@ fi
 
 %files devel
 %defattr(-,root,root)
-%doc doc/TODO doc/TODO.detail
 %{_includedir}/pgsql
 %{_bindir}/ecpg
 %{_libdir}/lib*.a
@@ -627,8 +635,21 @@ fi
 %attr(-,postgres,postgres) %{_libdir}/pgsql/test/*
 %attr(-,postgres,postgres) %dir %{_libdir}/pgsql/test
 
+%files doc
+%defattr(-,root,root)
+%doc doc/FAQ doc/KNOWN_BUGS doc/MISSING_FEATURES doc/README* doc/TODO doc/TODO.detail
+%doc COPYRIGHT README HISTORY doc/bug.template
+%doc README.rpm-dist README.v7.3
+%doc contrib-docs
+%doc upgrade_tips_7.3 CAN-2005-1409-1410-update-dbs.sh
+
 
 %changelog
+* Mon May 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.0.7
+- rebuild against perl 5.8.8
+- create -doc subpackage
+- perl policy
+
 * Tue Feb 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.0.7
 - 8.0.7 (minor bugfixes)
 
