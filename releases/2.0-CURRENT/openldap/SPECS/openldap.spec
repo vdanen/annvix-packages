@@ -214,7 +214,7 @@ Summary: 	Set of scripts for migration of a nis domain to a ldap directory
 Group: 		System/Configuration
 Requires: 	%{name}-servers = %{version}-%{release}
 Requires: 	%{name}-clients = %{version}-%{release}
-Requires: 	perl-MIME-Base64
+Requires: 	perl(MIME::Base64)
 
 %description migration
 This package contains a set of scripts for migrating data from local files
@@ -853,6 +853,10 @@ fi
 
 
 %changelog
+* Mon May 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.9
+- rebuild against perl 5.8.8
+- perl policy
+
 * Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.9
 - fix group
 
