@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		cups
-%define version		1.2
+%define version		1.2.0
 %define release		%_revrel
 
 %define major		2
@@ -22,7 +22,7 @@ Release:	%{release}
 License:	GPL
 Group:		System/Servers
 URL:		http://www.cups.org/
-Source0:	ftp://ftp.easysw.com/pub/cups/1.2rc3/%{name}-1.2rc3-source.tar.bz2
+Source0:	ftp://ftp.easysw.com/pub/cups/%{version}/%{name}-%{version}-source.tar.bz2
 Source1:	cupsd.run
 Source2:	cupsd-log.run
 
@@ -76,7 +76,7 @@ This package contains the documentation for %{name}.
 
 
 %prep
-%setup -q -n %{name}-%{version}rc3
+%setup -q -n %{name}-%{version}
 
 # fix the pam configuration
 perl -p -i -e 's:(auth\s+required\s+?).*$:$1/lib/security/pam_stack.so service=system-auth:' scheduler/cups.pam conf/pam.std.in
@@ -242,6 +242,9 @@ chgrp -R sys /etc/cups /var/*/cups
 
 
 %changelog
+* Wed May 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.0
+- 1.2.0
+
 * Mon May 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2
 - first Annvix build (this is actually 1.2rc3 but i'm tagging it 1.2
   to avoid epoch issues or stupid version names)
