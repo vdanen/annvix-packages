@@ -12,7 +12,7 @@
 # owl 2.3.5-owl5
 %define basevers	2.3.5
 #%%define snapshot	20050427
-%define crypt_bf_ver	1.0
+%define crypt_bf_ver	1.0.1
 
 %define revision	$Rev$
 %define name		glibc
@@ -117,13 +117,15 @@ Patch409:	glibc-2.3.2-owl-tmpfile.diff
 Patch410:	glibc-2.3.3-owl-tmp-scripts.diff
 Patch411:	glibc-2.3.3-owl-rpcgen-cpp.diff
 Patch412:	glibc-2.3.5-owl-alt-sanitize-env.diff
-# Annvix
+# Annvix / Mandriva
 Patch500:	glibc-2.3.5-avx-ssp.patch
 Patch501:	glibc-2.3.5-fstack_protector-1.patch
 Patch502:	glibc-2.3.5-arc4random-1.patch
 Patch503:	glibc-2.3.5-ssp-1.patch
 Patch503:       kernel-headers-include-%{kheaders_ver}.%{kheaders_rel}.patch
 Patch504:       kernel-headers-%{kheaders_ver}.%{kheaders_rel}-gnu-extensions.patch
+Patch505:	glibc-2.3.5-gcc4.patch
+Patch506:	glibc-2.3.5-avx-relocate_fcrypt.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	patch, gettext, perl, autoconf2.5
@@ -263,12 +265,11 @@ time zones.
 
 
 %package doc
-Summary:	GNU C library documentation
-Group:		Development/Other
+Summary:	Documentation for %{name}
+Group:		Documentation
 
 %description doc
-The glibc-doc package contains documentation for the GNU C library in
-info format.
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -362,6 +363,8 @@ cp %_sourcedir/crypt_freesec.[ch] crypt/
 #%patch501 -p1 -b .fstack-protector
 #%patch502 -p1 -b .arc4random
 #%patch503 -p1 -b .ssp
+%patch505 -p1 -b .gcc4
+%patch506 -p1 -b .relocate_fcrypt
 
 pushd kernel-headers/
 TARGET=%{_target_cpu}
@@ -779,10 +782,6 @@ fi
 #
 %files -f libc.lang -f extralibs.filelist
 %defattr(-,root,root)
-%doc README* NEWS* INSTALL* FAQ* BUGS NOTES* PROJECTS
-%doc documentation/*
-%doc hesiod/README.hesiod
-%doc crypt/README.ufc-crypt
 # configs
 %config(noreplace) %verify(not size md5 mtime) /etc/localtime
 %config(noreplace) %verify(not size md5 mtime) /etc/nsswitch.conf
@@ -874,8 +873,8 @@ fi
 %defattr(-,root,root)
 %{_libdir}/libmemusage.so
 %{_libdir}/libpcprofile.so
-#%{_bindir}/memusage
-#%{_bindir}/memusagestat
+%{_bindir}/memusage
+%{_bindir}/memusagestat
 %{_bindir}/mtrace
 %{_bindir}/pcprofiledump
 %{_bindir}/xtrace
@@ -885,10 +884,6 @@ fi
 #
 %files devel
 %defattr(-,root,root)
-%doc README NEWS INSTALL FAQ BUGS NOTES PROJECTS CONFORMANCE
-%doc COPYING COPYING.LIB
-%doc documentation/* README.libm
-%doc hesiod/README.hesiod
 /boot/kernel.h-%{kheaders_ver}
 %{_mandir}/man3/*.bz2
 %{_infodir}/libc.info*
@@ -1136,16 +1131,34 @@ fi
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/nscd/finish
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/nscd/log/run  
 
+%files doc
+%doc README* NEWS* INSTALL* FAQ* BUGS NOTES* PROJECTS CONFORMANCE
+%doc documentation/*
+%doc hesiod/README.hesiod
+%doc crypt/README.ufc-crypt
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat May 20 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.5
+- rebuild the toolchain against itself (gcc/glibc/libtool/binutils)
+
+* Fri May 19 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.5
+- rebuild against gcc 4.0.3 (NOTE: the fedora patch (P100) already includes
+  FORITFY support)
+- add -doc subpackage
+- P505: fix build with gcc4 (from mandriva)
+- crypt_blowfish 1.0.1
+- P506: relocate fcrypt definition from crypt-entry.c to crypt_blowfish's
+  wrapper.c to enable gcc4 build
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.5
 - Clean rebuild
 
-* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.5
 - crypt_blowfish 1.0 (minor security fixes)
 - fix prereq
 
-* Fri Dec 23 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Dec 23 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.3.5
 - uncompress patches
 - reorder SSP patches and include the original SSP patch (P500); this
   doesn't integrate as nicely as it does for OpenBSD, HLFS, or Hardened
