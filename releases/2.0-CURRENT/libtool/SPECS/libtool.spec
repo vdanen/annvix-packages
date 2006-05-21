@@ -94,6 +94,14 @@ Provides:	%{name}-devel
 Development headers, and files for development from the libtool package.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 %patch0 -p1 -b .relink
@@ -166,6 +174,7 @@ install -m 0755 build-%{alt_arch}-%{_target_os}/libtool %{buildroot}%{_bindir}/l
 linux32 /bin/sh -c '%multiarch_binaries %{buildroot}%{_bindir}/libtool'
 %endif
 
+mv libltdl/README libltdl/README.libltdl
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -185,7 +194,6 @@ linux32 /bin/sh -c '%multiarch_binaries %{buildroot}%{_bindir}/libtool'
 
 %files
 %defattr(-,root,root)
-%doc AUTHORS INSTALL NEWS README THANKS TODO ChangeLog*
 %{_bindir}/*
 %{_infodir}/libtool.info*
 %{_datadir}/libtool
@@ -193,26 +201,35 @@ linux32 /bin/sh -c '%multiarch_binaries %{buildroot}%{_bindir}/libtool'
 
 %files -n %{libname}
 %defattr(-,root,root)
-%doc libltdl/README
 %{_libdir}/*.so.*
 
 %files -n %{libname}-devel
 %defattr(-,root,root)
-%doc demo
 %_includedir/*
 %{_libdir}/*.a
 %{_libdir}/*.so
 %{_libdir}/*.la
 
+%files doc
+%doc demo libltdl/README.libltdl
+%doc AUTHORS INSTALL NEWS README THANKS TODO ChangeLog*
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat May 20 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.5.18
+- rebuild the toolchain against itself (gcc/glibc/libtool/binutils)
+
+* Fri May 19 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.5.18
+- rebuild against gcc 4.0.3
+- add -doc subpackage
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.5.18
 - Clean rebuild
 
-* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.5.18
 - setarch is required for biarchs (for linux32)
 
-* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.5.18
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
