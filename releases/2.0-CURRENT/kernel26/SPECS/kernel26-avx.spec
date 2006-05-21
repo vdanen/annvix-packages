@@ -769,6 +769,9 @@ exit 0
 
 
 %changelog
+* Sun May 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.14
+- rebuild with gcc4
+
 * Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.14
 - fix group
 
