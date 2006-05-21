@@ -140,7 +140,7 @@ Source100:	linux-%{patches_ver}.tar.bz2
 %define kprovides	kernel = %{realversion}
 
 BuildRoot:	%{_buildroot}/%{kname}-%{realversion}-build
-BuildRequires:	gcc >= 3.3.1-5avx
+BuildRequires:	gcc3.4
 
 Provides:	kernel-up, module-info, %kprovides
 Autoreqprov:	no
@@ -213,7 +213,7 @@ turned off because of the size constraints.
 Summary:	The source code for the Linux kernel
 Version:	%{realversion}
 Release:	%{realrelease}
-Requires:	glibc-devel, ncurses-devel, make, gcc
+Requires:	glibc-devel, ncurses-devel, make, gcc3.4
 Group:		Development/Kernel
 
 %description -n %{kname}-source
@@ -233,7 +233,7 @@ doing).
 Summary:	Various documentation bits found in the kernel source
 Version:	%{version}
 Release:	%{release}
-Group:		Books/Computer books
+Group:		Documentation
 
 %description -n %{kname}-doc
 This package contains documentation files form the kernel source. Various
@@ -346,6 +346,7 @@ DependKernel() {
 
     # make sure EXTRAVERSION says what we want it to say
     LC_ALL=C perl -p -i -e "s/^EXTRAVERSION.*/EXTRAVERSION = -$extension/" Makefile
+
     %{smake} oldconfig
     %{smake} dep
 }
@@ -460,6 +461,9 @@ install -d %{temp_root}
 
 #make sure we are in the directory
 cd %{src_dir}
+
+# 2.4 kernels don't build with gcc4 which is our system compiler
+perl -pi -e 's|gcc|gcc-3.4.4|g' Makefile
 
 %if %{build_BOOT}
 CreateKernel BOOT
@@ -825,6 +829,12 @@ exit 0
 
 
 %changelog
+* Sat May 20 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.32
+- force the use of gcc 3.4.4 to compile
+
+* Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.32
+- fix group
+
 * Fri Apr 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.32
 - add CA07 to hopefully provide support for the VIA 8251 chipset
 
