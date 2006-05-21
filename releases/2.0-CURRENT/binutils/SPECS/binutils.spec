@@ -7,11 +7,11 @@
 #
 # $Id$
 #
-# mdk 2.16.91.0.2-3mdk
+# mdk 2.16.91.0.7-1mdk
 
 %define revision	$Rev$
 %define name		binutils
-%define version		2.16.91.0.2
+%define version		2.16.91.0.7
 %define release		%_revrel
 
 %define lib_major	2
@@ -26,14 +26,16 @@ License:	GPL
 Group:		Development/Other
 URL:		http://sources.redhat.com/binutils/
 Source0:	http://ftp.kernel.org/pub/linux/devel/binutils/binutils-%{version}.tar.bz2
-Patch0:		binutils-2.15.92.0.2-x86_64-testsuite.patch
+Patch0:		binutils-2.16.91.0.6-testsuite.patch
 Patch1:		binutils-2.14.90.0.5-testsuite-Wall-fixes.patch
 Patch2:		binutils-2.14.90.0.5-lt-relink.patch
 Patch3:		binutils-2.15.92.0.2-linux32.patch
 Patch4:		binutils-2.15.94.0.2-place-orphan.patch
 Patch5:		binutils-2.15.92.0.2-ppc64-pie.patch
-Patch6:		binutils-2.16.91.0.2-ppc32-got2.patch
-Patch7:		binutils-2.16.91.0.1-deps.patch
+Patch6:		binutils-2.16.91.0.1-deps.patch
+Patch7:		binutils-2.16.91.0.6-elfvsb-test.patch
+Patch8:		binutils-2.16.91.0.6-frepo.patch
+Patch9:		63_all_binutils-2.16.91.0.7-pt-pax-flags-20060317.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf automake bison flex gcc gettext texinfo glibc-static-devel
@@ -85,15 +87,26 @@ linked with binutils.
 This is the development headers for %{libname}
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
+%patch0 -p1 -b .testsuite
 %patch1 -p1 -b .testsuite-Wall-fixes
 %patch2 -p1 -b .lt-relink
 %patch3 -p1 -b .linux32
 %patch4 -p0 -b .place-orphan
 %patch5 -p0 -b .ppc64-pie
-%patch6 -p0 -b .ppc32-got2
-%patch7 -p1 -b .deps
+%patch6 -p1 -b .deps
+%patch7 -p0 -b .elfvsb-test
+%patch8 -p0 -b .frepo
+#%patch9 -p1 -b .pax
 
 
 %build
@@ -112,7 +125,7 @@ ADDITIONAL_TARGETS="--enable-targets=x86_64-annvix-linux"
 %configure \
     --enable-shared \
     $ADDITIONAL_TARGETS
-%make tooldir=%{_prefix} all info
+%make tooldir=%{_prefix}
 
 # Disable gasp tests since the tool is deprecated henceforth neither
 # built nor already installed
@@ -181,7 +194,6 @@ rm -rf %{buildroot}%{_datadir}/locale/
 
 %files
 %defattr(-,root,root)
-%doc README
 %{_bindir}/*
 %{_mandir}/man1/*
 %{_infodir}/*info*
@@ -200,12 +212,37 @@ rm -rf %{buildroot}%{_datadir}/locale/
 %{_libdir}/libopcodes.so
 %{_libdir}/libiberty.a
 
+%files doc
+%defattr(-,root,root)
+%doc README
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat May 20 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.16.91.0.7
+- rebuild the toolchain against itself (gcc/glibc/libtool/binutils)
+
+* Sat May 20 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.16.91.0.7
+- 2.16.91.0.7
+- rebuild against gcc 4.0.3 and rebuilt glibc
+- add -doc subpackage
+- merge changes from 2.16.91.0.7-1mdk:
+  - fix build with gcc 4.1
+  - avoid abort with dynamic symbols in >64K sections (PR 2411)
+  - merge with RH 2.16.91.0.6-6
+    * support S signal frame augmentation flag in .eh_frame,
+      add .cfi_signal_frame support (#175951, PR other/26208, BZ#300)
+    * support DW_CFA_val_{offset,offset_sf,expression} in readelf/objdump
+    * fix relaxation of TLS GD to LE on PPC (RH #184590)
+    * fix for g++ -frepo ((RH #187142)
+  - add Merom New Instructions (MNI)
+- P9: add PaX support (from gentoo); disable the patch for the time being as
+  make check dies on a few tests, particularly ld-i386/i386.exp (TLS issues)
+  and ld-scripts/empty-aligned.exp
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.16.91.0.2
 - Clean rebuild
 
-* Fri Dec 23 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Dec 23 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.16.91.0.2
 - build with SSP
 - make check can't have stack protection or it will fail
 - obfuscate email addresses
