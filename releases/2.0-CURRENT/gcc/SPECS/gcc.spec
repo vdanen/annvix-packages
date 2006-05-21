@@ -8,9 +8,12 @@
 # $Id$
 
 %define revision		$Rev$
-%define name			gcc
+%define name			gcc%{package_suffix}
 %define version			3.4.4
 %define release			%_revrel
+
+%define package_suffix		%{branch}
+%define program_suffix		-%{version}
 
 %define _unpackaged_files_terminate_build 0
 
@@ -22,13 +25,10 @@
 %define libgcc_major		1
 %define libstdcxx_major		6
 %define libstdcxx_minor		3
-%define libobjc_major		1
 %define libgcc_name_orig	libgcc
-%define libgcc_name		%{libgcc_name_orig}%{libgcc_major}
+%define libgcc_name		%{libgcc_name_orig}%{branch}
 %define libstdcxx_name_orig	libstdc++
-%define libstdcxx_name		%{libstdcxx_name_orig}%{libstdcxx_major}
-%define libobjc_name_orig	libobjc
-%define libobjc_name		%{libobjc_name_orig}%{libobjc_major}
+%define libstdcxx_name		%{libstdcxx_name_orig}%{branch}
 
 %define alternative_priority	30%{branch_tag}
 %define _alternativesdir	/etc/alternatives
@@ -40,7 +40,7 @@
 # We now have versioned libstdcxx_includedir, that is c++/<VERSION>/
 %define libstdcxx_includedir	%{_prefix}/include/c++/%{version}
 
-%{expand:%%define avx_version %(awk '{print $3}' /etc/annvix-release)}
+%{expand:%%define avx_version %(awk '{print $3}' /etc/annvix-release | cut -d '-' -f 1)}
 
 %define build_debug		0
 # Allow --with[out] <feature> at rpm command line build
@@ -56,11 +56,9 @@ Group:		Development/C
 URL:		http://gcc.gnu.org/
 
 Source0:	ftp://ftp.gnu.org/gnu/gcc/gcc-%{version}/gcc-%{version}.tar.bz2
-Source1:	http://www.mindspring.com/~jamoyers/software/colorgcc/colorgcc-%{color_gcc_version}.tar.bz2
 # FIXME: unless we get proper help2man package
 Source6:	gcc33-help2man.pl
 
-Patch0:		colorgcc-1.3.2-mdk-conf.patch
 Patch1:		gcc-3.4.0-mdk-pchflags.patch
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
@@ -161,47 +159,6 @@ This is the GNU implementation of the standard C++ libraries.  This
 package includes the header files and libraries needed for C++
 development.
 
-%package -n %{libstdcxx_name}-static-devel
-Summary:	Static libraries for C++ development
-Group:		Development/C++
-Requires:	%{libstdcxx_name}-devel = %{version}-%{release}
-Obsoletes:	%{libstdcxx_name_orig}%{branch}-static-devel
-Provides:	%{libstdcxx_name_orig}%{branch}-static-devel = %{version}-%{release}
-Provides:	%{libstdcxx_name_orig}-static-devel = %{version}-%{release}
-
-%description -n %{libstdcxx_name}-static-devel
-This is the GNU implementation of the standard C++ libraries.  This
-package includes the static libraries needed for C++ development.
-
-####################################################################
-# Objective C Compiler
-
-%package objc
-Summary:	Objective C support for gcc
-Group:		Development/Other
-Obsoletes:	gcc%{branch}-objc
-Provides:	gcc%{branch}-objc = %{version}-%{release}
-Requires:	%{name} = %{version}-%{release}
-
-%description objc
-This package adds Objective C support to the GNU C compiler. Objective
-C is an object oriented derivative of the C language, mainly used on
-systems running NeXTSTEP. This package does not include the standard
-Objective C object library.
-
-####################################################################
-# Objective C Libraries
-
-%package -n %{libobjc_name}
-Summary:	Objective C runtime libraries
-Group:		System/Libraries
-Obsoletes:	%{libobjc_name_orig}3.0, %{libobjc_name_orig}3.1
-Provides:	%{libobjc_name_orig} = %{version}-%{release}
-Provides:	%{libobjc_name_orig}3.0 = %{version}-%{release}
-Provides:	%{libobjc_name_orig}3.1 = %{version}-%{release}
-
-%description -n %{libobjc_name}
-Runtime libraries for the GNU Objective C Compiler.
 
 ####################################################################
 # Preprocessor
@@ -244,29 +201,6 @@ will have to type "cpp -V%{version}" or "cpp-%{version}" (without double quotes)
 in order to use the GNU C Preprocessor version %{version}.
 
 ####################################################################
-# ColorGCC
-
-%package colorgcc
-Summary:	GCC output colorizer
-Group:		Development/Other
-Obsoletes:	gcc2.96-colorgcc
-Obsoletes:	gcc%{branch}-colorgcc
-Provides:	gcc%{branch}-colorgcc = %{version}-%{release}
-Requires:	%{name} = %{version}
-PreReq:		/usr/sbin/update-alternatives
-Requires:	perl
-
-%description colorgcc
-ColorGCC is a Perl wrapper to colorize the output of compilers with
-warning and error messages matching the GCC output format.
-
-This package is configured to run with the associated system compiler,
-that is GCC version %{version}. If you want to use it for another
-compiler (e.g. gcc 2.96), you may have to define gccVersion: 2.96 and
-uncomment the respective compiler paths in %{_sysconfdir}/colorgccrc
-for a system-wide effect, or in ~/.colorgccrc for your user only.
-
-####################################################################
 # Documentation
 
 %package doc
@@ -274,6 +208,7 @@ Summary:	GCC documentation
 Group:		Development/Other
 Obsoletes:	gcc%{branch}-doc
 Provides:	gcc%{branch}-doc = %{version}-%{release}
+Conflicts:	gcc-doc < %{branch}
 
 %description doc
 GCC is a compiler suite aimed at integrating all the optimizations and
@@ -282,18 +217,13 @@ environment. This package contains the compiler documentation in INFO
 pages.
 
 %prep
-%setup -q -a 1
-# ColorGCC patch
-pushd colorgcc-%{color_gcc_version}
-%patch0 -p1 -b .conf
-perl -pi -e 's|GCC_VERSION|%{version}|' colorgcc*
-popd
+%setup -q -n gcc-%{version}
 
 %patch1 -p1 -b .pch-mdkflags
 
 # FIXME: use a configure flag
 optflags=`echo $RPM_OPT_FLAGS| sed -e 's/-mcpu=/-mtune=/'`
-perl -pi -e "s,\@MDK_OPT_FLAGS\@,$optflags," \
+perl -pi -e "s|\@MDK_OPT_FLAGS\@|$optflags|" \
 	libstdc++-v3/include/Makefile.am \
 	libstdc++-v3/include/Makefile.in
 
@@ -339,10 +269,11 @@ CC="$CC" CFLAGS="$OPT_FLAGS" CXXFLAGS="$OPT_FLAGS" XCFLAGS="$OPT_FLAGS" TCFLAGS=
 	--enable-__cxa_atexit \
 	--enable-clocale=gnu \
 	--disable-libunwind-exceptions \
-	--enable-languages="c,c++,objc" \
+	--enable-languages="c,c++" \
 	--host=%{_target_platform} \
 	--target=%{_target_platform} \
-	--with-system-zlib
+	--with-system-zlib \
+	--program-suffix=%{program_suffix}
 touch ../gcc/c-gperf.h
 %ifarch %{ix86} x86_64
 %make profiledbootstrap BOOT_CFLAGS="$OPT_FLAGS"
@@ -353,21 +284,6 @@ touch ../gcc/c-gperf.h
 # Make protoize
 make -C gcc CC="./xgcc -B ./ -O2" proto
 cd ..
-
-# Copy various doc files here and there
-mkdir -p rpm.doc/objc
-mkdir -p rpm.doc/libobjc
-
-pushd gcc/objc
-     for i in README*; do
-         cp -p $i ../../rpm.doc/objc/$i.objc
-     done
-popd
-pushd libobjc
-    for i in README*; do
-	cp -p $i ../rpm.doc/libobjc/$i.libobjc
-    done
-popd
 
 # Run tests
 %ifarch %{biarches}
@@ -398,21 +314,11 @@ mkdir -p %{buildroot}%{_mandir}
 mkdir -p %{buildroot}%{_infodir}
 mkdir -p %{buildroot}%{_sysconfdir}
 
-# ColorGCC stuff
-pushd colorgcc-%{color_gcc_version}
-    install -m 0755 colorgcc %{buildroot}%{_bindir}/colorgcc-%{version}
-    ln -s colorgcc-%{version} %{buildroot}%{_bindir}/colorgcc
-    install -m 0644 colorgccrc %{buildroot}%{_sysconfdir}/
-    for i in COPYING CREDITS ChangeLog; do
-        [ ! -f ../$i.colorgcc ] && mv -f $i ../$i.colorgcc
-    done
-popd
-
 pushd obj-%{_target_platform}
     %makeinstall_std
 popd
 
-FULLVER=`%{buildroot}%{_bindir}/%{_target_platform}-gcc --version | head -n 1 | cut -d' ' -f3`
+FULLVER=`%{buildroot}%{_bindir}/%{_target_platform}-gcc%{program_suffix} --version | head -n 1 | cut -d' ' -f3`
 FULLPATH=$(dirname %{buildroot}%{gcc_libdir}/%{_target_platform}/%{version}/cc1)
 
 file %{buildroot}/%{_bindir}/* | grep ELF | cut -d':' -f1 | xargs strip || :
@@ -503,7 +409,6 @@ DispatchLibs() {
 	%ifarch ppc
 	    mv -f ../../../nof/libsupc++.a nof/libsupc++.a
 	%endif
-	DispatchLibs libobjc	%{libobjc_major}.0.0
 )
 
 # Move <cxxabi.h> to compiler-specific directories
@@ -562,35 +467,6 @@ pushd %{buildroot}/lib
 popd
 %endif
 
-# Create c89 and c99 wrappers
-cat > %{buildroot}%{_prefix}/bin/c89 <<"EOF"
-#!/bin/sh
-fl="-std=c89"
-for opt; do
-    case "$opt" in
-        -ansi|-std=c89|-std=iso9899:1990) fl="";;
-        -std=*) echo "`basename $0` called with non ANSI/ISO C option $opt" >&2
-	        exit 1;;
-    esac
-done
-exec %{_bindir}/gcc-%{version} $fl ${1+"$@"}
-EOF
-
-cat > %{buildroot}%{_prefix}/bin/c99 <<"EOF"
-#!/bin/sh
-fl="-std=c99"
-for opt; do
-    case "$opt" in
-        -std=c99|-std=iso9899:1999) fl="";;
-        -std=*) echo "`basename $0` called with non ISO C99 option $opt" >&2
-	        exit 1;;
-    esac
-done
-exec %{_bindir}/gcc-%{version} $fl ${1+"$@"}
-EOF
-
-chmod 0755 %{buildroot}%{_prefix}/bin/c?9
-
 # Fix info pages
 if [[ "%{name}" = "gcc%{branch}" ]]; then
     pushd %{buildroot}%{_infodir}/
@@ -611,35 +487,21 @@ rm -rf %{buildroot}%{_prefix}/doc
 export DONT_STRIP=1
 %endif
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %post
 update-alternatives --install %{_bindir}/gcc gcc %{_bindir}/gcc-%{version} %{alternative_priority}
 [ -e %{_bindir}/gcc ] || update-alternatives --auto gcc
+
 
 %postun
 if [ ! -f %{_bindir}/gcc-%{version} ]; then
     update-alternatives --remove gcc %{_bindir}/gcc-%{version}
 fi
 
-%post colorgcc
-update-alternatives --install %{_bindir}/gcc gcc %{_bindir}/colorgcc %(expr %{alternative_priority} + 50000)
-
-%postun colorgcc
-if [ ! -f %{_bindir}/colorgcc-%{version} ]; then
-    update-alternatives --remove gcc %{_bindir}/colorgcc
-    # update-alternatives silently ignores paths that don't exist
-    update-alternatives --remove g++ %{_bindir}/colorgcc
-fi
-
-%triggerin colorgcc -- %{name}-c++
-update-alternatives --install %{_bindir}/g++ g++ %{_bindir}/colorgcc %(expr %{alternative_priority} + 50000) --slave %{_bindir}/c++ c++ %{_bindir}/colorgcc
-
-%triggerpostun colorgcc -- %{name}-c++
-if [ ! -f %{_bindir}/g++-%{version} ]; then
-    update-alternatives --remove g++ %{_bindir}/colorgcc
-fi
 
 %post c++
 update-alternatives --install %{_bindir}/g++ g++ %{_bindir}/g++-%{version} %{alternative_priority} --slave %{_bindir}/c++ c++ %{_bindir}/g++-%{version}
@@ -665,33 +527,28 @@ if [ ! -f %{_bindir}/cpp-%{version} ]; then
     update-alternatives --remove cpp %{_bindir}/cpp-%{version}
 fi
 
-%post -n %{libobjc_name} -p /sbin/ldconfig
-%postun -n %{libobjc_name} -p /sbin/ldconfig
-
 %post doc
-%_install_info gcc.info
-%_install_info cpp.info
+%_install_info gcc-%{branch}.info
+%_install_info cpp-%{branch}.info
 
 %preun doc
-if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc.info.bz2 --dir=%{_infodir}/dir --remove;fi;
-%_remove_install_info cpp.info
+if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc-%{branch}.info.bz2 --dir=%{_infodir}/dir --remove;fi;
+%_remove_install_info cpp-%{branch}.info
 
 
 %files
 %defattr(-,root,root)
 %doc gcc/README* gcc/*ChangeLog*
-%{_mandir}/man1/gcc.1*
-%{_mandir}/man1/gcov.1*
+%{_mandir}/man1/gcc%{program_suffix}.1*
+%{_mandir}/man1/gcov%{program_suffix}.1*
 #
 %{_bindir}/gcc%{branch}-version
 %{_bindir}/gcc-%{version}
-%{_bindir}/%{_target_platform}-gcc
-%{_bindir}/protoize
-%{_bindir}/unprotoize
-%{_bindir}/gcov
-%{_bindir}/cc
-%{_bindir}/c89
-%{_bindir}/c99
+%{_bindir}/%{_target_platform}-gcc%{program_suffix}
+%{_bindir}/protoize%{program_suffix}
+%{_bindir}/unprotoize%{program_suffix}
+%{_bindir}/gcov%{program_suffix}
+#%{_bindir}/cc
 #
 %{_libdir}/libgcc_s.so
 %ifarch ppc
@@ -790,7 +647,7 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc.info.bz2 --dir=%{_info
 
 %files cpp
 %defattr(-,root,root)
-%{_mandir}/man1/cpp.1*
+%{_mandir}/man1/cpp%{program_suffix}.1*
 /lib/cpp
 %ghost %{_bindir}/cpp
 %{_bindir}/cpp-%{version}
@@ -799,12 +656,12 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc.info.bz2 --dir=%{_info
 %files c++
 %defattr(-,root,root)
 %doc gcc/cp/ChangeLog*
-%{_mandir}/man1/g++.1*
+%{_mandir}/man1/g++%{program_suffix}.1*
 %ghost %{_bindir}/c++
 %{_bindir}/g++-%{version}
 %{_bindir}/c++-%{version}
-%{_bindir}/%{_target_platform}-g++
-%{_bindir}/%{_target_platform}-c++
+%{_bindir}/%{_target_platform}-g++%{program_suffix}
+%{_bindir}/%{_target_platform}-c++%{program_suffix}
 #
 %{gcc_libdir}/%{_target_platform}/%{version}/cc1plus
 
@@ -840,75 +697,38 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc.info.bz2 --dir=%{_info
 %{gcc_libdir}/%{_target_platform}/%{version}/nof/libsupc++.a
 %endif
 
-%files -n %{libstdcxx_name}-static-devel
-%defattr(-,root,root)
-%doc libstdc++-v3/README
-%{gcc_libdir}/%{_target_platform}/%{version}/libstdc++.a
-%ifarch %{biarches}
-%{gcc_libdir}/%{_target_platform}/%{version}/32/libstdc++.a
-%endif
-%ifarch ppc
-%{gcc_libdir}/%{_target_platform}/%{version}/nof/libstdc++.a
-%endif
-
-%files objc
-%defattr(-,root,root)
-%doc rpm.doc/objc/*
-%{gcc_libdir}/%{_target_platform}/%{version}/cc1obj
-%{gcc_libdir}/%{_target_platform}/%{version}/libobjc.a
-%{gcc_libdir}/%{_target_platform}/%{version}/libobjc.so
-%ifarch %{biarches}
-%{gcc_libdir}/%{_target_platform}/%{version}/32/libobjc.a
-%{gcc_libdir}/%{_target_platform}/%{version}/32/libobjc.so
-%endif
-%ifarch ppc
-%{gcc_libdir}/%{_target_platform}/%{version}/nof/libobjc.a
-%{gcc_libdir}/%{_target_platform}/%{version}/nof/libobjc.so
-%endif
-#
-%dir %{gcc_libdir}/%{_target_platform}/%{version}/include/objc
-%{gcc_libdir}/%{_target_platform}/%{version}/include/objc/*.h
-
-%files -n %{libobjc_name}
-%defattr(-,root,root)
-%doc rpm.doc/libobjc/*
-%doc libobjc/THREADS* libobjc/ChangeLog
-%{_libdir}/libobjc.so.%{libobjc_major}
-%{_libdir}/libobjc.so.%{libobjc_major}.0.0
-%ifarch %{biarches}
-%{_prefix}/lib/libobjc.so.%{libobjc_major}
-%{_prefix}/lib/libobjc.so.%{libobjc_major}.0.0
-%endif
-
-%files colorgcc
-%defattr (-,root,root)
-%doc COPYING.colorgcc CREDITS.colorgcc ChangeLog.colorgcc
-%config(noreplace) %{_sysconfdir}/colorgccrc
-%{_bindir}/colorgcc
-%{_bindir}/colorgcc-%{version}
 
 %files doc
 %defattr(-,root,root)
-%{_infodir}/cppinternals.info*
-%{_infodir}/cpp.info*
-%{_infodir}/gcc.info*
+%{_infodir}/cppinternals-%{branch}.info*
+%{_infodir}/cpp-%{branch}.info*
+%{_infodir}/gcc-%{branch}.info*
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat May 20 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.4.3
+- build with a program-suffix so that we can install both gcc3 and gcc4
+  together (we need gcc3 for the kernel)
+- don't include cc, c89, and c99
+- drop objc support
+- drop colorgcc
+- change the avx_version macro to say '2.0' rather than '2.0-CURRENT'
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.4.3
 - Clean rebuild
 
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.4.3
 - drop all SSP-related patches and all SSP-related stuff; this is a
   time sink for a one-man-show
 
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.4.3
 - for frick's sake... rebuild without SSP support to start the
   reversal (getting everything except the kernel and syslinux to
   build is good progress, but not good enough and something is wrong
   with the implementation in some way (why are we getting undefined
   references when -fstack-protector-all isn't even being passed?)
 
-* Fri Dec 23 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Dec 23 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.4.3
 - rebuild with SSP enabled gcc, glibc, and binutils
 - don't patch the gcc specs just yet; for now direct the application
   of -fstack-protector-all via the rpm %%optflags
