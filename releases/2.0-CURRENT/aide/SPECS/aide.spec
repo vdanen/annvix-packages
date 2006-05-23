@@ -28,7 +28,7 @@ Source5:	aideinit
 Source6:	98_aide.afterboot
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	flex glibc-devel glibc-static-devel libmhash-devel zlib-devel bison
+BuildRequires:	flex, glibc-devel, glibc-static-devel, libmhash-devel, zlib-devel, bison
 
 Requires:	afterboot, gnupg
 
@@ -37,13 +37,21 @@ AIDE (Advanced Intrusion Detection Environment) is a free alternative
 to Tripwire.  It is a file system integrity monitoring tool.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
-%setup -q -n %{name}-%{version}
+%setup -q
 
 
 %build
 %configure \
-    --with-config_file=/etc/aide.conf \
+    --with-config_file=%{_sysconfdir}/aide.conf \
     --with-zlib \
     --with-mhash \
     --enable-mhash \
@@ -64,7 +72,7 @@ make prefix=%{buildroot}%{_prefix} \
 
 mkdir -p %{buildroot}{/var/lib/aide/reports,%{_sysconfdir}/cron.daily}
 
-install -m 0600 %{SOURCE2} %{buildroot}/etc/aide.conf
+install -m 0600 %{SOURCE2} %{buildroot}%{_sysconfdir}/aide.conf
 install -m 0700 %{SOURCE3} %{buildroot}%{_sbindir}/aidecheck
 install -m 0700 %{SOURCE4} %{buildroot}%{_sbindir}/aideupdate
 install -m 0700 %{SOURCE5} %{buildroot}%{_sbindir}/aideinit
@@ -88,7 +96,6 @@ install -m 0644 %{SOURCE6} %{buildroot}%{_datadir}/afterboot/98_aide
 
 %files
 %defattr(-,root,root)
-%doc AUTHORS COPYING ChangeLog NEWS README doc/aide.conf.in
 %attr(0700,root,root) %{_sbindir}/aide
 %attr(0700,root,root) %{_sbindir}/aidecheck
 %attr(0700,root,root) %{_sbindir}/aideinit
@@ -97,12 +104,21 @@ install -m 0644 %{SOURCE6} %{buildroot}%{_datadir}/afterboot/98_aide
 %{_mandir}/man5/aide.conf.5*
 %dir %attr(0700,root,root) /var/lib/aide
 %dir %attr(0700,root,root) /var/lib/aide/reports
-/etc/cron.daily/aide
-%config(noreplace) %attr(0600,root,root) /etc/aide.conf
+%{_sysconfdir}/cron.daily/aide
+%config(noreplace) %attr(0600,root,root) %{_sysconfdir}/aide.conf
 %{_datadir}/afterboot/98_aide
+
+%files doc
+%defattr(-,root,root)
+%doc AUTHORS COPYING ChangeLog NEWS README doc/aide.conf.in
 
 
 %changelog
+* Tue May 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.11
+- add -doc subpackage
+- rebuild with gcc4
+- s|/etc|%%{_sysconfdir}|g
+
 * Sat Feb 18 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.11
 - 0.11
 - Requires: gnupg
