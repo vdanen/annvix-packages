@@ -9,8 +9,9 @@
 
 %define revision	$Rev$
 %define name		rpm-rebuilder
-%define version		0.25
+%define version		0.27
 %define release		%_revrel
+%define rbuver		0.6.1
 
 Summary:	Tools to build/check distributions
 Name:		%{name}
@@ -20,11 +21,12 @@ License:	GPL
 Group:		System/Configuration
 URL:		http://www.mandrivalinux.com/
 Source0:	%{name}-%{version}.tar.bz2
+Source1:	rpmbuildupdate-%{rbuver}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 
-Requires:	rpmlint strace rpm-build diffutils
+Requires:	rpmlint, strace, rpm-build, diffutils
 
 %description
 The rpm-rebuilder package contains a set of tools written in bourne
@@ -43,8 +45,16 @@ in which the source rpms must be recompiled.
 rpmbuildupdate: download and rebuild the new version of a given srpm. 
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
-%setup -q
+%setup -q -a 1
 
 
 %build
@@ -54,8 +64,7 @@ rpmbuildupdate: download and rebuild the new version of a given srpm.
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make install
 
-rm -rf %{buildroot}%{_sysconfdir}/bash_completion.d
-
+install -m 0755 rpmbuildupdate-%{rbuver}/rpmbuildupdate %{buildroot}%{_bindir}/
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -63,13 +72,22 @@ rm -rf %{buildroot}%{_sysconfdir}/bash_completion.d
 
 %files
 %defattr(-,root,root)
-%doc AUTHORS README README.CVS ChangeLog
 %{_bindir}/*
 %{_sbindir}/*
 %_datadir/rpm-rebuilder
 
+%files doc
+%defattr(-,root,root)
+%doc AUTHORS README README.CVS ChangeLog
+
 
 %changelog
+* Tue May 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.27
+- 0.27
+- the 0.26 release removed rpmbuildupdate to it's own package, but
+  I don't see the point so include it here (0.6.1)
+- add -doc subpackage
+
 * Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.25
 - fix group
 
