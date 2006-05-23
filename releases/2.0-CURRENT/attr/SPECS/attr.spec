@@ -26,6 +26,7 @@ URL:		http://oss.sgi.com/projects/xfs/
 Source0:	%{name}-%{version}.src.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-buildroot
+BuildRequires:	libtool
 
 %description
 A set of tools for manipulating extended attributes on filesystem
@@ -64,6 +65,14 @@ The SGI IRIX compatibility API built above the Linux system calls is
 used by programs such as xfsdump(8), xfsrestore(8) and xfs_fsr(8).
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 
@@ -99,18 +108,15 @@ rm -rf %{buildroot}/%{_lib}/libattr.{a,la} %{buildroot}%{_libdir}/libattr.la
 
 %files -f %{name}.lang
 %defattr(-,root,root)
-%doc doc/CHANGES.gz README doc/ea-conv
 %{_bindir}/*
 %{_mandir}/man1/*
 
 %files -n %{libname}
 %defattr(-,root,root)
-%doc doc/COPYING
 /%{_lib}/*.so.*
 
 %files -n %{libname}-devel
 %defattr(-,root,root)
-%doc doc/CHANGES.gz doc/COPYING README
 /%{_lib}/*.so
 %{_libdir}/*.so
 %{_libdir}/*a
@@ -119,11 +125,21 @@ rm -rf %{buildroot}/%{_lib}/libattr.{a,la} %{buildroot}%{_libdir}/libattr.la
 %dir %{_includedir}/%{name}
 %{_includedir}/%{name}/*
 
+%files doc
+%defattr(-,root,root)
+%doc doc/CHANGES.gz doc/COPYING README doc/ea-conv
+
+
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue May 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.23
+- add -doc subpackage
+- rebuild with gcc4
+- BuildRequires: libtool
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.23
 - Clean rebuild
 
-* Fri Dec 30 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Dec 30 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.4.23
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
