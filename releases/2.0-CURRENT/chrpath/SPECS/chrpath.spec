@@ -29,6 +29,14 @@ compiled programs.  Currently, only removing and modifying the rpath
 is supported.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 
@@ -50,16 +58,23 @@ rm -fr %{buildroot}%{_prefix}/doc
 
 %files 
 %defattr (-,root,root)
-%doc AUTHORS ChangeLog COPYING NEWS README
 %{_bindir}/chrpath
 %{_mandir}/man1/chrpath.1*
 
+%files doc
+%defattr (-,root,root)
+%doc AUTHORS ChangeLog COPYING NEWS README
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue May 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.13
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.13
 - Clean rebuild
 
-* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.13
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
