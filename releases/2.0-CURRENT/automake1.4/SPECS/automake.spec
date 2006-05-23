@@ -45,6 +45,14 @@ Automake is a tool for automatically generating Makefiles compliant with the
 GNU Coding Standards.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n %{amname}-%{amversion}-%{patchlevel}
 %patch0 -p1 -b .parallel
@@ -56,6 +64,8 @@ GNU Coding Standards.
 make
 perl -pi -e 's/\berror\.test\b//' tests/Makefile
 
+
+%check
 %if %{docheck}
 make check  # VERBOSE=1
 %endif
@@ -79,24 +89,31 @@ mkdir -p %{buildroot}%{_datadir}/aclocal
 %_install_info automake.info
 update-alternatives --remove automake %{_bindir}/automake-%{amversion}
 
+
 %preun
 %_remove_install_info automake.info
 
 
 %files
 %defattr(-,root,root)
-%doc AUTHORS COPYING ChangeLog INSTALL NEWS README THANKS TODO
 %{_bindir}/*
 %{_datadir}/*-1.4
 %{_infodir}/%{name}*
 %dir %{_datadir}/aclocal
 
+%files doc
+%defattr(-,root,root)
+%doc AUTHORS COPYING ChangeLog INSTALL NEWS README THANKS TODO
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue May 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4p6
+- add -doc subpackage
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4p6
 - Clean rebuild
 
-* Sat Dec 31 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Dec 31 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.4p6
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - fix prereq
