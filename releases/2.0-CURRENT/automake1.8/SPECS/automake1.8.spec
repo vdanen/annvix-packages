@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		automake%{pkgamversion}
-%define version 	1.9.4
+%define version 	1.9.6
 %define release 	%_revrel
 
 %define amversion	1.9
@@ -31,27 +31,33 @@ Patch1:		automake-1.9.4-avx-skiptests.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
-
-Requires:	autoconf2.5 >= 1:2.59-3avx
 BuildRequires:	autoconf2.5 >= 1:2.59-3avx
 BuildRequires:	texinfo
+# tests need these
+%if %{docheck}
+BuildRequires:	bison, flex, python
+%endif
 
 Provides:	automake = %{version}-%{release}
 Provides:	automake1.9 = %{version}-%{release}
 Conflicts:	automake1.5
 Conflicts:	automake < 1.4-0.p6.27avx
 Obsoletes:	automake1.9
-Requires(post):	info-install /usr/sbin/update-alternatives
-Requires(preun): info-install /usr/sbin/update-alternatives
-
-# tests need these
-%if %{docheck}
-BuildRequires:	bison, flex, python
-%endif
+Requires:	autoconf2.5 >= 1:2.59-3avx
+Requires(post):	info-install, /usr/sbin/update-alternatives
+Requires(preun): info-install, /usr/sbin/update-alternatives
 
 %description
 Automake is a tool for automatically generating Makefiles compliant with
 the GNU Coding Standards.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -111,6 +117,7 @@ update-alternatives \
     --install %{_bindir}/automake automake %{_bindir}/automake-%{amversion} 30 \
     --slave   %{_bindir}/aclocal  aclocal  %{_bindir}/aclocal-%{amversion}
 
+
 %preun
 %_remove_install_info %{name}.info
 if [ $1 = 0 ]; then
@@ -120,18 +127,25 @@ fi
 
 %files
 %defattr(-,root,root)
-%doc AUTHORS COPYING ChangeLog NEWS README THANKS TODO
 %{_bindir}/*
 %{_datadir}/automake*
 %{_infodir}/automake*
 %{_datadir}/aclocal*
 
+%files doc
+%defattr(-,root,root)
+%doc AUTHORS COPYING ChangeLog NEWS README THANKS TODO
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue May 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.9.6
+- 1.9.6
+- add -doc subpackage
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.9.4
 - Clean rebuild
 
-* Sat Dec 31 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Dec 31 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.9.4
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - fix prereq
