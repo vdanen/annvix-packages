@@ -15,7 +15,7 @@
 %define amversion 	1.7
 
 %define docheck		0
-%{?_with_check: %global docheck 1}
+%{?_with_check:		%global docheck 1}
 
 %define alternatives_install_cmd update-alternatives --install %{_bindir}/automake automake %{_bindir}/automake-%{amversion} 20 --slave %{_bindir}/aclocal aclocal %{_bindir}/aclocal-%{amversion}
 
@@ -31,17 +31,27 @@ Patch0:		automake-1.7.9-infofiles.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
-BuildRequires:	autoconf2.5 byacc flex gawk perl tetex texinfo
+BuildRequires:	autoconf2.5, byacc, flex, gawk, perl, texinfo
+%if %{docheck}
+BuildRequires:	tetex-latex, python
+%endif
 
 Requires(post):	info-install, update-alternatives
 Requires(preun): info-install, update-alternatives
 Requires:	perl, autoconf2.5
-Provides:	automake = %{version}-%{release}
 Obsoletes:	automake1.5
 
 %description
 Automake is a tool for automatically generating Makefiles compliant with
 the GNU Coding Standards.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -54,11 +64,14 @@ export WANT_AUTOCONF_2_5=1
 %configure2_5x
 %make
 
+
+%check
 %if %{docheck}
 # (Abel) reqd2.test tries to make sure automake won't work if ltmain.sh
 # is not present.  But automake behaviour changed, now it can handle missing
 # libtool file as well, so this test is bogus.
 perl -pi -e 's/reqd2.test//g' tests/Makefile
+export TEX=tex
 make check  # VERBOSE=1
 %endif
 
@@ -86,31 +99,35 @@ mkdir -p %{buildroot}%{_datadir}/aclocal
 
 %post
 %_install_info %{name}.info
-update-alternatives \
-    --install %{_bindir}/automake automake %{_bindir}/automake-%{amversion} 20 \
-    --slave   %{_bindir}/aclocal  aclocal  %{_bindir}/aclocal=%{amversion}
+update-alternatives --remove automake %{_bindir}/automake-%{amversion}
+
 
 %preun
 %_remove_install_info %{name}.info
-if [ $1 = 0 ]; then
-    update-alternatives --remove automake %{_bindir}/automake-%{amversion}
-fi
 
 
 %files
 %defattr(-,root,root)
-%doc AUTHORS COPYING ChangeLog INSTALL NEWS README THANKS TODO
 %{_bindir}/*
 %{_datadir}/automake*
 %{_infodir}/automake*
 %{_datadir}/aclocal*
 
+%files doc
+%defattr(-,root,root)
+%doc AUTHORS COPYING ChangeLog INSTALL NEWS README THANKS TODO
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue May 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.7.9
+- add -doc subpackage
+- remove alternatives and provides for 'automake'
+- update buildrequires for %%docheck
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.7.9
 - Clean rebuild
 
-* Sat Dec 31 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Dec 31 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.7.9
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - fix prereq
