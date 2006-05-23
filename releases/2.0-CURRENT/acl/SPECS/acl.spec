@@ -26,9 +26,9 @@ URL:		http://oss.sgi.com/projects/xfs/
 Source0:	ftp://oss.sgi.com/projects/xfs/download/cmd_tars/%{name}-%{version}.src.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-buildroot
-BuildRequires:	attr-devel
+BuildRequires:	attr-devel, libtool
 
-Requires:	%{libname} = %{version}-%{release}
+Requires:	%{libname} = %{version}
 
 %description
 This package contains the getfacl and setfacl utilities needed for
@@ -49,7 +49,7 @@ control lists.
 %package -n %{libname}-devel
 Summary:	Access control list static libraries and headers
 Group:		Development/C
-Requires:	%{libname} = %{version}-%{release}
+Requires:	%{libname} = %{version}
 Provides:	%{libname_orig}-devel = %{version}-%{release}
 Provides:	acl-devel = %{version}-%{release}
 Obsoletes:	acl-devel
@@ -58,6 +58,14 @@ Obsoletes:	acl-devel
 This package contains static libraries and header files needed to develop
 programs which make use of the access control list programming interface
 defined in POSIX 1003.1e draft standard 17.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -92,18 +100,15 @@ rm -rf %{buildroot}%{_docdir}/acl
 
 %files -f %{name}.lang
 %defattr(-,root,root)
-%doc doc/CHANGES.gz doc/COPYING README
 %{_bindir}/*
 %{_mandir}/man1/*
 
 %files -n %{libname}
 %defattr(-,root,root)
-%doc doc/COPYING
 /%{_lib}/*.so.*
 
 %files -n %{libname}-devel
 %defattr(-,root,root)
-%doc doc/extensions.txt doc/COPYING doc/libacl.txt
 /%{_lib}/*.so
 /%{_lib}/*a
 %{_libdir}/*.so
@@ -113,11 +118,22 @@ rm -rf %{buildroot}%{_docdir}/acl
 %{_includedir}/acl/libacl.h
 %{_includedir}/sys/acl.h
 
+%files doc
+%defattr(-,root,root)
+%doc doc/extensions.txt doc/COPYING doc/libacl.txt doc/CHANGES.gz README
+
+
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue May 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.31
+- add -doc subpackage
+- rebuild with gcc4
+- BuildRequires: libtool
+- fix rpmlint requires-on-release
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.31
 - Clean rebuild
 
-* Thu Dec 29 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Dec 29 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.2.31
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
