@@ -42,7 +42,8 @@ BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 BuildRequires:	texinfo m4
 
-Prereq:		info-install
+Requires(post):	info-install
+Requires(preun): info-install
 Requires:	gawk, m4, mktemp
 Requires:	%{scriptdir}/ac-wrapper.pl
 Conflicts:	autoconf2.5 <= 1:2.59-2avx
@@ -72,6 +73,15 @@ their use.
 
 %{expand:%(cat %{SOURCE3})}
 
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n %{pkgname}-%{version}
 %patch0 -p1
@@ -87,6 +97,8 @@ install -m 0644 %{SOURCE3} IMPORTANT.README.Annvix
 %configure --program-suffix=-%{version}
 %make
 
+
+%check
 %if %{docheck}
 make check     # VERBOSE=1
 %endif
@@ -111,23 +123,31 @@ cp install-sh %{buildroot}%{_datadir}/autoconf
 %post
 %_install_info autoconf-%{version}.info
 
+
 %preun
 %_remove_install_info autoconf-%{version}.info
 
 
 %files
 %defattr(-,root,root)
-%doc README IMPORTANT.README.Annvix
 %{_bindir}/*
 %{_datadir}/%{pkgname}
 %{_infodir}/*
 
+%files doc
+%defattr(-,root,root)
+%doc README IMPORTANT.README.Annvix
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue May 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.13
+- add -doc subpackage
+- fix pre-req
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.13
 - Clean rebuild
 
-* Fri Dec 30 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Dec 30 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.13
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
