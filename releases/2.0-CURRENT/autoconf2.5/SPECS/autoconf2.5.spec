@@ -69,16 +69,26 @@ their use.
 %{expand:%(cat %{SOURCE2})}
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n autoconf-%{version}
 %patch0 -p1 -b .addinfo
-install -m 0644 %{SOURCE2} IMPORTANT.README.OpenSLS
+install -m 0644 %{SOURCE2} IMPORTANT.README.Annvix
 
 
 %build
 %configure2_5x
 %make
 
+
+%check
 %if %{docheck}
 make check	# VERBOSE=1
 %endif
@@ -117,19 +127,26 @@ mv %{buildroot}%{_infodir}/autoconf.info %{buildroot}%{_infodir}/autoconf-2.5x.i
 
 %files
 %defattr(-,root,root)
-%doc README IMPORTANT.README.OpenSLS
 %{_bindir}/*
 %{_datadir}/autoconf
 %{_infodir}/*
 %{_mandir}/*/*
 %{scriptdir}
 
+%files doc
+%defattr(-,root,root)
+%doc README IMPORTANT.README.Annvix
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue May 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.59
+- add -doc subpackage
+- s/OpenSLS/Annvix/g
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.59
 - Clean rebuild
 
-* Fri Dec 30 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Dec 30 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.59
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
