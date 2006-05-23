@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		rpm-helper
-%define version		0.14
+%define version		0.15
 %define release		%_revrel
 
 Summary:	Helper scripts for rpm scriptlets
@@ -36,6 +36,14 @@ Helper scripts for rpm scriptlets to help create/remove :
 - users
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 %patch0 -p0 -b .avx
@@ -56,13 +64,21 @@ chmod 0755 {add,del}-srv mkdepends
 
 %files
 %defattr(-,root,root)
-%doc README* ChangeLog AUTHORS
 %dir %{_datadir}/%{name}
 %{_datadir}/%{name}/*
 %{_sys_macros_dir}/%{name}.macros
 
+%files doc
+%defattr(-,root,root)
+%doc README* ChangeLog AUTHORS
+
 
 %changelog
+* Tue May 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.15
+- 0.15:
+  - add-service: handle case when a service name appears several times
+- add -doc subpackage
+
 * Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.14
 - fix group
 
