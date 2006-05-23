@@ -64,10 +64,13 @@ touch %{buildroot}%{_mandir}/man8/afterboot.8.bz2
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue May 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.2
+- rebuild
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.2
 - Clean rebuild
 
-* Thu Dec 29 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Dec 29 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.2
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - change URL
