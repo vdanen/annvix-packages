@@ -26,6 +26,7 @@ Patch0:		sysvinit-2.77-md5-be.patch
 Patch1:		sysvinit-2.78-halt.patch
 Patch2:		sysvinit-2.86-mdk-autofsck.patch
 Patch4:		sysvinit-2.85-walltty.patch
+Patch5:		sysvinit-2.86-fdr-chroot.patch
 Patch8:		sysvinit-2.86-mdk-shutdown.patch
 Patch9:		sysvinit-2.86-mdk-libcrypt.patch
 Patch10:	sysvinit-2.83-biarch-utmp.patch
@@ -50,12 +51,21 @@ NOTE: Annvix uses runit to handle init's duties, but this package still
 contains some useful utilities to manage the running of the system.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n sysvinit-%{version}
 %patch0 -p1 -b .be
 %patch1 -p1 -b .halt
 %patch2 -p1 -b .autofsck
 %patch4 -p1 -b .wall
+%patch5 -p1 -b .chroot
 %patch11 -p0 -b .disable-respawn-more-quickly
 %patch8 -p1 -b .shutdown
 %patch9 -p1 -b .libcrypt
@@ -100,6 +110,9 @@ rm -f %{buildroot}%{_mandir}/man8/telinit.8
 #install -m 0750 %{SOURCE1} %{buildroot}/sbin/reboot
 #install -m 0750 %{SOURCE2} %{buildroot}/sbin/halt
 
+# fix telinit symlink
+ln -sf init.sysv %{buildroot}/sbin/telinit
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -113,8 +126,6 @@ exit 0
 
 %files
 %defattr(-,root,root)
-%doc doc/Propaganda doc/Changelog doc/Install
-%doc doc/sysvinit-%{version}.lsm contrib/start-stop-daemon.* 
 /sbin/bootlogd
 /sbin/halt
 /sbin/init.sysv
@@ -136,8 +147,18 @@ exit 0
 %{_mandir}/*/*
 %ghost /dev/initctl
 
+%files doc
+%doc doc/Propaganda doc/Changelog doc/Install
+%doc doc/sysvinit-%{version}.lsm contrib/start-stop-daemon.* 
+
 
 %changelog
+* Tue May 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.86
+- add -doc subpackage
+- rebuild with gcc4
+- P5: add -c option to only match processes with the same root (from fedora)
+- fix the telinit symlink
+
 * Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.86
 - fix group
 
