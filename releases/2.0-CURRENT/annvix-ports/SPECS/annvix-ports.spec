@@ -12,14 +12,14 @@
 %define version		1.2
 %define release		%_revrel
 
-%define _portsprefix /usr/local
+%define _portsprefix	/usr/local
 
 Summary:	Annvix ports package
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
-URL:		http://annvix.org/
+URL:		http://svn.annvix.org/cgi-bin/viewcvs.cgi/ports/?root=tools
 Group:		System/Configuration
 Source0:	%{name}-%{version}.tar.bz2
 
@@ -27,7 +27,7 @@ BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 
 Requires:	rsync, curl, rpm-build, sudo
-
+Requires(pre):	rpm-helper
 
 %description
 The filesystem layout and builder scripts for Annvix ports.
@@ -35,6 +35,7 @@ The filesystem layout and builder scripts for Annvix ports.
 
 %prep
 %setup -q
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -76,6 +77,11 @@ builder ALL = NOPASSWD: /usr/sbin/urpmi.addmedia, /usr/sbin/urpmi.update, /usr/s
 
 
 %changelog
+* Tue May 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2
+- minor spec cleanups
+- updated url
+- prereq on rpm-helper
+
 * Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2
 - fix group
 
