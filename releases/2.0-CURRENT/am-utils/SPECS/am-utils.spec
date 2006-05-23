@@ -32,6 +32,7 @@ Source4:	amd-log.run
 Source5:	AMDOPTS.env
 Source6: 	MOUNTPTS.env
 Patch0:		am-utils-6.0.4-nfs3.patch
+Patch1:		am-utils-6.0.9-avx-gcc4.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	bison, byacc, flex, gdbm-devel
@@ -64,16 +65,25 @@ Shared library files from the am-utils package.
 %package -n %{libname}-devel
 Summary:        Development files for am-utils
 Group:          Development/C
-Requires:       %{libname} = %{epoch}:%{version}-%{release}
+Requires:       %{libname} = %{epoch}:%{version}
 Provides:       libamu-devel
 
 %description -n %{libname}-devel
 Development headers, and files for development from the am-utils package.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 %patch -p1
+%patch1 -p1 -b .gcc4
 
 
 %build
@@ -121,17 +131,17 @@ rm -f %{buildroot}/amd
 
 
 %post
-if [ -d /var/log/supervise/amd -a ! -d /var/log/service/amd ]; then
-    mv /var/log/supervise/amd /var/log/service/
-fi
 %_post_srv amd
 %_install_info %{name}.info
+
 
 %preun
 %_preun_srv amd
 
+
 %postun
 %_remove_install_info %{name}.info
+
 
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
@@ -139,7 +149,6 @@ fi
 
 %files
 %defattr(-,root,root)
-%doc doc/*.ps AUTHORS BUGS ChangeLog NEWS README* scripts/*-sample INSTALL COPYING
 %config(noreplace) %{_sysconfdir}/amd.conf
 %config(noreplace) %{_sysconfdir}/amd.net
 %dir /.automount
@@ -170,12 +179,24 @@ fi
 %{_libdir}/*.so
 %{_libdir}/*.la
 
+%files doc
+%defattr(-,root,root)
+%doc AUTHORS BUGS ChangeLog NEWS README* scripts/*-sample INSTALL COPYING
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue May 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 6.0.9
+- add -doc subpackage
+- rebuild with gcc4
+- drop the postscript docs
+- remove service log relocation stuff
+- P1: fix compilation with gcc4
+- fix rpmlint requires-on-release
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 6.0.9
 - Clean rebuild
 
-* Thu Dec 29 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Dec 29 2005 Vincent Danen <vdanen-at-build.annvix.org> 6.0.9
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - fix prereq

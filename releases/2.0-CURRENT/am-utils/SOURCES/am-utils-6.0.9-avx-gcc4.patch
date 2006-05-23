@@ -1,0 +1,11 @@
+--- am-utils-6.0.9/hlfsd/hlfsd.h.gcc4	2006-05-23 12:13:43.000000000 -0600
++++ am-utils-6.0.9/hlfsd/hlfsd.h	2006-05-23 12:13:59.000000000 -0600
+@@ -142,7 +142,7 @@
+ extern char *mailbox(int, char *);
+ extern char *passwdfile;
+ extern char *slinkname;
+-extern char mboxfile[];
++//extern char mboxfile[];
+ extern gid_t hlfs_gid;
+ extern int cache_interval;
+ extern int noverify;
