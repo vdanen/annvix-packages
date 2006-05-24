@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		basesystem
-%define version 	1.2
+%define version 	2.0
 %define release 	%_revrel
 %define epoch		1
 
@@ -31,18 +31,13 @@ Requires:	logrotate losetup mingetty modutils mount net-tools passwd procps
 Requires:	psmisc annvix-release rootfiles rpm sash shadow-utils 
 Requires:	stat syslog tar termcap time util-linux vim
 Requires:	crond which perl-base common-licenses srv runit afterboot
-Requires:	bootloader
+Requires:	bootloader, mkinitrd
 Requires:	ldconfig
 Requires:	libgcc >= 3.2-1mdk
-# (gb) Add timezone database here for now before moving it to DrakX
 Requires:	timezone
 # (sb) need pdisk hfsutils mktemp to setup bootloader PPC
 %ifarch ppc
-Requires:	pdisk hfsutils mktemp mkinitrd pmac-utils
-%endif
-# (fg) 20001027 ia64 uses eli as a bootloader
-%ifarch ia64
-Requires:	mkinitrd
+Requires:	pdisk hfsutils mktemp pmac-utils
 %endif
 
 %description
@@ -56,6 +51,10 @@ should never be removed.
 
 
 %changelog
+* Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
+- 2.0
+- make mkinitrd required by every arch
+
 * Fri Feb 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2
 - 1.2
 - Requires: s/sysklogd/syslog/
