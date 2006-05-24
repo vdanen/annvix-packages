@@ -31,7 +31,7 @@ Patch3:		blt2.4z-mkdir_p.patch
 Patch4:		blt2.4z-64bit-fixes.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:  XFree86-devel tcl tk autoconf2.1
+BuildRequires:  XFree86-devel, tcl, tk, autoconf2.1
 
 Requires:	%{libname}
 
@@ -53,8 +53,6 @@ provision of more widgets for Tk, but it also provides more geometry managers
 and miscellaneous other commands. Note that you won't need to do any patching
 of the Tcl or Tk source files to use BLT, but you will need to have Tcl/Tk
 installed in order to use BLT.
-
-This package provides TCL libraries needed to use BLT.
 
 
 %package -n %{libname}
@@ -88,6 +86,14 @@ of the Tcl or Tk source file to use BLT, but you will need to have Tcl/Tk
 installed in order to use BLT.
 
 This package provides headers needed to build packages based on BLT.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -132,6 +138,7 @@ done
 
 %multiarch_includes %{buildroot}%{_includedir}/bltHash.h
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
@@ -142,17 +149,12 @@ done
 
 %files
 %defattr(-,root,root,-)
-%doc MANIFEST NEWS PROBLEMS README
-%doc demos/
-%doc examples/
-%doc html/
 %{_bindir}/*
 %{_mandir}/mann/*
 %{_mandir}/man3/*
 
 %files scripts
 %defattr(-,root,root,-)
-%doc MANIFEST NEWS PROBLEMS README
 %dir %{_prefix}/lib/blt2.4
 %{_prefix}/lib/blt2.4/*
 
@@ -166,12 +168,23 @@ done
 %multiarch %{multiarch_includedir}/*.h
 %{_libdir}/*.a
 
+%files doc
+%defattr(-,root,root,-)
+%doc MANIFEST NEWS PROBLEMS README
+%doc demos/
+%doc examples/
+%doc html/
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4z
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4z
 - Clean rebuild
 
-* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4z
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
