@@ -31,6 +31,14 @@ Byacc (Berkeley Yacc) is a public domain LALR parser generator which
 is used by many programs during their build process.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n %{name}-%{date}
 %patch0 -p1 -b .unionfile
@@ -40,6 +48,8 @@ is used by many programs during their build process.
 %configure
 %make
 
+
+%check
 make check
 
 
@@ -56,18 +66,25 @@ ln -s yacc.1 %{buildroot}%{_mandir}/man1/byacc.1
 
 %files
 %defattr(-,root,root)
-%doc ACKNOWLEDGEMENTS NEW_FEATURES NOTES
-%doc NO_WARRANTY README
 %{_bindir}/yacc
 %{_bindir}/byacc
 %{_mandir}/man1/*
 
+%files doc
+%defattr(-,root,root)
+%doc ACKNOWLEDGEMENTS NEW_FEATURES NOTES
+%doc NO_WARRANTY README
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.9
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.9
 - Clean rebuild
 
-* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.9
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - drop unapplied patches
