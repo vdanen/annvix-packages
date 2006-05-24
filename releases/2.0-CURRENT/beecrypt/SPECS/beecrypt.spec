@@ -67,6 +67,14 @@ Beecrypt is a general-purpose cryptography library.  This package contains
 files needed for using python with beecrypt.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 %patch0 -p1 -b .rh
@@ -86,8 +94,8 @@ files needed for using python with beecrypt.
 %make
 doxygen
 
-# delete next line to build with legacy, non-check aware rpmbuild
-##%check
+
+%check
 make check || :
 cat /proc/cpuinfo
 make bench || :
@@ -111,12 +119,10 @@ rm -f %{buildroot}%{_libdir}/python%{with_python_version}/site-packages/_bc.*a
 
 %files -n %{libname}
 %defattr(-,root,root)
-%doc README BENCHMARKS
 %{_libdir}/*.so.*
 
 %files -n %{libnamedev}
 %defattr(-,root,root)
-%doc BUGS docs/html docs/latex
 %{_includedir}/%{name}
 %{_libdir}/*.a
 %{_libdir}/*.la
@@ -126,7 +132,16 @@ rm -f %{buildroot}%{_libdir}/python%{with_python_version}/site-packages/_bc.*a
 %defattr(-,root,root)
 %{_libdir}/python%{with_python_version}/site-packages/_bc.so
 
+%files doc
+%defattr(-,root,root)
+%doc README BENCHMARKS BUGS docs/html docs/latex
+
+
 %changelog
+* Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.1.0
+- add -doc subpackage
+- rebuild with gcc4
+
 * Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.1.0
 - fix group
 
