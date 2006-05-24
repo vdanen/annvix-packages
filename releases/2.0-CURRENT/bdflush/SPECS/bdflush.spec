@@ -73,10 +73,13 @@ install -m 0644 bdflush.8 %{buildroot}/%{_mandir}/man8/update.8
 %{_mandir}/man8/update.8*
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.5
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.5
 - Clean rebuild
 
-* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.5
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
