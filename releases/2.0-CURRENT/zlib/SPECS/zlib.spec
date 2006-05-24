@@ -13,12 +13,12 @@
 %define release 	%_revrel
 
 %define lib_major	1
-%define lib_name	%{name}%{lib_major}
+%define libname		%{name}%{lib_major}
 
 %define build_biarch	0
 
-# Enable bi-arch build on x86-64 and sparc64
-%ifarch x86_64 sparc64
+# Enable bi-arch build on x86-64, sparc64, and ppc64
+%ifarch x86_64 sparc64 ppc64
     %define build_biarch 1
 %endif
 
@@ -47,13 +47,15 @@ the same stream interface.  The zlib library is used by many different
 system programs.
 
 
-%package -n %{lib_name}
+%package -n %{libname}
 Summary:	The zlib compression and decompression library
 Group:		System/Libraries
 Obsoletes:	libz, libz1, %{name}
-Provides:	libz = %{version}-%{release} libz1 = %{version}-%{release} %{name} = %{version}-%{release}
+Provides:	libz = %{version}-%{release}
+Provides:	libz1 = %{version}-%{release}
+Provides:	%{name} = %{version}-%{release}
 
-%description -n %{lib_name}
+%description -n %{libname}
 The zlib compression library provides in-memory compression and
 decompression functions, including integrity checks of the uncompressed
 data.  This version of the library supports only one compression method
@@ -62,20 +64,27 @@ the same stream interface.  The zlib library is used by many different
 system programs.
 
 
-%package -n %{lib_name}-devel
+%package -n %{libname}-devel
 Summary:	Header files and libraries for developing apps which will use zlib
 Group:		Development/C
-Requires:	%{lib_name} = %{version}-%{release}
+Requires:	%{libname} = %{version}-%{release}
 Obsoletes:	libz1-devel, libz-devel, zlib-devel
-Provides:	libz-devel = %{version}-%{release} libz1-devel = %{version}-%{release} %{name}-devel = %{version}-%{release}
+Provides:	libz-devel = %{version}-%{release}
+Provides:	libz1-devel = %{version}-%{release}
+Provides:	%{name}-devel = %{version}-%{release}
 
-%description -n %{lib_name}-devel
+%description -n %{libname}-devel
 The zlib-devel package contains the header files and libraries needed
 to develop programs that use the zlib compression and decompression
 library.
 
-Install the zlib-devel package if you want to develop applications that
-will use the zlib library.
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -138,13 +147,12 @@ ln -s ../../%{_lib}/libz.so.%{version} %{buildroot}%{_libdir}/
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
-%post -n %{lib_name} -p /sbin/ldconfig
-%postun -n %{lib_name} -p /sbin/ldconfig
+%post -n %{libname} -p /sbin/ldconfig
+%postun -n %{libname} -p /sbin/ldconfig
 
 
-%files -n %{lib_name}
+%files -n %{libname}
 %defattr(-, root, root)
-%doc README
 /%{_lib}/libz.so.*
 %{_libdir}/libz.so.*
 %if %{build_biarch}
@@ -152,9 +160,8 @@ ln -s ../../%{_lib}/libz.so.%{version} %{buildroot}%{_libdir}/
 %{_prefix}/lib/libz.so.*
 %endif
 
-%files -n %{lib_name}-devel
+%files -n %{libname}-devel
 %defattr(-, root, root)
-%doc ChangeLog algorithm.txt
 %{_libdir}/*.a
 %{_libdir}/*.so
 %if %{build_biarch}
@@ -164,12 +171,21 @@ ln -s ../../%{_lib}/libz.so.%{version} %{buildroot}%{_libdir}/
 %{_includedir}/*
 %{_mandir}/*/*
 
+%files doc
+%defattr(-, root, root)
+%doc README ChangeLog algorithm.txt
+
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.3
+- add -doc subpackage
+- rebuild with gcc4
+- make it biarch on ppc64 too
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.3
 - Clean rebuild
 
-* Wed Dec 28 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Dec 28 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.2.3
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
