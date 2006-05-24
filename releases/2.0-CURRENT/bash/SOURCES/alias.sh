@@ -9,14 +9,17 @@
 #	If there is no ~/.alias but the user has specified a
 #	IGNORE_SYSTEM_ALIASES then don't do any system aliases.
 
-[[ -f ~/.alias ]] && [[ -z $LOAD_SYSTEM_ALIASES ]] && return 0
-[[ -n $IGNORE_SYSTEM_ALIASES ]] && return 0
+[ -f ~/.alias ] && [ -z $LOAD_SYSTEM_ALIASES ] && return 0
+[ -n "$IGNORE_SYSTEM_ALIASES" ] && return 0
 
 if [ -f ~/.dir_colors ]; then
 	eval `dircolors --sh ~/.dir_colors`
 else
 	eval `dircolors --sh /etc/DIR_COLORS`
 fi
+
+# Don't define aliases in plain Bourne shell
+[ -n "${BASH_VERSION}${KSH_VERSION}${ZSH_VERSION}" ] || return 0
 
 # default ls options
 LS_OPTIONS="-F"

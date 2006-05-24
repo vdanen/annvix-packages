@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		bash
-%define version		3.0
+%define version		3.1
 %define release		%_revrel
 
 %define i18ndate 	20010626
@@ -30,34 +30,34 @@ Source2:	dot-bashrc
 Source3:	dot-bash_profile
 Source4:	dot-bash_logout
 Source5:	alias.sh
-Patch1:		bash-2.02-security.patch
-Patch3:		bash-2.03-profile.patch
-Patch4:		bash-2.05b-readlinefixes.patch
-Patch6:		bash-2.04-compat.patch
-Patch8:		bash-2.05b-ia64.patch
-Patch9:		bash-2.05-s390x-unwind.patch
-Patch13:	bash-2.05b-dietlibc.patch
-Patch14:	bash-2.05b-waitpid-WCONTINUED.patch
-Patch50:	ftp://ftp.cwru.edu/pub/bash/bash-2.05b-patches/bash30-001
-Patch51:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-002
-Patch52:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-003
-Patch53:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-004
-Patch54:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-005
-Patch55:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-006
-Patch56:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-007
-Patch57:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-008
-Patch58:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-009
-Patch59:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-010
-Patch60:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-011
-Patch61:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-012
-Patch62:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-013
-Patch63:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-014
-Patch64:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-015
-Patch65:	ftp://ftp.cwru.edu/pub/bash/bash-3.0-patches/bash30-016
-Patch80:	bash-2.05b-builtins.patch
-Patch90:	bash-2.05b-disable-nontrivial-matches.patch
-Patch1000:	bash-strcoll-bug.diff
-Patch1003:	bash-2.05b-checkwinsize.patch
+Patch0:		bash-2.02-security.patch
+Patch1:		bash-2.03-profile.patch
+Patch2:		bash-2.04-compat.patch
+Patch3:		bash-2.05-s390x-unwind.patch
+Patch4:		bash-2.05b-dietlibc.patch
+Patch5:		bash-2.05b-builtins.patch
+Patch6:		bash-2.05b-disable-nontrivial-matches.patch
+Patch7:		bash-strcoll-bug.diff
+Patch8:		bash-2.05b-checkwinsize.patch
+Patch9:		bash-3.1-extended_quote.patch
+# upstream bugfixes
+Patch20:	ftp://ftp.cwru.edu/pub/bash/bash-3.1-patches/bash31-001
+Patch21:	ftp://ftp.cwru.edu/pub/bash/bash-3.1-patches/bash31-002
+Patch22:	ftp://ftp.cwru.edu/pub/bash/bash-3.1-patches/bash31-003
+Patch23:	ftp://ftp.cwru.edu/pub/bash/bash-3.1-patches/bash31-004
+Patch24:	ftp://ftp.cwru.edu/pub/bash/bash-3.1-patches/bash31-005
+Patch25:	ftp://ftp.cwru.edu/pub/bash/bash-3.1-patches/bash31-006
+Patch26:	ftp://ftp.cwru.edu/pub/bash/bash-3.1-patches/bash31-007
+Patch27:	ftp://ftp.cwru.edu/pub/bash/bash-3.1-patches/bash31-008
+Patch28:	ftp://ftp.cwru.edu/pub/bash/bash-3.1-patches/bash31-009
+Patch29:	ftp://ftp.cwru.edu/pub/bash/bash-3.1-patches/bash31-010
+Patch30:	ftp://ftp.cwru.edu/pub/bash/bash-3.1-patches/bash31-011
+Patch31:	ftp://ftp.cwru.edu/pub/bash/bash-3.1-patches/bash31-012
+Patch32:	ftp://ftp.cwru.edu/pub/bash/bash-3.1-patches/bash31-013
+Patch33:	ftp://ftp.cwru.edu/pub/bash/bash-3.1-patches/bash31-014
+Patch34:	ftp://ftp.cwru.edu/pub/bash/bash-3.1-patches/bash31-015
+Patch35:	ftp://ftp.cwru.edu/pub/bash/bash-3.1-patches/bash31-016
+Patch36:	ftp://ftp.cwru.edu/pub/bash/bash-3.1-patches/bash31-017
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5, bison, libtermcap-devel
@@ -78,51 +78,55 @@ intended to conform to the IEEE POSIX P1003.2/ISO 9945.2 Shell and
 Tools standard.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -a 1
 mv doc/README .
 
-%patch1 -p1 -b .security
-%patch3 -p1 -b .profile
-%patch4 -p1 -b .readline
-%patch6 -p1 -b .compat
-%patch8 -p1 -b .ia64
+%patch0 -p1 -b .security
+%patch1 -p1 -b .profile
+%patch2 -p1 -b .compat
 %ifarch s390x
-%patch9 -p1 -b .s390x
+%patch3 -p1 -b .s390x
 %endif
+%patch4 -p1 -b .dietlibc
+%patch5 -p0 -b .fix_so
+%patch6 -p0
+%patch7 -p1 -b .strcoll_bugx
+%patch8 -p1 -b .checkwinsize
+%patch9 -p0 -b .quote
 
-%patch13 -p1 -b .dietlibc
-%patch14 -p1 -b .waitpid-WCONTINUED
-
-%patch50 -p0 -b .pl1
-%patch51 -p0 -b .pl2
-%patch52 -p0 -b .pl3
-%patch53 -p0 -b .pl4
-%patch54 -p0 -b .pl5
-%patch55 -p0 -b .pl6
-%patch56 -p0 -b .pl7
-%patch57 -p0 -b .pl8
-%patch58 -p0 -b .pl9
-%patch59 -p0 -b .pl10
-%patch60 -p0 -b .pl11
-%patch61 -p0 -b .pl12
-%patch62 -p0 -b .pl13
-%patch63 -p0 -b .pl14
-%patch64 -p0 -b .pl15
-%patch65 -p0 -b .pl16
-
-%patch80 -p0 -b .fix_so
-
-%patch90 -p0
-
-%patch1000 -p1 -b .strcoll_bugx
-%patch1003 -p1 -b .checkwinsize
+# upstream bugfixes
+%patch20 -p0 -b .001
+%patch21 -p0 -b .002
+%patch22 -p0 -b .003
+%patch23 -p0 -b .004
+%patch24 -p0 -b .005
+%patch25 -p0 -b .006
+%patch26 -p0 -b .007
+%patch27 -p0 -b .008
+%patch28 -p0 -b .009
+%patch29 -p0 -b .010
+%patch30 -p0 -b .011
+%patch31 -p0 -b .012
+%patch32 -p0 -b .013
+%patch33 -p0 -b .014
+%patch34 -p0 -b .015
+%patch35 -p0 -b .016
+%patch36 -p0 -b .017
 
 echo %{version} > _distribution
 echo %{release} > _patchlevel
 perl -p -i -e s/avx// _patchlevel
 
-# needed by P13
+# needed by P6
 autoconf
 
 
@@ -153,7 +157,7 @@ pushd bash-dynamic
     export CONFIGURE_TOP=".."
     %configure2_5x \
         --disable-command-timing
-    %make CFLAGS="$RPM_OPT_FLAGS"
+    %make CFLAGS="%{optflags}"
     # all tests must pass
     make check
 popd
@@ -236,9 +240,16 @@ install -m 0644 bash-dynamic/doc/bash.info %{buildroot}%{_infodir}/
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
+%post
+%_install_info %{name}.info
+
+
+%preun
+%_remove_install_info %{name}.info
+
+
 %files -f man.pages
 %defattr(-,root,root)
-%doc README CHANGES
 %config(noreplace) %{_sysconfdir}/skel/.b*
 %{_sysconfdir}/profile.d/alias.sh
 /bin/rbash
@@ -255,12 +266,28 @@ install -m 0644 bash-dynamic/doc/bash.info %{buildroot}%{_infodir}/
 %{_mandir}/man1/bashbug.1*
 %{_bindir}/bashbug
 
+%files doc
+%defattr(-,root,root)
+%doc README CHANGES
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.1
+- 3.1
+- drop P50-P65; merged upstream
+- drop P4, P8, P14: no longer needed or wanted
+- renumber patches
+- upstream fixes: P20-P36
+- P9: extended quote fix (Novell)
+- make alias.sh bourne-compliant (mdv bug #16188)
+- install info pages
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0
 - Clean rebuild
 
-* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
