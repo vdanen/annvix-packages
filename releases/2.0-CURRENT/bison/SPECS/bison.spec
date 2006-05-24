@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		bison
-%define version 	2.0
+%define version 	2.1
 %define release 	%_revrel
 
 Summary:	A GNU general-purpose parser generator
@@ -41,8 +41,13 @@ to be very proficient in C programming to be able to use Bison).  Many
 programs use Bison as part of their build process. Bison is only needed
 on systems that are used for development.
 
-If your system will be used for C development, you should install Bison
-since it is used to build many C programs.
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -53,6 +58,9 @@ since it is used to build many C programs.
 %build
 %configure2_5x
 %make
+
+
+%check
 make check
 
 
@@ -75,25 +83,36 @@ rm -f %{buildroot}%{_libdir}/liby.a
 %post
 %_install_info bison.info
 
+
 %preun
 %_remove_install_info bison.info
 
 
 %files -f %{name}.lang
 %defattr(-,root,root)
-%doc COPYING ChangeLog NEWS README
+%{_bindir}/*
 %{_mandir}/man1/*
 %dir %{_datadir}/bison
 %{_datadir}/bison/*
 %{_infodir}/bison.info*
-%{_bindir}/*
+%{_datadir}/aclocal
+%{_datadir}/locale/*/LC_MESSAGES/*
+
+%files doc
+%defattr(-,root,root)
+%doc COPYING ChangeLog NEWS README
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1
+- 2.1
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
 - Clean rebuild
 
-* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
