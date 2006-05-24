@@ -41,6 +41,14 @@ is sometimes used with the Netwide Assembler (NASM).  These tools
 include linker, library manager, loader, and information dump.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 %patch0 -p1 -b .can-2005-1194
@@ -51,6 +59,9 @@ rm -f config.cache config.status config.log
 %configure2_5x
 %make
 %make rdf
+
+mv rdoff/README README.rdoff
+mv rdoff/doc/v1-v2.txt rdoff-v1-v2.txt
 
 
 %install
@@ -65,7 +76,6 @@ mkdir -p %{buildroot}{%{_bindir},%{_infodir},%{_mandir}/man1}
 
 %files
 %defattr(-,root,root)
-%doc COPYING CHANGES TODO AUTHORS README doc/internal.doc
 %attr(755,root,root) %{_bindir}/nasm
 %attr(755,root,root) %{_bindir}/ndisasm
 %{_mandir}/man1/nasm.1*
@@ -73,7 +83,6 @@ mkdir -p %{buildroot}{%{_bindir},%{_infodir},%{_mandir}/man1}
 
 %files rdoff
 %defattr(-,root,root)
-%doc rdoff/README rdoff/doc/v1-v2.txt
 %{_bindir}/rdfdump
 %{_bindir}/ldrdf
 %{_bindir}/rdx
@@ -82,11 +91,21 @@ mkdir -p %{buildroot}{%{_bindir},%{_infodir},%{_mandir}/man1}
 %{_bindir}/rdf2ihx
 %{_bindir}/rdf2com
 
+%files doc
+%defattr(-,root,root)
+%doc COPYING CHANGES TODO AUTHORS README doc/internal.doc
+%doc rdoff-v1-v2.txt README.rdoff
+
+
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.98.39
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.98.39
 - Clean rebuild
 
-* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.98.39
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
