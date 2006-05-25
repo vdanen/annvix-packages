@@ -336,6 +336,14 @@ mv subversion/%{mod_authz_name}/INSTALL INSTALL.%{mod_authz_name}
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
+%post -n python-svn -p /sbin/ldconfig
+%postun -n python-svn -p /sbin/ldconfig
+
+
+%post -n perl-SVN -p /sbin/ldconfig
+%postun -n perl-SVN -p /sbin/ldconfig
+
+
 %post -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
 
@@ -356,6 +364,10 @@ popd >/dev/null 2>&1
 
 %preun server
 %_preun_srv svn
+
+
+%postun server
+/sbin/ldconfig
 
 
 %files 
@@ -462,6 +474,7 @@ popd >/dev/null 2>&1
 - P1: fix build with apr1
 - fix perms before building; most everything is either 0640 or 0750
 - make the default repository 0770 so only group svn can access it
+- call ldconfig in %%postun server, and also for perl-SVN and python-svn
 
 * Tue May 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.1
 - 1.3.1
