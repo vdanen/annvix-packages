@@ -38,6 +38,7 @@ Source3:	%{mod_authz_conf}
 Source4:	svn.run
 Source5:	svn-log.run
 Patch0:		subversion-1.3.0-rc4-fix-svn-config-multiarch.patch
+Patch1:		subversion-1.3.1-use_apr1.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{svn_version}
 
@@ -46,7 +47,8 @@ BuildRequires:	python >= 2.2, python-devel, perl-devel
 BuildRequires:	db4-devel, neon-devel = 0.24.7, httpd-devel >=  %{apache_version}
 BuildRequires:	swig-devel >= 1.3.19 
 BuildRequires:	multiarch-utils >= 1.0.3
-
+BuildRequires:	libapr >= 1.2.7, apr-util >= 1.2.7
+BuildConflicts:	libapr = 0.9.7, apr-util = 0.9.7
 
 %description
 Subversion is a concurrent version control system which enables one or more
@@ -161,11 +163,16 @@ This package contains the documentation for %{name}.
 %prep
 %setup -q
 %patch0 -p1 -b .fix_svn-config_multiarch
+%patch1 -p1 -b .use_apr1
 
 rm -rf neon apr apr-util db4
 
 # fix shebang lines, #111498
 perl -pi -e 's|/usr/bin/env perl -w|/usr/bin/perl -w|' tools/hook-scripts/*.pl.in
+
+# fix perms
+find . -type f -a -perm 0640 -exec chmod 0644 {} \; 
+find . -type f -a -perm 0750 -exec chmod 0755 {} \; 
 
 
 %build
@@ -377,8 +384,8 @@ popd >/dev/null 2>&1
 %{_bindir}/svnadmin
 %{_bindir}/svnserve
 %{_bindir}/svndumpfilter
-%attr(0755,svn,svn) %dir %{_localstatedir}/svn
-%attr(0755,svn,svn) %dir %{_localstatedir}/svn/repositories
+%attr(0770,svn,svn) %dir %{_localstatedir}/svn
+%attr(0770,svn,svn) %dir %{_localstatedir}/svn/repositories
 %{_libdir}/libsvn_fs*.so.*
 %{_libdir}/libsvn_repos-*.so.*
 %{_mandir}/man1/svnadmin.1*
@@ -446,7 +453,16 @@ popd >/dev/null 2>&1
 %doc INSTALL.%{mod_authz_name} INSTALL.swig NOTES.swig
 %doc tools/examples/*.py
 
+
 %changelog
+* Thu May 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.1
+- rebuild against new apr/apr-util/httpd
+- add libapr/apr-util buildreq and force it to 1.2.7 so we don't get
+  libapr0 and friends picked up
+- P1: fix build with apr1
+- fix perms before building; most everything is either 0640 or 0750
+- make the default repository 0770 so only group svn can access it
+
 * Tue May 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.1
 - 1.3.1
 - rebuild against perl 5.8.8
