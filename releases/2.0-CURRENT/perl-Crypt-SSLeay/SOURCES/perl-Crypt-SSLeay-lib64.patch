@@ -1,0 +1,16 @@
+--- Crypt-SSLeay-0.45/Makefile.PL.lib64	2002-11-21 11:47:36.000000000 -0500
++++ Crypt-SSLeay-0.45/Makefile.PL	2002-11-21 11:55:08.000000000 -0500
+@@ -87,7 +87,12 @@
+     $SEP = "\\";
+     $LIBS = "-lssleay32 -llibeay32 -lRSAglue -lrsaref";
+ } else {
+-    $SSL_LIB = "-L".$SSL_DIR."/lib";
++    if (-d "$SSL_DIR/lib64") {
++      $SSL_LIB = "-L".$SSL_DIR."/lib64";
++    }
++    else {
++      $SSL_LIB = "-L".$SSL_DIR."/lib";
++    }
+     $SEP = "/";
+     $LIBS = "-lssl -lcrypto -lgcc -lRSAglue -lrsaref";
+ 
