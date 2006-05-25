@@ -13,12 +13,11 @@
 %define release		%_revrel
 
 # Module-Specific definitions
-%define apache_version	2.0.55
-%define mod_version	2.2.9
-%define mod_name	mod_auth_external
+%define apache_version	2.2.2
+%define mod_version	3.1.0
+%define mod_name	mod_authnz_external
 %define mod_conf	10_%{mod_name}.conf
 %define mod_so		%{mod_name}.so
-%define sourcename	%{mod_name}-%{mod_version}
 
 Summary:	An Apache authentication DSO using external programs
 Name:		%{name}
@@ -27,25 +26,32 @@ Release:	%{release}
 License:	Apache License
 Group:		System/Servers
 URL:		http://www.unixpapa.com/mod_auth_external.html
-Source0:	%{sourcename}.tar.bz2
+Source0:	http://www.unixpapa.com/software/%{mod_name}-%{mod_version}.tar.gz
 Source1:	%{mod_conf}
-Patch0:		%{mod_name}-2.2.9-register.diff
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:  httpd-devel >= %{apache_version}
 
-Prereq:		rpm-helper, httpd >= %{apache_version}, httpd-conf
+Requires(pre):	rpm-helper, httpd >= %{apache_version}, httpd-conf >= 2.2.0
+Requires(postun): rpm-helper
 Requires:	pwauth
-Provides:	apache2-mod_auth_external
-Obsoletes:	apache2-mod_auth_external
+Provides:	apache2-mod_auth_external httpd-mod_auth_external
+Obsoletes:	apache2-mod_auth_external httpd-mod_auth_external
 
 %description
 An Apache external authentication module - uses PAM.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
-%setup -q -n %{sourcename}
-%patch0
+%setup -q -n %{mod_name}-%{mod_version}
 
 
 %build
@@ -69,12 +75,22 @@ chmod 0644 AUTHENTICATORS CHANGES INSTALL* README* TODO
 
 %files
 %defattr(-,root,root)
-%doc AUTHENTICATORS CHANGES INSTALL* README* TODO
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/modules.d/%{mod_conf}
 %attr(0755,root,root) %{_libdir}/httpd-extramodules/%{mod_so}
 
+%files doc
+%defattr(-,root,root)
+%doc AUTHENTICATORS CHANGES INSTALL* README* TODO
+
 
 %changelog
+* Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.2_3.1.0
+- 3.1.0 (new name is httpd-mod_authnz_external)
+- apache 2.2.2
+- drop P1
+- add -doc subpackage
+- rebuild with gcc4
+
 * Sat Feb 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.55_2.2.9
 - rebuild against apr and apr-util 0.9.7 (needed to make mod_cgi.so work
   properly)
