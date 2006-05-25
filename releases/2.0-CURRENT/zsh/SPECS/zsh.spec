@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		zsh
-%define version		4.2.5
+%define version		4.2.6
 %define release		%_revrel
 %define epoch		1
 
@@ -24,6 +24,7 @@ URL:		http://www.zsh.org
 Source0:	http://www.zsh.org/pub/%{name}-%{version}.tar.bz2
 Source2:	zcfg-avx.tar.bz2
 Source3:	zsh.urpmi_comp
+Source4:	http://www.zsh.org/pub/%{name}-%{version}-doc.tar.bz2
 Patch1:		zsh-3.1.6-dev-22-path.patch
 Patch2:		zsh-4.0.1-pre-3-rpmnewopt.patch
 Patch101:	zsh-serial.patch
@@ -46,8 +47,16 @@ shell functions (with autoloading), a history mechanism, and a
 lots of other features
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
-%setup -q -a 2
+%setup -q -a 2 -a 4
 %patch1 -p1
 %patch2 -p1
 %patch101 -p1
@@ -58,6 +67,7 @@ cat %{SOURCE3} > Completion/Mandrake/Command/_urpmi
 # remove temporary files
 find | grep '~$' | xargs rm -f
 perl -pi -e 's|/usr/local/bin/|%{_bindir}/|' Functions/Misc/{run-help,checkmail,zcalc}
+
 
 %build
 %ifarch sparc
@@ -82,7 +92,7 @@ make all
 make install-strip DESTDIR=%{buildroot}
 make install.info DESTDIR=%{buildroot}
 
-# copy Mandrake Configuration files.
+# copy Annvix Configuration files.
 mkdir -p %{buildroot}/{bin,etc}
 cp -a zcfg/etc/z* %{buildroot}%{_sysconfdir}
 cp -a zcfg/share/zshrc_default %{buildroot}%{_datadir}/zsh/%{version}/zshrc_default
@@ -94,6 +104,23 @@ popd
 
 rm -f %{buildroot}%{_bindir}/zsh-%{version}
 
+# Handle documentation
+rm -rf docroot
+mkdir -p docroot/{Info_html,Examples,Documentation}/
+
+cp -a README docroot/
+cp -a Functions/Misc/* Misc/* Util/* docroot/Examples/
+cp -a INSTALL ChangeLog* docroot/Documentation 
+cp -a StartupFiles docroot/
+cp -a Etc/* docroot/Documentation
+cp -a %{name}-%{version}/Doc/*html docroot/Info_html/
+
+rm -f docroot/{StartupFiles/.distfiles,Examples/{Makefile*,*.yo},Documentation/{Makefile*,*.yo}}
+find docroot/ -name 'Makefile*' -o -name '.yo'|xargs rm -f
+find docroot/ -type f|xargs perl -pi -e 's@^#!%_prefix/local/bin/(perl|zsh)@#!%_bindir/\1@'
+mv docroot/Examples/compctl-examples docroot/StartupFiles
+
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -103,6 +130,7 @@ rm -f %{buildroot}%{_bindir}/zsh-%{version}
 /usr/share/rpm-helper/add-shell %{name} $1 /bin/zsh
 %_install_info %{name}.info
 
+
 %postun
 /usr/share/rpm-helper/del-shell %{name} $1 /bin/zsh
 %_remove_install_info %{name}.info
@@ -110,7 +138,6 @@ rm -f %{buildroot}%{_bindir}/zsh-%{version}
 
 %files
 %defattr(-,root,root,0755)
-%doc README NEWS
 %config(noreplace) %{_sysconfdir}/z*
 /bin/%{name}
 %{_mandir}/man1/*.1*
@@ -123,12 +150,23 @@ rm -f %{buildroot}%{_bindir}/zsh-%{version}
 %dir %{_libdir}/zsh
 %{_libdir}/zsh/%{version}/
 
+%files doc
+%defattr(-,root,root,0755)
+%doc README NEWS
+%doc docroot/Documentation/ docroot/Examples/ docroot/Info_html/ docroot/StartupFiles/
+%doc ChangeLog*
+
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.2.6
+- 4.2.6
+- add -doc subpackage and add back the zsh docs
+- rebuild with gcc4
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.2.5
 - Clean rebuild
 
-* Wed Dec 28 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Dec 28 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.2.5
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - fix prereq
