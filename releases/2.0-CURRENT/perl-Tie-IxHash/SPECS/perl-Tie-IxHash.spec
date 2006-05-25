@@ -28,11 +28,17 @@ BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildArch: 	noarch
 BuildRequires:	perl-devel
 
-Requires: 	perl
-
 %description
 %{module} module for perl.  This Perl module implements ordered
 in-memory associative arrays.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -40,8 +46,11 @@ in-memory associative arrays.
 
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor
 make
+
+
+%check
 make test
 
 
@@ -56,16 +65,23 @@ make test
 
 %files
 %defattr(444,root,root,755)
-%doc Changes README
 %{_mandir}/*/*
 %{perl_vendorlib}/Tie/IxHash.pm
 
+%files doc
+%defattr(-,root,root)
+%doc Changes README
+
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat May 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.21
+- rebuild against perl 5.8.8
+- create -doc subpackage
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.21
 - Clean rebuild
 
-* Tue Dec 27 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Dec 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.21
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
