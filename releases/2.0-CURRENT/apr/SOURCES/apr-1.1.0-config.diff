@@ -1,5 +1,5 @@
---- apr-config.in	2004-09-15 21:35:12.126684584 +0200
-+++ apr-config.in.oden	2004-09-15 21:43:42.232584869 +0200
+--- apr-config.in	2004-12-09 05:22:47.000000000 +0100
++++ apr-config.in.oden	2005-01-27 17:12:30.140000031 +0100
 @@ -37,7 +37,6 @@
  LIBS="@EXTRA_LIBS@"
  EXTRA_INCLUDES="@EXTRA_INCLUDES@"
@@ -17,11 +17,11 @@
 -else
 -    LA_FILE="$APR_BUILD_DIR/lib${APR_LIBNAME}.la"
 -fi
-+LA_FILE="$libdir/lib${APR_LIBNAME}.la"
++LA_FILE="${libdir}/lib${APR_LIBNAME}.la"
  
  flags=""
  
-@@ -118,15 +113,7 @@
+@@ -118,16 +113,7 @@
      exit 0
      ;;
      --includedir)
@@ -34,11 +34,12 @@
 -        flags="$APR_BUILD_DIR/include $APR_SOURCE_DIR/include"
 -    fi
 -    echo $flags
+-    exit 0
 +    echo $includedir
-     exit 0
      ;;
      --cc)
-@@ -150,28 +137,14 @@
+     echo $CC
+@@ -150,28 +136,14 @@
      flags="$flags $LDFLAGS"
      ;;
      --includes)
@@ -54,7 +55,7 @@
      ;;
      --srcdir)
 -    echo $APR_SOURCE_DIR
-+    echo ${libdir}/apr
++    echo ${libdir}/apr-$APR_MAJOR_VERSION
      exit 0
      ;;
      --installbuilddir)
@@ -70,7 +71,7 @@
      exit 0
      ;;
      --version)
-@@ -179,36 +152,17 @@
+@@ -179,38 +151,17 @@
      exit 0
      ;;
      --link-ld)
@@ -92,7 +93,9 @@
 -        flags="$flags $LA_FILE"
 -    elif test "$location" = "installed"; then
 -        ### avoid using -L if libdir is a "standard" location like /usr/lib
--        flags="$flags -L$libdir -l${APR_LIBNAME}"
+-        # Since the user is specifying they are linking with libtool, we
+-        # *know* that -R will be recognized by libtool.
+-        flags="$flags -L$libdir -R$libdir -l${APR_LIBNAME}"
 -    else
 -        flags="$flags $LA_FILE"
 -    fi
@@ -110,7 +113,7 @@
      ;;
      --apr-so-ext)
      echo "$APR_SO_EXT"
-@@ -219,11 +173,7 @@
+@@ -221,11 +172,7 @@
      exit 0
      ;;
      --apr-libtool)
