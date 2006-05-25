@@ -35,7 +35,7 @@ Patch3:		bzip2-1.0.2-CAN-2005-0953.patch
 Patch4:		bzip2-1.0.2-bzgrep.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	texinfo
+BuildRequires:	texinfo, libtool
 
 Requires:	%{libname} = %{version}, mktemp
 
@@ -70,6 +70,14 @@ Obsoletes:	%{name}-devel
 %description -n %libname-devel
 Header files and static library of bzip2 functions, for developing apps which
 will use the bzip2 library (aka libz2).
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -116,25 +124,31 @@ install -m 0644 bzlib_private.h %{buildroot}%{_includedir}/
 
 %files
 %defattr(-,root,root,755)
-%doc README LICENSE
 %{_bindir}/*
 %{_mandir}/man1/*
 
 %files -n %{libname}
 %defattr(-,root,root,755)
-%doc LICENSE
 %{_libdir}/libbz2.so.*
 
 %files -n %{libname}-devel
 %defattr(-,root,root,755)
-%doc *.html LICENSE
 %{_libdir}/libbz2.a
 %{_libdir}/libbz2.la
 %{_libdir}/libbz2.so
 %{_includedir}/*.h
 
+%files doc
+%defattr(-,root,root,755)
+%doc README LICENSE *.html
+
 
 %changelog
+* Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.3
+- add -doc subpackage
+- rebuild with gcc4
+- BuildRequires: libtool
+
 * Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.3
 - fix group
 
