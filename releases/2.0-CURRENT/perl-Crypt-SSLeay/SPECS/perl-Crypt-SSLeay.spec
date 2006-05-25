@@ -5,10 +5,10 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-# $Id: perl-MD5.spec 5503 2006-05-25 17:48:15Z vdanen $
+# $Id$
 
 %define module		Crypt-SSLeay
-%define revision	$Rev: 5503 $
+%define revision	$Rev$
 %define name		perl-%{module}
 %define version		0.51
 %define release		%_revrel
