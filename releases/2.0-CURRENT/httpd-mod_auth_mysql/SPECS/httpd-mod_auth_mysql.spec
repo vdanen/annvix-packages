@@ -13,12 +13,11 @@
 %define release 	%_revrel
 
 # Module-Specific definitions
-%define apache_version	2.0.55
-%define mod_version	2.9.0
+%define apache_version	2.2.2
+%define mod_version	3.0.0
 %define mod_name	mod_auth_mysql
 %define mod_conf	12_%{mod_name}.conf
 %define mod_so		%{mod_name}.so
-%define sourcename	%{mod_name}-%{mod_version}
 
 Summary:	Basic authentication for the Apache web server using a MySQL database
 Name:		%{name}
@@ -27,14 +26,16 @@ Release:	%{release}
 License:	Apache License
 Group:		System/Servers
 URL:		http://sourceforge.net/projects/modauthmysql/
-Source0:	mod_auth_mysql-%{mod_version}.tar.bz2
+Source0:	http://prdownloads.sourceforge.net/modauthmysql/%{mod_name}-%{mod_version}.tar.bz2
 Source1:	%{mod_conf}
+Patch0:		mod_auth_mysql-3.0.0-apr1x.patch
+Patch1:		mod_auth_mysql-3.0.0-htpasswd-style.diff
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:  httpd-devel >= %{apache_version}, MySQL-devel
+BuildRequires:  httpd-devel >= %{apache_version}, mysql-devel
 
-Prereq:		httpd = %{apache_version}
-Prereq:		httpd-conf
+Requires(pre):	httpd = %{apache_version}, rpm-helper, httpd-conf >= 2.2.0
+Requires(postun): rpm-helper
 Provides:	apache2-mod_auth_mysql
 Obsoletes:	apache2-mod_auth_mysql
 
@@ -44,8 +45,18 @@ authorize access through a MySQL database.  It is flexible and
 support several encryption methods.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n %{mod_name}-%{mod_version}
+%patch0 -p1 -b .apr1x
+%patch1 -p0 -b .htpasswd-style
 
 
 %build
@@ -67,12 +78,23 @@ cat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 %files
 %defattr(-,root,root)
-%doc README CHANGES BUILD CONFIGURE
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/modules.d/%{mod_conf}
 %attr(0755,root,root) %{_libdir}/httpd-extramodules/%{mod_so}
 
+%files doc
+%defattr(-,root,root)
+%doc README CHANGES BUILD CONFIGURE
+
 
 %changelog
+* Thu May 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.2_3.0.0
+- apache 2.2.2
+- mod_auth_mysql 3.0.0
+- P0: apr1 fixes from fedora
+- P1: htpasswd-style encryption
+- add -doc subpackage
+- rebuild with gcc4
+
 * Sat Feb 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.55_2.9.0
 - rebuild against apr and apr-util 0.9.7 (needed to make mod_cgi.so work
   properly)
