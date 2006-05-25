@@ -1,6 +1,14 @@
---- apu-config.in	2004-09-15 22:01:52.538262419 +0200
-+++ apu-config.in.oden	2004-09-15 22:05:43.138141698 +0200
-@@ -32,8 +32,6 @@
+--- apu-config.in	2005-02-04 21:45:35.000000000 +0100
++++ apu-config.in.oden	2005-11-30 20:13:54.000000000 +0100
+@@ -25,6 +25,7 @@
+ exec_prefix="@exec_prefix@"
+ bindir="@bindir@"
+ libdir="@libdir@"
++datadir="@datadir@"
+ includedir="@includedir@"
+ 
+ LIBS="@APRUTIL_EXPORT_LIBS@"
+@@ -33,8 +34,6 @@
  
  APRUTIL_LIBNAME="@APRUTIL_LIBNAME@"
  
@@ -9,7 +17,7 @@
  APR_XML_EXPAT_OLD="@APR_XML_EXPAT_OLD@"
  APU_DB_VERSION="@apu_db_version@"
  
-@@ -76,15 +74,7 @@
+@@ -77,15 +76,7 @@
      exit 1
  fi
  
@@ -26,7 +34,7 @@
  
  flags=""
  
-@@ -112,32 +102,17 @@
+@@ -113,32 +104,17 @@
      flags="$flags $LIBS"
      ;;
      --includedir)
@@ -58,11 +66,11 @@
      ;;
      --srcdir)
 -    echo $APU_SOURCE_DIR
-+    echo ${libdir}/apr 
++    echo ${libdir}/apr-$APRUTIL_MAJOR_VERSION
      exit 0
      ;;
      --version)
-@@ -145,31 +120,13 @@
+@@ -146,33 +122,13 @@
      exit 0
      ;;
      --link-ld)
@@ -83,7 +91,9 @@
 -        flags="$flags $LA_FILE"
 -    elif test "$location" = "installed"; then
 -        ### avoid using -L if libdir is a "standard" location like /usr/lib
--        flags="$flags -L$libdir -l$APRUTIL_LIBNAME"
+-        # Since the user is specifying they are linking with libtool, we
+-        # *know* that -R will be recognized by libtool.
+-        flags="$flags -L$libdir -R$libdir -l$APRUTIL_LIBNAME"
 -    else
 -        flags="$flags $LA_FILE"
 -    fi

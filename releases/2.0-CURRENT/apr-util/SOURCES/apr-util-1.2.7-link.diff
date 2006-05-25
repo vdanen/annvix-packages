@@ -1,0 +1,15 @@
+--- configure.in	2005-05-05 21:24:29.000000000 +0200
++++ configure.in.oden	2006-04-30 13:05:39.000000000 +0200
+@@ -125,7 +125,12 @@
+ APU_FIND_EXPAT
+ APU_FIND_ICONV
+ 
++save_LIBS="$LIBS"
++LIBS=
+ AC_SEARCH_LIBS(crypt, crypt ufc)
++APR_ADDTO(APRUTIL_EXPORT_LIBS, [$LIBS])
++APR_ADDTO(APRUTIL_LIBS, [$LIBS])
++LIBS="$save_LIBS $LIBS"
+ AC_MSG_CHECKING(if system crypt() function is threadsafe)
+ if test "x$apu_crypt_threadsafe" = "x1"; then
+   AC_DEFINE(APU_CRYPT_THREADSAFE, 1, [Define if the system crypt() function is threadsafe])
