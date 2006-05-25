@@ -10,11 +10,9 @@
 # (if installed):
 #   * httpd (prefork, stable)
 #   * httpd-worker (experimental)
-#   * httpd-peruser (experimental)
 #
 # HTTPD="/usr/sbin/httpd"
 # HTTPD="/usr/sbin/httpd-worker"
-# HTTPD="/usr/sbin/httpd-peruser"
 
 # use this for apache
 # HTTPD="/usr/sbin/httpd"

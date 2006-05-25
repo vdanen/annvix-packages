@@ -14,3 +14,13 @@ to Annvix 1.1-RELEASE httpd packages:
   a single httpd.conf file.  Review it and your old configuration and make the
   appropriate changes for your configuration
 
+Annvix 2.0-CURRENT introduced httpd 2.2.x which is a little bit different from 2.0.x.
+The following are some of the important particulars:
+
+A word of advice regarding one obvious security issue. Since mod_access has
+been renamed to mod_authz_host every directory instance referring to mod_access
+will be invalid. If you have content secured like that please review your
+configuration. mod_access.c has changed to mod_authz_host.c.
+
+Please read the following files for more in-depth information about the changes
+in apache 2.2; upgrading.txt and new_features_2_2.txt

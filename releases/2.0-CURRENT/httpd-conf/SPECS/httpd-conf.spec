@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		httpd-conf
-%define version		2.0.55
+%define version		2.2.2
 %define release		%_revrel
 
 %define compat_dir	/etc/httpd
@@ -31,7 +31,9 @@ Source5:	magic
 Source6:	mime.types
 Source7:	index.html
 Source8:	httpd-conf-README.urpmi
-Source9:	old_config.tar.bz2
+Source10:	robots.txt
+Source11:	00_default_vhosts.conf
+Source12:	mod_ssl-gentestcrt.sh
 
 Source100:	httpd.run
 Source101:	httpd-log.run
@@ -60,7 +62,7 @@ a logo or config file.
 
 
 %prep
-%setup -q -n %{name}-%{version} -a 9
+%setup -q -n %{name}-%{version}
 cp %{SOURCE2} .
 cp %{SOURCE3} .
 cp %{SOURCE4} .
@@ -68,6 +70,9 @@ cp %{SOURCE5} .
 cp %{SOURCE6} .
 cp %{SOURCE7} .
 cp %{SOURCE8} README.urpmi
+cp %{SOURCE10} .
+cp %{SOURCE11} .
+cp %{SOURCE12} .
 
 
 %build
@@ -105,6 +110,7 @@ install -m 0755 advxsplitlogfile-DIET %{buildroot}%{_sbindir}/
 install -m 0644 advxsplitlogfile %{buildroot}%{_sbindir}/
 install -m 0755 apache-2.0.40-testscript.pl %{buildroot}/var/www/cgi-bin/test.cgi
 install -m 0755 apache-2.0.40-testscript.pl %{buildroot}/var/www/perl/test.pl
+install -m 0755 mod_ssl-gentestcrt.sh %{buildroot}%{_sbindir}/mod_ssl-gentestcrt
 
 # make some softlinks
 pushd %{buildroot}%{_sysconfdir}/httpd
@@ -120,6 +126,7 @@ install -m 0644 fileprotector.conf %{buildroot}%{_sysconfdir}/httpd/conf/filepro
 install -m 0644 mime.types %{buildroot}%{_sysconfdir}/httpd/conf/mime.types
 install -m 0644 magic %{buildroot}%{_sysconfdir}/httpd/conf/magic
 install -m 0644 httpd.sysconf %{buildroot}%{_sysconfdir}/sysconfig/httpd
+install -m 0644 00_default_vhosts.conf %{buildroot}%{_sysconfdir}/httpd/conf/vhosts.d/00_default_vhosts.conf
 
 # install misc documentation and logos
 install -m 0644 index.shtml %{buildroot}/var/www/html/
@@ -129,6 +136,8 @@ install -m 0644 favicon.ico %{buildroot}/var/www/html/
 install -m 0644 robots.txt %{buildroot}/var/www/html/
 install -m 0644 *.gif %{buildroot}/var/www/icons/
 install -m 0644 *.png %{buildroot}/var/www/icons/
+rm -f %{buildroot}/var/www/icons/mandrake.png
+rm -f %{buildroot}/var/www/icons/medbutton.png
 
 # put the advx stuff here
 install -m 0644 advxaddmod %{buildroot}%{_datadir}/ADVX/
@@ -142,6 +151,7 @@ install -m 0644 advx-migrate-httpd-perl.conf %{buildroot}%{_datadir}/ADVX/
 install -m 0644 advx-migrate-httpd.conf %{buildroot}%{_datadir}/ADVX/
 install -m 0644 advx-migrate-vhosts.conf %{buildroot}%{_datadir}/ADVX/
 install -m 0644 mod_ssl-migrate-20 %{buildroot}%{_datadir}/ADVX/
+install -m 0644 mod_ssl-gentestcrt.sh %{buildroot}%{_datadir}/ADVX/
 
 cat > %{buildroot}%{_sysconfdir}/logrotate.d/httpd << EOF
 /var/log/httpd/*log
@@ -194,7 +204,7 @@ fi
 
 %files 
 %defattr(-,root,root)
-%doc README.urpmi old_config
+%doc README.urpmi
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/sysconfig/httpd
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/logrotate.d/httpd
 
@@ -223,6 +233,7 @@ fi
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/conf/fileprotector.conf
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/conf/mime.types
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/conf/magic
+%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/conf/vhosts.d/00_default_vhosts.conf
 
 %attr(0755,root,root) /var/www/cgi-bin/*
 %attr(0755,root,root) /var/www/perl/*
@@ -242,6 +253,13 @@ fi
 
 
 %changelog
+* Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.2
+- 2.2.2
+- moved mod_ssl-gentestcrt here
+- added default vhosts config
+- drop S9 (who wants old mandriva 10.x config files?)
+- merge the 2.2.2 configs from mandriva
+
 * Tue Apr 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.55
 - don't let apache have a real shell, use /bin/true instead
 
