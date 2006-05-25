@@ -126,14 +126,22 @@ Requires:	%{name} = %{epoch}:%{version}-%{release}
 This is the devel package for %{name}.
 
 
-%package doc
-Summary:	The Perl programming language (documentation)
+%package perldoc
+Summary:	The Perl programming language (perldoc)
 Group:		Development/Perl
 Requires:	%{name} = %{epoch}:%{version}-%{release}, groff-for-man
+Obsoletes:	%{name}-doc <= 1:5.8.8-5383avx
+
+%description perldoc
+This is the perldoc program.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
 
 %description doc
-This is the documentation package for %{name}.  It also contains the
-'perldoc' program.
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -396,9 +404,7 @@ EOF
 %exclude %{perl_root}/%{version}/Pod/Perldoc/ToXml.pm
 EOF
 
-   cat > perl-doc.list <<EOF
-%doc README
-%doc Artistic
+   cat > perl-perldoc.list <<EOF
 %{_bindir}/perldoc
 %{_mandir}/man1/perldoc.1.bz2
 %{perl_root}/%{version}/Pod/Perldoc.pm
@@ -494,13 +500,13 @@ EOF
 
    rel_perl_root=`echo %{perl_root} | sed "s,/,,"`
    rel_mandir=`echo %{_mandir} | sed "s,/,,"`
-   (cd %{buildroot} ; find $rel_perl_root/%{version} "(" -name "*.pod" -o -iname "Changes*" -o -iname "ChangeLog*" -o -iname "README*" ")" -a -not -name perldiag.pod -printf "%%%%doc /%%p\n") >> perl-doc.list
+   (cd %{buildroot} ; find $rel_perl_root/%{version} "(" -name "*.pod" -o -iname "Changes*" -o -iname "ChangeLog*" -o -iname "README*" ")" -a -not -name perldiag.pod -printf "%%%%doc /%%p\n") >> perl-perldoc.list
    (cd %{buildroot} ; find $rel_mandir/man1 ! -name "perlivp.1*" ! -type d -printf "/%%p\n") >> perl.list
    (cd %{buildroot} ; find $rel_perl_root/%{version} ! -type d -printf "/%%p\n") >> perl.list
    (cd %{buildroot} ; find $rel_perl_root/%{version} -type d -printf "%%%%dir /%%p\n") >> perl.list
    perl -ni -e 'BEGIN { open F, "perl-base.list"; $s{$_} = 1 foreach <F>; } print unless $s{$_}' perl.list
    perl -ni -e 'BEGIN { open F, "perl-devel.list"; $s{$_} = 1 foreach <F>; } print unless $s{$_}' perl.list
-   perl -ni -e 'BEGIN { open F, "perl-doc.list"; !/perldiag/ and m|(/.*\n)| and $s{$1} = 1 foreach <F>; } print unless $s{$_}' perl.list
+   perl -ni -e 'BEGIN { open F, "perl-perldoc.list"; !/perldiag/ and m|(/.*\n)| and $s{$1} = 1 foreach <F>; } print unless $s{$_}' perl.list
 )
 
 
@@ -518,15 +524,21 @@ EOF
 %files devel -f perl-devel.list
 %defattr(-,root,root)
 
-%files doc -f perl-doc.list
+%files perldoc -f perl-perldoc.list
 %defattr(-,root,root)
 
 %files suid
 %{_bindir}/suidperl
 %attr(4711,root,root) %{_bindir}/sperl%{version}
 
+%files doc
+%doc README Artistic
+
 
 %changelog
+* Thu May 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.8.8
+- rename perl-doc to perl-perldoc and create perl-doc to only contain docs
+
 * Tue May 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.8.8
 - revert the lib64 buildrequires "fix"
 - also use newer rpm-annvix-setup-build to pick up libperl.so and friends
