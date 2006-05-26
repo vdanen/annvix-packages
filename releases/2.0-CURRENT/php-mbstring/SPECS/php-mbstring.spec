@@ -81,6 +81,7 @@ install -m 0644 %{SOURCE0} %{buildroot}%{_sysconfdir}/php.d/%{inifile}
 %changelog
 * Thu May 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.4
 - php 5.1.4
+- update config with mbstring.stric_encoding setting
 
 * Mon Apr 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.2
 - fix summary
