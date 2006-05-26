@@ -1,0 +1,603 @@
+diff -Naur mod_layout-4.0.1a/mod_layout.c mod_layout-4.0.1a.oden/mod_layout.c
+--- mod_layout-4.0.1a/mod_layout.c	2005-12-26 10:17:00.000000000 +0100
++++ mod_layout-4.0.1a.oden/mod_layout.c	2005-12-26 10:12:03.000000000 +0100
+@@ -12,8 +12,8 @@
+ */
+ 	layout_conf *cfg;
+ 
+-	cfg = ap_pcalloc(p, sizeof(layout_conf));
+-	cfg->dir = ap_pstrdup(p, dir);
++	cfg = apr_pcalloc(p, sizeof(layout_conf));
++	cfg->dir = apr_pstrdup(p, dir);
+ 	cfg->replace_tags = UNSET;
+ 	cfg->merge = UNSET;
+ 	cfg->notes = UNSET;
+@@ -33,7 +33,7 @@
+ 	cfg->end_tag = LAYOUT_ENDTAG;
+ 	cfg->async_post = OFF;
+ 	cfg->time_format = LAYOUT_TIMEFORMAT;
+-	cfg->types = ap_make_table(p, 9); /* Doing default types was probably a bad idea */
++	cfg->types = apr_table_make(p, 9); /* Doing default types was probably a bad idea */
+ 	cfg->uris_ignore = NULL;
+ 	cfg->uris_ignore_header = NULL;
+ 	cfg->uris_ignore_http_header = NULL;
+@@ -44,25 +44,25 @@
+ 	cfg->layouts = NULL;
+ 	cfg->layout_html_handler = ON;
+ 
+-	ap_table_setn(cfg->types, INCLUDES_MAGIC_TYPE, "1");
+-	ap_table_setn(cfg->types, INCLUDES_MAGIC_TYPE3, "1");
+-	ap_table_setn(cfg->types, "server-parsed", "1");
+-	ap_table_setn(cfg->types, "text/html", "1");
+-	ap_table_setn(cfg->types, "text/plain", "1");
+-	ap_table_setn(cfg->types, "perl-script", "1");
+-	ap_table_setn(cfg->types, "cgi-script", "1");
+-	ap_table_setn(cfg->types, "application/x-httpd-cgi", "1");
+-	ap_table_setn(cfg->types, "application/x-httpd-php", "1");
+-	ap_table_setn(cfg->types, "LayoutHandler application/x-httpd-php3", "1");
+-	ap_table_setn(cfg->types, "LayoutHandler application/x-httpd-php3-source", "1");
++	apr_table_setn(cfg->types, INCLUDES_MAGIC_TYPE, "1");
++	apr_table_setn(cfg->types, INCLUDES_MAGIC_TYPE3, "1");
++	apr_table_setn(cfg->types, "server-parsed", "1");
++	apr_table_setn(cfg->types, "text/html", "1");
++	apr_table_setn(cfg->types, "text/plain", "1");
++	apr_table_setn(cfg->types, "perl-script", "1");
++	apr_table_setn(cfg->types, "cgi-script", "1");
++	apr_table_setn(cfg->types, "application/x-httpd-cgi", "1");
++	apr_table_setn(cfg->types, "application/x-httpd-php", "1");
++	apr_table_setn(cfg->types, "LayoutHandler application/x-httpd-php3", "1");
++	apr_table_setn(cfg->types, "LayoutHandler application/x-httpd-php3-source", "1");
+ 	return (void *) cfg;
+ }
+ 
+ static void *merge_dir_mconfig(apr_pool_t *p, void *origin, void *new) {
+-	layout_conf *cfg = ap_pcalloc(p, sizeof(layout_conf));
++	layout_conf *cfg = apr_pcalloc(p, sizeof(layout_conf));
+ 	layout_conf *cfg_origin = (layout_conf *)origin;
+ 	layout_conf *cfg_new = (layout_conf *)new;
+-	cfg->dir = ap_pstrdup(p, cfg_new->dir);
++	cfg->dir = apr_pstrdup(p, cfg_new->dir);
+ 	cfg->replace_tags = UNSET;
+ 	cfg->merge = UNSET;
+ 	cfg->notes = UNSET;
+@@ -92,27 +92,27 @@
+ 	cfg->layout_html_handler = ON;
+ 
+ 	if (strcmp(cfg_new->async_cache, LAYOUT_CACHE)){
+-		cfg->async_cache = ap_pstrdup(p, cfg_new->async_cache);
++		cfg->async_cache = apr_pstrdup(p, cfg_new->async_cache);
+ 	} else if (strcmp(cfg_origin->async_cache, LAYOUT_CACHE)){
+-		cfg->async_cache = ap_pstrdup(p, cfg_origin->async_cache);
++		cfg->async_cache = apr_pstrdup(p, cfg_origin->async_cache);
+ 	}
+ 
+ 	if (strcmp(cfg_new->time_format, LAYOUT_TIMEFORMAT)){
+-		cfg->time_format = ap_pstrdup(p, cfg_new->time_format);
++		cfg->time_format = apr_pstrdup(p, cfg_new->time_format);
+ 	} else if (strcmp(cfg_origin->time_format, LAYOUT_TIMEFORMAT)){
+-		cfg->time_format = ap_pstrdup(p, cfg_origin->time_format);
++		cfg->time_format = apr_pstrdup(p, cfg_origin->time_format);
+ 	}
+ 
+ 	if (strcmp(cfg_new->begin_tag, LAYOUT_BEGINTAG)){
+-		cfg->begin_tag = ap_pstrdup(p, cfg_new->begin_tag);
++		cfg->begin_tag = apr_pstrdup(p, cfg_new->begin_tag);
+ 	} else if (strcmp(cfg_origin->begin_tag, LAYOUT_BEGINTAG)){
+-		cfg->begin_tag = ap_pstrdup(p, cfg_origin->begin_tag);
++		cfg->begin_tag = apr_pstrdup(p, cfg_origin->begin_tag);
+ 	}
+ 
+ 	if (strcmp(cfg_new->end_tag, LAYOUT_ENDTAG)){
+-		cfg->end_tag = ap_pstrdup(p, cfg_new->end_tag);
++		cfg->end_tag = apr_pstrdup(p, cfg_new->end_tag);
+ 	} else if (strcmp(cfg_origin->end_tag, LAYOUT_ENDTAG)){
+-		cfg->end_tag = ap_pstrdup(p, cfg_origin->end_tag);
++		cfg->end_tag = apr_pstrdup(p, cfg_origin->end_tag);
+ 	}
+ 	
+ 	cfg->layout_html_handler = (cfg_new->layout_html_handler == OFF) ? OFF : cfg_origin->layout_html_handler;
+@@ -131,7 +131,7 @@
+ 	if (isOn(cfg->append_header) || isOn(cfg->append_footer))  {
+ 		if (isOn(cfg->append_header) && isOn(cfg->append_footer))  {
+ 			if (cfg_origin->layouts)
+-				cfg->layouts = ap_append_arrays(p, cfg_origin->layouts, cfg_new->layouts);
++				cfg->layouts = apr_array_append(p, cfg_origin->layouts, cfg_new->layouts);
+ 			else
+ 				cfg->layouts = cfg_new->layouts;
+ 			cfg->header_enabled = cfg_new->header_enabled ? cfg_new->header_enabled : cfg_origin->header_enabled;
+@@ -161,10 +161,10 @@
+ 	}
+ 
+ 	if (cfg_new->http_header_enabled == UNSET){
+-		cfg->http_header = ap_pstrdup(p, cfg_origin->http_header);
++		cfg->http_header = apr_pstrdup(p, cfg_origin->http_header);
+ 		cfg->http_header_enabled = cfg_origin->http_header_enabled;
+ 	} else if (isOn(cfg_new->http_header_enabled)){
+-		cfg->http_header = ap_pstrdup(p, cfg_new->http_header);
++		cfg->http_header = apr_pstrdup(p, cfg_new->http_header);
+ 		cfg->http_header_enabled = cfg_new->http_header_enabled;
+ 	} else {
+ 		cfg->http_header_enabled = OFF;
+@@ -175,7 +175,7 @@
+ 
+ 	if (cfg_origin->uris_ignore) {
+ 		if (cfg_new->uris_ignore) {
+-			cfg->uris_ignore = ap_overlay_tables(p, cfg_new->uris_ignore, cfg_origin->uris_ignore);
++			cfg->uris_ignore = apr_table_overlay(p, cfg_new->uris_ignore, cfg_origin->uris_ignore);
+ 		} else {
+ 			cfg->uris_ignore = cfg_origin->uris_ignore;
+ 		}
+@@ -185,7 +185,7 @@
+ 
+ 	if (cfg_origin->uris_ignore_header) {
+ 		if (cfg_new->uris_ignore_header) {
+-			cfg->uris_ignore_header = ap_overlay_tables(p, cfg_new->uris_ignore_header, cfg_origin->uris_ignore_header);
++			cfg->uris_ignore_header = apr_table_overlay(p, cfg_new->uris_ignore_header, cfg_origin->uris_ignore_header);
+ 		} else {
+ 			cfg->uris_ignore_header = cfg_origin->uris_ignore_header;
+ 		}
+@@ -195,7 +195,7 @@
+ 
+ 	if (cfg_origin->uris_ignore_http_header) {
+ 		if (cfg_new->uris_ignore_http_header) {
+-			cfg->uris_ignore_http_header = ap_overlay_tables(p, cfg_new->uris_ignore_http_header, cfg_origin->uris_ignore_http_header);
++			cfg->uris_ignore_http_header = apr_table_overlay(p, cfg_new->uris_ignore_http_header, cfg_origin->uris_ignore_http_header);
+ 		} else {
+ 			cfg->uris_ignore_http_header = cfg_origin->uris_ignore_http_header;
+ 		}
+@@ -205,7 +205,7 @@
+ 
+ 	if (cfg_origin->uris_ignore_footer) {
+ 		if (cfg_new->uris_ignore_footer) {
+-			cfg->uris_ignore_footer = ap_overlay_tables(p, cfg_new->uris_ignore_footer, cfg_origin->uris_ignore_footer);
++			cfg->uris_ignore_footer = apr_table_overlay(p, cfg_new->uris_ignore_footer, cfg_origin->uris_ignore_footer);
+ 		} else {
+ 			cfg->uris_ignore_footer = cfg_origin->uris_ignore_footer;
+ 		}
+@@ -215,7 +215,7 @@
+ 
+ 	if (cfg_origin->tag_ignore) {
+ 		if (cfg_new->tag_ignore) {
+-			cfg->tag_ignore = ap_overlay_tables(p, cfg_new->tag_ignore, cfg_origin->tag_ignore);
++			cfg->tag_ignore = apr_table_overlay(p, cfg_new->tag_ignore, cfg_origin->tag_ignore);
+ 		} else {
+ 			cfg->tag_ignore = cfg_origin->tag_ignore;
+ 		}
+@@ -225,7 +225,7 @@
+ 
+ 	if (cfg_origin->tag_ignore_footer) {
+ 		if (cfg_new->tag_ignore_footer) {
+-			cfg->tag_ignore_footer = ap_overlay_tables(p, cfg_new->tag_ignore_footer, cfg_origin->tag_ignore_footer);
++			cfg->tag_ignore_footer = apr_table_overlay(p, cfg_new->tag_ignore_footer, cfg_origin->tag_ignore_footer);
+ 		} else {
+ 			cfg->tag_ignore_footer = cfg_origin->tag_ignore_footer;
+ 		}
+@@ -235,7 +235,7 @@
+ 
+ 	if (cfg_origin->tag_ignore_header) {
+ 		if (cfg_new->tag_ignore_header) {
+-			cfg->tag_ignore_header = ap_overlay_tables(p, cfg_new->tag_ignore_header, cfg_origin->tag_ignore_header);
++			cfg->tag_ignore_header = apr_table_overlay(p, cfg_new->tag_ignore_header, cfg_origin->tag_ignore_header);
+ 		} else {
+ 			cfg->tag_ignore_header = cfg_origin->tag_ignore_header;
+ 		}
+@@ -261,7 +261,7 @@
+ 		return ap_pass_brigade(f->next, b);
+ 	}
+ 
+-	ap_table_setn(r->headers_out, "X-Powered-By", "ModLayout/"VERSION);
++	apr_table_setn(r->headers_out, "X-Powered-By", "ModLayout/"VERSION);
+ 	cfg = ap_get_module_config(r->per_dir_config, &layout_module);
+ 
+ 
+@@ -293,7 +293,9 @@
+ 	apr_table_unset(f->r->headers_out, "Content-Length");
+ 	apr_table_unset(f->r->headers_out, "ETag");
+ 
+-	APR_BRIGADE_FOREACH(e, b) {
++	for (e = APR_BRIGADE_FIRST(b);
++	     e != APR_BRIGADE_SENTINEL(b);
++	     e = APR_BUCKET_NEXT(e)) {
+ 		if (APR_BUCKET_IS_EOS(e) || APR_BUCKET_IS_FLUSH  (e)) {
+ 			info->f = f->next;
+ 			info->b = ctx->b;
+@@ -342,7 +344,7 @@
+ static const char * add_http_header(cmd_parms * cmd, void *mconfig, const char *uri) {
+ 	layout_conf *cfg = (layout_conf *) mconfig;
+ 
+-	cfg->http_header = ap_pstrdup(cmd->pool, uri);
++	cfg->http_header = apr_pstrdup(cmd->pool, uri);
+ 	cfg->http_header_enabled = ON;
+ 
+ 	return NULL;
+@@ -355,30 +357,30 @@
+ 	layout_string *directive;
+ 
+ 
+-	directive = ap_pcalloc (cmd->pool, sizeof (layout_string));
++	directive = apr_pcalloc (cmd->pool, sizeof (layout_string));
+ 
+ 	if (ap_ind(layout, ' ') != -1) {
+-		directive->comment = ap_pstrdup (cmd->pool, "Static Content");
+-		directive->string = ap_pstrdup (cmd->pool, layout);
++		directive->comment = apr_pstrdup (cmd->pool, "Static Content");
++		directive->string = apr_pstrdup (cmd->pool, layout);
+ 		directive->type = 1;
+ 	} else if (stat(layout, &sbuf) == 0){
+ 		unless((temp = layout_add_file(cmd, layout))) {
+ 			return NULL;
+ 		};
+-		directive->comment = ap_pstrdup (cmd->pool, layout);
+-		directive->string = ap_pstrdup (cmd->pool, temp);
++		directive->comment = apr_pstrdup (cmd->pool, layout);
++		directive->string = apr_pstrdup (cmd->pool, temp);
+ 		directive->type = 1;
+ 	} else {
+-		directive->comment = ap_pstrdup (cmd->pool, layout);
+-		directive->string = ap_pstrdup (cmd->pool, layout);
++		directive->comment = apr_pstrdup (cmd->pool, layout);
++		directive->string = apr_pstrdup (cmd->pool, layout);
+ 		directive->type = 0;
+ 		if (cfg->cache_needed == UNSET)
+ 			cfg->cache_needed = ON;
+ 	}
+-	directive->pattern = ap_pstrdup (cmd->pool, pattern);
++	directive->pattern = apr_pstrdup (cmd->pool, pattern);
+ 
+ 	unless(cfg->layouts) {
+-		cfg->layouts = ap_make_array (cmd->pool, 1, sizeof (layout_string *));
++		cfg->layouts = apr_array_make (cmd->pool, 1, sizeof (layout_string *));
+ 	}
+ 
+ 	unless(strcasecmp(cmd->cmd->name, "LayoutHeader")) {
+@@ -408,7 +410,7 @@
+ 		directive->append = REPLACE;
+ 	}
+ 
+-	*(layout_string **) ap_push_array (cfg->layouts) = (layout_string *) directive;
++	*(layout_string **) apr_array_push (cfg->layouts) = (layout_string *) directive;
+ 
+ 	return NULL;
+ }
+@@ -427,9 +429,9 @@
+ static const char * ignore_uri(cmd_parms * cmd, void *mconfig, const char *uri) {
+ 	layout_conf *cfg = (layout_conf *) mconfig;
+ 	unless(cfg->uris_ignore)
+-		cfg->uris_ignore = ap_make_table(cmd->pool, 1);
++		cfg->uris_ignore = apr_table_make(cmd->pool, 1);
+ 
+-	ap_table_setn(cfg->uris_ignore, uri, "1");
++	apr_table_setn(cfg->uris_ignore, uri, "1");
+ 
+ 	return NULL;
+ }
+@@ -437,9 +439,9 @@
+ static const char * ignore_header_uri(cmd_parms * cmd, void *mconfig, const char *uri) {
+ 	layout_conf *cfg = (layout_conf *) mconfig;
+ 	unless(cfg->uris_ignore_header)
+-		cfg->uris_ignore_header = ap_make_table(cmd->pool, 1);
++		cfg->uris_ignore_header = apr_table_make(cmd->pool, 1);
+ 
+-	ap_table_setn(cfg->uris_ignore_header, uri, "1");
++	apr_table_setn(cfg->uris_ignore_header, uri, "1");
+ 
+ 	return NULL;
+ }
+@@ -447,9 +449,9 @@
+ static const char * ignore_http_header_uri(cmd_parms * cmd, void *mconfig, const char *uri) {
+ 	layout_conf *cfg = (layout_conf *) mconfig;
+ 	unless(cfg->uris_ignore_http_header)
+-		cfg->uris_ignore_http_header = ap_make_table(cmd->pool, 1);
++		cfg->uris_ignore_http_header = apr_table_make(cmd->pool, 1);
+ 
+-	ap_table_setn(cfg->uris_ignore_http_header, uri, "1");
++	apr_table_setn(cfg->uris_ignore_http_header, uri, "1");
+ 
+ 	return NULL;
+ }
+@@ -457,16 +459,16 @@
+ static const char * ignore_footer_uri(cmd_parms * cmd, void *mconfig, const char *uri) {
+ 	layout_conf *cfg = (layout_conf *) mconfig;
+ 	unless(cfg->uris_ignore_footer)
+-		cfg->uris_ignore_footer = ap_make_table(cmd->pool, 1);
++		cfg->uris_ignore_footer = apr_table_make(cmd->pool, 1);
+ 
+-	ap_table_setn(cfg->uris_ignore_footer, uri, "1");
++	apr_table_setn(cfg->uris_ignore_footer, uri, "1");
+ 
+ 	return NULL;
+ }
+ 
+ static const char * add_type(cmd_parms * cmd, void *mconfig, const char *type) {
+ 	layout_conf *cfg = (layout_conf *) mconfig;
+-	ap_table_setn(cfg->types, type, "1");
++	apr_table_setn(cfg->types, type, "1");
+ 
+ 	return NULL;
+ }
+@@ -474,9 +476,9 @@
+ static const char * tag_ignore_add(cmd_parms * cmd, void *mconfig, const char *type) {
+ 	layout_conf *cfg = (layout_conf *) mconfig;
+ 	unless(cfg->tag_ignore)
+-		cfg->tag_ignore = ap_make_table(cmd->pool, 1);
++		cfg->tag_ignore = apr_table_make(cmd->pool, 1);
+ 
+-	ap_table_setn(cfg->tag_ignore, type, "1");
++	apr_table_setn(cfg->tag_ignore, type, "1");
+ 
+ 	return NULL;
+ }
+@@ -484,9 +486,9 @@
+ static const char * tag_ignore_footer_add(cmd_parms * cmd, void *mconfig, const char *type) {
+ 	layout_conf *cfg = (layout_conf *) mconfig;
+ 	unless(cfg->tag_ignore_footer)
+-		cfg->tag_ignore_footer = ap_make_table(cmd->pool, 1);
++		cfg->tag_ignore_footer = apr_table_make(cmd->pool, 1);
+ 
+-	ap_table_setn(cfg->tag_ignore_footer, type, "1");
++	apr_table_setn(cfg->tag_ignore_footer, type, "1");
+ 
+ 	return NULL;
+ }
+@@ -494,9 +496,9 @@
+ static const char * tag_ignore_header_add(cmd_parms * cmd, void *mconfig, const char *type) {
+ 	layout_conf *cfg = (layout_conf *) mconfig;
+ 	unless(cfg->tag_ignore_header)
+-		cfg->tag_ignore_header = ap_make_table(cmd->pool, 1);
++		cfg->tag_ignore_header = apr_table_make(cmd->pool, 1);
+ 
+-	ap_table_setn(cfg->tag_ignore_header, type, "1");
++	apr_table_setn(cfg->tag_ignore_header, type, "1");
+ 
+ 	return NULL;
+ }
+@@ -558,24 +560,24 @@
+ 	AP_INIT_TAKE1("LayoutHeader", add_layout, NULL, OR_ALL, LayoutHeader),
+ 	AP_INIT_TAKE1("LayoutFooter", add_layout, NULL, OR_ALL, LayoutFooter),
+ 	AP_INIT_FLAG("LayoutAppend", append_layouts, NULL, OR_ALL, LayoutAppend),
+-	AP_INIT_FLAG("LayoutAppendHeader", ap_set_flag_slot, (void *) APR_XtOffsetOf(layout_conf, append_header), OR_ALL, LayoutHeaderAppend),
+-	AP_INIT_FLAG("LayoutAppendFooter", ap_set_flag_slot, (void *) APR_XtOffsetOf(layout_conf, append_header), OR_ALL, LayoutFooterAppend),
++	AP_INIT_FLAG("LayoutAppendHeader", ap_set_flag_slot, (void *) APR_OFFSETOF(layout_conf, append_header), OR_ALL, LayoutHeaderAppend),
++	AP_INIT_FLAG("LayoutAppendFooter", ap_set_flag_slot, (void *) APR_OFFSETOF(layout_conf, append_header), OR_ALL, LayoutFooterAppend),
+ 	AP_INIT_TAKE1("LayoutIgnoreURI", ignore_uri, NULL, OR_ALL, LayoutIgnoreURI),
+ 	AP_INIT_TAKE1("LayoutIgnoreHeaderURI", ignore_header_uri, NULL, OR_ALL, LayoutIgnoreHeaderURI),
+ 	AP_INIT_TAKE1("LayoutIgnoreHTTPHeaderURI", ignore_http_header_uri, NULL, OR_ALL, LayoutIgnoreHTTPHeaderURI),
+ 	AP_INIT_TAKE1("LayoutIgnoreFooterURI", ignore_footer_uri, NULL, OR_ALL, LayoutIgnoreFooterURI),
+-	AP_INIT_FLAG("LayoutComment", ap_set_flag_slot, (void *) APR_XtOffsetOf(layout_conf, comment), OR_ALL, LayoutComment),
+-	AP_INIT_FLAG("LayoutDisplayOriginal", ap_set_flag_slot, (void *) APR_XtOffsetOf(layout_conf, display_origin), OR_ALL, LayoutDisplayOriginal),
+-	AP_INIT_TAKE1("LayoutTimeFormat", ap_set_string_slot, (void *) APR_XtOffsetOf(layout_conf, time_format), OR_ALL, LayoutTimeFormat),
++	AP_INIT_FLAG("LayoutComment", ap_set_flag_slot, (void *) APR_OFFSETOF(layout_conf, comment), OR_ALL, LayoutComment),
++	AP_INIT_FLAG("LayoutDisplayOriginal", ap_set_flag_slot, (void *) APR_OFFSETOF(layout_conf, display_origin), OR_ALL, LayoutDisplayOriginal),
++	AP_INIT_TAKE1("LayoutTimeFormat", ap_set_string_slot, (void *) APR_OFFSETOF(layout_conf, time_format), OR_ALL, LayoutTimeFormat),
+ 	AP_INIT_TAKE1("LayoutHTTPHeader", add_http_header, NULL, OR_ALL, LayoutHTTPHeader),
+ 	AP_INIT_TAKE1("LayoutIgnoreTag", tag_ignore_add, NULL, OR_ALL, LayoutIgnoreTag),
+ 	AP_INIT_TAKE1("LayoutIgnoreTagFooter", tag_ignore_footer_add, NULL, OR_ALL, LayoutIgnoreTagFooter),
+ 	AP_INIT_TAKE1("LayoutIgnoreTagHeader", tag_ignore_header_add, NULL, OR_ALL, LayoutIgnoreTagHeader),
+-	AP_INIT_FLAG("LayoutPostAsync", ap_set_flag_slot, (void *) APR_XtOffsetOf(layout_conf, async_post), OR_ALL, LayoutPostAsync),
+-	AP_INIT_TAKE1("LayoutBeginTag", ap_set_string_slot, (void *) APR_XtOffsetOf(layout_conf, begin_tag), OR_ALL, LayoutMergeBeginTag),
+-	AP_INIT_TAKE1("LayoutEndTag", ap_set_string_slot, (void *) APR_XtOffsetOf(layout_conf, end_tag), OR_ALL, LayoutMergeEndTag),
+-	AP_INIT_FLAG("LayoutReplaceTags", ap_set_flag_slot, (void *) APR_XtOffsetOf(layout_conf, replace_tags), OR_ALL, LayoutReplaceTags),
+-	AP_INIT_FLAG("LayoutNotes", ap_set_flag_slot, (void *) APR_XtOffsetOf(layout_conf, notes), OR_ALL, LayoutNotes),
++	AP_INIT_FLAG("LayoutPostAsync", ap_set_flag_slot, (void *) APR_OFFSETOF(layout_conf, async_post), OR_ALL, LayoutPostAsync),
++	AP_INIT_TAKE1("LayoutBeginTag", ap_set_string_slot, (void *) APR_OFFSETOF(layout_conf, begin_tag), OR_ALL, LayoutMergeBeginTag),
++	AP_INIT_TAKE1("LayoutEndTag", ap_set_string_slot, (void *) APR_OFFSETOF(layout_conf, end_tag), OR_ALL, LayoutMergeEndTag),
++	AP_INIT_FLAG("LayoutReplaceTags", ap_set_flag_slot, (void *) APR_OFFSETOF(layout_conf, replace_tags), OR_ALL, LayoutReplaceTags),
++	AP_INIT_FLAG("LayoutNotes", ap_set_flag_slot, (void *) APR_OFFSETOF(layout_conf, notes), OR_ALL, LayoutNotes),
+ 	{NULL}
+ };
+ /* Dispatch list for API hooks */
+diff -Naur mod_layout-4.0.1a/mod_layout.h mod_layout-4.0.1a.oden/mod_layout.h
+--- mod_layout-4.0.1a/mod_layout.h	2002-07-22 08:49:01.000000000 +0200
++++ mod_layout-4.0.1a.oden/mod_layout.h	2005-12-26 09:40:17.000000000 +0100
+@@ -10,7 +10,6 @@
+ #include "http_request.h"
+ #include "ap_config.h"
+ #include "apr_buckets.h"
+-#include "apr_compat.h"
+ #include "apr_strings.h"
+ #include "apr_lib.h"
+ #include "apr_tables.h"
+diff -Naur mod_layout-4.0.1a/utility.c mod_layout-4.0.1a.oden/utility.c
+--- mod_layout-4.0.1a/utility.c	2005-12-26 10:17:00.000000000 +0100
++++ mod_layout-4.0.1a.oden/utility.c	2005-12-26 10:12:42.000000000 +0100
+@@ -23,17 +23,17 @@
+ 	}
+ 
+ 	/* Size of new plus some padding */
+-	returnable = ap_make_array (p, new->nelts + 2 + origin->nelts, sizeof (layout_string *));
++	returnable = apr_array_make (p, new->nelts + 2 + origin->nelts, sizeof (layout_string *));
+ 	/* Copy in the origin pieces */
+ 	for (x = 0; x < origin->nelts; x++) {
+ 		if (origin_layouts[x]->kind == kind) {
+-			*(layout_string **) ap_push_array (returnable) = (layout_string *) origin_layouts[x];
++			*(layout_string **) apr_array_push (returnable) = (layout_string *) origin_layouts[x];
+ 		}
+ 	}
+ 	/* Copy in the new pieces */
+ 	for (x = 0; x < new->nelts; x++) {
+ 		if (new_layouts[x]->kind == kind) {
+-			*(layout_string **) ap_push_array (returnable) = (layout_string *) new_layouts[x];
++			*(layout_string **) apr_array_push (returnable) = (layout_string *) new_layouts[x];
+ 		}
+ 	}
+ 	return returnable;
+@@ -58,14 +58,14 @@
+ LAYOUT_EXPORT(layout_request *) create_layout_request(request_rec *r, layout_conf *cfg) {
+ 	layout_request *info = NULL;
+ 	const char *content_length = NULL;
+-	info = ap_pcalloc(r->pool, sizeof(layout_request));
++	info = apr_pcalloc(r->pool, sizeof(layout_request));
+ 
+ 	info->origin = cfg->display_origin;
+ 	info->merge = cfg->merge;
+ 	info->http_header = OFF;
+ 	info->header = OFF;
+ 	info->footer = OFF;
+-	if((content_length = ap_table_get(r->headers_in, "Content-Length"))) {
++	if((content_length = apr_table_get(r->headers_in, "Content-Length"))) {
+ 		info->length = (content_length ? atoi(content_length) : 0);
+ 	}
+ 	info->pid = getpid();
+@@ -114,7 +114,7 @@
+ 	if (t == NULL)
+ 		return 0;
+ 
+-	hdrs_arr = ap_table_elts(t);
++	hdrs_arr = apr_table_elts(t);
+ 	elts = (const apr_table_entry_t *) hdrs_arr->elts;
+ 
+ 	for (i = 0; i < hdrs_arr->nelts; ++i) {
+@@ -135,17 +135,17 @@
+ 	if (dest == NULL)
+ 		return;
+ 
+-	hdrs_arr = ap_table_elts(src);
++	hdrs_arr = apr_table_elts(src);
+ 	elts = (const apr_table_entry_t *) hdrs_arr->elts;
+ 
+ 	if(string) {
+ 		for (x = 0; x < hdrs_arr->nelts; ++x) {
+ 			unless(strcasecmp(string,elts[x].key)) 
+-				ap_table_add(dest, elts[x].key, elts[x].val);
++				apr_table_add(dest, elts[x].key, elts[x].val);
+ 		}
+ 	} else {
+ 		for (x = 0; x < hdrs_arr->nelts; ++x) {
+-			ap_table_add(dest, elts[x].key, elts[x].val);
++			apr_table_add(dest, elts[x].key, elts[x].val);
+ 		}
+ 	}
+ }
+@@ -160,7 +160,7 @@
+ 	if (string == NULL)
+ 		string = "table_list: ";
+ 
+-	hdrs_arr = ap_table_elts(t);
++	hdrs_arr = apr_table_elts(t);
+ 	elts = (const apr_table_entry_t *) hdrs_arr->elts;
+ 
+ 	for (i = 0; i < hdrs_arr->nelts; ++i) {
+@@ -191,10 +191,10 @@
+ 	while((position = ap_ind(temp, delim[0])) != -1) {
+ 		sub_temp = temp + position;
+ 		if((end = ap_ind(sub_temp, delim[delim_size - 1])) != -1) { 
+-			substring = ap_pstrndup(r->pool, sub_temp , end + 1);
+-			lower = ap_pstrdup(r->pool, substring);
++			substring = apr_pstrndup(r->pool, sub_temp , end + 1);
++			lower = apr_pstrdup(r->pool, substring);
+ 			ap_str_tolower(lower);
+-			unless(ap_fnmatch(delim, lower, FNM_CASE_BLIND)) {
++			unless(apr_fnmatch(delim, lower, APR_FNM_CASE_BLIND)) {
+ 				if(flag) {
+ 					complete_position += position;
+ 				} else {
+@@ -241,8 +241,8 @@
+ 		if( string[x] == '<') {
+ 			sub_temp = (char *)string + x;
+ 			if((end = ap_ind(sub_temp, '>')) != -1) { 
+-				substring = ap_pstrndup(r->pool, sub_temp , end + 1);
+-				lower = ap_pstrdup(r->pool, substring);
++				substring = apr_pstrndup(r->pool, sub_temp , end + 1);
++				lower = apr_pstrdup(r->pool, substring);
+ 				ap_str_tolower(lower);
+ #ifdef DEBUG
+ 				printf("MATCH: %s (%d)\n", lower, cfg->layouts->nelts);
+@@ -260,7 +260,7 @@
+ 						run = 0;
+ 					}
+ 					if (run) {
+-						unless(ap_fnmatch(layouts[j]->pattern, lower, FNM_CASE_BLIND)) {
++						unless(apr_fnmatch(layouts[j]->pattern, lower, APR_FNM_CASE_BLIND)) {
+ 							if(layouts[j]->append == APPEND) {
+ 								ap_fputs(info->f, info->b, substring);
+ 								layout_print(r, cfg, info, j);
+@@ -346,14 +346,14 @@
+ 	
+ 	if (t == NULL)
+ 		return 0;
+-	hdrs_arr = ap_table_elts(t);
++	hdrs_arr = apr_table_elts(t);
+ 	elts = (const apr_table_entry_t *) hdrs_arr->elts;
+ 
+ 	if (key == NULL)
+ 		return 0;
+ 
+ 	for (i = 0; i < hdrs_arr->nelts; ++i) {
+-		if (!ap_fnmatch(elts[i].key, key, FNM_CASE_BLIND))
++		if (!apr_fnmatch(elts[i].key, key, APR_FNM_CASE_BLIND))
+ 			if(check_table(elts[i].val))
+ 				return 1;
+ 	}
+@@ -368,26 +368,26 @@
+ 	
+ 	if (t == NULL)
+ 		return;
+-	hdrs_arr = ap_table_elts(t);
++	hdrs_arr = apr_table_elts(t);
+ 	elts = (const apr_table_entry_t *) hdrs_arr->elts;
+ 
+ 	for (i = 0; i < hdrs_arr->nelts; ++i) {
+-		if (!ap_fnmatch(elts[i].key, "LAYOUT", FNM_CASE_BLIND)) {
+-			if (!ap_fnmatch(elts[i].val, "originoff", FNM_CASE_BLIND))
++		if (!apr_fnmatch(elts[i].key, "LAYOUT", APR_FNM_CASE_BLIND)) {
++			if (!apr_fnmatch(elts[i].val, "originoff", APR_FNM_CASE_BLIND))
+ 				info->origin = OFF;
+-			else if (!ap_fnmatch(elts[i].val, "originon", FNM_CASE_BLIND))
++			else if (!apr_fnmatch(elts[i].val, "originon", APR_FNM_CASE_BLIND))
+ 				info->origin = ON;
+-			else if (!ap_fnmatch(elts[i].val, "footeroff", FNM_CASE_BLIND))
++			else if (!apr_fnmatch(elts[i].val, "footeroff", APR_FNM_CASE_BLIND))
+ 				info->footer = OFF;
+-			else if (!ap_fnmatch(elts[i].val, "footeron", FNM_CASE_BLIND))
++			else if (!apr_fnmatch(elts[i].val, "footeron", APR_FNM_CASE_BLIND))
+ 				info->footer = ON;
+-			else if (!ap_fnmatch(elts[i].val, "headeroff", FNM_CASE_BLIND))
++			else if (!apr_fnmatch(elts[i].val, "headeroff", APR_FNM_CASE_BLIND))
+ 				info->header = OFF;
+-			else if (!ap_fnmatch(elts[i].val, "headeron", FNM_CASE_BLIND))
++			else if (!apr_fnmatch(elts[i].val, "headeron", APR_FNM_CASE_BLIND))
+ 				info->header = ON;
+-			else if (!ap_fnmatch(elts[i].val, "mergeoff", FNM_CASE_BLIND))
++			else if (!apr_fnmatch(elts[i].val, "mergeoff", APR_FNM_CASE_BLIND))
+ 				info->merge = OFF;
+-			else if (!ap_fnmatch(elts[i].val, "mergeon", FNM_CASE_BLIND))
++			else if (!apr_fnmatch(elts[i].val, "mergeon", APR_FNM_CASE_BLIND))
+ 				info->merge = ON;
+ 		}
+ 	}
+@@ -438,26 +438,26 @@
+ #endif
+ 
+ 	subr = (request_rec *) ap_sub_req_lookup_uri(uri, r, info->f);
+-	ap_table_setn(subr->headers_in, "Content-Length", "0");
++	apr_table_setn(subr->headers_in, "Content-Length", "0");
+ 
+-	ap_table_setn(subr->subprocess_env, "LAYOUT_SCRIPT_NAME", r->uri);
+-	ap_table_setn(subr->subprocess_env, "LAYOUT_PATH_INFO", r->path_info);
+-	ap_table_setn(subr->subprocess_env, "LAYOUT_QUERY_STRING", r->args);
+-	ap_table_setn(subr->subprocess_env, "LAYOUT_FILENAME", r->filename);
+-//	ap_table_setn(subr->subprocess_env, "LAYOUT_LAST_MODIFIED",
++	apr_table_setn(subr->subprocess_env, "LAYOUT_SCRIPT_NAME", r->uri);
++	apr_table_setn(subr->subprocess_env, "LAYOUT_PATH_INFO", r->path_info);
++	apr_table_setn(subr->subprocess_env, "LAYOUT_QUERY_STRING", r->args);
++	apr_table_setn(subr->subprocess_env, "LAYOUT_FILENAME", r->filename);
++//	apr_table_setn(subr->subprocess_env, "LAYOUT_LAST_MODIFIED",
+ //			ap_ht_time(r->pool, r->finfo.st_mtime, cfg->time_format, 0));
+ #ifdef LAYOUT_FILEOWNER_NAME
+ 	uidpasswd=getpwuid(r->finfo.st_uid);
+ 	if (uidpasswd)
+-		ap_table_setn(subr->subprocess_env, "LAYOUT_FILEOWNER_NAME", uidpasswd->pw_name);
++		apr_table_setn(subr->subprocess_env, "LAYOUT_FILEOWNER_NAME", uidpasswd->pw_name);
+ #endif
+ 	subr->args = r->args;
+ 	subr->path_info = r->path_info;
+ 	subr->assbackwards = assbackwards;
+ 
+-	temp = ap_table_get(r->headers_in, "Referer");
++	temp = apr_table_get(r->headers_in, "Referer");
+ 	if(temp)
+-		ap_table_setn(subr->subprocess_env, "HTTP_REFERER", temp);
++		apr_table_setn(subr->subprocess_env, "HTTP_REFERER", temp);
+ 
+ 	status = ap_run_sub_req(subr);
+ 	table_cat(subr->notes, r->notes, NULL);

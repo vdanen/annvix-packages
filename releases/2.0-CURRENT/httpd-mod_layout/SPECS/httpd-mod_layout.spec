@@ -13,7 +13,7 @@
 %define release 	%_revrel
 
 # Module-Specific definitions
-%define apache_version	2.0.55
+%define apache_version	2.2.2
 %define mod_version	4.0.1a
 %define mod_name	mod_layout
 %define mod_conf	15_%{mod_name}.conf
@@ -27,15 +27,16 @@ Release:	%{release}
 License:	BSD-style
 Group:		System/Servers
 URL:		http://software.tangent.org/
-Source0:	%{sourcename}.tar.bz2
+Source0:	%{mod_name}-%{mod_version}.tar.bz2
 Source1:	%{mod_conf}
-Patch0:		%{mod_name}-%{mod_version}-register.patch
+Patch0:		mod_layout-4.0.1a-register.patch
+Patch1:		mod_layout-4.0.1a-cvs_fixes.patch
+Patch2:		mod_layout-4.0.1a-apache220.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:  httpd-devel >= %{apache_version}
 
-Prereq:		rpm-helper
-Prereq:		httpd >= %{apache_version}, httpd-conf
+Requires(pre):	httpd >= %{apache_version}, httpd-conf >= 2.2.2
 Provides:	apache2-mod_layout
 Obsoletes:	apache2-mod_layout
 
@@ -50,9 +51,19 @@ components and build sites in pieces, it gives you the tools for
 creating large custom portal sites. 
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
-%setup -q -n %{sourcename}
+%setup -q -n %{mod_name}-%{mod_version}
 %patch0 -p0
+%patch1 -p1
+%patch2 -p1
 
 
 %build
@@ -74,12 +85,22 @@ cat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 %files
 %defattr(-,root,root)
-%doc ChangeLog INSTALL README
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/modules.d/%{mod_conf}
 %attr(0755,root,root) %{_libdir}/httpd-extramodules/%{mod_so}
 
+%files doc
+%defattr(-,root,root)
+%doc ChangeLog INSTALL README
+
 
 %changelog
+* Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.2_4.0.1a
+- apache 2.2.2
+- P1: fixes from CVS
+- P2: make it work with apache2.2
+- add -doc subpackage
+- rebuild with gcc4
+
 * Sat Feb 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.55_4.0.1a
 - rebuild against apr and apr-util 0.9.7 (needed to make mod_cgi.so work
   properly)
