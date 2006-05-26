@@ -13,12 +13,11 @@
 %define release 	%_revrel
 
 # Module-Specific definitions
-%define apache_version	2.0.55
-%define mod_version	1.8.7
+%define apache_version	2.2.2
+%define mod_version	1.9.4
 %define mod_name	mod_security
 %define mod_conf	82_%{mod_name}.conf
 %define mod_so		%{mod_name}.so
-%define sourcename	modsecurity-%{mod_version}
 
 Summary:	Mod_security is a DSO module for the Apache Web server
 Name:		%{name}
@@ -27,17 +26,18 @@ Release:	%{release}
 License:	GPL
 Group:		System/Servers
 URL:		http://www.modsecurity.org/
-Source0:	%{sourcename}.tar.gz
-Source1:	%{mod_conf}
-Source2:	snortrules-snapshot-CURRENT.tar.bz2
-Source3:	%{sourcename}.tar.gz.asc
-Patch0:		mod_security-1.8.7-fixsnortrules.patch
+Source0:	http://www.modsecurity.org/download/modsecurity-apache_%{mod_version}.tar.gz
+Source1:	http://www.modsecurity.org/download/modsecurity-apache_%{mod_version}.tar.gz.asc
+Source2:	http://www.modsecurity.org/download/modsecurity-rules-current.tar.gz
+Source3:	snortrules-2.3.3.tar.bz2
+Source4:	%{mod_conf}
+Patch0:		modsecurity-apache-1.9.1-web-attacks.rules.diff
+Patch1:		modsecurity-apache-1.9.1-web-php.rules.diff
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	httpd-devel >= %{apache_version}
 
-Prereq:		httpd >= %{apache_version}, httpd-conf
-Prereq:		rpm-helper
+Requires(pre):	httpd >= %{apache_version}, httpd-conf >= 2.2.0
 Provides:	apache2-mod_security
 Obsoletes:	apache2-mod_security
 
@@ -48,18 +48,30 @@ server, acting as a powerful umbrella - shielding applications
 from attacks.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
-%setup -q -n modsecurity-%{mod_version}
-
-tar -jxf %{SOURCE2}
-
-%patch0 -p1 -b .fixsnortrules
+%setup -q -n modsecurity-apache_%{mod_version} -a 2 -a 3
+pushd rules
+%patch0 -p0 -b .web-attacks
+%patch1 -p0 -b .web-php
+popd
 
 cat > mod_security-snortrules.conf << EOF
 # This file was generated using the %{_sbindir}/snort2modsec.pl perl script.
 
 EOF
+
 perl util/snort2modsec.pl rules/web*.rules >> mod_security-snortrules.conf
+
+# fix attribs
+find doc -type f -exec chmod 0644 {} \;
 
 
 %build
@@ -73,12 +85,17 @@ cp apache2/%{mod_name}.c .
 mkdir -p %{buildroot}%{_libdir}/httpd-extramodules
 mkdir -p %{buildroot}%{_sysconfdir}/httpd/modules.d
 install -m 0755 .libs/*.so %{buildroot}%{_libdir}/httpd-extramodules/
-cat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
+cat %{SOURCE4} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
-mkdir -p %{buildroot}{%{_sbindir},%{_sysconfdir}/httpd/2.0/conf}
+mkdir -p %{buildroot}{%{_sbindir},%{_sysconfdir}/httpd/conf}
 
 install -m 0755 util/snort2modsec.pl %{buildroot}%{_sbindir}/
-install -m 0644 mod_security-snortrules.conf %{buildroot}%{_sysconfdir}/httpd/2.0/conf
+install -m 0644 mod_security-snortrules.conf %{buildroot}%{_sysconfdir}/httpd/conf
+install -m 0644 modsecurity-experimental.conf %{buildroot}%{_sysconfdir}/httpd/conf/
+install -m 0644 modsecurity-general.conf %{buildroot}%{_sysconfdir}/httpd/conf/
+install -m 0644 modsecurity-hardening.conf %{buildroot}%{_sysconfdir}/httpd/conf/
+install -m 0644 modsecurity-output.conf %{buildroot}%{_sysconfdir}/httpd/conf/
+install -m 0644 modsecurity-php.conf %{buildroot}%{_sysconfdir}/httpd/conf/
 
 
 %clean
@@ -87,14 +104,30 @@ install -m 0644 mod_security-snortrules.conf %{buildroot}%{_sysconfdir}/httpd/2.
 
 %files
 %defattr(-,root,root)
-%doc tests CHANGES README httpd.conf*
-%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/2.0/conf/mod_security-snortrules.conf
+%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/conf/mod_security-snortrules.conf
+%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/conf/modsecurity-experimental.conf
+%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/conf/modsecurity-general.conf
+%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/conf/modsecurity-hardening.conf
+%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/conf/modsecurity-output.conf
+%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/conf/modsecurity-php.conf
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/modules.d/%{mod_conf}
 %attr(0755,root,root) %{_libdir}/httpd-extramodules/%{mod_so}
 %attr(0755,root,root) %{_sbindir}/snort2modsec.pl
 
+%files doc
+%defattr(-,root,root)
+%doc INSTALL CHANGES README httpd.conf* doc/*
+
 
 %changelog
+* Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.2_1.9.4
+- apache 2.2.2
+- modsecurity 1.9.4
+- update patches and sources from mandriva
+- refresh snort rules from snort 2.3.3
+- add -doc subpackage
+- rebuild with gcc4
+
 * Sat Feb 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.55_1.8.7
 - rebuild against apr and apr-util 0.9.7 (needed to make mod_cgi.so work
   properly)
