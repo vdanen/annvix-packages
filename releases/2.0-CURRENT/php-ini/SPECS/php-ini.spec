@@ -60,6 +60,9 @@ perl -pi -e 's|EXTENSIONDIR|%{_libdir}/php/extensions|g' %{buildroot}%{_sysconfd
 
 
 %changelog
+* Thu May 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.4
+- php 5.1.4
+
 * Mon Apr 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.2
 - remove some extension options that are duplicated by modules (such
   as mysql*, exif, postgresql, etc.) and are available in their own

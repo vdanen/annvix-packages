@@ -12,7 +12,7 @@
 %define version		%{phpversion}
 %define release		%_revrel
 
-%define phpversion	5.1.2
+%define phpversion	5.1.4
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir		%{_libdir}/php
 
@@ -30,7 +30,7 @@ Group:		Development/PHP
 URL:		http://www.php.net
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:  php-devel >= 5.1.2
+BuildRequires:  php-devel >= 5.1.4
 
 Requires:	php
 
@@ -79,6 +79,9 @@ EOF
 
 
 %changelog
+* Thu May 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.4
+- php 5.1.4
+
 * Mon Apr 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.2
 - fix summary
 

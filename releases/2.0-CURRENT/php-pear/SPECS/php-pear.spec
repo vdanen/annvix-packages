@@ -12,7 +12,7 @@
 %define version		%{phpversion}
 %define release		%_revrel
 
-%define phpversion	5.1.2
+%define phpversion	5.1.4
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir		%{_libdir}/php
 %define peardir		%{_datadir}/pear
@@ -128,6 +128,9 @@ mkdir %{buildroot}%{peardir}/packages
 
 
 %changelog
+* Thu May 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.4
+- php 5.1.4
+
 * Wed Apr 05 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.2
 - php 5.1.2
 - BuildRequires: php-pcre

@@ -12,7 +12,7 @@
 %define version		%{phpversion}
 %define release		%_revrel
 
-%define phpversion	5.1.2
+%define phpversion	5.1.4
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir		%{_libdir}/php
 
@@ -47,7 +47,7 @@ Patch15:	imap-2002a-noprompt-makefile.patch
 Patch16:	imap-2002d-CAN-2005-2933.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:  php-devel >= 5.1.2
+BuildRequires:  php-devel >= 5.1.4
 BuildRequires:	pam-devel >= 0.75
 BuildRequires:	openssl-devel
 
@@ -125,6 +125,9 @@ EOF
 
 
 %changelog
+* Thu May 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.4
+- php 5.1.4
+
 * Thu Mar 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.2
 - php 5.1.2
 - stricter permissions and spec cleanups

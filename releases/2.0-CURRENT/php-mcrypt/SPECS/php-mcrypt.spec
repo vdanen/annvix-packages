@@ -12,7 +12,7 @@
 %define version		%{phpversion}
 %define release		%_revrel
 
-%define phpversion	5.1.2
+%define phpversion	5.1.4
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir		%{_libdir}/php
 
@@ -32,7 +32,7 @@ URL:		http://www.php.net
 Source0:	php-mcrypt.ini
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:  php-devel >= 5.1.2
+BuildRequires:  php-devel >= 5.1.4
 BuildRequires:	libmcrypt-devel, libtool-devel
 
 Requires:	php
@@ -80,6 +80,9 @@ install -m 0644 %{SOURCE0} %{buildroot}%{_sysconfdir}/php.d/%{inifile}
 
 
 %changelog
+* Thu May 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.4
+- php 5.1.4
+
 * Wed Apr 05 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.2
 - php 5.1.2
 - stricter permissions and spec cleanups 

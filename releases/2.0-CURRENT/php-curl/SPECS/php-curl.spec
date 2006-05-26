@@ -30,7 +30,7 @@ Group:		Development/PHP
 URL:		http://www.php.net
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:  php-devel >= 5.1.2
+BuildRequires:  php-devel >= 5.1.4
 BuildRequires:	curl-devel >= 7.9.8
 
 Requires:	php >= 5.1.2
@@ -81,6 +81,9 @@ EOF
 
 
 %changelog
+* Thu May 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.4
+- php 5.1.4
+
 * Thu Mar 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.2
 - php 5.1.2
 - stricter permissions and spec cleanups

@@ -31,7 +31,7 @@ URL:		http://www.php.net
 Source0:	php-mysqli.ini
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:  php-devel >= 5.1.2
+BuildRequires:  php-devel >= 5.1.4
 BuildRequires:	mysql-devel >= 4.1.14
 
 Requires:	php
@@ -81,5 +81,8 @@ install -m 0644 %{SOURCE0} %{buildroot}%{_sysconfdir}/php.d/%{inifile}
 
 
 %changelog
+* Thu May 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.4
+- php 5.1.4
+
 * Sun Apr 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.2
 - first Annvix build

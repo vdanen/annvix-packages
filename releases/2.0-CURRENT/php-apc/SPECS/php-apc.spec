@@ -13,7 +13,7 @@
 %define release		%_revrel
 %define epoch		1
 
-%define phpversion	5.1.2
+%define phpversion	5.1.4
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir		%{_libdir}/php
 
@@ -36,7 +36,7 @@ Source0:	APC-%{version}.tgz
 Source1:	apc.ini
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:  php-devel >= 5.1.2
+BuildRequires:  php-devel >= 5.1.4
 
 Requires:	php
 Conflicts:	php-afterburner php-mmcache
@@ -102,6 +102,9 @@ install -m 0755 %{soname} %{buildroot}%{phpdir}/extensions/
 
 
 %changelog
+* Thu May 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.4
+- php 5.1.4
+
 * Wed Apr 05 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.10
 - php 5.1.2
 - APC 3.0.10
