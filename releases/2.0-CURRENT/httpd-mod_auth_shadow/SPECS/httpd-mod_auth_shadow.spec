@@ -13,8 +13,8 @@
 %define release 	%_revrel
 
 # Module-Specific definitions
-%define apache_version	2.0.55
-%define mod_version	2.0
+%define apache_version	2.2.2
+%define mod_version	2.1
 %define mod_name	mod_auth_shadow
 %define mod_conf	83_%{mod_name}.conf
 %define mod_so		%{mod_name}.so
@@ -27,16 +27,15 @@ Release:	%{release}
 License:	GPL
 Group:		System/Servers
 URL:		http://mod-auth-shadow.sourceforge.net/
-Source0:	%{sourcename}.tar.bz2
+Source0:	%{mod_name}-%{mod_version}.tar.bz2
 Source1:	%{mod_conf}
-Patch0:		%{sourcename}-register.patch
-Patch1:		%{sourcename}-makefile.patch
-Patch2:		mod_auth_shadow-2.0-CAN-2005-2963.patch
+Patch0:		mod_auth_shadow-2.1-register.patch
+Patch1:		mod_auth_shadow-2.1-makefile.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:  httpd-devel >= %{apache_version}
 
-Prereq:		httpd >= %{apache_version}, httpd-conf
+Requires(pre):	httpd >= %{apache_version}, httpd-conf >= 2.2.0
 Provides:	apache2-mod_auth_shadow
 Obsoletes:	apache2-mod_auth_shadow
 
@@ -47,11 +46,19 @@ root:root /etc/shadow file, while your web daemons are running
 under a non-privileged user.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
-%setup -q -n %{sourcename}
+%setup -q -n %{mod_name}-%{mod_version}
 %patch0 -p0
 %patch1 -p0
-%patch2 -p1 -b .can-2005-2963
+
 
 %build
 export PATH="$PATH:/usr/sbin"
@@ -76,13 +83,23 @@ install -m 4755 validate %{buildroot}%{_sbindir}/
 
 %files
 %defattr(-,root,root)
-%doc CHANGES INSTALL README
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/modules.d/%{mod_conf}
 %attr(0755,root,root) %{_libdir}/httpd-extramodules/%{mod_so}
 %attr(4755,root,root) %{_sbindir}/validate
 
+%files doc
+%defattr(-,root,root)
+%doc CHANGES INSTALL README
+
 
 %changelog
+* Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.2_2.1
+- apache 2.2.2
+- mod_auth_shadow 2.1
+- drop P2; merged upstream
+- add -doc subpackage
+- rebuild with gcc4
+
 * Sat Feb 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.55_2.0
 - rebuild against apr and apr-util 0.9.7 (needed to make mod_cgi.so work
   properly)
