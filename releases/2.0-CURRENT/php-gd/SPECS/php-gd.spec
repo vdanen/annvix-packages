@@ -81,7 +81,7 @@ install -d %{buildroot}%{_sysconfdir}/php.d
 
 install -m 0755 %{soname} %{buildroot}%{phpdir}/extensions/
 
-cat %{SOURCE0} %{buildroot}%{_sysconfdir}/php.d/%{inifile}
+install -m 0644 %{SOURCE0} %{buildroot}%{_sysconfdir}/php.d/%{inifile}
 
 
 %clean
