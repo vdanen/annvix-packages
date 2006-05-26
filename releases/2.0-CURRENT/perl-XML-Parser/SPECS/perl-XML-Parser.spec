@@ -27,7 +27,7 @@ BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildRequires: 	libexpat-devel, perl-devel, perl-libwww-perl
 BuildRequires:	perl(HTML::Parser)
 
-Requires: 	libexpat0
+Requires: 	%mklibname expat 0
 
 %description
 A perl module for parsing XML documents.
@@ -76,6 +76,9 @@ install -m 0644 enc/koi8-r.enc %{buildroot}%{perl_vendorarch}/XML/Parser/Encodin
 
 
 %changelog
+* Fri May 26 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.34
+- fix the requires so it works on x86_64 too
+
 * Mon May 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.34
 - rebuild against perl 5.8.8
 - create -doc subpackage
