@@ -1,0 +1,62 @@
+diff -Naur php-5.1.3/acinclude.m4 php-5.1.3.oden/acinclude.m4
+--- php-5.1.3/acinclude.m4	2006-04-10 14:17:36.000000000 +0200
++++ php-5.1.3.oden/acinclude.m4	2006-05-03 18:13:15.000000000 +0200
+@@ -1009,26 +1009,7 @@
+ dnl The extension on which it depends must also have been configured.
+ dnl See ADD_EXTENSION_DEP in win32 build 
+ dnl
+-AC_DEFUN([PHP_ADD_EXTENSION_DEP], [
+-  am_i_shared=$[PHP_]translit($1,a-z_-,A-Z__)[_SHARED]
+-  is_it_shared=$[PHP_]translit($2,a-z_-,A-Z__)[_SHARED]
+-  is_it_enabled=$[PHP_]translit($2,a-z_-,A-Z__)
+-  if test "$am_i_shared" = "no" && test "$is_it_shared" = "yes" ; then
+-    AC_MSG_ERROR([
+-You've configured extension $1 to build statically, but it
+-depends on extension $2, which you've configured to build shared.
+-You either need to build $1 shared or build $2 statically for the
+-build to be successful.
+-])
+-  fi
+-  if test "x$is_it_enabled" = "xno" && test "x$3" != "xtrue"; then
+-    AC_MSG_ERROR([
+-You've configured extension $1, which depends on extension $2,
+-but you've either not enabled $2, or have disabled it.
+-])
+-  fi
+-  dnl Some systems require that we link $2 to $1 when building
+-])
++AC_DEFUN([PHP_ADD_EXTENSION_DEP], [])
+ 
+ dnl -------------------------------------------------------------------------
+ dnl Checks for structures, typedefs, broken functions, etc.
+diff -Naur php-5.1.3/aclocal.m4 php-5.1.3.oden/aclocal.m4
+--- php-5.1.3/aclocal.m4	2006-04-28 15:53:36.000000000 +0200
++++ php-5.1.3.oden/aclocal.m4	2006-05-03 18:15:09.000000000 +0200
+@@ -1009,26 +1009,7 @@
+ dnl The extension on which it depends must also have been configured.
+ dnl See ADD_EXTENSION_DEP in win32 build 
+ dnl
+-AC_DEFUN([PHP_ADD_EXTENSION_DEP], [
+-  am_i_shared=$[PHP_]translit($1,a-z_-,A-Z__)[_SHARED]
+-  is_it_shared=$[PHP_]translit($2,a-z_-,A-Z__)[_SHARED]
+-  is_it_enabled=$[PHP_]translit($2,a-z_-,A-Z__)
+-  if test "$am_i_shared" = "no" && test "$is_it_shared" = "yes" ; then
+-    AC_MSG_ERROR([
+-You've configured extension $1 to build statically, but it
+-depends on extension $2, which you've configured to build shared.
+-You either need to build $1 shared or build $2 statically for the
+-build to be successful.
+-])
+-  fi
+-  if test "x$is_it_enabled" = "xno" && test "x$3" != "xtrue"; then
+-    AC_MSG_ERROR([
+-You've configured extension $1, which depends on extension $2,
+-but you've either not enabled $2, or have disabled it.
+-])
+-  fi
+-  dnl Some systems require that we link $2 to $1 when building
+-])
++AC_DEFUN([PHP_ADD_EXTENSION_DEP], [])
+ 
+ dnl -------------------------------------------------------------------------
+ dnl Checks for structures, typedefs, broken functions, etc.

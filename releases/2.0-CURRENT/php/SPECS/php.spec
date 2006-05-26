@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		php
-%define version		5.1.2
+%define version		5.1.4
 %define release		%_revrel
 %define epoch		2
 
@@ -39,19 +39,19 @@ Source3:	FAQ.php
 # Mandriva/Annvix patches
 #
 Patch0:		php-4.3.0-mdk-init.patch
-Patch1:		php-5.0.0-mdk-shared.patch
+Patch1:		php-5.1.3-mdk-shared.patch
 Patch2:		php-4.3.0-mdk-imap.patch
 Patch3:		php-4.3.4RC3-mdk-64bit.patch
 Patch4:		php-5.1.2-mdk-lib64.patch
 Patch5:		php-4.3.11-mdk-libtool.patch
-Patch6:		php-5.0.4-mdk-no_egg.patch
+Patch6:		php-5.1.3-mdk-no_egg.patch
 Patch7:		php-5.1.2-mdk-phpize.patch
 Patch8:		php-5.1.0RC4-mdk-remove_bogus_iconv_deps.patch
 Patch9:		php-5.1.0RC1-mdk-phpbuilddir.patch
 # http://www.outoforder.cc/projects/apache/mod_transform/patches/php5-apache2-filters.patch
 Patch10:	php5-apache2-filters.patch
-# P14 fixes the way we package the extensions to not check if the dep are installed or compiled in
-Patch11:	php-5.1.2-mdk-extension_dep_macro_revert.patch
+# P11 fixes the way we package the extensions to not check if the dep are installed or compiled in
+Patch11:	php-5.1.3-mdk-extension_dep_macro_revert.patch
 Patch12:	php-5.1.2-mdk-no_libedit.patch
 #
 # from PLD (20-40)
@@ -87,7 +87,7 @@ Patch75:	php-bug-22414.patch
 Patch76:	php-5.0.4-bug29119.diff
 Patch77:	php-5.1.0RC6-CVE-2005-3388.diff
 # http://www.hardened-php.net/
-Patch100:	http://www.hardened-php.net/hardening-patch-5.1.2-0.4.8.patch
+Patch100:	http://www.hardened-php.net/hardening-patch-5.1.4-0.4.11.patch
 
 Requires(post):	%{libname} >= %{version}
 Requires(preun): %{libname} >= %{version}
@@ -263,7 +263,7 @@ SELF-CONTAINED-EXTENSIONS.
 # make the tests worky
 %patch75 -p1 -b .bug-22414.avx
 %patch76 -p0 -b .bug29119.avx
-%patch77 -p0 -b .CVE-2005-3388.avx
+%patch77 -p0 -b .cve-2005-3388.avx
 
 %if %{harden}
 %patch100 -p1 -b .hardened.avx
@@ -436,9 +436,11 @@ unset TZ LANG LC_ALL
 # http://bugs.php.net/bug.php?id=24403 (claimed to be fixed in 2003, but seems not)
 # http://bugs.php.net/bug.php?id=31402 (no fix yet)
 # tests/run-test/test008.phpt requires the Zend Optimizer
+# http://bugs.php.net/bug.php?id=37276 (claims fixed 05/03/2006, but 5.1.4 fails)
 
 disable_tests="	ext/standard/tests/file/bug21131.phpt \
 		ext/standard/tests/file/bug22414.phpt \
+		tests/basic/021.phpt \
 	        tests/func/008.phpt \
 		tests/lang/038.phpt \
 		tests/lang/bug24403.phpt \
@@ -615,6 +617,18 @@ update-alternatives --remove php %{_bindir}/php-cli
 
 
 %changelog
+* Thu May 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.4
+- 5.1.4
+- rediff P1, P6, P11
+- updated P4 (no more ext/msession)
+- drop P7; merged upstream
+- hardened php 5.1.4-0.4.11
+- disable tests/basic/021.phpt as it fails even on a vanilla (unpatched)
+  5.1.4 so although it claims it's fixed (bug #37276) that doesn't seem to
+  be the case
+- add -doc subpackage
+- rebuild with gcc4
+
 * Mon Apr 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.2
 - add some sane default requires for php-cgi and php-cli
 - put back the BuildConflicts on php otherwise all the tests fail
