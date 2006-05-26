@@ -13,12 +13,11 @@
 %define release 	%_revrel
 
 # Module-Specific definitions
-%define apache_version	2.0.55
-%define mod_version	2.0.2b1
+%define apache_version	2.2.2
+%define mod_version	2.0.3
 %define mod_name	mod_auth_pgsql
 %define mod_conf	13_%{mod_name}.conf
 %define mod_so		%{mod_name}.so
-%define sourcename	%{mod_name}-%{mod_version}
 
 Summary:	Basic authentication for the Apache web server using a PostgreSQL database
 Name:		%{name}
@@ -27,16 +26,14 @@ Release:	%{release}
 License:	Apache License
 Group:		System/Servers
 URL:		http://www.giuseppetanzilli.it/mod_auth_pgsql2/
-Source0:	http://www.giuseppetanzilli.it/mod_auth_pgsql2/dist/%{sourcename}.tar.bz2
+Source0:	http://www.giuseppetanzilli.it/mod_auth_pgsql2/dist/%{mod_name}-%{mod_version}.tar.bz2
 Source1:	%{mod_conf}
-Patch0:		mod_auth_pgsql-2.0.1-fdr-nonpgsql.patch
-Patch1:		mod_auth_pgsql-2.0.1-fdr-static.patch
-Patch2:		mod_auth_pgsql-2.0.1-CVE-2005-3656.patch
+Patch0:		mod_auth_pgsql-2.0.3-nonpgsql.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:  httpd-devel >= %{apache_version}, postgresql-devel, postgresql-libs-devel, openssl-devel
 
-Prereq:		httpd = %{apache_version}, httpd-conf
+Requires(pre):	httpd = %{apache_version}, httpd-conf >= 2.2.0
 Provides:	apache2-mod_auth_pgsql
 Obsoletes:	apache2-mod_auth_pgsql
 
@@ -46,11 +43,18 @@ a web server by checking fields in a table in a PostgresQL
 database.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
-%setup -q -n %{sourcename}
-%patch0 -p1 -b .nonpgsql
-%patch1 -p1 -b .static
-%patch2 -p1 -b .cve-2005-3656
+%setup -q -n %{mod_name}-%{mod_version}
+%patch0 -p0 -b .nonpgsql
+
 
 %build
 %{_sbindir}/apxs -I%{_includedir}/pgsql -L%{_libdir} \
@@ -72,12 +76,22 @@ cat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 %files
 %defattr(-,root,root)
-%doc README INSTALL *.html
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/modules.d/%{mod_conf}
 %attr(0755,root,root) %{_libdir}/httpd-extramodules/%{mod_so}
 
+%files doc
+%defattr(-,root,root)
+%doc README INSTALL *.html
+
 
 %changelog
+* Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.2_2.0.3
+- apache 2.2.2
+- mod_auth_pgsql 2.0.3
+- remove unneeded patches and rediff P0
+- add -doc subpackage
+- rebuild with gcc4
+
 * Sat Feb 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.55_2.0.2b1
 - rebuild against apr and apr-util 0.9.7 (needed to make mod_cgi.so work
   properly)

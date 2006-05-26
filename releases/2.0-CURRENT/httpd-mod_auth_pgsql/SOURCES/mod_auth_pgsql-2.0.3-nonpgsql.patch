@@ -1,6 +1,6 @@
---- mod_auth_pgsql-2.0.1/mod_auth_pgsql.c.nonpgsql
-+++ mod_auth_pgsql-2.0.1/mod_auth_pgsql.c
-@@ -775,7 +775,7 @@
+--- mod_auth_pgsql.c	2006-01-05 15:15:13.000000000 +0100
++++ mod_auth_pgsql.c.oden	2006-01-07 12:53:09.000000000 +0100
+@@ -771,7 +771,7 @@
  	 * user control to the next guy in line.
  	 */
  	if ((!sec->auth_pg_pwd_table) && (!sec->auth_pg_pwd_field)) {
