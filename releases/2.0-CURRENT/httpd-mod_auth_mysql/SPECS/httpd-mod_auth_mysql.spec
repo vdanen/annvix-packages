@@ -34,8 +34,7 @@ Patch1:		mod_auth_mysql-3.0.0-htpasswd-style.diff
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:  httpd-devel >= %{apache_version}, mysql-devel
 
-Requires(pre):	httpd = %{apache_version}, rpm-helper, httpd-conf >= 2.2.0
-Requires(postun): rpm-helper
+Requires(pre):	httpd = %{apache_version}, httpd-conf >= 2.2.0
 Provides:	apache2-mod_auth_mysql
 Obsoletes:	apache2-mod_auth_mysql
 
