@@ -14,7 +14,7 @@
 %define epoch		1
 
 # Module-Specific definitions
-%define apache_version	2.0.55
+%define apache_version	2.2.2
 %define mod_version	1.5.7
 %define mod_name	mod_auth_radius
 %define mod_conf	14_%{mod_name}.conf
@@ -37,13 +37,21 @@ Patch1:		mod_auth_radius-2.0.c.diff
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:  httpd-devel >= %{apache_version}
 
-Prereq:		httpd >= %{apache_version}, httpd-conf
+Requires(pre):	httpd >= %{apache_version}, httpd-conf >= 2.2.0
 Provides:	apache2-mod_auth_radius
 Obsoletes:	apache2-mod_auth_radius
 
 %description
 Make Apache a RADIUS client for authentication and
 accounting requests.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -73,12 +81,20 @@ cat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 %files
 %defattr(-,root,root)
-%doc README htaccess httpd.conf index.html
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/modules.d/%{mod_conf}
 %attr(0755,root,root) %{_libdir}/httpd-extramodules/%{mod_so}
 
+%files doc
+%defattr(-,root,root)
+%doc README htaccess httpd.conf index.html
+
 
 %changelog
+* Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.2_1.5.7
+- apache 2.2.2
+- add -doc subpackage
+- rebuild with gcc4
+
 * Sat Feb 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.55_1.5.7
 - rebuild against apr and apr-util 0.9.7 (needed to make mod_cgi.so work
   properly)
