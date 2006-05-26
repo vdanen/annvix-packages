@@ -1,0 +1,49 @@
+--- mod_auth_remote.c	2005-12-15 17:27:20.000000000 +0100
++++ mod_auth_remote.c.oden	2005-12-15 17:27:56.000000000 +0100
+@@ -107,7 +107,7 @@
+   apr_sockaddr_t *addr;
+   
+ 
+-  if((val =apr_socket_create(&socket, APR_INET, SOCK_STREAM, r->pool))
++  if((val =apr_socket_create(&socket, addr->family, SOCK_STREAM, APR_PROTO_TCP, r->pool))
+      != APR_SUCCESS)
+     { 
+       ap_log_rerror(APLOG_MARK, APLOG_ERR, val, r,
+@@ -115,8 +115,8 @@
+       return HTTP_INTERNAL_SERVER_ERROR;
+     }
+   
+-   apr_setsocketopt(socket,  APR_SO_TIMEOUT, (int)r->server->timeout);
+-   if((val = apr_sockaddr_info_get(&addr, conf->remote_server, APR_INET,
++   apr_socket_timeout_set(socket, (int)r->server->timeout);
++   if((val = apr_sockaddr_info_get(&addr, conf->remote_server, addr->family,
+                                    conf->port,0,r->pool)) != APR_SUCCESS)
+      {
+        ap_log_rerror(APLOG_MARK, APLOG_ERR, val, r,
+@@ -124,7 +124,7 @@
+                      conf->remote_server, conf->port);
+        return HTTP_INTERNAL_SERVER_ERROR;
+      }
+-   val = apr_connect(socket, addr);
++   val = apr_socket_connect(socket, addr);
+    if(val != APR_SUCCESS)
+      {
+        ap_log_rerror(APLOG_MARK, APLOG_ERR, val, r,
+@@ -145,7 +145,7 @@
+    req_b = apr_pstrcat(r->pool, "HEAD ", conf->remote_uri," HTTP/1.0", 
+                        CRLF,"Authorization: Basic ",encoded,CRLF,CRLF,NULL);
+    bytes = strlen(req_b);
+-   val = apr_send(socket, req_b, &bytes);
++   val = apr_socket_send(socket, req_b, &bytes);
+    if(val != APR_SUCCESS)
+      {
+        ap_log_rerror(APLOG_MARK, APLOG_ERR, val, r,
+@@ -156,7 +156,7 @@
+      20 bytes is enough to read the HTTP status line
+    **/
+    rbuff = apr_palloc(r->pool, 20); 
+-   val = apr_recv(socket, rbuff, &bytes);
++   val = apr_socket_recv(socket, rbuff, &bytes);
+    apr_socket_close(socket);
+    if(val != APR_SUCCESS)
+      {

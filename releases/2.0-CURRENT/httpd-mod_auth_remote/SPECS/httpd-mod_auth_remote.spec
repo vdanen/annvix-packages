@@ -19,7 +19,6 @@
 %define mod_name	mod_auth_remote
 %define mod_conf	82_%{mod_name}.conf
 %define mod_so		%{mod_name}.so
-%define sourcename	%{mod_name}-%{mod_version}
 
 Summary:	Mod_auth_remote is a DSO module for the Apache Web server
 Name:		%{name}
@@ -29,14 +28,17 @@ Epoch:		%{epoch}
 License:	GPL
 Group:		System/Servers
 URL:		http://puggy.symonds.net/~srp/stuff/mod_auth_remote/
-Source0:	%{sourcename}.tar.bz2
+Source0:	%{mod_name}-%{mod_version}.tar.bz2
 Source1:	%{mod_conf}
-Patch0:		%{sourcename}-register.patch
+Patch0:		mod_auth_remote-0.1-register.patch
+Patch1:		mod_auth_remote-0.1-apr1_1.diff
+Patch2:		mod_auth_remote-0.1-apr1_2.diff
+
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:  httpd-devel >= %{apache_version}
 
-Prereq:		httpd >= %{apache_version}, httpd-conf
+Requires(pre):	httpd >= %{apache_version}, httpd-conf >= 2.2.0
 Provides:	apache2-mod_auth_remote
 Obsoletes:	apache2-mod_auth_remote
 
@@ -59,9 +61,19 @@ response, the client is validated; for all other responses the
 client is not validated.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
-%setup -q -c -n %{sourcename} -a0
+%setup -q -c -n %{mod_name}-%{mod_version} -a0
 %patch0 -p0
+%patch1 -p0
+%patch2 -p0
 
 
 %build
@@ -83,12 +95,21 @@ cat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 %files
 %defattr(-,root,root)
-%doc readme.txt
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/modules.d/%{mod_conf}
 %attr(0755,root,root) %{_libdir}/httpd-extramodules/%{mod_so}
 
+%files doc
+%defattr(-,root,root)
+%doc readme.txt
+
 
 %changelog
+* Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.2_0.1
+- apache 2.2.2
+- P0, P1: apr1 fixes from mandriva
+- add -doc subpackage
+- rebuild with gcc4
+
 * Sat Feb 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.55_0.1
 - rebuild against apr and apr-util 0.9.7 (needed to make mod_cgi.so work
   properly)
