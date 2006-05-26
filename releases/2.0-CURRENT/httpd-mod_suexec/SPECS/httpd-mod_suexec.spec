@@ -13,11 +13,10 @@
 %define release 	%_revrel
 
 # Module-Specific definitions
-%define apache_version	2.0.55
+%define apache_version	2.2.2
 %define mod_name	mod_suexec
 %define mod_conf	69_%{mod_name}.conf
 %define mod_so		%{mod_name}.so
-%define sourcename	%{mod_name}-%{apache_version}
 
 Summary:	Allows CGI scripts to run as a specified user and Group
 Name:		%{name}
@@ -31,8 +30,7 @@ Source1:	%{mod_conf}
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:  httpd-devel >= %{apache_version}, httpd-source >= %{apache_version}
 
-Prereq:		rpm-helper
-Prereq:		httpd >= %{apache_version}, httpd-conf
+Requires(pre):	httpd >= %{apache_version}, httpd-conf >= 2.2.0
 Provides:	apache2-mod_suexec
 Obsoletes:	apache2-mod_suexec
 
@@ -44,12 +42,20 @@ Normally, when a CGI or SSI program executes, it runs as the
 same user who is running the web server.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -c -T -n %{name}
 
 cp %{_includedir}/httpd/*.h .
-cp `apr-config --includedir`/* .
-cp `apu-config --includedir`/* .
+cp `apr-1-config --includedir`/* .
+cp `apu-1-config --includedir`/* .
 
 echo "#define AP_GID_MIN 100"  >> ap_config_auto.h
 echo "#define AP_UID_MIN 100"  >> ap_config_auto.h
@@ -71,7 +77,7 @@ cp %{_prefix}/src/httpd-%{version}/support/suexec.h .
 
 
 %build
-gcc `%{_sbindir}/apxs -q CFLAGS -Wall` -I. -o suexec suexec.c
+gcc `%{_sbindir}/apxs -q CFLAGS -Wall` -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE_SOURCE -D_LARGEFILE_64_SOURCE -I. -o suexec suexec.c
 
 %{_sbindir}/apxs -I. -c %{mod_name}.c
 
@@ -99,14 +105,22 @@ cat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 %files
 %defattr(-,root,root)
-%doc mod_suexec.html suexec.html
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/modules.d/%{mod_conf}
 %attr(0755,root,root) %{_libdir}/httpd-extramodules/%{mod_so}
 %attr(4710,root,apache) %{_sbindir}/httpd-suexec
 %{_mandir}/man8/*
 
+%files doc
+%defattr(-,root,root)
+%doc mod_suexec.html suexec.html
+
 
 %changelog
+* Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.2
+- apache 2.2.2
+- add -doc subpackage
+- rebuild with gcc4
+
 * Sat Feb 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.55
 - rebuild against apr and apr-util 0.9.7 (needed to make mod_cgi.so work
   properly)
