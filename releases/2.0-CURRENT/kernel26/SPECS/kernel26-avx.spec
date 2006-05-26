@@ -136,7 +136,7 @@ Source100:	linux-%{patches_ver}.tar.bz2
 BuildRoot:	%{_buildroot}/%{kname}-%{realversion}-build
 BuildRequires:	gcc >= 3.3.1-5avx, module-init-tools
 
-Provides:	kernel-up, module-info, %kprovides
+Provides:	kernel26-up, module-info, %kprovides
 Autoreqprov:	no
 Requires:	%requires1
 Requires:	%requires2
@@ -769,6 +769,9 @@ exit 0
 
 
 %changelog
+* Fri May 26 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.14
+- kernel26 provides kernel26-up, not kernel-up
+
 * Sun May 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.14
 - rebuild with gcc4
 
