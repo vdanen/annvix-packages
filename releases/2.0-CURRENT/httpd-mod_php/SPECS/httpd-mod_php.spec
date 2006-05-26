@@ -13,7 +13,7 @@
 %define release		%_revrel
 
 # Module-Specific definitions
-%define apache_version	2.0.55
+%define apache_version	2.2.2
 %define phpversion	5.1.2
 %define mod_name	mod_php
 %define mod_conf	70_%{mod_name}.conf
@@ -22,7 +22,7 @@
 %define extname		apache2handler
 %define plibname	%mklibname php_common 5
 
-Summary:	The PHP4 HTML-embedded scripting language for use with Apache
+Summary:	The PHP5 HTML-embedded scripting language for use with Apache
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
@@ -64,6 +64,14 @@ scripts.  The %{name} module enables the Apache web server to
 understand and process the embedded PHP language in web pages.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -c -T
 cp -dpR %{phpsource}/sapi/%{extname}/* .
@@ -75,7 +83,7 @@ cp %{_includedir}/php/ext/date/lib/timelib_config.h .
 %build
 %{_sbindir}/apxs \
     `php-config --includes` \
-    `apr-config --link-ld --libs` \
+    `apr-1-config --link-ld --libs` \
     `xml2-config --cflags` \
     -I%{phpsource} \
     -I. -lphp5_common \
@@ -105,12 +113,21 @@ cat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 %files
 %defattr(-,root,root)
-%doc PHP_FAQ.php 
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/modules.d/%{mod_conf}
 %attr(0755,root,root) %{_libdir}/httpd-extramodules/%{mod_so}
 
+%files doc
+%defattr(-,root,root)
+%doc PHP_FAQ.php 
+
 
 %changelog
+* Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.2_5.1.4
+- apache 2.2.2
+- php 5.1.4
+- add -doc subpackage
+- rebuild with gcc4
+
 * Mon Apr 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.55_5.1.2
 - php 5.1.2
 - update the config file to reflect PHP5 rather than PHP4
