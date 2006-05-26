@@ -108,6 +108,7 @@ user's own mail user-agent application.
 %package doc
 Summary:	Documentation for %{name}
 Group:		Documentation
+Obsoletes:	spamassassin-tools
 
 %description doc
 This package contains the documentation for %{name}.
@@ -222,6 +223,9 @@ fi
 
 
 %changelog
+* Thu May 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.1.1
+- make -doc obsolete -tools
+
 * Mon May 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.1.1
 - 3.1.1
 - rebuild against perl 5.8.8
