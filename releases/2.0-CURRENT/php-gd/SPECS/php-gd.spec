@@ -29,6 +29,7 @@ Release:	%{release}
 License:	PHP License
 Group:		Development/PHP
 URL:		http://www.php.net
+Source0:	php-gd.ini
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:  php-devel >= 5.1.4
@@ -53,8 +54,9 @@ cp -dpR %{_usrsrc}/php-devel/extensions/%{dirname}/* .
 
 
 %build
-phpize
 export LIBS="$LIBS -lm"
+
+phpize
 %configure2_5x \
     --with-libdir=%{_lib} \
     --with-%{modname} \
@@ -79,9 +81,7 @@ install -d %{buildroot}%{_sysconfdir}/php.d
 
 install -m 0755 %{soname} %{buildroot}%{phpdir}/extensions/
 
-cat > %{buildroot}%{_sysconfdir}/php.d/%{inifile} << EOF
-extension = %{soname}
-EOF
+cat %{SOURCE0} %{buildroot}%{_sysconfdir}/php.d/%{inifile}
 
 
 %clean
@@ -98,6 +98,7 @@ EOF
 %changelog
 * Thu May 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.4
 - php 5.1.4
+- include a config file for the gd.jpeg_ignore_warning setting
 
 * Thu Mar 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.2
 - php 5.1.2
