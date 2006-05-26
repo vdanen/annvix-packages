@@ -13,8 +13,8 @@
 %define release 	%_revrel
 
 # Module-Specific definitions
-%define apache_version	2.0.55
-%define mod_version	2.0.1
+%define apache_version	2.2.2
+%define mod_version	2.0.2
 %define mod_name	mod_perl
 %define mod_conf	75_%{mod_name}.conf
 %define mod_so		%{mod_name}.so
@@ -34,11 +34,12 @@ Source0:	%{sourcename}.tar.gz
 Source1:	%{sourcename}.tar.gz.asc
 Source2:	%{mod_conf}
 Source3:	apache2-mod_perl-testscript.pl
-Patch0:		mod_perl-2.0.0-external_perl-apache-test.diff
+Patch0:		mod_perl-2.0.2-external_perl-apache-test.diff
+Patch1:		mod_perl-2.0.2-DESTDIR.diff
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel >= 5.8.6, httpd-devel >= %{apache_version}
-BuildRequires:	perl(Apache::Test)
+BuildRequires:	perl(Apache::Test) >= 1.27
 
 Requires:	httpd-mod_proxy, perl = %{perl_version}
 Requires(pre):	httpd >= %{apache_version}, httpd-conf
@@ -54,9 +55,6 @@ Mod_perl links the Perl runtime library into the Apache web server and
 provides an object-oriented Perl interface for Apache's C language
 API.  The end result is a quicker CGI script turnaround process, since
 no external Perl interpreter has to be started.
-
-Install %{name} if you're installing the Apache web server and you'd
-like for it to directly incorporate a Perl interpreter.
 
 
 %package devel
@@ -81,15 +79,16 @@ This package contains the documentation for %{name}.
 %prep
 %setup -q -n %{sourcename}
 %patch0 -p1
+%patch1 -p0
 rm -rf Apache-Test
 
 
 %build
 # Compile the module.
-%{__perl} Makefile.PL \
+perl Makefile.PL \
     MP_CCOPTS="$(%{_sbindir}/apxs -q CFLAGS) -fPIC" \
     MP_APXS=%{_sbindir}/apxs \
-    MP_APR_CONFIG=%{_bindir}/apr-config \
+    MP_APR_CONFIG=%{_bindir}/apr-1-config \
     INSTALLDIRS=vendor </dev/null 
 
 ln -s Apache-mod_perl_guide-1.29/bin bin
@@ -110,7 +109,7 @@ mkdir -p %{buildroot}%{_sysconfdir}/httpd/modules.d
 mkdir -p %{buildroot}/var/www/perl
 mkdir -p %{buildroot}%{_includedir}/httpd
 
-%makeinstall \
+%makeinstall_std \
     MODPERL_AP_LIBEXECDIR=%{_libdir}/httpd-extramodules \
     MODPERL_AP_INCLUDEDIR=%{_includedir}/httpd \
     INSTALLDIRS=vendor DESTDIR=%{buildroot}
@@ -169,6 +168,13 @@ rm -f %{buildroot}%{_mandir}/man3/Bundle::ApacheTest.3pm
 
 
 %changelog
+* Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.2_2.0.2
+- apache 2.2.2
+- mod_perl 2.0.2
+- P1: allow us to use %%makeinstall_std (oden)
+- updated config
+- rebuild with gcc4
+
 * Mon May 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.55_2.0.1
 - rebuild against perl 5.8.8
 - perl policy on buildreq

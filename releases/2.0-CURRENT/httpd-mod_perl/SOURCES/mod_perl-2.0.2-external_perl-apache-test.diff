@@ -1,7 +1,7 @@
-diff -Naur mod_perl-2.0.0/MANIFEST mod_perl-2.0.0.oden/MANIFEST
---- mod_perl-2.0.0/MANIFEST	2005-05-20 07:05:47.000000000 +0200
-+++ mod_perl-2.0.0.oden/MANIFEST	2005-06-18 21:24:26.000000000 +0200
-@@ -1,60 +1,3 @@
+diff -Naur mod_perl-2.0.2/MANIFEST mod_perl-2.0.2.oden/MANIFEST
+--- mod_perl-2.0.2/MANIFEST	2005-10-21 02:38:23.000000000 +0200
++++ mod_perl-2.0.2.oden/MANIFEST	2005-10-29 11:49:57.000000000 +0200
+@@ -1,62 +1,3 @@
 -Apache-Test/CONTRIBUTORS
 -Apache-Test/Changes
 -Apache-Test/INSTALL
@@ -21,6 +21,7 @@ diff -Naur mod_perl-2.0.0/MANIFEST mod_perl-2.0.0.oden/MANIFEST
 -Apache-Test/lib/Apache/TestConfig.pm
 -Apache-Test/lib/Apache/TestConfigC.pm
 -Apache-Test/lib/Apache/TestConfigPHP.pm
+-Apache-Test/lib/Apache/TestConfigParrot.pm
 -Apache-Test/lib/Apache/TestConfigParse.pm
 -Apache-Test/lib/Apache/TestConfigPerl.pm
 -Apache-Test/lib/Apache/TestHandler.pm
@@ -34,6 +35,7 @@ diff -Naur mod_perl-2.0.0/MANIFEST mod_perl-2.0.0.oden/MANIFEST
 -Apache-Test/lib/Apache/TestRequest.pm
 -Apache-Test/lib/Apache/TestRun.pm
 -Apache-Test/lib/Apache/TestRunPHP.pm
+-Apache-Test/lib/Apache/TestRunParrot.pm
 -Apache-Test/lib/Apache/TestRunPerl.pm
 -Apache-Test/lib/Apache/TestSSLCA.pm
 -Apache-Test/lib/Apache/TestServer.pm
@@ -62,10 +64,10 @@ diff -Naur mod_perl-2.0.0/MANIFEST mod_perl-2.0.0.oden/MANIFEST
  BRANCHING
  Changes
  INSTALL
-diff -Naur mod_perl-2.0.0/Makefile.PL mod_perl-2.0.0.oden/Makefile.PL
---- mod_perl-2.0.0/Makefile.PL	2005-05-20 07:03:47.000000000 +0200
-+++ mod_perl-2.0.0.oden/Makefile.PL	2005-06-18 21:25:15.000000000 +0200
-@@ -117,11 +117,11 @@
+diff -Naur mod_perl-2.0.2/Makefile.PL mod_perl-2.0.2.oden/Makefile.PL
+--- mod_perl-2.0.2/Makefile.PL	2005-10-21 02:31:47.000000000 +0200
++++ mod_perl-2.0.2.oden/Makefile.PL	2005-10-29 11:49:19.000000000 +0200
+@@ -119,11 +119,11 @@
      # mod_perl test suite relies on having Apache-Test bundled with
      # the mod_perl source, since any pre-installed version may not do
      # the right thing
