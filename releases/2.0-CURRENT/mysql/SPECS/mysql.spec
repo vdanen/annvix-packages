@@ -17,9 +17,9 @@
 %define oldlibname	%mklibname mysql 12
 %define mysqld_user	mysql
 
-%global mk_test		0
-%{?_with_test: %global mk_test 1}
-%{?_without_test: %global mk_test 0}
+%global make_test	0
+%{?_with_test:		%global make_test 1}
+%{?_without_test:	%global make_test 0}
 
 %define _requires_exceptions perl(this)
 
@@ -55,12 +55,13 @@ Patch9:		mysql-4.1.9-disable-pthreadsmutexes.diff
 Patch10:	mysql-4.1.12-mdk-noproc.patch
 
 BuildRoot:      %{_buildroot}/%{name}-%{version}
-BuildRequires:	bison, glibc-static-devel, libstdc++-static-devel, autoconf2.5, automake1.7
+BuildRequires:	bison, glibc-static-devel, libstdc++-devel, autoconf2.5, automake1.7
 BuildRequires:	termcap-devel, multiarch-utils 
-BuildRequires:	ncurses-devel, python, openssl-static-devel, zlib-devel, readline-devel
+BuildRequires:	ncurses-devel, python, openssl-devel, zlib-devel, readline-devel
 
 Provides:       mysql-server MySQL-server
-PreReq:         rpm-helper, runit
+Requires(pre):	rpm-helper, runit
+Requires:	mysql-client = %{version}
 Obsoletes:      MySQL, MySQL-devel <= 3.23.39, MySQL-common, MySQL-Max
 
 %description
@@ -85,7 +86,7 @@ documentation and the manual for more information.
 %package client
 Summary:        MySQL client
 Group:          Databases
-Requires:       %{libname} = %{version}-%{release}
+Requires:       %{libname} = %{version}
 Obsoletes:	MySQL-client
 
 %description client
@@ -95,7 +96,7 @@ This package contains the standard MySQL clients.
 %package bench
 Summary:        MySQL benchmarks and test system
 Group:          Databases
-Requires:       mysql-client = %{version}-%{release} perl
+Requires:       mysql-client = %{version} perl
 Obsoletes:	MySQL-bench
 
 %description bench
@@ -117,7 +118,7 @@ Group:          Development/Other
 Obsoletes:      MySQL-devel
 Provides:       mysql-devel = %{version}-%{release}
 Provides:       MySQL-devel = %{version}-%{release}
-Requires:       %{libname} = %{version} mysql = %{version}-%{release} mysql-client = %{version}-%{release}
+Requires:       %{libname} = %{version} mysql = %{version} mysql-client = %{version}
 Provides:       libmysql-devel
 Obsoletes:      %{oldlibname}-devel
 
@@ -134,6 +135,14 @@ for embedded applications.
 
 The API is identical for the embedded MySQL version and the
 client/server version.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -239,7 +248,7 @@ export CHECK_PID="/bin/kill -0 $$PID"
 # benchdir does not fit in the above model
 %make benchdir_root=%{buildroot}%{_datadir}
 
-%if %{mk_test}
+%if %{make_test}
 make check
 make test
 %endif
@@ -298,6 +307,9 @@ rm -f %{buildroot}%{_bindir}/mysql_client_test
 mkdir -p %{buildroot}%{_datadir}/afterboot
 install -m 0644 %{SOURCE5} %{buildroot}%{_datadir}/afterboot/05_mysql
 
+# move docs around
+cp -f sql-bench/README README.sql-bench
+
 %find_lang mysql
 
 cat >> mysql.lang << EOF 
@@ -347,9 +359,6 @@ export TMPDIR="%{_localstatedir}/mysql/.tmp"
 export TMP="${TMPDIR}"
 /sbin/chpst -u %{mysqld_user} %{_bindir}/mysql_install_db --rpm --user=%{mysqld_user}
 
-if [ -d /var/log/supervise/mysqld -a ! -d /var/log/service/mysqld ]; then
-    mv /var/log/supervise/mysqld /var/log/service/
-fi
 %_post_srv mysqld
 
 # Allow mysqld_safe to start mysqld and print a message before we exit
@@ -391,6 +400,21 @@ else
     /usr/sbin/srv --up mysqld >/dev/null 2>&1
 fi
 
+if [ "$1" == "1" ]; then
+    # install mode
+    if [ ! -f /root/.my.cnf ]; then
+        echo "[mysqladmin]" >/root/.my.cnf
+        echo "user=root" >>/root/.my.cnf
+        echo "password=" >>/root/.my.cnf
+        echo ""
+        echo "** An unconfigured /root/.my.cnf file exists, sufficient to start mysqld with srv"
+        echo "** however you will need to create a password for the root user and modify"
+        echo "** /root/.my.cnf accordingly to safely shutdown the database."
+        echo ""
+        echo "** Read 'man afterboot' for more details."
+    fi
+fi
+
 
 %preun
 %_remove_install_info mysql.info
@@ -409,7 +433,6 @@ fi
 
 %files -f mysql.lang
 %defattr(-, root, root) 
-%doc README COPYING
 %{_sbindir}/mysqld
 %{_libdir}/mysql/mysqld.sym
 %dir %attr(0750,root,admin) %{_srvdir}/mysqld
@@ -483,7 +506,6 @@ fi
 
 %files bench
 %defattr(-, root, root)
-%doc sql-bench/README
 %{_datadir}/sql-bench
 %{_datadir}/mysql-test
 
@@ -514,7 +536,6 @@ fi
 
 %files -n %{libname}-devel
 %defattr(-,root,root)
-%doc INSTALL-SOURCE
 %{_bindir}/comp_err
 %multiarch %{multiarch_bindir}/mysql_config
 %{_bindir}/mysql_config
@@ -526,8 +547,21 @@ fi
 %{_libdir}/*.a
 %{_libdir}/mysql/*.a
 
+%files doc
+%defattr(-,root,root)
+%doc INSTALL-SOURCE README.sql-bench README COPYING
+
 
 %changelog
+* Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.1.14
+- fix requires-on-release
+- mysql requires mysql-client
+- on a fresh install, create an unconfigured /root/.my.cnf and note
+  to the user they need to set a root password and configure it
+- fix deps
+- add -doc subpackage
+- rebuild with gcc4
+
 * Fri Feb 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.1.14
 - install the afterboot snippet properly (use the right source)
 
