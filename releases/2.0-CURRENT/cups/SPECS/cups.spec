@@ -247,7 +247,7 @@ chgrp -R sys /etc/cups /var/*/cups
 
 
 %changelog
-* Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.1
+* Sat May 27 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.1
 - 1.2.1
 - rebuild with gcc4
 - requires(post|preun): rpmhelper
