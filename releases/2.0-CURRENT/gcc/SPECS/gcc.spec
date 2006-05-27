@@ -667,15 +667,15 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc-%{branch}.info.bz2 --d
 
 %files -n %{libstdcxx_name}
 %defattr(-,root,root)
-%{_libdir}/libstdc++.so.%{libstdcxx_major}
+#%{_libdir}/libstdc++.so.%{libstdcxx_major}
 %{_libdir}/libstdc++.so.%{libstdcxx_major}.0.%{libstdcxx_minor}
 %ifarch %{biarches}
-%{_prefix}/lib/libstdc++.so.%{libstdcxx_major}
+#%{_prefix}/lib/libstdc++.so.%{libstdcxx_major}
 %{_prefix}/lib/libstdc++.so.%{libstdcxx_major}.0.%{libstdcxx_minor}
 %endif
 %ifarch ppc
 %dir %{_libdir}/nof
-%{_libdir}/nof/libstdc++.so.%{libstdcxx_major}
+#%{_libdir}/nof/libstdc++.so.%{libstdcxx_major}
 %{_libdir}/nof/libstdc++.so.%{libstdcxx_major}.0.%{libstdcxx_minor}
 %endif
 
@@ -706,6 +706,12 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc-%{branch}.info.bz2 --d
 
 
 %changelog
+* Sat May 27 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.4.3
+- don't include the libstdc++.so.6 symlink because libstdc++6 provides
+  it and we need to be able to have the two packages available without
+  conflicts (and also the installer pulls this libstdc++ in instead of
+  the one we want since both provide the symlink)
+
 * Sat May 20 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.4.3
 - build with a program-suffix so that we can install both gcc3 and gcc4
   together (we need gcc3 for the kernel)
