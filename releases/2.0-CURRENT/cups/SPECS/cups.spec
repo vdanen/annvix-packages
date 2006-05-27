@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		cups
-%define version		1.2.0
+%define version		1.2.1
 %define release		%_revrel
 
 %define major		2
@@ -30,6 +30,9 @@ BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	openssl-devel, pam-devel, openldap-devel, zlib-devel, libpng-devel
 BuildRequires:	libtiff-devel, libjpeg-devel
 Requires:	%{libname} >= %{version}-%{release}, openssl, net-tools
+Requires(post):	rpm-helper
+Requires(preun): rpm-helper
+
 
 
 %description
@@ -90,6 +93,7 @@ perl -p -i -e "s/ -g \\$.CUPS_GROUP.//" systemv/Makefile
 
 perl -p -i -e 's:(libdir=")\$exec_prefix/lib64("):$1%{_libdir}$2:' config-scripts/cups-directories.m4
 
+
 %build
 %serverbuild
 export CFLAGS="%{optflags} -fPIC"
@@ -146,6 +150,7 @@ rm -rf %{buildroot}%{_sysconfdir}/rc*
 rm -rf %{buildroot}%{_sysconfdir}/init.d
 rm -rf %{buildroot}%{_mandir}/cat*
 rm -rf %{buildroot}%{_mandir}/*/cat*
+rm -rf %{buildroot}%{_datadir}/locale
 
 # install missing devel files
 mkdir -p %{buildroot}%{_includedir}/cups
@@ -208,7 +213,7 @@ chgrp -R sys /etc/cups /var/*/cups
 %{_libdir}/cups
 %endif
 %{_datadir}/cups
-%{_datadir}/locale/*/*
+#%{_datadir}/locale/*/*
 %{_mandir}/man1/*
 %{_mandir}/man5/*
 %{_mandir}/man7/*
@@ -242,6 +247,11 @@ chgrp -R sys /etc/cups /var/*/cups
 
 
 %changelog
+* Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.1
+- 1.2.1
+- rebuild with gcc4
+- requires(post|preun): rpmhelper
+
 * Wed May 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.0
 - 1.2.0
 
