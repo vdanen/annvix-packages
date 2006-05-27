@@ -486,6 +486,12 @@ fi
 # Remove unpackaged files
 rm -rf %{buildroot}%{_prefix}/doc
 
+# fix doc locations
+mkdir docs-{cp,libstdc++-v3}
+cp gcc/cp/ChangeLog* docs-cp/
+cp libstdc++-v3/{ChangeLog,README}* docs-libstdc++-v3/
+cp libstdc++-v3/docs/html/ docs-libstdc++-v3/
+
 %if %{build_debug}
 # Don't strip in debug mode
 export DONT_STRIP=1
@@ -543,7 +549,6 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc-%{branch}.info.bz2 --d
 
 %files
 %defattr(-,root,root)
-%doc gcc/README* gcc/*ChangeLog*
 %{_mandir}/man1/gcc%{program_suffix}.1*
 %{_mandir}/man1/gcov%{program_suffix}.1*
 #
@@ -660,7 +665,6 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc-%{branch}.info.bz2 --d
 
 %files c++
 %defattr(-,root,root)
-%doc gcc/cp/ChangeLog*
 %{_mandir}/man1/g++%{program_suffix}.1*
 %ghost %{_bindir}/c++
 %{_bindir}/g++-%{version}
@@ -686,7 +690,6 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc-%{branch}.info.bz2 --d
 
 %files -n %{libstdcxx_name}-devel
 %defattr(-,root,root)
-%doc libstdc++-v3/ChangeLog* libstdc++-v3/README* libstdc++-v3/docs/html/
 %dir %{libstdcxx_includedir}
 %{libstdcxx_includedir}/*
 %{gcc_libdir}/%{_target_platform}/%{version}/include/cxxabi.h
@@ -705,6 +708,8 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc-%{branch}.info.bz2 --d
 
 %files doc
 %defattr(-,root,root)
+%doc gcc/README* gcc/*ChangeLog*
+%doc docs-cp docs-libstdc++-v3
 %{_infodir}/cppinternals-%{branch}.info*
 %{_infodir}/cpp-%{branch}.info*
 %{_infodir}/gcc-%{branch}.info*
@@ -717,6 +722,7 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc-%{branch}.info.bz2 --d
   conflicts (and also the installer pulls this libstdc++ in instead of
   the one we want since both provide the symlink)
 - fix prereq's
+- move all the docs to the -doc subpackage
 
 * Sat May 20 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.4.3
 - build with a program-suffix so that we can install both gcc3 and gcc4
