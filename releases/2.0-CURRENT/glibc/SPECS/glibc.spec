@@ -126,6 +126,7 @@ Patch503:       kernel-headers-include-%{kheaders_ver}.%{kheaders_rel}.patch
 Patch504:       kernel-headers-%{kheaders_ver}.%{kheaders_rel}-gnu-extensions.patch
 Patch505:	glibc-2.3.5-gcc4.patch
 Patch506:	glibc-2.3.5-avx-relocate_fcrypt.patch
+Patch507:	glibc-2.2.5-share-locale.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	patch, gettext, perl, autoconf2.5
@@ -365,6 +366,7 @@ cp %_sourcedir/crypt_freesec.[ch] crypt/
 #%patch503 -p1 -b .ssp
 %patch505 -p1 -b .gcc4
 %patch506 -p1 -b .relocate_fcrypt
+%patch507 -p1 -b .share_locale
 
 pushd kernel-headers/
 TARGET=%{_target_cpu}
@@ -1139,6 +1141,11 @@ fi
 
 
 %changelog
+* Sat May 20 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.5
+- P507: make locale know that it's stuff is in %%{_datadir}/locale rather
+  than %%{_prefix}/lib/locale (we had this patch before but it was dropped
+  when we moved to track owl instead of mandriva)
+
 * Sat May 20 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.5
 - rebuild the toolchain against itself (gcc/glibc/libtool/binutils)
 
