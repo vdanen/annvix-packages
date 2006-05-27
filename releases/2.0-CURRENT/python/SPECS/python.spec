@@ -5,14 +5,11 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-
-
-#
 # $Id$
 
 %define revision	$Rev$
 %define name		python
-%define version		2.4.2
+%define version		2.4.3
 %define release		%_revrel
 
 %define docver  	2.4
@@ -32,7 +29,7 @@ URL:		http://www.python.org/
 
 Source:		http://www.python.org/ftp/python/%{version}/Python-%{version}.tar.bz2
 Source1:	http://www.python.org/ftp/python/doc/%{docver}/html-%{docver}.tar.bz2
-Source2:	python-2.4-base.list.bz2
+Source2:	python-2.4-base.list
 Source3:	exclude.py
 
 # Don't include /usr/local/* in search path
@@ -130,12 +127,25 @@ This packages contains the Python part that is used by the base packages
 of a Annvix distribution.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n Python-%{version}
-%patch3 -p1 -b .no-local-incpath
-%patch4 -p1 -b .lib64
-%patch5 -p1 -b .biarch-headers
-%patch6 -p1 -b .gdbm
+# no-local-incpath
+%patch3 -p1
+# lib64
+%patch4 -p1
+# biarch-headers
+%patch5 -p1
+# gdbm
+%patch6 -p1
+
 autoconf
 
 mkdir html
@@ -234,7 +244,7 @@ sed -e "s|%{buildroot}||g" < modules-list.full > modules-list
 
 
 rm -f include.list main.list
-bzcat %{SOURCE2} | sed 's@%%{_libdir}@%{_libdir}@' > include.list
+cat %{SOURCE2} | sed 's@%%{_libdir}@%{_libdir}@' > include.list
 cat >> modules-list << EOF
 %{_bindir}/python
 %{_bindir}/python2.4
@@ -309,12 +319,20 @@ rm -f modules-list main.list
 %defattr(-, root, root, 755)
 %dir %{_libdir}/python*
 
+%files doc
+%doc html/*/*
+
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat May 27 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.3
+- 2.4.3
+- add -doc subpackage
+- rebuild with gcc4
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.2
 - Clean rebuild
 
-* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.4.2
 - 2.4.2
 - disable test_hotshot on x86_64
 - add BuildRequires: bzip2-devel
@@ -322,13 +340,13 @@ rm -f modules-list main.list
 - make sure we're using /tmp for TMP/TMPDIR settings as tests may fail
   due to delays if a homedir is on an NFS mount (misc)
 
-* Sun Dec 25 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Sun Dec 25 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.4.1
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
 * Sun Oct 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.4.1-3avx
 - updated P4: fixed get_config_h_fileiname in distutils for
-  multiarch   headers (flepied)
+  multiarch headers (flepied)
 
 * Fri Sep 16 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.4.1-2avx
 - rebuild against new expat

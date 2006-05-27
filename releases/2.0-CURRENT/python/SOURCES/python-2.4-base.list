@@ -16,7 +16,6 @@
 %dir %{_libdir}/python2.4/lib-dynload/
 %{_libdir}/python2.4/lib-dynload/grp.so
 %{_libdir}/python2.4/lib-dynload/_locale.so
-%{_libdir}/python2.4/lib-dynload/pwd.so
 %{_libdir}/python2.4/lib-dynload/strop.so
 %{_libdir}/python2.4/lib-dynload/struct.so
 %{_libdir}/python2.4/lib-dynload/syslog.so
