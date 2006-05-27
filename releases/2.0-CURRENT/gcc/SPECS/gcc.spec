@@ -72,8 +72,8 @@ BuildRequires:	zlib-devel
 Requires:	%{name}-cpp = %{version}-%{release}
 # FIXME: We need a libgcc with 3.4 symbols
 Requires:	%{libgcc_name_orig} >= 3.3.2-5mdk
-Prereq:		/sbin/install-info
-Prereq:		/usr/sbin/update-alternatives
+Requires(post):	/usr/sbin/update-alternatives
+Requires(postun): /usr/sbin/update-alternatives
 BuildRequires:	gettext, flex, bison
 BuildRequires:	texinfo >= 4.1
 # Make sure pthread.h doesn't contain __thread keyword
@@ -119,7 +119,8 @@ Provides:	gcc%{branch}-c++ = %{version}-%{release}
 Requires:	%{name} = %{version}-%{release}
 Requires:	%{libstdcxx_name} = %{version}
 Requires:	%{libstdcxx_name}-devel = %{version}
-Prereq:		/usr/sbin/update-alternatives
+Requires(post):	/usr/sbin/update-alternatives
+Requires(postun): /usr/sbin/update-alternatives
 
 %description c++
 This package adds C++ support to the GNU C compiler. It includes support
@@ -168,8 +169,8 @@ Summary:	The C Preprocessor
 Group:		Development/C
 Obsoletes:	gcc%{branch}-cpp
 Provides:	gcc%{branch}-cpp = %{version}-%{release}
-Prereq:		/sbin/install-info
-Prereq:		/usr/sbin/update-alternatives
+Requires(post):	/usr/sbin/update-alternatives
+Requires(postun): /usr/sbin/update-alternatives
 
 %description cpp
 The C preprocessor is a 'macro processor' which is used automatically
@@ -209,12 +210,15 @@ Group:		Development/Other
 Obsoletes:	gcc%{branch}-doc
 Provides:	gcc%{branch}-doc = %{version}-%{release}
 Conflicts:	gcc-doc < %{branch}
+Requires(post):	info-install
+Requires(preun): info-install
 
 %description doc
 GCC is a compiler suite aimed at integrating all the optimizations and
 features necessary for a high-performance and stable development
 environment. This package contains the compiler documentation in INFO
 pages.
+
 
 %prep
 %setup -q -n gcc-%{version}
@@ -531,6 +535,7 @@ fi
 %_install_info gcc-%{branch}.info
 %_install_info cpp-%{branch}.info
 
+
 %preun doc
 if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc-%{branch}.info.bz2 --dir=%{_infodir}/dir --remove;fi;
 %_remove_install_info cpp-%{branch}.info
@@ -711,6 +716,7 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc-%{branch}.info.bz2 --d
   it and we need to be able to have the two packages available without
   conflicts (and also the installer pulls this libstdc++ in instead of
   the one we want since both provide the symlink)
+- fix prereq's
 
 * Sat May 20 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.4.3
 - build with a program-suffix so that we can install both gcc3 and gcc4
