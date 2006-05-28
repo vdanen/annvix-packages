@@ -16,6 +16,7 @@
 %define program_suffix		-%{version}
 
 %define _unpackaged_files_terminate_build 0
+%define _provides_exceptions libstdc++.so.6\\|devel(libstdc++)
 
 %define branch			3.4
 %define branch_tag		%(perl -e 'printf "%%02d%%02d", split(/\\./,shift)' %{branch})
@@ -141,7 +142,7 @@ Summary:	GNU C++ library
 Group:		System/Libraries
 Obsoletes:	%{libstdcxx_name_orig}%{branch}
 Provides:	%{libstdcxx_name_orig}%{branch} = %{version}-%{release}
-Provides:	%{libstdcxx_name_orig} = %{version}-%{release}
+#Provides:	%{libstdcxx_name_orig} = %{version}-%{release}
 
 %description -n %{libstdcxx_name}
 This package contains the GCC Standard C++ Library v3, an ongoing
@@ -153,7 +154,7 @@ Group:		Development/C++
 Requires:	%{libstdcxx_name} = %{version}-%{release}
 Obsoletes:	%{libstdcxx_name_orig}%{branch}-devel
 Provides:	%{libstdcxx_name_orig}%{branch}-devel = %{version}-%{release}
-Provides:	%{libstdcxx_name_orig}-devel = %{version}-%{release}
+#Provides:	%{libstdcxx_name_orig}-devel = %{version}-%{release}
 
 %description -n %{libstdcxx_name}-devel
 This is the GNU implementation of the standard C++ libraries.  This
@@ -488,9 +489,9 @@ rm -rf %{buildroot}%{_prefix}/doc
 
 # fix doc locations
 mkdir docs-{cp,libstdc++-v3}
-cp gcc/cp/ChangeLog* docs-cp/
-cp libstdc++-v3/{ChangeLog,README}* docs-libstdc++-v3/
-cp libstdc++-v3/docs/html/ docs-libstdc++-v3/
+cp -a gcc/cp/ChangeLog* docs-cp/
+cp -a libstdc++-v3/{ChangeLog,README}* docs-libstdc++-v3/
+cp -a libstdc++-v3/docs/html/ docs-libstdc++-v3/
 
 %if %{build_debug}
 # Don't strip in debug mode
@@ -716,6 +717,11 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc-%{branch}.info.bz2 --d
 
 
 %changelog
+* Sat May 27 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.4.3
+- exclude provides of libstdc++, libstdc++.so.6, libstdc++-devel, and
+  devel(libstdc++) to avoid installation alongside the libstdc++ that
+  we really want
+
 * Sat May 27 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.4.3
 - don't include the libstdc++.so.6 symlink because libstdc++6 provides
   it and we need to be able to have the two packages available without
