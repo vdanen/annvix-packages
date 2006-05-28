@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		postgresql
-%define version		8.0.7
+%define version		8.1.4
 %define release		%_revrel
 
 %define _requires_exceptions devel(libtcl8.4)\\|devel(libtcl8.4(64bit))
@@ -25,7 +25,7 @@
 %define major_ecpg	5
 %define jdbc		312
 
-%define current_major_version 8.0
+%define current_major_version 8.1
 
 %define libname		%mklibname pq %{major}
 %define libecpg		%mklibname ecpg %{major_ecpg}
@@ -39,36 +39,22 @@ Group:		Databases
 URL:		http://www.postgresql.org/ 
 
 Source0:	ftp://ftp.postgresql.org/pub/source/v%{version}/postgresql-%{version}.tar.bz2
-Source1:	http://jdbc.postgresql.org/download/postgresql-8.0-%{jdbc}.jdbc2.jar
-Source2:	http://jdbc.postgresql.org/download/postgresql-8.0-%{jdbc}.jdbc2ee.jar
-Source3:	http://jdbc.postgresql.org/download/postgresql-8.0-%{jdbc}.jdbc3.jar
-Source4:	http://www.rbt.ca/postgresql/upgrade/upgrade.pl
 Source5:	ftp://ftp.postgresql.org/pub/source/v%{version}/postgresql-%{version}.tar.bz2.md5
-Source6:	ftp.postgresql.org:/pub/binary/v7.2/RPMS/README.rpm-dist
-Source7:	migration-scripts.tar.gz
 Source8:	logrotate.postgresql
 Source10:	postgresql-mdk_update.tar.bz2
-# Daouda : script for dumping database (from RedHat)
 Source14:	mdk-pgdump.sh
-Source15:	postgresql-bashprofile
 Source20:	postgresql.run
 Source21:	postgresql-log.run
 Source22:	postgresql.sysconfig
 Source23:	01_postgresql.afterboot
 Source24:	postgresql.finish
-Source25:	pg_autovacuum.sysconfig
-Source26:	pg_autovacuum.run
-Source27:	pg_autovacuum-log.run
-Source51:	README.v7.3
-Source52:	upgrade_tips_7.3
 Source53:	CAN-2005-1409-1410-update-dbs.sh
 Patch0:		postgresql-7.4.1-mdk-pkglibdir.patch
 Patch1:		postgresql-7.4.5-CAN-2005-0227.patch
-Patch2:		postgresql-7.4.5-CAN-2005-0245_0247.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	bison flex gettext termcap-devel ncurses-devel openssl-devel pam-devel
-BuildRequires:	perl-devel python-devel readline-devel >= 4.3 zlib-devel
+BuildRequires:	bison, flex, gettext, termcap-devel, ncurses-devel, openssl-devel, pam-devel
+BuildRequires:	perl-devel, python-devel, readline-devel >= 4.3, zlib-devel, tcl
 
 Requires:	perl
 Requires(post):	rpm-helper
@@ -99,7 +85,8 @@ if you're installing the postgresql-server package.
 Summary:	The shared libraries required for any PostgreSQL clients
 Group:		System/Libraries
 Obsoletes:	postgresql-libs
-Provides:	postgresql-libs = %{version}-%{release} libpq = %{version}-%{release}
+Provides:	postgresql-libs = %{version}-%{release}
+Provides:	libpq = %{version}-%{release}
 Conflicts:	%{_lib}pq3 = 8.0.1
 
 %description -n %{libname}
@@ -109,10 +96,11 @@ accessed through TCP/IP.
 
 
 %package -n %{libname}-devel
-Summary:	Development library for libpq2
+Summary:	Development library for libpq
 Group:		Development/C
 Requires:	%{libname} = %{version}-%{release}
-Provides:	postgresql-libs-devel = %{version}-%{release} libpq-devel = %{version}-%{release}
+Provides:	postgresql-libs-devel = %{version}-%{release}
+Provides:	libpq-devel = %{version}-%{release}
 Conflicts:	%{_lib}pg3-devel = 8.0.1
 
 %description -n %{libname}-devel
@@ -144,11 +132,11 @@ Development library to libecpg.
 Summary:	The programs needed to create and run a PostgreSQL server
 Group:		Databases
 Provides:	sqlserver
-Requires(post):	rpm-helper, afterboot, %{libname} > 8.0
+Provides:	%{name}-server-ABI = %{current_major_version}
+Requires(post):	rpm-helper, afterboot, %{libname} > %{version}-%{release}, postgresql = %{version}-%{release}
 Requires(postun): rpm-helper, afterboot
-Requires(pre):	rpm-helper
+Requires(pre):	rpm-helper, postgresql = %{version}-%{release}
 Requires(preun): rpm-helper
-Requires:	postgresql = %{version}-%{release}
 Conflicts:	postgresql < 7.3
 
 %description server
@@ -166,8 +154,7 @@ to install the postgresql and postgresql-devel packages.
 %package contrib
 Summary:	Contributed binaries distributed with PostgreSQL
 Group:		Databases
-Requires:	libpq = %{version}-%{release} postgresql = %{version}-%{release}
-Requires:	libpq = %{version}-%{release} 
+Requires:	postgresql = %{version}-%{release}
 Requires:	perl(Pg)
 
 %description contrib
@@ -178,7 +165,8 @@ the PostgreSQL tarball.  Selected contrib modules are prebuilt.
 %package devel
 Summary:	PostgreSQL development header files and libraries
 Group:		Development/Databases
-Requires:	postgresql = %{version}-%{release} libpq = %{version}-%{release}
+Requires:	postgresql = %{version}-%{release}
+Requires:	%{libname} = %{version}-%{release}
 Requires:	%{libecpg} = %{version}-%{release}
 
 %description devel
@@ -204,21 +192,10 @@ and PL/Python procedural languages for the backend.  PL/Pgsql is part
 of the core server package.
 
 
-%package jdbc
-Summary:	Files needed for Java programs to access a PostgreSQL database
-Group:		Databases
-Requires:	postgresql = %{version}-%{release}
-
-%description jdbc
-PostgreSQL is an advanced Object-Relational database management
-system. The postgresql-jdbc package includes the .jar file needed for
-Java programs to access a PostgreSQL database.
-
-
 %package test
 Summary:	The test suite distributed with PostgreSQL
 Group:		Databases
-Requires:	postgresql = %{version}-%{release}
+Requires:	postgresql >= %{version}-%{release}
 Requires:	postgresql-pl = %{version}-%{release}
 
 %description test
@@ -237,14 +214,12 @@ This package contains the documentation for %{name}.
 
 
 %prep
-%setup -q
-
+%setup -q -a 10
 %patch0 -p0 -b .pkglibdir
 %patch1 -p1 -b .can-2005-0227
-%patch2 -p1 -b .can-2005-0245_0247
+
 
 %build
-
 pushd src
     #(deush) if libtool exist, copy some files 
     if [ -d %{_datadir}/libtool ]; then
@@ -307,15 +282,6 @@ make check
 make DESTDIR=%{buildroot} pkglibdir=%{_libdir}/pgsql install 
 make -C contrib DESTDIR=%{buildroot} pkglibdir=%{_libdir}/pgsql install
 
-install -m 0755 %{SOURCE1} %{buildroot}%{_datadir}/pgsql
-install -m 0755 %{SOURCE2} %{buildroot}%{_datadir}/pgsql
-install -m 0755 %{SOURCE3} %{buildroot}%{_datadir}/pgsql
-
-install -m 0755 %{SOURCE4} %{buildroot}%{_datadir}/pgsql/upgrade.pl
-
-# install the dump script
-install -m 0755 %{SOURCE14} %{buildroot}%{_bindir}/avx-pgdump.sh
-
 # install odbcinst.ini
 mkdir -p %{buildroot}%{_sysconfdir}/pgsql
 
@@ -328,9 +294,6 @@ install -d -m 0700 %{buildroot}/var/lib/pgsql/data
 # backups of data go here...
 install -d -m 0700 %{buildroot}/var/lib/pgsql/backups
 
-# postgres' .bash_profile
-install -m 0644 %{SOURCE15} %{buildroot}/var/lib/pgsql/.bash_profile
-
 # tests. There are many files included here that are unnecessary, but include
 # them anyway for completeness.
 mkdir -p %{buildroot}%{_libdir}/pgsql/test
@@ -341,32 +304,26 @@ pushd  %{buildroot}%{_libdir}/pgsql/test/regress/
     strip *.so
 popd
 
-cp %{SOURCE51} %{SOURCE52} %{SOURCE53} %{SOURCE6} .
-
-pushd %{_builddir}
-    tar xvjf %{SOURCE10}
-    install -D -m 0755 mdk/mdk_update_dump.sh %{buildroot}%{_datadir}/pgsql/avx/avx_update_dump
-    install -m 0755 mdk/mdk_update_restore.sh %{buildroot}%{_datadir}/pgsql/avx/avx_update_restore
-popd
+install -m 0755 %{SOURCE14} %{buildroot}%{_bindir}/avx-pgdump.sh
+install -D -m 0755 mdk/mdk_update_dump.sh %{buildroot}%{_datadir}/pgsql/avx/avx_update_dump
+install -m 0755 mdk/mdk_update_restore.sh %{buildroot}%{_datadir}/pgsql/avx/avx_update_restore
 
 mv %{buildroot}%{_docdir}/%{name}/html %{buildroot}%{_docdir}/%{name}-docs-%{version}
 
-mkdir -p %{buildroot}%{_srvdir}/{postgresql,pg_autovacuum}/log
+mkdir -p %{buildroot}%{_srvdir}/postgresql/log
 install -m 0740 %{SOURCE20} %{buildroot}%{_srvdir}/postgresql/run
 install -m 0740 %{SOURCE21} %{buildroot}%{_srvdir}/postgresql/log/run
 install -m 0740 %{SOURCE24} %{buildroot}%{_srvdir}/postgresql/finish
-install -m 0740 %{SOURCE26} %{buildroot}%{_srvdir}/pg_autovacuum/run
-install -m 0740 %{SOURCE27} %{buildroot}%{_srvdir}/pg_autovacuum/log/run
 
 mkdir -p %{buildroot}%{_sysconfdir}/sysconfig
 install -m 0644 %{SOURCE22} %{buildroot}%{_sysconfdir}/sysconfig/postgresql
-install -m 0644 %{SOURCE25} %{buildroot}%{_sysconfdir}/sysconfig/pg_autovacuum
 
 mkdir -p %{buildroot}%{_datadir}/afterboot
 install -m 0644 %{SOURCE23} %{buildroot}%{_datadir}/afterboot/01_postgresql
 
 # contrib docs
-mkdir contrib-docs
+# make this --short-circuit friendly
+rm -rf contrib-docs && mkdir contrib-docs
 cp -f contrib/*/README.* contrib-docs/
 cp -f contrib/spi/*.example contrib-docs/
 
@@ -392,9 +349,24 @@ rm -fr %{buildroot}%{_datadir}/doc/postgresql/contrib/
 
 rm -rf %{buildroot}%{_docdir}/%{name}-docs-%{version}
 
+# postgres' .bash_profile
+cat > %{buildroot}/var/lib/pgsql/.bashrc <<EOF
+# Default database location
+PGDATA=%{pgdata}
+
+# Setting up minimal envirronement
+[ -f /etc/sysconfig/i18n ] && . /etc/sysconfig/i18n
+[ -f /etc/sysconfig/postgresql ] && . /etc/sysconfig/postgresql
+
+export LANG LC_ALL LC_CTYPE LC_COLLATE LC_NUMERIC LC_CTYPE LC_TIME
+export PGDATA
+PS1="[\u@\h \W]\\$ "
+EOF
+
+
 
 %pre server
-%_pre_useradd postgres /var/lib/pgsql /bin/bash 75
+%_pre_useradd postgres %{pgdata} /bin/bash 75
 
 
 %post server
@@ -407,7 +379,7 @@ if [ ! -f $PGDATA/PG_VERSION ] && [ ! -d $PGDATA/base ]; then
     if [ ! -d $PGDATA ]; then
         mkdir -p $PGDATA
         chown postgres:postgres $PGDATA
-        chmod 700 $PGDATA
+        chmod 0700 $PGDATA
     fi
     # Make sure the locale from the initdb is preserved for later startups...
     [ -f %{_sysconfdir}/sysconfig/i18n ] && cp %{_sysconfdir}/sysconfig/i18n $PGDATA/../initdb.i18n
@@ -429,9 +401,6 @@ if [ $1 -gt 1 ]; then
     echo "provided in the postgresql-doc package."
     echo "" 
 fi
-if [ -d /var/log/supervise/postgresql -a ! -d /var/log/service/postgresql ]; then
-    mv /var/log/supervise/postgresql /var/log/service/
-fi
 %_post_srv postgresql
 
 
@@ -443,16 +412,6 @@ fi
 /sbin/ldconfig
 %_mkafterboot
 %_postun_userdel postgres
-
-
-%post
-if [ -d /var/log/supervise/pg_autovacuum -a ! -d /var/log/service/pg_autovacuum ]; then
-    mv /var/log/supervise/pg_autovacuum /var/log/service/
-fi
-%_post_srv pg_autovacuum
-
-%preun
-%_preun_srv pg_autovacuum
 
 
 %post -n %{libname} -p /sbin/ldconfig
@@ -480,8 +439,8 @@ fi
 %{_bindir}/pg_dumpall
 %{_bindir}/pg_restore
 %{_bindir}/psql
+%{_bindir}/reindexdb
 %{_bindir}/vacuumdb
-%{_bindir}/pg_autovacuum
 %{_mandir}/man1/clusterdb.*
 %{_mandir}/man1/createdb.*
 %{_mandir}/man1/createlang.*
@@ -493,15 +452,11 @@ fi
 %{_mandir}/man1/pg_dumpall.*
 %{_mandir}/man1/pg_restore.*
 %{_mandir}/man1/psql.*
+%{_mandir}/man1/reindexdb.*
 %{_mandir}/man1/vacuumdb.*
 %{_mandir}/man7/*
 %{_datadir}/pgsql/avx/avx_update_dump
 %{_datadir}/pgsql/avx/avx_update_restore
-%config(noreplace) %{_sysconfdir}/sysconfig/pg_autovacuum
-%dir %attr(0750,root,admin) %{_srvdir}/pg_autovacuum
-%dir %attr(0750,root,admin) %{_srvdir}/pg_autovacuum/log
-%config(noreplace) %attr(0740,root,admin) %{_srvdir}/pg_autovacuum/run
-%config(noreplace) %attr(0740,root,admin) %{_srvdir}/pg_autovacuum/log/run
 
 %files -n %{libname} 
 %defattr(-,root,root)
@@ -524,12 +479,10 @@ fi
 %files contrib
 %defattr(-,root,root)
 %{_libdir}/pgsql/_int.so
-%{_libdir}/pgsql/autoinc.so
 %{_libdir}/pgsql/btree_gist.so
 %{_libdir}/pgsql/chkpass.so
 %{_libdir}/pgsql/cube.so
 %{_libdir}/pgsql/dblink.so
-%{_libdir}/pgsql/dbsize.so
 %{_libdir}/pgsql/earthdistance.so
 %{_libdir}/pgsql/fti.so
 %{_libdir}/pgsql/fuzzystrmatch.so
@@ -538,35 +491,27 @@ fi
 %{_libdir}/pgsql/isbn_issn.so
 %{_libdir}/pgsql/lo.so
 %{_libdir}/pgsql/ltree.so
-%{_libdir}/pgsql/misc_utils.so
 %{_libdir}/pgsql/moddatetime.so
-%{_libdir}/pgsql/noup.so
 %{_libdir}/pgsql/pending.so
 %{_libdir}/pgsql/pgcrypto.so
 %{_libdir}/pgsql/pgstattuple.so
 %{_libdir}/pgsql/refint.so
-%{_libdir}/pgsql/rtree_gist.so
 %{_libdir}/pgsql/seg.so
-%{_libdir}/pgsql/string_io.so
 %{_libdir}/pgsql/tablefunc.so
 %{_libdir}/pgsql/timetravel.so
-%{_libdir}/pgsql/tsearch.so
 %{_libdir}/pgsql/tsearch2.so
 %{_libdir}/pgsql/user_locks.so
 %{_libdir}/pgsql/pg_trgm.so
+%{_libdir}/pgsql/autoinc.so
+%{_libdir}/pgsql/pg_buffercache.so
 %{_datadir}/pgsql/contrib/
 %{_bindir}/dbf2pg
-%{_bindir}/findoidjoins
-%{_bindir}/make_oidjoins_check
 %{_bindir}/fti.pl
 %{_bindir}/oid2name
-%{_bindir}/pg_dumplo
 %{_bindir}/pgbench
 %{_bindir}/vacuumlo
 %{_bindir}/DBMirror.pl
 %{_bindir}/clean_pending.pl
-%{_bindir}/my2pg.pl
-%{_bindir}/mysql2pgsql
 
 %files server -f server.lst
 %defattr(-,root,root)
@@ -592,13 +537,12 @@ fi
 %{_datadir}/pgsql/system_views.sql
 %dir %{_libdir}/pgsql
 %dir %{_datadir}/pgsql
-%attr(700,postgres,postgres) %dir %{pgdata}
-%attr(700,postgres,postgres) %dir %{pgdata}/data
-%attr(700,postgres,postgres) %dir %{pgdata}/backups
-%attr(644,postgres,postgres) %config(noreplace) %{_localstatedir}/pgsql/.bash_profile
+%attr(0700,postgres,postgres) %dir %{pgdata}
+%attr(0700,postgres,postgres) %dir %{pgdata}/data
+%attr(0700,postgres,postgres) %dir %{pgdata}/backups
+%attr(0644,postgres,postgres) %config(noreplace) %{_localstatedir}/pgsql/.bashrc
 %{_libdir}/pgsql/*_and_*.so
 %{_datadir}/pgsql/conversion_create.sql
-%{_datadir}/pgsql/upgrade.pl
 %{_datadir}/pgsql/information_schema.sql
 %{_datadir}/pgsql/sql_features.txt
 %dir %attr(0750,root,admin) %{_srvdir}/postgresql
@@ -626,10 +570,6 @@ fi
 %{_libdir}/pgsql/plpython.so 
 %{_libdir}/pgsql/plpgsql.so
 
-%files jdbc
-%defattr(-,root,root)
-%{_datadir}/pgsql/*.jar
-
 %files test
 %defattr(-,postgres,postgres)
 %attr(-,postgres,postgres) %{_libdir}/pgsql/test/*
@@ -639,12 +579,18 @@ fi
 %defattr(-,root,root)
 %doc doc/FAQ doc/KNOWN_BUGS doc/MISSING_FEATURES doc/README* doc/TODO doc/TODO.detail
 %doc COPYRIGHT README HISTORY doc/bug.template
-%doc README.rpm-dist README.v7.3
 %doc contrib-docs
-%doc upgrade_tips_7.3 CAN-2005-1409-1410-update-dbs.sh
 
 
 %changelog
+* Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.1.4
+- drop the jdbc stuff
+- drop P2; merged upstream
+- dropped a bunch of no more needed sources
+- remove the pg_autovacuum service
+- update the login script for user postgres (nanardon)
+- rebuild with gcc4
+
 * Mon May 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.0.7
 - rebuild against perl 5.8.8
 - create -doc subpackage
