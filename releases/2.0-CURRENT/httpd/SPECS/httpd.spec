@@ -36,8 +36,6 @@ Source2: 	httpd-README.urpmi
 Source3:	apache2_transparent_png_icons.tar.bz2
 Source4:	perl-framework.tar.bz2
 Source6:	certwatch.tar.bz2
-Source9:	htcacheclean.init
-Source10:	htcacheclean.sysconfig
 
 Source30:	30_mod_proxy.conf
 Source31:	31_mod_proxy_ajp.conf
@@ -131,9 +129,6 @@ Requires(pre):	rpm-helper
 Requires(preun): libapr-util >= 1.2.7, %{libapr} >= 1:1.2.7
 Requires(post):	libapr-util >= 1.2.7, %{libapr} >= 1:1.2.7
 Requires(postun): rpm-helper
-Prereq:		rpm-helper
-Prereq:		libapr-util >= 1.2.7
-Prereq:		%{libapr} >= 1:1.2.7
 Obsoletes:	apache2-common
 Provides:	apache2-common
 
@@ -231,9 +226,6 @@ Summary:	Distributed Authoring and Versioning (WebDAV)
 Group:		System/Servers
 Requires(pre):	rpm-helper, httpd-conf >= %{version}, httpd-common = %{version}-%{release}, httpd-modules = %{version}-%{release}
 Requires(postun): rpm-helper
-Prereq:		httpd-conf
-Prereq:		httpd-common = %{version}
-Prereq:		httpd-modules = %{version}
 Provides:	httpd-mod_dav_fs = %{version}
 Provides:	httpd-mod_dav_lock = %{version}
 Obsoletes:	apache2-mod_dav apache2-mod_dav_fs
@@ -298,7 +290,6 @@ Group:		System/Servers
 Requires(pre):	rpm-helper, httpd-conf >= %{version}, httpd-common = %{version}-%{release}, httpd-modules = %{version}-%{release}
 Requires(pre):	httpd-mod_cache = %{version}-%{release}
 Requires(postun): rpm-helper
-Requires:	httpd-htcacheclean = %{version}-%{release}
 Obsoletes:	apache2-mod_cache
 Provides:	apache2-mod_cache = %{version}
 
@@ -483,20 +474,6 @@ on mod_dbd to specify the backend database driver and connection parameters,
 and manage the database connections.
 
 
-%package htcacheclean
-Summary:	Clean up the disk cache (for apache-mod_disk_cache)
-Group:		System/Servers
-Requires(pre):	rpm-helper
-Requires(postun): rpm-helper
-
-%description	htcacheclean
-htcacheclean is used to keep the size of mod_disk_cache's storage
-within a certain limit. This tool can run either manually or in
-daemon mode. When running in daemon mode, it sleeps in the
-background and checks the cache directories at regular intervals
-for cached content to be removed.
-
-
 %package devel
 Summary:	Module development tools for the Apache web server
 Group:		Development/C
@@ -617,10 +594,6 @@ mv icons/*.png docs/icons/
 
 # add the changes file
 cp %{SOURCE2} README.urpmi
-
-# add the htcacheclean stuff
-cat %{SOURCE9} > htcacheclean.init
-cat %{SOURCE10} > htcacheclean.sysconfig
 
 
 %build
@@ -924,13 +897,9 @@ install -m 0755 certwatch/certwatch %{buildroot}%{_sbindir}/certwatch
 install -m 0755 certwatch/certwatch.cron %{buildroot}%{_sysconfdir}/cron.daily/certwatch
 install -m 0644 certwatch/certwatch.8 %{buildroot}%{_mandir}/man8/certwatch.8
 
-# install htcacheclean files
-install -d %{buildroot}%{_initrddir}
-install -d %{buildroot}%{_sysconfdir}/sysconfig
-install -m 0755 htcacheclean.init %{buildroot}%{_initrddir}/htcacheclean
-install -m 0644 htcacheclean.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/htcacheclean
-
 %multiarch_includes %{buildroot}%{_includedir}/httpd/ap_config_layout.h
+
+mkdir -p %{buildroot}%{_sysconfdir}/ssl/httpd
 
 # add two important documentation files in the plain ASCII format
 cp docs/manual/upgrading.html.en upgrading.html
@@ -970,101 +939,121 @@ rm -rf %{buildroot}%{_sysconfdir}/httpd/conf/{extra,original,httpd.conf,magic,mi
 %post mod_proxy
 %_post_srv httpd
 
+
 %postun mod_proxy
 if [ "$1" = "0" ]; then
     %_post_srv httpd
 fi
 
+
 %post mod_proxy_ajp
 %_post_srv httpd
+
 
 %postun mod_proxy_ajp
 if [ "$1" = "0" ]; then
     %_post_srv httpd
 fi
 
+
 %post mod_dav
 %_post_srv httpd
+
 
 %postun mod_dav
 if [ "$1" = "0" ]; then
     %_post_srv httpd
 fi
 
+
 %post mod_ldap
 %create_ghostfile /var/cache/httpd/mod_ldap_cache apache root 0600
 %_post_srv httpd
+
 
 %postun mod_ldap
 if [ "$1" = "0" ]; then
     %_post_srv httpd
 fi
 
+
 %post mod_cache
 %_post_srv httpd
+
 
 %postun mod_cache
 if [ "$1" = "0" ]; then
     %_post_srv httpd
 fi
 
+
 %post mod_disk_cache
 %_post_srv httpd
+
 
 %postun mod_disk_cache
 if [ "$1" = "0" ]; then
     %_post_srv httpd
 fi
 
+
 %post mod_mem_cache
 %_post_srv httpd
+
 
 %postun mod_mem_cache
 if [ "$1" = "0" ]; then
     %_post_srv httpd
 fi
 
+
 %post mod_file_cache
 %_post_srv httpd
+
 
 %postun mod_file_cache
 if [ "$1" = "0" ]; then
     %_post_srv httpd
 fi
 
+
 %post mod_deflate
 %_post_srv httpd
+
 
 %postun mod_deflate
 if [ "$1" = "0" ]; then
     %_post_srv httpd
 fi
 
+
 %post mod_userdir
 %_post_srv httpd
+
 
 %postun mod_userdir
 if [ "$1" = "0" ]; then
     %_post_srv httpd
 fi
 
+
 %post mod_ssl
 if [ "$1" = "1" ]; then 
-    mkdir -p %{_sysconfdir}/pki/tls/{private,certs} 2>/dev/null
-    umask 077
+    if [ -d %{_sysconfdir}/ssl/httpd ]; then
+        umask 077
 
-    if [ ! -f %{_sysconfdir}/pki/tls/private/localhost.key ]; then
-        %{_bindir}/openssl genrsa -rand /proc/apm:/proc/cpuinfo:/proc/dma:/proc/filesystems:/proc/interrupts:/proc/ioports:/proc/pci:/proc/rtc:/proc/uptime 1024 > \
-            %{_sysconfdir}/pki/tls/private/localhost.key 2> /dev/null
-    fi
+        if [ ! -f %{_sysconfdir}/ssl/httpd/server.key ]; then
+            %{_bindir}/openssl genrsa -rand /proc/apm:/proc/cpuinfo:/proc/dma:/proc/filesystems:/proc/interrupts:/proc/ioports:/proc/pci:/proc/rtc:/proc/uptime 1024 > \
+                %{_sysconfdir}/ssl/httpd/server.key 2> /dev/null
+        fi
 
-    FQDN=`hostname`
-    if [ "x${FQDN}" = "x" ]; then
-        FQDN=localhost.localdomain
-    fi
+        FQDN=`hostname`
+        if [ "x${FQDN}" = "x" ]; then
+            FQDN=localhost.localdomain
+        fi
 
-    if [ ! -f %{_sysconfdir}/pki/tls/certs/localhost.crt ] ; then
-        cat << EOF | %{_bindir}/openssl req -new -key %{_sysconfdir}/pki/tls/private/localhost.key -x509 -days 365 -set_serial $RANDOM -out %{_sysconfdir}/pki/tls/certs/localhost.crt 2>/dev/null
+        if [ ! -f %{_sysconfdir}/ssl/httpd/server.crt ] ; then
+            cat << EOF | %{_bindir}/openssl req -new -key %{_sysconfdir}/ssl/httpd/server.key -x509 -days 365 -set_serial $RANDOM -out %{_sysconfdir}/ssl/httpd/server.crt 2>/dev/null
 --
 SomeState
 SomeCity
@@ -1073,17 +1062,6 @@ SomeOrganizationalUnit
 ${FQDN}
 root@${FQDN}
 EOF
-    fi
-fi
-
-if [ "$1" -gt "1" ]; then
-    mkdir -p %{_sysconfdir}/pki/tls/{private,certs} 2>/dev/null
-    if [ -d /etc/ssl/apache ];then
-        if [ -f /etc/ssl/apache/server.crt.rpmsave -a ! -f /etc/pki/tls/certs/localhost.crt ]; then
-            cp -p /etc/ssl/apache/server.crt.rpmsave /etc/pki/tls/certs/localhost.crt
-        fi
-        if [ -f /etc/ssl/apache/server.key.rpmsave -a ! -f /etc/pki/tls/private/localhost.key ]; then
-            cp -p /etc/ssl/apache/server.key.rpmsave /etc/pki/tls/private/localhost.key
         fi
     fi
 fi
@@ -1095,50 +1073,48 @@ fi
 
 %_post_srv httpd
 
+
 %postun mod_ssl
 if [ "$1" = "0" ]; then
     %_post_srv httpd
 fi
 
+
 %post mod_dbd
 %_post_srv httpd
+
 
 %postun mod_dbd
 if [ "$1" = "0" ]; then
     %_post_srv httpd
 fi
 
+
 %post mod_authn_dbd
 %_post_srv httpd
+
 
 %postun mod_authn_dbd
 if [ "$1" = "0" ]; then
     %_post_srv httpd
 fi
 
-%post htcacheclean
-%_post_srv htcacheclean
-
-%preun htcacheclean
-%_preun_srv htcacheclean
-
-%postun htcacheclean
-if [ "$1" = "0" ]; then
-    %_post_srv htcacheclean
-fi
-
 
 %pre common
 %_pre_useradd apache /var/www /bin/sh 74
 
+
 %postun common
 %_postun_userdel apache
+
 
 %post modules
 %_post_srv httpd
 
+
 %post
 %_post_srv httpd
+
 
 %postun
 %_post_srv httpd
@@ -1249,6 +1225,8 @@ fi
 %defattr(-,root,root)
 %config(noreplace) %{_sysconfdir}/httpd/modules.d/*_mod_disk_cache.conf
 %{_libdir}/httpd/mod_disk_cache.so
+%attr(0755,root,root) %{_sbindir}/htcacheclean
+%{_mandir}/man8/htcacheclean.8*
 
 %files mod_mem_cache
 %defattr(-,root,root)
@@ -1274,6 +1252,7 @@ fi
 %defattr(-,root,root)
 %config(noreplace) %{_sysconfdir}/httpd/modules.d/*_mod_ssl.conf
 %config(noreplace) %{_sysconfdir}/httpd/modules.d/*_mod_ssl.default-vhost.conf
+%dir %{_sysconfdir}/ssl/httpd
 %{_sysconfdir}/cron.daily/certwatch
 %attr(0755,root,root) %{_sbindir}/certwatch
 %{_libdir}/httpd/mod_ssl.so
@@ -1325,13 +1304,6 @@ fi
 %attr(0755,root,root) %{_sbindir}/rotatelogs
 %attr(0755,root,root) %{_sbindir}/split-logfile
 
-%files htcacheclean
-%defattr(-,root,root)
-%attr(0755,root,root) %{_initrddir}/htcacheclean
-%config(noreplace) %{_sysconfdir}/sysconfig/htcacheclean
-%attr(0755,root,root) %{_sbindir}/htcacheclean
-%{_mandir}/man8/htcacheclean.8*
-
 %files devel
 %defattr(-,root,root)
 %multiarch %{multiarch_includedir}/httpd/ap_config_layout.h
@@ -1356,6 +1328,15 @@ fi
 
 
 %changelog
+* Mon May 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.2
+- change back the /etc/pki//tls/private/localhost.* stuff to our
+  preferred /etc/ssl/httpd/server.*
+- drop the htcacheclean initscript; it daemonizes itself to the background
+  so we can't supervise this, however it does run out of cron so we'll add
+  htcacheclean itself to the httpd-mod_disk_cache package and drop the
+  -htcacheclean subpackage
+- remove left-over prereq's
+
 * Thu May 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.2
 - 2.2.2
 - major spec changes
