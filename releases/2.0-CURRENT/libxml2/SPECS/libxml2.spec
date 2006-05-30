@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		libxml2
-%define version		2.6.21
+%define version		2.6.24
 %define release		%_revrel
 
 %define major		2
@@ -26,7 +26,6 @@ URL:		http://www.xmlsoft.org/
 Source0:	ftp://xmlsoft.org/%{name}-%{version}.tar.bz2
 # (fc) 2.4.23-3mdk remove references to -L/usr/lib
 Patch1:		libxml2-2.4.23-libdir.patch
-Patch2:		libxml2-2.6.21-cvsfixes.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	python-devel >= %{pyver}, readline-devel, zlib-devel, autoconf2.5, automake1.9
@@ -58,9 +57,9 @@ at parse time or later once the document has been modified.
 
 
 %package utils
-Summary: Utilities to manipulate XML files
-Group: System/Libraries
-Requires: %{libname} >= %{version}
+Summary:	Utilities to manipulate XML files
+Group:		System/Libraries
+Requires:	%{libname} >= %{version}
 
 %description utils
 This packages contains utils to manipulate XML files.
@@ -104,10 +103,18 @@ available, with existing HTTP and FTP modules and combined to an
 URI library.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
+
 %prep
 %setup -q
 %patch1 -p1 -b .libdir
-%patch2 -p1 -b .cvsfixes
 
 # needed by patch 1
 aclocal-1.9
@@ -124,6 +131,11 @@ autoconf
 # use TARBALLURL_2="" TARBALLURL="" TESTDIRS="" to disable xstc test which are using remote tarball
 make TARBALLURL_2="" TARBALLURL="" TESTDIRS="" check
 
+# doc handling
+mkdir python-doc
+cp -a python/{libxml2class.txt,TODO} python-doc/
+cp -a python/tests/*.py python-doc/
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -136,6 +148,7 @@ make TARBALLURL_2="" TARBALLURL="" TESTDIRS="" check
 # remove unpackaged files
 rm -rf	%{buildroot}%{_prefix}/doc \
     %{buildroot}%{_datadir}/doc \
+    %{buildroot}%{_datadir}/gtk-doc \
     %{buildroot}%{_libdir}/python%{pyver}/site-packages/*.{la,a}
 
 
@@ -149,8 +162,6 @@ rm -rf	%{buildroot}%{_prefix}/doc \
 
 %files -n %{libname}
 %defattr(-, root, root)
-%doc AUTHORS NEWS README Copyright TODO 
-%doc doc/*.html doc/*.gif
 %{_libdir}/lib*.so.*
 
 %files utils
@@ -162,15 +173,11 @@ rm -rf	%{buildroot}%{_prefix}/doc \
 
 %files -n %{libname}-python
 %defattr(-, root, root)
-%doc python/TODO
-%doc python/libxml2class.txt
-%doc python/tests/*.py
 %{_libdir}/python%{pyver}/site-packages/*.so
 %{_libdir}/python%{pyver}/site-packages/*.py
 
 %files -n %{libname}-devel
 %defattr(-, root, root)
-%doc doc/html/* 
 %multiarch %{multiarch_bindir}/xml2-config
 %{_bindir}/xml2-config
 %{_libdir}/*a
@@ -182,12 +189,25 @@ rm -rf	%{buildroot}%{_prefix}/doc \
 %{_includedir}/*
 %{_datadir}/aclocal/*
 
+%files doc
+%defattr(-, root, root)
+%doc AUTHORS NEWS README Copyright TODO 
+%doc doc/*.html doc/*.gif
+%doc doc/html/* python-doc
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue May 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.24
+- 2.6.24
+- add -doc subpackage
+- drop P1; merged upstream
+- rebuild against new python
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.21
 - Clean rebuild
 
-* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.21
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
