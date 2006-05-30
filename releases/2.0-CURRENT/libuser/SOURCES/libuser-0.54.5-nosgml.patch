@@ -1,0 +1,11 @@
+--- Makefile.in.nosgml	2006-02-21 09:49:44.000000000 -0700
++++ Makefile.in	2006-05-30 10:15:43.000000000 -0600
+@@ -459,7 +459,7 @@
+ AM_CPPFLAGS = $(GOBJECT_CFLAGS)
+ LOCALEDIR_CPPFLAGS = -DLOCALEDIR='"$(localedir)"'
+ PYTHON_CPPFLAGS = -I/usr/include/python$(PYTHON_VERSION)
+-SUBDIRS = po docs
++SUBDIRS = po
+ TESTS = tests/config_test.sh tests/files_test tests/utils_test \
+ 	$(am__append_1)
+ EXTRA_DIST = \

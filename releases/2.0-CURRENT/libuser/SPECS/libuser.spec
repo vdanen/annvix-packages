@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		libuser
-%define version		0.53.2
+%define version		0.54.5
 %define release		%_revrel
 
 %define major		1
@@ -23,7 +23,7 @@ License:	LGPL
 Group:		System/Configuration
 URL:		http://qa.mandriva.com
 Source:		libuser-%{version}.tar.bz2
-Patch1:	libuser-0.53.2-nosgml.patch	
+Patch1:		libuser-0.54.5-nosgml.patch	
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	gettext, glib2-devel, openldap-devel
@@ -73,6 +73,14 @@ Provides:	%{name}-devel = %{version}-%{release}
 The libuser-devel package contains header files, static libraries, and other
 files useful for developing applications with libuser.
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 
 %prep
 %setup -q
@@ -87,6 +95,11 @@ export CFLAGS="%{optflags} -DG_DISABLE_ASSERT -I/usr/include/sasl -DLDAP_DEPRECA
     --with-python-path=%{_includedir}/python%{pyver} \
     --enable-gtk-doc=no
 %make 
+
+# since P1 doesn't "make doc" anymore, make the manpage manually
+pushd docs
+    make libuser.conf.5
+popd
 
 
 %install
@@ -116,6 +129,12 @@ popd
 rm -rf %{buildroot}%_datadir/locale/zh_TW.Big5
 set +x
 
+# since P1 doesn't "make doc" anymore, install the manpage manually
+mkdir -p %{buildroot}%{_mandir}/man5
+install -m 0644 docs/libuser.conf.5 %{buildroot}%{_mandir}/man5/
+
+# remove invalid locale directories first
+rm -rf %{buildroot}%{_datadir}/locale/{si,bn_IN,my}
 %find_lang %{name}
 
 # Remove unpackaged files
@@ -133,13 +152,13 @@ rm -rf %{buildroot}%{_libdir}/python%{pyver}/site-packages/*a
 
 %files -f %{name}.lang
 %defattr(-,root,root)
-%doc AUTHORS COPYING NEWS README TODO docs/*.txt python/modules.txt
 %config(noreplace) %{_sysconfdir}/libuser.conf
 %attr(0755,root,root) %{_bindir}/*
 %attr(0755,root,root) %{_sbindir}/*
 %attr(0755,root,root) %{_libdir}/%{name}/libuser_files.so
 %attr(0755,root,root) %{_libdir}/%{name}/libuser_shadow.so
 %{_mandir}/man1/*
+%{_mandir}/man5/*
 
 %files -n %{libname}
 %attr(0755,root,root) %{_libdir}/*.so.*
@@ -154,14 +173,27 @@ rm -rf %{buildroot}%{_libdir}/python%{pyver}/site-packages/*a
 %defattr(-,root,root)
 %attr(0755,root,root) %dir %{_includedir}/libuser
 %attr(0644,root,root) %{_includedir}/libuser/*
-%attr(0644,root,root) %{_libdir}/*.a
 %attr(0644,root,root) %{_libdir}/*.la
 %attr(0755,root,root) %{_libdir}/*.so
+%attr(0755,root,root) %{_libdir}/libuser
 #%attr(0644,root,root) %{_mandir}/man3/*
 %attr(0644,root,root) %{_libdir}/pkgconfig/*
 
+%files doc
+%defattr(-,root,root)
+%doc AUTHORS COPYING NEWS README TODO docs/*.txt python/modules.txt
+
 
 %changelog
+* Tue May 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.54.5
+- 0.54.5
+- rediff P1
+- make libuser.conf.5 manually since P1 patches out make doc
+- remove invalid locale directories/files
+- add -doc subpackage
+- rebuild with gcc4
+- rebuild against new python
+
 * Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.53.2
 - fix group
 
