@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		libxslt
-%define version		1.1.15
+%define version		1.1.16
 %define release		%_revrel
 
 %define xml_ver_req	2.6.17
@@ -96,6 +96,13 @@ This C library allows to transform XML files into other XML files
 (or HTML, text, ...) using the standard XSLT stylesheet transformation
 mechanism. 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
 
 %prep
 %setup -q
@@ -112,7 +119,7 @@ make check
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%makeinstall_std
+%makeinstall
 
 # remove unpackaged files
 rm -rf %{buildroot}%{_docdir}/%{name}-%{version} \
@@ -128,19 +135,18 @@ rm -rf %{buildroot}%{_docdir}/%{name}-%{version} \
 %post -n %{libname} -p /sbin/ldconfig 
 %postun -n %{libname} -p /sbin/ldconfig
 
+
 %files proc
-%defattr(-, root, root)
+%defattr(-,root,root)
 %{_bindir}/xsltproc
 %{_mandir}/man1/*
 
 %files -n %{libname}
-%defattr(-, root, root)
-%doc AUTHORS ChangeLog NEWS README Copyright FEATURES
-%doc doc/*.html
+%defattr(-,root,root)
 %{_libdir}/lib*.so.*
 
 %files python
-%defattr(-, root, root)
+%defattr(-,root,root)
 %{_libdir}/python%{pyver}/site-packages/*.so
 %{_libdir}/python%{pyver}/site-packages/*.py
 %doc python/libxsltclass.txt
@@ -148,8 +154,7 @@ rm -rf %{buildroot}%{_docdir}/%{name}-%{version} \
 
 
 %files -n %{libname}-devel
-%defattr(-, root, root)
-%doc doc/tutorial doc/html
+%defattr(-,root,root)
 %{_mandir}/man3/*
 %{_libdir}/lib*.so
 %{_libdir}/*a
@@ -160,12 +165,24 @@ rm -rf %{buildroot}%{_docdir}/%{name}-%{version} \
 %{_libdir}/pkgconfig/*
 %{_datadir}/aclocal/*
 
+%files doc
+%defattr(-,root,root)
+%doc AUTHORS ChangeLog NEWS README Copyright FEATURES
+%doc doc/*.html
+%doc doc/tutorial doc/html
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue May 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.1.16
+- add -doc subpackage
+- rebuild against new libxml2
+- rebuild against new python
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.1.15
 - Clean rebuild
 
-* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.1.15
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
