@@ -72,10 +72,14 @@ rm -f %{buildroot}%{_mandir}/man1/{chfn.1,chsh.1}
 
 		
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue May 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.68
+- rebuild against new libuser
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.68
 - Clean rebuild
 
-* Mon Jan 09 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Jan 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.68
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
