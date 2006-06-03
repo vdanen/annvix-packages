@@ -84,19 +84,22 @@ make LDFLAGS=-s
 
 %files
 %defattr(-,root,root)
-%doc NEWS README
 %{_bindir}/time
 %{_infodir}/%{name}.info*
 
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jun 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.7
+- drop the docs for such a small package
+- rebuild with gcc4
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.7
 - Clean rebuild
 
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.7
 - BuildRequires: automake1.4
 
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.7
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
