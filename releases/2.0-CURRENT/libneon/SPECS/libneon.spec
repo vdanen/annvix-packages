@@ -84,6 +84,14 @@ Provides:	neon-static-devel = %{version}
 Static %{libname} library.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n neon-%{version}
 %patch0 -p1 -b .config
@@ -144,8 +152,6 @@ rm -rf %{buildroot}%{_datadir}/doc
 
 %files -n %{libname}-devel
 %defattr(-,root,root,755)
-%doc doc/*.txt doc/html README.neon
-%doc AUTHORS BUGS ChangeLog NEWS README THANKS TODO
 %multiarch %{multiarch_bindir}/neon-config
 %{_bindir}/neon-config
 %{_libdir}/lib*.so
@@ -159,12 +165,22 @@ rm -rf %{buildroot}%{_datadir}/doc
 %defattr(644,root,root,755)
 %{_libdir}/lib*.a
 
+%files doc
+%defattr(-,root,root,755)
+%doc doc/*.txt doc/html README.neon
+%doc AUTHORS BUGS ChangeLog NEWS README THANKS TODO
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jun 03 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.24.7
+- rebuild against new libxml2
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.24.7
 - Clean rebuild
 
-* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.24.7
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
