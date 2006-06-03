@@ -49,6 +49,14 @@ to contributions, and we are now now adding plug-ins so that you can
 create your own types of directories and files.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 %patch1 -p1
@@ -77,16 +85,23 @@ ln -s reiserfsck.8 %{buildroot}%{_mandir}/man8/fsck.reiserfs.8
 
 %files
 %defattr(-,root,root)
-%doc README ChangeLog COPYING
 /sbin/*
 %{_mandir}/*/*
 
+%files doc
+%defattr(-,root,root)
+%doc README ChangeLog COPYING
+
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jun 03 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.6.19
+- add -doc subpackage
+- rebuild with gcc4
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.6.19
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.6.19
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
