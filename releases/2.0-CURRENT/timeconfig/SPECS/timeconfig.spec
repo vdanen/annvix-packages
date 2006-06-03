@@ -23,7 +23,7 @@ Patch0:		timeconfig-gmt.patch
 Patch1:		timeconfig-mdkconf.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	gettext libnewt-devel popt-devel slang-devel
+BuildRequires:	gettext, libnewt-devel, popt-devel, slang-devel
 
 Requires:	initscripts >= 2.81
 Requires(post):	fileutils, gawk
@@ -56,6 +56,7 @@ mkdir -p %{buildroot}%{_datadir}/locale/id/LC_MESSAGES
 
 # remove unpackaged files
 rm -rf %{buildroot}%{_mandir}/pt_BR/
+rm -rf %{buildroot}%{_datadir}/locale/{eu_ES,zh}
 
 %find_lang %{name}
 
@@ -83,7 +84,12 @@ fi
 %{_sbindir}/*
 %{_mandir}/man*/*
 
+
 %changelog
+* Fri Jun 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.2
+- rebuild with gcc4
+- remove invalid locale directories
+
 * Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.2
 - fix group
 
