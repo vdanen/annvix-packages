@@ -221,6 +221,14 @@ php binary to add support for, say, oracle, install this package and use the
 new self-contained extensions support. For more information, read the file
 SELF-CONTAINED-EXTENSIONS.
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 
 %prep
 %setup -q -n php-%{version}
@@ -530,10 +538,17 @@ ln -snf extensions %{buildroot}%{_usrsrc}/php-devel/ext
 # fix docs
 cp Zend/LICENSE Zend/ZEND_LICENSE
 cp README.SELF-CONTAINED-EXTENSIONS SELF-CONTAINED-EXTENSIONS
-cp ext/openssl/README README.openssl
-cp ext/spl/README README.spl
-cp ext/libxml/CREDITS CREDITS.libxml
-cp ext/zlib/CREDITS CREDITS.zlib
+pushd ext
+    for i in `ls -1`
+    do
+        if [ -f "$i/CREDITS" ]; then
+            cp $i/CREDITS ../CREDITS.$i
+        fi
+        if [ -f "$i/README" ]; then
+            cp $i/README ../README.$i
+        fi
+    done
+popd
 
 # cgi docs
 cp sapi/cgi/CREDITS CREDITS.cgi
@@ -542,6 +557,11 @@ cp sapi/cgi/CREDITS CREDITS.cgi
 cp sapi/cli/CREDITS CREDITS.cli
 cp sapi/cli/README README.cli
 cp sapi/cli/TODO TODO.cli
+
+# other docs
+cp -a ext/dom/examples php-dom-examples
+mkdir php-exif-examples && cp -a ext/exif/{example.php,test.php,test.txt} php-exif-examples/
+cp -a ext/simplexml/examples php-simplexml-examples
 
 # house cleaning
 rm -f %{buildroot}%{_bindir}/pear
@@ -581,25 +601,19 @@ update-alternatives --remove php %{_bindir}/php-cli
 
 %files cgi
 %defattr(-,root,root)
-%doc CREDITS.cgi
 %attr(0755,root,root) %{_bindir}/php-cgi
 
 %files cli
 %defattr(-,root,root)
-%doc CREDITS.cli README.cli TODO.cli
 %attr(0755,root,root) %{_bindir}/php
 %attr(0644,root,root) %{_mandir}/man1/php.1*
 
 %files -n %{libname}
 %defattr(-,root,root)
-%doc CREDITS INSTALL LICENSE NEWS Zend/ZEND_LICENSE php.ini-dist php.ini-recommended configure_command
-%doc README.openssl README.spl CREDITS.libxml CREDITS.zlib
 %attr(0755,root,root) %{_libdir}/libphp5_common.so.*
 
 %files devel
 %defattr(-,root,root)
-%doc SELF-CONTAINED-EXTENSIONS CODING_STANDARDS README.* TODO EXTENSIONS
-%doc Zend/ZEND_*
 %attr(0755,root,root) %{_bindir}/php-config
 %attr(0755,root,root) %{_bindir}/phpize
 %attr(0755,root,root) %{_libdir}/libphp5_common.so
@@ -615,8 +629,22 @@ update-alternatives --remove php %{_bindir}/php-cli
 %{_mandir}/man1/php-config.1*
 %{_mandir}/man1/phpize.1*
 
+%files doc
+%defattr(-,root,root)
+%doc CREDITS* README* TODO* Zend/ZEND_*
+%doc INSTALL LICENSE NEWS php.ini-dist php.ini-recommended configure_command
+%doc SELF-CONTAINED-EXTENSIONS CODING_STANDARDS TODO EXTENSIONS
+%doc php-dom-examples
+%doc php-exif-examples
+%doc php-simplexml-examples
+
 
 %changelog
+* Sat Jun 03 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.4
+- rebuild against new libxml2
+- really add -doc subpackage
+- put all the docs for the various extensions here too
+
 * Thu May 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.4
 - 5.1.4
 - rediff P1, P6, P11
