@@ -70,6 +70,14 @@ a development library for text mode user interfaces.  Newt is
 based on the slang library.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 
@@ -108,28 +116,35 @@ rm -rf  %{buildroot}%{_libdir}/python{1.5,2.0,2.1,2.2,2.3}
 
 %files -n %{libname}
 %defattr (-,root,root)
-%doc CHANGES
 %{_libdir}/libnewt.so.*
 
 %files 
 %defattr (-,root,root)
-%doc CHANGES COPYING
 %{_bindir}/whiptail
 %{_libdir}/python%{pyver}/site-packages/*
 
 %files -n %{libname}-devel
 %defattr (-,root,root)
-%doc tutorial.sgml
 %{_includedir}/newt.h
 %{_libdir}/libnewt.a
 %{_libdir}/libnewt.so
 
+%files doc
+%defattr (-,root,root)
+%doc COPYING CHANGES
+%doc tutorial.sgml
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jun 03 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.51.6
+- rebuild against new python
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.51.6
 - Clean rebuild
 
-* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.51.6
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
