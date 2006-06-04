@@ -583,6 +583,9 @@ fi
 
 
 %changelog
+* Sat Jun 03 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.1.4
+- rebuild against new python
+
 * Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.1.4
 - drop the jdbc stuff
 - drop P2; merged upstream
