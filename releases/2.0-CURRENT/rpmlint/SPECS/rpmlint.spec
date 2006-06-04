@@ -33,6 +33,14 @@ Rpmlint is a tool to check common errors on rpm packages.
 Binary and source packages can be checked.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 
@@ -55,15 +63,23 @@ rm -rf %{buildroot}%{_sysconfdir}/bash_completion.d
 
 %files
 %defattr(-,root,root,0755)
-%doc COPYING ChangeLog INSTALL README*
 %{_bindir}/*
 %{_datadir}/rpmlint
 %{_mandir}/man1/rpmlint.1*
 %dir %{_sysconfdir}/rpmlint
 %config(noreplace) %{_sysconfdir}/rpmlint/config
 
+%files doc
+%defattr(-,root,root,0755)
+%doc COPYING ChangeLog INSTALL README*
+
 
 %changelog
+* Sat Jun 03 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.76
+- add -doc subpackage
+- rebuild against new python
+- updated rpmlint configuration
+
 * Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.76
 - adjust the default groups some more
 
