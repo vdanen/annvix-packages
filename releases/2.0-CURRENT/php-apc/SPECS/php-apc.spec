@@ -66,6 +66,14 @@ same terms as PHP itself.
 NOTE!: %{name} has to be loaded last, very important!
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n APC-%{version}
 
@@ -96,13 +104,20 @@ install -m 0755 %{soname} %{buildroot}%{phpdir}/extensions/
 
 %files 
 %defattr(-,root,root)
-%doc CHANGELOG INSTALL NOTICE TODO
 %attr(0755,root,root) %{phpdir}/extensions/%{soname}
 %config(noreplace) %attr(0644,root,root) %{_sysconfdir}/php.d/%{inifile}
 
+%files doc
+%defattr(-,root,root)
+%doc CHANGELOG INSTALL NOTICE TODO
+
 
 %changelog
-* Thu May 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.4
+* Sun Jun 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.10
+- add -doc subpackage
+- fix changelog versioning
+
+* Thu May 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.10
 - php 5.1.4
 - cleanup config
 
