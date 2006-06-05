@@ -79,8 +79,6 @@ perl -pi -e "s|'XML_Parser',|'XML_Parser',\n    'PHP_Compat',\n|;" go-pear
 mkdir -p %{buildroot}{%{peardir},%{_bindir}}
 yes ""|php -q go-pear
 
-echo "Get all the info on http://pear.php.net" > README
-
 # Remove CVS files
 find %{buildroot}%{peardir} -name ".cvsignore" |\
     xargs rm -f
@@ -115,7 +113,6 @@ mkdir %{buildroot}%{peardir}/packages
 
 %files 
 %defattr(-,root,root)
-%doc README
 %config(noreplace) %{_sysconfdir}/pear.conf
 %dir %{peardir}
 %{peardir}/*
@@ -128,6 +125,9 @@ mkdir %{buildroot}%{peardir}/packages
 
 
 %changelog
+* Sun Jun 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.4
+- remove docs
+
 * Thu May 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.4
 - php 5.1.4
 

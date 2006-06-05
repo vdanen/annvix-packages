@@ -77,12 +77,14 @@ install -m 0644 %{SOURCE0} %{buildroot}%{_sysconfdir}/php.d/%{inifile}
 
 %files 
 %defattr(-,root,root)
-%doc CREDITS package.xml
 %config(noreplace) %attr(0644,root,root) %{_sysconfdir}/php.d/%{inifile}
 %attr(0755,root,root) %{phpdir}/extensions/%{soname}
 
 
 %changelog
+* Sun Jun 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.4
+- remove docs
+
 * Thu May 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.4
 - php 5.1.4
 
