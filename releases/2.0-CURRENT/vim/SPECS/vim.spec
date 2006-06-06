@@ -366,7 +366,6 @@ update-alternatives --remove vim /usr/bin/vim-enhanced
 %defattr(-,root,root)
 %dir %{_datadir}/vim/
 %{_datadir}/vim/*
-%{_datadir}/vim/doc
 %{_mandir}/man1/vim.1*
 %{_mandir}/man1/ex.1*
 %{_mandir}/man1/vi.1*
@@ -399,11 +398,13 @@ update-alternatives --remove vim /usr/bin/vim-enhanced
 %doc README*.txt runtime/termcap
 %doc --parents annvix/README*
 %doc doc
+%{_datadir}/vim/doc
 
 
 %changelog
 * Tue Jun 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 7.0
 - rebuild against new python
+- move the /usr/share/vim/doc symlink to the right package
 
 * Tue May 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 7.0
 - 7.0; patchlevel 1
