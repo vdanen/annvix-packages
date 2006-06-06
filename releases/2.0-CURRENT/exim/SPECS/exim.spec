@@ -301,6 +301,9 @@ fi
 
 
 %changelog
+* Tue Jun 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.62
+- rebuild against new postgresql
+
 * Tue May 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.62
 - 4.62
 - rebuild against perl 5.8.8
