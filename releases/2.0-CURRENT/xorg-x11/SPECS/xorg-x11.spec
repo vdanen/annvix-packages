@@ -82,11 +82,6 @@ Requires:	/lib/cpp
 Requires:	%{xflib} = %{version}
 Requires:	%{name}-xauth
 
-Prereq:		/sbin/chkconfig utempter X11-libs = %{version}
-%if %{with_new_fontconfig_Xft}
-PreReq:		fontconfig
-%endif
-
 BuildRequires:	zlib-devel flex bison groff pam-devel ncurses-devel perl
 BuildRequires:	libpng-devel libexpat-devel
 %if %{usefreetype2}
@@ -98,122 +93,119 @@ BuildRequires:	fontconfig-devel >= 2.1-4mdk
 %endif
 
 
-BuildRoot: %{_buildroot}/%{name}-%{version}
-Obsoletes: X11-ISO8859-2, X11-ISO8859-9
-Provides: X11-ISO8859-2, X11-ISO8859-9
-Obsoletes: XFree86
-Provides: XFree86 = %{version}-%{release}
-Provides: X11 = %{version}-%{release}
-Provides: fonts-ttf-vera
-Obsoletes: fonts-ttf-vera
+BuildRoot:	%{_buildroot}/%{name}-%{version}
+Obsoletes:	X11-ISO8859-2, X11-ISO8859-9
+Provides:	X11-ISO8859-2, X11-ISO8859-9
+Obsoletes:	XFree86
+Provides:	XFree86 = %{version}-%{release}
+Provides:	X11 = %{version}-%{release}
+Provides:	fonts-ttf-vera
+Obsoletes:	fonts-ttf-vera
 
-Source0: http://freedesktop.org/~xorg/X11R%{version}/src/single/X11R%{version}-src.tar.bz2
+Source0:	http://freedesktop.org/~xorg/X11R%{version}/src/single/X11R%{version}-src.tar.bz2
 %if %{build_nosrc}
-NoSource: 0
+NoSource:	0
 %endif
-Source13: xserver.pamd
-Source14: xdm.pamd
-Source15: xfs.init
-Source16: xfs.config
-#Source18: xdm.init
-Source19: twm.method
-Source20: system.twmrc
-#Source21: http://keithp.com/~keithp/fonts/XftConfig
+Source13:	xserver.pamd
+Source14:	xdm.pamd
+Source15:	xfs.init
+Source16:	xfs.config
+#Source18:	xdm.init
+Source19:	twm.method
+Source20:	system.twmrc
+#Source21:	http://keithp.com/~keithp/fonts/XftConfig
 # from Arnd Bergmann <std7652@et.FH-Osnabrueck.DE>
 # only used when not build with fontconfig
-Source21: XftConfig
+Source21:	XftConfig
 
-Source50: http://freedesktop.org/~xlibs/release/render-%{renderver}.tar.bz2
-Source51: http://freedesktop.org/~xlibs/release/libXrender-%{xrenderver}.tar.bz2
-Source52: http://freedesktop.org/~xlibs/release/libXft-%{xftver}.tar.bz2
+Source50:	http://freedesktop.org/~xlibs/release/render-%{renderver}.tar.bz2
+Source51:	http://freedesktop.org/~xlibs/release/libXrender-%{xrenderver}.tar.bz2
+Source52:	http://freedesktop.org/~xlibs/release/libXft-%{xftver}.tar.bz2
 
-Source100: Euro.xmod
-Source102: eurofonts-X11.tar.bz2
+Source100:	Euro.xmod
+Source102:	eurofonts-X11.tar.bz2
 # extra *.enc files for xfs server not (yet) in XFree86 -- pablo
-Source152: xfsft-encodings.tar.bz2
+Source152:	xfsft-encodings.tar.bz2
 # locale.dir, compose.dir, locale.alias files.
 # maintaining them trough patches is a nightmare, as they change
 # too much too often; it is easier to manage them separately -- pablo
-Source153: XFree86-compose.dir
-Source154: XFree86-locale.alias
-Source155: XFree86-locale.dir
+Source153:	XFree86-compose.dir
+Source154:	XFree86-locale.alias
+Source155:	XFree86-locale.dir
 #
-Source156: gemini-koi8-u.tar.bz2
+Source156:	gemini-koi8-u.tar.bz2
 # the new default unicode compose file is too human-unfriendly; keeping
 # the old one...
-Source157: X_Compose-en_US.UTF-8
+Source157:	X_Compose-en_US.UTF-8
 
 # I18n updates from Pablo
 # Devanagari OpenType font, to install for the indic opentype patch -- pablo
-Source160: XFree86-extrascalablefonts-font.tar.bz2
+Source160:	XFree86-extrascalablefonts-font.tar.bz2
 
 # Wonderland mouse cursor (Fedora)
-Source212: wonderland-cursors.tar.bz2
+Source212:	wonderland-cursors.tar.bz2
 
-Patch4:	X11R6.7.0-libfreetype-xtt2-1.2a.patch
-Patch5:	Xorg-6.7.0-isolate_device.patch
+Patch4:		X11R6.7.0-libfreetype-xtt2-1.2a.patch
+Patch5:		Xorg-6.7.0-isolate_device.patch
 #Patch5:	XFree86-4.3-PrefBusID-v3.patch.bz2
 
 # Libs patches #################################################################
 
 # X server patches #############################################################
 
-Patch200: XFree86-4.2.99.3-parallel-make.patch
-Patch201: XFree86-4.2.99.3-mandrakelinux-blue.patch
-Patch202: XFree86-4.3.99.901-xwrapper.patch
+Patch200:	XFree86-4.2.99.3-parallel-make.patch
+Patch201:	XFree86-4.2.99.3-mandrakelinux-blue.patch
+Patch202:	XFree86-4.3.99.901-xwrapper.patch
 
 # Build the following libraries with PIC: libxf86config, libXau, libxkbfile
-Patch210: XFree86-4.3-build-libs-with-pic.patch
+Patch210:	XFree86-4.3-build-libs-with-pic.patch
 
-Patch213: XFree86-4.3.0-gb18030.patch
-Patch214: XFree86-4.3.0-gb18030-enc.patch
+Patch213:	XFree86-4.3.0-gb18030.patch
+Patch214:	XFree86-4.3.0-gb18030-enc.patch
 
-Patch216: XFree86-4.3-_LP64-fix.patch
+Patch216:	XFree86-4.3-_LP64-fix.patch
 
 # Drivers patches ##############################################################
 
 # Patch for building in Debug mode
-Patch700: XFree86-4.2.99.3-acecad-debug.patch
+Patch700:	XFree86-4.2.99.3-acecad-debug.patch
 
 # Xorg patches
 # https://bugs.freedesktop.org/show_bug.cgi?id=2164
-Patch5000: xorg-x11-6.8.2-radeon-render.patch
+Patch5000:	xorg-x11-6.8.2-radeon-render.patch
 # https://bugs.freedesktop.org/show_bug.cgi?id=2380
-Patch5001: xorg-x11-6.8.2-nv-ids.patch
+Patch5001:	xorg-x11-6.8.2-nv-ids.patch
 # https://bugs.freedesktop.org/show_bug.cgi?id=2467
-Patch5002: xorg-x11-6.8.2-void-driver.patch
+Patch5002:	xorg-x11-6.8.2-void-driver.patch
 # https://bugs.freedesktop.org/show_bug.cgi?id=2698
-Patch5003: xorg-x11-6.8.2-radeon-merge.patch
+Patch5003:	xorg-x11-6.8.2-radeon-merge.patch
 # https://bugs.freedesktop.org/show_bug.cgi?id=2599
-Patch5004: xorg-x11-6.8.2-xnest-stacking.patch
+Patch5004:	xorg-x11-6.8.2-xnest-stacking.patch
 
 # RH patches
 
-Patch9325: xorg-x11-6.8.2-gcc4-fix.patch
-Patch9327: xorg-x11-6.8.2-ati-radeon-gcc4-fix.patch
+Patch9325:	xorg-x11-6.8.2-gcc4-fix.patch
+Patch9327:	xorg-x11-6.8.2-ati-radeon-gcc4-fix.patch
 #(sb) partially from fedora commits
-Patch9328: xorg-x11-6.8.2-gcc40.patch
+Patch9328:	xorg-x11-6.8.2-gcc40.patch
 
-Patch9601: XFree86-4.3.99.902-mozilla-flash.patch
+Patch9601:	XFree86-4.3.99.902-mozilla-flash.patch
 
-Patch10012: xorg-redhat-libGL-exec-shield-fixes.patch
-Patch10015: XFree86-4.3.0-redhat-nv-riva-videomem-autodetection-debugging.patch
+Patch10012:	xorg-redhat-libGL-exec-shield-fixes.patch
+Patch10015:	XFree86-4.3.0-redhat-nv-riva-videomem-autodetection-debugging.patch
 
-Patch10101: XFree86-4.3.0-makefile-fastbuild.patch
+Patch10101:	XFree86-4.3.0-makefile-fastbuild.patch
 
 
 # my addons (svetljo)
 
 # build freetype2 with fPIC on x86_64
-Patch40002: lib_freetype_module.patch  
+Patch40002:	lib_freetype_module.patch  
 
 # p5000 https://bugs.freedesktop.org/show_bug.cgi?id=2073
-Patch50000: xorg-x11-6.8.2-sunffb.patch
+Patch50000:	xorg-x11-6.8.2-sunffb.patch
 
 %description
-If you want to install the X Window System (TM) on
-your machine, you'll need to install X11.
-
 The X Window System provides the base technology
 for developing graphical user interfaces. Simply stated,
 X draws the elements of the GUI on the user's screen and
@@ -224,33 +216,22 @@ on your machine.  X is a powerful environment which supports
 many different applications, such as games, programming tools,
 graphics programs, text editors, etc.
 
-This package contains the basic fonts, programs and documentation
-for an X workstation.  You will also need the X11-server
-package, which contains the program which drives your video
-hardware.
-
-In addition to installing this package, you will need to install the
-drakxtools package to configure your card using XFdrake. You may also
-need to install one of the X11 fonts packages.
-
-And finally, if you are going to develop applications that run as 
-X clients, you will also need to install %{xfdev}.
-
 
 %package -n %{xflib}
-Summary: Shared libraries needed by the X Window System version 11 release 6
-Group: System/Libraries
-Prereq: grep /sbin/ldconfig
-Provides: libXft2
-Obsoletes: libXft2
-Provides: X11-libs = %{version}-%{release}
-Provides: XFree86-libs = %{version}-%{release}
-Obsoletes: XFree86-libs
+Summary:	Shared libraries needed by the X Window System version 11 release 6
+Group:		System/Libraries
+Requires(post):	grep, /sbin/ldconfig
+Requires(postun): grep, /sbin/ldconfig
+Provides:	libXft2
+Obsoletes:	libXft2
+Provides:	X11-libs = %{version}-%{release}
+Provides:	XFree86-libs = %{version}-%{release}
+Obsoletes:	XFree86-libs
 %ifarch sparc
-Obsoletes: X11R6.1-libs
+Obsoletes:	X11R6.1-libs
 %endif
-Provides: %{old_xflib} = %{version}-%{release}
-Obsoletes: %{old_xflib}
+Provides:	%{old_xflib} = %{version}-%{release}
+Obsoletes:	%{old_xflib}
 
 %description -n %{xflib}
 X11-libs contains the shared libraries that most X programs
@@ -258,64 +239,48 @@ need to run properly. These shared libraries are in a separate package in
 order to reduce the disk space needed to run X applications on a machine
 without an X server (i.e, over a network).
 
-If you are installing the X Window System on your machine, you will need to
-install X11-libs.  You will also need to install the X11 package,
-the X11-75dpi-fonts package or the X11-100dpi-fonts package
-(depending upon your monitor's resolution), the Xconfigurator package and
-the X11R6-contrib package.  And, finally, if you are going to be developing
-applications that run as X clients, you will also need to install
-%{xfdev}.
 
 %package -n %{xfdev}
-Summary: Headers and programming man pages
-Group: Development/C
-Obsoletes: Mesa-devel
-Provides: Mesa-devel
-Provides: Xft-devel
-Provides: libXft2-devel
-Provides: XFree86-devel = %{version}-%{release}
-Provides: X11-devel
-Obsoletes: XFree86-devel
-Obsoletes: libXft2-devel
+Summary:	Headers and programming man pages
+Group:		Development/C
+Obsoletes:	Mesa-devel
+Provides:	Mesa-devel
+Provides:	Xft-devel
+Provides:	libXft2-devel
+Provides:	XFree86-devel = %{version}-%{release}
+Provides:	X11-devel
+Obsoletes:	XFree86-devel
+Obsoletes:	libXft2-devel
 %ifarch sparc
-Obsoletes: X11R6.1-devel
+Obsoletes:	X11R6.1-devel
 %endif
-Requires: %{xflib} = %{version}, glibc-devel, /lib/cpp
+Requires:	%{xflib} = %{version}, glibc-devel, /lib/cpp
 %if %{with_new_fontconfig_Xft}
-Requires: fontconfig-devel >= 2.1-4mdk
+Requires:	fontconfig-devel >= 2.1-4mdk
 %endif
 %if %{build_multiarch}
-Requires: multiarch-utils >= 1.0.7-1mdk
-BuildRequires: multiarch-utils >= 1.0.7-1mdk
+Requires:	multiarch-utils >= 1.0.7-1mdk
+BuildRequires:	multiarch-utils >= 1.0.7-1mdk
 %endif
-Provides: %{old_xfdev} = %{version}-%{release}
-Obsoletes: %{old_xfdev}
+Provides:	%{old_xfdev} = %{version}-%{release}
+Obsoletes:	%{old_xfdev}
 
 %description -n %{xfdev}
 %{xfdev} includes the libraries, header files and documentation
 you'll need to develop programs which run in X clients. X11 includes
 the base Xlib library as well as the Xt and Xaw widget sets.
 
-For guidance on programming with these libraries, O'Reilly & Associates
-produces a series on X programming which you might find useful.
-
-Install %{xfdev} if you are going to develop programs which
-will run as X clients.
-
-If you need the static libraries, install the %{xfsta}
-package.
 
 %package -n %{xfsta}
-Summary: X11R6 static libraries
-Group: System/Libraries
-Requires: %{xfdev} = %{version}
-Obsoletes: XFree86-static-libs
-Provides: XFree86-static-libs = %{version}-%{release}
-Provides: XFree86-static-devel = %{version}-%{release}
-Provides: X11-static-devel = %{version}-%{release}
-Provides: %{old_xfsta} = %{version}-%{release}
-Obsoletes: %{old_xfsta}
-
+Summary:	X11R6 static libraries
+Group:		System/Libraries
+Requires:	%{xfdev} = %{version}
+Obsoletes:	XFree86-static-libs
+Provides:	XFree86-static-libs = %{version}-%{release}
+Provides:	XFree86-static-devel = %{version}-%{release}
+Provides:	X11-static-devel = %{version}-%{release}
+Provides:	%{old_xfsta} = %{version}-%{release}
+Obsoletes:	%{old_xfsta}
 
 %description -n %{xfsta}
 %{xfsta} includes the X11R6 static libraries needed to
@@ -1011,59 +976,11 @@ rm -f  %{buildroot}/usr/X11R6/bin/xphelloworld \
 # %{buildroot}%{_sysconfdir}/X11/xkb \
 
 
-%post
-%make_session
-
-for d in misc Speedo Type1 TTF; do
-    cd /usr/X11R6/lib/X11/fonts/$d
-    mkfontdir || :
-done
-
-fc-cache -f /usr/X11R6/lib/X11/fonts || :
-
-%if ! %{with_new_fontconfig_Xft}
-xftcache > /dev/null 2>&1 || :
-%endif
-
-%postun
-%make_session
-
-
-%pre
-# here, we put things that we have moved around (like directories)
-# that need to be cleaned up prior to the RPM's installation.  
-# Ugly. Necessary.
-while read old new link; do
-  if [ -d `dirname $old` -a ! -L $old ]; then
-     echo "moving $old to $new linking to $link"
-     if [ ! -d $new ]; then
-        mkdir -p $new
-     fi
-     if [ -d $old ]; then
-         mv -f $old/* $new
-         rmdir $old
-     fi
-     ln -sf $link $old
-  fi
-done << EOF
-/usr/X11R6/lib/X11/xkb /etc/X11/xkb ../../../../etc/X11/xkb
-/usr/X11R6/lib/X11/xkb/compiled /var/lib/xkb ../../../../../var/lib/xkb
-/usr/X11R6/lib/X11/app-defaults /etc/X11/app-defaults ../../../../etc/X11/app-defaults
-/usr/X11R6/lib/X11/lbxproxy /etc/X11/lbxproxy ../../../../etc/X11/lbxproxy
-/usr/X11R6/lib/X11/proxymngr /etc/X11/proxymngr ../../../../etc/X11/proxymngr
-/usr/X11R6/lib/X11/rstart /etc/X11/rstart ../../../../etc/X11/rstart
-/usr/X11R6/lib/X11/xserver /etc/X11/xserver ../../../../etc/X11/xserver
-/etc/X11/xdm/authdir /var/lib/xdm ../../../var/lib/xdm
-EOF
-
-#%postun
-#if [ $1 = 0 ]; then
-#    /sbin/chkconfig --del xdm
-#fi
 
 %post -n %{xflib}
 grep -q "^%{x11shlibdir}$" /etc/ld.so.conf || echo "%{x11shlibdir}" >> /etc/ld.so.conf
 /sbin/ldconfig
+
 
 %postun -n %{xflib}
 if [ "$1" = "0" ]; then
@@ -1072,6 +989,7 @@ if [ "$1" = "0" ]; then
     mv -f /etc/ld.so.conf.new /etc/ld.so.conf
 fi
 /sbin/ldconfig
+
 
 %verifyscript -n %{xflib}
 echo -n "Looking for %{x11shlibdir} in /etc/ld.so.conf... "
@@ -1082,9 +1000,11 @@ else
     echo "found"
 fi
 
+
 %triggerpostun -n %{xflib} -- XFree86-libs
 grep -q "^%{x11shlibdir}$" /etc/ld.so.conf || echo "%{x11shlibdir}" >> /etc/ld.so.conf
 /sbin/ldconfig
+
 
 %triggerpostun -n %{xflib} -- libxfree86
 grep -q "^%{x11shlibdir}$" /etc/ld.so.conf || echo "%{x11shlibdir}" >> /etc/ld.so.conf
@@ -1155,10 +1075,17 @@ grep -q "^%{x11shlibdir}$" /etc/ld.so.conf || echo "%{x11shlibdir}" >> /etc/ld.s
 
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Jun 05 2006 Vincent Danen <vdanen-at-build.annvix.org> 6.8.2
+- rebuild with gcc4
+- spec cleanups
+- remove the pre/post stuff for the main package for font cache
+  manipulation since we don't care about that stuff and don't even
+  ship the server
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 6.8.2
 - Clean rebuild
 
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 6.8.2
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - remove %%_iconsdir reference
