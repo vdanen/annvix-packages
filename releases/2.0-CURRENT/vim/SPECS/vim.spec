@@ -402,6 +402,9 @@ update-alternatives --remove vim /usr/bin/vim-enhanced
 
 
 %changelog
+* Tue Jun 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 7.0
+- rebuild against new python
+
 * Tue May 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 7.0
 - 7.0; patchlevel 1
 - added P9
