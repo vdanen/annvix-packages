@@ -32,9 +32,7 @@ Patch9:		screen-4.0.2-screenrc-utf8-switch.patch
 Patch10:	screen-4.0.2-varargs.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	ncurses-devel
-BuildRequires:	utempter-devel
-BuildRequires:	texinfo
+BuildRequires:	ncurses-devel, utempter-devel, texinfo
 
 Requires(post):	info-install
 Requires(preun): info-install
@@ -44,6 +42,14 @@ The screen utility allows you to have multiple logins on just one
 terminal.  Screen is useful for users who telnet into a machine or
 are connected via a dumb terminal, but want to use more than just
 one login.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -117,7 +123,6 @@ EOF
 
 %files
 %defattr(-,root,root)
-%doc NEWS README doc/FAQ doc/README.DOTSCREEN ChangeLog
 %{_bindir}/screen
 %{_mandir}/man1/screen.1.bz2
 %{_infodir}/screen.info*
@@ -126,12 +131,20 @@ EOF
 %attr(644,root,root) %config(noreplace) %{_sysconfdir}/skel/.screenrc
 %{_datadir}/screen/
 
+%files doc
+%defattr(-,root,root)
+%doc NEWS README doc/FAQ doc/README.DOTSCREEN ChangeLog
+
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jun 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.0.2
+- add -doc subpackage
+- rebuild with gcc4
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.0.2
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.0.2
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - fix prereq
