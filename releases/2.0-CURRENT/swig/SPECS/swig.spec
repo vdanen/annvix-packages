@@ -99,6 +99,9 @@ install -m 0644 ./Source/DOH/doh.h -D %{buildroot}%{_includedir}/doh.h
 
 
 %changelog
+* Tue Jun 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.27
+- rebuild against new python
+
 * Tue May 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.27
 - drop down to 1.3.27; some python files are missing that subversion
   needs and are found in 1.3.27
