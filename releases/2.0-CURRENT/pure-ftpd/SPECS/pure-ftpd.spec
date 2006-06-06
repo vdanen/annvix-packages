@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		pure-ftpd
-%define	version 	1.0.20
+%define	version 	1.0.21
 %define release 	%_revrel
 
 Summary:	Lightweight, fast and secure FTP server
@@ -19,10 +19,11 @@ Release:	%{release}
 License:	GPL
 Group:		System/Servers
 URL:		http://www.pureftpd.org
-Source:		ftp://ftp.pureftpd.org/pub/pure-ftpd/releases//%{name}-%{version}.tar.bz2
+Source:		http://download.pureftpd.org/pub/pure-ftpd/releases/%{name}-%{version}.tar.bz2
 Source2:	pure-ftpd.logrotate
 Source4:	pureftpd.run
 Source5:	pureftpd-log.run
+Source6:	pure-ftpd.pam
 Patch0:		pure-ftpd-1.0.16b-slsconf.patch
 Patch1:		pure-ftpd-1.0.16b-pureconfig.patch
 
@@ -35,6 +36,7 @@ Requires(pre):	rpm-helper
 Requires(preun): rpm-helper
 Provides:	ftp-server ftpserver
 Conflicts:	wu-ftpd, ncftpd, proftpd, anonftp, vsftpd
+Obsoletes:	pure-ftpd-anonymous, pure-ftpd-anon-upload
 
 %description
 Pure-FTPd is a fast, production-quality, standard-comformant FTP server,
@@ -47,22 +49,12 @@ ports for passive downloads, UL/DL ratios, native LDAP and SQL support,
 Apache log files and more.
 
 
-%package anonymous
-Summary:	Anonymous support for pure-ftpd
-Group:		System/Servers
-Requires:	pure-ftpd
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
 
-%description anonymous
-This package provides anonymous support for pure-ftpd. 
-
-
-%package anon-upload
-Summary:	Anonymous upload support for pure-ftpd
-Group:		System/Servers
-Requires:	pure-ftpd
-
-%description anon-upload
-This package provides anonymous upload support for pure-ftpd. 
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -124,13 +116,11 @@ install -m 0644 man/pure-statsdecode.8 %{buildroot}%{_mandir}/man8
 install -m 0644 man/pure-quotacheck.8 %{buildroot}%{_mandir}/man8
 install -m 0644 man/pure-authd.8 %{buildroot}%{_mandir}/man8
 
-install -m 0644 pam/pure-ftpd %{buildroot}%{_sysconfdir}/pam.d/
+mkdir -p %{buildroot}%{_sysconfdir}/pam.d/
+#install -m 0644 %{SOURCE6} %{buildroot}%{_sysconfdir}/pam.d/
+install -m 0644 pam/pure-ftpd  %{buildroot}%{_sysconfdir}/pam.d/
 
 install -m 0644 %{SOURCE2} %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
-
-# anonymous ftp
-mkdir -p %{buildroot}/var/ftp/pub/
-mkdir -p %{buildroot}/var/ftp/incoming/
 
 mkdir -p %{buildroot}%{_srvdir}/pureftpd/log
 install -m 0740 %{SOURCE4} %{buildroot}%{_srvdir}/pureftpd/run
@@ -152,9 +142,6 @@ for i in $USERS ;do
     cat %{_sysconfdir}/ftpusers | grep -q "^$i$" || echo $i >> %{_sysconfdir}/ftpusers
 done
 
-if [ -d /var/log/supervise/pureftpd -a ! -d /var/log/service/pureftpd ]; then
-    mv /var/log/supervise/pureftpd /var/log/service/
-fi
 %_post_srv pureftpd
 
 
@@ -171,11 +158,7 @@ fi
 
 
 %files
-%defattr(-, root, root)
-%doc FAQ THANKS README.Authentication-Modules README.Windows README.Virtual-Users
-%doc README.Debian README README.Contrib README.Configuration-File AUTHORS CONTACT
-%doc HISTORY NEWS README.LDAP README.PGSQL README.MySQL README.Netfilter
-%doc pure-ftpd.png  contrib/pure-vpopauth.pl contrib/pure-stat.pl pureftpd.schema
+%defattr(-,root,root)
 %config(noreplace) %{_sysconfdir}/%{name}/pure-ftpd.conf
 %config(noreplace) %{_sysconfdir}/%{name}/pureftpd-ldap.conf
 %config(noreplace) %{_sysconfdir}/%{name}/pureftpd-mysql.conf
@@ -199,16 +182,25 @@ fi
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/pureftpd/run
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/pureftpd/log/run
 
-%files anonymous
-%defattr(-, root, root)
-%dir /var/ftp/pub/
-
-%files anon-upload
-%defattr(777, root, root)
-%dir /var/ftp/incoming/
+%files doc
+%defattr(-,root,root)
+%doc FAQ THANKS README.Authentication-Modules README.Windows README.Virtual-Users
+%doc README.Debian README README.Contrib README.Configuration-File AUTHORS CONTACT
+%doc HISTORY NEWS README.LDAP README.PGSQL README.MySQL README.Netfilter
+%doc pure-ftpd.png  contrib/pure-vpopauth.pl contrib/pure-stat.pl pureftpd.schema
 
 
 %changelog
+* Tue Jun 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.21
+- 1.0.21
+- add -doc subpackage
+- rebuild with gcc4
+- rebuild against new postgresql
+- drop the -anonymous and -anon-upload packages since all they contain
+  are directories... i suppose the end-user may be intelligent enough
+  to create these directories themself if required <sheesh>
+- S6: pam file for new pam (coming soon)
+
 * Wed Feb  1 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.20
 - build against new postgresql
 
