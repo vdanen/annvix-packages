@@ -88,6 +88,9 @@ perl Makefile.PL INSTALLDIRS=vendor </dev/null
 
 
 %changelog
+* Tue Jun 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1.1
+- rebuild against new postgresql
+
 * Sat May 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1.1
 - rebuild against perl 5.8.8
 - create -doc subpackage
