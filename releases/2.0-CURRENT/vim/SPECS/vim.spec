@@ -366,6 +366,7 @@ update-alternatives --remove vim /usr/bin/vim-enhanced
 %defattr(-,root,root)
 %dir %{_datadir}/vim/
 %{_datadir}/vim/*
+%exclude %{_datadir}/vim/doc
 %{_mandir}/man1/vim.1*
 %{_mandir}/man1/ex.1*
 %{_mandir}/man1/vi.1*
