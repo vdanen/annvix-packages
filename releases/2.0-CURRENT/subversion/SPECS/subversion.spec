@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		subversion
-%define svn_version	1.3.1
+%define svn_version	1.3.2
 %define release		%_revrel
 
 %define apache_version	2.0.54
@@ -366,8 +366,7 @@ popd >/dev/null 2>&1
 %_preun_srv svn
 
 
-%postun server
-/sbin/ldconfig
+%postun server -p /sbin/ldconfig
 
 
 %files 
@@ -381,7 +380,10 @@ popd >/dev/null 2>&1
 %{_bindir}/svn_load_dirs*
 %{_bindir}/svn-log*
 %{_bindir}/svnlook
-%{_libdir}/libsvn_ra*.so.*
+%{_libdir}/libsvn_ra-1.so.*
+%{_libdir}/libsvn_ra_dav-1.so.*
+%{_libdir}/libsvn_ra_local-1.so.*
+%{_libdir}/libsvn_ra_svn-1.so.*
 %{_libdir}/libsvn_client*so.*
 %{_libdir}/libsvn_wc-*so.*
 %{_libdir}/libsvn_delta-*so.*
@@ -467,6 +469,10 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Tue Jun 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.2
+- 1.3.2
+- rebuild against new python
+
 * Thu May 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.1
 - rebuild against new apr/apr-util/httpd
 - add libapr/apr-util buildreq and force it to 1.2.7 so we don't get
