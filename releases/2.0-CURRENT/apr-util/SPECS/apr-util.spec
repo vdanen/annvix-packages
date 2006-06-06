@@ -239,6 +239,9 @@ rm -f %{buildroot}%{_libdir}/aprutil.exp
 
 
 %changelog
+* Tue Jun 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.7
+- rebuild against new postgresql
+
 * Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.7
 - 1.2.7
 - merge patches from mandriva
