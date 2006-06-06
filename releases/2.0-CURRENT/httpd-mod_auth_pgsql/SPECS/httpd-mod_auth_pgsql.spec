@@ -85,6 +85,9 @@ cat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 
 %changelog
+* Tue Jun 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.2_2.0.3
+- rebuild against new postgresql
+
 * Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.2_2.0.3
 - apache 2.2.2
 - mod_auth_pgsql 2.0.3
