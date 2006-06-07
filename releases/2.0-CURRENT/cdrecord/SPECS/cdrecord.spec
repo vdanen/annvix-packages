@@ -69,7 +69,7 @@ Summary:	Creates an image of an ISO9660 filesystem
 Version:	%{mkisofs_ver}
 Release:	%{mkisofs_rel}
 Epoch:		%{mkisofs_epoch}
-Group:		Archiving/Cd burning
+Group:		Archiving
 
 %description -n mkisofs
 This is the mkisofs package.  It is used to create ISO 9660
@@ -79,11 +79,19 @@ for making bootable "El Torito" CD-ROMs.
 
 %package isotools
 Summary:	Collection of ISO file related tools
-Group:		Archiving/Cd burning
+Group:		Archiving
 
 %description isotools
 The following tools are included: isodebug, isodump, isoinfo,
 and isovfy.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -109,6 +117,10 @@ perl -pi -e 's|^KX_ARCH:=.*|XK_ARCH:=  %{_target_cpu}|' RULES/mk-gmake.id
 
 ./Gmake
 
+mkdir mkisofs-doc
+cp -a mkisofs/{COPYING,ChangeLog,TODO,README.*} mkisofs-doc/
+cp -a doc/mkisofs.ps mkisofs-doc/
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -129,7 +141,6 @@ mv %{buildroot}%{_prefix}/lib %{buildroot}%{_libdir}/
 
 
 %files
-%attr(-,root,root) %doc Changelog README*
 %attr(0755,root,cdwriter) %{_bindir}/cdrecord
 %attr(755,root,cdwriter) %{_bindir}/devdump
 %attr(755,root,cdwriter) %{_bindir}/scgcheck
@@ -145,14 +156,11 @@ mv %{buildroot}%{_prefix}/lib %{buildroot}%{_libdir}/
 
 %files devel
 %defattr(-,root,root)
-%doc AN-*
 %attr(644,root,root) %{_libdir}/*.a
 %attr(644,root,root) %{_includedir}/*.h
 
 %files -n mkisofs
 %defattr(-,root,root)
-%doc mkisofs/COPYING mkisofs/ChangeLog README mkisofs/TODO mkisofs/README.*
-%doc doc/mkisofs.ps
 %{_bindir}/mkisofs
 %{_bindir}/mkhybrid
 %attr(644,root,root) %{_mandir}/man8/mkisofs.8*
@@ -165,8 +173,16 @@ mv %{buildroot}%{_prefix}/lib %{buildroot}%{_libdir}/
 %attr(755,root,cdwriter) %{_bindir}/isoinfo
 %attr(755,root,cdwriter) %{_bindir}/isovfy
 
+%files doc
+%doc Changelog README* AN-* mkisofs-doc
+
 
 %changelog
+* Tue Jun 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.01.01a03
+- add -doc subpackage
+- rebuild with gcc4
+- fix groups some more
+
 * Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.01.01a03
 - fix group
 
