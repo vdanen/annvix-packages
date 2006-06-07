@@ -37,6 +37,14 @@ yes/no, menu, input, message, text, info, checklist, radiolist, and
 gauge.  
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n dialog-%{version}-%{datetag}
 
@@ -61,16 +69,23 @@ mkdir -p %{buildroot}%{_mandir}/man1
 
 %files
 %defattr(-,root,root)
-%doc COPYING README samples
 %{_bindir}/dialog
-%{_mandir}/man1/dialog.1.bz2
+%{_mandir}/man1/dialog.1*
+
+%files doc
+%defattr(-,root,root)
+%doc COPYING README samples
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jun 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.9b
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.9b
 - Clean rebuild
 
-* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.9b
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
