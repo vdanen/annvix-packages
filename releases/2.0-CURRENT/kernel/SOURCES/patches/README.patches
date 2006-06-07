@@ -48,6 +48,9 @@ FA00_FILESYSTEM.desc
 
 SL00_SECURITY.desc
 ** Security-related enhancement patches
+	SL01_ea+acl+nfsacl+sec-2.4.29-0.8.73.patch
+	- http://acl.bestbits.at/
+	- ACL support for ext2, ext3, nfs
 	SL02_frandom-2.patch
 	- http://www.linuxfromscratch.org/~robert/hlfs/current/hlfs-patches-20050106/linux-2.4.27-frandom-2.patch
 	- adds frandom/erandom devices
@@ -55,10 +58,10 @@ SL00_SECURITY.desc
 	- ipsec support for openswan 2.3.1
 	SL11_openswan-2.3.1.natt.patch
 	- NAT Traversal support for openswan 2.3.1
-	SL60_rsbac-common-1.2.5.1.tar
+	SL60_rsbac-common-1.2.7.tar
 	- http://www.rsbac.org/
 	- RSBAC common files
-	SL61_rsbac-patch-2.4.32-1.2.5.patch
+	SL61_rsbac-patch-2.4.32-1.2.7.patch
 	- http://www.rsbac.org/
 	- RSBAC kernel patch
 	SL65_remove-rsbac_from_EXTRAVERSION.patch

@@ -829,6 +829,13 @@ exit 0
 
 
 %changelog
+* Wed Jun 07 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.32
+- SL01: add the ACL patch to have ACLs on NFS/ext2/ext3 (v0.8.73); we
+  already had the CONFIG_* options set, but not the actual code to make
+  use of it
+- RSBAC 1.2.7 (SL60, SL61)
+- rediff SL61 [fs/xattr.c] to work with the ACL patch (SL01)
+
 * Sat May 20 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.32
 - force the use of gcc 3.4.4 to compile
 
