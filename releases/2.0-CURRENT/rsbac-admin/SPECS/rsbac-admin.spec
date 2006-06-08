@@ -9,19 +9,12 @@
 
 %define revision	$Rev$
 %define name		rsbac-admin
-%define version		1.2.5
+%define version		1.2.7
 %define release		%_revrel
 
 %define libname_orig	librsbac
 %define lib_major	1
 %define libname		%mklibname rsbac %{lib_major}
-
-%define build_with_kernel_dir	0
-%{expand: %{?kernel_dir:	%%global build_with_kernel_dir 1}}
-
-%if !%{build_with_kernel_dir}
-%define kernel_dir	/usr/src/linux
-%endif
 
 Summary: 	A set of RSBAC utilities
 Name: 		%{name}
@@ -32,11 +25,10 @@ Group: 		System/Configuration
 URL: 		http://www.rsbac.org/
 Source0: 	http://www.rsbac.org/download/code/%{version}/%{name}-%{version}.tar.bz2
 Source1:	rsbac.conf
-Patch0:		rsbac-admin-1.2.5-soname.patch
-Patch1:		rsbac-admin-1.2.5-libdir.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires: 	kernel-source
+BuildRequires:	libtool, ncurses-devel, pam-devel
+#BuildRequires: 	kernel-source
 
 Requires: 	dialog
 
@@ -107,8 +99,6 @@ NSS library files for use with RSBAC
 
 %prep
 %setup -q
-%patch0 -p1
-%patch1 -p1
 
 
 %build
@@ -130,18 +120,13 @@ install -m 0600 %{SOURCE1} %{buildroot}%{_sysconfdir}/rsbac.conf
 # remove the locale files as %%find_lang doesn't seem to pick them up
 rm -rf %{buildroot}%{_datadir}/locale
 
-# fixpup
-pushd %{buildroot}/%{_libdir}
-    ln -s %{libname_orig}.so.%{version} %{libname_orig}.so.%{lib_major} 
-popd
-
 # remove _de pam files
 rm -f %{buildroot}/%{_lib}/security/*_de*
 
 # Documentation
-mkdir -p %{buildroot}/%{_docdir}/%{name}-doc-%{version}
-cp -r %{kernel_dir}/Documentation/rsbac/* %{buildroot}%{_docdir}/%{name}-doc-%{version}
-rm -rf %{buildroot}%{_prefix}/doc/rsbac-tools*
+mv %{buildroot}%{_docdir}/rsbac-tools-%{version}/ docs
+find docs/examples -type f | xargs chmod a-x
+rm -f docs/examples/reg/reg_syscall
 
 # /var/lib/rsbac is in setup
 mkdir -p %{buildroot}/var/lib/rsbac/tmp
@@ -159,7 +144,6 @@ mkdir -p %{buildroot}/var/lib/rsbac/tmp
 
 %files
 %defattr(-,root,root,0755)
-%doc README main/tools/examples main/tools/Changes
 %attr(0600,root,root) %config(noreplace) %{_sysconfdir}/rsbac.conf
 %{_bindir}/*
 %{_sbindir}/*
@@ -168,7 +152,7 @@ mkdir -p %{buildroot}/var/lib/rsbac/tmp
 
 %files -n %{name}-doc
 %defattr(-,root,root)
-%{_docdir}/%{name}-doc-%{version}
+%doc README main/tools/examples main/tools/Changes docs
 
 %files -n %{libname}
 %defattr(-,root,root)
@@ -177,6 +161,8 @@ mkdir -p %{buildroot}/var/lib/rsbac/tmp
 %files -n %{libname}-devel
 %defattr(-,root,root)
 %{_libdir}/libnss_rsbac.la
+%{_libdir}/%{libname_orig}.so
+%{_libdir}/%{libname_orig}.la
 %{_includedir}/rsbac
 
 %files -n %{libname}-static-devel
@@ -194,6 +180,14 @@ mkdir -p %{buildroot}/var/lib/rsbac/tmp
 
 
 %changelog
+* Thu Jun 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.7
+- 1.2.7
+- move all docs to -doc
+- buildrequires: libtool, ncurses-devel, pam-devel
+- drop P0 and P1, no longer required
+- add -doc subpackage
+- rebuild with gcc4
+
 * Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.5
 - fix group
 
