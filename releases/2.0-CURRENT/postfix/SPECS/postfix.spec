@@ -117,8 +117,13 @@ completely different.
 This software was formerly known as VMailer. It was released by the end
 of 1998 as the IBM Secure Mailer. From then on it has lived on as Postfix. 
 
-This rpm supports LDAP, SMTP AUTH (trough cyrus-sasl) and TLS.
-If you also need MySQL support, rebuild the srpm --with mysql.
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -269,6 +274,9 @@ install -m 0740 %{SOURCE6} %{buildroot}%{_srvdir}/postfix/run
 
 rm -f %{buildroot}%{_sysconfdir}/postfix/LICENSE
 
+# fix docs
+mv %{buildroot}%{_docdir}/%{name}-%{version} %{buildroot}%{_docdir}/%{name}-doc-%{version}
+
 
 %pre
 %_pre_useradd postfix %{queue_directory} /bin/false %{postfix_uid}
@@ -284,9 +292,9 @@ sh %{_sysconfdir}/postfix/post-install \
     mail_owner=postfix \
     setgid_group=%{maildrop_group} \
     manpage_directory=%{_mandir} \
-    sample_directory=%{_docdir}/%{name}-%{version}/samples \
-    readme_directory=%{_docdir}/%{name}-%{version}/README_FILES \
-    html_directory=%{_docdir}/%{name}-%{version}/html \
+    sample_directory=%{_docdir}/%{name}-doc-%{version}/samples \
+    readme_directory=%{_docdir}/%{name}-doc-%{version}/README_FILES \
+    html_directory=%{_docdir}/%{name}-doc-%{version}/html \
     upgrade-package
 
 %_post_srv postfix
@@ -321,12 +329,7 @@ fi
 
 
 %files
-%defattr(-, root, root)
-%doc AAAREADME US_PATENT_6321267 COMPATIBILITY COPYRIGHT HISTORY LICENSE PORTING RELEASE_NOTES*
-%doc examples/smtpd-policy
-%doc html UCE
-%doc README_FILES
-
+%defattr(-,root,root)
 %dir %{_sysconfdir}/postfix
 %dir %{_sysconfdir}/postfix/sasl
 %config(noreplace) %{_sysconfdir}/postfix/sasl/smtpd.conf
@@ -423,7 +426,18 @@ fi
 %{_mandir}/*/*
 
 
+%files doc
+%defattr(-,root,root)
+%doc AAAREADME US_PATENT_6321267 COMPATIBILITY COPYRIGHT HISTORY LICENSE PORTING RELEASE_NOTES*
+%doc examples/smtpd-policy
+%doc html UCE
+%doc README_FILES
+
 %changelog
+* Sat Jun 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.10
+- add -doc subpackage
+- rebuild with gcc4
+
 * Sat May 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.10
 - use Conflicts instead of Obsoletes or it puts apt into an infinite obsoletes
   loop when you have exim installed
