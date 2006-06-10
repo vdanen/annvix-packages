@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		psmisc
-%define version		21.3
+%define version		22.2
 %define release		%_revrel
 
 Summary:	Utilities for managing processes on your system
@@ -20,10 +20,9 @@ License:	GPL
 Group:		Monitoring
 URL:		http://psmisc.sourceforge.net
 Source:		http://download.sourceforge.net/psmisc/psmisc-%{version}.tar.bz2
-Patch1:		psmisc-20.2-libsafe.patch
+Patch1:		psmisc-21.9-libsafe.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	libtermcap-devel
 
 %description
 The psmisc package contains utilities for managing processes on your
@@ -60,17 +59,25 @@ mv %{buildroot}%{_bindir}/fuser %{buildroot}/sbin/
 %defattr(-,root,root)
 /sbin/fuser
 %{_bindir}/killall
-%{_bindir}/pstree
+%{_bindir}/pstree*
+%{_bindir}/oldfuser
 %{_mandir}/man1/fuser.1*
 %{_mandir}/man1/killall.1*
 %{_mandir}/man1/pstree.1*
 
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jun 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 22.2
+- 22.2
+- removed libtermcap-devel as buildrequires
+- updated P1
+- add -doc subpackage
+- rebuild with gcc4
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 21.3
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 21.3
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
