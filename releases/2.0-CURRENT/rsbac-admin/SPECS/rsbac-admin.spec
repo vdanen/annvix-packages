@@ -25,6 +25,7 @@ Group: 		System/Configuration
 URL: 		http://www.rsbac.org/
 Source0: 	http://www.rsbac.org/download/code/%{version}/%{name}-%{version}.tar.bz2
 Source1:	rsbac.conf
+Patch0:		rsbac-admin-1.2.7-libdir.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	libtool, ncurses-devel, pam-devel
@@ -99,6 +100,7 @@ NSS library files for use with RSBAC
 
 %prep
 %setup -q
+%patch0 -p1 -b .lib64
 
 
 %build
@@ -180,6 +182,9 @@ mkdir -p %{buildroot}/var/lib/rsbac/tmp
 
 
 %changelog
+* Sat Jun 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.7
+- P0: lib64 fixes (again)
+
 * Thu Jun 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.7
 - 1.2.7
 - move all docs to -doc
