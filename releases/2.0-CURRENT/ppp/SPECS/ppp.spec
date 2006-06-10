@@ -53,6 +53,7 @@ BuildRequires:	liblinux-atm-devel
 BuildRequires:	libpcap-devel 
 BuildRequires:	openssl-devel >= 0.9.7
 BuildRequires:	pam-devel
+BuildRequires:	libtool
 
 Requires:	glibc >= 2.0.6
 
@@ -108,6 +109,14 @@ Requires:	%{name} = %{version}
 DHCP plugin for %{name}.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup  -q
 find -type d -name CVS|xargs rm -rf
@@ -154,6 +163,9 @@ perl -pi -e "s|/usr/local/bin/pppd|%{_sbindir}/pppd|g;
     scripts/ppp-on-ssh \
     scripts/secure-card
 
+# remove zero-length samples
+find sample -size 0 -exec rm -f {} \;
+
 
 %build
 # stpcpy() is a GNU extension
@@ -166,6 +178,10 @@ CFLAGS="$OPT_FLAGS" CXXFLAGS="$OPT_FLAGS" %configure
 #perl -pi -e "s|-DHAVE_MULTILINK||" pppd/Makefile
 make RPM_OPT_FLAGS="$OPT_FLAGS -DDO_BSD_COMPRESS=0" LIBDIR=%{_libdir}
 make -C pppd/plugins -f Makefile.linux
+
+# docs
+mkdir dhcp-plugin
+cp -a pppd/plugins/dhcp/{README,AUTHORS,COPYING} dhcp-plugin/
 
 
 %install
@@ -220,7 +236,6 @@ rm -rf %{buildroot}%{_libdir}/*rad*
 
 %files
 %defattr(-,root,root)
-%doc FAQ PLUGINS README* scripts sample
 %{_sbindir}/chat
 %{_sbindir}/pppdump
 %attr(0755,root,root)	%{_sbindir}/pppd
@@ -262,24 +277,28 @@ rm -rf %{buildroot}%{_libdir}/*rad*
 
 %files radius
 %defattr(-,root,root)
-%doc README
 %{_libdir}/pppd/%{version}/rad*.so
 %{_mandir}/man8/*rad*
 
 %files dhcp
 %defattr(-,root,root)
-%doc pppd/plugins/dhcp/README 
-%doc pppd/plugins/dhcp/AUTHORS
-%doc pppd/plugins/dhcp/COPYING
 %{_libdir}/pppd/%{version}/dhcpc.so
 
+%files doc
+%defattr(-,root,root)
+%doc FAQ PLUGINS README* scripts sample dhcp-plugin
 
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jun 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.3
+- add -doc subpackage
+- rebuild with gcc4
+- remove zero-length sample files
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.3
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.3
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
