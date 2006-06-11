@@ -5,13 +5,13 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-# mdk 1.8.3-2mdk
+# mdk 1.8.4-1mdk
 #
 # $Id$
 
 %define revision	$Rev$
 %define name		update-alternatives
-%define version		1.8.3
+%define version		1.8.4
 %define release		%_revrel
 
 Summary:	Alternative management system
@@ -22,6 +22,7 @@ License:	GPL
 Group:		System/Configuration
 URL:		http://cvs.mandriva.com/cgi-bin/cvsweb.cgi/soft/update-alternatives/
 Source0:	%{name}-%{version}.tar.bz2
+Patch0:		update-alternatives-1.8.4-avx-annvix.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
@@ -35,6 +36,7 @@ Debian but has been patched by Mandriva for use with rpm systems.
 
 %prep
 %setup -q
+%patch0 -p1 -b .avx
 
 
 %install
@@ -42,8 +44,8 @@ Debian but has been patched by Mandriva for use with rpm systems.
 
 %make install DESTDIR=%{buildroot} prefix=%{_prefix}
 
-install -d -m 755 %{buildroot}%{_sysconfdir}/alternatives
-install -d -m 755 %{buildroot}%{_localstatedir}/rpm/alternatives
+mkdir -p %{buildroot}%{_sysconfdir}/alternatives
+mkdir -p %{buildroot}%{_localstatedir}/rpm/alternatives
 
 
 %clean
@@ -59,6 +61,10 @@ install -d -m 755 %{buildroot}%{_localstatedir}/rpm/alternatives
 
 
 %changelog
+* Sat Jun 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.8.4
+- 1.8.4
+- P0 to remove Mandriva references
+
 * Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.8.3
 - fix group
 
