@@ -19,7 +19,7 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	Public Domain
-Group:		Text tools
+Group:		Text Tools
 URL:		http://sunsite.unc.edu/pub/Linux/libs/
 Source:		ftp://sunsite.unc.edu/pub/Linux/libs/linux.words.2.tar.bz2
 Patch0:		linux.words.2-jbj.patch
@@ -33,6 +33,14 @@ BuildArch:	noarch
 The words file is a dictionary of English words for the /usr/dict
 directory.  Programs like ispell use this database of words to check
 spelling.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -58,17 +66,23 @@ ln -sf linux.words %{buildroot}%{_dict_dir}words
 
 %files
 %defattr(-,root,root)
-%doc usr/dict/README.linux.words
-%doc usr/dict/README2.linux.words
 %{_dict_dir}linux.words
 %{_dict_dir}words
 
+%files doc
+%defattr(-,root,root)
+%doc usr/dict/README.linux.words
+%doc usr/dict/README2.linux.words
+
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jun 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2
+- add -doc subpackage
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2
 - Clean rebuild
 
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
