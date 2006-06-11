@@ -34,6 +34,14 @@ The which command shows the full pathname of a specified program, if
 the specified program is in your PATH.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 %patch0 -p1
@@ -65,18 +73,25 @@ rm -rf %{buildroot}%{_infodir}/dir
 
 
 %files
-%defattr(-, root, root)
-%doc README* AUTHORS EXAMPLES INSTALL NEWS
+%defattr(-,root,root)
 %{_bindir}/which
 %{_mandir}/man1/which.1*
 %{_infodir}/*
 
+%files doc
+%defattr(-,root,root)
+%doc README* AUTHORS EXAMPLES INSTALL NEWS
+
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jun 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.16
+- add -doc subpackage
+- rebuild with gcc4
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.16
 - Clean rebuild
 
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.16
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
