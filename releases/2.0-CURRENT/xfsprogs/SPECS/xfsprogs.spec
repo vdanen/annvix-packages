@@ -26,7 +26,7 @@ URL:		http://oss.sgi.com/projects/xfs/
 Source0:	ftp://oss.sgi.com/projects/xfs/download/cmd_tars/%{name}-%{version}.src.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-buildroot
-BuildRequires:	libext2fs-devel, libreadline-devel, libtermcap-devel
+BuildRequires:	libext2fs-devel, libreadline-devel, libtermcap-devel, libtool
 
 Requires:	common-licenses
 
@@ -63,14 +63,17 @@ Provides:	%{libname_orig}-devel = %{version}-%{release}
 Provides:	xfs-devel = %{version}-%{release}
 Obsoletes:	xfs-devel
 
-
 %description -n %{libname}-devel
 %{libname}-devel contains the libraries and header files needed to
 develop XFS filesystem-specific programs.
 
-You should install %{libname}-devel if you want to develop XFS
-filesystem-specific programs, If you install %{libname}-devel, you'll
-also want to install xfsprogs.
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -114,7 +117,6 @@ rm -rf %{buildroot}%{_datadir}/doc/xfsprogs/
 
 %files
 %defattr(-,root,root)
-%doc doc/CHANGES.gz doc/COPYING doc/CREDITS README
 %{_sbindir}/xfs_admin
 %{_sbindir}/xfs_bmap
 %{_sbindir}/xfs_check
@@ -136,12 +138,10 @@ rm -rf %{buildroot}%{_datadir}/doc/xfsprogs/
 
 %files -n %{libname}
 %defattr(-,root,root)
-%doc README
 /%{_lib}/*.so.*
 
 %files -n %{libname}-devel
 %defattr(-,root,root)
-%doc doc/PORTING README
 /%{_lib}/*.so
 /%{_lib}/*a
 %{_libdir}/*so
@@ -150,11 +150,21 @@ rm -rf %{buildroot}%{_datadir}/doc/xfsprogs/
 %{_includedir}/disk
 %{_mandir}/man3/*
 
+%files doc
+%defattr(-,root,root)
+%doc doc/CHANGES.gz doc/COPYING doc/CREDITS doc/PORTING README
+
+
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jun 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.36
+- add -doc subpackage
+- rebuild with gcc4
+- buildrequires: libtool
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.36
 - Clean rebuild
 
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.36
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
