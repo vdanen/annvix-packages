@@ -77,10 +77,6 @@ Release:	%{release}
 License:	MIT
 Group:		System/X11
 URL:		http://www.x.org/
-Requires:	pam >= 0.66-18, util-linux, sh-utils, xinitrc >= 2.4.4-10mdk
-Requires:	/lib/cpp
-Requires:	%{xflib} = %{version}
-Requires:	%{name}-xauth
 
 BuildRequires:	zlib-devel flex bison groff pam-devel ncurses-devel perl
 BuildRequires:	libpng-devel libexpat-devel
@@ -1075,6 +1071,9 @@ grep -q "^%{x11shlibdir}$" /etc/ld.so.conf || echo "%{x11shlibdir}" >> /etc/ld.s
 
 
 %changelog
+* Sat Jun 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 6.8.2
+- drop the requires needed for the main xorg-x11 package which we don't ship
+
 * Mon Jun 05 2006 Vincent Danen <vdanen-at-build.annvix.org> 6.8.2
 - rebuild with gcc4
 - spec cleanups
