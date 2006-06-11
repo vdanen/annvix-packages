@@ -74,6 +74,14 @@ library.  The XPM library is used by many programs for displaying
 pixmaps in the X Window System.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 %patch0 -p1 -b .shlib
@@ -117,20 +125,27 @@ ln -sf libXpm.so.%{LIBVER} %{buildroot}%{prefix}/%{_lib}/libXpm.so
 
 %files -n %{libname}
 %defattr(-,root,root)
-%doc CHANGES COPYRIGHT FAQ.html FILES README.html
 %{prefix}/%{_lib}/libXpm.so.*
 
 %files -n %{libnamedev}
 %defattr(-,root,root)
-%doc xpm-FAQ.html xpm-README.html xpm_examples.tar.bz2
 %{prefix}/bin/*
 %{prefix}/include/X11/*
 %{prefix}/%{_lib}/libXpm.a
 %{prefix}/%{_lib}/libXpm.so
 
+%files doc
+%defattr(-,root,root)
+%doc xpm-FAQ.html xpm-README.html xpm_examples.tar.bz2
+%doc CHANGES COPYRIGHT FAQ.html FILES README.html
+
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jun 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.4k
+- add -doc subpackage
+- rebuild with gcc4
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.4k
 - Clean rebuild
 
 * Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.4k-5105avx
