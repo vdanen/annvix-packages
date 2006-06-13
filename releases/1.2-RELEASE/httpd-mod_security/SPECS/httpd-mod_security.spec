@@ -75,10 +75,10 @@ mkdir -p %{buildroot}%{_sysconfdir}/httpd/modules.d
 install -m 0755 .libs/*.so %{buildroot}%{_libdir}/httpd-extramodules/
 cat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
-mkdir -p %{buildroot}{%{_sbindir},%{_sysconfdir}/httpd/2.0/conf}
+mkdir -p %{buildroot}{%{_sbindir},%{_sysconfdir}/httpd/conf}
 
 install -m 0755 util/snort2modsec.pl %{buildroot}%{_sbindir}/
-install -m 0644 mod_security-snortrules.conf %{buildroot}%{_sysconfdir}/httpd/2.0/conf
+install -m 0644 mod_security-snortrules.conf %{buildroot}%{_sysconfdir}/httpd/conf
 
 
 %clean
@@ -88,13 +88,16 @@ install -m 0644 mod_security-snortrules.conf %{buildroot}%{_sysconfdir}/httpd/2.
 %files
 %defattr(-,root,root)
 %doc tests CHANGES README httpd.conf*
-%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/2.0/conf/mod_security-snortrules.conf
+%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/conf/mod_security-snortrules.conf
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/modules.d/%{mod_conf}
 %attr(0755,root,root) %{_libdir}/httpd-extramodules/%{mod_so}
 %attr(0755,root,root) %{_sbindir}/snort2modsec.pl
 
 
 %changelog
+* Tue Jun 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.55_1.8.7
+- place the mod_security-snortrules.conf in the right directory
+
 * Sat Feb 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.55_1.8.7
 - rebuild against apr and apr-util 0.9.7 (needed to make mod_cgi.so work
   properly)
