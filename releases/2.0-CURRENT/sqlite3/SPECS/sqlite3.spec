@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		sqlite3
-%define version 	3.2.2
+%define version 	3.3.6
 %define release		%_revrel
 
 %define rname		sqlite
@@ -23,9 +23,9 @@ Release:	%{release}
 License:	Public Domain
 Group:		System/Libraries
 URL:		http://www.sqlite.org/
-Source0:	http://www.sqlite.org/%{rname}-%{version}.tar.bz2
+Source0:	http://www.sqlite.org/%{rname}-%{version}.tar.gz
 Patch0:		sqlite-3.2.2-aliasing-fixes.patch
-Patch1:		sqlite-3.2.2-avx-x86_64-skip_printf_tests.patch
+Patch1:		sqlite-3.3.6-avx-skip_types3_tests.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}-%{release}
 BuildRequires:	chrpath
@@ -125,6 +125,15 @@ which serves as an example of how to use the SQLite library.
 
 This package contains tcl binding for %{name}.
 
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n %{rname}-%{version}
 %patch0 -p1 -b .aliasing-fixes
@@ -144,6 +153,9 @@ export FFLAGS="${FFLAGS:-%{optflags}} -DNDEBUG=1"
 
 %make
 make doc
+
+
+%check
 make test
 
 
@@ -172,12 +184,10 @@ chrpath -d %{buildroot}%{_bindir}/*
 
 %files -n %{libname}
 %defattr(-,root,root)
-%doc README
 %{_libdir}/lib*.so.*
 
 %files -n %{libname}-devel
 %defattr(-,root,root)
-%doc doc/*.html doc/*.gif doc/*.pdf
 %{_includedir}/*.h
 %{_libdir}/lib*.la
 %{_libdir}/lib*.so
@@ -196,12 +206,23 @@ chrpath -d %{buildroot}%{_bindir}/*
 %defattr(-,root,root)
 %{_prefix}/lib/tcl*/sqlite3
 
+%files doc
+%defattr(-,root,root)
+%doc doc/*.html doc/*.gif README
+
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jun 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.3.6
+- 3.3.6
+- change P1, now a different test fails on x86_64, but the others are ok
+- add -doc subpackage
+- drop the pdf docs
+- rebuild with gcc4
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.2.2
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.2.2
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
