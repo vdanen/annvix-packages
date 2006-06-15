@@ -90,6 +90,9 @@ chmod 0755 %{buildroot}%{_bindir}/*
 
 
 %changelog
+* Thu Jun 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.13
+- rebuild with gcc4
+
 * Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.13
 - fix group
 
