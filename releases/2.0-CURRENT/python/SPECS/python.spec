@@ -324,6 +324,9 @@ rm -f modules-list main.list
 
 
 %changelog
+* Thu Jun 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.3
+- rebuild against new readline
+
 * Sat May 27 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.3
 - 2.4.3
 - add -doc subpackage
