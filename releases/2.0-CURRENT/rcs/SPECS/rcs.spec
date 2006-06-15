@@ -34,6 +34,14 @@ files that are revised frequently (for example, programs,
 documentation, graphics, papers and form letters).
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 %patch -p1 -b .stupidrcs
@@ -59,17 +67,24 @@ touch src/conf.h
 
 %files
 %defattr(-,root,root)
-%doc NEWS REFS
 %{_bindir}/*
 %{_mandir}/man1/*
 %{_mandir}/man5/*
 
+%files doc
+%defattr(-,root,root)
+%doc NEWS REFS
+
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jun 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.7
+- add -doc subpackage
+- rebuild with gcc4
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.7
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.7
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
