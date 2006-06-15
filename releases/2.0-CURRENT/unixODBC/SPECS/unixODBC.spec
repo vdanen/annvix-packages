@@ -62,6 +62,14 @@ unixODBC aims to provide a complete ODBC solution for the Linux platform.
 This package contains the include files and static libraries for development.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -a3 -a4
 %patch0 -p1 -b .lib64
@@ -141,8 +149,7 @@ rm -f libodbc-libs.filelist
 
 %files 
 %defattr(-,root,root)
-%doc AUTHORS INSTALL ChangeLog NEWS README
-%config(noreplace) %verify(not md5 size mtime)  %{_sysconfdir}/odbc*.ini
+%config(noreplace) %verify(not md5 size mtime) %{_sysconfdir}/odbc*.ini
 %{_bindir}/dltest
 %{_bindir}/isql
 %{_bindir}/odbcinst
@@ -154,18 +161,26 @@ rm -f libodbc-libs.filelist
 
 %files -n %{libname}-devel 
 %defattr(-,root,root)
-%doc doc/
 %{_includedir}/*
 %{_libdir}/lib*.so
 %{_libdir}/*.a
 %{_libdir}/*.la
 
+%files doc
+%defattr(-,root,root)
+%doc AUTHORS INSTALL ChangeLog NEWS README doc
+
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jun 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.11
+- rebuild against new readline
+- add -doc subpackage
+- rebuild with gcc4
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.11
 - Clean rebuild
 
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.11
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
