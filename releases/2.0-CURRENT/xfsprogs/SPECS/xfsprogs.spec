@@ -156,6 +156,9 @@ rm -rf %{buildroot}%{_datadir}/doc/xfsprogs/
 
 
 %changelog
+* Thu Jun 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.36
+- rebuild against new readline
+
 * Sat Jun 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.36
 - add -doc subpackage
 - rebuild with gcc4
