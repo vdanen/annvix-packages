@@ -35,6 +35,7 @@ Source4:	spamassassin-default.rc
 Source5:	spamassassin-spamc.rc
 # (fc) 2.60-5mdk don't use version dependent perl call in #!
 Patch1:		spamassassin-3.1.0-avx-fixbang.patch
+Patch2:		sa.bug4926-vpopmail-hole.3.1.x.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel, perl-Time-HiRes, perl-HTML-Parser, perl-Digest-SHA1, openssl-devel, perl-IO-Socket-SSL
@@ -108,6 +109,7 @@ user's own mail user-agent application.
 %prep
 %setup -q -n %{fname}-%{version}
 %patch1 -p1 -b .fixbang
+%patch2 -p0 -b .cve-2006-2447
 
 
 %build
@@ -214,6 +216,9 @@ fi
 
 
 %changelog
+* Wed Jun 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.1.0
+- P2: security fix for CVE-2006-2447
+
 * Tue Mar 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.1.0
 - drop requires on perl-Geography-Countries; it's not required (IP-Country already
   requires it and SA doesn't explicitly need it itself)
