@@ -82,6 +82,9 @@ EOF
 
 
 %changelog
+* Thu Jun 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.4
+- rebuild against new readline
+
 * Sun Jun 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.4
 - remove docs
 
