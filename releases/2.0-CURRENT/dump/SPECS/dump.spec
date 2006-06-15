@@ -43,7 +43,7 @@ may also be restored from full or partial backups.
 
 %package -n rmt
 Summary:	Provides certain programs with access to remote tape devices
-Group:		Archiving/Backup
+Group:		Archiving
 Provides:	/sbin/rmt
 
 %description -n rmt
