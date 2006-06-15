@@ -23,13 +23,11 @@ Group:		Archiving
 URL:		http://sourceforge.net/projects/dump/
 Source: 	http://osdn.dl.sourceforge.net/pub/sourceforge/d/du/%{name}/%{name}-%{version}.tar.bz2
 Patch0:		dump-mdk-nonroot.patch
-Patch1:		dump-0.4b37-mdk-compile-fix.patch
 Patch2:		dump-0.4b34-mdk-check-systypes.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	e2fsprogs-devel >= 1.15, openssl-devel >= 0.9.7a
-BuildRequires:	termcap-devel, readline-devel, zlib-devel, bzip2-devel
-BuildPreReq:	autoconf2.5
+BuildRequires:	termcap-devel, readline-devel, zlib-devel, bzip2-devel, autoconf2.5
 
 Requires:	rmt = %{version}-%{release}
 
@@ -52,6 +50,14 @@ Provides:	/sbin/rmt
 The rmt utility provides remote access to tape devices for programs
 like dump (a filesystem backup program), restore (a program for
 restoring files from a backup) and tar (an archiving program).
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -89,8 +95,7 @@ popd
 
 %files
 %defattr(-,root,root)
-%doc CHANGES COPYRIGHT KNOWNBUGS README THANKS TODO MAINTAINERS dump.lsm
-%attr(0664,root,disk)	%config(noreplace) %{_sysconfdir}/dumpdates
+%attr(0664,root,disk) %config(noreplace) %{_sysconfdir}/dumpdates
 /sbin/dump
 /sbin/restore
 /sbin/rdump
@@ -102,13 +107,22 @@ popd
 
 %files -n rmt
 %defattr(-,root,root)
-%doc COPYRIGHT
 /sbin/rmt
 %{_sysconfdir}/rmt
 %{_mandir}/man8/rmt.8*
 
+%files doc
+%defattr(-,root,root)
+%doc CHANGES COPYRIGHT KNOWNBUGS README THANKS TODO MAINTAINERS dump.lsm
+
 
 %changelog
+* Thu Jun 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.4b40
+- rebuild against new readline
+- drop P1; wasn't being applied so don't keep it
+- add -doc subpackage
+- rebuild with gcc4
+
 * Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.4b40
 - fix group
 
