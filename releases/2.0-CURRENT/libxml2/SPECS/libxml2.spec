@@ -197,6 +197,9 @@ rm -rf	%{buildroot}%{_prefix}/doc \
 
 
 %changelog
+* Thu Jun 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.24
+- rebuild against new readline
+
 * Tue May 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.24
 - 2.6.24
 - add -doc subpackage
