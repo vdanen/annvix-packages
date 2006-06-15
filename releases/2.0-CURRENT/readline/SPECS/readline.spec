@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		readline
-%define version		5.0
+%define version		5.1
 %define	release		%_revrel
 
 %define major		5
@@ -22,18 +22,11 @@ Release:	%{release}
 License:	GPL
 Group:		System/Libraries
 URL:		http://cnswww.cns.cwru.edu/php/chet/readline/rltop.html
-Source:		ftp://ftp.gnu.org/pub/gnu/readline/readline-%{version}.tar.bz2
-Patch2:		readline-4.3-guard.patch
+Source:		ftp://ftp.gnu.org/pub/gnu/readline/readline-%{version}.tar.gz
 Patch3:		readline-4.1-outdated.patch
-Patch4:		readline-4.3-fixendkey.patch
 Patch5:		readline-4.1-resize.patch
-Patch11:	ftp://ftp.cwru.edu/pub/bash/readline-5.0-patches/readline50-001
-Patch12:	ftp://ftp.cwru.edu/pub/bash/readline-5.0-patches/readline50-002
-Patch13:	ftp://ftp.cwru.edu/pub/bash/readline-5.0-patches/readline50-003
-Patch14:	ftp://ftp.cwru.edu/pub/bash/readline-5.0-patches/readline50-004
-Patch15:	ftp://ftp.cwru.edu/pub/bash/readline-5.0-patches/readline50-005
+Patch11:	ftp://ftp.cwru.edu/pub/bash/readline-5.1-patches/readline51-001
 Patch16:	readline-4.3-no_rpath.patch
-Patch17:	readline-read-e-segfault.patch
 Patch18:	readline-wrap.patch
 
 Buildroot:	%{_buildroot}/%{name}-%{version}
@@ -73,19 +66,20 @@ finished.  The line returned has the final newline removed, so only the
 text of the line remains.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
-%patch2 -p1 -b .guard
 %patch3 -p1 -b .outdated
-%patch4 -p1 -b .fixendkey
 %patch5 -p1 -b .resize
 %patch11 -p0 -b .001
-%patch12 -p0 -b .002
-%patch13 -p0 -b .003
-%patch14 -p0 -b .004
-%patch15 -p0 -b .005
 %patch16 -p1 -b .no_rpath
-%patch17 -p1 -b .read-e-segfault
 %patch18 -p1 -b .wrap
 
 
@@ -120,6 +114,10 @@ rm -f %{buildroot}/%{_lib}/*.old
 
 perl -p -i -e 's|/usr/local/bin/perl|/usr/bin/perl|' doc/texi2html
 
+# fix perms
+chmod 0644 examples/rlfe/ChangeLog
+chmod 0755 support/{config.rpath,mkinstalldirs}
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -128,13 +126,16 @@ perl -p -i -e 's|/usr/local/bin/perl|/usr/bin/perl|' doc/texi2html
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
 
+
 %post -n %{libname}-devel
 %_install_info history.info
 %_install_info readline.info
 
+
 %preun -n %{libname}-devel
 %_remove_install_info history.info
 %_remove_install_info readline.info
+
 
 %files -n %{libname}
 %defattr(-,root,root)
@@ -142,8 +143,6 @@ perl -p -i -e 's|/usr/local/bin/perl|/usr/bin/perl|' doc/texi2html
 
 %files -n %{libname}-devel
 %defattr(-,root,root)
-%doc CHANGELOG CHANGES INSTALL MANIFEST README USAGE
-%doc doc examples support
 %{_mandir}/man*/*
 %{_infodir}/*info*
 %{_includedir}/readline
@@ -151,12 +150,26 @@ perl -p -i -e 's|/usr/local/bin/perl|/usr/bin/perl|' doc/texi2html
 %{_libdir}/lib*.so
 /%{_lib}/*so
 
+%files doc
+%defattr(-,root,root)
+%doc CHANGELOG CHANGES INSTALL MANIFEST README USAGE
+%doc doc examples support
+
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jun 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1
+- 5.1
+- drop P2,P11-P15,P17; merged upstream
+- new P11 for 5.1
+- drop P4; was a fedora patch that is no longer applied
+- fix perms of some doc files
+- add -doc subpackage
+- rebuild with gcc4
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.0
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.0
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
