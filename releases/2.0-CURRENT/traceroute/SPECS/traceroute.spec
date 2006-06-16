@@ -64,15 +64,18 @@ cp traceroute.8 %{buildroot}%{_mandir}/man8
 
 %files
 %defattr(-,root,root)
-%attr(0755,root,bin)	%{_sbindir}/traceroute
-%{_mandir}/man8/traceroute.8.bz2
+%attr(0755,root,bin) %{_sbindir}/traceroute
+%{_mandir}/man8/traceroute.8*
 
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jun 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4a12
+- rebuild with gcc4
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4a12
 - Clean rebuild
 
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4a12
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
