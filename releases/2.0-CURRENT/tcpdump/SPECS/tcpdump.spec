@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		tcpdump
-%define version		3.9.3
+%define version		3.9.4
 %define release		%_revrel
 %define epoch		2
 
@@ -32,6 +32,14 @@ tcpdump is a command-line tool for monitoring network traffic.  tcpdump
 can capture and display the packet headers on a particular network
 interface or on all interfaces.  tcpdump can display all of the packet
 headers, or just the ones that match particular criteria.
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
 
 
 %prep
@@ -62,12 +70,21 @@ libtoolize --copy --force
 %{_sbindir}/tcpdump
 %{_mandir}/man1/tcpdump.1*
 
+%files doc
+%defattr(-,root,root)
+%doc README CHANGES CREDITS FILES LICENSE TODO VERSION PLATFORMS
+
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jun 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.9.4
+- 3.9.4
+- add -doc subpackage
+- rebuild with gcc4
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.9.3
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.9.3
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
