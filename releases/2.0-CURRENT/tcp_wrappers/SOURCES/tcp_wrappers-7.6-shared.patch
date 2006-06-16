@@ -1,5 +1,6 @@
---- tcp_wrappers_7.6/Makefile.shared	2003-02-10 20:12:26.000000000 +0100
-+++ tcp_wrappers_7.6/Makefile	2003-02-10 20:14:05.000000000 +0100
+diff -Naur tcp_wrappers_7.6/Makefile tcp_wrappers_7.6.oden/Makefile
+--- tcp_wrappers_7.6/Makefile	2005-03-03 04:46:51.134487720 +0100
++++ tcp_wrappers_7.6.oden/Makefile	2005-03-03 04:46:24.481884902 +0100
 @@ -150,8 +150,8 @@
  
  linux:
@@ -27,23 +28,56 @@
 +SHLIB 	= libwrap.so
  
 -all other: config-check tcpd tcpdmatch try-from safe_finger tcpdchk
-+all other: config-check tcpd tcpdmatch try-from safe_finger tcpdchk $(SHLIB)
++all other: config-check tcpd tcpdmatch try-from safe_finger tcpdchk $(SHLIB) $(LIB)
  
  # Invalidate all object files when the compiler options (CFLAGS) have changed.
  
-@@ -724,6 +725,12 @@
+@@ -724,27 +725,33 @@
  	$(AR) $(ARFLAGS) $(LIB) $(LIB_OBJ)
  	-$(RANLIB) $(LIB)
  
+-tcpd:	tcpd.o $(LIB)
+-	$(CC) $(CFLAGS) -o $@ tcpd.o $(LIB) $(LIBS)
 +$(SHLIB): $(LIB_OBJ)
 +	gcc -shared -fPIC -Wl,-soname -Wl,$(SHLIB).$(MAJOR) \
 +		-o $(SHLIB).$(MAJOR).$(MINOR).$(REL) $^ $(LIBS)
-+	ln -s $(SHLIB).$(MAJOR).$(MINOR).$(REL) $(SHLIB).$(MAJOR)
-+	ln -s $(SHLIB).$(MAJOR).$(MINOR).$(REL) $(SHLIB)
++	ln -snf $(SHLIB).$(MAJOR).$(MINOR).$(REL) $(SHLIB).$(MAJOR)
++	ln -snf $(SHLIB).$(MAJOR).$(MINOR).$(REL) $(SHLIB)
 +
- tcpd:	tcpd.o $(LIB)
- 	$(CC) $(CFLAGS) -o $@ tcpd.o $(LIB) $(LIBS)
++tcpd:	tcpd.o $(SHLIB)
++	$(CC) $(CFLAGS) -o $@ tcpd.o $(SHLIB) $(LIBS)
  
+-miscd:	miscd.o $(LIB)
+-	$(CC) $(CFLAGS) -o $@ miscd.o $(LIB) $(LIBS)
++miscd:	miscd.o $(SHLIB)
++	$(CC) $(CFLAGS) -o $@ miscd.o $(SHLIB) $(LIBS)
+ 
+-safe_finger: safe_finger.o $(LIB)
+-	$(CC) $(CFLAGS) -o $@ safe_finger.o $(LIB) $(LIBS)
++safe_finger: safe_finger.o $(SHLIB)
++	$(CC) $(CFLAGS) -o $@ safe_finger.o $(SHLIB) $(LIBS)
+ 
+ TCPDMATCH_OBJ = tcpdmatch.o fakelog.o inetcf.o scaffold.o
+ 
+-tcpdmatch: $(TCPDMATCH_OBJ) $(LIB)
+-	$(CC) $(CFLAGS) -o $@ $(TCPDMATCH_OBJ) $(LIB) $(LIBS)
++tcpdmatch: $(TCPDMATCH_OBJ) $(SHLIB)
++	$(CC) $(CFLAGS) -o $@ $(TCPDMATCH_OBJ) $(SHLIB) $(LIBS)
+ 
+-try-from: try-from.o fakelog.o $(LIB)
+-	$(CC) $(CFLAGS) -o $@ try-from.o fakelog.o $(LIB) $(LIBS)
++try-from: try-from.o fakelog.o $(SHLIB)
++	$(CC) $(CFLAGS) -o $@ try-from.o fakelog.o $(SHLIB) $(LIBS)
+ 
+ TCPDCHK_OBJ = tcpdchk.o fakelog.o inetcf.o scaffold.o
+ 
+-tcpdchk: $(TCPDCHK_OBJ) $(LIB)
+-	$(CC) $(CFLAGS) -o $@ $(TCPDCHK_OBJ) $(LIB) $(LIBS)
++tcpdchk: $(TCPDCHK_OBJ) $(SHLIB)
++	$(CC) $(CFLAGS) -o $@ $(TCPDCHK_OBJ) $(SHLIB) $(LIBS)
+ 
+ shar:	$(KIT)
+ 	@shar $(KIT)
 @@ -906,5 +913,6 @@
  update.o: mystdarg.h
  update.o: tcpd.h
@@ -51,8 +85,33 @@
 +weak_symbols.o: tcpd.h
  workarounds.o: cflags
  workarounds.o: tcpd.h
---- tcp_wrappers_7.6/tcpd.h.shared	2003-02-10 20:12:26.000000000 +0100
-+++ tcp_wrappers_7.6/tcpd.h	2003-02-10 20:12:26.000000000 +0100
+diff -Naur tcp_wrappers_7.6/scaffold.c tcp_wrappers_7.6.oden/scaffold.c
+--- tcp_wrappers_7.6/scaffold.c	2005-03-03 04:46:51.141487878 +0100
++++ tcp_wrappers_7.6.oden/scaffold.c	2005-03-03 04:44:05.482741408 +0100
+@@ -237,10 +237,17 @@
+ 
+ /* ARGSUSED */
+ 
+-void    rfc931(request)
+-struct request_info *request;
++void    rfc931(rmt_sin, our_sin, dest)
++#ifndef INET6
++struct sockaddr_in *rmt_sin;
++struct sockaddr_in *our_sin;
++#else
++struct sockaddr *rmt_sin;
++struct sockaddr *our_sin;
++#endif
++char   *dest;
+ {
+-    strcpy(request->user, unknown);
++    strcpy(dest, unknown);
+ }
+ 
+ /* check_path - examine accessibility */
+diff -Naur tcp_wrappers_7.6/tcpd.h tcp_wrappers_7.6.oden/tcpd.h
+--- tcp_wrappers_7.6/tcpd.h	2005-03-03 04:46:51.144487946 +0100
++++ tcp_wrappers_7.6.oden/tcpd.h	2005-03-03 04:44:05.482741408 +0100
 @@ -4,6 +4,25 @@
    * Author: Wietse Venema, Eindhoven University of Technology, The Netherlands.
    */
@@ -213,31 +272,9 @@
 +__END_DECLS
 +
 +#endif /* tcpd.h */
---- tcp_wrappers_7.6/scaffold.c.shared	2003-02-10 20:12:26.000000000 +0100
-+++ tcp_wrappers_7.6/scaffold.c	2003-02-10 20:12:26.000000000 +0100
-@@ -237,10 +237,17 @@
- 
- /* ARGSUSED */
- 
--void    rfc931(request)
--struct request_info *request;
-+void    rfc931(rmt_sin, our_sin, dest)
-+#ifndef INET6
-+struct sockaddr_in *rmt_sin;
-+struct sockaddr_in *our_sin;
-+#else
-+struct sockaddr *rmt_sin;
-+struct sockaddr *our_sin;
-+#endif
-+char   *dest;
- {
--    strcpy(request->user, unknown);
-+    strcpy(dest, unknown);
- }
- 
- /* check_path - examine accessibility */
---- /dev/null	2003-01-30 11:24:37.000000000 +0100
-+++ tcp_wrappers_7.6/weak_symbols.c	2003-02-10 20:12:26.000000000 +0100
+diff -Naur tcp_wrappers_7.6/weak_symbols.c tcp_wrappers_7.6.oden/weak_symbols.c
+--- tcp_wrappers_7.6/weak_symbols.c	1970-01-01 01:00:00.000000000 +0100
++++ tcp_wrappers_7.6.oden/weak_symbols.c	2005-03-03 04:44:05.483741431 +0100
 @@ -0,0 +1,11 @@
 + /*
 +  * @(#) weak_symbols.h 1.5 99/12/29 23:50

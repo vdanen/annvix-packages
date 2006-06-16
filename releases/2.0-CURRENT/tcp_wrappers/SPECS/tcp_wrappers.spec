@@ -12,6 +12,11 @@
 %define version		7.6
 %define release		%_revrel
 
+%define libmajor	0
+%define libminor	7
+%define librel		6
+%define libname		%mklibname wrap %{libmajor}
+
 Summary: 	A security tool which acts as a wrapper for TCP daemons
 Name: 		%{name}
 Version: 	%{version}
@@ -34,8 +39,11 @@ Patch11:	tcp_wrappers-7.6-shared.patch
 Patch12:	tcp_wrappers-7.6-sig.patch
 Patch13:	tcp_wrappers-7.6-strerror.patch
 Patch14:	tcp_wrappers-7.6-ldflags.patch
+Patch15:	tcp_wrappers-7.6-fdr-fix_sig-bug141110.patch
+Patch16:	tcp_wrappers-7.6-fdr-162412.patch
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
+BuildConflicts:	%{name}-devel
 
 
 %description
@@ -47,12 +55,32 @@ Install the tcp_wrappers program if you need a security tool for
 filtering incoming network services requests.
 
 
-%package devel
+%package -n %{libname}
+Summary:	A security library which acts as a wrapper for TCP daemons
+Group:		System/Libraries
+
+%description -n %{libname}
+This package contains the shared tcp_wrappers library (libwrap).
+
+
+%package -n %{libname}-devel
 Summary:	A security library which acts as a wrapper for TCP daemons
 Group:		Development/C
+Obsoletes:	%{name}-devel, libwrap-devel
+Provides:	%{name}-devel, libwrap-devel
+Requires:	%{libname} = %{version}
 
-%description devel
-Library and header files for the tcp_wrappers program
+%description -n %{libname}-devel
+This package contains the static tcp_wrappers library (libwrap) and
+its header files.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -70,11 +98,15 @@ Library and header files for the tcp_wrappers program
 %patch11 -p1 -b .shared
 %patch12 -p1 -b .sig
 %patch13 -p1 -b .strerror
-%patch14 -p1 -b .cflags
+%patch14 -p0 -b .ldflags
+%patch15 -p1 -b .fix_sig
+%patch16 -p1 -b .162412
 
 
 %build
-%make OPTFLAGS="%{optflags} -fPIC -DPIC -D_REENTRANT -DHAVE_STRERROR" LDFLAGS="-pie" REAL_DAEMON_DIR=%{_sbindir} linux
+%make OPTFLAGS="%{optflags} -fPIC -DPIC -D_REENTRANT -DHAVE_STRERROR" \
+    LDFLAGS="-pie" REAL_DAEMON_DIR=%{_sbindir} \
+    MAJOR=%{libmajor} MINOR=%{libminor} REL=%{librel} linux
 
 
 %install
@@ -89,8 +121,14 @@ pushd %{buildroot}%{_mandir}/man5
 popd
 
 install -m 0644 tcpd.8 tcpdchk.8 tcpdmatch.8 %{buildroot}%{_mandir}/man8
+
+install -m 0755 libwrap.so.%{libmajor}.%{libminor}.%{librel} %{buildroot}%{_libdir}/
+ln -s libwrap.so.%{libmajor}.%{libminor}.%{librel} %{buildroot}%{_libdir}/libwrap.so.%{libmajor}
+ln -s libwrap.so.%{libmajor}.%{libminor}.%{librel} %{buildroot}%{_libdir}/libwrap.so
+
 install -m 0644 libwrap.a %{buildroot}%{_libdir}
 install -m 0644 tcpd.h %{buildroot}%{_includedir}
+
 install -m 0755 safe_finger %{buildroot}%{_sbindir}
 install -m 0755 tcpd %{buildroot}%{_sbindir}
 install -m 0755 tcpdchk %{buildroot}%{_sbindir}
@@ -102,24 +140,47 @@ install -m 0755 try-from %{buildroot}%{_sbindir}
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
+%post -n %{libname} -p /sbin/ldconfig
+%postun -n %{libname} -p /sbin/ldconfig
+
+
+%post -n %{libname}-devel -p /sbin/ldconfig
+%postun -n %{libname}-devel -p /sbin/ldconfig
+
+
 %files
 %defattr(-,root,root,755)
-%doc BLURB CHANGES README* DISCLAIMER Banners.Makefile
-%{_mandir}/man*/*
 %{_sbindir}/*
+%{_mandir}/man*/*
 
-%files devel
+%files -n %{libname}
 %defattr(-,root,root)
-%doc DISCLAIMER
-%{_includedir}/tcpd.h
-%{_libdir}/libwrap.a
+%{_libdir}/*.so.*
+
+%files -n %{libname}-devel
+%defattr(-,root,root)
+%{_includedir}/*
+%{_libdir}/*.so
+%{_libdir}/*.a
+
+%files doc
+%defattr(-,root,root,755)
+%doc BLURB CHANGES README* DISCLAIMER Banners.Makefile
 
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jun 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 7.6
+- libify the package and build the binaries against the shared libs
+- updated P11, P14 from Mandriva
+- P15: fixed sig patch (RH #141110) (from fedora)
+- P16: fixed uninitialized fp in function inet_cfg (RH #162412) (from fedora)
+- add -doc subpackage
+- rebuild with gcc4
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 7.6
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 7.6
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
