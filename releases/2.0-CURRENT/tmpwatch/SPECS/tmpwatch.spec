@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name 		tmpwatch
-%define version		2.9.0
+%define version		2.9.6
 %define release		%_revrel
 
 # CVSROOT=':ext:user@devserv.devel.redhat.com:/home/devel/CVS'
@@ -18,9 +18,10 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
-Group:		File tools
+Group:		File Tools
 URL:		ftp://ftp.redhat.com/pub/redhat/linux/rawhide/SRPMS/SRPMS/
-Source:		%{name}-%{version}.tar.bz2
+Source0:	%{name}-%{version}.tar.bz2
+Source1:	tmpwatch.cron
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -48,15 +49,7 @@ make RPM_OPT_FLAGS="%{optflags}"
 %makeinstall ROOT=%{buildroot} MANDIR=%{_mandir} SBINDIR=%{_sbindir}
 
 mkdir -p %{buildroot}%{_sysconfdir}/cron.daily
-echo  '%{_sbindir}/tmpwatch 240 /tmp /var/tmp
-[ -f /etc/sysconfig/i18n ] && . /etc/sysconfig/i18n 
-if [ -d %{_mandir}/$LANG/ ] && [ -d /var/catman/$LANG/ ]; then 
-%{_sbindir}/tmpwatch -f 240 /var/catman/{X11R6/cat?,cat?,local/cat?,$LANG/cat?} 
- else 
-%{_sbindir}/tmpwatch -f 240 /var/catman/{X11R6/cat?,cat?,local/cat?}
-fi' \
-	> %{buildroot}%{_sysconfdir}/cron.daily/tmpwatch
-chmod 0755 %{buildroot}%{_sysconfdir}/cron.daily/tmpwatch
+install -m 0755 %{SOURCE1} %{buildroot}%{_sysconfdir}/cron.daily/tmpwatch
 
 
 %clean
@@ -71,10 +64,15 @@ chmod 0755 %{buildroot}%{_sysconfdir}/cron.daily/tmpwatch
 
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jun 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.9.6
+- 2.9.6
+- S1: make the cron script a source instead of echo'd in the spec
+- rebuild with gcc4
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.9.0
 - Clean rebuild
 
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.9.0
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
