@@ -4,20 +4,23 @@
 # as it appears in vendors.list. If you remove it, no digital signature check
 # will be made.
 #
-# See http://qa.mandriva.com/twiki/bin/view/Main/CookerMirrors for a full list 
-# of mirrors.
+# See http://annvix.org/index.php/Download for a full list of mirrors.
+
+# format:
+#   [archive_type] [url/path] [arch] [repositories]
 #
-# You can also get mirrors from easyurpmi.zarb.org
+# where:
+#   archive_type:	one of rpm, rpm-src, rpm-dir, or rpm-src-dir
+#   url/path:		the URL (ftp, http, file, ssh, etc.) and path to the releases directory
+#   arch:		one of i586 or x86_64
+#   repositories:	name of the repository (i.e. release, current, etc.)
+#
+# see sources.list(5) for more details
 
-# format is simple :
-# 1) rpm is the type of archive
-# 2) server is the path to the main directory
-# 3) list is the relative path to the list, from the main directory
-# 4) rpms is the relative path to the rpms, from the main directory
-
-# you cannot use synthesis.hdlist, but you can take a hdlist.src, to install SRPM
-# with apt.
-
-# example 
-# rpm ftp://ftp.lip6.fr/pub/linux/distributions/Mandrakelinux/devel/cooker/i586/media/ media_info/hdlist_main main
-
+# examples:
+#
+# for a -RELEASE version of Annvix:
+# rpm ftp://ftp.ibiblio.org/pub/linux/distributions/annvix/releases i586 release release-doc
+#
+# for a -CURRENT version of Annvix:
+# rpm ftp://ftp.ibiblio.org/pub/linux/distributions/annvix/releases i586 current current-doc

@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		apt
-%define version		0.5.15lorg3
+%define version		0.5.15lorg3.1
 %define release		%_revrel
 
 %define major		0
@@ -29,7 +29,7 @@ Source3:	%{name}-vendors.list
 Source4:	%{name}-rpmpriorities
 Source5:	%{name}-annvix.conf
 Source6:	apt-man.tar.bz2
-Patch0:		apt-invalid-lc-messages-dir.patch
+Patch0:		apt-0.5.15lorg3.1-invalid-lc-messages-dir.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5
@@ -147,7 +147,7 @@ install -m 0644 man/*.8 %{buildroot}%{_mandir}/man8/
 
 # install lua scripts
 mkdir -p %{buildroot}%{_datadir}/apt/scripts
-install -m 0600 contrib/gpg-check/*.lua %{buildroot}%{_datadir}/apt/scripts/
+install -m 0600 contrib/gpg-check/gpg-import.lua %{buildroot}%{_datadir}/apt/scripts/
 
 
 %post -n %{libname} -p /sbin/ldconfig
@@ -204,7 +204,16 @@ install -m 0600 contrib/gpg-check/*.lua %{buildroot}%{_datadir}/apt/scripts/
 %defattr(-,root,root)
 %doc COPYING* TODO doc/*.txt doc/examples AUTHORS*
 
+
 %changelog
+* Thu Jun 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.5.15lorg3.1
+- 0.5.15lorg3.1
+- don't use the gpg-import lua script anymore; the installer will install the
+  appropriate gpg key or the admin should
+- cleanup the sources.list example
+- use the updated manpages that have been committed upstream for the next version
+- rebuild against new python and readline
+
 * Sat May 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.5.15lorg3
 - make apt-doc to contain all documentation
 
