@@ -9,10 +9,8 @@
 
 %define revision	$Rev$
 %define name		strace
-%define version		4.5.13
+%define version		4.5.14
 %define release		%_revrel
-
-%{expand:%%define optflags %{optflags} -Wall}
 
 Summary:	Tracks and displays system calls associated with a running process
 Name:		%{name}
@@ -22,15 +20,9 @@ License:	BSD
 Group:		Development/Kernel
 URL:		http://sourceforge.net/projects/strace/
 Source0:	%{name}-%{version}.tar.bz2
-Patch0:		strace-4.5.13-alt-quotactl.diff
-Patch1:		strace-4.5.13-alt-mount.diff
-Patch2:		strace-4.5.13-owl-man.diff
 Patch3:		strace-4.5.13-alt-keep_status.diff
-Patch4:		strace-4.5.13-drepper-x86_64-ipc.diff
-Patch5:		strace-4.5.13-drepper-msgrcv.diff
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	autoconf2.5, automake1.7
 
 %description
 The strace program intercepts and records the system calls called
@@ -40,24 +32,27 @@ for diagnosing problems and debugging, as well as for instructional
 purposes.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
-#%patch0 -p1 -b .quotactl
-%patch1 -p1 -b .mount
-%patch2 -p1 -b .man
 %patch3 -p1 -b .keep_status
-%patch4 -p1 -b .x86_64-ipc
-%patch5 -p1 -b .msgrcv
+
+%ifarch x86_64
+# we need to copy the right syscallent.h for x86_64 otherwise make dies with:
+#  linux/x86_64/../syscallent.h:285: error: '__NR_exit_group' undeclared here (not in a function)
+cp -f linux/x86_64/syscallent.h linux/
+%endif
 
 
 %build
-#autoreconf -fisv
-
-export WANT_AUTOCONF_2_5=1
-rm -f configure
-libtoolize --copy --force && aclocal-1.7 && autoheader && automake-1.7 --add-missing && autoconf --force
-
-%configure2_5x
+%configure
 %make
 
 
@@ -75,16 +70,28 @@ rm -f %{buildroot}%{_bindir}/strace-graph
 
 %files
 %defattr(-,root,root)
-%doc COPYRIGHT README* CREDITS ChangeLog INSTALL NEWS PORTING TODO
 %{_bindir}/strace
 %{_mandir}/man1/strace.1*
 
+%files doc
+%defattr(-,root,root)
+%doc COPYRIGHT README* CREDITS ChangeLog INSTALL NEWS PORTING TODO
+
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jun 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.5.14
+- 4.5.14
+- drop P1, P2: applied upstream
+- drop P4, P5: no longer wanted
+- drop the bogus autoreconf stuff, we don't need it
+- build fix/workaround for x86_64
+- add -doc subpackage
+- rebuild with gcc4
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.5.13
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.5.13
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
