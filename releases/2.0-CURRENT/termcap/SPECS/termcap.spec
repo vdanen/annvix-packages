@@ -73,10 +73,10 @@ install -m 0644 termcap %{buildroot}%{_sysconfdir}/
 
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 11.0.1
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 11.0.1
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
