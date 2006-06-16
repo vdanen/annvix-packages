@@ -54,7 +54,7 @@ Patch3:		courier-imap-2.1.2-authnodaemon.patch
 Patch4:		courier-imap-3.0.8-overflow.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildPreReq:	autoconf2.5
+BuildRequires:	autoconf2.5
 BuildRequires:	openssl-devel, pam-devel, gdbm-devel
 # ldap subpackage:
 BuildRequires:	openldap-devel
@@ -158,6 +158,14 @@ This package contains the maildirmake command.
 
 You can create either standard Maildir or Maildir++ with the
 maildirmake command.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -492,17 +500,6 @@ test ! -f %{courierdatadir}/configlist.mysql || %{courierdatadir}/sysconftool-rp
 
 %files -f authdaemon.files
 %defattr(-,root,root)
-%doc 00README.NOW.OR.SUFFER INSTALL INSTALL.html NEWS README
-%doc imap/README.html imap/courierpop3d.html imap/imapd.html imap/mkimapdcert.html imap/mkpop3dcert.html
-%doc imap/BUGS imap/ChangeLog imap/README.imap
-%doc liblock/lockmail.html
-%doc maildir/README.maildirfilter.html maildir/README.maildirquota.html maildir/README.sharedfolders.html maildir/deliverquota.html
-%doc maildir/maildirquota.html maildir/README.maildirquota.txt maildir/README.sharedfolders.txt
-%doc rfc2045/makemime.html rfc2045/reformime.html rfc2045/rfc2045.html rfc822/ChangeLog.rfc822 rfc822/rfc822.html
-%doc tcpd/README.couriertls tcpd/couriertcpd.html tcpd/couriertls.html
-%doc unicode/README.unicode
-%doc userdb/makeuserdb.html userdb/userdb.html userdb/userdbpw.html automatic_maildir_creation_patch
-
 %config(noreplace) %{_sysconfdir}/pam.d/imap
 %dir %{couriersysconfdir}
 %attr(0600,root,root) %config(noreplace) %{couriersysconfdir}/imapd.dist
@@ -617,21 +614,16 @@ test ! -f %{courierdatadir}/configlist.mysql || %{courierdatadir}/sysconftool-rp
 
 %files ldap -f authdaemon.files.ldap
 %defattr(-,root,root)
-%doc authlib/README.ldap
-%doc authlib/authldap.schema
 %attr(0644,root,root) %{courierdatadir}/configlist.ldap
 
 
 %files mysql -f authdaemon.files.mysql
 %defattr(-,root,root)
-%doc authlib/README.authmysql.html
-%doc authlib/README.authmysql.myownquery
 %attr(0644,root,root) %{courierdatadir}/configlist.mysql
 
 
 %files pgsql -f authdaemon.files.pgsql
 %defattr(-,root,root)
-%doc authlib/README.authpostgres.html
 %attr(0644,root,root) %{courierdatadir}/configlist.pgsql
 
 
@@ -644,12 +636,35 @@ test ! -f %{courierdatadir}/configlist.mysql || %{courierdatadir}/sysconftool-rp
 
 %files -n maildirmake++
 %defattr(-, root, root)
-%doc maildir/maildirmake.html
 %{_bindir}/maildirmake++
 %{_mandir}/man1/maildirmake++.1*
 
+%files doc
+%defattr(-,root,root)
+%doc 00README.NOW.OR.SUFFER INSTALL INSTALL.html NEWS README
+%doc imap/README.html imap/courierpop3d.html imap/imapd.html imap/mkimapdcert.html imap/mkpop3dcert.html
+%doc imap/BUGS imap/ChangeLog imap/README.imap
+%doc liblock/lockmail.html
+%doc maildir/README.maildirfilter.html maildir/README.maildirquota.html maildir/README.sharedfolders.html maildir/deliverquota.html
+%doc maildir/maildirquota.html maildir/README.maildirquota.txt maildir/README.sharedfolders.txt
+%doc rfc2045/makemime.html rfc2045/reformime.html rfc2045/rfc2045.html rfc822/ChangeLog.rfc822 rfc822/rfc822.html
+%doc tcpd/README.couriertls tcpd/couriertcpd.html tcpd/couriertls.html
+%doc unicode/README.unicode
+%doc userdb/makeuserdb.html userdb/userdb.html userdb/userdbpw.html automatic_maildir_creation_patch
+%doc authlib/README.ldap
+%doc authlib/authldap.schema
+%doc authlib/README.authmysql.html
+%doc authlib/README.authmysql.myownquery
+%doc authlib/README.authpostgres.html
+%doc maildir/maildirmake.html
+
 
 %changelog
+* Thu Jun 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.8
+- rebuild against new postgresql
+- add -doc subpackage
+- rebuild with gcc4
+
 * Tue Feb 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.8
 - fix requirements (thanks Ying); should by mysql not MySQL-shared
 
