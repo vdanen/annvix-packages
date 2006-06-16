@@ -72,6 +72,9 @@ License:	GPL
 Group:		System/Configuration
 URL:            http://www.rpm.org/
 Source:		ftp://ftp.jbj.org/pub/rpm-%{libver}.x/rpm-%{srcver}.tar.bz2
+Source1:        annvix-keys.tar.bz2
+Source2:        annvix-keys.tar.bz2.asc
+
 # Add some undocumented feature to gendiff
 Patch17:	rpm-4.2-gendiff-improved.patch
 # (fredl) add loging facilities through syslog
@@ -287,6 +290,14 @@ functions for parsing arbitrary strings into argv[] arrays using
 shell-like rules.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n %{name}-%{srcver}
 %patch17 -p1 -b .improved
@@ -449,6 +460,10 @@ popd
 %{rpmdir}/%{_host_vendor}/find-lang.sh %{buildroot} %{name}
 %{rpmdir}/%{_host_vendor}/find-lang.sh %{buildroot} popt
 
+# install RPM-GPG-KEYS
+mkdir -p %{buildroot}%{_sysconfdir}/RPM-GPG-KEYS
+tar xvjf %{SOURCE1} -C %{buildroot}%{_sysconfdir}/RPM-GPG-KEYS
+
 
 %check
 #make -C popt check-TESTS
@@ -489,6 +504,13 @@ elif [ ! -f /var/lib/rpm/Packages ]; then
     /bin/rpm --initdb
 fi
 
+for i in `ls -1 /etc/RPM-GPG-KEYS/*.asc`
+do
+    key=`basename $i|cut -f 1 -d '.'`
+    if [ "`rpm -q gpg-pubkey-$key|grep 'not installed'`" ]; then rpm --import $i; fi
+    echo "NOTICE: imported new GPG key $i
+done
+
 
 %postun
 /usr/share/rpm-helper/del-user rpm $1 rpm
@@ -505,7 +527,6 @@ fi
 %define	rpmattr		%attr(0755, rpm, rpm)
 %files -f %{name}.lang
 %defattr(-,root,root)
-%doc RPM-PGP-KEY RPM-GPG-KEY GROUPS CHANGES doc/manual/[a-z]*
 %attr(0755,rpm,rpm) /bin/rpm
 %attr(0755,rpm,rpm) %{_bindir}/rpm2cpio
 %attr(0755,rpm,rpm) %{_bindir}/gendiff
@@ -518,6 +539,8 @@ fi
 %dir %{_localstatedir}/spool/repackage
 %dir %{rpmdir}
 %{_sysconfdir}/rpm
+%dir %{_sysconfdir}/RPM-GPG-KEYS
+%{_sysconfdir}/RPM-GPG-KEYS/*.asc
 %attr(0755,rpm,rpm) %{rpmdir}/config.guess
 %attr(0755,rpm,rpm) %{rpmdir}/config.sub
 %attr(0755,rpm,rpm) %{rpmdir}/convertrpmrc.sh
@@ -600,8 +623,6 @@ fi
 
 %files build
 %defattr(-,root,root)
-%doc CHANGES
-%doc doc-copy/*
 %dir %{_prefix}/src/rpm
 %dir %{_prefix}/src/rpm/BUILD
 %dir %{_prefix}/src/rpm/SPECS
@@ -663,7 +684,6 @@ fi
 
 %files -n perl-RPM
 %defattr(-,root,root)
-%doc perl/Changes
 %{perl_vendorarch}/RPM.pm
 %{perl_vendorarch}/auto/RPM
 
@@ -678,7 +698,6 @@ fi
 
 %files -n %{libname}-devel
 %defattr(-,root,root)
-#%doc apidocs/html
 %{_includedir}/rpm
 %{_libdir}/librpm.a
 %{_libdir}/librpm.la
@@ -723,8 +742,21 @@ fi
 %{_libdir}/libpopt.so
 %{_datadir}/man/man3/popt.3*
 
+%files doc
+%defattr(-,root,root)
+%doc RPM-PGP-KEY RPM-GPG-KEY GROUPS CHANGES doc/manual/[a-z]*
+%doc CHANGES
+%doc doc-copy/*
+
 
 %changelog
+* Thu Jun 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.5
+- add -doc subpackage
+- rebuild with gcc4
+- rebuild against new readline, python, and sqlite3
+- include the RPM-GPG-KEYS here, rather than in gnupg
+- on %%post, make rpm --import the gpg keys immediately
+
 * Tue May 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.5
 - 4.4.5 (sync with 4.4.5-2mdk):
   - dropped P41, P66, , P74, P76, P79, P81
