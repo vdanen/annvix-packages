@@ -36,6 +36,14 @@ behaviors differ.
 
 This version also has encryption support.
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 
 %prep
 %setup -q
@@ -83,13 +91,20 @@ EOF
 
 %files
 %defattr(-,root,root)
-%doc BUGS COPYING.OLD Contents History.* INSTALL README ToDo WHERE README.IMPORTANT.ANNVIX
-%doc proginfo/
 %{_bindir}/*
 %{_mandir}/man1/*
 
+%files doc
+%defattr(-,root,root)
+%doc BUGS COPYING.OLD Contents History.* INSTALL README ToDo WHERE README.IMPORTANT.ANNVIX
+%doc proginfo/
+
 
 %changelog
+* Fri Jun 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.52
+- add -doc subpackage
+- rebuild with gcc4
+
 * Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.52
 - fix group
 
