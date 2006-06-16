@@ -75,6 +75,14 @@ applications.  Documentation which may help you write S-Lang based
 applications is also included.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 %patch1 -p1
@@ -122,7 +130,6 @@ rm -rf	%{buildroot}/usr/doc/slang
 
 %files -n %{libname}
 %defattr(-,root,root)
-%doc COPYING COPYRIGHT README changes.txt README.UTF-8 NEWS
 %{_libdir}/lib*.so.*
 
 %files -n %{libname}-devel
@@ -132,12 +139,20 @@ rm -rf	%{buildroot}/usr/doc/slang
 %dir %{_includedir}/slang/
 %{_includedir}/slang/*.h
 
+%files doc
+%defattr(-,root,root)
+%doc COPYING COPYRIGHT README changes.txt README.UTF-8 NEWS
+
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jun 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4.9
+- add -doc subpackage
+- rebuild with gcc4
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4.9
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4.9
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
