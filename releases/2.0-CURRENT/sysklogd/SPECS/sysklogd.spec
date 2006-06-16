@@ -40,7 +40,6 @@ Requires:	logrotate >= 3.3-8mdk, bash >= 2.0
 Requires(pre):	rpm-helper
 Requires(preun): rpm-helper
 Requires(post):	rpm-helper
-Requires(postun): rpm-helper
 Provides:	syslog
 
 %description
@@ -48,6 +47,14 @@ The sysklogd package contains two system utilities (syslogd and klogd)
 which provide support for system logging.  Syslogd and klogd run as
 daemons (background processes) and log system messages to different
 places, like sendmail logs, security logs, error logs, etc.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -127,7 +134,6 @@ fi
 
 %files
 %defattr(-,root,root)
-%doc ANNOUNCE README* NEWS INSTALL 
 %config(noreplace) %{_sysconfdir}/syslog.conf
 %config(noreplace) %{_sysconfdir}/sysconfig/syslog
 %config(noreplace) %{_sysconfdir}/logrotate.d/syslog
@@ -143,8 +149,16 @@ fi
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/klogd/run
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/klogd/env/OPTIONS
 
+%files doc
+%defattr(-,root,root)
+%doc ANNOUNCE README* NEWS INSTALL 
+
 
 %changelog
+* Fri Jun 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4.1
+- add -doc subpackage
+- rebuild with gcc4
+
 * Fri Feb 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4.1
 - Provides: syslog
 
