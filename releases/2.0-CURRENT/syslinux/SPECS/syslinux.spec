@@ -60,6 +60,14 @@ sophisticated add-on modules.  This package contains the libraries
 necessary to compile such modules.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 %setup -q -b 2 -n %{name}-%{pxelinux_ver}
@@ -132,8 +140,6 @@ popd
 
 %files
 %defattr(-,root,root)
-%doc COPYING NEWS README README.graphic TODO
-%doc syslinux.doc isolinux.doc pxelinux.doc
 %{_bindir}/*
 %{_libdir}/syslinux/*.c32
 %{_libdir}/syslinux/*.bin
@@ -146,12 +152,21 @@ popd
 %defattr(-,root,root)
 %{_libdir}/syslinux/com32
 
+%files doc
+%defattr(-,root,root)
+%doc COPYING NEWS README README.graphic TODO
+%doc syslinux.doc isolinux.doc pxelinux.doc
+
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jun 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.76
+- add -doc subpackage
+- rebuild with gcc4
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.76
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.76
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - re-enable the disabling of SSP
