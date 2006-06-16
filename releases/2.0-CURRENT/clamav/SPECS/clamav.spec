@@ -20,7 +20,7 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
-Group:		File tools
+Group:		File Tools
 URL:		http://clamav.sourceforge.net/
 Source0:	http://www.clamav.net/%{name}-%{version}.tar.gz
 Source1:	http://www.clamav.net/%{name}-%{version}.tar.gz.sig
@@ -103,6 +103,14 @@ Obsoletes:	%{name}-devel lib%{name}-devel
 %description -n	%{libname}-devel
 This package contains the static %{libname} library and its header
 files.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -217,9 +225,6 @@ done
 
 %files
 %defattr(-,root,root)
-%doc AUTHORS BUGS ChangeLog FAQ NEWS README test UPGRADE
-%doc contrib/clamdwatch contrib/clamavmon contrib/clamdmon
-%doc COPYING
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/clamd.conf
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/freshclam.conf
 %{_bindir}/clamscan
@@ -263,8 +268,6 @@ done
 
 %files -n %{libname}-devel
 %defattr(-,root,root)
-%doc contrib/clamdwatch
-%doc contrib/Windows
 %{_bindir}/clamav-config
 %{_includedir}/*
 %{_libdir}/*.so
@@ -272,8 +275,18 @@ done
 %{_libdir}/*.la
 %{_libdir}/pkgconfig/libclamav.pc
 
+%files doc
+%defattr(-,root,root)
+%doc AUTHORS BUGS ChangeLog FAQ NEWS README test UPGRADE COPYING
+%doc contrib/clamdwatch contrib/clamavmon contrib/clamdmon
+
       
 %changelog
+* Thu Jun 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.88.2
+- add -doc subpackage
+- rebuild with gcc4
+- fixed group
+
 * Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.88.2
 - 0.88.2: fixes CVE-2006-1989
 
