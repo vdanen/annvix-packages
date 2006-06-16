@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		tar
-%define version		1.15.1
+%define version		1.15.90
 %define release		%_revrel
 
 %define rmtrealname	rmt-tar
@@ -25,11 +25,7 @@ URL:		http://www.gnu.org/software/tar/tar.html
 Source:		ftp://ftp.gnu.org/pub/gnu/tar/tar-%{version}.tar.bz2
 Source1:	ftp://ftp.gnu.org/pub/gnu/tar/tar-%{version}.tar.bz2.sig
 Source2:	tar-help2man
-Patch0:		tar-1.14-mdk-sock.patch
-Patch1:		tar-1.15-mdk-scandir.patch
 Patch2:		tar-1.14-mdk-doubleslash.patch
-Patch3:		tar-1.15.1-mdk-compile-gcc4.patch
-Patch4:		tar-1.14-CVE-2006-0300.patch
 
 Buildroot:	%{_buildroot}/%{name}-%{version}
 
@@ -48,13 +44,17 @@ decompression, the ability to perform remote archives and the
 ability to perform incremental and full backups.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
-%patch0 -p1 -b .sock
-%patch1 -p1 -b .scandir
 %patch2 -p1 -b .doubleslash
-%patch3 -p0 -b .compilgcc4
-%patch4 -p1 -b .cve-2006-0300
 
 cat %{SOURCE2} > ./help2man
 chmod +x ./help2man
@@ -101,7 +101,6 @@ mv %{buildroot}%{_libexecdir}/rmt %{buildroot}/sbin/%{rmtrealname}
 
 %files -f %{name}.lang
 %defattr(-,root,root)
-%doc NEWS THANKS AUTHORS README ChangeLog.gz COPYING TODO
 %{_bindir}/tar
 %{_bindir}/gtar
 %{_sbindir}/backup
@@ -112,8 +111,18 @@ mv %{buildroot}%{_libexecdir}/rmt %{buildroot}/sbin/%{rmtrealname}
 %{_infodir}/*.info*
 %{_mandir}/man?/*
 
+%files doc
+%defattr(-,root,root)
+%doc NEWS THANKS AUTHORS README ChangeLog.gz COPYING TODO
+
 
 %changelog
+* Fri Jun 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.15.90
+- 1.15.90
+- drop P0, P1, P3, P4 - merged upstream
+- add -doc subpackage
+- rebuild with gcc4
+
 * Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.15.1
 - fix group
 
