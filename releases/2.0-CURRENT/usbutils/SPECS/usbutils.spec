@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		usbutils
-%define version 	0.70
+%define version 	0.72
 %define release		%_revrel
 
 Summary:	Linux USB utilities
@@ -20,9 +20,6 @@ License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://sourceforge.net/project/showfiles.php?group_id=3581&package_id=142529
 Source0:	http://prownloads.sourceforge.net/linux-usb/usbutils-%{version}.tar.bz2
-# 1.95 2002/01/13 (with 2 fixes + PHY below)
-Source1:	http://www.linux-usb.org/usb.ids
-Patch0:		usbutils-0.70-fix-usage.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	libusb-devel
@@ -35,8 +32,6 @@ It requires a Linux kernel version 2.3.15 or newer (supporting the
 
 %prep
 %setup -q
-%patch0 -p1
-cp -a %{SOURCE1} usb.ids
 
 
 %build
@@ -64,10 +59,15 @@ rm -f %{buildroot}{%{_includedir}/libusb.h,%{_libdir}/libusb*}
 
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jun 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.72
+- 0.72
+- use the usb.ids provided in the package rather than an external source
+- rebuild with gcc4
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.70
 - Clean rebuild
 
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.70
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
