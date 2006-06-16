@@ -56,6 +56,8 @@ Summary:        Development tools for programs which will access the termcap dat
 Group:          System/Libraries
 Obsoletes:	%{libname_orig}
 Provides:	%{libname_orig}
+Requires(post):	ldconfig
+Requires(postun): ldconfig
 
 %description -n %{libname}
 The libtermcap package contains a basic system library needed to access
@@ -160,10 +162,15 @@ fi
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jun 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.8
+- fix requires
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.8
 - Clean rebuild
 
-* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.8
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
