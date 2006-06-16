@@ -184,7 +184,7 @@ This package contains the documentation for %{name}.
 
 # fix some docs
 mv docs rule-docs
-rm -f README.WIN32
+rm -f doc/README.WIN32
 chmod 0644 rule-docs/*.txt
 
 # fix pid file path
