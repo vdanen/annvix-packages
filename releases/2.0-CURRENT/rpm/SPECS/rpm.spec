@@ -507,9 +507,12 @@ fi
 for i in `ls -1 /etc/RPM-GPG-KEYS/*.asc`
 do
     key=`basename $i|cut -f 1 -d '.'`
-    if [ "`rpm -q gpg-pubkey-$key|grep 'not installed'`" ]; then rpm --import $i; fi
-    echo "NOTICE: imported new GPG key $i
+    if [ "`rpm -q gpg-pubkey-$key|grep 'not installed'`" ]; then
+        rpm --import $i
+        echo "NOTICE: imported new GPG key $i"
+    fi
 done
+
 
 
 %postun
