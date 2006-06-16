@@ -1,6 +1,6 @@
-diff -Naur snort-2.3.0RC2/config.h.in snort-2.3.0RC2.oden/config.h.in
---- snort-2.3.0RC2/config.h.in	2004-12-15 16:25:12.000000000 +0100
-+++ snort-2.3.0RC2.oden/config.h.in	2004-12-24 06:59:12.690860546 +0100
+diff -Naur snort-2.4.3/config.h.in snort-2.4.3.oden/config.h.in
+--- snort-2.4.3/config.h.in	2005-10-17 15:50:13.000000000 +0200
++++ snort-2.4.3.oden/config.h.in	2005-10-29 13:29:30.000000000 +0200
 @@ -18,6 +18,12 @@
  /* Define to 1 if you have the <inttypes.h> header file. */
  #undef HAVE_INTTYPES_H
@@ -14,13 +14,13 @@ diff -Naur snort-2.3.0RC2/config.h.in snort-2.3.0RC2.oden/config.h.in
  /* Define to 1 if you have the `ipq' library (-lipq). */
  #undef HAVE_LIBIPQ
  
-diff -Naur snort-2.3.0RC2/configure.in snort-2.3.0RC2.oden/configure.in
---- snort-2.3.0RC2/configure.in	2004-12-09 20:44:49.000000000 +0100
-+++ snort-2.3.0RC2.oden/configure.in	2004-12-24 06:59:12.691860225 +0100
-@@ -786,6 +786,53 @@
- 
+diff -Naur snort-2.4.3/configure.in snort-2.4.3.oden/configure.in
+--- snort-2.4.3/configure.in	2005-10-17 00:21:08.000000000 +0200
++++ snort-2.4.3.oden/configure.in	2005-10-29 13:28:52.000000000 +0200
+@@ -859,7 +859,59 @@
+ 		AC_CHECK_TYPE(u_int32_t, uint32_t)
+ 	fi
  fi
- 
 +AC_ARG_ENABLE(clamav,
 +[  --enable-clamav          Enable the clamav preprocessor],
 +                enable_clamav="$enableval", enable_clamav="no")
@@ -28,52 +28,58 @@ diff -Naur snort-2.3.0RC2/configure.in snort-2.3.0RC2.oden/configure.in
 +    CFLAGS="$CFLAGS -DCLAMAV"
 +
 +    AC_ARG_WITH(clamav_includes,
-+	[  --with-clamav-includes=DIR   clamav include directory],
++        [  --with-clamav-includes=DIR   clamav include directory],
 +        [with_clamav_includes="$withval"],[with_clamav_includes=no])
 +
 +    AC_ARG_WITH(clamav_defdir,
-+	[  --with-clamav-defdir=DIR   clamav virusdefinitions directory],
++        [  --with-clamav-defdir=DIR   clamav virusdefinitions directory],
 +        [with_clamav_defdir="$withval"],[with_clamav_defdir=no])
-+	
-+    
++
++
 +    if test "$with_clamav_defdir" != "no"; then
-+	echo "Virusdefs: $with_clamav_defdir"
++        echo "Virusdefs: $with_clamav_defdir"
 +        CFLAGS="$CFLAGS -DCLAMAV_DEFDIR=\"$with_clamav_defdir\""
 +    fi
 +
 +    if test "$with_clamav_includes" != "no"; then
-+	CPPFLAGS="${CPPFLAGS} -I${with_clamav_includes}"
-+    fi
++        CPPFLAGS="${CPPFLAGS} -I${with_clamav_includes}"
++    fi       
 +
 +    LCLAM=""
 +    AC_CHECK_HEADERS(clamav.h,, LCLAM="no")
 +    if test "$LCLAM" = "no"; then
-+	echo
-+	echo "   ERROR!  clamav.h header not found, go get it from"
-+	echo "   http://www.clamav.net/ or use the --with-clamav-includes"
-+	echo "   options, if you have it installed in an unusual place"
-+	exit
++        echo
++        echo "   ERROR!  clamav.h header not found, go get it from"
++        echo "   http://www.clamav.net/ or use the --with-clamav-includes"
++        echo "   options, if you have it installed in an unusual place"
++        exit
 +    fi
 +
 +    LCLAM=""
 +    AC_CHECK_LIB(clamav,cl_scanbuff,, LCLAM="no")
 +    if test "$LCLAM" = "no"; then
-+	echo
-+	echo "   ERROR!  libclamav library not found, go get it from"
-+	echo "   http://www.clamav.net/ or make sure that the place"
-+	echo "   you installed it is in the library path."
-+	exit
++        echo
++        echo "   ERROR!  libclamav library not found, go get it from"
++        echo "   http://www.clamav.net/ or make sure that the place"
++        echo "   you installed it is in the library path."
++        exit
 +    fi
-+    
++
++    # in 0.80 cl_buildtrie is renamed to cl_build
++    LCLAM=""
++    AC_CHECK_LIB(clamav, cl_build,, LCLAM="no")
++    if test "$LCLAM" != "no"; then
++        CFLAGS="$CFLAGS -DCLAMAV_HAVE_CL_BUILD"
++    fi
+ 
 +    LIBS="${LIBS} -lclamav"
 +fi
-+
- if test "$tru64_types" = "yes"; then
-         AC_CHECK_TYPE(u_int8_t, unsigned char)
-         AC_CHECK_TYPE(u_int16_t, unsigned short)
-diff -Naur snort-2.3.0RC2/doc/README.clamav snort-2.3.0RC2.oden/doc/README.clamav
---- snort-2.3.0RC2/doc/README.clamav	1970-01-01 01:00:00.000000000 +0100
-+++ snort-2.3.0RC2.oden/doc/README.clamav	2004-12-24 06:59:12.691860225 +0100
+ 
+ # let's make some fixes..
+ 
+diff -Naur snort-2.4.3/doc/README.clamav snort-2.4.3.oden/doc/README.clamav
+--- snort-2.4.3/doc/README.clamav	1970-01-01 01:00:00.000000000 +0100
++++ snort-2.4.3.oden/doc/README.clamav	2005-10-29 13:29:30.000000000 +0200
 @@ -0,0 +1,32 @@
 +Known limitations
 +=================
@@ -107,10 +113,10 @@ diff -Naur snort-2.3.0RC2/doc/README.clamav snort-2.3.0RC2.oden/doc/README.clama
 +will turn on clamav, will listen for virus activity on ports 129 445 21 will only watch traffic that flows to the client, will drop the packet, sets the virus-sig database path to /var/lib2/clamav 
 +
 +to scan uberpackets from stream4 reassembly make sure that stream4 is initialized before ClamAV in your snort_inline.conf
-diff -Naur snort-2.3.0RC2/etc/snort.conf snort-2.3.0RC2.oden/etc/snort.conf
---- snort-2.3.0RC2/etc/snort.conf	2004-12-15 16:26:02.000000000 +0100
-+++ snort-2.3.0RC2.oden/etc/snort.conf	2004-12-24 06:59:12.691860225 +0100
-@@ -317,6 +317,30 @@
+diff -Naur snort-2.4.3/etc/snort.conf snort-2.4.3.oden/etc/snort.conf
+--- snort-2.4.3/etc/snort.conf	2005-10-17 15:50:55.000000000 +0200
++++ snort-2.4.3.oden/etc/snort.conf	2005-10-29 13:29:30.000000000 +0200
+@@ -403,6 +403,30 @@
  #    oversize_dir_length 300 \
  #    no_alerts
  
@@ -141,71 +147,74 @@ diff -Naur snort-2.3.0RC2/etc/snort.conf snort-2.3.0RC2.oden/etc/snort.conf
  
  # rpc_decode: normalize RPC traffic
  # ---------------------------------
-diff -Naur snort-2.3.0RC2/src/generators.h snort-2.3.0RC2.oden/src/generators.h
---- snort-2.3.0RC2/src/generators.h	2004-09-13 19:44:49.000000000 +0200
-+++ snort-2.3.0RC2.oden/src/generators.h	2004-12-24 06:59:12.692859903 +0100
-@@ -241,6 +241,9 @@
+diff -Naur snort-2.4.3/src/debug.h snort-2.4.3.oden/src/debug.h
+--- snort-2.4.3/src/debug.h	2005-03-16 22:52:17.000000000 +0100
++++ snort-2.4.3.oden/src/debug.h	2005-10-29 13:28:52.000000000 +0200
+@@ -49,7 +49,7 @@
+ #define DEBUG_HTTPINSPECT     0x00400000  /* 4194304 */
+ #define DEBUG_STREAM_STATE    0x00800000  /* 8388608 */
+ #define DEBUG_ASN1            0x01000000  /* 16777216 */
+-
++#define DEBUG_CLAMAV          0x04000000  /* 67108864 */
+ #ifdef DEBUG
  
- #define     PSNG_OPEN_PORT                         27
+     extern char *DebugMessageFile;
+diff -Naur snort-2.4.3/src/generators.h snort-2.4.3.oden/src/generators.h
+--- snort-2.4.3/src/generators.h	2005-10-16 20:55:29.000000000 +0200
++++ snort-2.4.3.oden/src/generators.h	2005-10-29 13:28:52.000000000 +0200
+@@ -253,6 +253,9 @@
  
-+#define GENERATOR_SPP_CLAMAV			    123
+ #define GENERATOR_SMTP                             124
+ 
++#define GENERATOR_SPP_CLAMAV                       125 
 +#define     CLAMAV_VIRUSFOUND                        1
 +
  /*  This is where all the alert messages will be archived for each
      internal alerts */
  
-@@ -275,7 +278,6 @@
- #define FRAG2_SUSPEND_STR "(spp_frag2) Shifting to Suspend Mode"
- 
- 
--
- #define HTTP_DECODE_LARGE_METHOD_STR "(spp_http_decode) A large HTTP method was received"
- #define HTTP_DECODE_MISSING_URI_STR "(spp_http_decode) HTTP request without URI"
- #define HTTP_DECODE_DOUBLE_ENC_STR  "(spp_http_decode) Double Hex Encoding Received"
-@@ -390,4 +392,6 @@
+@@ -439,4 +442,5 @@
  
  #define PSNG_OPEN_PORT_STR "(portscan) Open Port"
  
 +#define CLAMAV_VIRUSFOUND_STR "(spp_clamav) Virus Found:"
-+
  #endif /* __GENERATORS_H__ */
-diff -Naur snort-2.3.0RC2/src/plugbase.c snort-2.3.0RC2.oden/src/plugbase.c
---- snort-2.3.0RC2/src/plugbase.c	2004-11-02 23:07:18.000000000 +0100
-+++ snort-2.3.0RC2.oden/src/plugbase.c	2004-12-24 06:59:12.692859903 +0100
-@@ -60,6 +60,7 @@
- #include "preprocessors/spp_perfmonitor.h"
- #include "preprocessors/spp_httpinspect.h"
- #include "preprocessors/spp_flow.h"
-+#include "preprocessors/spp_clamav.h"
+diff -Naur snort-2.4.3/src/plugbase.c snort-2.4.3.oden/src/plugbase.c
+--- snort-2.4.3/src/plugbase.c	2005-08-23 17:52:19.000000000 +0200
++++ snort-2.4.3.oden/src/plugbase.c	2005-10-29 13:28:52.000000000 +0200
+@@ -63,6 +63,7 @@
  #include "preprocessors/spp_sfportscan.h"
+ #include "preprocessors/spp_frag3.h"
+ #include "preprocessors/spp_xlink2state.h"
++#include "preprocessors/spp_clamav.h"
  
  /* built-in detection plugins */
-@@ -409,6 +410,9 @@
-     SetupHttpInspect();
-     SetupPerfMonitor();
-     SetupFlow();
+ #include "detection-plugins/sp_pattern_match.h"
+@@ -421,6 +422,9 @@
+     SetupPsng();
+     SetupFrag3();
+     SetupXLINK2STATE();
 +#ifdef CLAMAV
 +    SetupClamAV();
-+#endif /* CLAMAV */
-     SetupPsng();
++#endif
  }
  
-diff -Naur snort-2.3.0RC2/src/preprocessors/Makefile.am snort-2.3.0RC2.oden/src/preprocessors/Makefile.am
---- snort-2.3.0RC2/src/preprocessors/Makefile.am	2004-09-13 19:44:49.000000000 +0200
-+++ snort-2.3.0RC2.oden/src/preprocessors/Makefile.am	2004-12-24 06:59:12.693859581 +0100
-@@ -20,6 +20,7 @@
- spp_httpinspect.c spp_httpinspect.h \
- snort_httpinspect.c snort_httpinspect.h \
- spp_flow.c spp_flow.h \
-+spp_clamav.c spp_clamav.h \
- portscan.c portscan.h \
- spp_sfportscan.c spp_sfportscan.h
+ /****************************************************************************
+diff -Naur snort-2.4.3/src/preprocessors/Makefile.am snort-2.4.3.oden/src/preprocessors/Makefile.am
+--- snort-2.4.3/src/preprocessors/Makefile.am	2005-04-23 00:11:53.000000000 +0200
++++ snort-2.4.3.oden/src/preprocessors/Makefile.am	2005-10-29 13:29:30.000000000 +0200
+@@ -7,6 +7,7 @@
  
-diff -Naur snort-2.3.0RC2/src/preprocessors/spp_clamav.c snort-2.3.0RC2.oden/src/preprocessors/spp_clamav.c
---- snort-2.3.0RC2/src/preprocessors/spp_clamav.c	1970-01-01 01:00:00.000000000 +0100
-+++ snort-2.3.0RC2.oden/src/preprocessors/spp_clamav.c	2004-12-24 07:00:18.653628127 +0100
-@@ -0,0 +1,577 @@
-+/* $Id: spp_clamav.c, v 1.0 Victor Julien/William Metcalf Exp $ */
+ libspp_a_SOURCES = spp_arpspoof.c spp_arpspoof.h spp_bo.c spp_bo.h \
+ spp_portscan.c spp_portscan.h spp_rpc_decode.c spp_rpc_decode.h  \
++spp_clamav.c spp_clamav.h \
+ spp_stream4.c spp_stream4.h stream.h \
+ snort_stream4_session.c snort_stream4_session.h \
+ spp_telnet_negotiation.c  spp_telnet_negotiation.h \
+diff -Naur snort-2.4.3/src/preprocessors/spp_clamav.c snort-2.4.3.oden/src/preprocessors/spp_clamav.c
+--- snort-2.4.3/src/preprocessors/spp_clamav.c	1970-01-01 01:00:00.000000000 +0100
++++ snort-2.4.3.oden/src/preprocessors/spp_clamav.c	2005-10-29 13:28:52.000000000 +0200
+@@ -0,0 +1,888 @@
++/* $Id: snort-2.4.3-clamonly.diff,v 1.1 2005/10/24 17:23:40 jonkman Exp $ */
 +/* Snort Preprocessor for Antivirus Checking with ClamAV */
 +
 +/*
@@ -243,19 +252,38 @@ diff -Naur snort-2.3.0RC2/src/preprocessors/spp_clamav.c snort-2.3.0RC2.oden/src
 + *
 + *
 + * TODO:
-+ * - option for virusdefs dir
 + * - documentation
 + * - are the defaultports in ParseClamAVArgs ok?
 + * - options structure like s4data in Stream4 for cl_root, VirusScanPorts, drop/reject/alert, defs dirlocation **IN PROGRESS**
++ *
++ *
++ * Changes:
++ * 
++ * 2004/11/10: added code for the automatic reloading of the virusdefs
++ *             added support for ClamAV 0.80 
++ *
 + */
 +#ifdef HAVE_CONFIG_H
 +#include "config.h"
 +#endif
 +
++#ifndef DEBUG
++    #ifndef INLINE
++        #define INLINE inline
++    #endif
++#else
++    #ifdef INLINE
++        #undef INLINE
++    #endif
++    #define INLINE
++#endif /* DEBUG */
++
++
 +#include <sys/types.h>
 +#include <stdlib.h>
 +#include <ctype.h>
 +#include <rpc/types.h>
++#include <errno.h>
 +#include "generators.h"
 +#include "event_wrapper.h"
 +#include "util.h"
@@ -266,7 +294,7 @@ diff -Naur snort-2.3.0RC2/src/preprocessors/spp_clamav.c snort-2.3.0RC2.oden/src
 +#include "mstring.h"
 +#include "log.h"
 +#include "spp_clamav.h"
-+
++#include "preprocessors/spp_stream4.h"
 +#ifdef GIDS
 +#include "inline.h"
 +#endif
@@ -278,6 +306,7 @@ diff -Naur snort-2.3.0RC2/src/preprocessors/spp_clamav.c snort-2.3.0RC2.oden/src
 +#include <strings.h>
 +#endif
 +
++
 +/* we need this to stringify the CLAMAV_DEFDIR which is supplied at compiletime see:
 +   http://gcc.gnu.org/onlinedocs/gcc-3.4.1/cpp/Stringification.html#Stringification */
 +#define xstr(s) str(s)
@@ -286,6 +315,9 @@ diff -Naur snort-2.3.0RC2/src/preprocessors/spp_clamav.c snort-2.3.0RC2.oden/src
 +/* the config struct */
 +struct ClamAVConfig
 +{
++     /* scan mode */
++    char file_descriptor_mode;
++
 +    /* scan limitations */
 +    char toclientonly; /* if set to 1 scan only traffic to the client */
 +    char toserveronly; /* if set to 1 scan only traffic to the server */
@@ -297,17 +329,29 @@ diff -Naur snort-2.3.0RC2/src/preprocessors/spp_clamav.c snort-2.3.0RC2.oden/src
 +    
 +    /* virdef dir */
 +    char dbdir[255];
++    
++    /* temp dir for file descriptors */
++    char desctmpdir[255];
++
++    /* reload time in seconds */
++    u_int16_t reloadtime;
++    u_int32_t next_reload_time;
++
 +} clamcnf;
 +
 +/* pointer to ClamAV's in-memory virusdatabase */
 +struct cl_node *cl_root;
-+
-+
++/* scanner limits */
++struct cl_limits clam_limits;
++ssize_t writepacket(int, const void *, size_t);
 +static void ClamAVInit(u_char *);
 +extern void SetupClamAV();
 +static int VirusInPacket(Packet *);
-+static void VirusChecker(Packet *);
++static void VirusChecker(Packet *,void *);
 +extern u_int32_t event_id;
++
++/* db reloading */
++struct cl_stat dbstat; 
 +
 +
 +/*
@@ -456,12 +500,18 @@ diff -Naur snort-2.3.0RC2/src/preprocessors/spp_clamav.c snort-2.3.0RC2.oden/src
 +    int ports_done = 0;
 +    char **dbdirtoks;
 +    int num_dbdirtoks = 0;
++    char **dbtimetoks;
++    int num_dbtimetoks = 0;
++    char **desctmptoks;
++    int num_desctmptoks = 0;
++
 +
 +    /* ftp, smtp, http, pop3, nntp, samba (2x), imap */
 +    u_char *default_ports = "21 25 80 81 110 119 139 445 143";
 +    
-+
 +    /* set the default values */
++    clamcnf.file_descriptor_mode = 0;
++
 +#ifdef GIDS
 +    clamcnf.drop = 0;
 +    clamcnf.reset = 0;
@@ -469,7 +519,6 @@ diff -Naur snort-2.3.0RC2/src/preprocessors/spp_clamav.c snort-2.3.0RC2.oden/src
 +    clamcnf.toclientonly = 0;
 +    clamcnf.toserveronly = 0;
 +    
-+
 +#ifdef CLAMAV_DEFDIR
 +    /* copy the default that was set at compile time, if any */
 +    if(strlcpy(clamcnf.dbdir, xstr(CLAMAV_DEFDIR), sizeof(clamcnf.dbdir)) >= sizeof(clamcnf.dbdir))
@@ -480,6 +529,11 @@ diff -Naur snort-2.3.0RC2/src/preprocessors/spp_clamav.c snort-2.3.0RC2.oden/src
 +    {
 +	FatalError("The defdir supplied at compile time is too long\n");
 +    }    
++
++
++
++    /* reload time default to 10 minutes */
++    clamcnf.reloadtime = 600;
 +
 +
 +    if(!pv.quiet_flag)
@@ -521,6 +575,15 @@ diff -Naur snort-2.3.0RC2/src/preprocessors/spp_clamav.c snort-2.3.0RC2.oden/src
 +               clamcnf.drop = 1;
 +            }
 +#endif /* GIDS */ 
++            else if(!strncasecmp(index, "file-descriptor-mode", 20))
++            {
++               clamcnf.file_descriptor_mode = 1;
++
++               if(strlcpy(clamcnf.desctmpdir, "/tmp", sizeof(clamcnf.desctmpdir)) >= sizeof(clamcnf.desctmpdir))
++               {
++	          FatalError("argument is to long, Somebody wrote some really bad code because this should never happen\n");
++               }
++            }
 +            else if(!strncasecmp(index, "toclientonly", 12))
 +            {
 +               clamcnf.toclientonly = 1;
@@ -538,7 +601,35 @@ diff -Naur snort-2.3.0RC2/src/preprocessors/spp_clamav.c snort-2.3.0RC2.oden/src
 +	        if(strlcpy(clamcnf.dbdir, dbdirtoks[1], sizeof(clamcnf.dbdir)) >= sizeof(clamcnf.dbdir))
 +	        {
 +		    FatalError("The defdir supplied in the config is too long\n");
-+	        }    
++	        }
++              mSplitFree(&dbdirtoks, num_dbdirtoks);    
++            }
++            else if(!strncasecmp(index, "dbreload-time", 13))
++            {
++                /* get the argument for the option */
++                dbtimetoks = mSplit(index, " ", 1, &num_dbtimetoks, 0);
++                
++                if(isdigit((int)dbtimetoks[1][0]))
++                {
++                    clamcnf.reloadtime  = atoi(dbtimetoks[1]);
++                }
++                else
++                {
++                    FatalError("We need an integer in seconds for dbreload interval\n");
++                }
++              mSplitFree(&dbtimetoks, num_dbtimetoks);
++            }
++            else if((!strncasecmp(index, "descriptor-temp-dir", 19) && (clamcnf.file_descriptor_mode)))
++            {
++		/* get the argument for the option */
++		desctmptoks = mSplit(index, " ", 1, &num_desctmptoks, 0);
++
++		/* copy it to the clamcnf */
++	        if(strlcpy(clamcnf.desctmpdir, desctmptoks[1], sizeof(clamcnf.desctmpdir)) >= sizeof(clamcnf.desctmpdir))
++	        {
++		    FatalError("The tmpdir supplied in the config is too long\n");
++	        }
++              mSplitFree(&desctmptoks, num_desctmptoks);    
 +            }
 +            else
 +            {
@@ -583,10 +674,17 @@ diff -Naur snort-2.3.0RC2/src/preprocessors/spp_clamav.c snort-2.3.0RC2.oden/src
 +        /* dbdir */
 +        LogMessage("    Virus definitions dir: '%s'\n", clamcnf.dbdir);    
 +	/* limits */
++        LogMessage("    Virus DB reload time: '%i'\n", clamcnf.reloadtime);
 +	if(clamcnf.toclientonly == 1)
 +            LogMessage("    Scan only traffic to the client\n");
 +	else if(clamcnf.toserveronly == 1)
 +            LogMessage("    Scan only traffic to the server\n");
++	/* scan method */        
++        LogMessage("    File descriptor scanning mode: %s\n",
++			    clamcnf.file_descriptor_mode ?
++			    "Enabled, using cl_scandesc" : "Disabled, using cl_scanbuf");    
++        LogMessage("    Directory for tempfiles (file descriptor mode): '%s'\n",
++			    clamcnf.desctmpdir);    
 +    }
 +}
 +
@@ -600,12 +698,21 @@ diff -Naur snort-2.3.0RC2/src/preprocessors/spp_clamav.c snort-2.3.0RC2.oden/src
 +{
 +    int ret = 0;
 +    int n = 0;
++    struct timeval t;
 +    cl_root = NULL;
-+
 +
 +    /* first parse the commandline args */
 +    ParseClamAVArgs(args);
 +
++
++    /* get the current time for the reloading */
++    memset(&t, 0, sizeof(struct timeval));
++    gettimeofday(&t, NULL);
++    clamcnf.next_reload_time = t.tv_sec + clamcnf.reloadtime;
++
++    /* setup for check */
++    memset(&dbstat, 0, sizeof(struct cl_stat));
++    cl_statinidir(clamcnf.dbdir, &dbstat);
 + 
 +    /* open the defs dir */
 +    ret = cl_loaddbdir(clamcnf.dbdir, &cl_root, &n);
@@ -614,16 +721,95 @@ diff -Naur snort-2.3.0RC2/src/preprocessors/spp_clamav.c snort-2.3.0RC2.oden/src
 +        FatalError("ClamAV: cl_loaddbdir() %s\n", cl_strerror(ret));
 +    }
 +
-+
 +    /* run buildtrie */
++#ifdef CLAMAV_HAVE_CL_BUILD
++    if((ret = cl_build(cl_root)))
++#else
 +    if((ret = cl_buildtrie(cl_root)))
++#endif /* CLAMAV_HAVE_CL_BUILD */
 +    {
-+        FatalError("ClamAV: cl_buildtrie() %s\n", cl_strerror(ret));
++        FatalError("ClamAV: cl_build() %s\n", cl_strerror(ret));
 +    }
-+ 
++
++    /* set the limits */
++    memset(&clam_limits, 0, sizeof(clam_limits));
++    /* maximal number of files in archive */;
++    clam_limits.maxfiles = 1000;
++    /* maximal archived file size */
++    clam_limits.maxfilesize = 10 * 1048576; /* 10 MB */
++    /* maximal recursion level */
++    clam_limits.maxreclevel = 5;
++    /* maximal compression ratio */
++    clam_limits.maxratio = 200;
++    /* disable memory limit for bzip2 scanner */
++    clam_limits.archivememlim = 0;
 +
 +    /* register the VirusChecker */
 +    AddFuncToPreprocList(VirusChecker);
++}
++
++
++/*
++ * Function:  ClamAVReloadDB(void)
++ *
++ * Purpose:   Determines if the virusdefinition files need
++ *            to be reloaded. If so, reload them.
++ *
++ * Arguments: pointer to Packet *p, for the time only
++ *
++ * Returns:   none, void function
++ *
++ */
++static void ClamAVReloadDB(Packet *p)
++{
++    int ret = 0;
++    int n = 0;
++
++    DEBUG_WRAP(DebugMessage(DEBUG_CLAMAV,"going to Reload ClamAV Database\n"););
++    clamcnf.next_reload_time = p->pkth->ts.tv_sec + clamcnf.reloadtime;
++
++    /* now really check */
++    if(cl_statchkdir(&dbstat) == 1)
++    {
++        /* okay, we are going to reload the db */
++#ifdef CLAMAV_HAVE_CL_BUILD
++        cl_free(cl_root);
++#else
++	cl_freetrie(cl_root);
++#endif /* CLAMAV_HAVE_CL_BUILD */
++        cl_root = NULL;
++
++        /* open the defs dir */
++        ret = cl_loaddbdir(clamcnf.dbdir, &cl_root, &n);
++        if(ret != 0)
++        {
++	    FatalError("ClamAV: cl_loaddbdir() %s\n", cl_strerror(ret));
++	}
++
++	/* run buildtrie */
++#ifdef CLAMAV_HAVE_CL_BUILD
++	if((ret = cl_build(cl_root)))
++#else
++	if((ret = cl_buildtrie(cl_root)))
++#endif /* CLAMAV_HAVE_CL_BUILD */
++    	{
++    	    FatalError("ClamAV: cl_build() %s\n", cl_strerror(ret));
++	}
++
++        DEBUG_WRAP(DebugMessage(DEBUG_CLAMAV,"New ClamAV Database loaded\n"););
++
++	/* re-init the dbstat */
++	cl_statfree(&dbstat);
++
++	memset(&dbstat, 0, sizeof(struct cl_stat));
++	cl_statinidir(clamcnf.dbdir, &dbstat);
++    }
++    else
++    {
++        DEBUG_WRAP(DebugMessage(DEBUG_CLAMAV,"Database is up2date\n");); 
++    }
++
++    return;
 +}
 +
 +
@@ -682,6 +868,116 @@ diff -Naur snort-2.3.0RC2/src/preprocessors/spp_clamav.c snort-2.3.0RC2.oden/src
 +}
 +
 +
++/*	returns:
++	1: virus or error, so no scanned
++	0: ok
++*/
++static INLINE int StoreAndScan(Packet *p)
++{
++    int fd = 0;
++    char tempfilename[256]="";
++    size_t size = 0;
++    int ret = 0, retval = 0;
++    Event event;
++    char outstring[255];
++    const char *cl_virusname = NULL;
++
++    /* create a secure temp file */
++    size = snprintf(tempfilename, sizeof(tempfilename), "%s/snort_inline-clamav-XXXXXX", clamcnf.desctmpdir);
++    DEBUG_WRAP(DebugMessage(DEBUG_CLAMAV,"tempfilename is %s\n",tempfilename););
++    if(size >= sizeof(tempfilename))
++    {
++        FatalError("buffer too small");
++    }
++
++    fd = mkstemp(tempfilename);
++    if(fd == -1)
++    {
++        DEBUG_WRAP(DebugMessage(DEBUG_CLAMAV,"mkstemp error: %s.\n", strerror(errno)););
++	return 1;
++    }
++    
++    /* writing the data to the tempfile */
++    ret = writepacket(fd, p->data, p->dsize);
++    if(ret < p->dsize)
++    {
++        DEBUG_WRAP(DebugMessage(DEBUG_CLAMAV,"tmpfile too small\n"););
++    }
++
++    /* scan the descriptor */
++    ret = cl_scandesc(fd, &cl_virusname, NULL, cl_root, &clam_limits, CL_SCAN_STDOPT);
++    if(ret == CL_CLEAN)
++    {
++        DEBUG_WRAP(DebugMessage(DEBUG_CLAMAV,"Packet is clean\n"););
++    }
++    else if(ret == CL_VIRUS)
++    {
++        snprintf(outstring, sizeof(outstring), "%s %s", CLAMAV_VIRUSFOUND_STR, cl_virusname);
++
++	DEBUG_WRAP(DebugMessage(DEBUG_CLAMAV,"tempfile and or packet is infected: '%s'.\n", outstring););
++
++        /* alert! */
++        SetEvent(&event, GENERATOR_SPP_CLAMAV, CLAMAV_VIRUSFOUND, 1, 0, 0, 0); 
++        CallAlertFuncs(p, outstring, NULL, &event);
++        CallLogFuncs(p, outstring, NULL, &event);
++        retval = 1;
++    }
++    else if(ret > 0)
++    {
++        /* error */
++
++	/* close the fd */
++	close(fd);
++	/* remove the file */
++	unlink(tempfilename);
++
++	/*  error */
++        DEBUG_WRAP(DebugMessage(DEBUG_CLAMAV,"ClamAV scan error: %s.\n", cl_strerror(ret)););
++    }
++    else if(ret < 0)
++    { 
++        /* error */
++
++        /* close the fd */
++        close(fd);
++        /* remove the file */
++        unlink(tempfilename);
++
++        /*  error */
++        FatalError("ClamAV fubar scan error bailing!!!!!! %s.\n", cl_strerror(ret));
++    }
++
++    /* close the fd */
++    close(fd);
++    /* remove it */
++    unlink(tempfilename);
++
++    return retval;
++}
++
++ssize_t writepacket(int fd, const void *pbuffer, size_t psize)
++{
++    ssize_t pdwritten = 0, pd;
++
++   do {
++       DEBUG_WRAP(DebugMessage(DEBUG_CLAMAV,"we have written %i of %i bytes in writepacket loop\n",pdwritten,psize););
++       if((pd = write(fd, &((const char *)pbuffer)[pdwritten], psize - pdwritten)) == -1)
++       {
++           if(errno == EINTR)
++           {
++              DEBUG_WRAP(DebugMessage(DEBUG_CLAMAV,"we wrote %i of %i bytes to disk and got a signal interrupt looping\n",pdwritten,psize););
++           }
++           else
++           {
++              return -1;
++           }
++       }
++       pdwritten += pd;
++       DEBUG_WRAP(DebugMessage(DEBUG_CLAMAV,"we have written %i of %i bytes in writepacket loop\n",pdwritten,psize););
++      }while ( pdwritten < psize); 
++      return pdwritten;
++}
++
 +/*
 + * Function: VirusInPacket(Packet *)
 + *
@@ -701,7 +997,14 @@ diff -Naur snort-2.3.0RC2/src/preprocessors/spp_clamav.c snort-2.3.0RC2.oden/src
 +    Event event;
 +    char outstring[255];
 +    const char *cl_virusname = NULL;
-+ 
++
++
++    /* check if we need to reload the virus db */
++    if(p->pkth->ts.tv_sec >= clamcnf.next_reload_time)
++    {
++	ClamAVReloadDB(p);
++    }
++
 +
 +    /* virusscanning requires data, so check if we have any */
 +    if(p->dsize == 0)
@@ -723,30 +1026,43 @@ diff -Naur snort-2.3.0RC2/src/preprocessors/spp_clamav.c snort-2.3.0RC2.oden/src
 +        return 0;
 +    }
 +
-+    
-+    /* call cl_scanbuff the function from ClamAV to scan the buffer. */
-+    ret = cl_scanbuff(p->data, p->dsize, &cl_virusname, cl_root);
-+    if(ret == CL_CLEAN)
-+    {
-+        /* clean */
-+    }
-+    else if(ret == CL_VIRUS)
-+    {
-+        snprintf(outstring, sizeof(outstring), "%s %s", CLAMAV_VIRUSFOUND_STR, cl_virusname);
 +
-+        /* alert! */
-+        SetEvent(&event, GENERATOR_SPP_CLAMAV, CLAMAV_VIRUSFOUND, 1, 0, 0, 0); 
-+        CallAlertFuncs(p, outstring, NULL, &event);
-+        CallLogFuncs(p, outstring, NULL, &event);
-+        return 1;
-+    }
-+    else
-+    {
-+        /* error */
-+        FatalError("ClamAV scan error: %s.\n", cl_strerror(ret));
-+    }
-+    
-+    return 0;
++     if(clamcnf.file_descriptor_mode)
++     {
++         return(StoreAndScan(p));
++     }
++     else
++     {
++       /* call cl_scanbuff the function from ClamAV to scan the buffer. */
++       DEBUG_WRAP(DebugMessage(DEBUG_CLAMAV,"scan buffer of packet %d->%d\n", p->sp, p->dp););
++       ret = cl_scanbuff(p->data, p->dsize, &cl_virusname, cl_root);
++       if(ret == CL_CLEAN)
++       {
++           DEBUG_WRAP(DebugMessage(DEBUG_CLAMAV,"scan buffer is clean\n");); 
++       }
++       else if(ret == CL_VIRUS)
++       {
++            snprintf(outstring, sizeof(outstring), "%s %s", CLAMAV_VIRUSFOUND_STR, cl_virusname);
++
++            // alert!
++            SetEvent(&event, GENERATOR_SPP_CLAMAV, CLAMAV_VIRUSFOUND, 1, 0, 0, 0); 
++            CallAlertFuncs(p, outstring, NULL, &event);
++            CallLogFuncs(p, outstring, NULL, &event);
++            return 1;
++       }
++       else if(ret > 0)
++       {
++           // error
++           DEBUG_WRAP(DebugMessage(DEBUG_CLAMAV,"ClamAV scan error: %s.\n", cl_strerror(ret)););
++           
++       }
++       else if(ret < 0)
++       {
++           // error
++           FatalError("ClamAV scan error: %s.\n", cl_strerror(ret));
++       }
++        return 0;
++      }
 +}
 +
 +
@@ -763,44 +1079,49 @@ diff -Naur snort-2.3.0RC2/src/preprocessors/spp_clamav.c snort-2.3.0RC2.oden/src
 + * Returns: void function
 + *
 + */
-+static void VirusChecker(Packet *p)
++static void VirusChecker(Packet *p, void *context)
 +{
 +    if(VirusInPacket(p))
 +    {
 +#ifdef GIDS
 +        if(clamcnf.reset)
 +        {
++            DEBUG_WRAP(DebugMessage(DEBUG_CLAMAV,"ClamAV virus found sending Reject\n"););
 +            InlineReject(p);
 +        }
 +        else if(clamcnf.drop)
 +        {
++            DEBUG_WRAP(DebugMessage(DEBUG_CLAMAV,"ClamAV virus found sending Drop\n"););   
 +            InlineDrop();
 +        }
++        AlertFlushStream(p);
 +#endif /* GIDS */
 +    }
 +    return; 
 +}
 +
 +#endif /* CLAMAV */
-diff -Naur snort-2.3.0RC2/src/preprocessors/spp_clamav.h snort-2.3.0RC2.oden/src/preprocessors/spp_clamav.h
---- snort-2.3.0RC2/src/preprocessors/spp_clamav.h	1970-01-01 01:00:00.000000000 +0100
-+++ snort-2.3.0RC2.oden/src/preprocessors/spp_clamav.h	2004-12-24 06:59:12.694859259 +0100
-@@ -0,0 +1,18 @@
-+/* $Id: spp_template.h,v 1.3.2.1 2004/02/25 16:52:53 jh8 Exp $ */
++
+diff -Naur snort-2.4.3/src/preprocessors/spp_clamav.h snort-2.4.3.oden/src/preprocessors/spp_clamav.h
+--- snort-2.4.3/src/preprocessors/spp_clamav.h	1970-01-01 01:00:00.000000000 +0100
++++ snort-2.4.3.oden/src/preprocessors/spp_clamav.h	2005-10-29 13:28:52.000000000 +0200
+@@ -0,0 +1,19 @@
++/* $Id: snort-2.4.3-clamonly.diff,v 1.1 2005/10/24 17:23:40 jonkman Exp $ */  
 +/* Snort Preprocessor Plugin Header File Template */
 +
-+/* This file gets included in plugbase.h when it is integrated into the rest 
-+ * of the program.  
++/* This file gets included in plugbase.h when it is integrated into the rest
++ * of the program.
 + */
 +#ifndef __SPP_CLAMAV_H__
 +#define __SPP_CLAMAV_H__
 +
 +#ifdef CLAMAV
-+/* 
-+ * list of function prototypes to export for this preprocessor 
++/*
++ * list of function prototypes to export for this preprocessor
 + */
 +void SetupClamAV();
 +
 +#endif /* CLAMAV */
 +
 +#endif  /* __SPP_CLAMAV_H__ */
++

@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		snort
-%define version		2.3.3
+%define version		2.4.4
 %define release		%_revrel
 
 Summary:	An intrusion detection system
@@ -20,15 +20,17 @@ License:	GPL
 Group:		Networking/Other
 URL:		http://www.snort.org
 Source0:	http://www.snort.org/dl/%{name}-%{version}.tar.gz
-Source1:	snortd.run
-Source2:	snortd-log.run
-Source3:	http://www.snort.org/dl/%{name}-%{version}.tar.gz.asc
+Source1:	http://www.snort.org/dl/%{name}-%{version}.tar.gz.sig
+Source2:	snortd.run
+Source3:	snortd-log.run
 Source4:	snort.logrotate
 Source5:	snort.sysconfig
 Source6:	snortdb-extra
+# snort rules are now bundled separately; these "community" rules are under the GPL
+Source7:	http://www.snort.org/pub-bin/downloads.cgi/Download/comm_rules/Community-Rules-2.4.tar.gz
 
-Patch1:		snort-2.3.0RC2-lib64.patch
-Patch2:		snort-2.3.0RC2-clamav.diff
+Patch1:		snort-2.4.3-avx-lib64.patch
+Patch2:		snort-2.4.3-mdv-clamav.patch
 # (oe): make -L work as stated in the man page.
 Patch3:		snort-2.3.0-no_timestamp.diff
 # (oe) disable some code to make it build
@@ -165,12 +167,25 @@ Requires:	iptables, clamav, clamav-db
 Snort compiled with inline+flexresp support.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
-%setup -q
+%setup -q -a 7
 %patch1 -p0 -b .lib64
 %patch2 -p1 -b .clamav
 %patch3 -p0 -b .no_timestamp
 #%patch4 -p0 -b .net-snmp_fix
+
+# fix some docs
+mv docs rule-docs
+rm -f README.WIN32
+chmod 0644 rule-docs/*.txt
 
 # fix pid file path
 echo "#define _PATH_VARRUN \"/var/run/%{name}\"" >> acconfig.h
@@ -181,7 +196,7 @@ cp %{SOURCE6} .
 %build
 export WANT_AUTOCONF_2_5=1
 rm -f configure
-libtoolize --copy --force && aclocal-1.7 && autoheader && automake-1.7 --add-missing && autoconf --force
+libtoolize --copy --force && aclocal-1.7 -I m4 && autoheader && automake-1.7 --add-missing && autoconf --force
 
 
 # build snort
@@ -470,22 +485,10 @@ install -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
 install -m 0644 %{SOURCE5} %{buildroot}%{_sysconfdir}/sysconfig/%{name}
 
 mkdir -p %{buildroot}%{_srvdir}/snortd/log
-install -m 0740 %{SOURCE1} %{buildroot}%{_srvdir}/snortd/run
-install -m 0740 %{SOURCE2} %{buildroot}%{_srvdir}/snortd/log/run
+install -m 0740 %{SOURCE2} %{buildroot}%{_srvdir}/snortd/run
+install -m 0740 %{SOURCE3} %{buildroot}%{_srvdir}/snortd/log/run
 
-#remove the contrib archive files
-# remove some of the contrib archive files
-bzme contrib/snortdb-extra.gz
-bzme contrib/Spade-092200.1.tar.gz
-bzme contrib/passiveOS.tar.gz
-bzme contrib/snortnet.tar.gz
-bzme contrib/snortwatch-0.7.tar.gz
-
-rm -rf contrib/*.gz
 cp contrib/README doc/README.contrib
-
-# don't ship this
-rm -rf contrib/rpm
 
 # prevent having to type every blood doc in %%files
 mkdir doc2
@@ -505,15 +508,15 @@ rm -f doc/README.{SNMP.SNMP,clamav.clamav}
 %pre
 %_pre_useradd snort /var/log/snort /bin/false 77
 
+
 %post
 update-alternatives --install %{_sbindir}/%{name} %{name} %{_sbindir}/%{name}-plain 10
-if [ -d /var/log/supervise/snortd -a ! -d /var/log/service/snortd ]; then
-    mv /var/log/supervise/snortd /var/log/service/
-fi
 %_post_srv snortd
+
 
 %preun
 %_preun_srv snortd
+
 
 %postun
 %_postun_userdel snort
@@ -522,11 +525,13 @@ if [ $1 = 0 ]; then
     update-alternatives --remove %{name} %{_sbindir}/%{name}-plain
 fi
 
+
 %post plain+flexresp
 update-alternatives --install %{_sbindir}/%{name} %{name} %{_sbindir}/%{name}-plain+flexresp 11
 
 %postun plain+flexresp
 update-alternatives --remove %{name} %{_sbindir}/%{name}-plain+flexresp
+
 
 %post mysql
 update-alternatives --install %{_sbindir}/%{name} %{name} %{_sbindir}/%{name}-mysql 12
@@ -534,11 +539,13 @@ update-alternatives --install %{_sbindir}/%{name} %{name} %{_sbindir}/%{name}-my
 %postun mysql
 update-alternatives --remove %{name} %{_sbindir}/%{name}-mysql
 
+
 %post mysql+flexresp
 update-alternatives --install %{_sbindir}/%{name} %{name} %{_sbindir}/%{name}-mysql+flexresp 13
 
 %postun mysql+flexresp
 update-alternatives --remove %{name} %{_sbindir}/%{name}-mysql+flexresp
+
 
 %post postgresql
 update-alternatives --install %{_sbindir}/%{name} %{name} %{_sbindir}/%{name}-postgresql 14
@@ -546,11 +553,13 @@ update-alternatives --install %{_sbindir}/%{name} %{name} %{_sbindir}/%{name}-po
 %postun postgresql
 update-alternatives --remove %{name} %{_sbindir}/%{name}-postgresql
 
+
 %post postgresql+flexresp
 update-alternatives --install %{_sbindir}/%{name} %{name} %{_sbindir}/%{name}-postgresql+flexresp 15
 
 %postun postgresql+flexresp
 update-alternatives --remove %{name} %{_sbindir}/%{name}-postgresql+flexresp
+
 
 %post bloat
 update-alternatives --install %{_sbindir}/%{name} %{name} %{_sbindir}/%{name}-bloat 16
@@ -558,11 +567,13 @@ update-alternatives --install %{_sbindir}/%{name} %{name} %{_sbindir}/%{name}-bl
 %postun bloat
 update-alternatives --remove %{name} %{_sbindir}/%{name}-bloat
 
+
 %post inline
 update-alternatives --install %{_sbindir}/%{name} %{name} %{_sbindir}/%{name}-inline 17
 
 %postun inline
 update-alternatives --remove %{name} %{_sbindir}/%{name}-inline
+
 
 %post inline+flexresp
 update-alternatives --install %{_sbindir}/%{name} %{name} %{_sbindir}/%{name}-inline+flexresp 18
@@ -573,9 +584,6 @@ update-alternatives --remove %{name} %{_sbindir}/%{name}-inline+flexresp
 
 %files
 %defattr(-,root,root)
-%doc doc/snort_manual.pdf
-%doc doc/AUTHORS doc/BUGS doc/CREDITS doc/NEWS doc/USAGE doc/README*
-%doc COPYING ChangeLog contrib/* snortdb-extra.bz2 RELEASE.NOTES
 %attr(0755,root,root) %{_sbindir}/%{name}-plain
 %attr(0755,root,root) %{_mandir}/man8/%{name}.8*
 %attr(0755,snort,snort) %dir /var/log/%{name}
@@ -600,40 +608,53 @@ update-alternatives --remove %{name} %{_sbindir}/%{name}-inline+flexresp
 
 %files mysql
 %defattr(-,root,root)
-%doc schemas/create_mysql
 %attr(755,root,root) %{_sbindir}/%{name}-mysql
 
 %files mysql+flexresp
 %defattr(-,root,root)
-%doc schemas/create_mysql
 %attr(755,root,root) %{_sbindir}/%{name}-mysql+flexresp
 
 %files postgresql
 %defattr(-,root,root)
-%doc schemas/create_postgresql
 %attr(755,root,root) %{_sbindir}/%{name}-postgresql
 
 %files postgresql+flexresp
 %defattr(-,root,root)
-%doc schemas/create_postgresql
 %attr(755,root,root) %{_sbindir}/%{name}-postgresql+flexresp
 
 %files inline
 %defattr(-,root,root)
-%doc doc2/README.INLINE
 %attr(0755,root,root) %{_sbindir}/%{name}-inline
 
 %files inline+flexresp
 %defattr(-,root,root)
-%doc doc2/README.INLINE
 %attr(0755,root,root) %{_sbindir}/%{name}-inline+flexresp
 
 %files bloat
 %defattr(-,root,root)
 %attr(755,root,root) %{_sbindir}/%{name}-bloat
 
+%files doc
+%defattr(-,root,root)
+%doc doc/AUTHORS doc/BUGS doc/CREDITS doc/NEWS doc/USAGE doc/README*
+%doc COPYING ChangeLog snortdb-extra RELEASE.NOTES
+%doc schemas/create_mysql
+%doc schemas/create_postgresql
+%doc doc2/README.INLINE
+%doc rule-docs
+
 
 %changelog
+* Thu Jun 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.4.4
+- 3.4.4
+- updated P2 from Mandriva
+- took updated P1 from Mandriva and dropped the SNMP-related bits
+- add -doc subpackage
+- drop the pdf docs
+- S7: new community rules (GPL-licensed so ok to include) for 2.4 dated 2006-06-05
+- cleanup some assumptions about contrib files
+- rebuild with gcc4
+
 * Wed Feb  1 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.3
 - build against new postgresql
 
