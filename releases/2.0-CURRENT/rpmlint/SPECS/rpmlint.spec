@@ -24,9 +24,9 @@ Source1:	rpmlint.annvix.config
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
-BuildRequires:	python, rpm-python
+BuildRequires:	python, python-rpm
 
-Requires:	python, rpm-python, binutils, gcc-cpp
+Requires:	python, python-rpm, binutils, gcc-cpp
 
 %description
 Rpmlint is a tool to check common errors on rpm packages.
@@ -75,6 +75,10 @@ rm -rf %{buildroot}%{_sysconfdir}/bash_completion.d
 
 
 %changelog
+* Fri Jun 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.76
+- fix buildrequires
+- updated config
+
 * Sat Jun 03 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.76
 - add -doc subpackage
 - rebuild against new python
