@@ -40,8 +40,7 @@ symlinks to relative symlinks.
 
 
 %build
-perl -p -i -e "s/-O2/%{optflags}/" Makefile
-%make
+%make CFLAGS="%{optflags}"
 
 
 %install
@@ -61,10 +60,14 @@ install -m 0644 %{name}.8 -D %{buildroot}%{_mandir}/man8/%{name}.8
 
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jun 16 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- rebuild with gcc4
+- pass %%optflags directly to make rather than mess with the Makefile
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
