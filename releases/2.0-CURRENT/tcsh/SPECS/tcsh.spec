@@ -45,6 +45,14 @@ spelling correction, a history mechanism, job control and a C language
 like syntax.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n %{name}-%{rversion}
 %patch1 -p1 -b .termios
@@ -90,18 +98,25 @@ install %{SOURCE1} %{buildroot}%{_sysconfdir}/profile.d/$(basename %{SOURCE1})
 
 %files
 %defattr(-,root,root)
-%doc NewThings FAQ Fixes eight-bit.txt complete.tcsh
-%doc Ported README* WishList Y2K
 %config(noreplace) %{_sysconfdir}/profile.d/*
 /bin/*
 %{_mandir}/*/*
 
+%files doc
+%defattr(-,root,root)
+%doc NewThings FAQ Fixes eight-bit.txt complete.tcsh
+%doc Ported README* WishList Y2K
+
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jun 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 6.14
+- add -doc subpackage
+- rebuild with gcc4
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 6.14
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 6.14
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - fix prereq
