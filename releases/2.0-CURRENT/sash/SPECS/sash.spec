@@ -76,10 +76,13 @@ install -m 0644 sash.1 %{buildroot}%{_mandir}/man8/sash.8
 
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jun 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.7
+- rebuild with gcc4
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.7
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.7
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
