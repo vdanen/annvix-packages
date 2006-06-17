@@ -46,6 +46,14 @@ This packages contains the libraries, include and other files
 for Safe/Fast I/O Library
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q 
 %patch1 -p0
@@ -88,7 +96,6 @@ install lib/*.a %{buildroot}%{_libdir}/
 
 %files
 %defattr(-,root,root)
-%doc NOTICE/* *README 
 %{_libdir}/*
 %{_mandir}/man*/*
 
@@ -98,11 +105,20 @@ install lib/*.a %{buildroot}%{_libdir}/
 %{_libdir}/*.so
 %{_libdir}/*.a
 
+%files doc
+%defattr(-,root,root)
+%doc NOTICE/* *README
+
+
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jun 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 1999
+- add -doc subpackage
+- rebuild with gcc4
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1999
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 1999
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
