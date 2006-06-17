@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		spamassassin
-%define version		3.1.1
+%define version		3.1.3
 %define release		%_revrel
 
 %define fname		Mail-SpamAssassin
@@ -223,6 +223,9 @@ fi
 
 
 %changelog
+* Fri Jun 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.1.3
+- 3.1.3 (fixes CVE-2006-2447)
+
 * Thu May 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.1.1
 - make -doc obsolete -tools
 
