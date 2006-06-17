@@ -12,11 +12,14 @@
 %define version		%{major}.%{minor}
 %define release		%_revrel
 
-%define major		3.08
-%define minor		3
+%define major		3.09
+%define minor		2
 
 %define build_ocamlopt	1
-%define build_ocamltk	1
+%define build_ocamltk	0
+
+# otherwise the auto-requires will add a requires on the currently installed ocaml
+%define _requires_exceptions ocaml
 
 Summary:	The Objective Caml compiler and programming environment
 Name:		%{name}
@@ -31,7 +34,6 @@ Patch0:		ocaml-3.00-ocamltags--no-site-start.patch
 Patch1:		ocaml-3.04-do-not-add-rpath-X11R6_lib-when-using-option-L.patch
 Patch2:		ocaml-3.05-no-opt-for-debug-and-profile.patch
 Patch3:		ocaml-3.04-larger-buffer-for-uncaught-exception-messages.patch
-Patch4:		ocaml-3.08.0-add-warning-for-unused-local-variables.patch
 Patch5:		ocaml-3.06-lib64.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -49,19 +51,28 @@ tools, a replay debugger, and a comprehensive library.
 %package -n camlp4
 Summary:	Preprocessor for OCaml
 Group:		Development/Other
-Requires:	%{name} = %{version}-%{release}
+Requires:	%{name} = %{version}
 
 %description -n camlp4
 Preprocessor for OCaml
 
-
+%if %{build_ocamltk}
 %package -n ocamltk
 Summary:	Tk toolkit binding for OCaml
 Group:		Development/Other
-Requires:	%{name} = %{version}-%{release}
+Requires:	%{name} = %{version}
 
 %description -n ocamltk
 Tk toolkit binding for OCaml
+%endif
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -71,11 +82,8 @@ Tk toolkit binding for OCaml
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
-%patch4 -p1
 %patch5 -p1 -b .lib64
 
-#- because of added warning for unused local variables, treating warning as errors is no good
-perl -pi -e 's/-warn-error A/-w A -w e/' `find -name "Makefile*"`
 rm -rf `find -name .cvsignore`
 
 
@@ -128,20 +136,26 @@ n="labltk|camlp4|ocamlbrowser|tkanim"
 (cd %{buildroot} ; find usr/%{_lib}/ocaml   -type d -printf "%%%%dir /%%p\n" | egrep -v $n) >> %{name}.list
 
 
+%if !%{build_ocamltk}
+rm -f %{buildroot}%{_bindir}/*labltk*
+rm -f %{buildroot}%{_bindir}/ocamlbrowser
+rm -rf %{buildroot}%{_libdir}/ocaml/*labltk*
+rm -f %{buildroot}%{_libdir}/ocaml/stublibs/{dlllabltk,dlltkanim}.so
+%endif
+
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
 %files -f %{name}.list
 %defattr(-,root,root)
-%doc Changes LICENSE README
 %{_mandir}/man*/*ocaml*
 %{_mandir}/man*/*ocpp*
 
 %if %{build_ocamltk}
 %files -n ocamltk
 %defattr(-,root,root)
-%doc otherlibs/labltk/README otherlibs/labltk/example*
 %{_bindir}/*labltk*
 %{_bindir}/ocamlbrowser
 %{_libdir}/ocaml/*labltk*
@@ -155,12 +169,25 @@ n="labltk|camlp4|ocamlbrowser|tkanim"
 %{_bindir}/*camlp4*
 %{_libdir}/ocaml/camlp4
 
+%files doc
+%defattr(-,root,root)
+%doc Changes LICENSE README
+%doc otherlibs/labltk/README otherlibs/labltk/example*
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jun 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.09.2
+- 3.09.2
+- drop P4; included upstream
+- don't build ocamltk; nothing needs it and we don't want it
+- fix some requires_on_release
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.08.3
 - Clean rebuild
 
-* Sun Jan 08 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sun Jan 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.08.3
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
