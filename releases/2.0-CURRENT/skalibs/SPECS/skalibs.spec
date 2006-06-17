@@ -18,7 +18,7 @@ Version:	%{version}
 Release:	%{release}
 License:	BSD
 Group:		Development/Other
-URL:		http://www.skarnet.org/software/%{name}/
+URL:		http://www.skarnet.org/software/skalibs/
 Source0:	http://www.skarnet.org/software/%{name}/%{name}-%{version}.tar.gz
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -46,6 +46,14 @@ code, you will like skalibs.
 skalibs contains exclusively public-domain code.  So you can
 redistribute it as you want, and it does not prevent you from
 distributing any of your executables.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -81,20 +89,27 @@ popd
 
 %files devel
 %defattr(-,root,root)
-%doc %{name}-%{version}/package/CHANGES
-%doc %{name}-%{version}/package/README
-%doc %{name}-%{version}/doc/*.html
 %dir %{_includedir}/%{name}
 %dir %{_libdir}/%{name}
 %{_includedir}/%{name}/*.h
 %{_libdir}/%{name}/*.a
 
+%files doc
+%defattr(-,root,root)
+%doc %{name}-%{version}/package/CHANGES
+%doc %{name}-%{version}/package/README
+%doc %{name}-%{version}/doc/*.html
+
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jun 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.45
+- add -doc subpackage
+- rebuild with gcc4
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.45
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.45
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
