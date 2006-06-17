@@ -1,0 +1,25 @@
+* Sat Feb 18 2006 Christiaan Welvaart <cjw@daneel.dyndns.org>
+not including asm/byteorder.h will not define __BYTEORDER_HAS_U64__
+causing __fswab64 to be undefined and failure compiling mdadm on
+big_endian architectures like PPC
+
+--- mdadm-2.3.1/mdadm.h.bak	2006-02-06 04:52:12.000000000 +0100
++++ mdadm-2.3.1/mdadm.h	2006-02-18 03:51:59.786926267 +0100
+@@ -72,16 +72,7 @@
+ #include	"bitmap.h"
+ 
+ #include <endian.h>
+-/* #include "asm/byteorder.h" Redhat don't like this so... */
+-#if __BYTE_ORDER == __LITTLE_ENDIAN
+-#  include <linux/byteorder/little_endian.h>
+-#elif __BYTE_ORDER == __BIG_ENDIAN
+-#  include <linux/byteorder/big_endian.h>
+-#elif __BYTE_ORDER == __PDP_ENDIAN
+-#  include <linux/byteorder/pdp_endian.h>
+-#else
+-#  error "unknown endianness."
+-#endif
++#include <asm/byteorder.h>
+ 
+ 
+ 

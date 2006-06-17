@@ -9,13 +9,16 @@
 
 %define revision	$Rev$
 %define name		mdadm
-%define version		1.12.0
+%define version		2.5
 %define release		%_revrel
 
 %define use_dietlibc 	0
 %ifarch %{ix86} x86_64 ppc
 %define use_dietlibc 	1
 %endif
+
+%define mdassemble_auto	%{nil}
+#define mdassemble_auto	MDASSEMBLE_AUTO=1
 
 # we want to install in /sbin, not /usr/sbin...
 %define _exec_prefix	%{nil}
@@ -30,6 +33,14 @@ URL:		http://www.cse.unsw.edu.au/~neilb/source/mdadm/
 Source:		http://www.cse.unsw.edu.au/~neilb/source/mdadm/%{name}-%{version}.tar.bz2
 Source2:	mdadm.run
 Source3:	mdadm-log.run
+Patch0:		mdadm-2.4-snprintf.patch
+Patch1:		mdadm-2.4-strict-aliasing.patch
+Patch2:		mdadm-2.3.1-kernel-byteswap-include-fix.patch
+Patch3:		mdadm-2.5-unused.patch
+Patch4:		mdadm-2.5-rand.patch
+Patch5:		mdadm-2.5-mdassemble.patch
+Patch6:		mdadm-2.5-no_openssl.diff
+
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	man groff groff-for-man
@@ -50,8 +61,25 @@ program, and it can perform (almost) all functions without a
 configuration file (that a config file can be used to help with
 some common tasks).
 
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
+%patch0 -p1 -b .snprintf
+%patch1 -p1 -b .strict-aliasing
+%patch2 -p1 -b .asm-byteorder_h
+%patch3 -p1 -b .unused
+%patch4 -p1 -b .rand
+%patch5 -p1 -b .mdassemble
+%patch6 -p1 -b .no_openssl
+
 chmod 0644 ChangeLog
 
 
@@ -63,7 +91,7 @@ COMP="diet gcc"
 %endif
 
 %if %{use_dietlibc}
-make mdassemble CXFLAGS="%{optflags} -DMDASSEMBLE_AUTO" SYSCONFDIR="%{_sysconfdir}" DIET_GCC="$COMP"
+make mdassemble CXFLAGS="%{optflags}" %{mdassemble_auto} SYSCONFDIR="%{_sysconfdir}" DIET_GCC="$COMP"
 %endif
 make CXFLAGS="%{optflags}" SYSCONFDIR="%{_sysconfdir}"
 
@@ -112,12 +140,29 @@ fi
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/mdadm/run
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/mdadm/log/run
 
+%files doc
+%defattr(-,root,root)
+%doc TODO ChangeLog mdadm.conf-example ANNOUNCE* README.initramfs
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jun 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5
+- 2.5
+- sync patches from Mandriva:
+  - P0: snprintf fix (bluca)
+  - P1: strict aliasing fix (bluca)
+  - P2: fix #include for kernel byteswap function (cjw)
+  - P3: check return status of all write/fwrite functions (bluca)
+  - P4: use posix rand() instead of BSD random() (bluca)
+  - P5: fix some issues with mdassemble (bluca)
+  - P6: use provided SHA1 and don't like against openssl (oden)
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.12.0
 - Clean rebuild
 
-* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.12.0
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - drop unused S1

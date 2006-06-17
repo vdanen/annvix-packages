@@ -1,0 +1,14 @@
+* Sat May 27 2006 Luca Berra <bluca@vodka.it>
+snprintf size should be at most the size of the buffer
+
+--- mdadm-2.4/util.c.snprintf	2006-05-27 13:53:18.000000000 +0200
++++ mdadm-2.4/util.c	2006-05-27 13:53:38.000000000 +0200
+@@ -439,7 +439,7 @@
+ 		}
+ 	if (create && !std && !nonstd) {
+ 		static char buf[30];
+-		snprintf(buf, 1024, "%d:%d", major, minor);
++		snprintf(buf, 30, "%d:%d", major, minor);
+ 		nonstd = buf;
+ 	}
+ 
