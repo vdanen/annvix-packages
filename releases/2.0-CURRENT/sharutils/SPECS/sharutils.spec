@@ -52,8 +52,6 @@ tool scans mail messages looking for shar files.  Unshar automatically
 strips off mail headers and introductory text and then unpacks the shar
 files.
 
-Install sharutils if you send binary files through email very often.
-
 
 %prep
 %setup -q
@@ -112,7 +110,11 @@ fi
 %{_infodir}/remsync*
 %{_mandir}/man?/*
 
+
 %changelog
+* Fri Jun 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.2.1
+- rebuild with gcc4
+
 * Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.2.1
 - fix group
 
