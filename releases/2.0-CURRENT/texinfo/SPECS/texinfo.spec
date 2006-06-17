@@ -28,6 +28,10 @@ Patch3:		texinfo-4.7.test.patch
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	ncurses-devel, zlib-devel
 
+Requires:	tetex
+Requires(pre):	info-install
+Requires(preun): info-install
+
 %description
 Texinfo is a documentation system that can produce both online information
 and printed output from a single source file.  Normally, you'd have to
@@ -45,7 +49,8 @@ going to write documentation for the GNU Project.
 %package -n info
 Summary:	A stand-alone TTY-based reader for GNU texinfo documentation
 Group:		System/Base
-Prereq:		info-install
+Requires(pre):	info-install
+Requires(preun): info-install
 Conflicts:	info-install < 4.7
 
 %description -n info
@@ -67,6 +72,14 @@ Conflicts:	info < 4.7
 The GNU project uses the texinfo file format for much of its
 documentation. The info package provides a standalone TTY-based browser
 program for viewing texinfo files.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -121,8 +134,6 @@ rm -f %{buildroot}%{_bindir}/texi2pdf
 
 %files -f %{name}.lang
 %defattr(-,root,root)
-%doc AUTHORS ChangeLog INSTALL INTRODUCTION NEWS README TODO
-%doc --parents info/README
 %{_bindir}/makeinfo
 %{_bindir}/texindex
 %{_bindir}/texi2dvi
@@ -150,12 +161,23 @@ rm -f %{buildroot}%{_bindir}/texi2pdf
 /sbin/install-info
 %{_mandir}/man1/install-info.1*
 
+%files doc
+%defattr(-,root,root)
+%doc AUTHORS ChangeLog INSTALL INTRODUCTION NEWS README TODO
+%doc --parents info/README
+
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jun 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.8
+- fix prereq
+- requires tetex
+- add -doc subpackage
+- rebuild with gcc4
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.8
 - Clean rebuild
 
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.8
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
