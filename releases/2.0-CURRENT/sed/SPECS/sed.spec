@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		sed
-%define version		4.1.4
+%define version		4.1.5
 %define release		%_revrel
 
 Summary:	A GNU stream text editor
@@ -19,7 +19,7 @@ Release:	%{release}
 License:	GPL
 Group:		Editors
 URL:		http://www.gnu.org/software/sed/
-Source0:	ftp://ftp.gnu.org/pub/gnu/sed/sed-%{version}.tar.bz2
+Source0:	ftp://ftp.gnu.org/pub/gnu/sed/sed-%{version}.tar.gz
 
 Buildroot:	%{_buildroot}/%{name}-%{version}
 
@@ -34,6 +34,14 @@ that sed performs (substitutions, deletions, insertions, etc.) can be
 specified in a script file or from the command line.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 
@@ -41,6 +49,9 @@ specified in a script file or from the command line.
 %build
 %configure2_5x --bindir=/bin
 %make LDFLAGS=-s
+
+
+%check
 make check
 
 
@@ -66,16 +77,26 @@ rm -rf %{buildroot}%{_datadir}/doc
 
 %files -f %{name}.lang
 %defattr(-,root,root)
-%doc BUGS NEWS README doc/sed.html
 /bin/sed 
 %{_infodir}/sed.info*
-%{_mandir}/man1/sed.1.bz2
+%{_mandir}/man1/sed.1*
+
+%files doc
+%defattr(-,root,root)
+%doc BUGS NEWS README
+
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jun 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.1.5
+- 4.1.5
+- don't build the html version of the info pages
+- add -doc subpackage
+- rebuild with gcc4
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.1.4
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.1.4
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - fix prereq
