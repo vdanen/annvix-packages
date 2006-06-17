@@ -55,7 +55,7 @@ Requires(preun): rpm-helper
 Requires(post):	rpm-helper
 Requires(postun): rpm-helper
 Requires:	pcre
-Requires:	libpcap0 >= 0.6
+Requires:	libpcap >= 0.6
 
 %description
 Snort is a libpcap-based packet sniffer/logger which 
@@ -645,6 +645,9 @@ update-alternatives --remove %{name} %{_sbindir}/%{name}-inline+flexresp
 
 
 %changelog
+* Sat Jun 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.4.4
+- change requires: s/libpcap0/libpcap/ so it will install on x86_64 properly
+
 * Thu Jun 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.4.4
 - 3.4.4
 - updated P2 from Mandriva
