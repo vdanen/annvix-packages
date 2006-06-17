@@ -40,6 +40,14 @@ to give as few privileges as possible but still allow people to get
 their work done.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 
@@ -89,8 +97,6 @@ install -m 0440 %{SOURCE2} %{buildroot}%{_sysconfdir}/sudoers
 
 %files
 %defattr(-,root,root)
-%doc BUGS CHANGES HISTORY INSTALL PORTING README RUNSON TODO
-%doc TROUBLESHOOTING UPGRADE sample.sudoers
 %attr(0440,root,root) %config(noreplace) %{_sysconfdir}/sudoers
 %config(noreplace) %{_sysconfdir}/logrotate.d/sudo
 %config(noreplace) %{_sysconfdir}/pam.d/sudo
@@ -100,12 +106,23 @@ install -m 0440 %{SOURCE2} %{buildroot}%{_sysconfdir}/sudoers
 %{_mandir}/*/*
 /var/run/sudo
 
+%files doc
+%defattr(-,root,root)
+%doc BUGS CHANGES HISTORY INSTALL PORTING README RUNSON TODO
+%doc TROUBLESHOOTING UPGRADE sample.sudoers
+
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jun 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.6.8p12
+- add the APT group in sudoers, but don't assign it to anyone by default
+  (apt can provide too much information for some, unlike rurpmi)
+- add -doc subpackage
+- rebuild with gcc4
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.6.8p12
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.6.8p12
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
