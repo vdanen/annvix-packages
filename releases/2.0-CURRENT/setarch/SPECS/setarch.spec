@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		setarch
-%define version		1.8
+%define version		2.0
 %define	release		%_revrel
 
 Summary:	Kernel personality setter
@@ -19,11 +19,10 @@ Release:	%{release}
 License:	GPL
 Group:		System/Kernel and hardware
 Source0:	%{name}-%{version}.tar.gz
-Patch0:		setarch-1.3-linux64.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
-Provides:	linux32
+Provides:	linux32, sparc32
 
 %description
 This utility tells the kernel to report a different architecture than the 
@@ -32,7 +31,6 @@ current one, then runs a program in that environment.
 
 %prep
 %setup -q
-%patch0 -p1 -b .linux64
 
 
 %build
@@ -42,14 +40,14 @@ current one, then runs a program in that environment.
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 install -m 0644 setarch.8 -D %{buildroot}%{_mandir}/man8/setarch.8
-install -s -m 0755 setarch -D %{buildroot}%{_bindir}/setarch
+install -m 0755 setarch -D %{buildroot}%{_bindir}/setarch
 
 
 LINKS="linux32"
 %ifarch s390 s390x
 LINKS="$LINKS s390 s390x"
 %endif
-%ifarch x86_64 i386
+%ifarch x86_64 sparc64
 LINKS="$LINKS i386 x86_64"
 %endif
 %ifarch ppc ppc64
@@ -57,6 +55,11 @@ LINKS="$LINKS ppc ppc64 ppc32"
 %endif
 %ifarch sparc sparc64
 LINKS="$LINKS sparc sparc64 sparc32"
+cat << EOF >%{buildroot}%{_bindir}/sparc32bash
+#!/bin/sh
+sparc32 bash
+EOF
+chmod 0755 %{buildroot}%{_bindir}/sparc32bash
 %endif
 %ifarch ia64
 LINKS="$LINKS i386 ia64"
@@ -81,16 +84,24 @@ done
 
 
 %changelog
-* Wed Jan 25 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jun 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
+- 2.0
+- drop P0; merged upstream
+- add sparc32bash wrapper
+- don't strip setarch; rpm will do it
+- provides: sparc32
+- rebuild with gcc4
+
+* Wed Jan 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.8
 - 1.8
 
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.7
 - Clean rebuild
 
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.7
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.7
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
