@@ -63,6 +63,14 @@ Provides:	%{name}
 Small libc for building embedded applications.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q 
 %patch0 -p1 -b .features
