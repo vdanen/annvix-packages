@@ -575,7 +575,7 @@ update-alternatives --remove %{name} %{_sbindir}/%{name}-inline+flexresp
 %defattr(-,root,root)
 %doc doc/snort_manual.pdf
 %doc doc/AUTHORS doc/BUGS doc/CREDITS doc/NEWS doc/USAGE doc/README*
-%doc COPYING ChangeLog contrib/* snortdb-extra.bz2 RELEASE.NOTES
+%doc COPYING ChangeLog contrib/* snortdb-extra RELEASE.NOTES
 %attr(0755,root,root) %{_sbindir}/%{name}-plain
 %attr(0755,root,root) %{_mandir}/man8/%{name}.8*
 %attr(0755,snort,snort) %dir /var/log/%{name}
@@ -636,6 +636,7 @@ update-alternatives --remove %{name} %{_sbindir}/%{name}-inline+flexresp
 %changelog
 * Sat Jun 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.3
 - change requires: s/libpcap0/libpcap/ so it will install on x86_64 properly
+- snortdb-extra is not bzipped
 
 * Wed Feb  1 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.3
 - build against new postgresql
