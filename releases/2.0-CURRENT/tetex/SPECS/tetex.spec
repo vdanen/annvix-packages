@@ -43,7 +43,6 @@ Source6:	http://peoples.mandrakesoft.com/~ghibo/%{name}-texmfsrc-extras-gg-%{tex
 Source8:	ftp://ftp.dante.de/pub/tex/macros/xmltex.tar.bz2
 Source10:	tetex.cron
 Source11:	ftp://math.feld.cvut.cz/pub/cstex/tetex-rpm/mandrake/csindex-%{csidxversion}.tar.bz2
-Source20:	ttf2pk.tar.bz2
 Source21:	dvipdfpress
 
 Patch0:		tetex-3.0-texmfcnf.patch
@@ -70,7 +69,7 @@ Patch29:	xpdf-3.00-goo-overflow.patch
 Patch30:	xpdf-3.00-chris-overflows.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	bison, ed, flex, gettext-devel, autoconf2.1
+BuildRequires:	bison, ed, flex, gettext-devel, autoconf2.1, automake1.7
 BuildRequires:	ncurses-devel, png-devel, xpm-devel, XFree86-devel
 
 Requires:	tmpwatch, dialog, ed, info-install
@@ -619,6 +618,11 @@ fi
 
 
 %changelog
+* Fri Jun 16 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- drop S20, we don't ship or build ttf2pk
+- buildrequires: automake1.7
+- rebuild with gcc4
+
 * Fri Feb 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0
 - P28: security fixes for CVE-2005-319[123]
 - P29: fix an overflow in goo/gmem.c
