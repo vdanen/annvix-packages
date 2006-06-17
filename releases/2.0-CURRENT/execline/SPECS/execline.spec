@@ -20,7 +20,7 @@ Version:	%{version}
 Release:	%{release}
 License:	BSD
 Group:		Shells
-URL:		http://www.skarnet.org/software/%{name}/
+URL:		http://www.skarnet.org/software/execline/
 Source0:	http://www.skarnet.org/software/%{name}/%{name}-%{version}.tar.gz
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -32,6 +32,14 @@ execline is a very light, non-interactive scripting language, which is
 similar to a shell. Simple shell scripts can be easily rewritten in the 
 execline language, improving performance and memory usage. execline was 
 designed for use in embedded systems, but works on most Unix flavors.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -76,17 +84,24 @@ popd
 
 %files
 %defattr(-,root,root)
+/bin/*
+
+%files doc
+%defattr(-,root,root)
 %doc %{name}-%{version}/package/CHANGES
 %doc %{name}-%{version}/package/README
 %doc %{name}-%{version}/doc/*.html
-/bin/*
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jun 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.06
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.06
 - Clean rebuild
 
-* Wed Jan 04 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.06
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - dietlibc fixes
