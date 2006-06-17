@@ -67,6 +67,14 @@ Provides:	sablotron-devel
 These are the development libraries and header files for Sablotron
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n %{altname}-%{version}
 %patch0 -p1
@@ -107,7 +115,6 @@ rm -rf %{buildroot}%{_datadir}/doc
 
 %files -n %{libname}
 %defattr(-,root,root)
-%doc README RELEASE
 %{_libdir}/libsablot.so.*
 
 %files -n %{libname}-devel
@@ -119,12 +126,20 @@ rm -rf %{buildroot}%{_datadir}/doc
 %{_libdir}/lib*.so
 %{_includedir}/*.h
 
+%files doc
+%defattr(-,root,root)
+%doc README RELEASE
+
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jun 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.2
+- add -doc subpackage
+- rebuild with gcc4
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.2
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.2
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
