@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		spec-helper
-%define version 	0.11
+%define version 	0.23
 %define release 	%_revrel
 
 %define distrib		Annvix
@@ -21,8 +21,6 @@ Release:	%{release}
 License:	GPL
 Group:		Development/Other
 URL:		http://www.mandriva.com
-# get the source from our cvs repository (see
-# http://www.mandrakelinux.com/en/cvs.php3)
 Source0:	%{name}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -35,8 +33,18 @@ Tools to ease the creation of rpm packages for the %{distrib} distribution.
 Compress man pages using bzip2, strip executables, convert links...
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
+# without the following, make has a hard time... stupid mkrel
+perl -pi -e 's|%%mkrel||g' spec-helper.spec
 
 
 %build
@@ -44,7 +52,7 @@ Compress man pages using bzip2, strip executables, convert links...
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-make install DESTDIR=%{buildroot} bindir=%{buildroot}/%{_bindir}
+make install DESTDIR=%{buildroot} bindir=%{_bindir} rpmmacrosdir=%{_sys_macros_dir}
 
 
 %clean
@@ -53,16 +61,25 @@ make install DESTDIR=%{buildroot} bindir=%{buildroot}/%{_bindir}
 
 %files
 %defattr(-,root,root)
-%doc AUTHORS Howto-spec-helper ChangeLog
 %{_bindir}/macroszification
 %{_datadir}/spec-helper
+%{_sys_macros_dir}/%{name}.macros
+
+%files doc
+%defattr(-,root,root)
+%doc AUTHORS Howto-spec-helper ChangeLog
 
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jun 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.23
+- 0.23
+- hack out some %%mkrel junk to make "make" happier
+- add -doc subpackage
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.11
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.11
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
