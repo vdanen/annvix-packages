@@ -18,7 +18,7 @@ Version:	%{version}
 Release:	%{release}
 License:	BSD
 Group:		System
-URL:		http://smarden.org/%{name}/
+URL:		http://smarden.org/socklog/
 Source0:	http://smarden.org/%{name}/%{name}-%{version}.tar.gz
 Source1:	socklog-config.tar.bz2
 Source2:	socklog-unix.run
@@ -62,6 +62,14 @@ Requires(preun): rpm-helper
 %description remote
 This package contains the run scripts used to receive remote TCP and UDP
 log messages.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -165,9 +173,6 @@ popd >/dev/null 2>&1
 
 %files
 %defattr(-,root,root)
-%doc %{name}-%{version}/package/CHANGES
-%doc %{name}-%{version}/package/README
-%doc %{name}-%{version}/doc/*.html
 /bin/*
 %{_mandir}/man1/*
 %{_mandir}/man8/*
@@ -236,8 +241,18 @@ popd >/dev/null 2>&1
 %attr(0770,root,syslogd) %dir /var/log/system/remote/all-udp
 %attr(0640,root,syslogd) %config(noreplace) /var/log/system/remote/all-udp/config
 
+%files doc
+%defattr(-,root,root)
+%doc %{name}-%{version}/package/CHANGES
+%doc %{name}-%{version}/package/README
+%doc %{name}-%{version}/doc/*.html
+
 
 %changelog
+* Fri Jun 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1.0
+- add -doc subpackage
+- rebuild with gcc4
+
 * Fri Apr 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1.0
 - add -tt option to socklog-unix/log/run so that we get timestamps; not
   everything that goes through syslog has a timestamp so while it might
