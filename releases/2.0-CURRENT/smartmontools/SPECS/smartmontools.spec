@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		smartmontools
-%define version 	5.33
+%define version 	5.36
 %define release 	%_revrel
 
 Summary:	SMARTmontools - for monitoring S.M.A.R.T. disks and devices
@@ -20,9 +20,9 @@ License:	GPL
 Group:		System/Kernel and hardware
 URL:            http://smartmontools.sourceforge.net/
 Source0:	%{name}-%{version}.tar.gz
-Source1:	smartd.run
-Source2:	smartd-log.run
-Source3:	%{name}-%{version}.tar.gz.asc
+Source1:	%{name}-%{version}.tar.gz.asc
+Source2:	smartd.run
+Source3:	smartd-log.run
 
 BuildRoot:      %{_buildroot}/%{name}-%{version}
 
@@ -48,6 +48,14 @@ information as possible about disk drives.  man smartctl and man
 smartd will provide more information.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 
@@ -62,8 +70,8 @@ smartd will provide more information.
 %makeinstall_std
 
 mkdir -p %{buildroot}%{_srvdir}/smartd/log
-install -m 0740 %{SOURCE1} %{buildroot}%{_srvdir}/smartd/run
-install -m 0740 %{SOURCE2} %{buildroot}%{_srvdir}/smartd/log/run
+install -m 0740 %{SOURCE2} %{buildroot}%{_srvdir}/smartd/run
+install -m 0740 %{SOURCE3} %{buildroot}%{_srvdir}/smartd/log/run
 rm -rf %{buildroot}%{_initrddir}
 
 mkdir -p %{buildroot}%{_srvdir}/smartd/env
@@ -75,9 +83,6 @@ echo "1800" > %{buildroot}%{_srvdir}/smartd/env/INTERVAL
 
 
 %post
-if [ -d /var/log/supervise/smartd -a ! -d /var/log/service/smartd ]; then
-    mv /var/log/supervise/smartd /var/log/service/
-fi
 %_post_srv smartd
 
 %preun
@@ -86,7 +91,6 @@ fi
 
 %files
 %defattr(-,root,root)
-%doc %{_docdir}/%{name}-%{version}
 %config(noreplace) %{_sysconfdir}/smartd.conf
 %{_sbindir}/smartd
 %{_sbindir}/smartctl
@@ -100,12 +104,21 @@ fi
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/smartd/log/run
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/smartd/env/INTERVAL
 
+%files doc
+%defattr(-,root,root)
+%doc %{_docdir}/%{name}-%{version}
+
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jun 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.36
+- 5.36
+- add -doc subpackage
+- rebuild with gcc4
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.33
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.33
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - fix prereq
