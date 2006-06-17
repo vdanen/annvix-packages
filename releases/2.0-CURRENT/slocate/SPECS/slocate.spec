@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		slocate
-%define version		2.7
+%define version		3.1
 %define release		%_revrel
 
 Summary:	Finds files on a system via a central database
@@ -18,14 +18,11 @@ Version:	%{version}
 Release: 	%{release}
 License:	GPL
 Group:		File tools
-URL:		http://www.geekreview.org/slocate/
-Source:		ftp://ftp.geekreview.org/slocate/src/%{name}-%{version}.tar.bz2
+URL:		http://slocate.trakker.ca/
+Source:		http://slocate.trakker.ca/files/%{name}-%{version}.tar.gz
 Source1:	slocate.cron
 Source3:	updatedb.conf
 Source4:	updatedb.sh
-Patch:		slocate-2.5-info.patch
-Patch1:		slocate-2.5-glibc-2.2.patch
-Patch2:		slocate-2.5-segfault.patch
 
 Buildroot:	%{_buildroot}/%{name}-%{version}
 
@@ -40,18 +37,23 @@ for files which match a given pattern. Slocate allows you to quickly
 find files anywhere on your system.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n %{name}-%{version}
-%patch -p1
-%patch1 -p1
-%patch2 -p1
+chmod 0644 Changelog notes README
 
 
 %build
-%configure
-%make
-
-chmod 0644 AUTHORS INSTALL LICENSE README ChangeLog
+pushd src
+    %make CFLAGS="%{optflags}"
+popd
 
 
 %install
@@ -61,11 +63,12 @@ mkdir -p %{buildroot}%{_mandir}/man1
 mkdir -p %{buildroot}%{_sysconfdir}/cron.weekly
 mkdir -p %{buildroot}/var/lib/slocate
 
-install slocate %{buildroot}%{_bindir}
-(cd %{buildroot}%{_bindir} && rm -f locate && ln slocate locate )
-gzip -dc doc/slocate.1.linux.gz > %{buildroot}%{_mandir}/man1/slocate.1
-gzip -dc doc/updatedb.1.gz > %{buildroot}%{_mandir}/man1/updatedb.1
-(cd %{buildroot}%{_mandir}/man1 && ln slocate.1 locate.1)
+install src/slocate %{buildroot}%{_bindir}/
+ln -s slocate %{buildroot}%{_bindir}/locate
+install doc/slocate.1 %{buildroot}%{_mandir}/man1/
+install doc/updatedb.1 %{buildroot}%{_mandir}/man1/
+ln -s slocate.1.bz2 %{buildroot}%{_mandir}/man1/locate.1.bz2
+
 install -m 0755 %{SOURCE1} %{buildroot}%{_sysconfdir}/cron.weekly/
 
 install -m 0644 %{SOURCE3} %{buildroot}%{_sysconfdir}/
@@ -97,7 +100,6 @@ fi
 
 %files
 %defattr(-,root,root,755)
-%doc AUTHORS INSTALL LICENSE README ChangeLog
 %attr(2755,root,slocate) %{_bindir}/*locate
 %attr(-,root,slocate) %{_bindir}/updatedb
 %{_mandir}/man1/*
@@ -105,12 +107,23 @@ fi
 %config(noreplace) %{_sysconfdir}/cron.weekly/slocate.cron
 %config(noreplace) %{_sysconfdir}/updatedb.conf
 
+%files doc
+%defattr(-,root,root,755)
+%doc README Changelog notes
+
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jun 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.1
+- 3.1
+- fix url/source locations
+- drop all patches; fixed upstream
+- add -doc subpackage
+- rebuild with gcc4
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.7
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.7
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - fix prereq

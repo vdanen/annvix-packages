@@ -10,5 +10,5 @@
 # for...
 
 source /etc/updatedb.conf
-/usr/bin/slocate -c -u -l"$SECURITY"
+/usr/bin/slocate -u -l"$SECURITY" $@
 
