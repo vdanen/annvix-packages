@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		rpmconstant
-%define version		0.0.5
+%define version		0.1.2
 %define release 	%_revrel
 
 %define major		0
@@ -21,8 +21,9 @@ Version:	%{version}
 Release:	%{release}
 License:	LGPL 
 Group:		Development/C
-URL:		http://cvs.mandrakesoft.com/cgi-bin/cvsweb.cgi/soft/perl-Hdlist/rpmconstant/
-Source0:	%{name}-%{version}.tar.bz2
+URL:		http://rpm.zarb.org/
+Source0:	http://rpm.zarb.org/download/%{name}-%{version}.tar.bz2
+Patch0:		rpmconstant-0.1.2-avx-for_rpm_4.4.5.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	rpm-devel
@@ -59,15 +60,20 @@ binding over rpmlib.
 You need this package to build applications using librpmconstant.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
+%patch0 -p0 -b .avx
 
 
 %build
-aclocal
-automake -a
-autoconf
-
 %configure
 %make
 
@@ -87,28 +93,36 @@ autoconf
 
 %files
 %defattr(-,root,root)
-%doc AUTHORS ChangeLog README
 %{_bindir}/%{name}
 
 %files -n %{libname}
 %defattr(-,root,root)
-%doc AUTHORS ChangeLog README
 %{_libdir}/lib%{name}.so.*
 
 %files -n %{libname}-devel
 %defattr(-,root,root)
-%doc constant.c AUTHORS ChangeLog README
 %{_includedir}/%{name}/%{name}.h
 %{_libdir}/lib%{name}.so
 %{_libdir}/lib%{name}.a
 %{_libdir}/lib%{name}.la
 
+%files doc
+%defattr(-,root,root)
+%doc constant.c AUTHORS ChangeLog README
+
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jun 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.1.2
+- 0.1.2
+- P0: remove some definitions that are not present in rpm 4.4.5
+- update URLs
+- add -doc subpackage
+- rebuild with gcc4
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.0.5
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.0.5
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
