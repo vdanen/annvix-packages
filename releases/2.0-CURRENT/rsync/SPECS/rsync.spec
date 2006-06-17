@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		rsync
-%define version		2.6.6
+%define version		2.6.8
 %define release		%_revrel
 
 Summary:	A program for synchronizing files over a network
@@ -41,8 +41,15 @@ remote and host files into sync.  Rsync is fast because it just
 sends the differences in the files over the network (instead of
 sending the complete files). Rsync is often used as a very powerful
 mirroring process or just as a more capable replacement for the
-rcp command.  A technical report which describes the rsync algorithm
-is included in this package.
+rcp command.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -60,6 +67,8 @@ rm -f config.h
 
 %make
 
+
+%check
 make test
 
 
@@ -105,7 +114,6 @@ popd
 
 %files
 %defattr(-,root,root)
-%doc tech_report.tex README COPYING *html
 %{_bindir}/rsync
 %dir %attr(0750,root,admin) %{_srvdir}/rsync
 %dir %attr(0750,root,admin) %{_srvdir}/rsync/log
@@ -119,12 +127,21 @@ popd
 %{_mandir}/man5/rsyncd.conf.5*
 %{_datadir}/afterboot/07_rsync
 
+%files doc
+%defattr(-,root,root)
+%doc tech_report.tex README COPYING *html
+
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jun 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.8
+- 2.6.8
+- add -doc subpackage
+- rebuild with gcc4
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.6
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.6
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - fix prereq
