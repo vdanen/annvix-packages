@@ -29,7 +29,7 @@ Group:		Development/Other
 URL:		http://www.fefe.de/dietlibc/
 Source0:	http://www.fefe.de/dietlibc/%{name}-%{version}.tar.bz2
 Source1:	http://www.fefe.de/dietlibc/%{name}-%{version}.tar.bz2.sig
-Patch0:		dietlibc-0.21-features.patch
+Patch0:		dietlibc-0.29-features.patch
 Patch1:		dietlibc-0.27-mdkconfig.patch
 Patch3:		dietlibc-0.22-tests.patch
 Patch4:		dietlibc-0.27-fix-getpriority.patch
@@ -75,10 +75,10 @@ Small libc for building embedded applications.
 %patch13 -p1 -b .x86_64-lseek64
 # (oe) http://synflood.at/patches/contrapolice/contrapolice-0.3.patch
 # reject
-%patch14 -p1 -b .contrapolice
+#%patch14 -p1 -b .contrapolice
 %patch16 -p1 -b .inettest
 %patch17 -p1 -b .x86_64-stat64
-#%patch23 -p1 -b .biarch
+%patch23 -p1 -b .biarch
 %patch24 -p1 -b .quiet
 %patch26 -p1 -b .stackgap_off
 %patch27 -p1 -b .64bit-size_t
@@ -97,6 +97,8 @@ chmod a+x test/{dirent,inet,stdio,string,stdlib,time}/runtests.sh
 %make MYARCH=i386 CFLAGS="-pipe -nostdinc -m32"
 %endif
 
+
+%check
 # make and run the tests
 %if %{build_check}
 cd test
@@ -146,20 +148,31 @@ make MYARCH=i386 DESTDIR=%{buildroot} install
 
 %files devel
 %defattr(-,root,root)
-%doc AUTHOR BUGS CAVEAT CHANGES README THANKS TODO FAQ
 %{_bindir}/diet
-%{_bindir}/elftrunc
-%{_bindir}/dnsd
 %dir %{diethome}
 %{diethome}/*
 %{_mandir}/man*/*
 
+%files doc
+%defattr(-,root,root)
+%doc AUTHOR BUGS CAVEAT CHANGES README THANKS TODO FAQ
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jun 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.29
+- sync with mandriva package:
+  - updated P0
+  - drop contrapolice (P14) as it's broken
+  - updated P23, and apply it
+- for some reason, elftrunc and dnsd are not installed anymore so
+  don't include them
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.29
 - Clean rebuild
 
-* Thu Dec 29 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Dec 29 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.29
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - P29: make dietlibc SSP aware (from gentoo)
