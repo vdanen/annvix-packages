@@ -9,12 +9,8 @@
 
 %define revision	$Rev$
 %define name		squid
-%define version		2.5.STABLE12
+%define version		2.5.STABLE14
 %define release		%_revrel
-
-%define their_version	2.5.STABLE12
-%define p_url   	http://www.squid-cache.org/Versions/v2/2.5/bugs
-%define p_name  	squid-2.5.stable5
 
 ## Redefine configure values.
 %define         	_bindir %{_prefix}/sbin
@@ -29,7 +25,7 @@ Release:	%{release}
 License:	GPL
 Group:		System/Servers
 URL:		http://www.squid-cache.org
-Source:		ftp.squid-cache.org:/pub/squid-2/STABLE/%{name}-%{their_version}.tar.bz2
+Source:		ftp://ftp.squid-cache.org/pub/squid-2/STABLE/%{name}-%{version}.tar.bz2
 Source3:	squid.logrotate
 Source4:	squid.conf.authenticate
 Source5:	smb.conf
@@ -48,7 +44,7 @@ Patch2:		squid-2.5.STABLE7-avx-user_group.patch
 Patch3:		squid-2.5.STABLE2-ssl.patch
 Patch4:		squid-2.5.STABLE5-pipe.patch
 # Upstream bugfix patches
-Patch100:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE12-setenv.patch
+Patch100:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE14-httpReplyDestroy.patch
 
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -72,8 +68,16 @@ lookup program (dnsserver), a program for retrieving FTP data
 (ftpget), and some management and client tools.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
-%setup -q -n %{name}-%{their_version}
+%setup -q
 
 %patch1 -p1
 %patch2 -p1
@@ -119,7 +123,8 @@ grep -r "local/bin/perl" %{_builddir}/%{name}-%{version} |sed -e "s/:.*$//g" | x
     --with-pthreads \
     --with-winbind-auth-challenge \
     --disable-dependency-tracking \
-    --disable-ident-lookups
+    --disable-ident-lookups \
+    --with-maxfd=1024
 
 # Some versions of autoconf fail to detect sys/resource.h correctly;
 # apparently because it generates a compiler warning.
@@ -169,22 +174,24 @@ install -m 0740 %{SOURCE12} %{buildroot}%{_srvdir}/squid/log/run
 cat %{SOURCE3} > %{buildroot}/etc/logrotate.d/squid
 cat %{SOURCE14} > %{buildroot}/etc/sysconfig/squid
 
-cp %{_builddir}/%{name}-%{their_version}/helpers/basic_auth/SMB/smb_auth.sh %{buildroot}/%{_libexecdir}
-cp %{_builddir}/%{name}-%{their_version}/helpers/basic_auth/SASL/squid_sasl_auth %{buildroot}/%{_libexecdir}
-cp %{_builddir}/%{name}-%{their_version}/helpers/basic_auth/MSNT/msntauth.conf.default %{buildroot}%{_sysconfdir}
+cp helpers/basic_auth/SMB/smb_auth.sh %{buildroot}/%{_libexecdir}
+cp helpers/basic_auth/SASL/squid_sasl_auth %{buildroot}/%{_libexecdir}
+cp helpers/basic_auth/MSNT/msntauth.conf.default %{buildroot}%{_sysconfdir}
 
-cp helpers/basic_auth/LDAP/README %{_builddir}/%{name}-%{their_version}/README.auth_ldap
+cp helpers/basic_auth/LDAP/README README.auth_ldap
+cp helpers/ntlm_auth/no_check/README.no_check_ntlm_auth .
+cp helpers/basic_auth/SMB/README README.auth_smb
+cp helpers/basic_auth/SASL/README README.auth_sasl
+cp helpers/basic_auth/MSNT/README.html README.auth_msnt.html
+cp helpers/basic_auth/SASL/squid_sasl_auth.conf .
+
 mkdir -p %{buildroot}/%{_mandir}/man8
 cp helpers/basic_auth/LDAP/*.8 %{buildroot}/%{_mandir}/man8
-cp helpers/ntlm_auth/no_check/README.no_check_ntlm_auth %{_builddir}/%{name}-%{their_version}/README.no_check_ntlm_auth
-cp helpers/basic_auth/SMB/README %{_builddir}/%{name}-%{their_version}/README.auth_smb
-cp helpers/basic_auth/SASL/README %{_builddir}/%{name}-%{their_version}/README.auth_sasl
-cp helpers/basic_auth/SASL/squid_sasl_auth.conf %{_builddir}/%{name}-%{their_version}/
-cp helpers/basic_auth/MSNT/README.html %{_builddir}/%{name}-%{their_version}/README.auth_msnt.html
-cat %{SOURCE4} > %{_builddir}/%{name}-%{their_version}/squid.conf.authenticate
-cat %{SOURCE5} > %{_builddir}/%{name}-%{their_version}/smb.conf
-cat %{SOURCE6} > %{_builddir}/%{name}-%{their_version}/squid.conf.transparent
-cat %{SOURCE7} > %{_builddir}/%{name}-%{their_version}/rc.firewall
+
+cat %{SOURCE4} > squid.conf.authenticate
+cat %{SOURCE5} > smb.conf
+cat %{SOURCE6} > squid.conf.transparent
+cat %{SOURCE7} > rc.firewall
 mkdir -p %{buildroot}/%{_libexecdir}/errors/{English,French}
 cat %{SOURCE8} > %{buildroot}/%{_libexecdir}/errors/English/ERR_CUSTOM_ACCESS_DENIED
 cat %{SOURCE9} > %{buildroot}/%{_libexecdir}/errors/French/ERR_CUSTOM_ACCESS_DENIED
@@ -207,7 +214,7 @@ mkdir -p %{buildroot}/var/spool/squid
 
 # some cleaning
 rm -rf %{buildroot}/%{_libdir}/%{name}/no_check.pl
-mv %{buildroot}/%{_datadir}/mib.txt %{_builddir}/%{name}-%{their_version}
+mv %{buildroot}/%{_datadir}/mib.txt .
 rm -rf %{buildroot}/%{_datadir}/errors
 
 
@@ -247,7 +254,6 @@ fi
 
 %files
 %defattr(-,root,root)
-%doc C* S* R* Q* squid.conf.* rc.firewall smb.conf doc/*
 %config(noreplace) %{_sysconfdir}/*.conf
 %config(noreplace) %{_sysconfdir}/*.default
 %config(noreplace) /etc/pam.d/squid
@@ -286,12 +292,23 @@ fi
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/squid/run
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/squid/log/run
 
+%files doc
+%defattr(-,root,root)
+%doc C* S* R* Q* squid.conf.* rc.firewall smb.conf doc/*
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jun 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5.STABLE14
+- 2.5.STABLE14
+- drop old upstream P100, add a new one
+- default to 1024 for --with-maxfd
+- get rid of the %%{their_version} crap
+- add -doc subpackage
+- rebuild with gcc4
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5.STABLE12
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5.STABLE12
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - fix prereq
