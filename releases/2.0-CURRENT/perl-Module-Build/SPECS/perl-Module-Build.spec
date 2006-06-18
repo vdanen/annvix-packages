@@ -10,7 +10,7 @@
 %define	module		Module-Build
 %define	revision	$Rev$
 %define	name		perl-%{module}
-%define version 	0.2612
+%define version 	0.2801
 %define release 	%_revrel
 
 Summary:	Build and install Perl modules
@@ -20,7 +20,7 @@ Release:	%{release}
 License:	GPL or Artistic
 Group:		Development/Perl
 URL:		http://search.cpan.org/dist/%{module}
-Source:		http://search.cpan.org/CPAN/authors/id/K/KW/KWILLIAMS/%{module}-%{version}.tar.bz2
+Source:		ftp://ftp.perl.org/pub/CPAN/modules/by-module/Module/%{module}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
@@ -83,6 +83,9 @@ perl Build.PL installdirs=vendor
 
 
 %changelog
+* Sat Jun 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.2801
+- 0.2801
+
 * Fri May 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.2612
 - 0.2612
 - rebuild against perl 5.8.8
