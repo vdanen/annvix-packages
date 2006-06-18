@@ -9,10 +9,10 @@
 
 %define revision	$Rev$
 %define name		samba
-%define version		3.0.20
+%define version		3.0.22
 %define release		%_revrel
 
-%define smbldapver	0.8.8
+%define smbldapver	0.9.1
 %define vscanver	0.3.6b
 %global vscandir	samba-vscan-%{vscanver}
 %global vfsdir		examples.bin/VFS
@@ -27,9 +27,9 @@ Release:	%{release}
 License:	GPL
 Group:		System/Servers
 URL:		http://www.samba.org
-Source:         ftp://ca.samba.org/pub/samba/samba-%{version}.tar.bz2
+Source:         http://us1.samba.org/samba/ftp/stable/samba-%{version}.tar.gz
 Source1:        samba.log
-Source2:        ftp://ca.samba.org/pub/samba/samba-%{version}.tar.asc
+Source2:        http://us1.samba.org/samba/ftp/stable/samba-%{version}.tar.asc
 Source8:        samba-vscan-%{vscanver}.tar.bz2
 Source10:       samba-print-pdf.sh
 Source11:       swat.run
@@ -43,34 +43,23 @@ Source19:       winbindd-log.run
 Source20:       smb-migrate
 Source21:       README.avx.sambamerge
 Patch1:         smbw.patch
-Patch2:         samba-3.0.11-mdk-smbldap-config.patch
+Patch2:         smbldap-tools-0.9.1-mdkconfig.patch
 Patch4:         samba-3.0-smbmount-sbin.patch
-Patch5:         samba-3.0.5-mdk-lib64.patch
 Patch6:         samba-3.0.6-mdk-smbmount-unixext.patch
-Patch7:         samba-3.0.6-mdk-revert-libsmbclient-move.patch
+Patch7:         samba-3.0.21-revert-libsmbclient-move.patch
 Patch8:         samba-3.0.20-avx-annvix-config.patch
 Patch11:	samba-3.0.20-mandrake-packaging.patch
-Patch12:	samba-3.0.14a-gcc4.diff
-Patch14:	samba-3.0.20-fix-doc-paths.patch
-# http://www.samba.org/samba/patches/groupname_enumeration_v3.patch
-Patch15:	samba-3.0.20-groupname_enumeration_v3.patch
-# http://www.samba.org/samba/patches/winbindd_v1.patch
-Patch16:	samba-3.0.20-winbindd_v1.patch
-# http://www.samba.org/samba/patches/regcreatekey_winxp_v1.patch
-Patch17:	samba-3.0.20-regcreatekey_winxp_v1.patch
-# http://www.samba.org/samba/patches/usrmgr_groups_v1.patch
-Patch18:	samba-3.0.20-usrmgr_groups_v1.patch
+Patch12:	http://www.samba.org/samba/patches/quota.patch
+Patch13:	http://samba.org/~metze/samba3-default-quota-ignore-error-01.diff
 
 BuildRoot:      %{_buildroot}/%{name}-%{version}
 BuildRequires:  pam-devel readline-devel libncurses-devel popt-devel
-BuildRequires:  libxml2-devel postgresql-devel
-BuildRequires:  MySQL-devel
+BuildRequires:  libxml2-devel
 BuildRequires:  libacl-devel
 BuildRequires:  libldap-devel krb5-devel
 
 Requires:       pam >= 0.64, samba-common = %{version}, srv >= 0.7
-Prereq:         mktemp psmisc
-Prereq:         fileutils sed grep
+Requires(pre):	mktemp psmisc fileutils sed grep
 
 %description
 Samba provides an SMB server which can be used to provide
@@ -256,21 +245,18 @@ ICAP-capable antivirus software.
 %setup -q -a 8
 %patch1 -p1 -b .smbw
 pushd examples/LDAP/smbldap-tools-%{smbldapver}
-%patch2 -p4
+%patch2 -p1
 popd
 %patch4 -p1 -b .sbin
 %patch6 -p1 -b .unixext
 %patch7 -p1 -b .libsmbdir
 %patch11 -p1 -b .mdk
 %patch8 -p1 -b .avx
-%patch14 -p1 -b .fixdocs
+%patch12 -p1
+pushd source
+%patch13
+popd
 # patches from cvs/samba team
-%patch15 -p1
-%patch16 -p1
-%patch17 -p1
-%patch18 -p1	
-
-
 
 # Make a copy of examples so that we have a clean one for doc:
 cp -a examples examples.bin
@@ -294,7 +280,7 @@ find docs examples -name '.cvsignore' -exec rm -f {} \;
 
 %build
 pushd source
-    CFLAGS=`echo "%{optflags}"|sed -e 's/-g//g'`
+    CFLAGS="`echo "%{optflags}"|sed -e 's/-g//g'` -DLDAP_DEPRECATED"
 
     ## fix optimization with gcc 3.3.1 (can remove when we move to 3.4)
     #CFLAGS=`echo "$CFLAGS"|sed -e 's/-O2/-Os/g'`
@@ -325,7 +311,7 @@ pushd source
 	--with-manpages-langs=en \
 	--with-acl-support      \
 	--disable-mysqltest \
-	--with-expsam=mysql,xml,pgsql \
+	--with-expsam=xml \
         --with-shared-modules=idmap_rid,idmap_ad
 
     #Fix the make file so we don't create debug information
@@ -437,8 +423,8 @@ echo 127.0.0.1 localhost > %{buildroot}%{_sysconfdir}/%{name}/lmhosts
 
 # Link smbspool to CUPS (does not require installed CUPS)
 
-mkdir -p %{buildroot}%{_libdir}/cups/backend
-ln -s %{_bindir}/smbspool %{buildroot}%{_libdir}/cups/backend/smb
+mkdir -p %{buildroot}%{_prefix}/lib/cups/backend
+ln -s %{_bindir}/smbspool %{buildroot}%{_prefix}/lib/cups/backend/smb
 
 # ipsvd support
 mkdir -p %{buildroot}%{_srvdir}/swat/{log,env,peers}
@@ -480,7 +466,6 @@ rm -f %{buildroot}%{_sysconfdir}/%{name}/vscan-{symantec,fprotd,fsav,kavp,mcdaem
 
 # install html man pages for swat
 mkdir -p %{buildroot}/%{_datadir}/swat/help/manpages
-install -m 0644 docs/htmldocs/manpages-3/* %{buildroot}/%{_datadir}/swat/help/manpages
 
 # the binary gets removed ... but not the man page ...
 rm -f %{buildroot}%{_mandir}/man1/testprns*
@@ -654,6 +639,9 @@ popd >/dev/null 2>&1
 %{_libdir}/%{name}/vfs/*.so
 %exclude %{_libdir}/%{name}/vfs/vscan*.so
 %dir %{_libdir}/%{name}/pdb
+%{_libdir}/%{name}/auth
+%{_libdir}/%{name}/*.so
+
 %{_mandir}/man1/profiles.1*
 %{_mandir}/man1/smbcontrol.1*
 %{_mandir}/man1/smbstatus.1*
@@ -671,8 +659,6 @@ popd >/dev/null 2>&1
 %dir %{_datadir}/%{name}/scripts
 %attr(0755,root,root) %{_datadir}/%{name}/scripts/print-pdf
 # passdb
-%{_libdir}/%{name}/pdb/*mysql.so
-%{_libdir}/%{name}/pdb/*pgsql.so
 %{_libdir}/%{name}/pdb/*xml.so
 
 %dir %attr(0750,root,admin) %{_srvdir}/smbd
@@ -715,6 +701,7 @@ popd >/dev/null 2>&1
 
 %files client
 %defattr(-,root,root)
+%{_bindir}/eventlogadm
 %{_bindir}/findsmb
 %{_bindir}/nmblookup
 %{_bindir}/smbclient
@@ -744,7 +731,7 @@ popd >/dev/null 2>&1
 %{_mandir}/man8/smbspool.8*
 %{_mandir}/man8/smbumount.8*
 # Link of smbspool to CUPS
-/%{_libdir}/cups/backend/smb
+%{_prefix}/lib/cups/backend/smb
 
 %files common
 %defattr(-,root,root)
@@ -797,7 +784,7 @@ popd >/dev/null 2>&1
 %attr(755,root,root) /%{_lib}/security/pam_winbind*
 %attr(755,root,root) /%{_lib}/libnss_winbind*
 %{_libdir}/%{name}/idmap
-%{_mandir}/man8/pam_winbind*.8*
+%{_mandir}/man7/pam_winbind*.7*
 %{_mandir}/man8/winbindd*.8*
 %{_mandir}/man1/wbinfo*.1*
 %dir %attr(0750,root,admin) %{_srvdir}/winbindd
@@ -820,7 +807,7 @@ popd >/dev/null 2>&1
 %defattr(-,root,root)
 %{_includedir}/*
 %{_libdir}/libsmbclient.so
-%{_mandir}/man8/libsmbclient.8*
+%{_mandir}/man7/libsmbclient.7*
 
 %files -n %{libname}-static-devel
 %defattr(-,root,root)
@@ -830,18 +817,27 @@ popd >/dev/null 2>&1
 %defattr(-,root,root)
 %{_libdir}/%{name}/vfs/vscan-clamav.so
 %config(noreplace) %{_sysconfdir}/%{name}/vscan-clamav.conf
-%doc %{vfsdir}/%{vscandir}/INSTALL
 
 %files vscan-icap
 %defattr(-,root,root)
 %{_libdir}/%{name}/vfs/vscan-icap.so
 %config(noreplace) %{_sysconfdir}/%{name}/vscan-icap.conf
-%doc %{vfsdir}/%{vscandir}/INSTALL
-
-%exclude %{_mandir}/man1/smbsh*.1*
 
 
 %changelog
+* Sat Jun 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.22
+- 3.0.22
+- smbldap 0.91
+- don't build against mysql or postgresql anymore
+- fix pre-reqp
+- update P2, P7 from Mandriva
+- remove P5, P12, P14, P15, P16, P17, P18
+- add new P12, P13
+- move the cups backend directory to be /usr/lib/cups on both x86 and
+  x86_64
+- fix source urls and use the same .gz source the samba team does
+- rebuild with gcc4
+
 * Tue Feb 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.20
 - correct the perms on swat's peers/PORT file
 

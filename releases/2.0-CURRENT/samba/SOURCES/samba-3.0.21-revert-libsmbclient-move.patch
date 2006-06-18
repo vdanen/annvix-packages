@@ -1,0 +1,15 @@
+--- samba-3.0.21/source/Makefile.in~	2005-12-14 13:45:49.000000000 +0100
++++ samba-3.0.21/source/Makefile.in	2005-12-21 15:34:01.000000000 +0100
+@@ -1440,9 +1440,9 @@
+ 	@$(SHELL) $(srcdir)/script/installswat.sh $(DESTDIR)$(SWATDIR) $(srcdir)
+ 
+ installclientlib: installdirs libsmbclient
+-	@$(SHELL) $(srcdir)/script/installdirs.sh $(DESTDIR)$(LIBDIR)
+-	-$(INSTALLLIBCMD_SH) bin/libsmbclient.@SHLIBEXT@ $(DESTDIR)$(LIBDIR)
+-	-$(INSTALLLIBCMD_A) bin/libsmbclient.a $(DESTDIR)$(LIBDIR)
++	@$(SHELL) $(srcdir)/script/installdirs.sh $(DESTDIR)$(LIBDIR)/../
++	-$(INSTALLLIBCMD_SH) bin/libsmbclient.@SHLIBEXT@ $(DESTDIR)$(LIBDIR)/../
++	-$(INSTALLLIBCMD_A) bin/libsmbclient.a $(DESTDIR)$(LIBDIR)/../
+ 	@$(SHELL) $(srcdir)/script/installdirs.sh $(DESTDIR)${prefix}/include
+ 	-$(INSTALLCMD) $(srcdir)/include/libsmbclient.h $(DESTDIR)${prefix}/include
+ 
