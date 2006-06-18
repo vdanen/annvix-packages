@@ -45,7 +45,7 @@ Patch6:		mdadm-2.5-no_openssl.diff
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	man groff groff-for-man
 %if %{use_dietlibc}
-BuildRequires:	dietlibc-devel
+BuildRequires:	dietlibc-devel >= 0.29-5662avx
 %endif
 
 Requires(post):	rpm-helper
@@ -146,6 +146,9 @@ fi
 
 
 %changelog
+* Sat Jun 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5
+- rebuild against and require dietlibc >= 0.29-5662avx
+
 * Sat Jun 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5
 - 2.5
 - sync patches from Mandriva:
