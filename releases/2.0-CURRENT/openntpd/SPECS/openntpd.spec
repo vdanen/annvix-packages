@@ -43,6 +43,14 @@ provides the ability to sync the local clock to remote NTP servers
 and can act as NTP server itself, redistributing the local clock.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 
@@ -85,7 +93,6 @@ fi
 
 %files
 %defattr(-,root,root)
-%doc README ChangeLog
 %config(noreplace) %attr(0600,root,root) %{_sysconfdir}/ntpd.conf
 %{_sbindir}/ntpd
 %{_mandir}/man5/ntpd.conf.5*
@@ -94,6 +101,10 @@ fi
 %dir %attr(0750,root,admin) %{_srvdir}/ntpd/log
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/ntpd/run
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/ntpd/log/run
+
+%files doc
+%defattr(-,root,root)
+%doc README ChangeLog
 
 
 %changelog
