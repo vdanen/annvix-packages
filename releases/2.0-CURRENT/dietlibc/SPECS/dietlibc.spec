@@ -168,6 +168,10 @@ make MYARCH=i386 DESTDIR=%{buildroot} install
 
 %changelog
 * Sat Jun 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.29
+- updated P13 from Mandriva to fix mdadm's compilation of mdassemble
+  on x86_64
+
+* Sat Jun 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.29
 - sync with mandriva package:
   - updated P0
   - drop contrapolice (P14) as it's broken
