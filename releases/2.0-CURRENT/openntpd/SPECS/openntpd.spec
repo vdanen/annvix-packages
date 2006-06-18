@@ -9,7 +9,7 @@
 
 %define	revision	$Rev$
 %define	name		openntpd
-%define	version		3.7p1
+%define	version		3.9p1
 %define	release		%_revrel
 %define epoch		1
 
@@ -21,7 +21,7 @@ Epoch:		%{epoch}
 License:	BSD
 Group:		System/Servers
 URL:		http://www.openntpd.org/
-Source0:	%{name}-%{version}.tar.gz
+Source0:	ftp://ftp.openbsd.org/pub/OpenBSD/OpenNTPD/%{name}-%{version}.tar.gz
 Source1:	openntpd.run
 Source2:	openntpd-log.run
 Patch0:		openntpd-20040824p-avx-ntpuser.patch
@@ -97,10 +97,17 @@ fi
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jun 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.9p1
+- 3.9p1
+- add "-s" to ntpd call so that it sets the clock immediate on start
+  if the skew is greater than 180s
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.7p1
 - Clean rebuild
 
-* Sun Jan 08 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sun Jan 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.7p1
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - fix prereq
