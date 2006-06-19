@@ -1,0 +1,11 @@
+--- rp-pppoe-3.7/scripts/pppoe-init.in.orig	2005-11-16 19:14:32.000000000 -0700
++++ rp-pppoe-3.7/scripts/pppoe-init.in	2006-06-19 11:21:35.000000000 -0600
+@@ -2,7 +2,7 @@
+ #
+ # pppoe                     This script starts or stops a PPPoE connection
+ #
+-# chkconfig: 2345 99 01
++# chkconfig: 2345 11 01
+ # description: Connects to PPPoE provider
+ #
+ # LIC: GPL

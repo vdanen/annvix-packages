@@ -9,8 +9,10 @@
 
 %define revision	$Rev$
 %define name		rp-pppoe
-%define version		3.5
+%define version		3.7
 %define release		%_revrel
+
+%define pppver		2.4.3
 
 Summary:	ADSL/PPPoE userspace driver
 Name:		%{name}
@@ -20,11 +22,11 @@ License:	GPL
 Group:		System/Servers
 URL:		http://www.roaringpenguin.com/pppoe
 Source:		http://www.roaringpenguin.com/%{name}-%{version}.tar.bz2
-Patch0:		rp-pppoe-3.5-avx-init.patch
-Patch1:		rp-pppoe-3.5-CAN-2004-0564.patch
+Patch0:		rp-pppoe-3.7-avx-init.patch
+Patch1:		rp-pppoe-3.6-CAN-2004-0564.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	ppp
+BuildRequires:	ppp = %{pppver}, autoconf2.5
 
 Requires:	ppp >= 2.4.1
 
@@ -41,6 +43,14 @@ It has been tested with many ISPs, such as the Canadian Sympatico HSE (High
 Speed Edition) service.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 %patch0 -p1
@@ -50,8 +60,10 @@ Speed Edition) service.
 %build
 pushd src
     autoconf
-    %configure
+    %configure2_5x
     %make
+
+    perl -pi -e 's|/etc/ppp/plugins/|%{_libdir}/pppd/%{pppver}|g' doc/KERNEL-MODE-PPPOE
 popd
 
 
@@ -64,11 +76,13 @@ pushd src
 popd
 
 mkdir -p %{buildroot}%{_initrddir}
-install -m 0750 scripts/adsl-init %{buildroot}%{_initrddir}/adsl
+install -m 0750 scripts/pppoe-init %{buildroot}%{_initrddir}/pppoe
 
-perl -pi -e "s/restart/restart\|reload/g;" %{buildroot}%{_initrddir}/adsl
+perl -pi -e "s/restart/restart\|reload/g;" %{buildroot}%{_initrddir}/pppoe
 
 rm -rf %{buildroot}/usr/doc
+rm -f %{buildroot}%{_sysconfdir}/ppp/plugins/README
+rm -rf %{buildroot}%{_docdir}/%{name}-%{version}
 
 
 %clean
@@ -77,30 +91,39 @@ rm -rf %{buildroot}/usr/doc
 
 %files
 %defattr(-,root,root)
-%doc doc/* README SERVPOET
 %config(noreplace) %{_sysconfdir}/ppp/pppoe.conf
-%config(noreplace) %{_sysconfdir}/ppp/plugins/README
 %config(noreplace) %{_sysconfdir}/ppp/pppoe-server-options
 %config(noreplace) %{_sysconfdir}/ppp/firewall-masq
 %config(noreplace) %{_sysconfdir}/ppp/firewall-standalone
 %{_sbindir}/pppoe
-%{_sbindir}/pppoe-server
-%{_sbindir}/pppoe-sniff
+%{_sbindir}/pppoe-connect
 %{_sbindir}/pppoe-relay
-%{_sbindir}/adsl-connect
-%{_sbindir}/adsl-start
-%{_sbindir}/adsl-stop
-%{_sbindir}/adsl-setup
-%{_sbindir}/adsl-status
+%{_sbindir}/pppoe-server
+%{_sbindir}/pppoe-setup
+%{_sbindir}/pppoe-sniff
+%{_sbindir}/pppoe-start
+%{_sbindir}/pppoe-status
+%{_sbindir}/pppoe-stop
 %{_mandir}/man[58]/*
-%config(noreplace)%{_initrddir}/adsl
+%config(noreplace)%{_initrddir}/pppoe
+
+%files doc
+%defattr(-,root,root)
+%doc doc/* README SERVPOET
 
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Jun 19 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.7
+- 3.7
+- update P1 from Mandriva
+- updated P0 for new initscript name
+- add -doc subpackage
+- rebuild with gcc4
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.5
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.5
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - install the initscript (for some reason it's now installing on it's own anymore)
