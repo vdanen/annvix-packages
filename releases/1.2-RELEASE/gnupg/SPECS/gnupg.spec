@@ -23,6 +23,7 @@ Source:		ftp://ftp.gnupg.org/pub/gcrypt/gnupg/%{name}-%{version}.tar.bz2
 Source1:	ftp://ftp.gnupg.org/pub/gcrypt/gnupg/%{name}-%{version}.tar.bz2.sig
 Source2:	annvix-keys.tar.bz2
 Source3:	annvix-keys.tar.bz2.asc
+Patch0:		gnupg-1.4.2.2-CVE-2006-3082.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	exim
@@ -36,6 +37,7 @@ with the proposed OpenPGP Internet standard as described in RFC2440.
 
 %prep
 %setup -q
+%patch0 -p1 -b .cve-2006-3082
 
 
 %build
@@ -115,6 +117,9 @@ tar xvjf %{SOURCE2} -C %{buildroot}%{_sysconfdir}/RPM-GPG-KEYS
 
 
 %changelog
+* Tue Jun 20 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4.2.2
+- P0: security fix for CVE-2006-3082
+
 * Thu Mar 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4.2.2
 - 1.4.2.2 (fixes CVE-2006-0049)
 
