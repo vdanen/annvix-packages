@@ -21,8 +21,7 @@ Group:		File tools
 URL:		http://www.gnupg.org
 Source:		ftp://ftp.gnupg.org/pub/gcrypt/gnupg/%{name}-%{version}.tar.bz2
 Source1:	ftp://ftp.gnupg.org/pub/gcrypt/gnupg/%{name}-%{version}.tar.bz2.sig
-Source2:	annvix-keys.tar.bz2
-Source3:	annvix-keys.tar.bz2.asc
+Patch0:		gnupg-1.4.2.2-CVE-2006-3082.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	exim
@@ -34,8 +33,17 @@ It includes an advanced key management facility and is compliant
 with the proposed OpenPGP Internet standard as described in RFC2440.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
+%patch0 -p1 -b .cve-2006-3082
 
 
 %build
@@ -76,9 +84,6 @@ perl -pi -e 's|/usr/local|/usr/|' %{buildroot}%{_mandir}/man1/gpg.1
 rm -f %{buildroot}%{_datadir}/gnupg/{FAQ,faq.html}
 rm -f %{buildroot}%{_datadir}/locale/locale.alias
 
-mkdir -p %{buildroot}%{_sysconfdir}/RPM-GPG-KEYS
-tar xvjf %{SOURCE2} -C %{buildroot}%{_sysconfdir}/RPM-GPG-KEYS
-
 %find_lang %{name}
 
 
@@ -97,8 +102,6 @@ tar xvjf %{SOURCE2} -C %{buildroot}%{_sysconfdir}/RPM-GPG-KEYS
 
 %files -f %{name}.lang
 %defattr(-,root,root)
-%doc README NEWS THANKS TODO ChangeLog doc/DETAILS doc/FAQ doc/HACKING
-%doc doc/faq.html doc/OpenPGP doc/samplekeys.asc
 %attr(4755,root,root) %{_bindir}/gpg
 %{_bindir}/gpgv
 %{_bindir}/lspgpot
@@ -110,11 +113,19 @@ tar xvjf %{SOURCE2} -C %{buildroot}%{_sysconfdir}/RPM-GPG-KEYS
 %{_mandir}/man1/*
 %{_mandir}/man7/*
 %{_infodir}/gpg*.info.bz2
-%dir %{_sysconfdir}/RPM-GPG-KEYS
-%attr(0644,root,root) %{_sysconfdir}/RPM-GPG-KEYS/*.asc
 
+%files doc
+%defattr(-,root,root)
+%doc README NEWS THANKS TODO ChangeLog doc/DETAILS doc/FAQ doc/HACKING
+%doc doc/faq.html doc/OpenPGP doc/samplekeys.asc
 
 %changelog
+* Tue Jun 20 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4.2.2
+- P0: security patch for CVE-2006-3082
+- don't install the gpg keys; the rpm package does this now
+- add -doc subpackage
+- rebuild with gcc4
+
 * Thu Mar 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4.2.2
 - 1.4.2.2 (fixes CVE-2006-0049)
 
