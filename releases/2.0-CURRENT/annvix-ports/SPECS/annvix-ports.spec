@@ -51,11 +51,13 @@ install -m 0750 builder-wrapper %{buildroot}%{_bindir}/builder
 
 
 %post
-echo "
+if [ "`grep -q 'added by annvix-ports' /etc/sudoers ; echo $?`" == 1 ]; then
+    echo "
 # added by annvix-ports
 %admin  ALL= (builder) /bin/sh /usr/local/ports/builder*
 builder ALL = NOPASSWD: /usr/sbin/urpmi.addmedia, /usr/sbin/urpmi.update, /usr/sbin/urpmi
 " >>/etc/sudoers
+fi
 
 
 %clean
@@ -77,6 +79,9 @@ builder ALL = NOPASSWD: /usr/sbin/urpmi.addmedia, /usr/sbin/urpmi.update, /usr/s
 
 
 %changelog
+* Wed Jun 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2
+- only touch /etc/sudoers if we don't already have an entry for ports stuff
+
 * Tue May 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2
 - minor spec cleanups
 - updated url
