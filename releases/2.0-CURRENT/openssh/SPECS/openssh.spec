@@ -23,8 +23,9 @@ Release:	%{release}
 License:	BSD
 Group:		Networking/Remote access
 URL:		http://www.openssh.com/
-Source: 	ftp://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-%{version}.tar.gz
-Source2: 	ftp://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-%{version}.tar.gz.asc
+Source0: 	ftp://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-%{version}.tar.gz
+Source1: 	ftp://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-%{version}.tar.gz.asc
+Source2:	sshd.pam
 # ssh-copy-id taken from debian, with "usage" added
 Source3:	ssh-copy-id
 Source4:	denyusers.pam
@@ -115,6 +116,13 @@ This package contains the secure shell daemon. The sshd is the server
 part of the secure shell protocol and allows ssh clients to connect to 
 your host.
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
 
 %prep
 %if %{build_skey}
@@ -155,7 +163,7 @@ make install DESTDIR=%{buildroot}/
 mkdir -p %{buildroot}%{_sysconfdir}/{ssh,pam.d,profile.d}
 mkdir -p %{buildroot}%{_libdir}/ssh
 
-install -m 0644 contrib/redhat/sshd.pam %{buildroot}%{_sysconfdir}/pam.d/sshd
+install -m 0644 %{SOURCE2} %{buildroot}%{_sysconfdir}/pam.d/sshd
 install -m 0640 %{SOURCE4} %{buildroot}%{_sysconfdir}/ssh/denyusers.pam
 install -m 0755 %{SOURCE6} %{buildroot}%{_sysconfdir}/profile.d/
 
@@ -259,9 +267,7 @@ do_dsa_keygen() {
 do_rsa1_keygen
 do_rsa_keygen
 do_dsa_keygen
-if [ -d /var/log/supervise/sshd -a ! -d /var/log/service/sshd ]; then
-    mv /var/log/supervise/sshd /var/log/service/
-fi
+
 %_post_srv sshd
 %_mkafterboot
 pushd %{_srvdir}/sshd >/dev/null 2>&1
@@ -276,18 +282,9 @@ popd >/dev/null 2>&1
 %_mkafterboot
 %_postun_userdel sshd
 
-%post clients
-echo "PLEASE NOTE:"
-echo "This OpenSSH package enables known_hosts hashing by default.  It will only be"
-echo "effective if you convert pre-existing known_hosts files to the hashed format."
-echo "This can be done using the convert_known_hosts-4.0.pl script found in"
-echo "%{_docdir}/%{name}-clients-%{version}/.  The script can convert all"
-echo "known_hosts files on an entire system if run as root."
-
 
 %files
 %defattr(-,root,root)
-%doc ChangeLog OVERVIEW README* INSTALL CREDITS LICENCE TODO
 %dir %{_sysconfdir}/ssh
 %{_bindir}/ssh-keygen
 %{_bindir}/ssh-keyscan
@@ -300,7 +297,6 @@ echo "known_hosts files on an entire system if run as root."
 
 %files clients
 %defattr(-,root,root)
-%doc convert_known_hosts-4.0.pl
 %config(noreplace) %{_sysconfdir}/ssh/ssh_config
 %attr(0755,root,root) %config(noreplace) %{_sysconfdir}/profile.d/ssh-client.sh
 %{_bindir}/ssh
@@ -339,8 +335,20 @@ echo "known_hosts files on an entire system if run as root."
 %attr(0640,root,admin) %{_srvdir}/sshd/env/OPTIONS
 %{_datadir}/afterboot/04_openssh
 
+%files doc
+%defattr(-,root,root)
+%doc ChangeLog OVERVIEW README* INSTALL CREDITS LICENCE TODO
+%doc convert_known_hosts-4.0.pl
+
 
 %changelog
+* Fri Jun 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.3p2
+- add -doc subpackage
+- rebuild againt new pam
+- S2: use our own pam config
+- remove hashed format note from %%post in -client package
+- rebuild with gcc4
+
 * Sat Feb 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.3p2
 - 4.3p2 (minor portability fixes)
 
