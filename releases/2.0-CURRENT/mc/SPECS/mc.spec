@@ -21,6 +21,7 @@ Group:		File tools
 URL:		http://www.ibiblio.org/mc/
 Source0:	ftp://ftp.gnome.org:/pub/GNOME/stable/sources/mc/%{name}-%{version}.tar.bz2
 Patch0:		mc-4.6.1-fdr-utf8.patch
+Patch1:		mc-4.6.1-rpm_obsolete_tags.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	libext2fs-devel pam-devel
@@ -35,9 +36,18 @@ running GPM.  With mc you are able to ftp as well as view tar, zip, and rpm
 files.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 %patch0 -p1 -b .utf8
+%patch1 -p1 -b .rpm_obsolete_tags
 
 
 %build
@@ -86,7 +96,6 @@ install lib/{mc.sh,mc.csh} %{buildroot}%{_sysconfdir}/profile.d
 
 %files -f %{name}.lang
 %defattr(-, root, root)
-%doc FAQ COPYING NEWS README
 %{_bindir}/mc
 %{_bindir}/mcedit
 %{_bindir}/mcmfmt
@@ -114,12 +123,22 @@ install lib/{mc.sh,mc.csh} %{buildroot}%{_sysconfdir}/profile.d
 %{_datadir}/mc/syntax/
 #%{_datadir}/mc/term/
 
+%files doc
+%defattr(-, root, root)
+%doc FAQ COPYING NEWS README
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jun 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.6.1
+- P1: remove copyright tag and s/serial/epoch tag in rpm vfs (mpol)
+- rebuild against new pam
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.6.1
 - Clean rebuild
 
-* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.6.1
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
