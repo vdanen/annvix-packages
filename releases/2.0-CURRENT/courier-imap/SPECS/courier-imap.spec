@@ -46,6 +46,7 @@ Source13:	courier-imap.sysconfig
 Source14:	authdaemond.run
 Source15:	authdaemond-log.run
 Source16:	09_courier-imap.afterboot
+Source17:	courier.pam
 # (fc) 1.4.2-2mdk fix missing command in initrd
 Patch0: 	courier-imap-1.6.1-initrd.patch
 Patch1:		courier-imap-3.0.8-auto_maildir_creator.diff
@@ -178,6 +179,12 @@ This package contains the documentation for %{name}.
 #%patch3 -p1 -b .nodaemon
 %patch4 -p1 -b .overflow
 
+# doc handling
+mkdir automatic_maildir_creation_patch
+cp -f courier_patch/html/*.html automatic_maildir_creation_patch/
+cp -f courier_patch/README.txt automatic_maildir_creation_patch/
+cp -f courier_patch/THANKS automatic_maildir_creation_patch/
+cp -f courier_patch/README_%{courier_patch_version} automatic_maildir_creation_patch/
 
 %build
 #(cd authlib; autoreconf)
@@ -329,11 +336,6 @@ mv %{buildroot}%{_mandir}/man1/maildirmake.1 %{buildroot}%{_mandir}/man1/maildir
 # fix the auto maildir creation stuff
 cp %{SOURCE4} %{buildroot}%{courierdatadir}/auto_maildir_creator
 chmod 0755 %{buildroot}%{courierdatadir}/auto_maildir_creator
-mkdir automatic_maildir_creation_patch
-cp -f courier_patch/html/*.html automatic_maildir_creation_patch/
-cp -f courier_patch/README.txt automatic_maildir_creation_patch/
-cp -f courier_patch/THANKS automatic_maildir_creation_patch/
-cp -f courier_patch/README_%{courier_patch_version} automatic_maildir_creation_patch/
 chmod -R 0644 %{buildroot}%{courierdatadir}/auto_maildir_creator
 
 echo "IMAP_MAILDIR_CREATOR=\"%{courierdatadir}/auto_maildir_creator\"" >> %{buildroot}%{couriersysconfdir}/imapd.dist
@@ -374,6 +376,11 @@ install -m 0644 %{SOURCE13} %{buildroot}%{_sysconfdir}/sysconfig/pop3d-ssl
 %ifarch x86_64 amd64
 find %{buildroot}%{_srvdir} -name run -exec perl -pi -e 's|/usr/lib/courier|/usr/lib64/courier|g' {} \;
 %endif
+
+# fix pam
+cp -f %{SOURCE17} %{buildroot}%{_sysconfdir}/pam.d/imap
+cp -f %{SOURCE17} %{buildroot}%{_sysconfdir}/pam.d/pop3
+chmod 0644 %{buildroot}%{_sysconfdir}/pam.d/*
 
 
 %post
@@ -660,6 +667,11 @@ test ! -f %{courierdatadir}/configlist.mysql || %{courierdatadir}/sysconftool-rp
 
 
 %changelog
+* Fri Jun 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.8
+- rebuild against new pam
+- fix pam config files
+- fix the spec a bit to make it more --short-circuit friendly
+
 * Thu Jun 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.8
 - rebuild against new postgresql
 - add -doc subpackage
