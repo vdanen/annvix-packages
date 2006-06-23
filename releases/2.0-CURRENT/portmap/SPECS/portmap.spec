@@ -52,6 +52,14 @@ The portmapper program is a security tool which prevents theft of NIS
 portmapper manages RPC connections, which are used by protocols like
 NFS and NIS.
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 
 %prep 
 %setup -q -n portmap_%{ver}
@@ -126,12 +134,20 @@ fi
 %{_sbindir}/pmap_set
 %{_mandir}/*/*
 
+%files doc
+%defattr(-,root,root)
+%doc README CHANGES BLURB
+
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jun 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.0
+- add -doc subpackage
+- rebuild with gcc4
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.0
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.0
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - fix prereq
