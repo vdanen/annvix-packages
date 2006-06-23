@@ -84,6 +84,14 @@ Provides:	pwdb-static-devel = %{version}-%{release}
 The static development library for pwdb.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 %patch0 -p1 -b .includes
@@ -123,7 +131,6 @@ ln -sf lib%{name}.so.%{version} %{buildroot}/%{_lib}/lib%{name}.so.%{majver}
 
 %files conf
 %defattr(-,root,root)
-%doc Copyright doc/pwdb.txt doc/html
 %config(noreplace) %{_sysconfdir}/pwdb.conf
 
 %files -n %{libname}
@@ -139,12 +146,20 @@ ln -sf lib%{name}.so.%{version} %{buildroot}/%{_lib}/lib%{name}.so.%{majver}
 %defattr(-,root,root)
 /%{_lib}/libpwdb.a
 
+%files doc
+%defattr(-,root,root)
+%doc Copyright doc/pwdb.txt doc/html
+
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jun 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.62
+- add -doc subpackage
+- rebuild with gcc4
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.62
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.62
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
