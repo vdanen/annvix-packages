@@ -1,0 +1,58 @@
+Index: configure.in
+===================================================================
+RCS file: /cvsroot/pam/Linux-PAM/configure.in,v
+retrieving revision 1.64
+diff -u -r1.64 configure.in
+--- configure.in	12 Dec 2005 17:34:10 -0000	1.64
++++ configure.in	15 Dec 2005 14:27:25 -0000
+@@ -395,6 +395,10 @@
+ 	libpam_misc/Makefile conf/Makefile conf/pam_conv1/Makefile \
+ 	po/Makefile.in \
+ 	modules/Makefile \
++	modules/pam_chroot/Makefile modules/pam_console/Makefile \
++	modules/pam_loginuid/Makefile modules/pam_postgresok/Makefile \
++	modules/pam_rps/Makefile modules/pam_stack/Makefile \
++	modules/pam_timestamp/Makefile \
+ 	modules/pam_access/Makefile modules/pam_cracklib/Makefile \
+         modules/pam_debug/Makefile modules/pam_deny/Makefile \
+ 	modules/pam_echo/Makefile modules/pam_env/Makefile \
+Index: modules/Makefile.am
+===================================================================
+RCS file: /cvsroot/pam/Linux-PAM/modules/Makefile.am,v
+retrieving revision 1.5
+diff -u -r1.5 Makefile.am
+--- modules/Makefile.am	21 Sep 2005 10:01:00 -0000	1.5
++++ modules/Makefile.am	15 Dec 2005 14:27:25 -0000
+@@ -8,7 +8,9 @@
+ 	pam_motd pam_nologin pam_permit pam_pwdb pam_rhosts pam_rootok \
+ 	pam_securetty pam_selinux pam_shells pam_stress pam_succeed_if \
+ 	pam_tally pam_time pam_umask pam_unix pam_userdb pam_warn \
+-	pam_wheel pam_xauth
++	pam_wheel pam_xauth \
++	pam_chroot pam_console pam_loginuid pam_postgresok pam_rps \
++	pam_stack pam_timestamp
+ 
+ 
+ CLEANFILES = *~
+Index: libpam/libpam.map
+===================================================================
+RCS file: /cvsroot/pam/Linux-PAM/libpam/libpam.map,v
+retrieving revision 1.5
+diff -u -r1.5 libpam.map
+--- libpam/libpam.map	21 Sep 2005 10:00:58 -0000	1.5
++++ libpam/libpam.map	15 Dec 2005 14:27:25 -0000
+@@ -54,3 +54,14 @@
+     pam_modutil_read;
+     pam_modutil_write;
+ };
++
++LIBPAM_INTERNAL_DONTUSE_1.0 {
++  global:
++    _pam_dispatch;
++    _pam_drop_env;
++    _pam_free_handlers;
++    _pam_init_handlers;
++    _pam_make_env;
++    _pam_start_handlers;
++    _pam_strdup;
++};

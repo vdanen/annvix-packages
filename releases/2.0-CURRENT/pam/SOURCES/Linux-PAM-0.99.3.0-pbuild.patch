@@ -1,0 +1,11 @@
+--- Linux-PAM-0.99.3.0/doc/specs/Makefile.am.pbuild	2005-09-27 15:38:00.000000000 +0200
++++ Linux-PAM-0.99.3.0/doc/specs/Makefile.am	2006-01-28 00:35:29.000000000 +0100
+@@ -9,7 +9,7 @@
+ all: padout spec
+ 	test -f rfc86.0.txt || cp -p $(srcdir)/rfc86.0.txt .
+ 
+-spec: draft-morgan-pam.raw
++spec: draft-morgan-pam.raw padout
+ 	./padout < $(srcdir)/draft-morgan-pam.raw > draft-morgan-pam-current.txt
+ 
+ noinst_PROGRAMS = padout

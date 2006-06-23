@@ -1,0 +1,85 @@
+--- Linux-PAM-0.99.3.0/modules/pam_console/50-default.perms.mdvperms	2005-07-14 15:14:27.000000000 +0200
++++ Linux-PAM-0.99.3.0/modules/pam_console/50-default.perms	2006-01-28 03:01:24.000000000 +0100
+@@ -2,15 +2,19 @@
+ <floppy>=/dev/fd[0-1]* \
+ 	 /dev/floppy* /mnt/floppy*
+ <sound>=/dev/dsp* /dev/audio* /dev/midi* \
+-	/dev/mixer* /dev/sequencer \
++	/dev/mixer* /dev/sequencer* \
+ 	/dev/sound/* /dev/beep \
+-	/dev/snd/* 
++	/dev/snd/* \
++	/dev/admm* \
++	/dev/adsp* /dev/aload* /dev/amidi* /dev/dmfm* \
++	/dev/dmmidi* /dev/sndstat
+ <cdrom>=/dev/cdrom* /dev/cdroms/* /dev/cdwriter* /mnt/cdrom*
+ <pilot>=/dev/pilot
+-<jaz>=/mnt/jaz*
++<jaz>=/mnt/jaz* /dev/jaz*
+ <zip>=/mnt/pocketzip* /mnt/zip* /dev/zip*
+ <ls120>=/dev/ls120 /mnt/ls120*
+ <scanner>=/dev/scanner* /dev/usb/scanner*
++<lp>=/dev/parport*
+ <rio500>=/dev/usb/rio500
+ <camera>=/mnt/camera* /dev/usb/dc2xx* /dev/usb/mdc800*
+ <memstick>=/mnt/memstick*
+@@ -20,9 +23,12 @@
+ <fb>=/dev/fb /dev/fb[0-9]* \
+      /dev/fb/*
+ <kbd>=/dev/kbd
+-<joystick>=/dev/js[0-9]*
++<joystick>=/dev/js[0-9]* /dev/input/js[0-9]*
+ <v4l>=/dev/video* /dev/radio* /dev/winradio* /dev/vtx* /dev/vbi* \
+-      /dev/video/*
++      /dev/video/* \
++      /dev/video1394/* \
++      /dev/vttuner /dev/rtc \
++      /dev/dvb/adapter?/*
+ <gpm>=/dev/gpmctl
+ <dri>=/dev/nvidia* /dev/3dfx* /dev/dri/card*
+ <mainboard>=/dev/apm_bios
+@@ -32,22 +37,23 @@
+ 
+ # permission definitions
+ <console>  0660 <floppy>     0660 root.floppy
+-<console>  0600 <sound>      0600 root
+-<console>  0600 <cdrom>      0660 root.disk
+-<console>  0600 <pilot>      0660 root.uucp
+-<console>  0600 <jaz>        0660 root.disk
+-<console>  0600 <zip>        0660 root.disk
+-<console>  0600 <ls120>      0660 root.disk
+-<console>  0600 <scanner>    0600 root
+-<console>  0600 <camera>     0600 root.disk
+-<console>  0600 <memstick>   0600 root.disk
+-<console>  0600 <flash>      0600 root.disk
+-<console>  0600 <diskonkey>  0660 root.disk
+-<console>  0600 <rem_ide>    0660 root.disk
++<console>  0660 <sound>      0600 root.audio
++<console>  0660 <cdrom>      0660 root.cdrom
++<console>  0660 <pilot>      0660 root.uucp
++<console>  0660 <jaz>        0660 root.disk
++<console>  0660 <zip>        0660 root.disk
++<console>  0660 <ls120>      0660 root.disk
++<console>  0660 <scanner>    0660 root.usb
++<console>  0660 <lp>         0660 root.lp
++<console>  0660 <camera>     0660 root.usb
++<console>  0660 <memstick>   0660 root.disk
++<console>  0660 <flash>      0660 root.disk
++<console>  0660 <diskonkey>  0660 root.disk
++<console>  0660 <rem_ide>    0660 root.disk
+ <console>  0600 <fb>         0600 root
+ <console>  0600 <kbd>        0600 root
+ <console>  0600 <joystick>   0600 root
+-<console>  0600 <v4l>        0600 root
++<console>  0660 <v4l>        0660 root.video
+ <console>  0700 <gpm>	     0700 root
+ <console>  0600 <mainboard>  0600 root
+ <console>  0600 <rio500>     0600 root
+@@ -55,5 +60,5 @@
+ <console>  0600 <bluetooth>  0600 root
+ <console>  0600 <raw1394>    0600 root
+ 
+-<xconsole> 0600 /dev/console 0600 root.root
+-<console> 0600 <dri>	     0600 root
++<console> 0600 /dev/console  0600 root.root
++<console> 0660 <dri>	     0660 root.video

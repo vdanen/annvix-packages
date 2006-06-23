@@ -1,0 +1,32 @@
+--- Linux-PAM-0.99.3.0/configure.in.pwdb	2006-01-30 10:46:18.000000000 +0100
++++ Linux-PAM-0.99.3.0/configure.in	2006-01-30 16:33:14.000000000 +0100
+@@ -356,11 +356,24 @@
+ AC_SUBST(LIBCAP)
+ AM_CONDITIONAL([HAVE_LIBCAP], [test ! -z "$LIBCAP"])
+ 
+-BACKUP_LIBS=$LIBS
+-AC_CHECK_LIB([pwdb],[pwdb_db_name], LIBPWDB="-lpwdb", LIBPWDB="")
+-LIBS=$BACKUP_LIBS
+-AC_SUBST(LIBPWDB)
+-AM_CONDITIONAL([HAVE_LIBPWDB], [test ! -z "$LIBPWDB"])
++dnl Checks for libpwdb
++
++AC_ARG_ENABLE(pwdb,
++        AS_HELP_STRING([--disable-pwdb],[Disable use of pwdb]),
++        [case "${enableval}" in
++                yes) HAVE_LIBPWDB=yes ;;
++                no)  HAVE_LIBPWDB=no ;;
++                *) AC_MSG_ERROR(bad value ${enableval} for --enable-pwdb) ;;
++        esac],
++        [HAVE_LIBPWDB=yes])
++
++if test "x$HAVE_LIBPWDB" = "xyes" ; then
++	BACKUP_LIBS=$LIBS
++	AC_CHECK_LIB([pwdb],[pwdb_db_name], LIBPWDB="-lpwdb", LIBPWDB="")
++	LIBS=$BACKUP_LIBS
++	AC_SUBST(LIBPWDB)
++fi
++AM_CONDITIONAL([HAVE_LIBPWDB], [ test "x$HAVE_LIBPWDB" = "xyes" ] && [test ! -z "$LIBPWDB"])
+ 
+ dnl Checks for header files.
+ AC_HEADER_DIRENT

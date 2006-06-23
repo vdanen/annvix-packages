@@ -1,6 +1,6 @@
---- Linux-PAM-0.77/modules/pam_xauth/pam_xauth.c.xauth-groups	2003-07-08 05:16:28.000000000 +0200
-+++ Linux-PAM-0.77/modules/pam_xauth/pam_xauth.c	2003-08-25 17:08:40.000000000 +0200
-@@ -67,7 +67,7 @@
+--- Linux-PAM-0.99.3.0/modules/pam_xauth/pam_xauth.c.xauth-groups	2005-11-23 17:42:40.000000000 +0100
++++ Linux-PAM-0.99.3.0/modules/pam_xauth/pam_xauth.c	2006-01-27 22:59:21.000000000 +0100
+@@ -77,7 +77,7 @@
   * given input on stdin, and storing any output it generates. */
  static int
  run_coprocess(const char *input, char **output,
@@ -9,8 +9,8 @@
  {
  	int ipipe[2], opipe[2], i;
  	char buf[LINE_MAX];
-@@ -102,10 +102,18 @@
- 		/* We're the child. */
+@@ -113,10 +113,18 @@
+ 		size_t j;
  		char *args[10];
  		const char *tmp;
 +		
@@ -27,18 +27,18 @@
 +
 +		
  		/* Initialize the argument list. */
- 		memset(&args, 0, sizeof(args));
+ 		memset(args, 0, sizeof(args));
  		/* Set the pipe descriptors up as stdin and stdout, and close
-@@ -130,6 +138,7 @@
+@@ -141,6 +149,7 @@
  		}
  		/* Run the command. */
- 		execvp(command, args);
+ 		execv(command, args);
 +		syslog(LOG_ERR, "pam_xauth: execvp of %s failed: %m", command);
  		/* Never reached. */
  		exit(1);
  	}
-@@ -404,7 +413,7 @@
- 		       (unsigned long) getgid());
+@@ -450,7 +459,7 @@
+ 			   (unsigned long) getuid(), (unsigned long) getgid());
  	}
  	if (run_coprocess(NULL, &cookie,
 -			  getuid(), getgid(),
@@ -46,7 +46,7 @@
  			  xauth, "-f", cookiefile, "nlist", display,
  			  NULL) == 0) {
  		/* Check that we got a cookie.  If not, we get creative. */
-@@ -457,7 +466,7 @@
+@@ -504,7 +513,7 @@
  						       (unsigned long) getgid());
  					}
  					run_coprocess(NULL, &cookie,
@@ -55,8 +55,8 @@
  						      xauth, "-f", cookiefile,
  						      "nlist", t, NULL);
  				}
-@@ -556,7 +565,7 @@
- 			       (unsigned long) tpwd->pw_gid);
+@@ -606,7 +615,7 @@
+ 				  (unsigned long) tpwd->pw_gid);
  		}
  		run_coprocess(cookie, &tmp,
 -			      tpwd->pw_uid, tpwd->pw_gid,

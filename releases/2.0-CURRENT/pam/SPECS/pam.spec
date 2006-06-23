@@ -5,14 +5,16 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-# pam-0.77-31mdk
+# pam-0.99.3.0-6mdk
 #
 # $Id$
 
 %define revision	$Rev$
 %define name		pam
-%define version		0.77
+%define version		0.99.3.0
 %define release		%_revrel
+
+%define pam_redhat_version 0.99.2-1
 
 %define rhrelease	5
 %define libname		%mklibname %{name} 0
@@ -24,75 +26,49 @@ Release:	%{release}
 License:	GPL or BSD
 Group:		System/Libraries
 URL:		http://www.us.kernel.org/pub/linux/libs/pam/index.html
-Source:		ftp.us.kernel.org:/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
-Source1:	pam-redhat-%{version}-%{rhrelease}.tar.bz2
+Source0:	ftp://ftp.us.kernel.org/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
+Source1:	pam-redhat-%{pam_redhat_version}.tar.bz2
 Source2:	other.pamd
 Source3:	system-auth.pamd
-Source4:	install-sh
-Patch0:		pam-0.77-modutil-thread.patch
-Patch1:		pam-0.77-include_path.patch
-Patch2:		pam-0.77-build.patch
-Patch3:		pam-0.75-linkage.patch
-Patch4:		pam-0.75-prompt.patch
-Patch5:		pam-0.75-return.patch
-Patch6:		pam-0.75-security.patch
-Patch7:		pam-0.77-string.patch
-Patch8:		pam-0.77-userdb.patch
-Patch9:		pam-0.75-group-reinit.patch
-Patch10:	pam-0.77-lastlog-utmp.patch
-Patch11:	pam-0.77-securetty-fail.patch
-Patch12:	pam-0.75-time.patch
-Patch13:	pam-0.77-issue.patch
-Patch14:	pam-0.77-doc-rhl.patch
-Patch15:	pam-0.77-bigcrypt-main.patch
-Patch16:	pam-0.77-cracklib-init.patch
-Patch17:	pam-0.77-filter-comments.patch
-Patch18:	pam-0.75-unix-loop.patch
-Patch19:	pam-0.77-unix-preserve.patch
-Patch20:	pam-0.77-unix-brokenshadow.patch
-Patch21:	pam-0.77-unix-hpux-aging.patch
-Patch22:	pam-0.77-unix-nis.patch
-Patch23:	pam-0.77-unix-nullok.patch
-Patch24:	pam-0.77-issue-heap.patch
-Patch25:	pam-0.75-listfile-tty.patch
-Patch26:	pam-0.77-misc-err.patch
-Patch27:	pam-0.77-unix-aixhash.patch
-Patch28:	pam-0.75-sgml2latex.patch
-Patch29:	pam-0.77-multicrack.patch
-Patch30:	pam-0.75-isa.patch
-Patch31:	pam-0.77-utmp-dev.patch
-Patch32:	pam-0.77-pwdb-static.patch
-Patch33:	pam-0.77-nss-reentrant.patch
-Patch34:	pam-0.77-dbpam.patch
-Patch35:	pam-0.77-sigchld.patch
-Patch36:	pam-0.77-skip-aconf-install.patch
-Patch37:	pam-0.77-log-changes.patch
-Patch39:	pam-0.77-fencepost.patch
-Patch40:	pam-0.77-grubb_leak.patch
+Source4:	pam-0.99.3.0-README.update
+Source5:	pam-annvix.perms
 
-Patch500:	pam-0.77-mdkconf.patch
-Patch501:	pam-0.74-loop.patch
-Patch502:	pam-0.75-console-dead-x.patch
-Patch503:	pam-0.77-devfsd.patch
-Patch504:	pam-0.77-console-reset.patch
-Patch506:	pam-0.77-lib64.patch
-patch507:	pam-0.75-time-tty.patch
+# RedHat patches (0-100)
+Patch0:		pam-0.99.2.1-redhat-modules.patch
+Patch1:		pam-0.78-unix-hpux-aging.patch
+Patch2:		pam-0.75-sgml2latex.patch
+Patch3:		pam-0.99.2.1-dbpam.patch
+
+# Mandriva patches (101-200)
+Patch100:	Linux-PAM-0.99.3.0-mdvperms.patch
+# (fl) fix infinite loop
+Patch101:	pam-0.74-loop.patch
+# (fl/blino) reset to id 0 if user/group isn't found instead of stopping processing
+Patch102:	Linux-PAM-0.99.3.0-console-reset.patch
 # (fc) 0.75-29mdk don't complain when / is owned by root.adm
-Patch508:	Linux-PAM-0.75-pamtimestampadm.patch
-Patch509:	pam-0.75-biarch-utmp.patch
-Patch511:	pam-0.77-verbose-limits.patch
-Patch512:	pam-0.77-xauth-groups.patch
-# (fl) for udev
-Patch513:	pam-0.77-console-setowner.patch
-# (fl) for /etc/environment
-Patch514:	pam-0.77-environment.patch
-Patch515:	pam-0.77-use_uid.patch
+Patch103:	Linux-PAM-0.99.3.0-pamtimestampadm.patch
+Patch104:	Linux-PAM-0.99.3.0-verbose-limits.patch
+# (fl) pam_xauth: set extra groups because in high security levels
+#      access to /usr/X11R6/bin dir is controlled by a group
+Patch105:	Linux-PAM-0.99.3.0-xauth-groups.patch
+# (tv/blino) add defaults for nice/rtprio in /etc/security/limits.conf
+Patch106:	Linux-PAM-0.99.3.0-enable_rt.patch
+# (fl) fix uninitialized variable user (aka fix crash on C3)
+Patch107:	pam-0.77-use_uid.patch
+# (blino) fix parallel build (in doc/specs and pam_console)
+Patch108:	Linux-PAM-0.99.3.0-pbuild.patch
+Patch109:	Linux-PAM-0.99.3.0-pbuild-rh.patch
+# (blino) ensure that sgml2txt worked
+Patch110:	Linux-PAM-0.99.3.0-sgml2txt.patch
+# (blino) allow to disable pwdb
+Patch111:	Linux-PAM-0.99.3.0-pwdb.patch
 
-Patch600:	pam-0.77-annvix.patch
+# Annvix patches (200+)
+Patch200:	pam-0.99.3.0-annvix-perms.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	bison cracklib-devel flex glib-devel pwdb-devel
-BuildRequires:	db4-devel
+BuildRequires:	bison, cracklib-devel, flex, glib2-devel, pwdb-devel
+BuildRequires:	db4-devel, automake1.8, openssl-devel
 
 Requires:	cracklib-dicts, pwdb >= 0.54-2
 Requires(pre):	rpm-helper
@@ -100,9 +76,9 @@ Obsoletes:	pamconfig
 Provides:	pamconfig
 
 %description
-PAM (Pluggable Authentication Modules) is a system security tool
-which allows system administrators to set authentication policy
-without having to recompile programs which do authentication.
+PAM (Pluggable Authentication Modules) is a system security tool that
+allows system administrators to set authentication policy without
+having to recompile programs that handle authentication.
 
 
 %package -n %{libname}
@@ -111,9 +87,11 @@ Group:		System/Libraries
 Conflicts:	%{name} < 0.77-11sls
 
 %description -n %{libname}
-PAM (Pluggable Authentication Modules) is a system security tool
-which allows system administrators to set authentication policy
-without having to recompile programs which do authentication.
+PAM (Pluggable Authentication Modules) is a system security tool that
+allows system administrators to set authentication policy without
+having to recompile programs that handle authentication.
+
+This package contains the libraries for %{name}
 
 
 %package -n %{libname}-devel
@@ -125,133 +103,101 @@ Provides:	lib%{name}-devel = %{version}-%{release}
 Obsoletes:	%{name}-devel <= 0.77-10sls
 
 %description -n %{libname}-devel
-PAM (Pluggable Authentication Modules) is a system security tool
-which allows system administrators to set authentication policy
-without having to recompile programs which do authentication.
+PAM (Pluggable Authentication Modules) is a system security tool that
+allows system administrators to set authentication policy without
+having to recompile programs that handle authentication.
 
-This is the devlopement librairies for %{name}
+This package contains the development libraries for %{name}
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
 %setup -q -n Linux-PAM-%{version} -a 1
-cp %{SOURCE4} .
+# (RH)
+%patch0 -p0 -b .redhat-modules
+%patch1 -p1 -b .unix-hpux-aging
+%patch2 -p1 -b .doc
+%patch3 -p1 -b .dbpam
 
-%patch0  -p1 -b .modutil-thread
-%patch1  -p1 -b .include_path
-%patch2  -p1 -b .build
-%patch3  -p1 -b .linkage
-%patch4  -p1 -b .prompt
-%patch5  -p1 -b .return
-%patch6  -p1 -b .security
-%patch7  -p1 -b .string
-%patch8  -p1 -b .userdb
-%patch9  -p1 -b .group-reinit
-%patch10 -p1 -b .lastlog-utmp
-%patch11 -p1 -b .securetty-fail
-%patch12 -p1 -b .time
-%patch13 -p1 -b .issue
-%patch14 -p1 -b .doc-rhl
-%patch15 -p1 -b .bigcrypt-main
-%patch16 -p1 -b .cracklib-init
-%patch17 -p1 -b .filter-comments
-%patch18 -p1 -b .unix-loop
-%patch19 -p1 -b .unix-preserve
-%patch20 -p1 -b .unix-brokenshadow
-%patch21 -p1 -b .unix-hpux-aging
-%patch22 -p1 -b .unix-nis
-%patch23 -p1 -b .unix-nullok
-%patch24 -p1 -b .issue-heap
-%patch25 -p1 -b .listfile-tty
-%patch26 -p1 -b .misc-err
-%patch27 -p1 -b .unix-aixhash
-%patch28 -p1 -b .doc
-%patch29 -p1 -b .multicrack
-%patch30 -p1 -b .isa
-%patch31 -p1 -b .utmp-dev
-%patch32 -p1 -b .pwdb-static
-%patch33 -p1 -b .nss-reentrant
-%patch34 -p1 -b .dbpam
-%patch35 -p1 -b .sigchld
-%patch36 -p1 -b .skip-aconf-install
-%patch37 -p1 -b .log-changes
-%patch39 -p1 -b .fencepost
-%patch40 -p1 -b .grubb_leak
+# (Mandriva)
+%patch100 -p1 -b .mdvperms
+%patch101 -p1 -b .loop
+%patch102 -p1 -b .console-reset
+%patch103 -p1 -b .pamtimestampadm
+%patch104 -p1 -b .verbose-limits
+%patch105 -p1 -b .xauth-groups
+%patch106 -p1 -b .enable_rt
+%patch107 -p1 -b .use_uid
+%patch108 -p1 -b .pbuild
+%patch109 -p1 -b .pbuild-rh
+%patch110 -p1 -b .sgml2txt
+%patch111 -p1 -b .pwdb
 
-%patch500 -p1 -b .mdkconf
-%patch501 -p1 -b .loop
-%patch502 -p1 -b .dead-x
-%patch503 -p1 -b .devfsd
-%patch504 -p1 -b .console-reset
-%patch506 -p1 -b .lib64
-%patch507 -p1 -b .time-tty
-%patch508 -p1 -b .pamtimestampadm
-%patch509 -p1 -b .biarch-utmp
-%patch511 -p1 -b .verbose-limits
-%patch512 -p1 -b .xauth-groups
-%patch513 -p1 -b .console-setowner
-%patch514 -p1 -b .environment
-%patch515 -p1 -b .use_uid
-
-%patch600 -p0 -b .annvix
+%patch200 -p1 -b .avxperms
 
 for readme in modules/pam_*/README ; do
-    cp -fv ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
+    cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
 done
 rm -f doc/txts/README
-autoconf
+
+autoreconf
 
 
 %build
 CFLAGS="%{optflags} -fPIC" \
-./configure \
-    --prefix=/ \
+%configure \
+    --sbindir=/sbin \
     --libdir=/%{_lib} \
-    --infodir=%{_infodir} \
-    --mandir=%{_mandir} \
-    --enable-static-libpam \
-    --enable-securedir=/%{_lib}/security \
-    --enable-fakeroot=%{buildroot}
-# really build pam_console_apply_devfs against glib-1.2
-echo "PREFER_GLIB1 = yes" >> Make.Rules
+    --disable-pwdb \
+    --includedir=%{_includedir}/security
 
-# %%make doesn't work
-make
+%make
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}%{_includedir}/security
 mkdir -p %{buildroot}/%{_lib}/security
-make install FAKEROOT=%{buildroot} LDCONFIG=:
-install -d -m 0755 %{buildroot}/etc/pam.d
+make install DESTDIR=%{buildroot} LDCONFIG=:
+
+mkdir -p %{buildroot}/etc/pam.d
 install -m 0644 %{SOURCE2} %{buildroot}/etc/pam.d/other
 install -m 0644 %{SOURCE3} %{buildroot}/etc/pam.d/system-auth
 chmod 0644 %{buildroot}/etc/pam.d/{other,system-auth}
 
 # Install man pages.
-install -d -m 0755 %{buildroot}%{_mandir}/man3
-install -d -m 0755 %{buildroot}%{_mandir}/man8
+mkdir -p %{buildroot}%{_mandir}/man[358]
 install -m 0644 doc/man/*.3 %{buildroot}%{_mandir}/man3/
 install -m 0644 doc/man/*.8 %{buildroot}%{_mandir}/man8/
 
 # Make sure every module built.
 for dir in modules/pam_* ; do
-if [ -d ${dir} ] ; then
+if [ -d ${dir} ] && [ ${dir} != "modules/pam_selinux" ] && [ ${dir} != "modules/pam_pwdb" ]; then
     if ! ls -1 %{buildroot}/%{_lib}/security/`basename ${dir}`*.so ; then
-        echo ERROR `basename ${dir}` module did not build.
+        echo ERROR `basename ${dir}` did not build a module.
         exit 1
     fi
 fi
 done
 
+install -m 644 %{SOURCE5} %{buildroot}/etc/security/console.perms.d/50-annvix.perms
+
 #remove unpackaged files
-rm -rf %{buildroot}/%{_lib}/libpam{.a,c.*} \
-    %{buildroot}/%{_lib}/security/pam_filter/upperLOWER \
-    %{buildroot}%{_sysconfdir}/security/chroot.conf \
+rm -rf %{buildroot}/%{_lib}/*.la \
+    %{buildroot}/%{_lib}/security/*.la \
     %{buildroot}%{_prefix}/doc/Linux-PAM \
     %{buildroot}%{_datadir}/doc/pam
 
 touch %{buildroot}%{_sysconfdir}/environment
+
+%find_lang Linux-PAM
 
 
 %clean
@@ -262,25 +208,28 @@ touch %{buildroot}%{_sysconfdir}/environment
 %postun -n %libname -p /sbin/ldconfig
 
 
-%files
+%files -f Linux-PAM.lang
 %defattr(-,root,root)
-%doc CHANGELOG Copyright doc/txts/*
 %dir /etc/pam.d
 %config(noreplace) %{_sysconfdir}/environment
 %config(noreplace) /etc/pam.d/other
 %config(noreplace) /etc/pam.d/system-auth
 %config(noreplace) /etc/security/access.conf
+%config(noreplace) /etc/security/chroot.conf
 %config(noreplace) /etc/security/time.conf
 %config(noreplace) /etc/security/group.conf
 %config(noreplace) /etc/security/limits.conf
 %config(noreplace) /etc/security/pam_env.conf
 %config(noreplace) /etc/security/console.perms
-%attr(4755,root,root) /sbin/pwdb_chkpwd
-/sbin/unix_chkpwd
+%config(noreplace) /etc/security/console.handlers
+%dir %{_sysconfdir}/security/console.perms.d
+%config(noreplace) /etc/security/console.perms.d/50-default.perms
+%config(noreplace) /etc/security/console.perms.d/50-annvix.perms
 /sbin/pam_console_apply
-/sbin/pam_console_setowner
 /sbin/pam_tally
-/sbin/pam_timestamp_check
+%dir /etc/security/console.apps
+%attr(4755,root,root) /sbin/pam_timestamp_check
+%attr(4755,root,root) /sbin/unix_chkpwd
 %dir /etc/security/console.apps
 %dir /var/run/console
 %{_mandir}/man5/*
@@ -288,26 +237,47 @@ touch %{buildroot}%{_sysconfdir}/environment
 
 %files -n %{libname}
 %defattr(-,root,root)
-/%{_lib}/libpam.so.*
-/%{_lib}/libpam_misc.so.*
 %dir /%{_lib}/security
+/%{_lib}/libpam.so.*
+/%{_lib}/libpamc.so.*
+/%{_lib}/libpam_misc.so.*
 /%{_lib}/security/*.so
+/%{_lib}/security/pam_filter
 
 %files -n %{libname}-devel
 %defattr(-,root,root)
-%doc Copyright
 /%{_lib}/libpam.so
 /%{_lib}/libpam_misc.so
-/%{_lib}/libpam_misc.a
+/%{_lib}/libpamc.so
 %{_includedir}/security/*.h
 %{_mandir}/man3/*
 
+%files doc
+%defattr(-,root,root)
+%doc CHANGELOG Copyright doc/txts/*
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jun 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.99.3.0
+- 0.99.3.0
+- merge changes from Mandriva, which in turn synced with RH:
+  - don't package pwdb_chkpwd
+  - package security/chroot.conf
+  - package libpamc
+  - package language files
+  - package new security/console.handlers and security/console.perms.d/
+  - drop lots of patches and integrate/update new ones
+  - buildrequires: openssl, automake1.8
+  - disable pam_pwdb
+  - make unix_chkpwd setuid root again
+- renumber patches
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.77
 - Clean rebuild
 
-* Mon Jan 09 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Jan 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.77
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 

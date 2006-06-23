@@ -1,0 +1,13 @@
+--- Linux-PAM-0.99.3.0/doc/Makefile.am.sgml2txt	2005-12-12 16:56:33.000000000 +0100
++++ Linux-PAM-0.99.3.0/doc/Makefile.am	2006-01-28 01:44:54.000000000 +0100
+@@ -58,7 +58,9 @@
+ 		if [ ! -f "txts/$$i.txt" ] \
+ 				|| [ "$(srcdir)/$$i.sgml" -nt "txts/$$i.txt" ]; then \
+ 			mkdir -p txts ; \
+-			cd txts ; sgml2txt ../$(srcdir)/$$i ; cd .. ; \
++			cd txts ; sgml2txt ../$(srcdir)/$$i ; \
++			if [ $$? -ne 0 ]; then exit 1 ; fi ; \
++			cd .. ; \
+ 		fi ; \
+ 	done
+ else

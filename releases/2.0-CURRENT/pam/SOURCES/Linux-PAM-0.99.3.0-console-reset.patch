@@ -1,0 +1,31 @@
+--- Linux-PAM-0.99.3.0/modules/pam_console/configfile.y.console-reset	2005-12-19 23:00:54.000000000 +0100
++++ Linux-PAM-0.99.3.0/modules/pam_console/configfile.y	2006-01-27 21:32:59.000000000 +0100
+@@ -244,8 +244,8 @@
+ 
+ int
+ reset_permissions(const char *consolename, GSList *files) {
+-    struct passwd *pwd;
+-    struct group *grp;
++    struct passwd *pwd, p;
++    struct group *grp, g;
+     config *c;
+     GSList *cl;
+ 
+@@ -260,13 +260,15 @@
+ 	    if (pwd == NULL) {
+ 		_pam_log(NULL, LOG_ERR, FALSE, "getpwnam failed for %s",
+ 			 c->revert_owner ? c->revert_owner : "root");
+-		return -1;
++		p.pw_uid = 0;
++		pwd = &p;
+ 	    }
+ 	    grp = getgrnam(c->revert_group ? c->revert_group : "root");
+ 	    if (grp == NULL) {
+                 _pam_log(NULL, LOG_ERR, FALSE, "getgrnam failed for %s",
+                          c->revert_group ? c->revert_group : "root");
+-                return -1;
++		g.gr_gid = 0;
++		grp = &g;
+             }
+ 	    if (c->device_class->list)
+ 	        chmod_files(c->revert_mode ? c->revert_mode : "0600",

@@ -1,0 +1,29 @@
+--- Linux-PAM-0.99.3.0/modules/pam_console/50-default.perms.avx	2006-06-23 10:23:49.000000000 -0600
++++ Linux-PAM-0.99.3.0/modules/pam_console/50-default.perms	2006-06-23 10:23:49.000000000 -0600
+@@ -39,9 +39,9 @@
+ 
+ # permission definitions
+ <console>  0660 <floppy>     0660 root.floppy
+-<console>  0660 <sound>      0600 root.audio
++<console>  0660 <sound>      0600 root.root
+ <console>  0660 <cdrom>      0660 root.cdrom
+-<console>  0660 <pilot>      0660 root.uucp
++<console>  0660 <pilot>      0660 root.root
+ <console>  0660 <jaz>        0660 root.disk
+ <console>  0660 <zip>        0660 root.disk
+ <console>  0660 <ls120>      0660 root.disk
+@@ -55,7 +55,7 @@
+ <console>  0600 <fb>         0600 root
+ <console>  0600 <kbd>        0600 root
+ <console>  0600 <joystick>   0600 root
+-<console>  0660 <v4l>        0660 root.video
++<console>  0660 <v4l>        0660 root.root
+ <console>  0700 <gpm>	     0700 root
+ <console>  0600 <mainboard>  0600 root
+ <console>  0600 <rio500>     0600 root
+@@ -64,4 +64,4 @@
+ <console>  0600 <raw1394>    0600 root
+ 
+ <console> 0600 /dev/console  0600 root.root
+-<console> 0660 <dri>	     0660 root.video
++<console> 0660 <dri>	     0660 root.root
