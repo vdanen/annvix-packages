@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		pkgconfig
-%define version		0.19
+%define version		0.20
 %define release		%_revrel
 
 Summary:	Pkgconfig helps make building packages easier
@@ -18,13 +18,11 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		Development/Other
-URL:		http://www.freedesktop.org/software/pkgconfig
-Source:		http://www.freedesktop.org/software/pkgconfig/releases/pkg-config-%{version}.tar.bz2
+URL:		http://pkgconfig.freedesktop.org/
+Source:		http://pkgconfig.freedesktop.org/releases/pkg-config-%{version}.tar.gz
 Patch1:		pkg-config-0.19-biarch.patch
 # (fc) 0.19-1mdk add --print-provides/--print-requires (Fedora)
 Patch2:		pkgconfig-0.15.0-reqprov.patch
-# (fc) 0.19-1mdk fix overflow with gcc4 (Fedora)
-Patch3:		pkgconfig-0.15.0-overflow.patch
 # (gb) 0.19-2mdk 64-bit fixes, though that code is not used, AFAICS
 Patch4:		pkg-config-0.19-64bit-fixes.patch
 
@@ -35,11 +33,18 @@ pkgconfig is a program that helps gather information to make things easier
 when compiling a program for those programs which support it.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n pkg-config-%{version}
 %patch1 -p1 -b .biarch
 %patch2 -p1 -b .reqprov
-%patch3 -p1 -b .overflow
 %patch4 -p1 -b .64bit-fixes
 
 #needed by patch1
@@ -73,7 +78,6 @@ mkdir -p %{buildroot}%{_datadir}/pkgconfig
 
 %files
 %defattr(-,root,root)
-%doc AUTHORS COPYING INSTALL README ChangeLog
 %{_bindir}/pkg-config
 %{_libdir}/pkgconfig
 %{_datadir}/pkgconfig
@@ -84,12 +88,23 @@ mkdir -p %{buildroot}%{_datadir}/pkgconfig
 %{_datadir}/aclocal/*
 %{_mandir}/man1/*
 
+%files doc
+%defattr(-,root,root)
+%doc AUTHORS COPYING INSTALL README ChangeLog
+
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jun 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.20
+- 0.20
+- drop P3; no longer required
+- fix urls
+- add -doc subpackage
+- rebuild with gcc4
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.19
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.19
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
