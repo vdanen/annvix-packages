@@ -117,7 +117,7 @@ install -m 0644 man/pure-quotacheck.8 %{buildroot}%{_mandir}/man8
 install -m 0644 man/pure-authd.8 %{buildroot}%{_mandir}/man8
 
 mkdir -p %{buildroot}%{_sysconfdir}/pam.d/
-install -m 0644 %{SOURCE6} %{buildroot}%{_sysconfdir}/pam.d/
+install -m 0644 %{SOURCE6} %{buildroot}%{_sysconfdir}/pam.d/pure-ftpd
 
 install -m 0644 %{SOURCE2} %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
 
