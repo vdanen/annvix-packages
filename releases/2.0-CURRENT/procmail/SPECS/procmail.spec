@@ -33,6 +33,14 @@ addition to just delivering mail, procmail can be used for automatic
 filtering, presorting and other mail handling jobs.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 %patch1 -p1 -b .lockf
@@ -66,20 +74,27 @@ rm -f examples/mailstat
 
 %files
 %defattr(-,root,root)
-%doc FAQ HISTORY README KNOWN_BUGS FEATURES examples
-%attr(6755,root,mail)	%{_bindir}/procmail
-%attr(2755,root,mail)	%{_bindir}/lockfile
+%attr(6755,root,mail) %{_bindir}/procmail
+%attr(2755,root,mail) %{_bindir}/lockfile
 %{_bindir}/formail
 %{_bindir}/mailstat
 %{_mandir}/man1/*1*
 %{_mandir}/man5/*5*
 
+%files doc
+%defattr(-,root,root)
+%doc FAQ HISTORY README KNOWN_BUGS FEATURES examples
+
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jun 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.22
+- add -doc subpackage
+- rebuild with gcc4
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.22
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.22
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - fix description
