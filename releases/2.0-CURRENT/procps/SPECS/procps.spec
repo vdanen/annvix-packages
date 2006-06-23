@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		procps
-%define version		3.2.5
+%define version		3.2.6
 %define release		%_revrel
 
 Summary:	Utilities for monitoring your system and processes on your system
@@ -19,7 +19,7 @@ Release:	%{release}
 License:	GPL
 Group:		Monitoring
 URL:		http://procps.sf.net/
-Source:		http://procps.sourceforge.net/%{name}-%{version}.tar.bz2
+Source:		http://procps.sourceforge.net/%{name}-%{version}.tar.gz
 Patch0:		procps-3.2.3-sysctlshutup.patch
 Patch1:		procps-3.2.3-perm-top.patch
 Patch2:		procps-3.2.3-perror.patch
@@ -68,6 +68,14 @@ Requires:	%{name} = %{version}
 Development headers and library for the proc library.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 %patch0 -p0 -b .sysctl
@@ -114,7 +122,6 @@ rm -f /etc/psdevtab /etc/psdatabase
 
 %files
 %defattr(-,root,root)
-%doc NEWS BUGS TODO
 /%{_lib}/libproc-*.so
 /bin/procps3-kill
 /bin/ps
@@ -156,12 +163,21 @@ rm -f /etc/psdevtab /etc/psdatabase
 %{_includedir}/procps/*
 /%{_lib}/libproc.so
 
+%files doc
+%defattr(-,root,root)
+%doc NEWS BUGS TODO
+
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jun 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.2.6
+- 3.2.6
+- add -doc subpackage
+- rebuild with gcc4
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.2.5
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.2.5
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
