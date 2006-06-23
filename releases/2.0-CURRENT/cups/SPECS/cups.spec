@@ -25,6 +25,7 @@ URL:		http://www.cups.org/
 Source0:	ftp://ftp.easysw.com/pub/cups/%{version}/%{name}-%{version}-source.tar.bz2
 Source1:	cupsd.run
 Source2:	cupsd-log.run
+Source3:	cups.pam
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	openssl-devel, pam-devel, openldap-devel, zlib-devel, libpng-devel
@@ -80,10 +81,6 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q -n %{name}-%{version}
-
-# fix the pam configuration
-perl -p -i -e 's:(auth\s+required\s+?).*$:$1/lib/security/pam_stack.so service=system-auth:' scheduler/cups.pam conf/pam.std.in
-perl -p -i -e 's:(account\s+required\s+?).*$:$1/lib/security/pam_stack.so service=system-auth:' scheduler/cups.pam conf/pam.std.in
 
 # fix the makefiles so they don't set file ownerships
 perl -p -i -e "s/ -o \\$.CUPS_USER.//" scheduler/Makefile
@@ -168,6 +165,10 @@ touch %{buildroot}%{_sysconfdir}/cups/printers.conf
 touch %{buildroot}%{_sysconfdir}/cups/classes.conf
 touch %{buildroot}%{_sysconfdir}/cups/client.conf
 
+# pam
+cp -f %{SOURCE3} %{buildroot}%{_sysconfdir}/pam.d/cups
+chmod 0644 %{buildroot}%{_sysconfdir}/pam.d/cups
+
 
 %post
 /sbin/ldconfig
@@ -247,6 +248,10 @@ chgrp -R sys /etc/cups /var/*/cups
 
 
 %changelog
+* Fri Jun 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.1
+- rebuild against new pam
+- S3: pam config
+
 * Sat May 27 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.1
 - 1.2.1
 - rebuild with gcc4
