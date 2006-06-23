@@ -113,6 +113,10 @@ install -m 0440 %{SOURCE2} %{buildroot}%{_sysconfdir}/sudoers
 
 
 %changelog
+* Fri Jun 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.6.8p12
+- rebuild against new pam
+- update S3 to use the include directive rather than pam_stack
+
 * Sat Jun 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.6.8p12
 - add the APT group in sudoers, but don't assign it to anyone by default
   (apt can provide too much information for some, unlike rurpmi)
