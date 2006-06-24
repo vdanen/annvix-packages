@@ -1,0 +1,17 @@
+diff -uNr -U 5 pam_ldap-180/pam_ldap.c pam_ldap-181/pam_ldap.c
+--- pam_ldap-180/pam_ldap.c	2005-08-17 19:35:13.000000000 -0300
++++ pam_ldap-181/pam_ldap.c	2006-04-30 13:41:10.000000000 -0300
+@@ -2323,10 +2324,13 @@
+     {
+       return PAM_SYSTEM_ERR;
+     }
+ #endif
+ 
++  if (h == NULL || h->h_name == NULL) 
++    return PAM_SYSTEM_ERR; 
++
+   if (_has_deny_value (session->info->hosts_allow, h->h_name))
+     return PAM_PERM_DENIED;
+   else if (_has_value (session->info->hosts_allow, h->h_name))
+     return PAM_SUCCESS;
+ 

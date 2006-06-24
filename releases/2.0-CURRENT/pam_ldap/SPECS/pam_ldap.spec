@@ -21,6 +21,9 @@ Group:		System/Libraries
 URL: 		http://www.padl.com/
 Source0:	http://www.padl.com/download/%{name}-%{version}.tar.bz2
 Patch0:		pam_ldap-156-makefile.patch
+Patch1:		pam_ldap-180-getlderrno.patch
+Patch2:		pam_ldap-180-bug254.patch
+Patch3:		pam_ldap-180-bug268.patch
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildRequires:	openldap-devel >= 2.0.7-7.1mdk, pam-devel, automake1.4
@@ -33,9 +36,20 @@ clients, Netscapes SSL, ypldapd, Netscape Directory Server password
 policies, access authorization, crypted hashes, etc.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 %patch0 -p1 -b .makefile
+%patch1 -p1 -b .getlderrno
+%patch2 -p1 -b .bug254
+%patch3 -p1 -b .bug268
 
 
 %build
@@ -70,12 +84,24 @@ rm -rf %{buildroot}%{_sysconfdir}/ldap.conf
 
 %files
 %defattr(-,root,root)
-%doc AUTHORS ChangeLog COPYING COPYING.LIB README pam.d chsh chfn ldap.conf
 /%{_lib}/security/*so*
 %{_mandir}/man5/pam_ldap.5*
 
+%files doc
+%defattr(-,root,root)
+%doc AUTHORS ChangeLog COPYING COPYING.LIB README pam.d chsh chfn ldap.conf
+
 
 %changelog
+* Sat Jun 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 180
+- rebuild against new pam
+- P1: fix http//bugzilla.padl.com/show_bug.cgi?id=264: wrong error
+  message returned when a password policy check fails
+- P2: fix padl bug #254: segfault when hostname unresolvable
+- P3: fix padl bug #268: forced password change with OL ppolicy overlay
+- add -doc subpackage
+- rebuild with gcc4
+
 * Sat Feb 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 180
 - Requires: openldap-clients
 
