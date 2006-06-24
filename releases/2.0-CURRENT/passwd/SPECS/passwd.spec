@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		passwd
-%define version		0.68
+%define version		0.71
 %define release		%_revrel
 
 Summary:	The passwd utility for setting/changing passwords using PAM
@@ -21,8 +21,6 @@ Group:		System/Base
 # This url is stupid, someone come up with a better one _please_!
 URL:		http://www.freebsd.org
 Source0:	passwd-%{version}.tar.bz2
-Patch:		passwd-0.67-manpath.patch
-Patch1:		passwd-0.68-sec.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	glib2-devel, libuser-devel, pam-devel, popt-devel
@@ -36,14 +34,11 @@ Modules).
 
 
 %prep
-
-
 %setup -q
-%patch -p1
-%patch1 -p0 -b .sec
 
 
 %build
+%configure --without-selinux
 %make
 
 
@@ -72,6 +67,10 @@ rm -f %{buildroot}%{_mandir}/man1/{chfn.1,chsh.1}
 
 		
 %changelog
+* Sat Jun 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.71
+- 0.71
+- rebuild against new pam
+
 * Tue May 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.68
 - rebuild against new libuser
 - rebuild with gcc4
