@@ -51,6 +51,7 @@ Patch8:         samba-3.0.20-avx-annvix-config.patch
 Patch11:	samba-3.0.20-mandrake-packaging.patch
 Patch12:	http://www.samba.org/samba/patches/quota.patch
 Patch13:	http://samba.org/~metze/samba3-default-quota-ignore-error-01.diff
+Patch14:	samba-3.0.22-avx-pam.patch
 
 BuildRoot:      %{_buildroot}/%{name}-%{version}
 BuildRequires:  pam-devel readline-devel libncurses-devel popt-devel
@@ -256,6 +257,7 @@ popd
 pushd source
 %patch13
 popd
+%patch14 -p1 -b .avx_pam
 # patches from cvs/samba team
 
 # Make a copy of examples so that we have a clean one for doc:
@@ -827,6 +829,7 @@ popd >/dev/null 2>&1
 %changelog
 * Sat Jun 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.22
 - rebuild against new pam
+- P14: update config for new pam
 
 * Sat Jun 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.22
 - 3.0.22
