@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name 		nss_ldap
-%define version 	243
+%define version 	250
 %define release 	%_revrel
 
 Summary:	NSS library for LDAP
@@ -19,8 +19,9 @@ Release: 	%{release}
 License:	LGPL
 Group:		System/Libraries
 URL: 		http://www.padl.com/
-Source0:	http://www.padl.com/download/%{name}-%{version}.tar.gz
+Source0:	http://www.padl.com/download/%{name}-%{version}.tar.bz2
 Patch0:		nss_ldap-makefile.patch
+Patch1:		nss_ldap-250-bind_policy_default_soft.patch
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
 #BuildRequires:	db4-devel >= 4.1.25
@@ -36,9 +37,20 @@ groups, hosts, networks, protocol, users, RPCs, services and shadow
 passwords (instead of or in addition to using flat files or NIS).
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 %patch0 -p1 -b .makefile
+%patch1 -p1 -b .bind_policy_soft
+# first line not commented upstream for some reason
+perl -pi -e 's/^ /#/' ldap.conf
 
 
 %build
@@ -88,19 +100,30 @@ rm -rf %{buildroot}%{_libdir}/libnss_ldap.so.2
 
 %files
 %defattr(-,root,root)
-%doc ANNOUNCE AUTHORS ChangeLog COPYING NEWS README doc INSTALL
-%doc nsswitch.ldap certutil ldap.conf
 %attr (600,root,root) %config(noreplace) %{_sysconfdir}/ldap.secret
 %attr (644,root,root) %config(noreplace) %{_sysconfdir}/ldap.conf
 /%{_lib}/*so*
 %{_mandir}/man5/nss_ldap.5*
 
+%files doc
+%defattr(-,root,root)
+%doc ANNOUNCE AUTHORS ChangeLog COPYING NEWS README doc INSTALL
+%doc nsswitch.ldap certutil ldap.conf
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jun 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 250
+- 250
+- P1: default bind_policy is set to "soft" to keep previous default
+  behavious of not retrying binds to servers that are not available
+- first line of ldap.conf isn't commented; fix it
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 243
 - Clean rebuild
 
-* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org> 243
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - fix prereq
