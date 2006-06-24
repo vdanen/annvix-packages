@@ -201,12 +201,12 @@ strip %{buildroot}/%{_libexecdir}/{ncsa_auth,smb_auth,squid_ldap_auth,yp_auth}
 
 cat >> %{buildroot}/etc/pam.d/squid <<EOF
 #%PAM-1.0
-auth       required     pam_stack.so service=system-auth
-auth       required     pam_nologin.so
-account    required     pam_stack.so service=system-auth
-password   required     pam_stack.so service=system-auth
-session    required     pam_stack.so service=system-auth
-session    required     pam_limits.so
+auth		include		system-auth
+auth		required	pam_nologin.so
+account		include		system-auth
+password	include		system-auth
+session		include		system-auth
+session		required	pam_limits.so
 EOF
 
 mkdir -p %{buildroot}/var/log/squid
@@ -297,6 +297,9 @@ fi
 %doc C* S* R* Q* squid.conf.* rc.firewall smb.conf doc/*
 
 %changelog
+* Sat Jun 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5.STABLE14
+- rebuild against new pam and update pam config
+
 * Fri Jun 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5.STABLE14
 - 2.5.STABLE14
 - drop old upstream P100, add a new one
