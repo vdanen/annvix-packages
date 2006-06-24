@@ -182,6 +182,9 @@ mkdir -p %{buildroot}/var/lib/rsbac/tmp
 
 
 %changelog
+* Sat Jun 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.7
+- rebuild against new pam
+
 * Sat Jun 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.7
 - P0: lib64 fixes (again)
 
