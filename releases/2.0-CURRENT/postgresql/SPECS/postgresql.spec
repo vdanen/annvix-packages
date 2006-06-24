@@ -583,6 +583,9 @@ fi
 
 
 %changelog
+* Sat Jun 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.1.4
+- rebuild against new pam
+
 * Thu Jun 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.1.4
 - rebuild against new readline
 
