@@ -825,6 +825,9 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Sat Jun 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.22
+- rebuild against new pam
+
 * Sat Jun 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.22
 - 3.0.22
 - smbldap 0.91
