@@ -290,6 +290,9 @@ rm -rf %{buildroot}%{_libdir}/*rad*
 
 
 %changelog
+* Sun Jun 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.3
+- rebuild against new pam and update pam config
+
 * Sat Jun 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.3
 - add -doc subpackage
 - rebuild with gcc4
