@@ -185,6 +185,9 @@ rm -rf %{buildroot}%{_libdir}/python%{pyver}/site-packages/*a
 
 
 %changelog
+* Sun Jun 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.54.5
+- rebuild against new pam
+
 * Tue May 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.54.5
 - 0.54.5
 - rediff P1
