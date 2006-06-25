@@ -37,6 +37,14 @@ all of the encryption, authentication, and certification features of the
 OpenSSL library to securely tunnel IP networks over a single UDP port.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 
@@ -103,8 +111,6 @@ done
 
 %files
 %defattr(-,root,root)
-%doc AUTHORS INSTALL PORTS README
-%doc plugin/README.*
 %{_mandir}/man8/%{name}.8*
 %{_sbindir}/%{name}
 %{_datadir}/%{name}
@@ -113,8 +119,18 @@ done
 %dir %{plugindir}
 %{plugindir}/*.so
 
+%files doc
+%defattr(-,root,root)
+%doc AUTHORS INSTALL PORTS README
+%doc plugin/README.*
+
 
 %changelog
+* Sun Jun 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.5
+- rebuild against new pam
+- add -doc subpackage
+- rebuild with gcc4
+
 * Wed Feb  1 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.5
 - first Annvix build
 - don't build with lzo support
