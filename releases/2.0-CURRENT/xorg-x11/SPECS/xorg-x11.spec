@@ -78,7 +78,7 @@ License:	MIT
 Group:		System/X11
 URL:		http://www.x.org/
 
-BuildRequires:	zlib-devel flex bison groff pam-devel ncurses-devel perl
+BuildRequires:	zlib-devel flex bison groff ncurses-devel perl
 BuildRequires:	libpng-devel libexpat-devel
 %if %{usefreetype2}
 BuildRequires:	freetype2-devel
@@ -102,8 +102,6 @@ Source0:	http://freedesktop.org/~xorg/X11R%{version}/src/single/X11R%{version}-s
 %if %{build_nosrc}
 NoSource:	0
 %endif
-Source13:	xserver.pamd
-Source14:	xdm.pamd
 Source15:	xfs.init
 Source16:	xfs.config
 #Source18:	xdm.init
@@ -619,12 +617,6 @@ groff -Tascii -ms xc/doc/specs/XLFD/xlfd.tbl.ms >xc/doc/hardcopy/XLFD/xlfd.tbl.t
 %install
 rm -rf %{buildroot}
 
-mkdir -p %{buildroot}/etc/pam.d
-install -m 644 %{SOURCE13} %{buildroot}/etc/pam.d/xserver
-install -m 644 %{SOURCE14} %{buildroot}/etc/pam.d/xdm
-mkdir -p %{buildroot}/etc/security/console.apps
-touch %{buildroot}/etc/security/console.apps/xserver
-
 mkdir -p %{buildroot}/usr/include
 rm -f %{buildroot}/usr/include/X11
 
@@ -1071,6 +1063,10 @@ grep -q "^%{x11shlibdir}$" /etc/ld.so.conf || echo "%{x11shlibdir}" >> /etc/ld.s
 
 
 %changelog
+* Sun Jun 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 6.8.2
+- drop S13 and S14: pam-related
+- drop buildrequires: pam-devel
+
 * Sat Jun 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 6.8.2
 - drop the requires needed for the main xorg-x11 package which we don't ship
 
