@@ -640,6 +640,9 @@ update-alternatives --remove php %{_bindir}/php-cli
 
 
 %changelog
+* Sun Jun 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.4
+- rebuild against new pam
+
 * Sat Jun 03 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.4
 - rebuild against new libxml2
 - really add -doc subpackage
