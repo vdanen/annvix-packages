@@ -9,12 +9,9 @@
 
 %define revision	$Rev$
 %define name		openswan
-%define version		2.3.1
+%define version		2.4.5
 %define release		%_revrel
 %define epoch		1
-
-%define their_version	2.3.1
-%define debug_package	%{nil}
 
 Summary:	An implementation of IPSEC & IKE for Linux
 Name:		%{name}
@@ -24,15 +21,16 @@ Epoch:		%{epoch}
 URL:		http://www.openswan.org/
 License:	GPL
 Group:		System/Servers
-Source0:	http://www.openswan.org/code/openswan-%{their_version}.tar.gz
-Source1:	http://www.openswan.org/code/openswan-%{their_version}.tar.gz.asc
-Patch0:		openswan-2.3.1.gcc4.patch
+Source0:	http://www.openswan.org/download/openswan-%{version}.tar.gz
+Source1:	http://www.openswan.org/download/openswan-%{version}.tar.gz.asc
+Patch0:		openswan-2.4.5-avx-typeo.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	gmp-devel, pam-devel, bison
 
 Provides:	ipsec-userland
 Requires:	iproute2
+#Requires:	ipsec-tools
 Requires(post):	rpm-helper
 Requires(preun): rpm-helper
 
@@ -52,10 +50,17 @@ Openswan on a kernel with either the 2.6 native IPsec code, or
 FreeS/WAN's KLIPS.
 
 
-%prep
-%setup -q -n openswan-%{their_version}
-%patch0 -p1 -b .gcc4
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
 
+%description doc
+This package contains the documentation for %{name}.
+
+
+%prep
+%setup -q -n openswan-%{version}
+%patch0 -p0
 
 %build
 %serverbuild
@@ -99,8 +104,10 @@ rm -rf %{buildroot}%{_docdir}/%{name}
 rm -rf %{buildroot}%{_sysconfdir}/rc.d/rc*
 rm -rf %{buildroot}%{_sysconfdir}/%{name}/ipsec.d/examples
 
+
 %preun
 %_preun_service ipsec
+
 
 %post
 %_post_service ipsec
@@ -112,7 +119,6 @@ rm -rf %{buildroot}%{_sysconfdir}/%{name}/ipsec.d/examples
 
 %files
 %defattr(-,root,root)
-%doc BUGS CHANGES COPYING CREDITS README programs/examples
 %attr(0600,root,root) %config(noreplace) %{_sysconfdir}/%{name}/ipsec.conf
 %attr(0700,root,root) %dir %{_sysconfdir}/%{name}/ipsec.d
 %attr(0700,root,root) %dir %{_sysconfdir}/%{name}/ipsec.d/cacerts
@@ -126,12 +132,24 @@ rm -rf %{buildroot}%{_sysconfdir}/%{name}/ipsec.d/examples
 %{_mandir}/*/*
 %{_localstatedir}/run/pluto
 
+%files doc 
+%defattr(-,root,root)
+%doc BUGS CHANGES COPYING CREDITS README programs/examples
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jun 27 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.5
+- 2.4.5
+- drop P0; no longer required
+- fix source URLs
+- P0: fix stupid typeo that prevents it from compiling
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.1
 - Clean rebuild
 
-* Sun Jan 08 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sun Jan 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.1
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - fix prereq
