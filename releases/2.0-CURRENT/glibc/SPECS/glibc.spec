@@ -1027,7 +1027,11 @@ fi
 %{_includedir}/asm-i386/mach-xen/asm/*.h
 %dir %{_includedir}/asm-x86_64
 %{_includedir}/asm-x86_64/*.h
-%{_includedir}/asm-x86_64/*.i
+#%{_includedir}/asm-x86_64/*.i
+%dir %{_includedir}/asm-x86_64/mach-xen
+%dir %{_includedir}/asm-x86_64/mach-xen/asm
+%{_includedir}/asm-x86_64/mach-xen/*.h
+%{_includedir}/asm-x86_64/mach-xen/asm/*.h
 %endif
 %if "%{arch}" == "ppc64"
 %dir %{_includedir}/asm-ppc
@@ -1157,6 +1161,9 @@ fi
 
 
 %changelog
+* Wed Jun 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.5
+- some x86_64 include file fixes
+
 * Mon Jun 26 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.5
 - grab the kernel 2.6.16 headers from Mandriva's glibc and use it instead
   of the 2.4 headers
