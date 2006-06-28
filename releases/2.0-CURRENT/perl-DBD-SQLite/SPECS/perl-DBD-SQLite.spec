@@ -5,10 +5,10 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-# $Id: perl-DBD-mysql.spec 5400 2006-05-11 18:12:53Z vdanen $
+# $Id$
 
 %define	module		DBD-SQLite
-%define	revision	$Rev: 5400 $
+%define	revision	$Rev$
 %define	name		perl-%{module}
 %define version 	1.12
 %define release 	%_revrel
