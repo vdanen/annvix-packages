@@ -569,7 +569,8 @@ sub config_x86_cpu {
 	$values{M686} = "n";
 	$values{M586} = "y";
     } elsif ($cpu eq "i686") {
-	# nothing to do
+    	$values{M686} = "y";
+	$values{M586} = "n";
     } elsif ($cpu eq "p3") {
 	$values{M686} = "n";
 	$values{MPENTIUMIII} = "y";

@@ -9,10 +9,11 @@
 
 %define revision	$Rev$
 %define kname		kernel26
-%define sublevel	14
+%define sublevel	16
+%define minlevel	22
 %define avxrelease	%(echo %{revision}|cut -d ' ' -f 2)
 
-%define tar_version	2.6.%{sublevel}
+%define tar_version	2.6.%{sublevel}.%{minlevel}
 %define patchversion	avx%{avxrelease}
 %define realrelease	%{avxrelease}avx
 
@@ -100,7 +101,7 @@ Source0: ftp://ftp.kernel.org/pub/linux/kernel/v2.4/linux-%{tar_version}.tar.bz2
 %if %build_nosrc
 NoSource: 0
 %endif
-Source1: linux-%{tar_version}.tar.bz2.info
+#Source1: linux-%{tar_version}.tar.bz2.info
 
 Source4:	README.annvix-kernel-sources
 Source5:	README.Annvix
@@ -698,7 +699,9 @@ exit 0
 %dir %{_kerneldir}/arch
 %dir %{_kerneldir}/include
 %{_kerneldir}/.config
-%{_kerneldir}/.gitignore
+#%{_kerneldir}/.gitignore
+%{_kerneldir}/.kconfig.d
+%{_kerneldir}/.kernelrelease
 %{_kerneldir}/Kbuild
 %{_kerneldir}/COPYING
 %{_kerneldir}/CREDITS
@@ -712,6 +715,7 @@ exit 0
 %{_kerneldir}/arch/ia64
 %{_kerneldir}/arch/x86_64
 %{_kerneldir}/arch/um
+%{_kerneldir}/block
 %{_kerneldir}/crypto
 %{_kerneldir}/drivers
 %{_kerneldir}/fs
@@ -734,6 +738,7 @@ exit 0
 %{_kerneldir}/include/asm-x86_64
 %{_kerneldir}/include/asm-um
 %{_kerneldir}/include/asm
+%{_kerneldir}/include/keys
 %{_kerneldir}/include/linux
 %{_kerneldir}/include/math-emu
 %{_kerneldir}/include/media
@@ -769,6 +774,24 @@ exit 0
 
 
 %changelog
+* Mon Jun 26 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.22
+- 2.6.16.22
+- renamed RSBAC to SL63 and SL64; updated to 1.2.7
+- add AppArmor patches (SL60, SL61, SL62) (obtained from the SUSE 10.1
+  kernel-source package) -- need to find the real location yet
+- kernel config changes (lots not noted, but here's the important ones):
+  - set CONFIG_SECURITY=y           
+  - set CONFIG_SECURITY_NETWORK=y
+  - set CONFIG_SECURITY_CAPABILITIES=m
+  - set CONFIG_SECURITY_APPARMOR=m
+  - set CONFIG_EXPERIMENTAL=n
+  - set CONFIG_ELF_CORE=y
+  - set CONFIG_SLAB=y
+  - set CONFIG_DOUBLEFAULT=y
+  - set CONFIG_NETFILTER_XTABLES*=m
+  - set CONFIG_DEFAULT_AS=y
+  - disabled a bunch of USB multimedia devices
+
 * Fri May 26 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.14
 - kernel26 provides kernel26-up, not kernel-up
 
