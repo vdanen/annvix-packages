@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		filesystem
-%define version		2.1.5
+%define version		2.1.6
 %define release		%_revrel
 
 Summary:	The basic directory layout for an Annvix system
@@ -40,7 +40,7 @@ mkdir %{buildroot}
 
 # add /sys when we move to kernel 2.6
 pushd %{buildroot}
-    mkdir -p media bin boot \
+    mkdir -p media bin boot sys \
         etc/{profile.d,skel,security,ssl,sysconfig/env} \
         home initrd lib/modules %{_lib} mnt media opt proc root sbin srv tmp \
         usr/{bin,etc,include,%{_lib}/gcc-lib,lib/gcc-lib,local/{bin,doc,etc,lib,%{_lib},sbin,src,share/{man/man{1,2,3,4,5,6,7,8,9,n},info},libexec,include,},sbin,share/{doc,info,man/man{1,2,3,4,5,6,7,8,9,n},misc,empty,pixmaps},src,X11R6/{bin,include,lib,%{_lib},man}} \
@@ -79,8 +79,7 @@ popd
 %dir /media
 %dir /opt
 %attr(555,root,root) /proc
-# when we move to a 2.6 kernel:
-#%attr(555,root,root) /sys
+%attr(555,root,root) /sys
 %attr(750,root,root) /root
 /sbin
 %attr(1777,root,root) /tmp
@@ -109,17 +108,20 @@ popd
 
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue June 27 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1.6
+- add /sys for sysfs
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1.5
 - get rid of /var/spool/lpd; we don't ship any printer software
 - get rid of /var/log/supervise; it's all /var/log/service now
 
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1.5
 - Clean rebuild
 
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1.5
 - Clean rebuild
 
-* Wed Jan 04 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1.5
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
