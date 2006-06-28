@@ -29,7 +29,7 @@ my @configs = (
      [ qw(i586 up  1GB  up) ],
      [ qw(i586 smp 4GB  smp) ],
      [ qw(i586 smp 4GB  build) ],
-     [ qw(i386 up  1GB  BOOT) ],
+     [ qw(i586 up  1GB  BOOT) ],
 
      [ qw(x86_64 up  none up) ],
      [ qw(x86_64 smp none smp) ],
