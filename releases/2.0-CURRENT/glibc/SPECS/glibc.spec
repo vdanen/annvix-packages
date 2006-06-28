@@ -22,8 +22,8 @@
 
 # <version>-<release> tags from kernel package where headers were
 # actually extracted from
-%define kheaders_ver    2.4.31
-%define kheaders_rel    2avx
+%define kheaders_ver    2.6.16
+%define kheaders_rel    2mdk
 
 %define build_check	0
 %define build_profile	1
@@ -123,10 +123,11 @@ Patch501:	glibc-2.3.5-fstack_protector-1.patch
 Patch502:	glibc-2.3.5-arc4random-1.patch
 Patch503:	glibc-2.3.5-ssp-1.patch
 Patch503:       kernel-headers-include-%{kheaders_ver}.%{kheaders_rel}.patch
-Patch504:       kernel-headers-%{kheaders_ver}.%{kheaders_rel}-gnu-extensions.patch
+Patch504:       kernel-headers-gnu-extensions.patch
 Patch505:	glibc-2.3.5-gcc4.patch
 Patch506:	glibc-2.3.5-avx-relocate_fcrypt.patch
 Patch507:	glibc-2.2.5-share-locale.patch
+Patch508:	kernel-headers-syscall-mem-clobbers.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	patch, gettext, perl, autoconf2.5
@@ -372,6 +373,7 @@ pushd kernel-headers/
 TARGET=%{_target_cpu}
 %patch503 -p1
 %patch504 -p1
+%patch508 -p1
 %{expand:%(%__cat %{SOURCE21})}
 %{expand:%(%__cat %{SOURCE22})}
 popd
@@ -896,21 +898,25 @@ fi
 %dir %{_includedir}/bits
 %dir %{_includedir}/gnu
 %dir %{_includedir}/linux
+%dir %{_includedir}/linux/amba
 %dir %{_includedir}/linux/byteorder
-#%dir %{_includedir}/linux/dvb
+%dir %{_includedir}/linux/dvb
 %dir %{_includedir}/linux/hdlc
 %dir %{_includedir}/linux/isdn
 %dir %{_includedir}/linux/lockd
-#%dir %{_includedir}/linux/mmc
+%dir %{_includedir}/linux/mmc
 %dir %{_includedir}/linux/mtd
+%dir %{_includedir}/linux/netfilter
 %dir %{_includedir}/linux/netfilter_arp
-#%dir %{_includedir}/linux/netfilter_bridge
+%dir %{_includedir}/linux/netfilter_bridge
 %dir %{_includedir}/linux/netfilter_ipv4
 %dir %{_includedir}/linux/netfilter_ipv6
 %dir %{_includedir}/linux/nfsd
 %dir %{_includedir}/linux/raid
+%dir %{_includedir}/linux/spi
 %dir %{_includedir}/linux/sunrpc
-#%dir %{_includedir}/linux/tc_act
+%dir %{_includedir}/linux/tc_act
+%dir %{_includedir}/linux/tc_ematch
 %dir %{_includedir}/net
 %dir %{_includedir}/netinet
 %dir %{_includedir}/netipx
@@ -927,6 +933,7 @@ fi
 %dir %{_includedir}/scsi
 %dir %{_includedir}/sound
 %dir %{_includedir}/sys
+#%dir %{_includedir}/usb
 %{_includedir}/*.h
 %{_includedir}/arpa/*.h
 %{_includedir}/asm/*.h
@@ -935,22 +942,27 @@ fi
 %{_includedir}/bits/*.def
 %{_includedir}/gnu/*.h
 %{_includedir}/linux/*.h
-%{_includedir}/linux/*.p
+#%{_includedir}/linux/*.p
+%{_includedir}/linux/amba/*.h
 %{_includedir}/linux/byteorder/*.h
-#%{_includedir}/linux/dvb/*.h
+%{_includedir}/linux/dvb/*.h
 %{_includedir}/linux/hdlc/*.h
 %{_includedir}/linux/isdn/*.h
 %{_includedir}/linux/lockd/*.h
-#%{_includedir}/linux/mmc/*.h
+%{_includedir}/linux/mmc/*.h
 %{_includedir}/linux/mtd/*.h
+%{_includedir}/linux/netfilter/*.h
 %{_includedir}/linux/netfilter_arp/*.h
-#%{_includedir}/linux/netfilter_bridge/*.h
+%{_includedir}/linux/netfilter_bridge/*.h
 %{_includedir}/linux/netfilter_ipv4/*.h
 %{_includedir}/linux/netfilter_ipv6/*.h
 %{_includedir}/linux/nfsd/*.h
 %{_includedir}/linux/raid/*.h
 %{_includedir}/linux/sunrpc/*.h
-#%{_includedir}/linux/tc_act/*.h
+%{_includedir}/linux/spi/*.h
+%{_includedir}/linux/tc_act/*.h
+%{_includedir}/linux/tc_ematch/*.h
+%{_includedir}/linux/usb/*.h
 %{_includedir}/net/*.h
 %{_includedir}/netinet/*.h
 %{_includedir}/netipx/*.h
@@ -969,46 +981,50 @@ fi
 %{_includedir}/sound/*.h
 %{_includedir}/sys/*.h
 %if "%{arch}" == "i386"
-#%dir %{_includedir}/asm/mach-bigsmp
-#%{_includedir}/asm/mach-bigsmp/*.h
-#%dir %{_includedir}/asm/mach-default
-#%{_includedir}/asm/mach-default/*.h
-#%dir %{_includedir}/asm/mach-es7000
-#%{_includedir}/asm/mach-es7000/*.h
-#%dir %{_includedir}/asm/mach-generic
-#%{_includedir}/asm/mach-generic/*.h
-#%dir %{_includedir}/asm/mach-numaq
-#%{_includedir}/asm/mach-numaq/*.h
-#%dir %{_includedir}/asm/mach-summit
-#%{_includedir}/asm/mach-summit/*.h
-#%dir %{_includedir}/asm/mach-visws
-#%{_includedir}/asm/mach-visws/*.h
-#%dir %{_includedir}/asm/mach-voyager
-#%{_includedir}/asm/mach-voyager/*.h
-#%dir %{_includedir}/asm/mach-xbox
-#%{_includedir}/asm/mach-xbox/*.h
+%dir %{_includedir}/asm/mach-bigsmp
+%{_includedir}/asm/mach-bigsmp/*.h
+%dir %{_includedir}/asm/mach-default
+%{_includedir}/asm/mach-default/*.h
+%dir %{_includedir}/asm/mach-es7000
+%{_includedir}/asm/mach-es7000/*.h
+%dir %{_includedir}/asm/mach-generic
+%{_includedir}/asm/mach-generic/*.h
+%dir %{_includedir}/asm/mach-numaq
+%{_includedir}/asm/mach-numaq/*.h
+%dir %{_includedir}/asm/mach-summit
+%{_includedir}/asm/mach-summit/*.h
+%dir %{_includedir}/asm/mach-visws
+%{_includedir}/asm/mach-visws/*.h
+%dir %{_includedir}/asm/mach-voyager
+%{_includedir}/asm/mach-voyager/*.h
+%dir %{_includedir}/asm/mach-xen
+%dir %{_includedir}/asm/mach-xen/asm
+%{_includedir}/asm/mach-xen/*.h
+%{_includedir}/asm/mach-xen/asm/*.h
 %endif
 %if "%{arch}" == "x86_64"
 %dir %{_includedir}/asm-i386
 %{_includedir}/asm-i386/*.h
-#%dir %{_includedir}/asm-i386/mach-bigsmp
-#%{_includedir}/asm-i386/mach-bigsmp/*.h
-#%dir %{_includedir}/asm-i386/mach-default
-#%{_includedir}/asm-i386/mach-default/*.h
-#%dir %{_includedir}/asm-i386/mach-es7000
-#%{_includedir}/asm-i386/mach-es7000/*.h
-#%dir %{_includedir}/asm-i386/mach-generic
-#%{_includedir}/asm-i386/mach-generic/*.h
-#%dir %{_includedir}/asm-i386/mach-numaq
-#%{_includedir}/asm-i386/mach-numaq/*.h
-#%dir %{_includedir}/asm-i386/mach-summit
-#%{_includedir}/asm-i386/mach-summit/*.h
-#%dir %{_includedir}/asm-i386/mach-visws
-#%{_includedir}/asm-i386/mach-visws/*.h
-#%dir %{_includedir}/asm-i386/mach-voyager
-#%{_includedir}/asm-i386/mach-voyager/*.h
-#%dir %{_includedir}/asm-i386/mach-xbox
-#%{_includedir}/asm-i386/mach-xbox/*.h
+%dir %{_includedir}/asm-i386/mach-bigsmp
+%{_includedir}/asm-i386/mach-bigsmp/*.h
+%dir %{_includedir}/asm-i386/mach-default
+%{_includedir}/asm-i386/mach-default/*.h
+%dir %{_includedir}/asm-i386/mach-es7000
+%{_includedir}/asm-i386/mach-es7000/*.h
+%dir %{_includedir}/asm-i386/mach-generic
+%{_includedir}/asm-i386/mach-generic/*.h
+%dir %{_includedir}/asm-i386/mach-numaq
+%{_includedir}/asm-i386/mach-numaq/*.h
+%dir %{_includedir}/asm-i386/mach-summit
+%{_includedir}/asm-i386/mach-summit/*.h
+%dir %{_includedir}/asm-i386/mach-visws
+%{_includedir}/asm-i386/mach-visws/*.h
+%dir %{_includedir}/asm-i386/mach-voyager
+%{_includedir}/asm-i386/mach-voyager/*.h
+%dir %{_includedir}/asm-i386/mach-xen
+%dir %{_includedir}/asm-i386/mach-xen/asm
+%{_includedir}/asm-i386/mach-xen/*.h
+%{_includedir}/asm-i386/mach-xen/asm/*.h
 %dir %{_includedir}/asm-x86_64
 %{_includedir}/asm-x86_64/*.h
 %{_includedir}/asm-x86_64/*.i
@@ -1141,6 +1157,11 @@ fi
 
 
 %changelog
+* Mon Jun 26 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.5
+- grab the kernel 2.6.16 headers from Mandriva's glibc and use it instead
+  of the 2.4 headers
+- include and update appropriate patches for new kernel headers
+
 * Sat May 20 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.5
 - P507: make locale know that it's stuff is in %%{_datadir}/locale rather
   than %%{_prefix}/lib/locale (we had this patch before but it was dropped
