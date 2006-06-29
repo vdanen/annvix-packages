@@ -110,14 +110,11 @@ The following tools are included:
 
 
 %package doc
-Summary:	Coreutils documentation in info format
+Summary:	Documentation for %{name}
 Group:		Documentation
-Requires:	coreutils >= 4.5.4-2mdk
-Prereq:		info-install
 
 %description doc
-Documentation for the coreutils package; includes manpages, an info file,
-and other miscellaneous documentation.
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -253,7 +250,7 @@ rm -rf %{buildroot}%{_datadir}/locale/*/LC_TIME
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
-%pre doc
+%pre
 # We must desinstall theses info files since they're merged in
 # coreutils.info. else their postun'll be runned too last
 # and install-info'll faill badly because of doubles
@@ -263,10 +260,12 @@ for file in sh-utils.info textutils.info fileutils.info; do
 	fi
 done
 
-%preun doc
+
+%preun
 %_remove_install_info %{name}.info
 
-%post doc
+
+%post
 %_install_info %{name}.info
 # The next true is needed: else, if there's a problem, the 
 # package'll be installed 2 times because of trigger faillure
@@ -277,19 +276,23 @@ true
 %defattr(-,root,root)
 %config(noreplace) %{_sysconfdir}/D*
 %config(noreplace) /etc/pam.d/su
-%doc README
 /bin/*
 %{_bindir}/*
 %{_sbindir}/chroot
-
-%files doc
-%defattr(-,root,root)
-%doc ABOUT-NLS ChangeLog.bz2 NEWS THANKS TODO old/*
 %{_infodir}/coreutils*
 %{_mandir}/man*/*
 
+%files doc
+%defattr(-,root,root)
+%doc README ABOUT-NLS ChangeLog.bz2 NEWS THANKS TODO old/*
+
 
 %changelog
+* Wed Jun 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.2.1
+- fix su's pam config
+- fix -doc subpackage
+- rebuild with gcc4
+
 * Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.2.1
 - fix group
 
