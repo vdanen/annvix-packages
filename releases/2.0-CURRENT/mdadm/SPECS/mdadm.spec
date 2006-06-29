@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		mdadm
-%define version		2.5
+%define version		2.5.2
 %define release		%_revrel
 
 %define use_dietlibc 	0
@@ -30,16 +30,11 @@ Release:	%{release}
 License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://www.cse.unsw.edu.au/~neilb/source/mdadm/
-Source:		http://www.cse.unsw.edu.au/~neilb/source/mdadm/%{name}-%{version}.tar.bz2
+Source:		http://www.kernel.org/pub/linux/utils/raid/mdadm/%{name}-%{version}.tar.bz2
 Source2:	mdadm.run
 Source3:	mdadm-log.run
-Patch0:		mdadm-2.4-snprintf.patch
-Patch1:		mdadm-2.4-strict-aliasing.patch
 Patch2:		mdadm-2.3.1-kernel-byteswap-include-fix.patch
-Patch3:		mdadm-2.5-unused.patch
 Patch4:		mdadm-2.5-rand.patch
-Patch5:		mdadm-2.5-mdassemble.patch
-Patch6:		mdadm-2.5-no_openssl.diff
 
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -72,13 +67,8 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
-%patch0 -p1 -b .snprintf
-%patch1 -p1 -b .strict-aliasing
-%patch2 -p1 -b .asm-byteorder_h
-%patch3 -p1 -b .unused
+#%patch2 -p1 -b .asm-byteorder_h
 %patch4 -p1 -b .rand
-%patch5 -p1 -b .mdassemble
-%patch6 -p1 -b .no_openssl
 
 chmod 0644 ChangeLog
 
@@ -146,6 +136,13 @@ fi
 
 
 %changelog
+* Thu Jun 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5.2
+- 2.5.2 (fixes a bad memory leak in 2.5's --monitor mode)
+- drop P0, P1, P3, P5, P6; fixed upstream
+- don't apply P2 for now... its for handling big endian systems like
+  ppc which we don't support, but the surrounding code changes are
+  too heavy for me to easily port (if it's even required)
+
 * Sat Jun 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5
 - rebuild against and require dietlibc >= 0.29-5662avx
 
