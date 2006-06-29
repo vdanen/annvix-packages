@@ -6,11 +6,11 @@
  
 +static void remove_non_handled_options(char* options, char* fs_type) {
 +
-+   static char *fs_using_iocharset[] = { "iso9660", "udf", "vfat", "msdos", "ntfs", "jfs", "smbfs", "befs", "cifs", NULL };
-+   static char *fs_using_codepage[] = { "iso9660", "vfat", "msdos", "smbfs", NULL };
-+   static char *fs_using_umask[] = { "iso9660", "udf", "vfat", "msdos", "ntfs", "hfs", "hfsplus", "hpfs", NULL };
-+   static char *fs_using_mode[] = { "iso9660", "ncpfs", "affs", NULL };
-+   static char *fs_using_nls[] = { "ntfs", NULL };
++   static char *fs_using_iocharset[] = { "iso9660", "udf", "vfat", "msdos", "ntfs", "jfs", "smbfs", "befs", "cifs", "hfs", NULL };
++   static char *fs_using_codepage[] = { "vfat", "msdos", "smbfs", "hfs", NULL };
++   static char *fs_using_umask[] = { "udf", "vfat", "msdos", "ntfs", "hfs", "hfsplus", "hpfs", NULL };
++   static char *fs_using_mode[] = { "iso9660", "affs", "devpts", "tmpfs", NULL };
++   static char *fs_using_nls[] = { "ntfs", "hfsplus", NULL };
 +   static char *fs_using_utf8[] = { "iso9660", "ntfs", "udf", "vfat", NULL };
 +
 +   static struct options_handled_for_some_fs {

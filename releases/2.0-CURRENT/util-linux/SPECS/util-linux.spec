@@ -18,12 +18,11 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		System/Base
-URL:		ftp://ftp.win.tue.nl/pub/linux-local/utils/util-linux/
-# Alternative => ftp.kernel.org:/pub/linux/utils/util-linux/
-Source0:	ftp://ftp.win.tue.nl/pub/linux-local/utils/util-linux/%{name}-%{version}.tar.bz2
-Source1:	util-linux-2.7-login.pamd
-Source2:	util-linux-2.7-chfn.pamd
-Source3:	util-linux-2.7-chsh.pamd
+URL:		ftp://ftp.kernel.org/pub/linux/utils/util-linux/
+Source0:	ftp://ftp.kernel.org/pub/linux/utils/util-linux/%{name}-%{version}.tar.bz2
+Source1:	login.pamd
+Source2:	chfn.pamd
+Source3:	chsh.pamd
 Source6:	mkcramfs.c
 Source7:	cramfs.h
 Source8:	nologin.c
@@ -91,10 +90,8 @@ Patch222:	util-linux-2.12a-managed.patch
 Patch223:	util-linux-2.12q-nfs4.patch
 # fortify fixes
 Patch224:	util-linux-2.12q-fortify.patch
-# honor "mode=" for devpts filesystem
-Patch225:	util-linux-2.12q-devpts-mode.patch
 #
-# Mandrake Specific patches
+# Mandriva Specific patches
 # fix compilation related with miscfixes
 Patch1000:	util-linux-2.11h-fix-compilation.patch
 # clock program for ppc
@@ -234,7 +231,6 @@ cp %{SOURCE8} %{SOURCE9} .
 %patch221 -p1 -b .pamconsole
 %patch222 -p1 -b .managed
 %patch224 -p1 -b .fortify
-%patch225 -p1 -b .devfs-mode
 
 %patch105 -p1 -b .varargs
 %patch106 -p1 -b .swaponsymlink
@@ -359,6 +355,12 @@ ln -sf ../../sbin/hwclock %{buildroot}/usr/sbin/hwclock
 ln -sf ../../sbin/clock %{buildroot}/usr/sbin/clock
 ln -sf hwclock %{buildroot}/sbin/clock
 
+# move flock and logger in /bin, so they can be used if /usr isn't mounted
+for p in flock logger; do
+	mv %{buildroot}{%{_bindir},/bin}/$p
+	ln -sf ../../bin/$p %{buildroot}%{_bindir}/$p
+done
+
 # remove stuff we don't want
 rm -f %{buildroot}%{_mandir}/man1/{line,newgrp,pg}.1*
 rm -f %{buildroot}%{_bindir}/{line,newgrp,pg}
@@ -463,6 +465,7 @@ fi
 %endif
 %{_bindir}/ddate
 %{_bindir}/fdformat
+/bin/flock
 %{_bindir}/flock
 %{_bindir}/getopt
 %{_bindir}/hexdump
@@ -470,6 +473,7 @@ fi
 %{_bindir}/ipcs
 %{_bindir}/isosize
 %{_mandir}/man8/isosize.8*
+/bin/logger
 %{_bindir}/logger
 %{_bindir}/look
 %{_bindir}/mcookie
@@ -599,6 +603,16 @@ fi
 
 
 %changelog
+* Wed Jun 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.12r
+- move flock and logger into /bin
+- updated P218 from Mandriva to refresh non-handled options list for
+  various fs
+- removed P225; merged into P218
+- update URLs
+- fix pam config files
+- add -doc subpackage
+- rebuild with gcc4
+
 * Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.12r
 - fix group
 
