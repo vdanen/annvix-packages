@@ -79,6 +79,14 @@ This package contains the header files, libraries, and documentation for
 building programs which use Berkeley DB.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n db2
 %patch0 -p1
@@ -127,7 +135,6 @@ done
 
 %files -n %{libname}
 %defattr(-,root,root)
-%doc README LICENSE
 %{_libdir}/lib*.so.*
 
 %files -n %{libname}-devel
@@ -148,11 +155,20 @@ done
 %{_bindir}/db2_recover
 %{_bindir}/db2_stat
 
+%files doc
+%defattr(-,root,root)
+%doc README LICENSE
+
+
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jun 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.14
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.14
 - Clean rebuild
 
-* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.14
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
