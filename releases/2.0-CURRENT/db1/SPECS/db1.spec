@@ -68,6 +68,14 @@ Group:		Databases
 Tools to manipulate Berkeley Databases (Berkeley DB).
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n db.%{version}
 %patch0 -p1
@@ -104,18 +112,18 @@ popd
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
+
 %post -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
 
+
 %files
 %defattr(-,root,root)
-%doc README LICENSE changelog
 %{_libdir}/libdb1.so.*
 %{_libdir}/libdb.so.*
 
 %files devel
 %defattr(-,root,root)
-%doc docs/*.ps.gz
 %{_includedir}/db1
 %{_libdir}/libdb1.a
 %{_libdir}/libdb1.so
@@ -124,12 +132,20 @@ popd
 %defattr(-,root,root)
 %{_bindir}/db1_dump185
 
+%files doc
+%defattr(-,root,root)
+%doc README LICENSE changelog docs/*.ps.gz
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jun 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.85
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.85
 - Clean rebuild
 
-* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.85
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - fix prereq
