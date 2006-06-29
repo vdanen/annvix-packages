@@ -30,12 +30,11 @@ Source3:        saslauthd.sysconfig
 Source4:	saslauthd.run
 Source5:	saslauthd-log.run
 Source6:	saslauthd.8
-Patch0:		cyrus-sasl-2.1.20-avx-doc.patch
+Patch0:		cyrus-sasl-2.1.22-avx-doc.patch
 Patch1:		cyrus-sasl-2.1.19-mdk-no_rpath.patch
 Patch2:		cyrus-sasl-2.1.15-mdk-lib64.patch
 Patch3:		cyrus-sasl-2.1.20-fdr-gssapi-dynamic.patch
 Patch4:		cyrus-sasl-2.1.19-mdk-pic.patch
-Patch5:		cyrus-sasl-2.1.22-mdk-openldap-2.3.0.diff
 Patch6:		cyrus-sasl-2.1.22-mdk-sed_syntax.diff
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -196,16 +195,6 @@ Provides:	sasl-plug-sasldb
 This plugin implements the SASL sasldb mechanism.
 
 
-%package -n %{libname}-plug-srp
-Summary:	SASL srp mechanism plugin
-Group:		System/Libraries
-Requires:	%{libname} = %{version}
-Provides:	sasl-plug-srp
-
-%description -n %{libname}-plug-srp
-This plugin implements the srp mechanism.
-
-
 %package -n %{libname}-plug-ntlm
 Summary:	SASL ntlm authentication plugin
 Group:		System/Libraries
@@ -244,7 +233,6 @@ This plugin implements the LDAP auxprop authentication method.
 %patch2 -p1 -b .lib64
 #%patch3 -p1 -b .gssapi
 %patch4 -p1 -b .pic
-%patch5 -p0 -b .openldap-2.3.0
 %patch6 -p0 -b .sed_syntax
 
 # lib64 fix
@@ -281,6 +269,7 @@ export LDFLAGS="-L%{_libdir}"
     --enable-static \
     --enable-shared \
     --with-plugindir=%{_libdir}/sasl2 \
+    --with-configdir=%{_sysconfdir}/sasl2:%{_libdir}/sasl2 \
     --disable-krb4 \
     --enable-login \
     --enable-db4 \
@@ -288,6 +277,8 @@ export LDFLAGS="-L%{_libdir}"
     --with-mysql=%{_prefix} \
     --with-pgsql=%{_prefix} \
     --without-sqlite \
+    --without-srp --without-srp-setpass \
+    --enable-ntlm \
     --with-ldap=%{_prefix} \
     --enable-ldapdb \
     --with-dbpath=%{sasl2_db_fname} \
@@ -295,11 +286,6 @@ export LDFLAGS="-L%{_libdir}"
     --with-authdaemond=/var/run/authdaemon.courier-imap/socket
 # when we move to krb4 add --with-gssapi and --disable-gss_mutexes to configure above
 # as krb5-1.4.x is threadsafe and 1.3.x is not
-
-# these don't seem to play too well with openssl 0.9.8
-#    --enable-srp \
-#    --enable-srp-setpass \
-#    --enable-ntlm \
 
 # ugly hack: there is an ordering problem introduced in 2.1.21 
 # when --enable-static is given to ./configure which calling 
@@ -314,10 +300,10 @@ install saslauthd/LDAP_SASLAUTHD README.ldap
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}/var/lib/sasl2
-mkdir -p %{buildroot}%{_sysconfdir}/sysconfig
+mkdir -p %{buildroot}%{_sysconfdir}/{sysconfig,sasl2}
 
 
-%{__make} install DESTDIR=%{buildroot}
+make install DESTDIR=%{buildroot}
 
 install %{SOURCE3} %{buildroot}%{_sysconfdir}/sysconfig/saslauthd
 # Install man pages in the expected location, even if they are
@@ -430,7 +416,7 @@ fi
 %doc COPYING AUTHORS INSTALL NEWS README* ChangeLog
 %doc doc/{TODO,ONEWS,*.txt,*.html}
 %dir /var/lib/sasl2
-%attr (644,root,root) %config(noreplace) /etc/sysconfig/saslauthd
+%attr (644,root,root) %config(noreplace) %{_sysconfdir}/sysconfig/saslauthd
 %dir %attr(0750,root,admin) %{_srvdir}/saslauthd
 %dir %attr(0750,root,admin) %{_srvdir}/saslauthd/log
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/saslauthd/run
@@ -440,6 +426,7 @@ fi
 
 %files -n %{libname}
 %defattr(-,root,root)
+%dir %{_sysconfdir}/sasl2
 %dir %{_libdir}/sasl2
 %{_libdir}/libsasl*.so.*
 
@@ -483,15 +470,10 @@ fi
 %{_libdir}/sasl2/liblogin*.so*
 %{_libdir}/sasl2/liblogin*.la
 
-#%files -n %{libname}-plug-srp
-#%defattr(-,root,root)
-#%{_libdir}/sasl2/libsrp*.so*
-#%{_libdir}/sasl2/libsrp*.la
-
-#%files -n %{libname}-plug-ntlm
-#%defattr(-,root,root)
-#%{_libdir}/sasl2/libntlm*.so*
-#%{_libdir}/sasl2/libntlm*.la
+%files -n %{libname}-plug-ntlm
+%defattr(-,root,root)
+%{_libdir}/sasl2/libntlm*.so*
+%{_libdir}/sasl2/libntlm*.la
 
 %files -n %{libname}-plug-sql
 %defattr(-,root,root)
@@ -513,6 +495,17 @@ fi
 
  
 %changelog
+* Wed Jun 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1.22
+- the real 2.1.22 (which I don't get, but ok...)
+- remove SRP support due to patent tainting (re:
+  http://www.ietf.org/ietf/IPR/PHOENIX-SRP-RFC2945.txt )
+- drop P5; no longer needed
+- use /etc/sasl2 for the configuration dir with a fallback to /usr/lib/sasl2
+- re-enable the ntlm plugin; it compiles now
+- rebuild against new pam
+- add -doc subpackage
+- rebuild with gcc4
+
 * Wed Feb  1 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1.22
 - build against new postgresql
 
