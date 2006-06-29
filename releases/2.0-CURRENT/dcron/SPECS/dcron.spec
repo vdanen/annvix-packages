@@ -41,6 +41,14 @@ of vixie-cron but has significant differences. Less attention is
 paid to feature development in favor of usability and reliability.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n dcron
 %patch0 -p1
@@ -84,13 +92,13 @@ if [[ -z `crontab -l | grep run-parts` ]]; then
 fi
 %_post_srv crond
 
+
 %preun
 %_preun_srv crond
 
 
 %files
 %defattr(-,root,root)
-%doc CHANGELOG README
 %config(noreplace) %attr(0640,root,root) %{_sysconfdir}/crontab
 %dir %attr(0750,root,root) %{_sysconfdir}/cron.hourly
 %dir %attr(0750,root,root) %{_sysconfdir}/cron.daily
@@ -107,12 +115,20 @@ fi
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/crond/run
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/crond/log/run
 
+%files doc
+%defattr(-,root,root)
+%doc CHANGELOG README
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jun 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.9
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.9
 - Clean rebuild
 
-* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.9
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - fix requires
