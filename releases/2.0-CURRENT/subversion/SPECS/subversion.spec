@@ -471,6 +471,7 @@ popd >/dev/null 2>&1
 %changelog
 * Fri Jun 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.2
 - rebuild against new db4
+- rebuild with old db4.1 removed as it picks up the .so deps
 
 * Tue Jun 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.2
 - 1.3.2
