@@ -88,6 +88,9 @@ make test
 
 
 %changelog
+* Fri Jun 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.814
+- rebuild against new db4
+
 * Thu May 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.814
 - 1.814
 - rebuild against perl 5.8.8
