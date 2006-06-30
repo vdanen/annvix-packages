@@ -234,6 +234,9 @@ rm -f %{buildroot}%{_libdir}/apr.exp
 
 
 %changelog
+* Fri Jun 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.7
+- rebuild against new db4
+
 * Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.7
 - 1.2.7 (needed by apache 2.2)
 - new patches from mandriva; drop old unneeded patches
