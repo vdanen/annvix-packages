@@ -9,13 +9,13 @@
 
 %define revision	$Rev$
 %define name		db4
-%define version		4.1.25
+%define version		4.2.52
 %define release		%_revrel
 
 # compatibility with legacy rpm
 %{!?_lib:%define _lib	lib}
 
-%define	__soversion	4.1
+%define	__soversion	4.2
 %define	_libdb_a	libdb-%{__soversion}.a
 %define	_libcxx_a	libdb_cxx-%{__soversion}.a
 
@@ -27,6 +27,9 @@
 %define libdbcxx	%{libname_orig}cxx%{__soversion}
 %define libdbtcl	%{libname_orig}tcl%{__soversion}
 
+%define libdbnss	%{libname_orig}nss%{__soversion}
+%define libdbnssdev	%{libdbnss}-devel
+
 Summary:	The Berkeley DB database library for C
 Name:		%{name}
 Version:	%{version}
@@ -35,16 +38,23 @@ License:	BSD
 Group:		System/Libraries
 URL:		http://www.sleepycat.com
 Source:		http://www.sleepycat.com/update/%{version}/db-%{version}.tar.bz2
-#http://www.sleepycat.com/update/4.1.25/patch.4.1.25.html
-Patch1:		http://www.sleepycat.com/update/4.1.25/patch.4.1.25.1
+Patch0:		http://www.sleepycat.com/update/4.2.52/patch.4.2.52.1
+Patch1:		http://www.sleepycat.com/update/4.2.52/patch.4.2.52.2
 # Add fast AMD64 mutexes
-Patch2:		db-4.1.25-mdk-amd64-mutexes.patch
-# NPTL pthreads mutexes are evil
-Patch3:		db-4.2.52-mdk-disable-pthreadsmutexes.patch
+Patch2:		db-4.2.52-mdk-disable-pthreadsmutexes.patch
+# NPTL pthreads mutex are evil
+Patch3:		db-4.1.25-mdk-amd64-mutexes.patch
 Patch4:		db-4.2.52-mdk-db185.patch
+# Fix broken built-in libtool 1.5
+Patch5:		db-4.2.52-mdk-libtool-fixes.patch
+Patch6:		http://www.sleepycat.com/update/4.2.52/patch.4.2.52.3
+Patch7:		http://www.sleepycat.com/update/4.2.52/patch.4.2.52.4
+# no transaction patch from OpenLDAP 2.3 CVS pre-2.3.5, allows transactions
+# to be disabled for operations that specify it (TXN_NOLOG)
+Patch8:		BerkeleyDB42.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	tcl, db1-devel, glibc-static-devel	
+BuildRequires:	tcl, db1-devel, glibc-static-devel, ed
 
 Requires(post):	ldconfig
 Requires(postun): ldconfig
@@ -126,6 +136,7 @@ Requires:	%{libdbcxx} = %{version}-%{release}
 Provides:	db-devel = %{version}-%{release}
 Provides:	db4-devel = %{version}-%{release}
 Provides:	libdb-devel = %{version}-%{release}
+Provides:	%{_lib}db-devel = %{version}-%{release}
 Conflicts:	%{libname_orig}3.3-devel, %{libname_orig}4.0-devel
 
 %description -n %{libnamedev}
@@ -146,6 +157,7 @@ Requires:	db4-devel = %{version}-%{release}
 Provides:	db-static-devel = %{version}-%{release}
 Provides:	db4-static-devel = %{version}-%{release}
 Provides:	libdb-static-devel = %{version}-%{release}
+Provides:	%{_lib}db-static-devel = %{version}-%{release}
 Conflicts:	%{libname_orig}3.3-static-devel, %{libname_orig}4.0-static-devel
 
 %description -n %{libnamestatic}
@@ -159,13 +171,65 @@ This package contains the static libraries for building programs which
 use Berkeley DB.
 
 
+%package -n %{libdbnss}
+Summary:	The Berkeley DB database library for NSS modules
+Group:		System/Libraries
+Requires(post):	/sbin/ldconfig
+Requires(postun): /sbin/ldconfig
+
+%description -n %{libdbnss}
+The Berkeley Database (Berkeley DB) is a programmatic toolkit that provides
+embedded database support for both traditional and client/server applications.
+Berkeley DB includes B+tree, Extended Linear Hashing, Fixed and Variable-length
+record access methods, transactions, locking, logging, shared memory caching
+and database recovery. DB supports C, C++, Java and Perl APIs.
+
+This package contains the shared library required by some nss modules
+that use Berkeley DB.
+
+
+%package -n %{libdbnssdev}
+Summary:	Development libraries/header files for building nss modules with Berkeley DB
+Group:		Development/Databases
+Requires:	%{libdbnss} = %{version}-%{release}
+Provides:	libdbnss-devel = %{version}-%{release}
+Provides:	%{_lib}dbnss-devel = %{version}-%{release}
+Provides:	db_nss-devel = %{version}-%{release}
+Provides:	libdb_nss-devel = %{version}-%{release}
+
+%description -n %{libdbnssdev}
+The Berkeley Database (Berkeley DB) is a programmatic toolkit that provides
+embedded database support for both traditional and client/server applications.
+Berkeley DB includes B+tree, Extended Linear Hashing, Fixed and Variable-length
+record access methods, transactions, locking, logging, shared memory caching
+and database recovery. DB supports C, C++, Java and Perl APIs.
+
+This package contains the header files and libraries for building nss
+modules which use Berkeley DB.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n db-%{version}
-#%patch0 -p1 -b .recover
+#upstream patches
+%patch0
 %patch1
+%patch6
+%patch7
+
 %patch2 -p1 -b .amd64-mutexes
 %patch3 -p1 -b .pthreadsmutexes
 %patch4 -p1 -b .db185
+%patch5 -p1 -b .libtool-fixes
+%patch8 -b .txn_nolog
+
 
 # Remove tags files which we don't need.
 find . -name tags | xargs rm -f
@@ -218,6 +282,7 @@ CFLAGS="$CFLAGS -D_GNU_SOURCE -D_REENTRANT"
 export CFLAGS
 
 pushd build_unix
+    export CC=%{__cc}
     CONFIGURE_TOP="../dist" %configure2_5x \
         --enable-compat185 \
         --enable-dump185 \
@@ -238,21 +303,54 @@ pushd build_unix
     %make
 popd
 
+mkdir build_nss
+pushd build_nss
+    CONFIGURE_TOP="../dist" %configure2_5x \
+        --enable-shared \
+        --disable-static \
+        --disable-tcl \
+        --disable-cxx \
+        --disable-java \
+        --disable-pthreadsmutexes \
+        --with-uniquename \
+        --enable-compat185 \
+        --disable-cryptography \
+        --disable-queue \
+        --disable-replication \
+        --disable-verify \
+	#--disable-hash  \
+	#--enable-smallbuild \
+	# END
+
+    %make libdb_base=libdb_nss libso_target=libdb_nss-%{__soversion}.la libdir=/%{_lib}
+popd
+
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make -C build_unix install_setup install_include install_lib install_utilities \
-    includedir=%{buildroot}%{_includedir}/db4 \
-    libdir=%{buildroot}%{_libdir} \
-    bindir=%{buildroot}%{_bindir} \
+    DESTDIR=%{buildroot} \
+    includedir=%{_includedir}/db4 \
     emode=755
+
+make -C build_nss install_include install_lib libdb_base=libdb_nss \
+    DESTDIR=%{buildroot} \
+    includedir=%{_includedir}/db_nss \
+    LIB_INSTALL_FILE_LIST=""
+
+mkdir -p %{buildroot}/%{_lib}
+mv %{buildroot}/%{_libdir}/libdb_nss-%{__soversion}.so %{buildroot}/%{_lib}
+ln -s  /%{_lib}/libdb_nss-%{__soversion}.so %{buildroot}%{_libdir}
 
 ln -sf db4/db.h %{buildroot}%{_includedir}/db.h
 
-# we don't ship db4.2 (yet)
-## XXX This is needed for parallel install with db4.2
-#for F in %{buildroot}%{_bindir}/*db_* ; do
-#   mv $F `echo $F | sed -e 's,db_,db41_,'`
-#done
+# symlink the short libdb???.a name
+ln -sf %{_libdb_a} %{buildroot}%{_libdir}/libdb.a
+ln -sf %{_libcxx_a} %{buildroot}%{_libdir}/libdb_cxx.a
+ln -sf libdb_tcl-%{__soversion}.a %{buildroot}%{_libdir}/libdb_tcl.a
+ln -sf %{_libdb_a} %{buildroot}%{_libdir}/libdb-4.a
+ln -sf %{_libcxx_a} %{buildroot}%{_libdir}/libdb_cxx-4.a
+ln -sf libdb_tcl-%{__soversion}.a %{buildroot}%{_libdir}/libdb_tcl-4.a
 
 
 %clean
@@ -268,10 +366,12 @@ ln -sf db4/db.h %{buildroot}%{_includedir}/db.h
 %post -n %{libdbtcl} -p /sbin/ldconfig
 %postun -n %{libdbtcl} -p /sbin/ldconfig
 
+%post -n %{libdbnss} -p /sbin/ldconfig
+%postun -n %{libdbnss} -p /sbin/ldconfig
+
 
 %files -n %{libname}
 %defattr(0644,root,root,0755)
-%doc LICENSE README
 %attr(0755,root,root) %{_libdir}/libdb-%{__soversion}.so
 
 %files -n %{libdbcxx}
@@ -283,8 +383,6 @@ ln -sf db4/db.h %{buildroot}%{_includedir}/db.h
 %{_libdir}/libdb_tcl-%{__soversion}.so
 
 %files utils
-%defattr(0644,root,root,0755)
-%doc docs/utility/*
 %defattr(0755,root,root)
 %{_bindir}/berkeley_db*_svc
 %{_bindir}/db*_archive
@@ -301,15 +399,10 @@ ln -sf db4/db.h %{buildroot}%{_includedir}/db.h
 
 %files -n %{libnamedev}
 %defattr(0644,root,root,0755)
-%doc docs/api_c docs/api_cxx docs/api_tcl docs/index.html
-%doc docs/ref docs/sleepycat docs/images
-%doc examples_c examples_cxx
 %dir %{_includedir}/db4
 %{_includedir}/db4/db.h
 %{_includedir}/db4/db_185.h
 %{_includedir}/db4/db_cxx.h
-%{_includedir}/db4/cxx_common.h
-%{_includedir}/db4/cxx_except.h
 %{_includedir}/db.h
 %{_libdir}/libdb.so
 %{_libdir}/libdb-4.so
@@ -325,11 +418,42 @@ ln -sf db4/db.h %{buildroot}%{_includedir}/db.h
 %defattr(0644,root,root,0755)
 %{_libdir}/*.a
 
+%files -n %{libdbnss}
+%defattr(0755,root,root) 
+/%{_lib}/libdb_nss-%{__soversion}.so
+
+%files -n %{libdbnssdev}
+%defattr(0644,root,root,0755)
+%dir %{_includedir}/db_nss
+%{_includedir}/db_nss/db.h
+%{_includedir}/db_nss/db_185.h
+%exclude %{_includedir}/db_nss/db_cxx.h
+%{_libdir}/libdb_nss.so
+%{_libdir}/libdb_nss-4.so
+%{_libdir}/libdb_nss-%{__soversion}.la
+%{_libdir}/libdb_nss-%{__soversion}.so
+
+%files doc
+%doc LICENSE README
+%doc docs/utility
+%doc docs/api_c docs/api_cxx docs/api_tcl docs/index.html
+%doc docs/ref docs/sleepycat docs/images
+%doc examples_c examples_cxx
+
+
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jun 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.2.52
+- 4.2.52
+- build the nss modules
+- BuildRequires: ed
+- sync patches with Mandriva 4.2.52-10mdv2007.0
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.1.25
 - Clean rebuild
 
-* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.1.25
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - fix prereq
