@@ -81,6 +81,9 @@ make test
 
 
 %changelog
+* Fri Jun 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.26
+- rebuild against new db4
+
 * Wed May 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.26
 - rebuild against perl 5.8.8
 - create -doc subpackage
