@@ -168,6 +168,9 @@ rm -f %{buildroot}%{_mandir}/man3/Bundle::ApacheTest.3pm
 
 
 %changelog
+* Fri Jun 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.2_2.0.2
+- rebuild against new db4
+
 * Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.2_2.0.2
 - apache 2.2.2
 - mod_perl 2.0.2
