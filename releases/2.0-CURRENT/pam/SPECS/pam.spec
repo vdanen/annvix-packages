@@ -258,6 +258,9 @@ touch %{buildroot}%{_sysconfdir}/environment
 
 
 %changelog
+* Fri Jun 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.99.3.0
+- rebuild against new db4
+
 * Fri Jun 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.99.3.0
 - 0.99.3.0
 - merge changes from Mandriva, which in turn synced with RH:
