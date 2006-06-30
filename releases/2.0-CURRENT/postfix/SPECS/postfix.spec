@@ -433,7 +433,11 @@ fi
 %doc html UCE
 %doc README_FILES
 
+
 %changelog
+* Fri Jun 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.10
+- rebuild against new db4
+
 * Sat Jun 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.10
 - add -doc subpackage
 - rebuild with gcc4
