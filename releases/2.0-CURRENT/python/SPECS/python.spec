@@ -324,6 +324,9 @@ rm -f modules-list main.list
 
 
 %changelog
+* Fri Jun 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.3
+- rebuild against new db4
+
 * Thu Jun 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.3
 - rebuild against new readline
 
