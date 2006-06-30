@@ -62,9 +62,9 @@ Conflicts:	sendmail postfix qmail smail
 Requires:	chkconfig, initscripts, sh-utils, openssl, pam
 Requires:	openldap >= 2.0.11
 %ifarch amd64 x86_64
-Requires:	lib64db4.1
+Requires:	lib64db4.2
 %else
-Requires:	libdb4.1
+Requires:	libdb4.2
 %endif
 Provides:	smtpdaemon MTA
 
@@ -303,6 +303,7 @@ fi
 %changelog
 * Fri Jun 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.62
 - rebuild against new db4
+- fix requires: s/db4.1/db4.2/
 
 * Fri Jun 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.62
 - rebuild against new pam
