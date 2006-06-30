@@ -239,6 +239,9 @@ rm -f %{buildroot}%{_libdir}/aprutil.exp
 
 
 %changelog
+* Fri Jun 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.7
+- rebuild against new db4
+
 * Thu Jun 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.7
 - rebuild against new sqlite3
 
