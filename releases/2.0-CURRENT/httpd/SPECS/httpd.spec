@@ -1328,6 +1328,9 @@ fi
 
 
 %changelog
+* Fri Jun 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.2
+- rebuild against new db4
+
 * Mon May 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.2
 - change back the /etc/pki//tls/private/localhost.* stuff to our
   preferred /etc/ssl/httpd/server.*
