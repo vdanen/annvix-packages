@@ -20,6 +20,7 @@
 %define libdbdevel	%{libdb}-devel
 %define libdbcxx	%mklibname dbcxx %{__soversion}
 %define libdbtcl	%mklibname dbtcl %{__soversion}
+%define liborig		%mklibname db
 
 Summary:	The Berkeley DB database library for C
 Name:		%{name}
@@ -30,6 +31,7 @@ Group:		System/Libraries
 URL:		http://www.sleepycat.com
 Source:		http://www.sleepycat.com/update/%{version}/db-%{version}.tar.bz2
 Patch1:		db3.3-3.3.11.patch
+Patch2:		db3.3-compile-with-bash31.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	db1-devel, glibc-static-devel, tcl
@@ -107,8 +109,9 @@ This package contains command line tools for managing Berkeley DB databases.
 Summary:	Development libraries/header files for the Berkeley DB library
 Group:		Development/Databases
 Requires:	%{libdb} = %{version}-%{release}, %{libdbtcl} = %{version}-%{release}
-Provides:	db3-devel = %{version}-%{release} libdb-devel = %{version}-%{release}
-Conflicts:	libdb4.0-devel
+Provides:	db3-devel = %{version}-%{release} libdb3.3-devel = %{version}-%{release}
+Conflicts:	%{liborig}4.0-devel, %{liborig}4.1-devel, %{liborig}4.2-devel
+Conflicts:	%{liborig}4.3-devel, %{liborig}4.4-devel
 
 %description -n %{libdbdevel}
 The Berkeley Database (Berkeley DB) is a programmatic toolkit that provides
@@ -121,9 +124,18 @@ This package contains the header files, libraries, and documentation for
 building programs which use Berkeley DB.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n db-%{version}
-%patch1 -p0
+%patch1 -p0 -b .org
+%patch2 -p0 -b .bash
 
 # Remove tags files which we don't need.
 find . -name tags | xargs rm -f
@@ -207,25 +219,21 @@ popd
 mkdir -p %{buildroot}{%{_includedir},%{_libdir}}
 
 %makeinstall -C build_unix libdb=%{_libdb_a} libcxx=%{_libcxx_a}
-chmod +x %{buildroot}%{_libdir}/*.so*
 
-# XXX annoying
-set -x
 pushd %{buildroot}
-    mkdir -p ./%{_lib}
-    mv .%{_libdir}/libdb-%{__soversion}.so ./%{_lib}
-    # XXX Rather than hack *.la (see below), create /usr/lib/libdb-3.1.so symlink.
-    ln -sf ../../%{_lib}/libdb-%{__soversion}.so .%{_libdir}/libdb-%{__soversion}.so
+#    mkdir -p ./%{_lib}
+#    mv .%{_libdir}/libdb-%{__soversion}.so ./%{_lib}
+#    # XXX Rather than hack *.la (see below), create /usr/lib/libdb-3.1.so symlink.
+#    ln -sf ../../%{_lib}/libdb-%{__soversion}.so .%{_libdir}/libdb-%{__soversion}.so
 
     mkdir -p .%{_includedir}/db3
     mv .%{_prefix}/include/*.h .%{_includedir}/db3
     ln -sf db3/db.h .%{_includedir}/db.h
-    # XXX This is needed for packaging db3 for Red Hat 6.x
-    #  for F in .%{_prefix}/bin/db_* ; do
+    # XXX This is needed for a parallel install with db4-utils
+    #for F in .%{_prefix}/bin/db_* ; do
     #    mv $F `echo $F | sed -e 's,/db_,/db3_,'`
-    #  done
+    #done
 popd
-set +x
 
 # XXX libdb-3.1.so is in /lib teach libtool as well
 #perl -pi -e 's,/usr,,' %{buildroot}%{_libdir}/libdb-%{__soversion}.la
@@ -253,22 +261,20 @@ rm -rf	%{buildroot}/usr/docs \
 
 
 %files -n %{libdb}
-%defattr(-,root,root)
-%doc LICENSE README
-/%{_lib}/libdb-%{__soversion}.so
-%{_libdir}/libdb-%{__soversion}.so
+%defattr(0644,root,root)
+#/%{_lib}/libdb-%{__soversion}.so
+%attr(0755,root,root) %{_libdir}/libdb-%{__soversion}.so
 
 %files -n %{libdbcxx}
-%defattr(-,root,root) 
+%defattr(0755,root,root) 
 %{_libdir}/libdb_cxx-%{__soversion}.so
 
 %files -n %{libdbtcl}
-%defattr(-,root,root)
+%defattr(0755,root,root)
 %{_libdir}/libdb_tcl-%{__soversion}.so
 
 %files utils
-%defattr(-,root,root)
-%doc docs/utility
+%defattr(0755,root,root)
 %{_bindir}/berkeley_db_svc
 %{_bindir}/db*_archive
 %{_bindir}/db*_checkpoint
@@ -283,10 +289,7 @@ rm -rf	%{buildroot}/usr/docs \
 %{_bindir}/db*_verify
 
 %files -n %{libdbdevel}
-%defattr(-,root,root)
-%doc docs/api_c docs/api_cxx docs/api_tcl docs/index.html
-%doc docs/ref docs/sleepycat docs/images
-%doc examples_c examples_cxx
+%defattr(0644,root,root,0755)
 %{_includedir}/*
 %{_libdir}/libdb.so
 %{_libdir}/libdb-%{__soversion}.la
@@ -298,12 +301,29 @@ rm -rf	%{buildroot}/usr/docs \
 %{_libdir}/libdb_tcl-%{__soversion}.a
 %{_libdir}/libdb_tcl-%{__soversion}.la
 
+%files doc
+%doc LICENSE README
+%doc docs/utility
+%doc docs/api_c docs/api_cxx docs/api_tcl docs/index.html
+%doc docs/ref docs/sleepycat docs/images
+%doc examples_c examples_cxx
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jun 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.3.11
+- provide libdb3.3-devel even on biarches
+- devel conflicts for all libdb4.x-devel packages
+- force permissions on pacakged files
+- don't install libdb*.so into /lib (that should only be done for the
+  preferred/main dbX package, and for us that's db4)
+- P1: fix compilation when using newer bash (from Mandriva)
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.3.11
 - Clean rebuild
 
-* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.3.11
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - fix prereq
