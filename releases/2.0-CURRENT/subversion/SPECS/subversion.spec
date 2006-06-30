@@ -469,6 +469,9 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Fri Jun 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.2
+- rebuild against new db4
+
 * Tue Jun 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.2
 - 1.3.2
 - rebuild against new python
