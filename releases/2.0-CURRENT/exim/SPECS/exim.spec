@@ -301,6 +301,9 @@ fi
 
 
 %changelog
+* Fri Jun 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.62
+- rebuild against new db4
+
 * Fri Jun 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.62
 - rebuild against new pam
 - update pam config
