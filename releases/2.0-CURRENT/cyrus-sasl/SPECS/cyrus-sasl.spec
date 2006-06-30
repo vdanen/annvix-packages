@@ -495,6 +495,9 @@ fi
 
  
 %changelog
+* Fri Jun 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1.22
+- rebuild against new db4
+
 * Wed Jun 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1.22
 - the real 2.1.22 (which I don't get, but ok...)
 - remove SRP support due to patent tainting (re:
