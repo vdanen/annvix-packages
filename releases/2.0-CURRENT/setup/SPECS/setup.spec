@@ -52,7 +52,14 @@ mkdir -p %{buildroot}/var/lib/rsbac
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
-%post 
+%post
+# due to important new group additions, we need to add them manually here if they
+# don't already exist because rpm will create group.rpmnew instead
+
+grep -q '^auth:' /etc/group || groupadd -g 27 auth
+grep -q '^shadow:' /etc/group || groupadd -g 28 shadow && chmod 0440 /etc/shadow && chgrp shadow /etc/shadow
+grep -q '^chkpwd:' /etc/group || groupadd -g 29 chkpwd
+
 pwconv 2>/dev/null >/dev/null  || :
 grpconv 2>/dev/null >/dev/null  || :
 
@@ -66,16 +73,13 @@ fi
 %doc ChangeLog
 %verify(not md5 size mtime) %config(noreplace) /etc/passwd
 %verify(not md5 size mtime) %config(noreplace) /etc/group
-%verify(not md5 size mtime) %attr(0400,root,root) %config(noreplace) /etc/shadow
+%verify(not md5 size mtime) %attr(0440,root,shadow) %config(noreplace) /etc/shadow
 %{_mandir}/man8/*8*
 # find_lang can't find man pages yet :-(
 %lang(cs) %{_mandir}/cs/man8/*8*
 %lang(et) %{_mandir}/et/man8/*8*
 %lang(eu) %{_mandir}/eu/man8/*8*
 %lang(fr) %{_mandir}/fr/man8/*8*
-%lang(it) %{_mandir}/it/man8/*8*
-%lang(nl) %{_mandir}/nl/man8/*8*
-#%lang(ru) %{_mandir}/ru/man8/*8*
 %lang(uk) %{_mandir}/uk/man8/*8*
 /usr/bin/run-parts
 %config(noreplace) /etc/services
@@ -102,6 +106,15 @@ fi
 
 
 %changelog
+* Sat Jul 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5
+- /etc/passwd is now owned root:shadow
+- new groups: auth (gid 27), shadow (gid 28), chkpwd (gid 29)
+- these groups are pretty important, so if they don't exist, add
+  them instead of waiting for an admin to merge the changes from
+  group.rpmnew
+- also, we have to change the ownership of /etc/shadow if we setup
+  the new shadow group
+
 * Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5
 - fix group
 
