@@ -5,11 +5,13 @@
 # so that the new locale can be used by the system
 
 # source the default locale info
+if [ -r /etc/sysconfig/i18n ]; then
 . /etc/sysconfig/i18n
+fi
 
 # what is the default system locale?
 unset BOOT_LOCALE
-SHORT_BOOT_LOCALE="`echo ${LANGUAGE} | cut -d: -f1`"
+SHORT_BOOT_LOCALE="`echo ${LANGUAGE} | cut -d: -f1 | cut -d'@' -f1`"
 [ -z "$BOOT_LOCALE" ] && BOOT_LOCALE="${GP_LANG}"
 [ -z "$BOOT_LOCALE" ] && BOOT_LOCALE="${LC_ALL}"
 [ -z "$BOOT_LOCALE" ] && BOOT_LOCALE="${LC_MESSAGES}"
@@ -25,11 +27,13 @@ case "$SHORT_BOOT_LOCALE" in
 	zh_CN|zh_SG) SHORT_BOOT_LOCALE="zh_CN" ;;
 	zh_TW|zh_HK) SHORT_BOOT_LOCALE="zh_TW" ;;
 	az_IR|ku_IQ) ;;
-	*) SHORT_BOOT_LOCALE="`echo $SHORT_BOOT_LOCALE | cut -d'_' -f1`" ;;
+	*) SHORT_BOOT_LOCALE="`echo $SHORT_BOOT_LOCALE | cut -d'_' -f1`" ;;	
 esac
 
 # the list of languages that rpm installs their translations
+if [ -r /etc/rpm/macros ]; then
 RPM_INSTALL_LANG="`grep '^%_install_langs' /etc/rpm/macros | cut -d' ' -f2-`"
+fi
 [ -z "$RPM_INSTALL_LANG" ] && RPM_INSTALL_LANG=C
 OLD_RPM_INSTALL_LANG="$RPM_INSTALL_LANG"
 
@@ -65,9 +69,13 @@ done
 if [ "$OLD_RPM_INSTALL_LANG" != "$RPM_INSTALL_LANG" ]
 then
   # update /etc/menu-methods/lang.h file
+  if [ -w /etc/menu-methods/lang.h ]; then
   perl -pe "s/^function languages\(\)=.*/function languages()=\"${RPM_INSTALL_LANG}\"/" \
 	-i /etc/menu-methods/lang.h
+  fi
   # update /etc/rpm/macros file
+  if [ -w /etc/rpm/macros ]; then
   perl -pe "s/^%_install_langs .*/%_install_langs ${RPM_INSTALL_LANG}/" \
 	-i /etc/rpm/macros
+  fi
 fi

@@ -12,7 +12,7 @@
 %define version		%{glibc_ver}
 %define release		%_revrel
 
-%define glibc_ver	2.3.5
+%define glibc_ver	2.3.6
 %define glibc_epoch	6
 
 # FIXME: please check on next build those we really need
@@ -120,6 +120,7 @@ BuildRequires:	glibc-i18ndata = %{glibc_epoch}:%{glibc_ver}
 
 Prereq:		glibc = %{glibc_epoch}:%{glibc_ver}
 Requires:	glibc = %{glibc_epoch}:%{glibc_ver}
+Requires:	basesystem
 AutoReqProv:	no
 
 %description
@@ -3342,10 +3343,15 @@ fi
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.5
+- 2.3.6
+- requires: basesystem (for grep, perl, etc.)
+- updated locale_install/uninstall scripts from Mandriva
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.5
 - Clean rebuild
 
-* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.5
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
