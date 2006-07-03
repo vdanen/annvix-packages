@@ -1,12 +1,11 @@
-diff -puNr glibc-2.3.3-200406160000.orig/crypt/Makefile glibc-2.3.3-200406160000/crypt/Makefile
---- glibc-2.3.3-200406160000.orig/crypt/Makefile	Sat Jan  8 03:10:29 2005
-+++ glibc-2.3.3-200406160000/crypt/Makefile	Sat Jan  8 03:15:19 2005
-@@ -28,7 +28,7 @@ distribute := md5.h
- extra-libs := libcrypt
+--- glibc-2.3.6/crypt/Makefile.avx	2006-07-03 13:07:18.000000000 -0600
++++ glibc-2.3.6/crypt/Makefile	2006-07-03 13:08:20.000000000 -0600
+@@ -29,7 +29,7 @@
  extra-libs-others := $(extra-libs)
  
--libcrypt-routines := crypt-entry md5-crypt md5 crypt crypt_util crypt_blowfish x86 crypt_gensalt wrapper
-+libcrypt-routines := crypt-entry md5-crypt md5 crypt crypt_util crypt_blowfish x86 crypt_gensalt crypt_freesec wrapper
+ libcrypt-routines := crypt-entry md5-crypt md5 crypt crypt_util \
+-		     crypt_blowfish crypt_gensalt wrapper
++		     crypt_blowfish crypt_gensalt crypt_freesec wrapper
  
  tests = cert md5test md5c-test
  

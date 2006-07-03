@@ -36,10 +36,11 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- *	$Id: crypt_freesec.c,v 1.3 2002/08/04 02:35:54 solar Exp $
+ *	$Owl: Owl/packages/glibc/crypt_freesec.c,v 1.4 2005/11/16 13:08:32 solar Exp $
+ *	$Id: crypt.c,v 1.15 1994/09/13 04:58:49 davidb Exp $
  *
  * This is an original implementation of the DES and the crypt(3) interfaces
- * by David Burren <davidb@werj.com.au>.
+ * by David Burren <davidb at werj.com.au>.
  *
  * An excellent reference on the underlying algorithm (and related
  * algorithms) is:

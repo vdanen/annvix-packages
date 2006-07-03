@@ -1,0 +1,106 @@
+--- crypt/crypt-entry.c	2001-07-06 09:37:47.000000000 +0200
++++ crypt/crypt-entry.c	2003-10-01 11:23:27.000000000 +0200
+@@ -70,7 +70,7 @@
+  */
+ 
+ char *
+-__crypt_r (key, salt, data)
++__des_crypt_r (key, salt, data)
+      const char *key;
+      const char *salt;
+      struct crypt_data * __restrict data;
+@@ -115,6 +115,7 @@
+   _ufc_output_conversion_r (res[0], res[1], salt, data);
+   return data->crypt_3_buf;
+ }
++#if 0
+ weak_alias (__crypt_r, crypt_r)
+ 
+ char *
+@@ -147,3 +148,4 @@
+   return crypt (key, salt);
+ }
+ #endif
++#endif
+--- crypt/crypt-private.h	2001-07-06 09:37:47.000000000 +0200
++++ crypt/crypt-private.h	2003-10-01 11:23:27.000000000 +0200
+@@ -55,6 +55,8 @@
+ /* crypt-entry.c */
+ extern char *__crypt_r (__const char *__key, __const char *__salt,
+ 			     struct crypt_data * __restrict __data);
++extern char *__des_crypt_r (__const char *__key, __const char *__salt,
++                             struct crypt_data * __restrict __data);
+ extern char *fcrypt (__const char *key, __const char *salt);
+ 
+ #endif  /* crypt-private.h */
+--- crypt/Makefile	2001-12-07 15:49:03.000000000 +0100
++++ crypt/Makefile	2003-10-01 11:23:27.000000000 +0200
+@@ -28,7 +28,8 @@
+ extra-libs := libcrypt
+ extra-libs-others := $(extra-libs)
+ 
+-libcrypt-routines := crypt-entry md5-crypt md5 crypt crypt_util
++libcrypt-routines := crypt-entry md5-crypt md5 crypt crypt_util \
++		     crypt_blowfish crypt_gensalt wrapper
+ 
+ tests = cert md5test md5c-test
+ 
+--- crypt/ow-crypt.h	2001-05-01 13:14:31.000000000 +0200
++++ crypt/ow-crypt.h	2003-10-01 11:23:27.000000000 +0200
+@@ -13,12 +13,6 @@
+ #define __CONST
+ #endif
+ 
+-#ifndef __SKIP_GNU
+-extern char *crypt(__CONST char *key, __CONST char *setting);
+-extern char *crypt_r(__CONST char *key, __CONST char *setting, void *data);
+-#endif
+-
+-#ifndef __SKIP_OW
+ extern char *crypt_rn(__CONST char *key, __CONST char *setting,
+ 	void *data, int size);
+ extern char *crypt_ra(__CONST char *key, __CONST char *setting,
+@@ -29,6 +23,5 @@
+ 	__CONST char *input, int size, char *output, int output_size);
+ extern char *crypt_gensalt_ra(__CONST char *prefix, unsigned long count,
+ 	__CONST char *input, int size);
+-#endif
+ 
+ #endif
+--- crypt/wrapper.c	2002-11-08 01:26:31.000000000 +0100
++++ crypt/wrapper.c	2003-10-01 11:59:03.000000000 +0200
+@@ -45,12 +45,11 @@
+ #if defined(__GLIBC__) && defined(_LIBC)
+ /* crypt.h from glibc-crypt-2.1 will define struct crypt_data for us */
+ #include "crypt.h"
++#include "ufc-crypt.h"
++#include "crypt-private.h"
++
+ extern char *__md5_crypt_r(const char *key, const char *salt,
+ 	char *buffer, int buflen);
+-/* crypt-entry.c needs to be patched to define __des_crypt_r rather than
+- * __crypt_r, and not define crypt_r and crypt at all */
+-extern char *__des_crypt_r(const char *key, const char *salt,
+-	struct crypt_data *data);
+ extern struct crypt_data _ufc_foobar;
+ #endif
+ 
+@@ -266,6 +264,7 @@
+ weak_alias(__crypt_ra, crypt_ra)
+ weak_alias(__crypt_r, crypt_r)
+ weak_alias(__crypt, crypt)
++weak_alias(__crypt, fcrypt)
+ weak_alias(__crypt_gensalt_rn, crypt_gensalt_rn)
+ weak_alias(__crypt_gensalt_ra, crypt_gensalt_ra)
+ weak_alias(__crypt_gensalt, crypt_gensalt)
+--- crypt/crypt_blowfish.c
++++ crypt/crypt_blowfish.c	2005/04/28 10:59:24
+@@ -45,7 +45,7 @@
+ #endif
+ 
+ #ifdef __i386__
+-#define BF_ASM				1
++#define BF_ASM				0
+ #define BF_SCALE			1
+ #elif defined(__alpha__) || defined(__hppa__)
+ #define BF_ASM				0

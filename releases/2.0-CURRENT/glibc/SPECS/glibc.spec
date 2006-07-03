@@ -9,10 +9,10 @@
 
 #define _unpackaged_files_terminate_build 0
 
-# owl 2.3.5-owl5
-%define basevers	2.3.5
+# owl 2.3.6-owl6
+%define basevers	2.3.6
 #%%define snapshot	20050427
-%define crypt_bf_ver	1.0.1
+%define crypt_bf_ver	1.0.2
 
 %define revision	$Rev$
 %define name		glibc
@@ -76,18 +76,26 @@ Source22:       create_asm_headers.sh
 # We are using the following numbering rules for glibc patches:
 #    0-99 - CVS
 # 100-199 - RH
-# 200-299 - SuSE
+# 200-219 - SuSE
+# 220-239 - Gentoo
 # 300-399 - ALT
 # 400-499 - Owl
-# 500-599 - Annvix
+# 500-599 - Mandriva
+# 600-699 - Annvix
 # CVS
-Patch0:		glibc-2.3.5-cvs-20050427-2_3-branch.diff
-Patch1:		glibc-2.3.5-cvs-20050427-canonicalize.diff
+Patch0:		glibc-2.3.5-cvs-20050427-canonicalize.diff
+Patch1:		glibc-2.3.6-cvs-20051116-divdi3.diff
+Patch2:		glibc-2.3.6-cvs-20060103-ctermid.diff
+Patch3:		glibc-2.3.6-cvs-20060426-linuxthreads-i386-pt-machine.diff
+Patch4:		glibc-2.3.6-up-linuxthreads-x86_64-pt-machine.diff
 # RH
 Patch100:	glibc-2.3.5-fedora.diff
 # SuSE
 Patch200:	glibc-2.3.2-suse-resolv-response-length.diff
 Patch201:	glibc-2.3.4-suse-getconf-default_output.diff
+Patch202:	glibc-2.3-suse-crypt_blowfish.patch
+# Gentoo
+Patch220:	glibc-2.3.6-gentoo-alpha-xstat.diff
 # ALT
 Patch300:	glibc-2.3.5-alt-doc-linuxthreads.diff
 Patch301:	glibc-2.3.5-alt-string2.diff
@@ -107,27 +115,21 @@ Patch313:	glibc-2.3.5-alt-assume_kernel.diff
 Patch400:	glibc-2.3.3-owl-crypt_freesec.diff
 Patch401:	glibc-2.3.5-owl-alt-res_randomid.diff
 Patch402:	glibc-2.3.2-owl-iscntrl.diff
-Patch403:	glibc-2.3.2-owl-quota.diff
-Patch404:	glibc-2.3.5-owl-alt-ldd.diff
-Patch405:	glibc-2.3.3-owl-info.diff
-Patch406:	glibc-2.3.5-owl-alt-syslog-ident.diff
-Patch407:	glibc-2.3.5-mjt-owl-alt-syslog-timestamp.diff
-Patch408:	glibc-2.3.5-owl-alt-resolv-QFIXEDSZ-underfills.diff
-Patch409:	glibc-2.3.2-owl-tmpfile.diff
-Patch410:	glibc-2.3.3-owl-tmp-scripts.diff
-Patch411:	glibc-2.3.3-owl-rpcgen-cpp.diff
-Patch412:	glibc-2.3.5-owl-alt-sanitize-env.diff
-# Annvix / Mandriva
-Patch500:	glibc-2.3.5-avx-ssp.patch
-Patch501:	glibc-2.3.5-fstack_protector-1.patch
-Patch502:	glibc-2.3.5-arc4random-1.patch
-Patch503:	glibc-2.3.5-ssp-1.patch
-Patch503:       kernel-headers-include-%{kheaders_ver}.%{kheaders_rel}.patch
-Patch504:       kernel-headers-gnu-extensions.patch
-Patch505:	glibc-2.3.5-gcc4.patch
-Patch506:	glibc-2.3.5-avx-relocate_fcrypt.patch
-Patch507:	glibc-2.2.5-share-locale.patch
-Patch508:	kernel-headers-syscall-mem-clobbers.patch
+Patch403:	glibc-2.3.6-owl-alt-ldd.diff
+Patch404:	glibc-2.3.3-owl-info.diff
+Patch405:	glibc-2.3.5-owl-alt-syslog-ident.diff
+Patch406:	glibc-2.3.5-mjt-owl-alt-syslog-timestamp.diff
+Patch407:	glibc-2.3.5-owl-alt-resolv-QFIXEDSZ-underfills.diff
+Patch408:	glibc-2.3.2-owl-tmpfile.diff
+Patch409:	glibc-2.3.3-owl-tmp-scripts.diff
+Patch410:	glibc-2.3.3-owl-rpcgen-cpp.diff
+Patch411:	glibc-2.3.5-owl-alt-sanitize-env.diff
+# Mandriva
+Patch500:       kernel-headers-include-%{kheaders_ver}.%{kheaders_rel}.patch
+Patch501:       kernel-headers-gnu-extensions.patch
+Patch502:	kernel-headers-syscall-mem-clobbers.patch
+Patch503:	glibc-2.2.5-share-locale.patch
+# Annvix
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	patch, gettext, perl, autoconf2.5
@@ -184,6 +186,8 @@ Provides:	glibc-crypt_blowfish-devel = %{crypt_bf_ver}
 Obsoletes:	kernel-headers
 Provides:	kernel-headers = 1:%{kheaders_ver}
 Conflicts:	texinfo < 3.11
+Requires(post):	info-install
+Requires(preun): info-install
 Autoreq:	true
 
 %description devel
@@ -295,6 +299,10 @@ This package contains the documentation for %{name}.
 # add -a option to getconf(1)
 %patch201 -p0
 
+# Gentoo
+# Re-introduce support for building on Alpha with pre-2.6.4 kernel headers
+%patch220 -p1
+
 # ALT
 # fix linuxthreads documentation
 %patch300 -p1
@@ -318,7 +326,7 @@ This package contains the documentation for %{name}.
 %patch309 -p1
 # support more ru_* locales
 %patch310 -p1
-# relocate helper libraries from /lib to %{_libdir}
+# relocate helper libraries from /%_lib to %_libdir
 %patch311 -p1
 # fix mprotect return code handling in _dl_make_stack_executable()
 %patch312 -p1
@@ -327,11 +335,13 @@ This package contains the documentation for %{name}.
 %patch313 -p1
 
 # Owl
-echo "Applying crypt_blowfish patch:"
-patch -p1 -s < crypt_blowfish-%{crypt_bf_ver}/glibc-2.3.2-crypt.diff
-mv crypt/{crypt.h,gnu-crypt.h}
-mv crypt_blowfish-%{crypt_bf_ver}/*.[chS] crypt/
+# we have to do this the suse way; using the owl way in the past resulted
+# in any application providing a bcrypt salt segfaulting, whereas the suse
+# way of application results in bcrypt passwords... yippee! (07/03/2006 - vdanen)
+rm crypt_blowfish-*/crypt.h
+cp -a crypt_blowfish-*/*.[ch] crypt/
 cp %_sourcedir/crypt_freesec.[ch] crypt/
+%patch202
 
 # FreeSec support for extended/new-style/BSDI hashes in crypt(3)
 %patch400 -p1
@@ -339,41 +349,35 @@ cp %_sourcedir/crypt_freesec.[ch] crypt/
 %patch401 -p1
 # force known control characters for iscntrl(3)
 %patch402 -p1
-# sync quota.h with current kernel
-%patch403 -p1
 # always execute traced object directly with dynamic linker
-%patch404 -p1
+# fix ldd error reporting on multilib platforms like x86-64
+# fix "ldd -u"
+%patch403 -p1
 # fix libc's info formatting
-%patch405 -p1
+%patch404 -p1
 # don't blindly trust __progname for the syslog ident
-%patch406 -p1
+%patch405 -p1
 # use ctime_r() instead of strftime_r() in syslog(3)
-%patch407 -p1
+%patch406 -p1
 # avoid potential reads beyond end of undersized DNS responses
-%patch408 -p1
+%patch407 -p1
 # allow tmpfile(3) to use TMPDIR environment variable
-%patch409 -p1
+%patch408 -p1
 # fix temporary file handling in the scripts
-%patch410 -p1
+%patch409 -p1
 # avoid hardcoding of cpp binary, use execvp instead of execv
-%patch411 -p1
+%patch410 -p1
 # sanitize the environment in a paranoid way
-%patch412 -p1
+%patch411 -p1
 
-# Annvix
-#%patch500 -p1 -b .ssp
-#%patch501 -p1 -b .fstack-protector
-#%patch502 -p1 -b .arc4random
-#%patch503 -p1 -b .ssp
-%patch505 -p1 -b .gcc4
-%patch506 -p1 -b .relocate_fcrypt
-%patch507 -p1 -b .share_locale
+# Mandriva
+%patch503 -p1 -b .share_locale
 
 pushd kernel-headers/
 TARGET=%{_target_cpu}
-%patch503 -p1
-%patch504 -p1
-%patch508 -p1
+%patch500 -p1
+%patch501 -p1
+%patch502 -p1
 %{expand:%(%__cat %{SOURCE21})}
 %{expand:%(%__cat %{SOURCE22})}
 popd
@@ -670,15 +674,15 @@ pushd build-%{_target_cpu}-linux
     TARGETARCH="%{buildroot}%{_slibdir}/%{_target_cpu}"
     TARGETLIB="%{buildroot}%{_slibdir}"
     mkdir -p $TARGETARCH
-    cp -a libc.so $TARGETARCH/`basename $TARGETLIB/libc-*.so`
+    install -m 0755 libc.so $TARGETARCH/`basename $TARGETLIB/libc-*.so`
     ln -sf `basename $TARGETLIB/libc-*.so` $TARGETARCH/`basename $TARGETLIB/libc.so.*`
-    cp -a math/libm.so $TARGETARCH/`basename $TARGETLIB/libm-*.so`
+    install -m 0755 math/libm.so $TARGETARCH/`basename $TARGETLIB/libm-*.so`
     ln -sf `basename $TARGETLIB/libm-*.so` $TARGETARCH/`basename $TARGETLIB/libm.so.*`
-    cp -a linuxthreads/libpthread.so $TARGETARCH/`basename $TARGETLIB/libpthread-*.so`
+    install -m 0755 linuxthreads/libpthread.so $TARGETARCH/`basename $TARGETLIB/libpthread-*.so`
     ln -sf `basename $TARGETLIB/libpthread-*.so` $TARGETARCH/`basename $TARGETLIB/libpthread.so.*`
-    cp -a linuxthreads_db/libthread_db.so $TARGETARCH/`basename $TARGETLIB/libthread_db-*.so`
+    install -m 0755 linuxthreads_db/libthread_db.so $TARGETARCH/`basename $TARGETLIB/libthread_db-*.so`
     ln -sf `basename $TARGETLIB/libthread_db-*.so` $TARGETARCH/`basename $TARGETLIB/libthread_db.so.*`
-    cp -a rt/librt.so $TARGETARCH/`basename $TARGETLIB/librt-*.so`
+    install -m 0755 rt/librt.so $TARGETARCH/`basename $TARGETLIB/librt-*.so`
     ln -sf `basename $TARGETLIB/librt-*.so` $TARGETARCH/`basename $TARGETLIB/librt.so.*`
     echo "%dir %{_slibdir}/%{_target_cpu}" >> ../extralibs.filelist
     find %{buildroot}/%{_slibdir}/%{_target_cpu} -type f -o -type l |sed -e "s|%{buildroot}||" >> ../extralibs.filelist
@@ -737,8 +741,8 @@ rm -rf %{buildroot}%{_libdir}/getconf
 
 
 %post -p /sbin/ldconfig
-
 %postun -p /sbin/ldconfig
+
 
 %post devel
 /sbin/install-info %{_infodir}/libc.info %{_infodir}/dir
@@ -747,6 +751,7 @@ rm -f kernel.h
 ln -snf kernel.h-%{kheaders_ver} kernel.h
 /sbin/service kheader start 2>/dev/null >/dev/null || :
 exit 0
+
 
 %postun devel
 if [ $1 = 0 ];then
@@ -762,17 +767,18 @@ if [ $1 -eq 0 ]; then
 	/sbin/install-info --delete %{_infodir}/libc.info %{_infodir}/dir
 fi
 
+
 %pre -n nscd
 %_pre_useradd nscd / /bin/false 83
 
+
 %post -n nscd
-if [ -d /var/log/supervise/nscd -a ! -d /var/log/service/nscd ]; then
-    mv /var/log/supervise/nscd /var/log/service/
-fi
 %_post_srv nscd
+
 
 %preun -n nscd
 %_preun_srv nscd
+
 
 %postun -n nscd
 %_postun_userdel nscd
@@ -1161,6 +1167,29 @@ fi
 
 
 %changelog
+* Mon Jul 03 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.6
+- 2.3.6
+- sync patches with openwall 2.3.6-owl6:
+  - Backported configure fix: compile source test files with -fPIC for -shared (ldv)
+  - Backported linuxthreads x86-64 asm syntax corrections (ldv)
+  - Backported ctermid declaration fix (ldv)
+  - Backported upstream patch to fix build with new GNU assembler (ldv)
+  - Applied upstream linuxthreads ix86 TLS fix (ldv)
+  - Fixed ldd error reporting on multilib platforms like x86-64 (ldv)
+  - Fixed "ldd -u" (ldv)
+  - Corrected a bug in the way salts for extended DES-based and for MD5-based
+    hashes are generated; thanks to Marko Kreen for discovering this (solar)
+  - Imported a patch from Gentoo (re-generated from glibc234-alpha-xstat.patch)
+    to re-introduce support for building on Alpha with pre-2.6.4 kernel headers (solar)
+- crypt_blowfish 1.0.2
+- drop P505; integrated upstream
+- P202: from SUSE to properly integrate crypt_blowfish (now it works!)
+- drop P506; P202 accomplishes the same thing and more
+- update P400 so it applies with the suse P202
+- renumber the mdk/avx patches
+- fix permissions for */lib/*.so
+- fix some prereq's
+
 * Wed Jun 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.5
 - some x86_64 include file fixes
 
