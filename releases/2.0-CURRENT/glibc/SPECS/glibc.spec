@@ -93,7 +93,7 @@ Patch100:	glibc-2.3.5-fedora.diff
 # SuSE
 Patch200:	glibc-2.3.2-suse-resolv-response-length.diff
 Patch201:	glibc-2.3.4-suse-getconf-default_output.diff
-Patch202:	glibc-2.3-suse-crypt_blowfish.patch
+Patch202:	glibc-2.3-avx-suse-crypt_blowfish.patch
 # Gentoo
 Patch220:	glibc-2.3.6-gentoo-alpha-xstat.diff
 # ALT
@@ -339,9 +339,9 @@ This package contains the documentation for %{name}.
 # in any application providing a bcrypt salt segfaulting, whereas the suse
 # way of application results in bcrypt passwords... yippee! (07/03/2006 - vdanen)
 rm crypt_blowfish-*/crypt.h
-cp -a crypt_blowfish-*/*.[ch] crypt/
+cp -a crypt_blowfish-*/*.[chS] crypt/
 cp %_sourcedir/crypt_freesec.[ch] crypt/
-%patch202
+%patch202 -p0 -b .bcrypt
 
 # FreeSec support for extended/new-style/BSDI hashes in crypt(3)
 %patch400 -p1
@@ -1167,6 +1167,10 @@ fi
 
 
 %changelog
+* Mon Jul 03 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.6
+- update P202 to include some missing bits
+- fix P400 to go with P202
+
 * Mon Jul 03 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.6
 - 2.3.6
 - sync patches with openwall 2.3.6-owl6:

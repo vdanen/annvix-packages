@@ -4,8 +4,8 @@
  extra-libs-others := $(extra-libs)
  
  libcrypt-routines := crypt-entry md5-crypt md5 crypt crypt_util \
--		     crypt_blowfish crypt_gensalt wrapper
-+		     crypt_blowfish crypt_gensalt crypt_freesec wrapper
+-		     crypt_blowfish x86 crypt_gensalt wrapper
++		     crypt_blowfish x86 crypt_gensalt crypt_freesec wrapper
  
  tests = cert md5test md5c-test
  

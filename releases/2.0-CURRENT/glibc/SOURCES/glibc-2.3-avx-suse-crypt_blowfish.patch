@@ -33,18 +33,6 @@
  extern char *fcrypt (__const char *key, __const char *salt);
  
  #endif  /* crypt-private.h */
---- crypt/Makefile	2001-12-07 15:49:03.000000000 +0100
-+++ crypt/Makefile	2003-10-01 11:23:27.000000000 +0200
-@@ -28,7 +28,8 @@
- extra-libs := libcrypt
- extra-libs-others := $(extra-libs)
- 
--libcrypt-routines := crypt-entry md5-crypt md5 crypt crypt_util
-+libcrypt-routines := crypt-entry md5-crypt md5 crypt crypt_util \
-+		     crypt_blowfish crypt_gensalt wrapper
- 
- tests = cert md5test md5c-test
- 
 --- crypt/ow-crypt.h	2001-05-01 13:14:31.000000000 +0200
 +++ crypt/ow-crypt.h	2003-10-01 11:23:27.000000000 +0200
 @@ -13,12 +13,6 @@
@@ -104,3 +92,42 @@
  #define BF_SCALE			1
  #elif defined(__alpha__) || defined(__hppa__)
  #define BF_ASM				0
+--- crypt/Versions.avx	2006-07-03 15:29:55.000000000 -0600
++++ crypt/Versions	2006-07-03 15:29:55.000000000 -0600
+@@ -1,5 +1,6 @@
+ libcrypt {
+   GLIBC_2.0 {
+     crypt; crypt_r; encrypt; encrypt_r; fcrypt; setkey; setkey_r;
++    crypt_rn; crypt_ra; crypt_gensalt; crypt_gensalt_rn; crypt_gensalt_ra;
+   }
+ }
+--- crypt/Makefile.avx	2001-07-05 22:54:45.000000000 -0600
++++ crypt/Makefile	2006-07-03 15:43:11.000000000 -0600
+@@ -21,14 +21,15 @@
+ #
+ subdir	:= crypt
+ 
+-headers := crypt.h
++headers := crypt.h ow-crypt.h
+ 
+ distribute := md5.h
+ 
+ extra-libs := libcrypt
+ extra-libs-others := $(extra-libs)
+ 
+-libcrypt-routines := crypt-entry md5-crypt md5 crypt crypt_util
++libcrypt-routines := crypt-entry md5-crypt md5 crypt crypt_util \
++		     crypt_blowfish x86 crypt_gensalt wrapper
+ 
+ tests = cert md5test md5c-test
+ 
+--- crypt/crypt.h.avx	2006-07-03 15:44:54.000000000 -0600
++++ crypt/crypt.h	2006-07-03 15:44:54.000000000 -0600
+@@ -26,6 +26,7 @@
+ #define _CRYPT_H	1
+ 
+ #include <features.h>
++#include <ow-crypt.h>
+ 
+ __BEGIN_DECLS
+ 
