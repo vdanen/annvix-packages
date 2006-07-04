@@ -81,7 +81,8 @@ This package contains the documentation for %{name}.
 %build
 phpize
 %configure2_5x \
-    --enable-%{modname}=shared,%{_prefix}
+    --enable-%{modname}=shared,%{_prefix} \
+    --enable-apc-mmap
 
 %make
 mv modules/*.so .
@@ -109,10 +110,15 @@ install -m 0755 %{soname} %{buildroot}%{phpdir}/extensions/
 
 %files doc
 %defattr(-,root,root)
-%doc CHANGELOG INSTALL NOTICE TODO
+%doc CHANGELOG INSTALL NOTICE TODO apc.php
 
 
 %changelog
+* Tue Jul 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.10
+- set apc.user_ttl to 7200
+- set apc.mmap_file_mask to /tmp/apc.XXXXXX
+- include apc.php in the doc package
+
 * Sun Jun 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.10
 - add -doc subpackage
 - fix changelog versioning
