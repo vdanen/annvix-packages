@@ -21,11 +21,13 @@ Group:		System/Base
 # This url is stupid, someone come up with a better one _please_!
 URL:		http://www.freebsd.org
 Source0:	passwd-%{version}.tar.bz2
+Source1:	passwd.pamd
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	glib2-devel, libuser-devel, pam-devel, popt-devel
 
 Requires:	pam >= 0.59, pwdb >= 0.58, libuser
+Requires(pre):	setup >= 2.5-5735avx
 
 %description
 The passwd package contains a system utility (passwd) which sets
@@ -49,7 +51,7 @@ install -d %{buildroot}%{_mandir}/man1
 
 %makeinstall_std
 
-install -D -m 0644 passwd.pamd %{buildroot}%{_sysconfdir}/pam.d/passwd
+install -D -m 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/pam.d/passwd
 perl -p -i -e 's|use_authtok nullok|use_authtok nullok md5|' %{buildroot}%{_sysconfdir}/pam.d/passwd
 rm -f %{buildroot}%{_bindir}/{chfn,chsh}
 rm -f %{buildroot}%{_mandir}/man1/{chfn.1,chsh.1}
@@ -61,12 +63,17 @@ rm -f %{buildroot}%{_mandir}/man1/{chfn.1,chsh.1}
 
 %files
 %defattr(-,root,root)
-%config(noreplace) %{_sysconfdir}/pam.d/passwd
-%attr(4511,root,root) %{_bindir}/passwd
+%attr(0640,root,shadow) %config(noreplace) %{_sysconfdir}/pam.d/passwd
+%attr(2711,root,shadow) %{_bindir}/passwd
 %{_mandir}/man1/passwd.1*
 
 		
 %changelog
+* Sat Jul 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.71
+- make passwd sgid shadow
+- requires new setup
+- S1: provide our own pam config
+
 * Sat Jun 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.71
 - 0.71
 - rebuild against new pam
