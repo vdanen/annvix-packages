@@ -49,7 +49,7 @@ make CFLAGS="-Wall -fPIC -DHAVE_SHADOW -DLINUX_PAM %{optflags}"
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-%make install DESTDIR="%{buildroot}" mandir=%{_mandir}
+%make install DESTDIR="%{buildroot}" mandir=%{_mandir} SECUREDIR=/%{_lib}/security
 
 
 %clean
@@ -67,5 +67,8 @@ make CFLAGS="-Wall -fPIC -DHAVE_SHADOW -DLINUX_PAM %{optflags}"
 
 
 %changelog
+* Mon Jul 03 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.2
+- lib64 fixes
+
 * Sat Jul 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.2
 - first Annvix build; to replace pam_cracklib

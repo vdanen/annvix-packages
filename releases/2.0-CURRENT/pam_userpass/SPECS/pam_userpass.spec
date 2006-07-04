@@ -59,7 +59,7 @@ CFLAGS="-Wall -fPIC %{optflags}" %make
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-%make install DESTDIR="%{buildroot}"
+%make install DESTDIR="%{buildroot}" SECUREDIR=/%{_lib}/security LIBDIR=%{_libdir}
 
 
 %clean
@@ -87,5 +87,8 @@ CFLAGS="-Wall -fPIC %{optflags}" %make
 
 
 %changelog
+* Mon Jul 03 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.2
+- lib64 fixes
+
 * Sat Jul 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0
 - first Annvix package (for tcb support)
