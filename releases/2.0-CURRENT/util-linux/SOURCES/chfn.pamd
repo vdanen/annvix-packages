@@ -1,4 +1,6 @@
 #%PAM-1.0
+# $Id$
+
 auth		sufficient	pam_rootok.so
 auth		include		system-auth
 account		include		system-auth

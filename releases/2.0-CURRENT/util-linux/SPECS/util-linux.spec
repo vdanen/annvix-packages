@@ -334,8 +334,6 @@ chmod 0755 %{buildroot}%{_bindir}/sunhostid
 #%endif
 pushd %{buildroot}%{_sysconfdir}/pam.d
     install -m 0644 %{SOURCE1} login
-    install -m 0644 %{SOURCE2} chfn
-    install -m 0644 %{SOURCE3} chsh
 popd
 
 # We do not want dependencies on csh
@@ -362,14 +360,18 @@ for p in flock logger; do
 done
 
 # remove stuff we don't want
-rm -f %{buildroot}%{_mandir}/man1/{line,newgrp,pg}.1*
-rm -f %{buildroot}%{_bindir}/{line,newgrp,pg}
+rm -f %{buildroot}%{_mandir}/man1/{line,newgrp,pg,chfn,chsh}.1*
+rm -f %{buildroot}%{_mandir}/man8/{vipw,vigr}.8*
+rm -f %{buildroot}%{_bindir}/{line,newgrp,pg,chfn,chsh}
+rm -f %{buildroot}%{_sbindir}/{vipw,vigr}
 rm -f %{buildroot}/sbin/sln
 
 %find_lang %{name}
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 
 %post
 %_install_info ipc.info
@@ -380,15 +382,15 @@ if [ -z "$ISCHRP" ]; then
 fi
 %endif
 
+
 %postun
 %_remove_install_info ipc.info
+
 
 %files -f %{name}.lang
 %defattr(-,root,root)
 %doc */README.* HISTORY
 %config(noreplace) %{_sysconfdir}/fdprm
-%config(noreplace) %{_sysconfdir}/pam.d/chfn
-%config(noreplace) %{_sysconfdir}/pam.d/chsh
 %config(noreplace) %{_sysconfdir}/pam.d/login
 #%ifnarch s390 s390x
 #%config(noreplace) %{_sysconfdir}/pam.d/kbdrate
@@ -453,8 +455,6 @@ fi
 #%endif
 
 %{_bindir}/cal
-%attr(0700,root,root)	%{_bindir}/chfn
-%attr(0700,root,root)	%{_bindir}/chsh
 %{_bindir}/col
 %{_bindir}/colcrt
 %{_bindir}/colrm
@@ -517,15 +517,11 @@ fi
 %ifnarch s390
 %{_sbindir}/tunelp
 %endif
-%{_sbindir}/vipw
-%{_sbindir}/vigr
 
 %{_infodir}/ipc.info*
 
 %{_mandir}/man1/arch.1*
 %{_mandir}/man1/cal.1*
-%{_mandir}/man1/chfn.1*
-%{_mandir}/man1/chsh.1*
 %{_mandir}/man1/col.1*
 %{_mandir}/man1/colcrt.1*
 %{_mandir}/man1/colrm.1*
@@ -577,8 +573,6 @@ fi
 # XXX this man page should be moved to glibc.
 %{_mandir}/man8/sln.8*
 %{_mandir}/man8/tunelp.8*
-%{_mandir}/man8/vigr.8*
-%{_mandir}/man8/vipw.8*
 
 %{_datadir}/misc/getopt
 
@@ -603,6 +597,9 @@ fi
 
 
 %changelog
+* Sat Jul 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.12r
+- drop chfn, chsh, vipw, vigr; these are provided by shadow-utils now
+
 * Wed Jun 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.12r
 - move flock and logger into /bin
 - updated P218 from Mandriva to refresh non-handled options list for

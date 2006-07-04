@@ -1,4 +1,6 @@
 #%PAM-1.0
+# $Id$
+
 auth		required	pam_securetty.so
 auth		required	pam_nologin.so
 auth		include		system-auth
