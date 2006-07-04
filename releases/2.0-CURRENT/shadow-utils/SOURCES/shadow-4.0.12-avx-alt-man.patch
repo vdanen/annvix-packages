@@ -1,0 +1,34 @@
+--- shadow-4.0.12/man/groupadd.8~	2006-06-30 21:18:23.000000000 -0600
++++ shadow-4.0.12/man/groupadd.8	2006-06-30 21:18:23.000000000 -0600
+@@ -55,6 +55,12 @@
+ .br
+ This is an option added by Red Hat.
+ 
++.SH NOTES
++Group names must match [a-z_][a-z0-9_-]* regexp pattern.
++.SH CAVEATS
++You may not add a NIS or LDAP group. This must be performed on the
++corresponding server.
++
+ .SH "FILES"
+ .TP
+ \fI/etc/group\fR
+--- shadow-4.0.12/man/useradd.8~	2006-06-30 21:19:44.000000000 -0600
++++ shadow-4.0.12/man/useradd.8	2006-06-30 21:19:44.000000000 -0600
+@@ -166,12 +166,15 @@
+ displays the current default values.
+ .SH "NOTES"
+ .PP
++User names must match [a-z_][a-z0-9_-]* regexp pattern.
++.PP
+ The system administrator is responsible for placing the default user files in the 
+ \fI/etc/skel/\fR 
+ directory.
+ .SH "CAVEATS"
+ .PP
+-You may not add a user to a NIS group. This must be performed on the NIS server.
++You may not add a user to a NIS or LDAP group. This must be performed on the
++corresponding server.
+ .SH "FILES"
+ .TP
+ \fI/etc/passwd\fR
