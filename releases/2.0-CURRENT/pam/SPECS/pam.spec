@@ -67,11 +67,14 @@ Patch111:	Linux-PAM-0.99.3.0-pwdb.patch
 Patch200:	pam-0.99.3.0-annvix-perms.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	bison, cracklib-devel, flex, glib2-devel, pwdb-devel
+BuildRequires:	bison, flex, glib2-devel
 BuildRequires:	db4-devel, automake1.8, openssl-devel
 
-Requires:	cracklib-dicts, pwdb >= 0.54-2
+Requires:	glibc-crypt_blowfish-devel
+# pam_unix is now provided by pam_tcb
+Requires:	pam_tcb, pam_passwdqc
 Requires(pre):	rpm-helper
+Requires(pre):	setup >= 2.5-5735avx
 Obsoletes:	pamconfig
 Provides:	pamconfig
 
@@ -142,15 +145,32 @@ This package contains the documentation for %{name}.
 
 %patch200 -p1 -b .avxperms
 
+# Remove unwanted modules.
+for d in pam_{cracklib,debug,postgresok,rps,selinux,unix}; do
+    rm -r modules/$d
+    sed -i "s,modules/$d/Makefile,," configure.in
+    sed -i "s/ $d / /" modules/Makefile.am
+done
+find modules -type f -name Makefile -delete -print
+
+
 for readme in modules/pam_*/README ; do
     cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
 done
 rm -f doc/txts/README
 
-autoreconf
-
 
 %build
+aclocal -I m4
+libtoolize -f
+autoconf
+autoheader
+automake -a
+export ac_cv_lib_ndbm_dbm_store=no \
+    ac_cv_lib_db_dbm_store=no \
+    ac_cv_lib_selinux_getfilecon=no \
+    ac_cv_search_FascistCheck='none required'
+
 CFLAGS="%{optflags} -fPIC" \
 %configure \
     --sbindir=/sbin \
@@ -229,7 +249,7 @@ touch %{buildroot}%{_sysconfdir}/environment
 /sbin/pam_tally
 %dir /etc/security/console.apps
 %attr(4755,root,root) /sbin/pam_timestamp_check
-%attr(4755,root,root) /sbin/unix_chkpwd
+#%attr(4755,root,root) /sbin/unix_chkpwd
 %dir /etc/security/console.apps
 %dir /var/run/console
 %{_mandir}/man5/*
@@ -258,6 +278,15 @@ touch %{buildroot}%{_sysconfdir}/environment
 
 
 %changelog
+* Sat Jul 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.99.3.0
+- don't build pam_{cracklib,debug,postgresok,rps,selinux,unix} modules
+- requires pam_tcb (which provides the pam_unix replacement)
+- buildrequies: glibc-crypt_blowfish-devel
+- no longer require cracklib or pwdb/pwdb-devel
+- update the other.pamd and system-auth.pamd to use pam_tcb and pam_passwdqc
+- requires: pam_userpass
+- requires setup-2.5-5735avx
+
 * Fri Jun 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.99.3.0
 - rebuild against new db4
 
