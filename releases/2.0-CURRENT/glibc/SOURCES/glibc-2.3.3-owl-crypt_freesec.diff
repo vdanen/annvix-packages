@@ -1,11 +1,11 @@
 --- glibc-2.3.6/crypt/Makefile.avx	2006-07-03 13:07:18.000000000 -0600
 +++ glibc-2.3.6/crypt/Makefile	2006-07-03 13:08:20.000000000 -0600
-@@ -29,7 +29,7 @@
+@@ -28,7 +28,7 @@
+ extra-libs := libcrypt
  extra-libs-others := $(extra-libs)
  
- libcrypt-routines := crypt-entry md5-crypt md5 crypt crypt_util \
--		     crypt_blowfish x86 crypt_gensalt wrapper
-+		     crypt_blowfish x86 crypt_gensalt crypt_freesec wrapper
+-libcrypt-routines := crypt-entry md5-crypt md5 crypt crypt_util crypt_blowfish x86 crypt_gensalt wrapper
++libcrypt-routines := crypt-entry md5-crypt md5 crypt crypt_util crypt_blowfish x86 crypt_gensalt crypt_freesec wrapper
  
  tests = cert md5test md5c-test
  

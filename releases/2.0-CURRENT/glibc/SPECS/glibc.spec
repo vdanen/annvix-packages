@@ -93,7 +93,6 @@ Patch100:	glibc-2.3.5-fedora.diff
 # SuSE
 Patch200:	glibc-2.3.2-suse-resolv-response-length.diff
 Patch201:	glibc-2.3.4-suse-getconf-default_output.diff
-Patch202:	glibc-2.3-avx-suse-crypt_blowfish.patch
 # Gentoo
 Patch220:	glibc-2.3.6-gentoo-alpha-xstat.diff
 # ALT
@@ -130,6 +129,8 @@ Patch501:       kernel-headers-gnu-extensions.patch
 Patch502:	kernel-headers-syscall-mem-clobbers.patch
 Patch503:	glibc-2.2.5-share-locale.patch
 # Annvix
+Patch600:	glibc-2.3.5-avx-relocate_fcrypt.patch
+Patch601:	glibc-2.3.6-avx-increase_BF_FRAME.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	patch, gettext, perl, autoconf2.5
@@ -335,13 +336,13 @@ This package contains the documentation for %{name}.
 %patch313 -p1
 
 # Owl
-# we have to do this the suse way; using the owl way in the past resulted
-# in any application providing a bcrypt salt segfaulting, whereas the suse
-# way of application results in bcrypt passwords... yippee! (07/03/2006 - vdanen)
-rm crypt_blowfish-*/crypt.h
-cp -a crypt_blowfish-*/*.[chS] crypt/
+# copy the freesec stuff
 cp %_sourcedir/crypt_freesec.[ch] crypt/
-%patch202 -p0 -b .bcrypt
+
+echo "Applying crypt_blowfish patch:"
+patch -p1 -s < crypt_blowfish-%{crypt_bf_ver}/glibc-2.3.2-crypt.diff
+mv crypt/crypt.h crypt/gnu-crypt.h
+cp -a crypt_blowfish-%{crypt_bf_ver}/*.[chS] crypt/
 
 # FreeSec support for extended/new-style/BSDI hashes in crypt(3)
 %patch400 -p1
@@ -372,6 +373,10 @@ cp %_sourcedir/crypt_freesec.[ch] crypt/
 
 # Mandriva
 %patch503 -p1 -b .share_locale
+
+# Annvix
+%patch600 -p1
+%patch601 -p1
 
 pushd kernel-headers/
 TARGET=%{_target_cpu}
@@ -1167,6 +1172,12 @@ fi
 
 
 %changelog
+* Thu Jul 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.6
+- drop P202 and revert the changes to P400; after working with Solar we
+  found the real problem (need to increase BF_FRAME)
+- put back our relocate fcrypt patch as P600
+- P601: increase BF_FRAME and BF_CLEAN
+
 * Mon Jul 03 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.6
 - update P202 to include some missing bits
 - fix P400 to go with P202
