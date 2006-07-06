@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		gnupg
-%define version 	1.4.2.2
+%define version 	1.4.4
 %define release		%_revrel
 
 Summary:	GNU privacy guard - a free PGP replacement
@@ -21,7 +21,6 @@ Group:		File tools
 URL:		http://www.gnupg.org
 Source:		ftp://ftp.gnupg.org/pub/gcrypt/gnupg/%{name}-%{version}.tar.bz2
 Source1:	ftp://ftp.gnupg.org/pub/gcrypt/gnupg/%{name}-%{version}.tar.bz2.sig
-Patch0:		gnupg-1.4.2.2-CVE-2006-3082.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	exim
@@ -43,7 +42,6 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
-%patch0 -p1 -b .cve-2006-3082
 
 
 %build
@@ -55,6 +53,7 @@ This package contains the documentation for %{name}.
     --with-static-rnd=linux \
     --disable-ldap \
     --without-ldap \
+    --enable-noexecstack \
     $mguard
 make
 # all tests must pass
@@ -69,16 +68,8 @@ make check
 sed -e "s#../g10/gpg#gpg#" < tools/lspgpot > %{buildroot}%{_bindir}/lspgpot
 
 chmod 0755 %{buildroot}%{_bindir}/lspgpot
-# (fc) 1.0.4-5mdk gpg is setuid
-chmod 4755  %{buildroot}%{_bindir}/gpg
 
 perl -pi -e 's|/usr/local|/usr/|' %{buildroot}%{_mandir}/man1/gpg.1
-
-#cp -aRf doc doc.geoff
-#rm -f doc.geoff/Makefile*
-#rm -f doc.geoff/{gpg,gpgv}.1
-#rm -f doc/Makefile*
-#rm -f doc/{gpg,gpgv}.1
 
 # installed but not wanted
 rm -f %{buildroot}%{_datadir}/gnupg/{FAQ,faq.html}
@@ -102,10 +93,11 @@ rm -f %{buildroot}%{_datadir}/locale/locale.alias
 
 %files -f %{name}.lang
 %defattr(-,root,root)
-%attr(4755,root,root) %{_bindir}/gpg
+%attr(0755,root,root) %{_bindir}/gpg
 %{_bindir}/gpgv
 %{_bindir}/lspgpot
 %{_bindir}/gpgsplit
+%{_bindir}/gpg-zip
 %dir %{_libdir}/gnupg
 %{_libdir}/gnupg/gpgkeys*
 %dir %{_datadir}/gnupg
@@ -119,7 +111,16 @@ rm -f %{buildroot}%{_datadir}/locale/locale.alias
 %doc README NEWS THANKS TODO ChangeLog doc/DETAILS doc/FAQ doc/HACKING
 %doc doc/faq.html doc/OpenPGP doc/samplekeys.asc
 
+
 %changelog
+* Thu Jul 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4.4
+- 1.4.4
+- pass --enable-noexecstack to configure
+- don't ship it suid root anymore (yes, we loose some memory protection,
+  but that's less of a concern than a vuln in gpg someone could take
+  advantage of to elevate to root privs)
+- drop P0; fixed upstream
+
 * Tue Jun 20 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4.2.2
 - P0: security patch for CVE-2006-3082
 - don't install the gpg keys; the rpm package does this now
