@@ -196,19 +196,19 @@ rm -rf %{buildroot}%{_libdir}
 %{_mandir}/man8/vigr.8*
 %{_mandir}/man8/vipw.8*
 %attr(640,root,shadow) %config(noreplace) /etc/pam.d/chage-chfn-chsh
-/etc/pam.d/chage
-/etc/pam.d/chfn
-/etc/pam.d/chsh
+%attr(640,root,shadow) %config(noreplace) /etc/pam.d/chage
+%attr(640,root,shadow) %config(noreplace) /etc/pam.d/chfn
+%attr(640,root,shadow) %config(noreplace) /etc/pam.d/chsh
 %attr(640,root,shadow) %config(noreplace) /etc/pam.d/chpasswd-newusers
-/etc/pam.d/chpasswd
-/etc/pam.d/newusers
+%attr(640,root,shadow) %config(noreplace) /etc/pam.d/chpasswd
+%attr(640,root,shadow) %config(noreplace) /etc/pam.d/newusers
 %attr(640,root,shadow) %config(noreplace) /etc/pam.d/user-group-mod
-/etc/pam.d/useradd
-/etc/pam.d/userdel
-/etc/pam.d/usermod
-/etc/pam.d/groupadd
-/etc/pam.d/groupdel
-/etc/pam.d/groupmod
+%attr(640,root,shadow) %config(noreplace) /etc/pam.d/useradd
+%attr(640,root,shadow) %config(noreplace) /etc/pam.d/userdel
+%attr(640,root,shadow) %config(noreplace) /etc/pam.d/usermod
+%attr(640,root,shadow) %config(noreplace) /etc/pam.d/groupadd
+%attr(640,root,shadow) %config(noreplace) /etc/pam.d/groupdel
+%attr(640,root,shadow) %config(noreplace) /etc/pam.d/groupmod
 
 %files doc
 %defattr(-,root,root)
@@ -216,6 +216,10 @@ rm -rf %{buildroot}%{_libdir}
 
 
 %changelog
+* Fri Jul 07 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.0.12
+- stupid rpm-helper is removing the symlinks for the pam.d files which
+  is making them have incorrect ownership and permissions
+
 * Fri Jun 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.0.12
 - sync with openwall 4.0.4.1 (yes, we're syncing patches with an older
   version of shadow-utils, but we're updating each and every patch to
