@@ -63,6 +63,7 @@ Source7:	glibc-manpages.tar.bz2
 Source8:	glibc-redhat.tar.bz2
 Source9:	glibc-compat.tar.bz2
 Source10:	glibc-find-requires.sh
+Source11:	nsswitch.conf
 Source14:       nscd.run
 Source15:       nscd-log.run
 Source16:       nscd.finish
@@ -138,7 +139,6 @@ BuildRequires:	binutils >= 2.13.90.0.18-2mdk
 BuildPreReq:	gcc >= 3.1.1
 
 AutoReq:	false
-#Requires: /etc/nsswitch.conf
 Provides:	glibc-crypt_blowfish = %{crypt_bf_ver}
 Provides:	glibc-localedata
 Provides:	ld.so
@@ -337,7 +337,7 @@ This package contains the documentation for %{name}.
 
 # Owl
 # copy the freesec stuff
-cp %_sourcedir/crypt_freesec.[ch] crypt/
+cp %{_sourcedir}/crypt_freesec.[ch] crypt/
 
 echo "Applying crypt_blowfish patch:"
 patch -p1 -s < crypt_blowfish-%{crypt_bf_ver}/glibc-2.3.2-crypt.diff
@@ -383,8 +383,8 @@ TARGET=%{_target_cpu}
 %patch500 -p1
 %patch501 -p1
 %patch502 -p1
-%{expand:%(%__cat %{SOURCE21})}
-%{expand:%(%__cat %{SOURCE22})}
+%{expand:%(%__cat %{_sourcedir}/make_versionh.sh)}
+%{expand:%(%__cat %{_sourcedir}/create_asm_headers.sh)}
 popd
 
 %ifnarch %{glibc_compat_arches}
@@ -399,7 +399,7 @@ cat > find_provides.sh << EOF
 exit 0
 EOF
 chmod +x find_provides.sh
-cat %{SOURCE10} >glibc_find_requires.sh
+cat %{_sourcedir}/glibc-find-requires.sh >glibc_find_requires.sh
 chmod +x glibc_find_requires.sh
 cat > find_requires.sh << EOF
 #!/bin/sh
@@ -613,7 +613,7 @@ install -p -m 0644 crypt_blowfish-%{crypt_bf_ver}/*.3 %{buildroot}%{_mandir}/man
 install -p -m 0644 %_sourcedir/strlcpy.3 %{buildroot}%{_mandir}/man3/
 echo '.so man3/strlcpy.3' > %{buildroot}%{_mandir}/man3/strlcat.3
 
-install -m 0644 redhat/nsswitch.conf %{buildroot}%{_sysconfdir}/nsswitch.conf
+install -m 0644 %{_sourcedir}/nsswitch.conf %{buildroot}%{_sysconfdir}/nsswitch.conf
 
 ln -s libbsd-compat.a %{buildroot}%{_libdir}/libbsd.a
 %if %{build_biarch}
@@ -661,9 +661,9 @@ build-%{_target_cpu}-linux/hardlink -vc %{buildroot}%{_datadir}/locale
 
 install -m 0644 nscd/nscd.conf %{buildroot}%{_sysconfdir}
 mkdir -p %{buildroot}%{_srvdir}/nscd/log
-install -m 0740 %{SOURCE14} %{buildroot}%{_srvdir}/nscd/run
-install -m 0740 %{SOURCE15} %{buildroot}%{_srvdir}/nscd/log/run
-install -m 0740 %{SOURCE16} %{buildroot}%{_srvdir}/nscd/finish
+install -m 0740 %{_sourcedir}/nscd.run %{buildroot}%{_srvdir}/nscd/run
+install -m 0740 %{_sourcedir}/nscd-log.run %{buildroot}%{_srvdir}/nscd/log/run
+install -m 0740 %{_sourcedir}/nscd.finish %{buildroot}%{_srvdir}/nscd/finish
 
 rm -rf %{buildroot}%{_datadir}/zoneinfo/{posix,right}
 rm -rf %{buildroot}%{_includedir}/netatalk/
@@ -1172,6 +1172,10 @@ fi
 
 
 %changelog
+* Thu Jul 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.6
+- S11: install and use our own nsswitch.conf; tcb is now the default
+- start using the new %%{_sourcedir}/file instead of %%{SOURCEx} convention
+
 * Thu Jul 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.6
 - drop P202 and revert the changes to P400; after working with Solar we
   found the real problem (need to increase BF_FRAME)
