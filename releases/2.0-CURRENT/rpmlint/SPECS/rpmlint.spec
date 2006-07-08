@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		rpmlint
-%define version 	0.76
+%define version 	0.77
 %define release 	%_revrel
 
 Summary:	RPM correctness checker
@@ -75,6 +75,10 @@ rm -rf %{buildroot}%{_sysconfdir}/bash_completion.d
 
 
 %changelog
+* Sat Jul 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.77
+- 0.77
+- updated config
+
 * Fri Jun 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.76
 - fix buildrequires
 - updated config
