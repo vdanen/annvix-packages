@@ -105,7 +105,6 @@ EOF
 
 %files -f lynx.lang
 %defattr(-,root,root)
-%doc README
 %config(noreplace,missingok) %{_sysconfdir}/lynx-site.cfg
 %{_mandir}/*/*
 %{_bindir}/*
@@ -113,10 +112,14 @@ EOF
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jul 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.8.5
+- remove doc
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.8.5
 - Clean rebuild
 
-* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.8.5
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
