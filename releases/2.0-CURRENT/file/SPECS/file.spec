@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		file
-%define version		4.15
+%define version		4.17
 %define release		%_revrel
 
 %define major		1
@@ -22,9 +22,8 @@ Release:	%{release}
 License:	BSD 
 Group:		File tools
 URL:		ftp://ftp.astron.com/pub/file/
-Source0:	ftp://ftp.astron.com/pub/file/%{name}-%{version}.tar.bz2
+Source0:	ftp://ftp.astron.com/pub/file/%{name}-%{version}.tar.gz
 Source1:	magic.mime
-Patch2:		file-4.01-perl.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl, libtool, autoconf, zlib-devel
@@ -84,9 +83,16 @@ Libmagic is a library for handlig the so called magic files the 'file'
 command is based on. 
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
-%patch2 -p1 -b .perl
 
 
 %build
@@ -101,7 +107,7 @@ CFLAGS="%{optflags} -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE"
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
-cat %{SOURCE1} > %{buildroot}%{_datadir}/misc/magic.mime
+cat %{_sourcedir}/magic.mime > %{buildroot}%{_datadir}/misc/magic.mime
 ln -sf %{name}/magic %{buildroot}%{_datadir}/misc/magic
 
 install -m 0644 src/file.h %{buildroot}%{_includedir}/ 
@@ -117,7 +123,6 @@ install -m 0644 src/file.h %{buildroot}%{_includedir}/
 
 %files
 %defattr(-,root,root)
-%doc README MAINT LEGAL.NOTICE ChangeLog 
 %{_bindir}/file
 %{_datadir}/misc/*
 %{_mandir}/man1/file.1*
@@ -139,12 +144,24 @@ install -m 0644 src/file.h %{buildroot}%{_includedir}/
 %defattr(-,root,root)
 %{_libdir}/*.a
 
+%files doc
+%defattr(-,root,root)
+%doc README MAINT LEGAL.NOTICE ChangeLog 
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jul 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.17
+- 4.17
+- drop P2
+- use the real source
+- use %%_sourcdir/file instead of %%{SOURCEx}
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.15
 - Clean rebuild
 
-* Wed Jan 04 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.15
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
