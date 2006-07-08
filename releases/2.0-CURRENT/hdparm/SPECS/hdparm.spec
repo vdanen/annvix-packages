@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		hdparm
-%define version 	6.1
+%define version 	6.6
 %define release 	%_revrel
 
 Summary:	A utility for displaying and/or setting hard disk parameters
@@ -19,7 +19,7 @@ Release:	%{release}
 License:	BSD
 Group:		System/Kernel and hardware
 URL:		http://sourceforge.net/projects/hdparm/
-Source:		ftp://sunsite.unc.edu/pub/Linux/system/hardware/%{name}-%{version}.tar.bz2
+Source:		ftp://sunsite.unc.edu/pub/Linux/system/hardware/%{name}-%{version}.tar.gz
 Source1:	hdparm-sysconfig
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -28,6 +28,14 @@ BuildRoot:	%{_buildroot}/%{name}-%{version}
 Hdparm is a useful system utility for setting (E)IDE hard drive
 parameters.  For example, hdparm can be used to tweak hard drive
 performance and to spin down hard drives for power conservation.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -45,7 +53,7 @@ make clean
 mkdir -p %{buildroot}/sbin
 install -D -m 0755 hdparm %{buildroot}/sbin/hdparm
 install -D -m 0644 hdparm.8 %{buildroot}%{_mandir}/man8/hdparm.8
-install -D -m 0644 %{SOURCE1} %{buildroot}/etc/sysconfig/harddisks
+install -D -m 0644 %{_sourcedir}/hdparm-sysconfig %{buildroot}/etc/sysconfig/harddisks
 
 
 %clean
@@ -54,17 +62,27 @@ install -D -m 0644 %{SOURCE1} %{buildroot}/etc/sysconfig/harddisks
 
 %files
 %defattr(-,root,root)
-%doc hdparm.lsm Changelog contrib/README README.acoustic
 /sbin/hdparm
 %{_mandir}/man8/hdparm.8*
 %config(noreplace) /etc/sysconfig/harddisks
 
+%files doc
+%defattr(-,root,root)
+%doc hdparm.lsm Changelog contrib/README README.acoustic
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jul 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 6.6
+- 6.6
+- use the real source
+- use %%_sourcdir/file instead of %%{SOURCEx}
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 6.1
 - Clean rebuild
 
-* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 6.1
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
