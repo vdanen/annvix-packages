@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		rsec
-%define version		0.63
+%define version		0.65
 %define release		%_revrel
 
 Summary:	Security Reporting tool for Annvix
@@ -18,7 +18,7 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		System/Base
-URL:		http://annvix.org/cgi-bin/viewcvs.cgi/tools/rsec/
+URL:		http://svn.annvix.org/cgi-bin/viewcvs.cgi/rsec/?root=tools
 Source0:	%{name}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -93,7 +93,14 @@ touch /var/log/security.log && chmod 0640 /var/log/security.log
 
 
 %changelog
-* Mon Mar 13 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jul 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.65
+- 0.65:
+  - security_check.sh: don't check /etc/shadow if it doesn't exist
+  - rsec.conf: turn off CHECK_SHADOW by default since we use tcb instead
+  - urpmicheck.sh: also check update/check apt if it's available
+- fix URL
+
+* Mon Mar 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.63
 -0.63:
   - change reporting of unowned user/group files since we don't chown
     them anymore
@@ -102,17 +109,17 @@ touch /var/log/security.log && chmod 0640 /var/log/security.log
   - set EXCLUDE_REGEXP to exclude /override and /var/tmp/php_sessions by
     default
 
-* Sun Jan 15 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sun Jan 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.62
 - 0.62:
   - don't change ownership of unowned files
 
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.61
 - Clean rebuild
 
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.61
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.61
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
