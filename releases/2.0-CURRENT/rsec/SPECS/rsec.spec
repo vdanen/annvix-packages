@@ -29,16 +29,22 @@ Conflicts:	passwd < 0.67, msec
 
 %description
 The Annvix Security Reporting tool (rsec) is largely based on the
-Mandrakelinux msec program.  rsec produces the same reports as msec, but
+Mandriva Linux msec program.  rsec produces the same reports as msec, but
 does not manage permission issues or system configuration changes.  It is
 nothing more than a reporting tool to advise you of changes to your system
 and potential problem areas.  Any changes or fixes are entirely up to the
 user to correct.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
-
-
 %setup -q
 
 
@@ -77,7 +83,6 @@ touch /var/log/security.log && chmod 0640 /var/log/security.log
 
 %files
 %defattr(-,root,root)
-%doc AUTHORS COPYING ChangeLog
 %{_bindir}/promisc_check
 %{_bindir}/rsec_find
 %dir %_datadir/rsec
@@ -91,6 +96,9 @@ touch /var/log/security.log && chmod 0640 /var/log/security.log
 %{_sysconfdir}/cron.daily/urpmicheck
 %ghost %attr(0640,root,root) /var/log/security.log
 
+%files doc
+%defattr(-,root,root)
+%doc AUTHORS COPYING ChangeLog
 
 %changelog
 * Sat Jul 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.65
@@ -99,6 +107,7 @@ touch /var/log/security.log && chmod 0640 /var/log/security.log
   - rsec.conf: turn off CHECK_SHADOW by default since we use tcb instead
   - urpmicheck.sh: also check update/check apt if it's available
 - fix URL
+- add -doc subpackage
 
 * Mon Mar 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.63
 -0.63:
