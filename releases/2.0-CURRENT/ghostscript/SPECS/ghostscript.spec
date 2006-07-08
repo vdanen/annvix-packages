@@ -101,5 +101,8 @@ rm -rf %{buildroot}%{_mandir}/de
 
 
 %changelog
+* Sat Jul 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.15.2
+- rebuild with gcc4
+
 * Mon May 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.15.2
 - first Annvix build
