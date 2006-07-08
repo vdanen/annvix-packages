@@ -11,7 +11,7 @@
 
 %define revision	$Rev$
 %define name		rpm-annvix-setup
-%define version		1.18
+%define version		1.19
 %define release		%_revrel
 
 Summary:	The Annvix rpm configuration and scripts
@@ -62,7 +62,6 @@ mkdir -p %{buildroot}%{_sysconfdir}/rpm/macros.d
 
 %files
 %defattr(-,root,root)
-%doc ChangeLog
 %dir %{_prefix}/lib/rpm/annvix
 %{_prefix}/lib/rpm/annvix/rpmrc
 %{_prefix}/lib/rpm/annvix/macros
@@ -81,6 +80,9 @@ mkdir -p %{buildroot}%{_sysconfdir}/rpm/macros.d
 
 
 %changelog
+* Sat Jul 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.19
+- 1.19
+
 * Tue May 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.18
 - revert the find-provides changes because they didn't pick up things
   like libperl.so in the perl packages
