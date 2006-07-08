@@ -73,6 +73,14 @@ to automatically determine groff command-line options, and the
 troff-to-ps print filter.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 %patch0 -p1
@@ -84,7 +92,7 @@ troff-to-ps print filter.
 %patch4 -p1 -b ._dashes
 %patch5 -p1 -b .can-2004-0969
 
-cp -f %SOURCE2 ./
+cp -f %{_sourcedir}/README.A4 .
 
 WANT_AUTOCONF_2_5=1 autoconf
 
@@ -119,7 +127,7 @@ for i in eqn.1 indxbib.1 lookbib.1 nroff.1 pic.1 refer.1 soelim.1 tbl.1 troff.1;
 done
 
 mkdir -p %{buildroot}/%{_libdir}/rhs/rhs-printfilters
-install -m 0755 %{SOURCE1} %{buildroot}%{_libdir}/rhs/rhs-printfilters
+install -m 0755 %{_sourcedir}/troff-to-ps.fpi %{buildroot}%{_libdir}/rhs/rhs-printfilters
 
 # call spec-helper before creating the file list
 s=/usr/share/spec-helper/spec-helper ; [ -x $s ] && $s
@@ -211,8 +219,16 @@ mv %{buildroot}%{_docdir}/{groff/%{version}/,%{name}-%{version}/}
 %defattr(-,root,root)
 %{_libdir}/rhs/*/*
 
+%files doc
+%defattr(-,root,root)
+
 
 %changelog
+* Sat Jul 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.19.1
+- add -doc subpackage
+- rebuild with gcc4
+- use %%_sourcdir/file instead of %%{SOURCEx}
+
 * Fri Feb 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.19.1
 - renumber patches
 - P5: security fix for CAN-2004-0969
