@@ -36,6 +36,14 @@ and then prints the matching lines.  GNU's grep utilities include grep,
 egrep and fgrep.  
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 %patch1 -p1 -b .i18n
@@ -65,16 +73,23 @@ rm -rf %{buildroot}%{_infodir}
 
 %files -f %{name}.lang
 %defattr(-,root,root)
-%doc AUTHORS THANKS TODO NEWS README ChangeLog
 /bin/*
 %{_mandir}/*/*
 
+%files doc
+%defattr(-,root,root)
+%doc AUTHORS THANKS TODO NEWS README ChangeLog
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jul 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5.1a
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5.1a
 - Clean rebuild
 
-* Thu Jan 05 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 05 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5.1a
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
