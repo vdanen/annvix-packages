@@ -35,6 +35,14 @@ use the patch command with the diff file to add the changes to their
 original file (patching the file).
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 %patch1 -p1
@@ -70,11 +78,20 @@ make "CFLAGS=%{optflags} -D_GNU_SOURCE -W -Wall" LDFLAGS=-s
 %{_bindir}/*
 %{_mandir}/*/*
 
+%files doc
+%defattr(-,root,root)
+%doc NEWS README AUTHORS ChangeLog
+
+
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jul 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5.9
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5.9
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5.9
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
