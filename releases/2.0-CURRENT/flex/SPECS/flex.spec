@@ -42,8 +42,13 @@ corresponding C code.
 Flex was designed to work with both Yacc and Bison, and is used by
 many programs as part of their build process.
 
-You should install flex if you are going to use your system for
-application development.
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -83,18 +88,25 @@ ln -s flex.1 flex++.1
 
 %files
 %defattr(-,root,root,755)
-%doc COPYING NEWS README
 %{_bindir}/*
 %{_mandir}/man1/*
 %{_libdir}/libfl.a
 %{_includedir}/FlexLexer.h
 
+%files doc
+%defattr(-,root,root,755)
+%doc COPYING NEWS README
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jul 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5.4a
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5.4a
 - Clean rebuild
 
-* Wed Jan 04 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5.4a
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
