@@ -21,6 +21,7 @@ Group:		Development/Other
 URL:		http://rpmlint.zarb.org/
 Source0:	http://rpmlint.zarb.org/download/%{name}-%{version}.tar.bz2
 Source1:	rpmlint.annvix.config
+Patch0:		rpmlint-0.77-fix-GROUPS.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
@@ -43,6 +44,7 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
+%patch0 -p0
 
 
 %build
@@ -55,6 +57,9 @@ make install DESTDIR=%{buildroot}
 install -m 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/rpmlint/config
 
 rm -rf %{buildroot}%{_sysconfdir}/bash_completion.d
+
+# temporary fix until upstream gets it right
+touch %{buildroot}%{_datadir}/rpmlint/GROUPS
 
 
 %clean
@@ -75,6 +80,12 @@ rm -rf %{buildroot}%{_sysconfdir}/bash_completion.d
 
 
 %changelog
+* Sat Jul 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.77
+- P0: rpmlint craps out if /usr/share/doc/rpm-x.y.z/GROUPS doesn't exist so
+  make it use a more sane location (/usr/share/rpmlint/GROUPS); upstream has
+  been made aware of this
+- provide an empty GROUPS file
+
 * Sat Jul 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.77
 - 0.77
 - updated config
