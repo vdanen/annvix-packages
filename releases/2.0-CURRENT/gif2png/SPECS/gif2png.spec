@@ -32,6 +32,14 @@ to PNG files.  The Python script web2png converts an entire web tree,
 also patching HTML pages to keep IMG SRC references correct.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 
@@ -52,16 +60,23 @@ also patching HTML pages to keep IMG SRC references correct.
 
 %files
 %defattr(-,root,root,0755)
-%doc README NEWS COPYING AUTHORS
 %{_mandir}/*/*
 %{_bindir}/*
-			 
+
+%files doc
+%defattr(-,root,root,0755)
+%doc README NEWS COPYING AUTHORS			 
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jul 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.7
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.7
 - Clean rebuild
 
-* Thu Jan 05 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 05 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.7
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
