@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		doxygen
-%define version 	1.4.4
+%define version 	1.4.6
 %define release 	%_revrel
 
 Summary:	Doxygen is THE documentation system for C/C++
@@ -20,7 +20,7 @@ Epoch:		1
 License:	GPL
 Group:		Development/Other
 URL:		http://www.stack.nl/~dimitri/doxygen/
-Source:		ftp://ftp.stack.nl/pub/users/dimitri/%{name}-%{version}.src.tar.bz2
+Source:		ftp://ftp.stack.nl/pub/users/dimitri/%{name}-%{version}.src.tar.gz
 Patch0:		doxygen-1.2.12-fix-latex.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -45,7 +45,7 @@ your way in large source distributions.
 
 perl -pi -e "s|^TMAKE_CFLAGS_RELEASE.*|TMAKE_CFLAGS_RELEASE = $RPM_OPT_FLAGS|" tmake/lib/linux-g++/tmake.conf
 %ifarch x86_64 sparc64 ppc64 s390x
-perl -pi -e "s|(QTDIR/)lib|\1%{_lib}|" configure
+perl -pi -e 's/^LIBDIR=.*/LIBDIR=%{_lib}/' configure
 perl -pi -e "s|/lib$|/%{_lib}|" tmake/lib/linux-g++/tmake.conf
 %endif
 find -type d -exec chmod 0755 {} \;
@@ -70,17 +70,22 @@ install -s bin/doxy* %{buildroot}%{_bindir}
 
 
 %files
-%defattr(-, root, root)
-%doc README
+%defattr(-,root,root)
 %{_bindir}/doxygen
 %{_bindir}/doxytag
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jul 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4.6
+- 1.4.6
+- drop the README file (boring)
+- use the real source file
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4.4
 - Clean rebuild
 
-* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4.4
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
