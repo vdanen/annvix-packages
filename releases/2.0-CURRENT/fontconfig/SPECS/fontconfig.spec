@@ -71,6 +71,14 @@ The fontconfig-devel package includes the header files,
 and developer docs for the fontconfig package.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 %patch0 -p1 -b .libtool
@@ -95,6 +103,7 @@ make
 rm -rf %{buildroot}%{_datadir}/doc/fontconfig
 rm -rf %{buildroot}%{_sysconfdir}/fonts/conf.d
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
@@ -108,7 +117,7 @@ rm -rf %{buildroot}%{_sysconfdir}/fonts/conf.d
 
 
 %files
-%defattr(-, root, root)
+%defattr(-,root,root)
 %doc README AUTHORS COPYING doc/fontconfig-user.html doc/fontconfig-user.txt
 %{_bindir}/fc-cache
 %{_bindir}/fc-match
@@ -119,11 +128,11 @@ rm -rf %{buildroot}%{_sysconfdir}/fonts/conf.d
 %{_mandir}/man1/*
 
 %files -n %{libname}
-%defattr(-, root, root)
+%defattr(-,root,root)
 %{_libdir}/*.so.*
 
 %files -n %{libname}-devel
-%defattr(-, root, root)
+%defattr(-,root,root)
 %doc doc/fontconfig-devel doc/fontconfig-devel.txt 
 %{_libdir}/*.la
 %{_libdir}/*.a
@@ -131,12 +140,21 @@ rm -rf %{buildroot}%{_sysconfdir}/fonts/conf.d
 %{_libdir}/pkgconfig/*
 %{_includedir}/*
 
+%files doc
+%defattr(-,root,root)
+%doc README AUTHORS COPYING doc/fontconfig-user.html doc/fontconfig-user.txt
+%doc doc/fontconfig-devel doc/fontconfig-devel.txt 
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jul 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.2
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.2
 - Clean rebuild
 
-* Thu Jan 05 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 05 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.2
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
