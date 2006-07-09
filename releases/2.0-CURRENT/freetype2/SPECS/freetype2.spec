@@ -104,6 +104,7 @@ developing programs which will use the FreeType2 library.
 %multiarch_binaries %{buildroot}%{_bindir}/freetype-config
 %multiarch_includes %{buildroot}%{_includedir}/freetype2/freetype/config/ftconfig.h
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
@@ -137,10 +138,13 @@ developing programs which will use the FreeType2 library.
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jul 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1.10
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1.10
 - Clean rebuild
 
-* Thu Jan 05 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 05 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1.10
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - rpmlint fix: %%{libname}-devel also provides libfreetype-devel
