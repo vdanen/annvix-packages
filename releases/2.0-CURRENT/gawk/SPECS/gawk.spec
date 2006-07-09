@@ -17,7 +17,7 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
-Group:		Text tools
+Group:		Text Tools
 URL:		http://www.gnu.org/software/gawk/gawk.html
 Source0:	http://ftp.gnu.org/gnu/gawk/%{name}-%{version}.tar.bz2
 Source1:	http://ftp.gnu.org/gnu/gawk/%{name}-%{version}-ps.tar.bz2
@@ -43,6 +43,14 @@ is almost completely compliant with the 1993 POSIX 1003.2 standard for
 awk.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -b 1
 %patch0 -p1 -b .getpgrp_void
@@ -56,6 +64,8 @@ awk.
 %configure
 %make
 
+
+%check
 # all tests must pass
 make check
 
@@ -106,7 +116,6 @@ popd
 
 %files -f %{name}.lang
 %defattr(-,root,root)
-%doc README COPYING FUTURES LIMITATIONS NEWS
 /bin/*
 %{_bindir}/*
 %{_mandir}/*/*
@@ -114,12 +123,21 @@ popd
 %{_libdir}/*
 %{_datadir}/awk
 
+%files doc
+%defattr(-,root,root)
+%doc README COPYING FUTURES LIMITATIONS NEWS
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jul 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.1.2
+- add -doc subpackage
+- rebuild with gcc4
+- move the make test to %%check
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.1.2
 - Clean rebuild
 
-* Thu Jan 05 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 05 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.1.2
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
