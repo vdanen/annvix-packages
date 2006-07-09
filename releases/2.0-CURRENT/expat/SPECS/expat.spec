@@ -102,10 +102,13 @@ Development environment for the expat XML parser
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jul 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.95.8
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.95.8
 - Clean rebuild
 
-* Wed Jan 04 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.95.8
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
