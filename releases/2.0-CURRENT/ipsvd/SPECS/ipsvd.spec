@@ -55,6 +55,14 @@ ipsvd can be used to run services normally run by inetd, xinetd, or
 tcpserver. 
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n net
 pushd %{name}-%{version}
@@ -109,9 +117,6 @@ echo "20" >%{buildroot}%{_sysconfdir}/sysconfig/env/tcpsvd/MAX_BACKLOG
 
 %files
 %defattr(-,root,root)
-%doc %{name}-%{version}/package/CHANGES
-%doc %{name}-%{version}/package/README
-%doc %{name}-%{version}/doc/*.html
 %dir %{_sysconfdir}/sysconfig/env/tcpsvd
 %attr(0640,root,admin) %config(noreplace) %{_sysconfdir}/sysconfig/env/tcpsvd/HOSTNAME
 %attr(0640,root,admin) %config(noreplace) %{_sysconfdir}/sysconfig/env/tcpsvd/IP
@@ -131,8 +136,19 @@ echo "20" >%{buildroot}%{_sysconfdir}/sysconfig/env/tcpsvd/MAX_BACKLOG
 %attr(0644,root,root) %{_mandir}/man8/ipsvd-cdb.8*
 %attr(0644,root,root) %{_mandir}/man8/tcpsvd.8*
 
+%files doc
+%defattr(-,root,root)
+%doc %{name}-%{version}/package/CHANGES
+%doc %{name}-%{version}/package/README
+%doc %{name}-%{version}/doc/*.html
+
 
 %changelog
+* Sun Jul 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.12.0
+- add -doc subpackage
+- rebuild with gcc4
+- rebuild against new matrixssl
+
 * Sat Feb 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.12.0
 - Requires(pre): setup because during install ipsvd ends up being
   installed prior to setup and our admin ownerships don't get properly
