@@ -1,0 +1,95 @@
+--- Makefile.avx	2006-06-27 13:06:00.000000000 -0600
++++ Makefile	2006-06-27 13:06:00.000000000 -0600
+@@ -176,6 +176,11 @@
+ install-redhat:
+ 	install -m 755 -d $(DESTDIR)/etc/init.d
+ 	install -m 755 rc.apparmor.$(subst install-,,$@) $(DESTDIR)/etc/init.d/apparmor
++	
++.PHONY: install-mandriva
++install-mandriva:
++	install -m 755 -d $(DESTDIR)/etc/rc.d/init.d
++	install -m 755 rc.apparmor.$(subst install-,,$@) $(DESTDIR)/etc/rc.d/init.d/apparmor
+ 
+ .PHONY: install-suse
+ install-suse:
+--- rc.apparmor.functions.avx	2006-03-27 08:17:10.000000000 -0700
++++ rc.apparmor.functions	2006-06-28 17:36:19.000000000 -0600
+@@ -102,6 +102,29 @@
+ # keep exit status from parser during profile load.  0 is good, 1 is bad
+ STATUS=0
+ 
++function sd_log_success_msg() {
++        success "$*"
++	echo
++}
++                
++function sd_log_warning_msg() {
++	warning "$*"
++	echo
++}
++                                
++function sd_log_failure_msg() {
++	failure "$*"
++	echo
++}
++                                                
++function sd_action() {
++	STRING=$1
++	shift
++	action "%s " "${STRING}" "$@"
++	return $?
++}
++                                                                                
++
+ function parse_profiles() {	
+ 	# get parser arg
+ 	case "$1" in
+@@ -117,7 +140,7 @@
+ 			exit 1
+ 			;;
+ 	esac
+-	echo -n "$PARSER_MSG"
++	gprintf "$PARSER_MSG"
+ 	# run the parser on all of the apparmor profiles
+ 	if [ ! -f "$PARSER" ]; then
+ 		sd_log_failure_msg "- AppArmor parser not found"
+@@ -337,18 +360,26 @@
+ 
+ function start_sd_event() {
+ 	if [ -x "$AA_EV_BIN" -a "${APPARMOR_ENABLE_AAEVENTD}" = "yes" ] ; then
+-		sd_action "Starting AppArmor Event daemon" startproc -f -p $AA_EV_PIDFILE $AA_EV_BIN -p $AA_EV_PIDFILE
++		echo -n "Starting AppArmor Event daemon"
++		daemon $AA_EV_BIN -p $AA_EV_PIDFILE
++		echo
+ 	elif [ -x "$SD_EV_BIN" -a "${APPARMOR_ENABLE_AAEVENTD}" = "yes" ] ; then
+-		sd_action "Starting AppArmor Event daemon" startproc -f -p $SD_EV_PIDFILE $SD_EV_BIN -p $SD_EV_PIDFILE
++		echo -n "Starting AppArmor Event daemon"
++		daemon $SD_EV_BIN -p $SD_EV_PIDFILE
++		echo
+ 	fi
+ }
+ 
+ function stop_sd_event() {
+ 	if [ -x "$AA_EV_BIN" -a -f "$AA_EV_PIDFILE" ] ; then
+-		sd_action "Shutting down AppArmor Event daemon" /sbin/killproc -G -p $AA_EV_PIDFILE -INT $AA_EV_BIN
++		echo -n "Shutting down AppArmor Event daemon"
++		killproc $AA_EV_BIN
++		echo
+ 	fi
+ 	if [ -f "$SD_EV_PIDFILE" ] ; then
+-		sd_action "Shutting down AppArmor Event daemon" /sbin/killproc -G -p $SD_EV_PIDFILE -INT $SD_EV_BIN
++		echo -n "Shutting down AppArmor Event daemon"
++		killproc $SD_EV_BIN
++		echo
+ 	fi
+ }
+ 
+@@ -420,7 +451,7 @@
+ 
+ function subdomain_stop() {
+ 	stop_sd_event
+-	echo -n "Unloading AppArmor profiles "
++	gprintf "Unloading AppArmor profiles "
+ 	remove_profiles
+ }
+ 
