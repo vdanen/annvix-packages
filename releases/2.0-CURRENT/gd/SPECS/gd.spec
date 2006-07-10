@@ -24,6 +24,7 @@ Group:		System/Libraries
 URL:		http://www.boutell.com/gd/
 Source0:	http://www.boutell.com/gd/http/%{name}-%{version}.tar.bz2
 Patch0:		gd-2.0.33-CAN-2004-0941.patch
+Patch1:		gd-2.0.33-CVE-2006-2906.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5, automake1.7
@@ -102,10 +103,18 @@ Webapplications, where PNG and JPEG are two of the formats
 accepted for inlineimages by most browsers.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n gd-%{version}
 %patch0 -p1 -b .CAN-2004-0941
-
+%patch1 -p1 -b .cve-2006-2906
 
 %build
 export WANT_AUTOCONF_2_5=1
@@ -134,7 +143,6 @@ libtoolize --copy --force; aclocal-1.7; automake-1.7 --copy --add-missing; autoc
 
 %files -n %{libname}
 %defattr(-,root,root)
-%doc README.TXT index.html
 %{_libdir}/*.so.*
 
 %files -n %{libname}-devel
@@ -165,8 +173,17 @@ libtoolize --copy --force; aclocal-1.7; automake-1.7 --copy --add-missing; autoc
 %{_bindir}/gdcmpgif
 %{_bindir}/giftogd2
 
+%files doc
+%defattr(-,root,root)
+%doc README.TXT index.html
+
 
 %changelog
+* Sun Jul 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.33
+- add -doc subpackage
+- rebuild with gcc4
+- P1: security fix for CVE-2006-2906
+
 * Fri Apr 21 2006 Vincent Daen <vdanen-at-build.annvix.org> 2.0.33
 - first Annvix build
 
