@@ -72,7 +72,8 @@ GNU MP is fast for several reasons:
 %package -n %{libname}-devel
 Summary:	Development tools for the GNU MP arbitrary precision library
 Group:		Development/C
-PreReq:		/sbin/install-info
+Requires(post):	info-install
+Requires(preun): info-install
 Requires:	%{libname} = %{version}-%{release}
 Provides:	lib%{name}-devel = %{version}-%{release}
 Provides:	%{name}-devel = %{version}-%{release}
@@ -124,6 +125,14 @@ Provides:	mp-devel = %{version}-%{release}
 Development tools for Berkley MP compatibility library for GMP.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 # Don't bother touching to configure.in for the following two
@@ -145,6 +154,9 @@ autoconf-2.5x
     --enable-mpfr
 
 %make
+
+
+%check
 # All tests must pass
 %make check
 
@@ -181,12 +193,10 @@ rm -f %{buildroot}%{_infodir}/dir
 
 %files -n %{libname}
 %defattr(-,root,root)
-%doc COPYING.LIB NEWS README
 %{_libdir}/libgmp.so.*
 
 %files -n %{libname}-devel
 %defattr(-,root,root)
-%doc doc demos
 %{_libdir}/libgmp.so
 %{_libdir}/libgmp.a
 %{_libdir}/libgmp.la 
@@ -221,13 +231,22 @@ rm -f %{buildroot}%{_infodir}/dir
 %{_libdir}/libmp.so
 %{_libdir}/libmp.la
 
+%files doc
+%defattr(-,root,root)
+%doc COPYING.LIB NEWS README
+%doc doc demos
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sun Jul 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.1.4
+- add -doc subpackage
+- rebuild with gcc4
+- fix prereq
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.1.4
 - Clean rebuild
 
-* Thu Jan 05 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 05 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.1.4
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
