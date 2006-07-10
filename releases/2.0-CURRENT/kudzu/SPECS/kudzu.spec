@@ -27,7 +27,7 @@ BuildRequires:	pciutils-devel >= 2.1.11-1, python-devel, python, newt-devel
 
 Requires(post):	chkconfig, initscripts, rpm-helper
 Requires(preun): chkconfig, initscripts, rpm-helper
-Requires:	pam >= 0.74-17, hwdata, python-base = %{py_ver}, modutils >= 2.3.11-5
+Requires:	pam >= 0.74-17, hwdata, python-base >= %{py_ver}, modutils >= 2.3.11-5
 %ifarch x86_64 amd64
 Requires:	lib64newt0.51
 %else
@@ -117,6 +117,10 @@ rm -rf %{buildroot}%{_datadir}/locale/{si,eu_ES,my,bn_IN}
 
 
 %changelog
+* Sun Jul 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.34.3
+- fix python-base requires (use >= rather than = since %%py_ver in this
+  case resolves to "2.4")
+
 * Sun Jul 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.34.3
 - 1.2.34.3
 - add -doc subpackage
