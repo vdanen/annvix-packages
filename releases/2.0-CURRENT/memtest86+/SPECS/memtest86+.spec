@@ -39,6 +39,14 @@ systems.  BIOS based memory tests are only a quick check and often
 missfailures that are detected by Memtest86.    
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 # don't apply the patch to disable SSP when we're not using it
@@ -69,15 +77,22 @@ install -m 0644 memtest.bin %{buildroot}/boot/memtest-%{version}.bin
 
 %files
 %defattr(-,root,root)
-%doc README
 /boot/memtest-%{version}.bin
+
+%files doc
+%defattr(-,root,root)
+%doc README
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sun Jul 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.60
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.60
 - Clean rebuild
 
-* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.60
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - P1: don't allow it to attempt a static link as it fails with
