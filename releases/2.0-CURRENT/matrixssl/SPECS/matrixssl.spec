@@ -9,7 +9,7 @@
 
 %define	revision	$Rev$
 %define	name		matrixssl
-%define	version		1.7.1
+%define	version		1.8
 %define	release		%_revrel
 
 %define	major		1
@@ -23,9 +23,9 @@ Release:	%{release}
 License:	GPL
 Group:		System/Libraries
 URL:		http://www.matrixssl.org/
-Source0:	%{name}-1-7-1-open.tar.bz2
-Patch0:		matrixssl-1.7.1-shared_and_static.diff
-Patch1:		matrixssl-1.2.5-debian.diff
+Source0:	%{name}-1-8-open.tar.bz2
+Patch0:		matrixssl-1.8-shared_and_static.diff
+Patch1:		matrixssl-1.8-debian.diff
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	dietlibc-devel >= 0.27-2avx
@@ -78,8 +78,16 @@ This package contains the static libraries and headers for both
 glibc and dietlibc.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
-%setup -q -n %{name}
+%setup -q -n %{name}-1-8-open
 %patch0 -p0
 %patch1 -p1
 
@@ -151,19 +159,28 @@ rm -f examples/*.p12
 
 %files -n %{libname}-devel
 %defattr(-,root,root)
-%doc examples
 %{_includedir}/*
 %{diethome}/include/*
 %{_libdir}/*.so
 %{_libdir}/*.a
 %{diethome}/lib-*/*.a
 
+%files doc
+%defattr(-,root,root)
+%doc examples
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sun Jul 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.8
+- 1.8
+- rediff P0, P1
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.7.1
 - Clean rebuild
 
-* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.7.1
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - dietlibc fixes
