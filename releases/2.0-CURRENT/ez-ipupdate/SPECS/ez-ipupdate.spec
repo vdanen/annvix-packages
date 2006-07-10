@@ -51,6 +51,14 @@ Don't forget to create your own config file ( in /etc/ez-ipupdate.conf )
 You can find some example in /usr/share/doc/%{name}-%{version}
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 
@@ -70,8 +78,8 @@ perl -pi -e "s|\/usr\/local\/bin|\/usr\/bin|" *.conf
 perl -pi -e 's|/tmp/ez-ipupdate.cache|/var/cache/ez-ipupdate|g;' *.conf
 
 mkdir -p %{buildroot}%{_srvdir}/ez-ipupdate/log
-install -m 0740 %{SOURCE1} %{buildroot}%{_srvdir}/ez-ipupdate/run
-install -m 0740 %{SOURCE2} %{buildroot}%{_srvdir}/ez-ipupdate/log/run
+install -m 0740 %{_sourcedir}/ez-ipupdate.run %{buildroot}%{_srvdir}/ez-ipupdate/run
+install -m 0740 %{_sourcedir}/ez-ipupdate-log.run %{buildroot}%{_srvdir}/ez-ipupdate/log/run
 
 
 %post
@@ -87,19 +95,27 @@ install -m 0740 %{SOURCE2} %{buildroot}%{_srvdir}/ez-ipupdate/log/run
 
 %files 
 %defattr(-,root,root)
-%doc COPYING INSTALL README *.conf
 %{_bindir}/*
 %dir %attr(0750,root,admin) %{_srvdir}/ez-ipupdate
 %dir %attr(0750,root,admin) %{_srvdir}/ez-ipupdate/log
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/ez-ipupdate/run
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/ez-ipupdate/log/run
 
+%files doc
+%defattr(-,root,root)
+%doc COPYING INSTALL README *.conf
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sun Jul 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.11b8
+- add -doc subpackage
+- rebuild with gcc4
+- use %%_sourcedir/file instead of %%{SOURCEx}
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.11b8
 - Clean rebuild
 
-* Wed Jan 04 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.11b8
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
