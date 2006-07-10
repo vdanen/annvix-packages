@@ -32,6 +32,14 @@ to be running an appropriately patched kernel, like the one provided by the
 kernel-secure package, for this program to have any effect.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 %patch0 -p1 -b .autotools
@@ -58,12 +66,19 @@ automake-1.7 --foreign -a
 
 %files 
 %defattr(-,root,root) 
-%doc README ChangeLog
 %{_mandir}/man1/chpax.1*
 %{_sbindir}/chpax
 
+%files doc
+%defattr(-,root,root) 
+%doc README ChangeLog
+
 
 %changelog
+* Sun Jul 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.7
+- add -doc subpackage
+- rebuild with gcc4
+
 * Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.7
 - fix group
 
