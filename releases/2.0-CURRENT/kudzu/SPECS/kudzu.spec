@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		kudzu
-%define version		1.1.111
+%define version		1.2.34.3
 %define release		%_revrel
 
 Summary:	The Red Hat Linux hardware probing tool
@@ -23,11 +23,11 @@ Source:		kudzu-%{version}.tar.gz
 Patch0:		kudzu-1.1.95-avx-python2.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildPrereq:	pciutils-devel >= 2.1.11-1, python-devel python newt-devel
+BuildRequires:	pciutils-devel >= 2.1.11-1, python-devel, python, newt-devel
 
 Requires(post):	chkconfig, initscripts, rpm-helper
 Requires(preun): chkconfig, initscripts, rpm-helper
-Requires:	pam >= 0.74-17, hwdata, python-base, modutils >= 2.3.11-5
+Requires:	pam >= 0.74-17, hwdata, python-base = %{py_ver}, modutils >= 2.3.11-5
 %ifarch x86_64 amd64
 Requires:	lib64newt0.51
 %else
@@ -47,6 +47,14 @@ Requires:	pciutils-devel
 %description devel
 The kudzu-devel package contains the libkudzu library, which is used
 for hardware probing and configuration.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -70,6 +78,8 @@ make RPM_OPT_FLAGS="%{optflags} -I." all kudzu
 make install install-program DESTDIR=%{buildroot} libdir=%{buildroot}%{_libdir}
 install -m 0755 fix-mouse-psaux %{buildroot}%{_sbindir}
 
+# remove unwanted files
+rm -rf %{buildroot}%{_datadir}/locale/{si,eu_ES,my,bn_IN}
 %find_lang %{name}
 
 
@@ -86,13 +96,13 @@ install -m 0755 fix-mouse-psaux %{buildroot}%{_sbindir}
 
 %files -f %{name}.lang
 %defattr(-,root,root)
-%doc README hwconf-description
+/sbin/kudzu
 %{_sbindir}/kudzu
 %{_sbindir}/module_upgrade
 %{_sbindir}/fix-mouse-psaux
 %{_mandir}/man8/*
 %config(noreplace) %{_sysconfdir}/sysconfig/kudzu
-%config %{_initrddir}/kudzu
+%{_initrddir}/kudzu
 %{_libdir}/python*/site-packages/*
 
 %Files devel
@@ -101,12 +111,24 @@ install -m 0755 fix-mouse-psaux %{buildroot}%{_sbindir}
 %{_libdir}/libkudzu_loader.a
 %{_includedir}/kudzu
 
+%files doc
+%defattr(-,root,root)
+%doc README hwconf-description
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sun Jul 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.34.3
+- 1.2.34.3
+- add -doc subpackage
+- rebuild with gcc4
+- the initscript is not a config file
+- remove invalid LC_MESSAGES directories
+- set an explicit versioned requires on python-base
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.1.95
 - Clean rebuild
 
-* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.1.95
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - fix prereq
