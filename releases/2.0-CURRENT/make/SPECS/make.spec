@@ -44,6 +44,14 @@ the program should be built are provided for make in the program's
 makefile.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -a1
 # WARNING: only configure script is patched
@@ -55,6 +63,9 @@ makefile.
 %build
 %configure2_5x
 %make
+
+
+%check
 # all tests must pass
 make check
 
@@ -87,18 +98,27 @@ done
 
 %files -f %{name}.lang
 %defattr(-,root,root)
-%doc ABOUT-NLS AUTHORS COPYING ChangeLog README README.customs SCOPTIONS NEWS
-%doc glob/COPYING.LIB glob/ChangeLog
 %{_bindir}/make
 %{_bindir}/gmake
 %{_mandir}/man1/make.1*
 %{_infodir}/make.info*
 
+%files doc
+%defattr(-,root,root)
+%doc ABOUT-NLS AUTHORS COPYING ChangeLog README README.customs SCOPTIONS NEWS
+%doc glob/COPYING.LIB glob/ChangeLog
+
+
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sun Jul 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.80
+- add -doc subpackage
+- rebuild with gcc4
+- put the test in %%check
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.80
 - Clean rebuild
 
-* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.80
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - fix prereq
@@ -179,7 +199,7 @@ done
 - Add patch #0, s/AC_PROG_RANLIB/AC_PROG_LIBTOOL/ in configure.in
 
 * Thu Aug 10 2000 Guillaume Cottenceau <gc@mandrakesoft.com> 3.79.1-5mdk
-- corrected problem with %preun script
+- corrected problem with %%preun script
 
 * Thu Aug 03 2000 Pablo Saratxaga <pablo@mandrakesoft.com> 3.79.1-4mdk
 - integrated catalog files
