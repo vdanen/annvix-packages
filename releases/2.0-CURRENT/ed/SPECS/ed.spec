@@ -19,7 +19,7 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
-Group:		Text tools
+Group:		Text Tools
 URL:		http://www.gnu.org/software/ed/ed.html 
 Source:		ftp://ftp.gnu.org/pub/gnu/ed/ed-0.2.tar.bz2
 Patch0:		ed-0.2-security-tempfile.patch
@@ -43,6 +43,14 @@ general, however, you probably don't need to install it and you probably
 won't use it much.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 %patch0 -p1
@@ -58,6 +66,8 @@ rm -f regex.*
 
 %make CFLAGS="%{optflags}"
 
+
+%check
 # all tests must pass
 make check
 
@@ -80,18 +90,25 @@ make check
 
 %files
 %defattr(-,root,root,0755)
-%doc NEWS POSIX README THANKS
 /bin/ed
 /bin/red
 %{_infodir}/ed.info*
 %{_mandir}/*/*
 
+%files doc
+%defattr(-,root,root,0755)
+%doc NEWS POSIX README THANKS
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sun Jul 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.2
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.2
 - Clean rebuild
 
-* Wed Jan 04 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.2
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
@@ -173,7 +190,7 @@ make check
 - Add defattr
 
 * Wed May 19 1999 Bernhard Rosenkränzer <bero@mandrakesoft.com>
-- fix typo in %preun
+- fix typo in %%preun
 - fix download URL
 
 * Sat Apr 10 1999 Bernhard Rosenkraenzer <bero@linux-mandrake.com>
