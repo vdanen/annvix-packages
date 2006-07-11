@@ -206,6 +206,10 @@ install -m 0600 contrib/gpg-check/gpg-import.lua %{buildroot}%{_datadir}/apt/scr
 
 
 %changelog
+* Tue Jul 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.5.15lorg3.1
+- set RPM::Order "true" in the default config to use rpm's ordering rather than
+  apt's ordering or we run into problems with apt ignoring things like Requires(pre)
+
 * Thu Jun 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.5.15lorg3.1
 - 0.5.15lorg3.1
 - don't use the gpg-import lua script anymore; the installer will install the
