@@ -60,6 +60,7 @@ Patch16:	samba-3.0.20-winbindd_v1.patch
 Patch17:	samba-3.0.20-regcreatekey_winxp_v1.patch
 # http://www.samba.org/samba/patches/usrmgr_groups_v1.patch
 Patch18:	samba-3.0.20-usrmgr_groups_v1.patch
+Patch19:	samba-3.0.22-CVE-2006-3403.patch
 
 BuildRoot:      %{_buildroot}/%{name}-%{version}
 BuildRequires:  pam-devel readline-devel libncurses-devel popt-devel
@@ -269,7 +270,7 @@ popd
 %patch16 -p1
 %patch17 -p1
 %patch18 -p1	
-
+%patch19 -p0 -b .cve-2006-3403
 
 
 # Make a copy of examples so that we have a clean one for doc:
@@ -842,6 +843,9 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Tue Jul 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.20
+- P19: security fix for CVE-2006-3403
+
 * Tue Feb 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.20
 - correct the perms on swat's peers/PORT file
 
