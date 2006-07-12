@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		rsec
-%define version		0.65
+%define version		0.66
 %define release		%_revrel
 
 Summary:	Security Reporting tool for Annvix
@@ -101,6 +101,10 @@ touch /var/log/security.log && chmod 0640 /var/log/security.log
 %doc AUTHORS COPYING ChangeLog
 
 %changelog
+* Wed Jul 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.66
+- 0.66:
+  - fix call to logger
+
 * Sat Jul 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.65
 - 0.65:
   - security_check.sh: don't check /etc/shadow if it doesn't exist
