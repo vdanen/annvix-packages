@@ -109,7 +109,8 @@ fi
 %attr(0750,root,root)%{_sbindir}/crond
 %{_mandir}/man1/crontab.1*
 %{_mandir}/man8/crond.8*
-%dir %attr(0755,root,root) /var/spool/dcron/crontabs
+%dir %attr(0750,root,root) /var/spool/dcron
+%dir %attr(0750,root,root) /var/spool/dcron/crontabs
 %dir %attr(0750,root,admin) %{_srvdir}/crond
 %dir %attr(0750,root,admin) %{_srvdir}/crond/log
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/crond/run
@@ -121,6 +122,11 @@ fi
 
 
 %changelog
+* Thu Jun 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.9
+- fix perms on /var/spool/dcron and own it
+- perms for the crontab should be root:root and 0750 because crontab
+  is suid root and protected by group membership
+
 * Thu Jun 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.9
 - add -doc subpackage
 - rebuild with gcc4
