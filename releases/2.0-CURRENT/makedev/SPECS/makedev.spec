@@ -31,7 +31,7 @@ Patch:		makedev-4.1-avx-random.patch
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 
-Prereq:		shadow-utils, sed, coreutils, mktemp
+Requires(post):	shadow-utils, sed, coreutils, mktemp
 Requires:	bash, perl-base
 Provides:	dev, MAKEDEV
 Obsoletes:	dev, MAKEDEV
@@ -43,6 +43,14 @@ and maintain the files in the /dev directory.  /dev directory files
 correspond to a particular device supported by Linux (serial or printer
 ports, scanners, sound cards, tape drives, CD-ROM drives, hard drives,
 etc.) and interface with the drivers in the kernel.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -57,7 +65,7 @@ etc.) and interface with the drivers in the kernel.
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p %{buildroot}%devrootdir
+mkdir -p %{buildroot}%{devrootdir}
 %makeinstall_std
 
 
@@ -71,9 +79,9 @@ mkdir -p %{buildroot}%devrootdir
 
 #- when devfs or udev is used, upgrade and install can be done easily :)
 if [[ -e /dev/.devfsd ]] || [[ -e /dev/.udev.tdb ]] || [[ -d /dev/.udevdb/ ]]; then
-    [[ -d %devrootdir ]] || mkdir %devrootdir
-    mount --bind / %devrootdir
-    DEV_DIR=%devrootdir/dev
+    [[ -d %{devrootdir} ]] || mkdir %{devrootdir}
+    mount --bind / %{devrootdir}
+    DEV_DIR=%{devrootdir}/dev
      
     [[ -L $DEV_DIR/snd ]] && rm -f $DEV_DIR/snd
     mkdir -p $DEV_DIR/{pts,shm}
@@ -86,7 +94,7 @@ if [[ -e /dev/.devfsd ]] || [[ -e /dev/.udev.tdb ]] || [[ -d /dev/.udevdb/ ]]; t
         chown root:root $DEV_DIR/null
     done
 
-    umount -f %devrootdir 2> /dev/null
+    umount -f %{devrootdir} 2> /dev/null
 #- case when makedev is being installed, not upgraded
 else
     DEV_DIR=/dev
@@ -130,20 +138,28 @@ fi
 
 %files
 %defattr(-,root,root)
-%doc COPYING devices.txt README
 %{_mandir}/*/*
 /sbin/makedev
 %dir %{_sysconfdir}/makedev.d/
 %config(noreplace) %{_sysconfdir}/makedev.d/*
 %dir /dev
-%dir %devrootdir
+%dir %{devrootdir}
+
+%files doc
+%defattr(-,root,root)
+%doc COPYING devices.txt README
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jul 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4
+- add -doc subpackage
+- rebuild with gcc4
+- some spec cleanups
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4
 - Clean rebuild
 
-* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
@@ -250,7 +266,7 @@ fi
 - clean scripts:
 	o merge %%pre and %%post
 	o dev %%post: /dev/{pts,shm}'re managed by drakx
-	o MAKEDEV is in %{_sbindir}, link in dev and not the reverse
+	o MAKEDEV is in %%{_sbindir}, link in dev and not the reverse
 - add back kernel-2.2.x support (aka devfs isn't mounted)
 - enforce pts,shm location
 
@@ -320,7 +336,7 @@ fi
 - 3.1.1 (big upgrade may screw up thing).
 
 * Mon Apr 30 2001 Frederic Lepied <flepied@mandrakesoft.com> 3.0.6-10mdk
-- call pam_console_apply in %post to restore the owner of the devices
+- call pam_console_apply in %%post to restore the owner of the devices
 after an upgrade.
 
 * Sat Apr 14 2001 Chmouel Boudjnah <chmouel@mandrakesoft.com> 3.0.6-9mdk
