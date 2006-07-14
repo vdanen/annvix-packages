@@ -80,7 +80,7 @@ ln -sf mail.1 %{buildroot}%{_mandir}/man1/Mail.1
 
 %files
 %defattr(-,root,root)
-%attr(0755,root,mail)	/bin/mail
+%attr(0755,root,mail) /bin/mail
 %{_bindir}/Mail
 %dir %{_datadir}/mailx
 %{_datadir}/mailx/mail.help
@@ -90,10 +90,13 @@ ln -sf mail.1 %{buildroot}%{_mandir}/man1/Mail.1
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jul 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.1.1
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.1.1
 - Clean rebuild
 
-* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.1.1
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
