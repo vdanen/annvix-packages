@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		libusb
-%define	version		0.1.8
+%define	version		0.1.12
 %define	release		%_revrel
 
 %define api		0.1
@@ -24,7 +24,7 @@ Release:	%{release}
 License:	LGPL
 Group:		System/Libraries
 URL:		http://libusb.sf.net/
-Source0:	http://heanet.dl.sourceforge.net/sourceforge/libusb/%{name}-%{version}.tar.bz2
+Source0:	http://heanet.dl.sourceforge.net/sourceforge/libusb/%{name}-%{version}.tar.gz
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -67,12 +67,20 @@ This package includes the static libraries necessary for developing
 programs which will access USB devices using the %{name} library.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 
 
 %build
-%configure2_5x
+%configure2_5x --disable-build-docs
 %make
 
 
@@ -107,30 +115,39 @@ ln -s ../usr/lib/libusb.la %{buildroot}/%{_lib}
 
 %files -n %{libname}
 %defattr(-,root,root)
-%doc README
 /%{_lib}/*.so.*
-/%{_lib}/*.la
 
 %files -n %{libname}-devel
 %defattr(-,root,root)
-%doc AUTHORS README INSTALL.libusb NEWS ChangeLog
 %{_bindir}/libusb-config
 %multiarch %{multiarch_bindir}/libusb-config
 %{_includedir}/*
 %{_libdir}/*.so
 %{_libdir}/*.la
+%{_libdir}/pkgconfig/*.pc
+/%{_lib}/*.la
 
 %files -n %{libname}-static-devel
 %defattr(-,root,root)
-%doc README
 %{_libdir}/*.a
+
+%files doc
+%defattr(-,root,root)
+%doc AUTHORS README INSTALL.libusb NEWS ChangeLog
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jul 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.1.12
+- 0.1.12
+- move *.la into the -devel package
+- fix source url
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.1.8
 - Clean rebuild
 
-* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.1.8
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
