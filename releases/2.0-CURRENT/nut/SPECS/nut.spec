@@ -9,7 +9,7 @@
 
 %define revision        $Rev$
 %define name            nut
-%define version         2.0.1
+%define version         2.0.3
 %define release         %_revrel
 
 %define nutuser		ups
@@ -21,7 +21,7 @@ Release:	%{release}
 License:	GPL
 Group:		System/Configuration
 URL:		http://random.networkupstools.org
-Source0:	%{name}-%{version}.tar.bz2
+Source0:	http://random.networkupstools.org/source/2.0/%{name}-%{version}.tar.gz
 Source1:	upsd.run
 Source2:	upsd.finish
 Source3:	upsd-log.run
@@ -30,10 +30,9 @@ Source5:	upsmon.finish
 Source6:	upsmon-log.run
 Source7:	ups_command
 Patch0:		nut-2.0.1-lib64.patch
-Patch1:		bouissou2.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	autoconf2.5 libusb-devel
+BuildRequires:	autoconf2.5 libusb-devel net-snmp-devel
 
 Requires(pre):	rpm-helper >= 0.8
 Requires(preun): rpm-helper >= 0.8
@@ -85,11 +84,18 @@ This package contains the development header files and libraries
 necessary to develop NUT client applications.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 %patch0 -p1 -b .lib64
 env WANT_AUTOCONF_2_5=1 autoconf
-%patch1 -p1
 
 
 %build
@@ -104,7 +110,8 @@ env WANT_AUTOCONF_2_5=1 autoconf
     --sysconfdir=%{_sysconfdir}/ups
 
 # workaround buggy parrallel build:
-make all usb snmp
+#make all usb snmp
+%make
 
 
 %install
@@ -121,16 +128,17 @@ make DESTDIR=%{buildroot} install-conf
 #make DESTDIR=%{buildroot} install-all-drivers
 make DESTDIR=%{buildroot} install-lib
 make DESTDIR=%{buildroot} install-usb
+make DESTDIR=%{buildroot} install-snmp
 
 mkdir -p %{buildroot}%{_srvdir}/{upsmon,upsd}/log
-install -m 0740 %{SOURCE1} %{buildroot}%{_srvdir}/upsd/run
-install -m 0740 %{SOURCE2} %{buildroot}%{_srvdir}/upsd/finish
-install -m 0740 %{SOURCE3} %{buildroot}%{_srvdir}/upsd/log/run
-install -m 0740 %{SOURCE4} %{buildroot}%{_srvdir}/upsmon/run
-install -m 0740 %{SOURCE5} %{buildroot}%{_srvdir}/upsmon/finish
-install -m 0740 %{SOURCE6} %{buildroot}%{_srvdir}/upsmon/log/run
+install -m 0740 %{_sourcedir}/upsd.run %{buildroot}%{_srvdir}/upsd/run
+install -m 0740 %{_sourcedir}/upsd.finish %{buildroot}%{_srvdir}/upsd/finish
+install -m 0740 %{_sourcedir}/upsd-log.run %{buildroot}%{_srvdir}/upsd/log/run
+install -m 0740 %{_sourcedir}/upsmon.run %{buildroot}%{_srvdir}/upsmon/run
+install -m 0740 %{_sourcedir}/upsmon.finish %{buildroot}%{_srvdir}/upsmon/finish
+install -m 0740 %{_sourcedir}/upsmon-log.run %{buildroot}%{_srvdir}/upsmon/log/run
 
-install -m 0750 %{SOURCE7} %{buildroot}%{_sysconfdir}/ups/ups_command
+install -m 0750 %{_sourcedir}/ups_command %{buildroot}%{_sysconfdir}/ups/ups_command
 
 # move the *.sample config files to their real locations
 for file in %{buildroot}%{_sysconfdir}/ups/*.sample
@@ -179,7 +187,6 @@ cp -af data/driver.list docs/
 
 %files
 %defattr(-,root,root)
-%doc CHANGES COPYING CREDITS INSTALL MAINTAINERS NEWS README UPGRADING docs
 %dir %attr(750,ups,ups) /var/run/ups
 %dir %attr(755,root,root) %{_sysconfdir}/ups
 %config(noreplace) %attr(640,root,ups) %{_sysconfdir}/ups/upssched.conf
@@ -196,14 +203,14 @@ cp -af data/driver.list docs/
 %{_bindir}/upslog
 %{_sbindir}/upsmon
 %{_sbindir}/upssched
-%{_mandir}/man5/upsmon.conf.5.bz2
-%{_mandir}/man5/upssched.conf.5.bz2
-%{_mandir}/man8/upsc.8.bz2
-%{_mandir}/man8/upscmd.8.bz2
-%{_mandir}/man8/upsrw.8.bz2
-%{_mandir}/man8/upslog.8.bz2
-%{_mandir}/man8/upsmon.8.bz2
-%{_mandir}/man8/upssched.8.bz2
+%{_mandir}/man5/upsmon.conf.5*
+%{_mandir}/man5/upssched.conf.5*
+%{_mandir}/man8/upsc.8*
+%{_mandir}/man8/upscmd.8*
+%{_mandir}/man8/upsrw.8*
+%{_mandir}/man8/upslog.8*
+%{_mandir}/man8/upsmon.8*
+%{_mandir}/man8/upssched.8*
 
 %files server
 %defattr(-,root,root)
@@ -221,53 +228,40 @@ cp -af data/driver.list docs/
 %{_datadir}/cmdvartab
 %{_datadir}/driver.list
 %{_libdir}/pkgconfig/libupsclient.pc
-%{_mandir}/man5/ups.conf.5.bz2
-%{_mandir}/man5/upsd.conf.5.bz2
-%{_mandir}/man5/upsd.users.5.bz2
-%{_mandir}/man8/belkin.8.bz2
-%{_mandir}/man8/belkinunv.8.bz2
-%{_mandir}/man8/bestups.8.bz2
-%{_mandir}/man8/bestuferrups.8.bz2
-%{_mandir}/man8/cyberpower.8.bz2
-%{_mandir}/man8/cpsups.8.bz2
-%{_mandir}/man8/everups.8.bz2
-%{_mandir}/man8/etapro.8.bz2
-%{_mandir}/man8/fentonups.8.bz2
-%{_mandir}/man8/genericups.8.bz2
-%{_mandir}/man8/isbmex.8.bz2
-%{_mandir}/man8/liebert.8.bz2
-%{_mandir}/man8/masterguard.8.bz2
-%{_mandir}/man8/mge-utalk.8.bz2
-%{_mandir}/man8/apcsmart.8.bz2
-%{_mandir}/man8/nutupsdrv.8.bz2
-%{_mandir}/man8/oneac.8.bz2
-%{_mandir}/man8/powercom.8.bz2
-%{_mandir}/man8/sms.8.bz2
-%{_mandir}/man8/snmp-ups.8.bz2
-%{_mandir}/man8/tripplite.8.bz2
-%{_mandir}/man8/tripplitesu.8.bz2
-%{_mandir}/man8/victronups.8.bz2
-%{_mandir}/man8/upsd.8.bz2
-%{_mandir}/man8/upsdrvctl.8.bz2
-%{_mandir}/man8/mge-shut.8.bz2
-%{_mandir}/man8/energizerups.8.bz2
-%{_mandir}/man8/safenet.8.bz2
-%{_mandir}/man8/hidups.8.bz2
-%{_mandir}/man8/newhidups.8.bz2
-%{_mandir}/man8/ippon.8.bz2
-%{_mandir}/man8/bestfcom.8.bz2
-%{_mandir}/man8/metasys.8.bz2
-%{_mandir}/man8/mustek.8.bz2
-%{_mandir}/man8/powermust.8.bz2
+%{_mandir}/man5/ups.conf.5*
+%{_mandir}/man5/upsd.conf.5*
+%{_mandir}/man5/upsd.users.5*
+%{_mandir}/man8/*.8*
+%exclude %{_mandir}/man8/upsc.8*
+%exclude %{_mandir}/man8/upscmd.8*
+%exclude %{_mandir}/man8/upsrw.8*
+%exclude %{_mandir}/man8/upslog.8*
+%exclude %{_mandir}/man8/upsmon.8*
+%exclude %{_mandir}/man8/upssched.8*
 
 %files devel
 %defattr(-,root,root)
 %{_includedir}/*.h
 %{_libdir}/libupsclient.a
-%{_mandir}/man3/upscli_*.3.bz2
+%{_mandir}/man3/upscli_*.3*
+
+%files doc
+%defattr(-,root,root)
+%doc CHANGES COPYING CREDITS INSTALL MAINTAINERS NEWS README UPGRADING docs
 
 
 %changelog
+* Fri Jul 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.3
+- 2.0.3
+- drop P1
+- fully include snmp support
+- add -doc subpackage
+- rebuild with gcc4
+- rebuild against new libusb
+- fix source url
+- simplify manpage listing
+- use %%_sourcedir/file instead of %%{SOURCEx}
+
 * Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.1
 - fix group
 
@@ -404,7 +398,7 @@ cp -af data/driver.list docs/
 
 * Thu Nov 14 2002 Arnaud de Lorbeau <adelorbeau@mandrakesoft.com> 1.2.0-1mdk
 - New Release
-- Do not use the buggy macro %_pre_groupadd anymore
+- Do not use the buggy macro %%_pre_groupadd anymore
 - Create the devel package
 
 * Thu Aug 29 2002 Arnaud de Lorbeau <adelorbeau@mandrakesoft.com> 1.0.0-4mdk
@@ -421,7 +415,7 @@ cp -af data/driver.list docs/
 * Wed Aug 21 2002 Arnaud de Lorbeau <adelorbeau@mandrakesoft.com> 1.0.0-1mdk
 - New release
 - Use rpm-helper
-- Add some new manuals to %files
+- Add some new manuals to %%files
 
 * Mon Jul 22 2002 Arnaud de Lorbeau <adelorbeau@mandrakesoft.com> 0.50.0-1mdk
 - New release
@@ -432,7 +426,7 @@ cp -af data/driver.list docs/
 
 * Wed Oct 24 2001 Peter Bieringer <pb@bieringer.de> (0.45.3pre1)
 - Take man path given by rpm instead of hardwired
-- Add some missing man pages to %files
+- Add some missing man pages to %%files
 
 * Wed Feb 07 2001 Karl O. Pinc <kop@meme.com> (0.44.3-pre2)
 - Cgi package buildrequires gd >= 1.6
