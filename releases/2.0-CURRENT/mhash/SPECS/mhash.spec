@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		mhash
-%define version		0.9.2
+%define version		0.9.7.1
 %define release		%_revrel
 
 %define major		2
@@ -22,11 +22,9 @@ Release:	%{release}
 License:	BSD
 Group:		System/Libraries
 URL:		http://mhash.sourceforge.net/
-Source:		%{name}-%{version}.tar.bz2
+Source:		http://umn.dl.sourceforge.net/sourceforge/mhash/%{name}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	autoconf2.5
-BuildRequires:	automake1.7
 
 %description
 Mhash is a thread-safe hash library, implemented in C, and provides a
@@ -54,11 +52,20 @@ following RFC 2104.
 Summary:	Header files and libraries for developing apps which will use mhash
 Group:		Development/C
 Requires:	%{libname} = %{version}
-Provides:	libmhash-devel
+Provides:	libmhash-devel = %{version}
+Provides:	mhash-devel = %{version}
 
 %description -n	%{libname}-devel
 The mhash-devel package contains the header files and libraries needed
 to develop programs that use the mhash library.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -66,16 +73,14 @@ to develop programs that use the mhash library.
 
 
 %build
-export WANT_AUTOCONF_2_5="1"
-rm -f configure
-libtoolize --copy --force && aclocal-1.7 && autoheader && automake-1.7 -a -c && autoconf
-
 %configure2_5x \
     --enable-static \
     --enable-shared
 
 %make
 
+
+%check
 make check
 
 
@@ -83,6 +88,9 @@ make check
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 
+# install all headers
+install -m 0644 include/*.h %{buildroot}%{_includedir}/
+install -m 0644 include/mutils/*.h %{buildroot}%{_includedir}/mutils/
 
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
@@ -94,23 +102,35 @@ make check
 
 %files -n %{libname}
 %defattr(-,root,root)
-%{_libdir}/*.so.*
+%{_libdir}/*.so.%{major}*
 
 %files -n %{libname}-devel
 %defattr(-, root, root)
-%doc AUTHORS COPYING INSTALL ChangeLog NEWS README TODO doc/*.txt doc/*.c doc/skid2* 
 %{_mandir}/man3/*
 %{_libdir}/*.a
 %{_libdir}/*.la
 %{_libdir}/*.so
 %{_includedir}/*.h
+%dir %{_includedir}/mutils
+%{_includedir}/mutils/*.h
 
+%files doc
+%defattr(-, root, root)
+%doc AUTHORS COPYING INSTALL ChangeLog NEWS README TODO doc/*.txt doc/*.c doc/skid2* 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jul 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.9.7.1
+- 0.9.7.1
+- spec cleanups
+- drop buildreq's on autoconf/automake
+- fix source url
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.9.2
 - Clean rebuild
 
-* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.9.2
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
@@ -196,7 +216,7 @@ make check
 
 * Mon Jul 17 2000 Max Heijndijk <cchq@wanadoo.nl> 0.8.2-1
 - Updated to 0.8.2
-- Fixed %doc (missing files)
+- Fixed %%doc (missing files)
 
 * Sat Jun 10 2000 Kyle Wheeler <memoryhole@penguinpowered.com>
 - Updated for version 0.8.1
