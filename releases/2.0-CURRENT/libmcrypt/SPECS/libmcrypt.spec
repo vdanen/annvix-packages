@@ -76,6 +76,14 @@ develop programs that use the libmcrypt library.
 Install it if you want to develop such applications.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 
@@ -109,6 +117,8 @@ Install it if you want to develop such applications.
 
 %make
 
+
+%check
 make check
 
 
@@ -127,13 +137,17 @@ make check
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
+%files
+%defattr(-,root,root)
+%{_libdir}/%{name}/*.la
+%{_libdir}/%{name}/*.so
+
 %files -n %{libname}
 %defattr(-,root,root)
 %{_libdir}/*.so.*
 
 %files -n %{libname}-devel
 %defattr(-, root, root)
-%doc AUTHORS COPYING.LIB ChangeLog INSTALL KNOWN-BUGS NEWS README THANKS TODO doc/README.* doc/*.c
 %{_mandir}/man3/*
 %multiarch %{multiarch_bindir}/libmcrypt-config
 %{_bindir}/libmcrypt-config
@@ -147,17 +161,20 @@ make check
 %{_libdir}/*.a
 %{_libdir}/%{name}/*.a
 
-%files
-%defattr(-,root,root)
-%{_libdir}/%{name}/*.la
-%{_libdir}/%{name}/*.so
+%files doc
+%defattr(-, root, root)
+%doc AUTHORS COPYING.LIB ChangeLog INSTALL KNOWN-BUGS NEWS README THANKS TODO doc/README.* doc/*.c
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jul 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5.7
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5.7
 - Clean rebuild
 
-* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5.7
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
