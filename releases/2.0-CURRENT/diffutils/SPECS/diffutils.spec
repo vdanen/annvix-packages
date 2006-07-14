@@ -29,7 +29,6 @@ BuildRequires:	autoconf2.5
 Requires(post):	info-install
 Requires(preun): info-install
 
-
 %description
 Diffutils includes four utilities:  diff, cmp, diff3 and sdiff.
 
@@ -43,6 +42,14 @@ Diffutils includes four utilities:  diff, cmp, diff3 and sdiff.
   * The sdiff command can be used to merge two files interactively.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 %patch2 -p1 -b .i18n
@@ -52,6 +59,9 @@ Diffutils includes four utilities:  diff, cmp, diff3 and sdiff.
 autoconf
 %configure
 %make PR_PROGRAM=%{_prefix}/bin/pr
+
+
+%check
 make check
 
 
@@ -60,7 +70,7 @@ make check
 %makeinstall
 
 mkdir -p %{buildroot}%{_mandir}/man1
-bzcat %{SOURCE1}|tar xf - -C %{buildroot}%{_mandir}/man1/
+bzcat %{_sourcedir}/%{name}-manpages.tar.bz2 | tar xf - -C %{buildroot}%{_mandir}/man1/
 
 rm -fr %{buildroot}%{_infodir}/dir
    
@@ -85,12 +95,21 @@ rm -fr %{buildroot}%{_infodir}/dir
 %{_mandir}/man*/*
 %{_infodir}/diff.info*
 
+%files doc
+%defattr(-,root,root)
+%doc NEWS README
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jul 14 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- add -doc subpackage
+- rebuild with gcc4
+- use %%_sourcedir/file instead of %%{SOURCEx}
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.8.4
 - Clean rebuild
 
-* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.8.4
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - fix prereq
@@ -191,7 +210,7 @@ rm -fr %{buildroot}%{_infodir}/dir
 - Add defattr.
 
 * Wed Jun 23 1999 Chmouel Boudjnah <chmouel@mandrakesoft.com>
-- listing man-pages in %files.
+- listing man-pages in %%files.
 
 * Fri Apr  9 1999 Bernhard Rosenkraenzer <bero@linux-mandrake.com>
 - Mandrake adaptions
@@ -200,7 +219,7 @@ rm -fr %{buildroot}%{_infodir}/dir
 
 * Sun Mar 14 1999 Jeff Johnson <jbj@redhat.com>
 - add man pages (#831).
-- add %configure and Prefix.
+- add %%configure and Prefix.
 
 * Thu Dec 17 1998 Cristian Gafton <gafton@redhat.com>
 - build for glibc 2.1
@@ -212,7 +231,7 @@ rm -fr %{buildroot}%{_infodir}/dir
 - translations modified for de, fr, tr
 
 * Sun May 03 1998 Cristian Gafton <gafton@redhat.com>
-- fixed spec file to reference/use the %{buildroot} always
+- fixed spec file to reference/use the %%{buildroot} always
 
 * Wed Dec 31 1997 Otto Hammersmith <otto@redhat.com>
 - fixed where it looks for 'pr' (/usr/bin, rather than /bin)
