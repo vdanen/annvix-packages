@@ -9,24 +9,27 @@
 
 %define revision	$Rev$
 %define name		less
-%define version		382
+%define version		394
 %define release		%_revrel
 
-%define lessp_ver	1.52
+%define lessp_ver	1.53
 
 Summary:	A text file browser similar to more, but better
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
-Group:		File tools
+Group:		File Tools
 URL:		http://www.greenwoodsoftware.com/less
 Source:		ftp://ftp.gnu.org/pub/gnu/less/%{name}-%{version}.tar.bz2
 Source1:	faq_less.html
 Source2:	http://www-zeuthen.desy.de/~friebel/unix/less/lesspipe-%{lessp_ver}.tar.bz2
-Patch0:		less-374-manpages.patch
-Patch1:		lesspipe.lynx_for_html.patch
-Patch2:		lesspipe-1.50-posix.patch
+Patch0:		less-374-mdv-manpages.patch
+Patch1:		lesspipe.lynx_for_html-mdv.patch
+Patch2:		lesspipe-1.53-mdv-posix.patch
+Patch3:		less-382-fdr-fixline.patch
+Patch4:		less-392-fdr-Foption.patch
+Patch5:		lesspipe-1.53-mdv-no-o3read.patch
 
 Buildroot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	ncurses-devel
@@ -42,15 +45,26 @@ before it starts, less starts up more quickly than text editors (for
 example, vi). 
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -a 2
 %patch0 -p1
 pushd lesspipe-%{lessp_ver}
 %patch1 -p1
 %patch2 -p1
+%patch5 -p1
 chmod a+r *
 popd
 
+%patch3 -p1 -b .fixline
+%patch4 -p1 -b .Foption
 
 
 %build
@@ -59,7 +73,7 @@ CFLAGS=$(echo "%{optflags} -DHAVE_LOCALE" | sed -e s/-fomit-frame-pointer//)
 %make 
 
 pushd lesspipe-%{lessp_ver}
-    yes | ./configure
+    ./configure --yes
 popd
 
 
@@ -128,18 +142,32 @@ install -m 0644 lessecho.1 %{buildroot}%{_mandir}/man1
 
 %files
 %defattr(-,root,root)
-%doc faq_less.html lesspipe-%{lessp_ver}/{BUGS,COPYING,ChangeLog,README,english.txt}
-%doc README.avx
 %attr(755,root,root) %{_bindir}/*
 %{_mandir}/man1/*
 %attr(755,root,root)%_sysconfdir/profile.d/*
 
+%files doc
+%defattr(-,root,root)
+%doc faq_less.html lesspipe-%{lessp_ver}/{BUGS,COPYING,ChangeLog,README,english.txt}
+%doc README.avx
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jul 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 394
+- 394
+- lesspipe 1.53
+- add -doc subpackage
+- rebuild with gcc4
+- use %%_sourcedir/file instead of %%{SOURCEx}
+- rediffed P2 from Mandriva
+- P3: fix display of bogus newline for growing files (fedora)
+- P4: fix the -F option (fedora)
+- P5: improved less config (mdv)
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 382
 - Clean rebuild
 
-* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 382
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
