@@ -20,10 +20,10 @@ License: 	GPL
 Group: 		System/Base
 URL:		ftp://jurix.jura.uni-sb.de/pub/linux/source/system/daemon/
 Source0: 	ftp://jurix.jura.uni-sb.de/pub/linux/source/system/daemons/%{name}-%{version}.tar.bz2
-BuildRequires:	dietlibc-devel >= 0.27
 Patch0:		mingetty-1.00-opt.patch
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
+BuildRequires:	dietlibc-devel >= 0.27
 
 %description
 The mingetty program is a lightweight, minimalist getty program for
@@ -67,14 +67,18 @@ install -m 0644 mingetty.8 %{buildroot}/%{_mandir}/man8/
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jul 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.07
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.07
 - Clean rebuild
 
-* Fri Dec 30 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Dec 30 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.07
 - re-enable dietlibc build on x86_64; have to specify the explicit
   arch'd compiler to use for it to work properly
 
-* Thu Dec 29 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Dec 29 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.07
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - once again there are problems building against dietlibc on x86_64;
