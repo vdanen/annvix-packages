@@ -39,6 +39,14 @@ specified network host and can tell you if that machine is alive and
 receiving network traffic.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n %{name} -a 1
 
@@ -105,7 +113,6 @@ install -c doc/tracepath.8 %{buildroot}%{_mandir}/man8/
 
 %files
 %defattr(-,root,root)
-%doc RELNOTES bonding*/README.ifenslave
 %{_sbindir}/clockdiff
 %attr(0700,root,root)	/bin/ping
 /sbin/arping
@@ -120,12 +127,20 @@ install -c doc/tracepath.8 %{buildroot}%{_mandir}/man8/
 %{_sbindir}/rdisc
 %{_mandir}/man8/*
 
+%files doc
+%defattr(-,root,root)
+%doc RELNOTES bonding*/README.ifenslave
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jul 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 20020927
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 20020927
 - Clean rebuild
 
-* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 20020927
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
