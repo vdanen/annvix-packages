@@ -17,7 +17,7 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
-Group:		File tools
+Group:		File Tools
 URL:		http://mcrypt.sourceforge.net/
 Source0:	%{name}-%{version}.tar.bz2
 
@@ -26,13 +26,21 @@ BuildRequires:	libmhash-devel >= 0.8.15
 BuildRequires:	libmcrypt-devel >= 2.5.0, libltdl-devel
 
 %description
-A replacement for the old unix crypt(1) command. Mcrypt
-uses the following encryption (block) algorithms: BLOWFISH,
-DES, TripleDES, 3-WAY, SAFER-SK64, SAFER-SK128, CAST-128, RC2
-TEA (extended), TWOFISH, RC6, IDEA and GOST. The unix crypt
-algorithm is also included, to allow compatibility with the
+A replacement for the old unix crypt(1) command. Mcrypt uses the following
+encryption (block) algorithms: BLOWFISH, DES, TripleDES, 3-WAY, SAFER-SK64,
+SAFER-SK128, CAST-128, RC2 TEA (extended), TWOFISH, RC6, IDEA and GOST. The
+unix crypt algorithm is also included, to allow compatibility with the
 crypt(1) command.
+
 CBC, ECB, OFB and CFB modes of encryption are supported.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -57,16 +65,25 @@ CBC, ECB, OFB and CFB modes of encryption are supported.
 
 %files -f %{name}.lang
 %defattr(-,root,root)
-%doc ABOUT-NLS AUTHORS ChangeLog COPYING INSTALL NEWS README THANKS TODO doc/FORMAT doc/magic doc/sample*
 %{_bindir}/*
 %{_mandir}/man1/*
 
+%files doc
+%defattr(-,root,root)
+%doc ABOUT-NLS AUTHORS ChangeLog COPYING INSTALL NEWS README THANKS TODO doc/FORMAT doc/magic doc/sample*
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jul 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.4
+- add -doc subpackage
+- rebuild with gcc4
+- rebuild against new mhash
+- fix description and group
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.4
 - Clean rebuild
 
-* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.4
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
