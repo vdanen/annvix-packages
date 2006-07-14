@@ -22,6 +22,7 @@ Version:	%{version}
 Release:	%{release}
 License:	BSD-like and LGPL
 Group:		System/Libraries
+URL:		ftp://ftp.kernel.org/pub/linux/libs/security/linux-privs/kernel-2.4
 Source:		ftp://ftp.kernel.org/pub/linux/libs/security/linux-privs/kernel-2.4/%{name}-%{version}.tar.bz2
 Patch0:		libcap-1.10-fdr-userland.patch
 Patch1:		libcap-1.10-fdr-shared.patch
@@ -38,7 +39,6 @@ draft 15 capabilities.
 Summary:	Library for getting and setting POSIX.1e capabilities
 Group:		System/Libraries
 Obsoletes:	libcap
-Provides:	libcap
 Provides:	libcap = %{version}
 
 %description -n %{libname}
@@ -54,10 +54,30 @@ Provides:	libcap-devel = %{version}-%{release}
 Requires:	%{libname} = %{version}
 
 %description -n %{libname}-devel
-Development files (Headers, libraries for static linking, etc) for libcap.
-
 libcap is a library for getting and setting POSIX.1e (formerly POSIX 6)
 draft 15 capabilities.
+
+Development files (Headers, libraries for static linking, etc) for libcap.
+
+
+%package utils
+Summary:	Administration tools for POSIX.1e capabilities
+Group:		System/Base
+Requires:	%{libname} = %{version}
+
+%description utils
+libcap is a library for getting and setting POSIX.1e (formerly POSIX 6)
+draft 15 capabilities.
+
+This package contains utilities to control these capabilities.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -88,14 +108,17 @@ chmod +x %{buildroot}%{_libdir}/*.so.*
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
-%post -p /sbin/ldconfig
-%postun -p /sbin/ldconfig
+%post -n %{libname} -p /sbin/ldconfig
+%postun -n %{libname} -p /sbin/ldconfig
 
+
+%files utils
+%defattr(-,root,root)
+%{_sbindir}/*
 
 %files -n %{libname}
 %defattr(-,root,root)
 %{_libdir}/*.so.*
-%{_sbindir}/*
 
 %files -n %{libname}-devel
 %defattr(-,root,root)
@@ -104,12 +127,23 @@ chmod +x %{buildroot}%{_libdir}/*.so.*
 %{_mandir}/man2/*
 %{_mandir}/man3/*
 
+%files doc
+%defattr(-,root,root)
+%doc CHANGELOG License README
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jul 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.10
+- rebuild with gcc4
+- add -doc subpackage
+- add -doc subpackage
+- fix calls to ldconfig
+- spec cleanups
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.10
 - Clean rebuild
 
-* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.10
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
