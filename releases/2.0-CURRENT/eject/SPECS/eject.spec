@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		eject
-%define version 	2.1.4
+%define version 	2.1.5
 %define release		%_revrel
 
 Summary:	A program that ejects removable media using software control
@@ -19,7 +19,7 @@ Release:	%{release}
 License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://ca.geocities.com/jefftranter%40rogers.com/eject.html
-Source:		http://ca.geocities.com/jefftranter%40rogers.com/eject-2.1.4.tar.gz
+Source:		http://ca.geocities.com/jefftranter%40rogers.com/%{name}-%{version}.tar.gz
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	gettext, automake1.9
@@ -29,6 +29,14 @@ The eject program allows the user to eject removable media
 (typically CD-ROMs, floppy disks or Iomega Jaz or Zip disks)
 using software control. Eject can also control some multi-
 disk CD changers and even some devices' auto-eject features.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -47,6 +55,9 @@ mkdir -p %{buildroot}%{_mandir}/man1
 
 %makeinstall ROOTDIR=%{buildroot} PREFIX=%{buildroot}/%{_prefix}
 
+# remove invalid locales
+rm -rf %{buildroot}%{_datadir}/locale/cs_CZ
+
 %find_lang %{name}
 
 
@@ -62,20 +73,30 @@ mkdir -p %{buildroot}%{_mandir}/man1
 %{_mandir}/man1/eject.1*
 %{_mandir}/man1/volname.1*
 
+%files doc
+%defattr(-,root,root)
+%doc README TODO COPYING ChangeLog
+
 
 %changelog
-* Wed Jan 25 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jul 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1.5
+- 2.1.5
+- add -doc subpackage
+- rebuild with gcc4
+- remove invalid locale directory
+
+* Wed Jan 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1.4
 - 2.1.4
 - update URL
 - BuildRequires: automake1.9
 
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.13
 - Clean rebuild
 
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.13
 - Clean rebuild
 
-* Wed Jan 04 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.13
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
