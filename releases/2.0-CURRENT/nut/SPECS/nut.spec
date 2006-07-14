@@ -77,7 +77,6 @@ package.
 %package devel
 Summary:	Development for NUT Client
 Group:		Monitoring
-Prereq:		rpm-helper >= 0.8
 
 %description devel
 This package contains the development header files and libraries
@@ -261,6 +260,7 @@ cp -af data/driver.list docs/
 - fix source url
 - simplify manpage listing
 - use %%_sourcedir/file instead of %%{SOURCEx}
+- drop useless prereq on rpm-helper (for -devel)
 
 * Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.1
 - fix group
