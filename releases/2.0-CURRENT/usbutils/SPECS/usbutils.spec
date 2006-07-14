@@ -59,6 +59,9 @@ rm -f %{buildroot}{%{_includedir}/libusb.h,%{_libdir}/libusb*}
 
 
 %changelog
+* Fri Jul 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.72
+- rebuild against new libusb
+
 * Fri Jun 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.72
 - 0.72
 - use the usb.ids provided in the package rather than an external source
