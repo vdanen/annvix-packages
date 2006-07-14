@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		libutempter
-%define version		1.1.1
+%define version		1.1.4
 %define release		%_revrel
 %define sname		utempter
 
@@ -23,6 +23,7 @@ Version:	%{version}
 Release:	%{release}
 License:	LGPL
 Group:		System/Libraries
+URL:		http://www.altlinux.org
 Source:		ftp://ftp.altlinux.org/pub/people/ldv/utempter/%{name}-%{version}.tar.bz2
 Source1:	ftp://ftp.altlinux.org/pub/people/ldv/utempter/%{name}-%{version}.tar.bz2.asc
 
@@ -63,6 +64,14 @@ Requires:	%{libname} = %{version}
 Header files for writing apps using libutempter
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 
@@ -89,7 +98,6 @@ make CC=gcc libexecdir="%{_libexecdir}"
 
 %files -n %{libname}
 %defattr(-,root,root)
-%doc COPYING README
 %attr(710,root,utempter) %dir %{_libexecdir}/utempter
 %attr(2711,root,utmp) %{_libexecdir}/utempter/utempter
 %{_libdir}/libutempter.so.*
@@ -100,12 +108,21 @@ make CC=gcc libexecdir="%{_libexecdir}"
 %{_libdir}/libutempter.a
 %{_includedir}/utempter.h
 
+%files doc
+%defattr(-,root,root)
+%doc COPYING README
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jul 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.1.4
+- 1.1.4
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.1.1
 - Clean rebuild
 
-* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.1.1
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - fix prereq
