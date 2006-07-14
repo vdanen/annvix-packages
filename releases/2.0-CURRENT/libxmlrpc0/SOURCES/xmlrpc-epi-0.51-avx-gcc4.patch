@@ -1,0 +1,11 @@
+--- xmlrpc-epi-0.51/src/xml_element.c.gcc4	2006-07-14 16:38:18.000000000 -0600
++++ xmlrpc-epi-0.51/src/xml_element.c	2006-07-14 16:38:36.000000000 -0600
+@@ -170,7 +170,7 @@
+ 
+       Q_Destroy(&root->children);
+       Q_Destroy(&root->attrs);
+-      my_free((char*)root->name);
++      my_free(root->name);
+       simplestring_free(&root->text);
+       my_free(root);
+    }

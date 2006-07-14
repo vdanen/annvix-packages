@@ -26,6 +26,7 @@ Group: 		System/Libraries
 URL:		http://xmlrpc-epi.sourceforge.net/
 Source0:	xmlrpc-epi-%{version}.tar.bz2
 Patch0:		xmlrpc-epi-0.51-64bit-fixes.patch
+Patch1:		xmlrpc-epi-0.51-avx-gcc4.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -53,9 +54,18 @@ based upon proprietary code written for internal usage at Epinions.com, and
 was later modified to incorporate concepts from the xmlrpc protocol.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n xmlrpc-epi-%{version}
 %patch0 -p1 -b .64bit-fixes
+%patch1 -p1 -b .gcc4
 
 # Make it lib64 aware
 find . -name Makefile.in | xargs perl -pi -e "s,-L\@prefix\@/lib,,g"
@@ -90,23 +100,30 @@ rm -f %{buildroot}%{_bindir}/{client,hello_{client,server},memtest,sample,server
 
 %files
 %defattr(-, root, root)
-%doc AUTHORS COPYING ChangeLog README
 %{_libdir}/lib*.so.*
 
 %files devel
 %defattr(-, root, root)
-%doc INSTALL
 %{_includedir}/*
 %{_libdir}/lib*.so
 %{_libdir}/lib*.la
 %{_libdir}/lib*.a
 
+%files doc
+%defattr(-, root, root)
+%doc AUTHORS COPYING ChangeLog README INSTALL
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jul 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.51
+- add -doc subpackage
+- rebuild with gcc4
+- P1: make it compile with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.51
 - Clean rebuild
 
-* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.51
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
