@@ -114,6 +114,9 @@ install -m 0644 %{SOURCE6} %{buildroot}%{_datadir}/afterboot/98_aide
 
 
 %changelog
+* Fri Jul 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.11
+- rebuild against new mhash
+
 * Tue May 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.11
 - add -doc subpackage
 - rebuild with gcc4
