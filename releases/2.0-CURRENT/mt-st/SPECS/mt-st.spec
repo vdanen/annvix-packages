@@ -30,6 +30,14 @@ programs. Mt (for magnetic tape drives) and st (for SCSI tape devices)
 can control rewinding, ejecting, skipping files and blocks and more.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 
@@ -55,14 +63,21 @@ mkdir -p %{buildroot}%{_mandir}/man{1,8}
 
 %files
 %defattr(-,root,root)
-%doc COPYING README README.stinit mt-st-%{version}.lsm stinit.def.examples
 /bin/mt
 /sbin/stinit
 %{_mandir}/man1/mt.1*
 %{_mandir}/man8/stinit.8*
 
+%files doc
+%defattr(-,root,root)
+%doc COPYING README README.stinit mt-st-%{version}.lsm stinit.def.examples
+
 
 %changelog
+* Fri Jul 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.8
+- add -doc subpackage
+- rebuild with gcc4
+
 * Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.8
 - fix group
 
