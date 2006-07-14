@@ -137,6 +137,9 @@ EOF
 
 
 %changelog
+* Fri Jul 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.0.2
+- rebuild against new libutempter
+
 * Tue Jun 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.0.2
 - add -doc subpackage
 - rebuild with gcc4
