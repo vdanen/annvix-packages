@@ -17,7 +17,7 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	BSD
-Group:		File tools
+Group:		File Tools
 URL:		ftp://ftp.openbsd.org/pub/OpenBSD/src/usr.bin/mktemp/
 Source:		mktemp-%{version}.tar.bz2
 Patch0:		mktemp-1.6-avx-makefile.patch
@@ -58,10 +58,13 @@ perl -pi -e "s!/usr/man!%{_mandir}!g" Makefile
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jul 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.6
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.6
 - Clean rebuild
 
-* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.6
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
