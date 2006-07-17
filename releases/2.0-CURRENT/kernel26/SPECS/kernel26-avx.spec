@@ -10,7 +10,7 @@
 %define revision	$Rev$
 %define kname		kernel26
 %define sublevel	16
-%define minlevel	22
+%define minlevel	27
 %define avxrelease	%(echo %{revision}|cut -d ' ' -f 2)
 
 %define tar_version	2.6.%{sublevel}.%{minlevel}
@@ -774,6 +774,10 @@ exit 0
 
 
 %changelog
+* Mon Jul 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.27
+- 2.6.16.27 (fixes a whole bunch of security issues... I'm still not sure
+  about using this as the default kernel...)
+
 * Mon Jun 26 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.22
 - 2.6.16.22
 - renamed RSBAC to SL63 and SL64; updated to 1.2.7
