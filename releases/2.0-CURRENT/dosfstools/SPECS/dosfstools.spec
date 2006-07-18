@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		dosfstools
-%define version 	2.10
+%define version 	2.11
 %define release 	%_revrel
 
 Summary:	Utilities to create and check MS-DOS FAT filesystems
@@ -17,11 +17,13 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
-Group:		File tools
+Group:		File Tools
 URL:		ftp://ftp.uni-erlangen.de/pub/Linux/LOCAL/dosfstools
 Source:		ftp://ftp.uni-erlangen.de/pub/Linux/LOCAL/dosfstools/%{name}-%{version}.src.tar.bz2
-Source1:	msdos_fs.h
-Patch0:		dosfstools-2.10-compile-against-2.4-header.patch
+Patch0:		dosfstools-2.7-argfix.patch
+Patch1:		dosfstools-2.11-assumeKernel26.patch
+Patch2:		dosfstools-2.11-lseek.patch
+Patch3:		dosfstools-2.11-fortify.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -36,14 +38,24 @@ format of DOS 3.3+ as well as provides a default dummy boot sector
 code.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
-%patch0 -p1 -b .kern24
-cat %{SOURCE1} >dosfsck/msdos_fs.h
+%patch0 -p1 -b .argfix
+%patch1 -p1 -b .assumeKernel26
+%patch2 -p1 -b .lseek
+%patch3 -p1 -b .fortify
 
 
 %build
-%make PREFIX=%{_prefix} CFLAGS="%{optflags}"
+%make PREFIX=%{_prefix} CFLAGS="%{optflags} -Dllseek=lseek64 -D_LARGEFILE64_SOURCE"
 
 
 %install
@@ -61,19 +73,29 @@ rm -f %{buildroot}/sbin/fsck.*
 
 %files
 %defattr(-,root,root)
-%doc CHANGES TODO README.fsck README.mkdosfs dosfsck/COPYING
 /sbin/mkdosfs
 /sbin/mkfs.msdos
 /sbin/mkfs.vfat
 /sbin/dosfsck
 %{_mandir}/man8/*
 
+%files doc
+%defattr(-,root,root)
+%doc CHANGES TODO README.fsck README.mkdosfs dosfsck/COPYING
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jul 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.11
+- 2.11
+- sync patches with Mandriva
+- drop S1; building against 2.6 headers
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.10
 - Clean rebuild
 
-* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.10
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - drop P1: it breaks the build
@@ -137,7 +159,7 @@ rm -f %{buildroot}/sbin/fsck.*
 - Stefan van der Eijk <s.vandereijk@chello.nl>
 	* makeinstall macro
 	* macroszifications
-	* added %clean
+	* added %%clean
 
 * Fri Mar 31 2000 François Pons <fpons@mandrakesoft.com> 2.4-1mdk
 - updated Group.
