@@ -35,8 +35,15 @@ reverse IPv6 zones to DNS or using in DNS queries like nslookup -q=ANY
 http://www.bieringer.de/linux/IPv6/ipv6calc/ .
 
 
-%prep
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
 
+%description doc
+This package contains the documentation for %{name}.
+
+
+%prep
 %setup -q
 for i in `find . -type d -name CVS` `find . -type f -name .cvs\*` `find . -type f -name .#\*`; do
     if [ -e "$i" ]; then rm -r $i; fi >&/dev/null
@@ -52,9 +59,7 @@ done
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-install -d %{buildroot}/bin
-install -d %{buildroot}%{_bindir}
-
+mkdir -p %{buildroot}{%{_bindir},/bin}
 install -m 0755 ipv6calc/ipv6calc %{buildroot}/bin/
 install -m 0755 ipv6logconv/ipv6logconv %{buildroot}%{_bindir}/
 install -m 0755 ipv6logstats/ipv6logstats %{buildroot}%{_bindir}/
@@ -66,6 +71,12 @@ install -m 0755 ipv6logstats/ipv6logstats %{buildroot}%{_bindir}/
 
 %files
 %defattr(-,root,root)
+%attr(0755,root,root) /bin/ipv6calc
+%attr(0755,root,root) %{_bindir}/ipv6logconv
+%attr(0755,root,root) %{_bindir}/ipv6logstats
+
+%files doc
+%defattr(-,root,root)
 %doc ChangeLog README CREDITS TODO
 %doc doc/ipv6calc.html ipv6calcweb/ipv6calcweb.cgi
 %doc examples/analog/analog-dist.cfg
@@ -73,15 +84,17 @@ install -m 0755 ipv6logstats/ipv6logstats %{buildroot}%{_bindir}/
 %doc examples/analog/analog-ipv6calc-descriptions.txt
 %doc examples/analog/ipv6calc.tab
 %doc examples/analog/run_analog.sh
-%attr(0755,root,root) /bin/ipv6calc
-%attr(0755,root,root) %{_bindir}/ipv6logconv
-%attr(0755,root,root) %{_bindir}/ipv6logstats
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jul 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.46
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.46
 - Clean rebuild
 
-* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.46
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
