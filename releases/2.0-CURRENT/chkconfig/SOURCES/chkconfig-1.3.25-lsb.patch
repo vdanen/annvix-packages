@@ -1,0 +1,230 @@
+--- chkconfig-1.3.25/chkconfig.c.lsb	2006-01-09 16:54:21.000000000 +0100
++++ chkconfig-1.3.25/chkconfig.c	2006-01-09 16:54:21.000000000 +0100
+@@ -43,7 +43,96 @@
+     exit(1);
+ }
+ 
+-static int delServiceOne(char *name, int level) {
++static void checkDependenciesOne(struct service *s, int level) {
++	DIR * dir;
++	struct dirent * ent;
++	struct stat sb;
++	struct service *servs = NULL;
++	int numservs = 0;
++	char fn[1024];
++	int i, j, k;
++	char deps[2048];
++	int isdep = 0;
++	glob_t globres;
++	int depunset;
++	
++	if (!(dir = opendir(RUNLEVELS "/init.d"))) {
++		fprintf(stderr, _("failed to open %s/init.d: %s\n"), RUNLEVELS,
++			strerror(errno));
++		return;
++	}
++
++	while ((ent = readdir(dir))) {
++
++		/* Skip files with known bad extensions */
++		if (strchr(ent->d_name, '~') || strchr(ent->d_name, ',') ||
++		    strchr(ent->d_name, '.')) continue;
++	
++		sprintf(fn, RUNLEVELS "/init.d/%s", ent->d_name);
++		if (stat(fn, &sb)) {
++			continue;
++		}
++		if (!S_ISREG(sb.st_mode)) continue;
++		if (!strcmp(ent->d_name, s->name)) continue;
++		servs = realloc(servs, (numservs+1) * sizeof(struct service));
++		if (!readServiceInfo(ent->d_name, servs + numservs, 0))
++			numservs++;
++	}
++	
++	for (i = 0; i < numservs ; i++) {
++	    findServiceEntries(servs[i].name, 0, &globres);
++	    if (!isOn(servs[i].name, level))
++		    continue;
++	    if (servs[i].startDeps) {
++		for (j = 0; servs[i].startDeps[j]; j++) {
++		    if (!strcmp(s->name, servs[i].startDeps[j])) {
++			strcat(deps, " ");			
++			strcat(deps, servs[i].name);
++			strcat(deps, "(start)");
++			isdep = 1;
++		    }
++		    if (s->provides) {
++			for (k = 0; s->provides[k]; k++) {
++			    if (!strcmp(s->provides[k], servs[i].startDeps[j])) {
++				strcat(deps, " ");			
++				strcat(deps, servs[i].name);
++				strcat(deps, "(start)");
++				isdep = 1;
++			    }
++			}
++		    }
++				
++		}
++								     
++	    }
++	    if (servs[i].stopDeps) {
++		for (j = 0; servs[i].stopDeps[j]; j++) {
++		    if (!strcmp(s->name, servs[i].stopDeps[j])) {
++			strcat(deps, " ");			
++			strcat(deps, servs[i].name);
++			strcat(deps, "(stop)");
++			isdep = 1;
++		    }
++		    if (s->provides) {
++			for (k = 0; s->provides[k]; k++) {
++			    if (!strcmp(s->provides[k], servs[i].stopDeps[j])) {
++				strcat(deps, " ");			
++				strcat(deps, servs[i].name);
++				strcat(deps, "(stop)");
++				isdep = 1;
++			    }
++			}
++		    }
++		}
++	   }
++	}
++	if (isdep) {
++		fprintf(stderr, "Needed by script(s) in runlevel %d:%s\n", level, deps);
++		exit(1);
++	}
++}
++
++static int delServiceOne(char *name, int level, int chkdep) {
+     int i, rc;
+     glob_t globres;
+     struct service s;
+@@ -56,6 +145,8 @@
+ 
+ 
+     if (!findServiceEntries(name, level, &globres)) {
++	    if (chkdep)
++		    checkDependenciesOne(&s, level);
+ 	    for (i = 0; i < globres.gl_pathc; i++)
+ 		    unlink(globres.gl_pathv[i]);
+ 	    if (globres.gl_pathc) globfree(&globres);
+@@ -63,7 +154,7 @@
+     return 0;
+ }
+ 
+-static int delService(char * name) {
++static int delService(char * name, int chkdep) {
+     int level, i, rc;
+     glob_t globres;
+     struct service s;
+@@ -80,6 +171,8 @@
+ 
+     for (level = 0; level < 7; level++) {
+ 	    if (!findServiceEntries(name, level, &globres)) {
++		    if (chkdep)
++			    checkDependenciesOne(&s, level);
+ 		    for (i = 0; i < globres.gl_pathc; i++)
+ 		      unlink(globres.gl_pathv[i]);
+ 		    if (globres.gl_pathc) globfree(&globres);
+@@ -106,34 +199,57 @@
+ 	return i;
+ }
+ 
++static void checkRequirementEnabled(struct service *s, struct service *req) {
++	int i;
++	for (i = 0; i < 7; i++) {
++		if (isOn(s->name, i) && !isOn(req->name, i)) {
++			fprintf(stderr, "%s is needed by %s in runlevel %d\n", req->name, s->name, i);
++			exit(1);
++		}
++	}
++}
++
+ static int frobOneDependencies(struct service *s, struct service *servs, int numservs, int target) {
+ 	int i, j, k;
+ 	int s0 = s->sPriority;
+ 	int k0 = s->kPriority;
++	int chkdep = 0;
+ 
+ 	if (s->sPriority < 0) s->sPriority = 50;
+ 	if (s->kPriority < 0) s->kPriority = 50;
+ 	for (i = 0; i < numservs ; i++) {
+ 		if (s->startDeps) {
+ 			for (j = 0; s->startDeps[j] ; j++) {
+-				if (!strcmp(s->startDeps[j], servs[i].name))
++				if (!strcmp(s->startDeps[j], servs[i].name)) {
++					if (target)
++						checkRequirementEnabled(s, servs + i);
+ 					s->sPriority = laterThan(s->sPriority, servs[i].sPriority);
++				}
+ 				if (servs[i].provides) {
+ 					for (k = 0; servs[i].provides[k]; k++) {
+-						if (!strcmp(s->startDeps[j], servs[i].provides[k]))
++						if (!strcmp(s->startDeps[j], servs[i].provides[k])) {
++							if (target)
++								checkRequirementEnabled(s, servs + i);
+ 							s->sPriority = laterThan(s->sPriority, servs[i].sPriority);
++						}
+ 					}
+ 				}
+ 			}
+ 		}
+ 		if (s->stopDeps) {
+ 			for (j = 0; s->stopDeps[j] ; j++) {
+-				if (!strcmp(s->stopDeps[j], servs[i].name))
++				if (!strcmp(s->stopDeps[j], servs[i].name)) {
++					if (target)
++						checkRequirementEnabled(s, servs + i);
+ 					s->kPriority = earlierThan(s->kPriority, servs[i].kPriority);
++				}
+ 				if (servs[i].provides) {
+ 					for (k = 0; servs[i].provides[k]; k++) {
+-						if (!strcmp(s->stopDeps[j], servs[i].provides[k]))
++						if (!strcmp(s->stopDeps[j], servs[i].provides[k])) {
++							if (target)
++								checkRequirementEnabled(s, servs + i);
+ 							s->kPriority = earlierThan(s->kPriority, servs[i].kPriority);
++						}
+ 					}
+ 				}
+ 			}
+@@ -143,7 +259,7 @@
+ 	if (target || ((s0 != s->sPriority) || (k0 != s->kPriority))) {
+ 		for (i = 0; i < 7; i++) {
+ 			if (isConfigured(s->name, i) || target) {
+-				delServiceOne(s->name,i);
++				delServiceOne(s->name,i,chkdep);
+ 				doSetService(*s, i, ((1 << i) & s->levels));
+ 			}
+ 		}
+@@ -449,6 +565,7 @@
+     int listItem = 0, addItem = 0, delItem = 0;
+     int rc, i, x;
+     int LSB = 0;
++    int chkdep = 0;
+     char * levels = NULL;
+     int help=0, version=0;
+     struct service s;
+@@ -508,7 +625,7 @@
+ 	char * name = (char *)poptGetArg(optCon);
+ 
+ 	if (!(!name || !*name || poptGetArg(optCon)))
+-		delService(name);
++		delService(name, chkdep);
+ 
+ 	if (!name || !*name || poptGetArg(optCon)) 
+ 	    usage();
+@@ -518,12 +635,13 @@
+ 	return addService(name);
+     } else if (delItem) {
+ 	char * name = (char *)poptGetArg(optCon);
++	chkdep = 1;
+ 
+ 	if (!name || !*name || poptGetArg(optCon)) usage();
+ 
+ 	if (LSB)
+ 		    name = basename(name);
+-	return delService(name);
++	return delService(name, chkdep);
+     } else if (listItem) {
+ 	char * item = (char *)poptGetArg(optCon);
+ 

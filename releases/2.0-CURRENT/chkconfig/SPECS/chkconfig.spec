@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		chkconfig
-%define version		1.3.20
+%define version		1.3.25
 %define release		%_revrel
 
 Summary:	A system tool for maintaining the /etc/rc*.d hierarchy
@@ -24,15 +24,15 @@ Patch1:		ntsysv-mdkconf.patch
 Patch3:		chkconfig-runleveldir.patch
 Patch4:		ntsysv-tvman.patch
 Patch5:		chkconfig-fix.patch
-Patch6:		chkconfig-1.3.20-adddelxinetd.patch
 Patch7:		chkconfig-1.3.4-list.patch
 Patch8:		chkconfig-1.3.4-skip-files-with-dot.patch
 Patch10:	chkconfig-1.3.11-fix-errno-xinetddotd.patch
-Patch11:	chkconfig-1.3.20-lsb.patch
+Patch11:	chkconfig-1.3.25-lsb.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	gettext, newt-devel, popt-devel, slang
 
+Requires(pre):	initscripts
 Conflicts:	rpm-helper < 0.6
 
 %description
@@ -59,7 +59,6 @@ the numerous symbolic links in /etc/rc*.d.
 %patch3 -p1 -b .runleveldir
 %patch4 -p0 -b .tvman
 %patch5 -p0 -b .fix
-%patch6 -p1 -b .adddelxinetd
 %patch7 -p1 -b .list
 %patch8 -p1 -b .skip-files-with-dot
 %patch10 -p1 -b .fix-errno-xinetddotd
@@ -96,6 +95,9 @@ rm -rf %{buildroot}%{_datadir}/locale/{in,in_ID} || :
 # we use our own alternative system
 rm -f %{buildroot}%{_sbindir}/{alternatives,update-alternatives} %{buildroot}%{_mandir}/man8/alternatives.8*
 
+# remove invalid locales
+rm -rf %{buildroot}%{_datadir}/locale/{bn_IN,si}
+
 %find_lang %{name}
 
 
@@ -105,10 +107,11 @@ rm -f %{buildroot}%{_sbindir}/{alternatives,update-alternatives} %{buildroot}%{_
 
 %files -f %{name}.lang
 %defattr(-,root,root)
-/sbin/chkconfig
+%attr(0750,root,admin) /sbin/chkconfig
 %{_mandir}/man8/chkconfig.8*
-%dir %{_sysconfdir}/rc.d/init.d
-%dir %{_sysconfdir}/rc.d/rc*
+%attr(0750,root,admin) %dir %{_sysconfdir}/rc.d
+%attr(0750,root,admin) %dir %{_sysconfdir}/rc.d/init.d
+%attr(0750,root,admin) %dir %{_sysconfdir}/rc.d/rc*
 %{_sysconfdir}/init.d
 
 %files -n ntsysv
@@ -118,6 +121,18 @@ rm -f %{buildroot}%{_sbindir}/{alternatives,update-alternatives} %{buildroot}%{_
 
 
 %changelog
+* Tue Jul 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.25
+- 1.3.25
+- updated P11 from Mandriva:
+  - drop hybrid LSB support, mostly merged upstream
+  - simplify requirements check on delete
+  - check for requirements when on add
+- drop P6; we don't use xinetd
+- own and set perms for /etc/rc.d (750/root:admin)
+- chkconfig doesn't need to be run by normal users so fix it's perms too
+- add -doc subpackage
+- rebuild with gcc4
+
 * Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.20
 - fix group
 
