@@ -5,16 +5,14 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-# sync: rh-2.4.7-7
-#
 # $Id$
 
 %define revision	$Rev$
 %define name		iproute2
-%define version		2.4.7
+%define version		2.6.16
 %define release		%_revrel
 
-%define snap		010824
+%define snap		060323
 
 Summary: 	Advanced IP routing and network device configuration tools
 Name:		%{name}
@@ -22,27 +20,18 @@ Version: 	%{version}
 Release: 	%{release}
 License: 	GPL
 Group:  	Networking/Other
-URL:		ftp://ftp.inr.ac.ru/ip-routing/
-Source: 	%{name}-%{version}-now-ss%snap.tar.bz2
+URL:		http://developer.osdl.org/dev/iproute2/
+Source: 	%{name}-%{version}-%{snap}.tar.bz2
 Source2:	iproute2-man8.tar.bz2
-# RH patches
-Patch0:		iproute2-2.2.4-docmake.patch
-Patch1:		iproute2-misc.patch
-Patch2:		iproute2-config.patch
-Patch4:		iproute2-in_port_t.patch
-Patch6:		iproute2-flags.patch
-Patch8:		iproute2-2.4.7-hex.patch
-Patch9:		iproute2-2.4.7-config.patch
-# MDK patches
-Patch100:	iproute2-def-echo.patch
-Patch102:	iproute2-2.4.7-bashfix.patch
-Patch103:	iproute2-htb3.6_tc.patch
-Patch104:	iproute2-2.4.7-now-ss010824-make.patch
-Patch105:	iproute2-mult-deflt-gateways.patch
-Patch106:	iproute2-2.4.7-netlink.patch
-Patch107:	iproute2-2.4.7-avx-includes.patch
+Patch0:		iproute2-2.6.16-rh-flags.patch
+Patch1:		iproute2-mdv-def-echo.patch
+Patch2:		iproute2-2.4.7-mdv-bashfix.patch
+Patch3:		iproute2-2.6.X-mdv-ss040702-build-fix.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
+BuildRequires:	db4-devel
+BuildRequires:	flex
+BuildRequires:	bison
 
 Requires:	iputils
 
@@ -53,28 +42,25 @@ capabilities of the Linux 2.2.x kernels and later,  such as policy
 routing, fast NAT and packet scheduling.
 
 
-%prep
-%setup -q -n %{name} 
-%patch0 -p1 -b .doc
-%patch1 -p1 -b .misc
-%patch2 -p1
-%patch4 -p1 -b .glibc22
-%patch6 -p1 -b .flags
-%patch8 -p1 -b .hex
-%patch9 -p1 -b .config
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
 
-%patch100 -p1
-%patch102 -p1 -b .bashfix
-%patch103 -p1 -b .htb3
-%patch104 -p0 -b .make
-%patch105 -p1 -b .make
-%patch106 -p1 -b .can-2003-0856
-%patch107 -p1 -b .includes
+%description doc
+This package contains the documentation for %{name}.
+
+
+%prep
+%setup -q -n %{name}-%{version}-%{snap} 
+%patch0 -p1 -b .flags
+%patch1 -p1
+%patch2 -p1 -b .bashfix
+%patch3 -p1 -b .build
 
 
 %build
 %define optflags -ggdb
-%make KERNEL_INCLUDE=/usr/include
+%make KERNEL_INCLUDE=/usr/src/linux/include
 
 
 %install
@@ -86,7 +72,8 @@ install -m 0755 ip/routef %{buildroot}/sbin
 install -m 0755 ip/routel %{buildroot}/sbin
 install -m 0755 ip/ip %{buildroot}/sbin
 install -m 0755 ip/rtmon %{buildroot}/sbin
-install -m 0755 ip/rtacct %{buildroot}/sbin
+install -m 0755 misc/rtacct %{buildroot}/sbin
+install -m 0755 misc/ss %{buildroot}/sbin
 install -m 0755 tc/tc %{buildroot}/sbin
 install -m 0644 etc/iproute2/rt_dsfield %{buildroot}%{_sysconfdir}/iproute2
 install -m 0644 etc/iproute2/rt_protos %{buildroot}%{_sysconfdir}/iproute2
@@ -94,8 +81,12 @@ install -m 0644 etc/iproute2/rt_realms %{buildroot}%{_sysconfdir}/iproute2
 install -m 0644 etc/iproute2/rt_scopes %{buildroot}%{_sysconfdir}/iproute2
 install -m 0644 etc/iproute2/rt_tables %{buildroot}%{_sysconfdir}/iproute2
 mkdir -p %{buildroot}/%{_mandir}
-tar xfj %SOURCE2 -C %{buildroot}/%{_mandir}/
+tar xfj %{_sourcedir}/iproute2-man8.tar.bz2 -C %{buildroot}/%{_mandir}/
 
+# do not install q_atm.so as it adds a dep on libatm
+mkdir -p %{buildroot}%{_libdir}/tc
+install -m 0755 tc/q_netem.so %{buildroot}%{_libdir}/tc/
+install -m 0755 netem/{normal,pareto,paretonormal} %{buildroot}%{_libdir}/tc/
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -103,19 +94,35 @@ tar xfj %SOURCE2 -C %{buildroot}/%{_mandir}/
 
 %files
 %defattr (-,root,root)
+%dir %{_sysconfdir}/iproute2
+%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/iproute2/*
+/sbin/*
+%{_libdir}/tc
+%{_mandir}/man8/*
+
+%files doc
+%defattr (-,root,root)
 %doc README README.iproute2+tc RELNOTES README.decnet
 %doc doc/Plan examples/
-%dir %{_sysconfdir}/iproute2
-/sbin/*
-%{_mandir}/man8/*
-%attr(644,root,root) %config(noreplace) %{_sysconfdir}/iproute2/*
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jul 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16
+- 2.6.16
+- fix url
+- drop P0, P1, P2, P4, P8, P9, P103, P104, P105, P106, P107
+- renumber and rename patches
+- updated P0
+- P3: build fixes
+- BuildRequires: db4-devel, flex, bison
+- add -doc subpackage
+- rebuild with gcc4
+- use %%_sourcedir/file instead of %%{SOURCEx}
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.7
 - Clean rebuild
 
-* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.7
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
@@ -224,7 +231,7 @@ tar xfj %SOURCE2 -C %{buildroot}/%{_mandir}/
 
 * Wed Jul 12 2000 Christian Zoffoli <czoffoli@linux-mandrake.com> 2.2.4-4mdk
 - removed _sysconfdir 
-- added %clean
+- added %%clean
 
 * Wed Jul 12 2000 Thierry Vignaud <tvignaud@mandrakesoft.com> 2.2.4-3mdk
 - fix a few typo (chrs scks :-) ) and make this spec short-circuit aware :
