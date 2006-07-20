@@ -310,7 +310,6 @@ fi
 /sbin/initlog
 %attr(0700,root,root) /sbin/netreport
 /sbin/ppp-watch
-/sbin/prcsys
 /sbin/service
 /sbin/setsysfont
 /usr/bin/*
@@ -339,6 +338,13 @@ fi
 
 
 %changelog
+* Thu Jul 19 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.33
+- r353:
+  - comment out 2.4-related usb module loading; our 2.4 kernel has usb builtin
+  - remove dm service support
+  - remove prcsys and support for parallel init
+  - remove udev stuff
+
 * Tue Jul 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.33
 - this is the first 100% Annvix-driven initscripts package, so this
   is a new tarball (8.33) that we'll backport and work with out of
