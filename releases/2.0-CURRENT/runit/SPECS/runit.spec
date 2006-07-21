@@ -9,7 +9,7 @@
 
 %define	revision	$Rev$
 %define	name		runit
-%define	version		1.4.1
+%define	version		1.6.0
 %define	release		%_revrel
 
 %define aver		0.5
@@ -24,6 +24,10 @@ URL:		http://smarden.org/runit/
 Source0:	%{name}-%{version}.tar.gz
 # available from http://annvix.org/cg-bin/viewcvs.cgi/tools/runit/
 Source1:	annvix-runit-%{aver}.tar.bz2
+Source2:	runsvctrl.8
+Source3:	runsvstat.8
+Source4:	svwaitdown.8
+Source5:	svwaitup.8
 Patch0:		runit-1.3.1-avx-localtime.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -40,6 +44,14 @@ implements a simple three-stage concept.  Stage 1 performs the
 system's one-time initialization tasks.  Stage 2 starts the
 system's uptime services (via the runsvdir program).  Stage 3
 handles the tasks necessary to shutdown and halt or reboot. 
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -93,6 +105,7 @@ pushd annvix-runit-%{aver}
     done
 popd
 
+cp %{_sourcedir}/*.8 %{name}-%{version}/man/
 install -m 0644 %{name}-%{version}/man/*.8 %{buildroot}%{_mandir}/man8/
 
 
@@ -132,12 +145,6 @@ fi
 
 %files
 %defattr(-,root,root)
-%doc %{name}-%{version}/package/CHANGES
-%doc %{name}-%{version}/package/README
-%doc %{name}-%{version}/package/THANKS
-%doc %{name}-%{version}/doc/*.html
-%doc %{name}-%{version}/etc/2
-%doc %{name}-%{version}/etc/debian
 %dir /service
 %attr(0700,root,root) /sbin/runit
 %attr(0700,root,root) /sbin/init
@@ -193,8 +200,25 @@ fi
 %attr(0640,root,admin) %config(noreplace) %{_sysconfdir}/sysconfig/env/runit/GETTY_TIMEOUT
 %attr(0640,root,admin) %config(noreplace) %{_sysconfdir}/sysconfig/env/runit/CTRLALTDEL_TIMEOUT
 
+%files doc
+%defattr(-,root,root)
+%doc %{name}-%{version}/package/CHANGES
+%doc %{name}-%{version}/package/README
+%doc %{name}-%{version}/package/THANKS
+%doc %{name}-%{version}/doc/*.html
+%doc %{name}-%{version}/etc/2
+%doc %{name}-%{version}/etc/debian
+
 
 %changelog
+* Fri Jul 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.6.0
+- 1.6.0
+- S2-S4: include the manpages for runsvctrl, runsvstatus, svwaitdown,
+  and svwaitup as they're no longer included -- this means we really
+  need to update srv to work with newer runit
+- add -doc subpackage
+- rebuild with gcc4
+
 * Thu Mar 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4.1
 - 1.4.1
 - runsvctrl, runsvstat, svwaitdown, and svwaitup are no longer built per
