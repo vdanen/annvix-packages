@@ -32,7 +32,6 @@ Patch11:	chkconfig-1.3.25-lsb.patch
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	gettext, newt-devel, popt-devel, slang
 
-Requires(pre):	initscripts
 Conflicts:	rpm-helper < 0.6
 
 %description
@@ -121,6 +120,11 @@ rm -rf %{buildroot}%{_datadir}/locale/{bn_IN,si}
 
 
 %changelog
+* Fri Jul 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.25
+- remove the pre-req on initscripts as it really isn't needed
+  (initscripts has a pre-req on this pkg), and it puts rpm into a loop
+  that causes all kinds of stupidness
+
 * Tue Jul 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.25
 - 1.3.25
 - updated P11 from Mandriva:
