@@ -27,6 +27,8 @@ Patch1:		dhcpcd-1.3.22pl4-CAN-2005-1848.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
+Requires(post):	rpm-helper
+
 %description
 dhcpcd is an implementation of the DHCP client specified in
 draft-ietf-dhc-dhcp-09 (when -r option is not specified) and RFC1541
@@ -36,6 +38,14 @@ It gets the host information (IP address, netmask, broad- cast address,
 etc.) from a DHCP server and configures the network interface of the
 machine on which it is running.  It also tries to renew the lease time
 according to RFC1541 or draft-ietf-dhc-dhcp-09.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -75,18 +85,26 @@ fi
 
 %files
 %defattr(-,root,root)
-%doc README ChangeLog COPYING INSTALL *.lsm
 %config(noreplace) %{_sysconfdir}/dhcpc/*
 /sbin/dhcpcd
 %{_mandir}/man8/dhcpcd.8*
 %ghost /var/log/%{name}.log
 
+%files doc
+%defattr(-,root,root)
+%doc README ChangeLog COPYING INSTALL *.lsm
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jul 22 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- add -doc subpackage
+- rebuild with gcc4
+- add requires(post) on rpm-helper
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.22pl4
 - Clean rebuild
 
-* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.22pl4
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
@@ -142,7 +160,7 @@ fi
 - s/Copyright/License
 - remove useless patches
 - add README ChangeLog COPYING INSTALL *.lsm files
-- add the %{_sysconfdir}/dhcpcd.exe file
+- add the %%{_sysconfdir}/dhcpcd.exe file
 
 * Sun Apr 08 2001 Geoffrey Lee <snailtalk@mandrakesoft.com> 1.3.20pl0-1mdk
 - Roll out 1.3.20pl0 for everyone.
