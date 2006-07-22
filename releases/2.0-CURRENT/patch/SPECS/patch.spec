@@ -74,7 +74,6 @@ make "CFLAGS=%{optflags} -D_GNU_SOURCE -W -Wall" LDFLAGS=-s
 
 %files
 %defattr(-,root,root)
-%doc NEWS README AUTHORS ChangeLog
 %{_bindir}/*
 %{_mandir}/*/*
 
@@ -84,6 +83,9 @@ make "CFLAGS=%{optflags} -D_GNU_SOURCE -W -Wall" LDFLAGS=-s
 
 
 %changelog
+* Fri Jul 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5.9
+- really remove the docs from the main package
+
 * Sat Jul 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5.9
 - add -doc subpackage
 - rebuild with gcc4
