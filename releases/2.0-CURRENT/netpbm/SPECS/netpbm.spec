@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		netpbm
-%define version 	10.29
+%define version 	10.34
 %define release 	%_revrel
 
 %define major		10
@@ -23,28 +23,29 @@ Release:	%{release}
 License:	GPL Artistic MIT
 Group:		Graphics
 URL:		http://netpbm.sourceforge.net/
-Source0:	%{name}-%{version}.tar.bz2
+Source0:	http://prdownloads.sourceforge.net/netpbm/%{name}-%{version}.tar.bz2
 Source1:	mf50-netpbm_filters
 Source2:	test-images.tar.bz2
-Source3:	%{name}doc-%{version}.tar.bz2
+Source3:	http://prdownloads.sourceforge.net/netpbm/%{name}doc-%{version}.tar.bz2
 Patch0:		netpbm-10.17-time.patch
 Patch1:		netpbm-9.24-strip.patch
-Patch2:		netpbm-10.18-manpath.patch
-Patch3:		netpbm-10.19-message.patch
+Patch3:		netpbm-10.32-message.patch
 Patch4:		netpbm-10.22-security2.patch
 Patch5:		netpbm-10.22-cmapsize.patch
-Patch6:		netpbm-10.28-gcc4.patch
-Patch7:		netpbm-10.23-security.patch
-#Patch8:	netpbm-10.23-pngtopnm.patch.bz2
-Patch9:		netpbm-10.26-libm.patch
+Patch6:		netpbm-10.30-gcc4.patch
+Patch7:		netpbm-10.34-security.patch
 Patch11:	netpbm-10.24-nodoc.patch
-#Patch12:	pstopnm_dsafer.diff.bz2
-Patch13:	netpbm-10.27-bmptopnm.patch
+Patch13:	netpbm-10.34-bmptopnm.patch
 Patch14:	netpbm-10.28-CAN-2005-2471.patch
-Patch15:	netpbm-10.29-CAN-2005-2978.patch
+Patch15:	netpbm-10.33-ppmtompeg.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	flex, png-devel, jpeg-devel, tiff-devel
+BuildRequires:	flex
+BuildRequires:	png-devel
+BuildRequires:	jpeg-devel
+BuildRequires:	tiff-devel
+BuildRequires:	X11-devel
+BuildRequires:	libxml2-devel
 
 Requires:	%{libname} = %{version}-%{release}
 Obsoletes:	libgr-progs, libgr1-progs
@@ -99,32 +100,37 @@ for developing programs which can handle the various
 graphics file formats supported by the netpbm libraries.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -a 2
 %patch0 -p1 -b .time
 %patch1 -p1 -b .strip
-%patch2 -p1 -b .manpath
 %patch3 -p1 -b .message
 %patch4 -p1 -b .security2
 %patch5 -p1 -b .cmapsize
 %patch7 -p1 -b .security
 %patch6 -p1 -b .gcc4
-#%patch8 -p1 -b .pngtopnm
-%patch9 -p1 -b .libm
 %patch11 -p1 -b .nodoc
-#%patch12 -p0 -b .dsafer
 %patch13 -p1 -b .bmptopnm
 %patch14 -p1 -b .CAN-2005-2471
-%patch15 -p1 -b .can-2005-2978
-
-#mv shhopt/shhopt.h shhopt/pbmshhopt.h
-#perl -pi -e 's|shhopt.h|pbmshhopt.h|g' `find -name "*.c" -o -name "*.h"` ./GNUmakefile
+%patch15 -p1 -b .ppmtompeg
 
 tar xjf %{SOURCE2}
+chmod 0644 doc/*
 
 
 %build
 ./configure <<EOF
+
+
+
 
 
 
@@ -153,6 +159,8 @@ make \
     TIFFINC_DIR=%{_includedir} \
     JPEGLIB_DIR=%{_libdir} \
     PNGLIB_DIR=%{_libdir} \
+    LINUXSVGALIB="NONE" \
+    X11LIB=%{_prefix}/X11R6/lib/libX11.so \
     TIFFLIB_DIR=%{_libdir}
 
 
@@ -160,7 +168,7 @@ make \
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 mkdir -p %{buildroot}
-make package pkgdir=%{buildroot}%{_prefix}
+make package pkgdir=%{buildroot}%{_prefix} LINUXSVGALIB="NONE"
 
 # Ugly hack to have libs in correct dir on 64bit archs.
 mkdir -p %{buildroot}%{_libdir}
@@ -202,20 +210,18 @@ cp test-images/* %{buildroot}%{_datadir}/printconf/tests/
 %postun -n %{libname} -p /sbin/ldconfig
 
 
-%files 	-n %{libname}
+%files -n %{libname}
 %defattr(-,root,root)
-%doc doc/*
 %attr(755,root,root) %{_libdir}/lib*.so.*
 
-%files 	-n %{libname}-devel
+%files -n %{libname}-devel
 %defattr(-,root,root)
-%doc doc/COPYRIGHT.PATENT doc/Netpbm.programming
 %{_includedir}/*.h
 %multiarch %{multiarch_includedir}/pm_config.h
 %attr(755,root,root) %{_libdir}/lib*.so
 %{_mandir}/man3/*
 
-%files 	-n %{libname}-static-devel
+%files -n %{libname}-static-devel
 %defattr(-,root,root)
 %{_libdir}/*.a
 
@@ -223,16 +229,33 @@ cp test-images/* %{buildroot}%{_datadir}/printconf/tests/
 %defattr(-,root,root)
 %attr(755,root,root) %{_bindir}/*
 %{_mandir}/man[15]/*
-%{_datadir}/%{name}-%{version}/*.map
+%{_datadir}/%{name}-%{version}
+%dir %{_datadir}/printconf
+%dir %{_datadir}/printconf/mf_rules
+%dir %{_datadir}/printconf/tests
 %{_datadir}/printconf/mf_rules/*
 %{_datadir}/printconf/tests/*
 
+%files doc
+%defattr(-,root,root)
+%doc doc/*
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jul 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 10.34
+- 10.34
+- buildrequires: libxml2-devel, X11-devel
+- updated P3, P6, P7
+- drop P2, P9, P13, P15 and commented P8, P12
+- P15 from Fedora
+- own it's own %%_datadir directories
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 10.29
 - Clean rebuild
 
-* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org> 10.29
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
@@ -275,20 +298,20 @@ cp test-images/* %{buildroot}%{_datadir}/printconf/tests/
 
 * Fri May 23 2003 Damien Chaumette <dchaumette@mandrakesoft.com> 9.24-6mdk
 - spec file changes (Per Øyvind Karlsen <peroyvind@sintrax.net>)
-	use %mklibname
+	use %%mklibname
 	added licenses(also released under Artistic and MIT)
 
 * Tue Apr 1 2003 Vincent Danen <vdanen@mandrakesoft.com> 9.24-5mdk
 - security patches
 
 * Sun Jul  7 2002 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 9.24-4mdk
-- Move mapfiles to %_datadir/%{name}-%{version}/
+- Move mapfiles to %%_datadir/%{name}-%{version}/
 
 * Mon Jul 01 2002 Yves Duret <yduret@mandrakesoft.com> 9.24-3mdk
 - fix obsolets/provides of static-devel package thanx Frederic Crozat.
 
 * Fri May 17 2002 Yves Duret <yduret@mandrakesoft.com> 9.24-2mdk
-- 9.0 lib policy: added %libname-static-devel
+- 9.0 lib policy: added %%libname-static-devel
 
 * Fri Apr 19 2002 Yves Duret <yduret@mandrakesoft.com> 9.24-1mdk
 - version 9.24.
