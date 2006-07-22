@@ -160,7 +160,7 @@ make \
     JPEGLIB_DIR=%{_libdir} \
     PNGLIB_DIR=%{_libdir} \
     LINUXSVGALIB="NONE" \
-    X11LIB=%{_prefix}/X11R6/lib/libX11.so \
+    X11LIB=%{_prefix}/X11R6/%{_lib}/libX11.so \
     TIFFLIB_DIR=%{_libdir}
 
 
@@ -242,6 +242,9 @@ cp test-images/* %{buildroot}%{_datadir}/printconf/tests/
 
 
 %changelog
+* Fri Jul 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 10.34
+- lib64 fix
+
 * Fri Jul 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 10.34
 - 10.34
 - buildrequires: libxml2-devel, X11-devel
