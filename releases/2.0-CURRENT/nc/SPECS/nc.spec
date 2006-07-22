@@ -47,6 +47,14 @@ tool, since it can create many different connections and has many
 built-in capabilities.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -c -n nc -q
 %patch0 -p1
@@ -85,14 +93,21 @@ install -m 0644 %{SOURCE1} %{buildroot}%{_mandir}/man1
 
 %files
 %defattr(-,root,root)
-%doc README Changelog
-%doc scripts
 %{_bindir}/nc
 %{_bindir}/netcat
 %{_mandir}/man1/nc.1*
 
+%files doc
+%defattr(-,root,root)
+%doc README Changelog
+%doc scripts
+
 
 %changelog
+* Sat Jul 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.10
+- add -doc subpackage
+- rebuild with gcc4
+
 * Sat Feb 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.10
 - first Annvix build
 - major spec cleanups
@@ -138,7 +153,7 @@ install -m 0644 %{SOURCE1} %{buildroot}%{_mandir}/man1
   Also closes Mandrake bug 4529
   http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=45675
   Applied as patch 10
-- Symlink %{_bindir}/netcat to %{_bindir}/nc
+- Symlink %%{_bindir}/netcat to %%{_bindir}/nc
 - Provide netcat for easier urpmi'ing
 - Update man page to match debians.
 - Remove %%ifarch for arm (not necessary with debians better patch)
