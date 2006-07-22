@@ -17,7 +17,7 @@ Name: 		%{name}
 Version: 	%{version}
 Release: 	%{release}
 License: 	GPL
-Group: 		File tools
+Group: 		File Tools
 URL: 		http://www.tux.org/pub/tux/knaff/mtools/index.html
 Source: 	http://www.tux.org/pub/tux/knaff/mtools/%{name}-%{version}.tar.bz2 
 Patch0: 	mtools-3.9.1-linux.patch
@@ -37,6 +37,14 @@ Mtools is a collection of utilities for accessing MS-DOS files.
 Mtools allow you to read, write and move around MS-DOS filesystem
 files (normally on MS-DOS floppy disks).  Mtools supports Windows95
 style long file names, OS/2 Xdf disks, and 2m disks.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -77,7 +85,6 @@ cp -a %{buildroot}%{_bindir}/mtools %{buildroot}%{_bindir}/mformat
 %files
 %defattr(-,root,root)
 %config(noreplace) %{_sysconfdir}/mtools.conf
-%doc COPYING Changelog README Release.notes mtools.texi
 %{_bindir}/l*
 %{_bindir}/ma*
 %{_bindir}/mb*
@@ -99,12 +106,20 @@ cp -a %{buildroot}%{_bindir}/mtools %{buildroot}%{_bindir}/mformat
 %{_mandir}/*/*
 %{_infodir}/%{name}.*
 
+%files doc
+%defattr(-,root,root)
+%doc COPYING Changelog README Release.notes mtools.texi
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jul 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.9.9
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.9.9
 - Clean rebuild
 
-* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.9.9
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - fix prereq
@@ -165,7 +180,7 @@ cp -a %{buildroot}%{_bindir}/mtools %{buildroot}%{_bindir}/mformat
 
 * Mon Jun 19 2000 DindinX <odin@mandrakesoft.com> 3.9.7-1mdk
 - 3.9.7
-- use of %configure and %makeinstall
+- use of %%configure and %makeinstall
 - updated patches
 
 * Fri Mar 24 2000 DindinX <odin@mandrakesoft.com> 3.9.6-5mdk
