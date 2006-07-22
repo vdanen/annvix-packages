@@ -37,7 +37,6 @@ BuildRequires:  freetype2-devel
 BuildRequires:  libjpeg-devel
 BuildRequires:  libpng-devel 
 BuildRequires:  libxpm-devel
-BuildRequires:  XFree86-devel
 
 Requires:	php >= 5.1.2
 Requires:       libpng >= 1.2.0
@@ -95,6 +94,9 @@ install -m 0644 %{SOURCE0} %{buildroot}%{_sysconfdir}/php.d/%{inifile}
 
 
 %changelog
+* Sat Jul 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.4
+- drop buildreq on xfree86-devel; it's not even used
+
 * Sun Jun 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.4
 - remove docs
 
