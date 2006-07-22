@@ -17,7 +17,7 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
-Group:		Text tools
+Group:		Text Tools
 URL:		http://www.gnu.org/directory/GNU/patch.html
 Source:		ftp://alpha.gnu.org/gnu/patch/patch-%{version}.tar.bz2
 Patch1:		patch-2.5.8-sigsegv.patch
