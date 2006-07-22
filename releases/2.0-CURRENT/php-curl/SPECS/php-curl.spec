@@ -81,6 +81,9 @@ EOF
 
 %changelog
 * Sun Jun 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.4
+- rebuild against new curl
+
+* Sun Jun 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.4
 - remove docs
 
 * Thu May 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.4
