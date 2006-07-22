@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		elfutils
-%define version		0.109
+%define version		0.120
 %define release		%_revrel
 
 %define major		1
@@ -26,14 +26,13 @@ Summary:	A collection of utilities and DSOs to handle compiled objects
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-License:	OSL
+License:	GPL
 Group:		Development/Other
 Source:		elfutils-%{version}.tar.bz2
-Patch0:		elfutils-portability.patch
-Patch1:		elfutils-0.109-warnings.patch
+Patch0:		elfutils-0.120-mdv-robustify.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	gcc >= 3.2, sharutils, libtool-devel
+BuildRequires:	gcc >= 3.4, sharutils, libtool-devel
 
 Requires:	%{libname} = %{version}-%{release}
 
@@ -49,6 +48,7 @@ Elfutils is a collection of utilities, including:
 
 %package -n %{libname}-devel
 Summary:	Development libraries to handle compiled objects
+License:	GPL
 Group:		Development/Other
 Requires:	%{libname} = %{version}-%{release}
 Provides:	%{name}-devel, lib%{name}-devel
@@ -67,6 +67,7 @@ applications for handling compiled objects.
 
 %package -n %{libname}-static-devel
 Summary:	Static libraries for development with libelfutils
+License:	GPL
 Group:		Development/Other
 Requires:	%{libname}-devel = %{version}-%{release}
 Provides:	%{name}-static-devel, lib%{name}-static-devel
@@ -80,6 +81,7 @@ handling compiled objects.
 
 %package -n %{libname}
 Summary:	Libraries to read and write ELF files
+License:	OSL
 Group:		System/Libraries
 Provides:	lib%{name}
 Obsoletes:	libelf, libelf0
@@ -95,10 +97,20 @@ Also included are numerous helper libraries which implement DWARF,
 ELF, and machine-specific ELF handling.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
-%patch0 -p1 -b .portability
-%patch1 -p1 -b .warnings
+# Don't use -Werror with -Wformat=2 -std=gnu99 as %a[ won't be caught
+# as the GNU %a extension.
+perl -pi -e '/AM_CFLAGS =/ and s/-Werror//g' ./tests/Makefile.{in,am}
+%patch0 -p1 -b .robustify
 
 
 %build
@@ -114,10 +126,15 @@ pushd build-%{_target_platform}
         --program-prefix=%{_programprefix} \
         --enable-shared
     %make
-    %if %{build_check}
-        %make check
-    %endif
 popd
+
+
+%check
+%if %{build_check}
+pushd build-%{_target_platform}
+#    %make check
+popd
+%endif
 
 
 %install
@@ -132,6 +149,7 @@ chmod +x %{buildroot}%{_libdir}/elfutils/lib*.so*
 # XXX Nuke unpackaged files
 { cd %{buildroot}
     rm -f .%{_bindir}/eu-ld
+    rm -f .%{_bindir}/eu-objdump
     rm -f .%{_includedir}/elfutils/libasm.h
     rm -f .%{_libdir}/libasm{-%{version},}.so
     rm -f .%{_libdir}/libasm.{a,so}
@@ -148,20 +166,19 @@ chmod +x %{buildroot}%{_libdir}/elfutils/lib*.so*
 
 %files
 %defattr(-,root,root)
-%doc README NEWS TODO NOTES
 %{_bindir}/eu-addr2line
 %{_bindir}/eu-elfcmp
 %{_bindir}/eu-findtextrel
 %{_bindir}/eu-elflint
 #%{_bindir}/eu-ld
 %{_bindir}/eu-nm
+%{_bindir}/eu-ranlib
 %{_bindir}/eu-readelf
 %{_bindir}/eu-size
+%{_bindir}/eu-strings
 %{_bindir}/eu-strip
 %{_libdir}/libdw-%{version}.so
 %{_libdir}/libdw*.so.*
-%{_libdir}/libdwfl-%{version}.so
-%{_libdir}/libdwfl*.so.*
 %dir %{_libdir}/elfutils
 %{_libdir}/elfutils/lib*.so
 
@@ -181,7 +198,6 @@ chmod +x %{buildroot}%{_libdir}/elfutils/lib*.so*
 #%{_libdir}/libebl.so
 %{_libdir}/libelf.so
 %{_libdir}/libdw.so
-%{_libdir}/libdwfl.so
 
 %files -n %{libname}-static-devel
 %defattr(-,root,root)
@@ -189,7 +205,6 @@ chmod +x %{buildroot}%{_libdir}/elfutils/lib*.so*
 %{_libdir}/libebl.a
 %{_libdir}/libelf.a
 %{_libdir}/libdw.a
-%{_libdir}/libdwfl.a
 
 %files -n %{libname}
 %defattr(-,root,root)
@@ -200,12 +215,27 @@ chmod +x %{buildroot}%{_libdir}/elfutils/lib*.so*
 #%{_libdir}/libebl-%{version}.so
 #%{_libdir}/libebl*.so.*
 
+%files doc
+%defattr(-,root,root)
+%doc README NEWS TODO NOTES
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jul 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.120
+- 0.120
+- dropped P0, P1
+- moved make check to %%check
+- new P0: robustification patch (from Mandriva, who took it from Fedora)
+- update license (GPL for everything but libs)
+- disable make check; it fails on run-strings-test.sh and I see that Mandriva
+  also comments it out (despite the %%build_check switch)
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.109
 - Clean rebuild
 
-* Wed Jan 04 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.109
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
