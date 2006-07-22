@@ -753,6 +753,9 @@ done
 
 
 %changelog
+* Fri Jul 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.5
+- rebuild against new elfutils
+
 * Thu Jun 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.5
 - add -doc subpackage
 - rebuild with gcc4
