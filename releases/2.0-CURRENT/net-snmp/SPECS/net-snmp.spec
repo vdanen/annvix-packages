@@ -171,6 +171,14 @@ and clients.  The NET SNMP perl5 support files provide the perl
 functions for integration of SNMP into applications, written in perl.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 %patch0 -p0 -b .nodb
@@ -225,7 +233,7 @@ export LDFLAGS="-L%{_libdir}"
     --enable-static \
     --enable-shared \
     --with-perl-modules="INSTALLDIRS=vendor" \
-    --with-cflags="%{optflags} -D_REENTRANT " \
+    --with-cflags="$CFLAGS -D_REENTRANT " \
     --with-sys-location="Unknown" \
     --with-logfile="/var/log/snmpd.log" \
     --with-persistent-directory="/var/lib/net-snmp" \
@@ -258,21 +266,21 @@ make test
 mkdir -p %{buildroot}%{_sysconfdir}/{snmp,logrotate.d}
 
 mkdir -p %{buildroot}%{_srvdir}/snmpd/{log,env}
-install -m 0740 %{SOURCE2} %{buildroot}%{_srvdir}/snmpd/run
-install -m 0740 %{SOURCE3} %{buildroot}%{_srvdir}/snmpd/log/run
+install -m 0740 %{_sourcedir}/snmpd.run %{buildroot}%{_srvdir}/snmpd/run
+install -m 0740 %{_sourcedir}/snmpd-log.run %{buildroot}%{_srvdir}/snmpd/log/run
 echo "-Lo -p /var/run/snmpd.pid -a" >%{buildroot}%{_srvdir}/snmpd/env/OPTIONS
-install -m 0644 %{SOURCE6} %{buildroot}%{_sysconfdir}/snmp/snmpd.conf
+install -m 0644 %{_sourcedir}/snmpd.conf %{buildroot}%{_sysconfdir}/snmp/snmpd.conf
 
 mkdir -p %{buildroot}%{_srvdir}/snmptrapd/{log,env}
-install -m 0740 %{SOURCE4} %{buildroot}%{_srvdir}/snmptrapd/run
-install -m 0740 %{SOURCE5} %{buildroot}%{_srvdir}/snmptrapd/log/run
+install -m 0740 %{_sourcedir}/snmptrapd.run %{buildroot}%{_srvdir}/snmptrapd/run
+install -m 0740 %{_sourcedir}/snmptrapd-log.run %{buildroot}%{_srvdir}/snmptrapd/log/run
 echo "-Lo -p /var/run/snmptrapd.pid" >%{buildroot}%{_srvdir}/snmptrapd/env/OPTIONS
-install -m 0644 %{SOURCE8} %{buildroot}%{_sysconfdir}/snmp/snmptrapd.conf
+install -m 0644 %{_sourcedir}/snmptrapd.conf %{buildroot}%{_sysconfdir}/snmp/snmptrapd.conf
 
 
-install -m 0755 %{SOURCE10} %{buildroot}%{_bindir}/ucd5820stat
+install -m 0755 %{_sourcedir}/ucd5820stat %{buildroot}%{_bindir}/ucd5820stat
 
-install -m 0644 %{SOURCE11} %{buildroot}%{_sysconfdir}/snmp/snmp.local.conf
+install -m 0644 %{_sourcedir}/snmp.local.conf %{buildroot}%{_sysconfdir}/snmp/snmp.local.conf
 
 rm -f %{buildroot}%{_bindir}/snmpinform
 rm -f %{buildroot}%{_bindir}/snmpcheck
@@ -297,8 +305,8 @@ install -m 0755 mibs/mibfetch %{buildroot}%{_datadir}/snmp/mibs/
 install -m 0755 mibs/smistrip %{buildroot}%{_datadir}/snmp/mibs/
 install -m 0755 mibs/Makefile.mib %{buildroot}%{_datadir}/snmp/mibs/
 install -m 0644 man/mib2c.1 %{buildroot}%{_mandir}/man1/mib2c.1
-install -m 0644 %{SOURCE12} %{buildroot}%{_datadir}/snmp/mibs/NOTIFICATION-TEST-MIB.txt
-install -m 0644 %{SOURCE13} %{buildroot}%{_datadir}/snmp/mibs/TRAP-TEST-MIB.txt
+install -m 0644 %{_sourcedir}/NOTIFICATION-TEST-MIB.txt %{buildroot}%{_datadir}/snmp/mibs/NOTIFICATION-TEST-MIB.txt
+install -m 0644 %{_sourcedir}/TRAP-TEST-MIB.txt %{buildroot}%{_datadir}/snmp/mibs/TRAP-TEST-MIB.txt
 
 # fix strange permissions
 find %{buildroot}%{_datadir}/snmp/ -type f | xargs chmod 0644
@@ -343,8 +351,6 @@ file %{buildroot}%{_sbindir}/* | grep ELF | cut -d':' -f1 | xargs strip || :
 
 %files
 %defattr(-,root,root,-)
-%doc AGENT.txt ChangeLog EXAMPLE.conf FAQ INSTALL NEWS README* TODO
-%doc local/passtest local/README.mib2c local/ipf-mod.pl
 %dir %attr(0750,root,admin) %{_srvdir}/snmpd
 %dir %attr(0750,root,admin) %{_srvdir}/snmpd/log
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/snmpd/run
@@ -428,7 +434,6 @@ file %{buildroot}%{_sbindir}/* | grep ELF | cut -d':' -f1 | xargs strip || :
 
 %files mibs
 %defattr(-,root,root,-)
-%doc mibs/README.mibs
 %{_datadir}/snmp/mibs
 
 %files -n %{libname}
@@ -463,8 +468,22 @@ file %{buildroot}%{_sbindir}/* | grep ELF | cut -d':' -f1 | xargs strip || :
 %{_mandir}/man3/NetSNMP*
 %{_mandir}/man3/SNMP.3*
 
+%files doc
+%defattr(-,root,root,-)
+%doc AGENT.txt ChangeLog EXAMPLE.conf FAQ INSTALL NEWS README* TODO
+%doc local/passtest local/README.mib2c local/ipf-mod.pl
+%doc mibs/README.mibs
+
 
 %changelog
+* Fri Jul 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.3.0.1
+- add -doc subpackage
+- rebuild with gcc4
+- use %%_sourcedir/file instead of %%{SOURCEx}
+
+* Wed May 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.3.0.1
+- fix the CFLAGS
+
 * Tue Apr 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.3.0.1
 - drop all lmsensors stuff since a) we don't ship it and b) apparently
   it doesn't work too well anyways
