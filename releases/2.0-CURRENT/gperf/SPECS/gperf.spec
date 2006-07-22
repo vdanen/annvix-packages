@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		gperf
-%define version		3.0.1
+%define version		3.0.2
 %define release		%_revrel
 
 Summary:	A perfect hash function generator
@@ -19,7 +19,7 @@ Release:	%{release}
 License:	GPL
 Group:		Development/Other
 URL:		http://www.gnu.org/software/gperf/
-Source:		ftp://ftp.gnu.org/gnu/gperf/%{name}-%{version}.tar.bz2
+Source:		ftp://ftp.gnu.org/gnu/gperf/%{name}-%{version}.tar.gz
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -31,6 +31,14 @@ Gperf is a perfect hash function generator written in C++.  Simply
 stated, a perfect hash function is a hash function and a data
 structure that allows recognition of a key word in a set of words
 using exactly one probe into the data structure.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -61,17 +69,25 @@ rm -f %{buildroot}%{_datadir}/doc/gperf/gperf.html
 
 %files
 %defattr(-,root,root)
-%doc README NEWS doc/gperf.html
 %{_bindir}/gperf
 %{_mandir}/man1/gperf.1*
 %{_infodir}/gperf.info*
 
+%files doc
+%defattr(-,root,root)
+%doc README NEWS doc/gperf.html
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jul 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.2
+- 3.0.2
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.1
 - Clean rebuild
 
-* Thu Jan 05 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 05 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.1
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - fix prereq
