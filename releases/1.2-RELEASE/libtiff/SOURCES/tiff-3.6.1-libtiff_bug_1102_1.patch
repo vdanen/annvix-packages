@@ -1,0 +1,27 @@
+Fixed integer overflow condition in TIFFFetchData() function. As per bug
+http://bugzilla.remotesensing.org/show_bug.cgi?id=1102
+================================================================================
+--- tiff-3.7.3/libtiff/tif_dirread.c
++++ tiff-3.7.3/libtiff/tif_dirread.c
+@@ -798,13 +798,20 @@
+ 	int w = TIFFDataWidth((TIFFDataType) dir->tdir_type);
+ 	tsize_t cc = dir->tdir_count * w;
+ 
++	/* Check for overflow. */
++	if (!dir->tdir_count || !w || cc / w != (tsize_t)dir->tdir_count)
++		goto bad;
++
+ 	if (!isMapped(tif)) {
+ 		if (!SeekOK(tif, dir->tdir_offset))
+ 			goto bad;
+ 		if (!ReadOK(tif, cp, cc))
+ 			goto bad;
+ 	} else {
+-		if (dir->tdir_offset + cc > tif->tif_size)
++		/* Check for overflow. */
++		if ((tsize_t)dir->tdir_offset + cc < (tsize_t)dir->tdir_offset
++		    || (tsize_t)dir->tdir_offset + cc < cc
++		    || (tsize_t)dir->tdir_offset + cc > (tsize_t)tif->tif_size)
+ 			goto bad;
+ 		_TIFFmemcpy(cp, tif->tif_base + dir->tdir_offset, cc);
+ 	}

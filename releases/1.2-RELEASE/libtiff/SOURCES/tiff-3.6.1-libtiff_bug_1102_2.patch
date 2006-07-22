@@ -1,0 +1,226 @@
+Use TIFFPredictorCleanup() in codec cleanup methods. As per bug
+http://bugzilla.remotesensing.org/show_bug.cgi?id=1102
+================================================================================
+--- tiff-v3.6.1/libtiff/tif_fax3.c
++++ tiff-v3.6.1/libtiff/tif_fax3.c
+@@ -1068,9 +1068,13 @@
+ static void
+ Fax3Cleanup(TIFF* tif)
+ {
+-	if (tif->tif_data) {
+ 		Fax3CodecState* sp = DecoderState(tif);
+ 
++	assert(sp != 0);
++
++	tif->tif_tagmethods.vgetfield = sp->b.vgetparent;
++	tif->tif_tagmethods.vsetfield = sp->b.vsetparent;
++
+ 		if (sp->runs)
+ 			_TIFFfree(sp->runs);
+ 		if (sp->refline)
+@@ -1080,7 +1084,8 @@
+ 			_TIFFfree(Fax3State(tif)->subaddress);
+ 		_TIFFfree(tif->tif_data);
+ 		tif->tif_data = NULL;
+-	}
++
++	_TIFFSetDefaultCompressionState(tif);
+ }
+ 
+ #define	FIELD_BADFAXLINES	(FIELD_CODEC+0)
+@@ -1129,6 +1134,9 @@
+ {
+ 	Fax3BaseState* sp = Fax3State(tif);
+ 
++	assert(sp != 0);
++	assert(sp->vsetparent != 0);
++
+ 	switch (tag) {
+ 	case TIFFTAG_FAXMODE:
+ 		sp->mode = va_arg(ap, int);
+--- tiff-v3.6.1/libtiff/tif_jpeg.c
++++ tiff-v3.6.1/libtiff/tif_jpeg.c
+@@ -1323,15 +1323,21 @@
+ static void
+ JPEGCleanup(TIFF* tif)
+ {
+-	if (tif->tif_data) {
+ 		JPEGState *sp = JState(tif);
++	
++	assert(sp != 0);
++
++	tif->tif_tagmethods.vgetfield = sp->vgetparent;
++	tif->tif_tagmethods.vsetfield = sp->vsetparent;
++
+                 if( sp->cinfo_initialized )
+                     TIFFjpeg_destroy(sp);	/* release libjpeg resources */
+ 		if (sp->jpegtables)		/* tag value */
+ 			_TIFFfree(sp->jpegtables);
+ 		_TIFFfree(tif->tif_data);	/* release local state */
+ 		tif->tif_data = NULL;
+-	}
++
++	_TIFFSetDefaultCompressionState(tif);
+ }
+ 
+ static int
+--- tiff-v3.6.1/libtiff/tif_luv.c
++++ tiff-v3.6.1/libtiff/tif_luv.c
+@@ -1460,12 +1460,17 @@
+ {
+ 	LogLuvState* sp = (LogLuvState *)tif->tif_data;
+ 
+-	if (sp) {
++	assert(sp != 0);
++
++	tif->tif_tagmethods.vgetfield = sp->vgetparent;
++	tif->tif_tagmethods.vsetfield = sp->vsetparent;
++
+ 		if (sp->tbuf)
+ 			_TIFFfree(sp->tbuf);
+ 		_TIFFfree(sp);
+ 		tif->tif_data = NULL;
+-	}
++
++	_TIFFSetDefaultCompressionState(tif);
+ }
+ 
+ static int
+--- tiff-v3.6.1/libtiff/tif_lzw.c
++++ tiff-v3.6.1/libtiff/tif_lzw.c
+@@ -669,12 +669,16 @@
+ static void
+ LZWCleanup(TIFF* tif)
+ {
+-    if (tif->tif_data) {
++    (void)TIFFPredictorCleanup(tif);
++
++	assert(tif->tif_data != 0);
++
+         if (DecoderState(tif)->dec_codetab)
+             _TIFFfree(DecoderState(tif)->dec_codetab);
+         _TIFFfree(tif->tif_data);
+         tif->tif_data = NULL;
+-    }
++
++	_TIFFSetDefaultCompressionState(tif);
+ }
+ 
+ static int
+--- tiff-v3.6.1/libtiff/tif_pixarlog.c
++++ tiff-v3.6.1/libtiff/tif_pixarlog.c
+@@ -1159,7 +1159,13 @@
+ {
+ 	PixarLogState* sp = (PixarLogState*) tif->tif_data;
+ 
+-	if (sp) {
++	assert(sp != 0);
++
++	(void)TIFFPredictorCleanup(tif);
++
++	tif->tif_tagmethods.vgetfield = sp->vgetparent;
++	tif->tif_tagmethods.vsetfield = sp->vsetparent;
++
+ 		if (sp->FromLT2) _TIFFfree(sp->FromLT2);
+ 		if (sp->From14) _TIFFfree(sp->From14);
+ 		if (sp->From8) _TIFFfree(sp->From8);
+@@ -1176,7 +1182,8 @@
+ 			_TIFFfree(sp->tbuf);
+ 		_TIFFfree(sp);
+ 		tif->tif_data = NULL;
+-	}
++
++	_TIFFSetDefaultCompressionState(tif);
+ }
+ 
+ static int
+--- tiff-v3.6.1/libtiff/tif_predict.c
++++ tiff-v3.6.1/libtiff/tif_predict.c
+@@ -388,6 +389,9 @@
+ {
+ 	TIFFPredictorState *sp = PredictorState(tif);
+ 
++	assert(sp != NULL);
++	assert(sp->vsetparent != NULL);
++
+ 	switch (tag) {
+ 	case TIFFTAG_PREDICTOR:
+ 		sp->predictor = (uint16) va_arg(ap, int);
+@@ -405,6 +409,9 @@
+ {
+ 	TIFFPredictorState *sp = PredictorState(tif);
+ 
++	assert(sp != NULL);
++	assert(sp->vgetparent != NULL);
++
+ 	switch (tag) {
+ 	case TIFFTAG_PREDICTOR:
+ 		*va_arg(ap, uint16*) = sp->predictor;
+@@ -438,6 +445,8 @@
+ {
+ 	TIFFPredictorState* sp = PredictorState(tif);
+ 
++	assert(sp != 0);
++
+ 	/*
+ 	 * Merge codec-specific tag information and
+ 	 * override parent get/set field methods.
+@@ -462,3 +471,20 @@
+ 	sp->pfunc = NULL;			/* no predictor routine */
+ 	return (1);
+ }
++
++int
++TIFFPredictorCleanup(TIFF* tif)
++{
++	TIFFPredictorState* sp = PredictorState(tif);
++
++	assert(sp != 0);
++
++	tif->tif_tagmethods.vgetfield = sp->vgetparent;
++	tif->tif_tagmethods.vsetfield = sp->vsetparent;
++	tif->tif_tagmethods.printdir = sp->printdir;
++	tif->tif_setupdecode = sp->setupdecode;
++	tif->tif_setupencode = sp->setupencode;
++
++	return 1;
++}
++
+--- tiff-v3.6.1/libtiff/tif_predict.h
++++ tiff-v3.6.1/libtiff/tif_predict.h
+@@ -55,6 +55,7 @@
+ extern "C" {
+ #endif
+ extern	int TIFFPredictorInit(TIFF*);
++extern	int TIFFPredictorCleanup(TIFF*);
+ #if defined(__cplusplus)
+ }
+ #endif
+--- tiff-v3.6.1/libtiff/tif_zip.c
++++ tiff-v3.6.1/libtiff/tif_zip.c
+@@ -250,7 +250,14 @@
+ ZIPCleanup(TIFF* tif)
+ {
+ 	ZIPState* sp = ZState(tif);
+-	if (sp) {
++
++	assert(sp != 0);
++
++	(void)TIFFPredictorCleanup(tif);
++
++	tif->tif_tagmethods.vgetfield = sp->vgetparent;
++	tif->tif_tagmethods.vsetfield = sp->vsetparent;
++
+ 		if (sp->state&ZSTATE_INIT) {
+ 			/* NB: avoid problems in the library */
+ 			if (tif->tif_mode == O_RDONLY)
+@@ -260,7 +267,8 @@
+ 		}
+ 		_TIFFfree(sp);
+ 		tif->tif_data = NULL;
+-	}
++
++	_TIFFSetDefaultCompressionState(tif);
+ }
+ 
+ static int

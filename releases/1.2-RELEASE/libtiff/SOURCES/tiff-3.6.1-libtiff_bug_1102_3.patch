@@ -1,0 +1,14 @@
+--- tiff-3.7.3/libtiff/tif_dirread.c
++++ tiff-3.7.3/libtiff/tif_dirread.c
+@@ -1155,8 +1161,9 @@
+ 		/* TIFF_ASCII */
+ 		/* TIFF_UNDEFINED */
+ 		TIFFError(tif->tif_name,
+-		    "cannot read TIFF_ANY type %d for field \"%s\"",
+-		    _TIFFFieldWithTag(tif, dir->tdir_tag)->field_name);
++			     "cannot read TIFF_ANY type %d for field \"%s\"",
++			     dir->tdir_type,
++			     _TIFFFieldWithTag(tif, dir->tdir_tag)->field_name);
+ 		return (0);
+ 	}
+ 	return (1);

@@ -40,6 +40,14 @@ Patch12:	libtiff-3.5.7-bound-fix2.patch
 Patch13:	libtiff-3.6.x-iDefense.patch
 Patch14:	libtiff-3.6.x-CAN-2005-2452.patch
 Patch15:	libtiff-3.6.1-CVE-2005-1544.patch
+Patch16:	tiff-3.6.1-libtiff_bug_1065.patch
+Patch17:	tiff-3.6.1-libtiff_bug_1102_1.patch
+Patch18:	tiff-3.6.1-libtiff_bug_1102_2.patch
+Patch19:	tiff-3.6.1-libtiff_bug_1102_3.patch
+Patch20:	tiff-3.6.1-tif_dir_double_free.patch
+Patch21:	tiff-3.6.1-tiffgt.patch
+Patch22:	tiffsplit-overflow.patch
+Patch23:	tiff.tiff2pdf-octal-printf.patch
 
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -120,6 +128,15 @@ library.
 %patch13 -p1 -b .idefense
 %patch14 -p1 -b .can-2005-2452
 %patch15 -p1 -b .cve-2005-1544
+%patch16 -p1 -b .bug_1065
+%patch17 -p1 -b .bug_1102_1
+%patch18 -p1 -b .bug_1102_2
+%patch19 -p1 -b .bug_1102_3
+%patch20 -p1 -b .double_free
+%patch21 -p1 -b .tiffgt
+%patch22 -p1 -b .cve-2006-2656
+%patch23 -p1 -b .cve-2006-2193
+
 
 ln -s pics-* pics
 
@@ -199,6 +216,12 @@ install -m 0644 libtiff/tif_dir.h %{buildroot}%{_includedir}/
 
 
 %changelog
+* Tue Jul 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.6.1
+- P16-P21: security fixes for CVE-2006-2024, CVE-2006-2025,
+  CVE-2006-2026 (from SUSE)
+- P22: security fix for CVE-2006-2656
+- P23: security fix for CVE-2006-2193
+
 * Fri Feb 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.6.1
 - P15: security fix for CVE-2005-1544
 

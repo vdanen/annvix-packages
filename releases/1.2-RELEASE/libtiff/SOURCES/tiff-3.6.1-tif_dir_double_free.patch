@@ -1,0 +1,13 @@
+--- tiff-3.7.1/libtiff/tif_dir.c
++++ tiff-3.7.1/libtiff/tif_dir.c
+@@ -518,7 +518,10 @@
+                 {
+                     tv = td->td_customValues + iCustom;
+                     if( tv->value != NULL )
++                    {
+                         _TIFFfree( tv->value );
++                        tv->value = NULL;
++                    }
+                     break;
+                 }
+             }

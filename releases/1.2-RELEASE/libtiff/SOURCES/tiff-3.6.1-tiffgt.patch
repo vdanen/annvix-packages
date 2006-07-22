@@ -1,0 +1,80 @@
+PatchSet 1788 
+Date: 2006/02/09 17:00:34
+Author: dron
+Branch: HEAD
+Tag: (none) 
+Log:
+Avoid crashing in case of image unsupported by TIFFRGBAImage interface.
+
+Members: 
+	tools/tiffgt.c:1.5->1.6 
+
+================================================================================
+--- tiff-3.7.1/tools/tiffgt.c
++++ tiff-3.7.1/tools/tiffgt.c
+@@ -43,7 +43,8 @@
+ static uint16	photo0 = (uint16) -1, photo;
+ static int	stoponerr = 0;			/* stop on read error */
+ static int	verbose = 0;
+-static char	title[1024];			/* window title line */
++#define TITLE_LENGTH    1024
++static char     title[TITLE_LENGTH];            /* window title line */
+ static long	xmax, ymax;
+ static char**	filelist = NULL;
+ static int	fileindex;
+@@ -52,7 +53,7 @@
+ static TIFFErrorHandler owarning;
+ 
+ static void cleanup_and_exit(void);
+-static void initImage(void);
++static int	initImage(void);
+ static int  prevImage(void);
+ static int  nextImage(void);
+ static void setWindowSize(void);
+@@ -149,13 +150,16 @@
+ 	    TIFFError(argv[0], "Error, setting subdirectory at %#x", diroff);
+ 	order = order0;
+ 	photo = photo0;
+-	initImage();
++	if (initImage() < 0){
++                _TIFFfree(filelist);
++                return 3;
++        }
+ 	/*
+ 	 * Create a new window or reconfigure an existing
+ 	 * one to suit the image to be displayed.
+ 	 */
+ 	glutInitWindowSize(width, height);
+-	snprintf(title, 1024, "%s [%u]", filelist[fileindex],
++        snprintf(title, TITLE_LENGTH - 1, "%s [%u]", filelist[fileindex],
+ 		(unsigned int) TIFFCurrentDirectory(tif));
+ 	glutCreateWindow(title);
+ 	glutDisplayFunc(raster_draw);
+@@ -181,7 +185,7 @@
+ 	exit(0);
+ }
+ 
+-static void
++static int
+ initImage(void)
+ {
+ 	uint32 w, h;
+@@ -192,7 +196,9 @@
+ 	    TIFFSetField(tif, TIFFTAG_PHOTOMETRIC, photo);
+ 	if (!TIFFRGBAImageBegin(&img, tif, stoponerr, title)) {
+ 	    TIFFError(filelist[fileindex], title);
+-	    TIFFClose(tif), tif = NULL;
++                TIFFClose(tif);
++                tif = NULL;
++                return -1;
+ 	}
+ 
+ 	/*
+@@ -222,6 +228,7 @@
+ 	    height = h;
+ 	}
+ 	TIFFRGBAImageGet(&img, raster, img.width, img.height);
++	return 0;
+ }
+ 
+ static int
