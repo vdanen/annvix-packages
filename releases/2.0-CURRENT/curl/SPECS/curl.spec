@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		curl
-%define version 	7.15.3
+%define version 	7.15.4
 %define release		%_revrel
 
 %define major		3
@@ -35,7 +35,10 @@ Source1:	http://curl.haxx.se/download/%{name}-%{version}.tar.bz2.asc
 Patch0:		curl-7.10.4-compat-location-trusted.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	bison groff-for-man openssl-devel zlib-devel
+BuildRequires:	bison
+BuildRequires:	groff-for-man
+BuildRequires:	openssl-devel
+BuildRequires:	zlib-devel
 
 Provides:	webfetch
 Requires:	%{libname} = %{version}
@@ -72,6 +75,14 @@ Obsoletes:	%{name}-devel
 %description -n %{libname}-devel
 libcurl is a library of functions for sending and receiving files through
 various protocols, including http and ftp.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -127,13 +138,10 @@ make check
 
 %files -n %{libname}
 %defattr(-,root,root)
-%doc docs/BUGS docs/KNOWN_BUGS docs/CONTRIBUTE docs/FAQ CHANGES
-%doc docs/FEATURES docs/RESOURCES docs/TODO docs/THANKS
 %{_libdir}/libcurl.so.*
 
 %files -n %{libname}-devel
 %defattr(-,root,root)
-%doc docs/examples docs/INTERNALS
 %attr(0755,root,root) %{_bindir}/curl-config
 %attr(0644,root,root) %{_mandir}/man1/curl-config.1*
 %{_libdir}/libcurl.so
@@ -143,8 +151,18 @@ make check
 %{_libdir}/pkgconfig/*.pc
 %{_mandir}/man3/*
 
+%files doc
+%defattr(-,root,root)
+%doc docs/BUGS docs/KNOWN_BUGS docs/CONTRIBUTE docs/FAQ CHANGES
+%doc docs/FEATURES docs/RESOURCES docs/TODO docs/THANKS docs/examples docs/INTERNALS
+
 
 %changelog
+* Sat Jul 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 7.15.4
+- 7.15.4
+- add -doc subpackage
+- rebuild with gcc4
+
 * Tue Mar 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 7.15.3
 - 7.15.3: many upstream bugfixes
 - fix x86_64 build (re: oden)
