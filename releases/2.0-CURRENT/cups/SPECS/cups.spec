@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		cups
-%define version		1.2.1
+%define version		1.2.2
 %define release		%_revrel
 
 %define major		2
@@ -248,6 +248,10 @@ chgrp -R sys /etc/cups /var/*/cups
 
 
 %changelog
+* Fri Jun 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.2
+- 1.2.2
+- rebuild against new libtiff
+
 * Fri Jun 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.1
 - rebuild against new pam
 - S3: pam config
