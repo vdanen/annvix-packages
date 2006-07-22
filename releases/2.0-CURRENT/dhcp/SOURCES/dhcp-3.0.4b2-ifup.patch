@@ -1,5 +1,5 @@
---- dhcp-3.0.2/client/scripts/linux.ifup	2002-11-15 02:09:09.000000000 +0100
-+++ dhcp-3.0.2/client/scripts/linux	2005-04-22 12:34:36.613222253 +0200
+--- dhcp-3.0.4b2/client/scripts/linux.ifup	2002-11-15 02:09:09.000000000 +0100
++++ dhcp-3.0.4b2/client/scripts/linux	2006-02-06 19:29:03.000000000 +0100
 @@ -1,8 +1,11 @@
  #!/bin/bash
 -# dhclient-script for Linux. Dan Halbert, March, 1997.
@@ -11,42 +11,51 @@
 +# Based on:
 +#   dhclient-script for Linux. Dan Halbert, March, 1997.
 +#   Updated for Linux 2.[12] by Brian J. Murrell, January 1999.
-+#   Modified for Mandrakelinux 1999-2004
++#   Modified for Mandriva Linux 1999-2005
 +
  
  # Notes:
  
-@@ -19,17 +22,17 @@
+@@ -19,17 +22,27 @@
  # address if it is not supplied. This might be much more easily done
  # by the dhclient C code, and passed on.
  
 -# 4. TIMEOUT not tested. ping has a flag I don't know, and I'm suspicious
 -# of the $1 in its args.
--
++function make_resolv_conf() {
++  local d
++  local ns
++  
++  if [ -n "$DOMAIN" ]; then
++    d="search $DOMAIN"
++  elif [ -n "$new_domain_name" ]; then
++    d="search $new_domain_name"
++  fi
+ 
 -make_resolv_conf() {
 -  if [ "x$new_domain_name" != x ] && [ x"$new_domain_name_servers" != x ]; then
 -    echo search $new_domain_name >/etc/resolv.conf
 -    chmod 644 /etc/resolv.conf
-+function make_resolv_conf() {
-+  rm -f /etc/resolv.conf
-+  if [ -n "$new_domain_name" ]; then
-+    echo search $new_domain_name > /etc/resolv.conf
-+  fi
 +  if [ -n "$new_domain_name_servers" ]; then
      for nameserver in $new_domain_name_servers; do
 -      echo nameserver $nameserver >>/etc/resolv.conf
-+      echo nameserver $nameserver >> /etc/resolv.conf
++	ns="$ns"$'\n'"nameserver $nameserver"
      done
    fi
-+  [[ -x /sbin/update-resolvrdv ]] && /sbin/update-resolvrdv
++
++  if [ -n "$d" -o -n "$ns" ]; then
++      change_resolv_conf "$d" "$ns"
++  fi
++
++  [ -x /sbin/update-resolvrdv ] && /sbin/update-resolvrdv
  }
  
  # Must be used on exit.   Invokes the local dhcp client exit hooks, if any.
-@@ -53,6 +56,24 @@
+@@ -53,6 +66,24 @@
    fi
  fi
  
-+# Import Mandrakelinux configuration
++# Import Mandriva Linux configuration
 +cd /etc/sysconfig/network-scripts;
 +. /etc/sysconfig/network-scripts/network-functions
 +. /etc/rc.d/init.d/functions
@@ -67,7 +76,7 @@
  release=`uname -r`
  release=`expr $release : '\(.*\)\..*'`
  relminor=`echo $release |sed -e 's/[0-9]*\.\([0-9][0-9]*\)\(\..*\)*$/\1/'`
-@@ -106,14 +127,6 @@
+@@ -106,14 +137,6 @@
    
  if [ x$reason = xBOUND ] || [ x$reason = xRENEW ] || \
     [ x$reason = xREBIND ] || [ x$reason = xREBOOT ]; then
@@ -82,7 +91,7 @@
      
    if [ x$old_ip_address != x ] && [ x$alias_ip_address != x ] && \
  		[ x$alias_ip_address != x$old_ip_address ]; then
-@@ -137,16 +150,31 @@
+@@ -137,16 +160,31 @@
        route add -net $new_network_number $new_subnet_arg dev $interface
      fi
      for router in $new_routers; do
@@ -118,7 +127,7 @@
    exit_with_hooks 0
  fi
  
-@@ -174,8 +202,7 @@
+@@ -174,8 +212,7 @@
    ifconfig $interface inet $new_ip_address $new_subnet_arg \
  					$new_broadcast_arg
    set $new_routers
@@ -128,7 +137,7 @@
      if [ x$new_ip_address != x$alias_ip_address ] && \
  			[ x$alias_ip_address != x ]; then
        ifconfig $interface:0 inet $alias_ip_address $alias_subnet_arg
-@@ -186,9 +213,11 @@
+@@ -186,9 +223,11 @@
        route add -net $new_network_number
      fi
      for router in $new_routers; do

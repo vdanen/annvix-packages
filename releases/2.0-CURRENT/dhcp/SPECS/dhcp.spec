@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		dhcp
-%define version		3.0.3
+%define version		3.0.4
 %define release		%_revrel
 %define epoch		2
 
@@ -30,7 +30,6 @@ Source1:	dhcpd.conf.sample
 Source3:	dhcp-dynamic-dns-examples.tar.bz2
 Source5:	update_dhcp.pl
 Source6:	dhcpreport.pl
-Source7:	ftp://ftp.isc.org/isc/%{name}/%{name}-%{version}.tar.gz.asc
 Source8:	dhcpd.run
 Source9:	dhcpd-log.run
 Source10:	dhcrelay.run
@@ -41,14 +40,14 @@ Source14:	LEASEFILE.env
 Source15:	OPTIONS.env
 Source16:	OPTIONS-dhcrelay.env
 Source17:	SERVERS-dhcrelay.env
-Patch0:		dhcp-3.0.1-ifup.patch
+Patch0:		dhcp-3.0.4b2-ifup.patch
 # http://www.episec.com/people/edelkind/patches/
 Patch1:		dhcp-3.0.1-paranoia.diff
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	perl groff-for-man
+BuildRequires:	perl
+BuildRequires:	groff-for-man
 
-Requires:	bash
 Obsoletes:	dhcpd
 
 %description 
@@ -137,6 +136,14 @@ DHCP devel contains all of the libraries and headers for developing with the
 Internet Software Consortium (ISC) dhcpctl API.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -a 3 -n %{name}-%{version}
 %patch0 -p1 -b .ifup
@@ -162,7 +169,7 @@ EOF
 echo 'int main() { return sizeof(void *) != 8; }' | gcc -xc - -o is_ptr64
 ./is_ptr64 && PTR64_FLAGS="-DPTRSIZE_64BIT"
 
-./configure --copts "%{optflags} $PTR64_FLAGS -DPARANOIA"
+./configure --copts "%{optflags} $PTR64_FLAGS -DPARANOIA -DLDAP_DEPRECATED"
 
 #-DEARLY_CHROOT
 
@@ -171,7 +178,7 @@ echo 'int main() { return sizeof(void *) != 8; }' | gcc -xc - -o is_ptr64
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p %{buildroot}%{_bindir}
+mkdir -p %{buildroot}{%{_bindir},%{_sbindir}}
 mkdir -p %{buildroot}%{_localstatedir}/dhcp
 mkdir -p %{buildroot}/var/run/dhcpd
 
@@ -180,9 +187,9 @@ mkdir -p %{buildroot}/var/run/dhcpd
 touch %{buildroot}%{_localstatedir}/dhcp/dhcpd.leases
 touch %{buildroot}%{_localstatedir}/dhcp/dhclient.leases
 
-install -m 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}
-install -m 0755 %{SOURCE5} %{buildroot}%{_sbindir}/
-install -m 0755 %{SOURCE6} %{buildroot}%{_sbindir}/
+install -m 0644 %{_sourcedir}/dhcpd.conf.sample %{buildroot}%{_sysconfdir}
+install -m 0755 %{_sourcedir}/update_dhcp.pl %{buildroot}%{_sbindir}/
+install -m 0755 %{_sourcedir}/dhcpreport.pl %{buildroot}%{_sbindir}/
 
 find . -type d -exec chmod 0755 {} \;
 find . -type f -exec chmod 0644 {} \;
@@ -191,18 +198,18 @@ rm -rf doc/ja_JP.eucJP
 
 mkdir -p %{buildroot}%{_srvdir}/{dhcpd,dhcrelay}/{log,env}
 
-install -m 0740 %{SOURCE8} %{buildroot}%{_srvdir}/dhcpd/run
-install -m 0740 %{SOURCE9} %{buildroot}%{_srvdir}/dhcpd/log/run
+install -m 0740 %{_sourcedir}/dhcpd.run %{buildroot}%{_srvdir}/dhcpd/run
+install -m 0740 %{_sourcedir}/dhcpd-log.run %{buildroot}%{_srvdir}/dhcpd/log/run
 
-install -m 0640 %{SOURCE12} %{buildroot}%{_srvdir}/dhcpd/env/CONFIGFILE
-install -m 0640 %{SOURCE13} %{buildroot}%{_srvdir}/dhcpd/env/INTERFACES
-install -m 0640 %{SOURCE14} %{buildroot}%{_srvdir}/dhcpd/env/LEASEFILE
-install -m 0640 %{SOURCE15} %{buildroot}%{_srvdir}/dhcpd/env/OPTIONS
+install -m 0640 %{_sourcedir}/CONFIGFILE.env %{buildroot}%{_srvdir}/dhcpd/env/CONFIGFILE
+install -m 0640 %{_sourcedir}/INTERFACES.env %{buildroot}%{_srvdir}/dhcpd/env/INTERFACES
+install -m 0640 %{_sourcedir}/LEASEFILE.env %{buildroot}%{_srvdir}/dhcpd/env/LEASEFILE
+install -m 0640 %{_sourcedir}/OPTIONS.env %{buildroot}%{_srvdir}/dhcpd/env/OPTIONS
 
-install -m 0740 %{SOURCE10} %{buildroot}%{_srvdir}/dhcrelay/run
-install -m 0740 %{SOURCE11} %{buildroot}%{_srvdir}/dhcrelay/log/run
-install -m 0640 %{SOURCE16} %{buildroot}%{_srvdir}/dhcrelay/env/OPTIONS
-install -m 0640 %{SOURCE17} %{buildroot}%{_srvdir}/dhcrelay/env/SERVERS
+install -m 0740 %{_sourcedir}/dhcrelay.run %{buildroot}%{_srvdir}/dhcrelay/run
+install -m 0740 %{_sourcedir}/dhcrelay-log.run %{buildroot}%{_srvdir}/dhcrelay/log/run
+install -m 0640 %{_sourcedir}/OPTIONS-dhcrelay.env %{buildroot}%{_srvdir}/dhcrelay/env/OPTIONS
+install -m 0640 %{_sourcedir}/SERVERS-dhcrelay.env %{buildroot}%{_srvdir}/dhcrelay/env/SERVERS
 
 
 %pre common
@@ -246,13 +253,11 @@ rm -rf %{_localstatedir}/dhcp/dhclient.leases
 
 %files common
 %defattr(-,root,root)
-%doc README RELNOTES doc contrib
 %attr(0750,dhcp,dhcp) %dir %{_localstatedir}/dhcp
 %{_mandir}/man5/dhcp-options.5*
 
 %files server
 %defattr(-,root,root)
-%doc server/dhcpd.conf tests/failover
 %config(noreplace) %ghost %{_localstatedir}/dhcp/dhcpd.leases
 %{_sysconfdir}/dhcpd.conf.sample
 %{_sbindir}/dhcpd
@@ -289,7 +294,6 @@ rm -rf %{_localstatedir}/dhcp/dhclient.leases
 
 %files client
 %defattr(-,root,root)
-%doc client/dhclient.conf
 %config(noreplace) %ghost %{_localstatedir}/dhcp/dhclient.leases
 %attr (0755,root,root) /sbin/dhclient-script
 /sbin/dhclient
@@ -300,16 +304,30 @@ rm -rf %{_localstatedir}/dhcp/dhclient.leases
 
 %files devel
 %defattr(-,root,root)
-%{_mandir}/man3/*
 %{_libdir}/*
 %{_includedir}/*
+%{_mandir}/man3/*
+
+%files doc
+%defattr(-,root,root)
+%doc README RELNOTES doc contrib/3.0b1-lease-convert server/dhcpd.conf tests/failover
+%doc client/dhclient.conf
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jul 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.4
+- 3.0.4
+- updated P0
+- drop S7; gpg can't verify any of their sha{1,512,256} sigs for some reason
+  so no point in keeping it
+- add -doc subpackage
+- rebuild with gcc4
+- use %%_sourcedir/file instead of %%{SOURCEx}
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.3
 - Clean rebuild
 
-* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.3
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - fix prereq
@@ -482,7 +500,7 @@ without a domainname.
 * Wed Oct 17 2001 Florin <florin@mandrakesoft.com> 3.0-1.rc1.1mdk
 - 3.0.1rc1
 - fix the doc permissions
-- add the %_preun/post_service macros
+- add the %%_preun/post_service macros
 
 * Fri Oct 05 2001 Florin <florin@mandrakesoft.com> 3.0-1mdk
 - 3.0
@@ -572,7 +590,7 @@ without a domainname.
 - make a copy of the *doc*/dhcpd.conf.sample file to /etc/dhcpd.conf
 
 * Thu Sep 21 2000 Guillaume Cottenceau <gc@mandrakesoft.com> 3.0b2pl2-3mdk
-- chkconfig --del has to be done in %preun not %postun !!
+- chkconfig --del has to be done in %%preun not %%postun !!
 
 * Tue Sep 07 2000 Florin Grad <florin@mandrakesoft.com> 3.0b2pl2-2mdk
 - adding noreplace in the config section 
@@ -604,7 +622,7 @@ without a domainname.
 - Clean spec file (use macro)
 
 * Sat Jul  1 2000 Chmouel Boudjnah <chmouel@mandrakesoft.com> 3.0b1pl15-1mdk
-- Fix %doc.
+- Fix %%doc.
 - 3.0b1pl15.
 
 * Wed Jun 28 2000 Chmouel Boudjnah <chmouel@mandrakesoft.com> 3.0b1pl12-6mdk
@@ -646,7 +664,7 @@ without a domainname.
 - strip binaries
 
 * Mon Apr 05 1999 Cristian Gafton <gafton@redhat.com>
-- copy the source file in %prep, not move
+- copy the source file in %%prep, not move
 
 * Sun Mar 21 1999 Cristian Gafton <gafton@redhat.com> 
 - auto rebuild in the new build environment (release 4)
@@ -678,7 +696,7 @@ without a domainname.
 
 * Mon Mar 16 1998 Mike Wangsmo <wanger@redhat.com>
 - removed the actual inet.d links (chkconfig takes care of this for us)
-  and made the %postun section handle upgrades.
+  and made the %%postun section handle upgrades.
 
 * Mon Mar 16 1998 Bryan C. Andregg <bandregg@redhat.com>
 - First package.
