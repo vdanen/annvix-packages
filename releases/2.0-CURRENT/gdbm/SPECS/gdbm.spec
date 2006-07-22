@@ -28,7 +28,9 @@ Patch0:		gdbm-1.8.0-jbj.patch
 Patch1:		gdbm-1.8.3-asnonroot.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-Buildrequires:	texinfo autoconf2.5 automake1.7
+BuildRequires:	texinfo
+BuildRequires:	autoconf2.5
+BuildRequires:	automake1.7
 
 %description
 Gdbm is a GNU database indexing library, including routines
@@ -54,7 +56,8 @@ with gdbm.
 Summary:	Development libraries and header files for the gdbm library
 Group:		Development/Databases
 Requires:	%{libname} = %{version}
-Prereq:		info-install
+Requires(post):	info-install
+Requires(preun): info-install
 Obsoletes:	%{name}-devel, libgdbm1-devel
 Provides:	%{name}-devel, libgdbm1-devel
 Provides:	lib%{name}-devel
@@ -64,6 +67,14 @@ Conflicts:	%{mklibname gdbm 2}-devel
 Gdbm-devel contains the development libraries and header files
 for gdbm, the GNU database system.  These libraries and header files are
 necessary if you plan to do development using the gdbm database.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -108,7 +119,6 @@ chmod 0644 COPYING INSTALL NEWS README
 
 %files -n %{libname}
 %defattr(-,root,root)
-%doc  NEWS README
 %{_libdir}/libgdbm*.so.*
 
 %files -n %{libname}-devel
@@ -122,12 +132,21 @@ chmod 0644 COPYING INSTALL NEWS README
 %{_infodir}/gdbm*
 %{_mandir}/man3/*
 
+%files doc
+%defattr(-,root,root)
+%doc NEWS README
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jul 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.8.3
+- add -doc subpackage
+- rebuild with gcc4
+- fix prereq
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.8.3
 - Clean rebuild
 
-* Thu Jan 05 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 05 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.8.3
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - remove useless provides on %%{libname}-devel
