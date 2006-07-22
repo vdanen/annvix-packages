@@ -63,6 +63,14 @@ Provides:	%{name}-devel = %{version}-%{release}
 These are the header files for %{libname}
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n %{name}
 pushd src
@@ -117,12 +125,10 @@ install -m 0755 src/Linux_All_OPT.OBJ/%{name} %{buildroot}%{_bindir}/
 
 %files
 %defattr(-,root,root)
-%doc README
 %{_bindir}/*
 
 %files -n %{libname}
 %defattr(-,root,root)
-%doc src/README.html
 %{_libdir}/*.so.*
 
 %files -n %{libname}-devel
@@ -132,12 +138,20 @@ install -m 0755 src/Linux_All_OPT.OBJ/%{name} %{buildroot}%{_bindir}/
 %{_libdir}/*.so
 %{_libdir}/*.a
 
+%files doc
+%defattr(-,root,root)
+%doc README src/README.html
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jul 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.5.rc5a
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.5.rc5a
 - Clean rebuild
 
-* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.5.rc5a
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
