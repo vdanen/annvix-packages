@@ -69,6 +69,14 @@ libraries, which are available as public libraries.  GLIB includes generally
 useful data structures.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 %patch0 -p1 -b .isowarnings
@@ -83,6 +91,9 @@ automake-1.4
 %configure
 
 %make
+
+
+%check
 make check
 
 
@@ -108,12 +119,11 @@ make check
 
 
 %files -n %{libname}
-%defattr(-, root, root)
+%defattr(-,root,root)
 %{_libdir}/lib*.so.*
 
 %files -n %{libname}-devel
-%defattr(-, root, root)
-%doc AUTHORS ChangeLog NEWS README COPYING docs/*.html
+%defattr(-,root,root)
 %{_libdir}/lib*.so
 %{_libdir}/*a
 %{_libdir}/pkgconfig/*
@@ -125,12 +135,21 @@ make check
 %multiarch %{multiarch_bindir}/*
 %{_infodir}/%{name}*
 
+%files doc
+%defattr(-,root,root)
+%doc AUTHORS ChangeLog NEWS README COPYING docs/*.html
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jul 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.10
+- add -doc subpackage
+- rebuild with gcc4
+- put make check in %%check
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.10
 - Clean rebuild
 
-* Thu Jan 05 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 05 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.10
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
@@ -184,7 +203,7 @@ make check
 - Patch1: fix glib-config to not give -L/usr/lib for --libs (Geoffrey Lee)
 
 * Thu Oct  4 2001 DindinX <odin@mandrakesoft.com> 1.2.10-4mdk
-- don't include %{_infodir}/dir
+- don't include %%{_infodir}/dir
 
 * Thu Aug 30 2001 Frederic Crozat <fcrozat@mandrakesoft.com> 1.2.10-3mdk
 - Patch0: Add #pragma GCC system_header to supress warnings when in -pedantic mode (Rawhide)
@@ -259,7 +278,7 @@ make check
 - 1.2.4
 
 * Wed Jul 14 1999 Pablo Saratxaga <pablo@mandrakesoft.com>
-- changed %{prefix}/man/man1 to %{prefix}/man/man1/*
+- changed %%{prefix}/man/man1 to %%{prefix}/man/man1/*
 - added back descriptions from RH 5.2
 
 * Wed May 12 1999 Bernhard Rosenkränzer <bero@mandrakesoft.com>
@@ -282,7 +301,7 @@ make check
 - new description tags 
 
 * Sun Feb 21 1999 Michael Fulbright <drmike@redhat.com>
-- removed libtoolize from %build
+- removed libtoolize from %%build
 
 * Thu Feb 11 1999 Michael Fulbright <drmike@redhat.com>
 - added libgthread to file list
