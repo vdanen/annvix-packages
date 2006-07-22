@@ -216,7 +216,7 @@ install -m 0644 libtiff/tif_dir.h %{buildroot}%{_includedir}/
 
 
 %changelog
-* Tue Jul 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.6.1
+* Fri Jul 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.6.1
 - P16-P21: security fixes for CVE-2006-2024, CVE-2006-2025,
   CVE-2006-2026 (from SUSE)
 - P22: security fix for CVE-2006-2656
