@@ -11,13 +11,11 @@
 %define name		dejagnu
 %define version 	1.4.2
 %define release 	%_revrel
-%define epoch		20010912
 
 Summary:	A front end for testing other programs
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-Epoch:		%{epoch}
 Group:		Development/Other
 License:	GPL
 URL:		http://sourceware.cygnus.com
@@ -25,7 +23,9 @@ Source:		%{name}-%{version}.tar.bz2
 Patch2:		dejagnu-1.4.2-mkargs.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	autoconf automake libtool
+BuildRequires:	autoconf
+BuildRequires:	automake
+BuildRequires:	libtool
 BuildArch:	noarch
 
 Requires:	common-licenses, tcl >= 8.0, expect >= 5.21
@@ -39,6 +39,14 @@ output format of all tests (making it easier to integrate the testing
 into software development).
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 %patch2 -p1
@@ -47,6 +55,9 @@ into software development).
 %build
 %configure
 %make
+
+
+%check
 # all tests must pass (use runtest that was just built)
 (
 export PATH=$PWD:$PATH
@@ -72,19 +83,28 @@ rm -f %{buildroot}%{_includedir}/dejagnu.h
 
 %files
 %defattr(-,root,root)
-%doc AUTHORS NEWS README TODO
 %dir %{_datadir}/dejagnu
 %{_datadir}/dejagnu/*
 %{_bindir}/runtest
 %{_mandir}/man1/dejagnu.1*
 %{_mandir}/man1/runtest.1*
 
+%files doc
+%defattr(-,root,root)
+%doc AUTHORS NEWS README TODO
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jul 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4.2
+- add -doc subpackage
+- rebuild with gcc4
+- drop the epoch (which means on upgrade the old one needs to be removed
+  first and then this one gets installed... that epoch was retarded)
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4.2
 - Clean rebuild
 
-* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4.2
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
@@ -158,11 +178,11 @@ rm -f %{buildroot}%{_includedir}/dejagnu.h
 * Mon Jul 12 1999 Tim Powers <timp@redhat.com>
 - updated to 19990628
 - updated patches as needed
-- added %defattr in files section
+- added %%defattr in files section
 
 * Wed Mar 10 1999 Jeff Johnson <jbj@redhat.com>
 - add alpha expect patch (#989)
-- use %configure
+- use %%configure
 
 * Thu Dec 17 1998 Jeff Johnson <jbj@redhat.com>
 - Update to 19981215.
