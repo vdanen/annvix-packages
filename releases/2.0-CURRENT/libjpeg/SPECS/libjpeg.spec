@@ -36,6 +36,7 @@ Patch2:		jpegv6b-losslesscropndrop.patch
 Patch3:		jpeg-6b-autoconf-vars.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
+BuildRequires:	libtool
 
 %description
 The libjpeg package contains a shared library of functions for loading,
@@ -97,6 +98,14 @@ any text comments included in a JPEG file.  Wrjpgcom inserts text
 comments into a JPEG file.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n jpeg-6b
 %patch0 -p1 
@@ -145,12 +154,10 @@ mkdir -p %{buildroot}{%{_bindir},%{_libdir},%{_includedir},%{_mandir}/man1}
 
 %files -n %{libname}
 %defattr(-,root,root)
-%doc README change.log
 %{_libdir}/lib*.so.*
 
 %files -n %{libname}-devel
 %defattr(-,root,root)
-%doc usage.doc wizard.doc coderules.doc libjpeg.doc structure.doc example.c
 %{_libdir}/*.so
 %{_includedir}/*.h
 %{_libdir}/*.la
@@ -164,12 +171,22 @@ mkdir -p %{buildroot}{%{_bindir},%{_libdir},%{_includedir},%{_mandir}/man1}
 %{_bindir}/*
 %{_mandir}/man1/*
 
+%files doc
+%defattr(-,root,root)
+%doc README change.log
+%doc usage.doc wizard.doc coderules.doc libjpeg.doc structure.doc example.c
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jul 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 6b
+- add -doc subpackage
+- rebuild with gcc4
+- buildrequires: libtool
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 6b
 - Clean rebuild
 
-* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 6b
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
