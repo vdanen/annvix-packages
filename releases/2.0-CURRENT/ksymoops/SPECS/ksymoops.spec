@@ -38,6 +38,14 @@ specific files and the error log and converts the addresses to
 meaningful symbols and offsets.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 %patch1 -p1
@@ -62,18 +70,25 @@ install -m 0644 %{SOURCE3} .
 
 %files
 %defattr(-,root,root)
-%doc COPYING README INSTALL Changelog README.annvix
 %{_bindir}/ksymoops
 %{_bindir}/ksymoops-gznm
 %{_bindir}/ksymoops.real
 %{_mandir}/man8/ksymoops.8*
 
+%files doc
+%defattr(-,root,root)
+%doc COPYING README INSTALL Changelog README.annvix
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jul 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.9
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.9
 - Clean rebuild
 
-* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.9
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
@@ -96,7 +111,7 @@ install -m 0644 %{SOURCE3} .
 * Tue Jul 22 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 2.4.8-2mdk
 - rebuild
 - drop Prefix tag
-- rm -rf %{buildroot} at the beginning of %%install
+- rm -rf %%{buildroot} at the beginning of %%install
 - macroize
 
 * Mon Dec  9 2002 Juan Quintela <quintela@mandrakesoft.com> 2.4.8-1mdk
@@ -113,7 +128,7 @@ install -m 0644 %{SOURCE3} .
 - Corrected permissions of README.mandrake (Duclos Andre).
 
 * Wed Feb  6 2002 Juan Quintela <quintela@mandrakesoft.com> 2.4.3-2mdk
-- s/%{buildroot}/$buildroot/.
+- s/%%{buildroot}/$buildroot/.
 - add ksymoops script to put the KSYMOOPS_NM to find the gznm instead of nm.
 - add gznm script to make nm <module> work indepently if it is gzipped or not.
 - add support for gzipped modules.
