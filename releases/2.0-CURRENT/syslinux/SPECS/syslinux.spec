@@ -35,7 +35,8 @@ Patch6:		syslinux-1.76-avx-nostack.patch
 Patch7:		syslinux-2.13-avx-nostack.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	nasm >= 0.97, netpbm
+BuildRequires:	nasm >= 0.97
+BuildRequires:	netpbm
 
 ExclusiveArch:	%{ix86}
 Obsoletes:	isolinux < %{version}
@@ -159,6 +160,9 @@ popd
 
 
 %changelog
+* Fri Jun 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.76
+- rebuild against new netpbm
+
 * Fri Jun 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.76
 - add -doc subpackage
 - rebuild with gcc4
