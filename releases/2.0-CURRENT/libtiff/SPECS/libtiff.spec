@@ -9,10 +9,11 @@
 
 %define revision	$Rev$
 %define name		libtiff
-%define	version		3.6.1
+%define	version		3.8.2
 %define release 	%_revrel
 
-%define lib_version	3.6.1
+%define picver		3.8.0
+%define lib_version	3.8.2
 %define lib_major	3
 %define libname		%mklibname tiff %{lib_major}
 
@@ -23,23 +24,10 @@ Release:	%{release}
 License:	BSD-like
 Group:		System/Libraries
 URL:		http://www.libtiff.org/
-Source0:	ftp://ftp.remotesensing.org/pub/libtiff/tiff-v%{version}.tar.bz2
-Source1:	ftp://ftp.remotesensing.org/pub/libtiff/pics-%{version}.tar.bz2
-Patch0:		tiff-v3.6-shlib.patch
-Patch1:		%{name}-3.6.1-codecs.patch
-Patch2:		%{name}-3.5.5-stupid_cd_output.patch
-Patch3:		%{name}-3.5.5-buildroot.patch
-Patch4:		tiff-v3.6.1-64bit.patch
-Patch5:		tiff-v3.5.7-x86_64.patch
-Patch6:		tiff-v3.5.7-deps.patch
-Patch8:		libtiff-3.6.1-tiffsplit_range.patch
-# security fixes
-Patch10:	libtiff-3.6.1-alt-bound.patch
-Patch11:	libtiff-3.6.1-chris-bound.patch
-Patch12:	libtiff-3.5.7-bound-fix2.patch
-Patch13:	libtiff-3.6.x-iDefense.patch
-Patch14:	libtiff-3.6.x-CAN-2005-2452.patch
-Patch15:	libtiff-3.6.1-CVE-2005-1544.patch
+Source0:	ftp://ftp.remotesensing.org/pub/libtiff/tiff-%{version}.tar.gz
+Source1:	ftp://ftp.remotesensing.org/pub/libtiff/pics-%{picver}.tar.gz
+Patch0:		tiffsplit-overflow.patch
+Patch1:		tiff.tiff2pdf-octal-printf.patch
 
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -103,49 +91,45 @@ programs which will manipulate TIFF format image files using the libtiff
 library.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
-%setup -q -n tiff-v%{version} -a 1
-%patch0 -p1 -b .shlib
-%patch1 -p1 -b .codecs
-%patch2 -p1 -b .cd
-%patch3 -p1 -b .buildroot
-%patch4 -p1 -b .64bit
-%patch5 -p1 -b .x86_64
-%patch6 -p1 -b .deps
-%patch8 -p1 -b .range
-# security fixes
-%patch10 -p1 -b .alt-bound
-%patch11 -p1 -b .chris-bound
-%patch12 -p1 -b .bound-fix2
-%patch13 -p1 -b .idefense
-%patch14 -p1 -b .can-2005-2452
-%patch15 -p1 -b .cve-2005-1544
+%setup -q -n tiff-%{version} -a 1
+%patch0 -p1 -b .can-2005-2452
+%patch1 -p1 -b .cve-2005-1544
 
 ln -s pics-* pics
 
 
 %build
 find . -type 'd' -name 'CVS' | xargs rm -fr
-perl -pi -e 's|(DIR_.*)="?/usr/lib"?|\1="%{_libdir}"|' config.site
 %{?__cputoolize: %{__cputoolize}}
-./configure \
-    --target=%{_target_platform} \
-    --with-GCOPTS="%{optflags}" << EOF
-no
-%{_bindir}
-%{_libdir}
-%{_includedir}
-%{_mandir}
-%{_defaultdocdir}/%{name}-progs-%{version}
-bsd-source-cat
-yes
-EOF
 
-pushd libtiff
-    ln -s libtiff.so.%{lib_version} libtiff.so
-popd
+./configure \
+    --with-GCOPTS="%{optflags}" \
+    --prefix=%{_prefix} \
+    --exec-prefix=%{_prefix} \
+    --bindir=%{_bindir} \
+    --sbindir=%{_sbindir} \
+    --sysconfdir=%{_sysconfdir} \
+    --datadir=%{_datadir} \
+    --includedir=%{_includedir} \
+    --libdir=%{_libdir} \
+    --libexecdir=%{_libdir} \
+    --localstatedir=%{_localstatedir} \
+    --mandir=%{_mandir} \
+    --infodir=%{_infodir}
+
 %make
 
+
+%check
 make test
 
 
@@ -155,18 +139,12 @@ mkdir -p %{buildroot}/{%{_bindir},%{_datadir}}
 
 %makeinstall
 
-install -m 0644 %{name}/%{name}.so.%{lib_version} %{buildroot}/%{_libdir}
-
-pushd %{buildroot}%{_libdir}
-    ln -sf %{name}.so.%{lib_version} %{name}.so
-    ln -sf %{name}.so.%{lib_version} %{name}.so.%{lib_major}
-popd
-
 install -m 0644 libtiff/tiffiop.h %{buildroot}%{_includedir}/
-install -m 0644 libtiff/port.h %{buildroot}%{_includedir}/
 install -m 0644 libtiff/tif_dir.h %{buildroot}%{_includedir}/
 
-%multiarch_includes %{buildroot}%{_includedir}/port.h
+rm -rf %{buildroot}%{_docdir}/tiff-%{version}
+
+%multiarch_includes %{buildroot}%{_includedir}/tiffconf.h
 
 
 %post -n %{libname} -p /sbin/ldconfig
@@ -187,9 +165,9 @@ install -m 0644 libtiff/tif_dir.h %{buildroot}%{_includedir}/
 %{_libdir}/*.so.*
 
 %files -n %{libname}-devel
-%defattr(-,root,root,-)
-%doc COPYRIGHT README TODO VERSION html
+%defattr(-,root,root,0755)
 %{_includedir}/*
+%{_libdir}/*.la
 %{_libdir}/*.so
 %{_mandir}/man3/*
 
@@ -197,8 +175,21 @@ install -m 0644 libtiff/tif_dir.h %{buildroot}%{_includedir}/
 %defattr(-,root,root,-)
 %{_libdir}/*.a
 
+%files doc
+%defattr(-,root,root,-)
+%doc COPYRIGHT README TODO VERSION html
+
 
 %changelog
+* Fri Jul 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.8.2
+- 3.8.2
+- drop all patches; merged upstream
+- P0: security fix for CVE-2006-2656
+- P1: security fix for CVE-2006-2193
+- put make test in %%check
+- add -doc subpackage
+- rebuild with gcc4
+
 * Fri Feb 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.6.1
 - P15: security fix for CVE-2005-1544
 
