@@ -70,7 +70,6 @@ fi
 
 %files
 %defattr(-,root,root)
-%doc ChangeLog
 %verify(not md5 size mtime) %config(noreplace) /etc/passwd
 %verify(not md5 size mtime) %config(noreplace) /etc/group
 %verify(not md5 size mtime) %attr(0440,root,shadow) %config(noreplace) /etc/shadow
@@ -106,6 +105,9 @@ fi
 
 
 %changelog
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5
+- drop the doc (Changelog)
+
 * Sat Jul 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5
 - /etc/passwd is now owned root:shadow
 - new groups: auth (gid 27), shadow (gid 28), chkpwd (gid 29)
