@@ -38,11 +38,14 @@ Patch8:		module-init-tools-3.2.2-generate-modprobe.conf-no-defaults.patch
 Patch9:		module-init-tools-3.0-failed.unknown.symbol.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	autoconf2.5, glibc-static-devel, zlib-devel
+BuildRequires:	autoconf2.5
+BuildRequires:	glibc-static-devel
+BuildRequires:	zlib-devel
 
-Requires(post):	/usr/sbin/update-alternatives
-Requires(postun): /usr/sbin/update-alternatives
-Conflicts:	modutils < 2.4.22-10mdk devfsd < 1.3.25-31mdk
+Requires(post):	update-alternatives
+Requires(postun): update-alternatives
+Conflicts:	modutils < 2.4.22-10mdk
+Conflicts:	devfsd < 1.3.25-31mdk
 
 
 %description
@@ -50,6 +53,14 @@ This package contains a set of programs for loading, inserting, and
 removing kernel modules for Linux (versions 2.5.47 and above). It
 serves the same function that the "modutils" package serves for Linux
 2.4.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -153,8 +164,6 @@ done
 
 %files
 %defattr(-,root,root)
-%doc AUTHORS COPYING ChangeLog NEWS README 
-%doc TODO stress_modules.sh
 %config(noreplace) %{_sysconfdir}/modprobe.conf
 %config(noreplace) %{_sysconfdir}/modprobe.preload
 %dir %{_sysconfdir}/modprobe.d/
@@ -164,8 +173,17 @@ done
 %{_sbindir}/*25
 %{_mandir}/*/*
 
+%files doc
+%defattr(-,root,root)
+%doc AUTHORS COPYING ChangeLog NEWS README 
+%doc TODO stress_modules.sh
+
 
 %changelog
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.2.2
+- add -doc subpackage
+- requires packages, not files
+
 * Mon Apr 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.2.2
 - first Annvix package for the 2.6 kernel
 
