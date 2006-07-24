@@ -54,6 +54,14 @@ This package contains a library for inspecting and setting
 devices connected to the PCI bus.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n %{name}-%{rver}
 %patch0 -p1 -b .strip
@@ -95,25 +103,32 @@ install lib/libpci_loader_a %{buildroot}%{_libdir}/libpci_loader.a
 
 
 %files
-%defattr(0644, root, root, 0755)
-%doc README ChangeLog pciutils.lsm
+%defattr(0644,root,root,0755)
 %{_mandir}/man8/*
 %attr(0755,root,root) /sbin/*
 
 %files devel
-%defattr(0644, root, root, 0755)
+%defattr(0644,root,root,0755)
 %{_libdir}/libpci.a
 %ifarch %{ix86}
 %{_libdir}/libpci_loader.a
 %endif
 %{_includedir}/pci
 
+%files doc
+%defattr(-,root,root)
+%doc README ChangeLog pciutils.lsm
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1.99.test8
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1.99.test8
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1.99.test8
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
@@ -234,7 +249,7 @@ install lib/libpci_loader_a %{buildroot}%{_libdir}/libpci_loader.a
 - new version
 
 * Sun Nov 21 1999 Pixel <pixel@mandrakesoft.com>
-- removed %config for pci.ids (someone was zealous here?)
+- removed %%config for pci.ids (someone was zealous here?)
 - changed 0711 to 0755 for lspci (makes rpmlint happy :)
 
 * Sun Nov  7 1999 Chmouel Boudjnah <chmouel@mandrakesoft.com>
