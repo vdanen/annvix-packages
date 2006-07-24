@@ -149,8 +149,6 @@ rm -rf %{buildroot}%{_docdir}/%{name}-%{version} \
 %defattr(-,root,root)
 %{_libdir}/python%{pyver}/site-packages/*.so
 %{_libdir}/python%{pyver}/site-packages/*.py
-%doc python/libxsltclass.txt
-%doc python/tests/*.py
 
 
 %files -n %{libname}-devel
@@ -170,9 +168,14 @@ rm -rf %{buildroot}%{_docdir}/%{name}-%{version} \
 %doc AUTHORS ChangeLog NEWS README Copyright FEATURES
 %doc doc/*.html
 %doc doc/tutorial doc/html
+%doc python/libxsltclass.txt
+%doc python/tests/*.py
 
 
 %changelog
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.1.16
+- move the python pkg docs too
+
 * Tue May 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.1.16
 - add -doc subpackage
 - rebuild against new libxml2
