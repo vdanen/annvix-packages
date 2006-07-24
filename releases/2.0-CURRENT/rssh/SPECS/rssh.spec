@@ -17,7 +17,7 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	BSD
-Group:		Networking/Remote access
+Group:		Networking/Remote Access
 URL:		http://www.pizzashack.org/rssh/
 Source0:	http://prdownloads.sourceforge.net/rssh/%{name}-%{version}.tar.gz
 Source1:	http://prdownloads.sourceforge.net/rssh/%{name}-%{version}.tar.gz.sig
@@ -31,6 +31,14 @@ Requires:	openssh
 rssh is a restricted shell for use with ssh, which allows the system
 administrator to restrict a user's access to a system via scp or sftp, or
 both.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -55,7 +63,6 @@ install -m 0755 -D conf_convert.sh %{buildroot}%_datadir/%{name}/conf_convert.sh
 
 %files
 %defattr(-,root,root)
-%doc AUTHORS ChangeLog CHROOT COPYING README SECURITY TODO
 %config(noreplace) %{_sysconfdir}/rssh.conf
 %attr(755,root,root) %{_bindir}/rssh
 %attr(4755,root,root) %{_libexecdir}/rssh_chroot_helper
@@ -63,12 +70,20 @@ install -m 0755 -D conf_convert.sh %{buildroot}%_datadir/%{name}/conf_convert.sh
 %_datadir/%{name}/conf_convert.sh
 %{_mandir}/man*/*
 
+%files doc
+%defattr(-,root,root)
+%doc AUTHORS ChangeLog CHROOT COPYING README SECURITY TODO
+
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.2
+- add -doc subpackage
+- rebuild with gcc4
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.2
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.2
 - 2.3.2 (fixes some security issues)
 - Obfuscate email addresses and new tagging
 - Uncompress patches
@@ -92,7 +107,7 @@ install -m 0755 -D conf_convert.sh %{buildroot}%_datadir/%{name}/conf_convert.sh
 - New release 2.2.1
 
 * Tue May 11 2004 Götz Waschk <waschk@linux-mandrake.com> 2.2.0-1mdk
-- add %_datadir/%{name}/conf_convert.sh to migrate from 2.1.1
+- add %%_datadir/%{name}/conf_convert.sh to migrate from 2.1.1
 - New release 2.2.0
 
 * Tue May 11 2004 Götz Waschk <waschk@linux-mandrake.com> 2.1.1-1mdk
