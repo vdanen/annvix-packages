@@ -61,10 +61,13 @@ rm -f %{buildroot}/root/.bash_completion
 
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Jul 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 10.2
+- rebuild for 2.0
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 10.2
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 10.2
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
