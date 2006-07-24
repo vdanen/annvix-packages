@@ -41,6 +41,14 @@ volumes and creating one or more logical volumes (kind of logical partitions)
 in volume groups.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n LVM
 cd %{version}
@@ -143,18 +151,25 @@ fi
 
 %files
 %defattr(-,root,root)
-%doc %{version}/ABSTRACT %{version}/CHANGELOG %{version}/CONTRIBUTORS %{version}/COPYING
-%doc %{version}/COPYING.LIB %{version}/FAQ %{version}/LVM-HOWTO %{version}/README
-%doc %{version}/TODO %{version}/WHATSNEW
 /sbin/*
 %{_mandir}/man8/*
 
+%files doc
+%defattr(-,root,root)
+%doc %{version}/ABSTRACT %{version}/CHANGELOG %{version}/CONTRIBUTORS %{version}/COPYING
+%doc %{version}/COPYING.LIB %{version}/FAQ %{version}/LVM-HOWTO %{version}/README
+%doc %{version}/TODO %{version}/WHATSNEW
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.8 
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.8
 - Clean rebuild
 
-* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.8
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - dietlibc fixes
