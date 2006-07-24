@@ -83,6 +83,14 @@ you'll need to install this package.  You'll also need to install the
 libtermcap package.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n termcap-%{version}
 %patch0 -p1
@@ -149,7 +157,6 @@ fi
 
 %files -n %{libname}
 %defattr(-,root,root)
-%doc ChangeLog README
 /%{_lib}/*.so.*
 
 %files -n %{libname}-devel
@@ -160,8 +167,15 @@ fi
 %{_libdir}/libtermcap.so
 %_includedir/termcap.h
 
+%files doc
+%defattr(-,root,root)
+%doc ChangeLog README
+
 
 %changelog
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.8
+- really add -doc subpackage
+
 * Fri Jun 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.8
 - fix requires
 - add -doc subpackage
@@ -243,7 +257,7 @@ fi
 - fix compile with latest glibc
 
 * Thu Aug 31 2000 Etienne Faure <etienne@mandrakesoft.com> 2.0.8-19mdk
-- rebuild with %doc and _infodir macros
+- rebuild with %%doc and _infodir macros
 
 * Tue Mar 23 2000 Lenny Cartier <lenny@mandrakesoft.com> 2.0.8-18mdk
 - fix group
@@ -251,7 +265,7 @@ fi
 * Sat Mar  4 2000 Pixel <pixel@mandrakesoft.com> 2.0.8-17mdk
 - moved the info to libtermcap-devel
 (that way libtermcap doesn't require bash which require libtermcap ;-)
-- %trigger transformed in %post
+- %%trigger transformed in %%post
 
 * Mon Dec 20 1999 Jerome Martin <jerome@mandrakesoft.com>
 - Rebuild for ne environment
@@ -264,7 +278,7 @@ fi
 - increase default size of malloc'ed tgetent buffer from 1024 to 1536.(r)
 - don't shrink colons (r).
 - add buffer overflow patch from Kevin Vajk <kvajk@ricochet.net>(r)
-- permit multiple tc= continuations and ignore unnecessary %p ("push arg") (r)
+- permit multiple tc= continuations and ignore unnecessary %%p ("push arg") (r)
 - fix to make the texi documenattion compile(r)
 - use __PMT(...) prototypes (r)
 
@@ -288,7 +302,7 @@ fi
 - build against glibc 2.1
 
 * Wed Aug 05 1998 Erik Troan <ewt@redhat.com>
-- run install-info from a %trigger so we don't have to make it a prereq; as
+- run install-info from a %%trigger so we don't have to make it a prereq; as
   termcap is used by bash, the install ordering issues are hairy
 - commented out the chown stuff from 'make install' so you don't have to
   be root to build this
