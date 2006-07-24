@@ -268,6 +268,14 @@ Conflicts:	libldap1-devel
 OpenLDAP development static libraries.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %if %db4_internal
 %setup -q -a 11 -a 30
@@ -746,8 +754,6 @@ fi
 
 %files
 %defattr(-,root,root)
-%doc ANNOUNCEMENT CHANGES COPYRIGHT LICENSE README 
-%doc doc/rfc doc/drafts
 %dir %{_sysconfdir}/openldap
 %dir %{_sysconfdir}/openldap/schema
 #%config(noreplace) %{_sysconfdir}/openldap/ldapfilter.conf
@@ -765,13 +771,11 @@ fi
 
 %files migration
 %defattr(-,root,root)
-%doc README.migration TOOLS.migration
 %{_datadir}/openldap/migration
 
 
 %files servers
 %defattr(-,root,root)
-%doc contrib/slapd-modules/smbk5pwd/README.smbk5passwd
 %dir %{_sysconfdir}/openldap
 %dir %{_sysconfdir}/openldap/schema
 #%attr(640,root,ldap) %config(noreplace) %{_sysconfdir}/ssl/openldap/ldap.pem
@@ -847,12 +851,22 @@ fi
 %defattr(-,root,root)
 %{_libdir}/lib*.a
 
+%files doc
+%defattr(-,root,root)
+%doc ANNOUNCEMENT CHANGES COPYRIGHT LICENSE README 
+%doc doc/rfc doc/drafts
+%doc README.migration TOOLS.migration
+%doc contrib/slapd-modules/smbk5pwd/README.smbk5passwd
+
 
 # TODO:
 # - add cron-job to remove transaction logs (bdb)
 
 
 %changelog
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.9
+- add -doc subpackage
+
 * Mon May 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.9
 - rebuild against perl 5.8.8
 - perl policy
