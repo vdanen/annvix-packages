@@ -118,7 +118,6 @@ rm -rf %{buildroot}%{_sysconfdir}/fonts/conf.d
 
 %files
 %defattr(-,root,root)
-%doc README AUTHORS COPYING doc/fontconfig-user.html doc/fontconfig-user.txt
 %{_bindir}/fc-cache
 %{_bindir}/fc-match
 %{_bindir}/fc-list
@@ -147,6 +146,9 @@ rm -rf %{buildroot}%{_sysconfdir}/fonts/conf.d
 
 
 %changelog
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.2
+- really remove docs from main package
+
 * Sat Jul 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.2
 - add -doc subpackage
 - rebuild with gcc4
