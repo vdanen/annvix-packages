@@ -186,8 +186,8 @@ This plugin implements the SASL OTP mechanism.
 %package -n %{libname}-plug-sasldb
 Summary:	SASL sasldb mechanism plugin
 Group:		System/Libraries
-# Requirement for %%{name} is due to dbconverter-2 being potentially called in %%post
-#Requires(post): %{name} = %{version}
+Requires(pre):	rpm-helper
+Requires(post):	rpm-helper
 Requires:	%{libname} = %{version}, %{name} = %{version}
 Provides:	sasl-plug-sasldb
 
@@ -224,6 +224,14 @@ Provides:	sasl-plug-ldapdb
 
 %description -n %{libname}-plug-ldapdb
 This plugin implements the LDAP auxprop authentication method.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -413,8 +421,6 @@ fi
 
 %files
 %defattr(-,root,root)
-%doc COPYING AUTHORS INSTALL NEWS README* ChangeLog
-%doc doc/{TODO,ONEWS,*.txt,*.html}
 %dir /var/lib/sasl2
 %attr (644,root,root) %config(noreplace) %{_sysconfdir}/sysconfig/saslauthd
 %dir %attr(0750,root,admin) %{_srvdir}/saslauthd
@@ -493,8 +499,16 @@ fi
 %{_libdir}/sasl2/*.a
 %{_mandir}/man3/*
 
+%files doc
+%defattr(-,root,root)
+%doc COPYING AUTHORS INSTALL NEWS README* ChangeLog
+%doc doc/{TODO,ONEWS,*.txt,*.html}
+
  
 %changelog
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1.22
+- really add -doc subpackage
+
 * Fri Jun 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1.22
 - rebuild against new db4
 
