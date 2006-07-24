@@ -66,7 +66,6 @@ libtoolize --copy --force
 
 %files
 %defattr(-,root,root)
-%doc README CHANGES CREDITS FILES LICENSE TODO VERSION PLATFORMS
 %{_sbindir}/tcpdump
 %{_mandir}/man1/tcpdump.1*
 
@@ -76,6 +75,9 @@ libtoolize --copy --force
 
 
 %changelog
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.9.4
+- really remove docs from main package
+
 * Fri Jun 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.9.4
 - 3.9.4
 - add -doc subpackage
