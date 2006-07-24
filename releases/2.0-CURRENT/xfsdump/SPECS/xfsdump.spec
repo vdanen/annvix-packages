@@ -22,8 +22,12 @@ URL:		http://oss.sgi.com/projects/xfs/
 Source0:	%{name}-%{version}.src.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	attr-devel, libext2fs-devel, xfs-devel >= 2.6.0, dm-devel
+BuildRequires:	attr-devel
+BuildRequires:	libext2fs-devel
+BuildRequires:	xfs-devel >= 2.6.0
+BuildRequires:	dm-devel
 BuildRequires:	ncurses-devel
+BuildRequires:	libtool
 
 %description
 The xfsdump package contains xfsdump, xfsrestore and a number of
@@ -41,6 +45,14 @@ xfsrestore performs the inverse function of xfsdump; it can restore a
 full backup of a filesystem.  Subsequent incremental backups can then
 be layered on top of the full backup.  Single files and directory
 subtrees may be restored from full or partial backups.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -73,17 +85,25 @@ rm -rf %{buildroot}%{_datadir}/doc/xfsdump/
 
 %files
 %defattr(-,root,root)
-%doc doc/CHANGES.gz doc/COPYING doc/INSTALL doc/PORTING doc/README.xfsdump
 /sbin/*
 %{_sbindir}/*
 %{_mandir}/*/*
 
+%files doc
+%defattr(-,root,root)
+%doc doc/CHANGES.gz doc/COPYING doc/INSTALL doc/PORTING doc/README.xfsdump
+
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jun 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.30
+- add -doc subpackage
+- rebuild with gcc4
+- buildrequires: libtool
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.30
 - Clean rebuild
 
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.30
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
