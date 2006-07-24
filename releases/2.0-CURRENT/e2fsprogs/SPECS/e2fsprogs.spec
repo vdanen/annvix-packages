@@ -80,6 +80,14 @@ repair a corrupted filesystem or to create test cases for e2fsck), tune2fs
 filesystem utilities.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 %patch0 -p0
@@ -149,7 +157,6 @@ chmod +x %{buildroot}%{_bindir}/{mk_cmds,compile_et}
 
 %files -f %{name}.lang
 %defattr(-,root,root)
-%doc README RELEASE-NOTES
 %{_root_sbindir}/badblocks
 %{_root_sbindir}/debugfs
 %{_root_sbindir}/dumpe2fs
@@ -202,7 +209,6 @@ chmod +x %{buildroot}%{_bindir}/{mk_cmds,compile_et}
 
 %files -n %{libname}
 %defattr(-,root,root)
-%doc README
 %{_root_libdir}/libcom_err.so.*
 %{_root_libdir}/libe2p.so.*
 %{_root_libdir}/libext2fs.so.*
@@ -250,12 +256,20 @@ chmod +x %{buildroot}%{_bindir}/{mk_cmds,compile_et}
 %multiarch %multiarch_includedir/blkid/blkid_types.h
 %{_libdir}/libblkid.a
 
+%files doc
+%defattr(-,root,root)
+%doc README RELEASE-NOTES
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.38
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.38
 - Clean rebuild
 
-* Wed Jan 04 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.38
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
