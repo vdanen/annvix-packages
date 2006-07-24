@@ -77,6 +77,14 @@ This package contains the static pcap library and its header files needed to
 compile applications such as tcpdump, etc.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 
@@ -120,7 +128,6 @@ install -m 0644 pcap-int.h %{buildroot}%{_includedir}/
 
 %files -n %{libname}
 %defattr(-,root,root)
-%doc README* CHANGES CREDITS FILES INSTALL.txt LICENSE VERSION doc TODO
 %{_libdir}/libpcap.so.*
 
 %files -n %{libname}-devel
@@ -130,12 +137,20 @@ install -m 0644 pcap-int.h %{buildroot}%{_includedir}/
 %{_libdir}/libpcap.a
 %{_mandir}/man3/pcap.3*
 
+%files doc
+%defattr(-,root,root)
+%doc README* CHANGES CREDITS FILES INSTALL.txt LICENSE VERSION doc TODO
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.8.3
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.8.3
 - Clean rebuild
 
-* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.8.3
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
@@ -239,6 +254,6 @@ install -m 0644 pcap-int.h %{buildroot}%{_includedir}/
 * Thu Jul 20 2000 Francis Galiegue <fg@mandrakesoft.com> 0.5-1mdk
 - 0.5 stable
 - Split from tcpdump source to is own source
-- %files list cleanup
+- %%files list cleanup
 - Added dynamic lib - dirty hack
 - split libpcap and -devel
