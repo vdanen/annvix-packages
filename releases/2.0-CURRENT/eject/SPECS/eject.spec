@@ -67,7 +67,6 @@ rm -rf %{buildroot}%{_datadir}/locale/cs_CZ
 
 %files -f %{name}.lang
 %defattr(-,root,root)
-%doc README TODO COPYING ChangeLog
 %{_bindir}/eject
 %{_bindir}/volname
 %{_mandir}/man1/eject.1*
@@ -79,6 +78,9 @@ rm -rf %{buildroot}%{_datadir}/locale/cs_CZ
 
 
 %changelog
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1.5
+- really remove docs from main package
+
 * Fri Jul 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1.5
 - 2.1.5
 - add -doc subpackage
