@@ -104,6 +104,14 @@ System) server on the remote host.  For example, showmount can display the
 clients which are mounted on that host.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -a 1
 
@@ -241,9 +249,6 @@ fi
 
 %files
 %defattr(-,root,root)
-%doc README ChangeLog COPYING
-%doc nfs/*.html linux-nfs/*
-#%doc Annvix/nfsv4.schema
 %config(noreplace) %{_sysconfdir}/sysconfig/nfs
 %config(noreplace) %ghost  %{_localstatedir}/nfs/xtab
 %config(noreplace) %ghost  %{_localstatedir}/nfs/etab
@@ -295,7 +300,6 @@ fi
 
 %files clients
 %defattr(-,root,root)
-%doc README
 /sbin/rpc.lockd
 /sbin/rpc.statd
 %{_sbindir}/showmount
@@ -312,12 +316,22 @@ fi
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/nfs.statd/run
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/nfs.statd/log/run
 
+%files doc
+%defattr(-,root,root)
+%doc README ChangeLog COPYING
+%doc nfs/*.html linux-nfs/*
+#%doc Annvix/nfsv4.schema
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.7
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.7
 - Clean rebuild
 
-* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.7
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - fix prereq
@@ -421,14 +435,14 @@ fi
 - then merge them with nfs-1.0.1 ones.
 - merged nfs.init & nfslock.init with rh ones.
 - merge with rh 1.0.1.pre7-1.
-- use %configure.
+- use %%configure.
 - 1.0.1.
 
 * Thu Jul 11 2002 Frederic Lepied <flepied@mandrakesoft.com> 0.3.3-4mdk
 - add rpcuser
 
 * Tue Jan 15 2002 Chmouel Boudjnah <chmouel@mandrakesoft.com> 0.3.3-3mdk
-- Make some files as %ghost.
+- Make some files as %%ghost.
 
 * Fri Dec  7 2001 Chmouel Boudjnah <chmouel@mandrakesoft.com> 0.3.3-2mdk
 - Fix some rpmlints.
@@ -486,7 +500,7 @@ fi
   (i.e. kernel threads).
 
 * Thu Sep 07 2000 Florin Grad <florin@mandrakesoft.com> 0.2-2mdk
-- added noreplace for %{_inirddir}/(nfs|nfslock)
+- added noreplace for %%{_initrddir}/(nfs|nfslock)
 
 * Thu Sep 07 2000 Geoffrey Lee <snailtalk@mandrakesoft.com> 0.2-1mdk
 - s/0.1.9.1/0.2/;
@@ -539,7 +553,7 @@ fi
 - 0.1.3.
 
 * Thu Nov 25 1999 Pixel <pixel@linux-mandrake.com>
-- fixed %defattr
+- fixed %%defattr
 - split in 2 packages: nfs-utils-clients & nfs-utils (for server)
 
 * Fri Nov 19 1999 Chmouel Boudjnah <chmouel@mandrakesoft.com>
