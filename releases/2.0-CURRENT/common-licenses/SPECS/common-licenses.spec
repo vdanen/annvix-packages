@@ -32,9 +32,6 @@ including the COPYING file in every package, just refer to this one.
 %setup -q
 
 
-%build
-
-
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 install -d %{buildroot}%{_datadir}
@@ -51,10 +48,13 @@ cp -a %{name} %{buildroot}%{_datadir}
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Jul 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0
+- remove pre-Annvix changelog
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0
 - Clean rebuild
 
-* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
@@ -79,31 +79,3 @@ cp -a %{name} %{buildroot}%{_datadir}
 * Fri Nov 28 2003 Vincent Danen <vdanen@opensls.org> 1.0-8sls
 - OpenSLS build
 - tidy spec
-
-* Tue Jul 22 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 1.0-7mdk
-- rebuild
-- drop Prefix tag
-- quiet setup
-
-* Wed Aug 14 2002 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 1.0-6mdk
-- Automated rebuild with gcc 3.2-0.3mdk
-
-* Thu Sep  6 2001 Pixel <pixel@mandrakesoft.com> 1.0-5mdk
-- rebuild
-
-
-* Sun Jan 21 2001 Francis Galiegue <fg@mandrakesoft.com> 1.0-4mdk
-
-- BuildArch: noarch
-
-* Fri Nov 17 2000 Pixel <pixel@mandrakesoft.com> 1.0-3mdk
-- cleanup
-
-* Fri Nov 17 2000 Daouda Lo <daouda@mandrakesoft.com> 1.0-2mdk
-- add Mozilla Public License  (MPL).
-
-* Fri Nov 17 2000 Pixel <pixel@mandrakesoft.com> 1.0-1mdk
-- initial spec
-
-
-# end of file
