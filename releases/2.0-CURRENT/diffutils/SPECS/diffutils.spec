@@ -90,7 +90,6 @@ rm -fr %{buildroot}%{_infodir}/dir
 
 %files -f %{name}.lang
 %defattr(-,root,root)
-%doc NEWS README
 %{_bindir}/*
 %{_mandir}/man*/*
 %{_infodir}/diff.info*
@@ -101,10 +100,13 @@ rm -fr %{buildroot}%{_infodir}/dir
 
 
 %changelog
-* Fri Jul 14 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.8.4
+- fix changelog
+- really remove docs from the main package
+
+* Fri Jul 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.8.4
 - add -doc subpackage
 - rebuild with gcc4
-- use %%_sourcedir/file instead of %%{SOURCEx}
 
 * Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.8.4
 - Clean rebuild
