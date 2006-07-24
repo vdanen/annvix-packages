@@ -40,6 +40,14 @@ exploits by running tests like:
 	- Optional scan within plaintext and binary files
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n %{name}
 %patch0 -p0 -b .avx-conf
@@ -72,7 +80,6 @@ rm -rf %{buildroot}/lib/%{name}/docs
 
 %files
 %defattr(-,root,root)
-%doc files/CHANGELOG files/README files/WISHLIST
 %config(noreplace) %{_sysconfdir}/rkhunter.conf
 %{_sbindir}/*
 %dir /lib/%{name}
@@ -86,8 +93,16 @@ rm -rf %{buildroot}/lib/%{name}/docs
 %dir %attr(0700,root,root) /var/lib/%{name}/tmp
 /var/lib/%{name}/db/*
 
+%files doc
+%defattr(-,root,root)
+%doc files/CHANGELOG files/README files/WISHLIST
+
 
 %changelog
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.7 
+- add -doc subpackage
+- rebuild with gcc4
+
 * Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.7
 - fix group
 
