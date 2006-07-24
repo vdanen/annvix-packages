@@ -26,7 +26,7 @@ Source:		http://www.packetfactory.net/libnet/dist/libnet-%{version}.tar.bz2
 Patch0:		libnet-1.0.2a-strings.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildPreReq:	libpcap
+BuildRequires:	libpcap
 BuildRequires:	libtool
 
 Conflicts:	libnet, %{_lib}net1.1-devel
@@ -44,19 +44,28 @@ write network tools and network test code.  See the manpage and sample
 test code for more detailed information
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -n Libnet-%{version} -q
 %patch0 -p1 -b .strings
+find . -type 'd' -name "CVS" -print | xargs /bin/rm -rf
 
 
 %build
 %configure --with-pf_packet=yes 
 
 %make CFLAGS="%{optflags}"
-%make test CFLAGS="%{optflags}"
 
-# remove CVS files
-find . -type 'd' -name "CVS" -print | xargs /bin/rm -rf
+
+%check
+%make test CFLAGS="%{optflags}"
 
 
 %install
@@ -73,7 +82,6 @@ rm -f %{buildroot}/%{_libdir}/libpwrite
 
 %files
 %defattr (0644,root,root,0755)
-%doc doc/* example
 %attr(0755,root,root) %{_bindir}/*
 %{_mandir}/man3/*
 %{_libdir}/*.a
@@ -81,12 +89,21 @@ rm -f %{buildroot}/%{_libdir}/libpwrite
 %dir %{_includedir}/libnet
 %{_includedir}/libnet/*
 
+%files doc
+%defattr (0644,root,root,0755)
+%doc doc/* example
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.2a
+- add -doc subpackage
+- rebuild with gcc4
+- put make test in %%check
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.2a
 - Clean rebuild
 
-* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.2a
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
