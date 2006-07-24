@@ -390,8 +390,6 @@ CreateFiles() {
     echo "%dir %{_modulesdir}/${kversion}/" >> $output
     echo "%{_modulesdir}/${kversion}/kernel" >> $output
     echo "%{_modulesdir}/${kversion}/modules.*" >> $output
-    echo "%doc README.annvix-kernel-sources" >> $output
-    echo "%doc README.Annvix" >> $output
 }
 
 CreateKernel() {
@@ -505,8 +503,9 @@ rm -rf %{target_source}/%{patches_ver}
 rm -f %{target_source}/{.config.old,.config.cmd}
 
 
-# copy README.Annvix
-cp %{SOURCE5} %{target_source}/
+# copy README's
+cp %{_sourcedir}/README.Annvix %{target_source}/
+cp %{_sourcedir}/README.annvix-kernel-sources %{target_source}/
 
 pushd %{target_source}/include/linux ; {
     install -m 0644 %{SOURCE15} rhconfig.h
@@ -710,6 +709,7 @@ exit 0
 %{_kerneldir}/Makefile
 %{_kerneldir}/README
 %{_kerneldir}/README.Annvix
+%{_kerneldir}/README.annvix-kernel-sources
 %{_kerneldir}/REPORTING-BUGS
 %{_kerneldir}/arch/i386
 %{_kerneldir}/arch/ia64
@@ -761,8 +761,6 @@ exit 0
 #%{_kerneldir}/include/pfkeyv2.h
 #%{_kerneldir}/include/zlib
 #%{_kerneldir}/README.openswan-2
-%doc README.annvix-kernel-sources
-%doc README.Annvix
 #endif %build_source
 %endif
 
@@ -774,6 +772,9 @@ exit 0
 
 
 %changelog
+* Mon Jul 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.27
+- drop the %%{_docdir} docs, they're in the kernel source tree anyways
+
 * Mon Jul 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.27
 - 2.6.16.27 (fixes a whole bunch of security issues... I'm still not sure
   about using this as the default kernel...)

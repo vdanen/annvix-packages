@@ -413,8 +413,6 @@ CreateFiles() {
     echo "%dir %{_modulesdir}/${kversion}/" >> $output
     echo "%{_modulesdir}/${kversion}/kernel" >> $output
     echo "%{_modulesdir}/${kversion}/modules.*" >> $output
-    echo "%doc README.annvix-kernel-sources" >> $output
-    echo "%doc README.Annvix" >> $output
 }
 
 CreateKernel() {
@@ -528,8 +526,9 @@ rm -f %{target_source}/{.config.old,.depend,.hdepend}
 # We need this to prevent someone doing a make *config without mrproper
 touch %{target_source}/.need_mrproper
 
-# copy README.Annvix
-cp %{SOURCE5} %{target_source}/
+# copy README's
+cp %{_sourcedir}/README.Annvix %{target_source}/
+cp %{_sourcedir}/README.annvix-kernel-sources %{target_source}/
 
 # We used to have a copy of DependKernel here
 # Now, we make sure that the thing in the linux dir is what we want it to be
@@ -775,6 +774,7 @@ exit 0
 %{_kerneldir}/Makefile
 %{_kerneldir}/README
 %{_kerneldir}/README.Annvix
+%{_kerneldir}/README.annvix-kernel-sources
 %{_kerneldir}/REPORTING-BUGS
 %{_kerneldir}/Rules.make
 %{_kerneldir}/arch/i386
@@ -816,8 +816,6 @@ exit 0
 %{_kerneldir}/include/pfkeyv2.h
 %{_kerneldir}/include/zlib
 %{_kerneldir}/README.openswan-2
-%doc README.annvix-kernel-sources
-%doc README.Annvix
 #endif %build_source
 %endif
 
@@ -829,6 +827,9 @@ exit 0
 
 
 %changelog
+* Mon Jul 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.32
+- drop the %%{_docdir} docs, they're in the kernel source tree anyways
+
 * Wed Jun 07 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.32
 - SL01: add the ACL patch to have ACLs on NFS/ext2/ext3 (v0.8.73); we
   already had the CONFIG_* options set, but not the actual code to make
