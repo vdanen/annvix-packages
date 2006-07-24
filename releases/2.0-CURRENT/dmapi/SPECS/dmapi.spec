@@ -26,7 +26,8 @@ URL:		http://oss.sgi.com/projects/xfs/
 Source0:	ftp://oss.sgi.com/projects/xfs/download/cmd_tars/%{name}-%{version}.src.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	xfs-devel, libext2fs-devel
+BuildRequires:	xfs-devel
+BuildRequires:	libext2fs-devel
 
 %description
 Files required by system software using the Data Management API
@@ -61,6 +62,14 @@ develop programs which make use of the Data Management API
 the dmapi (runtime) package and the xfsprogs-devel package.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 
@@ -90,12 +99,10 @@ rm -rf %{buildroot}%{_datadir}/doc/dmapi
 
 %files -n %{lib_name}
 %defattr(-,root,root)
-%doc doc/COPYING README
 /%{_lib}/*.so.*
 
 %files -n %{lib_name}-devel
 %defattr(-,root,root)
-%doc doc/PORTING doc/CHANGES.gz doc/COPYING README
 /%{_lib}/*.so
 /%{_lib}/*a
 %{_libdir}/*.so
@@ -103,12 +110,20 @@ rm -rf %{buildroot}%{_datadir}/doc/dmapi
 %{_mandir}/man3/*
 %{_includedir}/*/*
 
+%files doc
+%defattr(-,root,root)
+%doc doc/PORTING doc/CHANGES.gz doc/COPYING README
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Jul 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.1
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.1
 - Clean rebuild
 
-* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.1
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
