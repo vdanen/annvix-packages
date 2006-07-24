@@ -95,6 +95,14 @@ If this replacement of gettextize is run instead, then all gnome
 packages can potentially benefict from the changes.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -n glib-%{version} -q
 
@@ -132,8 +140,7 @@ chmod a+x  %{buildroot}%{_sysconfdir}/profile.d/*
 
 
 %files -n %{libname} -f glib20.lang
-%defattr(-, root, root)
-%doc README
+%defattr(-,root,root)
 %config(noreplace) %{_sysconfdir}/profile.d/*
 %{_libdir}/libglib-%{api_version}.so.*
 %{_libdir}/libgmodule-%{api_version}.so.*
@@ -141,9 +148,7 @@ chmod a+x  %{buildroot}%{_sysconfdir}/profile.d/*
 %{_libdir}/libgobject-%{api_version}.so.*
 
 %files -n %{libname}-devel
-%defattr(-, root, root)
-%doc AUTHORS ChangeLog NEWS
-%doc %{_datadir}/gtk-doc/html/*
+%defattr(-,root,root)
 %{_libdir}/lib*.so
 %{_libdir}/lib*.la
 %{_libdir}/lib*.a
@@ -157,17 +162,26 @@ chmod a+x  %{buildroot}%{_sysconfdir}/profile.d/*
 %{_bindir}/gobject-query
 
 %files -n glib-gettextize
-%defattr(-, root, root)
+%defattr(-,root,root)
 %{_bindir}/glib-gettextize
 %{_datadir}/aclocal/glib-gettext.m4
 %{_datadir}/glib-%{api_version}
 
+%files doc
+%defattr(-,root,root)
+%doc README AUTHORS ChangeLog NEWS
+%doc %{_datadir}/gtk-doc/html/*
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.8.1 
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.8.1
 - Clean rebuild
 
-* Thu Jan 05 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 05 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.8.1
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
