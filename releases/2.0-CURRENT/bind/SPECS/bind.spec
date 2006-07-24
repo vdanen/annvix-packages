@@ -109,6 +109,14 @@ library required for DNS (Domain Name Service) development for
 BIND versions 9.x.x.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q  -n %{name}-%{version} -a1
 %patch1 -p1 -b .fallback-to-second-server
@@ -235,10 +243,6 @@ fi
 %if %{build_daemon}
 %files
 %defattr(-,root,root)
-%doc CHANGES README FAQ COPYRIGHT
-#%doc contrib/queryperf/README.queryperf
-%doc doc/draft doc/html doc/rfc doc/misc/
-%doc doc/dhcp-dynamic-dns-examples doc/chroot doc/trustix
 %config(noreplace) %{_sysconfdir}/sysconfig/named
 %config(noreplace) %{_sysconfdir}/logrotate.d/named
 %config(noreplace) %attr(0600,named,named) %{_sysconfdir}/rndc.conf
@@ -265,7 +269,6 @@ fi
 
 %files devel
 %defattr(-,root,root)
-%doc CHANGES README
 %multiarch %{multiarch_bindir}/isc-config.sh
 %attr(0755,root,root) %{_bindir}/isc-config.sh
 %{_includedir}/*
@@ -273,7 +276,6 @@ fi
 
 %files utils
 %defattr(-,root,root)
-%doc README COPYRIGHT
 %{_bindir}/*
 %{_mandir}/man1/host.1*
 %{_mandir}/man1/dig.1*
@@ -282,12 +284,22 @@ fi
 %{_mandir}/man5/resolver.5*
 %{_mandir}/man5/resolv.5*
 
+%files doc
+%defattr(-,root,root)
+%doc CHANGES README FAQ COPYRIGHT
+%doc doc/draft doc/html doc/rfc doc/misc/
+%doc doc/dhcp-dynamic-dns-examples doc/chroot doc/trustix
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 9.3.1
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 9.3.1
 - Clean rebuild
 
-* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 9.3.1
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - fix prereq
