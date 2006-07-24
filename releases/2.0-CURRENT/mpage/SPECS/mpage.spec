@@ -39,6 +39,14 @@ paper.  Mpage supports many different layout options for the printed
 pages.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 %patch0 -p1 -b .config
@@ -64,14 +72,21 @@ pages.
 
 %files
 %defattr(-,root,root)
-%doc CHANGES Copyright README NEWS TODO
 %{_bindir}/mpage
 %{_mandir}/man1/mpage.1*
 %dir %{_datadir}/mpage
 %{_datadir}/mpage/*
 
+%files doc
+%defattr(-,root,root)
+%doc CHANGES Copyright README NEWS TODO
+
 
 %changelog
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5.4
+- add -doc subpackage
+- rebuild with gcc4
+
 * Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5.4
 - fix group
 
@@ -116,7 +131,7 @@ pages.
 
 * Mon Nov 18 2002 Thierry Vignaud <tvignaud@mandrakesoft.com> 2.5.3-2mdk
 - fix bad generated postscript
-- add %_datadir/mpage
+- add %%_datadir/mpage
 
 * Tue Nov 05 2002 Thierry Vignaud <tvignaud@mandrakesoft.com> 2.5.3-1mdk
 - new release
