@@ -37,6 +37,14 @@ predictability characteristics, sunRPC scanning, reverse-identd scanning, and
 more.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n %{name}-%{version}
 perl  -pi -e 's|/lib\b|/%{_lib}|g' configure*
@@ -63,15 +71,22 @@ perl  -pi -e 's|/lib\b|/%{_lib}|g' configure*
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
-%files 
+%files
 %defattr(-,root,root)
-%doc CHANGELOG COPYING* HACKING docs/README docs/nmap.usage.txt
 %{_bindir}/nmap
 %{_datadir}/%{name}
-%{_mandir}/man1/nmap.*
+%{_mandir}/man1/nmap.1*
+
+%files doc
+%defattr(-,root,root)
+%doc CHANGELOG COPYING* HACKING docs/README docs/nmap.usage.txt
 
 
 %changelog
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.00
+- add -doc subpackage
+- rebuild with gcc4
+
 * Tue Jan 31 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.00
 - 4.00
 
@@ -203,7 +218,7 @@ perl  -pi -e 's|/lib\b|/%{_lib}|g' configure*
 - made icons transparent.
 
 * Tue Aug 29 2000 Yoann Vandoorselaere <yoann@mandrakesoft.com> 2.53-3mdk
-- use %{_mandir}
+- use %%{_mandir}
 
 * Mon Aug 07 2000 Frederic Lepied <flepied@mandrakesoft.com> 2.53-2mdk
 - automatically added BuildRequires
@@ -248,8 +263,8 @@ perl  -pi -e 's|/lib\b|/%{_lib}|g' configure*
 - changed group to Applications/System
 - quiet setup
 - no need to create dirs in the install section, "make
-	prefix=%{buildroot}&{prefix} install" does this.
-- using defined %{prefix}, %{version} etc. for easier/quicker maint.
+	prefix=%%{buildroot}&{prefix} install" does this.
+- using defined %%{prefix}, %%{version} etc. for easier/quicker maint.
 - added docs
 - gzip man pages
 - strip after files have been installed into buildroot
