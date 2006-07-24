@@ -22,7 +22,6 @@ License:	GPL
 Group:		System/Configuration
 URL:		http://www.tazenda.demon.co.uk/phil/net-tools/
 Source0:	http://www.tazenda.demon.co.uk/phil/net-tools//net-tools-%{version}.tar.bz2
-Source1:	netplug-%{npversion}.tar.bz2
 Source2:	net-tools-1.60-config.h
 Source3:	net-tools-1.60-config.make
 Source4:	ether-wake.c
@@ -58,10 +57,8 @@ Patch29:	net-tools-1.60-num-ports.patch
 Patch30:	net-tools-1.60-duplicate-tcp.patch
 Patch31:	net-tools-1.60-statalias.patch
 Patch32:	net-tools-1.60-isofix.patch
-Patch33:	net-tools-1.60-bitkeeper.patch
 Patch34:	net-tools-1.60-ifconfig_ib.patch
 Patch35:	net-tools-1.60-de.patch
-Patch36:	netplug-1.2.9-execshield.patch
 Patch37:	net-tools-1.60-pie.patch
 Patch38:	net-tools-1.60-ifaceopt.patch
 Patch39:	net-tools-1.60-trim_iface.patch
@@ -76,8 +73,16 @@ The net-tools package contains the basic tools needed for setting up
 networking:  ifconfig, netstat, route and others.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
-%setup -q -a 1
+%setup -q
 %patch1 -p1 -b .bug22040
 %patch2 -p1 -b .miioctl
 %patch3 -p0 -b .manydevs
@@ -90,7 +95,7 @@ networking:  ifconfig, netstat, route and others.
 %patch10 -p1 -b .gcc33
 %patch11 -p1 -b .trailingblank
 %patch12 -p1 -b .interface
-#%patch13 -p1 -b .x25
+%patch13 -p1 -b .x25
 %patch14 -p1 -b .gcc34
 %patch15 -p1 -b .overflow
 %patch19 -p1 -b .siunits
@@ -107,10 +112,8 @@ networking:  ifconfig, netstat, route and others.
 %patch30 -p1 -b .dup-tcp
 %patch31 -p1 -b .statalias
 %patch32 -p1 -b .isofix
-%patch33 -p1 -b .bitkeeper
 %patch34 -p1 -b .ifconfig_ib
 %patch35 -p1 
-%patch36 -p1 -b .execshield
 %patch37 -p1 -b .pie
 %patch38 -p1 -b .ifaceopt
 %patch39 -p1 -b .trim-iface
@@ -135,9 +138,6 @@ export CFLAGS="%{optflags} $CFLAGS"
 make
 gcc %{optflags} -o ether-wake ether-wake.c
 gcc %{optflags} -o mii-diag mii-diag.c
-pushd netplug-%{npversion}
-    %make
-popd
 
 #man pages conversion
 #french 
@@ -174,14 +174,6 @@ make BASEDIR=%{buildroot} mandir=%{_mandir} install
 install -m 0755 ether-wake %{buildroot}/sbin
 install -m 0755 mii-diag %{buildroot}/sbin
 
-pushd netplug-%{npversion}
-    make install prefix=%{buildroot} \
-        initdir=%{buildroot}%{_initrddir} \
-        mandir=%{buildroot}%{_mandir}
-    mv README README.netplugd
-    mv TODO TODO.netplugd
-popd
-
 rm %{buildroot}/sbin/rarp
 rm %{buildroot}%{_mandir}/man8/rarp.8*
 rm %{buildroot}%{_mandir}/*/man8/rarp.8*
@@ -197,18 +189,22 @@ rm -rf %{buildroot}%{_mandir}/{de,fr,pt}*
 
 %files -f %{name}.lang
 %defattr(-,root,root)
-%doc netplug-%{npversion}/TODO.netplugd netplug-%{npversion}/README.netplugd COPYING
-%doc README README.ipv6 TODO INSTALLING ABOUT-NLS
-%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/netplug/netplugd.conf
-%dir %{_sysconfdir}/netplug.d
-%attr(0755,root,root) %{_sysconfdir}/netplug.d/*
-%attr(0755,root,root) %{_initrddir}/netplugd
 /bin/*
 /sbin/*
 %{_mandir}/man[158]/*
 
+%files doc
+%defattr(-,root,root)
+%doc README README.ipv6 TODO INSTALLING ABOUT-NLS COPYING
+
 
 %changelog
+* Mon Jul 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.60
+- get rid of netplug; we don't want it (dropped S1, P33, P36)
+- re-enable applicaiton of P13
+- add -doc subpackage
+- rebuild with gcc4
+
 * Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.60
 - fix group
 
@@ -324,7 +320,7 @@ rm -rf %{buildroot}%{_mandir}/{de,fr,pt}*
 - Adjust groups.
 
 * Mon Oct 25 1999 Chmouel Boudjnah <chmouel@mandrakesoft.com>
-- %lang in man/-locale.
+- %%lang in man/-locale.
 - big spec cleanup.
 
 * Sun Aug 29 1999 Bernhard Rosenkraenzer <bero@linux-mandrake.com>
