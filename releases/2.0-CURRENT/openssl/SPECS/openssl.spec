@@ -105,6 +105,14 @@ Patches for many networking apps can be found at:
 	ftp://ftp.psy.uq.oz.au/pub/Crypto/SSLapps/
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n %{name}-%{version}
 %patch1 -p1 -b .ia64-asm
@@ -195,8 +203,6 @@ rm -rf %{buildroot}%{_prefix}/lib
 
 %files 
 %defattr(-,root,root)
-%doc LICENSE CHANGES FAQ NEWS README
-%doc main-doc-info/README*
 %{_bindir}/*
 %dir %{_libdir}/ssl
 %{_libdir}/ssl/*
@@ -210,8 +216,6 @@ rm -rf %{buildroot}%{_prefix}/lib
 
 %files -n %{libnamedev}
 %defattr(-,root,root)
-%doc doc/*
-%doc devel-doc-info/README*
 %dir %{_includedir}/openssl/
 %multiarch %{multiarch_includedir}/openssl/opensslconf.h
 %{_includedir}/openssl/*
@@ -223,12 +227,23 @@ rm -rf %{buildroot}%{_prefix}/lib
 %defattr(-,root,root)
 %{_libdir}/lib*.a
 
+%files doc 
+%defattr(-,root,root)
+%doc LICENSE CHANGES FAQ NEWS README
+%doc main-doc-info/README*
+%doc doc/*
+%doc devel-doc-info/README*
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.9.8
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.9.8
 - Clean rebuild
 
-* Sun Jan 08 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sun Jan 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.9.8
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
@@ -356,7 +371,7 @@ rm -rf %{buildroot}%{_prefix}/lib
 - Patch7: Add 64-bit config support
 
 * Sun May 26 2002 Yves Duret <yduret@mandrakesoft.com> 0.9.6d-4mdk
-- openssl requires libopenssl = %{version}-%{release}.
+- openssl requires libopenssl = %%{version}-%%{release}.
 - more spec clean up.
 - rpmlint: license is BSD-like as say the LICENSE file instead of the unprecise OpenSource term.
 
@@ -446,7 +461,7 @@ rm -rf %{buildroot}%{_prefix}/lib
 
 * Sun Sep 24 2000 Alexander Skwar <ASkwar@DigitalProjects.com> 0.9.5a-7mdk
 - As suggested by Chmou, *all* man pages for ssl are beneath
-  %{_mandir}, but the offending man pages (rand.3 and passwd.1) have been
+  %%{_mandir}, but the offending man pages (rand.3 and passwd.1) have been
   renamed to ssl-rand.3 and ssl-passwd.1
 - Added README.Mandrake-manpage to warn/inform users about the conflicting
   man pages
