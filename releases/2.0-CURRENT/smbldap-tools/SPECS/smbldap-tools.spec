@@ -43,6 +43,14 @@ Comments and/or questions can be sent to the smbldap-tools mailing list
 (http://lists.idealx.org/lists/samba).
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -a1
 %patch0 -p1 -b .mdkconf
@@ -83,8 +91,6 @@ install -m 0755 mkntpwd/mkntpwd %{buildroot}%{_sbindir}/
 
 %files
 %defattr(-,root,root)
-%doc CONTRIBUTORS COPYING ChangeLog INFRA INSTALL README TODO doc
-%doc smb.conf smbldap.conf smbldap_bind.conf configure.pl
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/smbldap-tools/smbldap.conf
 %attr(0600,root,root) %config(noreplace) %{_sysconfdir}/smbldap-tools/smbldap_bind.conf
 %{_sbindir}/mkntpwd
@@ -101,12 +107,21 @@ install -m 0755 mkntpwd/mkntpwd %{buildroot}%{_sbindir}/
 %{_sbindir}/smbldap-usershow
 %{perl_vendorlib}/smbldap_tools.pm
 
+%files doc
+%defattr(-,root,root)
+%doc CONTRIBUTORS COPYING ChangeLog INFRA INSTALL README TODO doc
+%doc smb.conf smbldap.conf smbldap_bind.conf configure.pl
+
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.9.1
+- add -doc subpackage
+- rebuild with gcc4
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.9.1
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.9.1
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
