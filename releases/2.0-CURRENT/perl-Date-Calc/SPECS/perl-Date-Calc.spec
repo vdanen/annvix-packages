@@ -99,7 +99,7 @@ make test
 - first Annvix build (for swatch)
 
 * Wed Jun 15 2005 Rafael Garcia-Suarez <rgarciasuarez@mandriva.com> 5.4-3mdk
-- Rebuild, cleanup, %check
+- Rebuild, cleanup, %%check
 
 * Mon Nov 15 2004 Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com> 5.4-2mdk
 - rebuild for new perl
