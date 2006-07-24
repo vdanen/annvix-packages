@@ -17,7 +17,7 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
-Group:		File tools
+Group:		File Tools
 URL:		http://download.fedora.redhat.com/pub/fedora/linux/core/1/i386/os/SRPMS
 Source0:	%{name}-%{version}.tar.bz2
 Source1:	logrotate.conf.annvix
@@ -68,7 +68,6 @@ touch %{buildroot}/var/lib/logrotate.status
 
 %files
 %defattr(-,root,root)
-%doc CHANGES
 %attr(0755,root,root) %{_sbindir}/logrotate
 %attr(0644,root,root) %{_mandir}/man8/logrotate.8*
 %attr(0755,root,root) %{_sysconfdir}/cron.daily/%{name}
@@ -78,10 +77,14 @@ touch %{buildroot}/var/lib/logrotate.status
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.7.1
+- drop the docs (CHANGES)
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.7.1
 - Clean rebuild
 
-* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.7.1
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
