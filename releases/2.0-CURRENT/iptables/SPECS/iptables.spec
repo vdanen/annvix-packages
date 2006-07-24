@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		iptables
-%define version		1.3.3
+%define version		1.3.5
 %define release		%_revrel
 
 Summary:	Tools for managing Linux kernel packet filtering capabilities
@@ -20,22 +20,22 @@ License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://netfilter.org/
 
-Source:		http://www.netfilter.org/files/%{name}-%{version}.tar.bz2
-Source6:	http://www.netfilter.org/files/%{name}-%{version}.tar.bz2.sig
+Source:		http://www.netfilter.org/projects/iptables/files/%{name}-%{version}.tar.bz2
+Source6:	http://www.netfilter.org/projects/iptables/files/%{name}-%{version}.tar.bz2.sig
 Source1:	iptables.init
 Source2:	ip6tables.init
 Source3:	iptables.config
 Source4:	ip6tables.config
 Source5:	iptables-kernel-headers.tar.bz2
-Patch1:		iptables-1.3.2-stealth_grsecurity.patch 
+Patch1:		iptables-1.3.5-stealth_grsecurity.patch 
 Patch2:		iptables-1.2.8-imq.patch 
-Patch3:		iptables-1.2.8-libiptc.h.patch 
-Patch4:		iptables-1.3.2-fix_extension_test.patch
+Patch3:		iptables-1.3.5-libiptc.h.patch 
+Patch4:		iptables-1.3.5-fix_extension_test.patch
 Patch5:		iptables-1.3.2-ipp2p_extension.patch
 Patch6:		iptables-1.3.3-IFWLOG_extension.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildPrereq:	perl
+BuildPreReq:	perl
 BuildRequires:  kernel-source >= 2.4.24-3avx
 
 Requires(post):	rpm-helper
@@ -56,7 +56,6 @@ Requires:	%{name} = %{version}-%{release}
 Requires(post):	rpm-helper
 Requires(preun): rpm-helper
 
-
 %description ipv6
 IPv6 support for iptables.
 
@@ -73,6 +72,14 @@ Requires:	%{name} = %{version}
 
 %description devel
 The development files for iptables.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -99,8 +106,7 @@ find . -type f | xargs perl -pi -e "s,/usr/local,%{_prefix},g"
     OPT="%{optflags} -DNDEBUG"
 %endif
 
-#make COPT_FLAGS="$OPT -I linux-2.4/include" LIBDIR=/lib all experimental
-make COPT_FLAGS="$OPT" KERNEL_DIR=$PWD/linux-2.4 LIBDIR=/lib all
+make COPT_FLAGS="$OPT" KERNEL_DIR=$PWD/linux-2.6-vanilla LIBDIR=/lib all
 
 
 %install
@@ -150,7 +156,6 @@ rm -rf %{_builddir}/file.list.%{name}
 
 %files
 %defattr(-,root,root,0755)
-%doc INSTALL INCOMPATIBILITIES iptables.sample
 %config(noreplace) %{_initrddir}/iptables
 /sbin/iptables
 /sbin/iptables-save
@@ -159,17 +164,14 @@ rm -rf %{_builddir}/file.list.%{name}
 %dir /lib/iptables
 /lib/iptables/libipt*
 
-
 %files ipv6
 %defattr(-,root,root,0755)
-%doc ip6tables.sample
 %config(noreplace) %{_initrddir}/ip6tables
 /sbin/ip6tables
 /sbin/ip6tables-save
 /sbin/ip6tables-restore
 %{_mandir}/*/ip6tables*
 /lib/iptables/libip6t*
-
 
 %files devel
 %defattr(-,root,root,0755)
@@ -178,12 +180,25 @@ rm -rf %{_builddir}/file.list.%{name}
 %{_libdir}/libiptc.a
 %{_mandir}/man3/*
 
+%files doc
+%defattr(-,root,root,0755)
+%doc INSTALL INCOMPATIBILITIES iptables.sample ip6tables.sample
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Jul 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.5
+- 1.3.5
+- rediff P1, P3, P4
+- fix download urls
+- use linux-2.6-vanilla, not linux-2.6-pom as this needs patches in
+  the kernel we don't have (yet)
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.3
 - Clean rebuild
 
-* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.3
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - fix prereq
@@ -262,7 +277,7 @@ rm -rf %{_builddir}/file.list.%{name}
 
 * Fri Jul 25 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 1.2.7a-3mdk
 - rebuild
-- rm -rf %{buildroot} at the beginning of %%install, not in %%prep
+- rm -rf %%{buildroot} at the beginning of %%install, not in %%prep
 - use %%make macro
 - use %%makeinstall_std macro
 
@@ -291,7 +306,7 @@ rm -rf %{_builddir}/file.list.%{name}
   linus kernels.
 
 * Wed Oct 31 2001 Juan Quintela <quintela@mandrakesoft.com> 1.2.4-1mdk
-- %config are (noreplace) again.
+- %%config are (noreplace) again.
 - 1.2.4
 
 * Mon Oct  8 2001 Juan Quintela <quintela@mandrakesoft.com> 1.2.3-1mdk
@@ -303,8 +318,8 @@ rm -rf %{_builddir}/file.list.%{name}
 - 1.2.3.
 
 * Thu Sep 27 2001 Juan Quintela <quintela@mandrakesoft.com> 1.2.2-9mdk
-- /etc/sysconfig/iptables moved to %doc iptables.sample.
-- /etc/sysconfig/iptables moved to %doc ipt6ables.sample.
+- /etc/sysconfig/iptables moved to %%doc iptables.sample.
+- /etc/sysconfig/iptables moved to %%doc ipt6ables.sample.
 - We need that because we don't want something for default in a firewall.
 - We remove the /etc/sysconfig/ip[6]tables if it is the default one, we need 
   that to let drakgw to work, agreed with gc (drakgw author) on this change.
@@ -323,7 +338,7 @@ rm -rf %{_builddir}/file.list.%{name}
 
 * Thu Sep 13 2001 Juan Quintela <quintela@mandrakesoft.com> 1.2.2-5mdk
 - ipv6 initscript is the same style than ipv4 one.
-- %doc added
+- %%doc added
 - fix a lot of rpmlint errors.
 - merge the fixes of Ben Reser (some of them have conflicts).
 - vdanen merger a lof of Ben Reser fixes.
