@@ -25,10 +25,13 @@ URL:		http://www.mrtg.org/
 Source0:	http://people.ee.ethz.ch/~oetiker/webtools/mrtg/pub/%{name}-%{version}.tar.gz
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	gd-devel, zlib-devel, png-devel
-BuildPreReq:	chrpath
+BuildRequires:	gd-devel
+BuildRequires:	zlib-devel
+BuildRequires:	png-devel
+BuildRequires:	chrpath
 
-Requires:	perl, net-snmp
+Requires:	perl
+Requires:	net-snmp
 
 %description
 The Multi Router Traffic Grapher (MRTG) is a tool to monitor the
@@ -45,6 +48,14 @@ Requires(pre):	pdksh
 
 %description contribs
 Contributed softwares for The Multi Router Traffic Grapher (MRTG)
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -124,21 +135,6 @@ mv %{buildroot}%{_datadir}/doc/mrtg2 .
 
 %files
 %defattr(-,root,root)
-%doc ANNOUNCE CHANGES MANIFEST README THANKS
-%doc doc/cfgmaker.txt
-%doc doc/mrtg-faq.txt
-%doc doc/mrtg-forum.txt
-%doc doc/index.txt
-%doc doc/indexmaker.txt
-%doc doc/mrtg-logfile.txt
-%doc doc/mrtg-mibhelp.txt
-%doc doc/mrtg-rrd.txt
-%doc doc/mrtg.txt
-%doc doc/mrtglib.txt
-%doc doc/mrtg-reference.txt
-%doc doc/mrtg-squid.txt
-%doc doc/mrtg-unix-guide.txt
-%doc doc/mrtg-webserver.txt
 %attr(755,root,root) %dir /var/www/html/mrtg
 %attr(755,root,root) %{_bindir}/*
 %attr(644,root,root) %{perl_vendorarch}/*
@@ -161,12 +157,34 @@ mv %{buildroot}%{_datadir}/doc/mrtg2 .
 
 %files contribs
 %defattr(-,root,root)
-%doc doc/mrtg-contrib.txt
 %{_mandir}/man1/mrtg-contrib.1*
 %{_datadir}/mrtg2/contrib/*
 
+%files doc
+%defattr(-,root,root)
+%doc ANNOUNCE CHANGES MANIFEST README THANKS
+%doc doc/cfgmaker.txt
+%doc doc/mrtg-faq.txt
+%doc doc/mrtg-forum.txt
+%doc doc/index.txt
+%doc doc/indexmaker.txt
+%doc doc/mrtg-logfile.txt
+%doc doc/mrtg-mibhelp.txt
+%doc doc/mrtg-rrd.txt
+%doc doc/mrtg.txt
+%doc doc/mrtglib.txt
+%doc doc/mrtg-reference.txt
+%doc doc/mrtg-squid.txt
+%doc doc/mrtg-unix-guide.txt
+%doc doc/mrtg-webserver.txt
+%doc doc/mrtg-contrib.txt
+
 
 %changelog
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.13.2
+- add -doc subpackage
+- rebuild with gcc4
+
 * Tue Apr 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.13.2
 - exclude requires on Net::SNMP until we can bundle it and the dozen or so
   modules it requires (only really required for SNMP v3 support)
@@ -259,8 +277,8 @@ mv %{buildroot}%{_datadir}/doc/mrtg2 .
 * Mon Nov 25 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.9.25-1mdk
 - new version
 - fix no doc or icons install, handled by rpm instead
-- fix rpatch stuff in %{_bindir}/rateup to make rpmlint happier
-- move contribs to %{_datadir}/mrtg2 into a subpackage, and also make 
+- fix rpatch stuff in %%{_bindir}/rateup to make rpmlint happier
+- move contribs to %%{_datadir}/mrtg2 into a subpackage, and also make 
   rpmlint happier
 - misc spec file fixes
 
@@ -331,7 +349,7 @@ mv %{buildroot}%{_datadir}/doc/mrtg2 .
 
 * Tue Dec 21 1999 Philippe Libat <philippe@mandrakesoft.com>
 - [2.8.9]
-  Install locales_mrtg.pm in %{siteperldir}
+  Install locales_mrtg.pm in %%{siteperldir}
 
 * Fri Aug 20 1999 Chmouel Boudjnah <chmouel@mandrakesoft.com>
 
@@ -369,8 +387,8 @@ mv %{buildroot}%{_datadir}/doc/mrtg2 .
 
 * Thu Jun 18 1998 Arne Coucheron <arneco@online.no>
   [2.5.3-1]
-- using %%{name} and %%{version} macros
-- using %defattr macro in filelist
+- using %%%{name} and %%{version} macros
+- using %%defattr macro in filelist
 - using install -d in various places instead of cp
-- added -q parameter to %setup
+- added -q parameter to %%setup
 - removed older changelogs
