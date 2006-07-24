@@ -19,7 +19,7 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
-Group:		Text tools
+Group:		Text Tools
 URL:		http://www.gnu.org/directory/GNU/groff.html
 Source0:	ftp://prep.ai.mit.edu/pub/gnu/groff/%{name}-%{version}.tar.bz2
 Source1:	troff-to-ps.fpi
@@ -52,7 +52,7 @@ type, italic type, the number and size of columns on a page, and more.
 
 %package for-man
 Summary:	Parts of the groff formatting system that is required for viewing manpages
-Group:		Text tools
+Group:		Text Tools
 Conflicts:	groff < 1.19-7avx
 
 %description for-man
@@ -63,7 +63,7 @@ For a full groff package, install package groff.
 
 %package perl
 Summary:	Parts of the groff formatting system that require Perl
-Group:		Text tools
+Group:		Text Tools
 
 %description perl
 The groff-perl package contains the parts of the groff text processor
@@ -193,7 +193,7 @@ ln -sf doc.tmac %{buildroot}%{_datadir}/groff/%{version}/tmac/docj.tmac
 
 for i in $(find %{buildroot} -empty -type f); do echo " ">> $i;done
 
-mv %{buildroot}%{_docdir}/{groff/%{version}/,%{name}-%{version}/}
+rm -rf %{buildroot}%{_docdir}/groff/%{version}
 
 
 %clean
@@ -454,7 +454,7 @@ mv %{buildroot}%{_docdir}/{groff/%{version}/,%{name}-%{version}/}
 - 1.16.1.
 
 * Thu Jul 20 2000 Chmouel Boudjnah <chmouel@mandrakesoft.com> 1.16-1mdk
-- Remove %{config} for app-default file.
+- Remove %%{config} for app-default file.
 - Merge rh changes.
 - Add perl pacakge.
 - BM.
