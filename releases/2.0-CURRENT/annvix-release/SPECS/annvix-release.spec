@@ -34,6 +34,14 @@ Provides:	redhat-release rawhide-release mandrake-release opensls-release
 Annvix release and rpm macros files.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 rm -rf %{_builddir}/%{name}-%{version} && mkdir %{_builddir}/%{name}-%{version}
 cp -av %{SOURCE0} %{_builddir}/%{name}-%{version}/
@@ -62,13 +70,19 @@ EOF
 
 %files
 %defattr(-,root,root)
-%doc %{name}-%{version}/CREDITS
 %{_sysconfdir}/annvix-release
 %{_sysconfdir}/release
 %{macrofile}
 
+%files doc
+%defattr(-,root,root)
+%doc %{name}-%{version}/CREDITS
+
 
 %changelog
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
+- add -doc subpackage
+
 * Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
 - 2.0-CURRENT (Artemis)
 
