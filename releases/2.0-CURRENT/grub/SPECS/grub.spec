@@ -5,11 +5,13 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# fdr: 0.97-5
+#
 # $Id$
 
 %define revision	$Rev$
 %define name		grub
-%define version 	0.95
+%define version 	0.97
 %define release 	%_revrel
 
 Summary:	GRand Unified Bootloader
@@ -26,45 +28,57 @@ Source1:	annvix-splash.xpm.gz
 
 # let's have some sort of organization for the patches
 # patches 0-19 are for config file related changes (menu.lst->grub.conf)
+#
 Patch0:		grub-0.93-configfile.patch
 Patch1:		grub-0.90-symlinkmenulst.patch
+#
 # patches 20-39 are for grub-install bits
-Patch20:	grub-0.90-install.in.patch
+#
+Patch20:	grub-0.97-install.in.patch
 Patch21:	grub-0.94-installcopyonly.patch
 Patch22:	grub-0.94-addsyncs.patch
+#
 # patches 40-59 are for miscellaneous build related patches
+#
 # link against curses statically
 Patch40:	grub-0.95-staticcurses.patch
 # patches submitted upstream and pending approval
 # change the message so that how to accept changes is clearer (#53846)
 Patch81:	grub-0.93-endedit.patch
+#
 # patches 100-199 are for features proposed but not accepted upstream
+#
 # add support for appending kernel arguments
 Patch100:	grub-0.90-append.patch
 # add support for lilo -R-esque select a new os to boot into
-Patch101:	grub-0.93-once.patch
+Patch101:	grub-0.97-once.patch
+#
 # patches 200-299 are for graphics mode related patches
+#
 Patch200:	grub-0.95-graphics.patch
 Patch201:	grub-0.91-splashimagehelp.patch
 Patch202:	grub-0.93-graphics-bootterm.patch
 Patch203:	grub-0.95-hiddenmenu-tweak.patch
+#
 # patches 300-399 are for things already upstream
-Patch300:	grub-0.95-ext2-sparse.patch
+#
+#
 # patches 500+ are for miscellaneous little things
+#
 # support for non-std devs (eg cciss, etc)
 Patch500:	grub-0.93-special-device-names.patch
+# i2o device support
+Patch501:	grub-0.94-i2o.patch
+# detect cciss/ida/i2o
+Patch502:	grub-0.95-moreraid.patch
 # for some reason, using the initrd max part of the setup.S structure
 # causes problems on x86_64 and with 4G/4G
-Patch501:	grub-0.94-initrdmax.patch
-# i2o device support
-Patch503:	grub-0.94-i2o.patch
-# detect cciss/ida/i2o
-Patch504:	grub-0.95-moreraid.patch
+Patch505:	grub-0.94-initrdmax.patch
 # we need to use O_DIRECT to avoid hitting oddities with caching
 Patch800:	grub-0.95-odirect.patch
 # the 2.6 kernel no longer does geometry fixups.  so now I get to do it
 # instead in userspace everywhere.
-Patch1000:	grub-0.94-geometry-26kernel.patch
+Patch1000:	grub-0.95-geometry-26kernel.patch
 # Support for booting from a RAID1 device
 Patch1100:	grub-0.95-md.patch
 Patch1101:	grub-0.95-md-rework.patch
@@ -74,12 +88,40 @@ Patch1102:	grub-0.95-xpmjunk.patch
 # and don't print any errors about the missing file while current_term is
 # "graphics".
 Patch1103:	grub-0.95-splash-error-term.patch
+# Mark the simulation stack executable
+Patch1104:	grub-0.97-nxstack.patch
+Patch1105:	grub-0.97-nx-multiinstall.patch
+# always use a full path for mdadm.
+Patch1110:	grub-0.97-mdadm-path.patch
+# always install into the mbr if we're on a raid1 /boot.
+Patch1111:	grub-0.95-md-mbr.patch
+# gcc4 fixes.
+Patch1115:	grub-0.97-gcc4.patch
+# Make non-MBR installs work again on non-raid1.
+Patch1120:	grub-0.95-nonmbr.patch
+# Make "grub-install --recheck" look like the menace it is.
+Patch1130:	grub-0.95-recheck-bad.patch
+# Fix missing prototypes, since grub nicely sets -Wmissing-prototypes and
+# then tries to build conftests without them.
+Patch1135:	grub-0.97-prototypes.patch
+# put /usr/lib/grub back in /usr/share/grub like it was before, so other
+# scripts don't screw up.
+Patch1140:	grub-0.97-datadir.patch
+# install correctly on dmraid devices
+Patch1145:	grub-0.97-dmraid.patch
+Patch1146:	grub-0.97-dmraid-recheck-bad.patch
+Patch1147:	grub-0.97-dmraid-partition-names.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	ncurses-devel, texinfo, binutils, automake1.7, autoconf2.5
+BuildRequires:	ncurses-devel
+BuildRequires:	texinfo
+BuildRequires:	binutils
+BuildRequires:	automake1.7
+BuildRequires:	autoconf2.5
 
 Exclusivearch:	%{ix86} x86_64
-Requires:	diffutils, mktemp
+Requires:	diffutils
+Requires:	mktemp
 Requires(post):	info-install
 Requires(preun): info-install
 Conflicts:	initscripts <= 6.40.2-15mdk
@@ -91,6 +133,14 @@ operating systems.  In addition to loading the Linux and *BSD kernels,
 it implements the Multiboot standard, which allows for flexible loading
 of multiple boot images (needed for modular kernels such as the GNU
 Hurd).
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -108,17 +158,28 @@ Hurd).
 %patch201 -p1 -b .splashhelp
 %patch202 -p1 -b .bootterm
 %patch203 -p1 -b .hidden
-%patch300 -p1 -b .ext2sparse
 %patch500 -p1 -b .raid
-%patch501 -p1 -b .initrdmax
-%patch503 -p1 -b .i2o
-%patch504 -p1 -b .moreraid
-#%patch800 -p1 -b .odirect
+%patch501 -p1 -b .i2o
+%patch502 -p1 -b .moreraid
+%patch505 -p1 -b .initrdmax
+%patch800 -p1 -b .odirect
 %patch1000 -p1 -b .26geom
 %patch1100 -p1 -b .md
 %patch1101 -p1 -b .md-rework
 %patch1102 -p1 -b .xpmjunk
 %patch1103 -p1 -b .splash-error-term
+%patch1104 -p1 -b .nxstack
+%patch1105 -p1 -b .nx-multiinstall
+%patch1110 -p1 -b .mdadm-path
+%patch1111 -p1 -b .md-mbr
+%patch1115 -p1 -b .gcc4
+%patch1120 -p1 -b .nonmbr
+%patch1130 -p1 -b .recheck-bad
+%patch1135 -p1 -b .prototypes
+%patch1140 -p1 -b .datadir
+%patch1145 -p1 -b .dmraid
+%patch1146 -p1 -b .dmraid-recheck-bad
+%patch1147 -p1 -b .dmraid-partition-names
 
 
 %build
@@ -165,7 +226,6 @@ ln -s ../boot/grub/grub.conf %{buildroot}%{_sysconfdir}/grub.conf
 
 %files
 %defattr(-,root,root)
-%doc README TODO BUGS NEWS ChangeLog docs/menu.lst
 /boot/grub
 /sbin/grub
 /sbin/grub-install
@@ -179,8 +239,22 @@ ln -s ../boot/grub/grub.conf %{buildroot}%{_sysconfdir}/grub.conf
 %{_datadir}/grub/*
 %config(noreplace) %{_sysconfdir}/grub.conf
 
+%files doc
+%defattr(-,root,root)
+%doc README TODO BUGS NEWS ChangeLog docs/menu.lst
+
 
 %changelog
+* Mon Jul 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.97
+- 0.97
+- sync with fedora 0.97-5:
+  - updated P20, P101, P500, P1000
+  - dropped P300
+  - new P1104, P1105, P1110, P1111, P1115, P1120, P1130, P1135, P1140,
+    P1145, P1146, P1147
+- add -doc subpackage
+- rebuild with gcc4
+
 * Wed Feb  1 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.95
 - use --prefix with configure or else grub-install looks for files
   in /usr/local/share
@@ -397,7 +471,7 @@ main package, very good one)
 - Add dvi docs (tknks b.bodin).
 
 * Mon Jan  3 2000 Chmouel Boudjnah <chmouel@mandrakesoft.com> 0.5.93.1-2mdk
-- Add %packager (thnks rpmlint).
+- Add %%packager (thnks rpmlint).
 - Remove CFLAGS.
 
 * Mon Jan  3 2000 Chmouel Boudjnah <chmouel@mandrakesoft.com>

@@ -1,6 +1,6 @@
---- grub-0.94/lib/device.c.26geom	2004-04-14 14:05:24.786938853 -0400
-+++ grub-0.94/lib/device.c	2004-04-14 14:32:50.768600176 -0400
-@@ -88,6 +88,122 @@
+--- grub-0.95/lib/device.c.26geom	2004-11-30 16:33:00.186025728 -0500
++++ grub-0.95/lib/device.c	2004-11-30 16:45:09.073218032 -0500
+@@ -131,6 +131,152 @@
  #include <shared.h>
  #include <device.h>
  
@@ -11,7 +11,7 @@
 + * also know about partition tables and try to read what the geometry
 + * is there. *grumble*   Very closely based on code from cfdisk
 + */
-+static void get_kernel_geometry(int fd, int *cyl, int *heads, int *sectors) {
++static void get_kernel_geometry(int fd, long long *cyl, int *heads, int *sectors) {
 +    struct hd_geometry hdg;
 +    
 +    if (ioctl (fd, HDIO_GETGEO, &hdg))
@@ -53,7 +53,7 @@
 +#define PART_TABLE_FLAG1 0xAA
 +
 +static void
-+get_partition_table_geometry(partition_table *bufp, int *cyl, int *heads, 
++get_partition_table_geometry(partition_table *bufp, long long *cyl, int *heads, 
 +                             int *sectors) {
 +    struct partition *p;
 +    int i,h,s,hh,ss;
@@ -90,14 +90,44 @@
 +    }
 +}
 +
++static long long my_lseek (unsigned int fd, long long offset, 
++                           unsigned int origin)
++{
++#if defined(__linux__) && (!defined(__GLIBC__) || \
++        ((__GLIBC__ < 2) || ((__GLIBC__ == 2) && (__GLIBC_MINOR__ < 1))))
++  /* Maybe libc doesn't have large file support.  */
++  loff_t offset, result;
++  static int _llseek (uint filedes, ulong hi, ulong lo,
++                      loff_t *res, uint wh);
++  _syscall5 (int, _llseek, uint, filedes, ulong, hi, ulong, lo,
++             loff_t *, res, uint, wh);
++  
++  if (_llseek (fd, offset >> 32, offset & 0xffffffff, &result, SEEK_SET) < 0)
++    return (long long) -1;
++  return result;
++#else
++  return lseek(fd, offset, SEEK_SET);
++#endif
++}
++
 +static void get_linux_geometry (int fd, struct geometry *geom) {
-+    int kern_cyl = 0, kern_head = 0, kern_sectors = 0;
-+    int pt_cyl = 0, pt_head = 0, pt_sectors = 0;
++    long long kern_cyl = 0; int kern_head = 0, kern_sectors = 0;
++    long long pt_cyl = 0; int pt_head = 0, pt_sectors = 0;
 +    partition_table bufp;
++    char *buff, *buf_unaligned;
++
++    buf_unaligned = malloc(sizeof(partition_table) + 4095);
++    buff = (char *) (((unsigned long)buf_unaligned + 4096 - 1) &
++                     (~(4096-1)));
 +
 +    get_kernel_geometry(fd, &kern_cyl, &kern_head, &kern_sectors);
 +
-+    if (read(fd, bufp.c.b, SECTOR_SIZE) == SECTOR_SIZE) {
++    if (my_lseek (fd, 0*SECTOR_SIZE, SEEK_SET) < 0) {
++        fprintf(stderr, "Unable to seek");
++    }
++
++    if (read(fd, buff, SECTOR_SIZE) == SECTOR_SIZE) {
++        memcpy(bufp.c.b, buff, SECTOR_SIZE);
 +        get_partition_table_geometry(&bufp, &pt_cyl, &pt_head, &pt_sectors);
 +    } else {
 +        fprintf(stderr, "Unable to read partition table: %s\n", strerror(errno));
@@ -123,29 +153,77 @@
  /* Get the geometry of a drive DRIVE.  */
  void
  get_drive_geometry (struct geometry *geom, char **map, int drive)
-@@ -100,20 +216,16 @@
+@@ -151,21 +297,16 @@
  #if defined(__linux__)
    /* Linux */
    {
 -    struct hd_geometry hdg;
      unsigned long nr;
-     
+-    
 -    if (ioctl (fd, HDIO_GETGEO, &hdg))
 -      goto fail;
--
+ 
      if (ioctl (fd, BLKGETSIZE, &nr))
        goto fail;
--    
--    /* Got the geometry, so save it. */
+     
+     /* Got the geometry, so save it. */
 -    geom->cylinders = hdg.cylinders;
 -    geom->heads = hdg.heads;
 -    geom->sectors = hdg.sectors;
-+
      geom->total_sectors = nr;
+-    
 +    get_linux_geometry(fd, geom);
-+
 +    if (!geom->heads && !geom->cylinders && !geom->sectors)
 +        goto fail;
-     
-     close (fd);
-     return;
+     goto success;
+   }
+ 
+@@ -841,6 +982,7 @@
+ {
+   char dev[PATH_MAX];	/* XXX */
+   int fd;
++  off_t offset = (off_t) sector * (off_t) SECTOR_SIZE;
+   
+   if ((partition & 0x00FF00) != 0x00FF00)
+     {
+@@ -874,35 +1016,13 @@
+       errnum = ERR_NO_PART;
+       return 0;
+     }
+-  
+-#if defined(__linux__) && (!defined(__GLIBC__) || \
+-        ((__GLIBC__ < 2) || ((__GLIBC__ == 2) && (__GLIBC_MINOR__ < 1))))
+-  /* Maybe libc doesn't have large file support.  */
+-  {
+-    loff_t offset, result;
+-    static int _llseek (uint filedes, ulong hi, ulong lo,
+-                        loff_t *res, uint wh);
+-    _syscall5 (int, _llseek, uint, filedes, ulong, hi, ulong, lo,
+-               loff_t *, res, uint, wh);
+ 
+-    offset = (loff_t) sector * (loff_t) SECTOR_SIZE;
+-    if (_llseek (fd, offset >> 32, offset & 0xffffffff, &result, SEEK_SET))
+-      {
+-	errnum = ERR_DEV_VALUES;
+-	return 0;
+-      }
+-  }
+-#else
+-  {
+-    off_t offset = (off_t) sector * (off_t) SECTOR_SIZE;
+ 
+-    if (lseek (fd, offset, SEEK_SET) != offset)
+-      {
+-	errnum = ERR_DEV_VALUES;
+-	return 0;
+-      }
+-  }
+-#endif
++  if (my_lseek(fd, offset, SEEK_SET) != offset)
++    {
++      errnum = ERR_DEV_VALUES;
++      return 0;
++    }
+   
+   if (write (fd, buf, size * SECTOR_SIZE) != (size * SECTOR_SIZE))
+     {
