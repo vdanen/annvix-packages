@@ -36,12 +36,20 @@ pattern to characterize the package names of the "clan" of modules
 which shall never be blamed for any error.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n %{module}-%{version}
 
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor
 %make
 
 
@@ -60,17 +68,24 @@ LANG=C %make test
 
 %files
 %defattr(644,root,root,755)
-%doc CHANGES.txt README.txt
 %{_mandir}/man3/Carp::Clan*
 %dir %{perl_vendorlib}/Carp
 %{perl_vendorlib}/Carp/Clan*
 
+%files doc
+%defattr(644,root,root,755)
+%doc CHANGES.txt README.txt
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed May 10 2006 Vincent Danen <vdanen-at-build.annvix.org>  5.3
+- rebuild against perl 5.8.8
+- create -doc subpackage
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.3
 - Clean rebuild
 
-* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Dec 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.3
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
