@@ -129,6 +129,14 @@ Provides:  	lib%{fname}-static-devel = %{version}-%{release}
 This package contains static libraries for console tools.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -n %{name}-%{CTVER} -q -a 1 -a4 -a5
 cd console-data-%{CDVER}
@@ -289,7 +297,6 @@ fi
 
 %files -f %{name}.lang
 %defattr(-,root,root)
-%doc README NEWS RELEASE
 %config(noreplace) %{_sysconfdir}/profile.d/configure_keyboard.sh
 %config(noreplace) %{_sysconfdir}/rc.d/init.d/keytable
 %{_libdir}/*.la
@@ -370,7 +377,6 @@ fi
 
 %files -n %{libname}-devel
 %defattr(-,root,root)
-%doc BUGS TODO doc/[cdf]* doc/keymaps doc/README* doc/*.txt
 %{_libdir}/*.so
 %dir %{_includedir}/lct
 %{_includedir}/lct/*
@@ -379,12 +385,21 @@ fi
 %defattr(-,root,root,-)
 %{_libdir}/*.a
 
+%files doc
+%defattr(-,root,root)
+%doc README NEWS RELEASE
+%doc BUGS TODO doc/[cdf]* doc/keymaps doc/README* doc/*.txt
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.2.3 
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.2.3
 - Clean rebuild
 
-* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.2.3
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
@@ -441,7 +456,7 @@ fi
 
 * Tue Jul 08 2003 Olivier Thauvin <thauvin@aerov.jussieu.fr> 0.2.3-44mdk
 - fix gcc 3.3 build (patch16)
-- remove %ifarch for some files, all arch want it...
+- remove %%ifarch for some files, all arch want it...
 - my dear %%mklibname
 
 * Wed Apr 23 2003 Pablo Saratxaga <pablo@mandrakesoft.com> 0.2.3-43mdk
@@ -459,7 +474,7 @@ fi
 * Tue Nov 26 2002 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 0.2.3-40mdk
 - x86-64 has PC-like keyboards too
 - Introduce %%kbddir currently hardcoded to %{_prefix}/lib/kbd, this
-  really should go into %{_datadir}/kbd, IMHO
+  really should go into %%{_datadir}/kbd, IMHO
 
 * Mon Nov 18 2002 Frederic Lepied <flepied@mandrakesoft.com> 0.2.3-39mdk
 - libified
@@ -684,13 +699,13 @@ someone find something better)
 - cleanups
 
 * Thu Apr 15 1999 Bill Nottingham <notting@redhat.com>
-- make keytable %post handle us.map better
+- make keytable %%post handle us.map better
 
 * Thu Apr 15 1999 Jeff Johnson <jbj@redhat.com>
 - hotwire sun fonts.
 
 * Wed Apr 14 1999 Bill Nottingham <notting@redhat.com>
-- %post changes; just copy the user's configured font/map/etc.
+- %%post changes; just copy the user's configured font/map/etc.
 
 * Wed Apr 14 1999 Matt Wilson <msw@redhat.com>
 - added fonts RUSCII_*, koi8u_*, and acm koi8u2ruscii from
@@ -753,7 +768,7 @@ someone find something better)
 - enable turkish again
 
 * Mon Aug 24 1998 Cristian Gafton <gafton@redhat.com>
-- KEYTABLE should not have the full patch name (%post hack)
+- KEYTABLE should not have the full patch name (%%post hack)
 
 * Fri Aug 21 1998 Jeff Johnson <jbj@redhat.com>
 - install keymaps on tty0 w/o using (non-installed) open(1).
