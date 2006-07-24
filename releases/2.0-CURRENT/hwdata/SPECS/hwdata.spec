@@ -46,7 +46,6 @@ rm -rf %{buildroot}%{_sysconfdir}/{hotplug,pcmcia}
 
 %files
 %defattr(-,root,root)
-%doc LICENSE COPYING
 %dir /usr/share/hwdata
 %config /usr/share/hwdata/*
 # This file is screaming to be moved into /usr/share/hwdata sometime <g>
@@ -54,6 +53,9 @@ rm -rf %{buildroot}%{_sysconfdir}/{hotplug,pcmcia}
 
 
 %changelog
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.152
+- drop the docs (LICENSE, COPYING)... this is standard stuff in common-licenses
+
 * Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.152
 - fix group
 
