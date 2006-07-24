@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		gettext
-%define version 	0.14.5
+%define version 	0.14.6
 %define release 	%_revrel
 
 %define major		3
@@ -25,7 +25,7 @@ URL:		http://www.gnu.org/software/gettext/
 Source:		ftp://ftp.gnu.org/pub/gnu/%{name}/%{name}-%{version}.tar.gz
 Source1:	ftp://ftp.gnu.org/pub/gnu/%{name}/%{name}-%{version}.tar.gz.sig
 # (gb) some tests try to link non-pic static libs into a dso (XXX patch as XFAIL?)
-Patch0:		gettext-0.14.5-pic.patch
+Patch0:		gettext-0.14.6-mdv-pic.patch
 Patch1:		gettext-0.14.2-charsets.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -84,6 +84,14 @@ Requires:	%{libname} = %{version}
 The base package which includes the gettext binary.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 %patch0 -p1 -b .pic
@@ -100,6 +108,10 @@ sed -i -e 's/lang-java//' gettext-tools/tests/Makefile.in
     --disable-csharp
 
 make
+
+
+%check
+LC_ALL=C make check
 
 
 %install
@@ -168,10 +180,8 @@ popd
 
 %files
 %defattr(-,root,root)
-%doc README COPYING AUTHORS NEWS THANKS
 %{_bindir}/msg*
 %{_bindir}/xgettext
-%{_bindir}/autopoint
 %{_bindir}/envsubst
 %{_bindir}/gettext.sh
 %dir %{_libdir}/%{name}
@@ -182,7 +192,6 @@ popd
 %{_infodir}/gettext*
 %{_mandir}/man1/msg*
 %{_mandir}/man1/xgettext*
-%{_mandir}/man1/autopoint*
 %{_mandir}/man1/envsubst*
 %{_mandir}/man3/*
 
@@ -211,18 +220,34 @@ popd
 %{_libdir}/libintl.so
 %{_libdir}/libasprintf.so
 %{_libdir}/libgettextpo.so
+%{_bindir}/autopoint
 %{_bindir}/gettextize
 %{_datadir}/gettext
 %{_datadir}/aclocal/*
 %{_includedir}/*
 %{_infodir}/autosprintf*
+%{_mandir}/man1/autopoint.1*
+%{_mandir}/man3/*
+
+%files doc
+%defattr(-,root,root)
+%doc README COPYING AUTHORS NEWS THANKS
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.14.6
+- 0.14.6
+- put autopoint in the devel package
+- move man3 manpages to devel package
+- put back make check
+- updated P0 from Mandriva
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.14.5
 - Clean rebuild
 
-* Thu Jan 05 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 05 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.14.5
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - fix prereq
