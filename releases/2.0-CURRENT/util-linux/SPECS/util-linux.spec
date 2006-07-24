@@ -127,10 +127,23 @@ Conflicts:	initscripts <= 4.58, timeconfig <= 3.0.1
 #%endif
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	gcc, sed, pam-devel, ncurses-devel, termcap-devel, texinfo, slang-devel, zlib-devel
+BuildRequires:	gcc
+BuildRequires:	sed
+BuildRequires:	pam-devel
+BuildRequires:	ncurses-devel
+BuildRequires:	termcap-devel
+BuildRequires:	texinfo
+BuildRequires:	slang-devel
+BuildRequires:	zlib-devel
 
-Requires:	pam >= 0.66-4, shadow-utils >= 20000902-5
-Prereq:		mktemp, gawk, diffutils, coreutils
+Requires:	pam >= 0.66-4
+Requires:	shadow-utils >= 20000902-5
+Requires(pre):	mktemp
+Requires(pre):	gawk
+Requires(pre):	diffutils
+Requires(pre):	coreutils
+Requires(post):	info-install
+Requires(preun): info-install
 
 %description
 The util-linux package contains a large variety of low-level system
@@ -163,8 +176,16 @@ Losetup is used to associate loop devices with regular files or block
 devices, to detach loop devices and to query the status of a loop
 device.
 
-%prep
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
+%prep
 %setup -q -a 10 0n %{name}-%{version}
 
 %patch0 -p1 -b .rhconfig
@@ -389,7 +410,6 @@ fi
 
 %files -f %{name}.lang
 %defattr(-,root,root)
-%doc */README.* HISTORY
 %config(noreplace) %{_sysconfdir}/fdprm
 %config(noreplace) %{_sysconfdir}/pam.d/login
 #%ifnarch s390 s390x
@@ -429,7 +449,6 @@ fi
 /sbin/sfdisk
 
 %{_mandir}/man8/sfdisk.8*
-%doc fdisk/sfdisk.examples
 %endif
 
 %ifnarch s390 s390x
@@ -578,7 +597,6 @@ fi
 
 %files -n mount
 %defattr(-,root,root)
-%doc mount/README.mount
 %attr(0700,root,root)	/bin/mount
 %attr(0700,root,root)	/bin/umount
 /sbin/swapon
@@ -595,8 +613,19 @@ fi
 %{_mandir}/man8/losetup.8*
 /sbin/losetup
 
+%files doc
+%defattr(-,root,root)
+%doc */README.* HISTORY mount/README.mount
+%ifarch %ix86 alpha ia64 x86_64 s390 s390x ppc sparc sparc64 sparcv9
+%doc fdisk/sfdisk.examples
+%endif
+
 
 %changelog
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.12r
+- really add -doc subpackage
+- fix requires
+
 * Sat Jul 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.12r
 - drop chfn, chsh, vipw, vigr; these are provided by shadow-utils now
 
@@ -1016,7 +1045,7 @@ fi
 - 2.10n.
 
 * Mon Jul 31 2000 Chmouel Boudjnah <chmouel@mandrakesoft.com> 2.10m-1mdk
-- Add %{_mandir} to whereis.
+- Add %%{_mandir} to whereis.
 - BM.
 - Merge rh patches.
 - 2.19m.
@@ -1060,7 +1089,7 @@ fi
 - fixed build on sparc.
 
 * Sun Nov 21 1999 Pixel <pixel@mandrakesoft.com>
-- add rescuept in %files
+- add rescuept in %%files
 
 * Mon Nov 15 1999 Chmouel Boudjnah <chmouel@mandrakesoft.com>
 - 2.2.10b.
@@ -1069,10 +1098,10 @@ fi
 - 2.2.10.
 
 * Tue Nov  2 1999 Chmouel Boudjnah <chmouel@mandrakesoft.com>
-- Fix this fu**** %files, references to a archeologic arch(again).
+- Fix this fu**** %%files, references to a archeologic arch(again).
 
 * Mon Oct 25 1999 Chmouel Boudjnah <chmouel@mandrakesoft.com>
-- Fix this fu**** %files, references to a dinosaur arch.
+- Fix this fu**** %%files, references to a dinosaur arch.
 - Merge with (Buggy) RH changes.
 - 2.9z
 
@@ -1105,7 +1134,7 @@ fi
 - remove a series of patches - they finally made it to the base.
 
 * Mon May 24 1999 Bernhard Rosenkraenzer <bero@linux-mandrake.com>
-- fix some %ifarch bugs
+- fix some %%ifarch bugs
 - Update to 2.9r
 
 * Tue May 11 1999 Chmouel Boudjnah <chmouel@mandrakesoft.com>
