@@ -21,7 +21,7 @@ Name:	 	%{name}
 Version:	%{version}
 Release:	%{release}
 License: 	BSD-Style
-Group: 		File tools
+Group: 		File Tools
 URL: 		http://www.pcre.org/
 Source:		ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/%{name}-%{version}.tar.bz2
 Patch0:		pcre-6.2-avx-skip_runtest_2.patch
@@ -65,6 +65,14 @@ Provides:	%{name}-devel = %{version}-%{release}
 %description -n %{libname}-devel
 Install this package if you want do compile applications using the pcre
 library.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -117,7 +125,6 @@ ln -s ../../%{_lib}/lib%{name}.so.%{major}.* .
 
 %files -n %{libname}
 %defattr(-,root,root)
-%doc AUTHORS ChangeLog NEWS README NON-UNIX-USE 
 /%{_lib}/lib*.so.*
 %{_libdir}/lib*.so.*
 
@@ -132,12 +139,20 @@ ln -s ../../%{_lib}/lib%{name}.so.%{major}.* .
 %multiarch %{multiarch_bindir}/pcre-config
 %{_mandir}/man3/*.3*
 
+%files doc
+%defattr(-,root,root)
+%doc AUTHORS ChangeLog NEWS README NON-UNIX-USE
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 6.3
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 6.3
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 6.3
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
