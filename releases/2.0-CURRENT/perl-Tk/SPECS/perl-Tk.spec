@@ -118,7 +118,6 @@ rm -f %{buildroot}%{perl_vendorarch}/Tk/README.Adjust
 
 %files devel
 %defattr(-,root,root)
-%doc COPYING Funcs.doc INSTALL
 %{perl_vendorarch}/Tk/pTk
 %{perl_vendorarch}/Tk/*.def
 %{perl_vendorarch}/Tk/*.h
@@ -128,10 +127,13 @@ rm -f %{buildroot}%{perl_vendorarch}/Tk/README.Adjust
 
 %files doc
 %defattr(-,root,root)
-%doc COPYING ToDo Changes README README.linux
+%doc COPYING ToDo Changes README README.linux Funcs.doc INSTALL
 
 
 %changelog
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 800.027
+- move the rest of the docs
+
 * Sat May 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 800.027
 - rebuild against perl 5.8.8
 - create -doc subpackage
