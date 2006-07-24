@@ -30,6 +30,14 @@ Requires:	common-licenses
 common forms of standard Unix archive (backup) files - CPIO and TAR.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 
@@ -52,12 +60,19 @@ mkdir -p %{buildroot}%{_mandir}/man1
 
 %files
 %defattr(-,root,root)
-%doc AUTHORS NEWS README THANKS
 %{_bindir}/pax
 %{_mandir}/man1/*
 
+%files doc
+%defattr(-,root,root)
+%doc AUTHORS NEWS README THANKS
+
 
 %changelog
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- add -doc subpackage
+- rebuild with gcc4
+
 * Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.4
 - fix group
 
@@ -89,7 +104,7 @@ mkdir -p %{buildroot}%{_mandir}/man1
 
 * Mon Jul 21 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 3.0-4mdk
 - rebuild
-- rm -rf %{buildroot} in the beginning of %%install
+- rm -rf %%{buildroot} in the beginning of %%install
 
 * Fri Dec 27 2002 Stew Benedict <sbenedict@mandrakesoft.com> 3.0-3mdk
 - rebuild for new glibc/rpm
