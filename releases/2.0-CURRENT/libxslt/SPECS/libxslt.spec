@@ -113,6 +113,8 @@ This package contains the documentation for %{name}.
 
 %make 
 
+
+%check
 make check
 
 
@@ -120,6 +122,9 @@ make check
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %makeinstall
+
+rm -rf python-examples
+mv %{buildroot}%{_docdir}/%{name}-python-%{version}/examples python-examples && rm -rf %{buildroot}%{_docdir}/%{name}-python-%{version}
 
 # remove unpackaged files
 rm -rf %{buildroot}%{_docdir}/%{name}-%{version} \
@@ -169,12 +174,13 @@ rm -rf %{buildroot}%{_docdir}/%{name}-%{version} \
 %doc doc/*.html
 %doc doc/tutorial doc/html
 %doc python/libxsltclass.txt
-%doc python/tests/*.py
+%doc python/tests/*.py python-examples
 
 
 %changelog
 * Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.1.16
 - move the python pkg docs too
+- put make check in %%check
 
 * Tue May 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.1.16
 - add -doc subpackage
