@@ -118,7 +118,6 @@ fi
 
 %files
 %defattr(-,root,root)
-%doc TODO ChangeLog mdadm.conf-example ANNOUNCE-%{version}
 %attr(0755,root,root) %{_sbindir}/mdadm
 %if %{use_dietlibc}
 %attr(0755,root,root) %{_sbindir}/mdassemble
@@ -136,6 +135,9 @@ fi
 
 
 %changelog
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5.2
+- remove the docs from the main package
+
 * Thu Jun 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5.2
 - 2.5.2 (fixes a bad memory leak in 2.5's --monitor mode)
 - drop P0, P1, P3, P5, P6; fixed upstream
