@@ -51,6 +51,14 @@ The dev86-devel package provides C headers need to use bcc, the C
 compiler for real mode x86.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 %patch5 -p1 -b .errno
@@ -92,7 +100,6 @@ ln -f bin86/ChangeLog ChangeLog.bin86
 
 %files
 %defattr(-,root,root)
-%doc Changes Contributors COPYING MAGIC README*  
 %dir %{_libdir}/bcc
 %{_bindir}/*
 %{_libdir}/bcc/*
@@ -101,17 +108,24 @@ ln -f bin86/ChangeLog ChangeLog.bin86
 
 %files devel
 %defattr(-,root,root)
-%doc README
 %dir %{_libdir}/bcc/include
 %{_libdir}/bcc/include/*
 %{_libdir}/bcc/i386/lib*
 
+%files doc
+%defattr(-,root,root)
+%doc Changes Contributors COPYING MAGIC README*  
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.16.16
 - Clean rebuild
 
-* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.16.16
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
