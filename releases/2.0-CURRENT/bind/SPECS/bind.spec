@@ -474,7 +474,7 @@ fi
 * Fri Feb 15 2002 Florin <florin@mandrakesoft.com> 9.2.0-3mdk
 - fix the sed line (thx to Bryan Paxton for letting me know)
 - add a userfriendly chroot configuration chroot_bind.sh script
-- add a sample chroot configuration in %{_docdir}/%{name}-%{version}
+- add a sample chroot configuration in %%{_docdir}/%%{name}-%%{version}
 
 * Sun Jan 13 2002 Geoffrey Lee <snailtalk@mandrkaesoft.com> 9.2.0-2mdk
 - Don't require bind for the -devel package. The development package only
@@ -568,7 +568,7 @@ fi
 - fix the /etc/rndc.conf permission (thx to Michael Brown)
 - add the sample configuration files in relation with the dhcpd server
 - add the named.conf, named-* and all the lwres* man pages
-- add the %{_sbindir}/new_key.pl script that generates a key and updates the 
+- add the %%{_sbindir}/new_key.pl script that generates a key and updates the 
   /etc/named.conf and /etc/rndc.conf files
 
 * Sun Jun 10 2001 Stefan van der Eijk <stefan@eijk.nu> 9.1.2-2mdk
