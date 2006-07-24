@@ -62,6 +62,14 @@ These directories and files can then be combined together
 to form a software release.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 %patch0 -p1 -b .varargs
@@ -138,7 +146,6 @@ popd >/dev/null 2>&1
 
 %files
 %defattr(-,root,root)
-%doc BUGS FAQ MINOR-BUGS NEWS PROJECTS TODO README
 %dir %{_sysconfdir}/cvs
 %config(noreplace) %{_sysconfdir}/cvs/cvs.conf
 %{_bindir}/cvs
@@ -160,12 +167,20 @@ popd >/dev/null 2>&1
 %attr(0640,root,admin) %{_srvdir}/cvspserver/env/PORT
 %{_datadir}/afterboot/06_cvspserver
 
+%files doc
+%defattr(-,root,root)
+%doc BUGS FAQ MINOR-BUGS NEWS PROJECTS TODO README
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.11.20 
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.11.20
 - Clean rebuild
 
-* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.11.20
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
@@ -353,8 +368,8 @@ describing a commit per Pixel request.
 
 * Tue Mar 28 2000 Frederic Lepied <flepied@mandrakesoft.com> 1.10.8-1mdk
 - 1.10.8
-- created %{_sbindir}/cvspserver to launch cvs pserver according to
-%{_sysconfdir}/cvs/cvs.conf.
+- created %%{_sbindir}/cvspserver to launch cvs pserver according to
+  %%{_sysconfdir}/cvs/cvs.conf.
 
 * Fri Mar 24 2000 Frederic Lepied <flepied@mandrakesoft.com> 1.10.7-5mdk
 - group fix.
