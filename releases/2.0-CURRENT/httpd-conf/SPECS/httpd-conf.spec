@@ -30,7 +30,6 @@ Source4:	fileprotector.conf
 Source5:	magic
 Source6:	mime.types
 Source7:	index.html
-Source8:	httpd-conf-README.urpmi
 Source10:	robots.txt
 Source11:	00_default_vhosts.conf
 Source12:	mod_ssl-gentestcrt.sh
@@ -69,7 +68,6 @@ cp %{SOURCE4} .
 cp %{SOURCE5} .
 cp %{SOURCE6} .
 cp %{SOURCE7} .
-cp %{SOURCE8} README.urpmi
 cp %{SOURCE10} .
 cp %{SOURCE11} .
 cp %{SOURCE12} .
@@ -204,7 +202,6 @@ fi
 
 %files 
 %defattr(-,root,root)
-%doc README.urpmi
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/sysconfig/httpd
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/logrotate.d/httpd
 
@@ -253,6 +250,9 @@ fi
 
 
 %changelog
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.2
+- move the README file from httpd-conf to httpd
+
 * Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.2
 - 2.2.2
 - moved mod_ssl-gentestcrt here

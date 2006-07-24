@@ -1328,6 +1328,9 @@ fi
 
 
 %changelog
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.2
+- move the README file from httpd-conf to httpd
+
 * Fri Jun 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.2
 - rebuild against new db4
 
