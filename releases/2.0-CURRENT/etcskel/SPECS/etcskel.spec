@@ -36,9 +36,6 @@ in every new user's home directory when new accounts are created.
 %setup -q
 
 
-%build
-
-
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make install RPM_BUILD_ROOT=%{buildroot}
@@ -50,17 +47,18 @@ make install RPM_BUILD_ROOT=%{buildroot}
 
 %files
 %defattr(-,root,root)
-%doc ChangeLog
-%dir /etc/skel
-%config(noreplace) /etc/skel/.??*
-%config(noreplace) /etc/skel/tmp
+%config(noreplace) /etc/skel
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.63
+- add -doc subpackage
+- make all of /etc/skel not replaceable
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.63
 - Clean rebuild
 
-* Wed Jan 04 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.63
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
