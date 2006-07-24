@@ -26,9 +26,15 @@ Source1:	memtest86.pm
 Patch0:		bootloader-utils-1.6-avx-grub.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
+BuildArch:	noarch
 
 Requires:	perl-base
-Requires(pre):	chkconfig, initscripts >= 7.06-21mdk, rpm-helper
+Requires(post):	chkconfig
+Requires(post):	initscripts >= 7.06-21mdk
+Requires(post):	rpm-helper
+Requires(preun): chkconfig
+Requires(preun): initscripts >= 7.06-21mdk
+Requires(preun): rpm-helper
 
 %description
 Utils needed to install/remove a kernel.  Also for updating bootloaders.
@@ -36,7 +42,7 @@ Utils needed to install/remove a kernel.  Also for updating bootloaders.
 
 %prep
 %setup -q
-cp %{SOURCE1} memtest86
+cp %{_sourcedir}/memtest86.pm memtest86
 %patch0 -p1 -b .avx
 
 
@@ -63,7 +69,7 @@ make ROOT=%{buildroot} mandir=%{_mandir} install
 %files
 %defattr(-,root,root)
 %config(noreplace) /etc/sysconfig/installkernel
-%config(noreplace) /etc/rc.d/init.d/kheader
+/etc/rc.d/init.d/kheader
 /sbin/installkernel
 /sbin/kernel_remove_initrd
 %{_sbindir}/detectloader
@@ -84,10 +90,16 @@ make ROOT=%{buildroot} mandir=%{_mandir} install
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Jul 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.6
+- use %%{_sourcedir} instead of %%{SOURCEx}
+- remove pre-Annvix changelog
+- initscript is not a config file
+- buildarch: noarch
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.6
 - Clean rebuild
 
-* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Jan 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.6
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
