@@ -9,10 +9,10 @@
 
 %define revision	$Rev$
 %define name		samba
-%define version		3.0.22
+%define version		3.0.23a
 %define release		%_revrel
 
-%define smbldapver	0.9.1
+%define smbldapver	0.9.2
 %define vscanver	0.3.6b
 %global vscandir	samba-vscan-%{vscanver}
 %global vfsdir		examples.bin/VFS
@@ -46,21 +46,31 @@ Patch1:         smbw.patch
 Patch2:         smbldap-tools-0.9.1-mdkconfig.patch
 Patch4:         samba-3.0-smbmount-sbin.patch
 Patch6:         samba-3.0.6-mdk-smbmount-unixext.patch
-Patch7:         samba-3.0.21-revert-libsmbclient-move.patch
+Patch7:         samba-3.0.23-mdv-revert-libsmbclient-move.patch
 Patch8:         samba-3.0.20-avx-annvix-config.patch
-Patch11:	samba-3.0.20-mandrake-packaging.patch
+Patch11:	samba-3.0-mandriva-packaging.patch
 Patch12:	http://www.samba.org/samba/patches/quota.patch
 Patch13:	http://samba.org/~metze/samba3-default-quota-ignore-error-01.diff
 Patch14:	samba-3.0.22-avx-pam.patch
 
 BuildRoot:      %{_buildroot}/%{name}-%{version}
-BuildRequires:  pam-devel readline-devel libncurses-devel popt-devel
+BuildRequires:  pam-devel
+BuildRequires:	readline-devel
+BuildRequires:	libncurses-devel
+BuildRequires:	popt-devel
 BuildRequires:  libxml2-devel
 BuildRequires:  libacl-devel
-BuildRequires:  libldap-devel krb5-devel
+BuildRequires:  libldap-devel
+BuildRequires:	krb5-devel
 
-Requires:       pam >= 0.64, samba-common = %{version}, srv >= 0.7
-Requires(pre):	mktemp psmisc fileutils sed grep
+Requires:       pam >= 0.64
+Requires:	samba-common = %{version}
+Requires:	srv >= 0.7
+Requires(pre):	mktemp
+Requires(pre):	psmisc
+Requires(pre):	fileutils
+Requires(pre):	sed
+Requires(pre):	grep
 
 %description
 Samba provides an SMB server which can be used to provide
@@ -91,7 +101,8 @@ Summary:        Samba (SMB) server programs
 Group:          System/Servers
 URL:            http://www.samba.org
 Requires:       %{name}-common = %{version}
-Requires:	perl-Crypt-SmbHash, libxml2
+Requires:	perl-Crypt-SmbHash
+Requires:	libxml2
 Requires(post):	rpm-helper
 Requires(preun):rpm-helper
 Provides:       samba
@@ -313,8 +324,8 @@ pushd source
 	--with-manpages-langs=en \
 	--with-acl-support      \
 	--disable-mysqltest \
-	--with-expsam=xml \
         --with-shared-modules=idmap_rid,idmap_ad
+#	--with-expsam=xml \
 
     #Fix the make file so we don't create debug information
     perl -pi -e 's/-g //g' Makefile
@@ -322,7 +333,8 @@ pushd source
     perl -pi -e 's|-Wl,-rpath,%{_libdir}||g;s|-Wl,-rpath -Wl,%{_libdir}||g' Makefile
 
     make proto_exists
-    %make all libsmbclient smbfilter wins modules bin/smbget client/mount.cifs client/umount.cifs
+    %make all libsmbclient smbfilter wins modules bin/smbget
+#client/mount.cifs client/umount.cifs
 popd
 
 pushd %{vfsdir}/%{vscandir}  
@@ -349,10 +361,13 @@ pushd source
     make DESTDIR=%{buildroot} \
         LIBDIR=%{_libdir}/%{name} \
         MANDIR=%{_mandir} \
+        PAMMODULESDIR=/%{_lib}/security \
+        ROOTSBINDIR=/bin \
         install installclientlib installmodules
 popd
 
-install -m 0755 source/bin/smbget %{buildroot}%{_bindir}
+#install -m 0755 source/bin/smbget %{buildroot}%{_bindir}
+rm -rf %{buildroot}%{_datadir}/swat/using_samba
 
 #need to stay 
 mkdir -p %{buildroot}/{sbin,bin}
@@ -369,16 +384,7 @@ mkdir -p %{buildroot}%{_libdir}
 mkdir -p %{buildroot}%{_libdir}/%{name}/vfs
 mkdir -p %{buildroot}%{_datadir}/%{name}/scripts
 
-#smbwrapper and pam_winbind not handled by make, pam_smbpass.so doesn't build
-#install -m 0755 source/bin/smbwrapper.so %{buildroot}%{_libdir}/smbwrapper.so
-install -m 0755 source/bin/pam_smbpass.so %{buildroot}/%{_lib}/security/pam_smbpass.so
-install -m 0755 source/nsswitch/pam_winbind.so %{buildroot}/%{_lib}/security/pam_winbind.so
-
-install -m 0755 source/bin/libsmbclient.a %{buildroot}%{_libdir}/libsmbclient.a
-
-# winbind idmap_rid:
-#install -d %{buildroot}%{_libdir}/%{name}/idmap
-#install source/bin/idmap_rid.so %{buildroot}%{_libdir}/%{name}/idmap
+install -m 0755 source/bin/lib*.a %{buildroot}%{_libdir}/
 
 # smbsh forgotten
 #install -m 0755 source/bin/smbsh %{buildroot}%{_bindir}/
@@ -386,7 +392,7 @@ install -m 0755 source/bin/libsmbclient.a %{buildroot}%{_libdir}/libsmbclient.a
 %makeinstall_std -C %{vfsdir}/%{vscandir}
 install -m 0644 %{vfsdir}/%{vscandir}/*/vscan-*.conf %{buildroot}%{_sysconfdir}/%{name}
 
-#libnss_* not handled by make:
+# libnss_* still not handled by make:
 # Install the nsswitch library extension file
 for i in wins winbind; do
     install -m 0755 source/nsswitch/libnss_${i}.so %{buildroot}/%{_lib}/libnss_${i}.so
@@ -417,7 +423,7 @@ cat packaging/Mandrake/smb.conf | \
 # install mount.cifs
 for i in mount.cifs umount.cifs
 do
-    install -m 0755 source/client/$i %{buildroot}/bin/$i
+    install -m 0755 source/bin/$i %{buildroot}/bin/$i
     ln -s ../bin/$i %{buildroot}/sbin/$i
 done
 
@@ -441,7 +447,7 @@ echo "901" >%{buildroot}%{_srvdir}/swat/env/PORT
 cat %{SOURCE10}> %{buildroot}%{_datadir}/%{name}/scripts/print-pdf
 cat %{SOURCE20}> %{buildroot}%{_datadir}/%{name}/scripts/smb-migrate
 
-rm -f %{buildroot}/sbin/mount.smbfs
+rm -f %{buildroot}%{_sbindir}/mount.smbfs
 # Link smbmount to /sbin/mount.smb and /sbin/mount.smbfs
 # I don't think it's possible for make to do this ...
 pushd %{buildroot}/sbin
@@ -461,7 +467,8 @@ mv %{buildroot}%{_sysconfdir}/samba/smb.conf %{buildroot}%{_sysconfdir}/samba/sm
 install -m 0640 packaging/Mandrake/smb.conf.secure %{buildroot}%{_sysconfdir}/samba/smb.conf
 
 # Clean up unpackaged files:
-for i in %{_bindir}/pam_smbpass.so %{_bindir}/smbwrapper.so %{_mandir}/man1/editreg*;do
+#for i in %{_bindir}/pam_smbpass.so %{_bindir}/smbwrapper.so %{_mandir}/man1/editreg*;do
+for i in %{_mandir}/man1/editreg*;do
     rm -f %{buildroot}/$i
 done
 rm -f %{buildroot}%{_sysconfdir}/%{name}/vscan-{symantec,fprotd,fsav,kavp,mcdaemon,mks32,oav,sophos,trend,antivir}.conf
@@ -660,8 +667,6 @@ popd >/dev/null 2>&1
 %dir %{_datadir}/%{name}
 %dir %{_datadir}/%{name}/scripts
 %attr(0755,root,root) %{_datadir}/%{name}/scripts/print-pdf
-# passdb
-%{_libdir}/%{name}/pdb/*xml.so
 
 %dir %attr(0750,root,admin) %{_srvdir}/smbd
 %dir %attr(0750,root,admin) %{_srvdir}/smbd/log
@@ -813,7 +818,7 @@ popd >/dev/null 2>&1
 
 %files -n %{libname}-static-devel
 %defattr(-,root,root)
-%{_libdir}/libsmbclient.a
+%{_libdir}/lib*.a
 
 %files vscan-clamav
 %defattr(-,root,root)
@@ -827,6 +832,12 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Mon Jul 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.23a
+- 3.0.23a (fixes CVE-2006-3403)
+- drop pdb_xml
+- updated P7, P11 from Mandriva
+- fix installation/build of {mount,umount}.cifs
+
 * Sat Jun 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.22
 - rebuild against new pam
 - P14: update config for new pam
@@ -940,7 +951,7 @@ popd >/dev/null 2>&1
 - update smb.conf to use smbpasswd by default for the backend
 - update smbd/nmbd runscripts
 - rediff P3; make sure the passdb backend is specified as it defaults to ldap;
-  also log to %m.log rather than log.%m so logs actually get rotated
+  also log to %%m.log rather than log.%%m so logs actually get rotated
 - compile without-syslog as on active servers, it files messages and daemons up
   pretty quick; let samba handle it's own logging
 
@@ -1275,7 +1286,7 @@ popd >/dev/null 2>&1
 - Fixed installman.sh patch.
 
 * Wed Jan 09 2002 Buchan Milne <bgmilne@cae.co.za> 3.0-alpha12-0.1mdk
-- Fixed %post and %preun for nss_wins, added %post and %preun for
+- Fixed %%post and %%preun for nss_wins, added %%post and %%preun for
   samba-winbind (chkconfig and winbind entries in nsswitch.conf)
 
 * Sun Dec 23 2001 Buchan Milne <bgmilne@cae.co.za> 3.0-alpha12-0.0mdk
@@ -1294,21 +1305,21 @@ popd >/dev/null 2>&1
 - 3.0-alpha9
 
 * Mon Dec 17 2001 Buchan Milne <bgmilne@cae.co.za> 3.0alpha8-0.1mdk
-- Added net command to %files common, pdbedit and smbgroupedit to
-  %files, s/%{prefix}\/bin/%{_bindir}/ (the big cleanup).
+- Added net command to %%files common, pdbedit and smbgroupedit to
+  %%files, s/%%{prefix}\/bin/%%{_bindir}/ (the big cleanup).
   Added patch to smb.init from 2.2.2 (got missed with 3.0-alpha1 patches)
 
 * Sun Dec 16 2001 Buchan Milne <bgmilne@cae.co.za> 3.0alpha8-0.0mdk
 - Patch for installman.sh to handle lang=en correctly (p24)
 - added --with-manpages-langs=en,ja,pl (translated manpages), but there
   aren't any manpages for these languages yet ... so we still
-  need %dir and %doc entries for them ...
+  need %%dir and %%doc entries for them ...
 - patch (p25) to configure.in to support more than 2 languages.
 - addtosmbpass seems to have returned for now, but make_* have disappeared!
 
 * Fri Dec 14 2001 Buchan Milne <bgmilne@cae.co.za> 3.0alpha6-0.0mdk
 - DESTDIR patch for Makefile.in (p23), remove a lot of %%install scripts
-  this forces move of smbcontrol and smbmnt to %{prefix}/bin
+  this forces move of smbcontrol and smbmnt to %%{prefix}/bin
   removed --with-pam_smbpass as it doesn't compile.
 
 * Thu Dec 06 2001 Buchan Milne <bgmilne@cae.co.za> 3.0-0.0alpha1mdk
@@ -1320,7 +1331,7 @@ popd >/dev/null 2>&1
 
 * Wed Dec 05 2001 Sylvestre Taburet <staburet@mandrakesoft.com> 2.2.2-6mdk
 - fixed typo in system-auth-winbind.pamd (--Thanks J. Gluck).
-- fixed %post xxx problem (smb not started in chkconfig --Thanks Viet & B. Kenworthy).
+- fixed %%post xxx problem (smb not started in chkconfig --Thanks Viet & B. Kenworthy).
 
 * Fri Nov 23 2001 Sylvestre Taburet <staburet@mandrakesoft.com> 2.2.2-5mdk
 - Had to remove the network recycle bin patch: it seems to mess up 
@@ -1333,7 +1344,7 @@ popd >/dev/null 2>&1
 - fixed winbind/nss_wins perms (oh no I don't own that stuff ;o)
 
 * Mon Nov 12 2001 Sylvestre Taburet <staburet@mandrakesoft.com> 2.2.2-3mdk
-- added %build 8.0 and 7.2, for tweakers to play around.
+- added %%build 8.0 and 7.2, for tweakers to play around.
 - changed configure options:
   . removed --with-mmap, --with-netatalk (obsolete).
   . added --with-msdfs, --with-vfs (seems stable, but still need testing).
@@ -1356,12 +1367,12 @@ popd >/dev/null 2>&1
   Rebuild on cooker, please test XFS (ACLs and quotas) again...
   
 * Mon Oct 15 2001 Buchan Milne <bgmilne@cae.co.za> 2.2.2-0.9mdk
-- Samba-2.2.2. released! Use %defines to determine which subpackages
+- Samba-2.2.2. released! Use %%defines to determine which subpackages
   are built and which Mandrake release we are buiding on/for (hint: define 
   build_mdk81 1 for Mandrake 8.1 updates)
 
 * Sun Oct 14 2001 Buchan Milne <bgmilne@cae.co.za> 2.2.2-0.20011014mdk
-- %post and %postun for nss_wins
+- %%post and %%postun for nss_wins
 
 * Wed Oct 10 2001 Buchan Milne <bgmilne@cae.co.za> 2.2.2-0.20011010mdk
 - New CVS snapshot, /etc/pam.d/system-auth-winbind added
@@ -1406,11 +1417,11 @@ popd >/dev/null 2>&1
 - less verbose %%post
 
 * Wed Aug 22 2001 Buchan Milne <bgmilne@cae.co.za> 2.2.1a-9mdk
-- Added smbcacls (missing in %files), modification to smb.conf: ([printers]
+- Added smbcacls (missing in %%files), modification to smb.conf: ([printers]
   is still needed, even with point-and-print!, user add script should
   use name and not gid, since we may not get the gid . New script for
-  putting manpages in place (still need to be added in %files!). Moved
-  smbcontrol to sbin and added it and its man page to %files.
+  putting manpages in place (still need to be added in %%files!). Moved
+  smbcontrol to sbin and added it and its man page to %%files.
 
 * Wed Aug 22 2001 Pixel <pixel@mandrakesoft.com> 2.2.1a-8mdk
 - cleanup /var/lib/samba/codepage/src
@@ -1477,7 +1488,7 @@ popd >/dev/null 2>&1
 - changed Till's startup script modifications: now samba is being reloaded
   automatically 1 minute after it has started (same reasons as below in 9mdk)
   added _post_ and _preun_ for service smb
-  fixed creation of /var/lib/samba/{netlogon,profiles} (%dir was missing)
+  fixed creation of /var/lib/samba/{netlogon,profiles} (%%dir was missing)
 
 * Thu Jun 14 2001 Till Kamppeter <till@mandrakesoft.com> 2.2.1-9mdk
 - Modified the Samba startup script so that in case of CUPS being used as
@@ -1504,7 +1515,7 @@ popd >/dev/null 2>&1
   patches to work with current CVS.
 
 * Thu May 24 2001 Sylvestre Taburet <staburet@mandrakesoft.com> 2.2.1-3mdk
-- Cleaned and updated the %files section.
+- Cleaned and updated the %%files section.
 
 * Sat May 19 2001 Sylvestre Taburet <staburet@mandrakesoft.com> 2.2.1-2mdk
 - Moved all samba files from /etc to /etc/samba (Thanks DomS!).
@@ -1531,7 +1542,7 @@ popd >/dev/null 2>&1
 
 * Thu Apr 19 2001 Buchan Milne <bgmilne@cae.co.za> 2.2.0-1mdk
 - Upgrade to 2.2.0. Merged most of 2.0.7-25mdk's patches (beware
-  nasty "ln -sf samba-%{ver} ../samba-2.0.7" hack to force some patches
+  nasty "ln -sf samba-%%{ver} ../samba-2.0.7" hack to force some patches
   to take. smbadduser and addtosmbpass seem to have disappeared. Moved
   all Mandrake-specific files to packaging/Mandrake and made patches
   from those shipped with samba. Moved netlogon to /home/samba and added
@@ -1650,7 +1661,7 @@ popd >/dev/null 2>&1
 - Split in 3 packages.
 
 * Fri Aug 13 1999 Pablo Saratxaga <pablo@@mandrakesoft.com>
-- corrected a bug with %post (the $1 parameter is "1" in case of
+- corrected a bug with %%post (the $1 parameter is "1" in case of
   a first install, not "0". That parameter is the number of packages
   of the same name that will exist after running all the steps if nothing
   is removed; so it is "1" after first isntall, "2" for a second install
@@ -1712,19 +1723,19 @@ popd >/dev/null 2>&1
 
 * Thu Sep 17 1998 Jeff Johnson <jbj@redhat.com>
 - update to 1.9.18p10.
-- fix %triggerpostun.
+- fix %%triggerpostun.
 
 * Tue Jul 07 1998 Erik Troan <ewt@redhat.com>
 - updated postun triggerscript to check $0
-- clear /etc/codepages from %preun instead of %postun
+- clear /etc/codepages from %%preun instead of %%postun
 
 * Mon Jun 08 1998 Erik Troan <ewt@redhat.com>
-- made the %postun script a tad less agressive; no reason to remove
+- made the %%postun script a tad less agressive; no reason to remove
   the logs or lock file (after all, if the lock file is still there,
   samba is still running)
-- the %postun and %preun should only exectute if this is the final
+- the %%postun and %%preun should only exectute if this is the final
   removal
-- migrated %triggerpostun from Red Hat's samba package to work around
+- migrated %%triggerpostun from Red Hat's samba package to work around
   packaging problems in some Red Hat samba releases
 
 * Sun Apr 26 1998 John H Terpstra <jht@samba.anu.edu.au>
