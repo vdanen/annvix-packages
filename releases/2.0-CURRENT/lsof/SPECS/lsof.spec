@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		lsof
-%define version		4.74
+%define version		4.77
 %define release		%_revrel
 
 %define dname		%{name}_%{version}
@@ -31,6 +31,14 @@ BuildRoot:	%{_buildroot}/%{name}-%{version}
 Lsof's name stands for LiSt Open Files, and it does just that. It lists
 information about files that are open by the processes running on a UNIX
 system.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -72,16 +80,24 @@ install -m 0644 lsof.8 %{buildroot}%{_mandir}/man8/
 
 %files
 %defattr(644,root,root,755)
-%doc %{dname}/00*
 %attr(0755,root,kmem) %{_sbindir}/%{name}
 %{_mandir}/man8/lsof.8*
 
+%files doc
+%defattr(644,root,root,755)
+%doc %{dname}/00*
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Mon Jul 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.77
+- 4.77
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.74
 - Clean rebuild
 
-* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.74
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
@@ -212,9 +228,9 @@ install -m 0644 lsof.8 %{buildroot}%{_mandir}/man8/
 * Mon Jun 29 1998 Maciej Lesniewski <nimir@kis.p.lodz.pl>
   [4.34-1]
 - New version
-- Spec rewriten to use %{name} and %{version} macros
+- Spec rewriten to use %%{name} and %%{version} macros
 - Removed old log enteries
 
 * Tue Apr 28 1998 Maciej Lesniewski <nimir@kis.p.lodz.pl>
 - Built under RH5
-- %install was changed
+- %%install was changed
