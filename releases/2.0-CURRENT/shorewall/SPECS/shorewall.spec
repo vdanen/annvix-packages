@@ -44,6 +44,14 @@ The Shoreline Firewall, more commonly known as "Shorewall", is a Netfilter
 a multi-function gateway/ router/server or on a standalone GNU/Linux system.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 
@@ -98,7 +106,6 @@ export DONT_GPRINTIFY=1
 
 %files
 %defattr(-,root,root)
-%doc %attr(-,root,root) COPYING INSTALL changelog.txt releasenotes.txt tunnel samples
 %attr(700,root,root) %dir /etc/shorewall
 %attr(750,root,root) %{_initrddir}/shorewall
 
@@ -137,12 +144,20 @@ export DONT_GPRINTIFY=1
 %attr(700,root,root) %dir %{_datadir}/%{name}
 %{_datadir}/%{name}/*
 
+%files doc
+%defattr(-,root,root)
+%doc %attr(-,root,root) COPYING INSTALL changelog.txt releasenotes.txt tunnel samples
+
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.1
+- add -doc subpackage
+- rebuild with gcc4
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.1
 - Clean rebuild
 
-* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.1
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
