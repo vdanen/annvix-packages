@@ -209,7 +209,6 @@ mv %{buildroot}%{_docdir}/{groff/%{version}/,%{name}-%{version}/}
 
 %files -f groff.list
 %defattr(-,root,root)
-%doc BUG-REPORT COPYING NEWS PROBLEMS README README.A4 TODO VERSION
 %{_infodir}/groff*
 
 %files for-man -f groff-for-man.list
@@ -221,9 +220,13 @@ mv %{buildroot}%{_docdir}/{groff/%{version}/,%{name}-%{version}/}
 
 %files doc
 %defattr(-,root,root)
+%doc BUG-REPORT COPYING NEWS PROBLEMS README README.A4 TODO VERSION
 
 
 %changelog
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.19.1
+- really add -doc subpackage
+
 * Sat Jul 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.19.1
 - add -doc subpackage
 - rebuild with gcc4
