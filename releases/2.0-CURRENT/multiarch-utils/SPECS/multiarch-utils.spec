@@ -50,7 +50,6 @@ binaries and include files during RPM package build.
 
 %files
 %defattr(-,root,root)
-%doc ChangeLog
 %{_bindir}/multiarch-platform
 %{_bindir}/multiarch-dispatch
 %{_includedir}/multiarch-dispatch.h
@@ -61,7 +60,10 @@ binaries and include files during RPM package build.
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.9
+- drop the docs (Changelog)
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.9
 - Clean rebuild
 
 * Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.9-5104avx
