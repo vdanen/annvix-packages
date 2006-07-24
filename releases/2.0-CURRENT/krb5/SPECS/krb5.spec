@@ -198,6 +198,14 @@ The ftp-server package provides an ftp server.
 This version supports kerberos authentication.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -a 25
 %patch0 -p1 -b .banner
@@ -457,8 +465,6 @@ popd >/dev/null 2>&1
 
 %files workstation
 %defattr(-,root,root)
-%doc doc/*.html doc/user*.ps.gz src/config-files/services.append src/config-files/krb5.conf
-%attr(0755,root,root) %doc src/config-files/convert-config-files
 %{_infodir}/krb5-user.info*
 %{_bindir}/gss-client
 %{_bindir}/kdestroy
@@ -507,7 +513,6 @@ popd >/dev/null 2>&1
 
 %files server
 %defattr(-,root,root)
-%doc src/config-files/kdc.conf
 /var/kerberos
 %config(noreplace) %{_sysconfdir}/kerberos/krb5kdc/kdc.conf
 %config(noreplace) %{_sysconfdir}/kerberos/krb5kdc/kadm5.acl
@@ -556,19 +561,12 @@ popd >/dev/null 2>&1
 
 %files -n %{libname}
 %defattr(-,root,root)
-%doc README
 %config(noreplace) %{_sysconfdir}/krb5.conf
 %{_libdir}/lib*.so.*
 
 
 %files -n %{libname}-devel
 %defattr(-,root,root)
-%doc doc/api
-%doc doc/implement
-%doc doc/kadm5
-%doc doc/kadmin
-%doc doc/krb5-protocol
-%doc doc/rpc
 %{_bindir}/krb5-config
 %{_bindir}/sclient
 %{_sbindir}/sserver
@@ -628,12 +626,24 @@ popd >/dev/null 2>&1
 %config(noreplace) %{_srvdir}/kftp/peers/0
 %{_datadir}/afterboot/08_kftp
 
+%files doc
+%defattr(-,root,root)
+%doc README
+%doc doc/*.html doc/user*.ps.gz src/config-files/services.append src/config-files/krb5.conf
+%attr(0755,root,root) %doc src/config-files/convert-config-files
+%doc src/config-files/kdc.conf
+%doc doc/api doc/implement doc/kadm5 doc/kadmin doc/krb5-protocol doc/rpc
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4.2
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4.2
 - Clean rebuild
 
-* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4.2
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
