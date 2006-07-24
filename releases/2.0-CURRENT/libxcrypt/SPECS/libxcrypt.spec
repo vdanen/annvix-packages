@@ -42,6 +42,14 @@ This package contains the header files and static libraries, which are
 necessary to develop your own software using libxcrypt.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 
@@ -63,10 +71,11 @@ rm -f %{buildroot}%{_libdir}/libxcrypt.1
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
+%post -p /sbin/ldconfig
+%postun -p /sbin/ldconfig
 
 %files
 %defattr(-,root,root)
-%doc README NEWS README.ufc-crypt AUTHORS THANKS
 %{_libdir}/libxcrypt.so.*
 
 %files devel
@@ -76,12 +85,21 @@ rm -f %{buildroot}%{_libdir}/libxcrypt.1
 %{_libdir}/libxcrypt.la
 %{_libdir}/libxcrypt.so
 
+%files doc
+%defattr(-,root,root)
+%doc README NEWS README.ufc-crypt
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0 
+- add -doc subpackage
+- rebuild with gcc4
+- call ldconfig in %%post/%%postun
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
 - Clean rebuild
 
-* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
