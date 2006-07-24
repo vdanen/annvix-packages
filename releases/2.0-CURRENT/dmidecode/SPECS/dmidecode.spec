@@ -34,6 +34,14 @@ used to detect system "signatures" and add them to the kernel source code
 when needed.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 
@@ -54,15 +62,22 @@ mkdir -p %{buildroot}%{_sbindir}
 
 %files
 %defattr(-,root,root)
-%doc README LICENSE AUTHORS CHANGELOG
 %{_sbindir}/*
+
+%files doc
+%defattr(-,root,root)
+%doc README LICENSE AUTHORS CHANGELOG
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3 
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3
 - Clean rebuild
 
-* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Tue Jan 03 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - drop unrequired prereq
