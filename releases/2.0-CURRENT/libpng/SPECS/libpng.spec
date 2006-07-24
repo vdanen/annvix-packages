@@ -75,6 +75,14 @@ Provides:	png-static-devel = %{epoch}:%{version}-%{release}
 Libpng development static libraries.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 %patch0 -p1 -b .mdkconf
@@ -114,7 +122,6 @@ rm -rf %{buildroot}%{_prefix}/man
 
 %files -n %{libname}
 %defattr(-,root,root)
-%doc *.txt example.c README TODO CHANGES
 %{_libdir}/libpng.so.*
 %{_libdir}/libpng12.so.*
 %{_mandir}/man5/*
@@ -133,12 +140,20 @@ rm -rf %{buildroot}%{_prefix}/man
 %defattr(-,root,root)
 %{_libdir}/libpng*.a
 
+%files doc
+%defattr(-,root,root)
+%doc *.txt example.c README TODO CHANGES
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.8
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.8
 - Clean rebuild
 
-* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.8
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
@@ -195,7 +210,7 @@ rm -rf %{buildroot}%{_prefix}/man
 - rebuild for new devel provides
 
 * Thu May 15 2003 Damien Chaumette <dchaumette@mandrakesoft.com> 1.2.5-3mdk
-- add 's|^prefix=.*|prefix=%{_prefix}|' Makefile (thanks to Oden Eriksson)
+- add 's|^prefix=.*|prefix=%%{_prefix}|' Makefile (thanks to Oden Eriksson)
 
 * Tue Feb 18 2003 Frederic Lepied <flepied@mandrakesoft.com> 1.2.5-2mdk
 - rebuild without hack
@@ -223,7 +238,7 @@ rm -rf %{buildroot}%{_prefix}/man
 - Don't explicitly add system include dir into search path
 
 * Thu May 16 2002 Yves Duret <yduret@mandrakesoft.com> 1.2.1-8mdk
-- 9.0 lib policy: added %libname-static-devel
+- 9.0 lib policy: added %%libname-static-devel
 
 * Mon May 06 2002 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 1.2.1-7mdk
 - Automated rebuild in gcc3.1 environment
