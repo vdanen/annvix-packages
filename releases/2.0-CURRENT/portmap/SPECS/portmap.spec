@@ -237,7 +237,7 @@ strip %{buildroot}/sbin/portmap
 
 * Thu Aug 31 2000 Yoann Vandoorselaere <yoann@mandrakesoft.com> 4.0-11mdk
 - slight specfile cleanup
-- use %{_initrddir}
+- use %%{_initrddir}
 - don't link portmap init script in runlevel dir, chkconfig do it for us
 
 * Thu Jul 20 2000 Thierry Vignaud <tvignaud@mandrakesoft.com>  4.0-10mdk
@@ -251,7 +251,7 @@ strip %{buildroot}/sbin/portmap
 - Use version tag.
 
 * Fri Nov  5 1999 Chmouel Boudjnah <chmouel@mandrakesoft.com>
-- checkconfig --del in %preun.
+- checkconfig --del in %%preun.
 
 * Wed May 05 1999 Bernhard Rosenkraenzer <bero@mandrakesoft.com>
 - Mandrake adaptions
@@ -275,7 +275,7 @@ strip %{buildroot}/sbin/portmap
 - added triggerpostun
 
 * Fri May 01 1998 Cristian Gafton <gafton@redhat.com>
-- added %trigger to fix a previously broken package
+- added %%trigger to fix a previously broken package
 
 * Thu Apr 23 1998 Michael K. Johnson <johnsonm@redhat.com>
 - enhanced initscripts
@@ -292,7 +292,7 @@ strip %{buildroot}/sbin/portmap
 * Sun Oct 19 1997 Erik Troan <ewt@redhat.com>
 - added restart, status commands to init script
 - added chkconfig support
-- uses a buildroot and %attr tags
+- uses a buildroot and %%attr tags
 
 * Fri Jul 18 1997 Erik Troan <ewt@redhat.com>
 - built against glibc
