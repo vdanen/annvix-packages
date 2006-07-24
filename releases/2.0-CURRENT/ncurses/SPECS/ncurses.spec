@@ -119,6 +119,14 @@ Install the ncurses-devel package if you want to develop applications
 which will use ncurses.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 sh %{PATCH11}
@@ -261,7 +269,6 @@ find %{buildroot}%{_libdir} -name 'lib*.a' -not -type d -not -name "*_g.a" -not 
 
 %files -f %{name}.list
 %defattr(-,root,root)
-%doc README ANNOUNCE
 %dir %{_datadir}/terminfo
 %{_datadir}/tabset
 %{_bindir}/*
@@ -281,11 +288,9 @@ find %{buildroot}%{_libdir} -name 'lib*.a' -not -type d -not -name "*_g.a" -not 
 
 %files extraterms -f %{name}-extraterms.list
 %defattr(-,root,root)
-%doc README
 
 %files -n %{libname}-devel -f %{libname}-devel.list
 %defattr(-,root,root)
-%doc doc c++ test
 /%{_lib}/lib*.so
 %{_libdir}/lib*.so
 %exclude %{_libdir}/lib*w.so
@@ -299,12 +304,20 @@ find %{buildroot}%{_libdir} -name 'lib*.a' -not -type d -not -name "*_g.a" -not 
 %{_libdir}/lib*w.a
 %{_includedir}/ncursesw
 
+%files doc
+%defattr(-,root,root)
+%doc README ANNOUNCE doc c++ test
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.4
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.4
 - Clean rebuild
 
-* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.4
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
@@ -554,7 +567,7 @@ misformatted on FreeBSD.
 
 * Wed Mar 10 1999 Bernhard Rosenkraenzer <bero@microsoft.sucks.eu.org>
 - update to 990307
-- link /lib/libncurses.so* to %{_libdir}
+- link /lib/libncurses.so* to %%{_libdir}
 
 * Sun Feb  7 1999 Bernhard Rosenkraenzer <bero@microsoft.sucks.eu.org>
 - update to 990206
@@ -597,10 +610,10 @@ misformatted on FreeBSD.
 - aliased them to rxvt, as that seems to satisfy everybody
 
 * Sun Apr 12 1998 Cristian Gafton <gafton@redhat.com>
-- added %clean section
+- added %%clean section
 
 * Tue Apr 07 1998 Cristian Gafton <gafton@redhat.com>
-- removed %{_libdir}/terminfo symlink - we shouldn't need that
+- removed %%{_libdir}/terminfo symlink - we shouldn't need that
 
 * Mon Apr 06 1998 Cristian Gafton <gafton@redhat.com>
 - updated to 4.2 + patches
