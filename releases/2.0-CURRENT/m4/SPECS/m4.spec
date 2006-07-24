@@ -36,6 +36,14 @@ etc.  The autoconf program needs m4 for generating configure scripts, but
 not for running configure scripts.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
 
@@ -44,6 +52,8 @@ not for running configure scripts.
 %configure2_5x
 %make
 
+
+%check
 make check
 
 
@@ -65,16 +75,24 @@ make check
 
 %files
 %defattr(-,root,root)
-%doc NEWS README COPYING BACKLOG THANKS ChangeLog
 %{_bindir}/m4
 %{_infodir}/*
 
+%files doc
+%defattr(-,root,root)
+%doc NEWS README COPYING BACKLOG THANKS ChangeLog
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4.3 
+- add -doc subpackage
+- rebuild with gcc4
+- put make check in %%check
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4.3
 - Clean rebuild
 
-* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4.3
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
