@@ -61,7 +61,6 @@ CFLAGS="%{optflags}" %{__perl} Makefile.PL INSTALLDIRS=vendor
 
 %files
 %defattr(-,root,root) 
-%doc README
 %{perl_vendorlib}/AppConfig/*
 %{perl_vendorlib}/AppConfig.pm
 %{_mandir}/*/*
@@ -71,6 +70,9 @@ CFLAGS="%{optflags}" %{__perl} Makefile.PL INSTALLDIRS=vendor
 
 
 %changelog
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.56
+- really remove the docs from the main package
+
 * Tue May 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.56
 - rebuild against perl 5.8.8
 - create -doc subpackage
