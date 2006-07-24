@@ -52,13 +52,13 @@ The portmapper program is a security tool which prevents theft of NIS
 portmapper manages RPC connections, which are used by protocols like
 NFS and NIS.
 
+
 %package doc
 Summary:	Documentation for %{name}
 Group:		Documentation
 
 %description doc
 This package contains the documentation for %{name}.
-
 
 
 %prep 
@@ -108,9 +108,6 @@ strip %{buildroot}/sbin/portmap
 %_pre_useradd rpc / /bin/false 72
 
 %post
-if [ -d /var/log/supervise/portmap -a ! -d /var/log/service/portmap ]; then
-    mv /var/log/supervise/portmap /var/log/service/
-fi
 %_post_srv portmap
 
 %preun
@@ -122,7 +119,6 @@ fi
 
 %files
 %defattr(-,root,root)
-%doc README CHANGES BLURB
 %config(noreplace) %{_sysconfdir}/sysconfig/portmap
 %dir %attr(0750,root,admin) %{_srvdir}/portmap
 %dir %attr(0750,root,admin) %{_srvdir}/portmap/log
@@ -140,6 +136,10 @@ fi
 
 
 %changelog
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.0
+- remove the docs from the main package
+- remove checks for old service log dir
+
 * Thu Jun 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.0
 - add -doc subpackage
 - rebuild with gcc4
