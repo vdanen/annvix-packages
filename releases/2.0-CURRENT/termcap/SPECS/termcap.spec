@@ -53,9 +53,6 @@ cat %{SOURCE0} >termcap
 %patch4 -p0
 
 
-%build
-
-
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}%{_sysconfdir}
@@ -73,6 +70,9 @@ install -m 0644 termcap %{buildroot}%{_sysconfdir}/
 
 
 %changelog
+* Mon Jul 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 11.0.1
+- remove pre-Annvix changelog
+
 * Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 11.0.1
 - Clean rebuild
 
@@ -102,62 +102,3 @@ install -m 0644 termcap %{buildroot}%{_sysconfdir}/
 * Tue Dec 09 2003 Vincent Danen <vdanen@opensls.org> 11.0.1-9sls
 - OpenSLS build
 - tidy spec
-
-* Thu Jul 24 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 11.0.1-8mdk
-- rebuild
-- fix use-of-RPM_SOURCE_DIR (rpmlint)
-
-* Sun Jan 19 2003 Stefan van der Eijk <stefan@eijk.nu>  11.0.1-7mdk
-- Remove unpackaged file(s)
-- Copyright --> License
-
-* Fri Aug 23 2002 Vincent Danen <vdanen@mandrakesoft.com> 11.0.1-6mdk
-- P4 so that Eterm is seen as a color-capable terminal
-
-* Wed Aug 14 2002 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 11.0.1-5mdk
-- Automated rebuild with gcc 3.2-0.3mdk
-
-* Thu Mar 22 2001 Frederic Crozat <fcrozat@mandrakesoft.com> 11.0.1-4mdk
-- Patch 3 to correctly handle X11R6 Home/End key (for GNOME/KDE)
-
-* Thu Aug 10 2000 Frederic Crozat <fcrozat@mandrakesoft.com> 11.0.1-3mdk
-- Add noreplace to make rpmlint happy
-
-* Wed Jun 28 2000 Pablo Saratxaga <pablo@mandrakesoft.com> 11.0.1-2mdk
-- compatibility-mode UTF-8 patch from <Alastair.McKinstry@compaq.com>
-
-* Thu Apr  6 2000 Chmouel Boudjnah <chmouel@mandrakesoft.com> 11.0.1-1mdk
-- Fix xterm backspace suppr...
-- 11.0.1
-
-* Thu Mar 23 2000 Daouda Lo <daouda@mandrakesoft.com> 10.2.6-2mdk
-- fix group 
-
-* Fri Nov 19 1999 Chmouel Boudjnah <chmouel@mandrakesoft.com>
-- 10.2.6.
-- Add support for xterm-debian.
-
-* Tue Oct 26 1999 Chmouel Boudjnah <chmouel@mandrakesoft.com>
-- Merge with rh.
-- Fix building as user.
-
-* Sun Apr 11 1999 Bernhard Rosenkraenzer <bero@microsoft.sucks.eu.org>
-- update to 10.2.5
-- restore de,fr,tr locales from 5.3
-
-* Fri Mar 12 1999 Jeff Johnson <jbj@redhat.com>
-- merge sparc console termcap (from termfiles_sparc).
-
-* Wed Dec 30 1998 Cristian Gafton <gafton@redhat.com>
-- rebuild for glibc 2.1
-
-* Thu May 07 1998 Erik Troan <ewt@redhat.com>
-- added linux-lat entry
-- build rooted
-
-* Fri May 01 1998 Prospector System <bugs@redhat.com>
-- translations modified for de, fr, tr
-
-* Thu Oct 23 1997 Erik Troan <ewt@redhat.com>
-- made a noarch package
-
