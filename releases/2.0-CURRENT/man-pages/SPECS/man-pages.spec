@@ -38,7 +38,8 @@ BuildArch:	noarch
 BuildRequires:	man => 1.5j-8mdk
 
 Requires:	man => 1.5j-8mdk
-Prereq:		sed, grep, man
+Requires:	sed
+Requires:	grep
 Autoreqprov:	false
 
 %description
@@ -55,6 +56,14 @@ following sections:
         Section 7:  Conventions, macro packages, etc. (e.g., nroff, ascii)
         Section 8:  System administration (intro only)
         Section 9:  Kernel internal routines
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -129,26 +138,33 @@ tar xfj %{SOURCE11} -C %{buildroot}%{_mandir}
 
 %files
 %defattr(0644,root,man,755)
-%doc README* *.Announce POSIX-COPYRIGHT Changes
 %config(noreplace) %attr(755,root,root)%{_sysconfdir}/cron.weekly/makewhatis-%{LANG}.cron
 %dir %{_mandir}/%{LANG}
 %dir %{_mandir}/man*p/
 %{_mandir}/man*/*
 
+%files doc
+%defattr(0644,root,man,755)
+%doc README* *.Announce POSIX-COPYRIGHT Changes
+
 
 %changelog
-* Wed Jan 25 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.08
+- add -doc subpackage
+- fix requires
+
+* Wed Jan 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.08
 - 2.08
 - fix unowned directories
 - drop merged patches P4, P5, P6
 
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.07
 - Clean rebuild
 
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.07
 - Clean rebuild
 
-* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.07
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
