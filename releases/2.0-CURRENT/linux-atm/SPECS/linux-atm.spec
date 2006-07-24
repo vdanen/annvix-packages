@@ -30,7 +30,9 @@ Patch2:		linux-atm-2.4.1-64bit-fixes.patch
 Patch3:		linux-atm-2.4.1-gcc4.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	flex, bison, automake1.4
+BuildRequires:	flex
+BuildRequires:	bison
+BuildRequires:	automake1.4
 
 %description
 Tools and libraries to support ATM (Asynchronous Transfer Mode)
@@ -56,6 +58,14 @@ Provides:	%{name}-devel = %{version}-%{release}
 %description -n %{fulllibname}-devel
 This package contains development files needed to compile programs which
 use %{name}.
+
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -91,8 +101,6 @@ automake-1.4 --foreign
 
 %files
 %defattr(-,root,root)
-%doc README AUTHORS ChangeLog NEWS THANKS BUGS
-%doc COPYING COPYING.GPL COPYING.LGPL
 %config(noreplace) %{_sysconfdir}/atmsigd.conf
 %{_bindir}/*
 %{_sbindir}/*
@@ -111,12 +119,21 @@ automake-1.4 --foreign
 %{_libdir}/*.so
 %{_libdir}/*.la
 
+%files doc
+%defattr(-,root,root)
+%doc README AUTHORS ChangeLog NEWS THANKS BUGS
+%doc COPYING COPYING.GPL COPYING.LGPL
+
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.1 
+- add -doc subpackage
+- rebuild with gcc4
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.1
 - Clean rebuild
 
-* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sat Jan 07 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.1
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
