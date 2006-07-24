@@ -32,6 +32,14 @@ similar functionality, but is not intended to be a drop-in
 replacement. It works differently. It's designed to be different.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q -n admin
 
@@ -74,10 +82,6 @@ popd
 
 %files
 %defattr (-,root,root)
-%doc %{name}-%{version}/src/ChangeLog
-%doc %{name}-%{version}/src/INSTALL
-%doc %{name}-%{version}/src/NEWS
-%doc %{name}-%{version}/src/SECURITY-BUG
 %{_bindir}/uscheduled
 %{_bindir}/uschedulerm
 %{_bindir}/uschedulelist
@@ -90,12 +94,23 @@ popd
 %{_mandir}/man7/*
 %{_mandir}/man8/*
 
+%files doc
+%defattr (-,root,root)
+%doc %{name}-%{version}/src/ChangeLog
+%doc %{name}-%{version}/src/INSTALL
+%doc %{name}-%{version}/src/NEWS
+%doc %{name}-%{version}/src/SECURITY-BUG
+
 
 %changelog
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.7.1
+- add -doc subpackage
+- rebuild with gcc4
+
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.7.1
 - Clean rebuild
 
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.7.1
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 - dietlibc fixes
