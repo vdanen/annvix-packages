@@ -49,7 +49,13 @@ compatible with older cpio programs.  When it is extracting files from
 archives, cpio automatically recognizes which kind of archive it is reading
 and can read archives created on machines with a different byte-order.
 
-Install cpio if you need a program to manage file archives.
+
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
 
 
 %prep
@@ -101,12 +107,20 @@ rm -f %{buildroot}%{_mandir}/man1/mt.1
 
 %files -f %{name}.lang
 %defattr(-,root,root)
-%doc README NEWS AUTHORS ChangeLog
 /bin/cpio
 %{_infodir}/cpio.*
 %{_mandir}/man1/cpio.1*
 
+%files doc
+%defattr(-,root,root)
+%doc README NEWS AUTHORS ChangeLog
+
+
 %changelog
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6
+- add -doc subpackage
+- rebuild with gcc4
+
 * Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6
 - fix group
 
