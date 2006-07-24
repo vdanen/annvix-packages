@@ -132,7 +132,6 @@ rm -rf %{buildroot}%{_sysconfdir}/fonts/conf.d
 
 %files -n %{libname}-devel
 %defattr(-,root,root)
-%doc doc/fontconfig-devel doc/fontconfig-devel.txt 
 %{_libdir}/*.la
 %{_libdir}/*.a
 %{_libdir}/*.so
@@ -146,6 +145,9 @@ rm -rf %{buildroot}%{_sysconfdir}/fonts/conf.d
 
 
 %changelog
+* Mon Jul 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.2
+- geez, really remove docs from the devel package
+
 * Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.2
 - really remove docs from main package
 
