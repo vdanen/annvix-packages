@@ -1,23 +1,24 @@
---- gzip-1.2.4a/znew.in.znew	1993-06-23 02:00:25.000000000 -0600
-+++ gzip-1.2.4a/znew.in	2003-06-12 13:03:00.000000000 -0600
-@@ -13,10 +13,13 @@
+--- gzip-1.3.5/znew.in.znew	2002-09-27 08:17:09.000000000 +0200
++++ gzip-1.3.5/znew.in	2006-05-08 13:21:47.000000000 +0200
+@@ -13,11 +13,14 @@
  block=1024
  # block is the disk block size (best guess, need not be exact)
  
 +# set noclobber to prevent overwriting existing files
 +set -o noclobber
-+
++ 
  warn="(does not preserve modes and timestamp)"
 -tmp=/tmp/zfoo.$$
++tmp=`mktemp /tmp/zfoo.XXXXXX`
+ set -C
 -echo hi > $tmp.1
 -echo hi > $tmp.2
-+tmp=`mktemp /tmp/zfoo.XXXXXX`
 +echo hi > $tmp.1 || exit 1
 +echo hi > $tmp.2 || exit 1
  if test -z "`(${CPMOD-cpmod} $tmp.1 $tmp.2) 2>&1`"; then
    cpmod=${CPMOD-cpmod}
    warn=""
-@@ -76,6 +79,7 @@
+@@ -77,6 +80,7 @@
  
  for i do
    n=`echo $i | sed 's/.Z$//'`
@@ -25,7 +26,7 @@
    if test ! -f "$n.Z" ; then
      echo $n.Z not found
      res=1; continue
-@@ -91,7 +95,7 @@
+@@ -92,7 +96,7 @@
      fi
    else
      if test $check -eq 1; then
@@ -34,7 +35,7 @@
  	:
        else
  	echo cannot backup "$n.Z"
-@@ -101,7 +105,7 @@
+@@ -102,7 +106,7 @@
      if gzip -d "$n.Z"; then
        :
      else
@@ -43,7 +44,7 @@
        echo error while uncompressing $n.Z
        res=1; continue
      fi
-@@ -109,7 +113,7 @@
+@@ -110,7 +114,7 @@
        :
      else
        if test $check -eq 1; then
@@ -52,7 +53,7 @@
          echo error while recompressing $n
        else
  	# compress $n  (might be dangerous if disk full)
-@@ -124,7 +128,7 @@
+@@ -125,7 +129,7 @@
      if test $pipe -eq 1; then
        rm -f "$n$ext"
      elif test $check -eq 1; then
@@ -61,7 +62,7 @@
      else
        gzip -d "$n$ext" && compress "$n" && rm -f "$n$ext"
      fi
-@@ -132,9 +136,9 @@
+@@ -133,9 +137,9 @@
  
    elif test $check -eq 1; then
      if gzip -t "$n$ext" ; then
@@ -73,7 +74,7 @@
        rm -f "$n$ext"
        echo error while testing $n$ext, $n.Z unchanged
        res=1; continue
-@@ -143,4 +147,5 @@
+@@ -144,4 +148,5 @@
      rm -f "$n.Z"
    fi
  done

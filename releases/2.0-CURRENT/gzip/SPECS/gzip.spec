@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		gzip
-%define version		1.2.4a
+%define version		1.3.5
 %define release 	%_revrel
 
 Summary:	The GNU data compression program
@@ -19,21 +19,11 @@ Release:	%{release}
 License:	GPL
 Group:		Archiving
 URL:		http://www.gzip.org/
-Source:		ftp://ftp.gnu.org/pub/gnu/gzip/gzip-1.2.4a.tar.bz2
-Patch:		gzip-1.2.4-basename.patch
-Patch1:		gzip-1.2.4-gzexe.patch
-Patch2:		gzip-1.2.4a-mktemp.patch
-Patch3:		gzip-1.2.4-zforce.patch
-Patch4:		gzip-1.2.4-4g.patch
-Patch5:		gzip-1.2.4a-fixinfo.patch
-Patch6:		gzip-64bit.patch
-Patch7:		gzip-better-output-when-segfaults.patch
-Patch8:		gzip-security-fix-filenames-too-long.patch
-Patch9:		gzip-1.2.4a-znew.patch
-Patch10:	gzip-1.2.4a-zdiff-CAN-2004-0970.patch
-Patch11:	gzip-1.2.4a-CAN-2005-1228.patch
-Patch12:	gzip-1.2.4a-CAN-2005-0988.patch
-Patch13:	gzip-1.2.4a-CVE-2005-0758-bash3.patch
+Source:		ftp://alpha.gnu.org/pub/gnu/gzip/gzip-%{version}.tar.gz
+Patch0:		gzip-1.3.5-mdv-znew.patch
+Patch1:		gzip-1.2.4a-CAN-2005-1228.patch
+Patch2:		gzip-1.3.5-mdv-CAN-2005-0988.patch
+Patch3:		gzip-1.3.5-fdr-zgrep-sed.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	texinfo
@@ -47,36 +37,33 @@ The gzip package contains the popular GNU gzip data compression
 program.  Gzipped files have a .gz extension.  
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
-%patch -p1
-%patch1 -p1
-%patch2 -p1 -b .mktemp
-%patch3 -p1
-%patch4 -p0
-%patch5 -p1
-%patch6 -p1 -b .64bit
-%patch7 -p0
-%patch8 -p1
-%patch9 -p1 -b .znew
-%patch10 -p0 -b .can-2004-0970
-%patch11 -p1 -b .can-2005-1228
-%patch12 -p1 -b .can-2005-0988
-%patch13 -p1 -b .cve-2005-0758
+%patch0 -p1 -b .znew
+%patch1 -p1 -b .can-2005-1228
+%patch2 -p1 -b .can-2005-0988
+%patch3 -p0 -b .cve-2005-0758
 
 
 %build
 export DEFS="-DNO_ASM"
 %configure
 %make all gzip.info
-make test
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}{%{_mandir},/bin}
 
-%makeinstall mandir=%{buildroot}%{_mandir}/man1
+%makeinstall mandir=%{buildroot}%{_mandir}
 
 mv -f %{buildroot}%{_bindir}/gzip %{buildroot}/bin/gzip
 
@@ -116,14 +103,25 @@ chmod 0755 %{buildroot}%{_bindir}/zless
 
 %files
 %defattr(-,root,root)
-%doc NEWS README
 /bin/*
 %{_bindir}/*
 %{_mandir}/*/*
 %{_infodir}/*
 
+%files doc 
+%defattr(-,root,root)
+%doc NEWS README
+
 
 %changelog
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.5
+- 1.3.5
+- drop P0-P8, P10
+- updated P9, P12 from Mandriva (new P0, P2)
+- updated P13 from Fedora (new P3)
+- add -doc subpackage
+- rebuild with gcc4
+
 * Mon May 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.4a
 - fix group
 
@@ -245,7 +243,7 @@ chmod 0755 %{buildroot}%{_bindir}/zless
 - translations modified for de, fr, tr
 
 * Thu Apr 09 1998 Cristian Gafton <gafton@redhat.com>
-- added %{_bindir}/gzip and %{_bindir}/gunzip symlinks as some programs are too
+- added %%{_bindir}/gzip and %{_bindir}/gunzip symlinks as some programs are too
   brain dead to figure out they should be at least trying to use $PATH
 - added BuildRoot
 
