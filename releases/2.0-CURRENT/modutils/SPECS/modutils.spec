@@ -27,17 +27,22 @@ URL:		%{url}
 Source0:	%{url}/%{name}-%{version}.tar.bz2
 Source1:	modules.conf
 Source2:	macros
-Patch1:		modutils-2.4.13-systemmap.patch
-Patch2:		modutils-2.4.2-prepost.patch
-Patch3:		modutils-2.4.6-silence.patch
-Patch4:		modutils-2.4.12-ppc3264.patch
-Patch100:	modutils-2.4.22-various-aliases.patch
-Patch101:	modutils-2.4.13-no-scsi_hostadapter-off.patch
-Patch102:	modutils-2.4.22-pre_post_and_usbmouse.patch
-Patch103:	modutils-2.4.26-agpgart-26.patch
+Patch0:		modutils-2.4.13-systemmap.patch
+Patch1:		modutils-2.4.2-prepost.patch
+Patch2:		modutils-2.4.6-silence.patch
+Patch3:		modutils-2.4.12-ppc3264.patch
+Patch4:		modutils-2.4.22-various-aliases.patch
+Patch5:		modutils-2.4.13-no-scsi_hostadapter-off.patch
+Patch6:		modutils-2.4.22-pre_post_and_usbmouse.patch
+Patch7:		modutils-2.4.26-agpgart-26.patch
+Patch8:		modutils-2.4.26-mdv-gcc4.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	bison flex zlib-devel gperf glibc-static-devel
+BuildRequires:	bison
+BuildRequires:	flex
+BuildRequires:	zlib-devel
+BuildRequires:	gperf
+BuildRequires:	glibc-static-devel
 
 Requires(post):	rpm
 Requires(postun): rpm
@@ -53,16 +58,25 @@ modules are device drivers and filesystems, as well as some other
 things.
 
 
+%package doc
+Summary:	Documentation for %{name}
+Group:		Documentation
+
+%description doc
+This package contains the documentation for %{name}.
+
+
 %prep
 %setup -q
-%patch1 -p1 -b .systemmap
-%patch2 -p1 -b .prepost
-%patch3 -p1 -b .silence
-%patch4 -p1 -b .ppc3264
-%patch100 -p1 -b .various-aliases
-%patch101 -p1 -b .scsi-off
-%patch102 -p1 -b .ppost_and_usbmouse
-%patch103 -p1 -b .agpgart-26
+%patch0 -p1 -b .systemmap
+%patch1 -p1 -b .prepost
+%patch2 -p1 -b .silence
+%patch3 -p1 -b .ppc3264
+%patch4 -p1 -b .various-aliases
+%patch5 -p1 -b .scsi-off
+%patch6 -p1 -b .ppost_and_usbmouse
+%patch7 -p1 -b .agpgart-26
+%patch8 -p1 -b .gcc4
 
 
 %build
@@ -106,21 +120,6 @@ pushd %{buildroot}/%{_mandir}/man8
     done
 popd
 
-FakeAlternatives() {
-    for file in ${1+"$@"}; do
-        rm -f $file
-        touch $file
-        chmod 0755 $file
-    done
-}
-
-for i in %{toalternate};do
-    FakeAlternatives %{buildroot}/sbin/$i
-done
-for i in %{toalternate};do
-    FakeAlternatives %{buildroot}/%{_mandir}/man8/$i.8
-done
-
 # security hole, works poorly anyway
 rm -f %{buildroot}/sbin/request-route
 #%ifarch %{ix86}
@@ -163,27 +162,9 @@ done
 
 %files
 %defattr(-,root,root)
-%doc COPYING README CREDITS TODO 
-%doc ChangeLog NEWS example/kallsyms.c include/kallsyms.h
 %config(noreplace) /etc/modules.conf
 %dir /lib/modutils
 %config(noreplace) /lib/modutils/macros
-
-
-%ghost /sbin/lsmod
-%ghost /sbin/insmod
-%ghost /sbin/modprobe
-%ghost /sbin/rmmod
-%ghost /sbin/depmod
-%ghost /sbin/modinfo
-
-%ghost %{_mandir}/man8/depmod.8*
-%ghost %{_mandir}/man8/insmod.8*
-%ghost %{_mandir}/man8/lsmod.8*
-%ghost %{_mandir}/man8/modprobe.8*
-%ghost %{_mandir}/man8/rmmod.8*
-%ghost %{_mandir}/man8/modinfo.8*
-
 /sbin/insmod_ksymoops_clean
 /sbin/genksyms
 /sbin/kallsyms
@@ -195,7 +176,6 @@ done
 /sbin/insmod.static
 /sbin/rmmod.static
 #%endif
-
 %{_mandir}/*/*24*
 %{_mandir}/*/*old*
 %{_mandir}/man1/*
@@ -205,8 +185,20 @@ done
 %{_mandir}/man8/kallsyms.8*
 %{_mandir}/man8/ksyms.8*
 
+%files doc 
+%defattr(-,root,root)
+%doc COPYING README CREDITS TODO 
+%doc ChangeLog NEWS example/kallsyms.c include/kallsyms.h
+
 
 %changelog
+* Mon Jul 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.26
+- renumber patches
+- P8: fix gcc4 build
+- add -doc subpackage
+- rebuild with gcc4
+- remove the ghost files as they break alternatives on uninstall
+
 * Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.26
 - install {insmod,rmmod}.static on x86 hardware too
 
