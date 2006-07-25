@@ -773,6 +773,11 @@ exit 0
 
 %changelog
 * Mon Jul 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.27
+- more slashing of unwanted config options (AX.25 network device drivers, 
+  FIR device drivers, ARCnet support, Token Ring support, wireless network
+  device drivers)
+
+* Mon Jul 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.27
 - drop the %%{_docdir} docs, they're in the kernel source tree anyways
 
 * Mon Jul 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.27
