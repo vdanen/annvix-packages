@@ -26,7 +26,8 @@ URL:		http://oss.sgi.com/projects/xfs/
 Source0:	ftp://oss.sgi.com/projects/xfs/download/cmd_tars/%{name}-%{version}.src.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-buildroot
-BuildRequires:	attr-devel, libtool
+BuildRequires:	attr-devel
+BuildRequires:	libtool
 
 Requires:	%{libname} = %{version}
 
@@ -87,6 +88,7 @@ make install-lib DIST_ROOT=%{buildroot}/
 perl -pi -e 's,\s(/%{_lib})(.*attr\.la),%{_libdir}/$2,g' %{buildroot}/%{_libdir}/%{_lib}acl.la
 
 rm -rf %{buildroot}%{_docdir}/acl
+
 %find_lang %{name}
 
 
@@ -124,6 +126,9 @@ rm -rf %{buildroot}%{_docdir}/acl
 
 
 %changelog
+* Tue Jul 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.31
+- spec cleanups
+
 * Tue May 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.31
 - add -doc subpackage
 - rebuild with gcc4
