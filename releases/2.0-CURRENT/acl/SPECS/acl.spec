@@ -128,6 +128,7 @@ rm -rf %{buildroot}%{_docdir}/acl
 %changelog
 * Tue Jul 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.31
 - spec cleanups
+- remove pre-Annvix changelog
 
 * Tue May 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.31
 - add -doc subpackage
@@ -169,57 +170,3 @@ rm -rf %{buildroot}%{_docdir}/acl
 * Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 2.2.13-3sls
 - OpenSLS build
 - tidy spec
-
-* Fri Aug 29 2003 Juan Quintela <quintela@mandrakesoft.com> 2.2.13-2mdk
-- /usr/include/acl belongs to acl-devel.
-
-* Fri Aug  8 2003 Juan Quintela <quintela@mandrakesoft.com> 2.2.13-1mdk
-- 2.2.13
-
-* Tue Aug  5 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 2.2.10-2mdk
-- Enforce current practise to BuildRequires: libacl-devel
-
-* Fri Jul 18 2003 Juan Quintela <quintela@mandrakesoft.com> 2.2.10-1mdk
-- 2.2.10.
-
-* Wed Jun 18 2003 Juan Quintela <quintela@trasno.org> 2.2.4-1mdk
-- mklibname (different way).
-- 2.2.4.
-
-* Mon Jun 14 2003 Götz Waschk <waschk@linux-mandrake.com> 2.1.1-2mdk
-- configure2_5x macro
-- mklibname macro
-
-* Thu Jun 13 2003 Vincent Danen <vdanen@mandrakesoft.com> 2.1.1-1mdk
-- 2.1.1
-
-* Fri May 23 2003 Götz Waschk <waschk@linux-mandrake.com> 2.0.11-2mdk
-- clean out unpackaged files
-- rebuild for devel provides
-
-* Wed Jul 24 2002 Buchan Milne <bgmilne@linux-mandrake.com> 2.0.11-1mdk
-- 2.0.11
-
-* Wed Jul 10 2002 Sylvestre Taburet <staburet@mandrakesoft.com> 2.0.9-1mdk
-- 2.0.9
-
-* Fri Mar 22 2002 David BAUDENS <baudens@mandrakesoft.com> 2.0.0-2mdk
-- BuildRequires: libattr1, libattr1-devel
-- Requires: %%{version}-%%{release} and not only %%{version} or %%{name}
-
-* Thu Mar  7 2002 Frederic Lepied <flepied@mandrakesoft.com> 2.0.0-1mdk
-- 2.0.0
-
-* Sat Sep 29 2001 Chmouel Boudjnah <chmouel@mandrakesoft.com> 1.1.3-1mdk
-- 1.1.3.
-
-* Fri Sep  7 2001 Chmouel Boudjnah <chmouel@mandrakesoft.com> 1.1.2-2mdk
-- Fix provides.
-
-* Fri Sep  7 2001 Chmouel Boudjnah <chmouel@mandrakesoft.com> 1.1.2-1mdk
-- Rework the .spec.
-- Make libs in subpackage.
-- 1.1.2.
-
-* Wed May  2 2001 Chmouel Boudjnah <chmouel@mandrakesoft.com> 1.0.1-1mdk
-- First attempt.
