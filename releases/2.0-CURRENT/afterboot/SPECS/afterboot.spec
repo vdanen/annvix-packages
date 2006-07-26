@@ -35,9 +35,6 @@ A tool to create the dynamic 'afterboot' manpage.
 %setup -q
 
 
-%build
-
-
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
@@ -64,6 +61,9 @@ touch %{buildroot}%{_mandir}/man8/afterboot.8.bz2
 
 
 %changelog
+* Tue Jul 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.2
+- spec cleanups
+
 * Tue May 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.2
 - rebuild
 

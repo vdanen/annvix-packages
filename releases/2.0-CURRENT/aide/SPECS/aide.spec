@@ -28,9 +28,15 @@ Source5:	aideinit
 Source6:	98_aide.afterboot
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	flex, glibc-devel, glibc-static-devel, libmhash-devel, zlib-devel, bison
+BuildRequires:	flex
+BuildRequires:	glibc-devel
+BuildRequires:	glibc-static-devel
+BuildRequires:	libmhash-devel
+BuildRequires:	zlib-devel
+BuildRequires:	bison
 
-Requires:	afterboot, gnupg
+Requires:	afterboot
+Requires:	gnupg
 
 %description
 AIDE (Advanced Intrusion Detection Environment) is a free alternative
@@ -72,14 +78,14 @@ make prefix=%{buildroot}%{_prefix} \
 
 mkdir -p %{buildroot}{/var/lib/aide/reports,%{_sysconfdir}/cron.daily}
 
-install -m 0600 %{SOURCE2} %{buildroot}%{_sysconfdir}/aide.conf
-install -m 0700 %{SOURCE3} %{buildroot}%{_sbindir}/aidecheck
-install -m 0700 %{SOURCE4} %{buildroot}%{_sbindir}/aideupdate
-install -m 0700 %{SOURCE5} %{buildroot}%{_sbindir}/aideinit
+install -m 0600 %{_sourcedir}/aide.conf %{buildroot}%{_sysconfdir}/aide.conf
+install -m 0700 %{_sourcedir}/aidecheck %{buildroot}%{_sbindir}/aidecheck
+install -m 0700 %{_sourcedir}/aideupdate %{buildroot}%{_sbindir}/aideupdate
+install -m 0700 %{_sourcedir}/aideinit %{buildroot}%{_sbindir}/aideinit
 ln -sf ../..%{_sbindir}/aidecheck %{buildroot}%{_sysconfdir}/cron.daily/aide
 
 mkdir -p %{buildroot}%{_datadir}/afterboot
-install -m 0644 %{SOURCE6} %{buildroot}%{_datadir}/afterboot/98_aide
+install -m 0644 %{_sourcedir}/98_aide.afterboot %{buildroot}%{_datadir}/afterboot/98_aide
 
 
 %post
@@ -104,7 +110,7 @@ install -m 0644 %{SOURCE6} %{buildroot}%{_datadir}/afterboot/98_aide
 %{_mandir}/man5/aide.conf.5*
 %dir %attr(0700,root,root) /var/lib/aide
 %dir %attr(0700,root,root) /var/lib/aide/reports
-%{_sysconfdir}/cron.daily/aide
+%attr(0700,root,root) %{_sysconfdir}/cron.daily/aide
 %config(noreplace) %attr(0600,root,root) %{_sysconfdir}/aide.conf
 %{_datadir}/afterboot/98_aide
 
@@ -114,6 +120,9 @@ install -m 0644 %{SOURCE6} %{buildroot}%{_datadir}/afterboot/98_aide
 
 
 %changelog
+* Tue Jul 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.11
+- spec cleanups
+
 * Fri Jul 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.11
 - rebuild against new mhash
 

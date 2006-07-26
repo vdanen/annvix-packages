@@ -26,7 +26,10 @@ Source0:	%{name}-%{version}.tar.bz2
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 
-Requires:	rsync, curl, rpm-build, sudo
+Requires:	rsync
+Requires:	curl
+Requires:	rpm-build
+Requires:	sudo
 Requires(pre):	rpm-helper
 
 %description
@@ -79,6 +82,9 @@ fi
 
 
 %changelog
+* Tue Jul 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2
+- spec cleanups
+
 * Wed Jun 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2
 - only touch /etc/sudoers if we don't already have an entry for ports stuff
 

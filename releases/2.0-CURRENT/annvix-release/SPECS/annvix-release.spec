@@ -27,9 +27,6 @@ Source0:	CREDITS
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 
-Obsoletes:	rawhide-release redhat-release mandrake-release opensls-release
-Provides:	redhat-release rawhide-release mandrake-release opensls-release
-
 %description
 Annvix release and rpm macros files.
 
@@ -44,7 +41,8 @@ This package contains the documentation for %{name}.
 
 %prep
 rm -rf %{_builddir}/%{name}-%{version} && mkdir %{_builddir}/%{name}-%{version}
-cp -av %{SOURCE0} %{_builddir}/%{name}-%{version}/
+cp -av %{_sourcedir}/CREDITS %{_builddir}/%{name}-%{version}/
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -80,6 +78,9 @@ EOF
 
 
 %changelog
+* Tue Jul 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
+- spec cleanups
+
 * Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
 - add -doc subpackage
 
