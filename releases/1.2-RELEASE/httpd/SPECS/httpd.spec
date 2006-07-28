@@ -137,6 +137,7 @@ Patch103:	httpd-2.0.49-mod_ldap_cache_file_location.diff
 # security fixes
 Patch104:	httpd-2.0.52-CVE-2005-3352.patch  
 Patch105:	httpd-2.0.52-CVE-2005-3357.patch
+Patch106:	apache-2.0-CVE-2006-3747.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	apr-devel >= 0.9.7, apr-util-devel >= 0.9.7, pcre-devel >= 5.0, byacc
@@ -521,6 +522,7 @@ build httpd-mod_perl, or your own custom version.
 #
 %patch104 -p1 -b .cve-2005-3352.droplet
 %patch105 -p1 -b .cve-2005-3357.droplet
+%patch106 -p0 -b .cve-2006-3747.droplet
 
 # Touch mod_ssl expression parser sources to prevent regenerating it
 touch modules/ssl/ssl_expr_*.[chyl]
@@ -1284,6 +1286,9 @@ strip %{buildroot}%{_sbindir}/httpd
 
 
 %changelog
+* Fri Jul 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.55
+- P106: security fix for CVE-2006-3747
+
 * Fri Feb 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.55
 - P104: security fix for CVE-2005-3352
 - P105: security fix for CVE-2005-3357 (doesn't affect us since we don't use
