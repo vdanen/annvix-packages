@@ -79,9 +79,8 @@ Patch56:	php-4.3.10-fdr-umask.patch
 Patch70:	php-4.3.3-mdk-make_those_darn_tests_work.patch
 # Bug fixes:
 Patch71:	php-4.3.4-mdk-bug-22414.patch
-Patch72:	php-4.4.2-security-fix.patch
 # http://www.hardened-php.net/
-Patch100:	http://www.hardened-php.net/hardening-patch-4.4.2-0.4.8.patch
+Patch100:	http://www.hardened-php.net/hardening-patch-4.4.2-0.4.12.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 # this is to prevent that it will build against old libs
@@ -246,7 +245,6 @@ perl -pi -e "s|_PHP_SONAME_|%{libversion}|g" Makefile.global
 #
 %patch70 -p0 -b .make_those_darn_tests_work
 %patch71 -p1 -b .22414
-%patch72 -p1 -b .secfixes
 %if %{harden}
 %patch100 -p1 -b .hardened
 %endif
@@ -576,6 +574,7 @@ update-alternatives --remove php %{_bindir}/php-cli
 %files -n %{libname}
 %defattr(-,root,root)
 %doc CREDITS INSTALL LICENSE NEWS Zend/ZEND_LICENSE php.ini-dist php.ini-recommended configure_command
+%doc Changelog.secfix
 %attr(0755,root,root) %{_libdir}/libphp_common.so.%{libversion}
 
 %files -n php%{libversion}-devel
@@ -597,6 +596,10 @@ update-alternatives --remove php %{_bindir}/php-cli
 
 
 %changelog
+* Sun Jul 30 2006 Vincent Danen <vdanen-at-build.annvix.org>
+- hardening patch 0.4.12: fixes CVE-2006-2563, CVE-2006-2660,
+  CVE-2006-1990, CVE-2006-3011
+
 * Mon May 08 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - P72: security fixes from hardened-php.net for the security fixes
   found in 5.1.3/5.1.4

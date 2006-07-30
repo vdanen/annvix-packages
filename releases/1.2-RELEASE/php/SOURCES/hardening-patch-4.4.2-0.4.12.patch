@@ -1,46 +1,78 @@
-diff -Nura php-4.4.2/acinclude.m4 hardening-patch-4.4.2-0.4.8/acinclude.m4
---- php-4.4.2/acinclude.m4	2005-12-19 23:29:11.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/acinclude.m4	2006-01-18 12:43:26.816222528 +0100
-@@ -1186,6 +1186,36 @@
-   fi
- ])
- 
-+dnl
-+dnl Check for broken realpath()
-+dnl
-+dnl realpath("/etc/hosts/../passwd",XXX) should not return 
-+dnl "/etc/passwd"
-+dnl
-+AC_DEFUN([PHP_AC_BROKEN_REALPATH],[
-+  AC_CACHE_CHECK(whether realpath is broken, ac_cv_broken_realpath,[
-+    AC_TRY_RUN([
-+main() {
-+	char buf[4096+1];
-+	buf[0] = 0;
-+	realpath("/etc/hosts/../passwd", buf);
-+	exit(strcmp(buf, "/etc/passwd")==0); 
-+}
-+    ],[
-+      ac_cv_broken_realpath=no
-+    ],[
-+      ac_cv_broken_realpath=yes
-+    ],[
-+      ac_cv_broken_realpath=no
-+    ])
-+  ])
-+  if test "$ac_cv_broken_realpath" = "yes"; then
-+    AC_DEFINE(PHP_BROKEN_REALPATH, 1, [Whether realpath is broken])
-+  else
-+    AC_DEFINE(PHP_BROKEN_REALPATH, 0, [Whether realpath is broken])
-+  fi
-+])
+diff -Nura php-4.4.2/Changelog.hphp hardening-patch-4.4.2-0.4.12/Changelog.hphp
+--- php-4.4.2/Changelog.hphp	1970-01-01 01:00:00.000000000 +0100
++++ hardening-patch-4.4.2-0.4.12/Changelog.hphp	2006-07-20 11:17:50.000000000 +0200
+@@ -0,0 +1,34 @@
++Changelog of the Hardening-Patch
++--------------------------------
 +
- dnl PHP_SHARED_MODULE(module-name, object-var, build-dir, cxx)
- dnl
- dnl Basically sets up the link-stage for building module-name
-diff -Nura php-4.4.2/configure hardening-patch-4.4.2-0.4.8/configure
++0.4.12 - 19. July 2006
++
++    PHP4:
++        [+] Added fixes from sf4 security patch / see changelog.secfix for details
++
++    PHP5:
++        [+] Added fixes from sf5 security patch / see changelog.secfix for details
++	
++    PHP4+5:
++	[+] Added anti mail spam feature
++	[+] Speedup of zend_hash canary (clear/destroy)
++	[+] Added a fix for a DOS in the handling of URL blacklists
++
++0.4.11 - 13. May 2006
++
++    PHP5:
++        [+] tsrm_virtual_cwd.c: close open_basedir, safe_mode hole introduced by realpath() cache
++	[+] install-pear-nozlib.phar: bundle in full package download of 5.1.4
++	
++    PHP4+5:
++	[+] tsrm_virtual_cwd.c: realpath() hotfix to solve problems with non existing directories
++
++
++0.4.10 - 11. May 2006
++	
++    PHP4:
++	[+] info.c: backport from 5.1.4 contained TSRMLS macro that had to be removed
++	
++    PHP4+5:
++	[+] fopen_wrappers.c: fix for a trailing slash problem with open_basedir
++	
+diff -Nura php-4.4.2/Changelog.secfix hardening-patch-4.4.2-0.4.12/Changelog.secfix
+--- php-4.4.2/Changelog.secfix	1970-01-01 01:00:00.000000000 +0100
++++ hardening-patch-4.4.2-0.4.12/Changelog.secfix	2006-07-20 11:06:21.000000000 +0200
+@@ -0,0 +1,30 @@
++Changelog of PHP 4.4.2 Security Fixes
++
++Release 4 - 13. July 2006
++
++    [+] Added recursive array printing fix to phpinfo() XSS fix
++
++Release 3 - 08. July 2006
++
++    [+] Added a fix for an overflow in the bundled libmysql on win32 systems    
++    [+] Added a fix for overlong tempfilename
++    [+] Added multiple fixes for new safe_mode/open_basedir problems in ext/curl
++    [+] Added a fix for an integer overflow in str_repeat()
++    [+] Added a variable initialisation in stream factory code
++    [+] Added a fix for crashbugs in http_fopen_wrapper
++    [+] Added a fix for the error_log() safe_mode/open_basedir vulnerability
++    [+] Added a *working* wordwrap() fix
++    [+] Added code to make memory_limit work on 64bit systems
++    [+] Added bufferoverflow and high character fix to ext/wddx
++    
++Release 2 - 10. May 2006
++
++    [+] Added a fix for the serious zend_hash_del() vulnerability
++    [+] Added a fix for another ext/curl open_basedir/safe_mode bypass vulnerability
++    [+] Added a wordwrap() bufferoverflow fix
++    [+] Added a phpinfo() XSS fix
++    [+] Added html_entity_decode() binary safety fix
++    [+] Added safe_mode/open_basedir fixes to tempnam() and copy()
++    [+] Added check for invalid characters in session identifiers to ext/session
++    [+] Added a fix for a double file unlink in ext/session
++
+diff -Nura php-4.4.2/configure hardening-patch-4.4.2-0.4.12/configure
 --- php-4.4.2/configure	2006-01-12 19:24:23.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/configure	2006-01-18 12:43:26.873213864 +0100
++++ hardening-patch-4.4.2-0.4.12/configure	2006-07-20 11:06:22.000000000 +0200
 @@ -402,6 +402,16 @@
  ac_default_prefix=/usr/local
  # Any additions from configure.in:
@@ -617,9 +649,9 @@ diff -Nura php-4.4.2/configure hardening-patch-4.4.2-0.4.8/configure
    
        IFS=.
        set $ac_src
-diff -Nura php-4.4.2/configure.in hardening-patch-4.4.2-0.4.8/configure.in
+diff -Nura php-4.4.2/configure.in hardening-patch-4.4.2-0.4.12/configure.in
 --- php-4.4.2/configure.in	2006-01-12 18:52:29.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/configure.in	2006-01-18 12:43:26.875213560 +0100
++++ hardening-patch-4.4.2-0.4.12/configure.in	2006-07-20 11:06:22.000000000 +0200
 @@ -247,7 +247,7 @@
  sinclude(Zend/acinclude.m4)
  sinclude(Zend/Zend.m4)
@@ -655,9 +687,9 @@ diff -Nura php-4.4.2/configure.in hardening-patch-4.4.2-0.4.8/configure.in
  
  if test -r "$abs_srcdir/Zend/zend_objects.c"; then
    PHP_ADD_SOURCES(Zend, zend_objects.c zend_object_handlers.c zend_objects_API.c zend_mm.c)
-diff -Nura php-4.4.2/ext/curl/curl.c hardening-patch-4.4.2-0.4.8/ext/curl/curl.c
+diff -Nura php-4.4.2/ext/curl/curl.c hardening-patch-4.4.2-0.4.12/ext/curl/curl.c
 --- php-4.4.2/ext/curl/curl.c	2006-01-05 19:03:18.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/ext/curl/curl.c	2006-01-18 12:43:26.876213408 +0100
++++ hardening-patch-4.4.2-0.4.12/ext/curl/curl.c	2006-07-20 11:06:22.000000000 +0200
 @@ -111,7 +111,7 @@
  
  #define PHP_CURL_CHECK_OPEN_BASEDIR(str, len)													\
@@ -667,9 +699,62 @@ diff -Nura php-4.4.2/ext/curl/curl.c hardening-patch-4.4.2-0.4.8/ext/curl/curl.c
  	{ 																							\
  		php_url *tmp_url; 																		\
  																								\
-diff -Nura php-4.4.2/ext/fbsql/php_fbsql.c hardening-patch-4.4.2-0.4.8/ext/fbsql/php_fbsql.c
+@@ -119,6 +119,11 @@
+ 			php_error_docref(NULL TSRMLS_CC, E_WARNING, "Invalid url '%s'", str);				\
+ 			RETURN_FALSE; 																		\
+ 		} 																						\
++															\
++		if (php_memnstr(str, tmp_url->path, strlen(tmp_url->path), str + len)) {				\
++			php_error_docref(NULL TSRMLS_CC, E_WARNING, "Url '%s' contains unencoded control characters.", str);	\
++			RETURN_FALSE;											\
++		}													\
+ 																								\
+ 		if (tmp_url->query || tmp_url->fragment || php_check_open_basedir(tmp_url->path TSRMLS_CC) || 									\
+ 			(PG(safe_mode) && !php_checkuid(tmp_url->path, "rb+", CHECKUID_CHECK_MODE_PARAM))	\
+@@ -839,7 +844,6 @@
+ 		case CURLOPT_FTPLISTONLY:
+ 		case CURLOPT_FTPAPPEND:
+ 		case CURLOPT_NETRC:
+-		case CURLOPT_FOLLOWLOCATION:
+ 		case CURLOPT_PUT:
+ #if CURLOPT_MUTE != 0
+ 		 case CURLOPT_MUTE:
+@@ -876,6 +880,16 @@
+ 			convert_to_long_ex(zvalue);
+ 			error = curl_easy_setopt(ch->cp, option, Z_LVAL_PP(zvalue));
+ 			break;
++		case CURLOPT_FOLLOWLOCATION:
++			convert_to_long_ex(zvalue);
++			if ((PG(open_basedir) && *PG(open_basedir)) || PG(safe_mode)) {
++				if (Z_LVAL_PP(zvalue) != 0) {
++					php_error_docref(NULL TSRMLS_CC, E_WARNING, "CURLOPT_FOLLOWLOCATION cannot be activated when in safe_mode or an open_basedir is set");
++					RETURN_FALSE;
++				}
++			}
++			error = curl_easy_setopt(ch->cp, option, Z_LVAL_PP(zvalue));
++			break;
+ 		case CURLOPT_URL:
+ 		case CURLOPT_PROXY:
+ 		case CURLOPT_USERPWD:
+diff -Nura php-4.4.2/ext/curl/curlstreams.c hardening-patch-4.4.2-0.4.12/ext/curl/curlstreams.c
+--- php-4.4.2/ext/curl/curlstreams.c	2006-01-01 14:46:50.000000000 +0100
++++ hardening-patch-4.4.2-0.4.12/ext/curl/curlstreams.c	2006-07-20 11:06:22.000000000 +0200
+@@ -297,7 +297,11 @@
+ 	curl_easy_setopt(curlstream->curl, CURLOPT_WRITEHEADER, stream);
+ 
+ 	/* currently buggy (bug is in curl) */
+-	curl_easy_setopt(curlstream->curl, CURLOPT_FOLLOWLOCATION, 1);
++	if ((PG(open_basedir) && *PG(open_basedir)) || PG(safe_mode)) {
++		curl_easy_setopt(curlstream->curl, CURLOPT_FOLLOWLOCATION, 0);
++	} else {
++		curl_easy_setopt(curlstream->curl, CURLOPT_FOLLOWLOCATION, 1);
++	}
+ 	
+ 	curl_easy_setopt(curlstream->curl, CURLOPT_ERRORBUFFER, curlstream->errstr);
+ 	curl_easy_setopt(curlstream->curl, CURLOPT_VERBOSE, 0);
+diff -Nura php-4.4.2/ext/fbsql/php_fbsql.c hardening-patch-4.4.2-0.4.12/ext/fbsql/php_fbsql.c
 --- php-4.4.2/ext/fbsql/php_fbsql.c	2006-01-01 14:46:52.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/ext/fbsql/php_fbsql.c	2006-01-18 12:43:26.878213104 +0100
++++ hardening-patch-4.4.2-0.4.12/ext/fbsql/php_fbsql.c	2006-07-20 10:56:32.000000000 +0200
 @@ -1797,8 +1797,24 @@
  	}
  	else if (fbcmdErrorsFound(md))
@@ -695,9 +780,9 @@ diff -Nura php-4.4.2/ext/fbsql/php_fbsql.c hardening-patch-4.4.2-0.4.8/ext/fbsql
  		if (FB_SQL_G(generateWarnings))
  		{
  			if (emg)
-diff -Nura php-4.4.2/ext/mbstring/mbstring.c hardening-patch-4.4.2-0.4.8/ext/mbstring/mbstring.c
+diff -Nura php-4.4.2/ext/mbstring/mbstring.c hardening-patch-4.4.2-0.4.12/ext/mbstring/mbstring.c
 --- php-4.4.2/ext/mbstring/mbstring.c	2006-01-01 14:46:54.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/ext/mbstring/mbstring.c	2006-01-18 12:43:26.884212192 +0100
++++ hardening-patch-4.4.2-0.4.12/ext/mbstring/mbstring.c	2006-07-20 10:56:32.000000000 +0200
 @@ -1488,6 +1488,7 @@
  	char *strtok_buf = NULL, **val_list;
  	zval *array_ptr = (zval *) arg;
@@ -723,9 +808,23 @@ diff -Nura php-4.4.2/ext/mbstring/mbstring.c hardening-patch-4.4.2-0.4.8/ext/mbs
  		if (convd != NULL){
  			mbfl_string_clear(&resvar);
  			mbfl_string_clear(&resval);
-diff -Nura php-4.4.2/ext/mysql/php_mysql.c hardening-patch-4.4.2-0.4.8/ext/mysql/php_mysql.c
+diff -Nura php-4.4.2/ext/mysql/libmysql/libmysql.c hardening-patch-4.4.2-0.4.12/ext/mysql/libmysql/libmysql.c
+--- php-4.4.2/ext/mysql/libmysql/libmysql.c	2003-07-28 09:28:55.000000000 +0200
++++ hardening-patch-4.4.2-0.4.12/ext/mysql/libmysql/libmysql.c	2006-07-20 11:06:22.000000000 +0200
+@@ -213,6 +213,10 @@
+   if (!host || !strcmp(host,LOCAL_HOST))
+     host=LOCAL_HOST_NAMEDPIPE;
+ 
++  if (sizeof(szPipeName) <= (strlen(host) + strlen(unix_socket) + sizeof("\\\\\\pipe\\"))) {
++	return INVALID_HANDLE_VALUE;
++  }
++
+   sprintf( szPipeName, "\\\\%s\\pipe\\%s", host, unix_socket);
+   DBUG_PRINT("info",("Server name: '%s'.  Named Pipe: %s",
+ 		     host, unix_socket));
+diff -Nura php-4.4.2/ext/mysql/php_mysql.c hardening-patch-4.4.2-0.4.12/ext/mysql/php_mysql.c
 --- php-4.4.2/ext/mysql/php_mysql.c	2006-01-01 14:46:55.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/ext/mysql/php_mysql.c	2006-01-18 12:43:26.885212040 +0100
++++ hardening-patch-4.4.2-0.4.12/ext/mysql/php_mysql.c	2006-07-20 10:56:32.000000000 +0200
 @@ -1218,6 +1218,8 @@
  {
  	php_mysql_conn *mysql;
@@ -771,9 +870,9 @@ diff -Nura php-4.4.2/ext/mysql/php_mysql.c hardening-patch-4.4.2-0.4.8/ext/mysql
  	if(use_store == MYSQL_USE_RESULT) {
  		mysql_result=mysql_use_result(&mysql->conn);
  	} else {
-diff -Nura php-4.4.2/ext/pgsql/pgsql.c hardening-patch-4.4.2-0.4.8/ext/pgsql/pgsql.c
+diff -Nura php-4.4.2/ext/pgsql/pgsql.c hardening-patch-4.4.2-0.4.12/ext/pgsql/pgsql.c
 --- php-4.4.2/ext/pgsql/pgsql.c	2006-01-01 14:46:56.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/ext/pgsql/pgsql.c	2006-01-18 12:43:26.888211584 +0100
++++ hardening-patch-4.4.2-0.4.12/ext/pgsql/pgsql.c	2006-07-20 10:56:32.000000000 +0200
 @@ -1001,10 +1001,28 @@
  		case PGRES_EMPTY_QUERY:
  		case PGRES_BAD_RESPONSE:
@@ -807,10 +906,35 @@ diff -Nura php-4.4.2/ext/pgsql/pgsql.c hardening-patch-4.4.2-0.4.8/ext/pgsql/pgs
  			break;
  		case PGRES_COMMAND_OK: /* successful command that did not return rows */
  		default:
-diff -Nura php-4.4.2/ext/session/mod_files.c hardening-patch-4.4.2-0.4.8/ext/session/mod_files.c
+diff -Nura php-4.4.2/ext/session/mod_files.c hardening-patch-4.4.2-0.4.12/ext/session/mod_files.c
 --- php-4.4.2/ext/session/mod_files.c	2006-01-01 14:46:56.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/ext/session/mod_files.c	2006-01-18 12:43:26.888211584 +0100
-@@ -389,6 +389,34 @@
++++ hardening-patch-4.4.2-0.4.12/ext/session/mod_files.c	2006-07-20 10:56:32.000000000 +0200
+@@ -16,7 +16,7 @@
+    +----------------------------------------------------------------------+
+  */
+ 
+-/* $Id: mod_files.c,v 1.83.2.9.2.2 2006/01/01 13:46:56 sniper Exp $ */
++/* $Id: mod_files.c,v 1.83.2.9.2.3 2006/04/17 23:29:37 iliaa Exp $ */
+ 
+ #include "php.h"
+ 
+@@ -364,10 +364,12 @@
+ 	if (!ps_files_path_create(buf, sizeof(buf), data, key))
+ 		return FAILURE;
+ 	
+-	ps_files_close(data);
++	if (data->fd != -1) {
++		ps_files_close(data);
+ 	
+-	if (VCWD_UNLINK(buf) == -1) {
+-		return FAILURE;
++		if (VCWD_UNLINK(buf) == -1) {
++			return FAILURE;
++		}
+ 	}
+ 
+ 	return SUCCESS;
+@@ -389,6 +391,34 @@
  	return SUCCESS;
  }
  
@@ -845,9 +969,9 @@ diff -Nura php-4.4.2/ext/session/mod_files.c hardening-patch-4.4.2-0.4.8/ext/ses
  /*
   * Local variables:
   * tab-width: 4
-diff -Nura php-4.4.2/ext/session/mod_mm.c hardening-patch-4.4.2-0.4.8/ext/session/mod_mm.c
+diff -Nura php-4.4.2/ext/session/mod_mm.c hardening-patch-4.4.2-0.4.12/ext/session/mod_mm.c
 --- php-4.4.2/ext/session/mod_mm.c	2006-01-01 14:46:56.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/ext/session/mod_mm.c	2006-01-18 12:43:26.889211432 +0100
++++ hardening-patch-4.4.2-0.4.12/ext/session/mod_mm.c	2006-07-20 10:56:32.000000000 +0200
 @@ -425,6 +425,42 @@
  	return SUCCESS;
  }
@@ -891,9 +1015,9 @@ diff -Nura php-4.4.2/ext/session/mod_mm.c hardening-patch-4.4.2-0.4.8/ext/sessio
  #endif
  
  /*
-diff -Nura php-4.4.2/ext/session/mod_user.c hardening-patch-4.4.2-0.4.8/ext/session/mod_user.c
+diff -Nura php-4.4.2/ext/session/mod_user.c hardening-patch-4.4.2-0.4.12/ext/session/mod_user.c
 --- php-4.4.2/ext/session/mod_user.c	2006-01-01 14:46:56.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/ext/session/mod_user.c	2006-01-18 12:43:26.889211432 +0100
++++ hardening-patch-4.4.2-0.4.12/ext/session/mod_user.c	2006-07-20 10:56:32.000000000 +0200
 @@ -23,7 +23,7 @@
  #include "mod_user.h"
  
@@ -987,9 +1111,9 @@ diff -Nura php-4.4.2/ext/session/mod_user.c hardening-patch-4.4.2-0.4.8/ext/sess
  /*
   * Local variables:
   * tab-width: 4
-diff -Nura php-4.4.2/ext/session/mod_user.h hardening-patch-4.4.2-0.4.8/ext/session/mod_user.h
+diff -Nura php-4.4.2/ext/session/mod_user.h hardening-patch-4.4.2-0.4.12/ext/session/mod_user.h
 --- php-4.4.2/ext/session/mod_user.h	2006-01-01 14:46:56.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/ext/session/mod_user.h	2006-01-18 12:43:26.889211432 +0100
++++ hardening-patch-4.4.2-0.4.12/ext/session/mod_user.h	2006-07-20 10:56:32.000000000 +0200
 @@ -22,7 +22,7 @@
  #define MOD_USER_H
  
@@ -1008,9 +1132,9 @@ diff -Nura php-4.4.2/ext/session/mod_user.h hardening-patch-4.4.2-0.4.8/ext/sess
  	} name;
  } ps_user;
  
-diff -Nura php-4.4.2/ext/session/php_session.h hardening-patch-4.4.2-0.4.8/ext/session/php_session.h
+diff -Nura php-4.4.2/ext/session/php_session.h hardening-patch-4.4.2-0.4.12/ext/session/php_session.h
 --- php-4.4.2/ext/session/php_session.h	2006-01-01 14:46:56.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/ext/session/php_session.h	2006-01-18 12:43:26.890211280 +0100
++++ hardening-patch-4.4.2-0.4.12/ext/session/php_session.h	2006-07-20 10:56:32.000000000 +0200
 @@ -23,7 +23,7 @@
  
  #include "ext/standard/php_var.h"
@@ -1082,9 +1206,18 @@ diff -Nura php-4.4.2/ext/session/php_session.h hardening-patch-4.4.2-0.4.8/ext/s
  	int send_cookie;
  	int define_sid;
  } php_ps_globals;
-diff -Nura php-4.4.2/ext/session/session.c hardening-patch-4.4.2-0.4.8/ext/session/session.c
+diff -Nura php-4.4.2/ext/session/session.c hardening-patch-4.4.2-0.4.12/ext/session/session.c
 --- php-4.4.2/ext/session/session.c	2006-01-01 14:46:56.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/ext/session/session.c	2006-01-18 12:43:26.891211128 +0100
++++ hardening-patch-4.4.2-0.4.12/ext/session/session.c	2006-07-20 10:56:32.000000000 +0200
+@@ -17,7 +17,7 @@
+    +----------------------------------------------------------------------+
+  */
+ 
+-/* $Id: session.c,v 1.336.2.53.2.4 2006/01/01 13:46:56 sniper Exp $ */
++/* $Id: session.c,v 1.336.2.53.2.5 2006/01/15 16:52:10 iliaa Exp $ */
+ 
+ #ifdef HAVE_CONFIG_H
+ #include "config.h"
 @@ -155,6 +155,7 @@
  	STD_PHP_INI_BOOLEAN("session.cookie_secure",    "",          PHP_INI_ALL, OnUpdateBool,   cookie_secure,      php_ps_globals,    ps_globals)
  	STD_PHP_INI_BOOLEAN("session.use_cookies",      "1",         PHP_INI_ALL, OnUpdateBool,   use_cookies,        php_ps_globals,    ps_globals)
@@ -1093,7 +1226,20 @@ diff -Nura php-4.4.2/ext/session/session.c hardening-patch-4.4.2-0.4.8/ext/sessi
  	STD_PHP_INI_ENTRY("session.referer_check",      "",          PHP_INI_ALL, OnUpdateString, extern_referer_chk, php_ps_globals,    ps_globals)
  	STD_PHP_INI_ENTRY("session.entropy_file",       "",          PHP_INI_ALL, OnUpdateString, entropy_file,       php_ps_globals,    ps_globals)
  	STD_PHP_INI_ENTRY("session.entropy_length",     "0",         PHP_INI_ALL, OnUpdateInt,    entropy_length,     php_ps_globals,    ps_globals)
-@@ -637,6 +638,15 @@
+@@ -626,6 +627,12 @@
+ 	char *val;
+ 	int vallen;
+ 
++	/* check session name for invalid characters */
++	if (PS(id) && strpbrk(PS(id), "\r\n\t <>'\"\\")) {
++		efree(PS(id));
++		PS(id) = NULL;
++	}
++
+ 	if (!PS(mod)) {
+ 		php_error_docref(NULL TSRMLS_CC, E_ERROR, "No storage module chosen - failed to initialize session.");
+ 		return;
+@@ -637,6 +644,15 @@
  		return;
  	}
  	
@@ -1109,7 +1255,7 @@ diff -Nura php-4.4.2/ext/session/session.c hardening-patch-4.4.2-0.4.8/ext/sessi
  	/* If there is no ID, use session module to create one */
  	if (!PS(id))
  		PS(id) = PS(mod)->s_create_sid(&PS(mod_data), NULL TSRMLS_CC);
-@@ -1256,22 +1266,31 @@
+@@ -1256,22 +1272,31 @@
  }
  /* }}} */
  
@@ -1145,7 +1291,7 @@ diff -Nura php-4.4.2/ext/session/session.c hardening-patch-4.4.2-0.4.8/ext/sessi
  		if (!zend_is_callable(*args[i], 0, &name)) {
  			php_error_docref(NULL TSRMLS_CC, E_WARNING, "Argument %d is not a valid callback", i+1);
  			efree(name);
-@@ -1284,7 +1303,11 @@
+@@ -1284,7 +1309,11 @@
  
  	mdata = emalloc(sizeof(*mdata));
  	
@@ -1158,7 +1304,7 @@ diff -Nura php-4.4.2/ext/session/session.c hardening-patch-4.4.2-0.4.8/ext/sessi
  		ZVAL_ADDREF(*args[i]);
  		mdata->names[i] = *args[i];
  	}
-@@ -1345,8 +1368,20 @@
+@@ -1345,8 +1374,20 @@
     Update the current session id with a newly generated one. */
  PHP_FUNCTION(session_regenerate_id)
  {
@@ -1180,9 +1326,9 @@ diff -Nura php-4.4.2/ext/session/session.c hardening-patch-4.4.2-0.4.8/ext/sessi
  	
  		PS(id) = PS(mod)->s_create_sid(&PS(mod_data), NULL TSRMLS_CC);
  
-diff -Nura php-4.4.2/ext/session/tests/014.phpt hardening-patch-4.4.2-0.4.8/ext/session/tests/014.phpt
+diff -Nura php-4.4.2/ext/session/tests/014.phpt hardening-patch-4.4.2-0.4.12/ext/session/tests/014.phpt
 --- php-4.4.2/ext/session/tests/014.phpt	2002-11-26 00:19:18.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/ext/session/tests/014.phpt	2006-01-18 12:43:26.892210976 +0100
++++ hardening-patch-4.4.2-0.4.12/ext/session/tests/014.phpt	2006-07-20 10:56:32.000000000 +0200
 @@ -5,6 +5,7 @@
  --INI--
  session.use_trans_sid=1
@@ -1191,9 +1337,9 @@ diff -Nura php-4.4.2/ext/session/tests/014.phpt hardening-patch-4.4.2-0.4.8/ext/
  session.cache_limiter=
  register_globals=1
  session.bug_compat_42=1
-diff -Nura php-4.4.2/ext/session/tests/015.phpt hardening-patch-4.4.2-0.4.8/ext/session/tests/015.phpt
+diff -Nura php-4.4.2/ext/session/tests/015.phpt hardening-patch-4.4.2-0.4.12/ext/session/tests/015.phpt
 --- php-4.4.2/ext/session/tests/015.phpt	2002-11-26 00:19:19.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/ext/session/tests/015.phpt	2006-01-18 12:43:26.892210976 +0100
++++ hardening-patch-4.4.2-0.4.12/ext/session/tests/015.phpt	2006-07-20 10:56:32.000000000 +0200
 @@ -5,6 +5,7 @@
  --INI--
  session.use_trans_sid=1
@@ -1202,9 +1348,9 @@ diff -Nura php-4.4.2/ext/session/tests/015.phpt hardening-patch-4.4.2-0.4.8/ext/
  session.cache_limiter=
  arg_separator.output=&
  session.name=PHPSESSID
-diff -Nura php-4.4.2/ext/session/tests/018.phpt hardening-patch-4.4.2-0.4.8/ext/session/tests/018.phpt
+diff -Nura php-4.4.2/ext/session/tests/018.phpt hardening-patch-4.4.2-0.4.12/ext/session/tests/018.phpt
 --- php-4.4.2/ext/session/tests/018.phpt	2002-11-26 00:19:19.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/ext/session/tests/018.phpt	2006-01-18 12:43:26.892210976 +0100
++++ hardening-patch-4.4.2-0.4.12/ext/session/tests/018.phpt	2006-07-20 10:56:32.000000000 +0200
 @@ -4,6 +4,7 @@
  <?php include('skipif.inc'); ?>
  --INI--
@@ -1213,9 +1359,9 @@ diff -Nura php-4.4.2/ext/session/tests/018.phpt hardening-patch-4.4.2-0.4.8/ext/
  session.cache_limiter=
  session.use_trans_sid=1
  session.name=PHPSESSID
-diff -Nura php-4.4.2/ext/session/tests/020.phpt hardening-patch-4.4.2-0.4.8/ext/session/tests/020.phpt
+diff -Nura php-4.4.2/ext/session/tests/020.phpt hardening-patch-4.4.2-0.4.12/ext/session/tests/020.phpt
 --- php-4.4.2/ext/session/tests/020.phpt	2002-11-26 00:19:19.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/ext/session/tests/020.phpt	2006-01-18 12:43:26.893210824 +0100
++++ hardening-patch-4.4.2-0.4.12/ext/session/tests/020.phpt	2006-07-20 10:56:32.000000000 +0200
 @@ -4,6 +4,7 @@
  <?php include('skipif.inc'); ?>
  --INI--
@@ -1224,9 +1370,9 @@ diff -Nura php-4.4.2/ext/session/tests/020.phpt hardening-patch-4.4.2-0.4.8/ext/
  session.cache_limiter=
  session.use_trans_sid=1
  arg_separator.output=&amp;
-diff -Nura php-4.4.2/ext/session/tests/021.phpt hardening-patch-4.4.2-0.4.8/ext/session/tests/021.phpt
+diff -Nura php-4.4.2/ext/session/tests/021.phpt hardening-patch-4.4.2-0.4.12/ext/session/tests/021.phpt
 --- php-4.4.2/ext/session/tests/021.phpt	2002-11-26 00:19:19.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/ext/session/tests/021.phpt	2006-01-18 12:43:26.893210824 +0100
++++ hardening-patch-4.4.2-0.4.12/ext/session/tests/021.phpt	2006-07-20 10:56:32.000000000 +0200
 @@ -4,6 +4,7 @@
  <?php include('skipif.inc'); ?>
  --INI--
@@ -1235,9 +1381,9 @@ diff -Nura php-4.4.2/ext/session/tests/021.phpt hardening-patch-4.4.2-0.4.8/ext/
  session.cache_limiter=
  session.use_trans_sid=1
  url_rewriter.tags="a=href,area=href,frame=src,input=src,form=,fieldset="
-diff -Nura php-4.4.2/ext/standard/array.c hardening-patch-4.4.2-0.4.8/ext/standard/array.c
+diff -Nura php-4.4.2/ext/standard/array.c hardening-patch-4.4.2-0.4.12/ext/standard/array.c
 --- php-4.4.2/ext/standard/array.c	2006-01-01 14:46:57.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/ext/standard/array.c	2006-01-18 12:43:26.895210520 +0100
++++ hardening-patch-4.4.2-0.4.12/ext/standard/array.c	2006-07-20 10:56:32.000000000 +0200
 @@ -1162,6 +1162,32 @@
  			}
  		}
@@ -1271,9 +1417,9 @@ diff -Nura php-4.4.2/ext/standard/array.c hardening-patch-4.4.2-0.4.8/ext/standa
  	
  	return 1;
  }
-diff -Nura php-4.4.2/ext/standard/basic_functions.c hardening-patch-4.4.2-0.4.8/ext/standard/basic_functions.c
+diff -Nura php-4.4.2/ext/standard/basic_functions.c hardening-patch-4.4.2-0.4.12/ext/standard/basic_functions.c
 --- php-4.4.2/ext/standard/basic_functions.c	2006-01-01 14:46:57.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/ext/standard/basic_functions.c	2006-01-18 12:43:26.898210064 +0100
++++ hardening-patch-4.4.2-0.4.12/ext/standard/basic_functions.c	2006-07-20 11:06:22.000000000 +0200
 @@ -107,12 +107,14 @@
  typedef struct _php_shutdown_function_entry {
  	zval **arguments;
@@ -1307,6 +1453,15 @@ diff -Nura php-4.4.2/ext/standard/basic_functions.c hardening-patch-4.4.2-0.4.8/
  #endif
  
  #ifdef HAVE_FNMATCH
+@@ -1866,7 +1870,7 @@
+ 			break;
+ 
+ 		case 3:		/*save to a file */
+-			stream = php_stream_open_wrapper(opt, "a", IGNORE_URL | ENFORCE_SAFE_MODE | REPORT_ERRORS, NULL);
++			stream = php_stream_open_wrapper(opt, "a", IGNORE_URL_WIN | ENFORCE_SAFE_MODE | REPORT_ERRORS, NULL);
+ 			if (!stream)
+ 				return FAILURE;
+ 			php_stream_write(stream, message, strlen(message));
 @@ -2096,6 +2100,13 @@
  {
  	zval retval;
@@ -1419,9 +1574,9 @@ diff -Nura php-4.4.2/ext/standard/basic_functions.c hardening-patch-4.4.2-0.4.8/
  	zend_hash_del(&EG(symbol_table), new_key, new_key_len);
  	ZEND_SET_SYMBOL_WITH_LENGTH(&EG(symbol_table), new_key, new_key_len, *var, (*var)->refcount+1, 0);
  
-diff -Nura php-4.4.2/ext/standard/config.m4 hardening-patch-4.4.2-0.4.8/ext/standard/config.m4
+diff -Nura php-4.4.2/ext/standard/config.m4 hardening-patch-4.4.2-0.4.12/ext/standard/config.m4
 --- php-4.4.2/ext/standard/config.m4	2004-12-30 08:02:18.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/ext/standard/config.m4	2006-01-18 12:43:26.898210064 +0100
++++ hardening-patch-4.4.2-0.4.12/ext/standard/config.m4	2006-07-20 10:56:32.000000000 +0200
 @@ -203,7 +203,7 @@
    if test "$ac_cv_crypt_blowfish" = "yes"; then
      ac_result=1
@@ -1439,9 +1594,9 @@ diff -Nura php-4.4.2/ext/standard/config.m4 hardening-patch-4.4.2-0.4.8/ext/stan
 +                            var_unserializer.c ftok.c aggregation.c sha1.c sha256.c crypt_blowfish.c )
  
  PHP_ADD_MAKEFILE_FRAGMENT
-diff -Nura php-4.4.2/ext/standard/crypt_blowfish.c hardening-patch-4.4.2-0.4.8/ext/standard/crypt_blowfish.c
+diff -Nura php-4.4.2/ext/standard/crypt_blowfish.c hardening-patch-4.4.2-0.4.12/ext/standard/crypt_blowfish.c
 --- php-4.4.2/ext/standard/crypt_blowfish.c	1970-01-01 01:00:00.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/ext/standard/crypt_blowfish.c	2006-01-18 12:43:26.900209760 +0100
++++ hardening-patch-4.4.2-0.4.12/ext/standard/crypt_blowfish.c	2006-07-20 10:56:32.000000000 +0200
 @@ -0,0 +1,748 @@
 +/*
 + * This code comes from John the Ripper password cracker, with reentrant
@@ -2191,9 +2346,9 @@ diff -Nura php-4.4.2/ext/standard/crypt_blowfish.c hardening-patch-4.4.2-0.4.8/e
 +
 +	return output;
 +}
-diff -Nura php-4.4.2/ext/standard/crypt.c hardening-patch-4.4.2-0.4.8/ext/standard/crypt.c
+diff -Nura php-4.4.2/ext/standard/crypt.c hardening-patch-4.4.2-0.4.12/ext/standard/crypt.c
 --- php-4.4.2/ext/standard/crypt.c	2006-01-01 14:46:57.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/ext/standard/crypt.c	2006-01-18 12:43:26.900209760 +0100
++++ hardening-patch-4.4.2-0.4.12/ext/standard/crypt.c	2006-07-20 10:56:32.000000000 +0200
 @@ -100,6 +100,8 @@
  	return SUCCESS;
  }
@@ -2246,9 +2401,9 @@ diff -Nura php-4.4.2/ext/standard/crypt.c hardening-patch-4.4.2-0.4.8/ext/standa
  }
  /* }}} */
  #endif
-diff -Nura php-4.4.2/ext/standard/dl.c hardening-patch-4.4.2-0.4.8/ext/standard/dl.c
+diff -Nura php-4.4.2/ext/standard/dl.c hardening-patch-4.4.2-0.4.12/ext/standard/dl.c
 --- php-4.4.2/ext/standard/dl.c	2006-01-01 14:46:57.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/ext/standard/dl.c	2006-01-18 12:43:26.901209608 +0100
++++ hardening-patch-4.4.2-0.4.12/ext/standard/dl.c	2006-07-20 10:56:32.000000000 +0200
 @@ -160,8 +160,35 @@
  		RETURN_FALSE;
  	}
@@ -2295,10 +2450,67 @@ diff -Nura php-4.4.2/ext/standard/dl.c hardening-patch-4.4.2-0.4.8/ext/standard/
  				zend_debug = module_entry->zend_debug;
  				zts        = module_entry->zts; 
  			}
-diff -Nura php-4.4.2/ext/standard/file.c hardening-patch-4.4.2-0.4.8/ext/standard/file.c
+diff -Nura php-4.4.2/ext/standard/file.c hardening-patch-4.4.2-0.4.12/ext/standard/file.c
 --- php-4.4.2/ext/standard/file.c	2006-01-01 14:46:57.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/ext/standard/file.c	2006-01-18 12:43:26.902209456 +0100
-@@ -2522,7 +2522,7 @@
++++ hardening-patch-4.4.2-0.4.12/ext/standard/file.c	2006-07-20 10:56:32.000000000 +0200
+@@ -21,7 +21,7 @@
+    +----------------------------------------------------------------------+
+  */
+ 
+-/* $Id: file.c,v 1.279.2.70.2.3 2006/01/01 13:46:57 sniper Exp $ */
++/* $Id: file.c,v 1.279.2.70.2.7 2006/04/14 17:46:59 pollita Exp $ */
+ 
+ /* Synced with php 3.0 revision 1.218 1999-06-16 [ssb] */
+ 
+@@ -552,7 +552,7 @@
+ 	pval **arg1, **arg2;
+ 	char *d;
+ 	char *opened_path;
+-	char p[64];
++	char *p;
+ 	FILE *fp;
+ 
+ 	if (ZEND_NUM_ARGS() != 2 || zend_get_parameters_ex(2, &arg1, &arg2) == FAILURE) {
+@@ -566,7 +566,11 @@
+ 	}
+ 
+ 	d = estrndup(Z_STRVAL_PP(arg1), Z_STRLEN_PP(arg1));
+-	strlcpy(p, Z_STRVAL_PP(arg2), sizeof(p));
++
++	p = php_basename(Z_STRVAL_PP(arg2), Z_STRLEN_PP(arg2), NULL, 0);
++	if (strlen(p) > 64) {
++		p[63] = '\0';
++	}
+ 
+ 	if ((fp = php_open_temporary_file(d, p, &opened_path TSRMLS_CC))) {
+ 		fclose(fp);
+@@ -574,6 +578,7 @@
+ 	} else {
+ 		RETVAL_FALSE;
+ 	}
++	efree(p);
+ 	efree(d);
+ }
+ /* }}} */
+@@ -819,7 +824,7 @@
+ 
+ 	/* If seconds is not set to null, build the timeval, else we wait indefinitely */
+ 	if (sec != NULL) {
+-		convert_to_long_ex(&sec);
++		convert_to_long(sec);
+ 
+ 		if (usec > 999999) {
+ 			tv.tv_sec = Z_LVAL_P(sec) + (usec / 1000000);
+@@ -2196,7 +2201,7 @@
+ safe_to_copy:
+ 
+ 	srcstream = php_stream_open_wrapper(src, "rb",
+-				STREAM_DISABLE_OPEN_BASEDIR | REPORT_ERRORS,
++				ENFORCE_SAFE_MODE | REPORT_ERRORS,
+ 				NULL);
+ 
+ 	if (!srcstream)
+@@ -2522,7 +2527,7 @@
  #if (!defined(__BEOS__) && !defined(NETWARE) && HAVE_REALPATH) || defined(ZTS)
  /* {{{ proto string realpath(string path)
     Return the resolved path */
@@ -2307,9 +2519,9 @@ diff -Nura php-4.4.2/ext/standard/file.c hardening-patch-4.4.2-0.4.8/ext/standar
  {
  	zval **path;
  	char resolved_path_buff[MAXPATHLEN];
-diff -Nura php-4.4.2/ext/standard/file.h hardening-patch-4.4.2-0.4.8/ext/standard/file.h
+diff -Nura php-4.4.2/ext/standard/file.h hardening-patch-4.4.2-0.4.12/ext/standard/file.h
 --- php-4.4.2/ext/standard/file.h	2006-01-01 14:46:57.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/ext/standard/file.h	2006-01-18 12:43:26.902209456 +0100
++++ hardening-patch-4.4.2-0.4.12/ext/standard/file.h	2006-07-20 10:56:32.000000000 +0200
 @@ -64,7 +64,7 @@
  PHP_FUNCTION(fd_set);
  PHP_FUNCTION(fd_isset);
@@ -2319,9 +2531,9 @@ diff -Nura php-4.4.2/ext/standard/file.h hardening-patch-4.4.2-0.4.8/ext/standar
  #endif
  #ifdef HAVE_FNMATCH
  PHP_FUNCTION(fnmatch);
-diff -Nura php-4.4.2/ext/standard/head.c hardening-patch-4.4.2-0.4.8/ext/standard/head.c
+diff -Nura php-4.4.2/ext/standard/head.c hardening-patch-4.4.2-0.4.12/ext/standard/head.c
 --- php-4.4.2/ext/standard/head.c	2006-01-01 14:46:57.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/ext/standard/head.c	2006-01-18 12:43:26.903209304 +0100
++++ hardening-patch-4.4.2-0.4.12/ext/standard/head.c	2006-07-20 10:56:32.000000000 +0200
 @@ -44,7 +44,7 @@
  	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|bl", &ctr.line,
  				&ctr.line_len, &rep, &ctr.response_code) == FAILURE)
@@ -2331,10 +2543,144 @@ diff -Nura php-4.4.2/ext/standard/head.c hardening-patch-4.4.2-0.4.8/ext/standar
  	sapi_header_op(rep ? SAPI_HEADER_REPLACE:SAPI_HEADER_ADD, &ctr TSRMLS_CC);
  }
  /* }}} */
-diff -Nura php-4.4.2/ext/standard/info.c hardening-patch-4.4.2-0.4.8/ext/standard/info.c
+diff -Nura php-4.4.2/ext/standard/html.c hardening-patch-4.4.2-0.4.12/ext/standard/html.c
+--- php-4.4.2/ext/standard/html.c	2006-01-01 14:46:57.000000000 +0100
++++ hardening-patch-4.4.2-0.4.12/ext/standard/html.c	2006-07-20 10:56:32.000000000 +0200
+@@ -18,7 +18,7 @@
+    +----------------------------------------------------------------------+
+ */
+ 
+-/* $Id: html.c,v 1.63.2.23.2.1 2006/01/01 13:46:57 sniper Exp $ */
++/* $Id: html.c,v 1.63.2.23.2.2 2006/02/25 21:33:06 rasmus Exp $ */
+ 
+ /*
+  * HTML entity resources:
+@@ -793,7 +793,7 @@
+ 	enum entity_charset charset = determine_charset(hint_charset TSRMLS_CC);
+ 	unsigned char replacement[15];
+ 	
+-	ret = estrdup(old);
++	ret = estrndup(old, oldlen);
+ 	retlen = oldlen;
+ 	if (!retlen) {
+ 		goto empty_source;
+diff -Nura php-4.4.2/ext/standard/http_fopen_wrapper.c hardening-patch-4.4.2-0.4.12/ext/standard/http_fopen_wrapper.c
+--- php-4.4.2/ext/standard/http_fopen_wrapper.c	2006-01-01 14:46:57.000000000 +0100
++++ hardening-patch-4.4.2-0.4.12/ext/standard/http_fopen_wrapper.c	2006-07-20 11:06:22.000000000 +0200
+@@ -18,7 +18,7 @@
+    |          Wez Furlong <wez@thebrainroom.com>                          |
+    +----------------------------------------------------------------------+
+  */
+-/* $Id: http_fopen_wrapper.c,v 1.53.2.20.2.5 2006/01/01 13:46:57 sniper Exp $ */ 
++/* $Id: http_fopen_wrapper.c,v 1.53.2.20.2.9 2006/04/16 17:45:55 iliaa Exp $ */ 
+ 
+ #include "php.h"
+ #include "php_globals.h"
+@@ -339,7 +339,7 @@
+ 		size_t tmp_line_len;
+ 		/* get response header */
+ 
+-		if (_php_stream_get_line(stream, tmp_line, sizeof(tmp_line) - 1, &tmp_line_len TSRMLS_CC) != NULL) {
++		if (php_stream_get_line(stream, tmp_line, sizeof(tmp_line) - 1, &tmp_line_len) != NULL) {
+ 			zval *http_response;
+ 			int response_code;
+ 
+@@ -353,6 +353,7 @@
+ 			}
+ 			switch(response_code) {
+ 				case 200:
++				case 206: /* partial content */
+ 				case 302:
+ 				case 301:
+ 					reqok = 1;
+@@ -394,7 +395,7 @@
+ 
+ 	while (!body && !php_stream_eof(stream)) {
+ 		size_t http_header_line_length;
+-		if (php_stream_get_line(stream, http_header_line, HTTP_HEADER_BLOCK_SIZE, &http_header_line_length TSRMLS_CC) && *http_header_line != '\n' && *http_header_line != '\r') {
++		if (php_stream_get_line(stream, http_header_line, HTTP_HEADER_BLOCK_SIZE, &http_header_line_length) && *http_header_line != '\n' && *http_header_line != '\r') {
+ 			char *e = http_header_line + http_header_line_length - 1;
+ 			while (*e == '\n' || *e == '\r') {
+ 				e--;
+@@ -502,9 +503,11 @@
+ 	}	\
+ }	\
+ 			/* check for control characters in login, password & path */
+-			CHECK_FOR_CNTRL_CHARS(resource->user)
+-			CHECK_FOR_CNTRL_CHARS(resource->pass)
+-			CHECK_FOR_CNTRL_CHARS(resource->path)
++			if (strncasecmp(new_path, "http://", sizeof("http://") - 1) || strncasecmp(new_path, "https://", sizeof("https://") - 1)) {
++				CHECK_FOR_CNTRL_CHARS(resource->user)
++				CHECK_FOR_CNTRL_CHARS(resource->pass)
++				CHECK_FOR_CNTRL_CHARS(resource->path)
++			}
+ 
+ 			stream = php_stream_url_wrap_http_ex(NULL, new_path, mode, options, opened_path, context, --redirect_max, 0 STREAMS_CC TSRMLS_CC);
+ 			if (stream && stream->wrapperdata)	{
+diff -Nura php-4.4.2/ext/standard/info.c hardening-patch-4.4.2-0.4.12/ext/standard/info.c
 --- php-4.4.2/ext/standard/info.c	2006-01-01 14:46:57.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/ext/standard/info.c	2006-01-18 12:43:26.904209152 +0100
-@@ -408,7 +408,7 @@
++++ hardening-patch-4.4.2-0.4.12/ext/standard/info.c	2006-07-20 11:06:22.000000000 +0200
+@@ -18,7 +18,7 @@
+    +----------------------------------------------------------------------+
+ */
+ 
+-/* $Id: info.c,v 1.218.2.18.2.6 2006/01/01 13:46:57 sniper Exp $ */
++/* $Id: info.c,v 1.218.2.18.2.7 2006/06/28 13:12:09 derick Exp $ */
+ 
+ #include "php.h"
+ #include "php_ini.h"
+@@ -58,6 +58,23 @@
+ 
+ PHPAPI extern char *php_ini_opened_path;
+ PHPAPI extern char *php_ini_scanned_files;
++	
++static int php_info_write_wrapper(const char *str, uint str_length)
++{
++	int new_len, written;
++	char *elem_esc;
++
++	TSRMLS_FETCH();
++
++	elem_esc = php_escape_html_entities((char *)str, str_length, &new_len, 0, ENT_QUOTES, NULL TSRMLS_CC);
++
++	written = php_body_write(elem_esc, new_len TSRMLS_CC);
++
++	efree(elem_esc);
++
++	return written;
++}
++
+ 
+ /* {{{ _display_module_info
+  */
+@@ -133,23 +150,12 @@
+ 				PUTS(" => ");
+ 			}
+ 			if (Z_TYPE_PP(tmp) == IS_ARRAY) {
+-				zval *tmp3;
+-				MAKE_STD_ZVAL(tmp3);
+ 				if (!sapi_module.phpinfo_as_text) {
+ 					PUTS("<pre>");
+-				}
+-				php_start_ob_buffer(NULL, 4096, 1 TSRMLS_CC);
+-				zend_print_zval_r(*tmp, 0);
+-				php_ob_get_buffer(tmp3 TSRMLS_CC);
+-				php_end_ob_buffer(0, 0 TSRMLS_CC);
+-				
+-				elem_esc = php_info_html_esc(Z_STRVAL_P(tmp3) TSRMLS_CC);
+-				PUTS(elem_esc);
+-				efree(elem_esc);
+-				zval_ptr_dtor(&tmp3);
+-
+-				if (!sapi_module.phpinfo_as_text) {
++					zend_print_zval_r_ex((zend_write_func_t) php_info_write_wrapper, *tmp, 0);
+ 					PUTS("</pre>");
++				} else {
++					zend_print_zval_r(*tmp, 0);				
+ 				}
+ 			} else if (Z_TYPE_PP(tmp) != IS_STRING) {
+ 				tmp2 = **tmp;
+@@ -408,7 +414,7 @@
  
  	if (flag & PHP_INFO_GENERAL) {
  		char *zend_version = get_zend_version();
@@ -2343,7 +2689,7 @@ diff -Nura php-4.4.2/ext/standard/info.c hardening-patch-4.4.2-0.4.8/ext/standar
  
  		php_uname = php_get_uname('a');
  
-@@ -430,11 +430,22 @@
+@@ -430,11 +436,22 @@
  			}
  		}
  
@@ -2366,9 +2712,80 @@ diff -Nura php-4.4.2/ext/standard/info.c hardening-patch-4.4.2-0.4.8/ext/standar
  		php_info_print_box_end();
  		php_info_print_table_start();
  		php_info_print_table_row(2, "System", php_uname );
-diff -Nura php-4.4.2/ext/standard/php_standard.h hardening-patch-4.4.2-0.4.8/ext/standard/php_standard.h
+diff -Nura php-4.4.2/ext/standard/mail.c hardening-patch-4.4.2-0.4.12/ext/standard/mail.c
+--- php-4.4.2/ext/standard/mail.c	2006-01-01 14:46:57.000000000 +0100
++++ hardening-patch-4.4.2-0.4.12/ext/standard/mail.c	2006-07-20 12:11:13.000000000 +0200
+@@ -103,6 +103,44 @@
+ 		return;
+ 	}
+ 
++	if (HG(hphp_mailprotect) > 0) {
++		if (headers_len > 0 && headers && (strstr(headers,"\n\n") || strstr(headers,"\r\n\r\n")) ) {
++			php_security_log(S_MAIL, "mail() - double newline in headers, possible injection, mail dropped");
++			RETURN_FALSE;
++		}
++
++		/* check for spam attempts with buggy webforms */
++		if (to_len > 0 && to && (strchr(to, '\n') != NULL || strchr(to, '\r') != NULL)) {
++			php_security_log(S_MAIL, "mail() - newline in to header, possible injection, mail dropped");
++			RETURN_FALSE;
++		}
++
++		if (subject_len > 0 && subject && (strchr(subject, '\n') != NULL || strchr(subject, '\r') != NULL)) {
++			php_security_log(S_MAIL, "mail() - newline subject header, possible injection, mail dropped");
++			RETURN_FALSE;
++		}
++		
++		if (HG(hphp_mailprotect) > 1) {
++			/* search for to, cc or bcc headers */
++			if (headers_len > 0 && headers != NULL) {
++				if (strncasecmp(headers, "to:", sizeof("to:") - 1) == 0 || strcasestr(headers, "\nto:")) {
++					php_security_log(S_MAIL, "mail() - To: headers aren't allowed in the headers parameter.");
++					RETURN_FALSE;
++				}
++
++				if (strncasecmp(headers, "cc:", sizeof("cc:") - 1) == 0 || strcasestr(headers, "\ncc:")) {
++					php_security_log(S_MAIL, "mail() - CC: headers aren't allowed in the headers parameter.");
++					RETURN_FALSE;
++				}
++
++				if (strncasecmp(headers, "bcc:", sizeof("bcc:") - 1) == 0 || strcasestr(headers, "\nbcc:")) {
++					php_security_log(S_MAIL, "mail() - BCC: headers aren't allowed in the headers parameter.");
++					RETURN_FALSE;
++				}
++			}
++		}
++	}
++
+ 	if (to_len > 0) {
+ 		to_r = estrndup(to, to_len);
+ 		for (; to_len; to_len--) {
+diff -Nura php-4.4.2/ext/standard/pack.c hardening-patch-4.4.2-0.4.12/ext/standard/pack.c
+--- php-4.4.2/ext/standard/pack.c	2006-01-01 14:46:57.000000000 +0100
++++ hardening-patch-4.4.2-0.4.12/ext/standard/pack.c	2006-07-20 10:56:32.000000000 +0200
+@@ -15,7 +15,7 @@
+    | Author: Chris Schneider <cschneid@relog.ch>                          |
+    +----------------------------------------------------------------------+
+  */
+-/* $Id: pack.c,v 1.40.2.7.2.4 2006/01/01 13:46:57 sniper Exp $ */
++/* $Id: pack.c,v 1.40.2.7.2.5 2006/01/26 15:47:31 iliaa Exp $ */
+ 
+ #include "php.h"
+ 
+@@ -693,7 +693,9 @@
+ 							len = size * 2;
+ 						} 
+ 
+-						len -= argb % 2;
++						if (argb > 0) {	
++							len -= argb % 2;
++						}
+ 
+ 						buf = emalloc(len + 1);
+ 
+diff -Nura php-4.4.2/ext/standard/php_standard.h hardening-patch-4.4.2-0.4.12/ext/standard/php_standard.h
 --- php-4.4.2/ext/standard/php_standard.h	2006-01-01 14:46:58.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/ext/standard/php_standard.h	2006-01-18 12:43:26.904209152 +0100
++++ hardening-patch-4.4.2-0.4.12/ext/standard/php_standard.h	2006-07-20 10:56:32.000000000 +0200
 @@ -28,6 +28,7 @@
  #include "php_mail.h"
  #include "md5.h"
@@ -2377,9 +2794,9 @@ diff -Nura php-4.4.2/ext/standard/php_standard.h hardening-patch-4.4.2-0.4.8/ext
  #include "html.h"
  #include "exec.h"
  #include "file.h"
-diff -Nura php-4.4.2/ext/standard/sha256.c hardening-patch-4.4.2-0.4.8/ext/standard/sha256.c
+diff -Nura php-4.4.2/ext/standard/sha256.c hardening-patch-4.4.2-0.4.12/ext/standard/sha256.c
 --- php-4.4.2/ext/standard/sha256.c	1970-01-01 01:00:00.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/ext/standard/sha256.c	2006-01-18 12:43:26.905209000 +0100
++++ hardening-patch-4.4.2-0.4.12/ext/standard/sha256.c	2006-07-20 10:56:32.000000000 +0200
 @@ -0,0 +1,398 @@
 +/*
 +   +----------------------------------------------------------------------+
@@ -2779,9 +3196,9 @@ diff -Nura php-4.4.2/ext/standard/sha256.c hardening-patch-4.4.2-0.4.8/ext/stand
 + * vim600: sw=4 ts=4 fdm=marker
 + * vim<600: sw=4 ts=4
 + */
-diff -Nura php-4.4.2/ext/standard/sha256.h hardening-patch-4.4.2-0.4.8/ext/standard/sha256.h
+diff -Nura php-4.4.2/ext/standard/sha256.h hardening-patch-4.4.2-0.4.12/ext/standard/sha256.h
 --- php-4.4.2/ext/standard/sha256.h	1970-01-01 01:00:00.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/ext/standard/sha256.h	2006-01-18 12:43:26.905209000 +0100
++++ hardening-patch-4.4.2-0.4.12/ext/standard/sha256.h	2006-07-20 10:56:32.000000000 +0200
 @@ -0,0 +1,40 @@
 +/*
 +   +----------------------------------------------------------------------+
@@ -2823,9 +3240,71 @@ diff -Nura php-4.4.2/ext/standard/sha256.h hardening-patch-4.4.2-0.4.8/ext/stand
 +PHP_FUNCTION(sha256_file);
 +
 +#endif
-diff -Nura php-4.4.2/ext/standard/syslog.c hardening-patch-4.4.2-0.4.8/ext/standard/syslog.c
+diff -Nura php-4.4.2/ext/standard/string.c hardening-patch-4.4.2-0.4.12/ext/standard/string.c
+--- php-4.4.2/ext/standard/string.c	2006-01-01 14:46:58.000000000 +0100
++++ hardening-patch-4.4.2-0.4.12/ext/standard/string.c	2006-07-20 11:06:22.000000000 +0200
+@@ -18,7 +18,7 @@
+    +----------------------------------------------------------------------+
+  */
+ 
+-/* $Id: string.c,v 1.333.2.52.2.3 2006/01/01 13:46:58 sniper Exp $ */
++/* $Id: string.c,v 1.333.2.52.2.4 2006/03/13 14:41:27 iliaa Exp $ */
+ 
+ /* Synced with php 3.0 revision 1.193 1999-06-16 [ssb] */
+ 
+@@ -628,7 +628,8 @@
+ {
+ 	const char *text, *breakchar = "\n";
+ 	char *newtext;
+-	int textlen, breakcharlen = 1, newtextlen, alloced, chk;
++	int textlen, breakcharlen = 1, newtextlen, chk;
++	size_t alloced;
+ 	long current = 0, laststart = 0, lastspace = 0;
+ 	long linelength = 75;
+ 	zend_bool docut = 0;
+@@ -672,15 +673,13 @@
+ 		/* Multiple character line break or forced cut */
+ 		if (linelength > 0) {
+ 			chk = (int)(textlen/linelength + 1);
++			newtext = safe_emalloc(chk, breakcharlen, textlen + 1);
+ 			alloced = textlen + chk * breakcharlen + 1;
+ 		} else {
+ 			chk = textlen;
++			newtext = safe_emalloc(textlen, (breakcharlen + 1), 1);
+ 			alloced = textlen * (breakcharlen + 1) + 1;
+ 		}
+-		if (alloced <= 0) {
+-			RETURN_FALSE;
+-		}
+-		newtext = emalloc(alloced);
+ 
+ 		/* now keep track of the actual new text length */
+ 		newtextlen = 0;
+@@ -3515,7 +3514,7 @@
+ 	zval		**input_str;		/* Input string */
+ 	zval		**mult;			/* Multiplier */
+ 	char		*result;		/* Resulting string */
+-	int		result_len;		/* Length of the resulting string */
++	size_t		result_len;		/* Length of the resulting string */
+ 	
+ 	if (ZEND_NUM_ARGS() != 2 || zend_get_parameters_ex(2, &input_str, &mult) == FAILURE) {
+ 		WRONG_PARAM_COUNT;
+@@ -3540,11 +3539,7 @@
+ 	
+ 	/* Initialize the result string */	
+ 	result_len = Z_STRLEN_PP(input_str) * Z_LVAL_PP(mult);
+-	if (result_len < 1) {
+-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "You may not create strings longer than 2147483647 bytes");
+-		RETURN_FALSE;
+-	}
+-	result = (char *)emalloc(result_len + 1);
++	result = (char *)safe_emalloc(Z_STRLEN_PP(input_str), Z_LVAL_PP(mult), 1);
+ 	
+ 	/* Heavy optimization for situations where input string is 1 byte long */
+ 	if (Z_STRLEN_PP(input_str) == 1) {
+diff -Nura php-4.4.2/ext/standard/syslog.c hardening-patch-4.4.2-0.4.12/ext/standard/syslog.c
 --- php-4.4.2/ext/standard/syslog.c	2006-01-01 14:46:58.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/ext/standard/syslog.c	2006-01-18 12:43:26.905209000 +0100
++++ hardening-patch-4.4.2-0.4.12/ext/standard/syslog.c	2006-07-20 10:56:32.000000000 +0200
 @@ -42,6 +42,8 @@
   */
  PHP_MINIT_FUNCTION(syslog)
@@ -2844,9 +3323,30 @@ diff -Nura php-4.4.2/ext/standard/syslog.c hardening-patch-4.4.2-0.4.8/ext/stand
  	return SUCCESS;
  }
  /* }}} */
-diff -Nura php-4.4.2/ext/varfilter/config.m4 hardening-patch-4.4.2-0.4.8/ext/varfilter/config.m4
+diff -Nura php-4.4.2/ext/standard/url.c hardening-patch-4.4.2-0.4.12/ext/standard/url.c
+--- php-4.4.2/ext/standard/url.c	2006-01-01 14:46:58.000000000 +0100
++++ hardening-patch-4.4.2-0.4.12/ext/standard/url.c	2006-07-20 10:56:32.000000000 +0200
+@@ -15,7 +15,7 @@
+    | Author: Jim Winstead <jimw@php.net>                                  |
+    +----------------------------------------------------------------------+
+  */
+-/* $Id: url.c,v 1.58.2.21.2.2 2006/01/01 13:46:58 sniper Exp $ */
++/* $Id: url.c,v 1.58.2.21.2.3 2006/02/12 16:43:03 iliaa Exp $ */
+ 
+ #include <stdlib.h>
+ #include <string.h>
+@@ -137,7 +137,7 @@
+ 				p++;
+ 			}
+ 			
+-			if ((*p) == '\0' || *p == '/') {
++			if ((*p == '\0' || *p == '/') && (p - e) < 7) {
+ 				goto parse_port;
+ 			}
+ 			
+diff -Nura php-4.4.2/ext/varfilter/config.m4 hardening-patch-4.4.2-0.4.12/ext/varfilter/config.m4
 --- php-4.4.2/ext/varfilter/config.m4	1970-01-01 01:00:00.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/ext/varfilter/config.m4	2006-01-18 12:43:26.906208848 +0100
++++ hardening-patch-4.4.2-0.4.12/ext/varfilter/config.m4	2006-07-20 10:56:32.000000000 +0200
 @@ -0,0 +1,11 @@
 +dnl
 +dnl $Id: config.m4,v 1.1 2004/11/14 13:27:16 ionic Exp $
@@ -2859,16 +3359,16 @@ diff -Nura php-4.4.2/ext/varfilter/config.m4 hardening-patch-4.4.2-0.4.8/ext/var
 +  AC_DEFINE(HAVE_VARFILTER, 1, [ ])
 +  PHP_NEW_EXTENSION(varfilter, varfilter.c, $ext_shared)
 +fi
-diff -Nura php-4.4.2/ext/varfilter/CREDITS hardening-patch-4.4.2-0.4.8/ext/varfilter/CREDITS
+diff -Nura php-4.4.2/ext/varfilter/CREDITS hardening-patch-4.4.2-0.4.12/ext/varfilter/CREDITS
 --- php-4.4.2/ext/varfilter/CREDITS	1970-01-01 01:00:00.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/ext/varfilter/CREDITS	2006-01-18 12:43:26.906208848 +0100
++++ hardening-patch-4.4.2-0.4.12/ext/varfilter/CREDITS	2006-07-20 10:56:32.000000000 +0200
 @@ -0,0 +1,2 @@
 +varfilter
 +Stefan Esser
 \ Kein Zeilenumbruch am Dateiende.
-diff -Nura php-4.4.2/ext/varfilter/php_varfilter.h hardening-patch-4.4.2-0.4.8/ext/varfilter/php_varfilter.h
+diff -Nura php-4.4.2/ext/varfilter/php_varfilter.h hardening-patch-4.4.2-0.4.12/ext/varfilter/php_varfilter.h
 --- php-4.4.2/ext/varfilter/php_varfilter.h	1970-01-01 01:00:00.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/ext/varfilter/php_varfilter.h	2006-01-18 12:43:26.907208696 +0100
++++ hardening-patch-4.4.2-0.4.12/ext/varfilter/php_varfilter.h	2006-07-20 10:56:32.000000000 +0200
 @@ -0,0 +1,144 @@
 +/*
 +  +----------------------------------------------------------------------+
@@ -3014,9 +3514,9 @@ diff -Nura php-4.4.2/ext/varfilter/php_varfilter.h hardening-patch-4.4.2-0.4.8/e
 + * indent-tabs-mode: t
 + * End:
 + */
-diff -Nura php-4.4.2/ext/varfilter/varfilter.c hardening-patch-4.4.2-0.4.8/ext/varfilter/varfilter.c
+diff -Nura php-4.4.2/ext/varfilter/varfilter.c hardening-patch-4.4.2-0.4.12/ext/varfilter/varfilter.c
 --- php-4.4.2/ext/varfilter/varfilter.c	1970-01-01 01:00:00.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/ext/varfilter/varfilter.c	2006-01-18 12:43:26.908208544 +0100
++++ hardening-patch-4.4.2-0.4.12/ext/varfilter/varfilter.c	2006-07-20 10:56:32.000000000 +0200
 @@ -0,0 +1,915 @@
 +/*
 +  +----------------------------------------------------------------------+
@@ -3071,7 +3571,7 @@ diff -Nura php-4.4.2/ext/varfilter/varfilter.c hardening-patch-4.4.2-0.4.8/ext/v
 +	PHP_RSHUTDOWN(varfilter),	/* Replace with NULL if there's nothing to do at request end */
 +	PHP_MINFO(varfilter),
 +#if ZEND_MODULE_API_NO >= 20010901
-+	"0.4.8", /* Replace with version number for your extension */
++	"0.4.12", /* Replace with version number for your extension */
 +#endif
 +	STANDARD_MODULE_PROPERTIES
 +};
@@ -3933,10 +4433,92 @@ diff -Nura php-4.4.2/ext/varfilter/varfilter.c hardening-patch-4.4.2-0.4.8/ext/v
 + */
 +
 +
-diff -Nura php-4.4.2/main/fopen_wrappers.c hardening-patch-4.4.2-0.4.8/main/fopen_wrappers.c
+diff -Nura php-4.4.2/ext/wddx/wddx.c hardening-patch-4.4.2-0.4.12/ext/wddx/wddx.c
+--- php-4.4.2/ext/wddx/wddx.c	2006-01-01 14:46:59.000000000 +0100
++++ hardening-patch-4.4.2-0.4.12/ext/wddx/wddx.c	2006-07-20 11:06:22.000000000 +0200
+@@ -16,7 +16,11 @@
+    +----------------------------------------------------------------------+
+  */
+ 
+-/* $Id: wddx.c,v 1.96.2.6.2.3 2006/01/01 13:46:59 sniper Exp $ */
++/* $Id: wddx.c,v 1.96.2.6.2.7 2006/05/26 01:55:26 iliaa Exp $ */
++
++#ifdef HAVE_CONFIG_H
++#include "config.h"
++#endif
+ 
+ #include "php.h"
+ #include "php_wddx.h"
+@@ -400,9 +404,9 @@
+ 					break;
+ 
+ 				default:
+-					if (iscntrl((int)*(unsigned char *)p)) {
++					if (iscntrl((int)*(unsigned char *)p) || (int)*(unsigned char *)p >= 127) {
+ 						FLUSH_BUF();
+-						sprintf(control_buf, WDDX_CHAR, *p);
++						sprintf(control_buf, WDDX_CHAR, (int)*(unsigned char *)p);
+ 						php_wddx_add_chunk(packet, control_buf);
+ 					} else
+ 						buf[l++] = *p;
+@@ -428,7 +432,7 @@
+ 	tmp = *var;
+ 	zval_copy_ctor(&tmp);
+ 	convert_to_string(&tmp);
+-	sprintf(tmp_buf, WDDX_NUMBER, Z_STRVAL(tmp));
++	snprintf(tmp_buf, Z_STRLEN(tmp), WDDX_NUMBER, Z_STRVAL(tmp));
+ 	zval_dtor(&tmp);
+ 
+ 	php_wddx_add_chunk(packet, tmp_buf);	
+@@ -620,17 +624,19 @@
+  */
+ void php_wddx_serialize_var(wddx_packet *packet, zval *var, char *name, int name_len TSRMLS_DC)
+ {
+-	char tmp_buf[WDDX_BUF_LEN];
++	char *tmp_buf;
+ 	char *name_esc;
+ 	int name_esc_len;
+ 
+ 	if (name) {
+ 		name_esc = php_escape_html_entities(name, name_len, &name_esc_len, 0, ENT_QUOTES, NULL TSRMLS_CC);
+-		sprintf(tmp_buf, WDDX_VAR_S, name_esc);
++		tmp_buf = emalloc(name_esc_len + 1);
++		snprintf(tmp_buf, name_esc_len, WDDX_VAR_S, name_esc);
+ 		php_wddx_add_chunk(packet, tmp_buf);
++		efree(tmp_buf);
+ 		efree(name_esc);
+ 	}
+-	
++
+ 	switch(Z_TYPE_P(var)) {
+ 		case IS_STRING:
+ 			php_wddx_serialize_string(packet, var);
+diff -Nura php-4.4.2/main/fopen_wrappers.c hardening-patch-4.4.2-0.4.12/main/fopen_wrappers.c
 --- php-4.4.2/main/fopen_wrappers.c	2006-01-01 14:46:59.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/main/fopen_wrappers.c	2006-01-18 12:43:26.909208392 +0100
-@@ -156,6 +156,21 @@
++++ hardening-patch-4.4.2-0.4.12/main/fopen_wrappers.c	2006-07-20 10:56:32.000000000 +0200
+@@ -116,14 +116,20 @@
+ 			}
+ 		}
+ 
++		resolved_name_len = strlen(resolved_name);
+ 		if (path[strlen(path)-1] == PHP_DIR_SEPARATOR) {
+-			resolved_name_len = strlen(resolved_name);
+ 			if (resolved_name[resolved_name_len - 1] != PHP_DIR_SEPARATOR) {
+ 				resolved_name[resolved_name_len] = PHP_DIR_SEPARATOR;
+ 				resolved_name[++resolved_name_len] = '\0';
+ 			}
+ 		}
+ 
++		if (resolved_name_len == resolved_basedir_len - 1) {
++			if (resolved_basedir[resolved_basedir_len - 1] == PHP_DIR_SEPARATOR) {
++				resolved_basedir_len--;
++			}
++		}
++
+ 		/* Check the path */
+ #ifdef PHP_WIN32
+ 		if (strncasecmp(resolved_basedir, resolved_name, resolved_basedir_len) == 0) {
+@@ -156,6 +162,21 @@
  		char *pathbuf;
  		char *ptr;
  		char *end;
@@ -3958,10 +4540,10 @@ diff -Nura php-4.4.2/main/fopen_wrappers.c hardening-patch-4.4.2-0.4.8/main/fope
  
  		pathbuf = estrdup(PG(open_basedir));
  
-diff -Nura php-4.4.2/main/hardened_globals.h hardening-patch-4.4.2-0.4.8/main/hardened_globals.h
+diff -Nura php-4.4.2/main/hardened_globals.h hardening-patch-4.4.2-0.4.12/main/hardened_globals.h
 --- php-4.4.2/main/hardened_globals.h	1970-01-01 01:00:00.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/main/hardened_globals.h	2006-01-18 12:43:26.909208392 +0100
-@@ -0,0 +1,62 @@
++++ hardening-patch-4.4.2-0.4.12/main/hardened_globals.h	2006-07-20 11:54:39.000000000 +0200
+@@ -0,0 +1,63 @@
 +/*
 +   +----------------------------------------------------------------------+
 +   | Hardening-Patch for PHP                                              |
@@ -4006,6 +4588,7 @@ diff -Nura php-4.4.2/main/hardened_globals.h hardening-patch-4.4.2-0.4.8/main/ha
 +#endif
 +	zend_bool hphp_sql_bailout_on_error;
 +	zend_bool hphp_multiheader;
++	unsigned long hphp_mailprotect;
 +	HashTable *eval_whitelist;
 +	HashTable *eval_blacklist;
 +	HashTable *func_whitelist;
@@ -4024,9 +4607,9 @@ diff -Nura php-4.4.2/main/hardened_globals.h hardening-patch-4.4.2-0.4.8/main/ha
 + * c-basic-offset: 4
 + * End:
 + */
-diff -Nura php-4.4.2/main/hardening_patch.c hardening-patch-4.4.2-0.4.8/main/hardening_patch.c
+diff -Nura php-4.4.2/main/hardening_patch.c hardening-patch-4.4.2-0.4.12/main/hardening_patch.c
 --- php-4.4.2/main/hardening_patch.c	1970-01-01 01:00:00.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/main/hardening_patch.c	2006-01-18 12:43:26.910208240 +0100
++++ hardening-patch-4.4.2-0.4.12/main/hardening_patch.c	2006-07-20 10:56:32.000000000 +0200
 @@ -0,0 +1,430 @@
 +/*
 +   +----------------------------------------------------------------------+
@@ -4458,9 +5041,9 @@ diff -Nura php-4.4.2/main/hardening_patch.c hardening-patch-4.4.2-0.4.8/main/har
 + * vim600: sw=4 ts=4 fdm=marker
 + * vim<600: sw=4 ts=4
 + */
-diff -Nura php-4.4.2/main/hardening_patch.h hardening-patch-4.4.2-0.4.8/main/hardening_patch.h
+diff -Nura php-4.4.2/main/hardening_patch.h hardening-patch-4.4.2-0.4.12/main/hardening_patch.h
 --- php-4.4.2/main/hardening_patch.h	1970-01-01 01:00:00.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/main/hardening_patch.h	2006-01-18 12:43:26.910208240 +0100
++++ hardening-patch-4.4.2-0.4.12/main/hardening_patch.h	2006-07-20 10:56:32.000000000 +0200
 @@ -0,0 +1,46 @@
 +/*
 +   +----------------------------------------------------------------------+
@@ -4488,7 +5071,7 @@ diff -Nura php-4.4.2/main/hardening_patch.h hardening-patch-4.4.2-0.4.8/main/har
 +#if HARDENING_PATCH
 +PHPAPI void php_security_log(int loglevel, char *fmt, ...);
 +PHPAPI void hardened_startup();
-+#define HARDENING_PATCH_VERSION "0.4.8"
++#define HARDENING_PATCH_VERSION "0.4.12"
 +
 +#endif
 +
@@ -4508,9 +5091,9 @@ diff -Nura php-4.4.2/main/hardening_patch.h hardening-patch-4.4.2-0.4.8/main/har
 + * c-basic-offset: 4
 + * End:
 + */
-diff -Nura php-4.4.2/main/hardening_patch.m4 hardening-patch-4.4.2-0.4.8/main/hardening_patch.m4
+diff -Nura php-4.4.2/main/hardening_patch.m4 hardening-patch-4.4.2-0.4.12/main/hardening_patch.m4
 --- php-4.4.2/main/hardening_patch.m4	1970-01-01 01:00:00.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/main/hardening_patch.m4	2006-01-18 12:43:26.910208240 +0100
++++ hardening-patch-4.4.2-0.4.12/main/hardening_patch.m4	2006-07-20 10:56:32.000000000 +0200
 @@ -0,0 +1,95 @@
 +dnl
 +dnl $Id: hardening_patch.m4,v 1.1 2004/11/14 13:24:24 ionic Exp $
@@ -4607,9 +5190,9 @@ diff -Nura php-4.4.2/main/hardening_patch.m4 hardening-patch-4.4.2-0.4.8/main/ha
 +  AC_DEFINE(HARDENING_PATCH_HASH_PROTECT, 0, [HashTable DTOR Protection])
 +fi
 +
-diff -Nura php-4.4.2/main/main.c hardening-patch-4.4.2-0.4.8/main/main.c
+diff -Nura php-4.4.2/main/main.c hardening-patch-4.4.2-0.4.12/main/main.c
 --- php-4.4.2/main/main.c	2006-01-01 14:46:59.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/main/main.c	2006-01-18 12:43:26.912207936 +0100
++++ hardening-patch-4.4.2-0.4.12/main/main.c	2006-07-20 10:56:32.000000000 +0200
 @@ -92,6 +92,10 @@
  PHPAPI int core_globals_id;
  #endif
@@ -4709,9 +5292,9 @@ diff -Nura php-4.4.2/main/main.c hardening-patch-4.4.2-0.4.8/main/main.c
  
  	ALLOC_ZVAL(array_ptr);
  	array_init(array_ptr);
-diff -Nura php-4.4.2/main/php_config.h.in hardening-patch-4.4.2-0.4.8/main/php_config.h.in
+diff -Nura php-4.4.2/main/php_config.h.in hardening-patch-4.4.2-0.4.12/main/php_config.h.in
 --- php-4.4.2/main/php_config.h.in	2006-01-12 19:24:28.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/main/php_config.h.in	2006-01-18 12:43:26.914207632 +0100
++++ hardening-patch-4.4.2-0.4.12/main/php_config.h.in	2006-07-20 10:56:32.000000000 +0200
 @@ -865,6 +865,39 @@
  /* Enabling BIND8 compatibility for Panther */
  #undef BIND_8_COMPAT
@@ -4765,9 +5348,9 @@ diff -Nura php-4.4.2/main/php_config.h.in hardening-patch-4.4.2-0.4.8/main/php_c
  /* Whether system headers declare timezone */
  #undef HAVE_DECLARED_TIMEZONE
  
-diff -Nura php-4.4.2/main/php_content_types.c hardening-patch-4.4.2-0.4.8/main/php_content_types.c
+diff -Nura php-4.4.2/main/php_content_types.c hardening-patch-4.4.2-0.4.12/main/php_content_types.c
 --- php-4.4.2/main/php_content_types.c	2006-01-01 14:46:59.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/main/php_content_types.c	2006-01-18 12:43:26.915207480 +0100
++++ hardening-patch-4.4.2-0.4.12/main/php_content_types.c	2006-07-20 10:56:32.000000000 +0200
 @@ -77,6 +77,7 @@
  	sapi_register_post_entries(php_post_entries);
  	sapi_register_default_post_reader(php_default_post_reader);
@@ -4776,9 +5359,9 @@ diff -Nura php-4.4.2/main/php_content_types.c hardening-patch-4.4.2-0.4.8/main/p
  	return SUCCESS;
  }
  /* }}} */
-diff -Nura php-4.4.2/main/php.h hardening-patch-4.4.2-0.4.8/main/php.h
+diff -Nura php-4.4.2/main/php.h hardening-patch-4.4.2-0.4.12/main/php.h
 --- php-4.4.2/main/php.h	2006-01-01 14:46:59.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/main/php.h	2006-01-18 12:43:26.915207480 +0100
++++ hardening-patch-4.4.2-0.4.12/main/php.h	2006-07-20 10:56:32.000000000 +0200
 @@ -35,11 +35,19 @@
  #include "zend_qsort.h"
  #include "php_compat.h"
@@ -4810,9 +5393,43 @@ diff -Nura php-4.4.2/main/php.h hardening-patch-4.4.2-0.4.8/main/php.h
  #endif
  
  /*
-diff -Nura php-4.4.2/main/php_variables.c hardening-patch-4.4.2-0.4.8/main/php_variables.c
+diff -Nura php-4.4.2/main/php_open_temporary_file.c hardening-patch-4.4.2-0.4.12/main/php_open_temporary_file.c
+--- php-4.4.2/main/php_open_temporary_file.c	2006-01-01 14:46:59.000000000 +0100
++++ hardening-patch-4.4.2-0.4.12/main/php_open_temporary_file.c	2006-07-20 11:06:22.000000000 +0200
+@@ -16,7 +16,7 @@
+    +----------------------------------------------------------------------+
+  */
+ 
+-/* $Id: php_open_temporary_file.c,v 1.18.2.10.2.2 2006/01/01 13:46:59 sniper Exp $ */
++/* $Id: php_open_temporary_file.c,v 1.18.2.10.2.3 2006/05/23 23:23:39 iliaa Exp $ */
+ 
+ #include "php.h"
+ 
+@@ -115,17 +115,16 @@
+ 
+ 	path_len = strlen(path);
+ 
+-	if (!(opened_path = emalloc(MAXPATHLEN))) {
+-		return -1;
+-	}
+-
+ 	if (!path_len || IS_SLASH(path[path_len - 1])) {
+ 		trailing_slash = "";
+ 	} else {
+ 		trailing_slash = "/";
+ 	}
+ 
+-	(void)snprintf(opened_path, MAXPATHLEN, "%s%s%sXXXXXX", path, trailing_slash, pfx);
++	if (spprintf(&opened_path, 0, "%s%s%sXXXXXX", path, trailing_slash, pfx) >= MAXPATHLEN) {
++		efree(opened_path);
++		return -1;
++	}
+ 
+ #ifdef PHP_WIN32
+ 	if (GetTempFileName(path, pfx, 0, opened_path)) {
+diff -Nura php-4.4.2/main/php_variables.c hardening-patch-4.4.2-0.4.12/main/php_variables.c
 --- php-4.4.2/main/php_variables.c	2006-01-01 14:47:00.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/main/php_variables.c	2006-01-18 12:43:26.916207328 +0100
++++ hardening-patch-4.4.2-0.4.12/main/php_variables.c	2006-07-20 10:56:32.000000000 +0200
 @@ -236,17 +236,28 @@
  	while (var) {
  		val = strchr(var, '=');
@@ -4874,9 +5491,9 @@ diff -Nura php-4.4.2/main/php_variables.c hardening-patch-4.4.2-0.4.8/main/php_v
  		}
  		var = php_strtok_r(NULL, separator, &strtok_buf);
  	}
-diff -Nura php-4.4.2/main/rfc1867.c hardening-patch-4.4.2-0.4.8/main/rfc1867.c
+diff -Nura php-4.4.2/main/rfc1867.c hardening-patch-4.4.2-0.4.12/main/rfc1867.c
 --- php-4.4.2/main/rfc1867.c	2006-01-01 14:47:00.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/main/rfc1867.c	2006-01-18 12:43:26.917207176 +0100
++++ hardening-patch-4.4.2-0.4.12/main/rfc1867.c	2006-07-20 10:56:32.000000000 +0200
 @@ -128,6 +128,8 @@
  #define UPLOAD_ERROR_D    4  /* No file uploaded */
  #define UPLOAD_ERROR_E    6  /* Missing /tmp or similar directory */
@@ -4990,9 +5607,9 @@ diff -Nura php-4.4.2/main/rfc1867.c hardening-patch-4.4.2-0.4.8/main/rfc1867.c
  			if (cancel_upload) {
  				if (temp_filename) {
  					if (cancel_upload != UPLOAD_ERROR_E) { /* file creation failed */
-diff -Nura php-4.4.2/main/SAPI.c hardening-patch-4.4.2-0.4.8/main/SAPI.c
+diff -Nura php-4.4.2/main/SAPI.c hardening-patch-4.4.2-0.4.12/main/SAPI.c
 --- php-4.4.2/main/SAPI.c	2006-01-01 14:46:59.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/main/SAPI.c	2006-01-18 12:43:26.918207024 +0100
++++ hardening-patch-4.4.2-0.4.12/main/SAPI.c	2006-07-20 10:56:32.000000000 +0200
 @@ -854,6 +854,37 @@
  	return SUCCESS;
  }
@@ -5031,9 +5648,9 @@ diff -Nura php-4.4.2/main/SAPI.c hardening-patch-4.4.2-0.4.8/main/SAPI.c
  
  SAPI_API int sapi_flush(TSRMLS_D)
  {
-diff -Nura php-4.4.2/main/SAPI.h hardening-patch-4.4.2-0.4.8/main/SAPI.h
+diff -Nura php-4.4.2/main/SAPI.h hardening-patch-4.4.2-0.4.12/main/SAPI.h
 --- php-4.4.2/main/SAPI.h	2006-01-01 14:46:59.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/main/SAPI.h	2006-01-18 12:43:26.918207024 +0100
++++ hardening-patch-4.4.2-0.4.12/main/SAPI.h	2006-07-20 10:56:32.000000000 +0200
 @@ -101,9 +101,10 @@
  	char *current_user;
  	int current_user_length;
@@ -5104,9 +5721,9 @@ diff -Nura php-4.4.2/main/SAPI.h hardening-patch-4.4.2-0.4.8/main/SAPI.h
  
  #define STANDARD_SAPI_MODULE_PROPERTIES
  
-diff -Nura php-4.4.2/main/snprintf.c hardening-patch-4.4.2-0.4.8/main/snprintf.c
+diff -Nura php-4.4.2/main/snprintf.c hardening-patch-4.4.2-0.4.12/main/snprintf.c
 --- php-4.4.2/main/snprintf.c	2006-01-01 14:47:00.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/main/snprintf.c	2006-01-18 12:43:26.919206872 +0100
++++ hardening-patch-4.4.2-0.4.12/main/snprintf.c	2006-07-20 10:56:32.000000000 +0200
 @@ -1014,7 +1014,11 @@
  
  
@@ -5119,9 +5736,9 @@ diff -Nura php-4.4.2/main/snprintf.c hardening-patch-4.4.2-0.4.8/main/snprintf.c
  					break;
  
  					/*
-diff -Nura php-4.4.2/main/spprintf.c hardening-patch-4.4.2-0.4.8/main/spprintf.c
+diff -Nura php-4.4.2/main/spprintf.c hardening-patch-4.4.2-0.4.12/main/spprintf.c
 --- php-4.4.2/main/spprintf.c	2006-01-01 14:47:00.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/main/spprintf.c	2006-01-18 12:43:26.920206720 +0100
++++ hardening-patch-4.4.2-0.4.12/main/spprintf.c	2006-07-20 10:56:32.000000000 +0200
 @@ -630,7 +630,11 @@
  
  
@@ -5134,9 +5751,30 @@ diff -Nura php-4.4.2/main/spprintf.c hardening-patch-4.4.2-0.4.8/main/spprintf.c
  					break;
  
  					/*
-diff -Nura php-4.4.2/php.ini-dist hardening-patch-4.4.2-0.4.8/php.ini-dist
+diff -Nura php-4.4.2/main/streams.c hardening-patch-4.4.2-0.4.12/main/streams.c
+--- php-4.4.2/main/streams.c	2006-01-01 14:47:00.000000000 +0100
++++ hardening-patch-4.4.2-0.4.12/main/streams.c	2006-07-20 11:06:22.000000000 +0200
+@@ -20,7 +20,7 @@
+    +----------------------------------------------------------------------+
+  */
+ 
+-/* $Id: streams.c,v 1.125.2.100.2.2 2006/01/01 13:47:00 sniper Exp $ */
++/* $Id: streams.c,v 1.125.2.100.2.3 2006/05/19 10:24:42 tony2001 Exp $ */
+ 
+ #define _GNU_SOURCE
+ #include "php.h"
+@@ -445,7 +445,7 @@
+  * charsets (for example) but still be able to provide them all as filters */
+ PHPAPI php_stream_filter *php_stream_filter_create(const char *filtername, const char *filterparams, int filterparamslen, int persistent TSRMLS_DC)
+ {
+-	php_stream_filter_factory *factory;
++	php_stream_filter_factory *factory = NULL;
+ 	php_stream_filter *filter = NULL;
+ 	int n;
+ 	char *period;
+diff -Nura php-4.4.2/php.ini-dist hardening-patch-4.4.2-0.4.12/php.ini-dist
 --- php-4.4.2/php.ini-dist	2005-12-30 18:19:43.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/php.ini-dist	2006-01-18 12:43:26.921206568 +0100
++++ hardening-patch-4.4.2-0.4.12/php.ini-dist	2006-07-20 10:56:32.000000000 +0200
 @@ -1114,6 +1114,209 @@
  ;exif.decode_jis_motorola = JIS
  ;exif.decode_jis_intel    = JIS
@@ -5347,9 +5985,9 @@ diff -Nura php-4.4.2/php.ini-dist hardening-patch-4.4.2-0.4.8/php.ini-dist
  ; Local Variables:
  ; tab-width: 4
  ; End:
-diff -Nura php-4.4.2/php.ini-recommended hardening-patch-4.4.2-0.4.8/php.ini-recommended
+diff -Nura php-4.4.2/php.ini-recommended hardening-patch-4.4.2-0.4.12/php.ini-recommended
 --- php-4.4.2/php.ini-recommended	2005-12-30 18:19:43.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/php.ini-recommended	2006-01-18 12:43:26.922206416 +0100
++++ hardening-patch-4.4.2-0.4.12/php.ini-recommended	2006-07-20 10:56:32.000000000 +0200
 @@ -1112,6 +1112,209 @@
  ;exif.decode_jis_motorola = JIS
  ;exif.decode_jis_intel    = JIS
@@ -5560,9 +6198,9 @@ diff -Nura php-4.4.2/php.ini-recommended hardening-patch-4.4.2-0.4.8/php.ini-rec
  ; Local Variables:
  ; tab-width: 4
  ; End:
-diff -Nura php-4.4.2/README.input_filter hardening-patch-4.4.2-0.4.8/README.input_filter
+diff -Nura php-4.4.2/README.input_filter hardening-patch-4.4.2-0.4.12/README.input_filter
 --- php-4.4.2/README.input_filter	1970-01-01 01:00:00.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/README.input_filter	2006-01-18 12:43:26.923206264 +0100
++++ hardening-patch-4.4.2-0.4.12/README.input_filter	2006-07-20 10:56:32.000000000 +0200
 @@ -0,0 +1,193 @@
 +Input Filter Support ported from PHP 5
 +--------------------------------------
@@ -5757,9 +6395,9 @@ diff -Nura php-4.4.2/README.input_filter hardening-patch-4.4.2-0.4.8/README.inpu
 +    efree(raw_var);
 +}
 +
-diff -Nura php-4.4.2/run-tests.php hardening-patch-4.4.2-0.4.8/run-tests.php
+diff -Nura php-4.4.2/run-tests.php hardening-patch-4.4.2-0.4.12/run-tests.php
 --- php-4.4.2/run-tests.php	2006-01-01 14:46:48.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/run-tests.php	2006-01-18 12:43:26.924206112 +0100
++++ hardening-patch-4.4.2-0.4.12/run-tests.php	2006-07-20 10:56:32.000000000 +0200
 @@ -152,6 +152,10 @@
  		'error_reporting=2047',
  		'display_errors=1',
@@ -5771,9 +6409,9 @@ diff -Nura php-4.4.2/run-tests.php hardening-patch-4.4.2-0.4.8/run-tests.php
  		'html_errors=0',
  		'track_errors=1',
  		'report_memleaks=1',
-diff -Nura php-4.4.2/sapi/apache/mod_php4.c hardening-patch-4.4.2-0.4.8/sapi/apache/mod_php4.c
+diff -Nura php-4.4.2/sapi/apache/mod_php4.c hardening-patch-4.4.2-0.4.12/sapi/apache/mod_php4.c
 --- php-4.4.2/sapi/apache/mod_php4.c	2006-01-01 14:47:01.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/sapi/apache/mod_php4.c	2006-01-18 12:43:26.924206112 +0100
++++ hardening-patch-4.4.2-0.4.12/sapi/apache/mod_php4.c	2006-07-20 10:56:32.000000000 +0200
 @@ -452,7 +452,7 @@
  	sapi_apache_get_fd,
  	sapi_apache_force_http_10,
@@ -5795,9 +6433,9 @@ diff -Nura php-4.4.2/sapi/apache/mod_php4.c hardening-patch-4.4.2-0.4.8/sapi/apa
  		}
  	}
  #endif
-diff -Nura php-4.4.2/sapi/apache2filter/sapi_apache2.c hardening-patch-4.4.2-0.4.8/sapi/apache2filter/sapi_apache2.c
+diff -Nura php-4.4.2/sapi/apache2filter/sapi_apache2.c hardening-patch-4.4.2-0.4.12/sapi/apache2filter/sapi_apache2.c
 --- php-4.4.2/sapi/apache2filter/sapi_apache2.c	2006-01-01 14:47:01.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/sapi/apache2filter/sapi_apache2.c	2006-01-18 12:43:26.925205960 +0100
++++ hardening-patch-4.4.2-0.4.12/sapi/apache2filter/sapi_apache2.c	2006-07-20 10:56:32.000000000 +0200
 @@ -562,7 +562,11 @@
  {
  	TSRMLS_FETCH();
@@ -5810,9 +6448,9 @@ diff -Nura php-4.4.2/sapi/apache2filter/sapi_apache2.c hardening-patch-4.4.2-0.4
  	}
  }
  
-diff -Nura php-4.4.2/sapi/apache2handler/sapi_apache2.c hardening-patch-4.4.2-0.4.8/sapi/apache2handler/sapi_apache2.c
+diff -Nura php-4.4.2/sapi/apache2handler/sapi_apache2.c hardening-patch-4.4.2-0.4.12/sapi/apache2handler/sapi_apache2.c
 --- php-4.4.2/sapi/apache2handler/sapi_apache2.c	2006-01-01 14:47:01.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/sapi/apache2handler/sapi_apache2.c	2006-01-18 12:43:26.926205808 +0100
++++ hardening-patch-4.4.2-0.4.12/sapi/apache2handler/sapi_apache2.c	2006-07-20 10:56:32.000000000 +0200
 @@ -340,7 +340,11 @@
  {
  	TSRMLS_FETCH();
@@ -5825,9 +6463,9 @@ diff -Nura php-4.4.2/sapi/apache2handler/sapi_apache2.c hardening-patch-4.4.2-0.
  	}
  }
  
-diff -Nura php-4.4.2/sapi/cgi/cgi_main.c hardening-patch-4.4.2-0.4.8/sapi/cgi/cgi_main.c
+diff -Nura php-4.4.2/sapi/cgi/cgi_main.c hardening-patch-4.4.2-0.4.12/sapi/cgi/cgi_main.c
 --- php-4.4.2/sapi/cgi/cgi_main.c	2006-01-01 14:47:01.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/sapi/cgi/cgi_main.c	2006-01-18 12:48:25.870759328 +0100
++++ hardening-patch-4.4.2-0.4.12/sapi/cgi/cgi_main.c	2006-07-20 10:56:32.000000000 +0200
 @@ -1432,11 +1432,19 @@
  							SG(headers_sent) = 1;
  							SG(request_info).no_headers = 1;
@@ -5848,9 +6486,9 @@ diff -Nura php-4.4.2/sapi/cgi/cgi_main.c hardening-patch-4.4.2-0.4.8/sapi/cgi/cg
  						php_end_ob_buffers(1 TSRMLS_CC);
  						exit(0);
  						break;
-diff -Nura php-4.4.2/sapi/cli/php_cli.c hardening-patch-4.4.2-0.4.8/sapi/cli/php_cli.c
+diff -Nura php-4.4.2/sapi/cli/php_cli.c hardening-patch-4.4.2-0.4.12/sapi/cli/php_cli.c
 --- php-4.4.2/sapi/cli/php_cli.c	2006-01-01 14:47:01.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/sapi/cli/php_cli.c	2006-01-18 12:47:52.846779736 +0100
++++ hardening-patch-4.4.2-0.4.12/sapi/cli/php_cli.c	2006-07-20 10:56:32.000000000 +0200
 @@ -654,11 +654,19 @@
  				if (php_request_startup(TSRMLS_C)==FAILURE) {
  					goto err;
@@ -5871,9 +6509,9 @@ diff -Nura php-4.4.2/sapi/cli/php_cli.c hardening-patch-4.4.2-0.4.8/sapi/cli/php
  				php_end_ob_buffers(1 TSRMLS_CC);
  				exit_status=0;
  				goto out;
-diff -Nura php-4.4.2/TSRM/TSRM.h hardening-patch-4.4.2-0.4.8/TSRM/TSRM.h
+diff -Nura php-4.4.2/TSRM/TSRM.h hardening-patch-4.4.2-0.4.12/TSRM/TSRM.h
 --- php-4.4.2/TSRM/TSRM.h	2005-07-26 15:34:52.000000000 +0200
-+++ hardening-patch-4.4.2-0.4.8/TSRM/TSRM.h	2006-01-18 12:43:26.929205352 +0100
++++ hardening-patch-4.4.2-0.4.12/TSRM/TSRM.h	2006-07-20 10:56:32.000000000 +0200
 @@ -33,6 +33,13 @@
  #	define TSRM_API
  #endif
@@ -5896,10 +6534,10 @@ diff -Nura php-4.4.2/TSRM/TSRM.h hardening-patch-4.4.2-0.4.8/TSRM/TSRM.h
  #ifdef __cplusplus
  extern "C" {
  #endif
-diff -Nura php-4.4.2/TSRM/tsrm_virtual_cwd.c hardening-patch-4.4.2-0.4.8/TSRM/tsrm_virtual_cwd.c
+diff -Nura php-4.4.2/TSRM/tsrm_virtual_cwd.c hardening-patch-4.4.2-0.4.12/TSRM/tsrm_virtual_cwd.c
 --- php-4.4.2/TSRM/tsrm_virtual_cwd.c	2006-01-01 14:46:48.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/TSRM/tsrm_virtual_cwd.c	2006-01-18 12:43:26.930205200 +0100
-@@ -179,6 +179,165 @@
++++ hardening-patch-4.4.2-0.4.12/TSRM/tsrm_virtual_cwd.c	2006-07-20 10:56:32.000000000 +0200
+@@ -179,6 +179,178 @@
      return p;
  }
  
@@ -5996,9 +6634,22 @@ diff -Nura php-4.4.2/TSRM/tsrm_virtual_cwd.c hardening-patch-4.4.2-0.4.8/TSRM/ts
 +                        return (NULL);
 +                }
 +                if (lstat(resolved, &sb) != 0) {
-+                        if (errno == ENOENT && p == NULL) {
-+                                errno = serrno;
-+                                return (resolved);
++                        if (errno == ENOENT) {
++				if (p == NULL) {
++                            		errno = serrno;
++                            		return (resolved);
++				} else 
++				/* dirty hack to support a vanilla PHP feature */
++				if (strstr(left, "/.") == NULL && strstr(left, "./") == NULL) {
++            				resolved_len = strlcat(resolved, "/", PATH_MAX);
++            				resolved_len = strlcat(resolved, left, PATH_MAX);
++            				if (resolved_len >= PATH_MAX) {
++                    				errno = ENAMETOOLONG;
++                    				return (NULL);
++            				}
++                            		errno = serrno;
++                            		return (resolved);
++				}
 +                        }
 +                        return (NULL);
 +                }
@@ -6065,7 +6716,7 @@ diff -Nura php-4.4.2/TSRM/tsrm_virtual_cwd.c hardening-patch-4.4.2-0.4.8/TSRM/ts
  CWD_API void virtual_cwd_startup(void)
  {
  	char cwd[MAXPATHLEN];
-@@ -300,8 +459,11 @@
+@@ -300,8 +472,11 @@
  
  	if (path_length == 0) 
  		return (0);
@@ -6078,7 +6729,7 @@ diff -Nura php-4.4.2/TSRM/tsrm_virtual_cwd.c hardening-patch-4.4.2-0.4.8/TSRM/ts
  
  #if !defined(TSRM_WIN32) && !defined(NETWARE)
  	/* cwd_length can be 0 when getcwd() fails.
-@@ -313,8 +475,9 @@
+@@ -313,8 +488,9 @@
  				path = resolved_path;
  				path_length = strlen(path);
  			} else {
@@ -6090,7 +6741,7 @@ diff -Nura php-4.4.2/TSRM/tsrm_virtual_cwd.c hardening-patch-4.4.2-0.4.8/TSRM/ts
  			}
  		}
  	} else { /* Concat current directory with relative path and then run realpath() on it */
-@@ -323,6 +486,8 @@
+@@ -323,6 +499,8 @@
  
  		ptr = tmp = (char *) malloc(state->cwd_length+path_length+sizeof("/"));
  		if (!tmp) {
@@ -6099,7 +6750,7 @@ diff -Nura php-4.4.2/TSRM/tsrm_virtual_cwd.c hardening-patch-4.4.2-0.4.8/TSRM/ts
  			return 1;
  		}
  		memcpy(ptr, state->cwd, state->cwd_length);
-@@ -332,6 +497,8 @@
+@@ -332,6 +510,8 @@
  		ptr += path_length;
  		*ptr = '\0';
  		if (strlen(tmp) >= MAXPATHLEN) {
@@ -6108,7 +6759,7 @@ diff -Nura php-4.4.2/TSRM/tsrm_virtual_cwd.c hardening-patch-4.4.2-0.4.8/TSRM/ts
  			free(tmp);
  			return 1;
  		}
-@@ -340,9 +507,10 @@
+@@ -340,9 +520,10 @@
  				path = resolved_path;
  				path_length = strlen(path);
  			} else {
@@ -6121,9 +6772,9 @@ diff -Nura php-4.4.2/TSRM/tsrm_virtual_cwd.c hardening-patch-4.4.2-0.4.8/TSRM/ts
  			}
  		}
  		free(tmp);
-diff -Nura php-4.4.2/TSRM/tsrm_virtual_cwd.h hardening-patch-4.4.2-0.4.8/TSRM/tsrm_virtual_cwd.h
+diff -Nura php-4.4.2/TSRM/tsrm_virtual_cwd.h hardening-patch-4.4.2-0.4.12/TSRM/tsrm_virtual_cwd.h
 --- php-4.4.2/TSRM/tsrm_virtual_cwd.h	2006-01-01 14:46:49.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/TSRM/tsrm_virtual_cwd.h	2006-01-18 12:43:26.931205048 +0100
++++ hardening-patch-4.4.2-0.4.12/TSRM/tsrm_virtual_cwd.h	2006-07-20 10:56:32.000000000 +0200
 @@ -128,6 +128,22 @@
  
  typedef int (*verify_path_func)(const cwd_state *);
@@ -6147,9 +6798,9 @@ diff -Nura php-4.4.2/TSRM/tsrm_virtual_cwd.h hardening-patch-4.4.2-0.4.8/TSRM/ts
  CWD_API void virtual_cwd_startup(void);
  CWD_API void virtual_cwd_shutdown(void);
  CWD_API char *virtual_getcwd_ex(size_t *length TSRMLS_DC);
-diff -Nura php-4.4.2/Zend/zend_alloc.c hardening-patch-4.4.2-0.4.8/Zend/zend_alloc.c
+diff -Nura php-4.4.2/Zend/zend_alloc.c hardening-patch-4.4.2-0.4.12/Zend/zend_alloc.c
 --- php-4.4.2/Zend/zend_alloc.c	2006-01-01 14:46:49.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/Zend/zend_alloc.c	2006-01-18 12:43:26.932204896 +0100
++++ hardening-patch-4.4.2-0.4.12/Zend/zend_alloc.c	2006-07-20 11:14:12.000000000 +0200
 @@ -56,6 +56,11 @@
  # define END_MAGIC_SIZE 0
  #endif
@@ -6162,7 +6813,24 @@ diff -Nura php-4.4.2/Zend/zend_alloc.c hardening-patch-4.4.2-0.4.8/Zend/zend_all
  
  # if MEMORY_LIMIT
  #  if ZEND_DEBUG
-@@ -96,9 +101,17 @@
+@@ -64,7 +69,15 @@
+ #define CHECK_MEMORY_LIMIT(s, rs)	_CHECK_MEMORY_LIMIT(s, rs, NULL, 0)
+ #  endif
+ 
+-#define _CHECK_MEMORY_LIMIT(s, rs, file, lineno) { AG(allocated_memory) += rs;\
++#define _CHECK_MEMORY_LIMIT(s, rs, file, lineno) { if ((ssize_t)(rs) > (ssize_t)(INT_MAX - AG(allocated_memory))) { \
++									if (file) { \
++										fprintf(stderr, "Integer overflow in memory_limit check detected at %s:%d\n", file, lineno); \
++									} else { \
++										fprintf(stderr, "Integer overflow in memory_limit check detected\n"); \
++									} \
++									exit(1); \
++								} \
++								AG(allocated_memory) += rs;\
+ 								if (AG(memory_limit)<AG(allocated_memory)) {\
+ 									int php_mem_limit = AG(memory_limit); \
+ 									AG(allocated_memory) -= rs; \
+@@ -96,9 +109,17 @@
  	if (p==AG(head)) {							\
  		AG(head) = p->pNext;					\
  	} else {									\
@@ -6180,7 +6848,21 @@ diff -Nura php-4.4.2/Zend/zend_alloc.c hardening-patch-4.4.2-0.4.8/Zend/zend_all
  		p->pNext->pLast = p->pLast;				\
  	}
  
-@@ -130,6 +143,12 @@
+@@ -111,7 +132,7 @@
+ 	p->pLast = (zend_mem_header *) NULL;
+ 
+ #define DECLARE_CACHE_VARS()	\
+-	unsigned int real_size;		\
++	size_t real_size;		\
+ 	unsigned int cache_index
+ 
+ #define REAL_SIZE(size) ((size+7) & ~0x7)
+@@ -126,12 +147,22 @@
+ 
+ ZEND_API void *_emalloc(size_t size ZEND_FILE_LINE_DC ZEND_FILE_LINE_ORIG_DC)
+ {
+-	zend_mem_header *p;
++	zend_mem_header *p = NULL;
  	DECLARE_CACHE_VARS();
  	TSRMLS_FETCH();
  
@@ -6192,8 +6874,14 @@ diff -Nura php-4.4.2/Zend/zend_alloc.c hardening-patch-4.4.2-0.4.8/Zend/zend_all
 +#endif
  	CALCULATE_REAL_SIZE_AND_CACHE_INDEX(size);
  
++	if (size > INT_MAX || SIZE < size) {
++		goto emalloc_error;
++	}
++
  	if (!ZEND_DISABLE_MEMORY_CACHE && (CACHE_INDEX < MAX_CACHED_MEMORY) && (AG(cache_count)[CACHE_INDEX] > 0)) {
-@@ -147,6 +166,10 @@
+ 		p = AG(cache)[CACHE_INDEX][--AG(cache_count)[CACHE_INDEX]];
+ #if ZEND_DEBUG
+@@ -147,6 +178,10 @@
  		AG(cache_stats)[CACHE_INDEX][1]++;
  		memcpy((((char *) p) + sizeof(zend_mem_header) + MEM_HEADER_PADDING + size), &mem_block_end_magic, sizeof(long));
  #endif
@@ -6204,7 +6892,7 @@ diff -Nura php-4.4.2/Zend/zend_alloc.c hardening-patch-4.4.2-0.4.8/Zend/zend_all
  		p->cached = 0;
  		p->size = size;
  		return (void *)((char *)p + sizeof(zend_mem_header) + MEM_HEADER_PADDING);
-@@ -162,7 +185,7 @@
+@@ -162,9 +197,11 @@
  			AG(allocated_memory_peak) = AG(allocated_memory);
  		}
  #endif
@@ -6212,8 +6900,12 @@ diff -Nura php-4.4.2/Zend/zend_alloc.c hardening-patch-4.4.2-0.4.8/Zend/zend_all
 +		p  = (zend_mem_header *) ZEND_DO_MALLOC(sizeof(zend_mem_header) + MEM_HEADER_PADDING + SIZE + END_MAGIC_SIZE + CANARY_SIZE);
  	}
  
++emalloc_error:
++
  	HANDLE_BLOCK_INTERRUPTIONS();
-@@ -192,7 +215,10 @@
+ 
+ 	if (!p) {
+@@ -192,7 +229,10 @@
  # endif
  	memcpy((((char *) p) + sizeof(zend_mem_header) + MEM_HEADER_PADDING + size), &mem_block_end_magic, sizeof(long));
  #endif
@@ -6225,7 +6917,7 @@ diff -Nura php-4.4.2/Zend/zend_alloc.c hardening-patch-4.4.2-0.4.8/Zend/zend_all
  	HANDLE_UNBLOCK_INTERRUPTIONS();
  	return (void *)((char *)p + sizeof(zend_mem_header) + MEM_HEADER_PADDING);
  }
-@@ -219,17 +245,36 @@
+@@ -219,17 +259,36 @@
  			return emalloc_rel(lval + offset);
  		}
  	}
@@ -6263,7 +6955,7 @@ diff -Nura php-4.4.2/Zend/zend_alloc.c hardening-patch-4.4.2-0.4.8/Zend/zend_all
  #if defined(ZTS) && TSRM_DEBUG
  	if (p->thread_id != tsrm_thread_id()) {
  		tsrm_error(TSRM_ERROR_LEVEL_ERROR, "Memory block allocated at %s:(%d) on thread %x freed at %s:(%d) on thread %x, ignoring",
-@@ -274,6 +319,9 @@
+@@ -274,6 +333,9 @@
  	size_t _size = nmemb * size;
      
  	if (nmemb && (_size/nmemb!=size)) {
@@ -6273,7 +6965,7 @@ diff -Nura php-4.4.2/Zend/zend_alloc.c hardening-patch-4.4.2-0.4.8/Zend/zend_all
  		fprintf(stderr,"FATAL:  ecalloc():  Unable to allocate %ld * %ld bytes\n", (long) nmemb, (long) size);
  #if ZEND_DEBUG && HAVE_KILL && HAVE_GETPID
  		kill(getpid(), SIGSEGV);
-@@ -293,6 +341,9 @@
+@@ -293,6 +355,9 @@
  
  ZEND_API void *_erealloc(void *ptr, size_t size, int allow_failure ZEND_FILE_LINE_DC ZEND_FILE_LINE_ORIG_DC)
  {
@@ -6283,7 +6975,7 @@ diff -Nura php-4.4.2/Zend/zend_alloc.c hardening-patch-4.4.2-0.4.8/Zend/zend_all
  	zend_mem_header *p;
  	zend_mem_header *orig;
  	DECLARE_CACHE_VARS();
-@@ -304,6 +355,16 @@
+@@ -304,6 +369,16 @@
  
  	p = orig = (zend_mem_header *) ((char *)ptr-sizeof(zend_mem_header)-MEM_HEADER_PADDING);
  
@@ -6300,16 +6992,31 @@ diff -Nura php-4.4.2/Zend/zend_alloc.c hardening-patch-4.4.2-0.4.8/Zend/zend_all
  #if defined(ZTS) && TSRM_DEBUG
  	if (p->thread_id != tsrm_thread_id()) {
  		void *new_p;
-@@ -327,7 +388,7 @@
+@@ -320,6 +395,13 @@
+ 	CALCULATE_REAL_SIZE_AND_CACHE_INDEX(size);
+ 
+ 	HANDLE_BLOCK_INTERRUPTIONS();
++
++	if (size > INT_MAX || SIZE < size) {
++		REMOVE_POINTER_FROM_LIST(p);
++		p = NULL;
++		goto erealloc_error;
++	}
++
+ #if MEMORY_LIMIT
+ 	CHECK_MEMORY_LIMIT(size - p->size, SIZE - REAL_SIZE(p->size));
+ 	if (AG(allocated_memory) > AG(allocated_memory_peak)) {
+@@ -327,7 +409,8 @@
  	}
  #endif
  	REMOVE_POINTER_FROM_LIST(p);
 -	p = (zend_mem_header *) ZEND_DO_REALLOC(p, sizeof(zend_mem_header)+MEM_HEADER_PADDING+SIZE+END_MAGIC_SIZE);
 +	p = (zend_mem_header *) ZEND_DO_REALLOC(p, sizeof(zend_mem_header)+MEM_HEADER_PADDING+SIZE+END_MAGIC_SIZE+CANARY_SIZE);
++erealloc_error:
  	if (!p) {
  		if (!allow_failure) {
  			fprintf(stderr,"FATAL:  erealloc():  Unable to allocate %ld bytes\n", (long) size);
-@@ -349,6 +410,9 @@
+@@ -349,6 +432,9 @@
  	memcpy((((char *) p) + sizeof(zend_mem_header) + MEM_HEADER_PADDING + size), &mem_block_end_magic, sizeof(long));
  #endif	
  
@@ -6319,7 +7026,7 @@ diff -Nura php-4.4.2/Zend/zend_alloc.c hardening-patch-4.4.2-0.4.8/Zend/zend_all
  	p->size = size;
  
  	HANDLE_UNBLOCK_INTERRUPTIONS();
-@@ -423,6 +487,10 @@
+@@ -423,6 +509,10 @@
  {
  	AG(head) = NULL;
  	
@@ -6330,9 +7037,9 @@ diff -Nura php-4.4.2/Zend/zend_alloc.c hardening-patch-4.4.2-0.4.8/Zend/zend_all
  #if MEMORY_LIMIT
  	AG(memory_limit) = 1<<30;		/* ridiculous limit, effectively no limit */
  	AG(allocated_memory) = 0;
-diff -Nura php-4.4.2/Zend/zend_alloc.h hardening-patch-4.4.2-0.4.8/Zend/zend_alloc.h
+diff -Nura php-4.4.2/Zend/zend_alloc.h hardening-patch-4.4.2-0.4.12/Zend/zend_alloc.h
 --- php-4.4.2/Zend/zend_alloc.h	2006-01-01 14:46:49.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/Zend/zend_alloc.h	2006-01-18 12:43:26.932204896 +0100
++++ hardening-patch-4.4.2-0.4.12/Zend/zend_alloc.h	2006-07-20 10:56:32.000000000 +0200
 @@ -32,6 +32,9 @@
  #define MEM_BLOCK_CACHED_MAGIC	0xFB8277DCL
  
@@ -6343,9 +7050,9 @@ diff -Nura php-4.4.2/Zend/zend_alloc.h hardening-patch-4.4.2-0.4.8/Zend/zend_all
  #if ZEND_DEBUG
  	long magic;
  	char *filename;
-diff -Nura php-4.4.2/Zend/zend_builtin_functions.c hardening-patch-4.4.2-0.4.8/Zend/zend_builtin_functions.c
+diff -Nura php-4.4.2/Zend/zend_builtin_functions.c hardening-patch-4.4.2-0.4.12/Zend/zend_builtin_functions.c
 --- php-4.4.2/Zend/zend_builtin_functions.c	2006-01-01 14:46:49.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/Zend/zend_builtin_functions.c	2006-01-18 12:43:26.933204744 +0100
++++ hardening-patch-4.4.2-0.4.12/Zend/zend_builtin_functions.c	2006-07-20 10:56:32.000000000 +0200
 @@ -49,6 +49,9 @@
  static ZEND_FUNCTION(crash);
  #endif
@@ -6386,9 +7093,9 @@ diff -Nura php-4.4.2/Zend/zend_builtin_functions.c hardening-patch-4.4.2-0.4.8/Z
  /* {{{ proto array get_included_files(void)
     Returns an array with the file names that were include_once()'d */
  ZEND_FUNCTION(get_included_files)
-diff -Nura php-4.4.2/Zend/zend.c hardening-patch-4.4.2-0.4.8/Zend/zend.c
+diff -Nura php-4.4.2/Zend/zend.c hardening-patch-4.4.2-0.4.12/Zend/zend.c
 --- php-4.4.2/Zend/zend.c	2006-01-01 14:46:49.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/Zend/zend.c	2006-01-18 12:43:26.934204592 +0100
++++ hardening-patch-4.4.2-0.4.12/Zend/zend.c	2006-07-20 12:20:49.000000000 +0200
 @@ -53,6 +53,12 @@
  ZEND_API void (*zend_unblock_interruptions)(void);
  ZEND_API void (*zend_ticks_function)(int ticks);
@@ -6402,7 +7109,7 @@ diff -Nura php-4.4.2/Zend/zend.c hardening-patch-4.4.2-0.4.8/Zend/zend.c
  
  void (*zend_on_timeout)(int seconds TSRMLS_DC);
  
-@@ -70,9 +76,390 @@
+@@ -70,9 +76,391 @@
  	return SUCCESS;
  }
  
@@ -6789,11 +7496,12 @@ diff -Nura php-4.4.2/Zend/zend.c hardening-patch-4.4.2-0.4.8/Zend/zend.c
 +	STD_ZEND_INI_ENTRY("hphp.executor.max_depth",		"0",		ZEND_INI_PERDIR|ZEND_INI_SYSTEM,	OnUpdateLong, hphp_executor_max_depth, zend_executor_globals, executor_globals)
 +	STD_ZEND_INI_BOOLEAN("hphp.sql.bailout_on_error",	"0",		ZEND_INI_PERDIR|ZEND_INI_SYSTEM,	OnUpdateBool, hphp_sql_bailout_on_error,	hardened_globals_struct,	hardened_globals)
 +	STD_ZEND_INI_BOOLEAN("hphp.multiheader",		"0",		ZEND_INI_PERDIR|ZEND_INI_SYSTEM,	OnUpdateBool, hphp_multiheader,	hardened_globals_struct,	hardened_globals)
++	STD_ZEND_INI_ENTRY("hphp.mail.protect",		"0",		ZEND_INI_PERDIR|ZEND_INI_SYSTEM,	OnUpdateLong, hphp_mailprotect,	hardened_globals_struct,	hardened_globals)
 +#endif
  ZEND_INI_END()
  
  
-@@ -354,8 +741,12 @@
+@@ -354,8 +742,12 @@
  	zend_init_rsrc_plist(TSRMLS_C);
  	EG(lambda_count)=0;
  	EG(user_error_handler) = NULL;
@@ -6806,7 +7514,7 @@ diff -Nura php-4.4.2/Zend/zend.c hardening-patch-4.4.2-0.4.8/Zend/zend.c
  }
  
  
-@@ -420,6 +811,14 @@
+@@ -420,6 +812,14 @@
  	extern zend_scanner_globals language_scanner_globals;
  #endif
  
@@ -6821,7 +7529,7 @@ diff -Nura php-4.4.2/Zend/zend.c hardening-patch-4.4.2-0.4.8/Zend/zend.c
  #ifdef ZTS
  	ts_allocate_id(&alloc_globals_id, sizeof(zend_alloc_globals), (ts_allocate_ctor) alloc_globals_ctor, (ts_allocate_dtor) alloc_globals_dtor);
  #else
-@@ -619,6 +1018,7 @@
+@@ -619,6 +1019,7 @@
  	}
  	CG(unclean_shutdown) = 1;
  	CG(in_compilation) = EG(in_execution) = 0;
@@ -6829,9 +7537,9 @@ diff -Nura php-4.4.2/Zend/zend.c hardening-patch-4.4.2-0.4.8/Zend/zend.c
  	EG(current_execute_data) = NULL;
  	longjmp(EG(bailout), FAILURE);
  }
-diff -Nura php-4.4.2/Zend/zend_canary.c hardening-patch-4.4.2-0.4.8/Zend/zend_canary.c
+diff -Nura php-4.4.2/Zend/zend_canary.c hardening-patch-4.4.2-0.4.12/Zend/zend_canary.c
 --- php-4.4.2/Zend/zend_canary.c	1970-01-01 01:00:00.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/Zend/zend_canary.c	2006-01-18 12:43:26.935204440 +0100
++++ hardening-patch-4.4.2-0.4.12/Zend/zend_canary.c	2006-07-20 10:56:32.000000000 +0200
 @@ -0,0 +1,58 @@
 +/*
 +   +----------------------------------------------------------------------+
@@ -6891,9 +7599,9 @@ diff -Nura php-4.4.2/Zend/zend_canary.c hardening-patch-4.4.2-0.4.8/Zend/zend_ca
 + * vim600: sw=4 ts=4 fdm=marker
 + * vim<600: sw=4 ts=4
 + */
-diff -Nura php-4.4.2/Zend/zend_compile.c hardening-patch-4.4.2-0.4.8/Zend/zend_compile.c
+diff -Nura php-4.4.2/Zend/zend_compile.c hardening-patch-4.4.2-0.4.12/Zend/zend_compile.c
 --- php-4.4.2/Zend/zend_compile.c	2006-01-01 14:46:49.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/Zend/zend_compile.c	2006-01-18 12:43:26.936204288 +0100
++++ hardening-patch-4.4.2-0.4.12/Zend/zend_compile.c	2006-07-20 10:56:32.000000000 +0200
 @@ -768,6 +768,13 @@
  	op_array.function_name = name;
  	op_array.arg_types = NULL;
@@ -6908,9 +7616,9 @@ diff -Nura php-4.4.2/Zend/zend_compile.c hardening-patch-4.4.2-0.4.8/Zend/zend_c
  
  	if (is_method) {
  		if (zend_hash_add(&CG(active_class_entry)->function_table, name, name_len+1, &op_array, sizeof(zend_op_array), (void **) &CG(active_op_array)) == FAILURE) {
-diff -Nura php-4.4.2/Zend/zend_compile.h hardening-patch-4.4.2-0.4.8/Zend/zend_compile.h
+diff -Nura php-4.4.2/Zend/zend_compile.h hardening-patch-4.4.2-0.4.12/Zend/zend_compile.h
 --- php-4.4.2/Zend/zend_compile.h	2006-01-01 14:46:49.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/Zend/zend_compile.h	2006-01-18 12:43:26.937204136 +0100
++++ hardening-patch-4.4.2-0.4.12/Zend/zend_compile.h	2006-07-20 10:56:32.000000000 +0200
 @@ -106,6 +106,9 @@
  	char *filename;
  
@@ -6929,10 +7637,10 @@ diff -Nura php-4.4.2/Zend/zend_compile.h hardening-patch-4.4.2-0.4.8/Zend/zend_c
  
  #define ZEND_INTERNAL_CLASS		1
  #define ZEND_USER_CLASS			2
-diff -Nura php-4.4.2/Zend/zend_constants.c hardening-patch-4.4.2-0.4.8/Zend/zend_constants.c
+diff -Nura php-4.4.2/Zend/zend_constants.c hardening-patch-4.4.2-0.4.12/Zend/zend_constants.c
 --- php-4.4.2/Zend/zend_constants.c	2006-01-01 14:46:49.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/Zend/zend_constants.c	2006-01-18 12:43:26.938203984 +0100
-@@ -111,6 +111,73 @@
++++ hardening-patch-4.4.2-0.4.12/Zend/zend_constants.c	2006-07-20 11:37:23.000000000 +0200
+@@ -111,6 +111,74 @@
  	REGISTER_MAIN_LONG_CONSTANT("E_USER_NOTICE", E_USER_NOTICE, CONST_PERSISTENT | CONST_CS);
  
  	REGISTER_MAIN_LONG_CONSTANT("E_ALL", E_ALL, CONST_PERSISTENT | CONST_CS);
@@ -6943,6 +7651,7 @@ diff -Nura php-4.4.2/Zend/zend_constants.c hardening-patch-4.4.2-0.4.8/Zend/zend
 +	REGISTER_MAIN_LONG_CONSTANT("S_INCLUDE", S_INCLUDE, CONST_PERSISTENT | CONST_CS);
 +	REGISTER_MAIN_LONG_CONSTANT("S_SQL", S_SQL, CONST_PERSISTENT | CONST_CS);
 +	REGISTER_MAIN_LONG_CONSTANT("S_EXECUTOR", S_EXECUTOR, CONST_PERSISTENT | CONST_CS);
++	REGISTER_MAIN_LONG_CONSTANT("S_MAIL", S_MAIL, CONST_PERSISTENT | CONST_CS);
 +	REGISTER_MAIN_LONG_CONSTANT("S_MISC", S_MISC, CONST_PERSISTENT | CONST_CS);
 +	REGISTER_MAIN_LONG_CONSTANT("S_INTERNAL", S_INTERNAL, CONST_PERSISTENT | CONST_CS);
 +	REGISTER_MAIN_LONG_CONSTANT("S_ALL", S_ALL, CONST_PERSISTENT | CONST_CS);
@@ -7006,10 +7715,10 @@ diff -Nura php-4.4.2/Zend/zend_constants.c hardening-patch-4.4.2-0.4.8/Zend/zend
  
  	/* true/false constants */
  	{
-diff -Nura php-4.4.2/Zend/zend_errors.h hardening-patch-4.4.2-0.4.8/Zend/zend_errors.h
+diff -Nura php-4.4.2/Zend/zend_errors.h hardening-patch-4.4.2-0.4.12/Zend/zend_errors.h
 --- php-4.4.2/Zend/zend_errors.h	2006-01-01 14:46:49.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/Zend/zend_errors.h	2006-01-18 12:43:26.938203984 +0100
-@@ -36,5 +36,17 @@
++++ hardening-patch-4.4.2-0.4.12/Zend/zend_errors.h	2006-07-20 12:07:53.000000000 +0200
+@@ -36,5 +36,18 @@
  #define E_ALL (E_ERROR | E_WARNING | E_PARSE | E_NOTICE | E_CORE_ERROR | E_CORE_WARNING | E_COMPILE_ERROR | E_COMPILE_WARNING | E_USER_ERROR | E_USER_WARNING | E_USER_NOTICE)
  #define E_CORE (E_CORE_ERROR | E_CORE_WARNING)
  
@@ -7020,16 +7729,17 @@ diff -Nura php-4.4.2/Zend/zend_errors.h hardening-patch-4.4.2-0.4.8/Zend/zend_er
 +#define S_INCLUDE			(1<<3L)
 +#define S_SQL				(1<<4L)
 +#define S_EXECUTOR			(1<<5L)
++#define S_MAIL				(1<<6L)
 +#define S_MISC				(1<<30L)
 +#define S_INTERNAL			(1<<29L)
-+#define S_ALL (S_MEMORY | S_VARS | S_INCLUDE | S_FILES | S_MISC | S_SQL | S_EXECUTOR)
++#define S_ALL (S_MEMORY | S_VARS | S_INCLUDE | S_FILES | S_MAIL | S_MISC | S_SQL | S_EXECUTOR)
 +#endif
 +
  #endif /* ZEND_ERRORS_H */
  
-diff -Nura php-4.4.2/Zend/zend_execute_API.c hardening-patch-4.4.2-0.4.8/Zend/zend_execute_API.c
+diff -Nura php-4.4.2/Zend/zend_execute_API.c hardening-patch-4.4.2-0.4.12/Zend/zend_execute_API.c
 --- php-4.4.2/Zend/zend_execute_API.c	2006-01-01 14:46:49.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/Zend/zend_execute_API.c	2006-01-18 12:43:26.939203832 +0100
++++ hardening-patch-4.4.2-0.4.12/Zend/zend_execute_API.c	2006-07-20 10:56:32.000000000 +0200
 @@ -142,6 +142,7 @@
  	EG(class_table) = CG(class_table);
  
@@ -7122,9 +7832,9 @@ diff -Nura php-4.4.2/Zend/zend_execute_API.c hardening-patch-4.4.2-0.4.8/Zend/ze
  
  void execute_new_code(TSRMLS_D)
  {
-diff -Nura php-4.4.2/Zend/zend_execute.c hardening-patch-4.4.2-0.4.8/Zend/zend_execute.c
+diff -Nura php-4.4.2/Zend/zend_execute.c hardening-patch-4.4.2-0.4.12/Zend/zend_execute.c
 --- php-4.4.2/Zend/zend_execute.c	2006-01-01 14:46:49.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/Zend/zend_execute.c	2006-01-18 12:43:26.940203680 +0100
++++ hardening-patch-4.4.2-0.4.12/Zend/zend_execute.c	2006-07-20 10:56:32.000000000 +0200
 @@ -1042,6 +1042,7 @@
  	zend_execute_data execute_data;
  
@@ -7281,9 +7991,9 @@ diff -Nura php-4.4.2/Zend/zend_execute.c hardening-patch-4.4.2-0.4.8/Zend/zend_e
  							new_op_array = compile_filename(EX(opline)->op2.u.constant.value.lval, inc_filename TSRMLS_CC);
  							break;
  						case ZEND_EVAL: {
-diff -Nura php-4.4.2/Zend/zend_execute_globals.h hardening-patch-4.4.2-0.4.8/Zend/zend_execute_globals.h
+diff -Nura php-4.4.2/Zend/zend_execute_globals.h hardening-patch-4.4.2-0.4.12/Zend/zend_execute_globals.h
 --- php-4.4.2/Zend/zend_execute_globals.h	2006-01-01 14:46:49.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/Zend/zend_execute_globals.h	2006-01-18 12:43:26.941203528 +0100
++++ hardening-patch-4.4.2-0.4.12/Zend/zend_execute_globals.h	2006-07-20 10:56:32.000000000 +0200
 @@ -60,6 +60,8 @@
  	object_info object;
  	temp_variable *Ts;
@@ -7293,9 +8003,9 @@ diff -Nura php-4.4.2/Zend/zend_execute_globals.h hardening-patch-4.4.2-0.4.8/Zen
  	zend_op_array *op_array;
  	struct  _zend_execute_data *prev_execute_data;
  } zend_execute_data;
-diff -Nura php-4.4.2/Zend/zend_extensions.c hardening-patch-4.4.2-0.4.8/Zend/zend_extensions.c
+diff -Nura php-4.4.2/Zend/zend_extensions.c hardening-patch-4.4.2-0.4.12/Zend/zend_extensions.c
 --- php-4.4.2/Zend/zend_extensions.c	2006-01-01 14:46:49.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/Zend/zend_extensions.c	2006-01-18 12:43:26.941203528 +0100
++++ hardening-patch-4.4.2-0.4.12/Zend/zend_extensions.c	2006-07-20 10:56:32.000000000 +0200
 @@ -54,23 +54,44 @@
  		return FAILURE;
  	}
@@ -7346,9 +8056,9 @@ diff -Nura php-4.4.2/Zend/zend_extensions.c hardening-patch-4.4.2-0.4.8/Zend/zen
  					ZEND_EXTENSION_API_NO,
  					new_extension->author,
  					new_extension->URL,
-diff -Nura php-4.4.2/Zend/zend_extensions.h hardening-patch-4.4.2-0.4.8/Zend/zend_extensions.h
+diff -Nura php-4.4.2/Zend/zend_extensions.h hardening-patch-4.4.2-0.4.12/Zend/zend_extensions.h
 --- php-4.4.2/Zend/zend_extensions.h	2006-01-01 14:46:49.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/Zend/zend_extensions.h	2006-01-18 12:43:26.942203376 +0100
++++ hardening-patch-4.4.2-0.4.12/Zend/zend_extensions.h	2006-07-20 10:56:32.000000000 +0200
 @@ -23,6 +23,9 @@
  
  #include "zend_compile.h"
@@ -7376,9 +8086,9 @@ diff -Nura php-4.4.2/Zend/zend_extensions.h hardening-patch-4.4.2-0.4.8/Zend/zen
  
  #define STANDARD_ZEND_EXTENSION_PROPERTIES NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, -1
  #define COMPAT_ZEND_EXTENSION_PROPERTIES   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, -1
-diff -Nura php-4.4.2/Zend/zend_globals.h hardening-patch-4.4.2-0.4.8/Zend/zend_globals.h
+diff -Nura php-4.4.2/Zend/zend_globals.h hardening-patch-4.4.2-0.4.12/Zend/zend_globals.h
 --- php-4.4.2/Zend/zend_globals.h	2006-01-01 14:46:49.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/Zend/zend_globals.h	2006-01-18 12:43:26.942203376 +0100
++++ hardening-patch-4.4.2-0.4.12/Zend/zend_globals.h	2006-07-20 10:56:32.000000000 +0200
 @@ -163,6 +163,16 @@
  
  	int error_reporting;
@@ -7404,9 +8114,9 @@ diff -Nura php-4.4.2/Zend/zend_globals.h hardening-patch-4.4.2-0.4.8/Zend/zend_g
  	zend_bool bailout_set;
  	zend_bool full_tables_cleanup;
  
-diff -Nura php-4.4.2/Zend/zend.h hardening-patch-4.4.2-0.4.8/Zend/zend.h
+diff -Nura php-4.4.2/Zend/zend.h hardening-patch-4.4.2-0.4.12/Zend/zend.h
 --- php-4.4.2/Zend/zend.h	2006-01-01 14:46:49.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/Zend/zend.h	2006-01-18 12:43:26.943203224 +0100
++++ hardening-patch-4.4.2-0.4.12/Zend/zend.h	2006-07-20 10:56:32.000000000 +0200
 @@ -274,9 +274,10 @@
  struct _zval_struct {
  	/* Variable information */
@@ -7461,9 +8171,9 @@ diff -Nura php-4.4.2/Zend/zend.h hardening-patch-4.4.2-0.4.8/Zend/zend.h
  #endif /* ZEND_H */
  
  /*
-diff -Nura php-4.4.2/Zend/zend_hash.c hardening-patch-4.4.2-0.4.8/Zend/zend_hash.c
+diff -Nura php-4.4.2/Zend/zend_hash.c hardening-patch-4.4.2-0.4.12/Zend/zend_hash.c
 --- php-4.4.2/Zend/zend_hash.c	2006-01-01 14:46:49.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/Zend/zend_hash.c	2006-01-18 12:43:26.944203072 +0100
++++ hardening-patch-4.4.2-0.4.12/Zend/zend_hash.c	2006-07-20 10:56:32.000000000 +0200
 @@ -26,6 +26,17 @@
  # include <stdlib.h>
  #endif
@@ -7553,7 +8263,28 @@ diff -Nura php-4.4.2/Zend/zend_hash.c hardening-patch-4.4.2-0.4.8/Zend/zend_hash
  		return FAILURE;
  	}
  	return SUCCESS;
-@@ -524,6 +555,9 @@
+@@ -491,15 +522,17 @@
+ 	IS_CONSISTENT(ht);
+ 
+ 	if (flag == HASH_DEL_KEY) {
+-		HANDLE_NUMERIC(arKey, nKeyLength, zend_hash_del_key_or_index(ht, arKey, nKeyLength, idx, HASH_DEL_INDEX));
++		HANDLE_NUMERIC(arKey, nKeyLength, zend_hash_del_key_or_index(ht, NULL, 0, idx, HASH_DEL_INDEX));
+ 		h = zend_inline_hash_func(arKey, nKeyLength);
+ 	}
+ 	nIndex = h & ht->nTableMask;
+ 
+ 	p = ht->arBuckets[nIndex];
+ 	while (p != NULL) {
+-		if ((p->h == h) && ((p->nKeyLength == 0) || /* Numeric index */
+-			((p->nKeyLength == nKeyLength) && (!memcmp(p->arKey, arKey, nKeyLength))))) {
++		if ((p->h == h) 
++			 && (p->nKeyLength == nKeyLength)
++			 && ((p->nKeyLength == 0) /* Numeric index (short circuits the memcmp() check) */
++				 || !memcmp(p->arKey, arKey, nKeyLength))) { /* String index */
+ 			HANDLE_BLOCK_INTERRUPTIONS();
+ 			if (p == ht->arBuckets[nIndex]) {
+ 				ht->arBuckets[nIndex] = p->pNext;
+@@ -524,6 +557,9 @@
  				ht->pInternalPointer = p->pListNext;
  			}
  			if (ht->pDestructor) {
@@ -7563,7 +8294,7 @@ diff -Nura php-4.4.2/Zend/zend_hash.c hardening-patch-4.4.2-0.4.8/Zend/zend_hash
  				ht->pDestructor(p->pData);
  			}
  			if (!p->pDataPtr) {
-@@ -553,6 +587,9 @@
+@@ -553,6 +589,9 @@
  		q = p;
  		p = p->pListNext;
  		if (ht->pDestructor) {
@@ -7573,7 +8304,7 @@ diff -Nura php-4.4.2/Zend/zend_hash.c hardening-patch-4.4.2-0.4.8/Zend/zend_hash
  			ht->pDestructor(q->pData);
  		}
  		if (!q->pDataPtr && q->pData) {
-@@ -579,6 +616,9 @@
+@@ -579,6 +618,9 @@
  		q = p;
  		p = p->pListNext;
  		if (ht->pDestructor) {
@@ -7583,7 +8314,7 @@ diff -Nura php-4.4.2/Zend/zend_hash.c hardening-patch-4.4.2-0.4.8/Zend/zend_hash
  			ht->pDestructor(q->pData);
  		}
  		if (!q->pDataPtr && q->pData) {
-@@ -608,6 +648,9 @@
+@@ -608,6 +650,9 @@
  	HANDLE_BLOCK_INTERRUPTIONS();
  
  	if (ht->pDestructor) {
@@ -7593,9 +8324,9 @@ diff -Nura php-4.4.2/Zend/zend_hash.c hardening-patch-4.4.2-0.4.8/Zend/zend_hash
  		ht->pDestructor(p->pData);
  	}
  	if (!p->pDataPtr) {
-diff -Nura php-4.4.2/Zend/zend_hash.h hardening-patch-4.4.2-0.4.8/Zend/zend_hash.h
+diff -Nura php-4.4.2/Zend/zend_hash.h hardening-patch-4.4.2-0.4.12/Zend/zend_hash.h
 --- php-4.4.2/Zend/zend_hash.h	2006-01-01 14:46:49.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/Zend/zend_hash.h	2006-01-18 12:43:26.944203072 +0100
++++ hardening-patch-4.4.2-0.4.12/Zend/zend_hash.h	2006-07-20 10:56:32.000000000 +0200
 @@ -54,6 +54,9 @@
  } Bucket;
  
@@ -7606,9 +8337,9 @@ diff -Nura php-4.4.2/Zend/zend_hash.h hardening-patch-4.4.2-0.4.8/Zend/zend_hash
  	uint nTableSize;
  	uint nTableMask;
  	uint nNumOfElements;
-diff -Nura php-4.4.2/Zend/zend_ini.h hardening-patch-4.4.2-0.4.8/Zend/zend_ini.h
+diff -Nura php-4.4.2/Zend/zend_ini.h hardening-patch-4.4.2-0.4.12/Zend/zend_ini.h
 --- php-4.4.2/Zend/zend_ini.h	2005-01-09 18:00:16.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/Zend/zend_ini.h	2006-01-18 12:43:26.945202920 +0100
++++ hardening-patch-4.4.2-0.4.12/Zend/zend_ini.h	2006-07-20 10:56:32.000000000 +0200
 @@ -174,6 +174,7 @@
  /* Standard message handlers */
  BEGIN_EXTERN_C()
@@ -7617,9 +8348,9 @@ diff -Nura php-4.4.2/Zend/zend_ini.h hardening-patch-4.4.2-0.4.8/Zend/zend_ini.h
  ZEND_API ZEND_INI_MH(OnUpdateInt);
  ZEND_API ZEND_INI_MH(OnUpdateReal);
  ZEND_API ZEND_INI_MH(OnUpdateString);
-diff -Nura php-4.4.2/Zend/zend_language_scanner.l hardening-patch-4.4.2-0.4.8/Zend/zend_language_scanner.l
+diff -Nura php-4.4.2/Zend/zend_language_scanner.l hardening-patch-4.4.2-0.4.12/Zend/zend_language_scanner.l
 --- php-4.4.2/Zend/zend_language_scanner.l	2006-01-01 14:46:49.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/Zend/zend_language_scanner.l	2006-01-18 12:43:26.946202768 +0100
++++ hardening-patch-4.4.2-0.4.12/Zend/zend_language_scanner.l	2006-07-20 10:56:32.000000000 +0200
 @@ -393,6 +393,13 @@
  		compilation_successful=0;
  	} else {
@@ -7634,9 +8365,9 @@ diff -Nura php-4.4.2/Zend/zend_language_scanner.l hardening-patch-4.4.2-0.4.8/Ze
  		CG(in_compilation) = 1;
  		CG(active_op_array) = op_array;
  		compiler_result = zendparse(TSRMLS_C);
-diff -Nura php-4.4.2/Zend/zend_language_scanner.c hardening-patch-4.4.2-0.4.8/Zend/zend_language_scanner.c
+diff -Nura php-4.4.2/Zend/zend_language_scanner.c hardening-patch-4.4.2-0.4.12/Zend/zend_language_scanner.c
 --- php-4.4.2/Zend/zend_language_scanner.c	2006-01-12 19:24:28.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/Zend/zend_language_scanner.c	2006-01-18 12:43:26.949202312 +0100
++++ hardening-patch-4.4.2-0.4.12/Zend/zend_language_scanner.c	2006-07-20 10:56:32.000000000 +0200
 @@ -3036,6 +3036,13 @@
  		compilation_successful=0;
  	} else {
@@ -7651,9 +8382,9 @@ diff -Nura php-4.4.2/Zend/zend_language_scanner.c hardening-patch-4.4.2-0.4.8/Ze
  		CG(in_compilation) = 1;
  		CG(active_op_array) = op_array;
  		compiler_result = zendparse(TSRMLS_C);
-diff -Nura php-4.4.2/Zend/zend_llist.c hardening-patch-4.4.2-0.4.8/Zend/zend_llist.c
+diff -Nura php-4.4.2/Zend/zend_llist.c hardening-patch-4.4.2-0.4.12/Zend/zend_llist.c
 --- php-4.4.2/Zend/zend_llist.c	2006-01-01 14:46:49.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/Zend/zend_llist.c	2006-01-18 12:43:26.950202160 +0100
++++ hardening-patch-4.4.2-0.4.12/Zend/zend_llist.c	2006-07-20 10:56:32.000000000 +0200
 @@ -21,9 +21,49 @@
  #include "zend.h"
  #include "zend_llist.h"
@@ -7964,9 +8695,9 @@ diff -Nura php-4.4.2/Zend/zend_llist.c hardening-patch-4.4.2-0.4.8/Zend/zend_lli
  			return (*current)->data;
  		}
  	}
-diff -Nura php-4.4.2/Zend/zend_llist.h hardening-patch-4.4.2-0.4.8/Zend/zend_llist.h
+diff -Nura php-4.4.2/Zend/zend_llist.h hardening-patch-4.4.2-0.4.12/Zend/zend_llist.h
 --- php-4.4.2/Zend/zend_llist.h	2006-01-01 14:46:49.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/Zend/zend_llist.h	2006-01-18 12:43:26.951202008 +0100
++++ hardening-patch-4.4.2-0.4.12/Zend/zend_llist.h	2006-07-20 10:56:32.000000000 +0200
 @@ -24,6 +24,9 @@
  #include <stdlib.h>
  
@@ -7997,9 +8728,9 @@ diff -Nura php-4.4.2/Zend/zend_llist.h hardening-patch-4.4.2-0.4.8/Zend/zend_lli
  } zend_llist;
  
  typedef zend_llist_element* zend_llist_position;
-diff -Nura php-4.4.2/Zend/zend_modules.h hardening-patch-4.4.2-0.4.8/Zend/zend_modules.h
+diff -Nura php-4.4.2/Zend/zend_modules.h hardening-patch-4.4.2-0.4.12/Zend/zend_modules.h
 --- php-4.4.2/Zend/zend_modules.h	2006-01-01 14:46:49.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/Zend/zend_modules.h	2006-01-18 12:43:26.951202008 +0100
++++ hardening-patch-4.4.2-0.4.12/Zend/zend_modules.h	2006-07-20 10:56:32.000000000 +0200
 @@ -34,6 +34,7 @@
  ZEND_API extern unsigned char second_arg_force_ref[];
  ZEND_API extern unsigned char third_arg_force_ref[];
@@ -8028,9 +8759,9 @@ diff -Nura php-4.4.2/Zend/zend_modules.h hardening-patch-4.4.2-0.4.8/Zend/zend_m
  };
  
  
-diff -Nura php-4.4.2/Zend/zend_opcode.c hardening-patch-4.4.2-0.4.8/Zend/zend_opcode.c
+diff -Nura php-4.4.2/Zend/zend_opcode.c hardening-patch-4.4.2-0.4.12/Zend/zend_opcode.c
 --- php-4.4.2/Zend/zend_opcode.c	2006-01-01 14:46:49.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/Zend/zend_opcode.c	2006-01-18 12:43:26.951202008 +0100
++++ hardening-patch-4.4.2-0.4.12/Zend/zend_opcode.c	2006-07-20 10:56:32.000000000 +0200
 @@ -88,6 +88,9 @@
  	op_array->done_pass_two = 0;
  
@@ -8041,9 +8772,9 @@ diff -Nura php-4.4.2/Zend/zend_opcode.c hardening-patch-4.4.2-0.4.8/Zend/zend_op
  
  	zend_llist_apply_with_argument(&zend_extensions, (llist_apply_with_arg_func_t) zend_extension_op_array_ctor_handler, op_array TSRMLS_CC);
  }
-diff -Nura php-4.4.2/Zend/zend_operators.c hardening-patch-4.4.2-0.4.8/Zend/zend_operators.c
+diff -Nura php-4.4.2/Zend/zend_operators.c hardening-patch-4.4.2-0.4.12/Zend/zend_operators.c
 --- php-4.4.2/Zend/zend_operators.c	2006-01-01 14:46:49.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/Zend/zend_operators.c	2006-01-18 12:43:26.952201856 +0100
++++ hardening-patch-4.4.2-0.4.12/Zend/zend_operators.c	2006-07-20 10:56:32.000000000 +0200
 @@ -1604,6 +1604,20 @@
  	return (op->value.lval ? 1 : 0);
  }
@@ -8065,9 +8796,9 @@ diff -Nura php-4.4.2/Zend/zend_operators.c hardening-patch-4.4.2-0.4.8/Zend/zend
  ZEND_API void zend_str_tolower(char *str, unsigned int length)
  {
  	register char *p=str, *end=p+length;
-diff -Nura php-4.4.2/Zend/zend_operators.h hardening-patch-4.4.2-0.4.8/Zend/zend_operators.h
+diff -Nura php-4.4.2/Zend/zend_operators.h hardening-patch-4.4.2-0.4.12/Zend/zend_operators.h
 --- php-4.4.2/Zend/zend_operators.h	2006-01-01 14:46:49.000000000 +0100
-+++ hardening-patch-4.4.2-0.4.8/Zend/zend_operators.h	2006-01-18 12:43:26.953201704 +0100
++++ hardening-patch-4.4.2-0.4.12/Zend/zend_operators.h	2006-07-20 10:56:32.000000000 +0200
 @@ -174,6 +174,14 @@
  #endif
  
