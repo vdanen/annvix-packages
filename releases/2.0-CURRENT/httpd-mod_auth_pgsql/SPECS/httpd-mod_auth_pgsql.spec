@@ -13,7 +13,7 @@
 %define release 	%_revrel
 
 # Module-Specific definitions
-%define apache_version	2.2.2
+%define apache_version	2.2.3
 %define mod_version	2.0.3
 %define mod_name	mod_auth_pgsql
 %define mod_conf	13_%{mod_name}.conf
@@ -31,9 +31,13 @@ Source1:	%{mod_conf}
 Patch0:		mod_auth_pgsql-2.0.3-nonpgsql.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:  httpd-devel >= %{apache_version}, postgresql-devel, postgresql-libs-devel, openssl-devel
+BuildRequires:  httpd-devel >= %{apache_version}
+BuildRequires:	postgresql-devel
+BuildRequires:	postgresql-libs-devel
+BuildRequires:	openssl-devel
 
-Requires(pre):	httpd = %{apache_version}, httpd-conf >= 2.2.0
+Requires(pre):	httpd = %{apache_version}
+Requires(pre):	httpd-conf >= 2.2.0
 Provides:	apache2-mod_auth_pgsql
 Obsoletes:	apache2-mod_auth_pgsql
 
@@ -67,7 +71,7 @@ This package contains the documentation for %{name}.
 mkdir -p %{buildroot}%{_libdir}/httpd-extramodules
 mkdir -p %{buildroot}%{_sysconfdir}/httpd/modules.d
 install -m 0755 .libs/*.so %{buildroot}%{_libdir}/httpd-extramodules/
-cat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
+cat %{_sourcedir}/%{mod_conf} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 
 %clean
@@ -85,6 +89,10 @@ cat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 
 %changelog
+* Sun Jul 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3_2.0.3
+- apache 2.2.3
+- spec cleanups
+
 * Tue Jun 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.2_2.0.3
 - rebuild against new postgresql
 
