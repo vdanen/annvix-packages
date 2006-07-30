@@ -13,7 +13,7 @@
 %define release		%_revrel
 
 # Module-Specific definitions
-%define apache_version	2.2.2
+%define apache_version	2.2.3
 %define mod_version	3.1.0
 %define mod_name	mod_authnz_external
 %define mod_conf	10_%{mod_name}.conf
@@ -32,11 +32,15 @@ Source1:	%{mod_conf}
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:  httpd-devel >= %{apache_version}
 
-Requires(pre):	rpm-helper, httpd >= %{apache_version}, httpd-conf >= 2.2.0
+Requires(pre):	rpm-helper
+Requires(pre):	httpd >= %{apache_version}
+Requires(pre):	httpd-conf >= 2.2.0
 Requires(postun): rpm-helper
 Requires:	pwauth
-Provides:	apache2-mod_auth_external httpd-mod_auth_external
-Obsoletes:	apache2-mod_auth_external httpd-mod_auth_external
+Provides:	apache2-mod_auth_external
+Provides:	httpd-mod_auth_external
+Obsoletes:	apache2-mod_auth_external
+Obsoletes:	httpd-mod_auth_external
 
 %description
 An Apache external authentication module - uses PAM.
@@ -64,7 +68,7 @@ This package contains the documentation for %{name}.
 mkdir -p %{buildroot}%{_libdir}/httpd-extramodules
 mkdir -p %{buildroot}%{_sysconfdir}/httpd/modules.d
 install -m 0755 .libs/*.so %{buildroot}%{_libdir}/httpd-extramodules/
-cat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
+cat %{_sourcedir}/%{mod_conf} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 chmod 0644 AUTHENTICATORS CHANGES INSTALL* README* TODO
 
@@ -84,6 +88,10 @@ chmod 0644 AUTHENTICATORS CHANGES INSTALL* README* TODO
 
 
 %changelog
+* Sun Jul 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3_3.1.0
+- apache 2.2.3
+- spec cleanups
+
 * Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.2_3.1.0
 - 3.1.0 (new name is httpd-mod_authnz_external)
 - apache 2.2.2
@@ -237,7 +245,7 @@ chmod 0644 AUTHENTICATORS CHANGES INSTALL* README* TODO
 - Fix documentation permissions.
 
 * Wed Feb 06 2002 Christian Belisle <cbelisle@mandrakesoft.com> 2.1.14-7mdk
-- Add documentation in %{apachecontent}/addon-modules/
+- Add documentation in %%{apachecontent}/addon-modules/
 
 * Wed Feb 06 2002 Christian Belisle <cbelisle@mandrakesoft.com> 2.1.14-6mdk
 - Remake the post and postun sections (now like other apache modules).
