@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		httpd
-%define version		2.2.2
+%define version		2.2.3
 %define release		%_revrel
 
 # not everyone uses this, so define it here
@@ -1328,6 +1328,9 @@ fi
 
 
 %changelog
+* Sun Jul 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3
+- 2.2.3 (fixes CVE-2006-3747)
+
 * Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.2
 - move the README file from httpd-conf to httpd
 
