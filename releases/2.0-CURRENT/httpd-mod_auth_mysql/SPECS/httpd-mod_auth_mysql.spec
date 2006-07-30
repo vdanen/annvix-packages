@@ -13,7 +13,7 @@
 %define release 	%_revrel
 
 # Module-Specific definitions
-%define apache_version	2.2.2
+%define apache_version	2.2.3
 %define mod_version	3.0.0
 %define mod_name	mod_auth_mysql
 %define mod_conf	12_%{mod_name}.conf
@@ -32,9 +32,11 @@ Patch0:		mod_auth_mysql-3.0.0-apr1x.patch
 Patch1:		mod_auth_mysql-3.0.0-htpasswd-style.diff
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:  httpd-devel >= %{apache_version}, mysql-devel
+BuildRequires:  httpd-devel >= %{apache_version}
+BuildRequires:	mysql-devel
 
-Requires(pre):	httpd = %{apache_version}, httpd-conf >= 2.2.0
+Requires(pre):	httpd = %{apache_version}
+Requires(pre):	httpd-conf >= 2.2.0
 Provides:	apache2-mod_auth_mysql
 Obsoletes:	apache2-mod_auth_mysql
 
@@ -68,7 +70,7 @@ This package contains the documentation for %{name}.
 mkdir -p %{buildroot}%{_libdir}/httpd-extramodules
 mkdir -p %{buildroot}%{_sysconfdir}/httpd/modules.d
 install -m 0755 .libs/*.so %{buildroot}%{_libdir}/httpd-extramodules/
-cat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
+cat %{_sourcedir}/%{mod_conf} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 
 %clean
@@ -86,6 +88,10 @@ cat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 
 %changelog
+* Sun Jul 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3_3.0.0
+- apache 2.2.3
+- spec cleanups
+
 * Thu May 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.2_3.0.0
 - apache 2.2.2
 - mod_auth_mysql 3.0.0
