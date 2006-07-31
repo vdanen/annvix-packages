@@ -87,14 +87,25 @@ Patch75:	php-bug-22414.patch
 Patch76:	php-5.0.4-bug29119.diff
 Patch77:	php-5.1.0RC6-CVE-2005-3388.diff
 # http://www.hardened-php.net/
-Patch100:	http://www.hardened-php.net/hardening-patch-5.1.4-0.4.11.patch
+Patch100:	http://www.hardened-php.net/hardening-patch-5.1.4-0.4.12.patch
 
 Requires(post):	%{libname} >= %{version}
 Requires(preun): %{libname} >= %{version}
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	httpd-devel >= 2.0.54, autoconf2.5, automake1.7, bison, byacc, flex, libtool, libxml2-devel, libxslt-devel
-BuildRequires:	openssl-devel >= 0.9.7, openssl >= 0.9.7, pcre-devel >= 5.0, pam-devel
+BuildRequires:	httpd-devel >= 2.0.54
+BuildRequires:	autoconf2.5
+BuildRequires:	automake1.7
+BuildRequires:	bison
+BuildRequires:	byacc
+BuildRequires:	flex
+BuildRequires:	libtool
+BuildRequires:	libxml2-devel
+BuildRequires:	libxslt-devel
+BuildRequires:	openssl-devel >= 0.9.7
+BuildRequires:	openssl >= 0.9.7
+BuildRequires:	pcre-devel >= 5.0
+BuildRequires:	pam-devel
 BuildRequires:	multiarch-utils >= 1.0.3
 BuildConflicts:	php
 
@@ -205,12 +216,23 @@ standalone package or a webserver with php support (ie: mod_php).
 Summary:	Development package for PHP5
 Group:		Development/C
 URL:		http://www.php.net
+Requires:	%{libname} = %{epoch}:%{version}-%{release}
+Requires:	autoconf2.5
+Requires:	automake1.7
+Requires:	bison
+Requires:	byacc
+Requires:	flex
+Requires:	libtool
+Requires:	libxml2-devel
+Requires:	libxslt-devel
+Requires:	openssl >= 0.9.7
+Requires:	openssl-devel >= 0.9.7
+Requires:	pcre-devel >= 5.0
+Requires:	pam-devel
+Requires:	chrpath
 Requires(post):	%{libname} >= %{version}
 Requires(preun): %{libname} >= %{version}
 Provides:	libphp_common-devel = %{version}-%{release}
-Requires:	%{libname} = %{epoch}:%{version}-%{release}
-Requires:	autoconf2.5, automake1.7, bison, byacc, flex, libtool, libxml2-devel, libxslt-devel
-Requires:	openssl >= 0.9.7, openssl-devel >= 0.9.7, pcre-devel >= 5.0, pam-devel, chrpath
 Provides:	php4-devel
 Obsoletes:	php4-devel
 
@@ -311,7 +333,7 @@ find php-devel -name "*.mak" | xargs rm -f
 find php-devel -name "*.w32" | xargs rm
 find php-devel -name "*.avx" | xargs rm -f
 
-cat %{SOURCE3} > php-devel/PHP_FAQ.php
+cat %{_sourcedir}/FAQ.php > php-devel/PHP_FAQ.php
 
 cat > php-devel/buildext <<EOF
 #!/bin/bash
@@ -631,7 +653,7 @@ update-alternatives --remove php %{_bindir}/php-cli
 
 %files doc
 %defattr(-,root,root)
-%doc CREDITS* README* TODO* Zend/ZEND_*
+%doc CREDITS* README* TODO* Zend/ZEND_* Changelog.secfix Hardened_PHP_patch_and_licensing_question.txt
 %doc INSTALL LICENSE NEWS php.ini-dist php.ini-recommended configure_command
 %doc SELF-CONTAINED-EXTENSIONS CODING_STANDARDS TODO EXTENSIONS
 %doc php-dom-examples
@@ -640,6 +662,11 @@ update-alternatives --remove php %{_bindir}/php-cli
 
 
 %changelog
+* Sun Jul 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.4
+- hardening patch 4.0.12: fixes CVE-2006-2563, CVE-2006-2660, CVE-2006-1990,
+  CVE-2006-3011
+- spec cleanups
+
 * Sun Jun 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.4
 - rebuild against new pam
 

@@ -1,9 +1,22 @@
-diff -Nura php-5.1.4/Changelog.hphp hardening-patch-5.1.4-0.4.11/Changelog.hphp
+diff -Nura php-5.1.4/Changelog.hphp hardening-patch-5.1.4-0.4.12/Changelog.hphp
 --- php-5.1.4/Changelog.hphp	1970-01-01 01:00:00.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/Changelog.hphp	2006-05-13 19:11:35.000000000 +0200
-@@ -0,0 +1,21 @@
++++ hardening-patch-5.1.4-0.4.12/Changelog.hphp	2006-07-20 11:18:12.000000000 +0200
+@@ -0,0 +1,34 @@
 +Changelog of the Hardening-Patch
 +--------------------------------
++
++0.4.12 - 19. July 2006
++
++    PHP4:
++        [+] Added fixes from sf4 security patch / see changelog.secfix for details
++
++    PHP5:
++        [+] Added fixes from sf5 security patch / see changelog.secfix for details
++	
++    PHP4+5:
++	[+] Added anti mail spam feature
++	[+] Speedup of zend_hash canary (clear/destroy)
++	[+] Added a fix for a DOS in the handling of URL blacklists
 +
 +0.4.11 - 13. May 2006
 +
@@ -23,9 +36,45 @@ diff -Nura php-5.1.4/Changelog.hphp hardening-patch-5.1.4-0.4.11/Changelog.hphp
 +    PHP4+5:
 +	[+] fopen_wrappers.c: fix for a trailing slash problem with open_basedir
 +	
-diff -Nura php-5.1.4/configure hardening-patch-5.1.4-0.4.11/configure
---- php-5.1.4/configure	2006-05-04 01:31:32.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.11/configure	2006-05-13 15:39:35.000000000 +0200
+diff -Nura php-5.1.4/Changelog.secfix hardening-patch-5.1.4-0.4.12/Changelog.secfix
+--- php-5.1.4/Changelog.secfix	1970-01-01 01:00:00.000000000 +0100
++++ hardening-patch-5.1.4-0.4.12/Changelog.secfix	2006-07-20 10:58:43.000000000 +0200
+@@ -0,0 +1,32 @@
++Changelog of PHP 5.1.4 Security Fixes
++
++Release 5 - 13. July 2006
++
++    [+] Fixed compilation of Security-Patch Release 4 in ZTS mode
++
++Release 4 - 13. July 2006
++
++    [+] Added a recursive array printing fix to the phpinfo() XSS fix
++    [+] Added a fix for stat() on non existing files in safe_mode
++
++Release 3 - 07. July 2006
++
++    [+] Added a fix for an integer overflow in str_repeat()
++    [+] Added a *working* wordwrap() fix
++    [+] Added code to make memory_limit work on 64bit systems
++    [+] Added a fix for the error_log() safe_mode/open_basedir vulnerability
++    [+] Added a fix for overlong tempfilename
++    [+] Added multiple fixes for new safe_mode/open_basedir problems in ext/curl
++    [+] Added a high characters fix to ext/wddx 
++
++Release 2 - 16. May 2006
++
++    [+] Remove install-pear-nozlib.phar from the patchfile, because the official PHP
++        tarball got updated
++
++Release 1 - 13. May 2006
++
++    [+] Bundle install-pear-nozlib.phar which was missing in the official PHP tarball
++        and is downloaded when make install is called (usually as root -> security risk)
++    [+] Fixed open_basedir/safe_mode bypass via the realpath() cache
++
+diff -Nura php-5.1.4/configure hardening-patch-5.1.4-0.4.12/configure
+--- php-5.1.4/configure	2006-05-12 16:41:10.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/configure	2006-07-20 11:07:00.000000000 +0200
 @@ -942,6 +942,16 @@
  ac_help="$ac_help
    --with-libdir=NAME      Look for libraries in .../NAME rather than .../lib"
@@ -602,9 +651,9 @@ diff -Nura php-5.1.4/configure hardening-patch-5.1.4-0.4.11/configure
    
        IFS=.
        set $ac_src
-diff -Nura php-5.1.4/configure.in hardening-patch-5.1.4-0.4.11/configure.in
+diff -Nura php-5.1.4/configure.in hardening-patch-5.1.4-0.4.12/configure.in
 --- php-5.1.4/configure.in	2006-05-04 01:30:02.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.11/configure.in	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/configure.in	2006-07-20 11:07:00.000000000 +0200
 @@ -209,7 +209,7 @@
  
  sinclude(Zend/Zend.m4)
@@ -632,9 +681,65 @@ diff -Nura php-5.1.4/configure.in hardening-patch-5.1.4-0.4.11/configure.in
  
  if test -r "$abs_srcdir/Zend/zend_objects.c"; then
    PHP_ADD_SOURCES(Zend, zend_objects.c zend_object_handlers.c zend_objects_API.c zend_mm.c \
-diff -Nura php-5.1.4/ext/fbsql/php_fbsql.c hardening-patch-5.1.4-0.4.11/ext/fbsql/php_fbsql.c
+diff -Nura php-5.1.4/ext/curl/interface.c hardening-patch-5.1.4-0.4.12/ext/curl/interface.c
+--- php-5.1.4/ext/curl/interface.c	2006-04-13 13:26:10.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/ext/curl/interface.c	2006-07-20 11:07:00.000000000 +0200
+@@ -167,6 +167,11 @@
+ 			RETURN_FALSE; 																		\
+ 		} 																						\
+ 																								\
++		if (php_memnstr(str, tmp_url->path, strlen(tmp_url->path), str + len)) {				\
++		         php_error_docref(NULL TSRMLS_CC, E_WARNING, "Url '%s' contains unencoded control characters.", str);	\
++		         RETURN_FALSE;																	\
++		}																						\
++																								\
+ 		if (tmp_url->query || tmp_url->fragment || php_check_open_basedir(tmp_url->path TSRMLS_CC) || 									\
+ 			(PG(safe_mode) && !php_checkuid(tmp_url->path, "rb+", CHECKUID_CHECK_MODE_PARAM))	\
+ 		) { 																					\
+@@ -1065,7 +1070,6 @@
+ 		case CURLOPT_FTPLISTONLY:
+ 		case CURLOPT_FTPAPPEND:
+ 		case CURLOPT_NETRC:
+-		case CURLOPT_FOLLOWLOCATION:
+ 		case CURLOPT_PUT:
+ #if CURLOPT_MUTE != 0
+ 		 case CURLOPT_MUTE:
+@@ -1116,6 +1120,16 @@
+ 			convert_to_long_ex(zvalue);
+ 			error = curl_easy_setopt(ch->cp, option, Z_LVAL_PP(zvalue));
+ 			break;
++		case CURLOPT_FOLLOWLOCATION:
++			convert_to_long_ex(zvalue);
++			if ((PG(open_basedir) && *PG(open_basedir)) || PG(safe_mode)) {
++				if (Z_LVAL_PP(zvalue) != 0) {
++					php_error_docref(NULL TSRMLS_CC, E_WARNING, "CURLOPT_FOLLOWLOCATION cannot be activated when in safe_mode or an open_basedir is set");
++					RETURN_FALSE;
++				}
++			}
++			error = curl_easy_setopt(ch->cp, option, Z_LVAL_PP(zvalue));
++			break;
+ 		case CURLOPT_URL:
+ 		case CURLOPT_PROXY:
+ 		case CURLOPT_USERPWD:
+diff -Nura php-5.1.4/ext/curl/streams.c hardening-patch-5.1.4-0.4.12/ext/curl/streams.c
+--- php-5.1.4/ext/curl/streams.c	2006-01-01 13:50:01.000000000 +0100
++++ hardening-patch-5.1.4-0.4.12/ext/curl/streams.c	2006-07-20 11:07:00.000000000 +0200
+@@ -289,7 +289,11 @@
+ 	curl_easy_setopt(curlstream->curl, CURLOPT_WRITEHEADER, stream);
+ 
+ 	/* currently buggy (bug is in curl) */
+-	curl_easy_setopt(curlstream->curl, CURLOPT_FOLLOWLOCATION, 1);
++	if ((PG(open_basedir) && *PG(open_basedir)) || PG(safe_mode)) {
++		curl_easy_setopt(curlstream->curl, CURLOPT_FOLLOWLOCATION, 0);
++	} else {
++		curl_easy_setopt(curlstream->curl, CURLOPT_FOLLOWLOCATION, 1);
++	}
+ 	
+ 	curl_easy_setopt(curlstream->curl, CURLOPT_ERRORBUFFER, curlstream->errstr);
+ 	curl_easy_setopt(curlstream->curl, CURLOPT_VERBOSE, 0);
+diff -Nura php-5.1.4/ext/fbsql/php_fbsql.c hardening-patch-5.1.4-0.4.12/ext/fbsql/php_fbsql.c
 --- php-5.1.4/ext/fbsql/php_fbsql.c	2006-01-01 13:50:06.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/ext/fbsql/php_fbsql.c	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/ext/fbsql/php_fbsql.c	2006-07-20 10:45:33.000000000 +0200
 @@ -1925,8 +1925,24 @@
  	}
  	else if (fbcmdErrorsFound(md))
@@ -660,9 +765,9 @@ diff -Nura php-5.1.4/ext/fbsql/php_fbsql.c hardening-patch-5.1.4-0.4.11/ext/fbsq
  		if (FB_SQL_G(generateWarnings))
  		{
  			if (emg)
-diff -Nura php-5.1.4/ext/mysql/php_mysql.c hardening-patch-5.1.4-0.4.11/ext/mysql/php_mysql.c
+diff -Nura php-5.1.4/ext/mysql/php_mysql.c hardening-patch-5.1.4-0.4.12/ext/mysql/php_mysql.c
 --- php-5.1.4/ext/mysql/php_mysql.c	2006-01-01 13:50:09.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/ext/mysql/php_mysql.c	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/ext/mysql/php_mysql.c	2006-07-20 10:45:33.000000000 +0200
 @@ -1231,6 +1231,8 @@
  {
  	php_mysql_conn *mysql;
@@ -700,9 +805,9 @@ diff -Nura php-5.1.4/ext/mysql/php_mysql.c hardening-patch-5.1.4-0.4.11/ext/mysq
  		RETURN_FALSE;
  	}
  #endif
-diff -Nura php-5.1.4/ext/mysqli/mysqli_nonapi.c hardening-patch-5.1.4-0.4.11/ext/mysqli/mysqli_nonapi.c
+diff -Nura php-5.1.4/ext/mysqli/mysqli_nonapi.c hardening-patch-5.1.4-0.4.12/ext/mysqli/mysqli_nonapi.c
 --- php-5.1.4/ext/mysqli/mysqli_nonapi.c	2006-03-24 10:32:24.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/ext/mysqli/mysqli_nonapi.c	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/ext/mysqli/mysqli_nonapi.c	2006-07-20 10:45:33.000000000 +0200
 @@ -184,6 +184,17 @@
  	if (mysql_real_query(mysql->mysql, query, query_len)) {
  		char s_error[MYSQL_ERRMSG_SIZE], s_sqlstate[SQLSTATE_LENGTH+1];
@@ -739,9 +844,9 @@ diff -Nura php-5.1.4/ext/mysqli/mysqli_nonapi.c hardening-patch-5.1.4-0.4.11/ext
  		MYSQLI_REPORT_MYSQL_ERROR(mysql->mysql);
  		RETURN_FALSE;
  	}
-diff -Nura php-5.1.4/ext/pgsql/pgsql.c hardening-patch-5.1.4-0.4.11/ext/pgsql/pgsql.c
+diff -Nura php-5.1.4/ext/pgsql/pgsql.c hardening-patch-5.1.4-0.4.12/ext/pgsql/pgsql.c
 --- php-5.1.4/ext/pgsql/pgsql.c	2006-04-10 21:51:55.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.11/ext/pgsql/pgsql.c	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/ext/pgsql/pgsql.c	2006-07-20 10:45:33.000000000 +0200
 @@ -1152,10 +1152,28 @@
  		case PGRES_EMPTY_QUERY:
  		case PGRES_BAD_RESPONSE:
@@ -775,9 +880,9 @@ diff -Nura php-5.1.4/ext/pgsql/pgsql.c hardening-patch-5.1.4-0.4.11/ext/pgsql/pg
  			break;
  		case PGRES_COMMAND_OK: /* successful command that did not return rows */
  		default:
-diff -Nura php-5.1.4/ext/session/mod_files.c hardening-patch-5.1.4-0.4.11/ext/session/mod_files.c
+diff -Nura php-5.1.4/ext/session/mod_files.c hardening-patch-5.1.4-0.4.12/ext/session/mod_files.c
 --- php-5.1.4/ext/session/mod_files.c	2006-04-18 02:31:45.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.11/ext/session/mod_files.c	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/ext/session/mod_files.c	2006-07-20 10:45:33.000000000 +0200
 @@ -422,6 +422,35 @@
  	return SUCCESS;
  }
@@ -814,9 +919,9 @@ diff -Nura php-5.1.4/ext/session/mod_files.c hardening-patch-5.1.4-0.4.11/ext/se
  /*
   * Local variables:
   * tab-width: 4
-diff -Nura php-5.1.4/ext/session/mod_mm.c hardening-patch-5.1.4-0.4.11/ext/session/mod_mm.c
+diff -Nura php-5.1.4/ext/session/mod_mm.c hardening-patch-5.1.4-0.4.12/ext/session/mod_mm.c
 --- php-5.1.4/ext/session/mod_mm.c	2006-01-01 13:50:12.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/ext/session/mod_mm.c	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/ext/session/mod_mm.c	2006-07-20 10:45:33.000000000 +0200
 @@ -425,6 +425,42 @@
  	return SUCCESS;
  }
@@ -860,9 +965,9 @@ diff -Nura php-5.1.4/ext/session/mod_mm.c hardening-patch-5.1.4-0.4.11/ext/sessi
  #endif
  
  /*
-diff -Nura php-5.1.4/ext/session/mod_user.c hardening-patch-5.1.4-0.4.11/ext/session/mod_user.c
+diff -Nura php-5.1.4/ext/session/mod_user.c hardening-patch-5.1.4-0.4.12/ext/session/mod_user.c
 --- php-5.1.4/ext/session/mod_user.c	2006-01-01 13:50:12.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/ext/session/mod_user.c	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/ext/session/mod_user.c	2006-07-20 10:45:33.000000000 +0200
 @@ -23,7 +23,7 @@
  #include "mod_user.h"
  
@@ -956,9 +1061,9 @@ diff -Nura php-5.1.4/ext/session/mod_user.c hardening-patch-5.1.4-0.4.11/ext/ses
  /*
   * Local variables:
   * tab-width: 4
-diff -Nura php-5.1.4/ext/session/mod_user.h hardening-patch-5.1.4-0.4.11/ext/session/mod_user.h
+diff -Nura php-5.1.4/ext/session/mod_user.h hardening-patch-5.1.4-0.4.12/ext/session/mod_user.h
 --- php-5.1.4/ext/session/mod_user.h	2006-01-01 13:50:12.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/ext/session/mod_user.h	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/ext/session/mod_user.h	2006-07-20 10:45:33.000000000 +0200
 @@ -22,7 +22,7 @@
  #define MOD_USER_H
  
@@ -977,9 +1082,9 @@ diff -Nura php-5.1.4/ext/session/mod_user.h hardening-patch-5.1.4-0.4.11/ext/ses
  	} name;
  } ps_user;
  
-diff -Nura php-5.1.4/ext/session/php_session.h hardening-patch-5.1.4-0.4.11/ext/session/php_session.h
+diff -Nura php-5.1.4/ext/session/php_session.h hardening-patch-5.1.4-0.4.12/ext/session/php_session.h
 --- php-5.1.4/ext/session/php_session.h	2006-01-28 07:14:49.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/ext/session/php_session.h	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/ext/session/php_session.h	2006-07-20 10:45:33.000000000 +0200
 @@ -23,7 +23,7 @@
  
  #include "ext/standard/php_var.h"
@@ -1051,9 +1156,9 @@ diff -Nura php-5.1.4/ext/session/php_session.h hardening-patch-5.1.4-0.4.11/ext/
  
  	long hash_func;
  	long hash_bits_per_character;
-diff -Nura php-5.1.4/ext/session/session.c hardening-patch-5.1.4-0.4.11/ext/session/session.c
+diff -Nura php-5.1.4/ext/session/session.c hardening-patch-5.1.4-0.4.12/ext/session/session.c
 --- php-5.1.4/ext/session/session.c	2006-02-10 08:39:13.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/ext/session/session.c	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/ext/session/session.c	2006-07-20 10:45:33.000000000 +0200
 @@ -166,6 +166,7 @@
  	STD_PHP_INI_BOOLEAN("session.cookie_secure",    "",          PHP_INI_ALL, OnUpdateBool,   cookie_secure,      php_ps_globals,    ps_globals)
  	STD_PHP_INI_BOOLEAN("session.use_cookies",      "1",         PHP_INI_ALL, OnUpdateBool,   use_cookies,        php_ps_globals,    ps_globals)
@@ -1126,9 +1231,9 @@ diff -Nura php-5.1.4/ext/session/session.c hardening-patch-5.1.4-0.4.11/ext/sess
  		ZVAL_ADDREF(*args[i]);
  		mdata->names[i] = *args[i];
  	}
-diff -Nura php-5.1.4/ext/session/tests/014.phpt hardening-patch-5.1.4-0.4.11/ext/session/tests/014.phpt
+diff -Nura php-5.1.4/ext/session/tests/014.phpt hardening-patch-5.1.4-0.4.12/ext/session/tests/014.phpt
 --- php-5.1.4/ext/session/tests/014.phpt	2005-07-04 15:09:14.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.11/ext/session/tests/014.phpt	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/ext/session/tests/014.phpt	2006-07-20 10:45:33.000000000 +0200
 @@ -5,6 +5,7 @@
  --INI--
  session.use_trans_sid=1
@@ -1137,9 +1242,9 @@ diff -Nura php-5.1.4/ext/session/tests/014.phpt hardening-patch-5.1.4-0.4.11/ext
  session.cache_limiter=
  register_globals=1
  session.bug_compat_42=1
-diff -Nura php-5.1.4/ext/session/tests/015.phpt hardening-patch-5.1.4-0.4.11/ext/session/tests/015.phpt
+diff -Nura php-5.1.4/ext/session/tests/015.phpt hardening-patch-5.1.4-0.4.12/ext/session/tests/015.phpt
 --- php-5.1.4/ext/session/tests/015.phpt	2005-07-04 15:09:14.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.11/ext/session/tests/015.phpt	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/ext/session/tests/015.phpt	2006-07-20 10:45:33.000000000 +0200
 @@ -5,6 +5,7 @@
  --INI--
  session.use_trans_sid=1
@@ -1148,9 +1253,9 @@ diff -Nura php-5.1.4/ext/session/tests/015.phpt hardening-patch-5.1.4-0.4.11/ext
  session.cache_limiter=
  arg_separator.output=&
  session.name=PHPSESSID
-diff -Nura php-5.1.4/ext/session/tests/018.phpt hardening-patch-5.1.4-0.4.11/ext/session/tests/018.phpt
+diff -Nura php-5.1.4/ext/session/tests/018.phpt hardening-patch-5.1.4-0.4.12/ext/session/tests/018.phpt
 --- php-5.1.4/ext/session/tests/018.phpt	2005-07-04 15:09:14.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.11/ext/session/tests/018.phpt	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/ext/session/tests/018.phpt	2006-07-20 10:45:33.000000000 +0200
 @@ -4,6 +4,7 @@
  <?php include('skipif.inc'); ?>
  --INI--
@@ -1159,9 +1264,9 @@ diff -Nura php-5.1.4/ext/session/tests/018.phpt hardening-patch-5.1.4-0.4.11/ext
  session.cache_limiter=
  session.use_trans_sid=1
  session.name=PHPSESSID
-diff -Nura php-5.1.4/ext/session/tests/019.phpt hardening-patch-5.1.4-0.4.11/ext/session/tests/019.phpt
+diff -Nura php-5.1.4/ext/session/tests/019.phpt hardening-patch-5.1.4-0.4.12/ext/session/tests/019.phpt
 --- php-5.1.4/ext/session/tests/019.phpt	2005-07-04 15:09:14.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.11/ext/session/tests/019.phpt	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/ext/session/tests/019.phpt	2006-07-20 10:45:33.000000000 +0200
 @@ -4,6 +4,7 @@
  <?php include('skipif.inc'); ?>
  --INI--
@@ -1170,9 +1275,9 @@ diff -Nura php-5.1.4/ext/session/tests/019.phpt hardening-patch-5.1.4-0.4.11/ext
  session.cache_limiter=
  register_globals=1
  session.serialize_handler=php
-diff -Nura php-5.1.4/ext/session/tests/020.phpt hardening-patch-5.1.4-0.4.11/ext/session/tests/020.phpt
+diff -Nura php-5.1.4/ext/session/tests/020.phpt hardening-patch-5.1.4-0.4.12/ext/session/tests/020.phpt
 --- php-5.1.4/ext/session/tests/020.phpt	2005-07-04 15:09:14.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.11/ext/session/tests/020.phpt	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/ext/session/tests/020.phpt	2006-07-20 10:45:33.000000000 +0200
 @@ -4,6 +4,7 @@
  <?php include('skipif.inc'); ?>
  --INI--
@@ -1181,9 +1286,9 @@ diff -Nura php-5.1.4/ext/session/tests/020.phpt hardening-patch-5.1.4-0.4.11/ext
  session.cache_limiter=
  session.use_trans_sid=1
  arg_separator.output=&amp;
-diff -Nura php-5.1.4/ext/session/tests/021.phpt hardening-patch-5.1.4-0.4.11/ext/session/tests/021.phpt
+diff -Nura php-5.1.4/ext/session/tests/021.phpt hardening-patch-5.1.4-0.4.12/ext/session/tests/021.phpt
 --- php-5.1.4/ext/session/tests/021.phpt	2005-07-04 15:09:14.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.11/ext/session/tests/021.phpt	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/ext/session/tests/021.phpt	2006-07-20 10:45:33.000000000 +0200
 @@ -4,6 +4,7 @@
  <?php include('skipif.inc'); ?>
  --INI--
@@ -1192,9 +1297,9 @@ diff -Nura php-5.1.4/ext/session/tests/021.phpt hardening-patch-5.1.4-0.4.11/ext
  session.cache_limiter=
  session.use_trans_sid=1
  url_rewriter.tags="a=href,area=href,frame=src,input=src,form=,fieldset="
-diff -Nura php-5.1.4/ext/sqlite/sess_sqlite.c hardening-patch-5.1.4-0.4.11/ext/sqlite/sess_sqlite.c
+diff -Nura php-5.1.4/ext/sqlite/sess_sqlite.c hardening-patch-5.1.4-0.4.12/ext/sqlite/sess_sqlite.c
 --- php-5.1.4/ext/sqlite/sess_sqlite.c	2006-01-01 13:50:14.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/ext/sqlite/sess_sqlite.c	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/ext/sqlite/sess_sqlite.c	2006-07-20 10:45:33.000000000 +0200
 @@ -185,6 +185,76 @@
  	return SQLITE_RETVAL(rv);
  }
@@ -1272,9 +1377,9 @@ diff -Nura php-5.1.4/ext/sqlite/sess_sqlite.c hardening-patch-5.1.4-0.4.11/ext/s
  #endif /* HAVE_PHP_SESSION && !defined(COMPILE_DL_SESSION) */
  
  /*
-diff -Nura php-5.1.4/ext/sqlite/sqlite.c hardening-patch-5.1.4-0.4.11/ext/sqlite/sqlite.c
+diff -Nura php-5.1.4/ext/sqlite/sqlite.c hardening-patch-5.1.4-0.4.12/ext/sqlite/sqlite.c
 --- php-5.1.4/ext/sqlite/sqlite.c	2006-04-18 16:30:15.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.11/ext/sqlite/sqlite.c	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/ext/sqlite/sqlite.c	2006-07-20 10:45:33.000000000 +0200
 @@ -1530,6 +1530,19 @@
  	db->last_err_code = ret;
  
@@ -1295,9 +1400,9 @@ diff -Nura php-5.1.4/ext/sqlite/sqlite.c hardening-patch-5.1.4-0.4.11/ext/sqlite
  		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s", errtext);
  		if (errmsg) {
  			ZVAL_STRING(errmsg, errtext, 1);
-diff -Nura php-5.1.4/ext/standard/array.c hardening-patch-5.1.4-0.4.11/ext/standard/array.c
+diff -Nura php-5.1.4/ext/standard/array.c hardening-patch-5.1.4-0.4.12/ext/standard/array.c
 --- php-5.1.4/ext/standard/array.c	2006-04-12 21:30:52.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.11/ext/standard/array.c	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/ext/standard/array.c	2006-07-20 10:45:33.000000000 +0200
 @@ -1295,6 +1295,32 @@
  			}
  		}
@@ -1331,9 +1436,9 @@ diff -Nura php-5.1.4/ext/standard/array.c hardening-patch-5.1.4-0.4.11/ext/stand
  	
  	return 1;
  }
-diff -Nura php-5.1.4/ext/standard/basic_functions.c hardening-patch-5.1.4-0.4.11/ext/standard/basic_functions.c
+diff -Nura php-5.1.4/ext/standard/basic_functions.c hardening-patch-5.1.4-0.4.12/ext/standard/basic_functions.c
 --- php-5.1.4/ext/standard/basic_functions.c	2006-04-03 15:46:11.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.11/ext/standard/basic_functions.c	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/ext/standard/basic_functions.c	2006-07-20 11:07:00.000000000 +0200
 @@ -151,12 +151,14 @@
  typedef struct _php_shutdown_function_entry {
  	zval **arguments;
@@ -1367,6 +1472,15 @@ diff -Nura php-5.1.4/ext/standard/basic_functions.c hardening-patch-5.1.4-0.4.11
  #endif
  
  #ifdef HAVE_FNMATCH
+@@ -2034,7 +2038,7 @@
+ 			break;
+ 
+ 		case 3:		/*save to a file */
+-			stream = php_stream_open_wrapper(opt, "a", IGNORE_URL | ENFORCE_SAFE_MODE | REPORT_ERRORS, NULL);
++			stream = php_stream_open_wrapper(opt, "a", IGNORE_URL_WIN | ENFORCE_SAFE_MODE | REPORT_ERRORS, NULL);
+ 			if (!stream)
+ 				return FAILURE;
+ 			php_stream_write(stream, message, strlen(message));
 @@ -2279,6 +2283,13 @@
  {
  	zval retval;
@@ -1479,9 +1593,9 @@ diff -Nura php-5.1.4/ext/standard/basic_functions.c hardening-patch-5.1.4-0.4.11
  	zend_delete_global_variable(new_key, new_key_len-1 TSRMLS_CC);
  	ZEND_SET_SYMBOL_WITH_LENGTH(&EG(symbol_table), new_key, new_key_len, *var, (*var)->refcount+1, 0);
  
-diff -Nura php-5.1.4/ext/standard/config.m4 hardening-patch-5.1.4-0.4.11/ext/standard/config.m4
+diff -Nura php-5.1.4/ext/standard/config.m4 hardening-patch-5.1.4-0.4.12/ext/standard/config.m4
 --- php-5.1.4/ext/standard/config.m4	2006-01-04 22:31:29.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/ext/standard/config.m4	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/ext/standard/config.m4	2006-07-20 10:45:33.000000000 +0200
 @@ -203,7 +203,7 @@
    if test "$ac_cv_crypt_blowfish" = "yes"; then
      ac_result=1
@@ -1500,9 +1614,9 @@ diff -Nura php-5.1.4/ext/standard/config.m4 hardening-patch-5.1.4-0.4.11/ext/sta
  
  PHP_ADD_MAKEFILE_FRAGMENT
  
-diff -Nura php-5.1.4/ext/standard/config.w32 hardening-patch-5.1.4-0.4.11/ext/standard/config.w32
+diff -Nura php-5.1.4/ext/standard/config.w32 hardening-patch-5.1.4-0.4.12/ext/standard/config.w32
 --- php-5.1.4/ext/standard/config.w32	2006-01-04 22:31:29.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/ext/standard/config.w32	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/ext/standard/config.w32	2006-07-20 10:45:33.000000000 +0200
 @@ -16,5 +16,5 @@
  	url_scanner_ex.c ftp_fopen_wrapper.c http_fopen_wrapper.c \
  	php_fopen_wrapper.c credits.c css.c var_unserializer.c ftok.c sha1.c \
@@ -1510,9 +1624,9 @@ diff -Nura php-5.1.4/ext/standard/config.w32 hardening-patch-5.1.4-0.4.11/ext/st
 -	streamsfuncs.c http.c", false /* never shared */);
 +	streamsfuncs.c http.c sha256.c crypt_blowfish.c", false /* never shared */);
  
-diff -Nura php-5.1.4/ext/standard/crypt_blowfish.c hardening-patch-5.1.4-0.4.11/ext/standard/crypt_blowfish.c
+diff -Nura php-5.1.4/ext/standard/crypt_blowfish.c hardening-patch-5.1.4-0.4.12/ext/standard/crypt_blowfish.c
 --- php-5.1.4/ext/standard/crypt_blowfish.c	1970-01-01 01:00:00.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/ext/standard/crypt_blowfish.c	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/ext/standard/crypt_blowfish.c	2006-07-20 10:45:33.000000000 +0200
 @@ -0,0 +1,748 @@
 +/*
 + * This code comes from John the Ripper password cracker, with reentrant
@@ -2262,9 +2376,9 @@ diff -Nura php-5.1.4/ext/standard/crypt_blowfish.c hardening-patch-5.1.4-0.4.11/
 +
 +	return output;
 +}
-diff -Nura php-5.1.4/ext/standard/crypt.c hardening-patch-5.1.4-0.4.11/ext/standard/crypt.c
+diff -Nura php-5.1.4/ext/standard/crypt.c hardening-patch-5.1.4-0.4.12/ext/standard/crypt.c
 --- php-5.1.4/ext/standard/crypt.c	2006-01-01 13:50:14.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/ext/standard/crypt.c	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/ext/standard/crypt.c	2006-07-20 10:45:33.000000000 +0200
 @@ -100,6 +100,8 @@
  	return SUCCESS;
  }
@@ -2317,9 +2431,9 @@ diff -Nura php-5.1.4/ext/standard/crypt.c hardening-patch-5.1.4-0.4.11/ext/stand
  }
  /* }}} */
  #endif
-diff -Nura php-5.1.4/ext/standard/dl.c hardening-patch-5.1.4-0.4.11/ext/standard/dl.c
+diff -Nura php-5.1.4/ext/standard/dl.c hardening-patch-5.1.4-0.4.12/ext/standard/dl.c
 --- php-5.1.4/ext/standard/dl.c	2006-01-01 13:50:14.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/ext/standard/dl.c	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/ext/standard/dl.c	2006-07-20 10:45:33.000000000 +0200
 @@ -164,8 +164,35 @@
  		RETURN_FALSE;
  	}
@@ -2366,9 +2480,9 @@ diff -Nura php-5.1.4/ext/standard/dl.c hardening-patch-5.1.4-0.4.11/ext/standard
  				zend_debug = module_entry->zend_debug;
  				zts        = module_entry->zts; 
  			}
-diff -Nura php-5.1.4/ext/standard/file.c hardening-patch-5.1.4-0.4.11/ext/standard/file.c
+diff -Nura php-5.1.4/ext/standard/file.c hardening-patch-5.1.4-0.4.12/ext/standard/file.c
 --- php-5.1.4/ext/standard/file.c	2006-04-06 04:39:55.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.11/ext/standard/file.c	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/ext/standard/file.c	2006-07-20 10:45:33.000000000 +0200
 @@ -2302,7 +2302,7 @@
  #if (!defined(__BEOS__) && !defined(NETWARE) && HAVE_REALPATH) || defined(ZTS)
  /* {{{ proto string realpath(string path)
@@ -2378,9 +2492,9 @@ diff -Nura php-5.1.4/ext/standard/file.c hardening-patch-5.1.4-0.4.11/ext/standa
  {
  	zval **path;
  	char resolved_path_buff[MAXPATHLEN];
-diff -Nura php-5.1.4/ext/standard/file.h hardening-patch-5.1.4-0.4.11/ext/standard/file.h
+diff -Nura php-5.1.4/ext/standard/file.h hardening-patch-5.1.4-0.4.12/ext/standard/file.h
 --- php-5.1.4/ext/standard/file.h	2006-01-13 05:05:59.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/ext/standard/file.h	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/ext/standard/file.h	2006-07-20 10:45:33.000000000 +0200
 @@ -61,7 +61,7 @@
  PHP_FUNCTION(fd_set);
  PHP_FUNCTION(fd_isset);
@@ -2390,9 +2504,21 @@ diff -Nura php-5.1.4/ext/standard/file.h hardening-patch-5.1.4-0.4.11/ext/standa
  PHP_FUNCTION(fnmatch);
  #endif
  PHP_NAMED_FUNCTION(php_if_ftruncate);
-diff -Nura php-5.1.4/ext/standard/head.c hardening-patch-5.1.4-0.4.11/ext/standard/head.c
+diff -Nura php-5.1.4/ext/standard/filestat.c hardening-patch-5.1.4-0.4.12/ext/standard/filestat.c
+--- php-5.1.4/ext/standard/filestat.c	2006-04-25 10:41:02.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/ext/standard/filestat.c	2006-07-20 11:07:00.000000000 +0200
+@@ -634,7 +634,7 @@
+ 	}
+ 
+ 	if ((wrapper = php_stream_locate_url_wrapper(filename, &local, 0 TSRMLS_CC)) == &php_plain_files_wrapper) {
+-		if (php_check_open_basedir(local TSRMLS_CC)) {
++		if (php_check_open_basedir(local TSRMLS_CC) || (PG(safe_mode) && !php_checkuid_ex(filename, NULL, CHECKUID_ALLOW_FILE_NOT_EXISTS, CHECKUID_NO_ERRORS))) {
+ 			RETURN_FALSE;
+ 		}
+ 	}
+diff -Nura php-5.1.4/ext/standard/head.c hardening-patch-5.1.4-0.4.12/ext/standard/head.c
 --- php-5.1.4/ext/standard/head.c	2006-01-01 13:50:14.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/ext/standard/head.c	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/ext/standard/head.c	2006-07-20 10:45:33.000000000 +0200
 @@ -45,7 +45,7 @@
  	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|bl", &ctr.line,
  				&ctr.line_len, &rep, &ctr.response_code) == FAILURE)
@@ -2402,9 +2528,18 @@ diff -Nura php-5.1.4/ext/standard/head.c hardening-patch-5.1.4-0.4.11/ext/standa
  	sapi_header_op(rep ? SAPI_HEADER_REPLACE:SAPI_HEADER_ADD, &ctr TSRMLS_CC);
  }
  /* }}} */
-diff -Nura php-5.1.4/ext/standard/info.c hardening-patch-5.1.4-0.4.11/ext/standard/info.c
+diff -Nura php-5.1.4/ext/standard/info.c hardening-patch-5.1.4-0.4.12/ext/standard/info.c
 --- php-5.1.4/ext/standard/info.c	2006-03-31 13:11:12.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.11/ext/standard/info.c	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/ext/standard/info.c	2006-07-20 11:07:00.000000000 +0200
+@@ -154,7 +154,7 @@
+ 			if (Z_TYPE_PP(tmp) == IS_ARRAY) {
+ 				if (!sapi_module.phpinfo_as_text) {
+ 					PUTS("<pre>");
+-					zend_print_zval_ex((zend_write_func_t) php_info_write_wrapper, *tmp, 0);
++					zend_print_zval_r_ex((zend_write_func_t) php_info_write_wrapper, *tmp, 0 TSRMLS_CC);
+ 					PUTS("</pre>");
+ 				} else {
+ 					zend_print_zval_r(*tmp, 0 TSRMLS_CC);
 @@ -411,7 +411,7 @@
  
  	if (flag & PHP_INFO_GENERAL) {
@@ -2438,9 +2573,57 @@ diff -Nura php-5.1.4/ext/standard/info.c hardening-patch-5.1.4-0.4.11/ext/standa
  		php_info_print_box_end();
  		php_info_print_table_start();
  		php_info_print_table_row(2, "System", php_uname );
-diff -Nura php-5.1.4/ext/standard/php_standard.h hardening-patch-5.1.4-0.4.11/ext/standard/php_standard.h
+diff -Nura php-5.1.4/ext/standard/mail.c hardening-patch-5.1.4-0.4.12/ext/standard/mail.c
+--- php-5.1.4/ext/standard/mail.c	2006-01-01 13:50:15.000000000 +0100
++++ hardening-patch-5.1.4-0.4.12/ext/standard/mail.c	2006-07-20 12:17:12.000000000 +0200
+@@ -104,6 +104,44 @@
+ 		return;
+ 	}
+ 
++	if (HG(hphp_mailprotect) > 0) {
++		if (headers_len > 0 && headers && (strstr(headers,"\n\n") || strstr(headers,"\r\n\r\n")) ) {
++			php_security_log(S_MAIL, "mail() - double newline in headers, possible injection, mail dropped");
++			RETURN_FALSE;
++		}
++
++		/* check for spam attempts with buggy webforms */
++		if (to_len > 0 && to && (strchr(to, '\n') != NULL || strchr(to, '\r') != NULL)) {
++			php_security_log(S_MAIL, "mail() - newline in to header, possible injection, mail dropped");
++			RETURN_FALSE;
++		}
++
++		if (subject_len > 0 && subject && (strchr(subject, '\n') != NULL || strchr(subject, '\r') != NULL)) {
++			php_security_log(S_MAIL, "mail() - newline subject header, possible injection, mail dropped");
++			RETURN_FALSE;
++		}
++		
++		if (HG(hphp_mailprotect) > 1) {
++			/* search for to, cc or bcc headers */
++			if (headers_len > 0 && headers != NULL) {
++				if (strncasecmp(headers, "to:", sizeof("to:") - 1) == 0 || strcasestr(headers, "\nto:")) {
++					php_security_log(S_MAIL, "mail() - To: headers aren't allowed in the headers parameter.");
++					RETURN_FALSE;
++				}
++
++				if (strncasecmp(headers, "cc:", sizeof("cc:") - 1) == 0 || strcasestr(headers, "\ncc:")) {
++					php_security_log(S_MAIL, "mail() - CC: headers aren't allowed in the headers parameter.");
++					RETURN_FALSE;
++				}
++
++				if (strncasecmp(headers, "bcc:", sizeof("bcc:") - 1) == 0 || strcasestr(headers, "\nbcc:")) {
++					php_security_log(S_MAIL, "mail() - BCC: headers aren't allowed in the headers parameter.");
++					RETURN_FALSE;
++				}
++			}
++		}
++	}
++
+ 	if (to_len > 0) {
+ 		to_r = estrndup(to, to_len);
+ 		for (; to_len; to_len--) {
+diff -Nura php-5.1.4/ext/standard/php_standard.h hardening-patch-5.1.4-0.4.12/ext/standard/php_standard.h
 --- php-5.1.4/ext/standard/php_standard.h	2006-01-04 22:31:29.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/ext/standard/php_standard.h	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/ext/standard/php_standard.h	2006-07-20 10:45:33.000000000 +0200
 @@ -28,6 +28,7 @@
  #include "php_mail.h"
  #include "md5.h"
@@ -2449,9 +2632,9 @@ diff -Nura php-5.1.4/ext/standard/php_standard.h hardening-patch-5.1.4-0.4.11/ex
  #include "html.h"
  #include "exec.h"
  #include "file.h"
-diff -Nura php-5.1.4/ext/standard/sha256.c hardening-patch-5.1.4-0.4.11/ext/standard/sha256.c
+diff -Nura php-5.1.4/ext/standard/sha256.c hardening-patch-5.1.4-0.4.12/ext/standard/sha256.c
 --- php-5.1.4/ext/standard/sha256.c	1970-01-01 01:00:00.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/ext/standard/sha256.c	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/ext/standard/sha256.c	2006-07-20 10:45:33.000000000 +0200
 @@ -0,0 +1,388 @@
 +/*
 +   +----------------------------------------------------------------------+
@@ -2841,9 +3024,9 @@ diff -Nura php-5.1.4/ext/standard/sha256.c hardening-patch-5.1.4-0.4.11/ext/stan
 + * vim600: sw=4 ts=4 fdm=marker
 + * vim<600: sw=4 ts=4
 + */
-diff -Nura php-5.1.4/ext/standard/sha256.h hardening-patch-5.1.4-0.4.11/ext/standard/sha256.h
+diff -Nura php-5.1.4/ext/standard/sha256.h hardening-patch-5.1.4-0.4.12/ext/standard/sha256.h
 --- php-5.1.4/ext/standard/sha256.h	1970-01-01 01:00:00.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/ext/standard/sha256.h	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/ext/standard/sha256.h	2006-07-20 10:45:33.000000000 +0200
 @@ -0,0 +1,40 @@
 +/*
 +   +----------------------------------------------------------------------+
@@ -2885,9 +3068,44 @@ diff -Nura php-5.1.4/ext/standard/sha256.h hardening-patch-5.1.4-0.4.11/ext/stan
 +PHP_FUNCTION(sha256_file);
 +
 +#endif
-diff -Nura php-5.1.4/ext/standard/syslog.c hardening-patch-5.1.4-0.4.11/ext/standard/syslog.c
+diff -Nura php-5.1.4/ext/standard/string.c hardening-patch-5.1.4-0.4.12/ext/standard/string.c
+--- php-5.1.4/ext/standard/string.c	2006-04-25 14:48:41.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/ext/standard/string.c	2006-07-20 11:07:00.000000000 +0200
+@@ -632,7 +632,8 @@
+ {
+ 	const char *text, *breakchar = "\n";
+ 	char *newtext;
+-	int textlen, breakcharlen = 1, newtextlen, alloced, chk;
++	int textlen, breakcharlen = 1, newtextlen, chk;
++	size_t alloced;
+ 	long current = 0, laststart = 0, lastspace = 0;
+ 	long linelength = 75;
+ 	zend_bool docut = 0;
+@@ -4194,7 +4195,7 @@
+ 	zval		**input_str;		/* Input string */
+ 	zval		**mult;			/* Multiplier */
+ 	char		*result;		/* Resulting string */
+-	int		result_len;		/* Length of the resulting string */
++	size_t		result_len;		/* Length of the resulting string */
+ 	
+ 	if (ZEND_NUM_ARGS() != 2 || zend_get_parameters_ex(2, &input_str, &mult) == FAILURE) {
+ 		WRONG_PARAM_COUNT;
+@@ -4219,11 +4220,7 @@
+ 	
+ 	/* Initialize the result string */	
+ 	result_len = Z_STRLEN_PP(input_str) * Z_LVAL_PP(mult);
+-	if (result_len < 1 || result_len > 2147483647) {
+-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "You may not create strings longer than 2147483647 bytes");
+-		RETURN_FALSE;
+-	}
+-	result = (char *)emalloc(result_len + 1);
++	result = (char *)safe_emalloc(Z_STRLEN_PP(input_str), Z_LVAL_PP(mult), 1);
+ 	
+ 	/* Heavy optimization for situations where input string is 1 byte long */
+ 	if (Z_STRLEN_PP(input_str) == 1) {
+diff -Nura php-5.1.4/ext/standard/syslog.c hardening-patch-5.1.4-0.4.12/ext/standard/syslog.c
 --- php-5.1.4/ext/standard/syslog.c	2006-03-21 01:59:08.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/ext/standard/syslog.c	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/ext/standard/syslog.c	2006-07-20 10:45:33.000000000 +0200
 @@ -42,6 +42,7 @@
   */
  PHP_MINIT_FUNCTION(syslog)
@@ -2904,9 +3122,9 @@ diff -Nura php-5.1.4/ext/standard/syslog.c hardening-patch-5.1.4-0.4.11/ext/stan
  	BG(syslog_device)=NULL;
  
  	return SUCCESS;
-diff -Nura php-5.1.4/ext/varfilter/config.m4 hardening-patch-5.1.4-0.4.11/ext/varfilter/config.m4
+diff -Nura php-5.1.4/ext/varfilter/config.m4 hardening-patch-5.1.4-0.4.12/ext/varfilter/config.m4
 --- php-5.1.4/ext/varfilter/config.m4	1970-01-01 01:00:00.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/ext/varfilter/config.m4	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/ext/varfilter/config.m4	2006-07-20 10:45:33.000000000 +0200
 @@ -0,0 +1,11 @@
 +dnl
 +dnl $Id: config.m4,v 1.1 2004/11/14 13:27:16 ionic Exp $
@@ -2919,16 +3137,16 @@ diff -Nura php-5.1.4/ext/varfilter/config.m4 hardening-patch-5.1.4-0.4.11/ext/va
 +  AC_DEFINE(HAVE_VARFILTER, 1, [ ])
 +  PHP_NEW_EXTENSION(varfilter, varfilter.c, $ext_shared)
 +fi
-diff -Nura php-5.1.4/ext/varfilter/CREDITS hardening-patch-5.1.4-0.4.11/ext/varfilter/CREDITS
+diff -Nura php-5.1.4/ext/varfilter/CREDITS hardening-patch-5.1.4-0.4.12/ext/varfilter/CREDITS
 --- php-5.1.4/ext/varfilter/CREDITS	1970-01-01 01:00:00.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/ext/varfilter/CREDITS	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/ext/varfilter/CREDITS	2006-07-20 10:45:33.000000000 +0200
 @@ -0,0 +1,2 @@
 +varfilter
 +Stefan Esser
 \ Kein Zeilenumbruch am Dateiende.
-diff -Nura php-5.1.4/ext/varfilter/php_varfilter.h hardening-patch-5.1.4-0.4.11/ext/varfilter/php_varfilter.h
+diff -Nura php-5.1.4/ext/varfilter/php_varfilter.h hardening-patch-5.1.4-0.4.12/ext/varfilter/php_varfilter.h
 --- php-5.1.4/ext/varfilter/php_varfilter.h	1970-01-01 01:00:00.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/ext/varfilter/php_varfilter.h	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/ext/varfilter/php_varfilter.h	2006-07-20 10:45:33.000000000 +0200
 @@ -0,0 +1,144 @@
 +/*
 +  +----------------------------------------------------------------------+
@@ -3074,9 +3292,9 @@ diff -Nura php-5.1.4/ext/varfilter/php_varfilter.h hardening-patch-5.1.4-0.4.11/
 + * indent-tabs-mode: t
 + * End:
 + */
-diff -Nura php-5.1.4/ext/varfilter/varfilter.c hardening-patch-5.1.4-0.4.11/ext/varfilter/varfilter.c
+diff -Nura php-5.1.4/ext/varfilter/varfilter.c hardening-patch-5.1.4-0.4.12/ext/varfilter/varfilter.c
 --- php-5.1.4/ext/varfilter/varfilter.c	1970-01-01 01:00:00.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/ext/varfilter/varfilter.c	2006-05-13 15:53:08.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/ext/varfilter/varfilter.c	2006-07-20 10:46:33.000000000 +0200
 @@ -0,0 +1,915 @@
 +/*
 +  +----------------------------------------------------------------------+
@@ -3131,7 +3349,7 @@ diff -Nura php-5.1.4/ext/varfilter/varfilter.c hardening-patch-5.1.4-0.4.11/ext/
 +	PHP_RSHUTDOWN(varfilter),	/* Replace with NULL if there's nothing to do at request end */
 +	PHP_MINFO(varfilter),
 +#if ZEND_MODULE_API_NO >= 20010901
-+	"0.4.11", /* Replace with version number for your extension */
++	"0.4.12", /* Replace with version number for your extension */
 +#endif
 +	STANDARD_MODULE_PROPERTIES
 +};
@@ -3993,9 +4211,69 @@ diff -Nura php-5.1.4/ext/varfilter/varfilter.c hardening-patch-5.1.4-0.4.11/ext/
 + */
 +
 +
-diff -Nura php-5.1.4/main/fopen_wrappers.c hardening-patch-5.1.4-0.4.11/main/fopen_wrappers.c
+diff -Nura php-5.1.4/ext/wddx/wddx.c hardening-patch-5.1.4-0.4.12/ext/wddx/wddx.c
+--- php-5.1.4/ext/wddx/wddx.c	2006-04-23 18:02:05.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/ext/wddx/wddx.c	2006-07-20 11:07:00.000000000 +0200
+@@ -399,9 +399,9 @@
+ 					break;
+ 
+ 				default:
+-					if (iscntrl((int)*(unsigned char *)p)) {
++					if (iscntrl((int)*(unsigned char *)p)||(int)*(unsigned char *)p >= 127) {
+ 						FLUSH_BUF();
+-						sprintf(control_buf, WDDX_CHAR, *p);
++						sprintf(control_buf, WDDX_CHAR, (int)*(unsigned char *)p);
+ 						php_wddx_add_chunk(packet, control_buf);
+ 					} else
+ 						buf[l++] = *p;
+@@ -751,7 +751,7 @@
+ 	} else if (!strcmp(name, EL_CHAR)) {
+ 		int i;
+ 		
+-		for (i = 0; atts[i]; i++) {
++		if (atts) for (i = 0; atts[i]; i++) {
+ 			if (!strcmp(atts[i], EL_CHAR_CODE) && atts[++i] && atts[i][0]) {
+ 				char tmp_buf[2];
+ 
+@@ -771,7 +771,7 @@
+ 	} else if (!strcmp(name, EL_BOOLEAN)) {
+ 		int i;
+ 
+-		for (i = 0; atts[i]; i++) {
++		if (atts) for (i = 0; atts[i]; i++) {
+ 			if (!strcmp(atts[i], EL_VALUE) && atts[++i] && atts[i][0]) {
+ 				ent.type = ST_BOOLEAN;
+ 				SET_STACK_VARNAME;
+@@ -812,7 +812,7 @@
+ 	} else if (!strcmp(name, EL_VAR)) {
+ 		int i;
+ 		
+-		for (i = 0; atts[i]; i++) {
++		if (atts) for (i = 0; atts[i]; i++) {
+ 			if (!strcmp(atts[i], EL_NAME) && atts[++i] && atts[i][0]) {
+ 				char *decoded;
+ 				int decoded_len;
+@@ -829,7 +829,7 @@
+ 		MAKE_STD_ZVAL(ent.data);
+ 		array_init(ent.data);
+ 
+-		for (i = 0; atts[i]; i++) {
++		if (atts) for (i = 0; atts[i]; i++) {
+ 			if (!strcmp(atts[i], "fieldNames") && atts[++i] && atts[i][0]) {
+ 				zval *tmp;
+ 				char *key;
+@@ -869,7 +869,7 @@
+ 		ent.varname = NULL;
+ 		ent.data = NULL;
+ 
+-		for (i = 0; atts[i]; i++) {
++		if (atts) for (i = 0; atts[i]; i++) {
+ 			if (!strcmp(atts[i], EL_NAME) && atts[++i] && atts[i][0]) {
+ 				char *decoded;
+ 				int decoded_len;
+diff -Nura php-5.1.4/main/fopen_wrappers.c hardening-patch-5.1.4-0.4.12/main/fopen_wrappers.c
 --- php-5.1.4/main/fopen_wrappers.c	2006-03-17 11:42:31.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/main/fopen_wrappers.c	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/main/fopen_wrappers.c	2006-07-20 10:45:33.000000000 +0200
 @@ -114,14 +114,20 @@
  			}
  		}
@@ -4040,10 +4318,10 @@ diff -Nura php-5.1.4/main/fopen_wrappers.c hardening-patch-5.1.4-0.4.11/main/fop
  
  		pathbuf = estrdup(PG(open_basedir));
  
-diff -Nura php-5.1.4/main/hardened_globals.h hardening-patch-5.1.4-0.4.11/main/hardened_globals.h
+diff -Nura php-5.1.4/main/hardened_globals.h hardening-patch-5.1.4-0.4.12/main/hardened_globals.h
 --- php-5.1.4/main/hardened_globals.h	1970-01-01 01:00:00.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/main/hardened_globals.h	2006-05-13 15:39:35.000000000 +0200
-@@ -0,0 +1,62 @@
++++ hardening-patch-5.1.4-0.4.12/main/hardened_globals.h	2006-07-20 12:17:12.000000000 +0200
+@@ -0,0 +1,63 @@
 +/*
 +   +----------------------------------------------------------------------+
 +   | Hardening-Patch for PHP                                              |
@@ -4088,6 +4366,7 @@ diff -Nura php-5.1.4/main/hardened_globals.h hardening-patch-5.1.4-0.4.11/main/h
 +#endif
 +	zend_bool hphp_sql_bailout_on_error;
 +	zend_bool hphp_multiheader;
++	unsigned long hphp_mailprotect;
 +	HashTable *eval_whitelist;
 +	HashTable *eval_blacklist;
 +	HashTable *func_whitelist;
@@ -4106,9 +4385,9 @@ diff -Nura php-5.1.4/main/hardened_globals.h hardening-patch-5.1.4-0.4.11/main/h
 + * c-basic-offset: 4
 + * End:
 + */
-diff -Nura php-5.1.4/main/hardening_patch.c hardening-patch-5.1.4-0.4.11/main/hardening_patch.c
+diff -Nura php-5.1.4/main/hardening_patch.c hardening-patch-5.1.4-0.4.12/main/hardening_patch.c
 --- php-5.1.4/main/hardening_patch.c	1970-01-01 01:00:00.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/main/hardening_patch.c	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/main/hardening_patch.c	2006-07-20 10:49:59.000000000 +0200
 @@ -0,0 +1,430 @@
 +/*
 +   +----------------------------------------------------------------------+
@@ -4485,8 +4764,8 @@ diff -Nura php-5.1.4/main/hardening_patch.c hardening-patch-5.1.4-0.4.11/main/ha
 +				if (h == NULL) break;
 +				
 +				
-+				while (t > s) {
-+					if (isalnum(t[-1]) || t[-1]=='_') t--;
++				while (t > s && (isalnum(t[-1]) || t[-1]=='_')) {
++					t--;
 +				}
 +				
 +				tlen = strlen(t);
@@ -4540,9 +4819,9 @@ diff -Nura php-5.1.4/main/hardening_patch.c hardening-patch-5.1.4-0.4.11/main/ha
 + * vim600: sw=4 ts=4 fdm=marker
 + * vim<600: sw=4 ts=4
 + */
-diff -Nura php-5.1.4/main/hardening_patch.h hardening-patch-5.1.4-0.4.11/main/hardening_patch.h
+diff -Nura php-5.1.4/main/hardening_patch.h hardening-patch-5.1.4-0.4.12/main/hardening_patch.h
 --- php-5.1.4/main/hardening_patch.h	1970-01-01 01:00:00.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/main/hardening_patch.h	2006-05-13 15:39:47.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/main/hardening_patch.h	2006-07-20 10:46:20.000000000 +0200
 @@ -0,0 +1,46 @@
 +/*
 +   +----------------------------------------------------------------------+
@@ -4570,7 +4849,7 @@ diff -Nura php-5.1.4/main/hardening_patch.h hardening-patch-5.1.4-0.4.11/main/ha
 +#if HARDENING_PATCH
 +PHPAPI void php_security_log(int loglevel, char *fmt, ...);
 +PHPAPI void hardened_startup();
-+#define HARDENING_PATCH_VERSION "0.4.11"
++#define HARDENING_PATCH_VERSION "0.4.12"
 +
 +#endif
 +
@@ -4590,9 +4869,9 @@ diff -Nura php-5.1.4/main/hardening_patch.h hardening-patch-5.1.4-0.4.11/main/ha
 + * c-basic-offset: 4
 + * End:
 + */
-diff -Nura php-5.1.4/main/hardening_patch.m4 hardening-patch-5.1.4-0.4.11/main/hardening_patch.m4
+diff -Nura php-5.1.4/main/hardening_patch.m4 hardening-patch-5.1.4-0.4.12/main/hardening_patch.m4
 --- php-5.1.4/main/hardening_patch.m4	1970-01-01 01:00:00.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/main/hardening_patch.m4	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/main/hardening_patch.m4	2006-07-20 10:45:33.000000000 +0200
 @@ -0,0 +1,95 @@
 +dnl
 +dnl $Id: hardening_patch.m4,v 1.1 2004/11/14 13:24:24 ionic Exp $
@@ -4689,9 +4968,9 @@ diff -Nura php-5.1.4/main/hardening_patch.m4 hardening-patch-5.1.4-0.4.11/main/h
 +  AC_DEFINE(HARDENING_PATCH_HASH_PROTECT, 0, [HashTable DTOR Protection])
 +fi
 +
-diff -Nura php-5.1.4/main/main.c hardening-patch-5.1.4-0.4.11/main/main.c
+diff -Nura php-5.1.4/main/main.c hardening-patch-5.1.4-0.4.12/main/main.c
 --- php-5.1.4/main/main.c	2006-04-12 14:49:39.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.11/main/main.c	2006-05-13 16:14:43.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/main/main.c	2006-07-20 10:45:33.000000000 +0200
 @@ -85,6 +85,10 @@
  
  #include "SAPI.h"
@@ -4807,9 +5086,9 @@ diff -Nura php-5.1.4/main/main.c hardening-patch-5.1.4-0.4.11/main/main.c
  	REGISTER_MAIN_STRINGL_CONSTANT("PHP_EOL", PHP_EOL, sizeof(PHP_EOL)-1, CONST_PERSISTENT | CONST_CS);
  	REGISTER_MAIN_LONG_CONSTANT("PHP_INT_MAX", LONG_MAX, CONST_PERSISTENT | CONST_CS);
  	REGISTER_MAIN_LONG_CONSTANT("PHP_INT_SIZE", sizeof(long), CONST_PERSISTENT | CONST_CS);
-diff -Nura php-5.1.4/main/php_config.h.in hardening-patch-5.1.4-0.4.11/main/php_config.h.in
---- php-5.1.4/main/php_config.h.in	2006-05-04 01:31:35.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.11/main/php_config.h.in	2006-05-13 15:39:35.000000000 +0200
+diff -Nura php-5.1.4/main/php_config.h.in hardening-patch-5.1.4-0.4.12/main/php_config.h.in
+--- php-5.1.4/main/php_config.h.in	2006-05-12 16:41:13.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/main/php_config.h.in	2006-07-20 10:45:33.000000000 +0200
 @@ -788,6 +788,39 @@
  /* Enabling BIND8 compatibility for Panther */
  #undef BIND_8_COMPAT
@@ -4863,9 +5142,9 @@ diff -Nura php-5.1.4/main/php_config.h.in hardening-patch-5.1.4-0.4.11/main/php_
  /* Whether system headers declare timezone */
  #undef HAVE_DECLARED_TIMEZONE
  
-diff -Nura php-5.1.4/main/php.h hardening-patch-5.1.4-0.4.11/main/php.h
+diff -Nura php-5.1.4/main/php.h hardening-patch-5.1.4-0.4.12/main/php.h
 --- php-5.1.4/main/php.h	2006-03-07 23:37:53.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/main/php.h	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/main/php.h	2006-07-20 10:45:33.000000000 +0200
 @@ -35,11 +35,19 @@
  #include "zend_qsort.h"
  #include "php_compat.h"
@@ -4905,9 +5184,34 @@ diff -Nura php-5.1.4/main/php.h hardening-patch-5.1.4-0.4.11/main/php.h
  #endif
  
  /*
-diff -Nura php-5.1.4/main/php_variables.c hardening-patch-5.1.4-0.4.11/main/php_variables.c
+diff -Nura php-5.1.4/main/php_open_temporary_file.c hardening-patch-5.1.4-0.4.12/main/php_open_temporary_file.c
+--- php-5.1.4/main/php_open_temporary_file.c	2006-01-01 13:50:17.000000000 +0100
++++ hardening-patch-5.1.4-0.4.12/main/php_open_temporary_file.c	2006-07-20 11:07:00.000000000 +0200
+@@ -114,17 +114,16 @@
+ 
+ 	path_len = strlen(path);
+ 
+-	if (!(opened_path = emalloc(MAXPATHLEN))) {
+-		return -1;
+-	}
+-
+ 	if (!path_len || IS_SLASH(path[path_len - 1])) {
+ 		trailing_slash = "";
+ 	} else {
+ 		trailing_slash = "/";
+ 	}
+ 
+-	(void)snprintf(opened_path, MAXPATHLEN, "%s%s%sXXXXXX", path, trailing_slash, pfx);
++	if (spprintf(&opened_path, 0, "%s%s%sXXXXXX", path, trailing_slash, pfx) >= MAXPATHLEN) {
++	        efree(opened_path);
++		return -1;
++	}
+ 
+ #ifdef PHP_WIN32
+ 	if (GetTempFileName(path, pfx, 0, opened_path)) {
+diff -Nura php-5.1.4/main/php_variables.c hardening-patch-5.1.4-0.4.12/main/php_variables.c
 --- php-5.1.4/main/php_variables.c	2006-05-03 13:24:29.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.11/main/php_variables.c	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/main/php_variables.c	2006-07-20 10:45:33.000000000 +0200
 @@ -73,6 +73,10 @@
  		symtable1 = Z_ARRVAL_P(track_vars_array);
  	} else if (PG(register_globals)) {
@@ -4928,9 +5232,9 @@ diff -Nura php-5.1.4/main/php_variables.c hardening-patch-5.1.4-0.4.11/main/php_
  	/* turn off magic_quotes while importing server variables */
  	int magic_quotes_gpc = PG(magic_quotes_gpc);
  
-diff -Nura php-5.1.4/main/rfc1867.c hardening-patch-5.1.4-0.4.11/main/rfc1867.c
+diff -Nura php-5.1.4/main/rfc1867.c hardening-patch-5.1.4-0.4.12/main/rfc1867.c
 --- php-5.1.4/main/rfc1867.c	2006-01-01 13:50:17.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/main/rfc1867.c	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/main/rfc1867.c	2006-07-20 10:45:33.000000000 +0200
 @@ -132,6 +132,7 @@
  #define UPLOAD_ERROR_D    4  /* No file uploaded */
  #define UPLOAD_ERROR_E    6  /* Missing /tmp or similar directory */
@@ -5002,9 +5306,9 @@ diff -Nura php-5.1.4/main/rfc1867.c hardening-patch-5.1.4-0.4.11/main/rfc1867.c
  			if (cancel_upload) {
  				if (temp_filename) {
  					if (cancel_upload != UPLOAD_ERROR_E) { /* file creation failed */
-diff -Nura php-5.1.4/main/SAPI.c hardening-patch-5.1.4-0.4.11/main/SAPI.c
+diff -Nura php-5.1.4/main/SAPI.c hardening-patch-5.1.4-0.4.12/main/SAPI.c
 --- php-5.1.4/main/SAPI.c	2006-01-01 13:50:17.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/main/SAPI.c	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/main/SAPI.c	2006-07-20 10:45:33.000000000 +0200
 @@ -870,6 +870,36 @@
  			post_entry->content_type_len+1);
  }
@@ -5054,9 +5358,9 @@ diff -Nura php-5.1.4/main/SAPI.c hardening-patch-5.1.4-0.4.11/main/SAPI.c
  
  SAPI_API int sapi_flush(TSRMLS_D)
  {
-diff -Nura php-5.1.4/main/SAPI.h hardening-patch-5.1.4-0.4.11/main/SAPI.h
+diff -Nura php-5.1.4/main/SAPI.h hardening-patch-5.1.4-0.4.12/main/SAPI.h
 --- php-5.1.4/main/SAPI.h	2006-01-01 13:50:17.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/main/SAPI.h	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/main/SAPI.h	2006-07-20 10:45:33.000000000 +0200
 @@ -190,6 +190,10 @@
  SAPI_API int sapi_register_treat_data(void (*treat_data)(int arg, char *str, zval *destArray TSRMLS_DC));
  SAPI_API int sapi_register_input_filter(unsigned int (*input_filter)(int arg, char *var, char **val, unsigned int val_len, unsigned int *new_val_len TSRMLS_DC));
@@ -5104,9 +5408,9 @@ diff -Nura php-5.1.4/main/SAPI.h hardening-patch-5.1.4-0.4.11/main/SAPI.h
  BEGIN_EXTERN_C()
  SAPI_API SAPI_POST_READER_FUNC(sapi_read_standard_form_data);
  SAPI_API SAPI_POST_READER_FUNC(php_default_post_reader);
-diff -Nura php-5.1.4/main/snprintf.c hardening-patch-5.1.4-0.4.11/main/snprintf.c
+diff -Nura php-5.1.4/main/snprintf.c hardening-patch-5.1.4-0.4.12/main/snprintf.c
 --- php-5.1.4/main/snprintf.c	2006-01-24 21:59:46.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/main/snprintf.c	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/main/snprintf.c	2006-07-20 10:45:33.000000000 +0200
 @@ -1014,7 +1014,11 @@
  
  
@@ -5119,9 +5423,9 @@ diff -Nura php-5.1.4/main/snprintf.c hardening-patch-5.1.4-0.4.11/main/snprintf.
  					goto skip_output;
  
  					/*
-diff -Nura php-5.1.4/main/spprintf.c hardening-patch-5.1.4-0.4.11/main/spprintf.c
+diff -Nura php-5.1.4/main/spprintf.c hardening-patch-5.1.4-0.4.12/main/spprintf.c
 --- php-5.1.4/main/spprintf.c	2006-01-24 21:59:46.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/main/spprintf.c	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/main/spprintf.c	2006-07-20 10:45:33.000000000 +0200
 @@ -630,7 +630,11 @@
  
  
@@ -5134,9 +5438,9 @@ diff -Nura php-5.1.4/main/spprintf.c hardening-patch-5.1.4-0.4.11/main/spprintf.
  					goto skip_output;
  
  					/*
-diff -Nura php-5.1.4/pear/Makefile.frag hardening-patch-5.1.4-0.4.11/pear/Makefile.frag
+diff -Nura php-5.1.4/pear/Makefile.frag hardening-patch-5.1.4-0.4.12/pear/Makefile.frag
 --- php-5.1.4/pear/Makefile.frag	2006-02-08 02:12:12.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/pear/Makefile.frag	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/pear/Makefile.frag	2006-07-20 10:45:33.000000000 +0200
 @@ -3,7 +3,7 @@
  peardir=$(PEAR_INSTALLDIR)
  
@@ -5146,9 +5450,9 @@ diff -Nura php-5.1.4/pear/Makefile.frag hardening-patch-5.1.4-0.4.11/pear/Makefi
  
  install-pear-installer: $(SAPI_CLI_PATH)
  	@$(top_builddir)/sapi/cli/php $(PEAR_INSTALL_FLAGS) $(builddir)/install-pear-nozlib.phar -d "$(peardir)" -b "$(bindir)"
-diff -Nura php-5.1.4/php.ini-dist hardening-patch-5.1.4-0.4.11/php.ini-dist
+diff -Nura php-5.1.4/php.ini-dist hardening-patch-5.1.4-0.4.12/php.ini-dist
 --- php-5.1.4/php.ini-dist	2006-02-09 00:43:48.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/php.ini-dist	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/php.ini-dist	2006-07-20 10:45:33.000000000 +0200
 @@ -1197,6 +1197,209 @@
  ; instead of original one.
  soap.wsdl_cache_ttl=86400
@@ -5359,9 +5663,9 @@ diff -Nura php-5.1.4/php.ini-dist hardening-patch-5.1.4-0.4.11/php.ini-dist
  ; Local Variables:
  ; tab-width: 4
  ; End:
-diff -Nura php-5.1.4/php.ini-recommended hardening-patch-5.1.4-0.4.11/php.ini-recommended
+diff -Nura php-5.1.4/php.ini-recommended hardening-patch-5.1.4-0.4.12/php.ini-recommended
 --- php-5.1.4/php.ini-recommended	2006-02-09 00:43:48.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/php.ini-recommended	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/php.ini-recommended	2006-07-20 10:45:33.000000000 +0200
 @@ -1255,6 +1255,209 @@
  ; instead of original one.
  soap.wsdl_cache_ttl=86400
@@ -5572,9 +5876,9 @@ diff -Nura php-5.1.4/php.ini-recommended hardening-patch-5.1.4-0.4.11/php.ini-re
  ; Local Variables:
  ; tab-width: 4
  ; End:
-diff -Nura php-5.1.4/run-tests.php hardening-patch-5.1.4-0.4.11/run-tests.php
+diff -Nura php-5.1.4/run-tests.php hardening-patch-5.1.4-0.4.12/run-tests.php
 --- php-5.1.4/run-tests.php	2006-05-03 23:37:16.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.11/run-tests.php	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/run-tests.php	2006-07-20 10:45:33.000000000 +0200
 @@ -161,6 +161,10 @@
  		'error_reporting=4095',
  		'display_errors=1',
@@ -5586,9 +5890,9 @@ diff -Nura php-5.1.4/run-tests.php hardening-patch-5.1.4-0.4.11/run-tests.php
  		'html_errors=0',
  		'track_errors=1',
  		'report_memleaks=1',
-diff -Nura php-5.1.4/sapi/apache/mod_php5.c hardening-patch-5.1.4-0.4.11/sapi/apache/mod_php5.c
+diff -Nura php-5.1.4/sapi/apache/mod_php5.c hardening-patch-5.1.4-0.4.12/sapi/apache/mod_php5.c
 --- php-5.1.4/sapi/apache/mod_php5.c	2006-04-02 19:58:17.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.11/sapi/apache/mod_php5.c	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/sapi/apache/mod_php5.c	2006-07-20 10:45:33.000000000 +0200
 @@ -482,7 +482,7 @@
  	sapi_apache_get_fd,
  	sapi_apache_force_http_10,
@@ -5610,9 +5914,9 @@ diff -Nura php-5.1.4/sapi/apache/mod_php5.c hardening-patch-5.1.4-0.4.11/sapi/ap
  		}
  	}
  #endif
-diff -Nura php-5.1.4/sapi/apache2filter/sapi_apache2.c hardening-patch-5.1.4-0.4.11/sapi/apache2filter/sapi_apache2.c
+diff -Nura php-5.1.4/sapi/apache2filter/sapi_apache2.c hardening-patch-5.1.4-0.4.12/sapi/apache2filter/sapi_apache2.c
 --- php-5.1.4/sapi/apache2filter/sapi_apache2.c	2006-03-19 15:54:53.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/sapi/apache2filter/sapi_apache2.c	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/sapi/apache2filter/sapi_apache2.c	2006-07-20 10:45:33.000000000 +0200
 @@ -573,7 +573,11 @@
  {
  	TSRMLS_FETCH();
@@ -5625,9 +5929,9 @@ diff -Nura php-5.1.4/sapi/apache2filter/sapi_apache2.c hardening-patch-5.1.4-0.4
  	}
  }
  
-diff -Nura php-5.1.4/sapi/apache2handler/sapi_apache2.c hardening-patch-5.1.4-0.4.11/sapi/apache2handler/sapi_apache2.c
+diff -Nura php-5.1.4/sapi/apache2handler/sapi_apache2.c hardening-patch-5.1.4-0.4.12/sapi/apache2handler/sapi_apache2.c
 --- php-5.1.4/sapi/apache2handler/sapi_apache2.c	2006-03-19 15:54:53.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/sapi/apache2handler/sapi_apache2.c	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/sapi/apache2handler/sapi_apache2.c	2006-07-20 10:45:33.000000000 +0200
 @@ -341,7 +341,11 @@
  {
  	TSRMLS_FETCH();
@@ -5640,9 +5944,9 @@ diff -Nura php-5.1.4/sapi/apache2handler/sapi_apache2.c hardening-patch-5.1.4-0.
  	}
  }
  
-diff -Nura php-5.1.4/sapi/cgi/cgi_main.c hardening-patch-5.1.4-0.4.11/sapi/cgi/cgi_main.c
+diff -Nura php-5.1.4/sapi/cgi/cgi_main.c hardening-patch-5.1.4-0.4.12/sapi/cgi/cgi_main.c
 --- php-5.1.4/sapi/cgi/cgi_main.c	2006-05-03 21:40:58.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.11/sapi/cgi/cgi_main.c	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/sapi/cgi/cgi_main.c	2006-07-20 10:45:33.000000000 +0200
 @@ -1444,10 +1444,18 @@
  							SG(headers_sent) = 1;
  							SG(request_info).no_headers = 1;
@@ -5664,9 +5968,9 @@ diff -Nura php-5.1.4/sapi/cgi/cgi_main.c hardening-patch-5.1.4-0.4.11/sapi/cgi/c
  #endif
  						php_end_ob_buffers(1 TSRMLS_CC);
  						exit(0);
-diff -Nura php-5.1.4/sapi/cli/php_cli.c hardening-patch-5.1.4-0.4.11/sapi/cli/php_cli.c
+diff -Nura php-5.1.4/sapi/cli/php_cli.c hardening-patch-5.1.4-0.4.12/sapi/cli/php_cli.c
 --- php-5.1.4/sapi/cli/php_cli.c	2006-02-21 22:15:13.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/sapi/cli/php_cli.c	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/sapi/cli/php_cli.c	2006-07-20 10:45:33.000000000 +0200
 @@ -753,8 +753,14 @@
  					goto err;
  				}
@@ -5683,9 +5987,9 @@ diff -Nura php-5.1.4/sapi/cli/php_cli.c hardening-patch-5.1.4-0.4.11/sapi/cli/ph
  #if ZEND_DEBUG && defined(HAVE_GCOV)
  					"(DEBUG GCOV)",
  #elif ZEND_DEBUG
-diff -Nura php-5.1.4/TSRM/TSRM.h hardening-patch-5.1.4-0.4.11/TSRM/TSRM.h
+diff -Nura php-5.1.4/TSRM/TSRM.h hardening-patch-5.1.4-0.4.12/TSRM/TSRM.h
 --- php-5.1.4/TSRM/TSRM.h	2006-03-14 16:16:07.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/TSRM/TSRM.h	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/TSRM/TSRM.h	2006-07-20 10:45:33.000000000 +0200
 @@ -33,6 +33,13 @@
  #	define TSRM_API
  #endif
@@ -5708,9 +6012,9 @@ diff -Nura php-5.1.4/TSRM/TSRM.h hardening-patch-5.1.4-0.4.11/TSRM/TSRM.h
  #ifdef __cplusplus
  extern "C" {
  #endif
-diff -Nura php-5.1.4/TSRM/tsrm_virtual_cwd.c hardening-patch-5.1.4-0.4.11/TSRM/tsrm_virtual_cwd.c
+diff -Nura php-5.1.4/TSRM/tsrm_virtual_cwd.c hardening-patch-5.1.4-0.4.12/TSRM/tsrm_virtual_cwd.c
 --- php-5.1.4/TSRM/tsrm_virtual_cwd.c	2006-03-05 19:57:54.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/TSRM/tsrm_virtual_cwd.c	2006-05-13 17:58:25.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/TSRM/tsrm_virtual_cwd.c	2006-07-20 10:45:33.000000000 +0200
 @@ -163,6 +163,7 @@
  static void cwd_globals_ctor(virtual_cwd_globals *cwd_globals TSRMLS_DC)
  {
@@ -5993,9 +6297,9 @@ diff -Nura php-5.1.4/TSRM/tsrm_virtual_cwd.c hardening-patch-5.1.4-0.4.11/TSRM/t
  		realpath_cache_add(orig_path, orig_path_len, state->cwd, state->cwd_length, t TSRMLS_CC);
  	}
  
-diff -Nura php-5.1.4/TSRM/tsrm_virtual_cwd.h hardening-patch-5.1.4-0.4.11/TSRM/tsrm_virtual_cwd.h
+diff -Nura php-5.1.4/TSRM/tsrm_virtual_cwd.h hardening-patch-5.1.4-0.4.12/TSRM/tsrm_virtual_cwd.h
 --- php-5.1.4/TSRM/tsrm_virtual_cwd.h	2006-04-10 13:56:18.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.11/TSRM/tsrm_virtual_cwd.h	2006-05-13 16:11:07.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/TSRM/tsrm_virtual_cwd.h	2006-07-20 10:45:33.000000000 +0200
 @@ -127,6 +127,22 @@
  
  typedef int (*verify_path_func)(const cwd_state *);
@@ -6027,9 +6331,9 @@ diff -Nura php-5.1.4/TSRM/tsrm_virtual_cwd.h hardening-patch-5.1.4-0.4.11/TSRM/t
  } virtual_cwd_globals;
  
  #ifdef ZTS
-diff -Nura php-5.1.4/Zend/zend_alloc.c hardening-patch-5.1.4-0.4.11/Zend/zend_alloc.c
+diff -Nura php-5.1.4/Zend/zend_alloc.c hardening-patch-5.1.4-0.4.12/Zend/zend_alloc.c
 --- php-5.1.4/Zend/zend_alloc.c	2006-01-05 00:53:03.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/Zend/zend_alloc.c	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/Zend/zend_alloc.c	2006-07-20 11:11:44.000000000 +0200
 @@ -64,6 +64,11 @@
  # define END_MAGIC_SIZE 0
  #endif
@@ -6042,7 +6346,24 @@ diff -Nura php-5.1.4/Zend/zend_alloc.c hardening-patch-5.1.4-0.4.11/Zend/zend_al
  
  # if MEMORY_LIMIT
  #  if ZEND_DEBUG
-@@ -105,9 +110,17 @@
+@@ -72,7 +77,15 @@
+ #define CHECK_MEMORY_LIMIT(s, rs)	_CHECK_MEMORY_LIMIT(s, rs, NULL, 0)
+ #  endif
+ 
+-#define _CHECK_MEMORY_LIMIT(s, rs, file, lineno) { AG(allocated_memory) += rs;\
++#define _CHECK_MEMORY_LIMIT(s, rs, file, lineno) { if ((ssize_t)(rs) > (ssize_t)(INT_MAX - AG(allocated_memory))) { \
++									if (file) { \
++										fprintf(stderr, "Integer overflow in memory_limit check detected at %s:%d\n", file, lineno); \
++									} else { \
++										fprintf(stderr, "Integer overflow in memory_limit check detected\n"); \
++									} \
++									exit(1); \
++								} \
++								AG(allocated_memory) += rs;\
+ 								if (AG(memory_limit)<AG(allocated_memory)) {\
+ 									int php_mem_limit = AG(memory_limit); \
+ 									AG(allocated_memory) -= rs; \
+@@ -105,9 +118,17 @@
  	if (p==AG(head)) {							\
  		AG(head) = p->pNext;					\
  	} else {									\
@@ -6060,7 +6381,21 @@ diff -Nura php-5.1.4/Zend/zend_alloc.c hardening-patch-5.1.4-0.4.11/Zend/zend_al
  		p->pNext->pLast = p->pLast;				\
  	}
  #else
-@@ -146,6 +159,12 @@
+@@ -127,7 +148,7 @@
+ #endif
+ 
+ #define DECLARE_CACHE_VARS()	\
+-	unsigned int real_size;		\
++	size_t real_size;		\
+ 	unsigned int cache_index
+ 
+ #define REAL_SIZE(size) ((size+7) & ~0x7)
+@@ -142,12 +163,22 @@
+ 
+ ZEND_API void *_emalloc(size_t size ZEND_FILE_LINE_DC ZEND_FILE_LINE_ORIG_DC)
+ {
+-	zend_mem_header *p;
++	zend_mem_header *p = NULL;
  	DECLARE_CACHE_VARS();
  	TSRMLS_FETCH();
  
@@ -6072,8 +6407,14 @@ diff -Nura php-5.1.4/Zend/zend_alloc.c hardening-patch-5.1.4-0.4.11/Zend/zend_al
 +#endif
  	CALCULATE_REAL_SIZE_AND_CACHE_INDEX(size);
  
++	if (size > INT_MAX || SIZE < size) {
++		goto emalloc_error;
++	}
++
  #if !ZEND_DISABLE_MEMORY_CACHE
-@@ -164,6 +183,10 @@
+ 	if ((CACHE_INDEX < MAX_CACHED_MEMORY) && (AG(cache_count)[CACHE_INDEX] > 0)) {
+ 		p = AG(cache)[CACHE_INDEX][--AG(cache_count)[CACHE_INDEX]];
+@@ -164,6 +195,10 @@
  		AG(cache_stats)[CACHE_INDEX][1]++;
  		memcpy((((char *) p) + sizeof(zend_mem_header) + MEM_HEADER_PADDING + size), &mem_block_end_magic, sizeof(long));
  #endif
@@ -6084,7 +6425,7 @@ diff -Nura php-5.1.4/Zend/zend_alloc.c hardening-patch-5.1.4-0.4.11/Zend/zend_al
  		p->size = size;
  		return (void *)((char *)p + sizeof(zend_mem_header) + MEM_HEADER_PADDING);
  	} else {
-@@ -179,7 +202,7 @@
+@@ -179,11 +214,13 @@
  			AG(allocated_memory_peak) = AG(allocated_memory);
  		}
  #endif
@@ -6093,7 +6434,13 @@ diff -Nura php-5.1.4/Zend/zend_alloc.c hardening-patch-5.1.4-0.4.11/Zend/zend_al
  #if !ZEND_DISABLE_MEMORY_CACHE
  	}
  #endif
-@@ -210,7 +233,10 @@
+ 
++emalloc_error:
++
+ 	HANDLE_BLOCK_INTERRUPTIONS();
+ 
+ 	if (!p) {
+@@ -210,7 +247,10 @@
  # endif
  	memcpy((((char *) p) + sizeof(zend_mem_header) + MEM_HEADER_PADDING + size), &mem_block_end_magic, sizeof(long));
  #endif
@@ -6105,7 +6452,7 @@ diff -Nura php-5.1.4/Zend/zend_alloc.c hardening-patch-5.1.4-0.4.11/Zend/zend_al
  	HANDLE_UNBLOCK_INTERRUPTIONS();
  	return (void *)((char *)p + sizeof(zend_mem_header) + MEM_HEADER_PADDING);
  }
-@@ -238,6 +264,10 @@
+@@ -238,6 +278,10 @@
  		}
  	}
  
@@ -6116,7 +6463,7 @@ diff -Nura php-5.1.4/Zend/zend_alloc.c hardening-patch-5.1.4-0.4.11/Zend/zend_al
  	zend_error(E_ERROR, "Possible integer overflow in memory allocation (%zd * %zd + %zd)", nmemb, size, offset);
  	return 0;
  }
-@@ -270,9 +300,25 @@
+@@ -270,9 +314,25 @@
  
  ZEND_API void _efree(void *ptr ZEND_FILE_LINE_DC ZEND_FILE_LINE_ORIG_DC)
  {
@@ -6142,7 +6489,7 @@ diff -Nura php-5.1.4/Zend/zend_alloc.c hardening-patch-5.1.4-0.4.11/Zend/zend_al
  
  #if defined(ZTS) && TSRM_DEBUG
  	if (p->thread_id != tsrm_thread_id()) {
-@@ -313,23 +359,35 @@
+@@ -313,23 +373,35 @@
  
  ZEND_API void *_ecalloc(size_t nmemb, size_t size ZEND_FILE_LINE_DC ZEND_FILE_LINE_ORIG_DC)
  {
@@ -6188,7 +6535,7 @@ diff -Nura php-5.1.4/Zend/zend_alloc.c hardening-patch-5.1.4-0.4.11/Zend/zend_al
  	zend_mem_header *p;
  	zend_mem_header *orig;
  	DECLARE_CACHE_VARS();
-@@ -341,6 +399,16 @@
+@@ -341,6 +413,16 @@
  
  	p = orig = (zend_mem_header *) ((char *)ptr-sizeof(zend_mem_header)-MEM_HEADER_PADDING);
  
@@ -6205,16 +6552,31 @@ diff -Nura php-5.1.4/Zend/zend_alloc.c hardening-patch-5.1.4-0.4.11/Zend/zend_al
  #if defined(ZTS) && TSRM_DEBUG
  	if (p->thread_id != tsrm_thread_id()) {
  		void *new_p;
-@@ -364,7 +432,7 @@
+@@ -357,6 +439,13 @@
+ 	CALCULATE_REAL_SIZE_AND_CACHE_INDEX(size);
+ 
+ 	HANDLE_BLOCK_INTERRUPTIONS();
++
++	if (size > INT_MAX || SIZE < size) {
++		REMOVE_POINTER_FROM_LIST(p);
++		p = NULL;
++		goto erealloc_error;
++	}
++
+ #if MEMORY_LIMIT
+ 	CHECK_MEMORY_LIMIT(size - p->size, SIZE - REAL_SIZE(p->size));
+ 	if (AG(allocated_memory) > AG(allocated_memory_peak)) {
+@@ -364,7 +453,8 @@
  	}
  #endif
  	REMOVE_POINTER_FROM_LIST(p);
 -	p = (zend_mem_header *) ZEND_DO_REALLOC(p, sizeof(zend_mem_header)+MEM_HEADER_PADDING+SIZE+END_MAGIC_SIZE);
 +	p = (zend_mem_header *) ZEND_DO_REALLOC(p, sizeof(zend_mem_header)+MEM_HEADER_PADDING+SIZE+END_MAGIC_SIZE+CANARY_SIZE);
++erealloc_error:
  	if (!p) {
  		if (!allow_failure) {
  			fprintf(stderr,"FATAL:  erealloc():  Unable to allocate %ld bytes\n", (long) size);
-@@ -386,6 +454,9 @@
+@@ -386,6 +476,9 @@
  	memcpy((((char *) p) + sizeof(zend_mem_header) + MEM_HEADER_PADDING + size), &mem_block_end_magic, sizeof(long));
  #endif	
  
@@ -6224,7 +6586,7 @@ diff -Nura php-5.1.4/Zend/zend_alloc.c hardening-patch-5.1.4-0.4.11/Zend/zend_al
  	p->size = size;
  
  	HANDLE_UNBLOCK_INTERRUPTIONS();
-@@ -460,6 +531,10 @@
+@@ -460,6 +553,10 @@
  {
  	AG(head) = NULL;
  	
@@ -6235,9 +6597,9 @@ diff -Nura php-5.1.4/Zend/zend_alloc.c hardening-patch-5.1.4-0.4.11/Zend/zend_al
  #if MEMORY_LIMIT
  	AG(memory_limit) = 1<<30;		/* ridiculous limit, effectively no limit */
  	AG(allocated_memory) = 0;
-diff -Nura php-5.1.4/Zend/zend_alloc.h hardening-patch-5.1.4-0.4.11/Zend/zend_alloc.h
+diff -Nura php-5.1.4/Zend/zend_alloc.h hardening-patch-5.1.4-0.4.12/Zend/zend_alloc.h
 --- php-5.1.4/Zend/zend_alloc.h	2006-01-05 00:53:03.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/Zend/zend_alloc.h	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/Zend/zend_alloc.h	2006-07-20 10:45:33.000000000 +0200
 @@ -35,6 +35,9 @@
  #define MEM_BLOCK_CACHED_MAGIC	0xFB8277DCL
  
@@ -6248,9 +6610,9 @@ diff -Nura php-5.1.4/Zend/zend_alloc.h hardening-patch-5.1.4-0.4.11/Zend/zend_al
  #if ZEND_DEBUG
  	long magic;
  	char *filename;
-diff -Nura php-5.1.4/Zend/zend_API.h hardening-patch-5.1.4-0.4.11/Zend/zend_API.h
+diff -Nura php-5.1.4/Zend/zend_API.h hardening-patch-5.1.4-0.4.12/Zend/zend_API.h
 --- php-5.1.4/Zend/zend_API.h	2006-03-05 17:12:24.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/Zend/zend_API.h	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/Zend/zend_API.h	2006-07-20 10:45:33.000000000 +0200
 @@ -47,6 +47,7 @@
  #define ZEND_METHOD(classname, name)	ZEND_NAMED_FUNCTION(ZEND_FN(classname##_##name))
  
@@ -6259,9 +6621,9 @@ diff -Nura php-5.1.4/Zend/zend_API.h hardening-patch-5.1.4-0.4.11/Zend/zend_API.
  
  #define ZEND_NAMED_FE(zend_name, name, arg_info)	ZEND_FENTRY(zend_name, name, arg_info, 0)
  #define ZEND_FE(name, arg_info)						ZEND_FENTRY(name, ZEND_FN(name), arg_info, 0)
-diff -Nura php-5.1.4/Zend/zend_builtin_functions.c hardening-patch-5.1.4-0.4.11/Zend/zend_builtin_functions.c
+diff -Nura php-5.1.4/Zend/zend_builtin_functions.c hardening-patch-5.1.4-0.4.12/Zend/zend_builtin_functions.c
 --- php-5.1.4/Zend/zend_builtin_functions.c	2006-04-05 13:36:13.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.11/Zend/zend_builtin_functions.c	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/Zend/zend_builtin_functions.c	2006-07-20 10:45:33.000000000 +0200
 @@ -53,6 +53,9 @@
  static ZEND_FUNCTION(crash);
  #endif
@@ -6302,9 +6664,9 @@ diff -Nura php-5.1.4/Zend/zend_builtin_functions.c hardening-patch-5.1.4-0.4.11/
  /* {{{ proto array get_included_files(void)
     Returns an array with the file names that were include_once()'d */
  ZEND_FUNCTION(get_included_files)
-diff -Nura php-5.1.4/Zend/zend.c hardening-patch-5.1.4-0.4.11/Zend/zend.c
+diff -Nura php-5.1.4/Zend/zend.c hardening-patch-5.1.4-0.4.12/Zend/zend.c
 --- php-5.1.4/Zend/zend.c	2006-03-30 23:39:01.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.11/Zend/zend.c	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/Zend/zend.c	2006-07-20 12:19:13.000000000 +0200
 @@ -55,6 +55,12 @@
  ZEND_API void (*zend_unblock_interruptions)(void);
  ZEND_API void (*zend_ticks_function)(int ticks);
@@ -6318,7 +6680,7 @@ diff -Nura php-5.1.4/Zend/zend.c hardening-patch-5.1.4-0.4.11/Zend/zend.c
  int (*zend_vspprintf)(char **pbuf, size_t max_len, const char *format, va_list ap);
  ZEND_API char *(*zend_getenv)(char *name, size_t name_len TSRMLS_DC);
  
-@@ -74,9 +80,390 @@
+@@ -74,9 +80,391 @@
  	return SUCCESS;
  }
  
@@ -6705,11 +7067,12 @@ diff -Nura php-5.1.4/Zend/zend.c hardening-patch-5.1.4-0.4.11/Zend/zend.c
 +	STD_ZEND_INI_ENTRY("hphp.executor.max_depth",		"0",		ZEND_INI_PERDIR|ZEND_INI_SYSTEM,	OnUpdateLong, hphp_executor_max_depth, zend_executor_globals, executor_globals)
 +	STD_ZEND_INI_BOOLEAN("hphp.sql.bailout_on_error",	"0",		ZEND_INI_PERDIR|ZEND_INI_SYSTEM,	OnUpdateBool, hphp_sql_bailout_on_error,	hardened_globals_struct,	hardened_globals)
 +	STD_ZEND_INI_BOOLEAN("hphp.multiheader",		"0",		ZEND_INI_PERDIR|ZEND_INI_SYSTEM,	OnUpdateBool, hphp_multiheader,	hardened_globals_struct,	hardened_globals)
++	STD_ZEND_INI_ENTRY("hphp.mail.protect",		"0",		ZEND_INI_PERDIR|ZEND_INI_SYSTEM,	OnUpdateLong, hphp_mailprotect,	hardened_globals_struct,	hardened_globals)
 +#endif
  	STD_ZEND_INI_BOOLEAN("zend.ze1_compatibility_mode",	"0",	ZEND_INI_ALL,		OnUpdateBool,	ze1_compatibility_mode,	zend_executor_globals,	executor_globals)
  #ifdef ZEND_MULTIBYTE
  	STD_ZEND_INI_BOOLEAN("detect_unicode", "1", ZEND_INI_ALL, OnUpdateBool, detect_unicode, zend_compiler_globals, compiler_globals)
-@@ -501,9 +888,13 @@
+@@ -501,9 +889,13 @@
  	EG(user_error_handler) = NULL;
  	EG(user_exception_handler) = NULL;
  	EG(in_execution) = 0;
@@ -6723,7 +7086,7 @@ diff -Nura php-5.1.4/Zend/zend.c hardening-patch-5.1.4-0.4.11/Zend/zend.c
  }
  
  
-@@ -574,6 +965,14 @@
+@@ -574,6 +966,14 @@
  	extern zend_scanner_globals language_scanner_globals;
  #endif
  
@@ -6738,7 +7101,7 @@ diff -Nura php-5.1.4/Zend/zend.c hardening-patch-5.1.4-0.4.11/Zend/zend.c
  #ifdef ZTS
  	ts_allocate_id(&alloc_globals_id, sizeof(zend_alloc_globals), (ts_allocate_ctor) alloc_globals_ctor, (ts_allocate_dtor) alloc_globals_dtor);
  #else
-@@ -777,6 +1176,7 @@
+@@ -777,6 +1177,7 @@
  	}
  	CG(unclean_shutdown) = 1;
  	CG(in_compilation) = EG(in_execution) = 0;
@@ -6746,9 +7109,9 @@ diff -Nura php-5.1.4/Zend/zend.c hardening-patch-5.1.4-0.4.11/Zend/zend.c
  	EG(current_execute_data) = NULL;
  	longjmp(EG(bailout), FAILURE);
  }
-diff -Nura php-5.1.4/Zend/zend_canary.c hardening-patch-5.1.4-0.4.11/Zend/zend_canary.c
+diff -Nura php-5.1.4/Zend/zend_canary.c hardening-patch-5.1.4-0.4.12/Zend/zend_canary.c
 --- php-5.1.4/Zend/zend_canary.c	1970-01-01 01:00:00.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/Zend/zend_canary.c	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/Zend/zend_canary.c	2006-07-20 10:45:33.000000000 +0200
 @@ -0,0 +1,58 @@
 +/*
 +   +----------------------------------------------------------------------+
@@ -6808,9 +7171,9 @@ diff -Nura php-5.1.4/Zend/zend_canary.c hardening-patch-5.1.4-0.4.11/Zend/zend_c
 + * vim600: sw=4 ts=4 fdm=marker
 + * vim<600: sw=4 ts=4
 + */
-diff -Nura php-5.1.4/Zend/zend_compile.c hardening-patch-5.1.4-0.4.11/Zend/zend_compile.c
+diff -Nura php-5.1.4/Zend/zend_compile.c hardening-patch-5.1.4-0.4.12/Zend/zend_compile.c
 --- php-5.1.4/Zend/zend_compile.c	2006-05-02 17:49:26.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.11/Zend/zend_compile.c	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/Zend/zend_compile.c	2006-07-20 10:45:33.000000000 +0200
 @@ -1093,6 +1093,13 @@
  	op_array.prototype = NULL;
  
@@ -6825,9 +7188,9 @@ diff -Nura php-5.1.4/Zend/zend_compile.c hardening-patch-5.1.4-0.4.11/Zend/zend_
  
  	if (is_method) {
  		char *short_class_name = CG(active_class_entry)->name;
-diff -Nura php-5.1.4/Zend/zend_compile.h hardening-patch-5.1.4-0.4.11/Zend/zend_compile.h
+diff -Nura php-5.1.4/Zend/zend_compile.h hardening-patch-5.1.4-0.4.12/Zend/zend_compile.h
 --- php-5.1.4/Zend/zend_compile.h	2006-03-13 12:13:42.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/Zend/zend_compile.h	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/Zend/zend_compile.h	2006-07-20 10:45:33.000000000 +0200
 @@ -217,6 +217,9 @@
  	zend_uint doc_comment_len;
  
@@ -6855,10 +7218,10 @@ diff -Nura php-5.1.4/Zend/zend_compile.h hardening-patch-5.1.4-0.4.11/Zend/zend_
  
  #define ZEND_INTERNAL_CLASS         1
  #define ZEND_USER_CLASS             2
-diff -Nura php-5.1.4/Zend/zend_constants.c hardening-patch-5.1.4-0.4.11/Zend/zend_constants.c
+diff -Nura php-5.1.4/Zend/zend_constants.c hardening-patch-5.1.4-0.4.12/Zend/zend_constants.c
 --- php-5.1.4/Zend/zend_constants.c	2006-03-15 15:12:26.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/Zend/zend_constants.c	2006-05-13 15:39:35.000000000 +0200
-@@ -109,6 +109,73 @@
++++ hardening-patch-5.1.4-0.4.12/Zend/zend_constants.c	2006-07-20 12:17:12.000000000 +0200
+@@ -109,6 +109,74 @@
  	REGISTER_MAIN_LONG_CONSTANT("E_USER_NOTICE", E_USER_NOTICE, CONST_PERSISTENT | CONST_CS);
  
  	REGISTER_MAIN_LONG_CONSTANT("E_ALL", E_ALL, CONST_PERSISTENT | CONST_CS);
@@ -6869,6 +7232,7 @@ diff -Nura php-5.1.4/Zend/zend_constants.c hardening-patch-5.1.4-0.4.11/Zend/zen
 +	REGISTER_MAIN_LONG_CONSTANT("S_INCLUDE", S_INCLUDE, CONST_PERSISTENT | CONST_CS);
 +	REGISTER_MAIN_LONG_CONSTANT("S_SQL", S_SQL, CONST_PERSISTENT | CONST_CS);
 +	REGISTER_MAIN_LONG_CONSTANT("S_EXECUTOR", S_EXECUTOR, CONST_PERSISTENT | CONST_CS);
++	REGISTER_MAIN_LONG_CONSTANT("S_MAIL", S_MAIL, CONST_PERSISTENT | CONST_CS);
 +	REGISTER_MAIN_LONG_CONSTANT("S_MISC", S_MISC, CONST_PERSISTENT | CONST_CS);
 +	REGISTER_MAIN_LONG_CONSTANT("S_INTERNAL", S_INTERNAL, CONST_PERSISTENT | CONST_CS);
 +	REGISTER_MAIN_LONG_CONSTANT("S_ALL", S_ALL, CONST_PERSISTENT | CONST_CS);
@@ -6932,10 +7296,10 @@ diff -Nura php-5.1.4/Zend/zend_constants.c hardening-patch-5.1.4-0.4.11/Zend/zen
  
  	/* true/false constants */
  	{
-diff -Nura php-5.1.4/Zend/zend_errors.h hardening-patch-5.1.4-0.4.11/Zend/zend_errors.h
+diff -Nura php-5.1.4/Zend/zend_errors.h hardening-patch-5.1.4-0.4.12/Zend/zend_errors.h
 --- php-5.1.4/Zend/zend_errors.h	2006-01-05 00:53:04.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/Zend/zend_errors.h	2006-05-13 15:39:35.000000000 +0200
-@@ -38,6 +38,18 @@
++++ hardening-patch-5.1.4-0.4.12/Zend/zend_errors.h	2006-07-20 12:17:12.000000000 +0200
+@@ -38,6 +38,19 @@
  #define E_ALL (E_ERROR | E_WARNING | E_PARSE | E_NOTICE | E_CORE_ERROR | E_CORE_WARNING | E_COMPILE_ERROR | E_COMPILE_WARNING | E_USER_ERROR | E_USER_WARNING | E_USER_NOTICE)
  #define E_CORE (E_CORE_ERROR | E_CORE_WARNING)
  
@@ -6946,17 +7310,18 @@ diff -Nura php-5.1.4/Zend/zend_errors.h hardening-patch-5.1.4-0.4.11/Zend/zend_e
 +#define S_INCLUDE			(1<<3L)
 +#define S_SQL				(1<<4L)
 +#define S_EXECUTOR			(1<<5L)
++#define S_MAIL				(1<<6L)
 +#define S_MISC				(1<<30L)
 +#define S_INTERNAL			(1<<29L)
-+#define S_ALL (S_MEMORY | S_VARS | S_INCLUDE | S_FILES | S_MISC | S_SQL | S_EXECUTOR)
++#define S_ALL (S_MEMORY | S_VARS | S_INCLUDE | S_FILES | S_MAIL | S_MISC | S_SQL | S_EXECUTOR)
 +#endif
 +
  #endif /* ZEND_ERRORS_H */
  
  /*
-diff -Nura php-5.1.4/Zend/zend_execute_API.c hardening-patch-5.1.4-0.4.11/Zend/zend_execute_API.c
+diff -Nura php-5.1.4/Zend/zend_execute_API.c hardening-patch-5.1.4-0.4.12/Zend/zend_execute_API.c
 --- php-5.1.4/Zend/zend_execute_API.c	2006-04-21 00:49:20.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.11/Zend/zend_execute_API.c	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/Zend/zend_execute_API.c	2006-07-20 10:45:33.000000000 +0200
 @@ -142,6 +142,7 @@
  	EG(class_table) = CG(class_table);
  
@@ -7035,9 +7400,9 @@ diff -Nura php-5.1.4/Zend/zend_execute_API.c hardening-patch-5.1.4-0.4.11/Zend/z
  ZEND_API int zend_eval_string_ex(char *str, zval *retval_ptr, char *string_name, int handle_exceptions TSRMLS_DC)
  {
  	int result;
-diff -Nura php-5.1.4/Zend/zend_execute.c hardening-patch-5.1.4-0.4.11/Zend/zend_execute.c
+diff -Nura php-5.1.4/Zend/zend_execute.c hardening-patch-5.1.4-0.4.12/Zend/zend_execute.c
 --- php-5.1.4/Zend/zend_execute.c	2006-02-26 11:53:38.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/Zend/zend_execute.c	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/Zend/zend_execute.c	2006-07-20 10:45:33.000000000 +0200
 @@ -1351,6 +1351,37 @@
  		/* OBJ-TBI - doesn't support new object model! */
  		zend_hash_apply(Z_OBJPROP_PP(pz), (apply_func_t) zend_check_symbol TSRMLS_CC);
@@ -7084,9 +7449,9 @@ diff -Nura php-5.1.4/Zend/zend_execute.c hardening-patch-5.1.4-0.4.11/Zend/zend_
       EG(current_execute_data) = EX(prev_execute_data); \
       ZEND_VM_RETURN()
  
-diff -Nura php-5.1.4/Zend/zend_extensions.c hardening-patch-5.1.4-0.4.11/Zend/zend_extensions.c
+diff -Nura php-5.1.4/Zend/zend_extensions.c hardening-patch-5.1.4-0.4.12/Zend/zend_extensions.c
 --- php-5.1.4/Zend/zend_extensions.c	2006-01-05 00:53:04.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/Zend/zend_extensions.c	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/Zend/zend_extensions.c	2006-07-20 10:45:33.000000000 +0200
 @@ -55,23 +55,44 @@
  		return FAILURE;
  	}
@@ -7137,9 +7502,9 @@ diff -Nura php-5.1.4/Zend/zend_extensions.c hardening-patch-5.1.4-0.4.11/Zend/ze
  					ZEND_EXTENSION_API_NO,
  					new_extension->author,
  					new_extension->URL,
-diff -Nura php-5.1.4/Zend/zend_extensions.h hardening-patch-5.1.4-0.4.11/Zend/zend_extensions.h
+diff -Nura php-5.1.4/Zend/zend_extensions.h hardening-patch-5.1.4-0.4.12/Zend/zend_extensions.h
 --- php-5.1.4/Zend/zend_extensions.h	2006-01-05 00:53:04.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/Zend/zend_extensions.h	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/Zend/zend_extensions.h	2006-07-20 10:45:33.000000000 +0200
 @@ -24,9 +24,11 @@
  
  #include "zend_compile.h"
@@ -7170,9 +7535,9 @@ diff -Nura php-5.1.4/Zend/zend_extensions.h hardening-patch-5.1.4-0.4.11/Zend/ze
  
  #define STANDARD_ZEND_EXTENSION_PROPERTIES NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, -1
  #define COMPAT_ZEND_EXTENSION_PROPERTIES   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, -1
-diff -Nura php-5.1.4/Zend/zend_globals.h hardening-patch-5.1.4-0.4.11/Zend/zend_globals.h
+diff -Nura php-5.1.4/Zend/zend_globals.h hardening-patch-5.1.4-0.4.12/Zend/zend_globals.h
 --- php-5.1.4/Zend/zend_globals.h	2006-01-05 00:53:04.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/Zend/zend_globals.h	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/Zend/zend_globals.h	2006-07-20 10:45:33.000000000 +0200
 @@ -180,6 +180,16 @@
  
  	int error_reporting;
@@ -7198,9 +7563,9 @@ diff -Nura php-5.1.4/Zend/zend_globals.h hardening-patch-5.1.4-0.4.11/Zend/zend_
  	HashTable *in_autoload;
  	zend_function *autoload_func;
  	zend_bool bailout_set;
-diff -Nura php-5.1.4/Zend/zend.h hardening-patch-5.1.4-0.4.11/Zend/zend.h
+diff -Nura php-5.1.4/Zend/zend.h hardening-patch-5.1.4-0.4.12/Zend/zend.h
 --- php-5.1.4/Zend/zend.h	2006-03-30 23:39:01.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.11/Zend/zend.h	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/Zend/zend.h	2006-07-20 10:45:33.000000000 +0200
 @@ -297,6 +297,7 @@
  	/* Variable information */
  	zvalue_value value;		/* value */
@@ -7251,9 +7616,9 @@ diff -Nura php-5.1.4/Zend/zend.h hardening-patch-5.1.4-0.4.11/Zend/zend.h
  #endif /* ZEND_H */
  
  /*
-diff -Nura php-5.1.4/Zend/zend_hash.c hardening-patch-5.1.4-0.4.11/Zend/zend_hash.c
+diff -Nura php-5.1.4/Zend/zend_hash.c hardening-patch-5.1.4-0.4.12/Zend/zend_hash.c
 --- php-5.1.4/Zend/zend_hash.c	2006-04-07 12:06:21.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.11/Zend/zend_hash.c	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/Zend/zend_hash.c	2006-07-20 10:49:06.000000000 +0200
 @@ -21,6 +21,18 @@
  
  #include "zend.h"
@@ -7354,27 +7719,31 @@ diff -Nura php-5.1.4/Zend/zend_hash.c hardening-patch-5.1.4-0.4.11/Zend/zend_has
  				ht->pDestructor(p->pData);
  			}
  			if (p->pData != &p->pDataPtr) {
-@@ -518,6 +553,9 @@
- 		q = p;
- 		p = p->pListNext;
- 		if (ht->pDestructor) {
+@@ -513,6 +548,11 @@
+ 
+ 	SET_INCONSISTENT(HT_IS_DESTROYING);
+ 
 +#if HARDENING_PATCH_HASH_PROTECT
-+			CHECK_HASH_CANARY(ht);
++	if (ht->pDestructor) {
++		CHECK_HASH_CANARY(ht);
++	}
 +#endif	
- 			ht->pDestructor(q->pData);
- 		}
- 		if (q->pData != &q->pDataPtr) {
-@@ -544,6 +582,9 @@
+ 	p = ht->pListHead;
+ 	while (p != NULL) {
  		q = p;
- 		p = p->pListNext;
- 		if (ht->pDestructor) {
+@@ -539,6 +579,11 @@
+ 
+ 	SET_INCONSISTENT(HT_CLEANING);
+ 
 +#if HARDENING_PATCH_HASH_PROTECT
-+			CHECK_HASH_CANARY(ht);
++	if (ht->pDestructor) {
++		CHECK_HASH_CANARY(ht);
++	}
 +#endif	
- 			ht->pDestructor(q->pData);
- 		}
- 		if (q->pData != &q->pDataPtr) {
-@@ -573,6 +614,9 @@
+ 	p = ht->pListHead;
+ 	while (p != NULL) {
+ 		q = p;
+@@ -573,6 +618,9 @@
  	HANDLE_BLOCK_INTERRUPTIONS();
  
  	if (ht->pDestructor) {
@@ -7384,9 +7753,9 @@ diff -Nura php-5.1.4/Zend/zend_hash.c hardening-patch-5.1.4-0.4.11/Zend/zend_has
  		ht->pDestructor(p->pData);
  	}
  	if (p->pData != &p->pDataPtr) {
-diff -Nura php-5.1.4/Zend/zend_hash.h hardening-patch-5.1.4-0.4.11/Zend/zend_hash.h
+diff -Nura php-5.1.4/Zend/zend_hash.h hardening-patch-5.1.4-0.4.12/Zend/zend_hash.h
 --- php-5.1.4/Zend/zend_hash.h	2006-01-05 00:53:04.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/Zend/zend_hash.h	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/Zend/zend_hash.h	2006-07-20 10:45:33.000000000 +0200
 @@ -58,6 +58,9 @@
  } Bucket;
  
@@ -7397,9 +7766,9 @@ diff -Nura php-5.1.4/Zend/zend_hash.h hardening-patch-5.1.4-0.4.11/Zend/zend_has
  	uint nTableSize;
  	uint nTableMask;
  	uint nNumOfElements;
-diff -Nura php-5.1.4/Zend/zend_language_scanner.l hardening-patch-5.1.4-0.4.11/Zend/zend_language_scanner.l
+diff -Nura php-5.1.4/Zend/zend_language_scanner.l hardening-patch-5.1.4-0.4.12/Zend/zend_language_scanner.l
 --- php-5.1.4/Zend/zend_language_scanner.l	2006-04-13 15:48:28.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.11/Zend/zend_language_scanner.l	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/Zend/zend_language_scanner.l	2006-07-20 10:45:33.000000000 +0200
 @@ -389,6 +389,13 @@
  		compilation_successful=0;
  	} else {
@@ -7414,9 +7783,9 @@ diff -Nura php-5.1.4/Zend/zend_language_scanner.l hardening-patch-5.1.4-0.4.11/Z
  		CG(in_compilation) = 1;
  		CG(active_op_array) = op_array;
  		compiler_result = zendparse(TSRMLS_C);
-diff -Nura php-5.1.4/Zend/zend_language_scanner.c hardening-patch-5.1.4-0.4.11/Zend/zend_language_scanner.c
---- php-5.1.4/Zend/zend_language_scanner.c	2006-05-04 01:31:36.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.11/Zend/zend_language_scanner.c	2006-05-13 15:39:35.000000000 +0200
+diff -Nura php-5.1.4/Zend/zend_language_scanner.c hardening-patch-5.1.4-0.4.12/Zend/zend_language_scanner.c
+--- php-5.1.4/Zend/zend_language_scanner.c	2006-05-12 16:41:13.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/Zend/zend_language_scanner.c	2006-07-20 10:45:33.000000000 +0200
 @@ -3075,6 +3075,13 @@
  		compilation_successful=0;
  	} else {
@@ -7431,9 +7800,9 @@ diff -Nura php-5.1.4/Zend/zend_language_scanner.c hardening-patch-5.1.4-0.4.11/Z
  		CG(in_compilation) = 1;
  		CG(active_op_array) = op_array;
  		compiler_result = zendparse(TSRMLS_C);
-diff -Nura php-5.1.4/Zend/zend_llist.c hardening-patch-5.1.4-0.4.11/Zend/zend_llist.c
+diff -Nura php-5.1.4/Zend/zend_llist.c hardening-patch-5.1.4-0.4.12/Zend/zend_llist.c
 --- php-5.1.4/Zend/zend_llist.c	2006-01-05 00:53:04.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/Zend/zend_llist.c	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/Zend/zend_llist.c	2006-07-20 10:45:33.000000000 +0200
 @@ -22,9 +22,49 @@
  #include "zend.h"
  #include "zend_llist.h"
@@ -7744,9 +8113,9 @@ diff -Nura php-5.1.4/Zend/zend_llist.c hardening-patch-5.1.4-0.4.11/Zend/zend_ll
  			return (*current)->data;
  		}
  	}
-diff -Nura php-5.1.4/Zend/zend_llist.h hardening-patch-5.1.4-0.4.11/Zend/zend_llist.h
+diff -Nura php-5.1.4/Zend/zend_llist.h hardening-patch-5.1.4-0.4.12/Zend/zend_llist.h
 --- php-5.1.4/Zend/zend_llist.h	2006-01-05 00:53:04.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/Zend/zend_llist.h	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/Zend/zend_llist.h	2006-07-20 10:45:33.000000000 +0200
 @@ -23,6 +23,9 @@
  #define ZEND_LLIST_H
  
@@ -7777,9 +8146,9 @@ diff -Nura php-5.1.4/Zend/zend_llist.h hardening-patch-5.1.4-0.4.11/Zend/zend_ll
  } zend_llist;
  
  typedef zend_llist_element* zend_llist_position;
-diff -Nura php-5.1.4/Zend/zend_modules.h hardening-patch-5.1.4-0.4.11/Zend/zend_modules.h
+diff -Nura php-5.1.4/Zend/zend_modules.h hardening-patch-5.1.4-0.4.12/Zend/zend_modules.h
 --- php-5.1.4/Zend/zend_modules.h	2006-04-06 23:10:45.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.11/Zend/zend_modules.h	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/Zend/zend_modules.h	2006-07-20 10:45:33.000000000 +0200
 @@ -39,6 +39,7 @@
  extern struct _zend_arg_info fifth_arg_force_ref[6];
  extern struct _zend_arg_info all_args_by_ref[1];
@@ -7812,9 +8181,9 @@ diff -Nura php-5.1.4/Zend/zend_modules.h hardening-patch-5.1.4-0.4.11/Zend/zend_
  };
  
  #define MODULE_DEP_REQUIRED		1
-diff -Nura php-5.1.4/Zend/zend_opcode.c hardening-patch-5.1.4-0.4.11/Zend/zend_opcode.c
+diff -Nura php-5.1.4/Zend/zend_opcode.c hardening-patch-5.1.4-0.4.12/Zend/zend_opcode.c
 --- php-5.1.4/Zend/zend_opcode.c	2006-04-10 14:26:53.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.11/Zend/zend_opcode.c	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/Zend/zend_opcode.c	2006-07-20 10:45:33.000000000 +0200
 @@ -98,6 +98,9 @@
  	op_array->uses_this = 0;
  
@@ -7825,9 +8194,9 @@ diff -Nura php-5.1.4/Zend/zend_opcode.c hardening-patch-5.1.4-0.4.11/Zend/zend_o
  
  	zend_llist_apply_with_argument(&zend_extensions, (llist_apply_with_arg_func_t) zend_extension_op_array_ctor_handler, op_array TSRMLS_CC);
  }
-diff -Nura php-5.1.4/Zend/zend_vm_def.h hardening-patch-5.1.4-0.4.11/Zend/zend_vm_def.h
+diff -Nura php-5.1.4/Zend/zend_vm_def.h hardening-patch-5.1.4-0.4.12/Zend/zend_vm_def.h
 --- php-5.1.4/Zend/zend_vm_def.h	2006-04-12 13:37:50.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.11/Zend/zend_vm_def.h	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/Zend/zend_vm_def.h	2006-07-20 10:45:33.000000000 +0200
 @@ -1769,6 +1769,37 @@
  		efree(lcname);
  		zend_error_noreturn(E_ERROR, "Call to undefined function %s()", function_name_strval);
@@ -7927,9 +8296,9 @@ diff -Nura php-5.1.4/Zend/zend_vm_def.h hardening-patch-5.1.4-0.4.11/Zend/zend_v
  			new_op_array = compile_filename(opline->op2.u.constant.value.lval, inc_filename TSRMLS_CC);
  			break;
  		case ZEND_EVAL: {
-diff -Nura php-5.1.4/Zend/zend_vm_execute.h hardening-patch-5.1.4-0.4.11/Zend/zend_vm_execute.h
+diff -Nura php-5.1.4/Zend/zend_vm_execute.h hardening-patch-5.1.4-0.4.12/Zend/zend_vm_execute.h
 --- php-5.1.4/Zend/zend_vm_execute.h	2006-04-12 13:37:50.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.11/Zend/zend_vm_execute.h	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/Zend/zend_vm_execute.h	2006-07-20 10:45:33.000000000 +0200
 @@ -56,6 +56,16 @@
  	EX(symbol_table) = EG(active_symbol_table);
  	EX(prev_execute_data) = EG(current_execute_data);
@@ -8179,9 +8548,9 @@ diff -Nura php-5.1.4/Zend/zend_vm_execute.h hardening-patch-5.1.4-0.4.11/Zend/ze
  			new_op_array = compile_filename(opline->op2.u.constant.value.lval, inc_filename TSRMLS_CC);
  			break;
  		case ZEND_EVAL: {
-diff -Nura php-5.1.4/Zend/zend_vm_execute.skl hardening-patch-5.1.4-0.4.11/Zend/zend_vm_execute.skl
+diff -Nura php-5.1.4/Zend/zend_vm_execute.skl hardening-patch-5.1.4-0.4.12/Zend/zend_vm_execute.skl
 --- php-5.1.4/Zend/zend_vm_execute.skl	2005-12-01 13:50:58.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.11/Zend/zend_vm_execute.skl	2006-05-13 15:39:35.000000000 +0200
++++ hardening-patch-5.1.4-0.4.12/Zend/zend_vm_execute.skl	2006-07-20 10:45:33.000000000 +0200
 @@ -27,6 +27,16 @@
  	EX(symbol_table) = EG(active_symbol_table);
  	EX(prev_execute_data) = EG(current_execute_data);
