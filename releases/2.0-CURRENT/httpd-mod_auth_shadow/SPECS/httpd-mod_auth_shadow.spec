@@ -13,7 +13,7 @@
 %define release 	%_revrel
 
 # Module-Specific definitions
-%define apache_version	2.2.2
+%define apache_version	2.2.3
 %define mod_version	2.1
 %define mod_name	mod_auth_shadow
 %define mod_conf	83_%{mod_name}.conf
@@ -35,7 +35,8 @@ Patch1:		mod_auth_shadow-2.1-makefile.patch
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:  httpd-devel >= %{apache_version}
 
-Requires(pre):	httpd >= %{apache_version}, httpd-conf >= 2.2.0
+Requires(pre):	httpd >= %{apache_version}
+Requires(pre):	httpd-conf >= 2.2.0
 Provides:	apache2-mod_auth_shadow
 Obsoletes:	apache2-mod_auth_shadow
 
@@ -71,7 +72,7 @@ export PATH="$PATH:/usr/sbin"
 mkdir -p %{buildroot}%{_libdir}/httpd-extramodules
 mkdir -p %{buildroot}%{_sysconfdir}/httpd/modules.d
 install -m 0755 .libs/*.so %{buildroot}%{_libdir}/httpd-extramodules/
-cat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
+cat %{_sourcedir}/%{mod_conf} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 install -d %{buildroot}%{_sbindir}
 install -m 4755 validate %{buildroot}%{_sbindir}/
@@ -93,6 +94,10 @@ install -m 4755 validate %{buildroot}%{_sbindir}/
 
 
 %changelog
+* Sun Jul 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3_2.1
+- apache 2.2.3
+- spec cleanups
+
 * Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.2_2.1
 - apache 2.2.2
 - mod_auth_shadow 2.1
