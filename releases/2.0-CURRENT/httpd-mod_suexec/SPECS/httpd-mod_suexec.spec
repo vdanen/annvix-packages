@@ -13,7 +13,7 @@
 %define release 	%_revrel
 
 # Module-Specific definitions
-%define apache_version	2.2.2
+%define apache_version	2.2.3
 %define mod_name	mod_suexec
 %define mod_conf	69_%{mod_name}.conf
 %define mod_so		%{mod_name}.so
@@ -28,9 +28,11 @@ URL:		http://httpd.apache.org/docs/suexec.html
 Source1:	%{mod_conf}
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:  httpd-devel >= %{apache_version}, httpd-source >= %{apache_version}
+BuildRequires:  httpd-devel >= %{apache_version}
+BuildRequires:	httpd-source >= %{apache_version}
 
-Requires(pre):	httpd >= %{apache_version}, httpd-conf >= 2.2.0
+Requires(pre):	httpd >= %{apache_version}
+Requires(pre):	httpd-conf >= 2.2.0
 Provides:	apache2-mod_suexec
 Obsoletes:	apache2-mod_suexec
 
@@ -51,7 +53,7 @@ This package contains the documentation for %{name}.
 
 
 %prep
-%setup -c -T -n %{name}
+%setup -q -c -T -n %{name}
 
 cp %{_includedir}/httpd/*.h .
 cp `apr-1-config --includedir`/* .
@@ -96,7 +98,7 @@ install suexec.8 %{buildroot}%{_mandir}/man8/httpd-suexec.8
 mkdir -p %{buildroot}%{_libdir}/httpd-extramodules
 mkdir -p %{buildroot}%{_sysconfdir}/httpd/modules.d
 install -m 0755 .libs/*.so %{buildroot}%{_libdir}/httpd-extramodules/
-cat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
+cat %{_sourcedir}/%{mod_conf} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 
 %clean
@@ -116,6 +118,10 @@ cat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 
 %changelog
+* Sun Jul 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3
+- apache 2.2.3
+- spec cleanups
+
 * Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.2
 - apache 2.2.2
 - add -doc subpackage
