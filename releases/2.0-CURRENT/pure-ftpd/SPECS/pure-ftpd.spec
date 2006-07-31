@@ -28,25 +28,33 @@ Patch0:		pure-ftpd-1.0.16b-slsconf.patch
 Patch1:		pure-ftpd-1.0.16b-pureconfig.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	pam-devel, openldap-devel, MySQL-devel, postgresql-devel
+BuildRequires:	pam-devel
+BuildRequires:	openldap-devel
+BuildRequires:	mysql-devel
+BuildRequires:	postgresql-devel
+BuildRequires:	openssl-devel
 
 Requires(post):	rpm-helper
 Requires(postun): rpm-helper
 Requires(pre):	rpm-helper
 Requires(preun): rpm-helper
-Provides:	ftp-server ftpserver
-Conflicts:	wu-ftpd, ncftpd, proftpd, anonftp, vsftpd
-Obsoletes:	pure-ftpd-anonymous, pure-ftpd-anon-upload
+Provides:	ftp-server
+Provides:	ftpserver
+Obsoletes:	pure-ftpd-anonymous
+Obsoletes:	pure-ftpd-anon-upload
 
 %description
-Pure-FTPd is a fast, production-quality, standard-comformant FTP server,
-based upon Troll-FTPd. Unlike other popular FTP servers, it has no known
-security flaw, it is really trivial to set up and it is especially designed
-for modern Linux and FreeBSD kernels (setfsuid, sendfile, capabilities) .
-Features include PAM support, IPv6, chroot()ed home directories, virtual
-domains, built-in LS, anti-warez system, bandwidth throttling, FXP, bounded
-ports for passive downloads, UL/DL ratios, native LDAP and SQL support,
-Apache log files and more.
+Pure-FTPd is a fast, production-quality, standard-conformant FTP server,
+that focuses on security.
+
+It is really trivial to set up and it is especially designed for modern
+Linux and FreeBSD kernels (setfsuid, sendfile, capabilities).  Features
+include chroot()ed and/or virtual chroot()ed home directories, virtual
+domains, built-in 'ls', anti-warez system, bounded ports for passive
+downloads, FXP protocol, bandwidth throttling, ratios, LDAP / MySQL /
+PostgreSQL-based authentication, fortune files, Apache-like log files, fast
+standalone mode, text / HTML / XML real-time status report, virtual users,
+virtual quotas, privilege separation and more.
 
 
 %package doc
@@ -63,6 +71,10 @@ This package contains the documentation for %{name}.
 
 %patch0 -p1 -b .mdkconf
 %patch1 -p1 -b .pureconfig
+
+# fix the path for docs
+perl -pi -e 's|/etc/ssl/private/pure-ftpd.pem|/etc/pure-ftpd/pure-ftpd.pem|g' README.TLS
+
 
 %build
 %configure2_5x \
@@ -88,6 +100,9 @@ This package contains the documentation for %{name}.
     --with-virtualchroot \
     --with-extauth \
     --with-largefile \
+    --with-privsep \
+    --with-tls \
+    --with-certfile=/etc/pure-ftpd/pure-ftpd.pem \
     --sysconfdir=%{_sysconfdir}/%{name}
 
 %make
@@ -183,13 +198,19 @@ done
 
 %files doc
 %defattr(-,root,root)
-%doc FAQ THANKS README.Authentication-Modules README.Windows README.Virtual-Users
+%doc FAQ THANKS README.Authentication-Modules README.Windows README.Virtual-Users README.TLS
 %doc README.Debian README README.Contrib README.Configuration-File AUTHORS CONTACT
 %doc HISTORY NEWS README.LDAP README.PGSQL README.MySQL README.Netfilter
 %doc pure-ftpd.png  contrib/pure-vpopauth.pl contrib/pure-stat.pl pureftpd.schema
 
 
 %changelog
+* Sun Jul 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.21
+- build with privsep and TLS support
+- buildrequires: openssl-devel
+- remove conflicts
+- update description
+
 * Fri Jun 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.21
 - rebuild against new pam
 - install S6 for new pam
