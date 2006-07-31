@@ -13,7 +13,7 @@
 %define release 	%_revrel
 
 # Module-Specific definitions
-%define apache_version	2.2.2
+%define apache_version	2.2.3
 %define mod_version	2.0.2
 %define mod_name	mod_perl
 %define mod_conf	75_%{mod_name}.conf
@@ -38,12 +38,16 @@ Patch0:		mod_perl-2.0.2-external_perl-apache-test.diff
 Patch1:		mod_perl-2.0.2-DESTDIR.diff
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	perl-devel >= 5.8.6, httpd-devel >= %{apache_version}
+BuildRequires:	perl-devel >= 5.8.6
+BuildRequires:	httpd-devel >= %{apache_version}
 BuildRequires:	perl(Apache::Test) >= 1.27
 
-Requires:	httpd-mod_proxy, perl = %{perl_version}
-Requires(pre):	httpd >= %{apache_version}, httpd-conf
-Requires(pre):	perl, rpm-helper
+Requires:	httpd-mod_proxy
+Requires:	perl = %{perl_version}
+Requires(pre):	httpd >= %{apache_version}
+Requires(pre):	httpd-conf
+Requires(pre):	perl
+Requires(pre):	rpm-helper
 Provides:	apache-mod_perl = %{version}
 Provides:	apache2-mod_perl
 Obsoletes:	apache2-mod_perl
@@ -114,13 +118,13 @@ mkdir -p %{buildroot}%{_includedir}/httpd
     MODPERL_AP_INCLUDEDIR=%{_includedir}/httpd \
     INSTALLDIRS=vendor DESTDIR=%{buildroot}
 
-cat %{SOURCE2} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
+cat %{_sourcedir}/%{mod_conf} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 # Remove empty file
 rm -f docs/api/mod_perl-2.0/pm_to_blib
 
 install -d %{buildroot}/var/www/perl
-install -m 0755 %{SOURCE3} %{buildroot}/var/www/perl
+install -m 0755 %{_sourcedir}/apache2-mod_perl-testscript.pl %{buildroot}/var/www/perl
 
 # install missing required files
 install -d %{buildroot}%{perl_vendorarch}/Apache2/Apache
@@ -168,6 +172,10 @@ rm -f %{buildroot}%{_mandir}/man3/Bundle::ApacheTest.3pm
 
 
 %changelog
+* Sun Jul 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3_2.0.2
+- apache 2.2.3
+- spec cleanups
+
 * Fri Jun 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.2_2.0.2
 - rebuild against new db4
 
