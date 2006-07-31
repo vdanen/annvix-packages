@@ -13,7 +13,7 @@
 %define release 	%_revrel
 
 # Module-Specific definitions
-%define apache_version	2.2.2
+%define apache_version	2.2.3
 %define mod_version	1.9.4
 %define mod_name	mod_security
 %define mod_conf	82_%{mod_name}.conf
@@ -37,7 +37,8 @@ Patch1:		modsecurity-apache-1.9.1-web-php.rules.diff
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	httpd-devel >= %{apache_version}
 
-Requires(pre):	httpd >= %{apache_version}, httpd-conf >= 2.2.0
+Requires(pre):	httpd >= %{apache_version}
+Requires(pre):	httpd-conf >= 2.2.0
 Provides:	apache2-mod_security
 Obsoletes:	apache2-mod_security
 
@@ -85,7 +86,7 @@ cp apache2/%{mod_name}.c .
 mkdir -p %{buildroot}%{_libdir}/httpd-extramodules
 mkdir -p %{buildroot}%{_sysconfdir}/httpd/modules.d
 install -m 0755 .libs/*.so %{buildroot}%{_libdir}/httpd-extramodules/
-cat %{SOURCE4} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
+cat %{_sourcedir}/%{mod_conf} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 mkdir -p %{buildroot}{%{_sbindir},%{_sysconfdir}/httpd/conf}
 
@@ -120,6 +121,10 @@ install -m 0644 modsecurity-php.conf %{buildroot}%{_sysconfdir}/httpd/conf/
 
 
 %changelog
+* Sun Jul 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3_1.9.4
+- apache 2.2.3
+- spec cleanups
+
 * Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.2_1.9.4
 - apache 2.2.2
 - modsecurity 1.9.4
