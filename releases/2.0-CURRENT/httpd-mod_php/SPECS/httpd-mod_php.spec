@@ -13,8 +13,8 @@
 %define release		%_revrel
 
 # Module-Specific definitions
-%define apache_version	2.2.2
-%define phpversion	5.1.2
+%define apache_version	2.2.3
+%define phpversion	5.1.4
 %define mod_name	mod_php
 %define mod_conf	70_%{mod_name}.conf
 %define mod_so		%{mod_name}5.so
@@ -32,9 +32,11 @@ URL:		http://www.php.net/
 Source1:	%{mod_conf}
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	php-devel >= %{phpversion}, httpd-devel >= %{apache_version}
+BuildRequires:	php-devel >= %{phpversion}
+BuildRequires:	httpd-devel >= %{apache_version}
 
-Requires:	openssl, php-ini
+Requires:	openssl
+Requires:	php-ini
 Requires:       php-ftp >= %{phpversion}
 Requires:       php-pcre >= %{phpversion}
 Requires:       php-gettext >= %{phpversion}
@@ -47,11 +49,16 @@ Requires:       php-tokenizer >= %{phpversion}
 Requires:       php-simplexml >= %{phpversion}
 Requires:       php-hash >= %{phpversion}
 Requires:	%{plibname} >= %{phpversion}
-Provides:	php, php3, php4, php430, php432, php5, mod_php, mod_php3, phpapache, phpfi apache2-mod_php
-Obsoletes:	mod_php3, php430 apache2-mod_php
+Provides:	php
+Provides:	php4
+Provides:	php5
+Provides:	mod_php
+Provides:	apache2-mod_php
+Obsoletes:	apache2-mod_php
+Requires(pre):	httpd >= %{apache_version}
+Requires(pre):	httpd-conf >= %{apache_version}
 Requires(pre):	rpm-helper
 Requires(postun): rpm-helper
-Requires(pre):	httpd >= %{apache_version}, httpd-conf >= %{apache_version}
 
 %description
 PHP is an HTML-embedded scripting language.  PHP attempts to make it
@@ -73,7 +80,7 @@ This package contains the documentation for %{name}.
 
 
 %prep
-%setup -c -T
+%setup -q -c -T
 cp -dpR %{phpsource}/sapi/%{extname}/* .
 cp %{phpsource}/PHP_FAQ.php .
 cp %{phpsource}/internal_functions.c .
@@ -97,7 +104,7 @@ cp %{_includedir}/php/ext/date/lib/timelib_config.h .
 mkdir -p %{buildroot}%{_libdir}/httpd-extramodules
 mkdir -p %{buildroot}%{_sysconfdir}/httpd/modules.d
 install -m 0755 .libs/*.so %{buildroot}%{_libdir}/httpd-extramodules/
-cat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
+cat %{_sourcedir}/%{mod_conf} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 
 %clean
@@ -122,6 +129,10 @@ cat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 
 %changelog
+* Sun Jul 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3_5.1.4
+- apache 2.2.3
+- spec cleanups
+
 * Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.2_5.1.4
 - apache 2.2.2
 - php 5.1.4
