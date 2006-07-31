@@ -80,6 +80,9 @@ EOF
 
 
 %changelog
+* Sun Jul 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.4
+- rebuild against new hardened php
+
 * Sat Jul 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.4
 - rebuild against new curl
 
