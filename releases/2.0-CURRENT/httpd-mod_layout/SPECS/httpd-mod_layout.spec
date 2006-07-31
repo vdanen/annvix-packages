@@ -13,7 +13,7 @@
 %define release 	%_revrel
 
 # Module-Specific definitions
-%define apache_version	2.2.2
+%define apache_version	2.2.3
 %define mod_version	4.0.1a
 %define mod_name	mod_layout
 %define mod_conf	15_%{mod_name}.conf
@@ -36,7 +36,8 @@ Patch2:		mod_layout-4.0.1a-apache220.patch
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:  httpd-devel >= %{apache_version}
 
-Requires(pre):	httpd >= %{apache_version}, httpd-conf >= 2.2.2
+Requires(pre):	httpd >= %{apache_version}
+Requires(pre):	httpd-conf >= 2.2.2
 Provides:	apache2-mod_layout
 Obsoletes:	apache2-mod_layout
 
@@ -76,7 +77,7 @@ This package contains the documentation for %{name}.
 mkdir -p %{buildroot}%{_libdir}/httpd-extramodules
 mkdir -p %{buildroot}%{_sysconfdir}/httpd/modules.d
 install -m 0755 .libs/*.so %{buildroot}%{_libdir}/httpd-extramodules/
-cat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
+cat %{_sourcedir}/%{mod_conf} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 
 %clean
@@ -94,6 +95,10 @@ cat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 
 %changelog
+* Sun Jul 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3_4.0.1a
+- apache 2.2.3
+- spec cleanups
+
 * Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.2_4.0.1a
 - apache 2.2.2
 - P1: fixes from CVS
