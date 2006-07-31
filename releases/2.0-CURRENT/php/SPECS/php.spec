@@ -653,7 +653,7 @@ update-alternatives --remove php %{_bindir}/php-cli
 
 %files doc
 %defattr(-,root,root)
-%doc CREDITS* README* TODO* Zend/ZEND_* Changelog.secfix Hardened_PHP_patch_and_licensing_question.txt
+%doc CREDITS* README* TODO* Zend/ZEND_* Changelog.secfix
 %doc INSTALL LICENSE NEWS php.ini-dist php.ini-recommended configure_command
 %doc SELF-CONTAINED-EXTENSIONS CODING_STANDARDS TODO EXTENSIONS
 %doc php-dom-examples
@@ -899,7 +899,7 @@ update-alternatives --remove php %{_bindir}/php-cli
 - fix P1
 - increase epoch
 - Obsoletes libphp_common430-devel
-- Provides libphp_common430-devel = 4.3.0-%{release}
+- Provides libphp_common430-devel = 4.3.0-%%{release}
 
 * Fri May 30 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 4.3.2-1mdk
 - 4.3.2
@@ -957,7 +957,7 @@ update-alternatives --remove php %{_bindir}/php-cli
 
 * Thu Feb 13 2003 Jean-Michel Dault <jmdault@mandrakesoft.com> 4.3.0-8mdk
 - use %%mklibname
-- add BuildConflicts %{libname} since it tries to link with a previous version
+- add BuildConflicts %%{libname} since it tries to link with a previous version
   of itself.
 
 * Fri Jan 17 2003 Jean-Michel Dault <jmdault@mandrakesoft.com> 4.3.0-7mdk
@@ -1045,10 +1045,10 @@ update-alternatives --remove php %{_bindir}/php-cli
 * Wed Jul 03 2002 Christian Belisle <cbelisle@mandrakesoft.com> 4.2.1-8mdk
 - updated by Alexander Skwar <ASkwar@DigitalProjects.com>
 	- Fix PEAR
-	- Move PEAR to %{peardir}
+	- Move PEAR to %%{peardir}
 	- Move PEAR files from devel to pear package
 	- Make php.ini readable on 80 col displays
-	- Add %{peardir} to include_path in ini
+	- Add %%{peardir} to include_path in ini
 
 * Fri May 31 2002 Christian Belisle <cbelisle@mandrakesoft.com> 4.2.1-7mdk
 - add xmlrpc.so in php.ini.
@@ -1065,7 +1065,7 @@ update-alternatives --remove php %{_bindir}/php-cli
 * Sun May 26 2002 Christian Belisle <cbelisle@mandrakesoft.com> 4.2.1-3mdk
 - updated by Oden Eriksson <oden.eriksson@kvikkjokk.net>
 	- misc spec file fixes
-	- added the %{phpdir}/*.php files that so mysteriousely disappeared,
+	- added the %%{phpdir}/*.php files that so mysteriousely disappeared,
 	  those belong to the pear package (?)
 	- broke out the xmlrpc stuff as an external module php-xmlrpc, added that
 	  to php.ini
@@ -1288,7 +1288,7 @@ update-alternatives --remove php %{_bindir}/php-cli
   require postgres, ldap and imap even if the use won't use it).
 - change most of the Requires to Prereqs, because the post edits config files
 - change most of the postuns to preuns in case php gets removed before subpkgs
-- make subpackages require php = %{version}
+- make subpackages require php = %%{version}
 - add Obsoletes: phpfi, because their content handler names are the same
 - add standalone binary
 - change license from "GPL" to "PHP"
