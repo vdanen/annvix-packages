@@ -135,14 +135,17 @@ Source100:	linux-%{patches_ver}.tar.bz2
 %define kprovides	kernel = %{realversion}
 
 BuildRoot:	%{_buildroot}/%{kname}-%{realversion}-build
-BuildRequires:	gcc >= 3.3.1-5avx, module-init-tools
+BuildRequires:	gcc >= 3.3.1-5avx
+BuildRequires:	module-init-tools
 
-Provides:	kernel26-up, module-info, %kprovides
+Provides:	kernel26-up
+Provides:	module-info
+Provides:	%{kprovides}
 Autoreqprov:	no
-Requires:	%requires1
-Requires:	%requires2
-Requires:	%requires3
-Conflicts:	%conflicts
+Requires:	%{requires1}
+Requires:	%{requires2}
+Requires:	%{requires3}
+Conflicts:	%{conflicts}
 
 %description
 This is the default Annvix kernel version %{realversion} for single-CPU
@@ -156,10 +159,10 @@ systems.
 %package -n %{kname}-smp-%{avxversion}
 Summary:	The Linux Kernel compiled for SMP machines
 Group:		System/Kernel and hardware
-Provides:	%kprovides
-Requires:	%requires1
-Requires:	%requires2
-Requires:	%requires3
+Provides:	%{kprovides}
+Requires:	%{requires1}
+Requires:	%{requires2}
+Requires:	%{requires3}
 
 %description -n %{kname}-smp-%{avxversion}
 This is the default Annvix kernel %{realversion} for 4GB SMP systems.
@@ -174,10 +177,10 @@ should work find on single-CPU systems.
 %package -n %{kname}-build-%{avxversion}
 Summary:	The Linux kernel compiled without security features
 Group:		System/Kernel and hardware
-Provides:	%kprovides
-Requires:	%requires1
-Requires:	%requires2
-Requires:	%requires3
+Provides:	%{kprovides}
+Requires:	%{requires1}
+Requires:	%{requires2}
+Requires:	%{requires3}
 
 %description -n %{kname}-build-%{avxversion}
 This is the "build" Anvix kernel version %{realversion}, which does not
@@ -465,8 +468,8 @@ PrepareKernel "" %{realrelease}custom
 ### install
 ###
 %install
-install -m 0644 %{SOURCE4}  .
-install -m 0644 %{SOURCE5}  .
+install -m 0644 %{_sourcedir}/README.annvix-kernel-sources  .
+install -m 0644 %{_sourcedir}/README.Annvix  .
 
 cd %{src_dir}
 # Directories definition needed for installing
@@ -508,11 +511,11 @@ cp %{_sourcedir}/README.Annvix %{target_source}/
 cp %{_sourcedir}/README.annvix-kernel-sources %{target_source}/
 
 pushd %{target_source}/include/linux ; {
-    install -m 0644 %{SOURCE15} rhconfig.h
+    install -m 0644 %{_sourcedir}/linux-annvix-config.h rhconfig.h
     rm -rf autoconf.h version.h
     # Create autoconf.h file
     echo '#include <linux/rhconfig.h>' > autoconf.h
-    sed 's,$,autoconf.h,' %{_savedheaders}list | awk -f %{SOURCE16} >> autoconf.h
+    sed 's,$,autoconf.h,' %{_savedheaders}list | awk -f %{_sourcedir}/annvix-linux-merge-config.awk >> autoconf.h
     # Create version.h
     echo "#include <linux/rhconfig.h>" > version.h
     loop_cnt=0
@@ -772,6 +775,11 @@ exit 0
 
 
 %changelog
+* Wed Aug 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.27
+- compile XFS, ext3, reiserfs, and md support in the BOOT kernel like we did
+  for 2.4
+- spec cleanups
+
 * Mon Jul 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.27
 - more slashing of unwanted config options (AX.25 network device drivers, 
   FIR device drivers, ARCnet support, Token Ring support, wireless network

@@ -376,6 +376,18 @@ my @disable_boot_options = qw(
 
 my @enable_boot_options = qw(
     BOOT_KERNEL
+    XFS_FS
+    EXT3_FS
+    REISERFS_FS
+    BLK_DEV_MD
+    MD_LINEAR
+    MD_RAID0
+    MD_RAID1
+    MD_RAID5
+    MD_RAID6
+    MD_RAID10
+    MD_MULTIPATH
+    BLK_DEV_LVM
     CC_OPTIMIZE_FOR_SIZE
 
     PARPORT_PC_SUPERIO
