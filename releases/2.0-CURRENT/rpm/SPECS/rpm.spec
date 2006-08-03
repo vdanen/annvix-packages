@@ -126,16 +126,19 @@ Patch86:	rpm-4.4.4-depsdb.patch
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5 >= 2.57
 BuildRequires:	doxygen
-BuildRequires:	python-devel, perl-devel
+BuildRequires:	python-devel
+BuildRequires:	perl-devel
 BuildRequires:	zlib-devel
 BuildRequires:	automake1.8
 BuildRequires:	glibc-static-devel
 BuildRequires:	elfutils-static-devel
 BuildRequires:	sed >= 4.0.3
 BuildRequires:	libbeecrypt-devel
-BuildRequires:	ed, gettext-devel
+BuildRequires:	ed
+BuildRequires:	gettext-devel
 BuildRequires:	rpm-annvix-setup-build
-BuildRequires:	readline-devel, ncurses-devel
+BuildRequires:	readline-devel
+BuildRequires:	ncurses-devel
 BuildRequires:	neon-static-devel < 0.25
 BuildRequires:	libsqlite3-static-devel
 BuildRequires:	openssl-static-devel >= 0.9.8
@@ -154,8 +157,10 @@ Requires:	multiarch-utils >= 1.0.7
 Requires:	update-alternatives
 Requires:	rpm-annvix-setup >= 1.10
 Requires:	%{libname} = %{version}-%{release}
-Conflicts:	locales < 2.3.1.1, patch < 2.5
-Requires(pre):	rpm-helper >= 0.8, coreutils
+Conflicts:	locales < 2.3.1.1
+Conflicts:	patch < 2.5
+Requires(pre):	rpm-helper >= 0.8
+Requires(pre):	coreutils
 Requires(postun): rpm-helper >= 0.8
 
 %description
@@ -204,7 +209,10 @@ Requires:	file
 Requires:	gcc-c++
 # We need cputoolize & amd64-* alias to x86_64-* in config.sub
 Requires:	libtool >= 1.4.3-5mdk
-Requires:	patch, make, unzip, elfutils
+Requires:	patch
+Requires:	make
+Requires:	unzip
+Requires:	elfutils
 Requires:	rpm = %{version}-%{release}
 Requires:	spec-helper
 Requires:	rpm-annvix-setup-build
@@ -462,7 +470,7 @@ popd
 
 # install RPM-GPG-KEYS
 mkdir -p %{buildroot}%{_sysconfdir}/RPM-GPG-KEYS
-tar xvjf %{SOURCE1} -C %{buildroot}%{_sysconfdir}/RPM-GPG-KEYS
+tar xvjf %{_sourcedir}/annvix-keys.tar.bz2 -C %{buildroot}%{_sysconfdir}/RPM-GPG-KEYS
 
 
 %check
@@ -504,14 +512,14 @@ elif [ ! -f /var/lib/rpm/Packages ]; then
     /bin/rpm --initdb
 fi
 
-for i in `ls -1 /etc/RPM-GPG-KEYS/*.asc`
-do
-    key=`basename $i|cut -f 1 -d '.'`
-    if [ "`rpm -q gpg-pubkey-$key|grep 'not installed'`" ]; then
-        rpm --import $i
-        echo "NOTICE: imported new GPG key $i"
-    fi
-done
+#for i in `ls -1 /etc/RPM-GPG-KEYS/*.asc`
+#do
+#    key=`basename $i|cut -f 1 -d '.'`
+#    if [ "`rpm -q gpg-pubkey-$key|grep 'not installed'`" ]; then
+#        rpm --import $i
+#        echo "NOTICE: imported new GPG key $i"
+#    fi
+#done
 
 
 
@@ -753,6 +761,12 @@ done
 
 
 %changelog
+* Thu Aug 03 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.5
+- don't install RPM-GPG-KEYS by default here -- the installer will
+  do it instead (it somehow trashes the rpm db creating the install
+  CD and I fear it might do the same to the installed system)
+- spec cleanups
+
 * Fri Jul 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.5
 - rebuild against new elfutils
 
