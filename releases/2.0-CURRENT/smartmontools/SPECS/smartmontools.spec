@@ -28,6 +28,7 @@ BuildRoot:      %{_buildroot}/%{name}-%{version}
 
 Obsoletes:	smartsuite
 Provides:	smartsuite
+Requires(pre):	setup
 Requires(post):	rpm-helper
 Requires(preun): rpm-helper
 
@@ -70,8 +71,8 @@ This package contains the documentation for %{name}.
 %makeinstall_std
 
 mkdir -p %{buildroot}%{_srvdir}/smartd/log
-install -m 0740 %{SOURCE2} %{buildroot}%{_srvdir}/smartd/run
-install -m 0740 %{SOURCE3} %{buildroot}%{_srvdir}/smartd/log/run
+install -m 0740 %{_sourcedir}/smartd.run %{buildroot}%{_srvdir}/smartd/run
+install -m 0740 %{_sourcedir}/smartd-log.run %{buildroot}%{_srvdir}/smartd/log/run
 rm -rf %{buildroot}%{_initrddir}
 
 mkdir -p %{buildroot}%{_srvdir}/smartd/env
@@ -110,6 +111,10 @@ echo "1800" > %{buildroot}%{_srvdir}/smartd/env/INTERVAL
 
 
 %changelog
+* Fri Aug 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.36
+- requires setup (for group admin)
+- spec cleanups
+
 * Fri Jun 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.36
 - 5.36
 - add -doc subpackage
@@ -168,60 +173,3 @@ echo "1800" > %{buildroot}%{_srvdir}/smartd/env/INTERVAL
 * Mon Dec 29 2003 Vincent Danen <vdanen@opensls.org> 5.26-2sls
 - OpenSLS build
 - tidy spec
-
-* Thu Dec 4 2003 Erwan Velu <erwan@mandrakesoft.com> 5.26-1mdk
-- New release
-- Release are too fast theses days :)
-
-* Thu Nov 27 2003 Erwan Velu <erwan@mandrakesoft.com> 5.25-1mdk
-- New release
-- Fixing changelog entries :)
-- Removing Patch1 (merged upstream)
-
-* Mon Nov 1 2003 Erwan Velu <erwan@mandrakesoft.com> 5.1-23mdk
-- New release
-
-* Sat Nov 01 2003 Abel Cheung <deaddog@deaddog.org> 5.22-2mdk
-- don't restart smartd multiple times
-
-* Thu Oct 30 2003 Erwan Velu <erwan@mandrakesoft.com> 5.1-22.1mdk
-- Jump to Release 22 (release are quick theses days :) )
-- Removing patch1 (Mandrake is redhat compliant for initscripts)
-- Adding autorestart on updates
-
-* Sat Oct 04 2003 Abel Cheung <deaddog@deaddog.org> 5.19-1mdk
-- 5.19 (no subrelease version number now)
-- When upgrading, solely use rpm-helper scripts to start/stop service.
-  It will be effective after next rpm update. (#5996)
-- Obsoletes UCSC smartsuite instead of conflicts, looks like smartsuite
-  is no longer maintained
-- Rediff patch1
-
-* Tue Sep 23 2003 Erwan Velu <erwan@mandrakesoft.com> 5.1-18.1mdk
-- New release
-* Tue Aug 12 2003 Lenny Cartier <lenny@mandrakesoft.com> 5.1-14.2mdk
-- rebuild
-
-* Wed Jun 18 2003 Erwan Velu <erwan@mandrakesoft.com> 5.1-14.1mdk
-- Subrelease 14
-
-* Wed May 07 2003 Lenny Cartier <lenny@mandrakesoft.com> 5.1-10.1mdk
-- subrelease 10
-
-* Fri Mar 28 2003 Erwan Velu <erwan@mandrakesoft.com> 5.1-9.2mdk
-- Adding examplescript dir in /usr/share/doc/ (Thx to Bruce Allen)
-
-* Mon Mar 24 2003 Erwan Velu <erwan@mandrakesoft.com> 5.1-9.1mdk
-- New version
-- Removing patch0
-- Including missing files
-
-* Thu Jan 16 2003 Erwan Velu <erwan@mandrakesoft.com> 5.0-8.2mdk
-- Rebuild for new glibc
-
-* Tue Oct 15 2002 Erwan Velu <erwan@mandrakesoft.com> 5.0-8.1mdk
-- First mdk release
-
-* Mon Oct 14 2002  Bruce Allen smartmontools-support@lists.sourceforge.net
-Initial release.  Code is derived from smartsuite, and is
-   intended to be compatible with the ATA/ATAPI-5 specifications.
