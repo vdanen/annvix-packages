@@ -39,6 +39,8 @@ BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	glibc-static-devel
 
 Requires:	pam >= 0.66-5
+Requires(pre):	setup
+Requires(post):	coreutils
 
 %description
 The SysVinit package contains a group of processes that control 
@@ -153,6 +155,10 @@ exit 0
 
 
 %changelog
+* Fri Aug 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.86
+- fix some requires
+- spec cleanups
+
 * Tue May 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.86
 - add -doc subpackage
 - rebuild with gcc4
@@ -215,167 +221,3 @@ exit 0
 - remove conditionals
 - OpenSLS build
 - tidy spec
-
-* Tue Jul 01 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 2.85-1mdk
-- new release
-- rediff patch 7
-
-* Mon Apr  7 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 2.84-3mdk
-- Patch102: Handle biarch struct utmp
-
-* Sun Jan 19 2003 Stefan van der Eijk <stefan@eijk.nu> 2.84-2mdk
-- Remove unpackaged file(s)
-
-* Thu Nov 07 2002 Thierry Vignaud <tvignaud@mandrakesoft.com> 2.84-1mdk
-- new release
-- patch 4 -> 3
-- reenable patch 3 (unlink /.autofsck on shutdown -f)
-- patch 5 -> 105
-- patch 5 : log halt/shutdown
-- patch 7 : prevent wall to write to regular (aka non-ttys) files
-- patch 8 : display a real help on halt/reboot --help
-- patch 9 : allow '-t' argument to last{,b} for checking state at certain times
-- patch 10 : (security) make pidof don't strip the path of binary to get the
-  pid of; else one can fool "service XXX <cmd>" by running a process named XXX
-
-* Wed Aug 14 2002 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 2.83-5mdk
-- Automated rebuild with gcc 3.2-0.3mdk
-
-* Fri Aug  2 2002 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 2.83-4mdk
-- Patch101: statically link to system libcrypt
-
-* Thu Jan 24 2002 Guillaume Cottenceau <gc@mandrakesoft.com> 2.83-3mdk
-- move automatic disabling of entries respawning too fast from
-  10 times in 2 minutes to 3 times in 20 seconds [patch #5]
-
-* Fri Nov  9 2001 Frederic Lepied <flepied@mandrakesoft.com> 2.83-2mdk
-- make /dev/initctl a ghost file
-
-* Fri Nov  2 2001 Jeff Garzik <jgarzik@mandrakesoft.com> 2.83-1mdk
-- new version.
-- remove patch1 (manpatch), integrated upstream
-- remove patch3 (sigint), better patch integrated upstream
-- remove patch5 (md5), integrated upstream
-- remove patch6 (nologin), better patch integrated upstream
-- remove patch7 (notty), better patch integrated upstream
-- remove patch8 (wall-n), better patch integrated upstream
-- remove patch9 (umask), integrated upstream
-- remove patch10 (lastgone), better patch integrated upstream
-- remove patch11 (cread), better patch integrated upstream
-- Add -D_GNU_SOURCE to CFLAGS, required for build.
-
-* Wed Aug 22 2001 Chmouel Boudjnah <chmouel@mandrakesoft.com> 2.78-11mdk
-- Disable again patch4.
-
-* Mon Aug  6 2001 Chmouel Boudjnah <chmouel@mandrakesoft.com> 2.78-10mdk
-- update 'no logout' patch (rh).
-- fix setting of CREAD to work with 2.4.3+ kernels (rh)
-
-* Mon Jun 25 2001 Chmouel Boudjnah <chmouel@mandrakesoft.com> 2.78-9mdk
-- show users with no login pid but no logout record as gone (rh,
-  <cwolf@starclass.com>)
-- fix sulogin to *always* work without a tty (rh)
-
-* Fri Jun  8 2001 Chmouel Boudjnah <chmouel@mandrakesoft.com> 2.78-8mdk
-- run telinit u on upgrade if we are in root fs (rh).
-- set umask 022 on startup (rh).
-
-* Thu Mar  8 2001 Chmouel Boudjnah <chmouel@mandrakesoft.com> 2.78-7mdk
-- document '-n' option to wall, make it root-only (rh)
-- don't open files in sulogin unless they're really ttys (rh)
-
-* Sun Sep 24 2000 Chmouel Boudjnah <chmouel@mandrakesoft.com> 2.78-6mdk
-- set SHLVL in sulogin so /etc/profile.d stuff isn't run by default (rh).
-
-* Wed Sep 20 2000 Chmouel Boudjnah <chmouel@mandrakesoft.com> 2.78-5mdk
-- Add optimisations when compiling.
-- Remove halt patch, by default halt = halt.
-
-* Thu Jul 20 2000 Chmouel Boudjnah <chmouel@mandrakesoft.com> 2.78-4mdk
-- BM.
-
-* Thu Jun 29 2000 Chmouel Boudjnah <chmouel@mandrakesoft.com> 2.78-3mdk
-- Merge with rh patches.
-- macroszification.
-
-* Wed Mar 29 2000 Chmouel Boudjnah <chmouel@mandrakesoft.com> 2.78-2mdk
-- Fix group.
-
-* Mon Mar 13 2000 Chmouel Boudjnah <chmouel@mandrakesoft.com> 2.78-1mdk
-- 2.78.
-- fix spec installation.
-- Adjust groups.
-
-* Tue Jan 04 2000 Yoann Vandoorselaere <yoann@mandrakesoft.com>
-- Clean up... All appear to work fine. 
-- Oups, dumb little fix (but important)
-
-* Mon Jan 03 2000 Yoann Vandoorselaere <yoann@mandrakesoft.com>
-- Patch : take care of the -a options even if shutdown.allow doesn't exist.
-
-* Tue Oct 19 1999 Chmouel Boudjnah <chmouel@mandrakesoft.com>
-- Merge with redhat changes.
-
-* Tue Sep 28 1999 Axalon Bloodstone <axalon@linux-mandrake.com>
-- nologin patch isn't needed
-
-* Tue Sep 14 1999 Daouda LO <daouda@mandrakesoft.com>
-- 2.77
-
-* Wed May 19 1999 Bernhard Rosenkraenzer <bero@linux-mandrake.com>
-- We can't hardlink /bin/pidof anywhere, because it's a symlink itself.
-  Fix...
-
-* Tue May 18 1999 Chmouel Boudjnah <chmouel@mandrakesoft.com>
-- Linking /bin/pidof to /sbin/pidof for RH compatibilities.
-
-* Mon Apr 12 1999 Chmouel Boudjnah <chmouel@mandrakesoft.com>
-- The normal source doen't work, we need to remove the orphan link to rebuild.
-
-* Fri Apr  9 1999 Bernhard Rosenkraenzer <bero@linux-mandrake.com>
-- update to 2.76
-- bzip2 man pages
-- handle RPM_OPT_FLAGS
-- remove some RH patches because they're not required with 2.76
-- add de, fr, tr locales
-- Move pidof from /sbin to /bin - can't hurt.
-
-* Wed Jan 06 1999 Cristian Gafton <gafton@redhat.com>
-- glibc 2.1
-
-* Sun Aug 23 1998 Jeff Johnson <jbj@redhat.com>
-- poweroff symlink not included (problem #762)
-
-* Thu Jul 09 1998 Chris Evans <chris@ferret.lmh.ox.ac.uk>
-- Fix a securelevel releated security hole. Go on, try and break append
-  only files + securelevel now ;-)
-
-* Wed Jul  8 1998 Jeff Johnson <jbj@redhat.com>
-- remove /etc/nologin at end of shutdown.
-- compile around missing SIGPWR on sparc
-
-* Thu May 07 1998 Prospector System <bugs@redhat.com>
-- translations modified for de, fr, tr
-
-* Wed Apr 08 1998 Cristian Gafton <gafton@redhat.com>
-- upgraded to 2.74
-- fixed the package source url... (yeah, it was wrong !)
-
-* Wed Oct 1 1997 Cristian Gafton <gafton@redhat.com>
-- fixed the MD5 check in sulogin (128 hash bits encoded with base64 gives
-  22 bytes, not 24...). Fix in -md5.patch
-
-* Thu Sep 11 1997 Christian 'Dr. Disk' Hechelmann <drdisk@ds9.au.s.shuttle.de>
-- /etc/initrunlvl gets linked to /tmp/init-root/var/run/initrunlvl which is
-  just plain wrong..
-- /usr/bin/utmpdump was missing in the files section, although it was
-  explicitly patched into PROGS.
-- added attr's to the files section.
-- various small fixes.
-
-* Tue Jun 17 1997 Erik Troan <ewt@redhat.com>
-- updated to 2.71
-- built against glibc 2.0.4
-
-* Fri Feb 07 1997 Michael K. Johnson <johnsonm@redhat.com>
-- Added sulogin.8 man page to file list.
