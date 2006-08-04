@@ -26,7 +26,8 @@ Patch2:		texinfo-4.7-vikeys-segfault-fix.patch
 Patch3:		texinfo-4.7.test.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	ncurses-devel, zlib-devel
+BuildRequires:	ncurses-devel
+BuildRequires:	zlib-devel
 
 Requires:	tetex
 Requires(pre):	info-install
@@ -65,7 +66,7 @@ source of information about the software on your system.
 %package -n info-install
 Summary:	Program to update the GNU texinfo documentation main page
 Group:		System/Base
-Requires:	bzip2
+Requires(pre):	bzip2
 Conflicts:	info < 4.7
 
 %description -n info-install
@@ -168,6 +169,11 @@ rm -f %{buildroot}%{_bindir}/texi2pdf
 
 
 %changelog
+* Fri Aug 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.8
+- make info-install prereq bzip2 rather than just require it (or
+  it will get installed after info-install (and other pkgs that
+  call info-install))
+
 * Fri Jun 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.8
 - fix prereq
 - requires tetex
