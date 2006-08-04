@@ -37,8 +37,10 @@ BuildRequires:  dietlibc-devel >= 0.28
 
 Requires:       execline
 Requires:       runit
+Requires(pre):	rpm-helper
 Requires(post):	rpm-helper
 Requires(preun): rpm-helper
+Requires(postun): rpm-helper
 Conflicts:      sysklogd
 Provides:	syslog
 
@@ -108,19 +110,19 @@ pushd %{name}-%{version}
     install -m 0644 man/*.8 %{buildroot}%{_mandir}/man8/
 popd
 
-install -m 0740 %{SOURCE2} %{buildroot}%{_srvdir}/socklog-unix/run 
-install -m 0740 %{SOURCE3} %{buildroot}%{_srvdir}/socklog-unix/log/run 
-install -m 0740 %{SOURCE4} %{buildroot}%{_srvdir}/socklog-klog/run 
-install -m 0740 %{SOURCE5} %{buildroot}%{_srvdir}/socklog-klog/log/run 
-install -m 0740 %{SOURCE6} %{buildroot}%{_srvdir}/socklog-rklog/run 
-install -m 0740 %{SOURCE7} %{buildroot}%{_srvdir}/socklog-rklog/log/run
+install -m 0740 %{_sourcedir}/socklog-unix.run %{buildroot}%{_srvdir}/socklog-unix/run 
+install -m 0740 %{_sourcedir}/socklog-unix-log.run %{buildroot}%{_srvdir}/socklog-unix/log/run 
+install -m 0740 %{_sourcedir}/socklog-klog.run %{buildroot}%{_srvdir}/socklog-klog/run 
+install -m 0740 %{_sourcedir}/socklog-klog-log.run %{buildroot}%{_srvdir}/socklog-klog/log/run 
+install -m 0740 %{_sourcedir}/socklog-rklog.run %{buildroot}%{_srvdir}/socklog-rklog/run 
+install -m 0740 %{_sourcedir}/socklog-rklog-log.run %{buildroot}%{_srvdir}/socklog-rklog/log/run
 
 mkdir -p %{buildroot}%{_srvdir}/socklog-{tcp,udp}/env
 mkdir -p %{buildroot}%{_srvdir}/socklog-tcp/peers
-install -m 0740 %{SOURCE8} %{buildroot}%{_srvdir}/socklog-tcp/run 
-install -m 0740 %{SOURCE9} %{buildroot}%{_srvdir}/socklog-tcp/log/run  
-install -m 0740 %{SOURCE10} %{buildroot}%{_srvdir}/socklog-udp/run 
-install -m 0740 %{SOURCE11} %{buildroot}%{_srvdir}/socklog-udp/log/run  
+install -m 0740 %{_sourcedir}/socklog-tcp.run %{buildroot}%{_srvdir}/socklog-tcp/run 
+install -m 0740 %{_sourcedir}/socklog-tcp-log.run %{buildroot}%{_srvdir}/socklog-tcp/log/run  
+install -m 0740 %{_sourcedir}/socklog-udp.run %{buildroot}%{_srvdir}/socklog-udp/run 
+install -m 0740 %{_sourcedir}/socklog-udp-log.run %{buildroot}%{_srvdir}/socklog-udp/log/run  
 
 touch %{buildroot}%{_srvdir}/socklog-tcp/peers/0
 chmod 0640 %{buildroot}%{_srvdir}/socklog-tcp/peers/0
@@ -249,6 +251,10 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Fri Aug 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1.0
+- fix requires; we need rpm-helper before install to setup our user/group
+- spec cleanups
+
 * Fri Jun 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1.0
 - add -doc subpackage
 - rebuild with gcc4
