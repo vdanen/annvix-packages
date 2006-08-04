@@ -26,15 +26,21 @@ License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://cvs.mandriva.com/cgi-bin/cvsweb.cgi/soft/makedev/
 Source:		%{name}-%{version}.tar.bz2
-Patch:		makedev-4.1-avx-random.patch
+Patch:		makedev-4.4-avx-config.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 
-Requires(post):	shadow-utils, sed, coreutils, mktemp
-Requires:	bash, perl-base
-Provides:	dev, MAKEDEV
-Obsoletes:	dev, MAKEDEV
+Requires(post):	shadow-utils
+Requires(post):	sed
+Requires(post):	coreutils
+Requires(post):	mktemp
+Requires:	bash
+Requires:	perl-base
+Provides:	dev
+Provides:	MAKEDEV
+Obsoletes:	dev
+Obsoletes:	MAKEDEV
 # coreutils => /bin/mkdir
 
 %description
@@ -106,28 +112,6 @@ else
     while [[ ! -c $DEV_DIR/null ]]; do
         rm -f $DEV_DIR/null
         mknod -m 0666 $DEV_DIR/null c 1 3
-        chown root.root $DEV_DIR/null
-    done
-
-    [[ -x /sbin/pam_console_apply ]] && /sbin/pam_console_apply
-fi
-:
-
-
-%triggerpostun -- dev
-
-if [ ! -e /dev/.devfsd -a ! -e /dev/.udev.tdb -a ! -d /dev/.udevdb/ ]; then
-    #- when upgrading from old dev pkg to makedev pkg, this can't be done in %%post
-    #- doing the same when upgrading from new dev pkg
-    DEV_DIR=/dev
-    mkdir -p $DEV_DIR/{pts,shm}
-    [[ -L $DEV_DIR/snd ]] && rm -f $DEV_DIR/snd
-    /sbin/makedev $DEV_DIR
-
-    # race 
-    while [[ ! -c $DEV_DIR/null ]]; do
-        rm -f $DEV_DIR/null
-        mknod -m 0666 $DEV_DIR/null c 1 3
         chown root:root $DEV_DIR/null
     done
 
@@ -151,6 +135,10 @@ fi
 
 
 %changelog
+* Thu Aug 03 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4
+- make the serial perms owned root:admin since we don't have group uucp
+- spec cleanups
+
 * Fri Jul 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4
 - add -doc subpackage
 - rebuild with gcc4

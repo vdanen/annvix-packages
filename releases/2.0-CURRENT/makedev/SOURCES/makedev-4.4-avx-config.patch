@@ -17,3 +17,14 @@
  
  devdir=$(DESTDIR)/dev
  sbindir=$(DESTDIR)/sbin
+--- makedev.d/00macros.avx	2006-08-03 22:40:49.000000000 -0600
++++ makedev.d/00macros	2006-08-03 22:40:49.000000000 -0600
+@@ -9,7 +9,7 @@
+ =PRINTER  660 root lp
+ =PTY      666 root tty
+ =ROOT     600 root root
+-=SERIAL   660 root uucp
++=SERIAL   660 root admin
+ =STORAGE  660 root disk
+ =BURNER   660 root cdwriter
+ =TTY      620 root tty
