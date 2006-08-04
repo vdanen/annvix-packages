@@ -38,11 +38,14 @@ Patch4:		mdadm-2.5-rand.patch
 
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	man groff groff-for-man
+BuildRequires:	man
+BuildRequires:	groff
+BuildRequires:	groff-for-man
 %if %{use_dietlibc}
 BuildRequires:	dietlibc-devel >= 0.29-5662avx
 %endif
 
+Requires(pre):	setup
 Requires(post):	rpm-helper
 Requires(preun): rpm-helper
 
@@ -98,8 +101,8 @@ install -D -m 0644 mdassemble.8 %{buildroot}%{_mandir}/man8/mdassemble.8
 %endif
 
 mkdir -p %{buildroot}%{_srvdir}/mdadm/log
-install -m 0740 %{SOURCE2} %{buildroot}%{_srvdir}/mdadm/run
-install -m 0740 %{SOURCE3} %{buildroot}%{_srvdir}/mdadm/log/run
+install -m 0740 %{_sourcedir}/mdadm.run %{buildroot}%{_srvdir}/mdadm/run
+install -m 0740 %{_sourcedir}/mdadm-log.run %{buildroot}%{_srvdir}/mdadm/log/run
 
 
 %clean
@@ -110,9 +113,6 @@ install -m 0740 %{SOURCE3} %{buildroot}%{_srvdir}/mdadm/log/run
 %_preun_srv mdadm
 
 %post
-if [ -d /var/log/supervise/mdadm -a ! -d /var/log/service/mdadm ]; then
-    mv /var/log/supervise/mdadm /var/log/service/
-fi
 %_post_srv mdadm
 
 
@@ -135,6 +135,10 @@ fi
 
 
 %changelog
+* Fri Aug 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5.2
+- requires setup (for group admin)
+- spec cleanups
+
 * Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5.2
 - remove the docs from the main package
 
@@ -232,55 +236,3 @@ fi
 - OpenSLS build
 - tidy spec
 - don't use dietlibc if building for amd64
-
-* Sun Dec 21 2003 Luca Berra <bluca@vodka.it> 1.4.0-4mdk
-- service name is mdadm
-
-* Sat Dec 20 2003 Luca Berra <bluca@vodka.it> 1.4.0-3mdk
-- updated with more patches from Neil, mdassemble is going to be integrated upstream
-- added mdmonitor (from rh)
-
-* Sun Nov 02 2003 Luca Berra <bluca@vodka.it> 1.4.0-2mdk
-- added mdassemble built with dietlibc
-
-* Fri Oct 31 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 1.4.0-1mdk
-- 1.4.0
-- drop patches included in the upstream source
-
-* Mon Sep 08 2003 Guillaume Rousse <guillomovitch@linux-mandrake.com> 1.3.0-2mdk
-- updated by Luca Berra <bluca@vodka.it>
- - added patches from upstream maintainer
-- fix perms on doc file
-
-* Tue Jul 29 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 1.3.0-1mdk
-- 1.3.0
-
-* Fri Apr 25 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 1.2.0-2mdk
-- fix buildrequires, thanks to Stefan van der Eijks robot
-
-* Sun Mar 16 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 1.2.0-1mdk
-- 1.2.0
-
-* Mon Mar 03 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 1.1.0-1mdk
-- 1.1.0
-- misc spec file fixes
-
-* Thu Jan 16 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 1.0.1-3mdk
-- build release
-
-* Sun Aug  4 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 1.0.1-2mdk
-- rebuilt with gcc-3.2
-
-* Mon Jun 10 2002 Guillaume Rousse <g.rousse@linux-mandrake.com> 1.0.1-1mdk
-- 1.0.1
-- capitalized summary to please rpmlint
-
-* Mon May 20 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 1.0.0-2mdk
-- rebuilt with gcc3.1
-
-* Sat May 11 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 1.0.0-1mdk
-- new version
-
-* Sat May 11 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 0.8.2-1mdk
-- initial cooker contrib
-- used provided spec file
