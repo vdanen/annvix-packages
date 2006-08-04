@@ -67,12 +67,17 @@ Patch111:	Linux-PAM-0.99.3.0-pwdb.patch
 Patch200:	pam-0.99.3.0-annvix-perms.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	bison, flex, glib2-devel
-BuildRequires:	db4-devel, automake1.8, openssl-devel
+BuildRequires:	bison
+BuildRequires:	flex
+BuildRequires:	glib2-devel
+BuildRequires:	db4-devel
+BuildRequires:	automake1.8
+BuildRequires:	openssl-devel
 
 Requires:	glibc-crypt_blowfish-devel
 # pam_unix is now provided by pam_tcb
-Requires:	pam_tcb, pam_passwdqc
+Requires:	pam_tcb
+Requires:	pam_passwdqc
 Requires(pre):	rpm-helper
 Requires(pre):	setup >= 2.5-5735avx
 Obsoletes:	pamconfig
@@ -188,8 +193,8 @@ mkdir -p %{buildroot}/%{_lib}/security
 make install DESTDIR=%{buildroot} LDCONFIG=:
 
 mkdir -p %{buildroot}/etc/pam.d
-install -m 0644 %{SOURCE2} %{buildroot}/etc/pam.d/other
-install -m 0644 %{SOURCE3} %{buildroot}/etc/pam.d/system-auth
+install -m 0644 %{_sourcedir}/other.pamd %{buildroot}/etc/pam.d/other
+install -m 0644 %{_sourcedir}/system-auth.pamd %{buildroot}/etc/pam.d/system-auth
 chmod 0644 %{buildroot}/etc/pam.d/{other,system-auth}
 
 # Install man pages.
@@ -207,7 +212,7 @@ if [ -d ${dir} ] && [ ${dir} != "modules/pam_selinux" ] && [ ${dir} != "modules/
 fi
 done
 
-install -m 644 %{SOURCE5} %{buildroot}/etc/security/console.perms.d/50-annvix.perms
+install -m 0644 %{_sourcedir}/pam-annvix.perms %{buildroot}/etc/security/console.perms.d/50-annvix.perms
 
 #remove unpackaged files
 rm -rf %{buildroot}/%{_lib}/*.la \
@@ -278,6 +283,10 @@ touch %{buildroot}%{_sysconfdir}/environment
 
 
 %changelog
+* Thu Aug 03 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.99.3.0
+- make the serial ownership root:admin
+- spec cleanups
+
 * Sat Jul 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.99.3.0
 - don't build pam_{cracklib,debug,postgresok,rps,selinux,unix} modules
 - requires pam_tcb (which provides the pam_unix replacement)

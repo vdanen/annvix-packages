@@ -4,7 +4,7 @@
 <usb>=/dev/usb/dabusb* /dev/usb/mdc800* /dev/usb/rio500 /dev/ttyUSB* \
       /proc/bus/usb/[0-9][0-9][0-9]/[0-9][0-9][0-9] /dev/bus/usb/[0-9][0-9][0-9]/[0-9][0-9][0-9]
 
-<console>  0660 <serial>     0660 root.uucp
+<console>  0660 <serial>     0660 root.admin
 <console>  0400 <misc>       0600 root
 <console>  0660 <burner>     0660 root.cdwriter
 <console>  0660 <usb>        0660 root.usb
