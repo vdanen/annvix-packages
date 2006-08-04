@@ -21,12 +21,17 @@ Group:		System/Configuration
 URL:		http://www.mandrivalinux.com/
 Source0:	%{name}-%{version}.tar.bz2
 Patch0:		rpm-helper-0.14-avx-srv.patch
+Patch1:		rpm-helper-0.15-avx-fix_chown_syntax.patch
 
 BuildArch:	noarch
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 Conflicts:	chkconfig < 1.3.4-10mdk
-Requires:	chkconfig, grep, shadow-utils, coreutils, srv >= 0.20
+Requires(pre):	setup
+Requires:	chkconfig
+Requires:	grep
+Requires:	shadow-utils
+Requires:	coreutils, srv >= 0.20
 
 %description
 Helper scripts for rpm scriptlets to help create/remove :
@@ -47,6 +52,7 @@ This package contains the documentation for %{name}.
 %prep
 %setup -q
 %patch0 -p0 -b .avx
+%patch1 -p0 -b .chown_syntax
 
 
 %build
@@ -74,6 +80,12 @@ chmod 0755 {add,del}-srv mkdepends
 
 
 %changelog
+* Fri Aug 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.15
+- P1: fix chown call in create-files (user:user rather than user.user)
+- put a requires(pre) on setup; we want the group/passwd files for the
+  user-manipulation stuff rpm-helper needs to do
+- spec cleanups
+
 * Tue May 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.15
 - 0.15:
   - add-service: handle case when a service name appears several times
@@ -145,50 +157,8 @@ chmod 0755 {add,del}-srv mkdepends
 * Tue Jan 27 2004 Vincent Danen <vdanen@opensls.org> 0.9.1-3sls
 - P0: adds add-srv and del-srv scripts to manage supervised services, also
   adds a sixth field to add-user so we can force a static uid
-- own %_datadir/%{name}
+- own %%_datadir/%%{name}
 
 * Tue Dec 09 2003 Vincent Danen <vdanen@opensls.org> 0.9.1-2sls
 - OpenSLS build
 - tidy spec
-
-* Wed Sep 17 2003 Frederic Lepied <flepied@mandrakesoft.com> 0.9.1-1mdk
-- don't depend on initscripts anymore
-
-* Tue Jan 14 2003 Frederic Lepied <flepied@mandrakesoft.com> 0.9-1mdk
-- added the right requires
-
-* Sun Dec 22 2002 Frederic Lepied <flepied@mandrakesoft.com> 0.8-1mdk
-- corrected add-shell to not add the shell multiple times
-- corrected add-service when SECURE_LEVEL isn't set
-- corrected add-group not to delete supplementary groups already added
-
-* Tue Nov  5 2002 Thierry Vignaud <tvignaud@mandrakesoft.com> 0.7.1-1mdk
-- add verify-shell
-
-* Tue Nov  5 2002 Thierry Vignaud <tvignaud@mandrakesoft.com> 0.7-1mdk
-- add add-shell and del-shell to update /etc/shells
-
-* Fri Sep  6 2002 Frederic Lepied <flepied@mandrakesoft.com> 0.6-1mdk
-- add add-shell and del-shell to update /etc/shells
-- add-service: do the security stuff here instead of doing it in chkconfig
-to be more flexible.
-
-* Thu Aug  1 2002 Frederic Lepied <flepied@mandrakesoft.com> 0.5-1mdk
-- add-service: on upgrade, restart services that depend of portmap.
-
-* Wed Jul 31 2002 Frederic Lepied <flepied@mandrakesoft.com> 0.4.1-1mdk
-- correct add-group when no user is added to the group
-
-* Mon Jul 29 2002 Frederic Lepied <flepied@mandrakesoft.com> 0.4-1mdk
-- added del-group and add-group
-
-* Fri Jul 12 2002 Frederic Lepied <flepied@mandrakesoft.com> 0.3-1mdk
-- extend add-user to support extended groups
-
-* Wed Jul 10 2002 Frederic Lepied <flepied@mandrakesoft.com> 0.2-1mdk
-- added create-file
-
-* Tue Jul  9 2002 Frederic Lepied <flepied@mandrakesoft.com> 0.1-1mdk
-- Initial version
-
-# end of file
