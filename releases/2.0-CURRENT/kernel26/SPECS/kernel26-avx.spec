@@ -775,6 +775,10 @@ exit 0
 
 
 %changelog
+* Thu Aug 03 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.27
+- enable building netfilter for the BOOT kernel so we can set some default
+  firewall rules on the installer
+
 * Wed Aug 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.27
 - compile XFS, ext3, reiserfs, and md support in the BOOT kernel like we did
   for 2.4

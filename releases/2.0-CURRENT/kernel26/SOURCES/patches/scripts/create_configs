@@ -134,8 +134,6 @@ my @disable_boot_options = qw(
 
     PACKET_MMAP
     NETLINK_DEV
-    NETFILTER
-    FILTER
     IP_MULTICAST
     IP_ADVANCED_ROUTER
     NET_IPIP
