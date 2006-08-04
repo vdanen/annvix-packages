@@ -25,7 +25,9 @@ URL: 		http://www.openwall.com/tcb/
 Source0:	ftp://ftp.openwall.com/pub/projects/tcb/%{name}-%{version}.tar.gz
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
-BuildRequires:	glibc-crypt_blowfish-devel, pam-devel
+BuildRequires:	glibc-crypt_blowfish-devel
+BuildRequires:	pam-devel
+
 Requires:	%{libname} = %{version}-%{release}
 Requires:	pam_tcb = %{version}-%{release}
 Requires:	nss_tcb = %{version}-%{release}
@@ -46,6 +48,7 @@ package.
 Summary:        Libraries and tools implementing the tcb password shadowing scheme
 Group:          System/Libraries
 Requires:	glibc-crypt_blowfish
+Requires(pre):	setup >= 2.5-5735avx
 
 %description -n %{libname}
 libtcb contains code shared by the PAM and NSS modules and is also used
@@ -68,6 +71,8 @@ being the primary example) to operate with little privilege.
 Summary:	NSS library for TCB
 Group:		System/Libraries
 Requires:	%{libname} = %{version}-%{release}
+Requires(post):	rpm-helper
+Requires(postun): rpm-helper
 
 %description -n nss_tcb
 libnss_tcb is the accompanying NSS module for pam_tcb.
@@ -115,9 +120,11 @@ make install-non-root install-pam_unix install-pam_pwdb \
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
 
+
 %post -n nss_tcb
 /sbin/ldconfig
 %_post_srv nscd
+
 
 %postun -n nss_tcb
 /sbin/ldconfig
@@ -171,5 +178,8 @@ make install-non-root install-pam_unix install-pam_pwdb \
 
 
 %changelog
+* Fri Aug 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0
+- fix some requires
+
 * Fri Jun 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0
 - first Annvix package
