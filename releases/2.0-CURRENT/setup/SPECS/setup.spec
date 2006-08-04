@@ -24,6 +24,7 @@ Source:		setup-%{version}.tar.bz2
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 Requires:	shadow-utils
+Requires(post):	grep
 
 %description
 The setup package contains a set of very important system
@@ -105,6 +106,12 @@ fi
 
 
 %changelog
+* Fri Aug 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5
+- make syslogd (uid/gid 85) here instead of relying on the rpm-helper
+  scripts to add the user (for some reason it's not working as it
+  should) -- anyways, we will always need this user
+- add post-requires on grep
+
 * Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5
 - drop the doc (Changelog)
 
