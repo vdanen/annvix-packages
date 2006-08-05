@@ -318,8 +318,6 @@ my @disable_boot_options = qw(
 
     ACECAD
     ISCSI_MOD
-    LIRC
-    SHEEP_NET
     BCM5820
     P4B_SMBUS
     M7101
@@ -329,11 +327,8 @@ my @disable_boot_options = qw(
     MOD_QUICKCAM
     PAEP
     SAM9407
-    LUFS
     VT_AR5K
     DFG1394
-    DXR3
-    OV511
     QC_USB
 
     AGP_ALI
@@ -367,8 +362,6 @@ my @disable_boot_options = qw(
     RSBAC
 
     CRYPTO_TEST
-
-    LIRC_SUPPORT
 
 );
 
@@ -483,8 +476,6 @@ sub config_boot_x86 {
     foreach (@disable_boot_x86) {
 	$values{$_} = "n";
     }
-    $to_add{USB_BLUETOOTH_TTY}="n";
-    $to_add{DAZUKO}="n";
 }
 
 sub config_boot_x86_64 {
@@ -494,8 +485,6 @@ sub config_boot_x86_64 {
 	$values{$_} = "n";
     }
     $to_add{GEN_RTC}="n";
-    $to_add{USB_BLUETOOTH_TTY}="n";
-    $to_add{DAZUKO}="n";
 }
 
 sub config_nproc {
@@ -518,7 +507,6 @@ sub config_nproc_x86 {
     if ($nproc eq "smp") {
 	$to_add{HOTPLUG_CPU} = "y";
 	$to_add{CPU_FREQ} = "n";
-	$to_add{SMP_ALTERNATIVES} = "n";
 	$to_add{SCHED_SMT} = "y";
 	$to_add{IRQBALANCE} = "y";
         $to_add{CPUSETS} = "n";
