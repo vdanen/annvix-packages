@@ -4,6 +4,8 @@ Index of patches for the Annvix kernel found in patches/
 
 CA00_CORE.desc
 ** Core patches
+	CA01_remove_sata_experimental.patch
+	- removes those SATA drivers marked experimental
 
 CB00_CORE.desc
 ** Core patches (non-essential)

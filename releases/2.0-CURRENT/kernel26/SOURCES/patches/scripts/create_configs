@@ -261,12 +261,6 @@ my @disable_boot_options = qw(
     FB_TRIDENT
     FB_NEOMAGIC
     FB_VIRTUAL
-    LOGO
-    LOGO_LINUX_MONO
-    LOGO_LINUX_VGA16
-    LOGO_LINUX_CLUT224
-    LOGO_MDK_CLUT224
-    BOOTSPLASH
 
     SOUND
 

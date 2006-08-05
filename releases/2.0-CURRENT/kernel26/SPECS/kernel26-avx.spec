@@ -775,6 +775,11 @@ exit 0
 
 
 %changelog
+* Fri Aug 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.27
+- cleanup the configs
+- add CA01_remove_sata_experimental.patch (thanks Thomas) to mark some
+  SATA drivers as not experimental
+
 * Thu Aug 03 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.27
 - enable building netfilter for the BOOT kernel so we can set some default
   firewall rules on the installer
