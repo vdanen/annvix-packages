@@ -1,0 +1,65 @@
+--- linux-2.6.16/drivers/scsi/Kconfig.old	2006-08-04 02:03:46.000000000 +0300
++++ linux-2.6.16/drivers/scsi/Kconfig	2006-08-05 05:24:49.000000000 +0300
+@@ -541,7 +541,7 @@ config SCSI_ATA_PIIX
+ 
+ config SCSI_SATA_MV
+ 	tristate "Marvell SATA support (HIGHLY EXPERIMENTAL)"
+-	depends on SCSI_SATA && PCI && EXPERIMENTAL
++	depends on SCSI_SATA && PCI
+ 	help
+ 	  This option enables support for the Marvell Serial ATA family.
+ 	  Currently supports 88SX[56]0[48][01] chips.
+@@ -550,7 +550,7 @@ config SCSI_SATA_MV
+ 
+ config SCSI_SATA_NV
+ 	tristate "NVIDIA SATA support"
+-	depends on SCSI_SATA && PCI && EXPERIMENTAL
++	depends on SCSI_SATA && PCI
+ 	help
+ 	  This option enables support for NVIDIA Serial ATA.
+ 
+@@ -599,7 +599,7 @@ config SCSI_SATA_PROMISE
+ 
+ config SCSI_SATA_SX4
+ 	tristate "Promise SATA SX4 support"
+-	depends on SCSI_SATA && PCI && EXPERIMENTAL
++	depends on SCSI_SATA && PCI
+ 	help
+ 	  This option enables support for Promise Serial ATA SX4.
+ 
+@@ -607,7 +607,7 @@ config SCSI_SATA_SX4
+ 
+ config SCSI_SATA_SIL
+ 	tristate "Silicon Image SATA support"
+-	depends on SCSI_SATA && PCI && EXPERIMENTAL
++	depends on SCSI_SATA && PCI
+ 	help
+ 	  This option enables support for Silicon Image Serial ATA.
+ 
+@@ -615,7 +615,7 @@ config SCSI_SATA_SIL
+ 
+ config SCSI_SATA_SIL24
+ 	tristate "Silicon Image 3124/3132 SATA support"
+-	depends on SCSI_SATA && PCI && EXPERIMENTAL
++	depends on SCSI_SATA && PCI
+ 	help
+ 	  This option enables support for Silicon Image 3124/3132 Serial ATA.
+ 
+@@ -631,7 +631,7 @@ config SCSI_PATA_SIL680
+ 
+ config SCSI_SATA_SIS
+ 	tristate "SiS 964/180 SATA support"
+-	depends on SCSI_SATA && PCI && EXPERIMENTAL
++	depends on SCSI_SATA && PCI
+ 	help
+ 	  This option enables support for SiS Serial ATA 964/180.
+ 
+@@ -639,7 +639,7 @@ config SCSI_SATA_SIS
+ 
+ config SCSI_SATA_ULI
+ 	tristate "ULi Electronics SATA support"
+-	depends on SCSI_SATA && PCI && EXPERIMENTAL
++	depends on SCSI_SATA && PCI
+ 	help
+ 	  This option enables support for ULi Electronics SATA.
+ 

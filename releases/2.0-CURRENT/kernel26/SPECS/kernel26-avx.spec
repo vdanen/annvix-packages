@@ -775,6 +775,10 @@ exit 0
 
 
 %changelog
+* Sun Aug 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.27
+- actually commit CA01
+- add SL10 and SL11: openswan is back
+
 * Fri Aug 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.27
 - cleanup the configs
 - add CA01_remove_sata_experimental.patch (thanks Thomas) to mark some

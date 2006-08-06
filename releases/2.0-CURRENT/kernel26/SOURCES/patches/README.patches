@@ -15,6 +15,10 @@ FA00_FILESYSTEM.desc
 
 SL00_SECURITY.desc
 ** Security-related enhancement patches
+	SL10_openswan-2.4.6-klips.patch
+        - ipsec support for openswan 2.4.6
+	SL11_openswan-2.4.6-natt.patch
+        - NAT Traversal support for openswan 2.4.6
 	SL60_apparmor.patch
 	- AppArmor security module
 	SL61_apparmor_audit.patch
