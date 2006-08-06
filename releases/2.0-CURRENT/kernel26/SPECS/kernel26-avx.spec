@@ -755,15 +755,15 @@ exit 0
 %{_kerneldir}/include/sound
 %{_kerneldir}/include/video
 #Openswan 2.x.x
-#%{_kerneldir}/include/crypto
-#%{_kerneldir}/include/des
-#%{_kerneldir}/include/mast.h
-#%{_kerneldir}/include/openswan.h
-#%{_kerneldir}/include/openswan
-#%{_kerneldir}/include/pfkey.h
-#%{_kerneldir}/include/pfkeyv2.h
-#%{_kerneldir}/include/zlib
-#%{_kerneldir}/README.openswan-2
+%{_kerneldir}/include/crypto
+%{_kerneldir}/include/des
+%{_kerneldir}/include/mast.h
+%{_kerneldir}/include/openswan.h
+%{_kerneldir}/include/openswan
+%{_kerneldir}/include/pfkey.h
+%{_kerneldir}/include/pfkeyv2.h
+%{_kerneldir}/include/zlib
+%{_kerneldir}/README.openswan-2
 #endif %build_source
 %endif
 
