@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		openswan
-%define version		2.4.5
+%define version		2.4.6
 %define release		%_revrel
 %define epoch		1
 
@@ -23,10 +23,11 @@ License:	GPL
 Group:		System/Servers
 Source0:	http://www.openswan.org/download/openswan-%{version}.tar.gz
 Source1:	http://www.openswan.org/download/openswan-%{version}.tar.gz.asc
-Patch0:		openswan-2.4.5-avx-typeo.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	gmp-devel, pam-devel, bison
+BuildRequires:	gmp-devel
+BuildRequires:	pam-devel
+BuildRequires:	bison
 
 Provides:	ipsec-userland
 Requires:	iproute2
@@ -59,8 +60,7 @@ This package contains the documentation for %{name}.
 
 
 %prep
-%setup -q -n openswan-%{version}
-%patch0 -p0
+%setup -q
 
 %build
 %serverbuild
@@ -138,6 +138,11 @@ rm -rf %{buildroot}%{_sysconfdir}/%{name}/ipsec.d/examples
 
 
 %changelog
+* Sun Aug 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.6
+- 2.4.6
+- drop P0; merged upstream
+- spec cleanups
+
 * Tue Jun 27 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.5
 - 2.4.5
 - drop P0; no longer required
