@@ -1,0 +1,25 @@
+--- mkinitrd-4.2.17/mkinitrd.use-both-ahci-ata_piix	2006-04-03 18:26:40.000000000 +0200
++++ mkinitrd-4.2.17/mkinitrd	2006-04-03 18:28:23.000000000 +0200
+@@ -330,6 +330,7 @@ verif_scsidriver() {
+ 	    case "$known:$wanted" in
+ 		mptscsih:mptspi|mptscsih:mptfc) found=1;;
+ 		mptspi:mptscsih|mptfc:mptscsih) found=1;;
++		ahci:ata_piix|ata_piix:ahci) found=1;;
+ 	    esac
+ 	done
+ 	[ -n "$found" ] || pb=1
+@@ -365,6 +366,14 @@ function migrate_scsidriver() {
+ 	    mptspi|mptfc)
+ 		grep -q $wanted /lib/modules/$kernel/modules.pcimap || wanted="mptscsih"
+ 		;;
++	    # have both ata_piix and ahci so that you can still boot
++	    # after changing the config in the BIOS
++	    ata_piix)
++		wanted="$wanted ahci"
++		;;
++	    ahci)
++		wanted="$wanted ata_piix"
++		;;
+ 	esac
+ 	[[ -n "$wanted" ]] && drv="$drv $wanted"
+     done

@@ -1,0 +1,31 @@
+2006-04-09  Luca Berra <bluca@vodka.it>
+
+        * fix another silly dmraid command line option bug
+
+2006-04-18 Luca Berra <bluca@vodka.it>
+
+	* ignore locking
+
+--- mkinitrd-4.2.17/mkinitrd.dmraid
++++ mkinitrd-4.2.17/mkinitrd
+@@ -699,7 +707,7 @@
+     elif [ -x /sbin/dmraid ]; then
+ 	for i in `/sbin/dmraid -sa -c`; do
+ 	    if [ ${fstabrootdev#*/$i} != ${fstabrootdev} ]; then
+-		nonraiddevices=`/sbin/dmraid -r -cc|awk -F: -v set=$i '$3 == set {print $1}'`	
++		nonraiddevices=`/sbin/dmraid -r -c -c|awk -F: -v set=$i '$3 == set {print $1}'`	
+ 		root_dmraid=1
+ 		findmodule -dm-mod
+ 		findmodule -dm-mirror
+@@ -1213,10 +1213,8 @@ elif [ -n "$root_lvm" ]; then
+     rootdev=$fstabrootdev
+ elif [ -n "$root_dmraid" ]; then
+     inst /sbin/dmraid-static $MNTIMAGE/sbin/dmraid
+-    mkdir -p $MNTIMAGE/var/lock/dmraid
+-    touch $MNTIMAGE/var/lock/dmraid/.lock
+     echo "echo Activating device-mapper raid devices" >> $RCFILE
+-    echo "dmraid -ay" >> $RCFILE
++    echo "dmraid -ay -i" >> $RCFILE
+     rootdev=$fstabrootdev
+ elif [ -n "$root_evms" ]; then
+     evms_version=`/sbin/evms_query info|awk '$2 == "Version:" {print $3}'`

@@ -1,0 +1,11 @@
+--- mkinitrd-4.2.17/mkinitrd.ide	2006-05-09 21:24:06.000000000 +0200
++++ mkinitrd-4.2.17/mkinitrd	2006-05-09 21:29:19.000000000 +0200
+@@ -929,7 +929,7 @@
+     fi
+ 
+     for idemodule in $idemodules; do
+-	findmodule $idemodule
++	findmodule -$idemodule
+     done
+ 
+     # Debian patch

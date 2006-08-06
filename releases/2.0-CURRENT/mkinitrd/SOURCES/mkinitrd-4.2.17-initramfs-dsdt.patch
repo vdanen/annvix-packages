@@ -1,0 +1,64 @@
+Handle dsdt override support in initramfs. Also allow to use /boot/DSDT.aml
+and dsdt.aml. 
+
+Rtp
+
+--- mkinitrd-4.2.17/mkinitrd.initramfs-dsdt	2006-04-10 18:28:51.000000000 +0200
++++ mkinitrd-4.2.17/mkinitrd	2006-04-10 18:29:16.000000000 +0200
+@@ -49,8 +49,8 @@ tmpdir=
+ rc=0
+ kernel25=""
+ 
+-DEFAULT_DSDT_FILE="/boot/dsdt.aml"
+-dsdt_file=""
++DEFAULT_DSDT_FILES="/boot/dsdt.aml /boot/DSDT.aml"
++dsdt_files=""
+ 
+ IMAGESIZE=100
+ NB_INODES=100
+@@ -534,9 +534,9 @@ while [ $# -gt 0 ]; do
+ 	    ;;
+ 	--dsdt*)
+ 	    if echo $1 | grep '=' >/dev/null ; then
+-	    	dsdt_file=`echo $1 | sed 's/^--dsdt=//'`
++	    	dsdt_files=`echo $1 | sed 's/^--dsdt=//'`
+ 	    else
+-		dsdt_file=$DEFAULT_DSDT_FILE
++		dsdt_files=$DEFAULT_DSDT_FILES
+ 	    fi		    
+ 	    ;;
+ 	--debug-busybox*)
+@@ -1302,6 +1302,14 @@ case $initrdfs in
+ 	genromfs -d "$MNTIMAGE" -f "$IMAGE"
+ 	;;
+     initramfs)
++	if [[ -n "$dsdt_files" ]]; then
++		for dsdt_file in $dsdt_files; do
++			if [[ -f $dsdt_file ]]; then
++				cp -aL $dsdt_file $MNTIMAGE/DSDT.aml
++			fi
++		done
++		dsdt_files=""
++	fi
+ 	(cd $MNTIMAGE; find . | cpio --quiet -c -o) >| $IMAGE || exit 1
+ 	;;
+ esac
+@@ -1312,10 +1320,14 @@ else
+     cp -a $IMAGE $target || exit 1
+ fi
+ 
+-if [[ -n "$dsdt_file" && -f "$dsdt_file" ]]; then
+-    echo -n "INITRDDSDT123DSDT123" >> $target
+-    cat "$dsdt_file" >> $target
+-    [ -n "$kernel25" ] && echo -n "INITRDDSDT321DSDT321" >> $target
++if [[ -n "$dsdt_files" ]]; then
++   for dsdt_file in $dsdt_files; do
++      if [[ -f $dsdt_file ]]; then
++	 echo -n "INITRDDSDT123DSDT123" >> $target
++	 cat "$dsdt_file" >> $target
++	 [ -n "$kernel25" ] && echo -n "INITRDDSDT321DSDT321" >> $target
++      fi
++   done
+ fi
+ 
+ exit $rc
