@@ -187,12 +187,3 @@ rm -rf %{buildroot}%{_sysconfdir}/%{name}/ipsec.d/examples
 * Sat May 22 2004 Thomas Backlund <tmb@iki.fi> 2.1.2-1sls
 - 2.1.2 final
 - first OpenSLS specific build
-
-* Tue May 18 2004 Florin <florin@mandrakesoft.com> 2.1.2-0.rc3.3mdk
-- sysconfdir is now /etc/openswan
-
-* Wed Apr 21 2004 Florin <florin@mandrakesoft.com> 2.1.2-0.rc3.2mdk
-- add the signature file
-
-* Wed Apr 21 2004 Florin <florin@mandrakesoft.com> 2.1.2-0.rc3.1mdk
-- first Mandrake release
