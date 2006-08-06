@@ -28,7 +28,7 @@ Group:		System/Kernel and hardware
 URL:		http://www.redhat.com/
 Source:		ftp://ftp.redhat.com/mkinitrd-%{version}.tar.bz2
 Source1:	mkinitrd-insmod-3.5.24.tar.bz2
-Patch0:		mkinitrd-%{version}-mdk.patch
+Patch0:		mkinitrd-4.2.17-mdk.patch
 Patch1:		mkinitrd-4.2.17-label.patch
 Patch2:		mkinitrd-4.2.17-cdrom.patch
 Patch3:		mkinitrd-4.2.17-migrate-mptscsih.patch
