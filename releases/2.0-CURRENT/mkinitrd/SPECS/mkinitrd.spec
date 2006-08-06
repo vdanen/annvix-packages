@@ -42,6 +42,7 @@ Patch10:	mkinitrd-4.2.17-scsidriver.patch
 Patch11:	mkinitrd-4.2.17-initramfs-dsdt.patch
 Patch12:	mkinitrd-4.2.17-ide.patch
 Patch13:	mkinitrd-4.2.17-avx-fix_switchroot.patch
+Patch14:	mkinitrd-4.2.17-avx-version.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl
@@ -97,15 +98,16 @@ ramdisk using information found in the /etc/modules.conf file.
 %patch11 -p1 -b .initramfs-dsdt
 %patch12 -p1 -b .ide
 %patch13 -p1 -b .fix_switchroot
+%patch14 -p1 -b .avx_version
 
 
 %build
 %if %{use_dietlibc}
 %ifarch x86_64
-perl -pi -e 's| gcc | x86_64-annvix-linux-gnu-gcc |g' mkinitrd_helper-subdir/insmod-busybox/Makefile
-perl -pi -e 's| gcc | x86_64-annvix-linux-gnu-gcc |g' mkinitrd_helper-subdir/insmod-module-init-tools/Makefile
+    make DIET=1 CC="diet x86_64-annvix-linux-gnu-gcc"
+%else
+    make DIET=1
 %endif
-make DIET=1
 %else
 make
 %endif
@@ -130,6 +132,10 @@ cp insmod/insmod %{buildroot}/sbin/insmod-DIET
 
 
 %changelog
+* Sun Aug 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.2.17
+- P14: our own branding
+- fix dietlibc compile on x86_64
+
 * Sun Aug 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.2.17
 - 4.2.17 (sync completely with mdv 4.2.17-20mdv)
 - P13: make switchroot work properly (thanks Thomas)
