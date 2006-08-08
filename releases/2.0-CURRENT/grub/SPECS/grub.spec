@@ -245,6 +245,9 @@ ln -s ../boot/grub/grub.conf %{buildroot}%{_sysconfdir}/grub.conf
 
 
 %changelog
+* Sun Aug 07 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.97
+- updated P501 so it actually compiles
+
 * Mon Jul 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.97
 - 0.97
 - sync with fedora 0.97-5:

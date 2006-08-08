@@ -43,13 +43,3 @@ diff -ur grub-0.94/lib/device.c grub-0.94.new/lib/device.c
  #endif /* __linux__ */
    
    /* OK, close the device map file if opened.  */
-@@ -844,7 +870,8 @@
- 	   (strncmp(dev, "/dev/ida/", 9) == 0 ||
-             strncmp(dev, "/dev/ataraid/", 13) == 0 ||
- 	    strncmp(dev, "/dev/cciss/", 11) == 0 ||
--	    strncmp(dev, "/dev/rd/", 8) == 0) ? "p" : "",
-+	    strncmp(dev, "/dev/rd/", 8) == 0 ||
-+	    strncmp(dev, "/dev/i2o/", 9) == 0) ? "p" : "",
- 	   ((partition >> 16) & 0xFF) + 1);
-   
-   /* Open the partition.  */
