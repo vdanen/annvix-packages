@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		clamav
-%define version		0.88.2
+%define version		0.88.4
 %define release		%_revrel
 
 %define	major		1
@@ -32,8 +32,11 @@ Patch0:		clamav-0.87-avx-config.patch
 Patch1:		clamav-0.88.1-avx-stderr.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	autoconf2.5, automake1.7
-BuildRequires:	zlib-devel, gmp-devel, bzip2-devel
+BuildRequires:	autoconf2.5
+BuildRequires:	automake1.7
+BuildRequires:	zlib-devel
+BuildRequires:	gmp-devel
+BuildRequires:	bzip2-devel
 
 Requires(post):	clamav-db
 Requires(preun): clamav-db
@@ -97,8 +100,10 @@ Shared libraries for %{name}
 Summary:	Development library and header files for the %{name} library
 Group:		Development/C
 Requires:	%{libname} = %{version}
-Provides:	%{name}-devel lib%{name}-devel
-Obsoletes:	%{name}-devel lib%{name}-devel
+Provides:	%{name}-devel
+Provides:	lib%{name}-devel
+Obsoletes:	%{name}-devel
+Obsoletes:	lib%{name}-devel
 
 %description -n	%{libname}-devel
 This package contains the static %{libname} library and its header
@@ -188,9 +193,6 @@ fi
 
 
 %post -n clamd
-if [ -d /var/log/supervise/clamd -a ! -d /var/log/service/clamd ]; then
-    mv /var/log/supervise/clamd /var/log/service/
-fi
 %_post_srv clamd
 
 
@@ -282,6 +284,10 @@ done
 
       
 %changelog
+* Tue Aug 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.88.4
+- 0.88.4 (fixes a heap-based buffer overflow vulnerability)
+- clean spec
+
 * Thu Jun 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.88.2
 - add -doc subpackage
 - rebuild with gcc4
@@ -360,337 +366,3 @@ done
 - remove BuildRequires: bc
 - clamav is static uid/gid 89
 - supervise scripts
-
-* Mon Feb 07 2005 Oden Eriksson <oeriksson@mandrakesoft.com> 0.82-1mdk
-- 0.82
-- drop cvs fixes patch, it's implemented upstream
-
-* Wed Feb 02 2005 Oden Eriksson <oeriksson@mandrakesoft.com> 0.81-4mdk
-- exclude the %{name}-milter.8 man page if built without milter 
-
-* Wed Feb 02 2005 Oden Eriksson <oeriksson@mandrakesoft.com> 0.81-3mdk
-- new P1
-- mention the conditional build switch in the description
-
-* Mon Jan 31 2005 Oden Eriksson <oeriksson@mandrakesoft.com> 0.81-2mdk
-- added P1 in an attempt to fix #13355, P1 also fixes various
-  other issues
-
-* Wed Jan 26 2005 Oden Eriksson <oeriksson@mandrakesoft.com> 0.81-1mdk
-- 0.81
-- we were allready shipping the clamav source, so.. there's little
-  point of nuking the M$ *.exe binary...
-- please mrlint in the requires-on-release quest
-- misc spec file fixes
-
-* Thu Jan 20 2005 Oden Eriksson <oeriksson@mandrakesoft.com> 0.81-0.rc1.1mdk
-- fix release string (duh!)
-
-* Thu Jan 20 2005 Oden Eriksson <oeriksson@mandrakesoft.com> 0.81-0.rc1.1mdk
-- 0.81rc1
-- drop the libtool patch by Gwenole Beauchesne, it's merged upstream
-- fix deps
-- fix P0 and TMPDIR
-
-* Wed Dec 29 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 0.80-8mdk
-- revert latest "lib64 fixes"
-
-* Tue Dec 28 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 0.80-7mdk
-- applied fixes by Bill Randle
-- handle log file creation in the sysv scripts too, cleanup these
-  scripts some
-- misc spec file fixes
-
-* Thu Nov 18 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 0.80-6mdk
-- rebuilt due to missing clamd package
-
-* Thu Nov 18 2004 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 0.80-5mdk
-- libtool fixes
-
-* Thu Nov 18 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 0.80-4mdk
-- use "export EGREP=egrep" as suggested by Luca Berra in an 
-  attempt to fix build on x86_64
-
-* Tue Nov 16 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 0.80-3mdk
-- since the libs won't provide, we need to require them
-
-* Wed Nov 10 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 0.80-2mdk
-- fix a silly groups typo
-
-* Mon Oct 18 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 0.80-1mdk
-- 0.80
-- rediffed P0
-- add the freshclam init script (S3)
-- reorder and rename S1 - S6
-- fix S6
-- change so that client parts belongs to the main clamav package
-- fix deps
-- misc spec file fixes
-
-* Sat Jul 31 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 0.75.1-1mdk
-- use "-1mdk" ;) (catched by Bill Randle)
-
-* Fri Jul 30 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 0.75.1-1mdk
-- 0.75.1 (bugfix release)
-
-* Thu Jul 29 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 0.75-2mdk
-- 0.75-1 (bugfix release)
-
-* Fri Jul 23 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 0.75-1mdk
-- 0.75
-
-* Wed Jun 30 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 0.74-1mdk
-- 0.74
-
-* Tue Jun 15 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 0.73-1mdk
-- 0.73
-- drop P2, it's in there
-
-* Thu Jun 03 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 0.72-1mdk
-- 0.72
-
-* Thu Jun 03 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 0.72-0.1mdk
-- 0.72 (from cvs)
-
-* Tue May 25 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 0.71-3mdk
-- added P2 from PLD
-
-* Sun May 23 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 0.71-2mdk
-- added fixes by Bill Randle <billr@neocat.org>:
-  | drop S9 (not needed as default mdk install does not run amavisd chroot)
-  | add German docs
-  | add --with/--without freshclamhourly option for hourly+random offset
-  | freshclam runs
-  | add P1
-  | add clamav user to amavis group
-  | drop unneeded mdk92/mdk100 defines
-- fixed a more convenient README.qmail+qmail-scanner file ;)
-- don't ship the *.exe file, put contrib sources in the devel sub package
-
-* Fri May 21 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 0.71-1mdk
-- 0.71
-- rediffed P0
-- drop clamdmail, eventually it will be a stand alone package, if 
-  it's better maintained
-
-* Sun May 16 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 0.70-2mdk
-- remove stuff that always enable build of clamdmail (thanks 
-  Luca Berra <bluca@comedia.it>)
-
-* Sun Apr 18 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 0.70-1mdk
-- 0.70
-- clamdmail-0.15a
-- merge static devel into devel
-- added fixes by Bill Randle <billr@neocat.org>:
-  - rediff Patch0
-  - additonal doc files
-  - create Patch1 for clamdmail
-  - clamav.clamav+amavisd-new-fixup.sh script
-  - change start priority for clamd so it starts before clamav-milter
-    (reported by and suggested fix by jbolin@users.sourceforge.net)
-
-* Fri Apr 16 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 0.68-1mdk
-- 0.68-1
-- drop P1
-- fix P0
-
-* Tue Feb 17 2004 Oden Eriksson <oden.eriksson@kvikkjokk.net> 0.67-4mdk
-- added fixes from 0.67-1 (P2)
-- fixed a stupid spec file thang (thanks Luca Berra and Daniel J McDonald)
-- added a note about qmail+qmail-scanner
-- for now i will only correct things i find too strange or too stupid,
-  don't expect me to work this fulltime as the previous 2-3 years... the
-  previous changelog entry explains why i jumped in here.
-
-* Tue Feb 17 2004 Oden Eriksson <oden.eriksson@kvikkjokk.net> 0.67-3mdk
-- fix freshclam cron policy: do not ship clamav with a db update frequency 
-  of one hour. once a day is ok for joe user. thousands or maybe millions 
-  of mdk10+ boxes could bring the clamav antivirus database mirrors to its 
-  knees, or even worse in about six months turn it into a pre-paid 
-  subscription service. any serious admin can change this update frequency,
-  at will post install...
-- fix conditional build for the sendmail milter
-- turn on debug code, disable clamuko (who uses it?)
-- make clamd use its own config file
-- misc spec file fixes
-
-* Sun Feb 15 2004 Bill Randle <billr@neocat.org> 0.67-2mdk
-- update spec file to match Luca's version in contrib
-- put freshclam cron file in cron.hourly
-
-* Sun Feb 15 2004 Bill Randle <billr@neocat.org> 0.67-1mdk
-- sync with new 0.67 release (fixes memory management problem)
-
-* Sun Feb 15 2004 Luca Berra <bluca@vodka.it> 0.66-3mdk
-- really fix freshclam cron script
-
-* Wed Feb 11 2004 Luca Berra <bluca@vodka.it> 0.66-2mdk 
-- fix clamdmail version
-
-* Wed Feb 11 2004 Luca Berra <bluca@vodka.it> 0.66-1mdk 
-- 0.66
-- fix freshclam return code in cron script
-- use freshclam.conf
-- allow building without clamdmail for 9.2 (no libripmime-devel)
-- removed P1 (included upstream)
-- rediffed P0
-- massage rpm for easy snapshot/release build
-
-* Sun Dec 07 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 0.66-0.20031204.1mdk
-- fix weird #6486 (S2)
-- use a recent CVS snapshot (there's simply too much going on here...)
-- clamdmail-0.15
-- buildrequires ripmime-devel (for clamdmail)
-- drop P1 & P2
-- rediffed P0
-- added new P1
-
-* Wed Nov 19 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 0.65-4mdk
-- added P2 (CVS fixes)
-
-* Wed Nov 19 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 0.65-3mdk
-- clamdmail-0.14
-- drop P2, it's included
-
-* Fri Nov 14 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 0.65-2mdk
-- fixed P0
-
-* Thu Nov 13 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 0.65-1mdk
-- 0.65
-- removed one patch, added P1 & P2
-- gmp is needed now
-- misc spec file fixes
-
-* Sat Sep 13 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 0.61-0.20030829.1mdk
-- use the 20030829 snapshot
-- remove patches that's included in the upstream source
-- changed P3 to P1
-- fix S7 and log stuff in the spec file
-- fetch virus databases as these are not included
-- clamdmail-0.13
-- fix buildrequires
-
-* Mon Aug 25 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 0.61-0.20030806.2mdk
-- use the correct 20030806 snapshot
-- added P1 to fix stale sockets if unclean shutdown.
-- added P2 to fix cli_malloc build error
-- update url
-- update url in mirrors.txt file (P3)
-
-* Tue Aug 05 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 0.61-0.20030806.1mdk
-- use the 20030806 snapshot
-- added 2 files from contrib into docdir
-
-* Tue Aug 05 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 0.61-0.20030705.5mdk
-- spec file work around for rpm stupidity...
-
-* Tue Aug 05 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 0.61-0.20030705.4mdk
-- added the clamdmail subpckage
-
-* Tue Jul 29 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 0.61-0.20030705.3mdk
-- use some more spec file voodoo magic to please distlint (a bit?)
-
-* Sat Jul 19 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 0.61-0.20030705.2mdk
-- change description on request by the author
-
-* Wed Jul 16 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 0.61-0.20030705.1mdk
-- use the 20030705 snapshot
-- added some more docs
-
-* Thu Jul 10 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 0.60-2mdk
-- rebuild
-- misc spec file fixes
-
-* Sun Jun 22 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 0.60-1mdk
-- misc fixes by mutt@free.fr:
-  - upgrade to 0.60 (clamav-0.54-buffer_overflow_fix included)
-  - doc changes (Spanish, Japanese), new file mirrors.txt
-- added the clamav-milter sub package (S3 & S4)
-- added cron script to auto update the virus database, plus a logrotate
-  configuration file (S5 & S6)
-- use the %%configure2_5x macro
-- fix buildrequires
-- rediff P0
-- move logs to /var/log/clamav/ (msec fix)
-- misc spec file fixes
-
-* Sat May 31 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 0.54-8mdk
-- rebuilt to have rpm v4.2 pick up provides
-
-* Thu Mar 13 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 0.54-7mdk
-- fix potential security hole (P1) as in:
-  http://archive.elektrapro.com/clamav.elektrapro.com/users/2003/3/msg00016.html
-
-* Thu Mar 06 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 0.54-6mdk
-- use the %%mklibname macro
-- misc spec file fixes
-- fix pid file location
-- got rpmlint a little happier...
-
-* Thu Jan 16 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 0.54-5mdk
-- build release
-
-* Fri Nov 22 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 0.54-4mdk
-- argh!!! viruscanner should spell virusscanner, right?
-
-* Fri Nov 22 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 0.54-3mdk
-- added virtual provides (pointed out by Buchan Milne)
-  clamav Provides: viruscanner AV-Scanner
-  clamd Provides: viruscanner-daemon AV-Scanner-Daemon
-
-* Fri Nov 22 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 0.54-2mdk
-- fix %%_pre_useradd (pointed out by Buchan Milne)
-- also fix ldconfig in %%post %%postun (wierd...)
-
-* Thu Nov 21 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 0.54-1mdk
-- new version
-- updated P0
-- %{_bindir}/clamdscan was added to the clamd package
-- misc spec file fixes
-
-* Fri Nov 01 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 0.53-1mdk
-- new version
-
-* Tue Oct 29 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 0.52-1mdk
-- new version
-- misc spec file fixes
-
-* Sat Oct 19 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 0.51-3mdk
-- attrib 711 on %{_localstatedir}/clamav was too restrictive for
-  qmail-scanner, changed that to 755
-
-* Mon Oct 14 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 0.51-2mdk
-- fixed Group=File tools for main package (correct?)
-
-* Wed Oct 09 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 0.51-1mdk
-- new version
-- libifictions and daemonification
-- major spec file fixes
-
-* Thu Aug 22 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 0.24-1mdk
-- new version
-- added GnuPG signature
-- misc spec file fixes
-
-* Sat Aug  3 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 0.23-1mdk
-- new version
-
-* Wed Jul 24 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 0.22-1mdk
-- new version
-
-* Thu Jul 18 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 0.21-1mdk
-- new version
-
-* Tue Jul 16 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 0.20-1mdk
-- new version, new url
-- misc spec file fixes
-
-* Wed Jun 12 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 0.15-1mdk
-- new version
-
-* Sat Jun  1 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 0.14-1mdk
-- new version
-- remove P0
-
-* Sat May 11 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 0.11-1mdk
-- initial cooker contrib
