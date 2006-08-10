@@ -22,6 +22,9 @@ License:	LGPL
 Group:		System/Configuration
 URL:		http://forge.novell.com/modules/xfmod/project/?apparmor
 Source0:	%{name}-%{version}-6377.tar.gz
+Source1:	aaeventd.run
+Patch0:		apparmor-utils-2.0-avx-socklog.patch
+Patch1:		apparmor-utils-2.0-avx-nofork.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
@@ -38,6 +41,8 @@ and the aa-eventd event reporting system.
 
 %prep
 %setup -q
+%patch0 -p0 -b .avx-socklog
+%patch1 -p0 -b .avx-nofork
 
 
 %install
@@ -47,11 +52,21 @@ make DESTDIR=%{buildroot} \
      PERLDIR=%{buildroot}%{perl_vendorlib}/Immunix \
      install
 
+mkdir -p %{buildroot}%{_srvdir}/aaventd
+install -m 0740 %{_sourcedir}/aaventd.run %{buildroot}%{_srvdir}/aaeventd/run
+
 %find_lang %{name}
 
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
+
+%preun
+%_preun_srv aaventd
+
+%post
+%_post_srv aaeventd
 
 
 %files -f %{name}.lang
@@ -60,9 +75,16 @@ make DESTDIR=%{buildroot} \
 %attr(0750,root,root) %{_sbindir}/*
 %{perl_vendorlib}/Immunix
 %dir %attr(0700,root,root) /var/log/apparmor
+%dir %attr(0750,root,admin) %{_srvdir}/aaeventd
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/aaventd/run
 
 
 %changelog
+* Wed Aug 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
+- S1: run script for aa-eventd
+- P0: use /var/log/system/kmsg/current instead of /var/log/messages
+- P1: don't fork aa-eventd
+
 * Sun Jul 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
 - drop P0 as we've moved logger to /bin
 
