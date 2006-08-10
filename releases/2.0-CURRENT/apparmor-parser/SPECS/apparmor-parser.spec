@@ -28,6 +28,8 @@ BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	libcap-devel
 
 Requires:	sed
+Requires(post):	rpm-helper
+Requires(preun): rpm-helper
 
 %description
 The AppArmor Parser is a userlevel program that is used to load in
@@ -63,7 +65,7 @@ make DESTDIR=%{buildroot} \
      install
 
 mv %{buildroot}%{_initrddir}/rc.apparmor.functions %{buildroot}%{_initrddir}/apparmor.functions
-install -m 0750 rc.aaeventd.mandriva %{buildroot}%{_initrddir}/aaeventd
+#install -m 0750 rc.aaeventd.mandriva %{buildroot}%{_initrddir}/aaeventd
 
 %find_lang %{name}
 
@@ -74,12 +76,12 @@ install -m 0750 rc.aaeventd.mandriva %{buildroot}%{_initrddir}/aaeventd
 
 %post
 %_post_service apparmor
-%_post_service aaeventd
+#%_post_service aaeventd
 
 
 %preun
 %_preun_service apparmor
-%_preun_service aaeventd
+%#_preun_service aaeventd
 
 
 
@@ -90,7 +92,7 @@ install -m 0750 rc.aaeventd.mandriva %{buildroot}%{_initrddir}/aaeventd
 %dir %attr(0750,root,root) %{_sysconfdir}/apparmor
 %attr(0750,root,root) %{_initrddir}/apparmor.functions
 %attr(0750,root,root) %{_initrddir}/apparmor
-%attr(0750,root,root) %{_initrddir}/aaeventd
+#%attr(0750,root,root) %{_initrddir}/aaeventd
 %dir %attr(0750,root,root) /var/lib/apparmor
 
 %files doc
@@ -99,6 +101,10 @@ install -m 0750 rc.aaeventd.mandriva %{buildroot}%{_initrddir}/aaeventd
 
 
 %changelog
+* Wed Aug 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
+- don't include the aaeventd initscript (runscript is in apparmor-utils)
+- requires rpm-helper
+
 * Tue Jun 27 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
 - fix permissions
 - provide our own initscripts for apparmor and aaeventd (S0, S1)
