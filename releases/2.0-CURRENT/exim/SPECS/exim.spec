@@ -9,12 +9,12 @@
 
 %define revision	$Rev$
 %define name		exim
-%define version 	4.62
+%define version 	4.63
 %define release 	%_revrel
 
 %define build_mysql 	0
 %define build_pgsql 	0
-%define saversion   	4.2
+%define saversion   	4.2.1
 
 # commandline overrides:
 # rpm -ba|--rebuild --define 'with_xxx'
@@ -45,6 +45,7 @@ Patch0:		exim-4.62-avx-config.patch
 Patch2:		exim-4.22-install.patch
 Patch3:		exim-4.52-avx-system_pcre.patch
 Patch4:		exim-4.43-debian-dontoverridecflags.diff
+Patch5:		sa-exim-4.2.1-avx-lynx.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	tcp_wrappers-devel, pam-devel, openssl, openssl-devel, openldap-devel, lynx
@@ -107,6 +108,7 @@ This package contains the documentation for %{name}.
 %patch2 -p1 -b .install
 %patch3 -p1 -b .pcre
 %patch4 -p0 -b .cflags
+%patch5 -p0 -b .lynx
 
 # apply the SA-exim dlopen patch
 cat sa-exim*/localscan_dlopen_exim_4.20_or_better.patch | patch -p1
@@ -206,7 +208,7 @@ popd
 # docs
 mkdir sa-exim
 cp -f sa-exim*/*.html sa-exim/
-cp -f sa-exim*/{ACKNOWLEDGEMENTS,INSTALL,LICENSE,TODO} sa-exim/
+cp -f sa-exim*/{CHANGELOG,ACKNOWLEDGEMENTS,INSTALL,LICENSE,TODO} sa-exim/
 
 
 %clean
@@ -301,6 +303,11 @@ fi
 
 
 %changelog
+* Thu Aug 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.63
+- 4.63
+- sa-exim 4.2.1
+- P5: use lynx rather than links to generate sa-exim docs
+
 * Fri Jun 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.62
 - rebuild against new db4
 - fix requires: s/db4.1/db4.2/

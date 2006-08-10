@@ -1,0 +1,16 @@
+--- sa-exim-4.2.1/Makefile.avx	2006-08-10 09:28:45.000000000 -0600
++++ sa-exim-4.2.1/Makefile	2006-08-10 09:28:53.000000000 -0600
+@@ -48,11 +48,11 @@
+ 
+ ACKNOWLEDGEMENTS: Acknowledgements.html
+ 	@echo "Generating $@"
+-	@links -dump $< > $@
++	@lynx -dump $< > $@
+ 
+ CHANGELOG: Changelog.html
+ 	@echo "Generating $@"
+-	@links -dump $< > $@
++	@lynx -dump $< > $@
+ 
+ sa.html: Changelog.html Acknowledgements.html sa.html.template
+ 	@echo "Generating $@"
