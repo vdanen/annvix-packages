@@ -31,6 +31,8 @@ BuildArch:	noarch
 
 Requires:	perl(Date::Parse), perl(DBI), perl(File::Tail), perl(DBD::SQLite)
 Requires:	apparmor-parser
+Requires(post):	rpm-helper
+Requires(preun): rpm-helper
 
 %description
 This package provides the aa-logprof, aa-genprof, aa-autodep,
@@ -52,8 +54,8 @@ make DESTDIR=%{buildroot} \
      PERLDIR=%{buildroot}%{perl_vendorlib}/Immunix \
      install
 
-mkdir -p %{buildroot}%{_srvdir}/aaventd
-install -m 0740 %{_sourcedir}/aaventd.run %{buildroot}%{_srvdir}/aaeventd/run
+mkdir -p %{buildroot}%{_srvdir}/aaeventd
+install -m 0740 %{_sourcedir}/aaeventd.run %{buildroot}%{_srvdir}/aaeventd/run
 
 %find_lang %{name}
 
@@ -76,7 +78,7 @@ install -m 0740 %{_sourcedir}/aaventd.run %{buildroot}%{_srvdir}/aaeventd/run
 %{perl_vendorlib}/Immunix
 %dir %attr(0700,root,root) /var/log/apparmor
 %dir %attr(0750,root,admin) %{_srvdir}/aaeventd
-%config(noreplace) %attr(0740,root,admin) %{_srvdir}/aaventd/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/aaeventd/run
 
 
 %changelog
@@ -84,6 +86,7 @@ install -m 0740 %{_sourcedir}/aaventd.run %{buildroot}%{_srvdir}/aaeventd/run
 - S1: run script for aa-eventd
 - P0: use /var/log/system/kmsg/current instead of /var/log/messages
 - P1: don't fork aa-eventd
+- requires rpm-helper
 
 * Sun Jul 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
 - drop P0 as we've moved logger to /bin
