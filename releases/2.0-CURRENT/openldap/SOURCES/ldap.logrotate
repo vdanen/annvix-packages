@@ -2,6 +2,10 @@
     missingok
     notifempty
     compress
+    daily
+    rotate 10
+    size=10M
+    sharedscripts
     postrotate
 	# only restart if slapd is really running
         if [ "`runsvstat /service/slapd 2>/dev/null|grep -q run; echo $?`" == "0" ]; then

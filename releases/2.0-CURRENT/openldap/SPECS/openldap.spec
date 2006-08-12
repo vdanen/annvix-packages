@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		openldap
-%define version		2.3.9
+%define version		2.3.24
 %define release		%_revrel
 
 %define major 		2.3_0
@@ -31,7 +31,7 @@
 # Allow --with[out] SASL at rpm command line build
 %{?_without_SASL:	%{expand: %%define _without_cyrussasl --without-cyrus-sasl}}
 %{?_with_SASL:		%{expand: %%define _with_cyrussasl --with-cyrus-sasl}}
-%{!?_with_cyrussasl:	%{!?_without_cyrussasl: %define _with_cyrussasl --with-cyrus-sasl}}
+%{!?_with_cyrussasl:	%{!?_without_cyrussasl: %global _with_cyrussasl --with-cyrus-sasl}}
 %{?_with_cyrussasl:	%define _with_cyrussasl --with-cyrus-sasl}
 %{?_without_cyrussasl:	%define _without_cyrussasl --without-cyrus-sasl}
 %{?_with_gdbm:		%global db_conv dbb}
@@ -103,14 +103,7 @@ Patch1:		%{name}-2.0.7-module.patch
 # For now only build support for SMB (no krb5) changing support in smbk5passwd overlay:
 Patch2:		openldap-2.3.4-smbk5passwd-only-smb.patch
 # RH + PLD Patches
-Patch6: 	%{name}-2.0.3-krb5-1.1.patch
-Patch8:		%{name}-conffile.patch
-Patch10:	%{name}-sql.patch
-Patch12:	%{name}-syslog.patch
 Patch15:	%{name}-cldap.patch
-# additional modules
-Patch20:	openldap-2.2.23-smbk5passwd-cvs-20050314.patch
-Patch21:	openldap-2.2.23-smbk5passwd-cvs-20050314-upcasehash.patch
 # Migration tools Patch
 Patch40: 	MigrationTools-34-instdir.patch
 Patch41: 	MigrationTools-36-mktemp.patch
@@ -119,8 +112,6 @@ Patch43: 	MigrationTools-26-suffix.patch
 Patch45:	MigrationTools-45-i18n.patch
 # schema patch
 Patch46: 	openldap-2.0.21-schema.patch
-# maildrop schema
-Patch47:	openldap-2.0.27-maildrop.schema.patch
 # http://qa.mandriva.com/show_bug.cgi?id=15499
 Patch48:	MigrationTools-45-structural.patch
 Patch50:	http://www.sleepycat.com/update/4.2.52/patch.4.2.52.1
@@ -133,14 +124,12 @@ Patch53:	openldap-2.2.19-ntlm.patch
 Patch54:	MigrationTools-40-preserveldif.patch
 
 #patches in CVS
-Patch100:	openldap-2.3.9-its4035.patch
+Patch101:	openldap-its4576.patch
 
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}-root
 %{?_with_cyrussasl:BuildRequires: 	libsasl-devel}
 %{?_with_kerberos:BuildRequires:	krb5-devel}
-BuildRequires:	openssl-devel, perl, autoconf2.5, ed
-#BuildRequires: libgdbm1-devel
 %if %sql
 BuildRequires: 	unixODBC-devel
 %endif
@@ -148,14 +137,21 @@ BuildRequires: 	unixODBC-devel
 BuildRequires:	perl-devel
 %endif
 %if !%db4_internal
-BuildRequires: 	db%{dbname}-devel >= %{dbver}
+BuildRequires: 	db4-devel >= %{dbver}
 %endif
-BuildRequires:  ncurses-devel >= 5.0, tcp_wrappers-devel, libtool-devel
+BuildRequires:	openssl-devel
+BuildRequires:	perl
+BuildRequires:	autoconf2.5
+BuildRequires:	ed
+BuildRequires:  ncurses-devel >= 5.0
+BuildRequires:	tcp_wrappers-devel
+BuildRequires:	libtool-devel
 # for make test:
 BuildRequires:	diffutils
 
 Requires: 	%{libname} = %{version}-%{release}
-Requires:	shadow-utils, setup >= 2.2.0-6mdk
+Requires:	shadow-utils
+Requires:	setup >= 2.2.0-6mdk
 
 
 %description
@@ -171,14 +167,17 @@ files used by the libraries.
 %package servers
 Summary: 	OpenLDAP servers and related files
 Group: 		System/Servers
-Requires(pre): 	/usr/sbin/useradd
+Requires(pre): 	shadow-utils
 Requires(pre):	rpm-helper
-Requires(post):	afterboot, rpm-helper
-Requires(postun): afterboot, rpm-helper
+Requires(post):	afterboot
+Requires(post):	rpm-helper
+Requires(postun): afterboot
+Requires(postun): rpm-helper
 %if !%db4_internal
 Requires(pre):	db4-utils
 Requires(post):	db4-utils
 Requires:	db4-utils
+Requires: 	%{libname} = %{version}-%{release}
 %endif
 Provides:	%{name}-back_dnssrv = %{version}-%{release}
 Provides:	%{name}-back_ldap = %{version}-%{release}
@@ -188,8 +187,6 @@ Obsoletes:	%{name}-back_dnssrv < %{version}-%{release}
 Obsoletes:	%{name}-back_ldap < %{version}-%{release}
 Obsoletes:	%{name}-back_passwd < %{version}-%{release}
 Obsoletes:	%{name}-back_sql < %{version}-%{release}
-
-Requires: 	%{libname} = %{version}-%{release}
 
 %description servers
 This package contains the OpenLDAP servers, slapd (LDAP server) and slurpd
@@ -227,7 +224,7 @@ Group: 		System/Libraries
 Provides:       lib%{fname} = %{version}-%{release}
 # This is needed so all libldap2 applications get /etc/openldap/ldap.conf
 # which was moved from openldap-clients to openldap in 2.1.29-1avx
-Requires:	openldap >= 2.1.29-1avx
+Requires:	%{name} >= 2.1.29-1avx
 
 %description -n %{libname}
 This package includes the libraries needed by ldap applications.
@@ -286,11 +283,10 @@ pushd db-%{dbver} >/dev/null
 %patch55
 %patch56
 
-#%patch57 -b .txn_nolog
-patch -p0 -b -z .txn_nolog < ../build/BerkeleyDB42.patch
-
+%ifnarch %ix86
 %patch52 -p1 -b .amd64-mutexes
 (cd dist && ./s_config)
+%endif
 popd >/dev/null
 %else
 %setup -q -a 11
@@ -298,6 +294,7 @@ popd >/dev/null
 
 # Chris patches
 %patch0 -p1 -b .config
+perl -pi -e 's/LDAP_DIRSEP "run" //g' include/ldap_defaults.h
 %patch1 -p1 -b .module
 %patch2 -p1 -b .only-smb
 
@@ -318,7 +315,7 @@ popd
 %patch53 -p1 -b .ntlm
 
 # patches from CVS
-%patch100 -p0 -b .its4035
+%patch101 -b .its4576
 
 # test 036, 041 seems broken (036 is an experimental test)
 rm -f tests/scripts/test036*
@@ -386,8 +383,16 @@ unset CONFIGURE_TOP
 
 # don't choose db4.3 even if it is available
 export ol_cv_db_db_4_dot_3=no
+
+# XXX: this is for when we move to glibc 2.4:
+## try and miss linuxthreads, so we get a threading lib on glibc2.4:
+#export ol_cv_header_linux_threads=no
+
 #rh only:
 export CPPFLAGS="-I%{_prefix}/kerberos/include $CPPFLAGS"
+%if %{?openldap_fd_setsize:1}%{!?openldap_fd_setsize:0}
+CPPFLAGS="$CPPFLAGS -DOPENLDAP_FD_SETSIZE=%{openldap_fd_setsize}"
+%endif
 export LDFLAGS="-L%{_prefix}/kerberos/%{_lib} $LDFLAGS"
 
 
@@ -516,6 +521,9 @@ done
 mkdir -p %{buildroot}%{_datadir}/openldap/scripts
 install -m 755 %{SOURCE8} %{SOURCE9} %{buildroot}%{_datadir}/openldap/scripts/
 
+mkdir -p %{buildroot}/%{_sysconfdir}/cron.daily
+ln -s %{_datadir}/%{name}/scripts/ldap-hot-db-backup %{buildroot}/%{_sysconfdir}/cron.daily/ldap-hot-db-backup
+
 ### create local.schema
 echo "# This is a good place to put your schema definitions " > %{buildroot}%{_sysconfdir}/openldap/schema/local.schema
 chmod 644 %{buildroot}%{_sysconfdir}/openldap/schema/local.schema
@@ -566,7 +574,7 @@ LDAPGROUP=ldap
 SLAPDCONF=${SLAPDCONF:-/etc/%{name}/slapd.conf}
 
 #decide whether we need to migrate at all:
-MIGRATE=`%{_sbindir}/slapd -V 2>&1|while read a b c d e;do case $d in (2.3.*) echo nomigrate;;(2.*) echo migrate;;esac;done`
+MIGRATE=`%{_sbindir}/slapd -VV 2>&1|while read a b c d e;do case $d in (2.3.*) echo nomigrate;;(2.*) echo migrate;;esac;done`
 
 if [ "$1" -ne 1 -a -e "$SLAPDCONF" -a "$MIGRATE" != "nomigrate" ]; then
     SLAPD_STATUS=`runsvstat /service/slapd 2>/dev/null|grep -q down;echo $?`
@@ -785,6 +793,7 @@ fi
 
 %dir %{_sysconfdir}/ssl/openldap
 %config(noreplace) %{_sysconfdir}/openldap/schema/*.schema
+%{_sysconfdir}/cron.daily/ldap-hot-db-backup
 %dir %{_datadir}/openldap
 %dir %{_datadir}/openldap/schema
 %{_datadir}/openldap/schema/*.schema
@@ -793,6 +802,7 @@ fi
 #%dir %{_datadir}/openldap/ucdata
 #%{_datadir}/openldap/ucdata/*.dat
 %{_datadir}/openldap/scripts
+
 
 %config(noreplace) %{_sysconfdir}/sysconfig/ldap
 %attr(750,ldap,ldap) %dir %{_var}/lib/ldap
@@ -864,6 +874,23 @@ fi
 
 
 %changelog
+* Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.24
+- 2.3.24
+- install the ldap hot-copy backup script to run daily
+- use slapd -VV, not -V, for version check otherwise slapd gets
+  started (bgmilne)
+- allow for the setting of the maximum file descriptor limit at compile
+  time (ie. --define 'openldap_fd_setsize 8192)
+- P101: fix ppolicy issues (ITS4576)
+- drop unapplied patches: P6, P8, P10, P12, P20, P21, P47
+- drop P100; fixed upstream
+- update samba.schema (bgmilne)
+- updated some options for logrotate (daily rotation, etc.)
+- updated ldap-common to only consider bdb and hdb (not ldbm)
+- updated slapd.conf
+- spec cleanups
+- rebuild against new openssl
+
 * Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.9
 - add -doc subpackage
 
@@ -1053,354 +1080,3 @@ fi
 * Mon Dec 02 2003 Vincent Danen <vdanen@opensls.org> 2.1.22-6sls
 - OpenSLS build
 - tidy spec
-
-* Thu Aug 14 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 2.1.22-5mdk
-- Fix deps
-
-* Mon Aug 11 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 2.1.22-4mdk
-- Nuke rpath, make it know about -lssl
-
-* Thu Jul 31 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 2.1.22-3mdk
-- Fix mklibnamification
-
-* Wed Jul 09 2003 Buchan Milne <bgmilne@linux-mandrake.com> 2.1.22-2mdk
-- index on install/upgrade (should fix 2.0.x->2.1.x assuming no schema
-  violations)
-- TODO: test/patch migration tools, provide update default config 
-  (bdb, better ACLs)
-
-* Tue Jul 01 2003 Buchan Milne <bgmilne@linux-mandrake.com> 2.1.22-1mdk
-- 2.1.22
-- Merge changes from sparc team on 2.0.x (as below)
-
-* Fri Jun 13 2003 Olivier Thauvin <thauvin@aerov.jussieu.fr> 2.0.27-7mdk
-- add --without-sql
-- %%mklibname
-- openldap-servers: add PreReq rpm-helper
-
-* Fri May 23 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.1.20-1mdk
-- 2.1.20
-
-* Sun May 18 2003 Buchan Milne <bgmilne@linux-mandrake.com> 2.1.19-1mdk
-- Openldap 2.1, with sasl2 and db4
-- Update kerberosobject.schema (to include krbName atttribute removed from
-  core.schema) and add krb5-kdc.schema (removed upstream).
-
-* Tue Apr 29 2003 Vincent Danen <vdanen@linux-mandrake.com> 2.0.27-6mdk
-- patch to fix library order for slapd so that unix crypt md5 hashes work
-  properly
-
-* Wed Apr 23 2003 Buchan Milne <bgmilne@linux-mandrake.com> 2.0.27-5mdk
-- Specify the ldbm-api, so we don't get a random one ... and get the wrong
-  one. Seems berkeley is better, and that's what 9.0 had.
-- OK, maybe we should make it optional, for people who have had the
-  misfortune of already "upgrading". Options are now:
-  --with[out] cyrussasl (new) or --with[out] SASL (synonyms) (default: with)
-  --with[out] kerberos (new) (default: without)
-  --with gdbm (new) (defaults to berkeley without this option)
-- Trash the message in post about a file that was removed a long time ago
-  (with no changelog entry :-().
-- configure options given in the same order as the --help (to easily read it)
-- make --short-cricuit work to test scripts
-  -DON'T CLEAN THE BUILDDIR!!! (that's what --clean is for)
-  -clean the buildroot in install
-- Provide automatic migration of ldap data from previous db format
-  to current db format for a single database (multi-db installations
-  are on your own). Any 9.1 installation with a single database should
-  work after upgrading to this one, regardless of which db format
-  is currently in use (gdbm as in the 9.1 packages or berkeley as in 9.0).
-
-* Mon Jan 20 2003 Florin <florin@mandrakesoft.com> 2.0.27-4mdk
-- rebuild and remove the schema dir ownership 
-
-* Fri Jan 17 2003 Florin <florin@mandrakesoft.com> 2.0.27-3mdk
-- add the maildrop schema (V. Guardiola's idea)
-
-* Fri Jan 17 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.27-2mdk
-- fix added syslog entry
-
-* Mon Nov  4 2002 Vincent Danen <vdanen@mandrakesoft.com> 2.0.27-1mdk
-- 2.0.27
-- start slurpd as user ldap, not root (re: bgmilne)
-
-* Wed Sep 11 2002 Vincent Danen <vdanen@mandrakesoft.com> 2.0.25-7mdk
-- put /etc/ssl/openldap in openldap-server package since openldap-server
-  does not specifically need the openldap package (re: Juhani Kurki)
-- better cleanup
-- fix libldap.la (re: Lonnie Borntreger)
-
-* Thu Aug 01 2002 Vincent Danen <vdanen@mandrakesoft.com> 2.0.25-6mdk
-- really put ldap.pem into /etc/ssl/openldap
-- use %%_{pre,postun}_user{add,del} macros for ldap user in servers
-
-* Fri Jul 26 2002 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 2.0.25-5mdk
-- Enable build --with[out] SASL
-- Patch25: Stop self-requiring when linking libldap.so. Aka. link with
-  liblber that was just compiled
-
-* Wed Jul 24 2002 Thierry Vignaud <tvignaud@mandrakesoft.com> 2.0.25-4mdk
-- rebuild for new readline
-
-* Thu Jul 11 2002 Frederic Lepied <flepied@mandrakesoft.com> 2.0.25-3mdk
-- rebuild to have the correct provides
-
-* Wed Jul 10 2002 Sylvestre Taburet <staburet@mandrakesoft.com> 2.0.25-2mdk
-- sync samba.schema with samba-2.2.5
-
-* Wed Jun 19 2002 Vincent Danen <vdanen@mandrakesoft.com> 2.0.25-1mdk
-- 2.0.25
-- MigrationTools 40
-- include a basic loglevel in slapd.conf so we can get some logging by
-  default
-- add qmailControl.schema
-- take samba.schema from samba 2.2.3a
-- remove references to patches no longer included
-- spec cleanups
-- since setup pkg contains ldap user, let's remove all {user,group}{del,add}
-  stuff; still keep adding ldap user to adm group for the time being
-- put /etc/openldap/ldap.conf back
-- make ldap.pem in %%post instead of the initscript
-- clean up the initscript so it's output is not so annoying
-- put ldap.pem into /etc/ssl/openldap
-
-* Tue Mar 12 2002 Daouda LO <daouda@mandrakesoft.com> 2.0.21-4mdk
-- split the LANG variable to get correct country code.
-
-* Thu Feb 14 2002 Vincent Danen <vdanen@mandrakesoft.com> 2.0.21-3mdk
-- fix typeo in misc.schema
-
-* Tue Jan 28 2002 Vincent Danen <vdanen@mandrakesoft.com> 2.0.21-2mdk
-- fix typeo in schema patch
-- fix some rpmlint warnings
-- fix slapd.conf; remove missing nadf.schema reference
-- fix logrotate entry so slapd is restarted only if it's already running
-  (re: mr@uue.org)
-
-* Wed Jan 22 2002 Vincent Danen <vdanen@mandrakesoft.com> 2.0.21-1mdk
-- 2.0.21 (security update)
-- regenerate schema patch
-
-* Tue Dec 25 2001 Geoffrey Lee <snailtalk@mandrakesoft.com> 2.0.19-1mdk
-- 2.0.19 for general usage.
-
-* Thu Dec 06 2001 Philippe Libat <philippe@mandrakesoft.com> 2.0.18-3mdk
-- fix static librairies (Patch24+libtool comment)
-
-* Mon Nov 26 2001 Philippe Libat <philippe@mandrakesoft.com> 2.0.18-2mdk
-- add new schema
-- Migration Tools v39
-
-* Fri Oct 26 2001 Vincent Saugey <vince@mandrakesoft.com> 2.0.18-1mdk
-- Up to 2.0.18
-
-* Tue Oct 16 2001 Vincent Saugey <vince@mandrakesoft.com> 2.0.17-1mdk
-- Up to 2.0.17
-
-* Thu Oct 11 2001 Christian Belisle <cbelisle@mandrakesoft.com> 2.0.15-2mdk
-- new db3.
-
-* Sat Sep 22 2001 Vincent Saugey <vince@mandrakesoft.com> 2.0.15-1mdk
-- Up to 2.0.15, SSL fix
-
-* Tue Sep 11 2001 Vincent Saugey <vince@mandrakesoft.com> 2.0.14-1mdk
-- Up 2.0.14, Fixed slurpd millionth second bug.
-
-* Mon Sep 10 2001 Vincent Saugey <vince@mandrakesoft.com> 2.0.13-1mdk
-- Up to 2.0.13
-
-* Fri Aug 31 2001 Vincent Saugey <vince@mandrakesoft.com> 2.0.12-1mdk
-- Up to 2.0.12
-
-* Fri Aug 24 2001 Vincent Saugey <vince@mandrakesoft.com> 2.0.11-6mdk
-- Adding some directory in package (thanks to fcrozat)
-
-* Thu Jul 05 2001 Philippe Libat <philippe@mandrakesoft.com> 2.0.11-6mdk
-- new db3
-
-* Mon Jul 02 2001 Philippe Libat <philippe@mandrakesoft.com> 2.0.11-5mdk
-- fix requires on openldap-migration
-
-* Wed Jun 27 2001 Vincent Saugey <vince@mandrakesoft.com> 2.0.11-4mdk
-- Change typo fault in gencert script
-
-* Mon Jun 11 2001 Vincent Saugey <vince@mandrakesoft.com> 2.0.11-3mdk
-- Rebuild with some change
-- Rebuild with cooker's libtool
-- Remove slapcat because cooker broken libtool 
-- Auto preset common name by hostname in gencert
-
-* Mon May 28 2001 Christian Zoffoli <czoffoli@mandrakesoft.com> 2.0.11-2mdk
-- added a statically compiled slapcat (named slapcat-gdbm) to dump gdbm DBs 
-  to LDIF files also with an OpenLDAP compiled with Berkeley DB support
-- added BuildRequires: db3-devel
-- fixed certificate search in the init script
-- added some conversion infos in the init script
-
-* Mon May 28 2001 Vincent Saugey <vince@mandrakesoft.com> 2.0.11-1mdk
-- Update to 2.0.11
-- Build on 8.0, cooker devel environnement is broken
-
-* Tue May 22 2001 Vincent Saugey <vince@mandrakesoft.com> 2.0.10-1mdk
-- Adding default run level in init file
-- Up to 2.0.10
-- Don't get patched file in migration package
-- Set default country in gencert.sh by default lang
-- Now generate certificate at first start of server
-- Correct strange space in sldap.conf patch (it made warning message on start
-  of slapd)
-- Using berkeley base for storing
-
-* Mon May 21 2001 Vincent Saugey <vince@mandrakesoft.com> 2.0.9-2mdk
-- Require setup with ldap user (remove user creation in few time, please ugrade).
-- Adding i18n for migration tools patch.
-
-* Sat May 19 2001 Christian Zoffoli <czoffoli@linux-mandrake.com> 2.0.9-1mdk
-- 2.0.9
-- removed no more needed openldap-2.0.8-ipv6-configure.patch (ITS#1146)
-- new openldap-2.0.9-slapd.conf.patch (added basic ACL)
-
-* Tue May 15 2001 Christian Zoffoli <czoffoli@linux-mandrake.com> 2.0.8-3mdk
-- added Conflicts: openldap1-devel
-- clean up in spec
-
-* Mon May 14 2001 Vincent Saugey <vince@mandrakesoft.com> 2.0.8-2mdk
-- Rebuild on cooker environnement (Thx to : Christian Zoffoli)
-
-* Sat May 12 2001 Christian Zoffoli <czoffoli@linux-mandrake.com> 2.0.8-1mdk
-- 2.0.8
-- removed not needed openldap-norbert.patch
-- updated openldap-2.0.8-slapd.conf.patch
-- added openldap-2.0.8-ipv6-configure.patch
-
-* Thu May 10 2001 Vincent Saugey <vince@mandrakesoft.com> 2.0.7-9mdk
-- Really fall in love Christian's work !!!
-- Removed not needen rh patch 
-- Assembled html admin guide in one file
-- Changed number of patch and source for easy maintenance
-- Added migration package
-
-* Tue May 08 2001 Christian Zoffoli <czoffoli@linux-mandrake.com> 2.0.7-8mdk
-- added static libraries
-- s!Copyright!License
-
-* Mon May 07 2001 Christian Zoffoli <czoffoli@linux-mandrake.com> 2.0.7-7mdk
-- added reset permissions on post macro
-- merged with last RH patches
-- removed ldap.conf
-- improved post - postun - preun macros
-- fixed tcp_wrapper support (allowing slapd to read hosts.*)
-- fixed man pages (removed buildroot)
-
-* Thu Apr 26 2001 Christian Zoffoli <czoffoli@linux-mandrake.com> 2.0.7-6mdk
-- complete spec restyle
-- Migration Tools v37
-- merge with RH patches
-- merge with PLD patches
-- added SSL/TLS, unixODBC support
-- added modules: dnssrv, sql, ldap, passwd
-- added static modules: ldbm, shell
-- changed default schema location
-- added libldap2-static-devel package
-- added openldap-servers package
-- added openldap-clients package
-- added openldap-guide package (added guide)
-- added ldap user/group
-- OpenLDAP executed as ldap  :O
-- fixed slapd - slurpd DB paths
-- fixed module path
-- massive changes on default slapd.conf
-- added Netscape Roaming profiles schema
-- added QMAIL schema
-- added kerberos schema
-- added autofs schema
-- added samba schema (MS AD)
-- improved init script
-- added certificate generation
-- added syslog support (with autoprobe local-user) + logrotate 
-
-* Mon Apr  9 2001 Vincent Saugey <vince@mandrakesoft.com> 2.0.7-5mdk
-- Adaptation of default config file (bug#: 3044, by peter.boerner@lhsystems.com) 
-
-* Mon Apr  2 2001 Vincent Saugey <vince@mandrakesoft.com> 2.0.7-4mdk
-- Using build server macro
-
-* Fri Mar  9 2001 Vincent Saugey <vince@mandrakesoft.com> 2.0.7-3mdk
-- Rebuild with sasl support
-- Correct bad link in man page
-
-* Mon Feb 19 2001 Vincent Saugey <vince@mandrakesoft.com> 2.0.7-2mdk
-- adding provide openldap-devel to libldap-devel package
-
-* Tue Feb 13 2001 Vincent Saugey <vince@mandrakesoft.com> 2.0.7-1mdk
-- Libificatizication
-- Up to 2.0.7 (promize at French linux-expo, sorry for late)
-- Update Migration tools to 2.0.7
-
-* Tue Oct 17 2000 Vincent Saugey <vince@mandrakesoft.com> 2.0.6-1mdk
-- Up to 2.0.6
-- Macrozification
-
-* Wed Aug 30 2000 Etienne Faure <etienne@mandrakesoft.com> 1.2.9-7mdk
-- rebuilt with _mandir macro
-
-* Fri Jul 07 2000 Chmouel Boudjnah <chmouel@mandrakesoft.com> 1.2.9-6mdk.
-- Remove make tests.
-
-* Fri Apr 21 2000 Chmouel Boudjnah <chmouel@mandrakesoft.com> 1.2.9-5mdk
-- Move default databases to /var/lib/ldap and not /usr/tmp/
-- Add redhat patch.
-- Clean up.
-
-* Tue Mar 21 2000 Jerome Dumonteil <jd@mandrakesoft.com>
-- error in changelog
-
-* Mon Mar 13 2000 Jerome Dumonteil <jd@mandrakesoft.com>
-- Upgrade to versin 1.2.9
-- use of _prefix
-
-* Tue Nov 30 1999 Jerome Dumonteil <jd@mandrakesoft.com>
-- Upgrade version of MigrationTools.
-- use of _tmppath and prefix
-
-* Sun Nov  7 1999 Chmouel Boudjnah <chmouel@mandrakesoft.com>
-- Get your life easy, patch the sources for bzman.
-
-* Tue Nov  2 1999 Chmouel Boudjnah <chmouel@mandrakesoft.com>
-- First mandrake release.
-
-* Mon Sep 13 1999 Bill Nottingham <notting@redhat.com>
-- strip files
-
-* Sat Sep 11 1999 Bill Nottingham <notting@redhat.com>
-- update to 1.2.7
-- fix some bugs from bugzilla (#4885, #4887, #4888, #4967)
-- take include files out of base package
-
-* Fri Aug 27 1999 Jeff Johnson <jbj@redhat.com>
-- missing ;; in init script reload) (#4734).
-
-* Tue Aug 24 1999 Cristian Gafton <gafton@redhat.com>
-- move stuff from /usr/libexec to /usr/sbin
-- relocate config dirs to /etc/openldap
-
-* Mon Aug 16 1999 Bill Nottingham <notting@redhat.com>
-- initscript munging
-
-* Wed Aug 11 1999 Cristian Gafton <gafton@redhat.com>
-- add the migration tools to the package
-
-* Fri Aug 06 1999 Cristian Gafton <gafton@redhat.com>
-- upgrade to 1.2.6
-- add rc.d script
-- split -devel package
-
-* Sun Feb 07 1999 Preston Brown <pbrown@redhat.com>
-- upgrade to latest stable (1.1.4), it now uses configure macro.
-
-* Fri Jan 15 1999 Bill Nottingham <notting@redhat.com>
-- build on arm, glibc2.1
-
-* Wed Oct 28 1998 Preston Brown <pbrown@redhat.com>
-- initial cut.
-- patches for signal handling on the alpha
-

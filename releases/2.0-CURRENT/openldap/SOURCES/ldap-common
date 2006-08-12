@@ -18,8 +18,8 @@
 # Copyright: Buchan Milne <bgmilne@obsidian.co.za> 2004
 #
 
-dbdirs=(`awk 'BEGIN {OFS=":"} /[:space:]*^database[:space:]*\w*/ {db=$2}; /^[:space:]*directory[:space:]*\w*/ {if (db=="bdb"||db=="ldbm") print db,$2}' ${SLAPDCONF:-/etc/openldap/slapd.conf}|sed -e 's/[" ]//g'`)
-dbsuffixes=(`awk 'BEGIN {OFS=":"} /[:space:]*^database[:space:]*\w*/ {db=$2}; /^[:space:]*suffix[:space:]*\w*/ {if (db=="bdb"||db=="ldbm") print db,$2}' ${SLAPDCONF:-/etc/openldap/slapd.conf}|sed -e 's/[" ]//g'`)
+dbdirs=(`awk 'BEGIN {OFS=":"} /[:space:]*^database[:space:]*\w*/ {db=$2}; /^[:space:]*directory[:space:]*\w*/ {if (db=="bdb"||db=="hdb") print db,$2}' ${SLAPDCONF:-/etc/openldap/slapd.conf}|sed -e 's/[" ]//g'`)
+dbsuffixes=(`awk 'BEGIN {OFS=":"} /[:space:]*^database[:space:]*\w*/ {db=$2}; /^[:space:]*suffix[:space:]*\w*/ {if (db=="bdb"||db=="hdb") print db,$2}' ${SLAPDCONF:-/etc/openldap/slapd.conf}|sed -e 's/[" ]//g'`)
 
 #Find db tools, preferring versions prefixed with slapd_
 [ -x /usr/bin/slapd_db_archive ] && DB_ARCHIVE=/usr/bin/slapd_db_archive || DB_ARCHIVE=/usr/bin/db_archive
@@ -173,6 +173,7 @@ getlock() {
 	for ((dbnum=0;dbnum<${#dbsuffixes[*]};dbnum=$dbnum+1))
 	do
 		dbsuffix=${dbsuffixes[$dbnum]/*:/}
+		[ -z "$dbsuffix" ] && dbsuffix="rootdse"
 		lockfile=${lockdir}/${dbsuffix//[\,\=]/_}
 		if ${remote} [ ! -e ${lockfile} ]
 		then
@@ -247,6 +248,7 @@ releaselock () {
 	for ((dbnum=0;dbnum<${#dbsuffixes[*]};dbnum=$dbnum+1))
 	do
 		dbsuffix=${dbsuffixes[$dbnum]/*:/}
+		[ -z "$dbsuffix" ] && dbsuffix="rootdse"
 		lockfile=${lockdir}/${dbsuffix//[\,\=]/_}
 		if ${remote} [ ! -e ${lockfile} ]
 		then
@@ -300,7 +302,8 @@ backup() {
 		dbdir=${dbdirs[$dbnum]/*:/}
 		dbname="`basename ${dbdirs[$dbnum]/*:/}`"
 		dbsuffix=${dbsuffixes[$dbnum]/*:/}
-		dbbackupdir=${BACKUPTOP}/${dbsuffix//[\=\,]/_}-$$
+		[ -z "$dbsuffix" ] && dbsuffix=rootdse
+		dbbackupdir=${BACKUPTOP}/tmp/${dbsuffix//[\=\,]/_}-$$
 		logdir="`awk '/^set_lg_dir/ {print $2}' ${dbdir}/DB_CONFIG 2>/dev/null`"
 		logdir="${logdir:-$dbdir}"
 		
@@ -321,7 +324,7 @@ backup() {
 	# 1) Archive inactive log files - if this backup fails,
 	#    we will need them.
 	debug 1 "Archiving transaction log files for ${dbdir}"
-	logarchivedir="`dirname ${dbdir}`/archived-logs/${dbname}"
+	logarchivedir="${BACKUPTOP}/archived-logs/${dbsuffix//[\,\=]/_}"
 	# ensure it exists
 	run mkdir -p ${logarchivedir}
 	# overwrite old archived log files
@@ -337,7 +340,7 @@ backup() {
 	#    http://www.sleepycat.com/docs/ref/transapp/reclimit.html
 	#    we will use dd and determine the page size with db_stat
 
-	debug 1 "Creating a backup of database files for ${dbdir}"
+	debug 1 "Creating a backup of database files for ${dbdir} in ${dbbackupdir}"
 	for dbfile in ${dbdir}/*.bdb
 
 	do
@@ -358,6 +361,12 @@ backup() {
 		run cp -af ${logdir}/${logfile} ${dbbackupdir}
 		ERROR=$?;ERRORS=$[ERRORS+ERROR]
 	done
+
+	# 4) Clean up old archived log files
+	debug 1 "Cleaning up old archived logs from ${logarchivedir}"
+	run find ${logarchivedir} -type f -name 'log.*' -ctime +${KEEP_ARCHIVES_DAYS} -exec rm -f {} \;
+
+	# 5) Report any errors
 	if [ "$ERRORS" == 0 ]
 	then
 		debug 2 "No errors encountered in backup() for ${dbdir}" >&2
@@ -436,9 +445,9 @@ restore() {
 	for ((dbnum=0;dbnum<${#dbdirs[*]};dbnum=$dbnum+1))
 	do
 		dbname="`basename ${dbdirs[$dbnum]/*:/}`"
-		dbbackupdir="`dirname ${dbdirs[$dbnum]/*:/}`/backup/${dbname}"
-		dbsnapshotdir="${snapshotdir}/${dbname}"
 		dbsuffix=${dbsuffixes[$dbnum]/*:/}
+		dbbackupdir=${BACKUPTOP}/tmp/${dbsuffix//[\=\,]/_}-$$
+		dbsnapshotdir="${snapshotdir}/${dbsuffix//[\,\=]/_}"
 		ERRORS=0
 		restoredir=${RESTORETOP}/${dbsuffix//[\=\,]/_}-$$
 		run mkdir -p ${restoredir}
@@ -512,14 +521,15 @@ switch () {
 	for ((dbnum=0;dbnum<${#dbdirs[*]};dbnum=$dbnum+1))
 	do
 		dbsuffix=${dbsuffixes[$dbnum]/*:/}
+		[ -z "$dbsuffix" ] && dbsuffix=rootdse
 		dbdir=${dbdirs[$dbnum]/*:/}
 		dbname="`basename ${dbdirs[$dbnum]/*:/}`"
-		dbbackupdir="`dirname ${dbdirs[$dbnum]/*:/}`/backup/${dbname}"
+		dbbackupdir=${BACKUPTOP}/${dbsuffix//[\=\,]/_}
 		run mkdir -p ${dbbackupdir}
 		if [ "$op" == "backup" ]
 		then
-			restoredir=${BACKUPTOP}/${dbsuffix//[\=\,]/_}-$$
-			oldbackupdir=${BACKUPTOP}/${dbsuffix//[\=\,]/_}-old-$$
+			restoredir=${BACKUPTOP}/tmp/${dbsuffix//[\=\,]/_}-$$
+			oldbackupdir=${BACKUPTOP}/tmp/${dbsuffix//[\=\,]/_}-old-$$
 			run mkdir -p ${oldbackupdir}
 			# Keep a copy of the last good backup, but
 			# we may not have a set of backups yet, so don't fail

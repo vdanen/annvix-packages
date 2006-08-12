@@ -19,16 +19,30 @@
 # Copyright: Buchan Milne <bgmilne@obsidian.co.za> 2004
 #
 
-[ -e /etc/sysconfig/ldap ] && . /etc/sysconfig/ldap
+WRITELOCKDIR=/var/lib/ldap/lock
+BACKUPTOP=/var/lib/ldap/backup
+SLAPDCONF=/etc/openldap/slapd.conf
+DEBUG=0
+VERBOSE=2
+USECOLOURS=1
+SYSLOGVERBOSE=3
+SYSLOGPRIORITY=local4.info
+RUN_DB_BACKUP=daily
+KEEP_ARCHIVES_DAYS=7
 
-WRITELOCKDIR=${WRITELOCKDIR:=/var/lib/ldap/lock}
-BACKUPTOP=${BACKUPTOP:=/var/lib/ldap/backup}
-SLAPDCONF=${SLAPDCONF:=/etc/openldap/slapd.conf}
-DEBUG=${DEBUG:=0}
-VERBOSE=${VERBOSE:=2}
-USECOLOURS=${USECOLOURS:=1}
-SYSLOGVERBOSE=${SYSLOGVERBOSE:=3}
-SYSLOGPRIORITY=${SYSLOGPRIORITY:=local2.info}
+CONFIG_FILE="/etc/sysconfig/ldap"
+[ -e $CONFIG_FILE ] && . $CONFIG_FILE
+
+IAM=$0
+case $IAM in
+	/etc/cron.*)
+	CRONTIME=${IAM#/etc/cron.}
+	CRONTIME=${CRONTIME//\/*/}
+	if [ "$CRONTIME" != "$RUN_DB_BACKUP" ]
+	then exit 0
+	fi
+	;;
+esac
 
 sourced=0
 if [ -f "${0%\/*}/ldap-common" ]

@@ -4,3 +4,8 @@ SLAPDSYSLOGLOCALUSER="LOCAL4"
 
 # SLAPD URL list 
 #SLAPDURLLIST="ldap:/// ldaps:///"
+
+# How many days to keep archived transaction logs for. This should be just
+# greater than the backup interval on these files (by default, backups are
+# done daily)
+# KEEP_ARCHIVES_DAYS=7
