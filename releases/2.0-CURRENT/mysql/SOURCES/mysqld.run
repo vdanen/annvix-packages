@@ -11,14 +11,16 @@ if [ ! -f /root/.my.cnf ]; then
     exit 1
 fi
 
-DATADIR="/var/lib/mysql"
-PID_FILE="${DATADIR}/`/bin/hostname`.pid"
-MYSQLD_OPTS="--skip-networking"
-LOG=""
+DATADIR="`head -1 ./env/DATADIR`"
+MYSQLD_OPTS="`head -1 ./env/MYSQLD_OPTS`"
+LOG="`head -1 ./env/LOG`"
 
-if [ "$LOG" != "" ]; then
+PID_FILE="${DATADIR}/`/bin/hostname`.pid"
+LOGFILE=""
+
+if [ "${LOG}" != "" ]; then
     LOGFILE="--log=${LOG}"
 fi
 
 /sbin/chpst -u mysql /usr/sbin/mysqld --basedir=/ --datadir=${DATADIR} --pid-file=${PID_FILE} \
-  --skip-locking ${MYSQLD_OPTS} 2>&1
+  ${LOGFILE} --skip-locking ${MYSQLD_OPTS} 2>&1

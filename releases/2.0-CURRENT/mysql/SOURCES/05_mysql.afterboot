@@ -93,3 +93,23 @@ old_passwords in \fU/etc/my.conf\fR.  It is advised that you run the script note
 above, but you shouldn't have to worry about anything being locked out if you do not
 modify \fU/etc/my.cnf\fR.  The above is noted as an "in-case" thing, but it doesn't
 seem to be required.
+.LP
+\fBEnvironment options and configuration\fR
+.LP
+mysqld is configured via \fU/etc/my.cnf\fR and the environment options for the mysqld
+service which can be manipulated in \fU/var/service/mysqld/env/\fR.  Please note that
+as the environment options are passed to mysqld's commandline arguments, they will
+overwrite those settings in \fU/etc/my.cnf\fR.  The following environment files can be
+manipulated:
+.TP
+\fBMYSQLD_OPTS\fR
+This file contains any optional arguments to pass to mysqld; by default this contains
+--skip-networking.
+.TP
+\fBDATADIR\fR
+The data directory for mysqld's databases; by default this contains /var/lib/mysql.
+.TP
+\fBLOG\fR
+The filename for the log file that mysqld will log all connections and received SQL
+statements to.  If this empty, no extra logging will be done; by default this file
+is empty.

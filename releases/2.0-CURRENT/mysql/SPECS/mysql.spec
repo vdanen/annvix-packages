@@ -9,15 +9,15 @@
 
 %define revision	$Rev$
 %define name		mysql
-%define version		4.1.14
+%define version		5.0.24
 %define release		%_revrel
 
-%define major		14
+%define major		15
 %define libname		%mklibname mysql %{major}
-%define oldlibname	%mklibname mysql 12
+%define oldlibname	%mklibname mysql 14
 %define mysqld_user	mysql
 
-%global make_test	0
+%global make_test	1
 %{?_with_test:		%global make_test 1}
 %{?_without_test:	%global make_test 0}
 
@@ -30,8 +30,8 @@ Release:	%{release}
 License:	GPL
 Group:		Databases
 URL:        	http://www.mysql.com
-Source:		ftp://ftp.mysql.serenitynet.com/MySQL-4.1/mysql-%{version}.tar.gz
-Source1:	ftp://ftp.mysql.serenitynet.com/MySQL-4.1/mysql-%{version}.tar.gz.asc
+Source:		ftp://ftp.mysql.serenitynet.com/MySQL-5.0/mysql-%{version}.tar.gz
+Source1:	ftp://ftp.mysql.serenitynet.com/MySQL-5.0/mysql-%{version}.tar.gz.asc
 Source2:	mysqld.run
 Source3:	mysqld-log.run
 Source4:	mysqld.finish
@@ -41,28 +41,46 @@ Source7:	my.cnf
 Source8:	DATADIR.env
 Source9:    	LOG.env
 Source10:   	MYSQLD_OPTS.env
-Patch0:		mysql-4.1.10-install_script_mysqld_safe.diff
-Patch1:		mysql-4.1.3-lib64.diff
-Patch3:		mysql-errno.patch
-Patch4:		mysql-libdir.patch
-Patch5:		mysql-4.1.10-libtool.diff
-Patch6:		mysql-4.1.11-rh-testing.patch
+Patch1:		mysql-5.0.15-install_script_mysqld_safe.diff
+Patch2:		mysql-5.0.23-lib64.diff
+Patch3:		mysql-5.0.15-noproc.diff
+Patch6:		mysql-errno.patch
 # Add fast AMD64 mutexes
 Patch7:		db-4.1.24-amd64-mutexes.diff
-# NPTL pthreads mutexes are evil
+# NPTL pthreads mutex are evil
 Patch8:		db-4.1.24-disable-pthreadsmutexes.diff
-Patch9:		mysql-4.1.9-disable-pthreadsmutexes.diff
-Patch10:	mysql-4.1.12-mdk-noproc.patch
+Patch9:		mysql-5.0.15-disable-pthreadsmutexes.diff
+Patch10:	mysql-5.0.19-instance-manager.diff
 
 BuildRoot:      %{_buildroot}/%{name}-%{version}
-BuildRequires:	bison, glibc-static-devel, libstdc++-devel, autoconf2.5, automake1.7
-BuildRequires:	termcap-devel, multiarch-utils 
-BuildRequires:	ncurses-devel, python, openssl-devel, zlib-devel, readline-devel
+BuildRequires:	bison
+BuildRequires:	glibc-devel
+BuildRequires:	libstdc++-devel
+BuildRequires:	doxygen
+BuildRequires:	autoconf2.5
+BuildRequires:	automake1.7
+BuildRequires:	termcap-devel
+BuildRequires:	multiarch-utils 
+BuildRequires:	ncurses-devel
+BuildRequires:	python
+BuildRequires:	openssl-devel
+BuildRequires:	zlib-devel
+BuildRequires:	readline-devel
+BuildRequires:	texinfo
 
-Provides:       mysql-server MySQL-server
-Requires(pre):	rpm-helper, runit
+Provides:       mysql-server
+Provides:	MySQL-server
+Requires(pre):	rpm-helper
+Requires(pre):	runit
+Requires(preun): rpm-helper
+Requires(preun): runit
+Requires(post):	rpm-helper
+Requires(postun): rpm-helper
 Requires:	mysql-client = %{version}
-Obsoletes:      MySQL, MySQL-devel <= 3.23.39, MySQL-common, MySQL-Max
+Obsoletes:      MySQL
+Obsoletes:	MySQL-devel <= 3.23.39
+Obsoletes:	MySQL-common
+Obsoletes:	MySQL-Max
 
 %description
 The MySQL(TM) software delivers a very fast, multi-threaded, multi-user,
@@ -96,7 +114,8 @@ This package contains the standard MySQL clients.
 %package bench
 Summary:        MySQL benchmarks and test system
 Group:          Databases
-Requires:       mysql-client = %{version} perl
+Requires:       mysql-client = %{version}
+Requires:	perl
 Obsoletes:	MySQL-bench
 
 %description bench
@@ -106,6 +125,7 @@ This package contains MySQL benchmark scripts and data.
 %package -n %{libname}
 Summary:        MySQL shared libraries
 Group:          System/Libraries
+Obsoletes:	%{oldlibname}
 
 %description -n %{libname}
 This package contains the shared libraries (*.so*) which certain
@@ -118,7 +138,9 @@ Group:          Development/Other
 Obsoletes:      MySQL-devel
 Provides:       mysql-devel = %{version}-%{release}
 Provides:       MySQL-devel = %{version}-%{release}
-Requires:       %{libname} = %{version} mysql = %{version} mysql-client = %{version}
+Requires:       %{libname} = %{version}
+Requires:	mysql = %{version}
+Requires:	mysql-client = %{version}
 Provides:       libmysql-devel
 Obsoletes:      %{oldlibname}-devel
 
@@ -137,6 +159,19 @@ The API is identical for the embedded MySQL version and the
 client/server version.
 
 
+%package -n %{libname}-static-devel
+Summary:        MySQL static development libraries
+Group:          Development/Other
+Provides:       mysql-static-devel = %{version}-%{release}
+Provides:       MySQL-static-devel = %{version}-%{release}
+Requires:	mysql-devel = %{version}
+Requires:	mysql-client = %{version}
+Provides:       libmysql-static-devel
+
+%description -n %{libname}-static-devel
+This package contains the static development libraries.
+
+
 %package doc
 Summary:	Documentation for %{name}
 Group:		Documentation
@@ -147,17 +182,14 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
-
-%patch0 -p1 -b .install_script_mysqld_safe
-%patch1 -p1 -b .lib64
-%patch3 -p1 -b .errno_as_defines
-%patch4 -p1 -b .libdir
-%patch5 -p0 -b .libtool
-%patch6 -p1 -b .testing
+%patch1 -p0
+%patch2 -p1
+%patch3 -p0 -b .noproc
+%patch6 -p1 -b .errno_as_defines
 %patch7 -p1 -b .amd64-mutexes
 %patch8 -p1 -b .pthreadsmutexes
 %patch9 -p0 -b .disable-pthreadsmutexes
-%patch10 -p1 -b .noproc
+%patch10 -p0 -b .instance-manager
 
 # fix annoyances
 perl -pi -e "s|AC_PROG_RANLIB|AC_PROG_LIBTOOL|g" configure*
@@ -169,7 +201,7 @@ perl -pi -e "s|^MAX_CXX_OPTIMIZE.*|MAX_CXX_OPTIMIZE=\"\"|g" configure*
 # Run aclocal in order to get an updated libtool.m4 in generated
 # configure script for "new" architectures (aka. x86_64, mips)
 export WANT_AUTOCONF_2_5=1
-libtoolize --copy --force; aclocal-1.7; autoconf; automake-1.7
+libtoolize --copy --force; aclocal-1.7; autoconf; automake-1.7 --foreign --add-missing --copy
 
 pushd bdb/dist
     sh ./s_config
@@ -222,7 +254,8 @@ export CHECK_PID="/bin/kill -0 $$PID"
     --includedir=%{_includedir} \
     --mandir=%{_mandir} \
     --enable-shared \
-    --with-extra-charsets=complex \
+    --with-pic \
+    --with-extra-charsets=all \
     --enable-assembler \
     --enable-local-infile \
     --enable-large-files=yes \
@@ -248,12 +281,34 @@ export CHECK_PID="/bin/kill -0 $$PID"
 # benchdir does not fit in the above model
 %make benchdir_root=%{buildroot}%{_datadir}
 
-%if %{make_test}
-make check
-make test
-%endif
-
 nm --numeric-sort sql/mysqld >mysqld.sym
+
+
+%check
+%if %{make_test}
+# disable failing tests
+echo "mysql_client_test : Unstable test case, bug#12258" >> mysql-test/t/disabled.def
+echo "openssl_1 : Unstable test case" >> mysql-test/t/disabled.def
+echo "rpl_openssl : Unstable test case" >> mysql-test/t/disabled.def
+echo "rpl_trigger : Unstable test case" >> mysql-test/t/disabled.def
+# set some test env, should be free high random ports...
+export MYSQL_TEST_MANAGER_PORT=9305
+export MYSQL_TEST_MASTER_PORT=9306
+export MYSQL_TEST_SLAVE_PORT=9308
+export MYSQL_TEST_NDB_PORT=9350
+make check
+
+pushd mysql-test
+    ./mysql-test-run.pl \
+    --force \
+    --timer \
+    --master_port=$MYSQL_TEST_MASTER_PORT \
+    --slave_port=$MYSQL_TEST_SLAVE_PORT \
+    --ndbcluster_port=$MYSQL_TEST_NDB_PORT \
+    --testcase-timeout=5 \
+    --suite-timeout=30 || true
+popd
+%endif
 
 
 %install 
@@ -269,17 +324,17 @@ mkdir -p %{buildroot}%{_localstatedir}/mysql/{mysql,test,.tmp}
 
 install -m 0644 mysqld.sym %{buildroot}%{_libdir}/mysql/mysqld.sym
 
-install -m 0644 %{SOURCE6} %{buildroot}%{_sysconfdir}/logrotate.d/mysql
-install -m 0644 %{SOURCE7} %{buildroot}%{_sysconfdir}/my.cnf
+install -m 0644 %{_sourcedir}/logrotate.mysqld %{buildroot}%{_sysconfdir}/logrotate.d/mysqld
+install -m 0644 %{_sourcedir}/my.cnf %{buildroot}%{_sysconfdir}/my.cnf
 
 mkdir -p %{buildroot}%{_srvdir}/mysqld/{log,env}
-install -m 0740 %{SOURCE2} %{buildroot}%{_srvdir}/mysqld/run
-install -m 0740 %{SOURCE4} %{buildroot}%{_srvdir}/mysqld/finish
-install -m 0740 %{SOURCE3} %{buildroot}%{_srvdir}/mysqld/log/run
+install -m 0740 %{_sourcedir}/mysqld.run %{buildroot}%{_srvdir}/mysqld/run
+install -m 0740 %{_sourcedir}/mysqld.finish %{buildroot}%{_srvdir}/mysqld/finish
+install -m 0740 %{_sourcedir}/mysqld-log.run %{buildroot}%{_srvdir}/mysqld/log/run
 
-install -m 0640 %{SOURCE8} %{buildroot}%{_srvdir}/mysqld/env/DATADIR
-install -m 0640 %{SOURCE9} %{buildroot}%{_srvdir}/mysqld/env/LOG
-install -m 0640 %{SOURCE10} %{buildroot}%{_srvdir}/mysqld/env/MYSQLD_OPTS
+install -m 0640 %{_sourcedir}/DATADIR.env %{buildroot}%{_srvdir}/mysqld/env/DATADIR
+install -m 0640 %{_sourcedir}/LOG.env %{buildroot}%{_srvdir}/mysqld/env/LOG
+install -m 0640 %{_sourcedir}/MYSQLD_OPTS.env %{buildroot}%{_srvdir}/mysqld/env/MYSQLD_OPTS
 
 
 # Install docs
@@ -300,42 +355,15 @@ rm -f %{buildroot}%{_datadir}/info/dir
 rm -f %{buildroot}%{_bindir}/make_win_src_distribution
 rm -f %{buildroot}%{_bindir}/make_win_binary_distribution
 rm -f %{buildroot}%{_datadir}/mysql/*.spec
-rm -f %{buildroot}%{_datadir}/mysql/{postinstall,preinstall,mysql-log-rotate,mysql.server}
+rm -f %{buildroot}%{_datadir}/mysql/{postinstall,preinstall,mysql-log-rotate,mysql.server,binary-configure}
 rm -f %{buildroot}%{_bindir}/client_test
-rm -f %{buildroot}%{_bindir}/mysql_client_test
+rm -f %{buildroot}%{_bindir}/mysql_client_test*
 
 mkdir -p %{buildroot}%{_datadir}/afterboot
-install -m 0644 %{SOURCE5} %{buildroot}%{_datadir}/afterboot/05_mysql
+install -m 0644 %{_sourcedir}/05_mysql.afterboot %{buildroot}%{_datadir}/afterboot/05_mysql
 
 # move docs around
 cp -f sql-bench/README README.sql-bench
-
-%find_lang mysql
-
-cat >> mysql.lang << EOF 
-%lang(cz) %{_datadir}/mysql/czech
-%lang(da) %{_datadir}/mysql/danish
-%lang(nl) %{_datadir}/mysql/dutch
-%lang(et) %{_datadir}/mysql/estonian
-%lang(fr) %{_datadir}/mysql/french
-%lang(de) %{_datadir}/mysql/german
-%lang(el) %{_datadir}/mysql/greek
-%lang(hu) %{_datadir}/mysql/hungarian
-%lang(it) %{_datadir}/mysql/italian
-%lang(jp) %{_datadir}/mysql/japanese
-%lang(ko) %{_datadir}/mysql/korean
-%lang(no) %{_datadir}/mysql/norwegian
-%lang(no_ny) %{_datadir}/mysql/norwegian-ny
-%lang(pl) %{_datadir}/mysql/polish
-%lang(pt) %{_datadir}/mysql/portuguese
-%lang(ro) %{_datadir}/mysql/romanian
-%lang(ru) %{_datadir}/mysql/russian
-%lang(sl) %{_datadir}/mysql/slovak
-%lang(es) %{_datadir}/mysql/spanish
-%lang(sv) %{_datadir}/mysql/swedish
-%lang(uk) %{_datadir}/mysql/ukrainian
-%lang(sr) %{_datadir}/mysql/serbian
-EOF
 
 %multiarch_binaries %{buildroot}%{_bindir}/mysql_config
 %multiarch_includes %{buildroot}%{_includedir}/mysql/my_config.h
@@ -354,54 +382,12 @@ EOF
 %_mkafterboot
 chown -R %{mysqld_user}:%{mysqld_user} %{_localstatedir}/mysql
 chmod 0711 %{_localstatedir}/mysql
-# Initialize database
-export TMPDIR="%{_localstatedir}/mysql/.tmp"
-export TMP="${TMPDIR}"
-/sbin/chpst -u %{mysqld_user} %{_bindir}/mysql_install_db --rpm --user=%{mysqld_user}
-
-%_post_srv mysqld
-
-# Allow mysqld_safe to start mysqld and print a message before we exit
-sleep 2
-
-# try to fix privileges table, use a no password user table for that
-fix_privileges() 
-{
-    datadir=`my_print_defaults mysqld | grep '^--datadir=' | cut -d= -f2`
-    if [ -z $datadir ]; then
-        datadir=%{_localstatedir}/mysql/
-    fi
-    cd $datadir/mysql
-    pid_file=$datadir/mysqld-fix_privileges.pid
-    if %{_bindir}/mysqld_safe --skip-grant-tables --skip-networking --pid-file=$pid_file &> /dev/null & then  
-        pid=$!
-        i=1
-        while [ $i -lt 10 -a ! -f $pid_file ]; do 
-            i=$(($i+1))
-            sleep 1
-        done
-        if [ -f $datadir/mysqld-fix_privileges.pid ]; then
-            %{_bindir}/mysql_fix_privilege_tables &> /dev/null 
-            kill `cat $pid_file` &> /dev/null
-            rm -f $pid_file
-        else 
-            # just in case
-            kill $pid &> /dev/null
-        fi
-        sleep 2
-    fi
-}
-
-if [ "x`runsvstat /service/mysqld 2>&1|grep -q ": run"; echo $?`" == "x1" ]; then
-    fix_privileges
-else
-    /usr/sbin/srv --down mysqld >/dev/null 2>&1
-    fix_privileges
-    /usr/sbin/srv --up mysqld >/dev/null 2>&1
-fi
-
 if [ "$1" == "1" ]; then
-    # install mode
+    # Initialize database
+    export TMPDIR="%{_localstatedir}/mysql/.tmp"
+    export TMP="${TMPDIR}"
+    HOME=/var/lib/mysql /sbin/chpst -u %{mysqld_user} /bin/sh -c %{_bindir}/mysql_install_db --rpm --user=%{mysqld_user}
+
     if [ ! -f /root/.my.cnf ]; then
         echo "[mysqladmin]" >/root/.my.cnf
         echo "user=root" >>/root/.my.cnf
@@ -414,6 +400,8 @@ if [ "$1" == "1" ]; then
         echo "** Read 'man afterboot' for more details."
     fi
 fi
+
+%_post_srv mysqld
 
 
 %preun
@@ -431,7 +419,7 @@ fi
 %postun -n %{libname} -p /sbin/ldconfig
 
 
-%files -f mysql.lang
+%files
 %defattr(-, root, root) 
 %{_sbindir}/mysqld
 %{_libdir}/mysql/mysqld.sym
@@ -444,11 +432,9 @@ fi
 %config(noreplace) %attr(0740,root,admin)%{_srvdir}/mysqld/env/DATADIR
 %config(noreplace) %attr(0740,root,admin)%{_srvdir}/mysqld/env/LOG
 %config(noreplace) %attr(0740,root,admin)%{_srvdir}/mysqld/env/MYSQLD_OPTS
-%config(noreplace) %{_sysconfdir}/logrotate.d/mysql
+%config(noreplace) %{_sysconfdir}/logrotate.d/mysqld
 %config(noreplace) %{_sysconfdir}/my.cnf
-%{_bindir}/isamchk
-%{_bindir}/isamlog
-%{_bindir}/pack_isam
+%{_bindir}/innochecksum
 %{_bindir}/myisamchk
 %{_bindir}/myisamlog
 %{_bindir}/myisampack
@@ -462,10 +448,9 @@ fi
 %{_bindir}/mysql_secure_installation 
 %{_bindir}/mysql_tableinfo 
 %{_bindir}/mysql_tzinfo_to_sql
+%{_bindir}/mysql_upgrade
+%{_bindir}/mysql_upgrade_shell
 %{_bindir}/mysql_waitpid 
-%{_bindir}/mysqlmanager-pwgen 
-%{_bindir}/mysqlmanager
-%{_bindir}/mysqlmanagerc 
 %{_bindir}/mysql_zap
 %{_bindir}/mysqlbug
 %{_bindir}/mysqltest
@@ -478,6 +463,7 @@ fi
 %{_bindir}/mysqld_multi
 %{_bindir}/my_print_defaults
 %{_bindir}/myisam_ftdump
+%{_sbindir}/mysqlmanager
 %{_infodir}/mysql.info*
 %dir %attr(0711,mysql,mysql) %{_localstatedir}/mysql
 %dir %attr(0711,mysql,mysql) %{_localstatedir}/mysql/mysql
@@ -486,7 +472,6 @@ fi
 %dir %attr(0755,mysql,mysql) %{_var}/run/mysqld
 %dir %attr(0755,mysql,mysql) %{_var}/log/mysqld
 %dir %{_datadir}/mysql
-%{_datadir}/mysql/binary-configure
 %{_datadir}/mysql/mi_test_all
 %{_datadir}/mysql/mi_test_all.res
 %{_datadir}/mysql/my-huge.cnf
@@ -495,17 +480,59 @@ fi
 %{_datadir}/mysql/my-small.cnf
 %{_datadir}/mysql/my-innodb-heavy-4G.cnf
 %{_datadir}/mysql/charsets
-%{_datadir}/mysql/english
 %{_datadir}/mysql/fill_help_tables.sql
 %{_datadir}/mysql/mysql_fix_privilege_tables.sql
-%{_datadir}/mysql/japanese-sjis
 %{_datadir}/mysql/*.ini
+%{_datadir}/mysql/errmsg.txt
 %{_datadir}/afterboot/05_mysql
 %dir %{_libdir}/mysql
+%{_mandir}/man1/myisamchk.1*
+%{_mandir}/man1/myisamlog.1*
+%{_mandir}/man1/myisampack.1*
+%{_mandir}/man1/mysql.server.1*
+%{_mandir}/man1/mysql_fix_privilege_tables.1*
+%{_mandir}/man1/mysql_zap.1*
+%{_mandir}/man1/mysqld.1*
+%{_mandir}/man1/mysqld_multi.1*
+%{_mandir}/man1/mysqld_safe.1*
+%{_mandir}/man1/mysqlhotcopy.1*
+%{_mandir}/man1/mysqlman.1*
+%{_mandir}/man1/mysqlmanager.1*
+%{_mandir}/man1/perror.1*
+%{_mandir}/man1/replace.1*
+%{_mandir}/man1/safe_mysqld.1*
+%{_mandir}/man1/mysql_upgrade.1*
+%{_mandir}/man1/mysql_explain_log.1*
+%lang(cz) %{_datadir}/mysql/czech
+%lang(da) %{_datadir}/mysql/danish
+%lang(nl) %{_datadir}/mysql/dutch
+%{_datadir}/mysql/english
+%lang(et) %{_datadir}/mysql/estonian
+%lang(fr) %{_datadir}/mysql/french
+%lang(de) %{_datadir}/mysql/german
+%lang(el) %{_datadir}/mysql/greek
+%lang(hu) %{_datadir}/mysql/hungarian
+%lang(it) %{_datadir}/mysql/italian
+%lang(jp) %{_datadir}/mysql/japanese
+%lang(ko) %{_datadir}/mysql/korean
+%lang(no) %{_datadir}/mysql/norwegian
+%lang(no_ny) %{_datadir}/mysql/norwegian-ny
+%lang(pl) %{_datadir}/mysql/polish
+%lang(pt) %{_datadir}/mysql/portuguese
+%lang(ro) %{_datadir}/mysql/romanian
+%lang(ru) %{_datadir}/mysql/russian
+%lang(sr) %{_datadir}/mysql/serbian
+%lang(sl) %{_datadir}/mysql/slovak
+%lang(es) %{_datadir}/mysql/spanish
+%lang(sv) %{_datadir}/mysql/swedish
+%lang(uk) %{_datadir}/mysql/ukrainian
 
 
 %files bench
 %defattr(-, root, root)
+%{_bindir}/mysqltestmanager
+%{_bindir}/mysqltestmanager-pwgen
+%{_bindir}/mysqltestmanagerc
 %{_datadir}/sql-bench
 %{_datadir}/mysql-test
 
@@ -526,7 +553,18 @@ fi
 %{_bindir}/mysqlimport
 %{_bindir}/mysqlshow
 %{_bindir}/mysqlbinlog
-%{_mandir}/man1/*.1*
+%{_bindir}/mysql_tableinfo
+%{_bindir}/mysql_waitpid
+%{_mandir}/man1/msql2mysql.1*
+%{_mandir}/man1/mysql.1*
+%{_mandir}/man1/mysqlaccess.1*
+%{_mandir}/man1/mysqladmin.1*
+%{_mandir}/man1/mysqlbinlog.1*
+%{_mandir}/man1/mysqlcheck.1*
+%{_mandir}/man1/mysqldump.1*
+%{_mandir}/man1/mysqlimport.1*
+%{_mandir}/man1/mysqlshow.1*
+%{_mandir}/man1/myisam_ftdump.1*
 
 
 %files -n %{libname}
@@ -544,15 +582,37 @@ fi
 %dir %{_libdir}/mysql
 %{_libdir}/*.la
 %{_libdir}/*.so
+%{_mandir}/man1/mysql_config.1*
+
+%files -n %{libname}-static-devel
+%defattr(-,root,root)
 %{_libdir}/*.a
 %{_libdir}/mysql/*.a
 
 %files doc
 %defattr(-,root,root)
 %doc INSTALL-SOURCE README.sql-bench README COPYING
+%doc support-files/*.cnf SSL/NOTES SSL/run* SSL/*.pem
 
 
 %changelog
+* Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.0.24
+- 5.0.24
+- sync patches with mandriva (less the patches we do not need or want)
+- updated my.cnf to be more based on my-medium.cnf
+- spec cleanups
+- sync the logrotate script with the provided one
+- make the runscript read the ./env directory files
+- clean up some of the post stuff, in particular we need to pass
+  --defaults-file to my_print_defaults or the datadir is listed twice
+  and we need to exec mysql_install_db via sh
+- have the new lib obsolete the old lib
+- don't initialize the database everytime we're upgraded, only on a fresh
+  install
+- drop the mysql_fix_privilege_tables call; this can be done "by hand" and
+  is noted in the 2.0 release notes (this should only need to be done on
+  major version upgrades anyways, so why do it every single time?)
+
 * Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.1.14
 - fix requires-on-release
 - mysql requires mysql-client
@@ -730,253 +790,3 @@ fi
 - OpenSLS build
 - don't worry about older mdk distribs
 - tidy spec
-
-* Sun Sep 14 2003 Warly <warly@mandrakesoft.com> 4.0.15-1mdk
-- Security update
-
-* Fri Aug  8 2003 Warly <warly@mandrakesoft.com> 4.0.14-1mdk
-- new version (main changes):
-   * Enabled `INSERT' from `SELECT' when the table into which the records are inserted is also a table listed in the `SELECT'.
-   * Added `--nice' option to `mysqld_safe' to allow setting the  niceness of the `mysqld' process.
-   * `RESET SLAVE' now clears the `Last_errno' and `Last_error' fields in the output of `SHOW SLAVE STATUS'.
-   * Added `max_relay_log_size' variable; the relay log will be rotated
-     automatically when its size exceeds `max_relay_log_size'. But if
-     `max_relay_log_size' is 0 (the default), `max_binlog_size' will be
-     used (as in older versions). `max_binlog_size' still applies to
-     binary logs in any case.
-
-* Fri Aug  1 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 4.0.13-4mdk
-- lib64 fixes, quotes test fixes
-- BuildRequires: termcap-devel for MDK 9.2
-
-* Thu Jul 10 2003 Laurent MONTEL <lmontel@mandrakesoft.com> 4.0.13-3mdk
-- Rebuild
-
-* Wed Jun 04 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 4.0.13-2mdk
-- brute fix the offending "perl(the)" stuff, remove this when perl.req is fixed.
-- fix "no-prereq-on rpm-helper" for MySQL-common
-- fix "no-provides libmysql-devel" for libmysql12-devel
-- activated %%clean
-
-* Fri May 30 2003 Warly <warly@mandrakesoft.com> 4.0.13-1mdk
-- new version (main changes):
-Functionality added or changed:
- - `PRIMARY KEY' now implies `NOT NULL'.
- - `SHOW MASTER STATUS' and `SHOW SLAVE STATUS' required the `SUPER'  privilege; now they accept `REPLICATION CLIENT' as well.
- - MySQL now issues a warning when it opens a table that was created with MySQL 4.1.
- - Option `--new' now changes binary items (`0xFFDF') to be treated
-   as binary strings instead of numbers by default. This fixes some
-   problems with character sets where it's convenient to input the
-   string as a binary item.  After this change you have to convert
-   the binary string to `INTEGER' with a `CAST' if you want to
-   compare two binary items with each other and know which one is
-   bigger than the other.  `SELECT CAST(0xfeff AS UNSIGNED) <
-   CAST(0xff AS UNSIGNED)'.  This will be the default behaviour in
-   MySQL 4.1. (Bug #152)
- - Fixed bug with `NATURAL LEFT JOIN', `NATURAL RIGHT JOIN' and
-   `RIGHT JOIN' when using many joined tables.  The problem was that
-   the `JOIN' method was not always associated with the tables
-   surrounding the `JOIN' method.  If you have a query that uses many
-   `RIGHT JOIN' or `NATURAL ... JOINS' you should check that they
-   work as you expected after upgrading MySQL to this version.
- - Tuned optimizer to favour clustered index over table scan.
- - `BIT_AND()' and `BIT_OR()' now return an unsigned 64 bit value.
-Bugs fixed:
- - Fixed `Unknown error' when using `UPDATE ... LIMIT'.
- - Fixed problem with ansi mode and `GROUP BY' with constants.
- - Fixed bug if one used a multi-table `UPDATE' and the query required a temporary table bigger than `tmp_table_size'.
- - `LOAD DATA INFILE' will now read `000000' as a zero date instead as `"2000-00-00"'.
- - Fixed bug that caused `DELETE FROM table WHERE const_expression' always to delete the whole table.
- - Fixed core dump bug when using `FORMAT('nan',#)'.
- - Fixed wrong result from truncation operator (`*') in `MATCH ... AGAINST()' in some complex joins.
- - Fixed a crash in `REPAIR ... USE_FRM' command, when used on read-only, nonexisting table or a table with a crashed index file.
- - Fixed bug in `LEFT', `RIGHT' and `MID' when used with multi-byte character sets and some `GROUP BY' queries.
- - Fix problem with `ORDER BY' being discarded for some `DISTINCT' queries.
- - Fixed that `SET SQL_BIG_SELECTS=1' works as documented (New bug in 4.0)
- - Fixed some serious bugs in `UPDATE ... ORDER BY'.
- - Fixed that `SET SQL_BIG_SELECTS=1' works again.
- - `FULLTEXT' index stopped working after `ALTER TABLE' that converts `TEXT' field to `CHAR'. 
- - Fixed a security problem with `SELECT' and wildcarded select list, when user only had partial column `SELECT' privileges on the table.
- - Only ignore world-writeable `my.cnf' files that are regular files (and not e.g. named pipes or character devices).
- - `SUM()' didn't return `NULL' when there was no rows in result or  when all values was `NULL'.
- - On Unix symbolic links handling was not enabled by default and there was no way to turn this on.
- - Fixed a bug with `NAN' in `FORMAT(...)' function ...
- - Fixed a bug with improperly cached database privileges.
- - Fixed a bug in `ALTER TABLE ENABLE / DISABLE KEYS' which failed to force a refresh of table data in the cache.
- - Fixed bugs in replication of `LOAD DATA INFILE' for custom parameters (`ENCLOSED',  `TERMINATED' and so on) and temporary tables.
- - Fixed a replication bug when the master is 3.23 and the slave 4.0:  the slave lost the replicated temporary tables if `FLUSH LOGS' was issued on the master.
-
-* Sun May 11 2003 Stefan van der Eijk <stefan@eijk.nu> 4.0.12-3mdk
-- BuildRequires openssl-static-devel
-- removed redeundant BuildRequires
-- fix build on alpha: add -fPIC to CXXFLAGS (thanks glee)
-
-* Fri May  2 2003 Warly <warly@mandrakesoft.com> 4.0.12-2mdk
-- buildrequires openssl-devel
-- add splitted manual in 'chapter' subdir in doc dir (Steve White)
-
-* Wed Apr  9 2003 Warly <warly@mandrakesoft.com> 4.0.12-1mdk
-- new version (main changes):
- * `mysqld' no longer reads options from world-writeable config files.
- * Fixed `mysqld' crash on extremely small values of `sort_buffer' variable.
- * Fixed checking of random part of `WHERE' clause.
- * Don't allow `BACKUP TABLE' to overwrite existing files.
- * Fixed a bug with multi-table `UPDATE's when user had all privileges
-   on the database where tables are located and there were any
-   entries in `tables_priv' table, i.e. `grant_option' was true.
- * Fixed a bug that allowed a user with table or column grants on
-   some table, `TRUNCATE' any table in the same database.
- * Fixed deadlock when doing `LOCK TABLE' followed by `DROP TABLE' in
-   the same thread.  In this case one could still kill the thread
-   with `KILL'.
- * Fixed query cache invalidation on `LOAD DATA'.
- * Fixed memory leak on `ANALYZE' procedure with error.
- * Fixed a bug in handling `CHAR(0)' columns that could cause wrong results from the query.
- * Fixed a crash when no database was selected and `LOAD DATA' command
-   was issued with full table name specified, including database
-   prefix.
-- add Zdenek Mazanec patch for charset conversion fix
-
-* Wed Mar 12 2003 Warly <warly@mandrakesoft.com> 4.0.11a-5mdk
-- Apply Benjamin Pflugmann patch to mysql_install_db
-
-* Sun Mar  9 2003 Warly <warly@mandrakesoft.com> - 4.0.11a-4mdk
-- Correct post install scripts and requires
-
-* Thu Mar  6 2003 Warly <warly@mandrakesoft.com> 4.0.11a-3mdk
-- MySQL and MySQL-Max conflicts between each others
-- include a separate service for mysql and mysql-max in respective server to have clean uninstall
-- fix requires in MySQL MySQL-common and MySQL-max
-- Try to correct post install script to fix privileges.
-- fix initscripts problem with chkconfig --add
-
-* Mon Mar  3 2003 Warly <warly@mandrakesoft.com> 4.0.11a-2mdk
-- use --skip-grant-tables --skip-networking for the update process (Benjamin Pflugmann)
-
-* Sat Mar  1 2003  <warly@ke.mandrakesoft.com> 4.0.11a-1mdk
-- new version
-- new MySQL-common package
-- call mysql_fix_privilege_tables in post (but this will fail if
-root access need a password)
-- add openssl support in MySQL-Max
-
-* Fri Feb  7 2003 Warly <warly@mandrakesoft.com> 4.0.10-1mdk
-- new version
-- fix initscript
-
-* Thu Feb  6 2003 Warly <warly@mandrakesoft.com> 4.0.9-1mdk
-- new version
-- do not compile in static anymore
-- check mysqld-max on status
-
-* Tue Jan 28 2003 Vincent Danen <vdanen@mandrakesoft.com> 3.23.55-1mdk
-- 3.23.55; fixes a double free() in COM_CHANGE_USER
-- comment out --with-comment for %%configure as it doesn't seem to like us
-  anymore
-
-* Tue Dec 24 2002 Warly <warly@mandrakesoft.com> 3.23.54a-1mdk
-- new version
-
-* Wed Nov 20 2002 Warly <warly@mandrakesoft.com> 3.23.53-5mdk
-- fix /var/lib/lib/ home dir typo
-- remove lang tag to english
-
-* Tue Nov 19 2002 Warly <warly@mandrakesoft.com> 3.23.53-4mdk
-- add glibc-static-devel buildrequires
-
-* Tue Nov 19 2002 Warly <warly@mandrakesoft.com> 3.23.53-3mdk
-- fix file ownership problems in /var/lib/mysql
-- put lang files in %%lang
-
-* Sat Nov  9 2002 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 3.23.53-2mdk
-- Patch3: Fix build on x86-64
-
-* Wed Oct 23 2002 Warly <warly@mandrakesoft.com> 3.23.53-1mdk
-- new version
- 
-* Sun Aug 18 2002 Christian Belisle <cbelisle@mandrakesoft.com> 3.23.52-1mdk
-- update from Oden Eriksson <oden.eriksson@kvikkjokk.net>:
-	- new stable version
-
-* Sat Aug 10 2002 Christian Belisle <cbelisle@mandrakesoft.com> 3.23.51-4mdk
-- fix initscript.
-
-* Wed Jul 17 2002 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 3.23.51-3mdk
-- Patch2: Fix --with-other-libc support
-- Take care of new CFLAGS from %%serverbuild
-- rpmlint fixes: configure-without-libdir-spec, hardcoded-library-path
-- Stop hardcoding compiler versions. Why so? and why parts of the
-  %%changelog were nuked away??
-
-* Sat Jul  6 2002 Stefan van der Eijk <stefan@eijk.nu> 3.23.51-2mdk
-- BuildRequires
-
-* Fri Jun 14 2002 Christian Belisle <cbelisle@mandrakesoft.com> 3.23.51-1mdk
-- New version.
-
-* Thu Apr 25 2002 Christian Belisle <cbelisle@mandrakesoft.com> 3.23.50-1mdk
-- Synchronize with MySQL official SPEC
-- Add InnoDB support
-- Build against gcc 3.
-
-* Fri Feb 15 2002 Sasha
-
-- changed build to use --with-other-libc
-
-* Fri Apr 13 2001 Monty
-
-- Added mysqld-max to the distribution
-
-* Tue Jan 2  2001  Monty
-
-- Added mysql-test to the bench package
-
-* Fri Aug 18 2000 Tim Smith <tim@mysql.com>
-
-- Added separate libmysql_r directory; now both a threaded
-  and non-threaded library is shipped.
-
-* Wed Sep 28 1999 David Axmark <davida@mysql.com>
-
-- Added the support-files/my-example.cnf to the docs directory.
-
-- Removed devel dependency on base since it is about client
-  development.
-
-* Wed Sep 8 1999 David Axmark <davida@mysql.com>
-
-- Cleaned up some for 3.23.
-
-* Thu Jul 1 1999 David Axmark <davida@mysql.com>
-
-- Added support for shared libraries in a separate sub
-  package. Original fix by David Fox (dsfox@cogsci.ucsd.edu)
-
-- The --enable-assembler switch is now automatically disables on
-  platforms there assembler code is unavailable. This should allow
-  building this RPM on non i386 systems.
-
-* Mon Feb 22 1999 David Axmark <david@detron.se>
-
-- Removed unportable cc switches from the spec file. The defaults can
-  now be overridden with environment variables. This feature is used
-  to compile the official RPM with optimal (but compiler version
-  specific) switches.
-
-- Removed the repetitive description parts for the sub rpms. Maybe add
-  again if RPM gets a multiline macro capability.
-
-- Added support for a pt_BR translation. Translation contributed by
-  Jorge Godoy <jorge@bestway.com.br>.
-
-* Wed Nov 4 1998 David Axmark <david@detron.se>
-
-- A lot of changes in all the rpm and install scripts. This may even
-  be a working RPM :-)
-
-* Sun Aug 16 1998 David Axmark <david@detron.se>
-
-- A developers changelog for MySQL is available in the source RPM. And
-  there is a history of major user visible changed in the Reference
-  Manual.  Only RPM specific changes will be documented here.
-
