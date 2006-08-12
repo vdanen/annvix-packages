@@ -35,19 +35,26 @@ Patch1:		shadow-4.0.12-nscd.patch
 Patch2:		shadow-4.0.3-rpmsave.patch
 Patch3:		shadow-4.0.11.1-no-syslog-setlocale.patch
 Patch4:		shadow-4.0.12-avx-alt-man.patch
-Patch5:		shadow-4.0.12-avx-owl-configure_passwd.patch
 Patch6:		shadow-4.0.12-avx-owl-crypt_gensalt.patch
 Patch7:		shadow-4.0.12-avx-owl-usergroupname_max.patch
 Patch8:		shadow-4.0.12-avx-owl-tcb.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	gettext-devel, pam-devel, tcb-devel, glibc-crypt_blowfish-devel, pam_userpass-devel
+BuildRequires:	gettext-devel
+BuildRequires:	pam-devel
+BuildRequires:	tcb-devel
+BuildRequires:	glibc-crypt_blowfish-devel
+BuildRequires:	pam_userpass-devel
 BuildRequires:  automake1.7
 
-Requires:	pam, tcb, pam_userpass
-Requires(pre):	setup >= 2.5-5735avx
-Obsoletes:	adduser, newgrp
-Provides: 	adduser, newgrp
+Requires:	pam
+Requires:	tcb
+Requires:	pam_userpass
+Requires(pre):	setup >= 2.5-5873avx
+Obsoletes:	adduser
+Obsoletes:	newgrp
+Provides: 	adduser
+Provides:	newgrp
 
 %description
 The shadow-utils package includes the necessary programs for
@@ -80,7 +87,6 @@ This package contains the documentation for %{name}.
 %patch2 -p1 -b .rpmsave
 %patch3 -p1 -b .chmou
 %patch4 -p1 -b .man
-#%patch5 -p1 -b .passwd
 %patch6 -p1 -b .crypt_gensalt
 %patch7 -p1 -b .usergroupname_max
 %patch8 -p1 -b .tcb
@@ -106,8 +112,8 @@ CFLAGS="%{optflags} -DSHADOWTCB -DEXTRA_CHECK_HOME_DIR" \
 
 mkdir -p %{buildroot}%{_sysconfdir}/default
 mkdir -p %{buildroot}%{_mandir}/man3
-install -m 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/login.defs
-install -m 0600 %{SOURCE2} %{buildroot}%{_sysconfdir}/default/useradd
+install -m 0644 %{_sourcedir}/login.defs %{buildroot}%{_sysconfdir}/login.defs
+install -m 0600 %{_sourcedir}/useradd.default %{buildroot}%{_sysconfdir}/default/useradd
 install -m 0644 man/shadow.3 %{buildroot}%{_mandir}/man3/shadow.3
 install -m 0644 man/adduser.8 %{buildroot}%{_mandir}/man8/
 
@@ -116,14 +122,14 @@ perl -pi -e "s/encrpted/encrypted/g" %{buildroot}%{_mandir}/man8/newusers.8
 
 mkdir -p %{buildroot}/etc/pam.d/
 pushd %{buildroot}/etc/pam.d
-    install -m 0600 %{SOURCE3} chpasswd-newusers
+    install -m 0600 %{_sourcedir}/chpasswd-newusers.pamd chpasswd-newusers
     ln -s chpasswd-newusers chpasswd
     ln -s chpasswd-newusers newusers
-    install -m 0600 %{SOURCE4} chage-chfn-chsh
+    install -m 0600 %{_sourcedir}/chage-chfn-chsh.pamd chage-chfn-chsh
     ln -s chage-chfn-chsh chage
     ln -s chage-chfn-chsh chfn
     ln -s chage-chfn-chsh chsh
-    install -m 0600 %{SOURCE5} user-group-mod
+    install -m 0600 %{_sourcedir}/user-group-mod.pamd  user-group-mod
     ln -s user-group-mod groupadd
     ln -s user-group-mod groupdel
     ln -s user-group-mod groupmod
@@ -135,15 +141,14 @@ popd
 # remove unwanted files
 rm -rf %{buildroot}%{_mandir}/{cs,cu,de,es,fr,hu,id,it,ja,ko,pl,pt_BR,ru,zh_CN,zh_TW}
 rm -rf %{buildroot}%{_libdir}
-
-%find_lang shadow
+rm -rf %{buildroot}%{_datadir}/locale
 
 
 %clean
 #[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
-%files -f shadow.lang
+%files
 %defattr(-,root,root)
 %dir %{_sysconfdir}/default
 %attr(0640,root,shadow)	%config(noreplace) %{_sysconfdir}/login.defs
@@ -216,6 +221,13 @@ rm -rf %{buildroot}%{_libdir}
 
 
 %changelog
+* Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.0.12
+- spec cleanups
+- update the prereq on setup to ensure we get the proper groups setup
+  first
+- no locale files
+- drop P5; it's not applied and not needed
+
 * Fri Jul 07 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.0.12
 - rebuild with new spec-helper so can revert the last unwanted workaround
 
@@ -297,201 +309,3 @@ rm -rf %{buildroot}%{_libdir}
 * Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 4.0.3-6sls
 - OpenSLS build
 - tidy spec
-
-* Mon Apr 14 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 4.0.3-5mdk
-- Patch500: Handle biarch struct utmp
-- BuildRequires: automake1.7, until both are independently executable
-
-* Mon Feb 24 2003 Vincent Danen <vdanen@mandrakesoft.com> 4.0.3-4mdk
-- fix the mailspool patch (make mail spools owned by mail, not user)
-
-* Wed Nov 20 2002 Frederic Lepied <flepied@mandrakesoft.com> 4.0.3-3mdk
-- added a Conflicts with msec < 0.37
-
-* Mon Nov 18 2002  Warly <warly@mandrakesoft.com> 4.0.3-2mdk
-- fix useradd -r -M problem
-
-* Fri Nov 15 2002  <warly@mandrakesoft.com> 4.0.3-1mdk
-- new version
-
-* Tue Oct 29 2002 Stefan van der Eijk <stefan@eijk.nu> 20000902-9mdk
-- BuildRequires: gettext-devel
-
-* Sun Sep  8 2002 Frederic Lepied <flepied@mandrakesoft.com> 20000902-8mdk
-- create home dir in 755 mode by default in useradd.
-
-* Wed Aug 14 2002 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 20000902-7mdk
-- Automated rebuild with gcc 3.2-0.3mdk
-
-* Tue Jul 16 2002 Thierry Vignaud <tvignaud@mandrakesoft.com> 20000902-6mdk
-- s/Copyright/License/
-- resync with rh 20000902-10:
-	o update patch0
-	o patch 3 -> 2,  5 -> 3,  8 -> 4,  9 ->5
-	o patch 6: remove USG (Unix Systems Group?) behavior support
-	  (newer autoheader complains about missing defaults)
-	o patch 7: remove nonexistent directory reference so that newer autoconf
-	  doesn't complains about
-	o patch 8: SUBDIRS is defined further below, and includes this value.
-	  (newer automake complains about the duplicate)
-	o patch 9: fix conflict between lseek() declaration and the glibc one when
-	  building with support for Large files
-	o build in source directory
-	o always build with -D_BSD_SOURCE=1 -D_FILE_OFFSET_BITS=6
-	o use %%configure
-- apply debian patches:
-	o patch 200 : add expiry.1 man page, various man pages updates
-	o patch 201 : shadow makefile fix
-	o patch 202 : login update
-	o patch 203 : don't sanitize env when locales under use in newgrp
-	o patch 204 : su: add long options
-	o patch 205 : lastlog: add long options
-	o patch 206 : useradd: secure temp file, 
-	o patch 207 : add cppw
-	o patch 208 : chowntty: handle ro /
-	o patch 209 : pam use /etc/security/time.conf
-	o patch 210 : passwd messages cleanups
-	o patch 211 : README.debian update, don't really care ...
-	o patch 212 : printf format fix
-	o patch 213 : don't alter permissions of packaged programs
-	o patch 214 : malloc is already defined
-	o patch 216 : shell fix
-	o patch 217 : su: use uid 0, not "root"
-	o patch 218 : expiry man page fix
-	o patch 220 : reset SIGALRM signals
-	o patch 221 : fhs fix in man pages
-	o patch 222 : su: handle USER variable
-	o patch 223 : grpck: more checks, prune option
-	o patch 224 : shadowconfig: use grpck prune option
-	o patch 225 : chage man page: add warnings regarding shadow passwords
-	o patch 227 : stricter check for buffer overflow
-	o patch 230 : login: stop looking for options after "--"
-	o patch 231 : shadow is default for now
-	o patch 233 : warn for invalid strings in shadow
-	o patch 234 : login man page: current login sessions are loged in
-	  /var/log/{u,w}tmp
-- rename patch0 as shadow-mdk and drop parts splitted in previous patches
-- rpmlint fixes
-- get rid of RPM_SOURCE_DIR
-
-* Wed Dec 26 2001 Stew Benedict <sbenedict@mandraksoft.com> 20000902-5mdk
-- replace newgrp from util-linux with this version for LSB compliance
-
-* Sat Sep 29 2001 Chmouel Boudjnah <chmouel@mandrakesoft.com> 20000902-4mdk
-- rpmlint correction.
-
-* Fri Sep 28 2001 Stew Benedict <sbenedict@mandrakesoft.com> 20000902-3mdk
-- patch useradd to allow blindly adding user when group of same name 
-- exists - LSB requirement
-
-* Fri Sep 14 2001 Chmouel Boudjnah <chmouel@mandrakesoft.com> 20000902-2mdk
-- Rebuild.
-
-* Wed Jun  6 2001 Chmouel Boudjnah <chmouel@mandrakesoft.com> 20000902-1mdk
-- Update descriptions.
-- Merge rh patch.
-- 20000902.
-
-* Sun May 06 2001 Geoffrey Lee <snailtalk@mandrakesoft.com> 20000826-6mdk
-- Fix po install oddity (No Makefile created).
-
-* Tue Mar 13 2001 Chmouel Boudjnah <chmouel@mandrakesoft.com> 20000826-5mdk
-- truncate new files when moving overwriting files with the contents of other
-  files while moving directories (keeps files from looking weird later on)(rh).
-- don't overwrite user dot files in useradd (rh).
-
-* Wed Jan 10 2001 Vincent Danen <vdanen@mandrakesoft.com> 20000826-4mdk
-- security fix for insecure creation of tmpfiles
-
-* Fri Dec 22 2000 Chmouel Boudjnah <chmouel@mandrakesoft.com> 20000826-3mdk
-- Really segfault of adduser, don't setlocale when doing a SYSLOG
-  since the last SYSLOG check already for DOS attack.
-
-* Tue Nov 28 2000 Chmouel Boudjnah <chmouel@mandrakesoft.com> 20000826-2mdk
-- Fix segfault of adduser.
-
-* Tue Nov 28 2000 Chmouel Boudjnah <chmouel@mandrakesoft.com> 20000826-1mdk
-- Adjust file list.
-- 20000826.
-
-* Sun Sep 24 2000 Chmouel Boudjnah <chmouel@mandrakesoft.com> 19990827-8mdk
-- Fix manpages.
-- Merge with rh patches.
-
-* Sat Sep  2 2000 Pixel <pixel@mandrakesoft.com> 19990827-7mdk
-- add noreplace
-- use find_lang
-
-* Thu Jul 20 2000 David BAUDENS <baudens@mandrakesoft.com> 19990827-6mdk
-- Human readble description
-
-* Thu Jul 20 2000 Chmouel Boudjnah <chmouel@mandrakesoft.com> 19990827-5mdk
-- BM.
-- Merge rh patches.
-
-* Fri Mar 31 2000 Chmouel Boudjnah <chmouel@mandrakesoft.com> 19990827-4mdk
-- Upgrade groups.
-- Spec-helper clean-up.
-
-* Fri Dec 3 1999 Florent Villard <warly@mandrakesoft.com>
-- correct a segfault problem with NIS
-
-* Tue Oct 26 1999 Chmouel Boudjnah <chmouel@mandrakesoft.com>
-- Merge with rh patchs.
-
-* Sat Apr 10 1999 Bernhard Rosenkraenzer <bero@linux-mandrake.com>
-- Mandrake adaptions
-- bzip2 man/info pages
-- add de locale
-
-* Wed Jan 13 1999 Bill Nottingham <notting@redhat.com>
-- configure fix for arm
-
-* Wed Dec 30 1998 Cristian Gafton <gafton@redhat.com>
-- build against glibc 2.1
-
-* Fri Aug 21 1998 Jeff Johnson <jbj@redhat.com>
-- Note that %{_sbindir}/mkpasswd conflicts with %{_bindir}/mkpasswd;
-  one of these (I think %{_sbindir}/mkpasswd but other opinions are valid)
-  should probably be renamed.  In any case, mkpasswd.8 from this package
-  needs to be installed. (problem #823)
-
-* Fri May 08 1998 Prospector System <bugs@redhat.com>
-- translations modified for de, fr, tr
-
-* Tue Apr 21 1998 Cristian Gafton <gafton@redhat.com>
-- updated to 980403
-- redid the patches
-
-* Tue Dec 30 1997 Cristian Gafton <gafton@redhat.com>
-- updated the spec file
-- updated the patch so that new accounts created on shadowed system won't
-  confuse pam_pwdb anymore ('!!' default password instead on '!')
-- fixed a bug that made useradd -G segfault
-- the check for the ut_user is now patched into configure
-
-* Thu Nov 13 1997 Erik Troan <ewt@redhat.com>
-- added patch for XOPEN oddities in glibc headers
-- check for ut_user before checking for ut_name -- this works around some
-  confusion on glibc 2.1 due to the utmpx header not defining the ut_name
-  compatibility stuff. I used a gross sed hack here because I couldn't make
-  automake work properly on the sparc (this could be a glibc 2.0.99 problem
-  though). The utuser patch works fine, but I don't apply it.
-- sleep after running autoconf
-
-* Thu Nov 06 1997 Cristian Gafton <gafton@redhat.com>
-- added forgot lastlog command to the spec file
-
-* Mon Oct 26 1997 Cristian Gafton <gafton@redhat.com>
-- obsoletes adduser
-
-* Thu Oct 23 1997 Cristian Gafton <gafton@redhat.com>
-- modified groupadd; updated the patch
-
-* Fri Sep 12 1997 Cristian Gafton <gafton@redhat.com>
-- updated to 970616
-- changed useradd to meet RH specs
-- fixed some bugs
-
-* Tue Jun 17 1997 Erik Troan <ewt@redhat.com>
-- built against glibc
