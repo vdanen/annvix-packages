@@ -31,7 +31,7 @@ BuildRequires:	pam-devel
 Requires:	%{libname} = %{version}-%{release}
 Requires:	pam_tcb = %{version}-%{release}
 Requires:	nss_tcb = %{version}-%{release}
-Requires(pre):	setup >= 2.5-5735avx
+Requires(pre):	setup >= 2.5-5873avx
 
 %description
 The tcb package consists of three components: pam_tcb, libnss_tcb, and
@@ -48,7 +48,6 @@ package.
 Summary:        Libraries and tools implementing the tcb password shadowing scheme
 Group:          System/Libraries
 Requires:	glibc-crypt_blowfish
-Requires(pre):	setup >= 2.5-5735avx
 Provides:	libtcb
 
 %description -n %{libname}
@@ -179,6 +178,9 @@ make install-non-root install-pam_unix install-pam_pwdb \
 
 
 %changelog
+* Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0
+- remove the requires on setup for libtcb as it puts us into a dep loop
+
 * Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0
 - make the lib provide libtcb too
 
