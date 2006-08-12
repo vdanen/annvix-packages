@@ -49,6 +49,7 @@ Summary:        Libraries and tools implementing the tcb password shadowing sche
 Group:          System/Libraries
 Requires:	glibc-crypt_blowfish
 Requires(pre):	setup >= 2.5-5735avx
+Provides:	libtcb
 
 %description -n %{libname}
 libtcb contains code shared by the PAM and NSS modules and is also used
@@ -178,6 +179,9 @@ make install-non-root install-pam_unix install-pam_pwdb \
 
 
 %changelog
+* Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0
+- make the lib provide libtcb too
+
 * Fri Aug 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0
 - fix some requires
 
