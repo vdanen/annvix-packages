@@ -42,13 +42,21 @@ Patch1:		subversion-1.3.1-use_apr1.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{svn_version}
 
-BuildRequires:	autoconf2.5 >= 2.54, libtool >= 1.4.2, chrpath
-BuildRequires:	python >= 2.2, python-devel, perl-devel
-BuildRequires:	db4-devel, neon-devel = 0.24.7, httpd-devel >=  %{apache_version}
+BuildRequires:	autoconf2.5 >= 2.54
+BuildRequires:	libtool >= 1.4.2
+BuildRequires:	chrpath
+BuildRequires:	python >= 2.2
+BuildRequires:	python-devel
+BuildRequires:	perl-devel
+BuildRequires:	db4-devel
+BuildRequires:	neon-devel = 0.24.7
+BuildRequires:	httpd-devel >=  %{apache_version}
 BuildRequires:	swig-devel >= 1.3.19 
 BuildRequires:	multiarch-utils >= 1.0.3
-BuildRequires:	libapr >= 1.2.7, apr-util >= 1.2.7
-BuildConflicts:	libapr = 0.9.7, apr-util = 0.9.7
+BuildRequires:	libapr >= 1.2.7
+BuildRequires:	apr-util >= 1.2.7
+BuildConflicts:	libapr = 0.9.7
+BuildConflicts:	apr-util = 0.9.7
 
 %description
 Subversion is a concurrent version control system which enables one or more
@@ -469,6 +477,9 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.2
+- spec cleanups
+
 * Fri Jun 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.2
 - rebuild against new db4
 - rebuild with old db4.1 removed as it picks up the .so deps
