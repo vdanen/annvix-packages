@@ -35,11 +35,21 @@ Patch4:		apr-util-1.2.7-dso.diff
 Patch5:		apr-util-1.2.7-link.diff
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	autoconf2.5, automake1.7, libtool, doxygen
+BuildRequires:	autoconf2.5
+BuildRequires:	automake1.7
+BuildRequires:	libtool
+BuildRequires:	doxygen
 BuildRequires:	apr-devel >= 1:1.2.7
-BuildRequires:	openldap-devel, db4-devel, gdbm-devel, expat-devel
-BuildRequires:	openssl-devel, mysql-devel, postgresql-devel, sqlite3-devel
-BuildRequires:	python, multiarch-utils >= 1.0.3
+BuildRequires:	openldap-devel
+BuildRequires:	db4-devel
+BuildRequires:	gdbm-devel
+BuildRequires:	expat-devel
+BuildRequires:	openssl-devel
+BuildRequires:	mysql-devel
+BuildRequires:	postgresql-devel
+BuildRequires:	sqlite3-devel
+BuildRequires:	python
+BuildRequires:	multiarch-utils >= 1.0.3
 
 %description
 The purpose of the Apache Portable Runtime (APR) is to provide a
@@ -102,7 +112,7 @@ This package contains the documentation for %{name}.
 %patch4 -p0 -b .dso
 %patch5 -p0 -b .link
 
-cat %{SOURCE2} >dbd/apr_dbd_mysql.c
+cp %{_sourcedir}/apr_dbd_mysql.c dbd/apr_dbd_mysql.c
 
 %build
 cat >> config.layout << EOF
@@ -239,6 +249,10 @@ rm -f %{buildroot}%{_libdir}/aprutil.exp
 
 
 %changelog
+* Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.7
+- rebuild against new openssl
+- spec cleanups
+
 * Fri Jun 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.7
 - rebuild against new db4
 
@@ -290,106 +304,3 @@ rm -f %{buildroot}%{_libdir}/aprutil.exp
 
 * Thu Oct 14 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.9.5-1avx
 - first Annvix package for the new-style apache2
-
-* Wed Sep 15 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 0.9.5-8mdk
-- security fix (P100) for CAN-2004-0786
-
-* Tue Aug 10 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 0.9.5-7mdk
-- rebuilt against db4.2
-
-* Wed Jun 30 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 0.9.5-6mdk
-- new P0
-- drop P3,P4,P6 and P8 the fix is implemented upstream
-- drop P5, another fix is implemented upstream
-- fix P7, it's partially implemented upstream
-
-* Thu Jun 17 2004 Jean-Michel Dault <jmdault@mandrakesoft.com> 0.9.5-5mdk
-- rebuild with new openssl 
-
-* Thu Jun 17 2004 Jean-Michel Dault <jmdault@mandrakesoft.com> 0.9.5-4mdk
-- rebuild
-
-* Tue May 18 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 0.9.5-2mdk
-- rebuild
-
-* Fri May 07 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 0.9.5-1mdk
-- initial fedora import and mandrake adaptions
-
-* Thu Apr  1 2004 Joe Orton <jorton@redhat.com> 0.9.4-14
-- fix use of SHA1 passwords (#119651)
-
-* Tue Mar 30 2004 Joe Orton <jorton@redhat.com> 0.9.4-13
-- remove fundamentally broken check_sbcs() from xlate code
-
-* Fri Mar 19 2004 Joe Orton <jorton@redhat.com> 0.9.4-12
-- tweak xlate fix
-
-* Fri Mar 19 2004 Joe Orton <jorton@redhat.com> 0.9.4-11
-- rebuild with xlate fixes and tests enabled
-
-* Tue Mar 02 2004 Elliot Lee <sopwith@redhat.com> 0.9.4-10.1
-- rebuilt
-
-* Tue Mar  2 2004 Joe Orton <jorton@redhat.com> 0.9.4-10
-- rename sdbm_* symbols to apu__sdbm_*
-
-* Mon Feb 16 2004 Joe Orton <jorton@redhat.com> 0.9.4-9
-- fix sdbm apr_dbm_exists() on s390x/ppc64
-
-* Fri Feb 13 2004 Elliot Lee <sopwith@redhat.com> 0.9.4-8
-- rebuilt
-
-* Thu Feb  5 2004 Joe Orton <jorton@redhat.com> 0.9.4-7
-- fix warnings from use of apr_optional*.h with gcc 3.4
-
-* Thu Jan 29 2004 Joe Orton <jorton@redhat.com> 0.9.4-6
-- drop gdbm support
-
-* Thu Jan  8 2004 Joe Orton <jorton@redhat.com> 0.9.4-5
-- fix DB library detection
-
-* Sat Dec 13 2003 Jeff Johnson <jbj@jbj.org> 0.9.4-4
-- rebuild against db-4.2.52.
-
-* Mon Oct 13 2003 Jeff Johnson <jbj@jbj.org> 0.9.4-3
-- rebuild against db-4.2.42.
-
-* Mon Oct  6 2003 Joe Orton <jorton@redhat.com> 0.9.4-2
-- fix 'apu-config --apu-la-file' output
-
-* Mon Oct  6 2003 Joe Orton <jorton@redhat.com> 0.9.4-1
-- update to 0.9.4.
-
-* Tue Jul 22 2003 Nalin Dahyabhai <nalin@redhat.com> 0.9.3-10
-- rebuild
-
-* Mon Jul  7 2003 Joe Orton <jorton@redhat.com> 0.9.3-9
-- rebuild
-- don't run testuuid test because of #98677
-
-* Thu Jul  3 2003 Joe Orton <jorton@redhat.com> 0.9.3-8
-- rebuild
-
-* Wed Jun 04 2003 Elliot Lee <sopwith@redhat.com>
-- rebuilt
-
-* Tue May 20 2003 Joe Orton <jorton@redhat.com> 0.9.3-6
-- fix to detect crypt_r correctly (CAN-2003-0195)
-
-* Thu May 15 2003 Joe Orton <jorton@redhat.com> 0.9.3-5
-- fix to try linking against -ldb first (#90917)
-- depend on openldap, gdbm, db4, expat appropriately.
-
-* Tue May 13 2003 Joe Orton <jorton@redhat.com> 0.9.3-4
-- rebuild
-
-* Wed May  7 2003 Joe Orton <jorton@redhat.com> 0.9.3-3
-- make devel package conflict with old subversion-devel
-- run the less crufty parts of the test suite
-
-* Tue Apr 29 2003 Joe Orton <jorton@redhat.com> 0.9.3-2
-- run ldconfig in post/postun
-
-* Mon Apr 28 2003 Joe Orton <jorton@redhat.com> 0.9.3-1
-- initial build
-
