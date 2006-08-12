@@ -57,7 +57,7 @@ rm -rf %{buildroot}%{_mandir}/{cs,et,eu,fr,uk}
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
-%post
+%pre
 # due to important new group additions, we need to add them manually here if they
 # don't already exist because rpm will create group.rpmnew instead
 
@@ -65,6 +65,8 @@ grep -q '^auth:' /etc/group || groupadd -g 27 auth
 grep -q '^shadow:' /etc/group || groupadd -g 28 shadow && chmod 0440 /etc/shadow && chgrp shadow /etc/shadow
 grep -q '^chkpwd:' /etc/group || groupadd -g 29 chkpwd
 
+
+%post
 pwconv 2>/dev/null >/dev/null  || :
 grpconv 2>/dev/null >/dev/null  || :
 
@@ -104,6 +106,9 @@ fi
 
 
 %changelog
+* Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5
+- move adding new groups to %%pre
+
 * Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5
 - requires libtcb (for groupadd)
 - remove non-english manpages
