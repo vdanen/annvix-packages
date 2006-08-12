@@ -117,6 +117,13 @@ make install-non-root install-pam_unix install-pam_pwdb \
     SLIBDIR=/%{_lib}
 
 
+%pre -n %{libname}
+# although setup does the same thing, the lib will likely get installed first
+# so we need to do this here also or we end up with incorrect ownerships of
+# some files
+grep -q '^chkpwd:' /etc/group || groupadd -g 29 chkpwd
+
+
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
 
@@ -178,6 +185,9 @@ make install-non-root install-pam_unix install-pam_pwdb \
 
 
 %changelog
+* Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0
+- add group chkpwd in the lib's %%pre to ensure we get right ownership of files
+
 * Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0
 - remove the requires on setup for libtcb as it puts us into a dep loop
 
