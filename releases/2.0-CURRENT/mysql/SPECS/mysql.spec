@@ -597,6 +597,9 @@ fi
 
 %changelog
 * Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.0.24
+- rebuild against new openssl
+
+* Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.0.24
 - 5.0.24
 - sync patches with mandriva (less the patches we do not need or want)
 - updated my.cnf to be more based on my-medium.cnf
