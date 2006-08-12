@@ -33,8 +33,13 @@ Patch4:		apr-0.9.6-fdr-procexit.patch
 Patch5:		apr-1.2.2-locktimeout.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	autoconf2.5, automake1.7, libtool
-BuildRequires:	doxygen, openssl-devel, python, e2fsprogs-devel
+BuildRequires:	autoconf2.5
+BuildRequires:	automake1.7
+BuildRequires:	libtool
+BuildRequires:	doxygen
+BuildRequires:	openssl-devel
+BuildRequires:	python
+BuildRequires:	e2fsprogs-devel
 
 %description
 The purpose of the Apache Portable Runtime (APR) is to provide a
@@ -234,6 +239,10 @@ rm -f %{buildroot}%{_libdir}/apr.exp
 
 
 %changelog
+* Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.7
+- rebuild against new openssl
+- spec cleanups
+
 * Fri Jun 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.7
 - rebuild against new db4
 
@@ -282,132 +291,3 @@ rm -f %{buildroot}%{_libdir}/apr.exp
 
 * Thu Oct 14 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.9.5-1avx
 - first Annvix build for new-style apache2
-
-* Tue Aug 10 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 0.9.5-11mdk
-- rebuilt
-
-* Tue Aug 03 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 0.9.5-10mdk
-- sync with fedora (0.9.4-17)
-
-* Wed Jun 30 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 0.9.5-9mdk
-- new P0
-- remove one hunk from P1, partially implemented upstream
-- drop P6,P9,P10,P11,P12,P13,P14,P15,P16 and P18,
-  the fix is implemented upstream
-- drop P8, similar fix is implemented upstream
-
-* Fri Jun 18 2004 Jean-Michel Dault <jmdault@mandrakesoft.com> 0.9.5-8mdk
-- rebuild with new openssl
-
-* Thu Jun 17 2004 Jean-Michel Dault <jmdault@mandrakesoft.com> 0.9.5-7mdk
-- use fcntl for mutexes instead of posix mutexes (which won't work on
-  non-NPTL kernels and some older processors), or sysvsem which are not
-  resistand under high load.
-
-* Wed Jun 16 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 0.9.5-6mdk
-- sync with fedora
-
-* Thu Jun 10 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 0.9.5-5mdk
-- sync with fedora
-
-* Tue May 18 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 0.9.5-4mdk
-- sync with fedora
-
-* Tue May 18 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 0.9.5-3mdk
-- add the metux mpm hooks (P30)
-
-* Sun May 09 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 0.9.5-2mdk
-- oops!, forgot to pass "--cache-file=config.cache" to configure
-
-* Fri May 07 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 0.9.5-1mdk
-- initial fedora import and mandrake adaptions
-
-* Wed Mar 24 2004 Joe Orton <jorton@redhat.com> 0.9.4-11
-- add APR_LARGEFILE flag
-
-* Mon Mar 15 2004 Joe Orton <jorton@redhat.com> 0.9.4-10
-- fix configure check for mmap of /dev/zero
-- just put -D_GNU_SOURCE in CPPFLAGS not _{BSD,SVID,XOPEN}_SOURCE
-
-* Tue Mar 02 2004 Elliot Lee <sopwith@redhat.com> 0.9.4-9.1
-- rebuilt
-
-* Thu Feb 19 2004 Joe Orton <jorton@redhat.com> 0.9.4-9
-- undocument apr_dir_read() ordering constraint and fix tests
-
-* Sun Feb 15 2004 Joe Orton <jorton@redhat.com> 0.9.4-8
-- rebuilt without -Wall -Werror
-
-* Fri Feb 13 2004 Elliot Lee <sopwith@redhat.com> 0.9.4-7
-- rebuilt
-
-* Tue Feb  3 2004 Joe Orton <jorton@redhat.com> 0.9.4-6
-- define apr_off_t as int/long/... to prevent it changing
-  with _FILE_OFFSET_BITS on 32-bit platforms
-
-* Mon Jan 12 2004 Joe Orton <jorton@redhat.com> 0.9.4-5
-- add apr_temp_dir_get fixes from HEAD
-
-* Thu Jan  8 2004 Joe Orton <jorton@redhat.com> 0.9.4-4
-- ensure that libapr is linked against libpthread
-- don't link libapr against -lnsl
-
-* Thu Nov 13 2003 Joe Orton <jorton@redhat.com> 0.9.4-3
-- -devel package no longer requires libtool
-
-* Fri Oct  3 2003 Joe Orton <jorton@redhat.com> 0.9.4-2
-- disable tests on x86_64 (#97611)
-
-* Fri Oct  3 2003 Joe Orton <jorton@redhat.com> 0.9.4-1
-- update to 0.9.4, enable tests
-- ensure that libresolv is not used
-
-* Sun Sep  7 2003 Joe Orton <jorton@redhat.com> 0.9.3-14
-- use /dev/urandom (#103049)
-
-* Thu Jul 24 2003 Joe Orton <jorton@redhat.com> 0.9.3-13
-- add back CC=gcc, CXX=g++
-
-* Tue Jul 22 2003 Nalin Dahyabhai <nalin@redhat.com> 0.9.3-12
-- rebuild
-
-* Mon Jul 14 2003 Joe Orton <jorton@redhat.com> 0.9.3-11
-- work round useless autoconf 2.57 AC_DECL_SYS_SIGLIST
-
-* Thu Jul 10 2003 Joe Orton <jorton@redhat.com> 0.9.3-10
-- support --cc and --cpp arguments in apr-config
-
-* Thu Jul  3 2003 Joe Orton <jorton@redhat.com> 0.9.3-9
-- force libtool to use CC=gcc, CXX=g++
-
-* Thu Jul  3 2003 Joe Orton <jorton@redhat.com> 0.9.3-8
-- fix libtool location in apr_rules.mk
-
-* Mon Jun 30 2003 Joe Orton <jorton@redhat.com> 0.9.3-7
-- use AI_ADDRCONFIG in getaddrinfo() support (#73350)
-- include a working libtool script rather than relying on
- /usr/bin/libtool (#97695)
-
-* Wed Jun 18 2003 Joe Orton <jorton@redhat.com> 0.9.3-6
-- don't use /usr/bin/libtool
-
-* Wed Jun 04 2003 Elliot Lee <sopwith@redhat.com>
-- rebuilt
-
-* Tue May 20 2003 Joe Orton <jorton@redhat.com> 0.9.3-5
-- add fix for psprintf memory corruption (CAN-2003-0245)
-- remove executable bit from apr_poll.h
-
-* Thu May  1 2003 Joe Orton <jorton@redhat.com> 0.9.3-4
-- link libapr against libpthread
-- make apr-devel conflict with old subversion-devel
-- fix License
-
-* Tue Apr 29 2003 Joe Orton <jorton@redhat.com> 0.9.3-3
-- run ldconfig in post/postun
-
-* Tue Apr 29 2003 Joe Orton <jorton@redhat.com> 0.9.3-2
-- patch test suite to not care if IPv6 is disabled
-
-* Mon Apr 28 2003 Joe Orton <jorton@redhat.com> 0.9.3-1
-- initial build
