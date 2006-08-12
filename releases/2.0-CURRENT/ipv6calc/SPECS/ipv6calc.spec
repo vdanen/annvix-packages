@@ -87,6 +87,9 @@ install -m 0755 ipv6logstats/ipv6logstats %{buildroot}%{_bindir}/
 
 
 %changelog
+* Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.46
+- rebuild against new openssl
+
 * Tue Jul 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.46
 - add -doc subpackage
 - rebuild with gcc4
