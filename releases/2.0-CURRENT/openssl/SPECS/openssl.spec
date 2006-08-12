@@ -316,8 +316,8 @@ rm -rf %{buildroot}%{_prefix}/lib
 
 
 %post
-Please note that OPENSSLDIR has moved from %{_libdir}/ssl to
-%{_sysconfdir}/pki/tls
+echo "Please note that OPENSSLDIR has moved from %{_libdir}/ssl to"
+echo "%{_sysconfdir}/pki/tls"
 
 
 %post -n %{libname} -p /sbin/ldconfig
@@ -369,6 +369,9 @@ Please note that OPENSSLDIR has moved from %{_libdir}/ssl to
 
 
 %changelog
+* Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.9.8
+- fix stupid error in %%post
+
 * Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.9.8
 - 0.9.8b
 - move ssldir from %%{_libdir}/ssl to %%{_sysconfdir}/pki/tls
