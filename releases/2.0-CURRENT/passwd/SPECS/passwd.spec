@@ -24,10 +24,15 @@ Source0:	passwd-%{version}.tar.bz2
 Source1:	passwd.pamd
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	glib2-devel, libuser-devel, pam-devel, popt-devel
+BuildRequires:	glib2-devel
+BuildRequires:	libuser-devel
+BuildRequires:	pam-devel
+BuildRequires:	popt-devel
 
-Requires:	pam >= 0.59, pwdb >= 0.58, libuser
-Requires(pre):	setup >= 2.5-5735avx
+Requires:	pam >= 0.59
+Requires:	pwdb >= 0.58
+Requires:	libuser
+Requires(pre):	setup >= 2.5-5873avx
 
 %description
 The passwd package contains a system utility (passwd) which sets
@@ -69,6 +74,10 @@ rm -f %{buildroot}%{_mandir}/man1/{chfn.1,chsh.1}
 
 		
 %changelog
+* Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.71
+- require new setup (for group shadow)
+- spec cleanups
+
 * Sat Jul 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.71
 - make passwd sgid shadow
 - requires new setup
@@ -116,105 +125,3 @@ rm -f %{buildroot}%{_mandir}/man1/{chfn.1,chsh.1}
 * Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 0.68-3sls
 - OpenSLS build
 - tidy spec
-
-* Mon Jul 21 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 0.68-2mdk
-- rebuild
-- rm -rf %{buildroot} at the beginning of %%install
-- use %%makeinstall_std macro
-
-* Thu Dec 26 2002 Daouda LO <daouda@mandrakesoft.com> 0.68-1mdk
-- release 0.68 
-  o implement aging adjustments for pwdb
-
-- patch makefile to not build chfn and chsh (in util-linux).	
-
-* Wed Aug 14 2002 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 0.67-5mdk
-- Automated rebuild with gcc 3.2-0.3mdk
-
-* Thu Aug  8 2002 Stefan van der Eijk <stefan@eijk.nu> 0.67-4mdk
-- BuildRequires.
-
-* Mon Aug  5 2002 Stew Benedict <sbenedict@mandrakesoft.com> 0.67-3mdk
-- Requires: /etc/libuser.conf (thx Goetz Waschk)
-
-* Mon Aug  5 2002 Stew Benedict <sbenedict@mandrakesoft.com> 0.67-2mdk
-- Requires: libuser (for /etc/libuser.conf - passwd aging fails - LSB)
-
-* Mon Jul 29 2002 Daouda LO <daouda@mandrakesoft.com> 0.67-1mdk
-- 0.67
-- rebuilt against latest libuser
-
-* Thu Dec 06 2001 Florin <florin@mandrakesoft.com> 0.64.1-9mdk
-- add use_authtok nullok mdk5 in the pam file to use md5 for changing passwords
-
-* Thu Sep 27 2001 Stew Benedict <sbenedict@mandrakesoft.com> 0.64.1-8mdk
-- patch to emulate shadow-utils version behavior for LSB compliance
-
-* Mon May 21 2001 Jeff Garzik <jgarzik@mandrakesoft.com> 0.64.1-7mdk
-- BuildRequires: pwdb-devel
-
-* Fri Jan 05 2001 David BAUDENS <baudens@mandrakesoft.com> 0.64.1-6mdk
-- BuildRequires: pam-devel
-- Spec clean up
-
-* Wed Nov 15 2000 Daouda Lo <daouda@mandrakesoft.com> 0.64.1-5mdk 
-- make rpmlint happier.
-- More macros
-
-* Mon Sep 18 2000 Francis Galiegue <fg@mandrakesoft.com> 0.64.1-4mdk
-- More macros
-- Let spec helper do its job
-
-* Mon Aug 07 2000 Frederic Lepied <flepied@mandrakesoft.com> 0.64.1-3mdk
-- automatically added BuildRequires
-
-* Mon Jul 31 2000 Thierry Vignaud <tvignaud@mandrakesoft.com> 0.64.1-2mdk
-- BM
-- let spechelper compress man-pages
-
-* Mon Apr  3 2000 Adam Lebsack <adam@mandrakesoft.com> 0.64.1-1mdk
-- Update to version 0.64.1, from RH 6.2
-
-* Tue Jan 11 2000 Pixel <pixel@linux-mandrake.com>
-- fix build as non-root
-
-* Mon Oct 25 1999 Chmouel Boudjnah <chmouel@mandrakesoft.com>
-- 0.63.
-
-* Sat Apr 10 1999 Bernhard Rosenkraenzer <bero@linux-mandrake.com>
-- Mandrake adaptions
-- bzip2 man/info pages
-- add de locale
-
-* Wed Feb 03 1999 Cristian Gafton <gafton@redhat.com>
-- rebuild for glibc 2.1
-
-* Mon Apr 27 1998 Prospector System <bugs@redhat.com>
-- translations modified for de, fr, tr
-
-* Fri Oct 31 1997 Cristian Gafton <gafton@redhat.com>
-- added passwd.1 man page (stolen from SimpleApps-0.56 and modified)
-- fixed the Url
-
-* Thu Oct 02 1997 Michael K. Johnson <johnsonm@redhat.com>
-- Change to follow new version of PAM standard for pam_strerror().
-- BuildRoot
-
-* Thu Jun 19 1997 Erik Troan <ewt@redhat.com>
-- built against glibc
-
-* Wed Apr 23 1997 Michael K. Johnson <johnsonm@redhat.com>
-- Fix patch so that we actually USE the more intelligent getlogin() again.
-
-* Tue Apr 22 1997 Michael K. Johnson <johnsonm@redhat.com>
-- Don't default to migrating passwords to /etc/shadow
-
-* Mon Apr 21 1997 Michael K. Johnson <johnsonm@redhat.com>
-- Also link against pwdb to use its more intelligent getlogin().
-
-* Tue Apr 15 1997 Michael K. Johnson <johnsonm@redhat.com>
-- Change passwords even if getlogin() can't find the login name.
-
-* Mon Mar 03 1997 Michael K. Johnson <johnsonm@redhat.com>
-- Moved from pam.conf to pam.d
-
