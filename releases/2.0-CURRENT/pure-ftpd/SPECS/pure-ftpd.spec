@@ -132,13 +132,13 @@ install -m 0644 man/pure-quotacheck.8 %{buildroot}%{_mandir}/man8
 install -m 0644 man/pure-authd.8 %{buildroot}%{_mandir}/man8
 
 mkdir -p %{buildroot}%{_sysconfdir}/pam.d/
-install -m 0644 %{SOURCE6} %{buildroot}%{_sysconfdir}/pam.d/pure-ftpd
+install -m 0644 %{_sourcedir}/pure-ftpd.pam %{buildroot}%{_sysconfdir}/pam.d/pure-ftpd
 
-install -m 0644 %{SOURCE2} %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
+install -m 0644 %{_sourcedir}/pure-ftpd.logrotate %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
 
 mkdir -p %{buildroot}%{_srvdir}/pureftpd/log
-install -m 0740 %{SOURCE4} %{buildroot}%{_srvdir}/pureftpd/run
-install -m 0740 %{SOURCE5} %{buildroot}%{_srvdir}/pureftpd/log/run
+install -m 0740 %{_sourcedir}/pureftpd.run %{buildroot}%{_srvdir}/pureftpd/run
+install -m 0740 %{_sourcedir}/pureftpd-log.run %{buildroot}%{_srvdir}/pureftpd/log/run
 
 
 %clean
@@ -205,6 +205,12 @@ done
 
 
 %changelog
+* Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.21
+- rebuild against new mysql
+- rebuild against new openssl
+- rebuild against new openldap
+- spec cleanups
+
 * Sun Jul 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.21
 - build with privsep and TLS support
 - buildrequires: openssl-devel
@@ -291,112 +297,3 @@ done
 - tidy spec
 - remove README.RPM
 - if %%build_opensls add stuff for supervise, remove stuff for xinetd
-
-* Mon Oct 20 2003 Lenny Cartier <lenny@mandrakesoft.com> 1.0.16b-1mdk
-- 1.0.16
-
-* Wed Aug 13 2003 Lenny Cartier <lenny@mandrakesoft.com> 1.0.16-1mdk
-- 1.0.16
-
-* Sat Jul 19 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 1.0.14-6mdk
-- rebuild
-
-* Sat Apr 19 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 1.0.14-5mdk
-- use configure2_5x macro
-- remove anonftp provides
-
-* Wed Apr 02 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 1.0.14-4mdk
-- rebuild against libmysql12
-
-* Mon Feb 03 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 1.0.14-3mdk
-- disable xinetd server by default, using the standalone one
-
-* Mon Feb 03 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 1.0.14-2mdk
-- source 3 : add xinetd support
-
-* Mon Feb  3 2003 Laurent Culioli <laurent@pschit.net> 1.0.14-1mdk
-- 1.0.14
-
-* Tue Jan 16 2003 Laurent Culioli <laurent@pschit.net> 1.0.13a-1mdk
-- 1.0.13a
-- remove hardcoded packager tag
-
-* Tue Dec 31 2002 Lenny Cartier <lenny@mandrakesoft.com> 1.0.12-6mdk
-- from Brook Humphrey <bah@webmedic.net> :
-	- fixed anonymous users
-	- fixed ftp user not being added to ftp groups
-
-* Mon Sep  9 2002 Arnaud Desmons <adesmons@mandrakesoft.com> 1.0.12-5mdk
-- fixed invalid-packager Laurent Culioli
-
-* Fri Aug 23 2002 Laurent Culioli <laurent@pschit.net> 1.0.12-4mdk
-- fix logrotate
-- add --with-diraliases options
-
-* Tue Aug 13 2002 Laurent Culioli <laurent@pschit.net> 1.0.12-3mdk
-- add logrotate support
-
-* Tue Jun 18 2002 Laurent Culioli <laurent@mandrakesoft.com> 1.0.12-2mdk
-- add user-limit support
-- add pure-ftpd.png
-
-* Tue Jun 11 2002 Lenny Cartier <lenny@mandrakesoft.com> 1.0.12-1mdk
-- 1.0.12
-
-* Fri Mar  8 2002 Laurent Culioli <laurent@mandrakesoft.com> 1.0.10-1mdk
-- 1.0.10
-
-* Fri Feb 22 2002 Lenny Cartier <lenny@mandrakesoft.com> 1.0.9-1mdk
-- 1.0.9
-
-* Fri Jan 25 2002 Laurent Culioli <laurent@mandrakesoft.com> 1.0.8-3mdk
-- really add postgresql support
-- add extauth support
-- add conflict with vsftpd
-
-* Fri Jan 25 2002 Laurent Culioli <laurent@mandrakesoft.com> 1.0.8-2mdk
-- add support for pgsql and virtual-chroot
-- add mdkconf patch ( change _sysconfigdir from /etc to /etc/pure-ftpd )
-
-* Fri Jan 25 2002 Lenny Cartier <lenny@mandrakesoft.com> 1.0.8-1mdk
-- 1.0.8
-
-* Sun Dec 30 2001 Lenny Cartier <lenny@mandrakesoft.com> 1.0.7-1mdk
-- 1.0.7
-- remove now integrated patch
-
-* Tue Nov 13 2001 Laurent Culioli <laurent@mandrakesoft.com> 1.0.1-2mdk
-- add BuildRequires
-
-* Thu Nov  8 2001 Laurent Culioli <laurent@mandrakesoft.com> 1.0.1-1mdk
-- updated to 1.0.1
-- pam-support is back
-- enabling virtual-user ( with puredb )
-- patch config.pl to use the maxdiskusagepct option ( thanks to thomas.mangin@free.fr )
-- update pure-ftpd.init
-- clean specfile
-
-* Wed Sep 19 2001 Laurent Culioli <laurent@mandrakesoft.com> 0.99.2a-1mdk
-- updated to 0.99.2.a 
-
-* Mon Sep 17 2001 Laurent Culioli <laurent@mandrakesoft.com> 0.99.2-2mdk
-- fix files section
-
-* Mon Sep 17 2001 Laurent Culioli <laurent@mandrakesoft.com> 0.99.2-1mdk
-- updated to 0.99.2
-
-* Sun Sep 02 2001 Laurent Culioli <laurent@mandrakesoft.com> 0.99.1b-5mdk
-- fix
-
-* Thu Aug 30 2001 Laurent Culioli <laurent@mandrakesoft.com> 0.99.1b-4mdk
-- aarggh...fix changelog ( i'm jeune , i'm naif )
-
-* Thu Aug 30 2001 Laurent Culioli <laurent@mandrakesoft.com> 0.99.1b-3mdk
-- use pure-config.pl for pure-ftpd.init
-- dont use -with-pam in configure
-
-* Thu Aug 30 2001 Laurent Culioli <laurent@mandrakesoft.com> 0.99.1b-2mdk
-- fix pure-ftpd.init
-
-* Wed Aug 29 2001 Laurent Culioli <laurent@mandrakesoft.com> 0.99.1b-1mdk
-- first mandrake package
