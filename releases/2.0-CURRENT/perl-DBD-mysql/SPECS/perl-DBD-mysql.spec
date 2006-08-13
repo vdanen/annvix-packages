@@ -23,7 +23,7 @@ URL:		http://search.cpan.org/dist/%{module}
 Source:		http://www.cpan.org/modules/by-module/DBD/%{module}-%{version}.tar.bz2
 
 Buildroot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	MySQL-devel
+BuildRequires:	mysql-devel
 BuildRequires:	perl(DBI)
 BuildRequires:	perl-devel
 
@@ -80,6 +80,10 @@ perl Makefile.PL INSTALLDIRS=vendor
 
 
 %changelog
+* Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0002
+- rebuild against new mysql
+- spec cleanups
+
 * Thu May 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0002
 - rebuild against perl 5.8.8
 - create -doc subpackage
@@ -104,33 +108,3 @@ perl Makefile.PL INSTALLDIRS=vendor
 
 * Fri Feb 25 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.9004-1avx
 - first annvix build
-
-* Wed Jan 26 2005 Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com> 2.9004-6mdk
-- Add perl-DBI in the BuildRequires (Marc Koschewski)
-
-* Mon Jan 24 2005 Oden Eriksson <oeriksson@mandrakesoft.com> 2.9004-5mdk
-- rebuild
-
-* Sat Jan 22 2005 Oden Eriksson <oeriksson@mandrakesoft.com> 2.9004-4mdk
-- rebuilt against MySQL-4.1.x system libs
-
-* Fri Jan 21 2005 Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com> 2.9004-3mdk
-- Fix URL and source
-- Replaces perl-Mysql
-
-* Mon Nov 15 2004 Michael Scherer <misc@mandrake.org> 2.9004-2mdk
-- Rebuild for new perl
-
-* Sat Jul 17 2004 Per Øyvind Karlsen <peroyvind@linux-mandrake.com> 2.9004-1mdk
-- 2.9004
-
-* Wed Jun 02 2004 Per Øyvind Karlsen <peroyvind@linux-mandrake.com> 2.9003-1mdk
-- 2.9003
-- drop distribution tag
-- cosmetics
-
-* Mon Nov 24 2003 Michael Scherer <misc@mandrake.org> 2.9002-2mdk 
-- BuildRequires perl-devel
-
-* Tue Oct 21 2003 Warly <warly@mandrakesoft.com> 2.9002-1mdk
-- new version
