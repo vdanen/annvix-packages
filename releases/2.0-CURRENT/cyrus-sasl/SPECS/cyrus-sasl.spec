@@ -38,9 +38,16 @@ Patch4:		cyrus-sasl-2.1.19-mdk-pic.patch
 Patch6:		cyrus-sasl-2.1.22-mdk-sed_syntax.diff
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:  autoconf, automake1.8, db4-devel, pam-devel, krb5-devel
-BuildRequires:  openssl-devel >= 0.9.6a, libtool >= 1.4
-BuildRequires:	MySQL-devel, postgresql-devel, openldap-devel
+BuildRequires:  autoconf
+BuildRequires:	automake1.8
+BuildRequires:	db4-devel
+BuildRequires:	pam-devel
+BuildRequires:	krb5-devel
+BuildRequires:  openssl-devel >= 0.9.6a
+BuildRequires:	libtool >= 1.4
+BuildRequires:	mysql-devel
+BuildRequires:	postgresql-devel
+BuildRequires:	openldap-devel
 
 Requires:	%{libname} = %{version}
 Requires(post):	rpm-helper
@@ -188,7 +195,8 @@ Summary:	SASL sasldb mechanism plugin
 Group:		System/Libraries
 Requires(pre):	rpm-helper
 Requires(post):	rpm-helper
-Requires:	%{libname} = %{version}, %{name} = %{version}
+Requires:	%{libname} = %{version}
+Requires:	%{name} = %{version}
 Provides:	sasl-plug-sasldb
 
 %description -n %{libname}-plug-sasldb
@@ -313,7 +321,7 @@ mkdir -p %{buildroot}%{_sysconfdir}/{sysconfig,sasl2}
 
 make install DESTDIR=%{buildroot}
 
-install %{SOURCE3} %{buildroot}%{_sysconfdir}/sysconfig/saslauthd
+install %{_sourcedir}/saslauthd.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/saslauthd
 # Install man pages in the expected location, even if they are
 # pre-formatted.
 install -m 0755 -d %{buildroot}%{_mandir}/man8/
@@ -330,11 +338,11 @@ popd
 cp saslauthd/testsaslauthd %{buildroot}%{_sbindir}
 
 mkdir -p %{buildroot}%{_srvdir}/saslauthd/log
-install -m 0740 %{SOURCE4} %{buildroot}%{_srvdir}/saslauthd/run
-install -m 0740 %{SOURCE5} %{buildroot}%{_srvdir}/saslauthd/log/run
+install -m 0740 %{_sourcedir}/saslauthd.run %{buildroot}%{_srvdir}/saslauthd/run
+install -m 0740 %{_sourcedir}/saslauthd-log.run %{buildroot}%{_srvdir}/saslauthd/log/run
 
 # fix the horribly broken manpage
-cat %{SOURCE6} >%{buildroot}%{_mandir}/man8/saslauthd.8
+cp %{_sourcedir}/saslauthd.8 %{buildroot}%{_mandir}/man8/saslauthd.8
 
 pushd sample
     /bin/sh ../libtool --mode=install /usr/bin/install -c client \
@@ -506,6 +514,12 @@ fi
 
  
 %changelog
+* Sun Aug 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1.22
+- rebuild against new mysql
+- rebuild against new openssl
+- rebuild against new openldap 
+- spec cleanups
+
 * Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1.22
 - really add -doc subpackage
 
@@ -617,94 +631,3 @@ fi
 * Sat Dec 13 2003 Vincent Danen <vdanen@opensls.org> 2.1.15-5sls
 - OpenSLS build
 - tidy spec
-
-* Thu Aug 07 2003 Florin <florin@mandrakesoft.com> 2.1.15-4mdk
-- update the initscript and the sysconfig files (thx to L.Olivetti)
-
-* Mon Aug  4 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 2.1.15-3mdk
-- mklibname, cputoolize
-- Enforce use of db4 libraries
-- Patch2: Let sasldir be plugindir (aka lib64 fixes)
-
-* Wed Jul 30 2003 Warly <warly@mandrakesoft.com> 2.1.15-2mdk
-- recompile for the libcom_err.so.3 replaced into libcom_err.so.2
-
-* Wed Jul 16 2003 Florin <florin@mandrakesoft.com> 2.1.15-1mdk
-- 2.1.15
-
-* Sat May 10 2003 Luca Olivetti <luca@olivetti.cjb.net> 2.1.13-1mdk
-- 2.1.13
-- renamed main package cyrus-sasl2 so it can coexist with sasl v1
-
-* Tue Feb 25 2003 Luca Olivetti <luca@olivetti.cjb.net> 2.1.12-1mdk
-- 2.1.12
-- install the correct dbconverter-2
-- convert v1 sasl.db in post
-
-* Mon Dec 09 2002 Luca Olivetti <luca@olivetti.cjb.net> 2.1.10-1mdk
-- removed gcc3.2 patch and other hacks no longer necessary
-- upgrade to 2.1.10
-- fixed some rpmlint warnings
-
-* Sat Oct 26 2002 Luca Olivetti <luca@olivetti.cjb.net> 2.1.9-1mdk
-- upgrade to 2.1.9
-
-* Sat Oct 12 2002 Luca Olivetti <luca@olivetti.cjb.net> 2.1.8-1mdk
-- upgrade to 2.1.8
-- enabled and packaged plugin for srp
-- enabled and packaged plugin for ntlm (new in 2.1.8)
-
-* Sat Oct 05 2002 Luca Olivetti <luca@olivetti.cjb.net> 2.1.7-2mdk
-- patch and hacks to compile under mandrake 9.0 (with gcc 3.2)
-- corrected init script from mdk package
-- added documentation for ldap authentication
-
-* Wed Sep 11 2002 Luca Olivetti <luca@olivetti.cjb.net> 2.1.7-1mdk
-- upgrade to 2.1.7
-
-* Sun May 12 2002 Luca Olivetti <luca@olivetti.cjb.net> 2.1.2-2mdk
-- man pages weren't installed (automake problem?), quick hack to fix it
-- installed dbconverter-2 (not installed by make install)
-- removed /etc/sasl2 directory (not used anywhere)
-- removed various commented lines
-
-* Thu Apr 18 2002 Luca Olivetti <luca@olivetti.cjb.net> 2.1.2-1mdk
-- upgrade to 2.1.2
-
-* Wed Apr 17 2002 Luca Olivetti <luca@olivetti.cjb.net> 2.1.0-1mdk
-- first try to package version 2.1.0
- 
-* Mon Mar  4 2002 Vincent Danen <vdanen@mandrakesoft.com> 1.5.27-3mdk
-- fix the incorrect fix of permissions on sasl.db (mode 600 is not good)
-
-* Wed Oct 24 2001 Philippe Libat <philippe@mandrakesoft.com> 1.5.27-2mdk
-- fix post-install script
-
-* Tue Oct 16 2001 Philippe Libat <philippe@mandrakesoft.com> 1.5.27-1mdk
-- New version
-- rebuild for db3.3(patch3)
-- fix permissions on /var/lib/sasl/sasl.db
-- add postinstall initialisation command
-
-* Sat Sep 22 2001 Geoffrey Lee <snailtalk@mandrakesoft.com> 1.5.24-7mdk
-- Fix stupid error with CONFDIR.
-- As a special bonus fix the build.
-
-* Thu Jul  5 2001 Frederic Lepied <flepied@mandrakesoft.com> 1.5.24-6mdk
-- rebuild for db3.2
-
-* Wed Jun 20 2001 Philippe Libat <philippe@mandrakesoft.com> 1.5.24-5mdk
-- review rpm organization
-
-* Wed Jun 13 2001 Philippe Libat <philippe@mandrakesoft.com> 1.5.24-4mdk
-- rpath patch <flepied@mandrakesoft.com>
-
-* Tue Jun 12 2001 Philippe Libat <philippe@mandrakesoft.com> 1.5.24-3mdk
-- mysql, ldap patch
-- added documentation
-
-* Fri Mar  9 2001 Vincent Saugey <vince@mandrakesoft.com> 1.5.24-2mdk
-- Adding include file in devel package
-
-* Mon Nov 27 2000 Vincent Saugey <vince@mandrakesoft.com> 1.5.24-1mdk
-- First mdk release
