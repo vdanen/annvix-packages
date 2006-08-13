@@ -46,7 +46,10 @@ Patch7:		bind-9.3.1-reject_resolv_conf_errors.patch
 
 BuildRoot:	%{_buildroot}/%{name}-root
 BuildRequires:	openssl-devel
-BuildRequires:	autoconf, autoconf2.5, automake1.7, multiarch-utils >= 1.0.3
+BuildRequires:	autoconf
+BuildRequires:	autoconf2.5
+BuildRequires:	automake1.7
+BuildRequires:	multiarch-utils >= 1.0.3
 
 %if %{build_daemon}
 Requires(post):	rpm-helper
@@ -128,7 +131,7 @@ This package contains the documentation for %{name}.
 %patch7 -p1 -b .reject_resolv_conf_errors
 
 #(cd contrib/queryperf && autoconf-2.13)
-tar -xjf %{SOURCE7}
+tar -xjf %{_sourcedir}/dhcp-dynamic-dns-examples.tar.bz2
 
 
 %build
@@ -148,7 +151,7 @@ tar -xjf %{SOURCE7}
 # override CFLAGS for better security.  Ask Jay...
 make "CFLAGS=-O2 -Wall -pipe"
 
-gcc %{optflags} -o dns-keygen %{SOURCE5}
+gcc %{optflags} -o dns-keygen %{_sourcedir}/keygen.c
 
 
 %install
@@ -168,32 +171,32 @@ mkdir -p %{buildroot}%{_mandir}/{man1,man5,man8}
 mkdir -p %{buildroot}%{_docdir}/
 
 %makeinstall_std
-#tar -xjf %{SOURCE1} -C %{buildroot}%{_mandir}
+#tar -xjf %{_sourcedir}/%{name}-manpages.tar.bz2 -C %{buildroot}%{_mandir}
 # fix man pages
 install -m 0644 man5/resolver.5 %{buildroot}%{_mandir}/man5/
 ln -s resolver.5.bz2 %{buildroot}%{_mandir}/man5/resolv.5.bz2
 
 %if %{build_daemon}
-    install -m0600 bin/rndc/rndc.conf %{buildroot}%{_sysconfdir}
+    install -m 0600 bin/rndc/rndc.conf %{buildroot}%{_sysconfdir}
     touch %{buildroot}%{_sysconfdir}/rndc.key
-    install -m0755 contrib/named-bootconf/named-bootconf.sh %{buildroot}%{_sbindir}/named-bootconf
-    #install -m0755 contrib/queryperf/queryperf %{buildroot}%{_sbindir}/
-    install -m644 %{SOURCE3} %{buildroot}%{_sysconfdir}/logrotate.d/named
+    install -m 0755 contrib/named-bootconf/named-bootconf.sh %{buildroot}%{_sbindir}/named-bootconf
+    #install -m 0755 contrib/queryperf/queryperf %{buildroot}%{_sbindir}/
+    install -m 0644 %{_sourcedir}/named.logrotate %{buildroot}%{_sysconfdir}/logrotate.d/named
 
-    install -m0755 dns-keygen -D %{buildroot}%{_sbindir}/dns-keygen
-    cp %{SOURCE6} %{buildroot}%{_sbindir}
-    cp %{SOURCE8} %{buildroot}%{_sbindir}
-    cp %{SOURCE10} %{buildroot}%{_sbindir}
+    install -m 0755 dns-keygen -D %{buildroot}%{_sbindir}/dns-keygen
+    cp %{_sourcedir}/new_key.pl %{buildroot}%{_sbindir}
+    cp %{_sourcedir}/update_bind.pl %{buildroot}%{_sbindir}
+    cp %{_sourcedir}/bind-chroot.sh %{buildroot}%{_sbindir}
 
     echo "; Use \"dig @A.ROOT-SERVERS.NET . ns\" to update this file if it's outdated." >named.cache
-    cat %{SOURCE11} >>named.cache
-    install -m 644 named.cache %{buildroot}%{_var}/named/named.ca
-    install -m0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/sysconfig/named
+    cat %{_sourcedir}/named.root >>named.cache
+    install -m 0644 named.cache %{buildroot}%{_var}/named/named.ca
+    install -m 0644 %{_sourcedir}/named.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/named
 
     mkdir -p %{buildroot}%{_srvdir}/named/log
-    install -m 0740 %{SOURCE12} %{buildroot}%{_srvdir}/named/run
-    install -m 0640 %{SOURCE13} %{buildroot}%{_srvdir}/named/finish
-    install -m 0740 %{SOURCE14} %{buildroot}%{_srvdir}/named/log/run
+    install -m 0740 %{_sourcedir}/named.run %{buildroot}%{_srvdir}/named/run
+    install -m 0640 %{_sourcedir}/named.stop %{buildroot}%{_srvdir}/named/finish
+    install -m 0740 %{_sourcedir}/named-log.run %{buildroot}%{_srvdir}/named/log/run
 %else
     rm -rf %{buildroot}%{_sbindir}
     rm -rf %{buildroot}%{_mandir}/man3
@@ -292,6 +295,10 @@ fi
 
 
 %changelog
+* Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 9.3.1
+- rebuild against new openssl
+- spec cleanups
+
 * Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 9.3.1
 - add -doc subpackage
 - rebuild with gcc4
@@ -381,263 +388,3 @@ fi
 - use %%build_opensls macro to turn off IDN support
 - explicitly provide -fstack-protector with %%build_opensls since we don't
   use standard %%{optflags}
-
-* Sun Nov 16 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 9.2.3-3mdk
-- rebuilt for reupload
-
-* Mon Oct 27 2003 Florin <florin@mandrakesoft.com> 9.2.3-2mdk
-- add sleep 2 in the restart function of the initscript
-
-* Fri Oct 24 2003 Florin <florin@mandrakesoft.com> 9.2.3-1mdk
-- 9.2.3
-
-* Thu Oct 09 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 9.2.3-0.rc4.3mdk
-- added IDN support (P4, rediffed from the patch for bind-9.2.2)
-- buildrequires idnkit-devel
-
-* Wed Sep 24 2003 Florin <florin@mandrakesoft.com> 9.2.3-2mdk
-- fix the stop in the initscript
-
-* Mon Sep 22 2003 Florin <florin@mandrakesoft.com> 9.2.3-0.rc4.1mdk
-- rc4 (fixes bugs 1511, 1512)
-
-* Sat Sep 20 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 9.2.3-0.rc3.1mdk
-- 9.2.3rc3 (fixes bind bugs 1509, 1508, 1507 and 1506)
-- added P3 to make nslookup shut up about possible deprecation, i think
-  we will notice this ourselves eventually anyhow...
-
-* Wed Sep 17 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 9.2.3-0.rc2.1mdk
-- 9.2.3rc2 (support for "delegation-only" zones)
-- updated S7 to reflect the support for "delegation-only" zones
-
-* Tue Aug 26 2003 Florin <florin@mandrakesoft.com> 9.2.3-0.rc1.1mdk
-- 9.2.3rc1
-- update the callback patch
-
-* Fri Aug  8 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 9.2.2-3mdk
-- Reenable libresolv patch, it's always nice to see useful patches
-  silently removed...
-
-* Mon Jun 02 2003 Florin <florin@mandrakesoft.com> 9.2.2-2mdk
-- better help message for the chroot script (thx Charles Davant)
-
-* Wed Mar 05 2003 Florin <florin@mandrakesoft.com> 9.2.2-1mdk
-- 9.2.2
-
-* Wed Feb 26 2003 Chmouel Boudjnah <chmouel@mandrakesoft.com> 9.2.2-0.rc1.4mdk
-- Change the default semantic by default it go on the second server
-  when get a SERVFAIL, specify +fail to dig or -fail to nslookup or -F
-  to host if you really want this option.
-
-* Wed Feb 26 2003 Chmouel Boudjnah <chmouel@mandrakesoft.com> 9.2.2-0.rc1.3mdk
-- Add option -f to host to don't fail when the firstserv and fallback
-  on the second server when the first one return SERVFAIL (same for
-  nslookup and option -nofail)(and use +nofail with dig) usefull with
-  zeroconf dns.
-
-* Mon Feb 10 2003 Florin <florin@mandrakesoft.com> 9.2.2-0.rc1.2mdk
-- update the named.root (thx to Ben Reser)
-
-* Wed Oct 16 2002 Florin <florin@mandrakesoft.com> 9.2.2-0.rc1.1mdk
--  9.2.2-0.rc1.1mdk
-
-* Fri Sep 27 2002 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 9.2.1-5mdk
-- Patch1: Fix lookup of res_mkquery() in libresolv
-
-* Tue Aug 13 2002 Vincent Danen <vdanen@mandrakesoft.com> 9.2.1-4mdk
-- fix buffer overflow for dns resolver libs
-- put named.ca in bind proper (not in caching-nameserver anymore)
-
-* Fri Jul 12 2002 Frederic Lepied <flepied@mandrakesoft.com> 9.2.1-3mdk
-- add named user
-
-* Thu Jul 11 2002 Geoffrey Lee <snailtalk@mandrakesoft.com> 9.2.1-2mdk
-- Really 9.2.1 (Florin forgot to remove the rc1 tag).
-- Don't bzip2, use pristine .tar.gz source, otherwise there is no point in 
-  shipping the .asc file.
-- Short Circuit Compliant (tm).
-
-* Thu May 02 2002 Florin <florin@mandrakesoft.com> 9.2.1-1mdk
-- 9.2.1
-- rename the chroot script : bind-chroot.sh is the new name
-
-* Thu Mar 21 2002 Florin <florin@mandrakesoft.com> 9.2.1-0.rc1.1mdk
-- 9.2.1rc1
-- some minor fixes for chroot_bind.sh
-
-* Mon Mar 11 2002 Florin <florin@mandrakesoft.com> 9.2.0-5mdk
-- chroot_bind.sh final fixes (thx to Scott Wunsch ideas)
-
-* Fri Mar 08 2002 Florin <florin@mandrakesoft.com> 9.2.0-4mdk
-- new chroot_bind.sh script (supports interactive, undo, status)
-
-* Fri Feb 15 2002 Florin <florin@mandrakesoft.com> 9.2.0-3mdk
-- fix the sed line (thx to Bryan Paxton for letting me know)
-- add a userfriendly chroot configuration chroot_bind.sh script
-- add a sample chroot configuration in %%{_docdir}/%%{name}-%%{version}
-
-* Sun Jan 13 2002 Geoffrey Lee <snailtalk@mandrkaesoft.com> 9.2.0-2mdk
-- Don't require bind for the -devel package. The development package only
-  contain C header files and static libraries.
-  
-* Tue Nov 27 2001 Florin <florin@mandrakesoft.com> 9.2.0-1mdk
-- 9.2.0 ... at last
-
-* Wed Nov 21 2001 Florin <florin@mandrakesoft.com> 9.2.0-0.rc10.1mdk
-- 9.2.0rc10
-- add a whole bunch of html files
-
-* Thu Nov 08 2001 Florin <florin@mandrakesoft.com> 9.2.0-0.rc9.1mdk
-- 9.2.0rc9
-
-* Thu Oct 25 2001 Florin <florin@mandrakesoft.com> 9.2.0-0.rc8.1mdk
-- 9.2.0rc8
-
-* Wed Oct 17 2001 Florin <florin@mandrakesoft.com> 9.2.0-0.rc7.1mdk
-- 9.2.0rc7
-
-* Wed Oct 10 2001 Florin <florin@mandrakesoft.com> 9.2.0-0.rc6.2mdk
-- remove the named.conf file as it  conflicts with ch-nm-server
-
-* Tue Oct 09 2001 Florin <florin@mandrakesoft.com> 9.2.0-0.rc6.1mdk
-- 9.2.0rc6
-- add a silly named.conf file
-
-* Wed Oct 03 2001 Florin <florin@mandrakesoft.com>  9.2.0-0.rc5.1mdk
--  9.2.0rc5
-
-* Wed Sep 26 2001 Florin <florin@mandrakesoft.com> 9.2.0-0.rc4.1mdk
-- 9.2.0rc4
-
-* Wed Sep 12 2001 Florin <florin@mandrkaesoft.com> 9.2.0-0.rc2.3mdk
-- 9.2.0rc3
-- remove the rndc-confgen.8 part as it is copied by the Makefile now
-
-* Wed Sep 12 2001 Florin <florin@mandrkaesoft.com> 9.2.0-0.rc2.3mdk
-- add the rndc-confgen.8 man page
-- update the config in the examples from doc (rndc status, etc, works now)
-
-* Mon Sep 10 2001 Florin <florin@mandrkaesoft.com> 9.2.0-0.rc2.2mdk
-- bind-utils doesn't have to require bind (my mistake)
-- remove the useless patches
-
-* Fri Sep 07 2001 Florin <florin@mandrkaesoft.com> 9.2.0-0.rc2.1mdk
-- 9.2.0rc2
-- fix some doc permissions
-- remove the requires on libs in the bind-utils package
-- bind-utils requires bind >= %{version} now
-- add the /et/rndc.key file
-- compile with static libs and remove the libs package 
-- slightly modify the named.ca file in the docs
-- add Epoch 1
-
-* Fri Aug 10 2001 Florin <florin@mandrkaesoft.com> 9.2.0-0.rc1.1mdk
-- 9.2.0rc1
-- add the kerberos sections in the examples files
-- add /bin/sh in requires 
-
-* Tue Jul 31 2001 Florin <florin@mandrkaesoft.com> 9.2.0-0.b2.1mdk
-- 9.2.0b2
-
-* Wed Jul 18 2001 Florin <florin@mandrkaesoft.com> 9.2.0-0.b1.1mdk
-- 9.2.0b1
-
-* Tue Jul 17 2001 Florin <florin@mandrkaesoft.com> 9.2.0-0.a3.2mdk
-- use the new_key.pl silly script only if /etc/rndc.conf.rpmnew exists
-- add the named.pid line in /etc/named.conf file, if the later exists
-  using the new update_bind.pl silly script
-
-* Mon Jul 16 2001 Florin Grad <florin@mandrkaesoft.com> 9.2.0-0.a3.1mdk
-- 9.2.0a3
-- add the nanny.pl, rndc-confgen, queryperf scripts
-- add the FAQ, COPYRIGHT, README.queryperf text files
-
-
-* Tue Jun 26 2001 Florin Grad <florin@mandrkaesoft.com> 9.2.0-0.a2.2mdk
-- fix a small typo on the silly new_key.pl script
-- add really working examples
-- add /etc/sysconfig/named file
-
-* Fri Jun 22 2001 Florin Grad <florin@mandrkaesoft.com> 9.2.0-0.a2.1mdk
-- correct naming (add the their_version macro). Thx G. Lee
-
-* Thu Jun 21 2001 Florin Grad <florin@mandrkaesoft.com> 9.2.0a2-1mdk
-- 9.2.0a2
-- extract the bind-utils libraries to a libdns package
-- add the keygen.c and the sysconfig file sources
-- fix the /etc/rndc.conf permission (thx to Michael Brown)
-- add the sample configuration files in relation with the dhcpd server
-- add the named.conf, named-* and all the lwres* man pages
-- add the %%{_sbindir}/new_key.pl script that generates a key and updates the 
-  /etc/named.conf and /etc/rndc.conf files
-
-* Sun Jun 10 2001 Stefan van der Eijk <stefan@eijk.nu> 9.1.2-2mdk
-- BuildRequires: openssl-devel
-
-* Sat May 05 2001 Geoffrey Lee <snailtalk@mandrakesoft.com> 9.1.2-1mdk
-- Version 9.1.2.
-
-* Thu Mar 29 2001 Florin Grad <florin@mandrkaesoft.com> 9.1.1-1mdk
-- 9.1.1
-
-* Wed Mar 28 2001 Guillaume Cottenceau <gc@mandrakesoft.com> 9.1.1-0.rc7.2mdk
-- use post_service and preun_service scripts
-
-* Tue Mar 27 2001 Florin Grad <florin@mandrkaesoft.com> 9.1.1-0.rc7.1mdk
-- rc7
-
-* Thu Mar 01 2001 Geoffrey Lee <snailtalk@mandrkaesoft.com> 9.1.1-0.rc3.1mdk
-- New and shiny 9.1.1rc3.
-
-* Tue Feb 27 2001 Jeff Garzik <jgarzik@mandrakesoft.com> 9.1.1-0.rc2.2mdk
-- Fix build on glibc.
-- Explicitly enable IPv6.
-- Override CFLAGS with conservative ones for better security.
-
-* Tue Feb 13 2001 Geoffrey Lee <snailtalk@mandrakesoft.com> 9.1.1-0.rc2.1mdk
-- Put 9.1.1rc2 out for everyone to use.
-- Use system openssl libraries.
-- Enable threading.
-- Use -j, not -I when using the bzip2 filter through tar.
-
-* Mon Jan 22 2001 Geoffrey Lee <snailtalk@mandrakesoft.com> 9.1.0-3mdk
-- fix the nslookup issue.
-- merge in the other redhat patch (.reverse).
-
-* Sun Jan 21 2001 Stefan van der Eijk <s.vandereijk@chello.nl> 9.1.0-2mdk
-- fix /var/run issue (thanks redhat)
-
-* Fri Jan 19 2001 Geoffrey Lee <snailtalk@mandrakesoft.com> 9.1.0-1mdk
-- really 9.1.0.
-
-* Sat Jan 13 2001 Geoffrey Lee <snailtalk@mandrakesoft.com> 9.1.0-0.rc1.1mdk
-- make a new and shiny binary from a new and shiny source.
-
-* Tue Jan 09 2001 Geoff <snailtalk@mandrakesoft.com> 9.1.0-0.b3.1mdk
-- Change how the release is handled to avoid potential Serial: problem.
-  Well, you might still have to use --force now, but better early than
-  late.
-- new and shiny source.
-
-* Wed Jan 03 2001 Florin Grad <florin@mandrakesoft.com> 9.1.0b2-1mdk
-- 9.1.0b2
-
-* Wed Dec 06 2000 Florin Grad <florin@mandrakesoft.com> 9.1.0b1-1mdk
-- 9.1.0b1 
-
-* Tue Nov 07 2000 Florin Grad <florin@mandrakesoft.com> 9.0.1rc2-1mdk
-- 9.0.1rc2
-
-* Mon Nov 06 2000 Florin Grad <florin@mandrakesoft.com> 9.0.1rc1-1mdk
-- 9.0.1rc1 wich contains alot of fixes for 9.0.0
-- fix the spec file
-- dig manpage is provided now by the bind package (removed from the bind-manpages)
-
-* Thu Nov 02 2000 Florin Grad <florin@mandrakesoft.com> 9.0.0-1mdk
-- Mandrake adaptations
-
-* Tue Oct 10 2000 Bernhard Rosenkraenzer <bero@redhat.com>
-- Add some missing man pages (taken from bind8) (Bug #18794)
-
-* Sun Sep 17 2000 Bernhard Rosenkraenzer <bero@redhat.com>
-- 9.0.0 final
