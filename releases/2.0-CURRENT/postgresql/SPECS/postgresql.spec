@@ -53,8 +53,17 @@ Patch0:		postgresql-7.4.1-mdk-pkglibdir.patch
 Patch1:		postgresql-7.4.5-CAN-2005-0227.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	bison, flex, gettext, termcap-devel, ncurses-devel, openssl-devel, pam-devel
-BuildRequires:	perl-devel, python-devel, readline-devel >= 4.3, zlib-devel, tcl
+BuildRequires:	bison
+BuildRequires:	flex
+BuildRequires:	gettext
+BuildRequires:	termcap-devel
+BuildRequires:	ncurses-devel
+BuildRequires:	openssl-devel
+BuildRequires:	pam-devel
+BuildRequires:	perl-devel
+BuildRequires:	python-devel
+BuildRequires:	readline-devel >= 4.3
+BuildRequires:	zlib-devel, tcl
 
 Requires:	perl
 Requires(post):	rpm-helper
@@ -133,9 +142,14 @@ Summary:	The programs needed to create and run a PostgreSQL server
 Group:		Databases
 Provides:	sqlserver
 Provides:	%{name}-server-ABI = %{current_major_version}
-Requires(post):	rpm-helper, afterboot, %{libname} > %{version}-%{release}, postgresql = %{version}-%{release}
-Requires(postun): rpm-helper, afterboot
-Requires(pre):	rpm-helper, postgresql = %{version}-%{release}
+Requires(post):	rpm-helper
+Requires(post):	afterboot
+Requires(post):	%{libname} > %{version}-%{release}
+Requires(post):	postgresql = %{version}-%{release}
+Requires(postun): rpm-helper
+Requires(postun): afterboot
+Requires(pre):	rpm-helper
+Requires(pre):	postgresql = %{version}-%{release}
 Requires(preun): rpm-helper
 Conflicts:	postgresql < 7.3
 
@@ -183,7 +197,8 @@ package.
 Summary:	The PL/Perl procedural language for PostgreSQL
 Group:		Databases
 Obsoletes:	libpgsql2
-Requires:	postgresql = %{version} perl-base = %{perl_epoch}:%{perl_version}
+Requires:	postgresql = %{version}
+Requires:	perl-base = %{perl_epoch}:%{perl_version}
 
 %description pl
 PostgreSQL is an advanced Object-Relational database management
@@ -304,22 +319,22 @@ pushd  %{buildroot}%{_libdir}/pgsql/test/regress/
     strip *.so
 popd
 
-install -m 0755 %{SOURCE14} %{buildroot}%{_bindir}/avx-pgdump.sh
+install -m 0755 %{_sourcedir}/mdk-pgdump.sh %{buildroot}%{_bindir}/avx-pgdump.sh
 install -D -m 0755 mdk/mdk_update_dump.sh %{buildroot}%{_datadir}/pgsql/avx/avx_update_dump
 install -m 0755 mdk/mdk_update_restore.sh %{buildroot}%{_datadir}/pgsql/avx/avx_update_restore
 
 mv %{buildroot}%{_docdir}/%{name}/html %{buildroot}%{_docdir}/%{name}-docs-%{version}
 
 mkdir -p %{buildroot}%{_srvdir}/postgresql/log
-install -m 0740 %{SOURCE20} %{buildroot}%{_srvdir}/postgresql/run
-install -m 0740 %{SOURCE21} %{buildroot}%{_srvdir}/postgresql/log/run
-install -m 0740 %{SOURCE24} %{buildroot}%{_srvdir}/postgresql/finish
+install -m 0740 %{_sourcedir}/postgresql.run %{buildroot}%{_srvdir}/postgresql/run
+install -m 0740 %{_sourcedir}/postgresq-log.run %{buildroot}%{_srvdir}/postgresql/log/run
+install -m 0740 %{_sourcedir}/postgresql.finish %{buildroot}%{_srvdir}/postgresql/finish
 
 mkdir -p %{buildroot}%{_sysconfdir}/sysconfig
-install -m 0644 %{SOURCE22} %{buildroot}%{_sysconfdir}/sysconfig/postgresql
+install -m 0644 %{_sourcedir}/postgresql.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/postgresql
 
 mkdir -p %{buildroot}%{_datadir}/afterboot
-install -m 0644 %{SOURCE23} %{buildroot}%{_datadir}/afterboot/01_postgresql
+install -m 0644 %{_sourcedir}/01_postgresql.afterboot %{buildroot}%{_datadir}/afterboot/01_postgresql
 
 # contrib docs
 # make this --short-circuit friendly
@@ -395,7 +410,7 @@ fi
 
 if [ $1 -gt 1 ]; then
     echo "" 
-    echo "After install, you must run %{_docdir}/%{name}-server-%{version}/CAN-2005-1409-1410-update-dbs.sh"
+    echo "After install, you must run %{_docdir}/%{name}-doc-%{version}/CAN-2005-1409-1410-update-dbs.sh"
     echo "in order to upgrade your databases to protect against the vulnerabilities described in CAN-2005-1409"
     echo "and CAN-2005-1410.  PostgreSQL must be running when you run this script.  Note that this script is"
     echo "provided in the postgresql-doc package."
@@ -583,6 +598,10 @@ fi
 
 
 %changelog
+* Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.1.4
+- rebuild against new openssl
+- spec cleanups
+
 * Sat Jun 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.1.4
 - rebuild against new pam
 
@@ -762,502 +781,3 @@ fi
 - OpenSLS build
 - tidy spec
 - use %%build_opensls macro to not build -doc package
-
-* Sun Aug 31 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 7.3.4-2mdk
-- Patch8: amd64 has comparable math precision to alpha
-
-* Wed Aug  6 2003 Warly <warly@mandrakesoft.com> 7.3.4-1mdk
-- new version.
-
-* Mon Aug  4 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 7.3.3-4mdk
-- Patch7: Fix pythondir detection
-
-* Thu Jul 10 2003 Laurent MONTEL <lmontel@mandrakesoft.com> 7.3.3-3mdk
-- Rebuild
-
-* Sun Jun 29 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 7.3.3-2mdk
-- the contribs package requires the new perl-Pg package
-
-* Thu Jun 26 2003 Warly <warly@mandrakesoft.com> 7.3.3-1mdk
-- new version (Migration to version 7.3.3: A dump/restore is *not* 
-required for those running 7.3.*.)
-
-* Thu Jun 05 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 7.3.2-6mdk
-- make it provide
-
-* Tue Mar  4 2003 Warly <warly@mandrakesoft.com> - 7.3.2-5mdk
-- move plpgsql.so in postgresql-pl
-- postgresql-pl obsoletes libpgsql2 to have clean updates
-
-* Mon Mar  3 2003 Warly <warly@mandrakesoft.com> 7.3.2-4mdk
-- try to change pg_hba.conf to do the dump/restore even if the base access is restricted
-
-* Fri Feb 21 2003 Warly <warly@mandrakesoft.com> 7.3.2-3mdk
-- silly me
-
-* Fri Feb 21 2003 Warly <warly@mandrakesoft.com> 7.3.2-2mdk
-- fix empty dir in docs package (Guillaume Rousse)
-
-* Fri Feb 14 2003 Warly <warly@mandrakesoft.com> 7.3.2-1mdk
-- new version
-
-* Mon Dec 30 2002 Warly <warly@mandrakesoft.com> 7.3.1-4mdk
-- fix post script syntax
-- change pg_hba.conf default permission setting
-
-* Sun Dec 29 2002 Stefan van der Eijk <stefan@eijk.nu> 7.3.1-3mdk
-- add %%defattr(-,root,root) to libecpg package
-- removed some hardcoded /usr/lib/ entries in .spec file (rpmlint)
-- comment out "Requires: libpgsqlodbc = %{version}-%{release}"
-
-* Sun Dec 29 2002 Stefan van der Eijk <stefan@eijk.nu> 7.3.1-2mdk
-- BuildRequires
-
-* Tue Dec 24 2002 Warly <warly@mandrakesoft.com> 7.3.1-1mdk
-- new version
-
-* Mon Dec  2 2002 Warly <warly@mandrakesoft.com> 7.3-1mdk
-- new version
-
-* Wed Oct 30 2002 Warly <warly@mandrakesoft.com> 7.2.3-2mdk
-- applied initscript fix from Guillaume Rousse <rousse@ccr.jussieu.fr>
-
-* Mon Oct 28 2002 Warly <warly@mandrakesoft.com> 7.2.3-1mdk
-- new version
-- remove files.lst source
-- remove postgresql-dump
-- remove pg_options source
-
-* Tue Sep  3 2002 Vincent Danen <vdanen@mandrakesoft.com> 7.2.2-1mdk
-- 7.2.2 (security fixes)
-
-* Tue Aug 13 2002 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 7.2.1-11mdk
-- Automated rebuild with gcc 3.2-0.3mdk
-
-* Thu Aug 08 2002 Christian Belisle <cbelisle@mandrakesoft.com> 7.2.1-10mdk
-- fix initscript.
-- fix few rpmlint errors.
-
-* Mon Aug  5 2002 Pixel <pixel@mandrakesoft.com> 7.2.1-9mdk
-- rebuild for perl thread-multi
-
-* Thu Jul 25 2002 Christian Belisle <cbelisle@mandrakesoft.com> 7.2.1-8mdk
-- don't forget to upload all postgres libs.
-
-* Thu Jul 25 2002 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 7.2.1-7mdk
-- Automated rebuild with gcc3.2
-
-* Wed Jul 24 2002 Thierry Vignaud <tvignaud@mandrakesoft.com> 7.2.1-6mdk
-- rebuild for new readline
-
-* Mon Jul 15 2002 Christian Belisle <cbelisle@mandrakesoft.com> 7.2.1-5mdk
-- add postgres user
-
-* Sun Jul 14 2002 Stefan van der Eijk <stefan@eijk.nu> 7.2.1-4mdk
-- BuildRequires
-
-* Wed Jul 10 2002 Pixel <pixel@mandrakesoft.com> 7.2.1-3mdk
-- add patch6 to use INSTALLDIRS=vendor
-- rebuild for perl 5.8.0
-
-* Tue May 28 2002 Christian Belisle <cbelisle@mandrakesoft.com> 7.2.1-2mdk
-- rebuild with gcc 3.1.
-- update readline version in BuildRequires.
-
-* Mon Apr 08 2002 Christian Belisle <cbelisle@mandrakesoft.com> 7.2.1-1mdk
-- Version 7.2.1.
-- Remove Patch3 (applied)
-
-* Tue Apr 02 2002 Christian Belisle <cbelisle@mandrakesoft.com> 7.2-13mdk
-- Fix apostrophe insertion prob (thx to Digital Wokan).
-
-* Mon Mar 11 2002 Christian Belisle <cbelisle@mandrakesoft.com> 7.2-12mdk
-- Make sure that data directory is created.
-
-* Sun Mar 10 2002 Christian Belisle <cbelisle@mandrakesoft.com> 7.2-11mdk
-- Fix postgresql-tcl requires and description (thanks to Tanner).
-
-* Mon Mar 04 2002 Christian Belisle <cbelisle@mandrakesoft.com> 7.2-10mdk
-- Added few Requires in postgresql-devel (thx to Michael).
-- Updated README.rpm-dist.
-- Clean the configure options.
-- s/pg_dumpall_new/pg_dumpall/ in mdk-pgdump.sh.
-- Change backup rpm scripts to use mdk-pgdump.sh.
-
-* Wed Feb 27 2002 Christian Belisle <cbelisle@mandrakesoft.com> 7.2-9mdk
-- s/rh-dump/mdk-dump in README.rpm-dist (thx to Guillaume).
-
-* Wed Feb 27 2002 Christian Belisle <cbelisle@mandrakesoft.com> 7.2-8mdk
-- README.rpm -> README.rpm-dist (thx to Olivier).
-- Remove find-lang handling.
-
-* Wed Feb 27 2002 Stew Benedict <sbenedict@mandrakesoft.com> 7.2-7mdk
-- relax CFLAGS for PPC build - were turned back on for all arch
-
-* Mon Feb 25 2002 Christian Belisle <cbelisle@mandrakesoft.com> 7.2-6mdk
-- Add default runlevel in initscript.
-- Remove service startup in %%post.
-
-* Fri Feb 22 2002 Christian Belisle <cbelisle@mandrakesoft.com> 7.2-5mdk
-- Remove useless .bash_profile rewriting.
-
-* Thu Feb 21 2002 Christian Belisle <cbelisle@mandrakesoft.com> 7.2-4mdk
-- Fix typo in python tutorial folder name (postgresql-python).
-- postgresql-tk require postgresql-devel.
-
-* Wed Feb 13 2002 Christian Belisle <cbelisle@mandrakesoft.com> 7.2-3mdk
-- More spec cleanup to fix db creation-upgrade problems.
-- Update README.postgresql.mdk
-
-* Mon Feb 11 2002 Christian Belisle <cbelisle@mandrakesoft.com> 7.2-2mdk
-- Fix backups (make a %%pre for each package instead of one for all).
-- Spec cleanup pt 1 (next cleanup will fix all the db creation-upgrade pb).
-- Add patches and init script from redhat.
-
-* Fri Feb 08 2002 Christian Belisle <cbelisle@mandrakesoft.com> 7.2-1mdk
-- 7.2.
-- Take patches and initscript from RH.
-
-* Sat Dec 15 2001 Christian Belisle <cbelisle@mandrakesoft.com> 7.1.3-8mdk
-- Really fix docs location.
-
-* Sat Dec 15 2001 Christian Belisle <cbelisle@mandrakesoft.com> 7.1.3-7mdk
-- Fix docs location.
-- Fix bash_profile entries.
-- Fix backup feature.
-
-* Thu Dec 06 2001 Christian Belisle <cbelisle@mandrakesoft.com> 7.1.3-6mdk
-- libification
-- gzip the source (for security check)
-
-* Wed Nov 21 2001 Christian Belisle <cbelisle@mandrakesoft.com> 7.1.3-5mdk
-- Fix init script
-
-* Mon Nov 19 2001 Christian Belisle <cbelisle@mandrakesoft.com> 7.1.3-4mdk
-- Fix doc location (Guillaume Rousse)
-- Remove doc source (Guillaume Rousse)
-- Fix init script (Guillaume Rousse)
-
-* Fri Nov 16 2001 Stew Benedict <sbenedict@mandrakesoft.com> 7.1.3-3mdk
-- relax CFLAGS for PPC build, just use defaults
-
-* Thu Nov 15 2001 Christian Belisle <cbelisle@mandrakesoft.com> 7.1.3-2mdk
-- fix invalid-packager and strange-permissions warning in rpmlint.
-- Added a reload entry.
-
-* Mon Oct  1 2001 Christian Belisle <cbelisle@mandrakesoft.com> 7.1.3-1mdk
-- 7.1.3.
-- Fixed init.d script.
-
-* Thu Sep 13 2001 Christian Belisle <cbelisle@mandrakesoft.com> 7.1.2-19mdk
-- Fixed post-install procedure (initialize ok now).
-- Modified README.mdk.
-
-* Tue Sep 11 2001 Christian Belisle <cbelisle@mandrakesoft.com> 7.1.2-18mdk
-- Fixed backup feature when upgrading.
-
-* Tue Sep 11 2001 Christian Belisle <cbelisle@mandrakesoft.com> 7.1.2-17mdk
-- Removed conflict with perl-ldap.
-
-* Tue Sep 11 2001 Christian Belisle <cbelisle@mandrakesoft.com> 7.1.2-16mdk
-- Fixed a library simlink
-
-* Mon Sep 10 2001 Christian Belisle <cbelisle@mandrakesoft.com> 7.1.2-15mdk
-- Added missing files
-
-* Mon Sep 10 2001 David BAUDENS <baudens@mandrakesoft.com> 7.1.2-14mdk
-- Fix menu entry for postgresql-tk
-- Fix Requires (requires %%{version}-%%{release} and not only %%{version})
-
-* Sun Sep 09 2001 Christian Belisle <cbelisle@mandrakesoft.com> 7.1.2-13mdk
-- Added documentation in each package.
-
-* Fri Sep 07 2001 Christian Belisle <cbelisle@mandrakesoft.com> 7.1.2-12mdk
-- postgresql-contrib: removed sources.
-- added README.mdk for beginners.
-- Fixed menu problem.
-
-* Sat Aug  4 2001 Pixel <pixel@mandrakesoft.com> 7.1.2-11mdk
-- postgresql-plperl: add require the perl-base used for building 
-(the libperl.so auto-require is not enough)
-
-* Thu Aug 02 2001 Christian Belisle <cbelisle@mandrakesoft.com> 7.1.2-10mdk
-- Applied a patch to pgacess (thanks to Digital Wokan)
-
-* Fri Jul 27 2001 Christian Belisle <cbelisle@mandrakesoft.com> 7.1.2-9mdk
-- Restore the enhanced backup feature.
-
-* Fri Jul 27 2001 Christian Belisle <cbelisle@mandrakesoft.com> 7.1.2-8mdk
-- Remove the backup feature.
-
-* Wed Jul 25 2001 Christian Belisle <cbelisle@mandrakesoft.com> 7.1.2-7mdk
-- Backup the database when update.
-
-* Mon Jul 16 2001 Christian Belisle <cbelisle@mandrakesoft.com> 7.1.2-6mdk
-- Fixed the %post command.
-
-* Mon Jul 16 2001 Christian Belisle <cbelisle@mandrakesoft.com> 7.1.2-5mdk
-- Moved all libraries to %{_libdir}
-- Fixed some typos in the Requires
-- Added Prefix support.
-
-* Mon Jul  9 2001 Christian Belisle <cbelisle@mandrakesoft.com> 7.1.2-4mdk
-- s/Copyright/License
-- Added the TODO as documentation for the -devel package.
-- Removed commas in the Requires.
-
-* Wed Jun 27 2001 Christian Belisle <cbelisle@mandrakesoft.com> 7.1.2-3mdk
-- Fixed Distribution tag.
-
-* Mon Jun 18 2001 Christian Belisle <cbelisle@mandrakesoft.com> 7.1.2-2mdk
-- Fixed few BuildRequires (thanks to Stefan van der Eijk)
-
-* Mon Jun 18 2001 Christian Belisle <cbelisle@mandrakesoft.com> 7.1.2-1mdk
-- Updated to 7.1.2
-- Removed --pglib to initdb, invalid option now
-
-* Mon Jun 18 2001 Frederic Crozat <fcrozat@mandrakesoft.com> 7.1.1-4mdk
-- New office menu structure
-
-* Sat May 19 2001  Daouda Lo <daouda@mandrakesoft.com> 7.1.1-3mdk
-- fix files section typos (credits to Christian Zoffoli)
-
-* Thu May 17 2001  Daouda Lo <daouda@mandrakesoft.com> 7.1.1-2mdk
-- enhanced init script file. 
-- fix buildequires + dependencies
-
-* Mon May  7 2001  Stefan van der Eijk <stefan@eijk.nu> 7.1.1-1mdk
-- removed old alpha stuff
-- 7.1.1
-
-* Tue May  1 2001  Daouda Lo <daouda@mandrakesoft.com> 7.1-2mdk
-- fix typos in pgaccess and postgresql-tcl
-- fix --prefix --datadir values.
-
-* Mon Apr 30 2001 Daouda Lo <daouda@mandrakesoft.com> 7.1-1mdk
-- release 7.1
-- bug fixes, big spec cleanups and lot of enhancements
-  o  NOTE: many files that used to be in %{_libdir}/pgsql are now in /usr/share/pgsql!
-  o  fix buildrequires
-  o  Split out the libs into the libs subpackage.
-  o  added mdk-pgdump.sh script (adapted to Mandrake)
-  o  Updated initscript to use pg_ctl to stop
-  o  Updated initscript to initdb and start postmaster with LC_ALL=C to prevent index corruption.
-  o  Packaging reorg: added contrib and docs subpackages.
-  o  mark odbcinst.ini as a config file
-  o  libpq.so changes for maximum compatiblity
-  o  fix dangling symlimks (pg_crc.c)
-  o  Merged with postgresql official modifications
-  o  Fix docs mixup.
-  o  rewrote postgresql init script ( use -i tcp/ip connections available -> Thanx to Jerome Martin)
-  o  Removed broken and confusing logrotate script. 
-  o  strip out -ffastmath -- Considered Harmful.
-  o  README.rpm-dist updated.  
-- need a dump/restore before upgrading 
-
-* Sun Apr 6 2001 Jean-Michel Dault <jmdault@mandrakesoft.com> 7.0.3-12mdk
-- added some BuildRequires and --with-readline so it picks everything up
-  in the case the build machine does not have them installed
-
-* Tue Apr 3 2001 Daouda Lo <daouda@mandrakesoft.com> 7.0.3-11mdk
-- server build macro .
-
-* Tue Apr 3 2001 Daouda Lo <daouda@mandrakesoft.com> 7.0.3-10mdk
-- used server macros in post and preun 
-
-* Tue Apr 3 2001 Daouda Lo <daouda@mandrakesoft.com> 7.0.3-9mdk
-- macrozif of python version to allow build on 7.2 boxes (thanx Ian )
-
-* Thu Dec  28 2000  Daouda Lo <daouda@mandrakesoft.com> 7.0.3-8mdk
-- add missing include files (for GIST) .
-
-* Wed Dec  6 2000  Daouda Lo <daouda@mandrakesoft.com> 7.0.3-7mdk
-- fix PGACCESS_HOME variable (close #1463)
-- add noreplace to conf files
-- add longtitle to pgsql-tk menu
-
-* Mon Dec  4 2000  Daouda Lo <daouda@mandrakesoft.com> 7.0.3-6mdk
-- many changes from official spec
-- patch for i64  
-- add some missing include dir
-- libtoolized
-
-
-* Wed Nov 29 2000 Daouda Lo <daouda@mandrakesoft.com> 7.0.3-5mdk
-- fix gcc flags (don't use both -ffast-math and Optmisations) 
-  thx Ian C. Sison
-- add perl-devel in Builrequires section.
-- avoid building with hardcoded number version inside spec --> use 
-  define tag .
- 
-* Wed Nov 15 2000 Geoffrey Lee <snailtalk@mandrakesoft.com> 7.0.3-4mdk
-- fix dependency with /usr/local/bin/python.
-- short-circuit compliant (tm.)
-
-* Fri Nov 10 2000 David BAUDENS <baudens@mandrakesoft.com> 7.0.3-3mdk
-- Fix build for PPC
-- Use %%make macros
-
-* Fri Nov 10 2000 Daouda Lo <daouda@mandrakesoft.com> 7.0.3-2mdk
-- add %postun to package postgres-tk
-- correct postgres-tk menu entry  
-- added caution for upgrade from 7.0.2 to 7.0.3
-- make /etc/logtrotate.d/postgres 0644 instead of 0700 
-
-* Thu Nov 09 2000 Daouda Lo <daouda@mandrakesoft.com> 7.0.3-1mdk
-- new release.
-- more macros .
-- regenerate patch1.
-- upgrade source files to new version
-
-* Sun Oct 22 2000 Jean-Michel Dault <jmdault@mandrakesoft.com> 7.0.2-6mdk
-- create menu for pgaccess [Bug #425]
-- modify pgaccess to it does not require libpgtcl.so, but libpgtcl.so.2
-- remove postgres group when uninstalling [Bug 921]
-
-* Sat Sep 16 2000 Stefan van der Eijk <s.vandereijk@chello.nl> 7.0.2-5mdk
-- Remove *.bs before creating filelist
-
-* Sat Sep 02 2000 Jean-Michel Dault <jmdault@mandrakesoft.com> 7.0.2-4mdk
-- create database "postgres" if it does not exist already
-- if not during Drak install, start postgresql
-- copied files from /etc/skel in /var/lib/pgsql
-- add PGDATA in /etc/profile 
-
-* Mon Aug 07 2000 Jean-Michel Dault <jmdault@mandrakesoft.com> 7.0.2-3mdk
-- modified initscripts so that, at upgrade, the user is pointed at the
-  right directory for a Howto on how to convert the database from the
-  old format.
-
-* Mon Aug 07 2000 Jean-Michel Dault <jmdault@mandrakesoft.com> 7.0.2-2mdk
-- cleaned package for rpmlint
-
-* Sun Aug 06 2000 Jean-Michel Dault <jmdault@mandrakesoft.com> 7.0.2-1mdk
-- Merged with RPM from postgresql.com
-- Macroized package
-
-* Mon Jun 12 2000 Lamar Owen <lamar.owen@wgcr.org>
-- 7.0.2-2
-- Corrected misreporting of version.
-- Corrected for non-root build clean script.
-
-* Mon Jun 05 2000 Lamar Owen <lamar.owen@wgcr.org>
-- 7.0.2 
-- Postgresql-dump manpage to man1, and to separate source file to facilitate
--- _mandir macro expansion correctness.
-- NOTE: The PostScript documentation is no longer being included in the
--- PostgreSQL tarball.  If demand is such, I will pull together a
--- postgresql-ps-docs subpackage or pull in the PostScript docs into the
--- main package.
-- RPM patchset has release number, now, to prevent patchfile confusion :-(.
-
-
-* Sat Jun 03 2000 Lamar Owen <lamar.owen@wgcr.org>
-- Incorporate most of Trond's changes (reenabled the alpha
--- patches, as it was a packaging error on my part).
-- Trimmed changelog history to Version 7.0beta1 on. To see the
--- previous changelog, grab the 6.5.3 RPM from RedHat 6.2 and pull the spec.
-- Rev to 7.0.1 (which incorporates the syslog patch, which has
--- been removed from rpm-pgsql-7.0.1-1.patch)
-
-* Fri May 26 2000 Trond Eivind Glomsrød <teg@redhat.com>
-- disable the alpha patch, as it doesn't apply cleanly
-- removed distribution, packager, vendor
-- renamed spec file
-- don't build pl-perl
-- use %%{_mandir}
-- now includes vacuumdb.1*
-
-* Thu May 25 2000 Lamar Owen <lamar.owen@wgcr.org>
-- 7.0-3
-- Incorporated Tatsuo's syslog segmentation patches
-- Incorporated some of Trond's changes (see below)
--- Fixed some Perl 5.6 oddness in Rawhide
-- Incorporated some of Karl's changes (see below)
--- PL/Perl should now work.
-- Fixed missing /usr/bin/pg_passwd.
-
-* Mon May 22 2000 Karl DeBisschop <kdebisschop@infoplease.com>
-- 7.0-2.1
-- make plperl module (works for linux i386, your guess for other platforms)
-- use "make COPT=" because postgreSQL configusre script ignores CFLAGS
-
-* Sat May 20 2000 Lamar Owen <lamar.owen@wgcr.org>
-- 7.0-2
-- pg_options default values changed.
-- SPI headers (again!) fixed in a permanent manner  -- hopefully!
-- Alpha patches!
-
-* Tue May 16 2000 Frederic Lepied <flepied@mandrakesoft.com> 6.5.3-2mdk
-- fix build for perl 5.6.
-
-* Tue May 16 2000 Trond Eivind Glomsrød <teg@redhat.com>
-- changed buildroot, removed packager, vendor, distribution
--- [Left all but buildroot as-is for PostgreSQL.org RPMS. LRO]
-- don't strip in package [strip in PostgreSQL.org RPMS]
-- fix perl weirdnesses (man page in bad location, remove 
-  perllocal.pod from file list)
-
-* Mon May 15 2000 Lamar Owen <lamar.owen@wgcr.org>
-- 7.0 final -1
-- Man pages restructured
-- Changed README.rpm notices about BETA
-- incorporated minor changes from testing
-- still no 7.0 final alpha patches -- for -2 or -3, I guess.
-- 7.0 JDBC jars!
-
-* Sat May 06 2000 Lamar Owen <lamar.owen@wgcr.org>
-- 7.0RC5-0.5
-- UserID of 26 to conform to RedHat Standard, instead of 40.  This only
--- is for new installs -- upgrades will use what was already there.
-- Waiting on built jar's of JDBC.  If none are forthcoming by release,
--- I'm going to have to bite the bullet and install the jdk....
-
-* Mon May 01 2000 Lamar Owen <lamar.owen@wgcr.org>
-- 7.0RC2-0.5
-- Fixed /usr/src/redhat/BUILD path to %{_builddir} for portability
--- and so that RPM's can be built by non-root.
-- Minor update to README.rpm
-
-* Tue Apr 18 2000 Lamar Owen <lamar.owen@wgcr.org>
-- 0.6
-- Fixed patchset: wasn't patching pgaccess or -i in postmaster.opts.default
-- minor update to README.rpm
-
-* Mon Apr 17 2000 Lamar Owen <lamar.owen@wgcr.org>
-- 7.0RC1-0.5 (release candidate 1.)
-- Fixed SPI header directories' permisssions.
-- Removed packaging of Alpha patches until Ryan releases RC1-tested set.
-
-* Mon Apr 10 2000 Lamar Owen <lamar.owen@wgcr.org>
-- 7.0beta5-0.1 (released instead of the release candidate)
-
-* Sat Apr 08 2000 Lamar Owen <lamar.owen@wgcr.org>
-- 7.0beta4-0.2 (pre-release-candidate CVS checkout)
-- Alpha patches!
-- pg_options.sample
-
-* Sun Apr 2 2000 John Buswell <johnb@mandrakesoft.com> 6.5.3-1mdk
-- 6.5.3
-- Sparc64 patch added
-- spec-helper
-- fixed groups
-
-* Fri Mar 24 2000 Lamar Owen <lamar.owen@wgcr.org>
-- 7.0beta3-0.1
-
-* Mon Feb 28 2000 Lamar Owen <lamar.owen@wgcr.org>
-- Release 0.3
-- Fixed stderr redir problem in init script
-- Init script now uses pg_ctl to start postmaster
-- Packaged inital pg_options for good logging
-- built with timestamped logging.
-
-* Tue Feb 22 2000 Lamar Owen <lamar.owen@wgcr.org>
-- Initial 7.0beta1 build
-- Moved PGDATA to /var/lib/pgsql/data
-- First stab at logging and logrotate functionality -- test carefully!
-- -tcl subpackage split -- tcl client and pltcl lang separated from
--- the Tk stuff.  PgAccess and the tk client are now in the -tk subpackage.
-- No patches for Alpha as yet.
-
