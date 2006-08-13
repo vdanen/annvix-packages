@@ -27,9 +27,11 @@ Source2:	openntpd-log.run
 Patch0:		openntpd-20040824p-avx-ntpuser.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	openssl-static-devel, autoconf2.5
+BuildRequires:	openssl-static-devel
+BuildRequires:	autoconf2.5
 
-Requires:	openssl, execline
+Requires:	openssl
+Requires:	execline
 Requires(pre):	rpm-helper
 Requires(preun): rpm-helper
 Requires(post):	rpm-helper
@@ -67,17 +69,14 @@ This package contains the documentation for %{name}.
 %makeinstall
 
 mkdir -p %{buildroot}%{_srvdir}/ntpd/log
-install -m 0740 %{SOURCE1} %{buildroot}%{_srvdir}/ntpd/run
-install -m 0740 %{SOURCE2} %{buildroot}%{_srvdir}/ntpd/log/run
+install -m 0740 %{_sourcedir}/openntpd.run %{buildroot}%{_srvdir}/ntpd/run
+install -m 0740 %{_sourcedir}/openntpd-log.run %{buildroot}%{_srvdir}/ntpd/log/run
 
 
 %pre
 %_pre_useradd ntp /var/empty /sbin/nologin 87
 
 %post
-if [ -d /var/log/supervise/ntpd -a ! -d /var/log/service/ntpd ]; then
-    mv /var/log/supervise/ntpd /var/log/service/
-fi
 %_post_srv ntpd
 
 %preun
@@ -108,6 +107,10 @@ fi
 
 
 %changelog
+* Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.9p1
+- rebuild against new openssl
+- spec cleanups
+
 * Sat Jun 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.9p1
 - 3.9p1
 - add "-s" to ntpd call so that it sets the clock immediate on start
