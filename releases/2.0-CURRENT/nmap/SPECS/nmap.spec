@@ -83,6 +83,10 @@ perl  -pi -e 's|/lib\b|/%{_lib}|g' configure*
 
 
 %changelog
+* Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.00
+- rebuild against new openssl
+- spec cleanups
+
 * Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.00
 - add -doc subpackage
 - rebuild with gcc4
