@@ -25,7 +25,8 @@ Patch0:		perl-Net_SSLeay-1.30-large-tcp-read.patch
 Patch2:		perl-Net_SSLeay-1.2.5-CVE-2005-0106.patch
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
-BuildRequires:	openssl-devel, perl-devel
+BuildRequires:	openssl-devel
+BuildRequires:	perl-devel
 
 Requires: 	openssl >= 0.9.3a
 
@@ -88,6 +89,10 @@ make test
 
 
 %changelog
+* Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.30
+- rebuild against new openssl
+- spec cleanups
+
 * Fri May 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.30
 - 1.30
 - rebuild against perl 5.8.8
