@@ -97,7 +97,7 @@ BuildRequires:	openssl-devel >= %{openssl_ver}
 BuildConflicts:	BerkeleyDB-devel
 
 Provides:	smtpdaemon
-Provids:	MailTransportAgent
+Provides:	MailTransportAgent
 # we need the postdrop group (gid 36)
 Requires:	setup >= 2.2.0-26mdk
 Requires(post):	coreutils
