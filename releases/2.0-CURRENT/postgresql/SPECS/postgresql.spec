@@ -327,7 +327,7 @@ mv %{buildroot}%{_docdir}/%{name}/html %{buildroot}%{_docdir}/%{name}-docs-%{ver
 
 mkdir -p %{buildroot}%{_srvdir}/postgresql/log
 install -m 0740 %{_sourcedir}/postgresql.run %{buildroot}%{_srvdir}/postgresql/run
-install -m 0740 %{_sourcedir}/postgresq-log.run %{buildroot}%{_srvdir}/postgresql/log/run
+install -m 0740 %{_sourcedir}/postgresql-log.run %{buildroot}%{_srvdir}/postgresql/log/run
 install -m 0740 %{_sourcedir}/postgresql.finish %{buildroot}%{_srvdir}/postgresql/finish
 
 mkdir -p %{buildroot}%{_sysconfdir}/sysconfig
