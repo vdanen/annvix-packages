@@ -154,7 +154,7 @@ install -m 0644 %{_sourcedir}/spamassassin-spamc.rc %{buildroot}%{_sysconfdir}/m
 
 mkdir -p %{buildroot}%{_srvdir}/spamd/{log,env}
 install -m 0740 %{_sourcedir}/spamd.run %{buildroot}%{_srvdir}/spamd/run
-install -m 0740 %{_sourcedir}/spand-log.run %{buildroot}%{_srvdir}/spamd/log/run
+install -m 0740 %{_sourcedir}/spamd-log.run %{buildroot}%{_srvdir}/spamd/log/run
 echo "-c -m5 -H" >%{buildroot}%{_srvdir}/spamd/env/OPTIONS
 
 
