@@ -59,9 +59,12 @@ Patch53:	net-snmp-5.3.0.1-no_perlinstall.diff
 Patch54:	net-snmp-5.3.0.1-avx-disable_test_T160.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	autoconf2.5 >= 2.59, chrpath
+BuildRequires:	autoconf2.5 >= 2.59
+BuildRequires:	chrpath
 BuildRequires:	multiarch-utils >= 1.0.3
-BuildRequires:	openssl-devel, perl-devel, tcp_wrappers-devel
+BuildRequires:	openssl-devel
+BuildRequires:	perl-devel
+BuildRequires:	tcp_wrappers-devel
 
 Requires(pre):	rpm-helper
 Requires(postun): rpm-helper
@@ -69,7 +72,10 @@ Requires(pre):	rpm-helper
 Requires(postun): rpm-helper
 Requires(pre):	%{libname} = %{version}
 Requires(postun): %{libname} = %{version}
-Requires:	openssl, net-snmp-mibs, net-snmp-utils, tcp_wrappers
+Requires:	openssl
+Requires:	net-snmp-mibs
+Requires:	net-snmp-utils
+Requires:	tcp_wrappers
 
 %description
 SNMP (Simple Network Management Protocol) is a protocol used for
@@ -148,7 +154,10 @@ Requires(pre):	rpm-helper
 Requires(postun): rpm-helper
 Requires:	%{name} = %{version}
 Requires:	%{libname} = %{version}
-Requires:	openssl, net-snmp-mibs, net-snmp-utils, tcp_wrappers
+Requires:	openssl
+Requires:	net-snmp-mibs
+Requires:	net-snmp-utils
+Requires:	tcp_wrappers
 
 %description trapd
 The net-snmp-trapd package contains the trap collecting daemon for
@@ -476,6 +485,10 @@ file %{buildroot}%{_sbindir}/* | grep ELF | cut -d':' -f1 | xargs strip || :
 
 
 %changelog
+* Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.3.0.1
+- rebuild against new openssl
+- spec cleanups
+
 * Fri Jul 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.3.0.1
 - add -doc subpackage
 - rebuild with gcc4
@@ -498,374 +511,3 @@ file %{buildroot}%{_sbindir}/* | grep ELF | cut -d':' -f1 | xargs strip || :
 - remove sysconfig files (use ./env/OPTIONS instead)
 - don't log to syslog, but log to STDOUT/STDERR instead
 - remove logrotate file
-
-* Thu Apr 06 2006 Oden Eriksson <oeriksson@mandriva.com> 5.3.0.1-6mdk
-- deactivate the lm_sensors mibs per default (S13) (#19388)
-
-* Wed Mar 15 2006 Oden Eriksson <oeriksson@mandriva.com> 5.3.0.1-5mdk
-- disable rpm support because it eats file descriptors like crazy and 
-  makes the snmp daemon easy to kill
-- drop the apache hooks as it is poorly written and unmaintained
-
-* Wed Mar 08 2006 Oden Eriksson <oeriksson@mandriva.com> 5.3.0.1-4mdk
-- fix deps
-
-* Sun Feb 05 2006 Oden Eriksson <oeriksson@mandriva.com> 5.3.0.1-3mdk
-- fix crash on s390x and ppc64 (from fedora 5.3-4)
-
-* Wed Feb 01 2006 Oden Eriksson <oeriksson@mandriva.com> 5.3.0.1-2mdk
-- added P29,P30,P31 from fedora (5.3-3)
-
-* Sun Jan 15 2006 Oden Eriksson <oeriksson@mandriva.com> 5.3.0.1-1mdk
-- 5.3.0.1 (security fix)
-
-* Fri Jan 06 2006 Oden Eriksson <oeriksson@mandriva.com> 5.3-2mdk
-- drop selinux support
-
-* Wed Jan 04 2006 Oden Eriksson <oeriksson@mandriva.com> 5.3-1mdk
-- 5.3
-- drop obsolete/upstream patches (P29-P32)
-
-* Sat Dec 31 2005 Stefan van der Eijk <stefan@eijk.nu> 5.2.2-3mdk
-- re-enable rpm support
-
-* Wed Dec 21 2005 Oden Eriksson <oeriksson@mandriva.com> 5.2.2-2mdk
-- bump major to 9 (!)
-- fix deps
-
-* Tue Dec 20 2005 Oden Eriksson <oeriksson@mandriva.com> 5.2.2-1mdk
-- 5.2.2
-- drop obsolete/upstream patches, reorder patches
-- sync with fedora (5.2.2-4.1)
-- rediffed P50
-- added a work around for #20256 (S13)
-
-* Sun Nov 13 2005 Oden Eriksson <oeriksson@mandriva.com> 5.2.1.2-6mdk
-- rebuilt against openssl-0.9.8a
-
-* Tue Oct 25 2005 Oden Eriksson <oeriksson@mandriva.com> 5.2.1.2-5mdk
-- rebuilt against new shared tcp_wrappers lib (libwrap)
-- fix deps
-- fix #16460
-
-* Fri Sep  9 2005 Olivier Blin <oblin@mandriva.com> 5.2.1.2-4mdk
-- fix typo in summary
-
-* Tue Aug 23 2005 Oden Eriksson <oeriksson@mandriva.com> 5.2.1.2-3mdk
-- mod_ap2_snmp_1.03 (Minor bugfixes)
-- fix deps
-
-* Thu Aug 18 2005 Gwenole Beauchesne <gbeauchesne@mandriva.com> 5.2.1.2-2mdk
-- add back some of previous 64-bit fixes
-- libtool fixes for the testsuite to work with just-built libraries
-
-* Fri Aug 12 2005 Olivier Blin <oblin@mandriva.com> 5.2.1.2-1mdk
-- 5.2.1.2
-
-* Wed Jul 20 2005 Olivier Blin <oblin@mandriva.com> 5.2.1-6mdk
-- conflict with libsnmp-devel (#16460)
-
-* Thu Jun 09 2005 Oden Eriksson <oeriksson@mandriva.com> 5.2.1-5mdk
-- added P52 to fix a mem leak (Loic Vaillant)
-- added two mibs on request by Loic Vaillant
-- use the %%mkrel macro
-- reactivate the make test test suite
-
-* Fri Jun 03 2005 Oden Eriksson <oeriksson@mandrakesoft.com> 5.2.1-4mdk
-- sync with fedora (5.2.1-13)
-- rediffed our 64bit fixes patch (now P50)
-- use new rpm-4.4.x pre,post magic
-- nuke rpath, spec file hack + P51
-- rpmlint fixes
-
-* Fri Mar 11 2005 Luca Berra <bluca@vodka.it> 5.2.1-3mdk 
-- devel pacjage requires lm_sensors-devel when building with lm_sensors support
-
-* Mon Feb 14 2005 Oden Eriksson <oeriksson@mandrakesoft.com> 5.2.1-2mdk
-- mod_ap2_snmp_1.02
-- drop P28, it's implemented upstream
-
-* Tue Feb 01 2005 Oden Eriksson <oeriksson@mandrakesoft.com> 5.2.1-1mdk
-- 5.2.1
-- added P27 (fedora)
-
-* Mon Jan 31 2005 Oden Eriksson <oeriksson@mandrakesoft.com> 5.2-3mdk
-- fix deps and conditional %%multiarch
-
-* Sat Jan 15 2005 Luca Berra <bluca@vodka.it> 5.2-2mdk 
-- rebuild to catch libwrap requiring libnsl
-
-* Fri Dec 17 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 5.2-1mdk
-- 5.2
-- sync with fedora
-- drop P4,P6,P22,P27,P31, redundant/merged upstream
-- rpmlint fixes
-
-* Tue Nov 16 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 5.1.2-7mdk
-- rebuilt for unthreaded perl
-
-* Mon Oct  4 2004 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 5.1.2-6mdk
-- 64-bit fixes + little endian fix for AgentX (SF #996462)
-
-* Thu Aug 26 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 5.1.2-5mdk
-- fix a problem with showing numerical OID's (S9), reported by "tbsky"
-
-* Thu Aug 26 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 5.1.2-4mdk
-- perl-Net-SNMP does not obsolete the older perl-Net-SNMP that 
-  provides perl(Net::SNMP), these are unrelated(!) rename _this_ 
-  perl package to perl-NetSNMP.
-
-* Thu Aug 26 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 5.1.2-3mdk
-- added the perl-Net-SNMP sub package
-
-* Mon Aug 23 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 5.1.2-2mdk
-- added P28 to make S10 compile
-
-* Sat Aug 21 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 5.1.2-1mdk
-- 5.1.2
-- added S10, but it won't compile just yet...
-- drop P1 & P5, it's included
-
-* Sun Jun 06 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 5.1.1-1mdk
-- 5.1.1
-- stole P20 - P27 from fedora
-- fixed the initscripts
-- use the %%configure2_5x macro
-- remove deprecated stuff from S6
-- run tests in dir that is cleaned
-- misc spec file fixes
-
-* Wed Mar 17 2004 Florin <florin@mandrakesoft.com> 5.1-7mdk
-- add the bsd-compat patch to fix the error:
-"process `snmptrapd' is using obsolete setsockopt SO_BSDCOMPAT"
-
-* Mon Jan 19 2004 Jean-Michel Dault <jmdault@mandrakesoft.com> 5.1-6mdk
-- build without rpm support. This was the old behavior, until 9.2 it really 
-  just depended on whether the build host had rpm-devel installed.
-- All versions except 9.2 were compiled without rpm support and noone 
-  complained, whereas many people complained about the extra dependency
-  in 9.2. 
-- It also creates problems in postxif/cyrus-imapd under user-mode linux.
-  Linking with both db4 and librpmdb, which have the same symbols, causes
-  confusion, weird behavior, and potential segfaults.
-- According to rfc 1514 (Host Resources MIB), paragraph 4.7, this feature is
-  optional.
-- It can also create security risks, by making all versions of packages
-  installed remotely.
-- I guess if someone needs snmp rpm support badly, they're mostly
-  experienced sysadmins and can recompile the package.
-
-* Sun Jan 18 2004 Luca Berra <bluca@vodka.it> 5.1-5mdk 
-- make net-snmp-config tell about libwrap
-- devel package Requires rpm-devel and tcp_wrappers-devel
-
-* Sun Dec 14 2003 Stefan van der Eijk <stefan@eijk.nu> 5.1-4mdk
-- BuildRequires
-
-* Mon Dec 01 2003 Florin <florin@mandrakesoft.com> 5.1-3mdk
-- fix libname
-
-* Mon Dec 01 2003 Florin <florin@mandrakesoft.com> 5.1-2mdk
-- obsoletes libnet-snmp50
-
-* Thu Nov 27 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 5.1-1mdk
-- 5.1
-- rediff P3
-- honour %%{_sysconfdir}/sysconfig/snmpd if present in S2 (fix by Andre Nathan)
-- drop P5 in favour to INSTALL_PREFIX
-- misc spec file fixes
-
-* Sun Nov 09 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 5.0.9-1mdk
-- 5.0.9 (security release)
-- added P5
-
-* Thu Sep 18 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 5.0.8-8mdk
-- fix deps
-
-* Mon Jul 21 2003 David Baudens <baudens@mandrakesoft.com> 5.0.8-7mdk
-- Rebuild to fix bad signature
-
-* Fri Jul 11 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 5.0.8-6mdk
-- rebuild
-
-* Sat Jun 28 2003 Stefan van der Eijk <stefan@eijk.nu> 5.0.8-5mdk
-- fixed provides on -static-devel package, should not Provide -devel
-
-* Fri Jun 06 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 5.0.8-4mdk
-- use double %'s in changelog
-
-* Mon May 05 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 5.0.8-3mdk
-- rebuilt against rpm v4.2
-
-* Tue Apr 22 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 5.0.8-2mdk
-- many spec file fixes
-- fix buildrequires and requires
-- try to make it work out of the box... (less secure...)
-- revert "enable snmp v3 as default"
-- run "make test"
-
-* Tue Apr 01 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 5.0.8-1mdk
-- 5.0.8
-- fix P3
-- misc spec file fixes
-
-* Sat Jan 18 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 5.0.7-2mdk
-- really build against openssl-0.9.7 this time
-- enable snmp v3 as default
-- added S9
-- fixed S6
-- misc spec file fixes
-
-* Wed Jan 15 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 5.0.7-1mdk
-- 5.0.7
-- ship with pgp sig file
-- built against openssl-0.9.7
-- fix P3, removed P5 (it's included)
-
-* Wed Jan 01 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 5.0.6-1mdk
-- stolen from RH Rawhide and adapted for ML
-- added the static-devel sub package
-- misc spec file fixes
-- fixed the sysv scripts
-- used rpm logic from the xerces-c.spec file
-- break out the mibs into a sub package so that for example a 
-  future php-snmp package would only require %{libname} and
-  net-snmp-mibs (correct?)
-- added the %%changelog from the ucd-snmp.spec file
-
-* Fri Jul 26 2002 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 4.2.3-4mdk
-- rpmlint fixes: configure-without-libdir-spec, hardcoded-library-path
-
-* Mon Jun 10 2002 Stefan van der Eijk <stefan@eijk.nu> 4.2.3-3mdk
-- BuildRequires
-- fix %%configure
-
-* Thu Feb 14 2002 Vincent Danen <vdanen@mandrakesoft.com> 4.2.3-2mdk
-- fix initscript (restart was acting like restop)
-- bzip2 all patches
-- re-include perlpath patch
-
-* Wed Feb 13 2002 Vincent Danen <vdanen@mandrakesoft.com> 4.2.3-1mdk
-- 4.2.3
-- merge patches from RedHat
-
-* Tue Nov  6 2001 Jeff Garzik <jgarzik@mandrakesoft.com> 4.2.2-2mdk
-- pass --build/--host/--target when not using %%configure
-- add URL (rpmlint)
-- Add Provides for what is Obsolete (rpmlint)
-
-* Wed Oct 10 2001 Oden Eriksson <oden.eriksson@kvikkjokk.net> 4.2.2-1mdk
-- new version
-- removed P3, it's merged upstream
-- made rpmlint happy.
-
-* Mon Sep 24 2001 Vincent Saugey <vince@mandrakesoft.com> 4.2.1-5mdk
-- Change release
-
-* Sat Sep 22 2001 Vincent Saugey <vince@mandrakesoft.com> 4.2.1-4mdk
-- Change require on openssl.
-
-* Sun Sep 16 2001 Oden Eriksson <oden.eriksson@kvikkjokk.net> 4.2.1-3mdk
-- added patch 2 and 3
-- build with OpenSSL support
-
-* Mon Aug 25 2001 Vincent Saugey <vince@mandrakesoft.com> 4.2.1-2mdk
-- Add obsolete
-
-* Thu Apr  5 2001 Vincent Saugey <vince@mandrakesoft.com> 4.2.1-1mdk
-- Up to 4.2.1
-- Libification
-- Merging rh patch
-
-* Fri Jun  9 2000 Vincent Saugey <vince@mandrakesoft.com> 4.1.2-1mdk
-- Up to 4.1.2
-- Clean in %file
-
-* Tue Jun  6 2000 Chmouel Boudjnah <chmouel@mandrakesoft.com> 4.1.1-6mdk
-- Remove crappy perl-PDL dependences.
-
-* Thu May 25 2000 Chmouel Boudjnah <chmouel@mandrakesoft.com> 4.1.1-5mdk
-- libtoolizifications.
-
-* Wed Apr 12 2000 Vincent Saugey <vince@mandrakesoft.com> 4.1.1-4mdk
-- Correct ldconfig in postun
-
-* Sat Mar 25 2000 Vincent Saugey <vince@mandrakesoft.com> 4.1.1-3mdk
-- many change in config snmpd file
-
-* Thu Mar 23 2000 Vincent Saugey <vince@mandrakesoft.com> 4.1.1-2mdk
-- Remove tkmib
-- Patch for broken link in man page
-
-* Thu Mar 21 2000 Vincent Saugey <vince@mandrakesoft.com> 4.1.1-1mdk
-- Update to 4.1.1
-- Modification in spec file
-- corrected group
-
-* Mon Jan 24 2000 Francis Galiegue <francis@mandrakesoft.com>
-- Fixed spec file (%%install tried to mkdir /var/ucd-snmp)
-
-* Tue Nov 30 1999 Axalon Bloodstone <axalon@linux-mandrake.com>
-- --with-libwrap, not --with-libwrap="-lwrap -lnsl" (rh on crack)
-- bump spec to 3mdk to get above Chmouel
-
-* Sun Oct 31 1999 Axalon Bloodstone <axalon@linux-mandrake.com>
-- SMP check/build
-- 4.0.1 + redhat patches
-
-* Sat Jul 17 1999 Axalon Bloodstone <axalon@linux-mandrake.com>
-- 3.6.2
-
-* Wed May 05 1999 Bernhard Rosenkraenzer <bero@mandrakesoft.com>
-- Mandrake adaptions
-
-* Thu Apr  8 1999 Wes Hardaker <wjhardaker@ucdavis.edu>
-- fix Source0 location.
-- fix the snmpd.conf file to use real community names.
-
-* Sun Mar 21 1999 Cristian Gafton <gafton@redhat.com> 
-- auto rebuild in the new build environment (release 3)
-
-* Fri Mar 19 1999 Preston Brown <pbrown@redhat.com>
-- upgrade to 3.6.1, fix configuration file stuff.
-
-* Wed Feb 24 1999 Preston Brown <pbrown@redhat.com>
-- Injected new description and group.
-
-* Tue Feb  2 1999 Jeff Johnson <jbj@redhat.com>
-- restore host resources mib
-- simplified config file
-- rebuild for 6.0.
-
-* Tue Dec 22 1998 Bill Nottingham <notting@redhat.com>
-- remove backup file to fix perl dependencies
-
-* Tue Dec  8 1998 Jeff Johnson <jbj@redhat.com>
-- add all relevant rpm scalars to host resources mib.
-
-* Sun Dec  6 1998 Jeff Johnson <jbj@redhat.com>
-- enable libwrap (#253)
-- enable host module (rpm queries over SNMP!).
-
-* Mon Oct 12 1998 Cristian Gafton <gafton@redhat.com>
-- strip binaries
-
-* Fri Oct  2 1998 Jeff Johnson <jbj@redhat.com>
-- update to 3.5.3.
-- don't include snmpcheck until perl-SNMP is packaged.
-
-* Thu Aug 13 1998 Jeff Johnson <jbj@redhat.com>
-- ucd-snmpd.init: start daemon w/o -f.
-
-* Tue Aug  4 1998 Jeff Johnson <jbj@redhat.com>
-- don't start snmpd unless requested
-- start snmpd after pcmcia.
-
-* Sun Jun 21 1998 Jeff Johnson <jbj@redhat.com>
-- all but config (especially SNMPv2p) ready for prime time
-
-* Sat Jun 20 1998 Jeff Johnson <jbj@redhat.com>
-- update to 3.5.
-
-* Tue Dec 30 1997 Otto Hammersmith <otto@redhat.com>
-- created the package... possibly replace cmu-snmp with this.
