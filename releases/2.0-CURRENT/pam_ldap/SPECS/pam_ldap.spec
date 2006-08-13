@@ -26,9 +26,12 @@ Patch2:		pam_ldap-180-bug254.patch
 Patch3:		pam_ldap-180-bug268.patch
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
-BuildRequires:	openldap-devel >= 2.0.7-7.1mdk, pam-devel, automake1.4
+BuildRequires:	openldap-devel >= 2.0.7-7.1mdk
+BuildRequires:	pam-devel
+BuildRequires:	automake1.4
 
-Requires:	nss_ldap >= 217, openldap-clients
+Requires:	nss_ldap >= 217
+Requires:	openldap-clients
 
 %description
 Pam_ldap is a module for Linux-PAM that supports password changes, V2
@@ -93,6 +96,10 @@ rm -rf %{buildroot}%{_sysconfdir}/ldap.conf
 
 
 %changelog
+* Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 180
+- rebuild against new openldap 
+- spec cleanups
+
 * Sat Jun 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 180
 - rebuild against new pam
 - P1: fix http//bugzilla.padl.com/show_bug.cgi?id=264: wrong error
