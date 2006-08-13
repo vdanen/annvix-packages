@@ -37,9 +37,10 @@ Patch3:		snort-2.3.0-no_timestamp.diff
 Patch4:		snort-2.3.0-net-snmp_fix.diff
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	autoconf2.5, automake1.7
+BuildRequires:	autoconf2.5
+BuildRequires:	automake1.7
 BuildRequires:	libpcap-devel >= 0.6
-BuildRequires:	MySQL-devel
+BuildRequires:	mysql-devel
 BuildRequires:	openssl-devel
 BuildRequires:	postgresql-devel
 BuildRequires:	texinfo
@@ -47,7 +48,8 @@ BuildRequires:	zlib-devel
 BuildRequires:	pcre-devel
 BuildRequires:	net1.0-devel
 BuildRequires:	chrpath
-BuildRequires:	iptables-devel, clamav-devel
+BuildRequires:	iptables-devel
+BuildRequires:	clamav-devel
 #BuildRequires:	net-snmp-devel
 
 Requires(pre):	rpm-helper
@@ -151,7 +153,9 @@ Snort compiled with flexresp+mysql+postgresql support.
 Summary:	Snort with Flexible Response
 Group:		Networking/Other
 Requires:	snort = %{version}
-Requires:	iptables, clamav, clamav-db
+Requires:	iptables
+Requires:	clamav
+Requires:	clamav-db
 
 %description inline
 Snort compiled with inline support. 
@@ -161,7 +165,9 @@ Snort compiled with inline support.
 Summary:	Snort with Flexible Response
 Group:		Networking/Other
 Requires:	snort = %{version}
-Requires:	iptables, clamav, clamav-db
+Requires:	iptables
+Requires:	clamav
+Requires:	clamav-db
 
 %description inline+flexresp
 Snort compiled with inline+flexresp support.
@@ -190,7 +196,7 @@ chmod 0644 rule-docs/*.txt
 # fix pid file path
 echo "#define _PATH_VARRUN \"/var/run/%{name}\"" >> acconfig.h
 
-cp %{SOURCE6} .
+cp %{_sourcedir}/snortdb-extra .
 
 
 %build
@@ -481,12 +487,12 @@ install -m 0644 etc/*.config %{buildroot}/%{_sysconfdir}/%{name}/
 install -m 0644 etc/*.map %{buildroot}/%{_sysconfdir}/%{name}/
 install -m 0644 rules/*.rules %{buildroot}%{_sysconfdir}/%{name}/rules/
 
-install -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
-install -m 0644 %{SOURCE5} %{buildroot}%{_sysconfdir}/sysconfig/%{name}
+install -m 0644 %{_sourcedir}/snort.logrotate %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
+install -m 0644 %{_sourcedir}/snort.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/%{name}
 
 mkdir -p %{buildroot}%{_srvdir}/snortd/log
-install -m 0740 %{SOURCE2} %{buildroot}%{_srvdir}/snortd/run
-install -m 0740 %{SOURCE3} %{buildroot}%{_srvdir}/snortd/log/run
+install -m 0740 %{_sourcedir}/snortd.run %{buildroot}%{_srvdir}/snortd/run
+install -m 0740 %{_sourcedir}/snortd-log.run %{buildroot}%{_srvdir}/snortd/log/run
 
 cp contrib/README doc/README.contrib
 
@@ -645,6 +651,11 @@ update-alternatives --remove %{name} %{_sbindir}/%{name}-inline+flexresp
 
 
 %changelog
+* Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.4.4
+- rebuild against new mysql
+- rebuild against new openssl
+- spec cleanups
+
 * Sat Jun 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.4.4
 - change requires: s/libpcap0/libpcap/ so it will install on x86_64 properly
 
@@ -736,190 +747,3 @@ update-alternatives --remove %{name} %{_sbindir}/%{name}-inline+flexresp
 - tidy spec
 - remove all snmp support
 - lib64net1.0-devel if amd64
-
-* Sat Dec 20 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.1.0-1mdk
-- 2.1.0
-- fix build[requires]
-- updated P0 (also removed hardcoded lib stuff, like in P1)
-- updated P1
-- build against libnet1.0-devel-1.0.2a
-- remove rpath in binaries
-- fix pid file path
-- misc spec file fixes
-
-* Tue Dec 02 2003 Florin <florin@mandrakesoft.com> 2.0.5-2mdk
-- new initscript and sysconf files
-- add the logrotate file
-- use update-alternatives
-
-* Fri Nov 28 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.5-1mdk
-- 2.0.5
-- _really_ enable snmp, it was removed in 2.0.0 (P0)
-- built against new net-snmp libs
-- misc spec file fixes
-
-* Mon Sep 22 2003 Florin <florin@mandrakesoft.com> 2.0.2-1mdk
-- 2.0.2
-- fix the service snort stop in some cases (thx to S. Toothman)
-
-* Fri Sep 05 2003 Florin <florin@mandrakesoft.com> 2.0.1-3mdk
-- requires libnet-snmp instead of ucd-snmp
-
-* Thu Sep 04 2003 Florin <florin@mandrakesoft.com> 2.0.1-2mdk
-- buildrequires libpcap-devel instead of libpcap0-devel
-
-* Thu Aug 28 2003 Florin <florin@mandrakesoft.com> 2.0.1-1mdk
-- 2.0.1
-- requires ucd-snmp-devel instead net-snmp-devel
-
-* Fri Jul 25 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 2.0.0-3mdk
-- rebuild
-- prereq on rpm-helper
-
-* Tue Apr 22 2003 Florin <florin@mandrakesoft.com> 2.0.0-2mdk
-- acid is already in contribs 
-
-* Tue Apr 22 2003 Florin <florin@mandrakesoft.com> 2.0.0-1mdk
-- 2.0.0 security fix
-- remove the configure patch0
-- update the lib64 patch
-- add some more contribs
-
-* Mon Mar 10 2003 Frederic Lepied <flepied@mandrakesoft.com> 1.9.1-1mdk
-- 1.9.1 (security fix)
-
-* Sat Feb 01 2003 en Eriksson <oden.eriksson@kvikkjokk.net> 1.9.0-5mdk
-- repack some of the contrib/*.gz stuff as it's crucial and needed for 
-applications like acid, etc. (why cripple snort???)
-- BuildRequires net-snmp-devel
-
-* Tue Nov 26 2002 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 1.9.0-4mdk
-- Patch1: Make it lib64-aware, do regenerate configure script
-- Fix %%doc, try to make it a little more -bi --short-circuit'able
-
-* Wed Oct 16 2002 Florin <florin@mandrakesoft.com> 1.9.0-3mdk
-- use rules instead of ../rules in PATH
-
-* Wed Oct 16 2002 Florin <florin@mandrakesoft.com> 1.9.0-2mdk
-- add the missing reference.config file
-
-* Tue Oct 15 2002 Florin <florin@mandrakesoft.com> 1.9.0-1mdk
-- 1.9.0
-
-* Fri Aug 30 2002 Florin <florin@mandrakesoft.com> 1.8.7-3mdk
-- forgot the Requires on libsnmp-devel
-
-* Thu Aug 29 2002 Florin <florin@mandrakesoft.com> 1.8.7-2mdk
-- bring back the snmp packages (configure patch)
-
-* Fri Aug 02 2002 Florin <florin@mandrakesoft.com> 1.8.7-1mdk
-- 1.8.7
-- comment out the snmp package as it doesn not compile for the moment
-- add the snort user
-
-* Fri May 03 2002 Florin <florin@mandrakesoft.com> 1.8.6-1mdk
-- 1.8.6
-- update the libpcap0 require
-
-* Fri Apr 05 2002 Florin <florin@mandrakesoft.com> 1.8.5-1mdk
-- 1.8.5
-- remove the integrated icmp patch
-
-* Wed Feb 20 2002 Vincent Danen <vdanen@mandrakesoft.com> 1.8.3-4mdk
-- patch to fix ICMP ascii printing bug (affects 1.8.3 only)
-
-* Wed Feb 20 2002 Florin <florin@mandrakesoft.com> 1.8.3-3mdk
-- modify the init script according to the new sysconfig file
-- add the contrib files (not the archives)
-
-* Tue Feb 19 2002 Florin <florin@mandrakesoft.com> 1.8.3-2mdk
-- use force while creating the links in post
-- use noreplace for the initscript
-- remove the add/del of the snort user/group as they come with setup
-- remove the link only in uninstall cases
-- add the sysconfig file 
-- use -s as default in the initscript (log to syslog)
-
-* Fri Feb 15 2002 Florin <florin@mandrakesoft.com> 1.8.3-1mdk
-- 1.8.3
-
-* Thu Jan 10 2002 Stefan van der Eijk <stefan@eijk.nu> 1.8.2-3mdk
-- BuildRequires
-- replace make -j with %%make
-
-* Wed Dec 12 2001 Florin <florin@mandrakesoft.com> 1.8.2-2mdk
-- update the BuildRequires
-
-* Wed Nov 14 2001 Florin <florin@mandrakesoft.com> 1.8.2-1mdk
-- 1.8.2
-- merge with the original spec file
-- use macros when possible
-- fix some typos in post section
-- create the link in all cases for snort-plain
-- fix a spelling error in description
-- bzip2 the man page
-- strip the binaries
-- create the snort/snort user/group in post
-- /var/log/snort files belong to snort.snort
-- add _{preun|post}_service macros
-
-* Mon Sep 24 2001 Lenny Cartier <lenny@mandrakesoft.com> 1.8.1-2mdk
-- add manpage
-
-* Tue Sep 04 2001 Lenny Cartier <lenny@mandrakesoft.com> 1.8.1-1mdk
-- 1.8.1
-
-* Fri Aug 10 2001 Florin Grad <florin@mandrakesoft.com> 1.8p1-1mdk
-- 1.8p1
-
-* Tue Feb 20 2001 Florin Grad <florin@mandrakesoft.com> 1.7-1mdk
-- mandrake adaptions
-
-* Mon Nov 27 2000 Chris Green <cmg@uab.edu>
-- removed strip
-- upgrade to cvs version
-- moved /var/snort/dev/null creation to install time
-
-* Tue Nov 21 2000 Chris Green <cmg@uab.edu>
-- changed to %{SnortPrefix}
-- upgrade to patch2
-
-* Mon Jul 31 2000 Wim Vandersmissen <wim@bofh.st>
-- Integrated the -t (chroot) option and build a /home/snort chroot jail
-- Installs a statically linked/stripped snort
-- Updated %{_initrddir}/snortd to work with the chroot option
-
-* Tue Jul 25 2000 Wim Vandersmissen <wim@bofh.st>
-- Added some checks to find out if we're upgrading or removing the package
-
-* Sat Jul 22 2000 Wim Vandersmissen <wim@bofh.st>
-- Updated to version 1.6.3
-- Fixed the user/group stuff (moved to %post)
-- Added userdel/groupdel to %postun
-- Automagically adds the right IP, nameservers to %{_sysconfdir}/rules.base
-
-* Sat Jul 08 2000 Dave Wreski <dave@linuxsecurity.com>
-- Updated to version 1.6.2
-- Removed references to xntpd
-- Fixed minor problems with snortd init script
-
-* Fri Jul 07 2000 Dave Wreski <dave@linuxsecurity.com>
-- Updated to version 1.6.1
-- Added user/group snort
-
-* Sat Jun 10 2000 Dave Wreski <dave@linuxsecurity.com>
-- Added snort init.d script (snortd)
-- Added Dave Dittrich's snort rules header file (ruiles.base)
-- Added Dave Dittrich's wget rules fetch script (check-snort)
-- Fixed permissions on /var/log/snort
-- Created /var/log/snort/archive for archival of snort logs
-- Added post/preun to add/remove snortd to/from rc?.d directories
-- Defined configuration files as %config
-
-* Tue Mar 28 2000 William Stearns <wstearns@pobox.com>
-- Quick update to 1.6.
-- Sanity checks before doing rm-rf in install and clean
-
-* Fri Dec 10 1999 Henri Gomez <gomez@slib.fr>
-- 1.5-0 Initial RPM release
-
