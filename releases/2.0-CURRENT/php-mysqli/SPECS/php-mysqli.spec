@@ -66,7 +66,7 @@ install -d %{buildroot}%{_sysconfdir}/php.d
 
 install -m 0755 %{soname} %{buildroot}%{phpdir}/extensions/
 
-install -m 0644 %{SOURCE0} %{buildroot}%{_sysconfdir}/php.d/%{inifile}
+install -m 0644 %{_sourcedir}/php-mysqli.ini %{buildroot}%{_sysconfdir}/php.d/%{inifile}
 
 
 %clean
@@ -80,6 +80,10 @@ install -m 0644 %{SOURCE0} %{buildroot}%{_sysconfdir}/php.d/%{inifile}
 
 
 %changelog
+* Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.4
+- rebuild against new mysql
+- spec cleanups
+
 * Sun Jun 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.4
 - remove docs
 
