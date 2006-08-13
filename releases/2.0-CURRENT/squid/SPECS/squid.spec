@@ -32,7 +32,6 @@ Source5:	smb.conf
 Source6:	squid.conf.transparent
 Source7:	rc.firewall
 Source8:	ERR_CUSTOM_ACCESS_DENIED.English
-Source9:	ERR_CUSTOM_ACCESS_DENIED.French
 Source10:	squid-2.5-samba-2.2.7-winbindd_nss.h
 Source11:	squid.run
 Source12:	squid-log.run
@@ -48,7 +47,10 @@ Patch100:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE14-htt
 
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	openldap-devel libsasl-devel openssl-devel >= 0.9.7 pam-devel
+BuildRequires:	openldap-devel
+BuildRequires:	libsasl-devel
+BuildRequires:	openssl-devel >= 0.9.7
+BuildRequires:	pam-devel
 
 Requires(pre):	rpm-helper
 Requires(preun): rpm-helper
@@ -86,9 +88,9 @@ This package contains the documentation for %{name}.
 %patch4 -p1 -b .pipe
 %patch100 -p1
 
-cat %{SOURCE10} > helpers/basic_auth/winbind/winbindd_nss.h
-cat %{SOURCE10} > helpers/ntlm_auth/winbind/winbindd_nss.h
-cat %{SOURCE10} > helpers/external_acl/winbind_group/winbindd_nss.h
+cp %{_sourcedir}/squid-2.5-samba-2.2.7-winbindd_nss.h helpers/basic_auth/winbind/winbindd_nss.h
+cp %{_sourcedir}/squid-2.5-samba-2.2.7-winbindd_nss.h helpers/ntlm_auth/winbind/winbindd_nss.h
+cp %{_sourcedir}/squid-2.5-samba-2.2.7-winbindd_nss.h helpers/external_acl/winbind_group/winbindd_nss.h
 
 
 %build
@@ -169,10 +171,10 @@ mkdir -p %{buildroot}%{_srvdir}/squid/log
 mkdir -p %{buildroot}%{_sysconfdir}/
 mkdir -p %{buildroot}/etc/{logrotate.d,pam.d,sysconfig}
 
-install -m 0740 %{SOURCE11} %{buildroot}%{_srvdir}/squid/run
-install -m 0740 %{SOURCE12} %{buildroot}%{_srvdir}/squid/log/run
-cat %{SOURCE3} > %{buildroot}/etc/logrotate.d/squid
-cat %{SOURCE14} > %{buildroot}/etc/sysconfig/squid
+install -m 0740 %{_sourcedir}/squid.run %{buildroot}%{_srvdir}/squid/run
+install -m 0740 %{_sourcedir}/squid-log.run %{buildroot}%{_srvdir}/squid/log/run
+cp %{_sourcedir}/squid.logrotate %{buildroot}/etc/logrotate.d/squid
+cp %{_sourcedir}/squid.sysconfig %{buildroot}/etc/sysconfig/squid
 
 cp helpers/basic_auth/SMB/smb_auth.sh %{buildroot}/%{_libexecdir}
 cp helpers/basic_auth/SASL/squid_sasl_auth %{buildroot}/%{_libexecdir}
@@ -188,13 +190,12 @@ cp helpers/basic_auth/SASL/squid_sasl_auth.conf .
 mkdir -p %{buildroot}/%{_mandir}/man8
 cp helpers/basic_auth/LDAP/*.8 %{buildroot}/%{_mandir}/man8
 
-cat %{SOURCE4} > squid.conf.authenticate
-cat %{SOURCE5} > smb.conf
-cat %{SOURCE6} > squid.conf.transparent
-cat %{SOURCE7} > rc.firewall
-mkdir -p %{buildroot}/%{_libexecdir}/errors/{English,French}
-cat %{SOURCE8} > %{buildroot}/%{_libexecdir}/errors/English/ERR_CUSTOM_ACCESS_DENIED
-cat %{SOURCE9} > %{buildroot}/%{_libexecdir}/errors/French/ERR_CUSTOM_ACCESS_DENIED
+cp %{_sourcedir}/squid.conf.authenticate squid.conf.authenticate
+cp %{_sourcedir}/smb.conf smb.conf
+cp %{_sourcedir}/squid.conf.transparent squid.conf.transparent
+cp %{_sourcedir}/rc.firewall rc.firewall
+mkdir -p %{buildroot}/%{_libexecdir}/errors/English
+cp %{_sourecedir}/ERR_CUSTOM_ACCESS_DENIED.English %{buildroot}/%{_libexecdir}/errors/English/ERR_CUSTOM_ACCESS_DENIED
 
 strip %{buildroot}/%{_libexecdir}/{msnt_auth,pam_auth,unlinkd,diskd}
 strip %{buildroot}/%{_libexecdir}/{ncsa_auth,smb_auth,squid_ldap_auth,yp_auth}
@@ -235,9 +236,6 @@ done
 
 
 %post
-if [ -d /var/log/supervise/squid -a ! -d /var/log/service/squid ]; then
-    mv /var/log/supervise/squid /var/log/service/
-fi
 %_post_srv squid
 
 
@@ -296,7 +294,13 @@ fi
 %defattr(-,root,root)
 %doc C* S* R* Q* squid.conf.* rc.firewall smb.conf doc/*
 
+
 %changelog
+* Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5.STABLE14
+- rebuild against new openssl
+- spec cleanups
+- drop the french custom error file (S9)
+
 * Sat Jun 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5.STABLE14
 - rebuild against new pam and update pam config
 
