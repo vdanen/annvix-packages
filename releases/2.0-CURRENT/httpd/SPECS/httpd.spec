@@ -79,9 +79,21 @@ Patch13:	httpd-2.2.0-authnoprov.patch
 Patch14:	certwatch-avx-annvix.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	apr-devel >= 1:1.2.7, apr-util-devel >= 1.2.7, pcre-devel >= 5.0, byacc
-BuildRequires:	db4-devel, expat-devel, gdbm-devel, openldap-devel, libsasl-devel
-BuildRequires:	libtool >= 1.4.2, openssl-devel, autoconf2.5, automake1.7, pkgconfig, zlib-devel
+BuildRequires:	apr-devel >= 1:1.2.7
+BuildRequires:	apr-util-devel >= 1.2.7
+BuildRequires:	pcre-devel >= 5.0
+BuildRequires:	byacc
+BuildRequires:	db4-devel
+BuildRequires:	expat-devel
+BuildRequires:	gdbm-devel
+BuildRequires:	openldap-devel
+BuildRequires:	libsasl-devel
+BuildRequires:	libtool >= 1.4.2
+BuildRequires:	openssl-devel
+BuildRequires:	autoconf2.5
+BuildRequires:	automake1.7
+BuildRequires:	pkgconfig
+BuildRequires:	zlib-devel
 BuildRequires:	multiarch-utils >= 1.0.3
 %if %{build_test}
 BuildRequires:	perl(CGI) >= 1:3.11
@@ -96,13 +108,26 @@ BuildRequires:	perl-perldoc
 %endif
 
 
-Requires:	libapr-util >= 1.2.7, %{libapr} >= 1:1.2.7
-Requires:	httpd-conf >= 2.2.2, httpd-common = %{version}-%{release}, httpd-modules = %{version}-%{release}
-Requires(pre):	rpm-helper, httpd-conf >= 2.2.2-1avx, httpd-common = %{version}-%{release}, httpd-modules = %{version}-%{release}
-Requires(preun): libapr-util >= 1.2.7, %{libapr} >= 1:1.2.7
-Requires(post):	libapr-util >= 1.2.7, %{libapr} >= 1:1.2.7
+Requires:	libapr-util >= 1.2.7
+Requires:	%{libapr} >= 1:1.2.7
+Requires:	httpd-conf >= 2.2.2
+Requires:	httpd-common = %{version}-%{release}
+Requires:	httpd-modules = %{version}-%{release}
+Requires(pre):	rpm-helper
+Requires(pre):	httpd-conf >= 2.2.2-1avx
+Requires(pre):	httpd-common = %{version}-%{release}
+Requires(pre):	httpd-modules = %{version}-%{release}
+Requires(preun): libapr-util >= 1.2.7
+Requires(preun): %{libapr} >= 1:1.2.7
+Requires(post):	libapr-util >= 1.2.7
+Requires(post):	%{libapr} >= 1:1.2.7
 Requires(postun): rpm-helper
-Provides:	webserver apache apache2 apache-mpm apache2-prefork httpd-mpm
+Provides:	webserver
+Provides:	apache
+Provides:	apache2
+Provides:	apache-mpm
+Provides:	apache2-prefork
+Provides:	httpd-mpm
 Provides:	httpd-prefork = %{version}-%{release}
 Obsoletes:	apache2
 
@@ -124,10 +149,13 @@ You can build Apache with some conditional build switches;
 %package common
 Summary:	Files common for httpd and httpd-mod_perl installations
 Group:		System/Servers
-Requires:	libapr-util >= 1.2.7, %{libapr} >= 1:1.2.7
+Requires:	libapr-util >= 1.2.7
+Requires:	%{libapr} >= 1:1.2.7
 Requires(pre):	rpm-helper
-Requires(preun): libapr-util >= 1.2.7, %{libapr} >= 1:1.2.7
-Requires(post):	libapr-util >= 1.2.7, %{libapr} >= 1:1.2.7
+Requires(preun): libapr-util >= 1.2.7
+Requires(preun): %{libapr} >= 1:1.2.7
+Requires(post):	libapr-util >= 1.2.7
+Requires(post):	%{libapr} >= 1:1.2.7
 Requires(postun): rpm-helper
 Obsoletes:	apache2-common
 Provides:	apache2-common
@@ -198,22 +226,13 @@ Provides:	httpd-mod_unique_id = %{version}
 Provides:	httpd-mod_usertrack = %{version}
 Provides:	httpd-mod_version = %{version}
 Provides:	httpd-mod_vhost_alias = %{version}
-Obsoletes:	apache2-mod_actions apache2-mod_alias apache2-mod_asis 
-Obsoletes:	apache2-mod_auth_digest apache2-mod_autoindex apache2-mod_case_filter apache2-mod_case_filter_in
-Obsoletes:	apache2-mod_cern_meta apache2-mod_cgi apache2-mod_cgid apache2-mod_charset_lite apache2-mod_dir apache2-mod_env
-Obsoletes:	apache2-mod_expires apache2-mod_ext_filter apache2-mod_headers apache2-mod_include apache2-mod_info
-Obsoletes:	apache2-mod_log_config apache2-mod_logio apache2-mod_log_forensic apache2-mod_mime apache2-mod_mime_magic
-Obsoletes:	apache2-mod_negotiation apache2-mod_rewrite apache2-mod_setenvif apache2-mod_speling apache2-mod_status
-Obsoletes:	apache2-mod_unique_id apache2-mod_userdir apache2-mod_usertrack apache2-mod_vhost_alias apache2-mod_dumpio apache2-modules
 # these have been removed or renamed in 2.2.0
-Obsoletes:	httpd-mod_access httpd-mod_imap httpd-mod_auth httpd-mod_auth_anon httpd-mod_auth_dbm httpd-mod_auth_digest
-Provides:	apache2-mod_actions apache2-mod_alias apache2-mod_asis 
-Provides:	apache2-mod_auth_digest apache2-mod_autoindex apache2-mod_case_filter apache2-mod_case_filter_in
-Provides:	apache2-mod_cern_meta apache2-mod_cgi apache2-mod_cgid apache2-mod_charset_lite apache2-mod_dir apache2-mod_env
-Provides:	apache2-mod_expires apache2-mod_ext_filter apache2-mod_headers apache2-mod_include apache2-mod_info
-Provides:	apache2-mod_log_config apache2-mod_logio apache2-mod_log_forensic apache2-mod_mime apache2-mod_mime_magic
-Provides:	apache2-mod_negotiation apache2-mod_rewrite apache2-mod_setenvif apache2-mod_speling apache2-mod_status
-Provides:	apache2-mod_unique_id apache2-mod_userdir apache2-mod_usertrack apache2-mod_vhost_alias apache2-mod_dumpio apache2-modules
+Obsoletes:	httpd-mod_access
+Obsoletes:	httpd-mod_imap
+Obsoletes:	httpd-mod_auth
+Obsoletes:	httpd-mod_auth_anon
+Obsoletes:	httpd-mod_auth_dbm
+Obsoletes:	httpd-mod_auth_digest
 
 
 %description modules
@@ -224,12 +243,13 @@ for normal operation of the web server.
 %package mod_dav
 Summary:	Distributed Authoring and Versioning (WebDAV)
 Group:		System/Servers
-Requires(pre):	rpm-helper, httpd-conf >= %{version}, httpd-common = %{version}-%{release}, httpd-modules = %{version}-%{release}
+Requires(pre):	rpm-helper
+Requires(pre):	httpd-conf >= %{version}
+Requires(pre):	httpd-common = %{version}-%{release}
+Requires(pre):	httpd-modules = %{version}-%{release}
 Requires(postun): rpm-helper
 Provides:	httpd-mod_dav_fs = %{version}
 Provides:	httpd-mod_dav_lock = %{version}
-Obsoletes:	apache2-mod_dav apache2-mod_dav_fs
-Provides:	apache2-mod_dav = %{version}, apache2-mod_dav_fs = %{version}
 
 %description mod_dav
 This module provides class 1 and class 2 WebDAV ('Web-based
@@ -243,11 +263,13 @@ server.
 %package mod_ldap
 Summary:	LDAP connection pooling and result caching DSO:s
 Group:		System/Servers
-Requires(pre):	rpm-helper, httpd-conf >= %{version}, httpd-common = %{version}-%{release}, httpd-modules = %{version}-%{release}
+Requires(pre):	rpm-helper
+Requires(pre):	httpd-conf >= %{version}
+Requires(pre):	httpd-common = %{version}-%{release}
+Requires(pre):	httpd-modules = %{version}-%{release}
 Requires(postun): rpm-helper
 Provides:	httpd-mod_authnz_ldap = %{version}
-Obsoletes:	apache2-mod_ldap apache2-mod_auth_ldap httpd-mod_auth_ldap
-Provides:	apache2-mod_ldap = %{version}, apache2-mod_auth_ldap = %{version}
+Obsoletes:	httpd-mod_auth_ldap
 
 %description mod_ldap
 This module was created to improve the performance of websites
@@ -259,10 +281,11 @@ an LDAP connection pool and an LDAP shared memory cache.
 %package mod_cache
 Summary:	Content cache keyed to URIs
 Group:		System/Servers
-Requires(pre):	rpm-helper, httpd-conf >= %{version}, httpd-common = %{version}-%{release}, httpd-modules = %{version}-%{release}
+Requires(pre):	rpm-helper
+Requires(pre):	httpd-conf >= %{version}
+Requires(pre):	httpd-common = %{version}-%{release}
+Requires(pre):	httpd-modules = %{version}-%{release}
 Requires(postun): rpm-helper
-Obsoletes:	apache2-mod_cache
-Provides:	apache2-mod_cache = %{version}
 
 %description mod_cache
 mod_cache implements an RFC 2616 compliant HTTP content cache that
@@ -287,11 +310,12 @@ configured for ProxyPass (aka reverse proxy)
 %package mod_disk_cache
 Summary:	Implements a disk based storage manager
 Group:		System/Servers
-Requires(pre):	rpm-helper, httpd-conf >= %{version}, httpd-common = %{version}-%{release}, httpd-modules = %{version}-%{release}
+Requires(pre):	rpm-helper
+Requires(pre):	httpd-conf >= %{version}
+Requires(pre):	httpd-common = %{version}-%{release}
+Requires(pre):	httpd-modules = %{version}-%{release}
 Requires(pre):	httpd-mod_cache = %{version}-%{release}
 Requires(postun): rpm-helper
-Obsoletes:	apache2-mod_cache
-Provides:	apache2-mod_cache = %{version}
 
 %description mod_disk_cache
 mod_disk_cache implements a disk based storage manager. It is
@@ -304,11 +328,12 @@ keys. Content with access protection is not cached.
 %package mod_mem_cache
 Summary:	Implements a memory based storage manager
 Group:		System/Servers
-Requires(pre):	rpm-helper, httpd-conf >= %{version}, httpd-common = %{version}-%{release}, httpd-modules = %{version}-%{release}
+Requires(pre):	rpm-helper
+Requires(pre):	httpd-conf >= %{version}
+Requires(pre):	httpd-common = %{version}-%{release}
+Requires(pre):	httpd-modules = %{version}-%{release}
 Requires(pre):	httpd-mod_cache = %{version}-%{release}
 Requires(postun): rpm-helper
-Obsoletes:	apache2-mod_mem_cache
-Provides:	apache2-mod_mem_cache = %{version}
 
 %description mod_mem_cache
 This module requires the service of mod_cache. It acts as a
@@ -326,10 +351,11 @@ keys. Content with access protection is not cached.
 %package mod_file_cache
 Summary:	Caches a static list of files in memory
 Group:		System/Servers
-Requires(pre):	rpm-helper, httpd-conf >= %{version}, httpd-common = %{version}-%{release}, httpd-modules = %{version}-%{release}
+Requires(pre):	rpm-helper
+Requires(pre):	httpd-conf >= %{version}
+Requires(pre):	httpd-common = %{version}-%{release}
+Requires(pre):	httpd-modules = %{version}-%{release}
 Requires(postun): rpm-helper
-Obsoletes:	apache2-mod_file_cache
-Provides:	apache2-mod_file_cache = %{version}
 
 %description mod_file_cache
 Caching frequently requested files that change very infrequently
@@ -355,12 +381,13 @@ mod_mmap_static module in Apache 1.3.
 %package mod_deflate
 Summary:	Compress content before it is delivered to the client
 Group:		System/Servers
-Requires(pre):	rpm-helper, httpd-conf >= %{version}, httpd-common = %{version}-%{release}, httpd-modules = %{version}-%{release}
+Requires(pre):	rpm-helper
+Requires(pre):	httpd-conf >= %{version}
+Requires(pre):	httpd-common = %{version}-%{release}
+Requires(pre):	httpd-modules = %{version}-%{release}
 Requires(postun): rpm-helper
 Provides:	mod_gzip
 Obsoletes:	mod_gzip
-Obsoletes:	apache2-mod_deflate
-Provides:	apache2-mod_deflate = %{version}
 
 %description mod_deflate
 The mod_deflate module provides the DEFLATE output filter that
@@ -371,16 +398,17 @@ to the client over the network.
 %package mod_proxy
 Summary:	HTTP/1.1 proxy/gateway server
 Group:		System/Servers
-Requires(pre):	rpm-helper, httpd-conf >= %{version}, httpd-common = %{version}-%{release}, httpd-modules = %{version}-%{release}
-Requires(pre):	httpd-mod_cache = %{version}-%{release}, httpd-mod_disk_cache = %{version}-%{release}
+Requires(pre):	rpm-helper
+Requires(pre):	httpd-conf >= %{version}
+Requires(pre):	httpd-common = %{version}-%{release}
+Requires(pre):	httpd-modules = %{version}-%{release}
+Requires(pre):	httpd-mod_cache = %{version}-%{release}
+Requires(pre):	httpd-mod_disk_cache = %{version}-%{release}
 Requires(postun): rpm-helper
 Provides:	httpd-mod_proxy_balancer = %{version}
 Provides:	httpd-mod_proxy_connect = %{version}
 Provides:	httpd-mod_proxy_ftp = %{version}
 Provides:	httpd-mod_proxy_http = %{version}
-Obsoletes:	apache2-mod_proxy apache2-mod_proxy_http apache2-mod_proxy_ftp apache2-mod_proxy-connect
-Provides:	apache2-mod_proxy = %{version}, apache2-mod_proxy_http = %{version}
-Provides:	apache2-mod_proxy_ftp = %{version}, apache2-mod_proxy-connect = %{version}
 
 %description mod_proxy
 This module implements a proxy/gateway for Apache. It implements
@@ -401,7 +429,10 @@ incorporated into a new module, mod_cache.
 %package mod_proxy_ajp
 Summary:	Provides support for the Apache JServ Protocol version 1.3 (AJP13)
 Group:		System/Servers
-Requires(pre):	rpm-helper, httpd-conf >= %{version}, httpd-common = %{version}-%{release}, httpd-modules = %{version}-%{release}
+Requires(pre):	rpm-helper
+Requires(pre):	httpd-conf >= %{version}
+Requires(pre):	httpd-common = %{version}-%{release}
+Requires(pre):	httpd-modules = %{version}-%{release}
 Requires(pre):	httpd-mod_cache = %{version}-%{release}
 Requires(pre):	httpd-mod_proxy = %{version}-%{release}
 Requires(postun): rpm-helper
@@ -416,10 +447,11 @@ and mod_proxy_ajp have to be present in the server.
 %package mod_userdir
 Summary:	User-specific directories
 Group:		System/Servers
-Requires(pre):	rpm-helper, httpd-conf >= %{version}, httpd-common = %{version}-%{release}, httpd-modules = %{version}-%{release}
+Requires(pre):	rpm-helper
+Requires(pre):	httpd-conf >= %{version}
+Requires(pre):	httpd-common = %{version}-%{release}
+Requires(pre):	httpd-modules = %{version}-%{release}
 Requires(postun): rpm-helper
-Provides:	apache2-mod_userdir = %{version}
-Obsoletes:	apache2-mod_userdir
 
 %description mod_userdir
 This module allows user-specific directories to be accessed using the
@@ -429,12 +461,14 @@ http://example.com/~username/ syntax.
 %package mod_ssl
 Summary:	Strong cryptography using the SSL, TLS and distcache protocols
 Group:		System/Servers
-Requires(pre):	rpm-helper, httpd-conf >= %{version}, httpd-common = %{version}-%{release}, httpd-modules = %{version}-%{release}
+Requires(pre):	rpm-helper
+Requires(pre):	httpd-conf >= %{version}
+Requires(pre):	httpd-common = %{version}-%{release}
+Requires(pre):	httpd-modules = %{version}-%{release}
 Requires(postun): rpm-helper
 Requires:	openssl
-Provides:	apache2-mod_ssl = %{version}
-Provides:	mod_ssl apache-mod_ssl+distcache apache2-mod_ssl+distcache
-Obsoletes:	apache2-mod_ssl mod_ssl apache-mod_ssl+distcache apache2-mod_ssl+distcache
+Provides:	mod_ssl
+Obsoletes:	mod_ssl
 
 %description mod_ssl
 This module provides SSL v2/v3 and TLS v1 support for the Apache
@@ -448,7 +482,10 @@ This module relies on OpenSSL to provide the cryptography engine.
 %package mod_dbd
 Summary:	Manages SQL database connections
 Group:		System/Servers
-Requires(pre):	rpm-helper, httpd-conf >= %{version}, httpd-common = %{version}-%{release}, httpd-modules = %{version}-%{release}
+Requires(pre):	rpm-helper
+Requires(pre):	httpd-conf >= %{version}
+Requires(pre):	httpd-common = %{version}-%{release}
+Requires(pre):	httpd-modules = %{version}-%{release}
 Requires(pre):	%mklibname apr-util 1
 Requires(postun): rpm-helper
 
@@ -462,7 +499,10 @@ threaded and non-threaded MPMs.
 %package mod_authn_dbd
 Summary:	User authentication using an SQL database
 Group:		System/Servers
-Requires(pre):	rpm-helper, httpd-conf >= %{version}, httpd-common = %{version}-%{release}, httpd-modules = %{version}-%{release}
+Requires(pre):	rpm-helper
+Requires(pre):	httpd-conf >= %{version}
+Requires(pre):	httpd-common = %{version}-%{release}
+Requires(pre):	httpd-modules = %{version}-%{release}
 Requires(pre):	httpd-mod_dbd = %{version}-%{release}
 Requires(postun): rpm-helper
 
@@ -477,9 +517,21 @@ and manage the database connections.
 %package devel
 Summary:	Module development tools for the Apache web server
 Group:		Development/C
-Requires:	apr-devel >= 1.2.7, apr-util-devel >= 1.2.7, pcre-devel >= 5.0, byacc
-Requires:	db4-devel, expat-devel, gdbm-devel, openldap-devel, libsasl-devel
-Requires:	libtool >= 1.4.2, openssl-devel, autoconf2.5, automake1.7, pkgconfig, perl-devel
+Requires:	apr-devel >= 1.2.7
+Requires:	apr-util-devel >= 1.2.7
+Requires:	pcre-devel >= 5.0
+Requires:	byacc
+Requires:	db4-devel
+Requires:	expat-devel
+Requires:	gdbm-devel
+Requires:	openldap-devel
+Requires:	libsasl-devel
+Requires:	libtool >= 1.4.2
+Requires:	openssl-devel
+Requires:	autoconf2.5
+Requires:	automake1.7
+Requires:	pkgconfig
+Requires:	perl-devel
 Provides:	apache2-devel apache2-mod_ssl-devel apache-mod_ssl-devel
 Obsoletes:	apache2-devel apache2-mod_ssl-devel
 
@@ -589,11 +641,11 @@ rm -rf $RPM_BUILD_DIR/tmp-httpd-%{version}/usr/src/httpd-%{version}/tmp-httpd-%{
 rm -f $RPM_BUILD_DIR/tmp-httpd-%{version}%{_usrsrc}/httpd-%{version}/*.spec
 
 # use my nice converted transparent png icons
-tar -jxf %{SOURCE3}
+tar -jxf %{_sourcedir}/apache2_transparent_png_icons.tar.bz2
 mv icons/*.png docs/icons/
 
 # add the changes file
-cp %{SOURCE2} README.urpmi
+cp %{_sourcedir}/httpd-README.urpmi README.urpmi
 
 
 %build
@@ -603,7 +655,7 @@ cp %{SOURCE2} README.urpmi
 export WANT_AUTOCONF_2_5="1"
 
 # use a minimal buildconf instead
-cat %{SOURCE100} > buildconf
+cp %{_sourcedir}/buildconf > buildconf
 sh ./buildconf
 
 CFLAGS="%{optflags}"
@@ -858,21 +910,21 @@ ln -s ../../..%{_libdir}/httpd/build %{buildroot}%{_sysconfdir}/httpd/build
 
 # install module conf files for the "modules.d" dir loading structure
 install -d %{buildroot}/%{_sysconfdir}/httpd/modules.d
-cat %{SOURCE30} > %{buildroot}/%{_sysconfdir}/httpd/modules.d/30_mod_proxy.conf
-cat %{SOURCE31} > %{buildroot}%{_sysconfdir}/httpd/modules.d/31_mod_proxy_ajp.conf
-cat %{SOURCE40} > %{buildroot}%{_sysconfdir}/httpd/modules.d/40_mod_ssl.conf
-cat %{SOURCE41} > %{buildroot}%{_sysconfdir}/httpd/modules.d/41_mod_ssl.default-vhost.conf
-cat %{SOURCE45} > %{buildroot}/%{_sysconfdir}/httpd/modules.d/45_mod_dav.conf
-cat %{SOURCE46} > %{buildroot}/%{_sysconfdir}/httpd/modules.d/46_mod_ldap.conf
-cat %{SOURCE47} > %{buildroot}%{_sysconfdir}/httpd/modules.d/47_mod_authnz_ldap.conf
-cat %{SOURCE55} > %{buildroot}/%{_sysconfdir}/httpd/modules.d/55_mod_cache.conf
-cat %{SOURCE56} > %{buildroot}/%{_sysconfdir}/httpd/modules.d/56_mod_disk_cache.conf
-cat %{SOURCE57} > %{buildroot}/%{_sysconfdir}/httpd/modules.d/57_mod_mem_cache.conf
-cat %{SOURCE58} > %{buildroot}/%{_sysconfdir}/httpd/modules.d/58_mod_file_cache.conf
-cat %{SOURCE59} > %{buildroot}/%{_sysconfdir}/httpd/modules.d/59_mod_deflate.conf
-cat %{SOURCE60} > %{buildroot}%{_sysconfdir}/httpd/modules.d/60_mod_dbd.conf
-cat %{SOURCE61} > %{buildroot}%{_sysconfdir}/httpd/modules.d/61_mod_authn_dbd.conf
-cat %{SOURCE67} > %{buildroot}/%{_sysconfdir}/httpd/modules.d/67_mod_userdir.conf
+cp %{_sourcedir}/30_mod_proxy.conf %{buildroot}/%{_sysconfdir}/httpd/modules.d/30_mod_proxy.conf
+cp %{_sourcedir}/31_mod_proxy_ajp.conf %{buildroot}%{_sysconfdir}/httpd/modules.d/31_mod_proxy_ajp.conf
+cp %{_sourcedir}/40_mod_ssl.conf %{buildroot}%{_sysconfdir}/httpd/modules.d/40_mod_ssl.conf
+cp %{_sourcedir}/41_mod_ssl.default-vhost.conf %{buildroot}%{_sysconfdir}/httpd/modules.d/41_mod_ssl.default-vhost.conf
+cp %{_sourcedir}/45_mod_dav.conf %{buildroot}/%{_sysconfdir}/httpd/modules.d/45_mod_dav.conf
+cp %{_sourcedir}/46_mod_ldap.conf %{buildroot}/%{_sysconfdir}/httpd/modules.d/46_mod_ldap.conf
+cp %{_sourcedir}/47_mod_authnz_ldap.conf %{buildroot}%{_sysconfdir}/httpd/modules.d/47_mod_authnz_ldap.conf
+cp %{_sourcedir}/55_mod_cache.conf %{buildroot}/%{_sysconfdir}/httpd/modules.d/55_mod_cache.conf
+cp %{_sourcedir}/56_mod_disk_cache.conf %{buildroot}/%{_sysconfdir}/httpd/modules.d/56_mod_disk_cache.conf
+cp %{_sourcedir}/57_mod_mem_cache.conf %{buildroot}/%{_sysconfdir}/httpd/modules.d/57_mod_mem_cache.conf
+cp %{_sourcedir}/58_mod_file_cache.conf %{buildroot}/%{_sysconfdir}/httpd/modules.d/58_mod_file_cache.conf
+cp %{_sourcedir}/59_mod_deflate.conf %{buildroot}/%{_sysconfdir}/httpd/modules.d/59_mod_deflate.conf
+cp %{_sourcedir}/60_mod_dbd.conf %{buildroot}%{_sysconfdir}/httpd/modules.d/60_mod_dbd.conf
+cp %{_sourcedir}/61_mod_authn_dbd.conf %{buildroot}%{_sysconfdir}/httpd/modules.d/61_mod_authn_dbd.conf
+cp %{_sourcedir}/67_mod_userdir.conf %{buildroot}/%{_sysconfdir}/httpd/modules.d/67_mod_userdir.conf
 
 # install missing files
 install -m 0755 build-prefork/support/split-logfile %{buildroot}%{_sbindir}/split-logfile
@@ -1328,6 +1380,12 @@ fi
 
 
 %changelog
+* Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3
+- rebuild against new openssl
+- rebuild against new openldap
+- spec cleanups
+- remove all apache* module obsoletes/provides
+
 * Sun Jul 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3
 - 2.2.3 (fixes CVE-2006-3747)
 
@@ -1559,519 +1617,3 @@ fi
 * Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 2.0.48-5sls
 - OpenSLS build
 - tidy spec
-
-* Sun Dec 14 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.48-4mdk
-- fix #6556
-- updated P5
-
-* Sun Dec 07 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.48-3mdk
-- rebuilt to fix missing package in the repository
-
-* Sun Nov 02 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.48-2mdk
-- added P6 (check: http://bitbrook.de/software/mod_log_mysql/)
-
-* Tue Oct 28 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.48-1mdk
-- 2.0.48 ([CAN-2003-0789], [CAN-2003-0542])
-- merged in house stuff with vdanens stuff
-- fix the httpd2-VANILLA.conf file
-- include the other *.conf files as well in %%doc
-- drop P50, pause P40, rediffed P5, updated S2
-- build debug per default until mdk10(?) final 
-- fix the mod_ssl cache location and ghost files
-- don't ship novell stuff in the source package
-- fix explicit-lib-dependency
-
-* Wed Oct 22 2003 Vincent Danen <vdanen@mandrakesoft.com> 2.0.47-6.1.92mdk
-- don't use the new mod_cgi as it causes more problems than it fixes
-- fix mod_proxy config since it was entirely insecure
-
-* Mon Sep 15 2003 Jean-Michel Dault <jmdault@mandrakesoft.com> 2.0.47-6mdk
-- fix CGI
-- took mod_cgi.c from httpd-2.1-dev since it fixes a nasty bug 
-  (and potential DoS attack) [Apache Bug 22030]
-- put the ssl_scache file into /var/cache to avoid log rotation and
-  segfaults
-
-* Thu Aug 14 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 2.0.47-5mdk
-- Fix dependencies (aka remove autorequired packages)
-
-* Mon Jul 21 2003 David BAUDENS <baudens@mandrakesoft.com> 2.0.47-4mdk
-- Rebuild to fix bad signature
-
-* Sun Jul 20 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.47-3mdk
-- fix the apu-config file
-- fix requires
-- misc spec file fixes
-
-* Tue Jul 15 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.47-2mdk
-- rebuilt against new db4.1, openldap and sasl2
-- added P50
-- misc spec file fixes
-
-* Wed Jul 09 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.47-1mdk
-- 2.0.47, fixes [CAN-2003-0192], [CAN-2003-0253], [CAN-2003-0254], [VU#379828]
-- require %%{ap_name}-conf >= 2.0.46-2mdk
-
-* Wed Jun 18 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.46-5mdk
-- fix typo in requires for the apr package (sooooo annoying...)
-
-* Wed Jun 18 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.46-4mdk
-- build options against new shared distcache libs, use --with distcache
-  or wait for a mod_ssl_dc module in contribs
-- added spec file magic with ideas from suse to prevent everything to
-  be built against all libs, also all requires changed because of this.
-- use the %%configure2_5x macro
-- use --enable-nonportable-atomics for i586 and upwards
-- updated S46, note that the mod_ldap stuff is still market experimental...
-- misc spec file fixes
-
-* Wed Jun 04 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.46-3mdk
-- added distcache support as a conditional switch 
-  (--with distcache), currently not enabled by default
-- added a distcache entry in S40
-- don't require libdb3.3
-
-* Fri May 30 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.46-2mdk
-- remove useless modules
-- broke out mod_deflate, cache and proxy modules
-- misc spec file fixes
-- require new ADVX-build >= 9.2
-
-* Wed May 28 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.46-1mdk
-- security release (CAN-2003-0245, CAN-2003-0189)
-- stole P40 & P41 from redhat
-- misc spec file fixes
-
-* Mon May 05 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.45-5mdk
-- require libopenssl0.9.7 and not libopenssl0
-
-* Fri Apr 11 2003 Jean-Michel Dault <jmdault@mandrakesoft.com> 2.0.45-4mdk
-- Link apache2-extramodules-2.0.44 with 2.0.45, even if directory is empty,
-  so it's possible to install modules for 2.0.44 on 2.0.45.
-
-* Mon Apr 07 2003 Jean-Michel Dault <jmdault@mandrakesoft.com> 2.0.45-3mdk
-- 2.0.45 is binary compatible with 2.0.44, migrate old modules to new
-  modules directory.
-
-* Mon Apr 07 2003 Jean-Michel Dault <jmdault@mandrakesoft.com> 2.0.45-2mdk
-- Rebuild for 9.1 security update
-
-* Tue Apr 01 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.45-1mdk
-- 2.0.45
-
-* Tue Mar  4 2003 Jean-Michel Dault <jmdault@mandrakesoft.com> 2.0.44-11mdk
-- I was out of coffee, so I messed up the last package. Went to the store,
-  bought a dozen kilos of French Roast, Colombian and Espresso beans, so
-  I'll be okay for a while.
-- Really fix the manuals this time, I swear!
-
-* Tue Mar  4 2003 Jean-Michel Dault <jmdault@mandrakesoft.com> 2.0.44-10mdk
-- add post script for manual package, and provide a /manual/2.0 alias as
-well.
-
-* Mon Mar  3 2003 Jean-Michel Dault <jmdault@mandrakesoft.com> 2.0.44-9mdk
-- re-add obsoletes on manual package, since the 9.0 manual package had a weird
-  dependency on mm = 1.1.3 (jmdault sucks ;-)
-
-* Sun Mar  2 2003 Jean-Michel Dault <jmdault@mandrakesoft.com> 2.0.44-8mdk
-- fix manual config file (thanks Ryan!)
-
-* Fri Feb 28 2003 Jean-Michel Dault <jmdault@mandrakesoft.com> 2.0.44-7mdk
-- Do not require libdb*-devel, it breaks the upgrade from 9.0 to 9.1.
-  Instead, each Apache module that requires libdb* to compile should add it to its
-  buildrequires
-- Make -devel, -manual and -source package not obsolete their old versions,
-  since they can be installed in parallel.
-- Do not use a symlink for the manual, but use a config file instead, to be
-  able to install both the 1.3 and 2.0 manuals.
-
-* Sat Feb 22 2003 Jean-Michel Dault <jmdault@mandrakesoft.com> 2.0.44-6mdk
-- Change DYNAMIC_MODULE_LIMIT from 64 to 96 
-  (Wow! We really have *lots* of apache modules ;-)
-
-* Fri Feb 21 2003 Jean-Michel Dault <jmdault@mandrakesoft.com> 2.0.44-5mdk
-- fix suexec path so we can have both versions of Apache and both
-  versions of suexec
-- fix images (use gif2png)
-
-* Thu Feb 13 2003 Jean-Michel Dault <jmdault@mandrakesoft.com> 2.0.44-4mdk
-- rebuild
-- remove fake ASF root, it gives a bunch of danglink symlinks which rpmlint
-  doesn't like... Dumb modules will have to be fixed if they need this.
-
-* Wed Feb 12 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.44-3mdk
-- arrgh!!! forgot to pass --enable-forward to the configure 
-  line to get "-DRECORD_FORWARD" correctly added...
-
-* Wed Feb 12 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.44-2mdk
-- add P3 (for mod_limitipconn)
-
-* Mon Jan 20 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.44-1mdk
-- 2.0.44
-- drop obsolete P3, P4 & P5
-- misc spec file fixes
-
-* Mon Jan 20 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.43-8mdk
-- fix buildrequires ADVX-build >= 1.1
-- fix fake ASF root, make it easier to point to, if nessesary when
-  building dumb third party modules
-- fix the distribution macro insertion
-
-* Sat Jan 18 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.43-7mdk
-- rebuild against openssl-0.9.7
-- misc spec file fixes
-
-* Wed Jan 08 2003 Jean-Michel Dault <jmdault@mandrakesoft.com> 2.0.43-6mdk
-- Rebuilt with db4 
-
-* Mon Jan 06 2003 Jean-Michel Dault <jmdault@mandrakesoft.com> 2.0.43-5mdk
-- Change apxs to apxs2 and /usr/include/apache to /usr/include/apache2
-  to be able to work on Apache 1.3 and 2.0 at the same time.
-- Macroize the db version (3.3 vs 4.0) to be able to easily switch from 9.0 
-  to Cooker.
-- Add Provides: ADVXpackage, all ADVX package will have this tag, 
-  so we can easily do a rpm --whatprovides ADVXpackage to find out
-  what ADVX packages a user has installed on his system. 
-- Likewise, add Provides: AP13package and AP20package in the same
-  manner
-
-* Wed Nov 06 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.43-4mdk
-- enable build with debugging code, used ideas from Han Boetes and his
-  fluxbox package, but the RedHat way. rpm --rebuild --with debug 
-  apache2-2.0.43-4mdk.src.rpm will _not_ strip away any debugging code,
-  will _add_ -g3 to CFLAGS, will _add_ --enable-maintainer-mode to 
-  configure.
-
-* Sat Nov 02 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.43-3mdk
-- enable the ldap stuff and build against db4
-
-* Fri Oct 25 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.43-2mdk
-- new P5 (for mod_logio; check www.rexursive.com)
-
-* Fri Oct 04 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.43-1mdk
-- new version (security fixes + mod_logio)
-- dropped P5
-- new P4 (mod_logio)
-
-* Wed Oct 02 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.42-6mdk
-- added P5 [CAN-2002-0840] (will be in 2.0.43 + mod_dav fixes + 
-  mod_logio, release probably tomorrow)
-
-* Sat Sep 28 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.42-5mdk
-- added P4 (mod_logio)
-
-* Fri Sep 27 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.42-4mdk
-- added P3 (from CVS) that fixes apr-util to honor LIBNAME
-
-* Thu Sep 26 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.42-3mdk
-- installbuilddir, htdocsdir and logfiledir is suddenly set ok in
-  config_vars.mk, no need to fix that with perl. (it was doubled!,
-  i'm blind...)
-
-* Thu Sep 26 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.42-2mdk
-- bring back ugly spec file hacks, but now it's even uglier... :-)
-- finally got mod_ldap to compile, but chose not to enable it
-- put generated httpd2.conf in docdir as httpd2-VANILLA.conf
-- misc spec file fixes
-
-* Wed Sep 25 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.42-1mdk
-- the httpd-2.0.36-cnfdir.patch patch by RH is merged upstream, 
-  therefore remove it from this package
-- remove the ADVX rpm package naming scheme
-- merge changes from my last 2.0.40-*mdk package
-- provide my nice converted transparent png icons (S4)
-- added the gnupg signurature as S1
-
-* Tue Sep  3 2002 Jean-Michel Dault <jmdault@mandrakesoft.com> 2.0.40ADVX-8mdk
-- change version to 2.0.40ADVX so we can easily synchronize Contribs. We'll
-  remove the ADVX suffix for final release.
-- mod_ssl will be in apache2-mod_ssl module, since it requires
-  openssl, and we want to avoid forcing crypto into the main distro.
-  Thus we also put ab-ssl in this package. 
-- Fix gentestcrt to generate a random certificate authority as well as a
-  random certificate name, so that multiple test certificate don't conflict.
-- apache2-devel provides apache2-mod_ssl-devel
-- modules do not require libapr0
-
-* Wed Aug 28 2002 Jean-Michel Dault <jmdault@mandrakesoft.com> 2.0.40-7mdk
-- macroize completely according to the ADVX policy
-  (http://advx.org/devel/policy.php)
-- move non-version-dependant stuff and directories to apache2-conf
-- put less strict Requires, since apache2-common is now version-independant
-- patch apxs so we only need apache2-devel to build modules, and that no
-  other package is required.
-- pick up more stuff (htdbm, etc) from the /support directory
-
-* Wed Aug 28 2002 Jean-Michel Dault <jmdault@mandrakesoft.com> 2.0.40-6mdk
-- add ap_confd macro (for the /etc/httpd/conf.d include directory)
-- use DONT_STRIP=1, it's needed for some modules, such as mod_perl and
-  HTML-Embperl, until we find a way to build them statically with Apache.
-- merged some of Oden's changes in Contribs, up the release to 6mdk so there
-  is no confusion.
-
-* Tue Aug 19 2002 Jean-Michel Dault <jmdault@mandrakesoft.com> 2.0.40-2mdk
-- macroize specfile completely
-- Fix a few minor bugs in package and make rpmlint happy.
-- Put old changelog for Apache 1 in doc/apache-old-changelog in case we
-  forgot some old 1.3 features in 2.0
-
-* Mon Aug 12 2002 Jean-Michel Dault <jmdault@mandrakesoft.com> 2.0.40-1mdk
-- New, final 2.0.40 release
-- Split mod_ssl, mod_dav and mod_gzip outside of the main Apache tree,
-  because of some configuration issues when updating. They will be in their
-  separate packages.
-- Put apr-devel inside apache-devel, since it created conflicts for some
-  files, and besides, you can't use apr-devel if you don't have the Apache 
-  headers anyway.
-- Move apachebase to /etc/httpd/2.0
-
-* Thu Aug  8 2002 Jean-Michel Dault <jmdault@mandrakesoft.com> 2.0.40-0.20020805.2mdk
-- Totally rebuilt SPEC. This is the result of hundreds of hours of intensive 
-  testing, install/uninstall/rollback, and I could write a novel with all
-  the changes. However, those were the general goals of the rewrite:
-- 1) Take as much possible from Oden's excellent work
-- 2) Remain compatible with the previous ADVX spec files
-- 3) Make upgrades possible and still keep previous configuration files
-     so sysadmins don't have to re-configure everything
-- 4) Rework apache2-common, so that the package contains only icons, man files, 
-     cgi-bin and only essential directories. Move /etc/httpd/* to
-     /etc/httpd/2.0 since they're really release-dependant, and move
-     them to the apache2-modules package.
-- 5) Work with possible rollback to 1.3 in case the user needs some module
-     that works only with 1.3 (frontpage, auth_ldap). In the case of a
-     rollback, the only thing to do should be to remove the apache2 package,
-     we should be able to keep the config files and the new apache2-common, 
-     since they are not version-specific. The only problem will be mod_ssl, 
-     mod_ldap and mod_gzip, since both the 1.3 and 2.0 versions contain
-     common files, which will conflict. In that case, if there is a problem
-     with the upgrade, those modules will be disabled. This means some 
-     functionality will be lost, but at least we don't break the entire web 
-     server.
-- 6) Of course, if it's a brand-new install, everything should work
-     perfectly ;-)
-
-* Mon Aug  5 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.40-0.20020805.1mdk
-- new CVS version (possible the last CVS snapshot)
-
-* Thu Aug  1 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.40-0.20020801.1mdk
-- new CVS version
-- built against new OpenSSL
-- fix suexec and mod_userdir conf (thanks to David Walser for reporting this)
-
-* Wed Jul 31 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.40-0.20020731.1mdk
-- new CVS version (mainly doc fixes and one nasty bug)
-- built with latest system compiler
-
-* Thu Jul 25 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.40-0.20020725.1mdk
-- new CVS version
-
-* Tue Jul 23 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.40-0.20020723.1mdk
-- new CVS version
-
-* Thu Jul 18 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.40-0.20020718.2mdk
-- new CVS version
-- fixed the initscript (duh!)
-- misc spec file fixes
-
-* Thu Jul 18 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.40-0.20020718.1mdk
-- new CVS version
-- mod_proxy requires mod_disk_cache (since a while back, sorry about that),
-  fixed S30 to reflect this
-- improved initscript
-- misc spec file fixes
-
-* Wed Jul 17 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.40-0.20020717.1mdk
-- new CVS version
-- there's no such thing as "httpd2 -k configtest" (thanks to Lonnie Borntreger for
-  pointing it out)
-
-* Tue Jul 16 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.40-0.20020716.1mdk
-- new CVS version
-- add apache user (as in apache1 by flepied)
-- better initscript (stole stuff from here and there...)
-- relocated the SSL certificates to /etc/ssl/apache2/
-
-* Wed Jul 10 2002 Pixel <pixel@mandrakesoft.com> 2.0.40-0.20020710.2mdk
-- use a Serial in perl require
-
-* Wed Jul 10 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.40-0.20020710.1mdk
-- new CVS version
-- don't use the scoreboardfile (it's broken it seems)
-
-* Sun Jul  7 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.40-0.20020707.1mdk
-- new CVS version
-
-* Sat Jul  6 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.40-0.20020706.1mdk
-- new CVS version
-- added the new MaxMemFree directory to httpd2.conf (yet undocumented, and 
-  therefore commented out)
-- added ab-ssl to the mod_ssl package
-- fix P1 (apxs didn't work with php-4.3.0-dev)
-
-* Wed Jul  3 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.40-0.20020703.1mdk
-- new CVS version
-
-* Mon Jul  1 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.40-0.20020701.1mdk
-- new CVS version
-
-* Sat Jun 29 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.40-0.20020629.1mdk
-- new CVS version
-
-* Fri Jun 28 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.40-0.20020628.1mdk
-- new CVS version
-- construct the "include/ap_config_layout.h" file from the spec file since it's not
-  done properly by apache... (!) (I wonder why???)
-- ship the migration guide stolen from RedHat
-
-* Thu Jun 27 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.40-0.20020627.1mdk
-- new CVS version
-
-* Wed Jun 26 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.40-0.20020626.1mdk
-- new CVS version
-- bzip2 all sources
-
-* Sun Jun 23 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.40-0.20020623.1mdk
-- new CVS version
-- misc spec and conf file fixes (thanks to Yura Gusev for
-  reporting some of the stuff)
-
-* Tue Jun 18 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.40-0.20020618.2mdk
-- minor spec file and conf file fixes
-- added the ScoreBoardFile
-
-* Tue Jun 18 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.40-0.20020618.1mdk
-- new CVS version
-- removed flood, will be a separate package
-
-* Mon Jun 17 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.40-0.20020617.1mdk
-- new version, new CVS version
-
-* Sun Jun 16 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.39-0.20020617.1mdk
-- new CVS version (2.0.38 is alpha, might as well go for cvs)
-- can't tag with cvs version, php needs -dev to build (stupid php)
-- fix flood %%configure 
-
-* Sun Jun 16 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.38-0.20020616.2mdk
-- new CVS version
-- mod_ssl should really require mod_setenvif and mod_vhost_alias
-- changed the %%description
-- added missing split-logfile (not installed per default...)
-- broke out the icons as a subpackage to enable using themes for mod_autoindex
-- misc spec file fixes
-- fix permission on flood
-- added P5
-- 2.0.38-0.20020616.1mdk was lost in cyberspace...
-
-* Sat Jun 15 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.38-0.20020615.3mdk
-- missing header files in apache2-devel (GRRRR)
-
-* Sat Jun 15 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.38-0.20020615.2mdk
-- added S100 (subpackage: flood)
-- accidently uploaded apache2-common which is no more...
-
-* Sat Jun 15 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.38-0.20020615.1mdk
-- new CVS version (2.0.38 will be final soon...)
-- fix the "ServerRoot/conf.d" stuff.
-- fix the manual alias, and provide only *.html 
-- provide only *.png files (check with unisys...)
-- HUGE spec file modifications (mega split)
-- added P3 (require and link with openssl only for mod_ssl)
-- added P4
-- added S100 (flood)
-
-* Fri Jun 14 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.38-0.20020614.1mdk
-- new CVS version
-- don't use %%exclude, rpm in 8.2 is broken...
-- misc spec file fixes
-
-* Thu Jun 13 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.38-0.20020613.1mdk
-- new CVS version
-- Use Redhats version instead of PLDs to ignore invalid files in the 
-  "ServerRoot/conf?/" dir (P0)
-- Mentally prepare to use the "ServerRoot/conf.d/" dir (beware!), soon I'll probably
-  be numbering all files in this dir a'la PLD... There may be a split where all/most
-  modules has their own rpm package... If you don't like this _speak up now!_
-
-* Thu Jun 12 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.38-0.20020612.1mdk
-- new version, new CVS version
-- misc spec file fixes
-- stole some ideas from RedHat :-)
-
-* Thu Jun  6 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.37-0.20020606.1mdk
-- new CVS version
-- rediff P1
-
-* Sat Jun  1 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.37-0.20020601.1mdk
-- new CVS version
-
-* Wed May 29 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.37-0.20020529.1mdk
-- new CVS version
-
-* Sun May 26 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.37-0.20020526.1mdk
-- new CVS version
-
-* Thu May 23 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.37-0.20020523.1mdk
-- new CVS version
-
-* Sun May 19 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.37-0.20020519.1mdk
-- new CVS version
-- fix perl path and suexec log file; reported by Liam R. E. Quin
-- misc spec file fixes
-- added P2
-- fix S4 & S10
-
-* Sat May 18 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.37-0.20020518.1mdk
-- new CVS version
-
-* Thu May 16 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.37-0.20020516.1mdk
-- new CVS version (SSLLog and SSLLogLevel is no more)
-- new S10
-
-* Wed May 15 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.37-0.20020515.1mdk
-- new CVS version (apr-util and apxs fixes)
-- fix P1
-
-* Mon May 13 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.37-0.20020513.1mdk
-- new CVS version (apr fixes)
-- misc spec file fixes
-
-* Sat May 11 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.37-0.20020511.1mdk
-- new CVS version
-- broke out suexec and apr stuff `a la PLD, but with a twist :)
-- added P0 to prepare for possible use of a conf/[0-9]_*.conf system (?)
-- added P1 to make apxs work (?)
-- more Mr. rpmlint fixes
-- build against db3 for now
-
-* Tue May  7 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.37-0.20020507.2mdk
-- Mr. rpmlint fixes
-
-* Tue May  7 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.37-0.20020507.1mdk
-- new CVS version
-- made it possible to run apache1 and apache2 on the same box
-- cleaned up the spec file a bit
-- removed P0, construct a dynamic config.layout file on the fly instead...
-- ripped the gentestcrt.sh things from the mod_ssl spec file
-- enhanced the httpd.conf file a bit
-
-* Mon Apr 24 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.36-0.20020424.1mdk
-- new CVS version
- 
-* Mon Apr 15 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.36-0.20020415.2mdk
-- spec file fix
-
-* Mon Apr 15 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.36-0.20020415.1mdk
-- new CVS version
-- don't require apache-conf just yet...
-- forgot to provide S9 & S10
-
-* Sun Apr 14 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.36-0.20020414.1mdk
-- new CVS version
-
-* Fri Apr 12 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.36-0.20020412.1mdk
-- new CVS version
-- a lot of specfile fixes
-
-* Mon Apr  8 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.35-1mdk
-- new version
-
