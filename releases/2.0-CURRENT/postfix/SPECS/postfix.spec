@@ -74,9 +74,11 @@ Patch8:		postfix-2.2.5-avx-warnsetsid.patch
 Patch9:	 	postfix-2.2.10-vda.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	db4-devel, gawk, perl, sed, ed
-BuildConflicts:	BerkeleyDB-devel
-
+BuildRequires:	db4-devel
+BuildRequires:	gawk
+BuildRequires:	perl
+BuildRequires:	sed
+BuildRequires:	ed
 %if %{with_LDAP}
 BuildRequires:	libldap-devel >= 2.1
 %endif
@@ -84,7 +86,7 @@ BuildRequires:	libldap-devel >= 2.1
 BuildRequires:	pcre-devel
 %endif
 %if %{with_MYSQL}
-BuildRequires:	MySQL-devel
+BuildRequires:	mysql-devel
 %endif
 %if %{with_SASL}
 BuildRequires:	libsasl-devel >= 2.0
@@ -92,16 +94,21 @@ BuildRequires:	libsasl-devel >= 2.0
 %if %{with_TLS}
 BuildRequires:	openssl-devel >= %{openssl_ver}
 %endif
+BuildConflicts:	BerkeleyDB-devel
 
-Provides:	smtpdaemon, MailTransportAgent
+Provides:	smtpdaemon
+Provids:	MailTransportAgent
 # we need the postdrop group (gid 36)
 Requires:	setup >= 2.2.0-26mdk
-PreReq: 	coreutils, fileutils
+Requires(post):	coreutils
+Requires(post):	fileutils
 Requires(post):	rpm-helper >= 0.3
 Requires(postun): rpm-helper >= 0.3
 Requires(pre):	rpm-helper >= 0.3
 Requires(preun): rpm-helper >= 0.3
-Conflicts:	sendmail exim qmail
+Conflicts:	sendmail
+Conflicts:	exim
+Conflicts:	qmail
 
 
 %description
@@ -132,7 +139,7 @@ This package contains the documentation for %{name}.
 %patch0 -p1 -b .avx
 mkdir -p conf/dist
 mv conf/main.cf conf/dist
-cp %{SOURCE2} conf/main.cf
+cp %{_sourcedir}/postfix-main.cf conf/main.cf
 # hack for 64bit
 if [ "%{_lib}" != "lib" ]; then
     ed conf/main.cf <<-EOF || exit 1
@@ -150,9 +157,9 @@ fi
 %patch9 -p1 -b .vda
 
 mkdir UCE
-install -m 0644 %{SOURCE10} UCE
-install -m 0644 %{SOURCE11} UCE
-install -m 0644 %{SOURCE12} UCE
+install -m 0644 %{_sourcedir}/postfix-anti-UCE.txt UCE
+install -m 0644 %{_sourcedir}/header_checks.txt UCE
+install -m 0644 %{_sourcedir}/body_checks.txt UCE
 
 
 %build
@@ -217,10 +224,10 @@ sh postfix-install -non-interactive \
 
 # for sasl configuration
 mkdir -p %{buildroot}%{_sysconfdir}/postfix/sasl
-cp %{SOURCE15} %{buildroot}%{_sysconfdir}/postfix/sasl/smtpd.conf
+cp %{_sourcedir}/postfix-smtpd.conf %{buildroot}%{_sysconfdir}/postfix/sasl/smtpd.conf
 
 mkdir -p %{buildroot}%{_sysconfdir}/pam.d/
-install -c %{SOURCE6} %{buildroot}%{_sysconfdir}/pam.d/smtp
+install -c %{_sourcedir}/postfix-etc-pam.d-smtp %{buildroot}%{_sysconfdir}/pam.d/smtp
 
 # Change alias_maps and alias_database default directory to %{_sysconfdir}/postfix
 bin/postconf -c %{buildroot}%{_sysconfdir}/postfix -e \
@@ -231,7 +238,7 @@ bin/postconf -c %{buildroot}%{_sysconfdir}/postfix -e \
 install -c auxiliary/rmail/rmail %{buildroot}%{_bindir}/rmail
 
 # copy new aliases files and generate a ghost aliases.db file
-cp -f %{SOURCE3} %{buildroot}%{_sysconfdir}/postfix/aliases
+cp -f %{_sourcedir}/postfix-aliases %{buildroot}%{_sysconfdir}/postfix/aliases
 chmod 0644 %{buildroot}%{_sysconfdir}/postfix/aliases
 
 touch %{buildroot}%{_sysconfdir}/postfix/aliases.db
@@ -269,7 +276,7 @@ pushd %{buildroot}/usr/lib
 popd
 
 mkdir -p %{buildroot}%{_srvdir}/postfix
-install -m 0740 %{SOURCE6} %{buildroot}%{_srvdir}/postfix/run
+install -m 0740 %{_sourcedir}/postfix.run %{buildroot}%{_srvdir}/postfix/run
 
 
 rm -f %{buildroot}%{_sysconfdir}/postfix/LICENSE
@@ -435,6 +442,13 @@ fi
 
 
 %changelog
+* Sun Aug 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.10
+- rebuild against new mysql
+- rebuild against new openssl
+- rebuild against new openldap 
+- the run script was accidentally installed as the pam file; fixed
+- spec cleanups
+
 * Fri Jun 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.10
 - rebuild against new db4
 
@@ -567,359 +581,3 @@ fi
 * Wed Dec 17 2003 Vincent Danen <vdanen@opensls.org> 2.0.13-4sls
 - OpenSLS build
 - tidy spec
-
-* Mon Aug 18 2003 Guillaume Cottenceau <gc@mandrakesoft.com> 2.0.13-3mdk
-- add CHROOT_INFO.README.MANDRAKE in doc section, in particular to
-  explain how to sync system and chroot files
-
-* Thu Aug 14 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 2.0.13-2mdk
-- BuildRequires: db4-devel, libsasl-devel to match other deps
-
-* Wed Aug  6 2003 Guillaume Cottenceau <gc@mandrakesoft.com> 2.0.13-1mdk
-- 2.0.13
-
-* Fri Jun 27 2003 Guillaume Cottenceau <gc@mandrakesoft.com> 2.0.12-3mdk
-- fix default cyrus transport location thx to Buchan Milne
-- build against db4.1
-
-* Fri Jun 13 2003 Guillaume Cottenceau <gc@mandrakesoft.com> 2.0.12-2mdk
-- use sasl2
-
-* Thu Jun 12 2003 Guillaume Cottenceau <gc@mandrakesoft.com> 2.0.12-1mdk
-- new version
-
-* Mon May 26 2003 Guillaume Cottenceau <gc@mandrakesoft.com> 2.0.10-1mdk
-- new version
-
-* Thu May 22 2003 Guillaume Cottenceau <gc@mandrakesoft.com> 2.0.9-4mdk
-- update multiline greeting patch
-
-* Wed May 07 2003 Yves Duret <yves@zarb.org> 2.0.9-3mdk
-- opensslpower.
-
-* Mon May 05 2003 Olivier Thauvin <thauvin@aerov.jussieu.fr> 2.0.9-2mdk
-- workaround to fix requires openssl (yves sucks)
-
-* Sat May 03 2003 Yves Duret <yves@zarb.org> 2.0.9-1mdk
-- 2.0.9
-
-* Thu Mar  6 2003 Guillaume Cottenceau <gc@mandrakesoft.com> 2.0.6-1mdk
-- 2.0.6 is a minor security fix
-- build against openssl-0.9.7a
-- build against libdb4.0 instead of libdb3.3
-
-* Tue Jan 21 2003 Guillaume Cottenceau <gc@mandrakesoft.com> 2.0.1-2mdk
-- fix proxymap to not be launched chroot'ed thx to <mr at uue dot org>
-  (Michael Reinsch)
-- needs sasl1 to build, not any (not sasl2 that is)
-
-* Mon Jan 20 2003 Guillaume Cottenceau <gc@mandrakesoft.com> 2.0.1-1mdk
-- new version (plank the children (c) dams)
-- drop the domain.name -> example.com patch: we've had a similar patch on
-  1.1.x since Wed May 29 2002, but postfix mainstream authors still haven't
-  changed accordingly in postfix mainstream sources; therefore I assume
-  they don't agree with such a patch, and there is no point bothering on
-  our side to maintain such a patch
-
-* Tue Dec 17 2002 Guillaume Cottenceau <gc@mandrakesoft.com> 1.1.12-2mdk
-- have initscript 'start' update the db's, thx to Todd Lyons <tlyons@mandrakesoft.com>
-
-* Mon Dec 09 2002 Yves Duret <yves@zarb.org> 1.1.12-1mdk
-- new upstream version.
-- updated postfix tls to according postfix version.
-
-* Mon Nov 11 2002 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 1.1.11-6mdk
-- Make it lib64 aware
-
-* Thu Nov 07 2002 Thierry Vignaud <tvignaud@mandrakesoft.com> 1.1.11-5mdk
-- fix gc vs c-r
-- prereq : s/(sh-|text|file)utils/coreutils/
-
-* Tue Sep 17 2002 Guillaume Cottenceau <gc@mandrakesoft.com> 1.1.11-3mdk
-- don't use "rmail.postfix" but "rmail" in master.cf, fix uucp,
-  thx Buchan Milne <bgmilne@cae.co.za>
-
-* Fri Aug 30 2002 Guillaume Cottenceau <gc@mandrakesoft.com> 1.1.11-3mdk
-- fix upgrades from Mandrake 8.2 (call update-alternatives in triggerpostun
-  so that old files removal is already done)
-
-* Tue Jul 30 2002 Frederic Lepied <flepied@mandrakesoft.com> 1.1.11-2mdk
-- use %%_pre_groupadd and %%_postun_groupdel %{maildrop_group}
-
-* Wed Jul 24 2002 Guillaume Cottenceau <gc@mandrakesoft.com> 1.1.11-1mdk
-- new version
-- updated postfix_lfs source to 0.8.11a-1.1.11-0.9.6d
-
-* Fri Jul 12 2002 Frederic Lepied <flepied@mandrakesoft.com> 1.1.10-3mdk
-- add postfix user
-
-* Wed May 29 2002 Yves Duret <yduret@mandrakesoft.com> 1.1.10-2mdk
-- specfile: added --with --without build conditions to override included defines.
-- MySQL: adjust requires and buildrequires.
-- main.cf: fix a typo.
-- added P100 to perform domain.name-to-example.com everywhere 
-  as requested by the .name TLD maintainer Andreas Aardal Hanssen <ahanssen@gnr.com>.
-
-* Sun May 19 2002 Yves Duret <yduret@mandrakesoft.com> 1.1.10-1mdk
-- version 1.1.10.
-- updated source9 (postfix_tls) to pfixtls-0.8.10-1.1.10-0.9.6d for postfix 1.1.10.
-- requires openssl with version according to pfixtls need (0.9.6d here).
-- fix sample_directory pointed to /sample in main.cf (tvignaud).
-- fix /etc/aliases symlink (alternatives).
-- chroot: added etc/{resolv.conf,hosts,host.conf} to the chroot-jail.
-- chroot: fix db3 trigger (on libdb3.3)
-- chroot: fix ldap trigger (on libldap2 instead of generic openldap package).
-- chroot: renamed ROOT by CHROOT.
-- do not ship two times the TLS doc (in TLS). 
-- use %%{_docdir} instead of %%_datadir/doc.
-- rpmlint: use %%SOURCE6 instead of %%sourcedir.
-- spec: replace official condif by reverse experimental condif (so my vim macro works again).
-- description: add a space before begining with a new sentence.
-
-* Tue May 14 2002 Yves Duret <yduret@mandrakesoft.com> 1.1.9-1mdk
-- version 1.1.9
-- updated source9 (postfix_tls) to pfixtls-0.8.9-1.1.9-0.9.6d for postfix 1.1.9
-- source in gzip format instead of bzip2
-- include .sig file for postfix src and pfixtls
-- fix %%postun script (exit if $0=0 instead of restart postfix)
-  pointed by Guillaume Cottenceau
-  
-* Mon May 13 2002 Yves Duret <yduret@mandrakesoft.com> 1.1.8-3mdk
-- fix chroot pbs in upgrade too. thx Pascal Terjean. i really sux.
-- add db3 in chroot jail.
-
-* Mon May 13 2002 Yves Duret <yduret@mandrakesoft.com> 1.1.8-2mdk
-- finally fix uppgrade. i sux.
-
-* Fri May 10 2002 Yves Duret <yduret@mandrakesoft.com> 1.1.8-1mdk
-- version 1.1.8-20020508 (bug fixes)
-- updated source9 (postfix_tls) to pfixtls-0.8.8-1.1.8-0.9.6d for postfix 1.1.8
-
-* Wed Apr 24 2002 Yves Duret <yduret@mandrakesoft.com> 1.1.7-3mdk
-- fix alternative pb (symlink not created)
-
-* Wed Apr 17 2002 Yves Duret <yduret@mandrakesoft.com> 1.1.7-2mdk
-- added %{_libdir}/sendmail link for backward compatibility
-
-* Sun Apr 14 2002 Yves Duret <yduret@mandrakesoft.com> 1.1.7-1mdk
-- the long awaiting postfix update (added Epoch tag).
-- complete spec file rewrite (using the RedHat one).
-
-* Tue Jan 29 2002 Geoffrey Lee <snailtalk@mandarkesoft.com> 20010228-20mdk
-- A much needed upgrade to pl08.
-- pfixtls 0.7.13 for pl08.
-- Remove the postfix useradd and groupadd.
-- Requires latest setup package.
-
-* Mon Nov 26 2001 Vincent Danen <vdanen@mandrakesoft.com> 20010228-19mdk
-- apply security fix from Venema that fixes potential DoS
-
-* Wed Nov 14 2001 Philippe Libat <philippe@mandrakesoft.com> 20010228-18mdk
-- add pam.d/smtp, sasl/smtpd.conf for sasl configuration
-
-* Wed Nov 14 2001 Yoann Vandoorselaere <yoann@mandrakesoft.com> 20010228-17mdk
-- remove empty include statement that was preventing USE_SASL_AUTH to be
-  defined. Thanks to James Farrell <jfarrell@candyraver.com> for reporting and
-  fixing this problem.
-
-* Tue Oct 23 2001 Florin <florin@mandrakesoft.com> 20010228-16mdk
-- rebuild for db3
-
-* Tue Sep  4 2001 Guillaume Cottenceau <gc@mandrakesoft.com> 20010228-15mdk
-- subst `Linux-Mandrake' with `Mandrake Linux' in SMTP Greeting Banner
-
-* Mon Sep 03 2001 Yoann Vandoorselaere <yoann@mandrakesoft.com> 20010228-14mdk
-- Hand modified the config file patch, to fix bug #4048
-
-* Mon Sep 03 2001 Yoann Vandoorselaere <yoann@mandrakesoft.com> 20010228-13mdk
-- Provides: MailTransportAgent
-
-* Sat Jul 07 2001 Stefan van der Eijk <stefan@eijk.nu> 20010228-12mdk
-- BuildRequires:	libsasl-devel
-
-* Fri Jul 06 2001 Philippe Libat <philippe@mandrakesoft.com> 20010228-11mdk
-- new db3
-
-* Mon Jun 25 2001 Jeff Garzik <jgarzik@mandrakesoft.com> 20010228-10mdk
-- Patch dnsverify.pl, to have /usr/bin/perl not /users2/local/bin/perl
-  on first line, as the interpreter to be run.
-
-* Thu Jun 19 2001 Philippe Libat <philippe@mandrakesoft.com> 20010228-9mdk
-- version pl3
-- TLS, LDAP
-
-* Wed Jun 13 2001 Philippe Libat <philippe@mandrakesoft.com> 20010228-8mdk
-- SASL Support
-
-* Tue Jun 12 2001 Philippe Libat <philippe@mandrakesoft.com> 20010228-7mdk
-- Added config samples
-
-* Tue Apr 17 2001 Yoann Vandoorselaere <yoann@mandrakesoft.com> 20010228-6mdk
-- Do not stop postfix before installing, it will prevent us from restarting it.
-
-* Tue Apr 17 2001 Yoann Vandoorselaere <yoann@mandrakesoft.com> 20010228-5mdk
-- Revert latest change, cause the DB are already re-generated in postfix.init
-  at each startup.
-
-* Thu Apr 05 2001 Yoann Vandoorselaere <yoann@mandrakesoft.com> 20010228-4mdk
-- When upgrading, always regenerate all .db file (except aliases)
-  This fix bug #2260 (upgrade postfix need to recreate /etc/postfix/*.db
-  files). This avoid problem when the DB file version change.
-  
-  thanks to Steffen Ullrich <coyote.frank@gmx.de> for reporting and helping
-  fixing this bug.
-
-* Wed Apr 04 2001 Yoann Vandoorselaere <yoann@mandrakesoft.com> 20010228-3mdk
-- Fix bug #1810 (postfix invokes procmail with options that cause a `>From '
-  line in the headers) by adding the -o options to the procmail call.
-
-* Thu Mar 29 2001 Guillaume Cottenceau <gc@mandrakesoft.com> 20010228-2mdk
-- use post/preun service macros
-- user serverbuild for safer flags
-
-* Tue Mar  6 2001 Vincent Danen <vdanen@mandrakesoft.com> 20010228-1mdk
-- 20010228 release
-- macros
-- added conflicts: qmail
-- added buildrequires: db3-devel
-- added buildconflicts: BerkeleyDB-devel
-
-* Wed Jan 17 2001 Yoann Vandoorselaere <yoann@mandrakesoft.com> 19991231_pl13-2mdk
-- install rmail script.
-
-* Wed Jan 17 2001 Yoann Vandoorselaere <yoann@mandrakesoft.com> 19991231_pl13-1mdk
-- Upgrade to patch level 13.
-- add delay_warning_time option to main.cf (fix bug #1390).
-
-* Thu Nov 16 2000 Chmouel Boudjnah <chmouel@mandrakesoft.com> 19991231_pl08-6mdk
-- Explicit compile with db1.
-
-* Tue Aug 29 2000 Yoann Vandoorselaere <yoann@mandrakesoft.com> 19991231_pl08-5mdk
-- change license to IBM Public License
-
-* Tue Aug 29 2000 Yoann Vandoorselaere <yoann@mandrakesoft.com> 19991231_pl08-4mdk
-- use noreplace
-- use %{_initrddir}
-
-* Tue Aug 29 2000 Yoann Vandoorselaere <yoann@mandrakesoft.com> 19991231_pl08-3mdk
-- correct 2 shell syntax error in %postun
-
-* Wed Aug  2 2000 Guillaume Cottenceau <gc@mandrakesoft.com> 19991231_pl08-2mdk
-- %config(noreplace)
-
-* Fri Jul 21 2000 Yoann Vandoorselaere <yoann@mandrakesoft.com> 19991231_pl08-1mdk
-- updated to postfix release 19991231-pl8.
-- small specfile cleanup.
-
-* Mon Jul 10 2000 Thierry Vignaud <tvignaud@mandrakesoft.com> 19991231-8mdk
-- let spechelper compress man-pages and strip binaries (hey guyes, we do this
-  for a _long_ time)
-- use new macros
-
-* Sat Jul 08 2000 Stefan van der Eijk <s.vandereijk@chello.nl> 19991231-7mdk
-- modified find statement to only find files (not directories)
-- moved BuildRoot to /var/tmp
-
-* Fri May 05 2000 Yoann Vandoorselaere <yoann@mandrakesoft.com> 19991231-6mdk
-- Fix an aliases.db problem...
-
-* Tue Mar 21 2000 Yoann Vandoorselaere <yoann@mandrakesoft.com> 19991231-5mdk
-- Fix group.
-
-* Wed Mar  8 2000 Pixel <pixel@mandrakesoft.com> 19991231-4mdk
-- add prereq wc
-
-* Mon Jan  3 2000 Jean-Michel Dault <jmdault@netrevolution.com>
-- updated to 19991231
-- added postfix group
-- corrected aliases.db bug
-
-* Mon Dec 27 1999 Jerome Dumonteil <jd@mandrakesoft.com>
-- Add postfix check in post to create sub dirs in spool
-
-* Mon Dec 20 1999 Chmouel Boudjnah <chmouel@mandrakesoft.com>
-- Add -a $DOMAIN -d $LOGNAME to procmail (philippe).
-- New banner.
-
-* Wed Nov 10 1999 Chmouel Boudjnah <chmouel@mandrakesoft.com>
-- fix if conflicts with sendmail.
-
-* Sat Jun  5 1999 Axalon Bloodstone <axalon@linux-mandrake.com>
-- install bins from libexec/
-
-* Sat Jun  5 1999 Bernhard Rosenkränzer <bero@mandrakesoft.com>
-- 19990601
-- .spec cleanup for easier updates
-
-* Wed May 26 1999 Axalon Bloodstone <axalon@linux-mandrake.com>
-- created link from /usr/sbin/sendmail to %{_libdir}/sendmail
-  so it doesn't bug out when i rpm -e sendmail
-- Now removes /var/lock/subsys/postfix like a good little prog
-  upon rpm -e
-
-* Fri Apr 23 1999 Chmouel Boudjnah <chmouel@mandrakesoft.com>
-
-- Mandrake adptations.
-
-* Tue Apr 13 1999 Arne Coucheron <arneco@online.no>
-  [19990317-pl04-1]
-
-* Tue Mar 30 1999 Arne Coucheron <arneco@online.no>
-  [19990317-pl03-2]
-- Castro, Castro, pay attention my friend. You're making it very hard
-  maintaining the package if you don't follow the flow of the releases
-
-* Thu Mar 25 1999 Arne Coucheron <arneco@online.no>
-  [19990317-pl02-1]
-
-* Tue Mar 23 1999 Arne Coucheron <arneco@online.no>
-  [19990317-3]
-- added bugfix patch01
-
-* Sat Mar 20 1999 Arne Coucheron <arneco@online.no>
-  [19990317-2]
-- removed the mynetworks line in main.cf, let postfix figure it out
-- striping of the files in /usr/sbin
-- alias database moved to /etc/postfix and made a symlink to it in /etc
-- enabled procmail support in main.cf and added it to Requires:
-- check status on master instead of postfix in the init script
-- obsoletes postfix-beta
-- had to move some of my latest changelog entries up here since Edgard Castro
-  didn't follow my releases
-
-* Thu Mar 18 1999 Edgard Castro <castro@usmatrix.net>
-  [19990317]
-
-* Tue Mar 16 1999 Edgard Castro <castro@usmatrix.net>
-  [alpha-19990315]
-
-* Tue Mar  9 1999 Edgard Castro <castro@usmatrix.net>
-  [19990122-pl01-2]
-- shell and gecho information changed to complie with Red Hat stardand
-- changed the name of the rpm package to postfix, instead of postfix-beta
-
-* Tue Feb 16 1999 Edgard Castro <castro@usmatrix.net>
-  [19990122-pl01-1]
-
-* Sun Jan 24 1999 Arne Coucheron <arneco@online.no>
-  [19990122-1]
-- shell for postfix user changed to /bin/true to avoid logins to the account
-- files in /usr/libexec/postfix moved to %{_libdir}/postfix since this complies
-  more with the Red Hat standard
-
-* Wed Jan 06 1999 Arne Coucheron <arneco@online.no>
-  [19981230-2]
-- added URL for the source
-- added a cron job for daily check of errors
-- sample config files moved from /etc/postfix/sample to the docdir 
-- dropped making of symlinks in /usr/sbin and instead installing the real
-  files there
-- because of the previous they're not needed anymore in /usr/libexec/postfix,
-  so they are removed from that place
-
-* Fri Jan 01 1999 Arne Coucheron <arneco@online.no>
-  [19981230-1]
-
-* Tue Dec 29 1998 Arne Coucheron <arneco@online.no>
-  [19981222-1]
-- first build of rpm version
