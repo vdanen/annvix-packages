@@ -1,9 +1,27 @@
-diff -Nura php-5.1.4/Changelog.hphp hardening-patch-5.1.4-0.4.12/Changelog.hphp
+diff -Nura php-5.1.4/Changelog.hphp hardening-patch-5.1.4-0.4.14/Changelog.hphp
 --- php-5.1.4/Changelog.hphp	1970-01-01 01:00:00.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/Changelog.hphp	2006-07-20 11:18:12.000000000 +0200
-@@ -0,0 +1,34 @@
++++ hardening-patch-5.1.4-0.4.14/Changelog.hphp	2006-08-11 11:45:39.000000000 +0200
+@@ -0,0 +1,52 @@
 +Changelog of the Hardening-Patch
 +--------------------------------
++
++0.4.14 - 11. August 2006
++
++    PHP4:
++        [+] Remove unecessary call to AC_BROKEN_REALPATH
++
++    PHP5:
++        [+] Fix Remote URL Include Protection - Thanks to: Bart Vanbrabant
++	
++    PHP4+5:
++        [+] Added a few PHP security fixes / see changelog.secfix for details
++	[+] Fixed the memory_limit protection for systems with different perdir memory_limits
++	[+] Fixed a possible memory corruption when foreach() is used with wrong arguments
++
++0.4.13 - 07. August 2006
++
++    PHP4+5:
++        [+] Added a fix for a compile problem on solaris due to missing strcasestr()
 +
 +0.4.12 - 19. July 2006
 +
@@ -36,11 +54,19 @@ diff -Nura php-5.1.4/Changelog.hphp hardening-patch-5.1.4-0.4.12/Changelog.hphp
 +    PHP4+5:
 +	[+] fopen_wrappers.c: fix for a trailing slash problem with open_basedir
 +	
-diff -Nura php-5.1.4/Changelog.secfix hardening-patch-5.1.4-0.4.12/Changelog.secfix
+diff -Nura php-5.1.4/Changelog.secfix hardening-patch-5.1.4-0.4.14/Changelog.secfix
 --- php-5.1.4/Changelog.secfix	1970-01-01 01:00:00.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/Changelog.secfix	2006-07-20 10:58:43.000000000 +0200
-@@ -0,0 +1,32 @@
++++ hardening-patch-5.1.4-0.4.14/Changelog.secfix	2006-08-11 13:17:40.000000000 +0200
+@@ -0,0 +1,40 @@
 +Changelog of PHP 5.1.4 Security Fixes
++
++Release 6 - 11. August 2006
++
++    [+] Added IMAP open_basedir/safe_mode check
++    [+] Added a fix for previous ext/session fixes
++    [+] Added upstream fix to ext/socket
++    [+] Added sscanf() security fix
++    [+] Added fixes for handling of corrupt .gif files to gdlib
 +
 +Release 5 - 13. July 2006
 +
@@ -72,9 +98,9 @@ diff -Nura php-5.1.4/Changelog.secfix hardening-patch-5.1.4-0.4.12/Changelog.sec
 +        and is downloaded when make install is called (usually as root -> security risk)
 +    [+] Fixed open_basedir/safe_mode bypass via the realpath() cache
 +
-diff -Nura php-5.1.4/configure hardening-patch-5.1.4-0.4.12/configure
+diff -Nura php-5.1.4/configure hardening-patch-5.1.4-0.4.14/configure
 --- php-5.1.4/configure	2006-05-12 16:41:10.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.12/configure	2006-07-20 11:07:00.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/configure	2006-08-07 11:04:06.000000000 +0200
 @@ -942,6 +942,16 @@
  ac_help="$ac_help
    --with-libdir=NAME      Look for libraries in .../NAME rather than .../lib"
@@ -651,9 +677,9 @@ diff -Nura php-5.1.4/configure hardening-patch-5.1.4-0.4.12/configure
    
        IFS=.
        set $ac_src
-diff -Nura php-5.1.4/configure.in hardening-patch-5.1.4-0.4.12/configure.in
+diff -Nura php-5.1.4/configure.in hardening-patch-5.1.4-0.4.14/configure.in
 --- php-5.1.4/configure.in	2006-05-04 01:30:02.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.12/configure.in	2006-07-20 11:07:00.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/configure.in	2006-08-07 11:04:06.000000000 +0200
 @@ -209,7 +209,7 @@
  
  sinclude(Zend/Zend.m4)
@@ -681,9 +707,9 @@ diff -Nura php-5.1.4/configure.in hardening-patch-5.1.4-0.4.12/configure.in
  
  if test -r "$abs_srcdir/Zend/zend_objects.c"; then
    PHP_ADD_SOURCES(Zend, zend_objects.c zend_object_handlers.c zend_objects_API.c zend_mm.c \
-diff -Nura php-5.1.4/ext/curl/interface.c hardening-patch-5.1.4-0.4.12/ext/curl/interface.c
+diff -Nura php-5.1.4/ext/curl/interface.c hardening-patch-5.1.4-0.4.14/ext/curl/interface.c
 --- php-5.1.4/ext/curl/interface.c	2006-04-13 13:26:10.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.12/ext/curl/interface.c	2006-07-20 11:07:00.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/ext/curl/interface.c	2006-08-07 11:04:06.000000000 +0200
 @@ -167,6 +167,11 @@
  			RETURN_FALSE; 																		\
  		} 																						\
@@ -721,9 +747,9 @@ diff -Nura php-5.1.4/ext/curl/interface.c hardening-patch-5.1.4-0.4.12/ext/curl/
  		case CURLOPT_URL:
  		case CURLOPT_PROXY:
  		case CURLOPT_USERPWD:
-diff -Nura php-5.1.4/ext/curl/streams.c hardening-patch-5.1.4-0.4.12/ext/curl/streams.c
+diff -Nura php-5.1.4/ext/curl/streams.c hardening-patch-5.1.4-0.4.14/ext/curl/streams.c
 --- php-5.1.4/ext/curl/streams.c	2006-01-01 13:50:01.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/ext/curl/streams.c	2006-07-20 11:07:00.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/ext/curl/streams.c	2006-08-07 11:04:06.000000000 +0200
 @@ -289,7 +289,11 @@
  	curl_easy_setopt(curlstream->curl, CURLOPT_WRITEHEADER, stream);
  
@@ -737,9 +763,9 @@ diff -Nura php-5.1.4/ext/curl/streams.c hardening-patch-5.1.4-0.4.12/ext/curl/st
  	
  	curl_easy_setopt(curlstream->curl, CURLOPT_ERRORBUFFER, curlstream->errstr);
  	curl_easy_setopt(curlstream->curl, CURLOPT_VERBOSE, 0);
-diff -Nura php-5.1.4/ext/fbsql/php_fbsql.c hardening-patch-5.1.4-0.4.12/ext/fbsql/php_fbsql.c
+diff -Nura php-5.1.4/ext/fbsql/php_fbsql.c hardening-patch-5.1.4-0.4.14/ext/fbsql/php_fbsql.c
 --- php-5.1.4/ext/fbsql/php_fbsql.c	2006-01-01 13:50:06.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/ext/fbsql/php_fbsql.c	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/ext/fbsql/php_fbsql.c	2006-08-07 11:04:06.000000000 +0200
 @@ -1925,8 +1925,24 @@
  	}
  	else if (fbcmdErrorsFound(md))
@@ -765,9 +791,681 @@ diff -Nura php-5.1.4/ext/fbsql/php_fbsql.c hardening-patch-5.1.4-0.4.12/ext/fbsq
  		if (FB_SQL_G(generateWarnings))
  		{
  			if (emg)
-diff -Nura php-5.1.4/ext/mysql/php_mysql.c hardening-patch-5.1.4-0.4.12/ext/mysql/php_mysql.c
+diff -Nura php-5.1.4/ext/gd/libgd/gd.c hardening-patch-5.1.4-0.4.14/ext/gd/libgd/gd.c
+--- php-5.1.4/ext/gd/libgd/gd.c	2005-09-30 22:48:05.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/ext/gd/libgd/gd.c	2006-08-11 13:18:37.000000000 +0200
+@@ -2161,7 +2161,7 @@
+ 				for (x = 0; (x < w); x++) {
+ 					int c = gdImageGetPixel (src, srcX + x, srcY + y);
+ 					if (c != src->transparent) {
+-						gdImageSetPixel (dst, dstX + x, dstY + y, gdTrueColor(src->red[c], src->green[c], src->blue[c]));
++						gdImageSetPixel(dst, dstX + x, dstY + y, gdTrueColorAlpha(src->red[c], src->green[c], src->blue[c], src->alpha[c]));
+ 					}
+ 				}
+ 			}
+diff -Nura php-5.1.4/ext/gd/libgd/gd_gd2.c hardening-patch-5.1.4-0.4.14/ext/gd/libgd/gd_gd2.c
+--- php-5.1.4/ext/gd/libgd/gd_gd2.c	2005-08-18 14:54:43.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/ext/gd/libgd/gd_gd2.c	2006-08-11 13:18:37.000000000 +0200
+@@ -430,6 +430,10 @@
+ 
+ 	gdImagePtr im;
+ 
++	if (w<1 || h <1) {
++		return 0;
++	}
++
+ 	/* The next few lines are basically copied from gd2CreateFromFile
+ 	 * we change the file size, so don't want to use the code directly.
+ 	 * but we do need to know the file size.
+diff -Nura php-5.1.4/ext/gd/libgd/gd_gif_in.c hardening-patch-5.1.4-0.4.14/ext/gd/libgd/gd_gif_in.c
+--- php-5.1.4/ext/gd/libgd/gd_gif_in.c	2005-09-24 16:39:16.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/ext/gd/libgd/gd_gif_in.c	2006-08-11 13:18:37.000000000 +0200
+@@ -44,7 +44,7 @@
+ #define LOCALCOLORMAP  0x80
+ #define BitSet(byte, bit)      (((byte) & (bit)) == (bit))
+ 
+-#define        ReadOK(file,buffer,len) (gdGetBuf(buffer, len, file) != 0)
++#define        ReadOK(file,buffer,len) (gdGetBuf(buffer, len, file) > 0)
+ 
+ #define LM_to_uint(a,b)                        (((b)<<8)|(a))
+ 
+@@ -147,6 +147,9 @@
+        Background      = buf[5];
+        AspectRatio     = buf[6];
+ 
++		imw = LM_to_uint(buf[0],buf[1]);
++		imh = LM_to_uint(buf[2],buf[3]);
++
+        if (BitSet(buf[4], LOCALCOLORMAP)) {    /* Global Colormap */
+                if (ReadColorMap(fd, BitPixel, ColorMap)) {
+ 			return 0;
+@@ -182,14 +185,13 @@
+ 
+                bitPixel = 1<<((buf[8]&0x07)+1);
+ 
+-               imw = LM_to_uint(buf[4],buf[5]);
+-               imh = LM_to_uint(buf[6],buf[7]);
+-	       if (!(im = gdImageCreate(imw, imh))) {
+-			 return 0;
+-	       }
++		if (!(im = gdImageCreate(imw, imh))) {
++			return 0;
++		}
++
+                im->interlace = BitSet(buf[8], INTERLACE);
+                if (! useGlobalColormap) {
+-                       if (ReadColorMap(fd, bitPixel, localColorMap)) {
++		       if (ReadColorMap(fd, bitPixel, localColorMap)) {
+                                  return 0;
+                        }
+                        ReadImage(im, fd, imw, imh, localColorMap,
+@@ -212,6 +214,10 @@
+        if (!im) {
+ 		return 0;
+        }
++	if (!im->colorsTotal) {
++		gdImageDestroy(im);
++		return 0;
++	}
+        /* Check for open colors at the end, so
+           we can reduce colorsTotal and ultimately
+           BitsPerPixel */
+@@ -502,6 +508,18 @@
+        int             v;
+        int             xpos = 0, ypos = 0, pass = 0;
+        int i;
++
++       /*
++       **  Initialize the Compression routines
++       */
++       if (! ReadOK(fd,&c,1)) {
++               return;
++       }
++
++	if (c > MAX_LWZ_BITS) {
++		return;
++	}
++
+        /* Stash the color map into the image */
+        for (i=0; (i<gdMaxColors); i++) {
+                im->red[i] = cmap[CM_RED][i];
+@@ -511,12 +529,7 @@
+        }
+        /* Many (perhaps most) of these colors will remain marked open. */
+        im->colorsTotal = gdMaxColors;
+-       /*
+-       **  Initialize the Compression routines
+-       */
+-       if (! ReadOK(fd,&c,1)) {
+-               return;
+-       }
++
+        if (LWZReadByte(fd, TRUE, c) < 0) {
+                return;
+        }
+diff -Nura php-5.1.4/ext/gd/libgd/gd_gif_out.c hardening-patch-5.1.4-0.4.14/ext/gd/libgd/gd_gif_out.c
+--- php-5.1.4/ext/gd/libgd/gd_gif_out.c	2006-03-13 22:56:38.000000000 +0100
++++ hardening-patch-5.1.4-0.4.14/ext/gd/libgd/gd_gif_out.c	2006-08-11 13:18:37.000000000 +0200
+@@ -265,9 +265,11 @@
+         int InitCodeSize;
+         int i;
+ 	GifCtx ctx;
++	
++	memset(&ctx, 0, sizeof(ctx));
+         ctx.Interlace = GInterlace;
+ 	ctx.in_count = 1;
+-	memset(&ctx, 0, sizeof(ctx));
++
+         ColorMapSize = 1 << BitsPerPixel;
+ 
+         RWidth = ctx.Width = GWidth;
+diff -Nura php-5.1.4/ext/gd/tests/bug37346.gif hardening-patch-5.1.4-0.4.14/ext/gd/tests/bug37346.gif
+--- php-5.1.4/ext/gd/tests/bug37346.gif	1970-01-01 01:00:00.000000000 +0100
++++ hardening-patch-5.1.4-0.4.14/ext/gd/tests/bug37346.gif	2006-08-11 13:18:37.000000000 +0200
+@@ -0,0 +1,4 @@
++GIF89a
++<
++
++¿´°É, ÎÒ¶¼Ëµ¹ıÂË²»ÑÏÁË
+\ Kein Zeilenumbruch am Dateiende.
+diff -Nura php-5.1.4/ext/gd/tests/bug37346.phpt hardening-patch-5.1.4-0.4.14/ext/gd/tests/bug37346.phpt
+--- php-5.1.4/ext/gd/tests/bug37346.phpt	1970-01-01 01:00:00.000000000 +0100
++++ hardening-patch-5.1.4-0.4.14/ext/gd/tests/bug37346.phpt	2006-08-11 13:18:37.000000000 +0200
+@@ -0,0 +1,13 @@
++--TEST--
++Bug #37346 (gdimagecreatefromgif, bad colormap)
++--SKIPIF--
++<?php 
++	if (!extension_loaded('gd')) die("skip gd extension not available\n"); 
++	if (!GD_BUNDLED) die('skip external GD libraries always fail');
++?>
++--FILE--
++<?php
++$im = imagecreatefromgif(dirname(__FILE__) . '/bug37346.gif');
++?>
++--EXPECTF--
++Warning: imagecreatefromgif(): '%sbug37346.gif' is not a valid GIF file in %sbug37346.php on line %d
+diff -Nura php-5.1.4/ext/gd/tests/bug37360.gif hardening-patch-5.1.4-0.4.14/ext/gd/tests/bug37360.gif
+--- php-5.1.4/ext/gd/tests/bug37360.gif	1970-01-01 01:00:00.000000000 +0100
++++ hardening-patch-5.1.4-0.4.14/ext/gd/tests/bug37360.gif	2006-08-11 13:18:37.000000000 +0200
+@@ -0,0 +1,469 @@
++GIF89aK÷ÿ ÖÌÄÎÒÜÔÔÔ+w±òäÖÕÚäåİ×±˜â¾±ìáÖõçÙc¥ÕòõúöéÛêíöBsúúúÙÑËúëİîòøÆÊÓÌÌÌÈ¼³ÊÍÔ¾ÂË÷îæÒÕÛÁÅÎÔÇ¼§«µÚİä’–õõö£¹åÁ´j“²2‰ÉÈ´¬Ä§œÌÂ¹•™¨ßåñêÜÎâåëÈ­¢ñññŞâî²ÍÚŞéúóëOˆ²Is–¹½Å¦§¬»¡—ÈØä*ƒÆ¶ºÃ¯Ïçíííááá;kºÇÕ-f“ÄÄÄêêêåååëÒÅæéòİº­ŞŞŞ²µ½ùúıÚÚÚ›¡¶öøûÑÖàªµÃşùó˜³¸«¥­±¹0»Õ½³ÊÎØÙÖÔëïøÓ²¦ãéóXixÂÇÑQ„¼¼¼ŞÙÕ¾³©t‡—ùöóäÖÊÌÆÁÚ·ªèçæ0„Ã†—§éÎÁæÊ¼æÙÌûış»¿ÈéÃµéëõÖØİŞàäéË½îïğÖµ©‡§¾ïÚÌæèêàÓÆ³²´«ÅÙçí÷ëéæÕâíşıúÏÉÄ ¨íÖÈÙÛßéëí´¼Ë³·Àáãæ$Qx,\„óóôİáêïßÑåÆ¹ÆÈÎßåïãéõ¼´²šÅå4ÎÅËÙíï÷õóò-óõöíëé4‹Ëğîì2‹Ìöõó¶¹¾Ûáëçåã$m§–¢²äãâœ†~çîù¡¼ÑëíïÖİçàİÚßÛØıûúœ­º%}ÀÑ¹¯ëíñéëñÍàïÙæña˜¨¯Á9Ë°®±ãåçâíöÁÀÀÛáíòÈ·œ±À¹µÏ¯£«ÀÛİàØ´§°µÈ2ˆÆ¹·¸¥Ÿ€|©µÈÆÉéÆ¸2Î5Ğ„¸ß=ŠÃŞåéĞĞĞ1=HáçñÿÿÿC”Îøæ×Ÿ²¿z¡¾ÂÜï]‚¡şïß¬ÀÎˆ‘Ÿ5Ëõóö€„ãçóåéõåëõıııáåñçë÷åë÷ııÿáçóçëôıÿÿãçñ4‹Íÿÿıÿııåçğ/‡Èãçõìëíáåó½Òá’§·÷çÙ?…¹úéÙëíëÈÈÈûûıŠ °6“Õ»ÀĞóõóßëô×àç÷÷øÿÿÿ!ÿNETSCAPE2.1   !ù	 ÿ ,    ÿÿÿÿ ÿ ÿ	H° Áƒ*\È°¡Ã‡#JœH±¢Å‹3jÜÈ±£Ç CŠI²¤É“(Sª\É²¥Ë—0cÊœI³¦Í›8sêÜÉ³§ÏŸ@ƒ
++J´¨Ñ£H“*]Ê´©Ó§P£JJµªÕ«X³jİÊµ«×¯`ÃŠK¶¬Ù³hÓª]Ë¶­Û·pãÊK·®İ»xóêİË·¯ß¿€nøìÙàÃˆNÌ¸±ãÇ#KL¹²åË˜3kŞÌ¹³çÏ C‹Mº´éÓ¨S«^Íºµë×°cËM»¶íÛ¸sëŞÍ»·ïßÀƒN¼¸ñãÈ“+_Î¼¹óçĞ£KŸN½ºõëØ³kßÎ½»÷ïàÃ‹ÿO¾¼ùóèÓ«_Ï¾½û÷ğãËŸO¿¾ıûøóëßÏ¿¿ÿÿ  ˆ2Áj(†"ÆÀxŒ0Ã óÈ0Â(xLcá:Ô’`ƒ}ñƒ‡>@ƒC&—	;eàÀ	ì°XÆ4®,â]Œâ*:äÃNŠ$)$	—H,¨2ÀKÜh×ñÄa1i¥<ĞÃHÀ€“r©1Š4ß<Cå‹WZY0ìx¢åx	&\×R<U¦9ä%°<°…'nÂç=s¶åJ*æ<#Š,8 ©g— ³Å–[
++'…®u/ <cN2$ƒæ£A¢#E¥–ÂYÈ+™¦åJ …Qÿ“Ì+ĞŒJê%ÈH‘*œ=TCh«e-qMaÏÔ²Ä8:ä R è®7 [–Ëû5¶Şê&, ji¯J£Xû²Ê	‰'[î
++ç¬ŠÖ«Ö¾ò#4é
++	IŸîj9Š¼`]±SÊ¢ÃÙ>š"¿»ö0Â7 w¥Æ°ÖRãÊ#ÉæiŞ¦ZÈsÅ€ÄÖ¢Ã3®\’°²ÙdÙo´!kõJ?H”™Ì#çf¬qÀén¼Ä¬<¯œÌ 4¯¸²r¾e0üm5á
++]•:<R°ïle‘úƒR[uÍ8/ èj½ç©»RKØU}ó‚2É<4µà;@DJÿÌeHá(	k
++Ù²»0Ã=Õ4ª$s44:\r‰'|_2€'I¹–€ÎîŠ©âSÍ¡
++ä$(3Â%™x"ø%e2@æ}{Î¹ëŸ™Íß¾@úT/H!4EÂRûçìÌ0ƒ*™Iùà?HA{¤Ş:<ÎïQá1ÀŠ°ì)ÕlOä ? ¸±!œH‚©ŞÎğ%öOİ`>Œ†Ş²'(ª‚O"#`‘`a÷©h ÕøÂ Ø‘‰Ãiio£ŸSD1 GıÀ|2À‡^$f`„„fP)$+™P†>0"ÃeHœ—‚„¼He2Æç‘€&Ìªÿ$@˜p ~€B5æ!Uà@
++Ø0AÊWŞõà_3lÊTQ$ Ò`Öè „È` ñÃ.ÆPƒÌã~`±QÈ ¸(‚!ü4©id±){€³`!3¤Ã?0ƒ
++!t!6(‚Ø€  @`ƒ&E€€1¬S(„ z0°ıQ)¼ØàŸdĞ‰g,ã°†äA ğ>…,lã EÀ%Dà@ÁcV8åR& ƒ6q	éàAúà…0XCØB, lP¢ÒÈB0…y|¡kğPæRöğC8ı`Nx†?¾`ˆH ›PAaÿJPâY'‡i‚ÌíÒÒÔ¹”RÌ#P†ˆB:â‹fP¢  >c0-BÅešù,8ÍàWEÊ+d0©lÏàE(;$›
++Hlà…?Xc¸¶'BE0¥HYÂ(¬Xˆ5Ä@3pŠO	H€
++H.Ù€FÁH]Ê^0©DàiHÄ	2JUªjU»˜AÆ.Ñ±ø1¬K©Åğ‰gÄ@*°ƒ
++ÚŠÓ? @ˆ‡š·®Tb~xMÊ7ö ˆI8A£À&¡QœÂaÀü óĞCAÉ0²HñGÑ ª€ @g³Z„ÿ˜à0@ q€ƒTµLÁ„)ÀpÏÍ&€ª˜‚mÙpÓZ6aóx“ 2à&åb¨  ä‘Yœ6@8À.D€œÊãªUøÄzĞÑY×(ß¨0a¤Aø®N PĞ°ô°âaˆ-õÊ”ïJìa¿&âº @8`Ûp ¬y­‘€\Lê®H°P
++#té€ì17ØB °@9%ySã4À¨†]!&bŸ€ Ax†)@À‡DèBm°*;Ø g¨±‘Û€5à£Á=æI* g !	àƒ˜±„r”Ã
++@X¤¦Ìf	X#ÿ¶B–qòŒ$4øh3üÁ`‚f€- ĞäÙ¶5¿İÕ°Ò 7ØhÎ1ù†vP˜	¤ € Äp	˜Ù
++Ì8f‹èÌ n3NÀ@:Ò`.ŒRàLßC¶À³™à;P5° €íªO`‡ãN¹¸&ÀƒG¿:% ï3¾á F8£Ö™6…ğL„r´Á'Àª`„A‹b¢§L_œ€ÄğÇ³U²ƒ$†Ú×¾6¦[Àƒf{úÓHCwÍfÖ”oæm’gğ@…¹G9œQ
++k×Úd8$nær8 k-¸Èë‹kÍÿf¸Hê<°i—#İĞB°Pk@ØÂŞ’èø§İÀyˆüØ@-Â*ÊTÁÕ*÷È7Ğ‚Â¨áåµfhÎNO×ù§50êuÿ¼°Õƒ¹„ ï¤o$¾‡ˆ8Ôk] xãÚ.°ş­u{ ¾öyÁóKU:àr„¹‚00³cä{vz9\à‚ks£9 9Å+ğ6Ô½ãV(3ÄîÚ8Á¨J \
++9X¹øílÃCdézÆÓ) ÉÃ€/@qy'ùÅ öMàùDÀAWÆ.}K” TP½µü!€²»şõˆ=µií
++Ğm§9ÿøí1Şk½ 3€ €„!­ŠCmMp E$Ú°"0Án D˜°p×çÏPÚ7kú¶¥ukğvÎ \°–g~f&xÏài+ĞpÌpÂğ¡ Ø`RF Š€ WPkÀ	àã`.<@ïUQgi'k´vmİ€L€XÀĞl'@wæ‡…‘smà V`P
++J…J(°
++‰Tc L0X@ğ‚Ö\4¨“F,oúFTàƒ BØ‘º@0—g¨u’ S€øÂ0[ EP°Ğ4àhæÿr6€Abd@,–F§o0u@Ğ×FT 
++}°m0py@,€ÖqmĞ‚ğ‡€ÃÀ÷„Mg€ &P
++@àkà`H,-P‰’H×l•viP{ùV
++mèkP{1×ŒA"¸ˆ€‡'	DÇqŸV ! O0‹J
++p‹YWÌ Œ@Tà ÃXt ÀcÇÈwv‡Bumè9 yÀQwÀN Û€ÀŞvÌ 	•æm’p¿ ØP€ˆ\ĞR¦ Ÿ%€Œ¨æòd’(Êˆg.ƒ009ÿsTĞ¥À…Z +òTN 5€àŠçgs`6¨¿ğ(€³H…0Àƒ…S~·
++ıØv€9àæâwpşĞzó3¹)ƒµ¶0pmÒÈ¢€°u°ÀN@v€œ€”Zç Dp@PÌ@QÙ‘SùwÀ‰f‚W  ˜ˆ 
++„Ğ’-0„€öVHàléŞĞŒ4×9P Ğ€Rÿ_N€M~ 9wyIVàƒ•²ø‘ƒ· muîŠ×6r 5@
++-¹‹ànĞt×«qİpšµFSçŒ)ÿ@´p 
++ ³ ¹i~000•æ8ÅP yPW‰MZµ
++9~QÀy@~ĞrÖ
++S ½ ša–p£ù÷p †ú 	À‚fy
++“'0™GŸÁO _Ğ™h°Ÿ¨ƒŠèŞ 5{Ö’ 0iQ†ØS€]&{åÀ	9Àk™oşX{?ø“¨€]0	™•5Yw}X¢Tˆ	ÿPLĞÁ0’Cà³0sùLĞyp@tÄò X€t3Á óñFpƒÏ0k¬ÙƒjØ…=Pq ¥àõG)¢’ÿ iÁ`ÏpLP h~Ç §Îk€>xÀ-ÉD@k)À£"
++3iiÎĞĞ€jØ‰=øš–P›À‹PŞf~¯¸‘òù2(à ã¦Y"0-pšø‹èT€Ğ’÷§œÀ	±™`qÈ–œ°Ú‰öIu -  )ÖŸ€À!zy@¢S‰ 
++¡iÀİ¾  àŒÎ@oĞƒŞ°~°Ä²Î uT 
++V-ğ pšÜ@œ0«Z Œ°vú¦à| pT0pæ'	‘ğ¨TØ‘`¨ |ÿeXSğ{’‹ğà4w³@iæ2Ü€0n \Ô×°¦ù§û§À	k Ay1  •Q°„°UÚD²•Tˆ–`€	1 Q¶´“ğT ¢ ²ş >X ƒ°ei.iøƒG€µxµtAš­’—oø–ù–’›pQ³w— ’ ˜	S•~ ˆŸğOĞt*z`
++é€•EÿpP `o0sÒ8€
++æRš—æ`}õIğ·ß°x`q×Ö‰—à¼‹ëZ	€gm à˜ë{ë „wPë	ŸˆUP˜ÿ 
++¬ÕYh°³ÿ°›P³I.àà‹°{ær±µæ@
++)Ug6*	—¶ßY¼À¸¦„»°÷ËqV°4à UjfKèå0’ R	ˆJğ	š@¦PÏ Er0	Ša#‡°ˆ.°ø hØŸä²¤#AVôë.™øªp¼y@à@ı°§LZp>Á¯¸ÄIæ }HÄğ‡äøÃa
++”†³š… 	€„@Œ¤@‹@ NwªúÆªwJ(G,şP nŒ°~ªÃÇ‹0º
++QĞm»†ğ
++‚¼–„LX@DĞ¥ÿ@ë ø5`}z ¾XŒMŠñà·ÿà•¤Ë–àG0,4qÀ°‹€°İàùªZ°€İ@Q ÕËÄf†È>hš)@L	ë`’@g{
++Ñ	§àW³Ó&¬ @À¦Ëˆ¤0 7ş ¿…á\xÃBÿ‹Œ.@¥<H ¢®ÈÄm°¿J¶fˆ0š`oo‹SC MÊ‡pÀ°ÓfÆú·ú;uÊ¤pºƒ¥€ä,y°
++ˆÇ ‡Ğğ|~xhÆŒÁ‚p=³i
++ÌŒO°Üq@›ĞtÖ¢–ÿÊ	¤L:§§-PgŠš<HÑz«o‹øûH°ïüÑğ\mÄ`Õõ]ÒØDÊöP±-É¿Z
++77AP‰Ä~‰İ°àŒ¡p·®1Pfu÷À"jyÂj¢‘0§à`0[ Åúq ÖmŠĞš¨¾RƒÖÂ9Àùƒàİ Ç{‹; ¥°FØqç`tİ²:‹ÄĞ$ÿ`	 pY…5ú
++×’5lmn¹BsÌ`-;íœğ¢à×€]¨¤=‚ óZÄ‚ÀVP½"jL0¸±t¨à]C0  0“-Lq­ë†--Ïÿ   üğèœ0G>èØéİİ±ZàÑç úğúpH¦ÔÇÜã¨Q– İcğ½A6Jšù–Îìë€°Î7B„ı„BÈ^|m0pàĞJsÏ+ı ğıiPø± DpßuÍ ‹J0?dĞ·ˆlc ºq¬-éªµ–ÙLP …
++0u6m÷Pƒ°“× ™èƒàİ€²ŞP o H ‰¬›å°‘QTpfu½÷ˆ·`¬Ì PÏ<„`´ÄrÜĞŸŒà‰T°Í…âÍÆ €g4„µ ƒ ³Lypì­âñíÈãÿ¨X¾å]n¢>0€©ÎçqŞl‰§)¸ 0Aà¼gKĞ…9ğvş¸çŒp~No
++P¾Ÿıió=‹O Èm½®Mğ!U`lëhËû¤ÀÂ}šİP ¢+/<àã€’ç@qk ~zoGP
++Ôªêƒ¯p†®sàQˆ‘°í¬âÁÙâ¤İE l`Z:ßı·¬Èè¬ÍŞ}­KĞfŠV[¡{ÙÃ€Ø±©µÎ‡¡=…0Pğ»Æ	òi¢œ`¬öäYWĞ	h-k‡¤Ô)›s×*	.€®Ù“kÈ¸.@.p­	bÏdû”JÿğL"]¢³¾²UXrĞá3µzmrúë7Òâ[LğŒ@ÑâYk|m^Ùx@é¡ˆ ğ:gñù0Üy¸0‹ÁóÓ*Ğ]‰0>_p-‰€C?Fß F ¡ Gğv.€ıõ6LŒÀ	MKLp›m~VP ‘ğêŞ‹XŠË –p©Y\æA›9ÓCŸoE?'ÏPÛ’`ÎxÎ	ğ}~{æ\Ô±Màâ˜`¯›çĞè³ø	Éô-ñ
++`‚%`õñ‹ æ¢Õ›ï €7btÏ€¬©¤\ymUkáèM¾¿ĞûJM¯¥ÿ ß²Nhg`-}ùn-ÙÊùÆ÷ë$< 	¥éÓÎ¢şvi½•rüäKšx°RÎàA„	&´IIˆQLøWñ_
++4øcBE!E†üváÙI”R8cÙ²%– AFÎ¤YÓæMœ9uîäÙÓçO A…~«ğL’³R4°8ó¶C7gœ6°ÄÂd{B+æ9"©ÍB°aÛ´ùõ0b7BFH¤Q_§´Öyƒò¤,+]º„IKë_À&\ØpE2FqÃBeÔn4˜,-µa©7
++â´hÂ×°¡:@Â,DMÔ„dÖVc¢1U´–üf÷ÿ½X¸íusóaàÁ…'NüÛ,T¸½å ²Ô,KiÜŒ`$M¨¬³Òİ»$+ E—“àtˆ'±ˆì¢¢F8ü%¥Øî7")R0)Ğ{ocŠp@4°"#¸x¦g9‚–8Éa¥ª(XÊ…5l…;rXƒ
++´Xƒ˜8ÇğÄ[H}ˆH‰O(bÏ=ø¹"À¡˜©Í.Üœ! -ÀÂ¹–øæ@$“TrÉœ	æ$RÀ¢€A–ª*È0²ª^ÃÄ‚º¨"‚VY¥Gî !È$q`¡¯Ê’¨€™ªpMD£“¿À6ü(DD-8Š*N ÑÿIFutÀ8´"…n(ÀÀgºÙ€¨° ¡ ,ºÁ Â €‚yäA)„¹
++RDÈˆ‰è‰ V	1Üz1"øë °­G–ºab üë­€:µöZl«`‡qXò&Šæ2]Ô¨6à¦‘º$ì™Tp«:Zm•È@bƒr€+$ñwĞC!­qfê#y4j`bı„?m+G¯Ş¡ ‡Å‚²õøcg‚€™gTrÆ… t‘A\`© 
++«Ë°*Âxï5y]­÷Tc–;ÖØ`ƒ 1xa€ 	“$†KBY»– ÿ¸ÙRÖ·Aùk°5„qò‚iLaz*Ó¡á7ÃôhÚ-‘W@yè‰W3|ŠV» )qFÀÃóGÛqàêŞ¸Á`)«
++$lÎ;GÅL‡†Ér=¥åHà ğâfÎ¸Û† ‰!#yÕÕİõ…& „6jÀ©"ò%x£Š
++Jé¦±¬<—~úàx aA½:ˆîä(\FÊ¯áN¸sxWmˆã™pÏê"îfšú€ŞVÇèC°  ·mrå»ã<àÔ#`ºÛP( QXJ7.€6g4‚8N  »<ÉË-x†Ô§ÿ:áPC H5“`ÉÃ @`¯iå$³”‡¨A@ˆ}øÃœôBYËÔ ¨ l	$,à4·ÈÎU¨Ç3ğA…-E  MqÁ4`â„ƒ®ÀÖ¦dˆÿ”‡Ğ ØíxÇ´ r=ÂB):ĞNĞ %H£pîááÅkŠ°"İµ1€&hš$ÿ<4\ÁP(¤V P”²„rTáh ><¦ò‡3<I~˜24ÈˆÈİ@µÔ‡ÄáéU"8 (Ò!<aÕW€ßL:€DX¢"ÁãÀLàÂ$ƒûK˜ "ÿ½äPe7H62QØ¢À„ šd@¦¸ °ÆKBğ˜tsÕ.((1$¢‹bKl`‚Æ	æIˆœ£B… ¸ ›ÎàáMˆzîöxÆ7ò’)
++!mLD`$ibnn‰/ÉàG*†‡À$,Š0$À,¸gñ@iIP¨ Z ×^·ˆõc½à ÉzsÎË‚éŠaq,áÙÍB@é<‡5†.Òä…œDğ¬¦
++µ%U\°!ñ†-j[±¥‰?á…BLè€•\ğ# •@<°ì†e!€!¥æït‚	;Ğ
++5Œ?¹IY)ÿZ°Ğ8æVÌ2ê½@EÉôâpÊy Ázh œÀ¯
++€ƒ	Lq;«2Œ¦;9…
++ìÀ'Ã<ƒ ÈsAO7¦iµ„
++'ÌlqÔ<Ã :#XÂˆ4Õ@lvQØÎc° Oª  ·0B˜¦Ä´@çF0 `‘°ÀW¾ÅùäIÜ˜aªTĞëôĞWa5€ÌÈnuEà‹°âäÁ
++¨aZ°[Û,¡*kPh¦˜ğ©Cõ]›o‡ƒcÚ1«5ğ#!]}CµÂKC
++,,İ™@™:¡${˜gÜTbW*ÅRQ
++ŒexJLôp‘ÓŠZô³ÿÀ@˜Bş")iğ«
++°›Rİ± ;  PLà€âz‘ÃM#
++@N+qÂˆ˜¢
++êhd8ÅEÍMH¬á  ø@šh§[TôÍ“EèîNa/l98-°mäê¬æZ‰92gLã$].S˜n cb!ŒågU¸$8'; sëŠ¹“ˆNU2+¥[’gZ×7y”åÆ)EÁ¹`‚º…‰>ãé	ˆ-pk­î(Â-Õ¥ÌšDÁÀ–»æöHx\f±cÚ@'™ôŒ$Ì-P ò<á`Âlâ°~†+{“êP…9`‚ézcénÜ"  ¨ÿ\©³Naà¡×²Ó»  `áé®ænÔƒémTg¤ Ğ˜ÑSäZà»şF0®—Ó—` Ç•B¥µ:q	xa¤ÂúCNà±oØ‚Ş•àK)äœ>¢¹7XøÈ3ıŒ;ÔjÔ¦°@l‘[Ë`ÒHÌŸÌ!ø¢ĞÙ’&¬@6gj#v÷œã=]¾NºC+)æqt£„üFªn¬–µrÃÇü¡c”€ =}å2¼_ZÃ¤èj÷p…QŒ{cSyHÁ"N‹-ê*@'Hvì²®GîQøÏÀNí«@%`|‘ïÑ‹`œ/y/)Å º‘‚5,>[§ °,ÿ q·$b‹7ÿØ7^ë¹×G˜ÌKÖpo4F¼­Ïìƒ+p<5Ø;‚kàtŸ­I\İ÷WÀZµ
++Š?*	[Ö¸i/l—0âœŞ( )¨_\İ:7
++Å‚@H?lƒŒ?z°wB?y†YØÈ‡p:—ğ-À’—83NH"»?¡š¨  .¸p‹ @ûãKP­ €¼K$Wa¶™¨X› hñ7ª0½Ã€˜’´ã@;z#`ğ.à "» èü[  	P×&V¹¹. ¼gPñ—„æó-Ø 7hB 4 gØ
++€œœK.ÿìq	N@»éI€’):X-İy¡lªá
++Xƒ°‹ & =—h„#è 3<Cê9„ë£š
++ˆŒ‹ 
++˜>Î9; ™B€ñÙÙa—
++# (GÃ‚Ë&É£°«Š(XDFôœ ¨@	{ ¥l*x3é¹ĞD(EÀ¢¿q˜<B2+€PSdº({EÊŸY|  ‚“Hÿ+€<+ J /Ø"E¨.E(‚ùøšà¿û°BÉ°Ş¨½«IºsF ‚ ‚; Æg¸‡‹2+Ó2 öPDèDÙ™WdpÃªñ8•i	É[›6k9xô!!à?5 "–hÿµ² P>p<ù ÂZ…Ëó˜{iC	+h:ul( <è‰Hz`?7bŠg¹4éùHfø¥y2¿°D-Le¼À5è¹”Ié1„t£çY[(H°‰    +
++J`M›g°‡y³+¸°…ª¶J#J§üš{¨ w@	şi„p ?ˆ:2…(Š+&:èÊ›úª¨ASL+—Ğ¸0œ’m[Ë°A²±,np² è [ĞH;š(ˆ€FâË®lµ¯1²Z•DFŞ ¥ºr‰ldÌ¯ù†õ³€a`†ëQ¥gŠÚKôÊÎ!Šjd€jDÃ|‰ÿĞ6ƒ‰TM9„Y [ .8‚Ax¾ °JêéÁMš+!µü`#£MÉÉŞ˜’;c	n°KäÄ–Š:„Ø¨¶ÒÃN…a˜P4ÎùB‚r¨%hØš–·)NX‚ôLĞ¿¨/«:››y<	±¯0¼ÿ( ?¨0ÑEíP@’±ªíR5°%|D‚Ûğ”àl°@–  êôPE–oĞ»ºñÙ˜ °	(ûb‚#X(—„İ€‰”Q$Å‰>'`Ò+øË§Œ‹òÍ	 ĞÅ(‡äHR.µ‰´®Åé!ƒiš g¸5è†8ÿåqr*Ò(É.Ó
++À„ ,¡µ–{ ¡gÀ0
++t¹€–-Uì&hÆ9MRfH ½sĞØÃ‘Å“À$°¡ÿiÓ(P™DITN­P0 `ª9 >²¸VòÑr +•¼|ƒ	HíTäì„‰¸®$Fê1{¨ÆXˆŠ	¹PClË„U$E¶Õ2?˜±B.”0|ì-Ô½è†#8"¤hJbõP¹¢(ÒÎ™¼)ÜX3U3ÊÁÅ(P½ÔÌVınÕ4 4 …ò"‚rHQÉ·½è€ÉÀ‚wTWÕ]h×<¹[- €0Ü` ‘Ê©”#x*VMO×i×ÿËÑšš“ø†s(•¨”+e„p àĞ‰ENT˜¹·ÀG°#w@H•„¥ààĞÚ€ ÂÖ“eLó+ó³ğLú9	*‡6 ÔY(Nˆ‚ĞÒUĞ518 ĞIÏÙ¸L6ºÇØo0½ÆxÕ¨Âo85·€_°6ƒP0+,  @X)ÙF /l³#È=Ûôì¼3¸‚`¼‘ƒ]h°éùR¬("©|m‰F„R  9\xŒ á9°À 1¥
++xÌ›„A°Y­íÄ\F,µ(ÚÏ]İ]PVê!»¥6hÉ¦)é ÿÈS×¹*ø 30Ø"øÊB”˜½6£5—è†pƒáeLŸ!@ŞİÙ¢ûñ¡$ËoøæÙ†\ˆÌ^gì‚;á ey¹‚£ÛF³È¢‚È–`_§l8’²Pğ…]2¡]ÜÇê?8üÕÃT'ÿ…Ç*`¶ªk&MJ^æmİÎÙ]É]Z¾ ~`µÛŞwñ§åõ^Şl|é¥ŠõjÉ@Tf< ¾;ÏE ¸‚‰Ã	³]ˆÙXŞpØÛ¨ĞÙn=d&=Ú>‰¯a%·«^Z(èá#Ö51˜Õw)1h =Râª¹É¡­—Ğ ÿÎâ"«‚\Â“h¼q-;Ú²šÄ¨XJ¾`‰ec£ë," Âi•Ø% ˆ˜d‰5Ø–(…ãôcÆÓ\`’¢«-/XãkÉ1£-M
++XQ I¦>òS 5£Âµ­•^Ë|tae‰ÃâQî°/Ò;Va^0P´#F;	üØ[,(·Z6:tÓ;¨Á›] çı!ŞTàêå7"iŠ>æ"£vuWBşbR"#P<nŒ°õXel62TƒmV ¨Ù…Âİ(¢C¨6ÏÚ{Ü¨„t¸©2: èÊkŞÍ?)_Ş?GîgãIeF€(ÿ¬R¥$ÈUíó–@c	2Y‡†³8¸Ú®¼TÚó1ãc å‘‰Öµv‹!ƒP(‚(hÏ‘GÏâ(ÏÆğè—.²>J_…]hYÚ$¨E>ªÔ	€Hj8«a’ò…a8 ÜÅ£pî´–ÈƒAØ€jh¨..Sxã·¸8`—e£W^s5T°kÌà¡+8ä;º‚
++f–@„î1T1†kÃ„^L¤+_oÒ-É%s˜ècÀ6. :šÛS*PĞ<f
++xŒù¾Ç6.S7™NÖ PXºÿ ´ÏşìÌŠix·Ñí&dÑj|vÚÑAg×ªoĞÿ¿ª›ª$ˆ!íSÄ MŞí™<,ºŒ(!H•>pìUî€" øko™ÌnŒ€õÅnÌêîÕ²¶š¡ğ>³hmó* à¼0° `l«*ÈìŒƒÎËï ê‚À;/;€‚(#`…j„à —/Lğ	·  Ğ´î&!à–d‰<ˆ#~ğˆz=¨S@…äC`†éî†Üñøş ˜”ÒÔ vqÀf†Vx#*eÇn# ôíàëîñİ‚
++Äƒ["Wn '»PXòİ–Æ7‚)ßmf Ò½à†RPò+ÿl!Ğ€…ê£ùòÇnüBİØZ6ó,>!å6ws¸î5lÚ9os:ŸaĞ–@î=ë È$/ætÌõ‡hÉÊ;tD?ÛgĞÛ½pG=tö5‚0%¶t‡nı¥tNÿè{ uäWGõ‰}Ğò‹ìWTÇf7¨¬V?õWW×8Ä—øÛZÇf`Ó\§õ]‡Õg Óõ`¯å^°¶ŒÛôc—d0ÄŒ£‚Joö]„ 0vj¯å8hëlŸöm÷×gxÉ¼Ğöp—d7Xƒ<`s?w6¾‡”/pw÷l¥ÛRz÷ãHÿ cË÷,†€Eplx‚/xƒ?x„Ox…_x†oxÆ !ù	 ÿ ,    ÿÿÿÿ ÿ ÿ	H° Áƒ*\È°¡Ã‡#JœH±¢Å‹3jÜÈ±£Ç CŠI²¤É“(Sª\É²¥Ë—0cÊœI³¦Í›8sêÜÉ³§ÏŸ@ƒ
++J´¨Ñ£H“*]Ê´©Ó§P£JJµªÕ«X³jİÊµ«×¯`ÃŠK¶¬Ù³hÓª]Ë¶­Û·pãÊK·®İ»xóêİË·¯ß¿€L¸°áÃˆ>KÌ¸±ãÇ#KL¹²åË˜3kŞÌ¹³çÏ C‹Mº´éÓ¨S«^Íºµë×°cËM»¶íÛ¸sëŞÍ»·ïßÀƒN¼¸ñãÈ“+_Î¼¹óçĞ£KŸN½ºõëØ³kßÎ½»÷ïàÃ‹ÿO¾¼ùóèÓ«_Ï¾½û÷ğãËŸO¿¾ıûøóëßÏ¿¿ÿÿ (à€¿=3ÁğŒòÂ(xÀ³Ç:à¡ƒ+KÈ×®L3€RàP8p(Å‡ Şµ<sP	— ãŒ™ÈxIR¨‚ƒ7¤(÷,æ?>Ü° ;3&©d&RlñÀPò¢†>ñPI$AÆ7*=sCK, Š’dÚˆ0N> æ÷P¹S<<#§?<À(Áó†ÉàP&™— ‹'¨©fsŒã&N-!ç£sò`D\ÄOÏè ãŸJ^Òd††
++Ï¢6}# ¤¨>óQéGKôÿc ,Ğ,Àé’e¤j†L@*MB´ê°A0³ƒÁãÏ3Ô$#Š­·&	‰¡Š(²¿ºô£ÃvDÇrôJ Ï˜#Ê3 m’ÈZ­š®d“ <ÃÀrŞ3$’L°Ä7©’ÁL!Q ¤üÈ¢îº$ SšïöPÍ”ò²Á©K¤à€Î`)tì j@úM–m^tÃ!Ó'ÃIB©kµ¯tõB$îu-KD
++XLÀ	kDqÎ4âĞ’ éÄYÑ77@:Á%8@#Ã7njÄ/pµm/Bä\…ØJ
++„¼´3œø1ˆ` İ¼m…ÓZÿIîDVûè+PóÌ2B’ë»HL1Vq$ª<TñjtÏœú¶3¡…(ÎÀ	s’wÈ ,'*\PaD®LşhÉ:°0Ãè4Éø5_u2·©‚ÀÒİ# nwÌDŞx“ypÂ‰s»pz9ø>ºÎ´¤½ª?ê
++;·ÃŒÎ Œ÷¶U TàN·r‚`ñĞµ@œsŞÍ„S@àğÆ
++FPàyÖãœ$J&§<PAp| †q<ƒHÇü„¸$¡/bÕğSîÑ‹SÁïQ¦ŠCtÈ@„üq®HA7(°otc¥ĞŸ(0XhÿºÁ‰Ô¡!yè‡ †GdŠƒœ0`Á¸ A*ÏàÁÀNø$dïP¡sQ…¼åÏXC8ÂA*`¡Èaşºá-DA.ÀŸœæ gpc€!A^'RcÎPFùÖµ5eƒŠÕÚ‚¯òŒ ´Š‹rúÆå¤†Ğo9÷`†Òæ8ˆ`¥|#LéBgxczcD#°à€Ÿ%- ˆ`BJ±€d<c™	³ £‘²pW¨z×$¡İBÂ¾ø&D¨NHÙrvÀüåÏƒpÁÒrÀ	gÀ‘
++£l¥7ê˜ƒ¤ I+ÀÄx Ø ,9ÿ¢­•¡Ä”‚' :£iÍlTLÁ–…ª{0 Îp#81Ê‰“#¨ HâôÜÈ˜@ƒ¼1‚ålràVºEC§7;æŒ@ó {¸§+dQOÈ¨˜P·5òFEÇŒĞŒj}IÙ– 
++)iŒ'0À‹>£_BdÂ–“9F¸TĞBŞ°@ƒRœ†.…8ÏX€#¢-#riW@à©'²Ñ0X¼HFF•QQË TõÔ¨J½Ä´¨8‚¤<Ã[DÕ$ÑRh! få°†0ğmÈŞ@°ä<c35'ÜèJÿ°9è¦H ¹@õÌO´v V‚ífÌK4U
++5òÔ ¶v£¸H]‚…!¬à¨PV<
++ª@†T-Á¯Ü@nc›4F`€	|CB9 †rğ9ß  qÍi[ü5‚ºU)òÊ¹¬Aœà„7‘‚D§mM{ñ*$Œ »FÅA.¦ÁAtüàôÔÌ ƒ±£Fª€E!df(C ˆ(-¨‚‚©%´îhêRüm ¾rÚWoAşZ€'[KÒÑÒÖ0D+Ïé&ø¥0ÈÁL'Ò ,‚~x8¬§†©Ši$`ª8±*f0‘ ÿÀAfÌãÎ‚êÁ×Ô´…ZåUHu^üQáH KóÒ÷ZPXÀ×=º Z ºÍ_
++4åéW´QÈtÇJ‘ntãĞŞÄB\à*è¸Ş¤ã!W@F½;d@ ğb Â4h0e[
++Ø0V±ŠT£0Dµz”CT 
++²{€¿ D!Á^´HOz0á¢Î Á'‡“„N“ˆÈ0k†¥î>¸ñ•vå²hĞ&^xFÖe’=¬!*Hc2ìP3äb#A5¦ °ÁÀvU€Àÿ¨W­· Ğ ´İ©¸“'ZNäÀªrÆTUR¬árÂqC9]èÌ•s4€Aªk jUS`”wÅZ»ùÆø! ŞX04À [ËˆI¹ÈÑ4¡ zH@½>	ŠÀ6ˆ EXæ>÷"ˆ`
++Ò>TM.€
++¨\Û,OQJX‹û›=æÄVÀ± 1 ­½03Î9NĞ ´®äŸ7½¡…„Ã…Œ¸òhi uN`Àmá`BÈiF€£¦wSáÈàaP€î%0Ğİãm;İÿƒ=»X'(áß…ÈÙ®­>¼9‘Ç³–bõrÆÆ¾A„FäàÄcÿ\×pÖ´—pë7@ÛnĞ ·²Íô)­NÃ'	5‚%@À  {ºG %Psw&p p ¾0|0qWÕ/7áIàw5yàp9€7ì%}p£˜§?€ßĞ6ø2P¶F–Ï 2—?¥@oŒk0Sy°ƒnÓ#ZƒS jåBUƒ pı62à	[ /  pv`v¨° zöÛpÂ÷€EàÕ¢>5ñqÀ ,2Ğ€=‚"¸h#¥ìÕZÀãå *o„ôÏp±¥jk°_Î°C—?Qÿ ~¢u7ú“ğçP‚æ„àTWX@‘0…²‚ -àY g§{CÏĞ=@	Û`& |"€€303=^1±-¶°†©Â u9@¦‚u(RTP­ÔkğmD,è‹ğ‚·Qˆ‡‡û…F¢6C9@\£ÅoL€y³?¢
++v„ƒÀøóN0†Ğ?À 
++YĞv °{ßÀ±H	YàÂÇ&P™ IËíq’*pQ@Œİ¤ˆÉ(nùÖJŒ°¬ÀçöoDcØxV¤nÿUCDw”W
++GàBäÔ1 À9J³ÿP -õN+
++3ğ f`Ò‹_0* €àY(h0w"P%	Êt(£Ğ«" ÌP^¨‚„à`”ÈjÈX‘=†ƒ˜¨j‹p)D’)@Çß°û…V9­e4'@NÎÈJhtyƒ4<ø®DP„)@Dp©T0	#PØÀ*€h@  ‰0wlàª	èPe8¯sßĞ(Iáó(q°Rmd=cyx˜(n”¶ğtKÀ‘ßpæ	!ùß°u„Š¨‰¬„B8pä¨<%eN4 'H\tTƒ}Şà> ÌĞ\ÿ`@ ò € ™h÷vlğ1Õ²&ñş@@Ùö($´ƒ°00Kd™—L ·)ZüÓ›Ş°O·sm™nq©÷€œ­äsì…VŸ&Rıõn¡õ–åÄey.4Î`WÑ×0³à  `G)€0š"`_pk€‡2Öhßpdp6ùù(¤pƒ@‰2 vxT ÎpR
++†‘Q@@ß€ïDƒ(—êB¥@z­¤j4 dæ'Rk ~á°´E“±õŞ”ÀhÔÿ)ZİÀ €
++û˜d× ç	£ ,p h oöA¡R¢ğÏ Z
++Ëÿ÷(  8y7öW‡)@y=&Oì(}ÁÅ¥/ 1DåP©ğ ¸ñEèB0@â†Ry9É£R‚	“G7.peœ“ ˆédİ @( “¢ÌğšI *˜	£p€" ]0:‚3Ó8x°ªcUÀ,“*HğpïgNHšĞœ‹ÖVV‡7tªgdWVğ³?–æù¥ˆ.–Z[¢Ö1c*sÜ@¡•N³Jõfˆ.”`‰ÙLğy³•N0€v`i°
++Ğ ‰ğ§cğeG M L^³+{gôiP½­¨¢u°HœuHêBL@"ºh§fƒ"ÿÈi!ÈtøRKsÚ´óêRØc×ùR€˜p³¢ÕV™'L ®N†?C³˜†Ç¶Pé9±Y;±ğ§vGv»G ö`ñ¸g[ÀScöPøÙ-’Ğs.û²]*OJ§›TğtÒ7Z9À^­6V`/ï	€à…Ø›îG®ò¦ªg5†G ˜
++Úp”«ã¨°œc‰@C“œ@xœ  I`   {*Pp 0º{ÖŸP|Oô(
++ƒÖ†up4¶E¹Ê	3›¤ ‰z{x°‘ ˆİ c%ó3û£K»ñ¦Nï…Œ8ƒÜeFÿx¼ø3Cƒzød#å·ğRùæ~L 
++ĞTàßÀ ^º—^p µ8w`ûºk*ğó ½Â·ÛÌPl8,¬@¤ßV nÊ¤æB@h‡¡ÇÉ«¯zx©Ô© 	‚{j„Ğ#ùRZ€N.Gùêœ&s3Äo
++kyÛz  }yFâ;RÈéÿs*1 5àö P°Ä,Àp7üºfÇ3 gÓzªrVRA`²µƒ·zİ4·t‹œ°xôÁ s¼jL!|©9ğÂQ €Ø¤.È™Csæ´æRÿõÆŞp¹z‚-ÕoÀyĞ­xÿ™4 ´ĞˆÔ´jtÎ 
++Ï   à ç°.jsÅ0j`0?{3îP¶À˜MuÀC0 õ1t»hÜ¿†Œ8ö~ìÏ3Ìz¨®·l™Dk¼ÑnÍØ9R,e„ ®58J.Ÿ»~kÙx¨?p)°X ÂB 'À åPVpv@ @lÊ¯Û Ö°†@A‡ 
++}ÇB¤R	uà9PwT ®dÁ/‡QĞÕ×coIáÆhéV ÃœÑ‡˜ğÂ	e°£¯aî„ n[‚ªÖÇ/ôœœÀÍy şÿÙ°o Gîw`j?vJ`	ÏUpïÏ^   @ ê‰Ïl\  ôÒ-‡ğ‹°u£Õ2HÆ»,‚§ÄCÌÁ”˜¼Xp}wk‡LĞ·Ûøâ 2$ˆ¼!ŠQÜ,nGÀd¨Ç@8ıCX°qĞ[ª’°§T nğ½ ¢°½Xà˜Ì–°D Ïn ¥¬µò øLôp˜€*°)»	v H³«“úÕù ‡÷JücÖÄŒ¼4[ özxİ‘nİ ÈÏ°£6Ò»Ñ‡ï‚ŞĞÜÓ§’@èúãj ëş _­M5Óÿ¿;„[b°ïÜˆ  aÀiv  ÀóŒÏ0% 	îPö`iDZ`J±İcu8–JÊà*nkœ½=vRºıÂ.7–fŒ³»“ªûs¥¶ËİJl„’S¦ÈÜ¹s¥j`Jy04`À2 
++FDş°•6‡°npOW Fà¶òUmp} ™'°äĞ¢œİÔQLc `¦¥ÀŞ@ÛÒçLğ¤3×åÉA8Àcv¸ˆm‡õê«/Lol„ÀÖg”„ ¸ªv»qI°Èst@İ1TàÒùÃi§n€yÿ Ğâıß€4PÑƒã|
++şP]ôÎåà ÃºôPÏt€ 6@@ÑG–âº½Œ,»œpX¤l~æä§æ¸üÁÂÌà*ZV&'Ô‹ş ¦Ò6gU Q‚ªVÍ"¹ø#@qÀŞP
++‹ P¸Ï°Áq UPh3œî ˆpN}îøàÅ fu›ÈØŒ kpGÚ¥Îç$(ë@xnª›ô¼İÀ5P×•§¦IZ˜gá4 ºñI€<­´ÍÈh×§Ns,u4 0C Ù$ 3d„mCÎéñ «ˆî¦¬îE`äÿ@„¦‚00®f.Ró&È4évuÊş–5ğæ"UåÉŞ6ÑÇn¯È¨‡_ªW¶ĞE¢5Ö{½ày8Âñ–?ápË1èo’@p*’Àééíéùèò/ ~êVJš[Z¾4¥@CTçRyÀ~ }=–ÀÛ¦!¸÷pÀ\ À©SvhºIZ~Ìh“G'm 4LP¸¹­:Gğdg¹.ÄF…«Âº«öœŞåÀ›]ê.êpíÎ#å­·[4~ŞYTĞ»i-RH
++?íRUV,ëÜk°ïB‰ÌìSvDß10Pi=Z@PÜ!ÿÃVU_;TÊÂ"n„Fn<K Bq€‚a
++ş î¬ŸŞVà}`ëÔï}Ï "ŒÑ%Î™3,Î¨¡Ğ-áA„XÔ áí!ÄFHAXÁ!D„Ş|»°†ÑÅƒŞ.rS
++åAÜ]x‰‘İ@BÄ²†‰ÎÎ¼­É‘"·;-aI…J¯Q¥N¥ZÕêU¬YµnåÚÕëW°a·¶H²4O&QjzËAåbuÛ áß3b³F¸g¥Ü_À­t  ò,V@€ÎEv`¬@%"1jt°#ƒ` …èS?£wJ´ë¯%ÊnZı‹³!@ÿg04<«Ãäe7
++şQ¨Ù­dÃ X8å(Pó`‡æ]`ölÂY,9ìêåŞİûwğáõB¨.é,D9\¥«…tAL/z&j5ïÿÛÆÊºÂ °#Ê$ CL8À†3`lÌJ()€·øÀ·ÕRøàƒÛvb$€ú¾é% n@ra	¹À…‹¼©ëŸ:¨(¤RŞøg¸š``	ÃÕ
++è€“µ(8‚4glàÏ¨°Ñ>&›tòI'Ÿ©n	pvŠÂ¥Õ(Øà½øD¡‚(™@?şø»Ç:4°GÃV±Á†LøÀ„h#@ ]ÜH-°¸hf´h
++¤Œhèp.jÿ„ŠÙ¢ŠƒŠAé†Š@¤á‚p“(Gµ`ñ(ÿ¡¥C=x†Šõ‚
++‡‚œ‚B(Ró¨ÀˆgÚ8Ëú ÔuW^{µŠ‡o!¤nhˆ$‰6ğ¢p "¶s’‡ &(s¿	y†ÿ ‚‘@…PPE\ì|áB”n0ø1!,`xƒ
++ Ò¸8â ÜœádÉ¨üAõ!N.¨/ªoÜpë  *SM°ë7H=‹¾ñgƒwj¤-–í1
++hábÛ³ØÁW˜c–ù» yÆŠó$½À½Õ¨ˆ§+™@W=™À¯kËiãÌmk£I\aê©Ÿÿ¦ÎÅî,Â*ê€%á´àæ¢(x	f *7
++‚€|UÚ¨HñÔ4‰Ö€gÎ ÑgF$‹Z¸1‡âø ËÂ¡ƒeS˜À9¡ l‘{fĞC}ªC„`­ALF+Ò\ˆ‚-ğnr1*@d2ù“D[¼ö“$ %¨úƒ!ÔU€İU	€“4¨ƒ8¦<¸+TÓy¶gŞØ`ĞP§º‡
++ %ot*	€‰—§z&ˆ8Éƒ‰¼¢ÂØmˆ`X!*Z0pîı]e$
++0Å
++BÀ3p–nt@q£c`aö"‰'¥DÈ6V€A¬9Ø Áÿ`BQ8GÊ´;mİ#0úiBğ„·H€1t@ 4!"&tHA74p‚m@P@ ¤Ò
++Àà»©
++òe…5Œo*ß¨CÜ¬â²âsß8P\`EQHÀó‘n dMYBîÁ RŸs`í(h«9KÁ``AÄâ!ˆûÀ&¾±«o˜‚aØ
++(`ÂÀ´¦Ó–$ú#	*„à	( Ú ÀÊ0¾ˆÀ]ê€—•Ï¥¨”üA
++0Âj“Ê=hq8\ Bd×¼ ‘*ßX„¾BË»€GÒ	!(äª#4'H@–’’ÿpêÛä&wZàg˜GXfHé- áˆì¬á3 iNkC*€‰g¨¡°B 4‰† ˜Ğƒ
++ÔÕ€? `
++ÖÜ0eDõ‘â|f-éH•8h‘IßØÀO\@¹İƒv«)Q·—HäÜ°Yn†À Ìâ¢İ¤iM«âÌÁ±4°B	âr€—ùJ |h@°ÁKòÇ
++€3‚@
++Dâ\ Lı ãİé
++“°Ê=. «<ƒ‹Xg‰y‹ Ğ‚* 0‰‰läÆ©jrqÀ3Œ %œ§5X Mıú×|ÃšK Öh‚,&P&(ë®ª DÃÿHªRËá†b aÀ'…÷fD •9Şp•oT´*3r@Öª‚8 aB}Á„3"ÄuœèÆ3„¹‡x#2lqij×gHpcTØ²°†eID­¾ª‚& ]übüÙ§à”j
++(QNÁ¸Yi¨U^ùé ñ¤$E# «†CT!œ9ûÀt×ûß"×,@ÂA¨(¶'ªİ•)0!  €dÒ@ñ†—¸ÿĞVí¤ˆ]hÀ_ÁXØ.°@l"g D)–ğŒ
++àõ<ŞˆBX;bóJÁ"Ây°ÀÖŠZh„7”³NA†*ÿ¨A7*|-HMxUšTS™3ø¢9&°$©¼ágÄ*0ìJ«A ¹är›{%pî"„Í ƒ4–W¦è„ñl÷„L˜òÔPÀU©èÁÆ£!Ü¼'"„nÊ36p¬£ˆæ ¨€gÜ•=ZÔN
++j•3:ïD4· Á/k	s ‹´î"ñ„)?ATyÆhí$‚+ˆxÔWy”7RÀÄ ±>ÓÖ=u*©‰TbØÓÏ&áé9Ç=äÜ„}ÅŒoH@¶@Ä"ÜPk§•ãâUÂLQS¨ ŒAÃ¶Lm^/‚	á@co›ÒÄá<¨Âÿ8•…á[áaÙÁ>°}‚„0ğƒâ3°°Å¬P@än?€Á”Û‚ĞR}àƒ(3„"pàÆ£şXúí=°GÕAuzì™Í'úVÜa³Öoˆè:!>$`i).à‘Æ
++ZÀuÕ>ğ%øAØS &b@€ÑE\›1¦`àÀ!®‘å »è{·ÊÑO½1
++ŠQ¡ë&Š%œ£˜€$Ëä€ut ×›»&Ÿ`Hª`¢
++|åÆ¾?C ƒ`p‰Q²¨<
++HÈYl0àm¾Ç¾áÏ3BJq„‹tc—3ÿHÂˆÂ:²î4nâ~˜¬>Bğ‰Éó€*¨Ğï¯{AÏwYDª ²
++|D5{ôÿÃïµ—HT‡«™C	XAğ+DbO»ÖÓÀ"` €¾ª‰‚ÆšSx—[Œ!XTˆ=m±ŠCà™ƒH+˜»[	 ‚%H?ôSû9¡À Å
++‰¦›K¨ ø†¤z/;¾À0¾ÿ ÏªéK´<Ê€PJ„"H ´
++f€œ(‡C°…o¨‚Cx6¡Ø€
++B¾ãx
++*ÀãHŸ™é„qˆ¤rà„'ã.
++c•uë$”ŠI8…g8;ÿÆP;€BªX‚>	)àÖCp595ZQ.¡Èe¢€íó=8‚7ÚşK¥Y*`pb(¸·hrÃÅ€ƒëûC©•€Qƒ8¨ !°*Ü	Xñ P5Ñ{Ââ‰5€ê›™	©,GdÄX¿øÏ²©ğ‡x0%‚)8D´´TI³ğœÚ“
++€iÅiƒ Ó9DÈYB
++ğÃ^Á‚7Pƒ]LšF|š3œš&PùaÃc\„ºŞûÃ	ìŒ03°'¸»a
++(€¡ÓÆG»‡² Hg(…5 0R`HGŠ”®ÿ	ŠƒÊøƒ+Àƒü&3 ¸§¼	<c½I.<J:„`‚æê	rì•h…ãCŠ´&(%¸©à5pô’LlEHËÑfZYà„àpI7k#ÁØ àHAĞQƒÁrKuT<ªQ‚_X'='@FÏë‚|ˆ„F@!2T„- Dğ/«Ä18Sƒ*Ìo(…\( ]T"ø*TÇrh¡³ÌÈ >èÈ1¨—ä¨R°m1‡Y¨¿#0Èƒ–üËõ’’n˜#HĞª—¬“¤XP‚Ç$KFT·€z‚WŠ*àHÿz‚1øÄ<„ MmI‚møÇãÜ iSM ƒ ı'9‚F¸ºuCú°Ó‚sXÌşãÍ³ô©èP!h ˜3ÎIŞQaH‚”Ä°á[¤Îâ
++‚Ì!Á<Xƒè¶ZÊ:¡ ;%ˆÅŒÌH"‚Ûœ²ä01pO„Š¹¿„ á.àsX1‰X›‹?ÿÜ&#@$ 	F@hq §@7’;ËˆİK©¯'ğùé÷T ² füÃ7È#m‚Yø†—€Ö	€{<ÑšzE€T	7H‡:êD€P„®ÏtD+(€ğú,N Nd<¸I(üÿpã[8„j<ˆ+) ¯„ÒšÚP0gpÌ«£ X-å„J¬šH0OÁXĞ\Ê¨ ƒ.P—;±!Õt)m±‡ É”XIM;å&€€gs‘:°#5Ğ"€Ğrø%'(TÉlÇNRÏ¨ĞøQ4Ø= NPŠ;TH„ -…›ÛTš"aÁH¸:RƒA(Uut -P‚'ˆg0U ‡A%h‚uz†pK_x7Õ|ız†$à&	°¹‚Ö;âÈÏbé+zXİÜ§ˆĞÍ0-´ğú„
++ı‡.0¨Å ƒ1€KêĞg ƒ*ÈOôÈ¹¨2v½#£½ÿ–¡€şt <`Õ]t áÛÅüË0C³ÌÀ„EËš"O«|ÅC`‡õŒ5( –œØmÂCBœÃ¤Ø@*S¥H¥AÏBC~FpÏ;Y…qğÏØ1f` öØ ùĞTš)‰Eg;5=À 
++óY(+9‘¨<
++T8…ÈZ9„1°‡CH 8‚Z:ÀIYƒuİ¦g€*èZ¯õàñW% $˜
++1%„2yıË0  …1Bµ )ºe [‡ÀÁ`Ånâ€`‚uÄ6pUlÅª €ó*Ø+ÈAê´+{ ÕAApd½ÜĞÙ‡È‡ ¿¬©ÿ>(°Ñ…2DÓ\‹„ªè‚U€DƒS€R¸ƒ*ÈƒCˆ‘Ê3Ü¥Zfh €(ÈXš:…1@ G`tÙÁ-´'`€ªˆ€0PŒÆĞP(½.ÀÛÁ,íİŞ™AÎ5 ‹3.Là :€[(€ôM+Ğ‡®û,°‚·“mHS(‚Y°ö¸Ælä_™ù†o2Ñmº‡°ç.^À€¼	ı,A€Çªè‚4pT2€Ògà‚pt®°\Ög° Ê¨€ è8â§iÄ.ä´ØÔM ÆH(‚è…R"Î-Ä¡œía;=fŒ
++°3pNà„2vÿ"ğ.‚šHU8ÊÃµŠà FC€"(%(­¹è‘#Ø öbm<…¢eŒhX(pE†‚KÓ * — °Åµ˜`®Š{ĞdLF<æL(5‚ÃÚ	„.dÿœ„Y­c](Æt  è.(†5°]p„)xe8¬  øÑ;„=Qwh®pAÀ€@Få?ä -vÁŒ) £T y Î"°fÌÀc=¶ŠèäDÀŒƒµÓ¥4Š 0ehŞT1h^ ıf`ZáDH¨oşæ1pİ÷%Å(g<VYÕ„€M8°Èé€Ehg;í³ı0k6<åÁÊHÿÈpåy¶¬èmN„Eè_~æ53…ÅSh(Õ]øÑãyhZ‘hÒ¢|N[¬gèLPËÀcPÛ?¼÷
++ø€(“~]NF¯‡Ö/—&-øÄcG»Šgƒ°»ˆ€¥fài9üÈ-g€ßj«ìƒ0È*¸ægh€NÆ² W«Pez …¨g 0Rƒ|†5° KU°¦NPhèye¨ã!­œ¾Œ¾
++SH¶Ã°``¶áÈaø’¾¦N°€Â.g°2ì_C xR©ƒ08­¨8…0H º¾U^NH&êÌë´¾€tíÿÅ(ç"8ÃP(«8 (°ë¼ Z\RØÛvI2ˆà‚­!fà<ß¦¡söŠI°zø Ø¶Ó!Ôkg€n—„ Î®¨Õ>@…´fŒ„Ú…ÄîŠNp¶S7À4ˆ¸…ÛUoƒŒ€Õ¥ÇD¸[hKß†Àê¨ €µãoÿ†‰ ğVÄcŒà ]PpÑFá‹‡bdW@('˜@&×Æ²-ì [°g÷V„+è¬è5 ea‘šHnqm¬‚0â>È ßN; I¯ø†P~¶Ó7x¦ r!ÅI°c÷ŞpÃ¦bxÀ& ˜p;u&ç¸ğÿ+—Ãq&-öír¶€°ˆ 1 éVœògñ4ÿÃkÆ  bÑ¦_èƒ° smìïÁó<‡Â^“_€Ñ†Ï]HÊ¡Ö€RĞëóÜEÂ*(p	° .·c027i7xn!ÓÂN—C=ØpHì‰`æöbPu€­VÿÃoĞò÷ä€U&-*CŸÚgè¾ €SŞu œşõ`¯˜ó‚ÛvÆ_fG¿*àsy°_¯8îj_Ë–-hÜlO?P(änç zxiE÷Ì~ŠJw9ô‡†°oÿíW.ZçàohÈà„eÇ÷ØKÜ÷óÂgXvğË…€ÿVAJCx($ƒ¢ê~wŞWŞtogéÜ[‹Oø±Vö&­Ë¸‚cê €.da¬’‡BSğz  a€çëŞbŸXí!’„éù™ç2M(dù†ƒ;“„>&°:z¾û¨V (ğ80l"¥¾€‡I‰€=©ß»Oo 8x—w“~F›Aø±¶NPĞ4À:¨Œ¥^¹§ÛgÈÙÈŠŸ{ô«c8H„?(ğÅ¨oÓöâo„œñ{Ã_¸o8ƒthøë¶¡öi´éÓÌ½.°ƒ>PÀù>] y/æP“q
++N?ı…Ãø9Oê)¶ÿ6éC€yI9‚È·}|ó(Èıù¦âÖjê1N dâG?/ğİÿm`»ïv‘®èG?˜…t¨~ …e&Wh7èãØ€âî':L€‚gÿa÷b}KF8øõ§¶o ‚÷
++üƒ „
++2lèğ!Äˆ'R¬hñâÃg89Ã Æ"G’,iò$Ê”*Iòaö,ƒ@‚‡ 8±ò&Îœ¿­Áâ¬›:‡-jô(R‹ÌPÁ”9ğL I§RC7g).<«êõ+Ø°H™Ah*“€¢1Ä²5zHK7,Lzµ­k÷.Ş…b HˆI0‘ˆ+<ò.I‹J#,ÿnìø±Ê-8U@GL7GtÃ¤[fœG“.ÍP (	Nüa‚±éÍÏ6À·¡EìÜºóêé¢Ú)œ"^¾í~üm3g\‹3o^µEÊgEÈ±à¼0ˆ#yæ^ïî=§& Òÿ–úİ.­yrø;ïş½H'~¤ƒ€…øbŸ](Å)€~
++øºĞ§@4± Û€Sİ“ƒm;48a€÷x1Ş@ha…S‚A#4×!‰Ş}ã…Sh]ÑG‰HÑÂ„´8csßè’"fĞX”l2âAšv‚_
++ fÂí	yÓ7äÇ’Qf_¬‰`Ã.h"eJ-AW\ŠYÿ‘2Q„˜ğ “ŒIR/50ø&lPär¤É–,àV§EÏÔ  …ŠÕ¾ ‚k,`¦¤¡ùsG˜‘ZšT‰˜y…Œîbrp)DşB*ªFeºi§!G`¤:+­G™¢‚™»´Š Öú+°+u’Æxt|*¯®²,³ÍŠt
++±±J¯¼Šê,¶ÙJdJÒ5 ’&ŒÁ(†õL¥ÚªëÑ"˜†E y&@úºëê{(İÔ€ q@¯í{0³]ø;P‰Ø0î§&¸‰0Å´
++ LX ¯Ø`IÅ!£j
++JPÇ"`Â¨"»lÿ¨)î´J½À‚/ë\gš:uF²øÂ;½äª2%Xó‹Ú°åÑQygeg" ',€,5×-RíÔ™"èÊÆ[w}ö„9SWîR/ÔhË >å*ÁEp07ßú•ù³šdmvß…_÷¢•%fEşønÏˆ±¶‹!Ç²k¾›•-M°ùm>zl“¯öG¡ìrÀœ¤»şX*ØMGê6ˆö:î‘a‡İ‰¬¹ß&%;•È9¿|^òhä2?}[ßÔ}|òÔkÏVâ2ÑqEÛ‹ÿÕ×±‹)ã«?Õ		 —Ùúñe‹Ï)R‚ãòëÇ™Ì
++Èşş¸’¸«0f¨À“D€*HÄ9À‚{-°‚1NÀØÁ«ÈŸG’.ñM
++8 p  †Ğ$ÏˆC¾Ô/x¡ĞCëZ’{âR*r¨C‘<ãè:Õ“¨Ä%2±‰N|"£(Å)R±ŠV¼"³¨Å-r±‹^ü"Ã(Æ1’±Œf<#Ó¨Æ5²±n|#ã(Ç9Ò±v¼#ó¨Ç=ò±~ü# )ÈA²†<$"¹™€  !ù	 ÿ ,    ıııı ÿ ÿ	H° Áƒ*\È°¡Ã‡#JœH±¢Å‹3jÜÈ±£Ç CŠI²¤É“(Sª\É²¥Ë—0cÊœI³¦Í›8sêÜÉ³§ÏŸ@ƒ
++J´¨Ñ£H“*]Ê´©Ó§P£JJµªÕ«X³jİÊµ«×¯`ÃŠK¶¬Ù³hÓª]Ë¶­Û·pãÊK×è³guóêe‰w¯ß¿€L¸°áÃˆ+^Ì¸±ãÇ#KL¹²åË˜3kŞÌ¹³çÏ C‹Mº´éÓ¨S«^Íºµë×°cËM»¶íÛ¸sëŞÍ»·ïßÀƒN¼¸ñãÈ“+_Î¼¹óçĞ£KŸN½ºõëØ³kßÎ½»÷ïàÃ‹ÿO¾¼ùóèÓ«_Ï¾½û÷ğãü„¨ ßäƒ~¤‚ş! (şô¥_fÄ]>B/´`à”fø(FÜCa…Ud(â]$áÎ‡‘A`„ˆß,Á Hd„ş ØØ7U|Óà!­„“G#Î8#‰BÀÚ˜˜‡0xh±AÀ€…3D,‘¡ ÛÔ°àe
++áN èø]B0È@ÎDr„5A`1–ò
++4´@Ù3ş$ÁŒ;‘DU$D’ÙÊà)8ÃHp‚E8)01HœÔÙÆ æANGä@‹d÷$ÁÃ=#~ÓôÿÒ‚™Ô}«Ï@ê9lĞ›»bAEtÃM
++ÈîêÌ `ĞË„‹QE#f¸¬Iì_tÏ@Æ]Dê4üÊ&X€
++DáB8À^‰Á ~,íaÏğÀCµ"±xŞDIHøöÜµ„3)tÃDÀî
++Ã\PÀ-G|°Ü ›Û|pŠ=cDš.!‰$,ç]H0à D80’ " ’÷÷-:ŞƒE
++XÀ0ˆWYtLtÓÍ•TÖĞÑÀ†SJkĞ@
++bÏTÑä]÷´ìØXHÂÀËÏ 1)¸B¬±ˆ;ÛgDˆÏ8)4ÿ $›Şt EAvC¢`Á0˜[8'9ƒ=W¤Æ®è0Ê£àqÃ{è€‡{ AÕ7|ıÌCGÌ0ôBw¿’°7İÜBo€PyoÏ ¡p¤P‘ƒã»2ÑAÒ’nÀHŞ0Á´7ñ2Ò7”gÄÀ# …8àPÆ÷ß—!~Àc:T¨û®0Ã®³ÉH),Â3ƒãÈÜúĞêÇïº‚ ¡¶iVªÚ .`.,àÛU
++:@êË @Ş @†0ÀÓ@.q	˜%,¡	Ç'UŒ`O¹GÜ÷Œ5«cÏ‹X#nÁ„ET`RƒÌÿÆFLluè`mÁéJX¾ŠX
++Öà‚s­¡ ÌÃâ´eZ`Â©(²‡HÜ ì8¡×x‰lá[Ø‚!F¡¦@ÀÔªaÄŠÆÄoWÜ(À* ¡©Í€İ(ÅÖ2TàB‹”3€Åx ãöÈ´<hqi`Däğ …( ƒ5ºÒ„—@F¶Ğƒ< £‡RüG5I2XÀ ":öG@ö4ÄßP8T¬I»y†-0ôÄ¸!oW9`BÒÒ¥ÇğêF hĞ´x-® É¢	hå+Ù8 XxÂ¶Ìç(’âÿÈ—ÙPiÎÔÒŠ™ÅF€UÀˆî1rìJÈÔ’ IøaaT¥34	¬FP  Y¤dÒºÁˆPyŞØÀ´ ­5dJ†*Ò8O5^B
++·Ì§N]a¬èQ¿Ôâ¯±ùq#‹.Ğ¾U-•uÃˆéômñÈ\I’G ÇP,6uãŠÛ,@˜'Ah¬yÀ€ñÕ:,Ä
++Ëx?H°€Ğ´¦&D‡Ş¨Ó[Î`D¹‡ €T¥1‚ Y]·4†Ò¥Ø3:"†>ía½¨›lZ@Ño°ZèfÄºmZ±ç¢BWƒƒÒ “Àò†ä¶Sÿ"	ğH‡9t~Ø¯j„Ä újË¼`(‡¨@­
++Ğ.¶˜ÎÀ @/,\À„­Öåº‘
++,¢´@Â¤ÂEÅ@…@¯j¡’«”Òš…Öa‰š%È4qQ˜#òî	‘â> üJØ IHRX}.t»‘T–’Õ8‚ Ğ¶P4"è…T_ófÜ¥{³¦ë`pV`M‘_D-k7y®Â‹Îøª´˜ƒdıh5î*` ³$n¦ñ“=‹Aß@±G5èş¥À 8vA*ØÂü‚™¸Á„#ĞB‰£)Ôê¼z¸ÅrÿËÀr§€µô:#©ë-ÜÀæuãQ°Bqˆ‚ÀŠg‘a9Ë8¸¢èI·P3DŠµœVÆñ»[)²6"ËIà°ˆàĞ`#^Mšä`6å@Æñ¢œÅ¸Ûu-—Å(Dî£AÈ˜Ğ Wà€ĞX4
++÷ZK%ã'ßHB2YG4,P€ğµ2#P
++tÅO¨Lå•( „BòëIÂÚ„UócˆÂs¿šmgp£½ó…u7Ş»XÙÂRJsFœrà‚ lí{øƒ¨‘W$ƒÈÀ…Ä^Üƒ¤Ú& H]ƒÖ”oÀ ›”ğ¹ºpÛÍÿ¸WIi~‘:ËqX…jøàİÕ4°sy1 ãÂÍ‰˜„ ëd…>+ø ò€İ RÃ8qëÕÀp¬EN–!caßQÀÍ¡‹…FÀ¬šf“AQ ä{²a†¤œ¡B ™3BŞ‚ÔˆÒ>W“¿,oÎ½:'æ•‚W
++$|S:Ösa5°ŞğAé:8¶²O	|:û&ùÚ—åÅ†¬F¡q™¾²°rP Ö™ æ¹°sókZÔÀ:KÓîg¼[’Œ bü`°1×aàÖ .›ÿĞ5x“¾çràò€€A¯"+7¯FÏ÷µâ6y†ÿ¢Dm-ac"O}á˜@
++\ÙP/Y±¼Ñ‡y	İ€lKpaJ“aÏH°,ŒÀsç"H#,Ôu€y–cÍ²€)@,V ¯ Ï 
++0uÆ}$Pö}3PG3Q"Ë5„pc§~ñÂZ€Fç:ğ0˜pÀ¢Dàpp£A¢+»BkàzlB€×TR=ÇZk@VÎt%pİ/TâzXà§çx°° ¥ U\*„BÀ‚:U0-Y–§7Ÿ¶ •~.¸GL°UÈXœĞ~‹å@‹À_q7äpv74òRV„³1YFTçÿ/4 k»‚mèÂZ nZÈ®×&ĞğÏ Ğ RÀ}ÀPŠ6å}ùi1QäÇ6Äz-X‡ß¦Ê·Gt·3ÈwêòSaÆ UˆûAQ÷ ,İ°õÆ&¥ ZñÂvÌ3…5{¢•ê¥C×v^Å_ 
++ğ
++² °P†°$epBe k4  e(n´S0m¢&»âQ²‹´H‡çƒî'aŞ`<¥ n¨ƒq·yP €_›#4wZßÆU‹õU¦Å&åbsV<·¸QKƒA"	¹À:@R0 %T$¹lR B&É'¤Wëˆœ‚Åõl.‘\ª£zÿƒe‘´Üö4™&,Täefr  ˆçæ ·°üÇ‡@QD¸Q|ömLp}xJ}—mûF]ÎÔQxÈ‰Q‡VÀª v5’0Y?pBÀ0 't	&Y0iBÙ  À€0‰îX`sĞÏ x£0I³;0 Q´èg7Tú(N4Ğ)ß9€„ªS-ß`Ôø”šÁ`–ˆéræ@[1Eçr‡H¢…kú¦ %NQ€WÒ£PŠiT€Bn™’(4 p—7õ"Ô’R`†€œ+¤—0º¤ßĞÙ•+öÆ	@i×˜ÁB ‹Vÿæ09€zŒåµXf
++fB‡ ã/ss¨ù\(—CòóoÀ²‡JÃÑøPÇãÿØ»B70p9 ìˆø0f@S— 
++3`ó`>ìpì0 † G|eK?°*	Å HàPZÄoŞYL¿ Qğ„tÈ‰ ‰ßF]4œpû!÷ %—	¹T•6–t„ß ğ\UoŞ ‡Y4¦%güùql’Pè²# Om$™ 
++¼` 2plè0 3ğ¥i„e050ø0R0óPO=Ğl¶i(Q" °qõ¸Uö¢0Šs§G80Z @˜ÿ©v×Ö‡.àÉ”+Dp'jâ€pwŒa$ÉwÁ„Ÿ	Ï¥©E¬¹+—ô+_¥|ÖÓsá Rˆç / 
++ãè	€# ]0ó>e°M Ê>ª Ø`c°
++«P3P¢:C&ÑÓò†ÉÓ7ŒI¨ô5pVé×œPK÷GûF£7äÌ ”w)v‚'K€û’;°/S¹o§jŸ©i‡ÌÈ&1œĞEÉsªøæ@ÌR.L04? ¦ó`Ö@ÌÀÓ ¹
++ Â`¹0# _€ " l`€Â S=@“#±!¾¸:DPzˆ¥r/J4@	]îÿ’~E3MzeÀkñT°™4—Dp6iCB<ğ?{W8Z€•y¯Êø„®³M$ƒ$"2–.94p’ğbjBó0-4   
++@ 	`&€ lÀ€ E0w»·t»
++…OKF–L(è@…§™´È˜tˆ`[¥Ğ¨7£’ëÔu.œ@H.ÈRZr„l—‘b@NË“¨¤®³‡ü©gi RšcE¤k#)lç _jBR×@±
++P¼P» w²u«¼|{·S ­~µ>¡"-·¢X€TaÚúŸ@Aœÿ€¨Å”àÉğrex‰ÛJƒ€YHõ!º)’ğãÀ~b9¢£µ“Æ‡‡Ÿk ‰EÈºExÔR*‰å™5ÀğĞ«°0 Ó`ûp
++P¼Å› %°·W`ğ0Ï+à­ñ‚+àr%Làwİ;t)@~@.P¹…S
++QÀ@å‚S¹ÿxcóW
++\`{ÌÅ0D€j »']ƒ¤±µ±1X?ÇXª0ÌÀGp.Lóua4RWd Tàà 2à	[ £€	'`v ü¶ŠP,Ø§f°cà¼ l€ß·O•¶÷$ÜÿÀ	T ø8Ã³‡5@ŒKPè‰x"‡“"väJƒ X?×™Ä‘b¬`bBQKxQZÅÀUÉX`ÀA9ˆUëí÷T0‘İÀzèR
++½pçÀ=ødT-€Û@ nû¶gĞÏ€”@	_`¼¼» 30¢·T$˜*Âhƒ{™r	äU„¸Ëpbß¦8Q@™µÆÜ¾²çFêú­V^İğğ'+B^€3»ñ£…W›€Qà:àPs2æQ¾b]¾ÌZ åò
++s =0ÏPfÍ°¶œÏ0=@	=E°·![ì€†{ÿªuñdÀ”•6m ÀÀİé‚1ìÈ³X8“ô”<aÃÂ‘®Ã‰'r²Ec¡,´MË0VÀ¤&“ÄĞCÅ™ÜÉ$Ò÷€9F‰^åŒÉs„Ö»¯–c@2-€×0=Àé+íaœ PY C Ë[gŠªxK†\8mÉ´]úGé¬­œ 9Ü‰¸¢@0OULÖcç04@³—Ô‡LÀËe¿”PñÉâÏ×äÕaçp¯­Ì<y@¹Arx_§AIËÏ“TĞğ„==
++# uP[€à×ÅK v@@wÿËf 
++™ĞFßÎ!0d°™BYÁäÊÚš ‡3;¾Tğ¢£ÊÃÔ:tId%ê©ÓÔ ÷€º»²	ß&U-»P?y°)âë19°†Ğ–›5 IŠôuÈx%±H=0ğA[‰°©€(º`PÇÆëâ‰°·ÕĞJti`¯ *;©œĞŞAMPŞ6aWƒmE-P;©ÃÑStB®ÛÙ‚ûÖbÆèö€6‘T^¢`Yí° ‰ØÕè:ºì *2óàQp¾úL´ gÈ72æşkP…Fo@]²¨
++  v è
++ã"`Û 
++)ÿDÓ·Äqµ\«ã ¥€XX„¸Sp`%+,Q ?^8Pn°öF®ÒSÙÆ—‡ßæÕã`bä1D <qòå˜j>ZZ°	¯,Ë¸¿¥(ĞQpĞgw˜0{£…9_Ï Ô…\°1°¶‰à×àâÅ;`6gš	 èğk¸ÏP"œÛ/’N%÷éĞ•·0Ë –ò­ F¥«{¤ ‹P-=0û³x{„rŸ  5¤jçF ;ğ£­ã¨ƒ°ë–¸?Œp¯y˜ğuP y°`4€—ÿâGÀ8T@ )Ïğ[–.UÆK *Àâ	 Á` Œ  #0Sª``ğ Ï°Up?)ÓL°ïeï©$>Ù,@­…sv!WLŒ Ÿş€@£}ê§É;{e¥°
++ïğG"¿¿ÔÓôd õ¹Gì[¹Z ğNn€^Zä>ì0àÿ ”Œ½¼dL ±­ó½°•ÜP˜l®Á@"‹ tÀ¶	 tšS€›ñ;`ø‘!K€õ._é|A\%‡?. ÖbŸ…øÈ(öDÔÂâŞ³—¯Àb ´bPïA ü»GÒÿ5vô¤àŞÇšTŒª1÷´‰=œÏ@+ñŠŸàÀ¦ğí
++ ÿÅØ8€@
++äI  ÄŒ¡=LÜ"êßÅ‹„ğhñÌãÇ%ç¨`  g)U®d™’'NÎP¶T‰¥[©4œ¤éÌ›dÒÄR*À¿oxëù3J·ŒÖpšI“ª)õªğÑã=,)´j€ÑìY´iÕ®eÛÖí[¸qåšIËF:@¥É­€›oT¸µì¶áĞ¿ NR‰ó¦ÊÏş=«sèÙ7És1>ë…Aƒ€*ºì4h°;6l @p&ák$TùqbÿQ¿µ S×ë35QÑB…jÖ4K1¡B!€Iä+mâ\³3ºÏ Ü”âË²“ÃÏÜhaÚÅ òŞtH.“S,S´afä÷•Ü` ÒÜßÿ „Kˆg–k¥F.ğãº”`¸àBc	
++hù§-ºÁâHa"¯L«{q"atQAÂğâ Ø0!Ø^£Çš0ªy@¢*i¡Ë~»gN(Ø €loBg8‰dH˜pAÃ¦£†ÒC°€8z¡‚Á ¾™Lƒ5º[©›î @K•º©á6Ï¤"3S"Â¼šàÀF´ğGD@tĞg@y†ÛÜÿ …ö8Ùà0¨‹ ™lFº¡àoÜĞ A1ò‡‡g2°c@Š9
++(l¸BÖş¨qV	è	æ‡ˆ¤ùÍ£%(@-
++jIbÏt
++H–A,) xš		€ª	°ğ"@ˆ‹H@B–	 r‰ÊŠ:y£«ß8“7Bµ÷^|Ù"Qï(ø`™ä\ A²q³Â‚‰zÿ©ãK7$óßN:jÀ@$qÀ™bT ÀX]›õckø¢‡Æù(8"`hnÙb{r!&i¥ë†‘08o®C©?k)¾@Ÿ¥ÛàÏÉÜ$:HyF(š\ğàl‰âÿ$
++“VJ!ô
++,±(E:_²Ë”À=½‹äƒ¬ib$1ıÉÁà4ĞMNV0ÒQAÊ)g‚
++THÄ:ùxq°&‡B®)ĞŠ–+À…˜[n©€æ(¸<ó”lra½(°úÖ™(±N: ñˆ–X=3ñiÉ…z¡ ‘–°ĞÀŸ%ŒŠ(xoÉ~ã×™Ö33ûyè5#ã›´¥`¬\^#³íS	†E0"äh³;ñ';LYBp+±@—_k˜‰"	N¨`¢”$5G9” ‚sÀ’R7êä¬`B
++ŒWĞ¢˜’tJQ‡‹´ IU¡¨ÄGÿƒ–4ì° —@p%uã9`S7‘„]ÉË Bˆ¢wCê’L˜€
++0%ËL%Ê´’RT`3É3‘´ på°‚  ÀDĞÈ4¤!À¸ZY`,óŸJŠT€˜4Ş“	QŠdEI¢AŠPà85a‚? p/q°qCÛœ‘‚ 8ïÀ€t
++à°B"'aº&XÒŒ¸C>6æi@‘9$%ëÂÃlU`w=h·ˆø„®n9ìÄ!Àp‚C¡ğ€Â E$"a° 8À0È¯g(9ÊÈšQAšÎ)…3òĞ›ÿ8ã\‹pC¸‘8ìo š´\@ŠÉÔáxà$3ó7do†TÄYNx ƒ‰é÷Ø@Áå@Ä’&áØ€ú§aWåaJùĞÁ”ËÖ0ÅÊ8±“	vCL„TÏğ‡àÚàHÀ4a8AK9 €0d±4ò£ÃlñÀbu£l<	\ÀĞ 
++(IÌ¼á7ÜƒúÃœLJ³@Àú“I
++ˆ€‘{¸A((×Øş±Ñ™p"2ö¼ UÌ¥ÏQ +~)4©5?Ğ€)	ªC±¤@„åkÙ‚ :’½¨&M`QŒDÊxİĞ‚oÈK ÿ@‚\1— „4ô˜éüğ‡"˜€smŠó˜œÉ¬(~˜…A¨Ñß9Ì7H¡ÄĞÌ«Qª˜ ÇN&ë<É-Ği–0!SŞ  ZëÛıœ¥–„[ ĞŞ1aòTÉ9€ !……RPíkyïµƒ¶&8¾Ô»<j3SI‰7ÖPúÃ<°Ä3$AY ‚õìâş€€+\ §f„#lrha+¼
++UR:o\À2c nÁ„ãNu Ä
++F¹™öø^*E)Õ©õÄé|~1’–p¢HqC{R `w†Ì€áoÒöã›WÉÿÿiAÔº Tâ4øVp–7(¸IË!˜q
++’R–}M×€ÁNI rrP¡ [³BQ.°†A@T
++İî!âÁ"3Nò[î„¤å.\@@•0ÂRÁ£eR€!Ç»ôˆÄå%‡Z@  CüÉ˜gĞ@È>äYüAƒFhêÊ9ü†#ìã 1—£å(F™Í\£5&(#`@õ”¿¥À üÏ¹ ¢pF:ğuÅö›Ñík¡ÛB‹ ªÄuyF9]FàÅ
++UXnÑjQÇ[3 …©'DPi@“àêÅYFäáÌ¡ÿ0±¾\ï’Ìà üë#¸£Ã I3Ãdp„ ìrp¤˜h!„XŠ‡ üYŞnÏ‡|è<l 9ëw™‡
++HÖ+ß B’@Ş•½-ß0‚½ÏD¾PaÁ”ÂàYQŠlÂÛdëÂnR+ vhœü‘8Ø$‚5c88P&ha…JA6¼Á„??- §^@õŒCô"áúĞ/P
++¦Œ[|`sƒF“sÃ^á·ûşx'!-ñÊrh±¤òÇ …ãğÇ®¯Î¾rà   =XôĞá8À.¢{E  hÇL²ÿ©aun@ÏAÓÍòŒ{(ùSü”©Pü³|ƒ‚.«)Ş»’<0Cç'ïlyÈs&:À@Üé»oè	
++KÊoô¡ô§§l¬°fô¦YŒÍD ‚°?è¬ÙC  €â*@Şº­EØ€¿ ÉªEø>JÛ !Â7ˆ9Äã‚äÑ“$aã“ÀÇãFø™Dº7·šˆü¸çÊ¡>@Ó£?]K>^ {1 €P	…]x=;t‡:Ğ€â@6¸;¾‡!A‰B[„˜è*ğ‡:°9kª€»ú—p)„<7X5°›‹ :‰´(˜ÁÿÉ`¾²é‚ø/˜ ûs ,X¸ @@%@4 @ƒN˜Œ{°*XC³‰d‰R~Š°Ìğ
++y¡•ƒÄ•Kh	è7rÛ„+tn(.5S°À5ús 5¸C“jûã„ØÅ]|(¸½„»" €³¸‡J …OÅ²Ñ·èàJ*¤–È{ ÆmQÆ•3K—m¹`A, S5=èƒ
++ <<½	øˆ)¢,+ˆ%àÅP‚À×@(7ÄFèñ‡¸»q/äà†(‘#‚C%~52°91 ¾èxÄ%›„ÿNèl[‡³uô$3 ‚XˆGy†)P©„ l´…„hœ0AŒU{0¯à!JyÁ—„(wà¨”è†û:>(…Á ¿d\²QqØ†'€Ô5"è„ CûÓ‚øC^|Gh8ØP„10€Ä!IœPÓ  ÊÄMä•”(…Kˆ: <¤÷Ã7À@æ©ËPƒ€Sp	¨€YÌµE`M(<Œ„xl0É¬lSHƒÎ6€Ëè‘>ø²rë¡p [ğšè9g ‚}´ÌòµZ	N@C³8„§8Ö5T¨¿<là„Á3+Ğ€`€hD„ÿ'@ÆäE%¸ƒĞ_S 9Ø-ÓÄ—@HÍ•€1!.l70ÈªL*½èÄ¡HÁ&LC‹ã‚Z¿P{†.pæD  Ã„³"Ğ€b ‚YÀ†@”ÇÅ<…É  ƒ9Ëğ$›oX!ã„ë¼‡¹L‰†µ,±à„£(PZÓ‚ª(—ü@( ˆÍx«0P z¸}Ï„³?+p &PÇäE?Ğ„‹8-R :(‚Ê´Ğ|	„Y‰Ö±ËTD¨` ÍË¯ ÑÑz£ÙÇ@8?º*˜„Ó°€_@ÑÓs DàÏ]T‚`ÀKXNP„UàI$‘½ÊŒ8Ğ¤ÿpXîôâ„%(SèyšDQPµ¸@HÊÅ„;è \¬C(…yäO¨‚€9ƒ+Ğ:µ—:Ğ‚òwbÒ:˜ˆĞ´áÎ‹T|yØ‚²n„DfğSyƒÀ‚Ü¼:I€İE?ğªNƒÎ-bUAyXZ‰¼BÒ”H? F¶<¤·ÔU{‰ÉnÈõ”BfR	8 +¨CIĞ‚'@Tf8èƒÎJSe”@'<ÅRØ·†“¥Ò,W„Ââ„E€Ã•ûfx†Òàïò€k=½6X‡’”Gz4´0€ˆÌR9€Ty{ÀPU¼ÆÿÄº¾šÀ [ør˜ĞJˆØeÅ
++MO)ÄR€Ø7àµ7ˆJÊ’„5Xl@n=‹Cà ~Eˆ!F
++¨¦ƒY¿g@’	q Á&ÁW¬H¸ÁÆSˆ'0 à¹+X‡@—İ%áÜÊx‚'¨è 0ˆ„×U ƒ¥ıBèQ…4‹:(,>
++û`Ç¼µx˜4ed†o°2`€[è 7ø/]J8,]ÌÅD'ˆG°İØ³ĞPp_ Ğ¼‹{Xƒp( ¥…AŒí(h˜¸Š×ÍZXVÅøC@ğ°âÙ¥­u ø…_ğƒXÿAOØÖ'°„³hû€=ÈÕÕ•7 ´Œ¹ÚQ/ø†°8–gm^¹ Èè”ÂI`†7ˆ„s€À€V³]û"` & Û^<T0‹ ƒœMˆ!X…ûõ^¸€€ ßè… GˆNëØc!Y `fàÓ1ä7'ÓÛ5=j_1#+¸??@yDDÄ´ ‘D(ˆ}` «šà¨[@%Ğ–×SXôI"p­­¿‘Ü€5hÇ|‚M@+LĞßÆ,H€˜«Ô,|†"ó~a¼}âH5…5’\TX9c 8Ô]Dã½ÿ=°³}E°-ör¨ü‡‰°¹ ÕcÓ$
++x®Ã6Xu¸VI€Ç­Ÿ‹0Ùghã„8ƒUØc>NZ–Ğ¡‚²pw8İ ô¾I¦Ó[„¬C½`’4I%h5¸T 3GF³] àOV‹8'J“ş$(ûÔYÎ"Rf+Ø€måE 7Shd-¢ƒ]ØĞ^N‹{¸¾p¢ó
++ñİg.P5 ‹IÑ`ÎµWuL%èŒè‚q ƒe–ƒ4Îf¶Z•èÃÌ0‚µd`(UvË%¸@şáYÔETöŒè„@ç×øƒ1á{^E~Ÿ d±€dMhÿ~´hÕı&°RA&XÇ$†9ı¨Tx4KŠ^ÒÇj²èTJJé¼…ˆÊ68‡]d‚ıæ68å­tŒ€}!E•i´¸r†@«{é	h¤–Âoˆ„V°i’ÜÖH ¾º.Ø^ŒŒ0P˜©`3ê©F‹:ˆ¯ä»=–qLkHœ -èj+Ğ‡ÇMeèê\s p †…Uş‡Iˆ •ü,•ë£‚,ş‡$À^~)Ul	ì‡Ğà¬ÛJb€@0CåÏ'˜ İ`†xµ |Íf*Ä#üğ‹š¥l),€šöê6ø…bGDèìr€ÙÿX}‚Àˆ
++Xf`	–í‹¨ƒ 8ÖR€7ä¿­şa5ã'ˆ¾f¼í á.x½D`Ø‡çN‹C FÔ-…¸o¡[¸n*ÒVÈ¥‚€õjŸ–Ç' è‹˜„”ºGXaõÎˆ"Cİ¿øïÇ[‚#àm\Ô%x‚_ ~v€2şmA¸11€ÌEX×Ó½‡¶”êW25Ğã6`‚H8Şg-U‚Tìˆ€Ë²Ñ1è‚Oš¯hK{®ñPcpoö‘~I f-ŞşPïNìŸ]äK	lÖqyû†(€ùşf¯.°FT+ÀLØoæÔ®qB°5è(ÿ^–r%£r
++¸r,É/òOí4´€Ã† Sä®ƒM>ó>ùX5—70¨&àmR>äbæÏTvño87gFî8°5àoß@ŸòU° +s÷-".òèr³€qÓøƒ+à©t,À IÎôR² ĞkõtÁp3áí>S_É1ğÏ÷. ”¸WY·(p„Rpó`Fô"'†cöõ/
++F&'ğ{(c/’ÔNöèé; 4à‚g÷tèZĞŞƒ´8˜©æŒä½oğ´wQÓ„°yP©°‚ w_pè€ßö}ì‚Ó+Xçÿ~fğO+ ÿÇ÷RB]P©H€
++(t‹©İu€öÍìUA8ò³`½××`¯qÃŒøĞ¥xˆz¸,ƒu) Ë)@v ÓSqİÅ~pñ³è„;uİ‹€wƒCPÆŠt˜'%  ÓUğ‚Y˜G˜¢ |ŸÏƒìî€(X…)(M° ›½1Púwƒ8¸‡F ãzRê„8ì05 oR±\.(°…`()0ÈÑ´00…98ê7‚ ¸ĞKº‡(0°sØ€Ö0 6–‡3fÿ¿Î_ûµ@yÓ;ÿğ: 5°ÎËW²¸ö„ˆ8Ïße&êÿÎï|¸PX‹˜)aIæ%ğ@05ˆòÙï+ıë¬æd0®ÑD€ƒÿƒ•â„µÒP[EÂ"8f‡5èŞçÏ!=¸{ØÀGÏw†˜eˆW M„. Li(BP¤Ä·
++2lèğ!Äˆ'R¬hñ"Æ…´*0 ğ,#È"G’,iòdFº(h©à"lyÖ€€ËœÎ)Ò'â·>Â ú`',¢lêô©Ó7U4´€jõ*Ö¬Z+H”3QÌ™Bå,« 9¦"¶à  “B 
++8Ø0åãÖ¼z›’º“ïŞÀ‚şK—pdÿÚ0BÖlKwU…XEE
+++°SWLáĞ¢>óx4êÔª)b² !'Æ<ø@,A‰¢O„«ğTš&L`Zmü8òäÊ­~“ØvRP¨j+ [tDK [JCà€…ÓËÇ“/o¹©4Ï_Fw‚2L_]0N
++Óàƒóú÷óïŸu’k9`¦¸YC ÀBeuF"ø7!…Z8Qï¹DÌÙ¸1eQpĞà…)ª¸"y®×Àö|hc ‘\ˆÇ"=ú(˜?'¼h1h( "WÌw*'°ÖQJ9¥U}x•Sb	Ù€6 H¤‘ÿ•ešyæE–•“
++}dP[""@¡›E÷œ`&hê¹'ŸßÈõ•sµÑQÄ	 E !Ÿ‰*:¥öå”!‚øRÅ¢•ZZ)ºdÁ@ ²`É¥¡ŠzfW* v¬™1&ä9*¬±òèbKè‚˜Y±y1¢¬½úÚŸ?¸jA	¯é4Düº,³çA:l€e1†²ÍZ{­q}¨ÀRë’d6b;.¹…U¡ªİ®) EpP.¼ñj…	¯Ip ô”›ˆòúûïIÏœĞ’º«Æ& ¼0Ãu€İ~ÛÒÁ,LÒ0ÆCô§¤áÅªÜv(›|² ®%"Ì‘-ÁäÿîÉ1c<	ÄØ d™ †Ì=ÿë§@1Æ¹¦¥ÏI—N,ŒÀeIVÄJ[­)‰$¢KA˜ÚRˆï^=6³zØ¡‚.1$òÇ×	"°
++¯dË=jiØB|oÓ97ß¡F`‡-6µ¬ kÖ7â–òÀÁ	Ï+ÂÅ%>y¢˜@xƒş)åëù0áe¹Å›næ	³<3ú¾†Ÿşº” Ì’ÎãeÁ”0ì¹÷è.‚›¥ Üº¯b¦¾KKõğÉ[˜3ßÜDã”*?½@ğ<’c@=÷ûU€ÊªÕ‰°İ›_^“„_¸	_ÿşj]è¾‚6(?ş«‘aÿ€YS—°cş8Kğ¯,q’ÃO¨ÀÂ`]°AÀ.¶À	ê…^Ær‰‚X 9
++rp^ÑrIˆæÔÁb@TÀÔ
++EÂ>Å^8¡È”ÄÂ¢D%'Œ“	€@Ã’äB‚ÍLp8ñ"ß°Àz`bXà~E|¢D|¸!ŒÁ°Á˜ñ*(r‘!ÏXWK†à‹ˆ€Øƒº¨F…ô¡,CØ…D0“+àfok," 4ÄQÃaÃ@uG(2-'{Œ£A®0>÷’†UH€!‡s›˜ô«‘Eì‚
++`³ÄI¦%–$b2I°D`Q&2ÙEÉ>	Êm,°Æ Gl‘ÿ0Ï  *e& Q¦Ë3±Ø€ÑÜ2—W»LY °Œá o‹›1I V¶ò Eğ£RœÍÁQ.A•/ÚU—‹m“…  cKœ“ºğ œ,ŒÀ×PX‚"ÈäŒØqçY–Åä ÔÂ%>ø'iÅD`îP~2‹ßTË…
++ĞOáƒÃ5ÿ¸‹‰R4_ZDp 9ˆ ÚìhşšsÂ– ¥ÎJ(E%ÅbdLÏ×}íS¤»@€ ™Óó5IfYŒ5wQµ¡¦ô‡Òjæ7ÈTø	2ÈÆ.„!Ô©vÏJfùCBq éqÀ1X3uqÒ²šÎÜÅVüYĞ€cğä\ß×$´’5¯:CYğ‡+´Ó¯ï{F÷I>ÃÂo`j9k>]H¨ •¬ğ¼
++.’aö|VJLH‰ÓÎf–R
++¦`‚!’vz€‚ì  ˜ <­å¼`œ€ØŞm©÷ìÖd°„ƒ«Üå2·¹Î}.t£+İéR·ºÖ½.v³«İír·»Şı.xÃ+Şñ’·¼æ=/zÓ«Şõ²·½î}/|ã+ßùÒ·¾ö½/~ó«ßıò·¿şı/€lŞ€  !ù	 ÿ ,    K ÿ ÿ	H° Áƒ*\È°¡Ã‡#JœH±¢Å‹3jÜÈ±£Ç CŠI²¤É“(Sª\É²¥Ë—0cÊœI³¦Í›8sêÜÉ³§ÏŸ@ƒ
++J´¨Ñ£H“*úŒ(K£JJuáf*$!âYÕ¯`Ã
++ÁãÙ³oq˜1òM¬Û·pa>cæÏ¬Ùo ìñh·¯ß¿!T°K˜ÌZ¯€+^Üp‡ Â…¸CÌ¸²eÅ-C¶k„Ù¡Ë CÃmaïŞf³ş°òhV´ë×FıÙƒpÚ¬ B¼>#¤¡-hÃN<§¿
++uk?«PÂ?BT¼­kÑ‚G’«‹kßÎ‚½8ÊŸÿ¨Ğâ_  ÜÚ¨1G@ÊÜãƒmíó›=2áŸ	(ß=7v	‘Ä=òHÔ3U” <üÎ83]$ñõÌh°BPÏ$QE~F<vˆÎ¤àÀ7ö_‡4öÂT4âÂˆB¥˜üÓ‚İ¤Piì	@`Læô ÀĞˆ3œ(8'†WGÿÔ‘c
++X a ôM/e6©æJßBX`Q!A%3HÖÆ3ßĞ'˜Kf„;¬ŠÎ­©èH÷œÇ˜:ƒi¥VZ›cÏ ò§3 ÚÅÃ†ÿ<cÄ3¿Í¸èª}SÇ"Hÿi….l ê‚¬ÑÍ0G÷ )¤ªYA1YÏ´`D¢¬F;Q› ë¬Ît£ÅHuºA#åˆék‡B…)\hW¤’ÑÂ3ğ™´ô6ôLÀœØ:ÓÜ*Ô\ZÈ©îf-$1a¤é¶ƒ²¥h–åÕk±Aâ¹@œıVÈ4,™Ô3n|kd„!S¶(	aq@ìOnÏÜ£Å¼[ŒV ¸ÀoÇ’®QéRo˜ŒÅ±„WŞ {ğ3BÔù´=#ÉPå,í™PÁÈÏ@wƒ-UÑBE‘#\ÁLtã4a¿ısÏ©ÏŒãÌĞj½¦?€Tÿë/Ğ³zC`Ñ€ÛFŠKX³|0ìÛv%ï>Ã ‹d§w‡hi E©7Th °RŞ"7š0~¸¹Y|óMw•SJ §o^„l°İ€-ºàôz¾r‹´Y “CëÿQù“Vì;wßˆ¥p#»è°æ_}³ˆKÒëº50Ñr…­»ófß`ÁM "ûlî‡¢QÆC_…¼€ÌÅ¸V
++Ú€²gèaD—3g<Ì,pF)Ö'@×|£ãÖµˆ­nPÁ}9ÄÎ…®0A&›È`‹°§$´ 
++0úÿA…€•Ğ2hD ˜0¬²°BXØ€”÷•C`€sFëÌÂòËH½ú† „@³	¤À Åó hà(ŸŸ(«5ÈH1(XŸ—„(0"~v9-`¤~ÁppAEÜp&†Ã#Ö FÆĞ‚ç+ÖÓDƒŸË.Aø î¬¦ ¼‘by†?‚ 
++70˜#$X M1»QÃ6) €­uŒ E*°•I¹GXÉƒQ–³”#6p¬]F‰çk‘ SE4m‡yšE–Ê¦™#ƒ@À®0 äˆ&úºÁ‚Š~ùF @7ÿ+Æ>˜D×6ÍÒ‚AZî\X À1ÑY¡c¬ˆP,yXÕ
++`hÄø8†½CÁh‹•„ÜÜ‹X(€•ú“oì  ƒ&`4VÔ¢‘Ä‚úOÅÜc· ›‘Ö½`ğwaÆ»€P…²t'ªPI«öŒ%´¡E8œ7
++ƒ^,T4 üúY¢>›øc‹ˆ@ÔTR¨ÃSoò”#Œ&@Qfµ_ŞpAü€³í@à~EWY9sÙ¥À
++‘‚İ xÈ¹ºä Œªš	’ Vbÿ
++ÅnpbQĞ ä*ôk‚ó«€Z–‚äÿ¤æä”T â`Ù–¸Ô½BW6Ã ´h´¤ÅB7`°†lÀœà­@`-lÁzx˜´YĞĞSì­ITù0äõ4HàëMI;+å`ƒ €¼AÄ¯T0ŞP	Zs «f¹3BXÌ[Š—#ª´+3®“œÍÜƒå8.{[èŒ "
++®u˜°R"¿ÖmÃ8Ì²@ìÒ6ø&•V{`Ôl™I€h¼™oWÂ{#D	×Jékô† ÜO d…_õf¬ RÚ²f‹%B^P`Œ ˜ßiÚõæXR)İÀhP€âé¸ áeÉÎfİ%ÿ·) ‚m.Ğ²”rÊ	Ÿu@o™’ˆp±›\o0" c¦"¼6!÷T;ÏĞÀQùÙC c•İ[Ô¨AÃ­Í7Òèãš½ŒfB¢°Ğe³B@3§µ£ÏRè÷`’ !8Õ‹Aq·xÆØ* \Êi2ßXÂĞ</YR¦Å@: N0:’Lò¢lÖ±O>£çÓ8@°,Vˆ¦Ãó‹â› „ú4É^v³O=aå¦  QğC( \ a”³Ï!ÖàDM™]İÀQq¼1ô,şhÈÀƒ^¸«‚Qƒ²™mêg÷«ßØÀr â½º½ÿĞ€”£¼WŸ‹ÉÄB×A$(@j¨„WÜÁ$á7 À8²‘PÜy{[ûÂ' …5Ğ gİ89¶&û®é°µuyøŒƒ¯ukÈ4#´`õz}Ã‡Ğ¬Zàçğp™?º£ÎˆRPa4XC M(râ•Ìh€\0Ş£Ÿx¿ò@ƒE¼Fª‚xà]Ôé5î å^Z·Á€	À hğ¹3öŠ÷Ö€Ã/v#s÷²m€­bÅRDA®ƒ×Œ „Cä§ÆKÜıå8éLÇÀ
++ Ê=ı™)öø&ÅAÖÀ˜0éÄba(,ÿ«2ôó¶ç'½m-½-'F3‚¥( 1haŸ0HA7b9K¥_ àkDÔ1’àÕâDİ@ eÇ!ß îñ{ÿäÂwı'Qu’]œ  ¢g€ğJÑ'}‘Ä	 +WBøò5‘ ®õqµÄ	„°*Ï 
++U°`E·yıçïçLpwZ€w4€J(<ÔGˆ mf†SÊ¥‚n``kä‹ĞQSÇ‘Ğ1Œ0.@-H#?4¿§qpU@Mœpw
++(<TÀ3ÜW ¥€.ğG'˜cqR €&–åk C-ÄtıÒkğ(¼Ó$gB7áAt¡ÿ…c¢ó~ôæ0 ğs‚qòHG'' ócÈP¤…³BDØ÷kZ	Â$ÇQ9ğ¦l‚æl“i‘¥ÀyRˆ0PDĞ€¨k ŠP¶ºäÜğ^Ås¼ø‡PÇféÕlSç6ñ'ƒ@f‹•‰»cJ]lá4à3^ˆ?#X.ğ/wf ‚Q÷ 	X!Åƒ|#¸TP œ`·èv§oeÜX @0¸…ƒ0+á_ÅCµúÑŒªsí…¥@9@%ØDöMÀh¹ˆ¾×qƒ ˆPFºòkƒP<qe Fà{ÄåeİphIµ…ÉB;ÿ“v—ƒ°‹’ñÙ^$(;.põèFq@3á]4´c*xàj®w“ÕáÀŸ×\Q@ÍW‹y€|Õ×[-0²‡-9 uİ Ó=ñY•¥\¥°|ÕvmZ™St÷yZĞ9€ÂÂá0%Ä²	)”4I\u..bàu–}1m·çp.áğ^G@Œ u‰ÅãØt#~óèØ/¶ä˜A
++9@ŞĞt©¶F«÷I`†„qÄ"'kàüFšz˜‰ÊÕŞP$xw@a©L ?Ì©‰³Â ]²É´@G)ƒÿÀ4\%')”¯±ui¸¥0Gàšì§œuÍùšÎ@‰ÓHT Z40f]Ã}„Ÿ¢'ÀİÉ€ÀfíU
++„`H+‰è!"ñƒ±L5)Qp8(Ø/Ÿ'ƒüIÿ¹ş‰9P˜ËQ0˜GpÂÈDÙR<Ø‰>XP+è¹ 	ñKİ€#ß·”yiæËÑvÀ)a³Äˆà¥sX V:¥–ˆ‡ËÙœ5JGqÒ@V¨£	á>À2ŒP¿v{°1(Ä¥tQĞX§œqÂYùlË•„€™	ïÓB@Ô3‹Ox £DK°\ *ÿÖ—zèø‰bÊaõZ9 ‹Œ T ~Œ1–Lğcê¨Éå “ZÔå§p>†+Œbq@àYßfTeFªõfªP²šªÑpÒ^­Æ/Ú¥€{Œñ¶Àƒÿd‘ †Ê«€Ó‡¦´¬ÂŠ¬P¬6W›Å¤›	Õ˜™YPi˜+d­Ñ$'¹ÛÚ­AœàzßW¬FŒ¶’¸äC›1Tíê®O4%K €ğ‘ôºß j%)¥@°;æyæº£ß şpÙaR¬h ~T­Ö}0p‹ -À­Û‡5+?êk)ÿ€õx ñ0# @;¼p£0#0£P
++½YúñQÙ‘Ei°şvšL ÷²1+‡@gPÄ\îx•X”é¦¬@×0 À™°¶k‹ª€j›	ìP#0
++• Fà ˆªG°–R«cÑÇ	 —¢ÂX „šµ ñàŠZp6§¯ ©]"D° $	$¹š»¹™ °  
++2€8a›±p]‰Zš‰ò”‰('ğW„#—w%8šáÀaŠ¸A2÷Š.€@òÇ/0€K€´à° 8°¹Î«¹— [ğ =ğ [à	9úœK@GTÑÿT‰ÀU
++œ &ÅKrª¾CøıÉ„Â£„oR gdf¸¨m¼€}aÖø¨cà—€ğæÀ¼Ï{ÀePìà	Óû ğœê‡À§‹oàhQŒàˆ°;p„ş©
++X-<C!¬|N—„:¥ç‹‰í…±š¿$p4Ã˜-]ğñuğ: ·ì¼0 ¼°àÀÔ;K«ÇqlKª$™UXÀQj¥EÈ3ÔX
++•x¾Ğ¦¾
++‘Ä0Ü»P¬^™íÕŸLp·ÑËğV ìp	?ì¼—0 [P½FL½ñ §qöàgKP 5°«rç?rººO$d0ÿÆñZ0Vh4ÃÄ¡.nOR7 sÄÒ›ÇÜLğ
++ÈĞ„ü·8yh;ÌÈ&áÀ/.0ZE¬eâ‰–ó
++ËËì¼èà	 L½† Æ+¡ïf9¥€ÊÈ‰>ëwtûR  Æ®ìuàkôd±PF>œĞÀcæªğË›{	È@œÇ=`,!F.I²0ÀÌªÜÅ" [Íãõ“æi˜ü2)]CU®À¾LÎ$½ [ÄÃü Ìzs„q95@£:Ï4›ÈçX‹Ï)qXævZSÉ 
++ #v± ã,Çä|	eÎÃÜ¹¦­$ÿ{ÊTıqJwoP	|ÌÑQ.r’€ª“Rº"†vñ
++²:° ıË— 	
++½Ğ†±1ÓQyÊÿœÓ`F,Ÿw€÷Ó@m€ u.°je€H:@áìÃ-ÇS=Ì7XúœfÁ LP?-:wh|rz‹™Èœğ „ ;Ö/ X”€¥S>°Ã$ûÉĞ¼½è¼Ğ=Ğ%ñ@@Óy]
++(pJGpıÙ5qÈ}¥À	wØÕÆ·õÉ1) ãËŸàúè0ÂØ4!ÔBfr‚‚P9µ  €Ù™­¹è œ=é0ßÀøÑLĞ ò]ÿè¾@ÂÂä­€ş)Ş¿N‡¢oğÛÀ}—ê7ómÉ 
++Ô@ĞÍMÇÒ‹ÇF<‹ì÷`xİu‘¥ĞÌ8©œf–ÁX‰•ˆ¥SŠÅæ&ÔƒŒï­ß0C’¢€Ş‚€jğ
++ĞP¼ßÀÂìß†€
++!Ñd#Ûu&ËNj­À	 ¹‡Ào’Bœ°# æ —ğÙàËÀ€âe š›RğÔ[½
++Š`’`§–([ÈÖp;Î~¢\D ²€—-NNP*= nşËR0 Ğ	eÀÀ[p¨Š`ÏÀ|ˆ¬•ş§_ÎÏÿ ÏXÀ‘fnÌ;ç—à	èpĞ“^é½ èp	æœ*şÒàa*1¾Q°}í¨œx„`Õ‡NşÀoûr?p	¯° ™ ç™° r|	?0 ˜ŞëRÀéš›	e€¶sî	°pÇñĞ÷@&áG 8-:uZ|±´tT ¬!Ö±.A`d¸88° NÍë»> 	}çÀ¾¹w> ¹— hkÔK½ìì°I`«Ğ	>Œ`¥0ğ54êº³/ş–tQL,‚K q°Èğ2îÇì S# ·í	KN3Õ 
++˜‹“~ĞĞ? R€Íÿ›ÙïPÕkÔüÓîYj@Q }
++”ò÷Á»DVšôñG‡ÅSšôH¢@¿ü¸¤®ñ/NÜ 	¼0Î$ âK2@ğğ¶Aüe ïĞ; †€#ğ[0÷.ı UÔI eKw{ 7ê#,Şğ†#XøKH¢ö§€ó(¸o€O5ƒõ7qVàò è 
++#@ô @2pùÜæpË¶ePc Ô‹ó ¬‘0XZ«¾à³MÛX<_ŸXŸPÒâùÇü\. 3ïöªÀ3   ‰ G
++ø€_Pîón; ~°Yÿ0_àß= A‡j’ê³oqbw÷üG9 	Ò 
++®
++Õğó f Ë
++äI°FoÊ®1Æ@ñƒÍL.3ÂJ˜0&§ĞŒ=ª=û×ÑãG ¿%òÌ¤I"´äqÖÒåK˜1eÎŒ‰#&TH}ÙÓçO A…%ZÔèQ¤I•.eÚ´h
++çdà¸„£š]_¾œ  Àkƒ4,®ˆ@€@´iÙˆ +"KŒùK
++A@œ“&=D¡âæ_À2mbáæF *oâğtÚØñcÈ‘%O¦Üø™>°ƒ4@kÑT¤ñª€€1dË®f³ºl³ÛàÆ„ÿ³oyÕ0éÀ¤[`gƒ&Ş‹‹hxC«ãÊÑ¥O§^İ:ägÚ\›§
++Ç¼:éÒ¨ Á+4eÇ°8%Ë6°WË)RÄĞì="# ï3´è€“F€s†	&
++( „¡ÁRD	Ä¨ĞµØ ºë:ôğCCŒÌŸ $ñ€TÁ1NĞÅkJ0ù¤JšÈb¬ùŠ8à¢¸z0Ãœ¢‚Hâ?+‰"8)…‰H4Ü`Ê)¥Ü@C-´ €
++K!o ED2Ë4óL3	) \ÀÃ#¹Cf1OT°äi(¡¤BvQM>˜–¸0*ÿä¡á¡¤“Ô€!Š˜l28,ºé¦â2µISM9%o8Ñ¢64SUuUVzs  Z !B(±€€®ŠˆBzhæ×0”Í/ ¡ìÚ!/6è  ¿.µö%›8¹àºZõö[pÃıç›ERh	¸€ 	¿°C…ÒTğâ ("`F³VùtØQ¶‡\‚jA N§œ(üíZkIu¦ 
++Üh#q+¶øâã¸`áF4 “&ª©ƒ^¿j@‚H¤,6„‘.A4QC ğé™^xÈ‰I)à”á¿¸±©ãAƒEê°c¦›vz²7
++À¢%q€ ÿÂ;9!‘Òºöje|ÙFŠLböä_zj!‰‰MRc‚ Ö(`á¿ñ’òÖÛ…RÈ;F8¡€œ(¸2Ë(háğiÆwœ(r9™Ú¸xÆ	T €4¯½¢¡ ;ædÕˆâÂ¿“(gR˜0F €‚,s×v7Xc-( o
++Æ|üxä“ÿ‚áÆ™Fé„0-åDJVàYˆfU2¹D
++e12ş» }æ` ÁçKmr¦ï¾oğ6×S,ò€¡xåP€ÁdçN0#èJì  pí<"8€Î 0Œ@
++8`Çş%ÿˆ'¹‡(p„ hñc4°´ÆP†«Ä$‡Á	Ö#@"²Wš{UPtP =èÑ‡ÌcøÉÏüad	ŒÀ \@·†0œ@)P7C0†qU÷àR8R ØO^“@`(¢d G:ğ…üÉ3	¬€( ‹YŒ_8Á„¼_c#I¦o\€ÌØA,`4Xïd˜— ğ‡ÎÑÃÖÃz —Ì 7ìsÆ ƒAÒD8²ôTà”
++Ôá‹{d/}Ù!œù'ø€#  ‚0X@¨!‹;Wš‚Ì"XùñÁ3¬P€(ÿ`ÀR)E ƒÁSœƒ+€…6€»¹—¿dg;¥ã2<Ãà‚Ü †\r,°‘à3½"kD §¬F6&„ãR.è&(	*DT¢ğæ7SP
++*°Âåhtxàt(Àp€&À¨€"h ¢?Ùh.dá¨Ôìâ×)œ’ª\Ô :úS :¦–P6XÁa À	\úTk4Àø(‡M	é’l ‘0jW½j”N,  8j9¬°(¨ÀÚóZÊü	P;Ã\„üÔM¤@,æ«{å«P:qˆtôÁ(‡Y`®”¦òHY€LÎùSÿS(†
++)ç‚à-T Ò ‡p&GxíEÖÙWÔ¢V‡ ƒ. D6y€¦ñJÒ`œ@·8æSğ¸A…ÿÃĞï®d8*a`4¸Ò$9ˆ:02µÓ.&v€	×–µçƒbÃÀÛ0Œ'n}ªè0GX6"…äMÁ oS³£¨{ßûN;`€
++kVf„Áz_¡yË[šÏ™ÀVÍiqœA…Ex¿î…pˆg8à¿m Ç®\Ş? À¶Çpl’‚ l@qf1j! †*ø÷¿fÄl?ìÒÓ¨ ²ÛT]±À©$‡
++€Äi[|äŸŞ!N3ÿş¯4Áß¸k(¡6%
++ æv·»À"4°é"YÌ?eÆ$ËäÂZÁbp”]j`¬LÄ¶ {“sRøã¹sŸ÷Z…oHÍÿu ˜ÁÀ¹k Ã†°h²¡äh„7RÀØ×Ï›öê7*ğŒ6zÃm²‡˜ÊØÒ$â"C(Xˆ(§‡FŠ†9}ë®~Cãµ¨7Ì€@b°Ãx0ØØÀPD”?'‚]¼¡#Äuµƒ%hØ×…u€Ip70Ã˜×B!ŒØ Ÿ
++P®ĞkÇ¨]àÁ™·ÍÇ	 ÕVà7”ğ€‡ «¸“ÿB< È[á…#ê0^Z'a lÿ+	„@ãW‚0úI ²œ Ì'9-Q…
++lÀ
++ô¤Èd+hA	×ø8Pğí‚«%çù5q
++'pÄ#q+€£J˜ùÆ‡Q‚('BWÀDÏ­>CTzÛÀÆ"^Ø6¬ƒ`&É7›Ú %  Â	ª°î3Œ¡W§» QÁ>HÀf€¶gÜ@Ø¢
++#”„\ ˆ´¯}ã~ğG2‰`¬ÂÈu§<Æ¾ÁT€L4š­°bØ‚F ‚À±¡x?!ã@”	 ˆ+X¢ò³o\0× ah¡óhNê9 ÿ€`œş	4¸): ¯!;´g~Óº è=eu ‰Ft€ø¯ÁÒL‘èTG~òÍ'ªxĞ‚” 
++VØ6ØÏ‹¦³İ@ëKóúw—_ÿß2&¬—ˆà¿5È¸øÓ8è„x»®‰;Ø?\•Sğ?°ø€R`¿mû£Ô¸@…hûóñ‹@4“*Ğ„“± .Xø:4“}>šC¹‰(üƒ·ÜÁA…Os,a@f 4x¿|‚H‚è„0À¯€ƒ1x@¬BëĞƒ$©*X„„`_“„ 8@8={‰gè>È€®1ÿ°B8œ*8>èZp .8Ğ DpA¤jƒ_Áxl¸¨:èL ƒ®@ü‹CH”ŒşÂ„*à7.”„œ1`„AL¼™K»'¨üˆ¨‚òœ1X¾H\ÅÆ€€>x†$`ë[‡5xƒLÜ0" }è . *x˜9 X›gˆµ7dEe\
++L8… ‚²³' ?¼87 „	˜ *@F0ø2ˆ'6ôŠ?ƒIXFt<Š.0pBó ¨ÆQs€¸2d†à=GÓ(‚4HG€
++S°!(«+ºö+¬X‡H`:ó²Sx†(°ƒÿ€ÌÈŸ …
++¸‡İKH&ƒ­’Ú€ø£Aè„«ÈÒ€P|Éè‚şÉös€n€¿Ô[½˜„şbD‘<˜J2pw¤É0ÔA$†{èˆoˆ1Ÿ$Ç+Ğ„ „É€ ê3ÊA³L½:ğˆ.¸œ’¡ª›Ê—älã=¬»rÀÉAÄ àp‚°” KL$ğÃsÇms ADˆìL T(™?ƒS°ËŒ4ƒt¿X`‚[l?Dp‡ğA>˜²1ˆ ÅÈg`L&Û®ˆ6ÁÊÉd;#ğˆShÅ‚1èƒÎLÇË+JµD-()£t€d;7ğKè‚;ù­ÿ"H¸Ø\FO£Í4ûE%Ğ"(Âmµ_ˆ¿'ÀÇğ1ˆrD€(Îe
++hLnSºûNˆL&ÛDb ¹'pK¨ gAî\EX„l2¤Äè;É¤‚$dÏ0…H5BÙ¹ø´Â{ O#t¥D}¨OÏC<õ¤øÍ# 6`D,Ğ8D•5|%ˆóä6N †şü8‚;ƒ+0>Ãg jôĞ ĞÈ”ÌİŒPÔy1K_ Î…CX¾ä7çLĞ%¾à*°¯yÍ C@„¥IİDšóƒ¥ôLAĞÎ‘‹Òı‚E°¾LÈY	L=ÿìPÑóP SÄ €<8ÒÜÌÑí{‚Şô]‹²!`n¡ÓôX[¸À35Â­Ü>5­éƒ^i :ÀPCİÁgX(/ 35ÍÀÒíCBı‡€Ï‘ÍT´ ù€‚AhƒF%40QHİ8ØÒ¨ ğ‹3¹sÕ ¶(XƒPMÈ˜[SõÜtRÓĞNa%A= €h‚vƒ*¸J|THE(8ÕÀš
++½P©œÖıó/@ó(¸€d5dV`Tf Ğ.x<Ó`5DWıû/ÀAE€
++°¾nUSõFHíJĞ"¨A-¿>øUÿKE ˆÀD´‚Qå8`†+Ğ¹Ÿè (¸+ÎœØò3€Œ3³Ø…¸ hN#µh€C€‚„)9°€‚ÛĞYY–m>L(‚{=³X(ØÈ2LË?¨àÔÖ dì	ĞW˜U‰MZÚCGğš3`è‚0Y1ˆ  (ÕX1¨‚Ÿ¸Á®‘³`%Ûæ«Ø÷”[ …Ë‘‡S™vsh#ƒŸ@><ù¿× R¾=S€Ó	’[(	~<!€4h7B9× Ô5’3¿È%9LX×®Á°a gj |ÙÎ»3Pğ;h 8PhØÿÔí¹oĞíù³°8q,J[•ı‰oPQ;àƒ@>dcà^‹ °¹ã=’§J1hÕÀ§êWä€7ÔÅ^yp³yİs)§İ…‰·ƒ¥© ƒ7‚\ö½:0 Ú¼íŞÌô'îeë  ĞÀšÓ°û`«ãQíqZH‚~¦•)‚®í‰Æû@; /S
++^¸NØİ®ù°=¶‚<Ä4Š€ahÓ¾º{87S 8Ø…*Kú0	
++°Û¦¼X·8ûQ ~&î‚Q$Š€s\âºëR7£ƒ(î4€Ò¢x ¤Õâÿ«Ó5yğè•ìœ×Û…º,
++Tà
++%Vcº‹ hõ
++ˆ€8ö0Èb¢xÓ4èW=¾:Mxß¼€ğ§•‚õÔK×Eö–oğ©ä©‚~Y¯I„"€Í£0…±ÍäoYå±. Ğg¢__TŞÁ@U,LÚa¯8û­e8ì‚~’€håE»PLöå¬Ö“ Ä*ZÏ¨dd=° zğ
++ffÚÎ	±˜f+Œ XffN¾1Ğo®Â* ¿à G^4E(Û=çûóbPÛ •çÔ–€ €k^a³(*ÖgìƒñZç{1h»^ƒ¦=K¸¹€ ÿ€†<h³á‡Ö?°ƒ6ò‚vZºÌèì¢MøUÈƒgéºÓ„“% (@€N[0d–n>3v,ŸE¶Z™º½iı€®`1(8äw` –Ü4H]²h©¯˜‘h^ê2	3™„câ¹¤'¦ƒÏµjwÂê2ùH[8ÅÎk ]±®<¸µ…c|a°&â·¦=Ğ­gÈ\İE¾ëºs(k¾şhÀ=(°œÂ3B)âÄî91˜…½¦ëÇlÊë„YH‡Æ®kŒÆlƒ ×’]¯	1(hĞm1˜ëÎá¥Nm’{Ü íÜLØ¦;Ì£í8ÂÛ¾ºÿ
++€ ]–º]pàŞî¹*˜]®kM+n’«=Ğå£bææ920 ]FI[ééŞ4=8…–:9xíí®6.öšÏiÑñVİqş
++ÓşìôÆµÕuæ´ei~ï›((Ú×+°o…ó(p3ÛRöokƒ ÎÛ!ö·o° óâ8æ³/í×İ/€ì
++G²ç%çâP° ïpëƒä»‚gƒØL5ñ1êÖİ…]8R`3”ö`‹]06ğëG2`n]°HKrã~¢]€#×˜S&§°Nxr:ˆò¹•ƒÿ²®ò¦1…'O…*‹Ùÿ¿ö/sŒ9…'P69`‹¶fs
++srÅ²ƒH¶+`ƒª¶süÂsÅò ÷‘" r@Ÿ®.@é<a¦ÇñD§.f æè³ 9(‹7²éHï+“u3a¾t
++‚İMŸ.1äU€
++2õ½*r´]ĞnVw'¼íÚ…1qH¯õ¯’q´…+°uo_ï¨‡ö!&vĞôcÿ)Æ}u
++”pègÿ¥çÕeæ= …Hãkï¨om0fwöow§oíiG€ş>w 
++÷`ßs_ğvwGwo+dÛs îzï¨m«ÃGí~o§*€å.‚P8 b,øê„ÈJ5ÑÑ
++wø^"ƒ{N9 w‹g§ \‰ïòo§ÿîŸyú÷ö…:FywöÒàe~wyvJ¬ûƒƒf§yw²ùó Z×ùÚñó¸‚<z_ZtMR»6ú_ª ƒDHƒ4˜Beú_ê‚øgv¶D·úF²/8° …¢÷úFú†¸¤. KH´{¹Ÿ{º¯{»¿{¼Ï{½ß{¾ï{¿ÿ{À|Á|Â/|Ã?|ÄO|Å_|Æo|Ç|È|ÉŸ|Ê¯|Ë¿|ÌÏ|Í¯ü€  !ù	 ÿ ,    K ÿ ÿ	H° Áƒ*\È°¡Ã‡#JœH±¢Å‹3jÜÈ±£Ç CŠI²¤É“(Sª\É²¥Ë—0cÊœI³¦Í›8sêÜÉ³§ÏŸ@ƒ
++J´¨Ñ£H“*]Ê´©Ó§P£JJµªÕ«X³jİÊµ«×¯`ÃŠK¶¬Ù³hÓª]Ë¶­Û·pãÊK·®İ»xóêİË·¯ß¿€S}öL°áÃ#^Ì¸±ãÇ#KL¹²åË˜3kŞÌ¹³çÏ C‹Mº´éÓ¨S«^ÍºuCÂ®cïT,»¶íÛ¸sëŞÍ»·ïßÀƒN¼¸ñãÈ“+_Î¼¹óçĞ£KŸN½ºõëØ³kßÎ½»÷ïàÃ‹ÿO¾¼ùóèÓ«_Ï¾½û÷ğãËŸO¿¾ıûøóã}áP‹AìĞ÷À¦eÏÜÓB @à ? €Ğ‚F$´ÈØ3şÄa †¢?AA2¶ƒ "¶è"’âaÏ¸Ä!.æ"<âŒ‚=sˆ-è¨#Iğğ#€=CJé¢?U‘!“}ùã†jHébøƒe“´PqÎ]z	â7ñÍ˜A ŞL€„š ’Dpúõ-Ü‚…wâùIÜÓg_ lÀ7XHR  À'Z¼rÃ¦7ğ“)<xàÏ+H,JĞ7ohÁ	7ÜL¦—ßôÿÄ•_©ÁÏ£H!eô:®ª ¬/¼¢†©²A¤€†®¨è?!nõÍ+ğò4$të-	—„‹N»â Å ûÏ7Pà)´Q¨—şTp<TaD/<Ñ†U1 Ï2Ï$ƒ;ß&®[<°,°T3ºÏ±İ¤àÌ†DˆßøÓBUÄñfT®ø 9+ìò%elÑCô ±ºÿ@p»Î¤PÎ¼RöÂŒ‹ßÄ±ï’LİPJ:K,€ƒË
++{²…'4ü@ÍÕ”J1-k¸ñÆxòP?9BPEb.¥ô3ã´uÂ÷`õÕ5ã³@REÏ¼ÿjdÌà˜£?I@™T->öÈÓo'IÜtÓmˆ(w¯û.ÀKÄj¶ @F‚P…'5Î5d»’Œ—4îø ‘ÓİÃ•'ëh7=sì%ÌjdÌ¤=T-D¶‡(N»ş-$èÌûµ¯Ûî»)ôëèRŞÃÌDİ ¢9:0®<	Àx"…'±_İÃ4ÑS[§@Ä¤R&a„—²
++ÅÁ„1 âSÔœ¹BÔ¢}9[pçhy©p^ªÂ¥~ru€HªÅZ7>t0,}ê©¤€)Ğ]ıX$%L«'Kğˆ° Õ!l|$xÕWc4È\
++ÿ$¡&†.	?ÙC @„x<cq8ô$`Bo›`‚7ª÷ŞÏHIˆƒOàŠ™Ã—¸aI€X€°v»â?´·g8£ôÓQ’¤Ä…
++¸c‡(]M–p&º¢É[c·.!…7€Ví«ƒ	!´1ƒF:„=¾Ñ!€âC5…^ÁgèàP…IXĞ,v?Ğšÿq”Xàœ‘Ø„I1ã‹ÏøF@4˜¼¢5|¡±JE^nŒİø1Ë@€ØÙvùKµÀ-â; ¹lAãøßÁÊÖ]"è‹\àQÍ<ãz›”ªĞÿ	 —!ÚÁıbâŠd‚Pì–àÎ”!aÀÈD¥ÀAY|P}´«ç@¡èÓHÌ EZğ±Å@&¨‘H”a ‹€' á-h 	V¸Øx	©aÍ‡ı‡?(À‰HI	°’‹ªà;ñà…-yÅ Ø±-5–ÁeàànÚ­LÌ ª¨·.!¬2 Ù@0úƒu ÷¸ ÕÅ#1£©!rG\tî½„*©2Q†Ìaè€!Û-H0ı#©6 ]-?8à[ò@è­~k‘?ì:A QÙ,EN’Xab%ë`¥Ğ„&ÿ¨¢[ìÁÂJ‚Ü¦¡ÀXÁE‚ü ²{ 57ËÙ7l€xü]1>$"ÁEIfµ5Œà†²½„*Ra9¨2RÀ‡y3q	Œ P¨ qK‚c£Ñ¼=™;ZĞàmÈc‹È°Wí œ-ª€-ƒ/–¼à¡à$Tk óÀ*æ„iHèıLğ…jÈ`ÊXë ò[3òw  XCò Ë¡À!²E‘DT…¡Fb<„¬)x0f°(ƒ{	 	t!¼@ŒjìÊ_ƒ°Š.à5ø‚<Gğb‚ÜÃQŞ¨±‹€cÂ ÿ	-êEBg¶Àã$Éæá­2ÈÀÃHE4@&' «ØE¼`†Ì l@€¤EPà†xåf Ë2ßcZTs‹ìĞg´ Í„10Ÿ!2Ì™0 2ˆÜA†V·`RœÑCr%ÖyTàsÈ…T €b+`,Ø2pa8[ÒĞt4½g”ùTíJó‘Š×bì@DBÀë3fQRÂğ@Œ¹‡ Š{ù'<€-dÅ’HD>FÕLàÏp‚@€b7@,€ö.lp€†!Úxx~ i8^› ÏèÅr©# aÇ¬f!ˆÂ-¢
++¼D{ÿı‡;×¢o¬[ ;Hí3@ Š
++@!ü8l21RXâHƒ5PìDPš ÀÆÌ°1ŒJC["°reGæ‹¤9H¨Ctê(}cl!"yˆªPêgTa»«QÍŸêM{=
++Ù²‡yxÂ8 P‡m|@D'¸"LñŒ/P‚¹ÈB¶Œ ì‚Õ  !ÒeõÄÁ„[Qàln¼¡´ êEÚÉ0‹~¶(	öØæ—`Ş5‚Œ
++²‡ô ˜Æ3v‹BdaĞÆÎÀ3RÑJô@ñÑÆ¤Àâ«¹µò9D‘yÂ´ ´¢3è	Sk¹£Üt6½ÿ‹NÍÚ)ãªë?‹W2‡¯A`l#YÆĞ0i(ü@
++;=ĞG—çÕL9Ò‚3rÛ—q "ı¢#bómS"UPoVPö‡ f@q†€	Ë0€ ÆF vğPht ilP;×-4KP€Ñ—u	˜#< zÖ'sş rÈy.o9òFğKøI¶@šÀ!M0Ø` 0vpglx
++’VÛ a—Àbr£Y<ø—ç?Ø"APW:2L¦U"ˆB4ñ&Ôu(`
++up@à@ `,ÿhl8ƒQ‡7	ñ$;×Ğ†QkĞq"2—#÷@‡°¦T_’‡‡â‡q<;’å÷º1Pp‰Ppa‰
++p"`6 2ğ4‰%€=¤‰q9yPI†‚'£˜ŒFbFø<ğ„–À|`pa`Wl`&p h`9a„•>†01ÄØYZ¡ÅŒîø„Š
++("ß81Pt   ÄfptÀpE@
++ U`X8P3±ã
++ÄÈY€°V ù^²< <p‹axDÇp·ôU 3PÇ	Ù\4 B™’)	À^_¨  a`6°egÿ€‹ô0tğ"y5?@y	ùŸèß ÷pHĞ”N‰K•QÙ”÷ V9ÌÈ#Ï i ƒ
++ ^p &°e"ğˆ¸ÖP¶G3ûU’÷„Xi(ßÀ”KÀ 0 	Và ~ÙåPİà„9˜yàğâ)À.À	0ğ˜éŒpGV 	€—K€÷0—\§Ï`v Ğ' ^`P'i–¸(Ğ—5%9n°æ#jp—{Y{cG¾ù.ĞXÀY  ‘@@k9 0 Ì n n`;CZğT ÿÀ	ŒĞ—‰XY2Õè„0yà¶Àˆ& iCÀši)Ö fPôÄIé×Z/ö HĞ%uéPv”ƒKXĞİ€.P
++L@°œp€pØÙ½ u@„pË¨kAuÙ!Ú€à0`šÀi K˜`‰^@hiŸ¸ˆŸö€öÀ€¤ö`~Ëhuß°tÂ›=£1ÍÀP¡°k°‹ ¢qàê'(ª¢½à¶à|  <£å 	¶ÀŒ(¤v
++  Y1ÂP¶PIrm•Àš¥ÿĞ¥½‡P	ğuY¦0á/|ĞşÀ iöà+¸x‘@ö)
++pI`@`H‡PÛÀÀÌ`]8òV3G€àÿ 3a
++rÏÀ©å``Úh‰ * p'vÚ g ¯Ê½À¶ÀIÒ2!®èG£h©WÄ!• ¬5¡“ 
++†¬àğ…`ÀúÚˆ*@ bhŸtpPÌPHwf50I
++®öc2³¹˜ ‘,âÙD ¢šµ†ôğ¯vJEÀªG¦ã' Å`Uà¤Hş@¢r[šĞ	Ñÿø’˜Éª ²wÊš€ W@x»d„ª#÷Â`µj"-o3«f3gÈª³mPaà³?†A;ğd  \@‘Áº#‡ &Ä4µ
++ R ³{b\Ûµ0’ÆÛ6ÅÀ>+DÂ®lû¶ 	p*·åà ë`v “]›–A‹ »@´É82}+"÷ppW8mb²…{Uğq«¸é—n a wËµ‰dˆ ¾  *	ŠB @ ¢çI÷V!½P$¡+lò¦+·m`àÀ'ğ¸>Kºx c ‰°eE`GÙ9Ìğ­²KëÆ]Áë¨ÿ04Å«¸Ç‹  ¯+àlg †g°·k ˆ0œé•¢$¡#6¶À\€ÁĞB0wß‹ÏÀj ˜ã‹µ²P«}Ğ P6I–¡P¨ZtÇ€D°€¿µk}Ùe)›şÂ¦ ;¶jÂsÀ! ‡Pº\$	`m€+°‹€(ğ( (pò‹ r 
++œu¼J0@ÂÀö ƒ:&4L`€ÃÅk=8{±mp¼¥lÌÆO <†P ğ@ˆà@îx£Ó²H+!w&„Z¨3 à;ÿĞjÒì“j ëÁ}Àë0lº*” r+	‘ğmJğñklŠ€ % µBÒº¨‘ß¶®è1Lj?< 
++r!0ñ- ³[8â´µÖ#åZI*+ÁŠz°ğ4@™,·|œ¸å€±± ¡Ã019ƒ,0A'ª%0ÂùcßÊTè§#ş`ö ¼á"²†/'ÒÇû°   / D˜ N`ÛğÍIHºëÉHŒmüÆtÚ‚Š0Àüq9L@(ğèHj´Bè%ßT]ÔÃ¬jFÀÒE²2}%$ãŠX8ª¼»—¤ÿ£’q€Å„‹“N@Â€0@ÆÕL­‡!KĞ 	TO€¡Œ-`
++* †CPğ÷Ğ4Àp½!’}ÉèBÀLz&ÇOá6 ş± õ&Aë2$$ÓÅ%M$òLd@«< Š	5÷9(]šÀ=-(àB]Í ¶`°­ ‚°ĞØÌÆJpÏ 	v †F·“ p9íÕÉx<`«HJÓ™›# P&'+  È9ˆI‘÷PsIà†ŒÀ÷ q@1÷×Ô
++àcˆ=¾V ÁSØ`Ä‘ÍÆ(p
++ÔÿŠ-àk`&ÈøøÂfNÿë&K)£]ÜV×F"6ğ€Ì(L¶Ê²	L.oLŠ¤Wfí½ÑÁ&Â-5 9;¾ÇÛ— ÍİÆ~ 	q
++¢ª P @÷ğ4 ç°İÉ
++rÚKøÂ
++s¯¬#ß@LºÅúÛcAx%	âÂBÀ(l;ĞÚS2‘¶p³ÑÑ`p’9|º0ÍnÌa	—İ‚l°
++ÅßÀ‰ıá%›g@ ‚ïØÎ¶`û+"åöÄ;PŞÊdpíÑÙeûÌ§0	ahQpØ¦ë  ÊÙŒ(%ß  ¸xW ñ%Ä	®Òäk"ÚÀ¤½3æxÿ¢ÑÅ ˆ‰$ÛCßà½ĞÅdµ*yÎˆßÉQ“  ò(PÍ;®ÔÎÆ~0Ã °µÆÖàÊ¢§’ &P®<°®'§Öª¹®&•âª”zR$SŸ$è ³n‰¢Ì @àn`£® ÊOĞ=»Ó»
++¨“`íÈŒ-Po.èÉxßWkÎw04]®IsÆş7ÇT|°ˆ@¶ğÒàçpÍ¡<Ê¦`¦ ÷Xlhà|®÷ ãÚ-§’I[«õ÷°½ °Â`&¢á÷ş"g“«Ãa³Õ€ë°ˆàæqÿÊşFÌ1	a»ˆ
++PÕ­¾r¢ UòR22è×}L±@à­üKôğˆ$ ïÂQûàa`’PV€‹°}ºÔŞĞğOPGŞ`0‹c(FŞ‡¨ÿşĞPÎ’ŒÂoKï­½`ŞNÿ"µº1°K`à’@DPÆ.ÀÔLMÄØLÄ`d 
++N°Càíş @DN_4«šŞx/P[X´º½ï%÷ !‰ìÈ²´ŸÈb®  Ï¼ÜÏp
++q 	m°@@ğõ‹ë¿ğ~P !ÀĞHl	qgÏĞ‚ğónO
++kàåÿ\» ]aÄä 82\ …Ì ‡ÀéĞú.’Û‰¤·ŠÖAn;`#6Rÿø/Ì¸|¶ ßş$XĞàA„	.dØĞáCˆ%NTØÂTZKÊ•›àæ‚ƒ!E¶)wA@9LÌ<	âÉ1‘yÖ€€CVA øğ^ 
++K%ZÔèQ¤ÏxØãá/©QAcÆL€‘COµnİzïP!Uª0ã!$H÷¾¥8Â³qåÎ¥[×.Å. 
++@ Y®ÍçHŠ$¼ÎƒP´¡…‚<â<ËpSA¢"	î"|Fk)®¡‡~rO«¿ U€ ±Ê£ÅZÑ±µŞAÆˆÿ!;âò·vóoàÁ…ÿ À
++$"—ëK8$É6+ écÙòÉ&¸-Ñ¬Œ“€ˆ0ÄBpãFöù¡-x`f¯B! ĞÏöÍ_#ö‚İ¹cë}i¡w‚(0ˆ ÈbÀ8vØ¡@³t‹#xƒÀ¾M<;ôĞÃ*YBçD’æœÛÈˆøE‰–³„ =Œx&Ë@€;cÆ)ú¶j™^v ¶ ·úwxË–f¹c*ïàâ=Ê2KP„0ËÀvH°¬ ğA½¼-	*°*‰Û‚ á­ë´óÎˆ˜¹`W<ñ0ÚhĞAQtÀb`ÿ{d:åÆ‡˜"&— ˆ$ŸB2Óúî‚‡
++ŠÂ=.‚á‚[l¢’"CNçÓ‚C‚0¢Š$^ÃsW^ñtãú\ñ°‹ı³/IôQT‰&bBåQqRà+xòğ!xØ4Öùh#ğVö*×–S¹ B !*<äHnÛ=
++‚üŒ°¶Wzëî•CHv_Â¬(¥±–>a` gLTZj[°‚\İåÊ>w’hOÜ7s;dİ·Ö8¶Cª0‚R{Cy¢üŒ_”Û "EŸè‡ .Æ#G:ä˜ÑÎgŒ eã¢–\Ê{¬%ˆCLãùhú†LbŞ‘›vú gJ	–0Qvÿ.Ùê”$;Pv˜á1:Áó©2n‚8’(µt{CúíXw¨ÀÆ§ë~	&¦‰Šôµz#I"©®¥ÿ#	',kà1àÕvˆ•Œ
++È57	ùàÖ¼]w*ÀÔnĞíu¦½ıZ9„ ªşÛ
++*ué‚ CÚœÆ¨¢×œm¤‚Ê¹ˆÜì­Ô@b‰%˜`C#byæ—÷‹Øã``	$Ôgó %¾'tîw _Â„%*ˆHq_I˜`Ì%:”pj`ÛëmA  Ïƒ€Œ¬´úfxHBeÎ `
++x@:ƒX` ÑˆnttÁ-`PŠR  L 8Xÿ @ ¢<<@€Z €`NÛ‚Û!ìA“îÅ°CĞN+là	JxÂ/\à7ôÀuJˆ…Ò‚H aEàQ½ P!¸ëK˜@&x@&İGº‘À@ƒ B$´ …¬a4 Á68VàøU/Bø<â±o Ğ7ˆÅìyÈ@† Ocl™¹™~¤NEV(À²ˆÁ+ Œu®1–0o0#Ò¢C,z=#U0}¾Àr8	t¼F&l Qè@Şh’^Ğ‚ÂZ4TŸt¤£.Cñ–;„À&{ø‘‡`a’\èGÿfó.Z@Äù6B’_d-Lğ&Õ·¾'8ƒ  ™X°½=±èy¥°0K2°Î€A Qƒ(`€´ØÛPY¯gĞ&Nj«*4§L	 ÕfE#ò´â†"IŸZöAíË
++ÔAçb
++È'‰`ƒ	ö1²o$¡
++±Ñ=S Ån4Âb¤Â¡7 Å7¬“²å$÷äŠ]çYÓ,úT†Ü#@t´°C—"¤}"	ËĞ©‚L¢JÄ	X ™‘a‹ıKŠ&@pÜÔÎàD)˜€Æ¸¡+„jBAÌ 
++Ñù”CT€}elBÔ@…r>‡ÿã{B,º¹¯CŒ1D4â?¾q‚øáä¾0ÅÓ&€Ã"A÷äF#°à&P  € D *ašÆBÄ-B/<¶ jÅ< hnûzîKP=G&ƒÈÉ–	@BK‡1t¡nÏØAz
++ù,Á²L'€¢^B>Æ]æ3üaöØsH!CÉ^‹öÎV¬`…È*g|ë‹QáşÑ	 Ğc¥Eˆ èê£7h  €HÑü
++çÁƒ—ZùŒCü(ÃP]‚üû7~9 ‰"ğ¢Ap€¬ß9e÷2â¹÷™V	ÂZ¾9[498‡ QÜ'I±Å.ÿ1é@Pq²* ,pj­Ü“„î Mòlq¯:"Ô€E0¿õ¢%£  í†`…}YÎqqï­Ñ$/ÏÙißXE	¢° øÈ+‚f	Œ&$‰ßvÁ=Gš"ßØAà”gIÛK«AJàˆpBĞ(v€  £ø‹&ev3ıjİ¶À;€õÓÄPäz şa™Câ€BŸú	Ox±¢½`ÔZÙ©Ï²GÖ…4ü¹FÀ*î pY¤:$0á€ƒœB¡% JPeg§[İö"¬q8P»³ˆ¨:’ux•1Oh':k.[PÄÿĞºn„'|Wš€B”é @Ü g9%ÑºÍ¢àe
++‰@ÑéÒ*\ä#çĞ7¼£ùQ[S¨Á``…‚³e€‚?b	„vq`0É}şóâXWZ‰ 6ØÀhaÌ &Iú3ì;¬ü¾ãÑEpßè[ç:E €Ğâ¹	¢ˆEP¡ç8Œ Pğ„Ypºç	1…¢ü¸ºë{çûB&á…(ëHå6 ÉÌºPĞ ~˜ÅÆ^„# V'zŞµÛwÌgŞ³ ]N/9Éƒ@Ã*p]tƒs\ç—ÉõÜ5ÿú®÷!a¯|®m0Ïî"»;5ÿ¡14@‰°ní“{äP¦İ´m	Xİ;G€¦>6'¢˜HƒÁó\?ùãwöß?² S6é¼´°^„>(d	c*şv¬³ 
++â'ÿa}ÊK?šh?i!8ƒÈ;ˆCà z›US °Ø?ÿ«Àt‹ ;;Á …t @ï€¸]ˆ3„¨‚4Hƒß»?°	|Ae³¼?ˆ¸T AÖC€°¿„80 ÷	ƒ0X,LBIƒ ĞÀïÂK¤;¾„°„N K8 
++TB0œ3që<ô³!B¬A_¸¼‡˜ÿ»û C9´²I1Ú! c0Pˆ–öK9 A‡è;H„›CCÄ±gƒö£è>l¿3(/à¿ƒ¨à @<DMÌ-S:i‘‡U€Gì<4ğŒˆP€À´MlÅlªÃÀk ;`†Q,@EØ…lˆ'#€\tE_¬(1>ˆ€Zô–²9ˆ€ PƒûEgÌ&AÔ@¨‚Q"@¢+V<ˆ'ã€|Fo”¡o  •’ €jl¿DƒSŒ ƒlüFxPğÄët46Ô­wŒG~¤ »ô Á3øÃ~<Hãê8ii (ƒq¼Cc`DHŠ|*q-ÿ	€‚œ[ÄêÛÇŠüÈ§i;T 	ğæ£ù)‚ I–|¤Ï’–’œAHƒ•lI›ì 86	8€¼CEƒB¼I¡¬›*7’<ì¼ï`¢¡lJ§Ñ;” èIRÊµsJ¬t¢&$É©ÔÀ”U Ä¬Kñ¨‚l T0Ú©A87²|Ë; GH	°ĞRJˆ;+¸ÜË‰ (S(¾iÉ»øãKÃ$KÈÀ°4 ÀïsËÃŒÌßğ(+Â"‚ö«Á]BÉìL»˜<€\û¥üÉ&òLÔŒSH„D°€xC Ã	¬«ÉÔ¬M‰ ƒ4P>ˆD‚ØL¹°´Mÿá|ˆKƒ
++øÀ4¬¶‰NæL ˜ÅšÌddlNë4ˆ*à fH‡è[DwÂ„ëO)
++x†îì¼‡c OñDa  ÊL*dI`Oñt[ˆÏÌD ê´Ïğì.ĞO”œNtóÏÚÔ{ˆÎöC¿à4Ğæ„ fPĞÎ‹ÄÂtPæü1	¥8ğ… ´Ğád†o`?ŸD@mÎ>H\©ï,Qæd0HQHÏeQÉì=€Qô›DÎSH)¥Dƒ1°€ÎN0 t]¨Ğ!EM=HJÚIÏ^\ÒÈÄ¹Àó<èF)íL¬R¬ÃÆ,EÍĞ…À#¸1PÒ/L <Úù¸ÿ+ÈÇ3=LÓ'-»u|ÓÃü,ü(´x²SÃü†­”–24˜Q?uJ<¥3€Â`,=Ô¬|ª”2_8 Ş;€](ú”T²´GEİ…F…Â+àA±ôÔœ<EeQ5Â£»TuJ…t?0ˆ+‚+XÑXuÊ*H E•À±ËµğÛU§ì‚D``•­Û¶ ÖÌ‹€cÅ	:°P¹]hFhµIiÕ9;8€0"à½+İÖ¡,Ji¡ °¼³90·S5×xDWi‰(Ø6¸Ôj‹WyıF 0Jù	ƒW#¤²~µI ˜=Ú)I_è4	ƒmI ¨T`ÿ1ˆ8	ÔÖˆEHV»ÃÀ5Ü…fİXŠœÕæk½!%ÙŠl3HÌ59ÀT(XN–GJ%ÀxCÒÈÃH­ÙoG…‚5£ëTŸµYŠİÀ”/0Ô£mÅoƒ*¼˜Í»‘}ZoLTRÜÓ£ëY¬ıÅ¨UKE€ğ…üZx|²‡”¡e×]8M´}F­UÔ1¸V Ï¸õÆg8__~Í[0ìƒØ¤V9…¸ZÂõÅS GÄ= pÚÆCPpÒ¡»f¨ÜoÄ„‘ÌÜ:å\_D…Ï¥Ö+`\ÑİÄoèƒµ]ˆÃÔuEJMÑ)ÃÛØõÅX[<4ØÛÅ]'D ¡+ìİV4Ù»ÎŞá%€øi€H„ÛC^W|Î0HHƒ)0ê„ŞCŒ àIˆÀ«ÔŞC/° óå€pñÕDè]8S K Ùõ­_û½_üÍ_ıİ_şí_ÿı_ ``.`>`N`^`n`~``	`
++®`¾`Î`Ş`î`ş`aa.a>aFÛ€  !ù ÿ ,    K ÿ ÿ	H° Áƒ*\È°¡Ã‡#JœH±¢Å‹3jÜÈ±£Ç CŠI²¤É“(Sª\É²¥Ë—0cÊœI³¦Í›8sêÜÉ³§ÏŸ@ƒ
++J´¨Ñ£H“*]Ê´©Ó§P£JJµªÕ«X³jİÊµ«×¯`ÃŠK¶¬Ù³hÓª]Ë¶­Û·pãf|öL®İ»5éâİË·¯ß¿€L¸°áÃˆ+^Ì¸±ãÇ#KL¹²åË˜3kŞÌ¹³çÏ C‹Mº´éÓ¨S«^Íºµë×°cËM»¶íÛ¸sëŞÍ»·ïßÀƒN¼¸ñãÈ“+_Î¼¹óçĞ£KŸN½ºõëØ³kßÎ½»÷ïàÃ‹ÿO¾¼ùóèÓ«_Ï¾½û÷ğãËŸO¿¾ıûøóëßÏ¿¿ÿÿ (à€O=#Š+7ÀÏ¯äáŠxàÏÔE `H8ÏRHQe”Ñ¡8t8À</ğcá…|©ñ
++<Ë<"	4ÖxI™ˆH¢£,Áâ^ø@É¨ÂNHâ8Àl,#øø£\ğPaÎàpd’\B"Å=< f5RNé<ı˜Ã@–\ry	,[x2€˜bö‹f¶uÃ2Ï|Ãf›I^2gLÒ)&<y®õŠt%#Ë€&‰Ì’†Öù‰¢…Ä5é<CM2:@)’ÈxRi£dz?¤<3+¢üÿ9jPh¥…ˆ¢*YjÜ@]à0+’ex"…©§öê®b½Ò*]¢@£å°4ãÉ·Vj¦Ì‚åë¯¨"Ë¢Îêe¶•"Ú­W|ûŒ,àJ2[R‹§Ö9Íº^İÈ¯HPcN¸õR	²§şP	¿[=Ãè¯ã<£ƒ°Ô
++K¾¨Ë0VKÀó+ÔğMÁ“€ÎœÉî»1VüğŠ?’Å%#	ºô0+_åJ?ÔòL¼#×(	°„ièµôlÕ:@3Á+$P0F“pã%ÖzƒÓUÁ#:Kã%R°õ eØL&IŠ¸µ,_Ò©,ØTÁ3€,Ô,ÿPojk=€'µÒX,R “ä jß˜µLÚ9ŞR¹2 $²sõ%‡cMã(N;3Œ0 ÜH2^$— Ãz±3ìAyT{œ~ö RäXÍ<4lHî$ä¸I.z,ã# ËeÎŞTR@Š±™àp„4ªĞÈÕàp#2¨àÇ ŞÛŒò…ØmÈÎ?¥Æ[
++š»*©X3‡‘™HÏ4ªdr	#Àd@¢z¡ã^†0”ìÚç”9ÄqPÅ¬A ^ÌC
++ªAF vdB_0°QÌcÀ8ÖÅ¥1.4+Ãp @zĞCÄæ	|¢$ò6ÿŠ€ A«øÀ ğCõà.lŠ(xG#ğM#mQP€n(Dta»(Ì0‚@H£€‹+¤¯N#øF™2Šè‘ ó`æ€ ¨@‹
++  v!°ÆPD!ÓÈÈ4ÁJ{À¶æ¸ÈàH™À(á	4 °Ã.¹à6 b#å€€+$ĞP_£¤R^1v´mËĞÃ	8k|R‰0" °âÃPeåÀaTª¼åR\!Xx|€@…¶áOj‘ èÄ3ªA‰f˜!A)g-ñLšIYÆz ‹Lã<ÈE3²@ÿ @Ê#éÀF(Ñƒm4²˜ÁáNõ
++x*%ÕPZ$PANJÜ!ıT@Ò Œ,d¡vPDÙà‡k–ê™PthRÌáƒôÀš@ÄP  ˜vøC4nø‡‘¢À{\{f5ä¨Ò¢<Ã-®QltB Á°$pÓüRt(â¾@3tM²¨=YÑ? Àƒ
++T - ƒ *@1ğA €qÓ›fÀÆ–±B‚u&Ï AZ@Ôo€ F E´àW- úÄÄ Ÿ‰H€U¯ªÅ3 À&ˆ@Ip°gÎae¿J­Xeò8,ÖBÏØ3Œ°wÿ€ÂµFhÁ=è„;¸#µB(ÆcéB28¡Ÿ €
++Â`‡ŒR68À$ yà ÏÜ³úÔ!€B<0‚ €*$  jCT«—‰€À<ğÇ@¾!„$ÄáAÂ?¾‘„¤6	Ì€@ja8¨6¾©…€=4qYœÚáZlÀ¢+ºâpóPE¾ø‘¨g@  ø®;Ì^îÖ7„EHk„$7	,NBxpˆÕ*½€ ~[ğgô÷W à’@bWAì@JÌ^MØ‡F¥¬E¸ÀPDF%@fÄƒ‘ìòt°LNó!È „¤ÿ³ “ïÑ Ë±O+zÆkò$ÿŠş Ãpéâ{àÀd(ñnÓœZSTA ^P75*;ÀiüC]éAÁ>41L=¨Æ=~ä aÑŒfô7ÜÁwŒz A¨Bª!`=sA  €À?‚p^#Èñ‰ş¯¬S{.š.¨N5“ı1ÙØA'HDrí …2ËÎ­«$ —†iz|­ìrÓ…¬ ³@ZPkFûƒÅxF*Ğ ø#°Ìø~ìç_íàĞæ6·%kÔ b°€0¼`ƒ1ˆ t­k])HHÀÆşoÀ7¾jûÖåíNs€0‹_	àrÿÆw©U›[Õz|ã©‡°LàˆX„?ø@ ¬Ã
++m8G0pL#`Oz¬a€/Üb6Â+„8æLş÷’Ñ‹T@¦ËŒı„É¦¶5şoÊË=óšO .( ¨€\€@…ÂP”£V°E"ÒP:D<éIçôRqˆş0ú h„´c½Ä‡àÁâU¿âïÚÍªZ!Ü;µßHµ–0I´ÁX€00
++¸¤ğGêÿÑ	ğBğ{9¬ŒÄ•³ˆO:\9 ‰úx8BBq§}øš9¿B‚k{aÌÂ¾¼ÿj9_^FW "î°ŒÓÃ\D9°Ğ,Ü¢ ZØÄ"êpÄ÷àb På0¶  pxUeU	mu%D§^î±jT· pu³†Td  \05p†¶Ésß 
++5`v%³`yÏÀk—Kp¬7X€Î °Tğ‡°[a
++ß`	}ğ8|Ì`vpS*°\ `'É§QŠï_š—zâÇ^şàB°V`Bàî·qóFn%6†Àræ’@Îà ¶şçdğ¦ÀÏ |à @U%Uˆğ`€|uÿ%a» Y^œ§]˜f†U_cH‚&èb\¨Z-`¨·vÊ¶’p)7°o^a	şĞ'|m@bà\¨Qô`UUJCàPà@°kà\H-l™ˆu‡ `Fà‚åfŠ©% Ô¨lğG«ˆİÀ	T`wf˜€	IĞãà ˆ„ àˆÁ(qC€ , ò& (€öĞ´PHÚÁlÏ˜‰÷†`zgØHF0ƒåv€«ØÎÀ ‹{hš`
++¦ˆíØ@ğ€äYc¿âU°À	·P
++Ğƒê¦-Ğ‘·;ÿP“-à:6æd.–kå`ŠòÖoª&	sèàHGà÷¶ş u0mğ‘wb ’$‰xU%pu¨@ÌP XàœP @´P‰Ññ-“q“;`}½ c‹µ>É^’w^˜È^;PÔ¨—ì‘)àİàTğ”¯Æßp |Xé +`65’Á8E ,àŒ¿Bk kùŠƒ° ù}İ•gv†{YzÌĞÇ†yÌ0›Œ¶ŞÈŠÎ@9c ñìˆ•è y [	ŒÉ×„ÙvW'Éd‡ uà ÎÀ	¥@Tà< [n¹ß@gq0ndÿĞ¯‰zˆ% }¨fH™fjà ßØL€Ğ˜²Fœ	xŒÀ'ÅY@u "pS‰àHPĞu%ÖZ‹EÜĞgÉpHvGÕ¦ffmVÏp`*xy ‘ˆY 4 ò5ö9ø‰•€×   ‰@ òĞ CğpÑetpSh€ Ep±&„y<¹VP
++k)šĞPyÙİÑ'™—d°®™‰êXX×«˜˜€WÀ,Ú¢é ©GÀbğ¦ À"ti¡0T†UEÄ©÷oëz©+ 0À	t˜œ { ;‘åÿAŒ}­–¥X×ÌÀ¥æ¶$
++ŸGğRÚ} Ã‰¦å°t!	`p.°€J pU"µ–ÀgD¢Š¦”‡é¾
++Œpn0“éáaA ¡ÿØ…d`}Zbğ¥)€¢(!}w•hª¦¥j€mĞ­’À!®áŠ%@€ÔScp
++Ñg–jH@¬HİàŞ 
++éºÖç< ƒ’ªl÷vi†åp˜Ş°˜­²UPÌ@o×¢ğ+GØ’ O ®!ğ mß¤AjßĞ [s÷Š @LP òñşP— p„)~ÿ0‡İÀƒÀô™ €	]ğZ@ØŠ•BhiêJ ®J0hpUóÈùº®uY‚^Ho w+Ë£©Q@nòñt&ÓˆµçÎà0¤ğ–NàÛ nP´ÜºÃuØê «(p±ãZïH W *F[å†V€ƒ79 àå8ßp¶å5Ëh#šİpƒpUÛ- 
++—«.€·YiU ` xå°!ëµ˜mgPXˆ±ÅhË^Kà½zƒİ³^¥òff›jß 	¬Øoşp
++N@º€DKœİÿzÁ`_­ Mğ(€û@ğzÀ•Zt SpšaŸÏ{›çP
++0Y 0àXáà@ªòF÷Ë^Hàá˜Ğ³.
++Ú« i€œªX)	+ @ 5€¯Š±µKÿ 	Se¸ˆ‹	ñ  «L²Ì Ò*­ T`–) ÔJòf¿Å^ß0L‰0APüu\PT -
++x¨J‚‹±JPùu5'Ù‡ ƒÊÆ…àÎÀ0“k@T	€GÕ\ˆ’€ƒŞP
++ Œ7! 1  àúàÄ¢j ÂáúÌ0 ¿À$SÿPÀßĞ p÷ ”ÎÀõÇ	Lp@¿óáa´à.ÀŠ) 9 ¦9“ QpV ªø­M+Â(p«ÀYhp“àÏÀy«Àm°Š¿Ú¥ ´°¼Îç„p‡ƒpm©}pÊô  (à ¬Kœ’	S,®5@]À€Z\¡’Ûx›y¹‘T0YûA¶»· e5à«,ª Ù\»êJ“P¸Z”US²™j’ÇKÊ¿ ›j¹Ãµ*Éº°¶°õŒŸàÄğÊƒü*\U  yü\rË^å‡à¥v4) Œÿ€¤ûĞa
++BÀs   +àÅ°ü‘V	±¯j
++a	ağ¿[,u¼i†©i¹QPZpÄ8½Ÿêv °’ğ‹°Õ|•¿àÑO€€ë ùn•ıĞšÑ¯û~ÔY‡°şÕÕ	ñ€H I€¤€V@D Ñ M‹¾OĞ´(€`U`	`Qgp²,!;Î©†›tèJ
++Ä
++Ø¡’ÏP-à @ÅĞ­-ê ¥ğ¿à5p¿P»«(=<`	| H‰PPÏĞr&(Ä)À±—n†Úÿ`	d€A | Ì0Ôiºÿ À ‘`‚‹íK§ğXÉ¥EhÀì»<ÀÛLéyàÀ©Òİ¤P ïZœ’P çÀÊ?'	Ğ(à´OÒQ÷¶ŞXuÒOjA–XI  ‘ P :ŒÚÀ°iÊÜŸ·o€ÏâŠÅ€ŞE×ß„ Š{dPáiãéÒpL4œêŒÓU@àÇíè·¦ÊÊá±ğÊ€ûÛJö4HpÜO	sKÀø×‡Ó gªÑ’`ª®İ­®MÍ~Û’P
++L;®à,:måÎ¥ 0Ñ×…j ÉİJÆ,M€ÿ@
++’‰ŸmğæLÎæmşw÷,¸O@¡	“uå
++ «p×Q—™hâ‡yƒ–‹ï7¯à)ÎÊøéÊáªM€'ÿ€
++µ¦éC@µÁn™Ä¹) â‡îBà¬^ìå°Ñ=Èy0§ğ¦E·şÛÁuæ&•ÚbäÅ•ª²ıû¿àcJIjP &nÍ«¦İ*¯ü‘Àì ğì
++p»ÀàÑ
++šj®¥“;é P— ä'Kiy¹QÄ Pîí˜‹‘àJ^ì’°S,¯†	FÙ€rpãQg©DP
++I°F@IŒÀ‹•áÊ®gìå 	Z0ÅOÿ +ûUğc åánØ…#ÚàP
++MZ¡d ê.ZçpìÆ~Í2OzpSP­óaj>I°¾
++¡…ÁNcòÅ‰Ï-àĞğ-
++õâú‚`È]`ˆ›>]9¾—Ì=Ä0 ½àéëÒ€â’ MëØÀ¦0ŸÍ± ërcĞç!
++şµõ¿ì«L	Ğ÷x	+PÍGQşê! çn€V`±û	ì#}ğKVpêœ¶Ù…yÿ«œ u`û,‚‚ Û­NøëŞÇ¢ªÖG% €”U,€
++"!Ø¹/~Ì¿Z (ÿº2K°‰ï¢Àú«á?™Œ°´ë+õÑ	şL Æ`áß ¯ÄKù«„ŞÌüK|H*WĞàÁ6å~=yòk]Âƒ­¡$ÄÅOıãá„!Ï°ĞÃÑäI”)U®ü÷M „g1eÎœ¹CHqZøûFó")œu††›{,•.eÚÔéS¨Q¥N¥ZÕêU¬(Ÿİ€ñ "‘´œsà5¢¤HO0^|Òä™I B6øsTV¦˜İóéó›=fBŒ$1Ò”Aâø“9Ñ¢)Ü@À[ÙòeÌ™5oŞÜoEY³ÛH’:t¹„±,®UKÉS*B* 3æÿç“ş*ôåMó›¿dªT„Ç@Œœyë6”[o¸¥O§^İúu0´±rÚ»W¥*®e;Á$¨0B&* :½åûôwˆŒf@¢PŠQ·Fy;4ğ@ùÉIºúî4+Ò"ï"°0É’B"@¬k‡ùBô	•4 †¡‚‰tñEcÄj™"ÁÂ
++ÓŒ¨uT›0#FL‚ÀD*!ºê„ CD&gÇ¨À ‡„èIF,³ÔRFJğ"-ÁQÇ³XmBò0é1fS`&±îvhòÎq&À¢,
++ €haÀ-5ôĞÌPaÿ"J˜eÆ$³6~9s­'\;©¹BúƒK®£³ï3‚!ÜÙaPù–jÏF\ğs7!Q\sÕ•)]ğUîĞ‚‘Òtœh<òÔ²¥>™+ªÀîf`š¯>Z¢—
++˜I"‰ XõI6„r®güÄ€˜vu÷]]™	ãE~-áHœiğ;Q‹µ'ô1¥*œ]±ÓíÎ™ ø°Š^„hÁÚ™&pÆÜ¡öLwƒÜ¹^Cv @J{gÑ¢œîBƒÙŠ”ğAM•"èTDD¸B©‚aŸ@p‡‡$¡§˜€Â˜¨=]`‚âøXdª«Æÿm"ŸáW(¢(@Ò³ô9S‰',\‰M7é@àŠP	hŞZ ¥êìé–†‹>µ¸ÀN«ü2>tQo®3~aŠrˆ4GÎñ1£Y¼@R%Sì8\Äå0¥Àg˜al¾oZ âŞî	‚è$c ]ÈööÆ…5h¨cêÁs×½©ÒØü_a7( )•„
++%È~ÂÜ[	ëÍ@cmÔ+Dîû¶2Pïëw¾@ƒRø²p\ğ›²İã—¥* Ø<‘àE0T7€ ²t#(xŞDP„Û¬$¾›şÖvAMò‡PğÀVó(*°ÿ 0vë['r ÌO…óÃDÖ4T/_éT1 @*€tÀ³0 ¯ä@†•<£òpğ ‡Nè“¾!t‹MäÍ!.°
++pB}ëÃB7Pƒì­PŒƒû†ˆ8›ÄıŠƒÊ äÑ  aEØZw!'•|£d
++h€zŒ8iÈ@€[L*X7ˆÏ' 6P€¢°Ğ3.7FL†Ìéi`ğXP‰gÀ1mhAEPø¥ä@Òà;µ!`Ò;lQH™‚$Uo°±ADÂİÀÂúºÁ¸#“Ë„W8P=" 
++ƒªŞl@€Äÿá,Ñ£T` K¨`Cğ…^„—à2&ßBà1Ş ÁF¡Â6 ƒnx£J#1ˆø0S ¸jEò+"nb¨õÈ–0€•]hIÉ®gs¾IèE–€5Œ£ HBÙ—{”#X`Ä:@‹óJ8´ „KT§2zÆ	KØ |h¨5ëµ‹¶©„q)É3Ä`˜ÀºˆÑ3ñ*Pá( ¬0ø	"Ñ!zA˜^ÎoBñ#´Pƒmt`k B
++æ Á;å«ŒúÀÀÙÔK6 …nÆĞ2•)áTD¤ØÀÿäé3 7l@pßˆà  ióiAª`%šHÂ\İGhÀƒ:Ü¥hDJ±‰¤ôU·âÁ3İ4_	‡u“-€»–X %áˆ°`¯†z†?x@…Íº€OE‘ø2Ÿ1cŠÃXs´ºƒ'	FÙÍnİ‹Mg¾2AhXT oe	˜Ë‘S$"ƒ®,+„Ğ€
++Ã¼˜3ÊÚùÜÃ&×–†® ,BjßàÁ"¨P  ÷½#ÆL†FÔ÷¾m p¯Ä§tBœÀã®‚^lb¶ÄLPü]Şp¸I`•…cgŞ¤ğqÿ¸ Jb(kÆ¬,®XP74q,X,SLˆlÉ@ˆB ºx13`´~ Å I¦€
++Hée<_Æ#Õüƒ	xe†¢a}J$p‚éŠ>›Ğ‚3šƒf,Hb	ò!CŒğ%Ğ€Á&øg*Ï£ÎŠ)Ny” 	€6êøëT @”µÚ7z
++Ø•(i^sÃ&
++=‘}b†­H}ì«`‚Ê³i  ˜Ájé/©MÑ ãÁ¡‚9€”7v"L 	¼ñGI=I.:ƒ
++/Av»¥ò0´v €5ˆ»Sæt)š Z´»gğàpÿ·‡Òc}»/šÀ#½¾FpB·swÅ›
++À†$}hcQé Í¨TÛ¨˜ß7êàÈ<ÍP¸O0Aƒ50˜„XÀºlqœÉ~nJƒŠÔĞ?ì7*ßĞEWpäZåBa9J‘ƒ2HÁ@”s¬ÃæÔ‰è~ß´BEÄ ¯Ã6rÈôØ“¦É8ÜŠëír‘	HaÖsŞ‚kÈ	À/âtìoÂì[<¸3š>$tƒkˆ;,¤€W·{ÅŸ 7À²ihÎ @rd?Ãe¦é®õ¥†™À¹¨A J»F0;¨|Å# ‚Ã5Àš:È+ÿyˆİJ'€ú˜äÍ8BJA|.ÊY@µG¶%ò./äİMgğ-+~£ıÛX`@LîÁ•6‚õkÿ‘Kˆ±S·h	ö@†
++ºXF:@bJ»h:#s4Nx)* <¦½¿QƒN94NÊ<£Ã:X„#p¼âs†ãS©Œñ†Rˆ‚ÆS¹ŒqH4$±¿RCË¸P¡«¼8¨-x½ƒ+€¼nˆ„ÿƒ¾õ¹€CXA(ã“ €Á7A ß«¼o¨€Ah¿Â#!oà„(8‚ÿXnØ€#B÷ò@Â	D18.ê8?` Ô4¦qÿ—¢‚p(¦ØÉ8ğÂ÷€ôh€Ã:â2ô‡;Ø dCgÈ&¨p5,&èB;ä+Ğ˜7ßª2+Ã„\¢(ÈBCdšn  €<à§¢À‚¨»Hä+1`¥0€‚Ÿ›à$"|!h½5üÄ<€mˆ,¦qĞ·U\¦Nğ°!h(¨—)ˆ¿œD¶O$Š*D  }ê'&h¯b¨`%0XF†.P±Ã€«0A6ä›Øx¾bê*£od¦oøˆqô•?@,ğZ#ÂCˆ*x¼jø€,ÀBté†¨Ã|d¦*  ° ÿ8 #âBƒö(Æo(pÇwlƒ(Ø†5Ğ€ÈÆ‰\&P0x6:âJœg,Æg è¬j$Š< [0ôÉ±•Ä¤pƒ*@>’7àšb$BÀ &IMkŸØ
++°Ç (Ê1b;H‚…b1à:’‰¤–¬ÜÉŒÙBwˆ€•äÊªH‚Pº7àÄ‰8-C´¤$#ğ„$€Ëê/øQb¨?°²›+Æ:p¾¬F/ÚCø $Lİƒ8…º:(Ğ+Ê¨,ª$¡n(…Eø†oÈ-ÌŒ(`†Ît“ûÌ§ôH‡CË¢pË!lMù©‚İHÌß¢MÿÌD…˜ÊECä›AØJŞÜLˆj‰&$L:Á ©«F,|\NÁ™ºÄ/A{5Ì¸5PÀãÄ‚(píø™¢jF_øí‚œŒÌO¼NÚKÏZ‹öiãM  OCä†€FüD”'ËŸbÌ… Ğ"´ì@8Pª	0KálP€ĞÄ‚`M
++…1È€¢:ƒèÄOØÒDK˜Ğ™à;ÄR„1Ø¿ÍÀvÜÉnÀ U|Ñ]©MØ…ÑoX„©ÜI€MuSHy ¢&} ÈÑO\½ûlÒ\1í;(à.ı ­j”<åÒ9…ÿe›$4.%Îô©O*¨5Å•NÈkª@ğÓEàP6L¢¼SCÑù¢+Ã¶;…€ù4ÄF ;B5”ŠÅÅ<€;‹ÔğöûD¸TLÍ0d¶!€‚Ú|Ñ8Èê<²EhÌOEPE£"°èƒSQZ Äw,€Á|U.ÑÓ@_°68 a¨WÑé,M,X„4õÕé@…6£] Ö"8€+@¥H}[Ø ãì'!„VY¥Xô;(%ƒÓY @M;
++q}=ª8 Ut½6ø»H…€MHSœ:
++¸Õx•Ë;£¨×s•%9ĞŸËTS-Š ØÍ5ÿ`(88€]¨#&L˜O‚INpÑŠ-Šü-åX»€Ö$XãÄØ’ÕŒ¸H›8 Sb{U7À „Ü4
++hØ™N™	à€ U::¥Ğ|Õ%:ÈØ) eÚë°£=œ•(¨Iq}.( ©Yª­ÚÃ" ğ6Ø…@€mXFu½Á€g-[¬(Zf è"Ëm5x8ˆZ»Í]H„jb:’ƒÀË¥…³,
++*ÈÂÅMªP\&<  Øx}†?•Ã°ÓÊÅ«-®øÍÎx}XØ×ÒåŒ¨¦fô•18€YZ8ËÀ€tˆ]ÿÍè¦ü¶-Ãº­ÒĞP”Yà•
++á4:’*6`Øo`¿<ÈÂm^«ÖX	Á²]È×dõÕØ QˆHî½ŒXû^€¡àZ8Y( & İõÅhÓRœ]Ù²%Ó`İüµ
++ Ö,˜Şò×“ë…Æ‹şŞÚßuÙgØ„ˆà¬˜àĞø,ÜC0Æ
++4_ÀYØŞŠ‰¾
++T@`‘ƒPØ(ˆavŠ®k¨!ğ…P8 Eİa"N	‹Òƒã-âõ­>Ì¯+a&b“àŞ+¢h¡b-æˆIà_ºØŞâáï…“şã1æ_Ì0†ıAã)&c
++4vãõ-£êI„Ü¥ã""†J8c=>á®;	ø˜ã@nŞ°ƒ4H°ƒFaŞD.]1°€Eæ€¨ò¾I>á.ğ‚°d@Şäüõ1Ğ… =À„%&eW~eXeYeZ®e[¾e\Îe]Şe^îe_şe`fafb.fc>fdNfe^ffnfg~fhfifj®fk¾flÎfmŞfnîfoşfpgqgr.gs>gtNgu^gvngw~gt ;
+\ Kein Zeilenumbruch am Dateiende.
+diff -Nura php-5.1.4/ext/gd/tests/bug37360.phpt hardening-patch-5.1.4-0.4.14/ext/gd/tests/bug37360.phpt
+--- php-5.1.4/ext/gd/tests/bug37360.phpt	1970-01-01 01:00:00.000000000 +0100
++++ hardening-patch-5.1.4-0.4.14/ext/gd/tests/bug37360.phpt	2006-08-11 13:18:37.000000000 +0200
+@@ -0,0 +1,14 @@
++--TEST--
++Bug #37360 (gdimagecreatefromgif, bad image sizes)
++--SKIPIF--
++<?php 
++	if (!extension_loaded('gd')) die("skip gd extension not available\n"); 
++	if (!GD_BUNDLED) die('skip external GD libraries always fail');
++?>
++--FILE--
++<?php
++$im = imagecreatefromgif(dirname(__FILE__) . '/bug37360.gif');
++var_dump($im);
++?>
++--EXPECTF--
++resource(%d) of type (gd)
+diff -Nura php-5.1.4/ext/imap/php_imap.c hardening-patch-5.1.4-0.4.14/ext/imap/php_imap.c
+--- php-5.1.4/ext/imap/php_imap.c	2006-01-28 09:07:20.000000000 +0100
++++ hardening-patch-5.1.4-0.4.14/ext/imap/php_imap.c	2006-08-11 13:18:37.000000000 +0200
+@@ -26,7 +26,7 @@
+    | PHP 4.0 updates:  Zeev Suraski <zeev@zend.com>                       |
+    +----------------------------------------------------------------------+
+  */
+-/* $Id: php_imap.c,v 1.208.2.7 2006/01/28 08:07:20 mike Exp $ */
++/* $Id: php_imap.c,v 1.208.2.8 2006/08/04 20:31:41 iliaa Exp $ */
+ 
+ #define IMAP41
+ 
+@@ -761,6 +761,13 @@
+ 		efree(IMAPG(imap_password));
+ 	}
+ 
++	/* local filename, need to perform open_basedir and safe_mode checks */
++	if (Z_STRVAL_PP(mailbox)[0] != '{' && 
++			(php_check_open_basedir(Z_STRVAL_PP(mailbox) TSRMLS_CC) || 
++			(PG(safe_mode) && !php_checkuid(Z_STRVAL_PP(mailbox), NULL, CHECKUID_CHECK_FILE_AND_DIR)))) {
++		RETURN_FALSE;
++	}
++
+ 	IMAPG(imap_user)     = estrndup(Z_STRVAL_PP(user), Z_STRLEN_PP(user));
+ 	IMAPG(imap_password) = estrndup(Z_STRVAL_PP(passwd), Z_STRLEN_PP(passwd));
+ 
+diff -Nura php-5.1.4/ext/mysql/php_mysql.c hardening-patch-5.1.4-0.4.14/ext/mysql/php_mysql.c
 --- php-5.1.4/ext/mysql/php_mysql.c	2006-01-01 13:50:09.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/ext/mysql/php_mysql.c	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/ext/mysql/php_mysql.c	2006-08-07 11:04:06.000000000 +0200
 @@ -1231,6 +1231,8 @@
  {
  	php_mysql_conn *mysql;
@@ -805,9 +1503,9 @@ diff -Nura php-5.1.4/ext/mysql/php_mysql.c hardening-patch-5.1.4-0.4.12/ext/mysq
  		RETURN_FALSE;
  	}
  #endif
-diff -Nura php-5.1.4/ext/mysqli/mysqli_nonapi.c hardening-patch-5.1.4-0.4.12/ext/mysqli/mysqli_nonapi.c
+diff -Nura php-5.1.4/ext/mysqli/mysqli_nonapi.c hardening-patch-5.1.4-0.4.14/ext/mysqli/mysqli_nonapi.c
 --- php-5.1.4/ext/mysqli/mysqli_nonapi.c	2006-03-24 10:32:24.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/ext/mysqli/mysqli_nonapi.c	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/ext/mysqli/mysqli_nonapi.c	2006-08-07 11:04:06.000000000 +0200
 @@ -184,6 +184,17 @@
  	if (mysql_real_query(mysql->mysql, query, query_len)) {
  		char s_error[MYSQL_ERRMSG_SIZE], s_sqlstate[SQLSTATE_LENGTH+1];
@@ -844,9 +1542,9 @@ diff -Nura php-5.1.4/ext/mysqli/mysqli_nonapi.c hardening-patch-5.1.4-0.4.12/ext
  		MYSQLI_REPORT_MYSQL_ERROR(mysql->mysql);
  		RETURN_FALSE;
  	}
-diff -Nura php-5.1.4/ext/pgsql/pgsql.c hardening-patch-5.1.4-0.4.12/ext/pgsql/pgsql.c
+diff -Nura php-5.1.4/ext/pgsql/pgsql.c hardening-patch-5.1.4-0.4.14/ext/pgsql/pgsql.c
 --- php-5.1.4/ext/pgsql/pgsql.c	2006-04-10 21:51:55.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.12/ext/pgsql/pgsql.c	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/ext/pgsql/pgsql.c	2006-08-07 11:04:06.000000000 +0200
 @@ -1152,10 +1152,28 @@
  		case PGRES_EMPTY_QUERY:
  		case PGRES_BAD_RESPONSE:
@@ -880,10 +1578,32 @@ diff -Nura php-5.1.4/ext/pgsql/pgsql.c hardening-patch-5.1.4-0.4.12/ext/pgsql/pg
  			break;
  		case PGRES_COMMAND_OK: /* successful command that did not return rows */
  		default:
-diff -Nura php-5.1.4/ext/session/mod_files.c hardening-patch-5.1.4-0.4.12/ext/session/mod_files.c
+diff -Nura php-5.1.4/ext/session/mod_files.c hardening-patch-5.1.4-0.4.14/ext/session/mod_files.c
 --- php-5.1.4/ext/session/mod_files.c	2006-04-18 02:31:45.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.12/ext/session/mod_files.c	2006-07-20 10:45:33.000000000 +0200
-@@ -422,6 +422,35 @@
++++ hardening-patch-5.1.4-0.4.14/ext/session/mod_files.c	2006-08-11 13:24:24.000000000 +0200
+@@ -152,6 +152,7 @@
+ 		
+ 		if (!ps_files_valid_key(key)) {
+ 			php_error_docref(NULL TSRMLS_CC, E_WARNING, "The session id contains illegal characters, valid characters are a-z, A-Z, 0-9 and '-,'");
++			PS(invalid_session_id) = 1;
+ 			return;
+ 		}
+ 		if (!ps_files_path_create(buf, sizeof(buf), data, key))
+@@ -401,7 +402,12 @@
+ 		ps_files_close(data);
+ 	
+ 		if (VCWD_UNLINK(buf) == -1) {
+-			return FAILURE;
++			/* This is a little safety check for instances when we are dealing with a regenerated session
++			 * that was not yet written to disk
++			 */
++			if (!VCWD_ACCESS(buf, F_OK)) {
++				return FAILURE;
++			}
+ 		}
+ 	}
+ 
+@@ -422,6 +428,35 @@
  	return SUCCESS;
  }
  
@@ -919,9 +1639,9 @@ diff -Nura php-5.1.4/ext/session/mod_files.c hardening-patch-5.1.4-0.4.12/ext/se
  /*
   * Local variables:
   * tab-width: 4
-diff -Nura php-5.1.4/ext/session/mod_mm.c hardening-patch-5.1.4-0.4.12/ext/session/mod_mm.c
+diff -Nura php-5.1.4/ext/session/mod_mm.c hardening-patch-5.1.4-0.4.14/ext/session/mod_mm.c
 --- php-5.1.4/ext/session/mod_mm.c	2006-01-01 13:50:12.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/ext/session/mod_mm.c	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/ext/session/mod_mm.c	2006-08-07 11:04:06.000000000 +0200
 @@ -425,6 +425,42 @@
  	return SUCCESS;
  }
@@ -965,9 +1685,9 @@ diff -Nura php-5.1.4/ext/session/mod_mm.c hardening-patch-5.1.4-0.4.12/ext/sessi
  #endif
  
  /*
-diff -Nura php-5.1.4/ext/session/mod_user.c hardening-patch-5.1.4-0.4.12/ext/session/mod_user.c
+diff -Nura php-5.1.4/ext/session/mod_user.c hardening-patch-5.1.4-0.4.14/ext/session/mod_user.c
 --- php-5.1.4/ext/session/mod_user.c	2006-01-01 13:50:12.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/ext/session/mod_user.c	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/ext/session/mod_user.c	2006-08-07 11:04:06.000000000 +0200
 @@ -23,7 +23,7 @@
  #include "mod_user.h"
  
@@ -1061,9 +1781,9 @@ diff -Nura php-5.1.4/ext/session/mod_user.c hardening-patch-5.1.4-0.4.12/ext/ses
  /*
   * Local variables:
   * tab-width: 4
-diff -Nura php-5.1.4/ext/session/mod_user.h hardening-patch-5.1.4-0.4.12/ext/session/mod_user.h
+diff -Nura php-5.1.4/ext/session/mod_user.h hardening-patch-5.1.4-0.4.14/ext/session/mod_user.h
 --- php-5.1.4/ext/session/mod_user.h	2006-01-01 13:50:12.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/ext/session/mod_user.h	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/ext/session/mod_user.h	2006-08-07 11:04:06.000000000 +0200
 @@ -22,7 +22,7 @@
  #define MOD_USER_H
  
@@ -1082,9 +1802,9 @@ diff -Nura php-5.1.4/ext/session/mod_user.h hardening-patch-5.1.4-0.4.12/ext/ses
  	} name;
  } ps_user;
  
-diff -Nura php-5.1.4/ext/session/php_session.h hardening-patch-5.1.4-0.4.12/ext/session/php_session.h
+diff -Nura php-5.1.4/ext/session/php_session.h hardening-patch-5.1.4-0.4.14/ext/session/php_session.h
 --- php-5.1.4/ext/session/php_session.h	2006-01-28 07:14:49.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/ext/session/php_session.h	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/ext/session/php_session.h	2006-08-11 13:24:24.000000000 +0200
 @@ -23,7 +23,7 @@
  
  #include "ext/standard/php_var.h"
@@ -1148,7 +1868,7 @@ diff -Nura php-5.1.4/ext/session/php_session.h hardening-patch-5.1.4-0.4.12/ext/
  
  typedef enum {
  	php_session_disabled,
-@@ -120,6 +125,7 @@
+@@ -120,11 +125,13 @@
  	zend_bool use_only_cookies;
  	zend_bool use_trans_sid;	/* contains the INI value of whether to use trans-sid */
  	zend_bool apply_trans_sid;	/* whether or not to enable trans-sid for the current request */
@@ -1156,9 +1876,15 @@ diff -Nura php-5.1.4/ext/session/php_session.h hardening-patch-5.1.4-0.4.12/ext/
  
  	long hash_func;
  	long hash_bits_per_character;
-diff -Nura php-5.1.4/ext/session/session.c hardening-patch-5.1.4-0.4.12/ext/session/session.c
+ 	int send_cookie;
+ 	int define_sid;
++	zend_bool invalid_session_id;	/* allows the driver to report about an invalid session id and request id regeneration */
+ } php_ps_globals;
+ 
+ typedef php_ps_globals zend_ps_globals;
+diff -Nura php-5.1.4/ext/session/session.c hardening-patch-5.1.4-0.4.14/ext/session/session.c
 --- php-5.1.4/ext/session/session.c	2006-02-10 08:39:13.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/ext/session/session.c	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/ext/session/session.c	2006-08-11 13:24:24.000000000 +0200
 @@ -166,6 +166,7 @@
  	STD_PHP_INI_BOOLEAN("session.cookie_secure",    "",          PHP_INI_ALL, OnUpdateBool,   cookie_secure,      php_ps_globals,    ps_globals)
  	STD_PHP_INI_BOOLEAN("session.use_cookies",      "1",         PHP_INI_ALL, OnUpdateBool,   use_cookies,        php_ps_globals,    ps_globals)
@@ -1167,7 +1893,24 @@ diff -Nura php-5.1.4/ext/session/session.c hardening-patch-5.1.4-0.4.12/ext/sess
  	STD_PHP_INI_ENTRY("session.referer_check",      "",          PHP_INI_ALL, OnUpdateString, extern_referer_chk, php_ps_globals,    ps_globals)
  	STD_PHP_INI_ENTRY("session.entropy_file",       "",          PHP_INI_ALL, OnUpdateString, entropy_file,       php_ps_globals,    ps_globals)
  	STD_PHP_INI_ENTRY("session.entropy_length",     "0",         PHP_INI_ALL, OnUpdateLong,    entropy_length,     php_ps_globals,    ps_globals)
-@@ -758,6 +759,15 @@
+@@ -280,9 +281,13 @@
+ PHPAPI void php_add_session_var(char *name, size_t namelen TSRMLS_DC)
+ {
+ 	zval **sym_track = NULL;
+-	
+-	zend_hash_find(Z_ARRVAL_P(PS(http_session_vars)), name, namelen + 1, 
+-			(void *) &sym_track);
++
++	IF_SESSION_VARS() {
++		zend_hash_find(Z_ARRVAL_P(PS(http_session_vars)), name, namelen + 1, 
++				(void *) &sym_track);
++	} else {
++		return;
++	}
+ 
+ 	/*
+ 	 * Set up a proper reference between $_SESSION["x"] and $x.
+@@ -758,9 +763,23 @@
  		return;
  	}
  	
@@ -1181,9 +1924,33 @@ diff -Nura php-5.1.4/ext/session/session.c hardening-patch-5.1.4-0.4.12/ext/sess
 +        }
 +        
  	/* If there is no ID, use session module to create one */
- 	if (!PS(id))
+-	if (!PS(id))
++	if (!PS(id)) {
++new_session:
  		PS(id) = PS(mod)->s_create_sid(&PS(mod_data), NULL TSRMLS_CC);
-@@ -1377,22 +1387,29 @@
++		if (PS(use_cookies)) {
++			PS(send_cookie) = 1;
++		}
++	}
+ 	
+ 	/* Read data */
+ 	/* Question: if you create a SID here, should you also try to read data?
+@@ -769,9 +788,14 @@
+ 	 * session information
+ 	 */
+ 	php_session_track_init(TSRMLS_C);
++	PS(invalid_session_id) = 0;
+ 	if (PS(mod)->s_read(&PS(mod_data), PS(id), &val, &vallen TSRMLS_CC) == SUCCESS) {
+ 		php_session_decode(val, vallen TSRMLS_CC);
+ 		efree(val);
++	} else if (PS(invalid_session_id)) { /* address instances where the session read fails due to an invalid id */
++		PS(invalid_session_id) = 0;
++		efree(PS(id));
++		goto new_session;
+ 	}
+ }
+ 
+@@ -1377,22 +1401,29 @@
  }
  /* }}} */
  
@@ -1218,7 +1985,7 @@ diff -Nura php-5.1.4/ext/session/session.c hardening-patch-5.1.4-0.4.12/ext/sess
  		if (!zend_is_callable(*args[i], 0, &name)) {
  			php_error_docref(NULL TSRMLS_CC, E_WARNING, "Argument %d is not a valid callback", i+1);
  			efree(name);
-@@ -1405,7 +1422,11 @@
+@@ -1405,7 +1436,11 @@
  
  	mdata = emalloc(sizeof(*mdata));
  	
@@ -1231,9 +1998,32 @@ diff -Nura php-5.1.4/ext/session/session.c hardening-patch-5.1.4-0.4.12/ext/sess
  		ZVAL_ADDREF(*args[i]);
  		mdata->names[i] = *args[i];
  	}
-diff -Nura php-5.1.4/ext/session/tests/014.phpt hardening-patch-5.1.4-0.4.12/ext/session/tests/014.phpt
+@@ -1475,6 +1510,11 @@
+ 		WRONG_PARAM_COUNT;
+ 	}
+ 
++	if (SG(headers_sent)) {
++		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Cannot regenerate session id - headers already sent");
++		RETURN_FALSE;
++	}
++
+ 	if (PS(session_status) == php_session_active) {
+ 		if (PS(id)) {
+ 			if (del_ses && PS(mod)->s_destroy(&PS(mod_data), PS(id) TSRMLS_CC) == FAILURE) {
+@@ -1531,8 +1571,8 @@
+ 		WRONG_PARAM_COUNT;
+ 
+ 	if (ac == 1) {
+-		convert_to_long_ex(p_cache_expire);
+-		PS(cache_expire) = Z_LVAL_PP(p_cache_expire);
++		convert_to_string_ex(p_cache_expire);
++		zend_alter_ini_entry("session.cache_expire", sizeof("session.cache_expire"), Z_STRVAL_PP(p_cache_expire), Z_STRLEN_PP(p_cache_expire), ZEND_INI_USER, ZEND_INI_STAGE_RUNTIME);
+ 	}
+ 
+ 	RETVAL_LONG(old);
+diff -Nura php-5.1.4/ext/session/tests/014.phpt hardening-patch-5.1.4-0.4.14/ext/session/tests/014.phpt
 --- php-5.1.4/ext/session/tests/014.phpt	2005-07-04 15:09:14.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.12/ext/session/tests/014.phpt	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/ext/session/tests/014.phpt	2006-08-07 11:04:06.000000000 +0200
 @@ -5,6 +5,7 @@
  --INI--
  session.use_trans_sid=1
@@ -1242,9 +2032,9 @@ diff -Nura php-5.1.4/ext/session/tests/014.phpt hardening-patch-5.1.4-0.4.12/ext
  session.cache_limiter=
  register_globals=1
  session.bug_compat_42=1
-diff -Nura php-5.1.4/ext/session/tests/015.phpt hardening-patch-5.1.4-0.4.12/ext/session/tests/015.phpt
+diff -Nura php-5.1.4/ext/session/tests/015.phpt hardening-patch-5.1.4-0.4.14/ext/session/tests/015.phpt
 --- php-5.1.4/ext/session/tests/015.phpt	2005-07-04 15:09:14.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.12/ext/session/tests/015.phpt	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/ext/session/tests/015.phpt	2006-08-07 11:04:06.000000000 +0200
 @@ -5,6 +5,7 @@
  --INI--
  session.use_trans_sid=1
@@ -1253,9 +2043,9 @@ diff -Nura php-5.1.4/ext/session/tests/015.phpt hardening-patch-5.1.4-0.4.12/ext
  session.cache_limiter=
  arg_separator.output=&
  session.name=PHPSESSID
-diff -Nura php-5.1.4/ext/session/tests/018.phpt hardening-patch-5.1.4-0.4.12/ext/session/tests/018.phpt
+diff -Nura php-5.1.4/ext/session/tests/018.phpt hardening-patch-5.1.4-0.4.14/ext/session/tests/018.phpt
 --- php-5.1.4/ext/session/tests/018.phpt	2005-07-04 15:09:14.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.12/ext/session/tests/018.phpt	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/ext/session/tests/018.phpt	2006-08-07 11:04:06.000000000 +0200
 @@ -4,6 +4,7 @@
  <?php include('skipif.inc'); ?>
  --INI--
@@ -1264,9 +2054,9 @@ diff -Nura php-5.1.4/ext/session/tests/018.phpt hardening-patch-5.1.4-0.4.12/ext
  session.cache_limiter=
  session.use_trans_sid=1
  session.name=PHPSESSID
-diff -Nura php-5.1.4/ext/session/tests/019.phpt hardening-patch-5.1.4-0.4.12/ext/session/tests/019.phpt
+diff -Nura php-5.1.4/ext/session/tests/019.phpt hardening-patch-5.1.4-0.4.14/ext/session/tests/019.phpt
 --- php-5.1.4/ext/session/tests/019.phpt	2005-07-04 15:09:14.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.12/ext/session/tests/019.phpt	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/ext/session/tests/019.phpt	2006-08-07 11:04:06.000000000 +0200
 @@ -4,6 +4,7 @@
  <?php include('skipif.inc'); ?>
  --INI--
@@ -1275,9 +2065,9 @@ diff -Nura php-5.1.4/ext/session/tests/019.phpt hardening-patch-5.1.4-0.4.12/ext
  session.cache_limiter=
  register_globals=1
  session.serialize_handler=php
-diff -Nura php-5.1.4/ext/session/tests/020.phpt hardening-patch-5.1.4-0.4.12/ext/session/tests/020.phpt
+diff -Nura php-5.1.4/ext/session/tests/020.phpt hardening-patch-5.1.4-0.4.14/ext/session/tests/020.phpt
 --- php-5.1.4/ext/session/tests/020.phpt	2005-07-04 15:09:14.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.12/ext/session/tests/020.phpt	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/ext/session/tests/020.phpt	2006-08-07 11:04:06.000000000 +0200
 @@ -4,6 +4,7 @@
  <?php include('skipif.inc'); ?>
  --INI--
@@ -1286,9 +2076,9 @@ diff -Nura php-5.1.4/ext/session/tests/020.phpt hardening-patch-5.1.4-0.4.12/ext
  session.cache_limiter=
  session.use_trans_sid=1
  arg_separator.output=&amp;
-diff -Nura php-5.1.4/ext/session/tests/021.phpt hardening-patch-5.1.4-0.4.12/ext/session/tests/021.phpt
+diff -Nura php-5.1.4/ext/session/tests/021.phpt hardening-patch-5.1.4-0.4.14/ext/session/tests/021.phpt
 --- php-5.1.4/ext/session/tests/021.phpt	2005-07-04 15:09:14.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.12/ext/session/tests/021.phpt	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/ext/session/tests/021.phpt	2006-08-07 11:04:06.000000000 +0200
 @@ -4,6 +4,7 @@
  <?php include('skipif.inc'); ?>
  --INI--
@@ -1297,9 +2087,74 @@ diff -Nura php-5.1.4/ext/session/tests/021.phpt hardening-patch-5.1.4-0.4.12/ext
  session.cache_limiter=
  session.use_trans_sid=1
  url_rewriter.tags="a=href,area=href,frame=src,input=src,form=,fieldset="
-diff -Nura php-5.1.4/ext/sqlite/sess_sqlite.c hardening-patch-5.1.4-0.4.12/ext/sqlite/sess_sqlite.c
+diff -Nura php-5.1.4/ext/session/tests/bug38377.phpt hardening-patch-5.1.4-0.4.14/ext/session/tests/bug38377.phpt
+--- php-5.1.4/ext/session/tests/bug38377.phpt	1970-01-01 01:00:00.000000000 +0100
++++ hardening-patch-5.1.4-0.4.14/ext/session/tests/bug38377.phpt	2006-08-11 13:24:24.000000000 +0200
+@@ -0,0 +1,13 @@
++--TEST--
++bug #38377 (session_destroy() gives warning after session_regenerate_id())
++--SKIPIF--
++<?php include('skipif.inc'); ?>
++--FILE--
++<?php
++session_start();
++session_regenerate_id();
++session_destroy();
++echo "Done\n";
++?>
++--EXPECT--
++Done
+diff -Nura php-5.1.4/ext/sockets/sockets.c hardening-patch-5.1.4-0.4.14/ext/sockets/sockets.c
+--- php-5.1.4/ext/sockets/sockets.c	2006-04-07 16:04:36.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/ext/sockets/sockets.c	2006-08-11 13:27:10.000000000 +0200
+@@ -533,6 +533,7 @@
+ {
+ 	zval		**element;
+ 	php_socket	*php_sock;
++	int			num = 0;
+ 	
+ 	if (Z_TYPE_P(sock_array) != IS_ARRAY) return 0;
+ 
+@@ -547,9 +548,10 @@
+ 		if (php_sock->bsd_socket > *max_fd) {
+ 			*max_fd = php_sock->bsd_socket;
+ 		}
++		num++;
+ 	}
+ 
+-	return 1;
++	return num ? 1 : 0;
+ }
+ 
+ static int php_sock_array_from_fd_set(zval *sock_array, fd_set *fds TSRMLS_DC)
+@@ -558,6 +560,7 @@
+ 	zval		**dest_element;
+ 	php_socket	*php_sock;
+ 	HashTable	*new_hash;
++	int			num = 0;
+ 
+ 	if (Z_TYPE_P(sock_array) != IS_ARRAY) return 0;
+ 
+@@ -575,6 +578,7 @@
+ 			zend_hash_next_index_insert(new_hash, (void *)element, sizeof(zval *), (void **)&dest_element);
+ 			if (dest_element) zval_add_ref(dest_element);
+ 		}
++		num++;
+ 	}
+ 
+ 	/* Destroy old array, add new one */
+@@ -584,7 +588,7 @@
+ 	zend_hash_internal_pointer_reset(new_hash);
+ 	Z_ARRVAL_P(sock_array) = new_hash;
+ 
+-	return 1;
++	return num ? 1 : 0;
+ }
+ 
+ /* {{{ proto int socket_select(array &read_fds, array &write_fds, &array except_fds, int tv_sec[, int tv_usec])
+diff -Nura php-5.1.4/ext/sqlite/sess_sqlite.c hardening-patch-5.1.4-0.4.14/ext/sqlite/sess_sqlite.c
 --- php-5.1.4/ext/sqlite/sess_sqlite.c	2006-01-01 13:50:14.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/ext/sqlite/sess_sqlite.c	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/ext/sqlite/sess_sqlite.c	2006-08-07 11:04:06.000000000 +0200
 @@ -185,6 +185,76 @@
  	return SQLITE_RETVAL(rv);
  }
@@ -1377,9 +2232,9 @@ diff -Nura php-5.1.4/ext/sqlite/sess_sqlite.c hardening-patch-5.1.4-0.4.12/ext/s
  #endif /* HAVE_PHP_SESSION && !defined(COMPILE_DL_SESSION) */
  
  /*
-diff -Nura php-5.1.4/ext/sqlite/sqlite.c hardening-patch-5.1.4-0.4.12/ext/sqlite/sqlite.c
+diff -Nura php-5.1.4/ext/sqlite/sqlite.c hardening-patch-5.1.4-0.4.14/ext/sqlite/sqlite.c
 --- php-5.1.4/ext/sqlite/sqlite.c	2006-04-18 16:30:15.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.12/ext/sqlite/sqlite.c	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/ext/sqlite/sqlite.c	2006-08-07 11:04:06.000000000 +0200
 @@ -1530,6 +1530,19 @@
  	db->last_err_code = ret;
  
@@ -1400,10 +2255,19 @@ diff -Nura php-5.1.4/ext/sqlite/sqlite.c hardening-patch-5.1.4-0.4.12/ext/sqlite
  		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s", errtext);
  		if (errmsg) {
  			ZVAL_STRING(errmsg, errtext, 1);
-diff -Nura php-5.1.4/ext/standard/array.c hardening-patch-5.1.4-0.4.12/ext/standard/array.c
+diff -Nura php-5.1.4/ext/standard/array.c hardening-patch-5.1.4-0.4.14/ext/standard/array.c
 --- php-5.1.4/ext/standard/array.c	2006-04-12 21:30:52.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.12/ext/standard/array.c	2006-07-20 10:45:33.000000000 +0200
-@@ -1295,6 +1295,32 @@
++++ hardening-patch-5.1.4-0.4.14/ext/standard/array.c	2006-08-11 13:34:01.000000000 +0200
+@@ -92,6 +92,8 @@
+ 
+ #define DOUBLE_DRIFT_FIX	0.000000000000001
+ 
++ZEND_DECLARE_MODULE_GLOBALS(array)
++
+ /* {{{ php_array_init_globals
+  */
+ static void php_array_init_globals(zend_array_globals *array_globals)
+@@ -1295,6 +1297,32 @@
  			}
  		}
  	}
@@ -1436,9 +2300,9 @@ diff -Nura php-5.1.4/ext/standard/array.c hardening-patch-5.1.4-0.4.12/ext/stand
  	
  	return 1;
  }
-diff -Nura php-5.1.4/ext/standard/basic_functions.c hardening-patch-5.1.4-0.4.12/ext/standard/basic_functions.c
+diff -Nura php-5.1.4/ext/standard/basic_functions.c hardening-patch-5.1.4-0.4.14/ext/standard/basic_functions.c
 --- php-5.1.4/ext/standard/basic_functions.c	2006-04-03 15:46:11.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.12/ext/standard/basic_functions.c	2006-07-20 11:07:00.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/ext/standard/basic_functions.c	2006-08-07 11:04:07.000000000 +0200
 @@ -151,12 +151,14 @@
  typedef struct _php_shutdown_function_entry {
  	zval **arguments;
@@ -1593,9 +2457,9 @@ diff -Nura php-5.1.4/ext/standard/basic_functions.c hardening-patch-5.1.4-0.4.12
  	zend_delete_global_variable(new_key, new_key_len-1 TSRMLS_CC);
  	ZEND_SET_SYMBOL_WITH_LENGTH(&EG(symbol_table), new_key, new_key_len, *var, (*var)->refcount+1, 0);
  
-diff -Nura php-5.1.4/ext/standard/config.m4 hardening-patch-5.1.4-0.4.12/ext/standard/config.m4
+diff -Nura php-5.1.4/ext/standard/config.m4 hardening-patch-5.1.4-0.4.14/ext/standard/config.m4
 --- php-5.1.4/ext/standard/config.m4	2006-01-04 22:31:29.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/ext/standard/config.m4	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/ext/standard/config.m4	2006-08-07 11:04:07.000000000 +0200
 @@ -203,7 +203,7 @@
    if test "$ac_cv_crypt_blowfish" = "yes"; then
      ac_result=1
@@ -1614,9 +2478,9 @@ diff -Nura php-5.1.4/ext/standard/config.m4 hardening-patch-5.1.4-0.4.12/ext/sta
  
  PHP_ADD_MAKEFILE_FRAGMENT
  
-diff -Nura php-5.1.4/ext/standard/config.w32 hardening-patch-5.1.4-0.4.12/ext/standard/config.w32
+diff -Nura php-5.1.4/ext/standard/config.w32 hardening-patch-5.1.4-0.4.14/ext/standard/config.w32
 --- php-5.1.4/ext/standard/config.w32	2006-01-04 22:31:29.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/ext/standard/config.w32	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/ext/standard/config.w32	2006-08-07 11:04:07.000000000 +0200
 @@ -16,5 +16,5 @@
  	url_scanner_ex.c ftp_fopen_wrapper.c http_fopen_wrapper.c \
  	php_fopen_wrapper.c credits.c css.c var_unserializer.c ftok.c sha1.c \
@@ -1624,9 +2488,9 @@ diff -Nura php-5.1.4/ext/standard/config.w32 hardening-patch-5.1.4-0.4.12/ext/st
 -	streamsfuncs.c http.c", false /* never shared */);
 +	streamsfuncs.c http.c sha256.c crypt_blowfish.c", false /* never shared */);
  
-diff -Nura php-5.1.4/ext/standard/crypt_blowfish.c hardening-patch-5.1.4-0.4.12/ext/standard/crypt_blowfish.c
+diff -Nura php-5.1.4/ext/standard/crypt_blowfish.c hardening-patch-5.1.4-0.4.14/ext/standard/crypt_blowfish.c
 --- php-5.1.4/ext/standard/crypt_blowfish.c	1970-01-01 01:00:00.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/ext/standard/crypt_blowfish.c	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/ext/standard/crypt_blowfish.c	2006-08-07 11:04:07.000000000 +0200
 @@ -0,0 +1,748 @@
 +/*
 + * This code comes from John the Ripper password cracker, with reentrant
@@ -2376,9 +3240,9 @@ diff -Nura php-5.1.4/ext/standard/crypt_blowfish.c hardening-patch-5.1.4-0.4.12/
 +
 +	return output;
 +}
-diff -Nura php-5.1.4/ext/standard/crypt.c hardening-patch-5.1.4-0.4.12/ext/standard/crypt.c
+diff -Nura php-5.1.4/ext/standard/crypt.c hardening-patch-5.1.4-0.4.14/ext/standard/crypt.c
 --- php-5.1.4/ext/standard/crypt.c	2006-01-01 13:50:14.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/ext/standard/crypt.c	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/ext/standard/crypt.c	2006-08-07 11:04:07.000000000 +0200
 @@ -100,6 +100,8 @@
  	return SUCCESS;
  }
@@ -2431,9 +3295,9 @@ diff -Nura php-5.1.4/ext/standard/crypt.c hardening-patch-5.1.4-0.4.12/ext/stand
  }
  /* }}} */
  #endif
-diff -Nura php-5.1.4/ext/standard/dl.c hardening-patch-5.1.4-0.4.12/ext/standard/dl.c
+diff -Nura php-5.1.4/ext/standard/dl.c hardening-patch-5.1.4-0.4.14/ext/standard/dl.c
 --- php-5.1.4/ext/standard/dl.c	2006-01-01 13:50:14.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/ext/standard/dl.c	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/ext/standard/dl.c	2006-08-07 11:04:07.000000000 +0200
 @@ -164,8 +164,35 @@
  		RETURN_FALSE;
  	}
@@ -2480,9 +3344,9 @@ diff -Nura php-5.1.4/ext/standard/dl.c hardening-patch-5.1.4-0.4.12/ext/standard
  				zend_debug = module_entry->zend_debug;
  				zts        = module_entry->zts; 
  			}
-diff -Nura php-5.1.4/ext/standard/file.c hardening-patch-5.1.4-0.4.12/ext/standard/file.c
+diff -Nura php-5.1.4/ext/standard/file.c hardening-patch-5.1.4-0.4.14/ext/standard/file.c
 --- php-5.1.4/ext/standard/file.c	2006-04-06 04:39:55.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.12/ext/standard/file.c	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/ext/standard/file.c	2006-08-07 11:04:07.000000000 +0200
 @@ -2302,7 +2302,7 @@
  #if (!defined(__BEOS__) && !defined(NETWARE) && HAVE_REALPATH) || defined(ZTS)
  /* {{{ proto string realpath(string path)
@@ -2492,9 +3356,9 @@ diff -Nura php-5.1.4/ext/standard/file.c hardening-patch-5.1.4-0.4.12/ext/standa
  {
  	zval **path;
  	char resolved_path_buff[MAXPATHLEN];
-diff -Nura php-5.1.4/ext/standard/file.h hardening-patch-5.1.4-0.4.12/ext/standard/file.h
+diff -Nura php-5.1.4/ext/standard/file.h hardening-patch-5.1.4-0.4.14/ext/standard/file.h
 --- php-5.1.4/ext/standard/file.h	2006-01-13 05:05:59.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/ext/standard/file.h	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/ext/standard/file.h	2006-08-07 11:04:07.000000000 +0200
 @@ -61,7 +61,7 @@
  PHP_FUNCTION(fd_set);
  PHP_FUNCTION(fd_isset);
@@ -2504,9 +3368,18 @@ diff -Nura php-5.1.4/ext/standard/file.h hardening-patch-5.1.4-0.4.12/ext/standa
  PHP_FUNCTION(fnmatch);
  #endif
  PHP_NAMED_FUNCTION(php_if_ftruncate);
-diff -Nura php-5.1.4/ext/standard/filestat.c hardening-patch-5.1.4-0.4.12/ext/standard/filestat.c
+diff -Nura php-5.1.4/ext/standard/filestat.c hardening-patch-5.1.4-0.4.14/ext/standard/filestat.c
 --- php-5.1.4/ext/standard/filestat.c	2006-04-25 10:41:02.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.12/ext/standard/filestat.c	2006-07-20 11:07:00.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/ext/standard/filestat.c	2006-08-11 13:18:37.000000000 +0200
+@@ -16,7 +16,7 @@
+    +----------------------------------------------------------------------+
+  */
+ 
+-/* $Id: filestat.c,v 1.136.2.8 2006/04/25 08:41:02 tony2001 Exp $ */
++/* $Id: filestat.c,v 1.136.2.9 2006/08/10 21:30:23 iliaa Exp $ */
+ 
+ #include "php.h"
+ #include "safe_mode.h"
 @@ -634,7 +634,7 @@
  	}
  
@@ -2516,9 +3389,9 @@ diff -Nura php-5.1.4/ext/standard/filestat.c hardening-patch-5.1.4-0.4.12/ext/st
  			RETURN_FALSE;
  		}
  	}
-diff -Nura php-5.1.4/ext/standard/head.c hardening-patch-5.1.4-0.4.12/ext/standard/head.c
+diff -Nura php-5.1.4/ext/standard/head.c hardening-patch-5.1.4-0.4.14/ext/standard/head.c
 --- php-5.1.4/ext/standard/head.c	2006-01-01 13:50:14.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/ext/standard/head.c	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/ext/standard/head.c	2006-08-07 11:04:07.000000000 +0200
 @@ -45,7 +45,7 @@
  	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|bl", &ctr.line,
  				&ctr.line_len, &rep, &ctr.response_code) == FAILURE)
@@ -2528,9 +3401,9 @@ diff -Nura php-5.1.4/ext/standard/head.c hardening-patch-5.1.4-0.4.12/ext/standa
  	sapi_header_op(rep ? SAPI_HEADER_REPLACE:SAPI_HEADER_ADD, &ctr TSRMLS_CC);
  }
  /* }}} */
-diff -Nura php-5.1.4/ext/standard/info.c hardening-patch-5.1.4-0.4.12/ext/standard/info.c
+diff -Nura php-5.1.4/ext/standard/info.c hardening-patch-5.1.4-0.4.14/ext/standard/info.c
 --- php-5.1.4/ext/standard/info.c	2006-03-31 13:11:12.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.12/ext/standard/info.c	2006-07-20 11:07:00.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/ext/standard/info.c	2006-08-07 11:04:07.000000000 +0200
 @@ -154,7 +154,7 @@
  			if (Z_TYPE_PP(tmp) == IS_ARRAY) {
  				if (!sapi_module.phpinfo_as_text) {
@@ -2573,10 +3446,36 @@ diff -Nura php-5.1.4/ext/standard/info.c hardening-patch-5.1.4-0.4.12/ext/standa
  		php_info_print_box_end();
  		php_info_print_table_start();
  		php_info_print_table_row(2, "System", php_uname );
-diff -Nura php-5.1.4/ext/standard/mail.c hardening-patch-5.1.4-0.4.12/ext/standard/mail.c
+diff -Nura php-5.1.4/ext/standard/mail.c hardening-patch-5.1.4-0.4.14/ext/standard/mail.c
 --- php-5.1.4/ext/standard/mail.c	2006-01-01 13:50:15.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/ext/standard/mail.c	2006-07-20 12:17:12.000000000 +0200
-@@ -104,6 +104,44 @@
++++ hardening-patch-5.1.4-0.4.14/ext/standard/mail.c	2006-08-07 11:42:21.000000000 +0200
+@@ -78,6 +78,25 @@
+ }
+ /* }}} */
+ 
++/* {{{ hphp_strcasestr */
++char *hphp_strcasestr(char *haystack, char *needle)
++{
++	unsigned char *t, *h, *n;
++
++	h = (unsigned char *) haystack;
++conts:
++	while (*h) {
++		n = (unsigned char *) needle;
++		for (t=h++; *n && *h; t++, n++) {
++			if (toupper(*t) != toupper(*n)) goto conts;
++		}
++    		return ((char*)h-1);
++	}
++
++	return (NULL);
++}
++/* }}} */
++
+ /* {{{ proto int mail(string to, string subject, string message [, string additional_headers [, string additional_parameters]])
+    Send an email message */
+ PHP_FUNCTION(mail)
+@@ -104,6 +123,44 @@
  		return;
  	}
  
@@ -2600,17 +3499,17 @@ diff -Nura php-5.1.4/ext/standard/mail.c hardening-patch-5.1.4-0.4.12/ext/standa
 +		if (HG(hphp_mailprotect) > 1) {
 +			/* search for to, cc or bcc headers */
 +			if (headers_len > 0 && headers != NULL) {
-+				if (strncasecmp(headers, "to:", sizeof("to:") - 1) == 0 || strcasestr(headers, "\nto:")) {
++				if (strncasecmp(headers, "to:", sizeof("to:") - 1) == 0 || hphp_strcasestr(headers, "\nto:")) {
 +					php_security_log(S_MAIL, "mail() - To: headers aren't allowed in the headers parameter.");
 +					RETURN_FALSE;
 +				}
 +
-+				if (strncasecmp(headers, "cc:", sizeof("cc:") - 1) == 0 || strcasestr(headers, "\ncc:")) {
++				if (strncasecmp(headers, "cc:", sizeof("cc:") - 1) == 0 || hphp_strcasestr(headers, "\ncc:")) {
 +					php_security_log(S_MAIL, "mail() - CC: headers aren't allowed in the headers parameter.");
 +					RETURN_FALSE;
 +				}
 +
-+				if (strncasecmp(headers, "bcc:", sizeof("bcc:") - 1) == 0 || strcasestr(headers, "\nbcc:")) {
++				if (strncasecmp(headers, "bcc:", sizeof("bcc:") - 1) == 0 || hphp_strcasestr(headers, "\nbcc:")) {
 +					php_security_log(S_MAIL, "mail() - BCC: headers aren't allowed in the headers parameter.");
 +					RETURN_FALSE;
 +				}
@@ -2621,9 +3520,30 @@ diff -Nura php-5.1.4/ext/standard/mail.c hardening-patch-5.1.4-0.4.12/ext/standa
  	if (to_len > 0) {
  		to_r = estrndup(to, to_len);
  		for (; to_len; to_len--) {
-diff -Nura php-5.1.4/ext/standard/php_standard.h hardening-patch-5.1.4-0.4.12/ext/standard/php_standard.h
+diff -Nura php-5.1.4/ext/standard/php_array.h hardening-patch-5.1.4-0.4.14/ext/standard/php_array.h
+--- php-5.1.4/ext/standard/php_array.h	2006-02-07 18:54:24.000000000 +0100
++++ hardening-patch-5.1.4-0.4.14/ext/standard/php_array.h	2006-08-11 13:18:37.000000000 +0200
+@@ -19,7 +19,7 @@
+    +----------------------------------------------------------------------+
+ */
+ 
+-/* $Id: php_array.h,v 1.50.2.2 2006/02/07 17:54:24 andrei Exp $ */
++/* $Id: php_array.h,v 1.50.2.3 2006/06/03 18:59:55 andrei Exp $ */
+ 
+ #ifndef PHP_ARRAY_H
+ #define PHP_ARRAY_H
+@@ -108,8 +108,6 @@
+ 	int (*compare_func)(zval *result, zval *op1, zval *op2 TSRMLS_DC);
+ ZEND_END_MODULE_GLOBALS(array) 
+ 
+-ZEND_DECLARE_MODULE_GLOBALS(array)
+-
+ #ifdef ZTS
+ #define ARRAYG(v) TSRMG(array_globals_id, zend_array_globals *, v)
+ #else
+diff -Nura php-5.1.4/ext/standard/php_standard.h hardening-patch-5.1.4-0.4.14/ext/standard/php_standard.h
 --- php-5.1.4/ext/standard/php_standard.h	2006-01-04 22:31:29.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/ext/standard/php_standard.h	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/ext/standard/php_standard.h	2006-08-07 11:04:07.000000000 +0200
 @@ -28,6 +28,7 @@
  #include "php_mail.h"
  #include "md5.h"
@@ -2632,9 +3552,96 @@ diff -Nura php-5.1.4/ext/standard/php_standard.h hardening-patch-5.1.4-0.4.12/ex
  #include "html.h"
  #include "exec.h"
  #include "file.h"
-diff -Nura php-5.1.4/ext/standard/sha256.c hardening-patch-5.1.4-0.4.12/ext/standard/sha256.c
+diff -Nura php-5.1.4/ext/standard/scanf.c hardening-patch-5.1.4-0.4.14/ext/standard/scanf.c
+--- php-5.1.4/ext/standard/scanf.c	2006-01-01 13:50:15.000000000 +0100
++++ hardening-patch-5.1.4-0.4.14/ext/standard/scanf.c	2006-08-11 13:18:37.000000000 +0200
+@@ -16,7 +16,7 @@
+    +----------------------------------------------------------------------+
+ */
+ 
+-/* $Id: scanf.c,v 1.31.2.2 2006/01/01 12:50:15 sniper Exp $ */
++/* $Id: scanf.c,v 1.31.2.3 2006/08/04 20:34:31 tony2001 Exp $ */
+ 
+ /*
+    scanf.c --
+@@ -732,7 +732,7 @@
+ 			if (*end == '$') {
+ 				format = end+1;
+ 				ch = format++;
+-				objIndex = varStart + value;
++				objIndex = varStart + value - 1;
+ 			}
+ 		}
+ 
+@@ -762,7 +762,9 @@
+ 		switch (*ch) {
+ 			case 'n':
+ 				if (!(flags & SCAN_SUPPRESS)) {
+-					if (numVars) {
++					if (numVars && objIndex >= argCount) {
++						break;
++					} else if (numVars) {
+ 						zend_uint refcount;
+ 
+ 						current = args[objIndex++];
+@@ -888,7 +890,9 @@
+ 					}
+ 				}
+ 				if (!(flags & SCAN_SUPPRESS)) {
+-					if (numVars) {
++					if (numVars && objIndex >= argCount) {
++						break;
++					} else if (numVars) {
+ 						zend_uint refcount;
+ 
+ 						current = args[objIndex++];
+@@ -932,7 +936,9 @@
+ 					goto done;
+ 				}
+ 				if (!(flags & SCAN_SUPPRESS)) {
+-					if (numVars) {
++					if (numVars && objIndex >= argCount) {
++						break;
++					} else if (numVars) {
+ 						current = args[objIndex++];
+ 						zval_dtor( *current );
+ 						ZVAL_STRINGL( *current, string, end-string, 1);
+@@ -1089,7 +1095,9 @@
+ 					value = (int) (*fn)(buf, NULL, base);
+ 					if ((flags & SCAN_UNSIGNED) && (value < 0)) {
+ 						sprintf(buf, "%u", value); /* INTL: ISO digit */
+-						if (numVars) {
++						if (numVars && objIndex >= argCount) {
++							break;
++						} else if (numVars) {
+ 						  /* change passed value type to string */
+ 						   current = args[objIndex++];
+ 						   convert_to_string( *current );
+@@ -1098,7 +1106,9 @@
+ 							add_index_string(*return_value, objIndex++, buf, 1);
+ 						}
+ 					} else {
+-						if (numVars) {
++						if (numVars && objIndex >= argCount) {
++							break;
++						} else if (numVars) {
+ 							current = args[objIndex++];
+ 							convert_to_long( *current );
+ 							Z_LVAL(**current) = value;
+@@ -1206,7 +1216,9 @@
+ 					double dvalue;
+ 					*end = '\0';
+ 					dvalue = zend_strtod(buf, NULL);
+-					if (numVars) {
++					if (numVars && objIndex >= argCount) {
++						break;
++					} else if (numVars) {
+ 						current = args[objIndex++];
+ 						convert_to_double( *current );
+ 						Z_DVAL_PP( current ) = dvalue;
+diff -Nura php-5.1.4/ext/standard/sha256.c hardening-patch-5.1.4-0.4.14/ext/standard/sha256.c
 --- php-5.1.4/ext/standard/sha256.c	1970-01-01 01:00:00.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/ext/standard/sha256.c	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/ext/standard/sha256.c	2006-08-07 11:04:07.000000000 +0200
 @@ -0,0 +1,388 @@
 +/*
 +   +----------------------------------------------------------------------+
@@ -3024,9 +4031,9 @@ diff -Nura php-5.1.4/ext/standard/sha256.c hardening-patch-5.1.4-0.4.12/ext/stan
 + * vim600: sw=4 ts=4 fdm=marker
 + * vim<600: sw=4 ts=4
 + */
-diff -Nura php-5.1.4/ext/standard/sha256.h hardening-patch-5.1.4-0.4.12/ext/standard/sha256.h
+diff -Nura php-5.1.4/ext/standard/sha256.h hardening-patch-5.1.4-0.4.14/ext/standard/sha256.h
 --- php-5.1.4/ext/standard/sha256.h	1970-01-01 01:00:00.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/ext/standard/sha256.h	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/ext/standard/sha256.h	2006-08-07 11:04:07.000000000 +0200
 @@ -0,0 +1,40 @@
 +/*
 +   +----------------------------------------------------------------------+
@@ -3068,9 +4075,18 @@ diff -Nura php-5.1.4/ext/standard/sha256.h hardening-patch-5.1.4-0.4.12/ext/stan
 +PHP_FUNCTION(sha256_file);
 +
 +#endif
-diff -Nura php-5.1.4/ext/standard/string.c hardening-patch-5.1.4-0.4.12/ext/standard/string.c
+diff -Nura php-5.1.4/ext/standard/string.c hardening-patch-5.1.4-0.4.14/ext/standard/string.c
 --- php-5.1.4/ext/standard/string.c	2006-04-25 14:48:41.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.12/ext/standard/string.c	2006-07-20 11:07:00.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/ext/standard/string.c	2006-08-11 13:18:37.000000000 +0200
+@@ -18,7 +18,7 @@
+    +----------------------------------------------------------------------+
+  */
+ 
+-/* $Id: string.c,v 1.445.2.14 2006/04/25 12:48:41 tony2001 Exp $ */
++/* $Id: string.c,v 1.445.2.16 2006/08/10 17:46:43 iliaa Exp $ */
+ 
+ /* Synced with php 3.0 revision 1.193 1999-06-16 [ssb] */
+ 
 @@ -632,7 +632,8 @@
  {
  	const char *text, *breakchar = "\n";
@@ -3081,7 +4097,26 @@ diff -Nura php-5.1.4/ext/standard/string.c hardening-patch-5.1.4-0.4.12/ext/stan
  	long current = 0, laststart = 0, lastspace = 0;
  	long linelength = 75;
  	zend_bool docut = 0;
-@@ -4194,7 +4195,7 @@
+@@ -1612,10 +1613,18 @@
+ 		RETURN_FALSE;
+ 	}
+ 
++	if (haystack_len == 0) { 
++		RETURN_FALSE; 
++	}
++
+ 	haystack_dup = estrndup(haystack, haystack_len);
+ 	php_strtolower(haystack_dup, haystack_len);
+ 
+ 	if (Z_TYPE_P(needle) == IS_STRING) {
++		if (Z_STRLEN_P(needle) == 0 || Z_STRLEN_P(needle) > haystack_len) {
++			efree(haystack_dup); 
++			RETURN_FALSE; 
++		} 
+ 		needle_dup = estrndup(Z_STRVAL_P(needle), Z_STRLEN_P(needle));
+ 		php_strtolower(needle_dup, Z_STRLEN_P(needle));
+ 		found = php_memnstr(haystack_dup + offset, needle_dup, Z_STRLEN_P(needle), haystack_dup + haystack_len);
+@@ -4194,7 +4203,7 @@
  	zval		**input_str;		/* Input string */
  	zval		**mult;			/* Multiplier */
  	char		*result;		/* Resulting string */
@@ -3090,7 +4125,7 @@ diff -Nura php-5.1.4/ext/standard/string.c hardening-patch-5.1.4-0.4.12/ext/stan
  	
  	if (ZEND_NUM_ARGS() != 2 || zend_get_parameters_ex(2, &input_str, &mult) == FAILURE) {
  		WRONG_PARAM_COUNT;
-@@ -4219,11 +4220,7 @@
+@@ -4219,11 +4228,7 @@
  	
  	/* Initialize the result string */	
  	result_len = Z_STRLEN_PP(input_str) * Z_LVAL_PP(mult);
@@ -3103,9 +4138,18 @@ diff -Nura php-5.1.4/ext/standard/string.c hardening-patch-5.1.4-0.4.12/ext/stan
  	
  	/* Heavy optimization for situations where input string is 1 byte long */
  	if (Z_STRLEN_PP(input_str) == 1) {
-diff -Nura php-5.1.4/ext/standard/syslog.c hardening-patch-5.1.4-0.4.12/ext/standard/syslog.c
+@@ -4894,7 +4899,7 @@
+ 		offset = (offset < 0) ? 0 : offset;
+ 	}
+ 
+-	if ((offset + len) >= s1_len) {
++	if ((offset + len) > s1_len) {
+ 		php_error_docref(NULL TSRMLS_CC, E_WARNING, "The start position cannot exceed initial string length");
+ 		RETURN_FALSE;
+ 	}
+diff -Nura php-5.1.4/ext/standard/syslog.c hardening-patch-5.1.4-0.4.14/ext/standard/syslog.c
 --- php-5.1.4/ext/standard/syslog.c	2006-03-21 01:59:08.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/ext/standard/syslog.c	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/ext/standard/syslog.c	2006-08-07 11:04:07.000000000 +0200
 @@ -42,6 +42,7 @@
   */
  PHP_MINIT_FUNCTION(syslog)
@@ -3122,9 +4166,9 @@ diff -Nura php-5.1.4/ext/standard/syslog.c hardening-patch-5.1.4-0.4.12/ext/stan
  	BG(syslog_device)=NULL;
  
  	return SUCCESS;
-diff -Nura php-5.1.4/ext/varfilter/config.m4 hardening-patch-5.1.4-0.4.12/ext/varfilter/config.m4
+diff -Nura php-5.1.4/ext/varfilter/config.m4 hardening-patch-5.1.4-0.4.14/ext/varfilter/config.m4
 --- php-5.1.4/ext/varfilter/config.m4	1970-01-01 01:00:00.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/ext/varfilter/config.m4	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/ext/varfilter/config.m4	2006-08-07 11:04:07.000000000 +0200
 @@ -0,0 +1,11 @@
 +dnl
 +dnl $Id: config.m4,v 1.1 2004/11/14 13:27:16 ionic Exp $
@@ -3137,16 +4181,16 @@ diff -Nura php-5.1.4/ext/varfilter/config.m4 hardening-patch-5.1.4-0.4.12/ext/va
 +  AC_DEFINE(HAVE_VARFILTER, 1, [ ])
 +  PHP_NEW_EXTENSION(varfilter, varfilter.c, $ext_shared)
 +fi
-diff -Nura php-5.1.4/ext/varfilter/CREDITS hardening-patch-5.1.4-0.4.12/ext/varfilter/CREDITS
+diff -Nura php-5.1.4/ext/varfilter/CREDITS hardening-patch-5.1.4-0.4.14/ext/varfilter/CREDITS
 --- php-5.1.4/ext/varfilter/CREDITS	1970-01-01 01:00:00.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/ext/varfilter/CREDITS	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/ext/varfilter/CREDITS	2006-08-07 11:04:07.000000000 +0200
 @@ -0,0 +1,2 @@
 +varfilter
 +Stefan Esser
 \ Kein Zeilenumbruch am Dateiende.
-diff -Nura php-5.1.4/ext/varfilter/php_varfilter.h hardening-patch-5.1.4-0.4.12/ext/varfilter/php_varfilter.h
+diff -Nura php-5.1.4/ext/varfilter/php_varfilter.h hardening-patch-5.1.4-0.4.14/ext/varfilter/php_varfilter.h
 --- php-5.1.4/ext/varfilter/php_varfilter.h	1970-01-01 01:00:00.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/ext/varfilter/php_varfilter.h	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/ext/varfilter/php_varfilter.h	2006-08-07 11:04:07.000000000 +0200
 @@ -0,0 +1,144 @@
 +/*
 +  +----------------------------------------------------------------------+
@@ -3292,9 +4336,9 @@ diff -Nura php-5.1.4/ext/varfilter/php_varfilter.h hardening-patch-5.1.4-0.4.12/
 + * indent-tabs-mode: t
 + * End:
 + */
-diff -Nura php-5.1.4/ext/varfilter/varfilter.c hardening-patch-5.1.4-0.4.12/ext/varfilter/varfilter.c
+diff -Nura php-5.1.4/ext/varfilter/varfilter.c hardening-patch-5.1.4-0.4.14/ext/varfilter/varfilter.c
 --- php-5.1.4/ext/varfilter/varfilter.c	1970-01-01 01:00:00.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/ext/varfilter/varfilter.c	2006-07-20 10:46:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/ext/varfilter/varfilter.c	2006-08-11 01:34:15.000000000 +0200
 @@ -0,0 +1,915 @@
 +/*
 +  +----------------------------------------------------------------------+
@@ -3349,7 +4393,7 @@ diff -Nura php-5.1.4/ext/varfilter/varfilter.c hardening-patch-5.1.4-0.4.12/ext/
 +	PHP_RSHUTDOWN(varfilter),	/* Replace with NULL if there's nothing to do at request end */
 +	PHP_MINFO(varfilter),
 +#if ZEND_MODULE_API_NO >= 20010901
-+	"0.4.12", /* Replace with version number for your extension */
++	"0.4.14", /* Replace with version number for your extension */
 +#endif
 +	STANDARD_MODULE_PROPERTIES
 +};
@@ -4211,9 +5255,9 @@ diff -Nura php-5.1.4/ext/varfilter/varfilter.c hardening-patch-5.1.4-0.4.12/ext/
 + */
 +
 +
-diff -Nura php-5.1.4/ext/wddx/wddx.c hardening-patch-5.1.4-0.4.12/ext/wddx/wddx.c
+diff -Nura php-5.1.4/ext/wddx/wddx.c hardening-patch-5.1.4-0.4.14/ext/wddx/wddx.c
 --- php-5.1.4/ext/wddx/wddx.c	2006-04-23 18:02:05.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.12/ext/wddx/wddx.c	2006-07-20 11:07:00.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/ext/wddx/wddx.c	2006-08-07 11:04:07.000000000 +0200
 @@ -399,9 +399,9 @@
  					break;
  
@@ -4271,9 +5315,9 @@ diff -Nura php-5.1.4/ext/wddx/wddx.c hardening-patch-5.1.4-0.4.12/ext/wddx/wddx.
  			if (!strcmp(atts[i], EL_NAME) && atts[++i] && atts[i][0]) {
  				char *decoded;
  				int decoded_len;
-diff -Nura php-5.1.4/main/fopen_wrappers.c hardening-patch-5.1.4-0.4.12/main/fopen_wrappers.c
+diff -Nura php-5.1.4/main/fopen_wrappers.c hardening-patch-5.1.4-0.4.14/main/fopen_wrappers.c
 --- php-5.1.4/main/fopen_wrappers.c	2006-03-17 11:42:31.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/main/fopen_wrappers.c	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/main/fopen_wrappers.c	2006-08-07 11:04:07.000000000 +0200
 @@ -114,14 +114,20 @@
  			}
  		}
@@ -4318,10 +5362,10 @@ diff -Nura php-5.1.4/main/fopen_wrappers.c hardening-patch-5.1.4-0.4.12/main/fop
  
  		pathbuf = estrdup(PG(open_basedir));
  
-diff -Nura php-5.1.4/main/hardened_globals.h hardening-patch-5.1.4-0.4.12/main/hardened_globals.h
+diff -Nura php-5.1.4/main/hardened_globals.h hardening-patch-5.1.4-0.4.14/main/hardened_globals.h
 --- php-5.1.4/main/hardened_globals.h	1970-01-01 01:00:00.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/main/hardened_globals.h	2006-07-20 12:17:12.000000000 +0200
-@@ -0,0 +1,63 @@
++++ hardening-patch-5.1.4-0.4.14/main/hardened_globals.h	2006-08-11 10:44:12.000000000 +0200
+@@ -0,0 +1,64 @@
 +/*
 +   +----------------------------------------------------------------------+
 +   | Hardening-Patch for PHP                                              |
@@ -4367,6 +5411,7 @@ diff -Nura php-5.1.4/main/hardened_globals.h hardening-patch-5.1.4-0.4.12/main/h
 +	zend_bool hphp_sql_bailout_on_error;
 +	zend_bool hphp_multiheader;
 +	unsigned long hphp_mailprotect;
++	long hard_memory_limit;
 +	HashTable *eval_whitelist;
 +	HashTable *eval_blacklist;
 +	HashTable *func_whitelist;
@@ -4385,9 +5430,9 @@ diff -Nura php-5.1.4/main/hardened_globals.h hardening-patch-5.1.4-0.4.12/main/h
 + * c-basic-offset: 4
 + * End:
 + */
-diff -Nura php-5.1.4/main/hardening_patch.c hardening-patch-5.1.4-0.4.12/main/hardening_patch.c
+diff -Nura php-5.1.4/main/hardening_patch.c hardening-patch-5.1.4-0.4.14/main/hardening_patch.c
 --- php-5.1.4/main/hardening_patch.c	1970-01-01 01:00:00.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/main/hardening_patch.c	2006-07-20 10:49:59.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/main/hardening_patch.c	2006-08-07 11:04:07.000000000 +0200
 @@ -0,0 +1,430 @@
 +/*
 +   +----------------------------------------------------------------------+
@@ -4819,9 +5864,9 @@ diff -Nura php-5.1.4/main/hardening_patch.c hardening-patch-5.1.4-0.4.12/main/ha
 + * vim600: sw=4 ts=4 fdm=marker
 + * vim<600: sw=4 ts=4
 + */
-diff -Nura php-5.1.4/main/hardening_patch.h hardening-patch-5.1.4-0.4.12/main/hardening_patch.h
+diff -Nura php-5.1.4/main/hardening_patch.h hardening-patch-5.1.4-0.4.14/main/hardening_patch.h
 --- php-5.1.4/main/hardening_patch.h	1970-01-01 01:00:00.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/main/hardening_patch.h	2006-07-20 10:46:20.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/main/hardening_patch.h	2006-08-11 01:33:59.000000000 +0200
 @@ -0,0 +1,46 @@
 +/*
 +   +----------------------------------------------------------------------+
@@ -4849,7 +5894,7 @@ diff -Nura php-5.1.4/main/hardening_patch.h hardening-patch-5.1.4-0.4.12/main/ha
 +#if HARDENING_PATCH
 +PHPAPI void php_security_log(int loglevel, char *fmt, ...);
 +PHPAPI void hardened_startup();
-+#define HARDENING_PATCH_VERSION "0.4.12"
++#define HARDENING_PATCH_VERSION "0.4.14"
 +
 +#endif
 +
@@ -4869,9 +5914,9 @@ diff -Nura php-5.1.4/main/hardening_patch.h hardening-patch-5.1.4-0.4.12/main/ha
 + * c-basic-offset: 4
 + * End:
 + */
-diff -Nura php-5.1.4/main/hardening_patch.m4 hardening-patch-5.1.4-0.4.12/main/hardening_patch.m4
+diff -Nura php-5.1.4/main/hardening_patch.m4 hardening-patch-5.1.4-0.4.14/main/hardening_patch.m4
 --- php-5.1.4/main/hardening_patch.m4	1970-01-01 01:00:00.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/main/hardening_patch.m4	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/main/hardening_patch.m4	2006-08-07 11:04:07.000000000 +0200
 @@ -0,0 +1,95 @@
 +dnl
 +dnl $Id: hardening_patch.m4,v 1.1 2004/11/14 13:24:24 ionic Exp $
@@ -4968,9 +6013,9 @@ diff -Nura php-5.1.4/main/hardening_patch.m4 hardening-patch-5.1.4-0.4.12/main/h
 +  AC_DEFINE(HARDENING_PATCH_HASH_PROTECT, 0, [HashTable DTOR Protection])
 +fi
 +
-diff -Nura php-5.1.4/main/main.c hardening-patch-5.1.4-0.4.12/main/main.c
+diff -Nura php-5.1.4/main/main.c hardening-patch-5.1.4-0.4.14/main/main.c
 --- php-5.1.4/main/main.c	2006-04-12 14:49:39.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.12/main/main.c	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/main/main.c	2006-08-11 10:41:24.000000000 +0200
 @@ -85,6 +85,10 @@
  
  #include "SAPI.h"
@@ -4982,41 +6027,48 @@ diff -Nura php-5.1.4/main/main.c hardening-patch-5.1.4-0.4.12/main/main.c
  /* }}} */
  
  #ifndef ZTS
-@@ -109,10 +113,33 @@
+@@ -109,17 +113,39 @@
   */
  static PHP_INI_MH(OnChangeMemoryLimit)
  {
 +#if HARDENING_PATCH
-+	long orig_memory_limit;
++	long hard_memory_limit = 1<<30;
 +	
-+	if (entry->modified) {
-+		orig_memory_limit = zend_atoi(entry->orig_value, entry->orig_value_length);	
++	if (stage == ZEND_INI_STAGE_RUNTIME) {
++		if (HG(hard_memory_limit) == 0) {
++			HG(hard_memory_limit) = PG(memory_limit);
++		}
++		hard_memory_limit = HG(hard_memory_limit);
 +	} else {
-+		orig_memory_limit = 1<<30;
++		HG(hard_memory_limit) = 0;
 +	}
-+	if (orig_memory_limit < 0 || orig_memory_limit > (1<<30)) {
-+		orig_memory_limit = 1<<30;
-+	}
-+#endif
++#endif	
  	if (new_value) {
  		PG(memory_limit) = zend_atoi(new_value, new_value_length);
 +#if HARDENING_PATCH
-+		if (PG(memory_limit) > orig_memory_limit) {
-+			PG(memory_limit) = orig_memory_limit;
++		if (PG(memory_limit) > hard_memory_limit) {
++			PG(memory_limit) = hard_memory_limit;
 +			php_security_log(S_MISC, "script tried to increase memory_limit above allowed value");
 +			return FAILURE;
 +		}
-+#endif		
++#endif	
  	} else {
 +#if HARDENING_PATCH
-+		PG(memory_limit) = orig_memory_limit;
++		PG(memory_limit) = hard_memory_limit;
 +#else
  		PG(memory_limit) = 1<<30;		/* effectively, no limit */
 +#endif
  	}
  	return zend_set_memory_limit(PG(memory_limit));
  }
-@@ -1095,6 +1122,13 @@
+ /* }}} */
+ #endif
+ 
+-
+ /* {{{ php_disable_functions
+  */
+ static void php_disable_functions(TSRMLS_D)
+@@ -1095,6 +1121,13 @@
  			sapi_add_header(SAPI_PHP_VERSION_HEADER, sizeof(SAPI_PHP_VERSION_HEADER)-1, 1);
  		}
  
@@ -5030,7 +6082,7 @@ diff -Nura php-5.1.4/main/main.c hardening-patch-5.1.4-0.4.12/main/main.c
  		if (PG(output_handler) && PG(output_handler)[0]) {
  			php_start_ob_buffer_named(PG(output_handler), 0, 1 TSRMLS_CC);
  		} else if (PG(output_buffering)) {
-@@ -1222,6 +1256,9 @@
+@@ -1222,6 +1255,9 @@
  
  	zend_try {
  		shutdown_memory_manager(CG(unclean_shutdown), 0 TSRMLS_CC);
@@ -5040,7 +6092,7 @@ diff -Nura php-5.1.4/main/main.c hardening-patch-5.1.4-0.4.12/main/main.c
  	} zend_end_try();
  
  	zend_try {
-@@ -1393,6 +1430,10 @@
+@@ -1393,6 +1429,10 @@
  	tsrm_ls = ts_resource(0);
  #endif
  
@@ -5051,7 +6103,7 @@ diff -Nura php-5.1.4/main/main.c hardening-patch-5.1.4-0.4.12/main/main.c
  	module_shutdown = 0;
  	module_startup = 1;
  	sapi_initialize_empty_request(TSRMLS_C);
-@@ -1406,6 +1447,12 @@
+@@ -1406,6 +1446,12 @@
  
  	php_output_startup();
  
@@ -5064,7 +6116,7 @@ diff -Nura php-5.1.4/main/main.c hardening-patch-5.1.4-0.4.12/main/main.c
  	zuf.error_function = php_error_cb;
  	zuf.printf_function = php_printf;
  	zuf.write_function = php_body_write_wrapper;
-@@ -1476,7 +1523,9 @@
+@@ -1476,7 +1522,9 @@
  
  	/* Disable realpath cache if safe_mode or open_basedir are set */
  	if (PG(safe_mode) || (PG(open_basedir) && *PG(open_basedir))) {
@@ -5075,7 +6127,7 @@ diff -Nura php-5.1.4/main/main.c hardening-patch-5.1.4-0.4.12/main/main.c
  	}
  
  	/* initialize stream wrappers registry
-@@ -1517,6 +1566,10 @@
+@@ -1517,6 +1565,10 @@
  	REGISTER_MAIN_STRINGL_CONSTANT("PHP_CONFIG_FILE_PATH", PHP_CONFIG_FILE_PATH, strlen(PHP_CONFIG_FILE_PATH), CONST_PERSISTENT | CONST_CS);
  	REGISTER_MAIN_STRINGL_CONSTANT("PHP_CONFIG_FILE_SCAN_DIR", PHP_CONFIG_FILE_SCAN_DIR, sizeof(PHP_CONFIG_FILE_SCAN_DIR)-1, CONST_PERSISTENT | CONST_CS);
  	REGISTER_MAIN_STRINGL_CONSTANT("PHP_SHLIB_SUFFIX", PHP_SHLIB_SUFFIX, sizeof(PHP_SHLIB_SUFFIX)-1, CONST_PERSISTENT | CONST_CS);
@@ -5086,9 +6138,9 @@ diff -Nura php-5.1.4/main/main.c hardening-patch-5.1.4-0.4.12/main/main.c
  	REGISTER_MAIN_STRINGL_CONSTANT("PHP_EOL", PHP_EOL, sizeof(PHP_EOL)-1, CONST_PERSISTENT | CONST_CS);
  	REGISTER_MAIN_LONG_CONSTANT("PHP_INT_MAX", LONG_MAX, CONST_PERSISTENT | CONST_CS);
  	REGISTER_MAIN_LONG_CONSTANT("PHP_INT_SIZE", sizeof(long), CONST_PERSISTENT | CONST_CS);
-diff -Nura php-5.1.4/main/php_config.h.in hardening-patch-5.1.4-0.4.12/main/php_config.h.in
+diff -Nura php-5.1.4/main/php_config.h.in hardening-patch-5.1.4-0.4.14/main/php_config.h.in
 --- php-5.1.4/main/php_config.h.in	2006-05-12 16:41:13.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.12/main/php_config.h.in	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/main/php_config.h.in	2006-08-07 11:04:07.000000000 +0200
 @@ -788,6 +788,39 @@
  /* Enabling BIND8 compatibility for Panther */
  #undef BIND_8_COMPAT
@@ -5142,9 +6194,9 @@ diff -Nura php-5.1.4/main/php_config.h.in hardening-patch-5.1.4-0.4.12/main/php_
  /* Whether system headers declare timezone */
  #undef HAVE_DECLARED_TIMEZONE
  
-diff -Nura php-5.1.4/main/php.h hardening-patch-5.1.4-0.4.12/main/php.h
+diff -Nura php-5.1.4/main/php.h hardening-patch-5.1.4-0.4.14/main/php.h
 --- php-5.1.4/main/php.h	2006-03-07 23:37:53.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/main/php.h	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/main/php.h	2006-08-07 11:04:07.000000000 +0200
 @@ -35,11 +35,19 @@
  #include "zend_qsort.h"
  #include "php_compat.h"
@@ -5184,9 +6236,9 @@ diff -Nura php-5.1.4/main/php.h hardening-patch-5.1.4-0.4.12/main/php.h
  #endif
  
  /*
-diff -Nura php-5.1.4/main/php_open_temporary_file.c hardening-patch-5.1.4-0.4.12/main/php_open_temporary_file.c
+diff -Nura php-5.1.4/main/php_open_temporary_file.c hardening-patch-5.1.4-0.4.14/main/php_open_temporary_file.c
 --- php-5.1.4/main/php_open_temporary_file.c	2006-01-01 13:50:17.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/main/php_open_temporary_file.c	2006-07-20 11:07:00.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/main/php_open_temporary_file.c	2006-08-07 11:04:07.000000000 +0200
 @@ -114,17 +114,16 @@
  
  	path_len = strlen(path);
@@ -5209,9 +6261,9 @@ diff -Nura php-5.1.4/main/php_open_temporary_file.c hardening-patch-5.1.4-0.4.12
  
  #ifdef PHP_WIN32
  	if (GetTempFileName(path, pfx, 0, opened_path)) {
-diff -Nura php-5.1.4/main/php_variables.c hardening-patch-5.1.4-0.4.12/main/php_variables.c
+diff -Nura php-5.1.4/main/php_variables.c hardening-patch-5.1.4-0.4.14/main/php_variables.c
 --- php-5.1.4/main/php_variables.c	2006-05-03 13:24:29.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.12/main/php_variables.c	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/main/php_variables.c	2006-08-07 11:04:07.000000000 +0200
 @@ -73,6 +73,10 @@
  		symtable1 = Z_ARRVAL_P(track_vars_array);
  	} else if (PG(register_globals)) {
@@ -5232,9 +6284,9 @@ diff -Nura php-5.1.4/main/php_variables.c hardening-patch-5.1.4-0.4.12/main/php_
  	/* turn off magic_quotes while importing server variables */
  	int magic_quotes_gpc = PG(magic_quotes_gpc);
  
-diff -Nura php-5.1.4/main/rfc1867.c hardening-patch-5.1.4-0.4.12/main/rfc1867.c
+diff -Nura php-5.1.4/main/rfc1867.c hardening-patch-5.1.4-0.4.14/main/rfc1867.c
 --- php-5.1.4/main/rfc1867.c	2006-01-01 13:50:17.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/main/rfc1867.c	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/main/rfc1867.c	2006-08-07 11:04:07.000000000 +0200
 @@ -132,6 +132,7 @@
  #define UPLOAD_ERROR_D    4  /* No file uploaded */
  #define UPLOAD_ERROR_E    6  /* Missing /tmp or similar directory */
@@ -5306,9 +6358,9 @@ diff -Nura php-5.1.4/main/rfc1867.c hardening-patch-5.1.4-0.4.12/main/rfc1867.c
  			if (cancel_upload) {
  				if (temp_filename) {
  					if (cancel_upload != UPLOAD_ERROR_E) { /* file creation failed */
-diff -Nura php-5.1.4/main/SAPI.c hardening-patch-5.1.4-0.4.12/main/SAPI.c
+diff -Nura php-5.1.4/main/SAPI.c hardening-patch-5.1.4-0.4.14/main/SAPI.c
 --- php-5.1.4/main/SAPI.c	2006-01-01 13:50:17.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/main/SAPI.c	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/main/SAPI.c	2006-08-07 11:04:07.000000000 +0200
 @@ -870,6 +870,36 @@
  			post_entry->content_type_len+1);
  }
@@ -5358,9 +6410,9 @@ diff -Nura php-5.1.4/main/SAPI.c hardening-patch-5.1.4-0.4.12/main/SAPI.c
  
  SAPI_API int sapi_flush(TSRMLS_D)
  {
-diff -Nura php-5.1.4/main/SAPI.h hardening-patch-5.1.4-0.4.12/main/SAPI.h
+diff -Nura php-5.1.4/main/SAPI.h hardening-patch-5.1.4-0.4.14/main/SAPI.h
 --- php-5.1.4/main/SAPI.h	2006-01-01 13:50:17.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/main/SAPI.h	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/main/SAPI.h	2006-08-07 11:04:07.000000000 +0200
 @@ -190,6 +190,10 @@
  SAPI_API int sapi_register_treat_data(void (*treat_data)(int arg, char *str, zval *destArray TSRMLS_DC));
  SAPI_API int sapi_register_input_filter(unsigned int (*input_filter)(int arg, char *var, char **val, unsigned int val_len, unsigned int *new_val_len TSRMLS_DC));
@@ -5408,9 +6460,9 @@ diff -Nura php-5.1.4/main/SAPI.h hardening-patch-5.1.4-0.4.12/main/SAPI.h
  BEGIN_EXTERN_C()
  SAPI_API SAPI_POST_READER_FUNC(sapi_read_standard_form_data);
  SAPI_API SAPI_POST_READER_FUNC(php_default_post_reader);
-diff -Nura php-5.1.4/main/snprintf.c hardening-patch-5.1.4-0.4.12/main/snprintf.c
+diff -Nura php-5.1.4/main/snprintf.c hardening-patch-5.1.4-0.4.14/main/snprintf.c
 --- php-5.1.4/main/snprintf.c	2006-01-24 21:59:46.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/main/snprintf.c	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/main/snprintf.c	2006-08-07 11:04:07.000000000 +0200
 @@ -1014,7 +1014,11 @@
  
  
@@ -5423,9 +6475,9 @@ diff -Nura php-5.1.4/main/snprintf.c hardening-patch-5.1.4-0.4.12/main/snprintf.
  					goto skip_output;
  
  					/*
-diff -Nura php-5.1.4/main/spprintf.c hardening-patch-5.1.4-0.4.12/main/spprintf.c
+diff -Nura php-5.1.4/main/spprintf.c hardening-patch-5.1.4-0.4.14/main/spprintf.c
 --- php-5.1.4/main/spprintf.c	2006-01-24 21:59:46.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/main/spprintf.c	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/main/spprintf.c	2006-08-07 11:04:07.000000000 +0200
 @@ -630,7 +630,11 @@
  
  
@@ -5438,9 +6490,9 @@ diff -Nura php-5.1.4/main/spprintf.c hardening-patch-5.1.4-0.4.12/main/spprintf.
  					goto skip_output;
  
  					/*
-diff -Nura php-5.1.4/pear/Makefile.frag hardening-patch-5.1.4-0.4.12/pear/Makefile.frag
+diff -Nura php-5.1.4/pear/Makefile.frag hardening-patch-5.1.4-0.4.14/pear/Makefile.frag
 --- php-5.1.4/pear/Makefile.frag	2006-02-08 02:12:12.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/pear/Makefile.frag	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/pear/Makefile.frag	2006-08-07 11:04:07.000000000 +0200
 @@ -3,7 +3,7 @@
  peardir=$(PEAR_INSTALLDIR)
  
@@ -5450,9 +6502,9 @@ diff -Nura php-5.1.4/pear/Makefile.frag hardening-patch-5.1.4-0.4.12/pear/Makefi
  
  install-pear-installer: $(SAPI_CLI_PATH)
  	@$(top_builddir)/sapi/cli/php $(PEAR_INSTALL_FLAGS) $(builddir)/install-pear-nozlib.phar -d "$(peardir)" -b "$(bindir)"
-diff -Nura php-5.1.4/php.ini-dist hardening-patch-5.1.4-0.4.12/php.ini-dist
+diff -Nura php-5.1.4/php.ini-dist hardening-patch-5.1.4-0.4.14/php.ini-dist
 --- php-5.1.4/php.ini-dist	2006-02-09 00:43:48.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/php.ini-dist	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/php.ini-dist	2006-08-07 11:04:07.000000000 +0200
 @@ -1197,6 +1197,209 @@
  ; instead of original one.
  soap.wsdl_cache_ttl=86400
@@ -5663,9 +6715,9 @@ diff -Nura php-5.1.4/php.ini-dist hardening-patch-5.1.4-0.4.12/php.ini-dist
  ; Local Variables:
  ; tab-width: 4
  ; End:
-diff -Nura php-5.1.4/php.ini-recommended hardening-patch-5.1.4-0.4.12/php.ini-recommended
+diff -Nura php-5.1.4/php.ini-recommended hardening-patch-5.1.4-0.4.14/php.ini-recommended
 --- php-5.1.4/php.ini-recommended	2006-02-09 00:43:48.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/php.ini-recommended	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/php.ini-recommended	2006-08-07 11:04:07.000000000 +0200
 @@ -1255,6 +1255,209 @@
  ; instead of original one.
  soap.wsdl_cache_ttl=86400
@@ -5876,9 +6928,9 @@ diff -Nura php-5.1.4/php.ini-recommended hardening-patch-5.1.4-0.4.12/php.ini-re
  ; Local Variables:
  ; tab-width: 4
  ; End:
-diff -Nura php-5.1.4/run-tests.php hardening-patch-5.1.4-0.4.12/run-tests.php
+diff -Nura php-5.1.4/run-tests.php hardening-patch-5.1.4-0.4.14/run-tests.php
 --- php-5.1.4/run-tests.php	2006-05-03 23:37:16.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.12/run-tests.php	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/run-tests.php	2006-08-07 11:04:07.000000000 +0200
 @@ -161,6 +161,10 @@
  		'error_reporting=4095',
  		'display_errors=1',
@@ -5890,9 +6942,9 @@ diff -Nura php-5.1.4/run-tests.php hardening-patch-5.1.4-0.4.12/run-tests.php
  		'html_errors=0',
  		'track_errors=1',
  		'report_memleaks=1',
-diff -Nura php-5.1.4/sapi/apache/mod_php5.c hardening-patch-5.1.4-0.4.12/sapi/apache/mod_php5.c
+diff -Nura php-5.1.4/sapi/apache/mod_php5.c hardening-patch-5.1.4-0.4.14/sapi/apache/mod_php5.c
 --- php-5.1.4/sapi/apache/mod_php5.c	2006-04-02 19:58:17.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.12/sapi/apache/mod_php5.c	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/sapi/apache/mod_php5.c	2006-08-07 11:04:07.000000000 +0200
 @@ -482,7 +482,7 @@
  	sapi_apache_get_fd,
  	sapi_apache_force_http_10,
@@ -5914,9 +6966,9 @@ diff -Nura php-5.1.4/sapi/apache/mod_php5.c hardening-patch-5.1.4-0.4.12/sapi/ap
  		}
  	}
  #endif
-diff -Nura php-5.1.4/sapi/apache2filter/sapi_apache2.c hardening-patch-5.1.4-0.4.12/sapi/apache2filter/sapi_apache2.c
+diff -Nura php-5.1.4/sapi/apache2filter/sapi_apache2.c hardening-patch-5.1.4-0.4.14/sapi/apache2filter/sapi_apache2.c
 --- php-5.1.4/sapi/apache2filter/sapi_apache2.c	2006-03-19 15:54:53.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/sapi/apache2filter/sapi_apache2.c	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/sapi/apache2filter/sapi_apache2.c	2006-08-07 11:04:07.000000000 +0200
 @@ -573,7 +573,11 @@
  {
  	TSRMLS_FETCH();
@@ -5929,9 +6981,9 @@ diff -Nura php-5.1.4/sapi/apache2filter/sapi_apache2.c hardening-patch-5.1.4-0.4
  	}
  }
  
-diff -Nura php-5.1.4/sapi/apache2handler/sapi_apache2.c hardening-patch-5.1.4-0.4.12/sapi/apache2handler/sapi_apache2.c
+diff -Nura php-5.1.4/sapi/apache2handler/sapi_apache2.c hardening-patch-5.1.4-0.4.14/sapi/apache2handler/sapi_apache2.c
 --- php-5.1.4/sapi/apache2handler/sapi_apache2.c	2006-03-19 15:54:53.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/sapi/apache2handler/sapi_apache2.c	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/sapi/apache2handler/sapi_apache2.c	2006-08-07 11:04:07.000000000 +0200
 @@ -341,7 +341,11 @@
  {
  	TSRMLS_FETCH();
@@ -5944,9 +6996,9 @@ diff -Nura php-5.1.4/sapi/apache2handler/sapi_apache2.c hardening-patch-5.1.4-0.
  	}
  }
  
-diff -Nura php-5.1.4/sapi/cgi/cgi_main.c hardening-patch-5.1.4-0.4.12/sapi/cgi/cgi_main.c
+diff -Nura php-5.1.4/sapi/cgi/cgi_main.c hardening-patch-5.1.4-0.4.14/sapi/cgi/cgi_main.c
 --- php-5.1.4/sapi/cgi/cgi_main.c	2006-05-03 21:40:58.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.12/sapi/cgi/cgi_main.c	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/sapi/cgi/cgi_main.c	2006-08-07 11:04:07.000000000 +0200
 @@ -1444,10 +1444,18 @@
  							SG(headers_sent) = 1;
  							SG(request_info).no_headers = 1;
@@ -5968,9 +7020,9 @@ diff -Nura php-5.1.4/sapi/cgi/cgi_main.c hardening-patch-5.1.4-0.4.12/sapi/cgi/c
  #endif
  						php_end_ob_buffers(1 TSRMLS_CC);
  						exit(0);
-diff -Nura php-5.1.4/sapi/cli/php_cli.c hardening-patch-5.1.4-0.4.12/sapi/cli/php_cli.c
+diff -Nura php-5.1.4/sapi/cli/php_cli.c hardening-patch-5.1.4-0.4.14/sapi/cli/php_cli.c
 --- php-5.1.4/sapi/cli/php_cli.c	2006-02-21 22:15:13.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/sapi/cli/php_cli.c	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/sapi/cli/php_cli.c	2006-08-07 11:04:07.000000000 +0200
 @@ -753,8 +753,14 @@
  					goto err;
  				}
@@ -5987,9 +7039,9 @@ diff -Nura php-5.1.4/sapi/cli/php_cli.c hardening-patch-5.1.4-0.4.12/sapi/cli/ph
  #if ZEND_DEBUG && defined(HAVE_GCOV)
  					"(DEBUG GCOV)",
  #elif ZEND_DEBUG
-diff -Nura php-5.1.4/TSRM/TSRM.h hardening-patch-5.1.4-0.4.12/TSRM/TSRM.h
+diff -Nura php-5.1.4/TSRM/TSRM.h hardening-patch-5.1.4-0.4.14/TSRM/TSRM.h
 --- php-5.1.4/TSRM/TSRM.h	2006-03-14 16:16:07.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/TSRM/TSRM.h	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/TSRM/TSRM.h	2006-08-07 11:04:07.000000000 +0200
 @@ -33,6 +33,13 @@
  #	define TSRM_API
  #endif
@@ -6012,9 +7064,9 @@ diff -Nura php-5.1.4/TSRM/TSRM.h hardening-patch-5.1.4-0.4.12/TSRM/TSRM.h
  #ifdef __cplusplus
  extern "C" {
  #endif
-diff -Nura php-5.1.4/TSRM/tsrm_virtual_cwd.c hardening-patch-5.1.4-0.4.12/TSRM/tsrm_virtual_cwd.c
+diff -Nura php-5.1.4/TSRM/tsrm_virtual_cwd.c hardening-patch-5.1.4-0.4.14/TSRM/tsrm_virtual_cwd.c
 --- php-5.1.4/TSRM/tsrm_virtual_cwd.c	2006-03-05 19:57:54.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/TSRM/tsrm_virtual_cwd.c	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/TSRM/tsrm_virtual_cwd.c	2006-08-07 11:04:07.000000000 +0200
 @@ -163,6 +163,7 @@
  static void cwd_globals_ctor(virtual_cwd_globals *cwd_globals TSRMLS_DC)
  {
@@ -6297,9 +7349,9 @@ diff -Nura php-5.1.4/TSRM/tsrm_virtual_cwd.c hardening-patch-5.1.4-0.4.12/TSRM/t
  		realpath_cache_add(orig_path, orig_path_len, state->cwd, state->cwd_length, t TSRMLS_CC);
  	}
  
-diff -Nura php-5.1.4/TSRM/tsrm_virtual_cwd.h hardening-patch-5.1.4-0.4.12/TSRM/tsrm_virtual_cwd.h
+diff -Nura php-5.1.4/TSRM/tsrm_virtual_cwd.h hardening-patch-5.1.4-0.4.14/TSRM/tsrm_virtual_cwd.h
 --- php-5.1.4/TSRM/tsrm_virtual_cwd.h	2006-04-10 13:56:18.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.12/TSRM/tsrm_virtual_cwd.h	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/TSRM/tsrm_virtual_cwd.h	2006-08-07 11:04:07.000000000 +0200
 @@ -127,6 +127,22 @@
  
  typedef int (*verify_path_func)(const cwd_state *);
@@ -6331,9 +7383,9 @@ diff -Nura php-5.1.4/TSRM/tsrm_virtual_cwd.h hardening-patch-5.1.4-0.4.12/TSRM/t
  } virtual_cwd_globals;
  
  #ifdef ZTS
-diff -Nura php-5.1.4/Zend/zend_alloc.c hardening-patch-5.1.4-0.4.12/Zend/zend_alloc.c
+diff -Nura php-5.1.4/Zend/zend_alloc.c hardening-patch-5.1.4-0.4.14/Zend/zend_alloc.c
 --- php-5.1.4/Zend/zend_alloc.c	2006-01-05 00:53:03.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/Zend/zend_alloc.c	2006-07-20 11:11:44.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/Zend/zend_alloc.c	2006-08-07 11:04:07.000000000 +0200
 @@ -64,6 +64,11 @@
  # define END_MAGIC_SIZE 0
  #endif
@@ -6597,9 +7649,9 @@ diff -Nura php-5.1.4/Zend/zend_alloc.c hardening-patch-5.1.4-0.4.12/Zend/zend_al
  #if MEMORY_LIMIT
  	AG(memory_limit) = 1<<30;		/* ridiculous limit, effectively no limit */
  	AG(allocated_memory) = 0;
-diff -Nura php-5.1.4/Zend/zend_alloc.h hardening-patch-5.1.4-0.4.12/Zend/zend_alloc.h
+diff -Nura php-5.1.4/Zend/zend_alloc.h hardening-patch-5.1.4-0.4.14/Zend/zend_alloc.h
 --- php-5.1.4/Zend/zend_alloc.h	2006-01-05 00:53:03.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/Zend/zend_alloc.h	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/Zend/zend_alloc.h	2006-08-07 11:04:07.000000000 +0200
 @@ -35,6 +35,9 @@
  #define MEM_BLOCK_CACHED_MAGIC	0xFB8277DCL
  
@@ -6610,9 +7662,9 @@ diff -Nura php-5.1.4/Zend/zend_alloc.h hardening-patch-5.1.4-0.4.12/Zend/zend_al
  #if ZEND_DEBUG
  	long magic;
  	char *filename;
-diff -Nura php-5.1.4/Zend/zend_API.h hardening-patch-5.1.4-0.4.12/Zend/zend_API.h
+diff -Nura php-5.1.4/Zend/zend_API.h hardening-patch-5.1.4-0.4.14/Zend/zend_API.h
 --- php-5.1.4/Zend/zend_API.h	2006-03-05 17:12:24.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/Zend/zend_API.h	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/Zend/zend_API.h	2006-08-07 11:04:07.000000000 +0200
 @@ -47,6 +47,7 @@
  #define ZEND_METHOD(classname, name)	ZEND_NAMED_FUNCTION(ZEND_FN(classname##_##name))
  
@@ -6621,9 +7673,9 @@ diff -Nura php-5.1.4/Zend/zend_API.h hardening-patch-5.1.4-0.4.12/Zend/zend_API.
  
  #define ZEND_NAMED_FE(zend_name, name, arg_info)	ZEND_FENTRY(zend_name, name, arg_info, 0)
  #define ZEND_FE(name, arg_info)						ZEND_FENTRY(name, ZEND_FN(name), arg_info, 0)
-diff -Nura php-5.1.4/Zend/zend_builtin_functions.c hardening-patch-5.1.4-0.4.12/Zend/zend_builtin_functions.c
+diff -Nura php-5.1.4/Zend/zend_builtin_functions.c hardening-patch-5.1.4-0.4.14/Zend/zend_builtin_functions.c
 --- php-5.1.4/Zend/zend_builtin_functions.c	2006-04-05 13:36:13.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.12/Zend/zend_builtin_functions.c	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/Zend/zend_builtin_functions.c	2006-08-07 11:04:07.000000000 +0200
 @@ -53,6 +53,9 @@
  static ZEND_FUNCTION(crash);
  #endif
@@ -6664,9 +7716,9 @@ diff -Nura php-5.1.4/Zend/zend_builtin_functions.c hardening-patch-5.1.4-0.4.12/
  /* {{{ proto array get_included_files(void)
     Returns an array with the file names that were include_once()'d */
  ZEND_FUNCTION(get_included_files)
-diff -Nura php-5.1.4/Zend/zend.c hardening-patch-5.1.4-0.4.12/Zend/zend.c
+diff -Nura php-5.1.4/Zend/zend.c hardening-patch-5.1.4-0.4.14/Zend/zend.c
 --- php-5.1.4/Zend/zend.c	2006-03-30 23:39:01.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.12/Zend/zend.c	2006-07-20 12:19:13.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/Zend/zend.c	2006-08-07 11:04:07.000000000 +0200
 @@ -55,6 +55,12 @@
  ZEND_API void (*zend_unblock_interruptions)(void);
  ZEND_API void (*zend_ticks_function)(int ticks);
@@ -7109,9 +8161,9 @@ diff -Nura php-5.1.4/Zend/zend.c hardening-patch-5.1.4-0.4.12/Zend/zend.c
  	EG(current_execute_data) = NULL;
  	longjmp(EG(bailout), FAILURE);
  }
-diff -Nura php-5.1.4/Zend/zend_canary.c hardening-patch-5.1.4-0.4.12/Zend/zend_canary.c
+diff -Nura php-5.1.4/Zend/zend_canary.c hardening-patch-5.1.4-0.4.14/Zend/zend_canary.c
 --- php-5.1.4/Zend/zend_canary.c	1970-01-01 01:00:00.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/Zend/zend_canary.c	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/Zend/zend_canary.c	2006-08-07 11:04:07.000000000 +0200
 @@ -0,0 +1,58 @@
 +/*
 +   +----------------------------------------------------------------------+
@@ -7171,9 +8223,9 @@ diff -Nura php-5.1.4/Zend/zend_canary.c hardening-patch-5.1.4-0.4.12/Zend/zend_c
 + * vim600: sw=4 ts=4 fdm=marker
 + * vim<600: sw=4 ts=4
 + */
-diff -Nura php-5.1.4/Zend/zend_compile.c hardening-patch-5.1.4-0.4.12/Zend/zend_compile.c
+diff -Nura php-5.1.4/Zend/zend_compile.c hardening-patch-5.1.4-0.4.14/Zend/zend_compile.c
 --- php-5.1.4/Zend/zend_compile.c	2006-05-02 17:49:26.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.12/Zend/zend_compile.c	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/Zend/zend_compile.c	2006-08-07 11:04:07.000000000 +0200
 @@ -1093,6 +1093,13 @@
  	op_array.prototype = NULL;
  
@@ -7188,9 +8240,9 @@ diff -Nura php-5.1.4/Zend/zend_compile.c hardening-patch-5.1.4-0.4.12/Zend/zend_
  
  	if (is_method) {
  		char *short_class_name = CG(active_class_entry)->name;
-diff -Nura php-5.1.4/Zend/zend_compile.h hardening-patch-5.1.4-0.4.12/Zend/zend_compile.h
+diff -Nura php-5.1.4/Zend/zend_compile.h hardening-patch-5.1.4-0.4.14/Zend/zend_compile.h
 --- php-5.1.4/Zend/zend_compile.h	2006-03-13 12:13:42.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/Zend/zend_compile.h	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/Zend/zend_compile.h	2006-08-07 11:04:07.000000000 +0200
 @@ -217,6 +217,9 @@
  	zend_uint doc_comment_len;
  
@@ -7218,9 +8270,9 @@ diff -Nura php-5.1.4/Zend/zend_compile.h hardening-patch-5.1.4-0.4.12/Zend/zend_
  
  #define ZEND_INTERNAL_CLASS         1
  #define ZEND_USER_CLASS             2
-diff -Nura php-5.1.4/Zend/zend_constants.c hardening-patch-5.1.4-0.4.12/Zend/zend_constants.c
+diff -Nura php-5.1.4/Zend/zend_constants.c hardening-patch-5.1.4-0.4.14/Zend/zend_constants.c
 --- php-5.1.4/Zend/zend_constants.c	2006-03-15 15:12:26.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/Zend/zend_constants.c	2006-07-20 12:17:12.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/Zend/zend_constants.c	2006-08-07 11:04:07.000000000 +0200
 @@ -109,6 +109,74 @@
  	REGISTER_MAIN_LONG_CONSTANT("E_USER_NOTICE", E_USER_NOTICE, CONST_PERSISTENT | CONST_CS);
  
@@ -7296,9 +8348,9 @@ diff -Nura php-5.1.4/Zend/zend_constants.c hardening-patch-5.1.4-0.4.12/Zend/zen
  
  	/* true/false constants */
  	{
-diff -Nura php-5.1.4/Zend/zend_errors.h hardening-patch-5.1.4-0.4.12/Zend/zend_errors.h
+diff -Nura php-5.1.4/Zend/zend_errors.h hardening-patch-5.1.4-0.4.14/Zend/zend_errors.h
 --- php-5.1.4/Zend/zend_errors.h	2006-01-05 00:53:04.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/Zend/zend_errors.h	2006-07-20 12:17:12.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/Zend/zend_errors.h	2006-08-07 11:04:07.000000000 +0200
 @@ -38,6 +38,19 @@
  #define E_ALL (E_ERROR | E_WARNING | E_PARSE | E_NOTICE | E_CORE_ERROR | E_CORE_WARNING | E_COMPILE_ERROR | E_COMPILE_WARNING | E_USER_ERROR | E_USER_WARNING | E_USER_NOTICE)
  #define E_CORE (E_CORE_ERROR | E_CORE_WARNING)
@@ -7319,9 +8371,9 @@ diff -Nura php-5.1.4/Zend/zend_errors.h hardening-patch-5.1.4-0.4.12/Zend/zend_e
  #endif /* ZEND_ERRORS_H */
  
  /*
-diff -Nura php-5.1.4/Zend/zend_execute_API.c hardening-patch-5.1.4-0.4.12/Zend/zend_execute_API.c
+diff -Nura php-5.1.4/Zend/zend_execute_API.c hardening-patch-5.1.4-0.4.14/Zend/zend_execute_API.c
 --- php-5.1.4/Zend/zend_execute_API.c	2006-04-21 00:49:20.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.12/Zend/zend_execute_API.c	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/Zend/zend_execute_API.c	2006-08-07 11:04:07.000000000 +0200
 @@ -142,6 +142,7 @@
  	EG(class_table) = CG(class_table);
  
@@ -7400,9 +8452,9 @@ diff -Nura php-5.1.4/Zend/zend_execute_API.c hardening-patch-5.1.4-0.4.12/Zend/z
  ZEND_API int zend_eval_string_ex(char *str, zval *retval_ptr, char *string_name, int handle_exceptions TSRMLS_DC)
  {
  	int result;
-diff -Nura php-5.1.4/Zend/zend_execute.c hardening-patch-5.1.4-0.4.12/Zend/zend_execute.c
+diff -Nura php-5.1.4/Zend/zend_execute.c hardening-patch-5.1.4-0.4.14/Zend/zend_execute.c
 --- php-5.1.4/Zend/zend_execute.c	2006-02-26 11:53:38.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/Zend/zend_execute.c	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/Zend/zend_execute.c	2006-08-07 11:04:07.000000000 +0200
 @@ -1351,6 +1351,37 @@
  		/* OBJ-TBI - doesn't support new object model! */
  		zend_hash_apply(Z_OBJPROP_PP(pz), (apply_func_t) zend_check_symbol TSRMLS_CC);
@@ -7449,9 +8501,9 @@ diff -Nura php-5.1.4/Zend/zend_execute.c hardening-patch-5.1.4-0.4.12/Zend/zend_
       EG(current_execute_data) = EX(prev_execute_data); \
       ZEND_VM_RETURN()
  
-diff -Nura php-5.1.4/Zend/zend_extensions.c hardening-patch-5.1.4-0.4.12/Zend/zend_extensions.c
+diff -Nura php-5.1.4/Zend/zend_extensions.c hardening-patch-5.1.4-0.4.14/Zend/zend_extensions.c
 --- php-5.1.4/Zend/zend_extensions.c	2006-01-05 00:53:04.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/Zend/zend_extensions.c	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/Zend/zend_extensions.c	2006-08-07 11:04:07.000000000 +0200
 @@ -55,23 +55,44 @@
  		return FAILURE;
  	}
@@ -7502,9 +8554,9 @@ diff -Nura php-5.1.4/Zend/zend_extensions.c hardening-patch-5.1.4-0.4.12/Zend/ze
  					ZEND_EXTENSION_API_NO,
  					new_extension->author,
  					new_extension->URL,
-diff -Nura php-5.1.4/Zend/zend_extensions.h hardening-patch-5.1.4-0.4.12/Zend/zend_extensions.h
+diff -Nura php-5.1.4/Zend/zend_extensions.h hardening-patch-5.1.4-0.4.14/Zend/zend_extensions.h
 --- php-5.1.4/Zend/zend_extensions.h	2006-01-05 00:53:04.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/Zend/zend_extensions.h	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/Zend/zend_extensions.h	2006-08-07 11:04:07.000000000 +0200
 @@ -24,9 +24,11 @@
  
  #include "zend_compile.h"
@@ -7535,9 +8587,9 @@ diff -Nura php-5.1.4/Zend/zend_extensions.h hardening-patch-5.1.4-0.4.12/Zend/ze
  
  #define STANDARD_ZEND_EXTENSION_PROPERTIES NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, -1
  #define COMPAT_ZEND_EXTENSION_PROPERTIES   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, -1
-diff -Nura php-5.1.4/Zend/zend_globals.h hardening-patch-5.1.4-0.4.12/Zend/zend_globals.h
+diff -Nura php-5.1.4/Zend/zend_globals.h hardening-patch-5.1.4-0.4.14/Zend/zend_globals.h
 --- php-5.1.4/Zend/zend_globals.h	2006-01-05 00:53:04.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/Zend/zend_globals.h	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/Zend/zend_globals.h	2006-08-07 11:04:07.000000000 +0200
 @@ -180,6 +180,16 @@
  
  	int error_reporting;
@@ -7563,9 +8615,9 @@ diff -Nura php-5.1.4/Zend/zend_globals.h hardening-patch-5.1.4-0.4.12/Zend/zend_
  	HashTable *in_autoload;
  	zend_function *autoload_func;
  	zend_bool bailout_set;
-diff -Nura php-5.1.4/Zend/zend.h hardening-patch-5.1.4-0.4.12/Zend/zend.h
+diff -Nura php-5.1.4/Zend/zend.h hardening-patch-5.1.4-0.4.14/Zend/zend.h
 --- php-5.1.4/Zend/zend.h	2006-03-30 23:39:01.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.12/Zend/zend.h	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/Zend/zend.h	2006-08-07 11:04:07.000000000 +0200
 @@ -297,6 +297,7 @@
  	/* Variable information */
  	zvalue_value value;		/* value */
@@ -7616,9 +8668,9 @@ diff -Nura php-5.1.4/Zend/zend.h hardening-patch-5.1.4-0.4.12/Zend/zend.h
  #endif /* ZEND_H */
  
  /*
-diff -Nura php-5.1.4/Zend/zend_hash.c hardening-patch-5.1.4-0.4.12/Zend/zend_hash.c
+diff -Nura php-5.1.4/Zend/zend_hash.c hardening-patch-5.1.4-0.4.14/Zend/zend_hash.c
 --- php-5.1.4/Zend/zend_hash.c	2006-04-07 12:06:21.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.12/Zend/zend_hash.c	2006-07-20 10:49:06.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/Zend/zend_hash.c	2006-08-07 11:04:07.000000000 +0200
 @@ -21,6 +21,18 @@
  
  #include "zend.h"
@@ -7753,9 +8805,9 @@ diff -Nura php-5.1.4/Zend/zend_hash.c hardening-patch-5.1.4-0.4.12/Zend/zend_has
  		ht->pDestructor(p->pData);
  	}
  	if (p->pData != &p->pDataPtr) {
-diff -Nura php-5.1.4/Zend/zend_hash.h hardening-patch-5.1.4-0.4.12/Zend/zend_hash.h
+diff -Nura php-5.1.4/Zend/zend_hash.h hardening-patch-5.1.4-0.4.14/Zend/zend_hash.h
 --- php-5.1.4/Zend/zend_hash.h	2006-01-05 00:53:04.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/Zend/zend_hash.h	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/Zend/zend_hash.h	2006-08-07 11:04:07.000000000 +0200
 @@ -58,6 +58,9 @@
  } Bucket;
  
@@ -7766,9 +8818,9 @@ diff -Nura php-5.1.4/Zend/zend_hash.h hardening-patch-5.1.4-0.4.12/Zend/zend_has
  	uint nTableSize;
  	uint nTableMask;
  	uint nNumOfElements;
-diff -Nura php-5.1.4/Zend/zend_language_scanner.l hardening-patch-5.1.4-0.4.12/Zend/zend_language_scanner.l
+diff -Nura php-5.1.4/Zend/zend_language_scanner.l hardening-patch-5.1.4-0.4.14/Zend/zend_language_scanner.l
 --- php-5.1.4/Zend/zend_language_scanner.l	2006-04-13 15:48:28.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.12/Zend/zend_language_scanner.l	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/Zend/zend_language_scanner.l	2006-08-07 11:04:07.000000000 +0200
 @@ -389,6 +389,13 @@
  		compilation_successful=0;
  	} else {
@@ -7783,9 +8835,9 @@ diff -Nura php-5.1.4/Zend/zend_language_scanner.l hardening-patch-5.1.4-0.4.12/Z
  		CG(in_compilation) = 1;
  		CG(active_op_array) = op_array;
  		compiler_result = zendparse(TSRMLS_C);
-diff -Nura php-5.1.4/Zend/zend_language_scanner.c hardening-patch-5.1.4-0.4.12/Zend/zend_language_scanner.c
+diff -Nura php-5.1.4/Zend/zend_language_scanner.c hardening-patch-5.1.4-0.4.14/Zend/zend_language_scanner.c
 --- php-5.1.4/Zend/zend_language_scanner.c	2006-05-12 16:41:13.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.12/Zend/zend_language_scanner.c	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/Zend/zend_language_scanner.c	2006-08-07 11:04:07.000000000 +0200
 @@ -3075,6 +3075,13 @@
  		compilation_successful=0;
  	} else {
@@ -7800,9 +8852,9 @@ diff -Nura php-5.1.4/Zend/zend_language_scanner.c hardening-patch-5.1.4-0.4.12/Z
  		CG(in_compilation) = 1;
  		CG(active_op_array) = op_array;
  		compiler_result = zendparse(TSRMLS_C);
-diff -Nura php-5.1.4/Zend/zend_llist.c hardening-patch-5.1.4-0.4.12/Zend/zend_llist.c
+diff -Nura php-5.1.4/Zend/zend_llist.c hardening-patch-5.1.4-0.4.14/Zend/zend_llist.c
 --- php-5.1.4/Zend/zend_llist.c	2006-01-05 00:53:04.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/Zend/zend_llist.c	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/Zend/zend_llist.c	2006-08-07 11:04:07.000000000 +0200
 @@ -22,9 +22,49 @@
  #include "zend.h"
  #include "zend_llist.h"
@@ -8113,9 +9165,9 @@ diff -Nura php-5.1.4/Zend/zend_llist.c hardening-patch-5.1.4-0.4.12/Zend/zend_ll
  			return (*current)->data;
  		}
  	}
-diff -Nura php-5.1.4/Zend/zend_llist.h hardening-patch-5.1.4-0.4.12/Zend/zend_llist.h
+diff -Nura php-5.1.4/Zend/zend_llist.h hardening-patch-5.1.4-0.4.14/Zend/zend_llist.h
 --- php-5.1.4/Zend/zend_llist.h	2006-01-05 00:53:04.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/Zend/zend_llist.h	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/Zend/zend_llist.h	2006-08-07 11:04:07.000000000 +0200
 @@ -23,6 +23,9 @@
  #define ZEND_LLIST_H
  
@@ -8146,9 +9198,9 @@ diff -Nura php-5.1.4/Zend/zend_llist.h hardening-patch-5.1.4-0.4.12/Zend/zend_ll
  } zend_llist;
  
  typedef zend_llist_element* zend_llist_position;
-diff -Nura php-5.1.4/Zend/zend_modules.h hardening-patch-5.1.4-0.4.12/Zend/zend_modules.h
+diff -Nura php-5.1.4/Zend/zend_modules.h hardening-patch-5.1.4-0.4.14/Zend/zend_modules.h
 --- php-5.1.4/Zend/zend_modules.h	2006-04-06 23:10:45.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.12/Zend/zend_modules.h	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/Zend/zend_modules.h	2006-08-07 11:04:07.000000000 +0200
 @@ -39,6 +39,7 @@
  extern struct _zend_arg_info fifth_arg_force_ref[6];
  extern struct _zend_arg_info all_args_by_ref[1];
@@ -8181,9 +9233,9 @@ diff -Nura php-5.1.4/Zend/zend_modules.h hardening-patch-5.1.4-0.4.12/Zend/zend_
  };
  
  #define MODULE_DEP_REQUIRED		1
-diff -Nura php-5.1.4/Zend/zend_opcode.c hardening-patch-5.1.4-0.4.12/Zend/zend_opcode.c
+diff -Nura php-5.1.4/Zend/zend_opcode.c hardening-patch-5.1.4-0.4.14/Zend/zend_opcode.c
 --- php-5.1.4/Zend/zend_opcode.c	2006-04-10 14:26:53.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.12/Zend/zend_opcode.c	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/Zend/zend_opcode.c	2006-08-07 11:04:07.000000000 +0200
 @@ -98,6 +98,9 @@
  	op_array->uses_this = 0;
  
@@ -8194,9 +9246,9 @@ diff -Nura php-5.1.4/Zend/zend_opcode.c hardening-patch-5.1.4-0.4.12/Zend/zend_o
  
  	zend_llist_apply_with_argument(&zend_extensions, (llist_apply_with_arg_func_t) zend_extension_op_array_ctor_handler, op_array TSRMLS_CC);
  }
-diff -Nura php-5.1.4/Zend/zend_vm_def.h hardening-patch-5.1.4-0.4.12/Zend/zend_vm_def.h
+diff -Nura php-5.1.4/Zend/zend_vm_def.h hardening-patch-5.1.4-0.4.14/Zend/zend_vm_def.h
 --- php-5.1.4/Zend/zend_vm_def.h	2006-04-12 13:37:50.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.12/Zend/zend_vm_def.h	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/Zend/zend_vm_def.h	2006-08-07 11:04:07.000000000 +0200
 @@ -1769,6 +1769,37 @@
  		efree(lcname);
  		zend_error_noreturn(E_ERROR, "Call to undefined function %s()", function_name_strval);
@@ -8296,9 +9348,9 @@ diff -Nura php-5.1.4/Zend/zend_vm_def.h hardening-patch-5.1.4-0.4.12/Zend/zend_v
  			new_op_array = compile_filename(opline->op2.u.constant.value.lval, inc_filename TSRMLS_CC);
  			break;
  		case ZEND_EVAL: {
-diff -Nura php-5.1.4/Zend/zend_vm_execute.h hardening-patch-5.1.4-0.4.12/Zend/zend_vm_execute.h
+diff -Nura php-5.1.4/Zend/zend_vm_execute.h hardening-patch-5.1.4-0.4.14/Zend/zend_vm_execute.h
 --- php-5.1.4/Zend/zend_vm_execute.h	2006-04-12 13:37:50.000000000 +0200
-+++ hardening-patch-5.1.4-0.4.12/Zend/zend_vm_execute.h	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/Zend/zend_vm_execute.h	2006-08-11 01:33:45.000000000 +0200
 @@ -56,6 +56,16 @@
  	EX(symbol_table) = EG(active_symbol_table);
  	EX(prev_execute_data) = EG(current_execute_data);
@@ -8518,7 +9570,7 @@ diff -Nura php-5.1.4/Zend/zend_vm_execute.h hardening-patch-5.1.4-0.4.12/Zend/ze
 +		}
 +	}
 +#endif
-+	
++
  	EX(object) = NULL;
  
  	return zend_do_fcall_common_helper_SPEC(ZEND_OPCODE_HANDLER_ARGS_PASSTHRU);
@@ -8548,9 +9600,87 @@ diff -Nura php-5.1.4/Zend/zend_vm_execute.h hardening-patch-5.1.4-0.4.12/Zend/ze
  			new_op_array = compile_filename(opline->op2.u.constant.value.lval, inc_filename TSRMLS_CC);
  			break;
  		case ZEND_EVAL: {
-diff -Nura php-5.1.4/Zend/zend_vm_execute.skl hardening-patch-5.1.4-0.4.12/Zend/zend_vm_execute.skl
+@@ -4345,7 +4529,12 @@
+ 				int dummy = 1;
+ 				zend_file_handle file_handle;
+ 
+-				if (SUCCESS == zend_stream_open(inc_filename->value.str.val, &file_handle TSRMLS_CC)) {
++#if HARDENING_PATCH_INC_PROTECT
++				if (zend_is_valid_include(inc_filename) 
++					&& (SUCCESS == zend_stream_open(inc_filename->value.str.val, &file_handle TSRMLS_CC))) {
++#else
++ 				if (SUCCESS == zend_stream_open(inc_filename->value.str.val, &file_handle TSRMLS_CC)) {
++#endif
+ 
+ 					if (!file_handle.opened_path) {
+ 						file_handle.opened_path = estrndup(inc_filename->value.str.val, inc_filename->value.str.len);
+@@ -4370,6 +4559,11 @@
+ 			break;
+ 		case ZEND_INCLUDE:
+ 		case ZEND_REQUIRE:
++#if HARDENING_PATCH_INC_PROTECT
++			if (!zend_is_valid_include(inc_filename)) {
++        			break;
++			}
++#endif
+ 			new_op_array = compile_filename(opline->op2.u.constant.value.lval, inc_filename TSRMLS_CC);
+ 			break;
+ 		case ZEND_EVAL: {
+@@ -7358,7 +7552,12 @@
+ 				int dummy = 1;
+ 				zend_file_handle file_handle;
+ 
+-				if (SUCCESS == zend_stream_open(inc_filename->value.str.val, &file_handle TSRMLS_CC)) {
++#if HARDENING_PATCH_INC_PROTECT
++				if (zend_is_valid_include(inc_filename) 
++					&& (SUCCESS == zend_stream_open(inc_filename->value.str.val, &file_handle TSRMLS_CC))) {
++#else
++ 				if (SUCCESS == zend_stream_open(inc_filename->value.str.val, &file_handle TSRMLS_CC)) {
++#endif
+ 
+ 					if (!file_handle.opened_path) {
+ 						file_handle.opened_path = estrndup(inc_filename->value.str.val, inc_filename->value.str.len);
+@@ -7383,6 +7582,11 @@
+ 			break;
+ 		case ZEND_INCLUDE:
+ 		case ZEND_REQUIRE:
++#if HARDENING_PATCH_INC_PROTECT
++			if (!zend_is_valid_include(inc_filename)) {
++        			break;
++			}
++#endif
+ 			new_op_array = compile_filename(opline->op2.u.constant.value.lval, inc_filename TSRMLS_CC);
+ 			break;
+ 		case ZEND_EVAL: {
+@@ -19470,7 +19674,12 @@
+ 				int dummy = 1;
+ 				zend_file_handle file_handle;
+ 
+-				if (SUCCESS == zend_stream_open(inc_filename->value.str.val, &file_handle TSRMLS_CC)) {
++#if HARDENING_PATCH_INC_PROTECT
++				if (zend_is_valid_include(inc_filename) 
++					&& (SUCCESS == zend_stream_open(inc_filename->value.str.val, &file_handle TSRMLS_CC))) {
++#else
++ 				if (SUCCESS == zend_stream_open(inc_filename->value.str.val, &file_handle TSRMLS_CC)) {
++#endif
+ 
+ 					if (!file_handle.opened_path) {
+ 						file_handle.opened_path = estrndup(inc_filename->value.str.val, inc_filename->value.str.len);
+@@ -19495,6 +19704,11 @@
+ 			break;
+ 		case ZEND_INCLUDE:
+ 		case ZEND_REQUIRE:
++#if HARDENING_PATCH_INC_PROTECT
++			if (!zend_is_valid_include(inc_filename)) {
++        			break;
++			}
++#endif
+ 			new_op_array = compile_filename(opline->op2.u.constant.value.lval, inc_filename TSRMLS_CC);
+ 			break;
+ 		case ZEND_EVAL: {
+diff -Nura php-5.1.4/Zend/zend_vm_execute.skl hardening-patch-5.1.4-0.4.14/Zend/zend_vm_execute.skl
 --- php-5.1.4/Zend/zend_vm_execute.skl	2005-12-01 13:50:58.000000000 +0100
-+++ hardening-patch-5.1.4-0.4.12/Zend/zend_vm_execute.skl	2006-07-20 10:45:33.000000000 +0200
++++ hardening-patch-5.1.4-0.4.14/Zend/zend_vm_execute.skl	2006-08-07 11:04:07.000000000 +0200
 @@ -27,6 +27,16 @@
  	EX(symbol_table) = EG(active_symbol_table);
  	EX(prev_execute_data) = EG(current_execute_data);

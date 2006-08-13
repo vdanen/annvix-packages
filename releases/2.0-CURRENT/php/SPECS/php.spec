@@ -87,7 +87,7 @@ Patch75:	php-bug-22414.patch
 Patch76:	php-5.0.4-bug29119.diff
 Patch77:	php-5.1.0RC6-CVE-2005-3388.diff
 # http://www.hardened-php.net/
-Patch100:	http://www.hardened-php.net/hardening-patch-5.1.4-0.4.12.patch
+Patch100:	http://www.hardened-php.net/hardening-patch-5.1.4-0.4.14.patch
 
 Requires(post):	%{libname} >= %{version}
 Requires(preun): %{libname} >= %{version}
@@ -662,8 +662,13 @@ update-alternatives --remove php %{_bindir}/php-cli
 
 
 %changelog
+* Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.4
+- rebuild against new openssl
+- spec cleanups
+- hardening patch 0.4.14
+
 * Sun Jul 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.4
-- hardening patch 4.0.12: fixes CVE-2006-2563, CVE-2006-2660, CVE-2006-1990,
+- hardening patch 0.4.12: fixes CVE-2006-2563, CVE-2006-2660, CVE-2006-1990,
   CVE-2006-3011
 - spec cleanups
 
