@@ -48,8 +48,15 @@ Patch4:		exim-4.43-debian-dontoverridecflags.diff
 Patch5:		sa-exim-4.2.1-avx-lynx.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	tcp_wrappers-devel, pam-devel, openssl, openssl-devel, openldap-devel, lynx
-BuildRequires:	db4-devel >= 4.1, pcre-devel, perl-devel
+BuildRequires:	tcp_wrappers-devel
+BuildRequires:	pam-devel
+BuildRequires:	openssl
+BuildRequires:	openssl-devel
+BuildRequires:	openldap-devel
+BuildRequires:	lynx
+BuildRequires:	db4-devel >= 4.1
+BuildRequires:	pcre-devel
+BuildRequires:	perl-devel
 %if %{build_mysql}
 BuildRequires:	libmysql-devel
 %endif
@@ -59,15 +66,22 @@ BuildRequires:	postgresql-devel
 
 Requires(post):	rpm-helper
 Requires(preun): rpm-helper
-Conflicts:	sendmail postfix qmail smail
-Requires:	chkconfig, initscripts, sh-utils, openssl, pam
+Conflicts:	sendmail
+Conflicts:	postfix
+Conflicts:	qmail
+Conflicts:	smail
+Requires:	chkconfig
+Requires:	sh-utils
+Requires:	openssl
+Requires:	pam
 Requires:	openldap >= 2.0.11
 %ifarch amd64 x86_64
 Requires:	lib64db4.2
 %else
 Requires:	libdb4.2
 %endif
-Provides:	smtpdaemon MTA
+Provides:	smtpdaemon
+Provides:	MTA
 
 %description
 Exim is a mail transport agent (MTA) developed at the University of
@@ -158,8 +172,8 @@ popd
 install -m 0775 build-`scripts/os-type`-`scripts/arch-type`/convert4r3 %{buildroot}%{_bindir}
 install -m 0775 build-`scripts/os-type`-`scripts/arch-type`/convert4r4 %{buildroot}%{_bindir}
 
-install -m 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/exim/aliases
-install -m 0644 %{SOURCE9} %{buildroot}%{_sysconfdir}/pam.d/exim
+install -m 0644 %{_sourcedir}/exim.aliases %{buildroot}%{_sysconfdir}/exim/aliases
+install -m 0644 %{_sourcedir}/exim.pam %{buildroot}%{_sysconfdir}/pam.d/exim
 
 pushd %{buildroot}%{_sbindir}/
     ln -sf ../bin/exim sendmail
@@ -186,14 +200,14 @@ install -d -m 0750 %{buildroot}/var/spool/exim/msglog
 install -d -m 0750 %{buildroot}/var/log/exim
 
 mkdir -p %{buildroot}{%{_mandir}/man8,%{_sysconfdir}/cron.weekly}
-install -m 0755 %{SOURCE4} %{buildroot}%{_sysconfdir}/cron.weekly/exim.logrotate
-install -m 0644 %{SOURCE5} %{buildroot}%{_mandir}/man8/exim.8
-install -m 0755 %{SOURCE8} %{buildroot}%{_sbindir}
+install -m 0755 %{_sourcedir}/exim.logrotate %{buildroot}%{_sysconfdir}/cron.weekly/exim.logrotate
+install -m 0644 %{_sourcedir}/exim.8 %{buildroot}%{_mandir}/man8/exim.8
+install -m 0755 %{_sourcedir}/eximconfig %{buildroot}%{_sbindir}
 
 mkdir -p %{buildroot}%{_srvdir}/exim/{log,env}
-install -m 0740 %{SOURCE13} %{buildroot}%{_srvdir}/exim/run
-install -m 0740 %{SOURCE14} %{buildroot}%{_srvdir}/exim/log/run
-install -m 0640 %{SOURCE3} %{buildroot}%{_srvdir}/exim/env/QUEUE
+install -m 0740 %{_sourcedir}/exim.run %{buildroot}%{_srvdir}/exim/run
+install -m 0740 %{_sourcedir}/exim-log.run %{buildroot}%{_srvdir}/exim/log/run
+install -m 0640 %{_sourcedir}/QUEUE.env %{buildroot}%{_srvdir}/exim/env/QUEUE
 
 # install SA-exim
 pushd sa-exim*
@@ -303,6 +317,12 @@ fi
 
 
 %changelog
+* Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.63
+- rebuild against new mysql
+- rebuild against new openssl
+- rebuild against new openldap 
+- spec cleanups
+
 * Thu Aug 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.63
 - 4.63
 - sa-exim 4.2.1
