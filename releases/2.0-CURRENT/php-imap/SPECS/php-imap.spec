@@ -124,6 +124,10 @@ EOF
 
 
 %changelog
+* Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.4
+- rebuild against new openssl
+- spec cleanups
+
 * Sun Jun 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.4
 - rebuild against new pam
 
@@ -206,93 +210,3 @@ EOF
 * Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 4.3.4-2sls
 - OpenSLS build
 - tidy spec
-
-* Wed Nov 05 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 4.3.4-1mdk
-- built for php 4.3.4
-
-* Mon Oct 13 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 4.3.3-1mdk
-- 4.3.3
-
-* Mon Sep 08 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 4.3.2-3mdk
-- built for 4.3.3
-- misc spec file fixes
-- fix explicit-lib-dependency
-
-* Mon Jul 21 2003 David Baudens <baudens@mandrakesoft.com> 4.3.2-2mdk
-- Rebuild to fix bad signature
-
-* Tue Jun 03 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 4.3.2-1mdk
-- built for 4.3.2
-
-* Mon May 05 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 4.3.1-1mdk
-- the obvious rebuild
-- misc spec file fixes
-
-* Thu Feb 13 2003 Jean-Michel Dault <jmdault@mandrakesoft.com> 4.3.0-3mdk
-- rebuild
-
-* Sat Jan 18 2003 Jean-Michel Dault <jmdault@mandrakesoft.com> 4.3.0-2mdk
-- rebuilt with new openssl
-
-* Sun Jan  5 2003 Jean-Michel Dault <jmdault@mandrakesoft.com> 4.3.0-1mdk
-- New 4.3.0 release
-- Totally macroize based on suggestions from Alexander Skwar
-- New method of installing extensions thanks to Oden Eriksson
-- Add Provides: ADVXpackage, all ADVX package will have this tag, 
-  so we can easily do a rpm --whatprovides ADVXpackage to find out
-  what ADVX packages a user has installed on his system. 
-
-* Sat Sep  7 2002 Jean-Michel Dault <jmdault@mandrakesoft.com> 4.2.3-1mdk
-- 4.2.3 maintenance release
-- Do not reload apache
-
-* Thu Aug 22 2002 Jean-Michel Dault <jmdault@mandrakesoft.com> 4.2.2-1mdk
-- Rebuild for 4.2.2
-- Macroize a bit more, make version depend on "php -v"
-
-* Sun May 26 2002 Christian Belisle <cbelisle@mandrakesoft.com> 4.2.1-2mdk
-- updated by Oden Eriksson <oden.eriksson@kvikkjokk.net>
-	- misc spec file fixes
-
-* Tue May 21 2002 Christian Belisle <cbelisle@mandrakesoft.com> 4.2.1-1mdk
-- updated by Oden Eriksson <oden.eriksson@kvikkjokk.net>
-	- misc spec file fixes
-	- PHP 4.2.1
-
-* Thu May 02 2002 Christian Belisle <cbelisle@mandrakesoft.com> 4.2.0-1mdk
-- updated by Oden Eriksson <oden.eriksson@kvikkjokk.net>:
-	- misc spec file fixes
-	- PHP 4.2.0
-
-* Mon Mar 04 2002 Jean-Michel Dault <jmdault@mandrakesoft.com> 4.1.2-1mdk
-- PHP 4.1.2
-
-* Mon Jan 07 2002 Christian Belisle <cbelisle@mandrakesoft.com> 4.1.1-1mdk
-- PHP 4.1.1.
-
-* Mon Dec 17 2001 Christian Belisle <cbelisle@mandrakesoft.com> 4.1.0-2mdk
-- Removed IMAP from Requires.
-
-* Tue Dec 11 2001 Christian Belisle <cbelisle@mandrakesoft.com> 4.1.0-1mdk
-- PHP 4.1.0.
-- Added version check for pam in Requires.
-
-* Fri Nov 16 2001 Christian Belisle <cbelisle@mandrakesoft.com> 4.0.6-3mdk
-- Fix invalid-packager and no-url-tag warnings in rpmlint.
-
-* Mon Sep 10 2001 Christian Belisle <cbelisle@mandrakesoft.com> 4.0.6-2mdk
-- Provides the Obsoletes for compatibility.
-
-* Wed Jul  4 2001 Vincent Danen <vdanen@mandrakesoft.com> 4.0.6-1mdk
-- 4.0.6
-- s/Copyright/License/
-
-* Thu Apr 12 2001 Jean-Michel Dault <jmdault@mandrakesoft.com> 4.0.4pl1-6mdk
-- fix requires
-
-* Mon Apr  9 2001 Jean-Michel Dault <jmdault@mandrakesoft.com> 4.0.4pl1-5mdk
-- fix post scripts for good 
-
-* Mon Apr  2 2001 Jean-Michel Dault <jmdault@mandrakesoft.com> 4.0.4pl1-4mdk
-- Split imap package from php package so that when a new imap 
-  package comes out, we don't have to recompile php, only this module
