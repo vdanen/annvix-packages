@@ -28,9 +28,17 @@ Source2:	cupsd-log.run
 Source3:	cups.pam
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	openssl-devel, pam-devel, openldap-devel, zlib-devel, libpng-devel
-BuildRequires:	libtiff-devel, libjpeg-devel
-Requires:	%{libname} >= %{version}-%{release}, openssl, net-tools
+BuildRequires:	openssl-devel
+BuildRequires:	pam-devel
+BuildRequires:	openldap-devel
+BuildRequires:	zlib-devel
+BuildRequires:	libpng-devel
+BuildRequires:	libtiff-devel
+BuildRequires:	libjpeg-devel
+
+Requires:	%{libname} >= %{version}-%{release}
+Requires:	openssl
+Requires:	net-tools
 Requires(post):	rpm-helper
 Requires(preun): rpm-helper
 
@@ -48,7 +56,8 @@ clients (/etc/cups/client.conf).
 Summary:	Common Unix Printing System - CUPS library
 License:	LGPL
 Group:		System/Servers
-Requires:	openssl, net-tools
+Requires:	openssl
+Requires:	net-tools
 
 %description -n %{libname}
 The Common Unix Printing System provides a portable printing layer for
@@ -61,8 +70,11 @@ CUPS frontends (lpr-cups, xpp, qtcups, kups, ...).
 Summary:	Common Unix Printing System - Development environment "libcups"
 License:	LGPL
 Group:		Development/C
-Requires:	%{libname} >= %{version}-%{release} openssl openssl-devel
-Provides:	libcups-devel = %{version}-%{release}, cups-devel
+Requires:	%{libname} >= %{version}-%{release}
+Requires:	openssl
+Requires:	openssl-devel
+Provides:	libcups-devel = %{version}-%{release}
+Provides:	cups-devel
 
 %description -n %{libname}-devel
 The Common Unix Printing System provides a portable printing layer for
@@ -135,8 +147,8 @@ mkdir -p %{buildroot}%{_datadir}/cups/model
 install -m 0755 ppd/*.ppd %{buildroot}%{_datadir}/cups/model/
 
 mkdir -p %{buildroot}%{_srvdir}/cupsd/log
-install -m 0740 %{SOURCE1} %{buildroot}%{_srvdir}/cupsd/run
-install -m 0740 %{SOURCE2} %{buildroot}%{_srvdir}/cupsd/log/run
+install -m 0740 %{_sourcedir}/cupsd.run %{buildroot}%{_srvdir}/cupsd/run
+install -m 0740 %{_sourcedir}/cupsd-log.run %{buildroot}%{_srvdir}/cupsd/log/run
 
 %ifarch x86_64
 ln -s %{_prefix}/lib/cups %{buildroot}%{_libdir}/cups
@@ -166,7 +178,7 @@ touch %{buildroot}%{_sysconfdir}/cups/classes.conf
 touch %{buildroot}%{_sysconfdir}/cups/client.conf
 
 # pam
-cp -f %{SOURCE3} %{buildroot}%{_sysconfdir}/pam.d/cups
+cp -f %{_sourcedir}/cups.pam %{buildroot}%{_sysconfdir}/pam.d/cups
 chmod 0644 %{buildroot}%{_sysconfdir}/pam.d/cups
 
 
@@ -248,6 +260,12 @@ chgrp -R sys /etc/cups /var/*/cups
 
 
 %changelog
+* Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.2
+- rebuild against new mysql
+- rebuild against new openssl
+- rebuild against new openldap 
+- spec cleanups
+
 * Fri Jun 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.2
 - 1.2.2
 - rebuild against new libtiff
