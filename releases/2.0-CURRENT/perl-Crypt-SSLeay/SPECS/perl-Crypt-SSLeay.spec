@@ -26,7 +26,9 @@ Patch1:		perl-Crypt-SSLeay-lib64.patch
 Patch2:		perl-Crypt-SSLeay-openssl-098.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	perl-devel, openssl-devel, perl(URI)
+BuildRequires:	perl-devel
+BuildRequires:	openssl-devel
+BuildRequires:	perl(URI)
 
 %description
 This perl module provides support for the https protocol under LWP, so
@@ -86,5 +88,9 @@ make test
 
 
 %changelog
+* Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.51
+- rebuild against new openssl
+- spec cleanups
+
 * Thu May 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.51
 - first Annvix build (needed by perl-HTTP-DAV)
