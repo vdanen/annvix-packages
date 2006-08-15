@@ -28,6 +28,7 @@ Source0:	ftp://oss.sgi.com/projects/xfs/download/cmd_tars/%{name}_%{version}-1.t
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	xfs-devel
 BuildRequires:	libext2fs-devel
+BuildRequires:	libtool
 
 %description
 Files required by system software using the Data Management API
@@ -121,6 +122,7 @@ rm -rf %{buildroot}%{_datadir}/doc/dmapi
 - 2.2.5
 - spec cleanups
 - rebuild against new xfsprogs, and e2fsprogs
+- buildrequires libtool
 
 * Mon Jul 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.1
 - add -doc subpackage
