@@ -9,7 +9,7 @@
 
 %define	revision	$Rev$
 %define	name		xfsdump
-%define	version		2.2.30
+%define	version		2.2.38
 %define	release		%_revrel
 
 Summary:	Administrative utilities for the XFS filesystem
@@ -19,7 +19,7 @@ Release:	%{release}
 License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://oss.sgi.com/projects/xfs/
-Source0:	%{name}-%{version}.src.tar.bz2
+Source0:	ftp://oss.sgi.com/projects/xfs/download/cmd_tars/%{name}_%{version}-1.tar.gz
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	attr-devel
@@ -63,6 +63,7 @@ perl -pi -e "/(libuuid|pkg_s?lib_dir)=/ and s|/lib\b|/%{_lib}|;" configure
 
 
 %build
+aclocal && autoconf
 %configure2_5x \
     --libdir=/%{_lib} \
     --sbindir=/sbin \
@@ -95,6 +96,11 @@ rm -rf %{buildroot}%{_datadir}/doc/xfsdump/
 
 
 %changelog
+* Mon Aug 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.38
+- 2.2.38
+- spec cleanups
+- rebuild against new e2fsprogs, new xfsprogs, new attr, and new dmapi
+
 * Sat Jun 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.30
 - add -doc subpackage
 - rebuild with gcc4
@@ -127,50 +133,3 @@ rm -rf %{buildroot}%{_datadir}/doc/xfsdump/
 - OpenSLS build
 - tidy spec
 - BuildRequires: xfs-devel >= 2.6.0
-
-* Thu Feb 26 2004 Thomas Backlund <tmb@mandrake.org> 2.2.16-1mdk
-- done by Per Øyvind Karlsen
-  * 2.2.16
-  * cosmetics
-  * drop prefix tag
-
-* Mon Oct 13 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 2.2.13-2mdk
-- lib64 fixes
-
-* Fri Aug  8 2003 Juan Quintela <quintela@mandrakesoft.com> 2.2.13-1mdk
-- 2.2.13.
-
-* Wed Jul 30 2003 Götz Waschk <waschk@linux-mandrake.com> 2.2.12-2mdk
-- fix buildrequires
-
-* Fri Jul 18 2003 Juan Quintela <quintela@mandrakesoft.com> 2.2.12-1mdk
-- 2.2.12.
-
-* Wed Jun 18 2003 Juan Quintela <quintela@trasno.org> 2.2.6-1mdk
-- 2.2.6
-
-* Wed Jul 24 2002 Sylvestre Taburet <staburet@mandrakesoft.com> 2.0.3-1mdk
-- 2.0.3
-
-* Wed Jul 10 2002 Sylvestre Taburet <staburet@mandrakesoft.com> 2.0.1-1mdk
-- 2.0.1
-
-* Thu Mar  7 2002 Frederic Lepied <flepied@mandrakesoft.com> 2.0.0-1mdk
-- 2.0.0
-
-* Tue Nov 20 2001 Chmouel Boudjnah <chmouel@mandrakesoft.com> 1.1.7-1mdk
-- 1.1.7.
-
-* Fri Sep 28 2001 Stefan van der Eijk <stefan@eijk.nu> 1.1.3-2mdk
-- BuildRequires: libext2fs-devel
-- Copyright --> License
-
-* Fri Sep  7 2001 Chmouel Boudjnah <chmouel@mandrakesoft.com> 1.1.3-1mdk
-- 1.1.3.
-- rework spec files and adjust requires.
-
-* Wed May  2 2001 Chmouel Boudjnah <chmouel@mandrakesoft.com> 1.0.5-1mdk
-- Fist attempt based on the SGI spec.
-
-
-# end of file
