@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		krb5
-%define version		1.4.2
+%define version		1.4.3
 %define release		%_revrel
 
 %define major		1
@@ -24,56 +24,64 @@ Group:		System/Libraries
 URL:		http://web.mit.edu/kerberos/www/
 # from http://web.mit.edu/kerberos/dist/krb5/1.4/krb5-%{version}-signed.tar
 Source0:	%{name}-%{version}.tar.gz
-Source5:	krb5.conf
-Source8:	kdcrotate
-Source9:	kdc.conf
-Source10:	kadm5.acl
-Source11:	krsh
-Source12:	krlogin
-Source19:	statglue.c
-Source23:	Mandrake-Kerberos-HOWTO.html
-Source24:	%{name}-%{version}.tar.gz.asc
-Source25:	http://web.mit.edu/kerberos/www/advisories/2003-004-krb4_patchkit.tar.gz
-Source26:	http://web.mit.edu/kerberos/www/advisories/2003-004-krb4_patchkit.sig
-Source27:	ktelnet.run
-Source28:	ktelnet-log.run
-Source29:	kftp.run
-Source30:	kftp-log.run
-Source31:	kadmind.run
-Source32:	kadmind-log.run
-Source33:	kpropd.run
-Source34:	kpropd-log.run
-Source35:	krb5kdc.run
-Source36:	krb5kdc-log.run
-Source39:	08_kftp.afterboot
-Source40:	08_ktelnet.afterboot
+Source1:	krb5.conf
+Source2:	kdcrotate
+Source3:	kdc.conf
+Source4:	kadm5.acl
+Source5:	krsh
+Source6:	krlogin
+Source7:	statglue.c
+Source8:	Mandrake-Kerberos-HOWTO.html
+Source9:	%{name}-%{version}.tar.gz.asc
+Source10:	http://web.mit.edu/kerberos/www/advisories/2003-004-krb4_patchkit.tar.gz
+Source11:	http://web.mit.edu/kerberos/www/advisories/2003-004-krb4_patchkit.sig
+Source12:	ktelnet.run
+Source13:	ktelnet-log.run
+Source14:	kftp.run
+Source15:	kftp-log.run
+Source16:	kadmind.run
+Source17:	kadmind-log.run
+Source18:	kpropd.run
+Source19:	kpropd-log.run
+Source20:	krb5kdc.run
+Source21:	krb5kdc-log.run
+Source22:	08_kftp.afterboot
+Source23:	08_ktelnet.afterboot
 Patch0:		krb5-1.2.2-telnetbanner.patch
 Patch1:		krb5-1.2.5-biarch-utmp.patch
-Patch3:		krb5-1.3-telnet.patch
-Patch4:		krb5-1.3-mdk-no-rpath.patch
-Patch5:		krb5-1.3-fdr-info-dir.patch
-Patch6:		krb5-1.3-fdr-large-file.patch
-Patch7:		krb5-1.3-fdr-ksu-path.patch
-Patch8:		krb5-1.3-fdr-ksu-access.patch
-Patch9:		krb5-1.3-fdr-pass-by-address.patch
-Patch12:	krb5-1.3-fdr-ftp-glob.patch
-Patch16:	krb5-1.3.2-fdr-efence.patch
-Patch17:	krb5-1.3.3-fdr-rcp-sendlarge.patch
-Patch21:	krb5-1.3.3-rcp-markus.patch
-Patch22:	krb5-1.4.1-api.patch
-Patch23:	krb5-1.4.1-fclose.patch
-Patch24:	krb5-1.3.6-telnet-environ.patch
-Patch25:	krb5-1.3.5-gethostbyname_r.patch
+Patch2:		krb5-1.3-telnet.patch
+Patch3:		krb5-1.3-mdk-no-rpath.patch
+Patch4:		krb5-1.3-fdr-info-dir.patch
+Patch5:		krb5-1.3-fdr-large-file.patch
+Patch6:		krb5-1.3-fdr-ksu-path.patch
+Patch7:		krb5-1.3-fdr-ksu-access.patch
+Patch8:		krb5-1.3-fdr-pass-by-address.patch
+Patch9:		krb5-1.3-fdr-ftp-glob.patch
+Patch10:	krb5-1.3.2-fdr-efence.patch
+Patch11:	krb5-1.3.3-fdr-rcp-sendlarge.patch
+Patch12:	krb5-1.3.3-rcp-markus.patch
+Patch13:	krb5-1.4.1-api.patch
+Patch14:	krb5-1.4.1-fclose.patch
+Patch15:	krb5-1.3.6-telnet-environ.patch
+Patch16:	krb5-1.3.5-gethostbyname_r.patch
 # (gb) preserve file names when generating files from *.et (multiarch fixes)
-Patch26:	krb5-1.3.6-et-preserve-file-names.patch
+Patch17:	krb5-1.3.6-et-preserve-file-names.patch
 # http://qa.mandriva.com/show_bug.cgi?id=9410
-Patch27:	krb5-1.4.1-ftplfs.patch
+Patch18:	krb5-1.4.1-ftplfs.patch
+Patch19:	krb5-1.4.3-fdr-pthread_np.patch
+Patch20:	http://web.mit.edu/kerberos/advisories/2006-001-patch_1.4.3.txt
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	bison, flex, libtermcap-devel, texinfo, tcl
-BuildRequires:	libext2fs-devel, chrpath, multiarch-utils >= 1.0.3
+BuildRequires:	bison
+BuildRequires:	flex
+BuildRequires:	libtermcap-devel
+BuildRequires:	texinfo
+BuildRequires:	tcl
+BuildRequires:	libext2fs-devel
+BuildRequires:	chrpath
+BuildRequires:	multiarch-utils >= 1.0.3
 
-PreReq:		grep, info, coreutils, info-install
+Requires(pre):	info-install
 
 %description
 Kerberos V5 is a trusted-third-party network authentication system,
@@ -85,8 +93,12 @@ practice of cleartext passwords.
 Summary:	Development files needed for compiling Kerberos 5 programs
 Group:		Development/Other
 Requires:	%{libname} = %{version}
-Provides:	krb-devel krb5-devel libkrb-devel libkrb5-devel
-Obsoletes:	krb-devel krb5-devel
+Provides:	krb-devel
+Provides:	krb5-devel
+Provides:	libkrb-devel
+Provides:	libkrb5-devel
+Obsoletes:	krb-devel
+Obsoletes:	krb5-devel
 
 %description -n %{libname}-devel
 Kerberos is a network authentication system.  The krb5-devel package
@@ -98,7 +110,6 @@ need to install this package.
 %package -n %{libname}
 Summary:	The shared libraries used by Kerberos 5
 Group:		System/Libraries
-Prereq:		grep, /sbin/ldconfig, coreutils
 Provides:	krb5-libs
 Obsoletes:	krb5-libs
 
@@ -111,8 +122,10 @@ Kerberos, you'll need to install this package.
 %package server
 Group:		System/Servers
 Summary:	The server programs for Kerberos 5
-Requires:	%{libname} = %{version}, %{name}-workstation = %{version}, words
-Prereq:		grep, /sbin/install-info, /bin/sh, coreutils
+Requires:	%{libname} = %{version}
+Requires:	%{name}-workstation = %{version}
+Requires:	words
+Requires(pre):	install-info
 
 %description server
 Kerberos is a network authentication system.  The krb5-server package
@@ -126,7 +139,7 @@ package).
 Summary:	Kerberos 5 programs for use on workstations
 Group:		System/Base
 Requires:	%{libname} = %{version}
-Prereq:		grep, /sbin/install-info, /bin/sh, coreutils
+Requires(pre):	install-info
 
 %description workstation
 Kerberos is a network authentication system.  The krb5-workstation
@@ -142,7 +155,7 @@ Group:		System/Servers
 Requires:	%{libname} = %{version}
 Requires:	ipsvd
 Requires:	krb5-workstation
-PreReq:		afterboot
+Requires(pre):	afterboot
 Obsoletes:	telnet-server
 Provides:	telnet-server
 
@@ -189,7 +202,7 @@ Summary:	A ftp-server with kerberos support
 Requires:	%{libname} = %{version}
 Group:		Networking/File transfer
 Requires:	ipsvd
-PreReq:		afterboot
+Requires(pre):	afterboot
 Provides:	ftpserver
 
 %description -n ftp-server-krb5
@@ -207,32 +220,30 @@ This package contains the documentation for %{name}.
 
 
 %prep
-%setup -q -a 25
+%setup -q -a 10
 %patch0 -p1 -b .banner
 %patch1 -p1 -b .biarch-utmp
-#%patch2 -p1 -b .newline
-%patch3 -p1 -b .telnet
-%patch4 -p1 -b .no-rpath
-%patch5 -p1 -b .info-dir
-%patch6 -p1 -b .large-file
-%patch7 -p1 -b .ksu-path
-%patch8 -p1 -b .ksu-access
-%patch9 -p1 -b .pass-by-address
-#%patch10 -p1 -b .rlogind-environ
-#%patch11 -p1 -b .ktany
-%patch12 -p1 -b .ftp-glob
-#%patch13 -p1 -b .varargs
-#%patch14 -p1 -b .server-sort
-#%patch15 -p1 -b .null
-%patch16 -p1 -b .efence
-%patch17 -p1 -b .rcp-sendlarge
-%patch21 -p1 -b .can-2004-0175
-%patch22 -p1 -b .api_crash
-%patch23 -p1 -b .double_close
-%patch24 -p1 -b .can-2005-0488
-%patch25 -p1 -b .gethostbyname_r
-%patch26 -p1 -b .et-preserve-file-names
-%patch27 -p1 -b .lfs
+%patch2 -p1 -b .telnet
+%patch3 -p1 -b .no-rpath
+%patch4 -p1 -b .info-dir
+%patch5 -p1 -b .large-file
+%patch6 -p1 -b .ksu-path
+%patch7 -p1 -b .ksu-access
+%patch8 -p1 -b .pass-by-address
+%patch9 -p1 -b .ftp-glob
+%patch10 -p1 -b .efence
+%patch11 -p1 -b .rcp-sendlarge
+%patch12 -p1 -b .can-2004-0175
+%patch13 -p1 -b .api_crash
+%patch14 -p1 -b .double_close
+%patch15 -p1 -b .can-2005-0488
+%patch16 -p1 -b .gethostbyname_r
+%patch17 -p1 -b .et-preserve-file-names
+%patch18 -p1 -b .lfs
+%patch19 -p1 -b .pthread_np
+pushd src
+%patch20 -p0 -b .cve-2006-3083
+popd
 
 find . -type f -name "*.fixinfo" -exec rm -fv "{}" ";"
 gzip doc/*.ps
@@ -291,8 +302,8 @@ find . -name Makefile | xargs perl -p -i -e "s@ %{_libdir}@ %{buildroot}%{_libdi
 
 # Our shell scripts.
 mkdir -p %{buildroot}%{_bindir}
-cat %{SOURCE11} > %{buildroot}%{_bindir}/krsh
-cat %{SOURCE12} > %{buildroot}%{_bindir}/krlogin
+cp %{_sourcedir}/krsh %{buildroot}%{_bindir}/krsh
+cp %{_sourcedir}/krlogin %{buildroot}%{_bindir}/krlogin
 
 # Extra headers.
 mkdir -p %{buildroot}%{_includedir}
@@ -313,16 +324,16 @@ rm -f %{buildroot}%{_infodir}/krb425.info*
 
 # KDC config files.
 mkdir -p %{buildroot}%{_sysconfdir}/kerberos/krb5kdc
-cat %{SOURCE9} > %{buildroot}%{_sysconfdir}/kerberos/krb5kdc/kdc.conf
-cat %{SOURCE10} > %{buildroot}%{_sysconfdir}/kerberos/krb5kdc/kadm5.acl
+cp %{_sourcedir}/kdc.conf %{buildroot}%{_sysconfdir}/kerberos/krb5kdc/kdc.conf
+cp %{_sourcedir}/kadm5.acl %{buildroot}%{_sysconfdir}/kerberos/krb5kdc/kadm5.acl
 
 # Client config files and scripts.
 mkdir -p %{buildroot}%{_sysconfdir}
-cat %{SOURCE5} > %{buildroot}/%{_sysconfdir}/krb5.conf
+cp %{_sourcedir}/krb5.conf %{buildroot}/%{_sysconfdir}/krb5.conf
 
 # KDC init script.
 mkdir -p %{buildroot}%{_sbindir}
-cat %{SOURCE8} > %{buildroot}%{_sbindir}/kdcrotate
+cp %{_sourcedir}/kdcrotate %{buildroot}%{_sbindir}/kdcrotate
 
 # The rest of the binaries and libraries and docs.
 pushd src
@@ -337,16 +348,16 @@ popd
 chmod 0755 %{buildroot}%{_libdir}/*.so*
 
 mkdir -p %{buildroot}%{_srvdir}/{ktelnet,kftp,kadmind,kpropd,krb5kdc}/log
-install -m 0740 %{SOURCE27} %{buildroot}%{_srvdir}/ktelnet/run
-install -m 0740 %{SOURCE28} %{buildroot}%{_srvdir}/ktelnet/log/run
-install -m 0740 %{SOURCE29} %{buildroot}%{_srvdir}/kftp/run
-install -m 0740 %{SOURCE30} %{buildroot}%{_srvdir}/kftp/log/run
-install -m 0740 %{SOURCE31} %{buildroot}%{_srvdir}/kadmind/run
-install -m 0740 %{SOURCE32} %{buildroot}%{_srvdir}/kadmind/log/run
-install -m 0740 %{SOURCE33} %{buildroot}%{_srvdir}/kpropd/run
-install -m 0740 %{SOURCE34} %{buildroot}%{_srvdir}/kpropd/log/run
-install -m 0740 %{SOURCE35} %{buildroot}%{_srvdir}/krb5kdc/run
-install -m 0740 %{SOURCE36} %{buildroot}%{_srvdir}/krb5kdc/log/run
+install -m 0740 %{_sourcedir}/ktelnet.run %{buildroot}%{_srvdir}/ktelnet/run
+install -m 0740 %{_sourcedir}/ktelnet-log.run %{buildroot}%{_srvdir}/ktelnet/log/run
+install -m 0740 %{_sourcedir}/kftp.run %{buildroot}%{_srvdir}/kftp/run
+install -m 0740 %{_sourcedir}/kftp-log.run %{buildroot}%{_srvdir}/kftp/log/run
+install -m 0740 %{_sourcedir}/kadmind.run %{buildroot}%{_srvdir}/kadmind/run
+install -m 0740 %{_sourcedir}/kadmind-log.run %{buildroot}%{_srvdir}/kadmind/log/run
+install -m 0740 %{_sourcedir}/kpropd.run %{buildroot}%{_srvdir}/kpropd/run
+install -m 0740 %{_sourcedir}/kpropd-log.run %{buildroot}%{_srvdir}/kpropd/log/run
+install -m 0740 %{_sourcedir}/krb5kdc.run %{buildroot}%{_srvdir}/krb5kdc/run
+install -m 0740 %{_sourcedir}/krb5kdc-log.run %{buildroot}%{_srvdir}/krb5kdc/log/run
 
 mkdir -p %{buildroot}%{_srvdir}/{ktelnet,kftp}/{peers,env}
 touch %{buildroot}%{_srvdir}/{ktelnet,kftp}/peers/0
@@ -355,10 +366,10 @@ echo "21" >%{buildroot}%{_srvdir}/kftp/env/PORT
 echo "23" >%{buildroot}%{_srvdir}/ktelnet/env/PORT
 
 mkdir -p %{buildroot}%{_datadir}/afterboot
-install -m 0644 %{SOURCE39} %{buildroot}%{_datadir}/afterboot/08_kftp
-install -m 0644 %{SOURCE40} %{buildroot}%{_datadir}/afterboot/08_ktelnet
+install -m 0644 %{_sourcedir}/08_kftp.afterboot %{buildroot}%{_datadir}/afterboot/08_kftp
+install -m 0644 %{_sourcedir}/08_ktelnet.afterboot %{buildroot}%{_datadir}/afterboot/08_ktelnet
 
-cat %{SOURCE23} > %{_builddir}/%{name}-%{version}/doc/Mandrake-Kerberos-HOWTO.html
+cp %{_sourcedir}/Mandrake-Kerberos-HOWTO.html %{_builddir}/%{name}-%{version}/doc/Mandrake-Kerberos-HOWTO.html
 
 find %{buildroot} -name "*\.h" | xargs perl -p -i -e "s|\<com_err|\<et/com_err|";
 find %{buildroot} -name "*\.h" | xargs perl -p -i -e "s|\"com_err|\"et/com_err|";
@@ -636,6 +647,15 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4.3
+- 1.4.3
+- spec cleanups
+- renumber patches and source files
+- rebuild against new e2fsprogs
+- P19: rebuild properly when pthread_mutexattr_setrobust_np() is defined but not
+  declared, such as with recent glibc when _GNU_SOURCE isn't being used
+- P20: patch to fix CVE-2006-3083
+
 * Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4.2
 - add -doc subpackage
 - rebuild with gcc4
@@ -764,435 +784,3 @@ popd >/dev/null 2>&1
   don't want rsh installed
 - NOTE: need to figure out why we're not building this thing with any
   optflags (also preventing us from using -fstack-protector)
-
-* Tue Sep 02 2003 Florin <florin@mandrakesoft.com> 1.3-3mdk
-- replace <com_err.h> with <et/com_err.h> in the headers
-
-* Mon Aug  4 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 1.3-2mdk
-- cputoolize
-- Put back Patch27 (biarch-utmp)
-- BuildRequires: libext2fs-devel
-
-* Tue Jul 22 2003 Florin <florin@mandrakesoft.com> 1.3-1mdk
-- 1.3
-- libification for the krb5-libs package
-- use the system err headers
-- add telnet newline patch
-- drop lost of useless patches
-- add the post sections for ftp-server
-- TODO: update some patches(if possible)
-
-* Thu Jul 10 2003 Laurent MONTEL <lmontel@mandrakesoft.com> 1.2.7-5mdk
-- Rebuild
-- Add patch51 fix compile thanks Gwenole Beauchesne
-
-* Tue Jun  3 2003 Stefan van der Eijk <stefan@eijk.nu> 1.2.7-4mdk
-- rebuild for rpm-4.2
-- remove redundant BuildRequires
-
-* Mon Apr  7 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 1.2.7-3mdk
-- Patch27: Handle biarch struct utmp
-- Patch28: Fix deps, I want parallel build
-
-* Tue Apr 1 2003 Vincent Danen <vdanen@mandrakesoft.com> 1.2.7-2mdk
-- security fixes:
-  - MITKRB5-SA-2003-003 (P50)
-  - MITKRB5-SA-2003-005 (P51)
-  - MITKRB5-SA-2003-004 (S25 and S26)
-
-* Wed Jan 22 2003 Florin <florin@mandrakesoft.com> 1.2.7-1mdk
-- 1.2.7
-- remove patch 26 and 27
-
-* Thu Nov 07 2002 Thierry Vignaud <tvignaud@mandrakesoft.com> 1.2.5-4mdk
-- krb5-devel: provides/obsoletes krb-devel
-- remove useless prefix
-- requires s/shutils/coreutils/
-
-* Wed Oct 30 2002 Vincent Danen <vdanen@mandrakesoft.com> 1.2.5-3mdk
-- Requires: words on krb5-server (re: stefan@eijk.nu)
-- fix typo in kadmin initscript (re: stefan@eijk.nu)
-
-* Tue Oct 29 2002 Vincent Danen <vdanen@mandrakesoft.com> 1.2.5-2mdk
-- P28: fix remote root hole in kadm4
-
-* Thu Aug 29 2002 Florin <florin@mandrakesoft.com> 1.2.5-1mdk
-- 1.2.5
-- add db2-configure and xdr_array patches
-- add the krb5-%{version}.tar.gz.asc and main source in gz format
-
-* Tue Jul  9 2002 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 1.2.4-3mdk
-- Patch28: Correctly search for tclConfig.sh
-- Patch27: Build libdb.a with PIC code on the appropriate arches since
-  they turn out to be linked into shared objects
-- res_search is #define's as __res_search and then fails to be found
-  as is in libresolv. Should make a clean patch to *.m4 so that
-  <resolv.h> is #include'd prior to checking for that symbol
-
-* Mon Jun 17 2002 Florin <florin@mandrakesoft.com> 1.2.4-2mdk
-- recompile against the matest gcc
-- add some error messages in kadmind init script (thx to  V.A. Brennen)
-
-* Mon Apr 08 2002 Florin <florin@mandrakesoft.com> 1.2.4-1mdk
-- 1.2.4
-- keep only the enable dns option (remove the netlib option)
-
-* Tue Mar 05 2002 Florin <florin@mandrakesoft.com> 1.2.2-17mdk
-- do not use authentication as default for the ftpd server
-
-* Fri Jan 11 2002 Geoffrey Lee <snailtalk@mandrakesoft.com> 1.2.2-16mdk
-- Don't print a whole load of system information in telnet.
-
-* Wed Oct 17 2001 Florin <florin@mandrakesoft.com> 1.2.2-15mdk
-- don't use LOG_AUTH as an option value when calling openlog() in ksu (#45965)
-- add the fix buffer overflow telnetd patch
-- better initscripts (use variables and add reload entries)
-- fix telnet client (remove the 8 bit telnet patch)
-- add patch to support "ANY" keytab type 
-(i.e.,"default_keytab_name = ANY:FILE:/etc/krb5.keytab,
-SRVTAB:/etc/srvtab" patch from Gerald Britton, #42551)
-- build with -D_FILE_OFFSET_BITS=64 to get large file I/O in ftpd (#30697)
-- patch ftpd to use long long and %%lld format specifiers to 
-support the SIZE command on large files (also #30697)
-- clean patches
-
-* Wed Oct 10 2001 Stefan van der Eijk <stefan@eijk.nu> 1.2.2-14mdk
-- BuildRequires: cpio
-
-* Sun Sep 30 2001 Geoffrey Lee <snailtalk@mandrakesoft.com> 1.2.2-13mdk
-- Make use of [[:space:]] in scriptlets of telnet-server-krb5.
-
-* Thu Sep 27 2001 Geoffrey Lee <snailtalk@mandrakesoft.com> 1.2.2-12mdk
-- In %post of telnet daemon make it so that we start the correct daemon
-  and with our default authentication mode if no authentication mode
-  is specified whenever we are doing upgrades with a modified 
-  /etc/xinetd.d/telnet configuration file (Very obscure bug).
-  
-* Fri Sep 21 2001 Florin <florin@mandrakesoft.com> 1.2.2-11mdk
-- oh, this krb5.csh again (thanks again Konrad Bernloehr)
-
-* Thu Sep 20 2001 Florin <florin@mandrakesoft.com> 1.2.2-10mdk
-- fix the /etc/profile.d/krb5.csh
-
-* Wed Sep 12 2001 Florin <florin@mandrakesoft.com> 1.2.2-9mdk
-- add krb5-1.2.2-telnet-8bit.patch.bz2 (thx to G.Lee)
-
-* Wed Aug 29 2001 Florin <florin@mandrakesoft.com> 1.2.2-8mdk
-- fix the /etc/profile.d/krb5.csh
-(thx to Konrad Bernloehr for pointing this out)
-- remove the e2fsprogs-devel from BuildPrereq
-
-* Fri Aug 24 2001 Florin <florin@mandrakesoft.com> 1.2.2-7mdk
-- s/valid/none for the telnet-server xinetd.d/telnet file
-- create /usr/sbin/login.krb5 in post for telnet-server-krb5
-- s/-a// for the ftp-server xinetd.d/ftp file
-- fix perms for kdcrotate 
-
-* Thu Aug 09 2001 Florin <florin@mandrakesoft.com> 1.2.2-6mdk
-- fix the rpmlint rpath error 
-
-* Wed Aug 08 2001 Florin <florin@mandrakesoft.com> 1.2.2-5mdk
-- fix the krb5.conf and the kdc.conf sources
-- add the Mandrake-Kerberos-HOWTO.html
-- move the kdcrotate script to %{_sbindir} in server
-- get rid of BUILD_SOURCE_DIR
-- bzip all the sources
-
-* Mon Aug 06 2001 Florin <florin@mandrakesoft.com> 1.2.2-4mdk
-- add the telnet*xpm sources and {telnet,ftp} xinetd files 
-- generate also the {telnet,ftp}-{server,client}-krb5 packages
-- fix the krb5.conf entry in the kdcrotate initscript
-- fix the kpropd and the krb5server initscript
-
-* Fri Aug 03 2001 Florin <florin@mandrakesoft.com> 1.2.2-3mdk
-- modify the krb5server initscript
-- add a working configuration: update krb5.conf, krbkdc.conf 
-- add the /var/log/kerberos dir
-
-* Tue Jul 31 2001 Florin <florin@mandrakesoft.com> 1.2.2-2mdk
-- krb5.conf needs to go under sysconfdir obviously
-- add the *.h files in devel (I have forgotten them, oups)
-
-* Tue Jul 3 2001 Florin <florin@mandrakesoft.com> 1.2.2-1mdk
-- mandrake adaptions
-
-* Tue May 29 2001 Nalin Dahyabhai <nalin@redhat.com>
-- pass some structures by address instead of on the stack in krb5kdc
-
-* Tue May 22 2001 Nalin Dahyabhai <nalin@redhat.com>
-- rebuild in new environment
-
-* Thu Apr 26 2001 Nalin Dahyabhai <nalin@redhat.com>
-- add patch from Tom Yu to fix ftpd overflows
-
-* Wed Apr 18 2001 Than Ngo <than@redhat.com>
-- disable optimizations on the alpha again
-
-* Fri Mar 30 2001 Nalin Dahyabhai <nalin@redhat.com>
-- add in glue code to make sure that libkrb5 continues to provide a
-  weak copy of stat()
-
-* Thu Mar 15 2001 Nalin Dahyabhai <nalin@redhat.com>
-- build alpha with -O0 for now
-
-* Thu Mar  8 2001 Nalin Dahyabhai <nalin@redhat.com>
-- fix the kpropd init script
-
-* Mon Mar  5 2001 Nalin Dahyabhai <nalin@redhat.com>
-- update to 1.2.2, which fixes some bugs relating to empty ETYPE-INFO
-- re-enable optimization on Alpha
-
-* Thu Feb  8 2001 Nalin Dahyabhai <nalin@redhat.com>
-- build alpha with -O0 for now
-- own %{_var}/kerberos
-
-* Tue Feb  6 2001 Nalin Dahyabhai <nalin@redhat.com>
-- own the directories which are created for each package (#26342)
-
-* Tue Jan 23 2001 Nalin Dahyabhai <nalin@redhat.com>
-- gettextize init scripts
-
-* Fri Jan 19 2001 Nalin Dahyabhai <nalin@redhat.com>
-- add some comments to the ksu patches for the curious
-- re-enable optimization on alphas
-
-* Mon Jan 15 2001 Nalin Dahyabhai <nalin@redhat.com>
-- fix krb5-send-pr (#18932) and move it from -server to -workstation
-- buildprereq libtermcap-devel
-- temporariliy disable optimization on alphas
-- gettextize init scripts
-
-* Tue Dec  5 2000 Nalin Dahyabhai <nalin@redhat.com>
-- force -fPIC
-
-* Fri Dec  1 2000 Nalin Dahyabhai <nalin@redhat.com>
-- rebuild in new environment
-
-* Tue Oct 31 2000 Nalin Dahyabhai <nalin@redhat.com>
-- add bison as a BuildPrereq (#20091)
-
-* Mon Oct 30 2000 Nalin Dahyabhai <nalin@redhat.com>
-- change /usr/dict/words to /usr/share/dict/words in default kdc.conf (#20000)
-
-* Thu Oct  5 2000 Nalin Dahyabhai <nalin@redhat.com>
-- apply kpasswd bug fixes from David Wragg
-
-* Wed Oct  4 2000 Nalin Dahyabhai <nalin@redhat.com>
-- make krb5-libs obsolete the old krb5-configs package (#18351)
-- don't quit from the kpropd init script if there's no principal database so
-  that you can propagate the first time without running kpropd manually
-- don't complain if /etc/ld.so.conf doesn't exist in the -libs %post
-
-* Tue Sep 12 2000 Nalin Dahyabhai <nalin@redhat.com>
-- fix credential forwarding problem in klogind (goof in KRB5CCNAME handling)
-  (#11588)
-- fix heap corruption bug in FTP client (#14301)
-
-* Wed Aug 16 2000 Nalin Dahyabhai <nalin@redhat.com>
-- fix summaries and descriptions
-- switched the default transfer protocol from PORT to PASV as proposed on
-  bugzilla (#16134), and to match the regular ftp package's behavior
-
-* Wed Jul 19 2000 Jeff Johnson <jbj@redhat.com>
-- rebuild to compress man pages.
-
-* Sat Jul 15 2000 Bill Nottingham <notting@redhat.com>
-- move initscript back
-
-* Fri Jul 14 2000 Nalin Dahyabhai <nalin@redhat.com>
-- disable servers by default to keep linuxconf from thinking they need to be
-  started when they don't
-
-* Thu Jul 13 2000 Prospector <bugzilla@redhat.com>
-- automatic rebuild
-
-* Mon Jul 10 2000 Nalin Dahyabhai <nalin@redhat.com>
-- change cleanup code in post to not tickle chkconfig
-- add grep as a Prereq: for -libs
-
-* Thu Jul  6 2000 Nalin Dahyabhai <nalin@redhat.com>
-- move condrestarts to postun
-- make xinetd configs noreplace
-- add descriptions to xinetd configs
-- add /etc/init.d as a prereq for the -server package
-- patch to properly truncate $TERM in krlogind
-
-* Fri Jun 30 2000 Nalin Dahyabhai <nalin@redhat.com>
-- update to 1.2.1
-- back out Tom Yu's patch, which is a big chunk of the 1.2 -> 1.2.1 update
-- start using the official source tarball instead of its contents
-
-* Thu Jun 29 2000 Nalin Dahyabhai <nalin@redhat.com>
-- Tom Yu's patch to fix compatibility between 1.2 kadmin and 1.1.1 kadmind
-- pull out 6.2 options in the spec file (sonames changing in 1.2 means it's not
-  compatible with other stuff in 6.2, so no need)
-
-* Wed Jun 28 2000 Nalin Dahyabhai <nalin@redhat.com>
-- tweak graceful start/stop logic in post and preun
-
-* Mon Jun 26 2000 Nalin Dahyabhai <nalin@redhat.com>
-- update to the 1.2 release
-- ditch a lot of our patches which went upstream
-- enable use of DNS to look up things at build-time
-- disable use of DNS to look up things at run-time in default krb5.conf
-- change ownership of the convert-config-files script to root.root
-- compress PS docs
-- fix some typos in the kinit man page
-- run condrestart in server post, and shut down in preun
-
-* Mon Jun 19 2000 Nalin Dahyabhai <nalin@redhat.com>
-- only remove old krb5server init script links if the init script is there
-
-* Sat Jun 17 2000 Nalin Dahyabhai <nalin@redhat.com>
-- disable kshell and eklogin by default
-
-* Thu Jun 15 2000 Nalin Dahyabhai <nalin@redhat.com>
-- patch mkdir/rmdir problem in ftpcmd.y
-- add condrestart option to init script
-- split the server init script into three pieces and add one for kpropd
-
-* Wed Jun 14 2000 Nalin Dahyabhai <nalin@redhat.com>
-- make sure workstation servers are all disabled by default
-- clean up krb5server init script
-
-* Fri Jun  9 2000 Nalin Dahyabhai <nalin@redhat.com>
-- apply second set of buffer overflow fixes from Tom Yu
-- fix from Dirk Husung for a bug in buffer cleanups in the test suite
-- work around possibly broken rev binary in running test suite
-- move default realm configs from /var/kerberos to %{_var}/kerberos
-
-* Tue Jun  6 2000 Nalin Dahyabhai <nalin@redhat.com>
-- make ksu and v4rcp owned by root
-
-* Sat Jun  3 2000 Nalin Dahyabhai <nalin@redhat.com>
-- use %%{_infodir} to better comply with FHS
-- move .so files to -devel subpackage
-- tweak xinetd config files (bugs #11833, #11835, #11836, #11840)
-- fix package descriptions again
-
-* Wed May 24 2000 Nalin Dahyabhai <nalin@redhat.com>
-- change a LINE_MAX to 1024, fix from Ken Raeburn
-- add fix for login vulnerability in case anyone rebuilds without krb4 compat
-- add tweaks for byte-swapping macros in krb.h, also from Ken
-- add xinetd config files
-- make rsh and rlogin quieter
-- build with debug to fix credential forwarding
-- add rsh as a build-time req because the configure scripts look for it to
-  determine paths
-
-* Wed May 17 2000 Nalin Dahyabhai <nalin@redhat.com>
-- fix config_subpackage logic
-
-* Tue May 16 2000 Nalin Dahyabhai <nalin@redhat.com>
-- remove setuid bit on v4rcp and ksu in case the checks previously added
-  don't close all of the problems in ksu
-- apply patches from Jeffrey Schiller to fix overruns Chris Evans found
-- reintroduce configs subpackage for use in the errata
-- add PreReq: sh-utils
-
-* Mon May 15 2000 Nalin Dahyabhai <nalin@redhat.com>
-- fix double-free in the kdc (patch merged into MIT tree)
-- include convert-config-files script as a documentation file
-
-* Wed May 03 2000 Nalin Dahyabhai <nalin@redhat.com>
-- patch ksu man page because the -C option never works
-- add access() checks and disable debug mode in ksu
-- modify default ksu build arguments to specify more directories in CMD_PATH
-  and to use getusershell()
-
-* Wed May 03 2000 Bill Nottingham <notting@redhat.com>
-- fix configure stuff for ia64
-
-* Mon Apr 10 2000 Nalin Dahyabhai <nalin@redhat.com>
-- add LDCOMBINE=-lc to configure invocation to use libc versioning (bug #10653)
-- change Requires: for/in subpackages to include %{version}
-
-* Wed Apr 05 2000 Nalin Dahyabhai <nalin@redhat.com>
-- add man pages for kerberos(1), kvno(1), .k5login(5)
-- add kvno to -workstation
-
-* Mon Apr 03 2000 Nalin Dahyabhai <nalin@redhat.com>
-- Merge krb5-configs back into krb5-libs.  The krb5.conf file is marked as
-  a %%config file anyway.
-- Make krb5.conf a noreplace config file.
-
-* Thu Mar 30 2000 Nalin Dahyabhai <nalin@redhat.com>
-- Make klogind pass a clean environment to children, like NetKit's rlogind does.
-
-* Wed Mar 08 2000 Nalin Dahyabhai <nalin@redhat.com>
-- Don't enable the server by default.
-- Compress info pages.
-- Add defaults for the PAM module to krb5.conf
-
-* Mon Mar 06 2000 Nalin Dahyabhai <nalin@redhat.com>
-- Correct copyright: it's exportable now, provided the proper paperwork is
-  filed with the government.
-
-* Fri Mar 03 2000 Nalin Dahyabhai <nalin@redhat.com>
-- apply Mike Friedman's patch to fix format string problems
-- don't strip off argv[0] when invoking regular rsh/rlogin
-
-* Thu Mar 02 2000 Nalin Dahyabhai <nalin@redhat.com>
-- run kadmin.local correctly at startup
-
-* Mon Feb 28 2000 Nalin Dahyabhai <nalin@redhat.com>
-- pass absolute path to kadm5.keytab if/when extracting keys at startup
-
-* Sat Feb 19 2000 Nalin Dahyabhai <nalin@redhat.com>
-- fix info page insertions
-
-* Wed Feb  9 2000 Nalin Dahyabhai <nalin@redhat.com>
-- tweak server init script to automatically extract kadm5 keys if
-  /var/kerberos/krb5kdc/kadm5.keytab doesn't exist yet
-- adjust package descriptions
-
-* Thu Feb  3 2000 Nalin Dahyabhai <nalin@redhat.com>
-- fix for potentially gzipped man pages
-
-* Fri Jan 21 2000 Nalin Dahyabhai <nalin@redhat.com>
-- fix comments in krb5-configs
-
-* Fri Jan  7 2000 Nalin Dahyabhai <nalin@redhat.com>
-- move /usr/kerberos/bin to end of PATH
-
-* Tue Dec 28 1999 Nalin Dahyabhai <nalin@redhat.com>
-- install kadmin header files
-
-* Tue Dec 21 1999 Nalin Dahyabhai <nalin@redhat.com>
-- patch around TIOCGTLC defined on alpha and remove warnings from libpty.h
-- add installation of info docs
-- remove krb4 compat patch because it doesn't fix workstation-side servers
-
-* Mon Dec 20 1999 Nalin Dahyabhai <nalin@redhat.com>
-- remove hesiod dependency at build-time
-
-* Sun Dec 19 1999 Nalin Dahyabhai <nsdahya1@eos.ncsu.edu>
-- rebuild on 1.1.1
-
-* Thu Oct  7 1999 Nalin Dahyabhai <nsdahya1@eos.ncsu.edu>
-- clean up init script for server, verify that it works [jlkatz]
-- clean up rotation script so that rc likes it better
-- add clean stanza
-
-* Mon Oct  4 1999 Nalin Dahyabhai <nsdahya1@eos.ncsu.edu>
-- backed out ncurses and makeshlib patches
-- update for krb5-1.1
-- add KDC rotation to rc.boot, based on ideas from Michael's C version
-
-* Mon Sep 26 1999 Nalin Dahyabhai <nsdahya1@eos.ncsu.edu>
-- added -lncurses to telnet and telnetd makefiles
-
-* Mon Jul  5 1999 Nalin Dahyabhai <nsdahya1@eos.ncsu.edu>
-- added krb5.csh and krb5.sh to /etc/profile.d
-
-* Mon Jun 22 1999 Nalin Dahyabhai <nsdahya1@eos.ncsu.edu>
-- broke out configuration files
-
-* Mon Jun 14 1999 Nalin Dahyabhai <nsdahya1@eos.ncsu.edu>
-- fixed server package so that it works now
-
-* Sat May 15 1999 Nalin Dahyabhai <nsdahya1@eos.ncsu.edu>
-- started changelog
-- updated existing 1.0.5 RPM from Eos Linux to krb5 1.0.6
-- added --force to makeinfo commands to skip errors during build
-
