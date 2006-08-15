@@ -165,6 +165,7 @@ rm -rf %{buildroot}%{_datadir}/locale
 * Mon Aug 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.8.10
 - 2.8.10
 - spec cleanups
+- rebuild against new libext2fs-devel
 
 * Thu Jun 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.36
 - rebuild against new readline
