@@ -149,9 +149,7 @@ touch %{buildroot}%{_sys_macros_dir}/urpmi.recover.macros
 rm -f %{buildroot}%{compat_perl_vendorlib}/urpm/parallel_ka_run.pm
 %endif
 
-# remove invalid locale
-rm -rf %{buildroot}%{_datadir}/locale/fur
-
+%kill_lang %{name}
 %find_lang %{name}
 
 
@@ -209,7 +207,6 @@ if (-e "/etc/urpmi/urpmi.cfg") {
 %{_mandir}/man8/urpmi.addmedia*
 %{_mandir}/man8/urpmi.removemedia*
 %{_mandir}/man8/urpmi.update*
-%lang(fr) %{_mandir}/fr/man?/urpm*
 %{compat_perl_vendorlib}/urpm.pm
 %dir %{compat_perl_vendorlib}/urpm 
 %{compat_perl_vendorlib}/urpm/args.pm
@@ -248,6 +245,9 @@ if (-e "/etc/urpmi/urpmi.cfg") {
 
 
 %changelog
+* Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.8.22
+- remove locales
+
 * Mon Jul 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.8.22
 - 4.8.22
 - remove pre-Annvix changelog
