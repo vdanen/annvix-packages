@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		xfsprogs
-%define version 	2.6.36
+%define version 	2.8.10
 %define release 	%_revrel
 
 %define libname_orig	libxfs
@@ -23,10 +23,13 @@ Release:	%{release}
 License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://oss.sgi.com/projects/xfs/
-Source0:	ftp://oss.sgi.com/projects/xfs/download/cmd_tars/%{name}-%{version}.src.tar.bz2
+Source0:	ftp://oss.sgi.com/projects/xfs/download/cmd_tars/%{name}_%{version}-1.tar.gz
 
 BuildRoot:	%{_buildroot}/%{name}-buildroot
-BuildRequires:	libext2fs-devel, libreadline-devel, libtermcap-devel, libtool
+BuildRequires:	libext2fs-devel
+BuildRequires:	libreadline-devel
+BuildRequires:	libtermcap-devel
+BuildRequires:	libtool
 
 Requires:	common-licenses
 
@@ -83,6 +86,7 @@ perl -pi -e "/(libuuid|pkg_s?lib_dir)=/ and s|/lib\b|/%{_lib}|;" configure
 
 
 %build
+aclocal && autoconf
 %configure2_5x \
     --libdir=/%{_lib} \
     --libexecdir=%{_libdir} \
@@ -106,6 +110,8 @@ make install-dev DIST_ROOT=%{buildroot}/
 # nuke files already packaged as %doc
 rm -rf %{buildroot}%{_datadir}/doc/xfsprogs/
 
+# remove unwanted locales
+rm -rf %{buildroot}%{_datadir}/locale
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -156,6 +162,10 @@ rm -rf %{buildroot}%{_datadir}/doc/xfsprogs/
 
 
 %changelog
+* Mon Aug 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.8.10
+- 2.8.10
+- spec cleanups
+
 * Thu Jun 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.36
 - rebuild against new readline
 
@@ -195,60 +205,3 @@ rm -rf %{buildroot}%{_datadir}/doc/xfsprogs/
 * Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 2.5.4-3sls
 - OpenSLS build
 - tidy spec
-
-* Wed Aug 13 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 2.5.4-2mdk
-- Enforce current practise to BuildRequires: libxfs-devel
-
-* Fri Aug  8 2003 Juan Quintela <quintela@mandrakesoft.com> 2.5.4-1mdk
-- binaries back at /sbin & /usr/sbin.
-- 2.5.4.
-
-* Fri Jul 18 2003 Juan Quintela <quintela@mandrakesoft.com> 2.4.12-1mdk
-- 2.4.12.
-
-* Tue Jun 17 2003 Juan Quintela <quintela@trasno.org> 2.3.9-1mdk
-- 2.3.9.
-
-* Wed Apr 23 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 2.0.6-2mdk
-- make it lib64 aware
-- nuke files already packaged as %%doc
-
-* Wed Jul 24 2002 Sylvestre Taburet <staburet@mandrakesoft.com> 2.0.6-1mdk
-- 2.0.6
-
-* Wed Jul 10 2002 Sylvestre Taburet <staburet@mandrakesoft.com> 2.0.3-2mdk
-- fixed changelog typo. Thanks eagle-eye gc for pointing it out to me ;o)
-
-* Wed Jul 10 2002 Sylvestre Taburet <staburet@mandrakesoft.com> 2.0.3-1mdk
-- 2.0.3
-
-* Thu Mar  7 2002 Frederic Lepied <flepied@mandrakesoft.com> 2.0.0-1mdk
-- 2.0.0
-
-* Tue Feb  5 2002 Jeff Garzik <jgarzik@mandrakesoft.com> 1.3.13-2mdk
-- Requires: common-licenses
-- use %%configure2_5x
-
-* Tue Nov 20 2001 Chmouel Boudjnah <chmouel@mandrakesoft.com> 1.3.13-1mdk
-- 1.3.13.
-
-* Sat Sep 29 2001 Chmouel Boudjnah <chmouel@mandrakesoft.com> 1.3.7-1mdk
-- 1.3.7.
-
-* Fri Sep 28 2001 Stefan van der Eijk <stefan@eijk.nu> 1.3.5-3mdk
-- BuildRequires: libext2fs-devel
-- Copyright --> License
-
-* Fri Sep  7 2001 Chmouel Boudjnah <chmouel@mandrakesoft.com> 1.3.5-2mdk
-- Fix provides.
-
-* Fri Sep  7 2001 Chmouel Boudjnah <chmouel@mandrakesoft.com> 1.3.5-1mdk
-- 1.3.5.
-- Split lib in subpackage.
-- Rework the spec.
-
-* Wed May  2 2001 Chmouel Boudjnah <chmouel@mandrakesoft.com> 1.2.0-1mdk
-- Fist attempt based on the SGI spec.
-
-
-# end of file
