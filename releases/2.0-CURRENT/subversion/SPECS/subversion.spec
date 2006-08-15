@@ -240,8 +240,8 @@ make LD_LIBRARY_PATH="`pwd`/subversion/bindings/swig/perl/libsvn_swig_perl/.libs
 make DESTDIR=%{buildroot} pure_vendor_install -C subversion/bindings/swig/perl/native 
 
 install -d %{buildroot}%{_sysconfdir}/httpd/modules.d
-cat %{SOURCE2} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_dav_conf}
-cat %{SOURCE3} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_authz_conf}
+cp %{_sourcedir}/%{mod_dav_conf} %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_dav_conf}
+cp %{_sourcedir}/%{mod_authz_conf} %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_authz_conf}
 
 ######################
 ###  client-tools  ###
@@ -308,6 +308,7 @@ install -m 0755 svn-config %{buildroot}%{_bindir}
 # fix the stupid rpath stuff...
 find %{buildroot}%{perl_vendorarch} -type f -name "*.so" | xargs chrpath -d
 
+%kill_lang %{name}
 %find_lang %{name}
 
 %multiarch_binaries %{buildroot}%{_bindir}/svn-config
@@ -326,8 +327,8 @@ rm -f %{buildroot}%{_libdir}/libsvn_swig_perl*.so
 mkdir -p %{buildroot}%{_localstatedir}/svn/repositories
 # service support
 mkdir -p %{buildroot}%{_srvdir}/svn/{log,peers,env}
-install -m 0740 %{SOURCE4} %{buildroot}%{_srvdir}/svn/run
-install -m 0740 %{SOURCE5} %{buildroot}%{_srvdir}/svn/log/run
+install -m 0740 %{_sourcedir}/svn.run %{buildroot}%{_srvdir}/svn/run
+install -m 0740 %{_sourcedir}/svn-log.run %{buildroot}%{_srvdir}/svn/log/run
 touch %{buildroot}%{_srvdir}/svn/peers/0
 chmod 0640 %{buildroot}%{_srvdir}/svn/peers/0
 
@@ -397,7 +398,6 @@ popd >/dev/null 2>&1
 %{_libdir}/libsvn_delta-*so.*
 %{_libdir}/libsvn_subr-*so.*
 %{_libdir}/libsvn_diff-*so.*
-%{_datadir}/locale/*/*/*
 %{_mandir}/man1/svn*
 
 
@@ -477,6 +477,10 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.2
+- spec cleanups
+- remove locales
+
 * Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.2
 - spec cleanups
 
