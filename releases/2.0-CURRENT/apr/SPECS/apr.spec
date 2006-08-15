@@ -39,7 +39,7 @@ BuildRequires:	libtool
 BuildRequires:	doxygen
 BuildRequires:	openssl-devel
 BuildRequires:	python
-BuildRequires:	e2fsprogs-devel
+BuildRequires:	libext2fs-devel
 
 %description
 The purpose of the Apache Portable Runtime (APR) is to provide a
@@ -239,6 +239,9 @@ rm -f %{buildroot}%{_libdir}/apr.exp
 
 
 %changelog
+* Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.7
+- rebuild against new e2fsprogs
+
 * Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.7
 - rebuild against new openssl
 - spec cleanups
