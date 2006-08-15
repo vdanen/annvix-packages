@@ -27,7 +27,7 @@ Patch3:		quota-tools-default-conf.patch
 Patch4:		quota-3.06-pie.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	e2fsprogs-devel
+BuildRequires:	libext2fs-devel
 BuildRequires:	gettext
 BuildRequires:	tcp_wrappers-devel >= 7.6-29avx
 
@@ -98,6 +98,7 @@ chmod 0755 %{buildroot}%{_bindir}/*
 - rebuild against new e2fsprogs
 - spec cleanups
 - remove locale files
+- fix buildrequires
 
 * Thu Jun 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.13
 - rebuild with gcc4
