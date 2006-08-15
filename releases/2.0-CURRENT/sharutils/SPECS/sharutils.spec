@@ -89,6 +89,7 @@ if [ -d %{buildroot}/%{_datadir}/locale/ja_JP.EUC/LC_MESSAGES ]; then
     popd
 fi
 
+%kill_lang %{name}
 %find_lang %{name}
 
 
@@ -112,6 +113,10 @@ fi
 
 
 %changelog
+* Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.2.1
+- spec cleanups
+- remove locales
+
 * Fri Jun 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.2.1
 - rebuild with gcc4
 
@@ -155,93 +160,3 @@ fi
 * Sat Dec 13 2003 Vincent Danen <vdanen@opensls.org> 4.2.1-15sls
 - OpenSLS build
 - tidy spec
-
-* Mon Jul 21 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 4.2.1-14mdk
-- rebuild
-- rm -rf %{buildroot} at the beginning of %%install
-
-* Wed Aug 14 2002 Thierry Vignaud <tvignaud@mandrakesoft.com> 4.2.1-13mdk
-- add Url (Yura Gusev)
-- patch12 -> patch7
-
-* Wed Aug 14 2002 Vincent Danen <vdanen@mandrakesoft.com> 4.2.1-12mdk
-- fix symlink vulnerability in uudecode
-
-* Tue Jun 18 2002 Stefan van der Eijk <stefan@eijk.nu> 4.2.1-11mdk
-- BuildRequires
-
-* Fri Jun 14 2002 Frederic Lepied <flepied@mandrakesoft.com> 4.2.1-10mdk
-- rebuild for libintl2
-
-* Mon Apr 15 2002 Thierry Vignaud <tvignaud@mandrakesoft.com> 4.2.1-9mdk
-- really version 4.2.1 (we never release it since 1999-2000 ...)
-- resync with rh
-- remsync: Fixed a typo:  delete_scan -> command_delete_scan [Patch10]
-- remove bogus entries from texi file [Path11]
-- fix Url
-
-* Mon Apr 15 2002 Thierry Vignaud <tvignaud@mandrakesoft.com> 4.2.1-9mdk
-- sanitize spec file
-
-* Mon Jun  4 2001 Jeff Garzik <jgarzik@mandrakesoft.com> 4.2.1-8mdk
-- fix jg sucks
-
-* Sat Jun  2 2001 Jeff Garzik <jgarzik@mandrakesoft.com> 4.2.1-7mdk
-- BuildRequires: sharutils (for uuencode)
-
-* Fri Jul 28 2000 Francis Galiegue <fg@mandrakesoft.com> 4.2.1-6mdk
-- More macros
-
-* Fri Jul 21 2000 Frederic Lepied <flepied@mandrakesoft.com> 4.2.1-5mdk
-- use %%make for SMP build.
-- corrected %%_install_info and %%_remove_install_info calls to expand
-correctly.
-
-* Wed Jul 19 2000 Pablo Saratxaga <pablo@mandrakesoft.com> 4.2.1-4mdk
-- bugfix for uudecode and filenames with spaces on them
-- BM
-
-* Sun Jun 04 2000 Pablo Saratxaga <pablo@mandrakesoft.com> 4.2.1-3mdk
-- fixed the mess with the catalog files.
-
-* Sat Mar 18 2000 Francis Galiegue <francis@mandrakesoft.com> 4.2.1-2mdk
-- Let spec helper do its job
-- Some spec file changes
-
-* Sun Oct 31 1999 Axalon Bloodstone <axalon@linux-mandrake.com>
-_ SMP check/build
-- 4.2.1
-
-* Wed Aug 25 1999 Axalon Bloodstone <axalon@linux-mandrake.com>
-- Remove gzip -9nf stuff, so they info's aren't .gz.bz2
-- add %%defattr, (builds as none root)
-
-* Fri Aug 13 1999 Thierry Vignaud <tvignaud@mandrakesoft.com>
-- bzip2 info
-
-* Wed May 05 1999 Bernhard Rosenkraenzer <bero@mandrakesoft.com>
-- Mandrake adaptions
-
-* Sun Mar 21 1999 Cristian Gafton <gafton@redhat.com> 
-- auto rebuild in the new build environment (release 12)
-
-* Wed Dec 30 1998 Cristian Gafton <gafton@redhat.com>
-- build for glibc 2.1
-
-* Fri Apr 24 1998 Prospector System <bugs@redhat.com>
-- translations modified for de, fr, tr
-
-* Sat Apr 11 1998 Cristian Gafton <gafton@redhat.com>
-- manhattan rebuild
-
-* Fri Oct 17 1997 Donnie Barnes <djb@redhat.com>
-- ALRIGHT!  Woo-hoo!  Erik already did the install-info stuff!
-- added BuildRoot
-- spec file cleanups
-
-* Sun Sep 14 1997 Erik Troan <ewt@redhat.com>
-- uses install-info
-
-* Fri Jul 18 1997 Erik Troan <ewt@redhat.com>
-- built against glibc
-
