@@ -126,9 +126,7 @@ mkdir -p %{buildroot}%{_sysconfdir}/profile.d
 cat %{_sourcedir}/glib20.sh > %{buildroot}%{_sysconfdir}/profile.d/glib20.sh
 cat %{_sourcedir}/glib20.csh > %{buildroot}%{_sysconfdir}/profile.d/glib20.csh
 
-# remove unwanted locale files
-rm -rf %{buildroot}%{_datadir}/locale/[abcdfghijklmnopqrstuvwxyz]*
-rm -rf %{buildroot}%{_datadir}/locale/e[lostu]*
+%kill_lang glib20
 %find_lang glib20
 
 

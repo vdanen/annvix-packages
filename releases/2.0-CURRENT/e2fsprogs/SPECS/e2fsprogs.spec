@@ -142,8 +142,8 @@ rm -f %{buildroot}%{_root_libdir}/{libblkid,libcom_err,libe2p,libext2fs,libss,li
 
 chmod +x %{buildroot}%{_bindir}/{mk_cmds,compile_et}
 
-# remove unwanted locales
-rm -rf %{buildroot}%{_datadir}/locale
+%kill_lang %{name}
+%find_lang %{name}
 
 
 %clean
@@ -162,7 +162,7 @@ rm -rf %{buildroot}%{_datadir}/locale
 %_remove_install_info libext2fs.info
 
 
-%files
+%files -f %{name}.lang
 %defattr(-,root,root)
 %{_sysconfdir}/mke2fs.conf
 %{_root_sbindir}/badblocks

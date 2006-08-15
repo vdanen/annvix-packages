@@ -96,8 +96,8 @@ rm -rf %{buildroot}{%{_mandir}/man2,%_datadir/doc}
 # Remove unpackaged symlinks
 rm -rf %{buildroot}/%{_lib}/libattr.{a,la} %{buildroot}%{_libdir}/libattr.la
 
-# remove unwanted locale files
-rm -rf %{buildroot}%{_datadir}/locale
+%kill_lang %{name}
+%find_lang %{name}
 
 
 %clean
@@ -108,7 +108,7 @@ rm -rf %{buildroot}%{_datadir}/locale
 %postun -n %{libname} -p /sbin/ldconfig
 
 
-%files
+%files -f %{name}.lang
 %defattr(-,root,root)
 %{_bindir}/*
 %{_mandir}/man1/*
@@ -133,6 +133,9 @@ rm -rf %{buildroot}%{_datadir}/locale
 
 
 %changelog
+* Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.32
+- use %%kill_lang
+
 * Mon Aug 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.32
 - 2.4.32
 - clean spec

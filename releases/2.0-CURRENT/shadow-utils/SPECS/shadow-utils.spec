@@ -139,16 +139,15 @@ pushd %{buildroot}/etc/pam.d
 popd
 
 # remove unwanted files
-rm -rf %{buildroot}%{_mandir}/{cs,cu,de,es,fr,hu,id,it,ja,ko,pl,pt_BR,ru,zh_CN,zh_TW}
 rm -rf %{buildroot}%{_libdir}
-rm -rf %{buildroot}%{_datadir}/locale
-
+%kill_lang shadow
+%find_lang shadow
 
 %clean
 #[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
-%files
+%files -f shadow.lang
 %defattr(-,root,root)
 %dir %{_sysconfdir}/default
 %attr(0640,root,shadow)	%config(noreplace) %{_sysconfdir}/login.defs
@@ -221,6 +220,9 @@ rm -rf %{buildroot}%{_datadir}/locale
 
 
 %changelog
+* Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.0.12
+- use %%kill_lang
+
 * Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.0.12
 - spec cleanups
 - update the prereq on setup to ensure we get the proper groups setup

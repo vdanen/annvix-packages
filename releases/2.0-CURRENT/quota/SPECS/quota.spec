@@ -65,8 +65,8 @@ make install ROOTDIR=%{buildroot}
 
 install -m 0644 warnquota.conf %{buildroot}%{_sysconfdir}
 
-# get rid of unwanted locale files
-rm -rf %{buildroot}%{_datadir}/locale
+%kill_lang %{name}
+%find_lang %{name}
 
 # can't strip suid files
 chmod 0755 %{buildroot}/sbin/*
@@ -78,7 +78,7 @@ chmod 0755 %{buildroot}%{_bindir}/*
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
-%files
+%files -f %{name}.lang
 %defattr(-,root,root)
 %config(noreplace) %{_sysconfdir}/warnquota.conf
 %config(noreplace) %{_sysconfdir}/quotagrpadmins
@@ -94,6 +94,9 @@ chmod 0755 %{buildroot}%{_bindir}/*
 
 
 %changelog
+* Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.13
+- use %%kill_lang
+
 * Mon Aug 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.13
 - rebuild against new e2fsprogs
 - spec cleanups

@@ -90,8 +90,8 @@ perl -pi -e 's,\s(/%{_lib})(.*attr\.la),%{_libdir}/$2,g' %{buildroot}/%{_libdir}
 
 rm -rf %{buildroot}%{_docdir}/acl
 
-# remove unwanted locale files
-rm -rf %{buildroot}%{_datadir}/locale
+%kill_lang %{name}
+%find_lang %{name}
 
 
 %clean
@@ -102,7 +102,7 @@ rm -rf %{buildroot}%{_datadir}/locale
 %postun -n %{libname} -p /sbin/ldconfig
 
 
-%files
+%files -f %{name}.lang
 %defattr(-,root,root)
 %{_bindir}/*
 %{_mandir}/man1/*
