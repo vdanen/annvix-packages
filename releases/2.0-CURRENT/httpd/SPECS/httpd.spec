@@ -655,7 +655,7 @@ cp %{_sourcedir}/httpd-README.urpmi README.urpmi
 export WANT_AUTOCONF_2_5="1"
 
 # use a minimal buildconf instead
-cp %{_sourcedir}/buildconf > buildconf
+cp %{_sourcedir}/buildconf buildconf
 sh ./buildconf
 
 CFLAGS="%{optflags}"
