@@ -48,6 +48,7 @@ of processes that are using specified files or filesystems.
 mkdir %{buildroot}/sbin
 mv %{buildroot}%{_bindir}/fuser %{buildroot}/sbin/
 
+%kill_lang %{name}
 %find_lang %{name}
 
 
@@ -67,6 +68,10 @@ mv %{buildroot}%{_bindir}/fuser %{buildroot}/sbin/
 
 
 %changelog
+* Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 22.2
+- spec cleanups
+- remove locales
+
 * Sat Jun 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 22.2
 - 22.2
 - removed libtermcap-devel as buildrequires
@@ -95,93 +100,3 @@ mv %{buildroot}%{_bindir}/fuser %{buildroot}/sbin/
 
 * Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 21.3-3sls
 - OpenSLS build
-
-* Tue Jul 22 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 21.3-2mdk
-- rebuild
-
-* Thu Jun 05 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 21.3-1mdk
-- new release
-- added locale files
-
-* Tue Oct 22 2002 Thierry Vignaud <tvignaud@mandrakesoft.com> 21.2-1mdk
-- new release :
-	* bug fixes in pstree:
-	  o pstree -a would often fail badly (swapped variable  not set)
-	  o fix pstree -a extra bracket problem
-	* removed pidof.1 and a variable not used.
-	* SELINUX/hurd/lfs support
-	* changed killall.1 to be less ambigous
-	* fix UTF8 problem
-	* return for fuser -k will mean no.
-
-* Wed Aug 14 2002 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 21-2mdk
-- Automated rebuild with gcc 3.2-0.3mdk
-
-* Tue May 21 2002 Thierry Vignaud <tvignaud@mandrakesoft.com> 21-1mdk
-- new release
-- remove patch0 (merged upstream)
-
-* Tue May 14 2002 Thierry Vignaud <tvignaud@mandrakesoft.com> 20.2-3mdk
-- gcc-3.1 build
-- fix "fails to show process tree" problem with libsafe [Patch1]:
-  the source string for comm is too short for "%15c" wich potentially allow the
-  code to read beyond the end of the source string.
-  The new format '%[^)]' will never read beyond the end of the source string,
-  which keeps libsafe happy. (It appears that glibc doesn't "sniff" the stack
-  in this way, so the authors of libsafe may be overly cautious.)
-
-* Mon Jan 14 2002 Guillaume Cottenceau <gc@mandrakesoft.com> 20.2-2mdk
-- hum, try to use the same signal numbers as the kernel... 15 signals
-  names were wrong!
-
-* Thu Jan 10 2002 Thierry Vignaud <tvignaud@mandrakesoft.com> 20.2-1mdk
-- this is gpl, not distributable
-- sanitize
-- new version
-
-* Sun Apr 08 2001 Geoffrey Lee <snailtalk@mandrakesoft.com> 20.1-1mdk
-- Bump up to 20.1.
-
-* Mon Aug 07 2000 Frederic Lepied <flepied@mandrakesoft.com> 19-4mdk
-- automatically added BuildRequires
-
-
-* Thu Jul 20 2000 Thierry Vignaud <tvignaud@mandrakesoft.com> 19-3mdk
-- macros, BM, spechelper ( :-( )
-
-* Thu Apr 13 2000 Yoann Vandoorselaere <yoann@mandrakesoft.com> 19-2mdk
-- Fix bad tag value.
-
-* Tue Mar 21 2000 Yoann Vandoorselaere <yoann@mandrakesoft.com> 19-1mdk
-- Version update (19)
-- Use default Mandrake Optimisations.
-- Patch the Makefile for psmisc rpm to be compiled by non root user.
-- bziped psmisc-17-buildroot.patch
-
-* Mon Oct 25 1999 Chmouel Boudjnah <chmouel@mandrakesoft.com>
-- Move fuser to /sbin(r).
-
-* Sat Apr 10 1999 Bernhard Rosenkraenzer <bero@linux-mandrake.com>
-- Mandrake adaptions
-- bzip2 man/info pages
-- add de locale
-
-* Sat Mar 13 1999 Michael Maher <mike@redhat.com>
-- updated package
-
-* Fri May 01 1998 Prospector System <bugs@redhat.com>
-- translations modified for de, fr, tr
-
-* Thu Apr 30 1998 Cristian Gafton <gafton@redhat.com>
-- renamed the patch file .patch instead of .spec
-
-* Thu Apr 09 1998 Erik Troan <ewt@redhat.com>
-- updated to psmisc version 17
-- buildrooted
-
-* Thu Oct 23 1997 Donnie Barnes <djb@redhat.com>
-- updated from version 11 to version 16
-- spec file cleanups
-
-* Tue Jun 17 1997 Erik Troan <ewt@redhat.com>
-- built against glibc
