@@ -283,6 +283,9 @@ touch %{buildroot}%{_sysconfdir}/environment
 
 
 %changelog
+* Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.99.3.0
+- rebuild against new glib2.0
+
 * Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.99.3.0
 - rebuild against new openssl 
 - spec cleanups
