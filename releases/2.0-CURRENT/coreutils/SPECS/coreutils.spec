@@ -27,10 +27,9 @@ Group:		System/Base
 URL:		ftp://alpha.gnu.org/gnu/coreutils/
 
 Source0:	ftp://prep.ai.mit.edu/pub/gnu/%{name}/%{name}-%{version}.tar.bz2
-Source101:	DIR_COLORS
-Source102:	DIR_COLORS.xterm
-Source200:	su.pamd
-Source201:	help2man
+Source1:	DIR_COLORS
+Source2:	su.pamd
+Source3:	help2man
 Patch0:		coreutils-4.5.4-lug.patch
 # fileutils
 Patch101:	fileutils-4.0-spacedir.patch
@@ -76,12 +75,23 @@ Patch1002:	coreutils-5.2.1-acl+posix.diff
 Patch1003:	coreutils-5.2.1-xattr.diff
 
 BuildRoot:	%_buildroot/%{name}-%{version}
-BuildRequires:	gettext termcap-devel pam-devel texinfo >= 4.3 libacl-devel libattr-devel
+BuildRequires:	gettext
+BuildRequires:	termcap-devel
+BuildRequires:	pam-devel
+BuildRequires:	texinfo >= 4.3
+BuildRequires:	libacl-devel
+BuildRequires:	libattr-devel
 BuildRequires:	automake1.8
 
 Requires:  	pam >= 0.66-12
-Provides:	fileutils = %{version}, sh-utils = %{version}, stat, textutils = %{version}
-Obsoletes:	fileutils sh-utils stat textutils
+Provides:	fileutils = %{version}
+Provides:	sh-utils = %{version}
+Provides:	stat
+Provides:	textutils = %{version}
+Obsoletes:	fileutils
+Obsoletes:	sh-utils
+Obsoletes:	stat
+Obsoletes:	textutils
 Conflicts:	tetex < 1.0.7-49mdk
 
 %description
@@ -164,7 +174,7 @@ mv po/{lg,lug}.po
 %patch1002 -p1 -b .acl+posix
 %patch1003 -p1 -b .xattr
 
-cp %{SOURCE201} man/help2man
+cp %{_sourcedir}/help2man man/help2man
 chmod +x man/help2man
 
 
@@ -218,7 +228,7 @@ mv %{buildroot}/{%{_bindir},%{_sbindir}}/chroot
 # {cat,sort,cut} were previously moved from bin to /usr/bin and linked into 
 for i in env cut; do ln -sf ../../bin/$i %{buildroot}/usr/bin; done
 
-install -c -m 0644 %SOURCE101 %{buildroot}/etc/
+install -c -m 0644 %{_sourcedir}/DIR_COLORS %{buildroot}/etc/
 
 # su
 install -m 0755 src/su %{buildroot}/bin
@@ -228,7 +238,7 @@ for i in hostname uptime ; do
 	rm -f %{buildroot}{%{_bindir}/$i,%{_mandir}/man1/${i}.1}
 done
 
-install -m 644 %SOURCE200 %{buildroot}%{_sysconfdir}/pam.d/su
+install -m 644 %{_sourcedir}/su.pamd %{buildroot}%{_sysconfdir}/pam.d/su
 
 bzip2 -f9 old/*/C* || :
 
@@ -288,6 +298,12 @@ true
 
 
 %changelog
+* Tue Aug 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.2.1
+- rebuild against new acl and new attr
+- spec cleanups
+- drop DIR_COLORS.xterm
+- renumber sources
+
 * Wed Jun 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.2.1
 - fix su's pam config
 - fix -doc subpackage
@@ -336,98 +352,3 @@ true
 - OpenSLS build
 - tidy spec
 - use a decent description for -doc package
-
-* Sun Aug  3 2003 Pixel <pixel@mandrakesoft.com> 5.0-6mdk
-- allow old style options (eg: head -1)
-  (we could keep the warning, but breaking backward compatibility is crazy)
-
-* Thu Jul 31 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 5.0-5mdk
-- BuildRequires: termcap-devel
-
-* Tue Jul 22 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 5.0-4mdk
-- rebuild
-
-* Thu May 15 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 5.0-3mdk
-- fix su rejecting passwords
-
-* Thu May 15 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 5.0-2mdk
-- patch 800: add url and update (should speed up sort)
-- patch 901: su hang in some rare cases
-- patch 903: fix example in rm(1)
-- patch 905: fix file descriptor leak in du which resulted in faillure on big
-  directories
-
-* Mon Apr 07 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 5.0-2mdk
-- add readlink to tool list
-
-* Mon Apr 07 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 5.0-1mdk
-- new release
-- use packaged readlink
-
-* Fri Apr 04 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 4.5.12-2mdk
-- provide color scheme for ls in xterm too
-- remove obsolete l10n updates
-
-* Fri Apr 04 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 4.5.12-1mdk
-- new release
-- update patch 180 : fix many, many typos in french translation
-
-* Thu Feb 13 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 4.5.7-1mdk
-- new release
-- rediff patch 152, 180, 702, 800
-
-* Thu Jan 16 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 4.5.4-4mdk
-- move more docs to doc subpackage to reduce minimal system
-
-* Tue Jan 14 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 4.5.4-3mdk
-- move prereq on install-info from main package to doc subpackage
-
-* Mon Jan 13 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 4.5.4-2mdk
-- split up the doc because of drakx
-
-* Fri Jan 03 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 4.5.4-1mdk
-- new release
-- rediff patches 0, 180
-
-* Sun Nov 17 2002 Stew Benedict <sbenedict@mandrakesoft.com> 4.5.3-2mdk
-- LI18NUX/LSB compliance (patch800)
-- Installed (but unpackaged) file(s) - /usr/share/info/dir
-
-* Thu Oct 31 2002 Thierry Vignaud <tvignaud@mandrakesoft.com> 4.5.3-1mdk
-- new release
-- rediff patch 180
-- merge patch 150 into 180
-
-* Mon Oct 14 2002 Thierry Vignaud <tvignaud@mandrakesoft.com> 4.5.2-6mdk
-- move su back to /bin
-
-* Mon Oct 14 2002 Thierry Vignaud <tvignaud@mandrakesoft.com> 4.5.2-5mdk
-- patch 0 : lg locale is illegal and must be renamed lug (pablo)
-
-* Mon Oct 14 2002 Thierry Vignaud <tvignaud@mandrakesoft.com> 4.5.2-4mdk
-- fix conflict with procps
-
-* Mon Oct 14 2002 Thierry Vignaud <tvignaud@mandrakesoft.com> 4.5.2-3mdk
-- patch 105 : fix install -s
-
-* Mon Oct 14 2002 Thierry Vignaud <tvignaud@mandrakesoft.com> 4.5.2-2mdk
-- fix build
-- don't chmode two times su
-- build with large file support
-- fix description
-- various spec cleanups
-- fix chroot installation
-- fix missing /bin/env
-- add old fileutils, sh-utils & textutils ChangeLogs
-
-* Fri Oct 11 2002 Thierry Vignaud <tvignaud@mandrakesoft.com> 4.5.2-1mdk
-- initial release (merge fileutils, sh-utils & textutils)
-- obsoletes/provides: sh-utils/fileutils/textutils
-- fileutils stuff go in 1xx range
-- sh-utils stuff go in 7xx range
-- textutils stuff go in 5xx range
-- drop obsoletes patches 1, 2, 10 (somes files're gone but we didn't ship
-  most of them)
-- rediff patches 103, 105, 111, 113, 180, 706
-- temporary disable patch 3 & 4
-- fix fileutils url
