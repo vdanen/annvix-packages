@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		e2fsprogs
-%define version		1.38
+%define version		1.39
 %define release		%_revrel
 
 %define	_root_sbindir	/sbin
@@ -23,14 +23,17 @@ Release:	%{release}
 License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://e2fsprogs.sourceforge.net/
-Source:		http://prdownloads.sourceforge.net/e2fsprogs/%{name}-%{version}.tar.bz2
+Source0:	http://easynews.dl.sourceforge.net/sourceforge/e2fsprogs/%{name}-%{version}.tar.gz
+Source1:	http://easynews.dl.sourceforge.net/sourceforge/e2fsprogs/%{name}-%{version}.tar.gz.asc
 Patch0:		e2fsprogs-1.36-autoconf.patch
 # (gb) strip references to home build dir
 Patch1:		e2fsprogs-1.36-strip-me.patch
 Patch2:		e2fsprogs-1.38-tst_ostype-buildfix.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	texinfo, autoconf, multiarch-utils
+BuildRequires:	texinfo
+BuildRequires:	autoconf
+BuildRequires:	multiarch-utils
 
 %description
 The e2fsprogs package contains a number of utilities for creating,
@@ -66,7 +69,9 @@ Summary:	The libraries for Ext2fs
 Group:		Development/C
 Requires:	%{libname} = %{version}
 Obsoletes:	%{name}-devel
-Provides:	%{name}-devel, libext2fs-devel, libe2fsprogs-devel
+Provides:	%{name}-devel
+Provides:	libext2fs-devel
+Provides:	libe2fsprogs-devel
 
 %description -n %{libname}-devel
 The e2fsprogs package contains a number of utilities for creating,
@@ -135,9 +140,10 @@ rm -f %{buildroot}%{_root_libdir}/{libblkid,libcom_err,libe2p,libext2fs,libss,li
 %multiarch_includes %{buildroot}%{_includedir}/ext2fs/ext2_types.h
 %multiarch_includes %{buildroot}%{_includedir}/blkid/blkid_types.h
 
-%find_lang %{name}
-
 chmod +x %{buildroot}%{_bindir}/{mk_cmds,compile_et}
+
+# remove unwanted locales
+rm -rf %{buildroot}%{_datadir}/locale
 
 
 %clean
@@ -151,12 +157,14 @@ chmod +x %{buildroot}%{_bindir}/{mk_cmds,compile_et}
 %post -n %{libname}-devel
 %_install_info libext2fs.info
 
+
 %postun -n %{libname}-devel
 %_remove_install_info libext2fs.info
 
 
-%files -f %{name}.lang
+%files
 %defattr(-,root,root)
+%{_sysconfdir}/mke2fs.conf
 %{_root_sbindir}/badblocks
 %{_root_sbindir}/debugfs
 %{_root_sbindir}/dumpe2fs
@@ -182,7 +190,8 @@ chmod +x %{buildroot}%{_bindir}/{mk_cmds,compile_et}
 %{_mandir}/man1/lsattr.1*
 %{_mandir}/man1/uuidgen.1*
 %{_mandir}/man3/uuid*
-
+%{_mandir}/man5/e2fsck.conf.5*
+%{_mandir}/man5/mke2fs.conf.5*
 %{_mandir}/man8/badblocks.8*
 %{_mandir}/man8/debugfs.8*
 %{_mandir}/man8/dumpe2fs.8*
@@ -262,6 +271,12 @@ chmod +x %{buildroot}%{_bindir}/{mk_cmds,compile_et}
 
 
 %changelog
+* Mon Aug 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.39
+- 1.39
+- use a direct-download url and add the gpg sig file
+- spec cleanups
+- remove locale files
+
 * Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.38
 - add -doc subpackage
 - rebuild with gcc4
