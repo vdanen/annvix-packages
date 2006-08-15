@@ -11,7 +11,7 @@
 
 %define revision	$Rev$
 %define name		rpm-annvix-setup
-%define version		1.20
+%define version		1.21
 %define release		%_revrel
 
 Summary:	The Annvix rpm configuration and scripts
@@ -80,6 +80,9 @@ mkdir -p %{buildroot}%{_sysconfdir}/rpm/macros.d
 
 
 %changelog
+* Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.21
+- 1.21: fix %%kill_lang support
+
 * Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.20
 - 1.20: add %%kill_lang support
 
