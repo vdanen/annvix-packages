@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		attr
-%define version 	2.4.23
+%define version 	2.4.32
 %define release 	%_revrel
 
 %define libname_orig	lib%{name}
@@ -23,7 +23,7 @@ Release:	%{release}
 License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://oss.sgi.com/projects/xfs/
-Source0:	%{name}-%{version}.src.tar.bz2
+Source0:	ftp://oss.sgi.com/projects/xfs/download/cmd_tars/%{name}_%{version}-1.tar.gz
 
 BuildRoot:	%{_buildroot}/%{name}-buildroot
 BuildRequires:	libtool
@@ -78,6 +78,7 @@ This package contains the documentation for %{name}.
 
 
 %build
+aclocal && autoconf
 %configure2_5x \
     --libdir=/%{_lib}
 %make
@@ -95,7 +96,8 @@ rm -rf %{buildroot}{%{_mandir}/man2,%_datadir/doc}
 # Remove unpackaged symlinks
 rm -rf %{buildroot}/%{_lib}/libattr.{a,la} %{buildroot}%{_libdir}/libattr.la
 
-%find_lang %{name}
+# remove unwanted locale files
+rm -rf %{buildroot}%{_datadir}/locale
 
 
 %clean
@@ -106,7 +108,7 @@ rm -rf %{buildroot}/%{_lib}/libattr.{a,la} %{buildroot}%{_libdir}/libattr.la
 %postun -n %{libname} -p /sbin/ldconfig
 
 
-%files -f %{name}.lang
+%files
 %defattr(-,root,root)
 %{_bindir}/*
 %{_mandir}/man1/*
@@ -131,6 +133,11 @@ rm -rf %{buildroot}/%{_lib}/libattr.{a,la} %{buildroot}%{_libdir}/libattr.la
 
 
 %changelog
+* Mon Aug 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.32
+- 2.4.32
+- clean spec
+- remove locale files
+
 * Tue May 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.23
 - add -doc subpackage
 - rebuild with gcc4
@@ -168,57 +175,3 @@ rm -rf %{buildroot}/%{_lib}/libattr.{a,la} %{buildroot}%{_libdir}/libattr.la
 * Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 2.4.7-3sls
 - OpenSLS build
 - tidy spec
-
-* Fri Aug 29 2003 Juan Quintela <quintela@mandrakesoft.com> 2.4.7-2mdk
-- /usr/include/attr belongs to package.
-
-* Fri Aug  8 2003 Juan Quintela <quintela@mandrakesoft.com> 2.4.7-1mdk
-- 2.4.7.
-
-* Fri Jul 18 2003 Juan Quintela <quintela@mandrakesoft.com> 2.4.3-1mdk
-- 2.4.3.
-
-* Fri Jul 18 2003 Juan Quintela <quintela@mandrakesoft.com> 2.2.0-1mdk
-- remove patche-errno.h (included upstream).
-- 2.2.0.
-
-* Mon Jul 14 2003 Götz Waschk <waschk@linux-mandrake.com> 2.1.1-2mdk
-- configure2_5x macro
-- mklibname macro
-
-* Thu Jun 19 2003 Vincent Danen <vdanen@mandrakesoft.com> 2.1.1-1mdk
-- 2.1.1
-- force configure to put libs in /lib
-
-* Fri May 23 2003 Götz Waschk <waschk@linux-mandrake.com> 2.0.8-3mdk
-- rebuild for devel provides
-
-* Thu Apr 10 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 2.0.8-2mdk
-- fix conflict with latest man-pages
-- fix unpackaged files
-
-* Wed Jul 24 2002 Sylvestre Taburet <staburet@mandrakesoft.com> 2.0.8-1mdk
-- 2.0.8
-
-* Wed Jul 10 2002 Sylvestre Taburet <staburet@mandrakesoft.com> 2.0.7-1mdk
-- 2.0.7
-
-* Sat Jun 15 2002 Geoffrey Lee <snailtalk@mandrakesoft.com> 2.0.1-2mdk
-- Build fix for Alpha.
-
-* Thu Mar  7 2002 Frederic Lepied <flepied@mandrakesoft.com> 2.0.1-1mdk
-- 2.0.1
-
-* Fri Sep  7 2001 Chmouel Boudjnah <chmouel@mandrakesoft.com> 1.1.3-2mdk
-- Fix provides.
-
-* Fri Sep  7 2001 Chmouel Boudjnah <chmouel@mandrakesoft.com> 1.1.3-1mdk
-- Rework the .spec.
-- Make libs in subpackage.
-- 1.1.3.
-
-* Wed May  2 2001 Chmouel Boudjnah <chmouel@mandrakesoft.com> 1.0.1-1mdk
-- First attempt.
-
-
-# end of file
