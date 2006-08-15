@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		acl
-%define version 	2.2.31
+%define version 	2.2.39
 %define release 	%_revrel
 
 %define libname_orig	lib%{name}
@@ -23,7 +23,7 @@ Release:	%{release}
 License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://oss.sgi.com/projects/xfs/
-Source0:	ftp://oss.sgi.com/projects/xfs/download/cmd_tars/%{name}-%{version}.src.tar.bz2
+Source0:	ftp://oss.sgi.com/projects/xfs/download/cmd_tars/%{name}_%{version}-1.tar.gz
 
 BuildRoot:	%{_buildroot}/%{name}-buildroot
 BuildRequires:	attr-devel
@@ -74,6 +74,7 @@ This package contains the documentation for %{name}.
 
 
 %build
+aclocal && autoconf
 %configure2_5x \
     --libdir=/%{_lib} \
     --sbindir=/bin
@@ -89,7 +90,8 @@ perl -pi -e 's,\s(/%{_lib})(.*attr\.la),%{_libdir}/$2,g' %{buildroot}/%{_libdir}
 
 rm -rf %{buildroot}%{_docdir}/acl
 
-%find_lang %{name}
+# remove unwanted locale files
+rm -rf %{buildroot}%{_datadir}/locale
 
 
 %clean
@@ -100,7 +102,7 @@ rm -rf %{buildroot}%{_docdir}/acl
 %postun -n %{libname} -p /sbin/ldconfig
 
 
-%files -f %{name}.lang
+%files
 %defattr(-,root,root)
 %{_bindir}/*
 %{_mandir}/man1/*
@@ -126,6 +128,11 @@ rm -rf %{buildroot}%{_docdir}/acl
 
 
 %changelog
+* Mon Aug 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.39
+- 2.4.39
+- spec cleanups
+- remove locale files
+
 * Tue Jul 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.31
 - spec cleanups
 - remove pre-Annvix changelog
