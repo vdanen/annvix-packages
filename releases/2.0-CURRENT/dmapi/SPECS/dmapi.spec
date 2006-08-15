@@ -9,7 +9,7 @@
 
 %define	revision	$Rev$
 %define	name		dmapi
-%define	version		2.2.1
+%define	version		2.2.5
 %define	release		%_revrel
 
 %define lib_name_orig	libdm
@@ -23,7 +23,7 @@ Release:	%{release}
 License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://oss.sgi.com/projects/xfs/
-Source0:	ftp://oss.sgi.com/projects/xfs/download/cmd_tars/%{name}-%{version}.src.tar.bz2
+Source0:	ftp://oss.sgi.com/projects/xfs/download/cmd_tars/%{name}_%{version}-1.tar.gz
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	xfs-devel
@@ -75,6 +75,7 @@ This package contains the documentation for %{name}.
 
 
 %build
+aclocal && autoconf
 %configure2_5x \
     --libdir=/%{_lib}
 %make
@@ -116,6 +117,11 @@ rm -rf %{buildroot}%{_datadir}/doc/dmapi
 
 
 %changelog
+* Mon Aug 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.5
+- 2.2.5
+- spec cleanups
+- rebuild against new xfsprogs, and e2fsprogs
+
 * Mon Jul 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.1
 - add -doc subpackage
 - rebuild with gcc4
@@ -146,52 +152,3 @@ rm -rf %{buildroot}%{_datadir}/doc/dmapi
 * Sun Feb 29 2004 Vincent Danen <vdanen@opensls.org> 2.1.0-1sls
 - OpenSLS build
 - tidy spec
-
-* Thu Feb 26 2004 Thomas Backlund <tmb@mandrake.org> 2.1.0-1mdk
-- done by Per Øyvind Karlsen
-  * 2.1.0
-
-* Mon Jan 26 2004 Per Øyvind Karlsen <peroyvind@linux-mandrake.com> 2.0.8-3mdk
-- fix unpackaged files
-- drop prefix tag
-- proper use of %%mklibname
-- cosmetics
-
-* Mon Jul 28 2003 Juan Quintela <quintela@mandrakesoft.com> 2.0.8-2mdk
-- add /lib/*so to files.
-
-* Fri Jul 18 2003 Juan Quintela <quintela@mandrakesoft.com> 2.0.8-1mdk
-- 2.0.8.
-
-* Fri Jul 18 2003 Juan Quintela <quintela@mandrakesoft.com> 2.0.5-4mdk
-- configure2_5x.
-- remove Requires: libxfs1, rpm should be able to do that alone.
-- return to use _lib.
-- Use %%mklibname.
-
-* Thu Jul 17 2003 Stefan van der Eijk <stefan@eijk.nu> 2.0.5-3mdk
-- add missing .so symlink in /lib
-
-* Thu Jun 19 2003 Vincent Danen <vdanen@mandrakesoft.com> 2.0.5-2mdk
-- rebuild
-- use /lib so we don't get "revolving symlinks"
-
-* Mon Dec 30 2002 Stew Benedict <sbenedict@mandrakesoft.com> 2.0.5-1mdk
-- 2.0.5
-
-* Fri Jun  7 2002 Stew Benedict <sbenedict@mandrakesoft.com> 2.0.2-1mdk
-- 2.0.2, rpmlint: hardcoded-library-path /lib
-
-* Thu Mar  7 2002 Frederic Lepied <flepied@mandrakesoft.com> 2.0.0-1mdk
-- 2.0.0
-
-* Fri Sep  7 2001 Chmouel Boudjnah <chmouel@mandrakesoft.com> 0.2.2-1mdk
-- Split lib in subpackage.
-- Rework the spec.
-- 0.2.2.
-
-* Wed May  2 2001 Chmouel Boudjnah <chmouel@mandrakesoft.com> 0.1.1-1mdk
-- First attempt.
-
-
-# end of file
