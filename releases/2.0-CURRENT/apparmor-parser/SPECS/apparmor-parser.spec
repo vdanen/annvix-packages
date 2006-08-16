@@ -67,6 +67,7 @@ make DESTDIR=%{buildroot} \
 mv %{buildroot}%{_initrddir}/rc.apparmor.functions %{buildroot}%{_initrddir}/apparmor.functions
 #install -m 0750 rc.aaeventd.mandriva %{buildroot}%{_initrddir}/aaeventd
 
+%kill_lang %{name}
 %find_lang %{name}
 
 
@@ -101,6 +102,9 @@ mv %{buildroot}%{_initrddir}/rc.apparmor.functions %{buildroot}%{_initrddir}/app
 
 
 %changelog
+* Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
+- remove locales
+
 * Wed Aug 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
 - don't include the aaeventd initscript (runscript is in apparmor-utils)
 - requires rpm-helper
