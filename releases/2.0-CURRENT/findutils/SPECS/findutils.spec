@@ -26,7 +26,8 @@ Patch0:		findutils-4.2.15-no-locate.patch
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	automake1.8
 # for autoreconf -> autopoint
-BuildRequires:	cvs, gettext-devel
+BuildRequires:	cvs
+BuildRequires:	gettext-devel
 
 Requires(post):	info-install
 Requires(preun): info-install
@@ -69,6 +70,7 @@ mkdir %{buildroot}/bin
 mv %{buildroot}%{_bindir}/find %{buildroot}/bin
 ln -sf ../../bin/find %{buildroot}%{_bindir}/find
 
+%kill_lang %{name}
 %find_lang %{name}
 
 
@@ -98,6 +100,10 @@ ln -sf ../../bin/find %{buildroot}%{_bindir}/find
 
 
 %changelog
+* Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.2.27
+- spec cleanups
+- remove locales
+
 * Sat Jul 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.2.27
 - 4.2.27
 - add -doc subpackage
@@ -146,118 +152,3 @@ ln -sf ../../bin/find %{buildroot}%{_bindir}/find
 * Sun Nov 30 2003 Vincent Danen <vdanen@opensls.org> 4.1.20-2sls
 - OpenSLS build
 - tidy spec
-
-* Mon Aug 18 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 4.1.20-1mdk
-- new release
-
-* Thu Jul 24 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 4.1.7-6mdk
-- rebuild
-- use %%make macro
-
-* Thu Feb 20 2003 Giuseppe Ghibò <ghibo@mandrakesoft.com> 4.1.7-5mdk
-- Merged with RH Patch 53857 and usage (Patch1, Patch2).
-
-* Wed Aug 14 2002 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 4.1.7-4mdk
-- Automated rebuild with gcc 3.2-0.3mdk
-
-* Thu Jan 17 2002 Guillaume Cottenceau <gc@mandrakesoft.com> 4.1.7-3mdk
-- move /usr/bin/find to /bin/find (for mkinitrd)
-- fix no-url-tag
-
-* Wed Jul  4 2001 Jeff Garzik <jgarzik@mandrakesoft.com> 4.1.7-2mdk
-- remove all %%ifarch alpha conditionals, make alpha standard
-
-* Fri Jun 22 2001 Chmouel Boudjnah <chmouel@mandrakesoft.com> 4.1.7-1mdk
-- 4.1.7.
-
-* Mon Jan 22 2001 Francis Galiegue <fg@mandrakesoft.com> 4.1.6-1mdk
-- 4.1.6 (was 4.1.1!)
-- patch fixing galore
-
-* Mon Aug 14 2000 Guillaume Cottenceau <gc@mandrakesoft.com> 4.1.1-8mdk
-- fix the %%post script, geoffrey sucks
-
-* Sun Jul 23 2000 Geoffrey Lee <snailtalk@mandrakesoft.com> 4.1.1-7mdk
-- BM
-- macroszification
-- bzip2 the cron source to make rpmlint happy
-
-* Thu Apr 27 2000 Chmouel Boudjnah <chmouel@mandrakesoft.com> 4.1.1-6mdk
-- Don't apply gcc-2.95 patch for alpha.
-
-* Sat Apr 08 2000 Geoffrey Lee <snailtalk@linux-mandrake.com>
-- alpha fix
-- fix illegal macro name
-
-* Wed Mar 29 2000 Chmouel Boudjnah <chmouel@mandrakesoft.com> 4.1.1-4mdk
-- Merge rh patchs.
-- Clean up specs.
-- Upgrade groups.
-
-* Wed Nov 24 1999 Chmouel Boudjnah <chmouel@mandrakesoft.com>
-- Fix find on alpha.
-
-* Sun Nov  7 1999 Chmouel Boudjnah <chmouel@mandrakesoft.com>
-- Build release.
-
-* Fri Aug 13 1999 Bernhard Rosenkraenzer <bero@linux-mandrake.com>
-- 4.1.1
-
-* Mon Apr 12 1999 Chmouel Boudjnah <chmouel@mandrakesoft.com>
-- Add the xargs patch overflow from RedHat.
-
-* Sat Apr 10 1999 Bernhard Rosenkraenzer <bero@linux-mandrake.com>
-- Mandrake adaptions
-- bzip2 man/info pages
-- add de locale
-
-* Mon Feb  8 1999 Jeff Johnson <jbj@redhat.com>
-- remove further updatedb remnants (#1072).
-
-* Thu Dec 03 1998 Cristian Gafton <gafton@redhat.com>
-- added patch for glibc21
-
-* Mon Nov 16 1998 Erik Troan <ewt@redhat.com>
-- removed locate stuff (as we now ship slocate)
-
-* Wed Jun 10 1998 Erik Troan <ewt@redhat.com>
-- updated updatedb cron script to not look for $TMPNAME.n (which was
-  a relic anyway)
-- added -b parameters to all of the patches
-
-* Fri Apr 24 1998 Prospector System <bugs@redhat.com>
-- translations modified for de, fr, tr
-
-* Mon Mar 09 1998 Michael K. Johnson <johnsonm@redhat.com>
-- make updatedb.cron use mktemp correctly
-- make updatedb use mktemp
-
-* Sun Nov 09 1997 Michael K. Johnson <johnsonm@redhat.com>
-- nobody should own tmpfile
-- ignore /net
-
-* Wed Nov 05 1997 Michael K. Johnson <johnsonm@redhat.com>
-- made updatedb.cron do a better job of cleaning up after itself.
-
-* Tue Oct 28 1997 Donald Barnes <djb@redhat.com>
-- fixed 64 bit-ism in getline.c, patch tacked on to end of glibc one
-
-* Thu Oct 23 1997 Erik Troan <ewt@redhat.com>
-- added patch for glibc 2.1
-
-* Fri Oct 17 1997 Donnie Barnes <djb@redhat.com>
-- added BuildRoot support
-
-* Tue Oct 14 1997 Michael K. Johnson <johnsonm@redhat.com>
-- made updatedb.cron work even if "nobody" can't read /root
-- use mktemp in updatedb.cron
-
-* Sun Sep 14 1997 Erik Troan <ewt@redhat.com>
-- added missing info pages
-- uses install-info
-
-* Mon Jun 02 1997 Erik Troan <ewt@redhat.com>
-- built with glibc
-
-* Mon Apr 21 1997 Michael K. Johnson <johnsonm@redhat.com>
-- fixed updatedb.cron
