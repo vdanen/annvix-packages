@@ -118,27 +118,11 @@ pushd %{buildroot}%{_libdir}/python%{pyver}/site-packages/
     python -c "import libuser"
 popd
 
-# RH cruft.
-# too disgusting to watch.
-set -x
-pushd po
-    rm -rf %{buildroot}%_datadir/locale
-    for i in *.po; do
-        msgfmt $i -o $(basename $i .po).mo
-        p=%{buildroot}%_datadir/locale/$(basename $i .po)/LC_MESSAGES
-        mkdir -p $p
-        install -m 0644 $(basename $i .po).mo $p/libuser.mo
-    done
-popd
-rm -rf %{buildroot}%_datadir/locale/zh_TW.Big5
-set +x
-
 # since P1 doesn't "make doc" anymore, install the manpage manually
 mkdir -p %{buildroot}%{_mandir}/man5
 install -m 0644 docs/libuser.conf.5 %{buildroot}%{_mandir}/man5/
 
-# remove invalid locale directories first
-rm -rf %{buildroot}%{_datadir}/locale/{si,bn_IN,my}
+%kill_lang %{name}
 %find_lang %{name}
 
 # Remove unpackaged files
@@ -189,6 +173,9 @@ rm -rf %{buildroot}%{_libdir}/python%{pyver}/site-packages/*a
 
 
 %changelog
+* Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.54.5
+- remove locales
+
 * Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.54.5
 - rebuild against new glib2.0
 
