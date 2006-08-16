@@ -159,6 +159,14 @@ autoconf
 
 
 %build
+%if %{use_dietlibc}
+%ifarch x86_64
+CC="x86_64-annvix-linux-gnu-gcc"
+%else
+CC="gcc"
+%endif
+%endif
+
 %configure2_5x \
     --with-user=`id -un` \
     --with-group=`id -gn` \
@@ -173,7 +181,11 @@ autoconf
 %endif
     --enable-pkgconfig \
 
+%if %{use_dietlibc}
+%make CC="${CC}"
+%else
 %make
+%endif
 
 
 %install
@@ -244,5 +256,8 @@ chmod -R u+w %{buildroot} #else brp won't strip binaries
 
 
 %changelog
+* Wed Aug 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.02.07
+- dietlibc fixes for x86_64
+
 * Wed Aug 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.02.07
 - first Annvix build based on Mandriva's 1.02.07-4mdv

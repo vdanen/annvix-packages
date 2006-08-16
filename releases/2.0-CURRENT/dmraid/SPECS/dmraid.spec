@@ -84,6 +84,14 @@ This package contains the documentation for %{name}.
 
 %build
 %if %{use_dietlibc}
+%ifarch x86_64
+COMP="diet x86_64-annvix-linux-gnu-gcc"
+%else
+COMP="diet gcc"
+%endif
+%endif
+
+%if %{use_dietlibc}
 %configure2_5x \
     --enable-dietlibc \
     --disable-libselinux
@@ -93,7 +101,12 @@ This package contains the documentation for %{name}.
     --disable-libselinux
 %endif
 
+%if %{use_dietlibc}
+make CC="${COMP}"
+%else
 make
+%endif
+
 mv tools/dmraid tools/dmraid-static
 make clean
 
@@ -128,6 +141,9 @@ rm -rf %{buildroot}%{_includedir}/dmraid
 
 
 %changelog
+* Wed Aug 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.00.rc11
+- dietlibc fixes for x86_64
+
 * Wed Aug 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.00.rc11
 - first Annvix build based on Mandriva's 1.0.0-0.rc11.1mdv
 - there's no help for it, comment out to remind we need to use epoch once
