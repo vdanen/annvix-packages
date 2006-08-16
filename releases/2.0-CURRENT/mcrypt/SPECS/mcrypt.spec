@@ -23,7 +23,8 @@ Source0:	%{name}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	libmhash-devel >= 0.8.15
-BuildRequires:	libmcrypt-devel >= 2.5.0, libltdl-devel
+BuildRequires:	libmcrypt-devel >= 2.5.0
+BuildRequires:	libltdl-devel
 
 %description
 A replacement for the old unix crypt(1) command. Mcrypt uses the following
@@ -56,6 +57,7 @@ This package contains the documentation for %{name}.
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 
+%kill_lang %{name}
 %find_lang %{name}
 
 
@@ -74,6 +76,10 @@ This package contains the documentation for %{name}.
 
 
 %changelog
+* Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.4
+- spec cleanups
+- remove locales
+
 * Fri Jul 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.4
 - add -doc subpackage
 - rebuild with gcc4
