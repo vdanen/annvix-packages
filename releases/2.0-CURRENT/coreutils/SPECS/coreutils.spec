@@ -206,14 +206,6 @@ export PATH=$PATH:RPM_BUILD_ROOT/man
 # man pages are not installed with make install
 make mandir=%{buildroot}%{_mandir} install-man
 
-# fix japanese catalog file
-if [ -d %{buildroot}/%{_datadir}/locale/ja_JP.EUC/LC_MESSAGES ]; then
-   mkdir -p %{buildroot}/%{_datadir}/locale/ja/LC_MESSAGES
-   mv %{buildroot}/%{_datadir}/locale/ja_JP.EUC/LC_MESSAGES/*mo \
-		%{buildroot}/%{_datadir}/locale/ja/LC_MESSAGES
-   rm -rf %{buildroot}/%{_datadir}/locale/ja_JP.EUC
-fi
-
 # let be compatible with old fileutils, sh-utils and textutils packages :
 mkdir -p %{buildroot}{/bin,%{_bindir},%{_sbindir},%{_sysconfdir}/pam.d}
 for f in basename cat chgrp chmod chown cp cut date dd df echo env expr false id link ln ls mkdir mknod mv nice pwd rm rmdir sleep sort stat stty sync touch true uname unlink
@@ -235,40 +227,25 @@ install -m 0755 src/su %{buildroot}/bin
 
 # These come from util-linux and/or procps.
 for i in hostname uptime ; do
-	rm -f %{buildroot}{%{_bindir}/$i,%{_mandir}/man1/${i}.1}
+    rm -f %{buildroot}{%{_bindir}/$i,%{_mandir}/man1/${i}.1}
 done
 
-install -m 644 %{_sourcedir}/su.pamd %{buildroot}%{_sysconfdir}/pam.d/su
+install -m 0644 %{_sourcedir}/su.pamd %{buildroot}%{_sysconfdir}/pam.d/su
 
 bzip2 -f9 old/*/C* || :
 
 # fix conflicts with util-linux
 rm -f %{buildroot}%{_mandir}/man1/kill.1
 
+%kill_lang %{name}
 %find_lang %{name}
-#TV# find_lang look for LC_MESSAGES, not LC_TIME:
-#TV(cd %{buildroot}; find .%_datadir/locale/ -name coreutils.mo | fgrep LC_TIME | \
-#TV	sed -e "s!^.*/share/locale/\([^/]*\)/!%lang(\1) %_datadir/locale/\1/!") >> %{name}.lang
-find %{buildroot}%_datadir/locale/ -name coreutils.mo | fgrep LC_TIME | xargs rm -f
 
 # (sb) Deal with Installed (but unpackaged) file(s) found
 rm -f %{buildroot}%{_datadir}/info/dir
-rm -rf %{buildroot}%{_datadir}/locale/*/LC_TIME
 
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-
-
-%pre
-# We must desinstall theses info files since they're merged in
-# coreutils.info. else their postun'll be runned too last
-# and install-info'll faill badly because of doubles
-for file in sh-utils.info textutils.info fileutils.info; do
-	if [ -f /usr/share/info/$file.bz2 ]; then
-		/sbin/install-info /usr/share/info/$file.bz2 --dir=/usr/share/info/dir --remove &> /dev/null
-	fi
-done
 
 
 %preun
@@ -298,6 +275,10 @@ true
 
 
 %changelog
+* Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.2.1
+- spec cleanups
+- remove locales
+
 * Tue Aug 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.2.1
 - rebuild against new acl and new attr
 - spec cleanups
