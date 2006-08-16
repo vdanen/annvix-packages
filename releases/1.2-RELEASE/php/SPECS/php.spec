@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		php
-%define version		4.4.2
+%define version		4.4.3
 %define release		%_revrel
 %define epoch		2
 
@@ -80,7 +80,7 @@ Patch70:	php-4.3.3-mdk-make_those_darn_tests_work.patch
 # Bug fixes:
 Patch71:	php-4.3.4-mdk-bug-22414.patch
 # http://www.hardened-php.net/
-Patch100:	http://www.hardened-php.net/hardening-patch-4.4.2-0.4.12.patch
+Patch100:	http://www.hardened-php.net/hardening-patch-4.4.3-0.4.14.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 # this is to prevent that it will build against old libs
@@ -596,6 +596,11 @@ update-alternatives --remove php %{_bindir}/php-cli
 
 
 %changelog
+* Wed Aug 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.3
+- 4.4.3 - fixes a buffer overflow in the wordwrap() function, an xss
+  in phpinfo(), some insecurities in tempnam(), and other bugfixes
+- hardening patch 0.4.14
+
 * Sun Jul 30 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - hardening patch 0.4.12: fixes CVE-2006-2563, CVE-2006-2660,
   CVE-2006-1990, CVE-2006-3011
