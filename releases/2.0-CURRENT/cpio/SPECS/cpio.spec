@@ -88,6 +88,7 @@ make check
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
+%kill_lang %{name}
 %find_lang %{name}
 
 # remove unpackaged files
@@ -100,6 +101,7 @@ rm -f %{buildroot}%{_mandir}/man1/mt.1
 
 %post
 %_install_info %{name}.info
+
 
 %preun
 %_remove_install_info %{name}.info
@@ -117,6 +119,10 @@ rm -f %{buildroot}%{_mandir}/man1/mt.1
 
 
 %changelog
+* Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6
+- spec cleanups
+- remove locales
+
 * Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6
 - add -doc subpackage
 - rebuild with gcc4
@@ -178,90 +184,3 @@ rm -f %{buildroot}%{_mandir}/man1/mt.1
 * Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 2.5-5sls
 - OpenSLS build
 - tidy spec
-
-* Tue Jul 22 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 2.5-4mdk
-- rebuild
-- drop Prefix tag
-- use %%make macro
-- drop unapplied P7
-
-* Sun Nov 17 2002 Stew Benedict <sbenedict@mandrakesoft.com> 2.5-3mdk
-- LI18NUX/LSB compliance (patch12, disable patch7 - stdout patch)
-- Deal with Installed (but unpackaged) file(s) - mt, rmt, man page
-
-* Thu Jul 25 2002 Daouda LO <daouda@mandrakesoft.com> 2.5-2mdk
-- better URL
-
-* Wed Jul 24 2002 Daouda LO <daouda@mandrakesoft.com> 2.5-1mdk
-- 2.5 release
-- patches  #4(glibc 2_1 build), #5 (long dev), #8 (debian fix) merged upstream
-- add URL 
-
-* Sun Jun  2 2002 Stefan van der Eijk <stefan@eijk.nu> 2.4.2-21mdk
-- BuildRequires
-
-* Mon Jul  9 2001  Daouda Lo <daouda@mandrakesoft.com> 2.4.2-20mdk
-- s|Copyright|License| 
-
-* Mon Jul  9 2001  Daouda Lo <daouda@mandrakesoft.com> 2.4.2-19mdk
-- apply RH/Debian patches.
-- man updates/fixes 
-- more fhs compliant.
-
-* Wed Jul 26 2000 Thierry Vignaud <tvignaud@mandrakesoft.com> 2.4.2-18mdk
-- fix bad script
-
-* Wed Jul 26 2000 Thierry Vignaud <tvignaud@mandrakesoft.com> 2.4.2-17mdk
-- BM
-- more macros
-
-* Tue Jul 11 2000 Thierry Vignaud <tvignaud@mandrakesoft.com> 2.4.2-16mdk
-- clean a lot the spec (macros, install fix by Stefan van der Eijk
-  <s.vandereijk@chello.nl>)
-- use spechelper
-
-* Sat Jul 08 2000 Stefan van der Eijk <s.vandereijk@chello.nl> 2.4.2-16mdk
-- fixed makeinstall problem
-- some hassle getting the manpage in the right dir
-
-* Thu Apr 4 2000 Denis Havlik <denis@mandrakesoft.com> 2.4.2-15mdk
-- new Group: Archiving/Backup 
-
-
-* Wed Oct 20 1999 Chmouel Boudjnah <chmouel@mandrakesoft.com>
-- Specs files tweaks.
-- Merge with rh patchs.
-- fix infinite loop unpacking empty files with hard links (r).
-- stdout chould contain progress information (r).
-
-* Fri Apr  9 1999 Bernhard Rosenkraenzer <bero@linux-mandrake.com>
-- Mandrake adaptions
-- bzip2 man/info pages
-- add de locale
-
-* Sat Dec  5 1998 Jeff Johnson <jbj@redhat.com>
-- longlong dev wrong with "-o -H odc" headers (formerly "-oc").
-
-* Thu Dec 03 1998 Cristian Gafton <gafton@redhat.com>
-- patch to compile on glibc 2.1, where strdup is a macro
-
-* Tue Jul 14 1998 Jeff Johnson <jbj@redhat.com>
-- Fiddle bindir/libexecdir to get RH install correct.
-- Don't include /sbin/rmt -- use the rmt from dump package.
-- Don't include /bin/mt -- use the mt from mt-st package.
-- Add prereq's
-
-* Tue Jun 30 1998 Jeff Johnson <jbj@redhat.com>
-- fix '-c' to duplicate svr4 behavior (problem #438)
-- install support programs & info pages
-
-* Mon Apr 27 1998 Prospector System <bugs@redhat.com>
-- translations modified for de, fr, tr
-
-* Fri Oct 17 1997 Donnie Barnes <djb@redhat.com>
-- added BuildRoot
-- removed "(used by RPM)" comment in Summary
-
-* Thu Jun 19 1997 Erik Troan <ewt@redhat.com>
-- built against glibc
-- no longer statically linked as RPM doesn't use cpio for unpacking packages
