@@ -93,6 +93,12 @@ EOF
 
 
 %changelog
+* Wed Aug 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.3
+- php 4.4.3
+
+* Sun Jul 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.2
+- rebuild against new hardened php patch (0.4.12)
+
 * Tue Mar 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.2
 - rebuild againt curl 7.15.3
 

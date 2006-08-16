@@ -60,6 +60,9 @@ perl -pi -e 's|EXTENSIONDIR|%{_libdir}/php/extensions|g' %{buildroot}%{_sysconfd
 
 
 %changelog
+* Wed Aug 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.3
+- php 4.4.3
+
 * Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - 4.4.2
 - use /var/tmp/php_sessions for the session.save_path and make it sticky

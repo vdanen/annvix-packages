@@ -12,7 +12,7 @@
 %define version		%{phpversion}
 %define release		%_revrel
 
-%define phpversion	4.4.2
+%define phpversion	4.4.3
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir		%{_libdir}/php
 
@@ -91,6 +91,9 @@ EOF
 
 
 %changelog
+* Wed Aug 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.3
+- php 4.4.3
+
 * Wed Jan 18 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - php 4.4.2
 

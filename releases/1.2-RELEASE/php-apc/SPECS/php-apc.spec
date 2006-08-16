@@ -13,7 +13,7 @@
 %define release		%_revrel
 %define epoch		1
 
-%define phpversion	4.4.2
+%define phpversion	4.4.3
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir		%{_libdir}/php
 
@@ -117,6 +117,9 @@ install -m 0755 %{soname} %{buildroot}%{phpdir}/extensions/
 
 
 %changelog
+* Wed Aug 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.3
+- php 4.4.3
+
 * Mon Feb 27 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.8
 - APC 3.0.8
 - fix versioning and give it an epoch
