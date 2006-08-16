@@ -1,0 +1,24 @@
+--- dmraid/1.0.0.rc11/lib/format/ataraid/hpt37x.c.errorlog	2006-07-28 15:42:22.000000000 -0400
++++ dmraid/1.0.0.rc11/lib/format/ataraid/hpt37x.c	2006-07-28 15:56:05.000000000 -0400
+@@ -124,7 +124,8 @@
+ 	CVT32(hpt->boot_mode);
+ 
+ 	for (l = hpt->errorlog;
+-	     l < hpt->errorlog + hpt->error_log_entries;
++	     l < hpt->errorlog + hpt->error_log_entries &&
++                l < &hpt->errorlog[HPT_MAX_ERRORS];
+ 	     l++) {
+ 		CVT32(l->timestamp);
+ 		CVT32(l->lba);
+--- dmraid/1.0.0.rc11/lib/format/ataraid/hpt37x.h.errorlog	2006-07-28 15:56:20.000000000 -0400
++++ dmraid/1.0.0.rc11/lib/format/ataraid/hpt37x.h	2006-07-28 15:56:30.000000000 -0400
+@@ -90,7 +90,8 @@
+ 	       uint8_t        status;
+ 	       uint8_t        sectors;
+ 	       uint32_t       lba;
+-       } errorlog[32];
++#define HPT_MAX_ERRORS         32
++       } errorlog[HPT_MAX_ERRORS];
+        uint8_t        filler[60];
+ } __attribute__ ((packed));
+ #endif

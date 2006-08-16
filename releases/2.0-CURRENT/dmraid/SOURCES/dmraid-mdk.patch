@@ -1,0 +1,11 @@
+--- dmraid/1.0.0-rc3/tools/Makefile.in.mdk	2004-08-24 12:01:26.000000000 +0200
++++ dmraid/1.0.0-rc3/tools/Makefile.in	2004-08-24 12:01:26.000000000 +0200
+@@ -38,7 +38,7 @@
+ 	DMRAIDLIBS += -ldevmapper_klibc
+ else
+ 	ifeq ("@DIETLIBC@", "yes")
+-		DMRAIDLIBS += -ldevmapper_dietc
++		DMRAIDLIBS += -ldevmapper-diet
+ 	else
+ 		DMRAIDLIBS += -ldevmapper
+ 	endif
