@@ -101,14 +101,15 @@ cat >%{buildroot}%{_sysconfdir}/lynx-site.cfg <<EOF
 # Place any local lynx configuration options (proxies etc.) here.
 EOF
 
-%find_lang lynx
+%kill_lang %{name}
+%find_lang %{name}
 
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
-%files -f lynx.lang
+%files -f %{name}.lang
 %defattr(-,root,root)
 %config(noreplace,missingok) %{_sysconfdir}/lynx-site.cfg
 %{_mandir}/*/*
@@ -117,6 +118,10 @@ EOF
 
 
 %changelog
+* Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.8.5
+- spec cleanups
+- remove locales
+
 * Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.8.5
 - rebuild against new openssl 
 - spec cleanups
