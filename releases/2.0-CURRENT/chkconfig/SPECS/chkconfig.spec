@@ -89,18 +89,13 @@ pushd %{buildroot}%{_sysconfdir}/
     ln -s rc.d/init.d init.d
 popd
 
-# corrected indonesian language code (it has changed from 'in' to 'id')
-mkdir -p %{buildroot}%{_datadir}/locale/id/LC_MESSAGES
-mv %{buildroot}%{_datadir}/locale/{in,in_ID}/LC_MESSAGES/* \
-    %{buildroot}%{_datadir}/locale/id/LC_MESSAGES || :
-rm -rf %{buildroot}%{_datadir}/locale/{in,in_ID} || :
-
 # we use our own alternative system
 rm -f %{buildroot}%{_sbindir}/{alternatives,update-alternatives} %{buildroot}%{_mandir}/man8/alternatives.8*
 
 # remove invalid locales
 rm -rf %{buildroot}%{_datadir}/locale/{bn_IN,si}
 
+%kill_lang %{name}
 %find_lang %{name}
 
 
@@ -124,6 +119,9 @@ rm -rf %{buildroot}%{_datadir}/locale/{bn_IN,si}
 
 
 %changelog
+* Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.25
+- remove locales
+
 * Fri Aug 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.25
 - require setup before install to get group admin
 - spec cleanups
