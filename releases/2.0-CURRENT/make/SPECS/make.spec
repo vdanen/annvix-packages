@@ -76,12 +76,7 @@ make check
 
 ln -sf make %{buildroot}%{_bindir}/gmake
 
-# some hand dealing; to remove when the %{name}-pofiles.tar.bz2 is removed
-for i in i18n/*.po ; do
-    mkdir -p %{buildroot}%{_datadir}/locale/`basename $i .po`/LC_MESSAGES
-    msgfmt -v -o %{buildroot}%{_datadir}/locale/`basename $i .po`/LC_MESSAGES/%{name}.mo $i
-done
-
+%kill_lang %{name}
 %find_lang %{name}
 
 
@@ -110,6 +105,10 @@ done
 
 
 %changelog
+* Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.80
+- spec cleanups
+- remove locales
+
 * Sun Jul 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.80
 - add -doc subpackage
 - rebuild with gcc4
