@@ -740,7 +740,6 @@ mkdir documentation/crypt_blowfish-%{crypt_bf_ver}
 cp crypt_blowfish-%{crypt_bf_ver}/{README,LINKS,PERFORMANCE} \
 	documentation/crypt_blowfish-%{crypt_bf_ver}
 
-%kill_lang libc
 %find_lang libc
 
 # remove README.template and FAQ.in to allow using wildcards in the filelist
@@ -1188,9 +1187,6 @@ fi
 
 
 %changelog
-* Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.6
-- remove locales
-
 * Fri Aug 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.6
 - devel package needs coreutils for rm and ln
 - spec cleanups
