@@ -53,6 +53,7 @@ make DESTDIR=%{buildroot} \
      EXTRASDIR=%{buildroot}%{aa_profilesdir}/extras/ \
      install
 
+%kill_lang %{name}
 %find_lang %{name}
 
 
@@ -73,5 +74,8 @@ make DESTDIR=%{buildroot} \
 
 
 %changelog
+* Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
+- remove locales
+
 * Tue Jun 27 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
 - first Annvix package
