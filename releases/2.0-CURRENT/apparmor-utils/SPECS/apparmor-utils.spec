@@ -29,7 +29,10 @@ Patch1:		apparmor-utils-2.0-avx-nofork.patch
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 
-Requires:	perl(Date::Parse), perl(DBI), perl(File::Tail), perl(DBD::SQLite)
+Requires:	perl(Date::Parse)
+Requires:	perl(DBI)
+Requires:	perl(File::Tail)
+Requires:	perl(DBD::SQLite)
 Requires:	apparmor-parser
 Requires(post):	rpm-helper
 Requires(preun): rpm-helper
@@ -57,6 +60,7 @@ make DESTDIR=%{buildroot} \
 mkdir -p %{buildroot}%{_srvdir}/aaeventd
 install -m 0740 %{_sourcedir}/aaeventd.run %{buildroot}%{_srvdir}/aaeventd/run
 
+%kill_lang %{name}
 %find_lang %{name}
 
 
@@ -82,6 +86,10 @@ install -m 0740 %{_sourcedir}/aaeventd.run %{buildroot}%{_srvdir}/aaeventd/run
 
 
 %changelog
+* Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
+- spec cleanups
+- remove locales
+
 * Wed Aug 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
 - S1: run script for aa-eventd
 - P0: use /var/log/system/kmsg/current instead of /var/log/messages
