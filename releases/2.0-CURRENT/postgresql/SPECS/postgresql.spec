@@ -342,6 +342,7 @@ rm -rf contrib-docs && mkdir contrib-docs
 cp -f contrib/*/README.* contrib-docs/
 cp -f contrib/spi/*.example contrib-docs/
 
+%kill_lang postgres
 %find_lang libpq
 %find_lang libecpg
 %find_lang pg_dump
@@ -598,6 +599,9 @@ fi
 
 
 %changelog
+* Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.1.4
+- remove locales
+
 * Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.1.4
 - rebuild against new openssl
 - spec cleanups
