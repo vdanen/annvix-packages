@@ -25,9 +25,16 @@ Patch0:		kudzu-1.1.95-avx-python2.patch
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	pciutils-devel >= 2.1.11-1, python-devel, python, newt-devel
 
-Requires(post):	chkconfig, initscripts, rpm-helper
-Requires(preun): chkconfig, initscripts, rpm-helper
-Requires:	pam >= 0.74-17, hwdata, python-base >= %{py_ver}, modutils >= 2.3.11-5
+Requires(post):	chkconfig
+Requires(post):	initscripts
+Requires(post):	rpm-helper
+Requires(preun): chkconfig
+Requires(preun): initscripts
+Requires(preun): rpm-helper
+Requires:	pam >= 0.74-17
+Requires:	hwdata
+Requires:	python-base >= %{py_ver}
+Requires:	modutils >= 2.3.11-5
 %ifarch x86_64 amd64
 Requires:	lib64newt0.51
 %else
@@ -78,8 +85,7 @@ make RPM_OPT_FLAGS="%{optflags} -I." all kudzu
 make install install-program DESTDIR=%{buildroot} libdir=%{buildroot}%{_libdir}
 install -m 0755 fix-mouse-psaux %{buildroot}%{_sbindir}
 
-# remove unwanted files
-rm -rf %{buildroot}%{_datadir}/locale/{si,eu_ES,my,bn_IN}
+%kill_lang %{name}
 %find_lang %{name}
 
 
@@ -89,6 +95,7 @@ rm -rf %{buildroot}%{_datadir}/locale/{si,eu_ES,my,bn_IN}
 
 %post
 %_post_service kudzu
+
 
 %preun
 %_preun_service kudzu
@@ -117,6 +124,9 @@ rm -rf %{buildroot}%{_datadir}/locale/{si,eu_ES,my,bn_IN}
 
 
 %changelog
+* Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.34.3
+- remove locales
+
 * Sun Jul 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.34.3
 - fix python-base requires (use >= rather than = since %%py_ver in this
   case resolves to "2.4")
