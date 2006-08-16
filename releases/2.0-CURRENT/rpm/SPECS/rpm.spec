@@ -465,6 +465,7 @@ pushd %{buildroot}
     rm -f .%{_bindir}/rpmdiff
 popd
 
+%{rpmdir}/%{_host_vendor}/kill-lang.sh %{buildroot} %{name}
 %{rpmdir}/%{_host_vendor}/find-lang.sh %{buildroot} %{name}
 %{rpmdir}/%{_host_vendor}/find-lang.sh %{buildroot} popt
 
@@ -603,12 +604,6 @@ fi
 
 %{_prefix}/src/rpm/RPMS/*
 %{_datadir}/man/man[18]/*.[18]*
-%lang(pl) %{_datadir}/man/pl/man[18]/*.[18]*
-%lang(ru) %{_datadir}/man/ru/man[18]/*.[18]*
-%lang(ja) %{_datadir}/man/ja/man[18]/*.[18]*
-%lang(sk) %{_datadir}/man/sk/man[18]/*.[18]*
-%lang(fr) %{_datadir}/man/fr/man[18]/*.[18]*
-%lang(ko) %{_datadir}/man/ko/man[18]/*.[18]*
 
 %config(noreplace,missingok)	%{_sysconfdir}/cron.daily/rpm
 %config(noreplace,missingok)	%{_sysconfdir}/logrotate.d/rpm
@@ -761,6 +756,10 @@ fi
 
 
 %changelog
+* Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.5
+- spec cleanups
+- remove locales
+
 * Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.5
 - rebuild against new openssl
 - spec cleanups
