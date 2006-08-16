@@ -254,9 +254,12 @@ Summary:	A Name Service Caching Daemon (nscd)
 Group:		System/Servers
 Conflicts:	kernel < 2.2.0
 Requires(pre):	rpm-helper
-Requires(preun): rpm-helper, srv
-Requires(post):	rpm-helper, srv
-Requires(postun): rpm-helper, srv
+Requires(preun): rpm-helper
+Requires(preun): srv
+Requires(post):	rpm-helper
+Requires(post):	srv
+Requires(postun): rpm-helper
+Requires(postun): srv
 Autoreq:	true
 
 %description -n nscd
@@ -737,6 +740,7 @@ mkdir documentation/crypt_blowfish-%{crypt_bf_ver}
 cp crypt_blowfish-%{crypt_bf_ver}/{README,LINKS,PERFORMANCE} \
 	documentation/crypt_blowfish-%{crypt_bf_ver}
 
+%kill_lang libc
 %find_lang libc
 
 # remove README.template and FAQ.in to allow using wildcards in the filelist
@@ -1184,6 +1188,9 @@ fi
 
 
 %changelog
+* Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.6
+- remove locales
+
 * Fri Aug 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.6
 - devel package needs coreutils for rm and ln
 - spec cleanups
