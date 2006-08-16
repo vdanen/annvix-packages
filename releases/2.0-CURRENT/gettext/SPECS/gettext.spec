@@ -29,7 +29,11 @@ Patch0:		gettext-0.14.6-mdv-pic.patch
 Patch1:		gettext-0.14.2-charsets.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	autoconf2.5, bison, texinfo, automake1.8, flex
+BuildRequires:	autoconf2.5
+BuildRequires:	bison
+BuildRequires:	texinfo
+BuildRequires:	automake1.8
+BuildRequires:	flex
 
 Requires:	%{name}-base = %{version}-%{release}
 Requires:	%{libname} = %{version}-%{release}
@@ -47,9 +51,6 @@ handling the translatable and the already translated strings. Gettext provides
 an easy to use library and tools for creating, using, and modifying natural
 language catalogs and is a powerful and simple method for internationalizing
 programs.
-
-If you would like to internationalize or incorporate multi-lingual messages
-into programs that you're developing, you should install gettext.
 
 
 %package -n %{libname}
@@ -149,6 +150,7 @@ pushd %{buildroot}
     ln -s ../../%{_lib}/libintl.so.%{major} .%{_libdir}/libintl.so
 popd
 
+%kill_lang %{name}
 %find_lang %{name} --all-name
 
 
@@ -235,6 +237,10 @@ popd
 
 
 %changelog
+* Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.14.6
+- spec cleanups
+- remove locales
+
 * Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.14.6
 - 0.14.6
 - put autopoint in the devel package
@@ -299,202 +305,3 @@ popd
 - OpenSLS build
 - tidy spec
 - use %%build_opensls macro to not require or build emacs-specific stuff
-
-* Wed Jul  9 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 0.11.5-7mdk
-- Rebuild
-
-* Tue Jun 03 2003 Stew Benedict <sbenedict@mandrakesoft.com> 0.11.5-6mdk
-- LSB/LI18NUX test requirements - patch7
-- (msgfmt ignore duplicate strings in multiple domains when -o specified)
-- BuildRequires: emacs-el, use %%mklibname
-
-* Thu May 08 2003 Stefan van der Eijk <stefan@eijk.nu> 0.11.5-5mdk
-- BuildRequires: autoconf2.5 bison
-
-* Mon Apr 28 2003 Guillaume Cottenceau <gc@mandrakesoft.com> 0.11.5-4mdk
-- don't install java binaries to not depend on libgcj
-
-* Fri Apr 25 2003 Guillaume Cottenceau <gc@mandrakesoft.com> 0.11.5-3mdk
-- use %%configure2_5x
-
-* Fri Dec 20 2002 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 0.11.5-2mdk
-- Rebuild
-
-* Fri Dec 13 2002 Guillaume Cottenceau <gc@mandrakesoft.com> 0.11.5-1mdk
-- shamelessly use work from Austin Acton <aacton@yorku.ca>:
-  - bump version and libver
-  - don't run autoconf explicitly (fails)
-  - replace patch 2 (arm*-*) with perl command (easier updates)
-  - add autopoint, and new files in libdir/gettext and datadir/emacs
-
-* Tue Aug 27 2002 Pablo Saratxaga <pablo@mandrakesoft.com> 0.11.2-8mdk
-- patch to avoid segfaults on unknown encodings
-
-* Mon Jul 08 2002 Stefan van der Eijk <stefan@eijk.nu> 0.11.2-7mdk
-- BuildRequires: emacs-bin
-
-* Sun Jul  7 2002 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 0.11.2-6mdk
-- rpmlint fixes: hardcoded-library-path
-
-* Thu Jul  4 2002 Guillaume Cottenceau <gc@mandrakesoft.com> 0.11.2-5mdk
-- try to fix %%makeinstall call so that there are no missing files in
-  po subdir (use %%makeinstall_std and don't specify additional
-  directories)
-
-* Mon Jun  3 2002 Guillaume Cottenceau <gc@mandrakesoft.com> 0.11.2-4mdk
-- use work from Götz Waschk <waschk@linux-mandrake.com>
-  - change requires to %%{version}-%%{release}
-  - update source 1 (emacs po-mode init)
-  - fix libintl version number to 2.0.1
-- fix silly html doc in /usr/doc/gettext -> %%docdir/htmldoc
-
-* Sat Jun  1 2002 Stefan van der Eijk <stefan@eijk.nu> 0.11.2-3mdk
-- BuildRequires
-- fix release on previous changelog (1mdk --> 2mdk)
-
-* Mon May 27 2002 Pablo Saratxaga <pablo@mandrakesoft.com> 0.11.2-2mdk
-- moved shared libs to the libintl sub-package
-
-* Thu May 23 2002 Pablo Saratxaga <pablo@mandrakesoft.com> 0.11.2-1mdk
-- updated to 0.11.2
-- increased major number
-
-* Wed Oct 17 2001 Guillaume Cottenceau <gc@mandrakesoft.com> 0.10.40-3mdk
-- fix no-documentation
-
-* Mon Oct 15 2001 Guillaume Cottenceau <gc@mandrakesoft.com> 0.10.40-2mdk
-- fix invalid-lc-messages-dir
-- fix patch-not-applied
-- fix obsolete-tag Copyright
-- revive three Patches (please packagers -> when a patch don't "pass"
-  anymore, don't just ignore it, do your work!!)
-- use RH site-start Emacs resource file for po-mode
-- more docs
-
-* Fri Sep 28 2001 Guillaume Cottenceau <gc@mandrakesoft.com> 0.10.40-1mdk
-- new version
-
-* Wed Sep 12 2001 Guillaume Cottenceau <gc@mandrakesoft.com> 0.10.39-2mdk
-- mark emacs site-start file as conffile
-
-* Tue Jul 31 2001 Pablo Saratxaga <pablo@mandrakesoft.com> 0.10.39-1mdk
-- update to 0.10.39
-
-* Thu Jul  5 2001 Guillaume Cottenceau <gc@mandrakesoft.com> 0.10.38-2mdk
-- rebuild
-
-* Tue May 29 2001 Frederic Crozat <fcrozat@mandrakesoft.com> 0.10.38-1mdk
-- Release 0.10.38 (should correct po/Makefile generation problem)
-- Add man pages
-- No longer ship charset.alias, it was wrongly generated with previous version
-(and it is not needed for system with glibc >= 2.1)
-
-* Tue May 15 2001 Pablo Saratxaga <pablo@mandrakesoft.com> 0.10.37-3mdk
-- small patch to avoid issuing warning messages fro charsets we do support
-
-* Fri May 11 2001 Geoffrey Lee <snailtalk@mandrakesoft.com> 0.10.37-2mdk
-- Fix a dangling symlink (Abel).
-
-* Fri Apr 20 2001 Geoffrey Lee <snailtalk@mandrakesoft.com> 0.10.37-1mdk
-- GNU gettext 0.10.37.
-- Include the charset.alias file.
-
-* Wed Apr 18 2001 Geoffrey Lee <snailtalk@mandrakesoft.com> 0.10.36-1mdk
-- New and shiny 0.10.36.
-- Patch cleanup.
-- Split out the dynamic libraries.
-- Remove msghack but put in ngettext.
-- Don't run aclocal before ./configure.
-- Use %%{version} in the Source tag instead of a hardcoded one.
-- In the Source tag s/alpha/ftp/;
-
-* Tue Apr 17 2001 Guillaume Cottenceau <gc@mandrakesoft.com> 0.10.35-20mdk
-- move /usr/bin/gettext to /bin/gettext so that initscripts can be
-  translated before /usr is ever mounted
-
-* Tue Apr 17 2001 Jeff Garzik <jgarzik@mandrakesoft.com> 0.10.35-19mdk
-- Move gettextize to devel package
-- Install po/Makefile.in.in in /usr/share/gettext/po.
-  gettextize was broken without this.
-- Install ABOUT-NLS in /usr/share/gettext.
-  gettextize was broken without this.
-
-* Thu Mar 22 2001 Guillaume Cottenceau <gc@mandrakesoft.com> 0.10.35-18mdk
-- split main package because initscripts requires gettext binary, and we
-  want to have a reasonable "smallest" install
-- add emacs site-start for el file
-- remove elc version of the mode
-
-* Tue Nov  7 2000 Guillaume Cottenceau <gc@mandrakesoft.com> 0.10.35-17mdk
-- fix dependency on devel package
-- add documentation
-
-* Wed Aug 23 2000 Guillaume Cottenceau <gc@mandrakesoft.com> 0.10.35-16mdk
-- automatically added packager tag
-
-* Tue Aug 22 2000 Guillaume Cottenceau <gc@mandrakesoft.com> 0.10.35-15mdk
-- bugfixed gettextize when headers are not there
-  thanks to <rchaillat@mandrakesoft.com>
-
-* Tue Jul 18 2000 Guillaume Cottenceau <gc@mandrakesoft.com> 0.10.35-14mdk
-- macros
-
-* Fri May  5 2000 Guillaume Cottenceau <gc@mandrakesoft.com> 0.10.35-13mdk
-- quick patch to have it work!
-
-* Sat Apr 08 2000 John Buswell <johnb@mandrakesoft.com> 0.10.35-12mdk
-- added devel package
-
-* Thu Mar 30 2000 John Buswell <johnb@mandrakesoft.com> 0.10.35-11mdk
-- fixed groups
-- Removed version number from spec filename
-- spec-helper
-
-* Tue Nov 02 1999 Pablo Saratxaga <pablo@mandrakesoft.com>
-- rebuild for new environment
-
-* Wed Jun 30 1999 Chmouel Boudjnah <chmouel@mandrakesoft.com>
-- s/arch-RedHat/arch-Mandrake/
-- msghack updates.
-
-* Tue May 11 1999 Bernhard Rosenkraenzer <bero@mandrakesoft.com>
-- Mandrake adaptions
-
-* Sun Mar 21 1999 Cristian Gafton <gafton@redhat.com> 
-- auto rebuild in the new build environment (release 8)
-
-* Mon Mar 08 1999 Cristian Gafton <gafton@redhat.com>
-- added patch for misc hacks to facilitate rpm translations
-
-* Thu Dec 03 1998 Cristian Gafton <gafton@redhat.com>
-- patch to allow to build on ARM
-
-* Wed Sep 30 1998 Jeff Johnson <jbj@redhat.com>
-- add Emacs po-mode.el files.
-
-* Sun Sep 13 1998 Cristian Gafton <gafton@redhat.com>
-- include the aclocal support files
-
-* Fri Sep  3 1998 Bill Nottingham <notting@redhat.com>
-- remove devel package (functionality is in glibc)
-
-* Tue Sep  1 1998 Jeff Johnson <jbj@redhat.com>
-- update to 0.10.35.
-
-* Mon Jun 29 1998 Jeff Johnson <jbj@redhat.com>
-- add gettextize.
-- create devel package for libintl.a and libgettext.h.
-
-* Mon Apr 27 1998 Prospector System <bugs@redhat.com>
-- translations modified for de, fr, tr
-
-* Sun Nov 02 1997 Cristian Gafton <gafton@redhat.com>
-- added info handling
-- added misc-patch (skip emacs-lisp modofications)
-
-* Sat Nov 01 1997 Erik Troan <ewt@redhat.com>
-- removed locale.aliases as we get it from glibc now
-- uses a buildroot
-
-* Mon Jun 02 1997 Erik Troan <ewt@redhat.com>
-- Built against glibc
