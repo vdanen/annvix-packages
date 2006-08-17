@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		php-ini
-%define version		4.4.2
+%define version		4.4.3
 %define release		%_revrel
 
 Summary:	INI files for PHP
