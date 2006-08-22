@@ -96,7 +96,6 @@ pushd annvix-runit-%{aver}
     done
 popd
 
-cp %{_sourcedir}/*.8 %{name}-%{version}/man/
 install -m 0644 %{name}-%{version}/man/*.8 %{buildroot}%{_mandir}/man8/
 
 
