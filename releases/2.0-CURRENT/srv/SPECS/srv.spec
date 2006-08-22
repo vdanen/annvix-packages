@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		srv
-%define version 	0.24
+%define version 	0.25
 %define release 	%_revrel
 
 Summary:	Tool to manage runsv-controlled services
@@ -24,7 +24,7 @@ Source:		%{name}-%{version}.tar.bz2
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	dietlibc-devel
 
-Requires:	runit >= 1.0.4, initscripts >= 7.06-41avx
+Requires:	runit >= 1.5.0, initscripts >= 7.06-41avx
 Obsoletes:	supervise-scripts
 Provides:	supervise-scripts
 
@@ -34,7 +34,6 @@ A tool to manage runsv-controlled services.
 
 %prep
 %setup -q
-%setup -q -n %{name}-%{version}
 
 
 %build
@@ -64,6 +63,12 @@ install -m 0644 functions %{buildroot}%{_datadir}/srv
 
 
 %changelog
+* Tue Aug 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.25
+- 0.25
+  - use /sbin/sv rather than runsv* programs since runit no longer
+    provides them via default
+  - requires runit 1.5.0 or higher
+
 * Wed Feb 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.24
 - 0.24
   - explicitly use /bin/bash
@@ -130,7 +135,7 @@ install -m 0644 functions %{buildroot}%{_datadir}/srv
 - bootstrap build
 
 * Wed Oct 06 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.9-3avx
-- add %{_datadir}/srv/exceptions so we can have more services for
+- add %%{_datadir}/srv/exceptions so we can have more services for
   process killing exceptions than just sshd; so far we have both
   sshd and mysqld here
 
