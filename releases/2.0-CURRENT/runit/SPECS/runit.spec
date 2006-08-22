@@ -24,10 +24,6 @@ URL:		http://smarden.org/runit/
 Source0:	%{name}-%{version}.tar.gz
 # available from http://annvix.org/cg-bin/viewcvs.cgi/tools/runit/
 Source1:	annvix-runit-%{aver}.tar.bz2
-Source2:	runsvctrl.8
-Source3:	runsvstat.8
-Source4:	svwaitdown.8
-Source5:	svwaitup.8
 Patch0:		runit-1.3.1-avx-localtime.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -70,11 +66,6 @@ pushd %{name}-%{version}/src
     echo "$COMP -Os -pipe" > conf-cc
     echo "$COMP -Os -static -s" > conf-ld
     make
-    # runsvctrl and friends are depreciated due to sv, but we still need them for
-    # srv until it can be changed to use sv, so force building them
-    for i in svwaitup svwaitdown runsvctrl runsvstat; do
-        make $i
-    done
 popd
 
 
@@ -84,7 +75,7 @@ popd
 mkdir -p %{buildroot}{/service,/sbin,%{_mandir}/man8,%{_sysconfdir}/{runit,sysconfig/env/runit},%{_srvdir}/mingetty-tty{1,2,3,4,5,6}}
 
 pushd %{name}-%{version}
-    for i in `cat package/commands` svwaitup svwaitdown runsvctrl runsvstat; do
+    for i in `cat package/commands`; do
 	install -m 0755 src/$i %{buildroot}/sbin/
     done
     mv %{buildroot}/sbin/runit-init %{buildroot}/sbin/init
@@ -151,27 +142,11 @@ fi
 %attr(0755,root,root) /sbin/runsv
 %attr(0755,root,root) /sbin/runsvdir
 %attr(0755,root,root) /sbin/runsvchdir
-%attr(0755,root,root) /sbin/svwaitdown
 %attr(0755,root,root) /sbin/sv
-%attr(0755,root,root) /sbin/runsvctrl
-%attr(0755,root,root) /sbin/runsvstat
-%attr(0755,root,root) /sbin/svwaitup
 %attr(0755,root,root) /sbin/svlogd
 %attr(0755,root,root) /sbin/chpst
 %attr(0755,root,root) /sbin/utmpset
-%attr(0644,root,root) %{_mandir}/man8/chpst.8*
-%attr(0644,root,root) %{_mandir}/man8/runit-init.8*
-%attr(0644,root,root) %{_mandir}/man8/runit.8*
-%attr(0644,root,root) %{_mandir}/man8/runsv.8*
-%attr(0644,root,root) %{_mandir}/man8/runsvchdir.8*
-%attr(0644,root,root) %{_mandir}/man8/runsvctrl.8*
-%attr(0644,root,root) %{_mandir}/man8/runsvdir.8*
-%attr(0644,root,root) %{_mandir}/man8/runsvstat.8*
-%attr(0644,root,root) %{_mandir}/man8/svlogd.8*
-%attr(0644,root,root) %{_mandir}/man8/svwaitdown.8*
-%attr(0644,root,root) %{_mandir}/man8/svwaitup.8*
-%attr(0644,root,root) %{_mandir}/man8/sv.8*
-%attr(0644,root,root) %{_mandir}/man8/utmpset.8*
+%attr(0644,root,root) %{_mandir}/man8/*.8*
 %attr(0700,root,root) %dir %{_sysconfdir}/runit
 %attr(0700,root,root) %{_sysconfdir}/runit/1
 %attr(0700,root,root) %{_sysconfdir}/runit/2
@@ -211,6 +186,10 @@ fi
 
 
 %changelog
+* Tue Aug 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.6.0
+- with the new srv, we can drop runsvctrl, runsvstat, svwaitdown, and
+  svwaitup
+
 * Fri Jul 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.6.0
 - 1.6.0
 - S2-S4: include the manpages for runsvctrl, runsvstatus, svwaitdown,
