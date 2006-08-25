@@ -128,6 +128,9 @@ mkdir %{buildroot}%{peardir}/packages
 
 
 %changelog
+* Thu Aug 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.4
+- php 4.4.4
+
 * Wed Jan 18 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - php 4.4.2
 

@@ -13,7 +13,7 @@
 %define release		%_revrel
 %define epoch		1
 
-%define phpversion	4.4.3
+%define phpversion	4.4.4
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir		%{_libdir}/php
 
@@ -117,6 +117,9 @@ install -m 0755 %{soname} %{buildroot}%{phpdir}/extensions/
 
 
 %changelog
+* Thu Aug 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.4
+- php 4.4.4
+
 * Wed Aug 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.3
 - php 4.4.3
 

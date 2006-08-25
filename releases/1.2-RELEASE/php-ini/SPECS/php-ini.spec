@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		php-ini
-%define version		4.4.3
+%define version		4.4.4
 %define release		%_revrel
 
 Summary:	INI files for PHP
@@ -60,6 +60,9 @@ perl -pi -e 's|EXTENSIONDIR|%{_libdir}/php/extensions|g' %{buildroot}%{_sysconfd
 
 
 %changelog
+* Thu Aug 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.4
+- php 4.4.4
+
 * Wed Aug 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.3
 - php 4.4.3
 
