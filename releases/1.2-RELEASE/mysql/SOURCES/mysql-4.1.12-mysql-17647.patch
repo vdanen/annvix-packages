@@ -1,0 +1,62 @@
+--- mysql-4.1.12/sql/sql_acl.cc.mysql-17647	2006-08-23 10:54:19.613005424 -0600
++++ mysql-4.1.12/sql/sql_acl.cc	2006-08-23 10:59:49.920005932 -0600
+@@ -146,7 +146,9 @@ my_bool acl_init(THD *org_thd, bool dont
+   if (!acl_cache)
+     acl_cache=new hash_filo(ACL_CACHE_SIZE,0,0,
+ 			    (hash_get_key) acl_entry_get_key,
+-			    (hash_free_key) free, system_charset_info);
++			    (hash_free_key) free,
++			    lower_case_file_system ?
++			    system_charset_info : &my_charset_bin);
+   if (dont_read_acl_tables)
+   {
+     DBUG_RETURN(0); /* purecov: tested */
+--- mysql-4.1.12/mysql-test/r/case_sensitive_file_system.require.mysql-17647	2006-08-23 11:01:06.407606508 -0600
++++ mysql-4.1.12/mysql-test/r/case_sensitive_file_system.require	2006-08-23 11:00:44.781062251 -0600
+@@ -0,0 +1,2 @@
++Variable_name   Value
++lower_case_file_system  OFF
+--- mysql-4.1.12/mysql-test/r/lowercase_fs_off.result.mysql-17647	2006-08-23 11:02:19.983390109 -0600
++++ mysql-4.1.12/mysql-test/r/lowercase_fs_off.result	2006-08-23 11:04:59.855496327 -0600
+@@ -0,0 +1,11 @@
++create database d1;
++grant all on d1.* to 'sample'@'localhost' identified by 'password';
++flush privileges;
++select database();
++database()
++d1
++create database d2;
++ERROR 42000: Access denied for user 'sample'@'localhost' to database 'd2'
++create database D1;
++ERROR 42000: Access denied for user 'sample'@'localhost' to database 'D1'
++drop database if exists d1;
+--- mysql-4.1.12/mysql-test/t/lowercase_fs_off.test.mysql-17647	2006-08-23 11:05:45.396960673 -0600
++++ mysql-4.1.12/mysql-test/t/lowercase_fs_off.test	2006-08-23 11:06:12.927246303 -0600
+@@ -0,0 +1,27 @@
++#
++# Specific tests for case sensitive file systems
++# i.e. lower_case_filesystem=OFF
++#
++-- source include/have_case_sensitive_file_system.inc
++
++connect (master,localhost,root,,);
++connection master;
++create database d1;
++grant all on d1.* to 'sample'@'localhost' identified by 'password';
++flush privileges;
++
++connect (sample,localhost,sample,password,d1);
++connection sample;
++select database();
++--error 1044
++create database d2;
++--error 1044
++create database D1;
++disconnect sample;
++
++connection master;
++drop database if exists d1;
++disconnect master;
++connection default;
++
++# End of 4.1 tests

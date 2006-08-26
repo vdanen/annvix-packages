@@ -55,6 +55,8 @@ Patch9:		mysql-4.1.9-disable-pthreadsmutexes.diff
 Patch10:	mysql-4.1.12-mdk-noproc.patch
 Patch11:	mysql-4.1.19-CVE-2006-1516-1517.patch
 Patch12:	mysql-4.1.12-CVE-2006-2753.patch
+Patch13:	mysql-4.1.14-CVE-2006-4031.patch
+Patch14:	mysql-4.1.12-mysql-17647.patch
 
 BuildRoot:      %{_buildroot}/%{name}-%{version}
 BuildRequires:	bison, glibc-static-devel, libstdc++-static-devel, autoconf2.5, automake1.7
@@ -153,6 +155,8 @@ client/server version.
 %patch10 -p1 -b .noproc
 %patch11 -p1 -b .cve-2006-1516-1517
 %patch12 -p1 -b .cve-2006-2753
+%patch13 -p1 -b .cve-2006-4031
+%patch14 -p1 -b .cve-2006-4226
 
 # fix annoyances
 perl -pi -e "s|AC_PROG_RANLIB|AC_PROG_LIBTOOL|g" configure*
@@ -532,6 +536,11 @@ fi
 
 
 %changelog
+* Fri Aug 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.1.14
+- P13: security fix for CVE-2006-4031
+- P14: security fix for CVE-2006-4226
+- added --skip-merge as a default in env/MYSQLD_OPTS
+
 * Wed Jun 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.1.14
 - P12: security fix for CVE-2006-2753
 
