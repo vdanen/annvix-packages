@@ -14,7 +14,7 @@
 
 # Module-Specific definitions
 %define apache_version	2.0.55
-%define phpversion	4.4.2
+%define phpversion	4.4.4
 %define mod_name	mod_php
 %define mod_conf	70_%{mod_name}.conf
 %define mod_so		%{mod_name}4.so
@@ -95,6 +95,9 @@ cat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 
 %changelog
+* Mon Aug 281 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.55_4.4.4
+- php 4.4.4 
+
 * Sat Feb 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.55_4.4.2
 - rebuild against apr and apr-util 0.9.7 (needed to make mod_cgi.so work
   properly)
