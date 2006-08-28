@@ -95,7 +95,7 @@ cat %{SOURCE1} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 
 %changelog
-* Mon Aug 281 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.55_4.4.4
+* Mon Aug 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.55_4.4.4
 - php 4.4.4 
 
 * Sat Feb 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.55_4.4.2
