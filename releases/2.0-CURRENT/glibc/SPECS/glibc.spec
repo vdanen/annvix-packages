@@ -132,6 +132,7 @@ Patch503:	glibc-2.2.5-share-locale.patch
 # Annvix
 Patch600:	glibc-2.3.5-avx-relocate_fcrypt.patch
 Patch601:	glibc-2.3.6-avx-increase_BF_FRAME.patch
+Patch602:	glibc-2.3.6-avx-kernel-headers-audit_support.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	patch
@@ -398,6 +399,7 @@ TARGET=%{_target_cpu}
 %patch500 -p1
 %patch501 -p1
 %patch502 -p1
+%patch602 -p1
 %{expand:%(%__cat %{_sourcedir}/make_versionh.sh)}
 %{expand:%(%__cat %{_sourcedir}/create_asm_headers.sh)}
 popd
@@ -1187,6 +1189,9 @@ fi
 
 
 %changelog
+* Tue Aug 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.6
+- P602: update audit.h and add elf-em.h so that audit can compile
+
 * Fri Aug 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.6
 - devel package needs coreutils for rm and ln
 - spec cleanups
