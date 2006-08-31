@@ -34,6 +34,8 @@ Patch4:		binutils-2.15.94.0.2-place-orphan.patch
 Patch5:		binutils-2.15.92.0.2-ppc64-pie.patch
 Patch6:		binutils-2.16.91.0.2-ppc32-got2.patch
 Patch7:		binutils-2.16.91.0.1-deps.patch
+Patch8:		binutils-2.16.91.0.2-CVE-2005-4807.patch
+Patch9:		binutils-2.16.91.0.2-CVE-2006-2362.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf automake bison flex gcc gettext texinfo glibc-static-devel
@@ -94,6 +96,8 @@ This is the development headers for %{libname}
 %patch5 -p0 -b .ppc64-pie
 %patch6 -p0 -b .ppc32-got2
 %patch7 -p1 -b .deps
+%patch8 -p1 -b .cve-2005-4807
+%patch9 -p1 -b .cve-2006-2362
 
 
 %build
@@ -202,6 +206,10 @@ rm -rf %{buildroot}%{_datadir}/locale/
 
 
 %changelog
+* Thu Aug 31 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.16.91.0.2
+- P8: security fix for CVE-2005-4807
+- P9: security fix for CVE-2006-2362
+
 * Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - Clean rebuild
 
