@@ -22,7 +22,6 @@ License:	LGPL
 Group:		System/Configuration
 URL:		http://forge.novell.com/modules/xfmod/project/?apparmor
 Source0:	%{name}-%{version}-6377.tar.gz
-Source1:	aaeventd.run
 Patch0:		apparmor-utils-2.0-avx-socklog.patch
 Patch1:		apparmor-utils-2.0-avx-nofork.patch
 
@@ -57,9 +56,6 @@ make DESTDIR=%{buildroot} \
      PERLDIR=%{buildroot}%{perl_vendorlib}/Immunix \
      install
 
-mkdir -p %{buildroot}%{_srvdir}/aaeventd
-install -m 0740 %{_sourcedir}/aaeventd.run %{buildroot}%{_srvdir}/aaeventd/run
-
 %kill_lang %{name}
 %find_lang %{name}
 
@@ -68,24 +64,26 @@ install -m 0740 %{_sourcedir}/aaeventd.run %{buildroot}%{_srvdir}/aaeventd/run
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
-%preun
-%_preun_srv aaventd
-
-%post
-%_post_srv aaeventd
-
-
 %files -f %{name}.lang
 %defattr(-,root,root)
-%config %attr(0640,root,root) /etc/apparmor/*
+%config(noreplace) %attr(0640,root,root) /etc/apparmor/logprof.conf
+%config(noreplace) %attr(0640,root,root) /etc/apparmor/severity.db
 %attr(0750,root,root) %{_sbindir}/*
 %{perl_vendorlib}/Immunix
 %dir %attr(0700,root,root) /var/log/apparmor
-%dir %attr(0750,root,admin) %{_srvdir}/aaeventd
-%config(noreplace) %attr(0740,root,admin) %{_srvdir}/aaeventd/run
 
 
 %changelog
+* Wed Aug 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
+- drop aaeventd; we don't need or want it
+- update P0 again to change everything looking for /var/log/audit/audit.log to
+  /var/log/system/audit/current
+- make the config files noreplace
+
+* Tue Aug 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
+- update P0 to a) fix a syntax error and b) to use the right log
+  file
+
 * Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
 - spec cleanups
 - remove locales
