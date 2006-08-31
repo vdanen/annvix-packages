@@ -37,6 +37,7 @@ against this library.
 %package -n %{libname}
 Summary:        Library to provide key AppArmor symbols
 Group:          System/Libraries
+Provides:	libapparmor = %{version}-%{release}
 
 %description -n %{libname}
 This package provides the libapparmor library, which contains the
@@ -100,5 +101,8 @@ make DESTDIR=%{buildroot} LIB=/%{_lib} VERSION=%{version} RELEASE=%{major} insta
 
 
 %changelog
+* Wed Aug 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
+- make lib(64)apparmor1 provide libapparmor too
+
 * Tue Jun 27 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
 - first Annvix package
