@@ -21,7 +21,10 @@ Release:	%{release}
 License:	GPL
 Group:		System/Configuration
 URL:		http://forge.novell.com/modules/xfmod/project/?apparmor
-Source0:	%{name}-%{version}-35.tar.gz
+Source0:	%{name}-%{version}-50.tar.gz
+Patch0:		apparmor-profiles-50_61_m_P_U.patch
+Patch1:		apparmor-profiles-named-slave-zones-179596.patch
+Patch2:		apparmor-profiles-183800-182344.diff
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
@@ -45,6 +48,9 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
+%patch0 -b .m_P_U
+%patch1 -p1 -b .named-slave-zones
+%patch2 -p1 -b .183800-182344
 
 
 %install
@@ -74,6 +80,13 @@ make DESTDIR=%{buildroot} \
 
 
 %changelog
+* Wed Aug 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
+- sync some patches with SUSE to match support in SLE10:
+  - updated to revision 50
+  - P0: add support for the new m flag and Px/Ux modes
+  - P1: fixes for named slave zone transfers
+  - P2: other profile fixes
+
 * Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
 - remove locales
 

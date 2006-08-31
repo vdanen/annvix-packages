@@ -1,0 +1,2892 @@
+This patch reflects svn changes from revision 50 through roughly 61,
+which includes bugfixes for:
+Bug 175598 - AppArmor denies postfix chroot
+Bug 177433 - AppArmor missing profile for postfix/cleanup access to
+/var/spool/postfix/hold
+Bug 175626 - /var/lib/ntp/etc/ntp.conf.iburst missing from ntpd profile
+
+This patch also includes 
+Bug 175388 - Profile access allows essentially execute permission when
+only read access is granted via usage of mmap system call.
+Bug 172061 - LD_PRELOAD can be exploited to change the execution path
+across exec transitions
+
+And finally, it removes the /usr/sbin/in.identd profile from
+usr.sbin.identd -- this would cause a problem loading profiles at boot
+should this profile ever need to be updated by our automatic tools.
+
+Index: enabled/usr.sbin.ntpd
+===================================================================
+--- enabled/usr.sbin.ntpd.orig
++++ enabled/usr.sbin.ntpd
+@@ -32,7 +32,8 @@
+   /etc/ntp/keys r,
+   /etc/ntp/step-tickers r,
+   /tmp/ntp* rwl,
+-  /usr/sbin/ntpd rix,
++  /usr/sbin/ntpd rmix,
++  /var/lib/ntp/etc/ntp.conf.iburst  r,
+   /var/lib/ntp/drift rwl,
+   /var/lib/ntp/drift.TEMP rwl,
+   /var/lib/ntp/drift/ntp.drift r,
+Index: enabled/usr.sbin.traceroute
+===================================================================
+--- enabled/usr.sbin.traceroute.orig
++++ enabled/usr.sbin.traceroute
+@@ -19,5 +19,5 @@
+   capability net_raw,
+ 
+   /proc/net/route       r,
+-  /usr/sbin/traceroute  rix,
++  /usr/sbin/traceroute  rmix,
+ }
+Index: enabled/usr.bin.ldd
+===================================================================
+--- enabled/usr.bin.ldd.orig
++++ enabled/usr.bin.ldd
+@@ -33,31 +33,31 @@
+   /usr/share/zoneinfo/**         r,
+ 
+   /usr/lib64/locale/**             r,
+-  /usr/lib64/gconv/*.so            r,
++  /usr/lib64/gconv/*.so            mr,
+   /usr/lib64/gconv/gconv-modules*  r,
+ 
+   /usr/lib/locale/**             r,
+-  /usr/lib/gconv/*.so            r,
++  /usr/lib/gconv/*.so            mr,
+   /usr/lib/gconv/gconv-modules*  r,
+ 
+   /etc/ld.so.cache               r,
+ 
+-  /lib64/lib*.so*                r,
+-  /lib64/tls/lib*.so*            r,
+-  /usr/lib64/lib*.so*            r,
+-  /usr/lib64/tls/lib*.so*        r,
+-
+-  /lib/lib*.so*                  r,
+-  /lib/tls/lib*.so*              r,
+-  /usr/lib/lib*.so*              r,
+-  /usr/lib/tls/lib*.so*          r,
++  /lib64/lib*.so*                mr,
++  /lib64/tls/lib*.so*            mr,
++  /usr/lib64/lib*.so*            mr,
++  /usr/lib64/tls/lib*.so*        mr,
++
++  /lib/lib*.so*                  mr,
++  /lib/tls/lib*.so*              mr,
++  /usr/lib/lib*.so*              mr,
++  /usr/lib/tls/lib*.so*          mr,
+ 
+   /dev/null                      rw,
+   /dev/zero                      rw,
+ 
+   /proc/sys/kernel/version       r,
+ 
+-  /lib/ld-*               rix,
+-  /**                     rix,
+-  /bin/bash		  rix,
++  /lib/ld-*               rmix,
++  /**                     rmix,
++  /bin/bash		  rmix,
+ }
+Index: enabled/bin.ping
+===================================================================
+--- enabled/bin.ping.orig
++++ enabled/bin.ping
+@@ -9,9 +9,6 @@
+ #    License published by the Free Software Foundation.
+ #
+ # ------------------------------------------------------------------
+-# ping uses raw sockets, so the netdomain rules included in base and
+-# nameservice are NOT the only network access ping has.
+-#
+ 
+ #include <tunables/global>
+ 
+@@ -23,6 +20,6 @@
+   capability net_raw,
+   capability setuid,
+ 
+-  /bin/ping ixr,
++  /bin/ping mixr,
+   /etc/modules.conf r,
+ }
+Index: enabled/usr.sbin.named
+===================================================================
+--- enabled/usr.sbin.named.orig
++++ enabled/usr.sbin.named
+@@ -25,10 +25,10 @@
+ 
+   /** r,
+   /dyn/** rwl,
+-  /usr/bin/dnskeygen ix,
+-  /usr/bin/dnsquery ix,
+-  /usr/sbin/named rix,
+-  /usr/sbin/named-xfer ix,
++  /usr/bin/dnskeygen mix,
++  /usr/bin/dnsquery mix,
++  /usr/sbin/named rmix,
++  /usr/sbin/named-xfer mix,
+   /var/lib/named/** rwl,
+   /var/named/** rwl,
+   /var/run/named.pid wl,
+Index: enabled/usr.sbin.mdnsd
+===================================================================
+--- enabled/usr.sbin.mdnsd.orig
++++ enabled/usr.sbin.mdnsd
+@@ -1,5 +1,17 @@
+-# vim:syntax=subdomain
+-# Last Modified: Wed Feb  1 11:07:56 2006
++# $Id$
++# vim:syntax=apparmor
++# ------------------------------------------------------------------
++#
++#    Copyright (C) 2002-2005 Novell/SUSE
++#
++#    This program is free software; you can redistribute it and/or
++#    modify it under the terms of version 2 of the GNU General Public
++#    License published by the Free Software Foundation.
++#
++# ------------------------------------------------------------------
++
++#include <tunables/global>
++
+ /usr/sbin/mdnsd {
+   #include <abstractions/base>
+   #include <abstractions/consoles>
+@@ -11,10 +23,11 @@
+   capability sys_chroot,
+   capability sys_resource,
+ 
++  /usr/sbin/mdnsd rmix,
++
+   /proc/net r,
+   /proc/net/unix r,
+   /proc/sys/kernel/ngroups_max r,
+-  /usr/sbin/mdnsd r,
+   /var/run/mdnsd lw,
+   /var/run/mdnsd.pid w,
+ }
+Index: enabled/bin.netstat
+===================================================================
+--- enabled/bin.netstat.orig
++++ enabled/bin.netstat
+@@ -23,7 +23,7 @@
+   capability dac_override,
+   capability dac_read_search,
+ 
+-  /bin/netstat rix,
++  /bin/netstat rmix,
+   /etc/networks r,
+   /proc r,
+   /proc/[0-9]*/cmdline r,
+Index: enabled/usr.sbin.identd
+===================================================================
+--- enabled/usr.sbin.identd.orig
++++ enabled/usr.sbin.identd
+@@ -20,22 +20,7 @@
+   /etc/identd.conf         r,
+   /etc/identd.key          r,
+   /etc/identd.pid          w,
+-  /usr/sbin/identd	   rix,
+-  /proc/net/tcp            r,
+-  /proc/net/tcp6           r,
+-  /var/run/identd.pid      w,
+-}
+-
+-/usr/sbin/in.identd {
+-  #include <abstractions/base>
+-  #include <abstractions/nameservice>
+-  capability net_bind_service,
+-  capability setgid,
+-  capability setuid,
+-  /etc/identd.conf         r,
+-  /etc/identd.key          r,
+-  /etc/identd.pid          w,
+-  /usr/sbin/in.identd	   rix,
++  /usr/sbin/identd	   rmix,
+   /proc/net/tcp            r,
+   /proc/net/tcp6           r,
+   /var/run/identd.pid      w,
+Index: enabled/usr.sbin.nscd
+===================================================================
+--- enabled/usr.sbin.nscd.orig
++++ enabled/usr.sbin.nscd
+@@ -28,7 +28,7 @@
+   /proc/*/mounts r,
+   /proc/filesystems r,
+   /proc/sys/kernel/ngroups_max r,
+-  /usr/sbin/nscd rix,
++  /usr/sbin/nscd rmix,
+   /var/run/.nscd_socket wl,
+   /var/run/nscd r,
+   /var/run/nscd/db* wl,
+Index: enabled/sbin.klogd
+===================================================================
+--- enabled/sbin.klogd.orig
++++ enabled/sbin.klogd
+@@ -18,7 +18,7 @@
+ 
+   /boot/System.map*     r,
+   /proc/kmsg		r,
+-  /sbin/klogd		rix,
++  /sbin/klogd		rmix,
+   /var/log/boot.msg     rwl,
+   /var/run/klogd.pid    rwl,
+ }
+Index: enabled/sbin.syslogd
+===================================================================
+--- enabled/sbin.syslogd.orig
++++ enabled/sbin.syslogd
+@@ -26,7 +26,7 @@
+   /dev/tty*                     w,
+   /dev/xconsole                 rw,
+   /etc/syslog.conf              r,
+-  /sbin/syslogd                 rix,
++  /sbin/syslogd                 rmix,
+   /var/log/**                   rw,
+   /var/run/syslogd.pid          rwl,
+   /var/run/utmp                 rw,
+Index: program-chunks/postfix-common
+===================================================================
+--- program-chunks/postfix-common.orig
++++ program-chunks/postfix-common
+@@ -13,11 +13,12 @@
+ 
+   capability            setuid,
+   capability            setgid,
++  capability            sys_chroot,
+ 
+   /etc/postfix/*.cf     r,
+   /proc/net/if_inet6    r,
+-  /usr/lib/postfix/*.so r,
+-  /usr/lib64/sasl2/*    r,
++  /usr/lib/postfix/*.so mr,
++  /usr/lib64/sasl2/*    mr,
+   /usr/lib64/sasl2      r,
+-  /usr/lib/sasl2/*      r,
++  /usr/lib/sasl2/*      mr,
+   /usr/lib/sasl2        r,
+Index: extras/sbin.dhcpcd
+===================================================================
+--- extras/sbin.dhcpcd.orig
++++ extras/sbin.dhcpcd
+@@ -30,8 +30,8 @@
+   /etc/resolv.conf{,.sv} rwl,
+   /etc/ntp.conf{,.sv} rwl,
+   /etc/yp.conf{,.sv} rwl,
+-  /etc/sysconfig/network/scripts/dhcpcd-hook rpx ,
+-  /sbin/dhcpcd rix,
+-  /sbin/modify_resolvconf rix,
++  /etc/sysconfig/network/scripts/dhcpcd-hook rPx,
++  /sbin/dhcpcd rmix,
++  /sbin/modify_resolvconf rmix,
+   /var/run/dhcpcd-*.pid rwl,
+ }
+Index: extras/usr.lib.postfix.tlsmgr
+===================================================================
+--- extras/usr.lib.postfix.tlsmgr.orig
++++ extras/usr.lib.postfix.tlsmgr
+@@ -17,8 +17,9 @@
+   #include <abstractions/nameservice>
+   #include <program-chunks/postfix-common>
+ 
++  /usr/lib/postfix/tlsmgr           rmix,
++
+   /etc/postfix/prng_exch            rw,
+   /proc/sys/kernel/ngroups_max      r,
+-  /usr/lib/postfix/tlsmgr           r,
+   /{var/spool/postfix/,}private/tlsmgr r,
+ }
+Index: extras/usr.sbin.lighttpd
+===================================================================
+--- extras/usr.sbin.lighttpd.orig
++++ extras/usr.sbin.lighttpd
+@@ -35,10 +35,10 @@
+   /etc/lighttpd/auth.d/* r,
+   /etc/lighttpd/vhosts.d r,
+   /etc/lighttpd/vhosts.d/* r,
+-  /usr/sbin/lighttpd ix,
++  /usr/sbin/lighttpd mix,
+ 
+-  /usr/lib/lighttpd/*.so r,
+-  /usr/lib64/lighttpd/*.so r,
++  /usr/lib/lighttpd/*.so mr,
++  /usr/lib64/lighttpd/*.so mr,
+ 
+   /etc/ssl/private/*.pem r,
+   # home dir. e.g. used for sockets.
+@@ -52,8 +52,8 @@
+   # log files
+   /var/log/lighttpd/*.log rw,
+   # include_shell
+-  /bin/bash ix,
+-  /bin/zsh ix,
+-  /bin/cat ix,
++  /bin/bash mix,
++  /bin/zsh mix,
++  /bin/cat mix,
+ }
+ 
+Index: extras/usr.bin.fam
+===================================================================
+--- extras/usr.bin.fam.orig
++++ extras/usr.bin.fam
+@@ -16,7 +16,7 @@
+   #include <abstractions/nameservice>
+   /tmp/.fam*		wl,
+   /etc/mtab		rw,
+-  /usr/bin/fam          rix,
++  /usr/bin/fam          rmix,
+   # it makes some level of sense for FAM to read all files on the
+   # filesystem, even if this is a little unfortunate.
+   /** 			r,
+Index: extras/usr.sbin.dhcpd
+===================================================================
+--- extras/usr.sbin.dhcpd.orig
++++ extras/usr.sbin.dhcpd
+@@ -26,7 +26,7 @@
+   /etc/dhcpd.conf	r,
+   /etc/hosts.allow	r,
+   /etc/hosts.deny	r,
+-  /usr/sbin/dhcpd	rix,
++  /usr/sbin/dhcpd	rmix,
+   /var/lib/dhcp/dhcpd.leases*	rwl,
+   /var/lib/dhcp/etc/dhcpd.conf  r,
+   /var/run/dhcpd.pid	wl,
+Index: extras/usr.sbin.postmap
+===================================================================
+--- extras/usr.sbin.postmap.orig
++++ extras/usr.sbin.postmap
+@@ -24,5 +24,5 @@
+   /proc/cpuinfo                     r,
+   /proc/net/if_inet6                r,
+   /proc/stat                        r,
+-  /usr/sbin/postmap                 rix,
++  /usr/sbin/postmap                 rmix,
+ }
+Index: extras/usr.sbin.in.fingerd
+===================================================================
+--- extras/usr.sbin.in.fingerd.orig
++++ extras/usr.sbin.in.fingerd
+@@ -18,7 +18,7 @@
+   @{HOME}/.plan          r,
+   @{HOME}/.project       r,
+ 
+-  /usr/bin/finger        ix,
++  /usr/bin/finger        mix,
+   /var/log/lastlog       r,
+   /var/run/utmp          r,
+ }
+Index: extras/usr.bin.procmail
+===================================================================
+--- extras/usr.bin.procmail.orig
++++ extras/usr.bin.procmail
+@@ -28,11 +28,11 @@
+ 
+   /dev/tty	        rw,
+   # common commands
+-  /bin/bash             rix,
+-  /bin/date	        rix,
+-  /bin/gzip         	rix,
+-  /usr/bin/formail      rix,
+-  /usr/bin/procmail     rix,
+-  /usr/bin/spamc        px,
+-  /usr/sbin/sendmail           rpx,
++  /bin/bash             rmix,
++  /bin/date	        rmix,
++  /bin/gzip         	rmix,
++  /usr/bin/formail      rmix,
++  /usr/bin/procmail     rmix,
++  /usr/bin/spamc        Px,
++  /usr/sbin/sendmail           rPx,
+ }
+Index: extras/usr.bin.opera
+===================================================================
+--- extras/usr.bin.opera.orig
++++ extras/usr.bin.opera
+@@ -26,9 +26,9 @@
+   capability dac_override,
+ 
+   / r,
+-  /bin/bash ix,
+-  /bin/sed ixr,
+-  /bin/true ixr,
++  /bin/bash mix,
++  /bin/sed mixr,
++  /bin/true mixr,
+   /etc/SuSE-release r,
+   /etc/X11/.qt_plugins_3.3rc.lock rw,
+   /etc/X11/.qtrc.lock rw,
+@@ -45,52 +45,51 @@
+   @{HOME}/.fonts.cache-* r,
+   @{HOME}/.fonts r,
+   @{HOME}/.fonts/** r,
+-  @{HOME} ixr,
+-  @{HOME}/  ixr,
++  @{HOME} r,
+   @{HOME}/.kde/share/** r,
+   @{HOME}/OperaDownloads/* rw,
+   @{HOME}/.opera/** lrw,
+   @{HOME}/.opera r,
+ 
+   /opt/mozilla/lib/plugins r,
+-  /opt/mozilla/lib/plugins/** r,
++  /opt/mozilla/lib/plugins/** mr,
+   /opt/gnome/share/** r,
+   /usr r,
+-  /opt/kde3/bin/kfmclient rux,
+-  /opt/kde3/lib/kde3/plugins/integration/*.so r,
+-  /usr/X11R6/bin/acroread rpx,
++  /opt/kde3/bin/kfmclient rUx,
++  /opt/kde3/lib/kde3/plugins/integration/*.so mr,
++  /usr/X11R6/bin/acroread rPx,
+   /usr/X11R6/lib r,
+-  /usr/X11R6/lib/Acrobat7/Browser/intellinux/nppdf.so r,
++  /usr/X11R6/lib/Acrobat7/Browser/intellinux/nppdf.so mr,
+   /usr/X11R6/lib/Acrobat7/Resource/Font/** r,
+   /usr/X11R6/lib/X11/XErrorDB r,
+-  /usr/bin/lp rux,
++  /usr/bin/lp rUx,
+   /usr/bin/opera r,
+   /usr/lib r,
+-  /usr/lib/RealPlayer10/realplay rpx,
+-  /usr/lib/RealPlayer10/realplay.bin rpx,
++  /usr/lib/RealPlayer10/realplay rPx,
++  /usr/lib/RealPlayer10/realplay.bin rPx,
+   /usr/lib/browser-plugins r,
+-  /usr/lib/browser-plugins/* r,
+-  /usr/lib/jvm/** r,
++  /usr/lib/browser-plugins/* mr,
++  /usr/lib/jvm/** mr,
+   /usr/lib/ooo-2.0/share/fonts/** r,
+-  /usr/lib/opera/** ixr,
++  /usr/lib/opera/** mixr,
+   /usr/local r,
+   /usr/share/opera/** r,
+   /var/X11R6/compose-cache/* r,
+   /var/run/.resmgr_socket w,
+   /var/spool/cups/tmp/* lrw,
+-  /opt/gnome/bin/gnome-open rux,
++  /opt/gnome/bin/gnome-open rUx,
+ # external source editors
+-  /usr/X11R6/bin/xedit rux,
+-  /usr/bin/xterm rux,
+-  /usr/X11R6/bin/rxvt rux,
+-  /opt/kde3/bin/kate rux,
+-  /opt/kde3/bin/kwrite rux,
+-  /usr/bin/vi rux,
+-  /usr/bin/vim rux,
+-  /usr/bin/emacs rux,
+-  /usr/bin/pico rux,
+-  /opt/kde3/bin/kvim rux,
+-  /usr/X11R6/bin/xemacs rux,
+-  /bin/vim rux,
+-  /bin/vi rux,
++  /usr/X11R6/bin/xedit rUx,
++  /usr/bin/xterm rUx,
++  /usr/X11R6/bin/rxvt rUx,
++  /opt/kde3/bin/kate rUx,
++  /opt/kde3/bin/kwrite rUx,
++  /usr/bin/vi rUx,
++  /usr/bin/vim rUx,
++  /usr/bin/emacs rUx,
++  /usr/bin/pico rUx,
++  /opt/kde3/bin/kvim rUx,
++  /usr/X11R6/bin/xemacs rUx,
++  /bin/vim rUx,
++  /bin/vi rUx,
+ }
+Index: extras/usr.bin.mlmmj-unsub
+===================================================================
+--- extras/usr.bin.mlmmj-unsub.orig
++++ extras/usr.bin.mlmmj-unsub
+@@ -16,7 +16,7 @@
+   #include <abstractions/base>
+ 
+   /usr/bin/mlmmj-unsub r,
+-  /usr/bin/mlmmj-send px,
++  /usr/bin/mlmmj-send Px,
+   /var/spool/mlmmj/*/control/* r,
+   /var/spool/mlmmj/*/text/* r,
+   /var/spool/mlmmj/*/subscribers.d r,
+Index: extras/usr.bin.mlmmj-make-ml.sh
+===================================================================
+--- extras/usr.bin.mlmmj-make-ml.sh.orig
++++ extras/usr.bin.mlmmj-make-ml.sh
+@@ -23,13 +23,13 @@
+   /usr/bin/mlmmj-make-ml.sh r,
+ 
+   # some shell tools are needed
+-  /bin/domainname ix,
+-  /bin/hostname ix,
+-  /bin/bash ix,
+-  /bin/cp ixr,
+-  /bin/mkdir ixr,
+-  /bin/touch ixr,
+-  /usr/bin/which ixr,
++  /bin/domainname mix,
++  /bin/hostname mix,
++  /bin/bash mix,
++  /bin/cp mixr,
++  /bin/mkdir mixr,
++  /bin/touch mixr,
++  /usr/bin/which mixr,
+   # if mkdir cant read the current work directory it jumps into /
+   # allow reading that dir.
+   / r,
+Index: extras/usr.lib.RealPlayer10.realplay
+===================================================================
+--- extras/usr.lib.RealPlayer10.realplay.orig
++++ extras/usr.lib.RealPlayer10.realplay
+@@ -1,4 +1,4 @@
+-# $Id: usr.lib.RealPlayer10.realplay 12 2006-04-12 21:35:41Z steve-beattie $
++# $Id$
+ # ------------------------------------------------------------------
+ #
+ #    Copyright (C) 2002-2005 Novell/SUSE
+@@ -24,16 +24,16 @@
+   #include <abstractions/user-download>
+   #include <abstractions/X>
+ 
+-  /bin/bash ix,
+-  /bin/sed ixr,
+-  /bin/true ixr,
++  /bin/bash mix,
++  /bin/sed mixr,
++  /bin/true mixr,
+   /etc/opt/gnome/pango/pango.modules r,
+-  /opt/gnome/lib/gtk-2.0/2.4.0/loaders/* r,
+-  /opt/gnome/lib/lib*so* r,
+-  /opt/gnome/lib/pango/1.4.0/modules/* r,
++  /opt/gnome/lib/gtk-2.0/2.4.0/loaders/* mr,
++  /opt/gnome/lib/lib*so* rm,
++  /opt/gnome/lib/pango/1.4.0/modules/* mr,
+   /opt/gnome/share/icons r,
+   /opt/gnome/share/icons/** r,
+-  /opt/gnome/bin/nautilus rux,
++  /opt/gnome/bin/nautilus rUx,
+   /opt/gnome/share/themes/** r,
+   /dev/dsp0 w,
+   /etc/lsb-release r,
+@@ -46,14 +46,14 @@
+ 
+   /usr/X11R6/lib/Acrobat7/Resource/Font/* r,
+   /usr/X11R6/lib/Acrobat7/Resource/Font/PFM/* r,
+-  /usr/lib/RealPlayer10/** r,
+-  /usr/lib/RealPlayer10/realplay.bin ixr,
++  /usr/lib/RealPlayer10/** mr,
++  /usr/lib/RealPlayer10/realplay.bin mixr,
+   /usr/lib/jvm/java-1.4.2-sun-1.4.2.06/jre/lib/fonts/** r,
+   /usr/lib/ooo-2.0/share/fonts/** r,
+-  /opt/MozillaFirefox/bin/firefox.sh pxr,
+-  /opt/MozillaFirefox/lib/firefox-bin pxr,
++  /opt/MozillaFirefox/bin/firefox.sh Pxr,
++  /opt/MozillaFirefox/lib/firefox-bin Pxr,
+   /opt/MozillaFirefox/lib/init.d r,
+-  /usr/bin/opera pxr,
++  /usr/bin/opera Pxr,
+   /usr/share/icons r,
+   /usr/share/icons/** r,
+   /opt/gnome/share/pixmaps r,
+Index: extras/usr.lib.firefox.firefox.sh
+===================================================================
+--- extras/usr.lib.firefox.firefox.sh.orig
++++ extras/usr.lib.firefox.firefox.sh
+@@ -18,17 +18,19 @@
+   #include <abstractions/consoles>
+   #include <abstractions/user-tmp>
+ 
+-  /bin/basename ixr,
+-  /bin/bash ix,
+-  /bin/gawk ixr,
+-  /bin/grep ixr,
++  /bin/basename mixr,
++  /bin/bash mixr,
++  /bin/gawk mixr,
++  /bin/grep mixr,
+   /etc/magic r,
+-  /usr/bin/aoss ux,
+-  /usr/bin/file ixr,
+-  /usr/bin/which ixr,
++  /usr/bin/aoss Ux,
++  /usr/bin/file mixr,
++  /usr/bin/which mixr,
+   /usr/lib/firefox/* r,
++# the shell script relies on LD_PRELOAD.
+   /usr/lib/firefox/firefox-bin px,
+-  /usr/lib/firefox/firefox.sh rix,
++  /usr/lib/firefox/firefox.sh rmix,
++# the shell script relies on LD_PRELOAD.
+   /usr/lib/firefox/mozilla-xremote-client px,
+   /usr/share/misc/magic.mgc r,
+ }
+Index: extras/usr.sbin.xinetd
+===================================================================
+--- extras/usr.sbin.xinetd.orig
++++ extras/usr.sbin.xinetd
+@@ -24,49 +24,49 @@
+   /etc/xinetd.conf                 r,
+   /etc/xinetd.d                    r,
+   /etc/xinetd.d/*                  r,
+-  /usr/sbin/xinetd                 rix,
++  /usr/sbin/xinetd                 rmix,
+   /var/log/xinetd.log              w,
+   /var/run/xinetd.pid              rwl,
+ 
+-  /bin/netstat                     px,
+-  /bin/ps                          ix,
+-  /sbin/linuxconf                  px,
+-  /usr/bin/cvs                     px,
+-  /usr/bin/fam                     px,
+-  /usr/bin/kotalkd                 px,
+-  /usr/bin/ktalkd                  px,
+-  /usr/bin/nrpe                    px,
+-  /usr/bin/rsync                   px,
+-  /usr/kerberos/sbin/ftpd          px,
+-  /usr/kerberos/sbin/klogind       px,
+-  /usr/kerberos/sbin/kshd          px,
+-  /usr/kerberos/sbin/telnetd       px,
+-  /usr/lib/amanda/amandad          px,
+-  /usr/lib/amanda/amidxtaped       px,
+-  /usr/lib/amanda/amindexd         px,
++  /bin/netstat                     Px,
++  /bin/ps                          mix,
++  /sbin/linuxconf                  Px,
++  /usr/bin/cvs                     Px,
++  /usr/bin/fam                     Px,
++  /usr/bin/kotalkd                 Px,
++  /usr/bin/ktalkd                  Px,
++  /usr/bin/nrpe                    Px,
++  /usr/bin/rsync                   Px,
++  /usr/kerberos/sbin/ftpd          Px,
++  /usr/kerberos/sbin/klogind       Px,
++  /usr/kerberos/sbin/kshd          Px,
++  /usr/kerberos/sbin/telnetd       Px,
++  /usr/lib/amanda/amandad          Px,
++  /usr/lib/amanda/amidxtaped       Px,
++  /usr/lib/amanda/amindexd         Px,
+ 
+-  /usr/lib64/cups/daemon/cups-lpd  px,
+-  /usr/lib/cups/daemon/cups-lpd    px,
++  /usr/lib64/cups/daemon/cups-lpd  Px,
++  /usr/lib/cups/daemon/cups-lpd    Px,
+ 
+-  /usr/sbin/dbskkd-cdb             px,
+-  /usr/sbin/imapd                  px,
+-  /usr/sbin/in.comsat              px,
+-  /usr/sbin/in.fingerd             px,
+-  /usr/sbin/in.ftpd                px,
+-  /usr/sbin/in.httpd-redir         px,
+-  /usr/sbin/in.ntalkd              px,
+-  /usr/sbin/in.rexecd              px,
+-  /usr/sbin/in.rlogind             px,
+-  /usr/sbin/in.rshd                px,
+-  /usr/sbin/in.telnetd             px,
+-  /usr/sbin/in.tftpd               px,
+-  /usr/sbin/ipop2d                 px,
+-  /usr/sbin/ipop3d                 px,
+-  /usr/sbin/popper                 px,
+-  /usr/sbin/rsyncd                 px,
+-  /usr/sbin/swat                   px,
+-  /usr/sbin/tcpd                   px,
+-  /usr/sbin/vsftpd                 px,
+-  /usr/X11R6/bin/vnc_inetd_httpd   px,
+-  /usr/X11R6/bin/Xvnc              px,
++  /usr/sbin/dbskkd-cdb             Px,
++  /usr/sbin/imapd                  Px,
++  /usr/sbin/in.comsat              Px,
++  /usr/sbin/in.fingerd             Px,
++  /usr/sbin/in.ftpd                Px,
++  /usr/sbin/in.httpd-redir         Px,
++  /usr/sbin/in.ntalkd              Px,
++  /usr/sbin/in.rexecd              Px,
++  /usr/sbin/in.rlogind             Px,
++  /usr/sbin/in.rshd                Px,
++  /usr/sbin/in.telnetd             Px,
++  /usr/sbin/in.tftpd               Px,
++  /usr/sbin/ipop2d                 Px,
++  /usr/sbin/ipop3d                 Px,
++  /usr/sbin/popper                 Px,
++  /usr/sbin/rsyncd                 Px,
++  /usr/sbin/swat                   Px,
++  /usr/sbin/tcpd                   Px,
++  /usr/sbin/vsftpd                 Px,
++  /usr/X11R6/bin/vnc_inetd_httpd   Px,
++  /usr/X11R6/bin/Xvnc              Px,
+ }
+Index: extras/usr.lib.postfix.scache
+===================================================================
+--- extras/usr.lib.postfix.scache.orig
++++ extras/usr.lib.postfix.scache
+@@ -17,7 +17,8 @@
+   #include <abstractions/nameservice>
+   #include <program-chunks/postfix-common>
+ 
++  /usr/lib/postfix/scache rmix,
++
+   /proc/sys/kernel/ngroups_max r,
+-  /usr/lib/postfix/scache r,
+   /var/run/nscd/group r,
+ }
+Index: extras/opt.gnome.bin.evolution-2.4
+===================================================================
+--- extras/opt.gnome.bin.evolution-2.4.orig
++++ extras/opt.gnome.bin.evolution-2.4
+@@ -55,10 +55,10 @@
+   capability ipc_lock,
+   capability setuid,
+ 
+-  /bin/basename ixr,
+-  /bin/bash ix,
+-  /bin/grep ixr,
+-  /bin/netstat ixr,
++  /bin/basename mixr,
++  /bin/bash mix,
++  /bin/grep mixr,
++  /bin/netstat mixr,
+   /dev/random r,
+   /etc/cups/client.conf r,
+   /etc/cups/lpoptions r,
+@@ -108,36 +108,41 @@
+   @{HOME}/.qt/** lrw,
+   @{HOME}/.recently-used rw,
+ 
+-  /opt/MozillaFirefox/bin/firefox.sh pxr,
+-  /opt/MozillaFirefox/lib/mozilla-xremote-client pxr,
+-  /opt/gnome/bin/AbiWord-2.2 uxr,
+-  /opt/gnome/bin/bug-buddy uxr,
+-  /opt/gnome/bin/conglomerate ux,
+-  /opt/gnome/bin/evince ux,
+-  /opt/gnome/bin/evolution-2.4 ixr,
+-  /opt/gnome/bin/gpdf uxr,
+-  /opt/gnome/bin/nautilus ux,
+-  /opt/gnome/bin/yelp uxr,
++  /opt/MozillaFirefox/bin/firefox.sh Pxr,
++  /opt/MozillaFirefox/lib/mozilla-xremote-client Pxr,
++  /opt/gnome/bin/AbiWord-2.2 Uxr,
++  /opt/gnome/bin/bug-buddy Uxr,
++  /opt/gnome/bin/conglomerate Ux,
++  /opt/gnome/bin/evince Ux,
++  /opt/gnome/bin/evolution-2.4 mixr,
++  /opt/gnome/bin/gpdf Uxr,
++  /opt/gnome/bin/nautilus Ux,
++  /opt/gnome/bin/yelp Uxr,
+   /opt/gnome/lib/** r,
+-  /opt/gnome/lib/GConf/2/gconfd-2 px,
+-  /opt/gnome/lib/bonobo/bonobo-activation-server uxr,
++  /opt/gnome/lib/**.so mr,
++  /opt/gnome/lib/GConf/2/gconfd-2 Px,
++  /opt/gnome/lib/bonobo/bonobo-activation-server Uxr,
+   /opt/gnome/lib/evolution-data-server-*/* r,
+-  /opt/gnome/lib/evolution-data-server-1.2/evolution-data-server-1.4 pxr,
++  /opt/gnome/lib/evolution-data-server-1.2/evolution-data-server-1.4 Pxr,
+   /opt/gnome/lib/evolution/** r,
+-  /opt/gnome/lib/evolution/2.4/evolution-alarm-notify ixr,
++  /opt/gnome/lib/evolution/2.4/evolution-alarm-notify mixr,
+   /opt/gnome/lib/gnome-** r,
+-  /opt/gnome/lib/gnome-spell/libgnome-spell-component-*.so r,
++  /opt/gnome/lib/gnome-**.so mr,
++  /opt/gnome/lib/gnome-spell/libgnome-spell-component-*.so mr,
+   /opt/gnome/lib/gtk-** r,
+-  /opt/gnome/lib/gtkhtml/libgnome-gtkhtml-editor-*.so r,
+-  /opt/gnome/lib/libgnomeui/gnome_segv2 ixr,
++  /opt/gnome/lib/gtk-**.so mr,
++  /opt/gnome/lib/gtkhtml/libgnome-gtkhtml-editor-*.so mr,
++  /opt/gnome/lib/libgnomeui/gnome_segv2 mixr,
+   /opt/gnome/lib/pango/** r,
++  /opt/gnome/lib/pango/**.so mr,
+   /opt/gnome/share/** r,
+-  /opt/kde3/bin/kde-config uxr,
+-  /opt/kde3/bin/kghostview uxr,
+-  /opt/kde3/bin/ksimus ux,
++  /opt/kde3/bin/kde-config Uxr,
++  /opt/kde3/bin/kghostview Uxr,
++  /opt/kde3/bin/ksimus Ux,
+   /opt/kde3/share/** r,
+-  /opt/mozilla/bin/mozilla.sh pxr,
++  /opt/mozilla/bin/mozilla.sh Pxr,
+   /opt/mozilla/lib/** r,
++  /opt/mozilla/lib/**.so mr,
+   /proc/*/cmdline r,
+   /proc/meminfo r,
+   /proc/net r,
+@@ -148,26 +153,26 @@
+   /tmp/.ICE-unix/* w,
+   /tmp/gconfd-** r,
+   /tmp/orbit** lrw,
+-  /usr/X11R6/bin/gv uxr,
+-  /usr/bin/gdb uxr,
+-  /usr/bin/gpg uxr,
+-  /usr/bin/lpr uxr,
+-  /usr/bin/ooo-wrapper ux,
+-  /usr/bin/sa-learn uxr,
+-  /usr/bin/scrollkeeper-config uxr,
+-  /usr/bin/scrollkeeper-get-cl uxr,
+-  /usr/bin/scrollkeeper-get-content-list uxr,
+-  /usr/bin/spamassassin uxr,
+-  /usr/bin/xpdf uxr,
+-  /usr/bin/xscreensaver ux,
++  /usr/X11R6/bin/gv Uxr,
++  /usr/bin/gdb Uxr,
++  /usr/bin/gpg Uxr,
++  /usr/bin/lpr Uxr,
++  /usr/bin/ooo-wrapper Ux,
++  /usr/bin/sa-learn Uxr,
++  /usr/bin/scrollkeeper-config Uxr,
++  /usr/bin/scrollkeeper-get-cl Uxr,
++  /usr/bin/scrollkeeper-get-content-list Uxr,
++  /usr/bin/spamassassin Uxr,
++  /usr/bin/xpdf Uxr,
++  /usr/bin/xscreensaver Ux,
+   /usr/lib/aspell-** r,
+   /usr/lib/enchant r,
+-  /usr/lib/enchant/*.* r,
++  /usr/lib/enchant/*.* mr,
+   /usr/lib/jvm/java-*/jre/lib/fonts r,
+   /usr/lib/jvm/java-*/jre/lib/fonts/* r,
+   /usr/lib/ooo-2.0/share/fonts r,
+   /usr/lib/ooo-2.0/share/fonts/** r,
+-  /usr/sbin/sendmail uxr,
++  /usr/sbin/sendmail Uxr,
+   /usr/share/applications r,
+   /usr/share/applications/*.desktop r,
+   /usr/share/applications/mimeinfo.cache r,
+Index: extras/usr.lib.postfix.master
+===================================================================
+--- extras/usr.lib.postfix.master.orig
++++ extras/usr.lib.postfix.master
+@@ -27,22 +27,22 @@
+   /{var/spool/postfix/,}private/tlsmgr            rwl,
+   /{var/spool/postfix/,}public/{cleanup,flush,pickup,qmgr,showq,tlsmgr} rwl,
+ 
+-  /usr/lib/postfix/anvil                       px,
+-  /usr/lib/postfix/bounce                      px,
+-  /usr/lib/postfix/cleanup                     px,
+-  /usr/lib/postfix/flush                       px,
+-  /usr/lib/postfix/local                       px,
+-  /usr/lib/postfix/master                      rix,
+-  /usr/lib/postfix/nqmgr                       px,
+-  /usr/lib/postfix/proxymap                    px,
+-  /usr/lib/postfix/pickup                      px,
+-  /usr/lib/postfix/pipe                        px,
+-  /usr/lib/postfix/qmgr                        px,
+-  /usr/lib/postfix/scache                      px,
+-  /usr/lib/postfix/showq                       px,
+-  /usr/lib/postfix/smtp                        px,
+-  /usr/lib/postfix/smtpd                       px,
+-  /usr/lib/postfix/tlsmgr                      px,
+-  /usr/lib/postfix/trivial-rewrite             px,
+-  /usr/lib/postfix/master                      rix,
++  /usr/lib/postfix/anvil                       Px,
++  /usr/lib/postfix/bounce                      Px,
++  /usr/lib/postfix/cleanup                     Px,
++  /usr/lib/postfix/flush                       Px,
++  /usr/lib/postfix/local                       Px,
++  /usr/lib/postfix/master                      rmix,
++  /usr/lib/postfix/nqmgr                       Px,
++  /usr/lib/postfix/proxymap                    Px,
++  /usr/lib/postfix/pickup                      Px,
++  /usr/lib/postfix/pipe                        Px,
++  /usr/lib/postfix/qmgr                        Px,
++  /usr/lib/postfix/scache                      Px,
++  /usr/lib/postfix/showq                       Px,
++  /usr/lib/postfix/smtp                        Px,
++  /usr/lib/postfix/smtpd                       Px,
++  /usr/lib/postfix/tlsmgr                      Px,
++  /usr/lib/postfix/trivial-rewrite             Px,
++  /usr/lib/postfix/master                      rmix,
+ }
+Index: extras/usr.sbin.sshd
+===================================================================
+--- extras/usr.sbin.sshd.orig
++++ extras/usr.sbin.sshd
+@@ -33,13 +33,14 @@
+ 
+   /dev/ptmx rw,
+   /dev/urandom r,
++  /etc/environment r,
+   /etc/hosts.allow r,
+   /etc/hosts.deny r,
+   /etc/modules.conf r,
+   /etc/ssh/* r,
+-  /lib64/ld-*.so px,
+-  /lib/ld-*.so px,
+-  /usr/sbin/sshd rpx,
++  /lib64/ld-*.so Px,
++  /lib/ld-*.so Px,
++  /usr/sbin/sshd mrix,
+   /var/run w,
+   /var/run/sshd{,.init}.pid wl,
+ 
+@@ -47,16 +48,16 @@
+ 
+ # should only be here for use in non-change-hat openssh
+ # duplicated from EXEC hat
+-  /bin/ash ux,
+-  /bin/bash ux,
+-  /bin/bash2 ux,
+-  /bin/bsh ux,
+-  /bin/csh ux,
+-  /bin/ksh ux,
+-  /bin/sh ux,
+-  /bin/tcsh ux,
+-  /bin/zsh ux,
+-  /sbin/nologin ux,
++  /bin/ash Ux,
++  /bin/bash Ux,
++  /bin/bash2 Ux,
++  /bin/bsh Ux,
++  /bin/csh Ux,
++  /bin/ksh Ux,
++  /bin/sh Ux,
++  /bin/tcsh Ux,
++  /bin/zsh Ux,
++  /sbin/nologin Ux,
+ 
+ # stuff duplicated from PRIVSEP_MONITOR
+   @{HOME}/.ssh/authorized_keys{,2}         r,
+@@ -70,22 +71,24 @@
+   /etc/motd r,
+   /tmp/ssh-*/agent.[0-9]* rwl,
+ 
++  /tmp/ssh-*[0-9]* w,
++
+ #
+ # default subprofile for when sshd has authenticated the user
+ #
+   ^EXEC {
+     #include <abstractions/base>
+   
+-    /bin/ash ux,
+-    /bin/bash ux,
+-    /bin/bash2 ux,
+-    /bin/bsh ux,
+-    /bin/csh ux,
+-    /bin/ksh ux,
+-    /bin/sh ux,
+-    /bin/tcsh ux,
+-    /bin/zsh ux,
+-    /sbin/nologin ux,
++    /bin/ash Ux,
++    /bin/bash Ux,
++    /bin/bash2 Ux,
++    /bin/bsh Ux,
++    /bin/csh Ux,
++    /bin/ksh Ux,
++    /bin/sh Ux,
++    /bin/tcsh Ux,
++    /bin/zsh Ux,
++    /sbin/nologin Ux,
+ 
+ # for debugging
+ #  /dev/pts/[0-9]*                                              rw,
+Index: extras/usr.lib.postfix.pipe
+===================================================================
+--- extras/usr.lib.postfix.pipe.orig
++++ extras/usr.lib.postfix.pipe
+@@ -14,5 +14,5 @@
+ /usr/lib/postfix/pipe {
+   #include <abstractions/base>
+ 
+-  /usr/lib/postfix/pipe r,
++  /usr/lib/postfix/pipe rmix,
+ }
+Index: extras/etc.cron.daily.slocate.cron
+===================================================================
+--- extras/etc.cron.daily.slocate.cron.orig
++++ extras/etc.cron.daily.slocate.cron
+@@ -17,12 +17,12 @@
+ 
+ /etc/cron.daily/slocate.cron {
+   #include <abstractions/base>
+-  /bin/bash                        ixr ,
++  /bin/bash                        mixr,
+   /dev/tty                         wr  ,
+   /etc/cron.daily/slocate.cron     r   ,
+   /etc/mtab                        r   ,
+   /proc/meminfo                    r   ,
+-  /usr/bin/slocate                 ixr ,
+-  /usr/bin/renice                  ixr ,
++  /usr/bin/slocate                 mixr,
++  /usr/bin/renice                  mixr,
+   /**                              r   ,
+ }
+Index: extras/usr.sbin.vsftpd
+===================================================================
+--- extras/usr.sbin.vsftpd.orig
++++ extras/usr.sbin.vsftpd
+@@ -25,7 +25,7 @@
+   /etc/vsftpd.*              r,
+   /etc/vsftpd/*              r,
+   /proc/meminfo              r,
+-  /usr/sbin/vsftpd	     rix,
++  /usr/sbin/vsftpd	     rmix,
+   /var/log/vsftpd.log        w,
+   /var/log/xferlog           w,
+   # anon chroots
+Index: extras/sbin.rpc.lockd
+===================================================================
+--- extras/sbin.rpc.lockd.orig
++++ extras/sbin.rpc.lockd
+@@ -13,5 +13,5 @@
+ 
+ /sbin/rpc.lockd {
+   #include <abstractions/base>
+-  /sbin/rpc.lockd	rix,
++  /sbin/rpc.lockd	rmix,
+ }
+Index: extras/sbin.portmap
+===================================================================
+--- extras/sbin.portmap.orig
++++ extras/sbin.portmap
+@@ -22,5 +22,5 @@
+   /etc/bindresvport.blacklist r,
+   /etc/hosts.allow	r,
+   /etc/hosts.deny	r,
+-  /sbin/portmap         rix,
++  /sbin/portmap         rmix,
+ }
+Index: extras/usr.lib.postfix.anvil
+===================================================================
+--- extras/usr.lib.postfix.anvil.orig
++++ extras/usr.lib.postfix.anvil
+@@ -20,7 +20,7 @@
+   capability setgid,
+   capability setuid,
+ 
+-  /usr/lib/postfix/anvil                      rix,
++  /usr/lib/postfix/anvil                      rmix,
+ 
+   /etc/postfix/main.cf                        r,
+   /{var/spool/postfix/,}private/anvil         rw,
+Index: extras/usr.lib.firefox.mozilla-xremote-client
+===================================================================
+--- extras/usr.lib.firefox.mozilla-xremote-client.orig
++++ extras/usr.lib.firefox.mozilla-xremote-client
+@@ -16,7 +16,7 @@
+   #include <abstractions/base>
+   #include <abstractions/X>
+ 
+-  /usr/lib/mozilla/lib*so* r,
+-  /usr/lib/firefox/mozilla-xremote-client r,
+-  /usr/X11R6/lib/lib*so* r,
++  /usr/lib/mozilla/lib*so* mr,
++  /usr/lib/firefox/mozilla-xremote-client rmix,
++  /usr/X11R6/lib/lib*so* mr,
+ }
+Index: extras/usr.bin.mlmmj-sub
+===================================================================
+--- extras/usr.bin.mlmmj-sub.orig
++++ extras/usr.bin.mlmmj-sub
+@@ -17,7 +17,7 @@
+ 
+   capability setuid,
+ 
+-  /usr/bin/mlmmj-send px,
++  /usr/bin/mlmmj-send Px,
+   /usr/bin/mlmmj-sub r,
+   /var/spool/mlmmj/*/control/* r,
+   /var/spool/mlmmj/*/queue/* w,
+Index: extras/usr.lib.postfix.bounce
+===================================================================
+--- extras/usr.lib.postfix.bounce.orig
++++ extras/usr.lib.postfix.bounce
+@@ -20,7 +20,7 @@
+   capability setgid,
+   capability setuid,
+ 
+-  /usr/lib/postfix/bounce                      rix,
++  /usr/lib/postfix/bounce                      rmix,
+ 
+   /{var/spool/postfix/,}active/[0-9A-F]/[0-9A-F]/*                 rwl,
+   /{var/spool/postfix/,}active/[0-9A-F]/[0-9A-F]*                  rwl,
+Index: extras/sbin.dhclient
+===================================================================
+--- extras/sbin.dhclient.orig
++++ extras/sbin.dhclient
+@@ -12,12 +12,12 @@
+ # raw sockets, and thus cannot be confined with NetDomain
+ #
+ # Should these programs have their own domains?
+-# /bin/ps                     ixr,
+-# /sbin/arp                   rix,
+-# /usr/bin/dig                rix,
+-# /usr/bin/uptime             rix,
+-# /usr/bin/vmstat             rix,
+-# /usr/bin/w                  rix,
++# /bin/ps                     mixr,
++# /sbin/arp                   rmix,
++# /usr/bin/dig                rmix,
++# /usr/bin/uptime             rmix,
++# /usr/bin/vmstat             rmix,
++# /usr/bin/w                  rmix,
+ 
+ #include <tunables/global>
+ 
+@@ -25,12 +25,12 @@
+   #include <abstractions/base>
+   #include <abstractions/bash>
+   #include <abstractions/nameservice>
+-  /sbin/dhclient              rix,
+-  /sbin/dhclient-script       rix,
+-  /bin/bash                   rix,
+-  /bin/df                     rix,
+-  /bin/netstat                px,
+-  /bin/ps                     ixr,
++  /sbin/dhclient              rmix,
++  /sbin/dhclient-script       rmix,
++  /bin/bash                   rmix,
++  /bin/df                     rmix,
++  /bin/netstat                Px,
++  /bin/ps                     mixr,
+   /dev/random                 r,
+   /etc/dhclient.conf          r,
+   /proc/                      r,
+@@ -39,11 +39,11 @@
+   /proc/rtc                   r,
+   /proc/self/status           r,
+   /proc/stat                  r,
+-  /sbin/arp                   rix,
+-  /usr/bin/dig                rix,
+-  /usr/bin/uptime             rix,
+-  /usr/bin/vmstat             rix,
+-  /usr/bin/w                  rix,
++  /sbin/arp                   rmix,
++  /usr/bin/dig                rmix,
++  /usr/bin/uptime             rmix,
++  /usr/bin/vmstat             rmix,
++  /usr/bin/w                  rmix,
+   /var/lib/dhcp/dhclient.leases     rw,
+   /var/lib/dhcp/dhclient-*.leases   rw,
+   /var/log/lastlog            r,
+Index: extras/usr.lib.postfix.lmtp
+===================================================================
+--- extras/usr.lib.postfix.lmtp.orig
++++ extras/usr.lib.postfix.lmtp
+@@ -16,4 +16,6 @@
+   #include <abstractions/nameservice>
+   #include <abstractions/kerberosclient>
+   #include <program-chunks/postfix-common>
++
++  /usr/lib/postfix/lmtp rmix,
+ }
+Index: extras/usr.lib.firefox.firefox-bin
+===================================================================
+--- extras/usr.lib.firefox.firefox-bin.orig
++++ extras/usr.lib.firefox.firefox-bin
+@@ -27,13 +27,16 @@
+ 
+   capability sys_nice,
+ 
+-  /bin/bash ixr,
+-  /bin/netstat px,
++  /bin/bash mixr,
++  /bin/ps mixr,
++  /bin/grep mixr,
++  /bin/netstat Px,
+   /etc/SuSE-release r,
+   /etc/X11/.kstylerc.lock rw,
+   /etc/X11/.qt_plugins_*rc.lock rw,
+   /etc/X11/.qtrc.lock rw,
+   /etc/X11/fs/config r,
++  /etc/ld.so.cache mr,
+   /etc/mailcap r,
+   /etc/mime.types r,
+   /etc/mozpluggerrc r,
+@@ -43,13 +46,12 @@
+   /etc/opt/kde3/share/applications/mimeinfo.cache r,
+   /etc/rpc r,
+   /etc/sysconfig/clock r,
+-  /opt/gnome/lib/GConf/2/gconfd-2 px,
+-  /opt/gnome/lib/gnome-vfs-*/modules/*.so r,
+-  /opt/gnome/lib/gtk-*/*/engines/*.so r,
+-  /opt/gnome/lib/gtk-*/*/loaders/*.so r,
+-  /opt/gnome/lib/lib*so* r,
+-  /opt/gnome/lib/pango/**.so r,
+-  /opt/gnome/lib64/lib*so* r,
++  /opt/gnome/lib/GConf/2/gconfd-2 Px,
++  /opt/gnome/lib/gnome-vfs-*/modules/*.so mr,
++  /opt/gnome/lib/gtk-*/**.so* mr,
++  /opt/gnome/lib/lib*so* mr,
++  /opt/gnome/lib/pango/**.so mr,
++  /opt/gnome/lib64/lib*so* mr,
+   /opt/gnome/share/applications/*.desktop r,
+   /opt/gnome/share/applications/defaults.list r,
+   /opt/gnome/share/applications/mimeinfo.cache r,
+@@ -58,30 +60,33 @@
+   /opt/gnome/share/locale/** r,
+   /opt/gnome/share/pixmaps r,
+   /opt/gnome/share/themes/** r,
+-  /opt/kde3/bin/kde-config ixr,
++  /opt/kde3/bin/kde-config mixr,
+   /opt/kde3/share/applications/**.desktop r,
+   /opt/kde3/share/applications/mimeinfo.cache r,
+   /proc/*/cmdline r,
++  /proc/*/maps r,
+   /proc/*/stat r,
+   /proc/net/if_inet6 r,
+   /proc/stat r,
+   /proc/sys/vm/heap-stack-gap r,
+-  /usr/X11R6/lib/Acrobat*/Browser/intellinux/nppdf.so r,
++  /usr/X11R6/lib/Acrobat*/Browser/intellinux/nppdf.so mr,
+   /usr/X11R6/lib/Acrobat*/Resource/Font/** r,
+-  /usr/X11R6/lib/lib*so* r,
+-  /usr/X11R6/lib64/lib*so* r,
+-  /usr/bin/m4 rix,
+-  /usr/bin/mozplugger-helper rix,
+-  /usr/java/jre*/plugin/*/ns*/libjavaplugin_oji.so r,
+-  /usr/lib/RealPlayer10/realplay ux,
++  /usr/X11R6/lib/lib*so* mr,
++  /usr/X11R6/lib64/lib*so* mr,
++  /usr/bin/m4 rmix,
++  /usr/bin/mozplugger-helper rmix,
++  /usr/java/jre*/plugin/*/ns*/libjavaplugin_oji.so mr,
++  /usr/lib/RealPlayer10/realplay Ux,
+   /usr/lib/browser-extensions/firefox r,
+   /usr/lib/browser-plugins r,
+-  /usr/lib/browser-plugins/*.so r,
++  /usr/lib/browser-plugins/*.so mr,
+   /usr/lib/browser-plugins/*.xpt r,
+   /usr/lib/firefox/** r,
+-  /usr/lib/firefox/firefox-bin ixr,
++  /usr/lib/firefox/**.so mr,
++  /usr/lib/firefox/firefox-bin mixr,
+   /usr/lib/jvm/java-*/** r,
+-  /usr/lib/jvm/java-*/jre/bin/java_vm ixr,
++  /usr/lib/jvm/java-*/**.so mr,
++  /usr/lib/jvm/java-*/jre/bin/java_vm mixr,
+   /usr/lib/ooo-*/share/fonts/** r,
+   /usr/share/applications/*.desktop r,
+   /usr/share/applications/mimeinfo.cache r,
+@@ -98,13 +103,16 @@
+   @{HOME}/.icons r,
+   @{HOME}/.java/deployment/cache/javapi/** lrw,
+   @{HOME}/.java/deployment/log/* lw,
++  @{HOME}/.java/deployment/* r,
+   @{HOME}/.kde/share/config/* r,
+   @{HOME}/.kde/share/config/gtkrc-* r,
+   @{HOME}/.macromedia/** r,
+-  "@{HOME}/.macromedia/Macromedia/Flash Player/**.sxx" rw,
++  "@{HOME}/.macromedia/Macromedia/Flash Player/**" rw,
+   @{HOME}/.mailcap r,
+   @{HOME}/.mime.types r,
+   @{HOME}/.mozilla/appreg rw,
+   @{HOME}/.mozilla/firefox/** lrw,
+-  @{HOME}/.mozilla/plugins/** lrw,
++  @{HOME}/.mozilla/plugins r,
++  @{HOME}/.mozilla/plugins/** mlrw,
++  /tmp/hsperfdata_*/[0-9]*  m,
+ }
+Index: extras/usr.sbin.squid
+===================================================================
+--- extras/usr.sbin.squid.orig
++++ extras/usr.sbin.squid
+@@ -21,9 +21,9 @@
+   capability setgid,
+   capability setuid,
+ 
+-  /usr/lib/squid/* rix,
+-  /usr/sbin/squid rix,
+-  /usr/sbin/unlinkd ixr,
++  /usr/lib/squid/* rmix,
++  /usr/sbin/squid rmix,
++  /usr/sbin/unlinkd mixr,
+ 
+   /var/cache/squid/** lrw,
+ 
+@@ -39,27 +39,27 @@
+   /var/log/squid/store.log w,
+   /var/run/squid.pid lrw,
+ 
+-  /usr/sbin/digest_pw_auth   rix,
+-  /usr/sbin/diskd   rix,
+-  /usr/sbin/getpwname_auth   rix,
+-  /usr/sbin/ip_user_check   rix,
+-  /usr/sbin/msnt_auth   rix,
+-  /usr/sbin/ncsa_auth   rix,
+-  /usr/sbin/no_check.pl   rix,
+-  /usr/sbin/ntlm_auth   rix,
+-  /usr/sbin/pam_auth   rix,
+-  /usr/sbin/rcsquid   rix,
+-  /usr/sbin/smb_auth   rix,
+-  /usr/sbin/smb_auth.pl   rix,
+-  /usr/sbin/smb_auth.sh   rix,
+-  /usr/sbin/squid   rix,
+-  /usr/sbin/squid_ldap_auth   rix,
+-  /usr/sbin/squid_ldap_group   rix,
+-  /usr/sbin/squid_ldapauth   rix,
+-  /usr/sbin/squid_unix_group   rix,
+-  /usr/sbin/squidclient   rix,
+-  /usr/sbin/unlinkd   rix,
+-  /usr/sbin/wbinfo_group.pl   rix,
+-  /usr/sbin/yp_auth   rix,
++  /usr/sbin/digest_pw_auth   rmix,
++  /usr/sbin/diskd   rmix,
++  /usr/sbin/getpwname_auth   rmix,
++  /usr/sbin/ip_user_check   rmix,
++  /usr/sbin/msnt_auth   rmix,
++  /usr/sbin/ncsa_auth   rmix,
++  /usr/sbin/no_check.pl   rmix,
++  /usr/sbin/ntlm_auth   rmix,
++  /usr/sbin/pam_auth   rmix,
++  /usr/sbin/rcsquid   rmix,
++  /usr/sbin/smb_auth   rmix,
++  /usr/sbin/smb_auth.pl   rmix,
++  /usr/sbin/smb_auth.sh   rmix,
++  /usr/sbin/squid   rmix,
++  /usr/sbin/squid_ldap_auth   rmix,
++  /usr/sbin/squid_ldap_group   rmix,
++  /usr/sbin/squid_ldapauth   rmix,
++  /usr/sbin/squid_unix_group   rmix,
++  /usr/sbin/squidclient   rmix,
++  /usr/sbin/unlinkd   rmix,
++  /usr/sbin/wbinfo_group.pl   rmix,
++  /usr/sbin/yp_auth   rmix,
+ 
+ }
+Index: extras/usr.sbin.sendmail.postfix
+===================================================================
+--- extras/usr.sbin.sendmail.postfix.orig
++++ extras/usr.sbin.sendmail.postfix
+@@ -24,16 +24,16 @@
+   /etc/postfix/aliases                     r,
+   /etc/postfix/aliases.db                  rw,
+   /etc/postfix/main.cf                     r,
+-  /etc/postfix/postfix-script              px,
++  /etc/postfix/postfix-script              Px,
+   /proc/meminfo                            r,
+   /proc/net/if_inet6                       r,
+   /usr/lib/postfix                         r,
+-  /usr/lib/postfix/master                  px,
+-  /usr/lib/postfixshowq                    px,
+-  /usr/sbin/postalias                      px,
+-  /usr/sbin/postdrop                       px,
+-  /usr/sbin/postqueue                      px,
+-  /usr/sbin/sendmail.postfix               rix,
++  /usr/lib/postfix/master                  Px,
++  /usr/lib/postfix/showq                   Px,
++  /usr/sbin/postalias                      Px,
++  /usr/sbin/postdrop                       Px,
++  /usr/sbin/postqueue                      Px,
++  /usr/sbin/sendmail.postfix               rmix,
+   /var/spool/postfix                       r,
+   /var/spool/postfix/active                r,
+   /var/spool/postfix/bounce                r,
+Index: extras/sbin.rpc.statd
+===================================================================
+--- extras/sbin.rpc.statd.orig
++++ extras/sbin.rpc.statd
+@@ -15,7 +15,7 @@
+   #include <abstractions/base>
+   #include <abstractions/nameservice>
+   /etc/rpc                         r,
+-  /sbin/rpc.statd                  rix,
++  /sbin/rpc.statd                  rmix,
+   /sm                              rw,
+   /sm.bak                          rw,
+   /state                           rw,
+Index: extras/usr.sbin.sendmail
+===================================================================
+--- extras/usr.sbin.sendmail.orig
++++ extras/usr.sbin.sendmail
+@@ -24,7 +24,7 @@
+   #include <abstractions/user-tmp>
+   #include <program-chunks/postfix-common>
+ 
+-  /usr/bin/procmail           px,
++  /usr/bin/procmail           Px,
+ 
+   /etc/aliases.db             rw,
+   /etc/aliases                rw,
+@@ -39,7 +39,7 @@
+   /etc/postfix/aliases.db                  rw,
+   /etc/postfix/aliases                     r,
+   /etc/postfix/main.cf                     r,
+-  /etc/postfix/postfix-script              px,
++  /etc/postfix/postfix-script              Px,
+   /etc/postfix                             r,
+   /etc/sendmail.cf            r,
+   /etc/sendmail.cw            r,
+@@ -51,22 +51,22 @@
+   /proc/stat                  r,
+   /root/dead.letter           w,
+   /root/.forward              rw,
+-  /usr/kerberos/lib/lib*.so*  r,
+-  /usr/lib/postfix/master     px,
+-  /usr/lib/postfix/smtpd      px,
++  /usr/kerberos/lib/lib*.so*  mr,
++  /usr/lib/postfix/master     Px,
++  /usr/lib/postfix/smtpd      Px,
+   /usr/lib/postfix            r,
+-  /usr/lib/postfix/showq      px,
++  /usr/lib/postfix/showq      Px,
+   /usr/lib/sasl2              r,
+-  /usr/lib/sasl2/*            r,
++  /usr/lib/sasl2/*            mr,
+   /usr/lib/sasl               r,
+-  /usr/lib/sasl/*             r,
+-  /usr/sbin/postfix           px,
+-  /usr/sbin/postalias         px,
+-  /usr/sbin/postdrop          px,
+-  /usr/sbin/postqueue         px,
+-  /usr/sbin/sendmail          rix,
+-  /usr/sbin/sendmail.postfix  rix,
+-  /usr/sbin/sendmail.sendmail rix,
++  /usr/lib/sasl/*             mr,
++  /usr/sbin/postfix           Px,
++  /usr/sbin/postalias         Px,
++  /usr/sbin/postdrop          Px,
++  /usr/sbin/postqueue         Px,
++  /usr/sbin/sendmail          rmix,
++  /usr/sbin/sendmail.postfix  rmix,
++  /usr/sbin/sendmail.sendmail rmix,
+   /var/run/sendmail.pid       rwl,
+   /var/run/sm-client.pid      rwl,
+   /var/run/utmp               rw,
+Index: extras/usr.lib.postfix.virtual
+===================================================================
+--- extras/usr.lib.postfix.virtual.orig
++++ extras/usr.lib.postfix.virtual
+@@ -16,4 +16,6 @@
+   #include <abstractions/nameservice>
+   #include <abstractions/kerberosclient>
+   #include <program-chunks/postfix-common>
++
++  /usr/lib/postfix/virtual rmix,
+ }
+Index: extras/usr.lib.postfix.smtpd
+===================================================================
+--- extras/usr.lib.postfix.smtpd.orig
++++ extras/usr.lib.postfix.smtpd
+@@ -22,8 +22,8 @@
+   capability setgid,
+   capability setuid,
+ 
+-  /usr/lib/postfix/smtpd                       rix,
+-  /usr/sbin/postdrop                           rpx,
++  /usr/lib/postfix/smtpd                       rmix,
++  /usr/sbin/postdrop                           rPx,
+ 
+   /dev/urandom                                r,
+   /etc/aliases.db                             r,
+@@ -38,10 +38,10 @@
+   /etc/postfix/main.cf                        r,
+   /etc/postfix/prng_exch                      rw,
+ 
+-  /usr/lib64/sasl2                            r,
+-  /usr/lib64/sasl2/*                          r,
+-  /usr/lib/sasl2                              r,
+-  /usr/lib/sasl2/*                            r,
++  /usr/lib64/sasl2                            mr,
++  /usr/lib64/sasl2/*                          mr,
++  /usr/lib/sasl2                              mr,
++  /usr/lib/sasl2/*                            mr,
+ 
+   /usr/share/ssl/certs/ca-bundle.crt          r,
+   /usr/share/ssl/openssl.cnf                  r,
+Index: extras/usr.lib.postfix.trivial-rewrite
+===================================================================
+--- extras/usr.lib.postfix.trivial-rewrite.orig
++++ extras/usr.lib.postfix.trivial-rewrite
+@@ -17,7 +17,7 @@
+   #include <abstractions/kerberosclient>
+   #include <program-chunks/postfix-common>
+ 
+-  /usr/lib/postfix/trivial-rewrite            rix,
++  /usr/lib/postfix/trivial-rewrite            rmix,
+ 
+   /etc/postfix/relocated.db                   r,
+   /etc/postfix/transport.db                   r,
+Index: extras/etc.cron.daily.tmpwatch
+===================================================================
+--- extras/etc.cron.daily.tmpwatch.orig
++++ extras/etc.cron.daily.tmpwatch
+@@ -16,7 +16,7 @@
+   /etc/cron.daily/tmpwatch  r,
+   /tmp                      r,
+   /tmp/**                   rwl,
+-  /usr/sbin/tmpwatch        ixr,
++  /usr/sbin/tmpwatch        mixr,
+   /var/cache/man*           r,
+   /var/cache/man*/**        r,
+   /var/tmp                  r,
+Index: extras/usr.lib.postfix.local
+===================================================================
+--- extras/usr.lib.postfix.local.orig
++++ extras/usr.lib.postfix.local
+@@ -19,15 +19,15 @@
+   #include <abstractions/user-mail>
+   #include <program-chunks/postfix-common>
+ 
+-  /usr/bin/procmail                                     px,
++  /usr/bin/procmail                                     Px,
+ 
+-  /usr/lib/mailman/mail/mailman                         px,
+-  /var/mailman/mail/wrapper                             px,
+-  /usr/bin/mlmmj-recieve                                px,
++  /usr/lib/mailman/mail/mailman                         Px,
++  /var/mailman/mail/wrapper                             Px,
++  /usr/bin/mlmmj-recieve                                Px,
+ 
+-  /usr/lib/postfix/local                                rix,
+-  /bin/bash                                             ixr,
+-  /bin/date                                             ixr,
++  /usr/lib/postfix/local                                rmix,
++  /bin/bash                                             mixr,
++  /bin/date                                             mixr,
+ 
+   /dev/tty                                              rw,
+   /etc/{postfix/,}aliases.db                            r,
+Index: extras/usr.lib.postfix.pickup
+===================================================================
+--- extras/usr.lib.postfix.pickup.orig
++++ extras/usr.lib.postfix.pickup
+@@ -17,7 +17,7 @@
+   #include <abstractions/nameservice>
+   #include <program-chunks/postfix-common>
+ 
+-  /usr/lib/postfix/pickup                     rix,
++  /usr/lib/postfix/pickup                     rmix,
+ 
+   /proc/sys/kernel/ngroups_max                r,
+ 
+Index: extras/usr.sbin.userdel
+===================================================================
+--- extras/usr.sbin.userdel.orig
++++ extras/usr.sbin.userdel
+@@ -15,11 +15,12 @@
+ /usr/sbin/userdel {
+   #include <abstractions/authentication>
+   #include <abstractions/base>
++  #include <abstractions/perl>
+   #include <abstractions/nameservice>
+ 
+   capability sys_resource,
+ 
+-  /bin/cat ix,
++  /bin/cat mix,
+   /dev/log w,
+   /etc/.pwd.lock rw,
+   /etc/default/useradd r,
+@@ -30,8 +31,7 @@
+   /etc/shadow* rwl,
+   @{HOMEDIRS}**  rwl,
+   /proc/*/mounts r,
+-  /usr/lib/perl5/** r,
+-  /usr/sbin/userdel rix,
++  /usr/sbin/userdel rmix,
+   /var/log/lastlog rw,
+   # XXX
+   /var/run/nscd.pid r,
+Index: extras/opt.gnome.lib.evolution-data-server-1.2.evolution-data-server-1.4
+===================================================================
+--- extras/opt.gnome.lib.evolution-data-server-1.2.evolution-data-server-1.4.orig
++++ extras/opt.gnome.lib.evolution-data-server-1.2.evolution-data-server-1.4
+@@ -29,14 +29,14 @@
+   @{HOME}/.gconf/** lrw,
+   @{HOME}/.gnome2_private w,
+ 
+-  /opt/gnome/lib/GConf/**.so r,
+-  /opt/gnome/lib/GConf/2/gconfd-2 pxr,
++  /opt/gnome/lib/GConf/**.so mr,
++  /opt/gnome/lib/GConf/2/gconfd-2 Pxr,
+   /opt/gnome/lib/evolution-data-server-*/evolution-data-server-* r,
+   /opt/gnome/lib/evolution-data-server-*/extensions r,
+   /opt/gnome/lib/evolution-data-server-*/extensions/lib*.so r,
+-  /opt/gnome/lib/gnome-vfs** r,
+-  /opt/gnome/lib/lib*so* r,
+-  /opt/gnome/share/evolution-data-server-*/** r,
++  /opt/gnome/lib/gnome-vfs** mr,
++  /opt/gnome/lib/lib*so* mr,
++  /opt/gnome/share/evolution-data-server-*/** mr,
+   /proc/meminfo r,
+   /proc/stat r,
+   /usr/X11R6/lib/X11/locale/* r,
+Index: extras/usr.sbin.spamd
+===================================================================
+--- extras/usr.sbin.spamd.orig
++++ extras/usr.sbin.spamd
+@@ -23,7 +23,7 @@
+   capability setgid,
+   capability setuid,
+ 
+-  /bin/pwd ixr,
++  /bin/pwd mixr,
+   /etc/mail/spamassassin r,
+   /etc/mail/spamassassin/* r,
+   /etc/mtab r,
+@@ -33,7 +33,7 @@
+   /proc/stat r,
+   /tmp/spamd-*-init r,
+   /tmp/spamd-*-init/** lrw,
+-  /usr/bin/perl ix,
++  /usr/bin/perl mix,
+   /usr/sbin/spamd r,
+   /usr/share/spamassassin r,
+   /usr/share/spamassassin/*.cf r,
+Index: extras/opt.gnome.lib.bonobo.bonobo-activation-server
+===================================================================
+--- extras/opt.gnome.lib.bonobo.bonobo-activation-server.orig
++++ extras/opt.gnome.lib.bonobo.bonobo-activation-server
+@@ -21,8 +21,8 @@
+   /opt/gnome/lib/bonobo/bonobo-activation-server r,
+   /opt/gnome/lib/bonobo/servers r,
+   /opt/gnome/lib/bonobo/servers/*.server r,
+-  /opt/gnome/lib/evolution-data-server-1.2/evolution-data-server-1.4 px,
+-  /opt/gnome/lib/evolution/2.4/evolution-alarm-notify ux,
+-  /opt/gnome/lib/lib*so* r,
++  /opt/gnome/lib/evolution-data-server-1.2/evolution-data-server-1.4 Px,
++  /opt/gnome/lib/evolution/2.4/evolution-alarm-notify Ux,
++  /opt/gnome/lib/lib*so* mr,
+   /usr/X11R6/lib/X11/locale/* r,
+ }
+Index: extras/usr.lib.postfix.verify
+===================================================================
+--- extras/usr.lib.postfix.verify.orig
++++ extras/usr.lib.postfix.verify
+@@ -16,4 +16,6 @@
+   #include <abstractions/nameservice>
+   #include <abstractions/kerberosclient>
+   #include <program-chunks/postfix-common>
++
++  /usr/lib/postfix/verify rmix,
+ }
+Index: extras/usr.lib.openldap.slapd
+===================================================================
+--- extras/usr.lib.openldap.slapd.orig
++++ extras/usr.lib.openldap.slapd
+@@ -21,11 +21,11 @@
+   /etc/ldap.conf		r,
+   /etc/openldap/schema/**	rw,
+   /etc/openldap/*.conf		r,
+-  /usr/kerberos/lib/lib*.so*	r,
++  /usr/kerberos/lib/lib*.so*	mr,
+   /var/lib/ldap			r,
+   /usr/lib/sasl			r,
+-  /usr/lib/sasl/lib*.so*	r,
+-  /usr/sbin/openldap/*.la	r,
++  /usr/lib/sasl/lib*.so*	mr,
++  /usr/sbin/openldap/*.la	mr,
+   /usr/share/ssl/openssl.cnf	r,
+   /usr/share/ssl/certs/ca-bundle.crt	r,
+   /usr/share/ssl/certs/slapd.pem	r,
+@@ -33,5 +33,5 @@
+   /var/run/slapd.args 		r,
+   /var/run/slapd.pid		rw,
+ 
+-  /usr/lib/openldap/slapd       rix,
++  /usr/lib/openldap/slapd       rmix,
+ }
+Index: extras/usr.lib.postfix.discard
+===================================================================
+--- extras/usr.lib.postfix.discard.orig
++++ extras/usr.lib.postfix.discard
+@@ -15,5 +15,5 @@
+ /usr/lib/postfix/discard {
+   #include <abstractions/base>
+ 
+-  /usr/lib/postfix/discard r,
++  /usr/lib/postfix/discard rmix,
+ }
+Index: extras/usr.NX.bin.nxclient
+===================================================================
+--- extras/usr.NX.bin.nxclient.orig
++++ extras/usr.NX.bin.nxclient
+@@ -20,14 +20,14 @@
+   #include <abstractions/kde>
+   #include <abstractions/X>
+ 
+-  /bin/bash            ix,
+-  /usr/bin/cut         ix,
+-  /usr/NX/bin/nxclient r,
+-  /usr/NX/bin/nxssh    ix,
+-  /usr/NX/bin/nxproxy  ix,
+-  /usr/NX/lib/**       r,
++  /bin/bash            mix,
++  /usr/bin/cut         mix,
++  /usr/NX/bin/nxclient rmix,
++  /usr/NX/bin/nxssh    mix,
++  /usr/NX/bin/nxproxy  mix,
++  /usr/NX/lib/**       mr,
+   /usr/NX/share/**     r,
+-  /usr/X11R6/bin/xauth rix,
++  /usr/X11R6/bin/xauth rmix,
+ 
+   @{HOME}/.nx               rwl,
+   @{HOME}/.nx/**            rwl,
+Index: extras/usr.lib.postfix.proxymap
+===================================================================
+--- extras/usr.lib.postfix.proxymap.orig
++++ extras/usr.lib.postfix.proxymap
+@@ -19,7 +19,7 @@
+   capability setgid,
+   capability setuid,
+ 
+-  /usr/lib/postfix/proxymap     rix,
++  /usr/lib/postfix/proxymap     rmix,
+ 
+   /etc/postfix/main.cf          r,
+   /proc/net/if_inet6            r,
+Index: extras/usr.sbin.useradd
+===================================================================
+--- extras/usr.sbin.useradd.orig
++++ extras/usr.sbin.useradd
+@@ -15,6 +15,7 @@
+ /usr/sbin/useradd {
+   #include <abstractions/authentication>
+   #include <abstractions/base>
++  #include <abstractions/perl>
+   #include <abstractions/consoles>
+   #include <abstractions/nameservice>
+ 
+@@ -32,9 +33,8 @@
+   @{HOMEDIRS}**  rw,
+   /proc/*/mounts r,
+   /proc/filesystems r,
+-  /usr/lib/perl5/** r,
+-  /usr/sbin/adduser rix,
+-  /usr/sbin/useradd rix,
++  /usr/sbin/adduser rmix,
++  /usr/sbin/useradd rmix,
+   /var/log/faillog rw,
+   /var/log/lastlog rw,
+   /var/run/nscd.pid rw,
+Index: extras/opt.gnome.bin.gaim
+===================================================================
+--- extras/opt.gnome.bin.gaim.orig
++++ extras/opt.gnome.bin.gaim
+@@ -24,7 +24,7 @@
+   #include <abstractions/gnome>
+   #include <abstractions/user-tmp>
+ 
+-  /bin/bash ixr,
++  /bin/bash mixr,
+   /dev/random r,
+   /etc/esd.conf r,
+   /etc/opt/gnome/pango/pango.modules r,
+@@ -38,42 +38,42 @@
+   @{HOME}/.mcoprc r,
+   @{HOME}/.kde/share/config/gtkrc-* r,
+ 
+-  /opt/MozillaFirefox/bin/firefox.sh px,
+-  /opt/gnome/bin/gaim ixr,
+-  /opt/gnome/bin/gnome-open ux,
+-  /opt/gnome/lib/GConf/2/gconfd-2 px,
+-  /opt/gnome/lib/bonobo/bonobo-activation-server uxr,
++  /opt/MozillaFirefox/bin/firefox.sh Px,
++  /opt/gnome/bin/gaim mixr,
++  /opt/gnome/bin/gnome-open Ux,
++  /opt/gnome/lib/GConf/2/gconfd-2 Px,
++  /opt/gnome/lib/bonobo/bonobo-activation-server Uxr,
+   /opt/gnome/lib/gaim r,
+-  /opt/gnome/lib/gaim/*.so r,
+-  /opt/gnome/lib/gtk-*/*/engines/*.so r,
+-  /opt/gnome/lib/gtk-*/*/loaders/*.so r,
+-  /opt/gnome/lib/lib*so* r,
+-  /opt/gnome/lib/pango/*/modules/*.so r,
++  /opt/gnome/lib/gaim/*.so mr,
++  /opt/gnome/lib/gtk-*/*/engines/*.so mr,
++  /opt/gnome/lib/gtk-*/*/loaders/*.so mr,
++  /opt/gnome/lib/lib*so* mr,
++  /opt/gnome/lib/pango/*/modules/*.so mr,
+   /opt/gnome/share/icons r,
+   /opt/gnome/share/icons/** r,
+   /opt/gnome/share/pixmaps r,
+   /opt/gnome/share/pixmaps/gaim/** r,
+   /opt/gnome/share/sounds/gaim/* r,
+   /opt/gnome/share/themes/** r,
+-  /opt/kde3/bin/kde-config ixr,
+-  /opt/kde3/bin/kfmclient ux,
+-  /opt/kde3/bin/kcminit rux,
+-  /opt/mozilla/lib/lib*so* r,
+-  /opt/mozilla/lib64/lib*so* r,
++  /opt/kde3/bin/kde-config mixr,
++  /opt/kde3/bin/kfmclient Ux,
++  /opt/kde3/bin/kcminit rUx,
++  /opt/mozilla/lib/lib*so* mr,
++  /opt/mozilla/lib64/lib*so* mr,
+   /proc/cpuinfo r,
+   /proc/stat r,
+   /proc/*/cmdline r,
+   /usr/X11R6/lib/Acrobat*/Resource/Font/* r,
+   /usr/X11R6/lib/Acrobat*/Resource/Font/PFM/* r,
+-  /usr/X11R6/lib/lib*so* r,
++  /usr/X11R6/lib/lib*so* mr,
+   /usr/lib/ao/plugins-* r,
+-  /usr/lib/ao/plugins-*/lib*.so r,
+-  /usr/lib/aspell-** r,
++  /usr/lib/ao/plugins-*/lib*.so mr,
++  /usr/lib/aspell-** mr,
+   /usr/lib/jvm/java-*/jre/lib/fonts/** r,
+   /usr/lib/ooo-*/share/fonts/** r,
+   /usr/lib/tcl*/encoding/* r,
+   /usr/lib64/ao/plugins-* r,
+-  /usr/lib64/ao/plugins-*/lib*.so r,
++  /usr/lib64/ao/plugins-*/lib*.so mr,
+   /usr/lib64/aspell-* r,
+   /usr/share/alsa/alsa.conf r,
+   /usr/share/icons r,
+Index: extras/usr.bin.man
+===================================================================
+--- extras/usr.bin.man.orig
++++ extras/usr.bin.man
+@@ -21,6 +21,6 @@
+   capability setuid,
+   
+   /proc/sys/kernel/ngroups_max r,
+-  /usr/lib/man-db/man px,
++  /usr/lib/man-db/man Px,
+ 
+ }
+Index: extras/usr.lib.postfix.smtp
+===================================================================
+--- extras/usr.lib.postfix.smtp.orig
++++ extras/usr.lib.postfix.smtp
+@@ -21,7 +21,7 @@
+   capability dac_read_search,
+   capability net_bind_service,
+ 
+-  /usr/lib/postfix/smtp                        rix,
++  /usr/lib/postfix/smtp                        rmix,
+ 
+   /{var/spool/postfix/,}active/[0-9A-F]/[0-9A-F]/*      rwl,
+   /{var/spool/postfix/,}active/[0-9A-F]/[0-9A-F]*       rwl,
+Index: extras/usr.sbin.postqueue
+===================================================================
+--- extras/usr.sbin.postqueue.orig
++++ extras/usr.sbin.postqueue
+@@ -18,7 +18,7 @@
+   #include <abstractions/kerberosclient>
+   #include <program-chunks/postfix-common>
+   /etc/postfix                         r,
+-  /usr/sbin/postqueue                  rix,
++  /usr/sbin/postqueue                  rmix,
+   /var/spool/postfix                   r,
+   /var/spool/postfix/maildrop          r,
+   /var/spool/postfix/maildrop/*        rwl,
+Index: extras/usr.lib.postfix.nqmgr
+===================================================================
+--- extras/usr.lib.postfix.nqmgr.orig
++++ extras/usr.lib.postfix.nqmgr
+@@ -17,7 +17,7 @@
+   #include <abstractions/nameservice>
+   #include <program-chunks/postfix-common>
+ 
+-  /usr/lib/postfix/nqmgr                      rix,
++  /usr/lib/postfix/nqmgr                      rmix,
+ 
+   /{var/spool/postfix/,}active                                    r,
+   /{var/spool/postfix/,}active/[0-9A-F]                           r,
+Index: extras/usr.lib.postfix.oqmgr
+===================================================================
+--- extras/usr.lib.postfix.oqmgr.orig
++++ extras/usr.lib.postfix.oqmgr
+@@ -16,4 +16,6 @@
+   #include <abstractions/base>
+   #include <abstractions/nameservice>
+   #include <program-chunks/postfix-common>
++
++  /usr/lib/postfix/oqmgr rmix,
+ }
+Index: extras/usr.lib.postfix.cleanup
+===================================================================
+--- extras/usr.lib.postfix.cleanup.orig
++++ extras/usr.lib.postfix.cleanup
+@@ -19,7 +19,7 @@
+ 
+   capability net_bind_service,
+ 
+-  /usr/lib/postfix/cleanup                     rix,
++  /usr/lib/postfix/cleanup                     rmix,
+ 
+   /{var/spool/postfix/,}incoming/[0-9]*.[0-9]*            rwl,
+   /{var/spool/postfix/,}incoming/[0-9A-F]/[0-9A-F]/*      rwl,
+@@ -27,6 +27,7 @@
+   /{var/spool/postfix/,}incoming/[0-9A-F]*                rwl,
+   /{var/spool/postfix/,}private/{rewrite,bounce}          w,
+   /{var/spool/postfix/,}public/qmgr                       w,
++  /{var/spool/postfix/,}hold/[0-9A-F]*                    w,
+   /{var/spool/postfix/,}pid/unix.cleanup         rw,
+   /etc/{m,fs}tab                              r,
+   /etc/postfix/*                              r,
+Index: extras/usr.X11R6.bin.xfs
+===================================================================
+--- extras/usr.X11R6.bin.xfs.orig
++++ extras/usr.X11R6.bin.xfs
+@@ -21,7 +21,7 @@
+   /etc/mtab				r,
+   /proc/meminfo				r,
+   /tmp/.font-unix/fs710[0-9]		wl,
+-  /usr/X11R6/bin/xfs                    rix,
+-  /usr/X11R6/lib/lib*.so*               r,
++  /usr/X11R6/bin/xfs                    rmix,
++  /usr/X11R6/lib/lib*.so*               mr,
+   /var/run/xfs.pid			rw,
+ }
+Index: extras/usr.sbin.ipop2d
+===================================================================
+--- extras/usr.sbin.ipop2d.orig
++++ extras/usr.sbin.ipop2d
+@@ -19,7 +19,7 @@
+ 
+   /dev/urandom                           r     ,
+   /tmp/.*                                rwl   ,
+-  /usr/sbin/ipop2d                       rix   ,
++  /usr/sbin/ipop2d                       rmix,
+   /usr/share/ssl/certs/ipop2d.pem        r     ,
+   /usr/share/ssl/openssl.cnf             r     ,
+ }
+Index: extras/usr.sbin.postalias
+===================================================================
+--- extras/usr.sbin.postalias.orig
++++ extras/usr.sbin.postalias
+@@ -25,7 +25,7 @@
+   /etc/postfix/aliases.db              rwl,
+   /etc/postfix/__db.aliases.db         lrw,
+   /etc/__db.aliases.db                 rwl,
+-  /usr/sbin/postalias                  rix,
++  /usr/sbin/postalias                  rmix,
+   /proc/net/if_inet6                   r,
+   /proc/cpuinfo                        r,
+   /proc/stat                           r, 
+Index: extras/usr.bin.mlmmj-bounce
+===================================================================
+--- extras/usr.bin.mlmmj-bounce.orig
++++ extras/usr.bin.mlmmj-bounce
+@@ -16,7 +16,7 @@
+   #include <abstractions/base>
+ 
+   /usr/bin/mlmmj-bounce r,
+-  /usr/bin/mlmmj-send px,
++  /usr/bin/mlmmj-send Px,
+   /var/spool/mlmmj/*/subconf/* rwl,
+   /var/spool/mlmmj/*/queue/* rwl,
+ 
+Index: extras/usr.bin.mlmmj-maintd
+===================================================================
+--- extras/usr.bin.mlmmj-maintd.orig
++++ extras/usr.bin.mlmmj-maintd
+@@ -18,7 +18,7 @@
+   capability setuid,
+ 
+   /usr/bin/mlmmj-maintd r,
+-  /usr/bin/mlmmj-send px,
++  /usr/bin/mlmmj-send Px,
+ 
+   /var/spool/mlmmj r,
+   /var/spool/mlmmj/*/bounce r,
+Index: extras/etc.cron.daily.logrotate
+===================================================================
+--- extras/etc.cron.daily.logrotate.orig
++++ extras/etc.cron.daily.logrotate
+@@ -17,15 +17,15 @@
+   #include <abstractions/bash>
+   #include <abstractions/nameservice>
+ 
+-  /bin/bash ixr,
+-  /bin/cat ixr,
+-  /bin/gzip ixr,
+-  /bin/kill ixr,
+-  /bin/logger ixr,
+-  /bin/true ixr,
+-  /etc/init.d/* ixr,
+-  /usr/bin/killall ixr,
+-  /usr/sbin/logrotate ixr,
++  /bin/bash mixr,
++  /bin/cat mixr,
++  /bin/gzip mixr,
++  /bin/kill mixr,
++  /bin/logger mixr,
++  /bin/true mixr,
++  /etc/init.d/* mixr,
++  /usr/bin/killall mixr,
++  /usr/sbin/logrotate mixr,
+ 
+   /var/log      r,
+   /var/log/**   wrl,
+Index: extras/usr.bin.mlmmj-recieve
+===================================================================
+--- extras/usr.bin.mlmmj-recieve.orig
++++ extras/usr.bin.mlmmj-recieve
+@@ -15,7 +15,7 @@
+ /usr/bin/mlmmj-recieve {
+   #include <abstractions/base>
+ 
+-  /usr/bin/mlmmj-process px,
++  /usr/bin/mlmmj-process Px,
+   /usr/bin/mlmmj-recieve r,
+   /var/spool/mlmmj/*/incoming/* w,
+ }
+Index: extras/usr.sbin.httpd2-prefork
+===================================================================
+--- extras/usr.sbin.httpd2-prefork.orig
++++ extras/usr.sbin.httpd2-prefork
+@@ -45,37 +45,37 @@
+   /tmp/auth_ldap_cache.sem wl,
+   /tmp/session_mm_apache0.sem wl,
+   /tmp/session_mm_apache2handler0.sem wl,
+-  /usr/X11R6/lib64/lib*.so* r,
+-  /usr/X11R6/lib/lib*.so* r,
++  /usr/X11R6/lib64/lib*.so* mr,
++  /usr/X11R6/lib/lib*.so* mr,
+   /usr/apache2/error/* r,
+ 
+-  /usr/lib64/apache2-leader/{lib,mod_}*.so* r,
+-  /usr/lib64/apache2-metuxmpm/{lib,mod_}*.so* r,
+-  /usr/lib64/apache2-prefork/{lib,mod_}*.so* r,
+-  /usr/lib64/apache2-worker/{lib,mod_}*.so* r,
+-  /usr/lib64/apache2/modules/{lib,mod_}*.so* r,
+-  /usr/lib64/apache2/{lib,mod_}*.so* r,
+-
+-  /usr/lib/apache2-leader/{lib,mod_}*.so* r,
+-  /usr/lib/apache2-metuxmpm/{lib,mod_}*.so* r,
+-  /usr/lib/apache2-prefork/{lib,mod_}*.so* r,
+-  /usr/lib/apache2-worker/{lib,mod_}*.so* r,
+-  /usr/lib/apache2/modules/{lib,mod_}*.so* r,
+-
+-  /usr/lib64/mysql/libmysql*.so* r,
+-  /usr/lib64/php/extensions/*.so r,
+-  /usr/lib64/php4/*.so r,
+-  /usr/lib64/python[12].[0-9]/**.{py,pyc,pth,so} r,
++  /usr/lib64/apache2-leader/{lib,mod_}*.so* mr,
++  /usr/lib64/apache2-metuxmpm/{lib,mod_}*.so* mr,
++  /usr/lib64/apache2-prefork/{lib,mod_}*.so* mr,
++  /usr/lib64/apache2-worker/{lib,mod_}*.so* mr,
++  /usr/lib64/apache2/modules/{lib,mod_}*.so* mr,
++  /usr/lib64/apache2/{lib,mod_}*.so* mr,
++
++  /usr/lib/apache2-leader/{lib,mod_}*.so* mr,
++  /usr/lib/apache2-metuxmpm/{lib,mod_}*.so* mr,
++  /usr/lib/apache2-prefork/{lib,mod_}*.so* mr,
++  /usr/lib/apache2-worker/{lib,mod_}*.so* mr,
++  /usr/lib/apache2/modules/{lib,mod_}*.so* mr,
++
++  /usr/lib64/mysql/libmysql*.so* mr,
++  /usr/lib64/php/extensions/*.so mr,
++  /usr/lib64/php4/*.so mr,
++  /usr/lib64/python[12].[0-9]/**.{py,pyc,pth,so} mr,
+   /usr/lib64/python[12].[0-9]/site-packages r,
+-  /usr/lib64/qt3/lib/lib*.so* r,
++  /usr/lib64/qt3/lib/lib*.so* mr,
+ 
+-  /usr/lib/apache2/{lib,mod_}*.so r,
+-  /usr/lib/mysql/libmysql*.so* r,
+-  /usr/lib/php/extensions/*.so r,
+-  /usr/lib/php4/*.so r,
+-  /usr/lib/python[12].[0-9]/**.{py,pyc,pth,so} r,
++  /usr/lib/apache2/{lib,mod_}*.so mr,
++  /usr/lib/mysql/libmysql*.so* mr,
++  /usr/lib/php/extensions/*.so mr,
++  /usr/lib/php4/*.so mr,
++  /usr/lib/python[12].[0-9]/**.{py,pyc,pth,so} mr,
+   /usr/lib/python[12].[0-9]/site-packages r,
+-  /usr/lib/qt3/lib/lib*.so* r,
++  /usr/lib/qt3/lib/lib*.so* mr,
+ 
+   /usr/local/tomcat/conf/mod_jk.conf r,
+   /usr/local/tomcat/conf/workers-ajp12.properties r,
+@@ -99,22 +99,22 @@
+   # takes place to perform a domain change.
+   
+   # suexec execution of CGIs will require appropriate permissions
+-  /usr/sbin/suexec2 ixr,
++  /usr/sbin/suexec2 mixr,
+   
+   # Allow logging
+   /var/log/apache2/** rwl,
+   
+   # Allow any CGIs in user directories to run, inheriting the apache
+   # profile: 
+-  # /home/*/public_html/**             ixr,
++  # /home/*/public_html/**             mixr,
+   # (note that if you are using mod_change_hat, you have a choice of
+   # providing neccesary access in this file OR in URI-specific hats, or
+   # hats in the <VHost>, <Location>, or <Directory> directives. Please
+   # see the user's guide or mod_apparmor(5) for more information.
+   
+   # Allow site-wide CGIs to run, inheriting the apache profile:
+-  # /srv/www/cgi-bin/**        ixr,
+-  # /var/www/cgi-bin/**        ixr,
++  # /srv/www/cgi-bin/**        mixr,
++  # /var/www/cgi-bin/**        mixr,
+   
+   @{HOME}/public_html                r,
+   @{HOME}/public_html/**             r,
+@@ -150,22 +150,22 @@
+     # takes place to perform a domain change.
+     
+     # suexec execution of CGIs will require appropriate permissions
+-    /usr/sbin/suexec2 ixr,
++    /usr/sbin/suexec2 mixr,
+     
+     # Allow logging
+     /var/log/apache2/** rwl,
+     
+     # Allow any CGIs in user directories to run, inheriting the apache
+     # profile: 
+-    # /home/*/public_html/**             ixr,
++    # /home/*/public_html/**             mixr,
+     # (note that if you are using mod_change_hat, you have a choice of
+     # providing neccesary access in this file OR in URI-specific hats, or
+     # hats in the <VHost>, <Location>, or <Directory> directives. Please
+     # see the user's guide or mod_apparmor(5) for more information.
+     
+     # Allow site-wide CGIs to run, inheriting the apache profile:
+-    # /srv/www/cgi-bin/**        ixr,
+-    # /var/www/cgi-bin/**        ixr,
++    # /srv/www/cgi-bin/**        mixr,
++    # /var/www/cgi-bin/**        mixr,
+     
+     @{HOME}/public_html                r,
+     @{HOME}/public_html/**             r,
+Index: extras/usr.lib.postfix.qmgr
+===================================================================
+--- extras/usr.lib.postfix.qmgr.orig
++++ extras/usr.lib.postfix.qmgr
+@@ -17,7 +17,7 @@
+   #include <abstractions/nameservice>
+   #include <program-chunks/postfix-common>
+ 
+-  /usr/lib/postfix/qmgr                       rix,
++  /usr/lib/postfix/qmgr                       rmix,
+   /proc/sys/kernel/ngroups_max                                    r,
+   /{var/spool/postfix/,}active                                    r,
+   /{var/spool/postfix/,}active/[0-9A-F]                           r,
+Index: extras/usr.X11R6.bin.acroread
+===================================================================
+--- extras/usr.X11R6.bin.acroread.orig
++++ extras/usr.X11R6.bin.acroread
+@@ -1,4 +1,4 @@
+-# $Id: usr.X11R6.bin.acroread 12 2006-04-12 21:35:41Z steve-beattie $
++# $Id$
+ # ------------------------------------------------------------------
+ #
+ #    Copyright (C) 2002-2005 Novell/SUSE
+@@ -25,11 +25,11 @@
+ 
+   capability dac_override,
+ 
+-  /bin/basename ixr,
+-  /bin/bash ix,
+-  /bin/cat ixr,
+-  /bin/grep ixr,
+-  /bin/uname ixr,
++  /bin/basename mixr,
++  /bin/bash mix,
++  /bin/cat mixr,
++  /bin/grep mixr,
++  /bin/uname mixr,
+   /etc/opt/gnome/** r,
+ 
+   @{HOME}/.adobe/** rw,
+@@ -43,29 +43,29 @@
+   @{HOME}/.gconf/.testing.writeability lw,
+   @{HOME}/* rw,
+ 
+-  /opt/MozillaFirefox/bin/firefox.sh pxr,
+-  /opt/MozillaFirefox/lib/firefox-bin pxr,
++  /opt/MozillaFirefox/bin/firefox.sh Pxr,
++  /opt/MozillaFirefox/lib/firefox-bin Pxr,
+   /opt/MozillaFirefox/lib/init.d r,
+-  /opt/gnome/bin/gconftool-2 ixr,
++  /opt/gnome/bin/gconftool-2 mixr,
+   /opt/gnome/lib/GConf/** r,
+-  /opt/gnome/lib/GConf/2/gconfd-2 pxr,
+-  /opt/gnome/lib/gtk-2.0/2.4.0/loaders/* r,
+-  /opt/gnome/lib/lib*so* r,
+-  /opt/gnome/lib/pango/1.4.0/modules/pango-basic-fc.so r,
++  /opt/gnome/lib/GConf/2/gconfd-2 Pxr,
++  /opt/gnome/lib/gtk-2.0/2.4.0/loaders/* mr,
++  /opt/gnome/lib/lib*so* mr,
++  /opt/gnome/lib/pango/1.4.0/modules/pango-basic-fc.so mr,
+   /opt/gnome/share/icons r,
+   /opt/gnome/share/icons/hicolor/icon-theme.cache r,
+   /opt/gnome/share/pixmaps r,
+   /usr/X11R6/bin/acroread r,
+-  /usr/X11R6/bin/xterm rux,
+-  /usr/X11R6/lib/Acrobat7/** ixr,
+-  /usr/bin/cut ixr,
+-  /usr/bin/dirname ixr,
+-  /usr/bin/lp rux,
+-  /usr/bin/mutt rux,
+-  /usr/bin/nail rux,
+-  /opt/gnome/bin/evolution-2.4 ux,
+-  /opt/kde3/bin/kmail ux,
+-  /usr/bin/which ixr,
++  /usr/X11R6/bin/xterm rUx,
++  /usr/X11R6/lib/Acrobat7/** mixr,
++  /usr/bin/cut mixr,
++  /usr/bin/dirname mixr,
++  /usr/bin/lp rUx,
++  /usr/bin/mutt rUx,
++  /usr/bin/nail rUx,
++  /opt/gnome/bin/evolution-2.4 Ux,
++  /opt/kde3/bin/kmail Ux,
++  /usr/bin/which mixr,
+   /usr/lib/jvm/java-1.4.2-sun-1.4.2.06/jre/lib/fonts/** r,
+   /usr/lib/ooo-2.0/share/fonts/** r,
+   /usr/share/icons r,
+Index: extras/usr.lib.man-db.man
+===================================================================
+--- extras/usr.lib.man-db.man.orig
++++ extras/usr.lib.man-db.man
+@@ -19,33 +19,33 @@
+   #include <abstractions/user-manpages>
+ 
+   /etc/manpath.config r,
+-  /usr/lib/man-db/man rix,
++  /usr/lib/man-db/man rmix,
+ 
+ 
+ 
+ 
+-  /bin/bash rix,
+-  /bin/cat rix,
+-  /bin/gunzip rix,
+-  /bin/more rix,
++  /bin/bash rmix,
++  /bin/cat rmix,
++  /bin/gunzip rmix,
++  /bin/more rmix,
+   /etc/lesskey.bin r,
+   /etc/man.config r,
+   /etc/papersize r,
+   /etc/termcap r,
+   /proc/sys/kernel/ngroups_max r,
+-  /usr/bin/apropos px,
+-  /usr/bin/cmp rix,
+-  /usr/bin/groff rix,
+-  /usr/bin/grops rix,
+-  /usr/bin/grotty rix,
+-  /usr/bin/iconv rix,
+-  /usr/bin/less rix,
+-  /usr/bin/locale rix,
+-  /usr/bin/man rix,
+-  /usr/bin/nroff rix,
+-  /usr/bin/tbl rix,
+-  /usr/bin/troff rix,
+-  /usr/bin/zsoelim rix,
++  /usr/bin/apropos Px,
++  /usr/bin/cmp rmix,
++  /usr/bin/groff rmix,
++  /usr/bin/grops rmix,
++  /usr/bin/grotty rmix,
++  /usr/bin/iconv rmix,
++  /usr/bin/less rmix,
++  /usr/bin/locale rmix,
++  /usr/bin/man rmix,
++  /usr/bin/nroff rmix,
++  /usr/bin/tbl rmix,
++  /usr/bin/troff rmix,
++  /usr/bin/zsoelim rmix,
+   /usr/share/groff/** r,
+   /usr/share/terminfo/** r,
+   /var/cache/man/** r,
+Index: extras/usr.X11R6.bin.ethereal
+===================================================================
+--- extras/usr.X11R6.bin.ethereal.orig
++++ extras/usr.X11R6.bin.ethereal
+@@ -1,4 +1,4 @@
+-# $Id: usr.X11R6.bin.ethereal 12 2006-04-12 21:35:41Z steve-beattie $
++# $Id$
+ # vim:syntax=apparmor
+ # Last Modified: Thu Aug 25 13:37:56 2005
+ # ------------------------------------------------------------------
+@@ -31,19 +31,19 @@
+   @{HOME}/.fonts.cache-* r,
+ 
+   /etc/opt/gnome/pango/pango.modules r,
+-  /opt/gnome/lib/gtk-2.0/2.4.0/loaders/* r,
+-  /opt/gnome/lib/lib*so* r,
+-  /opt/gnome/lib/pango/1.4.0/modules/* r,
++  /opt/gnome/lib/gtk-2.0/2.4.0/loaders/* mr,
++  /opt/gnome/lib/lib*so* mr,
++  /opt/gnome/lib/pango/1.4.0/modules/* mr,
+   /opt/gnome/share/* r,
+   /opt/gnome/share/icons/** r,
+   /opt/gnome/share/mime/* r,
+-  /opt/mozilla/bin/mozilla.sh rpx,
+-  /opt/MozillaFirefox/bin/firefox.sh rpx,
+-  /usr/X11R6/bin/ethereal ixr,
++  /opt/mozilla/bin/mozilla.sh rPx,
++  /opt/MozillaFirefox/bin/firefox.sh rPx,
++  /usr/X11R6/bin/ethereal mixr,
+   /usr/X11R6/lib/Acrobat7/Resource/Font/PFM/fonts.cache-1 r,
+   /usr/X11R6/lib/Acrobat7/Resource/Font/fonts.cache-1 r,
+-  /usr/X11R6/lib/ethereal/** r,
+-  /usr/X11R6/lib/lib*so* r,
++  /usr/X11R6/lib/ethereal/** mr,
++  /usr/X11R6/lib/lib*so* mr,
+   /usr/X11R6/share/ethereal/** r,
+   /usr/lib/jvm/java-1.4.2-sun-1.4.2.06/jre/lib/fonts/** r,
+   /usr/lib/ooo-2.0/share/fonts/** r,
+Index: extras/usr.lib.postfix.flush
+===================================================================
+--- extras/usr.lib.postfix.flush.orig
++++ extras/usr.lib.postfix.flush
+@@ -20,7 +20,7 @@
+   capability setgid,
+   capability setuid,
+ 
+-  /usr/lib/postfix/flush                      rix,
++  /usr/lib/postfix/flush                      rmix,
+ 
+   /{var/spool/postfix/,}deferred                     r,
+   /{var/spool/postfix/,}deferred/[a-z]               r,
+Index: extras/usr.sbin.sendmail.sendmail
+===================================================================
+--- extras/usr.sbin.sendmail.sendmail.orig
++++ extras/usr.sbin.sendmail.sendmail
+@@ -32,13 +32,13 @@
+   /proc/stat                  r,
+   /root/.forward              rw,
+   /root/dead.letter           w,
+-  /usr/bin/procmail           px,
++  /usr/bin/procmail           Px,
+   /usr/kerberos/lib/lib*.so*  r,
+   /usr/lib/sasl               r,
+-  /usr/lib/sasl/*             r,
++  /usr/lib/sasl/*             mr,
+   /usr/lib/sasl2              r,
+-  /usr/lib/sasl2/*            r,
+-  /usr/sbin/sendmail.sendmail rix,
++  /usr/lib/sasl2/*            mr,
++  /usr/sbin/sendmail.sendmail rmix,
+   /var/run/sendmail.pid       rwl,
+   /var/run/sm-client.pid      rwl,
+   /var/run/utmp               rw,
+Index: extras/usr.lib.postfix.qmqpd
+===================================================================
+--- extras/usr.lib.postfix.qmqpd.orig
++++ extras/usr.lib.postfix.qmqpd
+@@ -16,4 +16,6 @@
+   #include <abstractions/nameservice>
+   #include <abstractions/kerberosclient>
+   #include <program-chunks/postfix-common>
++
++  /usr/lib/postfix/qmqpd rmix,
+ }
+Index: extras/README
+===================================================================
+--- extras/README.orig
++++ extras/README
+@@ -19,6 +19,7 @@ such as:
+   # aa-complain /etc/apparmor.d/usr.sbin.post*
+   # aa-complain /etc/apparmor.d/usr.bin.procmail
+   # aa-complain /etc/apparmor.d/usr.sbin.sendmail
++  # rcpostfix restart
+   # rcapparmor restart
+     <use postfix>
+   # aa-logprof
+Index: extras/usr.lib.postfix.spawn
+===================================================================
+--- extras/usr.lib.postfix.spawn.orig
++++ extras/usr.lib.postfix.spawn
+@@ -16,4 +16,6 @@
+   #include <abstractions/nameservice>
+   #include <abstractions/kerberosclient>
+   #include <program-chunks/postfix-common>
++
++  /usr/lib/postfix/spawn rmix,
+ }
+Index: extras/usr.sbin.ipop3d
+===================================================================
+--- extras/usr.sbin.ipop3d.orig
++++ extras/usr.sbin.ipop3d
+@@ -19,7 +19,7 @@
+ 
+   /dev/urandom                           r     ,
+   /tmp/.*                                rwl   ,
+-  /usr/sbin/ipop3d                       rix   ,
++  /usr/sbin/ipop3d                       rmix,
+   /usr/share/ssl/certs/ipop3d.pem        r     ,
+   /usr/share/ssl/openssl.cnf             r     ,
+ }
+Index: extras/usr.lib.postfix.error
+===================================================================
+--- extras/usr.lib.postfix.error.orig
++++ extras/usr.lib.postfix.error
+@@ -16,4 +16,6 @@
+   #include <abstractions/nameservice>
+   #include <abstractions/kerberosclient>
+   #include <program-chunks/postfix-common>
++
++  /usr/lib/postfix/error rmix,
+ }
+Index: extras/usr.bin.apropos
+===================================================================
+--- extras/usr.bin.apropos.orig
++++ extras/usr.bin.apropos
+@@ -15,13 +15,13 @@
+   #include <abstractions/base>
+   #include <abstractions/bash>
+   #include <abstractions/consoles>
+-  /bin/basename         ixr,
+-  /bin/bash             ixr,
+-  /bin/grep             ixr,
++  /bin/basename         mixr,
++  /bin/bash             mixr,
++  /bin/grep             mixr,
+   /etc/manpath.config   r,
+-  /usr/bin/apropos      rix,
+-  /usr/bin/man          px,
+-  /usr/bin/tr           ixr,
++  /usr/bin/apropos      rmix,
++  /usr/bin/man          Px,
++  /usr/bin/tr           mixr,
+   /var/cache/man/whatis r,
+   /var/cache/man/**     r,
+ }
+Index: extras/opt.gnome.lib.GConf.2.gconfd-2
+===================================================================
+--- extras/opt.gnome.lib.GConf.2.gconfd-2.orig
++++ extras/opt.gnome.lib.GConf.2.gconfd-2
+@@ -29,9 +29,9 @@
+   @{HOME}/.gconfd/** lrw,
+ 
+   /opt/gnome/lib/GConf/2/gconfd-2 r,
+-  /opt/gnome/lib/GConf/2/libgconfbackend-xml.so r,
+-  /opt/gnome/lib64/GConf/2/libgconfbackend-xml.so r,
+-  /opt/gnome/lib/lib*so* r,
+-  /opt/gnome/lib64/lib*so* r,
++  /opt/gnome/lib/GConf/2/libgconfbackend-xml.so mr,
++  /opt/gnome/lib64/GConf/2/libgconfbackend-xml.so mr,
++  /opt/gnome/lib/lib*so* mr,
++  /opt/gnome/lib64/lib*so* mr,
+   /opt/gnome/share/locale/** r,
+ }
+Index: extras/usr.bin.mlmmj-process
+===================================================================
+--- extras/usr.bin.mlmmj-process.orig
++++ extras/usr.bin.mlmmj-process
+@@ -16,10 +16,10 @@
+   #include <abstractions/base>
+ 
+   /usr/bin/mlmmj-process r,
+-  /usr/bin/mlmmj-send px,
+-  /usr/bin/mlmmj-sub px,
+-  /usr/bin/mlmmj-unsub px,
+-  /usr/bin/mlmmj-bounce px,
++  /usr/bin/mlmmj-send Px,
++  /usr/bin/mlmmj-sub Px,
++  /usr/bin/mlmmj-unsub Px,
++  /usr/bin/mlmmj-bounce Px,
+   /var/spool/mlmmj/*/control/* r,
+   /var/spool/mlmmj/*/text/* r,
+   /var/spool/mlmmj/*/incoming/* rwl,
+Index: extras/usr.lib.postfix.showq
+===================================================================
+--- extras/usr.lib.postfix.showq.orig
++++ extras/usr.lib.postfix.showq
+@@ -17,7 +17,7 @@
+   #include <abstractions/kerberosclient>
+   #include <program-chunks/postfix-common>
+ 
+-  /usr/lib/postfix/showq                       rix,
++  /usr/lib/postfix/showq                       rmix,
+ 
+   /{var/spool/postfix/,}active                                     r,
+   /{var/spool/postfix/,}active/[0-9A-F]                            r,
+Index: extras/usr.sbin.postdrop
+===================================================================
+--- extras/usr.sbin.postdrop.orig
++++ extras/usr.sbin.postdrop
+@@ -20,9 +20,9 @@
+ 
+   /etc/postfix r,
+   /etc/postfix/main.cf r,
+-  /etc/postfix/postfix-script ixr,
++  /etc/postfix/postfix-script mixr,
+   /proc/net/if_inet6 r,
+-  /usr/sbin/postdrop rix,
++  /usr/sbin/postdrop rmix,
+   /var/spool/postfix r,
+   /var/spool/postfix/maildrop r,
+   /var/spool/postfix/maildrop/* rwl,
+Index: abstractions/authentication
+===================================================================
+--- abstractions/authentication.orig
++++ abstractions/authentication
+@@ -22,12 +22,12 @@
+   /etc/gshadow                r,
+   /etc/pwdb.conf              r,
+ 
+-  /lib64/security/pam_filter/*  r,
+-  /lib64/security/pam_*.so      r,
++  /lib64/security/pam_filter/*  mr,
++  /lib64/security/pam_*.so      mr,
+   /lib64/security               r,
+ 
+-  /lib/security/pam_filter/*  r,
+-  /lib/security/pam_*.so      r,
++  /lib/security/pam_filter/*  mr,
++  /lib/security/pam_*.so      mr,
+   /lib/security               r,
+ 
+   # kerberos
+Index: abstractions/ruby
+===================================================================
+--- abstractions/ruby.orig
++++ abstractions/ruby
+@@ -12,14 +12,14 @@
+   /usr/lib64/ruby/1.8 r,
+   /usr/lib64/ruby/1.8/*.rb r,
+   /usr/lib64/ruby/1.8/**/*.rb r,
+-  /usr/lib64/ruby/1.8/*-linux/*.so r,
+-  /usr/lib64/ruby/1.8/*-linux/**/*.so r,
++  /usr/lib64/ruby/1.8/*-linux/*.so mr,
++  /usr/lib64/ruby/1.8/*-linux/**/*.so mr,
+  
+   /usr/lib64/ruby/site_ruby/1.8 r,
+   /usr/lib64/ruby/site_ruby/1.8/*.rb r,
+   /usr/lib64/ruby/site_ruby/1.8/**/*.rb r,
+-  /usr/lib64/ruby/site_ruby/1.8/*-linux/*.so r,
+-  /usr/lib64/ruby/site_ruby/1.8/*-linux/**/*.so r,
++  /usr/lib64/ruby/site_ruby/1.8/*-linux/*.so mr,
++  /usr/lib64/ruby/site_ruby/1.8/*-linux/**/*.so mr,
+  
+   /usr/lib64/ruby/gems/1.8 r,
+   /usr/lib64/ruby/gems/1.8/** r,
+@@ -27,14 +27,14 @@
+   /usr/lib/ruby/1.8 r,
+   /usr/lib/ruby/1.8/*.rb r,
+   /usr/lib/ruby/1.8/**/*.rb r,
+-  /usr/lib/ruby/1.8/*-linux/*.so r,
+-  /usr/lib/ruby/1.8/*-linux/**/*.so r,
++  /usr/lib/ruby/1.8/*-linux/*.so mr,
++  /usr/lib/ruby/1.8/*-linux/**/*.so mr,
+  
+   /usr/lib/ruby/site_ruby/1.8 r,
+   /usr/lib/ruby/site_ruby/1.8/*.rb r,
+   /usr/lib/ruby/site_ruby/1.8/**/*.rb r,
+-  /usr/lib/ruby/site_ruby/1.8/*-linux/*.so r,
+-  /usr/lib/ruby/site_ruby/1.8/*-linux/**/*.so r,
++  /usr/lib/ruby/site_ruby/1.8/*-linux/*.so mr,
++  /usr/lib/ruby/site_ruby/1.8/*-linux/**/*.so mr,
+  
+   /usr/lib/ruby/gems/1.8 r,
+   /usr/lib/ruby/gems/1.8/** r,
+Index: abstractions/python
+===================================================================
+--- abstractions/python.orig
++++ abstractions/python
+@@ -9,12 +9,12 @@
+ #
+ # ------------------------------------------------------------------
+ 
+-  /usr/lib64/python2.4/**.{py,pyc,pth,so} r,
++  /usr/lib64/python2.4/**.{py,pyc,pth,so} mr,
+   /usr/lib64/python2.4/site-packages r,
+-  /usr/lib/python2.4/**.{py,pyc,pth,so} r,
++  /usr/lib/python2.4/**.{py,pyc,pth,so} mr,
+   /usr/lib/python2.4/site-packages r,
+ 
+-  /usr/local/lib64/python2.4/**.{py,pyc,pth,so} r,
++  /usr/local/lib64/python2.4/**.{py,pyc,pth,so} mr,
+   /usr/local/lib64/python2.4/site-packages r,
+-  /usr/local/lib/python2.4/**.{py,pyc,pth,so} r,
++  /usr/local/lib/python2.4/**.{py,pyc,pth,so} mr,
+   /usr/local/lib/python2.4/site-packages r,
+Index: abstractions/fonts
+===================================================================
+--- abstractions/fonts.orig
++++ abstractions/fonts
+@@ -12,9 +12,9 @@
+   /usr/share/AbiSuite/fonts/**          r,
+ 
+   /usr/X11R6/lib/X11/fonts/**           r,
+-  /usr/X11R6/lib/modules/fonts/**       r,
++  /usr/X11R6/lib/modules/fonts/**       mr,
+   /usr/X11R6/lib64/X11/fonts/**         r,
+-  /usr/X11R6/lib64/modules/fonts/**     r,
++  /usr/X11R6/lib64/modules/fonts/**     mr,
+ 
+   /usr/X11R6/include/X11/fonts/**       r,
+ 
+@@ -38,7 +38,7 @@
+   /opt/mozilla/lib64/res/fonts/**       r,
+ 
+   /var/cache/fonts/**                   r,
+-  /var/cache/fontconfig/**              r,
++  /var/cache/fontconfig/**              mr,
+ 
+   /usr/share/a2ps/fonts/**              r,
+   /usr/share/xfce/fonts/**              r,
+@@ -46,6 +46,7 @@
+   /usr/share/texmf/*/fonts/**           r,
+ 
+   @{HOME}/.fonts/**                     r,
++  @{HOME}/.fonts.cache-2               mr,
+ 
+   /usr/local/share/fonts                r,
+   /usr/local/share/fonts/**             r,
+Index: abstractions/nameservice
+===================================================================
+--- abstractions/nameservice.orig
++++ abstractions/nameservice
+@@ -29,18 +29,18 @@
+   # to vast speed increases when working with network-based lookups.
+   /var/run/.nscd_socket   rw,
+   /var/run/nscd/socket    rw,
+-  /var/run/nscd/passwd    rix,
+-  /var/run/nscd/group     rix,
++  /var/run/nscd/passwd    rmix,
++  /var/run/nscd/group     rmix,
+   # nscd renames and unlinks files in it's operation that clients will
+   # have open
+-  /var/run/nscd/db*  rix,
++  /var/run/nscd/db*  rmix,
+ 
+   # The nss libraries are sometimes used in addition to PAM; make sure
+   # they are available
+-  /lib64/libnss_*.so*         r,
+-  /lib/libnss_*.so*           r,
+-  /usr/lib64/libnss_*.so*     r,
+-  /usr/lib/libnss_*.so*       r,
++  /lib64/libnss_*.so*         mr,
++  /lib/libnss_*.so*           mr,
++  /usr/lib64/libnss_*.so*     mr,
++  /usr/lib/libnss_*.so*       mr,
+   /etc/default/nss            r,
+ 
+   # nis
+Index: abstractions/perl
+===================================================================
+--- abstractions/perl.orig
++++ abstractions/perl
+@@ -12,7 +12,9 @@
+ 
+ 
+   # a few files typically required for perl scripts
+-  /usr/bin/perl                  rix,
+-  /usr/bin/perl[0-9].[0-9].[0-9] rix,
++  /usr/bin/perl                  rmix,
++  /usr/bin/perl[0-9].[0-9].[0-9] rmix,
+   /usr/lib/perl5/**              r,
++  /usr/lib/perl5/**.so*          mr,
+   /usr/lib64/perl5/**            r,
++  /usr/lib64/perl5/**.so*        mr,
+Index: abstractions/kde
+===================================================================
+--- abstractions/kde.orig
++++ abstractions/kde
+@@ -28,11 +28,11 @@
+ @{HOME}/.qt/** rw,
+ 
+ /opt/kde3/lib64/kde3/plugins/styles r,
+-/opt/kde3/lib64/kde3/plugins/styles/* r,
+-/opt/kde3/lib64/lib*so* r,
++/opt/kde3/lib64/kde3/plugins/styles/* mr,
++/opt/kde3/lib64/lib*so* mr,
+ /opt/kde3/lib/kde3/plugins/styles r,
+-/opt/kde3/lib/kde3/plugins/styles/* r,
+-/opt/kde3/lib/lib*so* r,
++/opt/kde3/lib/kde3/plugins/styles/* mr,
++/opt/kde3/lib/lib*so* mr,
+ 
+ /opt/kde3/share/config/kdeglobals r,
+ /opt/kde3/share/icons r,
+@@ -42,10 +42,10 @@
+ /usr/X11R6/lib/X11/XKeysymDB r,
+ /usr/X11R6/lib/X11/icons/** r,
+ 
+-/usr/lib/qt3/lib64/lib*so* r,
+-/usr/lib64/qt3/plugins/**  r,
+-/usr/lib/qt3/lib/lib*so* r,
+-/usr/lib/qt3/plugins/**  r,
++/usr/lib/qt3/lib64/lib*so* mr,
++/usr/lib64/qt3/plugins/**  mr,
++/usr/lib/qt3/lib/lib*so* mr,
++/usr/lib/qt3/plugins/**  mr,
+ 
+ /usr/share/YaST2/theme/** r,
+ /usr/share/pixmaps r,
+Index: abstractions/gnome
+===================================================================
+--- abstractions/gnome.orig
++++ abstractions/gnome
+@@ -12,24 +12,24 @@
+   # systemwide gtk defaults
+   /etc/gnome/gtkrc*               r,
+   /etc/gtk/*                      r,
+-  /usr/lib/gtk/**                 r,
+-  /usr/lib64/gtk/**               r,
++  /usr/lib/gtk/**                 mr,
++  /usr/lib64/gtk/**               mr,
+   /usr/share/themes/**            r,
+ 
+   # gtk-2 needed some new rights
+   /etc/fonts/*                    r,
+   /etc/gtk-*/*                    r,
+   /etc/pango/*                    r,
+-  /usr/lib64/pango/**             r,
+-  /usr/lib64/gtk-*/**             r,
+-  /usr/lib/pango/**               r,
+-  /usr/lib/gtk-*/**               r,
++  /usr/lib64/pango/**             mr,
++  /usr/lib64/gtk-*/**             mr,
++  /usr/lib/pango/**               mr,
++  /usr/lib/gtk-*/**               mr,
+   /usr/share/icons/**             r,
+   /usr/share/pixmaps/**           r,
+ 
+   # gnome libs
+-  /opt/gnome/lib/**               r,
+-  /opt/gnome/lib64/**             r,
++  /opt/gnome/lib/**               mr,
++  /opt/gnome/lib64/**             mr,
+ 
+   # per-user gtk configuration
+   @{HOME}/.gnome/Gnome            r,
+@@ -54,5 +54,5 @@
+   /usr/share/**/icon-theme.cache  r,
+ 
+   # buggy software
+-  /opt/gnome/lib/libgnomeui/gnome_segv2 ixr,
+-  /opt/gnome/bin/bug-buddy uxr,
++  /opt/gnome/lib/libgnomeui/gnome_segv2 mixr,
++  /opt/gnome/bin/bug-buddy Uxr,
+Index: abstractions/X
+===================================================================
+--- abstractions/X.orig
++++ abstractions/X
+@@ -21,3 +21,4 @@
+   /tmp/.X11-unix/*           w,
+   # The X tree changes and is large -- grant read access to the whole thing
+   /usr/X11R6/**                   r,
++  /usr/X11R6/**.so*               mr,
+Index: abstractions/base
+===================================================================
+--- abstractions/base.orig
++++ abstractions/base
+@@ -26,12 +26,12 @@
+   /usr/share/locale/**           r,
+   /usr/share/zoneinfo/**         r,
+ 
+-  /usr/lib64/locale/**           r,
+-  /usr/lib64/gconv/*.so          r,
+-  /usr/lib64/gconv/gconv-modules*  r,
+-  /usr/lib/locale/**             r,
+-  /usr/lib/gconv/*.so            r,
+-  /usr/lib/gconv/gconv-modules*  r,
++  /usr/lib64/locale/**           mr,
++  /usr/lib64/gconv/*.so          mr,
++  /usr/lib64/gconv/gconv-modules*  mr,
++  /usr/lib/locale/**             mr,
++  /usr/lib/gconv/*.so            mr,
++  /usr/lib/gconv/gconv-modules*  mr,
+ 
+   # used by glibc when binding to ephemeral ports
+   /etc/bindresvport.blacklist    r,
+@@ -41,35 +41,38 @@
+   /etc/ld.so.cache               r,
+   # 'px' requires a profile to be available for the transition to
+   # function; without a loaded profile, the kernel will fail the exec.
+-  /lib/ld-*.so                   px,
+-  /lib64/ld-*.so                 px,
+-  /lib/ld64-*.so                 px,
+-  /lib64/ld64-*.so               px,
+-  /opt/*-linux-uclibc/lib/ld-uClibc*so* px,
++  /lib/ld-*.so                   mrPx,
++  /lib64/ld-*.so                 mrPx,
++  /lib/ld64-*.so                 mrPx,
++  /lib64/ld64-*.so               mrPx,
++  /opt/*-linux-uclibc/lib/ld-uClibc*so* mrPx,
+ 
+   # we might as well allow everything to use common libraries
+-  /lib/lib*.so*                  r,
+-  /lib/tls/lib*.so*              r,
+-  /lib/power4/lib*.so*           r,
+-  /lib/power5/lib*.so*           r,
+-  /lib/power5+/lib*.so*          r,
+-  /lib64/power4/lib*.so*         r,
+-  /lib64/power5/lib*.so*         r,
+-  /lib64/power5+/lib*.so*        r,
+-  /usr/lib/*.so*                 r,
+-  /usr/lib/tls/lib*.so*          r,
+-  /usr/lib/power4/lib*.so*       r,
+-  /usr/lib/power5/lib*.so*       r,
+-  /usr/lib/power5+/lib*.so*      r,
+-  /lib64/lib*.so*                r,
+-  /lib64/tls/lib*.so*            r,
+-  /usr/lib64/*.so*               r,
+-  /usr/lib64/tls/lib*.so*        r,
++  /lib/lib*.so*                  mr,
++  /lib/tls/lib*.so*              mr,
++  /lib/power4/lib*.so*           mr,
++  /lib/power5/lib*.so*           mr,
++  /lib/power5+/lib*.so*          mr,
++  /lib64/power4/lib*.so*         mr,
++  /lib64/power5/lib*.so*         mr,
++  /lib64/power5+/lib*.so*        mr,
++  /usr/lib/*.so*                 mr,
++  /usr/lib/tls/lib*.so*          mr,
++  /usr/lib/power4/lib*.so*       mr,
++  /usr/lib/power5/lib*.so*       mr,
++  /usr/lib/power5+/lib*.so*      mr,
++  /lib64/lib*.so*                mr,
++  /lib64/tls/lib*.so*            mr,
++  /usr/lib64/*.so*               mr,
++  /usr/lib64/tls/lib*.so*        mr,
+ 
+   # /dev/null is pretty harmless and frequently used
+   /dev/null                      rw,
+   # as is /dev/zero
+   /dev/zero                      rw,
++  # recent glibc uses /dev/full in preference to /dev/null for programs
++  # that don't have open fds at exec()
++  /dev/full                      rw,
+ 
+   # Sometimes used to determine kernel/user interfaces to use
+   /proc/sys/kernel/version       r,
+Index: abstractions/kerberosclient
+===================================================================
+--- abstractions/kerberosclient.orig
++++ abstractions/kerberosclient
+@@ -12,8 +12,8 @@
+ 
+ 
+   # files required by kerberos client programs
+-  /usr/kerberos/lib/lib*.so*  r,
+-  /usr/kerberos/lib64/lib*.so*  r,
++  /usr/kerberos/lib/lib*.so*    mr,
++  /usr/kerberos/lib64/lib*.so*  mr,
+ 
+   /etc/krb5.keytab            r,
+   /etc/krb5.conf              r,
+Index: abstractions/php5
+===================================================================
+--- abstractions/php5.orig
++++ abstractions/php5
+@@ -17,9 +17,9 @@
+   /etc/php5/fastcgi/php.ini r,
+ 
+   # Xlibs
+-  /usr/X11R6/lib{64,}/lib*.so* r,
++  /usr/X11R6/lib{64,}/lib*.so* mr,
+   # php extensions
+-  /usr/lib{64,}/php5/extensions/*.so r,
++  /usr/lib{64,}/php5/extensions/*.so mr,
+ 
+   # php5 session mmap socket
+   /var/lib/php5/session_mm_* rwl,
+@@ -28,4 +28,4 @@
+ 
+   # php libraries
+   /usr/share/php r,
+-  /usr/share/php/** r,
++  /usr/share/php/** mr,
+Index: abstractions/bash
+===================================================================
+--- abstractions/bash.orig
++++ abstractions/bash
+@@ -43,5 +43,5 @@
+ 
+   # run out of /etc/bash.bashrc
+   /etc/DIR_COLORS                  r,
+-  /bin/ls                          ix,
+-  /usr/bin/dircolors               ix,
++  /bin/ls                          mix,
++  /usr/bin/dircolors               mix,

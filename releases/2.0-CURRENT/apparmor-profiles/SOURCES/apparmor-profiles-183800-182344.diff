@@ -1,0 +1,61 @@
+--- apparmor-profiles-2.0/abstractions/user-mail.orig	2006-06-16 23:36:45.000000000 +0200
++++ apparmor-profiles-2.0/abstractions/user-mail	2006-06-16 23:37:12.000000000 +0200
+@@ -22,4 +22,4 @@
+   @{HOME}/inbox         rw,
+   @{HOME}/.forward	r,
+   @{HOME}/Maildir       r,
+-  @{HOME}/Maildir/**    rw,
++  @{HOME}/Maildir/**    rwl,
+--- apparmor-profiles-2.0/extras/usr.lib.postfix.smtpd.orig	2006-06-17 00:15:00.316337627 +0200
++++ apparmor-profiles-2.0/extras/usr.lib.postfix.smtpd	2006-06-17 00:42:18.374340591 +0200
+@@ -46,8 +46,7 @@
+   /usr/share/ssl/certs/ca-bundle.crt          r,
+   /usr/share/ssl/openssl.cnf                  r,
+ 
+-  /{var/spool/postfix/,}pid/inet.smtp            rw,
+-  /{var/spool/postfix/,}pid/inet.smtps           rw,
++  /{var/spool/postfix/,}pid/inet.*               rw,
+   /{var/spool/postfix/,}private/anvil            w,
+   /{var/spool/postfix/,}private/proxymap         w,
+   /{var/spool/postfix/,}private/rewrite          w,
+--- apparmor-profiles-2.0/extras/usr.lib.postfix.flush.orig	2006-06-17 00:14:42.027529960 +0200
++++ apparmor-profiles-2.0/extras/usr.lib.postfix.flush	2006-06-17 00:38:44.485678958 +0200
+@@ -23,23 +23,23 @@
+   /usr/lib/postfix/flush                      rmix,
+ 
+   /{var/spool/postfix/,}deferred                     r,
+-  /{var/spool/postfix/,}deferred/[a-z]               r,
+-  /{var/spool/postfix/,}deferred/[a-z]/[a-z]         rwl,
+-  /{var/spool/postfix/,}deferred/[a-z]/[a-z]/*       rwl,
+-  /{var/spool/postfix/,}deferred/[a-z]/[a-z]*        rwl,
+-  /{var/spool/postfix/,}deferred/[a-z]*              rwl,
++  /{var/spool/postfix/,}deferred/[0-9A-F]            r,
++  /{var/spool/postfix/,}deferred/[0-9A-F]/[0-9A-F]   rwl,
++  /{var/spool/postfix/,}deferred/[0-9A-F]/[0-9A-F]/* rwl,
++  /{var/spool/postfix/,}deferred/[0-9A-F]/[0-9A-F]*  rwl,
++  /{var/spool/postfix/,}deferred/[0-9A-F]*           rwl,
+   /{var/spool/postfix/,}flush                        rwl,
+-  /{var/spool/postfix/,}flush/[a-z]                  rwl,
+-  /{var/spool/postfix/,}flush/[a-z]/[a-z]            rwl,
+-  /{var/spool/postfix/,}flush/[a-z]/[a-z]/*          rwl,
+-  /{var/spool/postfix/,}flush/[a-z]/[a-z]*           rwl,
+-  /{var/spool/postfix/,}flush/[a-z]*                 rwl,
++  /{var/spool/postfix/,}flush/[0-9A-F]               rwl,
++  /{var/spool/postfix/,}flush/[0-9A-F]/[0-9A-F]      rwl,
++  /{var/spool/postfix/,}flush/[0-9A-F]/[0-9A-F]/*    rwl,
++  /{var/spool/postfix/,}flush/[0-9A-F]/[0-9A-F]*     rwl,
++  /{var/spool/postfix/,}flush/[0-9A-F]*              rwl,
+   /{var/spool/postfix/,}incoming                     r,
+-  /{var/spool/postfix/,}incoming/[a-z]               r,
+-  /{var/spool/postfix/,}incoming/[a-z]/[a-z]         rwl,
+-  /{var/spool/postfix/,}incoming/[a-z]/[a-z]/*       rwl,
+-  /{var/spool/postfix/,}incoming/[a-z]/[a-z]*        rwl,
+-  /{var/spool/postfix/,}incoming/[a-z]*              rwl,
++  /{var/spool/postfix/,}incoming/[0-9A-F]            r,
++  /{var/spool/postfix/,}incoming/[0-9A-F]/[0-9A-F]   rwl,
++  /{var/spool/postfix/,}incoming/[0-9A-F]/[0-9A-F]/* rwl,
++  /{var/spool/postfix/,}incoming/[0-9A-F]/[0-9A-F]*  rwl,
++  /{var/spool/postfix/,}incoming/[0-9A-F]*           rwl,
+   /{var/spool/postfix/,}public/qmgr                  w,
+   /{var/spool/postfix/,}pid/unix.flush               rw,
+   /etc/mtab                                          r,

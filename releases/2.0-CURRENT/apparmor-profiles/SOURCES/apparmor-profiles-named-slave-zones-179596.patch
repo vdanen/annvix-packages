@@ -1,0 +1,22 @@
+Bug 179596 - slave zonen file is corrupt (SLES 10 &SL10.1)
+
+Slave zones are stored in files under /slave/*, named after the zone:
+For example:
+  type=APPARMOR msg=audit(1149288784.652:7): REJECTING w access to
+  /slave/example.com (named(12752) profile /usr/sbin/named active
+  /usr/sbin/named)
+
+ usr.sbin.named |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+Index: profiles/enabled/usr.sbin.named
+===================================================================
+--- profiles.orig/enabled/usr.sbin.named
++++ profiles/enabled/usr.sbin.named
+@@ -34,5 +34,5 @@
+   /var/run/named.pid wl,
+   /var/run/named/named.pid wl,
+   /var/run/ndc wl,
+-  /slave/tmp-* rw,
++  /slave/* rw,
+ }
