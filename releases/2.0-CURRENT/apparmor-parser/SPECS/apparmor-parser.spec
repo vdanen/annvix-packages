@@ -23,6 +23,9 @@ Source0:	%{name}-%{version}-6358.tar.gz
 Source1:	rc.aaeventd.mandriva
 Source2:	rc.apparmor.mandriva
 Patch0:		apparmor-parser-2.0-avx-fixes.patch
+Patch1:         apparmor-parser-fix_segv_nonexistant_dir-r30-160330.patch
+Patch2:         apparmor-parser-m_flag-code10-175388.patch
+Patch3:         apparmor-parser-add_PxUx-code10-172061.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	libcap-devel
@@ -47,6 +50,9 @@ This package contains the documentation for %{name}.
 %prep
 %setup -q
 %patch0 -p0 -b .avx
+%patch1 -p3 -b .fix_segv
+%patch2 -p3 -b .m_flag
+%patch3 -p3 -b .add_PxUx
 
 # copy our initscripts
 cp %{_sourcedir}/rc.aaeventd.mandriva .
@@ -102,6 +108,13 @@ mv %{buildroot}%{_initrddir}/rc.apparmor.functions %{buildroot}%{_initrddir}/app
 
 
 %changelog
+* Wed Aug 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
+- sync some patches with SUSE to match support in SLE10:
+  - P1: fix segv if profiles directory does not exist
+  - P2: add support for the new m flag (mmap w/ PROT_EXEC permission)
+  - P3: add support for the new Px/Ux modes which indicate to ld.so that
+    sensitive environment variables should be filtered on exec()
+
 * Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
 - remove locales
 

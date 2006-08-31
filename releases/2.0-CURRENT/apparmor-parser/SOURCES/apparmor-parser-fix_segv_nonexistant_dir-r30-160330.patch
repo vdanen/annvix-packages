@@ -1,0 +1,24 @@
+https://bugzilla.novell.com/show_bug.cgi?id=160330
+
+This patch prevents the parser from segv'ing if neither of the expected
+default profile directories exist (/etc/subdomain.d, /etc/apparmor.d).
+A profile passed on the command line or via stdin will still load, so
+long as -I/path/to/includes is passed for any relevant includes files.
+
+---
+ SubDomain/parser/parser_include.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+Index: SLES10/SubDomain/parser/parser_include.c
+===================================================================
+--- SLES10.orig/SubDomain/parser/parser_include.c
++++ SLES10/SubDomain/parser/parser_include.c
+@@ -191,7 +191,7 @@ int add_search_dir(char *dir)
+ 		return 0;
+ 	}
+ 
+-	if (strlen(dir) <= 0)
++	if (!dir || strlen(dir) <= 0)
+ 		return 1;
+ 
+ 	t = malloc(strlen(dir) + 1);

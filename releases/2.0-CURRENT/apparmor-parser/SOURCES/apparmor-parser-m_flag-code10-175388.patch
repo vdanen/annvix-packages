@@ -1,0 +1,87 @@
+[https://bugzilla.novell.com/show_bug.cgi?id=175388]
+
+This (updated) patch to trunk adds the m flag to the parser language. The
+m flag explicitly does -not- conflict with px, ux, or ix.
+
+It does not add exec mmap as implicit to inherited execs, as it was
+asserted that the module should do this.
+
+---
+ SubDomain/parser/immunix.h     |    4 +++-
+ SubDomain/parser/parser.h      |    1 +
+ SubDomain/parser/parser_lex.l  |    2 +-
+ SubDomain/parser/parser_misc.c |    7 +++++++
+ 4 files changed, 12 insertions(+), 2 deletions(-)
+
+Index: SLES10/SubDomain/parser/immunix.h
+===================================================================
+--- SLES10.orig/SubDomain/parser/immunix.h
++++ SLES10/SubDomain/parser/immunix.h
+@@ -33,7 +33,8 @@
+ #define POS_KERN_COD_EXEC_INHERIT	(POS_KERN_COD_MAY_LINK + 1)
+ #define POS_KERN_COD_EXEC_UNCONSTRAINED (POS_KERN_COD_EXEC_INHERIT + 1)
+ #define POS_KERN_COD_EXEC_PROFILE	(POS_KERN_COD_EXEC_UNCONSTRAINED + 1)
+-#define POS_KERN_COD_FILE_MAX		POS_KERN_COD_EXEC_PROFILE
++#define POS_KERN_COD_EXEC_MMAP		(POS_KERN_COD_EXEC_PROFILE + 1)
++#define POS_KERN_COD_FILE_MAX		POS_KERN_COD_EXEC_MMAP
+ 
+ #define POS_KERN_COD_NET_MIN		(POS_KERN_COD_FILE_MAX + 1)
+ #define POS_KERN_COD_TCP_CONNECT	POS_KERN_COD_NET_MIN
+@@ -60,6 +61,7 @@
+ #define KERN_COD_EXEC_INHERIT 	(0x01 << POS_KERN_COD_EXEC_INHERIT)
+ #define KERN_COD_EXEC_UNCONSTRAINED	(0x01 << POS_KERN_COD_EXEC_UNCONSTRAINED)
+ #define KERN_COD_EXEC_PROFILE	(0x01 << POS_KERN_COD_EXEC_PROFILE)
++#define KERN_COD_EXEC_MMAP	(0x01 << POS_KERN_COD_EXEC_MMAP)
+ #define KERN_EXEC_MODIFIERS(X)	(X & (KERN_COD_EXEC_INHERIT | \
+ 				      KERN_COD_EXEC_UNCONSTRAINED | \
+ 				      KERN_COD_EXEC_PROFILE))
+Index: SLES10/SubDomain/parser/parser.h
+===================================================================
+--- SLES10.orig/SubDomain/parser/parser.h
++++ SLES10/SubDomain/parser/parser.h
+@@ -107,6 +107,7 @@ struct var_string {
+ #define COD_LINK_CHAR 		'l'
+ #define COD_UNCONSTRAINED_CHAR	'u'
+ #define COD_PROFILE_CHAR	'p'
++#define COD_MMAP_CHAR		'm'
+ 
+ #define OPTION_ADD      1
+ #define OPTION_REMOVE   2
+Index: SLES10/SubDomain/parser/parser_lex.l
+===================================================================
+--- SLES10.orig/SubDomain/parser/parser_lex.l
++++ SLES10/SubDomain/parser/parser_lex.l
+@@ -52,7 +52,7 @@ COLON		:
+ END_OF_RULE	[,]
+ SEPERATOR 	{UP}
+ RANGE		-
+-MODES 		[RrWwXxIiLlUuPp]
++MODES 		[RrWwXxIiLlUuPpMm]
+ WS		[[:blank:]]
+ NUMBER		[[:digit:]]+
+ ID 		[^ \t\n"^!]
+Index: SLES10/SubDomain/parser/parser_misc.c
+===================================================================
+--- SLES10.orig/SubDomain/parser/parser_misc.c
++++ SLES10/SubDomain/parser/parser_misc.c
+@@ -335,6 +335,11 @@ int parse_mode(const char *str_mode)
+ 			}
+ 			break;
+ 
++		case COD_MMAP_CHAR:
++			PDEBUG("Parsing mode: found MMAP\n");
++			mode |= KERN_COD_EXEC_MMAP;
++			break;
++
+ 		case COD_EXEC_CHAR:
+ 			PDEBUG("Parsing mode: found EXEC\n");
+ 			yyerror(_("Invalid mode, 'x' must be preceded by exec qualifier 'i', 'u' or 'p'"));
+@@ -518,6 +523,8 @@ void debug_cod_entries(struct cod_entry 
+ 			printf("u");
+ 		if (item->mode & KERN_COD_EXEC_PROFILE)
+ 			printf("p");
++		if (item->mode & KERN_COD_EXEC_MMAP)
++			printf("%c", COD_MMAP_CHAR);
+ 
+ 		if (item->name)
+ 			printf("\tName:\t(%s)\n", item->name);

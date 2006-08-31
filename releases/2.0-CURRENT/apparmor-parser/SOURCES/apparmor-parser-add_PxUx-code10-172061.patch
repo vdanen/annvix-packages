@@ -1,0 +1,410 @@
+[https://bugzilla.novell.com/show_bug.cgi?id=172061]
+
+This (updated) patch to trunk adds support for Px and Ux (toggle
+bprm_secure on exec) in the parser, As requested, lowercase p and u
+corresponds to an unfiltered environmnet on exec, uppercase will filter
+the environment.  It applies after the 'm' patch.
+
+As a side effect, I tried to reduce the use of hardcoded characters in
+the debugging statements -- there are still a few warnings that have
+hard coded letters in them; not sure I can fix them all.
+
+This version issues a warning for every unsafe ux and issues a single
+warning for the first 'R', 'W', 'X', 'L', and 'I' it encounters,
+except when the "-q" or "--quiet" flag , "--remove" profile flag, or
+"-N" report names flags are passed. It also ensures that combined rules
+that conflict via Pxpx and Uxux are reported as an error. Unfortunately,
+the logic has gotten somewhat more convoluted. Testcases have been added.
+
+Wordsmithing and other improvements welcome.
+
+---
+ SubDomain/parser/immunix.h      |    8 ++-
+ SubDomain/parser/parser.h       |   10 +--
+ SubDomain/parser/parser_main.c  |   36 ++++++++++++--
+ SubDomain/parser/parser_merge.c |   14 ++++-
+ SubDomain/parser/parser_misc.c  |  102 ++++++++++++++++++++++++++++++----------
+ SubDomain/parser/parser_yacc.y  |    2 
+ 6 files changed, 136 insertions(+), 36 deletions(-)
+
+Index: SLES10/SubDomain/parser/parser.h
+===================================================================
+--- SLES10.orig/SubDomain/parser/parser.h
++++ SLES10/SubDomain/parser/parser.h
+@@ -105,8 +105,10 @@ struct var_string {
+ #define COD_EXEC_CHAR 		'x'
+ #define COD_INHERIT_CHAR 	'i'
+ #define COD_LINK_CHAR 		'l'
+-#define COD_UNCONSTRAINED_CHAR	'u'
+-#define COD_PROFILE_CHAR	'p'
++#define COD_UNCONSTRAINED_CHAR	'U'
++#define COD_UNSAFE_UNCONSTRAINED_CHAR	'u'
++#define COD_PROFILE_CHAR	'P'
++#define COD_UNSAFE_PROFILE_CHAR	'p'
+ #define COD_MMAP_CHAR		'm'
+ 
+ #define OPTION_ADD      1
+@@ -121,9 +123,6 @@ struct var_string {
+ #endif
+ #define NPDEBUG(fmt, args...)	/* Do nothing */
+ 
+-/* FIXME: PWARN needs to become a true function so we can i18n-ize calls
+- * to it */
+-#define PWARN(fmt, args...) fprintf(stderr, _("Warning (line %d): " fmt), current_lineno, ## args)
+ #define PERROR(fmt, args...) fprintf(stderr, fmt, ## args)
+ 
+ #ifndef TRUE
+@@ -147,6 +146,7 @@ extern char *profilename;
+ 
+ /* from parser_main */
+ extern int force_complain;
++extern void pwarn(char *fmt, ...) __attribute__((__format__(__printf__, 1, 2)));
+ 
+ extern int yyparse(void);
+ extern void yyerror(char *msg, ...);
+Index: SLES10/SubDomain/parser/parser_misc.c
+===================================================================
+--- SLES10.orig/SubDomain/parser/parser_misc.c
++++ SLES10/SubDomain/parser/parser_misc.c
+@@ -261,6 +261,16 @@ int str_to_boolean(const char *value)
+ 	return retval;
+ }
+ 
++static int warned_uppercase = 0;
++
++static void warn_uppercase(void)
++{
++	if (!warned_uppercase) {
++		pwarn("Uppercase qualifiers \"RWLIMX\" are deprecated, please convert to lowercase\n"
++		      "See the apparmor.d(5) manpage for details.\n");
++		warned_uppercase = 1;
++	}
++}
+ int parse_mode(const char *str_mode)
+ {
+ 	/* The 'check' int is a bit of a kludge, but we need some context
+@@ -276,9 +286,11 @@ int parse_mode(const char *str_mode)
+ 
+ 	p = str_mode;
+ 	while (*p) {
+-		char this = tolower(*p);
+-		char next = tolower(*(p + 1));
++		char this = *p;
++		char next = *(p + 1);
++		char lower;
+ 
++reeval:
+ 		switch (this) {
+ 		case COD_READ_CHAR:
+ 			PDEBUG("Parsing mode: found READ\n");
+@@ -297,24 +309,36 @@ int parse_mode(const char *str_mode)
+ 
+ 		case COD_INHERIT_CHAR:
+ 			PDEBUG("Parsing mode: found INHERIT\n");
+-			if (next != COD_EXEC_CHAR) {
++			if (next != COD_EXEC_CHAR && tolower(next) != COD_EXEC_CHAR) {
+ 				yyerror(_("Exec qualifier 'i' must be followed by 'x'"));
+ 			} else if (IS_DIFF_QUAL(this)) {
+ 				yyerror(_("Exec qualifier 'i' invalid, conflicting qualifier already specified"));
+ 			} else {
++				if (next != tolower(next))
++					warn_uppercase();
+ 				mode |=
+ 				    (KERN_COD_EXEC_INHERIT | KERN_COD_MAY_EXEC);
+ 				p++;	/* skip 'x' */
+ 			}
+ 			break;
+ 
++		case COD_UNSAFE_UNCONSTRAINED_CHAR:
++			mode |= KERN_COD_EXEC_UNSAFE;
++			pwarn("Unconstrained exec qualifier (%c%c) allows some dangerous environment variables\n"
++			      "to be passed to the unconfined process; 'man 5 apparmor.d' for details.\n",
++			      COD_UNSAFE_UNCONSTRAINED_CHAR, COD_EXEC_CHAR);
++			/* fall through */
+ 		case COD_UNCONSTRAINED_CHAR:
+ 			PDEBUG("Parsing mode: found UNCONSTRAINED\n");
+-			if (next != COD_EXEC_CHAR) {
+-				yyerror(_("Exec qualifier 'u' must be followed by 'x'"));
++			if (next != COD_EXEC_CHAR && tolower(next) != COD_EXEC_CHAR) {
++				yyerror(_("Exec qualifier '%c' must be followed by 'x'"),
++					this);
+ 			} else if (IS_DIFF_QUAL(this)) {
+-				yyerror(_("Exec qualifier 'u' invalid, conflicting qualifier already specified"));
++				yyerror(_("Exec qualifier '%c' invalid, conflicting qualifier already specified"),
++					this);
+ 			} else {
++				if (next != tolower(next))
++					warn_uppercase();
+ 				mode |=
+ 				    (KERN_COD_EXEC_UNCONSTRAINED |
+ 				     KERN_COD_MAY_EXEC);
+@@ -322,13 +346,20 @@ int parse_mode(const char *str_mode)
+ 			}
+ 			break;
+ 
++		case COD_UNSAFE_PROFILE_CHAR:
++			mode |= KERN_COD_EXEC_UNSAFE;
++			/* fall through */
+ 		case COD_PROFILE_CHAR:
+ 			PDEBUG("Parsing mode: found PROFILE\n");
+-			if (next != COD_EXEC_CHAR) {
+-				yyerror(_("Exec qualifier 'p' must be followed by 'x'"));
++			if (next != COD_EXEC_CHAR && tolower(next) != COD_EXEC_CHAR) {
++				yyerror(_("Exec qualifier '%c' must be followed by 'x'"),
++					this);
+ 			} else if (IS_DIFF_QUAL(this)) {
+-				yyerror(_("Exec qualifier 'p' invalid, conflicting qualifier already specified"));
++				yyerror(_("Exec qualifier '%c' invalid, conflicting qualifier already specified"),
++					this);
+ 			} else {
++				if (next != tolower(next))
++					warn_uppercase();
+ 				mode |=
+ 				    (KERN_COD_EXEC_PROFILE | KERN_COD_MAY_EXEC);
+ 				p++;	/* skip 'x' */
+@@ -345,8 +376,28 @@ int parse_mode(const char *str_mode)
+ 			yyerror(_("Invalid mode, 'x' must be preceded by exec qualifier 'i', 'u' or 'p'"));
+ 			break;
+ 
++ 		/* error cases */
++
+ 		default:
+-			yyerror(_("Internal: unexpected mode character in input"));
++			lower = tolower(this);
++			switch (lower) {
++			case COD_READ_CHAR:
++			case COD_WRITE_CHAR:
++			case COD_LINK_CHAR:
++			case COD_INHERIT_CHAR:
++			case COD_MMAP_CHAR:
++			case COD_EXEC_CHAR:
++				PDEBUG("Parsing mode: found invalid upper case char %c\n", this);
++				warn_uppercase();
++				this = lower;
++				goto reeval;
++				break;
++			default:
++				yyerror(_("Internal: unexpected mode character '%c' in input"),
++					this);
++				break;
++			}
++			break;
+ 		}
+ 
+ 		p++;
+@@ -510,21 +561,29 @@ void debug_cod_entries(struct cod_entry 
+ 
+ 		printf("Mode:\t");
+ 		if (item->mode & KERN_COD_MAY_READ)
+-			printf("r");
++			printf("%c", COD_READ_CHAR);
+ 		if (item->mode & KERN_COD_MAY_WRITE)
+-			printf("w");
+-		if (item->mode & KERN_COD_MAY_EXEC)
+-			printf("x");
++			printf("%c", COD_WRITE_CHAR);
+ 		if (item->mode & KERN_COD_MAY_LINK)
+-			printf("l");
++			printf("%c", COD_LINK_CHAR);
+ 		if (item->mode & KERN_COD_EXEC_INHERIT)
+-			printf("i");
+-		if (item->mode & KERN_COD_EXEC_UNCONSTRAINED)
+-			printf("u");
+-		if (item->mode & KERN_COD_EXEC_PROFILE)
+-			printf("p");
++			printf("%c", COD_INHERIT_CHAR);
++		if (HAS_EXEC_UNCONSTRAINED(item->mode)) {
++			if (HAS_EXEC_UNSAFE(item->mode))
++				printf("%c", COD_UNSAFE_UNCONSTRAINED_CHAR);
++			else
++				printf("%c", COD_UNCONSTRAINED_CHAR);
++		}
++		if (HAS_EXEC_PROFILE(item->mode)) {
++			if (HAS_EXEC_UNSAFE(item->mode))
++				printf("%c", COD_UNSAFE_PROFILE_CHAR);
++			else
++				printf("%c", COD_PROFILE_CHAR);
++		}
+ 		if (item->mode & KERN_COD_EXEC_MMAP)
+ 			printf("%c", COD_MMAP_CHAR);
++		if (item->mode & KERN_COD_MAY_EXEC)
++			printf("%c", COD_EXEC_CHAR);
+ 
+ 		if (item->name)
+ 			printf("\tName:\t(%s)\n", item->name);
+@@ -712,6 +771,3 @@ int main(void)
+ 	return rc;
+ }
+ #endif /* UNIT_TEST */
+-
+-
+-
+Index: SLES10/SubDomain/parser/immunix.h
+===================================================================
+--- SLES10.orig/SubDomain/parser/immunix.h
++++ SLES10/SubDomain/parser/immunix.h
+@@ -34,7 +34,8 @@
+ #define POS_KERN_COD_EXEC_UNCONSTRAINED (POS_KERN_COD_EXEC_INHERIT + 1)
+ #define POS_KERN_COD_EXEC_PROFILE	(POS_KERN_COD_EXEC_UNCONSTRAINED + 1)
+ #define POS_KERN_COD_EXEC_MMAP		(POS_KERN_COD_EXEC_PROFILE + 1)
+-#define POS_KERN_COD_FILE_MAX		POS_KERN_COD_EXEC_MMAP
++#define POS_KERN_COD_EXEC_UNSAFE	(POS_KERN_COD_EXEC_MMAP + 1)
++#define POS_KERN_COD_FILE_MAX		POS_KERN_COD_EXEC_UNSAFE
+ 
+ #define POS_KERN_COD_NET_MIN		(POS_KERN_COD_FILE_MAX + 1)
+ #define POS_KERN_COD_TCP_CONNECT	POS_KERN_COD_NET_MIN
+@@ -62,6 +63,7 @@
+ #define KERN_COD_EXEC_UNCONSTRAINED	(0x01 << POS_KERN_COD_EXEC_UNCONSTRAINED)
+ #define KERN_COD_EXEC_PROFILE	(0x01 << POS_KERN_COD_EXEC_PROFILE)
+ #define KERN_COD_EXEC_MMAP	(0x01 << POS_KERN_COD_EXEC_MMAP)
++#define KERN_COD_EXEC_UNSAFE	(0x01 << POS_KERN_COD_EXEC_UNSAFE)
+ #define KERN_EXEC_MODIFIERS(X)	(X & (KERN_COD_EXEC_INHERIT | \
+ 				      KERN_COD_EXEC_UNCONSTRAINED | \
+ 				      KERN_COD_EXEC_PROFILE))
+@@ -86,4 +88,8 @@ enum pattern_t {
+ 	ePatternInvalid,
+ };
+ 
++#define HAS_EXEC_PROFILE(mode)		((mode) & KERN_COD_EXEC_PROFILE)
++#define HAS_EXEC_UNCONSTRAINED(mode)	((mode) & KERN_COD_EXEC_UNCONSTRAINED)
++#define HAS_EXEC_UNSAFE(mode) 		((mode) & KERN_COD_EXEC_UNSAFE)
++
+ #endif				/* ! _IMMUNIX_H */
+Index: SLES10/SubDomain/parser/parser_main.c
+===================================================================
+--- SLES10.orig/SubDomain/parser/parser_main.c
++++ SLES10/SubDomain/parser/parser_main.c
+@@ -22,6 +22,7 @@
+ #include <stdio.h>
+ #include <string.h>
+ #include <stdlib.h>
++#include <stdarg.h>
+ #include <getopt.h>
+ #include <errno.h>
+ #include <fcntl.h>
+@@ -53,12 +54,15 @@ const char *parser_title	= "Novell/SUSE 
+ const char *parser_copyright	= "Copyright (C) 1999, 2000, 2003, 2004, 2005, 2006 Novell Inc.";
+ 
+ char *progname;
++int option = OPTION_ADD;
+ int force_complain = 0;
+ int names_only = 0;
+ int dump_vars = 0;
+ int dump_expanded_vars = 0;
++int conf_quiet = 0;
+ char *subdomainbase = NULL;
+ char *profilename;
++extern int current_lineno;
+ 
+ struct option long_options[] = {
+ 	{"add", 		0, 0, 'a'},
+@@ -77,6 +81,7 @@ struct option long_options[] = {
+ 	{"remove",		0, 0, 'R'},
+ 	{"names",		0, 0, 'N'},	/* undocumented only emit profilenames */
+ 	{"stdout",		0, 0, 'S'},
++	{"quiet",		0, 0, 'q'},
+ 	{NULL, 0, 0, 0},
+ };
+ 
+@@ -105,16 +110,38 @@ static void display_usage(char *command)
+ 	       "-I n, --Include n	Add n to the search path\n"
+ 	       "-b n, --base n		Set base dir and cwd\n"
+ 	       "-f n, --subdomainfs n	Set location of apparmor filesystem\n"
+-	       "-S, --stdout		Write output to stdout\n", command);
++	       "-S, --stdout		Write output to stdout\n"
++	       "-q, --quiet		Don't emit warnings\n", command);
++}
++
++void pwarn(char *fmt, ...)
++{
++	va_list arg;
++	char *newfmt;
++	int rc;
++
++	if (conf_quiet || names_only || option == OPTION_REMOVE)
++		return;
++
++	rc = asprintf(&newfmt, "Warning (%s line %d): %s",
++		      profilename ? profilename : "stdin",
++		      current_lineno,
++		      fmt);
++	if (!newfmt)
++		return;
++
++	va_start(arg, fmt);
++	vfprintf(stderr, newfmt, arg);
++	va_end(arg);
+ }
+ 
+ static int process_args(int argc, char *argv[])
+ {
+ 	int c, o;
+-	int option = OPTION_ADD;
+ 	int count = 0;
++	option = OPTION_ADD;
+ 
+-	while ((c = getopt_long(argc, argv, "adf:hrRvpI:b:CNS", long_options, &o)) != -1)
++	while ((c = getopt_long(argc, argv, "adf:hrRvpI:b:CNSq", long_options, &o)) != -1)
+ 	{
+ 		switch (c) {
+ 		case 0:
+@@ -174,6 +201,9 @@ static int process_args(int argc, char *
+ 		case 'E':
+ 			dump_expanded_vars = 1;
+ 			break;
++		case 'q':
++			conf_quiet = 1;
++			break;
+ 		default:
+ 			display_usage(progname);
+ 			exit(0);
+Index: SLES10/SubDomain/parser/parser_yacc.y
+===================================================================
+--- SLES10.orig/SubDomain/parser/parser_yacc.y
++++ SLES10/SubDomain/parser/parser_yacc.y
+@@ -814,7 +814,7 @@ ports:		TOK_COLON TOK_NUM TOK_RANGE TOK_
+ 		if ((*ports)[0] > (*ports)[1])
+ 		{
+ 			unsigned short tmp;
+-			PWARN("expected first port number to be less than the second, swapping (%ld,%ld)\n",
++			pwarn("expected first port number to be less than the second, swapping (%ld,%ld)\n",
+ 				$2, $4);
+ 			tmp = (*ports)[0];
+ 			(*ports)[0] = (*ports)[1];
+Index: SLES10/SubDomain/parser/parser_merge.c
+===================================================================
+--- SLES10.orig/SubDomain/parser/parser_merge.c
++++ SLES10/SubDomain/parser/parser_merge.c
+@@ -27,6 +27,7 @@
+ 
+ #include "parser.h"
+ 
++
+ static inline int count_net_entries(struct codomain *cod)
+ {
+ 	struct cod_net_entry *list;
+@@ -73,14 +74,21 @@ static int process_file_entries(struct c
+ 	qsort(table, count, sizeof(struct cod_entry *), file_comp);
+ 	table[count] = NULL;
+ 
++#define CHECK_CONFLICT_UNSAFE(a, b) \
++	((HAS_EXEC_UNSAFE(a) ^ HAS_EXEC_UNSAFE(b)) && \
++	 ((HAS_EXEC_PROFILE(a) && HAS_EXEC_PROFILE(b)) || \
++	  (HAS_EXEC_UNCONSTRAINED(a) && HAS_EXEC_UNCONSTRAINED(b))))
++
+ 	/* walk the sorted table merging similar entries */
+ 	for (cur = table[0], next = table[1], n = 1; next != NULL; n++, next = table[n]) {
+ 		if (file_comp(&cur, &next) == 0) {
++			int conflict = CHECK_CONFLICT_UNSAFE(cur->mode, next->mode);
+ 			cur->mode |= next->mode;
+ 			/* check for merged x consistency */
+-			if ((KERN_COD_MAY_EXEC & cur->mode) &&
+-			    (KERN_EXEC_MODIFIERS(cur->mode) &
+-			     (KERN_EXEC_MODIFIERS(cur->mode) - 1))) {
++			if (KERN_COD_MAY_EXEC & cur->mode &&
++			    ((KERN_EXEC_MODIFIERS(cur->mode) &
++			      (KERN_EXEC_MODIFIERS(cur->mode) - 1)) ||
++			     conflict)) {
+ 				PERROR(_("profile %s: has merged rule %s with multiple x modifiers\n"),
+ 				       cod->name, cur->name);
+ 				return 0;
