@@ -24,6 +24,11 @@ URL:		http://forge.novell.com/modules/xfmod/project/?apparmor
 Source0:	%{name}-%{version}-6377.tar.gz
 Patch0:		apparmor-utils-2.0-avx-socklog.patch
 Patch1:		apparmor-utils-2.0-avx-nofork.patch
+Patch2:         apparmor-utils-2.0-suse-logprof-m-support.diff
+Patch3:         apparmor-utils-2.0-suse-logprof-PXUX-support.diff
+Patch4:         apparmor-utils-2.0-suse-aaeventd-tail.diff  
+Patch5:         apparmor-utils-2.0-suse-changing_profile-check.diff
+
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
@@ -47,6 +52,10 @@ and the aa-eventd event reporting system.
 %setup -q
 %patch0 -p0 -b .avx-socklog
 %patch1 -p0 -b .avx-nofork
+%patch2 -p2 -b .logprof_m
+%patch3 -p2 -b .logprof_pxux
+%patch4 -p2 -b .aaeventd-tail
+%patch5 -p2 -b .changing_profile-check
 
 
 %install
@@ -74,6 +83,15 @@ make DESTDIR=%{buildroot} \
 
 
 %changelog
+* Wed Aug 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
+- sync some patches with SUSE to match support in SLE10:
+  - P2: add support for the new m mode
+  - P3: add support for the new Px/Ux modes
+  - P4: make aaeventd process all of the events in the log file, not
+    just those that occur after it's already running
+  - P5: look for the changing_profile hint on the next AppArmor or audit
+    line in the log file, not strictly the very next line in the file
+
 * Wed Aug 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
 - drop aaeventd; we don't need or want it
 - update P0 again to change everything looking for /var/log/audit/audit.log to

@@ -1,0 +1,26 @@
+aaeventd wouldn't process any events that were already in the log file 
+by the time it started up so only events that occurred after it was 
+already running would be inserted into the event database.  
+
+this fixes bugzilla #154239 by making it scan the entire log when it 
+initially starts up looking for unprocessed events.
+
+---
+ utils/aa-eventd |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+Index: trunk/utils/aa-eventd
+===================================================================
+--- trunk.orig/utils/aa-eventd
++++ trunk/utils/aa-eventd
+@@ -997,8 +997,8 @@ my $dbh = connect_database($dbdir);
+ 
+ ($last_inserted_time, $last_inserted_counter) = get_last_event($dbh);
+ 
+-my $auditlog=File::Tail->new(name=>$logfile, debug=>1, interval=>1, maxinterval=>5, adjustafter=>20, errmode=>"return", ignore_noexistant=>1);
+-my $syslog=File::Tail->new(name=>$syslogfile, debug=>1, interval=>1, maxinterval=>5, adjustafter=>20, errmode=>"return", ignore_noexistant=>1);
++my $auditlog=File::Tail->new(name=>$logfile, debug=>1, tail=>-1, interval=>1, maxinterval=>5, adjustafter=>20, errmode=>"return", ignore_noexistant=>1);
++my $syslog=File::Tail->new(name=>$syslogfile, debug=>1, tail=>-1, interval=>1, maxinterval=>5, adjustafter=>20, errmode=>"return", ignore_noexistant=>1);
+ my $line = '';
+ 
+ # process complete lines from the buffer...

@@ -1,0 +1,82 @@
+This patch adds support to the profile development tools (autodep, genprof, 
+logprof, and their yast counterparts) for the new "m" mode that was 
+introduced to fix the mmap security vulnerability in bugzilla #175388.
+
+---
+ utils/SubDomain.pm |   33 +++++++++++++++++++++++++++------
+ 1 file changed, 27 insertions(+), 6 deletions(-)
+
+Index: trunk/utils/SubDomain.pm
+===================================================================
+--- trunk.orig/utils/SubDomain.pm
++++ trunk/utils/SubDomain.pm
+@@ -514,9 +514,9 @@ sub handle_binfmt ($$) {
+     next unless $library;
+ 
+     if($library =~ /\/lib\/ld-.+/) {
+-      $profile->{path}->{$library} = "px";
++      $profile->{path}->{$library} = "mpx";
+     } else {
+-      $profile->{path}->{$library} = "r";
++      $profile->{path}->{$library} = "mr";
+     }
+   }
+ 
+@@ -538,7 +538,7 @@ sub autodep ($) {
+ 
+   my $profile = { flags   => "complain",
+                   include => { "abstractions/base" => 1   },
+-                  path    => { $fqdbin             => "r" } };
++                  path    => { $fqdbin             => "mr" } };
+ 
+   # if the executable exists on this system, pull in extra dependencies
+   if(-f $fqdbin) {
+@@ -1615,6 +1615,27 @@ sub do_logprof_pass {
+             }
+           }
+ 
++          # if we had an mmap(PROT_EXEC) request, first check if we already
++          # have added an ix rule to the profile
++          if($mode =~ /m/) {
++            my $combinedmode = "";
++            my ($cm, @m);
++
++            # does path match any regexps in original profile?
++            ($cm, @m) = rematchfrag($sd{$profile}{$hat}, $path);
++            $combinedmode .= $cm if $cm;
++
++            # does path match anything pulled in by includes in original profile?
++            ($cm, @m) = matchincludes($sd{$profile}{$hat}, $path);
++            $combinedmode .= $cm if $cm;
++
++            # ix implies m.  don't ask if they want to add an "m" rule when
++            # we already have a matching ix rule.
++            if($combinedmode && contains($combinedmode, "ix")) {
++              $mode =~ s/m//g;
++            }
++          }
++
+           next unless $mode;
+ 
+           my $combinedmode = "";
+@@ -1981,7 +2002,7 @@ sub collapsemode ($) {
+   my $new = join "",
+             sort
+             grep { ! $seen{$_}++ }
+-            $old =~ m/\G(r|w|l|ix|px|ux)/g;
++            $old =~ m/\G(r|w|l|m|ix|px|ux)/g;
+   return $new;
+ }
+ 
+@@ -1991,9 +2012,9 @@ sub contains ($$) {
+   $glob = "" unless defined $glob;
+ 
+   my %h;
+-  $h{$_}++ for ($glob =~ m/\G(r|w|l|ix|px|ux)/g);
++  $h{$_}++ for ($glob =~ m/\G(r|w|l|m|ix|px|ux)/g);
+ 
+-  for my $mode ($single =~ m/\G(r|w|l|ix|px|ux)/g) {
++  for my $mode ($single =~ m/\G(r|w|l|m|ix|px|ux)/g) {
+     return 0 unless $h{$mode};
+   }
+ 
