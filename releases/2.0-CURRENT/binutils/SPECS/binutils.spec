@@ -36,6 +36,7 @@ Patch6:		binutils-2.16.91.0.1-deps.patch
 Patch7:		binutils-2.16.91.0.6-elfvsb-test.patch
 Patch8:		binutils-2.16.91.0.6-frepo.patch
 Patch9:		63_all_binutils-2.16.91.0.7-pt-pax-flags-20060317.patch
+Patch10:	binutils-2.16.91.0.2-CVE-2006-2362.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf automake bison flex gcc gettext texinfo glibc-static-devel
@@ -107,6 +108,7 @@ This package contains the documentation for %{name}.
 %patch7 -p0 -b .elfvsb-test
 %patch8 -p0 -b .frepo
 #%patch9 -p1 -b .pax
+%patch10 -p1 -b .cve-2006-2362
 
 
 %build
@@ -218,6 +220,9 @@ rm -rf %{buildroot}%{_datadir}/locale/
 
 
 %changelog
+* Thu Aug 31 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.16.91.0.7
+- P10: security fix for CVE-2006-2362
+
 * Sat May 20 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.16.91.0.7
 - rebuild the toolchain against itself (gcc/glibc/libtool/binutils)
 
