@@ -5,9 +5,9 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-# $Id: httpd-mod_layout.spec 5951 2006-07-31 00:02:55Z vdanen $
+# $Id$
 
-%define revision	$Rev: 5951 $
+%define revision	$Rev$
 %define name		httpd-%{mod_name}
 %define version		%{apache_version}_%{mod_version}
 %define release 	%_revrel
