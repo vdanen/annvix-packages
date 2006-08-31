@@ -5,12 +5,12 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-# $Id: kernel26-avx.spec 5964 2006-08-04 05:04:30Z vdanen $
+# $Id: kernel26-avx.spec 5985 2006-08-06 22:35:47Z vdanen $
 
-%define revision	$Rev: 5964 $
+%define revision	$Rev: 5985 $
 %define kname		kernel26
 %define sublevel	16
-%define minlevel	27
+%define minlevel	28
 %define avxrelease	%(echo %{revision}|cut -d ' ' -f 2)
 
 %define tar_version	2.6.%{sublevel}.%{minlevel}
@@ -95,7 +95,7 @@ ExclusiveOS:	Linux
 # Sources
 #
 ### This is for full SRC RPM
-Source0: ftp://ftp.kernel.org/pub/linux/kernel/v2.4/linux-%{tar_version}.tar.bz2
+Source0: ftp://ftp.kernel.org/pub/linux/kernel/v2.6/linux-%{tar_version}.tar.bz2
 
 ### This is for stripped SRC RPM
 %if %build_nosrc
@@ -755,15 +755,15 @@ exit 0
 %{_kerneldir}/include/sound
 %{_kerneldir}/include/video
 #Openswan 2.x.x
-#%{_kerneldir}/include/crypto
-#%{_kerneldir}/include/des
-#%{_kerneldir}/include/mast.h
-#%{_kerneldir}/include/openswan.h
-#%{_kerneldir}/include/openswan
-#%{_kerneldir}/include/pfkey.h
-#%{_kerneldir}/include/pfkeyv2.h
-#%{_kerneldir}/include/zlib
-#%{_kerneldir}/README.openswan-2
+%{_kerneldir}/include/crypto
+%{_kerneldir}/include/des
+%{_kerneldir}/include/mast.h
+%{_kerneldir}/include/openswan.h
+%{_kerneldir}/include/openswan
+%{_kerneldir}/include/pfkey.h
+%{_kerneldir}/include/pfkeyv2.h
+%{_kerneldir}/include/zlib
+%{_kerneldir}/README.openswan-2
 #endif %build_source
 %endif
 
@@ -775,6 +775,19 @@ exit 0
 
 
 %changelog
+* Wed Aug 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.28
+- 2.6.16.28: security fixes for CVE-2006-3745, CVE-2006-4145, CVE-2006-4093,
+  CVE-2006-2935, and other bug fixes
+- add SL65: support for apparmor's 'm' flag
+- add SL66: support for apparmor's Ux and Px modes
+- updated SL60 from SUSE's 2.6.16.21-0.13 (patch dated 05/31/2006)
+- fix source url
+- rediff parts of SL64 [arch/i386/Kconfig]
+
+* Sun Aug 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.27
+- actually commit CA01
+- add SL10 and SL11: openswan is back
+
 * Fri Aug 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.27
 - cleanup the configs
 - add CA01_remove_sata_experimental.patch (thanks Thomas) to mark some

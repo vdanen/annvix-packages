@@ -367,17 +367,17 @@ diff -urN -x rsbac trunk/arch/h8300/kernel/process.c linux-2.6.16-rsbac-1.2.7/ar
  	return retval;
  }
  
-diff -urN -x rsbac trunk/arch/i386/Kconfig linux-2.6.16-rsbac-1.2.7/arch/i386/Kconfig
---- trunk/arch/i386/Kconfig	2006-06-01 10:34:54.000000000 +0200
-+++ linux-2.6.16-rsbac-1.2.7/arch/i386/Kconfig	2006-06-01 10:37:43.000000000 +0200
-@@ -751,6 +751,7 @@
- 
- endmenu
+--- linux-2.6.16.28/arch/i386/Kconfig.sl64.orig	2006-08-25 14:51:14.000000000 -0600
++++ linux-2.6.16.28/arch/i386/Kconfig	2006-08-30 20:41:25.000000000 -0600
+@@ -755,6 +755,8 @@
+ 	def_bool y
+ 	depends on HIGHMEM
  
 +source "rsbac/Kconfig"
- 
++
  menu "Power management options (ACPI, APM)"
  	depends on !X86_VOYAGER
+ 
 diff -urN -x rsbac trunk/arch/i386/kernel/ioport.c linux-2.6.16-rsbac-1.2.7/arch/i386/kernel/ioport.c
 --- trunk/arch/i386/kernel/ioport.c	2006-06-01 10:34:53.000000000 +0200
 +++ linux-2.6.16-rsbac-1.2.7/arch/i386/kernel/ioport.c	2006-06-01 10:37:43.000000000 +0200

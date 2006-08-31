@@ -28,6 +28,10 @@ SL00_SECURITY.desc
 	SL63_rsbac-common-1.2.7tar
 	- http://www.rsbac.org/
 	- RSBAC common files
-	SL61_rsbac_patch_2.6.16.19-1.2.7.patch
+	SL64_rsbac_patch_2.6.16.19-1.2.7.patch
 	- http://www.rsbac.org/
 	- RSBAC kernel patch
+	SL65_apparmor-mmapexec.patch
+	- Adds support for AppArmor's 'm' flag
+	SL66_apparmor-secureexec.patch
+	- Adds support for AppArmor Ux and Px modes
