@@ -27,6 +27,7 @@ Source2:	sudoers.annvix
 Source3:	sudo.pam
 Source4:	sudo.logrotate
 Source4:	sudo.logrotate
+Patch0:		sudo-1.6.8p8-default_whitelist.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:  pam-devel
@@ -42,6 +43,8 @@ their work done.
 
 %prep
 %setup -q
+%patch0 -p0 -b .default_whitelist
+
 
 %build
 CFLAGS="%{optflags} -D_GNU_SOURCE" \
@@ -102,6 +105,11 @@ install -m 0440 %{SOURCE2} %{buildroot}%{_sysconfdir}/sudoers
 
 
 %changelog
+* Thu Aug 31 2006 Vincent Danen <vdanen-at-build.annvix.org> 1:1.6.8p12
+- P0: make sudo use env_reset by default so instead of blacklisting certain
+  variables, we whitelist a few and the admin needs to use env_keep to pass
+  any other variables he/she wants (ref: MDKSA-2006:159)
+
 * Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - Clean rebuild
 
