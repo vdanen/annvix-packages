@@ -88,7 +88,7 @@ mv %{buildroot}%{_initrddir}/rc.apparmor.functions %{buildroot}%{_initrddir}/app
 
 %preun
 %_preun_service apparmor
-%#_preun_service aaeventd
+#%#_preun_service aaeventd
 
 
 
@@ -108,6 +108,9 @@ mv %{buildroot}%{_initrddir}/rc.apparmor.functions %{buildroot}%{_initrddir}/app
 
 
 %changelog
+* Tue Sep 05 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
+- fix the preun script
+
 * Wed Aug 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
 - sync some patches with SUSE to match support in SLE10:
   - P1: fix segv if profiles directory does not exist
