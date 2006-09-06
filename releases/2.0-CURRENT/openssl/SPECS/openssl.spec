@@ -44,6 +44,7 @@ Patch10:	openssl-0.9.7-beta6-ia64.patch
 Patch12:	openssl-0.9.6-x509.patch
 Patch13:	openssl-0.9.7-beta5-version-add-engines.patch
 Patch14:	openssl-0.9.8a-use-poll.patch
+Patch15:	openssl-CVE-2006-4339.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	multiarch-utils >= 1.0.3
@@ -137,6 +138,7 @@ This package contains the documentation for %{name}.
 %patch12 -p1 -b .x509
 %patch13 -p1 -b .version-add-engines
 %patch14 -p1 -b .use-poll
+%patch15 -p0 -b .cve-2006-4339
 
 perl -pi -e "s,^(OPENSSL_LIBNAME=).+$,\1%{_lib}," Makefile.org engines/Makefile
 
@@ -369,6 +371,9 @@ echo "%{_sysconfdir}/pki/tls"
 
 
 %changelog
+* Wed Sep 05 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.9.8
+- P15: security fix for CVE-2006-4339 (we'll upgrade to the latest later)
+
 * Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.9.8
 - fix stupid error in %%post
 
