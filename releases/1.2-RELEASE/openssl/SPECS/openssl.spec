@@ -35,6 +35,7 @@ Patch2:		openssl-0.9.7g-mdk-optflags.patch
 Patch3:		openssl-0.9.8-avx-lib64.patch
 Patch4:		openssl-0.9.8-CAN-2005-2946.patch
 Patch5:		openssl-0.9.7-CAN-2005-2969.patch
+Patch6:		openssl-CVE-2006-4339.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	multiarch-utils >= 1.0.3
@@ -112,6 +113,7 @@ Patches for many networking apps can be found at:
 %patch3 -p0 -b .lib64
 %patch4 -p1 -b .can-2005-2946
 %patch5 -p1 -b .can-2005-2969
+%patch6 -p0 -b .cve-2006-4339
 
 perl -pi -e "s,^(LIB=).+$,\1%{_lib}," Makefile.org
 perl -pi -e "s,^(LIB=).+$,\1%{_lib}," engines/Makefile
@@ -225,6 +227,9 @@ rm -rf %{buildroot}%{_prefix}/lib
 
 
 %changelog
+* Wed Sep 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.9.8
+- P6: security fix for CVE-2006-4339
+
 * Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - Clean rebuild
 
