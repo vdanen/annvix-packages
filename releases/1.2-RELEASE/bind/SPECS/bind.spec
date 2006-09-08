@@ -43,6 +43,7 @@ Patch4:		bind-9.2.3-bsdcompat.patch
 Patch5:		bind-9.3.0beta2-libtool.diff
 Patch6:		libbind-9.3.1rc1-fix_h_errno.patch
 Patch7:		bind-9.3.1-reject_resolv_conf_errors.patch
+Patch8:		cert.v9_3_1.diff
 
 BuildRoot:	%{_buildroot}/%{name}-root
 BuildRequires:	openssl-devel
@@ -118,6 +119,7 @@ BIND versions 9.x.x.
 %patch5 -p1 -b .libtool
 %patch6 -p1 -b .fix_h_errno
 %patch7 -p1 -b .reject_resolv_conf_errors
+%patch8 -p0 -b .cve-2006-409_56
 
 #(cd contrib/queryperf && autoconf-2.13)
 tar -xjf %{SOURCE7}
@@ -284,6 +286,9 @@ fi
 
 
 %changelog
+* Fri Sep 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 9.3.1
+- P8: security fix for CVE-2006-4095 and CVE-2006-4096
+
 * Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - Clean rebuild
 

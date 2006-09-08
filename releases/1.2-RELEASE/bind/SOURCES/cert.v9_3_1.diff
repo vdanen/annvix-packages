@@ -1,0 +1,154 @@
+Index: bin/named/query.c
+===================================================================
+RCS file: /proj/cvs/prod/bind9/bin/named/query.c,v
+retrieving revision 1.198.2.13.4.30
+diff -u -r1.198.2.13.4.30 query.c
+--- bin/named/query.c	30 Jun 2004 14:13:05 -0000	1.198.2.13.4.30
++++ bin/named/query.c	28 Jul 2006 03:46:14 -0000
+@@ -2389,7 +2389,7 @@
+ 		is_zone = ISC_FALSE;
+ 
+ 		qtype = event->qtype;
+-		if (qtype == dns_rdatatype_rrsig)
++		if (qtype == dns_rdatatype_rrsig || qtype == dns_rdatatype_sig)
+ 			type = dns_rdatatype_any;
+ 		else
+ 			type = qtype;
+@@ -2430,7 +2430,7 @@
+ 	/*
+ 	 * If it's a SIG query, we'll iterate the node.
+ 	 */
+-	if (qtype == dns_rdatatype_rrsig)
++	if (qtype == dns_rdatatype_rrsig || qtype == dns_rdatatype_sig)
+ 		type = dns_rdatatype_any;
+ 	else
+ 		type = qtype;
+Index: lib/dns/resolver.c
+===================================================================
+RCS file: /proj/cvs/prod/bind9/lib/dns/resolver.c,v
+retrieving revision 1.218.2.18.4.51
+diff -u -r1.218.2.18.4.51 resolver.c
+--- lib/dns/resolver.c	8 Feb 2005 23:59:44 -0000	1.218.2.18.4.51
++++ lib/dns/resolver.c	28 Jul 2006 03:46:25 -0000
+@@ -728,7 +728,8 @@
+ 		INSIST(result != ISC_R_SUCCESS ||
+ 		       dns_rdataset_isassociated(event->rdataset) ||
+ 		       fctx->type == dns_rdatatype_any ||
+-		       fctx->type == dns_rdatatype_rrsig);
++		       fctx->type == dns_rdatatype_rrsig ||
++		       fctx->type == dns_rdatatype_sig);
+ 
+ 		isc_task_sendanddetach(&task, ISC_EVENT_PTR(&event));
+ 	}
+@@ -3151,7 +3152,8 @@
+ 	if (hevent != NULL) {
+ 		if (!negative && !chaining &&
+ 		    (fctx->type == dns_rdatatype_any ||
+-		     fctx->type == dns_rdatatype_rrsig)) {
++		     fctx->type == dns_rdatatype_rrsig ||
++		     fctx->type == dns_rdatatype_sig)) {
+ 			/*
+ 			 * Don't bind rdatasets; the caller
+ 			 * will iterate the node.
+@@ -3263,7 +3265,8 @@
+ 	if (!ISC_LIST_EMPTY(fctx->validators)) {
+ 		INSIST(!negative);
+ 		INSIST(fctx->type == dns_rdatatype_any ||
+-		       fctx->type == dns_rdatatype_rrsig);
++		       fctx->type == dns_rdatatype_rrsig ||
++		       fctx->type == dns_rdatatype_sig);
+ 		/*
+ 		 * Don't send a response yet - we have
+ 		 * more rdatasets that still need to
+@@ -3409,14 +3412,15 @@
+ 				return (result);
+ 			anodep = &event->node;
+ 			/*
+-			 * If this is an ANY or SIG query, we're not going
+-			 * to return any rdatasets, unless we encountered
++			 * If this is an ANY, SIG or RRSIG query, we're not
++			 * going to return any rdatasets, unless we encountered
+ 			 * a CNAME or DNAME as "the answer".  In this case,
+ 			 * we're going to return DNS_R_CNAME or DNS_R_DNAME
+ 			 * and we must set up the rdatasets.
+ 			 */
+ 			if ((fctx->type != dns_rdatatype_any &&
+-			    fctx->type != dns_rdatatype_rrsig) ||
++			     fctx->type != dns_rdatatype_rrsig &&
++			     fctx->type != dns_rdatatype_sig) ||
+ 			    (name->attributes & DNS_NAMEATTR_CHAINING) != 0) {
+ 				ardataset = event->rdataset;
+ 				asigrdataset = event->sigrdataset;
+@@ -3475,7 +3479,7 @@
+ 		 */
+ 		if (secure_domain && rdataset->trust != dns_trust_glue) {
+ 			/*
+-			 * SIGs are validated as part of validating the
++			 * RRSIGs are validated as part of validating the
+ 			 * type they cover.
+ 			 */
+ 			if (rdataset->type == dns_rdatatype_rrsig)
+@@ -3545,7 +3549,8 @@
+ 
+ 			if (ANSWER(rdataset) && need_validation) {
+ 				if (fctx->type != dns_rdatatype_any &&
+-				    fctx->type != dns_rdatatype_rrsig) {
++				    fctx->type != dns_rdatatype_rrsig &&
++				    fctx->type != dns_rdatatype_sig) {
+ 					/*
+ 					 * This is The Answer.  We will
+ 					 * validate it, but first we cache
+@@ -3740,23 +3745,28 @@
+ 		  isc_result_t *eresultp)
+ {
+ 	isc_result_t result;
++	dns_rdataset_t rdataset;
++
++	if (ardataset == NULL) {
++		dns_rdataset_init(&rdataset);
++		ardataset = &rdataset;
++	}
+ 	result = dns_ncache_add(message, cache, node, covers, now,
+ 				maxttl, ardataset);
+-	if (result == DNS_R_UNCHANGED) {
++	if (result == DNS_R_UNCHANGED || result == ISC_R_SUCCESS) {
+ 		/*
+-		 * The data in the cache are better than the negative cache
+-		 * entry we're trying to add.
++		 * If the cache now contains a negative entry and we
++		 * care about whether it is DNS_R_NCACHENXDOMAIN or
++		 * DNS_R_NCACHENXRRSET then extract it.
+ 		 */
+-		if (ardataset != NULL && ardataset->type == 0) {
++		if (ardataset->type == 0) {
+ 			/*
+-			 * The cache data is also a negative cache
+-			 * entry.
++			 * The cache data is a negative cache entry.
+ 			 */
+ 			if (NXDOMAIN(ardataset))
+ 				*eresultp = DNS_R_NCACHENXDOMAIN;
+ 			else
+ 				*eresultp = DNS_R_NCACHENXRRSET;
+-			result = ISC_R_SUCCESS;
+ 		} else {
+ 			/*
+ 			 * Either we don't care about the nature of the
+@@ -3768,14 +3778,11 @@
+ 			 * XXXRTH  There's a CNAME/DNAME problem here.
+ 			 */
+ 			*eresultp = ISC_R_SUCCESS;
+-			result = ISC_R_SUCCESS;
+ 		}
+-	} else if (result == ISC_R_SUCCESS) {
+-		if (NXDOMAIN(ardataset))
+-			*eresultp = DNS_R_NCACHENXDOMAIN;
+-		else
+-			*eresultp = DNS_R_NCACHENXRRSET;
++		result = ISC_R_SUCCESS;
+ 	}
++	if (ardataset == &rdataset && dns_rdataset_isassociated(ardataset))
++		dns_rdataset_disassociate(ardataset);
+ 
+ 	return (result);
+ }
