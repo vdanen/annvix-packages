@@ -196,7 +196,7 @@ install -m 0644 named.cache %{buildroot}%{_localstatedir}/named/var/named/named.
 
 mkdir -p %{buildroot}%{_srvdir}/named/{env,log}
 install -m 0740 %{_sourcedir}/named.run %{buildroot}%{_srvdir}/named/run
-install -m 0640 %{_sourcedir}/named.finish %{buildroot}%{_srvdir}/named/finish
+install -m 0740 %{_sourcedir}/named.finish %{buildroot}%{_srvdir}/named/finish
 install -m 0740 %{_sourcedir}/named-log.run %{buildroot}%{_srvdir}/named/log/run
 install -m 0640 %{_sourcedir}/OPTIONS.env %{buildroot}%{_srvdir}/named/env/OPTIONS
 
@@ -244,8 +244,8 @@ fi
 %dir %attr(0750,root,admin) %{_srvdir}/named/env
 %dir %attr(0750,root,admin) %{_srvdir}/named/log
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/named/run
-%config(noreplace) %attr(0640,root,admin) %{_srvdir}/named/finish
-%config(noreplace) %attr(0740,root,admin) %{_srvdir}/named/env/OPTIONS
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/named/finish
+%config(noreplace) %attr(0640,root,admin) %{_srvdir}/named/env/OPTIONS
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/named/log/run
 %attr(0755,root,root) %{_sbindir}/*
 %{_mandir}/man3/lwres*.3*
@@ -312,6 +312,9 @@ fi
 
 
 %changelog
+* Fri Sep 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 9.3.2-P1
+- fix some permissions
+
 * Fri Sep 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 9.3.2-P1
 - 9.3.2-P1 (fixes CVE-2006-4095, CVE-2006-4096)
 - drop the %%build_daemon macro
