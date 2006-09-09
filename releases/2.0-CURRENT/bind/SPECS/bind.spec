@@ -9,11 +9,10 @@
 
 %define revision	$Rev$
 %define name		bind
-%define version		9.3.1
+%define version		9.3.2
 %define release		%_revrel
 
-%define their_version	9.3.1
-%define build_daemon	1
+%define their_version	9.3.2-P1
 
 Summary:	A DNS (Domain Name System) server
 Name:		%{name}
@@ -22,36 +21,32 @@ Release:	%{release}
 License:	Distributable
 Group:		System/Servers
 URL:		http://www.isc.org/products/BIND/
-Source0:	ftp://ftp.isc.org/isc/%{name}9/%{version}/%{name}-%{version}.tar.gz
-Source1:	%{name}-manpages.tar.bz2
-Source2:	named.init
-Source3:	named.logrotate
-Source4:	named.sysconfig
-Source5:	keygen.c
-Source6:	new_key.pl
-Source7:	dhcp-dynamic-dns-examples.tar.bz2
-Source8:	update_bind.pl
-Source9:	ftp://ftp.isc.org/isc/%{name}9/%{version}/%{name}-%{version}.tar.gz.asc
-Source10:	bind-chroot.sh
-Source11:	ftp://FTP.RS.INTERNIC.NET/domain/named.root
-Source12:	named.run
-Source13:	named.stop
-Source14:	named-log.run
-Patch1:		bind-9.3.0rc2-fallback-to-second-server.patch
+Source0:	ftp://ftp.isc.org/isc/%{name}9/%{version}-P1/%{name}-%{their_version}.tar.gz
+Source1:	ftp://ftp.isc.org/isc/%{name}9/%{version}/%{name}-%{their_version}.tar.gz.asc
+Source2:	bind-manpages.tar.bz2
+Source3:	caching-nameserver.tar.bz2
+Source4:	bind-9.3.1-missing_tools.tar.gz
+Source5:	dhcp-dynamic-dns-examples.tar.bz2
+Source6:	named.init
+Source7:	OPTIONS.env
+Source8:	keygen.c
+Source9:	ftp://FTP.RS.INTERNIC.NET/domain/named.root
+Source10:	named.run
+Source11:	named.finish
+Source12:	named-log.run
+Patch1:		bind-9.3.2b2-fallback-to-second-server.diff
 Patch2:		bind-9.3.0-mdk-libresolv.patch
 Patch4:		bind-9.2.3-bsdcompat.patch
 Patch5:		bind-9.3.0beta2-libtool.diff
 Patch6:		libbind-9.3.1rc1-fix_h_errno.patch
-Patch7:		bind-9.3.1-reject_resolv_conf_errors.patch
 
-BuildRoot:	%{_buildroot}/%{name}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	openssl-devel
 BuildRequires:	autoconf
 BuildRequires:	autoconf2.5
 BuildRequires:	automake1.7
 BuildRequires:	multiarch-utils >= 1.0.3
 
-%if %{build_daemon}
 Requires(post):	rpm-helper
 Requires(pre):	rpm-helper
 Requires(postun): rpm-helper
@@ -121,35 +116,27 @@ This package contains the documentation for %{name}.
 
 
 %prep
-%setup -q  -n %{name}-%{version} -a1
+%setup -q  -n %{name}-%{their_version} -a2 -a3 -a4 -a5
 %patch1 -p1 -b .fallback-to-second-server
 #%patch -p1 -b .overflow
 %patch2 -p1 -b .libresolv
 %patch4 -p1 -b .bsdcompat
 %patch5 -p1 -b .libtool
 %patch6 -p1 -b .fix_h_errno
-%patch7 -p1 -b .reject_resolv_conf_errors
 
 #(cd contrib/queryperf && autoconf-2.13)
 tar -xjf %{_sourcedir}/dhcp-dynamic-dns-examples.tar.bz2
 
 
 %build
-# (oe) make queryperf from the contrib before bind, makes it easier
-# to determine if it builds or not
-#cd contrib/queryperf
-#mv README README.queryperf
-#sh configure
-#make CFLAGS="%{optflags}"
-#cd -
-
 %configure \
     --localstatedir=/var \
     --enable-ipv6 \
+    --disable-threads \
     --with-openssl=%{_includedir}/openssl
 
-# override CFLAGS for better security.  Ask Jay...
-make "CFLAGS=-O2 -Wall -pipe"
+# override CFLAGS for better security
+make CFLAGS="-O2 -Wall -pipe"
 
 gcc %{optflags} -o dns-keygen %{_sourcedir}/keygen.c
 
@@ -159,12 +146,10 @@ gcc %{optflags} -o dns-keygen %{_sourcedir}/keygen.c
 pushd doc
     rm -rf html
 popd
-%if %{build_daemon}
-    mkdir -p %{buildroot}%{_sysconfdir}/{logrotate.d,sysconfig}
-    mkdir -p %{buildroot}%{_sbindir}
-    mkdir -p %{buildroot}%{_var}/{run/named,named}
-    mkdir -p %{buildroot}%{_mandir}/man3
-%endif
+mkdir -p %{buildroot}%{_sysconfdir}
+mkdir -p %{buildroot}%{_sbindir}
+mkdir -p %{buildroot}%{_var}/{run/named,named}
+mkdir -p %{buildroot}%{_mandir}/man3
 
 mkdir -p %{buildroot}{%{_bindir},%{_includedir},%{_libdir}}
 mkdir -p %{buildroot}%{_mandir}/{man1,man5,man8}
@@ -176,33 +161,45 @@ mkdir -p %{buildroot}%{_docdir}/
 install -m 0644 man5/resolver.5 %{buildroot}%{_mandir}/man5/
 ln -s resolver.5.bz2 %{buildroot}%{_mandir}/man5/resolv.5.bz2
 
-%if %{build_daemon}
-    install -m 0600 bin/rndc/rndc.conf %{buildroot}%{_sysconfdir}
-    touch %{buildroot}%{_sysconfdir}/rndc.key
-    install -m 0755 contrib/named-bootconf/named-bootconf.sh %{buildroot}%{_sbindir}/named-bootconf
-    #install -m 0755 contrib/queryperf/queryperf %{buildroot}%{_sbindir}/
-    install -m 0644 %{_sourcedir}/named.logrotate %{buildroot}%{_sysconfdir}/logrotate.d/named
+install -m 0755 contrib/named-bootconf/named-bootconf.sh %{buildroot}%{_sbindir}/named-bootconf
 
-    install -m 0755 dns-keygen -D %{buildroot}%{_sbindir}/dns-keygen
-    cp %{_sourcedir}/new_key.pl %{buildroot}%{_sbindir}
-    cp %{_sourcedir}/update_bind.pl %{buildroot}%{_sbindir}
-    cp %{_sourcedir}/bind-chroot.sh %{buildroot}%{_sbindir}
+install -m 0755 dns-keygen -D %{buildroot}%{_sbindir}/dns-keygen
 
-    echo "; Use \"dig @A.ROOT-SERVERS.NET . ns\" to update this file if it's outdated." >named.cache
-    cat %{_sourcedir}/named.root >>named.cache
-    install -m 0644 named.cache %{buildroot}%{_var}/named/named.ca
-    install -m 0644 %{_sourcedir}/named.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/named
+# make the chroot
+install -d %{buildroot}%{_localstatedir}/named/{dev,etc}
+install -d %{buildroot}%{_localstatedir}/named/var/{log,run,tmp}
+install -d %{buildroot}%{_localstatedir}/named/var/named/{master,slaves,reverse}
 
-    mkdir -p %{buildroot}%{_srvdir}/named/log
-    install -m 0740 %{_sourcedir}/named.run %{buildroot}%{_srvdir}/named/run
-    install -m 0640 %{_sourcedir}/named.stop %{buildroot}%{_srvdir}/named/finish
-    install -m 0740 %{_sourcedir}/named-log.run %{buildroot}%{_srvdir}/named/log/run
-%else
-    rm -rf %{buildroot}%{_sbindir}
-    rm -rf %{buildroot}%{_mandir}/man3
-    rm -rf %{buildroot}%{_mandir}/man5/{named.conf,rndc.conf}*
-    rm -rf %{buildroot}%{_mandir}/man8/{dnssec-keygen,dnssec-signzone,lwresd,named-checkconf,named-checkzone,named.8,rndc-confgen,rndc.8}*
-%endif
+install -m 0644 caching-nameserver/named.conf %{buildroot}%{_localstatedir}/named/etc/named.conf
+install -m 0644 caching-nameserver/rndc.conf %{buildroot}%{_localstatedir}/named/etc/rndc.conf
+install -m 0644 caching-nameserver/rndc.key %{buildroot}%{_localstatedir}/named/etc/rndc.key
+install -m 0644 caching-nameserver/logging.conf %{buildroot}%{_localstatedir}/named/etc/logging.conf
+install -m 0644 caching-nameserver/trusted_networks_acl.conf %{buildroot}%{_localstatedir}/named/etc/trusted_networks_acl.conf
+install -m 0644 caching-nameserver/bogon_acl.conf %{buildroot}%{_localstatedir}/named/etc/bogon_acl.conf
+install -m 0644 caching-nameserver/localdomain.zone %{buildroot}%{_localstatedir}/named/var/named/master/localdomain.zone
+install -m 0644 caching-nameserver/localhost.zone %{buildroot}%{_localstatedir}/named/var/named/master/localhost.zone
+install -m 0644 caching-nameserver/named.broadcast %{buildroot}%{_localstatedir}/named/var/named/reverse/named.broadcast
+install -m 0644 caching-nameserver/named.ip6.local %{buildroot}%{_localstatedir}/named/var/named/reverse/named.ip6.local
+install -m 0644 caching-nameserver/named.local %{buildroot}%{_localstatedir}/named/var/named/reverse/named.local
+install -m 0644 caching-nameserver/named.zero %{buildroot}%{_localstatedir}/named/var/named/reverse/named.zero
+install -m 0644 caching-nameserver/hosts %{buildroot}%{_localstatedir}/named/etc/hosts
+
+# fix some compat symlinks
+ln -s %{_localstatedir}/named/etc/named.conf %{buildroot}%{_sysconfdir}/named.conf
+ln -s %{_localstatedir}/named/etc/rndc.conf %{buildroot}%{_sysconfdir}/rndc.conf
+ln -s %{_localstatedir}/named/etc/rndc.key %{buildroot}%{_sysconfdir}/rndc.key
+
+
+echo "; Use \"dig @A.ROOT-SERVERS.NET . ns\" to update this file if it's outdated." >named.cache
+cat %{_sourcedir}/named.root >>named.cache
+install -m 0644 named.cache %{buildroot}%{_localstatedir}/named/var/named/named.ca
+
+mkdir -p %{buildroot}%{_srvdir}/named/{env,log}
+install -m 0740 %{_sourcedir}/named.run %{buildroot}%{_srvdir}/named/run
+install -m 0640 %{_sourcedir}/named.finish %{buildroot}%{_srvdir}/named/finish
+install -m 0740 %{_sourcedir}/named-log.run %{buildroot}%{_srvdir}/named/log/run
+install -m 0640 %{_sourcedir}/OPTIONS.env %{buildroot}%{_srvdir}/named/env/OPTIONS
+
 
 # the following 3 lines is needed to make it short-circuit compliant.
 pushd doc
@@ -210,21 +207,20 @@ pushd doc
 popd
 
 mkdir -p doc/html
-cp -f `find . -type f |grep html |sed -e 's#\/%{name}-%{version}##'|grep -v contrib` %{_builddir}/%{name}-%{version}/doc/html 
+cp -f `find . -type f |grep html |sed -e 's#\/%{name}-%{version}##'|grep -v contrib` %{_builddir}/%{name}-%{their_version}/doc/html 
 
 %multiarch_binaries %{buildroot}%{_bindir}/isc-config.sh
 
-%if %{build_daemon}
 %pre
-%_pre_useradd named /var/named /bin/false 80
+%_pre_useradd named %{_localstatedir}/named /bin/false 80
 
 %post
-if [ -d /var/log/supervise/named -a ! -d /var/log/service/named ]; then
-    mv /var/log/supervise/named /var/log/service/
+if grep -q "_MY_KEY_" %{_localstatedir}/named/etc/rndc.conf %{_localstatedir}/named/etc/rndc.key; then
+    MYKEY="%{_sbindir}/dns-keygen"
+    perl -pi -e "s|_MY_KEY_|$MYKEY|g" %{_localstatedir}/named/etc/rndc.conf %{_localstatedir}/named/etc/rndc.key
 fi
-%_post_srv named
 
-echo "You can use the sample named.conf file from the %{_docdir}/%{name}-%{version} directory"
+%_post_srv named
 
 if [ -e %{_sysconfdir}/rndc.conf.rpmnew ]; then
     /usr/sbin/new_key.pl
@@ -236,24 +232,20 @@ fi
 
 %postun
 %_postun_userdel named
-%endif
 
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
-%if %{build_daemon}
 %files
 %defattr(-,root,root)
-%config(noreplace) %{_sysconfdir}/sysconfig/named
-%config(noreplace) %{_sysconfdir}/logrotate.d/named
-%config(noreplace) %attr(0600,named,named) %{_sysconfdir}/rndc.conf
-%config(noreplace) %attr(0600,named,named) %{_sysconfdir}/rndc.key
 %dir %attr(0750,root,admin) %{_srvdir}/named
+%dir %attr(0750,root,admin) %{_srvdir}/named/env
 %dir %attr(0750,root,admin) %{_srvdir}/named/log
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/named/run
 %config(noreplace) %attr(0640,root,admin) %{_srvdir}/named/finish
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/named/env/OPTIONS
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/named/log/run
 %attr(0755,root,root) %{_sbindir}/*
 %{_mandir}/man3/lwres*.3*
@@ -265,10 +257,35 @@ fi
 %{_mandir}/man8/dnssec-*.8*
 %{_mandir}/man8/lwresd.8*
 %{_mandir}/man8/named-*.8*
-%attr(-,named,named) %dir /var/named
-%attr(-,named,named) %config(noreplace) %{_var}/named/named.ca
-%attr(-,named,named) %dir /var/run/named
-%endif
+# the chroot
+%attr(0711,named,named) %dir %{_localstatedir}/named
+%attr(0711,named,named) %dir %{_localstatedir}/named/dev
+%attr(0711,named,named) %dir %{_localstatedir}/named/etc
+%attr(0711,named,named) %dir %{_localstatedir}/named/var
+%attr(0711,named,named) %dir %{_localstatedir}/named/var/run
+%attr(0711,named,named) %dir %{_localstatedir}/named/var/tmp
+%attr(0711,named,named) %dir %{_localstatedir}/named/var/named
+%attr(0711,named,named) %dir %{_localstatedir}/named/var/named/master
+%attr(0711,named,named) %dir %{_localstatedir}/named/var/named/slaves
+%attr(0711,named,named) %dir %{_localstatedir}/named/var/named/reverse
+%attr(0711,named,named) %dir /var/run/named
+%attr(0640,root,named) %config(noreplace) %{_localstatedir}/named/etc/named.conf
+%attr(0640,root,named) %config(noreplace) %{_localstatedir}/named/etc/rndc.conf
+%attr(0640,root,named) %config(noreplace) %{_localstatedir}/named/etc/rndc.key
+%attr(-,root,named) %{_sysconfdir}/named.conf
+%attr(-,root,named) %{_sysconfdir}/rndc.conf
+%attr(-,root,named) %{_sysconfdir}/rndc.key
+%attr(0640,root,named) %config(noreplace) %{_localstatedir}/named/etc/bogon_acl.conf
+%attr(0640,root,named) %config(noreplace) %{_localstatedir}/named/etc/logging.conf
+%attr(0640,root,named) %config(noreplace) %{_localstatedir}/named/etc/trusted_networks_acl.conf
+%attr(0640,root,named) %config(noreplace) %{_localstatedir}/named/var/named/master/localdomain.zone
+%attr(0640,root,named) %config(noreplace) %{_localstatedir}/named/var/named/master/localhost.zone
+%attr(0640,root,named) %config(noreplace) %{_localstatedir}/named/var/named/reverse/named.broadcast
+%attr(0640,root,named) %config(noreplace) %{_localstatedir}/named/var/named/reverse/named.ip6.local
+%attr(0640,root,named) %config(noreplace) %{_localstatedir}/named/var/named/reverse/named.local
+%attr(0640,root,named) %config(noreplace) %{_localstatedir}/named/var/named/reverse/named.zero
+%attr(0640,root,named) %config(noreplace) %{_localstatedir}/named/var/named/named.ca
+%attr(0640,root,named) %config(noreplace) %{_localstatedir}/named/etc/hosts
 
 %files devel
 %defattr(-,root,root)
@@ -295,6 +312,23 @@ fi
 
 
 %changelog
+* Fri Sep 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 9.3.2-P1
+- 9.3.2-P1 (fixes CVE-2006-4095, CVE-2006-4096)
+- drop the %%build_daemon macro
+- updated P1
+- drop P7
+- drop S6, S8, S10
+- new S6 from Fedora for caching-nameserver
+- new S8 to bring back some missing tools
+- chroot by default (/var/lib/named)
+- this one acts as a caching-only resolver by default; IP addresses that should
+  be allowed to use recursive lookups must be defined in
+  /var/lib/named/etc/trusted_networks_acl.conf
+- explicitly disable threading support
+- drop the sysconfig file and use ./env/OPTIONS instead
+- since we pass "-g" to named rather than "-f", there are no logs other than svlogd's
+  stuff so drop the logrotate file
+
 * Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 9.3.1
 - rebuild against new openssl
 - spec cleanups
