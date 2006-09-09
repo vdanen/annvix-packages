@@ -80,6 +80,7 @@ aclocal && autoconf
     --sbindir=/bin
 %make
 
+
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make install DIST_ROOT=%{buildroot}/
@@ -128,7 +129,10 @@ rm -rf %{buildroot}%{_docdir}/acl
 
 
 %changelog
-* Mon Aug 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.39
+* Sat Sep 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.39
+- minor spec cleanups
+
+* Mon Aug 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.39
 - 2.4.39
 - spec cleanups
 - remove locale files
@@ -177,3 +181,5 @@ rm -rf %{buildroot}%{_docdir}/acl
 * Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 2.2.13-3sls
 - OpenSLS build
 - tidy spec
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8
