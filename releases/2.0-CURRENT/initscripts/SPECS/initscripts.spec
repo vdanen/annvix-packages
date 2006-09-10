@@ -22,7 +22,7 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		System/Base
-URL:		http://svn.annvix.org/cgi-bin/viewcvs.cgi/initscripts/?root=tools
+URL:		http://svn.annvix.org/cgi-bin/viewvc.cgi/initscripts/?root=tools
 Source0:	initscripts-%{version}.tar.bz2
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
@@ -83,9 +83,6 @@ gzip -9 ChangeLog
 %build
 make
 make -C annvix/ CFLAGS="%{optflags}"
-pushd po/ && \
-    for i in *.po;do file $i|grep -q empty && rm -f $i;done && \
-popd
 
 
 %install
@@ -100,21 +97,9 @@ make -C annvix/ install ROOT=%{buildroot} mandir=%{_mandir}
 
 python annvix/gprintify.py `find %{buildroot}/etc/rc.d -type f` `find %{buildroot}/sysconfig/network-scripts -type f`
 
-# warly 
-# put locale in /usr, gettext need /usr/share
-#
-# extracted from /usr/lib/rpm/find-lang.sh and adapted to find locales in /etc
-#find %{buildroot} -type f|sed '
-#1i\
-#%defattr (644, root, root, 755)
-#s:'"%{buildroot}"'::
-#s:\(.*/etc/locale/\)\([^/_]\+\)\(.*'"$NAME"'\.mo$\):%lang(\2) \1\2\3:
-#s:^\([^%].*\)::
-#s:%lang(C) ::
-#' >> %{name}.lang
-
 touch %{buildroot}/var/log/btmp
 
+%kill_lang %{name}
 %find_lang %{name}
 
 # remove S390 and isdn stuff
@@ -148,32 +133,6 @@ if [ $1 = 0 ]; then
     fi
 fi
 
-# Add right translation file
-for i in `echo $LANGUAGE:$LC_ALL:$LC_COLLATE:$LANG:C | tr ':' ' '`
-do
-    if [ -r %{_datadir}/locale/$i/LC_MESSAGES/initscripts.mo ]; then
-        mkdir -p /etc/locale/$i/LC_MESSAGES/
-        cp %{_datadir}/locale/$i/LC_MESSAGES/initscripts.mo \
-            /etc/locale/$i/LC_MESSAGES/
-        #
-        # warly
-        # FIXME: this should be done by each locale when installed or upgraded
-        #
-        pushd %{_datadir}/locale/$i/ > /dev/null && for j in LC_*
-        do
-            if [ -r $j -a ! -d $j ]; then
-                cp $j /etc/locale/$i/
-            fi
-        done && popd > /dev/null
-        if [ -r %{_datadir}/locale/$i/LC_MESSAGES/SYS_LC_MESSAGES ]; then
-            cp %{_datadir}/locale/$LANG/LC_MESSAGES/SYS_LC_MESSAGES /etc/locale/$i/LC_MESSAGES/
-        fi
-        #
-        #
-        break
-    fi
-done
-
 %define initlvl_chg() if [[ -f /etc/rc3.d/S%{2}%{1} ]] && [[ -f /etc/rc5.d/S%{2}%{1} ]] && egrep -q 'chkconfig: [0-9]+ %{3}' /etc/init.d/%{1}; then chkconfig --add %{1} || : ; fi; \
 %{nil}
 
@@ -194,17 +153,6 @@ fi
 /sbin/chkconfig --del random
 /sbin/chkconfig --del rawdevices
 exit 0
-
-
-%postun
-if [ "$1" = "0" ]; then
-    for i in /etc/locale/*/LC_MESSAGES/initscripts.mo
-    do
-        rm -f $i
-        rmdir `dirname $i` >/dev/null 2> /dev/null
-    done
-    rmdir /etc/locale/* >/dev/null 2> /dev/null
-fi
 
 
 %clean
@@ -338,6 +286,9 @@ fi
 
 
 %changelog
+* Sat Sep 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.33
+- fix URL
+
 * Thu Jul 19 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.33
 - r353:
   - comment out 2.4-related usb module loading; our 2.4 kernel has usb builtin

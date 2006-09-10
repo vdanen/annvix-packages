@@ -18,7 +18,7 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		System/Base
-URL:		http://svn.annvix.org/cgi-bin/viewcvs.cgi/rsec/?root=tools
+URL:		http://svn.annvix.org/cgi-bin/viewvc.cgi/rsec/?root=tools
 Source0:	%{name}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -101,6 +101,9 @@ touch /var/log/security.log && chmod 0640 /var/log/security.log
 %doc AUTHORS COPYING ChangeLog
 
 %changelog
+* Sat Sep 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.66
+- fix URL
+
 * Wed Jul 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.66
 - 0.66:
   - fix call to logger

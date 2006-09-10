@@ -18,7 +18,7 @@ Version:	%{version}
 Release: 	%{release}
 License:	GPL
 Group:		System/Base
-URL:		http://svn.annvix.org/cgi-bin/viewcvs.cgi/afterboot/?root=tools
+URL:		http://svn.annvix.org/cgi-bin/viewvc.cgi/afterboot/?root=tools
 Source:		%{name}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -61,6 +61,9 @@ touch %{buildroot}%{_mandir}/man8/afterboot.8.bz2
 
 
 %changelog
+* Sat Sep 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.2
+- fix URL
+
 * Tue Jul 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.2
 - spec cleanups
 

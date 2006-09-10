@@ -19,7 +19,7 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
-URL:		http://svn.annvix.org/cgi-bin/viewcvs.cgi/ports/?root=tools
+URL:		http://svn.annvix.org/cgi-bin/viewvc.cgi/ports/?root=tools
 Group:		System/Configuration
 Source0:	%{name}-%{version}.tar.bz2
 
@@ -82,6 +82,9 @@ fi
 
 
 %changelog
+* Sat Sep 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2
+- fix URL
+
 * Tue Jul 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2
 - spec cleanups
 
