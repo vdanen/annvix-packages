@@ -121,3 +121,5 @@ mkdir -p %{buildroot}%{_mandir}/man1
 * Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 2.0.13-5sls
 - OpenSLS build
 - tidy spec
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

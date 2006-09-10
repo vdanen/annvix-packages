@@ -162,3 +162,5 @@ chmod 0755 {add,del}-srv mkdepends
 * Tue Dec 09 2003 Vincent Danen <vdanen@opensls.org> 0.9.1-2sls
 - OpenSLS build
 - tidy spec
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

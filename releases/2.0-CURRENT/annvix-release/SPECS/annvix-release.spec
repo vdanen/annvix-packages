@@ -309,3 +309,5 @@ EOF
 
 * Fri Apr 24 1998 Prospector System <bugs@redhat.com>
 - translations modified for de, fr, tr
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

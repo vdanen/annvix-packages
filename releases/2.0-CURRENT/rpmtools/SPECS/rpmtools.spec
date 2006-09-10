@@ -711,3 +711,5 @@ output only the package dependencies for some hdlist's/packages (use of "--")
 
 
 # end of file
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

@@ -126,3 +126,5 @@ This package contains the documentation for %{name}.
 
 * Tue Apr 13 1999 Jakub Jelinek <jj@ultra.linux.cz>
 - initial package.
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

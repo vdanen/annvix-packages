@@ -392,3 +392,5 @@ mv %{buildroot}%{_datadir}/doc/mrtg2 .
 - using install -d in various places instead of cp
 - added -q parameter to %%setup
 - removed older changelogs
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

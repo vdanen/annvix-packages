@@ -298,3 +298,5 @@ done
 
 * Sat Oct 10 1998 Cristian Gafton <gafton@redhat.com>
 - stripped binaries
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

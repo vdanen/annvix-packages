@@ -115,3 +115,5 @@ popd
 
 * Tue Aug 23 2005 Sean P. Thomas <spt-at-build.annvix.org> 0.45-1avx
 - initial Annvix build (needed by execline)
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

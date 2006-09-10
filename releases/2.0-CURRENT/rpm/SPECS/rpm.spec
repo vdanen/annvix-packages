@@ -1033,3 +1033,5 @@ fi
 * Fri Oct 24 2003 Vincent Danen <vdanen@mandrakesoft.com> 4.2-18.1mdks
 - P51: new macros for stack protection; only applied if %%{build_propolice}
   enabled
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

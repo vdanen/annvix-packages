@@ -358,3 +358,5 @@ chmod +x %{buildroot}%{_libdir}/elfutils/lib*.so*
 
 * Wed Oct 16 2002 Jeff Johnson <jbj@redhat.com> 0.46-1
 - Swaddle.
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

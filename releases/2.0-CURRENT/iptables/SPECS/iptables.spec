@@ -426,3 +426,5 @@ rm -rf %{_builddir}/file.list.%{name}
 
 * Tue May  2 2000 Bernhard Rosenkränzer <bero@redhat.com>
 - initial package
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

@@ -337,3 +337,5 @@ install -m 0644 bash-dynamic/doc/bash.info %{buildroot}%{_infodir}/
 - tidy spec
 - use %%build_opensls macro to exclude docs
 - clean up the descriptions somewhat
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

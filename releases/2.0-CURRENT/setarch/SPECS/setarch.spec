@@ -125,3 +125,5 @@ done
 
 * Wed Feb 11 2004 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 1.3-1mdk
 - First Mandrake Linux package
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

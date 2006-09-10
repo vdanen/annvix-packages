@@ -144,3 +144,5 @@ install -m 0444 statserial.1 %{buildroot}%{_mandir}/man1/statserial.1
 
 * Fri Jul 18 1997 Erik Troan <ewt@redhat.com>
 - built against glibc
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

@@ -262,3 +262,5 @@ to allow upgrade.
 
 * Thu Mar 20 1997 Erik Troan <ewt@redhat.com>
 - Moved .Xclients and .xsession to xinitrc package
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

@@ -221,3 +221,5 @@ EOF
 	- misc spec file fixes
 	- PHP 4.2.0
 	- initial cooker contrib
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

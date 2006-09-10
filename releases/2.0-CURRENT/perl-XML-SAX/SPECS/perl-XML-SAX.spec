@@ -153,3 +153,5 @@ make test
 * Tue Jan 29 2002 Christian Belisle <cbelisle@mandrakesoft.com> 0.05-1mdk
 - initial RPM
 - include patch for building.
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

@@ -217,3 +217,5 @@ cp insmod/insmod %{buildroot}/sbin/insmod-DIET
 * Mon Dec 08 2003 Vincent Danen <vdanen@opensls.rg> 3.4.43-10sls
 - OpenSLS build
 - tidy spec
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

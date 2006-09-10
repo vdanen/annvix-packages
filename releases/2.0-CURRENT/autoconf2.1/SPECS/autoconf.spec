@@ -288,3 +288,5 @@ cp install-sh %{buildroot}%{_datadir}/autoconf
 * Thu Jul 17 1997 Erik Troan <ewt@redhat.com>
 - built with glibc
 
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

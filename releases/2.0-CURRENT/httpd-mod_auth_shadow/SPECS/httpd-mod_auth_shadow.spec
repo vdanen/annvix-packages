@@ -181,3 +181,5 @@ install -m 4755 validate %{buildroot}%{_sbindir}/
 
 * Tue Jan 21 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.44_2.0-1mdk
 - initial cooker contrib
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

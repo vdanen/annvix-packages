@@ -241,3 +241,5 @@ rm -rf %{buildroot}%{_docdir}/%{name}-%{version}
 *Sun Feb 20 2000 Jean-Michel Dault <jmdault@mandrakesoft.com> 1.3-1mdk
 - First Mandrake release
 - require pppoe-linuxconf
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

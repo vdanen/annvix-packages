@@ -262,3 +262,5 @@ mkdir %{buildroot}%{peardir}/packages
 * Tue Mar 19 2002 Alexander Skwar <ASkwar@DigitalProjects.com> 4.1.2-20020403.1mdk
 - First release of the php-pear package
 
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

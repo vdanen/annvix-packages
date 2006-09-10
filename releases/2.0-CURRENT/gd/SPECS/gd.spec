@@ -335,3 +335,5 @@ libtoolize --copy --force; aclocal-1.7; automake-1.7 --copy --add-missing; autoc
 * Fri Sep 11 1998 Cristian Gafton <gafton@redhat.com>
 - built for 5.2
 patch_gd2.0.26_gif_040622.bz2
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

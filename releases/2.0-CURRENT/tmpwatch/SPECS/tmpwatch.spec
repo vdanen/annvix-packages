@@ -182,3 +182,5 @@ install -m 0755 %{SOURCE1} %{buildroot}%{_sysconfdir}/cron.daily/tmpwatch
 * Sun Mar 09 1997 Erik Troan <ewt@redhat.com>
 - Rebuilt to get right permissions on the Alpha (though I have no idea
   how they ended up wrong).
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

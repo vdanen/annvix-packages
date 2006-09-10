@@ -151,3 +151,5 @@ install -m 0644 %{SOURCE3} .
 - First spec file for Mandrake distribution.
 
 # end of file
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

@@ -669,3 +669,5 @@ Cdda2wav (By Heiko Eiﬂfeldt heiko@hexco.de):
 * Fri Nov 20 1998 Ryan Weaver <ryanw@infohwy.com>
   [cdrecord-1.8a10-1]
 - Updated to 1.8a10
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

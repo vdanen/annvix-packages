@@ -140,3 +140,5 @@ rm -fr %{buildroot}%{_infodir}/dir
 * Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 2.8.4-5sls
 - OpenSLS build
 - tidy spec
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

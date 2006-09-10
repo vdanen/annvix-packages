@@ -120,3 +120,5 @@ This package contains the documentation for %{name}.
 * Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 2.6.4-2sls
 - OpenSLS build
 - tidy spec
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

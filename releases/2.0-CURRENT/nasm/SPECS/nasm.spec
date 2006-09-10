@@ -205,3 +205,5 @@ mkdir -p %{buildroot}{%{_bindir},%{_infodir},%{_mandir}/man1}
 
 * Mon Aug 23 1999 Thierry Vignaud <tvignaud@mandrakesoft.com>
 - First spec
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

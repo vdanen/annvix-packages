@@ -256,3 +256,5 @@ rm -rf %{buildroot}%{_datadir}/doc
 - sablotron 0.51 RPM release 1
 - updated spec file 
 
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

@@ -122,3 +122,5 @@ This package contains the documentation for %{name}.
 
 * Wed Jan 12 2005 Oden Eriksson <oden.eriksson@linux-mandrake.com> 1.19-1mdk
 - initial mandrake package
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

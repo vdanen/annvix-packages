@@ -258,3 +258,5 @@ EOF
   or db3 package comes out, we don't have to recompile php, only this module
 
 
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

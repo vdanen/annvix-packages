@@ -152,3 +152,5 @@ make test
 
 * Tue Apr 22 2003 Olivier Thauvin <thauvin@aerov.jussieu.fr> 0.0.1-1mdk
 - initial version.
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

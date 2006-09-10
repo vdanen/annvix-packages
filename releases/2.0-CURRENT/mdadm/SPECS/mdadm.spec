@@ -236,3 +236,5 @@ install -m 0740 %{_sourcedir}/mdadm-log.run %{buildroot}%{_srvdir}/mdadm/log/run
 - OpenSLS build
 - tidy spec
 - don't use dietlibc if building for amd64
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

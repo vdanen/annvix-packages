@@ -189,3 +189,5 @@ fi
 
 * Wed Feb 11 2004 David Walluck <walluck@linux-mandrake.com> 0:1.8.2-1mdk
 - release
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

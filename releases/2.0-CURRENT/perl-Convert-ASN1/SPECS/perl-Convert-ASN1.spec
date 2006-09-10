@@ -137,3 +137,5 @@ make test
 
 * Mon Jun 17 2002 Vincent Danen <vdanen@mandrakesoft.com> 0.15-1mdk
 - first Mandrake spec
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

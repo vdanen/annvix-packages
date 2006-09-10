@@ -100,3 +100,5 @@ mv %{buildroot}%{_bindir}/fuser %{buildroot}/sbin/
 
 * Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 21.3-3sls
 - OpenSLS build
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

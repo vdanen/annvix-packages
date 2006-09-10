@@ -441,3 +441,5 @@ in cwd
 * Wed Nov 10 1998 Alexey Nogin <ayn2@cornell.edu>
 - Changed SRPM according to RHCN Package Requirements
 - Added LICENSE, Changelog and README files to the doc directory
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

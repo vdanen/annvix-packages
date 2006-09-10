@@ -158,3 +158,5 @@ chmod +x %{buildroot}%{_libdir}/*.so.*
 
 * Wed Jun 23 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.10-1avx
 - first Annvix build, based on Fedora spec
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

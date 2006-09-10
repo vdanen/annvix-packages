@@ -259,3 +259,5 @@ chmod 0755 %{buildroot}%{_bindir}/zless
 
 * Tue Apr 22 1997 Marc Ewing <marc@redhat.com>
 - (Entry added for Marc by Erik) fixed gzexe to use /bin/gzip
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

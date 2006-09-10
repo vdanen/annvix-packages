@@ -184,3 +184,5 @@ rm -f %{buildroot}%{_mandir}/man1/mt.1
 * Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 2.5-5sls
 - OpenSLS build
 - tidy spec
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

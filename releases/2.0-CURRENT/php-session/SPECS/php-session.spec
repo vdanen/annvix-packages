@@ -88,3 +88,5 @@ install -m 0644 %{SOURCE0} %{buildroot}%{_sysconfdir}/php.d/%{inifile}
 - set the following options per default:
   - session.save_path = /var/tmp/php_sessions
   - session.hash_function = 1 (SHA1 rather than MD5)
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

@@ -234,3 +234,5 @@ install -m 0644 lsof.8 %{buildroot}%{_mandir}/man8/
 * Tue Apr 28 1998 Maciej Lesniewski <nimir@kis.p.lodz.pl>
 - Built under RH5
 - %%install was changed
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

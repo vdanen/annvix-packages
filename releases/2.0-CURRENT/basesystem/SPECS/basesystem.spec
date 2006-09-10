@@ -235,3 +235,5 @@ should never be removed.
 * Tue Sep 23 1997 Erik Troan <ewt@redhat.com>
 - made a noarch package
 
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

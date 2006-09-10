@@ -154,3 +154,5 @@ rm -rf %{buildroot}%{_datadir}/doc/dmapi
 * Sun Feb 29 2004 Vincent Danen <vdanen@opensls.org> 2.1.0-1sls
 - OpenSLS build
 - tidy spec
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

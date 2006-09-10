@@ -130,3 +130,5 @@ rm -rf %{buildroot}%{_datadir}/doc
 - OpenSLS build
 - use %%make macro
 - tidy spec
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

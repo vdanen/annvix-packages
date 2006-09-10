@@ -296,3 +296,5 @@ install -m 0755 try-from %{buildroot}%{_sbindir}
 * Mon Mar 03 1997 Erik Troan <ewt@redhat.com>
 - Upgraded to version 7.5
 - Uses a build root
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

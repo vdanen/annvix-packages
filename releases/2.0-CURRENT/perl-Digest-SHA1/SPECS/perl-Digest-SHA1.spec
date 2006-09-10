@@ -154,3 +154,5 @@ make test
 
 * Fri Jun 22 2001 Christian Belisle <cbelisle@mandrakesoft.com> 2.00-1mdk
 - First release, was in perl-Digest-MD5 package before.
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

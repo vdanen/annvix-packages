@@ -261,3 +261,5 @@ chmod -R u+w %{buildroot} #else brp won't strip binaries
 
 * Wed Aug 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.02.07
 - first Annvix build based on Mandriva's 1.02.07-4mdv
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

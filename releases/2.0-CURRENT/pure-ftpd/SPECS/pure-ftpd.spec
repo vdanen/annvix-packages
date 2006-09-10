@@ -297,3 +297,5 @@ done
 - tidy spec
 - remove README.RPM
 - if %%build_opensls add stuff for supervise, remove stuff for xinetd
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

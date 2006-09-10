@@ -455,3 +455,5 @@ cp -af data/driver.list docs/
 - Added new model drivers into rpm list
 - Updated descriptions somewhat
 
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

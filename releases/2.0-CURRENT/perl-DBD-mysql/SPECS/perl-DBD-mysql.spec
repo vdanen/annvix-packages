@@ -108,3 +108,5 @@ perl Makefile.PL INSTALLDIRS=vendor
 
 * Fri Feb 25 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.9004-1avx
 - first annvix build
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

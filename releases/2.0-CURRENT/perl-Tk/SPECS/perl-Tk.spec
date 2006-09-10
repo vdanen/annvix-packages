@@ -264,3 +264,5 @@ rm -f %{buildroot}%{perl_vendorarch}/Tk/README.Adjust
 * Wed Jan 19 2000 Pixel <pixel@mandrakesoft.com>
 - mandrake creation/adaptation
 - removed the ed stuff by perl (what the hell, it's a perl module!)
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

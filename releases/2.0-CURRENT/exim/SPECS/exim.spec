@@ -605,3 +605,5 @@ fi
 - Mandrake adaptations
 - include support for TLS and LDAP (LDAP only in 8.1 package)
 - use db3
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

@@ -209,3 +209,5 @@ strip %{buildroot}/sbin/auditd
 * Tue Aug 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.5
 - first Annvix package
 - P0: fix the makefile's install of the libaudit.conf file
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

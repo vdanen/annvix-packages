@@ -143,3 +143,5 @@ echo | CFLAGS="%{optflags}" perl Makefile.PL INSTALLDIRS=vendor
 
 * Thu Apr 12 2001 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 0.59-1mdk
 - First Mandrake package
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

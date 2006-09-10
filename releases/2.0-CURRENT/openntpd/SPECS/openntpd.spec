@@ -156,3 +156,5 @@ install -m 0740 %{_sourcedir}/openntpd-log.run %{buildroot}%{_srvdir}/ntpd/log/r
 * Mon Sep 13 2004 Vincent Danen <vdanen-at-build.annvix.org> 20040824p-1avx
 - initial Annvix package
 - P0: set ntp user to ntp, not _ntp
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

@@ -177,3 +177,5 @@ install -m 0644 enc/koi8-r.enc %{buildroot}%{perl_vendorarch}/XML/Parser/Encodin
 
 * Wed Aug 09 2000 Jean-Michel Dault <jmdault@mandrakesoft.com> 2.29-1mdk
 - Macroize package
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

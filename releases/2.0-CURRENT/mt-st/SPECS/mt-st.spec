@@ -154,3 +154,5 @@ mkdir -p %{buildroot}%{_mandir}/man{1,8}
 
 * Thu Jun 19 1997 Erik Troan <ewt@redhat.com>
 - built against glibc
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

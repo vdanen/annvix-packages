@@ -175,3 +175,5 @@ make test
 
 * Wed Aug 09 2000 Jean-Michel Dault <jmdault@mandrakesoft.com> 1.08-1mdk
 - Macroize package
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

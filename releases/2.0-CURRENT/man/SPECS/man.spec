@@ -221,3 +221,5 @@ chmod 0755 %{buildroot}%{_sbindir}/makewhatis
 * Mon Dec 02 2003 Vincent Danen <vdanen@mandrakesoft.com> 1.5k-13sls
 - OpenSLS build
 - tidy spec
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

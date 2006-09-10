@@ -224,3 +224,5 @@ install -m 0644 include/mutils/*.h %{buildroot}%{_includedir}/mutils/
 * Wed Feb 9 2000 Clinton Work <clinton@scripty.com>
 - Created a new spec file for version 0.6.1
 - Created both a shared library and devel packages
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

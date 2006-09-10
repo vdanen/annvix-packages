@@ -404,3 +404,5 @@ touch %{buildroot}%{_sysconfdir}/environment
 - tidy spec
 - don't build doc for %%build_opensls
 - put BuildReq on linuxdoc-tools for the doc package
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

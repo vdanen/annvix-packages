@@ -163,3 +163,5 @@ perl Makefile.PL INSTALLDIRS=vendor
 
 * Wed Aug  8 2001 Vincent Saugey <vince@mandrakesoft.com> 0.24-1mdk
 - First mdk release
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

@@ -110,3 +110,5 @@ LANG=C %make test
 
 * Sun Oct 05 2003 Luca Berra <bluca@vodka.it> 5.1-1mdk
 - Initial build.
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

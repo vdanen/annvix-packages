@@ -252,3 +252,5 @@ ln -s ../../%{_lib}/lib%{name}.so.%{major}.* .
 - used srpm from Götz Waschk <waschk@linux-mandrake.com> :
 	- initial Mandrake package
 
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

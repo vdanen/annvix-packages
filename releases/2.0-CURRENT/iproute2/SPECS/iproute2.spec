@@ -251,3 +251,5 @@ install -m 0755 netem/{normal,pareto,paretonormal} %{buildroot}%{_libdir}/tc/
  
 * Fri Apr 23 1999 Damien Miller <damien@ibs.com.au>
 - Built RPM  
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

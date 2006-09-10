@@ -105,3 +105,5 @@ install -m 0644 chkauth.8 %{buildroot}/%{_mandir}/man8/
 * Tue Dec 02 2003 Vincent Danen <vdanen@opensls.org> 0.3-1sls
 - OpenSLS build
 - tidy spec
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

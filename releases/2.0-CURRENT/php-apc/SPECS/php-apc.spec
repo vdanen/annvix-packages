@@ -273,3 +273,5 @@ install -m 0755 %{soname} %{buildroot}%{phpdir}/extensions/
 
 * Fri Sep 20 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 4.2.3-0.20020722.1mdk
 - initial cooker contrib
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

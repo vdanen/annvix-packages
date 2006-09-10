@@ -216,3 +216,5 @@ cat %{_sourcedir}/%{mod_conf} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod
 - initial cooker contrib
 
 
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

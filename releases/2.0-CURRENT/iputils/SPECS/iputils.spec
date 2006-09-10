@@ -240,3 +240,5 @@ install -c doc/tracepath.8 %{buildroot}%{_mandir}/man8/
 * Wed Feb 21 2001 Chmouel Boudjnah <chmouel@mandrakesoft.com> 20001110-1mdk
 - First mandrake version from Red Hat version.
 
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

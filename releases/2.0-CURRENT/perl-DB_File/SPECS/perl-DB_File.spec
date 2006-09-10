@@ -197,3 +197,5 @@ make test
 * Wed Aug 09 2000 Jean-Michel Dault <jmdault@mandrakesoft.com> 1.73-1mdk
 - Completely re-made (macroize) package for 1.73 (update)
 
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

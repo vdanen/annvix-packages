@@ -808,3 +808,5 @@ test ! -f %{courierdatadir}/configlist.mysql || %{courierdatadir}/sysconftool-rp
 * Thu Dec 04 2003 Vincent Danen <vdanen@opensls.org> 2.1.2-2sls
 - OpenSLS build
 - tidy spec
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

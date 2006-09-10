@@ -93,3 +93,5 @@ make test
 
 * Wed Jun 30 2004 Olivier Thauvin <thauvin@aerov.jussieu.fr> 1.01-1mdk
 - first version of rpm.
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

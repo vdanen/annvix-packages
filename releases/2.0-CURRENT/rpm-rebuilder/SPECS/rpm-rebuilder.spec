@@ -273,3 +273,5 @@ and then starts a chrooted ssh daemon on an alternative port.
 - first rpm version.
 
 # rpm-rebuilder.spec ends here
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

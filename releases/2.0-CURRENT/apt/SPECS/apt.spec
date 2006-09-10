@@ -226,3 +226,5 @@ install -m 0600 contrib/gpg-check/gpg-import.lua %{buildroot}%{_datadir}/apt/scr
 
 * Thu May 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.5.15lorg3
 - first Annvix build
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

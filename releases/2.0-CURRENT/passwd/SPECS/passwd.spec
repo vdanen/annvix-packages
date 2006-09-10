@@ -125,3 +125,5 @@ rm -f %{buildroot}%{_mandir}/man1/{chfn.1,chsh.1}
 * Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 0.68-3sls
 - OpenSLS build
 - tidy spec
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

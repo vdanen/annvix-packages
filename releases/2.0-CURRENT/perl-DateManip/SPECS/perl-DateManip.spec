@@ -80,3 +80,5 @@ make test
 %changelog
 * Thu May 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.44
 - first Annvix package (needed by swatch)
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

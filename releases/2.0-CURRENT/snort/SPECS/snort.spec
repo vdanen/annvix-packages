@@ -747,3 +747,5 @@ update-alternatives --remove %{name} %{_sbindir}/%{name}-inline+flexresp
 - tidy spec
 - remove all snmp support
 - lib64net1.0-devel if amd64
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

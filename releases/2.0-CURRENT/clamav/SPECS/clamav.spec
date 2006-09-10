@@ -366,3 +366,5 @@ done
 - remove BuildRequires: bc
 - clamav is static uid/gid 89
 - supervise scripts
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

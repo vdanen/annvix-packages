@@ -422,3 +422,5 @@ rm -f libodbc-libs.filelist
 * Tue Oct 19 1999 <lenny@mandrakesoft.com>
 - Specfile adaptation.
 - First pasckage for Mandrake
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

@@ -257,3 +257,5 @@ install -m 0644 pcap-int.h %{buildroot}%{_includedir}/
 - %%files list cleanup
 - Added dynamic lib - dirty hack
 - split libpcap and -devel
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

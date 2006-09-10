@@ -86,3 +86,5 @@ make test
 
 * Mon Oct 17 2005 Rafael Garcia-Suarez <rgarciasuarez@mandriva.com> 1.4-1mdk
 - Initial Mandriva release.
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

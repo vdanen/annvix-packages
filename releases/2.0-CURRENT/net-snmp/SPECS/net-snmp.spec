@@ -511,3 +511,5 @@ file %{buildroot}%{_sbindir}/* | grep ELF | cut -d':' -f1 | xargs strip || :
 - remove sysconfig files (use ./env/OPTIONS instead)
 - don't log to syslog, but log to STDOUT/STDERR instead
 - remove logrotate file
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

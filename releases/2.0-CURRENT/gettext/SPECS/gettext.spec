@@ -305,3 +305,5 @@ popd
 - OpenSLS build
 - tidy spec
 - use %%build_opensls macro to not require or build emacs-specific stuff
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

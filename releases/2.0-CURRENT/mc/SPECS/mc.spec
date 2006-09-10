@@ -198,3 +198,5 @@ rm -rf %{buildroot}%{_datadir}/locale
 - OpenSLS build
 - tidy spec
 - security fix for CAN-2003-1023
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

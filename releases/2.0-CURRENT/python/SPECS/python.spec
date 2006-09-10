@@ -426,3 +426,5 @@ rm -f modules-list main.list
 - OpenSLS build
 - tidy spec
 - don't build doc package for OpenSLS
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

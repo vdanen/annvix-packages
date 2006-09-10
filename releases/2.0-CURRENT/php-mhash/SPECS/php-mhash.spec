@@ -221,3 +221,5 @@ EOF
 * Fri Apr 26 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 4.2.0-1mdk
 - initial cooker contrib
 - PHP 4.2.0
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

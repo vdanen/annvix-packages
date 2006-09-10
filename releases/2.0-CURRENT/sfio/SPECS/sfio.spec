@@ -169,3 +169,5 @@ install lib/*.a %{buildroot}%{_libdir}/
 
 * Mon Mar 03 1997 Hao Li <hli@wag.caltech.edu>
 - initial package
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

@@ -338,3 +338,5 @@ make MYARCH=i386 DESTDIR=%{buildroot} install
 * Thu Mar  8 2001 Jeff Garzik <jgarzik@mandrakesoft.com> 0.7.3-1mdk
 - first mdk contribs version: pre-0.7.3 cvs snapshot 20010308.
 
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

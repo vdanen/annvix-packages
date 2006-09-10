@@ -201,3 +201,5 @@ EOF
 * Thu May 23 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 4.2.1-1mdk
 - initial cooker contrib
 
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

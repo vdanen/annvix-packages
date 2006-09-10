@@ -239,3 +239,5 @@ EOF
 
 * Mon Nov 12 2001 Philippe Libat <philippe@mandrakesoft.com> 4.0.6-5mdk
 - new module XSLT integration
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

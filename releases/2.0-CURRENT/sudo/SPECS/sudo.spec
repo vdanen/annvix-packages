@@ -264,3 +264,5 @@ install -m 0440 %{SOURCE2} %{buildroot}%{_sysconfdir}/sudoers
   [cu-sudo-1.5.9p2-1]
 - Initial RPM build.
 - Installing sample pam file.
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

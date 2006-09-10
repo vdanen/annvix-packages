@@ -359,3 +359,5 @@ cp test-images/* %{buildroot}%{_datadir}/printconf/tests/
 * Tue Jul 24 2001 Yves Duret <yduret@mandrakesoft.com> 9.10-1mdk
 - first MandrakeSoft package (stolen from d3bi4n and PLD)
     Obsoletes libgr libgr-progs libgr-devel
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

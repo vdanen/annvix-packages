@@ -139,3 +139,5 @@ rm -f %{buildroot}{%{_includedir}/libusb.h,%{_libdir}/libusb*}
 
 
 # end of file
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

@@ -223,3 +223,5 @@ ln -s ../usr/lib/libusb.la %{buildroot}/%{_lib}
 
 * Thu Mar  1 2001 Frederic Crozat <fcrozat@mandrakesoft.com> 0.1.3b-1mdk
 - Initial Mandrake release
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

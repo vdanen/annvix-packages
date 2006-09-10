@@ -274,3 +274,5 @@ ln -sf libXpm.so.%{LIBVER} %{buildroot}%{prefix}/%{_lib}/libXpm.so
 
 * Mon Jun 16 1997 Erik Troan <ewt@redhat.com>
 - built against glibc
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

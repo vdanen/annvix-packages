@@ -174,3 +174,5 @@ install -m 0755 fix-mouse-psaux %{buildroot}%{_sbindir}
 
 * Mon Mar 15 2004 Vincent Danen <vdanen@opensls.org> - 1.1.51-1sls
 - first OpenSLS build; from Fedora
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

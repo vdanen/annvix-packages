@@ -148,3 +148,5 @@ rm -rf %{buildroot}%{_includedir}/dmraid
 - first Annvix build based on Mandriva's 1.0.0-0.rc11.1mdv
 - there's no help for it, comment out to remind we need to use epoch once
   the final (assuming 1.0.0) is released due to RH's idiot versioning
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

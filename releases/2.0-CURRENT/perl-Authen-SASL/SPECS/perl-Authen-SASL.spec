@@ -126,3 +126,5 @@ make test
 
 * Fri Jul 19 2002 François Pons <fpons@mandrakesoft.com> 2.02-1mdk
 - initial release (needed by perl-ldap >= 0.26).
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

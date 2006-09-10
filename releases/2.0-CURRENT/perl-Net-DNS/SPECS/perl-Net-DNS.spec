@@ -173,3 +173,5 @@ make test
 
 * Mon Nov 26 2001 Oden Eriksson <oden.eriksson@linux-mandrake.com> 0.12-1mdk
 - initial cooker contrib.
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

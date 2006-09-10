@@ -456,3 +456,5 @@ otherwise perl_checker doesn't handle it correctly)
 * Tue Jul 24 2001 Pixel <pixel@mandrakesoft.com> 1.0-0.1mdk
 - first version
 
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

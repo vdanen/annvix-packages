@@ -196,3 +196,5 @@ ln -s flex.1 flex++.1
 
 * Thu Mar 20 1997 Michael Fulbright <msf@redhat.com>
 - Updated to v. 2.5.4
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

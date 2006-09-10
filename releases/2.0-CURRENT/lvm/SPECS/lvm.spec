@@ -236,3 +236,5 @@ fi
 - used srpm from Jan Niehusmann <jan@gondor.com>
 	- First lvm rpm for Mandrake distribution.
 
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

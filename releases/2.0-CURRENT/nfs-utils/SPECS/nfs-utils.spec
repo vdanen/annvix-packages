@@ -568,3 +568,5 @@ fi
 
 * Tue Oct 19 1999 Chmouel Boudjnah <chmouel@mandrakesoft.com>
 - First Spec files based on original version of H.J Lu.
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

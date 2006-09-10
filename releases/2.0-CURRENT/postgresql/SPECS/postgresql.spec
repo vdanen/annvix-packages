@@ -785,3 +785,5 @@ fi
 - OpenSLS build
 - tidy spec
 - use %%build_opensls macro to not build -doc package
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

@@ -73,3 +73,5 @@ perl Makefile.PL INSTALLDIRS=vendor
 %changelog
 * Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.04
 - first Annvix build (needed by perl-Pod-Simple)
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

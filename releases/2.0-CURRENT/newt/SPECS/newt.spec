@@ -386,3 +386,5 @@ rm -rf  %{buildroot}%{_libdir}/python{1.5,2.0,2.1,2.2,2.3}
 
 * Tue Feb 25 1997 Erik Troan <ewt@redhat.com>
 - Added changes from sopwith for C++ cleanliness and some listbox fixes.
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

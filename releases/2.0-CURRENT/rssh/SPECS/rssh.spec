@@ -112,3 +112,5 @@ install -m 0755 -D conf_convert.sh %{buildroot}%_datadir/%{name}/conf_convert.sh
 
 * Tue May 11 2004 Götz Waschk <waschk@linux-mandrake.com> 2.1.1-1mdk
 - initial mdk package
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

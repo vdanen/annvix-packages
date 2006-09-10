@@ -500,3 +500,5 @@ A
 - Update to 1.0f
 - BuildRoot it
 - Make it a noarch package
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

@@ -285,3 +285,5 @@ chmod 0644 AUTHENTICATORS CHANGES INSTALL* README* TODO
 * Wed May 31 2000 Charlie Brady <charlieb@e-smith.net>
 - Fix permissions/ownership - don't want build time group, want install time.
 
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

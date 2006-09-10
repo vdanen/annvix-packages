@@ -199,3 +199,5 @@ grep -q '^chkpwd:' /etc/group || groupadd -g 29 chkpwd
 
 * Fri Jun 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0
 - first Annvix package
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

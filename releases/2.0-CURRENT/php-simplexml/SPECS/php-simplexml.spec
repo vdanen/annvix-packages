@@ -87,3 +87,5 @@ EOF
 
 * Wed Apr 05 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.2
 - first Annvix package (required by php-dom)
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

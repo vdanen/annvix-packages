@@ -793,3 +793,5 @@ fi
 - OpenSLS build
 - don't worry about older mdk distribs
 - tidy spec
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

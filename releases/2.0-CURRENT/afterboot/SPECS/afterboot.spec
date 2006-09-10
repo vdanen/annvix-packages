@@ -98,3 +98,5 @@ touch %{buildroot}%{_mandir}/man8/afterboot.8.bz2
 
 * Sat Jan 31 2004 Vincent Danen <vdanen@opensls.org> 0.1-1sls
 - 0.1
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

@@ -204,3 +204,5 @@ echo "20" >%{buildroot}%{_sysconfdir}/sysconfig/env/tcpsvd/MAX_BACKLOG
 
 * Wed Aug 04 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 0.9.6-1mdk
 - initial mandrake package
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

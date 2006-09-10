@@ -149,3 +149,5 @@ perl Makefile.PL INSTALLDIRS=vendor </dev/null
 
 * Thu Jun 26 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.2-1mdk
 - initial cooker contrib.
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

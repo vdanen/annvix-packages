@@ -83,3 +83,5 @@ make test
 
 * Sun Dec 14 2003 Abel Cheung <deaddog@deaddog.org> 1.4-1mdk
 - First Mandrake package
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

@@ -222,3 +222,5 @@ popd
 
 * Wed Apr 19 2000 Jakub Jelinek <jakub@redhat.com>
 - Create.
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

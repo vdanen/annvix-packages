@@ -447,3 +447,5 @@ done
   nevermind since i am the master of this specfile.
 
 # end of file
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

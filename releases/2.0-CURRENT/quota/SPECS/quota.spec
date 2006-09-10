@@ -135,3 +135,5 @@ chmod 0755 %{buildroot}%{_bindir}/*
 * Tue Jun 15 2004 Vincent Danen <vdanen@opensls.org> 3.09-2sls
 - OpenSLS build
 - tidy spec
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

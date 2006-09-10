@@ -285,3 +285,5 @@ chgrp -R sys /etc/cups /var/*/cups
 * Mon May 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2
 - first Annvix build (this is actually 1.2rc3 but i'm tagging it 1.2
   to avoid epoch issues or stupid version names)
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

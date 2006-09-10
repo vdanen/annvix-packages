@@ -94,3 +94,5 @@ make test
 
 * Thu May 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.51
 - first Annvix build (needed by perl-HTTP-DAV)
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

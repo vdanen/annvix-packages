@@ -1441,3 +1441,5 @@ update-alternatives --remove php %{_bindir}/php-cli
 
 * Tue Sep 01 1998 Preston Brown <pbrown@redhat.com>
 - Made initial cut for PHP3.
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

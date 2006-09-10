@@ -479,3 +479,5 @@ main package, very good one)
 
 * Mon Jan  3 2000 Chmouel Boudjnah <chmouel@mandrakesoft.com>
 - First spec file for Mandrake distribution based on debian version.
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

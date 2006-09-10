@@ -124,3 +124,5 @@ touch %{buildroot}/var/lib/logrotate.status
 * Sun Nov 30 2003 Vincent Danen <vdanen@opensls.org> 3.6.6-3sls
 - OpenSLS build
 - tidy spec
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

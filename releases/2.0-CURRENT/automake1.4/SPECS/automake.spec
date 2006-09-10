@@ -250,3 +250,5 @@ update-alternatives --remove automake %{_bindir}/automake-%{amversion}
 
 * Wed Mar 5 1997 msf@redhat.com <Michael Fulbright>
 - first version (1.0)
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

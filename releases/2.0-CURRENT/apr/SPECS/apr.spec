@@ -294,3 +294,5 @@ rm -f %{buildroot}%{_libdir}/apr.exp
 
 * Thu Oct 14 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.9.5-1avx
 - first Annvix build for new-style apache2
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

@@ -117,3 +117,5 @@ install -m 0644 sash.1 %{buildroot}%{_mandir}/man8/sash.8
 * Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 3.5-7sls
 - OpenSLS build
 - tidy spec
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

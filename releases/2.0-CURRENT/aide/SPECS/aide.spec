@@ -156,3 +156,5 @@ install -m 0644 %{_sourcedir}/98_aide.afterboot %{buildroot}%{_datadir}/afterboo
 - include an aideupdate script to facilitate the updating of the database
   and a cron script to check it (optionally using gpg for verification)
 - P1: make --help look nicer
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

@@ -178,3 +178,5 @@ mv %{buildroot}%{_libexecdir}/rmt %{buildroot}/sbin/%{rmtrealname}
 * Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 1.13.25-12sls
 - OpenSLS build
 - tidy spec
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

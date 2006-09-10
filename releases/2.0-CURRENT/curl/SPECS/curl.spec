@@ -232,3 +232,5 @@ make check
 * Tue Dec 02 2003 Vincent Danen <vdanen@opensls.org> 7.10.7-3sls
 - OpenSLS build
 - tidy spec
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

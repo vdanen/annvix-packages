@@ -234,3 +234,5 @@ ln -sf lib%{name}.so.%{version} %{buildroot}/%{_lib}/lib%{name}.so.%{majver}
 
 * Mon Jan 31 2000 Cristian Gafton <gafton@redhat.com>
 - rebuild to fix dependencies
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

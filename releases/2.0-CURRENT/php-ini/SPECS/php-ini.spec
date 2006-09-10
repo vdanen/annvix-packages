@@ -186,3 +186,5 @@ perl -pi -e 's|EXTENSIONDIR|%{_libdir}/php/extensions|g' %{buildroot}%{_sysconfd
 
 * Sat Jan  4 2003 Jean-Michel Dault <jmdault@mandrakesoft.com> 4.3.0-1mdk
 - New package
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

@@ -186,3 +186,5 @@ mkdir -p %{buildroot}%{_datadir}/pkgconfig
 * Thu Apr 19 2001 Geoffrey Lee <snailtalk@mandrakesoft.com> 0.5.0-1mdk
 - Made an RPM for the purposes of compiling glib2.
 
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

@@ -115,3 +115,5 @@ make test
 
 * Fri Aug 08 2003 Florin <florin@mandrakesoft.com> 0.91-1mdk
 - first release
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

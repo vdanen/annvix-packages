@@ -216,3 +216,5 @@ install -m 0755 src/Linux_All_OPT.OBJ/%{name} %{buildroot}%{_bindir}/
 
 * Tue Dec 18 2001 Petr Cimprich <petr@gingerall.cz>
 - JavaScript 1.5_rc3a RPM release 1
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

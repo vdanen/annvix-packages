@@ -217,3 +217,5 @@ perl -pi -e 's!/usr/local/bin/perl!/usr/bin/perl!g' %{buildroot}%{perl_vendorarc
 
 * Tue Jan  4 2000 Chmouel Boudjnah <chmouel@mandrakesoft.com>
 - First package needed for perl-debug.
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

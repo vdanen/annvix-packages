@@ -190,3 +190,5 @@ install -m 0740 %{_sourcedir}/ez-ipupdate-log.run %{buildroot}%{_srvdir}/ez-ipup
 
 * Wed Jun 21 2000 Lenny Cartier <lenny@mandrakesoft.com> 2.4.2-1mdk
 - new in contribs
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

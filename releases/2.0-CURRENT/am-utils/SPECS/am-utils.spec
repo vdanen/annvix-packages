@@ -232,7 +232,6 @@ rm -f %{buildroot}/amd
 - move logdir to /var/log/service/amd
 - run scripts are now considered config giles and are not replaceable
 
-
 * Fri Aug 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 6.0.9-12avx
 - fix perms on run scripts
 
@@ -244,3 +243,5 @@ rm -f %{buildroot}/amd
 
 * Thu Mar 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 6.0.9-9avx
 - first Annvix build, to replace autofs
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

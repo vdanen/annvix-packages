@@ -135,3 +135,5 @@ rm -fr %{buildroot}%{_prefix}/doc
 
 * Thu Mar 21 2002 Thierry Vignaud <tvignaud@mandrakesoft.com> 0.5-1mdk
 - initial release
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

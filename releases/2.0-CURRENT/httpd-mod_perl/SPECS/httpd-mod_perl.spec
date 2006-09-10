@@ -417,3 +417,5 @@ rm -f %{buildroot}%{_mandir}/man3/Bundle::ApacheTest.3pm
 * Thu Jun 12 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0-0.20020612.1mdk
 - boldy stolen spec file from RH Rawhide :-)
 - 1.99_02 did not compile, but the one from CVS did...
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

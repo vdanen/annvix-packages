@@ -176,3 +176,5 @@ rm -f %{buildroot}/%{_libdir}/libpwrite
 
 * Sat Nov 13 1999 Giuseppe Ghibò <ghibo@linux-mandrake.com>
 - first SPEC file for Mandrake.
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

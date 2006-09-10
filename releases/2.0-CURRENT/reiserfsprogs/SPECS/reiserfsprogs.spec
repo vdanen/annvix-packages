@@ -224,3 +224,5 @@ ln -s reiserfsck.8 %{buildroot}%{_mandir}/man8/fsck.reiserfs.8
 
 * Wed Jan 24 2001 Chmouel Boudjnah <chmouel@mandrakesoft.com> 3.6.25-1mdk
 - First version dumped from kernel.
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

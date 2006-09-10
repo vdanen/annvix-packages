@@ -448,3 +448,5 @@ chmod +x %{buildroot}%{_bindir}/{mk_cmds,compile_et}
 - patch for adding ability to say "-t loop" or "-t noloop", looking in the fstab
   mount options
 
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

@@ -155,3 +155,5 @@ rm -rf %{buildroot}/lib/%{name}/docs
 - initial package
 
 # end of file
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

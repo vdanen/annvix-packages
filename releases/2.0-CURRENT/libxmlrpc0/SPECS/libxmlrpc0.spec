@@ -172,3 +172,5 @@ automake since we don't apply any patches), remove copying "depcomp"
 * Tue May 21 2002 Christian Belisle <cbelisle@mandrakesoft.com> 0.50-1mdk
 - initial mandrake release.
 
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

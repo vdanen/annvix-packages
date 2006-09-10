@@ -92,3 +92,5 @@ CFLAGS="-Wall -fPIC %{optflags}" %make
 
 * Sat Jul 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0
 - first Annvix package (for tcb support)
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

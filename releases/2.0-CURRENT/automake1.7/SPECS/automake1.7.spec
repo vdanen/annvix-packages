@@ -306,3 +306,5 @@ update-alternatives --remove automake %{_bindir}/automake-%{amversion}
 - first version (1.0)
 
 # End of file
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

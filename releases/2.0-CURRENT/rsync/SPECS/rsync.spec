@@ -356,3 +356,5 @@ popd
 * Thu Apr 10 1997 Michael De La Rue <miked@ed.ac.uk>
 - rsync-1.6.2-1 packaged.  (This entry by jam to credit Michael for the
   previous package(s).)
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

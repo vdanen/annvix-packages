@@ -351,3 +351,5 @@ rm -rf %{buildroot}%{_libdir}/*rad*
 * Fri Jan 23 2004 Vincent Danen <vdanen@opensls.org> 2.4.1-13sls
 - OpenSLS build
 - tidy spec
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

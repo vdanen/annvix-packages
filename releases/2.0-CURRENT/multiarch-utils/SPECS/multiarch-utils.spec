@@ -132,3 +132,5 @@ binaries and include files during RPM package build.
 
 * Wed Jan 12 2005 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 1.0-1mdk
 - initial release
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

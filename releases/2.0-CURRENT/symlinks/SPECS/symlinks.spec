@@ -148,3 +148,5 @@ install -m 0644 %{name}.8 -D %{buildroot}%{_mandir}/man8/%{name}.8
 * Wed Jul 09 1997 Erik Troan <ewt@redhat.com>
 - built against glibc
 - build-rooted
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

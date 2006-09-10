@@ -323,3 +323,5 @@ fi
 
 * Mon Feb 15 1999 Bill Nottingham <notting@redhat.com>
 - %post groupadd changed to %pre 
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

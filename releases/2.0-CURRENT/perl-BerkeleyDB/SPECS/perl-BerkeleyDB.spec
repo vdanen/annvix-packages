@@ -150,3 +150,5 @@ make test
 
 * Thu Apr 11 2002 Christian Belisle <cbelisle@mandrakesoft.com> 0.18-1mdk
 - Initial Mandrake package
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

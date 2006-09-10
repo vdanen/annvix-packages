@@ -85,3 +85,5 @@ install -m 0644 %{SOURCE0} %{buildroot}%{_sysconfdir}/php.d/%{inifile}
 
 * Sun Apr 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.2
 - first Annvix build
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

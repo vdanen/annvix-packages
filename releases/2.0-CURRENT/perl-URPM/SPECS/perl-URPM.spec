@@ -152,3 +152,5 @@ make OPTIMIZE="%{optflags}"
 - tidy spec
 - don't use %%real_release
 - don't set Distribution tag
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

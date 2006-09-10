@@ -100,3 +100,5 @@ mkdir -p %{buildroot}%{_sbindir}
 
 * Wed Jan  7 2004 Warly <warly@mandrakesoft.com> 2.3-1mdk
 - new package
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

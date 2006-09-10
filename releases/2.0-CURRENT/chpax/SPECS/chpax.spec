@@ -110,3 +110,5 @@ automake-1.7 --foreign -a
 - from Omer Shenker <chpax@omershenker.net> :
 	- Specfile for Mandrake
 	- gz to bz2 compression
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

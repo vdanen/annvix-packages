@@ -243,3 +243,5 @@ cp -a %{buildroot}%{_bindir}/mtools %{buildroot}%{_bindir}/mformat
 
 * Mon Apr 14 1997 Michael Fulbright <msf@redhat.com>
 - Updated to 3.6
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

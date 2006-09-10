@@ -124,3 +124,5 @@ CFLAGS="%{optflags}" %{__perl} Makefile.PL INSTALLDIRS=vendor
 
 * Thu Apr 4 2002 Antoine Ginies <aginies@mandrakesoft.com> 1.52-1mdk
 - first release for Mandrakesoft
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

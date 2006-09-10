@@ -178,3 +178,5 @@ rm -rf %{buildroot}%{_datadir}/locale/{bn_IN,si}
 * Fri Nov 28 2003 Vincent Danen <vdanen@opensls.org> 1.3.8-4sls
 - OpenSLS build
 - tidy spec
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

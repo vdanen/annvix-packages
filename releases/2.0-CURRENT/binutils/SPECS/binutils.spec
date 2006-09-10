@@ -609,3 +609,5 @@ rm -rf %{buildroot}%{_datadir}/locale/
 * Thu Mar 23 2000 Florent Villard <warly@mandrakesoft.com> 2.9.5.0.31-1mdk
 - group update
 - mandrake adaptation
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

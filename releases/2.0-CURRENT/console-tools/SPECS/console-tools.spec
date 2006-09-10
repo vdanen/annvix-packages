@@ -460,3 +460,5 @@ fi
 - OpenSLS build
 - remove dependency on sgml-tools so we save 16MB of useless docbook stuff
 - tidy spec
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

@@ -383,3 +383,5 @@ wonderful lib (as well as libxml2).
 
 - created based on libxml2 spec file
 
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

@@ -216,3 +216,5 @@ rm -f examples/*.p12
 
 * Wed Aug 04 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 1.2-1mdk
 - initial mandrake package
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

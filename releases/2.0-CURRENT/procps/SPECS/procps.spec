@@ -386,3 +386,5 @@ rm -f /etc/psdevtab /etc/psdatabase
 - update to 2.0.2
 - add de locale
 - Mandrake adaptions
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

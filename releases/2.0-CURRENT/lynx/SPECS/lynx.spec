@@ -169,3 +169,5 @@ EOF
 - OpenSLS build
 - tidy spec
 - Epoch: 1 because we make the release tag make more sense
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

@@ -386,3 +386,5 @@ rm -f %{buildroot}%{_infodir}/dir
 - started with package from Toshio Kuratomi <toshiok@cats.ucsc.edu>
 - cleaned up file list
 - fixed up install-info support
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

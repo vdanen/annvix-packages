@@ -1218,3 +1218,5 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc.info.bz2 --dir=%{_info
 
 * Sun Sep 21 2003 Giuseppe Ghibò <ghibo@mandrakesoft.com> 3.3.1-2mdks
 - Added Propolice Stack Protector and regenerated its patch (Patch300)
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

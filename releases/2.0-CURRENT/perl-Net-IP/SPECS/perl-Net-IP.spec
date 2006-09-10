@@ -109,3 +109,5 @@ make test
 
 * Mon Mar 29 2004 Olivier Thauvin <thauvin@aerov.jussieu.fr> 1.20-1mdk
 - 1st mdk spec
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

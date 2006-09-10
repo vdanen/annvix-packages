@@ -279,3 +279,5 @@ from ~/.fonts.cache file
 
 * Mon Nov  4 2002 Frederic Crozat <fcrozat@mandrakesoft.com> 2.0-1mdk
 - Initial Mdk package (based on rawhide)
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

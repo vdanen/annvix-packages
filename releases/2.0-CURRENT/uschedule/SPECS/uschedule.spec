@@ -130,3 +130,5 @@ popd
 
 * Wed Dec 31 2003 Oden Eriksson <oden.eriksson@deserve-it.com> 0.7.0-1mdk
 - initial package
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

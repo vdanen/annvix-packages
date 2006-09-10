@@ -375,3 +375,5 @@ install -m 0644 src/file.h %{buildroot}%{_includedir}/
 
 * Thu Mar 06 1997 Michael K. Johnson <johnsonm@redhat.com>
 - Improved recognition of Linux kernel images.
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

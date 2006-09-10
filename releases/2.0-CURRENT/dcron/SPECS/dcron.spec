@@ -203,3 +203,5 @@ fi
 * Sat Jan 31 2004 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.9-1sls
 - initial package
 - added P0, S1 & S2
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

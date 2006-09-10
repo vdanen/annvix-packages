@@ -276,3 +276,5 @@ fi
 - OpenSLS build (necessary evil)
 - Remove Requirement: dynamic
 - new macro %%build_static to allow us to make devfsd static for installer
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

@@ -75,3 +75,5 @@ make test
 
 * Fri Oct 28 2005 Rafael Garcia-Suarez <rgarciasuarez@mandriva.com> 1.00-1mdk
 - Initial MDV release
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

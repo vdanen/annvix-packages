@@ -327,3 +327,5 @@ ln -s ../../%{_lib}/libz.so.%{version} %{buildroot}%{_libdir}/
 
 * Thu Jun 19 1997 Erik Troan <ewt@redhat.com>
 - built against glibc
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

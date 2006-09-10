@@ -422,3 +422,5 @@ install -m 0644 bzlib_private.h %{buildroot}%{_includedir}/
 * Thu Apr 09 1998 Cristian Gafton <gafton@redhat.com>
 - first build for Manhattan
 
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

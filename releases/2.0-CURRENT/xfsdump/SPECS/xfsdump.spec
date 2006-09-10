@@ -133,3 +133,5 @@ rm -rf %{buildroot}%{_datadir}/doc/xfsdump/
 - OpenSLS build
 - tidy spec
 - BuildRequires: xfs-devel >= 2.6.0
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

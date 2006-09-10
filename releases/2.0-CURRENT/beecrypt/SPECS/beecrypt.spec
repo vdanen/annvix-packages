@@ -271,3 +271,5 @@ rm -f %{buildroot}%{_libdir}/python%{with_python_version}/site-packages/_bc.*a
 
 * Thu Jan 10 2002 Nalin Dahyabhai <nalin@redhat.com> 2.1.0-1
 - initial package
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

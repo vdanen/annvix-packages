@@ -78,3 +78,5 @@ perl Makefile.PL INSTALLDIRS=vendor
 %changelog
 * Wed May 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.50
 - first Annvix build (for perl-YAML)
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

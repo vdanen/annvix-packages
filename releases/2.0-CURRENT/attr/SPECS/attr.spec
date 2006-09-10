@@ -178,3 +178,5 @@ rm -rf %{buildroot}/%{_lib}/libattr.{a,la} %{buildroot}%{_libdir}/libattr.la
 * Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 2.4.7-3sls
 - OpenSLS build
 - tidy spec
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

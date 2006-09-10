@@ -277,3 +277,5 @@ popd >/dev/null 2>&1
 - tidy spec
 - pass tmpdir to configure
 - fix a sccs2rcs script in contrib scripts which was making a Req on "no"
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

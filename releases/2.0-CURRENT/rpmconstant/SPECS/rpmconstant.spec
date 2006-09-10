@@ -152,3 +152,5 @@ This package contains the documentation for %{name}.
 
 * Sun Feb 06 2005 Olivier Thauvin <thauvin@aerov.jussieu.fr> 0.0.1-1mdk
 - First mdk spec
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

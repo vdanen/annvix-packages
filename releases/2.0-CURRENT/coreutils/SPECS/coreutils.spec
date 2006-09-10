@@ -333,3 +333,5 @@ true
 - OpenSLS build
 - tidy spec
 - use a decent description for -doc package
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

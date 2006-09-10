@@ -398,3 +398,5 @@ english installs)
 
 * Mon May 24 1999 Bernhard Rosenkränzer <bero@mandrakesoft.com>
 - remove fd.4 - we get a far more recent version from fdutils
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

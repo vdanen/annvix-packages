@@ -141,3 +141,5 @@ perl Makefile.PL INSTALLDIRS=vendor
 - added by Christian Zoffoli <czoffoli@linux-mandrake.com> :
 	- first mandrake release
 
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

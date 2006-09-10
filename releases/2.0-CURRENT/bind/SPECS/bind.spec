@@ -425,3 +425,5 @@ fi
 - use %%build_opensls macro to turn off IDN support
 - explicitly provide -fstack-protector with %%build_opensls since we don't
   use standard %%{optflags}
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

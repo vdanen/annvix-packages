@@ -684,3 +684,5 @@ fi
 - New utilities for adding/removing modules and upgrades
 - Apache and apache_mod-perl now use the same set of modules
 - Added some SuSE compatibility
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

@@ -152,3 +152,5 @@ ln -sf ../../bin/find %{buildroot}%{_bindir}/find
 * Sun Nov 30 2003 Vincent Danen <vdanen@opensls.org> 4.1.20-2sls
 - OpenSLS build
 - tidy spec
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

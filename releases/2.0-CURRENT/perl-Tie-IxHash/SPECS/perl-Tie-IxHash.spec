@@ -119,3 +119,5 @@ make test
 * Mon Jun 10 2002 Lenny Cartier <lenny@mandrakesoft.com> 1.21-1mdk
 - from Peter Chen <petechen@netilla.com> :
 	- 1.21
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

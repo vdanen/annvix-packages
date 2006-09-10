@@ -157,3 +157,5 @@ install -m 0644 %{_sourcedir}/php-pgsql.ini %{buildroot}%{_sysconfdir}/php.d/%{i
 * Fri Dec 18 2003 Vincent Danen <vdanen@opensls.org> 4.3.4-2sls
 - OpenSLS build
 - tidy spec
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

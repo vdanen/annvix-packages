@@ -121,3 +121,5 @@ find %{buildroot} -name "perllocal.pod" | xargs -i rm -f {}
 
 * Thu Jun 26 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 2002.1031-1mdk
 - Initial build.
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

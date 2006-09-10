@@ -106,3 +106,5 @@ rm -rf %{buildroot}%{_mandir}/de
 
 * Mon May 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.15.2
 - first Annvix build
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

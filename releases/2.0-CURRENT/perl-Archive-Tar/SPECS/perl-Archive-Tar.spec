@@ -157,3 +157,5 @@ make test
 * Wed Mar 28 2001 Lenny Cartier <lenny@mandrakesoft.com> 0.22-1mdk
 - added by Stefan van der Eijk <s.vandereijk@chello.nl> :
 	- new in contrib
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

@@ -120,3 +120,5 @@ rm -f %{buildroot}%{_libdir}/libxcrypt.1
 * Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 2.0-1sls
 - first OpenSLS package
 - based on SUSE's 2.0-32 package
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

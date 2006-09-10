@@ -101,3 +101,5 @@ make test
 
 * Tue Apr 1 2003 Austin Acton <aacton@yorku.ca> 2.11-1mdk
 - initial package
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

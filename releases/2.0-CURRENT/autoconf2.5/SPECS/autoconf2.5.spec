@@ -286,3 +286,5 @@ mv %{buildroot}%{_infodir}/autoconf.info %{buildroot}%{_infodir}/autoconf-2.5x.i
 * Thu Jul 17 1997 Erik Troan <ewt@redhat.com>
 - built with glibc
 
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

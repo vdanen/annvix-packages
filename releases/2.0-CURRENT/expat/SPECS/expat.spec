@@ -185,3 +185,5 @@ Development environment for the expat XML parser
 
 * Mon Nov 20 2000 Frederic Lepied <flepied@mandrakesoft.com> 1.1-1mdk
 - first version
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

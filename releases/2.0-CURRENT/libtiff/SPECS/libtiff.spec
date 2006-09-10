@@ -343,3 +343,5 @@ rm -rf %{buildroot}%{_docdir}/tiff-%{version}
 - patched for glibc
 - added shlib support
 
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

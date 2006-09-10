@@ -251,3 +251,5 @@ install -s bin/doxy* %{buildroot}%{_bindir}
 * Sat Apr  1 2000 Guillaume Cottenceau <gc@mandrakesoft.com> 1.0.0-1mdk
 - first Mandrake release
 - patch to fix wrong lookup of Qt include/lib
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

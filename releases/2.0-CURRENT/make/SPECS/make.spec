@@ -263,3 +263,5 @@ ln -sf make %{buildroot}%{_bindir}/gmake
 
 * Mon Jun 02 1997 Erik Troan <ewt@redhat.com>
 - built against glibc
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

@@ -125,3 +125,5 @@ install -m 0644 memtest.bin %{buildroot}/boot/memtest-%{version}.bin
 * Sat Feb 07 2004 Giuseppe Ghibò <ghibo@mandrakesoft.com> 1.11-1mdk
 - initial release.
 - Obsolete memtest86 (unmaintained)
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

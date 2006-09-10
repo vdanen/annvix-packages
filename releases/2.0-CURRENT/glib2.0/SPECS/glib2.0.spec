@@ -217,3 +217,5 @@ cat %{_sourcedir}/glib20.csh > %{buildroot}%{_sysconfdir}/profile.d/glib20.csh
 
 * Mon Dec 22 2003 Vincent Danen <vdanen@opensls.org> 2.2.3-2sls
 - OpenSLS build
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

@@ -221,3 +221,5 @@ exit 0
 - remove conditionals
 - OpenSLS build
 - tidy spec
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

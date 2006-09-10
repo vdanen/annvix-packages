@@ -288,3 +288,5 @@ perl  -pi -e 's|/lib\b|/%{_lib}|g' configure*
 * Mon Dec 21 1998 Riku Meskanen <mesrik@cc.jyu.fi>
 - initial build for RH 5.x
 
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

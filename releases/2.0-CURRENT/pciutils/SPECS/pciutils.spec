@@ -292,3 +292,5 @@ install lib/libpci_loader_a %{buildroot}%{_libdir}/libpci_loader.a
 
 * Thu Feb  4 1999 Bill Nottingham <notting@redhat.com>
 - initial build
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

@@ -700,3 +700,5 @@ without a domainname.
 
 * Mon Mar 16 1998 Bryan C. Andregg <bandregg@redhat.com>
 - First package.
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

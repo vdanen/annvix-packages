@@ -851,3 +851,5 @@ exit 0
 # Local Variables:
 # rpm-spec-insert-changelog-version-with-shell: t
 # End:
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

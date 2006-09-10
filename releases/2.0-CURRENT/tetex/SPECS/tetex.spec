@@ -1402,3 +1402,5 @@ fi
 * Mon Feb 17 1997 Michael Fulbright <msf@redhat.com>
 - Upgraded to 0.4pl6, and fixed file permissions on /var/lib/texmf/texfonts
   so normal users could create fonts on demand.
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

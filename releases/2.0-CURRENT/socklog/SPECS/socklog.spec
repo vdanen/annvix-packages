@@ -331,3 +331,5 @@ popd >/dev/null 2>&1
 
 * Tue Aug 23 2005 Sean P. Thomas <spt-at-build.annvix.org> 2.0.2-1avx
 - initial Annvix build
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

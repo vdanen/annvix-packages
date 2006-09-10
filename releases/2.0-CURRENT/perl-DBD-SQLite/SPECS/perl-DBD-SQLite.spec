@@ -77,3 +77,5 @@ make test
 %changelog
 * Wed Jun 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.12
 - first Annvix package (needed by apparmor-utils)
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

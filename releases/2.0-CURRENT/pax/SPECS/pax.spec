@@ -126,3 +126,5 @@ mkdir -p %{buildroot}%{_mandir}/man1
 
 * Sun Aug  5 2001 Stew Benedict <sbenedict@mandrakesoft.com> 1.5-1mdk
 - borrowed RedHat SRPM - used by lsb-testsuite
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

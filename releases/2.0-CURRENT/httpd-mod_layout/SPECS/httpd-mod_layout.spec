@@ -192,3 +192,5 @@ cat %{_sourcedir}/%{mod_conf} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod
 - extra modules needs to be loaded _before_ mod_ssl, mod_php and mod_perl
   in order to show up in the server string...
 - initial cooker contrib
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

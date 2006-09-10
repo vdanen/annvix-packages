@@ -1122,3 +1122,5 @@ mailx...)
 - Use -Darchname=i386-linux 
 - Require csh (for glob)
 - Use RPM_ARCH during configuration and installation for arch independence
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

@@ -283,3 +283,5 @@ popd
 * Wed Apr 16 1997 Erik Troan <ewt@redhat.com>
 - Changed /proc to 555
 - Removed /var/spool/mqueue (which is owned by sendmail)
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

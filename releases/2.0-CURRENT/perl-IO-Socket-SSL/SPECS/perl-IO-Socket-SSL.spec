@@ -135,3 +135,5 @@ make
 
 * Thu Apr 19 2001 Christian Zoffoli <czoffoli@linux-mandrake.com> 0.77-1mdk
 - First Mandrake release
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

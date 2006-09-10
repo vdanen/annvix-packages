@@ -184,3 +184,5 @@ rm -f %{buildroot}%{_datadir}/doc/gperf/gperf.html
 
 * Tue Jul 28 1998 Jeff Johnson <jbj@redhat.com>
 - create.
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

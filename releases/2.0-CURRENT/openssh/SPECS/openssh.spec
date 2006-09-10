@@ -503,3 +503,5 @@ popd >/dev/null 2>&1
 - tidy spec
 - use %%build_opensls macros to prevent x11-ish stuff from being built
 - patch initscript to work with supervise
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

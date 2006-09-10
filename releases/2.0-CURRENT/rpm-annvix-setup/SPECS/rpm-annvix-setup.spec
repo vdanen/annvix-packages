@@ -204,3 +204,5 @@ mkdir -p %{buildroot}%{_sysconfdir}/rpm/macros.d
 * Wed Apr 27 2005 Olivier Thauvin <nanardon@mandriva.org> 0.1-1mdk
 - First mandriva spec
 
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

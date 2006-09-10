@@ -168,3 +168,5 @@ find %{buildroot}%{_prefix} -type f -print | sed "s@^%{buildroot}@@g" | grep -v 
 
 * Tue Aug 08 2000 Jean-Michel Dault <jmdault@mandrakesoft.com> 1.03-1mdk
 - Macroize package
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

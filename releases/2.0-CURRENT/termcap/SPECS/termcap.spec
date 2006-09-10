@@ -102,3 +102,5 @@ install -m 0644 termcap %{buildroot}%{_sysconfdir}/
 * Tue Dec 09 2003 Vincent Danen <vdanen@opensls.org> 11.0.1-9sls
 - OpenSLS build
 - tidy spec
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

@@ -293,3 +293,5 @@ chrpath -d %{buildroot}%{_bindir}/*
 
 * Mon Jun 30 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.8.4-1mdk
 - initial cooker contrib
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

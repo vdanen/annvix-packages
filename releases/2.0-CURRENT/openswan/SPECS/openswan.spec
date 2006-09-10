@@ -187,3 +187,5 @@ rm -rf %{buildroot}%{_sysconfdir}/%{name}/ipsec.d/examples
 * Sat May 22 2004 Thomas Backlund <tmb@iki.fi> 2.1.2-1sls
 - 2.1.2 final
 - first OpenSLS specific build
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

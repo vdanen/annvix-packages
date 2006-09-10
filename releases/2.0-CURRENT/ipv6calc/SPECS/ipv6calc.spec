@@ -121,3 +121,5 @@ install -m 0755 ipv6logstats/ipv6logstats %{buildroot}%{_bindir}/
 
 * Wed Dec 31 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 0.46-1sls
 - initial OpenSLS package, used bits from PLD
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

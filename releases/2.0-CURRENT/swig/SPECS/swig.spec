@@ -224,3 +224,5 @@ install -m 0644 ./Source/DOH/doh.h -D %{buildroot}%{_includedir}/doh.h
 * Fri Mar 10 2000 Francis Galiegue <francis@mandrakesoft.com> 1.1p5-1mdk
 - First RPM for Mandrake
 
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

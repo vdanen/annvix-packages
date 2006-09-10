@@ -205,3 +205,5 @@ install -m 0644 functions %{buildroot}%{_datadir}/srv
 
 * Fri Jan 02 2004 Vincent Danen <vdanen@opensls.org> 0.1-1sls
 - 0.1
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

@@ -284,3 +284,5 @@ install %{SOURCE1} %{buildroot}%{_sysconfdir}/profile.d/$(basename %{SOURCE1})
 * Fri Feb 07 1997 Erik Troan <ewt@redhat.com>
  - Provides csh, adds and removes /bin/csh from /etc/shells if csh package
 isn't installed.
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

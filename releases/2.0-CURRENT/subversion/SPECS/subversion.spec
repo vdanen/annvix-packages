@@ -530,3 +530,5 @@ popd >/dev/null 2>&1
   modules
 - always build the perl and python bindings
 - get rid of the xinetd script and use ipsvd to run svnserve
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

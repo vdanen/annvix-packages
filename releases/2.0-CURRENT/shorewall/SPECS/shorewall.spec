@@ -482,3 +482,5 @@ export DONT_GPRINTIFY=1
 * Sat May 20 2000 Simon Piette <spiette@generation.net>
 - 3.0.2 Initial RPM
   Patched the install script so it can take a PREFIX variable
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

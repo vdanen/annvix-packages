@@ -2242,3 +2242,5 @@ standard name XF86Config-4 instead.
 
 - first mandrake version.
 - named config file XF86Config.experimental to avoid confusion with 3.3 releases.
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

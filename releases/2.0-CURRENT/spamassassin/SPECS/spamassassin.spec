@@ -346,3 +346,5 @@ fi
 - 2.63
 - supervise scripts
 - remove P0 and the initscript
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

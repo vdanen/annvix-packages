@@ -92,3 +92,5 @@ make DESTDIR=%{buildroot} \
 
 * Tue Jun 27 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
 - first Annvix package
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

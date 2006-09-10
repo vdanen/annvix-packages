@@ -327,3 +327,5 @@ developing programs which will use the FreeType2 library.
 
 * Thu Oct  5 2000 Ramiro Estrugo <ramiro@eazel.com>
 - Created this thing
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

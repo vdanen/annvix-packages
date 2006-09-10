@@ -242,3 +242,5 @@ fi
 
 * Wed Jun 23 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 2.0.49-12mdk
 - initial mandrake package
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

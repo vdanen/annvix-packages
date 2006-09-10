@@ -206,3 +206,5 @@ cat %{_sourcedir}/%{mod_conf} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod
 
 * Thu Aug 1 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.40-0.20020731.1mdk
 - first attempt at this based on ideas from the apache1 suexec spec file...
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

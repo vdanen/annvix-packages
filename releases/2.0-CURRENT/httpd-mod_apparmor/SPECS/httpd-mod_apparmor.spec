@@ -76,3 +76,5 @@ cat %{_sourcedir}/%{mod_conf} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod
 %changelog
 * Wed Aug 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3_2.0
 - first Annvix build
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

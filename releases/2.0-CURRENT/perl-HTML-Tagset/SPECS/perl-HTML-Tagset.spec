@@ -137,3 +137,5 @@ make test
 
 * Wed Jun 20 2001 Christian Belisle <cbelisle@mandrakesoft.com> 3.03-1mdk
 - First Mandrake Release.
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

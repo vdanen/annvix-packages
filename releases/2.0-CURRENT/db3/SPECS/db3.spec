@@ -501,3 +501,5 @@ rm -rf	%{buildroot}/usr/docs \
 
 * Thu Jun 18 1998 Jeff Johnson <jbj@redhat.com>
 - Create.
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

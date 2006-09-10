@@ -2073,3 +2073,5 @@ way, sed doesn't exit code depending on succeeding subst)
 * Tue Dec 21 1999 Chmouel Boudjnah <chmouel@mandrakesoft.com>
 - 4.72.
 - Fix a lot of bugs.
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

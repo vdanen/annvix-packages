@@ -173,3 +173,5 @@ echo "1800" > %{buildroot}%{_srvdir}/smartd/env/INTERVAL
 * Mon Dec 29 2003 Vincent Danen <vdanen@opensls.org> 5.26-2sls
 - OpenSLS build
 - tidy spec
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

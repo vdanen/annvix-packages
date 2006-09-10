@@ -210,3 +210,5 @@ fi
 * Thu Sep 23 1999 Wanderlei Antonio Cavassin <cavassin@conectiva.com>
 - fixed bug in mkinit
 - fixed bug in test builtin command (patch from Carlos Santos)
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

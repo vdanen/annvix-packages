@@ -189,3 +189,5 @@ cat %{_sourcedir}/%{mod_conf} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod
 * Tue Jan 21 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 1.0-1mdk
 - initial cooker contrib
 - the "BeerWare" license was changed to GPL
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

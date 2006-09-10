@@ -232,3 +232,5 @@ make test
 * Tue Aug 10 1999  Rex Wu <rex@intercept.com.tw>
 - Spec file was generated.
 
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

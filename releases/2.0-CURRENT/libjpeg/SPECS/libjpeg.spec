@@ -320,3 +320,5 @@ mkdir -p %{buildroot}{%{_bindir},%{_libdir},%{_includedir},%{_mandir}/man1}
 
 * Wed Oct 08 1997 Donnie Barnes <djb@redhat.com>
 - new package to remove jpeg stuff from libgr and put in it's own package
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

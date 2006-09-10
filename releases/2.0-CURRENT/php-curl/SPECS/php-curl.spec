@@ -112,3 +112,5 @@ EOF
 
 * Wed Nov 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 4.4.1-1avx
 - first Annvix build to support the curl extensions in php
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

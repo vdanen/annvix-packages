@@ -131,3 +131,5 @@ perl -pi -e "s!/usr/man!%{_mandir}!g" Makefile
 * Wed Oct 01 1997 Erik Troan <ewt@redhat.com>
 - moved to /bin
 
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

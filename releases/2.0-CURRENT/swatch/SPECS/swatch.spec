@@ -189,3 +189,5 @@ rm -rf %{buildroot}%{perl_vendorlib}/auto
 
 * Fri Aug 22 1997 Erik Troan <ewt@redhat.com>
 - made a noarch package
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

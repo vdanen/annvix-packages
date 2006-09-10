@@ -175,3 +175,5 @@ automake-1.4 --foreign
 
 * Wed Aug 21 2002 Guillaume Rousse <g.rousse@linux-mandrake.com> 2.4.0-1mdk 
 - first mdk release
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

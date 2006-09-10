@@ -219,3 +219,5 @@ EOF
 - Moved the XML functionnality into this php-xml package to get rid of
   segfault problems with different expat libraries statically linked into
   different parts of Apache.
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

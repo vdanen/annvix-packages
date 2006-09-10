@@ -210,3 +210,5 @@ rm -f %{buildroot}/sbin/fsck.*
    real man pages.
 
 # end of file
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

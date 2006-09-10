@@ -149,3 +149,5 @@ fi
 
 * Fri May 28 2004 Vincent Danen <vdanen@opensls.org> 1.0-1sls
 - first package
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

@@ -292,3 +292,5 @@ rm -rf %{buildroot}%{_datadir}/doc
 
 * Sun Jul  1 2001  Daouda Lo <daouda@mandrakesoft.com> 0.15.3-1mdk
 - mdk first package
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

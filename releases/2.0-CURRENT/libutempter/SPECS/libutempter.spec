@@ -221,3 +221,5 @@ make CC=gcc libexecdir="%{_libexecdir}"
 
 * Fri Jun  4 1999 Jeff Johnson <jbj@redhat.com>
 - ignore SIGCHLD while processing utmp.
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

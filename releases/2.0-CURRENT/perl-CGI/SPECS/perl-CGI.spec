@@ -212,3 +212,5 @@ make test
 - First seperate Mandrake version
 - Added Upload Tmpdir patch from perl
 - Requires perl *WITHOUT* CGI.pm!
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

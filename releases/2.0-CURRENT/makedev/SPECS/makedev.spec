@@ -380,3 +380,5 @@ after an upgrade.
 - Mandrake adaptation of the new dev system.
 - Merge dev system of Red Hat.
 - Merge MAKEDEV and dev package.
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

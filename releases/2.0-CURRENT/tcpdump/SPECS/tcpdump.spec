@@ -153,3 +153,5 @@ libtoolize --copy --force
 - 3.5
 
 
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

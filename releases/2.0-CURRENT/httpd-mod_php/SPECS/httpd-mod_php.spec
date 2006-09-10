@@ -314,3 +314,5 @@ cat %{_sourcedir}/%{mod_conf} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod
 * Wed Aug 28 2002 Jean-Michel Dault <jmdault@mandrakesoft.com> 2.0.40ADVX_4.2.2-1mdk
 - First Apache 2 module to comply with the ADVX policy at:
   http://advx.org/devel/policy.php
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

@@ -1434,3 +1434,5 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc-%{branch}.info.bz2 --d
 # Local Variables:
 # tab-width: 8
 # End:
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

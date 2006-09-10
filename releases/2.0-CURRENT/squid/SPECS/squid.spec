@@ -421,3 +421,5 @@ fi
 - don't BuildRequires: sgml-tools
 - remove S1 (FAQ.sgml)
 - remove initscript, add supervise scripts
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

@@ -632,3 +632,5 @@ misformatted on FreeBSD.
 * Tue Jul 08 1997 Erik Troan <ewt@redhat.com>
 - built against glibc, linked shared libs against -lc
 
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

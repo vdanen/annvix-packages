@@ -174,3 +174,5 @@ touch /var/log/security.log && chmod 0640 /var/log/security.log
 
 * Wed Mar 10 2004 Vincent Danen <vdanen@opensls.org> 0.50-1sls
 - first OpenSLS package based on msec-0.42-1mdk
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

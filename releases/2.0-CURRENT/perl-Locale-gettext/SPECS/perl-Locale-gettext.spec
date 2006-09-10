@@ -153,3 +153,5 @@ make test
 
 * Fri Mar  8 2002 Arnaud de Lorbeau <adelorbeau@mandrakesoft.com> 1.01-1mdk
 - First MandrakeSoft Package
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

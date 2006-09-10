@@ -212,3 +212,5 @@ install -m 0644 %{SOURCE1} %{buildroot}%{_mandir}/man1
 
 * Tue Dec 29 1998 Cristian Gafton <gafton@redhat.com>
 - build for 6.0
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

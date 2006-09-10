@@ -182,3 +182,5 @@ for i in en@boldquot en@quot ; do rm -rf %{buildroot}%{_datadir}/locale/$i; done
 * Tue Dec 02 2003 Vincent Danen <vdanen@opensls.org> 1.2.3-4sls
 - OpenSLS build
 - tidy spec
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

@@ -586,3 +586,5 @@ rm -rf	%{buildroot}%{_prefix}/doc \
 	   
 * Thu Sep 24 1998 Michael Fulbright <msf@redhat.com>
 - Built release 0.30                                   
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

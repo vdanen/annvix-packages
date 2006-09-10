@@ -126,3 +126,5 @@ perl Makefile.PL INSTALLDIRS=vendor
 
 * Wed May 22 2002 Buchan Milne <bgmilne@.cae.co.za> 2.27-1mdk
 - Mandrake package
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

@@ -96,3 +96,5 @@ make test
 
 * Sun Nov 14 2004 Guillaume Rousse <guillomovitch@mandrake.org> 0.15-1mdk 
 - first mdk release
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

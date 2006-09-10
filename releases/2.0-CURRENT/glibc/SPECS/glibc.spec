@@ -1359,3 +1359,5 @@ fi
 * Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 2.3.2-16sls
 - OpenSLS build
 - P41: propolice patch; use %%build_opensls macros
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

@@ -470,3 +470,5 @@ update-alternatives --remove vim /usr/bin/vim-enhanced
 - OpenSLS build
 - don't build vim-x11 (use %%build_opensls macro)
 - don't enable gpm support in vim-enhanced
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

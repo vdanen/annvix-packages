@@ -322,3 +322,5 @@ popd
 * Thu Dec 23 1999 François PONS <fpons@mandrakesoft.com> 1.48-1mdk
 - first version with graphic patch.
 
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

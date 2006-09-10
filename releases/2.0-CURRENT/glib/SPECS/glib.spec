@@ -324,3 +324,5 @@ make check
 * Mon Apr 13 1998 Marc Ewing <marc@redhat.com>
 - Split out glib package
 
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

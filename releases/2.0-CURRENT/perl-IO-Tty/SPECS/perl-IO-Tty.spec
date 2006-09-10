@@ -150,3 +150,5 @@ make test
 * Mon Sep 24 2001 Lenny Cartier <lenny@mandrakesoft.com> 0.04-1mdk
 - added by Max Heijndijk <cchq@wanadoo.nl> :
 	- Initial wrap
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

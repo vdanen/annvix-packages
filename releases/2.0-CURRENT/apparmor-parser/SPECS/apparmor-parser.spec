@@ -137,3 +137,5 @@ mv %{buildroot}%{_initrddir}/rc.apparmor.functions %{buildroot}%{_initrddir}/app
 * Tue Jun 27 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
 - P0: fix installation of initscripts (location) for Annvix/Mandriva
 - first Annvix package
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

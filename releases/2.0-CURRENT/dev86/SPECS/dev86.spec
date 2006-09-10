@@ -187,3 +187,5 @@ ln -f bin86/ChangeLog ChangeLog.bin86
 
 * Wed Jun 14 2000 Chmouel Boudjnah <chmouel@mandrakesoft.com> 0.15.0-1mdk
 - First mandrake version from rh package.
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

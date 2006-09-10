@@ -269,3 +269,5 @@ install -m 0644 %{SOURCE0} %{buildroot}%{_sysconfdir}/php.d/%{inifile}
 * Mon Apr  2 2001 Jean-Michel Dault <jmdault@mandrakesoft.com> 4.0.4pl1-4mdk
 - Split gd package from php package so that when a new gd 
   package comes out, we don't have to recompile php, only this module
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

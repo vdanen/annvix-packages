@@ -80,3 +80,5 @@ make test
 %changelog
 * Wed May 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.30
 - first Annvix build (for perl-Test-Base)
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

@@ -1050,3 +1050,5 @@ popd >/dev/null 2>&1
   instead
 - build the swat.cdb in %%post; default rules allow 127. and nothing else
 - include supervise run files for smbd and nmbd
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

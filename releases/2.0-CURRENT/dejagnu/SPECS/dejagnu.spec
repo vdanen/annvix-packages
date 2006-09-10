@@ -195,3 +195,5 @@ rm -f %{buildroot}%{_includedir}/dejagnu.h
 
 * Sun Feb  1 1998 Jeff Johnson <jbj@jbj.org>
 - Create.
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

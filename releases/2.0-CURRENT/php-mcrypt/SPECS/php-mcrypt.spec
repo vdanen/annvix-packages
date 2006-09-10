@@ -215,3 +215,5 @@ install -m 0644 %{SOURCE0} %{buildroot}%{_sysconfdir}/php.d/%{inifile}
 	- added my version hack :)
 	- initial cooker contrib
 	- PHP 4.2.0
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

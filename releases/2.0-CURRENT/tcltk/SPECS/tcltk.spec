@@ -996,3 +996,5 @@ rm -f *.files
 * Tue Jun 17 1997 Erik Troan <ewt@redhat.com>
 - built against glibc
 - fixed dangling tclx/tkx symlinks
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

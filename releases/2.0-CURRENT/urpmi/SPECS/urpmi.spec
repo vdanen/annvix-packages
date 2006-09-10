@@ -341,3 +341,5 @@ if (-e "/etc/urpmi/urpmi.cfg") {
 - do a lot of %%define forces using %%build_opensls macro
 - remove Distribution tag
 - don't use %%real_release
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

@@ -83,3 +83,5 @@ mkdir -p %{buildroot}%{_localstatedir}/rpm/alternatives
 
 * Sat Apr 12 2003 David Walluck <walluck@linux-mandrake.com> 1.8.3-1mdk
 - first Mandrake release
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

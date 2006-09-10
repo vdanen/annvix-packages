@@ -220,3 +220,5 @@ install -m 0644 modsecurity-php.conf %{buildroot}%{_sysconfdir}/httpd/conf/
 
 * Fri Jun 06 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.46_1.5-1mdk
 - initial cooker contrib
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

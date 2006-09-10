@@ -252,3 +252,5 @@ rm -rf %{buildroot}%{_libdir}/python%{pyver}/site-packages/*a
 - OpenSLS build
 - tidy spec
 - use %%build_opensls to apply P3; don't build sgml junk
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

@@ -124,3 +124,5 @@ rm -rf %{buildroot}%{_sysconfdir}/ldap.conf
 
 * Fri Sep 09 2005 Vincent Danen <vdanen-at-build.annvix.org> 180-1avx
 - first Annvix package; split from nss_ldap
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

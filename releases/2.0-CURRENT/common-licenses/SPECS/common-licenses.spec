@@ -79,3 +79,5 @@ cp -a %{name} %{buildroot}%{_datadir}
 * Fri Nov 28 2003 Vincent Danen <vdanen@opensls.org> 1.0-8sls
 - OpenSLS build
 - tidy spec
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

@@ -72,3 +72,5 @@ make CFLAGS="-Wall -fPIC -DHAVE_SHADOW -DLINUX_PAM %{optflags}"
 
 * Sat Jul 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.2
 - first Annvix build; to replace pam_cracklib
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

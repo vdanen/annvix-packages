@@ -784,3 +784,5 @@ popd >/dev/null 2>&1
   don't want rsh installed
 - NOTE: need to figure out why we're not building this thing with any
   optflags (also preventing us from using -fstack-protector)
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

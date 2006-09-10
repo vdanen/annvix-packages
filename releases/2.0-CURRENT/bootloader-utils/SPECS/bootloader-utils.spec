@@ -196,3 +196,5 @@ make ROOT=%{buildroot} mandir=%{_mandir} install
 - splitted from initscripts.
 
 # end of file
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

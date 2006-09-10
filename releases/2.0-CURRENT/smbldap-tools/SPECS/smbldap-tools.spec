@@ -159,3 +159,5 @@ install -m 0755 mkntpwd/mkntpwd %{buildroot}%{_sbindir}/
 - initial Mandrakelinux package
 - used parts of the provided spec file
 - added P0
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

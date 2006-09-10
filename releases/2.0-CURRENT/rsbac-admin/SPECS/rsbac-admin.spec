@@ -239,3 +239,5 @@ mkdir -p %{buildroot}/var/lib/rsbac/tmp
 * Mon Jul 19 2004 Nicolas Planel <nplanel@mandrakesoft.com> 1.2.3-1mdk
 - Inital release for Mandrakelinux distribution.
 
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

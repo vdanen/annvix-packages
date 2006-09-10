@@ -280,3 +280,5 @@ rm -f %{buildroot}%{_mandir}/man3pm/Roadmap.3pm*
 
 * Sun Dec 05 1999 Axalon Bloodstone <axalon@linux-mandrake.com>
 - First specfile
+
+# vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8
