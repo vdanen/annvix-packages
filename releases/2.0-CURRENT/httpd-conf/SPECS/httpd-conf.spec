@@ -123,7 +123,7 @@ install -m 0644 %{_sourcedir}/httpd.sysconf %{buildroot}%{_sysconfdir}/sysconfig
 install -m 0644 %{_sourcedir}/00_default_vhosts.conf %{buildroot}%{_sysconfdir}/httpd/conf/vhosts.d/00_default_vhosts.conf
 
 # install misc documentation and logos
-install -m 0644 %{_sourcedir}/index.shtml %{buildroot}/var/www/html/
+install -m 0644 index.shtml %{buildroot}/var/www/html/
 install -m 0644 optim.html %{buildroot}/var/www/html/
 install -m 0644 annvix.html %{buildroot}/var/www/html/
 install -m 0644 favicon.ico %{buildroot}/var/www/html/
@@ -244,6 +244,7 @@ install -m 0644 %{_sourcedir}/03_apache2.afterboot %{buildroot}%{_datadir}/after
 %changelog
 * Sun Sep 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3
 - change runsvctrl calls to /sbin/sv calls
+- index.html is in the tarball, not %%_sourcedir
 
 * Sun Jul 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3
 - 2.2.3
