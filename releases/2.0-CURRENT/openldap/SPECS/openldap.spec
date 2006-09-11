@@ -593,8 +593,8 @@ SLAPDCONF=${SLAPDCONF:-/etc/%{name}/slapd.conf}
 MIGRATE=`%{_sbindir}/slapd -VV 2>&1|while read a b c d e;do case $d in (2.3.*) echo nomigrate;;(2.*) echo migrate;;esac;done`
 
 if [ "$1" -ne 1 -a -e "$SLAPDCONF" -a "$MIGRATE" != "nomigrate" ]; then
-    SLAPD_STATUS=`/sbin/sv status /service/slapd 2>/dev/null | cut -d ';' -f 1 | egrep -q '^down: ' ; echo $?`
-    [ $SLAPD_STATUS -eq 1 ] && srv --down slapd
+    SLAPD_STATUS=`/sbin/sv status /service/slapd 2>/dev/null | cut -d ';' -f 1 | egrep -q '^run: ' ; echo $?`
+    [ $SLAPD_STATUS -eq 0 ] && srv --down slapd
     #`awk '/^[:space:]*directory[:space:]*\w*/ {print $2}' /etc/%{name}/slapd.conf`
     dbs=`awk 'BEGIN {OFS=":"} /[:space:]*^database[:space:]*\w*/ {db=$2;suf="";dir=""}; /^[:space:]*suffix[:space:]*\w*/ {suf=$2;if((db=="bdb"||db=="ldbm"||db=="hdb")&&(suf!=""&&dir!="")) print dir,suf};/^[:space:]*directory[:space:]*\w*/ {dir=$2; if((db=="bdb"||db=="ldbm"||db="hdb")&&(suf!=""&&dir!="")) print dir,suf};' "$SLAPDCONF" $(awk  '/^[[:blank:]]*include[[:blank:]]*/ {print $2}' "$SLAPDCONF")|sed -e 's/"//g'`
     # " (for syntax highlighting)
@@ -697,7 +697,7 @@ if [ -f %{_sysconfdir}/syslog.conf ] ;then
         echo -e "local${cntlog}.*\t\t\t\t\t\t\t-/var/log/ldap/ldap.log" >> %{_sysconfdir}/syslog.conf
 
         # reset syslog daemon
-        if [ "`/sbin/sv status /service/syslogd 2>/dev/null | cut -d ';' -f 1 | egrep -q '^down: ' ; echo $?`" == "1" ]; then
+        if [ "`/sbin/sv status /service/syslogd 2>/dev/null | cut -d ';' -f 1 | egrep -q '^run: ' ; echo $?`" == "0" ]; then
             /sbin/sv hup /service/syslogd  > /dev/null 2>/dev/null || : 
         fi
     else
@@ -736,7 +736,7 @@ popd > /dev/null
 %_mkafterboot
 
 # nscd reset
-if [ "`/sbin/sv status /service/nscd 2>/dev/null | cut -d ';' -f 1 | egrep -q '^down: ' ; echo $?`" == "1" ]; then
+if [ "`/sbin/sv status /service/nscd 2>/dev/null | cut -d ';' -f 1 | egrep -q '^run: ' ; echo $?`" == "0" ]; then
     /sbin/sv hup /service/nscd  > /dev/null 2>/dev/null || : 
 fi
 
@@ -752,7 +752,7 @@ if [ $1 = 0 ]; then
     perl -pi -e "s|^.*ldap.*\n||g" %{_sysconfdir}/syslog.conf 
 
     # reset syslog daemon
-    if [ "`/sbin/sv status /service/syslogd 2>/dev/null | cut -d ';' -f 1 | egrep -q '^down: ' ; echo $?`" == "1" ]; then
+    if [ "`/sbin/sv status /service/syslogd 2>/dev/null | cut -d ';' -f 1 | egrep -q '^run: ' ; echo $?`" == "0" ]; then
         /sbin/sv hup /service/syslogd  > /dev/null 2>/dev/null || : 
     fi
 fi
@@ -886,6 +886,9 @@ fi
 
 
 %changelog
+* Sun Sep 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.24
+- reversed the sv logic so it actually will work properly
+
 * Sun Sep 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.24
 - change runsvctrl calls to /sbin/sv calls
 
