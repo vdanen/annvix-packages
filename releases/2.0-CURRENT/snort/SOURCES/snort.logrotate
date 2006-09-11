@@ -7,7 +7,7 @@
     missingok
     compress
     postrotate
-	runsvctrl h /service/snortd >/dev/null 2>&1
+	/sbin/sv hup /service/snortd >/dev/null 2>&1
     endscript
 }
 

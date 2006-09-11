@@ -651,6 +651,9 @@ update-alternatives --remove %{name} %{_sbindir}/%{name}-inline+flexresp
 
 
 %changelog
+* Sun Sep 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.4.4
+- change runsvctrl calls to /sbin/sv calls
+
 * Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.4.4
 - rebuild against new mysql
 - rebuild against new openssl
