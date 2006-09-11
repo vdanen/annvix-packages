@@ -275,7 +275,7 @@ This package contains the documentation for %{name}.
 
 %prep
 %if %{db4_internal}
-%setup -q -a 11 -a 30
+%setup -q -a 20 -a 25
 pushd db-%{dbver} >/dev/null
 # upstream patches
 %patch50
