@@ -596,6 +596,9 @@ fi
 
 
 %changelog
+* Sun Sep 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.0.24
+- change runsvctrl calls to /sbin/sv calls
+
 * Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.0.24
 - rebuild against new openssl
 
