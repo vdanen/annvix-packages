@@ -22,6 +22,7 @@ URL:		http://www.mandrivalinux.com/
 Source0:	%{name}-%{version}.tar.bz2
 Patch0:		rpm-helper-0.14-avx-srv.patch
 Patch1:		rpm-helper-0.15-avx-fix_chown_syntax.patch
+Patch2:		rpm-helper-0.15-avx-fix_preun_shelldel.patch
 
 BuildArch:	noarch
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -31,7 +32,8 @@ Requires(pre):	setup
 Requires:	chkconfig
 Requires:	grep
 Requires:	shadow-utils
-Requires:	coreutils, srv >= 0.20
+Requires:	coreutils
+Requires:	srv >= 0.20
 
 %description
 Helper scripts for rpm scriptlets to help create/remove :
@@ -53,6 +55,7 @@ This package contains the documentation for %{name}.
 %setup -q
 %patch0 -p0 -b .avx
 %patch1 -p0 -b .chown_syntax
+%patch2 -p0 -b .preun_shelldel
 
 
 %build
@@ -80,6 +83,9 @@ chmod 0755 {add,del}-srv mkdepends
 
 
 %changelog
+* Sun Sep 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.15
+- P2: fix %%_preun_shelldel macro (was missing a %%{1})
+
 * Fri Aug 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.15
 - P1: fix chown call in create-files (user:user rather than user.user)
 - put a requires(pre) on setup; we want the group/passwd files for the
