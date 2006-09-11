@@ -23,20 +23,20 @@ Group:		Networking/Other
 URL:		http://sourceforge.net/projects/nfs/
 Source0:	http://prdownloads.sourceforge.net/nfs/%{name}-%{version}.tar.bz2
 Source1:	nfs.doc.tar.bz2
-Source10:	nfs.init
-Source11:	nfslock.init
-Source12:	nfs.sysconfig
-Source13:	nfs.statd.run
-Source14:	nfs.statd-log.run
-Source15:	nfs.mountd.run
-Source16:	nfs.mountd-log.run
-Source17:	nfs.mountd.finish
-Source18:	nfsv4.schema
-Source19:	rpcgssd.init
-Source20:	rpcidmapd.init
-Source21:	rpcsvcgssd.init
-Source22:	gssapi_mech.conf
-Source23:	idmapd.conf
+Source2:	nfs.init
+Source3:	nfslock.init
+Source4:	nfs.sysconfig
+Source5:	nfs.statd.run
+Source6:	nfs.statd-log.run
+Source7:	nfs.mountd.run
+Source8:	nfs.mountd-log.run
+Source9:	nfs.mountd.finish
+Source10:	nfsv4.schema
+Source11:	rpcgssd.init
+Source12:	rpcidmapd.init
+Source13:	rpcsvcgssd.init
+Source14:	gssapi_mech.conf
+Source15:	idmapd.conf
 
 Patch0:		nfs-utils-0.3.3-statd-manpage.patch
 Patch1:		eepro-support.patch
@@ -64,9 +64,17 @@ BuildRequires:	tcp_wrappers-devel
 #BuildRequires:	nfsidmap-devel, krb5-devel >= 1.3, libevent-devel
 
 ExcludeArch:	armv4l
-Obsoletes:	nfs-server knfsd nfs-server-clients
-Provides:	nfs-server knfsd nfs-server-clients
-Requires:	nfs-utils-clients, kernel >= 2.2.5, portmap >= 4.0, setup >= 2.1.9-35mdk, tcp_wrappers
+Obsoletes:	nfs-server
+Obsoletes:	knfsd
+Obsoletes:	nfs-server-clients
+Provides:	nfs-server
+Provides:	knfsd
+Provides:	nfs-server-clients
+Requires:	nfs-utils-clients
+Requires:	kernel >= 2.2.5
+Requires:	portmap >= 4.0
+Requires:	setup >= 2.1.9-35mdk
+Requires:	tcp_wrappers
 #Requires:	kernel >= 2.6.0, module-init-tools >=3.0-5mdk
 Requires(post):	rpm-helper
 Requires(preun): rpm-helper
@@ -85,9 +93,12 @@ clients which are mounted on that host.
 %package clients
 Summary:	The utilities for Linux NFS client
 Group:		Networking/Other
-Obsoletes:	knfsd-clients knfsd-lock
-Provides:	knfsd-clients knfsd-lock
-Requires:	kernel >= 2.2.5, portmap >= 4.0
+Obsoletes:	knfsd-clients
+Obsoletes:	knfsd-lock
+Provides:	knfsd-clients
+Provides:	knfsd-lock
+Requires:	kernel >= 2.2.5
+Requires:	portmap >= 4.0
 Requires(post):	rpm-helper
 Requires(postun): rpm-helper
 Requires(pre):	rpm-helper
@@ -116,15 +127,15 @@ This package contains the documentation for %{name}.
 %setup -q -a 1
 
 mkdir -p Annvix
-cat %{SOURCE10} > Annvix/nfs.init
-cat %{SOURCE12} > Annvix/nfs.sysconfig
-cat %{SOURCE11} > Annvix/nfslock.init
-cat %{SOURCE18} > Annvix/nfsv4.schema
-cat %{SOURCE19} > Annvix/rpcgssd.init
-cat %{SOURCE20} > Annvix/rpcidmapd.init
-cat %{SOURCE21} > Annvix/rpcsvcgssd.init
-cat %{SOURCE22} > Annvix/gssapi_mech.conf
-cat %{SOURCE23} > Annvix/idmapd.conf
+cat %{_sourcedir}/nfs.init > Annvix/nfs.init
+cat %{_sourcedir}/nfs.sysconfig > Annvix/nfs.sysconfig
+cat %{_sourcedir}/nfslock.init > Annvix/nfslock.init
+cat %{_sourcedir}/nfsv4.schema > Annvix/nfsv4.schema
+cat %{_sourcedir}/rpcgssd.init > Annvix/rpcgssd.init
+cat %{_sourcedir}/rpcidmapd.init > Annvix/rpcidmapd.init
+cat %{_sourcedir}/rpcsvcgssd.init > Annvix/rpcsvcgssd.init
+cat %{_sourcedir}/gssapi_mech.conf > Annvix/gssapi_mech.conf
+cat %{_sourcedir}/idmapd.conf > Annvix/idmapd.conf
 
 # fix strange perms
 find . -type d -perm 0700 -exec chmod 755 {} \;
@@ -197,33 +208,29 @@ mv %{buildroot}%{_sbindir}/{rpc.lockd,rpc.statd} %{buildroot}/sbin
 
 
 mkdir -p %{buildroot}%{_srvdir}/nfs.{statd,mountd}/log
-install -m 0740 %{SOURCE13} %{buildroot}%{_srvdir}/nfs.statd/run
-install -m 0740 %{SOURCE14} %{buildroot}%{_srvdir}/nfs.statd/log/run
-install -m 0740 %{SOURCE15} %{buildroot}%{_srvdir}/nfs.mountd/run
-install -m 0740 %{SOURCE16} %{buildroot}%{_srvdir}/nfs.mountd/log/run
-install -m 0740 %{SOURCE17} %{buildroot}%{_srvdir}/nfs.mountd/finish
+install -m 0740 %{_sourcedir}/nfs.statd.run %{buildroot}%{_srvdir}/nfs.statd/run
+install -m 0740 %{_sourcedir}/nfs.statd-log.run %{buildroot}%{_srvdir}/nfs.statd/log/run
+install -m 0740 %{_sourcedir}/nfs.mountd.run %{buildroot}%{_srvdir}/nfs.mountd/run
+install -m 0740 %{_sourcedir}/nfs.mountd-log.run %{buildroot}%{_srvdir}/nfs.mountd/log/run
+install -m 0740 %{_sourcedir}/nfs.mountd.finish %{buildroot}%{_srvdir}/nfs.mountd/finish
 
 # with 2.6/nfsv4 we'll need additional services: rpcdimap, rpcgssd, rpcsvcgssd
 # refer to mdk nfs-utils.spec: 
 # http://cvs.mandriva.com/cgi-bin/cvsweb.cgi/SPECS/nfs-utils/nfs-utils.spec.diff?r1=1.34&r2=1.43
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
 %post
-for i in nfs.statd nfs.mountd
-do
-    if [ -d /var/log/supervise/$i -a ! -d /var/log/service/$i ]; then
-        mv /var/log/supervise/$i /var/log/service/
-    fi
-done
 %_post_srv nfs.statd
 %_post_srv nfs.mountd
 
 %create_ghostfile %{_localstatedir}/nfs/xtab root root 644
 %create_ghostfile %{_localstatedir}/nfs/etab root root 644
 %create_ghostfile %{_localstatedir}/nfs/rmtab root root 644
+
 
 %preun
 # create a bare-bones /etc/exports
@@ -234,14 +241,18 @@ fi
 %_preun_srv nfs.statd
 %_preun_srv nfs.mountd
 
+
 %pre clients
 %_pre_useradd rpcuser %{_localstatedir}/nfs /bin/false 73
+
 
 %post clients
 %_post_srv rpc.statd
 
+
 %preun clients
 %_preun_srv rpc.statd
+
 
 %postun clients
 %_postun_userdel rpcuser
@@ -408,165 +419,5 @@ fi
 * Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 1.0.5-2sls
 - OpenSLS build
 - tidy spec
-
-* Tue Jul 22 2003 Juan Quintela <quintela@mandrakesoft.com> 1.0.5-1mdk
-- included the rest of created programs & manpages.
-  Inquiring minds need nhfsgraph, nfgsnums and nhfsrun.
-- brown paper bug upstream, I tested it and it worked, problem is that
-  it just worked once :(.
-- 1.0.5.
-
-* Wed Jul 16 2003 Juan Quintela <quintela@mandrakesoft.com> 1.0.4-1mdk
-- remove patch5 (time.h) already included upstream.
-- remove patch2 no-chroot (not needed after removing patch0).
-- remove patch0 (drop privs) included better patch upstream.
-- 1.0.4.
-
-* Tue Jul 01 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 1.0.3-1mdk
-- new release (kernel-2.5.x support)
-- rediff patch 0
-
-* Wed Jun 04 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 1.0.1-2mdk
-- remove unpackaged files
-- fix E: nfs-utils-clients no-prereq-on rpm-helper
-- drop obsolete Prefix tag
-
-* Tue Jul 23 2002 Juan Quintela <quintela@mandrakesoft.com> 1.0.1-1mdk
-- then merge them with nfs-1.0.1 ones.
-- merged nfs.init & nfslock.init with rh ones.
-- merge with rh 1.0.1.pre7-1.
-- use %%configure.
-- 1.0.1.
-
-* Thu Jul 11 2002 Frederic Lepied <flepied@mandrakesoft.com> 0.3.3-4mdk
-- add rpcuser
-
-* Tue Jan 15 2002 Chmouel Boudjnah <chmouel@mandrakesoft.com> 0.3.3-3mdk
-- Make some files as %%ghost.
-
-* Fri Dec  7 2001 Chmouel Boudjnah <chmouel@mandrakesoft.com> 0.3.3-2mdk
-- Fix some rpmlints.
-
-* Fri Sep 28 2001 Chmouel Boudjnah <chmouel@mandrakesoft.com> 0.3.3-1mdk
-- 0.3.3.
-
-* Sat Sep  1 2001 Chmouel Boudjnah <chmouel@mandrakesoft.com> 0.3.1-7mdk
-- Merge rh scripts.
-- Remove quota from here it's provided by quota.
-
-* Sun Apr  1 2001 Chmouel Boudjnah <chmouel@mandrakesoft.com> 0.3.1-6mdk
-- Move dir /var/lib/nfs/statd to clients packge or rpc.statd wouldn't
-  work.
-
-* Thu Mar 28 2001 Florin Grad <florin@mandrakesoft.com> 0.3.1-5mdk
-- -fno-omit-frame-pointer
-
-* Sun Mar 18 2001 Chmouel Boudjnah <chmouel@mandrakesoft.com> 0.3.1-4mdk
-- Requires last setup package for rpcuser.
-- Make /var/lib/nfs/statd as rpcuser,rpcuser.
-
-* Thu Mar 15 2001 Chmouel Boudjnah <chmouel@mandrakesoft.com> 0.3.1-3mdk
-- Fix incorrect file specifications in statd manpage. (rh).
-- disable tcp_wrapper support (rh).
-- Don't do a chroot(2) after dropping privs, in statd (rh).
-- #include <time.h> patch.
-
-* Fri Mar 02 2001 Chmouel Boudjnah <chmouel@mandrakesoft.com> 0.3.1-2mdk
-- Fix chkconfig entry in initscripts.
-
-* Mon Feb 19 2001 Chmouel Boudjnah <chmouel@mandrakesoft.com> 0.3.1-1mdk
-- Move rpc.lockd and rpc.statd to /sbin
-- Merge with rh changes.
-- 0.3.1.
-
-* Thu Dec  7 2000 Chmouel Boudjnah <chmouel@mandrakesoft.com> 0.2.1-3mdk
-- Nfslock only when we have a lockd into the kernel.
-
-* Mon Oct 09 2000 Florin Grad <florin@mandrakesoft.com> 0.2.1-2mdk
-- chkconfig is now 345 ... instead of - 60 ...
-
-* Fri Sep 29 2000 Frederic Lepied <flepied@mandrakesoft.com> 0.2.1-1mdk
-- 0.2.1 bug fix release.
-
-* Thu Sep 28 2000 Chmouel Boudjnah <chmouel@mandrakesoft.com> 0.2-5mdk
-- Florin or chmou sucks, pidofproc come from the
-  /etc/init.d/functions.
-
-* Wed Sep 27 2000 Chmouel Boudjnah <chmouel@mandrakesoft.com> 0.2-4mdk
-- nfslock: where pidofproc come from ? use pidof instead (florin).
-
-* Thu Sep 21 2000 Chmouel Boudjnah <chmouel@mandrakesoft.com> 0.2-3mdk
-- nfslock: don't kill lockd processes that do not have an executable
-  (i.e. kernel threads).
-
-* Thu Sep 07 2000 Florin Grad <florin@mandrakesoft.com> 0.2-2mdk
-- added noreplace for %%{_initrddir}/(nfs|nfslock)
-
-* Thu Sep 07 2000 Geoffrey Lee <snailtalk@mandrakesoft.com> 0.2-1mdk
-- s/0.1.9.1/0.2/;
-
-* Wed Aug 30 2000 Florin Grad <florin@mandrakesoft.com> 0.1.9.1-4mdk
-- changing some macros
-
-* Wed Jul 26 2000 Thierry Vignaud <tvignaud@mandrakesoft.com> 0.1.9.1-3mdk
-- BM
-- more macros
-
-* Mon Jul 10 2000 Thierry Vignaud <tvignaud@mandrakesoft.com> 0.1.9.1-2mdk
-- fix build with latest rpm macros
-
-* Wed Jul 05 2000 Thierry Vignaud <tvignaud@mandrakesoft.com> 0.1.9.1-1mdk
-- new release (mainly turning gcc warnings off)
-- fix build as non root with tmpdir
-
-* Mon Jul  3 2000 Chmouel Boudjnah <chmouel@mandrakesoft.com> 0.1.9-1mdk
-- 0.1.9.
-
-* Tue Jun 27 2000 Chmouel Boudjnah <chmouel@mandrakesoft.com> 0.1.8-1mdk
-- 0.1.8.
-- Macrozifications.
-
-* Sun May 28 2000 Chmouel Boudjnah <chmouel@mandrakesoft.com> 0.1.7-3mdk
-- Fix path call (/usr/sbin !> /sbin/).
-- Launch always rpc.statd.
-
-* Wed Apr 06 2000 Yoann Vandoorselaere <yoann@mandrakesoft.com> 0.1.7-2mdk
-- Renamed linusinit patch to mdkinit.
-- Do not grep for linus in /proc/version, but for mdk 
-  (Thanks to Jürgen Zimmermann)
-
-* Wed Mar 22 2000 Yoann Vandoorselaere <yoann@mandrakesoft.com> 0.1.7-1mdk
-- Update to 0.1.7.
-- Fix group.
-
-* Tue Jan 18 2000 Chmouel Boudjnah <chmouel@mandrakesoft.com> 0.1.6-1mdk
-- 0.1.6.
-
-* Tue Dec 21 1999 Chmouel Boudjnah <chmouel@mandrakesoft.com>
-- 0.1.5.
-- Fix init script with kernel-linus.
-
-* Mon Dec 06 1999 Chmouel Boudjnah <chmouel@mandrakesoft.com>
-- 0.1.4.
-
-* Tue Nov 30 1999 Chmouel Boudjnah <chmouel@mandrakesoft.com>
-- 0.1.3.
-
-* Thu Nov 25 1999 Pixel <pixel@linux-mandrake.com>
-- fixed %%defattr
-- split in 2 packages: nfs-utils-clients & nfs-utils (for server)
-
-* Fri Nov 19 1999 Chmouel Boudjnah <chmouel@mandrakesoft.com>
-- Last cvs version.
-
-* Wed Oct 27 1999 Chmouel Boudjnah <chmouel@mandrakesoft.com>
-
-- 0.1.2
-
-* Tue Oct 26 1999 Chmouel Boudjnah <chmouel@mandrakesoft.com>
-- 0.1.1.
-
-* Tue Oct 19 1999 Chmouel Boudjnah <chmouel@mandrakesoft.com>
-- First Spec files based on original version of H.J Lu.
 
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

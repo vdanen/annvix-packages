@@ -230,9 +230,6 @@ cp -f sa-exim*/{CHANGELOG,ACKNOWLEDGEMENTS,INSTALL,LICENSE,TODO} sa-exim/
 
 
 %post
-if [ -d /var/log/supervise/exim -a ! -d /var/log/service/exim ]; then
-    mv /var/log/supervise/exim /var/log/service/
-fi
 %_post_srv exim
 
 # scrub hints files - db files change format between builds so

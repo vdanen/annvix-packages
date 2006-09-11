@@ -23,7 +23,7 @@ URL:		http://www.cpan.org
 Source0:	%{module}-%{version}.tar.bz2
 
 BuildRequires:	perl-devel
-BuildRoot:	%{_buildroot}/%{name}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 
 %description

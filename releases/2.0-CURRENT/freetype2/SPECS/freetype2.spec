@@ -32,8 +32,9 @@ Patch2:		freetype-2.1.10-fixautofit.patch
 # (fc) 2.1.10-5mdk fix memleak (CVS)
 Patch3:		freetype-2.1.10-memleak.patch
 
-BuildRoot:	%{_buildroot}/%{name}-%{version}-%{release}-root
-BuildRequires:	zlib-devel, multiarch-utils
+BuildRoot:	%{_buildroot}/%{name}-%{version}
+BuildRequires:	zlib-devel
+BuildRequires:	multiarch-utils
 
 %description
 The FreeType2 engine is a free and portable TrueType font rendering engine.

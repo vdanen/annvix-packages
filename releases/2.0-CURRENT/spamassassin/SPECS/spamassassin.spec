@@ -168,10 +168,6 @@ echo "-c -m5 -H" >%{buildroot}%{_srvdir}/spamd/env/OPTIONS
 
 
 %post spamd
-if [ -d /var/log/supervise/spamd -a ! -d /var/log/service/spamd ]; then
-    mv /var/log/supervise/spamd /var/log/service/
-fi
-
 %_post_srv spamd
 
 

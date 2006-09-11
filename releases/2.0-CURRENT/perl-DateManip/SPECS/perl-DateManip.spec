@@ -24,7 +24,7 @@ Source:		ftp://ftp.perl.org/pub/CPAN/modules/by-module/Date/%{module}-%{version}
 Patch0:		DateManip-COT.patch
 Patch1:		DateManip-SORT.patch
 
-BuildRoot:	%{_buildroot}/%{name}-%{version}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel
 BuildArch:	noarch
 

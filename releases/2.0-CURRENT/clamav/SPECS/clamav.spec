@@ -165,10 +165,10 @@ install -m 0644 etc/clamd.conf %{buildroot}%{_sysconfdir}/clamd.conf
 install -m 0644 etc/freshclam.conf %{buildroot}%{_sysconfdir}/freshclam.conf
 
 mkdir -p %{buildroot}%{_srvdir}/{clamd,freshclam}/log
-install -m 0740 %{SOURCE4} %{buildroot}%{_srvdir}/clamd/run
-install -m 0740 %{SOURCE5} %{buildroot}%{_srvdir}/clamd/log/run
-install -m 0740 %{SOURCE6} %{buildroot}%{_srvdir}/freshclam/run
-install -m 0740 %{SOURCE7} %{buildroot}%{_srvdir}/freshclam/log/run
+install -m 0740 %{_sourcedir}/clamd.run %{buildroot}%{_srvdir}/clamd/run
+install -m 0740 %{_sourcedir}/clamd-log.run %{buildroot}%{_srvdir}/clamd/log/run
+install -m 0740 %{_sourcedir}/freshclam.run %{buildroot}%{_srvdir}/freshclam/run
+install -m 0740 %{_sourcedir}/freshclam-log.run %{buildroot}%{_srvdir}/freshclam/log/run
 
 # pid file dir
 mkdir -p %{buildroot}/var/run/%{name}
@@ -182,9 +182,6 @@ mkdir -p %{buildroot}%{_localstatedir}/%{name}/tmp
 
 
 %post
-if [ -d /var/log/supervise/freshclam -a ! -d /var/log/service/freshclam ]; then
-    mv /var/log/supervise/freshclam /var/log/service/
-fi
 %_post_srv freshclam
 
 

@@ -410,19 +410,12 @@ popd
 
 
 %post server
-for i in kadmind kpropd krb5kdc
-do
-    if [ -d /var/log/supervise/$i -a ! -d /var/log/service/$i ]; then
-        mv /var/log/supervise/$i /var/log/service/
-    fi
-done
 %_post_srv kadmind
 %_post_srv kpropd
 %_post_srv krb5kdc
-
-# Install info pages.
 %_install_info krb5-admin.info
 %_install_info krb5-install.info
+
 
 %preun server
 %_preun_srv kadmind
@@ -435,14 +428,12 @@ done
 %post workstation
 %_install_info krb5-user.info
 
+
 %preun workstation
 %_remove_install_info krb5-user.info
 
 
 %post -n telnet-server-krb5
-if [ -d /var/log/supervise/ktelnet -a ! -d /var/log/service/ktelnet ]; then
-    mv /var/log/supervise/ktelnet /var/log/service/
-fi
 %_post_srv ktelnet
 %_mkafterboot
 pushd %{_srvdir}/ktelnet >/dev/null 2>&1
@@ -453,22 +444,22 @@ popd >/dev/null 2>&1
 %preun -n telnet-server-krb5
 %_preun_srv ktelnet
 
+
 %postun -n telnet-server-krb5
 %_mkafterboot
 
 
 %post -n ftp-server-krb5
-if [ -d /var/log/supervise/kftp -a ! -d /var/log/service/kftp ]; then
-    mv /var/log/supervise/kftp /var/log/service/
-fi
 %_post_srv kftp
 %_mkafterboot
 pushd %{_srvdir}/kftp >/dev/null 2>&1
     ipsvd-cdb peers.cdb peers.cdb.tmp peers/
 popd >/dev/null 2>&1
 
+
 %preun -n ftp-server-krb5
 %_preun_srv kftp
+
 
 %postun -n ftp-server-krb5
 %_mkafterboot

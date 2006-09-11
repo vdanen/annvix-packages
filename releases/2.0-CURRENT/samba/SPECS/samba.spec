@@ -27,21 +27,21 @@ Release:	%{release}
 License:	GPL
 Group:		System/Servers
 URL:		http://www.samba.org
-Source:         http://us1.samba.org/samba/ftp/stable/samba-%{version}.tar.gz
-Source1:        samba.log
-Source2:        http://us1.samba.org/samba/ftp/stable/samba-%{version}.tar.asc
-Source8:        samba-vscan-%{vscanver}.tar.bz2
-Source10:       samba-print-pdf.sh
-Source11:       swat.run
-Source12:       swat-log.run
-Source14:       smbd.run
-Source15:       smbd-log.run
-Source16:       nmbd.run
-Source17:       nmbd-log.run
-Source18:       winbindd.run
-Source19:       winbindd-log.run
-Source20:       smb-migrate
-Source21:       README.avx.sambamerge
+Source0:        http://us1.samba.org/samba/ftp/stable/samba-%{version}.tar.gz
+Source1:        http://us1.samba.org/samba/ftp/stable/samba-%{version}.tar.asc
+Source2:        samba.log
+Source3:        samba-vscan-%{vscanver}.tar.bz2
+Source4:        samba-print-pdf.sh
+Source5:        swat.run
+Source6:        swat-log.run
+Source7:        smbd.run
+Source8:        smbd-log.run
+Source9:        nmbd.run
+Source10:       nmbd-log.run
+Source11:       winbindd.run
+Source12:       winbindd-log.run
+Source13:       smb-migrate
+Source14:       README.avx.sambamerge
 Patch1:         smbw.patch
 Patch2:         smbldap-tools-0.9.1-mdkconfig.patch
 Patch4:         samba-3.0-smbmount-sbin.patch
@@ -99,7 +99,6 @@ docs directory for implementation details.
 %package server
 Summary:        Samba (SMB) server programs
 Group:          System/Servers
-URL:            http://www.samba.org
 Requires:       %{name}-common = %{version}
 Requires:	perl-Crypt-SmbHash
 Requires:	libxml2
@@ -121,7 +120,6 @@ protocol.
 %package client
 Summary:        Samba (SMB) client programs
 Group:          Networking/Other
-URL:            http://www.samba.org
 Requires:       %{name}-common = %{version}
 Provides:       samba3-client
 Obsoletes:      samba3-client
@@ -136,7 +134,6 @@ printing to SMB printers.
 %package common
 Summary:        Files used by both Samba servers and clients
 Group:          System/Servers
-URL:            http://www.samba.org
 Provides:       samba3-common
 Obsoletes:      samba3-common
 
@@ -148,7 +145,6 @@ packages of Samba.
 %package swat
 Summary:        The Samba Web Administration Tool
 Group:          System/Servers
-URL:            http://www.samba.org
 Requires:       %{name}-server = %{version}
 Requires:       ipsvd
 Provides:       samba3-swat
@@ -170,7 +166,6 @@ Samba.
 %package winbind   
 Summary:        Samba-winbind daemon, utilities and documentation
 Group:          System/Servers
-URL:            http://www.samba.org
 Requires:       %{name}-common = %{version}
 Requires(post):	rpm-helper
 Requires(preun): rpm-helper
@@ -183,7 +178,6 @@ and group/user enumeration from a Windows or Samba domain controller.
 %package -n nss_wins
 Summary:        Name Service Switch service for WINS
 Group:          System/Servers
-URL:            http://www.samba.org
 Requires:       %{name}-common = %{version}
 Requires(post):	glibc
 
@@ -195,7 +189,6 @@ IP addresses.
 %package -n %{libname}
 Summary:        SMB Client Library
 Group:          System/Libraries
-URL:            http://www.samba.org
 Provides:       libsmbclient
 
 %description -n %{libname}
@@ -207,7 +200,6 @@ SMB shares.
 %package -n %{libname}-devel
 Summary:        SMB Client Library Development files
 Group:          Development/C
-URL:            http://www.samba.org
 Provides:       libsmbclient-devel
 Requires:       %{libname} = %{version}-%{release}
 
@@ -220,7 +212,6 @@ the development of other software to access SMB shares.
 %package -n %{libname}-static-devel
 Summary:        SMB Client Static Library Development files
 Group:          System/Libraries
-URL:            http://www.samba.org
 Provides:       libsmbclient-static-devel = %{version}-%{release}
 Requires:       %{libname}-devel = %{version}-%{release}
 
@@ -254,7 +245,7 @@ ICAP-capable antivirus software.
 
 
 %prep
-%setup -q -a 8
+%setup -q -a 3
 %patch1 -p1 -b .smbw
 pushd examples/LDAP/smbldap-tools-%{smbldapver}
 %patch2 -p1
@@ -540,6 +531,7 @@ fi
 # And not loose our machine account SID
 [ -f %{_sysconfdir}/MACHINE.SID ] && mv -f %{_sysconfdir}/MACHINE.SID %{_sysconfdir}/%{name}/ ||:
 
+
 %triggerpostun common -- samba-common < 3.0.1-7avx
 # (sb) merge any existing smb.conf with new syntax file
 if [ "$1" = "2" ]; then
@@ -554,8 +546,10 @@ if [ "$1" = "2" ]; then
     fi
 fi
 
+
 %postun common
 if [ -f %{_sysconfdir}/%{name}/README.avx.conf ]; then rm -f %{_sysconfdir}/%{name}/README.avx.conf; fi
+
 
 %post winbind
 if [ $1 = 1 ]; then
@@ -574,10 +568,8 @@ if [ $1 = 1 ]; then
     done
     if [ -f %{_sysconfdir}/nsswitch.conf.rpmtemp ];then rm -f %{_sysconfdir}/nsswitch.conf.rpmtemp;fi
 fi
-if [ -d /var/log/supervise/winbindd -a ! -d /var/log/service/winbindd ]; then
-    mv /var/log/supervise/winbindd /var/log/service/
-fi
 %_post_srv winbindd
+
 
 %preun winbind
 if [ $1 = 0 ]; then
@@ -585,6 +577,7 @@ if [ $1 = 0 ]; then
     perl -pi -e 's/ winbind//' %{_sysconfdir}/nsswitch.conf
 fi
 %_preun_srv winbindd
+
 
 %post -n nss_wins
 if [ $1 = 1 ]; then
@@ -598,11 +591,13 @@ if [ $1 = 1 ]; then
     fi
 fi
 
+
 %preun -n nss_wins
 if [ $1 = 0 ]; then
     echo "Removing wins entry from %{_sysconfdir}/nsswitch.conf"
     perl -pi -e 's/ wins//' %{_sysconfdir}/nsswitch.conf
 fi
+
 
 %preun server
 %_preun_srv smbd

@@ -230,6 +230,7 @@ fi
 %preun
 %_preun_srv named
 
+
 %postun
 %_postun_userdel named
 

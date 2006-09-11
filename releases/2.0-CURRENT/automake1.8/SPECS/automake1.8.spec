@@ -15,7 +15,7 @@
 %define amversion	1.9
 %define pkgamversion	1.8
 
-%define docheck 1
+%define docheck		1
 %{?_without_check: %global docheck 0}
 
 Summary:	A GNU tool for automatically creating Makefiles
@@ -35,7 +35,9 @@ BuildRequires:	autoconf2.5 >= 1:2.59-3avx
 BuildRequires:	texinfo
 # tests need these
 %if %{docheck}
-BuildRequires:	bison, flex, python
+BuildRequires:	bison
+BuildRequires:	flex
+BuildRequires:	python
 %endif
 
 Provides:	automake = %{version}-%{release}
@@ -44,8 +46,10 @@ Conflicts:	automake1.5
 Conflicts:	automake < 1.4-0.p6.27avx
 Obsoletes:	automake1.9
 Requires:	autoconf2.5 >= 1:2.59-3avx
-Requires(post):	info-install, /usr/sbin/update-alternatives
-Requires(preun): info-install, /usr/sbin/update-alternatives
+Requires(post):	info-install
+Requires(post):	update-alternatives
+Requires(preun): info-install
+Requires(preun): update-alternatives
 
 %description
 Automake is a tool for automatically generating Makefiles compliant with
@@ -162,32 +166,5 @@ fi
   txinfo5.test, txinfo13.test, txinfo16.test, txinfo18.test, txinfo22.test,
   txinfo23.test, txinfo24.test, txinfo25.test, txinfo28.test, and
   version7.test; use P1 to skip those tests for now
-
-* Tue Feb 22 2005 Christiaan Welvaart <cjw@daneel.dyndns.org> 1.9.4-3mdk
-- add BuildRequires: python tetex-latex - for tests
-
-* Sat Jan 15 2005 Guillaume Rousse <guillomovitch@mandrake.org> 1.9.4-2mdk 
-- allow checks
-
-* Thu Jan 13 2005 Christiaan Welvaart <cjw@daneel.dyndns.org> 0:1.9.4-1mdk
-- 1.9.4
-- respun patch0
-
-* Mon May 17 2004 Abel Cheung <deaddog@deaddog.org> 1.8.5-1mdk
-- New version
-- Patch0: Let the node name in info page coexist with other versions
-- Sorry, automake 1.8.x is NOT an upgrade of 1.5.x!
-- Tune up alternative priority
-- Add `--with check' option to enable `make check'
-- Also owns /usr/share/aclocal
-
-* Tue Apr 27 2004 David Walluck <walluck@mandrake.org> 0:1.8.4-1mdk
-- 1.8.4
-
-* Wed Mar 17 2004 David Walluck <walluck@mandrake.org> 0:1.8.3-1mdk
-- 1.8.3
-
-* Wed Feb 11 2004 David Walluck <walluck@linux-mandrake.com> 0:1.8.2-1mdk
-- release
 
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

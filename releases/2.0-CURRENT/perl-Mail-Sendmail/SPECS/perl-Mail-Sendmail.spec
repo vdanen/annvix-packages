@@ -22,7 +22,7 @@ Group:		Development/Perl
 URL:		http://search.cpan.org/dist/%{module}/
 Source:		http://www.cpan.org/authors/id/M/MI/MIVKOVIC/%{module}-%{version}.tar.bz2
 
-BuildRoot:	%{_buildroot}/%{name}-%{version}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel
 BuildArch:	noarch
 

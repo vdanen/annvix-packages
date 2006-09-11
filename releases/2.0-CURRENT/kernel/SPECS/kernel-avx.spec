@@ -139,7 +139,7 @@ Source100:	linux-%{patches_ver}.tar.bz2
 %define conflicts	iptables <= 1.2.9-1avx
 %define kprovides	kernel = %{realversion}
 
-BuildRoot:	%{_buildroot}/%{kname}-%{realversion}-build
+BuildRoot:	%{_buildroot}/%{kname}-%{realversion}
 BuildRequires:	gcc3.4
 
 Provides:	kernel-up, module-info, %kprovides

@@ -25,7 +25,7 @@ Group:		System/Configuration
 URL:		http://search.cpan.org/dist/%{name}/
 Source0:	%{name}-%{version}.tar.bz2
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	bzip2-devel
 BuildRequires:	gettext
 BuildRequires:	perl

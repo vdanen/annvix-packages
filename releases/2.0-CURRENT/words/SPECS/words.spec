@@ -26,7 +26,7 @@ Patch0:		linux.words.2-jbj.patch
 Patch1:		linux.words.2-mmm.patch
 Patch2:		linux.words.2-meat.patch
 
-BuildRoot:	%{_buildroot}/%{name}-root
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 
 %description

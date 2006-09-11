@@ -47,55 +47,55 @@ Group: 		System/Servers
 URL: 		http://www.openldap.org
 # Openldap source
 Source0: 	ftp://ftp.openldap.org/pub/OpenLDAP/openldap-release/%{name}-%{version}.tar.bz2
-# Specific source
-Source2: 	%{name}.sysconfig
-Source5:	DB_CONFIG
-Source6:	ldap.conf
-Source7:	slapd.access.conf
-Source8:	ldap-hot-db-backup
-Source9:	ldap-reinitialise-slave
-Source10:	ldap-common
-Source12:	10_openldap.afterboot
-Source19:	gencert.sh
-Source20:	ldap.logrotate
-Source21:	slapd.conf
-Source22:	slapd.run
-Source23:	slapd-log.run
-Source24:	slurpd.run
-Source25:	slurpd-log.run
-# Migration tools
-Source11:	http://www.padl.com/download/MigrationTools-%{migtools_ver}.tar.bz2
-Source3: 	migration-tools.txt
-Source4: 	migrate_automount.pl
-%if %db4_internal
-Source30:	http://www.sleepycat.com/update/snapshot/db-%{dbver}.tar.bz2
+# Specific source (S1-S19)
+Source1: 	openldap.sysconfig
+Source2:	DB_CONFIG
+Source3:	ldap.conf
+Source4:	slapd.access.conf
+Source5:	ldap-hot-db-backup
+Source6:	ldap-reinitialise-slave
+Source7:	ldap-common
+Source8:	10_openldap.afterboot
+Source9:	gencert.sh
+Source10:	ldap.logrotate
+Source11:	slapd.conf
+Source12:	slapd.run
+Source13:	slapd-log.run
+Source14:	slurpd.run
+Source15:	slurpd-log.run
+# Migration tools (S20-24)
+Source20:	http://www.padl.com/download/MigrationTools-%{migtools_ver}.tar.bz2
+Source21: 	migration-tools.txt
+Source22: 	migrate_automount.pl
+%if %{db4_internal}
+Source25:	http://www.sleepycat.com/update/snapshot/db-%{dbver}.tar.bz2
 %endif
-# Extended Schema 
-Source50: 	rfc822-MailMember.schema
-Source51: 	autofs.schema
-Source52: 	kerberosobject.schema
+# Extended Schema (S30+)
+Source30: 	rfc822-MailMember.schema
+Source31: 	autofs.schema
+Source32: 	kerberosobject.schema
 # Get from qmail-ldap patch (http://www.nrg4u.com/qmail/)
-Source53: 	qmail.schema
-Source54: 	mull.schema
+Source33: 	qmail.schema
+Source34: 	mull.schema
 # Get from samba source, examples/LDAP/samba.schema
-Source55: 	samba.schema
-Source56: 	http://debian.jones.dk/debian/local/honda/pool-ldapv3/woody-jones/openldap2/schemas/netscape-profile.schema
-Source57: 	http://debian.jones.dk/debian/local/honda/pool-ldapv3/woody-jones/openldap2/schemas/trust.schema
-Source58: 	http://debian.jones.dk/debian/local/honda/pool-ldapv3/woody-jones/openldap2/schemas/dns.schema
-Source59: 	http://debian.jones.dk/debian/local/honda/pool-ldapv3/woody-jones/openldap2/schemas/cron.schema
-Source60:	http://debian.jones.dk/debian/local/honda/pool-ldapv3/woody-jones/openldap2/schemas/qmailControl.schema
-Source61:	krb5-kdc.schema
-Source62:	kolab.schema
+Source35: 	samba.schema
+Source36: 	http://debian.jones.dk/debian/local/honda/pool-ldapv3/woody-jones/openldap2/schemas/netscape-profile.schema
+Source37: 	http://debian.jones.dk/debian/local/honda/pool-ldapv3/woody-jones/openldap2/schemas/trust.schema
+Source38: 	http://debian.jones.dk/debian/local/honda/pool-ldapv3/woody-jones/openldap2/schemas/dns.schema
+Source39: 	http://debian.jones.dk/debian/local/honda/pool-ldapv3/woody-jones/openldap2/schemas/cron.schema
+Source40:	http://debian.jones.dk/debian/local/honda/pool-ldapv3/woody-jones/openldap2/schemas/qmailControl.schema
+Source41:	krb5-kdc.schema
+Source42:	kolab.schema
 # from evolution package
-Source63:	evolutionperson.schema
+Source43:	evolutionperson.schema
 # from rfc2739, updated schema for correctness, used by evo for calendar attrs
-Source64:	calendar.schema
+Source44:	calendar.schema
 # from README.LDAP in sudo (pre-1.6.8) CVS:
-Source65:	sudo.schema
+Source45:	sudo.schema
 # from bind sdb_ldap page: http://www.venaas.no/ldap/bind-sdb/dnszone-schema.txt
-Source66:	dnszone.schema
+Source46:	dnszone.schema
 # from http://cvs.pld.org.pl/SOURCES/openldap-dhcp.schema
-Source67:	dhcp.schema
+Source47:	dhcp.schema
 # Chris Patches
 Patch0: 	%{name}-2.3.4-config.patch
 Patch1:		%{name}-2.0.7-module.patch
@@ -127,7 +127,7 @@ Patch54:	MigrationTools-40-preserveldif.patch
 Patch101:	openldap-its4576.patch
 
 
-BuildRoot: 	%{_buildroot}/%{name}-%{version}-root
+BuildRoot: 	%{_buildroot}/%{name}-%{version}
 %{?_with_cyrussasl:BuildRequires: 	libsasl-devel}
 %{?_with_kerberos:BuildRequires:	krb5-devel}
 %if %sql
@@ -274,7 +274,7 @@ This package contains the documentation for %{name}.
 
 
 %prep
-%if %db4_internal
+%if %{db4_internal}
 %setup -q -a 11 -a 30
 pushd db-%{dbver} >/dev/null
 # upstream patches
@@ -462,7 +462,7 @@ make test
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 cp -af contrib/slapd-modules/smbk5pwd/README{,.smbk5passwd}
 
-%if %db4_internal
+%if %{db4_internal}
 pushd db-%{dbver}/build_unix >/dev/null
 %makeinstall_std
 for i in %{buildroot}%{_bindir}/db_*; do mv $i ${i/db_/slapd_db_}; done
@@ -479,21 +479,23 @@ perl -pi -e "s| -L../liblber/.libs||g" %{buildroot}%{_libdir}/libldap.la
 perl -pi -e  "s,-L%{_builddir}\S+%{_libdir},,g" %{buildroot}/%{_libdir}/lib*.la
 
 mkdir -p %{buildroot}%{_srvdir}/{slapd,slurpd}/log
-install -m 0740 %{SOURCE22} %{buildroot}%{_srvdir}/slapd/run
-install -m 0740 %{SOURCE23} %{buildroot}%{_srvdir}/slapd/log/run
-install -m 0740 %{SOURCE24} %{buildroot}%{_srvdir}/slurpd/run
-install -m 0740 %{SOURCE25} %{buildroot}%{_srvdir}/slurpd/log/run
+install -m 0740 %{_sourcedir}/slapd.run %{buildroot}%{_srvdir}/slapd/run
+install -m 0740 %{_sourcedir}/slapd-log.run %{buildroot}%{_srvdir}/slapd/log/run
+install -m 0740 %{_sourcedir}/slurpd.run %{buildroot}%{_srvdir}/slurpd/run
+install -m 0740 %{_sourcedir}/slurpd-log.run %{buildroot}%{_srvdir}/slurpd/log/run
 
 install -d %{buildroot}%{_sysconfdir}/sysconfig
-install -m 644 %{SOURCE2} %{buildroot}%{_sysconfdir}/sysconfig/ldap
+install -m 0644 %{_sourcedir}/%{name}.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/ldap
 
-install -m 640 %{SOURCE21} %{SOURCE6} %{SOURCE7} %{buildroot}%{_sysconfdir}/openldap
+for i in slapd.conf ldap.conf slapd.access.conf; do
+    install -m 0640 %{_sourcedir}/${i} %{buildroot}%{_sysconfdir}/openldap
+done
 
 ### repository dir
 install -d %{buildroot}%{_var}/lib/ldap
 
 ### DB_CONFIG for bdb backend
-install -m 644 %{SOURCE5} %{buildroot}%{_var}/lib/ldap
+install -m 0644 %{_sourcedir}/DB_CONFIG %{buildroot}%{_var}/lib/ldap
 
 ### run dir
 install -d %{buildroot}%{_var}/run/ldap
@@ -511,40 +513,54 @@ install -d %{buildroot}%{_datadir}/openldap/schema
 mv -f %{buildroot}%{_sysconfdir}/openldap/schema/* %{buildroot}%{_datadir}/openldap/schema/
 
 ### install additional schemas
-for i in %{SOURCE50} %{SOURCE51} %{SOURCE52} %{SOURCE53} %{SOURCE54} \
-	%{SOURCE55} %{SOURCE56} %{SOURCE57} %{SOURCE58} %{SOURCE59} \
-	%{SOURCE60} %{SOURCE61} %{SOURCE62} %{SOURCE63} %{SOURCE64} \
-	%{SOURCE65} %{SOURCE66} %{SOURCE67} ; do
-install -m 644 $i %{buildroot}%{_datadir}/openldap/schema/
+for i in rfc822-MailMember.schema \
+    autofs.schema \
+    kerberosobject.schema \
+    qmail.schema \
+    mull.schema \
+    samba.schema \
+    netscape-profile.schema \
+    trust.schema \
+    dns.schema \
+    cron.schema \
+    qmailControl.schema \
+    krb5-kdc.schema \
+    kolab.schema \
+    evolutionperson.schema \
+    calendar.schema \
+    sudo.schema \
+    dnszone.schema \
+    dhcp.schema ; do
+        install -m 0644 %{_sourcedir}/${i} %{buildroot}%{_datadir}/openldap/schema/
 done
 
 mkdir -p %{buildroot}%{_datadir}/openldap/scripts
-install -m 755 %{SOURCE8} %{SOURCE9} %{buildroot}%{_datadir}/openldap/scripts/
+install -m 0755 %{_sourcedir}/{ldap-hot-db-backup,ldap-reinitialise-slave} %{buildroot}%{_datadir}/openldap/scripts/
 
 mkdir -p %{buildroot}/%{_sysconfdir}/cron.daily
 ln -s %{_datadir}/%{name}/scripts/ldap-hot-db-backup %{buildroot}/%{_sysconfdir}/cron.daily/ldap-hot-db-backup
 
 ### create local.schema
 echo "# This is a good place to put your schema definitions " > %{buildroot}%{_sysconfdir}/openldap/schema/local.schema
-chmod 644 %{buildroot}%{_sysconfdir}/openldap/schema/local.schema
+chmod 0644 %{buildroot}%{_sysconfdir}/openldap/schema/local.schema
 
 ### deal with the migration tools
 install -d %{buildroot}%{_datadir}/openldap/migration
-install -m 755 MigrationTools-%{migtools_ver}/{*.pl,*.sh,*.txt,*.ph} %{buildroot}%{_datadir}/openldap/migration
-install -m 644 MigrationTools-%{migtools_ver}/README %{SOURCE3} %{buildroot}%{_datadir}/openldap/migration
-install -m 755 %{SOURCE4} %{buildroot}%{_datadir}/openldap/migration
+install -m 0755 MigrationTools-%{migtools_ver}/{*.pl,*.sh,*.txt,*.ph} %{buildroot}%{_datadir}/openldap/migration
+install -m 0644 MigrationTools-%{migtools_ver}/README %{_sourcedir}/migration-tools.txt %{buildroot}%{_datadir}/openldap/migration
+install -m 0755 %{_sourcedir}/migrate_automount.pl %{buildroot}%{_datadir}/openldap/migration
 
 cp MigrationTools-%{migtools_ver}/README README.migration
-cp %{SOURCE3} TOOLS.migration
+cp %{_sourcedir}/migration-tools.txt TOOLS.migration
 
 
 ### gencert.sh
-install -m 755 %{SOURCE19} %{buildroot}/%{_datadir}/openldap
+install -m 0755 %{_sourcedir}/gencert.sh %{buildroot}/%{_datadir}/openldap
 
 ### log repository
-install -m 700 -d %{buildroot}/var/log/ldap
+install -m 0700 -d %{buildroot}/var/log/ldap
 install -d %{buildroot}%{_sysconfdir}/logrotate.d
-install -m 644 %{SOURCE20} %{buildroot}%{_sysconfdir}/logrotate.d/ldap
+install -m 0644 %{_sourcedir}/ldap.logrotate %{buildroot}%{_sysconfdir}/logrotate.d/ldap
 
 
 # get the buildroot out of the man pages
@@ -556,7 +572,7 @@ mv %{buildroot}/var/run/ldap/openldap-data/DB_CONFIG.example %{buildroot}/%{_var
 
 # afterboot snippet
 mkdir -p %{buildroot}%{_datadir}/afterboot
-install -m 0644 %{SOURCE12} %{buildroot}%{_datadir}/afterboot/10_openldap
+install -m 0644 %{_sourcedir}/10_openldap.afterboot %{buildroot}%{_datadir}/afterboot/10_openldap
 
 
 %clean 
@@ -713,12 +729,6 @@ pushd %{_sysconfdir}/openldap/ > /dev/null
     done
 popd > /dev/null
 
-for i in slapd slurpd
-do
-    if [ -d /var/log/supervise/$i -a ! -d /var/log/service/$i ]; then
-        mv /var/log/supervise/$i /var/log/service/
-    fi
-done
 %_post_srv slapd
 %_post_srv slurpd
 %_mkafterboot

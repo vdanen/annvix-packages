@@ -83,7 +83,7 @@ Patch5:		gcc40-linux32-build-env.patch
 Patch6:		gcc4-libtool1.4-lib64.patch
 Patch7:		gcc40-rh-fortify.patch
 
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 # Want updated alternatives priorities
 # We want -pie support
 BuildRequires:	binutils >= 2.16.91.0.2

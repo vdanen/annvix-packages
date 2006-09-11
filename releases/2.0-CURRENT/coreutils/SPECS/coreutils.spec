@@ -74,7 +74,7 @@ Patch1001:	coreutils-5.2.1-acl.diff
 Patch1002:	coreutils-5.2.1-acl+posix.diff
 Patch1003:	coreutils-5.2.1-xattr.diff
 
-BuildRoot:	%_buildroot/%{name}-%{version}
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	gettext
 BuildRequires:	termcap-devel
 BuildRequires:	pam-devel

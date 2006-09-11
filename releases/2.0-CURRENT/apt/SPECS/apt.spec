@@ -60,7 +60,8 @@ modified for RPM.
 %package -n %{libname}-devel
 Summary:	Development files for %{name}
 Group:		Development/C
-Provides:	%{_lib}apt-devel, apt-devel
+Provides:	%{_lib}apt-devel
+Provides:	apt-devel
 Requires:	%{libname} = %{version}-%{release}
 
 %description -n %{libname}-devel
@@ -90,12 +91,6 @@ This package contains the documentation for %{name}.
 %setup -q -a 6
 %patch0 -p1 -b .bad_lc
 
-cat %{SOURCE1} > apt.conf
-cat %{SOURCE2} > sources.list
-cat %{SOURCE3} > vendors.list
-cat %{SOURCE4} > rpmpriorities
-cat %{SOURCE5} > annvix.conf
-
 %build
 %configure2_5x \
     --disable-docs
@@ -121,16 +116,19 @@ mkdir -p %{buildroot}%{_sysconfdir}/apt/{apt.conf.d,translate.list.d}
 
 mv %{buildroot}%{_includedir}/*.h %{buildroot}%{_includedir}/apt-pkg
 
-install -m 0644 apt.conf %{buildroot}%{_sysconfdir}/apt
-install -m 0644 *.list %{buildroot}%{_sysconfdir}/apt
-install -m 0644 rpmpriorities %{buildroot}%{_sysconfdir}/apt
-install -m 0644 annvix.conf %{buildroot}%{_sysconfdir}/apt/apt.conf.d
+install -m 0644 %{_sourcedir}/%{name}-apt.conf %{buildroot}%{_sysconfdir}/apt
+install -m 0644 %{_sourcedir}/%{name}-rpmpriorities %{buildroot}%{_sysconfdir}/apt
+install -m 0644 %{_sourcedir}/%{name}-annvix.conf %{buildroot}%{_sysconfdir}/apt/apt.conf.d
+install -m 0644 %{_sourcedir}/%{name}-sources.list %{buildroot}%{_sysconfdir}/apt
+install -m 0644 %{_sourcedir}/%{name}-vendors.list %{buildroot}%{_sysconfdir}/apt
 
 # (misc) remove this once the librpm package is fixed and do not
 # contain reference to /home, no rpmlint warning.
 perl -pi -e 's#-L/home/\w+##g' %{buildroot}/%{_libdir}/*.la
 
+%kill_lang %{name}
 %find_lang %{name}
+%kill_lang libapt-pkg3.3
 %find_lang libapt-pkg3.3
 cat libapt-pkg3.3.lang >> %{name}.lang
 rm -f libapt-pkg3.3.lang

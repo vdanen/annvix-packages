@@ -45,7 +45,7 @@ etc.).
 
 %prep
 %setup -q -T -c %{name}-%{version}
-cat %{SOURCE0} >termcap
+cp %{_sourcedir}/termtypes.tc termcap
 %patch0 -p0
 %patch1 -p0
 %patch2 -p0

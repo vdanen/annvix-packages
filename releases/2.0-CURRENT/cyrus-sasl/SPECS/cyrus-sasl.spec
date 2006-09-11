@@ -377,6 +377,7 @@ EOF
 
 rm -rf %{buildroot}%{_mandir}/cat8
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
@@ -413,9 +414,6 @@ fi
 
 
 %post
-if [ -d /var/log/supervise/saslauthd -a ! -d /var/log/service/saslauthd ]; then
-    mv /var/log/supervise/saslauthd /var/log/service/
-fi
 %_post_srv saslauthd
 
 

@@ -109,8 +109,8 @@ mv %{buildroot}%{_mandir}/man8/init.8 %{buildroot}%{_mandir}/man8/init.sysv.8
 rm -f %{buildroot}%{_mandir}/man8/telinit.8
 #rm -f %{buildroot}/sbin/{halt,reboot,poweroff}
 #rm -f %{buildroot}%{_mandir}/man8/{halt,reboot,poweroff}.8*
-#install -m 0750 %{SOURCE1} %{buildroot}/sbin/reboot
-#install -m 0750 %{SOURCE2} %{buildroot}/sbin/halt
+#install -m 0750 %{_sourcedir}/reboot.avx %{buildroot}/sbin/reboot
+#install -m 0750 %{_sourcedir}/halt.avx %{buildroot}/sbin/halt
 
 # fix telinit symlink
 ln -sf init.sysv %{buildroot}/sbin/telinit

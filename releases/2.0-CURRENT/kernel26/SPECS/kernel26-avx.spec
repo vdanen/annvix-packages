@@ -134,7 +134,7 @@ Source100:	linux-%{patches_ver}.tar.bz2
 %define conflicts	iptables <= 1.2.9-1avx
 %define kprovides	kernel = %{realversion}
 
-BuildRoot:	%{_buildroot}/%{kname}-%{realversion}-build
+BuildRoot:	%{_buildroot}/%{kname}-%{realversion}
 BuildRequires:	gcc >= 3.3.1-5avx
 BuildRequires:	module-init-tools
 

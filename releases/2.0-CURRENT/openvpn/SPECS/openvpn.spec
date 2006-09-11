@@ -23,7 +23,7 @@ Group:		Networking/Other
 URL:		http://openvpn.net/
 Source0:	http://openvpn.net/release/%{name}-%{version}.tar.bz2
 
-BuildRoot:	%{_buildroot}/%{name}-%{version}-%{release}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:  openssl-devel
 BuildRequires:	pam-devel
 BuildRequires:	automake1.8

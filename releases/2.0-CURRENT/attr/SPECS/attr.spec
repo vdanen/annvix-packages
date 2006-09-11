@@ -25,7 +25,7 @@ Group:		System/Kernel and hardware
 URL:		http://oss.sgi.com/projects/xfs/
 Source0:	ftp://oss.sgi.com/projects/xfs/download/cmd_tars/%{name}_%{version}-1.tar.gz
 
-BuildRoot:	%{_buildroot}/%{name}-buildroot
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	libtool
 
 %description
@@ -91,7 +91,7 @@ make install-dev DIST_ROOT=%{buildroot}/
 make install-lib DIST_ROOT=%{buildroot}/
 
 # fix conflict with man-pages-1.56
-rm -rf %{buildroot}{%{_mandir}/man2,%_datadir/doc}
+rm -rf %{buildroot}{%{_mandir}/man2,%{_datadir}/doc}
 
 # Remove unpackaged symlinks
 rm -rf %{buildroot}/%{_lib}/libattr.{a,la} %{buildroot}%{_libdir}/libattr.la

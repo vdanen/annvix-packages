@@ -399,12 +399,6 @@ chmod 0644 %{buildroot}%{_sysconfdir}/pam.d/*
 
 %post
 %{courierdatadir}/sysconftool `cat %{courierdatadir}/configlist` >/dev/null
-for i in courier-imapd courier-imapds authdaemond
-do
-    if [ -d /var/log/supervise/$i -a ! -d /var/log/service/$i ]; then
-        mv /var/log/supervise/$i /var/log/service/
-    fi
-done
 %_post_srv courier-imapd
 %_post_srv courier-imapds
 %_post_srv authdaemond
@@ -427,12 +421,6 @@ done
 
 %post pop
 %{courierdatadir}/sysconftool `cat %{courierdatadir}/configlist.pop` >/dev/null
-for i in courier-pop3d courier-pop3ds
-do
-    if [ -d /var/log/supervise/$i -a ! -d /var/log/service/$i ]; then
-        mv /var/log/supervise/$i /var/log/service/
-    fi
-done
 %_post_srv courier-pop3d
 %_post_srv courier-pop3ds
 for i in courier-pop3d courier-pop3ds

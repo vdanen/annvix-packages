@@ -28,12 +28,15 @@ Patch1:		dcron29-avx-paths.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
-Requires(post):	rpm-helper, setup
+Requires(post):	rpm-helper
+Requires(post):	setup
 Requires(preun): rpm-helper
-Requires:	srv, runit
+Requires:	srv
+Requires:	runit
 Conflicts:	vixie-cron
 Obsoletes:	crontabs
-Provides:	crond, crontabs
+Provides:	crond
+Provides:	crontabs
 
 %description
 A multiuser cron written from scratch, dcron is follows concepts
@@ -74,11 +77,11 @@ install -m 0750 crond %{buildroot}%{_sbindir}/
 install -m 0644 crontab.1 %{buildroot}%{_mandir}/man1/
 install -m 0644 crond.8 %{buildroot}%{_mandir}/man8/
 
-install -m 0644 %{SOURCE3} %{buildroot}%{_sysconfdir}/crontab
+install -m 0644 %{_sourcedir}/etc-crontab %{buildroot}%{_sysconfdir}/crontab
 
 install -d %{buildroot}%{_srvdir}/crond/log
-install -m 0740 %{SOURCE1} %{buildroot}%{_srvdir}/crond/run
-install -m 0740 %{SOURCE2} %{buildroot}%{_srvdir}/crond/log/run
+install -m 0740 %{_sourcedir}/dcron.run %{buildroot}%{_srvdir}/crond/run
+install -m 0740 %{_sourcedir}/dcron-log.run %{buildroot}%{_srvdir}/crond/log/run
 
 
 %clean
