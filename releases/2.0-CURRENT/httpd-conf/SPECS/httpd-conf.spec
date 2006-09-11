@@ -157,7 +157,7 @@ cat > %{buildroot}%{_sysconfdir}/logrotate.d/httpd << EOF
     nocompress
     notifempty
     postrotate
-	[[ -d /service/httpd ]] && runsvctrl h /service/httpd >/dev/null 2>&1
+	[[ -d /service/httpd ]] && /sbin/sv hup /service/httpd >/dev/null 2>&1
     endscript
 }
 EOF
@@ -242,6 +242,9 @@ install -m 0644 %{_sourcedir}/03_apache2.afterboot %{buildroot}%{_datadir}/after
 
 
 %changelog
+* Sun Sep 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3
+- change runsvctrl calls to /sbin/sv calls
+
 * Sun Jul 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3
 - 2.2.3
 
