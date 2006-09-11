@@ -85,6 +85,7 @@ chmod 0755 {add,del}-srv mkdepends
 %changelog
 * Sun Sep 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.15
 - P2: fix %%_preun_shelldel macro (was missing a %%{1})
+- change runsvctrl calls to /sbin/sv calls
 
 * Fri Aug 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.15
 - P1: fix chown call in create-files (user:user rather than user.user)

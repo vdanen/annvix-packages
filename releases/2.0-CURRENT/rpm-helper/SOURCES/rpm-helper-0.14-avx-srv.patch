@@ -73,15 +73,15 @@
 +if [ $num != 1 ]; then
 +    # Upgrade mode: restart the service if already running
 +    if [ -d /service/$srv ]; then
-+        SRVSTAT=`/sbin/runsvstat /service/$srv 2>/dev/null|grep -q run; echo $?`
-+        if [ "$SRVSTAT" = "0" ]; then
++        SRVSTAT=`/sbin/sv status /service/$srv 2>/dev/null | cut -d ';' -f 1 | egrep -q '^down: ' ; echo $?`
++        if [ "$SRVSTAT" = "1" ]; then
 +	    /usr/sbin/srv --restart $srv || :
 +	    # restart services that depend of portmap
 +	    if [ "$srv" = "portmap" ]; then
 +	        for s in amd autofs bootparamd clusternfs mcserv nfs nfslock ypserv ypbind yppasswdd ypxfrd; do
 +		    if [ -d /service/$s ]; then
-+		        PSRVSTAT=`/sbin/runsvstat /service/$s 2>/dev/null|grep -q run; echo $?`
-+		        if [ "$PSRVSTAT" = "0" ]; then
++		        PSRVSTAT=`/sbin/sv status /service/$s 2>/dev/null | cut -d ';' -f 1 | egrep -q '^down: ' ; echo $?`
++		        if [ "$PSRVSTAT" = "1" ]; then
 +			    /usr/sbin/srv --restart $srv || :
 +		        fi
 +		    fi
