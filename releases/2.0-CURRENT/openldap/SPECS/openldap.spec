@@ -845,8 +845,8 @@ fi
 
 %files clients
 %defattr(-,root,root)
-%{_bindir}/*
-%{_mandir}/man1/*
+%{_bindir}/ldap*
+%{_mandir}/man1/ldap*
 #%{_mandir}/man5/ud.conf.5*
 
 
@@ -886,6 +886,9 @@ fi
 
 
 %changelog
+* Mon Sep 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.24
+- don't package /usr/bin/slapd_db* twice (doesn't belong in openldap-clients)
+
 * Sun Sep 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.24
 - reversed the sv logic so it actually will work properly
 
