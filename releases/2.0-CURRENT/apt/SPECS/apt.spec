@@ -23,11 +23,11 @@ License:	GPL
 Group:		System/Configuration
 URL:		http://apt-rpm.org/
 Source0:	http://apt-rpm.org/releases/%{name}-%{version}.tar.bz2
-Source1:	%{name}-apt.conf
-Source2:	%{name}-sources.list
-Source3:	%{name}-vendors.list
-Source4:	%{name}-rpmpriorities
-Source5:	%{name}-annvix.conf
+Source1:	apt-apt.conf
+Source2:	apt-sources.list
+Source3:	apt-vendors.list
+Source4:	apt-rpmpriorities
+Source5:	apt-annvix.conf
 Source6:	apt-man.tar.bz2
 Patch0:		apt-0.5.15lorg3.1-invalid-lc-messages-dir.patch
 
@@ -91,14 +91,10 @@ This package contains the documentation for %{name}.
 %setup -q -a 6
 %patch0 -p1 -b .bad_lc
 
+
 %build
 %configure2_5x \
     --disable-docs
-pushd po
-    cp -f de_DE.po de.po
-    cp -f es_ES.po es.po
-    cp -f it_IT.po it.po
-popd
 
 %make
 
@@ -204,6 +200,9 @@ install -m 0600 contrib/gpg-check/gpg-import.lua %{buildroot}%{_datadir}/apt/scr
 
 
 %changelog
+* Sun Sep 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.5.15lorg3.1
+- remove locales
+
 * Tue Jul 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.5.15lorg3.1
 - set RPM::Order "true" in the default config to use rpm's ordering rather than
   apt's ordering or we run into problems with apt ignoring things like Requires(pre)
