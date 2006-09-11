@@ -10,6 +10,6 @@
         rotate 5
         weekly
         postrotate
-          /sbin/runsvctrl h /service/syslogd #
+          /sbin/sv hup /service/syslogd #
         endscript
 }
