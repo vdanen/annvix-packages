@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		rsbac-admin
-%define version		1.2.5
+%define version		1.2.8
 %define release		%_revrel
 
 %define libname_orig	librsbac
@@ -33,7 +33,7 @@ URL: 		http://www.rsbac.org/
 Source0: 	http://www.rsbac.org/download/code/%{version}/%{name}-%{version}.tar.bz2
 Source1:	rsbac.conf
 Patch0:		rsbac-admin-1.2.5-soname.patch
-Patch1:		rsbac-admin-1.2.5-libdir.patch
+Patch1:		rsbac-admin-1.2.8-libdir.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires: 	kernel-source
@@ -107,7 +107,7 @@ NSS library files for use with RSBAC
 
 %prep
 %setup -q
-%patch0 -p1
+#%patch0 -p1
 %patch1 -p1
 
 
@@ -130,18 +130,13 @@ install -m 0600 %{SOURCE1} %{buildroot}%{_sysconfdir}/rsbac.conf
 # remove the locale files as %%find_lang doesn't seem to pick them up
 rm -rf %{buildroot}%{_datadir}/locale
 
-# fixpup
-pushd %{buildroot}/%{_libdir}
-    ln -s %{libname_orig}.so.%{version} %{libname_orig}.so.%{lib_major} 
-popd
-
 # remove _de pam files
 rm -f %{buildroot}/%{_lib}/security/*_de*
 
 # Documentation
 mkdir -p %{buildroot}/%{_docdir}/%{name}-doc-%{version}
 cp -r %{kernel_dir}/Documentation/rsbac/* %{buildroot}%{_docdir}/%{name}-doc-%{version}
-rm -rf %{buildroot}%{_prefix}/doc/rsbac-tools*
+rm -rf %{buildroot}%{_docdir}/rsbac-tools*
 
 # /var/lib/rsbac is in setup
 mkdir -p %{buildroot}/var/lib/rsbac/tmp
@@ -177,6 +172,7 @@ mkdir -p %{buildroot}/var/lib/rsbac/tmp
 %files -n %{libname}-devel
 %defattr(-,root,root)
 %{_libdir}/libnss_rsbac.la
+%{_libdir}/librsbac.la
 %{_includedir}/rsbac
 
 %files -n %{libname}-static-devel
@@ -194,6 +190,11 @@ mkdir -p %{buildroot}/var/lib/rsbac/tmp
 
 
 %changelog
+* Tue Sep 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.8
+- 1.2.8
+- rediff P1
+- don't apply P0, seems like it's no longer required
+
 * Fri Feb 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.5
 - 1.2.5
 - some spec changes to accomodate the new way rsbac is built

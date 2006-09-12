@@ -1,0 +1,76 @@
+--- rsbac-admin-1.2.8/main/pam/Makefile.orig	2006-08-24 05:56:04.000000000 -0600
++++ rsbac-admin-1.2.8/main/pam/Makefile	2006-09-12 16:08:40.000000000 -0600
+@@ -10,8 +10,9 @@
+ CC		:= gcc
+ 
+ DESTDIR		:= 
++LIBDIR		:= lib
+ PREFIX		:= /usr/local
+-DIR_PAM		:= /lib/security
++DIR_PAM		:= $(LIBDIR)/security
+ 
+ 
+ CFLAGS		:= -fPIC -O2 -fomit-frame-pointer
+@@ -19,7 +20,7 @@
+ 		   -I$(PREFIX)/include
+ LDFLAGS		:=
+ 
+-LIBS		:= -L../libs/.libs -L$(PREFIX)/lib -lrsbac
++LIBS		:= -L../libs/.libs -L$(PREFIX)/$(LIBDIR) -lrsbac
+ 
+ FILES_PAM	:= $(wildcard *.c)
+ 
+--- rsbac-admin-1.2.8/main/nss/Makefile.orig	2006-08-24 05:56:03.000000000 -0600
++++ rsbac-admin-1.2.8/main/nss/Makefile	2006-09-12 16:09:53.000000000 -0600
+@@ -15,8 +15,9 @@
+ CC		:= gcc
+ 
+ DESTDIR		:= 
++LIBDIR		:= lib
+ PREFIX		:= /usr/local
+-DIR_NSS		:= $(PREFIX)/lib
++DIR_NSS		:= $(PREFIX)/$(LIBDIR)
+ 
+ 
+ CFLAGS		:= -O2 -fomit-frame-pointer
+@@ -24,7 +25,7 @@
+ 		   -I$(PREFIX)/include
+ LDFLAGS		:=
+ 
+-LIBS		:= -L../libs -L$(PREFIX)/lib -lrsbac
++LIBS		:= -L../libs -L$(PREFIX)/$(LIBDIR) -lrsbac
+ 
+ FILES_NSS	:= $(wildcard *.c)
+ 
+--- rsbac-admin-1.2.8/main/libs/Makefile.orig	2006-08-24 05:56:03.000000000 -0600
++++ rsbac-admin-1.2.8/main/libs/Makefile	2006-09-12 16:11:08.000000000 -0600
+@@ -14,8 +14,9 @@
+ CC		:= gcc
+ 
+ DESTDIR		:= 
++LIBDIR		:= lib
+ PREFIX		:= /usr/local
+-DIR_LIBS	:= $(PREFIX)/lib
++DIR_LIBS	:= $(PREFIX)/$(LIBDIR)
+ LOCALEDIR	:= $(PREFIX)/share/locale
+ 
+ RSBACLIB        := librsbac.la
+--- rsbac-admin-1.2.8/main/tools/Makefile.orig	2006-08-24 05:56:02.000000000 -0600
++++ rsbac-admin-1.2.8/main/tools/Makefile	2006-09-12 16:11:45.000000000 -0600
+@@ -17,6 +17,7 @@
+ CP		:= cp
+ 
+ DESTDIR		:= 
++LIBDIR		:= lib
+ PREFIX		:= /usr/local
+ LOCALEDIR	:= $(PREFIX)/share/locale
+ DIR_PO		:= de ru fr
+@@ -35,7 +36,7 @@
+ 		   -DLOCALEDIR=\"$(LOCALEDIR)\" \
+ 		   -DENABLE_NLS=$(NLS)
+ 
+-LIBS		:= -L../libs/.libs -L$(PREFIX)/lib -lrsbac
++LIBS		:= -L../libs/.libs -L$(PREFIX)/$(LIBDIR) -lrsbac
+ 
+ QUIET		:=  > /dev/null 2>&1
+ 
