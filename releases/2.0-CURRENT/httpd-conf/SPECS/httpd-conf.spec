@@ -169,6 +169,9 @@ install -m 0740 %{_sourcedir}/httpd-log.run %{buildroot}%{_srvdir}/httpd/log/run
 mkdir -p %{buildroot}%{_datadir}/afterboot
 install -m 0644 %{_sourcedir}/03_apache2.afterboot %{buildroot}%{_datadir}/afterboot/03_apache
 
+# get rid of the ADVX stuff (I don't think we need any of it but this is a quick back if we do)
+rm -rf %{buildroot}%{_datadir}/ADVX
+
 
 %pre
 %_pre_useradd apache /var/www /bin/true 74
@@ -232,7 +235,7 @@ install -m 0644 %{_sourcedir}/03_apache2.afterboot %{buildroot}%{_datadir}/after
 %attr(0644,root,root) %config(noreplace) /var/www/html/*.shtml
 %attr(0644,root,root) %config(noreplace) /var/www/html/robots.txt
 %attr(0755,root,root) %{_sbindir}/*
-%{_datadir}/ADVX
+#%{_datadir}/ADVX
 
 %dir %attr(0750,root,admin) %{_srvdir}/httpd
 %dir %attr(0750,root,admin) %{_srvdir}/httpd/log
@@ -242,6 +245,10 @@ install -m 0644 %{_sourcedir}/03_apache2.afterboot %{buildroot}%{_datadir}/after
 
 
 %changelog
+* Thu Sep 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3
+- no ADVX files should be needed/used anymore so remove the directory
+  completely
+
 * Sun Sep 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3
 - change runsvctrl calls to /sbin/sv calls
 - index.html is in the tarball, not %%_sourcedir
