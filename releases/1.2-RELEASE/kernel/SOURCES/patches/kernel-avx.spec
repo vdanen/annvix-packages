@@ -9,10 +9,11 @@
 
 %define revision	$Rev$
 %define kname		kernel
-%define sublevel	32
+%define sublevel	33
+%define subsublevel	3
 %define avxrelease	%(echo %{revision}|cut -d ' ' -f 2)
 
-%define tar_version	2.4.%{sublevel}
+%define tar_version	2.4.%{sublevel}.%{subsublevel}
 %define patchversion	avx%{avxrelease}
 %define realrelease	%{avxrelease}avx
 
@@ -20,7 +21,7 @@
 %define rpmversion	1
 %define rpmrelease	1avx
 %define realversion	2.4.%{sublevel}
-%define avxversion	%{realversion}-%{realrelease}
+%define avxversion	%{tar_version}-%{realrelease}
 %define patches_ver	2.4.%{sublevel}-%{patchversion}
 
 
@@ -825,6 +826,19 @@ exit 0
 
 
 %changelog
+* Mon Sep 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.33.3
+- 2.4.33.3
+- includes the following security fixes: CVE-2006-3745, CVE-2006-1528,
+  CVE-2006-0039, CVE-2006-1857, CVE-2006-1858, CVE-2006-1864,
+  CVE-2006-2271, CVE-2006-2272, CVE-2006-1525, CVE-2006-2274,
+  CVE-2006-1524, CVE-2004-1058, CVE-2005-3180, CVE-2005-2709,
+  CVE-2005-2708, CVE-2005-2490, CVE-2006-4145
+- Openwall patch for 2.4.33 (rediffed)
+- RSBAC 1.2.8
+  - set CONFIG_RSBAC_RMSG_MAXENTRIES=200
+- change the versioning a bit to reflect the fourth digit in the package
+  name
+
 * Fri Feb 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.32
 - re-introduce RSBAC (1.2.5.1) (SL60, SL61)
 - rediff Openwall patch to work with RSBAC and move it (now SL70)
