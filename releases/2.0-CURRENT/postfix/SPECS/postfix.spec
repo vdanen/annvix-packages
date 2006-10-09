@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		postfix
-%define version		2.2.10
+%define version		2.2.11
 %define release 	%_revrel
 %define epoch		1
 
@@ -442,6 +442,9 @@ fi
 
 
 %changelog
+* Tue Sep 26 2006 Ying-Hung Chen <ying-at-annvix.org> 2.2.11
+- 2.2.11
+
 * Sun Aug 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.10
 - rebuild against new mysql
 - rebuild against new openssl
