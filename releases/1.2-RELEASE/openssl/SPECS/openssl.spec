@@ -36,6 +36,11 @@ Patch3:		openssl-0.9.8-avx-lib64.patch
 Patch4:		openssl-0.9.8-CAN-2005-2946.patch
 Patch5:		openssl-0.9.7-CAN-2005-2969.patch
 Patch6:		openssl-CVE-2006-4339.patch
+Patch7:		openssl-0.9.8b-CVE-2006-2937.patch
+Patch8:		openssl-Bodo-CVE-2006-2940.patch
+Patch9:		openssl-0.9.8b-CVE-2006-3738.patch
+Patch10:	openssl-CVE-2006-4343.patch
+Patch11:	openssl-0.9.8b-CVE-2006-2940-2.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	multiarch-utils >= 1.0.3
@@ -114,6 +119,11 @@ Patches for many networking apps can be found at:
 %patch4 -p1 -b .can-2005-2946
 %patch5 -p1 -b .can-2005-2969
 %patch6 -p0 -b .cve-2006-4339
+%patch7 -p1 -b .cve-2006-2937
+%patch8 -p0 -b .cve-2006-2940
+%patch9 -p1 -b .cve-2006-3738
+%patch10 -p0 -b .cve-2006-4343
+%patch11 -p1 -b .cve-2006-2940
 
 perl -pi -e "s,^(LIB=).+$,\1%{_lib}," Makefile.org
 perl -pi -e "s,^(LIB=).+$,\1%{_lib}," engines/Makefile
@@ -227,6 +237,13 @@ rm -rf %{buildroot}%{_prefix}/lib
 
 
 %changelog
+* Mon Oct 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.9.8
+- P7: security fix for CVE-2006-2937
+- P8: security fix for CVE-2006-2940
+- P9: security fix for CVE-2006-3738
+- P10: security fix for CVE-2006-4343
+- P11: security fix for CVE-2006-2940 (final fix)
+
 * Wed Sep 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.9.8
 - P6: security fix for CVE-2006-4339
 
