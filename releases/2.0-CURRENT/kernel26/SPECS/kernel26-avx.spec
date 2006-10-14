@@ -8,21 +8,23 @@
 # $Id$
 
 %define revision	$Rev$
-%define kname		kernel26
+%define kname		kernel
+%define kernelver	2
+%define patchlevel	6
 %define sublevel	16
-%define minlevel	28
+%define minlevel	29
 %define avxrelease	%(echo %{revision}|cut -d ' ' -f 2)
 
-%define tar_version	2.6.%{sublevel}.%{minlevel}
+%define tar_version	%{kernelver}.%{patchlevel}.%{sublevel}.%{minlevel}
 %define patchversion	avx%{avxrelease}
 %define realrelease	%{avxrelease}avx
 
 # never touch the folowing two fields
 %define rpmversion	1
 %define rpmrelease	1avx
-%define realversion	2.6.%{sublevel}
+%define realversion	%{kernelver}.%{patchlevel}.%{sublevel}.%{minlevel}
 %define avxversion	%{realversion}-%{realrelease}
-%define patches_ver	2.6.%{sublevel}-%{patchversion}
+%define patches_ver	%{kernelver}.%{patchlevel}.%{sublevel}-%{patchversion}
 
 
 # having different top level names for packges means
@@ -80,7 +82,7 @@
 %define target_cpu	%(echo %{_target_cpu} | sed -e "s/amd64/x86_64/")
 %define target_arch	%(echo %{_arch} | sed -e "s/amd64/x86_64/")
 
-Summary:	The Linux 2.6 kernel (the core of the Linux operating system)
+Summary:	The Linux %{kernelver}.%{patchlevel} kernel (the core of the Linux operating system)
 Name:		%{kname}-%{avxversion}
 Version:	%{rpmversion}
 Release:	%{rpmrelease}
@@ -95,7 +97,7 @@ ExclusiveOS:	Linux
 # Sources
 #
 ### This is for full SRC RPM
-Source0: ftp://ftp.kernel.org/pub/linux/kernel/v2.6/linux-%{tar_version}.tar.bz2
+Source0: ftp://ftp.kernel.org/pub/linux/kernel/v%{kernelver}.%{patchlevel}/linux-%{tar_version}.tar.bz2
 
 ### This is for stripped SRC RPM
 %if %build_nosrc
@@ -138,7 +140,6 @@ BuildRoot:	%{_buildroot}/%{kname}-%{realversion}
 BuildRequires:	gcc >= 3.3.1-5avx
 BuildRequires:	module-init-tools
 
-Provides:	kernel26-up
 Provides:	module-info
 Provides:	%{kprovides}
 Autoreqprov:	no
@@ -147,9 +148,27 @@ Requires:	%{requires2}
 Requires:	%{requires3}
 Conflicts:	%{conflicts}
 
+
 %description
 This is the default Annvix kernel version %{realversion} for single-CPU
 systems.
+
+
+#
+# kernel-up virtual rpm
+#
+
+%package -n %{kname}-up
+Summary:	Virtual rpm for the latest %{kname}-up kernel
+Version:	%{realversion}
+Release:	%{realrelease}
+Group:		System/Kernel and hardware
+Requires:	%{kname}-%{avxversion}
+Provides:	kernel26-up
+
+%description -n %{kname}-up
+This package is a virtual rpm that aims to make sure you always have the
+latest %{kname}-up installed.
 
 
 #
@@ -171,6 +190,23 @@ should work find on single-CPU systems.
 
 
 #
+# kernel-smp virtual rpm
+#
+
+%package -n %{kname}-smp
+Summary:	Virtual rpm for the latest %{kname}-smp kernel
+Version:	%{realversion}
+Release:	%{realrelease}
+Group:		System/Kernel and hardware
+Requires:	%{kname}-smp-%{avxversion}
+Provides:	kernel26-smp
+
+%description -n %{kname}-smp
+This package is a virtual rpm that aims to make sure you always have the
+latest %{kname}-smp installed.
+
+
+#
 # kernel-build: standard up kernel without security features
 #
 
@@ -189,6 +225,23 @@ systems that are otherwise adequately secured and non-public.
 
 
 #
+# kernel-build virtual rpm
+#
+
+%package -n %{kname}-build
+Summary:	Virtual rpm for the latest %{kname}-build kernel
+Version:	%{realversion}
+Release:	%{realrelease}
+Group:		System/Kernel and hardware
+Requires:	%{kname}-build-%{avxversion}
+Provides:	kernel26-build
+
+%description -n %{kname}-build
+This package is a virtual rpm that aims to make sure you always have the
+latest %{kname}-build installed.
+
+
+#
 # kernel-boot: BOOT Kernel
 #
 
@@ -201,6 +254,23 @@ This package includes a trimmed down version of the Linux kernel.
 This kernel is used on the installation boot disks only and should not
 be used for an installed system, as many features in this kernel are
 turned off because of the size constraints.
+
+
+#
+# kernel-BOOT virtual rpm
+#
+
+%package -n %{kname}-BOOT
+Summary:	Virtual rpm for the latest %{kname}-BOOT kernel
+Version:	%{realversion}
+Release:	%{realrelease}
+Group:		System/Kernel and hardware
+Requires:	%{kname}-BOOT-%{avxversion}
+Provides:	kernel26-BOOT
+
+%description -n %{kname}-BOOT
+This package is a virtual rpm that aims to make sure you always have the
+latest %{kname}-BOOT installed.
 
 
 #
@@ -335,7 +405,7 @@ PrepareKernel() {
     fi
 
     # make sure EXTRAVERSION says what we want it to say
-    LC_ALL=C perl -p -i -e "s/^EXTRAVERSION.*/EXTRAVERSION = -$extension/" Makefile
+    LC_ALL=C perl -p -i -e "s/^EXTRAVERSION.*/EXTRAVERSION = .%{minlevel}-$extension/" Makefile
 
     %{smake} -s mrproper
     cp arch/%{target_arch}/$config_name .config
@@ -680,18 +750,30 @@ exit 0
 
 %if %{build_up}
 %files -f kernel_files.%{KVERREL}
+
+%files -n %{kname}-up
+%defattr(-,root,root)
 %endif
 
 %if %{build_smp}
 %files -n %{kname}-smp-%{avxversion} -f kernel_files.%{KVERREL}smp
+
+%files -n %{kname}-smp
+%defattr(-,root,root)
 %endif
 
 %if %{build_build}
 %files -n %{kname}-build-%{avxversion} -f kernel_files.%{KVERREL}build
+
+%files -n %{kname}-build
+%defattr(-,root,root)
 %endif
 
 %if %{build_BOOT}
 %files -n %{kname}-BOOT-%{avxversion} -f kernel_files.%{KVERREL}BOOT
+
+%files -n %{kname}-BOOT
+%defattr(-,root,root)
 %endif
 
 %if %{build_source}
@@ -775,6 +857,13 @@ exit 0
 
 
 %changelog
+* Sat Oct 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.29
+- 2.6.16.29 (many bugfixes)
+- EXTRAVERSION now includes %%{minlevel} (i.e. the "28" in 2.6.16.28)
+- add virtual rpm packages for kernel-up, kernel-smp, kernel-BOOT, and kernel-build
+  based on tmb's ideas
+- kernels are now kernel-foo, not kernel26-foo (since we're not doing a 2.4 anymore)
+
 * Wed Aug 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.28
 - 2.6.16.28: security fixes for CVE-2006-3745, CVE-2006-4145, CVE-2006-4093,
   CVE-2006-2935, and other bug fixes
