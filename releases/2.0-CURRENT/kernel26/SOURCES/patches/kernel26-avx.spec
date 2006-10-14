@@ -5,9 +5,9 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-# $Id: kernel26-avx.spec 6161 2006-09-11 04:15:10Z vdanen $
+# $Id: kernel26-avx.spec 6181 2006-10-14 19:46:30Z vdanen $
 
-%define revision	$Rev: 6161 $
+%define revision	$Rev: 6181 $
 %define kname		kernel
 %define kernelver	2
 %define patchlevel	6
@@ -24,7 +24,7 @@
 %define rpmrelease	1avx
 %define realversion	%{kernelver}.%{patchlevel}.%{sublevel}.%{minlevel}
 %define avxversion	%{realversion}-%{realrelease}
-%define patches_ver	%{kernelver}.%{patchlevel}.%{sublevel}-%{patchversion}
+%define patches_ver	%{realversion}-%{patchversion}
 
 
 # having different top level names for packges means

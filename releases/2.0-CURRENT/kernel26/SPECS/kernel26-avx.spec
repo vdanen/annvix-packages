@@ -24,7 +24,7 @@
 %define rpmrelease	1avx
 %define realversion	%{kernelver}.%{patchlevel}.%{sublevel}.%{minlevel}
 %define avxversion	%{realversion}-%{realrelease}
-%define patches_ver	%{kernelver}.%{patchlevel}.%{sublevel}-%{patchversion}
+%define patches_ver	%{realversion}-%{patchversion}
 
 
 # having different top level names for packges means
