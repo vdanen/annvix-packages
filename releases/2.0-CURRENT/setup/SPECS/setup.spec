@@ -24,8 +24,6 @@ Source:		setup-%{version}.tar.bz2
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 Requires:	shadow-utils
-Requires(pre):	libtcb
-Requires(post):	shadow-utils
 
 %description
 The setup package contains a set of very important system
@@ -60,11 +58,7 @@ rm -rf %{buildroot}%{_mandir}/{cs,et,eu,fr,uk}
 %pre
 # due to important new group additions, we need to add them manually here if they
 # don't already exist because rpm will create group.rpmnew instead
-#
-# however, since these aren't required on a fresh install, let's test to see if
-# grep exists first and if not, don't run this stuff (or the rpm ordering will
-# break on a fresh install)
-if [ -x /bin/grep ]; then
+if [ -f /etc/group ]; then
     grep -q '^auth:' /etc/group || groupadd -g 27 auth
     grep -q '^shadow:' /etc/group || groupadd -g 28 shadow && chmod 0440 /etc/shadow && chgrp shadow /etc/shadow
     grep -q '^chkpwd:' /etc/group || groupadd -g 29 chkpwd
