@@ -25,7 +25,7 @@ BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 Requires:	shadow-utils
 Requires(pre):	libtcb
-Requires(pre):	shadow-utils
+Requires(post):	shadow-utils
 
 %description
 The setup package contains a set of very important system
