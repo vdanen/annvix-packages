@@ -25,7 +25,8 @@ BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 Requires:	shadow-utils
 Requires(pre):	libtcb
-Requires(post):	grep
+Requires(pre):	grep
+Requires(pre):	shadow-utils
 
 %description
 The setup package contains a set of very important system
@@ -106,6 +107,9 @@ fi
 
 
 %changelog
+* Sun Oct 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5
+- fix pre-reqs
+
 * Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5
 - move adding new groups to %%pre
 
