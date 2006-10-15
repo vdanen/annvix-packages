@@ -25,7 +25,6 @@ BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 Requires:	shadow-utils
 Requires(pre):	libtcb
-Requires(pre):	grep
 Requires(pre):	shadow-utils
 
 %description
@@ -61,10 +60,15 @@ rm -rf %{buildroot}%{_mandir}/{cs,et,eu,fr,uk}
 %pre
 # due to important new group additions, we need to add them manually here if they
 # don't already exist because rpm will create group.rpmnew instead
-
-grep -q '^auth:' /etc/group || groupadd -g 27 auth
-grep -q '^shadow:' /etc/group || groupadd -g 28 shadow && chmod 0440 /etc/shadow && chgrp shadow /etc/shadow
-grep -q '^chkpwd:' /etc/group || groupadd -g 29 chkpwd
+#
+# however, since these aren't required on a fresh install, let's test to see if
+# grep exists first and if not, don't run this stuff (or the rpm ordering will
+# break on a fresh install)
+if [ -x /bin/grep ]; then
+    grep -q '^auth:' /etc/group || groupadd -g 27 auth
+    grep -q '^shadow:' /etc/group || groupadd -g 28 shadow && chmod 0440 /etc/shadow && chgrp shadow /etc/shadow
+    grep -q '^chkpwd:' /etc/group || groupadd -g 29 chkpwd
+fi
 
 
 %post
