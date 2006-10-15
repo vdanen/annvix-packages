@@ -48,6 +48,8 @@ package.
 Summary:        Libraries and tools implementing the tcb password shadowing scheme
 Group:          System/Libraries
 Requires:	glibc-crypt_blowfish
+Requires(pre):	grep
+Requires(pre):	shadow-utils
 Provides:	libtcb
 
 %description -n %{libname}
@@ -185,6 +187,9 @@ grep -q '^chkpwd:' /etc/group || groupadd -g 29 chkpwd
 
 
 %changelog
+* Sun Oct 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0
+- fix libtcb's pre-req's (needs grep and shadow-utils for groupadd)
+
 * Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0
 - add group chkpwd in the lib's %%pre to ensure we get right ownership of files
 
