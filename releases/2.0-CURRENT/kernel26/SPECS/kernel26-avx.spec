@@ -857,6 +857,9 @@ exit 0
 
 
 %changelog
+* Sun Oct 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.29
+- enable experimental drivers
+
 * Sat Oct 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.29
 - 2.6.16.29 (many bugfixes)
 - EXTRAVERSION now includes %%{minlevel} (i.e. the "28" in 2.6.16.28)

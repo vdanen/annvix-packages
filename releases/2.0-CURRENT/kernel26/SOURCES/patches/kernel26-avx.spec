@@ -5,9 +5,9 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-# $Id: kernel26-avx.spec 6181 2006-10-14 19:46:30Z vdanen $
+# $Id: kernel26-avx.spec 6182 2006-10-14 19:49:04Z vdanen $
 
-%define revision	$Rev: 6181 $
+%define revision	$Rev: 6182 $
 %define kname		kernel
 %define kernelver	2
 %define patchlevel	6
@@ -857,6 +857,9 @@ exit 0
 
 
 %changelog
+* Sun Oct 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.29
+- enable experimental drivers
+
 * Sat Oct 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.29
 - 2.6.16.29 (many bugfixes)
 - EXTRAVERSION now includes %%{minlevel} (i.e. the "28" in 2.6.16.28)
