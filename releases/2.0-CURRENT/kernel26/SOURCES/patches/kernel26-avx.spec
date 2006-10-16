@@ -5,9 +5,9 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-# $Id: kernel26-avx.spec 6182 2006-10-14 19:49:04Z vdanen $
+# $Id$
 
-%define revision	$Rev: 6182 $
+%define revision	$Rev$
 %define kname		kernel
 %define kernelver	2
 %define patchlevel	6
