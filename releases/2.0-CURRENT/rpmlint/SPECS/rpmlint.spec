@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		rpmlint
-%define version 	0.77
+%define version 	0.78
 %define release 	%_revrel
 
 Summary:	RPM correctness checker
@@ -21,7 +21,7 @@ Group:		Development/Other
 URL:		http://rpmlint.zarb.org/
 Source0:	http://rpmlint.zarb.org/download/%{name}-%{version}.tar.bz2
 Source1:	rpmlint.annvix.config
-Patch0:		rpmlint-0.77-fix-GROUPS.patch
+Patch0:		rpmlint-0.78-avx-fix-GROUPS.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
@@ -84,6 +84,11 @@ touch %{buildroot}%{_datadir}/rpmlint/GROUPS
 
 
 %changelog
+* Mon Oct 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.78
+- 0.78
+- update P0 (the old P0 was submitted upstream, not sure why it wasn't
+  fixed there)
+
 * Fri Sep 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.77
 - updated rpmlint config
 - spec cleanups
