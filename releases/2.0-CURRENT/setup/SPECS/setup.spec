@@ -105,6 +105,9 @@ fi
 
 
 %changelog
+* Tue Oct 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5
+- updated tarball to fix motd
+
 * Sun Oct 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5
 - fix pre-reqs
 
