@@ -79,6 +79,7 @@ Patch56:	php-4.3.10-fdr-umask.patch
 Patch70:	php-4.3.3-mdk-make_those_darn_tests_work.patch
 # Bug fixes:
 Patch71:	php-4.3.4-mdk-bug-22414.patch
+Patch72:	php-4.4.4-CVE-2006-4625.patch
 # http://www.hardened-php.net/
 Patch100:	http://www.hardened-php.net/hardening-patch-4.4.4-0.4.14.patch
 
@@ -245,6 +246,7 @@ perl -pi -e "s|_PHP_SONAME_|%{libversion}|g" Makefile.global
 #
 %patch70 -p0 -b .make_those_darn_tests_work
 %patch71 -p1 -b .22414
+%patch72 -p1 -b .cve-2006-4625
 %if %{harden}
 %patch100 -p1 -b .hardened
 %endif
@@ -596,6 +598,9 @@ update-alternatives --remove php %{_bindir}/php-cli
 
 
 %changelog
+* Tue Oct 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.4
+- P72: security fix for CVE-2006-4625
+
 * Thu Aug 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.4
 - 4.4.4 - more security fixes
 
