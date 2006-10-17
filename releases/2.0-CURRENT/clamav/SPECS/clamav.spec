@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		clamav
-%define version		0.88.4
+%define version		0.88.5
 %define release		%_revrel
 
 %define	major		1
@@ -281,6 +281,9 @@ done
 
       
 %changelog
+* Tue Oct 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.88.5
+- 0.88.5: fixes for CVE-2006-4182, CVE-2006-5295
+
 * Tue Aug 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.88.4
 - 0.88.4 (fixes a heap-based buffer overflow vulnerability)
 - clean spec
