@@ -20,6 +20,7 @@ License:	Public Domain
 Group:		System/Configuration/Other
 URL:		http://annvix.org/cgi-bin/viewcvs.cgi/tools/setup
 Source:		setup-%{version}.tar.bz2
+Patch0:		setup-2.5-avx-motd.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -33,6 +34,7 @@ profile and more.
 
 %prep
 %setup -q
+%patch0 -p0
 
 
 %build
@@ -102,6 +104,9 @@ fi
 
 
 %changelog
+* Tue Oct 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5
+- fix url links in the motd (as per ying)
+
 * Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5
 - make /var/lib/rsbac owned by rsbadmin:rsbadmin and mode 0700
 

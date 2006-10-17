@@ -1,0 +1,22 @@
+--- motd~	2006-10-17 10:36:16.000000000 -0600
++++ motd	2006-10-17 10:36:16.000000000 -0600
+@@ -3,14 +3,14 @@
+ Before seeking technical support, please use the following resources:
+ 
+ * Security advisories and errata information are available at
+-  http://annvix.org/advisories/ - they are available for all Annvix
+-  releases.  Please consult the errata section for post- and pre-
+-  install support.
++  http://annvix.org/index.php/About/Changelog/1.2-RELEASE -
++  they are available for all Annvix releases.  Please consult the 
++  errata section for post- and pre-install support.
+ 
+ * The various mailing lists for Annvix will often help you find answers
+   to any problems you may have.  Take a look at the mailing list archives
+-  at http://annvix.org/archives/.  You can also subscribe to different
+-  mailing lists here.
++  at http://annvix.org/index.php/About/MailingLists.  You can also
++  subscribe to different mailing lists here.
+ 
+ If you still have a question or problem, please post any relevant information
+ about your problem to one of the support mailing lists.  Edit /etc/motd to
