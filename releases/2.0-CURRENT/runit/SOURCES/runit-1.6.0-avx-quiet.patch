@@ -1,0 +1,206 @@
+--- runit-1.6.0/man/sv.8.quiet	2006-10-01 16:18:00.000000000 -0600
++++ runit-1.6.0/man/sv.8	2006-10-01 16:18:00.000000000 -0600
+@@ -200,6 +200,9 @@
+ exits with 0.
+ .SH OPTIONS
+ .TP
++.B \-q
++Run in quiet mode and don't output anything.
++.TP
+ .B \-v
+ If the
+ .I command
+--- runit-1.6.0/src/sv.c.quiet	2006-10-01 16:00:53.000000000 -0600
++++ runit-1.6.0/src/sv.c	2006-10-01 16:07:08.000000000 -0600
+@@ -14,7 +14,7 @@
+ #include "taia.h"
+ #include "wait.h"
+ 
+-#define USAGE " [-v] [-w sec] command service ..."
++#define USAGE " [-v] [-q] [-w sec] command service ..."
+ #define USAGELSB " [-w sec] command"
+ 
+ #define VERSION "$Id: sv.c,v 1.12 2006/04/10 06:09:43 pape Exp $"
+@@ -39,6 +39,7 @@
+ unsigned int rc =0;
+ unsigned int lsb;
+ unsigned int verbose =0;
++unsigned int quiet=0;
+ unsigned long wait =7;
+ unsigned int kll =0;
+ struct taia tstart, tnow, tdiff;
+@@ -116,8 +117,10 @@
+  
+   if (stat("down", &s) == -1) {
+     if (errno != error_noent) {
+-      outs2(WARN); outs2("unable to stat "); outs2(*service); outs2("/down: ");
+-      outs2(error_str(errno)); flush2("\n");
++      if (!quiet) {
++        outs2(WARN); outs2("unable to stat "); outs2(*service); outs2("/down: ");
++        outs2(error_str(errno)); flush2("\n");
++      }
+       return(0);
+     }
+     normallyup =1;
+@@ -127,44 +130,50 @@
+   pid <<=8; pid +=(unsigned char)svstatus[13];
+   pid <<=8; pid +=(unsigned char)svstatus[12];
+   tai_unpack(svstatus, &tstatus);
+-  if (pid) {
+-    switch (svstatus[19]) {
+-    case 1: outs(RUN); break;
+-    case 2: outs(FINISH); break;
+-    }
+-    outs(m); outs(": (pid "); sulong[fmt_ulong(sulong, pid)] =0;
+-    outs(sulong); outs(") ");
+-  }
+-  else {
+-    outs(DOWN); outs(m); outs(": ");
+-  }
+-  buffer_put(buffer_1, sulong,
+-    fmt_ulong(sulong, tnow.sec.x < tstatus.x ? 0 : tnow.sec.x -tstatus.x));
+-  outs("s");
+-  if (pid && !normallyup) outs(", normally down");
+-  if (!pid && normallyup) outs(", normally up");
+-  if (pid && svstatus[16]) outs(", paused");
+-  if (!pid && (svstatus[17] == 'u')) outs(", want up");
+-  if (pid && (svstatus[17] == 'd')) outs(", want down");
+-  if (pid && svstatus[18]) outs(", got TERM");
++  if (!quiet) {
++    if (pid) {
++      switch (svstatus[19]) {
++      case 1: outs(RUN); break;
++      case 2: outs(FINISH); break;
++      }
++      outs(m); outs(": (pid "); sulong[fmt_ulong(sulong, pid)] =0;
++      outs(sulong); outs(") ");
++    }
++    else {
++      outs(DOWN); outs(m); outs(": ");
++    }
++    buffer_put(buffer_1, sulong,
++      fmt_ulong(sulong, tnow.sec.x < tstatus.x ? 0 : tnow.sec.x -tstatus.x));
++    outs("s");
++    if (pid && !normallyup) outs(", normally down");
++    if (!pid && normallyup) outs(", normally up");
++    if (pid && svstatus[16]) outs(", paused");
++    if (!pid && (svstatus[17] == 'u')) outs(", want up");
++    if (pid && (svstatus[17] == 'd')) outs(", want down");
++    if (pid && svstatus[18]) outs(", got TERM");
++  }
+   return(pid ? 1 : 2);
+ }
+ int status(char *unused) {
+   r =svstatus_get();
+   switch(r) { case -1: if (lsb) done(4); case 0: return(0); }
+   r =svstatus_print(*service);
+-  if (chdir("log") == -1) {
+-    if (errno != error_noent) {
+-      outs("; log: "); outs(WARN);
+-      outs("unable to change to log service directory: ");
+-      outs(error_str(errno));
++  if (!quiet) {
++    if (chdir("log") == -1) {
++      if (errno != error_noent) {
++        outs("; log: "); outs(WARN);
++        outs("unable to change to log service directory: ");
++        outs(error_str(errno));
++      }
+     }
+   }
+   else
+     if (svstatus_get()) {
+-      outs("; "); svstatus_print("log");
++      if (!quiet)
++        outs("; "); svstatus_print("log");
+     }
+-  flush("\n");
++  if (!quiet)
++    flush("\n");
+   if (lsb) switch(r) { case 1: done(0); case 2: done(3); case 0: done(4); }
+   return(r);
+ }
+@@ -176,14 +185,18 @@
+ 
+   if (stat("check", &s) == -1) {
+     if (errno == error_noent) return(1);
+-    outs2(WARN); outs2("unable to stat "); outs2(*service); outs2("/check: ");
+-    outs2(error_str(errno)); flush2("\n");
++    if (!quiet) {
++      outs2(WARN); outs2("unable to stat "); outs2(*service); outs2("/check: ");
++      outs2(error_str(errno)); flush2("\n");
++    }
+     return(0);
+   }
+   /* if (!(s.st_mode & S_IXUSR)) return(1); */
+   if ((pid =fork()) == -1) {
+-    outs2(WARN); outs2("unable to fork for "); outs2(*service);
+-    outs2("/check: "); outs2(error_str(errno)); flush2("\n");
++    if (!quiet) {
++      outs2(WARN); outs2("unable to fork for "); outs2(*service);
++      outs2("/check: "); outs2(error_str(errno)); flush2("\n");
++    }
+     return(0);
+   }
+   if (!pid) {
+@@ -191,14 +204,18 @@
+     prog[1] =0;
+     close(1);
+     execve("check", prog, environ);
+-    outs2(WARN); outs2("unable to run "); outs2(*service); outs2("/check: ");
+-    outs2(error_str(errno)); flush2("\n");
++    if (!quiet) {
++      outs2(WARN); outs2("unable to run "); outs2(*service); outs2("/check: ");
++      outs2(error_str(errno)); flush2("\n");
++    }
+     _exit(0);
+   }
+   while (wait_pid(&w, pid) == -1) {
+     if (errno == error_intr) continue;
+-    outs2(WARN); outs2("unable to wait for child "); outs2(*service);
+-    outs2("/check: "); outs2(error_str(errno)); flush2("\n");
++    if (!quiet) {
++      outs2(WARN); outs2("unable to wait for child "); outs2(*service);
++      outs2("/check: "); outs2(error_str(errno)); flush2("\n");
++    }
+     return(0);
+   }
+   return(!wait_exitcode(w));
+@@ -232,7 +249,8 @@
+     if ((!pid && tstart.sec.x > tstatus.x) || (pid && svstatus[17] != 'd'))
+       return(0);
+   }
+-  outs(OK); svstatus_print(*service); flush("\n");
++  if (!quiet)
++    outs(OK); svstatus_print(*service); flush("\n");
+   return(1);
+ }
+ int control(char *a) {
+@@ -267,10 +285,11 @@
+   lsb =(str_diff(progname, "sv"));
+   if ((x =env_get("SVDIR"))) varservice =x;
+   if ((x =env_get("SVWAIT"))) scan_ulong(x, &wait);
+-  while ((i =getopt(argc, (const char* const*)argv, "w:vV")) != opteof) {
++  while ((i =getopt(argc, (const char* const*)argv, "w:qvV")) != opteof) {
+     switch(i) {
+     case 'w': scan_ulong(optarg, &wait);
+     case 'v': verbose =1; break;
++    case 'q': quiet=1; break;
+     case 'V':
+       strerr_warn1("$Id: sv.c,v 1.12 2006/04/10 06:09:43 pape Exp $", 0);
+     case '?': usage();
+@@ -360,9 +379,11 @@
+           }
+         if (*service) { if (cbk(acts) != 0) *service =0; else done =0; }
+         if (*service && taia_approx(&tdiff) > wait) {
+-          kll ? outs(KILL) : outs(TIMEOUT);
+-          if (svstatus_get() > 0) { svstatus_print(*service); ++rc; }
+-          flush("\n");
++          if (!quiet) {
++            kll ? outs(KILL) : outs(TIMEOUT);
++            if (svstatus_get() > 0) { svstatus_print(*service); ++rc; }
++            flush("\n");
++          }
+           if (kll) control("k");
+           *service =0;
+         }

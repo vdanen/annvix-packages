@@ -9,10 +9,10 @@
 
 %define	revision	$Rev$
 %define	name		runit
-%define	version		1.6.0
+%define	version		1.7.0
 %define	release		%_revrel
 
-%define aver		0.5
+%define aver		0.6
 
 Summary:	A UN*X init scheme with service supervision
 Name:		%{name}
@@ -21,15 +21,23 @@ Release:	%{release}
 License:	BSD
 Group:		System/Base
 URL:		http://smarden.org/runit/
-Source0:	%{name}-%{version}.tar.gz
+Source0:	http://smarden.org/runit/%{name}-%{version}.tar.gz
 # available from http://annvix.org/cg-bin/viewcvs.cgi/tools/runit/
 Source1:	annvix-runit-%{aver}.tar.bz2
 Patch0:		runit-1.3.1-avx-localtime.patch
+Patch1:		runit-1.6.0-avx-svlogd_perms.patch
+Patch2:		runit-1.6.0-avx-quiet.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	dietlibc-devel >= 0.28
 
-Requires:	SysVinit >= 2.85-7avx, initscripts, srv, mingetty, execline, ipsvd
+Requires:	SysVinit >= 2.85-7avx
+Requires:	initscripts
+Requires:	srv
+Requires:	mingetty
+Requires:	execline
+Requires:	ipsvd
+Requires:	psmisc
 Conflicts:	SysVinit <= 2.85-6avx
 
 %description
@@ -54,6 +62,8 @@ This package contains the documentation for %{name}.
 %setup -q -n admin -a 1
 pushd %{name}-%{version}
 %patch0 -p1 -b .localtime
+%patch1 -p1 -b .svlogd_perms
+%patch2 -p1 -b .quiet
 popd
 
 %build
@@ -72,7 +82,9 @@ popd
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-mkdir -p %{buildroot}{/service,/sbin,%{_mandir}/man8,%{_sysconfdir}/{runit,sysconfig/env/runit},%{_srvdir}/mingetty-tty{1,2,3,4,5,6}}
+mkdir -p %{buildroot}/{service,sbin,%{_mandir}/man8,%{_initrddir}}
+mkdir -p %{buildroot}%{_sysconfdir}/{runit,sysconfig/env/{runit,network,clock,hdparm}}
+mkdir -p %{buildroot}%{_srvdir}/mingetty-tty{1,2,3,4,5,6}
 
 pushd %{name}-%{version}
     for i in `cat package/commands`; do
@@ -93,6 +105,15 @@ pushd annvix-runit-%{aver}
     for i in STAGE_3_TIMEOUT GETTY_TIMEOUT CTRLALTDEL_TIMEOUT
     do
         install -m 0640 env/$i %{buildroot}%{_sysconfdir}/sysconfig/env/runit/$i
+    done
+    pushd init
+        make DESTDIR=%{buildroot} install
+    popd
+    for name in HOSTNAME GATEWAY; do
+        touch %{buildroot}%{_sysconfdir}/sysconfig/env/network/${name}
+    done
+    for name in UTC ZONE; do
+        touch %{buildroot}%{_sysconfdir}/sysconfig/env/clock/${name}
     done
 popd
 
@@ -145,12 +166,20 @@ fi
 %attr(0755,root,root) /sbin/svlogd
 %attr(0755,root,root) /sbin/chpst
 %attr(0755,root,root) /sbin/utmpset
+%attr(0700,root,root) /sbin/rc
+%attr(0700,root,root) /sbin/convert-envdir
 %attr(0644,root,root) %{_mandir}/man8/*.8*
 %attr(0700,root,root) %dir %{_sysconfdir}/runit
 %attr(0700,root,root) %{_sysconfdir}/runit/1
 %attr(0700,root,root) %{_sysconfdir}/runit/2
 %attr(0700,root,root) %{_sysconfdir}/runit/3
 %attr(0700,root,root) %{_sysconfdir}/runit/ctrlaltdel
+%attr(0750,root,admin) %dir %{_sysconfdir}/sysconfig/env/clock
+%attr(0640,root,admin) %config(noreplace) %{_sysconfdir}/sysconfig/env/clock/UTC
+%attr(0640,root,admin) %config(noreplace) %{_sysconfdir}/sysconfig/env/clock/ZONE
+%attr(0750,root,admin) %dir %{_sysconfdir}/sysconfig/env/network
+%attr(0640,root,admin) %config(noreplace) %{_sysconfdir}/sysconfig/env/network/GATEWAY
+%attr(0640,root,admin) %config(noreplace) %{_sysconfdir}/sysconfig/env/network/HOSTNAME
 %dir %attr(0750,root,admin) %{_srvdir}/mingetty-tty1
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/mingetty-tty1/run
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/mingetty-tty1/finish
@@ -173,6 +202,8 @@ fi
 %attr(0640,root,admin) %config(noreplace) %{_sysconfdir}/sysconfig/env/runit/STAGE_3_TIMEOUT
 %attr(0640,root,admin) %config(noreplace) %{_sysconfdir}/sysconfig/env/runit/GETTY_TIMEOUT
 %attr(0640,root,admin) %config(noreplace) %{_sysconfdir}/sysconfig/env/runit/CTRLALTDEL_TIMEOUT
+%attr(0700,root,root) %{_sysconfdir}/rc.d/rc.functions.sh
+%attr(0700,root,root) %config(noreplace) %{_sysconfdir}/rc.d/rc.local.stop
 
 %files doc
 %defattr(-,root,root)
@@ -185,9 +216,18 @@ fi
 
 
 %changelog
-* Tue Aug 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.6.0
+* Tue Oct 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.7.0
+- 1.7.0
+- fix source url
+- put rc.functions.sh in the right place
+
+* Sun Oct 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.6.0
 - with the new srv, we can drop runsvctrl, runsvstat, svwaitdown, and
   svwaitup
+- include the new rc script and friends
+- Requires: psmisc (rc needs fuser)
+- P1: make the log perms 0640 and 0740 rather than 0644 and 0744
+- P2: add a -q switch to sv (quiet mode)
 
 * Fri Jul 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.6.0
 - 1.6.0
