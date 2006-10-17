@@ -43,7 +43,6 @@ Requires:	which
 Requires:	setup
 Requires:	iproute2
 Requires:	iputils
-Requires:	perl-MDK-Common
 Requires:	util-linux >= 2.10s
 Requires:	mount >= 2.11l
 Requires:	SysVinit
@@ -271,14 +270,6 @@ exit 0
 %ghost %attr(0664,root,utmp) /var/run/utmp
 
 %{_mandir}/man*/*
-%lang(cs)    %{_mandir}/cs/man*/*
-%lang(et)    %{_mandir}/et/man*/*
-%lang(fi)    %{_mandir}/fi/man*/*
-%lang(fr)    %{_mandir}/fr/man*/*
-%lang(it)    %{_mandir}/it/man*/*
-%lang(pt_BR) %{_mandir}/pt_BR/man*/*
-%lang(ru)    %{_mandir}/ru/man*/*
-%lang(uk)    %{_mandir}/uk/man*/*
 
 %files doc
 %defattr(-,root,root)
@@ -286,6 +277,10 @@ exit 0
 
 
 %changelog
+* Mon Oct 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.33
+- remove requires on perl-MDK-Common
+- remove some locale'd manpages
+
 * Sat Sep 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.33
 - fix URL
 
