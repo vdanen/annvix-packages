@@ -15,8 +15,6 @@
 %define maj		0.9.8
 %define libname 	%mklibname %{name} %{maj}
 
-%define _requires_exceptions perl-base
-
 # Number of threads to spawn when testing some threading fixes.
 #%define thread_test_threads %{?threads:%{threads}}%{!?threads:1}
 
@@ -52,6 +50,7 @@ BuildRequires:	chrpath
 BuildRequires:	zlib-devel
 
 Requires:	%{libname} = %{version}-%{release}
+Requires:	perl
 
 %description
 The openssl certificate management tool and the shared libraries that provide
@@ -368,6 +367,10 @@ echo "%{_sysconfdir}/pki/tls"
 
 
 %changelog
+* Mon Oct 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.9.8d
+- revert the last change; perl is used by too many integral things to
+  even attempt to get rid of it in the base install
+
 * Mon Oct 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.9.8d
 - remove the requires on perl; it's silly to have it for a single script
 
