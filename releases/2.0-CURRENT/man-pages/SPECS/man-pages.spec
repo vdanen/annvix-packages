@@ -100,6 +100,9 @@ rm -f man3/crypt.3
 
 # this conflict with glibc
 rm -f man1/rpcgen.1.bz2
+
+# this conflicts with shadow-utils
+rm -f man3/getspnam.3
 				
 #mv man1/COPYING .
 mv man1/README README.GNU-INFOvsMAN
@@ -149,6 +152,9 @@ tar xfj %{SOURCE11} -C %{buildroot}%{_mandir}
 
 
 %changelog
+* Thu Oct 19 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.08
+- remove man3/getspnam.3 as it conflicts with shadow-utils
+
 * Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.08
 - add -doc subpackage
 - fix requires
