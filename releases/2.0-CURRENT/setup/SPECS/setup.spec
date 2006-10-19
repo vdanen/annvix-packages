@@ -105,6 +105,9 @@ fi
 
 
 %changelog
+* Thu Oct 19 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5
+- updated tarball to add svnserve alias to svn (/etc/services)
+
 * Tue Oct 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5
 - updated tarball to fix motd
 
