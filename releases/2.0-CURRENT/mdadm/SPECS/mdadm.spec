@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		mdadm
-%define version		2.5.2
+%define version		2.5.4
 %define release		%_revrel
 
 %define use_dietlibc 	0
@@ -17,8 +17,8 @@
 %define use_dietlibc 	1
 %endif
 
-%define mdassemble_auto	%{nil}
-#define mdassemble_auto	MDASSEMBLE_AUTO=1
+#define mdassemble_auto	%{nil}
+%define mdassemble_auto	MDASSEMBLE_AUTO=1
 
 # we want to install in /sbin, not /usr/sbin...
 %define _exec_prefix	%{nil}
@@ -135,6 +135,11 @@ install -m 0740 %{_sourcedir}/mdadm-log.run %{buildroot}%{_srvdir}/mdadm/log/run
 
 
 %changelog
+* Thu Oct 19 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5.4
+- 2.5.4
+- re-enable auto-assembly (not sure when this was removed, but re-enable
+  it even if it doesn't seem to work properly)
+
 * Fri Aug 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5.2
 - requires setup (for group admin)
 - spec cleanups
