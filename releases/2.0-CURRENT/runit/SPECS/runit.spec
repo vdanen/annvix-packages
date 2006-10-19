@@ -216,6 +216,10 @@ fi
 
 
 %changelog
+* Thu Oct 19 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.7.0
+- updated tarball to get some stage{1,3} fixes and an /sbin/rc fix
+  to not mount filesystems marked auto
+
 * Tue Oct 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.7.0
 - 1.7.0
 - fix source url
