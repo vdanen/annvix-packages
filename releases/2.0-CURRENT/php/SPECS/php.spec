@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		php
-%define version		5.1.4
+%define version		5.1.6
 %define release		%_revrel
 %define epoch		2
 
@@ -17,8 +17,7 @@
 %define libname		%mklibname php_common %{libversion}
 %define oldlibname	%mklibname php_common 4
 
-%global harden          1
-%{?_without_harden:     %global harden 0}
+%define suhosin_ver	0.9.5
 
 %global test		1
 %{?_without_test:	%global test 0}
@@ -87,7 +86,7 @@ Patch75:	php-bug-22414.patch
 Patch76:	php-5.0.4-bug29119.diff
 Patch77:	php-5.1.0RC6-CVE-2005-3388.diff
 # http://www.hardened-php.net/
-Patch100:	http://www.hardened-php.net/hardening-patch-5.1.4-0.4.14.patch
+Patch100:	suhosin-patch-%{version}-%{suhosin_ver}.patch
 
 Requires(post):	%{libname} >= %{version}
 Requires(preun): %{libname} >= %{version}
@@ -134,6 +133,7 @@ Requires:	php-sysvshm >= %{version}
 Requires:	php-tokenizer >= %{version}
 Requires:	php-simplexml >= %{version}
 Requires:	php-hash >= %{version}
+Requires:	php-suhosin >= %{version}
 Provides:	php
 Provides:	php3
 Provides:	php4
@@ -174,6 +174,7 @@ Requires:	php-sysvshm >= %{version}
 Requires:	php-tokenizer >= %{version}
 Requires:	php-simplexml >= %{version}
 Requires:	php-hash >= %{version}
+Requires:	php-suhosin >= %{version}
 Provides:	php
 Provides:	php3
 Provides:	php4
@@ -295,9 +296,7 @@ This package contains the documentation for %{name}.
 %patch76 -p0 -b .bug29119.avx
 %patch77 -p0 -b .cve-2005-3388.avx
 
-%if %{harden}
-%patch100 -p1 -b .hardened.avx
-%endif
+%patch100 -p1 -b .suhosin.avx
 
 # Change perms otherwise rpm would get fooled while finding requires
 find -name "*.inc" | xargs chmod 0644
@@ -467,7 +466,7 @@ unset TZ LANG LC_ALL
 # http://bugs.php.net/bug.php?id=31402 (no fix yet)
 # tests/run-test/test008.phpt requires the Zend Optimizer
 # http://bugs.php.net/bug.php?id=37276 (claims fixed 05/03/2006, but 5.1.4 fails)
-# Zend/tests/bug36568 broke with hardened php 0.4.14
+# Zend/tests/abstract-static broke with suhosin patch
 
 disable_tests="	ext/standard/tests/file/bug21131.phpt \
 		ext/standard/tests/file/bug22414.phpt \
@@ -491,7 +490,8 @@ disable_tests="	ext/standard/tests/file/bug21131.phpt \
 		ext/standard/tests/general_functions/sunfuncts.phpt \
 %endif
 		ext/standard/tests/time/bug20382.phpt \
-		Zend/tests/bug36568.phpt"
+                Zend/tests/abstract-static.phpt"
+#		Zend/tests/bug36568.phpt"
 
 [[ -n "$disable_tests" ]] && \
 for f in $disable_tests; do
@@ -655,7 +655,7 @@ update-alternatives --remove php %{_bindir}/php-cli
 
 %files doc
 %defattr(-,root,root)
-%doc CREDITS* README* TODO* Zend/ZEND_* Changelog.secfix
+%doc CREDITS* README* TODO* Zend/ZEND_*
 %doc INSTALL LICENSE NEWS php.ini-dist php.ini-recommended configure_command
 %doc SELF-CONTAINED-EXTENSIONS CODING_STANDARDS TODO EXTENSIONS
 %doc php-dom-examples
@@ -664,6 +664,14 @@ update-alternatives --remove php %{_bindir}/php-cli
 
 
 %changelog
+* Fri Oct 20 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.6
+- P100: use the suhosin patch instead of the hardened patch
+- requires php-suhosin
+
+* Thu Sep 07 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.6
+- 5.1.6 (multiple security fixes)
+- updated hardening patch
+
 * Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.4
 - rebuild against new openssl
 - spec cleanups
