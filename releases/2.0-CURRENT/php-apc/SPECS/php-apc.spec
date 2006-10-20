@@ -20,7 +20,7 @@
 %define modname		apc
 %define dirname		%{modname}
 %define soname		%{modname}.so
-%define inifile		99_%{modname}.ini
+%define inifile		98_%{modname}.ini
 
 %define _requires_exceptions	pear(
 
@@ -114,6 +114,9 @@ install -m 0755 %{soname} %{buildroot}%{phpdir}/extensions/
 
 
 %changelog
+* Fri Oct 20 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.10
+- move the apc ini position from 99 to 98
+
 * Tue Jul 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.10
 - set apc.user_ttl to 7200
 - set apc.mmap_file_mask to /tmp/apc.XXXXXX
