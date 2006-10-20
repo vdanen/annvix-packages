@@ -12,7 +12,7 @@
 %define version		%{phpversion}
 %define release		%_revrel
 
-%define phpversion	5.1.4
+%define phpversion	5.1.6
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir		%{_libdir}/php
 
@@ -31,14 +31,16 @@ Group:		Development/PHP
 URL:		http://www.php.net
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:  php-devel >= 5.1.4
-BuildRequires:	gdbm-devel, db4-devel
+BuildRequires:  php-devel >= %{phpversion}
+BuildRequires:	gdbm-devel
+BuildRequires:	db4-devel
 
 Requires:	php >= 5.1.2
 
 %description
 This is a dynamic shared object (DSO) for PHP that will add flat-file
 databases (DBA) support (gdbm, db4, cdb, etc.).
+
 
 %prep
 %setup -c -T
@@ -82,6 +84,9 @@ EOF
 
 
 %changelog
+* Fri Oct 20 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.6
+- php 5.1.6+suhosin
+
 * Fri Jun 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.4
 - rebuild against new db4
 
