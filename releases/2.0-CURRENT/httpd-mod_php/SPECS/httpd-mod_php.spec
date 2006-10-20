@@ -14,7 +14,7 @@
 
 # Module-Specific definitions
 %define apache_version	2.2.3
-%define phpversion	5.1.4
+%define phpversion	5.1.6
 %define mod_name	mod_php
 %define mod_conf	70_%{mod_name}.conf
 %define mod_so		%{mod_name}5.so
@@ -48,6 +48,7 @@ Requires:       php-sysvshm >= %{phpversion}
 Requires:       php-tokenizer >= %{phpversion}
 Requires:       php-simplexml >= %{phpversion}
 Requires:       php-hash >= %{phpversion}
+Requires:       php-suhosin
 Requires:	%{plibname} >= %{phpversion}
 Provides:	php
 Provides:	php4
@@ -129,6 +130,10 @@ cat %{_sourcedir}/%{mod_conf} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod
 
 
 %changelog
+* Fri Oct 20 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3_5.1.6
+- php 5.1.6
+- requires php-suhosin
+
 * Sun Jul 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3_5.1.4
 - apache 2.2.3
 - spec cleanups
