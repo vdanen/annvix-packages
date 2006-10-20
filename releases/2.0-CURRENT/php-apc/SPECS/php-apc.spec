@@ -13,14 +13,14 @@
 %define release		%_revrel
 %define epoch		1
 
-%define phpversion	5.1.4
+%define phpversion	5.1.6
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir		%{_libdir}/php
 
 %define modname		apc
 %define dirname		%{modname}
 %define soname		%{modname}.so
-%define inifile		98_%{modname}.ini
+%define inifile		99_%{modname}.ini
 
 %define _requires_exceptions	pear(
 
@@ -114,6 +114,10 @@ install -m 0755 %{soname} %{buildroot}%{phpdir}/extensions/
 
 
 %changelog
+* Fri Oct 20 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.10
+- php 5.1.6+suhosin
+- revert previous change
+
 * Fri Oct 20 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.10
 - move the apc ini position from 99 to 98
 
