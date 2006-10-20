@@ -133,7 +133,7 @@ Requires:	php-sysvshm >= %{version}
 Requires:	php-tokenizer >= %{version}
 Requires:	php-simplexml >= %{version}
 Requires:	php-hash >= %{version}
-Requires:	php-suhosin >= %{version}
+Requires:	php-suhosin
 Provides:	php
 Provides:	php3
 Provides:	php4
@@ -174,7 +174,7 @@ Requires:	php-sysvshm >= %{version}
 Requires:	php-tokenizer >= %{version}
 Requires:	php-simplexml >= %{version}
 Requires:	php-hash >= %{version}
-Requires:	php-suhosin >= %{version}
+Requires:	php-suhosin
 Provides:	php
 Provides:	php3
 Provides:	php4
@@ -664,6 +664,10 @@ update-alternatives --remove php %{_bindir}/php-cli
 
 
 %changelog
+* Fri Oct 20 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.6
+- remove the version requirements on php-suhosin since it's using it's
+  own version, not php's
+
 * Fri Oct 20 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.6
 - P100: use the suhosin patch instead of the hardened patch
 - requires php-suhosin
