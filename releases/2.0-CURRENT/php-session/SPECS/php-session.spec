@@ -12,7 +12,7 @@
 %define version		%{phpversion}
 %define release		%_revrel
 
-%define phpversion	5.1.4
+%define phpversion	5.1.6
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir		%{_libdir}/php
 
@@ -31,7 +31,7 @@ URL:		http://www.php.net
 Source0:	php-session.ini
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:  php-devel >= 5.1.4
+BuildRequires:  php-devel >= %{phpversion}
 
 Requires:	php
 
@@ -41,7 +41,7 @@ support.
 
 
 %prep
-%setup -c -T
+%setup -c -T -q
 cp -dpR %{phpsource}/extensions/%{dirname}/* .
 
 
@@ -62,7 +62,6 @@ install -d %{buildroot}%{phpdir}/extensions
 install -d %{buildroot}%{_sysconfdir}/php.d
 
 install -m 0755 %{soname} %{buildroot}%{phpdir}/extensions/
-
 install -m 0644 %{SOURCE0} %{buildroot}%{_sysconfdir}/php.d/%{inifile}
 
 
@@ -77,6 +76,9 @@ install -m 0644 %{SOURCE0} %{buildroot}%{_sysconfdir}/php.d/%{inifile}
 
 
 %changelog
+* Sat Oct 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.6
+- php 5.1.6+suhosin
+
 * Sun Jun 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.4
 - remove docs
 
