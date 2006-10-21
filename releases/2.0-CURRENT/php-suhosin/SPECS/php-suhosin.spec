@@ -5,9 +5,9 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-# $Id: php-apc.spec 6207 2006-10-20 14:47:07Z vdanen $
+# $Id$
 
-%define revision	$Rev: 6207 $
+%define revision	$Rev$
 %define name		php-%{modname}
 %define version		0.9.8
 %define release		%_revrel
