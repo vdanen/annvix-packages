@@ -20,16 +20,15 @@ License:	GPL
 Group:		System/Configuration
 URL:		http://www.mandrivalinux.com/
 Source0:	%{name}-%{version}.tar.bz2
-Patch0:		rpm-helper-0.14-avx-srv.patch
+Patch0:		rpm-helper-0.15-avx-srv.patch
 Patch1:		rpm-helper-0.15-avx-fix_chown_syntax.patch
 Patch2:		rpm-helper-0.15-avx-fix_preun_shelldel.patch
 
 BuildArch:	noarch
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
-Conflicts:	chkconfig < 1.3.4-10mdk
 Requires(pre):	setup
-Requires:	chkconfig
+Requires:	runit
 Requires:	grep
 Requires:	shadow-utils
 Requires:	coreutils
@@ -83,6 +82,11 @@ chmod 0755 {add,del}-srv mkdepends
 
 
 %changelog
+* Sat Oct 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.15
+- update P0 to make changes to add-service and del-service to use
+  rc-update rather than chkconfig
+- requires runit rather than chkconfig
+
 * Sun Sep 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.15
 - P2: fix %%_preun_shelldel macro (was missing a %%{1})
 - change runsvctrl calls to /sbin/sv calls

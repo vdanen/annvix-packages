@@ -116,12 +116,20 @@
 +fi
 +
 +# del-srv ends here
---- add-service.avx	2005-09-22 23:53:43.000000000 -0400
-+++ add-service	2005-09-22 23:53:43.000000000 -0400
-@@ -27,40 +27,12 @@
-     if [ -r /etc/sysconfig/system ]; then
- 	. /etc/sysconfig/system
-     fi
+--- add-service.avx	2006-02-09 03:47:14.000000000 -0700
++++ add-service	2006-10-21 13:13:24.000000000 -0600
+@@ -19,77 +19,26 @@
+ num=$2				# number of packages installed
+ srv=$3				# name of the service
+ 
+-add_chkconfig_service() {
+-    srv=$1
+-
+-    /sbin/chkconfig --add $srv
+-
+-    if [ -r /etc/sysconfig/system ]; then
+-	. /etc/sysconfig/system
+-    fi
 -
 -    if [ -z "$ADD_SERVICES_TO_CURRENT_PROFILE_ONLY" ]; then
 -	# add the service to all the profiles at once
@@ -131,14 +139,14 @@
 -	    done
 -	fi
 -    fi
- }
- 
- add_service() {
-     # Add the service
+-}
+-
+-add_service() {
+-    # Add the service
 -    if [ -r /etc/sysconfig/msec ]; then
 -	. /etc/sysconfig/msec
 -    fi
-     
+-    
 -    # High security: add only authorized services
 -    LIST=/etc/security/msec/server
 -
@@ -156,10 +164,57 @@
 -	# Low security: install all the services
 -	add_chkconfig_service $srv
 -    fi
-+    add_chkconfig_service $srv
- }
- 
+-}
+-
  if [ $num = 1 ]; then
+     # First install mode
+-    add_service
++    /sbin/rc-update add ${srv}
+ else
+     # Upgrade mode
+ 
+     # if the service is activated, add it again to be able to handle
+     # changes in start/stop levels
+-    set -- /etc/rc3.d/S??$srv
++    set -- /etc/runlevels/default/*${srv}
+     if [ $# -gt 1 ]; then
+-	echo 1>&2 "add-service: Error: $srv appears multiple times: $*"
++	echo 1>&2 "add-service: Error: ${srv} appears multiple times: $*"
+     fi
+-    if [ -f "$1" ]; then
+-	/sbin/chkconfig --add $srv
++    if [ -L "$1" ]; then
++        /sbin/rc-update del ${srv}
++        /sbin/rc-update add ${srv}
+     fi
+ 
+     # restart the service if already running
+-    if [ -f /var/lock/subsys/$srv ]; then
+-	/sbin/service $srv restart > /dev/null 2>/dev/null || :
+-	# restart services that depend of portmap
+-	if [ $srv = portmap ]; then
+-	    for s in amd autofs bootparamd clusternfs mcserv nfs nfslock ypserv ypbind yppasswdd ypxfrd; do
+-		if [ -f /var/lock/subsys/$s ]; then
+-		    /sbin/service $s restart > /dev/null 2>/dev/null || :
+-		fi
+-	    done
+-	fi
++    if [ -f /var/lock/subsys/${srv} ]; then
++	/sbin/service ${srv} restart > /dev/null 2>/dev/null || :
+     fi
+ fi
+ 
+--- del-service.avx	2006-10-21 13:13:53.000000000 -0600
++++ del-service	2006-10-21 13:14:13.000000000 -0600
+@@ -21,7 +21,7 @@
+ 
+ if [ $num = 0 ]; then
+     /sbin/service $srv stop > /dev/null 2>/dev/null || :
+-    /sbin/chkconfig --del $srv
++    /sbin/rc-update del ${srv}
+ fi
+ 
+ # del-service ends here
 --- mkdepends.avx	2005-09-25 12:46:27.000000000 -0400
 +++ mkdepends	2005-09-25 12:47:05.000000000 -0400
 @@ -0,0 +1,24 @@
