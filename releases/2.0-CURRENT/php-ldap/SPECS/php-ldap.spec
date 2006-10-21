@@ -12,7 +12,7 @@
 %define version		%{phpversion}
 %define release		%_revrel
 
-%define phpversion	5.1.4
+%define phpversion	5.1.6
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir		%{_libdir}/php
 
@@ -30,22 +30,23 @@ Group:		Development/PHP
 URL:		http://www.php.net
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:  php-devel >= 5.1.4
+BuildRequires:  php-devel >= %{phpversion}
 BuildRequires:	libldap-devel
 BuildRequires:	libsasl-devel
 
-Requires:	php >= 5.1.2
+Requires:	php >= %{phpversion}
 
 %description
 This is a dynamic shared object (DSO) for PHP that will add LDAP
 support.
 
 %prep
-%setup -c -T
+%setup -c -T -q
 cp -dpR %{phpsource}/extensions/%{dirname}/* .
 
 # lib64 fix
 perl -pi -e "s|/lib\b|/%{_lib}|g" config.m4
+
 
 %build
 export CFLAGS="%{optflags} -DLDAP_DEPRECATED"
@@ -85,6 +86,9 @@ EOF
 
 
 %changelog
+* Sat Oct 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.6
+- php 5.1.6+suhosin
+
 * Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.4
 - rebuild against new openldap 
 - spec cleanups
