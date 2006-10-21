@@ -19,17 +19,17 @@ Release:	%{release}
 License:	GPL
 Group:		Applications/System
 URL:		http://fedora.redhat.com/projects/additional-projects/kudzu/
-Source:		kudzu-%{version}.tar.gz
+Source0:	kudzu-%{version}.tar.gz
+Source1:	kudzu-avx.init
 Patch0:		kudzu-1.1.95-avx-python2.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	pciutils-devel >= 2.1.11-1, python-devel, python, newt-devel
+BuildRequires:	pciutils-devel >= 2.1.11-1
+BuildRequires:	python-devel
+BuildRequires:	python
+BuildRequires:	newt-devel
 
-Requires(post):	chkconfig
-Requires(post):	initscripts
 Requires(post):	rpm-helper
-Requires(preun): chkconfig
-Requires(preun): initscripts
 Requires(preun): rpm-helper
 Requires:	pam >= 0.74-17
 Requires:	hwdata
@@ -68,11 +68,6 @@ This package contains the documentation for %{name}.
 %setup -q
 %patch0 -p1 -b .python2
 
-# hack: do not start kudzu on s390/s390x on bootup
-%ifarch s390 s390x
-perl -pi -e "s/345/-/g" kudzu.init
-%endif
-
 
 %build
 ln -s `pwd` kudzu
@@ -84,6 +79,7 @@ make RPM_OPT_FLAGS="%{optflags} -I." all kudzu
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make install install-program DESTDIR=%{buildroot} libdir=%{buildroot}%{_libdir}
 install -m 0755 fix-mouse-psaux %{buildroot}%{_sbindir}
+install -m 0750 %{_sourcedir}/kudzu-avx.init %{buildroot}%{_initrddir}/kudzu
 
 %kill_lang %{name}
 %find_lang %{name}
@@ -109,7 +105,7 @@ install -m 0755 fix-mouse-psaux %{buildroot}%{_sbindir}
 %{_sbindir}/fix-mouse-psaux
 %{_mandir}/man8/*
 %config(noreplace) %{_sysconfdir}/sysconfig/kudzu
-%{_initrddir}/kudzu
+%attr(0750,root,admin) %{_initrddir}/kudzu
 %{_libdir}/python*/site-packages/*
 
 %Files devel
@@ -124,6 +120,11 @@ install -m 0755 fix-mouse-psaux %{buildroot}%{_sbindir}
 
 
 %changelog
+* Sat Oct 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.34.3
+- S1: our own custom initscript
+- remove dependenicies on initscripts and chkconfig
+- permissions on the initscript are now 0750 and owned root:admin
+
 * Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.34.3
 - remove locales
 

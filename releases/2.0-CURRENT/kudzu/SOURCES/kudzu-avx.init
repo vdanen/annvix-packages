@@ -1,0 +1,48 @@
+#!/bin/bash
+#
+# This script runs the kudzu hardware probe and optionally configures
+# changed hardware
+#
+# This runscript was written for Annvix (http://annvix.org/)
+#
+# $Id$
+
+. /etc/rc.d/rc.functions.sh
+
+KUDZU_ARGS=
+name="kudzu"
+SAFE="`head -1 /etc/sysconfig/env/kudzu/SAFE`"
+
+if [ "${SAFE}" != "no" ]; then
+    KUDZU_ARGS="-s"
+fi
+
+case "${1}" in
+    start)
+        ebegin "Checking for hardware changes"
+        # Have a 30 second timeout.
+        /sbin/kudzu ${KUDZU_ARGS} -z || /sbin/kudzu ${KUDZU_ARGS}
+        eend $?
+        touch /var/lock/subsys/kudzu
+        ;;
+ status)
+        if [ -f /var/lock/subsys/kudzu ]; then
+            printf "${name} has run\n"
+            exit 0
+	else
+            printf "${name} is stopped\n"
+            exit 3
+        fi
+        ;;
+ stop)
+        ebegin "Resetting kudzu"
+        rm -f /var/lock/subsys/kudzu
+        eend $?
+        ;;
+ *)
+        printf "Usage: $0 {start|stop|status}\n"
+        exit 1
+        ;;
+esac
+
+exit 0
