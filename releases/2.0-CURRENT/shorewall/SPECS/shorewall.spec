@@ -26,14 +26,15 @@ Source1:	ftp://ftp.shorewall.net/pub/shorewall/2.4/shorewall-%{version}/%{versio
 Source2:	ftp://ftp.shorewall.net/pub/shorewall/Samples/samples-%{samples_version}/one-interface.tgz
 Source3:	ftp://ftp.shorewall.net/pub/shorewall/Samples/samples-%{samples_version}/two-interfaces.tgz
 Source4:	ftp://ftp.shorewall.net/pub/shorewall/Samples/samples-%{samples_version}/three-interfaces.tgz
-Source5:	shorewall.init
+Source5:	shorewall-avx.init
 Source10:	http://shorewall.net/pub/shorewall/errata/2.0.10/bogons
 Source11:	http://shorewall.net/pub/shorewall/2.4/shorewall-%{version}/errata/firewall
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 
-Requires:	iptables, chkconfig
+Requires:	iptables
+Requires:	runit
 Requires(post):	rpm-helper
 Requires(preun): rpm-helper
 Conflicts:	kernel <= 2.2
@@ -55,12 +56,12 @@ This package contains the documentation for %{name}.
 %prep
 %setup -q
 
-cp %{SOURCE5} init.sh
+cp %{_sourcedir}/shorewall-avx.init init.sh
 mkdir samples
 pushd samples
-    tar xzf %{SOURCE2}
-    tar xzf %{SOURCE3}
-    tar xzf %{SOURCE4}
+    tar xzf %{_sourcedir}/one-interface.tgz
+    tar xzf %{_sourcedir}/two-interfaces.tgz
+    tar xzf %{_sourcedir}/three-interfaces.tgz
 popd
 
 
@@ -80,12 +81,8 @@ export OWNER=`id -n -u` ; \
 export GROUP=`id -n -g` ;\
 ./install.sh
 
-install -m 0600 %{SOURCE10} %{buildroot}%{_datadir}/%{name}/bogons
-install -m 0544 %{SOURCE11} %{buildroot}%{_datadir}/%{name}/firewall
-
-mkdir -p %{buildroot}%{_initrddir}
-mv %{buildroot}/etc/init.d/shorewall %{buildroot}%{_initrddir}/
-rm -rf %{buildroot}/etc/init.d
+install -m 0600 %{_sourcedir}/bogons %{buildroot}%{_datadir}/%{name}/bogons
+install -m 0544 %{_sourcedir}/firewall %{buildroot}%{_datadir}/%{name}/firewall
 
 # Suppress automatic replacement of "echo" by "gprintf" in the shorewall
 # startup script by RPM. This automatic replacement is broken.
@@ -150,6 +147,11 @@ export DONT_GPRINTIFY=1
 
 
 %changelog
+* Sat Oct 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.1
+- new initscript
+- spec cleanups
+- requires runit, not chkconfig
+
 * Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.1
 - add -doc subpackage
 - rebuild with gcc4

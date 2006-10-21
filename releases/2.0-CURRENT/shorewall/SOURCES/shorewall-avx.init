@@ -1,0 +1,36 @@
+#!/bin/bash
+#
+# This script runs the shorewall firewall
+#
+# This runscript was written for Annvix (http://annvix.org/)
+#
+# $Id: kudzu-avx.init 6241 2006-10-21 16:47:07Z vdanen $
+
+. /etc/init.d/rc.functions.sh
+
+order=12
+name=shorewall
+
+OPTIONS="-f -q"
+
+case "${1}" in
+    start)
+        ebegin "Starting shorewall"
+        # shorewall is super-noisy, even in quiet mode so silence it good
+        exec /sbin/shorewall ${OPTIONS} start >/dev/null 2>&1
+        eend $?
+        touch /var/lock/subsys/shorewall
+        ;;
+    stop)
+        ebegin "Stopping shorewall"
+        exec /sbin/shorewall ${OPTIONS} stop >/dev/null 2>&1
+        eend $?
+        ;;
+    restart|status)
+        exec /sbin/shorewall $@
+        ;;
+    *)
+        printf "Usage: $0 {start|stop|restart|status}\n"
+        exit 1
+        ;;
+esac
