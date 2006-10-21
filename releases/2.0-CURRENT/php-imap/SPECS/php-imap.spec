@@ -12,7 +12,7 @@
 %define version		%{phpversion}
 %define release		%_revrel
 
-%define phpversion	5.1.4
+%define phpversion	5.1.6
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir		%{_libdir}/php
 
@@ -30,28 +30,26 @@ License:	PHP License
 Group:		Development/PHP
 URL:		http://www.php.net
 Source0:	ftp://ftp.cac.washington.edu/mail/imap-2002d.tar.bz2
-Source7:	flock.c
-Source8:	Makefile.imap
+Source1:	flock.c
 Patch0: 	imap-2001a-ssl.patch
 Patch1: 	imap-2000-linux.patch
-Patch3:		imap-2001a-disable-mbox.patch
-Patch4:		imap-2001a-redhat.patch
-Patch5: 	imap-2000c-flock.patch
-Patch7: 	imap-2002d-version.patch
-Patch9:		imap-2000-glibc-2.2.2.patch
-Patch10:	imap-2002a-ssldocs.patch
-Patch11:	imap-2002-krbpath.patch
-Patch12:	imap-2001a-overflow.patch
-Patch14:	imap-2002a-ansi.patch
-Patch15:	imap-2002a-noprompt-makefile.patch
-Patch16:	imap-2002d-CAN-2005-2933.patch
+Patch2:		imap-2001a-disable-mbox.patch
+Patch3:		imap-2001a-redhat.patch
+Patch4: 	imap-2000c-flock.patch
+Patch5: 	imap-2002d-version.patch
+Patch6:		imap-2000-glibc-2.2.2.patch
+Patch7:		imap-2002a-ssldocs.patch
+Patch8:		imap-2001a-overflow.patch
+Patch9:		imap-2002a-ansi.patch
+Patch10:	imap-2002a-noprompt-makefile.patch
+Patch11:	imap-2002d-CAN-2005-2933.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:  php-devel >= 5.1.4
+BuildRequires:  php-devel >= %{phpversion}
 BuildRequires:	pam-devel >= 0.75
 BuildRequires:	openssl-devel
 
-Requires:	php >= 5.1.2
+Requires:	php >= %{phpversion}
 
 %description
 This is a dynamic shared object (DSO) for PHP that will add IMAP
@@ -65,17 +63,17 @@ rm -rf RCS
 
 %patch0 -p1 -b .ssl
 %patch1 -p1 -b .linxu
-%patch3 -p1 -b .mbox
-%patch4 -p1 -b .redhat
-%patch5 -p1 -b .flock
-%patch7 -p1 -b .version
-cp %{SOURCE7} src/osdep/unix/
-%patch9 -p1 -b .glibc
-%patch10 -p1
-%patch12 -p1 -b .overflow
-%patch14 -p1 -b .ansi
-%patch15 -p1 -b .noprompt
-%patch16 -p1 -b .can-2005-2933
+%patch2 -p1 -b .mbox
+%patch3 -p1 -b .redhat
+%patch4 -p1 -b .flock
+%patch5 -p1 -b .version
+cp %{_sourcedir}/flock.c src/osdep/unix/
+%patch6 -p1 -b .glibc
+%patch7 -p1
+%patch8 -p1 -b .overflow
+%patch9 -p1 -b .ansi
+%patch10 -p1 -b .noprompt
+%patch11 -p1 -b .can-2005-2933
 
 
 %build
@@ -124,6 +122,12 @@ EOF
 
 
 %changelog
+* Sat Oct 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.6
+- php 5.1.6+suhosin
+- drop S2 (unused)
+- drop P11 (unapplied)
+- renumber patches
+
 * Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.4
 - rebuild against new openssl
 - spec cleanups
