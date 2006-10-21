@@ -83,6 +83,9 @@ chmod 0755 {add,del}-srv mkdepends
 
 %changelog
 * Sat Oct 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.15
+- update P0 to make it manage services in the default runlevel
+
+* Sat Oct 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.15
 - update P0 to make changes to add-service and del-service to use
   rc-update rather than chkconfig
 - requires runit rather than chkconfig

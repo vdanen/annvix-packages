@@ -169,7 +169,7 @@
  if [ $num = 1 ]; then
      # First install mode
 -    add_service
-+    /sbin/rc-update add ${srv}
++    /sbin/rc-update add ${srv} default
  else
      # Upgrade mode
  
@@ -184,8 +184,8 @@
 -    if [ -f "$1" ]; then
 -	/sbin/chkconfig --add $srv
 +    if [ -L "$1" ]; then
-+        /sbin/rc-update del ${srv}
-+        /sbin/rc-update add ${srv}
++        /sbin/rc-update del ${srv} default
++        /sbin/rc-update add ${srv} default
      fi
  
      # restart the service if already running
