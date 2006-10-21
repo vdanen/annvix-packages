@@ -59,6 +59,13 @@ cat > %{buildroot}%{macrofile} <<EOF
 %%annvix_arch		%{_target_cpu}
 %%annvix_os		%{_target_os}
 %%_revrel		%%(echo %%{revision}|cut -d ' ' -f 2)avx
+
+%%_initrddir		%%{_sysconfdir}/init.d
+EOF
+
+cat > %{buildroot}%{_sysconfdir}/issue <<EOF
+Welcome to \n running Annvix %{realversion} (%{distrib})
+\s kernel \r on \m [\d \t]
 EOF
 
 
@@ -70,6 +77,7 @@ EOF
 %defattr(-,root,root)
 %{_sysconfdir}/annvix-release
 %{_sysconfdir}/release
+%{_sysconfdir}/issue
 %{macrofile}
 
 %files doc
@@ -78,6 +86,11 @@ EOF
 
 
 %changelog
+* Sat Oct 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
+- include a static /etc/issue (fixes #27)
+- redefine %%_initrddir in the macros file (/etc/init.d instead of
+  /etc/rc.d/init.d)
+
 * Tue Jul 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
 - spec cleanups
 
