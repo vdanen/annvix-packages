@@ -30,7 +30,7 @@ Group:		Development/PHP
 URL:		http://www.php.net
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:  php-devel >= 5.1.4
+BuildRequires:  php-devel >= %{phpversion}
 
 Requires:	php
 
@@ -40,7 +40,7 @@ support.
 
 
 %prep
-%setup -c -T
+%setup -c -T -q
 cp -dpR %{phpsource}/extensions/%{dirname}/* .
 
 

@@ -36,10 +36,11 @@ Source0:	APC-%{version}.tgz
 Source1:	apc.ini
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:  php-devel >= 5.1.4
+BuildRequires:  php-devel >= %{phpversion}
 
 Requires:	php
-Conflicts:	php-afterburner php-mmcache
+Conflicts:	php-afterburner
+Conflicts:	php-mmcache
 
 %description
 APC was conceived of to provide a way of boosting the performance

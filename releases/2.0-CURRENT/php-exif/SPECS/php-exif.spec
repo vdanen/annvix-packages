@@ -41,7 +41,7 @@ tag support.
 
 
 %prep
-%setup -c -T
+%setup -c -T -q
 cp -dpR %{phpsource}/extensions/%{dirname}/* .
 
 

@@ -41,7 +41,7 @@ This is a dynamic shared object (DSO) for PHP that will add curl
 support.
 
 %prep
-%setup -c -T
+%setup -c -T -q
 cp -dpR %{_usrsrc}/php-devel/extensions/%{dirname}/* .
 
 

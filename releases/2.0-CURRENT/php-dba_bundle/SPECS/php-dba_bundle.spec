@@ -35,7 +35,7 @@ BuildRequires:  php-devel >= %{phpversion}
 BuildRequires:	gdbm-devel
 BuildRequires:	db4-devel
 
-Requires:	php >= 5.1.2
+Requires:	php >= %{phpversion}
 
 %description
 This is a dynamic shared object (DSO) for PHP that will add flat-file
@@ -43,7 +43,7 @@ databases (DBA) support (gdbm, db4, cdb, etc.).
 
 
 %prep
-%setup -c -T
+%setup -c -T -q
 cp -dpR %{_usrsrc}/php-devel/extensions/%{dirname}/* .
 
 

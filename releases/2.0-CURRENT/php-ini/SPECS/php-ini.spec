@@ -28,7 +28,7 @@ The php-ini package contains the ini files required for PHP.
 
 
 %prep
-%setup -c -T
+%setup -c -T -q
 
 
 %build
