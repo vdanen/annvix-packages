@@ -12,7 +12,7 @@
 %define version		%{phpversion}
 %define release		%_revrel
 
-%define phpversion	5.1.4
+%define phpversion	5.1.6
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir		%{_libdir}/php
 
@@ -30,7 +30,7 @@ Group:		Development/PHP
 URL:		http://www.php.net
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:  php-devel >= 5.1.4
+BuildRequires:  php-devel >= %{phpversion}
 BuildRequires:	pcre-devel
 
 Requires:	php
@@ -41,9 +41,10 @@ Compatible Regular Expression support.
 
 
 %prep
-%setup -c -T
+%setup -c -T -q
 cp -dpR %{phpsource}/extensions/%{dirname}/* .
 cp config0.m4 config.m4
+
 
 %build
 phpize
@@ -80,6 +81,9 @@ EOF
 
 
 %changelog
+* Sat Oct 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.6
+- php 5.1.6+suhosin
+
 * Sun Jun 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.4
 - remove docs
 
