@@ -12,7 +12,7 @@
 %define version		%{phpversion}
 %define release		%_revrel
 
-%define phpversion      5.1.2
+%define phpversion      5.1.6
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir          %{_libdir}/php
 
@@ -31,7 +31,7 @@ URL:		http://www.php.net
 Source0:	php-mysqli.ini
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:  php-devel >= 5.1.4
+BuildRequires:  php-devel >= %{phpversion}
 BuildRequires:	mysql-devel >= 4.1.14
 
 Requires:	php
@@ -44,7 +44,7 @@ MySQL, use php-mysql instead.
 
 
 %prep
-%setup -c -T
+%setup -c -T -q
 cp -dpR %{_usrsrc}/php-devel/extensions/%{dirname}/* .
 
 
@@ -65,7 +65,6 @@ install -d %{buildroot}%{phpdir}/extensions
 install -d %{buildroot}%{_sysconfdir}/php.d
 
 install -m 0755 %{soname} %{buildroot}%{phpdir}/extensions/
-
 install -m 0644 %{_sourcedir}/php-mysqli.ini %{buildroot}%{_sysconfdir}/php.d/%{inifile}
 
 
@@ -80,6 +79,9 @@ install -m 0644 %{_sourcedir}/php-mysqli.ini %{buildroot}%{_sysconfdir}/php.d/%{
 
 
 %changelog
+* Sat Oct 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.6
+- php 5.1.6+suhosin
+
 * Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.4
 - rebuild against new mysql
 - spec cleanups
