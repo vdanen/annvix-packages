@@ -29,7 +29,9 @@ BuildRequires:	python-devel
 BuildRequires:	python
 BuildRequires:	newt-devel
 
+Requires(post):	runit
 Requires(post):	rpm-helper
+Requires(preun): runit
 Requires(preun): rpm-helper
 Requires:	pam >= 0.74-17
 Requires:	hwdata
@@ -79,7 +81,9 @@ make RPM_OPT_FLAGS="%{optflags} -I." all kudzu
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make install install-program DESTDIR=%{buildroot} libdir=%{buildroot}%{_libdir}
 install -m 0755 fix-mouse-psaux %{buildroot}%{_sbindir}
+mkdir -p %{buildroot}%{_initrddir}
 install -m 0750 %{_sourcedir}/kudzu-avx.init %{buildroot}%{_initrddir}/kudzu
+rm -rf %{buildroot}%{_sysconfdir}/rc.d/init.d
 
 %kill_lang %{name}
 %find_lang %{name}
@@ -120,6 +124,10 @@ install -m 0750 %{_sourcedir}/kudzu-avx.init %{buildroot}%{_initrddir}/kudzu
 
 
 %changelog
+* Sat Oct 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.34.3
+- add the order keyword to the initscript
+- requires runit
+
 * Sat Oct 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.34.3
 - S1: our own custom initscript
 - remove dependenicies on initscripts and chkconfig
