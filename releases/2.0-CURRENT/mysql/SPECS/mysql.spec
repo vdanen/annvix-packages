@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		mysql
-%define version		5.0.24
+%define version		5.0.26
 %define release		%_revrel
 
 %define major		15
@@ -30,7 +30,7 @@ Release:	%{release}
 License:	GPL
 Group:		Databases
 URL:        	http://www.mysql.com
-Source:		ftp://ftp.mysql.serenitynet.com/MySQL-5.0/mysql-%{version}.tar.gz
+Source0:	ftp://ftp.mysql.serenitynet.com/MySQL-5.0/mysql-%{version}.tar.gz
 Source1:	ftp://ftp.mysql.serenitynet.com/MySQL-5.0/mysql-%{version}.tar.gz.asc
 Source2:	mysqld.run
 Source3:	mysqld-log.run
@@ -503,6 +503,8 @@ fi
 %{_mandir}/man1/safe_mysqld.1*
 %{_mandir}/man1/mysql_upgrade.1*
 %{_mandir}/man1/mysql_explain_log.1*
+%{_mandir}/man8/mysqld.8*
+%{_mandir}/man8/mysqlmanager.8*
 %lang(cz) %{_datadir}/mysql/czech
 %lang(da) %{_datadir}/mysql/danish
 %lang(nl) %{_datadir}/mysql/dutch
@@ -596,6 +598,10 @@ fi
 
 
 %changelog
+* Sat Oct 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.0.26
+- 5.0.26
+- don't assume the ./env/* files exist in the runscript
+
 * Sun Sep 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.0.24
 - change runsvctrl calls to /sbin/sv calls
 
