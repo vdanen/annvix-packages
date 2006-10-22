@@ -21,6 +21,7 @@ Group:		System/Kernel and hardware
 URL:		http://cvs.mandriva.com/cgi-bin/cvsweb.cgi/soft/initscripts/mandrake/loader/
 Source0:	%{name}-%{version}.tar.bz2
 Source1:	memtest86.pm
+Source2:	kheader-avx.init
 Patch0:		bootloader-utils-1.6-avx-grub.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -52,9 +53,14 @@ make
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make ROOT=%{buildroot} mandir=%{_mandir} install
 
+rm -rf %{buildroot}/etc/rc.d
+mkdir -p %{buildroot}%{_initrddir}
+install -m 0750 %{_sourcedir}/kheader-avx.init %{buildroot}%{_initrddir}/kheader
+
 
 %post
-%_mypost_service kheader
+%_post_service kheader
+
 
 %preun
 %_preun_service kheader
@@ -67,7 +73,7 @@ make ROOT=%{buildroot} mandir=%{_mandir} install
 %files
 %defattr(-,root,root)
 %config(noreplace) /etc/sysconfig/installkernel
-/etc/rc.d/init.d/kheader
+%{_initrddir}/kheader
 /sbin/installkernel
 /sbin/kernel_remove_initrd
 %{_sbindir}/detectloader
@@ -88,6 +94,9 @@ make ROOT=%{buildroot} mandir=%{_mandir} install
 
 
 %changelog
+* Sun Oct 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.6
+- S2: provide our own initscript
+
 * Sun Oct 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.6
 - requires runit, not chkconfig
 
