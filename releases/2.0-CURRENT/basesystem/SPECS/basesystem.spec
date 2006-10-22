@@ -27,7 +27,6 @@ BuildRoot:	%{_buildroot}/%{name}-%{version}
 Requires:	afterboot
 Requires:	annvix-release
 Requires:	bootloader
-Requires:	chkconfig
 Requires:	common-licenses
 Requires:	console-tools
 Requires:	coreutils
@@ -94,6 +93,9 @@ should never be removed.
 
 
 %changelog
+* Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
+- no longer require chkconfig
+
 * Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
 - 2.0
 - make mkinitrd required by every arch
