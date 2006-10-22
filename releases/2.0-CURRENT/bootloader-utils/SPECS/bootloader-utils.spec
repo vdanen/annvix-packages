@@ -12,8 +12,6 @@
 %define version		1.6
 %define release		%_revrel
 
-%define _mypost_service() if [ $1 = 1 ]; then /sbin/chkconfig --add %{1}; fi;
-
 Summary:	Small utils needed for the kernel
 Name:		%{name}
 Version:	%{version}
@@ -29,10 +27,10 @@ BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 
 Requires:	perl-base
-Requires(post):	chkconfig
+Requires(post):	runit >= 1.7.0
 Requires(post):	initscripts >= 7.06-21mdk
 Requires(post):	rpm-helper
-Requires(preun): chkconfig
+Requires(preun): runit >= 1.7.0
 Requires(preun): initscripts >= 7.06-21mdk
 Requires(preun): rpm-helper
 
@@ -90,6 +88,9 @@ make ROOT=%{buildroot} mandir=%{_mandir} install
 
 
 %changelog
+* Sun Oct 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.6
+- requires runit, not chkconfig
+
 * Mon Jul 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.6
 - use %%{_sourcedir} instead of %%{SOURCEx}
 - remove pre-Annvix changelog
