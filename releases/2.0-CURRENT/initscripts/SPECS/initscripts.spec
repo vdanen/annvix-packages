@@ -235,6 +235,9 @@ fi
 
 %changelog
 * Sat Oct 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.34
+- fix the "ok" message placement when scripts include the functions file
+
+* Sat Oct 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.34
 - 8.34
 - remove scripts that are now being provided by runit
 - remove requires on chkconfig
