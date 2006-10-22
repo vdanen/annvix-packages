@@ -115,6 +115,12 @@ pushd annvix-runit-%{aver}
     for name in UTC ZONE; do
         touch %{buildroot}%{_sysconfdir}/sysconfig/env/clock/${name}
     done
+    echo "yes" >%{buildroot}%{_sysconfdir}/sysconfig/env/network/NETWORKING
+    mkdir -p %{buildroot}%{_sysconfdir}/sysconfig/env/usb
+    for name in MOUSE KEYBOARD PRINTER STORAGE; do
+        echo "no" >%{buildroot}%{_sysconfdir}/sysconfig/env/usb/${name}
+    done
+    echo "yes" >%{buildroot}%{_sysconfdir}/sysconfig/env/usb/USB
 popd
 
 install -m 0644 %{name}-%{version}/man/*.8 %{buildroot}%{_mandir}/man8/
@@ -156,7 +162,8 @@ fi
 
 %files
 %defattr(-,root,root)
-%dir /service
+%dir %attr(0750,root,admin) /service
+%dir %attr(0750,root,admin) %{_initrddir}
 %attr(0700,root,root) /sbin/runit
 %attr(0700,root,root) /sbin/init
 %attr(0755,root,root) /sbin/runsv
@@ -167,6 +174,7 @@ fi
 %attr(0755,root,root) /sbin/chpst
 %attr(0755,root,root) /sbin/utmpset
 %attr(0700,root,root) /sbin/rc
+%attr(0700,root,root) /sbin/rc-update
 %attr(0700,root,root) /sbin/convert-envdir
 %attr(0644,root,root) %{_mandir}/man8/*.8*
 %attr(0700,root,root) %dir %{_sysconfdir}/runit
@@ -180,6 +188,12 @@ fi
 %attr(0750,root,admin) %dir %{_sysconfdir}/sysconfig/env/network
 %attr(0640,root,admin) %config(noreplace) %{_sysconfdir}/sysconfig/env/network/GATEWAY
 %attr(0640,root,admin) %config(noreplace) %{_sysconfdir}/sysconfig/env/network/HOSTNAME
+%attr(0640,root,admin) %config(noreplace) %{_sysconfdir}/sysconfig/env/network/NETWORKING
+%attr(0640,root,admin) %config(noreplace) %{_sysconfdir}/sysconfig/env/usb/USB
+%attr(0640,root,admin) %config(noreplace) %{_sysconfdir}/sysconfig/env/usb/MOUSE
+%attr(0640,root,admin) %config(noreplace) %{_sysconfdir}/sysconfig/env/usb/KEYBOARD
+%attr(0640,root,admin) %config(noreplace) %{_sysconfdir}/sysconfig/env/usb/PRINTER
+%attr(0640,root,admin) %config(noreplace) %{_sysconfdir}/sysconfig/env/usb/STORAGE
 %dir %attr(0750,root,admin) %{_srvdir}/mingetty-tty1
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/mingetty-tty1/run
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/mingetty-tty1/finish
@@ -202,8 +216,15 @@ fi
 %attr(0640,root,admin) %config(noreplace) %{_sysconfdir}/sysconfig/env/runit/STAGE_3_TIMEOUT
 %attr(0640,root,admin) %config(noreplace) %{_sysconfdir}/sysconfig/env/runit/GETTY_TIMEOUT
 %attr(0640,root,admin) %config(noreplace) %{_sysconfdir}/sysconfig/env/runit/CTRLALTDEL_TIMEOUT
-%attr(0700,root,root) %{_sysconfdir}/rc.d/rc.functions.sh
-%attr(0700,root,root) %config(noreplace) %{_sysconfdir}/rc.d/rc.local.stop
+%attr(0700,root,root) %{_initrddir}/rc.functions.sh
+%attr(0700,root,root) %config(noreplace) %{_initrddir}/rc.local
+%attr(0700,root,root) %config(noreplace) %{_initrddir}/rc.local-stop
+%attr(0700,root,root) %{_initrddir}/consmap.sh
+%attr(0700,root,root) %{_initrddir}/netfs
+%attr(0700,root,root) %{_initrddir}/network
+%attr(0700,root,root) %{_initrddir}/usb
+%dir %attr(0750,root,admin) %{_sysconfdir}/runlevels/default
+%dir %attr(0750,root,admin) %{_sysconfdir}/runlevels/single
 
 %files doc
 %defattr(-,root,root)
@@ -216,6 +237,12 @@ fi
 
 
 %changelog
+* Sat Oct 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.7.0
+- we now have our own initscripts here rather than in the initscripts package
+- set NETWORKING=yes by default
+- add rc.local here
+- add the USB config files here
+
 * Thu Oct 19 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.7.0
 - updated tarball to get some stage{1,3} fixes and an /sbin/rc fix
   to not mount filesystems marked auto
