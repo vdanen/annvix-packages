@@ -5,7 +5,7 @@
 #
 # This runscript was written for Annvix (http://annvix.org/)
 #
-# $Id: kudzu-avx.init 6241 2006-10-21 16:47:07Z vdanen $
+# $Id$
 
 . /etc/init.d/rc.functions.sh
 
