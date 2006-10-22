@@ -70,7 +70,6 @@ Conflicts:	sendmail
 Conflicts:	postfix
 Conflicts:	qmail
 Conflicts:	smail
-Requires:	chkconfig
 Requires:	sh-utils
 Requires:	openssl
 Requires:	pam
@@ -314,6 +313,9 @@ fi
 
 
 %changelog
+* Sun Oct 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.63
+- drop the unnecessary chkconfig requires
+
 * Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.63
 - rebuild against new mysql
 - rebuild against new openssl
