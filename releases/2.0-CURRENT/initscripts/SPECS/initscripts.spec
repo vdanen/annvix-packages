@@ -9,12 +9,8 @@
 
 %define revision	$Rev$
 %define name		initscripts
-%define version		8.33
+%define version		8.34
 %define release		%_revrel
-
-# The restart part in the real _post_service doesn't work with netfs and isn't needed
-# for other scripts
-%define _mypost_service() if [ $1 = 1 ]; then /sbin/chkconfig --add %{1}; fi;
 
 Summary:	The inittab file and the /etc/init.d scripts
 Name:		%{name}
@@ -49,13 +45,13 @@ Requires:	SysVinit
 Requires:	bootloader-utils
 Requires:	srv
 Requires:	ethtool
-Requires(pre):	chkconfig >= 1.3.8-3mdk
+Requires(pre):	runit >= 1.7.0
 Requires(pre):	sed
 Requires(pre):	mktemp
 Requires(pre):	fileutils
 Requires(pre):	grep
 Requires(pre):	rpm-helper
-Requires(post):	chkconfig >= 1.3.8-3mdk
+Requires(post):	runit >= 1.7.0
 Requires(post):	fileutils
 Requires(post):	grep
 
@@ -94,7 +90,7 @@ chmod u=rwx,g=rwx,o=rx %{buildroot}/var/run/netreport
 #MDK
 make -C annvix/ install ROOT=%{buildroot} mandir=%{_mandir}
 
-python annvix/gprintify.py `find %{buildroot}/etc/rc.d -type f` `find %{buildroot}/sysconfig/network-scripts -type f`
+python annvix/gprintify.py `find %{buildroot}/etc/init.d -type f` `find %{buildroot}/sysconfig/network-scripts -type f`
 
 touch %{buildroot}/var/log/btmp
 
@@ -103,10 +99,6 @@ touch %{buildroot}/var/log/btmp
 
 # remove S390 and isdn stuff
 rm -f %{buildroot}/etc/sysconfig/init.s390 %{buildroot}/etc/sysconfig/network-scripts/{ifdown-ippp,ifup-ctc,ifup-escon,ifup-ippp,ifup-iucv,ifup-ipsec,ifdown-ipsec}
-
-# remove unpackaged files
-rm -f %{buildroot}/usr/bin/partmon
-rm -f %{buildroot}/etc/rc.d/init.d/{dm,partmon,sound}
 
 # we have our own copy of gprintify
 export DONT_GPRINTIFY=1
@@ -120,9 +112,6 @@ chown root:utmp /var/log/wtmp /var/run/utmp /var/log/btmp
 chmod 0664 /var/log/wtmp /var/run/utmp
 chmod 0600 /var/log/btmp
 
-%_mypost_service netfs
-%_mypost_service network
-
 # handle serial installs semi gracefully
 if [ $1 = 0 ]; then
     if [ "$TERM" = "vt100" ]; then
@@ -131,27 +120,6 @@ if [ $1 = 0 ]; then
         mv -f $tmpfile /etc/sysconfig/init
     fi
 fi
-
-%define initlvl_chg() if [[ -f /etc/rc3.d/S%{2}%{1} ]] && [[ -f /etc/rc5.d/S%{2}%{1} ]] && egrep -q 'chkconfig: [0-9]+ %{3}' /etc/init.d/%{1}; then chkconfig --add %{1} || : ; fi; \
-%{nil}
-
-
-%pre
-# usb is called from rc.sysinit now
-if [ "$1" -gt 0 ]; then
-    /bin/grep -q 'chkconfig:' /etc/init.d/usb 2> /dev/null && /sbin/chkconfig --del usb > /dev/null 2>&1 || :
-fi
-
-
-%preun
-%_preun_service netfs
-%_preun_service network
-
-
-%triggerun -- initscripts < 7.62
-/sbin/chkconfig --del random
-/sbin/chkconfig --del rawdevices
-exit 0
 
 
 %clean
@@ -162,7 +130,6 @@ exit 0
 %defattr(-,root,root)
 %config(noreplace) %verify(not md5 mtime size) /etc/adjtime
 %config(noreplace) /etc/initlog.conf
-%config(noreplace) /etc/inittab
 %config(noreplace) /etc/modules
 /etc/rc.modules
 %dir /etc/modprobe.preload.d
@@ -175,8 +142,6 @@ exit 0
 %config(noreplace) /etc/sysconfig/i18n
 %config(noreplace) /etc/sysconfig/readonly-root
 %config(noreplace) /etc/sysconfig/networking/ifcfg-lo
-%config(noreplace) /etc/sysconfig/system
-%config(noreplace) /etc/sysconfig/usb
 %dir /etc/sysconfig/console
 %dir /etc/sysconfig/console/consoletrans
 %dir /etc/sysconfig/console/consolefonts
@@ -228,15 +193,7 @@ exit 0
 /etc/ppp/ipv6-up
 /etc/ppp/ipv6-down
 
-/etc/rc
-%config(noreplace) /etc/rc.local
-/etc/rc.sysinit
-/etc/rc[0-9].d
-%config(noreplace missingok) /etc/rc.d/rc[0-9].d/*
-/etc/rc.d/init.d/*
-/etc/rc.d/rc
-%config(noreplace) /etc/rc.d/rc.local
-/etc/rc.d/rc.sysinit
+/etc/init.d/*
 
 /etc/profile.d/10lang.sh
 /etc/profile.d/10lang.csh
@@ -277,6 +234,12 @@ exit 0
 
 
 %changelog
+* Sat Oct 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.34
+- 8.34
+- remove scripts that are now being provided by runit
+- remove requires on chkconfig
+- requires recent runit which owns /etc/init.d
+
 * Mon Oct 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.33
 - remove requires on perl-MDK-Common
 - remove some locale'd manpages
