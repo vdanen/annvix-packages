@@ -138,6 +138,10 @@ rm -rf %{buildroot}%{_sysconfdir}/%{name}/ipsec.d/examples
 
 
 %changelog
+* Sun Oct 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.6
+- rebuild to get new initrddir location (the initscript looks fairly
+  wierd, so I'm going to leave it until later to reformat)
+
 * Sun Aug 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.6
 - 2.4.6
 - drop P0; merged upstream
