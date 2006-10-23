@@ -21,12 +21,13 @@ Release: 	%{release}
 License:	GPL
 Group:		System/Servers
 URL:		http://www.roaringpenguin.com/pppoe
-Source:		http://www.roaringpenguin.com/%{name}-%{version}.tar.bz2
-Patch0:		rp-pppoe-3.7-avx-init.patch
-Patch1:		rp-pppoe-3.6-CAN-2004-0564.patch
+Source0:	http://www.roaringpenguin.com/%{name}-%{version}.tar.bz2
+Source1:	pppoe-avx.init
+Patch0:		rp-pppoe-3.6-CAN-2004-0564.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	ppp = %{pppver}, autoconf2.5
+BuildRequires:	ppp = %{pppver}
+BuildRequires:	autoconf2.5
 
 Requires:	ppp >= 2.4.1
 
@@ -53,8 +54,7 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
-%patch0 -p1
-%patch1 -p1 -b .can-2004-0564
+%patch0 -p1 -b .can-2004-0564
 
 
 %build
@@ -76,13 +76,19 @@ pushd src
 popd
 
 mkdir -p %{buildroot}%{_initrddir}
-install -m 0750 scripts/pppoe-init %{buildroot}%{_initrddir}/pppoe
-
-perl -pi -e "s/restart/restart\|reload/g;" %{buildroot}%{_initrddir}/pppoe
+install -m 0750 %{_sourcedir}/pppoe-avx.init %{buildroot}%{_initrddir}/pppoe
 
 rm -rf %{buildroot}/usr/doc
 rm -f %{buildroot}%{_sysconfdir}/ppp/plugins/README
 rm -rf %{buildroot}%{_docdir}/%{name}-%{version}
+
+
+%preun
+%_preun_service pppoe
+
+
+%post
+%_post_service pppoe
 
 
 %clean
@@ -113,6 +119,10 @@ rm -rf %{buildroot}%{_docdir}/%{name}-%{version}
 
 
 %changelog
+* Sun Oct 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.7
+- provide our own initscript and drop the patch to the old initscript
+- add the %%_post and %%_preun service scriptlets
+
 * Mon Jun 19 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.7
 - 3.7
 - update P1 from Mandriva
