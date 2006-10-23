@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		initscripts
-%define version		8.34
+%define version		8.35
 %define release		%_revrel
 
 Summary:	The inittab file and the /etc/init.d scripts
@@ -234,6 +234,9 @@ fi
 
 
 %changelog
+* Sun Oct 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.35
+- 8.35; some minor fixes
+
 * Sat Oct 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.34
 - fix the "ok" message placement when scripts include the functions file
 
