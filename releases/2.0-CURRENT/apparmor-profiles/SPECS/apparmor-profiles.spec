@@ -48,7 +48,7 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
-%patch0 -b
+%patch0
 %patch1 -p1
 %patch2 -p1
 
