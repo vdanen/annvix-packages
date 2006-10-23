@@ -22,8 +22,8 @@ URL:		http://netfilter.org/
 
 Source:		http://www.netfilter.org/projects/iptables/files/%{name}-%{version}.tar.bz2
 Source6:	http://www.netfilter.org/projects/iptables/files/%{name}-%{version}.tar.bz2.sig
-Source1:	iptables.init
-Source2:	ip6tables.init
+Source1:	iptables-avx.init
+Source2:	ip6tables-avx.init
 Source3:	iptables.config
 Source4:	ip6tables.config
 Source5:	iptables-kernel-headers.tar.bz2
@@ -127,8 +127,8 @@ make install-devel \
     LIBDIR=%{_libdir} \
     MANDIR=%{_mandir}
 
-install -c -D -m 0755 %{_sourcedir}/iptables.init %{buildroot}%{_initrddir}/iptables
-install -c -D -m 0755 %{_sourcedir}/ip6tables.init %{buildroot}%{_initrddir}/ip6tables
+install -c -D -m 0755 %{_sourcedir}/iptables-avx.init %{buildroot}%{_initrddir}/iptables
+install -c -D -m 0755 %{_sourcedir}/ip6tables-avx.init %{buildroot}%{_initrddir}/ip6tables
 install -c -D -m 0644 %{_sourcedir}/iptables.config iptables.sample
 install -c -D -m 0644 %{_sourcedir}/ip6tables.config ip6tables.sample
 
@@ -186,6 +186,9 @@ rm -rf %{_builddir}/file.list.%{name}
 
 
 %changelog
+* Sun Oct 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.5
+- new initscripts
+
 * Mon Jul 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.5
 - 1.3.5
 - rediff P1, P3, P4
