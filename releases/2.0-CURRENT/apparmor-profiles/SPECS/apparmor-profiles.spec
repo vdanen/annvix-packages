@@ -48,9 +48,9 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
-%patch0 -b .m_P_U
-%patch1 -p1 -b .named-slave-zones
-%patch2 -p1 -b .183800-182344
+%patch0 -b
+%patch1 -p1
+%patch2 -p1
 
 
 %install
@@ -80,6 +80,9 @@ make DESTDIR=%{buildroot} \
 
 
 %changelog
+* Sun Oct 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
+- don't leave patch suffixes lying around
+
 * Wed Aug 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
 - sync some patches with SUSE to match support in SLE10:
   - updated to revision 50
