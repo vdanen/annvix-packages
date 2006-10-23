@@ -21,7 +21,7 @@ Group:		System/Configuration
 URL:		http://forge.novell.com/modules/xfmod/project/?apparmor
 Source0:	%{name}-%{version}-6358.tar.gz
 Source1:	rc.aaeventd.mandriva
-Source2:	rc.apparmor.mandriva
+Source2:	apparmor-avx.init
 Patch0:		apparmor-parser-2.0-avx-fixes.patch
 Patch1:         apparmor-parser-fix_segv_nonexistant_dir-r30-160330.patch
 Patch2:         apparmor-parser-m_flag-code10-175388.patch
@@ -37,6 +37,19 @@ Requires(preun): rpm-helper
 %description
 The AppArmor Parser is a userlevel program that is used to load in
 program profiles to the AppArmor Security kernel module.
+
+
+%package -n apparmor
+Summary:	Virtual rpm to install all AppArmor components
+Group:		System/Configuration
+Requires:	apparmor-parser
+Requires:	apparmor-utils
+Requires:	apparmor-profiles
+Requires:	libapparmor
+
+%description -n apparmor
+This package is a virtual rpm that installs all required AppArmor components
+with a single command.
 
 
 %package doc
@@ -55,8 +68,8 @@ This package contains the documentation for %{name}.
 %patch3 -p3 -b .add_PxUx
 
 # copy our initscripts
-cp %{_sourcedir}/rc.aaeventd.mandriva .
-cp %{_sourcedir}/rc.apparmor.mandriva .
+cp %{_sourcedir}/rc.aaeventd.mandriva rc.aaeventd.annvix
+cp %{_sourcedir}/apparmor-avx.init rc.apparmor.annvix
 
 
 %build
@@ -66,12 +79,12 @@ make clean all CFLAGS="%{optflags}"
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make DESTDIR=%{buildroot} \
-     DISTRO=mandriva \
+     DISTRO=annvix \
      APPARMOR_BIN_PREFIX=%{buildroot}%{_initrddir} \
      install
 
 mv %{buildroot}%{_initrddir}/rc.apparmor.functions %{buildroot}%{_initrddir}/apparmor.functions
-#install -m 0750 rc.aaeventd.mandriva %{buildroot}%{_initrddir}/aaeventd
+#install -m 0750 rc.aaeventd.annvix %{buildroot}%{_initrddir}/aaeventd
 
 %kill_lang %{name}
 %find_lang %{name}
@@ -102,12 +115,20 @@ mv %{buildroot}%{_initrddir}/rc.apparmor.functions %{buildroot}%{_initrddir}/app
 #%attr(0750,root,root) %{_initrddir}/aaeventd
 %dir %attr(0750,root,root) /var/lib/apparmor
 
+%files -n apparmor
+%defattr(-,root,root)
+
 %files doc
 %defattr(-,root,root)
 %doc README COPYING.GPL
 
 
 %changelog
+* Sun Oct 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
+- updated the initscript and modified the patch to the functions accordingly
+- add a virtual rpm so you can just "apt-get install apparmor" and get all
+  the required components
+
 * Tue Sep 05 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
 - fix the preun script
 
