@@ -35,7 +35,6 @@ Group:		Terminals
 URL:		http://lct.sourceforge.net/
 Source0:	ftp://metalab.unc.edu/pub/Linux/system/keyboards/console-tools-%{CTVER}.tar.bz2
 Source1:	ftp://metalab.unc.edu/pub/Linux/system/keyboards/console-data-%{CDVER}.tar.bz2
-Source2:	keytable.init
 Source3:	ftp://ftp.dementia.org/pub/linux/pc2sun.pl
 Source4:	console-tools-ucwfonts.tar.bz2
 Source5:	kbd-0.96-turkish.tar.bz2
@@ -43,7 +42,6 @@ Source6:	kbd-mdk-keymaps-%{MDK_KBD_VER}.tar.bz2
 Source7:	configure_keyboard.sh
 Source8:	ctools-cyr.tar.bz2
 # on PPC we need to see whether mac or Linux keycodes are being used - stew
-Source9:	keytable.init.ppc
 Source10:	mac-keymaps.tar.bz2
 # taken from ftp://ftp.kernel.org/pub/linux/utils/kbd/kbd-1.12.tar.bz2, where
 # it's called "us-acentos.map"
@@ -219,13 +217,6 @@ chmod 0755 %{buildroot}%{_bindir}/loadkeys
 tar jxf %{_sourcedir}/kbd-mdk-keymaps-%{MDK_KBD_VER}.tar.bz2 -C %{buildroot}/%{kbddir}/
 tar jxf %{_sourcedir}/ctools-cyr.tar.bz2 -C %{buildroot}/%{kbddir}/
 	  
-install -d -m 0755 %{buildroot}%{_sysconfdir}/rc.d/init.d
-%ifarch ppc
-install -m 0755 %{_sourcedir}/keytable.init.ppc %{buildroot}%{_sysconfdir}/rc.d/init.d/keytable
-%else
-install -m 0755 %{_sourcedir}/keytable.init %{buildroot}%{_sysconfdir}/rc.d/init.d/keytable
-%endif
-
 install -d -m 0755 %{buildroot}%{_sysconfdir}/profile.d
 install -m 0755 %{_sourcedir}/configure_keyboard.sh %{buildroot}%{_sysconfdir}/profile.d/configure_keyboard.sh
 
@@ -269,15 +260,6 @@ install -m 0644 %{_sourcedir}/us-intl.kmap.gz %buildroot/%{kbddir}/keymaps/i386/
 
 
 %post
-%_post_service keytable
-if [ -f %{_sysconfdir}/sysconfig/keyboard ] ; then
-    . %{_sysconfdir}/sysconfig/keyboard
-    if [ -n "$KEYTABLE" ] ; then
-        KT=`echo $KEYTABLE | sed -e "s/.*\///g" | sed -e "s/\..*//g"`
-		# perl-base is required by basesystem ...
-		perl -pi -e "s/KEYTABLE=.*$/KEYTABLE=$KT/g" %{_sysconfdir}/sysconfig/keyboard
-    fi
-fi
 if [ -f %{_sysconfdir}/sysconfig/i18n ] ; then
    . %{_sysconfdir}/sysconfig/i18n
    if [ -d %{_sysconfdir}/sysconfig/console ] ; then
@@ -299,9 +281,6 @@ if [ -f %{_sysconfdir}/sysconfig/i18n ] ; then
    fi
 fi
 
-%preun
-%_preun_service keytable
-
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
 
@@ -309,7 +288,6 @@ fi
 %files -f %{name}.lang
 %defattr(-,root,root)
 %config(noreplace) %{_sysconfdir}/profile.d/configure_keyboard.sh
-%config(noreplace) %{_sysconfdir}/rc.d/init.d/keytable
 %{_libdir}/*.la
 %dir %{kbddir}
 %{kbddir}/consolefonts
@@ -403,6 +381,10 @@ fi
 
 
 %changelog
+* Sun Oct 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.2.3
+- drop the useless initscripts (kdbconfig supposedly configures the
+  /etc/sysconfig/keyboard file, but we don't have that program)
+
 * Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.2.3
 - spec cleanups
 - remove locales

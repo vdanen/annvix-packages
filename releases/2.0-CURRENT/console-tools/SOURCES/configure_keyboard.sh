@@ -11,10 +11,6 @@ fi
 
 # Run only in interactive sessions
 if [ -n "$PS1" ]; then
-    if [ -x /etc/sysconfig/keyboard ]; then
-	. /etc/sysconfig/keyboard 2> /dev/null
-    fi
-    
     if [ -z "$BACKSPACE" ]; then
 	# the code for Backspace key is arch-dependent.
 	# FIXME: what really returns uname for non-PC machines ???
