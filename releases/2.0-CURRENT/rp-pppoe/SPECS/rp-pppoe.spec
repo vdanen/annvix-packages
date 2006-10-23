@@ -30,6 +30,8 @@ BuildRequires:	ppp = %{pppver}
 BuildRequires:	autoconf2.5
 
 Requires:	ppp >= 2.4.1
+Requires(post):	rpm-helper
+Requires(preun): rpm-helper
 
 %description
 PPPoE (Point-to-Point Protocol over Ethernet) is a protocol used by
@@ -122,6 +124,7 @@ rm -rf %{buildroot}%{_docdir}/%{name}-%{version}
 * Sun Oct 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.7
 - provide our own initscript and drop the patch to the old initscript
 - add the %%_post and %%_preun service scriptlets
+- requires on rpm-helper
 
 * Mon Jun 19 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.7
 - 3.7
