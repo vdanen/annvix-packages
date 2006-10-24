@@ -12,7 +12,7 @@
 %define	version		1.7.0
 %define	release		%_revrel
 
-%define aver		0.8
+%define aver		0.9
 
 Summary:	A UN*X init scheme with service supervision
 Name:		%{name}
@@ -26,7 +26,6 @@ Source0:	http://smarden.org/runit/%{name}-%{version}.tar.gz
 Source1:	annvix-runit-%{aver}.tar.bz2
 Patch0:		runit-1.3.1-avx-localtime.patch
 Patch1:		runit-1.6.0-avx-svlogd_perms.patch
-Patch2:		runit-1.6.0-avx-quiet.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	dietlibc-devel >= 0.28
@@ -63,8 +62,8 @@ This package contains the documentation for %{name}.
 pushd %{name}-%{version}
 %patch0 -p1 -b .localtime
 %patch1 -p1 -b .svlogd_perms
-%patch2 -p1 -b .quiet
 popd
+
 
 %build
 %ifarch x86_64
@@ -151,18 +150,19 @@ if [ $1 == "1" ]; then
     for i in 2 3 4 5 6
     do
 	echo "Setting up the mingetty service for tty$i..."
-        ln -s /var/service/mingetty-tty${i} /service/mingetty-tty${i}
+        ln -s /var/service/mingetty-tty${i} /etc/runlevels/default/service/mingetty-tty${i}
+        ln -s /var/service/mingetty-tty${i} /etc/runlevels/single/service/mingetty-tty${i}
         # even though this may cause some grief for existing non-runit systems, we need
         # to remove the down file because on a new install, the user would reboot into a
         # system with no gettys
-        rm -f /service/mingetty-tty$i/down
+        rm -f /etc/runlevels/default/service/mingetty-tty$i/down
+        rm -f /etc/runlevels/single/service/mingetty-tty$i/down
     done
 fi
 
 
 %files
 %defattr(-,root,root)
-%dir %attr(0750,root,admin) /service
 %dir %attr(0750,root,admin) %{_initrddir}
 %attr(0700,root,root) /sbin/runit
 %attr(0700,root,root) /sbin/init
@@ -224,7 +224,9 @@ fi
 %attr(0700,root,root) %{_initrddir}/network
 %attr(0700,root,root) %{_initrddir}/usb
 %dir %attr(0750,root,admin) %{_sysconfdir}/runlevels/default
+%dir %attr(0750,root,admin) %{_sysconfdir}/runlevels/default/service
 %dir %attr(0750,root,admin) %{_sysconfdir}/runlevels/single
+%dir %attr(0750,root,admin) %{_sysconfdir}/runlevels/single/service
 
 %files doc
 %defattr(-,root,root)
@@ -237,6 +239,18 @@ fi
 
 
 %changelog
+* Tue Oct 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.7.0
+- don't include /service (it's now a symlink from to the appropriate
+  service directory for the runlevel)
+- include the service directories for each default runlevel
+- on fresh installs setup mingetty services in both the default and
+  single runlevels
+- annvix-runit 0.9 (full support for runlevel-based service directories)
+- drop P2; stage 3 now silences sv's output for us so we don't need it
+
+* Sun Oct 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.7.0
+- update P2 as per some of Sean's suggestions for the quiet mode
+
 * Sun Oct 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.7.0
 - annvix-runit 0.8 (minor fixes)
 
