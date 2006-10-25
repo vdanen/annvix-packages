@@ -38,6 +38,7 @@ Requires:	execline
 Requires:	ipsvd
 Requires:	psmisc
 Conflicts:	SysVinit <= 2.85-6avx
+Obsoletes:	chkconfig
 
 %description
 runit is a daemontools-like replacement for SysV-init and other
@@ -239,6 +240,9 @@ fi
 
 
 %changelog
+* Tue Oct 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.7.0
+- add an obsoletes on chkconfig; we can't provide it tho
+
 * Tue Oct 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.7.0
 - don't include /service (it's now a symlink from to the appropriate
   service directory for the runlevel)
