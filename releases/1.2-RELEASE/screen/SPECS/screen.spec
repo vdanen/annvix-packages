@@ -19,7 +19,7 @@ Release: 	%{release}
 License:	GPL
 Group:		Terminals
 URL:		http://www.gnu.org/software/screen
-Source0:	ftp://ftp.uni-erlangen.de/pub/utilities/screen/%{name}-%{version}.tar.bz2
+Source0:	ftp://ftp.uni-erlangen.de/pub/utilities/screen/%{name}-%{version}.tar.gz
 Patch0:		screen-3.7.6-compat21.patch
 Patch1: 	screen-ia64.patch
 Patch3:		screen-makefile-ppc.patch
