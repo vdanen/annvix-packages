@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		screen
-%define version		4.0.2
+%define version		4.0.3
 %define release		%_revrel
 
 Summary:	A screen manager that supports multiple logins on one terminal
@@ -128,6 +128,9 @@ EOF
 
 
 %changelog
+* Thu Oct 26 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.0.3
+- 4.0.3 (fixes CVE-2006-4573)
+
 * Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org>
 - Clean rebuild
 
