@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		screen
-%define version		4.0.2
+%define version		4.0.3
 %define release		%_revrel
 
 Summary:	A screen manager that supports multiple logins on one terminal
@@ -19,7 +19,7 @@ Release: 	%{release}
 License:	GPL
 Group:		Terminals
 URL:		http://www.gnu.org/software/screen
-Source0:	ftp://ftp.uni-erlangen.de/pub/utilities/screen/%{name}-%{version}.tar.bz2
+Source0:	ftp://ftp.uni-erlangen.de/pub/utilities/screen/%{name}-%{version}.tar.gz
 Patch0:		screen-3.7.6-compat21.patch
 Patch1: 	screen-ia64.patch
 Patch3:		screen-makefile-ppc.patch
@@ -32,7 +32,9 @@ Patch9:		screen-4.0.2-screenrc-utf8-switch.patch
 Patch10:	screen-4.0.2-varargs.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	ncurses-devel, utempter-devel, texinfo
+BuildRequires:	ncurses-devel
+BuildRequires:	utempter-devel
+BuildRequires:	texinfo
 
 Requires(post):	info-install
 Requires(preun): info-install
@@ -137,6 +139,9 @@ EOF
 
 
 %changelog
+* Thu Oct 26 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.0.3
+- 4.0.3 (fixes CVE-2006-4573)
+
 * Fri Jul 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.0.2
 - rebuild against new libutempter
 
