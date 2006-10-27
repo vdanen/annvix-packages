@@ -238,7 +238,7 @@ fi
 %attr(0700,root,root) %{_initrddir}/rc.functions.sh
 %attr(0700,root,root) %config(noreplace) %{_initrddir}/rc.local
 %attr(0700,root,root) %config(noreplace) %{_initrddir}/rc.local-stop
-%attr(0700,root,root) %{_initrddir}/consmap.sh
+%attr(0755,root,root) %{_initrddir}/consmap.sh
 %attr(0700,root,root) %{_initrddir}/netfs
 %attr(0700,root,root) %{_initrddir}/network
 %attr(0700,root,root) %{_initrddir}/usb
@@ -258,6 +258,9 @@ fi
 
 
 %changelog
+* Fri Oct 27 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.7.0
+- fix the perms of consmap.sh (should be 0755 not 0700)
+
 * Fri Oct 27 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.7.0
 - we need more than just an obsoletes so add a trigger to get rid of
   some chkconfig-related files that interfere with our proper operation
