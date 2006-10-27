@@ -178,6 +178,18 @@ if [ -L /etc/init.d ]; then
     rm -rf /etc/rc.d
     rmdir ${dir}
 fi
+# now we need to populate the runlevels if /service exists
+if [ -d /service ]; then
+    echo "Moving service directories..."
+    cp -a /service/* %{_sysconfdir}/runlevels/default/service/
+    rm -rf /service && ln -s %{_sysconfdir}/runlevels/default/service /service
+    pushd %{_sysconfdir}/runlevels/single/service >/dev/null 2>&1
+        ln -s /var/service/mingetty* .
+        ln -s /var/service/socklog-unix .
+        ln -s /var/service/socklog-klog .
+        ln -s /var/service/crond .
+    popd >/dev/null 2>&1
+fi
 
 
 %files
@@ -258,6 +270,11 @@ fi
 
 
 %changelog
+* Fri Oct 27 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.7.0
+- rc: if runlevel doesn't exist, set it to default
+- move /service upon removal of chkconfig (the installer does things right,
+  but upgrades need to be handled)
+
 * Fri Oct 27 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.7.0
 - fix the perms of consmap.sh (should be 0755 not 0700)
 
