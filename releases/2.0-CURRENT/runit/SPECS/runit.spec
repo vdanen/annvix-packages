@@ -162,6 +162,24 @@ if [ $1 == "1" ]; then
 fi
 
 
+%triggerun -- chkconfig
+# we have to get rather wierd here due to how rpm orders transactions.  runit will
+# always get installed before chkconfig is removed, which means /etc/init.d won't
+# be created properly because it already exists
+if [ -L /etc/init.d ]; then
+    echo "Cleaning up the removal of chkconfig..."
+    dir=`mktemp -d /tmp/runit.XXXXXX`
+    mv /etc/init.d/* ${dir}
+    rm -f /etc/init.d
+    mkdir %{_initrddir} && chown root:admin %{_initrddir} && chmod 0750 %{_initrddir}
+    mv ${dir}/* %{_initrddir}/
+    # /etc/rc.d is no longer used and should be empty except for some dangling symlinks
+    # from chkconfig
+    rm -rf /etc/rc.d
+    rmdir ${dir}
+fi
+
+
 %files
 %defattr(-,root,root)
 %dir %attr(0750,root,admin) %{_initrddir}
@@ -240,6 +258,10 @@ fi
 
 
 %changelog
+* Fri Oct 27 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.7.0
+- we need more than just an obsoletes so add a trigger to get rid of
+  some chkconfig-related files that interfere with our proper operation
+
 * Tue Oct 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.7.0
 - add an obsoletes on chkconfig; we can't provide it tho
 
