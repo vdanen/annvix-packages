@@ -177,6 +177,13 @@ if [ -L /etc/init.d ]; then
     # from chkconfig
     rm -rf /etc/rc.d
     rmdir ${dir}
+    # finally, there is nothing in our default runlevel and we should at least have
+    # network support and a few others dependening on if they're installed already
+    for service in network netfs kudzu iptables shorewall rc.local; do
+        if [ -f %{_initrddir}/${service} ]; then
+            /sbin/rc-update add ${service} default
+        fi
+    done
 fi
 # now we need to populate the runlevels if /service exists
 if [ -d /service ]; then
@@ -270,6 +277,9 @@ fi
 
 
 %changelog
+* Fri Oct 27 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.7.0
+- we also need to populate the default runlevel a bit
+
 * Fri Oct 27 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.7.0
 - rc: if runlevel doesn't exist, set it to default
 - move /service upon removal of chkconfig (the installer does things right,
