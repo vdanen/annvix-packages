@@ -234,6 +234,9 @@ fi
 
 
 %changelog
+* Sat Oct 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.35
+- update sysctl.conf to note the kernel.modprobe option
+
 * Sun Oct 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.35
 - 8.35; some minor fixes
 
