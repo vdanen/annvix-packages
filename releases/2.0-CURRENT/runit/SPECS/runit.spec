@@ -278,6 +278,9 @@ fi
 
 %changelog
 * Sat Oct 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.7.0
+- fix the usb initscript
+
+* Sat Oct 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.7.0
 - rc: don't disable modprobe loading by default as it breaks shorewall
 
 * Fri Oct 27 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.7.0
