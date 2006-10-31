@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		setup
-%define version 	2.5
+%define version 	2.6
 %define release 	%_revrel
 
 Summary:	A set of system configuration and setup files
@@ -18,7 +18,7 @@ Version:	%{version}
 Release:	%{release}
 License:	Public Domain
 Group:		System/Configuration
-URL:		http://annvix.org/cgi-bin/viewcvs.cgi/tools/setup
+URL:		http://svn.annvix.org/cgi-bin/viewvc.cgi/setup/trunk/?root=tools
 Source:		setup-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -62,6 +62,7 @@ if [ -f /etc/group ]; then
     grep -q '^auth:' /etc/group || groupadd -g 27 auth
     grep -q '^shadow:' /etc/group || groupadd -g 28 shadow && chmod 0440 /etc/shadow && chgrp shadow /etc/shadow
     grep -q '^chkpwd:' /etc/group || groupadd -g 29 chkpwd
+    grep -q '^ctools:' /etc/group || groupadd -g 18 ctools
 fi
 
 
@@ -105,6 +106,11 @@ fi
 
 
 %changelog
+* Tue Oct 31 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6
+- 2.6
+- add ctools group (gid 18)
+- fix URL
+
 * Thu Oct 19 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5
 - updated tarball to add svnserve alias to svn (/etc/services)
 
