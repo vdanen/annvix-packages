@@ -14,8 +14,6 @@
 %define version		1.22
 %define release		%_revrel
 
-%define libsspname	%mklibname ssp 0
-
 Summary:	The Annvix rpm configuration and scripts
 Name:		%{name}
 Version:	%{version}
@@ -25,7 +23,7 @@ Group:		System/Configuration
 URL:		http://svn.annvix.org/cgi-bin/viewvc.cgi/rpm-setup/trunk/?root=tools
 Source0:	%{name}-%{version}.tar.bz2
 
-Requires:	%{libsspname}
+Requires:	libssp0
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -39,7 +37,7 @@ Group:		System/Configuration
 Requires:	spec-helper >= 0.6-5mdk
 Requires:	multiarch-utils >= 1.0.3
 Requires:	%{name} = %{version}-%{release}
-Requires:	%{libsspname}-devel
+Requires:	libssp0-devel
 
 %description build
 The Annvix rpm configuration and scripts dedicated to build rpms.
@@ -85,6 +83,9 @@ mkdir -p %{buildroot}%{_sysconfdir}/rpm/macros.d
 
 
 %changelog
+* Tue Oct 31 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.22
+- libssp0 is still libssp0 on x86_64 (not lib64ssp0)
+
 * Tue Oct 31 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.22
 - 1.22: add -fstack-protector-all to the %%serverbuild macro
 - clean spec
