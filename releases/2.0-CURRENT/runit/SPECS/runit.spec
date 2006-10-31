@@ -160,6 +160,13 @@ if [ $1 == "1" ]; then
         rm -f /etc/runlevels/single/service/mingetty-tty$i/down
     done
 fi
+%_post_service network
+%_post_service netfs
+
+
+%preun
+%_preun_service network
+%_preun_service netfs
 
 
 %triggerun -- chkconfig
@@ -277,6 +284,9 @@ fi
 
 
 %changelog
+* Mon Oct 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.7.0
+- add the %%_{post,preun}_service macros for network and netfs
+
 * Sat Oct 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.7.0
 - fix the usb initscript
 
