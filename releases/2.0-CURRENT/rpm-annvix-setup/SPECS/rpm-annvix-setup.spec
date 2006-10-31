@@ -11,7 +11,7 @@
 
 %define revision	$Rev$
 %define name		rpm-annvix-setup
-%define version		1.21
+%define version		1.22
 %define release		%_revrel
 
 Summary:	The Annvix rpm configuration and scripts
@@ -20,7 +20,7 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		System/Configuration
-URL:		http://annvix.org/cgi-bin/viewcvs.cgi/tools/rpm-setup/
+URL:		http://svn.annvix.org/cgi-bin/viewvc.cgi/rpm-setup/trunk/?root=tools
 Source0:	%{name}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -66,7 +66,7 @@ mkdir -p %{buildroot}%{_sysconfdir}/rpm/macros.d
 %{_prefix}/lib/rpm/annvix/rpmrc
 %{_prefix}/lib/rpm/annvix/macros
 %{_prefix}/lib/rpm/annvix/rpmpopt
-%{_prefix}/lib/rpm/annvix/*-%_target_os
+%{_prefix}/lib/rpm/annvix/*-%{_target_os}
 %dir %{_sysconfdir}/rpm/macros.d
 
 
@@ -80,6 +80,11 @@ mkdir -p %{buildroot}%{_sysconfdir}/rpm/macros.d
 
 
 %changelog
+* Tue Oct 31 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.22
+- 1.22: add -fstack-protector-all to the %%serverbuild macro
+- clean spec
+- fix URL
+
 * Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.21
 - 1.21: fix %%kill_lang support
 
@@ -143,66 +148,5 @@ mkdir -p %{buildroot}%{_sysconfdir}/rpm/macros.d
 
 * Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.5-1avx
 - first Annvix build for new rpm
-
-* Thu Aug 25 2005 Gwenole Beauchesne <gbeauchesne@mandriva.com> 1.5-1mdk
-- make generation of debug packages work again
-- factor out compile flags and build with -D_FORTIFY_SOURCE=2
-
-* Thu Aug 18 2005 Olivier Thauvin <nanardon@mandriva.org> 1.4-1mdk
-- fix php.req about include of relatives path (P. Terjan)
-
-* Tue Aug 16 2005 Gwenole Beauchesne <gbeauchesne@mandriva.com> 1.3-1mdk
-- check-multiarch-files: fix invocation and path (/usr/lib/rpm/check-*),
-  default to not check for multiarch files in 2006
-
-* Sun Aug 07 2005 Olivier Thauvin <nanardon@zarb.org> 1.2-1mdk
-- add req/prov for php pear
-- add conectiva macros
-
-* Sat Jun 25 2005 Olivier Thauvin <nanardon@mandriva.org> 1.1-4mdk
-- require multiarch-utils
-
-* Thu Jun 23 2005 Olivier Thauvin <nanardon@mandriva.org> 1.1-3mdk
-- enforce requirement to avoid conflict during update
-
-* Wed Jun 22 2005 Olivier Thauvin <nanardon@mandriva.org> 1.1-2mdk
-- split package for dep
-
-* Mon Jun 13 2005 Olivier Thauvin <nanardon@zarb.org> 1.1-1mdk
-- few connectiva macros
-- from Gwenole Beauchesne
-  - merge from old ppc64 branch:
-  * find-requires: handle ppc64 loaders
-
-* Wed May 25 2005 Olivier Thauvin <nanardon@zarb.org> 1.0-1mdk
-- 1.0:
-  - disable automatic gpg key query on server
-  - add automatic require for ocaml (G. Rousse)
-
-* Thu May 12 2005 Olivier Thauvin <nanardon@mandriva.org> 0.8-1mdk
-- 0.8: fix %%_localstatedir
-
-* Thu May 12 2005 Olivier Thauvin <nanardon@mandriva.org> 0.7-1mdk
-- 0.7 (integrate spec mode for emacs)
-
-* Tue May 10 2005 Olivier Thauvin <nanardon@mandriva.org> 0.6-1mdk
-- 0.6 %%_libexecdir
-
-* Mon May 09 2005 Olivier Thauvin <nanardon@mandriva.org> 0.5-1mdk
-- 0.5 (translate pentium[34] => i586)
-
-* Fri May 06 2005 Olivier Thauvin <nanardon@mandriva.org> 0.4-1mdk
-- 0.4
-  - fix popt options
-
-* Tue May 03 2005 Olivier Thauvin <nanardon@mandriva.org> 0.3-1mdk
-- 0.3 (better compatiblity)
-
-* Sun May 01 2005 Olivier Thauvin <nanardon@mandriva.org> 0.2-1mdk
-- 0.2 (minor fix)
-
-* Wed Apr 27 2005 Olivier Thauvin <nanardon@mandriva.org> 0.1-1mdk
-- First mandriva spec
-
 
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8
