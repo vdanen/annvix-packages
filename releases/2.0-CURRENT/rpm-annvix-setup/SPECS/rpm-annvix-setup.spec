@@ -14,6 +14,8 @@
 %define version		1.22
 %define release		%_revrel
 
+%define libsspname	%mklibname ssp 0
+
 Summary:	The Annvix rpm configuration and scripts
 Name:		%{name}
 Version:	%{version}
@@ -22,6 +24,8 @@ License:	GPL
 Group:		System/Configuration
 URL:		http://svn.annvix.org/cgi-bin/viewvc.cgi/rpm-setup/trunk/?root=tools
 Source0:	%{name}-%{version}.tar.bz2
+
+Requires:	%{libsspname}
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -35,6 +39,7 @@ Group:		System/Configuration
 Requires:	spec-helper >= 0.6-5mdk
 Requires:	multiarch-utils >= 1.0.3
 Requires:	%{name} = %{version}-%{release}
+Requires:	%{libsspname}-devel
 
 %description build
 The Annvix rpm configuration and scripts dedicated to build rpms.
@@ -84,6 +89,7 @@ mkdir -p %{buildroot}%{_sysconfdir}/rpm/macros.d
 - 1.22: add -fstack-protector-all to the %%serverbuild macro
 - clean spec
 - fix URL
+- require libssp
 
 * Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.21
 - 1.21: fix %%kill_lang support
