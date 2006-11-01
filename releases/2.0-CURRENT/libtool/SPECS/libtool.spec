@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		libtool
-%define version		1.5.18
+%define version		1.5.20
 %define release		%_revrel
 
 %define lib_major	3
@@ -55,12 +55,15 @@ Patch5:		libtool-1.5-testfailure.patch
 Patch6:		libtool-1.5.6-old-libtool.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	automake1.8, autoconf2.5
-%ifarch %biarches
+BuildRequires:	automake1.8
+BuildRequires:	autoconf2.5
+%ifarch %{biarches}
 BuildRequires:	setarch
 %endif
 
-Requires:	file, gcc = %{gcc_ver}
+Requires:	file
+Requires:	gcc = %{gcc_ver}
+Requires:	sed
 Requires(post):	info-install
 Requires(preun): info-install
 
@@ -136,7 +139,7 @@ popd
 mkdir -p build-%{_target_cpu}-%{_target_os}
     pushd build-%{_target_cpu}-%{_target_os}
     CONFIGURE_TOP=.. %configure2_5x
-    %make
+    make
 
     %if %{do_check}
     set +x
@@ -168,7 +171,7 @@ sed -e "s,@prefix@,%{_prefix}," -e "s,@datadir@,%{_datadir}," %{SOURCE2} \
 chmod 0755 %{buildroot}%{_bindir}/cputoolize
 
 # biarch support
-%ifarch %biarches
+%ifarch %{biarches}
 %multiarch_binaries %{buildroot}%{_bindir}/libtool
 install -m 0755 build-%{alt_arch}-%{_target_os}/libtool %{buildroot}%{_bindir}/libtool
 linux32 /bin/sh -c '%multiarch_binaries %{buildroot}%{_bindir}/libtool'
@@ -198,6 +201,13 @@ mv libltdl/README libltdl/README.libltdl
 %{_infodir}/libtool.info*
 %{_datadir}/libtool
 %{_datadir}/aclocal/*.m4
+%ifarch %{biarches}
+%define alt_multiarch_bindir %(linux32 /bin/rpm --eval %%multiarch_bindir)                                                                                                         
+%{multiarch_bindir}                                                                                                                                                                
+%{multiarch_bindir}/libtool                                                                                                                                                        
+%{alt_multiarch_bindir}                                                                                                                                                            
+%{alt_multiarch_bindir}/libtool                                                                                                                                                    
+%endif
 
 %files -n %{libname}
 %defattr(-,root,root)
@@ -205,7 +215,7 @@ mv libltdl/README libltdl/README.libltdl
 
 %files -n %{libname}-devel
 %defattr(-,root,root)
-%_includedir/*
+%{_includedir}/*
 %{_libdir}/*.a
 %{_libdir}/*.so
 %{_libdir}/*.la
@@ -216,6 +226,12 @@ mv libltdl/README libltdl/README.libltdl
 
 
 %changelog
+* Tue Oct 31 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.5.20
+- 1.5.20
+- build against gcc 4.1
+- fix the filelist for biarch archs (cjw)
+- requires sed (for cputoolize)
+
 * Sat May 20 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.5.18
 - rebuild the toolchain against itself (gcc/glibc/libtool/binutils)
 
