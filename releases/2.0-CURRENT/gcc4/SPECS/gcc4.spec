@@ -9,21 +9,22 @@
 
 %define revision		$Rev$
 %define name			gcc
-%define version			4.0.3
+%define version			4.1.1
 %define release			%_revrel
 
 %define _unpackaged_files_terminate_build 0
 
-%define branch			4.0
+%define branch			4.1
 %define branch_tag		%(perl -e 'printf "%%02d%%02d", split(/\\./,shift)' %{branch})
 %define biarches		x86_64 ppc64
 %define color_gcc_version	1.3.2
 
 %define libgcc_major		1
 %define libstdcxx_major		6
-%define libstdcxx_minor		7
+%define libstdcxx_minor		8
 %define libobjc_major		1
 %define libmudflap_major	0
+%define libssp_major		0
 %define libgcc_name_orig	libgcc
 %define libgcc_name		%{libgcc_name_orig}%{libgcc_major}
 %define libstdcxx_name_orig	libstdc++
@@ -32,6 +33,8 @@
 %define libobjc_name		%{libobjc_name_orig}%{libobjc_major}
 %define libmudflap_name_orig	libmudflap
 %define libmudflap_name		%{libmudflap_name_orig}%{libmudflap_major}
+%define libssp_name_orig	libssp
+%define libssp_name		%{libssp_name_orig}%{libssp_major}
 
 %define nof_arches		ppc
 %ifarch x86_64
@@ -76,12 +79,12 @@ Source6:	gcc35-help2man.pl
 
 Patch0:		colorgcc-1.3.2-mdk-conf.patch
 Patch1:		gcc35-pch-mdkflags.patch
-Patch2:		gcc40-visibility1.patch
-Patch3:		gcc40-visibility2.patch
+Patch2:		gcc41-visibility1.patch
+Patch3:		gcc41-visibility2.patch
 Patch4:		gcc40-linux32.patch
 Patch5:		gcc40-linux32-build-env.patch
 Patch6:		gcc4-libtool1.4-lib64.patch
-Patch7:		gcc40-rh-fortify.patch
+Patch8:		gcc4-mtune-generic.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 # Want updated alternatives priorities
@@ -103,6 +106,7 @@ Requires:	%{name}-cpp = %{version}-%{release}
 Requires:	%{libgcc_name_orig} >= 3.3.2-5mdk
 # Make sure pthread.h doesn't contain __thread keyword
 Requires:	glibc-devel >= 2.2.5-14mdk
+Requires:	setup >= 2.6
 Requires(post):	/usr/sbin/update-alternatives
 Requires(postun): /usr/sbin/update-alternatives
 Obsoletes:	gcc%{branch}
@@ -272,6 +276,32 @@ and when linking add -lmudflap'. For threaded programs also add
 
 
 ####################################################################
+# SSP headers and libraries
+
+%package -n %{libssp_name}
+Summary:	GCC SSP shared support library
+Group:		System/Libraries
+
+%description -n %{libssp_name}
+This package contains GCC shared support library which is needed
+for SSP support.
+
+%package -n %{libssp_name}-devel
+Summary:	GCC SSP support
+Group:		Development/C
+Requires:	%{name} = %{version}-%{release}
+Requires:	%{libssp_name} = %{version}-%{release}
+Obsoletes:	%{libssp_name_orig}-devel
+Provides:	%{libssp_name_orig}-devel = %{version}-%{release}
+
+%description -n %{libssp_name}-devel
+This package contains headers and static libraries for building
+SSP-instrumented programs.
+
+Refer to the documentation for -fstack-protector.
+
+
+####################################################################
 # Preprocessor
 
 %package cpp
@@ -366,7 +396,7 @@ popd
 %patch4 -p1 -b .linux32
 %patch5 -p1 -b .linux32-build-env
 %patch6 -p1 -b .libtool-lib64
-%patch7 -p1 -b .fortify
+%patch8 -p1 -b .generic
 
 # FIXME: use a configure flag
 optflags=`echo $RPM_OPT_FLAGS| sed -e 's/-mcpu=/-mtune=/'`
@@ -410,7 +440,7 @@ CC="%{__cc}" CFLAGS="$OPT_FLAGS" CXXFLAGS="$OPT_FLAGS" XCFLAGS="$OPT_FLAGS" TCFL
 	--infodir=%{_infodir} \
 	--enable-shared \
 	--enable-threads=posix \
-	--disable-checking \
+	--enable-checking=release \
 	--enable-long-long \
 	--enable-__cxa_atexit \
 	--enable-clocale=gnu \
@@ -418,7 +448,11 @@ CC="%{__cc}" CFLAGS="$OPT_FLAGS" CXXFLAGS="$OPT_FLAGS" XCFLAGS="$OPT_FLAGS" TCFL
 	--enable-languages="c,c++,objc" \
 	--host=%{_target_platform} \
 	--target=%{_target_platform} \
-	--with-system-zlib
+%ifarch %{ix86} x86_64
+	--with-cpu=generic \
+%endif
+	--with-system-zlib \
+	--enable-ssp --enable-libssp
 touch ../gcc/c-gperf.h
 %ifarch %{ix86} x86_64
 %make profiledbootstrap BOOT_CFLAGS="$OPT_FLAGS"
@@ -486,7 +520,7 @@ mkdir -p %{buildroot}%{_sysconfdir}
 
 # ColorGCC stuff
 pushd colorgcc-%{color_gcc_version}
-    install -m 0755 colorgcc %{buildroot}%{_bindir}/colorgcc-%{version}
+    install -m 0750 colorgcc %{buildroot}%{_bindir}/colorgcc-%{version}
     ln -s colorgcc-%{version} %{buildroot}%{_bindir}/colorgcc
     install -m 0644 colorgccrc %{buildroot}%{_sysconfdir}/
     for i in COPYING CREDITS ChangeLog; do
@@ -585,6 +619,11 @@ DispatchLibs() {
 }
 
 pushd $FULLPATH;
+    DispatchLibs libssp		%{libssp_major}.0.0
+    mv ../../../../%{_lib}/$crosslibdir/libssp_nonshared.a libssp_nonshared.a
+%ifarch %{biarches}
+    mv ../../../libssp_nonshared.a 32/libssp_nonshared.a
+%endif
     DispatchLibs libmudflap	%{libmudflap_major}.0.0
     DispatchLibs libmudflapth	%{libmudflap_major}.0.0
     DispatchLibs libstdc++	%{libstdcxx_major}.0.%{libstdcxx_minor}
@@ -818,8 +857,13 @@ fi
 %post -n %{libobjc_name} -p /sbin/ldconfig
 %postun -n %{libobjc_name} -p /sbin/ldconfig
 
+
 %post -n %{libmudflap_name} -p /sbin/ldconfig
 %postun -n %{libmudflap_name} -p /sbin/ldconfig
+
+
+%post -n %{libssp_name} -p /sbin/ldconfig
+%postun -n %{libssp_name} -p /sbin/ldconfig
 
 
 %post doc
@@ -837,16 +881,16 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc.info.bz2 --dir=%{_info
 %{_mandir}/man1/gcc.1*
 %{_mandir}/man1/gcov.1*
 #
-%{_bindir}/gcc%{branch}-version
-%{_bindir}/gcc-%{version}
-%{_bindir}/%{_target_platform}-gcc
-%{_bindir}/%{_target_platform}-gcc-%{version}
-%{_bindir}/protoize
-%{_bindir}/unprotoize
-%{_bindir}/gcov
-%{_bindir}/cc
-%{_bindir}/c89
-%{_bindir}/c99
+%attr(0750,root,ctools) %{_bindir}/gcc%{branch}-version
+%attr(0750,root,ctools) %{_bindir}/gcc-%{version}
+%attr(0750,root,ctools) %{_bindir}/%{_target_platform}-gcc
+%attr(0750,root,ctools) %{_bindir}/%{_target_platform}-gcc-%{version}
+%attr(0750,root,ctools) %{_bindir}/protoize
+%attr(0750,root,ctools) %{_bindir}/unprotoize
+%attr(0750,root,ctools) %{_bindir}/gcov
+%attr(0750,root,ctools) %{_bindir}/cc
+%attr(0750,root,ctools) %{_bindir}/c89
+%attr(0750,root,ctools) %{_bindir}/c99
 #
 %{_libdir}/libgcc_s.so
 %ifarch %{nof_arches}
@@ -979,25 +1023,47 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc.info.bz2 --dir=%{_info
 %{gcc_libdir}/%{_target_platform}/%{version}/32/libmudflapth.so
 %endif
 
+%files -n %{libssp_name}
+%defattr(-,root,root)
+%{_libdir}/libssp.so.%{libssp_major}
+%{_libdir}/libssp.so.%{libssp_major}.0.0
+%ifarch %{biarches}
+%{_prefix}/lib/libssp.so.%{libssp_major}
+%{_prefix}/lib/libssp.so.%{libssp_major}.0.0
+%endif
+
+%files -n %{libssp_name}-devel
+%defattr(-,root,root)
+%dir %{gcc_libdir}/%{_target_platform}/%{version}/include/ssp
+%{gcc_libdir}/%{_target_platform}/%{version}/include/ssp/*.h
+%{gcc_libdir}/%{_target_platform}/%{version}/libssp.a
+%{gcc_libdir}/%{_target_platform}/%{version}/libssp_nonshared.a
+%{gcc_libdir}/%{_target_platform}/%{version}/libssp.so
+%ifarch %{biarches}
+%{gcc_libdir}/%{_target_platform}/%{version}/32/libssp.a
+%{gcc_libdir}/%{_target_platform}/%{version}/32/libssp_nonshared.a
+%{gcc_libdir}/%{_target_platform}/%{version}/32/libssp.so
+%endif
+
 
 %files cpp
 %defattr(-,root,root)
 %{_mandir}/man1/cpp.1*
 /lib/cpp
-%ghost %{_bindir}/cpp
-%{_bindir}/cpp-%{version}
-%{gcc_libdir}/%{_target_platform}/%{version}/cc1
+%ghost %attr(0750,root,ctools) %{_bindir}/cpp
+%attr(0750,root,ctools) %{_bindir}/cpp-%{version}
+%attr(0750,root,ctools) %{gcc_libdir}/%{_target_platform}/%{version}/cc1
 
 %files c++
 %defattr(-,root,root)
 %{_mandir}/man1/g++.1*
-%ghost %{_bindir}/c++
-%{_bindir}/g++-%{version}
-%{_bindir}/c++-%{version}
-%{_bindir}/%{_target_platform}-g++
-%{_bindir}/%{_target_platform}-c++
+%ghost %attr(0750,root,ctools) %{_bindir}/c++
+%attr(0750,root,ctools) %{_bindir}/g++-%{version}
+%attr(0750,root,ctools) %{_bindir}/c++-%{version}
+%attr(0750,root,ctools) %{_bindir}/%{_target_platform}-g++
+%attr(0750,root,ctools) %{_bindir}/%{_target_platform}-c++
 #
-%{gcc_libdir}/%{_target_platform}/%{version}/cc1plus
+%attr(0750,root,ctools) %{gcc_libdir}/%{_target_platform}/%{version}/cc1plus
 
 %files -n %{libstdcxx_name}
 %defattr(-,root,root)
@@ -1043,7 +1109,7 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc.info.bz2 --dir=%{_info
 
 %files objc
 %defattr(-,root,root)
-%{gcc_libdir}/%{_target_platform}/%{version}/cc1obj
+%attr(0750,root,ctools) %{gcc_libdir}/%{_target_platform}/%{version}/cc1obj
 %{gcc_libdir}/%{_target_platform}/%{version}/libobjc.a
 %{gcc_libdir}/%{_target_platform}/%{version}/libobjc.so
 %ifarch %{biarches}
@@ -1070,8 +1136,8 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc.info.bz2 --dir=%{_info
 %files colorgcc
 %defattr (-,root,root)
 %config(noreplace) %{_sysconfdir}/colorgccrc
-%{_bindir}/colorgcc
-%{_bindir}/colorgcc-%{version}
+%attr(0750,root,ctools) %{_bindir}/colorgcc
+%attr(0750,root,ctools) %{_bindir}/colorgcc-%{version}
 
 %files doc
 %defattr(-,root,root)
@@ -1087,6 +1153,15 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc.info.bz2 --dir=%{_info
 
 
 %changelog
+* Tue Oct 31 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.1.1
+- 4.1.1
+- enable building SSP and libssp (we must build libssp until we move to glibc 2.4)
+- P8: add -mtune=generic (gb)
+- updated P2, P3 from Mandriva
+- drop P7
+- fix some file permissions; all compiler binaries should be mode 0750 and owned
+  root:ctools (as a result, requires a newer setup)
+
 * Wed Aug 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.0.3
 - spec cleanups
 - remove locales
