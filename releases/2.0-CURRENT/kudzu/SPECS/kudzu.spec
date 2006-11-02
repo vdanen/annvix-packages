@@ -124,6 +124,9 @@ rm -rf %{buildroot}%{_sysconfdir}/rc.d/init.d
 
 
 %changelog
+* Thu Nov 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.34.3
+- use getenvopt() in the initscript
+
 * Sat Oct 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.34.3
 - add the order keyword to the initscript
 - requires runit

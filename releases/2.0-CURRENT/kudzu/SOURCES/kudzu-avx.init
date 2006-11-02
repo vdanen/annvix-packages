@@ -7,11 +7,12 @@
 #
 # $Id$
 
-. /etc/rc.d/rc.functions.sh
+. /etc/init.d/rc.functions.sh
 
+order=05
 KUDZU_ARGS=
 name="kudzu"
-SAFE="`head -1 /etc/sysconfig/env/kudzu/SAFE`"
+getenvopt "kudzu"
 
 if [ "${SAFE}" != "no" ]; then
     KUDZU_ARGS="-s"
