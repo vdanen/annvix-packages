@@ -46,7 +46,7 @@ BuildRequires:	perl(Archive::Tar)
 BuildRequires:	perl(IO::Zlib)
 BuildRequires:	perl(Net::Ident)
 
-Requires:	perl(Mail::SpamAssassin) = %{version}-%{release}
+Requires:  	perl-Mail-SpamAssassin = %{version}-%{release}
 Requires:  	perl(DB_File)
 Requires:	perl(Net::DNS)
 # these aren't 100% required, but are very useful
