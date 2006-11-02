@@ -220,6 +220,9 @@ echo "-c -m5 -H" >%{buildroot}%{_srvdir}/spamd/env/OPTIONS
 
 
 %changelog
+* Thu Nov 02 2006 Ying-Hung Chen <ying-at-annvix.org> 3.1.3
+- Update the Requires Mail-SpamAssassin section to fix the dependency problem
+
 * Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.1.3
 - rebuild against new openssl
 - spec cleanups
