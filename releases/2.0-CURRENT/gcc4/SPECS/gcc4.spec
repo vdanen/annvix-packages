@@ -13,6 +13,7 @@
 %define release			%_revrel
 
 %define _unpackaged_files_terminate_build 0
+%define build_mudflap		0
 
 %define branch			4.1
 %define branch_tag		%(perl -e 'printf "%%02d%%02d", split(/\\./,shift)' %{branch})
@@ -85,6 +86,8 @@ Patch4:		gcc40-linux32.patch
 Patch5:		gcc40-linux32-build-env.patch
 Patch6:		gcc4-libtool1.4-lib64.patch
 Patch8:		gcc4-mtune-generic.patch
+Patch9:		gcc41-ldbl-default.patch
+Patch10:	gcc41-ldbl-default-libstdc++.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 # Want updated alternatives priorities
@@ -237,6 +240,7 @@ Provides:	%{libobjc_name_orig}3.1 = %{version}-%{release}
 Runtime libraries for the GNU Objective C Compiler.
 
 
+%if %{build_mudflap}
 ####################################################################
 # mudflap headers and libraries
 
@@ -273,7 +277,7 @@ mudflap-instrumented programs.
 To instrument a non-threaded program, add -fmudflap' option to GCC
 and when linking add -lmudflap'. For threaded programs also add
 -fmudflapth' and -lmudflapth'.
-
+%endif
 
 ####################################################################
 # SSP headers and libraries
@@ -397,6 +401,8 @@ popd
 %patch5 -p1 -b .linux32-build-env
 %patch6 -p1 -b .libtool-lib64
 %patch8 -p1 -b .generic
+%patch9 -p0 -b .ldbl-default
+%patch10 -p1 -b .ldbl-default-libstdc++
 
 # FIXME: use a configure flag
 optflags=`echo $RPM_OPT_FLAGS| sed -e 's/-mcpu=/-mtune=/'`
@@ -452,6 +458,9 @@ CC="%{__cc}" CFLAGS="$OPT_FLAGS" CXXFLAGS="$OPT_FLAGS" XCFLAGS="$OPT_FLAGS" TCFL
 	--with-cpu=generic \
 %endif
 	--with-system-zlib \
+%if !%{build_mudflap}
+	--disable-libmudflap \
+%endif
 	--enable-ssp --enable-libssp
 touch ../gcc/c-gperf.h
 %ifarch %{ix86} x86_64
@@ -624,8 +633,10 @@ pushd $FULLPATH;
 %ifarch %{biarches}
     mv ../../../libssp_nonshared.a 32/libssp_nonshared.a
 %endif
+%if %{build_mudflap}
     DispatchLibs libmudflap	%{libmudflap_major}.0.0
     DispatchLibs libmudflapth	%{libmudflap_major}.0.0
+%endif
     DispatchLibs libstdc++	%{libstdcxx_major}.0.%{libstdcxx_minor}
     mv ../../../../%{_lib}/libsupc++.a libsupc++.a
 %ifarch %{biarches}
@@ -672,8 +683,10 @@ EOF
     done
 popd
 
+%if %{build_mudflap}
 # Move <mf-runtime.h> to compiler-specfic directory
 mv %{buildroot}%{_includedir}/mf-runtime.h $FULLPATH/include/
+%endif
 
 
 # Fix links to binaries
@@ -857,9 +870,10 @@ fi
 %post -n %{libobjc_name} -p /sbin/ldconfig
 %postun -n %{libobjc_name} -p /sbin/ldconfig
 
-
+%if %{build_mudflap}
 %post -n %{libmudflap_name} -p /sbin/ldconfig
 %postun -n %{libmudflap_name} -p /sbin/ldconfig
+%endif
 
 
 %post -n %{libssp_name} -p /sbin/ldconfig
@@ -994,6 +1008,7 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc.info.bz2 --dir=%{_info
 /%{_lib}/nof/libgcc_s.so.%{libgcc_major}
 %endif
 
+%if %{build_mudflap}
 %files -n %{libmudflap_name}
 %defattr(-,root,root)
 #
@@ -1021,6 +1036,7 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc.info.bz2 --dir=%{_info
 %{gcc_libdir}/%{_target_platform}/%{version}/32/libmudflap.so
 %{gcc_libdir}/%{_target_platform}/%{version}/32/libmudflapth.a
 %{gcc_libdir}/%{_target_platform}/%{version}/32/libmudflapth.so
+%endif
 %endif
 
 %files -n %{libssp_name}
@@ -1153,6 +1169,11 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc.info.bz2 --dir=%{_info
 
 
 %changelog
+* Wed Nov 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.1.1
+- P9, P10: two additional patches from Mandriva
+- don't build mudflap support (use %%build_mudflap to define it; we may
+  want it later)
+
 * Tue Oct 31 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.1.1
 - 4.1.1
 - enable building SSP and libssp (we must build libssp until we move to glibc 2.4)
