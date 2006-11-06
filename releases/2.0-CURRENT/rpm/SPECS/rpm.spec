@@ -122,6 +122,7 @@ Patch84:	rpm-4.4.4-rpmqv-ghost.patch
 Patch85:	rpm-4.4.4-perldirs.patch
 # Use temporary table for Depends DB (Olivier Thauvin upstream)
 Patch86:	rpm-4.4.4-depsdb.patch
+Patch87:	rpm4-CVE-2006-5466.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5 >= 2.57
@@ -334,6 +335,7 @@ This package contains the documentation for %{name}.
 %patch84 -p0 -b .poptQVghost
 %patch85 -p0 -b .perldirs
 %patch86 -p0 -b .depsdb
+%patch87 -p0 -b .cve-2006-5466
 
 # The sqlite from rpm tar ball is the same than the system one
 # rpm author just add LINT comment for his checking purpose
@@ -756,6 +758,9 @@ fi
 
 
 %changelog
+* Mon Nov 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.5
+- P87: security fix for CVE-2006-5466
+
 * Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.5
 - spec cleanups
 - remove locales
