@@ -127,7 +127,7 @@ Patch81:	rpm-4.4.2-legacyprereq.patch
 Patch82:	rpm-4.4.2-ordering.patch
 # don't conflict for doc files from colored packages
 Patch83:	rpm-4.2.3-no-doc-conflicts.patch
-
+Patch84:	rpm4-CVE-2006-5466.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5 >= 2.57
@@ -315,6 +315,7 @@ shell-like rules.
 %patch81 -p0 -b .legacyprereq
 %patch82 -p0 -b .ordering
 %patch83 -p1 -b .no-doc-conflicts
+%patch84 -p0 -b .cve-2006-5466
 
 # The sqlite from rpm tar ball is the same than the system one
 # rpm author just add LINT comment for his checking purpose
@@ -713,6 +714,9 @@ fi
 
 
 %changelog
+* Mon Nov  6 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.2
+- P84: security fix for CVE-2006-5466
+
 * Wed Feb  1 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.2
 - fix a stupid typeo in the %%postuninstall scriptlet of librpm4.4
   that would make it try to execute "***" via ldconfig and would thus
