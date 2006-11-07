@@ -141,7 +141,7 @@ BuildRequires:	rpm-annvix-setup-build
 BuildRequires:	readline-devel
 BuildRequires:	ncurses-devel
 BuildRequires:	neon-static-devel < 0.25
-BuildRequires:	libsqlite3-static-devel
+BuildRequires:	sqlite3-static-devel
 BuildRequires:	openssl-static-devel >= 0.9.8
 %if %buildnptl
 BuildRequires:	nptl-devel
@@ -758,6 +758,9 @@ fi
 
 
 %changelog
+* Tue Nov 07 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.5
+- rebuild against new sqlite
+
 * Mon Nov 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.5
 - P87: security fix for CVE-2006-5466
 
