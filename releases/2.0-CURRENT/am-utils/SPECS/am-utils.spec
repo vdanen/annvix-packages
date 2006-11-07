@@ -191,6 +191,9 @@ rm -f %{buildroot}/amd
 
 
 %changelog
+* Mon Nov 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 6.0.9
+- fix the run script (but see bug #36 regarding svwaitup too)
+
 * Tue Jul 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 6.0.9
 - spec cleanups
 
