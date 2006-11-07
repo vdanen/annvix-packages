@@ -23,7 +23,7 @@ Group:		System/Configuration
 URL:		http://svn.annvix.org/cgi-bin/viewvc.cgi/rpm-setup/trunk/?root=tools
 Source0:	%{name}-%{version}.tar.bz2
 
-Requires:	libssp0
+#Requires:	libssp0
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -37,7 +37,7 @@ Group:		System/Configuration
 Requires:	spec-helper >= 0.6-5mdk
 Requires:	multiarch-utils >= 1.0.3
 Requires:	%{name} = %{version}-%{release}
-Requires:	libssp0-devel
+#Requires:	libssp0-devel
 
 %description build
 The Annvix rpm configuration and scripts dedicated to build rpms.
@@ -83,6 +83,10 @@ mkdir -p %{buildroot}%{_sysconfdir}/rpm/macros.d
 
 
 %changelog
+* Mon Nov 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.22
+- revert the SSP changes; I don't think it will play nice until we get
+  glibc 2.4 involved
+
 * Tue Oct 31 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.22
 - libssp0 is still libssp0 on x86_64 (not lib64ssp0)
 
