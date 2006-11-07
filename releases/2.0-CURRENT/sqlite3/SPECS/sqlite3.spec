@@ -8,13 +8,12 @@
 # $Id$
 
 %define revision	$Rev$
-%define name		sqlite3
-%define version 	3.3.6
+%define name		sqlite
+%define version 	3.3.8
 %define release		%_revrel
 
-%define rname		sqlite
 %define	major		0
-%define libname		%mklibname %{name}_ %{major}
+%define libname		%mklibname %{name}3_ %{major}
 
 Summary:	SQLite is a C library that implements an embeddable SQL database engine
 Name:		%{name}
@@ -23,7 +22,7 @@ Release:	%{release}
 License:	Public Domain
 Group:		System/Libraries
 URL:		http://www.sqlite.org/
-Source0:	http://www.sqlite.org/%{rname}-%{version}.tar.gz
+Source0:	http://www.sqlite.org/%{name}-%{version}.tar.gz
 Patch0:		sqlite-3.2.2-aliasing-fixes.patch
 Patch1:		sqlite-3.3.6-avx-skip_types3_tests.patch
 
@@ -62,8 +61,9 @@ This package contains the shared libraries for %{name}
 Summary:	Development library and header files for the %{name} library
 Group:		Development/C
 Requires:	%{libname} = %{version}-%{release}
-Provides:	lib%{name}-devel
-Provides:	%{name}-devel
+Provides:	lib%{name}-devel = %{version}-%{release}
+Provides:	%{name}-devel = %{version}-%{release}
+Provides:	%{name}3-devel = %{version}-%{release}
 
 %description -n	%{libname}-devel
 SQLite is a C library that implements an embeddable SQL database
@@ -83,6 +83,7 @@ Group:		Development/C
 Requires:	%{libname}-devel = %{version}-%{release}
 Provides:	lib%{name}-static-devel = %{version}-%{release}
 Provides:	%{name}-static-devel = %{version}-%{release}
+Provides:	%{name}3-static-devel = %{version}-%{release}
 
 %description -n	%{libname}-static-devel
 SQLite is a C library that implements an embeddable SQL database
@@ -98,6 +99,8 @@ This package contains the static %{libname} library.
 Summary:	Command line tools for managing the %{libname} library
 Group:		Databases
 Requires:	%{libname} = %{version}-%{release}
+Provides:	%{name}3-tools = %{version}-%{release}
+Obsoletes:	%{name}3-tools = %{version}-%{release}
 
 %description tools
 SQLite is a C library that implements an embeddable SQL database
@@ -113,7 +116,9 @@ This package contains command line tools for managing the
 %package -n tcl-%{name}
 Summary:	Tcl binding for %{name}
 Group:		Databases
-Provides:	%{name}-tcl
+Provides:	%{name}-tcl = %{version}-%{release}
+Provides:	%{name}3-tcl = %{version}-%{release}
+Obsoletes:	%{name}3-tcl = %{version}-%{release}
 
 %description -n tcl-%{name}
 SQLite is a C library that implements an embeddable SQL database
@@ -135,7 +140,7 @@ This package contains the documentation for %{name}.
 
 
 %prep
-%setup -q -n %{rname}-%{version}
+%setup -q -n %{name}-%{version}
 %patch0 -p1 -b .aliasing-fixes
 %ifarch x86_64
 %patch1 -p1 -b .x86_64-skip_tests
@@ -212,6 +217,13 @@ chrpath -d %{buildroot}%{_bindir}/*
 
 
 %changelog
+* Tue Nov 07 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.3.8
+- 3.3.8
+- provide sqlite-devel
+- change package name to sqlite instead of sqlite3 and use the appropriate
+  provides/obseletes (we don't ship another version of sqlite so this doesn't
+  need to be versioned)
+
 * Thu Jun 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.3.6
 - 3.3.6
 - change P1, now a different test fails on x86_64, but the others are ok
