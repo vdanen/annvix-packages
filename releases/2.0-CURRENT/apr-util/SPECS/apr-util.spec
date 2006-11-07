@@ -47,7 +47,7 @@ BuildRequires:	expat-devel
 BuildRequires:	openssl-devel
 BuildRequires:	mysql-devel
 BuildRequires:	postgresql-devel
-BuildRequires:	sqlite3-devel
+BuildRequires:	sqlite-devel
 BuildRequires:	python
 BuildRequires:	multiarch-utils >= 1.0.3
 
@@ -62,8 +62,9 @@ for XML, LDAP, database interfaces, URI parsing and more.
 Summary:	Apache Portable Runtime Utility library
 Group: 		System/Libraries
 Provides:	%{name} = %{version}-%{release}
-Provides:	lib%{name} %{name} = %{version}-%{release}
-Obsoletes:	lib%{name} %{name}
+Provides:	lib%{name} = %{version}-%{release}
+Obsoletes:	lib%{name}
+Obsoletes:	%{name}
 
 %description -n	%{libname}
 The purpose of the Apache Portable Runtime (APR) is to provide a
@@ -86,7 +87,8 @@ Requires:	openldap-devel
 Requires:	expat-devel
 Provides:	lib%{name}-devel = %{version}-%{release}
 Provides:	%{name}-devel = %{version}-%{release}
-Obsoletes:	lib%{name}-devel %{name}-devel
+Obsoletes:	lib%{name}-devel
+Obsoletes:	%{name}-devel
 
 %description -n	%{libname}-devel
 This package provides the support files which can be used to 
@@ -249,6 +251,9 @@ rm -f %{buildroot}%{_libdir}/aprutil.exp
 
 
 %changelog
+* Tue Nov 07 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.7
+- rebuild against new sqlite
+
 * Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.7
 - rebuild against new mysql
 
