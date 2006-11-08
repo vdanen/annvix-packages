@@ -41,7 +41,6 @@ Requires:	iproute2
 Requires:	iputils
 Requires:	util-linux >= 2.10s
 Requires:	mount >= 2.11l
-Requires:	SysVinit
 Requires:	bootloader-utils
 Requires:	srv
 Requires:	ethtool
@@ -234,6 +233,9 @@ fi
 
 
 %changelog
+* Wed Nov 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.35
+- remove requires on SysVinit
+
 * Sat Oct 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.35
 - update sysctl.conf to note the kernel.modprobe option
 
