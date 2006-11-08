@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		openssh
-%define version		4.3p2
+%define version		4.5p1
 %define release 	%_revrel
 
 Summary:	OpenSSH free Secure Shell (SSH) implementation
@@ -337,6 +337,9 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Wed Nov 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.5p1
+- 4.5p1 (privsep vuln fixed)
+
 * Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.3p2
 - rebuild against new openssl
 - remove skey conditional build options
