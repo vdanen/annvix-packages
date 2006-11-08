@@ -65,7 +65,6 @@ Requires:	shadow-utils
 Requires:	srv
 Requires:	stat
 Requires:	syslog
-Requires:	SysVinit
 Requires:	tar
 Requires:	termcap
 Requires:	time
@@ -93,6 +92,9 @@ should never be removed.
 
 
 %changelog
+* Wed Nov 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
+- remove requires on SysVinit
+
 * Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
 - no longer require chkconfig
 
