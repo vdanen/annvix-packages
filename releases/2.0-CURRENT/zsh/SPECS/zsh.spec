@@ -164,6 +164,9 @@ mv docroot/Examples/compctl-examples docroot/StartupFiles
 
 
 %changelog
+* Sat Nov 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.2.6
+- source the env/ulimit/* files
+
 * Sun Sep 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.2.6
 - use %%_post_shelladd and %%_preun_shelldel
 
