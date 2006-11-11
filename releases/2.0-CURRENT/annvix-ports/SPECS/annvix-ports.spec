@@ -52,6 +52,7 @@ install -m 0750 builder-wrapper %{buildroot}%{_bindir}/builder
 
 %pre
 %_pre_useradd builder %{_portsprefix}/ports /bin/sh 403
+/usr/sbin/usermod -G ctools builder
 
 
 %post
@@ -98,6 +99,7 @@ fi
 - 1.3
 - make sudoers and apt's sources.list work with new builder (using
   apt, not urpmi)
+- call usermod to add builder to the ctools group
 
 * Sat Sep 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2
 - fix URL
