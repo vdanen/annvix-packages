@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		annvix-ports
-%define version		1.3
+%define version		1.4
 %define release		%_revrel
 
 %define _portsprefix	/usr/local
@@ -95,6 +95,9 @@ fi
 
 
 %changelog
+* Fri Nov 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4
+- 1.4 (support for status flags)
+
 * Fri Nov 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3
 - 1.3
 - make sudoers and apt's sources.list work with new builder (using
