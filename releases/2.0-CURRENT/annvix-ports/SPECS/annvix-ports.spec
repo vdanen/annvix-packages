@@ -96,6 +96,9 @@ fi
 
 %changelog
 * Fri Nov 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4
+- refreshed tarball
+
+* Fri Nov 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4
 - 1.4 (support for status flags)
 
 * Fri Nov 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3
