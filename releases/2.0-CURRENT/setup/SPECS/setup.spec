@@ -18,7 +18,7 @@ Version:	%{version}
 Release:	%{release}
 License:	Public Domain
 Group:		System/Configuration
-URL:		http://svn.annvix.org/cgi-bin/viewvc.cgi/setup/trunk/?root=tools
+URL:		http://svn.annvix.org/cgi-bin/viewvc.cgi/tools/setup/trunk/
 Source:		setup-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -106,6 +106,10 @@ fi
 
 
 %changelog
+* Sat Nov 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6
+- remove /usr/X11R6/bin from PATH
+- change URL
+
 * Tue Oct 31 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6
 - 2.6
 - add ctools group (gid 18)
