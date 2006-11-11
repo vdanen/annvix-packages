@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		setup
-%define version 	2.6
+%define version 	2.7
 %define release 	%_revrel
 
 Summary:	A set of system configuration and setup files
@@ -98,7 +98,10 @@ fi
 %attr(0644,root,root) %config(missingok,noreplace) /etc/securetty
 %config(noreplace) /etc/csh.login
 %config(noreplace) /etc/csh.cshrc
-%config(noreplace) /etc/sysconfig/ulimits
+%dir /etc/sysconfig/env/ulimits
+%attr(0644,root,admin) %config(noreplace) /etc/sysconfig/env/ulimits/MAX_DATASEG_SIZE
+%attr(0644,root,admin) %config(noreplace) /etc/sysconfig/env/ulimits/MAX_OPEN_FILES
+%attr(0644,root,admin) %config(noreplace) /etc/sysconfig/env/ulimits/MAX_USER_PROCS
 %dir /etc/profile.d
 %config(noreplace) /etc/profile.d/*
 %verify(not md5 size mtime) /var/log/lastlog
@@ -106,6 +109,9 @@ fi
 
 
 %changelog
+* Sat Nov 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6
+- 2.7 (support for env/ulimits/* files)
+
 * Sat Nov 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6
 - remove /usr/X11R6/bin from PATH
 - change URL
