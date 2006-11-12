@@ -60,7 +60,13 @@ rm -rf %{buildroot}%{_mandir}/{cs,et,eu,fr,uk}
 # don't already exist because rpm will create group.rpmnew instead
 if [ -f /etc/group ]; then
     grep -q '^auth:' /etc/group || groupadd -g 27 auth
-    grep -q '^shadow:' /etc/group || groupadd -g 28 shadow && chmod 0440 /etc/shadow && chgrp shadow /etc/shadow
+    # be a little fancy here in case this is an upgrade and the user hasn't migrated to tcb yet
+    if [ "`grep -q '^shadow:' /etc/group; echo $?`" == 1 ]; then
+        groupadd -g 28 shadow 
+        if [ -f /etc/shadow ]; then
+            chmod 0440 /etc/shadow && chgrp shadow /etc/shadow
+        fi
+    fi
     grep -q '^chkpwd:' /etc/group || groupadd -g 29 chkpwd
     grep -q '^ctools:' /etc/group || groupadd -g 18 ctools
 fi
@@ -79,7 +85,6 @@ fi
 %defattr(-,root,root)
 %verify(not md5 size mtime) %config(noreplace) /etc/passwd
 %verify(not md5 size mtime) %config(noreplace) /etc/group
-%verify(not md5 size mtime) %attr(0440,root,shadow) %config(noreplace) /etc/shadow
 %{_mandir}/man8/*8*
 /usr/bin/run-parts
 %config(noreplace) /etc/services
@@ -109,7 +114,13 @@ fi
 
 
 %changelog
-* Sat Nov 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6
+* Sat Nov 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.7
+- don't include /etc/shadow at all; if you migrate to tcb then /etc/shadow should
+  be deleted so let's not put it back
+- handle the existance of /etc/shadow more gracefully (in case the user hasn't moved
+  to tcb yet)
+
+* Sat Nov 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.7
 - 2.7 (support for env/ulimits/* files)
 
 * Sat Nov 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6
