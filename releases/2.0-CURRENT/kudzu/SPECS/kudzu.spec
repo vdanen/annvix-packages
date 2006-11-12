@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		kudzu
-%define version		1.2.34.3
+%define version		1.2.60
 %define release		%_revrel
 
 Summary:	The Red Hat Linux hardware probing tool
@@ -22,9 +22,10 @@ URL:		http://fedora.redhat.com/projects/additional-projects/kudzu/
 Source0:	kudzu-%{version}.tar.gz
 Source1:	kudzu-avx.init
 Patch0:		kudzu-1.1.95-avx-python2.patch
+Patch1:		kudzu-1.2.60-avx-force_mv.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	pciutils-devel >= 2.1.11-1
+BuildRequires:	pciutils-devel >= 2.2.3
 BuildRequires:	python-devel
 BuildRequires:	python
 BuildRequires:	newt-devel
@@ -69,7 +70,7 @@ This package contains the documentation for %{name}.
 %prep
 %setup -q
 %patch0 -p1 -b .python2
-
+%patch1 -p1 -b .force_mv
 
 %build
 ln -s `pwd` kudzu
@@ -84,6 +85,10 @@ install -m 0755 fix-mouse-psaux %{buildroot}%{_sbindir}
 mkdir -p %{buildroot}%{_initrddir}
 install -m 0750 %{_sourcedir}/kudzu-avx.init %{buildroot}%{_initrddir}/kudzu
 rm -rf %{buildroot}%{_sysconfdir}/rc.d/init.d
+
+rm -f %{buildroot}%{_sysconfdir}/sysconfig/kudzu
+mkdir -p %{buildroot}%{_sysconfdir}/sysconfig/env/kudzu
+echo "no" >%{buildroot}%{_sysconfdir}/sysconfig/env/kudzu/SAFE
 
 %kill_lang %{name}
 %find_lang %{name}
@@ -105,10 +110,10 @@ rm -rf %{buildroot}%{_sysconfdir}/rc.d/init.d
 %defattr(-,root,root)
 /sbin/kudzu
 %{_sbindir}/kudzu
-%{_sbindir}/module_upgrade
 %{_sbindir}/fix-mouse-psaux
 %{_mandir}/man8/*
-%config(noreplace) %{_sysconfdir}/sysconfig/kudzu
+%dir %{_sysconfdir}/sysconfig/env/kudzu
+%config(noreplace) %attr(0640,root,admin) %dir %{_sysconfdir}/sysconfig/env/kudzu/SAFE
 %attr(0750,root,admin) %{_initrddir}/kudzu
 %{_libdir}/python*/site-packages/*
 
@@ -124,6 +129,12 @@ rm -rf %{buildroot}%{_sysconfdir}/rc.d/init.d
 
 
 %changelog
+* Sat Nov 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.60
+- 1.2.60
+- use "kudzu -q" in initscript
+- P1: force the use of "mv -f"
+- include the envdir file kudzu/SAFE
+
 * Thu Nov 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.34.3
 - use getenvopt() in the initscript
 
