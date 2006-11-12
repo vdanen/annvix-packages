@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		spamassassin
-%define version		3.1.3
+%define version		3.1.7
 %define release		%_revrel
 
 %define fname		Mail-SpamAssassin
@@ -57,6 +57,7 @@ Requires:	perl(IO::Socket::SSL)
 Requires:	perl(Archive::Tar)
 Requires:	perl(IO::Zlib)
 Requires:	perl(Net::Ident)
+Requires:	perl-libwww-perl
 Requires(post):	rpm-helper
 Requires(preun): rpm-helper
 
@@ -220,6 +221,10 @@ echo "-c -m5 -H" >%{buildroot}%{_srvdir}/spamd/env/OPTIONS
 
 
 %changelog
+* Sun Nov 12 2006 Ying-Hung Chen <ying-at-annvix.org> 3.1.7
+- Spamassassin version 3.1.7
+- Add requires: perl-libwww-perl for sa-update commend
+
 * Thu Nov 02 2006 Ying-Hung Chen <ying-at-annvix.org> 3.1.3
 - Update the Requires Mail-SpamAssassin section to fix the dependency problem
 
