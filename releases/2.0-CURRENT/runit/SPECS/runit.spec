@@ -9,10 +9,10 @@
 
 %define	revision	$Rev$
 %define	name		runit
-%define	version		1.7.0
+%define	version		1.7.1
 %define	release		%_revrel
 
-%define aver		0.9
+%define aver		0.10
 
 Summary:	A UN*X init scheme with service supervision
 Name:		%{name}
@@ -284,6 +284,10 @@ fi
 
 
 %changelog
+* Sat Nov 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.7.1
+- 1.7.1
+- annvix-runit 0.10
+
 * Mon Oct 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.7.0
 - add the %%_{post,preun}_service macros for network and netfs
 
