@@ -9,10 +9,8 @@
 
 %define revision	$Rev$
 %define name		pciutils
-%define version		2.1.99.test8
+%define version		2.2.3
 %define release		%_revrel
-
-%define rver		2.1.99-test8
 
 Summary:	PCI bus related utilities
 Name:		%{name}
@@ -21,14 +19,15 @@ Release:	%{release}
 License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://atrey.karlin.mff.cuni.cz/~mj/pciutils.html
-Source0:	ftp://atrey.karlin.mff.cuni.cz/pub/linux/pci/alpha/%{name}-%{rver}.tar.gz
+Source0:	ftp://atrey.karlin.mff.cuni.cz/pub/linux/pci/%{name}-%{version}.tar.gz
 Patch0:		pciutils-strip.patch
-Patch1:		pciutils-pciids.patch
 Patch2:		pciutils-2.1.10-scan.patch
-Patch3: 	pciutils-havepread.patch
-Patch4:		pciutils-2.1.99-test3-amd64.patch
-Patch5:		pciutils-typo.patch
-Patch6:		pciutils-devicetype.patch
+Patch3:		pciutils-havepread.patch
+Patch5:		pciutils-devicetype.patch
+Patch6:		pciutils-2.2.1-idpath.patch
+Patch7:		pciutils-2.1.99-gcc4.patch
+Patch8:		pciutils-2.2.3-multilib.patch
+Patch9:		pciutils-2.2.3-sata.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 %ifarch %{ix86}
@@ -63,25 +62,25 @@ This package contains the documentation for %{name}.
 
 
 %prep
-%setup -q -n %{name}-%{rver}
+%setup -q
 %patch0 -p1 -b .strip
-%patch1 -p1 -b .pciids
 %patch2 -p1 -b .scan
 %patch3 -p1 -b .pread
-#%patch4 -p1 -b .amd64
-%patch5 -p1 -b .typo
-%patch6 -p1 -b .devicetype
+%patch5 -p1 -b .devicetype
+%patch6 -p1 -b .idpath
+%patch7 -p1 -b .glibcmacros
+%patch8 -p1 -b .multilib
+%patch9 -p1 -b .sata
 
 
 %build
 %ifarch %{ix86}
-#make OPT="%{optflags} -fno-stack-protector -D_GNU_SOURCE=1" CC="diet gcc" PREFIX="/usr"
-make OPT="%{optflags} -D_GNU_SOURCE=1" CC="diet gcc" PREFIX="/usr"
+make OPT="%{optflags} -D_GNU_SOURCE=1" CC="diet gcc" PREFIX="/usr"  IDSDIR="/usr/share/hwdata"
 mv lib/libpci.a lib/libpci_loader_a
 make clean
 %endif
 
-make OPT="%{optflags} -D_GNU_SOURCE=1" PREFIX="/usr"
+make OPT="%{optflags} -D_GNU_SOURCE=1" PREFIX="/usr" IDSDIR="/usr/share/hwdata"
 
 
 %install
@@ -121,6 +120,10 @@ install lib/libpci_loader_a %{buildroot}%{_libdir}/libpci_loader.a
 
 
 %changelog
+* Sat Nov 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3
+- 2.2.3
+- refresh patches from Fedora
+
 * Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1.99.test8
 - add -doc subpackage
 - rebuild with gcc4
