@@ -22,7 +22,7 @@ case "${1}" in
     start)
         ebegin "Checking for hardware changes"
         # Have a 30 second timeout.
-        /sbin/kudzu -q -z ${KUDZU_ARGS} || /sbin/kudzu -q ${KUDZU_ARGS}
+        /sbin/kudzu -q ${KUDZU_ARGS}
         eend $?
         touch /var/lock/subsys/kudzu
         ;;

@@ -129,6 +129,9 @@ echo "no" >%{buildroot}%{_sysconfdir}/sysconfig/env/kudzu/SAFE
 
 
 %changelog
+* Sun Nov 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.60
+- kudzu no longer has a -z option so fix initscript
+
 * Sat Nov 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.60
 - 1.2.60
 - use "kudzu -q" in initscript
