@@ -285,6 +285,9 @@ fi
 
 %changelog
 * Sat Nov 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.7.1
+- fix the usb initscript
+
+* Sat Nov 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.7.1
 - 1.7.1
 - annvix-runit 0.10
 
