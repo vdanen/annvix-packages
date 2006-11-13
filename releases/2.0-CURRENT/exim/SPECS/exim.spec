@@ -46,6 +46,7 @@ Patch2:		exim-4.22-install.patch
 Patch3:		exim-4.52-avx-system_pcre.patch
 Patch4:		exim-4.43-debian-dontoverridecflags.diff
 Patch5:		sa-exim-4.2.1-avx-lynx.patch
+Patch6:		exim-4.63-avx-ssp.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	tcp_wrappers-devel
@@ -122,6 +123,7 @@ This package contains the documentation for %{name}.
 %patch3 -p1 -b .pcre
 %patch4 -p0 -b .cflags
 %patch5 -p0 -b .lynx
+#%patch6 -p0 -b .ssp
 
 # apply the SA-exim dlopen patch
 cat sa-exim*/localscan_dlopen_exim_4.20_or_better.patch | patch -p1
@@ -313,6 +315,14 @@ fi
 
 
 %changelog
+* Mon Nov 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.63
+- rebuild against new pcre
+
+* Tue Oct 31 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.63
+- rebuild with gcc 4.1.1
+- P6: enable linking to libssp (but don't apply it, for some reason the
+  exim binary segfaults)
+
 * Sun Oct 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.63
 - drop the unnecessary chkconfig requires
 
