@@ -89,6 +89,9 @@ autoconf
 %configure2_5x --enable-utf8
 %make
 
+
+%check
+export LC_ALL=C
 # Tests, patch out actual pcre_study_size in expected results
 echo 'int main() { printf("%d", sizeof(pcre_study_data)); return 0; }' | \
 %{__cc} -xc - -include "pcre_internal.h" -o study_size
@@ -148,6 +151,7 @@ ln -s ../../%{_lib}/lib%{name}.so.%{major}.* .
 %changelog
 * Mon Nov 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 6.7
 - 6.7
+- put the tests inside %%check
 
 * Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 6.3
 - add -doc subpackage
