@@ -57,6 +57,8 @@ This package contains the documentation for %{name}.
     --without-included-regex
 %make
 
+
+%check
 make check
 
 
@@ -85,6 +87,10 @@ rm -rf %{buildroot}%{_infodir}
 
 
 %changelog
+* Mon Nov 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5.1a
+- rebuild against new pcre
+- put testing in %%check
+
 * Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5.1a
 - spec cleanups
 - remove locales
