@@ -323,10 +323,10 @@ fi
 %preun
 %_preun_srv postfix
 
+
 %postun
 %_postun_userdel postfix
 %_postun_groupdel %{maildrop_group}
-
 [ $1 = 0 ] && exit 0
 /usr/sbin/srv --restart postfix 2>&1 > /dev/null || :
 
@@ -442,6 +442,9 @@ fi
 
 
 %changelog
+* Mon Nov 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.11
+- rebuild against new pcre
+
 * Tue Sep 26 2006 Ying-Hung Chen <ying-at-annvix.org> 2.2.11
 - 2.2.11
 
