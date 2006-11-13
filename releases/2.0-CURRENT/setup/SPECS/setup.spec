@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		setup
-%define version 	2.7
+%define version 	2.8
 %define release 	%_revrel
 
 Summary:	A set of system configuration and setup files
@@ -114,6 +114,9 @@ fi
 
 
 %changelog
+* Mon Nov 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.8
+- 2.8
+
 * Sat Nov 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.7
 - don't include /etc/shadow at all; if you migrate to tcb then /etc/shadow should
   be deleted so let's not put it back
