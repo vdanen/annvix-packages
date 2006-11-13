@@ -164,6 +164,9 @@ mv docroot/Examples/compctl-examples docroot/StartupFiles
 
 
 %changelog
+* Mon Nov 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.2.6
+- rebuild against new pcre
+
 * Sat Nov 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.2.6
 - source the env/ulimit/* files
 
