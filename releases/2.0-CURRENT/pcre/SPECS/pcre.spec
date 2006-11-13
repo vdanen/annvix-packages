@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		pcre
-%define version		6.3
+%define version		6.7
 %define	release		%_revrel
 
 %define major		0
@@ -27,7 +27,8 @@ Source:		ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/%{name}-%{version
 Patch0:		pcre-6.2-avx-skip_runtest_2.patch
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
-BuildRequires:	autoconf2.5, automake1.7
+BuildRequires:	autoconf2.5
+BuildRequires:	automake1.7
 
 Requires: 	%{libname} = %{version}
 
@@ -145,6 +146,9 @@ ln -s ../../%{_lib}/lib%{name}.so.%{major}.* .
 
 
 %changelog
+* Mon Nov 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 6.7
+- 6.7
+
 * Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 6.3
 - add -doc subpackage
 - rebuild with gcc4
