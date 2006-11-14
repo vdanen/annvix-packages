@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		nmap
-%define version		4.00
+%define version		4.11
 %define release		%_revrel
 %define epoch		1
 
@@ -83,6 +83,10 @@ perl  -pi -e 's|/lib\b|/%{_lib}|g' configure*
 
 
 %changelog
+* Mon Nov 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.11
+- 4.11
+- rebuild against new pcre
+
 * Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.00
 - rebuild against new openssl
 - spec cleanups
