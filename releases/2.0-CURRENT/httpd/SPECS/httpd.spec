@@ -1380,6 +1380,9 @@ fi
 
 
 %changelog
+* Mon Nov 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3
+- rebuild against new pcre
+
 * Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3
 - rebuild against new openssl
 - rebuild against new openldap
