@@ -299,10 +299,12 @@ sh %{_sysconfdir}/postfix/post-install \
     mail_owner=postfix \
     setgid_group=%{maildrop_group} \
     manpage_directory=%{_mandir} \
-    sample_directory=%{_docdir}/%{name}-doc-%{version}/samples \
-    readme_directory=%{_docdir}/%{name}-doc-%{version}/README_FILES \
+    sample_directory=no \
+    readme_directory=no \
     html_directory=%{_docdir}/%{name}-doc-%{version}/html \
     upgrade-package
+
+newaliases
 
 %_post_srv postfix
 
@@ -442,6 +444,12 @@ fi
 
 
 %changelog
+* Tue Nov 14 2006 Ying-Hung Chen <ying-at-annvix.org> 2.2.11
+- Fixed annoying install warning message "chown: cannot access 
+  `/usr/share/doc/postfix-doc-2.2.11/README_FILES': 
+   No such file or directory"
+- Added newaliases to generate aliases.db
+
 * Mon Nov 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.11
 - rebuild against new pcre
 
