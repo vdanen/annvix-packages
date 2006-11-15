@@ -29,6 +29,8 @@ Patch3:         apparmor-parser-add_PxUx-code10-172061.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	libcap-devel
+BuildRequires:	bison
+BuildRequires:	flex
 
 Requires:	sed
 Requires(post):	rpm-helper
@@ -124,6 +126,9 @@ mv %{buildroot}%{_initrddir}/rc.apparmor.functions %{buildroot}%{_initrddir}/app
 
 
 %changelog
+* Wed Nov 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
+- add buildrequires of flex and bison
+
 * Sun Oct 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
 - updated the initscript and modified the patch to the functions accordingly
 - add a virtual rpm so you can just "apt-get install apparmor" and get all
