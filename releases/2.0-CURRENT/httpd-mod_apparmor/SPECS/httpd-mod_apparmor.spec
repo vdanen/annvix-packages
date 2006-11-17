@@ -27,7 +27,7 @@ Release:	%{release}
 License:	LGPL
 Group:		System/Servers
 URL:		http://forge.novell.com/modules/xfmod/project/?apparmor
-Source0:	apache2-mod-apparmor-%{mod_version}-6354.tar.gz
+Source0:	apache2-mod-apparmor-%{mod_version}-64.tar.gz
 Source1:	%{mod_conf}
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -74,6 +74,9 @@ cat %{_sourcedir}/%{mod_conf} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod
 
 
 %changelog
+* Fri Nov 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3_2.0
+- r64 (October snapshot)
+
 * Wed Aug 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3_2.0
 - first Annvix build
 
