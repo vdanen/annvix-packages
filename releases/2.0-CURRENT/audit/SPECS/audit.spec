@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name 		audit
-%define version 	1.2.5
+%define version 	1.2.9
 %define release 	%_revrel
 
 %define major		0
@@ -27,6 +27,7 @@ Source1:	auditd.run
 Source2:	auditd.finish
 Source3:	auditd-log.run
 Patch0:		audit-1.2.5-avx-makefile.patch
+Patch1:		audit-1.2.9-avx-config.patch
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildRequires:	libtool
@@ -91,6 +92,7 @@ This package contains the documentation for %{name}.
 %prep
 %setup -q
 %patch0 -p1 -b .avx
+%patch1 -p1 -b .config
 
 
 %build
@@ -120,13 +122,10 @@ install -m 0740 %{_sourcedir}/auditd.finish %{buildroot}%{_srvdir}/auditd/finish
 # the Makefile doesn't handle much of this gracefully
 install -m 0644 lib/libaudit.h %{buildroot}%{_includedir}/
 mv %{buildroot}/%{_lib}/libaudit.a %{buildroot}%{_libdir}/
-mv %{buildroot}/%{_lib}/libauparse.a %{buildroot}%{_libdir}/
 
 pushd %{buildroot}%{_libdir}
     LIBNAME="`basename \`ls %{buildroot}/%{_lib}/libaudit.so.*.*.*\``"
     ln -s ../../%{_lib}/${LIBNAME} libaudit.so
-    LIBNAME="`basename \`ls %{buildroot}/%{_lib}/libauparse.so.*.*.*\``"
-    ln -s ../../%{_lib}/${LIBNAME} libauparse.so
 popd
 
 # this gets installed in the wrong place
@@ -136,9 +135,8 @@ mv %{buildroot}/usr/lib/python%{pyver}/site-packages/AuditMsg.py* %{buildroot}%{
 
 # remove unwanted files
 rm -f %{buildroot}/%{_lib}/libaudit.{so,la}
-rm -f %{buildroot}/%{_lib}/libauparse.{so,la}
 rm -f %{buildroot}%{_libdir}/python2.4/site-packages/_audit.{a,la}
-rm -rf %{buildroot}%{_initrddir}
+rm -rf %{buildroot}%{_sysconfdir}/rc.d
 rm -f %{buildroot}%{_sysconfdir}/sysconfig/auditd
 
 # rpm isn't stripping /sbin/auditd
@@ -183,16 +181,13 @@ strip %{buildroot}/sbin/auditd
 %files -n %{libname}
 %defattr(-,root,root)
 /%{_lib}/libaudit.so.*
-/%{_lib}/libauparse.so.*
 %config(noreplace) %attr(0640,root,root) %{_sysconfdir}/libaudit.conf
 
 %files -n %{libname}-devel
 %defattr(-,root,root)
 %{_includedir}/libaudit.h
 %{_libdir}/libaudit.a
-%{_libdir}/libauparse.a
 %{_libdir}/libaudit.so
-%{_libdir}/libauparse.so
 %{_mandir}/man3/*
 
 %files -n %{libname}-python
@@ -206,6 +201,10 @@ strip %{buildroot}/sbin/auditd
 
 
 %changelog
+* Fri Nov 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.9
+- 1.2.9
+- P1: fix the auditd.conf file
+
 * Tue Aug 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.5
 - first Annvix package
 - P0: fix the makefile's install of the libaudit.conf file
