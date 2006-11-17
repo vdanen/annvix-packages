@@ -22,7 +22,7 @@ Release:	%{release}
 License:	LGPL
 Group:		System/Libraries
 URL:		http://forge.novell.com/modules/xfmod/project/?apparmor
-Source0:	%{name}-%{version}-6288.tar.gz
+Source0:	%{name}-%{version}-132.tar.gz
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	glibc-devel
@@ -56,14 +56,6 @@ Provides:       libapparmor-devel = %{version}-%{release}
 The development header / link library for libapparmor.
 
 
-%package doc
-Summary:	Documentation for %{name}
-Group:		Documentation
-
-%description doc
-This package contains the documentation for %{name}.
-
-
 %prep
 %setup -q
 
@@ -95,12 +87,12 @@ make DESTDIR=%{buildroot} LIB=/%{_lib} VERSION=%{version} RELEASE=%{major} insta
 %{_libdir}/*.so
 %{_libdir}/*.a
 
-%files doc
-%defattr(-,root,root)
-%doc COPYING.LGPL
-
 
 %changelog
+* Fri Nov 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
+- r132 (October snapshot)
+- drop the -doc package (only contained the COPYING.LGPL file)
+
 * Wed Aug 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
 - make lib(64)apparmor1 provide libapparmor too
 
