@@ -21,14 +21,9 @@ Release:	%{release}
 License:	LGPL
 Group:		System/Configuration
 URL:		http://forge.novell.com/modules/xfmod/project/?apparmor
-Source0:	%{name}-%{version}-6377.tar.gz
+Source0:	%{name}-%{version}-142.tar.gz
 Patch0:		apparmor-utils-2.0-avx-socklog.patch
 Patch1:		apparmor-utils-2.0-avx-nofork.patch
-Patch2:         apparmor-utils-2.0-suse-logprof-m-support.diff
-Patch3:         apparmor-utils-2.0-suse-logprof-PXUX-support.diff
-Patch4:         apparmor-utils-2.0-suse-aaeventd-tail.diff  
-Patch5:         apparmor-utils-2.0-suse-changing_profile-check.diff
-
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
@@ -52,10 +47,6 @@ and the aa-eventd event reporting system.
 %setup -q
 %patch0 -p0 -b .avx-socklog
 %patch1 -p0 -b .avx-nofork
-%patch2 -p2 -b .logprof_m
-%patch3 -p2 -b .logprof_pxux
-%patch4 -p2 -b .aaeventd-tail
-%patch5 -p2 -b .changing_profile-check
 
 
 %install
@@ -83,6 +74,10 @@ make DESTDIR=%{buildroot} \
 
 
 %changelog
+* Fri Nov 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
+- r142 (October snapshot)
+- drop P2-P5: applied upstream
+
 * Wed Aug 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
 - sync some patches with SUSE to match support in SLE10:
   - P2: add support for the new m mode
