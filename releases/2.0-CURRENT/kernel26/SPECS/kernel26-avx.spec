@@ -12,7 +12,7 @@
 %define kernelver	2
 %define patchlevel	6
 %define sublevel	16
-%define minlevel	29
+%define minlevel	32
 %define avxrelease	%(echo %{revision}|cut -d ' ' -f 2)
 
 %define tar_version	%{kernelver}.%{patchlevel}.%{sublevel}.%{minlevel}
@@ -857,6 +857,12 @@ exit 0
 
 
 %changelog
+* Fri Nov 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.32
+- 2.6.16.32: security fixes for CVE-2006-3741, CVE-2006-4997, CVE-2006-4623,
+  CVE-2006-4572, CVE-2006-5619, CVE-2006-5174, CVE-2006-4538, and many other
+  bugs fixed
+- update to AppArmor October snapshot (v154)
+
 * Sun Oct 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.29
 - enable experimental drivers
 
