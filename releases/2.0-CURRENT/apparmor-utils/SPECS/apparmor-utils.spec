@@ -33,6 +33,7 @@ Requires:	perl(DBI)
 Requires:	perl(File::Tail)
 Requires:	perl(DBD::SQLite)
 Requires:	apparmor-parser
+Requires:	audit
 Requires(post):	rpm-helper
 Requires(preun): rpm-helper
 
@@ -74,6 +75,9 @@ make DESTDIR=%{buildroot} \
 
 
 %changelog
+* Fri Nov 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
+- add a requires on audit
+
 * Fri Nov 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
 - r142 (October snapshot)
 - drop P2-P5: applied upstream
