@@ -21,10 +21,7 @@ Release:	%{release}
 License:	GPL
 Group:		System/Configuration
 URL:		http://forge.novell.com/modules/xfmod/project/?apparmor
-Source0:	%{name}-%{version}-50.tar.gz
-Patch0:		apparmor-profiles-50_61_m_P_U.patch
-Patch1:		apparmor-profiles-named-slave-zones-179596.patch
-Patch2:		apparmor-profiles-183800-182344.diff
+Source0:	%{name}-%{version}-119.tar.gz
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
@@ -48,9 +45,6 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
-%patch0
-%patch1 -p1
-%patch2 -p1
 
 
 %install
@@ -80,6 +74,10 @@ make DESTDIR=%{buildroot} \
 
 
 %changelog
+* Fri Nov 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
+- r119 (October snapshot)
+- drop P0-P2: applied upstream
+
 * Sun Oct 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
 - don't leave patch suffixes lying around
 
