@@ -19,13 +19,11 @@ Release:	%{release}
 License:	GPL
 Group:		System/Configuration
 URL:		http://forge.novell.com/modules/xfmod/project/?apparmor
-Source0:	%{name}-%{version}-6358.tar.gz
+Source0:	%{name}-%{version}-150.tar.gz
 Source1:	rc.aaeventd.mandriva
 Source2:	apparmor-avx.init
 Patch0:		apparmor-parser-2.0-avx-fixes.patch
-Patch1:         apparmor-parser-fix_segv_nonexistant_dir-r30-160330.patch
-Patch2:         apparmor-parser-m_flag-code10-175388.patch
-Patch3:         apparmor-parser-add_PxUx-code10-172061.patch
+Patch1:		apparmor-2.0-fix_fdopendir.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	libcap-devel
@@ -65,9 +63,7 @@ This package contains the documentation for %{name}.
 %prep
 %setup -q
 %patch0 -p0 -b .avx
-%patch1 -p3 -b .fix_segv
-%patch2 -p3 -b .m_flag
-%patch3 -p3 -b .add_PxUx
+%patch1 -p2 -b .fdopendir
 
 # copy our initscripts
 cp %{_sourcedir}/rc.aaeventd.mandriva rc.aaeventd.annvix
@@ -126,6 +122,11 @@ mv %{buildroot}%{_initrddir}/rc.apparmor.functions %{buildroot}%{_initrddir}/app
 
 
 %changelog
+* Fri Nov 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
+- r150 (October snapshot)
+- drop P1-P3: applied upstream
+- new P1 to fix a single fdopendir() call that requires glibc 2.4
+
 * Wed Nov 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
 - add buildrequires of flex and bison
 
