@@ -61,6 +61,7 @@ Patch34:	perl-27210.patch
 Patch35:	perl-27211.patch
 Patch36:	perl-27359.patch
 Patch37:	perl-27363.patch
+Patch38:	perl-5.8.8-mdv-donot-defer-sig11.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 # for NDBM
@@ -161,6 +162,7 @@ This package contains the documentation for %{name}.
 %patch35 -p1
 %patch36 -p1
 %patch37 -p1
+%patch38 -p1
 
 
 %build
@@ -536,6 +538,9 @@ EOF
 
 
 %changelog
+* Sat Nov 18 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.8.8
+- P38: do not defer segfaulting (SIG11)
+
 * Thu May 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.8.8
 - rename perl-doc to perl-perldoc and create perl-doc to only contain docs
 

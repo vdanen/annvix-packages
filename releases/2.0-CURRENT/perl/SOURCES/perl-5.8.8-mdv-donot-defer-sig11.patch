@@ -1,0 +1,11 @@
+--- ./mg.c.tv	2006-09-08 18:24:49.000000000 +0200
++++ ./mg.c	2006-09-08 18:25:16.000000000 +0200
+@@ -1246,7 +1246,7 @@
+             exit(1);
+ #endif
+ #endif
+-   if (PL_signals & PERL_SIGNALS_UNSAFE_FLAG)
++   if (sig == SIGSEGV || (PL_signals & PERL_SIGNALS_UNSAFE_FLAG))
+ 	/* Call the perl level handler now--
+ 	 * with risk we may be in malloc() etc. */
+ 	(*PL_sighandlerp)(sig);
