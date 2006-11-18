@@ -858,6 +858,9 @@ exit 0
 
 %changelog
 * Fri Nov 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.32
+- CZ01: add back the Chum framebuffer logo
+
+* Fri Nov 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.32
 - 2.6.16.32: security fixes for CVE-2006-3741, CVE-2006-4997, CVE-2006-4623,
   CVE-2006-4572, CVE-2006-5619, CVE-2006-5174, CVE-2006-4538, and many other
   bugs fixed
