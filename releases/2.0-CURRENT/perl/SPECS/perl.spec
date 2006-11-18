@@ -39,9 +39,7 @@ Epoch:		%{epoch}
 License:	GPL or Artistic
 Group:		Development/Perl
 URL:		http://www.perl.org
-# ftp://ftp.funet.fi/pub/languages/perl/snap/perl@17574.tbz
-#ftp://ftp.funet.fi/pub/languages/perl/CPAN/src/perl-%{version}.tar.bz2
-Source0: ftp://cpan.mirrors.easynet.fr/pub/ftp.cpan.org/src/perl-%{version}.tar.bz2
+Source0:	ftp://cpan.mirrors.easynet.fr/pub/ftp.cpan.org/src/perl-%{version}.tar.bz2
 # taken from debian
 Source1:	perl-headers-wanted
 Source2:	perl-5.8.0-RC2-special-h2ph-not-failing-on-machine_ansi_header.patch
@@ -65,7 +63,10 @@ Patch38:	perl-5.8.8-mdv-donot-defer-sig11.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 # for NDBM
-BuildRequires:	db1-devel, db2-devel, gdbm-devel, man
+BuildRequires:	db1-devel
+BuildRequires:	db2-devel
+BuildRequires:	gdbm-devel
+BuildRequires:	man
 %ifarch x86_64
 BuildRequires:	devel(libgdbm_compat(64bit))
 %else
@@ -79,8 +80,22 @@ Provides:	perl(ctime.pl)
 Provides:	perl(flush.pl)
 Provides:	perl(find.pl)
 Provides:	perl(attributes) perl(fields) perl(locale) perl(subs)
-Provides: 	perl-MIME-Base64 perl-libnet perl-Storable perl-Digest-MD5 perl-Time-HiRes perl-Locale-Codes perl-Test-Simple perl-Test-Builder-Tester
-Obsoletes:	perl-MIME-Base64 perl-libnet perl-Storable perl-Digest-MD5 perl-Time-HiRes perl-Locale-Codes perl-Test-Simple perl-Test-Builder-Tester
+Provides: 	perl-MIME-Base64
+Provides: 	perl-libnet
+Provides: 	perl-Storable
+Provides: 	perl-Digest-MD5
+Provides: 	perl-Time-HiRes
+Provides: 	perl-Locale-Codes
+Provides: 	perl-Test-Simple
+Provides: 	perl-Test-Builder-Tester
+Obsoletes:	perl-MIME-Base64
+Obsoletes:	perl-libnet
+Obsoletes:	perl-Storable
+Obsoletes:	perl-Digest-MD5
+Obsoletes:	perl-Time-HiRes
+Obsoletes:	perl-Locale-Codes
+Obsoletes:	perl-Test-Simple
+Obsoletes:	perl-Test-Builder-Tester
 Conflicts:	perl-Parse-RecDescent < 1.80-6mdk
 Conflicts:	perl-Filter < 1.28-6mdk
 Conflicts:	apache-mod_perl <= 1.3.24_1.26-1mdk
@@ -102,7 +117,18 @@ You need perl-base to have a full perl.
 %package base
 Summary:	The Perl programming language (base)
 Group:		Development/Perl
-Provides:	perl(v5.6.0) perl(base) perl(bytes) perl(constant) perl(integer) perl(lib) perl(overload) perl(strict) perl(utf8) perl(vars) perl(warnings) perl(Carp::Heavy)
+Provides:	perl(v5.6.0)
+Provides:	perl(base)
+Provides:	perl(bytes)
+Provides:	perl(constant)
+Provides:	perl(integer)
+Provides:	perl(lib)
+Provides:	perl(overload)
+Provides:	perl(strict)
+Provides:	perl(utf8)
+Provides:	perl(vars)
+Provides:	perl(warnings)
+Provides:	perl(Carp::Heavy)
 
 %description base
 This is the base package for %{name}.
@@ -130,7 +156,8 @@ This is the devel package for %{name}.
 %package perldoc
 Summary:	The Perl programming language (perldoc)
 Group:		Development/Perl
-Requires:	%{name} = %{epoch}:%{version}-%{release}, groff-for-man
+Requires:	%{name} = %{epoch}:%{version}-%{release}
+Requires:	groff-for-man
 Obsoletes:	%{name}-doc <= 1:5.8.8-5383avx
 
 %description perldoc
@@ -540,6 +567,7 @@ EOF
 %changelog
 * Sat Nov 18 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.8.8
 - P38: do not defer segfaulting (SIG11)
+- clean spec
 
 * Thu May 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.8.8
 - rename perl-doc to perl-perldoc and create perl-doc to only contain docs
@@ -685,447 +713,5 @@ EOF
 * Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 5.8.1-0.RC4.4sls
 - OpenSLS build
 - tidy spec
-
-* Mon Sep  1 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 5.8.1-0.RC4.3mdk
-- perl-base shall have asm/break.ph on ia64
-
-* Tue Aug 19 2003 Pixel <pixel@mandrakesoft.com> 5.8.1-0.RC4.2mdk
-- add directories /usr/lib/perl5/vendor_perl down to /usr/lib/perl5/vendor_perl/5.8.1/i386-linux-thread-multi/auto in perl-base
-
-* Sun Aug  3 2003 Pixel <pixel@mandrakesoft.com> 5.8.1-0.RC4.1mdk
-- new release
-
-* Fri Aug  1 2003 Pixel <pixel@mandrakesoft.com> 5.8.1-0.RC3.3mdk
-- special case for "perl Makefile.PL PREFIX=..." which works correctly without using DESTDIR:
-  do not set DESTDIR and let perl do what it does by default (which is ok),
-  only warns the user that the DESTDIR way is better/simpler
-
-* Fri Aug  1 2003 Pixel <pixel@mandrakesoft.com> 5.8.1-0.RC3.2mdk
-- patch MakeMaker to automatically set DESTDIR to $RPM_BUILD_ROOT in perl modules,
-  but warn that the correct way is now "%makeinstall_std" instead of "make PREFIX=$RPM_BUILD_ROOT/usr install"
-- use %%makeinstall_std
-
-* Thu Jul 31 2003 Pixel <pixel@mandrakesoft.com> 5.8.1-0.RC3.1mdk
-- new release
-- use DESTDIR for "make install" instead of using dirty tricks on Config.pm
-- use inc_version_list to specify old perl module versions we want to be compatible with
-  (5.8.0, 5.6.1, 5.6.0) instead of relying on perl auto detection 
-  (which looks at the directories in /usr/lib/perl5/site_perl)
-
-* Wed Jul 30 2003 Pixel <pixel@mandrakesoft.com> 5.8.0-31mdk
-- Add epoch to Requires on perl-base and perl
-
-* Wed Jul 30 2003 Pixel <pixel@mandrakesoft.com> 5.8.0-30mdk
-- provides perl(find.pl) (for autoconf)
-
-* Mon Jul 28 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 5.8.0-29mdk
-- Patch22: Fix build in new AMD64 environment
-
-* Wed Jul 16 2003 Pixel <pixel@mandrakesoft.com> 5.8.0-28mdk
-- Getopt::Long 2.33 02
-
-* Tue Jul 08 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 5.8.0-27mdk
-- rebuild for devel deps
-
-* Thu Jul  3 2003 Pixel <pixel@mandrakesoft.com> 5.8.0-26mdk
-- remove the various requires perl >= 0.508 (esp. for perl-base)
-
-* Thu Jun  5 2003 Pixel <pixel@mandrakesoft.com> 5.8.0-25mdk
-- make it provide perl(flush.pl) (for kdeedu)
-
-* Mon Jun 02 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 5.8.0-24mdk
-- fix compile problems on sparc related to the use of -fpic in stead of -fPIC (Patch21)
-
-* Fri May 30 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 5.8.0-23mdk
-- make it provide perl(ctime.pl)
-
-* Thu May 22 2003 Pixel <pixel@mandrakesoft.com> 5.8.0-22mdk
-- remove some bad automatic require: perl(Mac::BuildTools) perl(Mac::InternetConfig) perl(VMS::Filespec) perl(VMS::Stdio)
-
-* Thu May 22 2003 Pixel <pixel@mandrakesoft.com> 5.8.0-21mdk
-- add some Provides which are not automatically provided
-
-* Tue May  6 2003 Pixel <pixel@mandrakesoft.com> 5.8.0-20mdk
-- rebuild to have automatic Provides
-
-* Thu Mar  6 2003 Pixel <pixel@mandrakesoft.com> 5.8.0-19mdk
-- add Storable in perl-base for harddrake (only ->store and ->retrieve)
-
-* Tue Feb 18 2003 Pixel <pixel@mandrakesoft.com> 5.8.0-18mdk
-- add constant.pm
-- add some unicore/* (same as the one in DrakX share/list)
-
-* Thu Feb 13 2003 Pixel <pixel@mandrakesoft.com> 5.8.0-17mdk
-- move PerlIO.pm to perl-base so that perl-PerlIO-gzip works with only perl-base
-
-* Thu Feb 13 2003 François Pons <fpons@mandrakesoft.com> 5.8.0-16mdk
-- use :gzip layer for perl module (patch20)
-- fix build with new stddef.h (pixel)
-
-* Sun Nov 24 2002 Pixel <pixel@mandrakesoft.com> 5.8.0-15mdk
-- move perldoc manpage to perl-doc (thanks to Götz Waschk)
-- add a few missing binaries
-
-* Sun Oct  6 2002 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 5.8.0-14mdk
-- perl_root is back to %{_prefix}/lib/perl5
-- perl-base shall have biarch asm/unistd.ph headers too
-
-* Fri Sep  6 2002 Pixel <pixel@mandrakesoft.com> 5.8.0-13mdk
-- perldiag.pod is used when "use diagnostics", so move it back from perl-doc
-
-* Wed Sep  4 2002 Pixel <pixel@mandrakesoft.com> 5.8.0-12mdk
-- really have pod doc files in perl-doc
-
-* Tue Sep  3 2002 Pixel <pixel@mandrakesoft.com> 5.8.0-11mdk
-- obsolete and provide perl-Time-HiRes
-
-* Fri Aug 30 2002 Pixel <pixel@mandrakesoft.com> 5.8.0-10mdk
-- perldoc: use nroff compatibility option
-
-* Mon Aug 26 2002 Pixel <pixel@mandrakesoft.com> 5.8.0-9mdk
-- obsolete and provide perl-Test-Simple (thanks to Guillaume Rousse)
-
-* Wed Aug 21 2002 Pixel <pixel@mandrakesoft.com> 5.8.0-8mdk
-- fix duplicated files in perl/perl-base and perl/perl-devel
-
-* Tue Aug 13 2002 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 5.8.0-7mdk
-- Automated rebuild with gcc 3.2-0.3mdk
-
-* Fri Aug  2 2002 Pixel <pixel@mandrakesoft.com> 5.8.0-6mdk
-- enable threading 
-  (rationale: as Jarkko Hietaniemi told me, debian and redhat have it)
-
-* Thu Aug  1 2002 Pixel <pixel@mandrakesoft.com> 5.8.0-5mdk
-- Provides & Obsoletes perl-Locale-Codes
-
-* Mon Jul 22 2002 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 5.8.0-4mdk
-- Make test everywhere, that looks 64-bit aware now
-- Factorize references of perl root directory with %%perl_root macro
-
-* Mon Jul 22 2002 Pixel <pixel@mandrakesoft.com> 5.8.0-3mdk
-- really move utf8.pm and utf8_heavy to perl-base :-(
-
-* Sat Jul 20 2002 Pixel <pixel@mandrakesoft.com> 5.8.0-2mdk
-- move some more files in perl-base
-  - base.pm (needed by Cwd.pm)
-  - File/Spec.pm & File/Spec/Unix.pm (needed by File::Find)
-  - utf8.pm & utf8_heavy.pl (needed by s///)
-
-* Fri Jul 19 2002 Pixel <pixel@mandrakesoft.com> 5.8.0-1mdk
-- 5.8.0 !!
-- move dprofpp to perl-devel (man pages should be there too...)
-- add "BuildRequires: man"
-
-* Thu Jul 18 2002 Thierry Vignaud <tvignaud@mandrakesoft.com> 5.8.0-0.17574.2mdk
-- add missing dprofpp (only man page was there)
-
-* Tue Jul 16 2002 Pixel <pixel@mandrakesoft.com> 5.8.0-0.17574.1mdk
-- new snapshot
-- patch to have man pages installed in the right place (installsiteman1dir & installsiteman3dir)
-
-* Mon Jul 15 2002 Pixel <pixel@mandrakesoft.com> 5.8.0-0.17527.RC3.1mdk
-- new release
-- fix "make test" using the installed libperl.so due to rpath
-- replace %%{make} with simple make (otherwise doesn't always build properly)
-
-* Wed Jul 10 2002 Pixel <pixel@mandrakesoft.com> 5.8.0-0.17412.5mdk
-- add explictly a "Provides: libperl.so"
-- rebuild with new rpm to get rid of "Requires: perl >= 5.800"
-
-* Wed Jul 10 2002 Pixel <pixel@mandrakesoft.com> 5.8.0-0.17412.4mdk
-- add bytes.pm in perl-base (it is needed by Data::Dumper)
-
-* Tue Jul  9 2002 Pixel <pixel@mandrakesoft.com> 5.8.0-0.17412.3mdk
-- ExtUtils::MakeMaker: use chmod 644 for installing files (esp. for building perl-PDL)
-- use "Epoch: 2" to have the same as redhat
-- Conflicts: perl-Filter < 1.28-6mdk
-
-* Tue Jul  9 2002 Pixel <pixel@mandrakesoft.com> 5.8.0-0.17412.2mdk
-- ensure CGI::* man pages are not in "perl" package (they are in perl-CGI)
-- add Obsoletes + Provides perl-MIME-Base64 perl-libnet perl-Storable perl-Digest-MD5 perl-Time-HiRes
-- Conflict: perl-Parse-RecDescent < 1.80-6mdk 
-
-* Tue Jul  9 2002 Pixel <pixel@mandrakesoft.com> 5.8.0-0.17412.1mdk
-- latest snapshot
-
-* Tue Jun 25 2002 Pixel <pixel@mandrakesoft.com> 5.8.0-0.RC2.1mdk
-- RC of 5.8.0 (breaks binary compatibility!)
-- use "-Dinstallprefix" to enable clean&simple "make install"
-- create new package "perl-doc" containing pod's
-- cleanup the h2ph mess (switch from the redhat way to the debian way)
-- perl modules now go to /usr/lib/perl5/vendor_perl instead of /usr/lib/perl5/site_perl
-  (! need the use of "perl Makefile.PL INSTALLDIRS=vendor" !)
-- man3 manpages goes to /usr/share/man/man3pm
-- dropped many now-unneeded patches
-- in MakeMaker:
-    have "INSTALLBIN = $(PREFIX)/bin" instead of "INSTALLBIN = /usr/bin" in generated Makefile
-    (and do the same for INSTALLSITELIB, INSTALLARCHLIB...)
-    this allows to build with PREFIX=/usr, then "make install PREFIX=$RPM_BUILD_ROOT/usr"
-    (this feature has been concensiously dropped since version 5.91_01, cf ExtUtils/Changes)
-
-* Wed May 15 2002 Pixel <pixel@mandrakesoft.com> 5.601-14mdk
-- add Conflicts: apache-mod_perl <= 1.3.24_1.26-1mdk
-  (since mod_perl must be recompiled for uselargefiles)
-
-* Sun May 12 2002 Pixel <pixel@mandrakesoft.com> 5.601-13mdk
-- remove -Uuselargefiles (beware binary incompatibility, esp. apache...)
-
-* Wed May  8 2002 Pixel <pixel@mandrakesoft.com> 5.601-12mdk
-- adapt-to-new-gcc-_-A_-preprocessor-option
-
-* Mon May 06 2002 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 5.601-11mdk
-- Automated rebuild in gcc3.1 environment
-
-* Fri Apr 26 2002 Pixel <pixel@mandrakesoft.com> 5.601-10mdk
-- back-port from perl-5.7.3 Cwd::getcwd which handle unreadable root directory
-
-* Wed Apr 17 2002 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 5.601-9mdk
-- Fix build with gcc-3.1:
-  - Patch12: Don't add /usr/local/include et al. to the include path (RH patch)
-  - Patch13: Strip out <built-in> and <command line> from preprocessed output
-
-* Mon Mar 25 2002 François Pons <fpons@mandrakesoft.com> 5.601-8mdk
-- build release.
-
-* Sun Oct 14 2001 Stefan van der Eijk <stefan@eijk.nu> 5.601-7mdk
-- BuildRequires: db1-devel gdbm-devel
-
-* Sun Sep  9 2001 Pixel <pixel@mandrakesoft.com> 5.601-6mdk
-- add Data::Dumper in perl-base
-- skip-syslog-tests-which-need-root-privilege.patch
-
-* Wed Aug 15 2001 Pixel <pixel@mandrakesoft.com> 5.601-5mdk
-- add syscall.ph and the dependency (needed for perl-MDK-Common)
-
-* Thu Jun 14 2001 Pixel <pixel@mandrakesoft.com> 5.601-4mdk
-- perl-5.6.1-fix-h2ph-and-xxxL-like-numbers.patch.bz2
-
-* Wed Jun 13 2001 Pixel <pixel@mandrakesoft.com> 5.601-3mdk
-- for now, add provides 'perl(getopts.pl)' and 'perl(v5.6.0)'
-
-* Wed Jun 13 2001 Pixel <pixel@mandrakesoft.com> 5.601-2mdk
-- rebuild with new rpm
-
-* Mon Apr  9 2001 Pixel <pixel@mandrakesoft.com> 5.601-1mdk
-- new version
-
-* Wed Apr 04 2001 Francis Galiegue <fg@mandrakesoft.com> 5.600-30mdk
-- Don't run make test on ia64
-
-* Thu Mar 22 2001 Pixel <pixel@mandrakesoft.com> 5.600-29mdk
-- add Exporter and some POSIX stuff in perl-base (needed for perl-gettext)
-
-* Sat Mar  3 2001 Pixel <pixel@mandrakesoft.com> 5.600-28mdk
-- Alexander Skwar: Removed CGI.pm from package - newer version is in a seperate package now!
-
-* Wed Jan 31 2001 Pixel <pixel@mandrakesoft.com> 5.600-27mdk
-- perl depends perl-base = version-release and not only version
-- same for perl-devel
-
-* Tue Jan 30 2001 Pixel <pixel@mandrakesoft.com> 5.600-26mdk
-- add podselect and podchecker in perl-devel
-
-* Mon Jan 22 2001 Pixel <pixel@mandrakesoft.com> 5.600-25mdk
-- re-add "make test" (why did it go away?)
-- build with GDBM, NDBM (small merge with RH's spec)
-
-* Sat Dec 16 2000 Chmouel Boudjnah <chmouel@mandrakesoft.com> 5.600-24mdk
-- Fix typo in Syslog.pm.
-
-* Fri Dec 15 2000 Pixel <pixel@mandrakesoft.com> 5.600-23mdk
-- patch perl-5.6.0-use-LD_PRELOAD-for-libperl.so.patch.bz2 added
-- patch perl-5.6.0-fix-for-coredump-bug-20000607.003.patch.bz2 added
-
-* Thu Dec  7 2000 Pixel <pixel@mandrakesoft.com> 5.600-22mdk
-- add "make test"
-
-* Mon Nov 27 2000 Pixel <pixel@mandrakesoft.com> 5.600-21mdk
-- corrected copyright
-
-* Tue Nov  7 2000 Pixel <pixel@mandrakesoft.com> 5.600-20mdk
-- add /usr/X11R6/lib to MakeMaker skipped rpath
-
-* Sun Nov  5 2000 Pixel <pixel@mandrakesoft.com> 5.600-19mdk
-- fix-errno_h-parsing-for-glibc-2.1.95.patch.bz2
-
-* Thu Nov  2 2000 Pixel <pixel@mandrakesoft.com> 5.600-18mdk
-- rebuild with new glibc so that i can build eperl (libposix doesn't exist
-anymore)
-
-* Sun Sep  3 2000 Pixel <pixel@mandrakesoft.com> 5.600-17mdk
-- also move warnings/register.pm
-- fix silly error
-
-* Sat Sep  2 2000 Pixel <pixel@mandrakesoft.com> 5.600-16mdk
-- move Glob.pm and dependencies to perl-base
-
-* Sat Sep  2 2000 Pixel <pixel@mandrakesoft.com> 5.600-15mdk
-- fix filelist cleaning
-
-* Wed Aug 23 2000 Pixel <pixel@mandrakesoft.com> 5.600-14mdk
-- add Packager
-
-* Tue Aug 22 2000 Pixel <pixel@mandrakesoft.com> 5.600-13mdk
-- move dir .../CORE to perl-base
-- move lib.pm to perl-base (to make installkernel happy)
-
-* Fri Aug 18 2000 Pixel <pixel@mandrakesoft.com> 5.600-12mdk
-- fix-LD_RUN_PATH-for-MakeMaker
-
-* Mon Aug  7 2000 Pixel <pixel@mandrakesoft.com> 5.600-11mdk
-- fix the mailx `!~' (in case you're using the old mailx or a bug appears in
-mailx...)
-
-* Tue Jul 25 2000 Pixel <pixel@mandrakesoft.com> 5.600-10mdk
-- move DynaLoader.a to -devel
-- remove menu
-
-* Sat Jul 22 2000 Pixel <pixel@mandrakesoft.com> 5.600-9mdk
-- patch CGI.pm to have $TempFile::TMPDIRECTORY = '/tmp'
-
-* Fri Jul 21 2000 Pixel <pixel@mandrakesoft.com> 5.600-8mdk
-- bad config.h
-
-* Fri Jul 21 2000 Pixel <pixel@mandrakesoft.com> 5.600-7mdk
-- oups, devel was bad :-(
-
-* Wed Jul 19 2000 Pixel <pixel@mandrakesoft.com> 5.600-6mdk
-- BM, macroization
-
-* Fri May 19 2000 François Pons <fpons@mandrakesoft.com> 5.600-5mdk
-- changed asm/*.h to asm*/*.h during .ph generation for sparc.
-
-* Fri Mar 31 2000 Pixel <pixel@mandrakesoft.com> 5.600-4mdk
-- fix a bug causing missing .ph's
-
-* Tue Mar 28 2000 Pixel <pixel@mandrakesoft.com> 5.600-3mdk
-- really add menu
-
-* Mon Mar 27 2000 Pixel <pixel@mandrakesoft.com> 5.600-2mdk
-- add menu
-
-* Thu Mar 23 2000 Pixel <pixel@mandrakesoft.com> 5.600-1mdk
-- change version number for backward compatibility :(
-(serial is not enough, cuz there are some requires >= 5.00503)
-
-* Thu Mar 23 2000 Pixel <pixel@mandrakesoft.com> 5.6.0-1mdk
-- new version
-
-* Tue Mar 21 2000 Pixel <pixel@mandrakesoft.com> 5.6-0.3mdk
-- RC3
-
-* Thu Mar 16 2000 Pixel <pixel@mandrakesoft.com> 5.6-0.2mdk
-- RC2
-
-* Thu Mar  9 2000 Pixel <pixel@mandrakesoft.com> 5.6-0.1mdk
-- new version
-
-* Wed Mar  1 2000 Pixel <pixel@mandrakesoft.com> 5.5.670-1mdk
-- new version
-
-* Thu Feb 24 2000 Pixel <pixel@mandrakesoft.com> 5.5.660-1mdk
-- remove the strip'ing and man page bzip'ing
-- new version
-
-* Wed Feb  9 2000 Pixel <pixel@mandrakesoft.com> 5.5.650-1mdk
-- new version
-
-* Thu Feb  3 2000 Pixel <pixel@mandrakesoft.com> 5.5.640-6mdk
-- new version (and new version numbering)
-
-* Mon Jan 17 2000 François Pons <fpons@mandrakesoft.com>
-- changed asm/*.h to asm*/*.h during .ph generation for sparc.
-
-* Fri Dec 17 1999 Pixel <pixel@mandrakesoft.com>
-- clean up
-- fixed the reference to the egcs package
-
-* Mon Nov 29 1999 Pixel <pixel@linux-mandrake.com>
-- removed the `Provides: perl' in perl-base
-
-* Mon Nov 22 1999 Stefan van der Eijk <s.vandereijk@chello.nl>
-- changed i386 into ${RPM_ARCH}
-
-* Mon Oct 25 1999 Chmouel Boudjnah <chmouel@mandrakesoft.com>
-- Fix forget manpages from %files.
-
-* Thu Oct 14 1999 Pixel <pixel@linux-mandrake.com>
-
-- create hackperl based on perl's spec
-- split in two packages
-- removed csh dependencie
-- merged redhat's spec (not everything)
-
-* Mon Jul 12 1999 Chmouel Boudjnah <chmouel@mandrakesoft.com>
-
-- ln /usr/lib/perl5 to /usr/lib/perl5%{current_version}
-- bzip2 manpages.
-
-* Tue Apr 13 1999 Chmouel Boudjnah <chmouel@mandrakesoft.com>
-
-- Add patch from RedHat6.0.
-- Update to 5.005_03
-
-* Sat Apr 10 1999 Bernhard Rosenkraenzer <bero@linux-mandrake.com>
-- Mandrake adaptions
-- bzip2 man/info pages
-- handle RPM_OPT_FLAGS
-- add de locale
-
-* Thu Jan 07 1999 Cristian Gafton <gafton@redhat.com>
-- guilty of the inlined Makefile in the spec file
-- adapted for the arm build
-
-* Wed Sep 09 1998 Preston Brown <pbrown@redhat.com>
-- added newer CGI.pm to the build
-- changed the version naming scheme around to work with RPM
-
-* Sun Jul 19 1998 Jeff Johnson <jbj@redhat.com>
-- attempt to generate *.ph files reproducibly
-
-* Mon Jun 15 1998 Jeff Johnson <jbj@redhat.com>
-- update to 5.004_04-m4 (pre-5.005 maintenance release)
-
-* Tue Jun 12 1998 Christopher McCrory <chrismcc@netus.com
-- need stdarg.h from gcc shadow to fix "use Sys::Syslog" (problem #635)
-
-* Fri May 08 1998 Cristian Gafton <gafton@redhat.com>
-- added a patch to correct the .ph constructs unless defined (foo) to read
-  unless(defined(foo))
-
-* Thu May 07 1998 Prospector System <bugs@redhat.com>
-- translations modified for de, fr, tr
-
-* Tue Mar 10 1998 Cristian Gafton <gafton@redhat.com>
-- fixed strftime problem
-
-* Sun Mar 08 1998 Cristian Gafton <gafton@redhat.com>
-- added a patch to fix a security race
-- do not use setres[ug]id - those are not implemented on 2.0.3x kernels
-
-* Mon Mar 02 1998 Cristian Gafton <gafton@redhat.com>
-- upgraded to 5.004_04 - 5.004_01 had some nasty memory leaks.
-- fixed the spec file to be version-independent
-
-* Fri Dec 05 1997 Erik Troan <ewt@redhat.com>
-- Config.pm wasn't right do to the builtrooting
-
-* Mon Oct 20 1997 Erik Troan <ewt@redhat.com>
-- fixed arch-specfic part of spec file
-
-* Sun Oct 19 1997 Erik Troan <ewt@redhat.com>
-- updated to perl 5.004_01
-- users a build root
-
-* Thu Jun 12 1997 Erik Troan <ewt@redhat.com>
-- built against glibc
-
-* Tue Apr 22 1997 Erik Troan <ewt@redhat.com>
-- Incorporated security patch from Chip Salzenberg <salzench@nielsenmedia.com>
-
-* Fri Feb 07 1997 Erik Troan <ewt@redhat.com>
-- Use -Darchname=i386-linux 
-- Require csh (for glob)
-- Use RPM_ARCH during configuration and installation for arch independence
 
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8
