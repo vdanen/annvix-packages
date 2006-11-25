@@ -9,7 +9,7 @@
 
 %define	revision	$Rev$
 %define	name		runit
-%define	version		1.7.1
+%define	version		1.7.2
 %define	release		%_revrel
 
 %define aver		0.10
@@ -76,6 +76,9 @@ pushd %{name}-%{version}/src
     echo "$COMP -Os -pipe" > conf-cc
     echo "$COMP -Os -static -s" > conf-ld
     make
+    # we really need to keep svwait*
+    make svwaitup
+    make svwaitdown
 popd
 
 
@@ -87,7 +90,7 @@ mkdir -p %{buildroot}%{_sysconfdir}/{runit,sysconfig/env/{runit,network,clock,hd
 mkdir -p %{buildroot}%{_srvdir}/mingetty-tty{1,2,3,4,5,6}
 
 pushd %{name}-%{version}
-    for i in `cat package/commands`; do
+    for i in `cat package/commands` svwaitup svwaitdown; do
 	install -m 0755 src/$i %{buildroot}/sbin/
     done
     mv %{buildroot}/sbin/runit-init %{buildroot}/sbin/init
@@ -216,6 +219,8 @@ fi
 %attr(0755,root,root) /sbin/runsvchdir
 %attr(0755,root,root) /sbin/sv
 %attr(0755,root,root) /sbin/svlogd
+%attr(0755,root,root) /sbin/svwaitup
+%attr(0755,root,root) /sbin/svwaitdown
 %attr(0755,root,root) /sbin/chpst
 %attr(0755,root,root) /sbin/utmpset
 %attr(0700,root,root) /sbin/rc
@@ -284,6 +289,11 @@ fi
 
 
 %changelog
+* Sat Nov 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.7.2
+- 1.7.2
+- reinclude svwaitup and svwaitdown; these are essential to our run
+  scripts that deal with dependencies
+
 * Sat Nov 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.7.1
 - fix the usb initscript
 
