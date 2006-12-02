@@ -9,7 +9,7 @@
 
 %define	revision	$Rev$
 %define	name		xfsdump
-%define	version		2.2.38
+%define	version		2.2.42
 %define	release		%_revrel
 
 Summary:	Administrative utilities for the XFS filesystem
@@ -96,6 +96,10 @@ rm -rf %{buildroot}%{_datadir}/doc/xfsdump/
 
 
 %changelog
+* Sat Dec 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.42
+- 2.2.42
+- rebuild against new ncurses
+
 * Mon Aug 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.38
 - 2.2.38
 - spec cleanups
