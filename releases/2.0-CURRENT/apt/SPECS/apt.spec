@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		apt
-%define version		0.5.15lorg3.1
+%define version		0.5.15lorg3.2
 %define release		%_revrel
 
 %define major		0
@@ -112,11 +112,11 @@ mkdir -p %{buildroot}%{_sysconfdir}/apt/{apt.conf.d,translate.list.d}
 
 mv %{buildroot}%{_includedir}/*.h %{buildroot}%{_includedir}/apt-pkg
 
-install -m 0644 %{_sourcedir}/%{name}-apt.conf %{buildroot}%{_sysconfdir}/apt
-install -m 0644 %{_sourcedir}/%{name}-rpmpriorities %{buildroot}%{_sysconfdir}/apt
-install -m 0644 %{_sourcedir}/%{name}-annvix.conf %{buildroot}%{_sysconfdir}/apt/apt.conf.d
-install -m 0644 %{_sourcedir}/%{name}-sources.list %{buildroot}%{_sysconfdir}/apt
-install -m 0644 %{_sourcedir}/%{name}-vendors.list %{buildroot}%{_sysconfdir}/apt
+install -m 0644 %{_sourcedir}/%{name}-apt.conf %{buildroot}%{_sysconfdir}/apt/apt.conf
+install -m 0644 %{_sourcedir}/%{name}-rpmpriorities %{buildroot}%{_sysconfdir}/apt/rpmpriorities
+install -m 0644 %{_sourcedir}/%{name}-annvix.conf %{buildroot}%{_sysconfdir}/apt/apt.conf.d/annvix.conf
+install -m 0644 %{_sourcedir}/%{name}-sources.list %{buildroot}%{_sysconfdir}/apt/sources.list
+install -m 0644 %{_sourcedir}/%{name}-vendors.list %{buildroot}%{_sysconfdir}/apt/vendors.list
 
 # (misc) remove this once the librpm package is fixed and do not
 # contain reference to /home, no rpmlint warning.
@@ -200,6 +200,11 @@ install -m 0600 contrib/gpg-check/gpg-import.lua %{buildroot}%{_datadir}/apt/scr
 
 
 %changelog
+* Sat Dec 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.5.15lorg3.2
+- 0.5.15lorg3.2
+- rebuild against new ncurses
+- fix install of files
+
 * Sun Sep 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.5.15lorg3.1
 - remove locales
 
