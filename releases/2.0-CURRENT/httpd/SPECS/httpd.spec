@@ -316,6 +316,8 @@ Requires(pre):	httpd-common = %{version}-%{release}
 Requires(pre):	httpd-modules = %{version}-%{release}
 Requires(pre):	httpd-mod_cache = %{version}-%{release}
 Requires(postun): rpm-helper
+Obsoletes:	httpd-htcacheclean
+Provides:	httpd-htcacheclean
 
 %description mod_disk_cache
 mod_disk_cache implements a disk based storage manager. It is
@@ -1380,6 +1382,9 @@ fi
 
 
 %changelog
+* Sat Dec 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3
+- fix obsoletes/provides on mod_disk_cache
+
 * Mon Nov 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3
 - rebuild against new pcre
 
