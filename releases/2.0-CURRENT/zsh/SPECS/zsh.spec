@@ -164,6 +164,9 @@ mv docroot/Examples/compctl-examples docroot/StartupFiles
 
 
 %changelog
+* Sat Dec 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.2.6
+- rebuild against new ncurses
+
 * Mon Nov 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.2.6
 - rebuild against new pcre
 
