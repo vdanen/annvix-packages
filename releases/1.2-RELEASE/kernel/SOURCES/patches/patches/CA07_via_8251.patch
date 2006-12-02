@@ -1,0 +1,22 @@
+diff -Naur linux-2.4.33-6176avx/drivers/ide/pci/via82cxxx.c linux-new/drivers/ide/pci/via82cxxx.c
+--- linux-2.4.33-6176avx/drivers/ide/pci/via82cxxx.c	2006-09-01 01:03:20.000000000 +0800
++++ linux-new/drivers/ide/pci/via82cxxx.c	2006-11-17 23:15:11.000000000 +0800
+@@ -74,6 +74,7 @@
+ 	u8 rev_max;
+ 	u16 flags;
+ } via_isa_bridges[] = {
++	{ "vt8251", PCI_DEVICE_ID_VIA_8251,     0x00, 0x2f, VIA_UDMA_133 | VIA_BAD_AST },
+ 	{ "vt8237",	PCI_DEVICE_ID_VIA_8237,     0x00, 0x2f, VIA_UDMA_133 | VIA_BAD_AST },
+ 	{ "vt8235",	PCI_DEVICE_ID_VIA_8235,     0x00, 0x2f, VIA_UDMA_133 | VIA_BAD_AST },
+ 	{ "vt8233a",	PCI_DEVICE_ID_VIA_8233A,    0x00, 0x2f, VIA_UDMA_133 | VIA_BAD_AST },
+diff -Naur linux-2.4.33-6176avx/include/linux/pci_ids.h linux-new/include/linux/pci_ids.h
+--- linux-2.4.33-6176avx/include/linux/pci_ids.h	2006-09-01 01:03:20.000000000 +0800
++++ linux-new/include/linux/pci_ids.h	2006-11-17 23:15:15.000000000 +0800
+@@ -1159,6 +1159,7 @@
+ #define PCI_DEVICE_ID_VIA_8377_0	0x3189
+ #define PCI_DEVICE_ID_VIA_K8T400M_0	0x3188
+ #define PCI_DEVICE_ID_VIA_8237		0x3227
++#define PCI_DEVICE_ID_VIA_8251     	0x3287
+ #define PCI_DEVICE_ID_VIA_86C100A	0x6100
+ #define PCI_DEVICE_ID_VIA_8231		0x8231
+ #define PCI_DEVICE_ID_VIA_8231_4	0x8235

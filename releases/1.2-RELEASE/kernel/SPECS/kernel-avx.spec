@@ -10,7 +10,7 @@
 %define revision	$Rev$
 %define kname		kernel
 %define sublevel	33
-%define subsublevel	3
+%define subsublevel	4
 %define avxrelease	%(echo %{revision}|cut -d ' ' -f 2)
 
 %define tar_version	2.4.%{sublevel}.%{subsublevel}
@@ -826,6 +826,10 @@ exit 0
 
 
 %changelog
+* Sat Dec 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.33.4
+- 2.4.33.4: fixes CVE-2006-4997
+- CA07: support for the VIA 8251 chipset
+
 * Mon Sep 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.33.3
 - 2.4.33.3
 - includes the following security fixes: CVE-2006-3745, CVE-2006-1528,
