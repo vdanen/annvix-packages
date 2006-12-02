@@ -118,6 +118,9 @@ EOF
 
 
 %changelog
+* Sat Dec 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.8.5
+- rebuild against new ncurses
+
 * Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.8.5
 - spec cleanups
 - remove locales
