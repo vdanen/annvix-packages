@@ -24,7 +24,6 @@ Patch0:		screen-3.7.6-compat21.patch
 Patch1: 	screen-ia64.patch
 Patch3:		screen-makefile-ppc.patch
 Patch4:		screen-3.9.11-fix-utmp.diff
-Patch5:		screen-3.9.11-max-window-size.diff
 Patch6:		screen-3.9.13-no-libelf.patch
 Patch7:		screen-3.9.11-biarch-utmp.patch
 Patch8:		screen-3.9.15-overflow.patch
@@ -61,7 +60,6 @@ This package contains the documentation for %{name}.
 # (sb) seems to be needed on x86 now too 
 %patch3 -p1
 %patch4 -p1
-%patch5 -p1
 %patch6 -p1 -b .no-libelf
 %patch7 -p1 -b .biarch-utmp
 %patch8 -p1 -b .overflow
@@ -139,6 +137,10 @@ EOF
 
 
 %changelog
+* Sat Dec 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.0.3
+- drop P5; it's not used anywhere
+- rebuild against new ncurses
+
 * Thu Oct 26 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.0.3
 - 4.0.3 (fixes CVE-2006-4573)
 
