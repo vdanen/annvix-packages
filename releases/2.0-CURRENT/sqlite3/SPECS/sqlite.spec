@@ -217,6 +217,10 @@ chrpath -d %{buildroot}%{_bindir}/*
 
 
 %changelog
+* Sat Dec 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.3.8
+- rebuild against new ncurses
+- clean spec
+
 * Tue Nov 07 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.3.8
 - 3.3.8
 - provide sqlite-devel
@@ -244,66 +248,5 @@ chrpath -d %{buildroot}%{_bindir}/*
 * Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 3.2.2-1avx
 - first Annvix build because rpm needs it
 - P1: skip two printf tests on x86_64 that fail
-
-* Tue Aug  9 2005 Gwenole Beauchesne <gbeauchesne@mandriva.com> 3.2.2-2mdk
-- aliasing fixes
-- tcl scripts are always in /usr/lib/tcl*
-
-* Tue Jul 19 2005 Olivier Thauvin <nanardon@mandriva.org> 3.2.2-1mdk
-- 3.2.2
-
-* Tue Feb 08 2005 Olivier Thauvin <thauvin@aerov.jussieu.fr> 3.0.8-1mdk
-- make a rpm for sqlite3, do not update sqlite because file format has changed
- 
-* Fri Jan 28 2005 Christiaan Welvaart <cjw@daneel.dyndns.org> 2.8.15-5mdk
-- patch2: fix test suite for differences in double precision float implementation
-
-* Fri Jan 21 2005 Per Øyvind Karlsen <peroyvind@linux-mandrake.com> 2.8.15-4mdk
-- rebuild for new readline
-
-* Wed Dec 29 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 2.8.15-3mdk
-- revert latest "lib64 fixes"
-
-* Wed Dec 29 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 2.8.15-2mdk
-- lib64 fixes
-
-* Tue Nov  9 2004 Goetz Waschk <waschk@linux-mandrake.com> 2.8.15-1mdk
-- New release 2.8.15
-
-* Mon Oct 04 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 2.8.14-3mdk
-- rebuild (due to missing devel package)
-
-* Wed Sep 29 2004 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 2.8.14-2mdk
-- backport some 64-bit related fixes for the testsuite
-- add libsqlite-static-devel, sqlite-static-devel provides
-
-* Fri Jun 18 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 2.8.14-1mdk
-- 2.8.14 
-- fix P0
-- run the tests
-
-* Sat Jun 05 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 2.8.13-3mdk
-- rebuilt with gcc v3.4.x
-
-* Sat May 15 2004 Luca Berra <bluca@vodka.it> 2.8.13-2mdk 
-- lib64 install fixes
-
-* Sun May 02 2004 Luca Berra <bluca@vodka.it> 2.8.13-1mdk 
-- 2.8.13
-- dropped p0 (merged upstream)
-
-* Wed Sep 10 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.8.6-1mdk
-- 2.8.6
-- misc spec file fixes
-
-* Sun Aug 03 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.8.5-1mdk
-- 2.8.5
-- added spec file changes by Luca Berra
-
-* Thu Jul 10 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.8.4-2mdk
-- rebuild
-
-* Mon Jun 30 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.8.4-1mdk
-- initial cooker contrib
 
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8
