@@ -170,6 +170,9 @@ rm -f %{buildroot}%{_bindir}/texi2pdf
 
 
 %changelog
+* Sat Dec 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.8
+- rebuild against new ncurses
+
 * Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.8
 - spec cleanups
 - remove locales
