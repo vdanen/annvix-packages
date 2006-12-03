@@ -27,7 +27,7 @@ License:	Modified CNRI Open Source License
 Group:		Development/Python
 URL:		http://www.python.org/
 
-Source:		http://www.python.org/ftp/python/%{version}/Python-%{version}.tar.bz2
+Source0:	http://www.python.org/ftp/python/%{version}/Python-%{version}.tar.bz2
 Source1:	http://www.python.org/ftp/python/doc/%{docver}/html-%{docver}.tar.bz2
 Source2:	python-2.4-base.list
 Source3:	exclude.py
@@ -44,6 +44,7 @@ Patch4:		Python-2.4.1-lib64.patch
 Patch5:		Python-2.2.2-biarch-headers.patch
 # detect and link with gdbm_compat for dbm module
 Patch6:		Python-2.4.1-gdbm.patch
+Patch7:		python-2.4.3-fix-buffer_overflow_with_glibc2.3.5.diff
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	XFree86-devel 
@@ -150,6 +151,7 @@ This package contains the documentation for %{name}.
 %patch5 -p1
 # gdbm
 %patch6 -p1
+%patch7 -p0
 
 autoconf
 
@@ -329,6 +331,10 @@ rm -f modules-list main.list
 
 
 %changelog
+* Sat Dec 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.3
+- P7: fix compil
+- rebuild against new ncurses
+
 * Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.3
 - rebuild against new openssl
 - spec cleanups
