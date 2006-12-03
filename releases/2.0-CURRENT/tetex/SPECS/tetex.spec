@@ -60,13 +60,12 @@ Patch17:	tetex-3.0-xpdf-CAN-2005-0206.patch
 Patch18:	tetex-src-3.0-pic.patch
 Patch20:	tetex-1.0-texmf-dvipsgeneric.patch
 Patch21:	tetex-3.0-xdvi-www.patch
-Patch25:	passivetex-1.23.patch
-Patch26:	passivetex-1.24.patch
-Patch27:	passivetex-1.25.patch
 # security
 Patch28:	xpdf-3.00-CVE-2005-3191_2_3.patch
 Patch29:	xpdf-3.00-goo-overflow.patch
 Patch30:	xpdf-3.00-chris-overflows.patch
+Patch31:	tetex-src-3.0-gd-CAN-2004-0941.patch
+Patch32:	tetex-src-3.0-gd-CVE-2006-2906.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	bison
@@ -264,7 +263,7 @@ HTML files which can be read with any WWW browser.
 
 
 %prep
-%setup -q -n %{name}-src-%{tetexversion} -a 7 -a 7
+%setup -q -n %{name}-src-%{tetexversion} -a 7
 chmod 0755 csindex-%{csidxversion}
 %patch0 -p1 -b .texmfcnf
 %patch1 -p1 -b .fmtutil
@@ -283,7 +282,6 @@ chmod 0755 csindex-%{csidxversion}
 mkdir -p texmf
 bzip2 -cd %{_sourcedir}/%{name}-src-%{tetexversion}.tar.bz2 | tar xf - -C texmf
 bzip2 -cd %{_sourcedir}/%{name}-texmf-extras-gg-%{texmfggversion}.tar.bz2 | tar xf - -C texmf
-cp -p texmf/metafont/config/mf.ini texmf/metafont/config/mf-nowin.ini
 
 # dvips config.generic
 %patch20 -p1
@@ -291,17 +289,14 @@ cp -p texmf/metafont/config/mf.ini texmf/metafont/config/mf-nowin.ini
 # www-browser instead of netscape
 %patch21 -p1 
 
-# passivetex 1.25
-%patch25 -p1
-%patch26 -p1
-%patch27 -p1
-
 # security
 pushd libs/xpdf
 %patch28 -p1 -b .cve-2005-3191_2_3
 %patch29 -p1 -b .goo_overflow
 %patch30 -p1 -b .chris_overflows
 popd
+%patch31 -p1 -b .can-2004-0941
+%patch32 -p1 -b .cve-2006-2906
 
 ## cputoolize to get updated config.{sub,guess}
 #%{?__cputoolize: %{__cputoolize} -c libs/ncurses}
@@ -327,14 +322,6 @@ make all
 CURRENTDIR=`pwd`
 mkdir -p $CURRENTDIR/texmf/tex/xmltex/{base,config,passivetex}
 mkdir -p $CURRENTDIR/texmf/doc/xmltex/{base,passivetex}
-pushd %{xmltexname}/base
-    cp -p xmltex.tex *.xmt $CURRENTDIR/texmf/tex/xmltex/base
-    cp -p *.ini xmltex.cfg $CURRENTDIR/texmf/tex/xmltex/config
-    cp -p *.xml manual.tex test*.tex test*.cfg $CURRENTDIR/texmf/doc/xmltex/base
-popd
-pushd %{xmltexname}/contrib/passivetex
-    cp -p *.xmt *.sty $CURRENTDIR/texmf/tex/xmltex/passivetex
-popd
 
 # csindex
 pushd csindex-%{csidxversion}
@@ -373,18 +360,8 @@ bzip2 -9f %{buildroot}%{_infodir}/*info* || true
 mkdir -p %{buildroot}%{_sysconfdir}/cron.daily
 install -m 0755 %{_sourcedir}/tetex.cron %{buildroot}%{_sysconfdir}/cron.daily
 
-## update map files
-#TEXMFMAIN=%{buildroot}%{_datadir}/texmf \
-#    %{buildroot}%{_bindir}/updmap --cnffile \
-#    %{buildroot}%{_datadir}/texmf/web2c/updmap.cfg
-
 # Fix permission for directory "/usr/share/texmf/fonts/tfm/jknappen"
 find %{buildroot}%{_datadir}/texmf -type d -print | xargs chmod 755
-
-# We keep the .log files for format .fmt files (useful to know how
-# they are generated (included files, memory, etc.);
-# strip buildroot path from .log files.
-perl -pi -e "s@%{buildroot}@@g" %{buildroot}%{texmfsysvar}/web2c/*.log
 
 # call the spec-helper before creating the file list
 # (thanks to Pixel).
@@ -450,19 +427,8 @@ grep "/doc/" filelist.full > filelist.doc
 echo "%{_bindir}/texdoc" >> filelist.doc
 echo "%{_bindir}/texdoctk" >> filelist.doc
 
-grep -v "/doc/" filelist.full | grep -v fonts | \
-    grep -v dvips | \
-    grep -v pdftex/config | \
-    grep context > filelist.context
-
 cat >> filelist.context <<EOF
 %{_bindir}/mptopdf
-%{texmfsysvar}/web2c/cont-en.fmt
-%{texmfsysvar}/web2c/cont-en.log
-%{texmfsysvar}/web2c/metafun.log
-%{texmfsysvar}/web2c/metafun.mem
-%{texmfsysvar}/web2c/mptopdf.fmt
-%{texmfsysvar}/web2c/mptopdf.log
 EOF
 
 cat > filelist.texi2html <<EOF
@@ -570,6 +536,13 @@ rm -f filelist.*
 
 
 %changelog
+* Sat Dec 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0
+- P31: security fix for CAN-2005-0941 (embedded gd)
+- P32: security fix for CVE-2006-2906 (embedded gd)
+- drop P25, P26, P27 (passivetex)
+- some spec fixes
+- rebuild against new ncurses
+
 * Sun Sep 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0
 - don't call env after every %%post script
 - use the %%_info_install and friends macros
