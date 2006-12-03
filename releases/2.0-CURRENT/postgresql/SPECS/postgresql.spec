@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		postgresql
-%define version		8.1.4
+%define version		8.1.5
 %define release		%_revrel
 
 %define _requires_exceptions devel(libtcl8.4)\\|devel(libtcl8.4(64bit))
@@ -63,7 +63,8 @@ BuildRequires:	pam-devel
 BuildRequires:	perl-devel
 BuildRequires:	python-devel
 BuildRequires:	readline-devel >= 4.3
-BuildRequires:	zlib-devel, tcl
+BuildRequires:	zlib-devel
+BuildRequires:	tcl
 
 Requires:	perl
 Requires(post):	rpm-helper
@@ -250,7 +251,7 @@ pushd src
     #fix -ffast-math problem (deush)
     %ifnarch ppc
         %serverbuild
-        CFLAGS=`echo %{optflags}|xargs -n 1|grep -v ffast-math|xargs -n 100`
+        CFLAGS=`echo $CFLAGS|xargs -n 1|grep -v ffast-math|xargs -n 100`
     %endif
 popd
 
@@ -599,6 +600,12 @@ fi
 
 
 %changelog
+* Sat Dec 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.1.5
+- rebuild against new ncurses
+
+* Tue Oct 31 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.1.5
+- 8.1.5 (fixes CVE-2006-5540, CVE-2006-5541, CVE-2006-5542)
+
 * Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.1.4
 - remove locales
 
