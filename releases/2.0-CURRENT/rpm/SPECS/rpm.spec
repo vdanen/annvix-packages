@@ -758,6 +758,9 @@ fi
 
 
 %changelog
+* Fri Dec 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.5
+- rebuild against new ncurses
+
 * Tue Nov 07 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.5
 - rebuild against new sqlite
 
