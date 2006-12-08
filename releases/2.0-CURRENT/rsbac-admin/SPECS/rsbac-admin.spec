@@ -28,8 +28,9 @@ Source1:	rsbac.conf
 Patch0:		rsbac-admin-1.2.7-libdir.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	libtool, ncurses-devel, pam-devel
-#BuildRequires: 	kernel-source
+BuildRequires:	libtool
+BuildRequires:	ncurses-devel
+BuildRequires:	pam-devel
 
 Requires: 	dialog
 
@@ -83,7 +84,8 @@ applications which will use %{name}.
 %package -n pam_rsbac
 Summary:	PAM files for RSBAC
 Group:		System/Libraries
-Requires:	%{name}-%{version}, %{libname}-%{version}
+Requires:	%{name}-%{version}
+Requires:	%{libname}-%{version}
 
 %description -n pam_rsbac
 PAM files for use with RSBAC
@@ -92,7 +94,8 @@ PAM files for use with RSBAC
 %package -n nss_rsbac
 Summary:	NSS files for RSBAC
 Group:		System/Libraries
-Requires:	%{name}-%{version}, %{libname}-%{version}
+Requires:	%{name}-%{version}
+Requires:	%{libname}-%{version}
 
 %description -n nss_rsbac
 NSS library files for use with RSBAC
@@ -182,6 +185,9 @@ mkdir -p %{buildroot}/var/lib/rsbac/tmp
 
 
 %changelog
+* Fri Dec 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.7
+- rebuild against new ncurses
+
 * Sat Jun 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.7
 - rebuild against new pam
 
