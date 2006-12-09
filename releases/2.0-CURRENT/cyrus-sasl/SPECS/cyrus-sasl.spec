@@ -26,10 +26,13 @@ URL:		http://asg.web.cmu.edu/cyrus/download/
 Source0:	ftp://ftp.andrew.cmu.edu/pub/cyrus-mail/%{name}-%{version}.tar.gz
 Source1:	ftp://ftp.andrew.cmu.edu/pub/cyrus-mail/%{name}-%{version}.tar.gz.sig
 Source2:        saslauthd.init
-Source3:        saslauthd.sysconfig
 Source4:	saslauthd.run
 Source5:	saslauthd-log.run
 Source6:	saslauthd.8
+Source7:	service.conf.example
+Source8:	SASLAUTHD_OPTS.env
+Source9:	SASL_AUTHMECH.env
+Source10:	SASL_MECH_OPTIONS.env
 Patch0:		cyrus-sasl-2.1.22-avx-doc.patch
 Patch1:		cyrus-sasl-2.1.19-mdk-no_rpath.patch
 Patch2:		cyrus-sasl-2.1.15-mdk-lib64.patch
@@ -316,18 +319,21 @@ install saslauthd/LDAP_SASLAUTHD README.ldap
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}/var/lib/sasl2
-mkdir -p %{buildroot}%{_sysconfdir}/{sysconfig,sasl2}
+mkdir -p %{buildroot}%{_sysconfdir}/sasl2
 
 
 make install DESTDIR=%{buildroot}
 
-install %{_sourcedir}/saslauthd.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/saslauthd
+install -m 0644 %{_sourcedir}/service.conf.example %{buildroot}%{_sysconfdir}/sasl2/
 # Install man pages in the expected location, even if they are
 # pre-formatted.
 install -m 0755 -d %{buildroot}%{_mandir}/man8/
 install -m 0644 */*.8 %{buildroot}%{_mandir}/man8/
 
 %makeinstall_std
+
+# we don't need these
+rm -f %{buildroot}%{_libdir}/sasl2/*.a
 
 # dbconverter-2 isn't installed by make install
 
@@ -337,9 +343,12 @@ pushd utils
 popd
 cp saslauthd/testsaslauthd %{buildroot}%{_sbindir}
 
-mkdir -p %{buildroot}%{_srvdir}/saslauthd/log
+mkdir -p %{buildroot}%{_srvdir}/saslauthd/{env,log}
 install -m 0740 %{_sourcedir}/saslauthd.run %{buildroot}%{_srvdir}/saslauthd/run
 install -m 0740 %{_sourcedir}/saslauthd-log.run %{buildroot}%{_srvdir}/saslauthd/log/run
+install -m 0640 %{_sourcedir}/SASLAUTHD_OPTS.env %{buildroot}%{_srvdir}/saslauthd/env/SASLAUTHD_OPTS
+install -m 0640 %{_sourcedir}/SASL_AUTHMECH.env %{buildroot}%{_srvdir}/saslauthd/env/SASL_AUTHMECH
+install -m 0640 %{_sourcedir}/SASL_MECH_OPTIONS.env %{buildroot}%{_srvdir}/saslauthd/env/SASL_MECH_OPTIONS
 
 # fix the horribly broken manpage
 cp %{_sourcedir}/saslauthd.8 %{buildroot}%{_mandir}/man8/saslauthd.8
@@ -428,17 +437,20 @@ fi
 %files
 %defattr(-,root,root)
 %dir /var/lib/sasl2
-%attr (644,root,root) %config(noreplace) %{_sysconfdir}/sysconfig/saslauthd
 %dir %attr(0750,root,admin) %{_srvdir}/saslauthd
 %dir %attr(0750,root,admin) %{_srvdir}/saslauthd/log
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/saslauthd/run
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/saslauthd/log/run
+%config(noreplace) %attr(0740,root,admin)%{_srvdir}/saslauthd/env/SASLAUTHD_OPTS
+%config(noreplace) %attr(0740,root,admin)%{_srvdir}/saslauthd/env/SASL_AUTHMECH
+%config(noreplace) %attr(0740,root,admin)%{_srvdir}/saslauthd/env/SASL_MECH_OPTIONS
 %{_sbindir}/*
 %{_mandir}/man8/*
 
 %files -n %{libname}
 %defattr(-,root,root)
 %dir %{_sysconfdir}/sasl2
+%{_sysconfdir}/sasl2/service.conf.example
 %dir %{_libdir}/sasl2
 %{_libdir}/libsasl*.so.*
 
@@ -502,7 +514,6 @@ fi
 %{_includedir}/*
 %{_libdir}/*.*so
 %{_libdir}/*.*a
-%{_libdir}/sasl2/*.a
 %{_mandir}/man3/*
 
 %files doc
@@ -512,6 +523,12 @@ fi
 
  
 %changelog
+* Sat Dec 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1.22
+- rebuild against new openldap, mysql, postgresql
+- get rid of static plugin files
+- add sample file for service configuration
+- use environment directory instead of sysconfig file
+
 * Sun Aug 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1.22
 - rebuild against new mysql
 - rebuild against new openssl
