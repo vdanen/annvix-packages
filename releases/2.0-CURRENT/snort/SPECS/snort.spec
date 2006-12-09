@@ -32,8 +32,6 @@ Source7:	http://www.snort.org/pub-bin/downloads.cgi/Download/comm_rules/Communit
 Patch1:		snort-2.6.0-mdv-lib64.patch
 # (oe): make -L work as stated in the man page.
 Patch3:		snort-2.3.0-no_timestamp.diff
-# (oe) disable some code to make it build
-Patch4:		snort-2.3.0-net-snmp_fix.diff
 Patch5:		snort-2.6.0-mdv-no_bundled_libtool.patch
 Patch6:		snort-2.6.1-mdv-plugins_fix.patch
 
@@ -180,10 +178,9 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q -a 7
-#%patch1 -p0 -b .lib64
+%patch1 -p0 -b .lib64
 %patch3 -p0 -b .no_timestamp
-#%patch4 -p0 -b .net-snmp_fix
-#%patch5 -p0 -b .no_bundled_libtool
+%patch5 -p0 -b .no_bundled_libtool
 %patch6 -p1 -b .plugins_fix
 
 # fix some docs
@@ -658,6 +655,10 @@ update-alternatives --remove %{name} %{_sbindir}/%{name}-inline+flexresp
 
 
 %changelog
+* Sat Dec 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.1.1
+- P4: drop as it no longer applies and we weren't using it
+- re-enable disabled patches (were disabled for debugging)
+
 * Sat Dec 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.1.1
 - 2.6.1.1
 - fix summaries and changelog
