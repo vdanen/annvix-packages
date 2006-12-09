@@ -21,6 +21,7 @@ Group:		System/Libraries
 URL: 		http://www.padl.com/
 Source0:	http://www.padl.com/download/%{name}-%{version}.tar.bz2
 Patch0:		pam_ldap-156-makefile.patch
+Patch1:		pam_ldap-180-CVE-2006-5170.patch
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildRequires:	openldap-devel >= 2.0.7-7.1mdk, pam-devel, automake1.4
@@ -36,6 +37,7 @@ policies, access authorization, crypted hashes, etc.
 %prep
 %setup -q
 %patch0 -p1 -b .makefile
+%patch1 -p1 -b .cve-2006-5170
 
 
 %build
@@ -76,6 +78,9 @@ rm -rf %{buildroot}%{_sysconfdir}/ldap.conf
 
 
 %changelog
+* Sat Dec 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 180
+- P1: security fix for CVE-2006-5170
+
 * Sat Feb 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 180
 - Requires: openldap-clients
 
