@@ -10,7 +10,7 @@
 %define	module		DBD-mysql
 %define	revision	$Rev$
 %define	name		perl-%{module}
-%define version 	3.0002
+%define version 	3.0006
 %define release 	%_revrel
 
 Summary:	MySQL Perl bindings
@@ -20,7 +20,7 @@ Release:	%{release}
 License:	GPL
 Group:		Development/Databases
 URL:		http://search.cpan.org/dist/%{module}
-Source:		http://www.cpan.org/modules/by-module/DBD/%{module}-%{version}.tar.bz2
+Source:		http://www.cpan.org/modules/by-module/DBD/%{module}-%{version}.tar.gz
 
 Buildroot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	mysql-devel
@@ -80,6 +80,10 @@ perl Makefile.PL INSTALLDIRS=vendor
 
 
 %changelog
+* Sat Dec 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0006
+- 3.0006
+- rebuild against new mysql
+
 * Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0002
 - rebuild against new mysql
 - spec cleanups
