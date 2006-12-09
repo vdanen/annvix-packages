@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name 		nss_ldap
-%define version 	250
+%define version 	253
 %define release 	%_revrel
 
 Summary:	NSS library for LDAP
@@ -19,7 +19,7 @@ Release: 	%{release}
 License:	LGPL
 Group:		System/Libraries
 URL: 		http://www.padl.com/
-Source0:	http://www.padl.com/download/%{name}-%{version}.tar.bz2
+Source0:	http://www.padl.com/download/%{name}-%{version}.tar.gz
 Patch0:		nss_ldap-makefile.patch
 Patch1:		nss_ldap-250-bind_policy_default_soft.patch
 
@@ -114,6 +114,10 @@ rm -rf %{buildroot}%{_libdir}/libnss_ldap.so.2
 
 
 %changelog
+* Sat Dec 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 253
+- 253
+- rebuild against new openldap
+
 * Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 250
 - rebuild against new openldap 
 - spec cleanups
