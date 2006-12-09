@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		snort
-%define version		2.4.4
+%define version		2.6.1.1
 %define release		%_revrel
 
 Summary:	An intrusion detection system
@@ -19,8 +19,8 @@ Release:	%{release}
 License:	GPL
 Group:		Networking/Other
 URL:		http://www.snort.org
-Source0:	http://www.snort.org/dl/%{name}-%{version}.tar.gz
-Source1:	http://www.snort.org/dl/%{name}-%{version}.tar.gz.sig
+Source0:	http://www.snort.org/dl/current/%{name}-%{version}.tar.gz
+Source1:	http://www.snort.org/dl/current/%{name}-%{version}.tar.gz.sig
 Source2:	snortd.run
 Source3:	snortd-log.run
 Source4:	snort.logrotate
@@ -29,12 +29,13 @@ Source6:	snortdb-extra
 # snort rules are now bundled separately; these "community" rules are under the GPL
 Source7:	http://www.snort.org/pub-bin/downloads.cgi/Download/comm_rules/Community-Rules-2.4.tar.gz
 
-Patch1:		snort-2.4.3-avx-lib64.patch
-Patch2:		snort-2.4.3-mdv-clamav.patch
+Patch1:		snort-2.6.0-mdv-lib64.patch
 # (oe): make -L work as stated in the man page.
 Patch3:		snort-2.3.0-no_timestamp.diff
 # (oe) disable some code to make it build
 Patch4:		snort-2.3.0-net-snmp_fix.diff
+Patch5:		snort-2.6.0-mdv-no_bundled_libtool.patch
+Patch6:		snort-2.6.1-mdv-plugins_fix.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5
@@ -49,8 +50,8 @@ BuildRequires:	pcre-devel
 BuildRequires:	net1.0-devel
 BuildRequires:	chrpath
 BuildRequires:	iptables-devel
-BuildRequires:	clamav-devel
 #BuildRequires:	net-snmp-devel
+#BuildRequires:	libdnet-devel >= 1.10
 
 Requires(pre):	rpm-helper
 Requires(preun): rpm-helper
@@ -96,7 +97,7 @@ Please see the documentation in %{_docdir}/%{name}-%{version}
 
 
 %package plain+flexresp
-Summary:	Snort with Flexible Response
+Summary:	Snort with Flexible Response support
 Group:		Networking/Other
 Requires:	snort = %{version}
 
@@ -105,7 +106,7 @@ Snort compiled with flexresp support.
 
 
 %package mysql
-Summary:	Snort with Flexible Response
+Summary:	Snort with MySQL database support
 Group:		Networking/Other
 Requires:	snort = %{version}
 
@@ -114,7 +115,7 @@ Snort compiled with mysql support.
 
 
 %package mysql+flexresp
-Summary:	Snort with Flexible Response
+Summary:	Snort with MySQL database and Flexible Response support
 Group:		Networking/Other
 Requires:	snort = %{version}
 
@@ -123,7 +124,7 @@ Snort compiled with mysql+flexresp support.
 
 
 %package postgresql
-Summary:	Snort with Flexible Response
+Summary:	Snort with PostgreSQL database support
 Group:		Networking/Other
 Requires:	snort = %{version}
 
@@ -132,7 +133,7 @@ Snort compiled with postgresql support.
 
 
 %package postgresql+flexresp
-Summary:	Snort with Flexible Response
+Summary:	Snort with PostgreSQL database and Flexible Response support
 Group:		Networking/Other
 Requires:	snort = %{version}
 
@@ -141,7 +142,7 @@ Snort compiled with postgresql+flexresp support.
 
 
 %package bloat
-Summary:	Snort with Flexible Response
+Summary:	Snort with Flexible Response, PostgreSQL, and MySQL database support
 Group:		Networking/Other
 Requires:	snort = %{version}
 
@@ -150,24 +151,20 @@ Snort compiled with flexresp+mysql+postgresql support.
 
 
 %package inline
-Summary:	Snort with Flexible Response
+Summary:	Snort with Inline support
 Group:		Networking/Other
 Requires:	snort = %{version}
 Requires:	iptables
-Requires:	clamav
-Requires:	clamav-db
 
 %description inline
 Snort compiled with inline support. 
 
 
 %package inline+flexresp
-Summary:	Snort with Flexible Response
+Summary:	Snort with Inline and Flexible Response support
 Group:		Networking/Other
 Requires:	snort = %{version}
 Requires:	iptables
-Requires:	clamav
-Requires:	clamav-db
 
 %description inline+flexresp
 Snort compiled with inline+flexresp support.
@@ -183,10 +180,11 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q -a 7
-%patch1 -p0 -b .lib64
-%patch2 -p1 -b .clamav
+#%patch1 -p0 -b .lib64
 %patch3 -p0 -b .no_timestamp
 #%patch4 -p0 -b .net-snmp_fix
+#%patch5 -p0 -b .no_bundled_libtool
+%patch6 -p1 -b .plugins_fix
 
 # fix some docs
 mv docs rule-docs
@@ -202,20 +200,30 @@ cp %{_sourcedir}/snortdb-extra .
 %build
 export WANT_AUTOCONF_2_5=1
 rm -f configure
-libtoolize --copy --force && aclocal-1.7 -I m4 && autoheader && automake-1.7 --add-missing && autoconf --force
-
+libtoolize --copy --force; aclocal-1.7 -I m4; automake-1.7 --foreign --add-missing --copy; autoconf
 
 # build snort
 rm -rf building && mkdir -p building && cd building
-export AM_CFLAGS="-g -O2"
 SNORT_BASE_CONFIG="--prefix=%{_prefix} \
+    --build=%{_build} \
+    --host=%{_host} \
+    --target=%{_target_platform} \
     --libdir=%{_libdir} \
+    --libexecdir=%{_libdir}/%{name} \
     --mandir=%{_mandir} \
     --sysconfdir=%{_sysconfdir}/%{name} \
-    --cache-file=../../config.cache "
+    --enable-shared \
+    --enable-pthread \
+    --enable-rulestate \
+    --enable-dynamicplugin \
+    --enable-timestats \
+    --enable-perfprofiling \
+    --enable-linux-smp-stats \
+    --cache-file=../../config.cache"
 
 # there are some strange configure errors
 # when not doing a distclean between major builds.
+
 # plain 
 {
 mkdir plain; cd plain
@@ -231,10 +239,8 @@ mkdir plain; cd plain
     --without-snmp \
     --disable-snmp \
     --without-inline \
-    --disable-inline \
-    --without-clamav \
-    --disable-clamav
-%make
+    --disable-inline
+make
 mv src/%{name} ../%{name}-plain
 #make distclean 
 cd ..
@@ -258,10 +264,8 @@ mkdir plain+flexresp; cd plain+flexresp
     --with-libnet-includes=%{_includedir} \
     --with-libnet-libraries=%{_libdir} \
     --without-inline \
-    --disable-inline \
-    --without-clamav \
-    --disable-clamav
-%make
+    --disable-inline
+make
 mv src/%{name} ../%{name}-plain+flexresp
 # make distclean 
 
@@ -285,10 +289,8 @@ mkdir mysql+flexresp; cd mysql+flexresp
     --with-libnet-includes=%{_includedir} \
     --with-libnet-libraries=%{_libdir} \
     --without-inline \
-    --disable-inline \
-    --without-clamav \
-    --disable-clamav
-%make
+    --disable-inline
+make
 mv src/%{name} ../%{name}-mysql+flexresp
 # make distclean 
 cd ..
@@ -308,10 +310,8 @@ mkdir mysql; cd mysql
     --without-snmp \
     --disable-snmp \
     --without-inline \
-    --disable-inline \
-    --without-clamav \
-    --disable-clamav
-%make
+    --disable-inline
+make
 mv src/%{name} ../%{name}-mysql
 # make distclean 
 cd ..
@@ -333,10 +333,8 @@ mkdir postgresql+flexresp; cd postgresql+flexresp
     --with-libnet-includes=%{_includedir} \
     --with-libnet-libraries=%{_libdir} \
     --without-inline \
-    --disable-inline \
-    --without-clamav \
-    --disable-clamav
-%make
+    --disable-inline
+make
 mv src/%{name} ../%{name}-postgresql+flexresp
 # make distclean 
 cd ..
@@ -356,12 +354,10 @@ mkdir postgresql; cd postgresql
     --without-snmp \
     --disable-snmp \
     --without-inline \
-    --disable-inline \
-    --without-clamav \
-    --disable-clamav
-%make
+    --disable-inline
+make
 mv src/%{name} ../%{name}-postgresql
-# make distclean 
+#make distclean
 cd ..
 }
 
@@ -383,13 +379,9 @@ mkdir bloat; cd bloat
     --with-libnet-libraries=%{_libdir} \
     --with-inline \
     --enable-inline \
-    --with-clamav \
-    --enable-clamav \
     --with-libipq-includes=%{_includedir} \
-    --with-libipq-libraries=%{_libdir} \
-    --with-clamav-includes=%{_includedir} \
-    --with-clamav-defdir=%{_localstatedir}/clamav
-%make
+    --with-libipq-libraries=%{_libdir}
+make
 mv src/%{name} ../%{name}-bloat
 # make distclean
 cd ..
@@ -411,13 +403,9 @@ mkdir inline; cd inline
     --disable-snmp \
     --with-inline \
     --enable-inline \
-    --with-clamav \
-    --enable-clamav \
     --with-libipq-includes=%{_includedir} \
-    --with-libipq-libraries=%{_libdir} \
-    --with-clamav-includes=%{_includedir} \
-    --with-clamav-defdir=%{_localstatedir}/clamav
-%make
+    --with-libipq-libraries=%{_libdir}
+make
 mv src/%{name} ../%{name}-inline
 # make distclean 
 cd ..
@@ -440,13 +428,9 @@ mkdir inline+flexresp; cd inline+flexresp
     --enable-flexresp \
     --with-inline \
     --enable-inline \
-    --with-clamav \
-    --enable-clamav \
     --with-libipq-includes=%{_includedir} \
-    --with-libipq-libraries=%{_libdir} \
-    --with-clamav-includes=%{_includedir} \
-    --with-clamav-defdir=%{_localstatedir}/clamav
-%make
+    --with-libipq-libraries=%{_libdir}
+make
 mv src/%{name} ../%{name}-inline+flexresp
 # make distclean 
 cd ..
@@ -463,6 +447,14 @@ install -d %{buildroot}/var/log/%{name}/empty
 install -d %{buildroot}/var/run/%{name}
 install -d %{buildroot}%{_sbindir}
 install -d %{buildroot}%{_mandir}/man8
+
+%makeinstall_std -C building/plain
+
+# cleanup                                                                                                                                                                          
+rm -f %{buildroot}%{_bindir}/%{name}                                                                                                                                               
+rm -rf %{buildroot}%{_prefix}/src                                                                                                                                                  
+rm -f %{buildroot}%{_libdir}/%{name}/dynamicengine/*.{a,la}                                                                                                                        
+rm -f %{buildroot}%{_libdir}/%{name}/dynamicpreprocessor/*.{a,la}
 
 {
 pushd building
@@ -485,6 +477,7 @@ perl -pi -e "s|var RULE_PATH ../rules|var RULE_PATH rules|" etc/%{name}.conf
 install -m 0644 etc/*.conf %{buildroot}/%{_sysconfdir}/%{name}/
 install -m 0644 etc/*.config %{buildroot}/%{_sysconfdir}/%{name}/
 install -m 0644 etc/*.map %{buildroot}/%{_sysconfdir}/%{name}/
+install -m 0644 etc/generators %{buildroot}/%{_sysconfdir}/%{name}/
 install -m 0644 rules/*.rules %{buildroot}%{_sysconfdir}/%{name}/rules/
 
 install -m 0644 %{_sourcedir}/snort.logrotate %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
@@ -502,9 +495,13 @@ mv doc/README.INLINE doc2/
 
 # strip rpath
 chrpath -d %{buildroot}%{_sbindir}/%{name}-*
+strip %{buildroot}%{_sbindir}/%{name}-*
 
 # where does this zero file come from? from outer space?
-rm -f doc/README.{SNMP.SNMP,clamav.clamav}
+rm -f doc/README.SNMP.SNMP
+
+# fix libexecdir                                                                                                                                                                   
+perl -pi -e "s|/usr/local/lib/snort_|%{_libdir}/%{name}|g" %{buildroot}%{_sysconfdir}/%{name}/snort.conf
 
 
 %clean
@@ -597,12 +594,22 @@ update-alternatives --remove %{name} %{_sbindir}/%{name}-inline+flexresp
 %attr(0755,snort,snort) %dir /var/run/%{name}
 %attr(0755,snort,snort) %dir %{_sysconfdir}/%{name}
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/%{name}/*.config
+%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/%{name}/generators
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/%{name}/threshold.conf
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/%{name}/*.map
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/%{name}/rules/*.rules
 %attr(0640,root,root) %config(noreplace) %{_sysconfdir}/%{name}/%{name}.conf
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
 %attr(0644,root,root) %config(noreplace) /etc/sysconfig/%{name}
+%attr(0755,root,root) %dir %{_libdir}/%{name}                                                                                                                                      
+%attr(0755,root,root) %dir %{_libdir}/%{name}/dynamicengine                                                                                                                        
+%attr(0755,root,root) %dir %{_libdir}/%{name}/dynamicpreprocessor                                                                                                                  
+%attr(0755,root,root) %{_libdir}/%{name}/dynamicengine/libsf_engine.so        
+%attr(0755,root,root) %{_libdir}/%{name}/dynamicpreprocessor/libsf_dcerpc_preproc.so                                                                                                     
+%attr(0755,root,root) %{_libdir}/%{name}/dynamicpreprocessor/libsf_dns_preproc.so
+%attr(0755,root,root) %{_libdir}/%{name}/dynamicpreprocessor/libsf_ftptelnet_preproc.so                                                                                            
+%attr(0755,root,root) %{_libdir}/%{name}/dynamicpreprocessor/libsf_smtp_preproc.so
+%attr(0755,root,root) %{_libdir}/%{name}/dynamicpreprocessor/libsf_ssh_preproc.so
 %dir %attr(0750,root,admin) %{_srvdir}/snortd
 %dir %attr(0750,root,admin) %{_srvdir}/snortd/log
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/snortd/run
@@ -651,19 +658,29 @@ update-alternatives --remove %{name} %{_sbindir}/%{name}-inline+flexresp
 
 
 %changelog
-* Sun Sep 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.4.4
+* Sat Dec 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.1.1
+- 2.6.1.1
+- fix summaries and changelog
+- don't build with clamav support, as a result drop P2
+- updated patches from Mandriva: 
+- P4: nuke bundled libtool and fix the dynamic plugin directory
+- disbable parallel build
+- refresh the community rules (2.4; dated 10/23/2006)
+- fix the build
+
+* Sun Sep 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.4
 - change runsvctrl calls to /sbin/sv calls
 
-* Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.4.4
+* Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.4
 - rebuild against new mysql
 - rebuild against new openssl
 - spec cleanups
 
-* Sat Jun 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.4.4
+* Sat Jun 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.4
 - change requires: s/libpcap0/libpcap/ so it will install on x86_64 properly
 
-* Thu Jun 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.4.4
-- 3.4.4
+* Thu Jun 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.4
+- 2.4.4
 - updated P2 from Mandriva
 - took updated P1 from Mandriva and dropped the SNMP-related bits
 - add -doc subpackage

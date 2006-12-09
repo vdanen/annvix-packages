@@ -1,6 +1,6 @@
---- configure.in.lib64	2006-02-22 15:37:08.000000000 -0700
-+++ configure.in	2006-06-15 23:56:41.000000000 -0600
-@@ -128,6 +128,31 @@
+--- configure.in	2006-05-31 16:53:40.000000000 +0200
++++ configure.in.oden	2006-07-23 13:11:49.000000000 +0200
+@@ -129,6 +129,31 @@
      extra_incl=-I/sw/include
  esac
  
@@ -32,7 +32,7 @@
  # any sparc platform has to have this one defined.
  AC_MSG_CHECKING(for sparc alignment)
  if eval "echo $host_cpu|grep -i sparc >/dev/null"; then
-@@ -408,7 +433,7 @@
+@@ -429,7 +454,7 @@
      fi
    else
  
@@ -41,7 +41,7 @@
        str="$MYSQL_DIR/$i/libmysqlclient.*"
        for j in `echo $str`; do
          if test -r $j; then
-@@ -421,7 +446,7 @@
+@@ -442,7 +467,7 @@
      if test -z "$MYSQL_LIB_DIR"; then
        if test "$mysql_fail" != "no"; then
          FAIL_MESSAGE("mysqlclient library", 
@@ -50,7 +50,7 @@
        else
          AC_MSG_RESULT(no)
        fi
-@@ -475,19 +500,19 @@
+@@ -496,19 +521,19 @@
      fi
    else
  
@@ -74,7 +74,7 @@
  dnl          ODBC_LIB="iodbc"
  dnl        fi
  dnl      done
-@@ -495,7 +520,7 @@
+@@ -516,7 +541,7 @@
  
      if test -z "$ODBC_LIB_DIR"; then
        if test "$odbc_fail" != "no"; then
@@ -83,7 +83,7 @@
        else
          AC_MSG_RESULT(no)
        fi
-@@ -578,7 +603,7 @@
+@@ -599,7 +624,7 @@
  
    if test -z "$POSTGRESQL_DIR"; then
      for dir in $postgresql_directory; do
@@ -92,7 +92,7 @@
           str="$dir/$i/libpq.*"
           for j in `echo $str`; do
             if test -r $j; then
-@@ -595,7 +620,8 @@
+@@ -616,7 +641,8 @@
    if test -z "$POSTGRESQL_LIB_DIR"; then
       if test "$postgresql_fail" != "no"; then
         FAIL_MESSAGE("postgresql library libpq",
@@ -102,7 +102,7 @@
       else
         AC_MSG_RESULT(no);
       fi
-@@ -647,7 +673,7 @@
+@@ -676,7 +702,7 @@
      for i in rdbms/demo rdbms/public network/public; do
        ORACLE_CPP_FLAGS="$ORACLE_CPP_FLAGS -I$ORACLE_DIR/$i"
      done
@@ -111,8 +111,8 @@
      AC_MSG_RESULT(yes)
  
      LDFLAGS="${LDFLAGS} -L${ORACLE_LIB_DIR}"
-@@ -775,7 +801,7 @@
- if test "$enable_flexresp" != "no" -a "$enable_flexresp" = "yes"; then
+@@ -949,7 +975,7 @@
+   fi
  
    if test `libnet-config --cflags | wc -c` = "1"; then
 -    CPPFLAGS="${CPPFLAGS} -I/usr/local/include -I/sw/include"
@@ -120,9 +120,9 @@
      LIBNET_CONFIG_BROKEN_CFLAGS=yes
    fi
  
-@@ -783,7 +809,7 @@
+@@ -957,7 +983,7 @@
      AC_MSG_WARN(libnet-config --libs is broken on your system.  If you)
-     AC_MSG_WARN(are using a precompiled package please notify the) 
+     AC_MSG_WARN(are using a precompiled package please notify the)
      AC_MSG_WARN(maintainer.)
 -    LDFLAGS="${LDFLAGS} -L/usr/local/lib -L/sw/lib"
 +    LDFLAGS="${LDFLAGS}"
