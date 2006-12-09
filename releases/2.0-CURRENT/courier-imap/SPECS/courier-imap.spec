@@ -669,6 +669,9 @@ test ! -f %{courierdatadir}/configlist.mysql || %{courierdatadir}/sysconftool-rp
 
 
 %changelog
+* Sat Dec 093 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.8
+- rebuild against new openldap, mysql, postgresql
+
 * Sun Aug 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.8
 - rebuild against new mysql
 - rebuild against new openssl
