@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		openldap
-%define version		2.3.24
+%define version		2.3.30
 %define release		%_revrel
 
 %define major 		2.3_0
@@ -17,7 +17,7 @@
 %define fname		ldap
 %define libname		%mklibname %{fname} %{major}
 
-%global db4_internal	1
+%global db4_internal	0
 %define dbver		4.2.52
 %define dbname		%(a=%dbver;echo ${a%.*})
 
@@ -46,7 +46,7 @@ License: 	Artistic
 Group: 		System/Servers
 URL: 		http://www.openldap.org
 # Openldap source
-Source0: 	ftp://ftp.openldap.org/pub/OpenLDAP/openldap-release/%{name}-%{version}.tar.bz2
+Source0: 	ftp://ftp.openldap.org/pub/OpenLDAP/openldap-release/%{name}-%{version}.tgz
 # Specific source (S1-S19)
 Source1: 	openldap.sysconfig
 Source2:	DB_CONFIG
@@ -124,7 +124,6 @@ Patch53:	openldap-2.2.19-ntlm.patch
 Patch54:	MigrationTools-40-preserveldif.patch
 
 #patches in CVS
-Patch101:	openldap-its4576.patch
 
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
@@ -289,7 +288,7 @@ pushd db-%{dbver} >/dev/null
 %endif
 popd >/dev/null
 %else
-%setup -q -a 11
+%setup -q -a 20
 %endif
 
 # Chris patches
@@ -315,7 +314,6 @@ popd
 %patch53 -p1 -b .ntlm
 
 # patches from CVS
-%patch101 -b .its4576
 
 # test 036, 041 seems broken (036 is an experimental test)
 rm -f tests/scripts/test036*
@@ -886,6 +884,11 @@ fi
 
 
 %changelog
+* Fri Dec 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.30
+- 2.3.30
+- don't use the internal db4 anymore
+- P101 dropped; fixed upstream
+
 * Mon Sep 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.24
 - don't package /usr/bin/slapd_db* twice (doesn't belong in openldap-clients)
 
