@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		postgresql
-%define version		8.1.5
+%define version		8.2.0
 %define release		%_revrel
 
 %define _requires_exceptions devel(libtcl8.4)\\|devel(libtcl8.4(64bit))
@@ -19,13 +19,12 @@
 %define perl_epoch	%(rpm -q --qf "%{EPOCH}" perl)
 
 %define pgdata		/var/lib/pgsql
-%define logrotatedir	%{_sysconfdir}/logrotate.d
 
-%define major		4
+%define major		5
 %define major_ecpg	5
 %define jdbc		312
 
-%define current_major_version 8.1
+%define current_major_version 8.2
 
 %define libname		%mklibname pq %{major}
 %define libecpg		%mklibname ecpg %{major_ecpg}
@@ -39,16 +38,18 @@ Group:		Databases
 URL:		http://www.postgresql.org/ 
 
 Source0:	ftp://ftp.postgresql.org/pub/source/v%{version}/postgresql-%{version}.tar.bz2
-Source5:	ftp://ftp.postgresql.org/pub/source/v%{version}/postgresql-%{version}.tar.bz2.md5
-Source8:	logrotate.postgresql
-Source10:	postgresql-mdk_update.tar.bz2
-Source14:	mdk-pgdump.sh
-Source20:	postgresql.run
-Source21:	postgresql-log.run
-Source22:	postgresql.sysconfig
-Source23:	01_postgresql.afterboot
-Source24:	postgresql.finish
-Source53:	CAN-2005-1409-1410-update-dbs.sh
+Source1:	ftp://ftp.postgresql.org/pub/source/v%{version}/postgresql-%{version}.tar.bz2.md5
+Source2:	postgresql-mdk_update.tar.bz2
+Source3:	mdk-pgdump.sh
+Source4:	postgresql.run
+Source5:	postgresql-log.run
+Source6:	01_postgresql.afterboot
+Source7:	postgresql.finish
+Source8:	CAN-2005-1409-1410-update-dbs.sh
+Source9:	PGPORT.env
+Source10:	PGDATA.env
+Source11:	USETCP.env
+Source12:	USESSL.env
 Patch0:		postgresql-7.4.1-mdk-pkglibdir.patch
 Patch1:		postgresql-7.4.5-CAN-2005-0227.patch
 
@@ -230,7 +231,7 @@ This package contains the documentation for %{name}.
 
 
 %prep
-%setup -q -a 10
+%setup -q -a 2
 %patch0 -p0 -b .pkglibdir
 %patch1 -p1 -b .can-2005-0227
 
@@ -326,13 +327,15 @@ install -m 0755 mdk/mdk_update_restore.sh %{buildroot}%{_datadir}/pgsql/avx/avx_
 
 mv %{buildroot}%{_docdir}/%{name}/html %{buildroot}%{_docdir}/%{name}-docs-%{version}
 
-mkdir -p %{buildroot}%{_srvdir}/postgresql/log
+mkdir -p %{buildroot}%{_srvdir}/postgresql/{log,env}
 install -m 0740 %{_sourcedir}/postgresql.run %{buildroot}%{_srvdir}/postgresql/run
 install -m 0740 %{_sourcedir}/postgresql-log.run %{buildroot}%{_srvdir}/postgresql/log/run
 install -m 0740 %{_sourcedir}/postgresql.finish %{buildroot}%{_srvdir}/postgresql/finish
 
-mkdir -p %{buildroot}%{_sysconfdir}/sysconfig
-install -m 0644 %{_sourcedir}/postgresql.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/postgresql
+install -m 0640 %{_sourcedir}/PGPORT.env %{buildroot}%{_srvdir}/postgresql/env/PGPORT
+install -m 0640 %{_sourcedir}/PGDATA.env %{buildroot}%{_srvdir}/postgresql/env/PGDATA
+install -m 0640 %{_sourcedir}/USETCP.env %{buildroot}%{_srvdir}/postgresql/env/USETCP
+install -m 0640 %{_sourcedir}/USESSL.env %{buildroot}%{_srvdir}/postgresql/env/USESSL
 
 mkdir -p %{buildroot}%{_datadir}/afterboot
 install -m 0644 %{_sourcedir}/01_postgresql.afterboot %{buildroot}%{_datadir}/afterboot/01_postgresql
@@ -373,7 +376,14 @@ PGDATA=%{pgdata}
 
 # Setting up minimal envirronement
 [ -f /etc/sysconfig/i18n ] && . /etc/sysconfig/i18n
-[ -f /etc/sysconfig/postgresql ] && . /etc/sysconfig/postgresql
+PGPORT=5432
+PGDATA="/var/lib/pgsql/data"
+USETCP="0"
+USESSL="0"
+[[ -f ./env/PGPORT ]] && PGPORT="$(head -1 ./env/PGPORT)"
+[[ -f ./env/PGDATA ]] && PGDATA="$(head -1 ./env/PGDATA)"
+[[ -f ./env/USETCP ]] && USETCP="$(head -1 ./env/USETCP)"
+[[ -f ./env/USESSL ]] && USESSL="$(head -1 ./env/USESSL)"
 
 export LANG LC_ALL LC_CTYPE LC_COLLATE LC_NUMERIC LC_CTYPE LC_TIME
 export PGDATA
@@ -477,7 +487,7 @@ fi
 
 %files -n %{libname} 
 %defattr(-,root,root)
-%{_libdir}/libpq.so.*
+%{_libdir}/libpq.so.%{major}*
 
 %files -n %{libname}-devel
 %defattr(-,root,root)
@@ -485,7 +495,7 @@ fi
 
 %files -n %{libecpg}
 %defattr(-,root,root)
-%{_libdir}/libecpg.so.*
+%{_libdir}/libecpg.so.%{major_ecpg}*
 %{_libdir}/libecpg_compat.so.*
 %{_libdir}/libpgtypes.so.*
 
@@ -501,15 +511,12 @@ fi
 %{_libdir}/pgsql/cube.so
 %{_libdir}/pgsql/dblink.so
 %{_libdir}/pgsql/earthdistance.so
-%{_libdir}/pgsql/fti.so
 %{_libdir}/pgsql/fuzzystrmatch.so
 %{_libdir}/pgsql/insert_username.so
 %{_libdir}/pgsql/int_aggregate.so
-%{_libdir}/pgsql/isbn_issn.so
 %{_libdir}/pgsql/lo.so
 %{_libdir}/pgsql/ltree.so
 %{_libdir}/pgsql/moddatetime.so
-%{_libdir}/pgsql/pending.so
 %{_libdir}/pgsql/pgcrypto.so
 %{_libdir}/pgsql/pgstattuple.so
 %{_libdir}/pgsql/refint.so
@@ -517,18 +524,19 @@ fi
 %{_libdir}/pgsql/tablefunc.so
 %{_libdir}/pgsql/timetravel.so
 %{_libdir}/pgsql/tsearch2.so
-%{_libdir}/pgsql/user_locks.so
 %{_libdir}/pgsql/pg_trgm.so
 %{_libdir}/pgsql/autoinc.so
 %{_libdir}/pgsql/pg_buffercache.so
+%{_libdir}/pgsql/adminpack.so
+%{_libdir}/pgsql/hstore.so
+%{_libdir}/pgsql/isn.so
+%{_libdir}/pgsql/pg_freespacemap.so
+%{_libdir}/pgsql/pgrowlocks.so
+%{_libdir}/pgsql/sslinfo.so
 %{_datadir}/pgsql/contrib/
-%{_bindir}/dbf2pg
-%{_bindir}/fti.pl
 %{_bindir}/oid2name
 %{_bindir}/pgbench
 %{_bindir}/vacuumlo
-%{_bindir}/DBMirror.pl
-%{_bindir}/clean_pending.pl
 
 %files server -f server.lst
 %defattr(-,root,root)
@@ -562,12 +570,30 @@ fi
 %{_datadir}/pgsql/conversion_create.sql
 %{_datadir}/pgsql/information_schema.sql
 %{_datadir}/pgsql/sql_features.txt
+%{_datadir}/pgsql/postgres.shdescription
+%dir %{_datadir}/pgsql/timezonesets
+%{_datadir}/pgsql/timezonesets/Africa.txt
+%{_datadir}/pgsql/timezonesets/America.txt
+%{_datadir}/pgsql/timezonesets/Antarctica.txt
+%{_datadir}/pgsql/timezonesets/Asia.txt
+%{_datadir}/pgsql/timezonesets/Atlantic.txt
+%{_datadir}/pgsql/timezonesets/Australia
+%{_datadir}/pgsql/timezonesets/Australia.txt
+%{_datadir}/pgsql/timezonesets/Default
+%{_datadir}/pgsql/timezonesets/Etc.txt
+%{_datadir}/pgsql/timezonesets/Europe.txt
+%{_datadir}/pgsql/timezonesets/India
+%{_datadir}/pgsql/timezonesets/Indian.txt
+%{_datadir}/pgsql/timezonesets/Pacific.txt
 %dir %attr(0750,root,admin) %{_srvdir}/postgresql
 %dir %attr(0750,root,admin) %{_srvdir}/postgresql/log
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/postgresql/run
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/postgresql/finish
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/postgresql/log/run
-%config(noreplace) %{_sysconfdir}/sysconfig/postgresql
+%config(noreplace) %attr(0740,root,admin)%{_srvdir}/postgresql/env/PGDATA
+%config(noreplace) %attr(0740,root,admin)%{_srvdir}/postgresql/env/PGPORT
+%config(noreplace) %attr(0740,root,admin)%{_srvdir}/postgresql/env/USETCP
+%config(noreplace) %attr(0740,root,admin)%{_srvdir}/postgresql/env/USESSL
 %{_datadir}/afterboot/01_postgresql
 
 %files devel
@@ -600,6 +626,12 @@ fi
 
 
 %changelog
+* Fri Dec 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.2.0
+- 8.2.0
+- drop S8; we don't install it or use logrotate here
+- make the run script use an envdir, not sysconfig
+- renumber source files
+
 * Sat Dec 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.1.5
 - rebuild against new ncurses
 
