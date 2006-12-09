@@ -87,6 +87,9 @@ cat %{_sourcedir}/%{mod_conf} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod
 
 
 %changelog
+* Sat Dec 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3_2.0.3
+- rebuild against new postgresql
+
 * Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3_2.0.3
 - rebuild against new openssl
 - spec cleanups
