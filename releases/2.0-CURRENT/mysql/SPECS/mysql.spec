@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		mysql
-%define version		5.0.26
+%define version		5.0.27
 %define release		%_revrel
 
 %define major		15
@@ -598,6 +598,9 @@ fi
 
 
 %changelog
+* Fri Dec 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.0.27
+- 5.0.27
+
 * Sat Oct 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.0.26
 - 5.0.26
 - don't assume the ./env/* files exist in the runscript
