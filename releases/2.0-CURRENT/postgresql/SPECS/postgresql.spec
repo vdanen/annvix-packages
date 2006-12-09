@@ -113,6 +113,7 @@ Requires:	%{libname} = %{version}-%{release}
 Provides:	postgresql-libs-devel = %{version}-%{release}
 Provides:	libpq-devel = %{version}-%{release}
 Conflicts:	%{_lib}pg3-devel = 8.0.1
+Conflicts:	%mklibname pq 4
 
 %description -n %{libname}-devel
 Development libraries for libpq
@@ -626,6 +627,10 @@ fi
 
 
 %changelog
+* Sat Dec 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.2.0
+- make libpq4-devel a conflicts for libpq5-devel since they shouldn't
+  exist together
+
 * Fri Dec 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.2.0
 - 8.2.0
 - drop S8; we don't install it or use logrotate here
