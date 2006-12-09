@@ -179,6 +179,7 @@ sslarch="linux-generic64 -DB_ENDIAN -DNO_ASM"
     --enginesdir=%{_libdir}/openssl/engines \
     no-idea \
     no-rc5 \
+    enable-camellia \
     shared \
     ${sslarch}
 
@@ -367,6 +368,9 @@ echo "%{_sysconfdir}/pki/tls"
 
 
 %changelog
+* Sat Dec 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.9.8d
+- enable the camellia cypher
+
 * Mon Oct 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.9.8d
 - revert the last change; perl is used by too many integral things to
   even attempt to get rid of it in the base install
