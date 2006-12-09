@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name 		pam_ldap
-%define version 	180
+%define version 	183
 %define release 	%_revrel
 
 Summary:	PAM module for LDAP
@@ -19,11 +19,8 @@ Release: 	%{release}
 License:	LGPL
 Group:		System/Libraries
 URL: 		http://www.padl.com/
-Source0:	http://www.padl.com/download/%{name}-%{version}.tar.bz2
+Source0:	http://www.padl.com/download/%{name}-%{version}.tar.gz
 Patch0:		pam_ldap-156-makefile.patch
-Patch1:		pam_ldap-180-getlderrno.patch
-Patch2:		pam_ldap-180-bug254.patch
-Patch3:		pam_ldap-180-bug268.patch
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildRequires:	openldap-devel >= 2.0.7-7.1mdk
@@ -50,9 +47,6 @@ This package contains the documentation for %{name}.
 %prep
 %setup -q
 %patch0 -p1 -b .makefile
-%patch1 -p1 -b .getlderrno
-%patch2 -p1 -b .bug254
-%patch3 -p1 -b .bug268
 
 
 %build
@@ -96,6 +90,10 @@ rm -rf %{buildroot}%{_sysconfdir}/ldap.conf
 
 
 %changelog
+* Sat Dec 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 183
+- 183 (includes security fix for CVE-2006-5170)
+- drop P1, P2, P3: fixed upstream
+
 * Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 180
 - rebuild against new openldap 
 - spec cleanups
