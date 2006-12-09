@@ -88,6 +88,9 @@ perl Makefile.PL INSTALLDIRS=vendor </dev/null
 
 
 %changelog
+* Sat Dec 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1.1
+- rebuild against new postgresql
+
 * Tue Jun 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1.1
 - rebuild against new postgresql
 
@@ -133,21 +136,5 @@ perl Makefile.PL INSTALLDIRS=vendor </dev/null
 * Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 2.0.2-5sls
 - OpenSLS build
 - tidy spec
-
-* Thu Sep 04 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.2-4mdk
-- fix buildrequires
-
-* Thu Aug 14 2003 Per Øyvind Karlsen <peroyvind@linux-mandrake.com> 2.0.2-3mdk
-- rebuild for new perl
-- drop redundant requires
-- drop PREFIX tag
-- use %%makeinstall_std macro
-- use %%make macro
-
-* Mon Jul 21 2003 David Baudens <baudens@mandrakesoft.com> 2.0.2-2mdk
-- Rebuild to fix bad signature
-
-* Thu Jun 26 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.2-1mdk
-- initial cooker contrib.
 
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8
