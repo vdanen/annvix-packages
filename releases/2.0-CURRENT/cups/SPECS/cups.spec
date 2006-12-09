@@ -260,6 +260,9 @@ chgrp -R sys /etc/cups /var/*/cups
 
 
 %changelog
+* Sat Dec 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.2
+- rebuild against new openldap 
+
 * Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.2
 - rebuild against new mysql
 - rebuild against new openssl
