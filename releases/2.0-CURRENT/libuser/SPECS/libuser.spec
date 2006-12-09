@@ -173,6 +173,9 @@ rm -rf %{buildroot}%{_libdir}/python%{pyver}/site-packages/*a
 
 
 %changelog
+* Sat Dec 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.54.5
+- rebuild against new openldap
+
 * Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.54.5
 - remove locales
 
