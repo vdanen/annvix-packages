@@ -1382,6 +1382,9 @@ fi
 
 
 %changelog
+* Sat Dec 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3
+- rebuild against new openldap
+
 * Sat Dec 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3
 - fix obsoletes/provides on mod_disk_cache
 
