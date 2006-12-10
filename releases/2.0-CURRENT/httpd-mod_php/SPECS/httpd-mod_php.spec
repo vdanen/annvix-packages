@@ -14,7 +14,7 @@
 
 # Module-Specific definitions
 %define apache_version	2.2.3
-%define phpversion	5.1.6
+%define phpversion	5.2.0
 %define mod_name	mod_php
 %define mod_conf	70_%{mod_name}.conf
 %define mod_so		%{mod_name}5.so
@@ -48,8 +48,10 @@ Requires:       php-sysvshm >= %{phpversion}
 Requires:       php-tokenizer >= %{phpversion}
 Requires:       php-simplexml >= %{phpversion}
 Requires:       php-hash >= %{phpversion}
-Requires:       php-suhosin
+Requires:       php-suhosin >= 0.9.10
 Requires:	%{plibname} >= %{phpversion}
+Requires:	php-filter >= 0.11.0
+Requires:	php-json >= 1.2.1
 Provides:	php
 Provides:	php4
 Provides:	php5
@@ -72,18 +74,9 @@ scripts.  The %{name} module enables the Apache web server to
 understand and process the embedded PHP language in web pages.
 
 
-%package doc
-Summary:	Documentation for %{name}
-Group:		Documentation
-
-%description doc
-This package contains the documentation for %{name}.
-
-
 %prep
 %setup -q -c -T
 cp -dpR %{phpsource}/sapi/%{extname}/* .
-cp %{phpsource}/PHP_FAQ.php .
 cp %{phpsource}/internal_functions.c .
 cp %{_includedir}/php/ext/date/lib/timelib_config.h .
 
@@ -124,12 +117,13 @@ cat %{_sourcedir}/%{mod_conf} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/modules.d/%{mod_conf}
 %attr(0755,root,root) %{_libdir}/httpd-extramodules/%{mod_so}
 
-%files doc
-%defattr(-,root,root)
-%doc PHP_FAQ.php 
-
 
 %changelog
+* Sun Dec 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3_5.2.0 
+- php 5.2.0
+- fix requires
+- drop the doc package
+
 * Fri Oct 20 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3_5.1.6
 - php 5.1.6
 - requires php-suhosin
