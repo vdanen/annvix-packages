@@ -12,7 +12,7 @@
 %define version		%{phpversion}
 %define release		%_revrel
 
-%define phpversion	5.1.6
+%define phpversion	5.2.0
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir		%{_libdir}/php
 
@@ -78,6 +78,9 @@ install -m 0644 %{SOURCE0} %{buildroot}%{_sysconfdir}/php.d/%{inifile}
 
 
 %changelog
+* Sun Dec 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.2.0 
+- php 5.2.0
+
 * Sat Oct 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.6
 - php 5.1.6+suhosin
 
