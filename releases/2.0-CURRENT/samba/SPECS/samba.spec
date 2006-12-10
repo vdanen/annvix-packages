@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		samba
-%define version		3.0.23a
+%define version		3.0.23d
 %define release		%_revrel
 
 %define smbldapver	0.9.2
@@ -42,6 +42,16 @@ Source11:       winbindd.run
 Source12:       winbindd-log.run
 Source13:       smb-migrate
 Source14:       README.avx.sambamerge
+Source15:	smbusers
+Source16:	smbprint
+Source17:	findsmb
+Source18:	smb.init
+Source19:	winbind.init
+Source20:	wrepld.init
+Source21:	samba.pamd
+Source22:	system-auth-winbind.pamd
+Source23:	smb.conf
+Source24:	smb.conf_full
 Patch1:         smbw.patch
 Patch2:         smbldap-tools-0.9.1-mdkconfig.patch
 Patch4:         samba-3.0-smbmount-sbin.patch
@@ -49,9 +59,7 @@ Patch6:         samba-3.0.6-mdk-smbmount-unixext.patch
 Patch7:         samba-3.0.23-mdv-revert-libsmbclient-move.patch
 Patch8:         samba-3.0.20-avx-annvix-config.patch
 Patch11:	samba-3.0-mandriva-packaging.patch
-Patch12:	http://www.samba.org/samba/patches/quota.patch
 Patch13:	http://samba.org/~metze/samba3-default-quota-ignore-error-01.diff
-Patch14:	samba-3.0.22-avx-pam.patch
 
 BuildRoot:      %{_buildroot}/%{name}-%{version}
 BuildRequires:  pam-devel
@@ -255,11 +263,9 @@ popd
 %patch7 -p1 -b .libsmbdir
 %patch11 -p1 -b .mdk
 %patch8 -p1 -b .avx
-%patch12 -p1
 pushd source
 %patch13
 popd
-%patch14 -p1 -b .avx_pam
 # patches from cvs/samba team
 
 # Make a copy of examples so that we have a clean one for doc:
@@ -285,9 +291,6 @@ find docs examples -name '.cvsignore' -exec rm -f {} \;
 %build
 pushd source
     CFLAGS="`echo "%{optflags}"|sed -e 's/-g//g'` -DLDAP_DEPRECATED"
-
-    ## fix optimization with gcc 3.3.1 (can remove when we move to 3.4)
-    #CFLAGS=`echo "$CFLAGS"|sed -e 's/-O2/-Os/g'`
 
     ./autogen.sh
     # Don't use --with-fhs now, since it overrides libdir, it sets configdir, 
@@ -376,6 +379,10 @@ mkdir -p %{buildroot}%{_libdir}/%{name}/vfs
 mkdir -p %{buildroot}%{_datadir}/%{name}/scripts
 
 install -m 0755 source/bin/lib*.a %{buildroot}%{_libdir}/
+pushd $RPM_BUILD_ROOT/%{_libdir}                                                                                                                                                   
+    [ -f libsmbclient.so ] && mv -f libsmbclient.so libsmbclient.so.%{lib_major}                                                                                                     
+    ln -sf libsmbclient.so.%{lib_major} libsmbclient.so                                                                                                                              
+popd
 
 # smbsh forgotten
 #install -m 0755 source/bin/smbsh %{buildroot}%{_bindir}/
@@ -392,24 +399,23 @@ done
 ( cd %{buildroot}/%{_lib}; ln -s libnss_wins.so libnss_wins.so.2; ln -s libnss_winbind.so libnss_winbind.so.2)
 
 # Install other stuff
-
-install -m 0644 packaging/Mandrake/smbusers %{buildroot}%{_sysconfdir}/%{name}/smbusers
-install -m 0755 packaging/Mandrake/smbprint %{buildroot}%{_bindir}
-install -m 0755 packaging/Mandrake/findsmb %{buildroot}%{_bindir}
-install -m 0755 packaging/Mandrake/smb.init %{buildroot}%{_sbindir}/%{name}
-install -m 0755 packaging/Mandrake/winbind.init %{buildroot}%{_sbindir}/winbind
-install -m 0644 packaging/Mandrake/samba.pamd %{buildroot}%{_sysconfdir}/pam.d/%{name}
-install -m 0644 packaging/Mandrake/system-auth-winbind.pamd %{buildroot}%{_sysconfdir}/pam.d/system-auth-winbind
+install -m 0644 %{_sourcedir}/smbusers %{buildroot}%{_sysconfdir}/%{name}/smbusers
+install -m 0755 %{_sourcedir}/smbprint %{buildroot}%{_bindir}
+install -m 0755 %{_sourcedir}/findsmb %{buildroot}%{_bindir}
+install -m 0755 %{_sourcedir}/smb.init %{buildroot}%{_sbindir}/%{name}
+install -m 0755 %{_sourcedir}/winbind.init %{buildroot}%{_sbindir}/winbind
+install -m 0644 %{_sourcedir}/samba.pamd %{buildroot}%{_sysconfdir}/pam.d/%{name}
+install -m 0644 %{_sourcedir}/system-auth-winbind.pamd %{buildroot}%{_sysconfdir}/pam.d/system-auth-winbind
 install -m 0644 %{_sourcedir}/samba.log %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
 
-# make a conf file for winbind from the default one:
-cat packaging/Mandrake/smb.conf|sed -e  's/^;  winbind/  winbind/g;s/^;  obey pam/  obey pam/g;s/   printer admin = @adm/#  printer admin = @adm/g; s/^#   printer admin = @"D/   printer admin = @"D/g;s/^;   password server = \*/   password server = \*/g;s/^;  template/  template/g; s/^   security = user/   security = domain/g' > packaging/Mandrake/smb-winbind.conf
-install -m 0644 packaging/Mandrake/smb-winbind.conf %{buildroot}%{_sysconfdir}/%{name}/smb-winbind.conf
+# install pam_winbind.conf sample file
+mkdir -p %{buildroot}%{_sysconfdir}/security
+install -m 0644 examples/pam_winbind/pam_winbind.conf %{buildroot}%{_sysconfdir}/security/pam_winbind.conf
 
-# Some inline fixes for smb.conf for non-winbind use
-install -m 0644 packaging/Mandrake/smb.conf %{buildroot}%{_sysconfdir}/%{name}/smb.conf
-cat packaging/Mandrake/smb.conf | \
-    sed -e 's/^;   printer admin = @adm/   printer admin = @adm/g' >%{buildroot}%{_sysconfdir}/%{name}/smb.conf
+# make a conf file for winbind from the default one:
+cat %{_sourcedir}/smb.conf_full|sed -e  's/^;  winbind/  winbind/g;s/^;  obey pam/  obey pam/g;s/   printer admin = @adm/#  printer admin = @adm/g; s/^#   printer admin = @"D/   printer admin = @"D/g;s/^;   password server = \*/   password server = \*/g;s/^;  template/  template/g; s/^   security = user/   security = domain/g' > smb-winbind.conf
+install -m 0644 smb-winbind.conf %{buildroot}%{_sysconfdir}/%{name}/smb-winbind.conf
+install -m 0644 %{_sourcedir}/smb.conf_full %{buildroot}%{_sysconfdir}/%{name}/smb.conf_full
 
 # install mount.cifs
 for i in mount.cifs umount.cifs
@@ -454,8 +460,7 @@ install -m 0740 %{_sourcedir}/nmbd-log.run %{buildroot}%{_srvdir}/nmbd/log/run
 install -m 0740 %{_sourcedir}/winbindd.run %{buildroot}%{_srvdir}/winbindd/run
 install -m 0740 %{_sourcedir}/winbindd-log.run %{buildroot}%{_srvdir}/winbindd/log/run
 
-mv %{buildroot}%{_sysconfdir}/samba/smb.conf %{buildroot}%{_sysconfdir}/samba/smb.conf_full
-install -m 0640 packaging/Mandrake/smb.conf.secure %{buildroot}%{_sysconfdir}/samba/smb.conf
+install -m 0640 %{_sourcedir}/smb.conf %{buildroot}%{_sysconfdir}/samba/smb.conf
 
 # Clean up unpackaged files:
 #for i in %{_bindir}/pam_smbpass.so %{_bindir}/smbwrapper.so %{_mandir}/man1/editreg*;do
@@ -787,6 +792,7 @@ popd >/dev/null 2>&1
 %dir %attr(0750,root,admin) %{_srvdir}/winbindd/log
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/winbindd/run
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/winbindd/log/run
+%config(noreplace) %{_sysconfdir}/security/pam_winbind.conf
 
 %files -n nss_wins
 %defattr(-,root,root)
@@ -821,6 +827,14 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Sat Dec 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.23d
+- 3.0.23d
+- samba installs the lib as .so and .so.0 as the symlink when we want it the
+  other way around
+- split out the files in the packaging patch as their own source files
+- drop P12; no longer relevant (old quota patch)
+- drop P14; no longer required
+
 * Sun Aug 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.23a
 - rebuild against new openldap 
 - spec cleanups
