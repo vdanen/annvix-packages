@@ -12,7 +12,7 @@
 %define version		%{phpversion}
 %define release		%_revrel
 
-%define phpversion	5.1.6
+%define phpversion	5.2.0
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir		%{_libdir}/php
 
@@ -84,6 +84,9 @@ EOF
 
 
 %changelog
+* Sun Dec 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.2.0 
+- php 5.2.0
+
 * Sat Oct 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.6
 - php 5.1.6+suhosin
 
@@ -164,63 +167,5 @@ EOF
 * Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 4.3.4-2sls
 - OpenSLS build
 - tidy spec
-
-* Wed Nov 05 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 4.3.4-1mdk
-- built for php 4.3.4
-
-* Mon Oct 13 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 4.3.3-1mdk
-- 4.3.3
-
-* Mon Sep 08 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 4.3.2-3mdk
-- built for 4.3.3
-- fix explicit-lib-dependency
-- misc spec file fixes
-
-* Mon Jul 21 2003 David Baudens <baudens@mandrakesoft.com> 4.3.2-2mdk
-- Rebuild to fix bad signature
-
-* Tue Jun 03 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 4.3.2-1mdk
-- built for 4.3.2
-
-* Mon May 05 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 4.3.1-1mdk
-- the obvious rebuild
-
-* Thu Feb 13 2003 Jean-Michel Dault <jmdault@mandrakesoft.com> 4.3.0-2mdk
-- rebuild
-
-* Sun Jan  5 2003 Jean-Michel Dault <jmdault@mandrakesoft.com> 4.3.0-1mdk
-- New 4.3.0 release
-- Totally macroize based on suggestions from Alexander Skwar
-- New method of installing extensions thanks to Oden Eriksson
-- Add Provides: ADVXpackage, all ADVX package will have this tag, 
-  so we can easily do a rpm --whatprovides ADVXpackage to find out
-  what ADVX packages a user has installed on his system. 
-
-* Sat Sep  7 2002 Jean-Michel Dault <jmdault@mandrakesoft.com> 4.2.3-1mdk
-- 4.2.3 maintenance release
-- Do not reload apache
-
-* Thu Aug 22 2002 Jean-Michel Dault <jmdault@mandrakesoft.com> 4.2.2-1mdk
-- Rebuild for 4.2.2
-- Macroize a bit more, make version depend on "php -v"
-
-* Sun May 26 2002 Christian Belisle <cbelisle@mandrakesoft.com> 4.2.1-2mdk
-- updated by Oden Eriksson <oden.eriksson@kvikkjokk.net>
-	- misc spec file fixes
-
-* Tue May 21 2002 Christian Belisle <cbelisle@mandrakesoft.com> 4.2.1-1mdk
-- updated by Oden Eriksson <oden.eriksson@kvikkjokk.net>
-	- misc spec file fixes
-	- PHP 4.2.1
-
-* Mon Apr 29 2002 Christian Belisle <cbelisle@mandrakesoft.com> 4.2.0-1mdk
-- updated by Oden Eriksson <oden.eriksson@kvikkjokk.net>:
-	- misc spec file fixes
-	- PHP 4.2.0
-
-* Mon Mar 02 2002 Jean-Michel Dault <jmdault@mandrakesoft.com> 4.1.2-1mdk
-- Moved the XML functionnality into this php-xml package to get rid of
-  segfault problems with different expat libraries statically linked into
-  different parts of Apache.
 
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8
