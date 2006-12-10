@@ -73,5 +73,17 @@
 # v8.1 list: Put missing .com in!
 # v9 list: added CLSIDs (e.g.: "name.{FBF23B40-E3F0-101B-8488-00AA003E56F8}")
 # (Complements of Victor Duchovni and Noel Jones)
+# v10 list: added .cbl
 #
-/^begin\s+\d+\s+.+?\.(386|ad[ept]|app|as[dpx]|ba[st]|bin|btm|cab|cbt|cgi|chm|cil|cla(ss)?|cmd|com|cp[el]|crt|cs[chs]|cvp|dll|dot|drv|em(ai)?l|ex[_e]|fon|fxp|hlp|ht[ar]|in[fips]|isp|jar|jse?|keyreg|ksh|lib|lnk|md[abetw]|mht(m|ml)?|mp3|ms[ciopt]|nte|nws|obj|ocx|ops|ov.|pcd|pgm|pif|p[lm]|pot|pps|prg|reg|sc[rt]|sh[bs]?|slb|smm|sw[ft]|sys|url|vb[esx]?|vir|vmx|vxd|wm[dsz]|ws[cfh]|xl.|xms|\{[\da-f]{8}(?:-[\da-f]{4}){3}-[\da-f]{12}\})\b/	REJECT ".$1" filetype not allowed
+/^begin\s+\d+\s+.+?\.(386|ad[ept]|app|as[dpx]|ba[st]|bin|btm|cab|cb[lt]|cgi|chm|cil|cla(ss)?|cmd|com|cp[el]|crt|cs[chs]|cvp|dll|dot|drv|em(ai)?l|ex[_e]|fon|fxp|hlp|ht[ar]|in[fips]|isp|jar|jse?|keyreg|ksh|lib|lnk|md[abetw]|mht(m|ml)?|mp3|ms[ciopt]|nte|nws|obj|ocx|ops|ov.|pcd|pgm|pif|p[lm]|pot|pps|prg|reg|sc[rt]|sh[bs]?|slb|smm|sw[ft]|sys|url|vb[esx]?|vir|vmx|vxd|wm[dsz]|ws[cfh]|xl.|xms|\{[\da-f]{8}(?:-[\da-f]{4}){3}-[\da-f]{12}\})\b/	REJECT ".$1" filetype not allowed
+
+#
+# Possibly script embedded in email that attempts to write a .exe that'll
+# install a proxy on victim's 'doze PeeCee
+# (ref: Message-ID: <40adf117$0$17764$cc9e4d1f@news.dial.pipex.com> in
+# news.admin.net-abuse.email)
+#
+/<\s*(object\s+data)\s*=/			REJECT Email with "$1" tags not allowed
+/<\s*(script\s+language\s*="vbs")/		REJECT Email with "$1" tags not allowed
+/<\s*(script\s+language\s*="VBScript\.Encode")/	REJECT Email with "$1" tags not allowed
+

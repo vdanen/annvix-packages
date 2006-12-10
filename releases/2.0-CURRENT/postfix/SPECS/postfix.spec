@@ -9,12 +9,11 @@
 
 %define revision	$Rev$
 %define name		postfix
-%define version		2.2.11
+%define version		2.3.4
 %define release 	%_revrel
 %define epoch		1
 
-%define	openssl_ver	0.9.7d
-%define tlsno 		pfixtls-0.8.18-2.1.3-%{openssl_ver}
+%define tlsno 		pfixtls-0.8.18-2.1.3-0.9.7d
 
 %define with_LDAP	1  
 %define with_MYSQL	1
@@ -64,21 +63,19 @@ Source11:	http://jimsun.LinxNet.com/misc/header_checks.txt
 Source12:	http://jimsun.LinxNet.com/misc/body_checks.txt
 Source15:	postfix-smtpd.conf
 
-Patch0:		postfix-2.2.5-avx-config.patch
+Patch0:		postfix-2.3.4-avx-config.patch
 Patch1:		postfix-alternatives-mdk.patch
 Patch3: 	postfix-2.0.18-fdr-hostname-fqdn.patch
 Patch4:		postfix-2.1.1-fdr-pie.patch
 Patch5:		postfix-2.1.1-fdr-obsolete.patch
-Patch6:		postfix-2.2.4-mdk-saslpath.patch
-Patch8:		postfix-2.2.5-avx-warnsetsid.patch
-Patch9:	 	postfix-2.2.10-vda.patch
+Patch8:		postfix-2.3.4-avx-warnsetsid.patch
+Patch9:	 	http://web.onda.com.br/nadal/postfix/VDA/postfix-2.3.2-vda.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	db4-devel
 BuildRequires:	gawk
 BuildRequires:	perl
 BuildRequires:	sed
-BuildRequires:	ed
 %if %{with_LDAP}
 BuildRequires:	libldap-devel >= 2.1
 %endif
@@ -92,7 +89,7 @@ BuildRequires:	mysql-devel
 BuildRequires:	libsasl-devel >= 2.0
 %endif
 %if %{with_TLS}
-BuildRequires:	openssl-devel >= %{openssl_ver}
+BuildRequires:	openssl-devel >= 0.9.7
 %endif
 BuildConflicts:	BerkeleyDB-devel
 
@@ -136,23 +133,19 @@ This package contains the documentation for %{name}.
 %prep
 %setup -q -a 4
 
-%patch0 -p1 -b .avx
+%patch0 -p1 -b .config
 mkdir -p conf/dist
 mv conf/main.cf conf/dist
 cp %{_sourcedir}/postfix-main.cf conf/main.cf
+perl -pi -e 's|@docdir@|%{_docdir}/%{name}-%{version}|g' conf/main.cf
 # hack for 64bit
 if [ "%{_lib}" != "lib" ]; then
-    ed conf/main.cf <<-EOF || exit 1
-    ,s/\/lib\//\/%{_lib}\//g
-    w
-    q
-EOF
+    perl -pi -e 's|/lib/|/%{_lib}/|g' conf/main.cf
 fi
 
 %patch3 -p1 -b .postfix-hostname-fqdn
 %patch4 -p1 -b .pie
 %patch5 -p1 -b .obsolete
-%patch6 -p1 -b .saslpath
 %patch8 -p1 -b .warnsetsid
 %patch9 -p1 -b .vda
 
@@ -188,7 +181,7 @@ CCARGS="${CCARGS} -fsigned-char"
     AUXLIBS="${AUXLIBS} -L%{_libdir}/mysql -lmysqlclient -lm"
 %endif
 %if %{with_SASL}
-    CCARGS="${CCARGS} -DUSE_SASL_AUTH -I/usr/include/sasl"
+    CCARGS="${CCARGS} -DUSE_SASL_AUTH -DUSE_CYRUS_SASL -I/usr/include/sasl"
     AUXLIBS="${AUXLIBS} -lsasl2"
 %endif
 %if %{with_TLS}
@@ -223,8 +216,8 @@ sh postfix-install -non-interactive \
     || exit 1
 
 # for sasl configuration
-mkdir -p %{buildroot}%{_sysconfdir}/postfix/sasl
-cp %{_sourcedir}/postfix-smtpd.conf %{buildroot}%{_sysconfdir}/postfix/sasl/smtpd.conf
+mkdir -p %{buildroot}%{_sysconfdir}/sasl2
+cp %{_sourcedir}/postfix-smtpd.conf %{buildroot}%{_sysconfdir}/sasl2/smtpd.conf
 
 mkdir -p %{buildroot}%{_sysconfdir}/pam.d/
 install -c %{_sourcedir}/postfix-etc-pam.d-smtp %{buildroot}%{_sysconfdir}/pam.d/smtp
@@ -310,16 +303,23 @@ newaliases
 
 # move previous sasl configuration files to new location if applicable
 # have to go through many loops to prevent damaging user configuration
-saslpath="`postconf -h smtpd_sasl_path | cut -d: -f 1`"
-if [ -n "${saslpath}" -a "${saslpath%/}" != "%{_libdir}/sasl2" -a -e %{_libdir}/sasl2/smtpd.conf ]; then
-    if ! grep -qsve '^\(#.*\|[[:space:]]*\)$' ${saslpath}/smtpd.conf; then
-        # ${saslpath}/smtpd.conf missing or just comments
-        if [ -s ${saslpath}/smtpd.conf ] && [ ! -e ${saslpath}/smtpd.conf.rpmnew -o ${saslpath}/smtpd.conf -nt ${saslpath}/smtpd.conf.rpmnew ];then
-            mv ${saslpath}/smtpd.conf ${saslpath}/smtpd.conf.rpmnew
-        fi
-        mv %{_libdir}/sasl2/smtpd.conf ${saslpath}/smtpd.conf
-    fi
+saslpath="`postconf -h smtpd_sasl_path`"
+if [ -n "${saslpath}" -a "${saslpath##*:}" -o "${saslpath}" != "${saslpath##*/usr/lib}" ]; then
+    postconf -e smtpd_sasl_path=smtpd
 fi
+
+for old_smtpd_conf in /etc/postfix/sasl/smtpd.conf %{_libdir}/sasl2/smtpd.conf; do                                                                                                 
+if [ -e ${old_smtpd_conf} ]; then                                                                                                                                           
+    if ! grep -qsve '^\(#.*\|[[:space:]]*\)$' /etc/sasl2/smtpd.conf; then                                                                                               
+        # /etc/sasl2/smtpd.conf missing or just comments                                                                                                            
+        if [ -s /etc/sasl2/smtpd.conf ] && [ ! -e /etc/sasl2/smtpd.conf.rpmnew -o /etc/sasl2/smtpd.conf -nt /etc/sasl2/smtpd.conf.rpmnew ];then                     
+            mv /etc/sasl2/smtpd.conf /etc/sasl2/smtpd.conf.rpmnew                                                                                               
+        fi                                                                                                                                                          
+        mv ${old_smtpd_conf} /etc/sasl2/smtpd.conf                                                                                                                  
+    else                                                                                                                                                                
+        echo "warning: existing ${old_smtpd_conf} will be ignored"
+    fi
+done
 
 
 %preun
@@ -340,8 +340,7 @@ fi
 %files
 %defattr(-,root,root)
 %dir %{_sysconfdir}/postfix
-%dir %{_sysconfdir}/postfix/sasl
-%config(noreplace) %{_sysconfdir}/postfix/sasl/smtpd.conf
+%config(noreplace) %{_sysconfdir}/sasl2/smtpd.conf
 %attr(0755,root,root) %{_sysconfdir}/postfix/postfix-script
 %attr(0755,root,root) %{_sysconfdir}/postfix/post-install
 %attr(0755,root,root) %{_sysconfdir}/postfix/postfix-files
@@ -350,6 +349,7 @@ fi
 %config(noreplace) %{_sysconfdir}/postfix/main.cf
 %{_sysconfdir}/postfix/main.cf.dist
 %{_sysconfdir}/postfix/main.cf.default
+%{_sysconfdir}/postfix/bounce.cf.default
 %config(noreplace) %{_sysconfdir}/postfix/master.cf
 %config(noreplace) %{_sysconfdir}/postfix/access
 %config(noreplace) %{_sysconfdir}/postfix/aliases
@@ -444,6 +444,19 @@ fi
 
 
 %changelog
+* Sat Dec 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.4
+- 2.3.4
+- update the body and header checks
+- fix the pam.d file
+- fix main.cf so it will always point to the right docdir
+- use perl to manipulate main.cf instead of ed, and drop the BuildRequires
+- don't set delay_warning_time by default (mdv bug #23198)
+- adjust default saslpath in the sample config
+- fix the location of the sasl configuration file
+- drop P6
+- rediff P0, P8
+- P9: updated
+
 * Tue Nov 14 2006 Ying-Hung Chen <ying-at-annvix.org> 2.2.11
 - Fixed annoying install warning message "chown: cannot access 
   `/usr/share/doc/postfix-doc-2.2.11/README_FILES': 

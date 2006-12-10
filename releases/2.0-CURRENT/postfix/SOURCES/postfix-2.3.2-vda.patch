@@ -1,7 +1,7 @@
-diff -u --new-file --recursive postfix-2.2.10-orig/README_FILES/VDA_README postfix-2.2.10/README_FILES/VDA_README
---- postfix-2.2.10-orig/README_FILES/VDA_README	1969-12-31 21:00:00.000000000 -0300
-+++ postfix-2.2.10/README_FILES/VDA_README	2006-04-10 10:08:47.000000000 -0300
-@@ -0,0 +1,63 @@
+diff -u --new-file --recursive postfix-2.3.2-orig/README_FILES/VDA_README postfix-2.3.2/README_FILES/VDA_README
+--- postfix-2.3.2-orig/README_FILES/VDA_README	1969-12-31 21:00:00.000000000 -0300
++++ postfix-2.3.2/README_FILES/VDA_README	2006-08-09 13:46:16.000000000 -0300
+@@ -0,0 +1,64 @@
 +Instalation:
 +
 +1 - Get the Postfix source code (http://www.postfix.org)
@@ -23,6 +23,7 @@ diff -u --new-file --recursive postfix-2.2.10-orig/README_FILES/VDA_README postf
 +
 +# Maps of virtuals users
 +virtual_mailbox_maps = hash:/etc/postfix/vmailbox
++transport_maps= hash:/etc/postfix/vtransport
 +
 +# All ids < 1000 are bad ids...
 +virtual_minimum_uid = 1000
@@ -65,10 +66,10 @@ diff -u --new-file --recursive postfix-2.2.10-orig/README_FILES/VDA_README postf
 +
 +More informations: http://web.onda.com.br/nadal
 +Mail-list: http://maresia.onda.com.br/mailman/listinfo/vda
-diff -u --new-file --recursive postfix-2.2.10-orig/src/global/mail_params.h postfix-2.2.10/src/global/mail_params.h
---- postfix-2.2.10-orig/src/global/mail_params.h	2006-02-03 14:06:52.000000000 -0200
-+++ postfix-2.2.10/src/global/mail_params.h	2006-04-10 10:08:47.000000000 -0300
-@@ -1850,6 +1850,47 @@
+diff -u --new-file --recursive postfix-2.3.2-orig/src/global/mail_params.h postfix-2.3.2/src/global/mail_params.h
+--- postfix-2.3.2-orig/src/global/mail_params.h	2006-07-26 21:59:10.000000000 -0300
++++ postfix-2.3.2/src/global/mail_params.h	2006-08-09 13:46:16.000000000 -0300
+@@ -2071,6 +2071,46 @@
  #define DEF_VIRT_GID_MAPS		""
  extern char *var_virt_gid_maps;
  
@@ -112,32 +113,29 @@ diff -u --new-file --recursive postfix-2.2.10-orig/src/global/mail_params.h post
 +#define DEF_VIRT_TRASH_NAME                ".Trash"
 +extern char *var_virt_trash_name;
 +
-+
  #define VAR_VIRT_MINUID			"virtual_minimum_uid"
  #define DEF_VIRT_MINUID			100
  extern int var_virt_minimum_uid;
-diff -u --new-file --recursive postfix-2.2.10-orig/src/util/file_limit.c postfix-2.2.10/src/util/file_limit.c
---- postfix-2.2.10-orig/src/util/file_limit.c	2003-10-22 16:48:36.000000000 -0200
-+++ postfix-2.2.10/src/util/file_limit.c	2006-04-10 10:08:47.000000000 -0300
-@@ -85,7 +85,13 @@
+diff -u --new-file --recursive postfix-2.3.2-orig/src/util/file_limit.c postfix-2.3.2/src/util/file_limit.c
+--- postfix-2.3.2-orig/src/util/file_limit.c	2003-10-22 16:48:36.000000000 -0200
++++ postfix-2.3.2/src/util/file_limit.c	2006-08-09 13:46:16.000000000 -0300
+@@ -85,7 +85,11 @@
  #else
      struct rlimit rlim;
  
 -    rlim.rlim_cur = rlim.rlim_max = limit;
-+    /*rlim.rlim_cur = rlim.rlim_max = limit; */
 +    /* rlim_max can be changed only by a root */
 +    if (getrlimit(RLIMIT_FSIZE, &rlim) < 0)
 +      msg_fatal("getrlimit: %m");
-+
 +    rlim.rlim_cur = limit;
 +
      if (setrlimit(RLIMIT_FSIZE, &rlim) < 0)
  	msg_fatal("setrlimit: %m");
  #ifdef SIGXFSZ
-diff -u --new-file --recursive postfix-2.2.10-orig/src/virtual/mailbox.c postfix-2.2.10/src/virtual/mailbox.c
---- postfix-2.2.10-orig/src/virtual/mailbox.c	2003-06-03 13:37:06.000000000 -0300
-+++ postfix-2.2.10/src/virtual/mailbox.c	2006-04-11 09:10:56.000000000 -0300
-@@ -73,6 +73,53 @@
+diff -u --new-file --recursive postfix-2.3.2-orig/src/virtual/mailbox.c postfix-2.3.2/src/virtual/mailbox.c
+--- postfix-2.3.2-orig/src/virtual/mailbox.c	2006-06-26 09:59:19.000000000 -0300
++++ postfix-2.3.2/src/virtual/mailbox.c	2006-08-09 13:46:16.000000000 -0300
+@@ -70,6 +70,53 @@
  #define YES	1
  #define NO	0
  
@@ -163,24 +161,24 @@ diff -u --new-file --recursive postfix-2.2.10-orig/src/virtual/mailbox.c postfix
 +                    state.msg_attr.user, VAR_MESSAGE_LIMIT,
 +                    virtual_mailbox_limit_maps->title,
 +                    VAR_VIRT_MAILBOX_LIMIT);
-+		    n = var_virt_mailbox_limit;
++                   n = var_virt_mailbox_limit;
 +        }
-+	 else {
++        else {
 +           set_file_limit((off_t)n);
 +           status = YES;
 +           if (msg_verbose)
 +               msg_info("%s[%d]: set maximum mailbox size %s to %ld",
 +                        myname, state.level, usr_attr.mailbox, n);
-+       	      }
-+	 }	
-+	else {
++                     }
++        }
++       else {
 +         set_file_limit(var_virt_mailbox_limit);
 +         status = NO;
 +         }
 +    }
 +    else {
-+	 set_file_limit(var_virt_mailbox_limit);
-+	 status = NO;
++        set_file_limit(var_virt_mailbox_limit);
++        status = NO;
 +         }
 +
 +
@@ -191,60 +189,53 @@ diff -u --new-file --recursive postfix-2.2.10-orig/src/virtual/mailbox.c postfix
  /* deliver_mailbox_file - deliver to recipient mailbox */
  
  static int deliver_mailbox_file(LOCAL_STATE state, USER_ATTR usr_attr)
-@@ -206,14 +253,22 @@
+@@ -208,15 +255,18 @@
       */
      uid_res = mail_addr_find(virtual_uid_maps, state.msg_attr.user,
  			     IGNORE_EXTENSION);
 -    if (uid_res == 0) {
+-	msg_warn("recipient %s: not found in %s",
+-		 state.msg_attr.user, virtual_uid_maps->title);
+-	dsb_simple(why, "4.3.5", "mail system configuration error");
 -	*statusp = defer_append(BOUNCE_FLAGS(state.request),
--				BOUNCE_ATTR(state.msg_attr),
--				"recipient %s: uid not found in %s",
--			      state.msg_attr.user, virtual_uid_maps->title);
+-				BOUNCE_ATTR(state.msg_attr));
 -	RETURN(YES);
 -    }
 -    if ((n = atol(uid_res)) < var_virt_minimum_uid) {
 +
-+    if ((uid_res = mail_addr_find(virtual_uid_maps, state.msg_attr.user,
-+                                    (char **) 0)) == 0) {
-+       if ((uid_res = maps_find(virtual_uid_maps,
-+                                strchr(state.msg_attr.user, '@'),
-+                                DICT_FLAG_FIXED)) == 0) {
-+           *statusp = defer_append(BOUNCE_FLAG_KEEP,
-+                                   BOUNCE_ATTR(state.msg_attr),
-+                                   "recipient %s: uid not found in %s",
-+                                   state.msg_attr.user,
-+                                   virtual_uid_maps->title);
++
++    if ((uid_res = mail_addr_find(virtual_uid_maps, state.msg_attr.user, (char **) 0)) == 0) {
++       if ((uid_res = maps_find(virtual_uid_maps, strchr(state.msg_attr.user, '@'),DICT_FLAG_FIXED)) == 0) {
++        msg_warn("recipient %s: not found in %s", state.msg_attr.user, virtual_uid_maps->title);
++        dsb_simple(why, "4.3.5", "mail system configuration error");
++        *statusp = defer_append(BOUNCE_FLAGS(state.request), BOUNCE_ATTR(state.msg_attr));
 +           RETURN(YES);
 +       }
 +     }
 +
 +   if ((n = atol(uid_res)) < var_virt_minimum_uid) {
- 	*statusp = defer_append(BOUNCE_FLAGS(state.request),
- 				BOUNCE_ATTR(state.msg_attr),
- 				"recipient %s: bad uid %s in %s",
-@@ -227,12 +282,18 @@
+ 	msg_warn("recipient %s: bad uid %s in %s",
+ 		 state.msg_attr.user, uid_res, virtual_uid_maps->title);
+ 	dsb_simple(why, "4.3.5", "mail system configuration error");
+@@ -231,13 +281,16 @@
       */
      gid_res = mail_addr_find(virtual_gid_maps, state.msg_attr.user,
  			     IGNORE_EXTENSION);
 -    if (gid_res == 0) {
--	*statusp = defer_append(BOUNCE_FLAGS(state.request),
--				BOUNCE_ATTR(state.msg_attr),
-+
-+    if ((gid_res = mail_addr_find(virtual_gid_maps, state.msg_attr.user,
-+                                 (char **) 0)) == 0) {
-+      if ((gid_res = maps_find(virtual_gid_maps,
-+                              strchr(state.msg_attr.user, '@'),
++    if ((gid_res = mail_addr_find(virtual_gid_maps, state.msg_attr.user,(char **) 0)) == 0) {
++      if ((gid_res = maps_find(virtual_gid_maps,strchr(state.msg_attr.user, '@'),
 +                              DICT_FLAG_FIXED)) == 0) {
-+       *statusp = defer_append(BOUNCE_FLAG_KEEP,
-+                               BOUNCE_ATTR(state.msg_attr),
- 				"recipient %s: gid not found in %s",
- 			      state.msg_attr.user, virtual_gid_maps->title);
+ 	msg_warn("recipient %s: not found in %s",
+ 		 state.msg_attr.user, virtual_gid_maps->title);
+ 	dsb_simple(why, "4.3.5", "mail system configuration error");
+ 	*statusp = defer_append(BOUNCE_FLAGS(state.request),
+ 				BOUNCE_ATTR(state.msg_attr));
  	RETURN(YES);
-+	  }
++	}
      }
      if ((n = atol(gid_res)) <= 0) {
- 	*statusp = defer_append(BOUNCE_FLAGS(state.request),
-@@ -255,8 +316,16 @@
+ 	msg_warn("recipient %s: bad gid %s in %s",
+@@ -261,8 +314,16 @@
  
      if (LAST_CHAR(usr_attr.mailbox) == '/')
  	*statusp = deliver_maildir(state, usr_attr);
@@ -263,10 +254,10 @@ diff -u --new-file --recursive postfix-2.2.10-orig/src/virtual/mailbox.c postfix
  
      /*
       * Cleanup.
-diff -u --new-file --recursive postfix-2.2.10-orig/src/virtual/maildir.c postfix-2.2.10/src/virtual/maildir.c
---- postfix-2.2.10-orig/src/virtual/maildir.c	2006-04-05 16:13:10.000000000 -0300
-+++ postfix-2.2.10/src/virtual/maildir.c	2006-04-10 11:33:08.000000000 -0300
-@@ -40,6 +40,14 @@
+diff -u --new-file --recursive postfix-2.3.2-orig/src/virtual/maildir.c postfix-2.3.2/src/virtual/maildir.c
+--- postfix-2.3.2-orig/src/virtual/maildir.c	2006-06-26 09:59:19.000000000 -0300
++++ postfix-2.3.2/src/virtual/maildir.c	2006-08-09 13:46:16.000000000 -0300
+@@ -40,14 +40,20 @@
  #include <unistd.h>
  #include <time.h>
  #include <errno.h>
@@ -277,11 +268,9 @@ diff -u --new-file --recursive postfix-2.2.10-orig/src/virtual/maildir.c postfix
 +#include <stdlib.h>    /* atol(3) */
 +#include <string.h>    /* strrchr(3) */
 +
-+
  
- #ifndef EDQUOT
- #define EDQUOT EFBIG
-@@ -50,8 +58,7 @@
+ /* Utility library. */
+ 
  #include <msg.h>
  #include <mymalloc.h>
  #include <stringops.h>
@@ -291,7 +280,7 @@ diff -u --new-file --recursive postfix-2.2.10-orig/src/virtual/maildir.c postfix
  #include <make_dirs.h>
  #include <set_eugid.h>
  #include <get_hostname.h>
-@@ -59,6 +66,7 @@
+@@ -55,6 +61,7 @@
  
  /* Global library. */
  
@@ -299,13 +288,85 @@ diff -u --new-file --recursive postfix-2.2.10-orig/src/virtual/maildir.c postfix
  #include <mail_copy.h>
  #include <bounce.h>
  #include <defer.h>
-@@ -69,16 +77,146 @@
+@@ -67,6 +74,212 @@
  
  #include "virtual.h"
  
-+
 +/* The maximum size of a maildirsize file */
 +#define SIZEFILE_MAX 5120
++
++
++/*
++ * Chris Stratford <chriss@pipex.net>
++ * Returns the size as read from the maildirsize file
++ *
++ * Arguments :
++ *  dirname: the maildir
++ *  countptr: number of messages
++ *  sumptr: number of bytes
++ *
++ * Returns 1 on failure, 0 on success
++ *
++ */
++int read_maildirsize(char *dirname, long *countptr, long *sumptr)
++{
++   struct stat statbuf;
++   VSTRING *sizefilename = vstring_alloc(1024);
++   VSTRING *sizebuf = vstring_alloc(SIZEFILE_MAX);
++   VSTREAM *sizefile;
++   int len;
++   char *p;
++   int first;
++   long sum = 0;
++   long count = 0;
++
++   vstring_sprintf(sizefilename,"%s/%s",dirname,"maildirsize");
++   sizefile = vstream_fopen(vstring_str(sizefilename), O_RDONLY, 0);
++   if ((!sizefile) ||
++       (stat(vstring_str(sizefilename), &statbuf) < 0) ||
++       (statbuf.st_size > SIZEFILE_MAX)) {
++     /* For one reason or another we don't want to use the maildirsize
++        file, so we'll do a full scan instead */
++     if (sizefile) {
++       vstream_fclose(sizefile);
++     }
++     return 1;
++   }
++
++   len = vstream_fread(sizefile, vstring_str(sizebuf), SIZEFILE_MAX);
++
++   p = vstring_str(sizebuf);
++   *(p + len) = '\0';
++   first = 1;
++   while (*p) {
++     long n = 0;
++     int c = 0;
++     char *q = p;
++
++     while (*p)
++       if (*p++ == '\n') {
++         p[-1] = 0;
++         break;
++       }
++
++     if (first) {
++       first = 0;
++       continue;
++     }
++     sscanf(q, "%ld %d", &n, &c);
++     sum += n;
++     count += c;
++   }
++
++   vstream_fclose(sizefile);
++   vstring_free(sizefilename);
++   vstring_free(sizebuf);
++
++   *countptr = count;
++   *sumptr = sum;
++   return 0;
++}
++
 +
 +/*
 + * Gives the size of the file according of the Maildir++ extensions
@@ -348,7 +409,6 @@ diff -u --new-file --recursive postfix-2.2.10-orig/src/virtual/maildir.c postfix
 +       }
 +       return 0;
 +}
-+
 +/*
 + * Checks directory files for quota (taken from exim)
 + *
@@ -373,6 +433,11 @@ diff -u --new-file --recursive postfix-2.2.10-orig/src/virtual/maildir.c postfix
 +   long   sum = 0;
 +   struct dirent *ent;
 +   struct stat   statbuf;
++
++   if (var_virt_maildir_extended && (read_maildirsize(dirname, countptr, &sum) == 0) ) {
++     /* Maildir++ check using maildirsize */
++     return sum;
++   }
 +
 +   dir = opendir(dirname);
 +   if (dir == NULL) {
@@ -436,23 +501,7 @@ diff -u --new-file --recursive postfix-2.2.10-orig/src/virtual/maildir.c postfix
  /* deliver_maildir - delivery to maildir-style mailbox */
  
  int     deliver_maildir(LOCAL_STATE state, USER_ATTR usr_attr)
- {
--    char   *myname = "deliver_maildir";
--    char   *newdir;
--    char   *tmpdir;
--    char   *curdir;
--    char   *tmpfile;
--    char   *newfile;
-+    char    *myname = "deliver_maildir";
-+    char    *newdir;
-+    char    *tmpdir;
-+    char    *curdir;
-+    char    *tmpfile;
-+    char    *newfile;
-     VSTRING *why;
-     VSTRING *buf;
-     VSTREAM *dst;
-@@ -88,6 +226,17 @@
+@@ -86,6 +299,19 @@
      struct stat st;
      struct timeval starttime;
  
@@ -467,10 +516,12 @@ diff -u --new-file --recursive postfix-2.2.10-orig/src/virtual/maildir.c postfix
 +    struct   stat statbuf;             /* To check the size of the mail written */
 +    struct   stat sizefile_stat;       /* To check the size of the maildirsize file (cannot be larger than 5k) */
 +    time_t   tm;
++
++
      GETTIMEOFDAY(&starttime);
  
      /*
-@@ -122,6 +271,78 @@
+@@ -121,6 +347,81 @@
      tmpdir = concatenate(usr_attr.mailbox, "tmp/", (char *) 0);
      curdir = concatenate(usr_attr.mailbox, "cur/", (char *) 0);
  
@@ -499,14 +550,16 @@ diff -u --new-file --recursive postfix-2.2.10-orig/src/virtual/maildir.c postfix
 +       n = atol(limit_res);
 +       if(!var_virt_mailbox_limit_override) {
 +        if ((n > 0) && (n < var_message_limit)) {
++		//Verificar novas chamadas de avisos  
 +            msg_warn("(2)recipient %s: maildir limit is smaller than %s "
 +                    "in %s - falling back to %s.",
 +                    state.msg_attr.user, VAR_MESSAGE_LIMIT,
 +                    virtual_mailbox_limit_maps->title,
 +                    VAR_VIRT_MAILBOX_LIMIT);
-+		    n = var_virt_mailbox_limit;
++                   n = var_virt_mailbox_limit;
 +        } else {
 +           if (msg_verbose)
++		//Verificar novas chamadas de avisos  
 +               msg_info("%s[%d]: set maximum mailbox size %s to %ld.",
 +                        myname, state.level, usr_attr.mailbox,n);
 +        }
@@ -546,13 +599,14 @@ diff -u --new-file --recursive postfix-2.2.10-orig/src/virtual/maildir.c postfix
 +            set_eugid(var_owner_uid, var_owner_gid);
 +    }
 +
++
      /*
       * Create and write the file as the recipient, so that file quota work.
       * Create any missing directories on the fly. The file name is chosen
-@@ -204,6 +425,39 @@
- 	newfile = concatenate(newdir, STR(buf), (char *) 0);
+@@ -203,6 +504,40 @@
  	if ((mail_copy_status = mail_copy(COPY_ATTR(state.msg_attr),
- 					dst, copy_flags, "\n", why)) == 0) {
+ 					  dst, copy_flags, "\n",
+ 					  why)) == 0) {
 +         /*
 +          * Add a ",S=<sizeoffile>" to the file newly written according to
 +          * Maildir++ specifications : http://www.inter7.com/courierimap/README.maildirquota.html
@@ -579,20 +633,22 @@ diff -u --new-file --recursive postfix-2.2.10-orig/src/virtual/maildir.c postfix
 +          */
 +         if (saved_size > n) {
 +                   mail_copy_status = MAIL_COPY_STAT_WRITE;
-+                   vstring_sprintf(why,"%s",var_virt_maildir_limit_message);
++                   vstring_sprintf(why->reason,"%s",var_virt_maildir_limit_message);
 +                    if ( statbuf.st_size > n || var_virt_overquota_bounce )
 +                        errno = EFBIG;
 +                    else
 +                       errno = EDQUOT;
 +         } else {
 +           /* Deliver to curdir */
++
  	    if (sane_link(tmpfile, newfile) < 0
  		&& (errno != ENOENT
  		    || (make_dirs(curdir, 0700), make_dirs(newdir, 0700)) < 0
-@@ -211,6 +465,49 @@
- 		vstring_sprintf(why, "link to %s: %m", newfile);
+@@ -211,6 +546,51 @@
+ 			   "create maildir file %s: %m", newfile);
  		mail_copy_status = MAIL_COPY_STAT_WRITE;
  	    }
++
 +           if(var_virt_create_maildirsize) {
 +             time(&tm);
 +               if (*var_virt_maildir_suffix == 0) {
@@ -636,49 +692,36 @@ diff -u --new-file --recursive postfix-2.2.10-orig/src/virtual/maildir.c postfix
 +            }
 +         }
 +
++
  	}
  	if (unlink(tmpfile) < 0)
  	    msg_warn("remove %s: %m", tmpfile);
-@@ -225,7 +522,7 @@
-     if (mail_copy_status & MAIL_COPY_STAT_CORRUPT) {
- 	deliver_status = DEL_STAT_DEFER;
-     } else if (mail_copy_status != 0) {
--	deliver_status = (errno == EDQUOT || errno == EFBIG ?
-+	deliver_status = (errno == EFBIG ?
- 			  bounce_append : defer_append)
- 	    (BOUNCE_FLAGS(state.request), BOUNCE_ATTR(state.msg_attr),
- 	     "maildir delivery failed: %s", vstring_str(why));
-@@ -244,6 +541,9 @@
+@@ -231,6 +611,9 @@
+ 		     STR(why->reason));
+ 	    msg_warn("perhaps you need to create the maildirs in advance");
+ 	}
++	if (errno == EFBIG) {
++	    msg_warn("user overdrawn his diskspace quota");
++	}
+ 	vstring_sprintf_prepend(why->reason, "maildir delivery failed: ");
+ 	deliver_status =
+ 	    (STR(why->status)[0] == '4' ?
+@@ -246,6 +629,8 @@
      myfree(newdir);
      myfree(tmpdir);
      myfree(curdir);
-+    if(var_virt_create_maildirsize && errno != EFBIG && errno != EDQUOT )
-+    if (sizefilename)
-+       myfree(sizefilename);
++if (sizefilename)
++    myfree(sizefilename);
      myfree(tmpfile);
      if (newfile)
  	myfree(newfile);
-diff -u --new-file --recursive postfix-2.2.10-orig/src/virtual/virtual.c postfix-2.2.10/src/virtual/virtual.c
---- postfix-2.2.10-orig/src/virtual/virtual.c	2005-02-08 17:12:24.000000000 -0200
-+++ postfix-2.2.10/src/virtual/virtual.c	2006-04-10 10:08:47.000000000 -0300
-@@ -69,8 +69,11 @@
- /* .fi
- /*	Mailbox ownership is controlled by the \fBvirtual_uid_maps\fR
- /*	and \fBvirtual_gid_maps\fR lookup tables, which are indexed
--/*	with the full recipient address. Each table provides
--/*	a string with the numerical user and group ID, respectively.
-+/*     with the full recipient address (\fIuser@domain\fR),
-+/*     user name (\fIuser\fR) or domain name (\fI@domain\fR).
-+/*     Each table provides a string with the numerical user and group ID,
-+/*     respectively
-+/*
- /*
- /*	The \fBvirtual_minimum_uid\fR parameter imposes a lower bound on
- /*	numerical user ID values that may be specified in any
-@@ -318,6 +321,17 @@
- char   *var_virt_mailbox_lock;
+diff -u --new-file --recursive postfix-2.3.2-orig/src/virtual/virtual.c postfix-2.3.2/src/virtual/virtual.c
+--- postfix-2.3.2-orig/src/virtual/virtual.c	2006-06-26 09:59:19.000000000 -0300
++++ postfix-2.3.2/src/virtual/virtual.c	2006-08-09 13:46:16.000000000 -0300
+@@ -328,6 +328,19 @@
  int     var_virt_mailbox_limit;
  char   *var_mail_spool_dir;		/* XXX dependency fix */
+ 
 +char   *var_virt_mailbox_limit_maps;
 +char   *var_virt_maildir_limit_message;
 +bool    var_virt_mailbox_limit_inbox;
@@ -690,34 +733,37 @@ diff -u --new-file --recursive postfix-2.2.10-orig/src/virtual/virtual.c postfix
 +bool    var_virt_trash_count;
 +char    *var_virt_trash_name;
 +
- 
++
++
   /*
    * Mappings.
-@@ -325,6 +339,8 @@
- MAPS   *virtual_mailbox_maps;
+   */
+@@ -335,6 +348,9 @@
  MAPS   *virtual_uid_maps;
  MAPS   *virtual_gid_maps;
+ 
 +MAPS   *virtual_mailbox_limit_maps;
 +
- 
++
   /*
    * Bit masks.
-@@ -430,15 +446,19 @@
- 
+   */
+@@ -443,15 +459,19 @@
+      */
      virtual_mailbox_maps =
  	maps_create(VAR_VIRT_MAILBOX_MAPS, var_virt_mailbox_maps,
 -		    DICT_FLAG_LOCK | DICT_FLAG_PARANOID);
-+		    DICT_FLAG_LOCK);
++ 			DICT_FLAG_LOCK);
  
      virtual_uid_maps =
  	maps_create(VAR_VIRT_UID_MAPS, var_virt_uid_maps,
 -		    DICT_FLAG_LOCK | DICT_FLAG_PARANOID);
-+		    DICT_FLAG_LOCK);
++ 			DICT_FLAG_LOCK);
  
      virtual_gid_maps =
  	maps_create(VAR_VIRT_GID_MAPS, var_virt_gid_maps,
 -		    DICT_FLAG_LOCK | DICT_FLAG_PARANOID);
-+		    DICT_FLAG_LOCK);
++ 			DICT_FLAG_LOCK);
 +
 +   virtual_mailbox_limit_maps =
 +        maps_create(VAR_VIRT_MAILBOX_LIMIT_MAPS, var_virt_mailbox_limit_maps,
@@ -725,7 +771,7 @@ diff -u --new-file --recursive postfix-2.2.10-orig/src/virtual/virtual.c postfix
  
      virtual_mbox_lock_mask = mbox_lock_mask(var_virt_mailbox_lock);
  }
-@@ -474,25 +494,41 @@
+@@ -487,26 +507,42 @@
  int     main(int argc, char **argv)
  {
      static CONFIG_INT_TABLE int_table[] = {
@@ -735,7 +781,7 @@ diff -u --new-file --recursive postfix-2.2.10-orig/src/virtual/virtual.c postfix
 +        VAR_VIRT_MINUID, DEF_VIRT_MINUID, &var_virt_minimum_uid, 1, 0,
 +        VAR_VIRT_MAILBOX_LIMIT, DEF_VIRT_MAILBOX_LIMIT, &var_virt_mailbox_limit, 0, 0,
 +        0,
-     };
++    };
 +
 +    static CONFIG_BOOL_TABLE bool_table[] = {
 +        VAR_VIRT_MAILBOX_LIMIT_INBOX, DEF_VIRT_MAILBOX_LIMIT_INBOX, &var_virt_mailbox_limit_inbox,
@@ -745,7 +791,7 @@ diff -u --new-file --recursive postfix-2.2.10-orig/src/virtual/virtual.c postfix
 +        VAR_VIRT_OVERQUOTA_BOUNCE, DEF_VIRT_OVERQUOTA_BOUNCE, &var_virt_overquota_bounce,
 +        VAR_VIRT_TRASH_COUNT, DEF_VIRT_TRASH_COUNT, &var_virt_trash_count,
 +        0,
-+    };
+     };
 +
      static CONFIG_STR_TABLE str_table[] = {
 -	VAR_MAIL_SPOOL_DIR, DEF_MAIL_SPOOL_DIR, &var_mail_spool_dir, 0, 0,
@@ -774,24 +820,24 @@ diff -u --new-file --recursive postfix-2.2.10-orig/src/virtual/virtual.c postfix
 -		       MAIL_SERVER_PRE_INIT, pre_init,
 -		       MAIL_SERVER_POST_INIT, post_init,
 -		       MAIL_SERVER_PRE_ACCEPT, pre_accept,
--		       0);
+-		       MAIL_SERVER_PRIVILEGED,
 +                      MAIL_SERVER_INT_TABLE, int_table,
 +                      MAIL_SERVER_STR_TABLE, str_table,
 +                      MAIL_SERVER_PRE_INIT, pre_init,
 +                      MAIL_SERVER_POST_INIT, post_init,
 +                      MAIL_SERVER_PRE_ACCEPT, pre_accept,
 +                      MAIL_SERVER_BOOL_TABLE, bool_table,
-+                       0);
++		      MAIL_SERVER_PRIVILEGED,
+ 		       0);
  }
-diff -u --new-file --recursive postfix-2.2.10-orig/src/virtual/virtual.h postfix-2.2.10/src/virtual/virtual.h
---- postfix-2.2.10-orig/src/virtual/virtual.h	2003-09-20 19:05:33.000000000 -0300
-+++ postfix-2.2.10/src/virtual/virtual.h	2006-04-10 10:08:47.000000000 -0300
-@@ -32,6 +32,8 @@
+diff -u --new-file --recursive postfix-2.3.2-orig/src/virtual/virtual.h postfix-2.3.2/src/virtual/virtual.h
+--- postfix-2.3.2-orig/src/virtual/virtual.h	2006-01-07 21:59:47.000000000 -0200
++++ postfix-2.3.2/src/virtual/virtual.h	2006-08-09 13:46:16.000000000 -0300
+@@ -34,6 +34,7 @@
  extern MAPS *virtual_mailbox_maps;
  extern MAPS *virtual_uid_maps;
  extern MAPS *virtual_gid_maps;
 +extern MAPS *virtual_mailbox_limit_maps;
-+
  
   /*
    * User attributes: these control the privileges for delivery to external

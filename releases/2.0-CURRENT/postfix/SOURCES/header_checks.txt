@@ -70,8 +70,9 @@
 # ("Source" [.asm, .c, .cpp., .pas, .for] seem unlikely to me)
 # v9 list: added CLSIDs (e.g.: "name.{FBF23B40-E3F0-101B-8488-00AA003E56F8}")
 # (Complements of Victor Duchovni and Noel Jones)
+# v10 list: added .cbl
 #
-/^Content-(Disposition|Type):\s+.+?(?:file)?name="?.+?\.(386|ad[ept]|app|as[dpx]|ba[st]|bin|btm|cab|cbt|cgi|chm|cil|cla(ss)?|cmd|cp[el]|crt|cs[chs]|cvp|dll|dot|drv|em(ai)?l|ex[_e]|fon|fxp|hlp|ht[ar]|in[fips]|isp|jar|jse?|keyreg|ksh|lib|lnk|md[abetw]|mht(m|ml)?|mp3|ms[ciopt]|nte|nws|obj|ocx|ops|ov.|pcd|pgm|pif|p[lm]|pot|pps|prg|reg|sc[rt]|sh[bs]?|slb|smm|sw[ft]|sys|url|vb[esx]?|vir|vmx|vxd|wm[dsz]|ws[cfh]|xl.|xms|\{[\da-f]{8}(?:-[\da-f]{4}){3}-[\da-f]{12}\})\b/	REJECT ".$2" file attachment types not allowed
+/^Content-(Disposition|Type):\s+.+?(?:file)?name="?.+?\.(386|ad[ept]|app|as[dpx]|ba[st]|bin|btm|cab|cb[lt]|cgi|chm|cil|cla(ss)?|cmd|cp[el]|crt|cs[chs]|cvp|dll|dot|drv|em(ai)?l|ex[_e]|fon|fxp|hlp|ht[ar]|in[fips]|isp|jar|jse?|keyreg|ksh|lib|lnk|md[abetw]|mht(m|ml)?|mp3|ms[ciopt]|nte|nws|obj|ocx|ops|ov.|pcd|pgm|pif|p[lm]|pot|pps|prg|reg|sc[rt]|sh[bs]?|slb|smm|sw[ft]|sys|url|vb[esx]?|vir|vmx|vxd|wm[dsz]|ws[cfh]|xl.|xms|\{[\da-f]{8}(?:-[\da-f]{4}){3}-[\da-f]{12}\})\b/	REJECT ".$2" file attachment types not allowed
 # ".com" handled differently as above lines would catch attachments like
 # "user@example.com PGP Keys.txt"
 # "(\.\S{2,4})?(\?=)?"?(;|$)" terminator idea (modified) compliments of
