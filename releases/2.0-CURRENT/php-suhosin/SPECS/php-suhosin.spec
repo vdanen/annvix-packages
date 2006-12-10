@@ -9,11 +9,11 @@
 
 %define revision	$Rev$
 %define name		php-%{modname}
-%define version		0.9.8
+%define version		0.9.16
 %define release		%_revrel
 %define epoch		1
 
-%define phpversion	5.1.6
+%define phpversion	5.2.0
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir		%{_libdir}/php
 
@@ -93,6 +93,11 @@ install -m 0755 %{soname} %{buildroot}%{phpdir}/extensions/
 
 
 %changelog
+* Sun Dec 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.9.16
+- 0.9.16
+- php 5.2.0
+- documented suhosin.ini
+
 * Sat Oct 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.9.8
 - first Annvix build of the suhosin extension (replaces the hardening patch)
 
