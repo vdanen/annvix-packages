@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		mdadm
-%define version		2.5.4
+%define version		2.5.6
 %define release		%_revrel
 
 %define use_dietlibc 	0
@@ -17,8 +17,7 @@
 %define use_dietlibc 	1
 %endif
 
-%define mdassemble_auto	%{nil}
-#define mdassemble_auto	-DMDASSEMBLE_AUTO
+%define mdassemble_auto	-DMDASSEMBLE_AUTO
 
 # we want to install in /sbin, not /usr/sbin...
 %define _exec_prefix	%{nil}
@@ -30,12 +29,10 @@ Release:	%{release}
 License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://www.cse.unsw.edu.au/~neilb/source/mdadm/
-Source:		http://www.kernel.org/pub/linux/utils/raid/mdadm/%{name}-%{version}.tar.bz2
-Source2:	mdadm.run
-Source3:	mdadm-log.run
-Patch2:		mdadm-2.3.1-kernel-byteswap-include-fix.patch
-Patch4:		mdadm-2.5-rand.patch
-
+Source0:	http://www.kernel.org/pub/linux/utils/raid/mdadm/%{name}-%{version}.tar.bz2
+Source1:	mdadm.run
+Source2:	mdadm-log.run
+Patch0:		mdadm-2.5-rand.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	man
@@ -70,8 +67,7 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
-#%patch2 -p1 -b .asm-byteorder_h
-%patch4 -p1 -b .rand
+%patch0 -p1 -b .rand
 
 chmod 0644 ChangeLog
 
@@ -84,7 +80,7 @@ COMP="diet gcc"
 %endif
 
 %if %{use_dietlibc}
-make mdassemble CXFLAGS="%{optflags} %{mdassemble_auto}" SYSCONFDIR="%{_sysconfdir}" DIET_GCC="$COMP"
+CXFLAGS="%{mdassemble_auto}" SYSCONFDIR="%{_sysconfdir}" DIET_GCC="$COMP" make mdassemble
 %endif
 make CXFLAGS="%{optflags}" SYSCONFDIR="%{_sysconfdir}"
 
@@ -135,6 +131,11 @@ install -m 0740 %{_sourcedir}/mdadm-log.run %{buildroot}%{_srvdir}/mdadm/log/run
 
 
 %changelog
+* Sun Dec 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5.6
+- 2.5.6
+- re-enable auto-assembly and fix bug#35
+- drop P2; it was unapplied and doesn't apply to either x86 or x86_64
+
 * Thu Oct 19 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5.4
 - disable MDASSEMBLE_AUTO again; it was due to dietlibc that it
   was disabled in the first place (see bug #35)
