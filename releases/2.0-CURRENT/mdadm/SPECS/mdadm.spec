@@ -17,7 +17,7 @@
 %define use_dietlibc 	1
 %endif
 
-%define mdassemble_auto	-DMDASSEMBLE_AUTO
+%define mdassemble_auto	"MDASSEMBLE_AUTO=1"
 
 # we want to install in /sbin, not /usr/sbin...
 %define _exec_prefix	%{nil}
@@ -80,7 +80,7 @@ COMP="diet gcc"
 %endif
 
 %if %{use_dietlibc}
-CXFLAGS="%{mdassemble_auto}" SYSCONFDIR="%{_sysconfdir}" DIET_GCC="$COMP" make mdassemble
+make CXFLAGS="%{optflags}" %{mdassemble_auto} SYSCONFDIR="%{_sysconfdir}" DIET_GCC="$COMP" mdassemble
 %endif
 make CXFLAGS="%{optflags}" SYSCONFDIR="%{_sysconfdir}"
 
@@ -131,6 +131,9 @@ install -m 0740 %{_sourcedir}/mdadm-log.run %{buildroot}%{_srvdir}/mdadm/log/run
 
 
 %changelog
+* Sun Dec 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5.6
+- really fix auto-assembly
+
 * Sun Dec 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5.6
 - 2.5.6
 - re-enable auto-assembly and fix bug#35
