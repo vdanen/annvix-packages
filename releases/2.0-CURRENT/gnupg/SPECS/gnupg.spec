@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		gnupg
-%define version 	1.4.4
+%define version 	1.4.6
 %define release		%_revrel
 
 Summary:	GNU privacy guard - a free PGP replacement
@@ -19,11 +19,18 @@ Release:	%{release}
 License:	GPL
 Group:		File Tools
 URL:		http://www.gnupg.org
-Source:		ftp://ftp.gnupg.org/pub/gcrypt/gnupg/%{name}-%{version}.tar.bz2
-Source1:	ftp://ftp.gnupg.org/pub/gcrypt/gnupg/%{name}-%{version}.tar.bz2.sig
+Source0:	ftp://ftp.gnupg.org/gcrypt/gnupg/%{name}-%{version}.tar.bz2
+Source1:	ftp://ftp.gnupg.org/gcrypt/gnupg/%{name}-%{version}.tar.bz2.sig
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	exim
+BuildRequires:	curl-devel
+BuildRequires:	libtermcap-devel
+BuildRequires:	gettext
+BuildRequires:	bzip2-devel
+BuildRequires:	libusb-devel
+BuildRequires:	perl
+BuildRequires:	readline-devel
 
 %description
 GnuPG is GNU's tool for secure communication and data storage.
@@ -56,6 +63,9 @@ This package contains the documentation for %{name}.
     --enable-noexecstack \
     $mguard
 make
+
+
+%check
 # all tests must pass
 make check
 
@@ -87,12 +97,10 @@ for i in en@boldquot en@quot ; do rm -rf %{buildroot}%{_datadir}/locale/$i; done
 
 
 %post
-%_install_info gpg.info
-%_install_info gpgv.info
+%_install_info gnupg.info
 
 %postun
-%_remove_install_info gpg.info
-%_remove_install_info gpgv.info
+%_remove_install_info gnupg.info
 
 
 %files -f %{name}.lang
@@ -108,7 +116,7 @@ for i in en@boldquot en@quot ; do rm -rf %{buildroot}%{_datadir}/locale/$i; done
 %{_datadir}/gnupg/options.skel
 %{_mandir}/man1/*
 %{_mandir}/man7/*
-%{_infodir}/gpg*.info.bz2
+%{_infodir}/gnupg*.info.bz2
 
 %files doc
 %defattr(-,root,root)
@@ -117,6 +125,11 @@ for i in en@boldquot en@quot ; do rm -rf %{buildroot}%{_datadir}/locale/$i; done
 
 
 %changelog
+* Sun Dec 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4.6
+- 1.4.6: fixes CVE-2006-6235
+- fix the buildrequires
+- put the tests in %%check
+
 * Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4.4
 - spec cleanups
 - remove locales
