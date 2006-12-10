@@ -12,7 +12,7 @@
 %define version		%{phpversion}
 %define release		%_revrel
 
-%define phpversion      5.1.6
+%define phpversion      5.2.0
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir          %{_libdir}/php
 
@@ -35,6 +35,8 @@ BuildRequires:  php-devel >= %{phpversion}
 BuildRequires:	mysql-devel >= 4.1.14
 
 Requires:	php
+Provides:	php-mysql
+Obsoletes:	php-mysql
 
 
 %description
@@ -79,6 +81,10 @@ install -m 0644 %{_sourcedir}/php-mysqli.ini %{buildroot}%{_sysconfdir}/php.d/%{
 
 
 %changelog
+* Sun Dec 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.2.0 
+- php 5.2.0
+- provide and obsolete php-mysql (to ease upgrades from 1.2)
+
 * Sat Oct 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.6
 - php 5.1.6+suhosin
 
