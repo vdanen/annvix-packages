@@ -12,7 +12,7 @@
 %define version		%{phpversion}
 %define release		%_revrel
 
-%define phpversion	5.1.6
+%define phpversion	5.2.0
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir		%{_libdir}/php
 
@@ -79,6 +79,9 @@ install -m 0644 %{SOURCE0} %{buildroot}%{_sysconfdir}/php.d/%{inifile}
 
 
 %changelog
+* Sun Dec 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.2.0 
+- php 5.2.0
+
 * Sat Oct 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.6
 - php 5.1.6+suhosin
 
@@ -154,69 +157,5 @@ install -m 0644 %{SOURCE0} %{buildroot}%{_sysconfdir}/php.d/%{inifile}
 * Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 4.3.4-2sls
 - OpenSLS build
 - tidy spec
-
-* Wed Nov 05 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 4.3.4-1mdk
-- built for php 4.3.4
-
-* Wed Aug 27 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 4.3.3-1mdk
-- built for php 4.3.3
-- misc spec file fixes
-
-* Tue Jun 03 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 4.3.2-1mdk
-- built for 4.3.2
-
-* Wed Feb 19 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 4.3.1-1mdk
-- rebuilt against php-4.3.1
-
-* Sun Jan 19 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 4.3.0-3mdk
-- really rebuilt against rebuilt buildrequires
-
-* Sat Jan 18 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 4.3.0-2mdk
-- rebuilt against rebuilt buildrequires
-
-* Fri Jan 10 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 4.3.0-1mdk
-- built against php-4.3.0
-- built against new libmcrypt
-- follow the spec file design as in main
-
-* Fri Oct 04 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 4.2.3-2mdk
-- rebuilt against latest BuildRequires
-
-* Sat Sep  7 2002 Jean-Michel Dault <jmdault@mandrakesoft.com> 4.2.3-1mdk
-- 4.2.3 maintenance release
-- Do not reload apache
-
-* Thu Aug 22 2002 Jean-Michel Dault <jmdault@mandrakesoft.com> 4.2.2-1mdk
-- Rebuild for 4.2.2
-- Macroize a bit more, make version depend on "php -v"
-
-* Sat Jun  1 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 4.2.1-4mdk
-- rebuilt against latest BuildRequires
-
-* Mon May 27 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 4.2.1-3mdk
-- rebuilt against php-4.2.1 this time (klama is wierd...)
-- added Requires: php-common
-
-* Mon May 27 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 4.2.1-2mdk
-- misc spec file fixes
-
-* Tue May 21 2002 Christian Belisle <cbelisle@mandrakesoft.com> 4.2.1-1mdk
-- updated by Oden Eriksson <oden.eriksson@kvikkjokk.net>
-	- misc spec file fixes
-	- PHP 4.2.1
-
-* Sun May 19 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 4.2.0-3mdk
-- rebuilt with gcc3.1
-- misc spec file fixes
-
-* Tue May  7 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 4.2.0-2mdk
-- misc spec file fixes
-
-* Mon Apr 29 2002 Christian Belisle <cbelisle@mandrakesoft.com> 4.2.0-1mdk
-- updated by Oden Eriksson <oden.eriksson@kvikkjokk.net>:
-	- misc spec file fixes
-	- added my version hack :)
-	- initial cooker contrib
-	- PHP 4.2.0
 
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8
