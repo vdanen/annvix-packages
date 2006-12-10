@@ -9,11 +9,12 @@
 
 %define revision	$Rev$
 %define name		curl
-%define version 	7.15.4
+%define version 	7.16.0
 %define release		%_revrel
 
-%define major		3
+%define major		4
 %define libname 	%mklibname %{name} %{major}
+%define old_libname 	%mklibname %{name} 3
 
 # Define to make check (default behavior)
 %define do_check	1
@@ -71,7 +72,9 @@ Group:		Networking/Other
 Requires:	%{libname} = %{version}
 Provides:	%{name}-devel = %{version}-%{release}
 Provides:	lib%{name}-devel
+Provides:	lib%{name}%{major}-devel
 Obsoletes:	%{name}-devel
+Obsoletes:	%{old_libname}-devel
 
 %description -n %{libname}-devel
 libcurl is a library of functions for sending and receiving files through
@@ -111,6 +114,8 @@ skip_tests=
     done
 }
 
+
+%check
 %if %{do_check}
 # At this stage, all tests must pass
 make check
@@ -159,6 +164,12 @@ make check
 
 
 %changelog
+* Sat Dec 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 7.16.0
+- 7.16.0
+- library major is 4
+- put the tests in %%check
+- adjust some provides/obsoletes
+
 * Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 7.15.4
 - rebuild against new openssl
 - spec cleanups
