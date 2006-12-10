@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		php-ini
-%define version		5.1.6
+%define version		5.2.0
 %define release		%_revrel
 
 Summary:	INI files for PHP
@@ -60,6 +60,9 @@ perl -pi -e 's|EXTENSIONDIR|%{_libdir}/php/extensions|g' %{buildroot}%{_sysconfd
 
 
 %changelog
+* Sun Dec 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.6
+- php 5.2.0
+
 * Fri Oct 20 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.6
 - php 5.1.6
 - update the default ini to remove the hardened php stuff
