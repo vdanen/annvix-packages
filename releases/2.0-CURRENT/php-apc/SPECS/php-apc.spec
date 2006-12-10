@@ -9,11 +9,11 @@
 
 %define revision	$Rev$
 %define name		php-%{modname}
-%define version		3.0.10
+%define version		3.0.12p2
 %define release		%_revrel
 %define epoch		1
 
-%define phpversion	5.1.6
+%define phpversion	5.2.0
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir		%{_libdir}/php
 
@@ -32,7 +32,7 @@ Epoch:		%{epoch}
 License:	PHP License
 Group:		Development/PHP
 URL:		http://pecl.php.net/package/APC
-Source0:	APC-%{version}.tgz
+Source0:	http://pecl.php.net/get/APC-%{version}.tgz
 Source1:	apc.ini
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -111,10 +111,14 @@ install -m 0755 %{soname} %{buildroot}%{phpdir}/extensions/
 
 %files doc
 %defattr(-,root,root)
-%doc CHANGELOG INSTALL NOTICE TODO apc.php
+%doc tests CHANGELOG INSTALL LICENSE NOTICE TECHNOTES.txt TODO
 
 
 %changelog
+* Sun Dec 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.12p2
+- 3.0.12p2
+- php 5.2.0
+
 * Fri Oct 20 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.10
 - php 5.1.6+suhosin
 - revert previous change
