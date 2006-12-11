@@ -30,6 +30,7 @@ Patch1:		tar-1.15-mdk-scandir.patch
 Patch2:		tar-1.14-mdk-doubleslash.patch
 Patch3:		tar-1.15.1-mdk-compile-gcc4.patch
 Patch4:		tar-1.14-CVE-2006-0300.patch
+Patch5:		tar-1.15.1-CVE-2006-6097.patch
 
 Buildroot:	%{_buildroot}/%{name}-%{version}
 
@@ -55,6 +56,7 @@ ability to perform incremental and full backups.
 %patch2 -p1 -b .doubleslash
 %patch3 -p0 -b .compilgcc4
 %patch4 -p1 -b .cve-2006-0300
+%patch5 -p1 -b .cve-2006-6097
 
 cat %{SOURCE2} > ./help2man
 chmod +x ./help2man
@@ -114,6 +116,9 @@ mv %{buildroot}%{_libexecdir}/rmt %{buildroot}/sbin/%{rmtrealname}
 
 
 %changelog
+* Mon Dec 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.15.1
+- P5: security fix for CVE-2006-6097
+
 * Fri Mar 03 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.15.1
 - P4: security fix for CVE-2006-0300
 
