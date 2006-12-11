@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		tar
-%define version		1.15.90
+%define version		1.16
 %define release		%_revrel
 
 %define rmtrealname	rmt-tar
@@ -26,6 +26,7 @@ Source0:	ftp://ftp.gnu.org/pub/gnu/tar/tar-%{version}.tar.bz2
 Source1:	ftp://ftp.gnu.org/pub/gnu/tar/tar-%{version}.tar.bz2.sig
 Source2:	tar-help2man
 Patch0:		tar-1.14-mdk-doubleslash.patch
+Patch1:		tar-1.16-CVE-2006-6097.patch
 
 Buildroot:	%{_buildroot}/%{name}-%{version}
 
@@ -55,6 +56,7 @@ This package contains the documentation for %{name}.
 %prep
 %setup -q
 %patch0 -p1 -b .doubleslash
+%patch1 -p1 -b .cve-2006-6097
 
 cp %{_sourcedir}/tar-help2man ./help2man
 chmod +x ./help2man
@@ -72,6 +74,8 @@ gzip ChangeLog
 # thanks to diffutils Makefile rule
 (echo '[NAME]' && sed 's@/\* *@@; s/-/\\-/; q' src/tar.c) | (./help2man -i - -S '%{name} %{version}' src/tar ) | sed 's/^\.B info .*/.B info %{name}/' > %{name}.1
 
+
+%check
 make check
 
 
@@ -118,6 +122,11 @@ mv %{buildroot}%{_libexecdir}/rmt %{buildroot}/sbin/%{rmtrealname}
 
 
 %changelog
+* Mon Dec 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.16
+- 1.16
+- put make check in %%check
+- P1: security fix for CVE-2006-6097
+
 * Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.15.90
 - spec cleanups
 - remove locales
