@@ -12,7 +12,7 @@
 %define kernelver	2
 %define patchlevel	6
 %define sublevel	16
-%define minlevel	32
+%define minlevel	35
 %define avxrelease	%(echo %{revision}|cut -d ' ' -f 2)
 
 %define tar_version	%{kernelver}.%{patchlevel}.%{sublevel}.%{minlevel}
@@ -857,6 +857,14 @@ exit 0
 
 
 %changelog
+* Mon Dec 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.35
+- 2.6.16.35: security fixes for CVE-2006-4352, CVE-2006-5751
+- update SL11 to apply (1 hunk to net/ipv4/udp.c)
+- update SL64 to apply (kernel/kallsyms.c)
+- NOTE: I had a modified PaX patch, but there were some errors in compiling
+  and I'm suspecting RSBAC integration so I've left the patch out for the
+  time being although the configs still reflect the PaX changes
+
 * Fri Nov 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.32
 - CZ01: add back the Chum framebuffer logo
 

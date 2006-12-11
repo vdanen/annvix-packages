@@ -10654,9 +10654,8 @@ diff -urN -x rsbac trunk/kernel/fork.c linux-2.6.16-rsbac-1.2.7/kernel/fork.c
  		if (!(clone_flags & CLONE_STOPPED))
  			wake_up_new_task(p, clone_flags);
  		else
-diff -urN -x rsbac trunk/kernel/kallsyms.c linux-2.6.16-rsbac-1.2.7/kernel/kallsyms.c
---- trunk/kernel/kallsyms.c	2006-06-01 10:33:25.000000000 +0200
-+++ linux-2.6.16-rsbac-1.2.7/kernel/kallsyms.c	2006-06-01 10:36:12.000000000 +0200
+--- linux-2.6.16.35/kernel/kallsyms.c.sl64.orig	2006-12-11 12:19:48.000000000 -0700
++++ linux-2.6.16.35/kernel/kallsyms.c	2006-12-11 12:27:38.000000000 -0700
 @@ -21,6 +21,11 @@
  #include <linux/sched.h>	/* for cond_resched */
  #include <linux/mm.h>
@@ -10669,10 +10668,11 @@ diff -urN -x rsbac trunk/kernel/kallsyms.c linux-2.6.16-rsbac-1.2.7/kernel/kalls
  #include <asm/sections.h>
  
  #ifdef CONFIG_KALLSYMS_ALL
-@@ -380,6 +385,31 @@
+@@ -378,6 +383,31 @@
+ 	 * using get_symbol_offset for every symbol */
  	struct kallsym_iter *iter;
  	int ret;
- 
++	
 +        /* RSBAC */
 +        #ifdef CONFIG_RSBAC
 +        union rsbac_target_id_t       rsbac_target_id;
@@ -10697,10 +10697,9 @@ diff -urN -x rsbac trunk/kernel/kallsyms.c linux-2.6.16-rsbac-1.2.7/kernel/kalls
 +            return -EPERM;
 +          }
 +        #endif
-+
- 	iter = kmalloc(sizeof(*iter), GFP_KERNEL);
+ 
+ 	iter = kzalloc(sizeof(*iter), GFP_KERNEL);
  	if (!iter)
- 		return -ENOMEM;
 diff -urN -x rsbac trunk/kernel/kmod.c linux-2.6.16-rsbac-1.2.7/kernel/kmod.c
 --- trunk/kernel/kmod.c	2006-06-01 10:33:25.000000000 +0200
 +++ linux-2.6.16-rsbac-1.2.7/kernel/kmod.c	2006-06-01 10:36:12.000000000 +0200
