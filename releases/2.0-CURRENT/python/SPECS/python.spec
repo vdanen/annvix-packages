@@ -58,9 +58,10 @@ BuildRequires:	termcap-devel
 BuildRequires:	ncurses-devel 
 BuildRequires:	openssl-devel 
 BuildRequires:	readline-devel 
-BuildRequires:	tix
 BuildRequires:	tk
+BuildRequires:	tk-devel
 BuildRequires:	tcl 
+BuildRequires:	tcl-devel
 BuildRequires:	autoconf2.5
 BuildRequires:	bzip2-devel
 
@@ -75,12 +76,6 @@ modules, classes, exceptions, very high level dynamic data types and
 dynamic typing. Python supports interfaces to many system calls and
 libraries, as well as to various windowing systems (X11, Motif, Tk,
 Mac and MFC).
-
-Programmers can write new built-in modules for Python in C or C++.
-Python can be used as an extension language for applications that
-need a programmable interface. This package contains most of the
-standard Python modules, as well as modules for interfacing to the
-Tix widget set for Tk and RPM.
 
 
 %package -n %{libname}
@@ -331,6 +326,10 @@ rm -f modules-list main.list
 
 
 %changelog
+* Sat Dec 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.3
+- rebuild against new tcl and tk and adjust buildrequires
+- drop buildrequires on tix
+
 * Sat Dec 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.3
 - P7: fix compil
 - rebuild against new ncurses
