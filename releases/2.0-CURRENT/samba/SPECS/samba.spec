@@ -827,6 +827,9 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Wed Dec 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.23d
+- rebuild against new krb5
+
 * Sat Dec 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.23d
 - 3.0.23d
 - samba installs the lib as .so and .so.0 as the symlink when we want it the
