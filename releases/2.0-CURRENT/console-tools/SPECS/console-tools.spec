@@ -207,7 +207,7 @@ pushd console-data-%{CDVER}
 popd
 
 # relocate some files from /usr/share to /usr/lib/kbd
-mkdir %{buildroot}%{kbddir}
+mkdir -p %{buildroot}%{kbddir}
 for dir in consolefonts consoletrans keymaps unidata videomodes
 do
     mv %{buildroot}%{_datadir}/${dir} %{buildroot}%{kbddir}/
