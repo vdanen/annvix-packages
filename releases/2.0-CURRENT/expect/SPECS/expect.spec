@@ -20,6 +20,7 @@ Summary:	A tcl extension for simplifying program-script interaction
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
+Epoch:		1
 Group:		System/Libraries
 License:	BSD
 URL:		http://expect.nist.gov/
