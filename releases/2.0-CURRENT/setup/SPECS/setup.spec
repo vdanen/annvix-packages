@@ -72,7 +72,7 @@ if [ -f /etc/group ]; then
 fi
 
 
-%post
+%posttrans
 pwconv 2>/dev/null >/dev/null  || :
 grpconv 2>/dev/null >/dev/null  || :
 
@@ -114,6 +114,10 @@ fi
 
 
 %changelog
+* Mon Nov 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.8
+- move %%post stuff to %%posttrans to run after the install transaction
+  (should ease chroot installs a bit)
+
 * Mon Nov 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.8
 - 2.8
 
