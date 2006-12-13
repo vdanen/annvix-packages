@@ -20,7 +20,7 @@ Summary:	A tcl extension for simplifying program-script interaction
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-Epoch:		1
+Epoch:		%{epoch}
 Group:		System/Libraries
 License:	BSD
 URL:		http://expect.nist.gov/
@@ -177,6 +177,9 @@ chmod 0755 %{buildroot}%{_libdir}/*.so
 
 
 %changelog
+* Tue Dec 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.43.0
+- fix the epoch usage
+
 * Tue Dec 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.43.0
 - 5.43.0
 - break out expect from the tcltk package (ala Mandriva)
