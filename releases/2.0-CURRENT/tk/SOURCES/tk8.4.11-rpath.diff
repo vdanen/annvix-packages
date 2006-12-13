@@ -1,0 +1,11 @@
+--- unix/tcl.m4	2005-06-29 18:43:10.000000000 +0200
++++ unix/tcl.m4.oden	2005-12-31 14:31:14.000000000 +0100
+@@ -1173,7 +1173,7 @@
+ 		DL_OBJS="tclLoadDl.o"
+ 		DL_LIBS="-ldl"
+ 		LDFLAGS="$LDFLAGS -Wl,--export-dynamic"
+-		CC_SEARCH_FLAGS='-Wl,-rpath,${LIB_RUNTIME_DIR}'
++		CC_SEARCH_FLAGS=""
+ 		LD_SEARCH_FLAGS=${CC_SEARCH_FLAGS}
+ 	    else
+ 		AC_CHECK_HEADER(dld.h, [
