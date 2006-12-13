@@ -34,7 +34,10 @@ Patch1:		db3.3-3.3.11.patch
 Patch2:		db3.3-compile-with-bash31.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	db1-devel, glibc-static-devel, tcl
+BuildRequires:	db1-devel
+BuildRequires:	glibc-static-devel
+BuildRequires:	tcl
+BuildRequires:	tcl-devel
 
 Requires(post):	ldconfig
 Requires(postun): ldconfig
@@ -310,6 +313,9 @@ rm -rf	%{buildroot}/usr/docs \
 
 
 %changelog
+* Tue Dec 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.3.11
+- rebuild against new tcl and adjust buildrequires
+
 * Fri Jun 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.3.11
 - provide libdb3.3-devel even on biarches
 - devel conflicts for all libdb4.x-devel packages
@@ -361,145 +367,5 @@ rm -rf	%{buildroot}/usr/docs \
 - tidy spec
 - use %%build_opensls to prevent building java stuff
 - remove %%build_mdk90 conditional macro
-
-* Sat Jul 05 2003 Olivier Thauvin <thauvin@aerov.jussieu.fr> 3.3.11-15mdk
-- use %%mklibname
-- libdb3-devel conflict libdb4-devel
-
-* Fri Jun 06 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 3.3.11-14mdk
-- rebuild against tcl 8.4
-
-* Sun Jan 19 2003 Stefan van der Eijk <stefan@eijk.nu> 3.3.11-13mdk
-- remove unpackaged files
-
-* Sat Oct 26 2002 Stew Benedict <sbenedict@mandrakesoft.com> 3.3.11-12mdk
-- add -D_GNU_SOURCE -D_REENTRANT to CFLAGS for PPC - fix crazy 2GB .db files
-
-* Tue Aug 13 2002 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 3.3.11-11mdk
-- Automated rebuild with gcc 3.2-0.3mdk
-
-* Tue Aug 06 2002 Geoffrey Lee <snailtalk@mandrakesoft.com> 3.3.11-10mdk
-- glibc-static-devel BuildRequires for Mandrake 9.
-
-* Fri Jul 26 2002 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 3.3.11-9mdk
-- Rebuild with gcc3.2
-- Conditionalize build of Java bindings --with[out] JAVA
-
-* Wed Jun 19 2002 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 3.3.11-8mdk
-- Sanitize specfile (use %%configure, %%makeinstall, etc.)
-- Enable Java bindings, disable debug
-- Rpmlint fixes: strange-permission, hardcoded-library-path
-
-* Tue Feb 19 2002 Christian Belisle <cbelisle@mandrakesoft.com> 3.3.11-7mdk
-- Move docs images to devel package.
-- Make a new libdbcxx package.
-
-* Sat Feb 16 2002 Stefan van der Eijk <stefan@eijk.nu> 3.3.11-6mdk
-- Remove duplicate Buildprereq
-- BuildRequires
-
-* Thu Oct 25 2001 Christian Belisle <cbelisle@mandrakesoft.com> 3.3.11-5mdk
-- Add missing files.
-
-* Thu Oct 11 2001 Christian Belisle <cbelisle@mandrakesoft.com> 3.3.11-4mdk
-- Add a description to the main package.
-- Applied db 3.3.11.1 patch.
-
-* Thu Oct 11 2001 Frederic Lepied <flepied@mandrakesoft.com> 3.3.11-3mdk
-- don't obsolete libdb3.2
-
-* Thu Oct 11 2001 Christian Belisle <cbelisle@mandrakesoft.com> 3.3.11-2mdk
-- rebuild.
-
-* Wed Oct 10 2001 Christian Belisle <cbelisle@mandrakesoft.com> 3.3.11-1mdk
-- 3.3.11.
-
-* Fri Oct 05 2001 Christian Belisle <cbelisle@mandrakesoft.com> 3.2.9-3mdk
-- Change License for BSD (thanks to Geoffrey).
-- devel package provide libdb-devel.
-
-* Tue Sep 04 2001 Christian Belisle <cbelisle@mandrakesoft.com> 3.2.9-2mdk
-- rebuild.
-- s/Copyright/License.
-
-* Tue Jul  3 2001 Frederic Lepied <flepied@mandrakesoft.com> 3.2.9-1mdk
-- 3.2.9
-
-* Mon Mar 12 2001 Frederic Lepied <flepied@mandrakesoft.com> 3.1.17-1mdk
-- 3.1.17
-
-* Thu Dec  7 2000 Frederic Lepied <flepied@mandrakesoft.com> 3.1.14-2mdk
-- new lib policy.
-
-* Mon Oct 16 2000 Frederic Lepied <flepied@mandrakesoft.com> 3.1.14-1mdk
-- first mandrake version.
-
-* Wed Aug 30 2000 Matt Wilson <msw@redhat.com>
-- rebuild to cope with glibc locale binary incompatibility, again
-
-* Wed Aug 23 2000 Jeff Johnson <jbj@redhat.com>
-- remove redundant strip of libnss_db* that is nuking symbols.
-- change location in /usr/lib/libdb-3.1.la to point to /lib (#16776).
-
-* Thu Aug 17 2000 Jeff Johnson <jbj@redhat.com>
-- summaries from specspo.
-- all of libdb_tcl* (including symlinks) in db3-utils, should be db3->tcl?
-
-* Wed Aug 16 2000 Jakub Jelinek <jakub@redhat.com>
-- temporarily build nss_db in this package, should be moved
-  into separate nss_db package soon
-
-* Wed Jul 19 2000 Jakub Jelinek <jakub@redhat.com>
-- rebuild to cope with glibc locale binary incompatibility
-
-* Wed Jul 12 2000 Prospector <bugzilla@redhat.com>
-- automatic rebuild
-
-* Sun Jun 11 2000 Jeff Johnson <jbj@redhat.com>
-- upgrade to 3.1.14.
-- create db3-utils sub-package to hide tcl dependency, enable tcl Yet Again.
-- FHS packaging.
-
-* Mon Jun  5 2000 Jeff Johnson <jbj@redhat.com>
-- disable tcl Yet Again, base packages cannot depend on libtcl.so.
-
-* Sat Jun  3 2000 Jeff Johnson <jbj@redhat.com>
-- enable tcl, rebuild against tcltk 8.3.1 (w/o pthreads).
-
-* Tue May 30 2000 Matt Wilson <msw@redhat.com>
-- include /lib/libdb.so in the devel package
-
-* Wed May 10 2000 Jeff Johnson <jbj@redhat.com>
-- put in "System Environment/Libraries" per msw instructions.
-
-* Tue May  9 2000 Jeff Johnson <jbj@redhat.com>
-- install shared library in /lib, not /usr/lib.
-- move API docs to db3-devel.
-
-* Mon May  8 2000 Jeff Johnson <jbj@redhat.com>
-- don't rename db_* to db3_*.
-
-* Tue May  2 2000 Jeff Johnson <jbj@redhat.com>
-- disable --enable-test --enable-debug_rop --enable-debug_wop.
-- disable --enable-posixmutexes --enable-tcl as well, to avoid glibc-2.1.3
-  problems.
-
-* Mon Apr 24 2000 Jeff Johnson <jbj@redhat.com>
-- add 3.0.55.1 alignment patch.
-- add --enable-posixmutexes (linux threads has not pthread_*attr_setpshared).
-- add --enable-tcl (needed -lpthreads).
-
-* Sat Apr  1 2000 Jeff Johnson <jbj@redhat.com>
-- add --enable-debug_{r,w}op for now.
-- add variable to set shm perms.
-
-* Sat Mar 25 2000 Jeff Johnson <jbj@redhat.com>
-- update to 3.0.55
-
-* Tue Dec 29 1998 Jeff Johnson <jbj@redhat.com>
-- Add --enable-cxx to configure.
-
-* Thu Jun 18 1998 Jeff Johnson <jbj@redhat.com>
-- Create.
 
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8
