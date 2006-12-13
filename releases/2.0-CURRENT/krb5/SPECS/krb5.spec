@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		krb5
-%define version		1.4.3
+%define version		1.5.1
 %define release		%_revrel
 
 %define major		1
@@ -49,27 +49,18 @@ Source22:	08_kftp.afterboot
 Source23:	08_ktelnet.afterboot
 Patch0:		krb5-1.2.2-telnetbanner.patch
 Patch1:		krb5-1.2.5-biarch-utmp.patch
-Patch2:		krb5-1.3-telnet.patch
 Patch3:		krb5-1.3-mdk-no-rpath.patch
-Patch4:		krb5-1.3-fdr-info-dir.patch
 Patch5:		krb5-1.3-fdr-large-file.patch
-Patch6:		krb5-1.3-fdr-ksu-path.patch
+Patch6:		krb5-1.5.1-mdv-ksu-path.patch
 Patch7:		krb5-1.3-fdr-ksu-access.patch
 Patch8:		krb5-1.3-fdr-pass-by-address.patch
+
 Patch9:		krb5-1.3-fdr-ftp-glob.patch
-Patch10:	krb5-1.3.2-fdr-efence.patch
 Patch11:	krb5-1.3.3-fdr-rcp-sendlarge.patch
-Patch12:	krb5-1.3.3-rcp-markus.patch
-Patch13:	krb5-1.4.1-api.patch
-Patch14:	krb5-1.4.1-fclose.patch
-Patch15:	krb5-1.3.6-telnet-environ.patch
-Patch16:	krb5-1.3.5-gethostbyname_r.patch
 # (gb) preserve file names when generating files from *.et (multiarch fixes)
 Patch17:	krb5-1.3.6-et-preserve-file-names.patch
 # http://qa.mandriva.com/show_bug.cgi?id=9410
 Patch18:	krb5-1.4.1-ftplfs.patch
-Patch19:	krb5-1.4.3-fdr-pthread_np.patch
-Patch20:	http://web.mit.edu/kerberos/advisories/2006-001-patch_1.4.3.txt
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	bison
@@ -77,6 +68,7 @@ BuildRequires:	flex
 BuildRequires:	libtermcap-devel
 BuildRequires:	texinfo
 BuildRequires:	tcl
+BuildRequires:	tcl-devel
 BuildRequires:	libext2fs-devel
 BuildRequires:	chrpath
 BuildRequires:	multiarch-utils >= 1.0.3
@@ -156,6 +148,9 @@ Requires:	%{libname} = %{version}
 Requires:	ipsvd
 Requires:	krb5-workstation
 Requires(pre):	afterboot
+Requires(post):	rpm-helper
+Requires(postun): rpm-helper
+Requires(preun): rpm-hellper
 Obsoletes:	telnet-server
 Provides:	telnet-server
 
@@ -170,7 +165,7 @@ This version supports kerberos authentication.
 
 %package -n telnet-client-krb5
 Summary:	A telnet-client with kerberos support
-Group:		System/Servers
+Group:		Networking/Remote Access
 Requires:	%{libname} = %{version}
 Obsoletes:	telnet
 Provides:	telnet
@@ -184,7 +179,7 @@ This version supports kerberos authentication.
 
 %package -n ftp-client-krb5
 Summary:	A ftp-client with kerberos support
-Group:		Networking/File transfer
+Group:		Networking/File Transfer
 Requires:	%{libname} = %{version}
 Obsoletes:	ftp
 Provides:	ftp
@@ -200,9 +195,12 @@ This version supports kerberos authentication.
 %package -n ftp-server-krb5
 Summary:	A ftp-server with kerberos support
 Requires:	%{libname} = %{version}
-Group:		Networking/File transfer
+Group:		System/Servers
 Requires:	ipsvd
 Requires(pre):	afterboot
+Requires(post):	rpm-helper
+Requires(postun): rpm-helper
+Requires(preun): rpm-hellper
 Provides:	ftpserver
 
 %description -n ftp-server-krb5
@@ -223,27 +221,15 @@ This package contains the documentation for %{name}.
 %setup -q -a 10
 %patch0 -p1 -b .banner
 %patch1 -p1 -b .biarch-utmp
-%patch2 -p1 -b .telnet
 %patch3 -p1 -b .no-rpath
-%patch4 -p1 -b .info-dir
 %patch5 -p1 -b .large-file
 %patch6 -p1 -b .ksu-path
 %patch7 -p1 -b .ksu-access
 %patch8 -p1 -b .pass-by-address
 %patch9 -p1 -b .ftp-glob
-%patch10 -p1 -b .efence
 %patch11 -p1 -b .rcp-sendlarge
-%patch12 -p1 -b .can-2004-0175
-%patch13 -p1 -b .api_crash
-%patch14 -p1 -b .double_close
-%patch15 -p1 -b .can-2005-0488
-%patch16 -p1 -b .gethostbyname_r
 %patch17 -p1 -b .et-preserve-file-names
 %patch18 -p1 -b .lfs
-%patch19 -p1 -b .pthread_np
-pushd src
-%patch20 -p0 -b .cve-2006-3083
-popd
 
 find . -type f -name "*.fixinfo" -exec rm -fv "{}" ";"
 gzip doc/*.ps
@@ -281,7 +267,7 @@ env ac_cv_lib_resolv_res_search=yes ./configure \
     --libexecdir=%{_libdir} \
     --libdir=%{_libdir} \
     --enable-shared   \
-    --enable-static  
+    --disable-static  
 
 # some rpath cleanups
 find . -name Makefile | xargs perl -p -i -e 's@-Wl,-rpath -Wl,\$\(PROG_RPATH\)+@@';
@@ -390,8 +376,8 @@ rm -Rf %{buildroot}/%{_datadir}/examples
 # (gb) this one could be fixed differently and properly using <stdint.h>
 %multiarch_includes %{buildroot}%{_includedir}/gssrpc/types.h
 # multiarch_includes %{buildroot}%{_includedir}/krb5/k5-config.h
-%multiarch_includes %{buildroot}%{_includedir}/krb5/autoconf.h
-%multiarch_includes %{buildroot}%{_includedir}/krb5/osconf.h
+# multiarch_includes %{buildroot}%{_includedir}/krb5/autoconf.h
+# multiarch_includes %{buildroot}%{_includedir}/krb5/osconf.h
 %multiarch_includes %{buildroot}%{_includedir}/krb5.h
 
 rm -rf %{buildroot}%{_includedir}/kerberosIV
@@ -559,12 +545,16 @@ popd >/dev/null 2>&1
 %{_mandir}/man8/sserver.8*
 %attr(0755,root,root) %{_sbindir}/kdcrotate
 %{_datadir}/gnats/mit
+%dir %{_libdir}/krb5/plugins/kdb
+%{_libdir}/krb5/plugins/kdb/db2.so
 
 
 %files -n %{libname}
 %defattr(-,root,root)
 %config(noreplace) %{_sysconfdir}/krb5.conf
 %{_libdir}/lib*.so.*
+%dir %{_libdir}/krb5
+%dir %{_libdir}/krb5/plugins
 
 
 %files -n %{libname}-devel
@@ -576,12 +566,11 @@ popd >/dev/null 2>&1
 %multiarch %{multiarch_includedir}/gssapi/gssapi.h
 %multiarch %{multiarch_includedir}/gssrpc/types.h
 # multiarch %{multiarch_includedir}/krb5/k5-config.h
-%multiarch %{multiarch_includedir}/krb5/autoconf.h
-%multiarch %{multiarch_includedir}/krb5/osconf.h
+# multiarch %{multiarch_includedir}/krb5/autoconf.h
+# multiarch %{multiarch_includedir}/krb5/osconf.h
 %multiarch %{multiarch_includedir}/krb5.h
 %{_includedir}/*
 %{_libdir}/lib*.so
-%{_libdir}/*.a
 %{_mandir}/man1/krb5-config.1*
 %{_mandir}/man1/sclient.1*
 %{_mandir}/man8/sserver.8*
@@ -628,6 +617,7 @@ popd >/dev/null 2>&1
 %config(noreplace) %{_srvdir}/kftp/peers/0
 %{_datadir}/afterboot/08_kftp
 
+
 %files doc
 %defattr(-,root,root)
 %doc README
@@ -638,6 +628,14 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Tue Dec 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.5.1
+- 1.5.1
+- drop P2, P4, P10, P12, P13, P14, P15, P16, P19, P20; merged
+  upstream or no longer needed
+- grabbed updated P1, P6, P18 from Mandriva
+- rebuild against new tcl and adjust buildrequires
+- fix some groups
+
 * Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4.3
 - 1.4.3
 - spec cleanups

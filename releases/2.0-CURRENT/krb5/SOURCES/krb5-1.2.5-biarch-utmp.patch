@@ -20,8 +20,8 @@
  		if (write(fd, (char *)&ut, sizeof(struct utmp)) !=
  		    sizeof(struct utmp))
  			(void)ftruncate(fd, buf.st_size);
---- krb5-1.2.5/src/util/pty/dump-utmp.c.biarch-utmp	2001-09-11 01:31:30.000000000 +0200
-+++ krb5-1.2.5/src/util/pty/dump-utmp.c	2003-04-07 12:16:32.000000000 +0200
+--- krb5-1.2.5/src/appl/libpty/dump-utmp.c.biarch-utmp	2001-09-11 01:31:30.000000000 +0200
++++ krb5-1.2.5/src/appl/libpty/dump-utmp.c	2003-04-07 12:16:32.000000000 +0200
 @@ -83,6 +83,7 @@ print_ut(int all, const struct utmp *u)
  #ifdef PTY_UTMP_E_EXIT
      int let, lee;
@@ -58,8 +58,8 @@
  #ifdef HAVE_STRUCT_UTMPX_UT_HOST
      if (u->ut_host[0])
  	printf(" %s\n", u->ut_host);
---- krb5-1.2.5/src/util/pty/update_utmp.c.biarch-utmp	2001-11-28 22:31:00.000000000 +0100
-+++ krb5-1.2.5/src/util/pty/update_utmp.c	2003-04-07 12:20:15.000000000 +0200
+--- krb5-1.2.5/src/appl/libpty/update_utmp.c.biarch-utmp	2001-11-28 22:31:00.000000000 +0100
++++ krb5-1.2.5/src/appl/libpty/update_utmp.c	2003-04-07 12:20:15.000000000 +0200
 @@ -559,10 +559,21 @@ pty_update_utmp(int process_type, int pi
  	utxtmp = best_utxent(&utx);
  
@@ -94,8 +94,8 @@
  
      if (flags & PTY_TTYSLOT_USABLE)
  	tty = ttyslot();
---- krb5-1.2.5/src/util/pty/logwtmp.c.biarch-utmp	2001-09-11 01:31:30.000000000 +0200
-+++ krb5-1.2.5/src/util/pty/logwtmp.c	2003-04-07 12:21:36.000000000 +0200
+--- krb5-1.2.5/src/appl/libpty/logwtmp.c.biarch-utmp	2001-09-11 01:31:30.000000000 +0200
++++ krb5-1.2.5/src/appl/libpty/logwtmp.c	2003-04-07 12:21:36.000000000 +0200
 @@ -57,9 +57,17 @@ pty_logwtmp(const char *tty, const char 
      utx.ut_host[sizeof(utx.ut_host) - 1] = '\0';
  #endif
