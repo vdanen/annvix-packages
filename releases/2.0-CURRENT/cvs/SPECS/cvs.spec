@@ -178,6 +178,9 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Wed Dec 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.12.13
+- rebuild against new krb5
+
 * Mon Aug 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.12.13
 - 1.12.13
 - renumber patches
