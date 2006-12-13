@@ -16,7 +16,7 @@
 %define version		7.0
 %define release		%_revrel
 
-%define patch_level	1
+%define patch_level	30
 %define localedir	%{buildroot}%{_datadir}/locale/
 
 %define perl_version	%(rpm -q --qf '%%{epoch}:%%{version}' perl)
@@ -50,7 +50,10 @@ Patch28:	vim-6.4-mdk-po-mode.patch
 Patch29:	vim-7.0-mdk-po-buildfix.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	perl-devel, python-devel, termcap-devel, acl-devel
+BuildRequires:	perl-devel
+BuildRequires:	python-devel
+BuildRequires:	termcap-devel
+BuildRequires:	acl-devel
 
 %description
 VIM (VIsual editor iMproved) is an updated and improved version of the vi
@@ -121,6 +124,7 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q -b 2 -n vim70 -a4
+
 # spec plugin
 rm -f runtime/doc/pi_spec.txt
 rm -f runtime/ftpplugin/spec.vim
@@ -386,6 +390,9 @@ update-alternatives --remove vim /usr/bin/vim-enhanced
 
 
 %changelog
+* Tue Dec 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 7.0
+- update to patchlevel 30
+
 * Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 7.0
 - spec cleanups
 - remove locales
