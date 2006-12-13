@@ -337,6 +337,9 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Wed Dec 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.5p1
+- rebuild against new krb5
+
 * Wed Nov 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.5p1
 - 4.5p1 (privsep vuln fixed)
 
