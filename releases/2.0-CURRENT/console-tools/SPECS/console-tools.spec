@@ -20,11 +20,7 @@
 %define fname		console
 %define libname 	%mklibname %{fname} %{major}
 
-# /usr/lib/kbd/{conslefonts,consolemaps,keymaps} instead of
-# /usr/share/{conslefonts,consolemaps,keymaps}
-# FIXME: data really should really go to /usr/share/*
 %define kbddir		%{_prefix}/lib/kbd
-%define _datadir	%{kbddir}
 
 Summary:	Linux console tools
 Name:		%{name}
@@ -210,6 +206,13 @@ pushd console-data-%{CDVER}
     make DESTDIR=%{buildroot} install
 popd
 
+# relocate some files from /usr/share to /usr/lib/kbd
+mkdir %{buildroot}%{kbddir}
+for dir in consolefonts consoletrans keymaps unidata videomodes
+do
+    mv %{buildroot}%{_datadir}/${dir} %{buildroot}%{kbddir}/
+done
+
 # don't give loadkeys SUID perms
 chmod 0755 %{buildroot}%{_bindir}/loadkeys
 
@@ -221,17 +224,20 @@ install -d -m 0755 %{buildroot}%{_sysconfdir}/profile.d
 install -m 0755 %{_sourcedir}/configure_keyboard.sh %{buildroot}%{_sysconfdir}/profile.d/configure_keyboard.sh
 
 install -d -m 0755 %{buildroot}/bin
-#for i in loadkeys consolechars unicode_start; do
-for i in unicode_start; do
+for i in consolechars unicode_start kbd_mode; do
     mv %{buildroot}%{_bindir}/$i %{buildroot}/bin
     ln -s ../../bin/$i %{buildroot}%{_bindir}/$i
 done
 
+chmod +x %{buildroot}%{_libdir}/*.so*
+# libraries must be accessible before partition mounting
+# if we want to be able to load console font before partition mounting
+mkdir -p  %{buildroot}/lib
+mv %{buildroot}/%{_libdir}/*.so* %{buildroot}/lib
+
 %ifnarch %ix86
 rm -f %{buildroot}%{_mandir}/man8/resizecons.8
 %endif
-
-chmod +x %{buildroot}%{_libdir}/*.so*
 
 cp -aR console-data-%{CDVER}/doc/* doc
 
@@ -261,25 +267,26 @@ install -m 0644 %{_sourcedir}/us-intl.kmap.gz %buildroot/%{kbddir}/keymaps/i386/
 
 %post
 if [ -f %{_sysconfdir}/sysconfig/i18n ] ; then
-   . %{_sysconfdir}/sysconfig/i18n
-   if [ -d %{_sysconfdir}/sysconfig/console ] ; then
-      if [ -n "$SYSFONT" ]; then
-         mkdir -p %{_sysconfdir}/sysconfig/console/consolefonts
-         cp -f %{kbddir}/consolefonts/$SYSFONT* \
-			%{_sysconfdir}/sysconfig/console/consolefonts
-      fi
-      if [ -n "$UNIMAP" ]; then
-         mkdir -p %{_sysconfdir}/sysconfig/console/consoletrans
-         cp -f %{kbddir}/consoletrans/$UNIMAP* \
-			%{_sysconfdir}/sysconfig/console/consoletrans
-      fi
-      if [ -n "$SYSFONTACM" ]; then 
-         mkdir -p %{_sysconfdir}/sysconfig/console/consoletrans
-         cp -f %{kbddir}/consoletrans/$SYSFONTACM* \
-			%{_sysconfdir}/sysconfig/console/consoletrans
-      fi
-   fi
+    . %{_sysconfdir}/sysconfig/i18n
+    if [ -d %{_sysconfdir}/sysconfig/console ] ; then
+        if [ -n "$SYSFONT" ]; then
+            mkdir -p %{_sysconfdir}/sysconfig/console/consolefonts
+             cp -f %{kbddir}/consolefonts/$SYSFONT* \
+                 %{_sysconfdir}/sysconfig/console/consolefonts
+        fi
+        if [ -n "$UNIMAP" ]; then
+            mkdir -p %{_sysconfdir}/sysconfig/console/consoletrans
+            cp -f %{kbddir}/consoletrans/$UNIMAP* \
+                %{_sysconfdir}/sysconfig/console/consoletrans
+        fi
+        if [ -n "$SYSFONTACM" ]; then 
+            mkdir -p %{_sysconfdir}/sysconfig/console/consoletrans
+            cp -f %{kbddir}/consoletrans/$SYSFONTACM* \
+                %{_sysconfdir}/sysconfig/console/consoletrans
+        fi
+    fi
 fi
+
 
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
@@ -288,34 +295,19 @@ fi
 %files -f %{name}.lang
 %defattr(-,root,root)
 %config(noreplace) %{_sysconfdir}/profile.d/configure_keyboard.sh
-%{_libdir}/*.la
 %dir %{kbddir}
 %{kbddir}/consolefonts
 %{kbddir}/consoletrans
 %dir %{kbddir}/keymaps
 %{kbddir}/unidata
 %{kbddir}/keymaps/include
-# Warning: keyboards are not cpu-dependent but machine-dependent.
-# How to distinguish Linux/PPC on Amiga/PPC (amiga kbd) and Linux/PPC
-# on Apple/ppc (mac kbd) ?
-#
-# for now an ugly hack: ppc -> mac, sparc -> sun, i386/alpha -> i386
-#%{kbddir}/keymaps/amiga
-#%{kbddir}/keymaps/atari
-#
-# (fg) 20010411 Also ia64 has PC-like keyboards, added it here
-#
-# (sb) move to Linux keycodes PPC
-#
-# (OT) if all need it, why set an %ifarch
-#%ifarch %ix86 alpha ia64 ppc x86_64 sparc
 %{kbddir}/keymaps/i386
-#%endif
-
 # (sb) leave in the event user really wants mac keymaps
 %ifarch ppc
 %{kbddir}/keymaps/mac
 %endif
+/bin/consolechars
+/bin/kbd_mode
 /bin/unicode_start
 %{_bindir}/charset
 %{_bindir}/chvt
@@ -361,12 +353,12 @@ fi
 
 %files -n %{libname}
 %defattr(-,root,root)
-%{_libdir}/*.so.*
-
+/lib/*.so.*
 
 %files -n %{libname}-devel
 %defattr(-,root,root)
-%{_libdir}/*.so
+/lib/*.so
+%{_libdir}/*.la
 %dir %{_includedir}/lct
 %{_includedir}/lct/*
 
@@ -381,6 +373,13 @@ fi
 
 
 %changelog
+* Tue Dec 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.2.3
+- move kbd_mode and consolechars and the libs to / so they can be
+  used prior to mounting other partitions
+- spec cleanups
+- fix the stupid relocation of %_datadir which resulted in manpages
+  being installed in the wrong place
+
 * Sun Oct 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.2.3
 - drop the useless initscripts (kdbconfig supposedly configures the
   /etc/sysconfig/keyboard file, but we don't have that program)
