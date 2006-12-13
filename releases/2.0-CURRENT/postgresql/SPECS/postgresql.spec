@@ -12,8 +12,6 @@
 %define version		8.2.0
 %define release		%_revrel
 
-%define _requires_exceptions devel(libtcl8.4)\\|devel(libtcl8.4(64bit))
-
 %define pyver		%(python -c 'import sys;print(sys.version[0:3])')
 %define perl_version	%(rpm -q --qf "%{VERSION}" perl)
 %define perl_epoch	%(rpm -q --qf "%{EPOCH}" perl)
@@ -65,7 +63,6 @@ BuildRequires:	perl-devel
 BuildRequires:	python-devel
 BuildRequires:	readline-devel >= 4.3
 BuildRequires:	zlib-devel
-BuildRequires:	tcl
 
 Requires:	perl
 Requires(post):	rpm-helper
@@ -627,6 +624,10 @@ fi
 
 
 %changelog
+* Tue Dec 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.2.0
+- remove the buildrequires on tcl; we haven't built with tcl or tk
+  support for quite a while
+
 * Sat Dec 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.2.0
 - make libpq4-devel a conflicts for libpq5-devel since they shouldn't
   exist together
