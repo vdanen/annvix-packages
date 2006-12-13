@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		m4
-%define version 	1.4.3
+%define version 	1.4.8
 %define release 	%_revrel
 
 Summary:	The GNU macro processor
@@ -19,8 +19,8 @@ Release:	%{release}
 License:	GPL
 Group:		Development/Other
 URL:		http://www.seindal.dk/rene/gnu/
-Source0:	ftp://ftp.gnu.org/pub/gnu/m4-%{version}.tar.bz2
-Source1:	ftp://ftp.gnu.org/pub/gnu/m4-%{version}.tar.bz2.sig
+Source0:	ftp://ftp.gnu.org/pub/gnu/m4/m4-%{version}.tar.bz2
+Source1:	ftp://ftp.gnu.org/pub/gnu/m4/m4-%{version}.tar.bz2.sig
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -77,6 +77,7 @@ make check
 %defattr(-,root,root)
 %{_bindir}/m4
 %{_infodir}/*
+%{_mandir}/man1/m4.1*
 
 %files doc
 %defattr(-,root,root)
@@ -84,6 +85,9 @@ make check
 
 
 %changelog
+* Tue Dec 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4.8
+- 1.4.8
+
 * Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4.3 
 - add -doc subpackage
 - rebuild with gcc4
