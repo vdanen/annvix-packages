@@ -523,6 +523,9 @@ fi
 
  
 %changelog
+* Wed Dec 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1.22
+- rebuild against new krb5
+
 * Sat Dec 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1.22
 - rebuild against new openldap, mysql, postgresql
 - get rid of static plugin files
