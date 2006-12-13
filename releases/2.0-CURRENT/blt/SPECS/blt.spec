@@ -31,7 +31,10 @@ Patch3:		blt2.4z-mkdir_p.patch
 Patch4:		blt2.4z-64bit-fixes.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:  XFree86-devel, tcl, tk, autoconf2.1
+BuildRequires:  X11-devel
+BuildRequires:	tcl-devel
+BuildRequires:	tk-devel
+BuildRequires:	autoconf2.1
 
 Requires:	%{libname}
 
@@ -177,6 +180,10 @@ done
 
 
 %changelog
+* Tue Dec 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4z
+- rebuild against new tcl and tk
+- fix deps
+
 * Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4z
 - add -doc subpackage
 - rebuild with gcc4
@@ -211,92 +218,5 @@ done
 * Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 2.4z-6sls
 - OpenSLS build
 - tidy spec
-
-* Thu Jul 31 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 2.4z-5mdk
-- Patch4: Some 64-bit fixes
-
-* Mon Jul 14 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 2.4z-4mdk
-- use %%mklibname macro
-
-* Mon Apr 14 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 2.4z-3mdk
-- fix conflict with tcllib
-
-* Mon Apr 14 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 2.4z-2mdk
-- rebuild for tcl/tk
-
-* Mon Apr 07 2003 Nicolas Planel <nplanel@mandrakesoft.com> 2.4z-1mdk
-- 2.4z.
-- Fix provides. (libblt-devel)
-
-* Fri Jun 28 2002 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 2.4u-6mdk
-- Do ship with blt tcl libraries, in new package blt-scripts
-- Patch2: Fix lookup of tcl/tk libdir
-- Patch3: Use mkdir -p to create directories
-
-* Fri May 11 2001 Geoffrey Lee <snailtalk@mandrakesoft.com> 2.4u-5mdk
-- Fix the linking of BLT.
-
-* Sun Dec 17 2000 David BAUDENS <baudens@mandrakesoft.com> 2.4u-4mdk
-- Libdification
-- Disable rpath
-- Remove documentation which was put in %%{_libdir}
-- Prevent request on strange dependencies
-- Prevent conflicts with other packages
-
-* Sun Dec 17 2000 Geoffrey Lee <snailtalk@mandrakesoft.com> 2.4u-3mdk
-- remove file conflict by renaming the manual file
-
-* Sun Dec 17 2000 Geoffrey Lee <snailtalk@mandrakesoft.com> 2.4u-2mdk
-- Add a changelog for Stefan <s.vandereijk@chello.nl> who was too hasty
-  to have forgotten to add one :) - make it use /usr/bin/tclsh, not
-  /usr/local/bin/tclsh
-
-* Fri Dec 15 2000 David BAUDENS <baudens@mandrakesoft.com> 2.4u-1mdk
-- 2.4u
-
-* Mon Aug 07 2000 Frederic Lepied <flepied@mandrakesoft.com> 2.4i-13mdk
-- automatically added BuildRequires
-
-* Fri Aug 04 2000 Geoffrey Lee <snailtalk@mandrakesoft.com> 2.4i-12mdk
-- rebuild to remove duplicate manpage which is provided by tcllib (stefan)
-
-* Tue Aug 01 2000 Stefan van der Eijk <s.vandereijk@chello.nl> 2.4i-11mdk
-- macroszifications
-- BM
-
-* Tue May 16 2000 Guillaume Cottenceau <gc@mandrakesoft.com> 2.4i-10mdk
-- fixed broken symlink
-
-* Thu Apr 20 2000 Guillaume Cottenceau <gc@mandrakesoft.com> 2.4i-9mdk
-- fixed group
-
-* Wed Dec  1 1999 Chmouel Boudjnah <chmouel@mandrakesoft.com>
-- Build Release.
-
-* Mon Jul 26 1999 Chmouel Boudjnah <chmouel@mandrakesoft.com>
-- s|local/bin/tclsh|bin/tclsh|
-
-* Sat Jul 17 1999 Bernhard Rosenkraenzer <bero@mandrakesoft.com>
-- 2.4i
-- set some compatibility links
-
-* Tue May 11 1999 Bernhard Rosenkraenzer <bero@mandrakesoft.com>
-- Mandrake adaptions
-
-* Fri Apr 16 1999 Bill Nottingham <notting@redhat.com>
-- obsolete blt-devel
-
-* Sun Mar 21 1999 Cristian Gafton <gafton@redhat.com> 
-- auto rebuild in the new build environment (release 3)
-
-* Thu Mar 11 1999 Bill Nottingham <notting@redhat.com>
-- remove watch.n, tabset.n (conflicts with itcl)
-
-* Wed Mar 10 1999 Bill Nottingham <notting@redhat.com>
-- update to 2.4g
-- buildrooted
-
-* Sat Oct 10 1998 Cristian Gafton <gafton@redhat.com>
-- stripped binaries
 
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8
