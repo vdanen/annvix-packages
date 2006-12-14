@@ -5,10 +5,10 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-# $Id: perl-AppConfig.spec 6158 2006-09-10 00:05:46Z vdanen $
+# $Id$
 
 %define module		File-HomeDir
-%define revision	$Rev: 6158 $
+%define revision	$Rev$
 %define name		perl-%{module}
 %define	version		0.58
 %define release		%_revrel
