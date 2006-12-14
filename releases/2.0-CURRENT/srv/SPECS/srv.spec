@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		srv
-%define version 	0.25
+%define version 	0.26
 %define release 	%_revrel
 
 Summary:	Tool to manage runsv-controlled services
@@ -24,7 +24,8 @@ Source:		%{name}-%{version}.tar.bz2
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	dietlibc-devel
 
-Requires:	runit >= 1.5.0, initscripts >= 7.06-41avx
+Requires:	runit >= 1.5.0
+Requires:	initscripts >= 7.06-41avx
 Obsoletes:	supervise-scripts
 Provides:	supervise-scripts
 
@@ -47,7 +48,6 @@ mkdir -p %{buildroot}{/sbin,%{_bindir},%{_sbindir},%{_mandir}/man8,%{_datadir}/s
 install -m 0700 srv %{buildroot}%{_sbindir}
 install -m 0644 srv.8 %{buildroot}%{_mandir}/man8
 install -m 0755 nothing %{buildroot}%{_bindir}
-install -m 0644 functions %{buildroot}%{_datadir}/srv
 
 
 %clean
@@ -58,11 +58,16 @@ install -m 0644 functions %{buildroot}%{_datadir}/srv
 %defattr(-,root,root)
 %{_sbindir}/srv
 %{_bindir}/nothing
-%{_datadir}/srv/functions
 %{_mandir}/man8/srv.8*
 
 
 %changelog
+* Thu Dec 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.26
+- 0.26
+  - adds --reload (restart via HUP) and changes --restart to do a full
+    stop then start
+  - -h is no longer for --help, but for --reload
+
 * Tue Aug 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.25
 - 0.25
   - use /sbin/sv rather than runsv* programs since runit no longer
