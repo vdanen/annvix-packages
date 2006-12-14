@@ -74,6 +74,9 @@ make test
 
 
 %changelog
+* Wed Dec 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.04
+- spec cleaning
+
 * Fri May 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.04
 - rebuild against perl 5.8.8
 - create -doc subpackage
@@ -81,17 +84,5 @@ make test
 
 * Tue Mar 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.04
 - first Annvix build (for spamassassin)
-
-* Tue Jun 14 2005 Rafael Garcia-Suarez <rgarciasuarez@mandriva.com> 1.04-2mdk
-- Rebuild
-
-* Thu Oct 14 2004 Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com> 1.04-1mdk
-- 1.04
-
-* Mon Aug 23 2004 Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com> 1.03-1mdk
-- 1.03
-
-* Wed Jun 30 2004 Olivier Thauvin <thauvin@aerov.jussieu.fr> 1.01-1mdk
-- first version of rpm.
 
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8
