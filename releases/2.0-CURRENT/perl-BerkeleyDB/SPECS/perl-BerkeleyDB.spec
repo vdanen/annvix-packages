@@ -10,7 +10,7 @@
 %define module		BerkeleyDB
 %define revision	$Rev$
 %define name		perl-%{module}
-%define version		0.26
+%define version		0.31
 %define release		%_revrel
 
 Summary:	Perl module for BerkeleyDB 2.x and greater
@@ -20,10 +20,11 @@ Release:	%{release}
 License:	GPL or Artistic
 Group:		Development/Perl
 URL:		http://search.cpan.org/dist/%{module}/
-Source0:	http://search.cpan.org/CPAN/authors/id/P/PM/PMQS/%{module}-%{version}.tar.bz2
+Source0:	http://www.cpan.org/modules/by-module/BerkeleyDB/%{module}-%{version}.tar.gz
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	db4-devel perl-devel
+BuildRequires:	db4-devel
+BuildRequires:	perl-devel
 
 %description
 BerkeleyDB is a module which allows Perl programs to make use of the
@@ -52,8 +53,8 @@ This package contains the documentation for %{name}.
 
 
 %build
-CFLAGS="%{optflags}" perl Makefile.PL INSTALLDIRS=vendor
-%make
+perl Makefile.PL INSTALLDIRS=vendor
+%make CFLAGS="%{optflags}" 
 
 
 %check
@@ -71,8 +72,8 @@ make test
 
 %files
 %defattr(-,root,root)
-%{perl_vendorlib}/*/Berkeley*
-%{perl_vendorlib}/*/auto/Berkeley*
+%{perl_vendorlib}/*/BerkeleyDB*
+%{perl_vendorlib}/*/auto/BerkeleyDB
 %{_mandir}/*/*
 
 %files doc
