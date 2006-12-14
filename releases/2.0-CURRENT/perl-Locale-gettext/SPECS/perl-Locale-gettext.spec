@@ -24,7 +24,8 @@ Source:		http://www.cpan.org/modules/by-module/Locale/gettext-%{version}.tar.bz2
 Patch2:		gettext-1.04-add-iconv.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	gettext-devel, perl-devel
+BuildRequires:	gettext-devel
+BuildRequires:	perl-devel
 
 %description
 The gettext module permits access from perl to the gettext() family of
@@ -78,6 +79,9 @@ make test
 
 
 %changelog
+* Wed Dec 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.05
+- spec cleanups
+
 * Fri May 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.05
 - rebuild against perl 5.8.8
 - create -doc subpackage
@@ -120,38 +124,5 @@ make test
 * Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 1.01-10sls
 - OpenSLS build
 - tidy spec
-
-* Wed Aug 13 2003 Per Øyvind Karlsen <peroyvind@linux-mandrake.com> 1.01-9mdk
-- rebuild for new perl
-- use %%makeinstall_std macro
-
-* Mon May 12 2003 Guillaume Cottenceau <gc@mandrakesoft.com> 1.01-8mdk
-- rebuild for new perl provides/requires
-
-* Tue Mar  4 2003 Guillaume Cottenceau <gc@mandrakesoft.com> 1.01-7mdk
-- add iconv (patch #2) in order to be able to fix #2608 and #2680 from
-  within urpmi
-
-* Mon Aug 19 2002 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 1.01-6mdk
-- Patch1: Add missing includes. Aka make urpmi work with locales on x86-64
-
-* Mon Aug  5 2002 Pixel <pixel@mandrakesoft.com> 1.01-5mdk
-- rebuild for perl thread-multi
-
-* Wed Jul 24 2002 Pixel <pixel@mandrakesoft.com> 1.01-4mdk
-- add "Obsoletes: perl-gettext" even it is not true
-- but add "Conflicts: nlpr <= 0.0.1-2mdk, drakfloppy <= 0.43-10mdk, urpmi <= 3.6-4mdk"
-  to ensure the packages that used perl-gettext gets upgraded
-
-* Tue Jul  9 2002 Pixel <pixel@mandrakesoft.com> 1.01-3mdk
-- rebuild for perl 5.8.0
-
-* Tue Jul  2 2002 Pixel <pixel@mandrakesoft.com> 1.01-2mdk
-- perl-gettext will be removed as soon as every program has switched to perl-Locale-gettext
-- reworked the spec (didn't see that it was already packaged)
-- include debian's patch on README
-
-* Fri Mar  8 2002 Arnaud de Lorbeau <adelorbeau@mandrakesoft.com> 1.01-1mdk
-- First MandrakeSoft Package
 
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8
