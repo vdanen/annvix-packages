@@ -14,7 +14,7 @@
 
 # Module-Specific definitions
 %define apache_version	2.2.3
-%define mod_version	2.0.2
+%define mod_version	2.0.3
 %define mod_name	mod_perl
 %define mod_conf	75_%{mod_name}.conf
 %define mod_so		%{mod_name}.so
@@ -34,13 +34,13 @@ Source0:	%{sourcename}.tar.gz
 Source1:	%{sourcename}.tar.gz.asc
 Source2:	%{mod_conf}
 Source3:	apache2-mod_perl-testscript.pl
-Patch0:		mod_perl-2.0.2-external_perl-apache-test.diff
+Patch0:		mod_perl-2.0.3-mdv-external_perl-apache-test.patch
 Patch1:		mod_perl-2.0.2-DESTDIR.diff
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel >= 5.8.6
 BuildRequires:	httpd-devel >= %{apache_version}
-BuildRequires:	perl(Apache::Test) >= 1.27
+BuildRequires:	perl(Apache::Test) >= 1.29
 
 Requires:	httpd-mod_proxy
 Requires:	perl = %{perl_version}
@@ -172,6 +172,10 @@ rm -f %{buildroot}%{_mandir}/man3/Bundle::ApacheTest.3pm
 
 
 %changelog
+* Wed Dec 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3_2.0.3
+- 2.0.3
+- updated P0 from Mandriva
+
 * Sun Jul 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3_2.0.2
 - apache 2.2.3
 - spec cleanups
