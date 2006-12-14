@@ -10,7 +10,7 @@
 %define revision	$Rev$
 %define name		perl-%{module}
 %define module		MDV-Distribconf
-%define version		1.01
+%define version		3.06
 %define release		%_revrel
 
 Summary:	Read and write config of a Mandriva Linux distribution tree
@@ -20,7 +20,7 @@ Release:	%{release}
 License:	GPL
 Group:		Development/Perl
 URL:		http://search.cpan.org/dist/%{dist}/
-Source0:	%{module}-%{version}.tar.bz2
+Source0:	%{module}-%{version}.tar.gz
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
@@ -57,23 +57,21 @@ make test
 
 %files
 %defattr(-,root,root)
+%{_bindir}/checkdistrib
 %{_mandir}/*/*
 %{perl_vendorlib}/MDV/Distribconf
 %{perl_vendorlib}/MDV/Distribconf.pm
 
 
 %changelog
+* Wed Dec 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.06
+- 3.06
+
 * Fri May 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.01
 - rebuild against perl 5.8.8
 - drop the docs (was just the changelog)
 
 * Fri Apr 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.01
 - first Annvix build
-
-* Tue Dec 06 2005 Rafael Garcia-Suarez <rgarciasuarez@mandriva.com> 1.01-1mdk
-- 1.01
-
-* Fri Oct 28 2005 Rafael Garcia-Suarez <rgarciasuarez@mandriva.com> 1.00-1mdk
-- Initial MDV release
 
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8
