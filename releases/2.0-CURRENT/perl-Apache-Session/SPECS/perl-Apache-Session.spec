@@ -10,7 +10,7 @@
 %define revision	$Rev$
 %define name		perl-%{module}
 %define module		Apache-Session
-%define version		1.6
+%define version		1.81
 %define release		%_revrel
 %define epoch		1
 
@@ -22,7 +22,7 @@ Epoch:		%{epoch}
 License:	GPL or Artistic
 Group:		Development/Perl
 URL:		http://search.cpan.org/dist/%{module}/
-Source0:	ftp://ftp.perl.org/pub/CPAN/modules/by-module/Apache/%{module}-%{version}.tar.bz2
+Source0:	http://www.cpan.org/modules/by-module/Apache/%{module}-%{version}.tar.gz
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel
@@ -79,13 +79,16 @@ find %{buildroot}%{_prefix} -type f -print | sed "s@^%{buildroot}@@g" | grep -v 
 %files
 %defattr(-,root,root)
 %{_mandir}/*/*
-%{perl_vendorlib}/Apache/*
+%{perl_vendorlib}/Apache
 
 %files doc
 %doc INSTALL README
 
 
 %changelog
+* Wed Dec 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.81
+- 1.81
+
 * Mon May 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.6
 - rebuild against perl 5.8.8
 - perl policy
@@ -129,44 +132,5 @@ find %{buildroot}%{_prefix} -type f -print | sed "s@^%{buildroot}@@g" | grep -v 
 * Sat Jan 03 2004 Vincent Danen <vdanen@opensls.org> 1.54-7sls
 - OpenSLS build
 - tidy spec
-
-* Thu Aug 07 2003 Per Øyvind Karlsen <peroyvind@linux-mandrake.com> 1.54-6mdk
-- rebuild for new perl
-
-* Tue May 27 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 1.54-5mdk
-- rebuild for new auto{prov,req}
-
-* Tue Jan 28 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 1.54-4mdk
-- better description & summary
-
-* Tue Jul  9 2002 Pixel <pixel@mandrakesoft.com> 1.54-3mdk
-- rebuild for perl 5.8.0
-
-* Mon Nov 26 2001 Stefan van der Eijk <stefan@eijk.nu> 1.54-2mdk
-- fix BuildRequires
-
-* Thu Nov 08 2001 François Pons <fpons@mandrakesoft.com> 1.54-1mdk
-- removed patch as now integrated.
-- 1.54.
-
-* Fri Aug 31 2001 François Pons <fpons@mandrakesoft.com> 1.53-1mdk
-- 1.53.
-- removed explicit Distribution tag.
-- updated license.
-- created patch to use Digest::MD5 instead of obsoleted MD5 and
-  fix test scripts.
-
-* Tue Mar 13 2001 Jeff Garzik <jgarzik@mandrakesoft.com> 1.03-3mdk
-- BuildArch: noarch
-- add docs
-- rename spec file
-- clean spec a bit
-- run automated tests
-
-* Sun Oct  1 2000 Frederic Lepied <flepied@mandrakesoft.com> 1.03-2mdk
-- call spec-helper before creating the file list and don't call it after.
-
-* Tue Aug 08 2000 Jean-Michel Dault <jmdault@mandrakesoft.com> 1.03-1mdk
-- Macroize package
 
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8
