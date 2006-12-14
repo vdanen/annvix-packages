@@ -10,7 +10,7 @@
 %define module		Apache-Test
 %define revision	$Rev$
 %define name		perl-%{module}
-%define version		1.28
+%define version		1.29
 %define release		%_revrel
 
 %define _requires_exceptions perl(Apache2::Const)\\|perl(ModPerl::Config)
@@ -22,7 +22,7 @@ Release:	%{release}
 License:	GPL or Artistic
 Group: 		Development/Perl
 URL:		http://search.cpan.org/~gozer/Apache-Test/
-Source0:	http://search.cpan.org/CPAN/authors/id/G/GO/GOZER/Apache-Test-%{version}.tar.bz2
+Source0:	ftp://ftp.perl.org/pub/CPAN/modules/by-module/Apache/Apache-Test-%{version}.tar.gz
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
@@ -78,6 +78,9 @@ This package contains the documentation for %{name}.
 
 
 %changelog
+* Wed Dec 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.29
+- 1.29
+
 * Tue May 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.28
 - 1.28
 - perl policy
@@ -106,21 +109,5 @@ This package contains the documentation for %{name}.
 
 * Sat Feb 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.20-1avx
 - first Annvix build
-
-* Sat Jan 22 2005 Oden Eriksson <oden.eriksson@linux-mandrake.com> 1.20-1mdk
-- 1.20
-- drop upstream P0
-
-* Sat Jan 15 2005 Oden Eriksson <oden.eriksson@linux-mandrake.com> 1.19-4mdk
-- fix deps
-
-* Sat Jan 15 2005 Oden Eriksson <oden.eriksson@linux-mandrake.com> 1.19-3mdk
-- fix deps
-
-* Thu Jan 13 2005 Oden Eriksson <oden.eriksson@linux-mandrake.com> 1.19-2mdk
-- added P0 to nuke bad regexp (Stas Bekman)
-
-* Wed Jan 12 2005 Oden Eriksson <oden.eriksson@linux-mandrake.com> 1.19-1mdk
-- initial mandrake package
 
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8
