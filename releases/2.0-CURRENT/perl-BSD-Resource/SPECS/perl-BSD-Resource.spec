@@ -10,7 +10,7 @@
 %define	revision	$Rev$
 %define	name		perl-%{module}
 %define	module		BSD-Resource
-%define	version		1.25
+%define	version		1.28
 %define	release		%_revrel
 
 Summary:	%{module} module for perl 
@@ -20,7 +20,7 @@ Release:	%{release}
 License:	GPL or Artistic
 Group:		Development/Perl
 URL:		http://search.cpan.org/dist/%{module}/
-Source0:	ftp://ftp.perl.org/pub/CPAN/modules/by-module/BSD/%{module}-%{version}.tar.bz2
+Source0:	ftp://ftp.perl.org/pub/CPAN/modules/by-module/BSD/%{module}-%{version}.tar.gz
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel
@@ -70,6 +70,9 @@ make test
 
 
 %changelog
+* Wed Dec 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.28
+- 1.28
+
 * Tue May 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.25
 - 1.25
 - rebuild against perl 5.8.8
@@ -109,17 +112,5 @@ make test
 * Sat Jan 03 2004 Vincent Danen <vdanen@opensls.org> 1.22-4sls
 - OpenSLS build
 - tidy spec
-
-* Thu Aug 14 2003 Per Øyvind Karlsen <peroyvind@linux-mandrake.com> 1.22-3mdk
-- rebuild for new perl
-- don't use PREFIX
-- use %%makeinstall_std macro
-- cosmetics
-
-* Mon Jul 21 2003 David Baudens <baudens@mandrakesoft.com> 1.22-2mdk
-- Rebuild to fix bad signature
-
-* Sat May 31 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 1.22-1mdk
-- initial cooker contrib.
 
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8
