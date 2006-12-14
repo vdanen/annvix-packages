@@ -10,7 +10,7 @@
 %define	module		Module-Build
 %define	revision	$Rev$
 %define	name		perl-%{module}
-%define version 	0.2801
+%define version 	0.2805
 %define release 	%_revrel
 
 Summary:	Build and install Perl modules
@@ -20,7 +20,7 @@ Release:	%{release}
 License:	GPL or Artistic
 Group:		Development/Perl
 URL:		http://search.cpan.org/dist/%{module}
-Source:		ftp://ftp.perl.org/pub/CPAN/modules/by-module/Module/%{module}-%{version}.tar.bz2
+Source:		ftp://ftp.perl.org/pub/CPAN/modules/by-module/Module/%{module}-%{version}.tar.gz
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
@@ -83,6 +83,9 @@ perl Build.PL installdirs=vendor
 
 
 %changelog
+* Wed Dec 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.2805
+- 0.2805
+
 * Sat Jun 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.2801
 - 0.2801
 
@@ -111,34 +114,5 @@ perl Build.PL installdirs=vendor
 
 * Sat Feb 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.2608-1avx
 - first Annvix build
-
-* Wed Feb 02 2005 Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com> 0.2608-1mdk
-- 0.2608
-
-* Sat Dec 25 2004 Per Øyvind Karlsen <peroyvind@linux-mandrake.com> 0.2607-2mdk
-- require perl-devel for building on newer than 10.1 too as it's required for testing
-
-* Thu Dec 23 2004 Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com> 0.2607-1mdk
-- 0.2607
-
-* Mon Dec 20 2004 Guillaume Rousse <guillomovitch@mandrake.org> 0.2604-2mdk
-- fix buildrequires in a backward compatible way
-
-* Wed Nov 24 2004 Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com> 0.2604-1mdk
-- 0.2604
-- install the new config_data script
-
-* Thu Jun 03 2004 Per Øyvind Karlsen <peroyvind@linux-mandrake.com> 0.25-1mdk
-- 0.25
-
-* Wed Apr 21 2004 Guillaume Rousse <guillomovitch@mandrake.org> 0.24-1mdk
-- new version
-- rpmbuildupdate aware
-
-* Wed Feb 25 2004 Guillaume Rousse <guillomovitch@mandrake.org> 0.21-2mdk
-- fixed dir ownership (distlint)
-
-* Sat Dec 06 2003 Guillaume Rousse <guillomovitch@mandrake.org> 0.21-1mdk
-- first mdk release
 
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8
