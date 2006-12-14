@@ -82,6 +82,11 @@ chmod 0755 {add,del}-srv mkdepends
 
 
 %changelog
+* Thu Dec 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.15
+- update P0 to be silent when del/add upgraded services and to be
+  more robust and actually do something if it detects more than one
+  symlink
+
 * Sat Oct 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.15
 - update P0 to make it manage services in the default runlevel
 

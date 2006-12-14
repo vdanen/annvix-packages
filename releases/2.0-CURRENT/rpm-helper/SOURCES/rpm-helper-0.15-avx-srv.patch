@@ -117,8 +117,8 @@
 +
 +# del-srv ends here
 --- add-service.avx	2006-02-09 03:47:14.000000000 -0700
-+++ add-service	2006-10-21 13:13:24.000000000 -0600
-@@ -19,77 +19,26 @@
++++ add-service	2006-12-14 12:34:54.000000000 -0700
+@@ -19,77 +19,29 @@
  num=$2				# number of packages installed
  srv=$3				# name of the service
  
@@ -179,13 +179,17 @@
 +    set -- /etc/runlevels/default/*${srv}
      if [ $# -gt 1 ]; then
 -	echo 1>&2 "add-service: Error: $srv appears multiple times: $*"
-+	echo 1>&2 "add-service: Error: ${srv} appears multiple times: $*"
-     fi
+-    fi
 -    if [ -f "$1" ]; then
 -	/sbin/chkconfig --add $srv
-+    if [ -L "$1" ]; then
-+        /sbin/rc-update del ${srv} default
-+        /sbin/rc-update add ${srv} default
++	echo 1>&2 "add-service: Error: ${srv} appears multiple times: $*"
++	echo 1>&2 "add-service: Fixing previous errors"
++	# if we get here, we need to delete the multiples and re-add the service
++	rm -f $*
++	/sbin/rc-update add ${srv} default >/dev/null 2>&1 || :
++    elif [ -L "$1" ]; then
++        /sbin/rc-update del ${srv} default >/dev/null 2>&1 || :
++        /sbin/rc-update add ${srv} default >/dev/null 2>&1 || :
      fi
  
      # restart the service if already running
