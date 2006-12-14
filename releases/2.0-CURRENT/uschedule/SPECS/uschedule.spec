@@ -20,6 +20,8 @@ License:	LGPL
 Group:		System/Servers
 URL:		http://www.ohse.de/uwe/uschedule.html
 Source0:	%{name}-%{version}.tar.gz
+Patch0:		uschedule-0.7.1-avx-runit.patch
+Patch1:		uschedule-0.7.1-avx-localtime.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	dietlibc-devel >= 0.20
@@ -42,6 +44,8 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q -n admin
+%patch0 -p0 -b .runit
+%patch1 -p1 -b .localtime
 
 
 %build
@@ -103,6 +107,14 @@ popd
 
 
 %changelog
+* Thu Dec 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.7.1
+- P1: make uo_now() return the seconds since the epoch adjusted for
+  the local time so on a MST7MDT since you don't end up with a timespec
+  of +07:03:00 when you want just +03:00
+
+* Tue Oct 31 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.7.1
+- P0: make it use runit instead of daemontools
+
 * Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.7.1
 - add -doc subpackage
 - rebuild with gcc4
