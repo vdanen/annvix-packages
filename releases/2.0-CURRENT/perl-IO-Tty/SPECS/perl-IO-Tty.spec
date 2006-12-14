@@ -10,7 +10,7 @@
 %define	module		IO-Tty
 %define	revision	$Rev$
 %define	name		perl-%{module}
-%define	version		1.02
+%define	version		1.07
 %define	release		%_revrel
 
 Summary:	IO-Tty perl module: interface to pseudo tty's
@@ -20,7 +20,7 @@ Release:	%{release}
 License: 	GPL
 Group: 		Development/Perl
 URL:		http://www.cpan.org
-Source:		ftp://ftp.perl.org/pub/CPAN/modules/by-module/IO/%{module}-%{version}.tar.bz2
+Source:		ftp://ftp.perl.org/pub/CPAN/modules/by-module/IO/%{module}-%{version}.tar.gz
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel
@@ -74,6 +74,9 @@ make test
 
 
 %changelog
+* Wed Dec 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.07
+- 1.07
+
 * Fri May 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.02
 - rebuild against perl 5.8.8
 - create -doc subpackage
