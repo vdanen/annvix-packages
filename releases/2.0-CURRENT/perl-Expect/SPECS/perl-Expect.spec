@@ -10,7 +10,7 @@
 %define module		Expect
 %define revision	$Rev$
 %define name		perl-%{module}
-%define version 	1.15
+%define version 	1.17
 %define release 	%_revrel
 
 Summary:	Expect perl module
@@ -20,14 +20,16 @@ Release:	%{release}
 License: 	GPL
 Group: 		Development/Perl
 URL:		http://www.cpan.org
-Source:		ftp://ftp.perl.org/pub/CPAN/modules/by-module/Expect/Expect-%{version}.tar.bz2
+Source:		ftp://ftp.perl.org/pub/CPAN/modules/by-module/Expect/Expect-%{version}.tar.gz
 Patch0:		%{name}-paths.patch
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
-BuildRequires:	perl(IO::Tty) >= 1.02, perl-devel
+BuildRequires:	perl(IO::Tty) >= 1.03
+BuildRequires:	perl-devel
 
-Requires: 	perl, perl(IO::Tty)
+Requires: 	perl
+Requires:	perl(IO::Tty) >= 1.03
 
 
 %description
@@ -77,6 +79,9 @@ make test
 
 
 %changelog
+* Wed Dec 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.17
+- 1.17
+
 * Thu May 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.15
 - rebuild against perl 5.8.8
 - create -doc subpackage
@@ -113,30 +118,5 @@ make test
 * Mon Dec 15 2003 Vincent Danen <vdanen@opensls.org> 1.15-7sls
 - OpenSLS build
 - tidy spec
-
-* Wed Aug 13 2003 Per Øyvind Karlsen <peroyvind@linux-mandrake.com> 1.15-6mdk
-- rebuild for new perl
-- rm -rf %{buildroot} in %%install, not %%prep
-- drop $RPM_OPT_FLAGS, noarch..
-- use %%makeinstall_std macro
-
-* Tue May 27 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 1.15-5mdk
-- rebuild for new auto{prov,req}
-
-* Fri May  2 2003 Stew Benedict <sbenedict@mandrakesoft.com> 1.15-4mdk
-- BuildRequires
-
-* Tue Apr 28 2003 Stew Benedict <sbenedict@mandrakesoft.com> 1.15-3mdk
-- drop perl-IO-Stty BuildRequires (distriblint), add missing .pod file
-
-* Tue Aug  6 2002 Stew Benedict <sbenedict@mandrakesoft.com> 1.15-2mdk
-- Requires perl-IO-Tty
-
-* Wed Jul 24 2002 Lenny Cartier <lenny@mandrakesoft.com> 1.15-1mdk
-- 1.15
-
-* Tue Sep 25 2001 Lenny Cartier <lenny@mandrakesoft.com> 1.12-1mdk
-- added by Max Heijndijk <cchq@wanadoo.nl> :
-	- Initial wrap
 
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8
