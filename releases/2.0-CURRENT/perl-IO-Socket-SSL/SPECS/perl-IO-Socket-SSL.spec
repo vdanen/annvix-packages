@@ -1,4 +1,3 @@
-#
 # spec file for package perl-IO-Socket-SSL
 #
 # Package for the Annvix Linux distribution: http://annvix.org/
@@ -10,7 +9,7 @@
 %define	module		IO-Socket-SSL
 %define revision	$Rev$
 %define name		perl-%{module}
-%define version		0.97
+%define version		0.999
 %define release		%_revrel
 
 Summary:	%{module} perl module
@@ -20,7 +19,7 @@ Release: 	%{release}
 License:	GPL or Artistic
 Group:		Development/Perl
 URL:		ftp://ftp.perl.org/pub/CPAN/modules/by-module/IO/
-Source0:	%{module}-%{version}.tar.bz2
+Source0:	ftp://ftp.perl.org/pub/CPAN/modules/by-module/IO/%{module}-%{version}.tar.gz
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel
@@ -73,6 +72,9 @@ make
 
 
 %changelog
+* Wed Dec 13 2006 Vincent Danen <vdanen-at-build.annvix.org>  0.999
+- 0.999
+
 * Fri May 12 2006 Vincent Danen <vdanen-at-build.annvix.org>  0.97
 - rebuild against perl 5.8.8
 - create -doc subpackage
@@ -88,52 +90,5 @@ make
 
 * Thu Sep 22 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.97-1avx
 - first Annvix build (for new spamassassin)
-
-* Mon Jul 18 2005 Rafael Garcia-Suarez <rgarciasuarez@mandriva.com> 0.97-1mdk
-- 0.97
-
-* Mon Jul 12 2004 Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com> 0.96-1mdk
-- 0.96.
-- Removed MANIFEST.
-
-* Wed Aug 27 2003 François Pons <fpons@mandrakesoft.com> 0.95-1mdk
-- 0.95.
-
-* Thu Aug 14 2003 Per Øyvind Karlsen <peroyvind@linux-mandrake.com> 0.92-5mdk
-- rebuild for new perl
-- don't use PREFIX
-- use %%makeinstall_std macro
-
-* Tue May 27 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 0.92-4mdk
-- rebuild for new auto{prov,req}
-
-* Mon May 05 2003 Lenny Cartier <lenny@mandrakesoft.com> 0.92-3mdk
-- buildrequires
-
-* Wed Jan 29 2003 Lenny Cartier <lenny@mandrakesoft.com> 0.92-2mdk
-- rebuild
-
-* Fri Jan 17 2003 François Pons <fpons@mandrakesoft.com> 0.92-1mdk
-- 0.92.
-
-* Wed Jul 10 2002 Pixel <pixel@mandrakesoft.com> 0.81-2mdk
-- rebuild for perl 5.8.0
-
-* Tue Jun 18 2002 Lenny Cartier <lenny@mandrakesoft.com> 0.81-1mdk
-- updated by David Walser <luigiwalser@yahoo.com> :
-	- 0.81
-
-* Thu Aug 23 2001 Lenny Cartier <lenny@mandrakesoft.com> 0.80-1mdk
-- updated to 0.80
-
-* Mon Jul 16 2001 Lenny Cartier <lenny@mandrakesoft.com> 0.79-1mdk
-- updated by Christian Zoffoli <czoffoli@linux-mandrake.com> :
-	- 0.79
-
-* Mon May 14 2001 Lenny Cartier <lenny@mandrakesoft.com> 0.78-1mdk
-- added in contribs by Christian Zoffoli <czoffoli@linux-mandrake.com>
-
-* Thu Apr 19 2001 Christian Zoffoli <czoffoli@linux-mandrake.com> 0.77-1mdk
-- First Mandrake release
 
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8
