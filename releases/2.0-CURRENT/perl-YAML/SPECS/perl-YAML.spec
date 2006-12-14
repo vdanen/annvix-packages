@@ -10,7 +10,7 @@
 %define module		YAML
 %define revision	$Rev$
 %define name		perl-%{module}
-%define version 	0.58
+%define version 	0.62
 %define release 	%_revrel
 
 Summary:	YAML Ain't Markup Language (tm)
@@ -20,7 +20,7 @@ Release:	%{release}
 License:	GPL or Artistic
 Group:		Development/Perl
 URL:		http://search.cpan.org/dist/%{module}/
-Source:		http://search.cpan.org/CPAN/authors/id/I/IN/INGY/%{module}-%{version}.tar.bz2
+Source:		ftp://ftp.perl.org/pub/CPAN/modules/by-module/YAML/%{module}-%{version}.tar.gz
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
@@ -77,10 +77,13 @@ make test
 
 %files doc
 %defattr(-,root,root)
-%doc Changes README
+%doc Changes README COMPATIBILITY
 
 
 %changelog
+* Wed Dec 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.62
+- 0.62
+
 * Mon May 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.58
 - 0.58
 - rebuild against perl 5.8.8
@@ -105,18 +108,5 @@ make test
 
 * Sat Feb 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.36-1avx
 - first Annvix build
-
-* Mon Jan 31 2005 Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com> 0.36-1mdk
-- 0.36
-- add tests
-
-* Mon Dec 20 2004 Guillaume Rousse <guillomovitch@mandrake.org> 0.35-3mdk
-- fix buildrequires in a backward compatible way
-
-* Fri Jul 23 2004 Guillaume Rousse <guillomovitch@mandrake.org> 0.35-2mdk 
-- rpmbuildupdate aware
-
-* Fri Dec 05 2003 Guillaume Rousse <guillomovitch@mandrake.org> 0.35-1mdk
-- first mdk release
 
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8
