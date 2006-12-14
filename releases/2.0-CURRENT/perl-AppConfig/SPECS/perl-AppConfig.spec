@@ -10,7 +10,7 @@
 %define module		AppConfig
 %define revision	$Rev$
 %define name		perl-%{module}
-%define	version		1.56
+%define	version		1.63
 %define release		%_revrel
 
 Summary:  	Perl5 modules for reading configuration
@@ -20,11 +20,12 @@ Release:	%{release}
 License:	GPL
 Group:		Development/Perl
 URL:		http://www.perl.com/CPAN/authors/id/ABW/
-Source:		http://www.perl.com/CPAN/authors/id/ABW/%{module}-%{version}.tar.bz2
+Source0:	ftp://ftp.perl.org/pub/CPAN/modules/by-module/AppConfig/%{module}-%{version}.tar.gz
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 BuildRequires:	perl-devel
+BuildRequires:	perl(File::HomeDir)
 
 %description
 AppConfig has a powerful but easy to use module for parsing configuration
@@ -45,9 +46,12 @@ This package contains the documentation for %{name}.
 
 
 %build
-CFLAGS="%{optflags}" %{__perl} Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor
 %make
-%{__make} test
+
+
+%check
+make test
 
 
 %install
@@ -61,7 +65,7 @@ CFLAGS="%{optflags}" %{__perl} Makefile.PL INSTALLDIRS=vendor
 
 %files
 %defattr(-,root,root) 
-%{perl_vendorlib}/AppConfig/*
+%{perl_vendorlib}/AppConfig
 %{perl_vendorlib}/AppConfig.pm
 %{_mandir}/*/*
 
@@ -70,6 +74,9 @@ CFLAGS="%{optflags}" %{__perl} Makefile.PL INSTALLDIRS=vendor
 
 
 %changelog
+* Wed Dec 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.63
+- 1.63
+
 * Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.56
 - really remove the docs from the main package
 
@@ -93,36 +100,5 @@ CFLAGS="%{optflags}" %{__perl} Makefile.PL INSTALLDIRS=vendor
 
 * Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.56-1avx
 - first Annvix build
-
-* Tue May 04 2004 Michael Scherer <misc@mandrake.org> 1.56-1mdk
-- remove unused Tag
-- 1.56
-- rpmbuildupdate aware
- 
-* Sat Aug 02 2003 Ben Reser <ben@reser.org> 1.52-7mdk
-- Remove Packager tag in package.
-- mv rm buildroot to %%install from %%prep
-- %%makeinstall_std
-- macroize
-
-* Wed Jul 16 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 1.52-6mdk
-- fix buildrequires (Michael Scherer)
-
-* Wed May 28 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 1.52-5mdk
-- fix build
-- rebuild for new auto{prov,req}
-
-* Tue Jan 21 2003 Antoine Ginies <aginies@mandrakesoft.com> 1.52-4mdk
-- fix requires error
-
-* Fri Oct 18 2002 Clic-dev <clic-dev-public@mandrakesoft.com> 1.52-3mdk
-- build with perl 5.8
-- add perl version define
-
-* Thu Jul 11 2002 Antoine Ginies <aginies@mandrakesoft.com> 1.52-2mdk
-- Build on 8.2 with perl 5.6
-
-* Thu Apr 4 2002 Antoine Ginies <aginies@mandrakesoft.com> 1.52-1mdk
-- first release for Mandrakesoft
 
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8
