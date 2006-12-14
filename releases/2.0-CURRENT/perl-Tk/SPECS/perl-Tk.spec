@@ -25,7 +25,8 @@ URL:		http://www.cpan.org
 Source:		ftp://sunsite.doc.ic.ac.uk/packages/CPAN/modules/by-module/%{module}/%{module}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	perl-devel, XFree86-devel
+BuildRequires:	perl-devel
+BuildRequires:	X11-devel
 
 Provides:	perl(Tk::LabRadio)
 Provides:	perl(Tk::TextReindex)
@@ -131,6 +132,9 @@ rm -f %{buildroot}%{perl_vendorarch}/Tk/README.Adjust
 
 
 %changelog
+* Wed Dec 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 800.027
+- spec cleaning
+
 * Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 800.027
 - move the rest of the docs
 
@@ -176,93 +180,5 @@ rm -f %{buildroot}%{perl_vendorarch}/Tk/README.Adjust
 - tidy spec
 - use %%build_opensls to not build the -doc package
 - remove pwlib-devel as a BuildReq
-
-* Wed Aug 13 2003 Per Øyvind Karlsen <peroyvind@linux-mandrake.com> 800.024-4mdk
-- rebuild for new perl
-- drop Prefix tag
-- don't use PREFIX
-- use %%makeinstall_std macro
-- fix no longer working --center option to pod2man
-
-* Tue May 27 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 800.024-3mdk
-- rebuild for new auto{prov,req}
-
-* Mon Apr 28 2003 François Pons <fpons@mandrakesoft.com> 800.024-2mdk
-- removed compressed perl module as it cause problem with
-  other module requiring Tk.
-
-* Fri Feb 14 2003 François Pons <fpons@mandrakesoft.com> 800.024-1mdk
-- compressed perl module.
-- 800.024.
-
-* Mon Dec  2 2002 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 800.023-10mdk
-- Make it lib64 aware
-
-* Wed Aug 14 2002 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 800.023-9mdk
-- Automated rebuild with gcc 3.2-0.3mdk
-
-* Mon Aug  5 2002 Pixel <pixel@mandrakesoft.com> 800.023-8mdk
-- rebuild for perl thread-multi
-
-* Thu Jul 25 2002 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 800.023-7mdk
-- Automated rebuild with gcc3.2
-
-* Wed Jul 10 2002 Pixel <pixel@mandrakesoft.com> 800.023-6mdk
-- fix the require Perl >= 5.00404
-
-* Tue Jul  9 2002 Pixel <pixel@mandrakesoft.com> 800.023-5mdk
-- rebuild for perl 5.8.0
-
-* Wed May 29 2002 François Pons <fpons@mandrakesoft.com> 800.023-4mdk
-- rebuild for new libstdc++.
-
-* Wed Nov 07 2001 François Pons <fpons@mandrakesoft.com> 800.023-3mdk
-- added url tag.
-
-* Sat Jul 07 2001 Stefan van der Eijk <stefan@eijk.nu> 800.023-2mdk
-- BuildRequires: perl-devel
-
-* Tue Jul 03 2001 François Pons <fpons@mandrakesoft.com> 800.023-1mdk
-- reduced description line too long.
-- 800.023.
-
-* Sat Jun 23 2001 Geoffrey Lee <snailtalk@mandrakesoft.com> 800.022-7mdk
-- Add pwlib-devel as a build requirement (Goetz Waschk).
-
-* Sun Jun 17 2001 Geoffrey Lee <snailtalk@mandrakesoft.com> 800.022-6mdk
-- Rebuild for the latest perl.
-
-* Tue Nov 14 2000 François Pons <fpons@mandrakesoft.com> 800.022-5mdk
-- updated license as the perl one.
-
-* Tue Aug 29 2000 François Pons <fpons@mandrakesoft.com> 800.022-4mdk
-- build release.
-
-* Mon Aug 07 2000 Frederic Lepied <flepied@mandrakesoft.com> 800.022-3mdk
-- automatically added BuildRequires
-
-* Fri Aug 04 2000 François Pons <fpons@mandrakesoft.com> 800.022-2mdk
-- macroszifications.
-- added perl-Tk-devel and perl-Tk-doc.
-
-* Tue Jul 18 2000 François Pons <fpons@mandrakesoft.com> 800.022-1mdk
-- 800.022.
-
-* Wed May 17 2000 David BAUDENS <baudens@mandrakesoft.com> 800.018-3mdk
-- Fix buid for i486
-
-* Wed Apr 26 2000 Frederic Lepied <flepied@mandrakesoft.com> 800.018-2mdk
-- updated to perl 5.600
-
-* Fri Feb 11 2000 Lenny Cartier <lenny@mandrakesoft.com> 800.018-1mdk
-- v800.18
-- used srpm provided by Stefan van der Eijk <s.vandereijk@chello.nl>
-
-* Thu Feb 10 2000 Stefan van der Eijk <s.vandereijk@chello.nl>
-- update to 800.018
-
-* Wed Jan 19 2000 Pixel <pixel@mandrakesoft.com>
-- mandrake creation/adaptation
-- removed the ed stuff by perl (what the hell, it's a perl module!)
 
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8
