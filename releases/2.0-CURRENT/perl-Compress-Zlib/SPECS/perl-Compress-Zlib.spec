@@ -10,7 +10,7 @@
 %define	module		Compress-Zlib
 %define	revision	$Rev$
 %define	name		perl-%{module}
-%define	version		1.41
+%define	version		1.42
 %define	release		%_revrel
 
 Summary:	Perl interface to the zlib compression library
@@ -20,10 +20,11 @@ Release:	%{release}
 License:	GPL or Artistic
 Group:		Development/Perl
 URL:		http://search.cpan.org/dist/%{module}/
-Source0:	%{module}-%{version}.tar.bz2
+Source0:	ftp://ftp.perl.org/pub/CPAN/modules/by-module/Compress/%{module}-%{version}.tar.gz
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	perl-devel zlib-devel
+BuildRequires:	perl-devel
+BuildRequires:	zlib-devel
 
 %description
 The Compress::Zlib module provides a Perl interface to the zlib compression
@@ -72,6 +73,9 @@ make test
 
 
 %changelog
+* Wed Dec 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.42
+- 1.42
+
 * Wed May 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.41
 - rebuild against perl 5.8.8
 - create -doc subpackage
