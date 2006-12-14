@@ -10,7 +10,7 @@
 %define module		Net-IP
 %define revision	$Rev$
 %define name 		perl-%{module}
-%define version		1.24
+%define version		1.25
 %define release 	%_revrel
 
 Summary:	Net::IP perl module
@@ -20,7 +20,7 @@ Release:	%{release}
 License:	GPL
 Group:		Development/Perl
 URL:		http://www.cpan.org
-Source0:	%{module}-%{version}.tar.bz2
+Source0:	http://www.cpan.org/modules/by-module/Net/%{module}-%{version}.tar.gz
 
 BuildRequires:	perl-devel
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -69,7 +69,7 @@ make test
 %defattr(-,root,root)
 %{_bindir}/ipcount
 %{_bindir}/iptab
-%{perl_vendorlib}/*
+%{perl_vendorlib}/Net
 %{_mandir}/*/*
 
 %files doc
@@ -78,6 +78,9 @@ make test
 
 
 %changelog
+* Wed Dec 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.25
+- 1.25
+
 * Fri May 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.24
 - 1.24
 - rebuild against perl 5.8.8
