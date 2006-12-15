@@ -11,7 +11,7 @@
 
 %define revision	$Rev$
 %define name		perl-%{module}
-%define version 	1.52
+%define version 	1.53
 %define release 	%_revrel
 
 Summary:	The Perl Database Interface
@@ -93,9 +93,12 @@ rm -rf %{buildroot}%{perl_vendorarch}/Win32
 rm -f %{buildroot}%{perl_vendorarch}/DBI/W32ODBC.pm
 rm -f %{buildroot}%{perl_vendorarch}/Roadmap.pod
 rm -f %{buildroot}%{perl_vendorarch}/DBI/Roadmap.pm
+rm -f %{buildroot}%{perl_vendorarch}/TASKS.pod
+rm -f %{buildroot}%{perl_vendorarch}/DBI/TASKS.pm
 rm -f %{buildroot}%{_mandir}/man3pm/Win32::DBIODBC.3pm*
 rm -f %{buildroot}%{_mandir}/man3pm/DBI::W32ODBC.3pm*
 rm -f %{buildroot}%{_mandir}/man3pm/Roadmap.3pm*
+rm -f %{buildroot}%{_mandir}/man3pm/TASKS.3pm*
 
 
 %clean
@@ -134,10 +137,13 @@ rm -f %{buildroot}%{_mandir}/man3pm/Roadmap.3pm*
 %{_mandir}/man3*/DBI::ProfileDumper::Apache.3pm.*
 
 %files doc
-%doc Changes README ToDo 
+%doc Changes README TODO_2005.txt Roadmap.pod TASKS.pod
 
 
 %changelog
+* Fri Dec 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.53
+- 1.53
+
 * Wed Dec 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.52
 - 1.52
 
