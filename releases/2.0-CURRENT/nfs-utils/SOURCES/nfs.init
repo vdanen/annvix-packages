@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # nfs           This shell script takes care of starting and stopping
 #               the NFS services.
@@ -9,6 +9,17 @@
 #              which is configured via the /etc/exports file.
 # probe: true
 # config: /etc/sysconfig/nfs
+#
+### BEGIN INIT INFO
+# Provides: nfs
+# Required-Start: $network $portmap
+# Required-Stop: $network $portmap
+# Default-Start: 3 4 5
+# Short-Description: NFS services
+# Description: NFS is a popular protocol for file sharing across TCP/IP
+#              networks. This service provides NFS server functionality,
+#              which is configured via the /etc/exports file.
+### END INIT INFO
 
 # Source function library.
 . /etc/rc.d/init.d/functions
@@ -21,152 +32,128 @@ fi
 . /etc/sysconfig/network
 
 # Check that networking is up.
-[ ${NETWORKING} = "no" ] && exit 0
+[ "${NETWORKING}" = "no" ] && exit 0
 
 [ -x /usr/sbin/rpc.nfsd ] || exit 0
 [ -x /usr/sbin/rpc.mountd ] || exit 0
 [ -x /usr/sbin/exportfs ] || exit 0
 
-# Don't fail if /etc/exports doesn't exist; create a bare-bones version
-# and continue.
+# Don't fail if /etc/exports doesn't exist; create a bare-bones version and continue.
 [ -s /etc/exports ] || \
     { echo "#" > /etc/exports && chmod u+rw,g+r,o+r /etc/exports ; } || \
     { echo "/etc/exports does not exist" ; exit 0 ; }
 
 # Check for and source configuration file otherwise set defaults
-# TUNE_QUEUE: controls whether to up the size of input queues
 [ -f /etc/sysconfig/nfs ] && . /etc/sysconfig/nfs
 
-[ -z "$MOUNTD_NFS_V2" ] && MOUNTD_NFS_V2=auto
-[ -z "$MOUNTD_NFS_V3" ] && MOUNTD_NFS_V3=auto
+[ -z "$MOUNTD_NFS_V2" ] && MOUNTD_NFS_V2=default
+[ -z "$MOUNTD_NFS_V3" ] && MOUNTD_NFS_V3=default
 
 # Number of servers to be started by default
-[ -z "$NFSDCOUNT" ] && NFSDCOUNT=8
+[ -z "$RPCNFSDCOUNT" ] && RPCNFSDCOUNT=8
 
 # Remote quota server
 [ -z "$RQUOTAD" ] && RQUOTAD=`type -path rpc.rquotad`
 
-# Get the initial values for the input sock queues
-# at the time of running the script.
-if [ "$TUNE_QUEUE" = "yes" ]; then
-    RMEM_DEFAULT=`/sbin/sysctl -n net.core.rmem_default`
-    RMEM_MAX=`/sbin/sysctl -n net.core.rmem_max`
-    # 256kb recommended minimum size based on SPECsfs NFS benchmarks
-    [ -z "$NFS_QS" ] && NFS_QS=262144
-fi
-
 # See how we were called.
 case "$1" in
   start)
+    # Turn on and start portmapper (this logic is taken from cups)
+    if (export LC_ALL=C; /sbin/service portmap status | /bin/egrep "stopped" > /dev/null 2>&1); then
+        if (export LC_ALL=C; /sbin/chkconfig --list portmap | /bin/egrep "off$" > /dev/null 2>&1); then
+            echo -n "Activating and starting SUN RPC portmapper ..."
+	    /sbin/chkconfig --add portmap
+            /sbin/chkconfig portmap on
+    		if [ -x /sbin/portmap ]; then
+    		    /sbin/service portmap start
+        	fi
+        fi
+    fi
+ 	# Start daemons.
 	# Start daemons.
+	[ -x /usr/sbin/rpc.svcgssd ] && /sbin/service rpcsvcgssd start
+
+	action $"Starting NFS services: " /usr/sbin/exportfs -r
 
 	# Set the ports lockd should listen on
-	if [ -n "LOCKD_TCPPORT" ]; then
+	if [ -n "$LOCKD_TCPPORT" ]; then
 	    /sbin/sysctl -w fs.nfs.nlm_tcpport=$LOCKD_TCPPORT >/dev/null 2>&1
- 	fi
-	if [ -n "LOCKD_UDPPORT" ]; then
+	fi
+	if [ -n "$LOCKD_UDPPORT" ]; then
 	    /sbin/sysctl -w fs.nfs.nlm_udpport=$LOCKD_UDPPORT >/dev/null 2>&1
 	fi
 
-	# Apply input queue increase for nfs server
-	if [ "$TUNE_QUEUE" = "yes" ]; then
- 	    /sbin/sysctl -w net.core.rmem_default=$NFSD_QS >/dev/null 2>&1
-	    /sbin/sysctl -w net.core.rmem_max=$NFSD_QS >/dev/null 2>&1
-	fi
-	action $"Starting NFS services: " /usr/sbin/exportfs -r
 	if [ -n "$RQUOTAD" -a "$RQUOTAD" != "no" ]; then
 	    echo -n $"Starting NFS quotas: "
-	    daemon rpc.rquotad
+		[ -n "$RQUOTAD_PORT" ] \
+			&& RPCRQUOTADOPTS="$RPCRQUOTADOPTS -p $RQUOTAD_PORT"
+	    daemon rpc.rquotad $RPCRQUOTADOPTS
 	    echo
 	fi
 	echo -n $"Starting NFS daemon: "
-	daemon rpc.nfsd $NFSDCOUNT
+	daemon rpc.nfsd $RPCNFSDCOUNT
 	echo
 
 	[ -n "$MOUNTD_PORT" ] \
-	&& MOUNTD_OPTIONS="$MOUNTD_OPTIONS -p $MOUNTD_PORT"
-	[ "$MOUNTD_TCP" = "no" -o "$MOUNTD_TCP" = "NO" ] \
-	&& MOUNTD_OPTIONS="$MOUNTD_OPTIONS --no-tcp"
+	&& RPCMOUNTDOPTS="$RPCMOUNTDOPTS -p $MOUNTD_PORT"
 
 	case $MOUNTD_NFS_V2 in
-	auto|AUTO)
-	    # Let's see if we support NFS version 2.
-	    /usr/sbin/rpcinfo -u localhost nfs 2 &>/dev/null
-	    if [ $? -ne 0 ]; then
-		MOUNTD_OPTIONS="$MOUNTD_OPTIONS --no-nfs-version 2"
-	    fi
-	    ;;
 	no|NO)
-	    MOUNTD_OPTIONS="$MOUNTD_OPTIONS --no-nfs-version 2"
-	    ;;
-	yes|YES)
-	    MOUNTD_OPTIONS="$MOUNTD_OPTIONS --nfs-version 2"
-	    ;;
+	    RPCMOUNTDOPTS="$RPCMOUNTDOPTS --no-nfs-version 2" ;;
 	esac
 
 	case $MOUNTD_NFS_V3 in
-	auto|AUTO)
-	    # Let's see if we support NFS version 3.
-	    /usr/sbin/rpcinfo -u localhost nfs 3 &>/dev/null
-	    if [ $? -ne 0 ]; then
-		MOUNTD_OPTIONS="$MOUNTD_OPTIONS --no-nfs-version 3"
-	    fi
-	    ;;
 	no|NO)
-	    MOUNTD_OPTIONS="$MOUNTD_OPTIONS --no-nfs-version 3"
-	    ;;
-	yes|YES)
-	    MOUNTD_OPTIONS="$MOUNTD_OPTIONS --nfs-version 3"
-	    ;;
+	    RPCMOUNTDOPTS="$RPCMOUNTDOPTS --no-nfs-version 3" ;;
 	esac
 
 	echo -n $"Starting NFS mountd: "
-	daemon rpc.mountd $MOUNTD_OPTIONS
+	daemon rpc.mountd $RPCMOUNTDOPTS
 	echo
 	touch /var/lock/subsys/nfs
-	# reset input queue for rest of network services
-	if [ "$TUNE_QUEUE" = "yes" ]; then
-	    /sbin/sysctl -w net.core.rmem_default=$RMEM_DEFAULT >/dev/null 2>&1
-	    /sbin/sysctl -w net.core.rmem_max=$RMEM_MAX >/dev/null 2>&1
-	fi
+
+	# Let rpc.idmapd know that rpc.mountd just started
+	[ -x /usr/sbin/rpc.idmapd ] && /sbin/service rpcidmapd condstart
+
 	;;
   stop)
 	# Stop daemons.
-	echo -n $"Stopping NFS mountd: "
+	[ -x /usr/sbin/rpc.svcgssd ] && /sbin/service rpcsvcgssd stop
+	echo -n $"Shutting down NFS mountd: "
 	killproc rpc.mountd
 	echo
-	echo -n $"Stopping NFS daemon: "
+	echo -n $"Shutting down NFS daemon: "
 	killproc nfsd
 	echo
-	if [ -n "$RQUOTAD" ]; then
-		echo -n $"Stopping NFS quotas: "
+	if [ -n "$RQUOTAD" -a "$RQUOTAD" != "no" ]; then
+		echo -n $"Shutting down NFS quotas: "
 		killproc rpc.rquotad
 		echo
 	fi
-
 	# Reset the lockd ports if they were set
-	if [ -n "LOCKD_TCPPORT" ]; then
+	if [ -n "$LOCKD_TCPPORT" ]; then
 	    /sbin/sysctl -w fs.nfs.nlm_tcpport=0 >/dev/null 2>&1
 	fi
-	if [ -n "LOCKD_UDPPORT" ]; then
+	if [ -n "$LOCKD_UDPPORT" ]; then
 	    /sbin/sysctl -w fs.nfs.nlm_udpport=0 >/dev/null 2>&1
 	fi
-
 	# Do it the last so that clients can still access the server
 	# when the server is running.
-	action $"Stopping NFS services: " /usr/sbin/exportfs -au
+	action $"Shutting down NFS services: " /usr/sbin/exportfs -au
 	rm -f /var/lock/subsys/nfs
 	;;
   status)
+	[ -x /usr/sbin/rpc.svcgssd ] && /sbin/service rpcsvcgssd status
 	status rpc.mountd
-	status nfsd
-	if [ -n "$RQUOTAD" ]; then
+	if [ -n "$RQUOTAD" -a "$RQUOTAD" != "no" ]; then
 		status rpc.rquotad
 	fi
+	status nfsd
+	exit
 	;;
   restart)
-	$0 stop || :
-	$0 start 
+	$0 stop
+	$0 start
 	;;
   reload)
 	/usr/sbin/exportfs -r
@@ -174,19 +161,26 @@ case "$1" in
 	;;
   probe)
 	if [ ! -f /var/lock/subsys/nfs ] ; then
-	  echo start; exit 0
+	  echo $"start"; exit 0
 	fi
 	/sbin/pidof rpc.mountd >/dev/null 2>&1; MOUNTD="$?"
 	/sbin/pidof nfsd >/dev/null 2>&1; NFSD="$?"
 	if [ $MOUNTD = 1 -o $NFSD = 1 ] ; then
-	  echo restart; exit 0
+	  echo $"restart"; exit 0
 	fi
 	if [ /etc/exports -nt /var/lock/subsys/nfs ] ; then
-	  echo reload; exit 0
+	  echo $"reload"; exit 0
 	fi
 	;;
+  condrestart)
+	[ -x /usr/sbin/rpc.svcgssd ] && /sbin/service rpcsvcgssd condrestart
+  	[ -f /var/lock/subsys/nfs ] && {
+		$0 stop
+		$0 start
+	}
+	;;
   *)
-	echo $"Usage: $0 {start|stop|status|restart|reload}"
+	echo $"Usage: nfs {start|stop|status|restart|reload|condrestart}"
 	exit 1
 esac
 

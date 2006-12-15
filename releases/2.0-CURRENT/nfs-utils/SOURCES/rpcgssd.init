@@ -7,6 +7,17 @@
 # chkconfig: 345 19 69
 # description: Starts user-level daemon that manages RPCSEC GSS contexts \
 #	       for the NFSv4 client.
+#
+#
+### BEGIN INIT INFO
+# Provides: rpcgssd
+# Required-Start: $network
+# Required-Stop: $network
+# Default-Start: 3 4 5
+# Short-Description: RPCSEC GSS daemon
+# Description: Starts user-level daemon that manages RPCSEC GSS contexts
+#	       for the NFSv4 client.
+### END INIT INFO
 
 # Source function library.
 . /etc/init.d/functions

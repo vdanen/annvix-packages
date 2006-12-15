@@ -1,0 +1,14 @@
+#!/bin/sh
+PATH="/sbin:/usr/sbin:/bin:/usr/bin"
+
+# this runs rpc.idmapd supervised
+
+# this service depends on nfs.mountd
+
+RPCMTAB="`grep -v '^#' /proc/mounts | awk '{ if ($3 ~ /^rpc_pipefs$/ ) print $2}'`"
+if [ -z "${RPCMTAB}" ]; then
+    echo "Fatal error: RPC MTAB does not exist."
+    exit 1
+fi
+
+exec /usr/sbin/rpc.idmapd -f 2>&1

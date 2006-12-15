@@ -3,25 +3,24 @@ PATH="/sbin:/usr/sbin:/bin:/usr/bin"
 
 # this runs rpc.statd supervised
 
-. /usr/share/srv/functions
+# this service depends on portmap
 
-. /etc/sysconfig/network
-
-if [ -n "${STATD_HOSTNAME}" ]; then
-    STATDARG="-n ${STATD_HOSTNAME}"
-else
-    STATDARG=""
+# load sunrpc here so we can ensure it's loaded first
+if [ -x /sbin/lsmod -a -x /sbin/modprobe ]; then
+    if ! /sbin/lsmod | grep sunrpc >/dev/null ; then
+        /sbin/modprobe sunrpc || exit 1
+    fi
 fi
 
-checkdepends portmap
+STATDARG=""
+envdir=/etc/sysconfig/env/nfs
+[[ -f ${envdir}/STATD_HOSTNAME ]] && STATD_HOSTNAME="$(head -1 ${envdir}/STATD_HOSTNAME)"
+[[ -f ${envdir}/STATD_OUTPORT ]]  && STATD_OUTPORT="$(head -1 ${envdir}/STATD_OUTPORT)"
+[[ -f ${envdir}/STATD_PORT ]]     && STATD_PORT="$(head -1 ${envdir}/STATD_PORT)"
+[[ -n "${STATD_HOSTNAME}" ]] && STATDARG="-n ${STATD_HOSTNAME}"
+[[ -n "${STATD_PORT}" ]]     && STATDARG="${STATDARG} -p ${STATD_PORT}"
+[[ -n "${STATD_OUTPORT}" ]]  && STATDARG="${STATDARG} -o ${STATD_OUTPORT}"
 
-NEED_LOCKD=yes
-if [ -f /proc/ksyms ]; then
-    # We need to be conservative and run lockd unless we can prove it isn't required
-    grep -q lockdctl /proc/ksyms || NEED_LOCKD=no
-fi
-if [ "$NEED_LOCKD" = "yes" ]; then
-    /sbin/rpc.lockd 2>&1
-fi
+/sbin/rpc.lockd 2>&1
 
 exec /sbin/rpc.statd -F ${STATDARG} 2>&1

@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		nfs-utils
-%define	version		1.0.7
+%define	version		1.0.10
 %define release		%_revrel
 %define epoch		1
 
@@ -21,61 +21,62 @@ Epoch:		%{epoch}
 License:	GPL
 Group:		Networking/Other
 URL:		http://sourceforge.net/projects/nfs/
-Source0:	http://prdownloads.sourceforge.net/nfs/%{name}-%{version}.tar.bz2
-Source1:	nfs.doc.tar.bz2
-Source2:	nfs.init
-Source3:	nfslock.init
-Source4:	nfs.sysconfig
-Source5:	nfs.statd.run
-Source6:	nfs.statd-log.run
-Source7:	nfs.mountd.run
-Source8:	nfs.mountd-log.run
-Source9:	nfs.mountd.finish
-Source10:	nfsv4.schema
-Source11:	rpcgssd.init
-Source12:	rpcidmapd.init
-Source13:	rpcsvcgssd.init
-Source14:	gssapi_mech.conf
-Source15:	idmapd.conf
+Source0:	http://prdownloads.sourceforge.net/nfs/%{name}-%{version}.tar.gz
+Source1:	ftp://nfs.sourceforge.net/pub/nfs/nfs.doc.tar.bz2
+Source2:	nfs.sysconfig
+Source3:	nfs.statd.run
+Source4:	nfs.statd-log.run
+Source5:	nfs.statd.finish
+Source6:	nfs.mountd.run
+Source7:	nfs.mountd-log.run
+Source8:	nfs.mountd.finish
+Source9:	rpc.idmapd.run
+Source10:	rpc.idmapd-log.run
+Source11:	rpc.gssd.run
+Source12:	rpc.gssd-log.run
+Source13:	rpc.svcgssd.run
+Source14:	rpc.svcgssd-log.run
+Source15:	nfsv4.schema
+Source16:	gssapi_mech.conf
+Source17:	idmapd.conf
 
-Patch0:		nfs-utils-0.3.3-statd-manpage.patch
 Patch1:		eepro-support.patch
-Patch2:		nfs-utils-1.0.4-no-chown.patch
 Patch3:		nfs-utils-1.0.7-binary-or-shlib-defines-rpath.diff
-# (oe) stolen from fedora
-Patch20:	nfs-utils-1.0.6-citi-mountd_flavors.patch
-Patch21:	nfs-utils-1.0.6-zerostats.patch
-Patch22:	nfs-utils-1.0.6-mountd.patch
-Patch23:	nfs-utils-1.0.6-expwarn.patch
-Patch24:	nfs-utils-1.0.6-fd-sig-cleanup.patch
-Patch25:	nfs-utils-1.0.6-statd-notify-hostname.patch
-Patch26:	nfs-utils-1.0.7-rpcsecgss-debug.patch
-Patch27:	nfs-utils-1.0.7-xlog-loginfo.patch
-Patch28:	nfs-utils-1.0.7-svcgssd-bufover.patch
-# (oe) stolen from gentoo
-Patch50:	nfs-utils-1.0.7-gcc4.patch
-# security fixes
-Patch200:	nfs-utils-1.0.7-CAN-2004-1014.diff
-Patch201:	nfs-utils-1.0.7-CAN-2004-0946.diff
+# (oe) boldly stolen from gentoo
+Patch40:	nfs-utils-1.0.7-gcc4.patch
+#
+# Local Patches (FC)
+#
+Patch50:	nfs-utils-1.0.5-statdpath.patch
+Patch51:	nfs-utils-1.0.6-mountd.patch
+Patch52:	nfs-utils-1.0.6-idmap.conf.patch
+Patch54:	nfs-utils-1.0.7-mountd-stat64.patch
+Patch100:	nfs-utils-1.0.8-compile.diff
+Patch150:	nfs-utils-1.0.6-pie.patch
+Patch151:	nfs-utils-1.0.7-strip.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	tcp_wrappers-devel
-# 2.6:
-#BuildRequires:	nfsidmap-devel, krb5-devel >= 1.3, libevent-devel
+BuildRequires:	nfsidmap-devel >= 0.16
+BuildRequires:	krb5-devel >= 1.3
+BuildRequires:	libevent-devel
+BuildRequires:	rpcsecgss-devel >= 0.12
+BuildRequires:	gssapi-devel >= 0.9
 
 ExcludeArch:	armv4l
 Obsoletes:	nfs-server
 Obsoletes:	knfsd
 Obsoletes:	nfs-server-clients
-Provides:	nfs-server
-Provides:	knfsd
-Provides:	nfs-server-clients
+Provides:	nfs-server = %{version}
+Provides:	knfsd = %{version}
+Provides:	nfs-server-clients = %{version}
 Requires:	nfs-utils-clients
 Requires:	kernel >= 2.2.5
 Requires:	portmap >= 4.0
 Requires:	setup >= 2.1.9-35mdk
 Requires:	tcp_wrappers
-#Requires:	kernel >= 2.6.0, module-init-tools >=3.0-5mdk
+Requires:	kernel >= 2.6.0
+Requires:	module-init-tools >= 3.0-5mdk
 Requires(post):	rpm-helper
 Requires(preun): rpm-helper
 
@@ -96,8 +97,9 @@ Group:		Networking/Other
 Obsoletes:	knfsd-clients
 Obsoletes:	knfsd-lock
 Provides:	knfsd-clients
-Provides:	knfsd-lock
-Requires:	kernel >= 2.2.5
+Provides:	knfsd-lock = %{version}
+Requires:	kernel >= 2.6
+Requires:	module-init-tools >= 3.0-5mdk
 Requires:	portmap >= 4.0
 Requires(post):	rpm-helper
 Requires(postun): rpm-helper
@@ -125,54 +127,43 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q -a 1
-
-mkdir -p Annvix
-cat %{_sourcedir}/nfs.init > Annvix/nfs.init
-cat %{_sourcedir}/nfs.sysconfig > Annvix/nfs.sysconfig
-cat %{_sourcedir}/nfslock.init > Annvix/nfslock.init
-cat %{_sourcedir}/nfsv4.schema > Annvix/nfsv4.schema
-cat %{_sourcedir}/rpcgssd.init > Annvix/rpcgssd.init
-cat %{_sourcedir}/rpcidmapd.init > Annvix/rpcidmapd.init
-cat %{_sourcedir}/rpcsvcgssd.init > Annvix/rpcsvcgssd.init
-cat %{_sourcedir}/gssapi_mech.conf > Annvix/gssapi_mech.conf
-cat %{_sourcedir}/idmapd.conf > Annvix/idmapd.conf
+cp %{_sourcedir}/nfsv4.schema .
 
 # fix strange perms
 find . -type d -perm 0700 -exec chmod 755 {} \;
 find . -type f -perm 0555 -exec chmod 755 {} \;
 find . -type f -perm 0444 -exec chmod 644 {} \;
 
-%patch0 -p1 -b .statd-manpage
 %patch1 -p1 -b .eepro-support
-%patch2 -p1 -b .no-chown
-%patch3 -p1 -b .binary-or-shlib-defines-rpath
-%patch20 -p1 -b .mountd_flavors
-%patch21 -p1 -b .zerostats
-%patch22 -p1 -b .mountd
-%patch23 -p1 -b .expwarn
-%patch24 -p1 -b .cleanup
-%patch25 -p1 -b .notify
-%patch26 -p1 -b .rpcsecgss
-%patch27 -p1 -b .xlog
-%patch28 -p1 -b .svcgssd-bufover
-%patch50 -p1 -b .gcc4
-%patch200 -p1 -b .CAN-2004-1014
-%patch201 -p0 -b .CAN-2004-0946
+#patch3 -p1 -b .binary-or-shlib-defines-rpath
+# (oe) boldly stolen from gentoo
+#patch40 -p1 -b .gcc4
+%patch50 -p1 -b .statdpath
+%patch51 -p1 -b .mountd
+%patch52 -p1 -b .conf
+%patch54 -p1 -b .stat64
+%patch100 -p1 -b .compile
+#patch150 -p1 -b .pie
+#patch151 -p1 -b .strip
 
 # lib64 fixes
-perl -pi -e "s|/usr/lib|%{_libdir}|g" Annvix/*
 perl -pi -e "s|\\$dir/lib/|\\$dir/%{_lib}/|g" configure
 
 
 %build
+sh autogen.sh
+
 %serverbuild
-%configure \
+%configure2_5x \
     --with-statedir=%{_localstatedir}/nfs \
     --with-statduser=rpcuser \
     --enable-nfsv3 \
     --disable-rquotad \
-    --disable-nfsv4 --disable-gss --disable-secure-statd --without-krb5
-# once we have a 2.6 kernel, we can enable all of the above
+    --enable-nfsv4 \
+    --enable-gss \
+    --enable-secure-statd \
+    --with-krb5=%{_prefix}
+
 make all
 
 
@@ -181,43 +172,50 @@ make all
 
 mkdir -p %{buildroot}{/sbin,%{_sbindir}}
 mkdir -p %{buildroot}%{_mandir}/{man5,man8}
-mkdir -p %{buildroot}%{_sysconfdir}/sysconfig
-mkdir -p %{buildroot}%{_localstatedir}/nfs/statd
+mkdir -p %{buildroot}%{_sysconfdir}/sysconfig/env/nfs
+mkdir -p %{buildroot}%{_localstatedir}/nfs/{statd,v4recovery}
 
-make \
-    install_prefix=%{buildroot} \
+%make \
+    DESTDIR=%{buildroot} \
     MANDIR=%{buildroot}%{_mandir} \
     SBINDIR=%{buildroot}%{_sbindir} \
     install
+
 install -m 0755 tools/rpcdebug/rpcdebug %{buildroot}/sbin/
 ln -snf rpcdebug %{buildroot}/sbin/nfsdebug
 ln -snf rpcdebug %{buildroot}/sbin/nfsddebug
 
-install -m 0755 Annvix/nfs.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/nfs
-
 touch %{buildroot}%{_localstatedir}/nfs/rmtab
 mv %{buildroot}%{_sbindir}/{rpc.lockd,rpc.statd} %{buildroot}/sbin
 
-## when we're ready for 2.6 and nfsv4:
-#install -m 0755 Annvix/rpcidmapd.init %{buildroot}%{_initrddir}/rpcidmapd
-#install -m 0755 Annvix/rpcgssd.init %{buildroot}%{_initrddir}/rpcgssd
-#install -m 0755 Annvix/rpcsvcgssd.init %{buildroot}%{_initrddir}/rpcsvcgssd
-#install -m 0644 Annvix/idmapd.conf %{buildroot}%{_sysconfdir}/idmapd.conf
-#install -m 0644 Annvix/gssapi_mech.conf %{buildroot}%{_sysconfdir}/gssapi_mech.conf
-#mkdir -p %{buildroot}%{_localstatedir}/nfs/rpc_pipefs
+install -m 0644 %{_sourcedir}/idmapd.conf %{buildroot}%{_sysconfdir}/idmapd.conf
+install -m 0644 %{_sourcedir}/gssapi_mech.conf %{buildroot}%{_sysconfdir}/gssapi_mech.conf
+perl -pi -e "s|/usr/lib|%{_libdir}|g" %{buildroot}%{_sysconfdir}/gssapi_mech.conf
+mkdir -p %{buildroot}%{_localstatedir}/nfs/rpc_pipefs
 
 
-mkdir -p %{buildroot}%{_srvdir}/nfs.{statd,mountd}/log
+mkdir -p %{buildroot}%{_srvdir}/{nfs.statd,nfs.mountd,rpc.idmapd,rpc.gssd,rpc.svcgssd}/log
 install -m 0740 %{_sourcedir}/nfs.statd.run %{buildroot}%{_srvdir}/nfs.statd/run
 install -m 0740 %{_sourcedir}/nfs.statd-log.run %{buildroot}%{_srvdir}/nfs.statd/log/run
+install -m 0740 %{_sourcedir}/nfs.statd.finish %{buildroot}%{_srvdir}/nfs.statd/finish
 install -m 0740 %{_sourcedir}/nfs.mountd.run %{buildroot}%{_srvdir}/nfs.mountd/run
 install -m 0740 %{_sourcedir}/nfs.mountd-log.run %{buildroot}%{_srvdir}/nfs.mountd/log/run
 install -m 0740 %{_sourcedir}/nfs.mountd.finish %{buildroot}%{_srvdir}/nfs.mountd/finish
+install -m 0740 %{_sourcedir}/rpc.idmapd.run %{buildroot}%{_srvdir}/rpc.idmapd/run
+install -m 0740 %{_sourcedir}/rpc.idmapd-log.run %{buildroot}%{_srvdir}/rpc.idmapd/log/run
+install -m 0740 %{_sourcedir}/rpc.gssd.run %{buildroot}%{_srvdir}/rpc.gssd/run
+install -m 0740 %{_sourcedir}/rpc.gssd-log.run %{buildroot}%{_srvdir}/rpc.gssd/log/run
+install -m 0740 %{_sourcedir}/rpc.svcgssd.run %{buildroot}%{_srvdir}/rpc.svcgssd/run
+install -m 0740 %{_sourcedir}/rpc.svcgssd-log.run %{buildroot}%{_srvdir}/rpc.svcgssd/log/run
 
-# with 2.6/nfsv4 we'll need additional services: rpcdimap, rpcgssd, rpcsvcgssd
-# refer to mdk nfs-utils.spec: 
-# http://cvs.mandriva.com/cgi-bin/cvsweb.cgi/SPECS/nfs-utils/nfs-utils.spec.diff?r1=1.34&r2=1.43
+mkdir -p %{buildroot}%{_srvdir}/{nfs.mountd,nfs.statd,rpc.svcgssd,rpc.idmapd}/depends
+%_mkdepends nfs.statd portmap
+%_mkdepends nfs.mountd nfs.statd
+%_mkdepends rpc.svcgssd rpc.gssd
+%_mkdepends rpc.idmapd nfs.mountd
 
+rm -f %{buildroot}%{_sbindir}/rpcdebug
+rm -f %{buildroot}%{_mandir}/man8/rpcdebug.8
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -226,6 +224,9 @@ install -m 0740 %{_sourcedir}/nfs.mountd.finish %{buildroot}%{_srvdir}/nfs.mount
 %post
 %_post_srv nfs.statd
 %_post_srv nfs.mountd
+%_post_srv rpc.gssd
+%_post_srv rpc.svcgssd
+%_post_srv rpc.idmapd
 
 %create_ghostfile %{_localstatedir}/nfs/xtab root root 644
 %create_ghostfile %{_localstatedir}/nfs/etab root root 644
@@ -240,6 +241,9 @@ if [ ! -s %{_sysconfdir}/exports ]; then
 fi
 %_preun_srv nfs.statd
 %_preun_srv nfs.mountd
+%_preun_srv rpc.gssd
+%_preun_srv rpc.svcgssd
+%_preun_srv rpc.idmapd
 
 
 %pre clients
@@ -260,13 +264,12 @@ fi
 
 %files
 %defattr(-,root,root)
-%config(noreplace) %{_sysconfdir}/sysconfig/nfs
+%dir %attr(0750,root,admin) %config(noreplace) %{_sysconfdir}/sysconfig/env/nfs
 %config(noreplace) %ghost  %{_localstatedir}/nfs/xtab
 %config(noreplace) %ghost  %{_localstatedir}/nfs/etab
 %config(noreplace) %ghost  %{_localstatedir}/nfs/rmtab
-# 2.6:
-#%config(noreplace) %{_sysconfdir}/idmapd.conf
-#%config(noreplace) %{_sysconfdir}/gssapi_mech.conf
+%config(noreplace) %{_sysconfdir}/idmapd.conf
+%config(noreplace) %{_sysconfdir}/gssapi_mech.conf
 /sbin/rpcdebug
 /sbin/nfsdebug
 /sbin/nfsddebug
@@ -278,12 +281,12 @@ fi
 %{_sbindir}/nhfsstone
 %{_sbindir}/rpc.mountd
 %{_sbindir}/rpc.nfsd
-# 2.6:
-#%{_sbindir}/rpc.idmapd
-#%{_sbindir}/rpc.gssd
-#%{_sbindir}/rpc.svcgssd
-#%{_mandir}/man5/idmapd.conf.5*
-#%{_mandir}/man5/rpc.idmapd.conf.5*
+%{_sbindir}/rpc.idmapd
+%{_sbindir}/rpc.gssd
+%{_sbindir}/rpc.svcgssd
+%{_sbindir}/gss_clnt_send_err
+%{_sbindir}/gss_destroy_creds
+%{_mandir}/man5/idmapd.conf.5*
 %{_mandir}/man5/exports.5*
 %{_mandir}/man7/nfsd.7*
 %{_mandir}/man8/exportfs.8*
@@ -296,18 +299,37 @@ fi
 %{_mandir}/man8/nhfsstone.8*
 %{_mandir}/man8/rpc.mountd.8*
 %{_mandir}/man8/rpc.nfsd.8*
-#%{_mandir}/man8/gssd.8*
-#%{_mandir}/man8/idmapd.8*
-#%{_mandir}/man8/rpc.gssd.8*
-#%{_mandir}/man8/rpc.idmapd.8*
-#%{_mandir}/man8/rpc.svcgssd.8*
-#%{_mandir}/man8/svcgssd.8*
-#%dir %{_localstatedir}/nfs/rpc_pipefs
+%{_mandir}/man8/gssd.8*
+%{_mandir}/man8/idmapd.8*
+%{_mandir}/man8/rpc.gssd.8*
+%{_mandir}/man8/rpc.idmapd.8*
+%{_mandir}/man8/rpc.svcgssd.8*
+%{_mandir}/man8/svcgssd.8*
+%dir %{_localstatedir}/nfs/rpc_pipefs
 %dir %attr(0750,root,admin) %{_srvdir}/nfs.mountd
 %dir %attr(0750,root,admin) %{_srvdir}/nfs.mountd/log
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/nfs.mountd/run
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/nfs.mountd/finish
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/nfs.mountd/log/run
+%dir %attr(0750,root,admin) %{_srvdir}/nfs.mountd/depends
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/nfs.mountd/depends/nfs.statd
+%dir %attr(0750,root,admin) %{_srvdir}/rpc.idmapd
+%dir %attr(0750,root,admin) %{_srvdir}/rpc.idmapd/log
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/rpc.idmapd/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/rpc.idmapd/log/run
+%dir %attr(0750,root,admin) %{_srvdir}/rpc.idmapd/depends
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/rpc.idmapd/depends/nfs.mountd
+%dir %attr(0750,root,admin) %{_srvdir}/rpc.gssd
+%dir %attr(0750,root,admin) %{_srvdir}/rpc.gssd/log
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/rpc.gssd/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/rpc.gssd/log/run
+%dir %attr(0750,root,admin) %{_srvdir}/rpc.svcgssd
+%dir %attr(0750,root,admin) %{_srvdir}/rpc.svcgssd/log
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/rpc.svcgssd/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/rpc.svcgssd/log/run
+%dir %attr(0750,root,admin) %{_srvdir}/rpc.svcgssd/depends
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/rpc.svcgssd/depends/rpc.gssd
+
 
 %files clients
 %defattr(-,root,root)
@@ -321,20 +343,37 @@ fi
 %{_mandir}/man8/showmount.8*
 %dir %{_localstatedir}/nfs
 %dir %{_localstatedir}/nfs/state
+%dir %{_localstatedir}/nfs/v4recovery
 %dir %attr(0700,rpcuser,rpcuser) %{_localstatedir}/nfs/statd
 %dir %attr(0750,root,admin) %{_srvdir}/nfs.statd
 %dir %attr(0750,root,admin) %{_srvdir}/nfs.statd/log
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/nfs.statd/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/nfs.statd/finish
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/nfs.statd/log/run
+%dir %attr(0750,root,admin) %{_srvdir}/nfs.statd/depends
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/nfs.statd/depends/portmap
 
 %files doc
 %defattr(-,root,root)
 %doc README ChangeLog COPYING
 %doc nfs/*.html linux-nfs/*
-#%doc Annvix/nfsv4.schema
+%doc nfsv4.schema
 
 
 %changelog
+* Thu Dec 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.10
+- 1.0.10
+- enable all the stuff we couldn't use before without a 2.6 kernel (gssapi,
+  kerberos, nfsv4)
+- use the ./depends directory and let srv handle dependencies
+- add /var/lib/nfs/v4recovery
+- write run scripts for rpc.idmapd, rpc.gssd, and rpc.svcgssd and rework
+  the other runscripts
+- add a finish script for rpc.statd
+- try to sanely handle dependencies
+- NOTE: i'm comitting this but have no idea how well it will work.. the changeset
+  will already be huge so it'll be easier to work from the comitted version
+
 * Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.7
 - add -doc subpackage
 - rebuild with gcc4

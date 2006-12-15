@@ -7,6 +7,16 @@
 # chkconfig: 345 18 68
 # description: Starts user-level daemon for NFSv4 that maps user \
 #              names to UID and GID numbers.
+#
+### BEGIN INIT INFO
+# Provides: rpcidmapd
+# Required-Start: $network
+# Required-Stop: $network
+# Default-Start: 3 4 5
+# Short-Description: RPC name to UID/GID daemon
+# Description: Starts user-level daemon for NFSv4 that maps user
+#              names to UID and GID numbers.
+### END INIT INFO
 
 # Source function library.
 . /etc/init.d/functions

@@ -1,0 +1,33 @@
+#!/bin/sh
+PATH="/sbin:/usr/sbin:/bin:/usr/bin"
+
+# this runs rpc.svcgssd supervised
+
+# this service depends on rpc.gssd because the run script for rpc.gssd will load the
+# appropriate modules; if we do both here (as is Mandriva's runscripts, for instance)
+# we could end up with a race to modprobe the modules so let rpc.gssd do it
+
+envdir=/etc/sysconfig/env/nfs
+[[ -f ${envdir}/SECURE_NFS ]]      && SECURE_NFS="$(head -1 ${envdir}/SECURE_NFS)"
+
+if [ "${SECURE_NFS}" != "yes" ]; then
+    echo "rpc.svcgssd is not required because ${envdir}/SECURE_NFS is not set to 'yes'"
+    exit 0
+fi
+
+if ! [ -f /etc/krb5.keytab ]; then
+    echo "Fatal error: /etc/krb5.keytab does not exist!"
+    exit 1
+fi
+if [ -z `echo -e "rkt /etc/krb5.keytab\nl" | ktutil | awk '{ print $3}' | grep "^nfs\/"` ]; then
+    echo "Fatal error: No NFS key detected in /etc.krb5.keytab!"
+    exit 1
+fi
+
+RPCMTAB="`grep -v '^#' /proc/mounts | awk '{ if ($3 ~ /^rpc_pipefs$/ ) print $2}'`"
+if [ -z "${RPCMTAB}" ]; then
+    echo "Fatal error: RPC MTAB does not exist."
+    exit 1
+fi
+
+exec /usr/sbin/rpc.svcgssd -f 2>&1

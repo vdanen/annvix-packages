@@ -7,6 +7,16 @@
 # chkconfig: 345 19 69
 # description: Starts user-level daemon that manages RPCSEC GSS contexts \
 #	       for the NFSv4 server.
+#
+### BEGIN INIT INFO
+# Provides: rpcsvcgssd
+# Required-Start: $network
+# Required-Stop: $network
+# Default-Start: 3 4 5
+# Short-Description: RPCSEC GSS daemon
+# Description: Starts user-level daemon that manages RPCSEC GSS contexts
+#	       for the NFSv4 server.
+### END INIT INFO
 
 # Source function library.
 . /etc/init.d/functions
@@ -64,6 +74,20 @@ case "$1" in
 		echo "Error: RPC MTAB does not exist."
 		exit 1
 	}	
+
+	# don't try to start if the config file is missing
+	if ! [ -f /etc/krb5.keytab ]; then
+	    echo "Error: /etc/krb5.keytab does not exist."
+	    exit 1
+	fi
+
+	# don't try to start if nfs is not setup in kerberos
+	if [ -f /etc/krb5.keytab ]; then
+	    if [ -z `echo -e "rkt /etc/krb5.keytab\nl" | ktutil | awk '{ print $3}' | grep "^nfs\/"` ]; then
+		echo "No nfs key detected in default keytab, aborting."
+		exit 1
+	    fi
+	fi
 
 	# Start daemon.
 	daemon $prog ${OPTIONS}

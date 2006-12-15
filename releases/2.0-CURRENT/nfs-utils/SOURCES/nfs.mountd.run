@@ -1,56 +1,45 @@
 #!/bin/sh
 PATH="/sbin:/usr/sbin:/bin:/usr/bin"
 
-# this runs rpc.nfsd supervised
+# this runs rpc.mountd supervised
 
-. /usr/share/srv/functions
+# this service depends on nfs.statd
 
-# make sure nfs.statd is started and wait until it's up
-checkdepends nfs.statd
+envdir=/etc/sysconfig/env/nfs
+[[ -f ${envdir}/MOUNTD_NFS_V2 ]] && MOUNTD_NFS_V2="$(head -1 ${envdir}/MOUNTD_NFS_V2)"
+[[ -f ${envdir}/MOUNTD_NFS_V3 ]] && MOUNTD_NFS_V3="$(head -1 ${envdir}/MOUNTD_NFS_V3)"
+[[ -f ${envdir}/MOUNTD_PORT ]]   && MOUNTD_PORT="$(head -1 ${envdir}/MOUNTD_PORT)"
+[[ -f ${envdir}/MOUNTD_TCP ]]    && MOUNTD_TCP="$(head -1 ${envdir}/MOUNTD_TCP)"
+[[ -f ${envdir}/RPCNFSDCOUNT ]]  && RPCNFSDCOUNT="$(head -1 ${envdir}/RPCNFSDCOUNT)"
+[[ -f ${envdir}/RQUOTAD ]]       && RQUOTAD="$(head -1 ${envdir}/RQUOTAD)"
+[[ -f ${envdir}/RQUOTAD_PORT ]]  && RQUOTAD_PORT="$(head -1 ${envdir}/RQUOTAD_PORT)"
+[[ -f ${envdir}/LOCKD_TCPPORT ]] && LOCKD_TCPPORT="$(head -1 ${envdir}/LOCKD_TCPPORT)"
+[[ -f ${envdir}/LOCKD_UDPPORT ]] && LOCKD_UDPPORT="$(head -1 ${envdir}/LOCKD_UDPPORT)"
 
-. /etc/sysconfig/network
+[[ -z "${MOUNTD_NFS_V2}" ]] && MOUNTD_NFS_V2="default"
+[[ -z "${MOUNTD_NFS_V3}" ]] && MOUNTD_NFS_V3="default"
+[[ -z "${RPCNFSDCOUNT}" ]]  && RPCNFSDCOUNT="8"
+[[ -z "${RQUOTAD}" ]]       && RQUOTAD="`type -path rpc.rquotad`"
+[[ -n "${LOCKD_TCPPORT}" ]] && /sbin/sysctl -w fs.nfs.nlm_tcpport=${LOCKD_TCPPORT} >/dev/null 2>&1
+[[ -n "${LOCKD_UDPPORT}" ]] && /sbin/sysctl -w fs.nfs.nlm_udpport=${LOCKD_UDPPORT} >/dev/null 2>&1
+[[ -n "${MOUNTD_PORT}" ]]   && RPCMOUNTDOPTS="${RPCMOUNTDOPTS} -p ${MOUNTD_PORT}"
 
-[ -f /etc/sysconfig/nfs ] && . /etc/sysconfig/nfs
-
-[ -z "$MOUNTD_NFS_V2" ] && MOUNTD_NFS_V2=auto
-[ -z "$MOUNTD_NFS_V3" ] && MOUNTD_NFS_V3=auto
-[ -n "$MOUNTD_PORT" ] && MOUNTD_OPTIONS="$MOUNTD_OPTIONS -p $MOUNTD_PORT"
-[ "$MOUNTD_TCP" = "no" ] && MOUNTD_OPTIONS="$MOUNTD_OPTIONS --no-tcp"
-[ -z "$NFSDCOUNT" ] && NFSDCOUNT=8
-
-case $MOUNTD_NFS_V2 in
-  auto|AUTO)
-        /usr/sbin/rpcinfo -u localhost nfs 2 >/dev/null 2>&1
-        if [ "$?" -ne "0" ]; then
-          MOUNTD_OPTIONS="$MOUNTD_OPTIONS --no-nfs-version 2"
-        fi
-        ;;
-  no|NO)
-        MOUNTD_OPTIONS="$MOUNTD_OPTIONS --no-nfs-version 2"
-        ;;
-  yes|YES)
-        MOUNTD_OPTIONS="$MOUNTD_OPTIONS --nfs-version 2"
-        ;;
+case ${MOUNTD_NFS_V2} in
+    no|NO)
+        RPCMOUNTDOPTS="${RPCMOUNTDOPTS} --no-nfs-version 2" ;;
 esac
-
-case $MOUNTD_NFS_V3 in
-  auto|AUTO)
-        /usr/sbin/rpcinfo -u localhost nfs 3 >/dev/null 2>&1
-        if [ "$?" -ne "0" ]; then
-          MOUNTD_OPTIONS="$MOUNTD_OPTIONS --no-nfs-version 3"
-        fi
-        ;;
-  no|NO)
-        MOUNTD_OPTIONS="$MOUNTD_OPTIONS --no-nfs-version 3"
-        ;;
-  yes|YES)
-        MOUNTD_OPTIONS="$MOUNTD_OPTIONS --nfs-version 3"
-        ;;
+case ${MOUNTD_NFS_V3} in
+    no|NO)
+        RPCMOUNTDOPTS="${RPCMOUNTDOPTS} --no-nfs-version 3" ;;
 esac
 
 trap 'exit 2' 1 2 3 15
 
 /usr/sbin/exportfs -f 2>&1
 /usr/sbin/exportfs -r 2>&1
-/usr/sbin/rpc.nfsd -- $NFSDCOUNT 2>&1
-exec /usr/sbin/rpc.mountd -F $MOUNTD_OPTIONS 2>&1
+/usr/sbin/rpc.nfsd -- ${NFSDCOUNT} 2>&1
+if [ -n "${RQUOTAD}" -a "${RQUOTAD}" != "no" ]; then
+    [[ -n "${RQUOTAD_PORT}" ]] && RQUOTADOPTS="-p ${RQUOTAD_PORT}"
+    /usr/sbin/rpc.quotad ${RQUOTADOPTS}
+fi
+exec /usr/sbin/rpc.mountd -F ${RPCMOUNTDOPTS} 2>&1
