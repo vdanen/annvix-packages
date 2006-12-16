@@ -361,6 +361,13 @@ fi
 
 %changelog
 * Sat Dec 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.10
+- rpc.gssd needs to check for the existance (and configuration of)
+  /etc/krb5/keytab before launching
+- nfs.mountd doesn't start (or kill) rpc.rquotad anymore since that
+  file is in the quota package and is entirely optional so don't
+  bother looking for it; let it run as it's own service
+
+* Sat Dec 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.10
 - fix the runscripts regarding some of the envdir options
 
 * Thu Dec 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.10

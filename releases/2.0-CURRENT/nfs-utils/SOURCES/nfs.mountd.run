@@ -12,16 +12,13 @@ envdir=/etc/sysconfig/env/nfs
 [[ -f ${envdir}/MOUNTD_TCP ]]    && MOUNTD_TCP="$(head -1 ${envdir}/MOUNTD_TCP)"
 [[ -f ${envdir}/MOUNTD_OPTS ]]   && MOUNTD_OPTS="$(head -1 ${envdir}/MOUNTD_OPTS)"
 [[ -f ${envdir}/RPCNFSDCOUNT ]]  && RPCNFSDCOUNT="$(head -1 ${envdir}/RPCNFSDCOUNT)"
-[[ -f ${envdir}/RQUOTAD ]]       && RQUOTAD="$(head -1 ${envdir}/RQUOTAD)"
-[[ -f ${envdir}/RQUOTAD_PORT ]]  && RQUOTAD_PORT="$(head -1 ${envdir}/RQUOTAD_PORT)"
 [[ -f ${envdir}/LOCKD_TCPPORT ]] && LOCKD_TCPPORT="$(head -1 ${envdir}/LOCKD_TCPPORT)"
 [[ -f ${envdir}/LOCKD_UDPPORT ]] && LOCKD_UDPPORT="$(head -1 ${envdir}/LOCKD_UDPPORT)"
 
-[[ -n "${MOUNTD_OPTS}" ]]   && RPCMOUNTDOPTS="${RPCMOUNTDOPTS ${MOUNTD_OPTS}"
+[[ -n "${MOUNTD_OPTS}" ]]   && RPCMOUNTDOPTS="${RPCMOUNTDOPTS} ${MOUNTD_OPTS}"
 [[ -z "${MOUNTD_NFS_V2}" ]] && MOUNTD_NFS_V2="default"
 [[ -z "${MOUNTD_NFS_V3}" ]] && MOUNTD_NFS_V3="default"
 [[ -z "${RPCNFSDCOUNT}" ]]  && RPCNFSDCOUNT="8"
-[[ -z "${RQUOTAD}" ]]       && RQUOTAD="`type -path rpc.rquotad`"
 [[ -n "${LOCKD_TCPPORT}" ]] && /sbin/sysctl -w fs.nfs.nlm_tcpport=${LOCKD_TCPPORT} >/dev/null 2>&1
 [[ -n "${LOCKD_UDPPORT}" ]] && /sbin/sysctl -w fs.nfs.nlm_udpport=${LOCKD_UDPPORT} >/dev/null 2>&1
 [[ -n "${MOUNTD_PORT}" ]]   && RPCMOUNTDOPTS="${RPCMOUNTDOPTS} -p ${MOUNTD_PORT}"
@@ -40,8 +37,4 @@ trap 'exit 2' 1 2 3 15
 /usr/sbin/exportfs -f 2>&1
 /usr/sbin/exportfs -r 2>&1
 /usr/sbin/rpc.nfsd -- ${NFSDCOUNT} 2>&1
-if [ -n "${RQUOTAD}" -a "${RQUOTAD}" != "no" ]; then
-    [[ -n "${RQUOTAD_PORT}" ]] && RQUOTADOPTS="-p ${RQUOTAD_PORT}"
-    /usr/sbin/rpc.quotad ${RQUOTADOPTS}
-fi
 exec /usr/sbin/rpc.mountd -F ${RPCMOUNTDOPTS} 2>&1
