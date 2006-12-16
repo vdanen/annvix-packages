@@ -19,7 +19,9 @@ Release:	%{release}
 License:	BSD
 Group:		System/Configuration
 URL:		http://sourceforge.net/projects/linuxquota
-Source:		http://prdownloads.sourceforge.net/linuxquota/%{name}-%{version}.tar.bz2
+Source0:	http://prdownloads.sourceforge.net/linuxquota/%{name}-%{version}.tar.bz2
+Source1:	rpc.rquotad.run
+Source2:	rpc.rquotad-log.run
 Patch0:		quota-tools-man-pages-path.patch
 Patch1:		quota-tools-no-stripping.patch
 Patch2:		quota-3.06-warnquota.patch
@@ -33,10 +35,14 @@ BuildRequires:	tcp_wrappers-devel >= 7.6-29avx
 
 Requires:	kernel >= 2.4
 Requires:	initscripts >= 6.38
+Requires(post):	rpm-helper
+Requires(preun): rpm-helper
 
 %description
 The quota package contains system administration tools for monitoring
-and limiting users' and or groups' disk usage, per filesystem.
+and limiting users' and or groups' disk usage, per filesystem.  It also
+contains the rpc.rquotad daemon to provide quota information for NFS
+mounts.
 
 
 %prep
@@ -65,10 +71,15 @@ make install ROOTDIR=%{buildroot}
 
 install -m 0644 warnquota.conf %{buildroot}%{_sysconfdir}
 
+mkdir -p %{buildroot}%{_srvdir}/rpc.rquotad/log
+install -m 0740 %{_sourcedir}/rpc.rquotad.run %{buildroot}%{_srvdir}/rpc.rquotad/run
+install -m 0740 %{_sourcedir}/rpc.rquotad-log.run %{buildroot}%{_srvdir}/rpc.rquotad/log/run
+
+
 %kill_lang %{name}
 %find_lang %{name}
 
-# can't strip suid files
+# we don't want suid files
 chmod 0755 %{buildroot}/sbin/*
 chmod 0755 %{buildroot}%{_sbindir}/*
 chmod 0755 %{buildroot}%{_bindir}/*
@@ -76,6 +87,13 @@ chmod 0755 %{buildroot}%{_bindir}/*
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
+
+%preun
+%_preun_srv rpc.rquotad
+
+%post
+%_post_srv rpc.rquotad
 
 
 %files -f %{name}.lang
@@ -91,9 +109,16 @@ chmod 0755 %{buildroot}%{_bindir}/*
 %attr(0644,root,root) %{_mandir}/man2/*
 %attr(0644,root,root) %{_mandir}/man3/*
 %attr(0644,root,root) %{_mandir}/man8/*
+%dir %attr(0750,root,admin) %{_srvdir}/rpc.rquotad
+%dir %attr(0750,root,admin) %{_srvdir}/rpc.rquotad/log
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/rpc.rquotad/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/rpc.rquotad/log/run
 
 
 %changelog
+* Sat Dec 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.13
+- runscripts for rpc.rquotad
+
 * Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.13
 - use %%kill_lang
 
