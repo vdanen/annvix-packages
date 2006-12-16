@@ -22,6 +22,7 @@ URL:		http://www.ohse.de/uwe/uschedule.html
 Source0:	%{name}-%{version}.tar.gz
 Patch0:		uschedule-0.7.1-avx-runit.patch
 Patch1:		uschedule-0.7.1-avx-localtime.patch
+Patch2:		uschedule-0.7.1-avx-fix_commandfile.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	dietlibc-devel >= 0.20
@@ -46,7 +47,7 @@ This package contains the documentation for %{name}.
 %setup -q -n admin
 %patch0 -p0 -b .runit
 %patch1 -p1 -b .localtime
-
+%patch2 -p1 -b .fix_commandfile
 
 %build
 %ifarch x86_64
@@ -107,6 +108,11 @@ popd
 
 
 %changelog
+* Fri Dec 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.7.1
+- P2: fix the uschedulecmd's creation of the environment script that
+  actually runs the commands otherwise jobs created using -e (to
+  preserve the environment) will never be executed
+
 * Thu Dec 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.7.1
 - P1: make uo_now() return the seconds since the epoch adjusted for
   the local time so on a MST7MDT since you don't end up with a timespec

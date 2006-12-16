@@ -1,0 +1,24 @@
+--- admin/uschedule-0.7.1/src/uschedulecmd.c.avx	2006-12-15 16:15:14.000000000 -0700
++++ admin/uschedule-0.7.1/src/uschedulecmd.c	2006-12-15 16:15:14.000000000 -0700
+@@ -95,10 +95,18 @@
+ 		if (-1==buffer_puts(&o,"exec \\\n")) die_write_temp();
+ 		copy_env(&o);
+ 		if (-1==buffer_puts(&o,"/bin/sh -c ")) die_write_temp();
+-		if (-1==buffer_puts(&o,"\"$SCHEDULED_COMMAND_FILE\"/'")) 
++		/* the processing logic is wrong here because SCHEDULED_COMMAND_FILE
++		 * is the actual scheduled process, but once you throw -e in there, you
++		 * have a secondary file, the .run file which is the actual command to
++		 * execute, and the scheduled command file preserves the environment and
++		 * executes the .run file, but uschedulecmd was writing SCHEDULED_COMMAND_FILE/file.run
++		 * which is wrong (and doesn't exist), so instead use SCHEDULED_COMMAND_FILE.run which
++		 * works as intended (vdanen -- 12/15/2006)
++		 */
++		if (-1==buffer_puts(&o,"${SCHEDULED_COMMAND_FILE}.run\n")) 
+ 			die_write_temp();
+-		if (-1==buffer_puts(&o,fn.s)) die_write_temp();
+-		if (-1==buffer_puts(&o,"'\n")) die_write_temp();
++		//if (-1==buffer_puts(&o,fn.s)) die_write_temp();
++		//if (-1==buffer_puts(&o,"'\n")) die_write_temp();
+ 		if (-1==buffer_flush(&o)) die_write_temp();
+ 		if (-1==fchmod(fd,0755)) die_fchmod();
+ 		if (-1==fsync(fd)) die_fsync();
