@@ -553,6 +553,7 @@ popd >/dev/null 2>&1
 %defattr(-,root,root)
 %config(noreplace) %{_sysconfdir}/krb5.conf
 %{_libdir}/lib*.so.*
+%{_libdir}/libgssapi_krb5.so
 %dir %{_libdir}/krb5
 %dir %{_libdir}/krb5/plugins
 
@@ -571,6 +572,7 @@ popd >/dev/null 2>&1
 %multiarch %{multiarch_includedir}/krb5.h
 %{_includedir}/*
 %{_libdir}/lib*.so
+%exclude %{_libdir}/libgssapi_krb5.so
 %{_mandir}/man1/krb5-config.1*
 %{_mandir}/man1/sclient.1*
 %{_mandir}/man8/sserver.8*
@@ -628,6 +630,11 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Sat Dec 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.5.1
+- put libgssapi_krb5.so in the lib package, not the lib -devel package or
+  else rpc.gssd won't run (and it's not acceptable to have to install the
+  -devel package for a daemon to run)
+
 * Tue Dec 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.5.1
 - 1.5.1
 - drop P2, P4, P10, P12, P13, P14, P15, P16, P19, P20; merged
