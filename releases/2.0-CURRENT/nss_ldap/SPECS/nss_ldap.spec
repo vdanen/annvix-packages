@@ -27,6 +27,7 @@ BuildRoot: 	%{_buildroot}/%{name}-%{version}
 #BuildRequires:	db4-devel >= 4.1.25
 BuildRequires:	openldap-devel >= 2.0.7-7.1mdk
 BuildRequires:	automake1.4
+BuildRequires:	krb5-devel
 
 Requires(post):	rpm-helper
 Requires(postun): rpm-helper
@@ -114,6 +115,9 @@ rm -rf %{buildroot}%{_libdir}/libnss_ldap.so.2
 
 
 %changelog
+* Sat Dec 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 253
+- fix buildrequires and rebuild against new krb5
+
 * Sat Dec 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 253
 - 253
 - rebuild against new openldap
