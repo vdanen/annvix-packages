@@ -8,7 +8,7 @@
 
 /bin/multisubstitute {
     import -D "-a /net" MOUNTPTS
-    import -D "" AMDOPTS
+    import -D "" AMD_OPTS
     elglob -0 DEPENDS ./depends/*
 }
 
@@ -19,5 +19,5 @@
     /bin/echo "/etc/amd.conf doesn't exist and is required to run amd!"
 }
 {
-    /usr/sbin/amd -D nodaemon -F /etc/amd.conf ${AMDOPTS} ${MOUNTPTS}
+    /usr/sbin/amd -D nodaemon -F /etc/amd.conf ${AMD_OPTS} ${MOUNTPTS}
 }

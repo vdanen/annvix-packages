@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		am-utils
-%define version		6.0.9
+%define version		6.1.5
 %define release		%_revrel
 %define epoch		3
 
@@ -24,7 +24,7 @@ Epoch:		%{epoch}
 License:	BSD
 Group:		System/Servers
 URL:		http://www.am-utils.org/
-Source:		ftp://ftp.am-utils.org/pub/am-utils/%{name}/%{name}-%{version}.tar.bz2
+Source:		ftp://ftp.am-utils.org/pub/%{name}/%{name}-%{version}.tar.gz
 Source1:	am-utils.conf
 Source2:	am-utils.net.map
 Source3:	amd.run
@@ -32,23 +32,22 @@ Source4:	amd-log.run
 Source5:	AMDOPTS.env
 Source6: 	MOUNTPTS.env
 Patch0:		am-utils-6.0.4-nfs3.patch
-Patch1:		am-utils-6.0.9-avx-gcc4.patch
+Patch1:		am-utils-6.1.5-avx-nodaemon.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	bison
 BuildRequires:	byacc
 BuildRequires:	flex
-BuildRequires:	gdbm-devel
+BuildRequires:	db1-devel
 
 Requires:	portmap
 Requires:	setup >= 2.4-16avx
-Requires(pre):	grep
 Requires(post):	rpm-helper
 Requires(post):	info-install
 Requires(preun): info-install
 Requires(preun): rpm-helper
 Obsoletes:	amd
-Provides:	amd
+Provides:	amd = %{version}-%{release}
 
 %description
 Am-utils includes an updated version of Amd, the popular BSD
@@ -89,7 +88,7 @@ This package contains the documentation for %{name}.
 %prep
 %setup -q
 %patch -p1
-%patch1 -p1 -b .gcc4
+%patch1 -p1 -b .nodaemon
 
 
 %build
@@ -98,7 +97,7 @@ This package contains the documentation for %{name}.
     --enable-shared \
     --enable-libs="-lnsl -lresolv" \
     --disable-amq-mount \
-    --enable-debug \
+    --enable-debug=yes \
     --without-ldap
 
 %make
@@ -118,7 +117,7 @@ mkdir -p %{buildroot}%{_srvdir}/amd/{log,env,depends}
 install -m 0740 %{_sourcedir}/amd.run %{buildroot}%{_srvdir}/amd/run
 install -m 0740 %{_sourcedir}/amd-log.run %{buildroot}%{_srvdir}/amd/log/run
 
-install -m 0640 %{_sourcedir}/AMDOPTS.env %{buildroot}%{_srvdir}/amd/env/AMDOPTS
+install -m 0640 %{_sourcedir}/AMDOPTS.env %{buildroot}%{_srvdir}/amd/env/AMD_OPTS
 install -m 0640 %{_sourcedir}/MOUNTPTS.env %{buildroot}%{_srvdir}/amd/env/MOUNTPTS
 
 %_mkdepends amd portmap
@@ -171,7 +170,7 @@ rm -f %{buildroot}/amd
 %dir %attr(0750,root,admin) %{_srvdir}/amd/depends
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/amd/run
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/amd/log/run
-%attr(0640,root,admin) %config(noreplace) %{_srvdir}/amd/env/AMDOPTS
+%attr(0640,root,admin) %config(noreplace) %{_srvdir}/amd/env/AMD_OPTS
 %attr(0640,root,admin) %config(noreplace) %{_srvdir}/amd/env/MOUNTPTS
 %attr(0640,root,admin) %{_srvdir}/amd/depends/portmap
 
@@ -191,6 +190,16 @@ rm -f %{buildroot}/amd
 
 
 %changelog
+* Sat Dec 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 6.1.5
+- 6.1.5
+- use AMD_OPTS instead of AMDOPTS to be more consisent (./env)
+- fix source url
+- fix requires
+- fix buildrequires (gdbm no longer enables ndbm support, db1 does)
+- drop P1: no longer required
+- new P1: make amd never background (for some reason, using -D nodaemon no
+  longer works)
+
 * Mon Nov 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 6.0.9
 - fix the run script (but see bug #36 regarding svwaitup too)
 
