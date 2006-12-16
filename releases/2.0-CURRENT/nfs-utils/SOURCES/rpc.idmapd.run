@@ -5,10 +5,12 @@ PATH="/sbin:/usr/sbin:/bin:/usr/bin"
 
 # this service depends on nfs.mountd
 
+[[ -f ${envdir}/RPCIDMAPD_OPTS ]] && RPCIDMAPD_OPTS="$(head -1 ${envdir}/RPCIDMAPD_OPTS)"
+
 RPCMTAB="`grep -v '^#' /proc/mounts | awk '{ if ($3 ~ /^rpc_pipefs$/ ) print $2}'`"
 if [ -z "${RPCMTAB}" ]; then
     echo "Fatal error: RPC MTAB does not exist."
     exit 1
 fi
 
-exec /usr/sbin/rpc.idmapd -f 2>&1
+exec /usr/sbin/rpc.idmapd -f ${RPCIDMAPD_OPTS} 2>&1

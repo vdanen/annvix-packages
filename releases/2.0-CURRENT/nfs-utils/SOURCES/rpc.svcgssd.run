@@ -9,6 +9,7 @@ PATH="/sbin:/usr/sbin:/bin:/usr/bin"
 
 envdir=/etc/sysconfig/env/nfs
 [[ -f ${envdir}/SECURE_NFS ]]      && SECURE_NFS="$(head -1 ${envdir}/SECURE_NFS)"
+[[ -f ${envdir}/RPCSVCGSSD_OPTS ]] && RPCSVCGSSD_OPTS="$(head -1 ${envdir}/RPCSVCGSSD_OPTS)"
 
 if [ "${SECURE_NFS}" != "yes" ]; then
     echo "rpc.svcgssd is not required because ${envdir}/SECURE_NFS is not set to 'yes'"
@@ -30,4 +31,4 @@ if [ -z "${RPCMTAB}" ]; then
     exit 1
 fi
 
-exec /usr/sbin/rpc.svcgssd -f 2>&1
+exec /usr/sbin/rpc.svcgssd -f ${RPCSVCGSSD_OPTS} 2>&1

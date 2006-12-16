@@ -23,7 +23,6 @@ Group:		Networking/Other
 URL:		http://sourceforge.net/projects/nfs/
 Source0:	http://prdownloads.sourceforge.net/nfs/%{name}-%{version}.tar.gz
 Source1:	ftp://nfs.sourceforge.net/pub/nfs/nfs.doc.tar.bz2
-Source2:	nfs.sysconfig
 Source3:	nfs.statd.run
 Source4:	nfs.statd-log.run
 Source5:	nfs.statd.finish
@@ -264,7 +263,7 @@ fi
 
 %files
 %defattr(-,root,root)
-%dir %attr(0750,root,admin) %config(noreplace) %{_sysconfdir}/sysconfig/env/nfs
+%dir %attr(0750,root,admin) %{_sysconfdir}/sysconfig/env/nfs
 %config(noreplace) %ghost  %{_localstatedir}/nfs/xtab
 %config(noreplace) %ghost  %{_localstatedir}/nfs/etab
 %config(noreplace) %ghost  %{_localstatedir}/nfs/rmtab
@@ -361,6 +360,9 @@ fi
 
 
 %changelog
+* Sat Dec 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.10
+- fix the runscripts regarding some of the envdir options
+
 * Thu Dec 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.10
 - 1.0.10
 - enable all the stuff we couldn't use before without a 2.6 kernel (gssapi,
