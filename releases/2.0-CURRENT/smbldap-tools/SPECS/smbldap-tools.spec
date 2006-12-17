@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name 		smbldap-tools
-%define version 	0.9.1
+%define version 	0.9.2
 %define release 	%_revrel
 
 Summary:	User & Group administration tools for Samba-OpenLDAP
@@ -22,8 +22,11 @@ URL:		http://samba.IDEALX.org/
 Source0: 	http://samba.idealx.org/dist/smbldap-tools-%{version}.tar.bz2
 Source1: 	mkntpwd.tar.bz2
 Patch0:		smbldap-tools-0.9.1-mdkconfig.patch
+Patch1:		smbldap-tools-0.9.2-accountOC.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
+
+Requires:	perl-IO-Socket-SSL
 
 %description
 Smbldap-tools is a set of perl scripts written by Idealx. Those scripts are
@@ -54,6 +57,7 @@ This package contains the documentation for %{name}.
 %prep
 %setup -q -a1
 %patch0 -p1 -b .mdkconf
+%patch1 -p1 -b .accountOC
 
 
 %build
@@ -114,6 +118,12 @@ install -m 0755 mkntpwd/mkntpwd %{buildroot}%{_sbindir}/
 
 
 %changelog
+* Sun Dec 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.9.2
+- 0.9.2
+- fix requires
+- P1: use "account" instead of "inetOrgPerson" for the structural
+  ObjectClass for computer accounts (mdv bug #23921 -- andreas)
+
 * Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.9.1
 - add -doc subpackage
 - rebuild with gcc4
@@ -142,22 +152,5 @@ install -m 0755 mkntpwd/mkntpwd %{buildroot}%{_sbindir}/
 
 * Thu Mar 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.8.7-5avx
 - first Annvix package
-
-* Thu Feb 17 2005 Oden Eriksson <oeriksson@mandrakesoft.com> 0.8.7-5mdk
-- nuke compat softlinks
-
-* Wed Feb 16 2005 Oden Eriksson <oeriksson@mandrakesoft.com> 0.8.7-4mdk
-- provide compat softlinks
-
-* Tue Feb 15 2005 Oden Eriksson <oeriksson@mandrakesoft.com> 0.8.7-3mdk
-- provide mkntpwd (from older smbldap-tools source)
-
-* Tue Feb 15 2005 Oden Eriksson <oeriksson@mandrakesoft.com> 0.8.7-2mdk
-- put the *.pm file in %%{perl_vendorlib}/ (buchan)
-
-* Mon Feb 14 2005 Oden Eriksson <oeriksson@mandrakesoft.com> 0.8.7-1mdk
-- initial Mandrakelinux package
-- used parts of the provided spec file
-- added P0
 
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8
