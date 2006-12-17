@@ -207,6 +207,9 @@ install -m 0740 %{_sourcedir}/rpc.gssd-log.run %{buildroot}%{_srvdir}/rpc.gssd/l
 install -m 0740 %{_sourcedir}/rpc.svcgssd.run %{buildroot}%{_srvdir}/rpc.svcgssd/run
 install -m 0740 %{_sourcedir}/rpc.svcgssd-log.run %{buildroot}%{_srvdir}/rpc.svcgssd/log/run
 
+# lib64 fix
+perl -pi -e 's|/usr/lib|%{_libdir}|g' %{buildroot}%{_srvdir}/rpc.gssd/run
+
 mkdir -p %{buildroot}%{_srvdir}/{nfs.mountd,nfs.statd,rpc.svcgssd,rpc.idmapd}/depends
 %_mkdepends nfs.statd portmap
 %_mkdepends nfs.mountd nfs.statd
@@ -360,6 +363,11 @@ fi
 
 
 %changelog
+* Sat Dec 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.10
+- make rpc.gssd create the libgssapi_krb5.so symlink if it doesn't exist
+  otherwise (if we let the libkrb51 package do it), we'll end up with
+  stupid -devel package dependencies
+
 * Sat Dec 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.10
 - rpc.gssd needs to check for the existance (and configuration of)
   /etc/krb5/keytab before launching

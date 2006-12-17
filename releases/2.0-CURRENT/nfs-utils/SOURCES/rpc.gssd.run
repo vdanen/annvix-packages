@@ -41,4 +41,9 @@ if [ -z "${RPCMTAB}" ]; then
     exit 1
 fi
 
+# final sanity check, rpc.gssd won't start without this symlink
+if [ ! -L /usr/lib/libgssapi_krb5.so ]; then
+    ln -s libgssapi_krb5.so.2 /usr/lib/libgssapi_krb5.so
+fi
+
 exec /usr/sbin/rpc.gssd -f ${RPCGSSD_OPTS} 2>&1
