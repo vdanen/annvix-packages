@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		net-snmp
-%define version		5.3.0.1
+%define version		5.3.1
 %define release		%_revrel
 
 %define major		10
@@ -41,7 +41,7 @@ Patch21:	net-snmp-5.0.8-ipv6-sock-close.patch
 Patch22:	net-snmp-5.0.8-readonly.patch
 Patch23:	net-snmp-5.1-async-getnext.patch
 Patch24:	net-snmp-5.1.1-pie.patch
-Patch25:	net-snmp-5.2-64bit.diff
+Patch25:	net-snmp-5.3.1-64bit.patch
 Patch26:	net-snmp-5.1.2-dir-fix.patch
 Patch27:	net-snmp-5.2.1-file_offset.patch
 Patch28:	ucd-snmp-4.2.4.pre3-mnttab.patch
@@ -50,7 +50,7 @@ Patch30:	net-snmp-5.3-agent-registry-unregister-free.patch
 Patch31:	net-snmp-5.3-proc_if_inet6.patch
 Patch32:	net-snmp-5.3-size_t.patch
 # Extra MDK patches
-Patch50:	net-snmp-5.2.2-64bit-fixes.diff
+Patch50:	net-snmp-5.3.1-64bit-fixes.diff
 Patch51:	net-snmp-5.2.1-no_rpath.diff
 # (gb) remove built-in libtool 1.4 and use the system one instead, be
 # on the safe side and don't touch to the rest
@@ -205,7 +205,7 @@ This package contains the documentation for %{name}.
 %patch27 -p1 -b .file_offset
 %patch28 -p1 -b .mnttab
 %patch29 -p1 -b .maxsensors
-%patch30 -p0
+#%patch30 -p0
 %patch31 -p1 -b .proc_if
 %patch32 -p1 -b .size_t
 
@@ -272,7 +272,7 @@ make test
 # the perl code needs special treatment
 %makeinstall_std -C perl
 
-mkdir -p %{buildroot}%{_sysconfdir}/{snmp,logrotate.d}
+mkdir -p %{buildroot}%{_sysconfdir}/snmp
 
 mkdir -p %{buildroot}%{_srvdir}/snmpd/{log,env}
 install -m 0740 %{_sourcedir}/snmpd.run %{buildroot}%{_srvdir}/snmpd/run
@@ -485,6 +485,11 @@ file %{buildroot}%{_sbindir}/* | grep ELF | cut -d':' -f1 | xargs strip || :
 
 
 %changelog
+* Sun Dec 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.3.1
+- 5.3.1
+- updated patches from Mandriva
+- remove logrotate directory
+
 * Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.3.0.1
 - rebuild against new openssl
 - spec cleanups
