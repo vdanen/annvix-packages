@@ -9,7 +9,7 @@
 
 %define revision        $Rev$
 %define name            nut
-%define version         2.0.3
+%define version         2.0.4
 %define release         %_revrel
 
 %define nutuser		ups
@@ -250,6 +250,10 @@ cp -af data/driver.list docs/
 
 
 %changelog
+* Mon Dec 18 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.4
+- 2.0.4
+- rebuild against new net-snmp
+
 * Fri Jul 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.3
 - 2.0.3
 - drop P1
@@ -280,180 +284,5 @@ cp -af data/driver.list docs/
 - run scripts
 - add a ups_command script to handle AT events and toss it in /etc/ups marking it
   %%config(noreplace) so it can be easily customized
-
-* Wed Jan 04 2006 Oden Eriksson <oeriksson@mandriva.com> 2.0.1-5mdk
-- rebuilt against new net-snmp with new major (10)
-
-* Wed Dec 21 2005 Oden Eriksson <oeriksson@mandriva.com> 2.0.1-4mdk
-- rebuilt against net-snmp that has new major (9)
-
-* Sun Nov 13 2005 Oden Eriksson <oeriksson@mandriva.com> 2.0.1-3mdk
-- rebuilt against openssl-0.9.8a
-
-* Tue Mar 22 2005 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 2.0.1-2mdk
-- lib64 fixes (again)
-
-* Mon Feb 28 2005 Arnaud de Lorbeau <adelorbeau@mandrakesoft.com> 1:2.0.1-1mdk
-- 2.0.1
-- adapt patchs from Michel Bouissou
-
-* Thu Feb 10 2005 Arnaud de Lorbeau <adelorbeau@mandrakesoft.com> 1:2.0.0-4mdk
-- upsd poweroff script clean: remove the sleep and let the halt script continue
-- add upsd service status option
-- add Michel Bouissou's patch
-
-* Fri Oct 22 2004 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 2.0.0-3mdk
-- lib64 fixes
-
-* Tue Oct 05 2004 Thierry Vignaud <tvignaud@mandrakesoft.com> 2.0.0-2mdk
-- workaround buggy parrallel build
-- package again driver list
-- patch 2: fix compiling
-
-* Fri Mar 26 2004 Arnaud de Lorbeau <adelorbeau@mandrakesoft.com> 2.0.0-1mdk
-- 2.0.0
-
-* Wed Mar 24 2004 Arnaud de Lorbeau <adelorbeau@mandrakesoft.com> 1.4.2-1mdk
-- 1.4.2 final (with no changements from previous pre2 release)
-
-* Tue Mar 16 2004 Arnaud de Lorbeau <adelorbeau@mandrakesoft.com> 1.4.2-0.pre2.1mdk
-- New release with security and kernel 2.6 fixs
-- Change URL
-
-* Thu Mar  4 2004 Arnaud de Lorbeau <adelorbeau@mandrakesoft.com> 1.4.1-10mdk
-- Clean remove (bis repetita)
-
-* Wed Mar  3 2004 Arnaud de Lorbeau <adelorbeau@mandrakesoft.com> 1.4.1-9mdk
-- Clean remove
-
-* Wed Mar  3 2004 Arnaud de Lorbeau <adelorbeau@mandrakesoft.com> 1.4.1-8mdk
-- Force remove old init scripts even if they have been customised
-
-* Tue Feb 24 2004 Arnaud de Lorbeau <adelorbeau@mandrakesoft.com> 1.4.1-7mdk
-- Add Epoch required by new rpm
-
-* Fri Jan 23 2004 Arnaud de Lorbeau <adelorbeau@mandrakesoft.com> 1.4.1-6mdk
-- Orthographical correction for i18n team
-
-* Tue Jan 20 2004 Arnaud de Lorbeau <adelorbeau@mandrakesoft.com> 1.4.1-5mdk
-- Fix initscripts (Bug report from Henning Kulander)
-
-* Mon Jan 19 2004 Arnaud de Lorbeau <adelorbeau@mandrakesoft.com> 1.4.1-4mdk
-- Fix upsd initscript
-
-* Tue Jan  6 2004 Arnaud de Lorbeau <adelorbeau@mandrakesoft.com> 1.4.1-2mdk
-- Add dummycons driver and correction in upsd script
-
-* Tue Dec  9 2003 Arnaud de Lorbeau <adelorbeau@mandrakesoft.com> 1.4.1-1mdk
-- New release
-
-* Mon Dec 08 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 1.4.1-0.7mdk
-- buildrequires net-snmp-devel
-
-* Tue Dec  5 2003 Arnaud de Lorbeau <adelorbeau@mandrakesoft.com> 1.4.1-0.6mdk
-- More clean
-
-* Tue Dec  4 2003 Arnaud de Lorbeau <adelorbeau@mandrakesoft.com> 1.4.1-0.5mdk
-- Clean the init script upsd
-
-* Tue Dec  2 2003 Arnaud de Lorbeau <adelorbeau@mandrakesoft.com> 1.4.1-0.4mdk
-- pre4 release
-- The init scripts read now some parameters directly from upsmon.conf
-- Remove patch0 and add the parameters snmp and hidups to make instead
-
-* Wed Nov 26 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 1.4.1-0.3mdk
-- fix packaging in order to enable update
-- fix server update when service is down
-
-* Thu Nov 20 2003 Arnaud de Lorbeau <adelorbeau@mandrakesoft.com> 1.4.1-0.pre3.1mdk
-- New release
-- Remove bad require in devel package
-- Adapt patch 0 to new release and add the snmp-ups driver
-- patch 1 to add parseconf.h in the devel package
-
-* Fri Oct 31 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 1.4.0-3mdk
-- patch 0: support ups connected through usb
-
-* Tue Oct 21 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 1.4.0-2mdk
-- fix deps
-
-* Wed Jul 30 2003 Arnaud de Lorbeau <adelorbeau@mandrakesoft.com> 1.4.0-1mdk
-- New stable tree: 1.4.0 released
-
-* Tue Jul 29 2003 Arnaud de Lorbeau <adelorbeau@mandrakesoft.com> 1.2.3-2mdk
-- Add cgi conflict with apcupsd wich is using the same file name for its cgi
-
-* Wed Jul 23 2003 Arnaud de Lorbeau <adelorbeau@mandrakesoft.com> 1.2.3-1mdk
-- New release
-- Change gid of upssched.conf, upsd.conf & upsd.users
-
-* Fri Jan 24 2003 Arnaud de Lorbeau <adelorbeau@mandrakesoft.com> 1.2.1-4mdk
-- Requires
-
-* Sat Dec 28 2002 Stefan van der Eijk <stefan@eijk.nu> 1.2.1-2mdk
-- BuildRequires
-
-* Fri Dec 20 2002 Arnaud de Lorbeau <adelorbeau@mandrakesoft.com> 1.2.1-1mdk
-- New Release
-
-* Thu Nov 14 2002 Arnaud de Lorbeau <adelorbeau@mandrakesoft.com> 1.2.0-1mdk
-- New Release
-- Do not use the buggy macro %%_pre_groupadd anymore
-- Create the devel package
-
-* Thu Aug 29 2002 Arnaud de Lorbeau <adelorbeau@mandrakesoft.com> 1.0.0-4mdk
-- TODO
-
-* Mon Aug 26 2002 Arnaud de Lorbeau <adelorbeau@mandrakesoft.com> 1.0.0-3mdk
-- Change STATEPATH, change owner of upsd.* files and modify init scripts
-
-* Mon Aug 26 2002 Arnaud de Lorbeau <adelorbeau@mandrakesoft.com> 1.0.0-2mdk
-- Add the user ups to the group tty and usb with rpmhelper.
-- Add new runlevel scripts
-- Remove upspowerdown: now supported in the Mandrake halt init script.
-
-* Wed Aug 21 2002 Arnaud de Lorbeau <adelorbeau@mandrakesoft.com> 1.0.0-1mdk
-- New release
-- Use rpm-helper
-- Add some new manuals to %%files
-
-* Mon Jul 22 2002 Arnaud de Lorbeau <adelorbeau@mandrakesoft.com> 0.50.0-1mdk
-- New release
-- Add upssched-cmd in the doc directory
-
-* Wed Feb 07 2002 Arnaud de Lorbeau <adelorbeau@mandrakesoft.com> 0.45.3-2mdk
-- Specfile adaptations for Mandrake Linux.
-
-* Wed Oct 24 2001 Peter Bieringer <pb@bieringer.de> (0.45.3pre1)
-- Take man path given by rpm instead of hardwired
-- Add some missing man pages to %%files
-
-* Wed Feb 07 2001 Karl O. Pinc <kop@meme.com> (0.44.3-pre2)
-- Cgi package buildrequires gd >= 1.6
-- Added man pages for apcsmart and powercom models
-
-* Tue Dec 05 2000 <Nigel.Metheringham@InTechnology.co.uk> (0.44.2)
-- Made cgi package standalone (needs no other parts of NUT)
-- Moved some configs into cgi
-- Shared hosts.conf between cgi & main
-
-* Fri Nov 24 2000 <Nigel.Metheringham@InTechnology.co.uk> (0.44.2)
-- Moved models to be more FHS compliant and make sure they are there
-  if everything but root is unmounted
-- Moved a few things around
-
-* Mon Aug 21 2000 <Nigel.Metheringham@Vdata.co.uk> (0.44.1)
-- Added new model drivers into rpm list
-- Made it wildcard more stuff so this doesn't need to be
-  maintained for every little change.
-  ** NOTE this breaks things if modelpath isn't distinct **
-
-* Mon Jul 17 2000 <Nigel.Metheringham@Vdata.co.uk> (0.44.0)
-- Fixed some problems in the spec file
-- Dropped the older changelog entries since there is some
-  intermediate history thats been missed.
-- Added new model drivers into rpm list
-- Updated descriptions somewhat
-
 
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8
