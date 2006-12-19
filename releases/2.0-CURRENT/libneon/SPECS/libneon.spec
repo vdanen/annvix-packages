@@ -172,6 +172,9 @@ rm -rf %{buildroot}%{_datadir}/doc
 
 
 %changelog
+* Mon Dec 18 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.24.7
+- rebuild against new krb5
+
 * Sat Jun 03 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.24.7
 - rebuild against new libxml2
 - add -doc subpackage
