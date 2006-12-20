@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		hwdata
-%define version		0.152
+%define version		0.191
 %define release		%_revrel
 
 Summary:	Hardware identification and configuration data
@@ -48,11 +48,13 @@ rm -rf %{buildroot}%{_sysconfdir}/{hotplug,pcmcia}
 %defattr(-,root,root)
 %dir /usr/share/hwdata
 %config /usr/share/hwdata/*
-# This file is screaming to be moved into /usr/share/hwdata sometime <g>
-/usr/X11R6/lib/X11/Cards
+%config(noreplace) %{_sysconfdir}/modprobe.d/blacklist
 
 
 %changelog
+* Tue Dec 19 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.191
+- 0.191
+
 * Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.152
 - drop the docs (LICENSE, COPYING)... this is standard stuff in common-licenses
 
