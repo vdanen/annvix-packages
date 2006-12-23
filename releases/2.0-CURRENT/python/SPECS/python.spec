@@ -326,6 +326,9 @@ rm -f modules-list main.list
 
 
 %changelog
+* Sat Dec 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.3
+- rebuild against new gettext (for libintl8)
+
 * Sat Dec 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.3
 - rebuild against new tcl and tk and adjust buildrequires
 - drop buildrequires on tix
