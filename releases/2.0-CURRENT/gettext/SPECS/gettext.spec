@@ -9,11 +9,12 @@
 
 %define revision	$Rev$
 %define name		gettext
-%define version 	0.14.6
+%define version 	0.16
 %define release 	%_revrel
 
-%define major		3
+%define major		8
 %define libname		%mklibname intl %{major}
+%define oldlibname	%mklibname intl 3
 
 Summary:	GNU libraries and utilities for producing multi-lingual messages
 Name:		%{name}
@@ -58,7 +59,9 @@ Summary:	The dynamic libintl library for the gettext package
 Group:		System/Libraries
 Provides:	libintl
 Provides:	libintl2
+Provides:	%{oldlibname}
 Obsoletes:	libintl2
+Obsoletes:	%{oldlibname}
 
 %description -n %{libname}
 This package contains the libintl library for the gettext package.
@@ -183,6 +186,7 @@ popd
 %files
 %defattr(-,root,root)
 %{_bindir}/msg*
+%{_bindir}/recode-sr-latin
 %{_bindir}/xgettext
 %{_bindir}/envsubst
 %{_bindir}/gettext.sh
@@ -237,6 +241,10 @@ popd
 
 
 %changelog
+* Sat Dec 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.16
+- 0.16
+- make it obsolete and provide libintl3 as the two cannot coexist
+
 * Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.14.6
 - spec cleanups
 - remove locales
