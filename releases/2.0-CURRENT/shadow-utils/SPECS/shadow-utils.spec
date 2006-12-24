@@ -220,6 +220,9 @@ rm -rf %{buildroot}%{_libdir}
 
 
 %changelog
+* Sat Dec 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.0.12
+- rebuild against new gettext
+
 * Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.0.12
 - use %%kill_lang
 
