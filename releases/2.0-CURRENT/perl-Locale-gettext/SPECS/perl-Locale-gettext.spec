@@ -79,6 +79,9 @@ make test
 
 
 %changelog
+* Sat Dec 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.05
+- rebuild against new gettext
+
 * Wed Dec 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.05
 - spec cleanups
 
