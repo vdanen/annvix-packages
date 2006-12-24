@@ -758,6 +758,11 @@ fi
 
 
 %changelog
+* Sun Dec 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.5
+- rebuild against new libneon that isn't built against krb5 as otherwise
+  we end up requiring krb5-devel to have rpm-devel installed (not only
+  that, but rpm doesn't build against 1.5.1 for some reason)
+
 * Sat Dec 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.5
 - rebuild against new gettext
 
