@@ -101,6 +101,9 @@ rm -rf %{buildroot}%{_mandir}/de
 
 
 %changelog
+* Sat Dec 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.15.2
+- rebuild against new gettext
+
 * Sat Jul 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.15.2
 - rebuild with gcc4
 
