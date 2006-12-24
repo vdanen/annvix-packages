@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		postfix
-%define version		2.3.4
+%define version		2.3.5
 %define release 	%_revrel
 %define epoch		1
 
@@ -69,13 +69,14 @@ Patch3: 	postfix-2.0.18-fdr-hostname-fqdn.patch
 Patch4:		postfix-2.1.1-fdr-pie.patch
 Patch5:		postfix-2.1.1-fdr-obsolete.patch
 Patch8:		postfix-2.3.4-avx-warnsetsid.patch
-Patch9:	 	http://web.onda.com.br/nadal/postfix/VDA/postfix-2.3.2-vda.patch
+Patch9:	        http://vda.sourceforge.net/VDA/postfix-2.3.5-vda.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	db4-devel
 BuildRequires:	gawk
 BuildRequires:	perl
 BuildRequires:	sed
+BuildRequires:	ed
 %if %{with_LDAP}
 BuildRequires:	libldap-devel >= 2.1
 %endif
@@ -294,7 +295,7 @@ sh %{_sysconfdir}/postfix/post-install \
     manpage_directory=%{_mandir} \
     sample_directory=no \
     readme_directory=no \
-    html_directory=%{_docdir}/%{name}-doc-%{version}/html \
+    html_directory=no \
     upgrade-package
 
 newaliases
@@ -308,17 +309,18 @@ if [ -n "${saslpath}" -a "${saslpath##*:}" -o "${saslpath}" != "${saslpath##*/us
     postconf -e smtpd_sasl_path=smtpd
 fi
 
-for old_smtpd_conf in /etc/postfix/sasl/smtpd.conf %{_libdir}/sasl2/smtpd.conf; do                                                                                                 
-if [ -e ${old_smtpd_conf} ]; then                                                                                                                                           
-    if ! grep -qsve '^\(#.*\|[[:space:]]*\)$' /etc/sasl2/smtpd.conf; then                                                                                               
-        # /etc/sasl2/smtpd.conf missing or just comments                                                                                                            
+for old_smtpd_conf in /etc/postfix/sasl/smtpd.conf %{_libdir}/sasl2/smtpd.conf; do
+if [ -e ${old_smtpd_conf} ]; then
+    if ! grep -qsve '^\(#.*\|[[:space:]]*\)$' /etc/sasl2/smtpd.conf; then
+        # /etc/sasl2/smtpd.conf missing or just comments
         if [ -s /etc/sasl2/smtpd.conf ] && [ ! -e /etc/sasl2/smtpd.conf.rpmnew -o /etc/sasl2/smtpd.conf -nt /etc/sasl2/smtpd.conf.rpmnew ];then                     
-            mv /etc/sasl2/smtpd.conf /etc/sasl2/smtpd.conf.rpmnew                                                                                               
-        fi                                                                                                                                                          
-        mv ${old_smtpd_conf} /etc/sasl2/smtpd.conf                                                                                                                  
-    else                                                                                                                                                                
+                mv /etc/sasl2/smtpd.conf /etc/sasl2/smtpd.conf.rpmnew
+        fi
+        mv ${old_smtpd_conf} /etc/sasl2/smtpd.conf
+    else
         echo "warning: existing ${old_smtpd_conf} will be ignored"
     fi
+fi
 done
 
 
@@ -444,6 +446,12 @@ done
 
 
 %changelog
+* Sun Dec 24 2006 Ying-Hung Chen <ying-at-annvix.org> 2.3.5
+- 2.3.5
+- P9: update vda patch
+- fixed %post scripting typo
+- put back BuildRequires ed since there are still places use ed
+
 * Sat Dec 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.4
 - 2.3.4
 - update the body and header checks
