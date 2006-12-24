@@ -34,8 +34,8 @@ BuildRequires:	openssl-devel >= 0.9.7
 BuildRequires:	libxml2-devel
 BuildRequires:	libxmlrpc-devel
 BuildRequires:	pkgconfig
-BuildRequires:	krb5-devel
 BuildRequires:	multiarch-utils >= 1.0.3
+BuildConflicts:	krb5-devel
 
 Requires:	openssl >= 0.9.7
 Provides:	libneon
@@ -172,6 +172,12 @@ rm -rf %{buildroot}%{_datadir}/doc
 
 
 %changelog
+* Sun Dec 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.24.7
+- make it conflict with krb-devel because if we krb5-config exists, GSSAPI support
+  will be enabled which will prevent rpm from compiling with the new krb5 (which
+  it can't seem to do with the new version, and will also prevent rpm-devel
+  from requiring krb5-devel)
+
 * Mon Dec 18 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.24.7
 - rebuild against new krb5
 
