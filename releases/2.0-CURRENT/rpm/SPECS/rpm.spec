@@ -758,6 +758,9 @@ fi
 
 
 %changelog
+* Sat Dec 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.5
+- rebuild against new gettext
+
 * Fri Dec 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.5
 - rebuild against new ncurses
 
