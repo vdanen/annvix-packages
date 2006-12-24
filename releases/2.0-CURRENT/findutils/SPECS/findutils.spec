@@ -100,6 +100,9 @@ ln -sf ../../bin/find %{buildroot}%{_bindir}/find
 
 
 %changelog
+* Sat Dec 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.2.27
+- rebuild against new gettext
+
 * Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.2.27
 - spec cleanups
 - remove locales
