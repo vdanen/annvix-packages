@@ -373,6 +373,9 @@ fi
 
 
 %changelog
+* Sat Dec 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.2.3
+- rebuild against new gettext
+
 * Tue Dec 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.2.3
 - move kbd_mode and consolechars and the libs to / so they can be
   used prior to mounting other partitions
