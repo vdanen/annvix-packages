@@ -78,7 +78,7 @@ BuildRequires:	perl
 BuildRequires:	sed
 BuildRequires:	ed
 %if %{with_LDAP}
-BuildRequires:	libldap-devel >= 2.1
+BuildRequires:	openldap-devel >= 2.1
 %endif
 %if %{with_PCRE}
 BuildRequires:	pcre-devel
@@ -446,6 +446,9 @@ done
 
 
 %changelog
+* Sun Dec 24 2006 Vincent Danen <vdanen-at-annvix.org> 2.3.5
+- make the buildrequires on openldap-devel, not libldap-devel
+
 * Sun Dec 24 2006 Ying-Hung Chen <ying-at-annvix.org> 2.3.5
 - 2.3.5
 - P9: update vda patch
