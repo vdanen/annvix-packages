@@ -536,6 +536,9 @@ rm -f filelist.*
 
 
 %changelog
+* Sat Dec 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0
+- rebuild against new gettext
+
 * Sat Dec 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0
 - P31: security fix for CAN-2005-0941 (embedded gd)
 - P32: security fix for CVE-2006-2906 (embedded gd)
