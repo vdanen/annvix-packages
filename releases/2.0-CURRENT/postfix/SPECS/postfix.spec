@@ -449,7 +449,7 @@ done
 * Sun Dec 24 2006 Ying-Hung Chen <ying-at-annvix.org> 2.3.5
 - 2.3.5
 - P9: update vda patch
-- fixed %post scripting typo
+- fixed %%post scripting typo
 - put back BuildRequires ed since there are still places use ed
 
 * Sat Dec 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.4
