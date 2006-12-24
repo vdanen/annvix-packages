@@ -12,8 +12,9 @@
 %define version		1.5.1
 %define release		%_revrel
 
-%define major		1
+%define major		3
 %define libname		%mklibname %{name} %{major}
+%define oldlibname	%mklibname %{name} 1
 
 Summary:	The Kerberos network authentication system
 Name:		%{name}
@@ -91,6 +92,7 @@ Provides:	libkrb-devel
 Provides:	libkrb5-devel
 Obsoletes:	krb-devel
 Obsoletes:	krb5-devel
+Obsoletes:	%{oldlibname}-devel
 
 %description -n %{libname}-devel
 Kerberos is a network authentication system.  The krb5-devel package
@@ -104,6 +106,7 @@ Summary:	The shared libraries used by Kerberos 5
 Group:		System/Libraries
 Provides:	krb5-libs
 Obsoletes:	krb5-libs
+Obsoletes:	%{oldlibname}
 
 %description -n %{libname}
 Kerberos is a network authentication system.  The krb5-libs package
@@ -628,6 +631,9 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Sat Dec 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.5.1
+- the library major is 3, not 1
+
 * Sat Dec 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.5.1
 - revert the previous change or else libkrb51 will end up pulling in some
   other -devel packages
