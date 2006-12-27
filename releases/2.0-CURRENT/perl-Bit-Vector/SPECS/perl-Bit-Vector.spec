@@ -23,7 +23,7 @@ Group:		Development/Perl
 URL:		http://search.cpan.org/dist/%{module}/
 Source:		ftp://ftp.perl.org/pub/CPAN/modules/by-module/%{pdir}/%{module}-%{version}.tar.bz2
 
-Buildroot:	%{_buildroot}/%{name}-%{version}
+BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel
 BuildRequires:	perl(Carp::Clan)
 
@@ -93,24 +93,5 @@ LANG=C %make test
 
 * Sat Sep 24 2005 Vincent Danen <vdanen-at-build.annvix.org> 6.4-1avx
 - first build for Annvix (required by perl-Date-Calc)
-
-* Sun Nov 21 2004 Stefan van der Eijk <stefan@mandrake.org> 6.4-2mdk
-- BuildRequires
-
-* Mon Nov 15 2004 Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com> 6.4-1mdk
-- New version 6.4
-
-* Thu Feb 12 2004 Luca Berra <bluca@vodka.it> 6.3-4mdk
-- rebuild for perl 5.8.3
-
-* Tue Dec 30 2003 Luca Berra <bluca@vodka.it> 6.3-3mdk
-- add parent dirs (distriblint)
-- fixed permissions on examples
-
-* Wed Oct 15 2003 Luca Berra <bluca@vodka.it> 6.3-2mdk
-- added examples to documentation
-
-* Sun Oct 05 2003 Luca Berra <bluca@vodka.it> 6.3-1mdk
-- Initial build.
 
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

@@ -92,13 +92,6 @@ mkdir -p %{buildroot}%{_sbindir}
 - Annvix build
 
 * Fri Mar  5 2004 Thomas Backlundd <tmb@mandrake.org> 2.3-1sls
-- fist OpenSLS build
-
-* Fri Jan  9 2004 Frederic Lepied <flepied@mandrakesoft.com> 2.3-2mdk
-- rename spec file
-- removed lm_sensors stuff
-
-* Wed Jan  7 2004 Warly <warly@mandrakesoft.com> 2.3-1mdk
-- new package
+- first OpenSLS build
 
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

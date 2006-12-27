@@ -158,22 +158,4 @@ automake-1.4 --foreign
 - OpenSLS build
 - tidy spec
 
-* Fri Aug 08 2003 Guillaume Rousse <guillomovitch@linux-mandrake.com> 2.4.1-3mdk
-- rebuild
-
-* Tue Jul 08 2003 Guillaume Rousse <guillomovitch@linux-mandrake.com> 2.4.1-2mdk
-- rebuild for new rpm devel computation
-
-* Fri Jun 13 2003 Guillaume Rousse <guillomovitch@linux-mandrake.com> 2.4.1-1mdk
-- 2.4.1
-
-* Sun Apr 30 2003 Stefan van der Eijk <stefan@eijk.nu> 2.4.0-3mdk
-- BuildRequires
-
-* Sat Jan 04 2003 Guillaume Rousse <g.rousse@linux-mandrake.com> 2.4.0-2mdk
-- rebuild
-
-* Wed Aug 21 2002 Guillaume Rousse <g.rousse@linux-mandrake.com> 2.4.0-1mdk 
-- first mdk release
-
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

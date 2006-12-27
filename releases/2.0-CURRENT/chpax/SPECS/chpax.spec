@@ -23,7 +23,8 @@ Source0:	%{name}-%{version}.tar.bz2
 Patch0:		chpax-0.7-autotools.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	autoconf2.5 automake1.7
+BuildRequires:	autoconf2.5
+BuildRequires:	automake1.7
 
 %description
 A tool that allows PaX flags to be modified on a per-binary basis. PaX is part
@@ -105,10 +106,5 @@ automake-1.7 --foreign -a
 * Wed Dec 31 2003 Vincent Danen <vdanen@opensls.org> 0.5-2sls
 - OpenSLS build
 - tidy spec
-
-* Tue Dec 30 2003 Lenny Cartier <lenny@mandrakesoft.com> 0.5-1mdk
-- from Omer Shenker <chpax@omershenker.net> :
-	- Specfile for Mandrake
-	- gz to bz2 compression
 
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

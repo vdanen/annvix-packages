@@ -27,7 +27,8 @@ Patch3:		time-1.7-fixinfo.patch
 Patch4:		time-1.7-build.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	texinfo, automake1.4
+BuildRequires:	texinfo
+BuildRequires:	automake1.4
 
 Requires(post):	info-install
 Requires(preun): info-install
@@ -124,82 +125,5 @@ make LDFLAGS=-s
 * Mon Dec 01 2003 Vincent Danen <vdanen@opensls.org> 1.7-26sls
 - OpenSLS build
 - tidy spec
-
-* Mon Apr 07 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 1.7-25mdk
-- force install ordering for post-scripts (#3413)
-
-* Fri Jan 03 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 1.7-24mdk
-- build release
-
-* Tue Oct 29 2002 Stefan van der Eijk <stefan@eijk.nu> 1.7-23mdk
-- change URL to projects current location (Yura Gusev)
-
-* Tue Oct 29 2002 Stefan van der Eijk <stefan@eijk.nu> 1.7-22mdk
-- BuildRequires: texinfo
-
-* Mon Oct 28 2002 Thierry Vignaud <tvignaud@mandrakesoft.com> 1.7-21mdk
-- patch 1 : remove jeff hack, better use sys/resource.h,
-  fix build on alpha btw
-- patch 2 : add -q|--quiet option
-- patch 3 : fix info entry
-- patch 4 : fix build system
-
-* Mon Oct 28 2002 Thierry Vignaud <tvignaud@mandrakesoft.com> 1.7-21mdk
-- enhanced description
-
-* Wed Aug 14 2002 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 1.7-20mdk
-- Automated rebuild with gcc 3.2-0.3mdk
-
-* Wed May 22 2002 Thierry Vignaud <tvignaud@mandrakesoft.com> 1.7-19mdk
-- remove useless prefix
-- sanitize
-
-* Mon Jun 25 2001 Jeff Garzik <jgarzik@mandrakesoft.com> 1.7-18mdk
-- patch configure.in to workaround broken wait3 check.
-- regenerate autoconf/automake on every build, to enable
-  new patched configure.in.
-- use acconfig.h for two missing autoconf's symbols.
-
-* Fri Sep  1 2000 Pixel <pixel@mandrakesoft.com> 1.7-17mdk
-- fix info
-
-* Fri Jul 28 2000 Francis Galiegue <fg@mandrakesoft.com> 1.7-16mdk
-- Use %*info* macros
-
-* Thu Jul 27 2000 Thierry Vignaud <tvignaud@mandrakesoft.com> 1.7-15mdk
-- BM
-
-* Tue Jun 20 2000 Chmouel Boudjnah <chmouel@mandrakesoft.com> 1.7-14mdk
-- Use makeinstall macros.
-
-* Wed Apr 05 2000 John Buswell <johnb@mandrakesoft.com> 1.7-13mdk
-- fixed vendor tag
-
-* Thu Mar 30 2000 John Buswell <johnb@mandrakesoft.com> 1.7-12mdk
-- Fixed group
-- spec-helper
-
-* Tue Oct 26 1999 Chmouel Boudjnah <chmouel@mandrakesoft.com>
-- Build release.
-
-* Sat Apr 10 1999 Bernhard Rosenkraenzer <bero@linux-mandrake.com>
-- Mandrake adaptions
-- bzip2 man/info pages
-- add de locale
-
-* Mon Aug 10 1998 Erik Troan <ewt@redhat.com>
-- buildrooted and defattr'd
-
-* Mon Apr 27 1998 Prospector System <bugs@redhat.com>
-- translations modified for de, fr, tr
-
-* Mon Oct 27 1997 Cristian Gafton <gafton@redhat.com>
-- fixed info handling
-
-* Thu Oct 23 1997 Cristian Gafton <gafton@redhat.com>
-- updated the spec file; added info file handling
-
-* Mon Jun 02 1997 Erik Troan <ewt@redhat.com>
-- built against glibc
 
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

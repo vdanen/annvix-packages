@@ -202,7 +202,4 @@ echo "20" >%{buildroot}%{_sysconfdir}/sysconfig/env/tcpsvd/MAX_BACKLOG
 * Sat Sep 11 2004 Vincent Danen <vdanen-at-build.annvix.org> 0.9.6-1avx
 - first Annvix build; to eventually replace ucspi-tcp
 
-* Wed Aug 04 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 0.9.6-1mdk
-- initial mandrake package
-
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

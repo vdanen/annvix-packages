@@ -84,13 +84,4 @@ make test
 * Fri Apr 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.01
 - first Annvix build
 
-* Wed Feb 15 2006 Rafael Garcia-Suarez <rgarciasuarez@mandriva.com> 1.01-2mdk
-- Rebuild; use mkrel (misc)
-
-* Fri Nov 04 2005 Rafael Garcia-Suarez <rgarciasuarez@mandriva.com> 1.01-1mdk
-- 1.01
-
-* Fri Oct 28 2005 Rafael Garcia-Suarez <rgarciasuarez@mandriva.com> 1.00-1mdk
-- Initial MDV release
-
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

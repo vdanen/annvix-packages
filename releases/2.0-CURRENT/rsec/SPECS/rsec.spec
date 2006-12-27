@@ -23,9 +23,17 @@ Source0:	%{name}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
-Requires:	bash coreutils perl-base diffutils shadow-utils gawk mailx
-Requires:	setup >= 2.2.0-21mdk, coreutils, iproute2
-Conflicts:	passwd < 0.67, msec
+Requires:	bash
+Requires:	coreutils
+Requires:	perl-base
+Requires:	diffutils
+Requires:	shadow-utils
+Requires:	gawk
+Requires:	mailx
+Requires:	setup >= 2.2.0-21mdk
+Requires:	iproute2
+Conflicts:	passwd < 0.67
+Conflicts:	msec
 
 %description
 The Annvix Security Reporting tool (rsec) is largely based on the

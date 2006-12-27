@@ -22,8 +22,8 @@ Group:		Development/Perl
 URL:		http://www.cpan.org
 Source0:	http://www.cpan.org/modules/by-module/Net/%{module}-%{version}.tar.gz
 
-BuildRequires:	perl-devel
 BuildRoot:	%{_buildroot}/%{name}-%{version}
+BuildRequires:	perl-devel
 BuildArch:	noarch
 
 %description
@@ -95,22 +95,5 @@ make test
 
 * Sun Oct 23 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.23-1avx
 - first Annvix build (needed by perl-Net-DNS)
-
-* Fri Jun 10 2005 Rafael Garcia-Suarez <rgarciasuarez@mandriva.com> 1.23-1mdk
-- 1.23
-- spec cleanup
-
-* Thu Jun 02 2005 Rafael Garcia-Suarez <rgarciasuarez@mandriva.com> 1.22-1mdk
-- 1.22
-
-* Sat Feb 05 2005  Sylvie Terjan <erinmargault@mandrake.org> 1.21-1mdk
-- 1.21-1
-- rebuild for new perl
-
-* Sat Aug 28 2004 Olivier Thauvin <thauvin@aerov.jussieu.fr> 1.20-2mdk
-- rebuild for perl
-
-* Mon Mar 29 2004 Olivier Thauvin <thauvin@aerov.jussieu.fr> 1.20-1mdk
-- 1st mdk spec
 
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

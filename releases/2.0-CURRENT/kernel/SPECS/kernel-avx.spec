@@ -142,12 +142,14 @@ Source100:	linux-%{patches_ver}.tar.bz2
 BuildRoot:	%{_buildroot}/%{kname}-%{realversion}
 BuildRequires:	gcc3.4
 
-Provides:	kernel-up, module-info, %kprovides
+Provides:	kernel-up
+Provides:	module-info
+Provides:	%{kprovides}
 Autoreqprov:	no
-Requires:	%requires1
-Requires:	%requires2
-Requires:	%requires3
-Conflicts:	%conflicts
+Requires:	%{requires1}
+Requires:	%{requires2}
+Requires:	%{requires3}
+Conflicts:	%{conflicts}
 
 %description
 This is the default Annvix kernel version %{realversion} for single-CPU
@@ -161,10 +163,10 @@ systems.
 %package -n %{kname}-smp-%{avxversion}
 Summary:	The Linux Kernel compiled for SMP machines
 Group:		System/Kernel and hardware
-Provides:	%kprovides
-Requires:	%requires1
-Requires:	%requires2
-Requires:	%requires3
+Provides:	%{kprovides}
+Requires:	%{requires1}
+Requires:	%{requires2}
+Requires:	%{requires3}
 
 %description -n %{kname}-smp-%{avxversion}
 This is the default Annvix kernel %{realversion} for 4GB SMP systems.
@@ -179,10 +181,10 @@ should work find on single-CPU systems.
 %package -n %{kname}-build-%{avxversion}
 Summary:	The Linux kernel compiled without security features
 Group:		System/Kernel and hardware
-Provides:	%kprovides
-Requires:	%requires1
-Requires:	%requires2
-Requires:	%requires3
+Provides:	%{kprovides}
+Requires:	%{requires1}
+Requires:	%{requires2}
+Requires:	%{requires3}
 
 %description -n %{kname}-build-%{avxversion}
 This is the "build" Anvix kernel version %{realversion}, which does not
@@ -213,7 +215,10 @@ turned off because of the size constraints.
 Summary:	The source code for the Linux kernel
 Version:	%{realversion}
 Release:	%{realrelease}
-Requires:	glibc-devel, ncurses-devel, make, gcc3.4
+Requires:	glibc-devel
+Requires:	ncurses-devel
+Requires:	make
+Requires:	gcc3.4
 Group:		Development/Kernel
 
 %description -n %{kname}-source
@@ -1753,9 +1758,5 @@ exit 0
 - add patch.index in the patch tarball to keep track of all patches
 - ZY01_ProPolice.patch
   * enable propolice stack protection
-
-# Local Variables:
-# rpm-spec-insert-changelog-version-with-shell: t
-# End:
 
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

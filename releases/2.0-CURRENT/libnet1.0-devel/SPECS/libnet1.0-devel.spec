@@ -29,7 +29,8 @@ BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	libpcap
 BuildRequires:	libtool
 
-Conflicts:	libnet, %{_lib}net1.1-devel
+Conflicts:	libnet
+Conflicts:	%{_lib}net1.1-devel
 Provides:	net-devel = %{version}-%{release}
 Provides:	net%{branch}-devel = %{version}-%{release}
 
@@ -126,55 +127,5 @@ rm -f %{buildroot}/%{_libdir}/libpwrite
 * Tue Dec 30 2003 Vincent Danen <vdanen@opensls.org> 1.0.2a-3sls
 - OpenSLS build
 - tidy spec
-
-* Wed Aug 20 2003 Frederic Lepied <flepied@mandrakesoft.com> 1.0.2a-2mdk
-- libified
-
-* Tue Nov 13 2001 Florin <florin@mandrakesoft.com> 1.0.2a-1mdk
-- 1.0.2a
-
-* Mon Sep 24 2001 Lenny Cartier <lenny@mandrakesoft.com> 1.0.2-7mdk
-- fix permissions
-
-* Sun Jul 29 2001 Lenny Cartier <lenny@mandrakesoft.com> 1.0.2-6mdk
-- rebuild
-
-* Wed May 23 2001 Jeff Garzik <jgarzik@mandrakesoft.com> 1.0.2-5mdk
-- BuildRequires: libtool
-
-* Sun Apr 08 2001 Geoffrey Lee <snailtalk@mandrakesoft.com> 1.0.2-4mdk
-- Rebuild and up to 4mdk to get back the libnet main binary package.
-
-* Tue Feb 06 2001 Geoffrey Lee <snailtalk@mandrakesoft.com> 1.0.2-2mdk
-- fix the broken makefile which generated a broken rpm.
-- no need to manually install libnet-config.
-
-* Tue Feb 06 2001 Geoffrey Lee <snailtalk@mandrakesoft.com> 1.0.2-1mdk
-- new and shiny source.
-- put a versioning on the source tarball.
-- put a url in the source tag.
-- quiet setup so we don't get a load of crap.
-- removed libpwrite.a -> libnet.a symbolic linking.
-- removed buildroot before doing an %%install.
-- use the install command, not mv, when installing the manual page.
-- manually install libnet-config into /usr/bin.
-
-* Fri Nov 10 2000 Lenny Cartier <lenny@mandrakesoft.com> 1.0.1b-4mdk
-- more macros
-- rebuild for gcc-2.96
-- delete CVS files
-
-* Thu Aug 24 2000 Lenny Cartier <lenny@mandrakesoft.com> 1.0.1b-3mdk
-- add macros
-- BM
-
-* Tue Apr 18 2000 Lenny Cartier <lenny@mandrakesoft.com> 1.0.1b-2mdk
-- v1.0.1b
-
-* Tue Mar 23 2000 Lenny Cartier <lenny@mandrakesoft.com> 1.0.1-1mdk
-- v1.0.1
-
-* Sat Nov 13 1999 Giuseppe Ghibò <ghibo@linux-mandrake.com>
-- first SPEC file for Mandrake.
 
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

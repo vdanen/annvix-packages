@@ -507,16 +507,4 @@ fi
 - first Annvix build
 - S1: runit scripts
 
-* Tue Aug 03 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 1.0.4-1mdk
-- 1.0.4
-
-* Thu Nov 20 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 0.12.1-1mdk
-- 0.12.1
-
-* Thu Sep 04 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 0.11.1-1mdk
-- 0.11.1
-
-* Fri Aug 08 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 0.11.0-1mdk
-- initial cooker contrib
-
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

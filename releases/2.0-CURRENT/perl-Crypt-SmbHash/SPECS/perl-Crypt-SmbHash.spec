@@ -96,7 +96,4 @@ perl Makefile.PL INSTALLDIRS=vendor
 - initial Annvix package for new smbldap-tools in samba-3.0.11
 - major spec cleanup
 
-* Thu Feb 10 2005 Buchan Milne <bgmilne@linux-mandrake.com> 0.12-1mdk
-- initial package (PLD import) for new smbldap-tools in samba-3.0.11
-
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

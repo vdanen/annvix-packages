@@ -107,29 +107,4 @@ make
 - tidy spec
 - remove redundant perl-Storable BuildReq (part of perl)
 
-* Thu Aug 14 2003 Per Øyvind Karlsen <peroyvind@linux-mandrake.com> 0.2017-2mdk
-- rebuild for new perl
-- drop PREFIX
-- use %%makeinstall_std macro
-
-* Mon Jun 30 2003 François Pons <fpons@mandrakesoft.com> 0.2017-1mdk
-- 0.2017.
-
-* Fri May 16 2003 Guillaume Rousse <g.rousse@linux-mandrake.com> 0.2016-4mdk
-- rebuild for dependencies
-
-* Mon May 05 2003 Lenny Cartier <lenny@mandrakesoft.com> 0.2016-3mdk
-- buildrequires
-
-* Wed Mar 12 2003 Lenny Cartier <lenny@mandrakesoft.com> 0.2016-2mdk
-- fix build & fix requires
-
-* Mon Mar 04 2002 Lenny Cartier <lenny@mandrakesoft.com> 0.2016-1mdk
-- 0.2016
-
-* Tue Sep 25 2001 Lenny Cartier <lenny@mandrakesoft.com> 0.2015-1mdk
-- added by Christian Zoffoli <czoffoli@linux-mandrake.com> :
-	- first mandrake release
-
-
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

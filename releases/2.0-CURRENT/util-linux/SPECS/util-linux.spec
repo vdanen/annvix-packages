@@ -116,14 +116,17 @@ Patch1211:	util-linux-2.12r-mdk-label.patch
 # Annvix patches
 Patch1250:	util-linux-2.12a-avx-noselinux.patch
 
-Obsoletes:	fdisk tunelp
-provides:	fdisk, tunelp
+Obsoletes:	fdisk
+Obsoletes:	tunelp
+Provides:	fdisk
+Provides:	tunelp
 %ifarch alpha sparc sparc64 ppc
 Obsoletes:	clock
 %endif
 # (Dadou) Stupid, noarch is specified. Uncomment if you put something
 #%ifarch
-Conflicts:	initscripts <= 4.58, timeconfig <= 3.0.1
+Conflicts:	initscripts <= 4.58
+Conflicts:	timeconfig <= 3.0.1
 #%endif
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}

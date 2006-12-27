@@ -26,7 +26,8 @@ Source0:	%{name}-%{version}.tar.gz
 Source1:	%{name}-%{version}.tar.gz.sig.asc
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	libtool-devel, multiarch-utils
+BuildRequires:	libtool-devel
+BuildRequires:	multiarch-utils
 
 %description
 Libmcrypt is a thread-safe library providing a uniform interface
@@ -201,68 +202,5 @@ make check
 * Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> 2.5.7-6sls
 - OpenSLS build
 - tidy spec
-
-* Mon Nov 10 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.5.7-5mdk
-- new url
-- fix invalid-build-requires
-- fix explicit-lib-dependency
-
-* Thu Jul 10 2003 Götz Waschk <waschk@linux-mandrake.com> 2.5.7-4mdk
-- rebuild for new rpm
-
-* Tue Jun 03 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.5.7-3mdk
-- fix requires (put it on the right packages...)
-- use the %%mklibname macro
-- misc spec file fixes
-
-* Tue Jun 03 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.5.7-2mdk
-- fix requires
-
-* Tue Jun 03 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.5.7-1mdk
-- 2.5.7
-- use the %%configure2_5x macro
-- misc spec file fixes
-
-* Fri Apr 25 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.5.5-3mdk
-- fix buildrequires, thanks to Stefan van der Eijks robot
-
-* Sat Jan 04 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.5.5-2mdk
-- fix provides in new static-devel sub package
- 
-* Sat Jan 04 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.5.5-1mdk
-- new version
-- new static-devel sub package
-- misc spec file fixes
-
-* Mon Oct 21 2002 Götz Waschk <waschk@linux-mandrake.com> 2.5.3-2mdk
-- fix libification, move plugins to libmcrypt package
-
-* Fri Oct 04 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.5.3-1mdk
-- new version
-
-* Sat Jun  1 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.5.1-1mdk
-- new version
-
-* Thu Apr 25 2002 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.5.0-1mdk
-- new version
-- misc spec file fixes
-
-* Mon Jan 07 2002 Christian Belisle <cbelisle@mandrakesoft.com> 2.4.19-1mdk
-- 2.4.19.
-- added the signature for the .gz package.
-- specify to include only libmcrypt files (libltdl was included).
-
-* Sun Dec 23 2001 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.4.18-1mdk
-- new version
-- misc spec file fixes
-
-* Tue Aug 07 2001 Lenny Cartier <lenny@mandrakesoft.com> 2.4.15-2mdk
-- added by Thomas Leclerc <leclerc@linux-mandrake.com> 
-	- Provides: made library policy-compliant
-
-* Wed Jul 18 2001 Thomas Leclerc <leclerc@linux-mandrake.com> 2.4.15-1mdk
-- Initial Mandrake build
-
-# end of file
 
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

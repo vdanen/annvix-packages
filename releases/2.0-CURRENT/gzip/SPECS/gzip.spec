@@ -28,7 +28,8 @@ Patch3:		gzip-1.3.5-fdr-zgrep-sed.patch
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	texinfo
 
-Requires:	mktemp less
+Requires:	mktemp
+Requires:	less
 Requires(post):	info-install
 Requires(preun): info-install
 
@@ -169,95 +170,5 @@ chmod 0755 %{buildroot}%{_bindir}/zless
 * Sun Nov 30 2003 Vincent Danen <vdanen@opensls.org> 1.2.4a-13sls
 - OpenSLS build
 - tidy spec
-
-* Mon Jun 16 2003 Vincent Danen <vdanen@mandrakesoft.com> 1.2.4a-12mdk
-- security fixes (CAN-2003-0367)
-
-* Tue Aug 13 2002 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 1.2.4a-11mdk
-- Automated rebuild with gcc 3.2-0.3mdk
-
-* Mon May 06 2002 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 1.2.4a-10mdk
-- Automated rebuild in gcc3.1 environment
-
-* Fri Jan 25 2002 Guillaume Cottenceau <gc@mandrakesoft.com> 1.2.4a-9mdk
-- have Jean-Loup's fix to get better output when sigsegv/sigbus
-  [Patch #7]
-- discover on gzip.org that we don't ship our gzip with a known security
-  fix !? have it in our package [Patch #8]
-
-* Mon Oct 08 2001 Thierry Vignaud <tvignaud@mandrakesoft.com> 1.2.4a-8mdk
-- s!Linux Mandrake!Mandrake Linux!g
-
-* Wed Sep 12 2001 Guillaume Cottenceau <gc@mandrakesoft.com> 1.2.4a-7mdk
-- packager tag
-- undadouize
-
-* Fri Apr 04 2001 Giuseppe Ghibò <ghibo@mandrakesoft.com> 1.2.4a-6mdk
-- added 64bit support (for files larger than 2GB).
-- added make test.
-
-* Fri Jan 05 2001 David BAUDENS <baudens@mandrakesoft.com> 1.2.4a-5mdk
-- BuildRequires: texinfo
-- Spec clean up
-
-* Sun Aug 27 2000 Chmouel Boudjnah <chmouel@mandrakesoft.com> 1.2.4a-4mdk
-- Fix info file.
-
-* Sat Aug 26 2000 Chmouel Boudjnah <chmouel@mandrakesoft.com> 1.2.4a-3mdk
-- More macros for install-info.
-- Remove lesspipe.sh (moved to less package).
-
-* Wed Jul 19 2000 Thierry Vignaud <tvignaud@mandrakesoft.com> 1.2.4a-2mdk
-- BM
-- use new macros
-
-* Sun Apr 02 2000 Jerome Martin <jerome@mandrakesoft.com> 1.2.4a-1mdk
-- Updated sources to 1.2.4a (minor doc changes)
-- Updated rpm group
-- Cleanup to conform to spec-helper 
-
-* Wed Mar 08 2000 Pablo Saratxaga <pablo@mandrakesoft.com> 1.2.4-19mdk
-- added lesspipe.sh (allowing zless to handle arbitrary compressions
-  methods, but also allows to use less command line parameters on zless,
-  and use arrows keys to navigate between various files; that is a nice
-  and useful zless not one only limited to "zcat $* | less" )
-
-* Thu Dec 16 1999 Maurizio De Cecco <maurizio@mandrakesoft.com>
-- Added 4g patch, from www.gzip.org
-
-* Thu Dec 16 1999 Maurizio De Cecco <maurizio@mandrakesoft.com>
-- Fixed zforce.
-
-* Wed Oct 20 1999 Chmouel Boudjnah <chmouel@mandrakesoft.com>
-- Fix building as user.
-
-* Sat Apr 10 1999 Bernhard Rosenkraenzer <bero@linux-mandrake.com>
-- Mandrake adaptions
-- bzip2 man/info pages
-- add de locale
-
-* Thu Dec 17 1998 Cristian Gafton <gafton@redhat.com>
-- built against glibc 2.1
-
-* Thu May 07 1998 Prospector System <bugs@redhat.com>
-- translations modified for de, fr, tr
-
-* Thu Apr 09 1998 Cristian Gafton <gafton@redhat.com>
-- added %%{_bindir}/gzip and %{_bindir}/gunzip symlinks as some programs are too
-  brain dead to figure out they should be at least trying to use $PATH
-- added BuildRoot
-
-* Wed Jan 28 1998 Erik Troan <ewt@redhat.com>
-- fix /tmp races
-
-* Sun Sep 14 1997 Erik Troan <ewt@redhat.com>
-- uses install-info
-- applied patch for gzexe
-
-* Mon Jun 02 1997 Erik Troan <ewt@redhat.com>
-- built against glibc
-
-* Tue Apr 22 1997 Marc Ewing <marc@redhat.com>
-- (Entry added for Marc by Erik) fixed gzexe to use /bin/gzip
 
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

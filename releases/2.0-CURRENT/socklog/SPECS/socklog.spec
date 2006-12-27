@@ -57,7 +57,8 @@ jobs to rotate the logs. socklog is small, secure, and reliable.
 %package remote
 Summary:        Scripts to receive remote logs
 Group:          System
-Requires:       %{name} = %{version}, ipsvd
+Requires:       %{name} = %{version}
+Requires:	ipsvd
 Requires(post):	rpm-helper
 Requires(preun): rpm-helper
 

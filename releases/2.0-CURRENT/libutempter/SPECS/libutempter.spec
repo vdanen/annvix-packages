@@ -57,7 +57,8 @@ between root and the programs.
 %package -n %{libname}-devel
 Summary:	Devel files for %{name}
 Group:		Development/C
-Provides:	%{name}-devel, %{sname}-devel
+Provides:	%{name}-devel
+Provides:	%{sname}-devel
 Requires:	%{libname} = %{version}
 
 %description -n %{libname}-devel
@@ -158,68 +159,5 @@ make CC=gcc libexecdir="%{_libexecdir}"
 * Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 0.5.2-13sls
 - OpenSLS build
 - tidy spec
-
-* Thu Jul 31 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 0.5.2-12mdk
-- mklibname
-
-* Mon Apr 14 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 0.5.2-11mdk
-- Revert s/fileutils/coreutils/
-- Patch1: Handle biarch struct utmp
-
-* Fri Jan 03 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 0.5.2-10mdk
-- build release
-
-* Thu Nov 07 2002 Thierry Vignaud <tvignaud@mandrakesoft.com> 0.5.2-9mdk
-- requires s/fileutils/coreutils/
-
-* Mon Oct 28 2002 Thierry Vignaud <tvignaud@mandrakesoft.com> 0.5.2-8mdk
-- rpmlint fixes
-
-* Wed Aug 14 2002 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 0.5.2-7mdk
-- Automated rebuild with gcc 3.2-0.3mdk
-
-* Tue Jun 25 2002 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 0.5.2-6mdk
-- Patch0: Use regular make variables, now use %%makeinstall
-
-* Tue Jan 08 2002 Thierry Vignaud <tvignaud@mandrakesoft.com> 0.5.2-5mdk
-- fix license (Goetz Bock)
-
-* Mon Aug 06 2001 Thierry Vignaud <tvignaud@mandrakesoft.com> 0.5.2-4mdk
-- add COPYING to %%libname
-
-* Mon Jul 23 2001 Stefan van der Eijk <stefan@eijk.nu> 0.5.2-3mdk
-- -devel package Provides: %%{name}-devel
-
-* Thu Jul 12 2001 Thierry Vignaud <tvignaud@mandrakesoft.com> 0.5.2-2mdk
-- no need to do initscript job on /var/{log/wtmp,run/utmp}
-- libify
-- fix -devel group
-- add license file
-
-* Tue Jun 12 2001 Thierry Vignaud <tvignaud@mandrakesoft.com> 0.5.2-1mdk
-- new release
-
-* Tue Jul 25 2000 Thierry Vignaud <tvignaud@mandrakesoft.com> 0.5.1-4mdk
-- BM
-
-* Fri May 19 2000 Pixel <pixel@mandrakesoft.com> 0.5.1-3mdk
-- add -devel
-- add soname
-- spec helper cleanup
-
-* Sat Apr 08 2000 Christopher Molnar <molnarc@mandrakesoft.com> 0.5.1-2mdk
-- changed group
-
-* Tue Oct 26 1999 Chmouel Boudjnah <chmouel@mandrakesoft.com>
-- 0.5.1
-- fix utmp as group 22.
-- strip utempter.
-- defattr to root.
-
-* Thu Jun 10 1999 Bernhard Rosenkränzer <bero@mandrakesoft.com>
-- Mandrake adaptions
-
-* Fri Jun  4 1999 Jeff Johnson <jbj@redhat.com>
-- ignore SIGCHLD while processing utmp.
 
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

@@ -170,24 +170,4 @@ cat %{_sourcedir}/%{mod_conf} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod
 - OpenSLS build
 - tidy spec
 
-* Wed Nov 05 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.48_1.0-1mdk
-- built for apache 2.0.48
-
-* Mon Jul 21 2003 David Baudens <baudens@mandrakesoft.com> 2.0.47_1.0-2mdk
-- Rebuild to fix bad signature
-
-* Thu Jul 10 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.47_1.0-1mdk
-- rebuilt against latest apache2, requires and buildrequires
-
-* Fri May 30 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.46_1.0-1mdk
-- rebuilt for apache v2.0.46
-- buildrequires ADVX-build >= 9.2
-
-* Fri Apr 11 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.45_1.0-1mdk
-- cosmetic rebuild for apache v2.0.45
-
-* Tue Jan 21 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 1.0-1mdk
-- initial cooker contrib
-- the "BeerWare" license was changed to GPL
-
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

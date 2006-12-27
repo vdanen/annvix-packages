@@ -34,10 +34,13 @@ Patch0:		certwatch-avx-annvix.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	openssl-devel
-BuildRequires:	httpd-devel >= %{apache_version}, httpd-source >= %{apache_version}
+BuildRequires:	httpd-devel >= %{apache_version}
+BuildRequires:	httpd-source >= %{apache_version}
 
-Prereq:		rpm-helper
-Prereq:		httpd = %{apache_version}, httpd-conf
+Requires(post):	rpm-helper
+Requires(postun): rpm-helper
+Requires(pre):	httpd = %{apache_version}
+Requires(pre):	httpd-conf
 Provides:	apache2-mod_ssl
 Obsoletes:	apache2-mod_ssl
 
@@ -227,20 +230,5 @@ fi
   previous packages used /etc/ssl/apache for mod_ssl and without this, httpd2
   will refuse to start
 - own /etc/ssl/apache2
-
-* Thu Sep 09 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 2.0.50-4mdk
-- security fixes for CAN-2004-0748 and CAN-2004-0751
-
-* Tue Aug 10 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 2.0.50-3mdk
-- rebuilt
-
-* Mon Jul 12 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 2.0.50-2mdk
-- remove redundant provides
-
-* Wed Jun 30 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 2.0.50-1mdk
-- 2.0.50
-
-* Wed Jun 23 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 2.0.49-12mdk
-- initial mandrake package
 
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

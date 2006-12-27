@@ -97,27 +97,4 @@ make test
 * Sat Feb 26 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.21-1avx
 - first Annvix build
 
-* Thu Sep 23 2004 Lenny Cartier <lenny@mandrakesoft.com> 1.21-7mdk
-- rebuild
-
-* Thu Aug 14 2003 Per Øyvind Karlsen <peroyvind@linux-mandrake.com> 1.21-6mdk
-- don't use PREFIX
-- use %%makeinstall_std macro
-
-* Tue Aug 12 2003 Lenny Cartier <lenny@mandrakesoft.com> 1.21-5mdk
-- rebuild
-
-* Tue May 27 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 1.21-4mdk
-- rebuild for new auto{prov,req}
-
-* Sat Feb 01 2003 Lenny Cartier <lenny@mandrakesoft.com> 1.21-3mdk
-- rebuild
-
-* Thu Jul 11 2002 Pixel <pixel@mandrakesoft.com> 1.21-2mdk
-- rebuild for perl 5.8.0
-
-* Mon Jun 10 2002 Lenny Cartier <lenny@mandrakesoft.com> 1.21-1mdk
-- from Peter Chen <petechen@netilla.com> :
-	- 1.21
-
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

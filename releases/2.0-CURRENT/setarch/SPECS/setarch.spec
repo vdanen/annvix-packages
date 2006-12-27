@@ -22,7 +22,8 @@ Source0:	%{name}-%{version}.tar.gz
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
-Provides:	linux32, sparc32
+Provides:	linux32
+Provides:	sparc32
 
 %description
 This utility tells the kernel to report a different architecture than the 
@@ -113,17 +114,5 @@ done
 
 * Tue Mar 01 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.7-1avx
 - first Annvix build
-
-* Thu Feb 17 2005 Per Øyvind Karlsen <peroyvind@linux-mandrake.com> 1.7-1mdk
-- sync with fedora
-
-* Wed Dec 22 2004 Per Øyvind Karlsen <peroyvind@linux-mandrake.com> 1.6-1mdk
-- 1.6
-
-* Wed Jun 02 2004 Per Øyvind Karlsen <peroyvind@linux-mandrake.com> 1.4-1mdk
-- 1.4
-
-* Wed Feb 11 2004 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 1.3-1mdk
-- First Mandrake Linux package
 
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

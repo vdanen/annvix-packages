@@ -25,7 +25,8 @@ URL:		http://cvs.mandriva.com/cgi-bin/cvsweb.cgi/soft/perl-URPM
 Source:		%{module}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	perl-devel, rpm-devel >= 4.0.3
+BuildRequires:	perl-devel
+BuildRequires:	rpm-devel >= 4.0.3
 
 Requires:	rpm >= 4.2.3
 Requires:	perl(MDV::Packdrakeng)

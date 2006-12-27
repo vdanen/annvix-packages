@@ -138,19 +138,4 @@ This package contains the documentation for %{name}.
 * Mon Mar 28 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.0.4-1avx
 - first Annvix build
 
-* Sun Mar 06 2005 Olivier Thauvin <thauvin@aerov.jussieu.fr> 0.0.4-2mdk
-- use %%mkrel
-
-* Wed Feb 16 2005 Olivier Thauvin <thauvin@aerov.jussieu.fr> 0.0.4-1mdk
-- 0.0.4
-
-* Fri Feb 11 2005 Olivier Thauvin <thauvin@aerov.jussieu.fr> 0.0.3-1mdk
-- 0.0.3
-
-* Mon Feb 07 2005 Olivier Thauvin <thauvin@aerov.jussieu.fr> 0.0.2-1mdk
-- 0.0.2
-
-* Sun Feb 06 2005 Olivier Thauvin <thauvin@aerov.jussieu.fr> 0.0.1-1mdk
-- First mdk spec
-
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

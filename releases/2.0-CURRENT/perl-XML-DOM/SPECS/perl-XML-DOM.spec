@@ -23,7 +23,10 @@ URL: 		http://search.cpan.org/dist/%{module}
 Source: 	http://search.cpan.org/CPAN/authors/id/T/TJ/TJMATHER/%{module}-%{version}.tar.bz2
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
-BuildRequires: 	perl-devel, perl(XML::Parser) >= 2.30, perl(XML::RegExp), perl-libwww-perl
+BuildRequires: 	perl-devel
+BuildRequires:	perl(XML::Parser) >= 2.30
+BuildRequires:	perl(XML::RegExp)
+BuildRequires:	perl-libwww-perl
 BuildArch:	noarch
 
 %description

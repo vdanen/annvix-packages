@@ -92,23 +92,4 @@ LANG=C %make test
 * Sat Sep 24 2005 Vincent Danen <vdanen-at-build.annvix.org> 5.3-1avx
 - first build for Annvix (needed by perl-Bit-Vector)
 
-* Sat Jun 04 2005 Luca Berra <bluca@vodka.it> 5.3-2mdk 
-- rebuild
-
-* Wed May 05 2004 Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com> 5.3-1mdk
-- 5.3
-
-* Wed Apr 21 2004 Per Øyvind Karlsen <peroyvind@linux-mandrake.com> 5.2-1mdk
-- 5.2
-- drop $RPM_OPT_FLAGS, noarch..
-
-* Thu Feb 12 2004 Luca Berra <bluca@vodka.it> 5.1-3mdk
-- rebuild for perl 5.8.3
-
-* Tue Dec 30 2003 Luca Berra <bluca@vodka.it> 5.1-2mdk
-- add parent dirs (distriblint)
-
-* Sun Oct 05 2003 Luca Berra <bluca@vodka.it> 5.1-1mdk
-- Initial build.
-
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

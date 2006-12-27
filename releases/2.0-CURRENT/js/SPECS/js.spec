@@ -184,37 +184,4 @@ install -m 0755 src/Linux_All_OPT.OBJ/%{name} %{buildroot}%{_bindir}/
 - use %%build_propolice macro to not build with stack protection due to
   symbol errors again
 
-* Mon Jul 21 2003 David Baudens <baudens@mandrakesoft.com> 1.5-0.rc5.5mdk
-- Rebuild to fix bad signature
-
-* Sat Jul 12 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 1.5-0.rc5.4mdk
-- make it provide
-- misc spec file fixes
-
-* Thu Feb 13 2003 Jean-Michel Dault <jmdault@mandrakesoft.com> 1.5-0.rc5.3mdk
-- Fix invalid-packager rpmlint error
-- add -q to %%setup
-
-* Sun Feb 09 2003 Olivier Thauvin <thauvin@aerov.jussieu.fr> 1.5-0.rc5.2mdk
-- fix %mklibname on ppc 
-- (Don't try to understand, without this change, build failed)
-
-* Sat Jan 18 2003 Jean-Michel Dault <jmdault@mandrakesoft.com> 1.5-0.rc5.1mdk
-- Make rpmlint happy
-- use %%mklibname
-
-* Sat Jan 18 2003 Jean-Michel Dault <jmdault@mandrakesoft.com> 1.5rc4-3mdk
-- Add to Mandrake since it's needed by php-xslt
-
-* Fri Jan 18 2002 Henri Gomez <hgomez@slib.fr>
-* 1.5-rc4 RPM release 2
-- added missing jsautocfg.h in include (needed by sablotron)
-
-* Thu Jan 17 2002 Henri Gomez <hgomez@slib.fr>
-* 1.5-rc4
-- full rebuild
-
-* Tue Dec 18 2001 Petr Cimprich <petr@gingerall.cz>
-- JavaScript 1.5_rc3a RPM release 1
-
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

@@ -99,7 +99,8 @@ Patch101:	devfsd-1.3.25-pts.patch
 BuildRoot:	%{_buildroot}/%{rname}-%{version}
 
 Exclusiveos:	Linux
-Requires:	initscripts >= 6.40.2-21mdk, pam
+Requires:	initscripts >= 6.40.2-21mdk
+Requires:	pam
 Requires:	modutils >= 2.4.13-3mdk
 Requires(post):	rpm-helper
 Requires(preun): rpm-helper

@@ -71,17 +71,4 @@ make test
 * Sun Mar 12 2006 Ying-Hung Chen <ying-at-annvix.org> 1.4
 - first Annvix Build
 
-* Mon Jan 23 2006 Guillaume Rousse <guillomovitch@mandriva.org> 1.4-3mdk
-- spe cleanup
-- rpmbuildupdate aware
-- %%mkrel
-- enable tests
-- better URL
-
-* Fri Jan 21 2005 Abel Cheung <deaddog@mandrake.org> 1.4-2mdk
-- rebuild
-
-* Sun Dec 14 2003 Abel Cheung <deaddog@deaddog.org> 1.4-1mdk
-- First Mandrake package
-
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

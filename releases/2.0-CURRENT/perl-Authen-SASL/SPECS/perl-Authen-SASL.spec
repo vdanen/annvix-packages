@@ -113,18 +113,4 @@ make test
 - OpenSLS build
 - tidy spec
 
-* Wed Aug 13 2003 Per Øyvind Karlsen <peroyvind@linux-mandrake.com> 2.04-2mdk
-- rebuild for new perl
-- drop $RPM_OPT_FLAGS, noarch..
-- use %%makeinstall_std macro
-
-* Fri May 23 2003 François Pons <fpons@mandrakesoft.com> 2.04-1mdk
-- 2.04.
-
-* Fri Jan 24 2003 François Pons <fpons@mandrakesoft.com> 2.03-1mdk
-- 2.03.
-
-* Fri Jul 19 2002 François Pons <fpons@mandrakesoft.com> 2.02-1mdk
-- initial release (needed by perl-ldap >= 0.26).
-
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

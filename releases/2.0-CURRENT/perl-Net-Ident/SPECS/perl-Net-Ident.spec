@@ -86,7 +86,4 @@ perl Makefile.PL INSTALLDIRS=vendor
 * Tue Mar 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.20
 - first Annvix build (for spamassassin)
 
-* Thu Sep 15 2005 Oden Eriksson <oeriksson@mandriva.com> 1.20-1mdk
-- initial Mandriva package
-
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

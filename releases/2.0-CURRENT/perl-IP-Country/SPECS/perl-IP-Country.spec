@@ -86,20 +86,4 @@ make test
 * Sun Mar 12 2006 Ying-Hung Chen <ying-at-annvix.org> 2.20
 - first Annvix build
 
-* Mon May 09 2005 Rafael Garcia-Suarez <rgarciasuarez@mandriva.com> 2.20-1mdk
-- 2.20
-- add tests, spec cleanup, rewrite description
-
-* Mon Nov 15 2004 Austin Acton <austin@mandrake.org> 2.18-1mdk
-- 2.18
-
-* Sun Dec 14 2003 Abel Cheung <deaddog@deaddog.org> 2.17-1mdk
-- 2.17
-
-* Wed May 28 2003 Thierry Vignaud <tvignaud@mandrakesoft.com> 2.11-2mdk
-- rebuild for new auto{prov,req}
-
-* Tue Apr 1 2003 Austin Acton <aacton@yorku.ca> 2.11-1mdk
-- initial package
-
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

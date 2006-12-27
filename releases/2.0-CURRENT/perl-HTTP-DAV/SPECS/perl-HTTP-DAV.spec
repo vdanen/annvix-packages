@@ -24,7 +24,11 @@ Source:		http://www.cpan.org/authors/id/P/PC/PCOLLINS/%{module}-%{version}.tar.b
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
-BuildRequires:	perl-devel, perl-libwww-perl, perl-XML-DOM, perl-Crypt-SSLeay, perl-MD5
+BuildRequires:	perl-devel
+BuildRequires:	perl-libwww-perl
+BuildRequires:	perl-XML-DOM
+BuildRequires:	perl-Crypt-SSLeay
+BuildRequires:	perl-MD5
 
 %description
 PerlDAV is a Perl library for modifying content on webservers using the

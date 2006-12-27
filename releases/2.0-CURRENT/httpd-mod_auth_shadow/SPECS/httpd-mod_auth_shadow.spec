@@ -157,29 +157,4 @@ install -m 4755 validate %{buildroot}%{_sbindir}/
 - OpenSLS build
 - tidy spec
 
-* Wed Nov 05 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.48_2.0-1mdk
-- built for apache 2.0.48
-
-* Mon Jul 21 2003 David Baudens <baudens@mandrakesoft.com> 2.0.47_2.0-2mdk
-- Rebuild to fix bad signature
-
-* Thu Jul 10 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.47_2.0-1mdk
-- rebuilt against latest apache2, requires and buildrequires
-
-* Fri May 30 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.46_2.0-1mdk
-- rebuilt for apache v2.0.46
-- buildrequires ADVX-build >= 9.2
-
-* Fri Apr 11 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.45_2.0-3mdk
-- cosmetic rebuild for apache v2.0.45
-
-* Sat Feb 22 2003 Jean-Michel Dault <jmdault@mandrakesoft.com> 2.0.44_2.0-3mdk
-- fix another typo in config file (damn templates ;-)
-
-* Sat Feb 22 2003 Jean-Michel Dault <jmdault@mandrakesoft.com> 2.0.44_2.0-2mdk
-- fix typo in config file
-
-* Tue Jan 21 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 2.0.44_2.0-1mdk
-- initial cooker contrib
-
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

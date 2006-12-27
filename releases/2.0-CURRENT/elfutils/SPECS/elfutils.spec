@@ -32,7 +32,9 @@ Source:		elfutils-%{version}.tar.bz2
 Patch0:		elfutils-0.120-mdv-robustify.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	gcc >= 3.4, sharutils, libtool-devel
+BuildRequires:	gcc >= 3.4
+BuildRequires:	sharutils
+BuildRequires:	libtool-devel
 
 Requires:	%{libname} = %{version}-%{release}
 
@@ -51,9 +53,12 @@ Summary:	Development libraries to handle compiled objects
 License:	GPL
 Group:		Development/Other
 Requires:	%{libname} = %{version}-%{release}
-Provides:	%{name}-devel, lib%{name}-devel
-Obsoletes:	libelf-devel, libelf0-devel
-Provides:	libelf-devel, libelf0-devel
+Provides:	%{name}-devel
+Provides:	lib%{name}-devel
+Provides:	libelf-devel
+Provides:	libelf0-devel
+Obsoletes:	libelf-devel
+Obsoletes:	libelf0-devel
 
 %description -n %{libname}-devel
 This package contains the headers and dynamic libraries to create
@@ -70,9 +75,12 @@ Summary:	Static libraries for development with libelfutils
 License:	GPL
 Group:		Development/Other
 Requires:	%{libname}-devel = %{version}-%{release}
-Provides:	%{name}-static-devel, lib%{name}-static-devel
-Obsoletes:	libelf-static-devel, libelf0-static-devel
-Provides:	libelf-static-devel, libelf0-static-devel
+Provides:	%{name}-static-devel
+Provides:	lib%{name}-static-devel
+Provides:	libelf-static-devel
+Provides:	libelf0-static-devel
+Obsoletes:	libelf-static-devel
+Obsoletes:	libelf0-static-devel
 
 %description -n %{libname}-static-devel
 This package contains the static libraries to create applications for
@@ -84,8 +92,10 @@ Summary:	Libraries to read and write ELF files
 License:	OSL
 Group:		System/Libraries
 Provides:	lib%{name}
-Obsoletes:	libelf, libelf0
-Provides:	libelf, libelf0
+Provides:	libelf
+Provides:	libelf0
+Obsoletes:	libelf
+Obsoletes:	libelf0
 
 %description -n %{libname}
 This package provides DSOs which allow reading and writing ELF files
@@ -271,92 +281,5 @@ chmod +x %{buildroot}%{_libdir}/elfutils/lib*.so*
 * Mon Dec 08 2003 Vincent Danen <vdanen@opensls.org> 0.84-2sls
 - OpenSLS build
 - tidy spec
-
-* Fri Jul 25 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 0.84-1mdk
-- 0.84
-
-* Wed Jul 16 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 0.83-1mdk
-- 0.83
-
-* Tue Jul  8 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 0.80-1mdk
-- 0.80
-
-* Tue Jul 08 2003 Olivier Thauvin <thauvin@aerov.jussieu.fr> 0.79-2mdk
-- rebuild for new provides
-
-* Tue Jun  3 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 0.79-1mdk
-- 0.79
-- -static-devel'ize
-
-* Thu Apr  3 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 0.76-1mdk
-- 0.76
-
-* Fri Dec 20 2002 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 0.72-3mdk
-- First Mandrake Linux release adapted from Red Hat package
-- BuildRequires: libtool-devel
-
-* Thu Dec 12 2002 Jakub Jelinek <jakub@redhat.com> 0.72-2
-- update to 0.72
-
-* Wed Dec 11 2002 Jakub Jelinek <jakub@redhat.com> 0.71-2
-- update to 0.71
-
-* Wed Dec 11 2002 Jeff Johnson <jbj@redhat.com> 0.69-4
-- update to 0.69.
-- add "make check" and segfault avoidance patch.
-- elfutils-libelf needs to run ldconfig.
-
-* Tue Dec 10 2002 Jeff Johnson <jbj@redhat.com> 0.68-2
-- update to 0.68.
-
-* Fri Dec  6 2002 Jeff Johnson <jbj@redhat.com> 0.67-2
-- update to 0.67.
-
-* Tue Dec  3 2002 Jeff Johnson <jbj@redhat.com> 0.65-2
-- update to 0.65.
-
-* Mon Dec  2 2002 Jeff Johnson <jbj@redhat.com> 0.64-2
-- update to 0.64.
-
-* Sun Dec 1 2002 Ulrich Drepper <drepper@redhat.com> 0.64
-- split packages further into elfutils-libelf
-
-* Sat Nov 30 2002 Jeff Johnson <jbj@redhat.com> 0.63-2
-- update to 0.63.
-
-* Fri Nov 29 2002 Ulrich Drepper <drepper@redhat.com> 0.62
-- Adjust for dropping libtool
-
-* Sun Nov 24 2002 Jeff Johnson <jbj@redhat.com> 0.59-2
-- update to 0.59
-
-* Thu Nov 14 2002 Jeff Johnson <jbj@redhat.com> 0.56-2
-- update to 0.56
-
-* Thu Nov  7 2002 Jeff Johnson <jbj@redhat.com> 0.54-2
-- update to 0.54
-
-* Sun Oct 27 2002 Jeff Johnson <jbj@redhat.com> 0.53-2
-- update to 0.53
-- drop x86_64 hack, ICE fixed in gcc-3.2-11.
-
-* Sat Oct 26 2002 Jeff Johnson <jbj@redhat.com> 0.52-3
-- get beehive to punch a rhpkg generated package.
-
-* Wed Oct 23 2002 Jeff Johnson <jbj@redhat.com> 0.52-2
-- build in 8.0.1.
-- x86_64: avoid gcc-3.2 ICE on x86_64 for now.
-
-* Tue Oct 22 2002 Ulrich Drepper <drepper@redhat.com> 0.52
-- Add libelf-devel to conflicts for elfutils-devel
-
-* Mon Oct 21 2002 Ulrich Drepper <drepper@redhat.com> 0.50
-- Split into runtime and devel package
-
-* Fri Oct 18 2002 Ulrich Drepper <drepper@redhat.com> 0.49
-- integrate into official sources
-
-* Wed Oct 16 2002 Jeff Johnson <jbj@redhat.com> 0.46-1
-- Swaddle.
 
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

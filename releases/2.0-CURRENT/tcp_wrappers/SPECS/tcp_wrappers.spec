@@ -66,8 +66,10 @@ This package contains the shared tcp_wrappers library (libwrap).
 %package -n %{libname}-devel
 Summary:	A security library which acts as a wrapper for TCP daemons
 Group:		Development/C
-Obsoletes:	%{name}-devel, libwrap-devel
-Provides:	%{name}-devel, libwrap-devel
+Obsoletes:	%{name}-devel
+Obsoletes:	libwrap-devel
+Provides:	%{name}-devel
+Provides:	libwrap-devel
 Requires:	%{libname} = %{version}
 
 %description -n %{libname}-devel
@@ -202,99 +204,5 @@ install -m 0755 try-from %{buildroot}%{_sbindir}
 * Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 7.6-24sls
 - OpenSLS build
 - tidy spec
-
-* Mon Jul 21 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 7.6-23mdk
-- rebuild
-- rm -rf $RPM_BUILD at the beginning of %%install
-
-* Wed Aug 28 2002 Warly <warly@mandrakesoft.com> 7.6-22mdk
-- new ipv6 patch version
-
-* Sun Jul  7 2002 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 7.6-21mdk
-- Apply Patch2 on all arches to build with PIC code
-
-* Wed Feb 13 2002 Warly <warly@mandrakesoft.com> 7.6-20mdk
-- update specfile
-
-* Sat Mar 17 2001 Francis Galiegue <fg@mandrakesoft.com> 7.6-19mdk
-
-- /me sucks, resubmit
-
-* Sat Mar 17 2001 Francis Galiegue <fg@mandrakesoft.com> 7.6-18mdk
-
-- Add -fPIC to CFLAGS for ia64
-
-* Tue Jan 09 2001 Francis Galiegue <fg@mandrakesoft.com> 7.6-17mdk
-
-- No -b for %%patch directives
-- Fixed group for -devel package
-
-* Tue Sep 05 2000 Francis Galiegue <fg@mandrakesoft.com> 7.6-16mdk
-
-- Removed setenv.o from libwrap.a
-
-* Fri Jul 28 2000 Francis Galiegue <fg@mandrakesoft.com> 7.6-15mdk
-
-- Spec file fixes
-- %files list fixes
-- permission fixes
-- use links, not symlinks
-- include doc in only one package, not both
-
-* Mon Jul 17 2000 Thierry Vignaud <tvignaud@mandrakesoft.com> 7.6-14mdk
-- fix %%clean
-- Christian Zoffoli <czoffoli@linux-mandrake.com> :
-	* fixed permission
-	* removed %group
-	* removed _sysconfdir 
-	* macroszifications
-	* new IPv6 patch v1.9
-
-* Fri Jun 23 2000 Pablo Saratxaga <pablo@mandrakesoft.com> 7.6-13mdk
-- compiled with IPv6 patch
-
-* Sat Apr 08 2000 John Buswell <johnb@mandrakesoft.com> 7.6-12mdk
-- split devel elements into devel package
-- removed version number from spec file
-- added docs to devel package
-
-* Thu Mar 30 2000 John Buswell <johnb@mandrakesoft.com> 7.6-11mdk
-- Fixed groups
-- spec-helper
-
-* Sun Nov  7 1999 Chmouel Boudjnah <chmouel@mandrakesoft.com>
-- add netgroup support (r).
-
-* Wed May 05 1999 Bernhard Rosenkraenzer <bero@mandrakesoft.com>
-- Mandrake adaptions
-
-* Sun Mar 21 1999 Cristian Gafton <gafton@redhat.com> 
-- auto rebuild in the new build environment (release 7)
-
-* Wed Dec 30 1998 Cristian Gafton <gafton@redhat.com>
-- build for glibc 2.1
-
-* Sat Aug 22 1998 Jeff Johnson <jbj@redhat.com>
-- close setenv bug (problem #690)
-- spec file cleanup
-
-* Thu Jun 25 1998 Alan Cox <alan@redhat.com>
-- Erp where did the Dec 05 patch escape to
-
-* Thu May 07 1998 Prospector System <bugs@redhat.com>
-- translations modified for de, fr, tr
-
-* Fri Dec 05 1997 Erik Troan <ewt@redhat.com>
-- don't build setenv.o module -- it just breaks things
-
-* Wed Oct 29 1997 Marc Ewing <marc@redhat.com>
-- upgrade to 7.6
-
-* Thu Jul 17 1997 Erik Troan <ewt@redhat.com>
-- built against glibc
-
-* Mon Mar 03 1997 Erik Troan <ewt@redhat.com>
-- Upgraded to version 7.5
-- Uses a build root
 
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

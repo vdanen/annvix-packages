@@ -140,7 +140,8 @@ Provides:	db-devel = %{version}-%{release}
 Provides:	db4-devel = %{version}-%{release}
 Provides:	libdb-devel = %{version}-%{release}
 Provides:	%{_lib}db-devel = %{version}-%{release}
-Conflicts:	%{libname_orig}3.3-devel, %{libname_orig}4.0-devel
+Conflicts:	%{libname_orig}3.3-devel
+Conflicts:	%{libname_orig}4.0-devel
 
 %description -n %{libnamedev}
 The Berkeley Database (Berkeley DB) is a programmatic toolkit that provides
@@ -161,7 +162,8 @@ Provides:	db-static-devel = %{version}-%{release}
 Provides:	db4-static-devel = %{version}-%{release}
 Provides:	libdb-static-devel = %{version}-%{release}
 Provides:	%{_lib}db-static-devel = %{version}-%{release}
-Conflicts:	%{libname_orig}3.3-static-devel, %{libname_orig}4.0-static-devel
+Conflicts:	%{libname_orig}3.3-static-devel
+Conflicts:	%{libname_orig}4.0-static-devel
 
 %description -n %{libnamestatic}
 The Berkeley Database (Berkeley DB) is a programmatic toolkit that provides

@@ -26,7 +26,9 @@ Patch1:		rkhunter-1.2.7-avx-annvix_curl.patch
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 
-Requires:	webfetch e2fsprogs binutils
+Requires:	webfetch
+Requires:	e2fsprogs
+Requires:	binutils
 
 %description
 Rootkit scanner is scanning tool to ensure you for about 99.9%% you're
@@ -123,37 +125,5 @@ rm -rf %{buildroot}/lib/%{name}/docs
 * Thu Sep 25 2005 Vincent Danen <vdanen-at-build.annvix.org> 1.2.7-1avx
 - build for Annvix to replace chkrootkit
 - P0: add support for curl and Annvix
-
-* Sat Aug  6 2005 Gaetan Lehmann <glehmann@n4.mandriva.com> 1.2.7-1mdk
-- complete URL
-- use mkrel
-- fix config file (reported on expert mailing list)
-
-* Wed May 25 2005 Lenny Cartier <lenny@mandriva.com> 1.2.7-1mdk
-- 1.2.7
-
-* Wed May 11 2005 Lenny Cartier <lenny@mandriva.com> 1.2.6-1mdk
-- 1.2.6
-
-* Fri Feb 11 2005 Mandrakelinux Team <http://www.mandrakeexpert.com> 1.2.0-1mdk
-- New release 1.2.0
-
-* Tue Feb 08 2005 Mandrakelinux Team <http://www.mandrakeexpert.com> 1.1.9-1mdk
-- New release 1.1.9
-
-* Mon Aug 23 2004 Frederic Lepied <flepied@mandrakesoft.com> 1.1.6-2mdk
-- fixed update script path (Mario R. Pizzolanti)
-
-* Wed Aug 18 2004 Frederic Lepied <flepied@mandrakesoft.com> 1.1.6-1mdk
-- added missing requires
-- New release 1.1.6
-
-* Wed Jun 23 2004 Frederic Lepied <flepied@mandrakesoft.com> 1.1.1-1mdk
-- New release 1.1.1
-
-* Fri May 28 2004 Frederic Lepied <flepied@mandrakesoft.com> 1.0.9-1mdk
-- initial package
-
-# end of file
 
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

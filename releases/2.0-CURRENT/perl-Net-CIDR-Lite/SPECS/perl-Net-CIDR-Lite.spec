@@ -79,22 +79,4 @@ make test
 * Sat Mar 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.20
 - first Annvix build
 
-* Wed Mar 01 2006 Guillaume Rousse <guillomovitch@mandriva.org> 0.20-1mdk
-- New release 0.20
-
-* Thu Feb 09 2006 Guillaume Rousse <guillomovitch@mandriva.org> 0.19-1mdk
-- New release 0.19
-- %%mkrel
-
-* Wed Jun 01 2005 Guillaume Rousse <guillomovitch@mandriva.org> 0.18-1mdk
-- New release 0.18
-- spec cleanup
-- make test in %%check
-
-* Mon Dec 20 2004 Guillaume Rousse <guillomovitch@mandrake.org> 0.15-2mdk
-- fix buildrequires in a backward compatible way
-
-* Sun Nov 14 2004 Guillaume Rousse <guillomovitch@mandrake.org> 0.15-1mdk 
-- first mdk release
-
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

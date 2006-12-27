@@ -281,7 +281,10 @@ latest %{kname}-BOOT installed.
 Summary:	The source code for the Linux kernel
 Version:	%{realversion}
 Release:	%{realrelease}
-Requires:	glibc-devel, ncurses-devel, make, gcc
+Requires:	glibc-devel
+Requires:	ncurses-devel
+Requires:	make
+Requires:	gcc
 Group:		Development/Kernel
 
 %description -n %{kname}-source
@@ -956,9 +959,5 @@ exit 0
 - only patches right now are RSBAC-related so comment out the openswan stuff
 - name the kernel package 'kernel26' rather than 'kernel' to prevent issues
   with the 2.4 kernel ('kernel')
-
-# Local Variables:
-# rpm-spec-insert-changelog-version-with-shell: t
-# End:
 
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

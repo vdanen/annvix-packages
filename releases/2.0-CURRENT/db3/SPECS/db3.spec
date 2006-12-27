@@ -111,10 +111,15 @@ This package contains command line tools for managing Berkeley DB databases.
 %package -n %{libdbdevel}
 Summary:	Development libraries/header files for the Berkeley DB library
 Group:		Development/Databases
-Requires:	%{libdb} = %{version}-%{release}, %{libdbtcl} = %{version}-%{release}
-Provides:	db3-devel = %{version}-%{release} libdb3.3-devel = %{version}-%{release}
-Conflicts:	%{liborig}4.0-devel, %{liborig}4.1-devel, %{liborig}4.2-devel
-Conflicts:	%{liborig}4.3-devel, %{liborig}4.4-devel
+Requires:	%{libdb} = %{version}-%{release}
+Requires:	%{libdbtcl} = %{version}-%{release}
+Provides:	db3-devel = %{version}-%{release}
+Provides:	libdb3.3-devel = %{version}-%{release}
+Conflicts:	%{liborig}4.0-devel
+Conflicts:	%{liborig}4.1-devel
+Conflicts:	%{liborig}4.2-devel
+Conflicts:	%{liborig}4.3-devel
+Conflicts:	%{liborig}4.4-devel
 
 %description -n %{libdbdevel}
 The Berkeley Database (Berkeley DB) is a programmatic toolkit that provides

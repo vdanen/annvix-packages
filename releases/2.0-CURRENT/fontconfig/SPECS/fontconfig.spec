@@ -33,7 +33,8 @@ Patch3:		fontconfig-2.3.2-includeconf.patch
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	ed
 BuildRequires:	freetype2-devel >= %{freetype_ver}
-BuildRequires:	expat-devel, autoconf2.5 >= 2.54
+BuildRequires:	expat-devel
+BuildRequires:	autoconf2.5 >= 2.54
 
 Requires(post):	%{libname} >= %{version}-%{release}
 
@@ -186,98 +187,5 @@ rm -rf %{buildroot}%{_sysconfdir}/fonts/conf.d
 * Fri Dec 19 2003 Vincent Danen <vdanen@opensls.org> - 2.2.1-7sls
 - OpenSLS build
 - tidy spec
-
-* Wed Aug 20 2003 Frederic Crozat <fcrozat@mandrakesoft.com> - 2.2.1-6mdk
-- Patch8 : fix crash when HOME is not defined (bug #4518)
-
-* Thu Aug 14 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 2.2.1-5mdk
-- Add Provides: libfontconfig, fontconfig-libs
-
-* Thu Aug  7 2003 Pixel <pixel@mandrakesoft.com> 2.2.1-4mdk
-- rebuilding, since pablo forgot to upload libfontconfig :-/
-
-* Wed Aug 06 2003 Pablo Saratxaga <pablo@mandrakesoft.com> 2.2.1-3mdk
-- Changed name of Urdu Nastaliq font
-
-* Wed Jul 23 2003 Pablo Saratxaga <pablo@mandrakesoft.com> 2.2.1-2mdk
-- added some fonts to sans/serif/mono aliases
-- put back the special rules to fix display with Raghindi (devanagari) font
-  (hinting must be disabled, and antialias disabled at small sizes)
-
-* Wed Jul  9 2003 Frederic Crozat <fcrozat@mandrakesoft.com> - 2.2.1-1mdk
-- Release 2.2.1
-
-* Wed May 14 2003 Pablo Saratxaga <pablo@mandrakesoft.com> 2.2.0-3mdk
-- added various indic fonts to sans/serif/mono aliases
-- added special rules to fix display with Raghindi (devanagari) font
-  (hinting must be disabled, and antialias disabled at small sizes) 
-
-* Mon May 12 2003 Frederic Crozat <fcrozat@mandrakesoft.com> - 2.2.0-2mdk
-- Rebuild to get the new devel dependencies
-
-* Tue Apr 22 2003 Frederic Crozat <fcrozat@mandrakesoft.com> - 2.2.0-1mdk
-- Release 2.2.0
-- Make sure all X11 fonts are in default configuration.
-
-* Thu Apr 17 2003 Frederic Crozat <fcrozat@mandrakesoft.com> - 2.1.94-1mdk
-- Release 2.1.94
-- Regenerate patches 3, 7
-- Remove patches 4, 9, 10, 11, 12, 13, 14 (merged upstream)
-
-* Tue Mar 11 2003 Frederic Crozat <fcrozat@mandrakesoft.com> - 2.1-9mdk
-- Update patch 4 with FcConfigEnableHome backport
-
-* Wed Mar 05 2003 Pablo Saratxaga <pablo@mandrakesoft.com> - 2.1-8mdk
-- Changed default Tamil fonts; added "Code2000" at the end of
-  aliases for "Sans".
-
-* Thu Feb 27 2003 Frederic Crozat <fcrozat@mandrakesoft.com> - 2.1-7mdk
-- Merge patch 8 in patch 7 : patches should not patch patched portion of files...
-- Keith Packard is my hero : 
- - Patch14 (CVS): fix matching code (Mdk bug 812)
-
-* Tue Feb 25 2003 Frederic Crozat <fcrozat@mandrakesoft.com> - 2.1-6mdk
-- Patch9 (CVS): don't try to run fc-cache in dir without write access (CVS)
-- Patch10 (CVS): Dont cache directorys until they've been scanned,avoids 
-losing subdir contents, track dirs containing fonts.cache files referenced 
-from ~/.fonts.cache file 
-- Patch11 (CVS): fix crash in subpixel config load
-- Patch12 (CVS): fix UTF-16 conversion
-- Patch13 (CVS): speedup FcStrCmpIgnoreCase
-- Update patch4 to first use $HOME and fallback using getpwuid
-
-* Wed Jan 15 2003 Pablo Saratxaga <pablo@mandrakesoft.com> 2.1-5mdk
-- improved the default fontset aliases so it matches previous Xft1 setting
-
-* Mon Jan 13 2003 Frederic Crozat <fcrozat@mandrakesoft.com> 2.1-4mdk
-- Patch5 (rawhide): blacklist certain fonts freetype can't handle
-- Patch6 (rawhide): support for slighthint is back
-- Patch7 (rawhide): change order of default fonts 
-
-* Wed Jan  8 2003 Frederic Crozat <fcrozat@mandrakesoft.com> 2.1-3mdk
-- Update patch4 to fallback to $HOME if not info is available with getpwuid
-
-* Fri Jan  3 2003 Frederic Crozat <fcrozat@mandrakesoft.com> 2.1-2mdk
-- Patch4: don't use HOME variable to get homedir
-
-* Thu Nov 28 2002 Frederic Crozat <fcrozat@mandrakesoft.com> 2.1-1mdk
-- Release 2.1
-- Remove patch2 (merged upstream)
-
-* Tue Nov 19 2002 Frederic Crozat <fcrozat@mandrakesoft.com> 2.0-5mdk
-- Remove patches 0 & 1 (no longer needed with freetype2 2.1.3)
-- Patch2: don't add build date in configuration file
-
-* Wed Nov 6 2002 Stefan van der Eijk <stefan@eijk.nu> 2.0-4mdk
-- BuildRequires: ed
-
-* Wed Nov  6 2002 Frederic Crozat <fcrozat@mandrakesoft.com> 2.0-3mdk
-- Ensure main package is required by library package
-
-* Mon Nov  4 2002 Frederic Crozat <fcrozat@mandrakesoft.com> 2.0-2mdk
-- Fix dependencies
-
-* Mon Nov  4 2002 Frederic Crozat <fcrozat@mandrakesoft.com> 2.0-1mdk
-- Initial Mdk package (based on rawhide)
 
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

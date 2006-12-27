@@ -231,7 +231,8 @@ Objective C object library.
 %package -n %{libobjc_name}
 Summary:	Objective C runtime libraries
 Group:		System/Libraries
-Obsoletes:	%{libobjc_name_orig}3.0, %{libobjc_name_orig}3.1
+Obsoletes:	%{libobjc_name_orig}3.0
+Obsoletes:	%{libobjc_name_orig}3.1
 Provides:	%{libobjc_name_orig} = %{version}-%{release}
 Provides:	%{libobjc_name_orig}3.0 = %{version}-%{release}
 Provides:	%{libobjc_name_orig}3.1 = %{version}-%{release}

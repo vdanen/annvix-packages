@@ -171,27 +171,4 @@ perl -pi -e 's|EXTENSIONDIR|%{_libdir}/php/extensions|g' %{buildroot}%{_sysconfd
 - OpenSLS build
 - tidy spec
 
-* Tue Nov 04 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 4.3.4-1mdk
-- built for 4.3.4
-
-* Mon Aug 25 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 4.3.3-1mdk
-- built for 4.3.3
-- updated S0
-
-* Mon Jul 21 2003 David BAUDENS <baudens@mandrakesoft.com> 4.3.2-2mdk
-- Rebuild to fix bad signature
-
-* Fri May 30 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 4.3.2-1mdk
-- built for 4.3.2
-
-* Fri May 30 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 4.3.2-0.1mdk
-- built for 4.3.2RC4
-- updated the php.ini file
-
-* Mon May 05 2003 Oden Eriksson <oden.eriksson@kvikkjokk.net> 4.3.1-1mdk
-- the obvious rebuild
-
-* Sat Jan  4 2003 Jean-Michel Dault <jmdault@mandrakesoft.com> 4.3.0-1mdk
-- New package
-
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

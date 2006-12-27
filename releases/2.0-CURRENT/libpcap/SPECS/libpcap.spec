@@ -27,7 +27,8 @@ Source0:	http://www.tcpdump.org/release/libpcap-%{version}.tar.gz
 Source1:	http://www.tcpdump.org/release/libpcap-%{version}.tar.gz.sig
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	bison, flex
+BuildRequires:	bison
+BuildRequires:	flex
 
 Obsoletes:	libpcap
 Provides:	libpcap
@@ -185,77 +186,5 @@ install -m 0644 pcap-int.h %{buildroot}%{_includedir}/
 * Tue Dec 09 2003 Vincent Danen <vdanen@opensls.org> 0.7.2-3sls
 - OpenSLS build
 - tidy spec
-
-* Thu Jul 31 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 0.7.2-2mdk
-- rebuild
-
-* Fri Feb 28 2003 Vincent Danen <vdanen@mandrakesoft.com> 0.7.2-1mdk
-- 0.7.2
-- remove P0 (included upstream)
-
-* Sun Feb 09 2003 Stefan van der Eijk <stefan@eijk.nu> 0.7.1-4mdk
-- add patch for wireless sniffing (Airsnort & co)
-- fix %%doc
-
-* Thu Nov 14 2002 Warly <warly@mandrakesoft.com> 0.7.1-3mdk
-- use gz for sources to be able to check md5
-
-* Tue Sep  3 2002 Warly <warly@mandrakesoft.com> 0.7.1-2mdk
-- remove obsolete P0 (Oden Eriksson)
-- misc spec file fixes (Oden Eriksson)
-
-* Sat Aug 10 2002 Warly <warly@mandrakesoft.com> 0.7.1-1mdk
-- new version
-
-* Mon Nov 19 2001 Philippe Libat <philippe@mandrakesoft.com> 0.6.2-3mdk
-- fix libpcap link version 0.6 and requires
-
-* Fri Oct 12 2001 Stefan van der Eijk <stefan@eijk.nu> 0.6.2-2mdk
-- BuildRequires: byacc flex
-- Copyright --> License
-
-* Tue May  8 2001 Guillaume Cottenceau <gc@mandrakesoft.com> 0.6.2-1mdk
-- version 0.6.2
-
-* Mon Mar 12 2001 Jeff Garzik <jgarzik@mandrakesoft.com> 0.6.1-5mdk
-- BuildRequires: autoconf
-
-* Tue Feb 27 2001 Jeff Garzik <jgarzik@mandrakesoft.com> 0.6.1-4mdk
-- Add more docs
-- Build with fPIC for shared libraries.
-
-* Sat Jan 13 2001 David BAUDENS <baudens@mandrakesoft.com> 0.6.1-3mdk
-- Really fix libdification (thanks to Stefan van der Eijk)
-
-* Fri Jan 12 2001 David BAUDENS <baudens@mandrakesoft.com> 0.6.1-2mdk
-- Fix libdification
-- Provides: libpcap
-- Fix Requires section
-- Fix name of SRPM
-
-* Tue Jan 09 2001 Geoff <snailtalk@mandrakesoft.com> 0.6.1-1mdk
-- new and shiny source.
-- add a url for the source.
-
-* Thu Jan 04 2001 Francis Galiegue <fg@mandrakesoft.com> 0.5.2-2mdk
-- New lib policy:
-  * s,libpcap,&0,
-  * fixed requires
-  * Obsoletes: libpcap and -devel
-  * Serial not needed anymore
-
-* Wed Nov  8 2000 Jeff Garzik <jgarzik@mandrakesoft.com> 0.5.2-1mdk
-- Update to release version 0.5.2.
-
-* Fri Jul 21 2000 Francis Galiegue <fg@mandrakesoft.com> 0.5-2mdk
-- s,tmpdir,tmppath,
-- removed unnecessary version and release in -devel
-
-* Thu Jul 20 2000 Francis Galiegue <fg@mandrakesoft.com> 0.5-1mdk
-- 0.5 stable
-- Split from tcpdump source to is own source
-- %%files list cleanup
-- Added dynamic lib - dirty hack
-- split libpcap and -devel
 
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

@@ -107,13 +107,4 @@ make test
 - OpenSLS build
 - tidy spec
 
-* Sat Oct 25 2003 Stefan van der Eijk <stefan@eijk.nu> 0.91-3mdk
-- BuildRequires
-
-* Wed Sep 17 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 0.91-2mdk
-- 64-bit fixes
-
-* Fri Aug 08 2003 Florin <florin@mandrakesoft.com> 0.91-1mdk
-- first release
-
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

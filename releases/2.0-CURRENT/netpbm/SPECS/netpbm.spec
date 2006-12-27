@@ -48,8 +48,10 @@ BuildRequires:	X11-devel
 BuildRequires:	libxml2-devel
 
 Requires:	%{libname} = %{version}-%{release}
-Obsoletes:	libgr-progs, libgr1-progs
-Provides:	libgr-progs, libgr1-progs
+Obsoletes:	libgr-progs
+Obsoletes:	libgr1-progs
+Provides:	libgr-progs
+Provides:	libgr1-progs
 
 %description
 The netpbm package contains a library of functions which support
@@ -62,8 +64,12 @@ programs for handling various graphics file formats, including .pbm
 Summary:        A library for handling different graphics file formats
 Group:          System/Libraries
 Provides:	lib%{name}
-Provides:	libgr, libgr1, libnetpbm1
-Obsoletes:      libgr, libgr1, libnetpbm1
+Provides:	libgr
+Provides:	libgr1
+Provides:	libnetpbm1
+Obsoletes:      libgr
+Obsoletes:	libgr1
+Obsoletes:	libnetpbm1
 
 %description -n %{libname}
 The netpbm package contains a library of functions which support
@@ -77,8 +83,13 @@ Summary:	Development tools for programs which will use the netpbm libraries
 Group:		Development/C
 Requires:	%{libname} = %{version}-%{release}
 Provides:	lib%{name}-devel
-Obsoletes:	libgr-devel, libgr1-devel, libnetpbm1-devel
-Provides:	libgr-devel, libgr1-devel, libnetpbm1-devel, netpbm-devel
+Provides:	libgr-devel
+Provides:	libgr1-devel
+Provides:	libnetpbm1-devel
+Provides:	netpbm-devel
+Obsoletes:	libgr-devel
+Obsoletes:	libgr1-devel
+Obsoletes:	libnetpbm1-devel
 
 %description -n %{libname}-devel
 The netpbm-devel package contains the header files and programmer's
@@ -91,8 +102,13 @@ Summary:	Static libraries for the netpbm libraries
 Group:		Development/C
 Requires:	%{libname}-devel = %{version}-%{release}
 Provides:	lib%{name}-static-devel
-Obsoletes:	libgr-static-devel, libgr1-static-devel, libnetpbm1-static-devel
-Provides:	libgr-static-devel, libgr1-static-devel, libnetpbm1-static-devel, netpbm-static-devel
+Provides:	libgr-static-devel
+Provides:	libgr1-static-devel
+Provides:	libnetpbm1-static-devel
+Provides:	netpbm-static-devel
+Obsoletes:	libgr-static-devel
+Obsoletes:	libgr1-static-devel
+Obsoletes:	libnetpbm1-static-devel
 
 %description -n %{libname}-static-devel
 The netpbm-devel package contains the static libraries (.a)
@@ -292,72 +308,5 @@ cp test-images/* %{buildroot}%{_datadir}/printconf/tests/
 * Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 9.24-8sls
 - OpenSLS build
 - tidy spec
-
-* Wed Jul 30 2003 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 9.24-7mdk
-- Patch4: lib64 fixes
-- Factor out mklibname invocations
-- Provides: netbpm{,-static}-devel
-- BuildRequires: jpeg-devel, tiff-devel
-
-* Fri May 23 2003 Damien Chaumette <dchaumette@mandrakesoft.com> 9.24-6mdk
-- spec file changes (Per Øyvind Karlsen <peroyvind@sintrax.net>)
-	use %%mklibname
-	added licenses(also released under Artistic and MIT)
-
-* Tue Apr 1 2003 Vincent Danen <vdanen@mandrakesoft.com> 9.24-5mdk
-- security patches
-
-* Sun Jul  7 2002 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 9.24-4mdk
-- Move mapfiles to %%_datadir/%{name}-%{version}/
-
-* Mon Jul 01 2002 Yves Duret <yduret@mandrakesoft.com> 9.24-3mdk
-- fix obsolets/provides of static-devel package thanx Frederic Crozat.
-
-* Fri May 17 2002 Yves Duret <yduret@mandrakesoft.com> 9.24-2mdk
-- 9.0 lib policy: added %%libname-static-devel
-
-* Fri Apr 19 2002 Yves Duret <yduret@mandrakesoft.com> 9.24-1mdk
-- version 9.24.
-- merged with redhat.
-- fixed build (why are still some guys that does not use GNU autotools ??)
-- added missing files.
-- buildrequires
-
-* Sun Jan 27 2002 Stefan van der Eijk <stefan@eijk.nu> 9.20-2mdk
-- BuildRequires
-
-* Tue Jan 22 2002 Chmouel Boudjnah <chmouel@mandrakesoft.com> 9.20-1mdk
-- Merge with RH.
-- 9.20 (whooooooooooo).
-
-* Wed Oct 10 2001 Till Kamppeter <till@mandrakesoft.com> 9.10-8mdk
-- Another attempt to recompile it with libpng3
-
-* Fri Oct 05 2001 Yves Duret <yduret@mandrakesoft.com> 9.10-7mdk
-- recompiled with libpng3
-- macros
-
-* Sat Sep 09 2001 David BAUDENS <baudens@mandrakesoft.com> 9.10-6mdk
-- Fix %%major number
-- Requires %%{version}-%%{release} and not only %%{version}
-- Fix %%doc
-
-* Mon Aug 27 2001 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 9.10-5mdk
-- Explicitly use /sbin/ldconfig
-
-* Wed Aug 08 2001 Yves Duret <yduret@mandrakesoft.com> 9.10-4mdk
-- added a builrequires to zlib-devel (Buchan Milne <bgmilne@cae.co.za>)
-- corrected the 4 no-ldconfig-symlink errors (thx titi)
-
-* Fri Jul 27 2001 Frederic Lepied <flepied@mandrakesoft.com> 9.10-3mdk
-- added missing obsoletes on libgr1-progs
-
-* Fri Jul 27 2001 Yves Duret <yduret@mandrakesoft.com> 9.10-2mdk
-- added patch2 to fix bad include netpbm-shhopt.h
-- added provides libgr
-
-* Tue Jul 24 2001 Yves Duret <yduret@mandrakesoft.com> 9.10-1mdk
-- first MandrakeSoft package (stolen from d3bi4n and PLD)
-    Obsoletes libgr libgr-progs libgr-devel
 
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

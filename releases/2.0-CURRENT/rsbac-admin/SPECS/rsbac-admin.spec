@@ -242,8 +242,4 @@ mkdir -p %{buildroot}/var/lib/rsbac/tmp
 * Tue Jul 20 2004 Thomas Backlund <tmb@annvix.org> 1.2.3-1avx
 - Inital release for Annvix
 
-* Mon Jul 19 2004 Nicolas Planel <nplanel@mandrakesoft.com> 1.2.3-1mdk
-- Inital release for Mandrakelinux distribution.
-
-
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

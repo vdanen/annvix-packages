@@ -117,29 +117,4 @@ perl Makefile.PL INSTALLDIRS=vendor
 - OpenSLS build
 - tidy spec
 
-* Thu Aug 14 2003 Per Øyvind Karlsen <peroyvind@linux-mandrake.com> 0.37-3mdk
-- rebuild for new perl
-- drop $RPM_OPT_FLAGS, noarch..
-- use %%makeinstall_std macro
-
-* Fri May 16 2003 Guillaume Rousse <g.rousse@linux-mandrake.com> 0.37-2mdk
-- rebuild for dependencies
-
-* Fri Apr 25 2003 François Pons <fpons@mandrakesoft.com> 0.37-1mdk
-- 0.37.
-
-* Wed Jan 29 2003 Lenny Cartier <lenny@mandrakesoft.com> 0.36-3mdk
-- rebuild
-
-* Wed Jul 31 2002 Lenny Cartier <lenny@mandrakesoft.com> 0.36-2mdk
-- rebuild with new perl
-
-* Fri Mar 01 2002 Lenny Cartier <lenny@mandrakesoft.com> 0.36-1mdk
-- 0.36
-
-* Wed Aug 29 2001 Lenny Cartier <lenny@mandrakesoft.com> 0.35-1mdk
-- added by Christian Zoffoli <czoffoli@linux-mandrake.com> :
-	- first mandrake release
-
-
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

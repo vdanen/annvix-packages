@@ -214,7 +214,4 @@ rm -f examples/*.p12
 * Sat Sep 11 2004 Vincent Danen <vdanen-at-build.annvix.org> 1.2-1avx
 - Annvix build; needed for ipsvd
 
-* Wed Aug 04 2004 Oden Eriksson <oeriksson@mandrakesoft.com> 1.2-1mdk
-- initial mandrake package
-
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

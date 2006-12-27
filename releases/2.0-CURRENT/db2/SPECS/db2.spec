@@ -183,7 +183,6 @@ done
 - P5: use -fPIC instead of -fpic on sparc64 (stefan)
 - own %%_includedir/db2 (thauvin)
 
-
 * Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 2.4.14-12avx
 - bootstrap build
 
@@ -196,63 +195,5 @@ done
 * Thu Dec 18 2003 Vincent Danen <vdanen@opensls.org> 2.4.14-9sls
 - OpenSLS build
 - tidy spec
-
-* Tue Jul 22 2003 Per Øyvind Karlsen <peroyvind@sintrax.net> 2.4.14-8mdk
-- rebuild
-- drop Prefix tag
-- use %%make macro
-
-* Sat Nov 23 2002 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 2.4.14-7mdk
-- Patch2: os/os_fid.c (__db_fileid): Use implementation from db3, this
-  fixes Python test_dbm on x86-64. Debian people use a similar patch
-  because this works better under 64-bit architectures. Indeed.
-  (Basically, we were getting an EINVAL resulting from a check for the
-  "unthinkable". Sure, in the old days we hadn't had any 64-bit arch
-  where we now have sizeof(<stat>.st_ino) + sizeof(<stat>.st_dev) +
-  sizeof(time_t) > DB_FILE_ID_LEN with DB_FILE_ID_LEN == 20).
-
-* Mon Jun 24 2002 Gwenole Beauchesne <gbeauchesne@mandrakesoft.com> 2.4.14-6mdk
-- rpmlint fixes: hardcoded-library-path
-
-* Tue Nov 06 2001 Christian Belisle <cbelisle@mandrakesoft.com> 2.4.14-5mdk
-- Rebuild (to fix invalid-packager in rpmlint).
-
-* Wed Oct 10 2001 Christian Belisle <cbelisle@mandrakesoft.com> 2.4.14-4mdk
-- Make rpmlint a little happier.
-
-* Tue Sep 11 2001 Christian Belisle <cbelisle@mandrakesoft.com> 2.4.14-3mdk
-- s/Copyright/License.
-- rebuild.
-
-* Thu Dec  7 2000 Frederic Lepied <flepied@mandrakesoft.com> 2.4.14-2mdk
-- corrected missing ldconfig symlink.
-
-* Tue Oct 17 2000 Chmouel Boudjnah <chmouel@mandrakesoft.com> 2.4.14-1mdk
-- First mandrake release.
-
-* Thu Aug 17 2000 Bill Nottingham <notting@redhat.com>
-- fix ia64 conflicts
-
-* Thu Aug 17 2000 Jeff Johnson <jbj@redhat.com>
-- summaries from specspo.
-
-* Fri Jul 14 2000 Jeff Johnson <jbj@redhat.com>
-- remove "strip -R comment" from spec file, rely on brp-* instead.
-
-* Wed Jul 12 2000 Prospector <bugzilla@redhat.com>
-- automatic rebuild
-
-* Wed Jun 28 2000 Matt Wilson <msw@redhat.com>
-- regenerated the db2.patch to link against -ldb2, not -ldb
-
-* Mon May  8 2000 Jeff Johnson <jbj@redhat.com>
-- Rename files (like db1) to prepare for db3 deployment.
-- Change version to reflect Berkeley db rather than glibc distribution.
-
-* Thu Apr 27 2000 Jakub Jelinek <jakub@redhat.com>
-- Don't provide makedb, it is provided by glibc.
-
-* Wed Apr 20 2000 Jakub Jelinek <jakub@redhat.com>
-- Create.
 
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

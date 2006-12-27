@@ -34,7 +34,8 @@ after it to provide the authentication.
 %package devel
 Summary:	Libraries and header files for developing pam_userpass-aware applications.
 Group:		Development/Libraries
-Requires:	%{name} = %{version}-%{release}, pam-devel
+Requires:	%{name} = %{version}-%{release}
+Requires:	pam-devel
 
 %description devel
 This package contains development libraries and header files required
