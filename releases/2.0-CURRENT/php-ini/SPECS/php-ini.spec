@@ -60,7 +60,7 @@ perl -pi -e 's|EXTENSIONDIR|%{_libdir}/php/extensions|g' %{buildroot}%{_sysconfd
 
 
 %changelog
-* Sun Dec 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.6
+* Sun Dec 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.2.0
 - php 5.2.0
 
 * Fri Oct 20 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.6
