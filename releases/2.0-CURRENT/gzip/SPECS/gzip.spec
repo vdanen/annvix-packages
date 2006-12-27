@@ -24,6 +24,7 @@ Patch0:		gzip-1.3.5-mdv-znew.patch
 Patch1:		gzip-1.2.4a-CAN-2005-1228.patch
 Patch2:		gzip-1.3.5-mdv-CAN-2005-0988.patch
 Patch3:		gzip-1.3.5-fdr-zgrep-sed.patch
+Patch4:		gzip-1.3.5-goo-sec.diff
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	texinfo
@@ -52,6 +53,7 @@ This package contains the documentation for %{name}.
 %patch1 -p1 -b .can-2005-1228
 %patch2 -p1 -b .can-2005-0988
 %patch3 -p0 -b .cve-2005-0758
+%patch4 -p1 -b .cve-2006-4334_8
 
 
 %build
@@ -115,6 +117,9 @@ chmod 0755 %{buildroot}%{_bindir}/zless
 
 
 %changelog
+* Mon Sep 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.5
+- P4: security fix for CVE-2006-433[45678]
+
 * Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.5
 - 1.3.5
 - drop P0-P8, P10
