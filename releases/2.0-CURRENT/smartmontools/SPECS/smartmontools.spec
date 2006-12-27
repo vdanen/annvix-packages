@@ -62,6 +62,7 @@ This package contains the documentation for %{name}.
 
 
 %build
+%serverbuild
 %configure2_5x
 %make
 
@@ -73,7 +74,7 @@ This package contains the documentation for %{name}.
 mkdir -p %{buildroot}%{_srvdir}/smartd/log
 install -m 0740 %{_sourcedir}/smartd.run %{buildroot}%{_srvdir}/smartd/run
 install -m 0740 %{_sourcedir}/smartd-log.run %{buildroot}%{_srvdir}/smartd/log/run
-rm -rf %{buildroot}%{_initrddir}
+rm -rf %{buildroot}%{_sysconfdir}/rc.d
 
 mkdir -p %{buildroot}%{_srvdir}/smartd/env
 echo "1800" > %{buildroot}%{_srvdir}/smartd/env/INTERVAL
@@ -111,6 +112,9 @@ echo "1800" > %{buildroot}%{_srvdir}/smartd/env/INTERVAL
 
 
 %changelog
+* Tue Dec 26 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.36
+- use %%serverbuild
+
 * Fri Aug 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.36
 - requires setup (for group admin)
 - spec cleanups
