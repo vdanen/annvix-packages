@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		squid
-%define version		2.5.STABLE14
+%define version		2.6.STABLE3
 %define release		%_revrel
 
 ## Redefine configure values.
@@ -25,32 +25,34 @@ Release:	%{release}
 License:	GPL
 Group:		System/Servers
 URL:		http://www.squid-cache.org
-Source:		ftp://ftp.squid-cache.org/pub/squid-2/STABLE/%{name}-%{version}.tar.bz2
-Source3:	squid.logrotate
-Source4:	squid.conf.authenticate
-Source5:	smb.conf
-Source6:	squid.conf.transparent
-Source7:	rc.firewall
-Source8:	ERR_CUSTOM_ACCESS_DENIED.English
-Source10:	squid-2.5-samba-2.2.7-winbindd_nss.h
-Source11:	squid.run
-Source12:	squid-log.run
-Source13:	squid.stop
-Source14:	squid.sysconfig
-Patch0:		squid-2.5.STABLE7-avx-make.patch
+Source0:	ftp://ftp.squid-cache.org/pub/squid-2/STABLE/%{name}-%{version}.tar.bz2
+Source1:	squid.logrotate
+Source2:	squid.conf.authenticate
+Source3:	smb.conf
+Source4:	squid.conf.transparent
+Source5:	rc.firewall
+Source6:	ERR_CUSTOM_ACCESS_DENIED.English
+Source7:	squid.run
+Source8:	squid-log.run
+Source9:	squid.stop
+Source10:	squid.sysconfig
+Patch0:		squid-2.6.STABLE5-avx-make.patch
 Patch1:		squid-2.5-config.patch
 Patch2:		squid-2.5.STABLE7-avx-user_group.patch
 Patch3:		squid-2.5.STABLE2-ssl.patch
-Patch4:		squid-2.5.STABLE5-pipe.patch
-# Upstream bugfix patches
-Patch100:	http://www.squid-cache.org/Versions/v2/2.5/bugs/squid-2.5.STABLE14-httpReplyDestroy.patch
-
+Patch4: 	http://dansguardian.org/downloads/squid-xforward_logging.patch
+Patch5: 	squid-2.6.STABLE1-db4.diff
+Patch6: 	squid-2.6.STABLE1-visible_hostname.diff
+Patch7: 	squid-2.6.STABLE-smb-auth.diff
+Patch8:		squid-2.6.STABLE1-getconf_mess.diff
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	openldap-devel
 BuildRequires:	libsasl-devel
 BuildRequires:	openssl-devel >= 0.9.7
 BuildRequires:	pam-devel
+BuildRequires:	db4-devel
+BuildRequires:	pkgconfig
 
 Requires(pre):	rpm-helper
 Requires(preun): rpm-helper
@@ -85,48 +87,70 @@ This package contains the documentation for %{name}.
 %patch2 -p1
 %patch0 -p1
 %patch3 -p1 -b .ssl
-%patch4 -p1 -b .pipe
-%patch100 -p1
+%patch4 -p1 -b .forward_logging
+%patch5 -p1 -b .db4
+%patch6 -p0 -b .visible_hostname
+%patch7 -p0 -b .backslashes
+%patch8 -p0 -b .getconf
 
-cp %{_sourcedir}/squid-2.5-samba-2.2.7-winbindd_nss.h helpers/basic_auth/winbind/winbindd_nss.h
-cp %{_sourcedir}/squid-2.5-samba-2.2.7-winbindd_nss.h helpers/ntlm_auth/winbind/winbindd_nss.h
-cp %{_sourcedir}/squid-2.5-samba-2.2.7-winbindd_nss.h helpers/external_acl/winbind_group/winbindd_nss.h
+perl -p -i -e "s|^SAMBAPREFIX.*|SAMBAPREFIX = /usr|" helpers/basic_auth/SMB/Makefile.in
+perl -p -i -e "s|^icondir.*|icondir = \\$\(libexecdir\)/icons|" icons/Makefile.am icons/Makefile.in
+grep -r "local/bin/perl" %{_builddir}/%{name}-%{version} |sed -e "s/:.*$//g" | xargs perl -p -i -e "s@local/bin/perl@bin/perl@g"
 
 
 %build
-%serverbuild
-perl -p -i -e "s|^SAMBAPREFIX.*|SAMBAPREFIX = /usr|" helpers/basic_auth/SMB/Makefile.in
-perl -p -i -e "s|^icondir.*|icondir = \\$\(libexecdir\)/icons|" icons/Makefile.am icons/Makefile.in
+rm -rf configure autom4te.cache
+libtoolize --copy --force
+aclocal
+autoheader
+autoconf --force
+automake --foreign --add-missing --copy --force-missing
 
-grep -r "local/bin/perl" %{_builddir}/%{name}-%{version} |sed -e "s/:.*$//g" | xargs perl -p -i -e "s@local/bin/perl@bin/perl@g"
+export SSLLIB="-L%{_libdir} `pkg-config --libs openssl`"
+export CPPFLAGS="-I%{_includedir}/openssl $CPPFLAGS"
 
-%configure \
-    --enable-poll \
+%ifarch x86_64
+    export CFLAGS="%{optflags} -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64"
+%else
+    export CFLAGS="%{optflags} -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64"
+%endif
+
+%configure2_5x \
+    --with-maxfd=1024 \
+    --disable-poll \
+    --enable-epoll \
     --enable-snmp \
-    --enable-removal-policies="heap,lru" \
-    --enable-storeio="aufs,coss,diskd,ufs,null" \
     --enable-useragent-log \
     --enable-referer-log \
-    --enable-cachemgr-hostname=localhost \
+    --enable-removal-policies="heap,lru" \
+    --enable-storeio="aufs,coss,diskd,ufs,null" \
+    --enable-cachemgr-hostname="localhost" \
     --enable-truncate \
     --enable-underscores \
     --enable-carp \
     --enable-async-io \
     --enable-htcp \
+    --enable-icmp \
     --enable-delay-pools \
     --enable-linux-netfilter \
+    --enable-default-hostsfile=/etc/hosts \
     --enable-ssl \
+    --with-openssl=%{_prefix} \
     --enable-arp-acl \
-    --enable-auth="basic,digest,ntlm" \
-    --enable-basic-auth-helpers="winbind,multi-domain-NTLM,getpwnam,YP,SMB,PAM,NCSA,MSNT,LDAP" \
-    --enable-ntlm-auth-helpers="SMB,fakeauth,no_check,winbind" \
-    --enable-digest-auth-helpers="password" \
-    --enable-external-acl-helpers="ip_user,ldap_group,unix_group,wbinfo_group,winbind_group" \
+    --enable-wccp \
+    --enable-wccpv2 \
+    --enable-auth="basic,digest,ntlm,negotiate" \
+    --enable-basic-auth-helpers="getpwnam,LDAP,MSNT,multi-domain-NTLM,NCSA,PAM,SASL,SMB,YP" \
+    --enable-ntlm-auth-helpers="fakeauth,no_check,SMB" \
+    --enable-digest-auth-helpers="ldap,password" \
+    --enable-external-acl-helpers="ip_user,ldap_group,session,unix_group,wbinfo_group" \
+    --enable-follow-x-forwarded-for \
     --with-pthreads \
-    --with-winbind-auth-challenge \
     --disable-dependency-tracking \
     --disable-ident-lookups \
-    --with-maxfd=1024
+    --enable-large-cache-files \
+    --with-large-files \
+    --with-build-environment=default
 
 # Some versions of autoconf fail to detect sys/resource.h correctly;
 # apparently because it generates a compiler warning.
@@ -260,27 +284,28 @@ fi
 %{_sysconfdir}/errors
 %{_libexecdir}/errors
 %{_libexecdir}/icons
-%{_libexecdir}/diskd
+%{_libexecdir}/diskd-daemon
 %{_libexecdir}/unlinkd
 %{_libexecdir}/cachemgr.cgi
-%attr(0755,root,squid) %{_libexecdir}/ncsa_auth
-%attr(0755,root,squid) %{_libexecdir}/getpwname_auth
-%attr(7755,root,squid) %{_libexecdir}/pam_auth
-%attr(0755,root,squid) %{_libexecdir}/msnt_auth
-%attr(0755,root,squid) %{_libexecdir}/smb_auth*
-%attr(0755,root,squid) %{_libexecdir}/ntlm_auth
-%attr(0755,root,squid) %{_libexecdir}/squid_sasl_auth
-%attr(0755,root,squid) %{_libexecdir}/squid_ldap_auth
-%attr(0755,root,squid) %{_libexecdir}/yp_auth
-%attr(0755,root,squid) %{_libexecdir}/wb_auth
-%attr(0755,root,squid) %{_libexecdir}/fakeauth_auth
+%attr(0755,root,squid) %{_libexecdir}/digest_ldap_auth
 %attr(0755,root,squid) %{_libexecdir}/digest_pw_auth
-%attr(0755,root,squid) %{_libexecdir}/wb_ntlmauth
-%attr(0755,root,squid) %{_libexecdir}/wb_group
+%attr(0755,root,squid) %{_libexecdir}/fakeauth_auth
+%attr(0755,root,squid) %{_libexecdir}/getpwname_auth
 %attr(0755,root,squid) %{_libexecdir}/ip_user_check
-%attr(0755,root,squid) %{_libexecdir}/squid_unix_group
+%attr(0755,root,squid) %{_libexecdir}/msnt_auth
+%attr(0755,root,squid) %{_libexecdir}/ncsa_auth
+%attr(0755,root,squid) %{_libexecdir}/ntlm_auth
+%attr(7755,root,squid) %{_libexecdir}/pam_auth
+%attr(7755,root,squid) %{_libexecdir}/pinger
+%attr(0755,root,squid) %{_libexecdir}/sasl_auth
+%attr(0755,root,squid) %{_libexecdir}/smb_auth*
+%attr(0755,root,squid) %{_libexecdir}/squid_ldap_auth
 %attr(0755,root,squid) %{_libexecdir}/squid_ldap_group
+%attr(0755,root,squid) %{_libexecdir}/squid_sasl_auth
+%attr(0755,root,squid) %{_libexecdir}/squid_session
+%attr(0755,root,squid) %{_libexecdir}/squid_unix_group
 %attr(0755,root,squid) %{_libexecdir}/wbinfo_group.pl
+%attr(0755,root,squid) %{_libexecdir}/yp_auth
 %{_sbindir}/*
 %{_mandir}/man8/*
 %attr(755,squid,squid) %dir /var/log/squid
@@ -296,6 +321,13 @@ fi
 
 
 %changelog
+* Sat Dec 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.STABLE3
+- 2.6.STABLE3 (STABLE4 and STABLE5 dont' compile properly)
+- rediff P1
+- drop P4, P100
+- drop S10 (samba 2.x support dropped upstream)
+- merged patches from Mandriva (2.6.STABLE1-5mdv)
+
 * Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5.STABLE14
 - rebuild against new openssl
 - spec cleanups
