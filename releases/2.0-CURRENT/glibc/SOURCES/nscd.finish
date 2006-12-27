@@ -1,5 +1,7 @@
-#!/bin/sh
-PATH="/sbin:/usr/sbin:/bin:/usr/bin"
+#!/bin/execlineb
 
-# when we receive the signal to shutdown, use nscd to shutdown the server
+/bin/fdmove -c 2 1
+
+/bin/export PATH "/sbin:/bin:/usr/sbin:/usr/bin"
+
 /usr/sbin/nscd -K

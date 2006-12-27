@@ -150,7 +150,7 @@ Obsoletes:      zoneinfo
 Obsoletes:	libc-static
 Obsoletes:	libc-devel
 Obsoletes:	libc-profile
-Obsoletes:	libc-headers,
+Obsoletes:	libc-headers
 Obsoletes:      linuxthreads
 Obsoletes:	gencat
 Obsoletes:	locale
@@ -1189,6 +1189,9 @@ fi
 
 
 %changelog
+* Tue Dec 26 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.6
+- update and execline the nscd run script
+
 * Tue Aug 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.6
 - P602: update audit.h and add elf-em.h so that audit can compile
 

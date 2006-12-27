@@ -1,16 +1,13 @@
-#!/bin/sh
-PATH="/sbin:/usr/sbin:/bin:/usr/bin"
+#!/bin/execlineb
 
-# this runs nscd supervised
+/bin/fdmove -c 2 1
 
-. /usr/share/srv/functions
+/bin/export PATH "/sbin:/bin:/usr/sbin:/usr/bin"
 
-if [ ! -f /etc/nscd.conf ]; then
-  echo "/etc/nscd.conf required and not found... aborting!"
-  godown
-fi
-
-# when we receive the signal to shutdown, use nscd to shutdown the server
-trap '/usr/sbin/nscd -K' 0
-
-/usr/sbin/nscd -d 2>&1 & wait
+/bin/ifthenelse { /usr/bin/test ! -f /etc/nscd.conf }
+{
+    /bin/echo "/etc/nscd.conf doesn't exist and is required to run nscd!"
+}
+{
+    /usr/sbin/nscd -d
+}
