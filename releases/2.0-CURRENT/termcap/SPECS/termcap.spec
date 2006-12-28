@@ -18,6 +18,7 @@ Version:	%{version}
 Release:	%{release}
 License:	none
 Group:		System/Libraries
+URL:		http://www.catb.org/~esr/terminfo/
 Source0:	http://www.ccil.org/~esr/terminfo/termtypes.tc
 Patch0:		termcap-linuxlat.patch
 Patch1:		termcap-xtermchanges.patch
@@ -70,6 +71,9 @@ install -m 0644 termcap %{buildroot}%{_sysconfdir}/
 
 
 %changelog
+* Thu Dec 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 11.0.1
+- set the URL
+
 * Mon Jul 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 11.0.1
 - remove pre-Annvix changelog
 
