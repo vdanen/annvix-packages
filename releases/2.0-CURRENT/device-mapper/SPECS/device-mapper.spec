@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define	name		device-mapper
-%define	version		1.02.07
+%define	version		1.02.09
 %define	extraversion	%{nil}
 %define	release		%_revrel
 
@@ -47,7 +47,7 @@ URL:		http://sources.redhat.com/dm/
 Source0:	ftp://sources.redhat.com/pub/dm/%{name}.%{version}%{extraversion}.tar.bz2
 Patch0:		device-mapper.1.02.07-build.patch
 Patch2:		device-mapper.1.02.07-pk.patch
-Patch3:		device-mapper.1.02.07-misc.patch
+Patch3:		device-mapper.1.02.09-misc.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5 >= 2.53
@@ -256,6 +256,10 @@ chmod -R u+w %{buildroot} #else brp won't strip binaries
 
 
 %changelog
+* Thu Dec 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.02.09
+- 1.02.09
+- updated P3 from Mandriva
+
 * Wed Aug 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.02.07
 - dietlibc fixes for x86_64
 

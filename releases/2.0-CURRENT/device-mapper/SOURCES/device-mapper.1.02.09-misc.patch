@@ -1,0 +1,49 @@
+--- device-mapper.1.02.09/lib/datastruct/hash.c.misc	2006-01-09 21:35:24.000000000 +0100
++++ device-mapper.1.02.09/lib/datastruct/hash.c	2006-08-27 06:44:16.000000000 +0200
+@@ -68,14 +68,14 @@
+ 	return n;
+ }
+ 
+-static unsigned long _hash(const unsigned char *str, unsigned len)
++static unsigned long _hash(const char *str, unsigned len)
+ {
+ 	unsigned long h = 0, g;
+ 	unsigned i;
+ 
+ 	for (i = 0; i < len; i++) {
+ 		h <<= 4;
+-		h += _nums[*str++];
++		h += _nums[(unsigned char) *str++];
+ 		g = h & ((unsigned long) 0xf << 16u);
+ 		if (g) {
+ 			h ^= g >> 16u;
+--- device-mapper.1.02.09/lib/ioctl/libdm-iface.c.misc	2006-08-08 23:22:31.000000000 +0200
++++ device-mapper.1.02.09/lib/ioctl/libdm-iface.c	2006-08-27 06:44:16.000000000 +0200
+@@ -1543,7 +1543,7 @@
+ 		dmi->flags |= DM_SKIP_BDGET_FLAG;
+ 
+ 	log_debug("dm %s %s %s%s%s %s%.0d%s%.0d%s"
+-		  "%s%c%s %.0llu %s [%u]",
++		  "%s%c%s %.0" PRIu64 " %s [%u]",
+ 		  _cmd_data_v4[dmt->type].name,
+ 		  dmi->name, dmi->uuid, dmt->newname ? " " : "",
+ 		  dmt->newname ? dmt->newname : "",
+--- device-mapper.1.02.09/dmsetup/dmsetup.c.misc	2006-08-27 06:50:37.000000000 +0200
++++ device-mapper.1.02.09/dmsetup/dmsetup.c	2006-08-27 06:49:53.000000000 +0200
+@@ -37,6 +37,7 @@
+ #include <sys/param.h>
+ #include <locale.h>
+ #include <langinfo.h>
++#include <stdint.h>
+ 
+ #ifdef HAVE_SYS_IOCTL_H
+ #  include <sys/ioctl.h>
+@@ -1247,7 +1248,7 @@
+ 	}
+ }
+ 
+-static void _out_string(const unsigned char *str)
++static void _out_string(const char *str)
+ {
+ 	while (*str)
+ 		_out_char(*str++);
