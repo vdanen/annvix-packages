@@ -58,6 +58,7 @@ Requires:	perl(Archive::Tar)
 Requires:	perl(IO::Zlib)
 Requires:	perl(Net::Ident)
 Requires:	perl-libwww-perl
+Requires:	gnupg
 Requires(post):	rpm-helper
 Requires(preun): rpm-helper
 
@@ -134,6 +135,9 @@ perl \
 
 
 %check
+export LANG=C
+export LC_ALL=C
+export LANGUAGE=C
 make test
 
 
@@ -142,9 +146,10 @@ make test
 %makeinstall_std
 
 mkdir -p %{buildroot}/var/spool/spamassassin
-mkdir -p %{buildroot}%{_sysconfdir}/mail/%{name}
+mkdir -p %{buildroot}%{_sysconfdir}/mail/spamassassin/sa-update-keys
+mkdir -p %{buildroot}%{_localstatedir}/spamassassin
 
-cat << EOF >> %{buildroot}/%{_sysconfdir}/mail/%{name}/local.cf 
+cat << EOF >> %{buildroot}/%{_sysconfdir}/mail/spamassassin/local.cf 
 required_hits			5
 rewrite_header			Subject [**SPAM**]
 report_safe			0
@@ -178,11 +183,13 @@ echo "-c -m5 -H" >%{buildroot}%{_srvdir}/spamd/env/OPTIONS
 
 %files
 %defattr(-,root,root)
-%dir %{_sysconfdir}/mail/%{name}
-%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/mail/%{name}/*.cf
-%config(noreplace) %{_sysconfdir}/mail/%{name}/*.pre
-%config(noreplace) %{_sysconfdir}/mail/%{name}/spamassassin-default.rc
+%dir %{_sysconfdir}/mail/spamassassin
+%dir %{_sysconfdir}/mail/spamassassin/sa-update-keys
+%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/mail/spamassassin/*.cf
+%config(noreplace) %{_sysconfdir}/mail/spamassassin/*.pre
+%config(noreplace) %{_sysconfdir}/mail/spamassassin/spamassassin-default.rc
 %dir %attr(0700,mail,mail) /var/spool/spamassassin
+%dir %{_localstatedir}/spamassassin
 %attr(0755,root,root) %{_bindir}/sa-learn
 %attr(0755,root,root) %{_bindir}/sa-update
 %attr(0755,root,root) %{_bindir}/spamassassin
@@ -193,7 +200,7 @@ echo "-c -m5 -H" >%{buildroot}%{_srvdir}/spamd/env/OPTIONS
 
 %files spamd
 %defattr(-,root,root)
-%config(noreplace) %{_sysconfdir}/mail/%{name}/spamassassin-spamc.rc
+%config(noreplace) %{_sysconfdir}/mail/spamassassin/spamassassin-spamc.rc
 %attr(0755,root,root) %{_bindir}/spamc
 %attr(0755,root,root) %{_bindir}/spamd
 %{_mandir}/man1/spamc.1*
@@ -221,6 +228,10 @@ echo "-c -m5 -H" >%{buildroot}%{_srvdir}/spamd/env/OPTIONS
 
 
 %changelog
+* Thu Dec 28 2006 Vincent Danen <vdanen-at-annvix.org> 3.1.7
+- set LANG/LC_ALL/LANGUAGE variables for make test
+- add directories for sa-update and requires on gnupg
+
 * Sun Nov 12 2006 Ying-Hung Chen <ying-at-annvix.org> 3.1.7
 - Spamassassin version 3.1.7
 - Add requires: perl-libwww-perl for sa-update commend
