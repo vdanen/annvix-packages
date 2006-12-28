@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		ppp
-%define version		2.4.3
+%define version		2.4.4
 %define release		%_revrel
 
 Summary:	The Linux PPP daemon
@@ -35,14 +35,12 @@ Patch6:		ppp-2.4.3-noexttraffic.patch
 # (blino) use external libatm for pppoatm plugin
 Patch7:		ppp-2.4.3-libatm.patch
 Patch8: 	ppp-2.4.2-pie.patch
-# (blino) from CVS, should fix persist option with pppoe
-Patch9: 	ppp-2.4.3-lcp_close.patch
-Patch10:	ppp-2.4.3-dontwriteetc.patch
-Patch11:	http://www.polbox.com/h/hs001/ppp-2.4.3-mppe-mppc-1.1.patch
+Patch10:	ppp-2.4.4-dontwriteetc.patch
+# Original from http://www.polbox.com/h/hs001/; ported by blino
+Patch11:	ppp-2.4.4-mppe-mppc-1.1.patch
 Patch13:	ppp-2.4.2-signal.patch
 Patch15:	ppp-2.4.3-pic.patch
 Patch16:	ppp-2.4.3-etcppp.patch
-Patch17:	ppp-2.4.3-passargv.patch
 Patch18:	ppp-2.4.3-includes-sha1.patch
 Patch19:	ppp-2.4.3-makeopt2.patch
 Patch21:	ppp-2.4.3-fixprotoinc.patch
@@ -90,22 +88,22 @@ Requires:	%{name} = %{version}
 PPP over ethernet plugin for %{name}.
 
 
-%package	radius
+%package radius
 Summary:	Radius plugin for %{name}
 Group:		System/Servers
 Requires:	%{name} = %{version}
 Requires:	radiusclient-utils
 
-%description	radius
+%description radius
 Radius plugin for %{name}.
 
 
-%package	dhcp
+%package dhcp
 Summary:	DHCP plugin for %{name}
 Group:		System/Servers
 Requires:	%{name} = %{version}
 
-%description	dhcp
+%description dhcp
 DHCP plugin for %{name}.
 
 
@@ -130,7 +128,6 @@ find -type d -name CVS|xargs rm -rf
 %patch6 -p1 -b .noext
 %patch7 -p1 -b .libatm
 %patch8 -p1 -b .pie
-%patch9 -p1 -b .lcp_close
 
 tar -xjf %{SOURCE2}
 pushd pppd/plugins
@@ -142,18 +139,17 @@ popd
 #%patch13 -p1 -b .signal
 %patch15 -p1 -b .pic
 %patch16 -p1 -b .etcppp
-%patch17 -p1 -b .passargv
 %patch18 -p1 -b .incsha1
 %patch19 -p1 -b .makeopt2
 %patch21 -p1 -b .protoinc
 %patch22 -p1 -b .hspeed
 
 # lib64 fixes
-perl -pi -e "s|^(LIBDIR.*)/usr/lib|\1%{_libdir}|g" pppd/Makefile.linux pppd/plugins/Makefile.linux
+perl -pi -e "s|^(LIBDIR.*)\\\$\(DESTDIR\)/lib|\1\\\$(INSTROOT)%{_libdir}|g" pppd/Makefile.linux pppd/plugins/Makefile.linux pppd/plugins/{pppoatm,radius,rp-pppoe}/Makefile.linux
 perl -pi -e "s|(--prefix=/usr)|\1 --libdir=%{_libdir}|g" pppd/plugins/radius/Makefile.linux
 perl -pi -e "/_PATH_PLUGIN/ and s|/usr/lib|%{_libdir}|"  pppd/pathnames.h
 # enable the radius and the dhcp plugins
-perl -p -i -e "s|# SUBDIRS \+= radius|SUBDIRS += radius dhcp|g" pppd/plugins/Makefile.linux
+perl -p -i -e "s|^(PLUGINS :=)|SUBDIRS += dhcp\n\$1|g" pppd/plugins/Makefile.linux
 
 # fix /usr/local in scripts path
 perl -pi -e "s|/usr/local/bin/pppd|%{_sbindir}/pppd|g;
@@ -188,15 +184,8 @@ cp -a pppd/plugins/dhcp/{README,AUTHORS,COPYING} dhcp-plugin/
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}/{%{_sbindir},%{_mandir}/man8,%{_sysconfdir}/{ppp/peers,pam.d}}
 
-%makeinstall_std \
-    BINDIR=%{buildroot}%{_sbindir} \
-    MANDIR=%{buildroot}%{_mandir}/man8 \
-    ETCDIR=%{buildroot}%{_sysconfdir}/ppp \
-    LIBDIR=%{buildroot}%{_libdir}/pppd/%{version} \
-    INCDIR=%{buildroot}%{_includedir} \
-    RUNDIR=%{buildroot}/var/run/ppp \
-    LOGDIR=%{buildroot}/var/log/ppp \
-    INSTALL="%{_bindir}/install"
+%make install LIBDIR=%{buildroot}%{_libdir}/pppd/%{version}/ INSTALL=install -C pppd/plugins/dhcp
+%make install INSTROOT=%{buildroot} SUBDIRS="pppoatm rp-pppoe radius"
 
 %multiarch_includes %{buildroot}%{_includedir}/pppd/pathnames.h
 
@@ -211,11 +200,8 @@ chmod go+r scripts/*
 install -m 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/pam.d/ppp
 install -m 0644 %{SOURCE3} %{_builddir}/%{name}-%{version}
 
-mkdir -p %{buildroot}/var/log/ppp
-mkdir -p %{buildroot}/var/run/ppp
 touch %{buildroot}/var/log/ppp/connect-errors
 touch %{buildroot}/var/run/ppp/resolv.conf
-
 ln -s ../../var/log/ppp/connect-errors %{buildroot}/etc/ppp/connect-errors
 ln -s ../../var/run/ppp/resolv.conf %{buildroot}/etc/ppp/resolv.conf
 
@@ -290,6 +276,12 @@ rm -rf %{buildroot}%{_libdir}/*rad*
 
 
 %changelog
+* Thu Dec 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.4
+- 2.4.4; fixes CVE-2006-2194
+- dropped P9, P17; merged upstream
+- updated P10
+- fix the plugin installation
+
 * Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.3
 - rebuild against new openssl
 - spec cleanups
