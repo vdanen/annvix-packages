@@ -9,10 +9,10 @@
 
 %define revision	$Rev$
 %define name		rp-pppoe
-%define version		3.7
+%define version		3.8
 %define release		%_revrel
 
-%define pppver		2.4.3
+%define pppver		2.4.4
 
 Summary:	ADSL/PPPoE userspace driver
 Name:		%{name}
@@ -21,7 +21,7 @@ Release: 	%{release}
 License:	GPL
 Group:		System/Servers
 URL:		http://www.roaringpenguin.com/pppoe
-Source0:	http://www.roaringpenguin.com/%{name}-%{version}.tar.bz2
+Source0:	http://www.roaringpenguin.com/files/download/%{name}-%{version}.tar.gz
 Source1:	pppoe-avx.init
 Patch0:		rp-pppoe-3.6-CAN-2004-0564.patch
 
@@ -121,6 +121,10 @@ rm -rf %{buildroot}%{_docdir}/%{name}-%{version}
 
 
 %changelog
+* Thu Dec 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.8
+- 3.8
+- build against ppp 2.4.4
+
 * Sun Oct 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.7
 - provide our own initscript and drop the patch to the old initscript
 - add the %%_post and %%_preun service scriptlets
