@@ -9,10 +9,8 @@
 
 %define revision	$Rev$
 %define name		shorewall
-%define version 	2.4.1
+%define version 	3.2.7
 %define release 	%_revrel
-
-%define samples_version	2.0.1
 
 Summary:	Shoreline Firewall is an iptables-based firewall for Linux systems
 Name:		%{name}
@@ -21,14 +19,9 @@ Release:	%{release}
 License:	GPL
 Group:		System/Servers
 URL:		http://www.shorewall.net/
-Source0:	ftp://ftp.shorewall.net/pub/shorewall/2.4/shorewall-%{version}/%{name}-%{version}.tgz
-Source1:	ftp://ftp.shorewall.net/pub/shorewall/2.4/shorewall-%{version}/%{version}.md5sums
-Source2:	ftp://ftp.shorewall.net/pub/shorewall/Samples/samples-%{samples_version}/one-interface.tgz
-Source3:	ftp://ftp.shorewall.net/pub/shorewall/Samples/samples-%{samples_version}/two-interfaces.tgz
-Source4:	ftp://ftp.shorewall.net/pub/shorewall/Samples/samples-%{samples_version}/three-interfaces.tgz
-Source5:	shorewall-avx.init
-Source10:	http://shorewall.net/pub/shorewall/errata/2.0.10/bogons
-Source11:	http://shorewall.net/pub/shorewall/2.4/shorewall-%{version}/errata/firewall
+Source0:	ftp://ftp.shorewall.net/pub/shorewall/3.2/%{name}-%{version}/%{name}-%{version}.tgz
+Source1:	ftp://ftp.shorewall.net/pub/shorewall/3.2/%{name}-%{version}/%{version}.sha1sums
+Source2:	shorewall-avx.init
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
@@ -57,32 +50,23 @@ This package contains the documentation for %{name}.
 %setup -q
 
 cp %{_sourcedir}/shorewall-avx.init init.sh
-mkdir samples
-pushd samples
-    tar xzf %{_sourcedir}/one-interface.tgz
-    tar xzf %{_sourcedir}/two-interfaces.tgz
-    tar xzf %{_sourcedir}/three-interfaces.tgz
-popd
+
+perl -pi -e 's/STARTUP_ENABLED=.*/STARTUP_ENABLED=Yes/' %{name}.conf
+perl -pi -e 's/IP_FORWARDING=.*/IP_FORWARDING=Keep/' %{name}.conf
 
 
 %build
-find -name CVS | xargs rm -fr
-find -name "*~" | xargs rm -fr
-find samples/ -type f | xargs chmod 0644 
+find -name CVS -exec rm -rf {} \;
+find -name '*~' -exec rm -rf {} \;
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-# enable startup (new as of 2.1.3)
-perl -pi -e 's/STARTUP_ENABLED=.*/STARTUP_ENABLED=yes/' %{name}.conf
-export PREFIX=%{buildroot} ; \
-export OWNER=`id -n -u` ; \
-export GROUP=`id -n -g` ;\
+export PREFIX=%{buildroot}
+export OWNER=`id -n -u`
+export GROUP=`id -n -g`
 ./install.sh
-
-install -m 0600 %{_sourcedir}/bogons %{buildroot}%{_datadir}/%{name}/bogons
-install -m 0544 %{_sourcedir}/firewall %{buildroot}%{_datadir}/%{name}/firewall
 
 # Suppress automatic replacement of "echo" by "gprintf" in the shorewall
 # startup script by RPM. This automatic replacement is broken.
@@ -103,50 +87,25 @@ export DONT_GPRINTIFY=1
 
 %files
 %defattr(-,root,root)
-%attr(700,root,root) %dir /etc/shorewall
-%attr(750,root,root) %{_initrddir}/shorewall
+%attr(0700,root,root) %dir %{_sysconfdir}/%{name}
+%attr(0750,root,root) %{_initrddir}/shorewall
+%config(noreplace) %{_sysconfdir}/%{name}/*
+%attr(0700,root,root) %dir %{_datadir}/%{name}
+%attr(0640,root,root) %{_datadir}/%{name}/*
+%attr(0540,root,root) /sbin/shorewall
+%attr(0700,root,root) %dir %{_var}/lib/%{name}
 
-%config(noreplace) %{_sysconfdir}/%{name}/accounting
-%config(noreplace) %{_sysconfdir}/%{name}/actions
-%config(noreplace) %{_sysconfdir}/%{name}/blacklist
-%config(noreplace) %{_sysconfdir}/%{name}/continue
-%config(noreplace) %{_sysconfdir}/%{name}/ecn
-%config(noreplace) %{_sysconfdir}/%{name}/hosts
-%config(noreplace) %{_sysconfdir}/%{name}/init
-%config(noreplace) %{_sysconfdir}/%{name}/initdone
-%config(noreplace) %{_sysconfdir}/%{name}/interfaces
-%config(noreplace) %{_sysconfdir}/%{name}/ipsec
-%config(noreplace) %{_sysconfdir}/%{name}/maclist
-%config(noreplace) %{_sysconfdir}/%{name}/masq
-%config(noreplace) %{_sysconfdir}/%{name}/modules
-%config(noreplace) %{_sysconfdir}/%{name}/netmap
-%config(noreplace) %{_sysconfdir}/%{name}/nat
-%config(noreplace) %{_sysconfdir}/%{name}/params
-%config(noreplace) %{_sysconfdir}/%{name}/policy
-%config(noreplace) %{_sysconfdir}/%{name}/providers
-%config(noreplace) %{_sysconfdir}/%{name}/proxyarp
-%config(noreplace) %{_sysconfdir}/%{name}/routes
-%config(noreplace) %{_sysconfdir}/%{name}/routestopped
-%config(noreplace) %{_sysconfdir}/%{name}/rules
-%config(noreplace) %{_sysconfdir}/%{name}/shorewall.conf
-%config(noreplace) %{_sysconfdir}/%{name}/start
-%config(noreplace) %{_sysconfdir}/%{name}/started
-%config(noreplace) %{_sysconfdir}/%{name}/stop
-%config(noreplace) %{_sysconfdir}/%{name}/stopped
-%config(noreplace) %{_sysconfdir}/%{name}/tcrules
-%config(noreplace) %{_sysconfdir}/%{name}/tos
-%config(noreplace) %{_sysconfdir}/%{name}/tunnels
-%config(noreplace) %{_sysconfdir}/%{name}/zones
-%attr(544,root,root) /sbin/shorewall
-%attr(700,root,root) %dir %{_datadir}/%{name}
-%{_datadir}/%{name}/*
 
 %files doc
 %defattr(-,root,root)
-%doc %attr(-,root,root) COPYING INSTALL changelog.txt releasenotes.txt tunnel samples
+%doc %attr(-,root,root) COPYING INSTALL changelog.txt releasenotes.txt tunnel Samples ipsecvpn
 
 
 %changelog
+* Thu Dec 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.2.7
+- 3.2.7 ( please refer to http://www.shorewall.net/upgrade_issues.htm )
+- tighten some perms and other minor cleanups
+
 * Sat Oct 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.1
 - new initscript
 - spec cleanups
