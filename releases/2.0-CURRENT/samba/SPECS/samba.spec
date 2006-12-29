@@ -827,6 +827,9 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.23d
+- rebuild against new pam
+
 * Wed Dec 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.23d
 - rebuild against new krb5
 
