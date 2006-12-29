@@ -523,6 +523,9 @@ fi
 
  
 %changelog
+* Fri Dec 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1.22
+- rebuild against new pam
+
 * Wed Dec 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1.22
 - rebuild against new krb5
 
