@@ -200,6 +200,9 @@ exit 0
 
 
 %changelog
+* Fri Dec 28 2006 Vincent Danen <vdanen-at-build.annvix.org>  1.0
+- rebuild against new pam
+
 * Mon Dec 25 2006 Vincent Danen <vdanen-at-build.annvix.org>  1.0
 - first Annvix build (1.0-rc15)
 
