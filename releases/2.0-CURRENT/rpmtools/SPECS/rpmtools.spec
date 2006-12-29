@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		rpmtools
-%define version		5.0.28
+%define version		5.1.0
 %define release 	%_revrel
 
 Summary:	Contains various rpm command-line tools
@@ -26,7 +26,7 @@ BuildRequires:	perl-devel
 BuildRequires:	rpm-devel >= 4.0.3
 BuildRequires:	perl(Compress::Zlib)
 BuildRequires:	perl(MDV::Packdrakeng)
-BuildRequires:	perl(MDV::Distribconf)
+BuildRequires:	perl(MDV::Distribconf) > 3.00
 
 Requires:	rpm >= 4.2.3
 Requires:	bzip2 >= 1.0
@@ -78,6 +78,9 @@ perl Makefile.PL INSTALLDIRS=vendor
 
 
 %changelog
+* Thu Dec 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.0
+- 5.1.0
+
 * Mon May 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.0.28
 - rebuild against perl 5.8.8
 
