@@ -220,6 +220,9 @@ rm -rf %{buildroot}%{_libdir}
 
 
 %changelog
+* Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.0.12
+- rebuild against new pam
+
 * Sat Dec 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.0.12
 - rebuild against new gettext
 
