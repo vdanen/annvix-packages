@@ -185,6 +185,9 @@ mkdir -p %{buildroot}/var/lib/rsbac/tmp
 
 
 %changelog
+* Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.7
+- rebuild against new pam
+
 * Fri Dec 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.7
 - rebuild against new ncurses
 
