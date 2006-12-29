@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		doxygen
-%define version 	1.4.6
+%define version 	1.5.1
 %define release 	%_revrel
 
 Summary:	Doxygen is THE documentation system for C/C++
@@ -42,9 +42,10 @@ your way in large source distributions.
 
 %prep
 %setup -q
+rm -f src/unistd.h
 %patch0 -p1
 
-perl -pi -e "s|^TMAKE_CFLAGS_RELEASE.*|TMAKE_CFLAGS_RELEASE = $RPM_OPT_FLAGS|" tmake/lib/linux-g++/tmake.conf
+perl -pi -e "s|^TMAKE_CFLAGS_RELEASE.*|TMAKE_CFLAGS_RELEASE = %{optflags}|" tmake/lib/linux-g++/tmake.conf
 %ifarch x86_64 sparc64 ppc64 s390x
 perl -pi -e 's/^LIBDIR=.*/LIBDIR=%{_lib}/' configure
 perl -pi -e "s|/lib$|/%{_lib}|" tmake/lib/linux-g++/tmake.conf
@@ -77,6 +78,9 @@ install -s bin/doxy* %{buildroot}%{_bindir}
 
 
 %changelog
+* Thu Dec 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.5.1
+- 1.5.1
+
 * Sat Jul 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4.6
 - 1.4.6
 - drop the README file (boring)
