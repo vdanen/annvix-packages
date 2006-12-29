@@ -624,6 +624,9 @@ fi
 
 
 %changelog
+* Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.2.0
+- rebuild against new pam
+
 * Tue Dec 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.2.0
 - remove the buildrequires on tcl; we haven't built with tcl or tk
   support for quite a while
