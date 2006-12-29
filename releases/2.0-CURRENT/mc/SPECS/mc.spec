@@ -132,6 +132,9 @@ rm -rf %{buildroot}%{_datadir}/locale
 
 
 %changelog
+* Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.6.1
+- rebuild against new pam
+
 * Fri Jun 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.6.1
 - spec cleanups
 - rebuild against new e2fsprogs and new glib2.0
