@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		cups
-%define version		1.2.2
+%define version		1.2.7
 %define release		%_revrel
 
 %define major		2
@@ -71,6 +71,7 @@ Summary:	Common Unix Printing System - Development environment "libcups"
 License:	LGPL
 Group:		Development/C
 Requires:	%{libname} >= %{version}-%{release}
+Requires:	cups-common = %{version}-%{release}
 Requires:	openssl
 Requires:	openssl-devel
 Provides:	libcups-devel = %{version}-%{release}
@@ -260,6 +261,10 @@ chgrp -R sys /etc/cups /var/*/cups
 
 
 %changelog
+* Fri Dec 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.7
+- 1.2.7
+- rebuild against new pam
+
 * Sat Dec 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.2
 - rebuild against new openldap 
 
