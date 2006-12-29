@@ -122,6 +122,9 @@ EOF
 
 
 %changelog
+* Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.2.0 
+- rebuild against new pam
+
 * Sun Dec 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.2.0 
 - php 5.2.0
 
