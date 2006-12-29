@@ -321,6 +321,9 @@ fi
 
 
 %changelog
+* Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.STABLE3
+- rebuild against new pam
+
 * Sat Dec 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.STABLE3
 - 2.6.STABLE3 (STABLE4 and STABLE5 dont' compile properly)
 - rediff P1
