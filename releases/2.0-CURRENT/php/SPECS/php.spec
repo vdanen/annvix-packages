@@ -512,7 +512,7 @@ perl -pi -e "s|^libdir=.*|libdir='%{_libdir}'|g" %{buildroot}%{_libdir}/*.la
 # fix PEAR
 rm -rf %{buildroot}/.{channels,depdb,depdblock,filemap,lock}
 rm -rf %{buildroot}/%{_datadir}/pear/.{depdb,depdblock,lock}
-perl -pi -e "s|$TMP|/tmp|g" %{buildroot}%{_sysconfdir}/pear.conf
+rm -f %{buildroot}%{_sysconfdir}/pear.conf
 
 
 %clean
@@ -531,6 +531,18 @@ update-alternatives --remove php %{_bindir}/php-cli
 %pre cli
 update-alternatives --remove php %{_bindir}/php-cgi
 update-alternatives --remove php %{_bindir}/php-cli
+
+
+%post pear
+if [ ! -f /etc/pear.conf ]; then
+    echo "Creating initial /etc/pear.conf"
+    %{_bindir}/pear config-create /usr/share /etc/pear.conf >/dev/null
+    %{_bindir}/pear config-set bin_dir %{_bindir} >/dev/null
+    %{_bindir}/pear config-set ext_dir %{_libdir}/php/extensions >/dev/null
+    %{_bindir}/pear config-set php_dir %{_datadir}/pear >/dev/null
+    # unfortunately, pear's config-set modifies the user's .pearrc instead of the system-wide one
+    mv -f $HOME/.pearrc /etc/pear.conf
+fi
 
 
 %files cgi
@@ -572,7 +584,6 @@ update-alternatives --remove php %{_bindir}/php-cli
 %{_bindir}/pear
 %{_bindir}/peardev
 %{_bindir}/pecl
-%config(noreplace) %{_sysconfdir}/pear.conf
 
 %files doc
 %defattr(-,root,root)
@@ -585,6 +596,13 @@ update-alternatives --remove php %{_bindir}/php-cli
 
 
 %changelog
+* Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.2.0
+- rebuild against new pam
+
+* Sun Dec 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.2.0
+- don't install our pear.conf but run the pear command to create the
+  config on intial install
+
 * Sun Dec 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.2.0
 - 5.2.0
 - suhosin patch 0.9.6.2
