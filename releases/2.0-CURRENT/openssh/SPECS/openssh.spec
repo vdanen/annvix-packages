@@ -146,7 +146,7 @@ CFLAGS="%{optflags}" ./configure \
     --with-default-path=/usr/local/bin:/bin:/usr/bin:/usr/X11R6/bin \
     --with-xauth=/usr/X11R6/bin/xauth \
     --with-privsep-path=/var/empty \
-    --with-kerberos5 \
+    --with-kerberos5=%{_prefix} \
     --with-superuser-path=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 make
 
@@ -339,6 +339,7 @@ popd >/dev/null 2>&1
 %changelog
 * Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.5p1
 - rebuild against new pam
+- fix build with kerberos
 
 * Wed Dec 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.5p1
 - rebuild against new krb5
