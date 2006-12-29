@@ -5,9 +5,9 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-# $Id: perl-File-HomeDir.spec 6507 2006-12-14 02:59:46Z vdanen $
+# $Id$
 
-%define revision	$Rev: 6159 $
+%define revision	$Rev$
 %define name		dovecot
 %define version		1.0
 %define release		%_revrel
