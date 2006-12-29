@@ -128,6 +128,9 @@ done
 
 
 %changelog
+* Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.5
+- rebuild against new pam
+
 * Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.5
 - rebuild against new openssl
 - spec cleanups
