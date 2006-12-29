@@ -69,6 +69,9 @@ perl Makefile.PL INSTALLDIRS=vendor
 
 
 %changelog
+* Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.15
+- rebuild against new pam
+
 * Sat Jun 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.15
 - rebuild against new pam
 
