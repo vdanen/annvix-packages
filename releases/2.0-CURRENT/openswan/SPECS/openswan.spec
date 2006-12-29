@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		openswan
-%define version		2.4.6
+%define version		2.4.7
 %define release		%_revrel
 %define epoch		1
 
@@ -139,6 +139,10 @@ rm -rf %{buildroot}%{_sysconfdir}/%{name}/ipsec.d/examples
 
 
 %changelog
+* Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.7
+- 2.4.7
+- rebuild against new pam
+
 * Sun Oct 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.6
 - rebuild to get new initrddir location (the initscript looks fairly
   wierd, so I'm going to leave it until later to reformat)
