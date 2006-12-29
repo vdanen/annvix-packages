@@ -189,6 +189,9 @@ fi
 
 
 %changelog
+* Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0
+- rebuild against new pam
+
 * Sun Oct 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0
 - remove the prereqs as this introduces circular dependencies, so only make
   the grep and friends execute if grep actually exists
