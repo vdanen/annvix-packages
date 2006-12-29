@@ -37,8 +37,7 @@ BuildRequires:	libxml2-devel
 
 Requires(pre):	httpd >= %{apache_version}
 Requires(pre):	httpd-conf >= 2.2.0
-Provides:	apache2-mod_security
-Obsoletes:	apache2-mod_security
+Conflicts:	httpd-mod_security
 
 %description
 ModSecurity is an open source intrustion detection and prevention
@@ -106,6 +105,7 @@ done
 - 2.0.4 (rename the package since the module name is also different)
 - use the modsecurity-core-rules_2.0 v1.2 and drop the snort rules
 - put the modsecurity configs into /etc/httpd/conf/modsecurity/
+- conflict with httpd-mod_security and don't provide/obsolete apache-mod_security
 
 * Sun Jul 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3_1.9.4
 - apache 2.2.3
