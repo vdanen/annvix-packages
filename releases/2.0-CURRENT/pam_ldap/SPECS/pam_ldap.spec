@@ -90,6 +90,9 @@ rm -rf %{buildroot}%{_sysconfdir}/ldap.conf
 
 
 %changelog
+* Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 183
+- rebuild against new pam
+
 * Sat Dec 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 183
 - 183 (includes security fix for CVE-2006-5170)
 - drop P1, P2, P3: fixed upstream
