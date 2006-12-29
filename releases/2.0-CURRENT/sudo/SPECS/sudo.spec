@@ -116,6 +116,9 @@ install -m 0440 %{SOURCE2} %{buildroot}%{_sysconfdir}/sudoers
 
 
 %changelog
+* Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.6.8p12
+- rebuild against new pam
+
 * Thu Aug 31 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.6.8p12
 - P0: make sudo use env_reset by default so instead of blacklisting certain
   variables, we whitelist a few and the admin needs to use env_keep to pass
