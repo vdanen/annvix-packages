@@ -5,18 +5,17 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-# pam-0.99.3.0-6mdk
+# pam-0.99.6.3-1mdv
 #
 # $Id$
 
 %define revision	$Rev$
 %define name		pam
-%define version		0.99.3.0
+%define version		0.99.6.3
 %define release		%_revrel
 
-%define pam_redhat_version 0.99.2-1
+%define pam_redhat_version 0.99.6-2
 
-%define rhrelease	5
 %define libname		%mklibname %{name} 0
 
 Summary:	A security tool which provides authentication for applications
@@ -26,7 +25,7 @@ Release:	%{release}
 License:	GPL or BSD
 Group:		System/Libraries
 URL:		http://www.us.kernel.org/pub/linux/libs/pam/index.html
-Source0:	ftp://ftp.us.kernel.org/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
+Source0:	ftp://ftp.kernel.org/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
 Source1:	pam-redhat-%{pam_redhat_version}.tar.bz2
 Source2:	other.pamd
 Source3:	system-auth.pamd
@@ -34,17 +33,13 @@ Source4:	pam-0.99.3.0-README.update
 Source5:	pam-annvix.perms
 
 # RedHat patches (0-100)
-Patch0:		pam-0.99.2.1-redhat-modules.patch
+Patch0:		pam-0.99.6.3.pre-redhat-modules.patch
 Patch1:		pam-0.78-unix-hpux-aging.patch
-Patch2:		pam-0.75-sgml2latex.patch
-Patch3:		pam-0.99.2.1-dbpam.patch
 
 # Mandriva patches (101-200)
-Patch100:	Linux-PAM-0.99.3.0-mdvperms.patch
+Patch100:	Linux-PAM-0.99.6.0-mdvperms.patch
 # (fl) fix infinite loop
 Patch101:	pam-0.74-loop.patch
-# (fl/blino) reset to id 0 if user/group isn't found instead of stopping processing
-Patch102:	Linux-PAM-0.99.3.0-console-reset.patch
 # (fc) 0.75-29mdk don't complain when / is owned by root.adm
 Patch103:	Linux-PAM-0.99.3.0-pamtimestampadm.patch
 Patch104:	Linux-PAM-0.99.3.0-verbose-limits.patch
@@ -53,18 +48,11 @@ Patch104:	Linux-PAM-0.99.3.0-verbose-limits.patch
 Patch105:	Linux-PAM-0.99.3.0-xauth-groups.patch
 # (tv/blino) add defaults for nice/rtprio in /etc/security/limits.conf
 Patch106:	Linux-PAM-0.99.3.0-enable_rt.patch
-# (fl) fix uninitialized variable user (aka fix crash on C3)
-Patch107:	pam-0.77-use_uid.patch
 # (blino) fix parallel build (in doc/specs and pam_console)
-Patch108:	Linux-PAM-0.99.3.0-pbuild.patch
 Patch109:	Linux-PAM-0.99.3.0-pbuild-rh.patch
-# (blino) ensure that sgml2txt worked
-Patch110:	Linux-PAM-0.99.3.0-sgml2txt.patch
-# (blino) allow to disable pwdb
-Patch111:	Linux-PAM-0.99.3.0-pwdb.patch
 
 # Annvix patches (200+)
-Patch200:	pam-0.99.3.0-annvix-perms.patch
+Patch200:	pam-0.99.6.3-annvix-perms.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	bison
@@ -129,54 +117,39 @@ This package contains the documentation for %{name}.
 %prep
 %setup -q -n Linux-PAM-%{version} -a 1
 # (RH)
-%patch0 -p0 -b .redhat-modules
+%patch0 -p1 -b .redhat-modules
 %patch1 -p1 -b .unix-hpux-aging
-%patch2 -p1 -b .doc
-%patch3 -p1 -b .dbpam
 
 # (Mandriva)
 %patch100 -p1 -b .mdvperms
 %patch101 -p1 -b .loop
-%patch102 -p1 -b .console-reset
 %patch103 -p1 -b .pamtimestampadm
 %patch104 -p1 -b .verbose-limits
 %patch105 -p1 -b .xauth-groups
 %patch106 -p1 -b .enable_rt
-%patch107 -p1 -b .use_uid
-%patch108 -p1 -b .pbuild
 %patch109 -p1 -b .pbuild-rh
-%patch110 -p1 -b .sgml2txt
-%patch111 -p1 -b .pwdb
 
 %patch200 -p1 -b .avxperms
 
 # Remove unwanted modules.
-for d in pam_{cracklib,debug,postgresok,rps,selinux,unix}; do
+for d in pam_{cracklib,debug,postgresok,rps,selinux,unix,namespace}; do
     rm -r modules/$d
     sed -i "s,modules/$d/Makefile,," configure.in
     sed -i "s/ $d / /" modules/Makefile.am
 done
 find modules -type f -name Makefile -delete -print
 
-
+mkdir -p doc/txts
 for readme in modules/pam_*/README ; do
     cp -f ${readme} doc/txts/README.`dirname ${readme} | sed -e 's|^modules/||'`
 done
 rm -f doc/txts/README
 
+autoreconf
+
 
 %build
-aclocal -I m4
-libtoolize -f
-autoconf
-autoheader
-automake -a
-export ac_cv_lib_ndbm_dbm_store=no \
-    ac_cv_lib_db_dbm_store=no \
-    ac_cv_lib_selinux_getfilecon=no \
-    ac_cv_search_FascistCheck='none required'
-
-CFLAGS="%{optflags} -fPIC" \
+CFLAGS="%{optflags} -fPIC -I%{_includedir}/db4" \
 %configure \
     --sbindir=/sbin \
     --libdir=/%{_lib} \
@@ -245,6 +218,8 @@ touch %{buildroot}%{_sysconfdir}/environment
 %config(noreplace) /etc/security/time.conf
 %config(noreplace) /etc/security/group.conf
 %config(noreplace) /etc/security/limits.conf
+#%config(noreplace) /etc/security/namespace.conf
+#%attr(0755,root,root) %config(noreplace) /etc/security/namespace.init
 %config(noreplace) /etc/security/pam_env.conf
 %config(noreplace) /etc/security/console.perms
 %config(noreplace) /etc/security/console.handlers
@@ -253,6 +228,7 @@ touch %{buildroot}%{_sysconfdir}/environment
 %config(noreplace) /etc/security/console.perms.d/50-annvix.perms
 /sbin/pam_console_apply
 /sbin/pam_tally
+/sbin/pam_tally2
 %dir /etc/security/console.apps
 %attr(4755,root,root) /sbin/pam_timestamp_check
 #%attr(4755,root,root) /sbin/unix_chkpwd
@@ -284,6 +260,16 @@ touch %{buildroot}%{_sysconfdir}/environment
 
 
 %changelog
+* Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.99.6.3
+- 0.99.6.3
+- rediff P200
+- don't include pam_namespace right now; for some reason it's not even trying
+  to compile
+- sync with Mandriva 0.99.6.3-1mdv
+  - P0: updated from upstream
+  - P100: updated from Mandriva
+  - drop P2, P102, P107, P108, P110, P111, P112
+
 * Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.99.3.0
 - remove locales
 
