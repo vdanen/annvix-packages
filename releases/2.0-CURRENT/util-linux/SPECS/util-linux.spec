@@ -626,6 +626,9 @@ fi
 
 
 %changelog
+* Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.12r
+- rebuild against new pam
+
 * Sat Dec 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.12r
 - rebuild against new ncurses
 
