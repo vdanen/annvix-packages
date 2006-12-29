@@ -173,6 +173,9 @@ rm -rf %{buildroot}%{_libdir}/python%{pyver}/site-packages/*a
 
 
 %changelog
+* Fri Dec 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.54.5
+- rebuild against new pam
+
 * Sat Dec 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.54.5
 - rebuild against new openldap
 
