@@ -315,6 +315,9 @@ fi
 
 
 %changelog
+* Fri Dec 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.63
+- rebuild against new pam
+
 * Sat Dec 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.63
 - rebuild against new openldap, mysql, postgresql
 
