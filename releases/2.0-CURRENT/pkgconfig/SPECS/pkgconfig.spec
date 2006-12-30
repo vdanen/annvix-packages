@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		pkgconfig
-%define version		0.20
+%define version		0.21
 %define release		%_revrel
 
 Summary:	Pkgconfig helps make building packages easier
@@ -20,7 +20,7 @@ License:	GPL
 Group:		Development/Other
 URL:		http://pkgconfig.freedesktop.org/
 Source:		http://pkgconfig.freedesktop.org/releases/pkg-config-%{version}.tar.gz
-Patch1:		pkg-config-0.19-biarch.patch
+Patch1:		pkg-config-0.21-biarch.patch
 # (fc) 0.19-1mdk add --print-provides/--print-requires (Fedora)
 Patch2:		pkgconfig-0.15.0-reqprov.patch
 # (gb) 0.19-2mdk 64-bit fixes, though that code is not used, AFAICS
@@ -94,6 +94,10 @@ mkdir -p %{buildroot}%{_datadir}/pkgconfig
 
 
 %changelog
+* Sat Dec 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.21
+- 0.21
+- updated P0 from Mandriva
+
 * Thu Jun 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.20
 - 0.20
 - drop P3; no longer required

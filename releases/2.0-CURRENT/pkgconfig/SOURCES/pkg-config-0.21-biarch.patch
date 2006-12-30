@@ -1,5 +1,5 @@
---- pkg-config-0.19/main.c.biarch	2005-05-21 11:14:47.000000000 +0200
-+++ pkg-config-0.19/main.c	2005-08-11 11:32:28.000000000 +0200
+--- pkg-config-0.21/main.c.biarch	2006-08-16 19:54:56.000000000 +0200
++++ pkg-config-0.21/main.c	2006-10-18 13:13:22.000000000 +0200
 @@ -29,6 +29,11 @@
  #include <string.h>
  #include <ctype.h>
@@ -30,7 +30,7 @@
  int
  main (int argc, char **argv)
  {
-@@ -200,6 +216,9 @@
+@@ -201,6 +217,9 @@
    char **search_dirs;
    char **iter;
    gboolean need_newline;
@@ -40,25 +40,21 @@
  
    const char *pkgname;
    Package *pkg;
-@@ -289,7 +308,15 @@
- 	{
- 	  add_search_dirs(search_path, G_SEARCHPATH_SEPARATOR_S);
- 	}
--      
-+     
+@@ -292,6 +311,12 @@
+     }
+   else
+     {
 +#if defined(__linux__)
 +	personality = syscall(SYS_personality, 0xffffffff);
 +	if ((personality & PER_MASK) == PER_LINUX32 && is_dir(LIBDIR_PATH32))
 +		add_search_dirs(PKG_CONFIG_PC_PATH32, G_SEARCHPATH_SEPARATOR_S);
 +	else 
 +#endif
-+	add_search_dirs(PKG_CONFIG_PC_PATH, G_SEARCHPATH_SEPARATOR_S);
-+ 
        add_search_dirs(PKG_CONFIG_PC_PATH, G_SEARCHPATH_SEPARATOR_S);
      }
  
---- pkg-config-0.19/configure.in.biarch	2005-07-16 12:22:31.000000000 +0200
-+++ pkg-config-0.19/configure.in	2005-08-11 11:31:16.000000000 +0200
+--- pkg-config-0.21/configure.in.biarch	2006-08-16 21:09:30.000000000 +0200
++++ pkg-config-0.21/configure.in	2006-10-18 13:08:41.000000000 +0200
 @@ -18,6 +18,10 @@
     AC_MSG_RESULT([$pc_path])],
   [pc_path="$libdir/pkgconfig:$datadir/pkgconfig"])
