@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		rkhunter
-%define version		1.2.7
+%define version		1.2.8
 %define release		%_revrel
 
 Summary:	Rootkit scans for rootkits, backdoors and local exploits
@@ -20,7 +20,7 @@ License:	GPL
 Group:		System/Configuration
 URL:		http://www.rootkit.nl/projects/rootkit_hunter.html
 Source0:	http://downloads.rootkit.nl/%{name}-%{version}.tar.gz
-Patch0:		rkhunter-1.2.7-avx-conf.patch
+Patch0:		rkhunter-1.2.8-avx-conf.patch
 Patch1:		rkhunter-1.2.7-avx-annvix_curl.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -61,19 +61,14 @@ chmod a+r files/{README,WISHLIST,CHANGELOG}
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-./installer.sh --installdir %{buildroot}
+mkdir -p %{buildroot}{%{_sbindir},%{_var}/lib/%{name}/{db,scripts,tmp},%{_sysconfdir},%{_mandir}/man8}
 
-rm -rf %{buildroot}%{_datadir}/%{name}/doc
-mkdir -p %{buildroot}%{_sbindir} %{buildroot}/var/lib/%{name}/db %{buildroot}/var/lib/%{name}/tmp
 install -m 0750 files/rkhunter %{buildroot}%{_sbindir}/
 install -m 0640 files/rkhunter.conf %{buildroot}%{_sysconfdir}
-echo "INSTALLDIR=/" >> %{buildroot}%{_sysconfdir}/rkhunter.conf
-cp -p files/*.dat %{buildroot}/var/lib/%{name}/db
-
-chmod -R o-rx %{buildroot}{/var/lib/%{name},/lib/%{name}}
-
-# remove unwanted files
-rm -rf %{buildroot}/lib/%{name}/docs
+echo "INSTALLDIR=%{_var}" >> %{buildroot}%{_sysconfdir}/rkhunter.conf
+install -m 0640 files/*.dat %{buildroot}%{_var}/lib/%{name}/db
+install -m 0750 files/*.{pl,sh} %{buildroot}%{_var}/lib/%{name}/scripts
+install -m 0644 files/development/rkhunter.8 %{buildroot}%{_mandir}/man8
 
 
 %clean
@@ -84,16 +79,13 @@ rm -rf %{buildroot}/lib/%{name}/docs
 %defattr(-,root,root)
 %config(noreplace) %{_sysconfdir}/rkhunter.conf
 %{_sbindir}/*
-%dir /lib/%{name}
-%dir /lib/%{name}/db
-%dir /lib/%{name}/scripts
-%dir /lib/%{name}/tmp
-/lib/%{name}/db/*
-/lib/%{name}/scripts/*
-%dir /var/lib/%{name}
-%dir /var/lib/%{name}/db
-%dir %attr(0700,root,root) /var/lib/%{name}/tmp
-/var/lib/%{name}/db/*
+%dir %{_var}/lib/%{name}
+%dir %{_var}/lib/%{name}/db
+%dir %{_var}/lib/%{name}/scripts
+%dir %attr(0700,root,root) %{_var}/lib/%{name}/tmp
+%{_var}/lib/%{name}/db/*
+%{_var}/lib/%{name}/scripts/*
+%{_mandir}/man8/*
 
 %files doc
 %defattr(-,root,root)
@@ -101,7 +93,14 @@ rm -rf %{buildroot}/lib/%{name}/docs
 
 
 %changelog
-* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.7 
+* Sat Dec 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.8
+- 1.2.8
+- update the config to support 2.0
+- make the install a bit better
+- relocate everything to /var/lib rather than have half in /lib and the
+  other half in /var/lib
+
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.7
 - add -doc subpackage
 - rebuild with gcc4
 

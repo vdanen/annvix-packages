@@ -9,14 +9,15 @@
  
  # Use a custom database directory (you can override it with the
  # --dbdir parameter)
---- files/os.dat.avx	2005-09-16 11:28:21.000000000 -0400
-+++ files/os.dat	2005-09-16 11:40:20.000000000 -0400
-@@ -125,4 +125,6 @@
- 701:ALT Linux Master 2.4 (Citron):/usr/bin/md5sum:/bin:
+--- files/os.dat.avx	2006-02-13 03:25:34.000000000 -0700
++++ files/os.dat	2006-12-30 14:07:36.000000000 -0700
+@@ -150,3 +150,9 @@
  702:Gentoo Linux 1.6 (sparc):/usr/bin/md5sum:/bin:
  703:Gentoo Linux 1.6 (sparc64):/usr/bin/md5sum:/bin:
--704:Gentoo Linux 1.6 (x86_64):/usr/bin/md5sum:/bin:
-\ No newline at end of file
-+704:Gentoo Linux 1.6 (x86_64):/usr/bin/md5sum:/bin:
+ 704:Gentoo Linux 1.6 (x86_64):/usr/bin/md5sum:/bin:
 +800:Annvix release 1.2-RELEASE (Cerberus) for i586:/usr/bin/md5sum:/bin:
 +801:Annvix release 1.2-RELEASE (Cerberus) for x86_64:/usr/bin/md5sum:/bin:
++802:Annvix release 2.0-CURRENT (Artemis) for i586:/usr/bin/md5sum:/bin:
++803:Annvix release 2.0-CURRENT (Artemis) for x86_64:/usr/bin/md5sum:/bin:
++804:Annvix release 2.0-RELEASE (Surtr) for i586:/usr/bin/md5sum:/bin:
++805:Annvix release 2.0-RELEASE (Surtr) for x86_64:/usr/bin/md5sum:/bin:
