@@ -1,0 +1,17 @@
+--- LVM2.2.00.33/man/vgmknodes.8.ignorelock	2003-11-14 17:17:55.000000000 +0100
++++ LVM2.2.00.33/man/vgmknodes.8	2005-04-05 08:13:23.275037153 +0200
+@@ -3,9 +3,11 @@
+ vgmknodes \- recreate volume group directory and logical volume special files
+ .SH SYNOPSIS
+ .B vgmknodes
+-[\-d/\-\-debug] [\-h/\-?/\-\-help] 
+-[\-v/\-\-verbose]
+-[[VolumeGroupName | LogicalVolumePath]...]
++.RB [\-d/\-\-debug]
++.RB [\-h/\-?/\-\-help] 
++.RB [\-v/\-\-verbose]
++.RB [\-\-ignorelockingfailure]
++.RI [[VolumeGroupName | LogicalVolumePath]...]
+ .SH DESCRIPTION
+ Checks the LVM2 special files in /dev that are needed for active 
+ logical volumes and creates any missing ones and removes unused ones.

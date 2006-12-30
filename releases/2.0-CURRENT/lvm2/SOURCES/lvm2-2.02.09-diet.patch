@@ -1,0 +1,131 @@
+--- LVM2.2.02.09/lib/commands/toolcontext.c.diet	2006-05-16 22:42:01.000000000 +0200
++++ LVM2.2.02.09/lib/commands/toolcontext.c	2006-09-03 11:02:54.000000000 +0200
+@@ -143,9 +143,13 @@
+ 						 "log/activation", 0));
+ 
+ 	t = time(NULL);
++#ifndef __dietlibc__
+ 	ctime_r(&t, &timebuf[0]);
+ 	timebuf[24] = '\0';
+ 	log_verbose("Logging initialised at %s", timebuf);
++#else
++	log_verbose("Logging initialised at %s", ctime(&t));
++#endif
+ 
+ 	/* Tell device-mapper about our logging */
+ #ifdef DEVMAPPER_SUPPORT
+@@ -887,8 +891,10 @@
+ 	mallopt(M_MMAP_MAX, 0);
+ #endif
+ 
++#ifndef __dietlibc__
+ 	if (!setlocale(LC_ALL, ""))
+ 		log_very_verbose("setlocale failed");
++#endif
+ 
+ #ifdef INTL_PACKAGE
+ 	bindtextdomain(INTL_PACKAGE, LOCALEDIR);
+--- LVM2.2.02.09/lib/misc/lib.h.diet	2006-08-17 20:23:44.000000000 +0200
++++ LVM2.2.02.09/lib/misc/lib.h	2006-09-03 11:01:30.000000000 +0200
+@@ -32,4 +32,10 @@
+ 
+ #include <libdevmapper.h>
+ 
++#ifdef __dietlibc__
++# include <strings.h>
++# include <limits.h>
++# include <stdint.h>
++#endif
++
+ #endif
+--- LVM2.2.02.09/lib/locking/file_locking.c.diet	2006-05-16 18:48:30.000000000 +0200
++++ LVM2.2.02.09/lib/locking/file_locking.c	2006-09-03 11:01:30.000000000 +0200
+@@ -30,6 +30,10 @@
+ #include <fcntl.h>
+ #include <signal.h>
+ 
++#ifdef __dietlibc__
++typedef void (*sig_t) (int);
++#endif
++
+ struct lock_list {
+ 	struct list list;
+ 	int lf;
+--- LVM2.2.02.09/tools/tools.h.diet	2006-05-09 23:23:51.000000000 +0200
++++ LVM2.2.02.09/tools/tools.h	2006-09-03 11:01:30.000000000 +0200
+@@ -57,6 +57,11 @@
+ #include <stdarg.h>
+ #include <sys/types.h>
+ 
++#ifdef __dietlibc__
++# include <limits.h>
++# include <stdint.h>
++#endif
++
+ #define CMD_LEN 256
+ #define MAX_ARGS 64
+ 
+--- LVM2.2.02.09/tools/commands.h.diet	2006-08-16 16:41:42.000000000 +0200
++++ LVM2.2.02.09/tools/commands.h	2006-09-03 11:01:30.000000000 +0200
+@@ -13,6 +13,7 @@
+  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+  */
+ 
++#ifndef WRAPPER
+ /***********  Replace with script?
+ xx(e2fsadm,
+    "Resize logical volume and ext2 filesystem",
+@@ -588,6 +589,7 @@
+    "\tVolumeGroupName",
+ 
+    file_ARG, list_ARG, metadatatype_ARG, name_ARG, test_ARG)
++#endif
+ 
+ xx(vgchange,
+    "Change volume group attributes",
+@@ -618,6 +620,7 @@
+    maxphysicalvolumes_ARG, monitor_ARG, partial_ARG, physicalextentsize_ARG,
+    resizeable_ARG, resizable_ARG, test_ARG, uuid_ARG)
+ 
++#ifndef WRAPPER
+ xx(vgck,
+    "Check the consistency of volume group(s)",
+    "vgck "
+@@ -752,6 +755,7 @@
+    "\tDestinationVolumeGroupName SourceVolumeGroupName\n",
+ 
+    autobackup_ARG, list_ARG, test_ARG)
++#endif
+ 
+ xx(vgmknodes,
+    "Create the special files for volume group devices in /dev",
+@@ -765,6 +769,7 @@
+ 
+    ignorelockingfailure_ARG)
+ 
++#ifndef WRAPPER
+ xx(vgreduce,
+    "Remove physical volume(s) from a volume group",
+    "vgreduce\n"
+@@ -832,6 +837,7 @@
+    aligned_ARG, all_ARG, ignorelockingfailure_ARG, noheadings_ARG,
+    nolocking_ARG, nosuffix_ARG, options_ARG, partial_ARG, separator_ARG,
+    sort_ARG, trustcache_ARG, unbuffered_ARG, units_ARG)
++#endif
+ 
+ xx(vgscan,
+    "Search for all volume groups",
+@@ -846,6 +852,7 @@
+ 
+    ignorelockingfailure_ARG, mknodes_ARG, partial_ARG)
+ 
++#ifndef WRAPPER
+ xx(vgsplit,
+    "Move physical volumes into a new volume group",
+    "vgsplit " "\n"
+@@ -865,4 +872,5 @@
+ xx(version,
+    "Display software and driver version information",
+    "version\n" )
++#endif
+ 
