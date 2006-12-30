@@ -201,6 +201,9 @@ strip %{buildroot}/sbin/auditd
 
 
 %changelog
+* Sat Dec 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.9
+- rebuild against new swig
+
 * Fri Nov 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.9
 - 1.2.9
 - P1: fix the auditd.conf file
