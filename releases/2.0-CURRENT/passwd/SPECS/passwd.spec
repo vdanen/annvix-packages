@@ -44,7 +44,7 @@ cp %{_sourcedir}/passwd.pamd .
 
 
 %build
-%make CFLAGS="%{optflags} -W -Werror" libdir=/lib
+%make CFLAGS="%{optflags} -W -Werror" libdir=/%{_lib}
 
 
 %install
