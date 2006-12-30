@@ -24,7 +24,6 @@ License:	Apache License
 Group:		System/Servers
 URL:		http://httpd.apache.org
 Source0:	%{name}-%{version}.tar.bz2
-Source2:	httpd.sysconf
 Source3:	httpd.conf
 Source4:	fileprotector.conf
 Source5:	magic
@@ -89,7 +88,6 @@ mkdir -p %{buildroot}%{_sysconfdir}/httpd/conf/webapps.d
 mkdir -p %{buildroot}%{_sysconfdir}/httpd/conf/vhosts.d
 mkdir -p %{buildroot}%{_sysconfdir}/httpd/conf/addon-modules
 mkdir -p %{buildroot}%{_sysconfdir}/logrotate.d
-mkdir -p %{buildroot}%{_sysconfdir}/sysconfig
 
 mkdir -p %{buildroot}/var/cache/httpd
 mkdir -p %{buildroot}/var/log/httpd
@@ -119,7 +117,6 @@ install -m 0644 %{_sourcedir}/httpd.conf %{buildroot}%{_sysconfdir}/httpd/conf/h
 install -m 0644 %{_sourcedir}/fileprotector.conf %{buildroot}%{_sysconfdir}/httpd/conf/fileprotector.conf
 install -m 0644 %{_sourcedir}/mime.types %{buildroot}%{_sysconfdir}/httpd/conf/mime.types
 install -m 0644 %{_sourcedir}/magic %{buildroot}%{_sysconfdir}/httpd/conf/magic
-install -m 0644 %{_sourcedir}/httpd.sysconf %{buildroot}%{_sysconfdir}/sysconfig/httpd
 install -m 0644 %{_sourcedir}/00_default_vhosts.conf %{buildroot}%{_sysconfdir}/httpd/conf/vhosts.d/00_default_vhosts.conf
 
 # install misc documentation and logos
@@ -197,7 +194,6 @@ rm -rf %{buildroot}%{_datadir}/ADVX
 
 %files 
 %defattr(-,root,root)
-%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/sysconfig/httpd
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/logrotate.d/httpd
 
 %dir %{_sysconfdir}/httpd
@@ -245,6 +241,10 @@ rm -rf %{buildroot}%{_datadir}/ADVX
 
 
 %changelog
+* Sat Dec 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3
+- drop the sysconfig file, it's not used
+- some minor httpd.conf cleanups
+
 * Thu Sep 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3
 - no ADVX files should be needed/used anymore so remove the directory
   completely
