@@ -9,10 +9,10 @@
 
 %define revision	$Rev$
 %define name		libxslt
-%define version		1.1.16
+%define version		1.1.19
 %define release		%_revrel
 
-%define xml_ver_req	2.6.17
+%define xml_ver_req	2.6.25
 %define major		1
 %define libname		%mklibname xslt %{major}
 
@@ -25,7 +25,7 @@ Release:	%{release}
 License:	MIT
 Group:		System/Libraries
 URL:		http://xmlsoft.org/XSLT/
-Source:		ftp://xmlsoft.org/libxslt-%{version}.tar.bz2
+Source:		ftp://xmlsoft.org/libxslt/libxslt-%{version}.tar.gz
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	libxml2-devel >= %{xml_ver_req}
@@ -66,14 +66,15 @@ A xslt processor based on this library, named xsltproc, is provided by
 the libxslt-proc package.
 
 
-%package python
+%package -n python-%{name}
 Summary:	Python bindings for the libxslt library
 Group:		Development/Python
 Requires:	%{libname} = %{version}
 Requires:	python >= %{pyver}
 Requires:	%{pylibxml2} >= %{xml_ver_req}
+Obsoletes:	%{name}-python
 
-%description python
+%description -n python-%{name}
 The libxslt-python package contains a module that permits applications
 written in the Python programming language to use the interface
 supplied by the libxslt library to apply XSLT transformations.
@@ -88,6 +89,7 @@ with XPath functions written in Python.
 Summary:	Libraries, includes, etc. to develop XML and HTML applications
 Group:		Development/C
 Provides:	%{name}-devel = %{version}-%{release}
+Provides:	%{_lib}%{name}-devel = %{version}-%{release}
 Requires:	%{libname} = %{version}
 Requires:	libxml2-devel >= %{xml_ver_req}
 
@@ -150,7 +152,7 @@ rm -rf %{buildroot}%{_docdir}/%{name}-%{version} \
 %defattr(-,root,root)
 %{_libdir}/lib*.so.*
 
-%files python
+%files -n python-%{name}
 %defattr(-,root,root)
 %{_libdir}/python%{pyver}/site-packages/*.so
 %{_libdir}/python%{pyver}/site-packages/*.py
@@ -178,6 +180,11 @@ rm -rf %{buildroot}%{_docdir}/%{name}-%{version} \
 
 
 %changelog
+* Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.1.19
+- 1.1.19
+- rename libxslt-python to python-libxslt
+- build against new libxml2
+
 * Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.1.16
 - move the python pkg docs too
 - put make check in %%check
