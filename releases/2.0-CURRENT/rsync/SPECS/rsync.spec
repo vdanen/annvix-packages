@@ -29,8 +29,6 @@ Source7:	07_rsync.afterboot
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	popt-devel
-BuildRequires:	acl
-BuildRequires:	libacl-devel
 
 Requires:	ipsvd
 Requires(post):	afterboot
@@ -64,9 +62,7 @@ This package contains the documentation for %{name}.
 %build
 %serverbuild
 rm -f config.h
-%configure2_5x \
-    --with-acl-support \
-    --enable-acl-support
+%configure2_5x
 
 # hack around bug in rsync configure.in
 #echo '#define HAVE_INET_NTOP 1' >> config.h
@@ -139,7 +135,6 @@ popd
 %changelog
 * Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.9
 - 2.6.9
-- enable ACL support
 
 * Sat Jun 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.8
 - 2.6.8
