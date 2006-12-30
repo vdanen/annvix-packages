@@ -5,14 +5,13 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-# fileutils: rh-4.1-4
-# sh-utils:  rh-2.0.12-2
+# mdv: 5.97-4mdv
 #
 # $Id$
 
 %define revision	$Rev$
 %define name		coreutils
-%define version		5.2.1
+%define version		5.97
 %define release		%_revrel
 
 # for sh-utils :
@@ -32,47 +31,37 @@ Source2:	su.pamd
 Source3:	help2man
 Patch0:		coreutils-4.5.4-lug.patch
 # fileutils
-Patch101:	fileutils-4.0-spacedir.patch
+Patch101:	coreutils-5.93-spacedir.patch
 Patch102:	coreutils-5.1.1-sparc.patch
-Patch105:	coreutils-4.5.2-C.patch
 Patch107:	fileutils-4.1.10-timestyle.patch
-Patch108:	fileutils-4.1.5-afs.patch
-Patch111:	coreutils-5.2.1-dumbterm.patch
-Patch112:	fileutils-4.0u-glibc22.patch
-Patch114:	fileutils-4.1-restorecolor.patch
-Patch115:	fileutils-5.0.91-FBoptions.patch
-Patch1155:	fileutils-4.1-force-option--override--interactive-option.patch
-Patch116:	fileutils-4.1-dircolors_c.patch
-Patch117:	fileutils-4.1-ls_c.patch
 Patch118:	fileutils-4.1-ls_h.patch
 Patch152:	coreutils-4.5.7-touch_errno.patch
-Patch153:	fileutils-4.1.10-utmp.patch
 Patch500:	textutils-2.0.17-mem.patch
 # sh-utils
-Patch703:	sh-utils-2.0.11-dateman.patch
+Patch703:	coreutils-5.93-dateman.patch
 Patch704:	sh-utils-1.16-paths.patch
 # RMS will never accept the PAM patch because it removes his historical
 # rant about Twenex and the wheel group, so we'll continue to maintain
 # it here indefinitely.
-Patch706:	coreutils-5.1.2-pam.patch
-Patch710:	sh-utils-2.0-rfc822.patch
+Patch706:	coreutils-5.93-pam.patch
 Patch711:	sh-utils-2.0.12-hname.patch
 # (sb) lin18nux/lsb compliance - normally from here:
 # http://www.openi18n.org/subgroups/utildev/patch/
 # this one is actually a merger of 5.2 and 5.3, as join segfaults
 # compiled with gcc4 and the 5.1/5.2 patch
-Patch800:	coreutils-5.2.1-new-i18n.patch
+Patch800:	coreutils-5.97-new-i18n.patch
 # small pt_BR fix
 Patch801:	coreutils-5.2.1-ptbrfix.patch
-Patch901:	coreutils-4.5.3-signal.patch
 Patch904:	coreutils-5.0.91-allow_old_options.patch
-Patch908:	coreutils-5.1.2-build-fix.patch
 Patch909:	coreutils-5.1.0-64bit-fixes.patch
 Patch910:	coreutils-5.2.1-uname.patch
 # posix acls and extended attributes
-Patch1001:	coreutils-5.2.1-acl.diff
-Patch1002:	coreutils-5.2.1-acl+posix.diff
-Patch1003:	coreutils-5.2.1-xattr.diff
+# from http://ftp.opensuse.org/pub/opensuse/distribution/SL-OSS-factory/inst-source/suse/src/coreutils-5.97-4.src.rpm
+# this one is already merged in CVS:
+Patch1001:	coreutils-acl.diff
+Patch1002:	coreutils-acl+posix.diff
+Patch1003:	coreutils-xattr.diff
+Patch1004:	coreutils-xattr-va-list.diff
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	gettext
@@ -82,6 +71,7 @@ BuildRequires:	texinfo >= 4.3
 BuildRequires:	libacl-devel
 BuildRequires:	libattr-devel
 BuildRequires:	automake1.8
+BuildRequires:	autoconf2.5 > 2.59
 
 Requires:  	pam >= 0.66-12
 Provides:	fileutils = %{version}
@@ -136,19 +126,9 @@ mv po/{lg,lug}.po
 # fileutils
 %patch101 -p1 -b .space
 %patch102 -p1 -b .sparc
-%patch105 -p0 -b .Coption
 %patch107 -p1 -b .timestyle
-%patch108 -p1 -b .afs
-%patch111 -p0 -b .dumbterm
-%patch112 -p1 -b .glibc22
-%patch114 -p1 -b .restore
-%patch115 -p1 -b .FBopts
-%patch1155 -p1
-%patch116 -p1
-%patch117 -p1
 %patch118 -p1
 %patch152 -p1
-%patch153 -p1
 
 # textutils
 %patch500 -p1
@@ -157,15 +137,12 @@ mv po/{lg,lug}.po
 %patch703 -p1 -b .dateman
 %patch704 -p1 -b .paths
 %patch706 -p1 -b .pam
-%patch710 -p1 -b .rfc822
 
 # li18nux/lsb
 %patch800 -p1 -b .i18n
 %patch801 -p0 -b .ptbr
 
-%patch901 -p1 -b .su-hang
-%patch904 -p1 -b .old-options
-%patch908 -p0 -b .build
+#%patch904 -p1 -b .old-options
 %patch909 -p1 -b .64bit
 %patch910 -p0 -b .cpu
 
@@ -173,6 +150,7 @@ mv po/{lg,lug}.po
 %patch1001 -p1 -b .acl
 %patch1002 -p1 -b .acl+posix
 %patch1003 -p1 -b .xattr
+%patch1004 -p0 -b .xattr-va
 
 cp %{_sourcedir}/help2man man/help2man
 chmod +x man/help2man
@@ -182,17 +160,21 @@ chmod +x man/help2man
 export DEFAULT_POSIX2_VERSION=199209
 aclocal-1.8 -I m4
 automake-1.8 -a -c
+autoconf
 %configure2_5x \
     --enable-largefile \
     --enable-pam
 
 %make HELP2MAN=$PWD/man/help2man
 
-# Run the test suite.
-#make check
-
 # XXX docs should say /var/run/[uw]tmp not /etc/[uw]tmp
 perl -pi -e 's,/etc/utmp,/var/run/utmp,g;s,/etc/wtmp,/var/run/wtmp,g' doc/coreutils.texi
+
+
+%check
+# Run the test suite.
+chmod +x ./tests/sort/sort-mb-tests
+%make check
 
 
 %install
@@ -275,6 +257,23 @@ true
 
 
 %changelog
+* Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.97
+- 5.97
+- add buildreq on autoconf2.5 > 2.59 (says it wants 2.59d)
+- rebuild against new pam
+- sync with Mandriva 5.97-4mdv:
+  - updated P800, P1001 for RH
+  - rediff P101, P105, P111, P703, P1003
+  - drop patches P108, P112, P116, P117, P153, P908, P2000 (merged upstream)
+  - drop P2001 (no longer needed)
+  - drop P105 (non-standard option)
+  - drop P1155 (makes the test suite work again but means 'cp -i -f' will
+    behave like 'cp -i' instead of like 'cp -f')
+  - drop P111, P114, P115, P710, P901, P1002 (deprecated)
+  - S200: synced with fedora
+  - disable P104, P1003 (broken)
+  - updated P1001, P1002, P1003, P1004 (from SUSE for ACL+xattr support)
+
 * Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.2.1
 - spec cleanups
 - remove locales
