@@ -441,8 +441,8 @@ popd >/dev/null 2>&1
 %{_libdir}/libsvn_swig_py*.so.*
 %dir %{py_sitedir}/svn
 %{py_sitedir}/svn/*.py*
-%dir %{py_sitedir}/libsvn
-%{py_sitedir}/libsvn/*.py*
+%dir %{py_platsitedir}/libsvn
+%{py_platsitedir}/libsvn/*.py*
 %{py_sitedir}/libsvn/*.so
 
 
@@ -489,6 +489,7 @@ popd >/dev/null 2>&1
 - NOTE: P1 is still required to pass the proper cppflags to build the perl
   bindings
 - add some default config files
+- use platform-specific python directory (%%py_platsitedir)
 
 * Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.2
 - spec cleanups
