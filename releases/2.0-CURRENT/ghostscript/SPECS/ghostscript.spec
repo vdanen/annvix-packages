@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		ghostscript
-%define version		8.15.2
+%define version		8.15.3
 %define release		%_revrel
 
 Summary:	PostScript/PDF interpreter and renderer
@@ -19,7 +19,7 @@ Release:	%{release}
 License:	GPL
 Group:		Publishing
 URL:		http://www.cups.org/espgs/index.php
-Source0:	ftp://ftp2.easysw.com/pub/ghostscript/espgs-%{version}-source.tar.bz2
+Source0:	http://ftp.easysw.com/pub/ghostscript/%{version}/espgs-%{version}-source.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	gettext-devel
@@ -60,12 +60,12 @@ make
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}{%{_bindir},%{_libdir}/ghostscript,%{_sysconfdir},%{_mandir}/man1,%{_docdir}/ghostscript-%{version}}
 
-make prefix=%{buildroot}%{_prefix} \
+make prefix=%{_prefix} \
     install_prefix=%{buildroot} \
-    gssharedir=%{buildroot}%{_libdir}/ghostscript/%{version} \
+    gssharedir=%{_libdir}/ghostscript/%{version} \
     docdir=%{_docdir}/ghostscript-%{version} \
-    bindir=%{buildroot}%{_bindir} \
-    mandir=%{buildroot}%{_mandir} \
+    bindir=%{_bindir} \
+    mandir=%{_mandir} \
     install
 
 ln -sf gs.1.bz2 %{buildroot}%{_mandir}/man1/ghostscript.1.bz2
@@ -101,6 +101,10 @@ rm -rf %{buildroot}%{_mandir}/de
 
 
 %changelog
+* Sat Dec 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.15.3
+- 8.15.3
+- fix install
+
 * Sat Dec 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.15.2
 - rebuild against new gettext
 
