@@ -9,10 +9,10 @@
 
 %define revision	$Rev$
 %define name		subversion
-%define svn_version	1.3.2
+%define svn_version	1.4.2
 %define release		%_revrel
 
-%define apache_version	2.0.54
+%define apache_version	2.2.3
 %define mod_version 	%{apache_version}_%{svn_version}
 %define mod_dav_name	mod_dav_svn
 %define mod_dav_conf	46_%{mod_dav_name}.conf
@@ -37,7 +37,8 @@ Source2:	%{mod_dav_conf}
 Source3:	%{mod_authz_conf}
 Source4:	svn.run
 Source5:	svn-log.run
-Patch0:		subversion-1.3.0-rc4-fix-svn-config-multiarch.patch
+Source6:	clients-config
+Source7:	servers-config
 Patch1:		subversion-1.3.1-use_apr1.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{svn_version}
@@ -49,12 +50,11 @@ BuildRequires:	python >= 2.2
 BuildRequires:	python-devel
 BuildRequires:	perl-devel
 BuildRequires:	db4-devel
-BuildRequires:	neon-devel = 0.24.7
+BuildRequires:	neon-devel >= 0.24.7
 BuildRequires:	httpd-devel >=  %{apache_version}
 BuildRequires:	swig-devel >= 1.3.19 
-BuildRequires:	multiarch-utils >= 1.0.3
-BuildRequires:	libapr >= 1.2.7
-BuildRequires:	apr-util >= 1.2.7
+BuildRequires:	apr-devel >= 1.2.7
+BuildRequires:	apr-util-devel >= 1.2.7
 BuildConflicts:	libapr = 0.9.7
 BuildConflicts:	apr-util = 0.9.7
 
@@ -138,7 +138,7 @@ subversion libraries.
 Summary:	Subversion server DSO module for apache
 Version:	%{mod_version}	
 Group:		System/Servers
-Requires:	%{name}-server = %{svn_version}-%{release}
+Requires:	%{name}-tools = %{svn_version}-%{release}
 Requires(pre):	rpm-helper
 Requires(postun): rpm-helper
 Requires(pre):	httpd-conf >= %{apache_version}
@@ -170,17 +170,15 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
-%patch0 -p1 -b .fix_svn-config_multiarch
 %patch1 -p1 -b .use_apr1
 
 rm -rf neon apr apr-util db4
 
-# fix shebang lines, #111498
+# fix shellbang lines, #111498
 perl -pi -e 's|/usr/bin/env perl -w|/usr/bin/perl -w|' tools/hook-scripts/*.pl.in
 
 # fix perms
-find . -type f -a -perm 0640 -exec chmod 0644 {} \; 
-find . -type f -a -perm 0750 -exec chmod 0755 {} \; 
+chmod 0644 BUGS CHANGES COMMITTERS COPYING HACKING INSTALL README
 
 
 %build
@@ -197,19 +195,24 @@ export CXXFLAGS="-fPIC"
     --localstatedir=%{_localstatedir} \
     --mandir=%{_mandir} \
     --with-apxs=%{_sbindir}/apxs \
+    --with-apr=%{_bindir}/apr-1-config \
+    --with-apr-util=%{_bindir}/apu-1-config \
     --disable-mod-activation \
     --with-swig=%{_prefix} \
     --disable-static \
-    --enable-shared \
-    --enable-dso
+    --enable-shared
 
 # put the apache modules in the correct place
 perl -pi -e "s|%{_libdir}/httpd|%{_libdir}/httpd-extramodules|g" Makefile subversion/mod_authz_svn/*la subversion/mod_dav_svn/*la
 
 %make all
-%make swig-py swig_pydir=%{py_sitedir}/libsvn swig_pydir_extra=%{py_sitedir}/svn
+%make swig-py swig_pydir=%{py_platsitedir}/libsvn swig_pydir_extra=%{py_sitedir}/svn
 %make swig-pl
 
+# move some docs
+mv subversion/bindings/swig/INSTALL INSTALL.swig
+mv subversion/bindings/swig/NOTES NOTES.swig
+mv subversion/%{mod_authz_name}/INSTALL INSTALL.%{mod_authz_name}
 
 %install
 [ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
@@ -218,7 +221,7 @@ perl -pi -e "s|%{_libdir}/httpd|%{_libdir}/httpd-extramodules|g" Makefile subver
 echo "###########################################################################"
 echo "This can take quite some time to finish, so please be patient..."
 echo "Don't be too surprised it the tests takes 30 minutes on a dual xeon machine..."
-make LD_LIBRARY_PATH="`pwd`/subversion/bindings/swig/perl/libsvn_swig_perl/.libs:`pwd`/subversion/bindings/swig/python/libsvn_swig_py/.libs:\
+make LC_ALL=C LANG=C LD_LIBRARY_PATH="`pwd`/subversion/bindings/swig/perl/libsvn_swig_perl/.libs:`pwd`/subversion/bindings/swig/python/libsvn_swig_py/.libs:\
 `pwd`/subversion/bindings/swig/python/.libs:`pwd`/subversion/libsvn_ra_local/.libs:`pwd`/subversion/svnadmin/.libs:\
 `pwd`/subversion/tests/libsvn_ra_local/.libs:`pwd`/subversion/tests/libsvn_fs/.libs:`pwd`/subversion/tests/libsvn_wc/.libs:\
 `pwd`/subversion/tests/libsvn_fs_base/.libs:`pwd`/subversion/tests/libsvn_diff/.libs:`pwd`/subversion/tests/libsvn_subr/.libs:\
@@ -233,13 +236,17 @@ make LD_LIBRARY_PATH="`pwd`/subversion/bindings/swig/perl/libsvn_swig_perl/.libs
 
 %makeinstall_std
 
-%makeinstall_std install-swig-py swig_pydir=%{py_sitedir}/libsvn swig_pydir_extra=%{py_sitedir}/svn
+%makeinstall_std install-swig-py swig_pydir=%{py_platsitedir}/libsvn swig_pydir_extra=%{py_sitedir}/svn
+# Precompile python 
+%py_compile %{buildroot}/%{py_platsitedir}/libsvn
+%py_compile %{buildroot}/%{py_sitedir}/svn
+
 %makeinstall_std install-swig-pl-lib
 
 # perl bindings
 make DESTDIR=%{buildroot} pure_vendor_install -C subversion/bindings/swig/perl/native 
 
-install -d %{buildroot}%{_sysconfdir}/httpd/modules.d
+mkdir -p %{buildroot}%{_sysconfdir}/httpd/modules.d
 cp %{_sourcedir}/%{mod_dav_conf} %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_dav_conf}
 cp %{_sourcedir}/%{mod_authz_conf} %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_authz_conf}
 
@@ -261,6 +268,9 @@ install -m 0755 tools/client-side/server-vsn.py %{buildroot}%{_bindir}
 install -m 0755 tools/client-side/showchange.pl %{buildroot}%{_bindir}
 (cd  %{buildroot}/%{_bindir}; ln -s showchange.pl showchange)
 
+mkdir -p %{buildroot}%{_sysconfdir}/subversion
+install -m 0644 %{_sourcedir}/clients-config %{buildroot}%{_sysconfdir}/subversion/config
+install -m 0644 %{_sourcedir}/servers-config %{buildroot}%{_sysconfdir}/subversion/servers
 
 ####################
 ###  repo-tools  ###
@@ -270,48 +280,41 @@ install -m 0755 tools/client-side/showchange.pl %{buildroot}%{_bindir}
 install -m 0755 tools/backup/hot-backup.py %{buildroot}%{_bindir}
 (cd %{buildroot}%{_bindir}; ln -s hot-backup.py hot-backup)
 
-# hook-scripts
-install -d -m 0755 %{buildroot}%{_datadir}/%{name}-%{svn_version}/repo-tools/hook-scripts
-install -m 0644 tools/hook-scripts/commit-access-control.cfg.example %{buildroot}/%{_datadir}/%{name}-%{svn_version}/repo-tools/hook-scripts
-install -m 0755 tools/hook-scripts/commit-access-control.pl %{buildroot}/%{_datadir}/%{name}-%{svn_version}/repo-tools/hook-scripts
-install -m 0755 tools/hook-scripts/commit-email.pl %{buildroot}/%{_datadir}/%{name}-%{svn_version}/repo-tools/hook-scripts
-install -m 0755 tools/hook-scripts/propchange-email.pl %{buildroot}/%{_datadir}/%{name}-%{svn_version}/repo-tools/hook-scripts
-install -m 0644 tools/hook-scripts/svnperms.conf.example %{buildroot}/%{_datadir}/%{name}-%{svn_version}/repo-tools/hook-scripts
-install -m 0755 tools/hook-scripts/svnperms.py %{buildroot}/%{_datadir}/%{name}-%{svn_version}/repo-tools/hook-scripts
-install -m 0755 tools/hook-scripts/mailer/mailer.py %{buildroot}/%{_datadir}/%{name}-%{svn_version}/repo-tools/hook-scripts
-install -m 0644 tools/hook-scripts/mailer/mailer.conf.example %{buildroot}/%{_datadir}/%{name}-%{svn_version}/repo-tools/hook-scripts
-install -m 0644 tools/hook-scripts/README %{buildroot}/%{_datadir}/%{name}-%{svn_version}/repo-tools/hook-scripts
+mkdir -p %{buildroot}%{_datadir}/%{name}-%{svn_version}/repo-tools/{hook-scripts,xslt,cgi}
 
-#xslt
-install -d -m 0755 %{buildroot}%{_datadir}/%{name}-%{svn_version}/repo-tools/xslt
+# hook-scripts
+pushd tools/hook-scripts
+    install -m 0644 commit-access-control.cfg.example %{buildroot}/%{_datadir}/%{name}-%{svn_version}/repo-tools/hook-scripts
+    install -m 0755 commit-access-control.pl %{buildroot}/%{_datadir}/%{name}-%{svn_version}/repo-tools/hook-scripts
+    install -m 0755 commit-email.pl %{buildroot}/%{_datadir}/%{name}-%{svn_version}/repo-tools/hook-scripts
+    install -m 0644 svnperms.conf.example %{buildroot}/%{_datadir}/%{name}-%{svn_version}/repo-tools/hook-scripts
+    install -m 0755 svnperms.py %{buildroot}/%{_datadir}/%{name}-%{svn_version}/repo-tools/hook-scripts
+    install -m 0755 mailer/mailer.py %{buildroot}/%{_datadir}/%{name}-%{svn_version}/repo-tools/hook-scripts
+    install -m 0644 mailer/mailer.conf.example %{buildroot}/%{_datadir}/%{name}-%{svn_version}/repo-tools/hook-scripts
+    install -m 0644 README %{buildroot}/%{_datadir}/%{name}-%{svn_version}/repo-tools/hook-scripts
+popd
+
+# xslt
 install -m 0644 tools/xslt/svnindex.css %{buildroot}%{_datadir}/%{name}-%{svn_version}/repo-tools/xslt
 install -m 0644 tools/xslt/svnindex.xsl %{buildroot}%{_datadir}/%{name}-%{svn_version}/repo-tools/xslt
 
-#cgi
-install -d -m 0755 %{buildroot}%{_datadir}/%{name}-%{svn_version}/repo-tools/cgi
+# cgi
 install -m 0755 contrib/cgi/mirror_dir_through_svn.cgi %{buildroot}%{_datadir}/%{name}-%{svn_version}/repo-tools/cgi
 install -m 0644 contrib/cgi/mirror_dir_through_svn.README %{buildroot}%{_datadir}/%{name}-%{svn_version}/repo-tools/cgi
 install -m 0755 contrib/cgi/tweak-log.cgi %{buildroot}%{_datadir}/%{name}-%{svn_version}/repo-tools/cgi
 
 # install a nice icon for web usage
-install -d %{buildroot}/var/www/icons
+mkdir -p %{buildroot}/var/www/icons
 install -m 0644 notes/logo/256-colour/subversion_logo_hor-237x32.png %{buildroot}/var/www/icons/subversion.png
 
 # fix a missing file...
 ln -snf libsvn_diff-1.so.0.0.0 %{buildroot}%{_libdir}/libsvn_diff.so
-
-# install svn-config
-perl -pi -e "s|\@SVN_DB_LIBS\@|-ldb|g" svn-config
-perl -pi -e "s|\@SVN_DB_INCLUDES\@|-I%{_includedir}/db4|g" svn-config
-install -m 0755 svn-config %{buildroot}%{_bindir}
 
 # fix the stupid rpath stuff...
 find %{buildroot}%{perl_vendorarch} -type f -name "*.so" | xargs chrpath -d
 
 %kill_lang %{name}
 %find_lang %{name}
-
-%multiarch_binaries %{buildroot}%{_bindir}/svn-config
 
 # nuke *.pyc files
 find %{buildroot} -name "*.pyc" | xargs rm -f
@@ -325,6 +328,7 @@ rm -f %{buildroot}%{_libdir}/libsvn_swig_py*.so
 rm -f %{buildroot}%{_libdir}/libsvn_swig_perl*.so
 
 mkdir -p %{buildroot}%{_localstatedir}/svn/repositories
+
 # service support
 mkdir -p %{buildroot}%{_srvdir}/svn/{log,peers,env}
 install -m 0740 %{_sourcedir}/svn.run %{buildroot}%{_srvdir}/svn/run
@@ -334,11 +338,6 @@ chmod 0640 %{buildroot}%{_srvdir}/svn/peers/0
 
 echo "3690" >%{buildroot}%{_srvdir}/svn/env/PORT
 echo "%{_localstatedir}/svn/repositories" >%{buildroot}%{_srvdir}/svn/env/REPOSITORIES
-
-# move some docs
-mv subversion/bindings/swig/INSTALL INSTALL.swig
-mv subversion/bindings/swig/NOTES NOTES.swig
-mv subversion/%{mod_authz_name}/INSTALL INSTALL.%{mod_authz_name}
 
 
 %clean
@@ -389,6 +388,7 @@ popd >/dev/null 2>&1
 %{_bindir}/svn_load_dirs*
 %{_bindir}/svn-log*
 %{_bindir}/svnlook
+%{_bindir}/svnsync
 %{_libdir}/libsvn_ra-1.so.*
 %{_libdir}/libsvn_ra_dav-1.so.*
 %{_libdir}/libsvn_ra_local-1.so.*
@@ -399,6 +399,9 @@ popd >/dev/null 2>&1
 %{_libdir}/libsvn_subr-*so.*
 %{_libdir}/libsvn_diff-*so.*
 %{_mandir}/man1/svn*
+%dir %{_datadir}/subversion-%{svn_version}
+%dir %{_sysconfdir}/subversion
+%config(noreplace) %{_sysconfdir}/subversion/config
 
 
 %files server
@@ -414,6 +417,7 @@ popd >/dev/null 2>&1
 %{_mandir}/man8/svnserve.8*
 %{_mandir}/man5/svnserve.conf.5*
 %{_mandir}/man1/svndumpfilter.1*
+%config(noreplace) %{_sysconfdir}/subversion/servers
 %dir %attr(0750,root,admin) %{_srvdir}/svn
 %dir %attr(0750,root,admin) %{_srvdir}/svn/log
 %dir %attr(0750,root,admin) %{_srvdir}/svn/peers
@@ -452,8 +456,6 @@ popd >/dev/null 2>&1
 
 %files devel
 %defattr(-,root,root)
-%multiarch %{multiarch_bindir}/svn-config
-%{_bindir}/svn-config
 %{_libdir}/libsvn*.la
 %{_includedir}/subversion*/*
 %{_libdir}/libsvn_*.so
@@ -477,6 +479,17 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Sat Dec 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4.2
+- 1.4.2
+- fix requires on httpd-mod_dav_svn
+- httpd 2.2.3
+- drop requires on multiarch-utils (no more svn-config), drop P0 also
+- build against new swig, new apr, new apr-util
+- move some stuff to make it --short-circuit friendly
+- NOTE: P1 is still required to pass the proper cppflags to build the perl
+  bindings
+- add some default config files
+
 * Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.2
 - spec cleanups
 - remove locales
