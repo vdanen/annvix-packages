@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name 		tmpwatch
-%define version		2.9.6
+%define version		2.9.7
 %define release		%_revrel
 
 # CVSROOT=':ext:user@devserv.devel.redhat.com:/home/devel/CVS'
@@ -20,7 +20,7 @@ Release:	%{release}
 License:	GPL
 Group:		File Tools
 URL:		ftp://ftp.redhat.com/pub/redhat/linux/rawhide/SRPMS/SRPMS/
-Source0:	%{name}-%{version}.tar.bz2
+Source0:	%{name}-%{version}.tar.gz
 Source1:	tmpwatch.cron
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -60,10 +60,14 @@ install -m 0755 %{_sourcedir}/tmpwatch.cron %{buildroot}%{_sysconfdir}/cron.dail
 %defattr(-,root,root)
 %{_sbindir}/tmpwatch
 %{_mandir}/man8/tmpwatch.8*
-%attr(755,root,root) %config(noreplace) %{_sysconfdir}/cron.daily/tmpwatch
+%attr(755,root,root) %{_sysconfdir}/cron.daily/tmpwatch
 
 
 %changelog
+* Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.9.7
+- 2.9.7
+- cron script isn't a config file
+
 * Fri Jun 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.9.6
 - 2.9.6
 - S1: make the cron script a source instead of echo'd in the spec
