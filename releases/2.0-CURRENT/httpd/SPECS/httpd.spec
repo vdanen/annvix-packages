@@ -1382,6 +1382,9 @@ fi
 
 
 %changelog
+* Sat Dec 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3
+- rebuild against new apr/apr-util
+
 * Sat Dec 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3
 - rebuild against new openldap
 
