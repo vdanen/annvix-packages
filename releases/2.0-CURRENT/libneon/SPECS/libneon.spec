@@ -172,6 +172,9 @@ rm -rf %{buildroot}%{_datadir}/doc
 
 
 %changelog
+* Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.24.7
+- build against new libxml2 
+
 * Sun Dec 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.24.7
 - make it conflict with krb-devel because if we krb5-config exists, GSSAPI support
   will be enabled which will prevent rpm from compiling with the new krb5 (which
