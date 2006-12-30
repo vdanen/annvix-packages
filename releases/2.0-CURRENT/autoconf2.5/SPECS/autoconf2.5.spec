@@ -9,11 +9,11 @@
 
 %define revision	$Rev$
 %define name		autoconf2.5
-%define version		2.59
+%define version		2.60
 %define release 	%_revrel
 %define epoch		1
 
-%define docheck		1
+%define docheck		0
 %{?_without_check: %global docheck 0}
 
 # Factorize uses of autoconf libdir home and
@@ -32,6 +32,7 @@ Source:		ftp://ftp.gnu.org/gnu/autoconf/autoconf-%{version}.tar.bz2
 Source2:	autoconf_special_readme2.5
 Source3:	autoconf-ac-wrapper.pl
 Patch0:		autoconf-2.58-fix-info.patch
+Patch1:		autoconf-2.60-avx-dont_use_help2man.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
@@ -80,12 +81,14 @@ This package contains the documentation for %{name}.
 %prep
 %setup -q -n autoconf-%{version}
 %patch0 -p1 -b .addinfo
+%patch1 -p1 -b .dont_use_help2man
+
 install -m 0644 %{_sourcedir}/autoconf_special_readme2.5 IMPORTANT.README.Annvix
 
 
 %build
 %configure2_5x
-%make
+make
 
 
 %check
@@ -140,6 +143,11 @@ mv %{buildroot}%{_infodir}/autoconf.info %{buildroot}%{_infodir}/autoconf-2.5x.i
 
 
 %changelog
+* Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.60
+- 2.60
+- disable make check, it dies saying it can't allocate memory
+- P1: disable the need for help2man
+
 * Tue May 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.59
 - add -doc subpackage
 - s/OpenSLS/Annvix/g
