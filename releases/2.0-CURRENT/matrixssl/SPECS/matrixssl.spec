@@ -9,7 +9,7 @@
 
 %define	revision	$Rev$
 %define	name		matrixssl
-%define	version		1.8
+%define	version		1.8.2
 %define	release		%_revrel
 
 %define	major		1
@@ -23,9 +23,9 @@ Release:	%{release}
 License:	GPL
 Group:		System/Libraries
 URL:		http://www.matrixssl.org/
-Source0:	%{name}-1-8-open.tar.bz2
+Source0:	%{name}-1-8-2-open.tar.bz2
 Patch0:		matrixssl-1.8-shared_and_static.diff
-Patch1:		matrixssl-1.8-debian.diff
+Patch1:		matrixssl-1.8.1-debian.diff
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	dietlibc-devel >= 0.27-2avx
@@ -87,7 +87,7 @@ This package contains the documentation for %{name}.
 
 
 %prep
-%setup -q -n %{name}-1-8-open
+%setup -q -n %{name}-1-8-2
 %patch0 -p0
 %patch1 -p1
 
@@ -171,6 +171,10 @@ rm -f examples/*.p12
 
 
 %changelog
+* Sat Dec 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.8.2
+- 1.8.2
+- updated P1
+
 * Sun Jul 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.8
 - 1.8
 - rediff P0, P1
