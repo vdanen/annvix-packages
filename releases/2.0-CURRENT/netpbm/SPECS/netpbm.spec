@@ -258,6 +258,9 @@ cp test-images/* %{buildroot}%{_datadir}/printconf/tests/
 
 
 %changelog
+* Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 10.34
+- build against new libxml2 
+
 * Fri Jul 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 10.34
 - lib64 fix
 
