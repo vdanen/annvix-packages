@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		apr-util
-%define version		1.2.7
+%define version		1.2.8
 %define release		%_revrel
 
 %define apuver		1
@@ -29,17 +29,18 @@ Source1:	http://www.apache.org/dist/apr/%{name}-%{version}.tar.gz.asc
 Source2:	apr_dbd_mysql.c
 Patch0:		apr-util-1.2.2-config.diff
 Patch1:		apr-util-0.9.5-lib64.diff
-Patch2:		apr-util-1.2.2-postgresql.diff
-Patch3:		apr-util-1.2.7-exports.diff
+Patch2:		apr-util-1.2.8-postgresql.patch
+Patch3:		apr-util-1.2.8-no_linkage.diff
 Patch4:		apr-util-1.2.7-dso.diff
 Patch5:		apr-util-1.2.7-link.diff
+Patch6:		apr-util-1.2.7-apr_dbd_mysql_headers.diff
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5
 BuildRequires:	automake1.7
 BuildRequires:	libtool
 BuildRequires:	doxygen
-BuildRequires:	apr-devel >= 1:1.2.7
+BuildRequires:	apr-devel >= 1:1.2.8
 BuildRequires:	openldap-devel
 BuildRequires:	db4-devel
 BuildRequires:	gdbm-devel
@@ -109,7 +110,7 @@ This package contains the documentation for %{name}.
 %setup -q
 %patch0 -p0 -b .config
 %patch1 -p0 -b .lib64
-%patch2 -p0 -b .postgresql
+%patch2 -p1 -b .postgresql
 %patch3 -p0 -b .exports
 %patch4 -p0 -b .dso
 %patch5 -p0 -b .link
@@ -150,7 +151,7 @@ perl -pi -e "s|/lib\b|/%{_lib}|g" build/*.m4
 
 export WANT_AUTOCONF_2_5=1
 rm -f configure
-libtoolize --copy --force && aclocal-1.7 && autoconf --force
+libtoolize --copy --force; aclocal-1.7; autoconf --force
 
 python build/gen-build.py make
 
@@ -185,7 +186,7 @@ make dbd/apr_dbd_mysql.lo
 libtool --mode=link --tag=CC %{__cc} -rpath %{_libdir} -avoid-version -module dbd/apr_dbd_mysql.lo -lmysqlclient_r -o dbd/apr_dbd_mysql.la
 
 make dbd/apr_dbd_pgsql.lo
-libtool --mode=link --tag=CC %{__cc} -rpath %{_libdir} -avoid-version -module dbd/apr_dbd_pgsql.lo -lpq  -o dbd/apr_dbd_pgsql.la
+libtool --mode=link --tag=CC %{__cc} -rpath %{_libdir} -avoid-version -module dbd/apr_dbd_pgsql.lo -lpq -o dbd/apr_dbd_pgsql.la
 
 make dbd/apr_dbd_sqlite3.lo
 libtool --mode=link --tag=CC %{__cc} -rpath %{_libdir} -avoid-version -module dbd/apr_dbd_sqlite3.lo -lsqlite3 -o dbd/apr_dbd_sqlite3.la
@@ -211,8 +212,9 @@ sed -ri '/^dependency_libs/{s,-l(pq|sqlite[0-9]|mysqlclient_r|rt|dl|uuid) ,,g}' 
 sed -ri '/^dependency_libs/{s,%{_libdir}/lib(sqlite[0-9]|mysqlclient_r)\.la ,,g}' \
     %{buildroot}%{_libdir}/libapr*.la
 
-# multiacrh anti-borker
+# clean apu-1-config (multiarch, includes)
 perl -pi -e "s|^LDFLAGS=.*|LDFLAGS=\"\"|g" %{buildroot}%{_bindir}/apu-%{apuver}-config
+perl -pi -e "s|-I%{_includedir}/mysql||g" %{buildroot}%{_bindir}/apu-%{apuver}-config
 
 # Unpackaged files
 rm -f %{buildroot}%{_libdir}/aprutil.exp
@@ -251,6 +253,12 @@ rm -f %{buildroot}%{_libdir}/aprutil.exp
 
 
 %changelog
+* Sat Dec 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.8
+- 1.2.8
+- new S2 with better mysql 5.x support
+- updated patches from Mandriva
+- rebuilt against new apr
+
 * Sat Dec 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.7
 - rebuild against new mysql, new postgresql, and new openldap
 
