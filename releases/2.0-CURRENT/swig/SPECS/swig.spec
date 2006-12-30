@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		swig
-%define version		1.3.27
+%define version		1.3.31
 %define release		%_revrel
 
 Summary:	Simplified Wrapper and Interface Generator (SWIG)
@@ -103,6 +103,9 @@ install -m 0644 ./Source/DOH/doh.h -D %{buildroot}%{_includedir}/doh.h
 
 
 %changelog
+* Sat Dec 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.31
+- 1.3.31
+
 * Tue Jun 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.27
 - rebuild against new python
 
