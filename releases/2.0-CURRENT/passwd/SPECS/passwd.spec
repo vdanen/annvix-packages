@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		passwd
-%define version		0.71
+%define version		1.0.12
 %define release		%_revrel
 
 Summary:	The passwd utility for setting/changing passwords using PAM
@@ -18,48 +18,39 @@ Version:	%{version}
 Release:	%{release}
 License:	BSD
 Group:		System/Base
-# This url is stupid, someone come up with a better one _please_!
-URL:		http://www.freebsd.org
-Source0:	passwd-%{version}.tar.bz2
+Source0:	passwd-%{version}.tar
 Source1:	passwd.pamd
+Source2:	passwd.8
+Patch0:		passwd-1.0.12-avx-install.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	glib2-devel
-BuildRequires:	libuser-devel
 BuildRequires:	pam-devel
-BuildRequires:	popt-devel
 
-Requires:	pam >= 0.59
-Requires:	pwdb >= 0.58
-Requires:	libuser
+Requires:	pam
 Requires(pre):	setup >= 2.5-5873avx
 
 %description
 The passwd package contains a system utility (passwd) which sets
 and/or changes passwords, using PAM (Pluggable Authentication
-Modules).
+Modules).  This version of passwd is taken from ALT Linux.
 
 
 %prep
 %setup -q
+%patch0 -p0 -b .avx
+
+cp %{_sourcedir}/passwd.8 .
+cp %{_sourcedir}/passwd.pamd .
 
 
 %build
-%configure --without-selinux
-%make
+%make CFLAGS="%{optflags} -W -Werror" libdir=/lib
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-install -d %{buildroot}%{_bindir}
-install -d %{buildroot}%{_mandir}/man1
 
-%makeinstall_std
-
-install -D -m 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/pam.d/passwd
-perl -p -i -e 's|use_authtok nullok|use_authtok nullok md5|' %{buildroot}%{_sysconfdir}/pam.d/passwd
-rm -f %{buildroot}%{_bindir}/{chfn,chsh}
-rm -f %{buildroot}%{_mandir}/man1/{chfn.1,chsh.1}
+make DESTDIR=%{buildroot} install
 
 
 %clean
@@ -70,10 +61,18 @@ rm -f %{buildroot}%{_mandir}/man1/{chfn.1,chsh.1}
 %defattr(-,root,root)
 %attr(0640,root,shadow) %config(noreplace) %{_sysconfdir}/pam.d/passwd
 %attr(2711,root,shadow) %{_bindir}/passwd
+%attr(0700,root,root) %{_sbindir}/passwd
 %{_mandir}/man1/passwd.1*
+%{_mandir}/man8/passwd.8*
 
 		
 %changelog
+* Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.12
+- 1.0.12 (new passwd from ALT Linux, this one is much slimmer and has
+  been audited)
+- P0: adapt the Makefile to install what we want
+- S2: include passwd.8 so we don't have to use help2man
+
 * Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.71
 - require new setup (for group shadow)
 - spec cleanups
