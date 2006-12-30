@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		apr
-%define version		1.2.7
+%define version		1.2.8
 %define release		%_revrel
 %define epoch		1
 
@@ -31,6 +31,7 @@ Patch2:		apr-1.0.0-mutextype_reorder.diff
 Patch3:		apr-0.9.6-readdir64.patch
 Patch4:		apr-0.9.6-fdr-procexit.patch
 Patch5:		apr-1.2.2-locktimeout.patch
+Patch6:		apr-1.2.7-psprintfpi.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5
@@ -96,6 +97,7 @@ This package contains the documentation for %{name}.
 %patch3 -p1 -b .readdir64
 %patch4 -p1 -b .procexit
 %patch5 -p1 -b .locktimeout
+%patch6 -p1 -b .psprintfpi
 
 cat >> config.layout << EOF
 <Layout AVX>
@@ -239,6 +241,10 @@ rm -f %{buildroot}%{_libdir}/apr.exp
 
 
 %changelog
+* Sat Dec 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.8
+- 1.2.8
+- P6: synced from Mandriva
+
 * Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.7
 - rebuild against new e2fsprogs
 
