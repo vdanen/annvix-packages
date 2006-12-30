@@ -141,6 +141,9 @@ rm -rf %{buildroot}%{_includedir}/dmraid
 
 
 %changelog
+* Fri Dec 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.00.rc11
+- rebuild against new device-mapper
+
 * Wed Aug 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.00.rc11
 - dietlibc fixes for x86_64
 
