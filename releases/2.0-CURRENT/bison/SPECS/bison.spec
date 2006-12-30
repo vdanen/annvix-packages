@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		bison
-%define version 	2.1
+%define version 	2.3
 %define release 	%_revrel
 
 Summary:	A GNU general-purpose parser generator
@@ -19,7 +19,7 @@ Release:	%{release}
 License:	GPL
 Group:		Development/Other
 URL:		http://www.gnu.org/software/bison/bison.html
-Source:		http://alpha.gnu.org/gnu/bison/%{name}-%{version}.tar.bz2
+Source:		http://ftp.gnu.org/gnu/bison/%{name}-%{version}.tar.bz2
 Patch0:		bison-1.32-extfix.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -104,6 +104,9 @@ rm -f %{buildroot}%{_libdir}/liby.a
 
 
 %changelog
+* Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3
+- 2.3
+
 * Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1
 - spec cleanups
 - remove locales
