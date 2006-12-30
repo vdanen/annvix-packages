@@ -118,6 +118,9 @@ rm -rf %{buildroot}%{_datadir}/doc/dmapi
 
 
 %changelog
+* Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.5
+- rebuild against new xfs-devel
+
 * Mon Aug 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.5
 - 2.2.5
 - spec cleanups
