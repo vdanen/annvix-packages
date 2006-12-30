@@ -1,5 +1,5 @@
---- net/ipsvd-0.12.0/src/Makefile.avx	2006-02-03 13:26:55.000000000 -0700
-+++ net/ipsvd-0.12.0/src/Makefile	2006-02-03 16:28:55.000000000 -0700
+--- net/ipsvd-0.12.1/src/Makefile.avx	2006-02-04 12:16:47.000000000 -0700
++++ net/ipsvd-0.12.1/src/Makefile	2006-12-30 12:30:41.000000000 -0700
 @@ -15,10 +15,10 @@
  
  sslsvd: load sslsvd.o ssl_io.o sslerror_str.o ipsvd_log.o ipsvd_fmt.o \
@@ -53,15 +53,17 @@
  
  udpsvd.o: compile sysdeps udpsvd.c ipsvd_log.h
  	./compile udpsvd.c
-@@ -72,7 +60,7 @@
+@@ -72,8 +60,8 @@
  ipsvd-cdb.o: compile sysdeps ipsvd-cdb.c
  	./compile ipsvd-cdb.c
  
 -sslio.o: compile sysdeps sslio.c matrixssl
-+sslio.o: compile sysdeps sslio.c 
- 	./compile sslio.c
+-	./compile -I./matrixssl sslio.c
++sslio.o: compile sysdeps sslio.c
++	./compile sslio.c
  
  check-tcpsvd.o: compile check-tcpsvd.c
+ 	./compile check-tcpsvd.c
 @@ -105,8 +93,8 @@
  uidgid.o: compile uidgid.c uidgid.h
  	./compile uidgid.c
