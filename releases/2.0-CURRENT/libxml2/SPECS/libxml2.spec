@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		libxml2
-%define version		2.6.24
+%define version		2.6.27
 %define release		%_revrel
 
 %define major		2
@@ -23,7 +23,7 @@ Release:	%{release}
 License:	MIT
 Group: 		System/Libraries
 URL:		http://www.xmlsoft.org/
-Source0:	ftp://xmlsoft.org/%{name}-%{version}.tar.bz2
+Source0:	ftp://xmlsoft.org/libxml2/%{name}-%{version}.tar.gz
 # (fc) 2.4.23-3mdk remove references to -L/usr/lib
 Patch1:		libxml2-2.4.23-libdir.patch
 
@@ -145,6 +145,8 @@ cp -a python/tests/*.py python-doc/
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 %makeinstall_std
+(cd doc/examples ; make clean ; rm -rf .deps)
+gzip -9 doc/libxml2-api.xml
 
 # multiarch policy
 %multiarch_binaries %{buildroot}%{_bindir}/xml2-config
@@ -196,11 +198,16 @@ rm -rf	%{buildroot}%{_prefix}/doc \
 %files doc
 %defattr(-, root, root)
 %doc AUTHORS NEWS README Copyright TODO 
-%doc doc/*.html doc/*.gif
-%doc doc/html/* python-doc
+%doc python-doc
+%doc doc/*.py doc/python.html
+%doc doc/*.html doc/*.gif doc/*.png doc/html doc/examples doc/tutorial
+%doc doc/libxml2-api.xml.gz
 
 
 %changelog
+* Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.27
+- 2.6.27
+
 * Thu Jun 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.24
 - rebuild against new readline
 
