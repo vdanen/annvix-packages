@@ -84,7 +84,10 @@ EOF
 
 
 %changelog
-* Sun Dec 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.2.0 
+* Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.2.0
+- build against new libxml2 and libxslt
+
+* Sun Dec 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.2.0
 - php 5.2.0
 
 * Sat Oct 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1.6
