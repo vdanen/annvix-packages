@@ -101,6 +101,9 @@ done
 
 
 %changelog
+* Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3_2.0.4
+- build against new libxml2 
+
 * Thu Dec 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3_2.0.4
 - 2.0.4 (rename the package since the module name is also different)
 - use the modsecurity-core-rules_2.0 v1.2 and drop the snort rules
