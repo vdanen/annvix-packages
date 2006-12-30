@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		xfsprogs
-%define version 	2.8.10
+%define version 	2.8.11
 %define release 	%_revrel
 
 %define libname_orig	libxfs
@@ -162,6 +162,9 @@ rm -rf %{buildroot}%{_datadir}/locale
 
 
 %changelog
+* Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.8.11
+- 2.8.11
+
 * Mon Aug 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.8.10
 - 2.8.10
 - spec cleanups
