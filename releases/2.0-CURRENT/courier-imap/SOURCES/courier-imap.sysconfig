@@ -1,7 +1,0 @@
-# Configurable options for tcpserver which handles Courier-IMAP services
-
-# The maximum amount of memory in bytes that the service may consume
-MAX_MEMORY="14000000"
-
-# The maximum number of conncections to the service at one time
-CONCURRENCY="250"
