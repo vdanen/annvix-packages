@@ -59,6 +59,7 @@ Summary:	Courier authentication daemon
 Group:		System/Servers
 Requires:	%{name} = %{version}
 Requires:	expect
+Requires:	libltdl
 Requires(post):	rpm-helper
 Requires(preun): rpm-helper
 
@@ -373,7 +374,10 @@ test -f %{_sysconfdir}/courier/authpgsqlrc.rpmnew && %{_libdir}/courier-authlib/
 %doc userdb/makeuserdb.html userdb/userdb.html userdb/userdbpw.html
 
 %changelog
-* Thu May 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.58
+* Sat Dec 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.58
+- add a requires on libltdl and fix changelog
+
+* Sat Dec 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.58
 - first Annvix build (for new courier-imap)
 
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8
