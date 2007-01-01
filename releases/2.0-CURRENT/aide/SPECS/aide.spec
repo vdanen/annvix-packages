@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		aide
-%define version		0.13
+%define version		0.13.1
 %define release		%_revrel
 
 Summary:	Advanced Intrusion Detection Environment
@@ -120,6 +120,9 @@ install -m 0644 %{_sourcedir}/98_aide.afterboot %{buildroot}%{_datadir}/afterboo
 
 
 %changelog
+* Mon Jan 01 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.13.1
+- 0.13.1
+
 * Fri Dec 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.13
 - 0.13
 
