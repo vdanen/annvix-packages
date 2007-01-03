@@ -97,6 +97,7 @@ fi
 %changelog
 * Wed Jan 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.5
 - 1.5 (minor fixes)
+- make sure builder reports the right version
 
 * Fri Nov 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4
 - refreshed tarball
