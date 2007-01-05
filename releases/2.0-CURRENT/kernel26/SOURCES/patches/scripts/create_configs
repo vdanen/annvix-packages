@@ -36,8 +36,8 @@ my @configs = (
      [ qw(x86_64 up  none up) ],
      [ qw(x86_64 smp none smp) ],
      [ qw(x86_64 smp none build) ],
-     [ qw(x86_64 up  none BOOT) ]
-     [ qw(x86_64 smp none xenU) ]
+     [ qw(x86_64 up  none BOOT) ],
+     [ qw(x86_64 smp none xenU) ],
      [ qw(x86_64 smp none xen0) ]
 );
 
