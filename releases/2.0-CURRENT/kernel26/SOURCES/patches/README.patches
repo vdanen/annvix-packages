@@ -4,8 +4,6 @@ Index of patches for the Annvix kernel found in patches/
 
 CA00_CORE.desc
 ** Core patches
-	CA01_remove_sata_experimental.patch
-	- removes those SATA drivers marked experimental
 	CZ01_Annvix_linux_logo_framebuffer.patch
 	- the Chum fb logo
 

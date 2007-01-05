@@ -12,7 +12,7 @@
 %define kernelver	2
 %define patchlevel	6
 %define sublevel	16
-%define minlevel	35
+%define minlevel	37
 %define avxrelease	%(echo %{revision}|cut -d ' ' -f 2)
 
 %define tar_version	%{kernelver}.%{patchlevel}.%{sublevel}.%{minlevel}
@@ -47,12 +47,14 @@
 %define build_build	0
 %define build_up	1
 %define build_smp	1
+%define build_xen	0
 
 # End of user definitions
 %{?_without_BOOT: %global build_BOOT 0}
 %{?_without_build: %global build_build 0}
 %{?_without_up: %global build_up 0}
 %{?_without_smp: %global build_smp 0}
+%{?_without_xen: %global build_xen 0}
 %{?_without_doc: %global build_doc 0}
 %{?_without_source: %global build_source 0}
 %{?_without_minimal: %global build_minimal 0}
@@ -62,6 +64,7 @@
 %{?_with_build: %global build_build 1}
 %{?_with_up: %global build_up 1}
 %{?_with_smp: %global build_smp 1}
+%{?_with_xen: %global build_xen 1}
 %{?_with_doc: %global build_doc 1}
 %{?_with_source: %global build_source 1}
 %{?_with_minimal: %global build_minimal 1}
@@ -274,6 +277,66 @@ latest %{kname}-BOOT installed.
 
 
 #
+# kernel-xen0: XEN Kernel
+#
+
+%package -n %{kname}-xen0-%{avxversion}
+Summary:	The XEN hypervisor kernel
+Group:		System/Kernel and hardware
+
+%description -n %{kname}-xen0-%{avxversion}
+This package contains the XEN hypervisor kernel which provides device
+services to unprivileged guests.
+
+
+#
+# kernel-xen0 virtual rpm
+#
+
+%package -n %{kname}-xen0
+Summary:	Virtual rpm for the latest %{kname}-xen0 kernel
+Version:	%{realversion}
+Release:	%{realrelease}
+Group:		System/Kernel and hardware
+Requires:	%{kname}-xen0-%{avxversion}
+Provides:	kernel26-xen0
+
+%description -n %{kname}-xen0
+This package is a virtual rpm that aims to make sure you always have the
+latest %{kname}-xen0 installed.
+
+
+#
+# kernel-xenU: XEN Kernel
+#
+
+%package -n %{kname}-xenU-%{avxversion}
+Summary:	The XEN guest kernel
+Group:		System/Kernel and hardware
+
+%description -n %{kname}-xenU-%{avxversion}
+This package contains the XEN guest kernel which runs in XEN unprivileged
+guest VMs.
+
+
+#
+# kernel-xenU virtual rpm
+#
+
+%package -n %{kname}-xenU
+Summary:	Virtual rpm for the latest %{kname}-xenU kernel
+Version:	%{realversion}
+Release:	%{realrelease}
+Group:		System/Kernel and hardware
+Requires:	%{kname}-xenU-%{avxversion}
+Provides:	kernel26-xenU
+
+%description -n %{kname}-xenU
+This package is a virtual rpm that aims to make sure you always have the
+latest %{kname}-xenU installed.
+
+
+#
 # kernel-source: Kernel source
 #
 
@@ -281,7 +344,10 @@ latest %{kname}-BOOT installed.
 Summary:	The source code for the Linux kernel
 Version:	%{realversion}
 Release:	%{realrelease}
-Requires:	glibc-devel, ncurses-devel, make, gcc
+Requires:	glibc-devel
+Requires:	ncurses-devel
+Requires:	make
+Requires:	gcc
 Group:		Development/Kernel
 
 %description -n %{kname}-source
@@ -424,10 +490,18 @@ BuildKernel() {
     install -m 0644 .config %{temp_boot}/config-$KernelVer
 
     %ifarch %{ix86}
-    cp -f arch/i386/boot/bzImage %{temp_boot}/vmlinuz-$KernelVer
+    if [ "$KernelVer" == "%{KVERREL}xen0" -o "$KernelVer" == "%{KVERREL}xenU" ]; then
+        cp -f vmlinuz %{temp_boot}/vmlinuz-$KernelVer
+    else
+        cp -f arch/i386/boot/bzImage %{temp_boot}/vmlinuz-$KernelVer
+    fi
     %endif
     %ifarch x86_64
-    cp -f arch/x86_64/boot/bzImage %{temp_boot}/vmlinuz-$KernelVer
+    if [ "$KernelVer" == "%{KVERREL}xen0" -o "$KernelVer" == "%{KVERREL}xenU" ]; then
+        cp -f vmlinuz %{temp_boot}/vmlinuz-$KernelVer
+    else
+        cp -f arch/x86_64/boot/bzImage %{temp_boot}/vmlinuz-$KernelVer
+    fi
     %endif
 
     # modules
@@ -524,6 +598,11 @@ CreateKernel build
 CreateKernel up
 %endif
 
+%if %{build_xen}
+CreateKernel xen0
+CreateKernel xenU
+%endif
+
 # We don't make to repeat the depend code at the install phase
 %if %{build_source}
 PrepareKernel "" %{realrelease}custom
@@ -574,6 +653,11 @@ rm -rf %{target_source}/%{patches_ver}
 
 # other misc files
 rm -f %{target_source}/{.config.old,.config.cmd}
+%if %{build_xen}
+rm -f %{target_source}/include/.asm-ignore
+rm -f %{target_source}/vmlinux-stripped
+rm -f %{target_source}/vmlinuz
+%endif
 
 
 # copy README's
@@ -589,7 +673,7 @@ pushd %{target_source}/include/linux ; {
     # Create version.h
     echo "#include <linux/rhconfig.h>" > version.h
     loop_cnt=0
-    for i in BOOT up smp build; do
+    for i in BOOT up smp build xen0; do
         if [ -d %{_savedheaders}%{target_cpu}/$i -a -f %{_savedheaders}%{target_cpu}/$i/version.h ]; then
             name=`echo $i | sed 's/-/_/g'`
             if [ $loop_cnt = 0 ]; then
@@ -776,6 +860,18 @@ exit 0
 %defattr(-,root,root)
 %endif
 
+%if %{build_xen}
+%files -n %{kname}-xen0-%{avxversion} -f kernel_files.%{KVERREL}xen0
+
+%files -n %{kname}-xen0
+%defattr(-,root,root)
+
+%files -n %{kname}-xenU-%{avxversion} -f kernel_files.%{KVERREL}xenU
+
+%files -n %{kname}-xenU
+%defattr(-,root,root)
+%endif
+
 %if %{build_source}
 %files -n %{kname}-source
 %defattr(-,root,root)
@@ -836,6 +932,7 @@ exit 0
 %{_kerneldir}/include/scsi
 %{_kerneldir}/include/sound
 %{_kerneldir}/include/video
+%{_kerneldir}/include/xen
 #Openswan 2.x.x
 %{_kerneldir}/include/crypto
 %{_kerneldir}/include/des
@@ -857,6 +954,13 @@ exit 0
 
 
 %changelog
+* Thu Jan 04 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.37
+- 2.6.16.37: various fixes
+- disable CONFIG_RSBAC_CAP_AUTH_PROT and CONFIG_RSBAC_CAP_LOG_MISSING
+  (we don't really need them)
+- drop CA01; those SATA drivers are no longer marked experimental
+- add support for building xen kernels (still need to do the patching tho)
+
 * Mon Dec 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.35
 - 2.6.16.35: security fixes for CVE-2006-4352, CVE-2006-5751
 - update SL11 to apply (1 hunk to net/ipv4/udp.c)
@@ -956,9 +1060,5 @@ exit 0
 - only patches right now are RSBAC-related so comment out the openswan stuff
 - name the kernel package 'kernel26' rather than 'kernel' to prevent issues
   with the 2.4 kernel ('kernel')
-
-# Local Variables:
-# rpm-spec-insert-changelog-version-with-shell: t
-# End:
 
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8

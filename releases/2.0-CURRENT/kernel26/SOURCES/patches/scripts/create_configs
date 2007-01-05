@@ -30,11 +30,15 @@ my @configs = (
      [ qw(i586 smp 4GB  smp) ],
      [ qw(i586 smp 4GB  build) ],
      [ qw(i586 up  1GB  BOOT) ],
+     [ qw(i586 smp none xenU) ],
+     [ qw(i586 smp none xen0) ],
 
      [ qw(x86_64 up  none up) ],
      [ qw(x86_64 smp none smp) ],
      [ qw(x86_64 smp none build) ],
      [ qw(x86_64 up  none BOOT) ]
+     [ qw(x86_64 smp none xenU) ]
+     [ qw(x86_64 smp none xen0) ]
 );
 
 my %cpu2arch = (
@@ -385,6 +389,89 @@ my @module_boot_options = qw(
     BLK_DEV_MD    
 );
 
+my @disable_xen0_options = qw(
+    XEN_UNPRIVILEGED_GUEST
+    XEN_BLKDEV_TAP_BE  
+    XEN_TPMDEV_BACKEND 
+    XEN_NETDEV_PIPELINED_TRANSMITTER
+    XEN_BLKDEV_TAP
+    XEN_TPMDEV_FRONTEND
+    XEN_SHADOW_MODE
+    XEN_UNPRIVILEGED_GUEST
+    VMSPLIT_3G_OPT
+    VMSPLIT_2G
+    VMSPLIT_1G
+    XEN_PCIDEV_FE_DEBUG
+    XEN_PCIDEV_BACKEND_PASS
+    XEN_PCIDEV_BE_DEBUG
+    CPU_FREQ
+    SCHED_MC
+    XEN_COMPAT_LATEST_ONLY
+);
+
+my @enable_xen0_options = qw(
+    XEN
+    XEN_PRIVILEGED_GUEST
+    XEN_UNPRIVILEGED_GUEST
+    XEN_PHYSDEV_ACCESS
+    XEN_PCIDEV_FRONTEND
+    XEN_BLKDEV_BACKEND 
+    XEN_NETDEV_BACKEND 
+    XEN_BLKDEV_FRONTEND
+    XEN_NETDEV_FRONTEND
+    XEN_SCRUB_PAGES
+    XEN_DISABLE_SERIAL
+    VMSPLIT_3G
+    XEN_NETDEV_LOOPBACK
+    XEN_BACKEND
+    XEN_PCIDEV_BACKEND
+    XEN_PCIDEV_BACKEND_VPCI
+    XEN_SYSFS
+    XEN_COMPAT_030002_AND_LATER
+    XEN_COMPAT_030002
+);
+
+my @disable_xenU_options = qw(
+    XEN_DISABLE_SERIAL
+    XEN_PRIVILEGED_GUEST
+    XEN_NETDEV_FRONTEND_PIPELINED_TRANSMITTER
+    XEN_BLKDEV_TAP
+    XEN_TPMDEV_FRONTEND
+    XEN_SHADOW_MODE
+    VMSPLIT_3G_OPT 
+    VMSPLIT_2G
+    VMSPLIT_1G
+    XEN_PCIDEV_FE_DEBUG
+    HOTPLUG_PCI_SHPC_PHPRM_LEGACY
+    XEN_PCIDEV_BE_DEBUG
+    XEN_BLKDEV_TAP_BE  
+    XEN_NETDEV_PIPELINED_TRANSMITTER
+    XEN_TPMDEV_BACKEND
+    XEN_PCIDEV_BACKEND_PASS
+    CPU_FREQ
+    SCHED_MC
+    XEN_COMPAT_LATEST_ONLY
+);
+
+my @enable_xenU_options = qw(
+    XEN
+    XEN_UNPRIVILEGED_GUEST
+    XEN_PCIDEV_FRONTEND
+    XEN_BLKDEV_FRONTEND   
+    XEN_NETDEV_FRONTEND
+    XEN_SCRUB_PAGES
+    XEN_DISABLE_SERIAL
+    VMSPLIT_3G
+    XEN_BACKEND
+    XEN_PCIDEV_BACKEND
+    XEN_PCIDEV_BACKEND_VPCI
+    XEN_BLKDEV_BACKEND
+    XEN_NETDEV_BACKEND
+    XEN_NETDEV_LOOPBACK
+    XEN_SYSFS
+    XEN_COMPAT_030002_AND_LATER
+    XEN_COMPAT_030002  
+);
 
 sub config_boot {
     foreach (@enable_boot_options) {
@@ -595,6 +682,8 @@ sub config_i386 {
     $values{ACPI_HT_ONLY}= "y" unless $acpi;
 
     config_boot_x86() if $name eq "BOOT";
+    config_xenU($cpu, $nproc, $mem, $name) if $name eq "xenU";
+    config_xen0($cpu, $nproc, $mem, $name) if $name eq "xen0";
 }
 
 sub config_x86_64 {
@@ -616,6 +705,82 @@ sub config_x86_64 {
     $values{ACPI_HT_ONLY}= "y" unless $acpi;
 
     config_boot_x86_64() if $name eq "BOOT";
+    config_xenU($cpu, $nproc, $mem, $name) if $name eq "xenU";
+    config_xen0($cpu, $nproc, $mem, $name) if $name eq "xen0";
+}
+
+sub config_xenU {
+    my ($cpu, $nproc, $mem, $name) = @_;
+    my $arch = $cpu2arch{$cpu};
+    
+    dprint "config $name\n";
+
+    if ( "$arch" eq "i386" ) {
+	    $values{X86_XEN} = "y";
+	    $values{X86_PC} = "n";
+    }
+    else {
+	    $values{X86_64_XEN} = "y";
+    }
+    $values{TCG_TPM} = "n";
+    $values{SYNCLINK} = "n";
+    $values{MICROCODE} = "n";
+    $values{IPMI_HANDLER} = "n";
+    $values{HIGHMEM4G} = "y";
+    $values{HIGHMEM64G} = "n";
+    $values{X86_PAE} = "n";
+    $values{KEXEC} = "n";
+    $values{BADRAM} = "n";
+    $values{TOSHIBA} = "n";
+    $values{ACERHK} = "n";
+    
+    # FIXME: why this is needed... kbuild magic should handle this afaik
+    $values{ARCNET} = "n";
+    $values{NDISWRAPPER} = "n";
+    $values{BCM4400} = "n";
+    $values{HP100} = "n";
+    $values{B44} = "n";
+
+    foreach (@enable_xenU_options) {
+	$to_add{$_} = "y";
+    }
+
+    foreach (@disable_xenU_options) {
+	$to_add{$_} = "n";
+    }
+}
+
+sub config_xen0 {
+    my ($cpu, $nproc, $mem, $name) = @_;
+    my $arch = $cpu2arch{$cpu};
+    dprint "config $name\n";
+
+    if ( "$arch" eq "i386" ) {
+	    $values{X86_XEN} = "y";
+	    $values{X86_PC} = "n";
+    }
+    else {
+	    $values{X86_64_XEN} = "y";
+	    # too bad dma_get_cache_coherent not implented yet
+	    $values{B44} = "n";
+    }
+    $values{TCG_TPM} = "n";
+    $values{SYNCLINK} = "n";
+    $values{MICROCODE} = "n";
+    $values{IPMI_HANDLER} = "n";
+    $values{HIGHMEM4G} = "y";
+    $values{HIGHMEM64G} = "n";
+    $values{X86_PAE} = "n";
+    $values{KEXEC} = "n";
+    $values{BADRAM} = "n";
+
+    foreach (@enable_xen0_options) {
+	$to_add{$_} = "y";
+    }
+
+    foreach (@disable_xen0_options) {
+	$to_add{$_} = "n";
+    }
 }
 
 sub modify_config {
@@ -687,12 +852,19 @@ sub create_config {
     # going to compile (yet).
 
     "config_$arch"->($cpu, $nproc, $mem, $name);
-    modify_config("arch/$arch/defconfig-maximum", ".config");
+    if ( "$arch" eq "xen" ) {
+        modify_config("arch/$arch/defconfig-$name", ".config");
+    } else {
+        modify_config("arch/$arch/defconfig-maximum", ".config");
+    }
 
     mysystem("make ARCH=$arch oldconfig");
 
     my $extension = config_name($cpu, $nproc, $mem, $name);
     mysystem("install -m 644 .config arch/$arch/defconfig$extension");
+    if ( "$arch" eq "xen") {
+        mysystem("make ARCH=$arch clean");
+    }
 }
 
 sub create_all_configs {
@@ -703,6 +875,24 @@ sub create_all_configs {
 
 sub copy_all_defconfigs {
     foreach my $arch (@archs) {
+	if ( "$arch" eq "xen" ) {
+		$file = "$configs_dir/xen0.$user_cpu.config";
+		$generic_file = "$configs_dir/xen0.config";
+		if ( -f $file || -f ( $file = $generic_file ) ) {
+		    dprint "dealing with $arch\n";
+		    mysystem "install -m 644 $file arch/$arch/defconfig-xen0";
+		} else {
+		    die "file $file don't exist";
+		}
+		$file = "$configs_dir/xenU.$user_cpu.config";
+		$generic_file = "$configs_dir/xenU.config";
+		if ( -f $file || -f ( $file = $generic_file ) ) {
+		    dprint "dealing with $arch\n";
+		    mysystem "install -m 644 $file arch/$arch/defconfig-xenU";
+		} else {
+		    die "file $file don't exist";
+		}
+	} else {
 		$file = "$configs_dir/$arch.config";
 		if ( -f $file ) {
 		    dprint "dealing with $arch\n";
@@ -710,6 +900,7 @@ sub copy_all_defconfigs {
 		} else {
 		    die "file $file don't exist";
 		}
+	}
     }
 }
 
