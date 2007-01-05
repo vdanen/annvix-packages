@@ -5,9 +5,9 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-# $Id: php-suhosin.spec 6411 2006-12-10 19:56:52Z vdanen $
+# $Id$
 
-%define revision	$Rev: 6411 $
+%define revision	$Rev$
 %define name		php-%{modname}
 %define version		2.0.0
 %define release		%_revrel
