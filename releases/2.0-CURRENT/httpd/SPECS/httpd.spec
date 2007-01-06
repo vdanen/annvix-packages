@@ -1382,6 +1382,9 @@ fi
 
 
 %changelog
+* Sat Jan 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3
+- updated 56_mod_disk_cache.conf so it works properly (closes bug #44)
+
 * Sat Dec 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3
 - rebuild against new apr/apr-util
 
