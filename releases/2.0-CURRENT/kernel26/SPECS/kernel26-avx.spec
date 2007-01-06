@@ -932,7 +932,7 @@ exit 0
 %{_kerneldir}/include/scsi
 %{_kerneldir}/include/sound
 %{_kerneldir}/include/video
-%{_kerneldir}/include/xen
+#%{_kerneldir}/include/xen
 #Openswan 2.x.x
 %{_kerneldir}/include/crypto
 %{_kerneldir}/include/des
