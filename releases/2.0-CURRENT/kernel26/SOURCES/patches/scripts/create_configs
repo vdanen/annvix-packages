@@ -30,16 +30,18 @@ my @configs = (
      [ qw(i586 smp 4GB  smp) ],
      [ qw(i586 smp 4GB  build) ],
      [ qw(i586 up  1GB  BOOT) ],
-     [ qw(i586 smp none xenU) ],
-     [ qw(i586 smp none xen0) ],
 
      [ qw(x86_64 up  none up) ],
      [ qw(x86_64 smp none smp) ],
      [ qw(x86_64 smp none build) ],
-     [ qw(x86_64 up  none BOOT) ],
-     [ qw(x86_64 smp none xenU) ],
-     [ qw(x86_64 smp none xen0) ]
+     [ qw(x86_64 up  none BOOT) ]
 );
+
+# for xen-enabeld kernels
+#     [ qw(i586 smp none xenU) ],
+#     [ qw(i586 smp none xen0) ],
+#     [ qw(x86_64 smp none xenU) ],
+#     [ qw(x86_64 smp none xen0) ]
 
 my %cpu2arch = (
     alpha => alpha,
@@ -398,9 +400,6 @@ my @disable_xen0_options = qw(
     XEN_TPMDEV_FRONTEND
     XEN_SHADOW_MODE
     XEN_UNPRIVILEGED_GUEST
-    VMSPLIT_3G_OPT
-    VMSPLIT_2G
-    VMSPLIT_1G
     XEN_PCIDEV_FE_DEBUG
     XEN_PCIDEV_BACKEND_PASS
     XEN_PCIDEV_BE_DEBUG
@@ -421,7 +420,6 @@ my @enable_xen0_options = qw(
     XEN_NETDEV_FRONTEND
     XEN_SCRUB_PAGES
     XEN_DISABLE_SERIAL
-    VMSPLIT_3G
     XEN_NETDEV_LOOPBACK
     XEN_BACKEND
     XEN_PCIDEV_BACKEND
@@ -438,9 +436,6 @@ my @disable_xenU_options = qw(
     XEN_BLKDEV_TAP
     XEN_TPMDEV_FRONTEND
     XEN_SHADOW_MODE
-    VMSPLIT_3G_OPT 
-    VMSPLIT_2G
-    VMSPLIT_1G
     XEN_PCIDEV_FE_DEBUG
     HOTPLUG_PCI_SHPC_PHPRM_LEGACY
     XEN_PCIDEV_BE_DEBUG
@@ -461,7 +456,6 @@ my @enable_xenU_options = qw(
     XEN_NETDEV_FRONTEND
     XEN_SCRUB_PAGES
     XEN_DISABLE_SERIAL
-    VMSPLIT_3G
     XEN_BACKEND
     XEN_PCIDEV_BACKEND
     XEN_PCIDEV_BACKEND_VPCI

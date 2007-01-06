@@ -954,6 +954,12 @@ exit 0
 
 
 %changelog
+* Sat Jan 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.37
+- set CONFIG_ISCSI_TCP=m (this builds iscsi_tcp.ko, scsi_transport_iscsi.ko
+  was already being built) -- this should enable iscsi support
+- revert some previous changes for xen that prevented us from building non-xen
+  kernels (xen is going to have to wait, it's interfering with openswan)
+
 * Thu Jan 04 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.37
 - 2.6.16.37: various fixes
 - disable CONFIG_RSBAC_CAP_AUTH_PROT and CONFIG_RSBAC_CAP_LOG_MISSING
