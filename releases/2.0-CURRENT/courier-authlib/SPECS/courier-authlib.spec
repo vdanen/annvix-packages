@@ -373,7 +373,12 @@ test -f %{_sysconfdir}/courier/authpgsqlrc.rpmnew && %{_libdir}/courier-authlib/
 %doc README.authmysql.html README.authmysql.myownquery
 %doc userdb/makeuserdb.html userdb/userdb.html userdb/userdbpw.html
 
+
 %changelog
+* Sat Jan 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.58
+- fix the authdaemond runscript; it's handled quite differently than it
+  was before
+
 * Sat Dec 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.58
 - add a requires on libltdl and fix changelog
 

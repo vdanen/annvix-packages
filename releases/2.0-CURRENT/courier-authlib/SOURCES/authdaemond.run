@@ -1,17 +1,7 @@
-#!/bin/sh
-PATH="/sbin:/usr/sbin:/bin:/usr/bin"
+#!/bin/execlineb
 
-# this runs authdaemond daemon supervised
+/bin/fdmove -c 2 1
 
-AUTHDIR="/usr/lib/courier/authlib"
-AUTHDAEMOND=authdaemond.plain
+/bin/export PATH "/sbin:/usr/sbin:/bin:/usr/bin"
 
-[[ -x $AUTHDIR/authdaemond.ldap ]] && AUTHDAEMOND=authdemond.ldap
-[[ -x $AUTHDIR/authdaemond.mysql ]] && AUTHDAEMOND=authdemond.mysql
-[[ -x $AUTHDIR/authdaemond.pgsql ]] && AUTHDAEMOND=authdemond.pgsql
-
-. /etc/courier/authdaemonrc
-
-[[ "$version" = "" ]] || AUTHDAEMOND="$version"
-
-exec $AUTHDIR/$AUTHDAEMOND 2>&1
+/usr/sbin/authdaemond
