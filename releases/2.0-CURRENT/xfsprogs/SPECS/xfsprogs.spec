@@ -160,6 +160,7 @@ rm -rf %{buildroot}%{_datadir}/locale
 %defattr(-,root,root)
 %doc doc/CHANGES.gz doc/COPYING doc/CREDITS doc/PORTING README
 
+# NOTE: ref bug #43; xfsprogs > 2.8.11 doesn't work on i586
 
 %changelog
 * Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.8.11
