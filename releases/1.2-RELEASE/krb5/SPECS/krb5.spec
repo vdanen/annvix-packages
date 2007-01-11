@@ -68,6 +68,7 @@ Patch25:	krb5-1.3.5-gethostbyname_r.patch
 Patch26:	krb5-1.3.6-et-preserve-file-names.patch
 # http://qa.mandriva.com/show_bug.cgi?id=9410
 Patch27:	krb5-1.4.1-ftplfs.patch
+Patch28:	2006-002-patch.txt
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	bison, flex, libtermcap-devel, texinfo, tcl
@@ -225,6 +226,7 @@ This version supports kerberos authentication.
 %patch25 -p1 -b .gethostbyname_r
 %patch26 -p1 -b .et-preserve-file-names
 %patch27 -p1 -b .lfs
+%patch28 -p0 -b .cve-2006-6143
 
 find . -type f -name "*.fixinfo" -exec rm -fv "{}" ";"
 gzip doc/*.ps
@@ -630,10 +632,13 @@ popd >/dev/null 2>&1
 
 
 %changelog
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Wed Jan 10 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.4.2
+- P28: security fix for CVE-2006-6143
+
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4.2
 - Clean rebuild
 
-* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4.2
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
