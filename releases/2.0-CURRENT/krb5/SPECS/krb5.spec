@@ -62,6 +62,8 @@ Patch11:	krb5-1.3.3-fdr-rcp-sendlarge.patch
 Patch17:	krb5-1.3.6-et-preserve-file-names.patch
 # http://qa.mandriva.com/show_bug.cgi?id=9410
 Patch18:	krb5-1.4.1-ftplfs.patch
+Patch19:	2006-002-patch.txt
+Patch20:	2006-003-patch.txt
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	bison
@@ -233,6 +235,8 @@ This package contains the documentation for %{name}.
 %patch11 -p1 -b .rcp-sendlarge
 %patch17 -p1 -b .et-preserve-file-names
 %patch18 -p1 -b .lfs
+%patch19 -p0 -b .cve-2006-6143
+%patch20 -p0 -b .cve-2006-6144
 
 find . -type f -name "*.fixinfo" -exec rm -fv "{}" ";"
 gzip doc/*.ps
@@ -631,6 +635,10 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Wed Jan 10 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.5.1
+- P19: security fix for CVE-2006-6143
+- P20: security fix for CVE-2006-6144
+
 * Sat Dec 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.5.1
 - the library major is 3, not 1
 
