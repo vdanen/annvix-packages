@@ -25,12 +25,10 @@ if [ "`${gpg} --list-secret-key|grep aide@${host} >/dev/null 2>&1; echo $?`" == 
     echo "This is done automatically, but you must provide a strong passphrase"
     echo "to protect the key."
     echo ""
-    stty -echo
-    read -p "Passphrase: " PASS1
+    read -s -e -p "Passphrase: " PASS1
     echo ""
-    read -p "Re-enter passphrase: " PASS2
+    read -s -e -p "Re-enter passphrase: " PASS2
     echo ""
-    stty echo
 
     if [ "${PASS1}" != "${PASS2}" ]; then
         echo "FATAL: Passwords do not match!"
@@ -69,7 +67,10 @@ ${aide} --init -B "database=file:/tmp/foo" -B "database_out=file:/var/lib/aide/a
 pushd /var/lib/aide >/dev/null 2>&1
     # create the signature file
     [[ -f aide.db.sig ]] && rm -f aide.db.sig
-    ${gpg} -u aide@${host} --detach-sign aide.db
+    echo ""
+    read -s -e -p "Enter your AIDE gpg password: " gpgpass
+    echo ${gpgpass} | ${gpg} -u aide@${host} --passphrase-fd stdin --no-tty --detach-sign aide.db
+    echo ""
     if [ "$?" == "1" ]; then
         echo "FATAL:  Error occurred when creating the signature file!"
         exit 1

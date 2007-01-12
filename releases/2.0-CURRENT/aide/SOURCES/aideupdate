@@ -51,7 +51,10 @@ if [ -f aide.db ]; then
         -B "report_url=file:/var/lib/aide/reports/${fname}.report"
     # create the signature file
     [[ -f aide.db.sig ]] && rm -f aide.db.sig
-    ${gpg} -u aide@${host} --detach-sign aide.db
+    echo ""
+    read -s -e -p "Enter your AIDE gpg password: " gpgpass
+    echo ${gpgpass} | ${gpg} -u aide@${host} --passphrase-fd stdin --no-tty --detach-sign aide.db
+    echo ""
     if [ "$?" == "1" ]; then
 	echo "FATAL:  Error occurred when creating the signature file!"
 	exit 1

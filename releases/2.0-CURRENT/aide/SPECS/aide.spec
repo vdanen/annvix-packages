@@ -120,6 +120,12 @@ install -m 0644 %{_sourcedir}/98_aide.afterboot %{buildroot}%{_datadir}/afterboo
 
 
 %changelog
+* Fri Jan 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.13.1
+- update aideinit and aidecheck to work around the gpg issue (bug #45);
+  this is a bit of a hack but since gpg is segfaulting on receiving typed
+  input we can work around the issue this way while we figure out the
+  real problem
+
 * Mon Jan 01 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.13.1
 - 0.13.1
 
