@@ -9,7 +9,7 @@ configuration in order for it to be completely useful; to do this edit the
 .LP
 To begin, execute:
 .IP
-aide --init
+aideinit
 .LP
 to initialize the database.  Unlike Tripwire, AIDE uses no encryption to protect the
 configuration or database files so you must ensure that only root has access to these

@@ -8,7 +8,7 @@
 # $Id$
 
 if [ ! -d /var/lib/aide ]; then
-    echo "The AIDE database directory /var/lib/aide does not exist!"
+    printf "The AIDE database directory /var/lib/aide does not exist!\n\n"
     exit 1
 fi
 
@@ -17,25 +17,33 @@ gpg="/usr/bin/gpg"
 aide="/usr/sbin/aide"
 fname="aide-`hostname`-`date +%Y%m%d-%H%M%S`"
 
-if [ "`${gpg} --list-secret-key|grep aide@${host} >/dev/null 2>&1; echo $?`" == "1" ]; then
+if [ "`${gpg} --list-secret-key | grep aide@${host} >/dev/null 2>&1; echo $?`" == "1" ]; then
     # we need to generate a gpg key
 
-    echo "Generating GPG private key for aide@${host}"
-    echo ""
-    echo "This is done automatically, but you must provide a strong passphrase"
-    echo "to protect the key."
-    echo ""
-    read -s -e -p "Passphrase: " PASS1
-    echo ""
-    read -s -e -p "Re-enter passphrase: " PASS2
-    echo ""
+    printf "Generating GPG private key for aide@${host}\n\n"
+    printf "This is done automatically, but you must provide a strong passphrase\nto protect the key.\n\n"
 
-    if [ "${PASS1}" != "${PASS2}" ]; then
-        echo "FATAL: Passwords do not match!"
+    getpass() {
+        unset PASS1
+        unset PASS2
+        read -s -e -p "Passphrase: " PASS1
+        printf "\n"
+        read -s -e -p "Re-enter passphrase: " PASS2
+        printf "\n"
+        if [ "${PASS1}" != "${PASS2}" ]; then
+            printf "FATAL: Passwords do not match!\n\n"
+        fi
+        return 1
+    }
+
+    getpass
+    [[ "$?" == "1" ]] && getpass
+    [[ "$?" == "1" ]] && {
+        printf "FATAL: Password mis-match occurred twice.  Aborting.\n\n"
         exit 1
-    fi
+    }
 
-    echo "Generating GPG key..."
+    printf "Generating GPG key... "
     tmpfile=`mktemp` || exit 1
 
     echo "Key-Type: DSA" >>${tmpfile}
@@ -50,31 +58,36 @@ if [ "`${gpg} --list-secret-key|grep aide@${host} >/dev/null 2>&1; echo $?`" == 
 
     ${gpg} --batch --gen-key ${tmpfile}
     if [ "$?" == "0" ]; then
-        echo "GPG key successfully created!"
+        printf " success!\n\n"
         rm -f ${tmpfile}
     else
-        echo "An error occurred; cannot proceed!"
+        printf " failed!\nAn error occurred; cannot proceed!\n\n"
         rm -f ${tmpfile}
         exit 1
     fi
-    echo ""
 fi
 
-echo "Initializing the AIDE database... this may take a minute or two"
+signfile() {
+    echo ${PASS1} | ${gpg} -u aide@${host} --passphrase-fd stdin --no-tty --detach-sign aide.db
+    if [ "$?" == "1" ]; then
+        printf "FATAL:  Error occurred when creating the signature file!\n\n"
+        exit 1
+    fi
+}
+
+printf "Initializing the AIDE database... this may take a minute or two.\n"
 
 # set database to a non-existant file to prevent warnings
 ${aide} --init -B "database=file:/tmp/foo" -B "database_out=file:/var/lib/aide/aide.db"
 pushd /var/lib/aide >/dev/null 2>&1
-    # create the signature file
+    # create the signature file; we don't have to ask for the passphrase here, we've already got it
     [[ -f aide.db.sig ]] && rm -f aide.db.sig
-    echo ""
-    read -s -e -p "Enter your AIDE gpg password: " gpgpass
-    echo ${gpgpass} | ${gpg} -u aide@${host} --passphrase-fd stdin --no-tty --detach-sign aide.db
-    echo ""
-    if [ "$?" == "1" ]; then
-        echo "FATAL:  Error occurred when creating the signature file!"
+    signfile
+    [[ ! -f aide.db.sig ]] && {
+        printf "FATAL: Signature was not created!  Aborting.\n\n"
         exit 1
-    fi
+    }
+    printf "Database successfully signed.\n\n"
 popd >/dev/null 2>&1
 
 exit 0

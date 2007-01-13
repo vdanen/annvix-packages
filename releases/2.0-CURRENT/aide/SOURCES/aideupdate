@@ -7,19 +7,18 @@
 #
 # $Id$
 
-distro="Annvix"
 gpg="/usr/bin/gpg"
 aide="/usr/sbin/aide"
 fname="aide-`hostname`-`date +%Y%m%d-%H%M%S`"
 host="`hostname`"
 
 if [ ! -d /var/lib/aide ]; then
-    echo "The AIDE database directory /var/lib/aide does not exist!"
+    printf "The AIDE database directory /var/lib/aide does not exist!\n\n"
     exit 1
 fi
 
 if [ ! -d /var/lib/aide/reports ]; then
-    echo "Creating /var/lib/aide/reports to store reports"
+    printf "Creating /var/lib/aide/reports to store reports\n"
     mkdir /var/lib/aide/reports && chmod 0700 /var/lib/aide/reports
 fi
 
@@ -32,36 +31,51 @@ if [ -f aide.db ]; then
         # do an integrity check
 	${gpg} --verify aide.db.sig
 	if [ "$?" == "1" ]; then
-	    echo "************************************************************"
-	    echo "GPG signature FAILED!  Your database has been tampered with!"
-	    echo "************************************************************"
+	    printf "************************************************************\n"
+	    printf "GPG signature FAILED!  Your database has been tampered with!\n"
+	    printf "************************************************************\n"
 	    exit 1
 	fi
     else
-        echo "************************************************************"
-        echo "No GPG signature file found!  Your system may be compromised"
-        echo "or incorrectly configured!  Please read man afterboot for"
-        echo "more information on how to correctly configure AIDE on"
-        echo "${distro}!"
-        echo "************************************************************"
+        printf "**************************************************************\n"
+        printf "No GPG signature file found!  Your system may be compromised\n"
+        printf "or incorrectly configured!  Please read man afterboot for\n"
+        printf "more information on how to correctly configure AIDE on Annvix!\n"
+        printf "**************************************************************\n"
         exit 1
     fi
+    
+    # this function signs the aide.db with gpg
+    signfile() {
+        unset gpgpass
+        printf "\n"
+        read -s -e -p "Enter AIDE passphrase for aide@${host}: " gpgpass
+        printf "\n"
+        echo ${gpgpass} | ${gpg} -u aide@${host} --passphrase-fd stdin --no-tty --detach-sign aide.db
+        if [ "$?" == "1" ]; then
+            printf "FATAL:  Error occurred when creating the signature file!\n\n"
+            exit 1
+        fi
+    }
+    
     cp -a aide.db ${newfile} 
     ${aide} --update -B "database=file:/var/lib/aide/${newfile}" -B "database_out=file:/var/lib/aide/aide.db" \
         -B "report_url=file:/var/lib/aide/reports/${fname}.report"
     # create the signature file
     [[ -f aide.db.sig ]] && rm -f aide.db.sig
-    echo ""
-    read -s -e -p "Enter your AIDE gpg password: " gpgpass
-    echo ${gpgpass} | ${gpg} -u aide@${host} --passphrase-fd stdin --no-tty --detach-sign aide.db
-    echo ""
-    if [ "$?" == "1" ]; then
-	echo "FATAL:  Error occurred when creating the signature file!"
-	exit 1
-    fi
+    signfile
+    [[ ! -f aide.db.sig ]] && {
+        printf "No signature was created; bad passphrase?  Try it again.\n\n"
+        signfile
+    }
+    [[ ! -f aide.db.sig ]] && {
+        printf "FATAL: Signature was not created twice!  Something is very wrong here.\n\n"
+        exit 1
+    }
+    printf "Database successfully signed.\n\n"
     gzip -9f ${newfile}
 else
-    echo "The AIDE database does not exist, can't update!"
+    printf "The AIDE database does not exist, can't update!\n\n"
     exit 1
 fi
 
