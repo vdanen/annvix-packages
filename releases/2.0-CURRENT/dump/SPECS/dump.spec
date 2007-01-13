@@ -90,7 +90,7 @@ make install SBINDIR=%{buildroot}/sbin BINDIR=%{buildroot}/sbin MANDIR=%{buildro
 pushd %{buildroot}
     mkdir .%{_sysconfdir}
     > .%{_sysconfdir}/dumpdates
-    ln -s ../sbin/smt .%{_sysconfdir}/rmt
+    ln -s ../sbin/rmt .%{_sysconfdir}/rmt
 popd
 
 
@@ -122,6 +122,9 @@ popd
 
 
 %changelog
+* Sat Jan 13 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.4b40
+- fix the rmt symlink
+
 * Mon Aug 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.4b40
 - rebuild against new e2fsprogs
 
