@@ -37,6 +37,8 @@ Requires:	mingetty
 Requires:	execline
 Requires:	ipsvd
 Requires:	psmisc
+Requires(preun): rpm-helper
+Requires(post):	rpm-helper
 Conflicts:	SysVinit <= 2.85-6avx
 Obsoletes:	chkconfig
 
@@ -291,6 +293,7 @@ fi
 %changelog
 * Sat Jan 13 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.7.2
 - annvix-runit 0.13
+- fix requires
 
 * Sat Jan 13 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.7.2
 - annvix-runit 0.12
