@@ -12,7 +12,7 @@
 %define version		1.0
 %define release		%_revrel
 
-%define prever		rc15
+%define prever		rc17
 
 Summary:	Secure IMAP and POP3 server
 Name: 		%{name}
@@ -21,7 +21,7 @@ Release:	%{release}
 License:	GPL
 Group:		System/Servers
 URL:		http://dovecot.org
-Source0:	http://dovecot.org/releases/%{name}-%{version}.%{prever}.tar.bz2
+Source0:	http://dovecot.org/releases/%{name}-%{version}.%{prever}.tar.gz
 Source1:	dovecot-pamd
 Source2:	dovecot.run
 Source3:	dovecot-log.run
@@ -200,6 +200,9 @@ exit 0
 
 
 %changelog
+* Sat Jan 13 2007 Vincent Danen <vdanen-at-build.annvix.org>  1.0
+- 1.0-rc17
+
 * Fri Dec 28 2006 Vincent Danen <vdanen-at-build.annvix.org>  1.0
 - rebuild against new pam
 
