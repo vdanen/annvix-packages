@@ -106,7 +106,6 @@ install -m 0755 mod_ssl-gentestcrt.sh %{buildroot}%{_sbindir}/mod_ssl-gentestcrt
 
 # make some softlinks
 pushd %{buildroot}%{_sysconfdir}/httpd
-    ln -s ../..%{_libdir} %{_lib}
     ln -s ../../var/log/httpd logs
     ln -s ../..%{_libdir}/httpd modules
     ln -s ../..%{_libdir}/httpd-extramodules extramodules
@@ -203,7 +202,6 @@ rm -rf %{buildroot}%{_datadir}/ADVX
 %dir %{_sysconfdir}/httpd/conf.d
 %dir %{_sysconfdir}/httpd/modules.d
 
-%dir %{_sysconfdir}/httpd/%{_lib}
 %dir %{_sysconfdir}/httpd/logs
 %dir %{_sysconfdir}/httpd/modules
 %dir %{_sysconfdir}/httpd/extramodules
@@ -241,6 +239,9 @@ rm -rf %{buildroot}%{_datadir}/ADVX
 
 
 %changelog
+* Sat Jan 13 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3
+- don't symlink /usr/lib to /etc/httpd/lib (not sure why that was ever there)
+
 * Sat Dec 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3
 - drop the sysconfig file, it's not used
 - some minor httpd.conf cleanups
