@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		initscripts
-%define version		8.36
+%define version		8.37
 %define release		%_revrel
 
 Summary:	The inittab file and the /etc/init.d scripts
@@ -233,6 +233,9 @@ fi
 
 
 %changelog
+* Sat Jan 13 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.37
+- 8.37; more minor modifications
+
 * Sat Dec 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.36
 - 8.36; more minor fixes
 
