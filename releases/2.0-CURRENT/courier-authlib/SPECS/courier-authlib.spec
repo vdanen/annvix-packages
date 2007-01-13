@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		courier-authlib
-%define version		0.58
+%define version		0.59
 %define release		%_revrel
 
 Summary:	Courier authentication library
@@ -375,6 +375,9 @@ test -f %{_sysconfdir}/courier/authpgsqlrc.rpmnew && %{_libdir}/courier-authlib/
 
 
 %changelog
+* Sat Jan 13 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.59
+- 0.59
+
 * Sat Jan 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.58
 - fix the authdaemond runscript; it's handled quite differently than it
   was before
