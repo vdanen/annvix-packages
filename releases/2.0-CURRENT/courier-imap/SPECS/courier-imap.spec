@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		courier-imap
-%define version		4.1.1
+%define version		4.1.2
 %define release		%_revrel
 
 Summary:	Courier-IMAP is an IMAP server that uses Maildirs
@@ -364,6 +364,9 @@ done
 
 
 %changelog
+* Sat Jan 13 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.1.2
+- 4.1.2
+
 * Sat Dec 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.1.1
 - 4.1.1
 - complete overhaul due to the break-out of courier-authlib
