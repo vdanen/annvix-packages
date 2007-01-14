@@ -114,6 +114,9 @@ fi
 
 
 %changelog
+* Sat Jan 13 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.8
+- change the urls in motd
+
 * Mon Nov 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.8
 - move %%post stuff to %%posttrans to run after the install transaction
   (should ease chroot installs a bit)
