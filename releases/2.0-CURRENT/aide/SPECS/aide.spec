@@ -120,6 +120,9 @@ install -m 0644 %{_sourcedir}/98_aide.afterboot %{buildroot}%{_datadir}/afterboo
 
 
 %changelog
+* Tue Jan 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.13.1
+- fix aideinit
+
 * Sat Jan 13 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.13.1
 - do some cleanup on aideinit and aideupdate
 - don't require entering the passphrase on aideinit to create the initial
