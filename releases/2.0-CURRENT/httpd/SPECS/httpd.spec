@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		httpd
-%define version		2.2.3
+%define version		2.2.4
 %define release		%_revrel
 
 # not everyone uses this, so define it here
@@ -56,7 +56,7 @@ Source68:	default-vhosts.conf
 Source100:	buildconf
 
 Patch0:		httpd-2.0.45-deplibs.patch
-Patch1:		httpd-2.0.45-encode.patch
+Patch1:		httpd-2.2.4-mdv-encode.patch
 Patch2:		httpd-2.0.40-xfsz.patch
 Patch3:		httpd-2.0.48-corelimit.patch
 Patch4:		httpd-2.0.48-debuglog.patch
@@ -1382,6 +1382,11 @@ fi
 
 
 %changelog
+* Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.4
+- 2.2.4
+- update P1 from Mandriva
+- updated perl framework (S4)
+
 * Sat Jan 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3
 - updated 56_mod_disk_cache.conf so it works properly (closes bug #44)
 
