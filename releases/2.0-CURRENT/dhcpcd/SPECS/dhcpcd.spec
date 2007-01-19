@@ -62,12 +62,10 @@ This package contains the documentation for %{name}.
 mkdir -p %{buildroot}/sbin 
 mkdir -p %{buildroot}%{_mandir}/man8
 mkdir -p %{buildroot}%{_sysconfdir}/dhcpc/
-mkdir -p %{buildroot}/var/log
 
 install -s -m 0755 dhcpcd %{buildroot}/sbin/dhcpcd
-install -s -m 0755 dhcpcd.exe %{buildroot}%{_sysconfdir}/dhcpc/
+install -m 0755 dhcpcd.exe %{buildroot}%{_sysconfdir}/dhcpc/
 install -m 0644 dhcpcd.8 %{buildroot}%{_mandir}/man8/dhcpcd.8
-touch %{buildroot}/var/log/%{name}.log
 
 
 %clean
@@ -79,7 +77,6 @@ touch %{buildroot}/var/log/%{name}.log
 %config(noreplace) %{_sysconfdir}/dhcpc/*
 /sbin/dhcpcd
 %{_mandir}/man8/dhcpcd.8*
-%ghost /var/log/%{name}.log
 
 %files doc
 %defattr(-,root,root)
@@ -90,6 +87,8 @@ touch %{buildroot}/var/log/%{name}.log
 * Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.3.22pl4
 - get rid of the %%post stuff; all it does is drop a useless file in /
   and there's no logrotating going on here
+- don't install dhcpcd.exe with "-s" (aka strip)
+- drop the %%ghost logfile too
 
 * Sat Jul 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.22pl4
 - add -doc subpackage
