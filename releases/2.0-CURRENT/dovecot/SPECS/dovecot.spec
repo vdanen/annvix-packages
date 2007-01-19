@@ -200,6 +200,9 @@ exit 0
 
 
 %changelog
+* Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org>  1.0
+- rebuild against new postgresql
+
 * Sat Jan 13 2007 Vincent Danen <vdanen-at-build.annvix.org>  1.0
 - 1.0-rc17
 
