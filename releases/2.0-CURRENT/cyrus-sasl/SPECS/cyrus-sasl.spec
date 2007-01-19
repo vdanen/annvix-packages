@@ -523,6 +523,9 @@ fi
 
  
 %changelog
+* Fri Jan 29 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1.22
+- rebuild against new postgresql
+
 * Fri Dec 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1.22
 - rebuild against new pam
 
