@@ -884,6 +884,9 @@ fi
 
 
 %changelog
+* Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.3.30
+- fix the logrotate script
+
 * Fri Dec 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.30
 - 2.3.30
 - don't use the internal db4 anymore

@@ -8,7 +8,7 @@
     sharedscripts
     postrotate
 	# only restart if slapd is really running
-        if [ "`/sbin/sv status /service/sshd 2>/dev/null | cut -d ';' -f 1 | egrep -q '^run: ' ; echo $?`" == "0" ]; then
+        if [ "`/sbin/sv status /service/slapd 2>/dev/null | cut -d ';' -f 1 | egrep -q '^run: ' ; echo $?`" == "0" ]; then
                 /usr/sbin/srv --restart slapd
 	fi
     endscript
