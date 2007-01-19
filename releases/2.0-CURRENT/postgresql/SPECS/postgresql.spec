@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		postgresql
-%define version		8.2.0
+%define version		8.2.1
 %define release		%_revrel
 
 %define pyver		%(python -c 'import sys;print(sys.version[0:3])')
@@ -624,6 +624,9 @@ fi
 
 
 %changelog
+* Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.2.1
+- 8.2.1 (important fixes)
+
 * Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.2.0
 - rebuild against new pam
 
