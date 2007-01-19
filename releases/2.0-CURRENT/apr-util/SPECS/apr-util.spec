@@ -253,6 +253,9 @@ rm -f %{buildroot}%{_libdir}/aprutil.exp
 
 
 %changelog
+* Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2.8
+- rebuild against new postgresql
+
 * Sat Dec 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.8
 - 1.2.8
 - new S2 with better mysql 5.x support
