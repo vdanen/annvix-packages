@@ -12,7 +12,7 @@
 %define svn_version	1.4.2
 %define release		%_revrel
 
-%define apache_version	2.2.3
+%define apache_version	2.2.4
 %define mod_version 	%{apache_version}_%{svn_version}
 %define mod_dav_name	mod_dav_svn
 %define mod_dav_conf	46_%{mod_dav_name}.conf
@@ -479,6 +479,9 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.4.2
+- apache 2.2.4
+
 * Sat Dec 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4.2
 - 1.4.2
 - fix requires on httpd-mod_dav_svn
