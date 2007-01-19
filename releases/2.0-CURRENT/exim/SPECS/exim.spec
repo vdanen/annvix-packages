@@ -315,6 +315,9 @@ fi
 
 
 %changelog
+* Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.63
+- rebuild against new postgresql
+
 * Fri Dec 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.63
 - rebuild against new pam
 
