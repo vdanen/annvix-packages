@@ -32,10 +32,10 @@ Source7:	index.html
 Source10:	robots.txt
 Source11:	00_default_vhosts.conf
 Source12:	mod_ssl-gentestcrt.sh
-
-Source100:	httpd.run
-Source101:	httpd-log.run
-Source102:	03_apache2.afterboot
+Source13:	httpd.run
+Source14:	httpd-log.run
+Source15:	03_apache2.afterboot
+Source16:	httpd.logrotate
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	dietlibc-devel >= 0.20-1mdk
@@ -142,21 +142,7 @@ install -m 0644 advx-migrate-httpd.conf %{buildroot}%{_datadir}/ADVX/
 install -m 0644 advx-migrate-vhosts.conf %{buildroot}%{_datadir}/ADVX/
 install -m 0644 mod_ssl-migrate-20 %{buildroot}%{_datadir}/ADVX/
 install -m 0644 %{_sourcedir}/mod_ssl-gentestcrt.sh %{buildroot}%{_datadir}/ADVX/
-
-cat > %{buildroot}%{_sysconfdir}/logrotate.d/httpd << EOF
-/var/log/httpd/*log
-{
-    size=2000M
-    rotate 5
-    monthly
-    missingok
-    nocompress
-    notifempty
-    postrotate
-	[[ -d /service/httpd ]] && /sbin/sv hup /service/httpd >/dev/null 2>&1
-    endscript
-}
-EOF
+install -m 0644 %{_sourcedir}/httpd.logrotate %{buildroot}%{_sysconfdir}/logrotate.d/httpd
 
 mkdir -p %{buildroot}%{_srvdir}/httpd/log
 install -m 0740 %{_sourcedir}/httpd.run %{buildroot}%{_srvdir}/httpd/run
@@ -239,6 +225,10 @@ rm -rf %{buildroot}%{_datadir}/ADVX
 
 
 %changelog
+* Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3
+- put the logrotate script in it's own file
+- make sure httpd is running before sending it the hup
+
 * Sat Jan 13 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3
 - don't symlink /usr/lib to /etc/httpd/lib (not sure why that was ever there)
 
