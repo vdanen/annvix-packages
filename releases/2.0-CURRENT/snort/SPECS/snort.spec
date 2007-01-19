@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		snort
-%define version		2.6.1.1
+%define version		2.6.1.2
 %define release		%_revrel
 
 Summary:	An intrusion detection system
@@ -32,7 +32,6 @@ Source7:	http://www.snort.org/pub-bin/downloads.cgi/Download/comm_rules/Communit
 Patch1:		snort-2.6.0-mdv-lib64.patch
 # (oe): make -L work as stated in the man page.
 Patch3:		snort-2.3.0-no_timestamp.diff
-Patch5:		snort-2.6.0-mdv-no_bundled_libtool.patch
 Patch6:		snort-2.6.1-mdv-plugins_fix.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -180,7 +179,6 @@ This package contains the documentation for %{name}.
 %setup -q -a 7
 %patch1 -p0 -b .lib64
 %patch3 -p0 -b .no_timestamp
-%patch5 -p0 -b .no_bundled_libtool
 %patch6 -p1 -b .plugins_fix
 
 # fix some docs
@@ -655,6 +653,13 @@ update-alternatives --remove %{name} %{_sbindir}/%{name}-inline+flexresp
 
 
 %changelog
+* Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.1.2
+- 2.6.1.2
+- make the snort logrotate script better (check if it's running and use
+  srv rather than sv)
+- drop P5; no longer required
+- build against new postgresql
+
 * Sat Dec 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.1.1
 - P4: drop as it no longer applies and we weren't using it
 - re-enable disabled patches (were disabled for debugging)
