@@ -27,8 +27,6 @@ Patch1:		dhcpcd-1.3.22pl4-CAN-2005-1848.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
-Requires(post):	rpm-helper
-
 %description
 dhcpcd is an implementation of the DHCP client specified in
 draft-ietf-dhc-dhcp-09 (when -r option is not specified) and RFC1541
@@ -76,13 +74,6 @@ touch %{buildroot}/var/log/%{name}.log
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
-%post
-# Create initial log files so that logrotate doesn't complain
-if [ $1 = 1 ]; then # first install
-	%create_ghostfile dhcpcd root root 644
-fi
-
-
 %files
 %defattr(-,root,root)
 %config(noreplace) %{_sysconfdir}/dhcpc/*
@@ -96,7 +87,11 @@ fi
 
 
 %changelog
-* Sat Jul 22 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.3.22pl4
+- get rid of the %%post stuff; all it does is drop a useless file in /
+  and there's no logrotating going on here
+
+* Sat Jul 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.22pl4
 - add -doc subpackage
 - rebuild with gcc4
 - add requires(post) on rpm-helper
