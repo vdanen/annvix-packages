@@ -596,6 +596,9 @@ fi
 
 
 %changelog
+* Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.0
+- apache 2.2.4
+
 * Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.2.0
 - build against new libxml2 and libxslt
 
