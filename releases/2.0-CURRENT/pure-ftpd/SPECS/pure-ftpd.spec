@@ -205,6 +205,9 @@ done
 
 
 %changelog
+* Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0.21
+- rebuild against new postgresql
+
 * Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.21
 - rebuild against new pam
 
