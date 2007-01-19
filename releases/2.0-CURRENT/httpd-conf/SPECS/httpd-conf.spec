@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		httpd-conf
-%define version		2.2.3
+%define version		2.2.4
 %define release		%_revrel
 
 %define compat_dir	/etc/httpd
@@ -225,6 +225,9 @@ rm -rf %{buildroot}%{_datadir}/ADVX
 
 
 %changelog
+* Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.4
+- apache 2.2.4
+
 * Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3
 - put the logrotate script in it's own file
 - make sure httpd is running before sending it the hup
