@@ -375,6 +375,9 @@ test -f %{_sysconfdir}/courier/authpgsqlrc.rpmnew && %{_libdir}/courier-authlib/
 
 
 %changelog
+* Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.59
+- rebuild against new postgresql
+
 * Sat Jan 13 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.59
 - 0.59
 
