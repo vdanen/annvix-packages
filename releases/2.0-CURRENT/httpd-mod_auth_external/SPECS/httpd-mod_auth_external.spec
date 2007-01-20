@@ -13,7 +13,7 @@
 %define release		%_revrel
 
 # Module-Specific definitions
-%define apache_version	2.2.3
+%define apache_version	2.2.4
 %define mod_version	3.1.0
 %define mod_name	mod_authnz_external
 %define mod_conf	10_%{mod_name}.conf
@@ -88,6 +88,9 @@ chmod 0644 AUTHENTICATORS CHANGES INSTALL* README* TODO
 
 
 %changelog
+* Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.4_3.1.0
+- apache 2.2.4
+
 * Sun Jul 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3_3.1.0
 - apache 2.2.3
 - spec cleanups
