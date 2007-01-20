@@ -81,6 +81,9 @@ EOF
 
 
 %changelog
+* Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.0 
+- rebuild against new postgresql
+
 * Sun Dec 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.2.0 
 - php 5.2.0
 
