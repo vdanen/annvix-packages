@@ -13,7 +13,7 @@
 %define release 	%_revrel
 
 # Module-Specific definitions
-%define apache_version	2.2.3
+%define apache_version	2.2.4
 %define mod_version	4.0.1a
 %define mod_name	mod_layout
 %define mod_conf	15_%{mod_name}.conf
@@ -95,6 +95,9 @@ cat %{_sourcedir}/%{mod_conf} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod
 
 
 %changelog
+* Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.4_4.0.1a
+- apache 2.2.4
+
 * Sun Jul 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3_4.0.1a
 - apache 2.2.3
 - spec cleanups
