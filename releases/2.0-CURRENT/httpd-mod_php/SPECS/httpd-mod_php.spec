@@ -13,7 +13,7 @@
 %define release		%_revrel
 
 # Module-Specific definitions
-%define apache_version	2.2.3
+%define apache_version	2.2.4
 %define phpversion	5.2.0
 %define mod_name	mod_php
 %define mod_conf	70_%{mod_name}.conf
@@ -119,6 +119,9 @@ cat %{_sourcedir}/%{mod_conf} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod
 
 
 %changelog
+* Fri Jan 19 2006=7 Vincent Danen <vdanen-at-build.annvix.org> 2.2.4_5.2.0 
+- apache 2.2.4
+
 * Sun Dec 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3_5.2.0 
 - php 5.2.0
 - fix requires
