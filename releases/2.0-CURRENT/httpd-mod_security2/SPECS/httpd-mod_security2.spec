@@ -13,7 +13,7 @@
 %define release 	%_revrel
 
 # Module-Specific definitions
-%define apache_version	2.2.3
+%define apache_version	2.2.4
 %define mod_version	2.0.4
 %define mod_name	mod_security2
 %define mod_conf	82_%{mod_name}.conf
@@ -101,6 +101,9 @@ done
 
 
 %changelog
+* Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.4_2.0.4
+- apache 2.2.4
+
 * Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3_2.0.4
 - build against new libxml2 
 
