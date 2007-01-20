@@ -13,7 +13,7 @@
 %define release 	%_revrel
 
 # Module-Specific definitions
-%define apache_version	2.2.3
+%define apache_version	2.2.4
 %define mod_version	1.9.4
 %define mod_name	mod_security
 %define mod_conf	82_%{mod_name}.conf
@@ -121,6 +121,10 @@ install -m 0644 modsecurity-php.conf %{buildroot}%{_sysconfdir}/httpd/conf/
 
 
 %changelog
+* Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.4_1.9.4
+- apache 2.2.4 (we're keeping this for now for backwards compatibility, for
+  2.1 it'll be removed to favour mod_security2)
+
 * Sun Jul 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3_1.9.4
 - apache 2.2.3
 - spec cleanups
