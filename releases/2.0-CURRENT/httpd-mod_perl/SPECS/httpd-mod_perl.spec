@@ -13,7 +13,7 @@
 %define release 	%_revrel
 
 # Module-Specific definitions
-%define apache_version	2.2.3
+%define apache_version	2.2.4
 %define mod_version	2.0.3
 %define mod_name	mod_perl
 %define mod_conf	75_%{mod_name}.conf
@@ -172,6 +172,9 @@ rm -f %{buildroot}%{_mandir}/man3/Bundle::ApacheTest.3pm
 
 
 %changelog
+* Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.4_2.0.3
+- apache 2.2.4
+
 * Wed Dec 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3_2.0.3
 - 2.0.3
 - updated P0 from Mandriva
