@@ -14,7 +14,7 @@
 %define epoch		1
 
 # Module-Specific definitions
-%define apache_version	2.2.3
+%define apache_version	2.2.4
 %define mod_version	0.1
 %define mod_name	mod_auth_remote
 %define mod_conf	82_%{mod_name}.conf
@@ -105,6 +105,9 @@ cat %{_sourcedir}/%{mod_conf} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod
 
 
 %changelog
+* Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.4_0.1
+- apache 2.2.4
+
 * Sun Jul 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3_0.1
 - apache 2.2.3
 - spec cleanups
