@@ -1,4 +1,0 @@
-USER=root
-PROGRAM=/usr/sbin/timeconfig
-SESSION=true
-FALLBACK=true

@@ -1,7 +1,0 @@
-#!/bin/bash
-TMPF=`mktemp -d /tmp/phptestXXXXXX`
-echo "Using directory $TMPF to run tests"
-cd $TMPF
-cp -a /usr/src/php-devel/* .
-export TEST_PHP_EXECUTABLE=/usr/bin/php
-php run-tests.php

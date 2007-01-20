@@ -1,8 +1,0 @@
---- file-4.01/magic/magic2mime	2003-03-23 05:17:27.000000000 +0100
-+++ file-4.01/magic/magic2mime.new	2003-03-30 21:37:58.000000000 +0200
-@@ -1,4 +1,4 @@
--#! /usr/local/bin/perl
-+#! /usr/bin/perl
- # -*- PERL -*-
- # $Id: magic2mime,v 1.2 2003/03/23 04:17:27 christos Exp $
- # Copyright (c) 1996, 1997 vax@linkdead.paranoia.com (VaX#n8)

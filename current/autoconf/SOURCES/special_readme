@@ -1,8 +1,0 @@
--- PLEASE NOTICE ---> this version is meant to coexist with autoconf-2.5x;
-to that end, the various binaries are actually linked to a script which
-decides which version to execute. It tries to be clever and will execute
-2.5x if `configure.ac' is present, or if `configure.in' contains AC_PREREQ
-and the value's 3 first letters are stringwise greater than '2.1'. If
-anything fails, you can manually select 2.13 by providing the environment
-variable WANT_AUTOCONF_2_1 set to `1' (use WANT_AUTOCONF_2_5 if you want
-the 2.5x version).

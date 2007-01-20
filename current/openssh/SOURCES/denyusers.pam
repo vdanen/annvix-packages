@@ -1,9 +1,0 @@
-# Deny users from using PAM authentication in OpenSSH
-#
-# This file contains a list of users, one per line, that will not be
-# permitted to authenticate against the PAM subsystem.  This is desireable
-# in cases where UsePAM needs to be enabled, but PermitRootLogin is using a
-# more flexible setting like "without-password".  By default, root is never
-# permitted to authenticate via PAM.
-
-root

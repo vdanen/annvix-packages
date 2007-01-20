@@ -1,5 +1,0 @@
-# You can tell portmapper to explicitly listen to only one IP address
-# or hostname using the BIND_HOST option below.  The default is to
-# listen to everything.
-
-# BIND_HOST=127.0.0.1

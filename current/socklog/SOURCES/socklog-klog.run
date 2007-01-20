@@ -1,7 +1,0 @@
-#!/bin/execlineb
-
-redirfd -r 0 /proc/kmsg
-fdmove -c 2 1
-
-chpst -m 2000000 
-socklog ucspi

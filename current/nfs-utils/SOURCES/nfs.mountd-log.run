@@ -1,7 +1,0 @@
-#!/bin/execlineb
-
-# logging for the nfs.mountd service
-
-/bin/foreground { /usr/bin/install -m 0700 -d -o logger -g logger /var/log/service/nfs.mountd }
-/bin/cd /var/log/service
-/sbin/chpst -u logger /sbin/svlogd -tt /var/log/service/nfs.mountd

@@ -1,6 +1,0 @@
-# debug level for slapd
-SLAPDSYSLOGLEVEL="0"
-SLAPDSYSLOGLOCALUSER="LOCAL4" 
-
-# SLAPD URL list 
-#SLAPDURLLIST="ldap:/// ldaps:///"

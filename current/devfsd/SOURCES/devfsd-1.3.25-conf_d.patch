@@ -1,9 +1,0 @@
---- ./devfsd.conf.conf_d	2002-09-06 14:53:55.000000000 +0200
-+++ ./devfsd.conf	2002-09-06 14:54:07.000000000 +0200
-@@ -80,3 +80,6 @@
- REGISTER ^dvb/card[0-9]+/[^/]+$ PERMISSIONS root.video 0660
- REGISTER	^dvb/card([0-9]+)/([^/0-9]*)[0-9]+$	CFUNCTION GLOBAL mksymlink /dev/$devname ost/\2\1
- UNREGISTER	^dvb/card([0-9]+)/([^/0-9]*)[0-9]+$	CFUNCTION GLOBAL unlink ost/\2\1
-+
-+# Include package-generated files from /etc/devfs/conf.d
-+OPTIONAL_INCLUDE   /etc/devfs/conf.d/

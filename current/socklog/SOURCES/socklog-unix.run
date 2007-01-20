@@ -1,6 +1,0 @@
-#!/bin/execlineb
-
-fdmove -c 2 1
-
-chpst -m 2000000 -U syslogd
-socklog unix /dev/log

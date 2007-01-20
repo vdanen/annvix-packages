@@ -1,6 +1,0 @@
-#!/bin/execlineb
-#
-# this runs openntpd supervised
-
-fdmove -c 2 1
-/usr/sbin/ntpd -d
