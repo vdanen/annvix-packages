@@ -13,7 +13,7 @@
 %define release 	%_revrel
 
 # Module-Specific definitions
-%define apache_version	2.2.3
+%define apache_version	2.2.4
 %define mod_version	2.0
 %define mod_name	mod_apparmor
 %define mod_conf	01_%{mod_name}.conf
