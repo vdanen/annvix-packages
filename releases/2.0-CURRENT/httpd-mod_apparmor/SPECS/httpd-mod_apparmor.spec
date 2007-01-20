@@ -74,6 +74,9 @@ cat %{_sourcedir}/%{mod_conf} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod
 
 
 %changelog
+* Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.4_2.0
+- apache 2.2.4
+
 * Fri Nov 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3_2.0
 - r64 (October snapshot)
 
