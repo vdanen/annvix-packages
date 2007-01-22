@@ -1189,6 +1189,9 @@ fi
 
 
 %changelog
+* Sun Jan 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.3.6
+- fix nsswitch.conf (local lookups should always come before LDAP lookups)
+
 * Tue Dec 26 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.6
 - update and execline the nscd run script
 
