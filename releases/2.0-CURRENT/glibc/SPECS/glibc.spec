@@ -11,12 +11,11 @@
 
 # owl 2.3.6-owl6
 %define basevers	2.3.6
-#%%define snapshot	20050427
 %define crypt_bf_ver	1.0.2
 
 %define revision	$Rev$
 %define name		glibc
-%define version		%{basevers}%{?snapshot:.%snapshot}
+%define version		%{basevers}
 %define release		%_revrel
 %define epoch		6
 
@@ -50,11 +49,9 @@ License:	LGPL
 Group:		System/Libraries
 URL:		http://www.gnu.org/software/libc/
 
-Source0:	ftp://ftp.gnu.org/gnu/%{name}/glibc-%{basevers}%{?snapshot:-%snapshot}.tar.bz2
-%if %{?snapshot:0}%{!?snapshot:1}
+Source0:	ftp://ftp.gnu.org/gnu/%{name}/glibc-%{basevers}.tar.bz2
 Source1:	ftp://ftp.gnu.org/gnu/%{name}/glibc-linuxthreads-%{basevers}.tar.bz2
 Source2:	ftp://ftp.gnu.org/gnu/%{name}/glibc-libidn-%{basevers}.tar.bz2
-%endif
 Source3:	crypt_blowfish-%{crypt_bf_ver}.tar.gz
 Source4:	crypt_freesec.c
 Source5:	crypt_freesec.h
@@ -296,7 +293,7 @@ This package contains the documentation for %{name}.
 
 
 %prep
-%setup -q %{!?snapshot:-a 1 -a 2} -a 3 -a 7 -a 8 -a 9 -a 20 -n %{name}-%{basevers}%{?snapshot:-%snapshot}
+%setup -q -a 1 -a 2 -a 3 -a 7 -a 8 -a 9 -a 20 -n %{name}-%{basevers}
 
 # CVS
 # 20050427-2_3-branch
@@ -416,17 +413,19 @@ cat > find_provides.sh << EOF
 exit 0
 EOF
 chmod +x find_provides.sh
+
 cat %{_sourcedir}/glibc-find-requires.sh >glibc_find_requires.sh
 chmod +x glibc_find_requires.sh
+
 cat > find_requires.sh << EOF
 #!/bin/sh
-%{_builddir}/%{name}-%{version}/glibc_find_requires.sh | grep -v GLIBC_PRIVATE
+%{_builddir}/%{name}-%{version}/glibc_find_requires.sh | grep -v "\(GLIBC_PRIVATE\|linux-gate\|linux-vdso\)"
 exit 0
 EOF
 chmod +x find_requires.sh
 
-%define __find_provides %{_builddir}/%{name}-%{basevers}%{?snapshot:-%snapshot}/find_provides.sh
-%define __find_requires %{_builddir}/%{name}-%{basevers}%{?snapshot:-%snapshot}/find_requires.sh
+%define __find_provides %{_builddir}/%{name}-%{basevers}/find_provides.sh
+%define __find_requires %{_builddir}/%{name}-%{basevers}/find_requires.sh
 
 %if %{build_locales}
 mv localedata/SUPPORTED localedata/SUPPORTED.ALL
@@ -1189,6 +1188,10 @@ fi
 
 
 %changelog
+* Mon Jan 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.3.6
+- fix the private find-requires.sh; we don't want linux-gate.so.1 showing up
+- remove snapshot support/macros
+
 * Sun Jan 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.3.6
 - fix nsswitch.conf (local lookups should always come before LDAP lookups)
 
