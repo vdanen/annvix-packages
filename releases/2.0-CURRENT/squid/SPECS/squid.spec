@@ -45,6 +45,9 @@ Patch5: 	squid-2.6.STABLE1-db4.diff
 Patch6: 	squid-2.6.STABLE1-visible_hostname.diff
 Patch7: 	squid-2.6.STABLE-smb-auth.diff
 Patch8:		squid-2.6.STABLE1-getconf_mess.diff
+Patch9:		squid-2.6.STABLE6-CVE-2007-0247.patch
+Patch10:	squid-2.6.STABLE6-CVE-2007-0248.patch
+Patch11:	squid-2.6.STABLE6-auth_ntlm_max_user_ip.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	openldap-devel
@@ -92,6 +95,9 @@ This package contains the documentation for %{name}.
 %patch6 -p0 -b .visible_hostname
 %patch7 -p0 -b .backslashes
 %patch8 -p0 -b .getconf
+%patch9 -p0 -b .cve-2007-0247
+%patch10 -p1 -b .cve-2007-0248
+%patch11 -p1 -b .bug1792
 
 perl -p -i -e "s|^SAMBAPREFIX.*|SAMBAPREFIX = /usr|" helpers/basic_auth/SMB/Makefile.in
 perl -p -i -e "s|^icondir.*|icondir = \\$\(libexecdir\)/icons|" icons/Makefile.am icons/Makefile.in
@@ -321,6 +327,11 @@ fi
 
 
 %changelog
+* Tue Jan 23 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.STABLE3
+- P9: security fix for CVE-2007-0247
+- P10: security fix for CVE-2007-0248
+- P11: fix for ntlm_auth bug (squid bug #1792)
+
 * Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.STABLE3
 - rebuild against new pam
 
