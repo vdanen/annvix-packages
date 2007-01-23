@@ -57,7 +57,7 @@ This package contains the documentation for %{name}.
 %endif
 %configure2_5x \
     --with-included-gettext \
-    --with-static-rnd=linux \
+    --enable-static-rnd=linux \
     --disable-ldap \
     --without-ldap \
     --enable-noexecstack \
@@ -125,6 +125,9 @@ for i in en@boldquot en@quot ; do rm -rf %{buildroot}%{_datadir}/locale/$i; done
 
 
 %changelog
+* Wed Jan 17 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.4.6
+- use --enable-static-rnd instead of --with-static-rnd
+
 * Sun Dec 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4.6
 - 1.4.6: fixes CVE-2006-6235
 - fix the buildrequires
