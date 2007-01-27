@@ -884,6 +884,9 @@ fi
 
 
 %changelog
+* Sat Jan 27 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.3.30
+- fix minor typeo in the afterboot snippet
+
 * Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.3.30
 - fix the logrotate script
 
