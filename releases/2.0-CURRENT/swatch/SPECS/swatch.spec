@@ -31,7 +31,7 @@ BuildRequires:	perl(Date::Calc)
 BuildRequires:	perl(Time::HiRes)
 BuildRequires:	perl-TimeDate
 
-Requires:	perl(File::Tail}
+Requires:	perl(File::Tail)
 Requires:	perl(Date::Calc)
 Requires:	perl(Time::HiRes)
 Requires:	perl-TimeDate
@@ -100,6 +100,9 @@ rm -rf %{buildroot}%{perl_vendorlib}/auto
 
 
 %changelog
+* Sat Jan 27 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.1.1
+- fix requires
+
 * Mon May 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.1.1
 - rebuild against perl 5.8.8
 - create -doc subpackage
