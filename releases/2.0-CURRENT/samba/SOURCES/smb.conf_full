@@ -267,7 +267,7 @@
 # Samba now has runtime-configurable password database backends. Multiple
 # passdb backends may be used, but users will only be added to the first one
 # Default:
-passdb backend = smbpasswd guest
+passdb backend = smbpasswd
 # TDB backen with fallback to smbpasswd and guest
 # passdb backend = tdbsam smbpasswd guest
 # LDAP with fallback to smbpasswd guest

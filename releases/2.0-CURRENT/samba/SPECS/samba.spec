@@ -827,6 +827,12 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Sat Jan 27 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0.23d
+- remove "guest" from the default passdb entry in smb.conf and smb.conf_full
+  as per http://lists.samba.org/archive/samba/2006-August/123755.html --
+  otherwise smbd will dump core when running (very bad behaviour but at
+  least this fixes it)
+
 * Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.23d
 - build against new libxml2
 
