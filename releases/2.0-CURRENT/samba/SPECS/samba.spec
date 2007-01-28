@@ -492,8 +492,8 @@ mkdir -p %{buildroot}%{_srvdir}/smbd/depends
 
 
 %post server
-%_post_srv smbd
 %_post_srv nmbd
+%_post_srv smbd
 
 # Add a unix group for samba machine accounts
 groupadd -frg 101 machines
@@ -605,8 +605,8 @@ fi
 
 
 %preun server
-%_preun_srv smbd
 %_preun_srv nmbd
+%_preun_srv smbd
 
 
 %post swat
@@ -827,6 +827,9 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Sat Jan 27 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0.23d
+- restart nmbd first, then smbd because smbd depends on nmbd
+
 * Sat Jan 27 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0.23d
 - remove "guest" from the default passdb entry in smb.conf and smb.conf_full
   as per http://lists.samba.org/archive/samba/2006-August/123755.html --
