@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		srv
-%define version 	0.26
+%define version 	0.26.1
 %define release 	%_revrel
 
 Summary:	Tool to manage runsv-controlled services
@@ -62,6 +62,10 @@ install -m 0755 nothing %{buildroot}%{_bindir}
 
 
 %changelog
+* Sat Jan 27 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.26.1
+- 0.26.1
+  - don't exit if a service is available but stopped on --restart
+
 * Thu Dec 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.26
 - 0.26
   - adds --reload (restart via HUP) and changes --restart to do a full
