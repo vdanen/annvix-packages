@@ -9,7 +9,7 @@
 
 %define revision        $Rev$
 %define name            nut
-%define version         2.0.4
+%define version         2.0.5
 %define release         %_revrel
 
 %define nutuser		ups
@@ -32,7 +32,9 @@ Source7:	ups_command
 Patch0:		nut-2.0.1-lib64.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	autoconf2.5 libusb-devel net-snmp-devel
+BuildRequires:	autoconf2.5
+BuildRequires:	libusb-devel
+BuildRequires:	net-snmp-devel
 
 Requires(pre):	rpm-helper >= 0.8
 Requires(preun): rpm-helper >= 0.8
@@ -109,8 +111,8 @@ env WANT_AUTOCONF_2_5=1 autoconf
     --sysconfdir=%{_sysconfdir}/ups
 
 # workaround buggy parrallel build:
-#make all usb snmp
-%make
+%make all usb snmp
+#%make
 
 
 %install
@@ -246,10 +248,14 @@ cp -af data/driver.list docs/
 
 %files doc
 %defattr(-,root,root)
-%doc CHANGES COPYING CREDITS INSTALL MAINTAINERS NEWS README UPGRADING docs
+%doc ChangeLog COPYING CREDITS INSTALL MAINTAINERS NEWS README UPGRADING docs
 
 
 %changelog
+* Sat Jan 27 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0.5
+- 2.0.5
+- go back to using "make all usb snmp" or the usb drivers don't get built
+
 * Mon Dec 18 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.4
 - 2.0.4
 - rebuild against new net-snmp
