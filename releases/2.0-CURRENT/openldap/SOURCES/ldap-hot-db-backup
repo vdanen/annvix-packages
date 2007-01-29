@@ -26,12 +26,12 @@ DEBUG=0
 VERBOSE=2
 USECOLOURS=1
 SYSLOGVERBOSE=3
-SYSLOGPRIORITY=local4.info
+SYSLOGPRIORITY=daemon.info
 RUN_DB_BACKUP=daily
 KEEP_ARCHIVES_DAYS=7
 
-CONFIG_FILE="/etc/sysconfig/ldap"
-[ -e $CONFIG_FILE ] && . $CONFIG_FILE
+# get defaults from slapd's envdir
+[[ -f /var/service/slapd/env/KEEP_ARCHIVES_DAYS ]] && KEEP_ARCHIVES_DAYS="$(head -1 /var/service/slapd/env/KEEP_ARCHIVES_DAYS)"
 
 IAM=$0
 case $IAM in

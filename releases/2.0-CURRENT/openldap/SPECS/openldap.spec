@@ -476,7 +476,7 @@ perl -pi -e "s| -L../liblber/.libs||g" %{buildroot}%{_libdir}/libldap.la
 #sed -i -e "s|-L%{_builddir}/%{name}-%{version}/db-instroot/%{_libdir}||g" %{buildroot}/%{_libdir}/%{name}/*.la %{buildroot}/%{_libdir}/*la
 perl -pi -e  "s,-L%{_builddir}\S+%{_libdir},,g" %{buildroot}/%{_libdir}/lib*.la
 
-mkdir -p %{buildroot}%{_srvdir}/{slapd,slurpd}/log
+mkdir -p %{buildroot}%{_srvdir}/{slapd,slurpd}/{log,env}
 install -m 0740 %{_sourcedir}/slapd.run %{buildroot}%{_srvdir}/slapd/run
 install -m 0740 %{_sourcedir}/slapd-log.run %{buildroot}%{_srvdir}/slapd/log/run
 install -m 0740 %{_sourcedir}/slurpd.run %{buildroot}%{_srvdir}/slurpd/run
@@ -533,7 +533,7 @@ for i in rfc822-MailMember.schema \
 done
 
 mkdir -p %{buildroot}%{_datadir}/openldap/scripts
-install -m 0755 %{_sourcedir}/{ldap-hot-db-backup,ldap-reinitialise-slave} %{buildroot}%{_datadir}/openldap/scripts/
+install -m 0755 %{_sourcedir}/{ldap-hot-db-backup,ldap-reinitialise-slave,ldap-common} %{buildroot}%{_datadir}/openldap/scripts/
 
 mkdir -p %{buildroot}/%{_sysconfdir}/cron.daily
 ln -s %{_datadir}/%{name}/scripts/ldap-hot-db-backup %{buildroot}/%{_sysconfdir}/cron.daily/ldap-hot-db-backup
@@ -829,6 +829,7 @@ fi
 %{_mandir}/man8/*
 %dir %attr(0750,root,admin) %{_srvdir}/slapd
 %dir %attr(0750,root,admin) %{_srvdir}/slapd/log
+%dir %attr(0750,root,admin) %{_srvdir}/slapd/env
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/slapd/run
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/slapd/log/run
 %dir %attr(0750,root,admin) %{_srvdir}/slurpd
@@ -884,6 +885,15 @@ fi
 
 
 %changelog
+* Mon Jan 29 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.3.30
+- include ldap-common or the ldap-hot-db-backup fails to run
+- use envdirs instead of a sysconfig file
+- don't log to syslog anymore (and when we do, use daemon.info by
+  default) -- we can do this because slapd logs to it's log service
+  too (so we've been double-logging all this time)
+- NOTE: ldap-reinitialise-slave needs to be fixed to use srv and run
+  scripts instead of initscripts
+
 * Sat Jan 27 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.3.30
 - fix minor typeo in the afterboot snippet
 
