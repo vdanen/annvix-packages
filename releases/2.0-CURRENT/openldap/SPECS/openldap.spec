@@ -398,7 +398,7 @@ export LDFLAGS="-L%{_prefix}/kerberos/%{_lib} $LDFLAGS"
     --with-subdir=%{name} \
     --localstatedir=/var/run/ldap \
     --enable-dynamic \
-    --enable-syslog \
+    --disable-syslog \
     --enable-proctitle \
     --enable-ipv6 \
     --enable-local \
@@ -674,38 +674,6 @@ if [ -e "$SLAPDCONF" ]; then
 fi
 [ $SLAPD_STATUS -eq 1 ] && srv --up  slapd
 
-# Setup log facility for OpenLDAP
-if [ -f %{_sysconfdir}/syslog.conf ] ;then
-    # clean syslog
-    perl -pi -e "s|^.*ldap.*\n||g" %{_sysconfdir}/syslog.conf 
-
-    typeset -i cntlog
-    cntlog=0
-
-    # probe free local-users
-    while [ `grep -c local${cntlog} %{_sysconfdir}/syslog.conf` -gt 0 ]
-    do 
-        cntlog=${cntlog}+1
-    done
-
-    if [ ${cntlog} -le 9 ]; then
-        echo "# added by %{name}-%{version} r""pm $(date)" >> %{_sysconfdir}/syslog.conf
-#   modified by Oden Eriksson
-#		echo "local${cntlog}.*       /var/log/ldap/ldap.log" >> %{_sysconfdir}/syslog.conf
-        echo -e "local${cntlog}.*\t\t\t\t\t\t\t-/var/log/ldap/ldap.log" >> %{_sysconfdir}/syslog.conf
-
-        # reset syslog daemon
-        if [ "`/sbin/sv status /service/syslogd 2>/dev/null | cut -d ';' -f 1 | egrep -q '^run: ' ; echo $?`" == "0" ]; then
-            /sbin/sv hup /service/syslogd  > /dev/null 2>/dev/null || : 
-        fi
-    else
-        echo "I can't set syslog local-user!"
-    fi
-		
-    # set syslog local-user in /etc/sysconfig/ldap
-    perl -pi -e "s|^.*SLAPDSYSLOGLOCALUSER.*|SLAPDSYSLOGLOCALUSER=\"LOCAL${cntlog}\"|g" %{_sysconfdir}/sysconfig/ldap 
-fi
-
 # generate the ldap.pem cert here instead of the initscript
 if [ ! -e %{_sysconfdir}/ssl/openldap/ldap.pem ] ; then
     if [ -x %{_datadir}/openldap/gencert.sh ] ; then
@@ -745,15 +713,6 @@ fi
 
 %postun servers
 /sbin/ldconfig
-if [ $1 = 0 ]; then 
-    # remove ldap entry 
-    perl -pi -e "s|^.*ldap.*\n||g" %{_sysconfdir}/syslog.conf 
-
-    # reset syslog daemon
-    if [ "`/sbin/sv status /service/syslogd 2>/dev/null | cut -d ';' -f 1 | egrep -q '^run: ' ; echo $?`" == "0" ]; then
-        /sbin/sv hup /service/syslogd  > /dev/null 2>/dev/null || : 
-    fi
-fi
 %_postun_userdel ldap
 %_mkafterboot
 
@@ -885,6 +844,10 @@ fi
 
 
 %changelog
+* Tue Jan 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.3.30
+- really disable syslog support entirely (in slapd and in the post
+  scripts); now slapd really only logs to it's own logging service
+
 * Mon Jan 29 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.3.30
 - include ldap-common or the ldap-hot-db-backup fails to run
 - use envdirs instead of a sysconfig file
