@@ -12,7 +12,7 @@
 %define kernelver	2
 %define patchlevel	6
 %define sublevel	16
-%define minlevel	37
+%define minlevel	39
 %define avxrelease	%(echo %{revision}|cut -d ' ' -f 2)
 
 %define tar_version	%{kernelver}.%{patchlevel}.%{sublevel}.%{minlevel}
@@ -954,6 +954,12 @@ exit 0
 
 
 %changelog
+* Wed Jan 31 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.39
+- 2.6.16.39: various fixes and fixes for CVE-2006-5823, CVE-2006-6053,
+  CVE-2006-6054, CVE-2006-6056, CVE-2006-5755, CVE-2006-6106, CVE-2006-5757,
+  CVE-2006-6060, CVE-2006-5173, CVE-2006-5749, CVE-2006-4814, 
+- rediff SL64
+
 * Sat Jan 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.37
 - set CONFIG_ISCSI_TCP=m (this builds iscsi_tcp.ko, scsi_transport_iscsi.ko
   was already being built) -- this should enable iscsi support

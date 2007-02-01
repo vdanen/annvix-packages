@@ -9158,9 +9158,8 @@ diff -urN -x rsbac trunk/include/asm-v850/unistd.h linux-2.6.16-rsbac-1.2.7/incl
  
  /* Syscall protocol:
     Syscall number in r12, args in r6-r9, r13-r14
-diff -urN -x rsbac trunk/include/asm-x86_64/ia32_unistd.h linux-2.6.16-rsbac-1.2.7/include/asm-x86_64/ia32_unistd.h
---- trunk/include/asm-x86_64/ia32_unistd.h	2006-06-01 10:33:35.000000000 +0200
-+++ linux-2.6.16-rsbac-1.2.7/include/asm-x86_64/ia32_unistd.h	2006-06-01 10:36:28.000000000 +0200
+--- linux-2.6.16.39/include/asm-x86_64/ia32_unistd.h.sl64.orig	2007-01-30 13:10:08.000000000 -0700
++++ linux-2.6.16.39/include/asm-x86_64/ia32_unistd.h	2007-01-31 15:08:28.705448500 -0700
 @@ -317,6 +317,11 @@
  #define __NR_ia32_ppoll			309
  #define __NR_ia32_unshare		310
@@ -9170,7 +9169,7 @@ diff -urN -x rsbac trunk/include/asm-x86_64/ia32_unistd.h linux-2.6.16-rsbac-1.2
 +#define __NR_ia32_rsbac __NR_ia32_security
 +#endif
 +
- #define IA32_NR_syscalls 315	/* must be > than biggest syscall! */
+ #define IA32_NR_syscalls 311	/* must be > than biggest syscall! */
  
  #endif /* _ASM_X86_64_IA32_UNISTD_H_ */
 diff -urN -x rsbac trunk/include/asm-x86_64/unistd.h linux-2.6.16-rsbac-1.2.7/include/asm-x86_64/unistd.h
@@ -14217,9 +14216,8 @@ diff -urN -x rsbac trunk/net/sched/cls_api.c linux-2.6.16-rsbac-1.2.7/net/sched/
  	if (cb->nlh->nlmsg_len < NLMSG_LENGTH(sizeof(*tcm)))
  		return skb->len;
  	if ((dev = dev_get_by_index(tcm->tcm_ifindex)) == NULL)
-diff -urN -x rsbac trunk/net/sched/sch_api.c linux-2.6.16-rsbac-1.2.7/net/sched/sch_api.c
---- trunk/net/sched/sch_api.c	2006-06-01 10:33:58.000000000 +0200
-+++ linux-2.6.16-rsbac-1.2.7/net/sched/sch_api.c	2006-06-01 10:36:47.000000000 +0200
+--- linux-2.6.16.39/net/sched/sch_api.c.sl64.orig	2007-01-30 13:10:08.000000000 -0700
++++ linux-2.6.16.39/net/sched/sch_api.c	2007-01-31 15:04:34.006780750 -0700
 @@ -37,6 +37,11 @@
  #include <linux/list.h>
  #include <linux/bitops.h>
@@ -14350,32 +14348,32 @@ diff -urN -x rsbac trunk/net/sched/sch_api.c linux-2.6.16-rsbac-1.2.7/net/sched/
  		if (idx > s_idx)
  			s_q_idx = 0;
 +
-+		/* RSBAC */
-+		#ifdef CONFIG_RSBAC_NET_DEV
-+		#ifdef CONFIG_RSBAC_DEBUG
-+		if (rsbac_debug_aef)
-+		  printk(KERN_DEBUG "tc_dump_qdisc(): calling ADF\n");
-+		#endif
-+		strncpy(rsbac_target_id.netdev, dev->name, RSBAC_IFNAMSIZ);
-+		rsbac_target_id.netdev[RSBAC_IFNAMSIZ] = 0;
-+		#if !defined(CONFIG_RSBAC_NET_DEV_VIRT)
-+		rsbac_colon = strchr(rsbac_target_id.netdev, ':');
-+		if(rsbac_colon)
-+		  *rsbac_colon = 0;
-+		#endif
-+		rsbac_attribute_value.dummy = 0;
-+		if (!rsbac_adf_request(R_GET_STATUS_DATA,
-+					current->pid,
-+					T_NETDEV,
-+					rsbac_target_id,
-+					A_none,
-+					rsbac_attribute_value))
-+		  {
-+		    continue;
-+		  }
-+		#endif
++ 		/* RSBAC */
++ 		#ifdef CONFIG_RSBAC_NET_DEV
++ 		#ifdef CONFIG_RSBAC_DEBUG
++ 		if (rsbac_debug_aef)
++ 		  printk(KERN_DEBUG "tc_dump_qdisc(): calling ADF\n");
++ 		#endif
++ 		strncpy(rsbac_target_id.netdev, dev->name, RSBAC_IFNAMSIZ);
++ 		rsbac_target_id.netdev[RSBAC_IFNAMSIZ] = 0;
++ 		#if !defined(CONFIG_RSBAC_NET_DEV_VIRT)
++ 		rsbac_colon = strchr(rsbac_target_id.netdev, ':');
++ 		if(rsbac_colon)
++ 		  *rsbac_colon = 0;
++ 		#endif
++ 		rsbac_attribute_value.dummy = 0;
++ 		if (!rsbac_adf_request(R_GET_STATUS_DATA,
++ 					current->pid,
++ 					T_NETDEV,
++ 					rsbac_target_id,
++ 					A_none,
++ 					rsbac_attribute_value))
++ 		  {
++ 		    continue;
++ 		  }
++ 		#endif
 +
- 		read_lock_bh(&qdisc_tree_lock);
+ 		read_lock(&qdisc_tree_lock);
  		q_idx = 0;
  		list_for_each_entry(q, &dev->qdisc_list, list) {
 @@ -886,9 +999,43 @@
