@@ -27,6 +27,7 @@ Source2:	dovecot.run
 Source3:	dovecot-log.run
 Source4:	http://dovecot.org/tools/migration_wuimp_to_dovecot.pl
 Source5:	http://dovecot.org/tools/mboxcrypt.pl
+Patch0:		dovecot-1.0.rc17-avx-config.patch
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildRequires:	pam-devel
@@ -82,11 +83,13 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q -n %{name}-%{version}.%{prever}
+%patch0 -p0 -b .avx_config
 
 
 %build
 %configure \
     --with-ssl=openssl \
+    --sysconfdir=%{_sysconfdir}/dovecot \
     --with-ssldir="%{_sysconfdir}/ssl/%{name}" \
     --with-moduledir="%{_datadir}/%{name}/" \
     --with-ldap \
@@ -97,16 +100,19 @@ This package contains the documentation for %{name}.
 
 %make
 
+perl -pi -e 's|/var/run/dovecot|/var/lib/dovecot|g' dovecot-example.conf
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}%{_datadir}/%{name}
 %makeinstall_std
 
-mkdir -p %{buildroot}{%{_sysconfdir}/pam.d,%{_var}/%{_lib}/%{name}}
+mkdir -p %{buildroot}{%{_sysconfdir}/{pam.d,dovecot},%{_var}/%{_lib}/%{name}}
 
 cp %{_sourcedir}/dovecot-pamd  %{buildroot}%{_sysconfdir}/pam.d/dovecot
-mv %{buildroot}%{_sysconfdir}/dovecot-example.conf %{buildroot}%{_sysconfdir}/dovecot.conf
+mv %{buildroot}%{_sysconfdir}/dovecot/dovecot-example.conf %{buildroot}%{_sysconfdir}/dovecot/dovecot.conf
+cp doc/*.conf %{buildroot}%{_sysconfdir}/dovecot/
 cp %{_sourcedir}/migration_wuimp_to_dovecot.pl .
 cp %{_sourcedir}/mboxcrypt.pl . 
 
@@ -125,7 +131,7 @@ rm -rf %{buildroot}%{_datadir}/doc/dovecot/
 
 
 %pre
-%_pre_useradd dovecot %{_var}/%{_lib}/%{name} /bin/false
+%_pre_useradd dovecot %{_var}/%{_lib}/%{name} /bin/false 93
 %_pre_groupadd dovecot dovecot
 
 
@@ -169,11 +175,12 @@ exit 0
 %dir %{_sysconfdir}/ssl/%{name}
 %dir %{_sysconfdir}/ssl/%{name}/certs
 %attr(0600,root,root) %dir %{_sysconfdir}/ssl/%{name}/private
+%dir %{_sysconfdir}/dovecot
 %dir %{_libdir}/%{name}
 %{_libdir}/%{name}/*
 %{_sbindir}/*
 %attr(0700,root,root) %dir %{_var}/%{_lib}/%{name}
-%config(noreplace) %{_sysconfdir}/dovecot.conf
+%config(noreplace) %{_sysconfdir}/dovecot/*.conf
 %config(noreplace) %{_sysconfdir}/pam.d/%{name}
 %dir %{_datadir}/%{name}
 %{_datadir}/%{name}/*.la
@@ -195,11 +202,17 @@ exit 0
 %files doc
 %defattr(-,root,root)
 %doc AUTHORS ChangeLog COPYING* NEWS README TODO
-%doc doc/*.conf doc/*.sh doc/*.txt doc/*.cnf
+%doc doc/*.sh doc/*.txt doc/*.cnf
 %doc mboxcrypt.pl migration_wuimp_to_dovecot.pl
 
 
 %changelog
+* Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org>  1.0
+- set the uid/gid to 93
+- P0: patch the config to set some paths
+- copy some sample configs to /etc/dovecot/
+- put dovecot.conf in /etc/dovecot/
+
 * Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org>  1.0
 - rebuild against new postgresql
 
