@@ -747,18 +747,18 @@ cp crypt_blowfish-%{crypt_bf_ver}/{README,LINKS,PERFORMANCE} \
 #rm README.template FAQ.in
 
 # Final step: remove unpackaged files.
-rm %{buildroot}%{_infodir}/dir
-rm -rf %{buildroot}%{_libdir}/locale
+[[ -d %{buildroot}%{_infodir}/dir ]] && rm -rf %{buildroot}%{_infodir}/dir
+[[ -d %{buildroot}%{_libdir}/locale ]] && rm -rf %{buildroot}%{_libdir}/locale
 [[ -d %{buildroot}%{_prefix}/lib/locale ]] && rm -rf %{buildroot}%{_prefix}/lib/locale
 mv -f %{buildroot}%{_datadir}/locale/locale.alias .
 rm -rf %{buildroot}%{_datadir}/locale
 mkdir -p %{buildroot}%{_datadir}/locale && mv locale.alias %{buildroot}%{_datadir}/locale/
-rm -rf %{buildroot}%{_libdir}/getconf
+[[ -d %{buildroot}%{_libdir}/getconf ]] && rm -rf %{buildroot}%{_libdir}/getconf
 [[ -d %{buildroot}%{_prefix}/lib/getconf ]] && rm -rf %{buildroot}%{_prefix}/lib/getconf
 
 
 %clean
-#[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
 %post -p /sbin/ldconfig
@@ -1188,6 +1188,11 @@ fi
 
 
 %changelog
+* Thu Feb 01 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.3.6
+- do some conditional testing before removing directories or, if they don't
+  exist, rpm will fail in a really silly place
+- enable %%clean again
+
 * Mon Jan 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.3.6
 - fix the private find-requires.sh; we don't want linux-gate.so.1 showing up
 - remove snapshot support/macros
