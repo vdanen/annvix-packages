@@ -144,7 +144,7 @@ Provides:	sqlserver
 Provides:	%{name}-server-ABI = %{current_major_version}
 Requires(post):	rpm-helper
 Requires(post):	afterboot
-Requires(post):	%{libname} > %{version}-%{release}
+Requires(post):	%{libname} >= %{version}-%{release}
 Requires(post):	postgresql = %{version}-%{release}
 Requires(postun): rpm-helper
 Requires(postun): afterboot
@@ -624,6 +624,9 @@ fi
 
 
 %changelog
+* Thu Feb 01 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.2.1
+- fix requires for the server
+
 * Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.2.1
 - 8.2.1 (important fixes)
 
