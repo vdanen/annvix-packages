@@ -116,6 +116,11 @@ install -m 0440 %{SOURCE2} %{buildroot}%{_sysconfdir}/sudoers
 
 
 %changelog
+* Thu Feb 01 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.6.8p12
+- add the tty_tickets open as a default (authenticate per-tty)
+- remove the urpmi aliases
+- add more comments and make it look prettier
+
 * Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.6.8p12
 - rebuild against new pam
 
