@@ -46,6 +46,7 @@ which serves as an example of how to use the SQLite library.
 %package -n %{libname}
 Summary:	SQLite is a C library that implements an embeddable SQL database engine
 Group:          System/Libraries
+Provides:	libsqlite3 = %{version}-%{release}
 
 %description -n	%{libname}
 SQLite is a C library that implements an embeddable SQL database
@@ -218,6 +219,9 @@ chrpath -d %{buildroot}%{_bindir}/*
 
 
 %changelog
+* Fri Feb 02 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.3.8
+- provide libsqlite3
+
 * Tue Dec 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.3.8
 - rebuild against new tcl
 - disable the tests for now; for some reason the corrupt* tests are failing
