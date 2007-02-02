@@ -9,10 +9,10 @@
 
 %define revision	$Rev$
 %define name		bind
-%define version		9.3.2
+%define version		9.3.4
 %define release		%_revrel
 
-%define their_version	9.3.2-P1
+%define their_version	9.3.4
 
 Summary:	A DNS (Domain Name System) server
 Name:		%{name}
@@ -313,6 +313,9 @@ fi
 
 
 %changelog
+* Fri Feb 02 2007 Vincent Danen <vdanen-at-build.annvix.org> 9.3.4
+- 9.3.4; fixes CVE-2007-0493, CVE-2007-0494
+
 * Fri Sep 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 9.3.2-P1
 - fix some permissions
 
