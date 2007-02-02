@@ -24,6 +24,7 @@ Source1:	info-dir
 Patch1:		texinfo-3.12h-fix.patch
 Patch2:		texinfo-4.7-vikeys-segfault-fix.patch
 Patch3:		texinfo-4.7.test.patch
+Patch4:		texinfo-4.8-CVE-2006-4810.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	ncurses-devel
@@ -88,12 +89,16 @@ This package contains the documentation for %{name}.
 %patch1 -p1
 %patch2 -p1
 %patch3 -p0
+%patch4 -p0 -b .cve-2006-4810
 
 %build
 %configure2_5x
 %make 
 rm -f util/install-info
 make -C util LIBS=%{_libdir}/libz.a
+
+
+%check
 # all tests must pass
 make check
 
@@ -170,6 +175,9 @@ rm -f %{buildroot}%{_bindir}/texi2pdf
 
 
 %changelog
+* Fri Feb 02 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.8
+- P4: security fix for CVE-2006-4810
+
 * Sat Dec 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.8
 - rebuild against new ncurses
 
