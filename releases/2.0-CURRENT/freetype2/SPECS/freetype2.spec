@@ -31,6 +31,12 @@ Patch1:		freetype-2.1.10-xorgfix.patch
 Patch2:		freetype-2.1.10-fixautofit.patch
 # (fc) 2.1.10-5mdk fix memleak (CVS)
 Patch3:		freetype-2.1.10-memleak.patch
+Patch4:		freetype-2.1.10-CVE-2006-0747.patch
+Patch5:		freetype-2.1.10-ttkern-dos.patch
+Patch6:		freetype-2.1.10-CVE-2006-2661.patch
+Patch7:		freetype-2.1.10-CVE-2006-1861.patch
+Patch8:		freetype-2.1.10-CVE-2006-1861-2.patch
+Patch9:		freetype-2.1.10-CVE-2006-3467.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	zlib-devel
@@ -90,6 +96,12 @@ developing programs which will use the FreeType2 library.
 %patch1 -p1 -b .xorgfix
 %patch2 -p1 -b .fixautofit
 %patch3 -p1 -b .memleak
+%patch4 -p1 -b .cve-2006-0747
+%patch5 -p1 -b .ttkern-dos
+%patch6 -p1 -b .cve-2006-2661
+%patch7 -p1 -b .cve-2006-1861
+%patch8 -p1 -b .cve-2006-1861-2
+%patch9 -p1 -b .cve-2006-3467
 
 
 %build
@@ -139,6 +151,14 @@ developing programs which will use the FreeType2 library.
 
 
 %changelog
+* Fri Feb 02 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1.10
+- P4: security fix for CVE-2006-0747
+- P5: security fix for ttkern DoS
+- P6: security fix for CVE-2006-2661
+- P7: security fix for CVE-2006-1861
+- P8: security fix for CVE-2006-1861 (additional fixes)
+- P9: security fix for CVE-2006-3467
+
 * Sat Jul 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1.10
 - rebuild with gcc4
 
