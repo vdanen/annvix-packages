@@ -9,17 +9,10 @@
 
 %define revision	$Rev$
 %define name		exim
-%define version 	4.63
+%define version 	4.66
 %define release 	%_revrel
 
-%define build_mysql 	0
-%define build_pgsql 	0
 %define saversion   	4.2.1
-
-# commandline overrides:
-# rpm -ba|--rebuild --define 'with_xxx'
-%{?_with_mysql: %{expand: %%define build_mysql 1}}
-%{?_with_pgsql: %{expand: %%define build_pgsql 1}}
 
 Summary:	The exim mail transfer agent
 Name:		%{name}
@@ -41,7 +34,7 @@ Source11:	http://www.exim.org/ftp/exim4/config.samples.tar.bz2
 Source12:	sa-exim-%{saversion}.tar.gz
 Source13:	exim.run
 Source14:	exim-log.run
-Patch0:		exim-4.62-avx-config.patch
+Patch0:		exim-4.66-avx-config.patch
 Patch2:		exim-4.22-install.patch
 Patch3:		exim-4.52-avx-system_pcre.patch
 Patch4:		exim-4.43-debian-dontoverridecflags.diff
@@ -58,15 +51,13 @@ BuildRequires:	lynx
 BuildRequires:	db4-devel >= 4.1
 BuildRequires:	pcre-devel
 BuildRequires:	perl-devel
-%if %{build_mysql}
 BuildRequires:	libmysql-devel
-%endif
-%if %{build_pgsql}
 BuildRequires:	postgresql-devel
-%endif
+BuildRequires:	sqlite3-devel
 
 Requires(post):	rpm-helper
 Requires(preun): rpm-helper
+Requires(postun): rpm-helper
 Conflicts:	sendmail
 Conflicts:	postfix
 Conflicts:	qmail
@@ -74,7 +65,6 @@ Conflicts:	smail
 Requires:	sh-utils
 Requires:	openssl
 Requires:	pam
-Requires:	openldap >= 2.0.11
 %ifarch amd64 x86_64
 Requires:	lib64db4.2
 %else
@@ -94,6 +84,31 @@ use at quite a few sites, some of which move hundreds of thousands of
 messages per day.
 
 A utility, eximconfig, is included to simplify exim configuration.
+
+
+%package db
+Summary:	The exim mail transfer agent with database support
+Group:		System/Servers
+Requires:	%{name} = %{version}-%{release}
+Requires:	libldap
+Requires:	libmysql
+Requires:	libsqlite3
+Requires:	libpq
+Requires(post):	rpm-helper
+Requires(postun): rpm-helper
+
+%description db
+Exim is a mail transport agent (MTA) developed at the University of
+Cambridge for use on Unix systems connected to the Internet. In style
+it is similar to Smail 3, but its facilities are more extensive, and
+in particular it has options for verifying incoming sender and
+recipient addresses, for refusing mail from specified hosts, networks,
+or senders, and for controlling mail relaying. Exim is in production
+use at quite a few sites, some of which move hundreds of thousands of
+messages per day.
+
+This package contain an database-enabled exim binary to allow for
+lookups via MySQL, PostgreSQL, SQLite, or LDAP.
 
 
 %package saexim
@@ -130,25 +145,37 @@ cat sa-exim*/localscan_dlopen_exim_4.20_or_better.patch | patch -p1
 
 
 %build
-# pre-build setup
-cp src/EDITME Local/Makefile
-
-# modify Local/Makefile for our builds
-%if !%{build_mysql}
-perl -pi -e 's|LOOKUP_MYSQL=yes|#LOOKUP_MYSQL=yes|g' Local/Makefile
-perl -pi -e 's|-lmysqlclient||g' Local/Makefile
-perl -pi -e 's|-I /usr/include/mysql||g' Local/Makefile
-%endif
-
-%if !%{build_pgsql}
-perl -pi -e 's|LOOKUP_PGSQL=yes|#LOOKUP_PGSQL=yes|g' Local/Makefile
-perl -pi -e 's|-lpq||g' Local/Makefile
-perl -pi -e 's|-I /usr/include/pgsql||g' Local/Makefile
-%endif
-
 %ifarch amd64 x86_64
 perl -pi -e 's|X11\)/lib|X11\)/lib64|g' OS/Makefile-Linux
 %endif
+
+# build non-db exim
+cp -f src/EDITME Local/Makefile
+
+# remove the database support
+perl -pi -e 's|LOOKUP_MYSQL=yes|#LOOKUP_MYSQL=yes|g' Local/Makefile
+perl -pi -e 's|-lmysqlclient||g' Local/Makefile
+perl -pi -e 's|-I /usr/include/mysql||g' Local/Makefile
+perl -pi -e 's|LOOKUP_PGSQL=yes|#LOOKUP_PGSQL=yes|g' Local/Makefile
+perl -pi -e 's|-lpq||g' Local/Makefile
+perl -pi -e 's|-I /usr/include/pgsql||g' Local/Makefile
+perl -pi -e 's|LOOKUP_SQLITE=yes|#LOOKUP_SQLITE=yes|g' Local/Makefile
+perl -pi -e 's|-lsqlite3||g' Local/Makefile
+perl -pi -e 's|LOOKUP_LDAP=yes|#LOOKUP_LDAP=yes|g' Local/Makefile
+perl -pi -e 's|LDAP_LIB_TYPE=OPENLDAP2|#LDAP_LIB_TYPE=OPENLDAP2|g' Local/Makefile
+perl -pi -e 's|-lldap||g' Local/Makefile
+perl -pi -e 's|-llber||g' Local/Makefile
+
+
+make RPM_OPT_FLAGS="%{optflags}"
+
+mv build-Linux-*/exim exim-%{version}
+rm -rf build-Linux-*
+
+# build the sql binary
+cp -f src/EDITME Local/Makefile
+make clean
+make makefile
 
 make RPM_OPT_FLAGS="%{optflags}"
 
@@ -166,9 +193,7 @@ mkdir -p %{buildroot}{%{_sbindir},%{_bindir},%{_libdir},%{_sysconfdir}/{pam.d,ex
 
 make DESTDIR=%{buildroot} install
 
-pushd %{buildroot}%{_bindir}
-    mv exim-%{version}-1 exim
-popd
+install exim-%{version} %{buildroot}/%{_bindir}
 
 install -m 0775 build-`scripts/os-type`-`scripts/arch-type`/convert4r3 %{buildroot}%{_bindir}
 install -m 0775 build-`scripts/os-type`-`scripts/arch-type`/convert4r4 %{buildroot}%{_bindir}
@@ -225,6 +250,11 @@ mkdir sa-exim
 cp -f sa-exim*/*.html sa-exim/
 cp -f sa-exim*/{CHANGELOG,ACKNOWLEDGEMENTS,INSTALL,LICENSE,TODO} sa-exim/
 
+pushd %{buildroot}%{_bindir}
+    mv exim-%{version}-1 exim-%{version}-db
+    rm -f exim
+popd
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -232,6 +262,8 @@ cp -f sa-exim*/{CHANGELOG,ACKNOWLEDGEMENTS,INSTALL,LICENSE,TODO} sa-exim/
 
 %post
 %_post_srv exim
+
+update-alternatives --install %{_bindir}/exim exim  %{_bindir}/exim-%{version} 10
 
 # scrub hints files - db files change format between builds so
 # killing the hints can save an MTA crash later
@@ -246,9 +278,26 @@ fi
 %_preun_srv exim
 
 
+%postun
+[ $1 = 0 ] || exit 0
+update-alternatives --remove exim  %{_bindir}/exim-%{version}
+:
+
+
+%post db
+update-alternatives --install %{_bindir}/exim exim  %{_bindir}/exim-%{version}-db 20
+:
+
+
+%postun db
+[ $1 = 0 ] || exit 0
+update-alternatives --remove exim  %{_bindir}/exim-%{version}-db
+:
+
+
 %files
 %defattr(755,root,root)
-%attr(4755,root,root) %{_bindir}/exim
+%attr(4755,root,root) %{_bindir}/exim-%{version}
 %{_bindir}/exim_checkaccess
 %{_bindir}/exim_dumpdb
 %{_bindir}/exim_fixdb
@@ -275,20 +324,9 @@ fi
 %{_bindir}/rmail
 %{_bindir}/newaliases
 %{_mandir}/man8/exim.8*
-
-%defattr(-,mail,mail)
-%dir /var/spool/exim
-%dir /var/spool/exim/db
-%dir /var/spool/exim/input
-%dir /var/spool/exim/msglog
-%dir /var/log/exim
-
-%defattr(-,root,mail)
-%dir %{_sysconfdir}/exim
-%config(noreplace) %{_sysconfdir}/exim/exim.conf
-%config(noreplace) %{_sysconfdir}/exim/aliases
-
-%defattr(-,root,root)
+%attr(0750,root,mail) %dir %{_sysconfdir}/exim
+%attr(0640,root,mail) %config(noreplace) %{_sysconfdir}/exim/exim.conf
+%attr(0640,root,mail) %config(noreplace) %{_sysconfdir}/exim/aliases
 %attr(0755,root,root) %config(noreplace) %{_sysconfdir}/cron.weekly/exim.logrotate
 %config(noreplace) %{_sysconfdir}/pam.d/exim
 %dir %attr(0750,root,admin) %{_srvdir}/exim
@@ -298,12 +336,26 @@ fi
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/exim/log/run
 %config(noreplace) %attr(0640,root,admin) %{_srvdir}/exim/env/QUEUE
 
+%defattr(-,mail,mail)
+%dir /var/spool/exim
+%dir /var/spool/exim/db
+%dir /var/spool/exim/input
+%dir /var/spool/exim/msglog
+%dir /var/log/exim
+
+
 %files saexim
 %defattr(-,root,root)
 %config(noreplace) %{_sysconfdir}/exim/sa-exim.conf
 %config(noreplace) %{_sysconfdir}/exim/sa-exim_short.conf
 %dir %{_libdir}/exim
 %{_libdir}/exim/*
+
+
+%files db
+%defattr(-,root,root)
+%attr(4755,root,root) %{_bindir}/exim-%{version}-db
+
 
 %files doc
 %defattr(-,root,root)
@@ -315,6 +367,22 @@ fi
 
 
 %changelog
+* Fri Feb 02 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.66
+- require the lib packages: libmysql, libsqlite3, libpq, and libldap
+  for the db package
+
+* Thu Feb 01 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.66
+- 4.66
+- rediff P0; include AUTH_SPA and AUTH_DOVECOT support
+- actually enable SQL support, but do this via an exim-sql package
+  that uses update-alternatives to replace the "real" exim binary
+  with one that has sql support; we need to do this otherwise a
+  system may pull in postgresql/mysql libs when they're not needed
+- also include sqlite3 support
+- disable ldap support by default, but enable it in the -db package
+  (essentially we have plain-jane exim and exim-db with the mysql,
+  postgresql, sqlite, and ldap support)
+
 * Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.63
 - rebuild against new postgresql
 
