@@ -68,8 +68,8 @@ BuildRequires:	zlib-devel
 BuildRequires:	readline-devel
 BuildRequires:	texinfo
 
-Provides:       mysql-server
-Provides:	MySQL-server
+Provides:       mysql-server = %{version}-%{release}
+Provides:	MySQL-server = %{version}-%{release}
 Requires(pre):	rpm-helper
 Requires(pre):	runit
 Requires(preun): rpm-helper
@@ -126,6 +126,7 @@ This package contains MySQL benchmark scripts and data.
 Summary:        MySQL shared libraries
 Group:          System/Libraries
 Obsoletes:	%{oldlibname}
+Provides:	libmysql = %{version}-%{release}
 
 %description -n %{libname}
 This package contains the shared libraries (*.so*) which certain
@@ -138,10 +139,10 @@ Group:          Development/Other
 Obsoletes:      MySQL-devel
 Provides:       mysql-devel = %{version}-%{release}
 Provides:       MySQL-devel = %{version}-%{release}
+Provides:       libmysql-devel = %{version}-%{release}
 Requires:       %{libname} = %{version}
 Requires:	mysql = %{version}
 Requires:	mysql-client = %{version}
-Provides:       libmysql-devel
 Obsoletes:      %{oldlibname}-devel
 
 %description -n %{libname}-devel
@@ -164,9 +165,9 @@ Summary:        MySQL static development libraries
 Group:          Development/Other
 Provides:       mysql-static-devel = %{version}-%{release}
 Provides:       MySQL-static-devel = %{version}-%{release}
+Provides:       libmysql-static-devel = %{version}-%{release}
 Requires:	mysql-devel = %{version}
 Requires:	mysql-client = %{version}
-Provides:       libmysql-static-devel
 
 %description -n %{libname}-static-devel
 This package contains the static development libraries.
@@ -598,6 +599,10 @@ fi
 
 
 %changelog
+* Fri Feb 02 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.0.27
+- make lib(64)mysql15 provide libmysql
+- version all the provides
+
 * Fri Dec 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.0.27
 - 5.0.27
 
