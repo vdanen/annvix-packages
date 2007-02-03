@@ -264,10 +264,12 @@ popd
 %_post_srv exim
 
 update-alternatives --install %{_bindir}/exim exim  %{_bindir}/exim-%{version} 10
+[ ! -L /usr/bin/exim ] && ln -s ../../etc/alternatives/exim /usr/bin/exim
 
 # scrub hints files - db files change format between builds so
 # killing the hints can save an MTA crash later
 [ -d /var/spool/exim/db ] && rm -f /var/spool/exim/db/*
+
 
 if [ $1 = 1 ]; then
     echo "Run %{_sbindir}/eximconfig to interactively configure exim"
@@ -367,6 +369,9 @@ update-alternatives --remove exim  %{_bindir}/exim-%{version}-db
 
 
 %changelog
+* Fri Feb 02 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.66
+- make sure that symlink is there with the alternatives
+
 * Fri Feb 02 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.66
 - require the lib packages: libmysql, libsqlite3, libpq, and libldap
   for the db package
