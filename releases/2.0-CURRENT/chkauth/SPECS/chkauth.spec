@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		chkauth
-%define version 	0.3
+%define version 	0.4
 %define release 	%_revrel
 	
 Summary:	Script to change authentification method (local, NIS, LDAP)
@@ -18,8 +18,8 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		System/Configuration
+URL:		http://svn.annvix.org/cgi-bin/viewvc.cgi/tools/chkauth/
 Source0:	%{name}-%{version}.tar.bz2
-Patch0:		chkauth-0.3-avx-misc_fixes.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
@@ -27,17 +27,13 @@ BuildArch:	noarch
 Requires:	perl >= 5.0
 
 %description
-Chkauth is a program to change the authentification method 
-on a system. Chkauth always set the file method in first place, but 
-you can only select the second authentification method this way. 
+chkauth is a program to change the authentication method on a system.
 
-Three kinds of authentification is accepted : local (file), NIS (yp) 
-and LDAP. 
+Two kinds of authentication are accepted : local (tcb), and LDAP. 
 
 
 %prep
 %setup -q
-%patch0 -p0
 
 
 %build
@@ -57,11 +53,15 @@ install -m 0644 chkauth.8 %{buildroot}/%{_mandir}/man8/
 
 %files
 %defattr(-,root,root)
-%{_sbindir}/*
-%{_mandir}/*/*
+%{_sbindir}/chkauth
+%{_mandir}/man8/chkauth.8*
 
 
 %changelog
+* Sat Feb 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.4
+- 0.4: complete rewrite in bash (although still required perl);
+  removes NIS and file support and adds tcb support
+
 * Mon Jul 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.3
 - remove pre-Annvix changelog
 
