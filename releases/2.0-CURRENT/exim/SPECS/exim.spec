@@ -264,7 +264,6 @@ popd
 %_post_srv exim
 
 update-alternatives --install %{_bindir}/exim exim  %{_bindir}/exim-%{version} 10
-[ ! -L /usr/bin/exim ] && ln -s ../../etc/alternatives/exim /usr/bin/exim
 
 # scrub hints files - db files change format between builds so
 # killing the hints can save an MTA crash later
@@ -278,23 +277,19 @@ fi
 
 %preun
 %_preun_srv exim
-
-
-%postun
-[ $1 = 0 ] || exit 0
-update-alternatives --remove exim  %{_bindir}/exim-%{version}
-:
+if [ $1 = 0 ]; then
+    update-alternatives --remove exim  %{_bindir}/exim-%{version}
+fi
 
 
 %post db
 update-alternatives --install %{_bindir}/exim exim  %{_bindir}/exim-%{version}-db 20
-:
 
 
-%postun db
-[ $1 = 0 ] || exit 0
-update-alternatives --remove exim  %{_bindir}/exim-%{version}-db
-:
+%preun db
+if [ $1 = 0 ]; then
+    update-alternatives --remove exim  %{_bindir}/exim-%{version}-db
+fi
 
 
 %files
@@ -369,6 +364,9 @@ update-alternatives --remove exim  %{_bindir}/exim-%{version}-db
 
 
 %changelog
+* Fri Feb 02 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.66
+- finally fix the alternatives junk
+
 * Fri Feb 02 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.66
 - make sure that symlink is there with the alternatives
 
