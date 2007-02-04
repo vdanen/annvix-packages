@@ -1,5 +1,5 @@
 #
-# spec file for package php-mhash
+# spec file for package php-wddx
 #
 # Package for the Annvix Linux distribution: http://annvix.org/
 #
