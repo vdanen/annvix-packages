@@ -11,7 +11,10 @@ responsibilities to Annvix's founder, Vincent Danen.
 
 Joining for 1.1-CURRENT, Sean P. Thomas has taken a co-developer role and is
 largely responsible for the many enhancements to srv, Annvix's own service
-management tool.
+management tool.  Sean left the development team just before 1.1-RELEASE became
+available.
+
+Thanks to Ying-Hung Chen for his work and help with postfix and ports packages.
 
 However, the following people have been instrumental in Mandrivalinux releases and
 are therefore also credited here as much of their work has been taken from Mandrivalinux
@@ -26,5 +29,5 @@ the packages Annvix has kept:
 Fred Lepied, Pixel, Juan Quintela, Stew Benedict, Thierry Vignaud, Gwenole Beauchesne,
 Rafael Garcia-Suarez, Warly, Fred Crozat, Florin.
 
-Finally, thanks to God for the moderate amount of brains He's given us so we
-could actually manage to put something like this out.  =)
+Finally, thanks to God for the moderate amount of brains He's given me so I
+could actually manage to put something like this out (and not have it totally suck).  =)

@@ -12,8 +12,8 @@
 %define version		2.0
 %define release		%_revrel
 
-%define distrib		Artemis
-%define realversion 	2.0-CURRENT
+%define distrib		Surtr
+%define realversion 	2.0-RELEASE
 %define macrofile	%build_sysmacrospath
 
 Summary:	Annvix release file
@@ -86,6 +86,10 @@ EOF
 
 
 %changelog
+* Sat Feb 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0
+- 2.0-RELEASE (Surtr)
+- update CREDITS
+
 * Sat Oct 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
 - include a static /etc/issue (fixes #27)
 - redefine %%_initrddir in the macros file (/etc/init.d instead of
