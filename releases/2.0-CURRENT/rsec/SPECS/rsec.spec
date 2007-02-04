@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		rsec
-%define version		0.66
+%define version		0.67
 %define release		%_revrel
 
 Summary:	Security Reporting tool for Annvix
@@ -67,7 +67,7 @@ mkdir -p %{buildroot}{%{_sysconfdir}/{security,logrotate.d,cron.daily,cron.hourl
 mkdir -p %{buildroot}{%{_datadir}/rsec,%{_bindir},/var/log/security,%{_mandir}/man8}
 
 install -m 0640 cron-sh/{security,diff}_check.sh %{buildroot}%{_datadir}/rsec
-install -m 0750 cron-sh/{promisc_check,security,urpmicheck}.sh %{buildroot}%{_datadir}/rsec
+install -m 0750 cron-sh/{promisc_check,security,pkgcheck,apt_cleancache}.sh %{buildroot}%{_datadir}/rsec
 install -m 0750 src/promisc_check/promisc_check src/rsec_find/rsec_find %{buildroot}%{_bindir}
 install -m 0644 rsec.logrotate %{buildroot}/etc/logrotate.d/rsec
 install -m 0644 *.8 %{buildroot}%{_mandir}/man8/
@@ -75,7 +75,8 @@ install -m 0640 rsec.conf %{buildroot}%{_sysconfdir}/security
 install -m 0750 rsec.crondaily %{buildroot}%{_sysconfdir}/cron.daily/rsec
 install -m 0750 rsec.cronhourly %{buildroot}%{_sysconfdir}/cron.hourly/rsec
 pushd %{buildroot}%{_sysconfdir}/cron.daily
-    ln -s ../..%{_datadir}/rsec/urpmicheck.sh urpmicheck
+    ln -s ../..%{_datadir}/rsec/pkgcheck.sh pkgcheck
+    ln -s ../..%{_datadir}/rsec/apt_cleancache.sh apt_cleancache
 popd
 
 touch %{buildroot}/var/log/security.log
@@ -101,7 +102,8 @@ touch /var/log/security.log && chmod 0640 /var/log/security.log
 %config(noreplace) %{_sysconfdir}/logrotate.d/rsec
 %config(noreplace) %{_sysconfdir}/cron.daily/rsec
 %config(noreplace) %{_sysconfdir}/cron.hourly/rsec
-%{_sysconfdir}/cron.daily/urpmicheck
+%{_sysconfdir}/cron.daily/pkgcheck
+%{_sysconfdir}/cron.daily/apt_cleancache
 %ghost %attr(0640,root,root) /var/log/security.log
 
 %files doc
@@ -109,6 +111,9 @@ touch /var/log/security.log && chmod 0640 /var/log/security.log
 %doc AUTHORS COPYING ChangeLog
 
 %changelog
+* Sat Feb 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.66
+- 0.67
+
 * Sat Sep 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.66
 - fix URL
 
