@@ -1,0 +1,29 @@
+#!/bin/sh
+
+umask 077
+
+export TMPDIR=/var/tmp
+
+if [ ! -f /root/.my.cnf ]; then
+    echo "FATAL: You do not have a /root/.my.cnf file; this file needs to exist to run mysqld properly."
+    echo "FATAL: Please read man afterboot for more information in the MySQL section or refer to the"
+    echo "FATAL: Annvix FAQ online.  Refusing to start mysqld without this file."
+    exit 1
+fi
+
+[[ -f ./env/MYSQLD_OPTS ]] && MYSQLD_OPTS="$(head -1 ./env/MYSQLD_OPTS)"
+if [ -f ./env/DATADIR ]; then
+    DATADIR="$(head -1 ./env/DATADIR)"
+else
+    DATADIR="/var/lib/mysql"
+fi
+if [ -f ./env/LOG ]; then
+    LOGFILE="--log=$(head -1 ./env/LOG)"
+else
+    LOGFILE=""
+fi
+
+PID_FILE="${DATADIR}/`/bin/hostname`.pid"
+
+/sbin/chpst -u mysql /usr/sbin/mysqld --basedir=/ --datadir=${DATADIR} --pid-file=${PID_FILE} \
+  ${LOGFILE} --skip-locking ${MYSQLD_OPTS} 2>&1

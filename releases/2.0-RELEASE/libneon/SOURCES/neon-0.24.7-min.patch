@@ -1,0 +1,27 @@
+--- neon-0.24.7/src/ne_uri.c.min
++++ neon-0.24.7/src/ne_uri.c
+@@ -277,6 +277,10 @@
+ #undef CMP
+ #undef CASECMP
+ 
++#ifndef min
++#define min(a,b) ((a)<(b)?(a):(b))
++#endif
++
+ /* TODO: implement properly */
+ int ne_path_compare(const char *a, const char *b) 
+ {
+--- neon-0.24.7/src/ne_utils.h.min
++++ neon-0.24.7/src/ne_utils.h
+@@ -58,11 +58,6 @@
+ #define ne_vsnprintf vsnprintf
+ #endif
+ 
+-#ifndef WIN32
+-#undef min
+-#define min(a,b) ((a)<(b)?(a):(b))
+-#endif
+-
+ /* CONSIDER: mutt has a nicer way of way of doing debugging output... maybe
+  * switch to like that. */
+ 

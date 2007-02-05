@@ -1,0 +1,11 @@
+--- kernel-headers/asm-i386/unistd.h.clobbers	2006-05-17 04:29:19.000000000 -0400
++++ kernel-headers/asm-i386/unistd.h	2006-05-19 08:18:52.000000000 -0400
+@@ -327,7 +327,7 @@ long __res; \
+ __asm__ volatile ("int $0x80" \
+ 	: "=a" (__res) \
+ 	: "0" (__NR_##name),"D" ((long)(arg1)),"c" ((long)(arg2)), \
+-	  "d" ((long)(arg3)),"S" ((long)(arg4))); \
++	  "d" ((long)(arg3)),"S" ((long)(arg4)) : "memory"); \
+ __syscall_return(type,__res); \
+ } 
+ #endif

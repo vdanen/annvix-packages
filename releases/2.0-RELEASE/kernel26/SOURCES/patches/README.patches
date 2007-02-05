@@ -1,0 +1,29 @@
+-------------------------------------------------------------------------------
+Index of patches for the Annvix kernel found in patches/
+-------------------------------------------------------------------------------
+
+CA00_CORE.desc
+** Core patches
+	CZ01_Annvix_linux_logo_framebuffer.patch
+	- the Chum fb logo
+
+CB00_CORE.desc
+** Core patches (non-essential)
+
+FA00_FILESYSTEM.desc
+** Patches to enhance or fix filesystem support
+
+SL00_SECURITY.desc
+** Security-related enhancement patches
+	SL10_openswan-2.4.6-klips.patch
+        - ipsec support for openswan 2.4.6
+	SL11_openswan-2.4.6-natt.patch
+        - NAT Traversal support for openswan 2.4.6
+	SL60_apparmor_2.6.16.29_v154_fullseries.patch
+	- AppArmor v154 full patch (contains all previous split patches)
+	SL63_rsbac-common-1.2.7tar
+	- http://www.rsbac.org/
+	- RSBAC common files
+	SL64_rsbac_patch_2.6.16.19-1.2.7.patch
+	- http://www.rsbac.org/
+	- RSBAC kernel patch

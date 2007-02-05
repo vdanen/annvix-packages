@@ -1,0 +1,30 @@
+--- /dev/null	2004-09-06 20:38:19.000000000 -0400
++++ makedev.d/annvix	2005-02-04 09:48:40.000000000 -0500
+@@ -0,0 +1,5 @@
++# Annvix-specific device files
++
++# frandom and erandom support
++c 444 root root 235 11 1 1 frandom
++c 444 root root 235 12 1 1 erandom
+--- Makefile.avx	2005-02-04 10:02:29.000000000 -0500
++++ Makefile	2005-02-04 10:02:29.000000000 -0500
+@@ -2,7 +2,7 @@
+ VERSION := $(shell rpm -q --qf '%{VERSION}\n' --specfile $(PACKAGE).spec | head -1)
+ 
+ CONF= 00macros ataraid cciss cdrom dac960 gfx_cards ia64 ida libraw1394 \
+-      linux-2.4.x mandrake mouse sound std usb
++      linux-2.4.x mandrake mouse sound std usb annvix
+ 
+ devdir=$(DESTDIR)/dev
+ sbindir=$(DESTDIR)/sbin
+--- makedev.d/00macros.avx	2006-08-03 22:40:49.000000000 -0600
++++ makedev.d/00macros	2006-08-03 22:40:49.000000000 -0600
+@@ -9,7 +9,7 @@
+ =PRINTER  660 root lp
+ =PTY      666 root tty
+ =ROOT     600 root root
+-=SERIAL   660 root uucp
++=SERIAL   660 root admin
+ =STORAGE  660 root disk
+ =BURNER   660 root cdwriter
+ =TTY      620 root tty

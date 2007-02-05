@@ -1,0 +1,15 @@
+--- ./runtime/filetype.vim.tv	2006-05-09 12:08:58.616588721 +0200
++++ ./runtime/filetype.vim	2006-05-09 12:12:54.347990897 +0200
+@@ -2013,6 +2013,12 @@
+ 	\|else
+ 	\|  call s:StarSetf('changelog')
+ 	\|endif
++au BufNewFile,BufRead *.log
++	\ if getline(1) =~ '; urgency='
++	\|  call s:StarSetf('debchangelog')
++	\|else
++	\|  call s:StarSetf('changelog')
++	\|endif
+ 
+ " Crontab
+ au BufNewFile,BufRead crontab,crontab.*		call s:StarSetf('crontab')

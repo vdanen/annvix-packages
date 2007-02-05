@@ -1,0 +1,25 @@
+--- ./configure.ac.morepopt	2005-04-30 10:45:26.798891604 +0200
++++ ./configure.ac	2005-04-30 10:45:27.041842028 +0200
+@@ -1281,6 +1281,12 @@
+ AC_DEFINE_UNQUOTED(LIBRPMALIAS_FILENAME, "$LIBRPMALIAS_FILENAME",
+ 	[Full path to rpmpopt configuration file (usually /usr/lib/rpm/rpmpopt)])
+ AC_SUBST(LIBRPMALIAS_FILENAME)
++
++LIBVENDORALIAS_FILENAME="${RPMCONFIGDIR}/${RPMCANONVENDOR}/rpmpopt"
++AC_DEFINE_UNQUOTED(LIBVENDORALIAS_FILENAME, "$LIBVENDORALIAS_FILENAME",
++    [Full path to vendor rpmpopt configuration file (usually /usr/lib/rpm/vendor/rpmpopt)])
++AC_SUBST(LIBVENDORALIAS_FILENAME)
++
+ FINDREQUIRES="${RPMCONFIGDIR}/find-requires"
+ AC_DEFINE_UNQUOTED(FINDREQUIRES, "$FINDREQUIRES",
+ 	[Full path to find-requires script (usually /usr/lib/rpm/find-requires)])
+--- ./rpmqv.c.morepopt	2005-01-17 19:46:16.000000000 +0100
++++ ./rpmqv.c	2005-04-30 10:45:27.025845292 +0200
+@@ -293,6 +293,7 @@
+     optCon = poptGetContext(__progname, argc, argv, optionsTable, 0);
+     /*@=nullpass =temptrans@*/
+     (void) poptReadConfigFile(optCon, LIBRPMALIAS_FILENAME);
++    (void) poptReadConfigFile(optCon, LIBVENDORALIAS_FILENAME);
+     (void) poptReadDefaultConfig(optCon, 1);
+     poptSetExecPath(optCon, RPMCONFIGDIR, 1);
+ 

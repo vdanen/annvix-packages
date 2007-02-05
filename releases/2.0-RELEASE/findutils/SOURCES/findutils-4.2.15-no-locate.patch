@@ -1,0 +1,11 @@
+--- findutils-4.2.15/Makefile.am.no-locate	2005-01-25 01:30:39.000000000 +0100
++++ findutils-4.2.15/Makefile.am	2005-02-07 13:07:01.528229869 +0100
+@@ -2,7 +2,7 @@
+ 
+ EXTRA_DIST = COPYING ChangeLog TODO install-sh config.h.in stamp-h.in \
+ 		THANKS config.rpath
+-SUBDIRS = gnulib lib find xargs locate doc po m4
++SUBDIRS = gnulib lib find xargs doc po m4
+ 
+ ACLOCAL_AMFLAGS = -I gnulib/m4 -I m4
+ 

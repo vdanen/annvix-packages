@@ -1,0 +1,17 @@
+#!/bin/execlineb
+
+/bin/fdmove -c 2 1
+
+/sbin/chpst -e ./env/
+
+/bin/multisubstitute {
+    import -D "-Lo -p /var/run/snmptrapd.pid" OPTIONS
+}
+
+/bin/ifthenelse { /usr/bin/test ! -f /etc/snmp/snmptrapd.conf }
+{
+    /bin/echo "The configuration file does not exist, unable to start!"
+}
+{
+    /usr/sbin/snmptrapd -f ${OPTIONS}
+}

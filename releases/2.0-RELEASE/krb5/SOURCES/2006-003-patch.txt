@@ -1,0 +1,1903 @@
+Index: src/lib/gssapi/mechglue/g_store_cred.c
+===================================================================
+*** src/lib/gssapi/mechglue/g_store_cred.c	(revision 18858)
+--- src/lib/gssapi/mechglue/g_store_cred.c	(working copy)
+***************
+*** 11,16 ****
+--- 11,48 ----
+  
+  #include <mglueP.h>
+  
++ static OM_uint32
++ val_store_cred_args(
++ 	OM_uint32 *minor_status,
++ 	const gss_cred_id_t input_cred_handle,
++ 	gss_cred_usage_t cred_usage,
++ 	const gss_OID desired_mech,
++ 	OM_uint32 overwrite_cred,
++ 	OM_uint32 default_cred,
++ 	gss_OID_set *elements_stored,
++ 	gss_cred_usage_t *cred_usage_stored)
++ {
++ 
++ 	/* Initialize outputs. */
++ 
++ 	if (minor_status != NULL)
++ 		*minor_status = 0;
++ 
++ 	if (elements_stored != NULL)
++ 		*elements_stored = GSS_C_NULL_OID_SET;
++ 
++ 	/* Validate arguments. */
++ 
++ 	if (minor_status == NULL)
++ 		return (GSS_S_CALL_INACCESSIBLE_WRITE);
++ 
++ 	if (input_cred_handle == GSS_C_NO_CREDENTIAL)
++ 		return (GSS_S_CALL_INACCESSIBLE_READ | GSS_S_NO_CRED);
++ 
++ 	return (GSS_S_COMPLETE);
++ }
++ 
++ 
+  OM_uint32 gss_store_cred(minor_status,
+  			input_cred_handle,
+  			cred_usage,
+***************
+*** 37,52 ****
+  	gss_OID			dmech;
+  	int			i;
+  
+! 	/* Start by checking parameters */
+! 	if (minor_status == NULL)
+! 		return (GSS_S_CALL_INACCESSIBLE_WRITE|GSS_S_NO_CRED);
+! 	*minor_status = 0;
+  
+! 	if (input_cred_handle == GSS_C_NO_CREDENTIAL)
+! 		return (GSS_S_CALL_INACCESSIBLE_READ);
+! 
+! 	if (elements_stored != NULL)
+! 		*elements_stored = GSS_C_NULL_OID_SET;
+  
+  	if (cred_usage_stored != NULL)
+  		*cred_usage_stored = GSS_C_BOTH; /* there's no GSS_C_NEITHER */
+--- 69,87 ----
+  	gss_OID			dmech;
+  	int			i;
+  
+! 	major_status = val_store_cred_args(minor_status,
+! 					   input_cred_handle,
+! 					   cred_usage,
+! 					   desired_mech,
+! 					   overwrite_cred,
+! 					   default_cred,
+! 					   elements_stored,
+! 					   cred_usage_stored);
+! 	if (major_status != GSS_S_COMPLETE)
+! 		return (major_status);
+  
+! 	/* Initial value needed below. */
+! 	major_status = GSS_S_FAILURE;
+  
+  	if (cred_usage_stored != NULL)
+  		*cred_usage_stored = GSS_C_BOTH; /* there's no GSS_C_NEITHER */
+Index: src/lib/gssapi/mechglue/g_exp_sec_context.c
+===================================================================
+*** src/lib/gssapi/mechglue/g_exp_sec_context.c	(revision 18858)
+--- src/lib/gssapi/mechglue/g_exp_sec_context.c	(working copy)
+***************
+*** 34,39 ****
+--- 34,71 ----
+  #endif
+  #include <string.h>
+  
++ static OM_uint32
++ val_exp_sec_ctx_args(
++     OM_uint32 *minor_status,
++     gss_ctx_id_t *context_handle,
++     gss_buffer_t interprocess_token)
++ {
++ 
++     /* Initialize outputs. */
++ 
++     if (minor_status != NULL)
++ 	*minor_status = 0;
++ 
++     if (interprocess_token != GSS_C_NO_BUFFER) {
++ 	interprocess_token->length = 0;
++ 	interprocess_token->value = NULL;
++     }
++ 
++     /* Validate arguments. */
++ 
++     if (minor_status == NULL)
++ 	return (GSS_S_CALL_INACCESSIBLE_WRITE);
++ 
++     if (context_handle == NULL || *context_handle == GSS_C_NO_CONTEXT)
++ 	return (GSS_S_CALL_INACCESSIBLE_READ | GSS_S_NO_CONTEXT);
++ 
++     if (interprocess_token == GSS_C_NO_BUFFER)
++ 	return (GSS_S_CALL_INACCESSIBLE_WRITE);
++ 
++     return (GSS_S_COMPLETE);
++ }
++ 
++ 
+  OM_uint32 KRB5_CALLCONV
+  gss_export_sec_context(minor_status,
+                         context_handle,
+***************
+*** 50,65 ****
+      gss_mechanism	mech;
+      gss_buffer_desc	token;
+      char		*buf;
+-     
+-     if (minor_status == NULL)
+- 	return (GSS_S_CALL_INACCESSIBLE_WRITE);
+-     *minor_status = 0;
+- 
+-     if (context_handle == NULL || *context_handle == GSS_C_NO_CONTEXT)
+- 	return (GSS_S_CALL_INACCESSIBLE_READ | GSS_S_NO_CONTEXT);
+  
+!     if (interprocess_token == NULL)
+! 	return (GSS_S_CALL_INACCESSIBLE_READ);
+  
+      /*
+       * select the approprate underlying mechanism routine and
+--- 82,92 ----
+      gss_mechanism	mech;
+      gss_buffer_desc	token;
+      char		*buf;
+  
+!     status = val_exp_sec_ctx_args(minor_status,
+! 				  context_handle, interprocess_token);
+!     if (status != GSS_S_COMPLETE)
+! 	return (status);
+  
+      /*
+       * select the approprate underlying mechanism routine and
+Index: src/lib/gssapi/mechglue/g_canon_name.c
+===================================================================
+*** src/lib/gssapi/mechglue/g_canon_name.c	(revision 18858)
+--- src/lib/gssapi/mechglue/g_canon_name.c	(working copy)
+***************
+*** 25,30 ****
+--- 25,58 ----
+  #include <string.h>
+  #include <errno.h>
+  
++ static OM_uint32
++ val_canon_name_args(
++ 	OM_uint32 *minor_status,
++ 	const gss_name_t input_name,
++ 	const gss_OID mech_type,
++ 	gss_name_t *output_name)
++ {
++ 
++ 	/* Initialize outputs. */
++ 
++ 	if (minor_status != NULL)
++ 		*minor_status = 0;
++ 
++ 	if (output_name != NULL)
++ 		*output_name = GSS_C_NO_NAME;
++ 
++ 	/* Validate arguments. */
++ 
++ 	if (minor_status == NULL)
++ 		return (GSS_S_CALL_INACCESSIBLE_WRITE);
++ 
++ 	if (input_name == GSS_C_NO_NAME || mech_type == GSS_C_NULL_OID)
++ 		return (GSS_S_CALL_INACCESSIBLE_READ);
++ 
++ 	return (GSS_S_COMPLETE);
++ }
++ 
++ 
+  OM_uint32 KRB5_CALLCONV
+  gss_canonicalize_name(minor_status,
+  				input_name,
+***************
+*** 38,54 ****
+  	gss_union_name_t in_union, out_union = NULL, dest_union = NULL;
+  	OM_uint32 major_status = GSS_S_FAILURE;
+  
+! 	if (minor_status == NULL)
+! 		return (GSS_S_CALL_INACCESSIBLE_WRITE);
+! 
+! 	*minor_status = 0;
+  
+! 	if (output_name)
+! 		*output_name = 0;
+! 
+! 	/* check the input parameters */
+! 	if (input_name == NULL || mech_type == GSS_C_NULL_OID)
+! 		return (GSS_S_CALL_INACCESSIBLE_READ);
+  
+  	in_union = (gss_union_name_t)input_name;
+  	/*
+--- 66,80 ----
+  	gss_union_name_t in_union, out_union = NULL, dest_union = NULL;
+  	OM_uint32 major_status = GSS_S_FAILURE;
+  
+! 	major_status = val_canon_name_args(minor_status,
+! 					   input_name,
+! 					   mech_type,
+! 					   output_name);
+! 	if (major_status != GSS_S_COMPLETE)
+! 		return (major_status);
+  
+! 	/* Initial value needed below. */
+! 	major_status = GSS_S_FAILURE;
+  
+  	in_union = (gss_union_name_t)input_name;
+  	/*
+Index: src/lib/gssapi/mechglue/g_initialize.c
+===================================================================
+*** src/lib/gssapi/mechglue/g_initialize.c	(revision 18858)
+--- src/lib/gssapi/mechglue/g_initialize.c	(working copy)
+***************
+*** 142,158 ****
+  	int i, j;
+  	gss_OID curItem;
+  
+! 	if (!minorStatus)
+! 		return (GSS_S_CALL_INACCESSIBLE_WRITE);
+! 	if (gssint_initialize_library())
+! 		return GSS_S_FAILURE;
+  
+! 	*minorStatus = 0;
+  
+  
+! 	/* check output parameter */
+! 	if (mechSet == NULL)
+  		return (GSS_S_CALL_INACCESSIBLE_WRITE);
+  
+  	if (build_mechSet())
+  		return GSS_S_FAILURE;
+--- 142,161 ----
+  	int i, j;
+  	gss_OID curItem;
+  
+! 	/* Initialize outputs. */
+  
+! 	if (minorStatus != NULL)
+! 		*minorStatus = 0;
+  
++ 	if (mechSet != NULL)
++ 		*mechSet = GSS_C_NO_OID_SET;
+  
+! 	/* Validate arguments. */
+! 	if (minorStatus == NULL || mechSet == NULL)
+  		return (GSS_S_CALL_INACCESSIBLE_WRITE);
++ 
++ 	if (gssint_initialize_library())
++ 		return GSS_S_FAILURE;
+  
+  	if (build_mechSet())
+  		return GSS_S_FAILURE;
+Index: src/lib/gssapi/mechglue/g_verify.c
+===================================================================
+*** src/lib/gssapi/mechglue/g_verify.c	(revision 18858)
+--- src/lib/gssapi/mechglue/g_verify.c	(working copy)
+***************
+*** 54,60 ****
+      if (context_handle == GSS_C_NO_CONTEXT)
+  	return (GSS_S_CALL_INACCESSIBLE_READ | GSS_S_NO_CONTEXT);
+  
+!     if ((message_buffer == NULL) || GSS_EMPTY_BUFFER(token_buffer))
+  	return (GSS_S_CALL_INACCESSIBLE_READ);
+  
+      /*
+--- 54,62 ----
+      if (context_handle == GSS_C_NO_CONTEXT)
+  	return (GSS_S_CALL_INACCESSIBLE_READ | GSS_S_NO_CONTEXT);
+  
+!     if ((message_buffer == GSS_C_NO_BUFFER) ||
+! 	GSS_EMPTY_BUFFER(token_buffer))
+! 
+  	return (GSS_S_CALL_INACCESSIBLE_READ);
+  
+      /*
+Index: src/lib/gssapi/mechglue/g_inq_names.c
+===================================================================
+*** src/lib/gssapi/mechglue/g_inq_names.c	(revision 18858)
+--- src/lib/gssapi/mechglue/g_inq_names.c	(working copy)
+***************
+*** 41,50 ****
+  {
+      OM_uint32		status;
+      gss_mechanism	mech;
+!     
+      if (minor_status == NULL)
+  	return (GSS_S_CALL_INACCESSIBLE_WRITE);
+-     *minor_status = 0;
+  
+      if (name_types == NULL)
+  	return (GSS_S_CALL_INACCESSIBLE_WRITE);
+--- 41,59 ----
+  {
+      OM_uint32		status;
+      gss_mechanism	mech;
+! 
+!     /* Initialize outputs. */
+! 
+!     if (minor_status != NULL)
+! 	*minor_status = 0;
+! 
+!     if (name_types != NULL)
+! 	*name_types = GSS_C_NO_OID_SET;
+! 
+!     /* Validate arguments. */
+! 
+      if (minor_status == NULL)
+  	return (GSS_S_CALL_INACCESSIBLE_WRITE);
+  
+      if (name_types == NULL)
+  	return (GSS_S_CALL_INACCESSIBLE_WRITE);
+***************
+*** 72,77 ****
+--- 81,113 ----
+      
+      return (GSS_S_BAD_MECH);
+  }
++ 
++ static OM_uint32
++ val_inq_mechs4name_args(
++     OM_uint32 *minor_status,
++     const gss_name_t input_name,
++     gss_OID_set *mech_set)
++ {
++ 
++     /* Initialize outputs. */
++     if (minor_status != NULL)
++ 	*minor_status = 0;
++ 
++     if (mech_set != NULL)
++ 	*mech_set = GSS_C_NO_OID_SET;
++ 
++     /* Validate arguments.e
++  */
++     if (minor_status == NULL)
++ 	return (GSS_S_CALL_INACCESSIBLE_WRITE);
++ 
++     if (input_name == GSS_C_NO_NAME)
++ 	return (GSS_S_BAD_NAME);
++ 
++     return (GSS_S_COMPLETE);
++ }
++ 
++ 
+  OM_uint32 KRB5_CALLCONV
+  gss_inquire_mechs_for_name(minor_status, input_name, mech_set)
+  
+***************
+*** 90,101 ****
+      gss_buffer_desc		name_buffer;
+      int			i;
+  
+!     if (minor_status == NULL)
+! 	return (GSS_S_CALL_INACCESSIBLE_WRITE);
+!     *minor_status = 0;
+! 
+!     if (input_name == NULL)
+! 	return (GSS_S_BAD_NAME);
+  
+      status = gss_create_empty_oid_set(minor_status, mech_set);
+      if (status != GSS_S_COMPLETE)
+--- 126,134 ----
+      gss_buffer_desc		name_buffer;
+      int			i;
+  
+!     status = val_inq_mechs4name_args(minor_status, input_name, mech_set);
+!     if (status != GSS_S_COMPLETE)
+! 	return (status);
+  
+      status = gss_create_empty_oid_set(minor_status, mech_set);
+      if (status != GSS_S_COMPLETE)
+Index: src/lib/gssapi/mechglue/g_export_name.c
+===================================================================
+*** src/lib/gssapi/mechglue/g_export_name.c	(revision 18858)
+--- src/lib/gssapi/mechglue/g_export_name.c	(working copy)
+***************
+*** 29,47 ****
+  {
+  	gss_union_name_t		union_name;
+  
+  
+! 	if (minor_status)
+  		*minor_status = 0;
+  
+! 	/* check out parameter */
+! 	if (!exported_name)
+! 		return (GSS_S_CALL_INACCESSIBLE_WRITE);
+  
+! 	exported_name->value = NULL;
+! 	exported_name->length = 0;
+  
+! 	/* check input parameter */
+! 	if (!input_name)
+  		return (GSS_S_CALL_INACCESSIBLE_READ | GSS_S_BAD_NAME);
+  
+  	union_name = (gss_union_name_t)input_name;
+--- 29,50 ----
+  {
+  	gss_union_name_t		union_name;
+  
++ 	/* Initialize outputs. */
+  
+! 	if (minor_status != NULL)
+  		*minor_status = 0;
+  
+! 	if (exported_name != GSS_C_NO_BUFFER) {
+! 		exported_name->value = NULL;
+! 		exported_name->length = 0;
+! 	}
+! 
+! 	/* Validate arguments. */
+  
+! 	if (minor_status == NULL || exported_name == GSS_C_NO_BUFFER)
+! 		return (GSS_S_CALL_INACCESSIBLE_WRITE);
+  
+! 	if (input_name == GSS_C_NO_NAME)
+  		return (GSS_S_CALL_INACCESSIBLE_READ | GSS_S_BAD_NAME);
+  
+  	union_name = (gss_union_name_t)input_name;
+Index: src/lib/gssapi/mechglue/g_process_context.c
+===================================================================
+*** src/lib/gssapi/mechglue/g_process_context.c	(revision 18858)
+--- src/lib/gssapi/mechglue/g_process_context.c	(working copy)
+***************
+*** 49,54 ****
+--- 49,57 ----
+      if (context_handle == GSS_C_NO_CONTEXT)
+  	return (GSS_S_CALL_INACCESSIBLE_READ | GSS_S_NO_CONTEXT);
+  
++     if (token_buffer == GSS_C_NO_BUFFER)
++ 	return (GSS_S_CALL_INACCESSIBLE_READ);
++ 
+      if (GSS_EMPTY_BUFFER(token_buffer))
+  	return (GSS_S_CALL_INACCESSIBLE_READ);
+  
+Index: src/lib/gssapi/mechglue/g_imp_sec_context.c
+===================================================================
+*** src/lib/gssapi/mechglue/g_imp_sec_context.c	(revision 18858)
+--- src/lib/gssapi/mechglue/g_imp_sec_context.c	(working copy)
+***************
+*** 34,39 ****
+--- 34,71 ----
+  #endif
+  #include <string.h>
+  
++ static OM_uint32
++ val_imp_sec_ctx_args(
++     OM_uint32 *minor_status,
++     gss_buffer_t interprocess_token,
++     gss_ctx_id_t *context_handle)
++ {
++ 
++     /* Initialize outputs. */
++     if (minor_status != NULL)
++ 	*minor_status = 0;
++ 
++     if (context_handle != NULL)
++ 	*context_handle = GSS_C_NO_CONTEXT;
++ 
++     /* Validate arguments. */
++ 
++     if (minor_status == NULL)
++ 	return (GSS_S_CALL_INACCESSIBLE_WRITE);
++ 
++     if (context_handle == NULL)
++ 	return (GSS_S_CALL_INACCESSIBLE_WRITE);
++ 
++     if (interprocess_token == GSS_C_NO_BUFFER)
++ 	return (GSS_S_CALL_INACCESSIBLE_READ | GSS_S_DEFECTIVE_TOKEN);
++ 
++     if (GSS_EMPTY_BUFFER(interprocess_token))
++ 	return (GSS_S_CALL_INACCESSIBLE_READ | GSS_S_DEFECTIVE_TOKEN);
++ 
++     return (GSS_S_COMPLETE);
++ }
++ 
++ 
+  OM_uint32 KRB5_CALLCONV
+  gss_import_sec_context(minor_status,
+                         interprocess_token,
+***************
+*** 50,67 ****
+      gss_union_ctx_id_t	ctx;
+      gss_buffer_desc	token;
+      gss_mechanism	mech;
+-     
+-     if (minor_status == NULL)
+- 	return (GSS_S_CALL_INACCESSIBLE_WRITE);
+-     *minor_status = 0;
+-     
+-     if (context_handle == NULL)
+- 	return (GSS_S_CALL_INACCESSIBLE_WRITE | GSS_S_NO_CONTEXT);
+-     *context_handle = GSS_C_NO_CONTEXT;
+  
+!     if (GSS_EMPTY_BUFFER(interprocess_token))
+! 	return (GSS_S_CALL_INACCESSIBLE_READ | GSS_S_DEFECTIVE_TOKEN);
+  
+      status = GSS_S_FAILURE;
+  
+      ctx = (gss_union_ctx_id_t) malloc(sizeof(gss_union_ctx_id_desc));
+--- 82,94 ----
+      gss_union_ctx_id_t	ctx;
+      gss_buffer_desc	token;
+      gss_mechanism	mech;
+  
+!     status = val_imp_sec_ctx_args(minor_status,
+! 				  interprocess_token, context_handle);
+!     if (status != GSS_S_COMPLETE)
+! 	return (status);
+  
++     /* Initial value needed below. */
+      status = GSS_S_FAILURE;
+  
+      ctx = (gss_union_ctx_id_t) malloc(sizeof(gss_union_ctx_id_desc));
+Index: src/lib/gssapi/mechglue/g_seal.c
+===================================================================
+*** src/lib/gssapi/mechglue/g_seal.c	(revision 18858)
+--- src/lib/gssapi/mechglue/g_seal.c	(working copy)
+***************
+*** 28,33 ****
+--- 28,72 ----
+  
+  #include "mglueP.h"
+  
++ static OM_uint32
++ val_seal_args(
++     OM_uint32 *minor_status,
++     gss_ctx_id_t context_handle,
++     int conf_req_flag,
++     int qop_req,
++     gss_buffer_t input_message_buffer,
++     int *conf_state,
++     gss_buffer_t output_message_buffer)
++ {
++ 
++     /* Initialize outputs. */
++ 
++     if (minor_status != NULL)
++ 	*minor_status = 0;
++ 
++     if (output_message_buffer != GSS_C_NO_BUFFER) {
++ 	output_message_buffer->length = 0;
++ 	output_message_buffer->value = NULL;
++     }
++ 
++     /* Validate arguments. */
++ 
++     if (minor_status == NULL)
++ 	return (GSS_S_CALL_INACCESSIBLE_WRITE);
++ 
++     if (context_handle == GSS_C_NO_CONTEXT)
++ 	return (GSS_S_CALL_INACCESSIBLE_READ | GSS_S_NO_CONTEXT);
++ 
++     if (input_message_buffer == GSS_C_NO_BUFFER)
++ 	return (GSS_S_CALL_INACCESSIBLE_READ);
++ 
++     if (output_message_buffer == GSS_C_NO_BUFFER)
++ 	return (GSS_S_CALL_INACCESSIBLE_WRITE);
++ 
++     return (GSS_S_COMPLETE);
++ }
++ 
++ 
+  OM_uint32 KRB5_CALLCONV
+  gss_seal (minor_status,
+            context_handle,
+***************
+*** 51,68 ****
+      gss_union_ctx_id_t	ctx;
+      gss_mechanism	mech;
+  
+!     if (minor_status == NULL)
+! 	return (GSS_S_CALL_INACCESSIBLE_WRITE);
+!     *minor_status = 0;
+! 
+!     if (context_handle == GSS_C_NO_CONTEXT)
+! 	return (GSS_S_CALL_INACCESSIBLE_READ | GSS_S_NO_CONTEXT);
+! 
+!     if (input_message_buffer == NULL)
+! 	return (GSS_S_CALL_INACCESSIBLE_READ);
+! 
+!     if (output_message_buffer == NULL)
+! 	return (GSS_S_CALL_INACCESSIBLE_WRITE);
+  
+      /*
+       * select the approprate underlying mechanism routine and
+--- 90,101 ----
+      gss_union_ctx_id_t	ctx;
+      gss_mechanism	mech;
+  
+!     status = val_seal_args(minor_status, context_handle,
+! 			   conf_req_flag, qop_req,
+! 			   input_message_buffer, conf_state,
+! 			   output_message_buffer);
+!     if (status != GSS_S_COMPLETE)
+! 	return (status);
+  
+      /*
+       * select the approprate underlying mechanism routine and
+Index: src/lib/gssapi/mechglue/g_acquire_cred.c
+===================================================================
+*** src/lib/gssapi/mechglue/g_acquire_cred.c	(revision 18858)
+--- src/lib/gssapi/mechglue/g_acquire_cred.c	(working copy)
+***************
+*** 71,76 ****
+--- 71,113 ----
+      return actual_mechs;
+  }
+  
++ static OM_uint32
++ val_acq_cred_args(
++     OM_uint32 *minor_status,
++     gss_name_t desired_name,
++     OM_uint32 time_req,
++     gss_OID_set desired_mechs,
++     int cred_usage,
++     gss_cred_id_t *output_cred_handle,
++     gss_OID_set *actual_mechs,
++     OM_uint32 *time_rec)
++ {
++ 
++     /* Initialize outputs. */
++ 
++     if (minor_status != NULL)
++ 	*minor_status = 0;
++ 
++     if (output_cred_handle != NULL)
++ 	*output_cred_handle = GSS_C_NO_CREDENTIAL;
++ 
++     if (actual_mechs != NULL)
++ 	*actual_mechs = GSS_C_NULL_OID_SET;
++ 
++     if (time_rec != NULL)
++ 	*time_rec = 0;
++ 
++     /* Validate arguments. */
++ 
++     if (minor_status == NULL)
++ 	return (GSS_S_CALL_INACCESSIBLE_WRITE);
++ 
++     if (output_cred_handle == NULL)
++ 	return (GSS_S_CALL_INACCESSIBLE_WRITE);
++ 
++     return (GSS_S_COMPLETE);
++ }
++ 
+  
+  OM_uint32 KRB5_CALLCONV
+  gss_acquire_cred(minor_status,
+***************
+*** 101,122 ****
+      int i;
+      gss_union_cred_t creds;
+  
+!     /* start by checking parameters */
+!     if (!minor_status)
+! 	return (GSS_S_CALL_INACCESSIBLE_WRITE);
+!     *minor_status = 0;
+!     
+!     if (!output_cred_handle)
+! 	return (GSS_S_CALL_INACCESSIBLE_WRITE | GSS_S_NO_CRED);
+! 
+!     *output_cred_handle = GSS_C_NO_CREDENTIAL;
+! 
+!     /* Set output parameters to NULL for now */
+!     if (actual_mechs)
+! 	*actual_mechs = GSS_C_NULL_OID_SET;
+  
+!     if (time_rec)
+! 	*time_rec = 0;
+  
+      /*
+       * if desired_mechs equals GSS_C_NULL_OID_SET, then pick an
+--- 138,156 ----
+      int i;
+      gss_union_cred_t creds;
+  
+!     major = val_acq_cred_args(minor_status,
+! 			      desired_name,
+! 			      time_req,
+! 			      desired_mechs,
+! 			      cred_usage,
+! 			      output_cred_handle,
+! 			      actual_mechs,
+! 			      time_rec);
+!     if (major != GSS_S_COMPLETE)
+! 	return (major);
+  
+!     /* Initial value needed below. */
+!     major = GSS_S_FAILURE;
+  
+      /*
+       * if desired_mechs equals GSS_C_NULL_OID_SET, then pick an
+***************
+*** 208,213 ****
+--- 242,293 ----
+      return (GSS_S_COMPLETE);
+  }
+  
++ static OM_uint32
++ val_add_cred_args(
++     OM_uint32 *minor_status,
++     gss_cred_id_t input_cred_handle,
++     gss_name_t desired_name,
++     gss_OID desired_mech,
++     gss_cred_usage_t cred_usage,
++     OM_uint32 initiator_time_req,
++     OM_uint32 acceptor_time_req,
++     gss_cred_id_t *output_cred_handle,
++     gss_OID_set *actual_mechs,
++     OM_uint32 *initiator_time_rec,
++     OM_uint32 *acceptor_time_rec)
++ {
++ 
++     /* Initialize outputs. */
++ 
++     if (minor_status != NULL)
++ 	*minor_status = 0;
++ 
++     if (output_cred_handle != NULL)
++ 	*output_cred_handle = GSS_C_NO_CREDENTIAL;
++ 
++     if (actual_mechs != NULL)
++ 	*actual_mechs = GSS_C_NO_OID_SET;
++ 
++     if (acceptor_time_rec != NULL)
++ 	*acceptor_time_rec = 0;
++ 
++     if (initiator_time_rec != NULL)
++ 	*initiator_time_rec = 0;
++ 
++     /* Validate arguments. */
++ 
++     if (minor_status == NULL)
++ 	return (GSS_S_CALL_INACCESSIBLE_WRITE);
++ 
++     if (input_cred_handle == GSS_C_NO_CREDENTIAL &&
++ 	output_cred_handle == NULL)
++ 
++ 	return (GSS_S_CALL_INACCESSIBLE_WRITE | GSS_S_NO_CRED);
++ 
++     return (GSS_S_COMPLETE);
++ }
++ 
++ 
+  /* V2 KRB5_CALLCONV */
+  OM_uint32 KRB5_CALLCONV
+  gss_add_cred(minor_status, input_cred_handle,
+***************
+*** 238,263 ****
+      gss_OID		new_mechs_array = NULL;
+      gss_cred_id_t *	new_cred_array = NULL;
+  
+!     /* check input parameters */
+!     if (minor_status == NULL)
+! 	return (GSS_S_CALL_INACCESSIBLE_WRITE);
+!     *minor_status = 0;
+! 
+!     if (input_cred_handle == GSS_C_NO_CREDENTIAL &&
+! 	output_cred_handle == NULL)
+! 	return (GSS_S_CALL_INACCESSIBLE_WRITE | GSS_S_NO_CRED);
+! 
+!     if (output_cred_handle)
+! 	*output_cred_handle = GSS_C_NO_CREDENTIAL;
+! 
+!     if (actual_mechs)
+! 	*actual_mechs = NULL;
+! 
+!     if (acceptor_time_rec)
+! 	*acceptor_time_rec = 0;
+! 
+!     if (initiator_time_rec)
+! 	*initiator_time_rec = 0;
+  
+      mech = gssint_get_mechanism(desired_mech);
+      if (!mech)
+--- 318,336 ----
+      gss_OID		new_mechs_array = NULL;
+      gss_cred_id_t *	new_cred_array = NULL;
+  
+!     status = val_add_cred_args(minor_status,
+! 			       input_cred_handle,
+! 			       desired_name,
+! 			       desired_mech,
+! 			       cred_usage,
+! 			       initiator_time_req,
+! 			       acceptor_time_req,
+! 			       output_cred_handle,
+! 			       actual_mechs,
+! 			       initiator_time_rec,
+! 			       acceptor_time_rec);
+!     if (status != GSS_S_COMPLETE)
+! 	return (status);
+  
+      mech = gssint_get_mechanism(desired_mech);
+      if (!mech)
+Index: src/lib/gssapi/mechglue/g_dsp_name.c
+===================================================================
+*** src/lib/gssapi/mechglue/g_dsp_name.c	(revision 18858)
+--- src/lib/gssapi/mechglue/g_dsp_name.c	(working copy)
+***************
+*** 34,39 ****
+--- 34,75 ----
+  #endif
+  #include <string.h>
+  
++ static OM_uint32
++ val_dsp_name_args(
++     OM_uint32 *minor_status,
++     gss_name_t input_name,
++     gss_buffer_t output_name_buffer,
++     gss_OID *output_name_type)
++ {
++ 
++     /* Initialize outputs. */
++ 
++     if (minor_status != NULL)
++ 	*minor_status = 0;
++ 
++     if (output_name_buffer != GSS_C_NO_BUFFER) {
++ 	output_name_buffer->length = 0;
++ 	output_name_buffer->value = NULL;
++     }
++ 
++     if (output_name_type != NULL)
++ 	*output_name_type = GSS_C_NO_OID;
++ 
++     /* Validate arguments. */
++ 
++     if (minor_status == NULL)
++ 	return (GSS_S_CALL_INACCESSIBLE_WRITE);
++ 
++     if (output_name_buffer == GSS_C_NO_BUFFER)
++ 	return (GSS_S_CALL_INACCESSIBLE_WRITE);
++ 
++     if (input_name == GSS_C_NO_NAME)
++ 	return (GSS_S_CALL_INACCESSIBLE_READ | GSS_S_BAD_NAME);
++ 
++     return (GSS_S_COMPLETE);
++ }
++ 
++ 
+  OM_uint32 KRB5_CALLCONV
+  gss_display_name (minor_status,
+                    input_name,
+***************
+*** 48,66 ****
+  {
+      OM_uint32		major_status;
+      gss_union_name_t	union_name;
+-     
+-     if (minor_status == NULL)
+- 	return (GSS_S_CALL_INACCESSIBLE_WRITE);
+-     *minor_status = 0;
+- 
+-     if (input_name == 0)
+- 	return (GSS_S_CALL_INACCESSIBLE_READ | GSS_S_BAD_NAME);
+- 
+-     if (output_name_buffer == NULL)
+- 	return (GSS_S_CALL_INACCESSIBLE_WRITE);
+  
+!     if (output_name_type)
+! 	*output_name_type = NULL;
+  
+      union_name = (gss_union_name_t) input_name;
+  
+--- 84,94 ----
+  {
+      OM_uint32		major_status;
+      gss_union_name_t	union_name;
+  
+!     major_status = val_dsp_name_args(minor_status, input_name,
+! 				     output_name_buffer, output_name_type);
+!     if (major_status != GSS_S_COMPLETE)
+! 	return (major_status);
+  
+      union_name = (gss_union_name_t) input_name;
+  
+Index: src/lib/gssapi/mechglue/g_unseal.c
+===================================================================
+*** src/lib/gssapi/mechglue/g_unseal.c	(revision 18858)
+--- src/lib/gssapi/mechglue/g_unseal.c	(working copy)
+***************
+*** 49,69 ****
+      gss_union_ctx_id_t	ctx;
+      gss_mechanism	mech;
+  
+      if (minor_status == NULL)
+  	return (GSS_S_CALL_INACCESSIBLE_WRITE);
+-     *minor_status = 0;
+  
+      if (context_handle == GSS_C_NO_CONTEXT)
+  	return (GSS_S_CALL_INACCESSIBLE_READ | GSS_S_NO_CONTEXT);
+  
+!     if (GSS_EMPTY_BUFFER(input_message_buffer))
+  	return (GSS_S_CALL_INACCESSIBLE_READ);
+  
+!     if (output_message_buffer == NULL)
+  	return (GSS_S_CALL_INACCESSIBLE_WRITE);
+- 
+-     output_message_buffer->length = 0;
+-     output_message_buffer->value = NULL;
+  
+      /*
+       * select the approprate underlying mechanism routine and
+--- 49,75 ----
+      gss_union_ctx_id_t	ctx;
+      gss_mechanism	mech;
+  
++     if (minor_status != NULL)
++ 	*minor_status = 0;
++ 
++     if (output_message_buffer != GSS_C_NO_BUFFER) {
++ 	output_message_buffer->length = 0;
++ 	output_message_buffer->value = NULL;
++     }
++ 
+      if (minor_status == NULL)
+  	return (GSS_S_CALL_INACCESSIBLE_WRITE);
+  
+      if (context_handle == GSS_C_NO_CONTEXT)
+  	return (GSS_S_CALL_INACCESSIBLE_READ | GSS_S_NO_CONTEXT);
+  
+!     if (input_message_buffer == GSS_C_NO_BUFFER ||
+! 	GSS_EMPTY_BUFFER(input_message_buffer))
+! 
+  	return (GSS_S_CALL_INACCESSIBLE_READ);
+  
+!     if (output_message_buffer == GSS_C_NO_BUFFER)
+  	return (GSS_S_CALL_INACCESSIBLE_WRITE);
+  
+      /*
+       * select the approprate underlying mechanism routine and
+Index: src/lib/gssapi/mechglue/g_dup_name.c
+===================================================================
+*** src/lib/gssapi/mechglue/g_dup_name.c	(revision 18858)
+--- src/lib/gssapi/mechglue/g_dup_name.c	(working copy)
+***************
+*** 19,24 ****
+--- 19,55 ----
+  #include <string.h>
+  #include <errno.h>
+  
++ static OM_uint32
++ val_dup_name_args(
++ 	OM_uint32 *minor_status,
++ 	const gss_name_t src_name,
++ 	gss_name_t *dest_name)
++ {
++ 
++ 	/* Initialize outputs. */
++ 
++ 	if (minor_status != NULL)
++ 		*minor_status = 0;
++ 
++ 	if (dest_name != NULL)
++ 		*dest_name = GSS_C_NO_NAME;
++ 
++ 	/* Validate arguments. */
++ 
++ 	if (minor_status == NULL)
++ 		return (GSS_S_CALL_INACCESSIBLE_WRITE);
++ 
++ 	/* if output_name is NULL, simply return */
++ 	if (dest_name == NULL)
++ 		return (GSS_S_CALL_INACCESSIBLE_WRITE);
++ 
++ 	if (src_name == GSS_C_NO_NAME)
++ 		return (GSS_S_CALL_INACCESSIBLE_READ | GSS_S_BAD_NAME);
++ 
++ 	return (GSS_S_COMPLETE);
++ }
++ 
++ 
+  OM_uint32 KRB5_CALLCONV
+  gss_duplicate_name(minor_status,
+  		src_name,
+***************
+*** 30,49 ****
+  		gss_union_name_t src_union, dest_union;
+  		OM_uint32 major_status = GSS_S_FAILURE;
+  
+! 
+! 	if (!minor_status)
+! 		return (GSS_S_CALL_INACCESSIBLE_WRITE);
+! 
+! 	*minor_status = 0;
+! 
+! 	/* if output_name is NULL, simply return */
+! 	if (dest_name == NULL)
+! 		return (GSS_S_CALL_INACCESSIBLE_WRITE | GSS_S_BAD_NAME);
+! 
+! 	*dest_name = 0;
+! 
+! 	if (src_name == NULL)
+! 		return (GSS_S_CALL_INACCESSIBLE_READ);
+  
+  	src_union = (gss_union_name_t)src_name;
+  
+--- 61,69 ----
+  		gss_union_name_t src_union, dest_union;
+  		OM_uint32 major_status = GSS_S_FAILURE;
+  
+! 	major_status = val_dup_name_args(minor_status, src_name, dest_name);
+! 	if (major_status != GSS_S_COMPLETE)
+! 		return (major_status);
+  
+  	src_union = (gss_union_name_t)src_name;
+  
+Index: src/lib/gssapi/mechglue/g_dsp_status.c
+===================================================================
+*** src/lib/gssapi/mechglue/g_dsp_status.c	(revision 18858)
+--- src/lib/gssapi/mechglue/g_dsp_status.c	(working copy)
+***************
+*** 54,70 ****
+      gss_OID		mech_type = (gss_OID) req_mech_type;
+      gss_mechanism	mech;
+  
+!     /* check the input parameters */
+!     if (!minor_status)
+! 	return (GSS_S_CALL_INACCESSIBLE_WRITE);
+  
+!     *minor_status = 0;
+  
+!     if (!message_context || status_string == NULL)
+! 	return (GSS_S_CALL_INACCESSIBLE_WRITE);
+  
+!     status_string->length = 0;
+!     status_string->value = NULL;
+  
+      /* we handle major status codes, and the mechs do the minor */
+      if (status_type == GSS_C_GSS_CODE)
+--- 54,72 ----
+      gss_OID		mech_type = (gss_OID) req_mech_type;
+      gss_mechanism	mech;
+  
+!     if (minor_status != NULL)
+! 	*minor_status = 0;
+  
+!     if (status_string != GSS_C_NO_BUFFER) {
+! 	status_string->length = 0;
+! 	status_string->value = NULL;
+!     }
+  
+!     if (minor_status == NULL ||
+! 	message_context == NULL ||
+! 	status_string == GSS_C_NO_BUFFER)
+  
+! 	return (GSS_S_CALL_INACCESSIBLE_WRITE);
+  
+      /* we handle major status codes, and the mechs do the minor */
+      if (status_type == GSS_C_GSS_CODE)
+Index: src/lib/gssapi/mechglue/g_inq_context.c
+===================================================================
+*** src/lib/gssapi/mechglue/g_inq_context.c	(revision 18858)
+--- src/lib/gssapi/mechglue/g_inq_context.c	(working copy)
+***************
+*** 31,36 ****
+--- 31,75 ----
+  #include <stdlib.h>
+  #endif
+  
++ static OM_uint32
++ val_inq_ctx_args(
++     OM_uint32 *minor_status,
++     gss_ctx_id_t context_handle,
++     gss_name_t *src_name,
++     gss_name_t *targ_name,
++     OM_uint32 *lifetime_rec,
++     gss_OID *mech_type,
++     OM_uint32 *ctx_flags,
++     int *locally_initiated,
++     int *open)
++ {
++ 
++     /* Initialize outputs. */
++ 
++     if (minor_status != NULL)
++ 	*minor_status = 0;
++ 
++     if (src_name != NULL)
++ 	*src_name = GSS_C_NO_NAME;
++ 
++     if (targ_name != NULL)
++ 	*targ_name = GSS_C_NO_NAME;
++ 
++     if (mech_type != NULL)
++ 	*mech_type = GSS_C_NO_OID;
++ 
++     /* Validate arguments. */
++ 
++     if (minor_status == NULL)
++ 	return (GSS_S_CALL_INACCESSIBLE_WRITE);
++ 
++     if (context_handle == GSS_C_NO_CONTEXT)
++ 	return (GSS_S_CALL_INACCESSIBLE_READ | GSS_S_NO_CONTEXT);
++ 
++     return (GSS_S_COMPLETE);
++ }
++ 
++ 
+  /* Last argument new for V2 */
+  OM_uint32 KRB5_CALLCONV
+  gss_inquire_context(
+***************
+*** 60,85 ****
+      gss_mechanism	mech;
+      OM_uint32		status, temp_minor;
+      gss_name_t localTargName = NULL, localSourceName = NULL;
+-     
+-     if (!minor_status)
+- 	return (GSS_S_CALL_INACCESSIBLE_WRITE);
+  
+!     *minor_status = 0;
+!     
+!     /* if the context_handle is Null, return NO_CONTEXT error */
+!     if (context_handle == GSS_C_NO_CONTEXT)
+! 	return (GSS_S_CALL_INACCESSIBLE_READ | GSS_S_NO_CONTEXT);
+  
+-     /* set all output value to NULL */
+-     if (src_name)
+- 	*src_name = NULL;
+- 
+-     if (targ_name)
+- 	*targ_name = NULL;
+- 
+-     if (mech_type)
+- 	*mech_type = NULL;
+-     
+      /*
+       * select the approprate underlying mechanism routine and
+       * call it.
+--- 99,114 ----
+      gss_mechanism	mech;
+      OM_uint32		status, temp_minor;
+      gss_name_t localTargName = NULL, localSourceName = NULL;
+  
+!     status = val_inq_ctx_args(minor_status,
+! 			      context_handle,
+! 			      src_name, targ_name,
+! 			      lifetime_rec,
+! 			      mech_type, ctx_flags,
+! 			      locally_initiated, open);
+!     if (status != GSS_S_COMPLETE)
+! 	return (status);
+  
+      /*
+       * select the approprate underlying mechanism routine and
+       * call it.
+Index: src/lib/gssapi/mechglue/g_accept_sec_context.c
+===================================================================
+*** src/lib/gssapi/mechglue/g_accept_sec_context.c	(revision 18858)
+--- src/lib/gssapi/mechglue/g_accept_sec_context.c	(working copy)
+***************
+*** 33,38 ****
+--- 33,90 ----
+  #include <string.h>
+  #include <errno.h>
+  
++ static OM_uint32
++ val_acc_sec_ctx_args(
++     OM_uint32 *minor_status,
++     gss_ctx_id_t *context_handle,
++     gss_cred_id_t verifier_cred_handle,
++     gss_buffer_t input_token_buffer,
++     gss_channel_bindings_t input_chan_bindings,
++     gss_name_t *src_name,
++     gss_OID *mech_type,
++     gss_buffer_t output_token,
++     OM_uint32 *ret_flags,
++     OM_uint32 *time_rec,
++     gss_cred_id_t *d_cred)
++ {
++ 
++     /* Initialize outputs. */
++ 
++     if (minor_status != NULL)
++ 	*minor_status = 0;
++ 
++     if (src_name != NULL)
++ 	*src_name = GSS_C_NO_NAME;
++ 
++     if (mech_type != NULL)
++ 	*mech_type = GSS_C_NO_OID;
++ 
++     if (output_token != GSS_C_NO_BUFFER) {
++ 	output_token->length = 0;
++ 	output_token->value = NULL;
++     }
++ 
++     if (d_cred != NULL)
++ 	*d_cred = GSS_C_NO_CREDENTIAL;
++ 
++     /* Validate arguments. */
++ 
++     if (minor_status == NULL)
++ 	return (GSS_S_CALL_INACCESSIBLE_WRITE);
++ 
++     if (context_handle == NULL)
++ 	return (GSS_S_CALL_INACCESSIBLE_WRITE);
++ 
++     if (input_token_buffer == GSS_C_NO_BUFFER)
++ 	return (GSS_S_CALL_INACCESSIBLE_READ);
++ 
++     if (output_token == GSS_C_NO_BUFFER)
++ 	return (GSS_S_CALL_INACCESSIBLE_WRITE);
++ 
++     return (GSS_S_COMPLETE);
++ }
++ 
++ 
+  OM_uint32 KRB5_CALLCONV
+  gss_accept_sec_context (minor_status,
+                          context_handle,
+***************
+*** 69,94 ****
+      gss_OID_desc	token_mech_type_desc;
+      gss_OID		token_mech_type = &token_mech_type_desc;
+      gss_mechanism	mech;
+-     
+-     /* check parameters first */
+-     if (minor_status == NULL)
+- 	return (GSS_S_CALL_INACCESSIBLE_WRITE);
+-     *minor_status = 0;
+-  
+-     if (context_handle == NULL || output_token == NULL)
+- 	return (GSS_S_CALL_INACCESSIBLE_WRITE);
+-  
+-     /* clear optional fields */
+-     output_token->value = NULL;
+-     output_token->length = 0;
+-     if (src_name)
+- 	*src_name = NULL;
+  
+!     if (mech_type)
+! 	*mech_type = NULL;
+  
+-     if (d_cred)
+- 	*d_cred = NULL;
+      /*
+       * if context_handle is GSS_C_NO_CONTEXT, allocate a union context
+       * descriptor to hold the mech type information as well as the
+--- 121,141 ----
+      gss_OID_desc	token_mech_type_desc;
+      gss_OID		token_mech_type = &token_mech_type_desc;
+      gss_mechanism	mech;
+  
+!     status = val_acc_sec_ctx_args(minor_status,
+! 				  context_handle,
+! 				  verifier_cred_handle,
+! 				  input_token_buffer,
+! 				  input_chan_bindings,
+! 				  src_name,
+! 				  mech_type,
+! 				  output_token,
+! 				  ret_flags,
+! 				  time_rec,
+! 				  d_cred);
+!     if (status != GSS_S_COMPLETE)
+! 	return (status);
+  
+      /*
+       * if context_handle is GSS_C_NO_CONTEXT, allocate a union context
+       * descriptor to hold the mech type information as well as the
+Index: src/lib/gssapi/mechglue/g_sign.c
+===================================================================
+*** src/lib/gssapi/mechglue/g_sign.c	(revision 18858)
+--- src/lib/gssapi/mechglue/g_sign.c	(working copy)
+***************
+*** 28,33 ****
+--- 28,70 ----
+  
+  #include "mglueP.h"
+  
++ static OM_uint32
++ val_sign_args(
++     OM_uint32 *minor_status,
++     gss_ctx_id_t context_handle,
++     int qop_req,
++     gss_buffer_t message_buffer,
++     gss_buffer_t msg_token)
++ {
++ 
++     /* Initialize outputs. */
++ 
++     if (minor_status != NULL)
++ 	*minor_status = 0;
++ 
++     if (msg_token != GSS_C_NO_BUFFER) {
++ 	msg_token->value = NULL;
++ 	msg_token->length = 0;
++     }
++ 
++     /* Validate arguments. */
++ 
++     if (minor_status == NULL)
++ 	return (GSS_S_CALL_INACCESSIBLE_WRITE);
++ 
++     if (context_handle == GSS_C_NO_CONTEXT)
++ 	return (GSS_S_CALL_INACCESSIBLE_READ | GSS_S_NO_CONTEXT);
++ 
++     if (message_buffer == GSS_C_NO_BUFFER)
++ 	return (GSS_S_CALL_INACCESSIBLE_READ);
++ 
++     if (msg_token == GSS_C_NO_BUFFER)
++ 	return (GSS_S_CALL_INACCESSIBLE_WRITE);
++ 
++     return (GSS_S_COMPLETE);
++ }
++ 
++ 
+  OM_uint32 KRB5_CALLCONV
+  gss_sign (minor_status,
+            context_handle,
+***************
+*** 46,66 ****
+      gss_union_ctx_id_t	ctx;
+      gss_mechanism	mech;
+  
+!     if (minor_status == NULL)
+! 	return (GSS_S_CALL_INACCESSIBLE_WRITE);
+!     *minor_status = 0;
+! 
+!     if (context_handle == GSS_C_NO_CONTEXT)
+! 	return (GSS_S_CALL_INACCESSIBLE_READ | GSS_S_NO_CONTEXT);
+! 
+!     if (message_buffer == NULL)
+! 	return (GSS_S_CALL_INACCESSIBLE_READ);
+! 
+!     if (msg_token == NULL)
+! 	return (GSS_S_CALL_INACCESSIBLE_WRITE);
+  
+-     msg_token->value = NULL;
+-     msg_token->length = 0;
+      /*
+       * select the approprate underlying mechanism routine and
+       * call it.
+--- 83,93 ----
+      gss_union_ctx_id_t	ctx;
+      gss_mechanism	mech;
+  
+!     status = val_sign_args(minor_status, context_handle,
+! 			   qop_req, message_buffer, msg_token);
+!     if (status != GSS_S_COMPLETE)
+! 	return (status);
+  
+      /*
+       * select the approprate underlying mechanism routine and
+       * call it.
+Index: src/lib/gssapi/mechglue/g_delete_sec_context.c
+===================================================================
+*** src/lib/gssapi/mechglue/g_delete_sec_context.c	(revision 18858)
+--- src/lib/gssapi/mechglue/g_delete_sec_context.c	(working copy)
+***************
+*** 32,37 ****
+--- 32,66 ----
+  #include <stdlib.h>
+  #endif
+  
++ static OM_uint32
++ val_del_sec_ctx_args(
++     OM_uint32 *minor_status,
++     gss_ctx_id_t *context_handle,
++     gss_buffer_t output_token)
++ {
++ 
++     /* Initialize outputs. */
++ 
++     if (minor_status != NULL)
++ 	*minor_status = 0;
++ 
++     if (output_token != GSS_C_NO_BUFFER) {
++ 	output_token->length = 0;
++ 	output_token->value = NULL;
++     }
++ 
++     /* Validate arguments. */
++ 
++     if (minor_status == NULL)
++ 	return (GSS_S_CALL_INACCESSIBLE_WRITE);
++ 
++     if (context_handle == NULL || *context_handle == GSS_C_NO_CONTEXT)
++ 	return (GSS_S_CALL_INACCESSIBLE_WRITE | GSS_S_NO_CONTEXT);
++ 
++     return (GSS_S_COMPLETE);
++ }
++ 
++ 
+  OM_uint32 KRB5_CALLCONV 
+  gss_delete_sec_context (minor_status,
+                          context_handle,
+***************
+*** 45,62 ****
+      OM_uint32		status;
+      gss_union_ctx_id_t	ctx;
+      gss_mechanism	mech;
+-     
+-     if (minor_status == NULL)
+- 	return (GSS_S_CALL_INACCESSIBLE_WRITE);
+- 
+-     if (output_token != GSS_C_NO_BUFFER) {
+- 	output_token->length = 0;
+- 	output_token->value = NULL;
+-     }
+  
+!     /* if the context_handle is Null, return NO_CONTEXT error */
+!     if(context_handle == NULL || *context_handle == GSS_C_NO_CONTEXT)
+! 	return (GSS_S_CALL_INACCESSIBLE_READ | GSS_S_NO_CONTEXT);
+  
+      /*
+       * select the approprate underlying mechanism routine and
+--- 74,83 ----
+      OM_uint32		status;
+      gss_union_ctx_id_t	ctx;
+      gss_mechanism	mech;
+  
+!     status = val_del_sec_ctx_args(minor_status, context_handle, output_token);
+!     if (status != GSS_S_COMPLETE)
+! 	return (status);
+  
+      /*
+       * select the approprate underlying mechanism routine and
+Index: src/lib/gssapi/mechglue/g_init_sec_context.c
+===================================================================
+*** src/lib/gssapi/mechglue/g_init_sec_context.c	(revision 18858)
+--- src/lib/gssapi/mechglue/g_init_sec_context.c	(working copy)
+***************
+*** 33,38 ****
+--- 33,86 ----
+  #endif
+  #include <string.h>
+  
++ static OM_uint32
++ val_init_sec_ctx_args(
++     OM_uint32 *minor_status,
++     gss_cred_id_t claimant_cred_handle,
++     gss_ctx_id_t *context_handle,
++     gss_name_t target_name,
++     gss_OID req_mech_type,
++     OM_uint32 req_flags,
++     OM_uint32 time_req,
++     gss_channel_bindings_t input_chan_bindings,
++     gss_buffer_t input_token,
++     gss_OID *actual_mech_type,
++     gss_buffer_t output_token,
++     OM_uint32 *ret_flags,
++     OM_uint32 *time_rec)
++ {
++ 
++     /* Initialize outputs. */
++ 
++     if (minor_status != NULL)
++ 	*minor_status = 0;
++ 
++     if (actual_mech_type != NULL)
++ 	*actual_mech_type = GSS_C_NO_OID;
++ 
++     if (output_token != GSS_C_NO_BUFFER) {
++ 	output_token->length = 0;
++ 	output_token->value = NULL;
++     }
++ 
++     /* Validate arguments. */
++ 
++     if (minor_status == NULL)
++ 	return (GSS_S_CALL_INACCESSIBLE_WRITE);
++ 
++     if (context_handle == NULL)
++ 	return (GSS_S_CALL_INACCESSIBLE_WRITE | GSS_S_NO_CONTEXT);
++ 
++     if (target_name == NULL)
++ 	return (GSS_S_CALL_INACCESSIBLE_READ | GSS_S_BAD_NAME);
++ 
++     if (output_token == NULL)
++ 	return (GSS_S_CALL_INACCESSIBLE_WRITE);
++ 
++     return (GSS_S_COMPLETE);
++ }
++ 
++ 
+  OM_uint32 KRB5_CALLCONV
+  gss_init_sec_context (minor_status,
+                        claimant_cred_handle,
+***************
+*** 72,101 ****
+      gss_mechanism	mech;
+      gss_cred_id_t	input_cred_handle;
+  
+!     if (minor_status == NULL)
+! 	return (GSS_S_CALL_INACCESSIBLE_WRITE);
+!     *minor_status = 0;
+!     output_token->length = 0;
+!     output_token->value = NULL;
+! 
+!     /* clear output values */
+!     if (actual_mech_type)
+! 	*actual_mech_type = NULL;
+! 
+!     if (context_handle == NULL)
+! 	return (GSS_S_CALL_INACCESSIBLE_WRITE | GSS_S_NO_CONTEXT);
+! 
+!     union_name = (gss_union_name_t) target_name;
+! 
+!     if (target_name == NULL)
+! 	return (GSS_S_CALL_INACCESSIBLE_READ | GSS_S_BAD_NAME);
+! 
+!     if (output_token == NULL)
+! 	return (GSS_S_CALL_INACCESSIBLE_WRITE);
+! 
+!     output_token->value = NULL;
+!     output_token->length = 0;
+! 
+  
+      if (req_mech_type)
+  	mech_type = (gss_OID)req_mech_type;
+--- 120,140 ----
+      gss_mechanism	mech;
+      gss_cred_id_t	input_cred_handle;
+  
+!     status = val_init_sec_ctx_args(minor_status,
+! 				   claimant_cred_handle,
+! 				   context_handle,
+! 				   target_name,
+! 				   req_mech_type,
+! 				   req_flags,
+! 				   time_req,
+! 				   input_chan_bindings,
+! 				   input_token,
+! 				   actual_mech_type,
+! 				   output_token,
+! 				   ret_flags,
+! 				   time_rec);
+!     if (status != GSS_S_COMPLETE)
+! 	return (status);
+  
+      if (req_mech_type)
+  	mech_type = (gss_OID)req_mech_type;
+Index: src/lib/gssapi/mechglue/g_inq_cred.c
+===================================================================
+*** src/lib/gssapi/mechglue/g_inq_cred.c	(revision 18858)
+--- src/lib/gssapi/mechglue/g_inq_cred.c	(working copy)
+***************
+*** 55,71 ****
+      gss_mechanism	mech;
+      gss_name_t		internal_name;
+      int			i;
+-     
+-     /* check parms and set to defaults */
+-     if (minor_status == NULL)
+- 	return (GSS_S_CALL_INACCESSIBLE_WRITE);
+-     *minor_status = 0;
+  
+!     if (name)
+! 	*name = NULL;
+  
+!     if (mechanisms)
+! 	*mechanisms = NULL;
+  
+      if (cred_handle == GSS_C_NO_CREDENTIAL) {
+  	/*
+--- 55,75 ----
+      gss_mechanism	mech;
+      gss_name_t		internal_name;
+      int			i;
+  
+!     /* Initialize outputs. */
+! 
+!     if (minor_status != NULL)
+! 	*minor_status = 0;
+! 
+!     if (name != NULL)
+! 	*name = GSS_C_NO_NAME;
+! 
+!     if (mechanisms != NULL)
+! 	*mechanisms = GSS_C_NO_OID_SET;
+  
+!     /* Validate arguments. */
+!     if (minor_status == NULL)
+! 	return (GSS_S_CALL_INACCESSIBLE_WRITE);
+  
+      if (cred_handle == GSS_C_NO_CREDENTIAL) {
+  	/*
+***************
+*** 216,221 ****
+--- 220,233 ----
+      OM_uint32		status, temp_minor_status;
+      gss_name_t		internal_name;
+  
++     if (minor_status != NULL)
++ 	*minor_status = 0;
++ 
++     if (name != NULL)
++ 	*name = GSS_C_NO_NAME;
++ 
++     if (minor_status == NULL)
++ 	return (GSS_S_CALL_INACCESSIBLE_WRITE);
+  
+      mech = gssint_get_mechanism (mech_type);
+      if (!mech)
+Index: src/lib/gssapi/mechglue/g_imp_name.c
+===================================================================
+*** src/lib/gssapi/mechglue/g_imp_name.c	(revision 18858)
+--- src/lib/gssapi/mechglue/g_imp_name.c	(working copy)
+***************
+*** 38,43 ****
+--- 38,77 ----
+  /* local function to import GSS_C_EXPORT_NAME names */
+  static OM_uint32 importExportName(OM_uint32 *, gss_union_name_t);
+  
++ static OM_uint32
++ val_imp_name_args(
++     OM_uint32 *minor_status,
++     gss_buffer_t input_name_buffer,
++     gss_OID input_name_type,
++     gss_name_t *output_name)
++ {
++ 
++     /* Initialize outputs. */
++ 
++     if (minor_status != NULL)
++ 	*minor_status = 0;
++ 
++     if (output_name != NULL)
++ 	*output_name = GSS_C_NO_NAME;
++ 
++     /* Validate arguments. */
++ 
++     if (minor_status == NULL)
++ 	return (GSS_S_CALL_INACCESSIBLE_WRITE);
++ 
++     if (output_name == NULL)
++ 	return (GSS_S_CALL_INACCESSIBLE_WRITE);
++ 
++     if (input_name_buffer == GSS_C_NO_BUFFER)
++ 	return (GSS_S_CALL_INACCESSIBLE_READ | GSS_S_BAD_NAME);
++ 
++     if (GSS_EMPTY_BUFFER(input_name_buffer))
++ 	return (GSS_S_CALL_INACCESSIBLE_READ | GSS_S_BAD_NAME);
++ 
++     return (GSS_S_COMPLETE);
++ }
++ 
++ 
+  OM_uint32 KRB5_CALLCONV
+  gss_import_name(minor_status,
+                  input_name_buffer,
+***************
+*** 53,74 ****
+      gss_union_name_t	union_name;
+      OM_uint32		tmp, major_status = GSS_S_FAILURE;
+  
+!     /* check output parameters */
+!     if (!minor_status)
+! 	return (GSS_S_CALL_INACCESSIBLE_WRITE);
+! 
+!     *minor_status = 0;
+! 
+!     if (output_name == NULL)
+! 	return (GSS_S_CALL_INACCESSIBLE_WRITE);
+! 
+!     *output_name = 0;
+! 
+!     if (input_name_buffer == GSS_C_NO_BUFFER)
+! 	return (GSS_S_BAD_NAME);
+! 
+!     if (GSS_EMPTY_BUFFER(input_name_buffer))
+! 	return (GSS_S_BAD_NAME);
+  
+      /*
+       * First create the union name struct that will hold the external
+--- 87,97 ----
+      gss_union_name_t	union_name;
+      OM_uint32		tmp, major_status = GSS_S_FAILURE;
+  
+!     major_status = val_imp_name_args(minor_status,
+! 				     input_name_buffer, input_name_type,
+! 				     output_name);
+!     if (major_status != GSS_S_COMPLETE)
+! 	return (major_status);
+  
+      /*
+       * First create the union name struct that will hold the external
+Index: src/lib/gssapi/mechglue/g_compare_name.c
+===================================================================
+*** src/lib/gssapi/mechglue/g_compare_name.c	(revision 18858)
+--- src/lib/gssapi/mechglue/g_compare_name.c	(working copy)
+***************
+*** 33,38 ****
+--- 33,63 ----
+  #endif
+  #include <string.h>
+  
++ static OM_uint32
++ val_comp_name_args(
++     OM_uint32 *minor_status,
++     gss_name_t name1,
++     gss_name_t name2,
++     int *name_equal)
++ {
++ 
++     /* Initialize outputs. */
++ 
++     if (minor_status != NULL)
++ 	*minor_status = 0;
++ 
++     /* Validate arguments. */
++ 
++     if (name1 == GSS_C_NO_NAME || name2 == GSS_C_NO_NAME)
++ 	return (GSS_S_CALL_INACCESSIBLE_READ | GSS_S_BAD_NAME);
++ 
++     if (name_equal == NULL)
++ 	return (GSS_S_CALL_INACCESSIBLE_WRITE);
++ 
++     return (GSS_S_COMPLETE);
++ }
++ 
++ 
+  OM_uint32 KRB5_CALLCONV
+  gss_compare_name (minor_status,
+                    name1,
+***************
+*** 50,64 ****
+      gss_mechanism	mech;
+      gss_name_t		internal_name;
+      
+!     if (minor_status == NULL)
+! 	return (GSS_S_CALL_INACCESSIBLE_WRITE);
+!     *minor_status = 0;
+! 
+!     if (name1 == 0 || name2 == 0)
+! 	return (GSS_S_CALL_INACCESSIBLE_READ | GSS_S_BAD_NAME);
+! 
+!     if (name_equal == NULL)
+! 	return (GSS_S_CALL_INACCESSIBLE_WRITE);
+  
+      union_name1 = (gss_union_name_t) name1;
+      union_name2 = (gss_union_name_t) name2;
+--- 75,84 ----
+      gss_mechanism	mech;
+      gss_name_t		internal_name;
+      
+!     major_status = val_comp_name_args(minor_status,
+! 				      name1, name2, name_equal);
+!     if (major_status != GSS_S_COMPLETE)
+! 	return (major_status);
+  
+      union_name1 = (gss_union_name_t) name1;
+      union_name2 = (gss_union_name_t) name2;
+Index: src/lib/gssapi/mechglue/oid_ops.c
+===================================================================
+*** src/lib/gssapi/mechglue/oid_ops.c	(revision 18858)
+--- src/lib/gssapi/mechglue/oid_ops.c	(working copy)
+***************
+*** 49,55 ****
+      if (minor_status)
+  	*minor_status = 0;
+  
+!     if (*oid == GSS_C_NO_OID)
+  	return(GSS_S_COMPLETE);
+  
+      /*
+--- 49,55 ----
+      if (minor_status)
+  	*minor_status = 0;
+  
+!     if (oid == NULL || *oid == GSS_C_NO_OID)
+  	return(GSS_S_COMPLETE);
+  
+      /*
+***************
+*** 227,238 ****
+      unsigned char	*cp;
+      char		*bp;
+  
+!     *minor_status = 0;
+  
+      if (oid == NULL || oid->length == 0 || oid->elements == NULL)
+  	return (GSS_S_CALL_INACCESSIBLE_READ);
+  
+!     if (oid_str == NULL)
+  	return (GSS_S_CALL_INACCESSIBLE_WRITE);
+  
+      /* Decoded according to krb5/gssapi_krb5.c */
+--- 227,244 ----
+      unsigned char	*cp;
+      char		*bp;
+  
+!     if (minor_status != NULL)
+! 	*minor_status = 0;
+! 
+!     if (oid_str != GSS_C_NO_BUFFER) {
+! 	oid_str->length = 0;
+! 	oid_str->value = NULL;
+!     }
+  
+      if (oid == NULL || oid->length == 0 || oid->elements == NULL)
+  	return (GSS_S_CALL_INACCESSIBLE_READ);
+  
+!     if (oid_str == GSS_C_NO_BUFFER)
+  	return (GSS_S_CALL_INACCESSIBLE_WRITE);
+  
+      /* Decoded according to krb5/gssapi_krb5.c */
+***************
+*** 307,313 ****
+      int		index;
+      unsigned char *op;
+  
+!     *minor_status = 0;
+  
+      if (GSS_EMPTY_BUFFER(oid_str))
+  	return (GSS_S_CALL_INACCESSIBLE_READ);
+--- 313,323 ----
+      int		index;
+      unsigned char *op;
+  
+!     if (minor_status != NULL)
+! 	*minor_status = 0;
+! 
+!     if (oid != NULL)
+! 	*oid = GSS_C_NO_OID;
+  
+      if (GSS_EMPTY_BUFFER(oid_str))
+  	return (GSS_S_CALL_INACCESSIBLE_READ);
+***************
+*** 458,473 ****
+      OM_uint32 major = GSS_S_COMPLETE;
+      OM_uint32 index;
+  
+!     if (minor_status)
+  	*minor_status = 0;
+  
+!     if (oidset == NULL)
+  	return (GSS_S_CALL_INACCESSIBLE_READ);
+  
+      if (new_oidset == NULL)
+  	return (GSS_S_CALL_INACCESSIBLE_WRITE);
+- 
+-     *new_oidset = NULL;
+  
+      if ((copy = (gss_OID_set_desc *) calloc(1, sizeof (*copy))) == NULL) {
+  	major = GSS_S_FAILURE;
+--- 468,484 ----
+      OM_uint32 major = GSS_S_COMPLETE;
+      OM_uint32 index;
+  
+!     if (minor_status != NULL)
+  	*minor_status = 0;
+  
+!     if (new_oidset != NULL)
+! 	*new_oidset = GSS_C_NO_OID_SET;
+! 
+!     if (oidset == GSS_C_NO_OID_SET)
+  	return (GSS_S_CALL_INACCESSIBLE_READ);
+  
+      if (new_oidset == NULL)
+  	return (GSS_S_CALL_INACCESSIBLE_WRITE);
+  
+      if ((copy = (gss_OID_set_desc *) calloc(1, sizeof (*copy))) == NULL) {
+  	major = GSS_S_FAILURE;
+Index: src/kadmin/server/ovsec_kadmd.c
+===================================================================
+*** src/kadmin/server/ovsec_kadmd.c	(revision 18858)
+--- src/kadmin/server/ovsec_kadmd.c	(working copy)
+***************
+*** 993,998 ****
+--- 993,1003 ----
+       int i;
+       const char *procname;
+  
++      client.length = 0;
++      client.value = NULL;
++      server.length = 0;
++      server.value = NULL;
++ 
+       (void) gss_display_name(&minor, client_name, &client, &gss_type);
+       (void) gss_display_name(&minor, server_name, &server, &gss_type);
+       if (client.value == NULL)

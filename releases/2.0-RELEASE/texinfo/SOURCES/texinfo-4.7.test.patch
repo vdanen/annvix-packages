@@ -1,0 +1,11 @@
+--- makeinfo/tests/copying~	2004-04-09 23:20:23.000000000 +0200
++++ makeinfo/tests/copying	2004-12-15 14:23:06.365985115 +0100
+@@ -5,7 +5,7 @@
+ unset TEXINFO_OUTPUT
+ : ${srcdir=.}
+ 
+-../makeinfo -o copying.out $srcdir/copying.txi || exit 1
++LC_ALL=C ../makeinfo -o copying.out $srcdir/copying.txi || exit 1
+ fgrep 'produced by' copying.out >/dev/null || exit 2
+ 
+ rm -f copying.out

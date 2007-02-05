@@ -1,0 +1,28 @@
+#!/bin/sh
+PATH="/sbin:/usr/sbin:/bin:/usr/bin"
+
+# this runs postgresql supervised
+PGPORT=5432
+PGDATA="/var/lib/pgsql/data"
+USETCP="0"
+USESSL="0"
+[[ -f ./env/PGPORT ]] && PGPORT="$(head -1 ./env/PGPORT)"
+[[ -f ./env/PGDATA ]] && PGDATA="$(head -1 ./env/PGDATA)"
+[[ -f ./env/USETCP ]] && USETCP="$(head -1 ./env/USETCP)"
+[[ -f ./env/USESSL ]] && USESSL="$(head -1 ./env/USESSL)"
+
+if [ ! -f ${PGDATA}/PG_VERSION ] && [ ! -d ${PGDATA}/base/template1 ]; then
+    PGDATA="/var/lib/pgsql/data"
+fi
+
+rm -f /tmp/.s.PGSQL.${PGPORT} >/dev/null
+
+if [ "${USETCP}" == "1" ]; then
+    OPTS="-i -p ${PGPORT}"
+fi
+
+if [ "${USESSL}" == "1" ] && [ -f ${PGDATA}/server.crt ]; then
+    OPTS="${OPTS} -l"
+fi
+
+exec /sbin/chpst -u postgres /usr/bin/postmaster -D ${PGDATA} ${OPTS} 2>&1

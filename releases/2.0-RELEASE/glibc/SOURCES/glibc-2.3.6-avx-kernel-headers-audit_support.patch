@@ -1,0 +1,345 @@
+diff -purN kernel-headers.org/linux/audit.h kernel-headers/linux/audit.h
+--- kernel-headers.org/linux/audit.h	2006-03-19 22:53:29.000000000 -0700
++++ kernel-headers/linux/audit.h	2006-08-29 00:43:05.000000000 -0600
+@@ -24,8 +24,7 @@
+ #ifndef _LINUX_AUDIT_H_
+ #define _LINUX_AUDIT_H_
+ 
+-#include <linux/sched.h>
+-#include <linux/elf.h>
++#include <linux/elf-em.h>
+ 
+ /* The netlink messages for the audit system is divided into blocks:
+  * 1000 - 1099 are for commanding the audit system
+@@ -33,27 +32,42 @@
+  * 1200 - 1299 messages internal to the audit daemon
+  * 1300 - 1399 audit event messages
+  * 1400 - 1499 SE Linux use
+- * 1500 - 1999 future use
+- * 2000 is for otherwise unclassified kernel audit messages
++ * 1500 - 1599 kernel LSPP events
++ * 1600 - 1699 kernel crypto events
++ * 1700 - 1799 kernel anomaly records
++ * 1800 - 1999 future kernel use (maybe integrity labels and related events)
++ * 2000 is for otherwise unclassified kernel audit messages (legacy)
++ * 2001 - 2099 unused (kernel)
++ * 2100 - 2199 user space anomaly records
++ * 2200 - 2299 user space actions taken in response to anomalies
++ * 2300 - 2399 user space generated LSPP events
++ * 2400 - 2499 user space crypto events
++ * 2500 - 2999 future user space (maybe integrity labels and related events)
+  *
+- * Messages from 1000-1199 are bi-directional. 1200-1299 are exclusively user
+- * space. Anything over that is kernel --> user space communication.
++ * Messages from 1000-1199 are bi-directional. 1200-1299 & 2100 - 2999 are
++ * exclusively user space. 1300-2099 is kernel --> user space 
++ * communication.
+  */
+ #define AUDIT_GET		1000	/* Get status */
+ #define AUDIT_SET		1001	/* Set status (enable/disable/auditd) */
+-#define AUDIT_LIST		1002	/* List syscall filtering rules */
+-#define AUDIT_ADD		1003	/* Add syscall filtering rule */
+-#define AUDIT_DEL		1004	/* Delete syscall filtering rule */
++#define AUDIT_LIST		1002	/* List syscall rules -- deprecated */
++#define AUDIT_ADD		1003	/* Add syscall rule -- deprecated */
++#define AUDIT_DEL		1004	/* Delete syscall rule -- deprecated */
+ #define AUDIT_USER		1005	/* Message from userspace -- deprecated */
+ #define AUDIT_LOGIN		1006	/* Define the login id and information */
+ #define AUDIT_WATCH_INS		1007	/* Insert file/dir watch entry */
+ #define AUDIT_WATCH_REM		1008	/* Remove file/dir watch entry */
+ #define AUDIT_WATCH_LIST	1009	/* List all file/dir watches */
+ #define AUDIT_SIGNAL_INFO	1010	/* Get info about sender of signal to auditd */
++#define AUDIT_ADD_RULE		1011	/* Add syscall filtering rule */
++#define AUDIT_DEL_RULE		1012	/* Delete syscall filtering rule */
++#define AUDIT_LIST_RULES	1013	/* List syscall filtering rules */
+ 
+ #define AUDIT_FIRST_USER_MSG	1100	/* Userspace messages mostly uninteresting to kernel */
+ #define AUDIT_USER_AVC		1107	/* We filter this differently */
+ #define AUDIT_LAST_USER_MSG	1199
++#define AUDIT_FIRST_USER_MSG2	2100	/* More user space messages */
++#define AUDIT_LAST_USER_MSG2	2999
+  
+ #define AUDIT_DAEMON_START      1200    /* Daemon startup record */
+ #define AUDIT_DAEMON_END        1201    /* Daemon normal stop record */
+@@ -68,10 +82,23 @@
+ #define AUDIT_CONFIG_CHANGE	1305	/* Audit system configuration change */
+ #define AUDIT_SOCKADDR		1306	/* sockaddr copied as syscall arg */
+ #define AUDIT_CWD		1307	/* Current working directory */
++#define AUDIT_EXECVE		1309	/* execve arguments */
++#define AUDIT_IPC_SET_PERM	1311	/* IPC new permissions record type */
++#define AUDIT_MQ_OPEN		1312	/* POSIX MQ open record type */
++#define AUDIT_MQ_SENDRECV	1313	/* POSIX MQ send/receive record type */
++#define AUDIT_MQ_NOTIFY		1314	/* POSIX MQ notify record type */
++#define AUDIT_MQ_GETSETATTR	1315	/* POSIX MQ get/set attribute record type */
+ 
+ #define AUDIT_AVC		1400	/* SE Linux avc denial or grant */
+ #define AUDIT_SELINUX_ERR	1401	/* Internal SE Linux Errors */
+ #define AUDIT_AVC_PATH		1402	/* dentry, vfsmount pair from avc */
++#define AUDIT_MAC_POLICY_LOAD	1403	/* Policy file load */
++#define AUDIT_MAC_STATUS	1404	/* Changed enforcing,permissive,off */
++#define AUDIT_MAC_CONFIG_CHANGE	1405	/* Changes to booleans */
++
++#define AUDIT_FIRST_KERN_ANOM_MSG   1700
++#define AUDIT_LAST_KERN_ANOM_MSG    1799
++#define AUDIT_ANOM_PROMISCUOUS      1700 /* Device changed promiscuous mode */
+ 
+ #define AUDIT_KERNEL		2000	/* Asynchronous audit record. NOT A REQUEST. */
+ 
+@@ -81,8 +108,9 @@
+ #define AUDIT_FILTER_ENTRY	0x02	/* Apply rule at syscall entry */
+ #define AUDIT_FILTER_WATCH	0x03	/* Apply rule to file system watches */
+ #define AUDIT_FILTER_EXIT	0x04	/* Apply rule at syscall exit */
++#define AUDIT_FILTER_TYPE	0x05	/* Apply rule at audit_log_start */
+ 
+-#define AUDIT_NR_FILTERS	5
++#define AUDIT_NR_FILTERS	6
+ 
+ #define AUDIT_FILTER_PREPEND	0x10	/* Prepend to front of list */
+ 
+@@ -98,6 +126,13 @@
+ #define AUDIT_WORD(nr) ((__u32)((nr)/32))
+ #define AUDIT_BIT(nr)  (1 << ((nr) - AUDIT_WORD(nr)*32))
+ 
++/* This bitmask is used to validate user input.  It represents all bits that
++ * are currently used in an audit field constant understood by the kernel.
++ * If you are adding a new #define AUDIT_<whatever>, please ensure that
++ * AUDIT_UNUSED_BITS is updated if need be. */
++#define AUDIT_UNUSED_BITS	0x0FFFFC00
++
++
+ /* Rule fields */
+ 				/* These are useful when checking the
+ 				 * task structure at task creation time
+@@ -114,6 +149,13 @@
+ #define AUDIT_LOGINUID	9
+ #define AUDIT_PERS	10
+ #define AUDIT_ARCH	11
++#define AUDIT_MSGTYPE	12
++#define AUDIT_SE_USER	13	/* security label user */
++#define AUDIT_SE_ROLE	14	/* security label role */
++#define AUDIT_SE_TYPE	15	/* security label type */
++#define AUDIT_SE_SEN	16	/* security label sensitivity label */
++#define AUDIT_SE_CLR	17	/* security label clearance label */
++#define AUDIT_PPID	18
+ 
+ 				/* These are ONLY useful when checking
+ 				 * at syscall exit time (AUDIT_AT_EXIT). */
+@@ -122,14 +164,35 @@
+ #define AUDIT_INODE	102
+ #define AUDIT_EXIT	103
+ #define AUDIT_SUCCESS   104	/* exit >= 0; value ignored */
++#define AUDIT_WATCH	105
+ 
+ #define AUDIT_ARG0      200
+ #define AUDIT_ARG1      (AUDIT_ARG0+1)
+ #define AUDIT_ARG2      (AUDIT_ARG0+2)
+ #define AUDIT_ARG3      (AUDIT_ARG0+3)
+ 
+-#define AUDIT_NEGATE    0x80000000
++#define AUDIT_NEGATE			0x80000000
+ 
++/* These are the supported operators.
++ *	4  2  1
++ *	=  >  <
++ *	-------
++ *	0  0  0		0	nonsense
++ *	0  0  1		1	<
++ *	0  1  0		2	>
++ *	0  1  1		3	!=
++ *	1  0  0		4	=
++ *	1  0  1		5	<=
++ *	1  1  0		6	>=
++ *	1  1  1		7	all operators
++ */
++#define AUDIT_LESS_THAN			0x10000000
++#define AUDIT_GREATER_THAN		0x20000000
++#define AUDIT_NOT_EQUAL			0x30000000
++#define AUDIT_EQUAL			0x40000000
++#define AUDIT_LESS_THAN_OR_EQUAL	(AUDIT_LESS_THAN|AUDIT_EQUAL)
++#define AUDIT_GREATER_THAN_OR_EQUAL	(AUDIT_GREATER_THAN|AUDIT_EQUAL)
++#define AUDIT_OPERATORS			(AUDIT_EQUAL|AUDIT_NOT_EQUAL)
+ 
+ /* Status symbols */
+ 				/* Mask values */
+@@ -186,113 +249,33 @@ struct audit_status {
+ 	__u32		backlog;	/* messages waiting in queue */
+ };
+ 
+-struct audit_rule {		/* for AUDIT_LIST, AUDIT_ADD, and AUDIT_DEL */
++/* audit_rule_data supports filter rules with both integer and string
++ * fields.  It corresponds with AUDIT_ADD_RULE, AUDIT_DEL_RULE and
++ * AUDIT_LIST_RULES requests.
++ */
++struct audit_rule_data {
+ 	__u32		flags;	/* AUDIT_PER_{TASK,CALL}, AUDIT_PREPEND */
+ 	__u32		action;	/* AUDIT_NEVER, AUDIT_POSSIBLE, AUDIT_ALWAYS */
+ 	__u32		field_count;
+-	__u32		mask[AUDIT_BITMASK_SIZE];
++	__u32		mask[AUDIT_BITMASK_SIZE]; /* syscall(s) affected */
+ 	__u32		fields[AUDIT_MAX_FIELDS];
+ 	__u32		values[AUDIT_MAX_FIELDS];
++	__u32		fieldflags[AUDIT_MAX_FIELDS];
++	__u32		buflen;	/* total length of string fields */
++	char		buf[0];	/* string fields buffer */
+ };
+ 
+-#ifdef __KERNEL__
+-
+-struct audit_sig_info {
+-	uid_t		uid;
+-	pid_t		pid;
++/* audit_rule is supported to maintain backward compatibility with
++ * userspace.  It supports integer fields only and corresponds to
++ * AUDIT_ADD, AUDIT_DEL and AUDIT_LIST requests.
++ */
++struct audit_rule {		/* for AUDIT_LIST, AUDIT_ADD, and AUDIT_DEL */
++	__u32		flags;	/* AUDIT_PER_{TASK,CALL}, AUDIT_PREPEND */
++	__u32		action;	/* AUDIT_NEVER, AUDIT_POSSIBLE, AUDIT_ALWAYS */
++	__u32		field_count;
++	__u32		mask[AUDIT_BITMASK_SIZE];
++	__u32		fields[AUDIT_MAX_FIELDS];
++	__u32		values[AUDIT_MAX_FIELDS];
+ };
+ 
+-struct audit_buffer;
+-struct audit_context;
+-struct inode;
+-struct netlink_skb_parms;
+-
+-#define AUDITSC_INVALID 0
+-#define AUDITSC_SUCCESS 1
+-#define AUDITSC_FAILURE 2
+-#define AUDITSC_RESULT(x) ( ((long)(x))<0?AUDITSC_FAILURE:AUDITSC_SUCCESS )
+-#ifdef CONFIG_AUDITSYSCALL
+-/* These are defined in auditsc.c */
+-				/* Public API */
+-extern int  audit_alloc(struct task_struct *task);
+-extern void audit_free(struct task_struct *task);
+-extern void audit_syscall_entry(struct task_struct *task, int arch,
+-				int major, unsigned long a0, unsigned long a1,
+-				unsigned long a2, unsigned long a3);
+-extern void audit_syscall_exit(struct task_struct *task, int failed, long return_code);
+-extern void audit_getname(const char *name);
+-extern void audit_putname(const char *name);
+-extern void audit_inode(const char *name, const struct inode *inode, unsigned flags);
+-
+-				/* Private API (for audit.c only) */
+-extern int  audit_receive_filter(int type, int pid, int uid, int seq,
+-				 void *data, uid_t loginuid);
+-extern unsigned int audit_serial(void);
+-extern void auditsc_get_stamp(struct audit_context *ctx,
+-			      struct timespec *t, unsigned int *serial);
+-extern int  audit_set_loginuid(struct task_struct *task, uid_t loginuid);
+-extern uid_t audit_get_loginuid(struct audit_context *ctx);
+-extern int audit_ipc_perms(unsigned long qbytes, uid_t uid, gid_t gid, mode_t mode);
+-extern int audit_socketcall(int nargs, unsigned long *args);
+-extern int audit_sockaddr(int len, void *addr);
+-extern int audit_avc_path(struct dentry *dentry, struct vfsmount *mnt);
+-extern void audit_signal_info(int sig, struct task_struct *t);
+-extern int audit_filter_user(struct netlink_skb_parms *cb, int type);
+-#else
+-#define audit_alloc(t) ({ 0; })
+-#define audit_free(t) do { ; } while (0)
+-#define audit_syscall_entry(t,ta,a,b,c,d,e) do { ; } while (0)
+-#define audit_syscall_exit(t,f,r) do { ; } while (0)
+-#define audit_getname(n) do { ; } while (0)
+-#define audit_putname(n) do { ; } while (0)
+-#define audit_inode(n,i,f) do { ; } while (0)
+-#define audit_receive_filter(t,p,u,s,d,l) ({ -EOPNOTSUPP; })
+-#define auditsc_get_stamp(c,t,s) do { BUG(); } while (0)
+-#define audit_get_loginuid(c) ({ -1; })
+-#define audit_ipc_perms(q,u,g,m) ({ 0; })
+-#define audit_socketcall(n,a) ({ 0; })
+-#define audit_sockaddr(len, addr) ({ 0; })
+-#define audit_avc_path(dentry, mnt) ({ 0; })
+-#define audit_signal_info(s,t) do { ; } while (0)
+-#define audit_filter_user(cb,t) ({ 1; })
+-#endif
+-
+-#ifdef CONFIG_AUDIT
+-/* These are defined in audit.c */
+-				/* Public API */
+-extern void		    audit_log(struct audit_context *ctx, gfp_t gfp_mask,
+-				      int type, const char *fmt, ...)
+-				      __attribute__((format(printf,4,5)));
+-
+-extern struct audit_buffer *audit_log_start(struct audit_context *ctx, gfp_t gfp_mask, int type);
+-extern void		    audit_log_format(struct audit_buffer *ab,
+-					     const char *fmt, ...)
+-			    __attribute__((format(printf,2,3)));
+-extern void		    audit_log_end(struct audit_buffer *ab);
+-extern void		    audit_log_hex(struct audit_buffer *ab,
+-					  const unsigned char *buf,
+-					  size_t len);
+-extern void		    audit_log_untrustedstring(struct audit_buffer *ab,
+-						      const char *string);
+-extern void		    audit_log_d_path(struct audit_buffer *ab,
+-					     const char *prefix,
+-					     struct dentry *dentry,
+-					     struct vfsmount *vfsmnt);
+-				/* Private API (for auditsc.c only) */
+-extern void		    audit_send_reply(int pid, int seq, int type,
+-					     int done, int multi,
+-					     void *payload, int size);
+-extern void		    audit_log_lost(const char *message);
+-extern struct semaphore audit_netlink_sem;
+-#else
+-#define audit_log(c,g,t,f,...) do { ; } while (0)
+-#define audit_log_start(c,g,t) ({ NULL; })
+-#define audit_log_vformat(b,f,a) do { ; } while (0)
+-#define audit_log_format(b,f,...) do { ; } while (0)
+-#define audit_log_end(b) do { ; } while (0)
+-#define audit_log_hex(a,b,l) do { ; } while (0)
+-#define audit_log_untrustedstring(a,s) do { ; } while (0)
+-#define audit_log_d_path(b,p,d,v) do { ; } while (0)
+-#endif
+-#endif
+ #endif
+diff -purN kernel-headers.org/linux/elf-em.h kernel-headers/linux/elf-em.h
+--- kernel-headers.org/linux/elf-em.h	1969-12-31 17:00:00.000000000 -0700
++++ kernel-headers/linux/elf-em.h	2006-08-29 00:43:17.000000000 -0600
+@@ -0,0 +1,44 @@
++#ifndef _LINUX_ELF_EM_H
++#define _LINUX_ELF_EM_H
++
++/* These constants define the various ELF target machines */
++#define EM_NONE		0
++#define EM_M32		1
++#define EM_SPARC	2
++#define EM_386		3
++#define EM_68K		4
++#define EM_88K		5
++#define EM_486		6	/* Perhaps disused */
++#define EM_860		7
++#define EM_MIPS		8	/* MIPS R3000 (officially, big-endian only) */
++#define EM_MIPS_RS4_BE	10	/* MIPS R4000 big-endian */
++#define EM_PARISC	15	/* HPPA */
++#define EM_SPARC32PLUS	18	/* Sun's "v8plus" */
++#define EM_PPC		20	/* PowerPC */
++#define EM_PPC64	21       /* PowerPC64 */
++#define EM_SH		42	/* SuperH */
++#define EM_SPARCV9	43	/* SPARC v9 64-bit */
++#define EM_IA_64	50	/* HP/Intel IA-64 */
++#define EM_X86_64	62	/* AMD x86-64 */
++#define EM_S390		22	/* IBM S/390 */
++#define EM_CRIS		76	/* Axis Communications 32-bit embedded processor */
++#define EM_V850		87	/* NEC v850 */
++#define EM_M32R		88	/* Renesas M32R */
++#define EM_H8_300	46	/* Renesas H8/300,300H,H8S */
++#define EM_FRV		0x5441	/* Fujitsu FR-V */
++
++/*
++ * This is an interim value that we will use until the committee comes
++ * up with a final number.
++ */
++#define EM_ALPHA	0x9026
++
++/* Bogus old v850 magic number, used by old tools. */
++#define EM_CYGNUS_V850	0x9080
++/* Bogus old m32r magic number, used by old tools. */
++#define EM_CYGNUS_M32R	0x9041
++/* This is the old interim value for S/390 architecture */
++#define EM_S390_OLD	0xA390
++
++
++#endif /* _LINUX_ELF_EM_H */

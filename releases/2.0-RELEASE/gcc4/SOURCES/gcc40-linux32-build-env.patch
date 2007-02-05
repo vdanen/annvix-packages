@@ -1,0 +1,19 @@
+--- gcc-4.0.1/config-ml.in.linux32-build-env	2005-05-02 03:29:34.667542000 -0400
++++ gcc-4.0.1/config-ml.in	2005-05-02 05:19:07.513427279 -0400
+@@ -893,6 +893,16 @@ if [ -n "${multidirs}" ] && [ -z "${ml_n
+ 	fi
+     fi
+ 
++    if test "x${ml_dir}" = "x32" ; then
++	linux32=`which linux32`
++	if test -n "${linux32}" ; then
++	    ml_config_shell="${linux32} ${ml_config_shell}"
++	    if [ "${ml_verbose}" = --verbose ]; then
++		echo "Running configure in multilib subdir ${ml_dir} with linux32 personality"
++	    fi
++	fi
++    fi
++
+     if eval ${ml_config_env} ${ml_config_shell} ${ml_recprog} \
+ 	--with-multisubdir=${ml_dir} --with-multisrctop=${multisrctop} \
+ 	${ac_configure_args} ${ml_srcdiroption} ; then

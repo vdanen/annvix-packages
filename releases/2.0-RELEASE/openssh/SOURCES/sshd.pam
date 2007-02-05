@@ -1,0 +1,7 @@
+#%PAM-1.0
+auth		required	pam_listfile.so item=user sense=deny file=/etc/ssh/denyusers.pam
+auth		include		system-auth
+auth		required	pam_nologin.so
+account		include		system-auth
+password	include		system-auth
+session		include		system-auth

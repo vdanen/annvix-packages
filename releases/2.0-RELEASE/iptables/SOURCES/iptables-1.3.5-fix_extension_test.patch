@@ -1,0 +1,130 @@
+diff -urNp iptables-1.3.2/extensions/.BALANCE-test iptables-1.3.2.new/extensions/.BALANCE-test
+--- iptables-1.3.2/extensions/.BALANCE-test	2004-10-10 11:56:26.000000000 +0200
++++ iptables-1.3.2.new/extensions/.BALANCE-test	2005-07-27 19:35:55.000000000 +0200
+@@ -1,2 +1,2 @@
+ #! /bin/sh
+-[ -f $KERNEL_DIR/net/ipv4/netfilter/ipt_BALANCE.c ] && echo BALANCE
++[ -f $KERNEL_DIR/include/linux/netfilter_ipv4/ipt_BALANCE.h ] && echo BALANCE
+diff -urNp iptables-1.3.2/extensions/.CLUSTERIP-test iptables-1.3.2.new/extensions/.CLUSTERIP-test
+--- iptables-1.3.2/extensions/.CLUSTERIP-test	2004-10-10 11:56:25.000000000 +0200
++++ iptables-1.3.2.new/extensions/.CLUSTERIP-test	2005-07-27 19:35:55.000000000 +0200
+@@ -1,2 +1,2 @@
+ #! /bin/sh
+-[ -f $KERNEL_DIR/net/ipv4/netfilter/ipt_CLUSTERIP.c ] && echo CLUSTERIP
++[ -f $KERNEL_DIR/include/linux/netfilter_ipv4/ipt_CLUSTERIP.h ] && echo CLUSTERIP
+diff -urNp iptables-1.3.2/extensions/.IPV4OPTSSTRIP-test iptables-1.3.2.new/extensions/.IPV4OPTSSTRIP-test
+--- iptables-1.3.2/extensions/.IPV4OPTSSTRIP-test	2004-10-10 11:56:24.000000000 +0200
++++ iptables-1.3.2.new/extensions/.IPV4OPTSSTRIP-test	1970-01-01 01:00:00.000000000 +0100
+@@ -1,3 +0,0 @@
+-#!/bin/sh
+-# True if IPV4OPTSSTRIP patch is applied.
+-[ -f $KERNEL_DIR/net/ipv4/netfilter/ipt_IPV4OPTSSTRIP.c ] && echo IPV4OPTSSTRIP
+diff -urNp iptables-1.3.2/extensions/.NETLINK-test iptables-1.3.2.new/extensions/.NETLINK-test
+--- iptables-1.3.2/extensions/.NETLINK-test	2004-10-10 11:56:24.000000000 +0200
++++ iptables-1.3.2.new/extensions/.NETLINK-test	2005-07-27 19:35:55.000000000 +0200
+@@ -1,2 +1,2 @@
+ #! /bin/sh
+-[ -f $KERNEL_DIR/net/ipv4/netfilter/ipt_NETLINK.c ] && echo NETLINK
++[ -f $KERNEL_DIR/include/linux/netfilter_ipv4/ipt_NETLINK.h ] && echo NETLINK
+diff -urNp iptables-1.3.2/extensions/.ROUTE-test iptables-1.3.2.new/extensions/.ROUTE-test
+--- iptables-1.3.2/extensions/.ROUTE-test	2004-10-10 11:56:26.000000000 +0200
++++ iptables-1.3.2.new/extensions/.ROUTE-test	2005-07-27 19:35:55.000000000 +0200
+@@ -1,2 +1,2 @@
+ #! /bin/sh
+-[ -f $KERNEL_DIR/net/ipv4/netfilter/ipt_ROUTE.c ] && echo ROUTE
++[ -f $KERNEL_DIR/include/linux/netfilter_ipv4/ipt_ROUTE.h ] && echo ROUTE
+diff -urNp iptables-1.3.2/extensions/.TCPLAG-test iptables-1.3.2.new/extensions/.TCPLAG-test
+--- iptables-1.3.2/extensions/.TCPLAG-test	2004-10-10 11:56:26.000000000 +0200
++++ iptables-1.3.2.new/extensions/.TCPLAG-test	2005-07-28 15:04:59.000000000 +0200
+@@ -1,2 +1,2 @@
+ #! /bin/sh
+-[ -f $KERNEL_DIR/net/ipv4/netfilter/ipt_TCPLAG.c ] && echo TCPLAG
++[ -f $KERNEL_DIR/include/linux/netfilter_ipv4/ipt_TCPLAG.h ] && echo TCPLAG
+diff -urNp iptables-1.3.2/extensions/.XOR-test iptables-1.3.2.new/extensions/.XOR-test
+--- iptables-1.3.2/extensions/.XOR-test	2004-10-10 11:56:24.000000000 +0200
++++ iptables-1.3.2.new/extensions/.XOR-test	2005-07-27 19:35:55.000000000 +0200
+@@ -1,2 +1,2 @@
+ #! /bin/sh
+-[ -f $KERNEL_DIR/net/ipv4/netfilter/ipt_XOR.c ] && echo XOR
++[ -f $KERNEL_DIR/include/linux/netfilter_ipv4/ipt_XOR.h ] && echo XOR
+diff -urNp iptables-1.3.2/extensions/.ah-test6 iptables-1.3.2.new/extensions/.ah-test6
+--- iptables-1.3.2/extensions/.ah-test6	2004-10-10 11:56:24.000000000 +0200
++++ iptables-1.3.2.new/extensions/.ah-test6	2005-07-27 19:35:55.000000000 +0200
+@@ -1,2 +1,2 @@
+ #!/bin/sh
+-[ -f $KERNEL_DIR/net/ipv6/netfilter/ip6t_ah.c -a -f $KERNEL_DIR/include/linux/netfilter_ipv6/ip6t_ah.h ] && echo ah
++[ -f $KERNEL_DIR/include/linux/netfilter_ipv6/ip6t_ah.h ] && echo ah
+diff -urNp iptables-1.3.2/extensions/.connbytes-test iptables-1.3.2.new/extensions/.connbytes-test
+--- iptables-1.3.2/extensions/.connbytes-test	2004-10-10 11:56:26.000000000 +0200
++++ iptables-1.3.2.new/extensions/.connbytes-test	2005-07-27 19:35:55.000000000 +0200
+@@ -1,2 +1,2 @@
+ #! /bin/sh
+-[ -f $KERNEL_DIR/net/ipv4/netfilter/ipt_connbytes.c ] && echo connbytes
++[ -f $KERNEL_DIR/include/linux/netfilter_ipv4/ipt_connbytes.h ] && echo connbytes
+diff -urNp iptables-1.3.2/extensions/.dstlimit-test iptables-1.3.2.new/extensions/.dstlimit-test
+--- iptables-1.3.2/extensions/.dstlimit-test	2004-10-10 11:56:24.000000000 +0200
++++ iptables-1.3.2.new/extensions/.dstlimit-test	2005-07-27 19:35:55.000000000 +0200
+@@ -1,2 +1,2 @@
+ #! /bin/sh
+-[ -f $KERNEL_DIR/net/ipv4/netfilter/ipt_dstlimit.c ] && echo dstlimit
++[ -f $KERNEL_DIR/include/linux/netfilter_ipv4/ipt_dstlimit.h ] && echo dstlimit
+diff -urNp iptables-1.3.2/extensions/.esp-test6 iptables-1.3.2.new/extensions/.esp-test6
+--- iptables-1.3.2/extensions/.esp-test6	2004-10-10 11:56:24.000000000 +0200
++++ iptables-1.3.2.new/extensions/.esp-test6	2005-07-27 19:35:55.000000000 +0200
+@@ -1,2 +1,2 @@
+ #!/bin/sh
+-[ -f $KERNEL_DIR/net/ipv6/netfilter/ip6t_esp.c -a -f $KERNEL_DIR/include/linux/netfilter_ipv6/ip6t_esp.h ] && echo esp
++[ -f $KERNEL_DIR/include/linux/netfilter_ipv6/ip6t_esp.h ] && echo esp
+diff -urNp iptables-1.3.2/extensions/.frag-test6 iptables-1.3.2.new/extensions/.frag-test6
+--- iptables-1.3.2/extensions/.frag-test6	2004-10-10 11:56:26.000000000 +0200
++++ iptables-1.3.2.new/extensions/.frag-test6	2005-07-27 19:35:55.000000000 +0200
+@@ -1,2 +1,2 @@
+ #!/bin/sh
+-[ -f $KERNEL_DIR/net/ipv6/netfilter/ip6t_frag.c -a -f $KERNEL_DIR/include/linux/netfilter_ipv6/ip6t_frag.h ] && echo frag
++[ -f $KERNEL_DIR/include/linux/netfilter_ipv6/ip6t_frag.h ] && echo frag
+diff -urNp iptables-1.3.2/extensions/.fuzzy-test6 iptables-1.3.2.new/extensions/.fuzzy-test6
+--- iptables-1.3.2/extensions/.fuzzy-test6	2004-10-10 11:56:26.000000000 +0200
++++ iptables-1.3.2.new/extensions/.fuzzy-test6	2005-07-27 19:35:55.000000000 +0200
+@@ -1,2 +1,2 @@
+ #!/bin/sh
+-[ -f $KERNEL_DIR/net/ipv6/netfilter/ip6t_fuzzy.c -a -f $KERNEL_DIR/include/linux/netfilter_ipv6/ip6t_fuzzy.h ] && echo fuzzy
++[ -f $KERNEL_DIR/include/linux/netfilter_ipv6/ip6t_fuzzy.h ] && echo fuzzy
+diff -urNp iptables-1.3.2/extensions/.ipv6header-test6 iptables-1.3.2.new/extensions/.ipv6header-test6
+--- iptables-1.3.2/extensions/.ipv6header-test6	2004-10-10 11:56:25.000000000 +0200
++++ iptables-1.3.2.new/extensions/.ipv6header-test6	2005-07-27 19:35:55.000000000 +0200
+@@ -1,2 +1,2 @@
+ #!/bin/sh
+-[ -f $KERNEL_DIR/net/ipv6/netfilter/ip6t_ipv6header.c -a -f $KERNEL_DIR/include/linux/netfilter_ipv6/ip6t_ipv6header.h ] && echo ipv6header
++[ -f $KERNEL_DIR/include/linux/netfilter_ipv6/ip6t_ipv6header.h ] && echo ipv6header
+diff -urNp iptables-1.3.2/extensions/.mport-test iptables-1.3.2.new/extensions/.mport-test
+--- iptables-1.3.2/extensions/.mport-test	2004-10-10 11:56:24.000000000 +0200
++++ iptables-1.3.2.new/extensions/.mport-test	2005-07-27 19:35:55.000000000 +0200
+@@ -1,2 +1,2 @@
+ #! /bin/sh
+-[ -f $KERNEL_DIR/net/ipv4/netfilter/ipt_mport.c ] && echo mport
++[ -f $KERNEL_DIR/include/linux/netfilter_ipv4/ipt_mport.h ] && echo mport
+diff -urNp iptables-1.3.2/extensions/.opts-test6 iptables-1.3.2.new/extensions/.opts-test6
+--- iptables-1.3.2/extensions/.opts-test6	2004-10-10 11:56:25.000000000 +0200
++++ iptables-1.3.2.new/extensions/.opts-test6	2005-07-27 19:35:55.000000000 +0200
+@@ -1,2 +1,2 @@
+ #!/bin/sh
+-[ -f $KERNEL_DIR/net/ipv6/netfilter/ip6t_hbh.c -a -f $KERNEL_DIR/net/ipv6/netfilter/ip6t_dst.c -a -f $KERNEL_DIR/include/linux/netfilter_ipv6/ip6t_opts.h ] && echo hbh dst
++[ -f  $KERNEL_DIR/include/linux/netfilter_ipv6/ip6t_opts.h ] && echo hbh dst
+diff -urNp iptables-1.3.2/extensions/.rt-test6 iptables-1.3.2.new/extensions/.rt-test6
+--- iptables-1.3.2/extensions/.rt-test6	2004-10-10 11:56:24.000000000 +0200
++++ iptables-1.3.2.new/extensions/.rt-test6	2005-07-27 19:35:55.000000000 +0200
+@@ -1,2 +1,2 @@
+ #!/bin/sh
+-[ -f $KERNEL_DIR/net/ipv6/netfilter/ip6t_rt.c -a -f $KERNEL_DIR/include/linux/netfilter_ipv6/ip6t_rt.h ] && echo rt
++[ -f $KERNEL_DIR/include/linux/netfilter_ipv6/ip6t_rt.h ] && echo rt
+--- iptables-1.3.5/extensions/Makefile.fix_extension_test	2006-07-24 13:19:54.000000000 -0600
++++ iptables-1.3.5/extensions/Makefile	2006-07-24 13:21:38.000000000 -0600
+@@ -5,7 +5,7 @@
+ # header files are present in the include/linux directory of this iptables
+ # package (HW)
+ #
+-PF_EXT_SLIB:=ah addrtype comment connlimit connmark conntrack dscp ecn esp hashlimit helper icmp iprange length limit mac mark multiport owner physdev pkttype policy realm rpc sctp standard state stealth tcp tcpmss tos ttl udp unclean CLASSIFY CONNMARK DNAT DSCP ECN LOG MARK MASQUERADE MIRROR NETMAP NFQUEUE NOTRACK REDIRECT REJECT SAME SNAT TARPIT TCPMSS TOS TRACE TTL ULOG
++PF_EXT_SLIB:=ah addrtype comment connlimit connmark conntrack dscp ecn esp hashlimit helper icmp iprange length limit mac mark multiport owner physdev pkttype policy realm rpc sctp standard state stealth tcp tcpmss tos ttl udp unclean CLASSIFY CONNMARK DNAT DSCP ECN IPV4OPTSSTRIP LOG MARK MASQUERADE MIRROR NETMAP NFQUEUE NOTRACK REDIRECT REJECT SAME SNAT TARPIT TCPMSS TOS TRACE TTL ULOG
+ PF6_EXT_SLIB:=connmark eui64 hl icmpv6 length limit mac mark multiport owner physdev policy standard state tcp udp CONNMARK HL LOG NFQUEUE MARK TRACE
+ 
+ # Optionals

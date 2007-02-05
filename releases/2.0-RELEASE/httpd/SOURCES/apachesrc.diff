@@ -1,0 +1,68 @@
+diff -ur httpd-2.0.39.orig/configure.in httpd-2.0.39/configure.in
+--- httpd-2.0.39.orig/configure.in	Sat Jun 15 17:48:53 2002
++++ httpd-2.0.39/configure.in	Mon Jul 29 06:02:51 2002
+@@ -318,6 +318,11 @@
+   APR_ADDTO(CPPFLAGS, -DAP_DEBUG)
+ ])dnl
+ 
++AC_ARG_ENABLE(forward,APACHE_HELP_STRING(--enable-forward,enable tracking of cache-forwarded requests),
++[
++  APR_ADDTO(CFLAGS, -DRECORD_FORWARD)
++])dnl
++
+ prefix="$orig_prefix"
+ APACHE_ENABLE_MODULES
+ 
+diff -ur httpd-2.0.39.orig/include/scoreboard.h httpd-2.0.39/include/scoreboard.h
+--- httpd-2.0.39.orig/include/scoreboard.h	Fri Mar 29 11:21:48 2002
++++ httpd-2.0.39/include/scoreboard.h	Mon Jul 29 06:02:43 2002
+@@ -154,6 +154,9 @@
+ #endif
+     apr_time_t last_used;
+     char client[32];		/* Keep 'em small... */
++#ifdef RECORD_FORWARD
++    char fwdclient[32];		/* Client that the req is forwarded for */
++#endif
+     char request[64];		/* We just want an idea... */
+     char vhost[32];	        /* What virtual host is being accessed? */
+ };
+diff -ur httpd-2.0.39.orig/modules/generators/mod_status.c httpd-2.0.39/modules/generators/mod_status.c
+--- httpd-2.0.39.orig/modules/generators/mod_status.c	Thu Jun 13 15:54:52 2002
++++ httpd-2.0.39/modules/generators/mod_status.c	Mon Jul 29 06:02:56 2002
+@@ -747,6 +747,9 @@
+                     else
+                         ap_rprintf(r,
+                                    "</td><td>%s</td><td nowrap>%s</td><td nowrap>%s</td></tr>\n\n",
++#ifdef RECORD_FORWARD
++				   (strlen(ws_record->fwdclient) != 0) ? ap_escape_html(r->pool, ws_record->fwdclient) :
++#endif
+                                    ap_escape_html(r->pool,
+                                                   ws_record->client),
+                                    ap_escape_html(r->pool,
+diff -ur httpd-2.0.39.orig/server/scoreboard.c httpd-2.0.39/server/scoreboard.c
+--- httpd-2.0.39.orig/server/scoreboard.c	Fri May 17 07:11:37 2002
++++ httpd-2.0.39/server/scoreboard.c	Mon Jul 29 06:03:01 2002
+@@ -405,6 +405,9 @@
+     int old_status;
+     worker_score *ws;
+     process_score *ps;
++#ifdef RECORD_FORWARD
++    char * address;
++#endif
+ 
+     if (child_num < 0) {
+         return -1;
+@@ -439,6 +442,13 @@
+             conn_rec *c = r->connection;
+             apr_cpystrn(ws->client, ap_get_remote_host(c, r->per_dir_config,
+                         REMOTE_NOLOOKUP, NULL), sizeof(ws->client));
++#ifdef RECORD_FORWARD
++	    if ((address = apr_table_get(r->headers_in, "X-Forwarded-For")) == NULL) {
++		apr_cpystrn(ws->fwdclient, "", sizeof(ws->client));
++	    } else {
++		apr_cpystrn(ws->fwdclient, address, sizeof(ws->client));
++	    }
++#endif
+             if (r->the_request == NULL) {
+                 apr_cpystrn(ws->request, "NULL", sizeof(ws->request));
+             } else if (r->parsed_uri.password == NULL) {

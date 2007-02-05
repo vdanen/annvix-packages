@@ -1,0 +1,15 @@
+--- net-snmp-5.0.8/agent/snmp_agent.c.readonly	2003-08-05 14:55:44.000000000 +0200
++++ net-snmp-5.0.8/agent/snmp_agent.c	2003-08-06 16:05:56.000000000 +0200
+@@ -1133,6 +1133,12 @@
+     int             i, n = 0, r = 0;
+ 
+     /*
++     * Update asp->status if necessary. Fixes ro/rw problem.
++     */
++    if ( status != 0  && asp->status == 0 )
++          asp->status = status;
++
++    /*
+      * if this request was a set, clear the global now that we are
+      * done.
+      */

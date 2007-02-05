@@ -1,0 +1,23 @@
+Index: util-linux-2.12q/mount/swapon.c
+===================================================================
+--- util-linux-2.12q.orig/mount/swapon.c	2005-04-29 14:41:44.000000000 +0200
++++ util-linux-2.12q/mount/swapon.c	2005-04-29 14:55:05.000000000 +0200
+@@ -644,6 +644,18 @@ swapon_all(void) {
+  			if (strncmp(opt, "encryption=", 11) == 0)
+  				encryption = opt + 11;
+  		}
++
++		for (i = 0; i < numSwaps; i++) {
++			struct stat swapped, swapping;
++
++			if (stat (swapList[i], &swapped) == 0
++					&& stat (fstab->mnt_fsname, &swapping) == 0) {
++				if (swapped.st_dev == swapping.st_dev
++						&& swapped.st_ino == swapping.st_ino)
++					break;
++			}
++		}
++
+  		for (i = 0; i < numSwaps; i++)
+ 		     if (!strcmp(swapList[i], fstab->mnt_fsname)) break;
+         

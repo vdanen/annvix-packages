@@ -1,0 +1,39 @@
+--- lib/Sys/Hostname/Long.pm	2005-06-26 00:34:10.000000000 +0200
++++ lib/Sys/Hostname/Long.pm.oden	2005-10-18 01:24:54.000000000 +0200
+@@ -33,17 +33,6 @@
+ 		},
+ 	},
+ 
+-	'win32_registry1' => {
+-		'title' => 'WIN32 Registry',
+-		'description' => 'LMachine/System/CurrentControlSet/Service/VxD/MSTCP/Domain',
+-		'exec' => sub {
+-			return eval q{
+-				use Win32::TieRegistry ( TiedHash => '%RegistryHash' );
+-				$RegistryHash{'LMachine'}{'System'}{'CurrentControlSet'}{'Services'}{'VxD'}{'MSTCP'}{'Domain'}; 
+-			};
+-		},
+-	},
+-
+ 	'uname' => {
+ 		'title' => 'POSIX::unae',
+ 		'description' => '',
+@@ -56,18 +45,6 @@
+ 		},
+ 	},
+ 
+-	# XXX This is the same as above - what happened to the other one !!!
+-	'win32_registry2' => {
+-		'title' => 'WIN32 Registry',
+-		'description' => 'LMachine/System/CurrentControlSet/Services/VxD/MSTCP/Domain',
+-		'exec' => sub {
+-			return eval q{
+-				use Win32::TieRegistry ( TiedHash => '%RegistryHash' );
+-				$RegistryHash{'LMachine'}{'System'}{'CurrentControlSet'}{'Services'}{'VxD'}{'MSTCP'}{'Domain'}; 
+-			};
+-		},
+-	},
+-
+ 	'exec_hostname_fqdn' => {
+ 		'title' => 'Execute "hostname --fqdn"',
+ 		'description' => '',

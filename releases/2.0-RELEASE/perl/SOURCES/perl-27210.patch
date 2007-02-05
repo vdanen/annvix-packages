@@ -1,0 +1,29 @@
+Change 27210 by gisle@gisle-ask on 2006/02/17 20:54:46
+
+	Fix quote typo.
+	
+	Subject: [PATCH] 5.8.8: Debian patches
+	From: "Brendan O'Dea" <bod@debian.org>
+	Date: Sat, 11 Feb 2006 00:37:15 +1100
+	Message-ID: <20060210133715.GA6826@londo.c47.org>
+
+Affected files ...
+
+... //depot/perl/utils/c2ph.PL#15 edit
+
+Differences ...
+
+==== //depot/perl/utils/c2ph.PL#15 (text) ====
+Index: perl/utils/c2ph.PL
+--- perl/utils/c2ph.PL#14~25284~	2005-08-11 00:35:27.000000000 -0700
++++ perl/utils/c2ph.PL	2006-02-17 12:54:46.000000000 -0800
+@@ -1320,7 +1320,7 @@
+ 	$intrinsics{$_[1]} = $template{$_[0]};
+     }
+     close(PIPE) || die "couldn't read intrinsics!";
+-    unlink($TMP, '$SAFEDIR/a.out');
++    unlink($TMP, "$SAFEDIR/a.out");
+     print STDERR "done\n" if $trace;
+ }
+ 
+End of Patch.

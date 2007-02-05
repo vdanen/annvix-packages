@@ -1,0 +1,70 @@
+--- net-snmp-5.1/perl/SNMP/SNMP.xs.old	2003-12-04 12:25:07.000000000 +0200
++++ net-snmp-5.1/perl/SNMP/SNMP.xs	2003-12-04 12:25:14.000000000 +0200
+@@ -1242,7 +1242,7 @@
+   int getlabel_flag = NO_FLAGS;
+   int sprintval_flag = USE_BASIC;
+   netsnmp_pdu *reply_pdu;
+-  int old_numeric, old_printfull;
++  int old_format;
+   netsnmp_transport *transport = NULL;
+ 
+   SV* cb = ((struct snmp_xs_cb_data*)cb_data)->perl_cb;
+@@ -1308,23 +1308,33 @@
+       varlist_ref = newRV_noinc((SV*)varlist);
+ 
+       /*
+-      ** Set up for numeric OID's, if necessary.  Save the old values
+-      ** so that they can be restored when we finish -- these are
+-      ** library-wide globals, and have to be set/restored for each
++      ** Set up for numeric or full OID's, if necessary.  Save the old
++      ** output format so that it can be restored when we finish -- this
++      ** is a library-wide global, and has to be set/restored for each
+       ** session.
+       */
+-      old_numeric = netsnmp_ds_get_boolean(NETSNMP_DS_LIBRARY_ID, NETSNMP_DS_LIB_PRINT_NUMERIC_OIDS);
+-      old_printfull = netsnmp_ds_get_boolean(NETSNMP_DS_LIBRARY_ID, NETSNMP_DS_LIB_PRINT_FULL_OID);
++      old_format = netsnmp_ds_get_int(NETSNMP_DS_LIBRARY_ID,
++                                      NETSNMP_DS_LIB_OID_OUTPUT_FORMAT);
++      
+       if (SvIV(*hv_fetch((HV*)SvRV(sess_ref),"UseLongNames", 12, 1))) {
+-         getlabel_flag |= USE_LONG_NAMES;
+-         netsnmp_ds_set_boolean(NETSNMP_DS_LIBRARY_ID, NETSNMP_DS_LIB_PRINT_FULL_OID, 1);
++          getlabel_flag |= USE_LONG_NAMES;
++          
++          netsnmp_ds_set_int(NETSNMP_DS_LIBRARY_ID,
++                             NETSNMP_DS_LIB_OID_OUTPUT_FORMAT,
++                             NETSNMP_OID_OUTPUT_FULL);
+       }
+-      /* Setting UseNumeric forces UseLongNames on so check for UseNumeric
+-         after UseLongNames (above) to make sure the final outcome of 
+-         NETSNMP_DS_LIB_OID_OUTPUT_FORMAT is NETSNMP_OID_OUTPUT_NUMERIC */
++      /* Setting UseNumeric forces UseLongNames on so check
++         for UseNumeric after UseLongNames (above) to make
++         sure the final outcome of
++         NETSNMP_DS_LIB_OID_OUTPUT_FORMAT is
++         NETSNMP_OID_OUTPUT_NUMERIC */
+       if (SvIV(*hv_fetch((HV*)SvRV(sess_ref),"UseNumeric", 10, 1))) {
+-         getlabel_flag |= USE_NUMERIC_OIDS;
+-         netsnmp_ds_set_boolean(NETSNMP_DS_LIBRARY_ID, NETSNMP_DS_LIB_PRINT_NUMERIC_OIDS, 1);
++          getlabel_flag |= USE_LONG_NAMES;
++          getlabel_flag |= USE_NUMERIC_OIDS;
++          
++          netsnmp_ds_set_int(NETSNMP_DS_LIBRARY_ID,
++                             NETSNMP_DS_LIB_OID_OUTPUT_FORMAT,
++                             NETSNMP_OID_OUTPUT_NUMERIC);
+       }
+ 
+       sv_bless(varlist_ref, gv_stashpv("SNMP::VarList",0));
+@@ -1374,9 +1384,9 @@
+       } /* for */
+ 
+       /* Reset the library's behavior for numeric/symbolic OID's. */
+-      netsnmp_ds_set_boolean(NETSNMP_DS_LIBRARY_ID, NETSNMP_DS_LIB_PRINT_NUMERIC_OIDS, old_numeric );
+-      netsnmp_ds_set_boolean(NETSNMP_DS_LIBRARY_ID, NETSNMP_DS_LIB_PRINT_FULL_OID, old_printfull);
+-
++      netsnmp_ds_set_int(NETSNMP_DS_LIBRARY_ID,
++                         NETSNMP_DS_LIB_OID_OUTPUT_FORMAT,
++                         old_format);
+       } /* case SNMP_MSG_RESPONSE */
+       break;
+     default:;

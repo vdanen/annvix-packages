@@ -1,0 +1,31 @@
+2006-04-09  Luca Berra <bluca@vodka.it>
+
+        * fix missing closedir prevenitng umount of /initrd/sys (#16699)
+	  thanks to Andrey Borzenkov
+
+--- mkinitrd-4.2.17/nash/nash.c.closedir
++++ mkinitrd-4.2.17/nash/nash.c
+@@ -686,6 +686,7 @@
+             printf("\n");
+         }
+     }    
++    closedir(dir);
+     return 0;
+ }
+ 
+@@ -1647,6 +1648,7 @@
+ 
+ 	    dev_probe_dir(prefix, "/sys/block", dent->d_name);
+ 	}
++	closedir(dir);
+ 	return 1;
+     } else {
+ 	i=errno;
+@@ -1873,6 +1875,7 @@
+ 
+         dev_probe_dir(devdir, path, dent->d_name);
+     }
++    closedir(dir);
+ }
+ 
+ int setQuietCommand(char * cmd, char * end) {

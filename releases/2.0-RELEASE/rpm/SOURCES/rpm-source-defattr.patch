@@ -1,0 +1,66 @@
+This patch allow to set source file attribute in
+%_srcdefattr macros.
+
+Index: build/files.c
+===================================================================
+RCS file: /cvs/devel/rpm/build/files.c,v
+retrieving revision 1.242
+diff -p -u -b -r1.242 files.c
+--- build/files.c	25 Mar 2005 17:30:34 -0000	1.242
++++ build/files.c	6 Jun 2005 14:35:57 -0000
+@@ -2265,6 +2262,10 @@ int processSourceFiles(Spec spec)
+     struct FileList_s fl;
+     char *s, **files, **fp;
+     Package pkg;
++    char *_srcdefattr;
++    char buf[BUFSIZ];
++
++    _srcdefattr = rpmExpand("%{?_srcdefattr}", NULL);
+ 
+     sourceFiles = newStringBuf();
+ 
+@@ -2316,6 +2317,13 @@ int processSourceFiles(Spec spec)
+ 
+     spec->sourceCpioList = NULL;
+ 
++    /* Init the file list structure */
++    memset(&fl, 0, sizeof(fl));
++    if (_srcdefattr && *_srcdefattr) {
++        sprintf(buf, "%%defattr %s", _srcdefattr);
++	    parseForAttr(buf, &fl);
++    }    
++
+     fl.fileList = xcalloc((spec->numSources + 1), sizeof(*fl.fileList));
+     fl.processingFailed = 0;
+     fl.fileListRecsUsed = 0;
+@@ -2364,8 +2372,19 @@ int processSourceFiles(Spec spec)
+ 	    fl.processingFailed = 1;
+ 	}
+ 
+-	flp->uname = getUname(flp->fl_uid);
+-	flp->gname = getGname(flp->fl_gid);
++	if (fl.def_ar.ar_fmodestr) {
++	    flp->fl_mode &= S_IFMT;
++	    flp->fl_mode |= fl.def_ar.ar_fmode;
++	}
++	
++    flp->uname = fl.def_ar.ar_user ?
++        getUnameS(fl.def_ar.ar_user):
++        getUname(flp->fl_uid);
++	
++    flp->gname = fl.def_ar.ar_group ?
++        getGnameS(fl.def_ar.ar_group) :
++	    getGname(flp->fl_gid);
++
+ 	flp->langs = xstrdup("");
+ 	
+ 	fl.totalFileSize += flp->fl_size;
+@@ -2389,6 +2408,8 @@ int processSourceFiles(Spec spec)
+ 
+     sourceFiles = freeStringBuf(sourceFiles);
+     fl.fileList = freeFileList(fl.fileList, fl.fileListRecsUsed);
++    _free(_srcdefattr);
++    freeAttrRec(&fl.def_ar);
+     return fl.processingFailed;
+ }
+ 

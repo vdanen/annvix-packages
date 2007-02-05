@@ -1,0 +1,10 @@
+--- lib/ExtUtils/MANIFEST.SKIP.orig	2005-10-21 14:03:50.000000000 +0200
++++ lib/ExtUtils/MANIFEST.SKIP	2006-01-20 12:15:48.000000000 +0100
+@@ -28,3 +28,7 @@
+ 
+ # Avoid Devel::Cover files.
+ \bcover_db\b
++
++# Avoid RPM debug helper files
++^debugfiles.list$
++^debugsources.list$

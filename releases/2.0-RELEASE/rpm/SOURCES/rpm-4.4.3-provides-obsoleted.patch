@@ -1,0 +1,51 @@
+--- rpmdb/rpmdb.c.provides	2005-11-12 01:18:33.000000000 +0100
++++ rpmdb/rpmdb.c	2005-11-30 17:09:05.000000000 +0100
+@@ -3768,7 +3768,7 @@ int rpmdbRebuild(const char * prefix, rp
+     }
+     dbpath = rootdbpath = rpmGetPath(prefix, tfn, NULL);
+     if (!(prefix[0] == '/' && prefix[1] == '\0'))
+-	dbpath += strlen(prefix);
++        dbpath += strlen(prefix) - 1; /* FIXME: a trailing / is always added */
+     tfn = _free(tfn);
+ 
+     /*@-nullpass@*/
+--- lib/depends.c.provides	2005-11-16 00:59:16.000000000 +0100
++++ lib/depends.c	2005-11-30 17:16:41.000000000 +0100
+@@ -336,7 +336,7 @@ assert(p != NULL);
+ 
+     /* On upgrade, erase older packages of same color (if any). */
+ 
+-    mi = rpmtsInitIterator(ts, RPMTAG_PROVIDENAME, rpmteN(p), 0);
++    mi = rpmtsInitIterator(ts, RPMTAG_NAME, rpmteN(p), 0);
+     while((oh = rpmdbNextIterator(mi)) != NULL) {
+ 	int lastx;
+ 	rpmte q;
+@@ -393,7 +393,7 @@ assert(lastx >= 0 && lastx < ts->orderCo
+ 	if (Name[0] == '/')
+ 	    mi = rpmtsInitIterator(ts, RPMTAG_BASENAMES, Name, 0);
+ 	else
+-	    mi = rpmtsInitIterator(ts, RPMTAG_PROVIDENAME, Name, 0);
++	    mi = rpmtsInitIterator(ts, RPMTAG_NAME, Name, 0);
+ 
+ 	xx = rpmdbPruneIterator(mi,
+ 	    ts->removedPackages, ts->numRemovedPackages, 1);
+@@ -415,7 +415,7 @@ assert(lastx >= 0 && lastx < ts->orderCo
+ 	     * If no obsoletes version info is available, match all names.
+ 	     */
+ 	    if (!(rpmdsEVR(obsoletes) == NULL
+-	     || rpmdsAnyMatchesDep(oh, obsoletes, _rpmds_nopromote)))
++	     || rpmdsNVRMatchesDep(oh, obsoletes, _rpmds_nopromote)))
+ 		/*@innercontinue@*/ continue;
+ 
+ 	    /* Create an erasure element. */
+--- lib/rpmts.c.provides	2005-11-14 14:30:53.000000000 +0100
++++ lib/rpmts.c	2005-11-30 17:09:05.000000000 +0100
+@@ -1016,6 +1016,8 @@ void rpmtsSetRootDir(rpmts ts, const cha
+ 	}
+ 	rootLen = strlen(rootDir);
+ 
++	/* FIXME: if multiple / are present, other code will be unhappy */
++
+ /*@-branchstate@*/
+ 	/* Make sure that rootDir has trailing / */
+ 	if (!(rootLen && rootDir[rootLen - 1] == '/')) {

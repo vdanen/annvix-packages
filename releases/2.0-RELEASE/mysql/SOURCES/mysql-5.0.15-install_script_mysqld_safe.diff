@@ -1,0 +1,80 @@
+--- scripts/mysql_install_db.sh	2005-10-17 03:27:42.000000000 +0200
++++ scripts/mysql_install_db.sh.oden	2005-10-24 20:00:37.000000000 +0200
+@@ -94,10 +94,10 @@
+   pkgdatadir=@pkgdatadir@
+ else
+   bindir="$basedir/bin"
+-  if test -x "$basedir/libexec/mysqld"
++  if test -x "$basedir/libexec/mysqld" -o -x "$basedir/libexec/mysqld-max"
+   then
+     execdir="$basedir/libexec"
+-  elif test -x "$basedir/sbin/mysqld"
++  elif test -x "@libexecdir@/mysqld" -o -x "@libexecdir@/mysqld-max"
+   then
+     execdir="$basedir/sbin"
+   else
+@@ -134,17 +134,23 @@
+   scriptdir="./scripts"
+ fi
+ 
+-if test ! -x $mysqld
++# Use the mysqld-max binary by default if the user doesn't specify a binary
++if test -x $execdir/mysqld-max
+ then
+-  if test "$in_rpm" = 1
+-  then
+-    echo "FATAL ERROR $mysqld not found!"
+-    exit 1
+-  else
+-    echo "Didn't find $mysqld"
+-    echo "You should do a 'make install' before executing this script"
+-    exit 1
+-  fi
++  MYSQLD=mysqld-max
++elif test -x $execdir/mysqld
++then
++  MYSQLD=mysqld
++else
++if test "$in_rpm" -eq 1
++then
++  echo "FATAL ERROR $execdir/mysqld not found!"
++  exit 1
++else
++  echo "Didn't find $execdir/mysqld"
++  echo "You should do a 'make install' before executing this script"
++  exit 1
++fi
+ fi
+ 
+ # Try to determine the hostname
+@@ -183,9 +189,9 @@
+ 
+ # Create database directories mysql & test
+ 
+-  if test ! -d $ldata; then mkdir $ldata; chmod 700 $ldata ; fi
+-  if test ! -d $ldata/mysql; then mkdir $ldata/mysql;  chmod 700 $ldata/mysql ; fi
+-  if test ! -d $ldata/test; then mkdir $ldata/test;  chmod 700 $ldata/test ; fi
++  if test ! -d $ldata; then mkdir $ldata; chmod 711 $ldata ; fi
++  if test ! -d $ldata/mysql; then mkdir $ldata/mysql;  chmod 711 $ldata/mysql ; fi
++  if test ! -d $ldata/test; then mkdir $ldata/test;  chmod 711 $ldata/test ; fi
+   if test -w / -a ! -z "$user"; then
+     chown $user $ldata $ldata/mysql $ldata/test;
+   fi
+@@ -210,7 +216,7 @@
+ then
+   echo "Installing all prepared tables"
+ fi
+-mysqld_install_cmd_line="$mysqld $defaults $mysqld_opt --bootstrap \
++mysqld_install_cmd_line="$execdir/$MYSQLD $defaults $mysqld_opt --bootstrap \
+ --skip-grant-tables --basedir=$basedir --datadir=$ldata --skip-innodb \
+ --skip-bdb --skip-ndbcluster $args --max_allowed_packet=8M --net_buffer_length=16K"
+ if $scriptdir/mysql_create_system_tables $create_option $mdata $hostname $windows \
+@@ -277,7 +283,7 @@
+   echo
+   echo "Examine the logs in $ldata for more information."
+   echo "You can also try to start the mysqld daemon with:"
+-  echo "$mysqld --skip-grant &"
++  echo "$execdir/$MYSQLD --skip-grant &"
+   echo "You can use the command line tool"
+   echo "$bindir/mysql to connect to the mysql"
+   echo "database and look at the grant tables:"

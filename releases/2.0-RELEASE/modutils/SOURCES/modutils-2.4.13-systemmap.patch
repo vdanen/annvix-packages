@@ -1,0 +1,38 @@
+--- modutils-2.4.13/depmod/depmod.c.systemmap	Mon Oct  1 22:28:38 2001
++++ modutils-2.4.13/depmod/depmod.c	Tue Oct  2 11:59:59 2001
+@@ -1407,7 +1407,9 @@
+ 		{"errsyms", 0, 0, 'e'},
+ 		{"filesyms", 1, 0, 'F'},
+ 		{"help", 0, 0, 'h'},
++		{"ignore-versions", 0, 0, 'i'}, /* backward compatibility, ignored */
+ 		{"show", 0, 0, 'n'},
++		{"system-map", 1, 0, 'm'}, /* backward compatibility, same as 'F' */
+ 		{"quick", 0, 0, 'A'},
+ 		{"quiet", 0, 0, 'q'},
+ 		{"syslog", 0, 0, 's'},
+@@ -1419,7 +1421,7 @@
+ 
+ 	error_file = "depmod";
+ 
+-	while ((o = getopt_long(argc, argv, "aAb:C:eF:hnqsvVru",
++	while ((o = getopt_long(argc, argv, "aAb:C:eF:him:nqsvVru",
+ 				&long_opts[0], NULL)) != EOF) {
+ 		switch (o) {
+ 		case 'A':
+@@ -1442,10 +1444,16 @@
+ 			return 0;
+ 			break;
+ 
++		case 'i':
++			fprintf(stderr, "Warning: -i is obsolete and deprecated.\n");
++			break;
++
+ 		case 'C':
+ 			conf_file = optarg;
+ 			break;
+ 
++		case 'm':
++			fprintf(stderr, "Warning: -m is deprecated; please use -F.\n");
+ 		case 'F':
+ 			file_syms = optarg;
+ 			break;

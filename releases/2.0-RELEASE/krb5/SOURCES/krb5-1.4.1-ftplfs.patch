@@ -1,0 +1,33 @@
+--- krb5-1.4.1/src/appl/gssftp/ftpd/Makefile.in.orig	2005-06-28 20:47:45.000000000 +0200
++++ krb5-1.4.1/src/appl/gssftp/ftpd/Makefile.in	2005-06-28 20:48:00.000000000 +0200
+@@ -5,7 +5,7 @@
+ #
+ # appl/gssftp/ftpd/Makefile.in
+ #
+-DEFINES = -DGSSAPI -DFTP_BUFSIZ=10240 #-DNOCONFIDENTIAL
++DEFINES = -DGSSAPI -DFTP_BUFSIZ=10240 -D_FILE_OFFSET_BITS=64 #-DNOCONFIDENTIAL
+ PROG_LIBPATH=-L$(TOPLIBD)
+ PROG_RPATH=$(KRB5_LIBDIR)
+ 
+--- krb5-1.4.1/src/appl/gssftp/ftpd/ftpd.c.orig	2005-06-28 21:05:49.000000000 +0200
++++ krb5-1.4.1/src/appl/gssftp/ftpd/ftpd.c	2005-06-28 21:05:51.000000000 +0200
+@@ -1397,7 +1397,7 @@
+ 	byte_count = 0;
+ 	if (size != (off_t) -1)
+ 		/* cast size to long in case sizeof(off_t) > sizeof(long) */
+-		(void) sprintf (sizebuf, " (%ld bytes)", (long)size);
++		(void) sprintf (sizebuf, " (%lu bytes)", (long)size);
+ 	else
+ 		(void) strcpy(sizebuf, "");
+ 	if (pdata >= 0) {
+--- krb5-1.5.1/src/appl/gssftp/ftp/Makefile.in.lfs	2006-06-15 19:42:53.000000000 -0300
++++ krb5-1.5.1/src/appl/gssftp/ftp/Makefile.in	2006-11-29 19:07:53.000000000 -0200
+@@ -5,7 +5,7 @@
+ #
+ # appl/gssftp/ftp/Makefile.in
+ #
+-DEFINES = -DGSSAPI -DFTP_BUFSIZ=65535
++DEFINES = -DGSSAPI -DFTP_BUFSIZ=65535 -D_FILE_OFFSET_BITS=64
+ PROG_LIBPATH=-L$(TOPLIBD)
+ PROG_RPATH=$(KRB5_LIBDIR)
+ 

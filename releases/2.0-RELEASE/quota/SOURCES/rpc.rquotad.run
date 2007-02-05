@@ -1,0 +1,12 @@
+#!/bin/sh
+PATH="/sbin:/usr/sbin:/bin:/usr/bin"
+
+# this runs rpc.rquotad supervised
+
+envdir=/etc/sysconfig/env/nfs
+[[ -f ${envdir}/RQUOTAD_PORT ]]  && RQUOTAD_PORT="$(head -1 ${envdir}/RQUOTAD_PORT)"
+[[ -f ${envdir}/RQUOTAD_OPTS ]]  && RQUOTAD_OPTS="$(head -1 ${envdir}/RQUOTAD_OPTS)"
+
+[[ -n "${RQUOTAD_PORT}" ]] && RQUOTADOPTS="${RQUOTAD_OPTS} -p ${RQUOTAD_PORT}"
+
+exec /usr/sbin/rpc.rquotad -F ${RQUOTADOPTS}

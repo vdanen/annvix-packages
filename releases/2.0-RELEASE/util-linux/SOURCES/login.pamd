@@ -1,0 +1,10 @@
+#%PAM-1.0
+# $Id$
+
+auth		required	pam_securetty.so
+auth		required	pam_nologin.so
+auth		include		system-auth
+account		include		system-auth
+password	include		system-auth
+session		optional	pam_console.so
+session		include		system-auth

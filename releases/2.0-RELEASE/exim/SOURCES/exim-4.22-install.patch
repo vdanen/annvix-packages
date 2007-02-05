@@ -1,0 +1,11 @@
+--- exim-4.22/scripts/exim_install.chown	2003-08-22 11:52:19.000000000 -0600
++++ exim-4.22/scripts/exim_install	2003-08-22 11:52:19.000000000 -0600
+@@ -27,7 +27,7 @@
+ # anything, by giving it the option "-n" (cf make). Arguments are the names
+ # of things to install. No arguments installs everything.
+ 
+-do_chown=yes
++do_chown=no
+ do_symlink=yes
+ 
+ while [ $# -gt 0 ] ; do

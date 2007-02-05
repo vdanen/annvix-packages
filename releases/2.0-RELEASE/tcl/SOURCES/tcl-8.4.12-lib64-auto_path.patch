@@ -1,0 +1,29 @@
+--- tcl8.4.12/library/init.tcl.lib64	2005-07-22 23:59:40.000000000 +0200
++++ tcl8.4.12/library/init.tcl	2006-02-14 18:12:24.000000000 +0100
+@@ -48,6 +48,12 @@
+ }
+ namespace eval tcl {
+     variable Dir
++
++    # on 64 bit platforms, we want to search /usr/lib64 too
++    # sbenedict@mandriva.com
++    set Machine [lindex [array get tcl_platform machine] 1]
++    set Bit64 [string first 64 $Machine]
++
+     if {[info library] ne ""} {
+ 	foreach Dir [list [info library] [file dirname [info library]]] {
+ 	    if {[lsearch -exact $::auto_path $Dir] < 0} {
+@@ -60,6 +66,13 @@
+     if {[lsearch -exact $::auto_path $Dir] < 0} {
+ 	lappend ::auto_path $Dir
+     }
++    # 64bit platform
++    if { $Bit64 != -1 } { 
++        append Dir 64 
++        if {[lsearch -exact $::auto_path $Dir] < 0} {
++            lappend ::auto_path $Dir
++        }
++    }
+     if {[info exists ::tcl_pkgPath]} {
+ 	foreach Dir $::tcl_pkgPath {
+ 	    if {[lsearch -exact $::auto_path $Dir] < 0} {

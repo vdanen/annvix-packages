@@ -1,0 +1,31 @@
+--- ./compat_name.c.cdrom	2002-01-25 08:06:35.000000000 +0100
++++ ./compat_name.c	2002-08-17 18:12:54.000000000 +0200
+@@ -144,6 +152,15 @@
+     char *ptr;
+     struct translate_struct *trans;
+ 
++    /* rd/disc needs to be searched before translate_table (rd/0 -> ram0) */
++    if (strncmp (devname, "rd/disc", sizeof("rd/disc") - 1) == 0) {
++		if(strcmp (devname + namelen - 4, "disc") == 0)
++			sprintf ( buffer, "rd/c%dd%d", minor / 8 / 32, minor / 8 % 32);
++    else if (strncmp (ptr = (strrchr (devname, '/') +1), "part", 4) == 0)
++			sprintf (buffer, "rd/c%dd%dp%s", minor / 8 / 32, minor / 8 % 32, ptr + 4);
++	return buffer;
++    }
++
+     for (trans = translate_table; trans->match != NULL; ++trans)
+     {
+ 	size_t len = strlen (trans->match);
+--- ./devfsd.c.cdrom	2002-03-25 07:59:40.000000000 +0100
++++ ./devfsd.c	2002-08-17 18:06:17.000000000 +0200
+@@ -1462,5 +1462,9 @@
+       case AC_RMOLDCOMPAT:
+ 	compat_name = get_old_name (info->devname, info->namelen, compat_buf,
+ 				    info->major, info->minor);
++	if ( (strncmp (info->devname, "rd/", 3) == 0) &&
++	      ((strncmp (ptr = (strrchr (info->devname, '/') +1), "part", 4) == 0) ||
++	       (strncmp (ptr = (strrchr (info->devname, '/') +1), "disc", 4) == 0)))
++			dest_name = info->devname+3;
+ 	if ( strncmp (info->devname, "ida/", 4) == 0) {
+ 		ptr = (strrchr (info->devname, '/') +1);
+ 		if ( (strncmp (ptr, "part", 4) == 0) || (strncmp (ptr, "disc", 4) == 0) ) {

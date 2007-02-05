@@ -1,0 +1,11 @@
+--- sash-3.5/Makefile.pix	Wed Mar 20 22:36:33 2002
++++ sash-3.5/Makefile	Wed Mar 20 22:37:43 2002
+@@ -11,7 +11,7 @@
+ HAVE_LINUX_MOUNT	= 1
+ MOUNT_TYPE		= '"ext3"'
+ 
+-CFLAGS = -O3 -Wall -Wmissing-prototypes \
++CFLAGS = $(RPM_OPT_FLAGS) -Wall -Wmissing-prototypes \
+ 	-DHAVE_GZIP=$(HAVE_GZIP) \
+ 	-DHAVE_LINUX_ATTR=$(HAVE_LINUX_ATTR) \
+ 	-DHAVE_LINUX_MOUNT=$(HAVE_LINUX_MOUNT) \

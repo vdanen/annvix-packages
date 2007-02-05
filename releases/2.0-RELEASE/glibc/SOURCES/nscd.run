@@ -1,0 +1,13 @@
+#!/bin/execlineb
+
+/bin/fdmove -c 2 1
+
+/bin/export PATH "/sbin:/bin:/usr/sbin:/usr/bin"
+
+/bin/ifthenelse { /usr/bin/test ! -f /etc/nscd.conf }
+{
+    /bin/echo "/etc/nscd.conf doesn't exist and is required to run nscd!"
+}
+{
+    /usr/sbin/nscd -d
+}

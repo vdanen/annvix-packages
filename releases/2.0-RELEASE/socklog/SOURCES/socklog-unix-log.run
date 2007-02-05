@@ -1,0 +1,19 @@
+#!/bin/execlineb
+
+
+/bin/cd /var/log/system
+/sbin/chpst -u syslogd /sbin/svlogd -tt
+    /var/log/system/all
+    /var/log/system/auth
+    /var/log/system/boot
+    /var/log/system/cron
+    /var/log/system/daemon
+    /var/log/system/debug
+    /var/log/system/ftp
+    /var/log/system/kern
+    /var/log/system/local
+    /var/log/system/mail
+    /var/log/system/messages
+    /var/log/system/news
+    /var/log/system/syslog
+    /var/log/system/user

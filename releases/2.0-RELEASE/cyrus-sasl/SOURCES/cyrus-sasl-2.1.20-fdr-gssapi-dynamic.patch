@@ -1,0 +1,16 @@
+We still want a dynamic gssapi plugin.
+
+--- cyrus-sasl-2.1.20/configure.in.gssapi	2005-03-15 21:56:48.000000000 -0700
++++ cyrus-sasl-2.1.20/configure.in	2005-03-15 21:59:44.000000000 -0700
+@@ -487,6 +487,11 @@
+ 
+ if test "$gssapi" != "no"; then
+   AC_DEFINE(STATIC_GSSAPIV2,[],[Link GSSAPI Staticly])
++  SASL_MECHS="$SASL_MECHS libgssapiv2.la"
++  if test "$enable_static" = yes; then
++    SASL_STATIC_OBJS="$SASL_STATIC_OBJS ../plugins/gssapi.o"
++    AC_DEFINE(STATIC_GSSAPIV2,[],[Link GSSAPI Staticly])
++  fi
+   mutex_default="no"
+   if test "$gss_impl" = "mit"; then
+      mutex_default="yes"

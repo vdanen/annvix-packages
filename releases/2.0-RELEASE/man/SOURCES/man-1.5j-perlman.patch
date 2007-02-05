@@ -1,0 +1,11 @@
+--- configure.perl	2002-07-11 12:49:58.000000000 +0200
++++ configure	2002-07-11 12:50:02.000000000 +0200
+@@ -883,7 +883,7 @@
+ 
+ # What sections do we anticipate?
+ 
+-tmpsections="1 8 2 3 4 5 6 7 9 tcl n l p o"
++tmpsections="1 8 2 3 3pm 4 5 6 7 9 tcl n l p o"
+ 
+ if [ x$default = x ]; then
+   echo ""

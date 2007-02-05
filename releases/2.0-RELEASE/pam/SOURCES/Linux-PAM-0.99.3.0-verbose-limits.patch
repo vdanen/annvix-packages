@@ -1,0 +1,22 @@
+--- Linux-PAM-0.99.3.0/modules/pam_limits/pam_limits.c.verbose-limits	2005-09-21 15:35:29.000000000 +0200
++++ Linux-PAM-0.99.3.0/modules/pam_limits/pam_limits.c	2006-01-28 13:32:08.000000000 +0100
+@@ -583,13 +583,19 @@
+     }
+ 
+     if (status) {
++	pam_syslog(pamh, LOG_WARNING, "setrlimit %d to %d failed: %m", i, &pl->limits[i].limit);
+         retval = LIMIT_ERR;
+     }
+ 
++    if (pl->priority != 0) {
++	
+     status = setpriority(PRIO_PROCESS, 0, pl->priority);
+     if (status != 0) {
++	pam_syslog(pamh, LOG_WARNING, "setpriority to %d failed: %m", pl->priority);
+         retval = LIMIT_ERR;
+     }
++    
++    }
+ 
+     if (uid == 0) {
+ 	D(("skip login limit check for uid=0"));

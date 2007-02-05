@@ -1,0 +1,10 @@
+--- Makefile.am.orig	2005-09-21 18:56:07.000000000 +0200
++++ Makefile.am	2005-12-17 22:13:53.000000000 +0100
+@@ -7,7 +7,6 @@
+ EXTRA_DIST = $(man_MANS)
+ LIBS = -lldap
+ 
+-#	XXX: also exclude debian/files and debian/files.new ? do a clean??
+ dist-hook:
+ 	mkdir $(distdir)/debian/
+ 	find $(srcdir)/debian -maxdepth 1 -not -type d |xargs -i cp {} $(distdir)/debian/

@@ -1,0 +1,11 @@
+--- dev86-0.16.16/bcc/bcc.c.overflow	2004-12-19 22:15:16.169863968 +0100
++++ dev86-0.16.16/bcc/bcc.c	2004-12-19 22:15:28.131045592 +0100
+@@ -1099,7 +1099,7 @@
+ {
+    char * newstr;
+    int l;
+-   newstr = xalloc(strlen(path1)+strlen(path1)+strlen(path3)
++   newstr = xalloc(strlen(path1)+strlen(path2)+strlen(path3)
+ 	  + strlen(prefix_path)+2);
+ 
+    strcpy(newstr, prefix_path);

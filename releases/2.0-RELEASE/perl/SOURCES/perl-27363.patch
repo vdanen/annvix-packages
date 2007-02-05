@@ -1,0 +1,140 @@
+Change 27363 by merijn@merijn-lt09 on 2006/03/02 20:07:51
+
+	Subject: [perl #38385] _h2ph_pre.ph / $Config{cppsymbols} omits gcc-3.4+ cpp "predefined macros" 
+	Date: Tue, 31 Jan 2006 09:50:32 -0800
+	From: Jason Vas Dias (via RT) <perlbug-followup@perl.org>
+
+Affected files ...
+
+... //depot/perl/Configure#601 edit
+... //depot/perl/utils/h2ph.PL#54 edit
+
+Differences ...
+
+==== //depot/perl/Configure#601 (xtext) ====
+Index: perl/Configure
+--- perl/Configure#600~27189~	2006-02-15 01:07:43.000000000 -0800
++++ perl/Configure	2006-03-02 12:07:51.000000000 -0800
+@@ -20187,7 +20187,7 @@
+ eval $inhdr
+ 
+ echo " "
+-$echo "Guessing which symbols your C compiler and preprocessor define..." >&4 
++$echo "Guessing which symbols your C compiler and preprocessor define..." >&4
+ $cat <<'EOSH' > Cppsym.know
+ a29k ABI64 aegis AES_SOURCE AIX AIX32 AIX370
+ AIX41 AIX42 AIX43 AIX_SOURCE aixpc ALL_SOURCE
+@@ -20318,6 +20318,19 @@
+ chmod +x Cppsym.try
+ $eunicefix Cppsym.try
+ ./Cppsym < Cppsym.know > Cppsym.true
++: Add in any linux cpp "predefined macros":
++if [[ "$osname" == *linux* ]] && [[ "$gccversion" != "" ]]; then
++  tHdrH=_tmpHdr
++  rm -f $tHdrH'.h' $tHdrH
++  touch $tHdrH'.h'
++  if cpp -dM $tHdrH'.h' > $tHdrH'_cppsym.h' && [ -s $tHdrH'_cppsym.h' ]; then
++     sed 's/#define[\ \  ]*//;s/[\ \     ].*$//' <$tHdrH'_cppsym.h' >$tHdrH'_cppsym.real'
++     if [ -s $tHdrH'_cppsym.real' ]; then
++	cat $tHdrH'_cppsym.real' Cppsym.know | sort | uniq | ./Cppsym | sort | uniq > Cppsym.true
++     fi
++  fi
++  rm -f $tHdrH'.h' $tHdrH'_cppsym.h' $tHdrH'_cppsym.real'
++fi
+ : now check the C compiler for additional symbols
+ postprocess_cc_v=''
+ case "$osname" in
+
+==== //depot/perl/utils/h2ph.PL#54 (text) ====
+Index: perl/utils/h2ph.PL
+--- perl/utils/h2ph.PL#53~26812~	2006-01-12 15:11:16.000000000 -0800
++++ perl/utils/h2ph.PL	2006-03-02 12:07:51.000000000 -0800
+@@ -772,25 +772,33 @@
+     my (%define) = _extract_cc_defines();
+ 
+     open  PREAMBLE, ">$preamble" or die "Cannot open $preamble:  $!";
+-        print PREAMBLE "# This file was created by h2ph version $VERSION\n";
++	print PREAMBLE "# This file was created by h2ph version $VERSION\n";
+ 
+-        foreach (sort keys %define) {
+-            if ($opt_D) {
+-                print PREAMBLE "# $_=$define{$_}\n";
+-            }
+-
+-            if ($define{$_} =~ /^(\d+)U?L{0,2}$/i) {
+-                print PREAMBLE
+-                    "unless (defined &$_) { sub $_() { $1 } }\n\n";
+-            } elsif ($define{$_} =~ /^\w+$/) {
+-                print PREAMBLE
+-                    "unless (defined &$_) { sub $_() { &$define{$_} } }\n\n";
+-            } else {
+-                print PREAMBLE
+-                    "unless (defined &$_) { sub $_() { \"",
+-                    quotemeta($define{$_}), "\" } }\n\n";
+-            }
+-        }
++	foreach (sort keys %define) {
++	    if ($opt_D) {
++		print PREAMBLE "# $_=$define{$_}\n";
++	    }
++	    if ($define{$_} =~ /^\((.*)\)$/) {
++		# parenthesized value:  d=(v)
++		$define{$_} = $1;
++	    }
++	    if ($define{$_} =~ /^([+-]?(\d+)?\.\d+([eE][+-]?\d+)?)[FL]?$/) {
++		# float:
++		print PREAMBLE
++		    "unless (defined &$_) { sub $_() { $1 } }\n\n";
++	    } elsif ($define{$_} =~ /^([+-]?\d+)U?L{0,2}$/i) {
++		# integer:
++		print PREAMBLE
++		    "unless (defined &$_) { sub $_() { $1 } }\n\n";
++	    } elsif ($define{$_} =~ /^\w+$/) {
++		print PREAMBLE
++		    "unless (defined &$_) { sub $_() { &$define{$_} } }\n\n";
++	    } else {
++		print PREAMBLE
++		    "unless (defined &$_) { sub $_() { \"",
++		    quotemeta($define{$_}), "\" } }\n\n";
++	    }
++	}
+     close PREAMBLE               or die "Cannot close $preamble:  $!";
+ }
+ 
+@@ -802,15 +810,14 @@
+ {
+     my %define;
+     my $allsymbols  = join " ",
+-        @Config{'ccsymbols', 'cppsymbols', 'cppccsymbols'};
++	@Config{'ccsymbols', 'cppsymbols', 'cppccsymbols'};
+ 
+     # Split compiler pre-definitions into `key=value' pairs:
+-    foreach (split /\s+/, $allsymbols) {
+-        /(.+?)=(.+)/ and $define{$1} = $2;
+-
+-        if ($opt_D) {
+-            print STDERR "$_:  $1 -> $2\n";
+-        }
++    while ($allsymbols =~ /([^\s]+)=((\\\s|[^\s])+)/g) {
++	$define{$1} = $2;
++	if ($opt_D) {
++	    print STDERR "$_:  $1 -> $2\n";
++	}
+     }
+ 
+     return %define;
+@@ -945,10 +952,10 @@
+ Doesn't handle complicated expressions built piecemeal, a la:
+ 
+     enum {
+-        FIRST_VALUE,
+-        SECOND_VALUE,
++	FIRST_VALUE,
++	SECOND_VALUE,
+     #ifdef ABC
+-        THIRD_VALUE
++	THIRD_VALUE
+     #endif
+     };
+ 
+End of Patch.

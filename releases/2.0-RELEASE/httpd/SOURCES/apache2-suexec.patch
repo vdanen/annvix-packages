@@ -1,0 +1,11 @@
+--- include/httpd.h.orig	2003-02-22 01:04:33.000000000 -0500
++++ include/httpd.h	2003-02-22 01:05:10.000000000 -0500
+@@ -180,7 +180,7 @@
+ 
+ /* The path to the suExec wrapper, can be overridden in Configuration */
+ #ifndef SUEXEC_BIN
+-#define SUEXEC_BIN  HTTPD_ROOT "/bin/suexec"
++#define SUEXEC_BIN  "/usr/sbin/suexec"
+ #endif
+ 
+ /* The timeout for waiting for messages */

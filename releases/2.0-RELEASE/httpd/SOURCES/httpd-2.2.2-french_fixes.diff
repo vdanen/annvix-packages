@@ -1,0 +1,191 @@
+diff -Naur httpd-2.2.2.orig/docs/error/HTTP_BAD_GATEWAY.html.var httpd-2.2.2/docs/error/HTTP_BAD_GATEWAY.html.var
+--- httpd-2.2.2.orig/docs/error/HTTP_BAD_GATEWAY.html.var	2005-11-13 14:22:28.000000000 +0100
++++ httpd-2.2.2/docs/error/HTTP_BAD_GATEWAY.html.var	2006-05-12 07:26:57.628343088 +0200
+@@ -74,7 +74,7 @@
+ Content-type: text/html; charset=ISO-8859-1
+ Body:----------fr--
+ <!--#set var="CONTENT_LANGUAGE" value="fr"
+---><!--#set var="TITLE" value="Gateway incorrecte!"
++--><!--#set var="TITLE" value="Passerelle incorrecte !"
+ --><!--#include virtual="include/top.html" -->
+ 
+     Le serveur proxy a re&ccedil;u une r&eacute;ponse
+diff -Naur httpd-2.2.2.orig/docs/error/HTTP_BAD_REQUEST.html.var httpd-2.2.2/docs/error/HTTP_BAD_REQUEST.html.var
+--- httpd-2.2.2.orig/docs/error/HTTP_BAD_REQUEST.html.var	2005-11-13 14:22:28.000000000 +0100
++++ httpd-2.2.2/docs/error/HTTP_BAD_REQUEST.html.var	2006-05-12 07:27:26.960823575 +0200
+@@ -54,7 +54,7 @@
+ Content-type: text/html; charset=ISO-8859-1
+ Body:----------fr--
+ <!--#set var="CONTENT_LANGUAGE" value="fr"
+---><!--#set var="TITLE" value="Demande incorrecte!"
++--><!--#set var="TITLE" value="Demande incorrecte !"
+ --><!--#include virtual="include/top.html" -->
+ 
+     Votre navigateur (ou votre proxy) a envoy&eacute;
+diff -Naur httpd-2.2.2.orig/docs/error/HTTP_FORBIDDEN.html.var httpd-2.2.2/docs/error/HTTP_FORBIDDEN.html.var
+--- httpd-2.2.2.orig/docs/error/HTTP_FORBIDDEN.html.var	2005-11-13 14:22:28.000000000 +0100
++++ httpd-2.2.2/docs/error/HTTP_FORBIDDEN.html.var	2006-05-12 07:27:54.366731971 +0200
+@@ -95,7 +95,7 @@
+ Content-type: text/html; charset=ISO-8859-1
+ Body:----------fr--
+ <!--#set var="CONTENT_LANGUAGE" value="fr"
+---><!--#set var="TITLE" value="Acc&egrave;s interdit!"
++--><!--#set var="TITLE" value="Acc&egrave;s interdit !"
+ --><!--#include virtual="include/top.html" -->
+ 
+   <!--#if expr="$REDIRECT_URL = /\/$/" -->
+diff -Naur httpd-2.2.2.orig/docs/error/HTTP_GONE.html.var httpd-2.2.2/docs/error/HTTP_GONE.html.var
+--- httpd-2.2.2.orig/docs/error/HTTP_GONE.html.var	2005-11-13 14:22:28.000000000 +0100
++++ httpd-2.2.2/docs/error/HTTP_GONE.html.var	2006-05-12 07:28:22.403499854 +0200
+@@ -107,7 +107,7 @@
+ Content-type: text/html; charset=ISO-8859-1
+ Body:----------fr--
+ <!--#set var="CONTENT_LANGUAGE" value="fr"
+---><!--#set var="TITLE" value="Cette ressource n'existe plus!"
++--><!--#set var="TITLE" value="Cette ressource n'existe plus !"
+ --><!--#include virtual="include/top.html" -->
+ 
+     L'URL demand&eacute;e n'est plus accessible sur ce serveur et il
+diff -Naur httpd-2.2.2.orig/docs/error/HTTP_INTERNAL_SERVER_ERROR.html.var httpd-2.2.2/docs/error/HTTP_INTERNAL_SERVER_ERROR.html.var
+--- httpd-2.2.2.orig/docs/error/HTTP_INTERNAL_SERVER_ERROR.html.var	2005-11-13 14:22:28.000000000 +0100
++++ httpd-2.2.2/docs/error/HTTP_INTERNAL_SERVER_ERROR.html.var	2006-05-12 07:28:44.138668285 +0200
+@@ -117,7 +117,7 @@
+ Content-type: text/html; charset=ISO-8859-1
+ Body:----------fr--
+ <!--#set var="CONTENT_LANGUAGE" value="fr"
+---><!--#set var="TITLE" value="Erreur du serveur!"
++--><!--#set var="TITLE" value="Erreur du serveur !"
+ --><!--#include virtual="include/top.html" -->
+ 
+   <!--#if expr="$REDIRECT_ERROR_NOTES" -->
+diff -Naur httpd-2.2.2.orig/docs/error/HTTP_LENGTH_REQUIRED.html.var httpd-2.2.2/docs/error/HTTP_LENGTH_REQUIRED.html.var
+--- httpd-2.2.2.orig/docs/error/HTTP_LENGTH_REQUIRED.html.var	2005-11-13 14:22:28.000000000 +0100
++++ httpd-2.2.2/docs/error/HTTP_LENGTH_REQUIRED.html.var	2006-05-12 07:30:20.503245183 +0200
+@@ -56,7 +56,7 @@
+ Content-type: text/html; charset=ISO-8859-1
+ Body:----------fr--
+ <!--#set var="CONTENT_LANGUAGE" value="fr"
+---><!--#set var="TITLE" value="Longueur du contenu ill&eacute;gal!"
++--><!--#set var="TITLE" value="Longueur du contenu ill&eacute;gale !"
+ --><!--#include virtual="include/top.html" -->
+ 
+     Une requ&ecirc;te utilisant la m&eacute;thode <!--#echo
+diff -Naur httpd-2.2.2.orig/docs/error/HTTP_METHOD_NOT_ALLOWED.html.var httpd-2.2.2/docs/error/HTTP_METHOD_NOT_ALLOWED.html.var
+--- httpd-2.2.2.orig/docs/error/HTTP_METHOD_NOT_ALLOWED.html.var	2005-11-13 14:22:28.000000000 +0100
++++ httpd-2.2.2/docs/error/HTTP_METHOD_NOT_ALLOWED.html.var	2006-05-12 07:30:43.606108660 +0200
+@@ -55,7 +55,7 @@
+ Content-type: text/html; charset=ISO-8859-1
+ Body:----------fr--
+ <!--#set var="CONTENT_LANGUAGE" value="fr"
+---><!--#set var="TITLE" value="M&eacute;thode interdite!"
++--><!--#set var="TITLE" value="M&eacute;thode interdite !"
+ --><!--#include virtual="include/top.html" -->
+ 
+     La m&eacute;thode <!--#echo var="REDIRECT_REQUEST_METHOD" -->
+diff -Naur httpd-2.2.2.orig/docs/error/HTTP_NOT_FOUND.html.var httpd-2.2.2/docs/error/HTTP_NOT_FOUND.html.var
+--- httpd-2.2.2.orig/docs/error/HTTP_NOT_FOUND.html.var	2005-11-13 14:22:28.000000000 +0100
++++ httpd-2.2.2/docs/error/HTTP_NOT_FOUND.html.var	2006-05-12 07:31:03.736632851 +0200
+@@ -113,7 +113,7 @@
+ Content-type: text/html; charset=ISO-8859-1
+ Body:----------fr--
+ <!--#set var="CONTENT_LANGUAGE" value="fr"
+---><!--#set var="TITLE" value="Objet non trouv&eacute;!"
++--><!--#set var="TITLE" value="Objet non trouv&eacute; !"
+ --><!--#include virtual="include/top.html" -->
+ 
+     L'URL requise n'a pu etre trouv&eacute;e sur ce serveur.
+diff -Naur httpd-2.2.2.orig/docs/error/HTTP_NOT_IMPLEMENTED.html.var httpd-2.2.2/docs/error/HTTP_NOT_IMPLEMENTED.html.var
+--- httpd-2.2.2.orig/docs/error/HTTP_NOT_IMPLEMENTED.html.var	2005-11-13 14:22:28.000000000 +0100
++++ httpd-2.2.2/docs/error/HTTP_NOT_IMPLEMENTED.html.var	2006-05-12 07:31:46.683083741 +0200
+@@ -52,7 +52,7 @@
+ Content-type: text/html; charset=ISO-8859-1
+ Body:----------fr--
+ <!--#set var="CONTENT_LANGUAGE" value="fr"
+---><!--#set var="TITLE" value="La requ&ecirc;te ne peut &ecirc;tre effectu&eacute;e!"
++--><!--#set var="TITLE" value="La requ&ecirc;te ne peut &ecirc;tre effectu&eacute;e !"
+ --><!--#include virtual="include/top.html" -->
+ 
+     Le serveur n'est pas en mesure d'effectuer l'action
+diff -Naur httpd-2.2.2.orig/docs/error/HTTP_PRECONDITION_FAILED.html.var httpd-2.2.2/docs/error/HTTP_PRECONDITION_FAILED.html.var
+--- httpd-2.2.2.orig/docs/error/HTTP_PRECONDITION_FAILED.html.var	2005-11-13 14:22:28.000000000 +0100
++++ httpd-2.2.2/docs/error/HTTP_PRECONDITION_FAILED.html.var	2006-05-12 07:32:05.367929011 +0200
+@@ -53,7 +53,7 @@
+ Content-type: text/html; charset=ISO-8859-1
+ Body:----------fr--
+ <!--#set var="CONTENT_LANGUAGE" value="fr"
+---><!--#set var="TITLE" value="Pr&eacute;condition n&eacute;gative!"
++--><!--#set var="TITLE" value="Pr&eacute;condition n&eacute;gative !"
+ --><!--#include virtual="include/top.html" -->
+ 
+     La pr&eacute;condition pour l'URL requise a &eacute;t&eacute;
+diff -Naur httpd-2.2.2.orig/docs/error/HTTP_REQUEST_ENTITY_TOO_LARGE.html.var httpd-2.2.2/docs/error/HTTP_REQUEST_ENTITY_TOO_LARGE.html.var
+--- httpd-2.2.2.orig/docs/error/HTTP_REQUEST_ENTITY_TOO_LARGE.html.var	2005-11-13 14:22:28.000000000 +0100
++++ httpd-2.2.2/docs/error/HTTP_REQUEST_ENTITY_TOO_LARGE.html.var	2006-05-12 07:32:33.568658152 +0200
+@@ -59,7 +59,7 @@
+ Content-type: text/html; charset=ISO-8859-1
+ Body:----------fr--
+ <!--#set var="CONTENT_LANGUAGE" value="fr"
+---><!--#set var="TITLE" value="Volume de la demande trop grand!"
++--><!--#set var="TITLE" value="Volume de la demande trop grand !"
+ --><!--#include virtual="include/top.html" -->
+ 
+     La m&eacute;thode <!--#echo var="REDIRECT_REQUEST_METHOD" -->
+diff -Naur httpd-2.2.2.orig/docs/error/HTTP_REQUEST_URI_TOO_LARGE.html.var httpd-2.2.2/docs/error/HTTP_REQUEST_URI_TOO_LARGE.html.var
+--- httpd-2.2.2.orig/docs/error/HTTP_REQUEST_URI_TOO_LARGE.html.var	2005-11-13 14:22:28.000000000 +0100
++++ httpd-2.2.2/docs/error/HTTP_REQUEST_URI_TOO_LARGE.html.var	2006-05-12 07:33:54.887574425 +0200
+@@ -56,10 +56,10 @@
+ Content-type: text/html; charset=ISO-8859-1
+ Body:----------fr--
+ <!--#set var="CONTENT_LANGUAGE" value="fr"
+---><!--#set var="TITLE" value="L'URI demandee est trop longue!"
++--><!--#set var="TITLE" value="L'URI demand&eacute;e est trop longue !"
+ --><!--#include virtual="include/top.html" -->
+ 
+-    La longueur de l'URL demand&eacute;e exc&egrave;de la limite de
++    La longueur de l'URI demand&eacute;e exc&egrave;de la limite de
+     capacit&egrave; pour ce serveur. Nous ne pouvons donner suite
+     &agrave; votre requ&ecirc;te.
+ 
+diff -Naur httpd-2.2.2.orig/docs/error/HTTP_SERVICE_UNAVAILABLE.html.var httpd-2.2.2/docs/error/HTTP_SERVICE_UNAVAILABLE.html.var
+--- httpd-2.2.2.orig/docs/error/HTTP_SERVICE_UNAVAILABLE.html.var	2005-11-13 14:22:28.000000000 +0100
++++ httpd-2.2.2/docs/error/HTTP_SERVICE_UNAVAILABLE.html.var	2006-05-12 07:34:33.044088564 +0200
+@@ -62,13 +62,13 @@
+ Content-type: text/html; charset=ISO-8859-1
+ Body:----------fr--
+ <!--#set var="CONTENT_LANGUAGE" value="fr"
+---><!--#set var="TITLE" value="Service inaccessible!"
++--><!--#set var="TITLE" value="Service inaccessible !"
+ --><!--#include virtual="include/top.html" -->
+ 
+     En raison de travaux de maintenance ou de probl&egrave;mes
+     de capacit&eacute; le serveur n'est pas en mesure de r&eacute;pondre
+     &agrave; votre requ&ecirc;te pour l'instant. Veuillez r&eacute;essayer
+-     plus tard.
++    plus tard.
+ 
+ <!--#include virtual="include/bottom.html" -->
+ ----------fr--
+diff -Naur httpd-2.2.2.orig/docs/error/HTTP_UNAUTHORIZED.html.var httpd-2.2.2/docs/error/HTTP_UNAUTHORIZED.html.var
+--- httpd-2.2.2.orig/docs/error/HTTP_UNAUTHORIZED.html.var	2005-11-13 14:22:28.000000000 +0100
++++ httpd-2.2.2/docs/error/HTTP_UNAUTHORIZED.html.var	2006-05-12 07:34:50.668168915 +0200
+@@ -87,7 +87,7 @@
+ Content-type: text/html; charset=ISO-8859-1
+ Body:----------fr--
+ <!--#set var="CONTENT_LANGUAGE" value="fr"
+---><!--#set var="TITLE" value="Autorisation requise!"
++--><!--#set var="TITLE" value="Autorisation requise !"
+ --><!--#include virtual="include/top.html" -->
+ 
+     Ce server n'a pas &eacute;t&eacute; en mesure de v&eacute;rifier que
+diff -Naur httpd-2.2.2.orig/docs/error/HTTP_VARIANT_ALSO_VARIES.html.var httpd-2.2.2/docs/error/HTTP_VARIANT_ALSO_VARIES.html.var
+--- httpd-2.2.2.orig/docs/error/HTTP_VARIANT_ALSO_VARIES.html.var	2005-11-13 14:22:28.000000000 +0100
++++ httpd-2.2.2/docs/error/HTTP_VARIANT_ALSO_VARIES.html.var	2006-05-12 07:35:22.823017379 +0200
+@@ -56,7 +56,7 @@
+ Content-type: text/html; charset=ISO-8859-1
+ Body:----------fr--
+ <!--#set var="CONTENT_LANGUAGE" value="fr"
+---><!--#set var="TITLE" value="La variante varie elle-m&ecirc;me!"
++--><!--#set var="TITLE" value="La variante varie elle-m&ecirc;me !"
+ --><!--#include virtual="include/top.html" -->
+ 
+     Une variante pour l'entit&eacute; requise

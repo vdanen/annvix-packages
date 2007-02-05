@@ -1,0 +1,17 @@
+Index: trunk-forge/parser/parser_include.c
+===================================================================
+--- trunk-forge.orig/parser/parser_include.c
++++ trunk-forge/parser/parser_include.c
+@@ -393,8 +393,11 @@ static int process_include(char *inc, ch
+ 	}
+ 
+ 	if (S_ISDIR(my_stat.st_mode)) {
+-		DIR *dir = fdopendir(fileno(newf));
++		DIR *dir = NULL;
+ 		struct dirent *dirent;
++
++		fclose(newf);
++		dir = opendir(buf);
+ 		if (!dir) {
+ 			retval = 1;
+ 			goto out;

@@ -1,0 +1,11 @@
+--- ./misc/arpd.c.tv	2004-06-17 14:52:12.293768452 +0200
++++ ./misc/arpd.c	2004-06-17 14:52:15.399861812 +0200
+@@ -16,7 +16,7 @@
+ #include <unistd.h>
+ #include <stdlib.h>
+ #include <netdb.h>
+-#include <db_185.h>
++#include <db4/db_185.h>
+ #include <sys/ioctl.h>
+ #include <sys/poll.h>
+ #include <errno.h>

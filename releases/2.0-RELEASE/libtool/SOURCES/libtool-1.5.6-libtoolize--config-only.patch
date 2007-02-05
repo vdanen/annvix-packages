@@ -1,0 +1,48 @@
+--- libtool-1.5.6/libtoolize.in.config-only	2004-04-02 11:46:14.000000000 +0800
++++ libtool-1.5.6/libtoolize.in	2004-05-02 01:14:46.939237328 +0800
+@@ -56,6 +56,7 @@
+ ltdl_tar=
+ configure_ac=
+ status=0
++config_only=
+ 
+ for arg
+ do
+@@ -68,6 +69,7 @@
+ 
+     --automake        work silently, and assume that Automake is in use
+ -c, --copy            copy files rather than symlinking them
++    --config-only     only update config.* files
+     --debug           enable verbose shell tracing
+ -n, --dry-run         print commands rather than running them
+ -f, --force           replace existing files
+@@ -101,6 +103,10 @@
+     ln_s=
+     ;;
+ 
++  --config-only)
++    config_only=yes
++    ;;
++
+   --debug)
+     echo "$progname: enabling shell trace mode"
+     set -x
+@@ -158,7 +164,17 @@
+   echo "$progname: cannot list files in \`$pkgdatadir'" 1>&2
+   exit 1
+ fi
+-files='config.guess config.sub ltmain.sh'
++files='config.guess config.sub'
++if test -z "$config_only"; then
++  files="$files ltmain.sh"
++fi
++
++# Make sure we only update config.{sub,guess} files
++if test -n "$config_only"; then
++  automake=yes
++  ltdl=
++  ltdl_tar=
++fi
+ 
+ auxdir=.
+ auxdirline=`grep '^AC_CONFIG_AUX_DIR' $configure_ac 2>/dev/null`

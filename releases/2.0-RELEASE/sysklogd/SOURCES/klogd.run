@@ -1,0 +1,8 @@
+#!/bin/sh
+
+OPTIONS="-2"
+if [ -f ./env/OPTIONS ]; then
+    OPTIONS=`head -1 ./env/OPTIONS`
+fi
+
+exec /sbin/klogd -n ${OPTIONS} >/dev/null 2>&1

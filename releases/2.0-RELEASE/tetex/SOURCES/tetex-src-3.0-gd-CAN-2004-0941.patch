@@ -1,0 +1,17 @@
+--- tetex-src-3.0/libs/gd/gd_png.c.cve-2004-0941	2004-10-28 12:09:52.000000000 -0600
++++ tetex-src-3.0/libs/gd/gd_png.c	2006-06-27 05:16:06.577239262 -0600
+@@ -188,6 +188,14 @@ BGD_DECLARE(gdImagePtr) gdImageCreateFro
+ 
+   png_get_IHDR (png_ptr, info_ptr, &width, &height, &bit_depth, &color_type,
+ 		&interlace_type, NULL, NULL);
++  if (overflow2(sizeof (int), width)) 
++    {
++      return NULL;
++    }
++  if (overflow2(sizeof (int) * width, height)) 
++    {
++      return NULL;
++    }  
+   if ((color_type == PNG_COLOR_TYPE_RGB) ||
+       (color_type == PNG_COLOR_TYPE_RGB_ALPHA))
+     {

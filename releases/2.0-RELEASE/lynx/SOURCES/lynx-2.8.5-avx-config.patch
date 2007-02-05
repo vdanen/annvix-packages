@@ -1,0 +1,40 @@
+--- lynx2-8-5/lynx.cfg.avx	2005-02-03 14:38:59.000000000 -0500
++++ lynx2-8-5/lynx.cfg	2005-02-03 14:42:22.000000000 -0500
+@@ -2,6 +2,9 @@
+ # The default placement for this file is /usr/local/lib/lynx.cfg (Unix)
+ #                                     or Lynx_Dir:lynx.cfg (VMS)
+ #
++# This file is overwritten on package upgrades; use /etc/lynx-site.cfg
++# for making configuration changes.
++#
+ # $Format: "#PRCS LYNX_VERSION \"$ProjectVersion$\""$
+ #PRCS LYNX_VERSION "2.8.5rel.1"
+ #
+@@ -92,7 +95,7 @@
+ #
+ # Normally we expect you will connect to a remote site, e.g., the Lynx starting
+ # site:
+-STARTFILE:http://lynx.isc.org/
++STARTFILE:http://annvix.org/
+ #
+ # As an alternative, you may want to use a local URL.  A good choice for this is
+ # the user's home directory:
+@@ -115,9 +118,9 @@
+ # http://www.subir.com/lynx/lynx_help/lynx_help_main.html
+ #   This should be changed to the local path.
+ #
+-HELPFILE:http://www.subir.com/lynx/lynx_help/lynx_help_main.html
++#HELPFILE:http://www.subir.com/lynx/lynx_help/lynx_help_main.html
+ .ex
+-#HELPFILE:file://localhost/PATH_TO/lynx_help/lynx_help_main.html
++HELPFILE:file://localhost/PATH_TO/lynx_help/lynx_help_main.html
+ 
+ 
+ .h2 DEFAULT_INDEX_FILE
+@@ -3330,3 +3333,6 @@
+ # For win32, allow the console window to be resized to the given values.  This
+ # requires PDCurses 2.5.  The values given are width,height.
+ #SCREEN_SIZE:80,24
++
++# included last to allow overriding configuration above
++INCLUDE:/etc/lynx-site.cfg

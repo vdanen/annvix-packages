@@ -1,0 +1,33 @@
+Annvix was initially based upon Mandrivalinux 9.2 but has changed quite drastically
+since that initial fork.  Most of the packaging remains relatively Mandriva-specific
+and is in fact taken from Mandrivalinux releases and/or Mandriva's Cooker.  To that
+end, a lot of development work, patches, etc. that are in Annvix have been, and will
+continue to be, taken from Mandriva.
+
+The bulk of the work for Annvix 1.0-RELEASE was done by the lead (and sole) developer
+Vincent Danen.  For a brief period of time, both Oden Eriksson and Thomas Backlund
+were involved, but both departed for unspecified reasons, leaving full development
+responsibilities to Annvix's founder, Vincent Danen.
+
+Joining for 1.1-CURRENT, Sean P. Thomas has taken a co-developer role and is
+largely responsible for the many enhancements to srv, Annvix's own service
+management tool.  Sean left the development team just before 1.1-RELEASE became
+available.
+
+Thanks to Ying-Hung Chen for his work and help with postfix and ports packages.
+
+However, the following people have been instrumental in Mandrivalinux releases and
+are therefore also credited here as much of their work has been taken from Mandrivalinux
+and put into Annvix:
+
+Per Oyvind Karlsen, Olivier Thauvin, Buchan Milne, Andrey Borzenkov, Stefan Van Der Eijk,
+Pascal Terjan, Luca Berra, Olivier Blin, Abel Cheung, Christiaan Welvaart, Götz Wasch.
+
+As well, the Mandrivalinux development team who's work applies in varying degrees to
+the packages Annvix has kept:
+
+Fred Lepied, Pixel, Juan Quintela, Stew Benedict, Thierry Vignaud, Gwenole Beauchesne,
+Rafael Garcia-Suarez, Warly, Fred Crozat, Florin.
+
+Finally, thanks to God for the moderate amount of brains He's given me so I
+could actually manage to put something like this out (and not have it totally suck).  =)

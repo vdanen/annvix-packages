@@ -1,0 +1,25 @@
+--- LVM2.2.01.09/tools/lvmcmdline.c.fdlog	2005-04-17 10:27:18.737759193 +0200
++++ LVM2.2.01.09/tools/lvmcmdline.c	2005-04-17 10:32:01.848712891 +0200
+@@ -982,7 +982,7 @@
+ 	int suppress_warnings = 0;
+ 
+ 	if (getrlimit(RLIMIT_NOFILE, &rlim) < 0) {
+-		fprintf(stderr, "getrlimit(RLIMIT_NOFILE) failed: %s\n",
++		log_err("getrlimit(RLIMIT_NOFILE) failed: %s",
+ 			strerror(errno));
+ 		return;
+ 	}
+@@ -994,10 +994,10 @@
+ 		if (suppress_warnings)
+ 			close(fd);
+ 		else if (!close(fd))
+-			fprintf(stderr, "File descriptor %d left open\n", fd);
++			log_err("File descriptor %d left open", fd);
+ 		else if (errno != EBADF)
+-			fprintf(stderr, "Close failed on stray file "
+-				"descriptor %d: %s\n", fd, strerror(errno));
++			log_err("Close failed on stray file "
++				"descriptor %d: %s", fd, strerror(errno));
+ 	}
+ }
+ 

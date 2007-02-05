@@ -1,0 +1,97 @@
+
+Make new version
+-----------------------
+
+You need to include a new patch into the kernel, and you want to do it
+the proper way, what is the proper way?
+
+Well, we will consider two scenaries:
+
+- update a patch/driver
+- include a new driver
+
+1st scenary:  you want to update one patch
+------------------------------------------
+
+0- We create a work directory.
+
+1- untar the tarball for the kernel that you want to modify, and apply
+   any pre/rc patch that you need.
+
+   We will assume that you have unpacked 2.4.20-rc2 in the directory
+   linux-2.4.20-rc2.
+
+2- untar the tarball of patches of the previous version.
+   
+   We will assume that we have them in the directory 2.4.20-q3.
+
+3- We create a copy of the tarball with hardlinks (believe me, it will make 
+   everything easier each time that you screw thing, and have to 
+   begin again from the beggining).
+
+   In the working directory we issue this command:
+
+	cp -dpilR linux-2.4.20-rc2 w1
+
+   Note: having an alias to do the copies, help here:
+
+	alias kcp='cp -dpilR'
+
+3- We want to update the patch FS70_supermount.patch
+
+   We apply all the patches until that patch (not including it)
+
+	cd w1
+	../2.4.20-q3/scripts/apply_patches --stop=fs70 ../2.4.20-q3/patches/
+
+4- We create a copy of our current tree
+
+	cd ..
+
+	kcp w1 w2
+
+5- We read FS70_supermount.patch to find if the previous packager wrote 
+   some help about how to apply new versions of the patch.
+
+6- We integrate our new patch into the w2 tree.
+
+7- Once that we are happy, we create the patch. We go to the working 
+   directory, and then:
+
+	diff -urNp w1 w2 > diff
+	
+8- We READ the patch, and make sure that there is nothing that we don't 
+   want in the patch.
+
+9- We update the patch
+
+	mv diff 2.4.20-q3/patche/FS70-2_supermount.patch
+
+10- We continue applying patches until the end:
+
+	cd w1
+	../2.4.20-q3/scripts/apply_patches --start=fs70 ../2.4.20-q3/patches/
+	
+11- We update the number of the version (patch ZZ01).
+
+12- We update the configs to the new kernel (only needed if there are new 
+    config entries).  It is always safe to do it:
+
+	cd w1
+	../2.4.20-q3/scripts/update_configs ../2.4.20-q3/configs
+
+   This will update the files in ../2.4.20-q3/configs with up-to-date configs.
+   If any changes are needed, you will be asked.
+
+13- You check, that all the configs that are done from that ones for all the 
+    configs are buildable:
+
+	cd w1
+	../2.4.20-q3/scripts/create_configs ../2.4.20-q3/configs
+
+14- make a tar ball and you are gone.
+
+2nd scenary: You want to add a new driver
+-----------------------------------------
+
+In this scenary I will show you how to include a new driver in the kernel.

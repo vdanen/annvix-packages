@@ -1,0 +1,33 @@
+--- procps-3.2.5/proc/sysinfo.c.fred	2004-10-01 06:37:18.000000000 +0200
++++ procps-3.2.5/proc/sysinfo.c	2005-09-17 14:25:01.000000000 +0200
+@@ -52,7 +52,7 @@
+ #define FILE_TO_BUF(filename, fd) do{				\
+     static int local_n;						\
+     if (fd == -1 && (fd = open(filename, O_RDONLY)) == -1) {	\
+-	fprintf(stderr, BAD_OPEN_MESSAGE);			\
++	perror(filename);					\
+ 	fflush(NULL);						\
+ 	_exit(102);						\
+     }								\
+--- procps-3.2.5/proc/readproc.c.fred	2005-09-17 14:44:56.000000000 +0200
++++ procps-3.2.5/proc/readproc.c	2005-09-17 14:56:42.000000000 +0200
+@@ -856,7 +856,7 @@
+     char sbuf[1024];
+ 
+     if(file2str("/proc/self", "stat", sbuf, sizeof sbuf) == -1){
+-        fprintf(stderr, "Error, do this: mount -t proc none /proc\n");
++        perror("/proc/self/stat");
+         _exit(47);
+     }
+     stat2proc(sbuf, p);    // parse /proc/self/stat
+--- procps-3.2.5/proc/slab.c.fred	2005-01-24 19:07:42.000000000 +0100
++++ procps-3.2.5/proc/slab.c	2005-09-17 15:00:43.000000000 +0200
+@@ -306,7 +306,7 @@
+ 
+ 	slabfile = fopen(SLABINFO_FILE, "r");
+ 	if (!slabfile) {
+-		perror("fopen");
++		perror(SLABINFO_FILE);
+ 		return 1;
+ 	}
+ 

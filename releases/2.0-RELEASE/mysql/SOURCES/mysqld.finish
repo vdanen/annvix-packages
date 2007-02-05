@@ -1,0 +1,3 @@
+#!/bin/sh
+
+HOME=/root /usr/bin/mysqladmin shutdown

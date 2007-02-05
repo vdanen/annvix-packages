@@ -1,0 +1,14 @@
+--- LVM2.2.01.15/lib/datastruct/lvm-types.h.stdint	2005-05-09 19:45:06.000000000 +0200
++++ LVM2.2.01.15/lib/datastruct/lvm-types.h	2006-01-21 18:38:38.000000000 +0100
+@@ -21,6 +21,11 @@
+ #include <sys/types.h>
+ #include <inttypes.h>
+ 
++/* dietlibc stdint.h does not match glibc */
++#ifndef UINT32_MAX
++# define UINT32_MAX		(4294967295U)
++#endif
++
+ /* Define some portable printing types */
+ #define PRIsize_t "zu"
+ 

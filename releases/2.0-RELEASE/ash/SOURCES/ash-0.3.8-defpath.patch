@@ -1,0 +1,11 @@
+--- ash-0.3.8/var.c-old	Tue Jul 17 08:19:13 2001
++++ ash-0.3.8/var.c	Tue Jul 17 08:18:49 2001
+@@ -114,7 +114,7 @@
+ 	  NULL },
+ 	{ &vmpath,	VSTRFIXED|VTEXTFIXED|VUNSET,	"MAILPATH=",
+ 	  NULL },
+-	{ &vpath,	VSTRFIXED|VTEXTFIXED,		"PATH=" _PATH_DEFPATH,
++	{ &vpath,	VSTRFIXED|VTEXTFIXED,		"PATH=/sbin/bb:" _PATH_DEFPATH,
+ 	  changepath },
+ 	/*
+ 	 * vps1 depends on uid

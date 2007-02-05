@@ -1,0 +1,11 @@
+--- Makefile.am~	2006-05-23 09:49:47.000000000 +0200
++++ Makefile.am	2006-05-23 09:49:12.000000000 +0200
+@@ -45,7 +45,7 @@
+ DISTCLEANFILES=dbobj.config README_authlib.html
+ 
+ commonlibdep=libcourierauthcommon.la
+-commonldflags=-module -rpath $(pkglibdir) -export-symbols-regex 'courier_auth.*_init'
++commonldflags=-module -avoid-version -rpath $(pkglibdir) -export-symbols-regex 'courier_auth.*_init'
+ commonlibadd=libcourierauthcommon.la
+ 
+ libcourierauthcommon_t=@CRYPTLIBS@

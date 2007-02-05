@@ -1,0 +1,10 @@
+--- zsh-4.0.1-pre-3/Completion/Redhat/Command/_rpm.chmou	Mon Apr  2 14:23:22 2001
++++ zsh-4.0.1-pre-3/Completion/Redhat/Command/_rpm	Mon Apr 23 14:20:51 2001
+@@ -92,6 +92,7 @@
+     '(--erase)-e+[uninstall mode]:*:uninstall:->uninstall' \
+     '(-e)--erase:*:uninstall:->uninstall' \
+     '-b+[build mode (spec file)]:build stage:((p\:execute\ \%prep\ stage l\:do\ a\ list\ check c\:execute\ build\ stage i\:execute\ install\ stage b\:build\ a\ binary\ package a\:build\ binary\ and\ source\ packages)):*:build:->build_b' \
++    '-A:*:build:->build_b' \
+     '(-b)-t+[build mode (tar file)]:build stage:((p\:execute\ \%prep\ stage l\:do\ a\ list\ check c\:execute\ build\ stage i\:execute\ install\ stage b\:build\ a\ binary\ package a\:build\ binary\ and\ source\ packages)):*:build:->build_t' \
+     --{resign,addsign}':*:RPM package:->package_file' \
+     '--rmsource:*:spec file:->spec_file' \

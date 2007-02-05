@@ -1,0 +1,24 @@
+diff -Naur php-5.1.0b1/ext/wddx/tests/001.phpt php-5.1.0b1.oden/ext/wddx/tests/001.phpt
+--- php-5.1.0b1/ext/wddx/tests/001.phpt	2004-04-04 20:07:36.000000000 +0200
++++ php-5.1.0b1.oden/ext/wddx/tests/001.phpt	2005-06-15 19:01:27.226017869 +0200
+@@ -18,7 +18,7 @@
+   ["aDateTime2"]=>
+   int(329632332)
+   ["aDateTime3"]=>
+-  string(22) "2040-06-12T04:32:12+00"
++  string(12) "NotADateTime"
+   ["aBoolean"]=>
+   bool(true)
+   ["anArray"]=>
+diff -Naur php-5.1.0b1/ext/wddx/tests/wddx.xml php-5.1.0b1.oden/ext/wddx/tests/wddx.xml
+--- php-5.1.0b1/ext/wddx/tests/wddx.xml	2005-03-12 02:52:48.000000000 +0100
++++ php-5.1.0b1.oden/ext/wddx/tests/wddx.xml	2005-06-15 19:01:34.598182819 +0200
+@@ -20,7 +20,7 @@
+                          <dateTime>1980-06-12T04:32:12+00</dateTime>
+                      </var>
+                      <var name='aDateTime3'>
+-                         <dateTime>2040-06-12T04:32:12+00</dateTime>
++                         <dateTime>NotADateTime</dateTime>
+                      </var>
+                      <var name='aBoolean'>
+                          <boolean value='true'/>

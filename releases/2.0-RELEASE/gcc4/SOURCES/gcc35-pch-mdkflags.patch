@@ -1,0 +1,44 @@
+--- gcc-3.5.0/libstdc++-v3/include/Makefile.am.pch-mdkflags	2004-07-03 01:40:15.000000000 +0200
++++ gcc-3.5.0/libstdc++-v3/include/Makefile.am	2004-07-06 11:00:56.274565162 +0200
+@@ -367,7 +367,8 @@ thread_host_headers = \
+ pch_input = ${host_builddir}/stdc++.h
+ pch_output_builddir = ${host_builddir}/stdc++.h.gch
+ pch_source = ${glibcxx_srcdir}/include/stdc++.h
+-PCHFLAGS=-Winvalid-pch -Wno-deprecated -x c++-header $(CXXFLAGS)
++PCHFLAGS=-Winvalid-pch -Wno-deprecated -x c++-header
++MDKFLAGS = @MDK_OPT_FLAGS@
+ if GLIBCXX_BUILD_PCH
+ pch_build = ${pch_input}
+ pch_install = install-pch
+@@ -542,7 +543,8 @@ ${pch_input}: ${allstamped} ${host_build
+ 	  mkdir -p ${pch_output_builddir}; \
+ 	fi; \
+ 	$(CXX) $(PCHFLAGS) $(AM_CPPFLAGS) ${pch_source} -O0 -g -o ${pch_output_builddir}/O0g.gch; \
+-	$(CXX) $(PCHFLAGS) $(AM_CPPFLAGS) ${pch_source} -O2 -g -o ${pch_output_builddir}/O2g.gch;
++	$(CXX) $(PCHFLAGS) $(AM_CPPFLAGS) ${pch_source} -O2 -g -o ${pch_output_builddir}/O2g.gch; \
++	$(CXX) $(PCHFLAGS) $(AM_CPPFLAGS) ${pch_source} $(MDKFLAGS) -o ${pch_output_builddir}/O2mdk;
+ 
+ # For robustness sake (in light of junk files or in-source
+ # configuration), copy from the build or source tree to the install
+--- gcc-3.5.0/libstdc++-v3/include/Makefile.in.pch-mdkflags	2004-07-03 01:40:15.000000000 +0200
++++ gcc-3.5.0/libstdc++-v3/include/Makefile.in	2004-07-06 11:01:59.657842518 +0200
+@@ -579,7 +579,8 @@ thread_host_headers = \
+ pch_input = ${host_builddir}/stdc++.h
+ pch_output_builddir = ${host_builddir}/stdc++.h.gch
+ pch_source = ${glibcxx_srcdir}/include/stdc++.h
+-PCHFLAGS = -Winvalid-pch -Wno-deprecated -x c++-header $(CXXFLAGS)
++PCHFLAGS = -Winvalid-pch -Wno-deprecated -x c++-header
++MDKFLAGS = @MDK_OPT_FLAGS@
+ @GLIBCXX_BUILD_PCH_FALSE@pch_build = 
+ @GLIBCXX_BUILD_PCH_TRUE@pch_build = ${pch_input}
+ @GLIBCXX_BUILD_PCH_FALSE@pch_install = 
+@@ -917,7 +918,8 @@ ${pch_input}: ${allstamped} ${host_build
+ 	  mkdir -p ${pch_output_builddir}; \
+ 	fi; \
+ 	$(CXX) $(PCHFLAGS) $(AM_CPPFLAGS) ${pch_source} -O0 -g -o ${pch_output_builddir}/O0g.gch; \
+-	$(CXX) $(PCHFLAGS) $(AM_CPPFLAGS) ${pch_source} -O2 -g -o ${pch_output_builddir}/O2g.gch;
++	$(CXX) $(PCHFLAGS) $(AM_CPPFLAGS) ${pch_source} -O2 -g -o ${pch_output_builddir}/O2g.gch; \
++	$(CXX) $(PCHFLAGS) $(AM_CPPFLAGS) ${pch_source} $(MDKFLAGS) -o ${pch_output_builddir}/O2mdk;
+ 
+ # For robustness sake (in light of junk files or in-source
+ # configuration), copy from the build or source tree to the install

@@ -1,0 +1,42 @@
+#!/bin/bash
+#
+# This script starts or stops a PPPoE connection
+#
+# This runscript was written for Annvix (http://annvix.org/)
+#
+# $Id$
+
+. /etc/init.d/rc.functions.sh
+
+order=11
+name="pppoe"
+
+START=@sbindir@/pppoe-start
+STOP=@sbindir@/pppoe-stop
+STATUS=@sbindir@/pppoe-status
+case "$1" in
+    start)
+        ebegin "Bringing up PPPoE link"
+	/usr/sbin/pppoe-start
+	eend $?
+	touch /var/lock/subsys/pppoe
+        ;;
+    stop)
+        ebegin "Shutting down PPPoE link"
+        /usr/sbin/pppoe-stop > /dev/null 2>&1
+        eend $?
+        rm -f /var/lock/subsys/pppoe
+        ;;
+    restart|reload)
+        ${0} stop
+        ${0} start
+        ;;
+    status)
+        /usr/sbin/pppoe-status
+        ;;
+    *)
+        printf "Usage: pppoe {start|stop|restart|status}\n"
+        exit 1
+esac
+
+exit 0

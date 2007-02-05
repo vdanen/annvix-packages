@@ -1,0 +1,26 @@
+--- ext/imap/config.m4	2006-09-24 20:06:37.000000000 +0200
++++ ext/imap/config.m4.oden	2006-11-07 12:45:00.000000000 +0100
+@@ -151,20 +151,14 @@
+       AC_MSG_ERROR(Cannot find rfc822.h. Please check your c-client installation.)
+     fi
+ 
+-    if test -r "$IMAP_DIR/c-client/c-client.a"; then
+-      ln -s "$IMAP_DIR/c-client/c-client.a" "$IMAP_DIR/c-client/libc-client.a" >/dev/null 2>&1
+-    elif test -r "$IMAP_DIR/$PHP_LIBDIR/c-client.a"; then
+-      ln -s "$IMAP_DIR/$PHP_LIBDIR/c-client.a" "$IMAP_DIR/$PHP_LIBDIR/libc-client.a" >/dev/null 2>&1
+-    fi
+-
+-    for lib in c-client4 c-client imap; do
++    for lib in c-client-php; do
+       IMAP_LIB=$lib
+       IMAP_LIB_CHK($PHP_LIBDIR)
+-      IMAP_LIB_CHK(c-client)
++      IMAP_LIB_CHK(c-client-php)
+     done
+ 
+     if test -z "$IMAP_LIBDIR"; then
+-      AC_MSG_ERROR(Cannot find imap library (libc-client.a). Please check your c-client installation.)
++      AC_MSG_ERROR(Cannot find imap library (libc-client-php.so). Please check your c-client installation.)
+     fi
+ 
+     PHP_ADD_INCLUDE($IMAP_INC_DIR)

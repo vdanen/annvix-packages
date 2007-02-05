@@ -1,0 +1,57 @@
+--- xpdf-3.00/goo/gmem.h.goo-overflow	2005-12-14 12:44:24.897261416 -0700
++++ xpdf-3.00/goo/gmem.h	2005-12-14 12:45:08.936297663 -0700
+@@ -28,6 +28,15 @@
+ extern void *grealloc(void *p, size_t size);
+ 
+ /*
++ * These are similar to gmalloc and grealloc, but take an object count
++ * and size.  The result is similar to allocating nObjs * objSize
++ * bytes, but there is an additional error check that the total size
++ * doesn't overflow an int.
++ */
++extern void *gmallocn(int nObjs, int objSize);
++extern void *greallocn(void *p, int nObjs, int objSize);
++
++/*
+  * Same as free, but checks for and ignores NULL pointers.
+  */
+ extern void gfree(void *p);
+--- xpdf-3.00/goo/gmem.c.goo-overflow	2005-12-14 12:44:24.897261416 -0700
++++ xpdf-3.00/goo/gmem.c	2005-12-14 12:49:16.704492758 -0700
+@@ -11,6 +11,7 @@
+ #include <stdlib.h>
+ #include <stddef.h>
+ #include <string.h>
++#include <limits.h>
+ #include "gmem.h"
+ 
+ #ifdef DEBUG_MEM
+@@ -175,6 +176,28 @@
+ #endif
+ }
+ 
++void *gmallocn(int nObjs, int objSize) {
++  int n;
++
++  n = nObjs * objSize;
++  if (objSize <= 0 || nObjs < 0 || nObjs >= INT_MAX / objSize) {
++    fprintf(stderr, "Bogus memory allocation size\n");
++    exit(1);
++  }
++  return gmalloc(n);
++}
++
++void *greallocn(void *p, int nObjs, int objSize) {
++  int n;
++
++  n = nObjs * objSize;
++  if (objSize <= 0 || nObjs < 0 || nObjs >= INT_MAX / objSize) {
++    fprintf(stderr, "Bogus memory allocation size\n");
++    exit(1);
++  }
++  return grealloc(p, n);
++}
++
+ #ifdef DEBUG_MEM
+ void gMemReport(FILE *f) {
+   GMemHdr *p;
