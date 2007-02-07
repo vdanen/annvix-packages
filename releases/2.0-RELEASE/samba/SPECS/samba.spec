@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		samba
-%define version		3.0.23d
+%define version		3.0.24
 %define release		%_revrel
 
 %define smbldapver	0.9.2
@@ -827,6 +827,9 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Tue Feb 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0.24
+- 3.0.24 (security fix for CVE-2007-0452, CVE-2007-0454)
+
 * Sat Jan 27 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0.23d
 - restart nmbd first, then smbd because smbd depends on nmbd
 
