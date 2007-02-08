@@ -93,6 +93,9 @@ install -m 0644 %{SOURCE0} %{buildroot}%{_sysconfdir}/php.d/%{inifile}
 
 
 %changelog
+* Wed Feb 07 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.0 
+- rebuild to fix CVE-2007-0455
+
 * Sun Dec 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.2.0 
 - php 5.2.0
 
