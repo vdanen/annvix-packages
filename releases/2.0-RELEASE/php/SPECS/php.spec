@@ -79,6 +79,8 @@ Patch76:	php-5.0.4-bug29119.diff
 Patch77:	php-5.1.0RC6-CVE-2005-3388.diff
 Patch78:	php-5.2.0-mdv-libc-client-php.patch
 Patch79:	php-5.2.0-mdv-curl-7.16.0.patch
+Patch80:	php-5.2.0-CVE-2006-6383.patch
+Patch81:	php-5.1.6-CVE-2007-0455.patch
 # http://www.hardened-php.net/
 Patch100:	suhosin-patch-%{version}-%{suhosin_ver}.patch
 
@@ -309,6 +311,8 @@ This package contains the documentation for %{name}.
 %patch77 -p0 -b .cve-2005-3388.avx
 %patch78 -p0 -b .libc-client-php.avx
 %patch79 -p0 -b .curl-7.16.0.avx
+%patch80 -p1 -b .cve-2006-6383
+%patch81 -p1 -b .cve-2007-0455
 
 %patch100 -p1 -b .suhosin.avx
 
@@ -596,6 +600,10 @@ fi
 
 
 %changelog
+* Wed Feb 07 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.0
+- P80: security fix for CVE-2006-6383
+- P81: security fix for CVE-2007-0455
+ 
 * Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.0
 - apache 2.2.4
 
