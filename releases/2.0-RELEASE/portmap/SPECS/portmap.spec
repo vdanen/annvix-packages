@@ -21,7 +21,6 @@ Group:		System/Servers
 License:	BSD
 URL:		ftp://ftp.porcupine.org/pub/security/index.html
 Source0:	ftp://coast.cs.purdue.edu:/pub/tools/unix/netutils/portmap/portmap_%{ver}.tar.bz2
-Source1:	portmap.sysconfig
 Source2:	pmap_set.8
 Source3:	pmap_dump.8
 Source4:	portmap.8
@@ -82,20 +81,19 @@ make FACILITY=LOG_AUTH ZOMBIES='-DIGNORE_SIGCHLD -Dlint' LIBS="-lnsl" RPM_OPT_FL
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p %{buildroot}/{sbin,%{_sbindir},%{_mandir}/man8,%{_sysconfdir}/sysconfig}
+mkdir -p %{buildroot}/{sbin,%{_sbindir},%{_mandir}/man8}
 
 install -m 0755 -s portmap %{buildroot}/sbin
 install -m 0755 -s pmap_set %{buildroot}%{_sbindir}
 install -m 0755 -s pmap_dump %{buildroot}%{_sbindir}
 
-install -m 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/sysconfig/portmap
-install -m 0644 %{SOURCE2} %{buildroot}%{_mandir}/man8
-install -m 0644 %{SOURCE3} %{buildroot}%{_mandir}/man8
-install -m 0644 %{SOURCE4} %{buildroot}%{_mandir}/man8
+install -m 0644 %{_sourcedir}/pmap_set.8 %{buildroot}%{_mandir}/man8
+install -m 0644 %{_sourcedir}/pmap_dump.8 %{buildroot}%{_mandir}/man8
+install -m 0644 %{_sourcedir}/portmap.8 %{buildroot}%{_mandir}/man8
 
 mkdir -p %{buildroot}%{_srvdir}/portmap/{log,env}
-install -m 0740 %{SOURCE5} %{buildroot}%{_srvdir}/portmap/run
-install -m 0740 %{SOURCE6} %{buildroot}%{_srvdir}/portmap/log/run
+install -m 0740 %{_sourcedir}/portmap.run %{buildroot}%{_srvdir}/portmap/run
+install -m 0740 %{_sourcedir}/portmap-log.run %{buildroot}%{_srvdir}/portmap/log/run
 
 strip %{buildroot}/sbin/portmap
 
@@ -119,7 +117,6 @@ strip %{buildroot}/sbin/portmap
 
 %files
 %defattr(-,root,root)
-%config(noreplace) %{_sysconfdir}/sysconfig/portmap
 %dir %attr(0750,root,admin) %{_srvdir}/portmap
 %dir %attr(0750,root,admin) %{_srvdir}/portmap/log
 %dir %attr(0750,root,admin) %{_srvdir}/portmap/env
@@ -136,6 +133,9 @@ strip %{buildroot}/sbin/portmap
 
 
 %changelog
+* Fri Feb 09 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.0
+- drop the sysconfig file; it's not used (envdir instead)
+
 * Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.0
 - remove the docs from the main package
 - remove checks for old service log dir
