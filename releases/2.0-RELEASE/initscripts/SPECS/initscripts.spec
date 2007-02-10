@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		initscripts
-%define version		8.37
+%define version		8.37.1
 %define release		%_revrel
 
 Summary:	The inittab file and the /etc/init.d scripts
@@ -97,7 +97,7 @@ touch %{buildroot}/var/log/btmp
 %find_lang %{name}
 
 # remove S390 and isdn stuff
-rm -f %{buildroot}/etc/sysconfig/init.s390 %{buildroot}/etc/sysconfig/network-scripts/{ifdown-ippp,ifup-ctc,ifup-escon,ifup-ippp,ifup-iucv,ifup-ipsec,ifdown-ipsec}
+rm -f %{buildroot}/etc/sysconfig/network-scripts/{ifdown-ippp,ifup-ctc,ifup-escon,ifup-ippp,ifup-iucv,ifup-ipsec,ifdown-ipsec}
 
 # we have our own copy of gprintify
 export DONT_GPRINTIFY=1
@@ -111,15 +111,6 @@ chown root:utmp /var/log/wtmp /var/run/utmp /var/log/btmp
 chmod 0664 /var/log/wtmp /var/run/utmp
 chmod 0600 /var/log/btmp
 
-# handle serial installs semi gracefully
-if [ $1 = 0 ]; then
-    if [ "$TERM" = "vt100" ]; then
-        tmpfile=`mktemp /etc/sysconfig/tmp.XXXXXX`
-        sed -e '/BOOTUP=color/BOOTUP=serial/' /etc/sysconfig/init > $tmpfile
-        mv -f $tmpfile /etc/sysconfig/init
-    fi
-fi
-
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -132,18 +123,10 @@ fi
 %config(noreplace) /etc/modules
 /etc/rc.modules
 %dir /etc/modprobe.preload.d
-/etc/rwtab
-%dir /etc/rwtab.d
 %config(noreplace) /etc/sysctl.conf
 %dir /etc/sysconfig
-%config(noreplace) /etc/sysconfig/init
-%config(noreplace) /etc/sysconfig/autofsck
 %config(noreplace) /etc/sysconfig/i18n
-%config(noreplace) /etc/sysconfig/readonly-root
 %config(noreplace) /etc/sysconfig/networking/ifcfg-lo
-%dir /etc/sysconfig/console
-%dir /etc/sysconfig/console/consoletrans
-%dir /etc/sysconfig/console/consolefonts
 %dir /etc/sysconfig/modules
 %dir /etc/sysconfig/networking
 %dir /etc/sysconfig/networking/tmp
@@ -216,11 +199,9 @@ fi
 /sbin/service
 /sbin/setsysfont
 /usr/bin/*
-/usr/sbin/sys-unconfig
 %attr(0700,root,root) /usr/sbin/usernetctl
 
 %dir %attr(775,root,root) /var/run/netreport
-/var/lib/stateless
 %ghost %attr(0664,root,utmp) /var/log/wtmp
 %ghost %attr(0600,root,utmp) /var/log/btmp
 %ghost %attr(0664,root,utmp) /var/run/utmp
@@ -233,6 +214,9 @@ fi
 
 
 %changelog
+* Fri Feb 09 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.37.1
+- 8.37.1; lots of cleanups
+
 * Sat Jan 13 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.37
 - 8.37; more minor modifications
 
