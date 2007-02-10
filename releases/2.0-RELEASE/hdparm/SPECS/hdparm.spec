@@ -20,7 +20,6 @@ License:	BSD
 Group:		System/Kernel and hardware
 URL:		http://sourceforge.net/projects/hdparm/
 Source:		ftp://sunsite.unc.edu/pub/Linux/system/hardware/%{name}-%{version}.tar.gz
-Source1:	hdparm-sysconfig
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -53,7 +52,7 @@ make clean
 mkdir -p %{buildroot}/sbin
 install -D -m 0755 hdparm %{buildroot}/sbin/hdparm
 install -D -m 0644 hdparm.8 %{buildroot}%{_mandir}/man8/hdparm.8
-install -D -m 0644 %{_sourcedir}/hdparm-sysconfig %{buildroot}/etc/sysconfig/harddisks
+mkdir -p %{buildroot}/etc/sysconfig/env/hdparm
 
 
 %clean
@@ -64,7 +63,7 @@ install -D -m 0644 %{_sourcedir}/hdparm-sysconfig %{buildroot}/etc/sysconfig/har
 %defattr(-,root,root)
 /sbin/hdparm
 %{_mandir}/man8/hdparm.8*
-%config(noreplace) /etc/sysconfig/harddisks
+%dir /etc/sysconfig/env/hdparm
 
 %files doc
 %defattr(-,root,root)
@@ -72,6 +71,9 @@ install -D -m 0644 %{_sourcedir}/hdparm-sysconfig %{buildroot}/etc/sysconfig/har
 
 
 %changelog
+* Fri Feb 09 2007 Vincent Danen <vdanen-at-build.annvix.org> 6.6
+- add /etc/sysconfig/env/hdparm and remove the sysconfig file
+
 * Sat Jul 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 6.6
 - 6.6
 - use the real source
