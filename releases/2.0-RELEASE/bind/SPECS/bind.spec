@@ -34,6 +34,7 @@ Source9:	ftp://FTP.RS.INTERNIC.NET/domain/named.root
 Source10:	named.run
 Source11:	named.finish
 Source12:	named-log.run
+Source13:       rndc.key
 Patch1:		bind-9.3.2b2-fallback-to-second-server.diff
 Patch2:		bind-9.3.0-mdk-libresolv.patch
 Patch4:		bind-9.2.3-bsdcompat.patch
@@ -172,7 +173,8 @@ install -d %{buildroot}%{_localstatedir}/named/var/named/{master,slaves,reverse}
 
 install -m 0644 caching-nameserver/named.conf %{buildroot}%{_localstatedir}/named/etc/named.conf
 install -m 0644 caching-nameserver/rndc.conf %{buildroot}%{_localstatedir}/named/etc/rndc.conf
-install -m 0644 caching-nameserver/rndc.key %{buildroot}%{_localstatedir}/named/etc/rndc.key
+#install -m 0644 caching-nameserver/rndc.key %{buildroot}%{_localstatedir}/named/etc/rndc.key
+install -m 0644 %{_sourcedir}/rndc.key %{buildroot}%{_localstatedir}/named/etc/rndc.key
 install -m 0644 caching-nameserver/logging.conf %{buildroot}%{_localstatedir}/named/etc/logging.conf
 install -m 0644 caching-nameserver/trusted_networks_acl.conf %{buildroot}%{_localstatedir}/named/etc/trusted_networks_acl.conf
 install -m 0644 caching-nameserver/bogon_acl.conf %{buildroot}%{_localstatedir}/named/etc/bogon_acl.conf
@@ -189,7 +191,6 @@ ln -s %{_localstatedir}/named/etc/named.conf %{buildroot}%{_sysconfdir}/named.co
 ln -s %{_localstatedir}/named/etc/rndc.conf %{buildroot}%{_sysconfdir}/rndc.conf
 ln -s %{_localstatedir}/named/etc/rndc.key %{buildroot}%{_sysconfdir}/rndc.key
 
-
 echo "; Use \"dig @A.ROOT-SERVERS.NET . ns\" to update this file if it's outdated." >named.cache
 cat %{_sourcedir}/named.root >>named.cache
 install -m 0644 named.cache %{buildroot}%{_localstatedir}/named/var/named/named.ca
@@ -199,6 +200,7 @@ install -m 0740 %{_sourcedir}/named.run %{buildroot}%{_srvdir}/named/run
 install -m 0740 %{_sourcedir}/named.finish %{buildroot}%{_srvdir}/named/finish
 install -m 0740 %{_sourcedir}/named-log.run %{buildroot}%{_srvdir}/named/log/run
 install -m 0640 %{_sourcedir}/OPTIONS.env %{buildroot}%{_srvdir}/named/env/OPTIONS
+
 
 
 # the following 3 lines is needed to make it short-circuit compliant.
@@ -313,6 +315,9 @@ fi
 
 
 %changelog
+* Thu Feb 08 2007 Ying-Hung Chen <ying-at-yingternet.com> 9.3.4
+- empty /etc/rndc.key file to make named runnable by default
+
 * Fri Feb 02 2007 Vincent Danen <vdanen-at-build.annvix.org> 9.3.4
 - 9.3.4; fixes CVE-2007-0493, CVE-2007-0494
 
