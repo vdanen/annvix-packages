@@ -7,7 +7,7 @@
 /bin/multisubstitute {
     import -D "/etc/dhcpd.conf" CONFIGFILE
     import -D "/var/lib/dhcp/dhcpd.leases" LEASEFILE
-    import -D "-q" OPTIONS
+    import OPTIONS
     import INTERFACES
 }
 
@@ -21,6 +21,6 @@
         /bin/echo "The lease file does not exist, unable to start!"
     }
     {
-        /usr/sbin/dhcpd -d -f -user dhcp -group dhcp -cf ${CONFIGFILE} -lf ${LEASEFILE} ${OPTIONS} ${INTERFACES}
+        /usr/sbin/dhcpd -d -user dhcp -group dhcp -cf ${CONFIGFILE} -lf ${LEASEFILE} ${OPTIONS} ${INTERFACES}
     }
 }
