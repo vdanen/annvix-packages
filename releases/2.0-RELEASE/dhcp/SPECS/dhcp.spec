@@ -323,6 +323,7 @@ rm -rf %{_localstatedir}/dhcp/dhclient.leases
 - update the run script: don't use "-q" by default to OPTIONS (not only does it silence
   the copyright info it also prevents all logging to stderr), and only use "-d", not
   "-d -f" (the "-f" is redundant in this case)
+- empty the OPTIONS environment files
 
 * Wed Feb 14 2007 Ying-Hung Chen <ying-at-yingternet.com> 3.0.5
 - 3.0.5
