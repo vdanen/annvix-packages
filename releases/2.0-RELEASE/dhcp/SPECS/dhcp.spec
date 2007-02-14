@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		dhcp
-%define version		3.0.4
+%define version		3.0.5
 %define release		%_revrel
 %define epoch		2
 
@@ -319,6 +319,9 @@ rm -rf %{_localstatedir}/dhcp/dhclient.leases
 
 
 %changelog
+* Wed Feb 14 2007 Ying-Hung Chen <ying-at-yingternet.com> 3.0.5
+- 3.0.5
+
 * Sat Jul 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.4
 - 3.0.4
 - updated P0
