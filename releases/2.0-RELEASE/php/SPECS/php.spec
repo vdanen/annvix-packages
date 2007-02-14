@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		php
-%define version		5.2.0
+%define version		5.2.1
 %define release		%_revrel
 %define epoch		2
 
@@ -47,6 +47,7 @@ Patch10:	php5-apache2-filters.patch
 # P11 fixes the way we package the extensions to not check if the dep are installed or compiled in
 Patch11:	php-5.1.3-mdk-extension_dep_macro_revert.patch
 Patch12:	php-5.1.2-mdk-no_libedit.patch
+Patch13:	php-5.2.1-mdv-extraimapcheck.patch
 #
 # from PLD (20-40)
 #
@@ -61,7 +62,7 @@ Patch28:	php-5.0.0b3-pld-zlib.patch
 Patch50:	php-5.1.0b1-fdr-cxx.patch
 Patch51:	php-4.3.3-fdr-install.patch
 Patch52:	php-5.0.4-fdr-norpath.patch
-Patch53:	php-4.3.6-fdr-umask.patch
+Patch53:	php-5.2.1-fdr-umask.patch
 #
 # General fixes (70+)
 #
@@ -78,7 +79,6 @@ Patch75:	php-bug-22414.patch
 Patch76:	php-5.0.4-bug29119.diff
 Patch77:	php-5.1.0RC6-CVE-2005-3388.diff
 Patch78:	php-5.2.0-mdv-libc-client-php.patch
-Patch79:	php-5.2.0-mdv-curl-7.16.0.patch
 Patch80:	php-5.2.0-CVE-2006-6383.patch
 Patch81:	php-5.1.6-CVE-2007-0455.patch
 # http://www.hardened-php.net/
@@ -286,6 +286,7 @@ This package contains the documentation for %{name}.
 %patch10 -p0 -b .apache2-filters.avx
 %patch11 -p1 -b .extension_dep_macro_revert.avx
 %patch12 -p0 -b .no_libedit.avx
+%patch13 -p0 -b .extraimapcheck.avx
 # from PLD
 %patch20 -p1 -b .mail.avx
 %patch21 -p1 -b .sybase-fix.avx
@@ -296,7 +297,7 @@ This package contains the documentation for %{name}.
 %patch50 -p0 -b .cxx.avx
 %patch51 -p1 -b .install.avx
 %patch52 -p1 -b .norpath.avx
-%patch53 -p1 -b .umask.avx
+%patch53 -p0 -b .umask.avx
 #
 %patch70 -p1 -b .odbc.avx
 %patch71 -p1 -b .shutdown.avx
@@ -310,9 +311,8 @@ This package contains the documentation for %{name}.
 %patch76 -p0 -b .bug29119.avx
 %patch77 -p0 -b .cve-2005-3388.avx
 %patch78 -p0 -b .libc-client-php.avx
-%patch79 -p0 -b .curl-7.16.0.avx
-%patch80 -p1 -b .cve-2006-6383
-%patch81 -p1 -b .cve-2007-0455
+%patch80 -p1 -b .cve-2006-6383.avx
+%patch81 -p1 -b .cve-2007-0455.avx
 
 %patch100 -p1 -b .suhosin.avx
 
@@ -600,6 +600,13 @@ fi
 
 
 %changelog
+* Wed Feb 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.1
+- php 5.2.1
+- updated suhosin (5.2.1-0.9.6.2)
+- updated P53
+- drop P79 - merged upstream
+- P13: extra safe_mode/open_basedir checks for imap support from Mandriva
+
 * Wed Feb 07 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.0
 - P80: security fix for CVE-2006-6383
 - P81: security fix for CVE-2007-0455
