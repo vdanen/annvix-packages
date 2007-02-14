@@ -13,7 +13,7 @@
 %define release		%_revrel
 %define epoch		1
 
-%define phpversion	5.2.0
+%define phpversion	5.2.1
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir		%{_libdir}/php
 
@@ -115,6 +115,9 @@ install -m 0755 %{soname} %{buildroot}%{phpdir}/extensions/
 
 
 %changelog
+* Wed Feb 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.1
+- php 5.2.1
+
 * Sun Dec 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.12p2
 - 3.0.12p2
 - php 5.2.0

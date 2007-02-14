@@ -12,7 +12,7 @@
 %define version		%{phpversion}
 %define release		%_revrel
 
-%define phpversion	5.2.0
+%define phpversion	5.2.1
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir		%{_libdir}/php
 
@@ -81,6 +81,9 @@ EOF
 
 
 %changelog
+* Wed Feb 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.1
+- php 5.2.1
+
 * Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.0 
 - rebuild against new postgresql
 

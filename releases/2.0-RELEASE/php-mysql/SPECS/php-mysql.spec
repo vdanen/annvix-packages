@@ -12,7 +12,7 @@
 %define version		%{phpversion}
 %define release		%_revrel
 
-%define phpversion      5.2.0
+%define phpversion	5.2.1
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir          %{_libdir}/php
 
@@ -81,6 +81,9 @@ install -m 0644 %{_sourcedir}/php-mysql.ini %{buildroot}%{_sysconfdir}/php.d/%{i
 
 
 %changelog
+* Wed Feb 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.1
+- php 5.2.1
+
 * Fri Jan 05 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.0
 - php 5.2.0
 - restored so as to provide php-mysql for backwards compatibility
