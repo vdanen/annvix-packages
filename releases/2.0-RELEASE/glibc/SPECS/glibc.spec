@@ -303,6 +303,9 @@ This package contains the documentation for %{name}.
 # pathnames like "/path/to/existing-non-directory/"
 %patch1 -p0
 
+# patch to fix a segfault with ctermid
+%patch2 -p0
+
 # RH
 # usual glibc-fedora.patch
 %patch100 -p0
@@ -1188,6 +1191,9 @@ fi
 
 
 %changelog
+* Thu Feb 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.3.6
+- apply P2 to fix the segfault in ctermid
+
 * Thu Feb 01 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.3.6
 - do some conditional testing before removing directories or, if they don't
   exist, rpm will fail in a really silly place
