@@ -146,6 +146,9 @@ rm -rf %{buildroot}%{_sysconfdir}/fonts/conf.d
 
 
 %changelog
+* Fri Feb 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.3.2
+- rebuild against patched freetype
+
 * Mon Jul 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.2
 - geez, really remove docs from the devel package
 
