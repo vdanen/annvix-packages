@@ -43,6 +43,21 @@ of vixie-cron but has significant differences. Less attention is
 paid to feature development in favor of usability and reliability.
 
 
+%package libc
+Summary:	Dillon's Cron Daemon
+Group:		System/Servers
+Requires:	%{name}
+
+%description libc
+A multiuser cron written from scratch, dcron is follows concepts
+of vixie-cron but has significant differences. Less attention is
+paid to feature development in favor of usability and reliability.
+
+This package contains a non-static, non-dietlibc version of the
+binaries to work around some issues with dietlibc and certain
+timezones not reporting localtime() properly.
+
+
 %package doc
 Summary:	Documentation for %{name}
 Group:		Documentation
@@ -66,6 +81,14 @@ COMP="diet gcc"
 
 make CC="$COMP" CFLAGS="%{optflags}"
 
+cp crond crond.diet
+cp crontab crontab.diet
+
+make clean
+patch -R < %{PATCH0}
+
+make CFLAGS="%{optflags}"
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -76,8 +99,10 @@ install -d %{buildroot}%{_mandir}/man{1,8}
 install -d %{buildroot}%{_sbindir}
 install -d %{buildroot}/var/spool/cron/crontabs
 
-install -m 0755 crontab %{buildroot}%{_bindir}/
-install -m 0750 crond %{buildroot}%{_sbindir}/
+install -m 0755 crontab.diet %{buildroot}%{_bindir}/crontab
+install -m 0750 crond.diet %{buildroot}%{_sbindir}/crond
+install -m 0755 crontab %{buildroot}%{_bindir}/crontab-libc
+install -m 0750 crond %{buildroot}%{_sbindir}/crond-libc
 install -m 0644 crontab.1 %{buildroot}%{_mandir}/man1/
 install -m 0644 crond.8 %{buildroot}%{_mandir}/man8/
 
@@ -126,12 +151,24 @@ fi
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/crond/run
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/crond/log/run
 
+%files libc
+%attr(4750,root,cron) %{_bindir}/crontab-libc
+%attr(0750,root,root)%{_sbindir}/crond-libc
+
 %files doc
 %defattr(-,root,root)
 %doc CHANGELOG README
 
 
 %changelog
+* Wed Feb 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.2
+- include a non-diet build of the binaries (crond-libc and crontab-libc); there
+  seems to be a bug in dietlibc that makes localtime() not work properly on
+  certain timezones (like Asia/Taipei) and makes cron think that UTC is the
+  local time; NOTE: this should probably use alternatives in the future;
+  right now dcron-libc just provides the binaries and does not switching so if
+  you need the glibc-based binaries you'll have to copy them over
+
 * Tue Dec 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.2
 - 3.2
 - don't add the system-wide cron settings (for our hourly, weekly, etc. stuff)
