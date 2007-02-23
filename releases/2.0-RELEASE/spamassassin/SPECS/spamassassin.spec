@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		spamassassin
-%define version		3.1.7
+%define version		3.1.8
 %define release		%_revrel
 
 %define fname		Mail-SpamAssassin
@@ -228,6 +228,9 @@ echo "-c -m5 -H" >%{buildroot}%{_srvdir}/spamd/env/OPTIONS
 
 
 %changelog
+* Fri Feb 23 2007 Vincent Danen <vdanen-at-annvix.org> 3.1.8
+- 3.1.8: security fix for CVE-2007-0451
+
 * Thu Dec 28 2006 Vincent Danen <vdanen-at-annvix.org> 3.1.7
 - set LANG/LC_ALL/LANGUAGE variables for make test
 - add directories for sa-update and requires on gnupg
