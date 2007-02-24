@@ -1,6 +1,6 @@
-diff -u --new-file --recursive postfix-2.3.5-original/README_FILES/VDA_README postfix-2.3.5/README_FILES/VDA_README
---- postfix-2.3.5-original/README_FILES/VDA_README	1969-12-31 21:00:00.000000000 -0300
-+++ postfix-2.3.5/README_FILES/VDA_README	2006-12-22 14:15:36.000000000 -0200
+diff -u --new-file --recursive postfix-2.3.7-orig/README_FILES/VDA_README postfix-2.3.7/README_FILES/VDA_README
+--- postfix-2.3.7-orig/README_FILES/VDA_README	1969-12-31 21:00:00.000000000 -0300
++++ postfix-2.3.7/README_FILES/VDA_README	2007-01-31 16:46:29.000000000 -0200
 @@ -0,0 +1,64 @@
 +Instalation:
 +
@@ -66,9 +66,9 @@ diff -u --new-file --recursive postfix-2.3.5-original/README_FILES/VDA_README po
 +
 +More informations: http://web.onda.com.br/nadal
 +Mail-list: http://maresia.onda.com.br/mailman/listinfo/vda
-diff -u --new-file --recursive postfix-2.3.5-original/src/global/mail_params.h postfix-2.3.5/src/global/mail_params.h
---- postfix-2.3.5-original/src/global/mail_params.h	2006-09-03 16:21:00.000000000 -0300
-+++ postfix-2.3.5/src/global/mail_params.h	2006-12-22 14:15:36.000000000 -0200
+diff -u --new-file --recursive postfix-2.3.7-orig/src/global/mail_params.h postfix-2.3.7/src/global/mail_params.h
+--- postfix-2.3.7-orig/src/global/mail_params.h	2006-09-03 16:21:00.000000000 -0300
++++ postfix-2.3.7/src/global/mail_params.h	2007-01-31 16:46:29.000000000 -0200
 @@ -2071,6 +2071,46 @@
  #define DEF_VIRT_GID_MAPS		""
  extern char *var_virt_gid_maps;
@@ -116,9 +116,9 @@ diff -u --new-file --recursive postfix-2.3.5-original/src/global/mail_params.h p
  #define VAR_VIRT_MINUID			"virtual_minimum_uid"
  #define DEF_VIRT_MINUID			100
  extern int var_virt_minimum_uid;
-diff -u --new-file --recursive postfix-2.3.5-original/src/util/file_limit.c postfix-2.3.5/src/util/file_limit.c
---- postfix-2.3.5-original/src/util/file_limit.c	2003-10-22 16:48:36.000000000 -0200
-+++ postfix-2.3.5/src/util/file_limit.c	2006-12-22 14:15:36.000000000 -0200
+diff -u --new-file --recursive postfix-2.3.7-orig/src/util/file_limit.c postfix-2.3.7/src/util/file_limit.c
+--- postfix-2.3.7-orig/src/util/file_limit.c	2003-10-22 16:48:36.000000000 -0200
++++ postfix-2.3.7/src/util/file_limit.c	2007-01-31 16:46:30.000000000 -0200
 @@ -85,7 +85,11 @@
  #else
      struct rlimit rlim;
@@ -132,9 +132,9 @@ diff -u --new-file --recursive postfix-2.3.5-original/src/util/file_limit.c post
      if (setrlimit(RLIMIT_FSIZE, &rlim) < 0)
  	msg_fatal("setrlimit: %m");
  #ifdef SIGXFSZ
-diff -u --new-file --recursive postfix-2.3.5-original/src/virtual/mailbox.c postfix-2.3.5/src/virtual/mailbox.c
---- postfix-2.3.5-original/src/virtual/mailbox.c	2006-06-26 09:59:19.000000000 -0300
-+++ postfix-2.3.5/src/virtual/mailbox.c	2006-12-22 14:15:36.000000000 -0200
+diff -u --new-file --recursive postfix-2.3.7-orig/src/virtual/mailbox.c postfix-2.3.7/src/virtual/mailbox.c
+--- postfix-2.3.7-orig/src/virtual/mailbox.c	2006-06-26 09:59:19.000000000 -0300
++++ postfix-2.3.7/src/virtual/mailbox.c	2007-01-31 16:46:30.000000000 -0200
 @@ -70,6 +70,53 @@
  #define YES	1
  #define NO	0
@@ -254,9 +254,9 @@ diff -u --new-file --recursive postfix-2.3.5-original/src/virtual/mailbox.c post
  
      /*
       * Cleanup.
-diff -u --new-file --recursive postfix-2.3.5-original/src/virtual/maildir.c postfix-2.3.5/src/virtual/maildir.c
---- postfix-2.3.5-original/src/virtual/maildir.c	2006-06-26 09:59:19.000000000 -0300
-+++ postfix-2.3.5/src/virtual/maildir.c	2006-12-22 14:15:36.000000000 -0200
+diff -u --new-file --recursive postfix-2.3.7-orig/src/virtual/maildir.c postfix-2.3.7/src/virtual/maildir.c
+--- postfix-2.3.7-orig/src/virtual/maildir.c	2006-06-26 09:59:19.000000000 -0300
++++ postfix-2.3.7/src/virtual/maildir.c	2007-01-31 16:46:30.000000000 -0200
 @@ -40,14 +40,20 @@
  #include <unistd.h>
  #include <time.h>
@@ -715,9 +715,9 @@ diff -u --new-file --recursive postfix-2.3.5-original/src/virtual/maildir.c post
      myfree(tmpfile);
      if (newfile)
  	myfree(newfile);
-diff -u --new-file --recursive postfix-2.3.5-original/src/virtual/virtual.c postfix-2.3.5/src/virtual/virtual.c
---- postfix-2.3.5-original/src/virtual/virtual.c	2006-06-26 09:59:19.000000000 -0300
-+++ postfix-2.3.5/src/virtual/virtual.c	2006-12-22 14:15:36.000000000 -0200
+diff -u --new-file --recursive postfix-2.3.7-orig/src/virtual/virtual.c postfix-2.3.7/src/virtual/virtual.c
+--- postfix-2.3.7-orig/src/virtual/virtual.c	2006-06-26 09:59:19.000000000 -0300
++++ postfix-2.3.7/src/virtual/virtual.c	2007-01-31 16:46:30.000000000 -0200
 @@ -328,6 +328,19 @@
  int     var_virt_mailbox_limit;
  char   *var_mail_spool_dir;		/* XXX dependency fix */
@@ -830,9 +830,9 @@ diff -u --new-file --recursive postfix-2.3.5-original/src/virtual/virtual.c post
 +		      MAIL_SERVER_PRIVILEGED,
  		       0);
  }
-diff -u --new-file --recursive postfix-2.3.5-original/src/virtual/virtual.h postfix-2.3.5/src/virtual/virtual.h
---- postfix-2.3.5-original/src/virtual/virtual.h	2006-01-07 21:59:47.000000000 -0200
-+++ postfix-2.3.5/src/virtual/virtual.h	2006-12-22 14:15:36.000000000 -0200
+diff -u --new-file --recursive postfix-2.3.7-orig/src/virtual/virtual.h postfix-2.3.7/src/virtual/virtual.h
+--- postfix-2.3.7-orig/src/virtual/virtual.h	2006-01-07 21:59:47.000000000 -0200
++++ postfix-2.3.7/src/virtual/virtual.h	2007-01-31 16:46:30.000000000 -0200
 @@ -34,6 +34,7 @@
  extern MAPS *virtual_mailbox_maps;
  extern MAPS *virtual_uid_maps;

@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		postfix
-%define version		2.3.5
+%define version		2.3.7
 %define release 	%_revrel
 %define epoch		1
 
@@ -69,7 +69,7 @@ Patch3: 	postfix-2.0.18-fdr-hostname-fqdn.patch
 Patch4:		postfix-2.1.1-fdr-pie.patch
 Patch5:		postfix-2.1.1-fdr-obsolete.patch
 Patch8:		postfix-2.3.4-avx-warnsetsid.patch
-Patch9:	        http://vda.sourceforge.net/VDA/postfix-2.3.5-vda.patch
+Patch9:		postfix-2.3.7-vda-64.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	db4-devel
@@ -446,6 +446,10 @@ done
 
 
 %changelog
+* Sat Feb 24 2007 Ying-Hung Chen <ying-at-yingternet.com> 2.3.7
+- 2.3.7
+- P9: update 2.3.7-vda patch to work with > 2GB quota on 64 bits systems
+
 * Sat Feb 24 2007 Ying-Hung Chen <ying-at-yingternet.com> 2.3.5
 - P9: update vda patch to work with > 2GB quota on 64 bits systems
 
