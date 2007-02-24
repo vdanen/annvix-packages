@@ -446,6 +446,9 @@ done
 
 
 %changelog
+* Sat Feb 24 2007 Ying-Hung Chen <ying-at-yingternet.com> 2.3.5
+- P9: update vda patch to work with > 2GB quota on 64 bits systems
+
 * Sun Dec 24 2006 Vincent Danen <vdanen-at-annvix.org> 2.3.5
 - make the buildrequires on openldap-devel, not libldap-devel
 

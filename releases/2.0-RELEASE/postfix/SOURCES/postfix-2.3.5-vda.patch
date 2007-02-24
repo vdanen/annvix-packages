@@ -681,7 +681,7 @@ diff -u --new-file --recursive postfix-2.3.5-original/src/virtual/maildir.c post
 +                     sizefile = vstream_fopen( sizefilename, O_WRONLY | O_CREAT, 0644);
 +                 // If the create works, write the file, otherwise just give up.
 +                 if( sizefile ) {
-+                   vstream_fprintf(sizefile, "%dS\n%d 1\n", (int)n, (int)saved_size);
++                   vstream_fprintf(sizefile, "%ldS\n%ld 1\n", (long)n, (long)saved_size);
 +                   vstream_fclose(sizefile);
 +                    }
 +                } else {
