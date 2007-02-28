@@ -35,8 +35,6 @@ BuildRequires:  php-devel >= %{phpversion}
 BuildRequires:	mysql-devel >= 4.1.14
 
 Requires:	php
-Provides:	php-mysql
-Obsoletes:	php-mysql
 
 
 %description
@@ -81,6 +79,9 @@ install -m 0644 %{_sourcedir}/php-mysqli.ini %{buildroot}%{_sysconfdir}/php.d/%{
 
 
 %changelog
+* Tue Feb 27 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.1
+- don't provide/obsolete php-mysql; we added it back
+
 * Wed Feb 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.1
 - php 5.2.1
 
