@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		php-%{modname}
-%define version		0.9.16
+%define version		0.9.17
 %define release		%_revrel
 %define epoch		1
 
@@ -93,6 +93,9 @@ install -m 0755 %{soname} %{buildroot}%{phpdir}/extensions/
 
 
 %changelog
+* Mon Mar 05 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.1
+- 0.9.17
+
 * Wed Feb 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.1
 - php 5.2.1
 
