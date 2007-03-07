@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		gnupg
-%define version 	1.4.6
+%define version 	1.4.7
 %define release		%_revrel
 
 Summary:	GNU privacy guard - a free PGP replacement
@@ -125,6 +125,9 @@ for i in en@boldquot en@quot ; do rm -rf %{buildroot}%{_datadir}/locale/$i; done
 
 
 %changelog
+* Wed Mar 07 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.4.7
+- 1.4.7: fixes CVE-2007-1263
+
 * Wed Jan 17 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.4.6
 - use --enable-static-rnd instead of --with-static-rnd
 
