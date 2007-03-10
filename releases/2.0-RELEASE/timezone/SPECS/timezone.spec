@@ -119,7 +119,7 @@ fi
 
 
 %changelog
-* Sat Mar 10 2007 Vincent Danen <vdanen@annvix.org> 2007c
+* Sat Mar 10 2007 Vincent Danen <vdanen-at-build.annvix.org> 2007c
 - stand-alone timezone package taken from Mandriva
 
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8
