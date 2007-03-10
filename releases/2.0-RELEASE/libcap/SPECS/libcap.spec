@@ -103,6 +103,9 @@ make install FAKEROOT=%{buildroot} \
 
 chmod +x %{buildroot}%{_libdir}/*.so.*
 
+# remove manpages that are already in man-pages
+rm -rf %{buildroot}%{_mandir}/man2
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -124,7 +127,6 @@ chmod +x %{buildroot}%{_libdir}/*.so.*
 %defattr(-,root,root)
 %{_includedir}/*
 %{_libdir}/*.so
-%{_mandir}/man2/*
 %{_mandir}/man3/*
 
 %files doc
@@ -133,6 +135,9 @@ chmod +x %{buildroot}%{_libdir}/*.so.*
 
 
 %changelog
+* Sat Mar 10 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.10
+- remove capget.2 and capset.2 as they're already in man-pages
+
 * Fri Jul 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.10
 - rebuild with gcc4
 - add -doc subpackage
