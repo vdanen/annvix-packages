@@ -143,7 +143,6 @@ AutoReq:	false
 Provides:	glibc-crypt_blowfish = %{crypt_bf_ver}
 Provides:	glibc-localedata
 Provides:	ld.so
-Obsoletes:      zoneinfo
 Obsoletes:	libc-static
 Obsoletes:	libc-devel
 Obsoletes:	libc-profile
@@ -163,7 +162,7 @@ kept in one place and shared between programs.  This particular package
 contains the most important sets of shared libraries: the standard C
 library and the standard math library.  Without these two libraries, a
 Linux system will not function.  The glibc package also contains
-national language (locale) support and timezone databases.
+national language (locale) support.
 
 
 %package -n ldconfig
@@ -272,16 +271,6 @@ Group:		System/Libraries
 %description i18ndata
 This package contains the data needed to build the locale data files
 to use the internationalization features of the GNU libc.
-
-
-%package -n timezone
-Summary:	Time zone descriptions
-Group:		System/Base
-Conflicts:	glibc < 2.2.5-6mdk
-
-%description -n timezone
-These are configuration files that describe possible
-time zones.
 
 
 %package doc
@@ -645,10 +634,6 @@ mv %{buildroot}/%{_lib}/lib{memusage,pcprofile,SegFault}.so %{buildroot}%{_libdi
 rm -f %{buildroot}/lib/lib{memusage,pcprofile}.so
 %endif
 
-# Replace the symlink with the file for our default timezone - use UTC
-rm %{buildroot}/etc/localtime
-cp -a %{buildroot}%{_datadir}/zoneinfo/UTC %{buildroot}/etc/localtime
-
 # Create default ldconfig configuration file
 echo "/usr/local/lib" > %{buildroot}%{_sysconfdir}/ld.so.conf
 echo "/usr/X11R6/lib" >> %{buildroot}%{_sysconfdir}/ld.so.conf
@@ -684,12 +669,15 @@ install -m 0740 %{_sourcedir}/nscd.run %{buildroot}%{_srvdir}/nscd/run
 install -m 0740 %{_sourcedir}/nscd-log.run %{buildroot}%{_srvdir}/nscd/log/run
 install -m 0740 %{_sourcedir}/nscd.finish %{buildroot}%{_srvdir}/nscd/finish
 
-rm -rf %{buildroot}%{_datadir}/zoneinfo/{posix,right}
+rm -rf %{buildroot}%{_datadir}/zoneinfo
 rm -rf %{buildroot}%{_includedir}/netatalk/
 rm -f %{buildroot}%{_libdir}/libNoVersion*
 %ifnarch %{glibc_compat_arches}
     rm -f %{buildroot}/%{_lib}/libNoVersion*
 %endif
+
+# these are in the timezone package
+rm -f %{buildroot}%{_sbindir}/{zdump,zic}
 
 # empty filelist for non-i686/athlon targets
 > extralibs.filelist
@@ -717,11 +705,6 @@ popd
 touch %{buildroot}%{_libdir}/gconv/gconv-modules.cache
 [[ -d %{buildroot}%{_prefix}/lib/gconv ]] && touch %{buildroot}%{_prefix}/lib/gconv/gconv-modules.cache
 
-# /etc/localtime
-rm -f %{buildroot}%{_sysconfdir}/localtime
-cp -f %{buildroot}%{_datadir}/zoneinfo/US/Eastern %{buildroot}%{_sysconfdir}/localtime
-#ln -sf ..%{_datadir}/zoneinfo/US/Eastern %{buildroot}%{_sysconfdir}/localtime
-
 
 # Copy Kernel-Headers
 mkdir -p %{buildroot}%{_includedir}
@@ -737,7 +720,6 @@ cp linuxthreads/Changes documentation/Changes.threads
 cp linuxthreads/README documentation/README.threads
 cp linuxthreads/FAQ.html documentation/FAQ-threads.html
 cp -r linuxthreads/Examples documentation/examples.threads
-cp timezone/README documentation/README.timezone
 cp ChangeLog* documentation
 bzip2 -9qf documentation/ChangeLog*
 mkdir documentation/crypt_blowfish-%{crypt_bf_ver}
@@ -1159,17 +1141,6 @@ fi
 %{_datadir}/i18n/locales/*
 
 #
-# timezone
-#
-%files -n timezone
-%defattr(-,root,root)
-%{_sbindir}/zdump
-%{_sbindir}/zic
-%{_mandir}/man1/zdump.1*
-%dir %{_datadir}/zoneinfo
-%{_datadir}/zoneinfo/*
-
-#
 # nscd
 #
 %files -n nscd
@@ -1191,6 +1162,9 @@ fi
 
 
 %changelog
+* Sat Mar 10 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.3.6
+- don't build the timezone package anymore
+
 * Thu Feb 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.3.6
 - apply P2 to fix the segfault in ctermid
 
