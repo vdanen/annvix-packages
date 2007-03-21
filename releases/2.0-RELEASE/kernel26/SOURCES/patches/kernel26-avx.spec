@@ -12,7 +12,7 @@
 %define kernelver	2
 %define patchlevel	6
 %define sublevel	16
-%define minlevel	39
+%define minlevel	43
 %define avxrelease	%(echo %{revision}|cut -d ' ' -f 2)
 
 %define tar_version	%{kernelver}.%{patchlevel}.%{sublevel}.%{minlevel}
@@ -954,6 +954,11 @@ exit 0
 
 
 %changelog
+* Tue Mar 20 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.43
+- 2.6.16.43: various fixes and fixes for CVE-2007-0006, CVE-2006-5753,
+  CVE-2007-0772, and probably quite a few other CVE names that weren't
+  noted in the changelogs
+
 * Wed Jan 31 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.39
 - 2.6.16.39: various fixes and fixes for CVE-2006-5823, CVE-2006-6053,
   CVE-2006-6054, CVE-2006-6056, CVE-2006-5755, CVE-2006-6106, CVE-2006-5757,
