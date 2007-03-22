@@ -20,7 +20,7 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	BSD 
-Group:		File tools
+Group:		File Tools
 URL:		ftp://ftp.astron.com/pub/file/
 Source0:	ftp://ftp.astron.com/pub/file/%{name}-%{version}.tar.gz
 Source1:	magic.mime
