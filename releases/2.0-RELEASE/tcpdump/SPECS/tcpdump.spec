@@ -23,6 +23,7 @@ Group:	 	Monitoring
 URL:		http://www.tcpdump.org
 Source0:	http://www.tcpdump.org/release/%{name}-%{version}.tar.gz
 Source1:	http://www.tcpdump.org/release/%{name}-%{version}.tar.gz.sig
+Patch0:		tcpdump-3.9.4-CVE-2007-1218.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	libpcap-devel
@@ -44,6 +45,7 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
+%patch0 -p1 -b .cve-2007-1218
 
 
 %build
@@ -75,6 +77,9 @@ libtoolize --copy --force
 
 
 %changelog
+* Thu Mar 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.9.4
+- P0: security fix for CVE-2007-1218
+
 * Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.9.4
 - really remove docs from main package
 
