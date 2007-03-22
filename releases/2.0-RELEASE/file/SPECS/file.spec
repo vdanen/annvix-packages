@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		file
-%define version		4.17
+%define version		4.20
 %define release		%_revrel
 
 %define major		1
@@ -153,6 +153,9 @@ install -m 0644 src/file.h %{buildroot}%{_includedir}/
 
 
 %changelog
+* Thu Mar 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.20
+- 4.20: fixes CVE-2007-1536
+
 * Sat Jul 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.17
 - 4.17
 - drop P2
