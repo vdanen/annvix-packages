@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		chkauth
-%define version 	0.4
+%define version 	0.5
 %define release 	%_revrel
 	
 Summary:	Script to change authentification method (local, NIS, LDAP)
@@ -58,6 +58,9 @@ install -m 0644 chkauth.8 %{buildroot}/%{_mandir}/man8/
 
 
 %changelog
+* Sat Mar 31 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.5
+- 0.5: fixed some pam problems
+
 * Sat Feb 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.4
 - 0.4: complete rewrite in bash (although still required perl);
   removes NIS and file support and adds tcb support
