@@ -43,7 +43,6 @@
 %define build_doc	0
 %define build_source	1
 %define build_BOOT	1
-# re-enable once we re-introduce RSBAC
 %define build_build	0
 %define build_up	1
 %define build_smp	1
@@ -879,7 +878,7 @@ exit 0
 %dir %{_kerneldir}/arch
 %dir %{_kerneldir}/include
 %{_kerneldir}/.config
-#%{_kerneldir}/.gitignore
+%{_kerneldir}/.gitignore
 %{_kerneldir}/.kconfig.d
 %{_kerneldir}/.kernelrelease
 %{_kerneldir}/Kbuild
@@ -907,7 +906,6 @@ exit 0
 %{_kerneldir}/lib
 %{_kerneldir}/mm
 %{_kerneldir}/net
-%{_kerneldir}/rsbac
 %{_kerneldir}/security
 %{_kerneldir}/sound
 %{_kerneldir}/scripts
@@ -927,7 +925,6 @@ exit 0
 %{_kerneldir}/include/net
 %{_kerneldir}/include/pcmcia
 %{_kerneldir}/include/rdma
-%{_kerneldir}/include/rsbac
 %{_kerneldir}/include/rxrpc
 %{_kerneldir}/include/scsi
 %{_kerneldir}/include/sound
@@ -954,6 +951,11 @@ exit 0
 
 
 %changelog
+* Sat Mar 31 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.43
+- SL61: forward-port of the openwall patch (CONFIG_HARDEN_PROC) to
+  protect /proc by default
+- drop the RSBAC patches
+
 * Tue Mar 20 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.43
 - 2.6.16.43: various fixes and fixes for CVE-2007-0006, CVE-2006-5753,
   CVE-2007-0772, and probably quite a few other CVE names that weren't

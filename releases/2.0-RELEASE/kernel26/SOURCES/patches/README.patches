@@ -21,9 +21,5 @@ SL00_SECURITY.desc
         - NAT Traversal support for openswan 2.4.6
 	SL60_apparmor_2.6.16.29_v154_fullseries.patch
 	- AppArmor v154 full patch (contains all previous split patches)
-	SL63_rsbac-common-1.2.7tar
-	- http://www.rsbac.org/
-	- RSBAC common files
-	SL64_rsbac_patch_2.6.16.19-1.2.7.patch
-	- http://www.rsbac.org/
-	- RSBAC kernel patch
+	SL61_avx-openwall-harden-proc.patch
+	- CONFIG_HARDEN_PROC changes from the openwall 2.4 patch to protect /proc

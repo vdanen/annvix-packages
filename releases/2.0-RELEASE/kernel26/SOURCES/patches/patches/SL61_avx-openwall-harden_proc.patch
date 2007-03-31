@@ -1,0 +1,70 @@
+This is a forward port of CONFIG_HARDEN_PROC portion of the Openwall Project's
+Linux kernel patch (http://www.openwall.com/linux/).  All this patch is does is
+make /proc's entries readable by the owners (i.e. when a user does a ps, they just
+get their processes, not everyone else's).
+
+diff -purN linux-2.6.16.43.org/fs/proc/base.c linux-2.6.16.43/fs/proc/base.c
+--- linux-2.6.16.43.org/fs/proc/base.c	2007-03-02 11:34:36.000000000 -0700
++++ linux-2.6.16.43/fs/proc/base.c	2007-03-21 18:29:07.000000000 -0600
+@@ -1356,6 +1356,8 @@ static struct inode *proc_pid_make_inode
+ 	inode->i_gid = 0;
+ 	if (ino == PROC_TGID_INO || ino == PROC_TID_INO || task_dumpable(task)) {
+ 		inode->i_uid = task->euid;
++		if (inode->i_sb->s_root)
++			inode->i_gid = inode->i_sb->s_root->d_inode->i_gid;
+ 		inode->i_gid = task->egid;
+ 	}
+ 	security_task_to_inode(task, inode);
+@@ -2034,7 +2036,7 @@ struct dentry *proc_pid_lookup(struct in
+ 		put_task_struct(task);
+ 		goto out;
+ 	}
+-	inode->i_mode = S_IFDIR|S_IRUGO|S_IXUGO;
++	inode->i_mode = S_IFDIR|S_IRUSR|S_IXUSR|S_IRGRP|S_IXGRP;
+ 	inode->i_op = &proc_tgid_base_inode_operations;
+ 	inode->i_fop = &proc_tgid_base_operations;
+ 	inode->i_flags|=S_IMMUTABLE;
+diff -purN linux-2.6.16.43.org/fs/proc/inode.c linux-2.6.16.43/fs/proc/inode.c
+--- linux-2.6.16.43.org/fs/proc/inode.c	2007-03-02 11:34:36.000000000 -0700
++++ linux-2.6.16.43/fs/proc/inode.c	2007-03-21 18:28:49.000000000 -0600
+@@ -169,6 +169,8 @@ struct inode *proc_get_inode(struct supe
+ 			inode->i_mode = de->mode;
+ 			inode->i_uid = de->uid;
+ 			inode->i_gid = de->gid;
++			if (sb->s_root)
++				inode->i_gid = sb->s_root->d_inode->i_gid;
+ 		}
+ 		if (de->size)
+ 			inode->i_size = de->size;
+diff -purN linux-2.6.16.43.org/fs/proc/root.c linux-2.6.16.43/fs/proc/root.c
+--- linux-2.6.16.43.org/fs/proc/root.c	2007-03-02 11:34:36.000000000 -0700
++++ linux-2.6.16.43/fs/proc/root.c	2007-03-21 18:28:33.000000000 -0600
+@@ -8,6 +8,7 @@
+ 
+ #include <asm/uaccess.h>
+ 
++#include <linux/config.h>
+ #include <linux/errno.h>
+ #include <linux/time.h>
+ #include <linux/proc_fs.h>
+@@ -53,7 +54,7 @@ void __init proc_root_init(void)
+ 		return;
+ 	}
+ 	proc_misc_init();
+-	proc_net = proc_mkdir("net", NULL);
++	proc_net = proc_mkdir_mode("net", S_IRUSR|S_IXUSR|S_IRGRP|S_IXGRP, 0);
+ 	proc_net_stat = proc_mkdir("net/stat", NULL);
+ 
+ #ifdef CONFIG_SYSVIPC
+diff -purN linux-2.6.16.43.org/kernel/printk.c linux-2.6.16.43/kernel/printk.c
+--- linux-2.6.16.43.org/kernel/printk.c	2007-03-02 11:34:36.000000000 -0700
++++ linux-2.6.16.43/kernel/printk.c	2007-03-21 18:28:19.000000000 -0600
+@@ -353,6 +353,8 @@ out:
+ 
+ asmlinkage long sys_syslog(int type, char __user *buf, int len)
+ {
++	if (!capable(CAP_SYS_ADMIN))
++		return -EPERM;
+ 	return do_syslog(type, buf, len);
+ }
+ 
