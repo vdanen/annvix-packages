@@ -12,7 +12,7 @@
 %define kernelver	2
 %define patchlevel	6
 %define sublevel	16
-%define minlevel	43
+%define minlevel	46
 %define avxrelease	%(echo %{revision}|cut -d ' ' -f 2)
 
 %define tar_version	%{kernelver}.%{patchlevel}.%{sublevel}.%{minlevel}
@@ -100,12 +100,13 @@ ExclusiveOS:	Linux
 #
 ### This is for full SRC RPM
 Source0: ftp://ftp.kernel.org/pub/linux/kernel/v%{kernelver}.%{patchlevel}/linux-%{tar_version}.tar.bz2
+Source1: ftp://ftp.kernel.org/pub/linux/kernel/v%{kernelver}.%{patchlevel}/linux-%{tar_version}.tar.bz2.sign
 
 ### This is for stripped SRC RPM
 %if %build_nosrc
 NoSource: 0
+NoSource: 1
 %endif
-#Source1: linux-%{tar_version}.tar.bz2.info
 
 Source4:	README.annvix-kernel-sources
 Source5:	README.Annvix
@@ -951,7 +952,10 @@ exit 0
 
 
 %changelog
-* Sat Mar 31 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.43
+* Sat Mar 31 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.46
+- 2.6.16.46: various fixes and security fixes for CVE-2007-0005 and
+  CVE-2007-1000
+- start including the gpg sigs for kernel sources
 - SL61: forward-port of the openwall patch (CONFIG_HARDEN_PROC) to
   protect /proc by default
 - drop the RSBAC patches
