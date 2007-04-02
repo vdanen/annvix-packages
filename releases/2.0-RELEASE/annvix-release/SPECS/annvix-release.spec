@@ -65,7 +65,7 @@ EOF
 
 cat > %{buildroot}%{_sysconfdir}/issue <<EOF
 Welcome to \n running Annvix %{realversion} (%{distrib})
-\s kernel \r on \m [\d \t]
+\s kernel \r on \m [\d \t] (\l)
 EOF
 
 
@@ -86,6 +86,9 @@ EOF
 
 
 %changelog
+* Mon Apr 02 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0
+- add tty name to /etc/issue (thanks jf)
+
 * Sat Feb 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0
 - 2.0-RELEASE (Surtr)
 - update CREDITS
