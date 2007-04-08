@@ -219,6 +219,14 @@ ln -s ../boot/grub/grub.conf %{buildroot}%{_sysconfdir}/grub.conf
 %_install_info %{name}.info
 %_install_info multiboot.info
 
+
+%triggerun -- grub < 0.97-7235avx
+if [ -e /boot/grub/grub.conf ]; then
+    perl -pi -e 's|background 000000|background 34d1c0|' /boot/grub/grub.conf
+    perl -pi -e 's|foreground 34d1c0|foreground 000000|' /boot/grub/grub.conf
+fi
+
+
 %preun
 %_remove_install_info %{name}.info
 %_remove_install_info multiboot.info
@@ -245,6 +253,10 @@ ln -s ../boot/grub/grub.conf %{buildroot}%{_sysconfdir}/grub.conf
 
 
 %changelog
+* Mon Apr 02 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.97
+- new grub splash image
+- add a trigger to change the foreground/background colors on update
+
 * Sat Dec 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.97
 - rebuild againt new ncurses
 
