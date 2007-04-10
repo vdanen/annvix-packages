@@ -9,11 +9,11 @@
 
 %define revision	$Rev$
 %define name		annvix-release
-%define version		2.0
+%define version		2.1
 %define release		%_revrel
 
-%define distrib		Surtr
-%define realversion 	2.0-RELEASE
+%define distrib		Fenris
+%define realversion 	2.1-CURRENT
 %define macrofile	%build_sysmacrospath
 
 Summary:	Annvix release file
@@ -86,6 +86,9 @@ EOF
 
 
 %changelog
+* Tue Apr 10 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1
+- 2.1-CURRENT (Fenris)
+
 * Mon Apr 02 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0
 - add tty name to /etc/issue (thanks jf)
 
