@@ -1,0 +1,5 @@
+--- apt-0.5.15lorg3.1/po/LINGUAS.bad_lc	2006-05-08 00:41:36.000000000 -0600
++++ apt-0.5.15lorg3.1/po/LINGUAS	2006-06-15 23:35:36.000000000 -0600
+@@ -1 +1 @@
+-de_DE es_ES it_IT ja pt_BR ru
++de es it ja pt_BR ru

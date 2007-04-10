@@ -1,0 +1,55 @@
+diff -pruN uschedule-0.7.1/src/svscan_conf.c uschedule-0.7.1.avx/src/svscan_conf.c
+--- uschedule-0.7.1/src/svscan_conf.c	2004-08-11 00:38:33.000000000 -0600
++++ uschedule-0.7.1.avx/src/svscan_conf.c	2006-10-31 10:26:47.000000000 -0700
+@@ -122,8 +122,8 @@ log_dir(const char *user, const char *ld
+ 	outs("umask 077\n");
+ 	outs("exec");
+ 	if (user && *user)
+-		outs(" setuidgid "); outs(user);
+-	outs(" multilog t ");
++		outs(" /sbin/chpst -u "); outs(user);
++	outs(" /sbin/svlogd -tt ");
+ 	if (ldir) outs(ldir);
+ 	else outs("./main");
+ 	outs("\n");
+diff -pruN uschedule-0.7.1/src/uscheduleconf.c uschedule-0.7.1.avx/src/uscheduleconf.c
+--- uschedule-0.7.1/src/uscheduleconf.c	2004-08-16 00:21:12.000000000 -0600
++++ uschedule-0.7.1.avx/src/uscheduleconf.c	2006-10-31 10:26:25.000000000 -0700
+@@ -20,7 +20,7 @@ static int o_user_change=1;
+ static void xowner(uid_t u, gid_t g) { if (o_user_change) owner(u,g); }
+ static void xsetuidgid(const char *s)
+ { if (!o_user_change) return;
+-  outs("setuidgid "); outs(s); outs(" \\\n");
++  outs("chpst -u "); outs(s); outs(" \\\n");
+ }
+ 
+ static void mp(const char *s, int mode, uid_t u, gid_t g)
+@@ -174,7 +174,7 @@ main(int argc, char **argv)
+   outs("exec 2>&1\n");
+   outs("cd '"); outs(logdir); outs("' || exit 1\n");
+   outs("exec \\\n");
+-  outs("softlimit -m 8000000 -o 400 -p 40 \\\n");
++  outs("/sbin/chpst -m 8000000 -o 400 -p 40 \\\n");
+   xsetuidgid(logusername);
+   outs("./run\n");
+   finish_file();
+@@ -192,7 +192,7 @@ main(int argc, char **argv)
+   start_file("run");
+   outs("#! /bin/sh\n");
+   outs("exec \\\n");
+-  outs("envdir ./env \\\n");
++  outs("chpst -e ./env \\\n");
+   outs("uscheduled -d `pwd`\n");
+   finish_file();
+   xowner(useruid,usergid);
+@@ -229,8 +229,8 @@ main(int argc, char **argv)
+     start_file(logrun.s);
+     outs("#! /bin/sh\n");
+     outs("exec \\\n");
+-    outs("softlimit -m 5000000 -o 100 -p 10 \\\n");
+-    outs("multilog t \\\n");
++    outs("/sbin/chpst -m 5000000 -o 100 -p 10 \\\n");
++    outs("/sbin/svlogd -tt \\\n");
+     outs("./\n");
+     finish_file();
+     xowner(loguid,loggid);

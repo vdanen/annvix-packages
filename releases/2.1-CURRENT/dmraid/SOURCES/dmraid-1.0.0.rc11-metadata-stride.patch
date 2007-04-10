@@ -1,0 +1,11 @@
+--- dmraid/1.0.0.rc11/lib/metadata/metadata.c.orig	2006-03-28 16:03:13.000000000 +0200
++++ dmraid/1.0.0.rc11/lib/metadata/metadata.c	2006-07-07 19:55:42.000000000 +0200
+@@ -120,7 +120,7 @@
+ static uint64_t add_sectors(struct raid_set *rs, uint64_t sectors,
+ 			    uint64_t add)
+ {
+-	add = round_down(add, rs->stride);
++	add = rs->stride ? round_down(add, rs->stride) : add;
+ 
+ 	if (T_RAID1(rs)) {
+ 		if (!sectors || sectors > add)

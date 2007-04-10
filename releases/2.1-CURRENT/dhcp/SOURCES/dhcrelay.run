@@ -1,0 +1,18 @@
+#!/bin/execlineb
+
+/bin/fdmove -c 2 1
+
+/sbin/chpst -e ./env/
+
+/bin/multisubstitute {
+    import SERVERS
+    import -D "-q" OPTIONS
+}
+
+/bin/ifthenelse { /usr/bin/test -z ${SERVERS} }
+{
+    /bin/echo "I need at least one dhcp server to relay from... please set SERVERS in the ./env!"
+}
+{
+    /usr/sbin/dhcrelay -d ${OPTIONS} ${SERVERS}
+}

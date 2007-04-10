@@ -1,0 +1,66 @@
+--- Linux-PAM-0.99.3.0/modules/pam_xauth/pam_xauth.c.xauth-groups	2005-11-23 17:42:40.000000000 +0100
++++ Linux-PAM-0.99.3.0/modules/pam_xauth/pam_xauth.c	2006-01-27 22:59:21.000000000 +0100
+@@ -77,7 +77,7 @@
+  * given input on stdin, and storing any output it generates. */
+ static int
+ run_coprocess(const char *input, char **output,
+-	      uid_t uid, gid_t gid, const char *command, ...)
++	      uid_t uid, gid_t gid, const char *name, const char *command, ...)
+ {
+ 	int ipipe[2], opipe[2], i;
+ 	char buf[LINE_MAX];
+@@ -113,10 +113,18 @@
+ 		size_t j;
+ 		char *args[10];
+ 		const char *tmp;
++		
++		/* Mandrake Linux specific:
++		 * we need to set the extra groups because in high security levels
++		 * access to /usr/X11R6/bin dir is controlled by a group */
++		setgroups(0, NULL);
++		initgroups(name, gid);
++
+ 		/* Drop privileges. */
+ 		setgid(gid);
+-		setgroups(0, NULL);
+ 		setuid(uid);
++
++		
+ 		/* Initialize the argument list. */
+ 		memset(args, 0, sizeof(args));
+ 		/* Set the pipe descriptors up as stdin and stdout, and close
+@@ -141,6 +149,7 @@
+ 		}
+ 		/* Run the command. */
+ 		execv(command, args);
++		syslog(LOG_ERR, "pam_xauth: execvp of %s failed: %m", command);
+ 		/* Never reached. */
+ 		exit(1);
+ 	}
+@@ -450,7 +459,7 @@
+ 			   (unsigned long) getuid(), (unsigned long) getgid());
+ 	}
+ 	if (run_coprocess(NULL, &cookie,
+-			  getuid(), getgid(),
++			  getuid(), getgid(), rpwd->pw_name,
+ 			  xauth, "-f", cookiefile, "nlist", display,
+ 			  NULL) == 0) {
+ 		/* Check that we got a cookie.  If not, we get creative. */
+@@ -504,7 +513,7 @@
+ 						       (unsigned long) getgid());
+ 					}
+ 					run_coprocess(NULL, &cookie,
+-						      getuid(), getgid(),
++						      getuid(), getgid(), rpwd->pw_name,
+ 						      xauth, "-f", cookiefile,
+ 						      "nlist", t, NULL);
+ 				}
+@@ -606,7 +615,7 @@
+ 				  (unsigned long) tpwd->pw_gid);
+ 		}
+ 		run_coprocess(cookie, &tmp,
+-			      tpwd->pw_uid, tpwd->pw_gid,
++			      tpwd->pw_uid, tpwd->pw_gid, tpwd->pw_name,
+ 			      xauth, "-f", cookiefile, "nmerge", "-", NULL);
+ 
+ 		/* We don't need to keep a copy of these around any more. */

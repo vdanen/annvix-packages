@@ -1,0 +1,11 @@
+--- pkgconfig-0.15.0/popthelp.c.overflow	2005-03-07 00:55:11.000000000 -0500
++++ pkgconfig-0.15.0/popthelp.c	2005-03-07 00:56:15.000000000 -0500
+@@ -62,7 +62,7 @@
+     const char * help = _(opt->descrip);
+     int helpLength;
+     const char * ch;
+-    char format[10];
++    char format[11];
+     char * left = alloca(maxLeftCol + 1);
+     const char * argDescrip = getArgDescrip(opt);
+ 

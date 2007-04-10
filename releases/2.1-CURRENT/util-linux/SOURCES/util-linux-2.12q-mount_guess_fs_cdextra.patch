@@ -1,0 +1,94 @@
+Index: util-linux-2.12q/configure
+===================================================================
+--- util-linux-2.12q.orig/configure	2005-05-02 17:51:51.000000000 +0200
++++ util-linux-2.12q/configure	2005-05-02 17:54:50.000000000 +0200
+@@ -18,6 +18,7 @@
+ # H9. For raw.c: do we have <linux/raw.h>?
+ # H10. For md5.c: do we have <stdint.h>?
+ # H11. For cmos.c: do we have <sys/io.h>?
++# H12. For guessfstype of CD-Extra, do we have <linux/cdrom.h>?
+ #
+ # Existence of functions:
+ # F1. For nfsmount.c: is inet_aton() available?
+@@ -208,6 +209,12 @@ if ./testincl "sys/io.h"; then
+ fi
+ 
+ #
++# H12. For guessfstype of CD-Extra, do we have <linux/cdrom.h>?
++if ./testincl "linux/cdrom.h"; then
++	echo "#define HAVE_cdrom_h" >> defines.h
++fi
++
++#
+ # Find out about the existence of functions
+ #
+ 
+Index: util-linux-2.12q/mount/mount_guess_fstype.c
+===================================================================
+--- util-linux-2.12q.orig/mount/mount_guess_fstype.c	2005-05-02 17:51:45.000000000 +0200
++++ util-linux-2.12q/mount/mount_guess_fstype.c	2005-05-02 17:59:52.000000000 +0200
+@@ -26,6 +26,9 @@
+  * 2001-10-26 Tim Launchbury
+  * added sysv magic.
+  *
++ * 2003-11-21 Mads Martin Joergensen <mmj@suse.de>
++ * added guessfstype support for CD-Extra
++ * 
+  * aeb - many changes.
+  *
+  */
+@@ -37,11 +40,17 @@
+ #include <unistd.h>
+ #include <sys/stat.h>
+ #include <sys/types.h>
++#include <sys/ioctl.h>
+ #include "linux_fs.h"
+ #include "mount_blkid.h"
+ #include "mount_guess_fstype.h"
+ #include "sundries.h"		/* for xstrdup */
+ #include "nls.h"
++#include "../defines.h"
++#ifdef HAVE_cdrom_h
++#include <linux/cdrom.h>
++#endif
++
+ 
+ #define ETC_FILESYSTEMS		"/etc/filesystems"
+ #define PROC_FILESYSTEMS	"/proc/filesystems"
+@@ -416,8 +425,34 @@ do_guess_fstype(const char *device) {
+ 	 /* block 32 */
+     try_iso9660:
+ 	 if (lseek(fd, 0x8000, SEEK_SET) != 0x8000
+-	     || read(fd, (char *) &isosb, sizeof(isosb)) != sizeof(isosb))
+-	      goto io_error;
++	     || read(fd, (char *) &isosb, sizeof(isosb)) != sizeof(isosb)) {
++#ifdef HAVE_cdrom_h
++		/* Try and see if we have an iso9660 data track later on */
++		char toc_header[2];
++		struct cdrom_tocentry *toc[CDROM_LEADOUT + 1];
++		int i, offset;
++		
++		if (ioctl(fd, CDROMREADTOCHDR, &toc_header))
++			goto io_error;
++		for (i = toc_header[0]; i <= toc_header[1]; i++) {
++			toc[i] = malloc(sizeof(struct cdrom_tocentry));
++			memset(toc[i],0,sizeof(struct cdrom_tocentry));
++			toc[i]->cdte_track  = i;
++			toc[i]->cdte_format = CDROM_LBA;
++			if(ioctl(fd,CDROMREADTOCENTRY,toc[i]))
++				goto io_error;
++			if((toc[i]->cdte_ctrl & CDROM_DATA_TRACK)) {
++				offset = 2048 * (toc[i]->cdte_addr.lba + 16);
++				if(lseek(fd, offset, SEEK_SET) != offset)
++					goto io_error;
++				if(read(fd,(char *) &isosb,sizeof(isosb))==-1)
++					goto io_error;
++			}
++		}
++#else
++		goto io_error;
++#endif
++	 }
+ 
+ 	 if (strncmp(isosb.hs.id, HS_STANDARD_ID, sizeof(isosb.hs.id)) == 0) {
+ 		 /* "CDROM" */

@@ -1,0 +1,41 @@
+--- mailx-8.1.1/aux.c.includes	2002-11-11 07:03:05.000000000 -0500
++++ mailx-8.1.1/aux.c	2002-11-11 07:05:58.000000000 -0500
+@@ -42,6 +42,7 @@ static char rcsid[] = "$OpenBSD: aux.c,v
+ #endif
+ #endif /* not lint */
+ 
++#include <time.h>
+ #include "rcv.h"
+ #include "extern.h"
+ 
+--- mailx-8.1.1/names.c.includes	2002-11-11 07:03:04.000000000 -0500
++++ mailx-8.1.1/names.c	2002-11-11 07:07:02.000000000 -0500
+@@ -49,6 +49,7 @@ static char rcsid[] = "$OpenBSD: names.c
+  */
+ 
+ #include "rcv.h"
++#include <time.h>
+ #include <fcntl.h>
+ #include "extern.h"
+ 
+--- mailx-8.1.1/quit.c.includes	2002-11-11 07:03:04.000000000 -0500
++++ mailx-8.1.1/quit.c	2002-11-11 07:09:13.000000000 -0500
+@@ -44,6 +44,8 @@ static char rcsid[] = "$OpenBSD: quit.c,
+ 
+ #include "rcv.h"
+ #include <fcntl.h>
++#include <stdio.h>
++#include <sys/file.h>
+ #include "extern.h"
+ 
+ /*
+--- mailx-8.1.1/send.c.includes	1996-06-14 04:27:08.000000000 -0400
++++ mailx-8.1.1/send.c	2002-11-11 07:07:42.000000000 -0500
+@@ -43,6 +43,7 @@ static char rcsid[] = "$OpenBSD: send.c,
+ #endif /* not lint */
+ 
+ #include "rcv.h"
++#include <time.h>
+ #include "extern.h"
+ 
+ /*

@@ -1,0 +1,112 @@
+--- shadow-4.0.12/lib/getdef.c.usergroupname_max	2006-06-30 21:49:22.000000000 -0600
++++ shadow-4.0.12/lib/getdef.c	2006-06-30 21:50:29.000000000 -0600
+@@ -60,6 +60,7 @@
+ 	{"GETPASS_ASTERISKS", NULL},
+ 	{"GID_MAX", NULL},
+ 	{"GID_MIN", NULL},
++	{"GROUPNAME_MAX", NULL},
+ 	{"HUSHLOGIN_FILE", NULL},
+ 	{"KILLCHAR", NULL},
+ 	{"LOGIN_RETRIES", NULL},
+@@ -80,6 +81,7 @@
+ 	{"UMASK", NULL},
+ 	{"USERDEL_CMD", NULL},
+ 	{"USERGROUPS_ENAB", NULL},
++	{"USERNAME_MAX", NULL},
+ 	{"CRYPT_PREFIX", NULL},
+ 	{"CRYPT_ROUNDS", NULL},
+ #ifndef USE_PAM
+--- shadow-4.0.12/libmisc/chkname.c.usergroupname_max	2005-06-14 14:27:35.000000000 -0600
++++ shadow-4.0.12/libmisc/chkname.c	2006-06-30 21:49:22.000000000 -0600
+@@ -8,6 +8,7 @@
+ #include "rcsid.h"
+ RCSID ("$Id: chkname.c,v 1.8 2003/05/12 05:29:14 kloczek Exp $")
+ #include <ctype.h>
++#include "getdef.h"
+ #include "defines.h"
+ #include "chkname.h"
+ #if HAVE_UTMPX_H
+@@ -34,8 +35,14 @@
+ 	return 1;
+ }
+ 
++static unsigned int min (unsigned int a, unsigned int b)
++{
++       return a < b ? a : b;
++}
++
+ int check_user_name (const char *name)
+ {
++	unsigned int max_len;
+ #if HAVE_UTMPX_H
+ 	struct utmpx ut;
+ #else
+@@ -44,9 +51,10 @@
+ 
+ 	/*
+ 	 * User names are limited by whatever utmp can
+-	 * handle (usually max 8 characters).
++	 * handle and the settings in login.defs
+ 	 */
+-	if (strlen (name) > sizeof (ut.ut_user))
++	max_len = min (getdef_unum ("USERNAME_MAX", 8), sizeof (ut.ut_user));
++	if (strlen (name) > max_len)
+ 		return 0;
+ 
+ 	return good_name (name);
+@@ -55,10 +63,9 @@
+ int check_group_name (const char *name)
+ {
+ 	/*
+-	 * Arbitrary limit for group names - max 16
+-	 * characters (same as on HP-UX 10).
++	 * Arbitrary limit for group names.
+ 	 */
+-	if (strlen (name) > 16)
++	if (strlen (name) > min (getdef_unum ("GROUPNAME_MAX", 16), 32))
+ 		return 0;
+ 
+ 	return good_name (name);
+--- shadow-4.0.12/man/login.defs.5.usergroupname_max	2006-06-30 21:49:22.000000000 -0600
++++ shadow-4.0.12/man/login.defs.5	2006-06-30 21:55:03.000000000 -0600
+@@ -60,6 +63,9 @@
+ and 
+ \fBgroupadd\fR programs.
+ .TP
++GROUPNAME_MAX (number)
++Maximum number of characters for group names. This value can't be greater than 32. If not specified, 16 characters will be assumed.
++.TP
+ MAIL_DIR (string)
+ The mail spool directory. This is needed to manipulate the mailbox when its corresponding user account is modified or deleted. If not specified, a compile\-time default is used.
+ .TP
+@@ -84,6 +90,9 @@
+ .TP
+ USERDEL_CMD (string)
+ If defined, this command is run when removing a user. It should remove any at/cron/print jobs etc. owned by the user to be removed (passed as the first argument).
++.TP
++USERNAME_MAX (number)
++Maximum number of characters for user names. This value must be less than or equal to the length of an user name in utmp login records (usually 32 characters). If not specified, 8 characters will be assumed.
+ .SH "CROSS REFERENCE"
+ .PP
+ The following cross reference shows which programs in the shadow password suite use which parameters.
+@@ -98,7 +107,10 @@
+ CRYPT_PREFIX CRYPT_ROUNDS
+ .TP
+ groupadd
+-GID_MAX GID_MIN
++GID_MAX GID_MIN GROUPNAME_MAX
++.TP
++groupmod
++GROUPNAME_MAX
+ .TP
+ newusers
+ PASS_MAX_DAYS PASS_MIN_DAYS PASS_WARN_AGE UMASK
+@@ -113,7 +125,7 @@
+ MAIL_DIR USERDEL_CMD
+ .TP
+ usermod
+-MAIL_DIR
++MAIL_DIR USERNAME_MAX
+ .SH "BUGS"
+ .PP
+ Much of the functionality that used to be provided by the shadow password suite is now handled by PAM. Thus, 

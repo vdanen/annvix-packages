@@ -1,0 +1,15 @@
+--- tar-1.14/src/names.c.slashes	2004-05-25 02:42:13.382136832 +0800
++++ tar-1.14/src/names.c	2004-05-25 02:43:16.862486352 +0800
+@@ -1118,5 +1118,12 @@
+ 	    return 0;
+ 	}
+       while (! ISSLASH (*p));
++
++      do
++	{
++	  if (! *p++)
++	    return 0;
++	}
++      while ( ISSLASH (*p));
+     }
+ }

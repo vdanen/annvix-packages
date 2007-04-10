@@ -1,0 +1,11 @@
+#!/bin/sh
+
+/usr/sbin/tmpwatch 240 /tmp /var/tmp
+
+[ -f /etc/sysconfig/i18n ] && . /etc/sysconfig/i18n 
+
+if [ -d /usr/share/man/$LANG/ ] && [ -d /var/catman/$LANG/ ]; then 
+    /usr/sbin/tmpwatch -f 240 /var/catman/{X11R6/cat?,cat?,local/cat?,$LANG/cat?} 
+else 
+    /usr/sbin/tmpwatch -f 240 /var/catman/{X11R6/cat?,cat?,local/cat?}
+fi

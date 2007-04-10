@@ -1,0 +1,109 @@
+--- apu-config.in	2005-02-04 21:45:35.000000000 +0100
++++ apu-config.in.oden	2005-11-30 20:13:54.000000000 +0100
+@@ -25,6 +25,7 @@
+ exec_prefix="@exec_prefix@"
+ bindir="@bindir@"
+ libdir="@libdir@"
++datadir="@datadir@"
+ includedir="@includedir@"
+ 
+ LIBS="@APRUTIL_EXPORT_LIBS@"
+@@ -33,8 +34,6 @@
+ 
+ APRUTIL_LIBNAME="@APRUTIL_LIBNAME@"
+ 
+-APU_SOURCE_DIR="@abs_srcdir@"
+-APU_BUILD_DIR="@abs_builddir@"
+ APR_XML_EXPAT_OLD="@APR_XML_EXPAT_OLD@"
+ APU_DB_VERSION="@apu_db_version@"
+ 
+@@ -77,15 +76,7 @@
+     exit 1
+ fi
+ 
+-if test "$location" = "installed"; then
+-    LA_FILE="$libdir/lib${APRUTIL_LIBNAME}.la"
+-
+-    LIBS=`echo "$LIBS" | sed -e "s $APU_BUILD_DIR/xml/expat $prefix g" -e "s $prefix/lib/libexpat.la -lexpat g"`
+-    LDFLAGS=`echo "$LDFLAGS" | sed -e "s $APU_BUILD_DIR/xml/expat $prefix g"`
+-    INCLUDES=`echo "$INCLUDES" | sed -e "s $APU_BUILD_DIR/xml/expat $prefix g" -e "s -I$prefix/lib  g"`
+-else
+-    LA_FILE="$APU_BUILD_DIR/lib${APRUTIL_LIBNAME}.la"
+-fi
++LA_FILE="${libdir}/lib${APRUTIL_LIBNAME}.la"
+ 
+ flags=""
+ 
+@@ -113,32 +104,17 @@
+     flags="$flags $LIBS"
+     ;;
+     --includedir)
+-    if test "$location" = "installed"; then
+-        flags="$includedir"
+-    elif test "$location" = "source"; then
+-        flags="$APU_SOURCE_DIR/include"
+-    else
+-        # this is for VPATH builds
+-        flags="$APU_BUILD_DIR/include $APU_SOURCE_DIR/include"
+-    fi
+-    echo $flags
++    echo $includedir
+     exit 0
+     ;;
+     --includes)
+-    if test "$location" = "installed"; then
+-        flags="$flags -I$includedir $INCLUDES"
+-    elif test "$location" = "source"; then
+-        flags="$flags -I$APU_SOURCE_DIR/include $INCLUDES"
+-    else
+-        # this is for VPATH builds
+-        flags="$flags -I$APU_BUILD_DIR/include -I$APU_SOURCE_DIR/include $INCLUDES"
+-    fi
++    flags="$flags -I$includedir $INCLUDES"
+     ;;
+     --ldflags)
+     flags="$flags $LDFLAGS"
+     ;;
+     --srcdir)
+-    echo $APU_SOURCE_DIR
++    echo ${libdir}/apr-$APRUTIL_MAJOR_VERSION
+     exit 0
+     ;;
+     --version)
+@@ -146,33 +122,13 @@
+     exit 0
+     ;;
+     --link-ld)
+-    if test "$location" = "installed"; then
+-        ### avoid using -L if libdir is a "standard" location like /usr/lib
+-        flags="$flags -L$libdir -l$APRUTIL_LIBNAME"
+-    else
+-        flags="$flags -L$APU_BUILD_DIR -l$APRUTIL_LIBNAME"
+-    fi
++    flags="$flags -l$APRUTIL_LIBNAME"
+     ;;
+     --link-libtool)
+-    # If the LA_FILE exists where we think it should be, use it.  If we're
+-    # installed and the LA_FILE does not exist, assume to use -L/-l
+-    # (the LA_FILE may not have been installed).  If we're building ourselves,
+-    # we'll assume that at some point the .la file be created.
+-    if test -f "$LA_FILE"; then
+-        flags="$flags $LA_FILE"
+-    elif test "$location" = "installed"; then
+-        ### avoid using -L if libdir is a "standard" location like /usr/lib
+-        # Since the user is specifying they are linking with libtool, we
+-        # *know* that -R will be recognized by libtool.
+-        flags="$flags -L$libdir -R$libdir -l$APRUTIL_LIBNAME"
+-    else
+-        flags="$flags $LA_FILE"
+-    fi
++    flags="$flags $LA_FILE"
+     ;;
+     --apu-la-file)
+-    if test -f "$LA_FILE"; then
+-        flags="$flags $LA_FILE"
+-    fi
++    flags="$flags $LA_FILE"
+     ;;
+     --old-expat)
+     if test ! -n "$APR_XML_EXPAT_OLD"; then

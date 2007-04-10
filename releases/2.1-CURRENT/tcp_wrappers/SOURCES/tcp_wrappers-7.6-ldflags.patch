@@ -1,0 +1,35 @@
+--- Makefile	2005-03-03 05:07:07.445943704 +0100
++++ Makefile.oden	2005-03-03 05:08:42.898089305 +0100
+@@ -732,26 +732,26 @@
+ 	ln -snf $(SHLIB).$(MAJOR).$(MINOR).$(REL) $(SHLIB)
+ 
+ tcpd:	tcpd.o $(SHLIB)
+-	$(CC) $(CFLAGS) -o $@ tcpd.o $(SHLIB) $(LIBS)
++	$(CC) $(CFLAGS) -o $@ tcpd.o $(LDFLAGS) $(SHLIB) $(LIBS)
+ 
+ miscd:	miscd.o $(SHLIB)
+-	$(CC) $(CFLAGS) -o $@ miscd.o $(SHLIB) $(LIBS)
++	$(CC) $(CFLAGS) -o $@ miscd.o $(LDFLAGS) $(SHLIB) $(LIBS)
+ 
+ safe_finger: safe_finger.o $(SHLIB)
+-	$(CC) $(CFLAGS) -o $@ safe_finger.o $(SHLIB) $(LIBS)
++	$(CC) $(CFLAGS) -o $@ safe_finger.o $(LDFLAGS) $(SHLIB) $(LIBS)
+ 
+ TCPDMATCH_OBJ = tcpdmatch.o fakelog.o inetcf.o scaffold.o
+ 
+ tcpdmatch: $(TCPDMATCH_OBJ) $(SHLIB)
+-	$(CC) $(CFLAGS) -o $@ $(TCPDMATCH_OBJ) $(SHLIB) $(LIBS)
++	$(CC) $(CFLAGS) -o $@ $(TCPDMATCH_OBJ) $(LDFLAGS) $(SHLIB) $(LIBS)
+ 
+ try-from: try-from.o fakelog.o $(SHLIB)
+-	$(CC) $(CFLAGS) -o $@ try-from.o fakelog.o $(SHLIB) $(LIBS)
++	$(CC) $(CFLAGS) -o $@ try-from.o fakelog.o $(LDFLAGS) $(SHLIB) $(LIBS)
+ 
+ TCPDCHK_OBJ = tcpdchk.o fakelog.o inetcf.o scaffold.o
+ 
+ tcpdchk: $(TCPDCHK_OBJ) $(SHLIB)
+-	$(CC) $(CFLAGS) -o $@ $(TCPDCHK_OBJ) $(SHLIB) $(LIBS)
++	$(CC) $(CFLAGS) -o $@ $(TCPDCHK_OBJ) $(LDFLAGS) $(SHLIB) $(LIBS)
+ 
+ shar:	$(KIT)
+ 	@shar $(KIT)

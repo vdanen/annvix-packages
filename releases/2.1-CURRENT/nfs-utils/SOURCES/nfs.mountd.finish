@@ -1,0 +1,14 @@
+#!/bin/sh
+PATH="/sbin:/usr/sbin:/bin:/usr/bin"
+
+envdir=/etc/sysconfig/env/nfs
+[[ -f ${envdir}/LOCKD_TCPPORT ]] && LOCKD_TCPPORT="$(head -1 ${envdir}/LOCKD_TCPPORT)"
+[[ -f ${envdir}/LOCKD_UDPPORT ]] && LOCKD_UDPPORT="$(head -1 ${envdir}/LOCKD_UDPPORT)"
+
+/usr/bin/killall -9 nfsd
+
+# reset the lockd ports if they were set
+[[ -n "${LOCKD_TCPPORT}" ]] && /sbin/sysctl -w fs.nfs.nlm_tcpport=0 >/dev/null 2>&1
+[[ -n "${LOCKD_UDPPORT}" ]] && /sbin/sysctl -w fs.nfs.nlm_udpport=0 >/dev/null 2>&1
+
+/usr/sbin/exportfs -au

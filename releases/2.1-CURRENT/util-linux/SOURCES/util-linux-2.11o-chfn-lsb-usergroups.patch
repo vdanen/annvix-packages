@@ -1,0 +1,25 @@
+--- util-linux-2.11o/login-utils/chfn.c	Wed Sep  5 11:29:40 2001
++++ util-linux-2.11o/login-utils/chfn.c.patched	Wed Sep  5 11:29:23 2001
+@@ -220,7 +220,7 @@
+     optind = 0;
+     info_given = false;
+     while (true) {
+-	c = getopt_long (argc, argv, "f:r:p:h:o:uv", long_options, &index);
++	c = getopt_long (argc, argv, "f:r:w:p:h:o:uv", long_options, &index);
+ 	if (c == -1) break;
+ 	/* version?  output version and exit. */
+ 	if (c == 'v') {
+@@ -250,11 +250,13 @@
+ 	    strcat (buf, "full name");
+ 	    status = check_gecos_string (buf, optarg);
+ 	    break;
++	case 'r':
+ 	case 'o':
+ 	    pinfo->office = optarg;
+ 	    strcat (buf, "office");
+ 	    status = check_gecos_string (buf, optarg);
+ 	    break;
++	case 'w':
+ 	case 'p':
+ 	    pinfo->office_phone = optarg;
+ 	    strcat (buf, "office phone");

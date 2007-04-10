@@ -1,0 +1,21 @@
+#!/bin/execlineb
+
+/bin/fdmove -c 2 1
+
+/bin/export PATH "/sbin:/bin:/usr/sbin:/usr/bin"
+
+/sbin/chpst -e /etc/sysconfig/env/tcpsvd/
+/sbin/chpst -e ./env/
+
+/bin/multisubstitute {
+    import -D "localhost" HOSTNAME
+    import -D 0 IP
+    import -D 22 PORT
+    import -D 20 MAX_CONN
+    import -D 5 MAX_PER_HOST
+    import -D 20 MAX_BACKLOG
+    import OPTIONS
+}
+
+/sbin/tcpsvd -v -l ${HOSTNAME} -x peers.cdb -c ${MAX_CONN} -C ${MAX_PER_HOST} -b ${MAX_BACKLOG} ${IP} ${PORT}
+     /usr/sbin/sshd -i ${OPTIONS}

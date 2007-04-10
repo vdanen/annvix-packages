@@ -1,0 +1,258 @@
+--- flex-2.5.4/flex.skl.c++fixes	2002-06-07 16:30:54.000000000 +0200
++++ flex-2.5.4/flex.skl	2002-06-07 16:30:54.000000000 +0200
+@@ -26,7 +26,7 @@
+ 
+ #include <stdlib.h>
+ %+
+-class istream;
++#include <iostream>
+ %*
+ 
+ /* Use prototypes in function declarations. */
+@@ -153,7 +153,7 @@ struct yy_buffer_state
+ %-
+ 	FILE *yy_input_file;
+ %+
+-	istream* yy_input_file;
++	std::istream* yy_input_file;
+ %*
+ 
+ 	char *yy_ch_buf;		/* input buffer */
+@@ -469,14 +469,14 @@ YY_DECL
+ %-
+ 			yyin = stdin;
+ %+
+-			yyin = &cin;
++			yyin = &std::cin;
+ %*
+ 
+ 		if ( ! yyout )
+ %-
+ 			yyout = stdout;
+ %+
+-			yyout = &cout;
++			yyout = &std::cout;
+ %*
+ 
+ 		if ( ! yy_current_buffer )
+@@ -646,7 +646,7 @@ do_action:	/* This label is used only to
+ 	} /* end of yylex */
+ 
+ %+
+-yyFlexLexer::yyFlexLexer( istream* arg_yyin, ostream* arg_yyout )
++yyFlexLexer::yyFlexLexer( std::istream* arg_yyin, std::ostream* arg_yyout )
+ 	{
+ 	yyin = arg_yyin;
+ 	yyout = arg_yyout;
+@@ -681,7 +681,7 @@ yyFlexLexer::~yyFlexLexer()
+ 	yy_delete_buffer( yy_current_buffer );
+ 	}
+ 
+-void yyFlexLexer::switch_streams( istream* new_in, ostream* new_out )
++void yyFlexLexer::switch_streams( std::istream* new_in, std::ostream* new_out )
+ 	{
+ 	if ( new_in )
+ 		{
+@@ -1055,7 +1055,7 @@ void yyrestart( input_file )
+ FILE *input_file;
+ #endif
+ %+
+-void yyFlexLexer::yyrestart( istream* input_file )
++void yyFlexLexer::yyrestart( std::istream* input_file )
+ %*
+ 	{
+ 	if ( ! yy_current_buffer )
+@@ -1126,7 +1126,7 @@ FILE *file;
+ int size;
+ #endif
+ %+
+-YY_BUFFER_STATE yyFlexLexer::yy_create_buffer( istream* file, int size )
++YY_BUFFER_STATE yyFlexLexer::yy_create_buffer( std::istream* file, int size )
+ %*
+ 	{
+ 	YY_BUFFER_STATE b;
+@@ -1187,7 +1187,7 @@ FILE *file;
+ #endif
+ 
+ %+
+-void yyFlexLexer::yy_init_buffer( YY_BUFFER_STATE b, istream* file )
++void yyFlexLexer::yy_init_buffer( YY_BUFFER_STATE b, std::istream* file )
+ %*
+ 
+ 	{
+@@ -1431,7 +1431,7 @@ char msg[];
+ 
+ void yyFlexLexer::LexerError( yyconst char msg[] )
+ 	{
+-	cerr << msg << '\n';
++	std::cerr << msg << '\n';
+ 	exit( YY_EXIT_FAILURE );
+ 	}
+ %*
+--- flex-2.5.4/FlexLexer.h.c++fixes	1997-07-27 04:41:38.000000000 +0200
++++ flex-2.5.4/FlexLexer.h	2002-06-07 16:30:54.000000000 +0200
+@@ -44,7 +44,7 @@
+ #ifndef __FLEX_LEXER_H
+ // Never included before - need to define base class.
+ #define __FLEX_LEXER_H
+-#include <iostream.h>
++#include <iostream>
+ 
+ extern "C++" {
+ 
+@@ -61,14 +61,14 @@ public:
+ 	virtual void
+ 		yy_switch_to_buffer( struct yy_buffer_state* new_buffer ) = 0;
+ 	virtual struct yy_buffer_state*
+-		yy_create_buffer( istream* s, int size ) = 0;
++		yy_create_buffer( std::istream* s, int size ) = 0;
+ 	virtual void yy_delete_buffer( struct yy_buffer_state* b ) = 0;
+-	virtual void yyrestart( istream* s ) = 0;
++	virtual void yyrestart( std::istream* s ) = 0;
+ 
+ 	virtual int yylex() = 0;
+ 
+ 	// Call yylex with new input/output sources.
+-	int yylex( istream* new_in, ostream* new_out = 0 )
++	int yylex( std::istream* new_in, std::ostream* new_out = 0 )
+ 		{
+ 		switch_streams( new_in, new_out );
+ 		return yylex();
+@@ -76,8 +76,8 @@ public:
+ 
+ 	// Switch to new input/output streams.  A nil stream pointer
+ 	// indicates "keep the current one".
+-	virtual void switch_streams( istream* new_in = 0,
+-					ostream* new_out = 0 ) = 0;
++	virtual void switch_streams( std::istream* new_in = 0,
++					std::ostream* new_out = 0 ) = 0;
+ 
+ 	int lineno() const		{ return yylineno; }
+ 
+@@ -104,17 +104,17 @@ class yyFlexLexer : public FlexLexer {
+ public:
+ 	// arg_yyin and arg_yyout default to the cin and cout, but we
+ 	// only make that assignment when initializing in yylex().
+-	yyFlexLexer( istream* arg_yyin = 0, ostream* arg_yyout = 0 );
++	yyFlexLexer( std::istream* arg_yyin = 0, std::ostream* arg_yyout = 0 );
+ 
+ 	virtual ~yyFlexLexer();
+ 
+ 	void yy_switch_to_buffer( struct yy_buffer_state* new_buffer );
+-	struct yy_buffer_state* yy_create_buffer( istream* s, int size );
++	struct yy_buffer_state* yy_create_buffer( std::istream* s, int size );
+ 	void yy_delete_buffer( struct yy_buffer_state* b );
+-	void yyrestart( istream* s );
++	void yyrestart( std::istream* s );
+ 
+ 	virtual int yylex();
+-	virtual void switch_streams( istream* new_in, ostream* new_out );
++	virtual void switch_streams( std::istream* new_in, std::ostream* new_out );
+ 
+ protected:
+ 	virtual int LexerInput( char* buf, int max_size );
+@@ -125,7 +125,7 @@ protected:
+ 	int yyinput();
+ 
+ 	void yy_load_buffer_state();
+-	void yy_init_buffer( struct yy_buffer_state* b, istream* s );
++	void yy_init_buffer( struct yy_buffer_state* b, std::istream* s );
+ 	void yy_flush_buffer( struct yy_buffer_state* b );
+ 
+ 	int yy_start_stack_ptr;
+@@ -140,8 +140,8 @@ protected:
+ 	yy_state_type yy_try_NUL_trans( yy_state_type current_state );
+ 	int yy_get_next_buffer();
+ 
+-	istream* yyin;	// input source for default LexerInput
+-	ostream* yyout;	// output sink for default LexerOutput
++	std::istream* yyin;	// input source for default LexerInput
++	std::ostream* yyout;	// output sink for default LexerOutput
+ 
+ 	struct yy_buffer_state* yy_current_buffer;
+ 
+--- flex-2.5.4/flex.1.c++fixes	1995-04-24 22:26:20.000000000 +0200
++++ flex-2.5.4/flex.1	2002-06-07 16:33:46.000000000 +0200
+@@ -3235,7 +3235,7 @@ Also provided are member functions equiv
+ .B yy_switch_to_buffer(),
+ .B yy_create_buffer()
+ (though the first argument is an
+-.B istream*
++.B std::istream*
+ object pointer and not a
+ .B FILE*),
+ .B yy_flush_buffer(),
+@@ -3243,7 +3243,7 @@ object pointer and not a
+ and
+ .B yyrestart()
+ (again, the first argument is a
+-.B istream*
++.B std::istream*
+ object pointer).
+ .PP
+ The second class defined in
+@@ -3255,14 +3255,14 @@ which is derived from
+ It defines the following additional member functions:
+ .TP
+ .B
+-yyFlexLexer( istream* arg_yyin = 0, ostream* arg_yyout = 0 )
++yyFlexLexer( std::istream* arg_yyin = 0, std::ostream* arg_yyout = 0 )
+ constructs a
+ .B yyFlexLexer
+ object using the given streams for input and output.  If not specified,
+ the streams default to
+-.B cin
++.B std::cin
+ and
+-.B cout,
++.B std::cout,
+ respectively.
+ .TP
+ .B virtual int yylex()
+@@ -3295,9 +3295,9 @@ that calls
+ if called).
+ .TP
+ .B
+-virtual void switch_streams(istream* new_in = 0,
++virtual void switch_streams(std::istream* new_in = 0,
+ .B
+-ostream* new_out = 0)
++std::ostream* new_out = 0)
+ reassigns
+ .B yyin
+ to
+@@ -3312,7 +3312,7 @@ to
+ is reassigned.
+ .TP
+ .B
+-int yylex( istream* new_in, ostream* new_out = 0 )
++int yylex( std::istream* new_in, std::ostream* new_out = 0 )
+ first switches the input streams via
+ .B switch_streams( new_in, new_out )
+ and then returns the value of
+@@ -3356,7 +3356,7 @@ the scanner's rules can match text with 
+ virtual void LexerError( const char* msg )
+ reports a fatal error message.  The default version of this function
+ writes the message to the stream
+-.B cerr
++.B std::cerr
+ and exits.
+ .PP
+ Note that a
+@@ -3419,13 +3419,13 @@ Here is an example of a simple C++ scann
+                 }
+             }
+ 
+-    {number}  cout << "number " << YYText() << '\\n';
++    {number}  std::cout << "number " << YYText() << '\\n';
+ 
+     \\n        mylineno++;
+ 
+-    {name}    cout << "name " << YYText() << '\\n';
++    {name}    std::cout << "name " << YYText() << '\\n';
+ 
+-    {string}  cout << "string " << YYText() << '\\n';
++    {string}  std::cout << "string " << YYText() << '\\n';
+ 
+     %%
+ 

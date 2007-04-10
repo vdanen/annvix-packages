@@ -1,0 +1,43 @@
+--- xorg-x11-6.8.2/xc/programs/Xserver/hw/xfree86/drivers/ati/radeon_probe.h.gcc40	2005-05-18 13:07:14.727167772 +0200
++++ xorg-x11-6.8.2/xc/programs/Xserver/hw/xfree86/drivers/ati/radeon_probe.h	2005-05-18 13:09:44.694841158 +0200
+@@ -146,7 +146,6 @@
+ extern Bool                 RADEONProbe
+ 			    FunctionPrototype((DriverPtr, int));
+ 
+-extern SymTabRec            RADEONChipsets[];
+ extern PciChipsets          RADEONPciChipsets[];
+ 
+ /* radeon_driver.c */
+--- xorg-x11-6.8.2/xc/programs/Xserver/fb/fbmmx.c.gcc40	2005-05-18 13:18:19.442977986 +0200
++++ xorg-x11-6.8.2/xc/programs/Xserver/fb/fbmmx.c	2005-05-18 13:20:21.245137979 +0200
+@@ -33,10 +33,18 @@
+ #include "mipict.h"
+ #include "fbpict.h"
+ 
++#if __GNUC__ >= 4
++#include <mmintrin.h>
++typedef __m64 Vector1x64;
++typedef int Vector2x32 __attribute__ ((vector_size (8)));
++typedef short Vector4x16 __attribute__ ((vector_size (8)));
++typedef char Vector8x8  __attribute__ ((vector_size (8)));
++#else
+ typedef int Vector1x64 __attribute__ ((mode(DI)));
+ typedef int Vector2x32 __attribute__ ((mode(V2SI)));
+ typedef int Vector4x16 __attribute__ ((mode(V4HI)));
+ typedef int Vector8x8  __attribute__ ((mode(V8QI)));
++#endif
+ 
+ typedef unsigned long long ullong;
+ 
+@@ -92,9 +100,9 @@
+ shift (Vector1x64 v, int s)
+ {
+     if (s > 0)
+-	return __builtin_ia32_psllq (v, s);
++	return (Vector1x64) __builtin_ia32_psllq ((long long) v, s);
+     else if (s < 0)
+-	return __builtin_ia32_psrlq (v, -s);
++	return (Vector1x64) __builtin_ia32_psrlq ((long long) v, -s);
+     else
+ 	return v;
+ }

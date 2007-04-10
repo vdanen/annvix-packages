@@ -1,0 +1,85 @@
+echo $PWD
+read VERSION PATCHLEVEL SUBLEVEL <<EOF
+$(echo %{kheaders_ver} |awk -F. '{print $1, " ", $2, " ", $3}')
+EOF
+LINUX_VERSION_CODE=$(expr $VERSION \* 65536 + $PATCHLEVEL \* 256 + $SUBLEVEL)
+
+cat <<EOF > linux/version.h
+#ifdef __KERNEL__
+#error "======================================================="
+#error "You should not include /usr/include/{linux,asm}/ header"
+#error "files directly for the compilation of kernel modules."
+#error ""
+#error "glibc now uses kernel header files from a well-defined"
+#error "working kernel version (as recommended by Linus Torvalds)"
+#error "These files are glibc internal and may not match the"
+#error "currently running kernel. They should only be"
+#error "included via other system header files - user space"
+#error "programs should not directly include <linux/*.h> or"
+#error "<asm/*.h> as well."
+#error ""
+#error "To build kernel modules please do the following:"
+#error ""
+#error " o Have the kernel sources installed"
+#error ""
+#error " o Make sure that the symbolic link"
+#error "   /lib/modules/\`uname -r\`/build exists and points to"
+#error "   the matching kernel source directory"
+#error ""
+#error " o Now copy /boot/vmlinuz.version.h to"
+#error "   /lib/modules/\`uname -r\`/build/include/linux/version.h"
+#error ""
+#error " o When compiling, make sure to use the following"
+#error "   compiler option to use the correct include files:"
+#error ""
+#error "   -I/lib/modules/\`uname -r\`/build/include"
+#error ""
+#error "   instead of"
+#error ""
+#error "   -I/usr/include/linux"
+#error ""
+#error "   Please adjust the Makefile accordingly."
+#error "======================================================="
+#else
+#define UTS_RELEASE "%{kheaders_ver}"
+#define LINUX_VERSION_CODE ${LINUX_VERSION_CODE}
+#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
+#endif
+EOF
+
+cat <<EOF > linux/modversions.h
+#error "======================================================="
+#error "You should not include /usr/include/{linux,asm}/ header"
+#error "files directly for the compilation of kernel modules."
+#error ""
+#error "glibc now uses kernel header files from a well-defined"
+#error "working kernel version (as recommended by Linus Torvalds)"
+#error "These files are glibc internal and may not match the"
+#error "currently running kernel. They should only be"
+#error "included via other system header files - user space"
+#error "programs should not directly include <linux/*.h> or"
+#error "<asm/*.h> as well."
+#error ""
+#error "To build kernel modules please do the following:"
+#error ""
+#error " o Have the kernel sources installed"
+#error ""
+#error " o Make sure that the symbolic link"
+#error "   /lib/modules/\`uname -r\`/build exists and points to"
+#error "   the matching kernel source directory"
+#error ""
+#error " o Now copy /boot/vmlinuz.version.h to"
+#error "   /lib/modules/\`uname -r\`/build/include/linux/version.h"
+#error ""
+#error " o When compiling, make sure to use the following"
+#error "   compiler option to use the correct include files:"
+#error ""
+#error "   -I/lib/modules/\`uname -r\`/build/include"
+#error ""
+#error "   instead of"
+#error ""
+#error "   -I/usr/include/linux"
+#error ""
+#error "   Please adjust the Makefile accordingly."
+#error "======================================================="
+EOF

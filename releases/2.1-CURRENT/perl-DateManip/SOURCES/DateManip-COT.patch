@@ -1,0 +1,10 @@
+--- DateManip-5.42a/Manip.pm.cot	2003-07-02 18:42:47.000000000 +0200
++++ DateManip-5.42a/Manip.pm	2003-08-26 11:43:26.000000000 +0200
+@@ -552,6 +552,7 @@
+       "cst    -0600 ".  # Central Standard
+       "cdt    -0500 ".  # Central Daylight
+       "est    -0500 ".  # Eastern Standard
++      "cot    -0500 ".  # America/Bogota (fix bug 3814)
+       "act    -0500 ".  # Brazil, Acre
+       "sat    -0400 ".  # Chile
+       "bot    -0400 ".  # Bolivia

@@ -1,0 +1,46 @@
+diff -Naur tcl8.4.11/unix/Makefile.in tcl8.4.11.oden/unix/Makefile.in
+--- tcl8.4.11/unix/Makefile.in	2005-06-29 18:40:32.000000000 +0200
++++ tcl8.4.11.oden/unix/Makefile.in	2005-12-31 11:20:39.000000000 +0100
+@@ -206,6 +206,7 @@
+ SHLIB_LD		= @SHLIB_LD@
+ SHLIB_CFLAGS		= @SHLIB_CFLAGS@
+ SHLIB_LD_LIBS		= @SHLIB_LD_LIBS@
++SHLIB_LD_FLAGS		= @SHLIB_LD_FLAGS@
+ TCL_SHLIB_LD_EXTRAS	= @TCL_SHLIB_LD_EXTRAS@
+ 
+ SHLIB_SUFFIX		= @SHLIB_SUFFIX@
+diff -Naur tcl8.4.11/unix/tcl.m4 tcl8.4.11.oden/unix/tcl.m4
+--- tcl8.4.11/unix/tcl.m4	2005-06-29 18:40:33.000000000 +0200
++++ tcl8.4.11.oden/unix/tcl.m4	2005-12-31 11:20:14.000000000 +0100
+@@ -1168,6 +1168,8 @@
+ 	    # get rid of the warnings.
+ 	    #CFLAGS_OPTIMIZE="${CFLAGS_OPTIMIZE} -D__NO_STRING_INLINES -D__NO_MATH_INLINES"
+ 
++	    TCL_SHLIB_LD_EXTRAS="-Wl,-soname,\${TCL_LIB_FILE}.0"
++
+ 	    if test "$have_dl" = yes; then
+ 		SHLIB_LD="${CC} -shared"
+ 		DL_OBJS="tclLoadDl.o"
+@@ -1207,17 +1209,19 @@
+ 	    SHLIB_LD_LIBS='${LIBS}'
+ 	    SHLIB_SUFFIX=".so"
+ 
++	    TCL_SHLIB_LD_EXTRAS="-Wl,-soname,\${TCL_LIB_FILE}.0"
++
+ 	    if test "$have_dl" = yes; then
+ 		SHLIB_LD="${CC} -shared"
+-		DL_OBJS=""
++		DL_OBJS="tclLoadDl.o"
+ 		DL_LIBS="-ldl"
+ 		LDFLAGS="$LDFLAGS -Wl,--export-dynamic"
+ 		CC_SEARCH_FLAGS=""
+-		LD_SEARCH_FLAGS=""
++		LD_SEARCH_FLAGS="${CC_SEARCH_FLAGS}"
+ 	    else
+ 		AC_CHECK_HEADER(dld.h, [
+ 		    SHLIB_LD="ld -shared"
+-		    DL_OBJS=""
++		    DL_OBJS="tclLoadDld.o"
+ 		    DL_LIBS="-ldld"
+ 		    CC_SEARCH_FLAGS=""
+ 		    LD_SEARCH_FLAGS=""])

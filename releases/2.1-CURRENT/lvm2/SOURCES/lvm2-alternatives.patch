@@ -1,0 +1,38 @@
+--- LVM2.2.02.06/doc/example.conf.alternatives	2006-05-12 21:48:32.000000000 +0200
++++ LVM2.2.02.06/doc/example.conf	2006-07-11 23:14:21.000000000 +0200
+@@ -193,10 +193,10 @@
+     # the LVM1 tools?
+     # This option only applies to 2.4 kernels and is provided to help you
+     # switch between device-mapper kernels and LVM1 kernels.
+-    # The LVM1 tools need to be installed with .lvm1 suffices
+-    # e.g. vgscan.lvm1 and they will stop working after you start using
++    # The LVM1 tools need to be installed with lvm1- prefix
++    # e.g. lvm1-vgscan and they will stop working after you start using
+     # the new lvm2 on-disk metadata format.
+-    # The default value is set when the tools are built.
++    # The default value is disabled
+     # fallback_to_lvm1 = 0
+ 
+     # The default metadata format that commands should use - "lvm1" or "lvm2".
+--- LVM2.2.02.06/tools/lvmcmdline.c.alternatives	2006-05-11 22:03:40.000000000 +0200
++++ LVM2.2.02.06/tools/lvmcmdline.c	2006-07-11 23:15:23.000000000 +0200
+@@ -1354,7 +1354,7 @@
+ {
+ 	char path[PATH_MAX];
+ 
+-	if (lvm_snprintf(path, sizeof(path), "%s.lvm1", argv[0]) < 0) {
++	if (lvm_snprintf(path, sizeof(path), "lvm1-%s", argv[0]) < 0) {
+ 		log_error("Failed to create LVM1 tool pathname");
+ 		return;
+ 	}
+@@ -1376,7 +1376,9 @@
+ 	while (*base == '/')
+ 		base++;
+ 	if (strcmp(base, "lvm") && strcmp(base, "lvm.static") &&
+-	    strcmp(base, "initrd-lvm"))
++ 	    strcmp(base, "lvm2") && strcmp(base, "lvm2.static") &&
++ 	    strcmp(base, "lvm-static") && strcmp(base, "lvm2-static") &&
++ 	    strcmp(base, "initrd-lvm") && strcmp(base, "initrd-lvm2"))
+ 		alias = 1;
+ 
+ 	if (is_static && strcmp(base, "lvm.static") && 

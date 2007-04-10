@@ -1,0 +1,44 @@
+--- net-snmp-5.2.1/include/net-snmp/agent/snmp_vars.h.long	2004-04-15 14:47:10.000000000 +0200
++++ net-snmp-5.2.1/include/net-snmp/agent/snmp_vars.h	2005-03-21 17:03:29.909271960 +0100
+@@ -73,7 +73,7 @@
+ 
+     struct nlist;
+ 
+-    extern long     long_return;
++    extern fsblkcnt_t long_return;
+     extern u_char   return_buf[];
+ 
+     extern oid      nullOid[];
+--- net-snmp-5.2.1/agent/mibgroup/host/hr_filesys.c.long	2004-06-19 15:34:11.000000000 +0200
++++ net-snmp-5.2.1/agent/mibgroup/host/hr_filesys.c	2005-03-21 17:03:29.910271808 +0100
+@@ -773,7 +773,7 @@
+     return 0;
+ }
+ 
+-long
++fsblkcnt_t
+ Get_FSSize(char *dev)
+ {
+     struct HRFS_statfs statfs_buf;
+--- net-snmp-5.2.1/agent/mibgroup/host/hr_filesys.h.long	2002-07-04 14:56:35.000000000 +0200
++++ net-snmp-5.2.1/agent/mibgroup/host/hr_filesys.h	2005-03-21 17:03:29.910271808 +0100
+@@ -12,7 +12,7 @@
+ extern int      Check_HR_FileSys_NFS(void);
+ 
+ extern int      Get_FSIndex(char *);
+-extern long     Get_FSSize(char *);     /* Temporary */
++extern fsblkcnt_t     Get_FSSize(char *);     /* Temporary */
+ 
+ 
+ #endif                          /* _MIBGROUP_HRFSYS_H */
+--- net-snmp-5.2.1/agent/snmp_vars.c.long	2005-03-21 17:08:37.790466904 +0100
++++ net-snmp-5.2.1/agent/snmp_vars.c	2005-03-21 17:08:37.790466904 +0100
+@@ -223,7 +223,7 @@
+  * int      name_len        IN - number of sub-ids in the name
+  */
+ 
+-long            long_return;
++fsblkcnt_t            long_return;
+ #ifndef ibm032
+ u_char          return_buf[258];
+ #else

@@ -1,0 +1,47 @@
+--- glibc-2.3.5/crypt/wrapper.c.avx	2006-05-20 09:08:26.000000000 -0600
++++ glibc-2.3.5/crypt/wrapper.c	2006-05-20 09:08:26.000000000 -0600
+@@ -272,7 +272,22 @@
+ weak_alias(__crypt_gensalt_ra, crypt_gensalt_ra)
+ weak_alias(__crypt_gensalt, crypt_gensalt)
+ #endif
+-
++/*
++ * To make fcrypt users happy.
++ * They don't need to call init_des.
++ */
++#ifdef _LIBC
++weak_alias (crypt, fcrypt)
++#else
++char *
++__fcrypt (key, salt)
++    const char *key;
++    const char *salt;
++{
++  return crypt (key, salt);
++}
++#endif
++               
+ #ifdef TEST
+ static struct {
+ 	char *hash;
+--- glibc-2.3.5/crypt/crypt-entry.c.avx	2006-05-20 09:08:51.000000000 -0600
++++ glibc-2.3.5/crypt/crypt-entry.c	2006-05-20 09:08:51.000000000 -0600
+@@ -132,18 +132,3 @@
+ }
+ 
+ 
+-/*
+- * To make fcrypt users happy.
+- * They don't need to call init_des.
+- */
+-#ifdef _LIBC
+-weak_alias (crypt, fcrypt)
+-#else
+-char *
+-__fcrypt (key, salt)
+-     const char *key;
+-     const char *salt;
+-{
+-  return crypt (key, salt);
+-}
+-#endif

@@ -1,0 +1,21 @@
+--- ext/xmlrpc/config.m4	2005-11-03 04:11:27.000000000 +0100
++++ ext/xmlrpc/config.m4.oden	2005-11-03 04:13:27.000000000 +0100
+@@ -57,18 +57,6 @@
+       AC_MSG_ERROR([XML-RPC support requires libexpat. Use --with-libexpat-dir=<DIR> (deprecated!)])
+     fi
+   fi
+-
+-  if test "$PHP_ICONV_DIR" != "no"; then
+-    PHP_ICONV=$PHP_ICONV_DIR
+-  fi
+-  
+-  if test -z "$PHP_ICONV" || test "$PHP_ICONV" = "no"; then
+-    PHP_ICONV=yes
+-  fi
+-  
+-  PHP_SETUP_ICONV(XMLRPC_SHARED_LIBADD, [], [
+-    AC_MSG_ERROR([iconv not found, in order to build xmlrpc you need the iconv library])
+-  ])
+ fi
+ 
+ if test "$PHP_XMLRPC" = "yes"; then

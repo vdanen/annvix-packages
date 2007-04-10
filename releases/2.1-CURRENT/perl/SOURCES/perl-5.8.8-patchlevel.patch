@@ -1,0 +1,10 @@
+--- patchlevel.h.orig	2006-01-18 21:02:16.000000000 +0100
++++ patchlevel.h	2006-01-20 12:07:00.000000000 +0100
+@@ -122,6 +122,7 @@
+ #if !defined(PERL_PATCHLEVEL_H_IMPLICIT) && !defined(LOCAL_PATCH_COUNT)
+ static const char *local_patches[] = {
+ 	NULL
++	,"Annvix patches"
+ 	,NULL
+ };
+ 

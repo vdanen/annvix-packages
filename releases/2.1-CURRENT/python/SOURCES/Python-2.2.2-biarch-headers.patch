@@ -1,0 +1,28 @@
+--- Python-2.2.2/Tools/scripts/h2py.py.biarch-headers	2002-11-23 03:11:19.000000000 -0500
++++ Python-2.2.2/Tools/scripts/h2py.py	2002-11-23 05:12:07.000000000 -0500
+@@ -29,7 +29,7 @@ p_macro = re.compile(
+   '^[\t ]*#[\t ]*define[\t ]+'
+   '([a-zA-Z0-9_]+)\(([_a-zA-Z][_a-zA-Z0-9]*)\)[\t ]+')
+ 
+-p_include = re.compile('^[\t ]*#[\t ]*include[\t ]+<([a-zA-Z0-9_/\.]+)')
++p_include = re.compile('^[\t ]*#[\t ]*include[\t ]+<([-a-zA-Z0-9_/\.]+)')
+ 
+ p_comment = re.compile(r'/\*([^*]+|\*+[^/])*(\*+/)?')
+ p_cpp_comment = re.compile('//.*')
+@@ -38,6 +38,16 @@ ignores = [p_comment, p_cpp_comment]
+ 
+ p_char = re.compile(r"'(\\.[^\\]*|[^\\])'")
+ 
++### FIXME
++#
++# We really need to handle bi-arch asm headers. Otherwise, we will end
++# up into generating double definitions and finally the wrong ones are
++# to be used afterwards.
++#
++# p_ifarch, p_else, p_endif, if_depth, what else is needed?
++#
++###
++
+ filedict = {}
+ importable = {}
+ 

@@ -1,0 +1,12 @@
+#!/bin/sh
+PATH="/sbin:/usr/sbin:/bin:/usr/bin"
+
+# this runs spamd supervised
+
+OPTIONS="-c -m5 -H"
+
+if [ -f ./env/OPTIONS ]; then
+    OPTIONS=`head -1 ./env/OPTIONS`
+fi
+
+exec /usr/bin/spamd $OPTIONS 2>&1

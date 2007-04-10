@@ -1,0 +1,115 @@
+.LP 
+\fBMySQL\fR
+.LP 
+The MySQL database server is a powerful RDBMS useful for a number of
+applications, however it is important to secure and protect your data.
+Before upgrading MySQL, you should always make a dump of your data; you
+likely should be doing this more often as well.
+.LP
+You can dump the contents of your MySQL database using the \fBmysqldump\fR(1)
+command like this:
+.IP
+\fB/usr/bin/mysqldump -u root --pass=[pass] --all-databases >$backup\fR
+.LP
+where \fI$backup\fR is the backup file to contain the database contents.
+.LP
+You will also need to configure MySQL properly.  You should set the root
+user's password for MySQL (this root password should be different from the
+system root user; the two are mutually exclusive).  This can be done using:
+.IP
+\FB/usr/bin/mysqladmin -u root password [newpassword]\fR
+.LP
+Because of this, you will also need to create the file \fI/root/.my.cnf\fR
+which contains the password for the root user.  This is not the most secure
+thing, however it helps us to rotate logs and shutdown the MySQL server
+clean.  The \fI/root/.my.cnf\fR file should look like:
+.sp
+  [mysqladmin]
+.br
+  user = root
+.br
+  password = <password>
+.LP
+where \fI<password>\fR is the root user's password (remember, the MySQL root
+user, not the system root user!).  Once you have created this file, change
+the permissions of the file to 0600 so that only the root user can read it. 
+This allows the system to use the \fBmysqladmin\fR(1) program as the root user
+using the password from the file to do things like shutdown the database and
+rotate logs.
+.LP
+You must also edit the \fI/etc/logrotate.d/mysql\fR file.  By default, this
+logrotate script is fully commented out because it is used to rotate logs
+that contain logs of every connection and query on the system.  The logfile
+is set with the \fBLOG\fR keyword in the \fI/etc/sysconfig/mysqld\fR
+configuration file.  By default, we do not log all queries and connections
+as this can consume a lot of space on the system.  If you enable this
+logging, you should adjust the \fI/etc/logrotate.d/mysql\fR file
+accordingly.
+.LP
+Another note about logging in MySQL.  There is one other log file that may
+help with administration of your database.  This is a directory of log files
+that are automatically rotated which contain information regarding the
+mysqld(1) daemon itself, and which also replace the error logfile found on other
+systems in \fI/var/lib/mysql/[hostname].err\fR. These other logs
+that also contain extra information are those contained in
+\fI/var/log/supervise/mysqld/\fR.  The most current log in this directory is
+called \fIcurrent\fR; the older logs are automatically rotated and their
+names consist of the TAI64N timestamp of when they were rotated.
+.LP
+\fBNOTE:\fR Networking is disabled in mysqld by default, which means it will
+only listen to a local socket rather than bind to a TCP interface.  This can be
+changed by modifying \fU/etc/sysconfig/mysqld\fR and removing the \fB--skip-networking\fR
+option in the MYSQLD_OPTS keyword.
+.LP
+\fBUpgrading MySQL\fR
+.LP
+If you are upgrading MySQL from 4.0.x to 4.1.x, there are some incompatible
+changes that need to be looked at.  The following document details the changes
+and is worth reading prior to upgrading:
+.LP
+\fUhttp://dev.mysql.com/doc/mysql/en/upgrading-from-4-0.html\fR
+.LP
+Prior to upgrading you should do a full dump of your database.  You may also
+want to quickly stop the database and make a tarball of \fU/var/lib/mysql\fR so
+that if you do need to downgrade, you will have your full databases intact.
+.LP
+One thing you must absolutely do is upgrade your GRANT tables.  MySQL 4.1.x uses
+a new password hash that is more secure.  If you need to use the old method for
+some reason, you can force MySQL to run with the old-style password scheme by setting,
+in \fU/etc/my.cnf\fR the following (under the [mysqld] header):
+.sp
+  [mysqld]
+.br
+  old_passwords=1
+.LP
+It is advised, however, that you use the new password hash.  To ugprade your database
+to use the new hash, execute (as root):
+.LP
+\fBmysql_fix_privilege_tables --password=[root_password]\fR
+.LP
+On a side note, during testing, it did not look as though you would be locked out of
+your database if you did not upgrade the GRANT tables, nor if you did not set
+old_passwords in \fU/etc/my.conf\fR.  It is advised that you run the script noted
+above, but you shouldn't have to worry about anything being locked out if you do not
+modify \fU/etc/my.cnf\fR.  The above is noted as an "in-case" thing, but it doesn't
+seem to be required.
+.LP
+\fBEnvironment options and configuration\fR
+.LP
+mysqld is configured via \fU/etc/my.cnf\fR and the environment options for the mysqld
+service which can be manipulated in \fU/var/service/mysqld/env/\fR.  Please note that
+as the environment options are passed to mysqld's commandline arguments, they will
+overwrite those settings in \fU/etc/my.cnf\fR.  The following environment files can be
+manipulated:
+.TP
+\fBMYSQLD_OPTS\fR
+This file contains any optional arguments to pass to mysqld; by default this contains
+--skip-networking.
+.TP
+\fBDATADIR\fR
+The data directory for mysqld's databases; by default this contains /var/lib/mysql.
+.TP
+\fBLOG\fR
+The filename for the log file that mysqld will log all connections and received SQL
+statements to.  If this empty, no extra logging will be done; by default this file
+is empty.

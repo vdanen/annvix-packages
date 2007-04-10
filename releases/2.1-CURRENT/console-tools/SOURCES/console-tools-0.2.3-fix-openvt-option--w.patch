@@ -1,0 +1,12 @@
+--- console-tools-0.2.3/vttools/openvt.c.pix	1999-08-31 22:50:12.000000000 +0200
++++ console-tools-0.2.3/vttools/openvt.c	2005-01-10 12:26:25.021026552 +0100
+@@ -329,8 +329,8 @@
+ 	    execlp(cmd, def_cmd, NULL);
+ 	  else
+ 	    execvp(cmd, &argv[optind]);
++	  _exit(127);		/* exec failed */
+ 	}
+-      _exit(127);		/* exec failed */
+     }
+ 
+   if ( pid < 0 )

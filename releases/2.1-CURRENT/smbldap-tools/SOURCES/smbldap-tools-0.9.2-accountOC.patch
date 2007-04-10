@@ -1,0 +1,13 @@
+--- smbldap-tools-0.9.2/smbldap_tools.pm.orig	2006-07-24 18:48:17.000000000 -0300
++++ smbldap-tools-0.9.2/smbldap_tools.pm	2006-07-24 18:48:28.000000000 -0300
+@@ -543,9 +543,8 @@
+ 	# bind to a directory with dn and password
+ 	my $add = $ldap->add ( "uid=$user,$config{computersdn}",
+ 								  attr => [
+-										   'objectclass' => ['top', 'person', 'organizationalPerson', 'inetOrgPerson', 'posixAccount'],
++										   'objectclass' => ['top', 'account', 'posixAccount'],
+ 										   'cn'   => "$user",
+-										   'sn'   => "$user",
+ 										   'uid'   => "$user",
+ 										   'uidNumber'   => "$uid",
+ 										   'gidNumber'   => "$gid",

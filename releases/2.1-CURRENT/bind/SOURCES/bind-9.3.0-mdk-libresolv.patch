@@ -1,0 +1,41 @@
+--- bind-9.3.0/contrib/queryperf/configure.in.libresolv	2004-05-13 01:49:29.000000000 -0400
++++ bind-9.3.0/contrib/queryperf/configure.in	2004-09-29 15:29:03.943053537 -0400
+@@ -17,7 +17,7 @@
+ 
+ AC_INIT(queryperf.c)
+ 
+-AC_PREREQ(2.13)
++AC_PREREQ(2.53)
+ 
+ AC_PROG_CC
+ 
+@@ -51,14 +51,26 @@ AC_DEFUN(AC_SA_LEN,
+   fi
+ ])
+ 
+-AC_SEARCH_LIBS(res_mkquery, resolv bind)
++AC_CACHE_CHECK([whether your system has res_mkquery()], ac_cv_have_res_mkquery, [
++saved_LIBS="$LIBS"
++LIBS="$LIBS -lresolv"
++AC_TRY_LINK(
++[#include <resolv.h>],
++[res_mkquery(0, NULL, 0, 0, NULL, 0, NULL, NULL, 0);],
++[ac_cv_have_res_mkquery=yes], [
++LIBS="$saved_LIBS"
++AC_SEARCH_LIBS(res_mkquery, [resolv bind],
++[ac_cv_have_res_mkquery=yes],
++[ac_cv_have_res_mkquery=no])
++])
++])
+ AC_CHECK_LIB(socket, socket)
+ AC_CHECK_LIB(nsl, inet_ntoa)
+ AC_CHECK_FUNCS(gethostbyname2)
+ AC_CHECK_FUNC(getaddrinfo,
+-    AC_DEFINE(HAVE_GETADDRINFO), AC_LIBOBJ(getaddrinfo))
++    AC_DEFINE(HAVE_GETADDRINFO), [AC_LIBOBJ(getaddrinfo)])
+ AC_CHECK_FUNC(getnameinfo,
+-    AC_DEFINE(HAVE_GETNAMEINFO), AC_LIBOBJ(getnameinfo))
++    AC_DEFINE(HAVE_GETNAMEINFO), [AC_LIBOBJ(getnameinfo)])
+ 
+ AC_TYPE_SOCKLEN_T
+ AC_SA_LEN

@@ -1,0 +1,10 @@
+--- Crypt-SSLeay-0.51/SSLeay.xs.openssl-098	2005-11-10 11:03:14.000000000 +0100
++++ Crypt-SSLeay-0.51/SSLeay.xs	2005-11-10 12:05:56.000000000 +0100
+@@ -110,6 +110,7 @@
+ 
+ 	if(!bNotFirstTime) {
+                SSLeay_add_all_algorithms();
++		SSL_library_init();
+                SSL_load_error_strings();
+                ERR_load_crypto_strings();
+ 	       bNotFirstTime = 1;

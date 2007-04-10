@@ -1,0 +1,10 @@
+--- pkg-config-0.19/glib-1.2.8/gstrfuncs.c.64bit-fixes	2005-07-15 03:32:28.000000000 -0400
++++ pkg-config-0.19/glib-1.2.8/gstrfuncs.c	2005-09-02 02:31:32.000000000 -0400
+@@ -32,6 +32,7 @@
+ #include <config.h>
+ #endif
+ 
++#define _GNU_SOURCE		/* For strsignal(), through <string.h> */
+ #include <stdarg.h>
+ #include <stdio.h>
+ #include <stdlib.h>

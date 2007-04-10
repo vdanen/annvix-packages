@@ -1,0 +1,17 @@
+--- imap-2001a/src/osdep/unix/Makefile~	Mon Mar 11 23:26:07 2002
++++ imap-2001a/src/osdep/unix/Makefile	Mon Mar 11 23:26:07 2002
+@@ -28,10 +28,10 @@
+ 
+ # Extended flags needed for SSL.  You may need to modify.
+ 
+-SSLDIR=/usr/local/ssl
+-SSLCERTS=$(SSLDIR)/certs
+-SSLINCLUDE=$(SSLDIR)/include
+-SSLLIB=$(SSLDIR)/lib
++SSLDIR=/usr/lib/ssl
++SSLCERTS=/etc/ssl/imap
++SSLINCLUDE=/usr/include
++SSLLIB=/usr/lib
+ 
+ SSLCRYPTO=-lcrypto
+ 

@@ -1,0 +1,11 @@
+--- postfix-2.1.1/src/postfix/Makefile.in.pie	2004-06-04 14:55:46.425016044 +0200
++++ postfix-2.1.1/src/postfix/Makefile.in	2004-06-04 14:55:47.644849406 +0200
+@@ -14,7 +14,7 @@
+ .c.o:;	$(CC) $(CFLAGS) -c $*.c
+ 
+ $(PROG):	$(OBJS) $(LIBS)
+-	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LIBS) $(SYSLIBS)
++	$(CC) $(CFLAGS) -o $@ -pie $(OBJS) $(LIBS) $(SYSLIBS)
+ 
+ Makefile: Makefile.in
+ 	(set -e; echo "# DO NOT EDIT"; $(OPTS) $(SHELL) ../../makedefs && cat $?) >$@

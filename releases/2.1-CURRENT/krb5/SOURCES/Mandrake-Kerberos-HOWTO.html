@@ -1,0 +1,353 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.77 [fr] (X11; U; Linux 2.4.6-6mdk i686) [Netscape]">
+   <title>a Kerberos-Introduction</title>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EF" vlink="#51188E" alink="#FF0000">
+&nbsp;
+<center><table WIDTH="90%" NOSAVE >
+<tr NOSAVE>
+<td NOSAVE><font size=+2>Kerberos. Setup with examples</font>
+<p><b><u><font color="#3333FF"><font size=+1>The server</font></font></u></b>
+<p><font color="#3366FF"><a href="#1. CLOCK SYNCHRONIZATION">1. CLOCK SYNCHRONIZATION
+and DNS entries</a></font>
+<br><font color="#3366FF"><a href="#2. PACKAGES">2. PACKAGES</a></font>
+<br><font color="#3366FF"><a href="#3. CONFIGURATION FILES">3. CONFIGURATION
+FILES</a></font>
+<br><font color="#3366FF"><a href="#4. Kerberos DATABASE">4. Kerberos DATABASE</a></font>
+<br><font color="#3366FF"><a href="#5. PRINCIPALS">5. PRINCIPALS</a></font>
+<br><font color="#3366FF"><a href="#6. SERVICE">6. SERVICES</a></font>
+<br><font color="#3366FF"><a href="#7. other PRINCIPALS">7. other PRINCIPALS</a></font>
+<br><font color="#3366FF"><a href="#8. TELNET and FTP services">8. TELNET
+and FTP services</a></font>
+<p><b><u><font color="#3333FF"><font size=+1>The clients</font></font></u></b>
+<p><font color="#3366FF"><a href="#9. TELNET and FTP clients">9. TELNET
+and FTP services</a></font>
+<br>&nbsp;
+<ul>&nbsp;</ul>
+</td>
+
+<td><img SRC="krblogo_big.gif" height=438 width=172></td>
+</tr>
+
+<tr NOSAVE>
+<td NOSAVE><b><u><font color="#3333FF"><font size=+1>Links</font></font></u></b>
+<ul>
+<li>
+<u><font color="#3366FF">local documentation</font></u></li>
+
+<br><font color="#3366FF">The &lt;&lt;Installation Guide>>, the &lt;&lt;Administration
+Guide>>&nbsp;</font>
+<br><font color="#3366FF">and the &lt;&lt;User Guide>> coming with the
+packages</font>
+<br>&nbsp;
+<li>
+<font color="#3366FF">The main site</font></li>
+
+<br><font color="#3366FF"><a href="http://web.mit.edu/kerberos/www/">http://web.mit.edu/kerberos/www/</a></font>
+<br>&nbsp;
+<li>
+<font color="#3366FF">The Moron's Guide to Kerberos</font></li>
+
+<br><font color="#3366FF"><a href="http://www.isi.edu/gost/brian/security/kerberos.html">http://www.isi.edu/gost/brian/security/kerberos.html</a></font>
+<br>&nbsp;
+<li>
+<font color="#3366FF">Kerberos installation help</font></li>
+
+<br><font color="#3366FF"><a href="http://www.y12.doe.gov/~jar/HowToKerb.html">http://www.y12.doe.gov/~jar/HowToKerb.html</a></font>
+<br>&nbsp;
+<li>
+<font color="#3366FF">Using Kerberos 5 on Red Hat Linux</font></li>
+
+<br><font color="#3366FF"><a href="http://linuxline.epfl.ch/Doc/rhl-rg-en-7.1/ch-kerberos.html">http://linuxline.epfl.ch/Doc/rhl-rg-en-7.1/ch-kerberos.html</a></font>
+<br>&nbsp;
+<li>
+<font color="#3366FF">OpenLDAP, OpenSSL, SASL and KerberosV HOWTO</font></li>
+
+<br><font color="#3366FF"><a href="http://www.bayour.com/LDAPv3-HOWTO.html">http://www.bayour.com/LDAPv3-HOWTO.html</a></font>
+<br>&nbsp;
+<li>
+<font color="#3366FF">Frequently Asked Questions about Kerberos</font></li>
+
+<br><font color="#3366FF"><a href="http://www.nrl.navy.mil/CCS/people/kenh/kerberos-faq.html">http://www.nrl.navy.mil/CCS/people/kenh/kerberos-faq.html</a></font></ul>
+</td>
+
+<td></td>
+</tr>
+</table></center>
+
+<ul START=2>&nbsp;
+<br><a NAME="1. CLOCK SYNCHRONIZATION"></a><font color="#3366FF">1. CLOCK
+SYNCHRONIZATION and DNS entries</font>
+<p>Be sure that you have clock synchronization and DNS working on your
+server before installing
+<br>Kerberos 5. Pay particular attention to time synchronization between
+the Kerberos server and its various clients.
+<p>here are the DNS entries for the kerberos server:
+<p>$ORIGIN .
+<br>$TTL 86400&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; 1 day
+<br>mandrakesoft.com&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN SOA&nbsp;
+sunlight.mandrakesoft.com. florin.mandrakesoft.com. (
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+2001042703 ; serial
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+86400&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; refresh (1 day)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+21600&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; retry (6 hours)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+3600000&nbsp;&nbsp;&nbsp; ; expire (5 weeks 6 days 16 hours)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+3600&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; minimum (1 hour)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+NS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sunlight.mandrakesoft.com.
+<br>$ORIGIN mandrakesoft.com.
+<br>$TTL 86400&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; 1 day
+<br>localhost&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+127.0.0.1
+<br>sunlight&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+192.168.2.178
+<br>kerberos&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+192.168.2.178
+<br>moonlight&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+192.168.2.23
+<p>; Master setup
+<br>_kerberos&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+IN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; TXT&nbsp;&nbsp;&nbsp;&nbsp; "MANDRAKESOFT.COM"
+<br>_kerberos-master._udp&nbsp;&nbsp; IN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+SRV&nbsp;&nbsp;&nbsp;&nbsp; 0 0 88 kerberos
+<br>_kerberos-adm._tcp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+SRV&nbsp;&nbsp;&nbsp;&nbsp; 0 0 749 kerberos
+<br>_kpasswd._udp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+IN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SRV&nbsp;&nbsp;&nbsp;&nbsp; 0 0 464 Kerberos
+<br>;
+<br>; Round-robin setup
+<br>_kerberos._udp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+IN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SRV&nbsp;&nbsp;&nbsp;&nbsp; 0 0 88 kerberos
+<p><a NAME="2. PACKAGES"></a><font color="#3366FF">2. PACKAGES</font>
+<p>Install the krb5-server and krb5-libs packages
+<p><a NAME="3. CONFIGURATION FILES"></a><font color="#3366FF">3. CONFIGURATION
+FILES</font>
+<p>Adapt the following configuration files to your needs:
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /etc/krb5.conf
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /etc/kerberos/krb5kdc/kdc.conf
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /etc/kerberos/krb5kdc/kadm5.acl
+<p>According to the kadm5.acl file, all the principals with instance of
+admin will have all the rights.
+<p><u><font color="#FF0000">NOTE:</font></u><font color="#000000"></font>
+<p>in the /etc/krb5.conf file you have these lines:
+<br>&nbsp;default_tgs_enctypes = des-cbc-crc
+<br>&nbsp;default_tkt_enctypes = des-cbc-crc
+<br>&nbsp;permitted_enctypes = des-cbc-crc
+<p>and in the /etc/kerberos/krb5kdc/kdc.conf file
+<br>master_key_type = des-cbc-crc
+<br>supported_enctypes = des-cbc-crc:normal des-cbc-crc:v4
+<p>If you want to support DES3 encryption, add des3-hmac-sha1. So you'll
+get:
+<br>in the /etc/krb5.conf file :
+<br>&nbsp;default_tgs_enctypes = des3-hmac-sha1 des-cbc-crc
+<br>&nbsp;default_tkt_enctypes = des3-hmac-sha1 des-cbc-crc
+<br>&nbsp;permitted_enctypes = des3-hmac-sha1 des-cbc-crc
+<p>and in the /etc/kerberos/krb5kdc/kdc.conf file
+<br>master_key_type = des3-hmac-sha1
+<br>supported_enctypes = des3-hmac-sha1: normal des-cbc-crc:normal des-cbc-crc:v4
+<p><font color="#FF0000">The ftp client coming with the packages won't
+support des3 encrytion.</font>
+<br><font color="#FF0000">So, adapt these files to your needs, before continuing.</font>
+<p><a NAME="4. Kerberos DATABASE"></a><font color="#3366FF">4. Kerberos
+DATABASE</font>
+<p>Create the Kerberos database and choose a password:
+<br>[root@sunlight root]#<font color="#993399">/usr/sbin/kdb5_util create
+-r MANDRAKESOFT.COM -s</font>
+<br>Initializing database '/etc/kerberos/krb5kdc/principal' for realm 'MANDRAKESOFT.COM',
+<br>master key name 'K/M@MANDRAKESOFT.COM'
+<br>You will be prompted for the database Master Password.
+<br>It is important that you NOT FORGET this password.
+<br>Enter KDC database master key:
+<br>Re-enter KDC database master key to verify:
+<p><a NAME="5. PRINCIPALS"></a><font color="#3366FF">5. PRINCIPALS</font>
+<p>Create your first principal:
+<br>[root@sunlight root]# <font color="#993399">kadmin.local</font>
+<br>Authenticating as principal root/admin@MANDRAKESOFT.COM with password.
+<br>kadmin.local:&nbsp; <font color="#993399">addprinc florin/admin</font>
+<br>and you'll get:
+<br>WARNING: no policy specified for florin/admin@MANDRAKESOFT.COM; defaulting
+to no policy
+<br>Enter password for principal "florin/admin@MANDRAKESOFT.COM":
+<br>Re-enter password for principal "florin/admin@MANDRAKESOFT.COM":
+<br>Principal "florin/admin@MANDRAKESOFT.COM" created.
+<p>The question mark will give you the list of the commands available
+<br>kadmin.local:<font color="#993399">?</font>
+<br><font color="#000000">Available kadmin.local requests:</font>
+<p><font color="#000000">add_principal, addprinc, ank</font>
+<br><font color="#000000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Add principal</font>
+<br><font color="#000000">delete_principal, delprinc</font>
+<br><font color="#000000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Delete principal</font>
+<br><font color="#000000">modify_principal, modprinc</font>
+<br><font color="#000000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Modify principal</font>
+<br><font color="#000000">change_password, cpw&nbsp;&nbsp;&nbsp;&nbsp;
+Change password</font>
+<br><font color="#000000">get_principal, getprinc&nbsp; Get principal</font>
+<br><font color="#000000">list_principals, listprincs, get_principals,
+getprincs</font>
+<br><font color="#000000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+List principals</font>
+<br><font color="#000000">add_policy, addpol&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Add policy</font>
+<br><font color="#000000">modify_policy, modpol&nbsp;&nbsp;&nbsp; Modify
+policy</font>
+<br><font color="#000000">delete_policy, delpol&nbsp;&nbsp;&nbsp; Delete
+policy</font>
+<br><font color="#000000">get_policy, getpol&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Get policy</font>
+<br><font color="#000000">list_policies, listpols, get_policies, getpols</font>
+<br><font color="#000000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+List policies</font>
+<br><font color="#000000">get_privs, getprivs&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Get privileges</font>
+<br><font color="#000000">ktadd, xst&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Add entry(s) to a keytab</font>
+<br><font color="#000000">ktremove, ktrem&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Remove entry(s) from a keytab</font>
+<br><font color="#000000">list_requests, lr, ?&nbsp;&nbsp;&nbsp;&nbsp;
+List available requests.</font>
+<br><font color="#000000">quit, exit, q&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Exit program.</font>
+<br>&nbsp;
+<p><a NAME="6. SERVICE"></a><font color="#3366FF">6. SERVICES</font>
+<p>Restart the /etc/init.d/krb5server service
+<br>[root@sunlight kerberos]# <font color="#993399">/etc/init.d/krb5server
+restart</font>
+<br>Stopping Kerberos 5-to-4 Server&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+[ERROR]
+<br>Stopping Kerberos 5 Admin Server&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+[ERROR]
+<br>Stopping Kerberos 5 KDC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+[ERROR]
+<br>Extracting kadm5 Service Keys
+<br>Authenticating as principal root/admin@MANDRAKESOFT.COM with password.
+<br>Entry for principal kadmin/admin with kvno 3, encryption type Triple
+DES cbc mode with HMAC/sha1 added to keytab WRFILE:/etc/kerberos/krb5kdc/kadm5.keytab.
+<br>Entry for principal kadmin/admin with kvno 3, encryption type DES cbc
+mode with CRC-32 added to keytab WRFILE:/etc/kerberos/krb5kdc/kadm5.keytab.
+<br>Entry for principal kadmin/changepw with kvno 3, encryption type Triple
+DES cbc mode with HMAC/sha1 added to keytab WRFILE:/etc/kerberos/krb5kdc/kadm5.keytab.
+<br>Entry for principal kadmin/changepw with kvno 3, encryption type DES
+cbc mode with CRC-32 added to keytab WRFILE:/etc/kerberos/krb5kdc/kadm5.keytab.
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+[&nbsp; OK&nbsp; ]
+<br>Starting Kerberos 5 KDC
+<br>Starting Kerberos 5 Admin Server
+<br>Starting Kerberos 5-to-4 Server&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+[&nbsp; OK&nbsp; ]
+<p><a NAME="7. other PRINCIPALS"></a><font color="#3366FF">7. other PRINCIPALS</font>
+<p>Now, we'll create some more principals: florin, root/admin, root and
+choose their passwords.
+<br>kadmin.local:&nbsp; <font color="#993399">addprinc florin/sunlight.mandrakesoft.com</font>
+<br>...
+<br>Lets verify it:
+<br>kadmin.local:&nbsp; <font color="#993399">listprincs</font>
+<br>K/M@MANDRAKESOFT.COM
+<br>florin/admin@MANDRAKESOFT.COM
+<br>florin@MANDRAKESOFT.COM
+<br>kadmin/admin@MANDRAKESOFT.COM
+<br>kadmin/changepw@MANDRAKESOFT.COM
+<br>kadmin/history@MANDRAKESOFT.COM
+<br>krbtgt/MANDRAKESOFT.COM@MANDRAKESOFT.COM
+<br>root/admin@MANDRAKESOFT.COM
+<br>root@MANDRAKESOFT.COM
+<p>This can be done from the shell whith the <font color="#993399">kadmin.local
+-q "ktadd host/sunlight.mandrakesoft.com"</font><font color="#000000">
+command. This way could be used to create scripts.</font>
+<p>here is the script called create-everything.sh
+<br>#!/bin/sh
+<br>kadmin.local -q "addprinc florin";
+<br>kadmin.local -q "addprinc root/admin";
+<br>kadmin.local -q "addprinc root";
+<br>kadmin.local -q "addprinc -randkey host/sunlight.mandrakesoft.com";
+<br>kadmin.local -q "ktadd host/sunlight.mandrakesoft.com";
+<br>kadmin.local -q "addprinc -randkey telnet/sunlight.mandrakesoft.com";
+<br>kadmin.local -q "ktadd telnet/sunlight.mandrakesoft.com";
+<br>kadmin.local -q "addprinc -randkey ftp/sunlight.mandrakesoft.com";
+<br>kadmin.local -q "ktadd ftp/sunlight.mandrakesoft.com";
+<p>you can launch it with the <font color="#993399">sh create-everything.sh</font><font color="#000000">
+command.</font>
+<p><a NAME="8. TELNET and FTP services"></a><font color="#3366FF">8. TELNET
+and FTP services</font>
+<p>The kerberos server is called sunlight.mandrakesoft.com and we'd like
+to provide
+<br>telnet and ftp services to the kerberos clients.
+<p>Create principals for that purpose:
+<br>kadmin.local:&nbsp; <font color="#993399">addprinc -randkey host/sunlight.mandrakesoft.com</font>
+<br>WARNING: no policy specified for host/sunlight.mandrakesoft.com@MANDRAKESOFT.COM;
+defaulting to no policy
+<br>Principal "host/sunlight.mandrakesoft.com@MANDRAKESOFT.COM" created.
+<br>kadmin.local:&nbsp; <font color="#993399">ktadd host/sunlight.mandrakesoft.com</font>
+<br>and you'll get:
+<br>Entry for principal ftp/sunlight.mandrakesoft.com with kvno 3, encryption
+type Triple DES cbc mode with HMAC/sha1 added to keytab WRFILE:/etc/krb5.keytab.
+<br>Entry for principal ftp/sunlight.mandrakesoft.com with kvno 3, encryption
+type DES cbc mode with CRC-32 added to keytab WRFILE:/etc/krb5.keytab.
+<p>If you don't specify the key, the /etc/krb5.keytab keytab file will
+be created and used.
+<br>The <font color="#993399">klist -k</font> <font color="#000000">command
+will list the keytabs present in your keytab file:</font>
+<br><font color="#000000">[root@sunlight root]# </font><font color="#993399">klist
+-k</font>
+<br><font color="#000000">Keytab name: FILE:/etc/krb5.keytab</font>
+<br><font color="#000000">KVNO Principal</font>
+<br><font color="#000000">---- --------------------------------------------------------------------------</font>
+<br><font color="#000000">&nbsp;&nbsp; 4 host/sunlight.mandrakesoft.com@MANDRAKESOFT.COM</font>
+<br><font color="#000000">&nbsp;&nbsp; 4 host/sunlight.mandrakesoft.com@MANDRAKESOFT.COM</font>
+<br><font color="#000000">&nbsp;&nbsp; 5 telnet/sunlight.mandrakesoft.com@MANDRAKESOFT.COM</font>
+<br><font color="#000000">&nbsp;&nbsp; 5 telnet/sunlight.mandrakesoft.com@MANDRAKESOFT.COM</font>
+<br><font color="#000000">&nbsp;&nbsp; 3 host/kerberos.mandrakesoft.com@MANDRAKESOFT.COM</font>
+<br><font color="#000000">&nbsp;&nbsp; 3 host/kerberos.mandrakesoft.com@MANDRAKESOFT.COM</font>
+<br><font color="#000000">&nbsp;&nbsp; 3 telnet/kerberos.mandrakesoft.com@MANDRAKESOFT.COM</font>
+<br><font color="#000000">&nbsp;&nbsp; 3 telnet/kerberos.mandrakesoft.com@MANDRAKESOFT.COM</font>
+<p><a NAME="9. TELNET and FTP clients"></a><font color="#3366FF">9. TELNET
+and FTP clients</font>
+<p>In order to connect yourself from a client (here moonlight) to the telnet/ftp
+server (here sunlight, which, incidentally, is also the kerberos server)
+you should first get a a ticket with the <font color="#993399">kinit</font>
+command.
+<p>[florin@moonlight florin]$ <font color="#993399">kinit</font>
+<br>Password for florin@MANDRAKESOFT.COM:
+<br>[florin@moonlight florin]$ <font color="#993399">klist -5</font>
+<br>Ticket cache: FILE:/tmp/krb5cc_501
+<br>Default principal: florin@MANDRAKESOFT.COM
+<p>Valid starting&nbsp;&nbsp;&nbsp;&nbsp; Expires&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Service principal
+<br>08/07/01 16:14:44&nbsp; 08/08/01 02:10:39&nbsp; krbtgt/MANDRAKESOFT.COM@MANDRAKESOFT.COM
+<br>[florin@moonlight florin]$ <font color="#993399">telnet -a -x -f kerberos</font>
+<br>Trying 192.168.2.178...
+<br>Connected to sunlight.mandrakesoft.com (192.168.2.178).
+<br>Escape character is '^]'.
+<br>[ Kerberos V5 accepts you as ``florin@MANDRAKESOFT.COM'' ]
+<br>Last login: Tue Aug&nbsp; 7 16:11:42 from moonlight
+<br>[florin@sunlight florin]$
+<br>&nbsp;
+<p>seems to be working ...
+<p>For ftp, simply run the ftp command, after adding the ftp/f.q._host_names
+principals, their keys.
+<br>You can then set protection to private with the <font color="#993399">protect
+private</font> command.
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;</ul>
+
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+</body>
+</html>

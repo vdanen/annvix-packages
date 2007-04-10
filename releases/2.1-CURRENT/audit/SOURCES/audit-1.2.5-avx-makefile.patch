@@ -1,0 +1,11 @@
+--- audit-1.2.5/init.d/Makefile.am.avx	2006-08-26 10:57:19.000000000 -0600
++++ audit-1.2.5/init.d/Makefile.am	2006-08-26 10:58:27.000000000 -0600
+@@ -31,7 +31,7 @@
+ 
+ install-data-hook:
+ 	$(INSTALL_DATA) -D -m 640 ${srcdir}/auditd.sysconfig ${DESTDIR}${sysconfigdir}/auditd
+-	$(INSTALL_DATA) -D -m 640 ${srcdir}/${libconfig} ${DESTDIR}${sysconfdir}
++	$(INSTALL_DATA) -D -m 640 ${srcdir}/${libconfig} ${DESTDIR}${sysconfdir}/${libconfig}
+ 
+ install-exec-hook:
+ 	$(INSTALL_SCRIPT) -D ${srcdir}/auditd.init ${DESTDIR}${initdir}/auditd

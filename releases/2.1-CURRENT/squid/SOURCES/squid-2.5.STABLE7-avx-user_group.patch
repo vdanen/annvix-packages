@@ -1,0 +1,26 @@
+--- squid-2.5.STABLE7/src/cf.data.pre.avx	2004-10-19 15:03:40.000000000 -0600
++++ squid-2.5.STABLE7/src/cf.data.pre	2004-10-19 15:05:20.000000000 -0600
+@@ -2425,12 +2425,12 @@
+ 
+ NAME: cache_effective_user
+ TYPE: string
+-DEFAULT: nobody
++DEFAULT: squid
+ LOC: Config.effectiveUser
+ DOC_START
+ 	If you start Squid as root, it will change its effective/real
+ 	UID/GID to the user specified below.  The default is to change
+-	to UID to nobody.  If you define cache_effective_user, but not
++	to UID to squid.  If you define cache_effective_user, but not
+ 	cache_effective_group, Squid sets the GID to the effective
+ 	user's default group ID (taken from the password file) and
+ 	supplementary group list from the from groups membership of
+@@ -2440,7 +2440,7 @@
+ 
+ NAME: cache_effective_group
+ TYPE: string
+-DEFAULT: none
++DEFAULT: squid
+ LOC: Config.effectiveGroup
+ DOC_START
+ 	If you want Squid to run with a specific GID regardless of

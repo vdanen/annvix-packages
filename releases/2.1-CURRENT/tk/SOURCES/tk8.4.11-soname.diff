@@ -1,0 +1,55 @@
+diff -Naur tk8.4.11/unix/Makefile.in tk8.4.11.oden/unix/Makefile.in
+--- tk8.4.11/unix/Makefile.in	2005-06-29 18:43:10.000000000 +0200
++++ tk8.4.11.oden/unix/Makefile.in	2005-12-31 14:17:01.000000000 +0100
+@@ -256,6 +256,7 @@
+ STLIB_LD		= @STLIB_LD@
+ SHLIB_LD		= @SHLIB_LD@
+ SHLIB_LD_LIBS		= @SHLIB_LD_LIBS@
++SHLIB_LD_FLAGS		= @SHLIB_LD_FLAGS@
+ TK_SHLIB_LD_EXTRAS	= @TK_SHLIB_LD_EXTRAS@
+ 
+ # Additional search flags needed to find the various shared libraries
+@@ -626,7 +627,7 @@
+ 		$(TCLVERSION)] != 0} { return }";\
+ 	    relative=`echo | awk '{ORS=" "; split("$(TK_PKG_DIR)",a,"/"); for (f in a) {print ".."}}'`;\
+ 	    echo "package ifneeded Tk $(MAJOR_VERSION).$(MINOR_VERSION)\
+-		[list load [file join \$$dir $${relative}$(TK_LIB_FILE)] Tk]";\
++		[list load [file join \$$dir $${relative}$(TK_LIB_FILE).0] Tk]";\
+ 	    ) > $(PKG_INDEX); \
+ 	    fi
+ 	@echo "Installing $(LIB_FILE) to $(LIB_INSTALL_DIR)/"
+diff -Naur tk8.4.11/unix/tcl.m4 tk8.4.11.oden/unix/tcl.m4
+--- tk8.4.11/unix/tcl.m4	2005-06-29 18:43:10.000000000 +0200
++++ tk8.4.11.oden/unix/tcl.m4	2005-12-31 14:25:16.000000000 +0100
+@@ -1168,6 +1168,8 @@
+ 	    # get rid of the warnings.
+ 	    #CFLAGS_OPTIMIZE="${CFLAGS_OPTIMIZE} -D__NO_STRING_INLINES -D__NO_MATH_INLINES"
+ 
++	    TK_SHLIB_LD_EXTRAS="-Wl,-soname,\${TK_LIB_FILE}.0"
++
+ 	    if test "$have_dl" = yes; then
+ 		SHLIB_LD="${CC} -shared"
+ 		DL_OBJS="tclLoadDl.o"
+@@ -1207,17 +1209,19 @@
+ 	    SHLIB_LD_LIBS='${LIBS}'
+ 	    SHLIB_SUFFIX=".so"
+ 
++	    TK_SHLIB_LD_EXTRAS="-Wl,-soname,\${TK_LIB_FILE}.0"
++
+ 	    if test "$have_dl" = yes; then
+ 		SHLIB_LD="${CC} -shared"
+-		DL_OBJS=""
++		DL_OBJS="tclLoadDl.o"
+ 		DL_LIBS="-ldl"
+ 		LDFLAGS="$LDFLAGS -Wl,--export-dynamic"
+ 		CC_SEARCH_FLAGS=""
+-		LD_SEARCH_FLAGS=""
++		LD_SEARCH_FLAGS=${CC_SEARCH_FLAGS}
+ 	    else
+ 		AC_CHECK_HEADER(dld.h, [
+ 		    SHLIB_LD="ld -shared"
+-		    DL_OBJS=""
++		    DL_OBJS="tclLoadDld.o"
+ 		    DL_LIBS="-ldld"
+ 		    CC_SEARCH_FLAGS=""
+ 		    LD_SEARCH_FLAGS=""])

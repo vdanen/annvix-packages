@@ -1,0 +1,11 @@
+--- create-file~	2006-08-04 12:08:21.000000000 -0600
++++ create-file	2006-08-04 12:08:21.000000000 -0600
+@@ -24,7 +24,7 @@
+ 
+ if [ ! -f $file ]; then
+   touch $file
+-  chown $owner.$group $file
++  chown $owner:$group $file
+   chmod $mode $file
+ fi
+ 

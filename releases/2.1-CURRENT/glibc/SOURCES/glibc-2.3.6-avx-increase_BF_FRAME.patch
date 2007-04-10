@@ -1,0 +1,13 @@
+--- glibc-2.3.5/crypt/x86.S.avx	2006-07-06 11:16:18.000000000 -0600
++++ glibc-2.3.5/crypt/x86.S	2006-07-06 11:16:30.000000000 -0600
+@@ -32,8 +32,8 @@
+ #define DO_ALIGN(log)			.align (1 << (log))
+ #endif
+ 
+-#define BF_FRAME			0x200
+-#define BF_CLEAN			0x300
++#define BF_FRAME			0x400
++#define BF_CLEAN			0x500
+ #define ctx				%esp
+ 
+ #define BF_ptr				(ctx)

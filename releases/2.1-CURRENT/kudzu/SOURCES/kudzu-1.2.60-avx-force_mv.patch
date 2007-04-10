@@ -1,0 +1,11 @@
+--- kudzu-1.2.60/po/Makefile.avx	2006-11-11 22:06:31.000000000 -0700
++++ kudzu-1.2.60/po/Makefile	2006-11-11 22:06:31.000000000 -0700
+@@ -20,7 +20,7 @@
+ 	if cmp -s $(NLSPACKAGE).po $(NLSPACKAGE).pot; then \
+ 	    rm -f $(NLSPACKAGE).po; \
+ 	else \
+-	    mv $(NLSPACKAGE).po $(NLSPACKAGE).pot; \
++	    mv -f $(NLSPACKAGE).po $(NLSPACKAGE).pot; \
+ 	fi
+ 
+ refresh-po: Makefile

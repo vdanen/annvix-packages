@@ -1,0 +1,44 @@
+--- bash-2.05b/configure.in.dietlibc	2002-07-16 15:31:25.000000000 +0200
++++ bash-2.05b/configure.in	2004-07-22 11:33:28.537382188 +0200
+@@ -170,6 +170,7 @@ opt_static_link=no
+ opt_profiling=no
+ 
+ dnl argument parsing for optional features
++AC_ARG_ENABLE(dietlibc, AC_HELP_STRING([--enable-dietlibc], [build static bash with dietlibc]), opt_dietlibc=$enableval)
+ AC_ARG_ENABLE(minimal-config, AC_HELP_STRING([--enable-minimal-config], [a minimal sh-like configuration]), opt_minimal_config=$enableval)
+ 
+ dnl a minimal configuration turns everything off, but features can be
+@@ -220,6 +221,9 @@ dnl opt_readline and opt_history are han
+ dnl to be run before we can check the version of an already-installed readline
+ dnl library
+ 
++if test "$opt_dietlibc" = yes; then
++AC_DEFINE(USE_DIETLIBC, 1, [Define if building with dietlibc])
++fi
+ if test $opt_alias = yes; then
+ AC_DEFINE(ALIAS)
+ fi
+@@ -336,6 +340,13 @@ dnl BEGIN changes for cross-building for
+ 
+ SIGNAMES_H=lsignames.h
+ 
++dnl handle builds with dietlibc
++if test "$opt_dietlibc" = yes; then
++  CC="diet gcc"  
++  CC_FOR_BUILD=gcc
++  CFLAGS="$CFLAGS -Os"
++fi
++
+ dnl load up the cross-building cache file -- add more cases and cache
+ dnl files as necessary
+ 
+@@ -622,7 +633,9 @@ if test "$ac_cv_func_bindtextdomain" = "
+     fi
+ fi
+ 
++if test "$opt_dietlibc" != yes; then
+ BASH_CHECK_MULTIBYTE
++fi
+ 
+ dnl checks for the dynamic loading library functions in libc and libdl
+ if test "$opt_static_link" != yes; then

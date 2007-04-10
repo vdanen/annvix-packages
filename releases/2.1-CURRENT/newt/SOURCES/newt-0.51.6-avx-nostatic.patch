@@ -1,0 +1,11 @@
+--- Makefile.in.nostatic	2005-03-01 00:01:13.000000000 -0500
++++ Makefile.in	2005-03-01 00:01:33.000000000 -0500
+@@ -52,7 +52,7 @@
+ all:	$(TARGET) _snackmodule.so
+ 
+ test:	$(TESTOBJS) $(LIBNEWT)
+-	gcc -g -o test $(TESTOBJS) $(LIBNEWT) $(LIBS) -static
++	gcc -g -o test $(TESTOBJS) $(LIBNEWT) $(LIBS)
+ 
+ testgrid:	testgrid.o $(LIBNEWT)
+ 	gcc -g -o testgrid testgrid.o $(LIBNEWT) $(LIBS)

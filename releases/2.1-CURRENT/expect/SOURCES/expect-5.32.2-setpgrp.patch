@@ -1,0 +1,14 @@
+--- tcltk-8.3.3/expect5.32/exp_command.c.fixit	Mon Jan  7 15:13:14 2002
++++ tcltk-8.3.3/expect5.32/exp_command.c	Mon Jan  7 15:13:52 2002
+@@ -513,11 +513,7 @@
+     syscall(SYS_setpgrp);
+ #endif
+ 
+-#ifdef SETPGRP_VOID
+     (void) setpgrp();
+-#else
+-    (void) setpgrp(0,0);
+-#endif
+ }
+ 
+ 

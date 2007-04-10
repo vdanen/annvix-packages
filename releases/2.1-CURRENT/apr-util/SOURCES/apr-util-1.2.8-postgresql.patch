@@ -1,0 +1,51 @@
+diff -Naur apr-util-1.2.8/build/dbd.m4 apr-util-1.2.8.oden/build/dbd.m4
+--- apr-util-1.2.8/build/dbd.m4	2006-06-14 16:07:28.000000000 +0200
++++ apr-util-1.2.8.oden/build/dbd.m4	2006-12-10 20:33:50.000000000 +0100
+@@ -29,9 +29,9 @@
+   ], [
+     apu_have_pgsql=0
+     if test "$withval" = "yes"; then
+-      AC_CHECK_HEADERS(libpq-fe.h, AC_CHECK_LIB(pq, PQsendQueryPrepared, [apu_have_pgsql=1]))
++      AC_CHECK_HEADERS(pgsql/libpq-fe.h, AC_CHECK_LIB(pq, PQsendQueryPrepared, [apu_have_pgsql=1]))
+       if test "$apu_have_pgsql" = "0"; then
+-        AC_CHECK_HEADERS(postgresql/libpq-fe.h, AC_CHECK_LIB(pq, PQsendQueryPrepared, [apu_have_pgsql=1]))
++        AC_CHECK_HEADERS(pgsql/libpq-fe.h, AC_CHECK_LIB(pq, PQsendQueryPrepared, [apu_have_pgsql=1]))
+       fi
+     elif test "$withval" = "no"; then
+       apu_have_pgsql=0
+@@ -39,7 +39,7 @@
+       old_cppflags="$CPPFLAGS"
+       old_ldflags="$LDFLAGS"
+ 
+-      pgsql_CPPFLAGS="-I$withval/include"
++      pgsql_CPPFLAGS="-I$withval/include/pgsql"
+       pgsql_LDFLAGS="-L$withval/lib "
+ 
+       APR_ADDTO(CPPFLAGS, [$pgsql_CPPFLAGS])
+@@ -52,9 +52,9 @@
+         APR_ADDTO(APRUTIL_INCLUDES, [-I$withval/include])
+       fi
+       if test "$apu_have_pgsql" != "1"; then
+-        AC_CHECK_HEADERS(postgresql/libpq-fe.h, AC_CHECK_LIB(pq, PQsendQueryPrepared, [apu_have_pgsql=1]))
++        AC_CHECK_HEADERS(pgsql/libpq-fe.h, AC_CHECK_LIB(pq, PQsendQueryPrepared, [apu_have_pgsql=1]))
+         if test "$apu_have_pgsql" != "0"; then
+-          APR_ADDTO(APRUTIL_INCLUDES, [-I$withval/include/postgresql])
++          APR_ADDTO(APRUTIL_INCLUDES, [-I$withval/include/pgsql])
+           APR_ADDTO(APRUTIL_LDFLAGS, [-L$withval/lib])
+         fi
+       fi
+diff -Naur apr-util-1.2.8/dbd/apr_dbd_pgsql.c apr-util-1.2.8.oden/dbd/apr_dbd_pgsql.c
+--- apr-util-1.2.8/dbd/apr_dbd_pgsql.c	2006-06-14 08:55:06.000000000 +0200
++++ apr-util-1.2.8.oden/dbd/apr_dbd_pgsql.c	2006-12-10 20:34:17.000000000 +0100
+@@ -24,9 +24,9 @@
+ #include <stdlib.h>
+ 
+ #ifdef HAVE_LIBPQ_FE_H
+-#include <libpq-fe.h>
++#include <pgsql/libpq-fe.h>
+ #elif defined(HAVE_POSTGRESQL_LIBPQ_FE_H)
+-#include <postgresql/libpq-fe.h>
++#include <pgsql/libpq-fe.h>
+ #endif
+ 
+ #include "apr_strings.h"

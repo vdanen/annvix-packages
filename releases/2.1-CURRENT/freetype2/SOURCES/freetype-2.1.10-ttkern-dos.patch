@@ -1,0 +1,13 @@
+--- freetype-2.1.10/src/sfnt/ttkern.c.ttkern-dos	2005-03-03 04:18:15.000000000 -0700
++++ freetype-2.1.10/src/sfnt/ttkern.c	2006-05-22 13:48:16.500186486 -0600
+@@ -246,7 +246,9 @@
+           }
+           else /* linear search */
+           {
+-            for ( count = num_pairs; count > 0; count-- )
++            FT_UInt  count2;
++
++            for ( count2 = num_pairs; count2 > 0; count2-- )
+             {
+               FT_ULong  key = FT_NEXT_ULONG( p );
+ 

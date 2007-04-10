@@ -1,0 +1,5 @@
+#!/bin/execlineb
+
+/bin/cd /var/log/system/remote
+/sbin/chpst -u syslogd /sbin/svlogd
+    /var/log/system/remote/all-tcp

@@ -1,0 +1,12 @@
+--- ./devfsd.conf.tv	2004-01-22 12:01:11.384425733 +0100
++++ ./devfsd.conf	2004-01-22 12:01:04.335329885 +0100
+@@ -4,6 +4,9 @@
+ # Enable full compatibility mode for old device names. You may comment these
+ # out if you don't use the old device names. Make sure you know what you're
+ # doing!
++REGISTER   ^misc/net/tun$    CFUNCTION GLOBAL mksymlink ../misc/net/tun net/tun
++UNREGISTER ^misc/net/tun$    CFUNCTION GLOBAL unlink net/tun
++
+ REGISTER	.*		MKOLDCOMPAT
+ UNREGISTER	.*		RMOLDCOMPAT
+ 

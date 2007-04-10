@@ -1,0 +1,19 @@
+--- lesspipe-1.53/lesspipe.sh.in~	2006-04-12 09:49:55.000000000 +0200
++++ lesspipe-1.53/lesspipe.sh.in	2006-04-12 09:57:44.000000000 +0200
+@@ -523,15 +523,7 @@
+       unrtf --text "$2" 2> /dev/null | sed -e "s/^### .*//" | fmt -s
+     fi
+ #endif
+-#ifdef o3tohtml,utf8tolatin1,html2text,unzip
+-  elif [[ "$1" = *OpenDocument\ [CHMPST]* || "$1" = *OpenOffice\.org\ 1\.x\ [CIWdgpst]* ]]; then
+-    conv="utf8tolatin1"
+-    if [[ "$LANG" = *UTF-8 ]]; then
+-      conv="cat"
+-    fi
+-    echo "==> append $sep to filename to view the OpenOffice or OpenDocument source"
+-    istemp "unzip -avp" "$2" content.xml | o3tohtml | $conv | html2text -style pretty
+-#elif unzip
++#ifdef unzip
+   elif [[ "$1" = *OpenDocument\ [CHMPST]* || "$1" = *OpenOffice\.org\ 1\.x\ [CIWdgpst]* ]]; then
+     echo "==> append $sep to filename to view the OpenOffice or OpenDocument source"
+     cat "$2" > $tmp.

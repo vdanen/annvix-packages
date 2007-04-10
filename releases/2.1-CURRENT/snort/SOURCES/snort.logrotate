@@ -1,0 +1,13 @@
+/var/log/snort/alert /var/log/snort/*log /var/log/snort/*/alert /var/log/snort/*/*log  {
+    daily
+    rotate 7
+    missingok
+    compress
+    postrotate
+        # only reload (HUP) if snortd is really running
+        if [ "`sv status /service/mysqld 2>/dev/null | cut -d ';' -f 1 | egrep -q '^run: ' ; echo $?`" == "0" ]; then
+                /usr/sbin/srv --reload snortd >/dev/null 2>&1
+        fi
+    endscript
+}
+

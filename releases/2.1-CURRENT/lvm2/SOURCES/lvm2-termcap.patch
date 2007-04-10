@@ -1,0 +1,11 @@
+--- LVM2.2.00.14/configure.in.termcap	2004-04-14 20:00:22.000000000 +0200
++++ LVM2.2.00.14/configure.in	2004-04-17 00:58:56.000000000 +0200
+@@ -175,7 +175,7 @@
+ 
+ dnl check for termcap (Shamelessly copied from parted 1.4.17)
+ if test x$READLINE = xyes; then
+-	AC_SEARCH_LIBS(tgetent, ncurses curses termcap termlib, ,
++	AC_CHECK_LIB(termcap, tgetent, ,
+ 		AC_MSG_ERROR(
+ termcap could not be found which is required for the
+ --enable-readline option (which is enabled by default).  Either disable readline

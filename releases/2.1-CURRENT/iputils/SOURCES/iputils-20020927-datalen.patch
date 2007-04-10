@@ -1,0 +1,11 @@
+--- ./traceroute6.c.datalen	2002-09-20 17:44:22.000000000 +0200
++++ ./traceroute6.c	2003-01-02 16:46:44.000000000 +0100
+@@ -436,7 +436,7 @@
+ 	}
+ 	firsthop = *to;
+ 	if (*++argv) {
+-		datalen = atoi(*argv);
++		datalen = atoi(*argv) + sizeof(struct pkt_format);
+ 		/* Message for rpm maintainers: have _shame_. If you want
+ 		 * to fix something send the patch to me for sanity checking.
+ 		 * "datalen" patch is a shit. */
