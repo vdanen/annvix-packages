@@ -64,6 +64,9 @@ Patch17:	krb5-1.3.6-et-preserve-file-names.patch
 Patch18:	krb5-1.4.1-ftplfs.patch
 Patch19:	2006-002-patch.txt
 Patch20:	2006-003-patch.txt
+Patch21:        http://web.mit.edu/kerberos/advisories/2007-001-patch.txt
+Patch22:        http://web.mit.edu/kerberos/advisories/2007-002-patch.txt
+Patch23:        http://web.mit.edu/kerberos/advisories/2007-003-patch.txt
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	bison
@@ -237,6 +240,9 @@ This package contains the documentation for %{name}.
 %patch18 -p1 -b .lfs
 %patch19 -p0 -b .cve-2006-6143
 %patch20 -p0 -b .cve-2006-6144
+%patch21 -p0 -b .cve-2007-0956
+%patch22 -p0 -b .cve-2007-0957
+%patch23 -p0 -b .cve-2007-1216
 
 find . -type f -name "*.fixinfo" -exec rm -fv "{}" ";"
 gzip doc/*.ps
@@ -635,6 +641,11 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Mon Apr 09 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.5.1
+- P21: security fix for CVE-2007-0956
+- P22: security fix for CVE-2007-0957
+- P23: security fix for CVE-2007-1216
+
 * Wed Jan 10 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.5.1
 - P19: security fix for CVE-2006-6143
 - P20: security fix for CVE-2006-6144
