@@ -643,6 +643,12 @@ popd >/dev/null 2>&1
 %changelog
 * Thu Apr 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.5.1
 - fix typo in requires that prevents some installations
+- by default, only allow valid (kerberized) authenticated logins and don't
+  allow unencrypted logins (can be changed by modifying ktelnet's runscript)
+- do the same for kftp as well (user cannot send password unencrypted and must
+  have the credentials to use the resource; this also can be changed in kftp's
+  runscript -- the rationale here is that for other FTP services, there are
+  better alternatives so make this purely kerberos)
 
 * Mon Apr 09 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.5.1
 - P21: security fix for CVE-2007-0956

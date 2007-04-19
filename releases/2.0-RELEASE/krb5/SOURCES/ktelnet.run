@@ -15,4 +15,4 @@
 }
                         
 /sbin/tcpsvd -v -l ${HOSTNAME} -x peers.cdb -c ${MAX_CONN} -C ${MAX_PER_HOST} -b ${MAX_BACKLOG} ${IP} ${PORT}
-    /usr/sbin/telnetd -a none
+    /usr/sbin/telnetd -a valid -e
