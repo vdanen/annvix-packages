@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		rpm-helper
-%define version		0.15
+%define version		0.18.4
 %define release		%_revrel
 
 Summary:	Helper scripts for rpm scriptlets
@@ -20,9 +20,12 @@ License:	GPL
 Group:		System/Configuration
 URL:		http://www.mandrivalinux.com/
 Source0:	%{name}-%{version}.tar.bz2
-Patch0:		rpm-helper-0.15-avx-srv.patch
+Source1:	add-srv
+Source2:	del-srv
+Source3:	mkdepends
+Patch0:		rpm-helper-0.18.4-avx-srv.patch
 Patch1:		rpm-helper-0.15-avx-fix_chown_syntax.patch
-Patch2:		rpm-helper-0.15-avx-fix_preun_shelldel.patch
+Patch2:		rpm-helper-0.18.4-avx-fix_preun_shelldel.patch
 
 BuildArch:	noarch
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -33,6 +36,7 @@ Requires:	grep
 Requires:	shadow-utils
 Requires:	coreutils
 Requires:	srv >= 0.20
+Requires:	findutils
 
 %description
 Helper scripts for rpm scriptlets to help create/remove :
@@ -55,15 +59,12 @@ This package contains the documentation for %{name}.
 %patch0 -p0 -b .avx
 %patch1 -p0 -b .chown_syntax
 %patch2 -p0 -b .preun_shelldel
-
-
-%build
-chmod 0755 {add,del}-srv mkdepends
+cp %{_sourcedir}/{{add,del}-srv,mkdepends} .
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-%makeinstall_std LIBDIR=%{_datadir}/%{name}
+%makeinstall_std
 
 
 %clean
@@ -82,6 +83,13 @@ chmod 0755 {add,del}-srv mkdepends
 
 
 %changelog
+* Wed Apr 18 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.18.4
+- 0.18.4
+- requires: findutils
+- rediff P0 and break out add-srv, del-srv, and mkdepends into their own
+  source files
+- rediff P2
+
 * Thu Dec 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.15
 - update P0 to be silent when del/add upgraded services and to be
   more robust and actually do something if it detects more than one

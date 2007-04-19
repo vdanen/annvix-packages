@@ -1,0 +1,26 @@
+#!/bin/sh
+#
+# This is a rpm helper script that creates dependencies for runit-based services
+# given two parameters; the name of the service and the name of the service it
+# depends on.  For instance:
+#
+# mkdepends.sh %{buildroot} amd portmap
+#
+# this creates a dependency on the portmap service for the amd service and does so
+# by creating a symlink in the dependency directory for the amd service.
+#
+# Copyright (c) 2005 Vincent Danen <vdanen@annvix.org>
+#
+# $Id$
+
+SERVICE="${1}"
+DEPENDS="${2}"
+
+if [ -d ${RPM_BUILD_ROOT}/var/service/${SERVICE}/depends ]; then
+    pushd ${RPM_BUILD_ROOT}/var/service/${SERVICE}/depends >/dev/null 2>&1
+        ln -s ../../${DEPENDS} .
+    popd >/dev/null 2>&1
+else
+    echo "Dependency directory does not exist!"
+    exit 1
+fi
