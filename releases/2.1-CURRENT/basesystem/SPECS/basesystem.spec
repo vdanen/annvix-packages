@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		basesystem
-%define version 	2.0
+%define version 	2.1
 %define release 	%_revrel
 %define epoch		1
 
@@ -26,6 +26,7 @@ BuildRoot:	%{_buildroot}/%{name}-%{version}
 
 Requires:	afterboot
 Requires:	annvix-release
+Requires:	apparmor
 Requires:	bootloader
 Requires:	common-licenses
 Requires:	console-tools
@@ -92,6 +93,10 @@ should never be removed.
 
 
 %changelog
+* Wed Apr 18 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1
+- 2.1
+- require apparmor
+
 * Wed Nov 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
 - remove requires on SysVinit
 
