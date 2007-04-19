@@ -158,7 +158,7 @@ Requires:	krb5-workstation
 Requires(pre):	afterboot
 Requires(post):	rpm-helper
 Requires(postun): rpm-helper
-Requires(preun): rpm-hellper
+Requires(preun): rpm-helper
 Obsoletes:	telnet-server
 Provides:	telnet-server
 
@@ -208,7 +208,7 @@ Requires:	ipsvd
 Requires(pre):	afterboot
 Requires(post):	rpm-helper
 Requires(postun): rpm-helper
-Requires(preun): rpm-hellper
+Requires(preun): rpm-helper
 Provides:	ftpserver
 
 %description -n ftp-server-krb5
@@ -641,6 +641,9 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Thu Apr 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.5.1
+- fix typo in requires that prevents some installations
+
 * Mon Apr 09 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.5.1
 - P21: security fix for CVE-2007-0956
 - P22: security fix for CVE-2007-0957
