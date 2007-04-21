@@ -288,7 +288,6 @@ find . -name Makefile | xargs perl -p -i -e 's@PROG_RPATH\=\$\(KRB5_LIBDIR\)+@PR
 find . -name Makefile | xargs perl -p -i -e 's/TCL_RPATH\s+\=\s+\@TCL_RPATH\@+/TCL_RPATH\=/';
 find . -name Makefile | xargs perl -p -i -e 's/PROG_RPATH\s+\=\s+\$\(TCL_RPATH\)+/TCL_RPATH\=/';
 find . -name Makefile | xargs perl -p -i -e 's/\@SHLIB_RPATH_DIRS\@+//';
-find . -name Makefile | xargs perl -p -i -e "s@ %{_libdir}@ %{buildroot}%{_libdir}@";
 %make RPATH_FLAG= PROG_RPATH= LDCOMBINE='%{__cc} -shared -Wl,-soname=lib$(LIB)$(SHLIBSEXT) $(CFLAGS)'
 
 # Run the test suite.  Won't run in the build system because /dev/pts is
@@ -641,6 +640,9 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Sat Apr 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.5.1
+- fix the tools looking for libs in the buildroot
+
 * Thu Apr 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.5.1
 - fix typo in requires that prevents some installations
 - by default, only allow valid (kerberized) authenticated logins and don't
