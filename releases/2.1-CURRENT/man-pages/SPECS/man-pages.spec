@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		man-pages
-%define version		2.43
+%define version		2.44
 %define release 	%_revrel
 
 Summary:	English man (manual) pages from the Linux Documentation Project
@@ -135,6 +135,9 @@ mkdir -p  %{buildroot}{%{_mandir}/en,/var/catman/}
 
 
 %changelog
+* Mon Apr 23 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.44
+- 2.44
+
 * Tue Dec 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.43
 - 2.43
 - renumber sources and remove manpages that were later being deleted
