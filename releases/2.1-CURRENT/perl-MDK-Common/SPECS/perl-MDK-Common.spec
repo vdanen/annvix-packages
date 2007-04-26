@@ -10,16 +10,8 @@
 %define module		MDK-Common
 %define revision	$Rev$
 %define name		perl-%{module}
-%define version 	1.2.2
+%define version 	1.2.3
 %define release 	%_revrel
-
-%ifarch x86_64
-%define build_option	PERL_CHECKER_TARGET='debug-code BCSUFFIX=""'
-%define require_ocaml	/usr/bin/ocamlrun
-%else
-%define build_option	%nil
-%define require_ocaml	%nil
-%endif
 
 Summary:	Various simple functions for Mandriva Linux tools
 Name:		%{name}
@@ -28,23 +20,13 @@ Release:	%{release}
 License:	GPL
 Group:		Development/Perl
 URL:		http://cvs.mandriva.com/cgi-bin/cvsweb.cgi/soft/perl-MDK-Common/
-Source0:	%{name}.tar.bz2
+Source0:	%{module}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	ocaml >= 3.08
+BuildArch:	noarch
 
 %description
 Various simple functions created for DrakX
-
-
-%package devel
-Summary:	Various verifying scripts
-Group:		Development/Perl
-AutoReqProv:	0
-Requires:	perl-base >= 2:5.8.0 %{require_ocaml}
-
-%description devel
-Various verifying scripts created for DrakX
 
 
 %package doc
@@ -56,19 +38,20 @@ This package contains the documentation for %{name}.
 
 
 %prep
-%setup -q -n %{name}
+%setup -q -n %{module}-%{version}
 
 
 %build
-make %{build_option}
+perl Makefile.PL INSTALLDIRS=vendor
+
+
+%check
+make test
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-%makeinstall_std %{build_option}
-
-# remove unwanted files
-rm -rf %{buildroot}%{_sysconfdir}/emacs
+%makeinstall_std
 
 
 %clean
@@ -79,19 +62,19 @@ rm -rf %{buildroot}%{_sysconfdir}/emacs
 %defattr(-,root,root)
 %dir %{perl_vendorlib}/MDK
 %{perl_vendorlib}/MDK/*
-
-%files devel
-%defattr(-,root,root)
-%{_bindir}/*
-%{perl_vendorlib}/perl_checker_fake_packages
-%{_datadir}/vim/ftplugin/*
+%{_mandir}/man3/*
 
 %files doc
 %defattr(-,root,root)
-%doc COPYING index.html tutorial.html perl_checker.src/perl_checker.html
+%doc COPYING tutorial.html
 
 
 %changelog
+* Wed Apr 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2.3
+- 1.2.3
+- spec cleanups
+- drop buildreq on ocaml
+
 * Fri May 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.2
 - 1.2.2
 - rebuild against perl 5.8.8
