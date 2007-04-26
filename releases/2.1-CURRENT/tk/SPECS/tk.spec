@@ -29,7 +29,7 @@ Requires:	%{libname} = %{version}
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	tcl-devel >= %{version}
-BuildRequires:	X11-devel
+BuildRequires:	libx11-devel
 
 Requires:	%{libname} = %{version}
 
@@ -180,6 +180,9 @@ chmod 0755 %{buildroot}%{_libdir}/*.so*
 
 
 %changelog
+* Thu Apr 26 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.4.13
+- build against modular X
+
 * Tue Dec 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.4.13
 - 8.4.13
 - break out tk from the tcltk package (ala Mandriva)
