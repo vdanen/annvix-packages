@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		libpng
-%define version		1.2.8
+%define version		1.2.16
 %define release		%_revrel
 %define epoch		2
 
@@ -25,9 +25,9 @@ License: 	GPL-like
 Group: 		System/Libraries
 URL: 		http://www.libpng.org/pub/png/libpng.html
 Source: 	http://prdownloads.sourceforge.net/libpng/%{name}-%{version}.tar.bz2
-Patch0:		libpng-1.2.5-mdkconf.patch
-Patch1:		libpng-1.2.6-lib64.patch
-Patch2:		libpng-1.2.12-CVE-2006-5793.patch
+Patch0:		libpng-1.2.10-mdv-mdkconf.patch
+Patch1:		libpng-1.2.10-mdv-lib64.patch
+Patch2:		libpng-1.2.12-mdv-x86-32-mmx.patch
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildRequires: 	zlib-devel
@@ -90,7 +90,7 @@ This package contains the documentation for %{name}.
 %setup -q
 %patch0 -p1 -b .mdkconf
 %patch1 -p1 -b .lib64
-%patch2 -p1 -b .cve-2006-5793
+%patch2 -p1 -b .x86_mmx
 
 perl -pi -e 's|^prefix=.*|prefix=%{_prefix}|' scripts/makefile.linux
 perl -pi -e 's|^(LIBPATH=.*)/lib\b|\1/%{_lib}|' scripts/makefile.linux
@@ -100,12 +100,14 @@ ln -s scripts/makefile.linux ./Makefile
 
 %build
 %make
+
+
+%check
 make test
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p %{buildroot}%{_prefix}
 %makeinstall
 
 mkdir -p %{buildroot}%{_mandir}/man{3,5}
@@ -114,6 +116,10 @@ install -m 0644 png.5 %{buildroot}%{_mandir}/man5/png3.5
 
 # remove unpackaged files
 rm -rf %{buildroot}%{_prefix}/man
+rm -rf %{buildroot}{%{_prefix}/man,%{_libdir}/lib*.la}
+
+#multiarch
+%multiarch_binaries %{buildroot}%{_bindir}/libpng12-config
 
 
 %clean
@@ -134,6 +140,7 @@ rm -rf %{buildroot}%{_prefix}/man
 %defattr(-,root,root)
 %{_bindir}/libpng12-config
 %{_bindir}/libpng-config
+%multiarch %{multiarch_bindir}/libpng12-config
 %{_includedir}/*
 %{_libdir}/libpng.so
 %{_libdir}/libpng12.so
@@ -150,6 +157,15 @@ rm -rf %{buildroot}%{_prefix}/man
 
 
 %changelog
+* Mon Apr 23 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2.16
+- 1.2.16
+- updated P0, P1 from Mandriva
+- use %%multiarch
+- move the test to %%check
+- drop P2, security fix merged upstream
+- new P2 to make sure to enable MMX optimisations on 32-bit x86
+  platforms only (gbeauchesne)
+
 * Fri Feb 02 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2.8
 - P2: security fix for CVE-2006-5793
 

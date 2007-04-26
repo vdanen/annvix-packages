@@ -1,0 +1,16 @@
+--- libpng-1.2.12/pngconf.h.x86-32-mmx	2006-06-27 16:22:34.000000000 -0400
++++ libpng-1.2.12/pngconf.h	2006-08-02 18:48:56.000000000 -0400
+@@ -727,11 +727,11 @@
+ #    define PNG_ASSEMBLER_CODE_SUPPORTED
+ #  endif
+ #  if !defined(PNG_MMX_CODE_SUPPORTED) && !defined(PNG_NO_MMX_CODE) && \
+-     defined(__MMX__)
++     (defined(__i386__) && defined(__MMX__))
+ #    define PNG_MMX_CODE_SUPPORTED
+ #  endif
+ #  if !defined(PNG_USE_PNGGCCRD) && !defined(PNG_NO_MMX_CODE) && \
+-     !defined(PNG_USE_PNGVCRD) && defined(__MMX__)
++     !defined(PNG_USE_PNGVCRD) && (defined(__i386__) && defined(__MMX__))
+ #    define PNG_USE_PNGGCCRD
+ #  endif
+ #endif

@@ -1,8 +1,8 @@
---- libpng-1.2.5/scripts/makefile.linux.mdkconf	2002-10-03 13:32:34.000000000 +0200
-+++ libpng-1.2.5/scripts/makefile.linux	2003-08-27 10:32:17.000000000 +0200
-@@ -15,12 +15,6 @@ CC=gcc
- # Prefix must be a full pathname.
+--- libpng-1.2.10/scripts/makefile.linux.mdkconf	2006-04-23 20:45:40.000000000 +0200
++++ libpng-1.2.10/scripts/makefile.linux	2006-06-15 19:09:42.000000000 +0200
+@@ -31,12 +31,6 @@ RM_F=/bin/rm -f
  prefix=/usr/local
+ exec_prefix=$(prefix)
  
 -# Where the zlib library and include files are located.
 -#ZLIBLIB=/usr/local/lib
@@ -13,7 +13,7 @@
  ALIGN=
  # for i386:
  #ALIGN=-malign-loops=2 -malign-functions=2
-@@ -30,12 +24,11 @@ WARNMORE=-Wwrite-strings -Wpointer-arith
+@@ -46,12 +40,11 @@ WARNMORE=-Wwrite-strings -Wpointer-arith
  	-Wstrict-prototypes -Wmissing-prototypes #-Wconversion
  
  # for pgcc version 2.95.1, -O3 is buggy; don't use it.
@@ -28,9 +28,9 @@
 +LDFLAGS=-L. -Wl,-rpath,. -lpng12
 +LDFLAGS_A=libpng.a $(LIBPNG_LDFLAGS)
  
- RANLIB=ranlib
- #RANLIB=echo
-@@ -84,9 +77,9 @@ libpng-config:
+ INCPATH=$(prefix)/include
+ LIBPATH=$(exec_prefix)/lib
+@@ -97,9 +90,9 @@ libpng-config:
  	( cat scripts/libpng-config-head.in; \
  	echo prefix=\"$(prefix)\"; \
  	echo I_opts=\"-I$(INCPATH)/$(LIBNAME)\"; \
@@ -43,28 +43,28 @@
  	cat scripts/libpng-config-body.in ) > libpng-config
  	chmod +x libpng-config
  
-@@ -99,11 +92,13 @@ $(LIBNAME).so.$(PNGMAJ): $(LIBNAME).so.$
- $(LIBNAME).so.$(PNGVER): $(OBJSDLL)
- 	$(CC) -shared -Wl,-soname,$(LIBNAME).so.$(PNGMAJ) \
- 	-o $(LIBNAME).so.$(PNGVER) \
+@@ -110,11 +103,12 @@ $(LIBSOMAJ): $(LIBSOVER)
+ 	$(LN_SF) $(LIBSOVER) $(LIBSOMAJ)
+ 
+ $(LIBSOVER): $(OBJSDLL)
+-	$(CC) -shared -Wl,-soname,$(LIBSOMAJ) -o $(LIBSOVER) $(OBJSDLL)
++	$(CC) -shared -Wl,-soname,$(LIBSOMAJ) -o $(LIBSOVER) $(LIBPNG_LDFLAGS) $(OBJSDLL)
+ 
+ $(OLDSOVER): $(OBJSDLL)
+ 	$(CC) -shared -Wl,-soname,$(OLDSOMAJ) \
+ 	-o $(OLDSOVER) \
 +	$(LIBPNG_LDFLAGS) \
  	$(OBJSDLL)
  
- libpng.so.3.$(PNGMIN): $(OBJSDLL)
- 	$(CC) -shared -Wl,-soname,libpng.so.3 \
- 	-o libpng.so.3.$(PNGMIN) \
-+	$(LIBPNG_LDFLAGS) \
- 	$(OBJSDLL)
- 
- pngtest: pngtest.o $(LIBNAME).so
-@@ -186,9 +181,8 @@ install: install-static install-shared i
- # move the library to its final location.
+ pngtest: pngtest.o $(LIBSO)
+@@ -208,9 +202,8 @@ test-dd:
+ 	./pngtestd pngtest.png
  
  test-installed:
 -	$(CC) -I$(ZLIBINC) \
 +	$(CC) \
- 	   `$(BINPATH)/libpng12-config --cflags` pngtest.c \
+ 	   `$(BINPATH)/$(LIBNAME)-config --cflags` pngtest.c \
 -	   -L$(ZLIBLIB) -Wl,-rpath,$(ZLIBLIB) \
- 	   -o pngtesti `$(BINPATH)/libpng12-config --ldflags`
+ 	   -o pngtesti `$(BINPATH)/$(LIBNAME)-config --ldflags`
  	./pngtesti pngtest.png
  

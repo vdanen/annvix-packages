@@ -1,0 +1,11 @@
+--- libpng-1.2.10/scripts/makefile.linux.lib64	2006-06-15 19:11:03.000000000 +0200
++++ libpng-1.2.10/scripts/makefile.linux	2006-06-15 19:11:03.000000000 +0200
+@@ -84,7 +84,7 @@ libpng.a: $(OBJS)
+ 	$(RANLIB) $@
+ 
+ libpng.pc:
+-	cat scripts/libpng.pc.in | sed -e s\!@PREFIX@!$(prefix)! > libpng.pc
++	cat scripts/libpng.pc.in | sed -e "s,@PREFIX@,$(prefix),;s,@LIBDIR@,$(LIBPATH)," > libpng.pc
+ 
+ libpng-config:
+ 	( cat scripts/libpng-config-head.in; \
