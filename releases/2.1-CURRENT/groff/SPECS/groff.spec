@@ -11,7 +11,7 @@
 
 %define revision	$Rev$
 %define name		groff
-%define version		1.19.1
+%define version		1.19.2
 %define release		%_revrel
 
 Summary:	A document formatting system
@@ -21,23 +21,25 @@ Release:	%{release}
 License:	GPL
 Group:		Text Tools
 URL:		http://www.gnu.org/directory/GNU/groff.html
-Source0:	ftp://prep.ai.mit.edu/pub/gnu/groff/%{name}-%{version}.tar.bz2
+Source0:	http://ftp.gnu.org/gnu/groff/%{name}-%{version}.tar.gz
+#ftp://prep.ai.mit.edu/pub/gnu/groff/%{name}-%{version}.tar.bz2
 Source1:	troff-to-ps.fpi
 Source2:	README.A4
 Patch0:		groff-1.18-info.patch
 Patch1:		groff-1.19.1-nohtml.patch
-Patch2:		groff-1.17.2-libsupc++.patch
-Patch3:		groff-1.16.1-no-lbp-on-alpha.patch
 # keeps apostrophes and dashes as ascii, but only for man pages
 # -- pablo
 Patch4:		groff-1.19-dashes.patch
-Patch5:		groff-1.19.1-CAN-2004-0969.patch
+Patch5:		groff-1.19.2-CAN-2004-0969.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5
 BuildRequires:	byacc
 BuildRequires:	texinfo >= 4.3
 BuildRequires:	xpm-devel
+BuildRequires:	imake
+BuildRequires:	netpbm
+BuildRequires:	netpbm-devel
 
 Requires:	mktemp
 Requires:	groff-for-man = %{version}-%{release}
@@ -89,10 +91,6 @@ This package contains the documentation for %{name}.
 %setup -q
 %patch0 -p1
 %patch1 -p1 -b .nohtml
-%patch2 -p1 -b .libsupc++
-%ifarch alpha
-%patch3 -p1 -b .alpha
-%endif
 %patch4 -p1 -b ._dashes
 %patch5 -p1 -b .can-2004-0969
 
@@ -102,19 +100,18 @@ WANT_AUTOCONF_2_5=1 autoconf
 
 
 %build
-PATH=$PATH:%{_prefix}/X11R6/bin
 export MAKEINFO=$HOME/cvs/texinfo/makeinfo/makeinfo
-%configure2_5x --enable-japanese
+%configure2_5x
 make top_builddir=$PWD top_srcdir=$PWD
-cd doc
-makeinfo groff.texinfo
+pushd doc
+    makeinfo groff.texinfo
+popd
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-PATH=$PATH:%{_prefix}/X11R6/bin
-mkdir -p %{buildroot}{%{_prefix},%{_infodir},%{_bindir},%{_docdir}/%{name}/%{version}/html/momdoc}
+mkdir -p %{buildroot}{%{_prefix},%{_infodir},%{_bindir},%{_libdir}/%{name},%{_docdir}/%{name}/%{version}/html/momdoc}
 %makeinstall manroot=%{buildroot}%{_mandir} top_builddir=$PWD top_srcdir=$PWD common_words_file=%{buildroot}%{_datadir}/%{name}/%{version} mkinstalldirs=mkdir
 install -m 0644 doc/groff.info* %{buildroot}%{_infodir}
 
@@ -137,11 +134,9 @@ install -m 0755 %{_sourcedir}/troff-to-ps.fpi %{buildroot}%{_libdir}/rhs/rhs-pri
 s=/usr/share/spec-helper/spec-helper ; [ -x $s ] && $s
 
 cat <<EOF > groff.list
+%dir %{_libdir}/groff
+%{_libdir}/groff/groffer/groffer2.sh
 %{_datadir}/groff/%{version}/eign
-%{_datadir}/groff/%{version}/font/devX100
-%{_datadir}/groff/%{version}/font/devX100-12
-%{_datadir}/groff/%{version}/font/devX75
-%{_datadir}/groff/%{version}/font/devX75-12
 %{_datadir}/groff/%{version}/font/devdvi
 %{_datadir}/groff/%{version}/font/devhtml
 %{_datadir}/groff/%{version}/font/devlbp
@@ -165,10 +160,7 @@ cat <<EOF > groff-for-man.list
 %{_datadir}/groff/%{version}/tmac
 %dir %{_datadir}/groff/%{version}/font
 %{_datadir}/groff/%{version}/font/devascii
-#TV%{_datadir}/groff/%{version}/font/devascii8
-#TV%{_datadir}/groff/%{version}/font/devkoi8-r
 %{_datadir}/groff/%{version}/font/devlatin1
-#TV%{_datadir}/groff/%{version}/font/devnippon
 %{_datadir}/groff/%{version}/font/devutf8
 %dir %{_datadir}/groff/site-tmac
 %{_datadir}/groff/site-tmac/man.local
@@ -228,6 +220,13 @@ rm -rf %{buildroot}%{_docdir}/groff/%{version}
 
 
 %changelog
+* Thu Apr 26 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.19.2
+- 1.19.2 (fixes build with gcc4.1)
+- rediff P5
+- build against rebuilt libxpm
+- drop P2, P3
+- fix buildreq's
+
 * Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.19.1
 - really add -doc subpackage
 
