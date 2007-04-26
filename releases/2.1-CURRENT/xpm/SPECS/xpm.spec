@@ -12,7 +12,6 @@
 %define version		3.4k
 %define release		%_revrel
 
-%define prefix		/usr/X11R6
 %define	major		4
 %define	LIBVER		4.11
 %define libname		%mklibname %{name} %{major}
@@ -39,7 +38,10 @@ Patch7:		xpm-3.4k-s_popen-xpm_write.patch
 Patch8:		xpm-3.4k-avx-norman.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	X11-devel
+BuildRequires:	imake
+BuildRequires:	libx11-devel
+BuildRequires:	libxt-devel
+BuildRequires:	libxext-devel
 
 %description
 The xpm package contains the XPM pixmap library for the X Window
@@ -100,9 +102,6 @@ done
 xmkmf
 make Makefiles
 
-# we have to patch the Makefiles after they're made
-cat %{_sourcedir}/xpm-3.4k-avx-norman.patch | patch -p1
-
 mkdir -p exports/include/X11
 cp lib/*.h exports/include/X11
 # %%make doesn't work on more than 2 cpu
@@ -112,7 +111,7 @@ cp lib/*.h exports/include/X11
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make DESTDIR=%{buildroot} install
-ln -sf libXpm.so.%{LIBVER} %{buildroot}%{prefix}/%{_lib}/libXpm.so
+#ln -sf libXpm.so.%{LIBVER} %{buildroot}%{prefix}/%{_lib}/libXpm.so
 
 
 %clean
@@ -125,14 +124,13 @@ ln -sf libXpm.so.%{LIBVER} %{buildroot}%{prefix}/%{_lib}/libXpm.so
 
 %files -n %{libname}
 %defattr(-,root,root)
-%{prefix}/%{_lib}/libXpm.so.*
+%{_libdir}/libXpm.so.*
 
 %files -n %{libname}-devel
 %defattr(-,root,root)
-%{prefix}/bin/*
-%{prefix}/include/X11/*
-%{prefix}/%{_lib}/libXpm.a
-%{prefix}/%{_lib}/libXpm.so
+%{_bindir}/*
+%{_includedir}/X11/*
+%{_libdir}/libXpm.so
 
 %files doc
 %defattr(-,root,root)
@@ -141,6 +139,9 @@ ln -sf libXpm.so.%{LIBVER} %{buildroot}%{prefix}/%{_lib}/libXpm.so
 
 
 %changelog
+* Thu Apr 26 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.4k
+- rebuild against new libx11 and (many) friends
+
 * Wed Apr 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.4k
 - rebuild (needed to build php-gd)
 - clean some provides and obsoletes
