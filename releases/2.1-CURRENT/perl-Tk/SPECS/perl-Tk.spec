@@ -26,7 +26,7 @@ Source:		ftp://sunsite.doc.ic.ac.uk/packages/CPAN/modules/by-module/%{module}/%{
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel
-BuildRequires:	X11-devel
+BuildRequires:	libx11-devel
 
 Provides:	perl(Tk::LabRadio)
 Provides:	perl(Tk::TextReindex)
@@ -132,6 +132,9 @@ rm -f %{buildroot}%{perl_vendorarch}/Tk/README.Adjust
 
 
 %changelog
+* Thu Apr 26 2007 Vincent Danen <vdanen-at-build.annvix.org> 800.027
+- build against modular X
+
 * Wed Dec 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 800.027
 - spec cleaning
 
