@@ -45,6 +45,7 @@ Requires:	gawk
 Requires:	m4
 Requires:	mktemp
 Requires:	perl
+Requires:	perl(MDK::Common)
 # autoconf provides %{aclibdir}/ac-wrapper.pl, which we need
 Requires:	autoconf2.1
 Conflicts:	autoconf <= 1:2.13-22avx
@@ -143,6 +144,9 @@ mv %{buildroot}%{_infodir}/autoconf.info %{buildroot}%{_infodir}/autoconf-2.5x.i
 
 
 %changelog
+* Wed Apr 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.60
+- add requires on perl(MDK::Common)
+
 * Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.60
 - 2.60
 - disable make check, it dies saying it can't allocate memory

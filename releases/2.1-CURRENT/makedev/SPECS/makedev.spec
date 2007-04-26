@@ -37,6 +37,7 @@ Requires(post):	coreutils
 Requires(post):	mktemp
 Requires:	bash
 Requires:	perl-base
+Requires:	perl(MDK::Common)
 Provides:	dev
 Provides:	MAKEDEV
 Obsoletes:	dev
@@ -135,6 +136,9 @@ fi
 
 
 %changelog
+* Wed Apr 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.4
+- add requires on perl(MDK::Common)
+
 * Thu Aug 03 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4
 - make the serial perms owned root:admin since we don't have group uucp
 - spec cleanups

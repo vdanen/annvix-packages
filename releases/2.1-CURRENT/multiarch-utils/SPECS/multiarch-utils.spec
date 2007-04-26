@@ -25,6 +25,7 @@ Patch0:		multiarch-utils-1.0.9-avx-annvix_config.patch
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 
+Requires:	perl(MDK::Common)
 Conflicts:	rpm < 4.4
 
 %description
@@ -60,6 +61,9 @@ binaries and include files during RPM package build.
 
 
 %changelog
+* Wed Apr 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0.9
+- add requires on perl(MDK::Common)
+
 * Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.9
 - drop the docs (Changelog)
 

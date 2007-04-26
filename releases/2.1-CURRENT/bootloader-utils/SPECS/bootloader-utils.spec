@@ -28,6 +28,7 @@ BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 
 Requires:	perl-base
+Requires:	perl(MDK::Common)
 Requires(post):	runit >= 1.7.0
 Requires(post):	initscripts >= 7.06-21mdk
 Requires(post):	rpm-helper
@@ -94,6 +95,9 @@ install -m 0750 %{_sourcedir}/kheader-avx.init %{buildroot}%{_initrddir}/kheader
 
 
 %changelog
+* Wed Apr 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.6
+- add requires on perl(MDK::Common)
+
 * Sun Oct 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.6
 - S2: provide our own initscript
 
