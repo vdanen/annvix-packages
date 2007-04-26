@@ -148,6 +148,9 @@ ln -sf libXpm.so.%{LIBVER} %{buildroot}%{prefix}/%{_lib}/libXpm.so
 
 
 %changelog
+* Wed Apr 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.4k
+- rebuild (needed to build php-gd)
+
 * Sat Jun 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.4k
 - add -doc subpackage
 - rebuild with gcc4
