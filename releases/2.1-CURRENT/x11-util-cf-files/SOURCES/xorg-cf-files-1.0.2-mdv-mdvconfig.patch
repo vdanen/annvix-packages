@@ -1,0 +1,94 @@
+--- xorg-cf-files-1.0.2/host.def.mdvconfig	2006-12-14 14:55:37.000000000 +0100
++++ xorg-cf-files-1.0.2/host.def	2006-12-14 14:55:52.000000000 +0100
+@@ -0,0 +1 @@
++#include <mandriva.def>
+--- xorg-cf-files-1.0.2/mandriva.def.in.mdvconfig	2006-12-14 14:55:40.000000000 +0100
++++ xorg-cf-files-1.0.2/mandriva.def.in	2006-12-14 14:59:45.000000000 +0100
+@@ -0,0 +1,2 @@
++#define ManPath	  @mandir@
++#define ConfigDir @XCONFDIR@
+--- xorg-cf-files-1.0.2/configure.ac.mdvconfig	2006-05-19 20:39:39.000000000 +0200
++++ xorg-cf-files-1.0.2/configure.ac	2006-12-14 14:57:35.000000000 +0100
+@@ -17,4 +17,5 @@ XORG_RELEASE_VERSION
+ AC_OUTPUT([
+ 	Makefile
+ 	site.def
++	mandriva.def
+ ])
+--- xorg-cf-files-1.0.2/Makefile.in.mdvconfig	2006-05-19 20:40:21.000000000 +0200
++++ xorg-cf-files-1.0.2/Makefile.in	2006-12-14 14:54:16.000000000 +0100
+@@ -129,7 +129,6 @@ sharedstatedir = @sharedstatedir@
+ sysconfdir = @sysconfdir@
+ target_alias = @target_alias@
+ BUILT_DEFFILES = \
+-	host.def \
+ 	date.def \
+ 	version.def
+ 
+@@ -138,7 +137,9 @@ DEFFILES = \
+ 	site.def \
+ 	xf86site.def \
+ 	xorgsite.def \
+-	xorgversion.def
++	xorgversion.def \
++	host.def \
++	mandriva.def
+ 
+ RULEFILES = \
+ 	Imake.rules \
+@@ -574,8 +575,6 @@ uninstall-am: uninstall-configDATA unins
+ 
+ all-local: $(BUILT_DEFFILES)
+ 
+-host.def:
+-	@touch host.def
+ date.def:
+ 	@touch date.def
+ version.def:
+--- xorg-cf-files-1.0.2/configure.mdvconfig	2006-05-19 20:40:20.000000000 +0200
++++ xorg-cf-files-1.0.2/configure	2006-12-14 14:58:49.000000000 +0100
+@@ -1740,7 +1740,7 @@ echo "$as_me: Building with package name
+ 	fi
+ 
+ 
+-                    ac_config_files="$ac_config_files Makefile site.def"
++                    ac_config_files="$ac_config_files Makefile site.def mandriva.def"
+ cat >confcache <<\_ACEOF
+ # This file is a shell script that caches the results of configure
+ # tests run on this system so they can be shared between configure
+@@ -2301,6 +2301,7 @@ do
+   # Handling of arguments.
+   "Makefile" ) CONFIG_FILES="$CONFIG_FILES Makefile" ;;
+   "site.def" ) CONFIG_FILES="$CONFIG_FILES site.def" ;;
++  "mandriva.def" ) CONFIG_FILES="$CONFIG_FILES mandriva.def" ;;
+   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
+ echo "$as_me: error: invalid argument: $ac_config_target" >&2;}
+    { (exit 1); exit 1; }; };;
+--- xorg-cf-files-1.0.2/Makefile.am.mdvconfig	2005-12-10 17:29:39.000000000 +0100
++++ xorg-cf-files-1.0.2/Makefile.am	2006-12-14 14:53:47.000000000 +0100
+@@ -1,5 +1,4 @@
+ BUILT_DEFFILES = \
+-	host.def \
+ 	date.def \
+ 	version.def
+ 
+@@ -8,7 +7,9 @@ DEFFILES = \
+ 	site.def \
+ 	xf86site.def \
+ 	xorgsite.def \
+-	xorgversion.def
++	xorgversion.def \
++	host.def \
++	mandriva.def
+ 
+ RULEFILES = \
+ 	Imake.rules \
+@@ -141,8 +142,6 @@ EXTRA_DIST = \
+ 
+ all-local: $(BUILT_DEFFILES)
+ 
+-host.def:
+-	@touch host.def
+ date.def:
+ 	@touch date.def
+ version.def:
