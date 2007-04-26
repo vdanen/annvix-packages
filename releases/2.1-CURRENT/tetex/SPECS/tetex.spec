@@ -27,6 +27,7 @@
 %define texmfsysvar	%{_datadir}/texmf-var
 
 %define _unpackaged_files_terminate_build 0
+%define _requires_exceptions /usr/local/bin/perl
 
 Summary:	The TeX text formatting system
 Name:		%{name}
@@ -77,14 +78,15 @@ BuildRequires:	automake1.7
 BuildRequires:	ncurses-devel
 BuildRequires:	png-devel
 BuildRequires:	xpm-devel
-BuildRequires:	XFree86-devel
+BuildRequires:	libx11-devel
+BuildRequires:	libxt-devel
 
 Requires:	tmpwatch
 Requires:	dialog
 Requires:	ed
 Requires:	info-install
 Obsoletes:	cweb
-Provides:	cweb
+Provides:	cweb = %{version}
 
 %description
 teTeX is an implementation of TeX for Linux or UNIX systems. TeX takes
@@ -94,44 +96,23 @@ Usually, TeX is used in conjunction with a higher level formatting
 package like LaTeX or PlainTeX, since TeX by itself is not very
 user-friendly.
 
-Install teTeX if you want to use the TeX text formatting system.  If
-you are installing teTeX, you will also need to install tetex-afm (a
-PostScript(TM) font converter for TeX), tetex-dvilj (for converting
-.dvi files to HP PCL format for printing on HP and HP compatible
-printers), tetex-dvips (for converting .dvi files to PostScript format
-for printing on PostScript printers), tetex-latex (a higher level
-formatting package which provides an easier-to-use interface for TeX)
-and tetex-xdvi (for previewing .dvi files in X).  Unless you're an
-expert at using TeX, you'll also want to install the tetex-doc
-package, which includes the documentation for TeX.
-
 
 %package latex
 Summary:	The LaTeX front end for the TeX text formatting system
 Group:		Publishing
 Requires:	tetex = %{version}
 Requires:	tetex-context
-Provides:	prosper
+Provides:	prosper = %{version}
 Obsoletes:	prosper
-Provides:	latex-xcolor
+Provides:	latex-xcolor = %{version}
 Obsoletes:	latex-xcolor
-Provides:	latex-pgf
+Provides:	latex-pgf = %{version}
 Obsoletes:	latex-pgf
 
 %description latex
 LaTeX is a front end for the TeX text formatting system.  Easier to use
 than TeX, LaTeX is essentially a set of TeX macros which provide
 convenient, predefined document formats for users.
-
-If you are installing teTeX, so that you can use the TeX text formatting
-system, you will also need to install tetex-latex.  In addition, you will
-need to install tetex-afm (for converting PostScript font description
-files), tetex-dvilj (for converting .dvi files to HP PCL format for
-printing on HP and HP compatible printers), tetex-dvips (for converting
-.dvi files to PostScript format for printing on PostScript printers) and
-tetex-xdvi (for previewing .dvi files in X).  If you're not an expert
-at TeX, you'll probably also want to install the tetex-doc package,
-which contains documentation for TeX.
 
 
 %package dvips
@@ -143,16 +124,6 @@ Requires:	tetex = %{version}
 Dvips converts .dvi files produced by the TeX text formatting system
 (or by another processor like GFtoDVI) to PostScript(TM) format.
 Normally the PostScript file is sent directly to your printer.
-
-If you are installing teTeX, so that you can use the TeX text formatting
-system, you will also need to install tetex-dvips.  In addition, you will
-need to install tetex-afm (for converting PostScript font description
-files), tetex-dvilj (for converting .dvi files to HP PCL format for
-printing on HP and HP compatible printers), tetex-latex (a higher level
-formatting package which provides an easier-to-use interface for TeX) and
-tetex-xdvi (for previewing .dvi files in X).  If you're installing TeX
-and you're not an expert at it, you'll also want to install the tetex-doc
-package, which contains documentation for the TeX system.
 
 
 %package dvilj
@@ -168,16 +139,6 @@ LaserJet+ and fully compatible printers.  With dvilj2p, you can print
 to HP LaserJet IIP and fully compatible printers. And with dvilj4, you
 can print to HP LaserJet4 and fully compatible printers.
 
-If you are installing teTeX, so that you can use the TeX text formatting
-system, you will also need to install tetex-dvilj.  In addition, you will
-need to install tetex-afm (for converting PostScript font description
-files), tetex-dvips (for converting .dvi files to PostScript format for
-printing on PostScript printers), tetex-latex (a higher level formatting
-package which provides an easier-to-use interface for TeX) and tetex-xdvi
-(for previewing .dvi files in X).  If you're installing TeX and you're
-not a TeX expert, you'll also want to install the tetex-doc package,
-which contains documentation for TeX.
-
 
 %package afm
 Summary:	A converter for PostScript(TM) font metric files, for use with TeX
@@ -190,16 +151,6 @@ PostScript fonts are accompanied by .afm font metric files which describe
 the characteristics of each font.  To use PostScript fonts with TeX, TeX
 needs .tfm files that contain similar information.  Afm2tfm will convert
 .afm files to .tfm files.  
-
-If you are installing tetex in order to use the TeX text formatting system,
-you will need to install tetex-afm.  You will also need to install
-tetex-dvilj (for converting .dvi files to HP PCL format for printing on HP
-and HP compatible printers), tetex-dvips (for converting .dvi files to
-PostScript format for printing on PostScript printers), tetex-latex (a
-higher level formatting package which provides an easier-to-use interface
-for TeX) and tetex-xdvi (for previewing .dvi files in X).  Unless you're
-an expert at using TeX, you'll probably also want to install the tetex-doc
-package, which includes documentation for TeX.
 
 
 %package dvipdfm
@@ -254,8 +205,6 @@ electronic documents.
 Summary:	Convert texinfo (GNU docs) directly to HTML for easy reading
 Group:		Publishing
 License:	GPL
-Provides:	texi2html
-Obsoletes:	texi2html
 
 %description texi2html
 This package converts the GNU standard form of documentation (texinfo) into
@@ -314,7 +263,8 @@ sh ./reautoconf
     --with-system-pnglib \
     --disable-multiplatform \
     --without-dialog \
-    --without-texinfo
+    --without-texinfo \
+    --without-xdvik
 
 make all
 
@@ -375,8 +325,7 @@ rm -f %{buildroot}%{_mandir}/man1/readlink.1*
 find %{buildroot} -type f -or -type l | \
     sed -e "s|%{buildroot}||g" | \
     grep -v "^/etc" | grep -v ".orig$" | \
-    sed -e "s|.*\.cnf$|%config(noreplace) &|" \
-        -e "s|%{_datadir}/texmf/dvips/config/config\.ps$|%config(noreplace) &|" \
+    sed -e "s|%{_datadir}/texmf/dvips/config/config\.ps$|%config(noreplace) &|" \
         -e "s|%{_datadir}/texmf/dvips/config/config\.\(generic\|pdf\|www\)$|%config &|" \
         -e "s|%{_datadir}/texmf/dvipdfm/config/config|%config(noreplace) &|" \
         -e "s|%{_datadir}/texmf/xdvi/XDvi|%config &|" \
@@ -504,7 +453,7 @@ rm -f filelist.*
 %files -f filelist.main
 %defattr(-,root,root)
 %attr(1777,root,root) %dir %{vartexfonts}
-%config %{_sysconfdir}/cron.daily/tetex.cron
+%{_sysconfdir}/cron.daily/tetex.cron
 
 %files -f filelist.latex latex
 %defattr(-,root,root)
@@ -536,6 +485,16 @@ rm -f filelist.*
 
 
 %changelog
+* Thu Apr 26 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0
+- rebuild against modular X
+- we don't build xdvik, so don't allow it to be enabled in configure
+  and want libXaw
+- cleanup some provides/obsoletes
+- make /usr/local/bin/perl exempt from being included as a requires
+  (there are a few scripts in the tetex-src directory thus)
+- don't mark .cnf files in /usr/share/texmf as config files
+- don't make the cron script a config file
+
 * Sat Dec 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0
 - rebuild against new gettext
 
