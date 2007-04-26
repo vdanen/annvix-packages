@@ -16,7 +16,6 @@
 %define	major		4
 %define	LIBVER		4.11
 %define libname		%mklibname %{name} %{major}
-%define libnamedev	%mklibname %{name} %{major} -d
 
 Summary:	A pixmap library for the X Window System
 Name:		%{name}
@@ -40,7 +39,7 @@ Patch7:		xpm-3.4k-s_popen-xpm_write.patch
 Patch8:		xpm-3.4k-avx-norman.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	XFree86-devel
+BuildRequires:	X11-devel
 
 %description
 The xpm package contains the XPM pixmap library for the X Window
@@ -51,10 +50,7 @@ pixmapped images, and is used by many popular X programs.
 %package -n %{libname}
 Summary:	A pixmap library for the X Window System
 Group:		System/Libraries
-Provides:	%{name}
-Provides:	xpm3.4k
-Obsoletes:	%{name}
-Provides:	xpm3.4k
+Provides:	%{name} = %{version}
 
 %description -n %{libname}
 The xpm package contains the XPM pixmap library for the X Window
@@ -62,17 +58,14 @@ System.  The XPM library allows applications to display color,
 pixmapped images, and is used by many popular X programs.
 
 
-%package -n %{libnamedev}
+%package -n %{libname}-devel
 Summary:	Tools for developing apps which will use the XPM pixmap library
 Group:		Development/C
 Requires:	%{libname} = %{version}
-Provides:	%{name}-devel
-Provides:	lib%{name}-devel
-Provides:	xpm3.4k-devel
-Obsoletes:	%{name}-devel
-Obsoletes:	xpm3.4k-devel
+Provides:	%{name}-devel = %{version}
+Provides:	lib%{name}-devel = %{version}
 
-%description -n %{libnamedev}
+%description -n %{libname}-devel
 The xpm-devel package contains the development libraries and header
 files  necessary for developing applications which will use the XPM
 library.  The XPM library is used by many programs for displaying
@@ -134,7 +127,7 @@ ln -sf libXpm.so.%{LIBVER} %{buildroot}%{prefix}/%{_lib}/libXpm.so
 %defattr(-,root,root)
 %{prefix}/%{_lib}/libXpm.so.*
 
-%files -n %{libnamedev}
+%files -n %{libname}-devel
 %defattr(-,root,root)
 %{prefix}/bin/*
 %{prefix}/include/X11/*
@@ -150,6 +143,9 @@ ln -sf libXpm.so.%{LIBVER} %{buildroot}%{prefix}/%{_lib}/libXpm.so
 %changelog
 * Wed Apr 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.4k
 - rebuild (needed to build php-gd)
+- clean some provides and obsoletes
+- don't use %%libnamedev macro
+- buildreq: X11-devel instead of XFree86-devel
 
 * Sat Jun 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.4k
 - add -doc subpackage
