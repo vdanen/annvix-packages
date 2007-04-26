@@ -160,6 +160,9 @@ popd
 
 
 %changelog
+* Thu Apr 26 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.76
+- rebuild against rebuilt netpbm
+
 * Fri Jun 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.76
 - rebuild against new netpbm
 
