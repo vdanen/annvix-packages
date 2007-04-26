@@ -47,7 +47,7 @@ Patch6:		Python-2.4.1-gdbm.patch
 Patch7:		python-2.4.3-fix-buffer_overflow_with_glibc2.3.5.diff
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	XFree86-devel 
+BuildRequires:	libx11-devel 
 BuildRequires:	blt
 BuildRequires:	db2-devel
 BuildRequires:	db4-devel
@@ -326,6 +326,9 @@ rm -f modules-list main.list
 
 
 %changelog
+* Thu Apr 26 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.4.3
+- build against modular X
+
 * Sat Dec 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.3
 - rebuild against new gettext (for libintl8)
 
