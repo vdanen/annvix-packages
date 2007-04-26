@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		cups
-%define version		1.2.7
+%define version		1.2.10
 %define release		%_revrel
 
 %define major		2
@@ -70,12 +70,12 @@ CUPS frontends (lpr-cups, xpp, qtcups, kups, ...).
 Summary:	Common Unix Printing System - Development environment "libcups"
 License:	LGPL
 Group:		Development/C
-Requires:	%{libname} >= %{version}-%{release}
-Requires:	cups-common = %{version}-%{release}
+Requires:	%{libname} >= %{version}
+Requires:	cups-common = %{version}
 Requires:	openssl
 Requires:	openssl-devel
-Provides:	libcups-devel = %{version}-%{release}
-Provides:	cups-devel
+Provides:	libcups-devel = %{version}
+Provides:	cups-devel = %{version}
 
 %description -n %{libname}-devel
 The Common Unix Printing System provides a portable printing layer for
@@ -128,6 +128,7 @@ make CHOWN=":" STRIP="$STRIP" OPTIM="$CFLAGS" \
     REQUESTS=%{buildroot}%{_var}/spool/cups \
     LOGDIR=%{buildroot}%{_var}/log/cups \
     STATEDIR=%{buildroot}%{_var}/run/cups
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -261,6 +262,11 @@ chgrp -R sys /etc/cups /var/*/cups
 
 
 %changelog
+* Wed Apr 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2.10
+- 1.2.10
+- rebuild against new libpng
+- fix some rpmlint warnings
+
 * Fri Dec 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.7
 - 1.2.7
 - rebuild against new pam
