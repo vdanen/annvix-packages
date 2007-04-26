@@ -93,6 +93,9 @@ install -m 0644 %{SOURCE0} %{buildroot}%{_sysconfdir}/php.d/%{inifile}
 
 
 %changelog
+* Wed Apr 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.1
+- rebuild against new libpng
+
 * Wed Feb 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.1
 - php 5.2.1
 
