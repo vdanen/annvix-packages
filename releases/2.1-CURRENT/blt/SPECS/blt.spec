@@ -31,7 +31,7 @@ Patch3:		blt2.4z-mkdir_p.patch
 Patch4:		blt2.4z-64bit-fixes.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:  X11-devel
+BuildRequires:  libx11-devel
 BuildRequires:	tcl-devel
 BuildRequires:	tk-devel
 BuildRequires:	autoconf2.1
@@ -180,6 +180,9 @@ done
 
 
 %changelog
+* Thu Apr 26 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.4z
+- build against modular X
+
 * Tue Dec 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4z
 - rebuild against new tcl and tk
 - fix deps
