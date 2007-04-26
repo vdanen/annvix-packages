@@ -54,40 +54,40 @@ Release:	%{release}
 License:	MIT
 Group:		Development/C
 URL:		http://xorg.freedesktop.org
-Source0: http://xorg.freedesktop.org/releases/individual/proto/applewmproto-%{applewm_version}.tar.bz2
-Source1: http://xorg.freedesktop.org/releases/individual/proto/bigreqsproto-%{bigreqs_version}.tar.bz2
-Source2: http://xorg.freedesktop.org/releases/individual/proto/compositeproto-%{composite_version}.tar.bz2
-Source3: http://xorg.freedesktop.org/releases/individual/proto/damageproto-%{damage_version}.tar.bz2
-Source4: http://xorg.freedesktop.org/releases/individual/proto/dmxproto-%{dmx_version}.tar.bz2
-Source5: http://xorg.freedesktop.org/releases/individual/proto/evieext-%{evieext_version}.tar.bz2
-Source6: http://xorg.freedesktop.org/releases/individual/proto/fixesproto-%{fixes_version}.tar.bz2
-Source7: http://xorg.freedesktop.org/releases/individual/proto/fontcacheproto-%{fontcache_version}.tar.bz2
-Source8: http://xorg.freedesktop.org/releases/individual/proto/fontsproto-%{fonts_version}.tar.bz2
-Source9: http://xorg.freedesktop.org/releases/individual/proto/glproto-%{gl_version}.tar.bz2
-Source10: http://xorg.freedesktop.org/releases/individual/proto/inputproto-%{input_version}.tar.bz2
-Source11: http://xorg.freedesktop.org/releases/individual/proto/kbproto-%{kb_version}.tar.bz2
-Source12: http://xorg.freedesktop.org/releases/individual/proto/printproto-%{print_version}.tar.bz2
-Source13: http://xorg.freedesktop.org/releases/individual/proto/randrproto-%{randr_version}.tar.bz2
-Source14: http://xorg.freedesktop.org/releases/individual/proto/recordproto-%{record_version}.tar.bz2
-Source15: http://xorg.freedesktop.org/releases/individual/proto/renderproto-%{render_version}.tar.bz2
-Source16: http://xorg.freedesktop.org/releases/individual/proto/resourceproto-%{resource_version}.tar.bz2
-Source17: http://xorg.freedesktop.org/releases/individual/proto/scrnsaverproto-%{scrnsaver_version}.tar.bz2
-Source18: http://xorg.freedesktop.org/releases/individual/proto/trapproto-%{trap_version}.tar.bz2
-Source19: http://xorg.freedesktop.org/releases/individual/proto/videoproto-%{video_version}.tar.bz2
-Source20: http://xorg.freedesktop.org/releases/individual/proto/windowswmproto-%{windowswm_version}.tar.bz2
-Source21: http://xorg.freedesktop.org/releases/individual/proto/xcmiscproto-%{xcmisc_version}.tar.bz2
-Source22: http://xorg.freedesktop.org/releases/individual/proto/xextproto-%{xext_version}.tar.bz2
-Source23: http://xorg.freedesktop.org/releases/individual/proto/xf86bigfontproto-%{xf86bigfont_version}.tar.bz2
-Source24: http://xorg.freedesktop.org/releases/individual/proto/xf86dgaproto-%{xf86dga_version}.tar.bz2
-Source25: http://xorg.freedesktop.org/releases/individual/proto/xf86driproto-%{xf86dri_version}.tar.bz2
-Source26: http://xorg.freedesktop.org/releases/individual/proto/xf86miscproto-%{xf86misc_version}.tar.bz2
-Source27: http://xorg.freedesktop.org/releases/individual/proto/xf86rushproto-%{xf86rush_version}.tar.bz2
-Source28: http://xorg.freedesktop.org/releases/individual/proto/xf86vidmodeproto-%{xf86vidmode_version}.tar.bz2
-Source29: http://xorg.freedesktop.org/releases/individual/proto/xineramaproto-%{xinerama_version}.tar.bz2
-Source30: http://xorg.freedesktop.org/releases/individual/proto/xproto-%{xproto_version}.tar.bz2
-Source31: http://xorg.freedesktop.org/releases/individual/proto/xproxymanagementprotocol-%{xproxymanagement_version}.tar.bz2
-Source32: http://xf4vnc.sf.net/vncproto-%{vnc_version}.tar.bz2
-Source33: http://xcb.freedesktop.org/dist/xcb-proto-%{xcb_version}.tar.bz2
+Source0:	http://xorg.freedesktop.org/releases/individual/proto/applewmproto-%{applewm_version}.tar.bz2
+Source1:	http://xorg.freedesktop.org/releases/individual/proto/bigreqsproto-%{bigreqs_version}.tar.bz2
+Source2:	http://xorg.freedesktop.org/releases/individual/proto/compositeproto-%{composite_version}.tar.bz2
+Source3:	http://xorg.freedesktop.org/releases/individual/proto/damageproto-%{damage_version}.tar.bz2
+Source4:	http://xorg.freedesktop.org/releases/individual/proto/dmxproto-%{dmx_version}.tar.bz2
+Source5:	http://xorg.freedesktop.org/releases/individual/proto/evieext-%{evieext_version}.tar.bz2
+Source6:	http://xorg.freedesktop.org/releases/individual/proto/fixesproto-%{fixes_version}.tar.bz2
+Source7:	http://xorg.freedesktop.org/releases/individual/proto/fontcacheproto-%{fontcache_version}.tar.bz2
+Source8:	http://xorg.freedesktop.org/releases/individual/proto/fontsproto-%{fonts_version}.tar.bz2
+Source9:	http://xorg.freedesktop.org/releases/individual/proto/glproto-%{gl_version}.tar.bz2
+Source10:	http://xorg.freedesktop.org/releases/individual/proto/inputproto-%{input_version}.tar.bz2
+Source11:	http://xorg.freedesktop.org/releases/individual/proto/kbproto-%{kb_version}.tar.bz2
+Source12:	http://xorg.freedesktop.org/releases/individual/proto/printproto-%{print_version}.tar.bz2
+Source13:	http://xorg.freedesktop.org/releases/individual/proto/randrproto-%{randr_version}.tar.bz2
+Source14:	http://xorg.freedesktop.org/releases/individual/proto/recordproto-%{record_version}.tar.bz2
+Source15:	http://xorg.freedesktop.org/releases/individual/proto/renderproto-%{render_version}.tar.bz2
+Source16:	http://xorg.freedesktop.org/releases/individual/proto/resourceproto-%{resource_version}.tar.bz2
+Source17:	http://xorg.freedesktop.org/releases/individual/proto/scrnsaverproto-%{scrnsaver_version}.tar.bz2
+Source18:	http://xorg.freedesktop.org/releases/individual/proto/trapproto-%{trap_version}.tar.bz2
+Source19:	http://xorg.freedesktop.org/releases/individual/proto/videoproto-%{video_version}.tar.bz2
+Source20:	http://xorg.freedesktop.org/releases/individual/proto/windowswmproto-%{windowswm_version}.tar.bz2
+Source21:	http://xorg.freedesktop.org/releases/individual/proto/xcmiscproto-%{xcmisc_version}.tar.bz2
+Source22:	http://xorg.freedesktop.org/releases/individual/proto/xextproto-%{xext_version}.tar.bz2
+Source23:	http://xorg.freedesktop.org/releases/individual/proto/xf86bigfontproto-%{xf86bigfont_version}.tar.bz2
+Source24:	http://xorg.freedesktop.org/releases/individual/proto/xf86dgaproto-%{xf86dga_version}.tar.bz2
+Source25:	http://xorg.freedesktop.org/releases/individual/proto/xf86driproto-%{xf86dri_version}.tar.bz2
+Source26:	http://xorg.freedesktop.org/releases/individual/proto/xf86miscproto-%{xf86misc_version}.tar.bz2
+Source27:	http://xorg.freedesktop.org/releases/individual/proto/xf86rushproto-%{xf86rush_version}.tar.bz2
+Source28:	http://xorg.freedesktop.org/releases/individual/proto/xf86vidmodeproto-%{xf86vidmode_version}.tar.bz2
+Source29:	http://xorg.freedesktop.org/releases/individual/proto/xineramaproto-%{xinerama_version}.tar.bz2
+Source30:	http://xorg.freedesktop.org/releases/individual/proto/xproto-%{xproto_version}.tar.bz2
+Source31:	http://xorg.freedesktop.org/releases/individual/proto/xproxymanagementprotocol-%{xproxymanagement_version}.tar.bz2
+Source32:	http://xf4vnc.sf.net/vncproto-%{vnc_version}.tar.bz2
+Source33:	http://xcb.freedesktop.org/dist/xcb-proto-%{xcb_version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	x11-util-macros >= 1.0.1
@@ -163,6 +163,9 @@ rm -rf %{buildroot}%{_datadir}/doc/randrproto/randrproto.txt
 
 
 %changelog
+* Thu Apr 26 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2.0
+- clean source list
+
 * Wed Apr 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2.0
 - first Annvix package
 
