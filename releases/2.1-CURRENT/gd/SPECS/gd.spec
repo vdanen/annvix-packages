@@ -34,7 +34,7 @@ BuildRequires:	freetype2-devel
 BuildRequires:	gettext-devel
 BuildRequires:	jpeg-devel
 BuildRequires:	png-devel
-BuildRequires:	XFree86-devel
+BuildRequires:	libx11-devel
 BuildRequires:	xpm-devel
 BuildRequires:	zlib-devel
 
@@ -190,6 +190,9 @@ libtoolize --copy --force; aclocal-1.7; automake-1.7 --copy --add-missing; autoc
 
 
 %changelog
+* Thu Apr 26 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0.33
+- build against modular X
+
 * Tue Feb 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0.33
 - P2: security fix for CVE-2007-0455
 
