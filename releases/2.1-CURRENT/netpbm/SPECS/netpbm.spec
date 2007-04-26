@@ -44,14 +44,10 @@ BuildRequires:	flex
 BuildRequires:	png-devel
 BuildRequires:	jpeg-devel
 BuildRequires:	tiff-devel
-BuildRequires:	X11-devel
+BuildRequires:	libx11-devel
 BuildRequires:	libxml2-devel
 
 Requires:	%{libname} = %{version}-%{release}
-Obsoletes:	libgr-progs
-Obsoletes:	libgr1-progs
-Provides:	libgr-progs
-Provides:	libgr1-progs
 
 %description
 The netpbm package contains a library of functions which support
@@ -63,12 +59,8 @@ programs for handling various graphics file formats, including .pbm
 %package -n %{libname}
 Summary:        A library for handling different graphics file formats
 Group:          System/Libraries
-Provides:	lib%{name}
-Provides:	libgr
-Provides:	libgr1
-Provides:	libnetpbm1
-Obsoletes:      libgr
-Obsoletes:	libgr1
+Provides:	lib%{name} = %{version}
+Provides:	libnetpbm1 = %{version}
 Obsoletes:	libnetpbm1
 
 %description -n %{libname}
@@ -82,13 +74,9 @@ programs for handling various graphics file formats, including .pbm
 Summary:	Development tools for programs which will use the netpbm libraries
 Group:		Development/C
 Requires:	%{libname} = %{version}-%{release}
-Provides:	lib%{name}-devel
-Provides:	libgr-devel
-Provides:	libgr1-devel
-Provides:	libnetpbm1-devel
-Provides:	netpbm-devel
-Obsoletes:	libgr-devel
-Obsoletes:	libgr1-devel
+Provides:	lib%{name}-devel = %{version}
+Provides:	libnetpbm1-devel = %{version}
+Provides:	netpbm-devel = %{version}
 Obsoletes:	libnetpbm1-devel
 
 %description -n %{libname}-devel
@@ -101,13 +89,9 @@ graphics file formats supported by the netpbm libraries.
 Summary:	Static libraries for the netpbm libraries
 Group:		Development/C
 Requires:	%{libname}-devel = %{version}-%{release}
-Provides:	lib%{name}-static-devel
-Provides:	libgr-static-devel
-Provides:	libgr1-static-devel
-Provides:	libnetpbm1-static-devel
-Provides:	netpbm-static-devel
-Obsoletes:	libgr-static-devel
-Obsoletes:	libgr1-static-devel
+Provides:	lib%{name}-static-devel = %{version}
+Provides:	libnetpbm1-static-devel = %{version}
+Provides:	netpbm-static-devel = %{version}
 Obsoletes:	libnetpbm1-static-devel
 
 %description -n %{libname}-static-devel
@@ -176,7 +160,7 @@ make \
     JPEGLIB_DIR=%{_libdir} \
     PNGLIB_DIR=%{_libdir} \
     LINUXSVGALIB="NONE" \
-    X11LIB=%{_prefix}/X11R6/%{_lib}/libX11.so \
+    X11LIB=%{_prefix}/%{_lib}/libX11.so \
     TIFFLIB_DIR=%{_libdir}
 
 
@@ -258,6 +242,10 @@ cp test-images/* %{buildroot}%{_datadir}/printconf/tests/
 
 
 %changelog
+* Thu Apr 26 2007 Vincent Danen <vdanen-at-build.annvix.org> 10.34
+- rebuild against new modular X
+- clean the obsoletes/provides mess
+
 * Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 10.34
 - build against new libxml2 
 
