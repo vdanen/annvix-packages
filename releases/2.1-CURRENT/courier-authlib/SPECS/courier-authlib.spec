@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		courier-authlib
-%define version		0.59
+%define version		0.59.3
 %define release		%_revrel
 
 Summary:	Courier authentication library
@@ -375,6 +375,9 @@ test -f %{_sysconfdir}/courier/authpgsqlrc.rpmnew && %{_libdir}/courier-authlib/
 
 
 %changelog
+* Thu Apr 26 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.59.3
+- 0.59.3
+
 * Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.59
 - rebuild against new postgresql
 
