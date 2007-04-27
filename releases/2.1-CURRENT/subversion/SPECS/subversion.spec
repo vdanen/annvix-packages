@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		subversion
-%define svn_version	1.4.2
+%define svn_version	1.4.3
 %define release		%_revrel
 
 %define apache_version	2.2.4
@@ -479,6 +479,9 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Fri Apr 27 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.4.3
+- 1.4.3
+
 * Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.4.2
 - apache 2.2.4
 
