@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		courier-imap
-%define version		4.1.2
+%define version		4.1.3
 %define release		%_revrel
 
 Summary:	Courier-IMAP is an IMAP server that uses Maildirs
@@ -35,7 +35,7 @@ Source12:	MAX_CONN.env
 Source13:	MAX_PER_HOST.env
 Source14:	IP.env
 Patch0: 	courier-imap-4.1.1-pam_service_name.diff
-Patch1:		courier-imap-4.1.1-avx-cert_location.patch
+Patch1:		courier-imap-4.1.3-avx-cert_location.patch
 Patch2:		courier-imap-4.1.1-avx-tcpsvd_configs.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -53,8 +53,8 @@ Requires(postun): afterboot
 Requires(preun): rpm-helper
 Conflicts:	uw-imap
 Conflicts:	bincimap
-Provides:	imap
-Provides:	imap-server
+Provides:	imap = %{version}
+Provides:	imap-server = %{version}
 
 %description
 Courier-IMAP is an IMAP server for Maildir mailboxes.  This package contains
@@ -66,6 +66,7 @@ other mail servers.
 %package -n courier-base
 Summary:	Contains base files for POP and IMAP servers
 Group:		System/Servers
+Provides:	maildirmake++ = %{version}
 Obsoletes:	maildirmake++
 
 %description -n courier-base
@@ -80,8 +81,9 @@ Requires:	courier-authdaemon
 Requires:	ipsvd
 Requires(post):	rpm-helper
 Requires(preun): rpm-helper
-Provides:	pop
-Provides:	pop-server
+Provides:	pop = %{version}
+Provides:	pop-server = %{version}
+Provides:	%{name}-pop = %{version}
 Conflicts:	uw-imap-pop
 Obsoletes:	%{name}-pop
 
@@ -364,6 +366,11 @@ done
 
 
 %changelog
+* Thu Apr 26 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.1.3
+- 4.1.3
+- rediff P1
+- fix the obsoletes/provides
+
 * Sat Jan 13 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.1.2
 - 4.1.2
 
