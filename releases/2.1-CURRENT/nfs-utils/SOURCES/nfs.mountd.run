@@ -36,5 +36,5 @@ trap 'exit 2' 1 2 3 15
 
 /usr/sbin/exportfs -f 2>&1
 /usr/sbin/exportfs -r 2>&1
-/usr/sbin/rpc.nfsd -- ${NFSDCOUNT} 2>&1
+/usr/sbin/rpc.nfsd -- ${RPCNFSDCOUNT} 2>&1
 exec /usr/sbin/rpc.mountd -F ${RPCMOUNTDOPTS} 2>&1
