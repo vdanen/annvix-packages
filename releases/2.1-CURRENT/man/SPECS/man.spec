@@ -177,6 +177,9 @@ chmod 0755 %{buildroot}%{_sbindir}/makewhatis
 
 
 %changelog
+* Fri Apr 27 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.5m2
+- update P7 to pickup manpages in /usr/local properly
+
 * Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.5m2
 - spec cleanups
 - remove locale stuff
