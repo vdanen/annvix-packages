@@ -29,7 +29,7 @@ Patch1:		man-1.5k-confpath.patch
 Patch4:		man-1.5h1-make.patch
 Patch5:		man-1.5k-nonascii.patch
 Patch6:		man-1.5m2-security.patch
-Patch7:		man-1.5k-mandirs.patch
+Patch7:		man-1.5m2-avx-manpaths.patch
 Patch8:		man-1.5m2-bug11621.patch
 Patch9:		man-1.5k-sofix.patch
 Patch10:	man-1.5m2-buildroot.patch
@@ -148,8 +148,9 @@ chmod 0755 %{buildroot}%{_sbindir}/makewhatis
 
 %kill_lang %{name}
 
+
 %clean
-#[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
 %files
@@ -177,6 +178,9 @@ chmod 0755 %{buildroot}%{_sbindir}/makewhatis
 
 
 %changelog
+* Fri Apr 27 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.5m2
+- update P7 to pickup manpages in /usr/local properly
+
 * Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.5m2
 - spec cleanups
 - remove locale stuff
