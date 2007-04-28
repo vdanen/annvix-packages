@@ -363,6 +363,9 @@ fi
 
 
 %changelog
+* Sat Apr 28 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0.10
+- fix nfs.mountd's runscript to use the right $RPCNFSDCOUNT variable
+
 * Sat Dec 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.10
 - make rpc.gssd create the libgssapi_krb5.so symlink if it doesn't exist
   otherwise (if we let the libkrb51 package do it), we'll end up with
