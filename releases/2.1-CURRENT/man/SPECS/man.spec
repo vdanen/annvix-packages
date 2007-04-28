@@ -29,7 +29,7 @@ Patch1:		man-1.5k-confpath.patch
 Patch4:		man-1.5h1-make.patch
 Patch5:		man-1.5k-nonascii.patch
 Patch6:		man-1.5m2-security.patch
-Patch7:		man-1.5k-mandirs.patch
+Patch7:		man-1.5m2-avx-manpaths.patch
 Patch8:		man-1.5m2-bug11621.patch
 Patch9:		man-1.5k-sofix.patch
 Patch10:	man-1.5m2-buildroot.patch
