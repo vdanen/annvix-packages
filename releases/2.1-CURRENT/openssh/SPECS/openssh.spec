@@ -64,7 +64,7 @@ install openssh-clients, openssh-server, or both.
 
 %package clients
 Summary:	OpenSSH Secure Shell protocol clients
-Requires:	%{name} = %{version}-%{release}
+Requires:	%{name} = %{version}
 Group:		Networking/Remote Access
 Obsoletes:	ssh-clients
 Obsoletes:	sftp
@@ -342,6 +342,7 @@ popd >/dev/null 2>&1
 - versioned provides
 - don't need /usr/X11R6/bin in the path
 - drop the buildreq on db1-devel
+- fix requires-on-release
 
 * Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.5p1
 - rebuild against new pam
