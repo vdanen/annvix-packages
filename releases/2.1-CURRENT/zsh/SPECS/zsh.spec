@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		zsh
-%define version		4.2.6
+%define version		4.3.4
 %define release		%_revrel
 %define epoch		1
 
@@ -22,13 +22,13 @@ License:	GPL
 Group:		Shells
 URL:		http://www.zsh.org
 Source0:	http://www.zsh.org/pub/%{name}-%{version}.tar.bz2
+Source1:	http://www.zsh.org/pub/%{name}-%{version}-doc.tar.bz2
 Source2:	zcfg-avx.tar.bz2
 Source3:	zsh.urpmi_comp
-Source4:	http://www.zsh.org/pub/%{name}-%{version}-doc.tar.bz2
-Patch1:		zsh-3.1.6-dev-22-path.patch
-Patch2:		zsh-4.0.1-pre-3-rpmnewopt.patch
-Patch101:	zsh-serial.patch
-Patch102:	zsh-4.1.0-dev-7-rebootin.patch
+Patch0:		zsh-3.1.6-dev-22-path.patch
+Patch1:		zsh-4.0.1-pre-3-rpmnewopt.patch
+Patch2:		zsh-serial.patch
+Patch3:		zsh-4.1.0-dev-7-rebootin.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	libtermcap-devel >= 2.0
@@ -41,13 +41,12 @@ Requires(post):	rpm-helper
 
 
 %description
-Zsh is a UNIX command interpreter (shell) usable as an
-interactive login shell and as a shell script command
-processor. Of the standard shells, zsh most closely resembles
-ksh but includes many enhancements. Zsh has command-line editing,
-built-in spelling correction, programmable command completion,
-shell functions (with autoloading), a history mechanism, and a
-lots of other features
+Zsh is a UNIX command interpreter (shell) usable as an interactive login
+shell and as a shell script command processor. Of the standard shells, zsh
+most closely resembles ksh but includes many enhancements. Zsh has
+command-line editing, built-in spelling correction, programmable command
+completion, shell functions (with autoloading), a history mechanism, and a
+lot of other features.
 
 
 %package doc
@@ -59,13 +58,13 @@ This package contains the documentation for %{name}.
 
 
 %prep
-%setup -q -a 2 -a 4
+%setup -q -a 2 -a 1
+%patch0 -p1
 %patch1 -p1
 %patch2 -p1
-%patch101 -p1
-%patch102 -p1
+%patch3 -p1
 
-cp %{_sourcedir}/zsh.urpmi_comp Completion/Mandrake/Command/_urpmi
+cp %{_sourcedir}/zsh.urpmi_comp Completion/Mandriva/Command/_urpmi
 
 # remove temporary files
 find | grep '~$' | xargs rm -f
@@ -73,15 +72,10 @@ perl -pi -e 's|/usr/local/bin/|%{_bindir}/|' Functions/Misc/{run-help,checkmail,
 
 
 %build
-%ifarch sparc
-EXTRA_CONFIGURE_ARGS="--disable-lfs"
-%endif
-
 %configure2_5x \
     --enable-etcdir=%{_sysconfdir} \
     --enable-function-subdirs \
     --disable-debug \
-    $EXTRA_CONFIGURE_ARGS \
     --disable-max-jobtable-size \
     --enable-pcre 
     #--with-curses-terminfo
@@ -99,6 +93,9 @@ make install.info DESTDIR=%{buildroot}
 mkdir -p %{buildroot}/{bin,etc}
 cp -a zcfg/etc/z* %{buildroot}%{_sysconfdir}
 cp -a zcfg/share/zshrc_default %{buildroot}%{_datadir}/zsh/%{version}/zshrc_default
+
+# this prevents rpm-helper from adding dependency on /usr/bin/zsh
+find %{buildroot}%{_datadir}/zsh/%{version} -type f -exec chmod 0644 '{}' \;
 
 # Backward compatibility should be removed in the others times.
 pushd %{buildroot}/bin
@@ -151,6 +148,7 @@ mv docroot/Examples/compctl-examples docroot/StartupFiles
 %dir %{_datadir}/zsh
 %dir %{_datadir}/zsh/%{version}/
 %{_datadir}/zsh/%{version}/functions
+%{_datadir}/zsh/%{version}/scripts
 %{_datadir}/zsh/%{version}/zshrc_default
 %{_datadir}/zsh/site-functions/
 %dir %{_libdir}/zsh
@@ -164,6 +162,12 @@ mv docroot/Examples/compctl-examples docroot/StartupFiles
 
 
 %changelog
+* Tue May 01 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.3.4
+- 4.3.4
+- s/Mandrake/Mandriva/
+- get rid of the sparc conditional
+- renumber patches and source files
+
 * Sat Dec 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.2.6
 - rebuild against new ncurses
 
