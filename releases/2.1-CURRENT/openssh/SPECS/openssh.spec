@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		openssh
-%define version		4.5p1
+%define version		4.6p1
 %define release 	%_revrel
 
 Summary:	OpenSSH free Secure Shell (SSH) implementation
@@ -40,11 +40,10 @@ BuildRequires:	openssl-devel >= 0.9.7
 BuildRequires:	pam-devel
 BuildRequires:	tcp_wrappers-devel
 BuildRequires:	zlib-devel
-BuildRequires:	db1-devel
 BuildRequires:	krb5-devel
 
 Obsoletes:	ssh
-Provides:	ssh
+Provides:	ssh = %{version}
 Requires:	filesystem >= 2.1.5
 
 %description
@@ -69,8 +68,8 @@ Requires:	%{name} = %{version}-%{release}
 Group:		Networking/Remote Access
 Obsoletes:	ssh-clients
 Obsoletes:	sftp
-Provides:	ssh-clients
-Provides:	sftp
+Provides:	ssh-clients = %{version}
+Provides:	sftp = %{version}
 
 %description clients
 Ssh (Secure Shell) a program for logging into a remote machine and for
@@ -91,7 +90,7 @@ to SSH servers.
 Summary:	OpenSSH Secure Shell protocol server (sshd)
 Group:		System/Servers
 Obsoletes:	ssh-server
-Provides:	ssh-server
+Provides:	ssh-server = %{version}
 Requires(pre):	rpm-helper
 Requires(pre):	%{name} = %{version}
 Requires(pre):	pam >= 0.74
@@ -118,6 +117,7 @@ This package contains the secure shell daemon. The sshd is the server
 part of the secure shell protocol and allows ssh clients to connect to 
 your host.
 
+
 %package doc
 Summary:	Documentation for %{name}
 Group:		Documentation
@@ -143,7 +143,7 @@ CFLAGS="%{optflags}" ./configure \
     --datadir=%{_datadir}/ssh \
     --with-tcp-wrappers \
     --with-pam \
-    --with-default-path=/usr/local/bin:/bin:/usr/bin:/usr/X11R6/bin \
+    --with-default-path=/usr/local/bin:/bin:/usr/bin \
     --with-xauth=/usr/X11R6/bin/xauth \
     --with-privsep-path=/var/empty \
     --with-kerberos5=%{_prefix} \
@@ -153,7 +153,7 @@ make
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-make install DESTDIR=%{buildroot}/
+%makeinstall_std
 
 mkdir -p %{buildroot}%{_sysconfdir}/{ssh,pam.d,profile.d}
 mkdir -p %{buildroot}%{_libdir}/ssh
@@ -337,6 +337,12 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Tue May 01 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.6p1
+- 4.6p1
+- versioned provides
+- don't need /usr/X11R6/bin in the path
+- drop the buildreq on db1-devel
+
 * Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.5p1
 - rebuild against new pam
 - fix build with kerberos
