@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		postgresql
-%define version		8.2.3
+%define version		8.2.4
 %define release		%_revrel
 
 %define pyver		%(python -c 'import sys;print(sys.version[0:3])')
@@ -624,6 +624,9 @@ fi
 
 
 %changelog
+* Mon Apr 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.2.4
+- 8.2.4: security fix for CVE-2007-2138
+
 * Thu Feb 08 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.2.3
 - 8.2.3: security fixes for CVE-2007-0555, CVE-2007-0556
 
