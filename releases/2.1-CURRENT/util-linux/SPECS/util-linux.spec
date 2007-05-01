@@ -116,19 +116,6 @@ Patch1211:	util-linux-2.12r-mdk-label.patch
 # Annvix patches
 Patch1250:	util-linux-2.12a-avx-noselinux.patch
 
-Obsoletes:	fdisk
-Obsoletes:	tunelp
-Provides:	fdisk
-Provides:	tunelp
-%ifarch alpha sparc sparc64 ppc
-Obsoletes:	clock
-%endif
-# (Dadou) Stupid, noarch is specified. Uncomment if you put something
-#%ifarch
-Conflicts:	initscripts <= 4.58
-Conflicts:	timeconfig <= 3.0.1
-#%endif
-
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	gcc
 BuildRequires:	sed
@@ -626,6 +613,9 @@ fi
 
 
 %changelog
+* Tue May 01 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.12r
+- clean obsoletes/provides
+
 * Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.12r
 - rebuild against new pam
 
