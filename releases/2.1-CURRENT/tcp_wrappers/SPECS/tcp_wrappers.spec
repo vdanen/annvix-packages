@@ -66,11 +66,11 @@ This package contains the shared tcp_wrappers library (libwrap).
 %package -n %{libname}-devel
 Summary:	A security library which acts as a wrapper for TCP daemons
 Group:		Development/C
+Requires:	%{libname} = %{version}
 Obsoletes:	%{name}-devel
 Obsoletes:	libwrap-devel
-Provides:	%{name}-devel
-Provides:	libwrap-devel
-Requires:	%{libname} = %{version}
+Provides:	%{name}-devel = %{version}
+Provides:	libwrap-devel = %{version}
 
 %description -n %{libname}-devel
 This package contains the static tcp_wrappers library (libwrap) and
@@ -171,6 +171,9 @@ install -m 0755 try-from %{buildroot}%{_sbindir}
 
 
 %changelog
+* Tue May 01 2007 Vincent Danen <vdanen-at-build.annvix.org> 7.6
+- versioned provides
+
 * Fri Jun 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 7.6
 - libify the package and build the binaries against the shared libs
 - updated P11, P14 from Mandriva
