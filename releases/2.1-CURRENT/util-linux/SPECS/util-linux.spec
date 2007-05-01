@@ -38,9 +38,6 @@ Patch2:		util-linux-2.11a-gecossize.patch
 Patch21:	util-linux-2.9v-nonroot.patch
 # Make more use xstrncpy and be build always (we have TERMCAP)
 Patch27:	util-linux-2.11t-moretc.patch
-# s390 patches (only applied for s390)
-Patch60:	util-linux-2.10s-s390x.patch
-Patch61:	util-linux-2.11b-s390x.patch
 # fdisk: use 16 partitions as maximun
 # misc documentation fixes for man pages
 Patch70:	util-linux-2.12q-miscfixes.patch
@@ -94,14 +91,8 @@ Patch224:	util-linux-2.12q-fortify.patch
 # Mandriva Specific patches
 # fix compilation related with miscfixes
 Patch1000:	util-linux-2.11h-fix-compilation.patch
-# clock program for ppc
-Patch1200:	util-linux-2.10r-clock-1.1-ppc.patch
-# leng options for clock-ppc
-Patch1201:	util-linux-2.10s-clock-syntax-ppc.patch
 # Added r & w options to chfn (lsb mandate)
 Patch1202:	util-linux-2.11o-chfn-lsb-usergroups.patch
-# fix build on alpha with newer kernel-headers
-Patch1203:	util-linux-2.11m-cmos-alpha.patch
 # handle biarch struct utmp[x]
 Patch1206:	util-linux-2.12a-biarch-utmp.patch
 # do not hide users option in mtab
@@ -141,6 +132,7 @@ utilities that are necessary for a Linux system to function.  Among
 others, Util-linux contains the fdisk configuration tool and the
 login program.
 
+
 %package -n mount
 Summary:	Programs for mounting and unmounting filesystems
 Group:		System/Base
@@ -153,6 +145,7 @@ devices. The mount command attaches a filesystem on some device to
 your system's file tree.  The umount command detaches a filesystem
 from the tree.  Swapon and swapoff, respectively, specify and disable
 devices and files for paging and swapping.
+
 
 %package -n losetup
 Summary:	Programs for setting up and configuring loopback devices
@@ -186,12 +179,7 @@ This package contains the documentation for %{name}.
 
 %patch27 -p1 -b .moretc
 
-%ifarch s390 s390x
-%patch60 -p1 -b .s390x2
-%patch61 -p1 -b .s390x
-%endif
 %patch70 -p1 -b .miscfixes
-#%patch81 -p1 -b .fdisk
 
 # mkcramfs
 cp %{_sourcedir}/cramfs.h %{_sourcedir}/mkcramfs.c .
@@ -201,20 +189,10 @@ cp %{_sourcedir}/cramfs.h %{_sourcedir}/mkcramfs.c .
 # nologin
 cp %{_sourcedir}/nologin.c %{_sourcedir}/nologin.8 .
  
-%ifarch ppc
-%patch1200 -p0
-%patch1201 -p1
-%endif
-
 %patch1000 -p1 -b .fixes
 
 #LSB (sb)
 %patch1202 -p1
-
-#fix build on alpha with newer kernel-headers
-%ifarch alpha
-%patch1203 -p1
-%endif
 
 %patch1206 -p1 -b .biarch-utmp
 %patch1207 -p1 -b .users
@@ -263,6 +241,7 @@ cp %{_sourcedir}/nologin.c %{_sourcedir}/nologin.8 .
 # USRLIB_DIR is %{_libdir}
 perl -pi -e "s|(USRLIB_DIR)\s*=\s*(.*)|\1=%{_libdir}|" ./MCONFIG
 
+
 %build
 unset LINGUAS || :
 
@@ -275,23 +254,14 @@ pushd rescuept
     cc %{optflags} -o rescuept rescuept.c
 popd
 
-#%ifnarch s390 s390x
-#pushd kbdrate
-#    cc %{optflags} -o kbdrate kbdrate.c
-#popd
-#%endif
-
 gcc %{optflags} -o mkcramfs mkcramfs.c -I. -lz
 
 gcc %{optflags} -o nologin nologin.c
 
-%ifarch ppc
-gcc clock-ppc.c -o clock-ppc
-%endif
-
 pushd sys-utils
     makeinfo --number-sections ipc.texi
 popd
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -311,10 +281,6 @@ ln -f rescuept/README rescuept/README.rescuept
 install -m 0755 mkcramfs %{buildroot}/usr/bin
 install -m 0755 nologin %{buildroot}/sbin
 install -m 0644 nologin.8 %{buildroot}%{_mandir}/man8
-#%ifnarch s390 s390x
-#install -m 0755 kbdrate/kbdrate %{buildroot}/sbin
-#install -m 0644 kbdrate/kbdrate.8 nologin.8 %{buildroot}%{_mandir}/man8
-#%endif
 echo '.so man8/raw.8' > %{buildroot}%{_mandir}/man8/rawdevices.8
 
 install -m 0755 partx/{addpart,delpart,partx} %{buildroot}/sbin
@@ -322,27 +288,6 @@ install -m 0755 partx/{addpart,delpart,partx} %{buildroot}/sbin
 # Correct mail spool path.
 perl -pi -e 's,/usr/spool/mail,/var/spool/mail,' %{buildroot}%{_mandir}/man1/login.1
 
-%ifarch sparc sparc64 sparcv9
-rm -rf %{buildroot}%{_bindir}/sunhostid
-cat << E-O-F > %{buildroot}%{_bindir}/sunhostid
-#!/bin/sh
-# this should be %{_bindir}/sunhostid or somesuch.
-# Copyright 1999 Peter Jones, <pjones@redhat.com> .  
-# GPL and all that good stuff apply.
-(
-idprom=\`cat /proc/openprom/idprom\`
-echo \$idprom|dd bs=1 skip=2 count=2
-echo \$idprom|dd bs=1 skip=27 count=6
-echo
-) 2>/dev/null
-E-O-F
-chmod 0755 %{buildroot}%{_bindir}/sunhostid
-%endif
-
-#%ifnarch s390 s390x
-#install -m 0644 kbdrate/kbdrate.apps %{buildroot}%{_sysconfdir}/security/console.apps/kbdrate
-#install -m 0644 kbdrate/kbdrate.pam %{buildroot}%{_sysconfdir}/pam.d/kbdrate
-#%endif
 pushd %{buildroot}%{_sysconfdir}/pam.d
     install -m 0644 %{_sourcedir}/login.pamd login
 popd
@@ -350,16 +295,8 @@ popd
 # We do not want dependencies on csh
 chmod 0644 %{buildroot}%{_datadir}/misc/getopt/*
 
-# This has dependencies on stuff in /usr
-%ifnarch sparc sparc64 sparcv9
 mv %{buildroot}{/sbin/,/usr/sbin}/cfdisk
-%endif
 
-%ifarch ppc
-cp -f %{_builddir}/%{name}-%{version}/clock-ppc %{buildroot}/sbin/clock-ppc
-mv %{buildroot}/sbin/hwclock %{buildroot}/sbin/clock-rs6k
-ln -sf clock-rs6k %{buildroot}/sbin/hwclock
-%endif
 ln -sf ../../sbin/hwclock %{buildroot}/usr/sbin/hwclock
 ln -sf ../../sbin/clock %{buildroot}/usr/sbin/clock
 ln -sf hwclock %{buildroot}/sbin/clock
@@ -387,12 +324,6 @@ rm -f %{buildroot}/sbin/sln
 
 %post
 %_install_info ipc.info
-%ifarch ppc
-ISCHRP=`grep CHRP /proc/cpuinfo`
-if [ -z "$ISCHRP" ]; then
-    ln -sf /sbin/clock-ppc /sbin/hwclock
-fi
-%endif
 
 
 %postun
@@ -403,87 +334,48 @@ fi
 %defattr(-,root,root)
 %config(noreplace) %{_sysconfdir}/fdprm
 %config(noreplace) %{_sysconfdir}/pam.d/login
-#%ifnarch s390 s390x
-#%config(noreplace) %{_sysconfdir}/pam.d/kbdrate
-#%config(noreplace) %{_sysconfdir}/security/console.apps/kbdrate
-#%endif
-
 /bin/arch
 /bin/dmesg
+/bin/flock
 /bin/kill
-%attr(0755,root,root)	/bin/login
+/bin/logger
+%attr(0755,root,root) /bin/login
 /bin/more
-
+/sbin/addpart
 /sbin/agetty
 /sbin/blockdev
-/sbin/pivot_root
-%ifnarch s390 s390x
 /sbin/clock
-%{_sbindir}/clock
-%endif
 /sbin/ctrlaltdel
+/sbin/delpart
 /sbin/elvtune
 /sbin/fdisk
-/sbin/addpart
-/sbin/delpart
-/sbin/partx
-
-%ifarch %ix86 alpha ia64 x86_64 s390 s390x ppc sparc sparc64 sparcv9
-/sbin/fsck.minix
-/sbin/mkfs.minix
-/sbin/mkfs.bfs
 /sbin/fsck.cramfs
-/sbin/mkfs.cramfs
-%{_mandir}/man8/fsck.minix.8*
-%{_mandir}/man8/mkfs.minix.8*
-%{_mandir}/man8/mkfs.bfs.8*
-/sbin/sfdisk
-
-%{_mandir}/man8/sfdisk.8*
-%endif
-
-%ifnarch s390 s390x
+/sbin/fsck.minix
 /sbin/hwclock
-/usr/sbin/hwclock
-%endif
-%ifarch ppc
-/sbin/clock-ppc
-/sbin/clock-rs6k
-%endif
 /sbin/mkfs
+/sbin/mkfs.bfs
+/sbin/mkfs.cramfs
+/sbin/mkfs.minix
 /sbin/mkswap
-#/sbin/mkfs.bfs
-/sbin/rescuept
-#/sbin/sln
 /sbin/nologin
-%{_mandir}/man8/nologin.8*
-# Begin kbdrate stuff
-#%ifnarch s390 s390x
-#/sbin/kbdrate
-##/usr/bin/kbdrate
-#%{_mandir}/man8/kbdrate.8*
-#%endif
-
+/sbin/partx
+/sbin/pivot_root
+/sbin/rescuept
+/sbin/sfdisk
 %{_bindir}/cal
 %{_bindir}/col
 %{_bindir}/colcrt
 %{_bindir}/colrm
 %{_bindir}/column
-%ifarch %ix86 alpha armv4l ppc sparc sparc64 sparcv9 x86_64
 %{_bindir}/cytune
-%{_mandir}/man8/cytune.8*
-%endif
 %{_bindir}/ddate
 %{_bindir}/fdformat
-/bin/flock
 %{_bindir}/flock
 %{_bindir}/getopt
 %{_bindir}/hexdump
 %{_bindir}/ipcrm
 %{_bindir}/ipcs
 %{_bindir}/isosize
-%{_mandir}/man8/isosize.8*
-/bin/logger
 %{_bindir}/logger
 %{_bindir}/look
 %{_bindir}/mcookie
@@ -497,99 +389,39 @@ fi
 %{_bindir}/setfdprm
 %{_bindir}/setsid
 %{_bindir}/setterm
-%ifarch sparc sparc64 sparcv9
-%{_bindir}/sunhostid
-%endif
-#%{_bindir}/tsort
 %{_bindir}/tailf
 %{_bindir}/ul
 %{_bindir}/whereis
-%attr(0755,root,tty)	%{_bindir}/write
-
-%ifarch sparc sparc64 sparcv9
-/sbin/cfdisk
-%else
+%attr(0755,root,tty) %{_bindir}/write
 %{_sbindir}/cfdisk
-%endif
-%{_mandir}/man8/cfdisk.8*
-
+%{_sbindir}/clock
+%{_sbindir}/hwclock
+%{_sbindir}/readprofile
+%{_sbindir}/tunelp
 %ifarch %ix86
 %{_sbindir}/rdev
 %{_sbindir}/ramsize
 %{_sbindir}/rootflags
-%{_sbindir}/vidmode
-%{_mandir}/man8/rdev.8*
-%{_mandir}/man8/ramsize.8*
-%{_mandir}/man8/rootflags.8*
-%{_mandir}/man8/vidmode.8*
+%{_sbindir}/vidmode 
 %endif
-%{_sbindir}/readprofile
-%ifnarch s390
-%{_sbindir}/tunelp
-%endif
+
+%{_mandir}/man1/*.1*
+%{_mandir}/man8/*.8*
+%exclude %{_mandir}/man8/mount.8*
+%exclude %{_mandir}/man8/swapoff.8*
+%exclude %{_mandir}/man8/swapon.8* 
+%exclude %{_mandir}/man8/umount.8* 
+%exclude %{_mandir}/man8/losetup.8*
+# XXX: sln.8 and tunelp.8 should be in glibc
 
 %{_infodir}/ipc.info*
-
-%{_mandir}/man1/arch.1*
-%{_mandir}/man1/cal.1*
-%{_mandir}/man1/col.1*
-%{_mandir}/man1/colcrt.1*
-%{_mandir}/man1/colrm.1*
-%{_mandir}/man1/column.1*
-%{_mandir}/man1/ddate.1*
-%{_mandir}/man1/flock.1*
-%{_mandir}/man1/getopt.1*
-%{_mandir}/man1/hexdump.1*
-#%{_mandir}/man1/hostid.1*
-%{_mandir}/man1/kill.1*
-%{_mandir}/man1/logger.1*
-%{_mandir}/man1/login.1*
-%{_mandir}/man1/look.1*
-%{_mandir}/man1/mcookie.1*
-%{_mandir}/man1/more.1*
-%{_mandir}/man1/namei.1*
-%{_mandir}/man1/readprofile.1*
-%{_mandir}/man1/rename.1*
-%{_mandir}/man1/rev.1*
-%{_mandir}/man1/script.1*
-%{_mandir}/man1/setterm.1*
-#%{_mandir}/man1/tsort.1*
-%{_mandir}/man1/tailf.1*
-%{_mandir}/man1/ul.1*
-%{_mandir}/man1/whereis.1*
-%{_mandir}/man1/write.1*
-
-%{_mandir}/man8/agetty.8*
-%{_mandir}/man8/blockdev.8*
-%{_mandir}/man8/ctrlaltdel.8*
-%{_mandir}/man8/dmesg.8*
-%{_mandir}/man8/elvtune.8*
-%{_mandir}/man8/fdformat.8*
-%{_mandir}/man8/fdisk.8*
-%ifnarch s390 s390x
-%{_mandir}/man8/hwclock.8*
-%endif
-%{_mandir}/man8/ipcrm.8*
-%{_mandir}/man8/ipcs.8*
-%{_mandir}/man8/mkfs.8*
-#%{_mandir}/man8/mkfs.bfs.8*
-%{_mandir}/man8/mkswap.8*
-%{_mandir}/man8/pivot_root.8*
-%{_mandir}/man8/raw.8*
-%{_mandir}/man8/rawdevices.8*
-%{_mandir}/man8/renice.8*
-%{_mandir}/man8/setfdprm.8*
-%{_mandir}/man8/setsid.8*
-# XXX this man page should be moved to glibc.
-%{_mandir}/man8/sln.8*
-%{_mandir}/man8/tunelp.8*
-
 %{_datadir}/misc/getopt
+
 
 %files -n mount
 %defattr(-,root,root)
-%attr(0700,root,root)	/bin/mount
-%attr(0700,root,root)	/bin/umount
+%attr(0700,root,root) /bin/mount
+%attr(0700,root,root) /bin/umount
 /sbin/swapon
 /sbin/swapoff
 %{_mandir}/man5/fstab.5*
@@ -599,22 +431,25 @@ fi
 %{_mandir}/man8/swapon.8*
 %{_mandir}/man8/umount.8*
 
+
 %files -n losetup
 %defattr(-,root,root)
 %{_mandir}/man8/losetup.8*
 /sbin/losetup
 
+
 %files doc
 %defattr(-,root,root)
 %doc */README.* HISTORY mount/README.mount
-%ifarch %ix86 alpha ia64 x86_64 s390 s390x ppc sparc sparc64 sparcv9
 %doc fdisk/sfdisk.examples
-%endif
 
 
 %changelog
 * Tue May 01 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.12r
 - clean obsoletes/provides
+- remove all support for non-x86/x86_64 archs (dropping P60, P61,
+  P1200, P1202, P1203 as a result)
+- major cleanup of %%files
 
 * Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.12r
 - rebuild against new pam
