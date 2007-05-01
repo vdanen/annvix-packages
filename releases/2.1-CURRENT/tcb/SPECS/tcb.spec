@@ -48,7 +48,7 @@ package.
 Summary:        Libraries and tools implementing the tcb password shadowing scheme
 Group:          System/Libraries
 Requires:	glibc-crypt_blowfish
-Provides:	libtcb
+Provides:	libtcb = %{version}
 
 %description -n %{libname}
 libtcb contains code shared by the PAM and NSS modules and is also used
@@ -82,7 +82,7 @@ libnss_tcb is the accompanying NSS module for pam_tcb.
 Summary:	Libraries and header files for building tcb-aware applications
 Group:		Development/Libraries
 Requires:	%{libname} = %{version}-%{release}
-Provides:	tcb-devel
+Provides:	tcb-devel = %{version}
 
 %description -n %{libname}-devel
 This package contains static libraries and header files needed for
@@ -189,6 +189,9 @@ fi
 
 
 %changelog
+* Tue May 01 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0
+- versioned provides
+
 * Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0
 - rebuild against new pam
 
