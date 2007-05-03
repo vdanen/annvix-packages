@@ -245,8 +245,6 @@ SELF-CONTAINED-EXTENSIONS.
 Summary:	The PHP PEAR files
 Group:		Development/Other
 Requires:	php-cli
-Requires:	php-xml
-Requires:	php-xmlrpc
 
 %description pear
 PEAR is short for "PHP Extension and Application Repository" and is
@@ -600,6 +598,9 @@ fi
 
 
 %changelog
+* Thu May 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.1
+- drop the php-xml and php-xmlrpc requires on php-pear as they don't seem necessary
+
 * Wed Feb 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.1
 - php 5.2.1
 - updated suhosin (5.2.1-0.9.6.2)
