@@ -12,7 +12,7 @@
 %define version		%{phpversion}
 %define release		%_revrel
 
-%define phpversion	5.2.1
+%define phpversion	5.2.2
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir		%{_libdir}/php
 
@@ -76,6 +76,9 @@ install -m 0644 %{_sourcedir}/php-exif.ini %{buildroot}%{_sysconfdir}/php.d/%{in
 
 
 %changelog
+* Fri May 04 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.2
+- php 5.2.2
+
 * Wed Feb 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.1
 - php 5.2.1
 
