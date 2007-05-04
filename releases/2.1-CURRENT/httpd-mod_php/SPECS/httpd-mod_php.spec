@@ -52,8 +52,8 @@ Requires:       php-suhosin >= 0.9.10
 Requires:	%{plibname} >= %{phpversion}
 Requires:	php-filter >= 0.11.0
 Requires:	php-json >= 1.2.1
-Provides:	php = %{version}
-Provides:	php5 = %{version}
+Provides:	php = %{phpversion}
+Provides:	php5 = %{phpversion}
 Provides:	mod_php = %{version}
 Provides:	apache2-mod_php = %{version}
 Obsoletes:	apache2-mod_php
@@ -120,6 +120,7 @@ cat %{_sourcedir}/%{mod_conf} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod
 * Fri May 04 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.4_5.2.2
 - php 5.2.2
 - versioned provides
+- fix the provides to provide the php version, not package version
 
 * Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.4_5.2.0 
 - apache 2.2.4
