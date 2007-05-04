@@ -12,7 +12,7 @@
 %define version		%{phpversion}
 %define release		%_revrel
 
-%define phpversion	5.2.1
+%define phpversion	5.2.2
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir          %{_libdir}/php
 
@@ -79,6 +79,9 @@ install -m 0644 %{_sourcedir}/php-mysqli.ini %{buildroot}%{_sysconfdir}/php.d/%{
 
 
 %changelog
+* Fri May 04 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.2
+- php 5.2.2
+
 * Tue Feb 27 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.1
 - don't provide/obsolete php-mysql; we added it back
 
