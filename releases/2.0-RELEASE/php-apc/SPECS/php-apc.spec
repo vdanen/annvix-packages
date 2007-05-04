@@ -9,11 +9,11 @@
 
 %define revision	$Rev$
 %define name		php-%{modname}
-%define version		3.0.12p2
+%define version		3.0.14
 %define release		%_revrel
 %define epoch		1
 
-%define phpversion	5.2.1
+%define phpversion	5.2.2
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir		%{_libdir}/php
 
@@ -115,7 +115,12 @@ install -m 0755 %{soname} %{buildroot}%{phpdir}/extensions/
 
 
 %changelog
-* Wed Feb 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.1
+* Fri May 04 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0.14
+- 3.0.14
+- php 5.2.2
+- reformat the ini file
+
+* Wed Feb 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0.12p2
 - php 5.2.1
 
 * Sun Dec 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.12p2
