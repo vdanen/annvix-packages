@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		php-ini
-%define version		5.2.1
+%define version		5.2.2
 %define release		%_revrel
 
 Summary:	INI files for PHP
@@ -40,7 +40,7 @@ The php-ini package contains the ini files required for PHP.
 mkdir -p %{buildroot}%{_sysconfdir}/php.d
 mkdir -p %{buildroot}%{_libdir}/php/extensions
 mkdir -p %{buildroot}/var/tmp/php_sessions
-cat %{SOURCE0} > %{buildroot}%{_sysconfdir}/php.ini
+install -m 0644 %{_sourcedir}/php.ini.annvix %{buildroot}%{_sysconfdir}/php.ini
 
 perl -pi -e 's|/usr/lib|%{_libdir}|' %{buildroot}%{_sysconfdir}/php.ini
 perl -pi -e 's|EXTENSIONDIR|%{_libdir}/php/extensions|g' %{buildroot}%{_sysconfdir}/php.ini
@@ -60,6 +60,11 @@ perl -pi -e 's|EXTENSIONDIR|%{_libdir}/php/extensions|g' %{buildroot}%{_sysconfd
 
 
 %changelog
+* Fri May 04 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.2
+- php 5.2.2
+- increased upload_max_filesize from 2MB to 8MB
+- add missing [Pcre] section
+
 * Wed Feb 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.1
 - php 5.2.1
 
