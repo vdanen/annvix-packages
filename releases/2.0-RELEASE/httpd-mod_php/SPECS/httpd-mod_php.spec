@@ -14,7 +14,7 @@
 
 # Module-Specific definitions
 %define apache_version	2.2.4
-%define phpversion	5.2.0
+%define phpversion	5.2.2
 %define mod_name	mod_php
 %define mod_conf	70_%{mod_name}.conf
 %define mod_so		%{mod_name}5.so
@@ -52,11 +52,10 @@ Requires:       php-suhosin >= 0.9.10
 Requires:	%{plibname} >= %{phpversion}
 Requires:	php-filter >= 0.11.0
 Requires:	php-json >= 1.2.1
-Provides:	php
-Provides:	php4
-Provides:	php5
-Provides:	mod_php
-Provides:	apache2-mod_php
+Provides:	php = %{version}
+Provides:	php5 = %{version}
+Provides:	mod_php = %{version}
+Provides:	apache2-mod_php = %{version}
 Obsoletes:	apache2-mod_php
 Requires(pre):	httpd >= %{apache_version}
 Requires(pre):	httpd-conf >= %{apache_version}
@@ -64,14 +63,13 @@ Requires(pre):	rpm-helper
 Requires(postun): rpm-helper
 
 %description
-PHP is an HTML-embedded scripting language.  PHP attempts to make it
-easy for developers to write dynamically generated web pages.  PHP
-also offers built-in database integration for several commercial
-and non-commercial database management systems, so writing a
-database-enabled web page with PHP is fairly simple.  The most
-common use of PHP coding is probably as a replacement for CGI
-scripts.  The %{name} module enables the Apache web server to
-understand and process the embedded PHP language in web pages.
+PHP is an HTML-embedded scripting language.  PHP attempts to make it easy for
+developers to write dynamically generated web pages.  PHP also offers built-in
+database integration for several commercial and non-commercial database
+management systems, so writing a database-enabled web page with PHP is fairly
+simple.  The most common use of PHP coding is probably as a replacement for CGI
+scripts.  The %{name} module enables the Apache web server to understand
+and process the embedded PHP language in web pages.
 
 
 %prep
@@ -119,6 +117,10 @@ cat %{_sourcedir}/%{mod_conf} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod
 
 
 %changelog
+* Fri May 04 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.4_5.2.2
+- php 5.2.2
+- versioned provides
+
 * Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.4_5.2.0 
 - apache 2.2.4
 
