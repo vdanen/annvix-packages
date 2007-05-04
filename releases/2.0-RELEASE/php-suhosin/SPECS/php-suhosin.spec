@@ -9,11 +9,11 @@
 
 %define revision	$Rev$
 %define name		php-%{modname}
-%define version		0.9.17
+%define version		0.9.19
 %define release		%_revrel
 %define epoch		1
 
-%define phpversion	5.2.1
+%define phpversion	5.2.2
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir		%{_libdir}/php
 
@@ -32,7 +32,6 @@ Group:		Development/PHP
 URL:		http://www.hardened-php.net/suhosin/
 Source0:	%{modname}-%{version}.tgz
 Source1:	%{modname}-%{version}.tgz.sig
-Source2:	suhosin.ini
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:  php-devel >= %{phpversion}
@@ -74,7 +73,7 @@ mv modules/*.so %{modname}.so
 install -d %{buildroot}%{phpdir}/extensions
 install -d %{buildroot}%{_sysconfdir}/php.d
 
-install -m 0644 %{_sourcedir}/suhosin.ini %{buildroot}%{_sysconfdir}/php.d/%{inifile}
+install -m 0644 suhosin.ini %{buildroot}%{_sysconfdir}/php.d/%{inifile}
 install -m 0755 %{soname} %{buildroot}%{phpdir}/extensions/
 
 
@@ -93,10 +92,15 @@ install -m 0755 %{soname} %{buildroot}%{phpdir}/extensions/
 
 
 %changelog
-* Mon Mar 05 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.1
+* Fri May 04 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.9.19
+- 0.9.19
+- php 5.2.2
+- use the bundled suhosin.ini instead of our own (essentially identical)
+
+* Mon Mar 05 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.9.17
 - 0.9.17
 
-* Wed Feb 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.1
+* Wed Feb 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.9.16
 - php 5.2.1
 
 * Sun Dec 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.9.16
