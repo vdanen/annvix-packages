@@ -37,6 +37,7 @@ BuildRequires:  freetype2-devel
 BuildRequires:  libjpeg-devel
 BuildRequires:  libpng-devel 
 BuildRequires:  libxpm-devel
+BuildRequires:	XFree86-devel
 
 Requires:	php >= %{phpversion}
 Requires:       libpng >= 1.2.0
@@ -95,6 +96,7 @@ install -m 0644 %{SOURCE0} %{buildroot}%{_sysconfdir}/php.d/%{inifile}
 %changelog
 * Fri May 04 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.2
 - php 5.2.2
+- put back the buildrequires on XFree86-devel; it is used for xpm support
 
 * Wed Feb 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.1
 - php 5.2.1
