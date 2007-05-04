@@ -9,16 +9,16 @@
 
 %define revision	$Rev$
 %define name		php
-%define version		5.2.1
+%define version		5.2.2
 %define release		%_revrel
 %define epoch		2
 
 %define libversion	5
 %define libname		%mklibname php_common %{libversion}
 
-%define suhosin_ver	0.9.6.2
+%define suhosin_ver	5.2.2rc2-0.9.6.2
 
-%define _requires_exceptions BEGIN\\|mkinstalldirs\\|pear(
+%define _requires_exceptions BEGIN\\|mkinstalldirs\\|pear(\\|/usr/bin/tclsh
 
 Summary:	The PHP5 scripting language
 Name:		%{name}
@@ -73,16 +73,13 @@ Patch72:	php-5.0.4-mdk-dlopen.patch
 # Fixes for tests
 Patch73:	php-5.1.0RC4-mdk-tests-dashn.patch
 Patch74:	php-5.1.0b1-mdk-tests-wddx.patch
-# Fix bugs
-Patch75:	php-bug-22414.patch
 # http://bugs.php.net/bug.php?id=29119
 Patch76:	php-5.0.4-bug29119.diff
 Patch77:	php-5.1.0RC6-CVE-2005-3388.diff
 Patch78:	php-5.2.0-mdv-libc-client-php.patch
 Patch80:	php-5.2.0-CVE-2006-6383.patch
-Patch81:	php-5.1.6-CVE-2007-0455.patch
 # http://www.hardened-php.net/
-Patch100:	suhosin-patch-%{version}-%{suhosin_ver}.patch
+Patch100:	suhosin-patch-%{suhosin_ver}.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	httpd-devel >= 2.0.54
@@ -245,8 +242,6 @@ SELF-CONTAINED-EXTENSIONS.
 Summary:	The PHP PEAR files
 Group:		Development/Other
 Requires:	php-cli
-Requires:	php-xml
-Requires:	php-xmlrpc
 
 %description pear
 PEAR is short for "PHP Extension and Application Repository" and is
@@ -307,12 +302,10 @@ This package contains the documentation for %{name}.
 %patch74 -p1 -b .tests-wddx.avx
 
 # make the tests worky
-%patch75 -p1 -b .bug-22414.avx
 %patch76 -p0 -b .bug29119.avx
 %patch77 -p0 -b .cve-2005-3388.avx
 %patch78 -p0 -b .libc-client-php.avx
 %patch80 -p1 -b .cve-2006-6383.avx
-%patch81 -p1 -b .cve-2007-0455.avx
 
 %patch100 -p1 -b .suhosin.avx
 
@@ -600,6 +593,15 @@ fi
 
 
 %changelog
+* Fri May 04 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.2
+- php 5.2.2 (fixes for CVE-2007-1001, CVE-2007-1718, CVE-2007-1717,
+  CVE-2007-1649, CVE-2007-1583, CVE-2007-1484, CVE-2007-1521, CVE-2007-1460,
+  CVE-2007-1461, CVE-2007-1375, CVE-2007-1285, CVE-2007-1396, CVE-2007-1864)
+- updated suhosin (5.2.2-rc2-0.9.6.2)
+- drop upstream patches P75, P81
+- drop requires on php-xml* for php-pear
+- fix dependency exceptions
+
 * Wed Feb 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.1
 - php 5.2.1
 - updated suhosin (5.2.1-0.9.6.2)
