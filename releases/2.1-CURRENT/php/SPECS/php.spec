@@ -125,14 +125,10 @@ Requires:	php-hash >= %{version}
 Requires:	php-suhosin >= 0.9.10
 Requires:	php-filter >= 0.11.0
 Requires:	php-json >= 1.2.1
-Provides:	php
-Provides:	php3
-Provides:	php4
-Provides:	php5
-Provides:	php%{libversion} 
+Provides:	php = %{version}
+Provides:	php5 = %{version}
+Provides:	php%{libversion} = %{version}
 Obsoletes:	php
-Obsoletes:	php3
-Obsoletes:	php4
 
 %description cli
 PHP5 is an HTML-embeddable scripting language.  PHP offers built-in database
@@ -168,14 +164,10 @@ Requires:	php-hash >= %{version}
 Requires:	php-suhosin >= 0.9.10
 Requires:	php-filter >= 0.11.0
 Requires:	php-json >= 1.2.1
-Provides:	php
-Provides:	php3
-Provides:	php4
-Provides:	php5
-Provides:	php%{libversion}
+Provides:	php = %{version}
+Provides:	php5 = %{version}
+Provides:	php%{libversion} = %{version}
 Obsoletes:	php
-Obsoletes:	php3
-Obsoletes:	php4
 
 %description cgi
 PHP5 is an HTML-embeddable scripting language.  PHP offers built-in database
@@ -196,10 +188,12 @@ Epoch:		%{epoch}
 Group:		Development/PHP
 URL:		http://www.php.net
 Provides:	%{libname} = %{epoch}:%{version}-%{release}
-Provides:	libphp_common = %{version}-%{release}
-Provides:	php-common = %{version}-%{release}
+Provides:	libphp_common = %{version}
+Provides:	php-common = %{version}
+Provides:	php-pcre = %{version}
+Provides:	php-xml = %{version}
 Obsoletes:	php-pcre
-Provides:	php-pcre = %{version}-%{release}
+Obsoletes:	php-xml
 
 %description -n	%{libname}
 This package provides the common files to run with different
@@ -226,9 +220,7 @@ Requires:	pam-devel
 Requires:	chrpath
 Requires(post):	%{libname} >= %{epoch}:%{version}
 Requires(preun): %{libname} >= %{epoch}:%{version}
-Provides:	libphp_common-devel = %{version}-%{release}
-Provides:	php4-devel
-Obsoletes:	php4-devel
+Provides:	libphp_common-devel = %{version}
 
 %description devel
 The php-devel package lets you compile dynamic extensions to PHP5. Included
@@ -399,18 +391,24 @@ for i in cgi cli apxs; do
         --disable-all \
         --with-config-file-path=%{_sysconfdir} \
         --with-config-file-scan-dir=%{_sysconfdir}/php.d \
-        --disable-debug --enable-pic \
+        --disable-debug \
+        --enable-pic \
         --enable-inline-optimization \
         --with-exec-dir=%{_bindir} \
-        --with-pcre=%{_prefix} --with-pcre-regex=%{_prefix} \
-        --with-ttf --with-freetype-dir=%{_prefix} --with-zlib=%{_prefix} \
+        --with-pcre=%{_prefix} \
+        --with-pcre-regex=%{_prefix} \
+        --with-ttf \
+        --with-freetype-dir=%{_prefix} \
+        --with-zlib=%{_prefix} \
         --with-png-dir=%{_prefix} \
         --with-regex=php \
         --enable-magic-quotes \
         --enable-safe-mode \
-        --with-zlib=%{_prefix} --with-zlib-dir=%{_prefix} \
+        --with-zlib=%{_prefix} \
+        --with-zlib-dir=%{_prefix} \
         --with-openssl=%{_prefix} \
-        --enable-libxml=%{_prefix} --with-libxml-dir=%{_prefix} \
+        --enable-libxml=%{_prefix} \
+        --with-libxml-dir=%{_prefix} \
         --enable-spl=%{_prefix} \
         --enable-track-vars \
         --enable-trans-sid \
@@ -593,6 +591,12 @@ fi
 
 
 %changelog
+* Fri May 04 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.2
+- versioned provides
+- drop some (useless and inacurrate) provides/obsoletes for php3/php4
+- provide/obsolete php-xml; it's been built here for a while now and is
+  useful enough to build right into the core
+
 * Fri May 04 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.2
 - php 5.2.2 (fixes for CVE-2007-1001, CVE-2007-1718, CVE-2007-1717,
   CVE-2007-1649, CVE-2007-1583, CVE-2007-1484, CVE-2007-1521, CVE-2007-1460,
