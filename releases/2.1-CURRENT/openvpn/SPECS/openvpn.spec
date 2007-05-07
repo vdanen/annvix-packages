@@ -9,7 +9,7 @@
 
 %define revision        $Rev$
 %define name            openvpn
-%define version         2.0.5
+%define version         2.0.9
 %define release         %_revrel
 
 %define plugindir	%{_libdir}/%{name}
@@ -21,12 +21,17 @@ Release:	%{release}
 License:	GPL
 Group:		Networking/Other
 URL:		http://openvpn.net/
-Source0:	http://openvpn.net/release/%{name}-%{version}.tar.bz2
+Source0:	http://openvpn.net/release/%{name}-%{version}.tar.gz
+Source1:	openvpn.run
+Source2:	openvpn-log.run
+Source3:	06_openvpn.afterboot
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:  openssl-devel
 BuildRequires:	pam-devel
 BuildRequires:	automake1.8
+BuildRequires:	liblzo-devel
+
 Requires(pre):	rpm-helper
 Requires(preun): rpm-helper
 Requires(post):	rpm-helper
@@ -61,8 +66,7 @@ CFLAGS="%{optflags} -fPIC" CCFLAGS="%{optflags} -fPIC"
 
 %configure \
     --enable-pthread \
-    --enable-plugin \
-    --disable-lzo
+    --enable-plugin 
 
 %make
 
@@ -90,44 +94,69 @@ for pi in down-root auth-pam; do
     install -c -m 0755 plugin/$pi/openvpn-$pi.so %{buildroot}%{plugindir}/openvpn-$pi.so
 done
 
+mkdir -p %{buildroot}%{_srvdir}/openvpn/{log,env}
+install -m 0740 %{_sourcedir}/openvpn.run %{buildroot}%{_srvdir}/openvpn/run
+install -m 0740 %{_sourcedir}/openvpn-log.run %{buildroot}%{_srvdir}/openvpn/log/run
+echo "local" >%{buildroot}%{_srvdir}/openvpn/env/NAME
+
+mkdir -p %{buildroot}%{_datadir}/afterboot
+install -m 0644 %{_sourcedir}/06_openvpn.afterboot %{buildroot}%{_datadir}/afterboot/06_openvpn
+
 
 %clean
 [ %{buildroot} != "/" ] && rm -rf %{buildroot}
 
 
 %pre
-%_pre_useradd %{name} %{_localstatedir}/%{name} /bin/true
+%_pre_useradd openvpn %{_localstatedir}/openvpn /bin/true 94
 
 
 %post
-%_post_service %{name}
+%_post_srv openvpn
+%_mkafterboot
 
 
 %preun
-%_preun_service %{name}
+%_preun_srv openvpn
 
 
 %postun
-%_postun_userdel %{name}
+%_mkafterboot
+%_postun_userdel openvpn
 
 
 %files
 %defattr(-,root,root)
 %{_mandir}/man8/%{name}.8*
-%{_sbindir}/%{name}
-%{_datadir}/%{name}
-%dir %{_sysconfdir}/%{name}
-%dir %{_localstatedir}/%{name}
+%{_sbindir}/openvpn
+%{_datadir}/openvpn
+%dir %{_sysconfdir}/openvpn
+%dir %{_localstatedir}/openvpn
 %dir %{plugindir}
 %{plugindir}/*.so
+%dir %attr(0750,root,admin) %{_srvdir}/openvpn
+%dir %attr(0750,root,admin) %{_srvdir}/openvpn/log
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/openvpn/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/openvpn/log/run
+%attr(0640,root,admin) %{_srvdir}/openvpn/env/NAME
+%{_datadir}/afterboot/06_openvpn
 
 %files doc
 %defattr(-,root,root)
 %doc AUTHORS INSTALL PORTS README
 %doc plugin/README.*
+%doc sample-config-files sample-keys sample-scripts
 
 
 %changelog
+* Mon May 07 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0.9
+- 2.0.9
+- provide default runscripts
+- use a static uid/gid (94)
+- include sample files
+- enable lzo compression support
+- in short, finished the dang package (was more or less worthless before)
+
 * Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.5
 - rebuild against new pam
 
