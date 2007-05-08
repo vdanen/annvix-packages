@@ -54,8 +54,8 @@ tclsh, a simple example of a Tcl application.
 Summary:	Development files for %{name}
 Group:		Development/Other
 Requires:	%{libname} = %{version}
-Provides:	%{name}-devel = %{version}-%{release}
-Provides:	lib%{name}-devel = %{version}-%{release}
+Provides:	%{name}-devel = %{version}
+Provides:	lib%{name}-devel = %{version}
 
 %description -n	%{libname}-devel
 This package contains development files for %{name}.
@@ -176,6 +176,9 @@ chmod 0755 %{buildroot}%{_libdir}/*.so*
 
 
 %changelog
+* Mon May 07 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.4.13
+- versioned provides
+
 * Tue Dec 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.4.13
 - 8.4.13
 - break out tcl from the tcltk package (ala Mandriva)
