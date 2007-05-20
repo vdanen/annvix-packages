@@ -6,12 +6,10 @@
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
 # $Id$
-#
-# mdk 1.18-1mdk
 
 %define revision	$Rev$
 %define name		rpm-annvix-setup
-%define version		1.22
+%define version		1.24
 %define release		%_revrel
 
 Summary:	The Annvix rpm configuration and scripts
@@ -20,12 +18,13 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		System/Configuration
-URL:		http://svn.annvix.org/cgi-bin/viewvc.cgi/rpm-setup/trunk/?root=tools
+URL:		http://svn.annvix.org/cgi-bin/viewvc.cgi/tools/rpm-setup/trunk/
 Source0:	%{name}-%{version}.tar.bz2
 
 #Requires:	libssp0
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
+BuildRequires:	rpm-devel
 
 %description
 The Annvix rpm configuration and scripts.
@@ -36,6 +35,7 @@ Summary:	The Annvix rpm configuration and scripts to build rpms
 Group:		System/Configuration
 Requires:	spec-helper >= 0.6-5mdk
 Requires:	multiarch-utils >= 1.0.3
+Requires:	pkgconfig
 Requires:	%{name} = %{version}-%{release}
 #Requires:	libssp0-devel
 
@@ -48,7 +48,7 @@ The Annvix rpm configuration and scripts dedicated to build rpms.
 
 
 %build
-%configure
+%configure2_5x
 %make
 
 
@@ -57,6 +57,10 @@ The Annvix rpm configuration and scripts dedicated to build rpms.
 %makeinstall_std
 
 mkdir -p %{buildroot}%{_sysconfdir}/rpm/macros.d
+
+
+%check
+make test
 
 
 %clean
@@ -69,7 +73,7 @@ mkdir -p %{buildroot}%{_sysconfdir}/rpm/macros.d
 %{_prefix}/lib/rpm/annvix/rpmrc
 %{_prefix}/lib/rpm/annvix/macros
 %{_prefix}/lib/rpm/annvix/rpmpopt
-%{_prefix}/lib/rpm/annvix/*-%{_target_os}
+%{_prefix}/lib/rpm/annvix/*-%_target_os
 %dir %{_sysconfdir}/rpm/macros.d
 
 
@@ -83,6 +87,12 @@ mkdir -p %{buildroot}%{_sysconfdir}/rpm/macros.d
 
 
 %changelog
+* Sun May 20 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.24
+- 1.24
+- buildrequires: rpm-devel
+- requires pkgconfig on -build subpackage
+- add make test
+
 * Mon Nov 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.22
 - revert the SSP changes; I don't think it will play nice until we get
   glibc 2.4 involved
