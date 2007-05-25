@@ -45,6 +45,7 @@ Patch5:		Python-2.2.2-biarch-headers.patch
 # detect and link with gdbm_compat for dbm module
 Patch6:		Python-2.4.1-gdbm.patch
 Patch7:		python-2.4.3-fix-buffer_overflow_with_glibc2.3.5.diff
+Patch8:		python-2.5-CVE-2007-2052.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	XFree86-devel 
@@ -147,6 +148,7 @@ This package contains the documentation for %{name}.
 # gdbm
 %patch6 -p1
 %patch7 -p0
+%patch8 -p1
 
 autoconf
 
@@ -326,6 +328,9 @@ rm -f modules-list main.list
 
 
 %changelog
+* Fri May 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.4.3
+- P8: security fix for CVE-2007-2052
+
 * Sat Dec 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.3
 - rebuild against new gettext (for libintl8)
 
