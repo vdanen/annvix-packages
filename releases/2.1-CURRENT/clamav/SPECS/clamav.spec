@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		clamav
-%define version		0.88.7
+%define version		0.90.2
 %define release		%_revrel
 
 %define	major		1
@@ -28,8 +28,8 @@ Source4:	clamd.run
 Source5:	clamd-log.run
 Source6:	freshclam.run
 Source7:	freshclam-log.run
-Patch0:		clamav-0.87-avx-config.patch
-Patch1:		clamav-0.88.1-avx-stderr.patch
+Patch0:		clamav-0.90.2-avx-config.patch
+Patch1:		clamav-0.90.2-avx-stderr.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5
@@ -100,8 +100,8 @@ Shared libraries for %{name}
 Summary:	Development library and header files for the %{name} library
 Group:		Development/C
 Requires:	%{libname} = %{version}
-Provides:	%{name}-devel
-Provides:	lib%{name}-devel
+Provides:	%{name}-devel = %{version}
+Provides:	lib%{name}-devel = %{version}
 Obsoletes:	%{name}-devel
 Obsoletes:	lib%{name}-devel
 
@@ -226,11 +226,13 @@ done
 %defattr(-,root,root)
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/clamd.conf
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/freshclam.conf
+%{_bindir}/clamconf
 %{_bindir}/clamscan
 %{_bindir}/clamdscan
 %{_bindir}/freshclam
 %{_bindir}/sigtool
 %{_mandir}/man1/sigtool.1*
+%{_mandir}/man1/clamconf.1*
 %{_mandir}/man1/clamdscan.1*
 %{_mandir}/man1/clamscan.1*
 %{_mandir}/man1/freshclam.1*
@@ -277,10 +279,14 @@ done
 %files doc
 %defattr(-,root,root)
 %doc AUTHORS BUGS ChangeLog FAQ NEWS README test UPGRADE COPYING
-%doc contrib/clamdwatch contrib/clamavmon contrib/clamdmon
+%doc contrib/clamdwatch contrib/clamdmon
 
       
 %changelog
+* Thu May 24 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.90.2
+- 0.90.2: fixes for CVE-2007-1745, CVE-2007-1997, CVE-2007-0897, and
+  CVE-2007-0898, CVE-2007-2029
+
 * Wed Dec 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.88.7
 - 0.88.7: fixes for CVE-2006-5874, CVE-2006-6406, CVE-2006-6481
 
