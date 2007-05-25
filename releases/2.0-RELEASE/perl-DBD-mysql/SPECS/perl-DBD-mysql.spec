@@ -10,7 +10,7 @@
 %define	module		DBD-mysql
 %define	revision	$Rev$
 %define	name		perl-%{module}
-%define version 	3.0006
+%define version 	4.004
 %define release 	%_revrel
 
 Summary:	MySQL Perl bindings
@@ -27,7 +27,7 @@ BuildRequires:	mysql-devel
 BuildRequires:	perl(DBI)
 BuildRequires:	perl-devel
 
-Provides:	perl-Mysql
+Provides:	perl-Mysql = %{version}
 Obsoletes:	perl-Mysql
 
 %description
@@ -80,6 +80,10 @@ perl Makefile.PL INSTALLDIRS=vendor
 
 
 %changelog
+* Thu May 24 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.004
+- 4.004
+- versioned provides
+
 * Sat Dec 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0006
 - 3.0006
 - rebuild against new mysql
