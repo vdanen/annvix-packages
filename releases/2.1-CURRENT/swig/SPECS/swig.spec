@@ -103,6 +103,9 @@ install -m 0644 ./Source/DOH/doh.h -D %{buildroot}%{_includedir}/doh.h
 
 
 %changelog
+* Fri May 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.3.31
+- rebuild against new python
+
 * Sat Dec 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.31
 - 1.3.31
 
