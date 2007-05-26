@@ -75,7 +75,7 @@ Group:		System/Servers
 Requires:	%{name} = %{svn_version}-%{release}
 Requires(pre):	rpm-helper
 Requires(post):	rpm-helper
-Requires(postun): rpm-helper
+Requires(preun): rpm-helper
 Requires:	ipsvd
 
 %description server
@@ -312,6 +312,11 @@ ln -snf libsvn_diff-1.so.0.0.0 %{buildroot}%{_libdir}/libsvn_diff.so
 
 # fix the stupid rpath stuff...
 find %{buildroot}%{perl_vendorarch} -type f -name "*.so" | xargs chrpath -d
+for bin in svn svnlook svnversion svnserve svnadmin svndumpfilter svnsync
+do
+    chrpath -d %{buildroot}%{_bindir}/${bin}
+done
+
 
 %kill_lang %{name}
 %find_lang %{name}
@@ -479,6 +484,11 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Fri May 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.4.3
+- rebuild againt new python
+- fix requires
+- remove rpath from binaries
+
 * Fri Apr 27 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.4.3
 - 1.4.3
 
