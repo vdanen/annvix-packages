@@ -9,11 +9,11 @@
 
 %define revision	$Rev$
 %define name		python
-%define version		2.4.3
+%define version		2.5.1
 %define release		%_revrel
 
-%define docver  	2.4
-%define dirver  	2.4
+%define docver  	2.5
+%define dirver  	2.5
 
 %define lib_major	%{dirver}
 %define libname_orig	libpython
@@ -29,14 +29,14 @@ URL:		http://www.python.org/
 
 Source0:	http://www.python.org/ftp/python/%{version}/Python-%{version}.tar.bz2
 Source1:	http://www.python.org/ftp/python/doc/%{docver}/html-%{docver}.tar.bz2
-Source2:	python-2.4-base.list
+Source2:	python-2.5-base.list
 Source3:	exclude.py
 
 # Don't include /usr/local/* in search path
 Patch3:		Python-2.3-no-local-incpath.patch
 
 # Support */lib64 convention on x86_64, sparc64, etc.
-Patch4:		Python-2.4.1-lib64.patch
+Patch4:		Python-2.5-lib64.patch
 
 # Do handle <asm-XXX/*.h> headers in h2py.py
 # FIXME: incomplete for proper bi-arch support as #if/#else/#endif
@@ -64,6 +64,7 @@ BuildRequires:	tcl
 BuildRequires:	tcl-devel
 BuildRequires:	autoconf2.5
 BuildRequires:	bzip2-devel
+BuildRequires:	sqlite3-devel
 
 Conflicts:	tkinter < %{version}
 Requires:	%{libname} = %{version}
@@ -141,7 +142,7 @@ This package contains the documentation for %{name}.
 # no-local-incpath
 %patch3 -p1
 # lib64
-%patch4 -p1
+%patch4 -p0
 # biarch-headers
 %patch5 -p1
 # gdbm
@@ -184,7 +185,7 @@ addtest=""
 %endif
 
 export TMP="/tmp" TMPDIR="/tmp"
-make test TESTOPTS="-l -x test_linuxaudiodev -x test_openpty -x test_nis ${addtest}"
+make test TESTOPTS="-w -l -x test_linuxaudiodev -x test_openpty -x test_nis ${addtest}"
 
 
 %install
@@ -246,19 +247,21 @@ sed -e "s|%{buildroot}||g" < modules-list.full > modules-list
 
 
 rm -f include.list main.list
-cat %{_sourcedir}/python-2.4-base.list | sed 's@%%{_libdir}@%{_libdir}@' > include.list
+cat %{_sourcedir}/python-2.5-base.list | sed 's@%%{_libdir}@%{_libdir}@' > include.list
 cat >> modules-list << EOF
 %{_bindir}/python
-%{_bindir}/python2.4
+%{_bindir}/python%{dirver}
 %{_bindir}/pydoc
 %{_mandir}/man1/python*
 %{_libdir}/python*/bsddb/
 %{_libdir}/python*/curses/
 %{_libdir}/python*/distutils/
 %{_libdir}/python*/encodings/*
-%{_libdir}/python*/lib-old/
 %{_libdir}/python*/logging/
 %{_libdir}/python*/xml/
+%{_libdir}/python*/wsgiref/
+%{_libdir}/python*/ctypes/
+%{_libdir}/python*/sqlite3/
 %{_libdir}/python*/compiler/
 %{_libdir}/python*/email/
 %{_libdir}/python*/hotshot/
@@ -272,7 +275,7 @@ LD_LIBRARY_PATH=%{buildroot}%{_libdir} %{buildroot}%{_bindir}/python %{_sourcedi
 # fix non real scripts
 chmod 0644 %{buildroot}%{_libdir}/python*/test/test_{binascii,grp,htmlparser}.py*
 # fix python library not stripped
-chmod u+w %{buildroot}%{_libdir}/libpython2.4.so.1.0
+chmod u+w %{buildroot}%{_libdir}/libpython%{lib_major}.so.1.0
 
 %multiarch_includes %{buildroot}/usr/include/python*/pyconfig.h
 
@@ -297,6 +300,8 @@ rm -f modules-list main.list
 
 %files -n %{libname}-devel
 %defattr(-, root, root, 755)
+%{_bindir}/python-config
+%{_bindir}/python%{dirver}-config
 %{_libdir}/libpython*.so
 %dir %{_includedir}/python*
 %multiarch %multiarch_includedir/python*/pyconfig.h
@@ -326,6 +331,11 @@ rm -f modules-list main.list
 
 
 %changelog
+* Fri May 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.5.1
+- 2.5.1 (includes the fix for CVE-2007-2052)
+- updated P4 from Mandriva
+- buildrequires sqlite3
+
 * Thu Apr 26 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.4.3
 - build against modular X
 
