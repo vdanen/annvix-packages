@@ -758,6 +758,9 @@ fi
 
 
 %changelog
+* Fri May 24 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.4.5
+- rebuild against new python
+
 * Sun Dec 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.4.5
 - rebuild against new libneon that isn't built against krb5 as otherwise
   we end up requiring krb5-devel to have rpm-devel installed (not only
