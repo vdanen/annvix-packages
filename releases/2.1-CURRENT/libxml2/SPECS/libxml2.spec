@@ -14,7 +14,6 @@
 
 %define major		2
 %define libname		%mklibname xml %{major}
-%define py_ver		2.3
 
 Summary:	Library providing XML and HTML support
 Name:		%{name}
@@ -205,6 +204,9 @@ rm -rf	%{buildroot}%{_prefix}/doc \
 
 
 %changelog
+* Fri May 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.27
+- rebuild againt new python
+
 * Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.27
 - 2.6.27
 
