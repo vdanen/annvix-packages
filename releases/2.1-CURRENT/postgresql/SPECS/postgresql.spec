@@ -624,6 +624,9 @@ fi
 
 
 %changelog
+* Fri May 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.2.4
+- rebuild againt new python
+
 * Mon Apr 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.2.4
 - 8.2.4: security fix for CVE-2007-2138
 
