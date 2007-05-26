@@ -444,11 +444,8 @@ popd >/dev/null 2>&1
 %files -n python-svn
 %defattr(-,root,root)
 %{_libdir}/libsvn_swig_py*.so.*
-%dir %{py_sitedir}/svn
-%{py_sitedir}/svn/*.py*
-%dir %{py_platsitedir}/libsvn
-%{py_platsitedir}/libsvn/*.py*
-%{py_sitedir}/libsvn/*.so
+%{py_sitedir}/svn
+%{py_platsitedir}/libsvn
 
 
 %files -n perl-SVN
@@ -488,6 +485,7 @@ popd >/dev/null 2>&1
 - rebuild againt new python
 - fix requires
 - remove rpath from binaries
+- fix python-svn on x86_64
 
 * Fri Apr 27 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.4.3
 - 1.4.3
