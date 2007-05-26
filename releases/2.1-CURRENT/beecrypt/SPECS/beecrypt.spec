@@ -139,6 +139,9 @@ rm -f %{buildroot}%{_libdir}/python%{python_ver}/site-packages/_bc.*a
 
 
 %changelog
+* Fri May 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.1.0
+- rebuild againt new python
+
 * Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.1.0
 - add -doc subpackage
 - rebuild with gcc4
