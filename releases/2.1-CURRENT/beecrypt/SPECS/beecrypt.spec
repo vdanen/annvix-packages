@@ -15,7 +15,7 @@
 %define libname		%mklibname %{name} 6
 %define libnamedev	%{libname}-devel
 
-%define	python_ver	2.4%{nil}
+%define	python_ver	2.5%{nil}
 
 Summary:	An open source cryptography library
 Name:		%{name}
