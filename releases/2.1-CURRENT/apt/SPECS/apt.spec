@@ -200,6 +200,9 @@ install -m 0600 contrib/gpg-check/gpg-import.lua %{buildroot}%{_datadir}/apt/scr
 
 
 %changelog
+* Fri May 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.5.15lorg3.2
+- rebuild against new python
+
 * Sat Dec 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.5.15lorg3.2
 - rebuild against new gettext
 
