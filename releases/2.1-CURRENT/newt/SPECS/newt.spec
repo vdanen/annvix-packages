@@ -107,7 +107,7 @@ mkdir -p %{buildroot}
 %makeinstall
 ln -sf lib%{name}.so.%{version} %{buildroot}%{_libdir}/lib%{name}.so.%{major}
 
-rm -rf  %{buildroot}%{_libdir}/python{1.5,2.0,2.1,2.2,2.3}
+rm -rf  %{buildroot}%{_libdir}/python{1.5,2.0,2.1,2.2,2.3.2.4}
 
 
 %clean
@@ -140,6 +140,9 @@ rm -rf  %{buildroot}%{_libdir}/python{1.5,2.0,2.1,2.2,2.3}
 
 
 %changelog
+* Fri May 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.51.6
+- rebuild againt new python
+
 * Sat Jun 03 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.51.6
 - rebuild against new python
 - add -doc subpackage
