@@ -13,10 +13,10 @@
 
 %define revision	$Rev$
 %define name		vim
-%define version		7.0
+%define version		7.1
 %define release		%_revrel
 
-%define patch_level	30
+%define patch_level	002
 %define localedir	%{buildroot}%{_datadir}/locale/
 
 %define perl_version	%(rpm -q --qf '%%{epoch}:%%{version}' perl)
@@ -29,10 +29,10 @@ License:	Charityware
 Group:		Editors
 URL:		http://www.vim.org
 Source0:	ftp://ftp.vim.org/pub/vim/unix//%{name}-%{version}.tar.bz2
-Source2:	ftp://ftp.vim.org/pub/vim/unix//extra/%{name}-%{version}-lang.tar.bz2
-Source4:	vim-%{version}.%{patch_level}-patches.tar.bz2
+Source1:	ftp://ftp.vim.org/pub/vim/unix//extra/%{name}-%{version}-lang.tar.bz2
+Source2:	vim-%{version}.%{patch_level}-patches.tar.bz2
 # http://vim.sourceforge.net/scripts/script.php?script_id=98
-Source5:	vim-spec-3.0.tar.bz2
+Source3:	vim-spec-3.0.tar.bz2
 # MDK patches
 Patch2:		vim-5.6a-paths.patch
 Patch3:		vim-6.4-mdk-rpm-spec-syntax.patch
@@ -83,7 +83,7 @@ contains files which every VIM binary will need in order to run.
 %package minimal
 Summary:	A minimal version of the VIM editor
 Group:		Editors
-Provides:	vim
+Provides:	vim = %{version}
 Requires(post):	/usr/sbin/update-alternatives
 Requires(postun): /usr/sbin/update-alternatives
 
@@ -101,7 +101,8 @@ Summary:	A version of the VIM editor which includes recent enhancements
 Group:		Editors
 Requires:	vim-common >= %{version}
 Obsoletes:	vim-color
-Provides:	vim vim-color
+Provides:	vim = %{version}
+Provides:	vim-color = %{version}
 Requires(post):	/usr/sbin/update-alternatives
 Requires(postun): /usr/sbin/update-alternatives
 
@@ -123,7 +124,7 @@ This package contains the documentation for %{name}.
 
 
 %prep
-%setup -q -b 2 -n vim70 -a4
+%setup -q -b 1 -n vim71 -a2
 
 # spec plugin
 rm -f runtime/doc/pi_spec.txt
@@ -390,6 +391,11 @@ update-alternatives --remove vim /usr/bin/vim-enhanced
 
 
 %changelog
+* Fri May 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 7.1
+- 7.1
+- rebuild against new python
+- versioned provides
+
 * Tue Dec 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 7.0
 - update to patchlevel 30
 
