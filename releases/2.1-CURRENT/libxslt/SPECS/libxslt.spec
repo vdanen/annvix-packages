@@ -180,6 +180,9 @@ rm -rf %{buildroot}%{_docdir}/%{name}-%{version} \
 
 
 %changelog
+* Fri May 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.1.19
+- rebuild againt new python
+
 * Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.1.19
 - 1.1.19
 - rename libxslt-python to python-libxslt
