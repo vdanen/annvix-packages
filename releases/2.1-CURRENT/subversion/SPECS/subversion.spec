@@ -328,7 +328,7 @@ find %{buildroot} -name "*.pyc" | xargs rm -f
 find %{buildroot} -name "perllocal.pod" | xargs rm -f
 
 # get rid of the devel files for python and perl
-rm -f %{buildroot}%{py_sitedir}/libsvn/*.la
+rm -f %{buildroot}%{py_platsitedir}/libsvn/*.la
 rm -f %{buildroot}%{_libdir}/libsvn_swig_py*.so
 rm -f %{buildroot}%{_libdir}/libsvn_swig_perl*.so
 
@@ -486,6 +486,7 @@ popd >/dev/null 2>&1
 - fix requires
 - remove rpath from binaries
 - fix python-svn on x86_64
+- get rid of the python development files on x86_64
 
 * Fri Apr 27 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.4.3
 - 1.4.3
