@@ -129,6 +129,9 @@ echo "no" >%{buildroot}%{_sysconfdir}/sysconfig/env/kudzu/SAFE
 
 
 %changelog
+* Fri May 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2.60
+- rebuild againt new python
+
 * Sun Nov 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.60
 - kudzu no longer has a -z option so fix initscript
 
