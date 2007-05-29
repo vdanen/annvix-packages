@@ -1,0 +1,20 @@
+--- syslinux-3.11/unix/syslinux.c.vfat	2005-01-04 04:27:43.000000000 +0100
++++ syslinux-3.11/unix/syslinux.c	2006-06-22 00:08:59.000000000 +0200
+@@ -332,7 +332,7 @@
+ 	       (unsigned long)mypid, dev_fd);
+     }
+ 
+-    if ( mount(devfdname, mntpath, "msdos",
++    if ( mount(devfdname, mntpath, "vfat",
+ 	       MS_NOEXEC|MS_NOSUID, "umask=077,quiet") )
+       die("could not mount filesystem");
+ 
+@@ -354,7 +354,7 @@
+       } else {
+ 	snprintf(mnt_opts, sizeof mnt_opts, "rw,nodev,noexec,umask=077,quiet");
+       }
+-      execl(_PATH_MOUNT, _PATH_MOUNT, "-t", "msdos", "-o", mnt_opts,\
++      execl(_PATH_MOUNT, _PATH_MOUNT, "-t", "vfat", "-o", mnt_opts,\
+ 	    devfdname, mntpath, NULL);
+       _exit(255);		/* execl failed */
+     }
