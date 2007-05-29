@@ -182,6 +182,45 @@ If you need apache module support, you also need to install the mod_php
 package.
 
 
+%package fcgi
+Summary:	FastCGI interface to PHP
+Epoch:		%{epoch}
+Group:		Development/PHP
+URL:		http://www.php.net
+Requires(pre):	php-ini
+Requires:	%{libname} >= %{epoch}:%{version}-%{release}
+Requires:	php-ftp >= %{version}
+Requires:	php-pcre >= %{version}
+Requires:	php-gettext >= %{version}
+Requires:	php-posix >= %{version}
+Requires:	php-ctype >= %{version}
+Requires:	php-session >= %{version}
+Requires:	php-sysvsem >= %{version}
+Requires:	php-sysvshm >= %{version}
+Requires:	php-tokenizer >= %{version}
+Requires:	php-simplexml >= %{version}
+Requires:	php-hash >= %{version}
+Requires:	php-suhosin >= 0.9.10
+Requires:	php-filter >= 0.11.0
+Requires:	php-json >= 1.2.1
+Provides:	php = %{version}
+Provides:	php5 = %{version}
+Provides:	php%{libversion} = %{version}
+Obsoletes:	php
+
+%description fcgi
+PHP5 is an HTML-embeddable scripting language. PHP5 offers built-in
+database integration for several commercial and non-commercial
+database management systems, so writing a database-enabled script
+with PHP5 is fairly simple.  The most common use of PHP5 coding is
+probably as a replacement for CGI scripts.
+
+This package contains a standalone (CGI) version of php with FastCGI
+support. You must also install libphp5_common. If you need apache
+module support, you also need to install the apache-mod_php
+package.
+
+
 %package -n %{libname}
 Summary:	Shared library for php
 Epoch:		%{epoch}
@@ -367,9 +406,10 @@ export CFLAGS="%{optflags} -fPIC -L%{_libdir}"
 
 # never use "--disable-rpath", it does the opposite
 # Configure php
-for i in cgi cli apxs; do
+for i in cgi cli fcgi apxs; do
     ./configure \
         `[ $i = apxs ] && echo --with-apxs2=%{_sbindir}/apxs` \
+        `[ $i = fcgi ] && echo --enable-fastcgi --with-fastcgi=%{_prefix} --disable-cli --enable-force-cgi-redirect` \
         `[ $i = cgi ] && echo --enable-discard-path --disable-cli --enable-force-cgi-redirect` \
         `[ $i = cli ] && echo --disable-cgi --enable-cli` \
         --cache-file=config.cache \
@@ -432,6 +472,13 @@ cp config.nice configure_command; chmod 0644 configure_command
 
 %make
 
+# make php-fcgi
+cp -af php_config.h.fcgi main/php_config.h
+%make -f Makefile.fcgi sapi/cgi/php
+cp -rp sapi/cgi sapi/fcgi
+perl -pi -e "s|sapi/cgi|sapi/fcgi|g" sapi/fcgi/php
+rm -rf sapi/cgi/.libs; rm -f sapi/cgi/*.lo sapi/cgi/php
+
 # make php-cgi
 cp -af php_config.h.cgi main/php_config.h
 %make -f Makefile.cgi sapi/cgi/php
@@ -452,6 +499,7 @@ make -f Makefile.apxs install \
     INSTALL_IT="\$(LIBTOOL) --mode=install install libphp5_common.la %{buildroot}%{_libdir}/" \
     INSTALL_CLI="\$(LIBTOOL) --silent --mode=install install sapi/cli/php %{buildroot}%{_bindir}/php"
 
+./libtool --silent --mode=install install sapi/fcgi/php %{buildroot}%{_bindir}/php-fcgi
 ./libtool --silent --mode=install install sapi/cgi/php %{buildroot}%{_bindir}/php-cgi
 
 cp -dpR php-devel/* %{buildroot}%{_usrsrc}/php-devel/
@@ -483,6 +531,10 @@ popd
 
 # cgi docs
 cp sapi/cgi/CREDITS CREDITS.cgi
+
+# fcgi docs
+cp sapi/cgi/README.FastCGI README.fcgi
+cp sapi/cgi/CREDITS CREDITS.fcg
 
 # cli docs
 cp sapi/cli/CREDITS CREDITS.cli
@@ -520,11 +572,19 @@ rm -f %{buildroot}%{_sysconfdir}/pear.conf
 
 %pre cgi
 update-alternatives --remove php %{_bindir}/php-cgi
+update-alternatives --remove php %{_bindir}/php-fcgi
+update-alternatives --remove php %{_bindir}/php-cli
+
+
+%pre fcgi
+update-alternatives --remove php %{_bindir}/php-cgi
+update-alternatives --remove php %{_bindir}/php-fcgi
 update-alternatives --remove php %{_bindir}/php-cli
 
 
 %pre cli
 update-alternatives --remove php %{_bindir}/php-cgi
+update-alternatives --remove php %{_bindir}/php-fcgi
 update-alternatives --remove php %{_bindir}/php-cli
 
 
@@ -543,6 +603,10 @@ fi
 %files cgi
 %defattr(-,root,root)
 %attr(0755,root,root) %{_bindir}/php-cgi
+
+%files fcgi
+%defattr(-,root,root)
+%attr(0755,root,root) %{_bindir}/php-fcgi
 
 %files cli
 %defattr(-,root,root)
@@ -591,6 +655,9 @@ fi
 
 
 %changelog
+* Mon May 28 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.2
+- add php-fcgi
+
 * Fri May 04 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.2
 - versioned provides
 - drop some (useless and inacurrate) provides/obsoletes for php3/php4
