@@ -30,7 +30,7 @@ Epoch:		%{epoch}
 License:	PHP License
 Group:		Development/PHP
 URL:		http://xdebug.org/
-Source0:	http://xdebug.org/files/%{modname}-%{version}RC2.tgz
+Source0:	http://xdebug.org/files/%{modname}-%{version}RC4.tgz
 Source1:	xdebug.ini
 Source2:	xdebug-docs.tar.bz2
 
@@ -67,7 +67,7 @@ This package contains the documentation for %{name}.
 
 
 %prep
-%setup -q -n %{modname}-%{version}RC2 -a 2
+%setup -q -n %{modname}-%{version}RC4 -a 2
 
 
 %build
@@ -115,6 +115,9 @@ perl -pi -e 's|/usr/lib|%{_libdir}|g' %{buildroot}%{_sysconfdir}/php.d/%{inifile
 
 
 %changelog
+* Mon May 28 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0.0RC4
+- 2.0.0RC4
+
 * Fri May 04 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0.0RC2
 - php 5.2.2
 
