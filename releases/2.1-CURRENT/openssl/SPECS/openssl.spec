@@ -65,7 +65,8 @@ This product includes software written by Tim Hudson (tjh@cryptsoft.com).
 Summary:	Secure Sockets Layer communications static libs & headers & utils
 Group:		Development/Other
 Requires:	%{libname} = %{version}-%{release}
-Provides:	libopenssl-devel openssl-devel = %{version}-%{release}
+Provides:	libopenssl-devel = %{version}-%{release}
+Provides:	openssl-devel = %{version}-%{release}
 Obsoletes:	openssl-devel
 
 %description -n %{libname}-devel
@@ -84,7 +85,8 @@ Patches for many networking apps can be found at:
 Summary:	Secure Sockets Layer communications static libs & headers & utils
 Group:		Development/Other
 Requires:	%{libname}-devel = %{version}-%{release}
-Provides:	libopenssl-static-devel openssl-static-devel = %{version}-%{release}
+Provides:	libopenssl-static-devel = %{version}-%{release}
+Provides:	openssl-static-devel = %{version}-%{release}
 
 %description -n %{libname}-static-devel
 The static libraries and include files needed to compile apps with support
@@ -101,6 +103,7 @@ Patches for many networking apps can be found at:
 %package -n %{libname}
 Summary:	Secure Sockets Layer communications libs
 Group:		System/Libraries
+Provides:	lib%{name}%{maj} = %{version}-%{release}
 Conflicts:	openssh < 3.5p1-4mdk
 
 %description -n %{libname}
@@ -368,6 +371,10 @@ echo "%{_sysconfdir}/pki/tls"
 
 
 %changelog
+* Fri Jun 01 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.9.8d
+- versioned provides
+- provide libopenssl on 64bit (lafriks)
+
 * Sat Dec 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.9.8d
 - enable the camellia cypher
 
