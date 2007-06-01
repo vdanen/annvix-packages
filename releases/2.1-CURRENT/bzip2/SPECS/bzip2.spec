@@ -13,7 +13,8 @@
 %define release		%_revrel
 
 %define libname_orig	lib%{name}
-%define libname		%mklibname %{name}_ 1
+%define major		1
+%define libname		%mklibname %{name}_ %{major}
 
 Summary:	Extremely powerful file compression utility
 Name:		%{name}
@@ -55,6 +56,7 @@ but they are not identical.
 %package -n %{libname}
 Summary:	Libraries for developing apps which will use bzip2
 Group:		System/Libraries
+Provides:	lib%{name}_%{major} = %{version}-%{release}
 
 %description -n %{libname}
 Library of bzip2 functions, for developing apps which will use the
@@ -65,8 +67,8 @@ bzip2 library (aka libz2).
 Summary:	Header files for developing apps which will use bzip2
 Group:		Development/C
 Requires:	%{libname} = %{version}
-Provides:	%{libname_orig}-devel = %{version}-%{release}
-Provides:	%{name}-devel
+Provides:	lib%{name}-devel = %{version}-%{release}
+Provides:	%{name}-devel = %{version}-%{release}
 Obsoletes:	%{name}-devel
 
 %description -n %{libname}-devel
@@ -146,6 +148,10 @@ install -m 0644 bzlib_private.h %{buildroot}%{_includedir}/
 
 
 %changelog
+* Fri Jun 01 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0.3
+- versioned provides
+- provide libbzip2_1 on 64bit (lafriks)
+
 * Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.3
 - add -doc subpackage
 - rebuild with gcc4
