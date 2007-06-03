@@ -9,14 +9,14 @@
 
 %define revision	$Rev$
 %define name		php
-%define version		5.2.2
+%define version		5.2.3
 %define release		%_revrel
 %define epoch		2
 
 %define libversion	5
 %define libname		%mklibname php_common %{libversion}
 
-%define suhosin_ver	5.2.2rc2-0.9.6.2
+%define suhosin_ver	5.2.3-0.9.6.2
 
 %define _requires_exceptions BEGIN\\|mkinstalldirs\\|pear(\\|/usr/bin/tclsh
 
@@ -53,7 +53,7 @@ Patch13:	php-5.2.1-mdv-extraimapcheck.patch
 #
 Patch20:	php-4.3.0-pld-mail.patch
 Patch21:	php-4.3.3RC3-pld-sybase-fix.patch
-Patch25:	php-5.0.3-pld-dba-link.patch
+Patch25:	php-5.2.3-pld-dba-link.patch
 Patch27:	php-4.4.1-pld-zlib-for-getimagesize.patch
 Patch28:	php-5.0.0b3-pld-zlib.patch
 #
@@ -125,14 +125,10 @@ Requires:	php-hash >= %{version}
 Requires:	php-suhosin >= 0.9.10
 Requires:	php-filter >= 0.11.0
 Requires:	php-json >= 1.2.1
-Provides:	php
-Provides:	php3
-Provides:	php4
-Provides:	php5
-Provides:	php%{libversion} 
+Provides:	php = %{version}
+Provides:	php5 = %{version}
+Provides:	php%{libversion} = %{version}
 Obsoletes:	php
-Obsoletes:	php3
-Obsoletes:	php4
 
 %description cli
 PHP5 is an HTML-embeddable scripting language.  PHP offers built-in database
@@ -168,14 +164,10 @@ Requires:	php-hash >= %{version}
 Requires:	php-suhosin >= 0.9.10
 Requires:	php-filter >= 0.11.0
 Requires:	php-json >= 1.2.1
-Provides:	php
-Provides:	php3
-Provides:	php4
-Provides:	php5
-Provides:	php%{libversion}
+Provides:	php = %{version}
+Provides:	php5 = %{version}
+Provides:	php%{libversion} = %{version}
 Obsoletes:	php
-Obsoletes:	php3
-Obsoletes:	php4
 
 %description cgi
 PHP5 is an HTML-embeddable scripting language.  PHP offers built-in database
@@ -190,16 +182,57 @@ If you need apache module support, you also need to install the mod_php
 package.
 
 
+%package fcgi
+Summary:	FastCGI interface to PHP
+Epoch:		%{epoch}
+Group:		Development/PHP
+URL:		http://www.php.net
+Requires(pre):	php-ini
+Requires:	%{libname} >= %{epoch}:%{version}-%{release}
+Requires:	php-ftp >= %{version}
+Requires:	php-pcre >= %{version}
+Requires:	php-gettext >= %{version}
+Requires:	php-posix >= %{version}
+Requires:	php-ctype >= %{version}
+Requires:	php-session >= %{version}
+Requires:	php-sysvsem >= %{version}
+Requires:	php-sysvshm >= %{version}
+Requires:	php-tokenizer >= %{version}
+Requires:	php-simplexml >= %{version}
+Requires:	php-hash >= %{version}
+Requires:	php-suhosin >= 0.9.10
+Requires:	php-filter >= 0.11.0
+Requires:	php-json >= 1.2.1
+Provides:	php = %{version}
+Provides:	php5 = %{version}
+Provides:	php%{libversion} = %{version}
+Obsoletes:	php
+
+%description fcgi
+PHP5 is an HTML-embeddable scripting language. PHP5 offers built-in
+database integration for several commercial and non-commercial
+database management systems, so writing a database-enabled script
+with PHP5 is fairly simple.  The most common use of PHP5 coding is
+probably as a replacement for CGI scripts.
+
+This package contains a standalone (CGI) version of php with FastCGI
+support. You must also install libphp5_common. If you need apache
+module support, you also need to install the apache-mod_php
+package.
+
+
 %package -n %{libname}
 Summary:	Shared library for php
 Epoch:		%{epoch}
 Group:		Development/PHP
 URL:		http://www.php.net
 Provides:	%{libname} = %{epoch}:%{version}-%{release}
-Provides:	libphp_common = %{version}-%{release}
-Provides:	php-common = %{version}-%{release}
+Provides:	libphp_common = %{version}
+Provides:	php-common = %{version}
+Provides:	php-pcre = %{version}
+Provides:	php-xml = %{version}
 Obsoletes:	php-pcre
-Provides:	php-pcre = %{version}-%{release}
+Obsoletes:	php-xml
 
 %description -n	%{libname}
 This package provides the common files to run with different
@@ -226,9 +259,7 @@ Requires:	pam-devel
 Requires:	chrpath
 Requires(post):	%{libname} >= %{epoch}:%{version}
 Requires(preun): %{libname} >= %{epoch}:%{version}
-Provides:	libphp_common-devel = %{version}-%{release}
-Provides:	php4-devel
-Obsoletes:	php4-devel
+Provides:	libphp_common-devel = %{version}
 
 %description devel
 The php-devel package lets you compile dynamic extensions to PHP5. Included
@@ -285,7 +316,7 @@ This package contains the documentation for %{name}.
 # from PLD
 %patch20 -p1 -b .mail.avx
 %patch21 -p1 -b .sybase-fix.avx
-%patch25 -p1 -b .dba-link.avx
+%patch25 -p0 -b .dba-link.avx
 %patch27 -p1 -b .zlib-for-getimagesize.avx
 %patch28 -p1 -b .zlib.avx
 # from Fedora
@@ -375,9 +406,10 @@ export CFLAGS="%{optflags} -fPIC -L%{_libdir}"
 
 # never use "--disable-rpath", it does the opposite
 # Configure php
-for i in cgi cli apxs; do
+for i in cgi cli fcgi apxs; do
     ./configure \
         `[ $i = apxs ] && echo --with-apxs2=%{_sbindir}/apxs` \
+        `[ $i = fcgi ] && echo --enable-fastcgi --with-fastcgi=%{_prefix} --disable-cli --enable-force-cgi-redirect` \
         `[ $i = cgi ] && echo --enable-discard-path --disable-cli --enable-force-cgi-redirect` \
         `[ $i = cli ] && echo --disable-cgi --enable-cli` \
         --cache-file=config.cache \
@@ -399,18 +431,24 @@ for i in cgi cli apxs; do
         --disable-all \
         --with-config-file-path=%{_sysconfdir} \
         --with-config-file-scan-dir=%{_sysconfdir}/php.d \
-        --disable-debug --enable-pic \
+        --disable-debug \
+        --enable-pic \
         --enable-inline-optimization \
         --with-exec-dir=%{_bindir} \
-        --with-pcre=%{_prefix} --with-pcre-regex=%{_prefix} \
-        --with-ttf --with-freetype-dir=%{_prefix} --with-zlib=%{_prefix} \
+        --with-pcre=%{_prefix} \
+        --with-pcre-regex=%{_prefix} \
+        --with-ttf \
+        --with-freetype-dir=%{_prefix} \
+        --with-zlib=%{_prefix} \
         --with-png-dir=%{_prefix} \
         --with-regex=php \
         --enable-magic-quotes \
         --enable-safe-mode \
-        --with-zlib=%{_prefix} --with-zlib-dir=%{_prefix} \
+        --with-zlib=%{_prefix} \
+        --with-zlib-dir=%{_prefix} \
         --with-openssl=%{_prefix} \
-        --enable-libxml=%{_prefix} --with-libxml-dir=%{_prefix} \
+        --enable-libxml=%{_prefix} \
+        --with-libxml-dir=%{_prefix} \
         --enable-spl=%{_prefix} \
         --enable-track-vars \
         --enable-trans-sid \
@@ -434,9 +472,16 @@ cp config.nice configure_command; chmod 0644 configure_command
 
 %make
 
+# make php-fcgi
+cp -af php_config.h.fcgi main/php_config.h
+%make -f Makefile.fcgi sapi/cgi/php-cgi
+cp -rp sapi/cgi sapi/fcgi
+perl -pi -e "s|sapi/cgi|sapi/fcgi|g" sapi/fcgi/php
+rm -rf sapi/cgi/.libs; rm -f sapi/cgi/*.lo sapi/cgi/php
+
 # make php-cgi
 cp -af php_config.h.cgi main/php_config.h
-%make -f Makefile.cgi sapi/cgi/php
+%make -f Makefile.cgi sapi/cgi/php-cgi
 
 cp -af php_config.h.apxs main/php_config.h
 
@@ -454,7 +499,8 @@ make -f Makefile.apxs install \
     INSTALL_IT="\$(LIBTOOL) --mode=install install libphp5_common.la %{buildroot}%{_libdir}/" \
     INSTALL_CLI="\$(LIBTOOL) --silent --mode=install install sapi/cli/php %{buildroot}%{_bindir}/php"
 
-./libtool --silent --mode=install install sapi/cgi/php %{buildroot}%{_bindir}/php-cgi
+./libtool --silent --mode=install install sapi/fcgi/php-cgi %{buildroot}%{_bindir}/php-fcgi
+./libtool --silent --mode=install install sapi/cgi/php-cgi %{buildroot}%{_bindir}/php-cgi
 
 cp -dpR php-devel/* %{buildroot}%{_usrsrc}/php-devel/
 install -m 0644 run-tests*.php %{buildroot}%{_usrsrc}/php-devel/
@@ -485,6 +531,10 @@ popd
 
 # cgi docs
 cp sapi/cgi/CREDITS CREDITS.cgi
+
+# fcgi docs
+cp sapi/cgi/README.FastCGI README.fcgi
+cp sapi/cgi/CREDITS CREDITS.fcg
 
 # cli docs
 cp sapi/cli/CREDITS CREDITS.cli
@@ -522,11 +572,19 @@ rm -f %{buildroot}%{_sysconfdir}/pear.conf
 
 %pre cgi
 update-alternatives --remove php %{_bindir}/php-cgi
+update-alternatives --remove php %{_bindir}/php-fcgi
+update-alternatives --remove php %{_bindir}/php-cli
+
+
+%pre fcgi
+update-alternatives --remove php %{_bindir}/php-cgi
+update-alternatives --remove php %{_bindir}/php-fcgi
 update-alternatives --remove php %{_bindir}/php-cli
 
 
 %pre cli
 update-alternatives --remove php %{_bindir}/php-cgi
+update-alternatives --remove php %{_bindir}/php-fcgi
 update-alternatives --remove php %{_bindir}/php-cli
 
 
@@ -545,6 +603,10 @@ fi
 %files cgi
 %defattr(-,root,root)
 %attr(0755,root,root) %{_bindir}/php-cgi
+
+%files fcgi
+%defattr(-,root,root)
+%attr(0755,root,root) %{_bindir}/php-fcgi
 
 %files cli
 %defattr(-,root,root)
@@ -593,14 +655,30 @@ fi
 
 
 %changelog
+* Sun Jun 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.3
+- 5.2.3 (fixes for CVE-2007-1887, CVE-2007-1900, CVE-2007-2756, CVE-2007-2872)
+- suhosin patch for 5.2.3
+- updated P25
+
+* Mon May 28 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.2
+- add php-fcgi
+
+* Fri May 04 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.2
+- versioned provides
+- drop some (useless and inacurrate) provides/obsoletes for php3/php4
+- provide/obsolete php-xml; it's been built here for a while now and is
+  useful enough to build right into the core
+
 * Fri May 04 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.2
 - php 5.2.2 (fixes for CVE-2007-1001, CVE-2007-1718, CVE-2007-1717,
   CVE-2007-1649, CVE-2007-1583, CVE-2007-1484, CVE-2007-1521, CVE-2007-1460,
   CVE-2007-1461, CVE-2007-1375, CVE-2007-1285, CVE-2007-1396, CVE-2007-1864)
 - updated suhosin (5.2.2-rc2-0.9.6.2)
 - drop upstream patches P75, P81
-- drop requires on php-xml* for php-pear
 - fix dependency exceptions
+
+* Thu May 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.1
+- drop the php-xml and php-xmlrpc requires on php-pear as they don't seem necessary
 
 * Wed Feb 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.1
 - php 5.2.1
