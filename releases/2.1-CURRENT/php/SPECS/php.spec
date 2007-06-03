@@ -9,14 +9,14 @@
 
 %define revision	$Rev$
 %define name		php
-%define version		5.2.2
+%define version		5.2.3
 %define release		%_revrel
 %define epoch		2
 
 %define libversion	5
 %define libname		%mklibname php_common %{libversion}
 
-%define suhosin_ver	5.2.2rc2-0.9.6.2
+%define suhosin_ver	5.2.3-0.9.6.2
 
 %define _requires_exceptions BEGIN\\|mkinstalldirs\\|pear(\\|/usr/bin/tclsh
 
@@ -53,7 +53,7 @@ Patch13:	php-5.2.1-mdv-extraimapcheck.patch
 #
 Patch20:	php-4.3.0-pld-mail.patch
 Patch21:	php-4.3.3RC3-pld-sybase-fix.patch
-Patch25:	php-5.0.3-pld-dba-link.patch
+Patch25:	php-5.2.3-pld-dba-link.patch
 Patch27:	php-4.4.1-pld-zlib-for-getimagesize.patch
 Patch28:	php-5.0.0b3-pld-zlib.patch
 #
@@ -316,7 +316,7 @@ This package contains the documentation for %{name}.
 # from PLD
 %patch20 -p1 -b .mail.avx
 %patch21 -p1 -b .sybase-fix.avx
-%patch25 -p1 -b .dba-link.avx
+%patch25 -p0 -b .dba-link.avx
 %patch27 -p1 -b .zlib-for-getimagesize.avx
 %patch28 -p1 -b .zlib.avx
 # from Fedora
@@ -474,14 +474,14 @@ cp config.nice configure_command; chmod 0644 configure_command
 
 # make php-fcgi
 cp -af php_config.h.fcgi main/php_config.h
-%make -f Makefile.fcgi sapi/cgi/php
+%make -f Makefile.fcgi sapi/cgi/php-cgi
 cp -rp sapi/cgi sapi/fcgi
 perl -pi -e "s|sapi/cgi|sapi/fcgi|g" sapi/fcgi/php
 rm -rf sapi/cgi/.libs; rm -f sapi/cgi/*.lo sapi/cgi/php
 
 # make php-cgi
 cp -af php_config.h.cgi main/php_config.h
-%make -f Makefile.cgi sapi/cgi/php
+%make -f Makefile.cgi sapi/cgi/php-cgi
 
 cp -af php_config.h.apxs main/php_config.h
 
@@ -499,8 +499,8 @@ make -f Makefile.apxs install \
     INSTALL_IT="\$(LIBTOOL) --mode=install install libphp5_common.la %{buildroot}%{_libdir}/" \
     INSTALL_CLI="\$(LIBTOOL) --silent --mode=install install sapi/cli/php %{buildroot}%{_bindir}/php"
 
-./libtool --silent --mode=install install sapi/fcgi/php %{buildroot}%{_bindir}/php-fcgi
-./libtool --silent --mode=install install sapi/cgi/php %{buildroot}%{_bindir}/php-cgi
+./libtool --silent --mode=install install sapi/fcgi/php-cgi %{buildroot}%{_bindir}/php-fcgi
+./libtool --silent --mode=install install sapi/cgi/php-cgi %{buildroot}%{_bindir}/php-cgi
 
 cp -dpR php-devel/* %{buildroot}%{_usrsrc}/php-devel/
 install -m 0644 run-tests*.php %{buildroot}%{_usrsrc}/php-devel/
@@ -655,6 +655,11 @@ fi
 
 
 %changelog
+* Sun Jun 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.3
+- 5.2.3 (fixes for CVE-2007-1887, CVE-2007-1900, CVE-2007-2756, CVE-2007-2872)
+- suhosin patch for 5.2.3
+- updated P25
+
 * Mon May 28 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.2
 - add php-fcgi
 
