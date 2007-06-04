@@ -472,12 +472,13 @@ cp config.nice configure_command; chmod 0644 configure_command
 
 %make
 
+cp -af sapi/cgi sapi/cgi.org
 # make php-fcgi
 cp -af php_config.h.fcgi main/php_config.h
 %make -f Makefile.fcgi sapi/cgi/php-cgi
-cp -rp sapi/cgi sapi/fcgi
+mv sapi/cgi sapi/fcgi
+mv sapi/cgi.org sapi/cgi
 perl -pi -e "s|sapi/cgi|sapi/fcgi|g" sapi/fcgi/php
-rm -rf sapi/cgi/.libs; rm -f sapi/cgi/*.lo sapi/cgi/php
 
 # make php-cgi
 cp -af php_config.h.cgi main/php_config.h
@@ -655,6 +656,9 @@ fi
 
 
 %changelog
+* Mon Jun 04 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.3
+- fix the php-fcgi build
+
 * Sun Jun 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.3
 - 5.2.3 (fixes for CVE-2007-1887, CVE-2007-1900, CVE-2007-2756, CVE-2007-2872)
 - suhosin patch for 5.2.3
