@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		php-ini
-%define version		5.2.2
+%define version		5.2.3
 %define release		%_revrel
 
 Summary:	INI files for PHP
@@ -60,6 +60,9 @@ perl -pi -e 's|EXTENSIONDIR|%{_libdir}/php/extensions|g' %{buildroot}%{_sysconfd
 
 
 %changelog
+* Sun Jun 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.3
+- php 5.2.3
+
 * Fri May 04 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.2
 - php 5.2.2
 - increased upload_max_filesize from 2MB to 8MB
