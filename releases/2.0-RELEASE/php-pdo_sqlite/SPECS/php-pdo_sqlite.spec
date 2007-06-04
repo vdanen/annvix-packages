@@ -12,7 +12,7 @@
 %define version		%{phpversion}
 %define release		%_revrel
 
-%define phpversion	5.2.2
+%define phpversion	5.2.3
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir		%{_libdir}/php
 
@@ -90,6 +90,9 @@ EOF
 
 
 %changelog
+* Sun Jun 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.3
+- php 5.2.3
+
 * Fri May 04 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.2
 - php 5.2.2
 
