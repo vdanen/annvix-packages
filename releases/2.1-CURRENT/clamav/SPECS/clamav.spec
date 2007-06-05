@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		clamav
-%define version		0.90.2
+%define version		0.90.3
 %define release		%_revrel
 
 %define	major		1
@@ -283,6 +283,9 @@ done
 
       
 %changelog
+* Mon Jun 04 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.90.3
+- 0.90.3: fixes for CVE-2007-2650 and some other security-related issues
+
 * Thu May 24 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.90.2
 - 0.90.2: fixes for CVE-2007-1745, CVE-2007-1997, CVE-2007-0897, and
   CVE-2007-0898, CVE-2007-2029
