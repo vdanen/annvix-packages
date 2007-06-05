@@ -112,6 +112,7 @@ Patch1208:	util-linux-2.12q-llseek-syscall.patch
 Patch1210:	util-linux-2.12q-mount_guess_fs_cdextra.patch
 # (blino) don't fail when using labels and -e option
 Patch1211:	util-linux-2.12r-mdk-label.patch
+Patch1212:	util-linux-2.12a-CVE-2006-7108.patch
 
 # Annvix patches
 Patch1250:	util-linux-2.12a-avx-noselinux.patch
@@ -270,6 +271,7 @@ cp %{_sourcedir}/nologin.c %{_sourcedir}/nologin.8 .
 %patch120 -p1 -b .comp
 %patch1210 -p1 -b .cdextra
 %patch1211 -p1 -b .label
+%patch1212 -p1 -b .cve-2006-7108
 
 %patch1250 -p0 -b .noselinux
 
@@ -626,6 +628,9 @@ fi
 
 
 %changelog
+* Mon Jun 04 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.12r
+- P1212: security fix for CVE-2006-7108
+
 * Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.12r
 - rebuild against new pam
 
