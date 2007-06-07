@@ -120,6 +120,10 @@ install -m 0644 %{_sourcedir}/98_aide.afterboot %{buildroot}%{_datadir}/afterboo
 
 
 %changelog
+* Thu Jun 07 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.13.1
+- ease the defaults in aide.conf a bit since aide.db and aide.db.sig
+  will always show as changed everytime aide updates
+
 * Tue Jan 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.13.1
 - fix aideinit
 
