@@ -25,7 +25,6 @@
 %define libstdcxx_minor		8
 %define libobjc_major		1
 %define libmudflap_major	0
-%define libssp_major		0
 %define libgcc_name_orig	libgcc
 %define libgcc_name		%{libgcc_name_orig}%{libgcc_major}
 %define libstdcxx_name_orig	libstdc++
@@ -34,8 +33,6 @@
 %define libobjc_name		%{libobjc_name_orig}%{libobjc_major}
 %define libmudflap_name_orig	libmudflap
 %define libmudflap_name		%{libmudflap_name_orig}%{libmudflap_major}
-%define libssp_name_orig	libssp
-%define libssp_name		%{libssp_name_orig}%{libssp_major}
 
 %define nof_arches		ppc
 %ifarch x86_64
@@ -98,8 +95,8 @@ BuildRequires:	gettext
 BuildRequires:	flex
 BuildRequires:	bison
 BuildRequires:	texinfo >= 4.1
-BuildRequires:	glibc-devel >= 2.2.5-14mdk
-BuildRequires:	glibc-static-devel >= 2.2.5-14mdk
+BuildRequires:	glibc-devel >= 2.4
+BuildRequires:	glibc-static-devel >= 2.4
 BuildRequires:	dejagnu
 BuildRequires:	gawk >= 3.1.4
 
@@ -107,8 +104,7 @@ Requires:	binutils >= 2.16.91.0.2
 Requires:	%{name}-cpp = %{version}-%{release}
 # FIXME: We need a libgcc with 3.4 symbols
 Requires:	%{libgcc_name_orig} >= 3.3.2-5mdk
-# Make sure pthread.h doesn't contain __thread keyword
-Requires:	glibc-devel >= 2.2.5-14mdk
+Requires:	glibc-devel >= 2.4
 Requires:	setup >= 2.6
 Requires(post):	/usr/sbin/update-alternatives
 Requires(postun): /usr/sbin/update-alternatives
@@ -280,31 +276,6 @@ and when linking add -lmudflap'. For threaded programs also add
 -fmudflapth' and -lmudflapth'.
 %endif
 
-####################################################################
-# SSP headers and libraries
-
-%package -n %{libssp_name}
-Summary:	GCC SSP shared support library
-Group:		System/Libraries
-
-%description -n %{libssp_name}
-This package contains GCC shared support library which is needed
-for SSP support.
-
-%package -n %{libssp_name}-devel
-Summary:	GCC SSP support
-Group:		Development/C
-Requires:	%{name} = %{version}-%{release}
-Requires:	%{libssp_name} = %{version}-%{release}
-Obsoletes:	%{libssp_name_orig}-devel
-Provides:	%{libssp_name_orig}-devel = %{version}-%{release}
-
-%description -n %{libssp_name}-devel
-This package contains headers and static libraries for building
-SSP-instrumented programs.
-
-Refer to the documentation for -fstack-protector.
-
 
 ####################################################################
 # Preprocessor
@@ -462,7 +433,7 @@ CC="%{__cc}" CFLAGS="$OPT_FLAGS" CXXFLAGS="$OPT_FLAGS" XCFLAGS="$OPT_FLAGS" TCFL
 %if !%{build_mudflap}
 	--disable-libmudflap \
 %endif
-	--enable-ssp --enable-libssp
+	--enable-ssp --disable-libssp
 touch ../gcc/c-gperf.h
 %ifarch %{ix86} x86_64
 %make profiledbootstrap BOOT_CFLAGS="$OPT_FLAGS"
@@ -629,11 +600,6 @@ DispatchLibs() {
 }
 
 pushd $FULLPATH;
-    DispatchLibs libssp		%{libssp_major}.0.0
-    mv ../../../../%{_lib}/$crosslibdir/libssp_nonshared.a libssp_nonshared.a
-%ifarch %{biarches}
-    mv ../../../libssp_nonshared.a 32/libssp_nonshared.a
-%endif
 %if %{build_mudflap}
     DispatchLibs libmudflap	%{libmudflap_major}.0.0
     DispatchLibs libmudflapth	%{libmudflap_major}.0.0
@@ -652,7 +618,7 @@ popd
 # Move <cxxabi.h> to compiler-specific directories
 mkdir -p $FULLPATH/include/bits/
 mv %{buildroot}%{libstdcxx_includedir}/cxxabi.h $FULLPATH/include/
-mv $RPM_BUILD_ROOT%{libstdcxx_includedir}/%{_target_platform}/bits/cxxabi_tweaks.h $FULLPATH/include/bits/
+mv %{buildroot}%{libstdcxx_includedir}/%{_target_platform}/bits/cxxabi_tweaks.h $FULLPATH/include/bits/
 
 # Ship with biarch c++config.h headers
 pushd obj-%{_target_platform}
@@ -877,10 +843,6 @@ fi
 %endif
 
 
-%post -n %{libssp_name} -p /sbin/ldconfig
-%postun -n %{libssp_name} -p /sbin/ldconfig
-
-
 %post doc
 %_install_info gcc.info
 %_install_info cpp.info
@@ -1040,28 +1002,6 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc.info.bz2 --dir=%{_info
 %endif
 %endif
 
-%files -n %{libssp_name}
-%defattr(-,root,root)
-%{_libdir}/libssp.so.%{libssp_major}
-%{_libdir}/libssp.so.%{libssp_major}.0.0
-%ifarch %{biarches}
-%{_prefix}/lib/libssp.so.%{libssp_major}
-%{_prefix}/lib/libssp.so.%{libssp_major}.0.0
-%endif
-
-%files -n %{libssp_name}-devel
-%defattr(-,root,root)
-%dir %{gcc_libdir}/%{_target_platform}/%{version}/include/ssp
-%{gcc_libdir}/%{_target_platform}/%{version}/include/ssp/*.h
-%{gcc_libdir}/%{_target_platform}/%{version}/libssp.a
-%{gcc_libdir}/%{_target_platform}/%{version}/libssp_nonshared.a
-%{gcc_libdir}/%{_target_platform}/%{version}/libssp.so
-%ifarch %{biarches}
-%{gcc_libdir}/%{_target_platform}/%{version}/32/libssp.a
-%{gcc_libdir}/%{_target_platform}/%{version}/32/libssp_nonshared.a
-%{gcc_libdir}/%{_target_platform}/%{version}/32/libssp.so
-%endif
-
 
 %files cpp
 %defattr(-,root,root)
@@ -1170,6 +1110,10 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc.info.bz2 --dir=%{_info
 
 
 %changelog
+* Mon Jun 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.1.1
+- rebuild against new glibc, and require glibc >= 2.4
+- no longer build libssp as it's part of glibc now
+
 * Wed Nov 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.1.1
 - P9, P10: two additional patches from Mandriva
 - don't build mudflap support (use %%build_mudflap to define it; we may
