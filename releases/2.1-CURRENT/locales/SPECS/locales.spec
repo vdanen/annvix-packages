@@ -12,7 +12,7 @@
 %define version		%{glibc_ver}
 %define release		%_revrel
 
-%define glibc_ver	2.3.6
+%define glibc_ver	2.5
 %define glibc_epoch	6
 
 # FIXME: please check on next build those we really need
@@ -251,6 +251,9 @@ fi
 
 
 %changelog
+* Mon Jun 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.5
+- 2.5
+
 * Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.6
 - remove all locale files except english
 - spec cleanups
