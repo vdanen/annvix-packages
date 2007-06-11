@@ -1,0 +1,16 @@
+# Fix texinfo documentation according to ALT info policy.
+
+--- glibc-2.5.orig/manual/libc.texinfo
++++ glibc-2.5/manual/libc.texinfo
+@@ -5,9 +5,9 @@
+ @setchapternewpage odd
+ 
+ @comment Tell install-info what to do.
+-@dircategory GNU libraries
++@dircategory System/Libraries
+ @direntry
+-* Libc: (libc).                 C library.
++* Libc: (libc).                                 C library.
+ @end direntry
+ @include dir-add.texi
+ 

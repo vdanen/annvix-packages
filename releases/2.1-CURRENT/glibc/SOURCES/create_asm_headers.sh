@@ -4,7 +4,7 @@ case "$TARGET" in
   sparc64)
     ASM64="asm-sparc64"
     ASM="asm-sparc"
-    DEF64="__sparc_v9__"
+    DEF64="__arch64__"
     STUB="__SPARC_ASM_STUB__"
     NAME64="SPARC64"
     NAME32="SPARC32"
@@ -36,6 +36,9 @@ case "$TARGET" in
   i*86|athlon)
     ASM="asm-i386"
     ;;
+  ppc)
+    ASM="asm-ppc"
+    ;;
   *)
     ASM="asm-$TARGET"
 esac
@@ -66,6 +69,21 @@ $INC32
 EOF
 }
 
+# Prepare PowerPC tree (2.6.16+)
+case $TARGET in (ppc*)
+[[ -d asm-powerpc ]] && {
+    for f in asm-powerpc/*.h; do
+	[[ -f asm-ppc/${f##*/} ]] || cp -av $f asm-ppc/
+    done
+    if [[ -z "$ASM64" ]]; then
+	mv asm-powerpc $ASM
+    else
+	mv asm-powerpc $ASM64
+    fi
+} ;;
+esac
+
+# Create bi-arch headers
 [[ -z "$DEF64" ]] && mv $ASM asm || {
   for I in `( ls $ASM; ls $ASM64 ) | grep '\.h$' | sort -u`; do
     CreateBiarchHeader $I
@@ -73,5 +91,5 @@ EOF
 }
 
 # Clean-ups 
-rm -rf `echo asm-* | sed -e "s/$ASM//;s/$ASM64//;s/asm-generic//"`
+find . -maxdepth 1 -type d -name "asm-*" ! -name "$ASM" ! -name "$ASM64" ! -name "asm-generic" | xargs rm -rf
 find . -type d -name CVS | xargs rm -rf

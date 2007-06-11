@@ -9,8 +9,9 @@
 
 #define _unpackaged_files_terminate_build 0
 
-# owl 2.3.6-owl6
-%define basevers	2.3.6
+# alt 2.5-alt4
+# rh 2.5-12
+%define basevers	2.5
 %define crypt_bf_ver	1.0.2
 
 %define revision	$Rev$
@@ -18,27 +19,35 @@
 %define version		%{basevers}
 %define release		%_revrel
 %define epoch		6
+%define glibcdate	20061008T1257
+%define glibcsrcdir	%{name}-%{version}-%{glibcdate}
 
 # <version>-<release> tags from kernel package where headers were
 # actually extracted from
-%define kheaders_ver    2.6.16
-%define kheaders_rel    2mdk
+%define kheaders_ver    2.6.17
+%define kheaders_rel    1mdk
 
 %define build_check	0
 %define build_profile	1
 %define build_locales	1
 %define build_locales_utf8 0
 
+%define gnu_hash_support 1
+
 %define build_biarch	0
 %ifarch x86_64
 %define build_biarch	1
 %endif
 
-%define _slibdir	/%{_lib}
+# Determine minium kernel versions
+%define enablekernel	2.6.9
 
-# define architectures acceping glibc-compat
-%define glibc_compat_arches %{ix86} alpha alphaev6 sparc sparcv9
-%define arch		%(echo %{_target_cpu}|sed -e "s/i.86/i386/" -e "s/athlon/i386/" -e "s/amd64/x86_64/")
+%define _slibdir	/%{_lib}
+%define _slibdir32	/lib
+
+# define target (base) architectures
+%define arch		%(echo %{target_cpu}|sed -e "s/\\(i.86\\|athlon\\)/i386/" -e "s/amd64/x86_64/" -e "s/\\(sun4.*\\|sparcv[89]\\)/sparc/")
+%define isarch()	%(case " %* " in (*" %{arch} "*) echo 1;; (*) echo 0;; esac)
 
 Summary:	The GNU libc libraries
 Name:		%{name}
@@ -49,16 +58,13 @@ License:	LGPL
 Group:		System/Libraries
 URL:		http://www.gnu.org/software/libc/
 
-Source0:	ftp://ftp.gnu.org/gnu/%{name}/glibc-%{basevers}.tar.bz2
-Source1:	ftp://ftp.gnu.org/gnu/%{name}/glibc-linuxthreads-%{basevers}.tar.bz2
-Source2:	ftp://ftp.gnu.org/gnu/%{name}/glibc-libidn-%{basevers}.tar.bz2
+Source0:	glibc-%{version}-%{glibcdate}.tar.bz2
+Source1:	glibc-%{version}-fedora-%{glibcdate}.tar.bz2
 Source3:	crypt_blowfish-%{crypt_bf_ver}.tar.gz
 Source4:	crypt_freesec.c
 Source5:	crypt_freesec.h
 Source6:	strlcpy.3
 Source7:	glibc-manpages.tar.bz2
-Source8:	glibc-redhat.tar.bz2
-Source9:	glibc-compat.tar.bz2
 Source10:	glibc-find-requires.sh
 Source11:	nsswitch.conf
 Source14:       nscd.run
@@ -76,60 +82,100 @@ Source22:       create_asm_headers.sh
 # 100-199 - RH
 # 200-219 - SuSE
 # 220-239 - Gentoo
-# 300-399 - ALT
-# 400-499 - Owl
+# 300-499 - ALT/Openwall
 # 500-599 - Mandriva
 # 600-699 - Annvix
 # CVS
-Patch0:		glibc-2.3.5-cvs-20050427-canonicalize.diff
-Patch1:		glibc-2.3.6-cvs-20051116-divdi3.diff
-Patch2:		glibc-2.3.6-cvs-20060103-ctermid.diff
-Patch3:		glibc-2.3.6-cvs-20060426-linuxthreads-i386-pt-machine.diff
-Patch4:		glibc-2.3.6-up-linuxthreads-x86_64-pt-machine.diff
 # RH
-Patch100:	glibc-2.3.5-fedora.diff
+Patch100:	glibc-2.5-fedora.patch
+Patch101:	glibc-bz3352.patch
+Patch102:	glibc-bz3369.patch
+Patch103:	glibc-i386-syscall6.patch
+Patch104:	glibc-rh210130.patch
+Patch105:	glibc-rh211116.patch
+Patch106:	glibc-bz3429.patch
+Patch107:	glibc-bz3451.patch
+Patch108:	glibc-nptl_db-dtvp.patch
+Patch109:	glibc-r_debug-r_map.patch
+Patch110:	glibc-rh213656.patch
+Patch111:	glibc-rh214569.patch
+Patch112:	glibc-strxfrm.patch
+Patch113:	glibc-sysconf-intel-core-duo.patch
+Patch114:	glibc-tzfile64.patch
+Patch115:	glibc-bz3320.patch
+Patch116:	glibc-bz3559.patch
+Patch117:	glibc-mai_IN.patch
+Patch118:	glibc-po-update.patch
+Patch119:	glibc-powerpc-cpu-addon-update.patch
+Patch120:	glibc-rh215572.patch
+Patch121:	glibc-bz3632.patch
+Patch122:	glibc-memusage.patch
+Patch123:	glibc-nis+-getenv.patch
+Patch124:	glibc-rh206483.patch
+Patch125:	glibc-rh218276.patch
+Patch126:	glibc-rh218782.patch
+Patch127:	glibc-rh218802.patch
+Patch128:	glibc-strtod.patch
+Patch129:	glibc-bz2337.patch
+Patch130:	glibc-bz3747.patch
+Patch131:	glibc-rh216970.patch
+Patch132:	glibc-rh219107.patch
+Patch133:	glibc-rh219145.patch
+Patch134:	glibc-tst-pselect.patch
+Patch135:	glibc-rh220420.patch
+Patch136:	glibc-rh220658.patch
+Patch137:	glibc-nis-getservbyname.patch
+Patch138:	glibc-rh210748-workaround.patch
 # SuSE
 Patch200:	glibc-2.3.2-suse-resolv-response-length.diff
-Patch201:	glibc-2.3.4-suse-getconf-default_output.diff
 # Gentoo
-Patch220:	glibc-2.3.6-gentoo-alpha-xstat.diff
-# ALT
-Patch300:	glibc-2.3.5-alt-doc-linuxthreads.diff
-Patch301:	glibc-2.3.5-alt-string2.diff
-Patch302:	glibc-2.3.5-alt-sys-mount.diff
-Patch303:	glibc-2.3.5-openbsd-alt-sys-queue.diff
-Patch304:	glibc-2.3.5-alt-getopt-optind.diff
-Patch305:	glibc-2.3.5-alt-fts_palloc-cleanup.diff
-Patch306:	glibc-2.3.5-alt-asprintf.diff
-Patch307:	glibc-2.3.5-alt-libio-bound.diff
-Patch308:	glibc-2.3.5-openbsd-strlcpy-strlcat.diff
-Patch309:	glibc-2.3.5-alt-iconv_prog-replace.diff
-Patch310:	glibc-2.3.5-alt-i18n.diff
-Patch311:	glibc-2.3.5-alt-relocate-helper-libs.diff
-Patch312:	glibc-2.3.5-alt-linux-dl-execstack.diff
-Patch313:	glibc-2.3.5-alt-assume_kernel.diff
-# Owl
-Patch400:	glibc-2.3.3-owl-crypt_freesec.diff
-Patch401:	glibc-2.3.5-owl-alt-res_randomid.diff
-Patch402:	glibc-2.3.2-owl-iscntrl.diff
-Patch403:	glibc-2.3.6-owl-alt-ldd.diff
-Patch404:	glibc-2.3.3-owl-info.diff
-Patch405:	glibc-2.3.5-owl-alt-syslog-ident.diff
-Patch406:	glibc-2.3.5-mjt-owl-alt-syslog-timestamp.diff
-Patch407:	glibc-2.3.5-owl-alt-resolv-QFIXEDSZ-underfills.diff
-Patch408:	glibc-2.3.2-owl-tmpfile.diff
-Patch409:	glibc-2.3.3-owl-tmp-scripts.diff
-Patch410:	glibc-2.3.3-owl-rpcgen-cpp.diff
-Patch411:	glibc-2.3.5-owl-alt-sanitize-env.diff
+# ALT/Openwall
+Patch300:	glibc-2.3.3-owl-crypt_freesec.diff
+Patch301:	glibc-2.3.5-openbsd-strlcpy-strlcat.diff
+Patch302:	glibc-2.5-alt-texinfo.patch
+Patch303:	glibc-2.5-alt-pt_chown.patch
+Patch304:	glibc-2.3.5-alt-string2.patch
+Patch305:	glibc-2.5-alt-sys-mount.patch
+Patch306:	glibc-2.5-alt-getopt-optind.patch
+Patch307:	glibc-2.5-alt-tmpfile.patch
+Patch308:	glibc-2.5-alt-asprintf.patch
+Patch309:	glibc-2.5-alt-libio-bound.patch
+Patch310:	glibc-2.5-owl-alt-syslog-ident.patch
+Patch311:	glibc-2.5-mjt-owl-alt-syslog-timestamp.patch
+Patch312:	glibc-2.5-owl-alt-res_randomid.patch
+Patch313:	glibc-2.5-alt-iconv_prog-replace.patch
+Patch314:	glibc-2.5-alt-versioning.patch
+Patch315:	glibc-2.5-alt-ldconfig-exit-during-install.patch
+Patch316:	glibc-2.5-alt-i18n.patch
+Patch317:	glibc-2.5-alt-relocate-helper-libs.patch
+Patch318:	glibc-2.5-alt-xtrace-xvt.patch
+Patch319:	glibc-2.5-owl-alt-ldd.patch
+Patch320:	glibc-2.5-alt-ldconfig-search_dir.patch
+Patch321:	glibc-2.5-alt-linux-dl-execstack.patch
+Patch322:	glibc-2.5-alt-assume_kernel.patch
+Patch323:	glibc-2.5-alt-libgd.patch
+Patch324:	glibc-2.5-alt-tmp-scripts.patch
+Patch325:	glibc-2.5-owl-rpcgen-cpp.patch
+Patch326:	glibc-2.5-owl-alt-resolv-QFIXEDSZ-underfills.patch
+Patch327:	glibc-2.5-owl-alt-sanitize-env.patch
+Patch328:	glibc-2.5-alt-__locale_getenv.patch
+Patch329: 	glibc-2.5-alt-getconf.patch
+Patch330:	glibc-2.5-alt-nscd-path.patch
+Patch331:	glibc-2.5-alt-default_nss.patch
 # Mandriva
 Patch500:       kernel-headers-include-%{kheaders_ver}.%{kheaders_rel}.patch
 Patch501:       kernel-headers-gnu-extensions.patch
 Patch502:	kernel-headers-syscall-mem-clobbers.patch
 Patch503:	glibc-2.2.5-share-locale.patch
+Patch504:	glibc-2.2.2-mdv-fhs.patch
+Patch505:	glibc-2.4.90-mdv-multiarch.patch
+# glibc-2.4.90-DT_GNU_HASH.patch ## requires newer binutils
+
 # Annvix
 Patch600:	glibc-2.3.5-avx-relocate_fcrypt.patch
 Patch601:	glibc-2.3.6-avx-increase_BF_FRAME.patch
-Patch602:	glibc-2.3.6-avx-kernel-headers-audit_support.patch
+Patch602:	glibc-2.4-avx-kernel-headers-audit_support.patch
+Patch603:	glibc-2.4-avx-owl-crypt.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	patch
@@ -137,12 +183,16 @@ BuildRequires:	gettext
 BuildRequires:	perl
 BuildRequires:	autoconf2.5
 BuildRequires:	binutils >= 2.13.90.0.18-2mdk
-BuildPreReq:	gcc >= 3.1.1
+BuildRequires:	gcc >= 4.1.0
+BuildRequires:	gd-devel
 
 AutoReq:	false
 Provides:	glibc-crypt_blowfish = %{crypt_bf_ver}
 Provides:	glibc-localedata
 Provides:	ld.so
+Provides:	ldconfig = %{epoch}:%{version}-%{release}
+Provides:	/sbin/ldconfig
+Obsoletes:	ldconfig
 Obsoletes:	libc-static
 Obsoletes:	libc-devel
 Obsoletes:	libc-profile
@@ -152,7 +202,7 @@ Obsoletes:	gencat
 Obsoletes:	locale
 Obsoletes:	glibc-localedata
 Obsoletes:	ld.so
-PreReq:		ldconfig
+Conflicts:	kernel < %{enablekernel}
 
 %description
 The glibc package contains standard libraries which are used by
@@ -163,18 +213,6 @@ contains the most important sets of shared libraries: the standard C
 library and the standard math library.  Without these two libraries, a
 Linux system will not function.  The glibc package also contains
 national language (locale) support.
-
-
-%package -n ldconfig
-Summary:	Creates a shared library cache and maintains symlinks for ld.so
-Group:		System/Base
-
-%description -n ldconfig
-Ldconfig is a basic system program which determines run-time link
-bindings between ld.so and shared libraries. Ldconfig scans a running
-system and sets up the symbolic links that are used to load shared
-libraries properly. It also creates a cache (/etc/ld.so.cache) which
-speeds the loading of programs which use shared libraries.
 
 
 %package utils
@@ -249,14 +287,10 @@ libraries included in the glibc package).
 %package -n nscd
 Summary:	A Name Service Caching Daemon (nscd)
 Group:		System/Servers
-Conflicts:	kernel < 2.2.0
 Requires(pre):	rpm-helper
 Requires(preun): rpm-helper
-Requires(preun): srv
 Requires(post):	rpm-helper
-Requires(post):	srv
 Requires(postun): rpm-helper
-Requires(postun): srv
 Autoreq:	true
 
 %description -n nscd
@@ -282,102 +316,137 @@ This package contains the documentation for %{name}.
 
 
 %prep
-%setup -q -a 1 -a 2 -a 3 -a 7 -a 8 -a 9 -a 20 -n %{name}-%{basevers}
+%setup -q -n glibc-%{version}-%{glibcdate} -a 1 -a 3 -a 7 -a 20
 
 # CVS
-# 20050427-2_3-branch
-%patch0 -p0
-
-# fix realpath(3) to return NULL and set errno to ENOTDIR for such
-# pathnames like "/path/to/existing-non-directory/"
-%patch1 -p0
-
-# patch to fix a segfault with ctermid
-%patch2 -p0
 
 # RH
-# usual glibc-fedora.patch
-%patch100 -p0
+%patch100 -E -p1
+%patch101 -p1
+%patch102 -p1
+%patch103 -p1
+#%patch104 -p1
+%patch105 -p1
+%patch106 -p1
+%patch107 -p1
+%patch108 -p1
+%patch109 -p1
+%patch110 -p1
+%patch111 -p1
+%patch112 -p1
+%patch113 -p1
+%patch114 -p1
+%patch115 -p1
+%patch116 -p1
+%patch117 -p1
+%patch118 -p1
+%patch119 -p1
+%patch120 -p1
+%patch121 -p1
+%patch122 -p1
+%patch123 -p1
+%patch124 -p1
+%patch125 -p1
+%patch126 -p1
+%patch127 -p1
+%patch128 -p1
+%patch129 -p1
+%patch130 -p1
+%patch131 -p1
+%patch132 -p1
+%patch133 -p1
+%patch134 -p1
+%patch135 -p1
+%patch136 -p1
+%patch137 -p1
+%patch138 -p1
 
 # SuSE
 # avoid read buffer overruns in apps using res_* calls
 %patch200 -p1
-# add -a option to getconf(1)
-%patch201 -p0
 
 # Gentoo
-# Re-introduce support for building on Alpha with pre-2.6.4 kernel headers
-%patch220 -p1
 
-# ALT
-# fix linuxthreads documentation
-%patch300 -p1
-# fix -Wpointer-arith issue in string2.h
-%patch301 -p1
-# fix sys/mount.h for gcc -pedantic support
-%patch302 -p1
-# backport sys/queue.h from OpenBSD
-%patch303 -p1
-# set proper optind when argc < 1
-%patch304 -p1
-# minor io/fts.c cleanup
-%patch305 -p1
-# change asprintf/vasprintf error handling
-%patch306 -p1
-# check for potential integer overflow in fread*/fwrite*
-%patch307 -p1
-# import strlcpy/strlcat from OpenBSD
-%patch308 -p1
-# add "--replace" option to iconv utility
-%patch309 -p1
-# support more ru_* locales
-%patch310 -p1
-# relocate helper libraries from /%_lib to %_libdir
-%patch311 -p1
-# fix mprotect return code handling in _dl_make_stack_executable()
-%patch312 -p1
-# fix _dl_osversion_init(), _dl_non_dynamic_init() and
-# dl_main() functions to not assume too old kernel version
-%patch313 -p1
-
-# Owl
+# ALT/Openwall
 # copy the freesec stuff
 cp %{_sourcedir}/crypt_freesec.[ch] crypt/
 
 echo "Applying crypt_blowfish patch:"
-patch -p1 -s < crypt_blowfish-%{crypt_bf_ver}/glibc-2.3.2-crypt.diff
+%patch603 -p1 
+#patch -p1 -s < crypt_blowfish-%{crypt_bf_ver}/glibc-2.3.2-crypt.diff
 mv crypt/crypt.h crypt/gnu-crypt.h
 cp -a crypt_blowfish-%{crypt_bf_ver}/*.[chS] crypt/
 
-# FreeSec support for extended/new-style/BSDI hashes in crypt(3)
-%patch400 -p1
-# improve res_randomid in the resolver
-%patch401 -p1
-# force known control characters for iscntrl(3)
-%patch402 -p1
-# always execute traced object directly with dynamic linker
-# fix ldd error reporting on multilib platforms like x86-64
-# fix "ldd -u"
-%patch403 -p1
-# fix libc's info formatting
-%patch404 -p1
-# don't blindly trust __progname for the syslog ident
-%patch405 -p1
-# use ctime_r() instead of strftime_r() in syslog(3)
-%patch406 -p1
-# avoid potential reads beyond end of undersized DNS responses
-%patch407 -p1
-# allow tmpfile(3) to use TMPDIR environment variable
-%patch408 -p1
-# fix temporary file handling in the scripts
-%patch409 -p1
-# avoid hardcoding of cpp binary, use execvp instead of execv
-%patch410 -p1
-# sanitize the environment in a paranoid way
-%patch411 -p1
+## FreeSec support for extended/new-style/BSDI hashes in crypt(3)
+%patch300 -p1
+# Import strlcpy/strlcat from OpenBSD.
+%patch301 -p1
+# Fix texinfo documentation according to ALT info policy.
+%patch302 -p1
+# Do not install pt_chown.
+%patch303 -p1
+# Fix -Wpointer-arith issue in string2.h
+%patch304 -p1
+# Update sys/mount.h MS_* flags from linux-2.6.17, fix for gcc -pedantic support.
+%patch305 -p1
+# Set proper optind when argc < 1.
+%patch306 -p1
+# Allow tmpfile(3) to use $TMPDIR.
+%patch307 -p1
+# Change asprintf/vasprintf error handling.
+%patch308 -p1
+# Check for potential integer overflow in fread*/fwrite*.
+%patch309 -p1
+# Don't blindly trust __progname for the syslog ident.
+%patch310 -p1
+# use ctime_r() instead of strftime_r() in syslog(3).
+%patch311 -p1
+# Improve res_randomid in the resolver.
+%patch312 -p1
+# Add "--replace" option to iconv utility.
+%patch313 -p1
+# Export __libc_enable_secure.
+%patch314 -p1
+# Change ldconfig to exit during distribution install.
+%patch315 -p1
+# Support more ru_* locales.  Fix tt_RU.
+%patch316 -p1
+# Relocate helper libraries from /%_lib to %_libdir.
+%patch317 -p1
+# xtrace.sh: If `TERMINAL_PROG' is not set, set it to `xvt'.
+%patch318 -p1
+# ldd: Always execute traced object directly with dynamic linker.
+%patch319 -p1
+# ldconfig: Revert symlink handling changes in search_dir().
+%patch320 -p1
+# Fix mprotect return code handling in _dl_make_stack_executable().
+%patch321 -p1
+# Fix _dl_osversion_init(), _dl_non_dynamic_init() and
+# dl_main() functions to not assume too old kernel version.
+%patch322 -p1
+# memusagestat: Fix linkage.
+%patch323 -p1
+# memusage, xtrace: Fix tmp file handling.
+%patch324 -p1
+# Avoid hardcoding of cpp binary, use execvp instead of execv.
+%patch325 -p1
+# Avoid potential reads beyond end of undersized DNS responses.
+%patch326 -p1
+# Sanitize the environment in a paranoid way.
+%patch327 -p1
+# Introduce and export __locale_getenv.
+%patch328 -p1
+# Introduce _CS_LIBDIR and _CS_SLIB to confstr and getconf.
+%patch329 -p1
+# Change persistent storage paths from /var/db to /var/lib.
+%patch330 -p1
+# Change /etc/default/nss to /etc/nss.conf.
+%patch331 -p1
 
 # Mandriva
 %patch503 -p1 -b .share_locale
+%patch504 -p1 -b .fhs
+%patch505 -p1 -b .multiarch
 
 # Annvix
 %patch600 -p1
@@ -393,10 +462,6 @@ TARGET=%{_target_cpu}
 %{expand:%(%__cat %{_sourcedir}/create_asm_headers.sh)}
 popd
 
-%ifnarch %{glibc_compat_arches}
-    rm -rf glibc-compat
-%endif
-
 find . -type f -size 0 -o -name '*.orig' -exec rm -f {} \;
 
 cat > find_provides.sh << EOF
@@ -411,13 +476,13 @@ chmod +x glibc_find_requires.sh
 
 cat > find_requires.sh << EOF
 #!/bin/sh
-%{_builddir}/%{name}-%{version}/glibc_find_requires.sh | grep -v "\(GLIBC_PRIVATE\|linux-gate\|linux-vdso\)"
+%{_builddir}/%{glibcsrcdir}/glibc_find_requires.sh | grep -v "\(GLIBC_PRIVATE\|linux-gate\|linux-vdso\)"
 exit 0
 EOF
 chmod +x find_requires.sh
 
-%define __find_provides %{_builddir}/%{name}-%{basevers}/find_provides.sh
-%define __find_requires %{_builddir}/%{name}-%{basevers}/find_requires.sh
+%define __find_provides %{_builddir}/%{glibcsrcdir}/find_provides.sh
+%define __find_requires %{_builddir}/%{glibcsrcdir}/find_requires.sh
 
 %if %{build_locales}
 mv localedata/SUPPORTED localedata/SUPPORTED.ALL
@@ -429,7 +494,13 @@ ln -s SUPPORTED.NO-UTF-8 localedata/SUPPORTED
 %endif # %{build_locales_utf8}
 %endif # %{build_locales}
 
+
 %build
+# Prepare test matrix in the next function
+CheckList=$PWD/Check.list
+rm -f $CheckList
+touch $CheckList
+
 #
 # BuildGlibc <arch> [<extra_configure_options>+]
 #
@@ -437,43 +508,27 @@ function BuildGlibc() {
     arch="$1"
     shift 1
 
+    cpu="$arch"
+
     KernelHeaders=$PWD/kernel-headers
-    # set a minimal kernel version
-    EnableKernel=2.4.0
 
     # Select optimization flags and compiler to use
-    BuildCC="gcc"
+    BuildAltArch="no"
+    BuildCompFlags=""
+    BuildFlags=""
     case $arch in
         i[3456]86 | athlon)
             BuildFlags="-march=$arch"
             if [[ "`uname -m`" = "x86_64" ]]; then
-                BuildCC="$BuildCC -m32"
+                BuildAltArch="yes"
+                BuildCompFlags="-m32"
             fi
             ;;
-        alphaev6)
-            BuildFlags="-mcpu=ev6"
-            ;;
-        sparc)
-            BuildFlags="-fcall-used-g6"
-            BuildCC="gcc -m32"
-            ;;
-        sparcv9)
-            BuildFlags="-mcpu=ultrasparc -fcall-used-g6"
-            BuildCC="gcc -m32"
-            ;;
-        sparc64)
-            BuildFlags="-mcpu=ultrasparc -mvis -fcall-used-g6"
-            BuildCC="gcc -m64"
-            ;;
     esac
-    # Temporarily don't do this on ia64, s390, and ppc
-    case $arch in
-        ia64 | s390 | s390x | ppc)
-            ;;
-        *)
-            BuildFlags="$BuildFlags -freorder-blocks"
-            ;;
-    esac
+
+    # Determine C & C++ compilers
+    BuildCC="%{__cc} $BuildCompFlags"
+    BuildCXX="%{__cxx} $BuildCompFlags"
 
     BuildFlags="$BuildFlags -DNDEBUG=1 -O2 -finline-functions -g"
     if $BuildCC -v 2>&1 | grep -1 'gcc version 3.0'; then
@@ -481,18 +536,38 @@ function BuildGlibc() {
         BuildFlags="$BuildFlags -finline-limit=2000"
     fi
 
-    # FIXME: don't use unit at time compilation
-    if $BuildCC -funit-at-a-time -S -o /dev/nulll -xc /dev/null 2>&1; then
-        BuildFlags="$BuildFlags -fno-unit-at-a-tiome"
+    # Do not use direct references against %gs when accessing tls data
+    # XXX make it the default in GCC? (for other non glibc specific usage)
+    case $arch in
+        i[3456]86 | x86_64)
+            BuildFlags="$BuildFlags -mno-tls-direct-seg-refs"
+            ;;
+    esac
+
+    # Disable fortify for glibc builds
+    BuildFlags="$BuildFlags -U_FORTIFY_SOURCE"
+
+    # Extra configure flags
+    %if !%{build_profile}
+        ExtraFlags="$ExtraFlags --disable-profile"
+    %endif
+
+    # NPTL+TLS are now the default
+    Pthreads="nptl"
+    TlsFlags="--with-tls --with-__thread"
+
+    # Add-ons
+    AddOns="$Pthreads"
+    if [[ "$cpu" != "$arch" ]]; then
+        BuildFlags="$BuildFlags -mcpu=$cpu"
+        ExtraFlags="$ExtraFlags --with-cpu=$cpu"
     fi
 
-    %if !%{build_profile}
-        ExtraFlags="--disable-profile"
-    %endif
+    # Don't build with selinux support
+    ExtraFlags="$ExtraFlags --without-selinux"
 
-    %ifarch %{glibc_compat_arches}
-        ADDONS=",glibc-compat"
-    %endif
+    # Kernel headers directory
+    KernelHeaders=$PWD/kernel-headers
 
     # determine library name
     glibc_cv_cc_64bit_output=no
@@ -505,42 +580,54 @@ function BuildGlibc() {
     fi
     rm -f test.o
 
-    case $arch:$glibc_cv_cc_64bit_output in
-        powerpc64:yes | s390x:yes  | sparc64:yes | x86_64:yes | amd64:yes)
-            glibc_libname="lib64"
+    # Force a separate and clean object dir
+    rm -rf build-$cpu-linux
+    mkdir build-$cpu-linux
+    pushd build-$cpu-linux
+        [[ "$BuildAltArch" = "yes" ]] && touch ".alt" || touch ".main"
+        CC="$BuildCC" CXX="$BuildCXX" CFLAGS="$BuildFlags" ../configure \
+            $arch-annvix-linux-gnu \
+	    --prefix=%{_prefix} \
+	    --libexecdir=%{_prefix}/lib \
+	    --infodir=%{_infodir} \
+	    --enable-add-ons=$AddOns \
+	    --without-cvs \
+	    $TlsFlags \
+	    $ExtraFlags \
+	    --enable-kernel=%{enablekernel} \
+	    --with-headers=$KernelHeaders ${1+"$@"}
+        %make -r PARALLELMFLAGS=-s
+    popd
+
+    # All tests are expected to pass on certain platforms
+    case $arch in
+        i[3456]86 | athlon | x86_64 | ia64 | ppc | ppc64)
+            check_flags=""
             ;;
-        *:*)
-            glibc_libname="lib"
+        *)
+            check_flags="-k"
             ;;
     esac
 
-    # Force a separate and clean object dir
-    rm -rf build-$arch-linux
-    mkdir build-$arch-linux
-    pushd build-$arch-linux
-        CC="$BuildCC" CFLAGS="$BuildFlags" ../configure \
-            $arch-annvix-linux-gnu \
-	    --prefix=%{_prefix} \
-	    --exec-prefix=%{_exec_prefix} \
-	    --bindir=%{_bindir} \
-	    --sbindir=%{_sbindir} \
-	    --sysconfdir=%{_sysconfdir} \
-	    --datadir=%{_datadir} \
-	    --includedir=%{_includedir} \
-	    --libdir="%{_prefix}/$glibc_libname" \
-	    --libexecdir="%{_prefix}/$glibc_libname" \
-	    --localstatedir=%{_localstatedir} \
-	    --sharedstatedir=%{_sharedstatedir} \
-	    --mandir=%{_mandir} \
-	    --infodir=%{_infodir} \
-	    --enable-add-ons=linuxthreads,libidn$ADDONS \
-	    --without-cvs \
-	    --without-__thread \
-	    $ExtraFlags \
-	    --enable-kernel=$EnableKernel \
-	    --with-headers=$KernelHeaders ${1+"$@"}
-        %make -r CFLAGS="$BuildFlags" PARALLELMFLAGS=
-    popd
+    # Generate test matrix
+    [[ -d "build-$arch-linux" ]] || {
+        echo "ERROR: PrepareGlibcTest: build-$arch-linux does not exist!"
+        return 1
+    }
+    local BuildJobs="-j`getconf _NPROCESSORS_ONLN`"
+    echo "$BuildJobs -d build-$arch-linux $check_flags" >> $CheckList
+
+    case $cpu in
+        i686|athlon)   base_arch=i586;;
+        power*)        base_arch=$arch;;
+        *)             base_arch=none;;
+    esac
+
+    [[ -d "build-$base_arch-linux" ]] && {
+        check_flags="$check_flags -l build-$base_arch-linux/elf/ld.so"
+        echo "$BuildJobs -d build-$arch-linux $check_flags" >> $CheckList
+    }
+    return 0
 }
 
 # Build main glibc
@@ -560,35 +647,23 @@ case %{_target_cpu} in
         ;;
 esac
 
-
-make -C linuxthreads/man
 make -C crypt_blowfish-%{crypt_bf_ver} man
 
-BUILD_CHECK=
 %if %{build_check}
-BUILD_CHECK=yes
+export TMPDIR=/tmp
+export TIMEOUTFACTOR=16
+Check="$PWD/glibc-check.sh"
+cat %{_sourcedir}/glibc-check.sh > $Check
+chmod +x $Check
+while read arglist; do
+    $Check $arglist || exit 1
+done < $CheckList
 %endif
-if [[ -n "$BUILD_CHECK" ]]; then
-    echo "========== TESTING =========="
-    # All tests must pass on x86, x86_64, ia64, and ppc
-    %ifarch %{ix86} x86_64 ia64 ppc
-    %make -C build-%{_target_cpu}-linux check PARALLELMFLAGS=-s
-    case `uname -m` in
-        i686 | athlon) ALT_ARCH=i686 ;;
-        x86_64)        ALT_ARCH=i586 ;;
-    esac
-    [[ -n "$ALT_ARCH" && -d "build-$ALT_ARCH-linux" ]] &&
-        %make -C build-$ALT_ARCH-linux check PARALLELMFLAGS=-s
-    %else
-    %make -C build-%{_target_cpu}-linux -k check PARALLELMFLAGS=-s \
-        || echo make check failed
-    %endif
-    echo "======== TESTING END ========"
-fi
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
 mkdir -p %{buildroot}
 make install_root=%{buildroot} install -C build-%{_target_cpu}-linux
 make install_root=%{buildroot} localedata/install-locales -C build-%{_target_cpu}-linux
@@ -598,41 +673,90 @@ pushd build-%{_target_cpu}-linux
 popd
 sh manpages/Script.sh
 
+# Empty filelist for non i686/athlon targets
+> extralibs.filelist
+
 %if %{build_biarch}
 ALT_ARCH=i586-linux
 mkdir -p %{buildroot}/$ALT_ARCH
 make install_root=%{buildroot}/$ALT_ARCH install -C build-$ALT_ARCH
-pushd build-$ALT_ARCH
-    %make -C ../localedata objdir=`pwd` \
-        install_root=%{buildroot}/$ALT_ARCH \
-        install-locales
-popd
+
 # dispatch */lib only
 mv %{buildroot}/$ALT_ARCH/lib %{buildroot}/
-mv %{buildroot}/$ALT_ARCH%{_prefix}/lib %{buildroot}%{_prefix}/
+rm -f %{buildroot}/$ALT_ARCH%{_prefix}/lib/pt_chown
+mv %{buildroot}/$ALT_ARCH%{_prefix}/lib/getconf/* %{buildroot}%{_prefix}/lib/getconf/
+rmdir %{buildroot}/$ALT_ARCH%{_prefix}/lib/getconf
+mv %{buildroot}/$ALT_ARCH%{_prefix}/lib/* %{buildroot}%{_prefix}/lib/
 rm -rf %{buildroot}/$ALT_ARCH
+# XXX Dispatch 32-bit stubs
+(sed '/^@/d' include/stubs-prologue.h; LC_ALL=C sort $(find build-$ALT_ARCH -name stubs)) \
+> %{buildroot}%{_includedir}/gnu/stubs-32.h
 %endif
 
+# Install extra glibc libraries
+function InstallGlibc() {
+    local BuildDir="$1"
+    local SubDir="$2"
+    local LibDir="$3"
+
+    case $BuildDir in
+    *)      Pthreads=nptl         ;;
+    esac
+
+    [[ -z "$LibDir" ]] && LibDir="%{_slibdir}"
+
+    pushd $BuildDir
+    mkdir -p %{buildroot}$LibDir/$SubDir/
+    install -m 0755 libc.so %{buildroot}$LibDir/$SubDir/`basename %{buildroot}$LibDir/libc-*.so`
+    ln -sf `basename %{buildroot}$LibDir/libc-*.so` %{buildroot}$LibDir/$SubDir/`basename %{buildroot}$LibDir/libc.so.*`
+    install -m 0755 math/libm.so %{buildroot}$LibDir/$SubDir/`basename %{buildroot}$LibDir/libm-*.so`
+    ln -sf `basename %{buildroot}$LibDir/libm-*.so` %{buildroot}$LibDir/$SubDir/`basename %{buildroot}$LibDir/libm.so.*`
+    install -m 0755 $Pthreads/libpthread.so %{buildroot}$LibDir/$SubDir/`basename %{buildroot}$LibDir/libpthread-*.so`
+    ln -sf `basename %{buildroot}$LibDir/libpthread-*.so` %{buildroot}$LibDir/$SubDir/`basename %{buildroot}$LibDir/libpthread.so.*`
+    install -m 0755 ${Pthreads}_db/libthread_db.so %{buildroot}$LibDir/$SubDir/`basename %{buildroot}$LibDir/libthread_db-*.so`
+    ln -sf `basename %{buildroot}$LibDir/libthread_db-*.so` %{buildroot}$LibDir/$SubDir/`basename %{buildroot}$LibDir/libthread_db.so.*`
+    install -m 0755 rt/librt.so %{buildroot}$LibDir/$SubDir/`basename %{buildroot}$LibDir/librt-*.so`
+    ln -sf `basename %{buildroot}$LibDir/librt-*.so` %{buildroot}$LibDir/$SubDir/`basename %{buildroot}$LibDir/librt.so.*`
+    echo "%dir $LibDir/$SubDir" >> ../extralibs.filelist
+    find %{buildroot}$LibDir/$SubDir -maxdepth 1  -type f -o -type l | sed -e "s|%{buildroot}||" >> ../extralibs.filelist
+    popd
+}
+
+# Install arch-specific optimized libraries
+%ifarch %{ix86}
+case %{target_cpu} in
+    i[3-5]86)
+        InstallGlibc build-i686-linux i686
+    ;;
+esac
+%endif
+
+# NPTL <bits/stdio-lock.h> is not usable outside of glibc, so include
+# the generic one (RH#162634)
+install -m 0644 bits/stdio-lock.h %{buildroot}%{_includedir}/bits/stdio-lock.h
+
+# Remove the files we don't want to distribute
+rm -f %{buildroot}%{_libdir}/libNoVersion*
+rm -f %{buildroot}%{_slibdir}/libNoVersion*
+
+ln -sf libbsd-compat.a %{buildroot}%{_libdir}/libbsd.a
+%if %{build_biarch}
+ln -sf libbbsd-compat.a %{buildroot}%{_prefix}/lib/libbsd.a
+%endif
 
 # These man pages require special attention
 mkdir -p %{buildroot}%{_mandir}/man3
-install -p -m 0644 linuxthreads/man/*.3thr %{buildroot}%{_mandir}/man3/
 install -p -m 0644 crypt_blowfish-%{crypt_bf_ver}/*.3 %{buildroot}%{_mandir}/man3/
-install -p -m 0644 %_sourcedir/strlcpy.3 %{buildroot}%{_mandir}/man3/
+install -p -m 0644 %{_sourcedir}/strlcpy.3 %{buildroot}%{_mandir}/man3/
 echo '.so man3/strlcpy.3' > %{buildroot}%{_mandir}/man3/strlcat.3
 
 install -m 0644 %{_sourcedir}/nsswitch.conf %{buildroot}%{_sysconfdir}/nsswitch.conf
 
-ln -s libbsd-compat.a %{buildroot}%{_libdir}/libbsd.a
-%if %{build_biarch}
-ln -s libbbsd-compat.a %{buildroot}%{_prefix}/lib/libbsd.a
-%endif
+# useless
+rm -rf %{buildroot}%{_datadir}/zoneinfo/{posix,right}
 
-# Relocate shared libraries used by catchsegv, memusage and xtrace
-mv %{buildroot}/%{_lib}/lib{memusage,pcprofile,SegFault}.so %{buildroot}%{_libdir}/
-%if %{build_biarch}
-rm -f %{buildroot}/lib/lib{memusage,pcprofile}.so
-%endif
+# don't include ld.so.cache
+rm -f %{buildroot}%{_sysconfdir}/ld.so.cache
 
 # Create default ldconfig configuration file
 echo "/usr/local/lib" > %{buildroot}%{_sysconfdir}/ld.so.conf
@@ -642,25 +766,39 @@ if [ "%{_lib}" == "lib64" ]; then
     echo "/usr/X11R6/lib64" >> %{buildroot}%{_sysconfdir}/ld.so.conf
 fi
 chmod 0644 %{buildroot}%{_sysconfdir}/ld.so.conf
-echo "include /etc/ld.so.conf.d/*.conf" >> %{buildroot}/etc/ld.so.conf
-mkdir -m 0755 %{buildroot}/etc/ld.so.conf.d
+echo "include %{_sysconfdir}/ld.so.conf.d/*.conf" >> %{buildroot}%{_sysconfdir}/ld.so.conf
+mkdir -p %{buildroot}%{_sysconfdir}/ld.so.conf.d
 
-# Truncate /etc/ld.so.cache, we'll create it in the %%post section
-echo -n > %{buildroot}/etc/ld.so.cache
+# Include %{_libdir}/gconv/gconv-modules.cache
+> %{buildroot}%{_libdir}/gconv/gconv-modules.cache
+chmod 0644 %{buildroot}%{_libdir}/gconv/gconv-modules.cache
 
-# The database support
-# XXX: why is this disabled?
-#mkdir -p %{buildroot}/var/db
-#install -m 644 nss/db-Makefile %{buildroot}/var/db/Makefile
+# Strip libpthread but keep some symbols
+find %{buildroot}%{_slibdir} -type f -name "libpthread-*.so" | \
+    xargs strip -g -R .comment
 
-# Do not package obsolete pt_chown helper
-rm -f %{buildroot}%{_libdir}/pt_chown
-[[ -f %{buildroot}%{_prefix}/lib/pt_chown ]] && rm -f %{buildroot}%{_prefix}/lib/pt_chown
+%if %{build_biarch}
+find %{buildroot}/lib -type f -name "libpthread-*.so" | \
+    xargs strip -g -R .comment
+%endif
+
+# Strip debugging info from all static libraries
+pushd %{buildroot}%{_libdir}
+    for i in *.a; do
+        if [ -f "$i" ]; then
+            case "$i" in
+                *_p.a) ;;
+                *) strip -g -R .comment $i ;;
+            esac
+        fi
+    done
+popd
 
 # rquota.x and rquota.h are now provided by quota
 rm -f %{buildroot}%{_includedir}/rpcsvc/rquota.[hx]
 
-gcc -O2 -o build-%{_target_cpu}-linux/hardlink redhat/hardlink.c
+# hardline identical locale files together
+gcc -O2 -o build-%{_target_cpu}-linux/hardlink fedora/hardlink.c
 build-%{_target_cpu}-linux/hardlink -vc %{buildroot}%{_datadir}/locale
 
 install -m 0644 nscd/nscd.conf %{buildroot}%{_sysconfdir}
@@ -671,40 +809,35 @@ install -m 0740 %{_sourcedir}/nscd.finish %{buildroot}%{_srvdir}/nscd/finish
 
 rm -rf %{buildroot}%{_datadir}/zoneinfo
 rm -rf %{buildroot}%{_includedir}/netatalk/
-rm -f %{buildroot}%{_libdir}/libNoVersion*
-%ifnarch %{glibc_compat_arches}
-    rm -f %{buildroot}/%{_lib}/libNoVersion*
-%endif
 
 # these are in the timezone package
 rm -f %{buildroot}%{_sbindir}/{zdump,zic}
 
-# empty filelist for non-i686/athlon targets
-> extralibs.filelist
-%ifarch %{ix86}
-pushd build-%{_target_cpu}-linux
-    TARGETARCH="%{buildroot}%{_slibdir}/%{_target_cpu}"
-    TARGETLIB="%{buildroot}%{_slibdir}"
-    mkdir -p $TARGETARCH
-    install -m 0755 libc.so $TARGETARCH/`basename $TARGETLIB/libc-*.so`
-    ln -sf `basename $TARGETLIB/libc-*.so` $TARGETARCH/`basename $TARGETLIB/libc.so.*`
-    install -m 0755 math/libm.so $TARGETARCH/`basename $TARGETLIB/libm-*.so`
-    ln -sf `basename $TARGETLIB/libm-*.so` $TARGETARCH/`basename $TARGETLIB/libm.so.*`
-    install -m 0755 linuxthreads/libpthread.so $TARGETARCH/`basename $TARGETLIB/libpthread-*.so`
-    ln -sf `basename $TARGETLIB/libpthread-*.so` $TARGETARCH/`basename $TARGETLIB/libpthread.so.*`
-    install -m 0755 linuxthreads_db/libthread_db.so $TARGETARCH/`basename $TARGETLIB/libthread_db-*.so`
-    ln -sf `basename $TARGETLIB/libthread_db-*.so` $TARGETARCH/`basename $TARGETLIB/libthread_db.so.*`
-    install -m 0755 rt/librt.so $TARGETARCH/`basename $TARGETLIB/librt-*.so`
-    ln -sf `basename $TARGETLIB/librt-*.so` $TARGETARCH/`basename $TARGETLIB/librt.so.*`
-    echo "%dir %{_slibdir}/%{_target_cpu}" >> ../extralibs.filelist
-    find %{buildroot}/%{_slibdir}/%{_target_cpu} -type f -o -type l |sed -e "s|%{buildroot}||" >> ../extralibs.filelist
-popd
+# Build file list for devel package
+find %{buildroot}%{_includedir} -type f -or -type l > devel.filelist
+find %{buildroot}%{_includedir} -type d  | sed "s/^/%dir /" | \
+    grep -v "%{_libdir}/libnss1.*.so$" | \
+    grep -v "%{_includedir}$" | >> devel.filelist
+find %{buildroot}%{_libdir} -maxdepth 1 -name "*.so" -o -name "*.o" | egrep -v "(libmemusage.so|libpcprofile.so)" >> devel.filelist
+# biarch libs
+%if %{build_biarch}
+find %{buildroot}%{_prefix}/lib -maxdepth 1 -name "*.so" -o -name "*.o" | egrep -v "(libmemusage.so|libpcprofile.so)" >> devel.filelist
 %endif
+perl -pi -e "s|%{buildroot}||" devel.filelist
 
-# Create empty %{_libdir}/gconv/gconv-modules.cache
-touch %{buildroot}%{_libdir}/gconv/gconv-modules.cache
-[[ -d %{buildroot}%{_prefix}/lib/gconv ]] && touch %{buildroot}%{_prefix}/lib/gconv/gconv-modules.cache
-
+if [[ "%{_slibdir}" != "%{_libdir}" ]]; then
+    mkdir -p %{buildroot}%{_libdir}
+    mv -f %{buildroot}%{_slibdir}/lib{pcprofile,memusage}.so %{buildroot}%{_libdir}
+    [[ -f %{buildroot}/lib/libmemusage.so ]] &&
+        mv -f %{buildroot}/lib/lib{pcprofile,memusage}.so %{buildroot}%{_prefix}/lib/
+    for i in %{buildroot}%{_prefix}/bin/{xtrace,memusage}; do
+        cp -a $i $i.tmp
+        sed -e 's~=%{_slibdir}/libpcprofile.so~=%{_libdir}/libpcprofile.so~' \
+            -e 's~=%{_slibdir}/libmemusage.so~=%{_libdir}/libmemusage.so~' \
+        $i.tmp > $i
+        chmod 0755 $i; rm -f $i.tmp
+    done
+fi
 
 # Copy Kernel-Headers
 mkdir -p %{buildroot}%{_includedir}
@@ -715,31 +848,31 @@ echo "#if 0" > %{buildroot}/boot/kernel.h-%{kheaders_ver}
 # The last bit: more documentation
 rm -rf documentation
 mkdir documentation
-cp linuxthreads/ChangeLog documentation/ChangeLog.threads
-cp linuxthreads/Changes documentation/Changes.threads
-cp linuxthreads/README documentation/README.threads
-cp linuxthreads/FAQ.html documentation/FAQ-threads.html
-cp -r linuxthreads/Examples documentation/examples.threads
 cp ChangeLog* documentation
 bzip2 -9qf documentation/ChangeLog*
 mkdir documentation/crypt_blowfish-%{crypt_bf_ver}
 cp crypt_blowfish-%{crypt_bf_ver}/{README,LINKS,PERFORMANCE} \
-	documentation/crypt_blowfish-%{crypt_bf_ver}
+    documentation/crypt_blowfish-%{crypt_bf_ver}
 
+# we only want to keep locale.alias; the rest of the locales are in our locales package
+mkdir %{buildroot}%{_datadir}/locale.bk
+mv -f %{buildroot}%{_datadir}/locale/locale.alias %{buildroot}%{_datadir}/locale.bk/
+rm -rf %{buildroot}%{_datadir}/locale
+mv %{buildroot}%{_datadir}/locale.bk %{buildroot}%{_datadir}/locale
+
+# Generate final rpm filelist, with localized libc.mo files
+rm -f rpm.filelist
 %find_lang libc
-
-# remove README.template and FAQ.in to allow using wildcards in the filelist
-#rm README.template FAQ.in
+perl -ne '/^\s*$/ or print' libc.lang > rpm.filelist
+cat extralibs.filelist >> rpm.filelist
 
 # Final step: remove unpackaged files.
-[[ -d %{buildroot}%{_infodir}/dir ]] && rm -rf %{buildroot}%{_infodir}/dir
-[[ -d %{buildroot}%{_libdir}/locale ]] && rm -rf %{buildroot}%{_libdir}/locale
-[[ -d %{buildroot}%{_prefix}/lib/locale ]] && rm -rf %{buildroot}%{_prefix}/lib/locale
-mv -f %{buildroot}%{_datadir}/locale/locale.alias .
-rm -rf %{buildroot}%{_datadir}/locale
-mkdir -p %{buildroot}%{_datadir}/locale && mv locale.alias %{buildroot}%{_datadir}/locale/
-[[ -d %{buildroot}%{_libdir}/getconf ]] && rm -rf %{buildroot}%{_libdir}/getconf
-[[ -d %{buildroot}%{_prefix}/lib/getconf ]] && rm -rf %{buildroot}%{_prefix}/lib/getconf
+rm -f  %{buildroot}%{_infodir}/dir.old*
+rm -f  %{buildroot}%{_prefix}/lib/pt_chown
+rm -rf %{buildroot}%{_includedir}/asm-*/mach-*/
+
+EXCLUDE_FROM_STRIP="ld-%{version}.so libpthread $DEBUG_LIBS"
+export EXCLUDE_FROM_STRIP
 
 
 %clean
@@ -750,8 +883,35 @@ mkdir -p %{buildroot}%{_datadir}/locale && mv locale.alias %{buildroot}%{_datadi
 %postun -p /sbin/ldconfig
 
 
+%pre devel
+if [ -L %{_includedir}/scsi ]; then
+    rm -f %{_includedir}/scsi
+fi
+if [ -L %{_includedir}/sound ]; then
+    rm -f %{_includedir}/sound
+fi
+if [ -L %{_includedir}/linux ]; then
+    rm -f %{_includedir}/linux
+fi
+if [ -L %{_includedir}/asm ]; then
+    rm -f %{_includedir}/asm
+fi
+if [ -L %{_includedir}/asm-generic ]; then
+    rm -f %{_includedir}/asm-generic
+fi
+%if %isarch x86_64
+if [ -L %{_includedir}/asm-x86_64 ]; then
+    rm -f %{_includedir}/asm-x86_64
+fi
+if [ -L %{_includedir}/asm-i386 ]; then
+    rm -f %{_includedir}/asm-i386
+fi
+%endif
+exit 0
+
+
 %post devel
-/sbin/install-info %{_infodir}/libc.info %{_infodir}/dir
+%_install_info libc.info
 cd /boot
 rm -f kernel.h
 ln -snf kernel.h-%{kheaders_ver} kernel.h
@@ -769,9 +929,7 @@ exit 0
 
 
 %preun devel
-if [ $1 -eq 0 ]; then
-	/sbin/install-info --delete %{_infodir}/libc.info %{_infodir}/dir
-fi
+%_remove_install_info libc.info
 
 
 %pre -n nscd
@@ -796,71 +954,38 @@ fi
 #
 # glibc
 #
-%files -f libc.lang -f extralibs.filelist
+%files -f rpm.filelist
 %defattr(-,root,root)
 # configs
 %config(noreplace) %verify(not size md5 mtime) /etc/localtime
 %config(noreplace) %verify(not size md5 mtime) /etc/nsswitch.conf
-%config(noreplace) %verify(not size md5 mtime)  /etc/ld.so.conf
-%ghost %config(noreplace) /etc/ld.so.cache
-%config %dir /etc/ld.so.conf.d
-%ghost %config(noreplace) %{_libdir}/gconv/gconv-modules.cache
-%if %{build_biarch}
-%ghost %config(noreplace) %{_prefix}/lib/gconv/gconv-modules.cache
-%endif
-%config(noreplace) /etc/rpc
-# libs
-%ifarch %{glibc_compat_arches}
-%{_libdir}/libnss*.so.1
-%endif
-%dir %{_libdir}/gconv
-%{_libdir}/gconv/*.so
-%{_libdir}/gconv/gconv-modules
-%if %{build_biarch}
-%dir %{_prefix}/lib/gconv
-%{_prefix}/lib/gconv/*.so
-%{_prefix}/lib/gconv/gconv-modules
-%endif
+%config(noreplace) %verify(not size md5 mtime) /etc/ld.so.conf
+%dir %{_sysconfdir}/ld.so.conf.d
+%config(noreplace) %{_sysconfdir}/rpc
+%{_mandir}/man1/*
+%{_mandir}/man8/rpcinfo.8*
+%{_mandir}/man8/ld.so*
+%{_datadir}/locale/locale.alias
+/sbin/sln
+%dir %{_prefix}/lib/getconf
+%{_prefix}/lib/getconf/*
 %{_slibdir}/ld-%{version}.so
-%if "%{arch}" == "i386"
+%ifarch %{ix86}
 %{_slibdir}/ld-linux.so.2
 %endif
-%if "%{arch}" == "alpha"
-%{_slibdir}/ld-linux.so.2
-%endif
-%if "%{arch}" == "ppc"
-%{_slibdir}/ld-linux.so.2
-%{_slibdir}/ld.so.1
-%endif
-%if "%{arch}" == "ppc64"
-%{_slibdir}/ld64.so.1
-%endif
-%if "%{arch}" == "ia64"
-%{_slibdir}/ld-linux-ia64.so.2
-%endif
-%if "%{arch}" == "x86_64"
+%ifarch x86_64
 %{_slibdir}/ld-linux-x86-64.so.2
-%endif
-%if "%{arch}" == "m68k"
-%{_slibdir}/ld.so.1
 %endif
 %{_slibdir}/lib*-[.0-9]*.so
 %{_slibdir}/lib*.so.[0-9]*
-%{_libdir}/libSegFault.so
-%if %{build_biarch}
-/lib/ld-%{version}.so
-/lib/ld-linux*.so.2
-/lib/lib*-[.0-9]*.so
-/lib/lib*.so.[0-9]*
-/lib/libSegFault.so
-%endif
-%{_datadir}/locale/locale.alias
-# man pages
-%{_mandir}/man1/*
-%{_mandir}/man8/rpcinfo.8*
-%{_mandir}/man8/ld.so.8*
-# binaries
-/sbin/sln
+%{_slibdir}/libSegFault.so
+
+%dir %{_libdir}/gconv
+%{_libdir}/gconv/*
+# Don't package pt_chown. It is only needed if devpts is not used. But
+# since we are running kernel 2.4+, that's fine without.
+# (and it never actually worked, aka was not setuid, nor executable)
+#%{_libdir}/pt_chown
 %{_bindir}/catchsegv
 %{_bindir}/gencat
 %{_bindir}/getconf
@@ -872,21 +997,39 @@ fi
 %{_bindir}/lddlibc4
 %endif
 %{_bindir}/locale
-%{_bindir}/localedef  
+%{_bindir}/localedef
 %{_bindir}/rpcgen
-%{_bindir}/sprof   
+%{_bindir}/sprof
 %{_bindir}/tzselect
 %{_sbindir}/rpcinfo
 %{_sbindir}/iconvconfig
-#%{_sbindir}/glibc-post-upgrade
-# XXX
-#%dir /var/db
+
+%if %{build_biarch}
+%{_slibdir32}/ld-%{version}.so
+%{_slibdir32}/ld-linux*.so.2
+%{_slibdir32}/lib*-[.0-9]*.so
+%{_slibdir32}/lib*.so.[0-9]*
+%{_slibdir32}/libSegFault.so
+%dir %{_prefix}/lib/gconv
+%{_prefix}/lib/gconv/*
+%endif
+#
+# ldconfig
+#
+%defattr(-,root,root)
+/sbin/ldconfig
+%{_mandir}/man8/ldconfig*
+
 
 #
 # glibc-utils
 #
 %files utils
 %defattr(-,root,root)
+%if %{build_biarch}
+%{_prefix}/lib/libmemusage.so
+%{_prefix}/lib/libpcprofile.so
+%endif
 %{_libdir}/libmemusage.so
 %{_libdir}/libpcprofile.so
 %{_bindir}/memusage
@@ -895,168 +1038,12 @@ fi
 %{_bindir}/pcprofiledump
 %{_bindir}/xtrace
 
+
 #
 # glibc-devel
 #
-%files devel
+%files devel -f devel.filelist
 %defattr(-,root,root)
-/boot/kernel.h-%{kheaders_ver}
-%{_mandir}/man3/*.bz2
-%{_infodir}/libc.info*
-%dir %{_includedir}
-%dir %{_includedir}/arpa
-%dir %{_includedir}/asm
-%dir %{_includedir}/asm-generic
-%dir %{_includedir}/bits
-%dir %{_includedir}/gnu
-%dir %{_includedir}/linux
-%dir %{_includedir}/linux/amba
-%dir %{_includedir}/linux/byteorder
-%dir %{_includedir}/linux/dvb
-%dir %{_includedir}/linux/hdlc
-%dir %{_includedir}/linux/isdn
-%dir %{_includedir}/linux/lockd
-%dir %{_includedir}/linux/mmc
-%dir %{_includedir}/linux/mtd
-%dir %{_includedir}/linux/netfilter
-%dir %{_includedir}/linux/netfilter_arp
-%dir %{_includedir}/linux/netfilter_bridge
-%dir %{_includedir}/linux/netfilter_ipv4
-%dir %{_includedir}/linux/netfilter_ipv6
-%dir %{_includedir}/linux/nfsd
-%dir %{_includedir}/linux/raid
-%dir %{_includedir}/linux/spi
-%dir %{_includedir}/linux/sunrpc
-%dir %{_includedir}/linux/tc_act
-%dir %{_includedir}/linux/tc_ematch
-%dir %{_includedir}/net
-%dir %{_includedir}/netinet
-%dir %{_includedir}/netipx
-%dir %{_includedir}/netash
-%dir %{_includedir}/netax25
-%dir %{_includedir}/netrom
-%dir %{_includedir}/netpacket
-%dir %{_includedir}/netrose
-%dir %{_includedir}/neteconet
-%dir %{_includedir}/nfs
-%dir %{_includedir}/protocols
-%dir %{_includedir}/rpc
-%dir %{_includedir}/rpcsvc
-%dir %{_includedir}/scsi
-%dir %{_includedir}/sound
-%dir %{_includedir}/sys
-#%dir %{_includedir}/usb
-%{_includedir}/*.h
-%{_includedir}/arpa/*.h
-%{_includedir}/asm/*.h
-%{_includedir}/asm-generic/*.h
-%{_includedir}/bits/*.h
-%{_includedir}/bits/*.def
-%{_includedir}/gnu/*.h
-%{_includedir}/linux/*.h
-#%{_includedir}/linux/*.p
-%{_includedir}/linux/amba/*.h
-%{_includedir}/linux/byteorder/*.h
-%{_includedir}/linux/dvb/*.h
-%{_includedir}/linux/hdlc/*.h
-%{_includedir}/linux/isdn/*.h
-%{_includedir}/linux/lockd/*.h
-%{_includedir}/linux/mmc/*.h
-%{_includedir}/linux/mtd/*.h
-%{_includedir}/linux/netfilter/*.h
-%{_includedir}/linux/netfilter_arp/*.h
-%{_includedir}/linux/netfilter_bridge/*.h
-%{_includedir}/linux/netfilter_ipv4/*.h
-%{_includedir}/linux/netfilter_ipv6/*.h
-%{_includedir}/linux/nfsd/*.h
-%{_includedir}/linux/raid/*.h
-%{_includedir}/linux/sunrpc/*.h
-%{_includedir}/linux/spi/*.h
-%{_includedir}/linux/tc_act/*.h
-%{_includedir}/linux/tc_ematch/*.h
-%{_includedir}/linux/usb/*.h
-%{_includedir}/net/*.h
-%{_includedir}/netinet/*.h
-%{_includedir}/netipx/*.h
-%{_includedir}/netash/*.h
-%{_includedir}/netax25/*.h
-%{_includedir}/netrom/*.h
-%{_includedir}/netpacket/*.h
-%{_includedir}/netrose/*.h
-%{_includedir}/neteconet/*.h
-%{_includedir}/nfs/*.h
-%{_includedir}/protocols/*.h
-%{_includedir}/rpc/*.h
-%{_includedir}/rpcsvc/*.h
-%{_includedir}/rpcsvc/*.x
-%{_includedir}/scsi/*.h
-%{_includedir}/sound/*.h
-%{_includedir}/sys/*.h
-%if "%{arch}" == "i386"
-%dir %{_includedir}/asm/mach-bigsmp
-%{_includedir}/asm/mach-bigsmp/*.h
-%dir %{_includedir}/asm/mach-default
-%{_includedir}/asm/mach-default/*.h
-%dir %{_includedir}/asm/mach-es7000
-%{_includedir}/asm/mach-es7000/*.h
-%dir %{_includedir}/asm/mach-generic
-%{_includedir}/asm/mach-generic/*.h
-%dir %{_includedir}/asm/mach-numaq
-%{_includedir}/asm/mach-numaq/*.h
-%dir %{_includedir}/asm/mach-summit
-%{_includedir}/asm/mach-summit/*.h
-%dir %{_includedir}/asm/mach-visws
-%{_includedir}/asm/mach-visws/*.h
-%dir %{_includedir}/asm/mach-voyager
-%{_includedir}/asm/mach-voyager/*.h
-%dir %{_includedir}/asm/mach-xen
-%dir %{_includedir}/asm/mach-xen/asm
-%{_includedir}/asm/mach-xen/*.h
-%{_includedir}/asm/mach-xen/asm/*.h
-%endif
-%if "%{arch}" == "x86_64"
-%dir %{_includedir}/asm-i386
-%{_includedir}/asm-i386/*.h
-%dir %{_includedir}/asm-i386/mach-bigsmp
-%{_includedir}/asm-i386/mach-bigsmp/*.h
-%dir %{_includedir}/asm-i386/mach-default
-%{_includedir}/asm-i386/mach-default/*.h
-%dir %{_includedir}/asm-i386/mach-es7000
-%{_includedir}/asm-i386/mach-es7000/*.h
-%dir %{_includedir}/asm-i386/mach-generic
-%{_includedir}/asm-i386/mach-generic/*.h
-%dir %{_includedir}/asm-i386/mach-numaq
-%{_includedir}/asm-i386/mach-numaq/*.h
-%dir %{_includedir}/asm-i386/mach-summit
-%{_includedir}/asm-i386/mach-summit/*.h
-%dir %{_includedir}/asm-i386/mach-visws
-%{_includedir}/asm-i386/mach-visws/*.h
-%dir %{_includedir}/asm-i386/mach-voyager
-%{_includedir}/asm-i386/mach-voyager/*.h
-%dir %{_includedir}/asm-i386/mach-xen
-%dir %{_includedir}/asm-i386/mach-xen/asm
-%{_includedir}/asm-i386/mach-xen/*.h
-%{_includedir}/asm-i386/mach-xen/asm/*.h
-%dir %{_includedir}/asm-x86_64
-%{_includedir}/asm-x86_64/*.h
-#%{_includedir}/asm-x86_64/*.i
-%dir %{_includedir}/asm-x86_64/mach-xen
-%dir %{_includedir}/asm-x86_64/mach-xen/asm
-%{_includedir}/asm-x86_64/mach-xen/*.h
-%{_includedir}/asm-x86_64/mach-xen/asm/*.h
-%endif
-%if "%{arch}" == "ppc64"
-%dir %{_includedir}/asm-ppc
-%{_includedir}/asm-ppc/*.h
-%dir %{_includedir}/asm-ppc64
-%{_includedir}/asm-ppc64/*.h
-%endif
-%if "%{arch}" == "sparc64"
-%dir %{_includedir}/asm-sparc
-%{_includedir}/asm-sparc/*.h
-%dir %{_includedir}/asm-sparc64
-%{_includedir}/asm-sparc64/*.h
-%endif
 %{_libdir}/libbsd-compat.a
 %{_libdir}/libbsd.a
 %{_libdir}/libc_nonshared.a
@@ -1065,8 +1052,17 @@ fi
 %{_libdir}/libmcheck.a
 %{_libdir}/libpthread_nonshared.a
 %{_libdir}/librpcsvc.a
-%{_libdir}/*.o
-%{_libdir}/*.so
+%{_includedir}/linux
+%{_includedir}/asm
+%{_includedir}/asm-generic
+%{_includedir}/sound
+%ifarch x86_64
+%dir %{_includedir}/asm-i386
+%{_includedir}/asm-i386/*.h
+%dir %{_includedir}/asm-x86_64
+%{_includedir}/asm-x86_64/*.h
+%endif
+/boot/kernel.h-%{kheaders_ver}
 %if %{build_biarch}
 %{_prefix}/lib/libbsd-compat.a
 %{_prefix}/lib/libbsd.a
@@ -1076,11 +1072,10 @@ fi
 %{_prefix}/lib/libmcheck.a
 %{_prefix}/lib/libpthread_nonshared.a
 %{_prefix}/lib/librpcsvc.a
-%{_prefix}/lib/*.o
-%{_prefix}/lib/*.so
 %endif
-%exclude %{_libdir}/libmemusage.so
-%exclude %{_libdir}/libpcprofile.so
+%{_mandir}/man3/*
+%{_infodir}/libc.info*
+
 
 #
 # glibc-static-devel
@@ -1112,6 +1107,7 @@ fi
 %{_prefix}/lib/libutil.a
 %endif
 
+
 #
 # glibc-profile
 #
@@ -1124,10 +1120,6 @@ fi
 %endif
 %endif
 
-%files -n ldconfig
-%defattr(-,root,root)
-/sbin/ldconfig
-%{_mandir}/man8/ldconfig*
 
 #
 # glibc-i18ndata
@@ -1140,6 +1132,7 @@ fi
 %dir %{_datadir}/i18n/locales
 %{_datadir}/i18n/locales/*
 
+
 #
 # nscd
 #
@@ -1147,21 +1140,39 @@ fi
 %defattr(-,root,root)
 %config(noreplace) %{_sysconfdir}/nscd.conf
 %{_sbindir}/nscd
-%{_sbindir}/nscd_nischeck
 %dir %attr(0750,root,admin) %{_srvdir}/nscd
 %dir %attr(0750,root,admin) %{_srvdir}/nscd/log 
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/nscd/run
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/nscd/finish
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/nscd/log/run  
 
+
 %files doc
+%defattr(-,root,root)
 %doc README* NEWS* INSTALL* FAQ* BUGS NOTES* PROJECTS CONFORMANCE
-%doc documentation/*
+%doc COPYING COPYING.LIB
+%doc documentation/* README.libm
 %doc hesiod/README.hesiod
 %doc crypt/README.ufc-crypt
 
 
 %changelog
+* Mon Jun 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.5
+- 2.5-20061008T1257
+- merge with RHEL 2.5-12 and ALT's 2.5-alt4 (essentially replaced all
+  non-Annvix patches with these, and use the RHEL source)
+- drop linuxthreads support, NPTL+TLS is default now
+- drop support for non x86/x86_64 archs
+- P603: crypt_blowfish patch for glibc 2.4 (rediffed from the
+  crypt_blowfish package)
+- use kernel headers 2.6.17
+- P504: set FHS paths (Mandriva)
+- P505: filter out multiarch headers in check-local-headers.sh (Mandriva)
+- put ldconfig in the main glibc package
+- buildrequires: gd-devel
+- use info_install macros
+- drop S8, S9
+
 * Sat Mar 10 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.3.6
 - don't build the timezone package anymore
 

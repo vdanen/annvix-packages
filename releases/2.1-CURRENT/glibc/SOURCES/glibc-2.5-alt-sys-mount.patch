@@ -1,0 +1,31 @@
+# Update sys/mount.h MS_* flags from linux-2.6.17, fix for gcc -pedantic support.
+
+--- glibc-2.5.orig/sysdeps/unix/sysv/linux/sys/mount.h
++++ glibc-2.5/sysdeps/unix/sysv/linux/sys/mount.h
+@@ -59,6 +59,26 @@ #define MS_NOATIME	MS_NOATIME
+ #define MS_NODIRATIME	MS_NODIRATIME
+   MS_BIND = 4096,		/* Bind directory at different place.  */
+ #define MS_BIND		MS_BIND
++  MS_MOVE = 8192,		/* Move mount point.  */
++#define MS_MOVE		MS_MOVE
++  MS_REC = 16384,		/* Recursive.  */
++#define MS_REC		MS_REC
++  MS_SILENT = 32768,
++#define MS_SILENT	MS_SILENT
++  MS_POSIXACL = (1<<16),	/* VFS does not apply the umask */
++#define MS_POSIXACL	MS_POSIXACL
++  MS_UNBINDABLE = (1<<17),	/* Change to unbindable */
++#define MS_UNBINDABLE	MS_UNBINDABLE
++  MS_PRIVATE = (1<<18),		/* Change to private */
++#define MS_PRIVATE	MS_PRIVATE
++  MS_SLAVE = (1<<19),		/* Change to slave */
++#define MS_SLAVE	MS_SLAVE
++  MS_SHARED = (1<<20),		/* Change to shared */
++#define MS_SHARED	MS_SHARED
++  MS_ACTIVE = (1<<30),
++#define MS_ACTIVE	MS_ACTIVE
++  MS_NOUSER = (1<<31)
++#define MS_NOUSER	MS_NOUSER
+ };
+ 
+ /* Flags that can be altered by MS_REMOUNT  */

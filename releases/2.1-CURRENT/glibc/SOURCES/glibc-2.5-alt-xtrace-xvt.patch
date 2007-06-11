@@ -1,0 +1,15 @@
+# If `TERMINAL_PROG' is not set, set it to `xvt'.
+
+--- glibc-2.5.orig/debug/xtrace.sh
++++ glibc-2.5/debug/xtrace.sh
+@@ -88,8 +88,8 @@ format_line() {
+ # If the variable COLUMNS is not set do this now.
+ COLUMNS=${COLUMNS:-80}
+ 
+-# If `TERMINAL_PROG' is not set, set it to `xterm'.
+-TERMINAL_PROG=${TERMINAL_PROG:-xterm}
++# If `TERMINAL_PROG' is not set, set it to `xvt'.
++TERMINAL_PROG=${TERMINAL_PROG:-xvt}
+ 
+ # The data file to process, if any.
+ data=

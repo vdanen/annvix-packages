@@ -1,0 +1,115 @@
+# Fix tmp file handling.
+
+--- glibc-2.5.orig/debug/xtrace.sh
++++ glibc-2.5/debug/xtrace.sh
+@@ -151,6 +151,15 @@ if test ! -x "$program"; then
+   help_info
+ fi
+ 
++fifodir=
++exit_handler()
++{
++	local rc=$?
++	trap - EXIT
++	[ -z "$fifodir" ] || rm -rf -- "$fifodir"
++	exit $rc
++}
++
+ # We have two modes.  If a data file is given simply print the included data.
+ printf "%-20s  %-*s  %6s\n" Function $(expr $COLUMNS - 30) File Line
+ for i in $(seq 1 $COLUMNS); do printf -; done; printf '\n'
+@@ -165,28 +174,28 @@ if test -n "$data"; then
+     fi
+   done
+ else
+-  fifo=$(mktemp -u ${TMPDIR:-/tmp}/xtrace.XXXXXX)
++  fifodir="$(mktemp -dt xtrace.XXXXXXXXXX)" || exit
++  trap exit_handler EXIT HUP INT QUIT PIPE TERM
++  fifo="$fifodir/fifo"
+   mkfifo -m 0600 $fifo || exit 1
+-  trap 'rm $fifo; exit 1' SIGINT SIGTERM SIGPIPE
+ 
+   # Now start the program and let it write to the FIFO.
+   $TERMINAL_PROG -T "xtrace - $program $*" -e /bin/sh -c "LD_PRELOAD=$pcprofileso PCPROFILE_OUTPUT=$fifo $program $*; read < $fifo" &
+   termpid=$!
+-  $pcprofiledump -u $fifo |
++  $pcprofiledump -u "$fifo" |
+   while read line; do
+-     echo $line |
++     echo "$line" |
+      sed 's/this = \([^,]*\).*/\1/' |
+-     addr2line -fC -e $program
++     addr2line -fC -e "$program"
+   done |
+   while read fct; do
+     read file
+     if test "$fct" != '??' -a "$file" != '??:0'; then
+-      format_line $fct $file
++      format_line "$fct" "$file"
+     fi
+   done
+   read -p "Press return here to close $TERMINAL_PROG($program)."
+-  echo > $fifo
+-  rm $fifo
++  echo > "$fifo"
+ fi
+ 
+ exit 0
+--- glibc-2.5.orig/malloc/memusage.sh
++++ glibc-2.5/malloc/memusage.sh
+@@ -77,6 +77,14 @@ warranty; not even for MERCHANTABILITY o
+   exit 0
+ }
+ 
++data=
++progname=
++png=
++buffer=
++notimer=
++tracemmap=
++memusagestat_args=
++
+ # Process arguments.  But stop as soon as the program name is found.
+ while test $# -gt 0; do
+   case "$1" in
+@@ -210,18 +218,20 @@ add_env="LD_PRELOAD=$memusageso"
+ 
+ # Generate data file name.
+ datafile=
++
++exit_handler()
++{
++	local rc=$?
++	trap - EXIT
++	[ -z "$datafile" -o -n "$data" ] || rm -f -- "$datafile"
++	exit $rc
++}
++
+ if test -n "$data"; then
+   datafile="$data"
+ elif test -n "$png"; then
+-  datafile=$(mktemp ${TMPDIR:-/tmp}/memusage.XXXXXX 2> /dev/null)
+-  if test $? -ne 0; then
+-    # Lame, but if there is no `mktemp' program the user cannot expect more.
+-    if test "$RANDOM" != "$RANDOM"; then
+-      datafile=${TMPDIR:-/tmp}/memusage.$RANDOM
+-    else
+-      datafile=${TMPDIR:-/tmp}/memusage.$$
+-    fi
+-  fi
++  datafile="$(mktemp -t memusage.XXXXXXXXXX)" || exit
++  trap exit_handler EXIT HUP INT QUIT PIPE TERM
+ fi
+ if test -n "$datafile"; then
+   add_env="$add_env MEMUSAGE_OUTPUT=$datafile"
+@@ -262,10 +272,6 @@ if test -n "$png" -a -n "$datafile" -a -
+   $memusagestat $memusagestat_args "$datafile" "$png"
+ fi
+ 
+-if test -z "$data" -a -n "$datafile"; then
+-  rm -f "$datafile"
+-fi
+-
+ exit $result
+ # Local Variables:
+ #  mode:ksh

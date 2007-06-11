@@ -1,0 +1,80 @@
+2007-01-15  Jakub Jelinek  <jakub@redhat.com>
+
+	* elf/dl-open.c (add_to_global): If the main searchlist is 256
+	entries or more, on each reallocation at least double the size
+	of the search list rather than growing it linearly.
+	(dl_open_worker): When changing from l_scope_mem to malloced
+	l_scope, start with 64 entries rather than 4.
+
+	* pthread_create.c (__pthread_create_2_1): On the first pthread_create
+	in a process make sure main search list can store at least 256
+	entries.
+
+--- libc/elf/dl-open.c	2006-08-31 08:53:29.000000000 +0200
++++ libc/elf/dl-open.c	2007-01-15 11:22:54.000000000 +0100
+@@ -125,14 +125,18 @@ add_to_global (struct link_map *new)
+     {
+       /* We have to extend the existing array of link maps in the
+ 	 main map.  */
++      size_t new_size = GL(dl_ns)[new->l_ns]._ns_global_scope_alloc;
++      if (new_size >= 256 && new_size > to_add + 8)
++	new_size *= 2;
++      else
++	new_size += to_add + 8;
+       new_global = (struct link_map **)
+ 	realloc (GL(dl_ns)[new->l_ns]._ns_main_searchlist->r_list,
+-		 ((GL(dl_ns)[new->l_ns]._ns_global_scope_alloc + to_add + 8)
+-		  * sizeof (struct link_map *)));
++		 new_size * sizeof (struct link_map *));
+       if (new_global == NULL)
+ 	goto nomem;
+ 
+-      GL(dl_ns)[new->l_ns]._ns_global_scope_alloc += to_add + 8;
++      GL(dl_ns)[new->l_ns]._ns_global_scope_alloc = new_size;
+       GL(dl_ns)[new->l_ns]._ns_main_searchlist->r_list = new_global;
+     }
+ 
+@@ -396,6 +401,10 @@ dl_open_worker (void *a)
+ 
+ 	      if (imap->l_scope == imap->l_scope_mem)
+ 		{
++		  /* Hack: try to minimize the number of realloc calls
++		     when we don't have proper locking yet.  */
++		  new_size = 64;
++
+ 		  newp = (struct r_scope_elem **)
+ 		    malloc (new_size * sizeof (struct r_scope_elem *));
+ 		  if (newp == NULL)
+--- libc/nptl/pthread_create.c	2006-09-07 11:04:05.000000000 +0200
++++ libc/nptl/pthread_create.c	2007-01-15 11:18:49.000000000 +0100
+@@ -462,6 +462,30 @@ __pthread_create_2_1 (newthread, attr, s
+   pd->flags = ((iattr->flags & ~(ATTR_FLAG_SCHED_SET | ATTR_FLAG_POLICY_SET))
+ 	       | (self->flags & (ATTR_FLAG_SCHED_SET | ATTR_FLAG_POLICY_SET)));
+ 
++  /* Hack: realloc the main search list on the first pthread_create call
++     to minimize the number of global search scope reallocations.
++     Wastes at most 1KB on 32-bit and 2KB on 64-bit per process
++     which calls pthread_create.  */
++  if (__builtin_expect (self->header.multiple_threads == 0, 0)
++      && GL(dl_ns)[0]._ns_main_searchlist
++      && GL(dl_ns)[0]._ns_main_searchlist->r_nlist < 256
++      && GL(dl_ns)[0]._ns_global_scope_alloc < 256)
++    {
++      struct link_map **new_global = (struct link_map **)
++	realloc (GL(dl_ns)[0]._ns_global_scope_alloc == 0
++		 ? NULL : GL(dl_ns)[0]._ns_main_searchlist->r_list,
++		 256 * sizeof (struct link_map *));
++      if (new_global != NULL)
++	{
++	  if (GL(dl_ns)[0]._ns_global_scope_alloc == 0)
++	    memcpy (new_global, GL(dl_ns)[0]._ns_main_searchlist->r_list,
++		    GL(dl_ns)[0]._ns_main_searchlist->r_nlist
++		    * sizeof (struct link_map *));
++	  GL(dl_ns)[0]._ns_global_scope_alloc = 256;
++	  GL(dl_ns)[0]._ns_main_searchlist->r_list = new_global;
++	}
++    }
++
+   /* Initialize the field for the ID of the thread which is waiting
+      for us.  This is a self-reference in case the thread is created
+      detached.  */

@@ -1,0 +1,3075 @@
+--- kernel-headers/asm-alpha/bitops.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/asm-alpha/bitops.h	2006-07-20 08:10:30.000000000 -0400
+@@ -1,7 +1,6 @@
+ #ifndef _ALPHA_BITOPS_H
+ #define _ALPHA_BITOPS_H
+ 
+-#include <linux/config.h>
+ #include <asm/compiler.h>
+ 
+ /*
+@@ -125,9 +124,7 @@ test_and_set_bit(unsigned long nr, volat
+ 	"	stl_c %0,%1\n"
+ 	"	beq %0,3f\n"
+ 	"2:\n"
+-#ifdef CONFIG_SMP
+ 	"	mb\n"
+-#endif
+ 	".subsection 2\n"
+ 	"3:	br 1b\n"
+ 	".previous"
+@@ -166,9 +163,7 @@ test_and_clear_bit(unsigned long nr, vol
+ 	"	stl_c %0,%1\n"
+ 	"	beq %0,3f\n"
+ 	"2:\n"
+-#ifdef CONFIG_SMP
+ 	"	mb\n"
+-#endif
+ 	".subsection 2\n"
+ 	"3:	br 1b\n"
+ 	".previous"
+@@ -205,9 +200,7 @@ test_and_change_bit(unsigned long nr, vo
+ 	"	xor %0,%3,%0\n"
+ 	"	stl_c %0,%1\n"
+ 	"	beq %0,3f\n"
+-#ifdef CONFIG_SMP
+ 	"	mb\n"
+-#endif
+ 	".subsection 2\n"
+ 	"3:	br 1b\n"
+ 	".previous"
+--- kernel-headers/asm-alpha/cache.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/asm-alpha/cache.h	2006-07-20 08:10:30.000000000 -0400
+@@ -4,6 +4,8 @@
+ #ifndef __ARCH_ALPHA_CACHE_H
+ #define __ARCH_ALPHA_CACHE_H
+ 
++#ifdef __KERNEL__
++
+ #include <linux/config.h>
+ 
+ /* Bytes per L1 (data) cache line. */
+@@ -22,3 +24,5 @@
+ #define SMP_CACHE_BYTES    L1_CACHE_BYTES
+ 
+ #endif
++
++#endif
+--- kernel-headers/asm-alpha/param.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/asm-alpha/param.h	2006-07-20 08:10:30.000000000 -0400
+@@ -5,14 +5,8 @@
+    hardware ignores reprogramming.  We also need userland buy-in to the 
+    change in HZ, since this is visible in the wait4 resources etc.  */
+ 
+-#include <linux/config.h>
+-
+ #ifndef HZ
+-# ifndef CONFIG_ALPHA_RAWHIDE
+-#  define HZ	1024
+-# else
+-#  define HZ	1200
+-# endif
++# define HZ 1024
+ #endif
+ 
+ #define USER_HZ		HZ
+@@ -25,8 +19,4 @@
+ 
+ #define MAXHOSTNAMELEN	64	/* max length of hostname */
+ 
+-#ifdef __KERNEL__
+-# define CLOCKS_PER_SEC	HZ	/* frequency at which times() counts */
+-#endif
+-
+ #endif /* _ASM_ALPHA_PARAM_H */
+--- kernel-headers/asm-alpha/system.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/asm-alpha/system.h	2006-07-20 08:10:30.000000000 -0400
+@@ -1,7 +1,6 @@
+ #ifndef __ALPHA_SYSTEM_H
+ #define __ALPHA_SYSTEM_H
+ 
+-#include <linux/config.h>
+ #include <asm/pal.h>
+ #include <asm/page.h>
+ #include <asm/barrier.h>
+@@ -21,11 +20,7 @@
+ /* Remove when official MILO sources have ELF support: */
+ #define BOOT_SIZE	(16*1024)
+ 
+-#ifdef CONFIG_ALPHA_LEGACY_START_ADDRESS
+ #define KERNEL_START_PHYS	0x300000 /* Old bootloaders hardcoded this.  */
+-#else
+-#define KERNEL_START_PHYS	0x1000000 /* required: Wildfire/Titan/Marvel */
+-#endif
+ 
+ #define KERNEL_START	(PAGE_OFFSET+KERNEL_START_PHYS)
+ #define SWAPPER_PGD	KERNEL_START
+@@ -338,9 +333,7 @@ __xchg_u8(volatile char *m, unsigned lon
+ 	"	or	%1,%2,%2\n"
+ 	"	stq_c	%2,0(%3)\n"
+ 	"	beq	%2,2f\n"
+-#ifdef CONFIG_SMP
+ 	"	mb\n"
+-#endif
+ 	".subsection 2\n"
+ 	"2:	br	1b\n"
+ 	".previous"
+@@ -364,9 +357,7 @@ __xchg_u16(volatile short *m, unsigned l
+ 	"	or	%1,%2,%2\n"
+ 	"	stq_c	%2,0(%3)\n"
+ 	"	beq	%2,2f\n"
+-#ifdef CONFIG_SMP
+ 	"	mb\n"
+-#endif
+ 	".subsection 2\n"
+ 	"2:	br	1b\n"
+ 	".previous"
+@@ -386,9 +377,7 @@ __xchg_u32(volatile int *m, unsigned lon
+ 	"	bis $31,%3,%1\n"
+ 	"	stl_c %1,%2\n"
+ 	"	beq %1,2f\n"
+-#ifdef CONFIG_SMP
+ 	"	mb\n"
+-#endif
+ 	".subsection 2\n"
+ 	"2:	br 1b\n"
+ 	".previous"
+@@ -408,9 +397,7 @@ __xchg_u64(volatile long *m, unsigned lo
+ 	"	bis $31,%3,%1\n"
+ 	"	stq_c %1,%2\n"
+ 	"	beq %1,2f\n"
+-#ifdef CONFIG_SMP
+ 	"	mb\n"
+-#endif
+ 	".subsection 2\n"
+ 	"2:	br 1b\n"
+ 	".previous"
+@@ -476,9 +463,7 @@ __cmpxchg_u8(volatile char *m, long old,
+ 	"	or	%1,%2,%2\n"
+ 	"	stq_c	%2,0(%4)\n"
+ 	"	beq	%2,3f\n"
+-#ifdef CONFIG_SMP
+ 	"	mb\n"
+-#endif
+ 	"2:\n"
+ 	".subsection 2\n"
+ 	"3:	br	1b\n"
+@@ -505,9 +490,7 @@ __cmpxchg_u16(volatile short *m, long ol
+ 	"	or	%1,%2,%2\n"
+ 	"	stq_c	%2,0(%4)\n"
+ 	"	beq	%2,3f\n"
+-#ifdef CONFIG_SMP
+ 	"	mb\n"
+-#endif
+ 	"2:\n"
+ 	".subsection 2\n"
+ 	"3:	br	1b\n"
+@@ -530,9 +513,7 @@ __cmpxchg_u32(volatile int *m, int old, 
+ 	"	mov %4,%1\n"
+ 	"	stl_c %1,%2\n"
+ 	"	beq %1,3f\n"
+-#ifdef CONFIG_SMP
+ 	"	mb\n"
+-#endif
+ 	"2:\n"
+ 	".subsection 2\n"
+ 	"3:	br 1b\n"
+@@ -555,9 +536,7 @@ __cmpxchg_u64(volatile long *m, unsigned
+ 	"	mov %4,%1\n"
+ 	"	stq_c %1,%2\n"
+ 	"	beq %1,3f\n"
+-#ifdef CONFIG_SMP
+ 	"	mb\n"
+-#endif
+ 	"2:\n"
+ 	".subsection 2\n"
+ 	"3:	br 1b\n"
+--- kernel-headers/asm-arm/system.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/asm-arm/system.h	2006-07-20 08:10:30.000000000 -0400
+@@ -3,8 +3,6 @@
+ 
+ #ifdef __KERNEL__
+ 
+-#include <linux/config.h>
+-
+ #define CPU_ARCH_UNKNOWN	0
+ #define CPU_ARCH_ARMv3		1
+ #define CPU_ARCH_ARMv4		2
+--- kernel-headers/asm-generic/ipc.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/asm-generic/ipc.h	2006-07-20 08:10:30.000000000 -0400
+@@ -1,5 +1,8 @@
+ #ifndef _ASM_GENERIC_IPC_H
+ #define _ASM_GENERIC_IPC_H
++
++#include <linux/compiler.h>
++
+ /*
+  * These are used to wrap system calls.
+  *
+--- kernel-headers/asm-i386/mtrr.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/asm-i386/mtrr.h	2006-07-20 08:10:30.000000000 -0400
+@@ -23,7 +23,6 @@
+ #ifndef _LINUX_MTRR_H
+ #define _LINUX_MTRR_H
+ 
+-#include <linux/config.h>
+ #include <linux/ioctl.h>
+ #include <linux/errno.h>
+ 
+--- kernel-headers/asm-i386/byteorder.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/asm-i386/byteorder.h	2006-07-20 08:10:30.000000000 -0400
+@@ -6,22 +6,9 @@
+ 
+ #ifdef __GNUC__
+ 
+-/* For avoiding bswap on i386 */
+-#ifdef __KERNEL__
+-#include <linux/config.h>
+-#endif
+-
+ static __inline__ __attribute_const__ __u32 ___arch__swab32(__u32 x)
+ {
+-#ifdef CONFIG_X86_BSWAP
+ 	__asm__("bswap %0" : "=r" (x) : "0" (x));
+-#else
+-	__asm__("xchgb %b0,%h0\n\t"	/* swap lower bytes	*/
+-		"rorl $16,%0\n\t"	/* swap words		*/
+-		"xchgb %b0,%h0"		/* swap higher bytes	*/
+-		:"=q" (x)
+-		: "0" (x));
+-#endif
+ 	return x;
+ }
+ 
+@@ -32,15 +19,9 @@ static __inline__ __attribute_const__ __
+ 		__u64 u;
+ 	} v;
+ 	v.u = val;
+-#ifdef CONFIG_X86_BSWAP
+-	asm("bswapl %0 ; bswapl %1 ; xchgl %0,%1" 
++	__asm__("bswapl %0 ; bswapl %1 ; xchgl %0,%1" 
+ 	    : "=r" (v.s.a), "=r" (v.s.b) 
+ 	    : "0" (v.s.a), "1" (v.s.b)); 
+-#else
+-   v.s.a = ___arch__swab32(v.s.a); 
+-	v.s.b = ___arch__swab32(v.s.b); 
+-	asm("xchgl %0,%1" : "=r" (v.s.a), "=r" (v.s.b) : "0" (v.s.a), "1" (v.s.b));
+-#endif
+ 	return v.u;	
+ } 
+ 
+--- kernel-headers/asm-i386/cache.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/asm-i386/cache.h	2006-07-20 08:10:30.000000000 -0400
+@@ -4,6 +4,8 @@
+ #ifndef __ARCH_I386_CACHE_H
+ #define __ARCH_I386_CACHE_H
+ 
++#ifdef __KERNEL__
++
+ #include <linux/config.h>
+ 
+ /* L1 cache line size */
+@@ -13,3 +15,5 @@
+ #define __read_mostly __attribute__((__section__(".data.read_mostly")))
+ 
+ #endif
++
++#endif
+--- kernel-headers/asm-i386/processor.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/asm-i386/processor.h	2006-07-20 08:10:30.000000000 -0400
+@@ -7,6 +7,8 @@
+ #ifndef __ASM_I386_PROCESSOR_H
+ #define __ASM_I386_PROCESSOR_H
+ 
++#ifdef __KERNEL__
++
+ #include <asm/vm86.h>
+ #include <asm/math_emu.h>
+ #include <asm/segment.h>
+@@ -743,4 +745,6 @@ extern void mcheck_init(struct cpuinfo_x
+ #define mcheck_init(c) do {} while(0)
+ #endif
+ 
++#endif /* __KERNEL__ */
++
+ #endif /* __ASM_I386_PROCESSOR_H */
+--- kernel-headers/asm-i386/atomic.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/asm-i386/atomic.h	2006-07-20 08:10:30.000000000 -0400
+@@ -1,7 +1,6 @@
+ #ifndef __ARCH_I386_ATOMIC__
+ #define __ARCH_I386_ATOMIC__
+ 
+-#include <linux/config.h>
+ #include <linux/compiler.h>
+ #include <asm/processor.h>
+ 
+@@ -17,6 +16,8 @@
+  */
+ typedef struct { volatile int counter; } atomic_t;
+ 
++#ifdef __KERNEL__
++
+ #define ATOMIC_INIT(i)	{ (i) }
+ 
+ /**
+@@ -250,6 +251,8 @@ __asm__ __volatile__(LOCK_PREFIX "andl %
+ __asm__ __volatile__(LOCK_PREFIX "orl %0,%1" \
+ : : "r" (mask),"m" (*(addr)) : "memory")
+ 
++#endif /* __KERNEL__ */
++
+ /* Atomic operations are already serializing on x86 */
+ #define smp_mb__before_atomic_dec()	barrier()
+ #define smp_mb__after_atomic_dec()	barrier()
+--- kernel-headers/asm-i386/system.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/asm-i386/system.h	2006-07-20 08:10:30.000000000 -0400
+@@ -1,7 +1,6 @@
+ #ifndef __ASM_SYSTEM_H
+ #define __ASM_SYSTEM_H
+ 
+-#include <linux/config.h>
+ #include <linux/kernel.h>
+ #include <asm/segment.h>
+ #include <asm/cpufeature.h>
+--- kernel-headers/asm-i386/timex.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/asm-i386/timex.h	2006-07-20 08:10:30.000000000 -0400
+@@ -6,7 +6,6 @@
+ #ifndef _ASMi386_TIMEX_H
+ #define _ASMi386_TIMEX_H
+ 
+-#include <linux/config.h>
+ #include <asm/processor.h>
+ 
+ #ifdef CONFIG_X86_ELAN
+@@ -32,6 +31,7 @@
+  */
+ typedef unsigned long long cycles_t;
+ 
++#ifdef __KERNEL__
+ static inline cycles_t get_cycles (void)
+ {
+ 	unsigned long long ret=0;
+@@ -46,6 +46,7 @@ static inline cycles_t get_cycles (void)
+ #endif
+ 	return ret;
+ }
++#endif
+ 
+ extern unsigned int cpu_khz;
+ 
+--- kernel-headers/asm-i386/uaccess.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/asm-i386/uaccess.h	2006-07-20 08:10:30.000000000 -0400
+@@ -4,7 +4,6 @@
+ /*
+  * User space memory access functions
+  */
+-#include <linux/config.h>
+ #include <linux/errno.h>
+ #include <linux/thread_info.h>
+ #include <linux/prefetch.h>
+--- kernel-headers/asm-i386/module.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/asm-i386/module.h	2006-07-20 08:10:30.000000000 -0400
+@@ -10,6 +10,8 @@ struct mod_arch_specific
+ #define Elf_Sym Elf32_Sym
+ #define Elf_Ehdr Elf32_Ehdr
+ 
++#ifdef __KERNEL__
++
+ #ifdef CONFIG_M386
+ #define MODULE_PROC_FAMILY "386 "
+ #elif defined CONFIG_M486
+@@ -74,4 +76,6 @@ struct mod_arch_specific
+ 
+ #define MODULE_ARCH_VERMAGIC MODULE_PROC_FAMILY MODULE_REGPARM MODULE_STACKSIZE
+ 
++#endif /* __KERNEL__ */
++
+ #endif /* _ASM_I386_MODULE_H */
+--- kernel-headers/asm-ia64/atomic.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/asm-ia64/atomic.h	2006-07-20 08:11:17.000000000 -0400
+@@ -23,6 +23,8 @@
+ typedef struct { volatile __s32 counter; } atomic_t;
+ typedef struct { volatile __s64 counter; } atomic64_t;
+ 
++#ifdef __KERNEL__
++
+ #define ATOMIC_INIT(i)		((atomic_t) { (i) })
+ #define ATOMIC64_INIT(i)	((atomic64_t) { (i) })
+ 
+@@ -193,6 +195,8 @@ atomic64_add_negative (__s64 i, atomic64
+ #define atomic64_inc(v)			atomic64_add(1, (v))
+ #define atomic64_dec(v)			atomic64_sub(1, (v))
+ 
++#endif /* __KERNEL__ */
++
+ /* Atomic operations are already serializing */
+ #define smp_mb__before_atomic_dec()	barrier()
+ #define smp_mb__after_atomic_dec()	barrier()
+--- kernel-headers/asm-ia64/cache.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/asm-ia64/cache.h	2006-07-20 08:11:17.000000000 -0400
+@@ -1,6 +1,8 @@
+ #ifndef _ASM_IA64_CACHE_H
+ #define _ASM_IA64_CACHE_H
+ 
++#ifdef __KERNEL__
++
+ #include <linux/config.h>
+ 
+ /*
+@@ -27,4 +29,6 @@
+ 
+ #define __read_mostly __attribute__((__section__(".data.read_mostly")))
+ 
++#endif
++
+ #endif /* _ASM_IA64_CACHE_H */
+--- kernel-headers/asm-ia64/page.h.kheaders	2006-07-20 06:23:54.000000000 -0400
++++ kernel-headers/asm-ia64/page.h	2006-07-20 08:11:17.000000000 -0400
+@@ -7,8 +7,6 @@
+  *	David Mosberger-Tang <davidm@hpl.hp.com>
+  */
+ 
+-#include <linux/config.h>
+-
+ #include <asm/intrinsics.h>
+ #include <asm/types.h>
+ 
+@@ -25,22 +23,7 @@
+ #define RGN_GATE	5	/* Gate page, Kernel text, etc */
+ #define RGN_HPAGE	4	/* For Huge TLB pages */
+ 
+-/*
+- * PAGE_SHIFT determines the actual kernel page size.
+- */
+-#if defined(CONFIG_IA64_PAGE_SIZE_4KB)
+-# define PAGE_SHIFT	12
+-#elif defined(CONFIG_IA64_PAGE_SIZE_8KB)
+-# define PAGE_SHIFT	13
+-#elif defined(CONFIG_IA64_PAGE_SIZE_16KB)
+-# define PAGE_SHIFT	14
+-#elif defined(CONFIG_IA64_PAGE_SIZE_64KB)
+-# define PAGE_SHIFT	16
+-#else
+-# error Unsupported page size!
+-#endif
+-
+-#define PAGE_SIZE		(__IA64_UL_CONST(1) << PAGE_SHIFT)
++#define PAGE_SIZE		getpagesize()
+ #define PAGE_MASK		(~(PAGE_SIZE - 1))
+ #define PAGE_ALIGN(addr)	(((addr) + PAGE_SIZE - 1) & PAGE_MASK)
+ 
+--- kernel-headers/asm-ia64/ptrace.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/asm-ia64/ptrace.h	2006-07-20 08:11:17.000000000 -0400
+@@ -54,32 +54,11 @@
+  * This is because ar.ec is saved as part of ar.pfs.
+  */
+ 
+-#include <linux/config.h>
+-
+ #include <asm/fpu.h>
+ #ifndef ASM_OFFSETS_C
+ #include <asm/asm-offsets.h>
+ #endif
+ 
+-/*
+- * Base-2 logarithm of number of pages to allocate per task structure
+- * (including register backing store and memory stack):
+- */
+-#if defined(CONFIG_IA64_PAGE_SIZE_4KB)
+-# define KERNEL_STACK_SIZE_ORDER		3
+-#elif defined(CONFIG_IA64_PAGE_SIZE_8KB)
+-# define KERNEL_STACK_SIZE_ORDER		2
+-#elif defined(CONFIG_IA64_PAGE_SIZE_16KB)
+-# define KERNEL_STACK_SIZE_ORDER		1
+-#else
+-# define KERNEL_STACK_SIZE_ORDER		0
+-#endif
+-
+-#define IA64_RBS_OFFSET			((IA64_TASK_SIZE + IA64_THREAD_INFO_SIZE + 15) & ~15)
+-#define IA64_STK_OFFSET			((1 << KERNEL_STACK_SIZE_ORDER)*PAGE_SIZE)
+-
+-#define KERNEL_STACK_SIZE		IA64_STK_OFFSET
+-
+ #ifndef __ASSEMBLY__
+ 
+ #include <asm/current.h>
+--- kernel-headers/asm-ia64/string.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/asm-ia64/string.h	2006-07-20 08:11:17.000000000 -0400
+@@ -9,6 +9,8 @@
+  *	David Mosberger-Tang <davidm@hpl.hp.com>
+  */
+ 
++#ifdef __KERNEL__
++
+ #include <linux/config.h>	/* remove this once we remove the A-step workaround... */
+ 
+ #define __HAVE_ARCH_STRLEN	1 /* see arch/ia64/lib/strlen.S */
+@@ -19,4 +21,6 @@ extern __kernel_size_t strlen (const cha
+ extern void *memcpy (void *, const void *, __kernel_size_t);
+ extern void *memset (void *, int, __kernel_size_t);
+ 
++#endif
++
+ #endif /* _ASM_IA64_STRING_H */
+--- kernel-headers/asm-ia64/system.h.kheaders	2006-07-20 06:23:54.000000000 -0400
++++ kernel-headers/asm-ia64/system.h	2006-07-20 08:11:17.000000000 -0400
+@@ -12,7 +12,6 @@
+  * Copyright (C) 1999 Asit Mallick <asit.k.mallick@intel.com>
+  * Copyright (C) 1999 Don Dugger <don.dugger@intel.com>
+  */
+-#include <linux/config.h>
+ 
+ #include <asm/kregs.h>
+ #include <asm/page.h>
+--- kernel-headers/asm-ia64/bitops.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/asm-ia64/bitops.h	2006-07-20 08:11:17.000000000 -0400
+@@ -13,6 +13,11 @@
+ #include <linux/types.h>
+ #include <asm/intrinsics.h>
+ 
++#ifndef CMPXCHG_BUGCHECK_DECL
++# define CMPXCHG_BUGCHECK_DECL
++# define CMPXCHG_BUGCHECK(v)
++#endif
++
+ /**
+  * set_bit - Atomically set a bit in memory
+  * @nr: the bit to set
+@@ -33,11 +38,11 @@
+ static __inline__ void
+ set_bit (int nr, volatile void *addr)
+ {
+-	__u32 bit, old, new;
+-	volatile __u32 *m;
++	u_int32_t bit, old, new;
++	volatile u_int32_t *m;
+ 	CMPXCHG_BUGCHECK_DECL
+ 
+-	m = (volatile __u32 *) addr + (nr >> 5);
++	m = (volatile u_int32_t *) addr + (nr >> 5);
+ 	bit = 1 << (nr & 31);
+ 	do {
+ 		CMPXCHG_BUGCHECK(m);
+@@ -58,7 +63,7 @@ set_bit (int nr, volatile void *addr)
+ static __inline__ void
+ __set_bit (int nr, volatile void *addr)
+ {
+-	*((__u32 *) addr + (nr >> 5)) |= (1 << (nr & 31));
++	*((u_int32_t *) addr + (nr >> 5)) |= (1 << (nr & 31));
+ }
+ 
+ /*
+@@ -80,11 +85,11 @@ __set_bit (int nr, volatile void *addr)
+ static __inline__ void
+ clear_bit (int nr, volatile void *addr)
+ {
+-	__u32 mask, old, new;
+-	volatile __u32 *m;
++	u_int32_t mask, old, new;
++	volatile u_int32_t *m;
+ 	CMPXCHG_BUGCHECK_DECL
+ 
+-	m = (volatile __u32 *) addr + (nr >> 5);
++	m = (volatile u_int32_t *) addr + (nr >> 5);
+ 	mask = ~(1 << (nr & 31));
+ 	do {
+ 		CMPXCHG_BUGCHECK(m);
+@@ -99,8 +104,8 @@ clear_bit (int nr, volatile void *addr)
+ static __inline__ void
+ __clear_bit (int nr, volatile void *addr)
+ {
+-	volatile __u32 *p = (__u32 *) addr + (nr >> 5);
+-	__u32 m = 1 << (nr & 31);
++	volatile u_int32_t *p = (u_int32_t *) addr + (nr >> 5);
++	u_int32_t m = 1 << (nr & 31);
+ 	*p &= ~m;
+ }
+ 
+@@ -116,11 +121,11 @@ __clear_bit (int nr, volatile void *addr
+ static __inline__ void
+ change_bit (int nr, volatile void *addr)
+ {
+-	__u32 bit, old, new;
+-	volatile __u32 *m;
++	u_int32_t bit, old, new;
++	volatile u_int32_t *m;
+ 	CMPXCHG_BUGCHECK_DECL
+ 
+-	m = (volatile __u32 *) addr + (nr >> 5);
++	m = (volatile u_int32_t *) addr + (nr >> 5);
+ 	bit = (1 << (nr & 31));
+ 	do {
+ 		CMPXCHG_BUGCHECK(m);
+@@ -141,7 +146,7 @@ change_bit (int nr, volatile void *addr)
+ static __inline__ void
+ __change_bit (int nr, volatile void *addr)
+ {
+-	*((__u32 *) addr + (nr >> 5)) ^= (1 << (nr & 31));
++	*((u_int32_t *) addr + (nr >> 5)) ^= (1 << (nr & 31));
+ }
+ 
+ /**
+@@ -155,11 +160,11 @@ __change_bit (int nr, volatile void *add
+ static __inline__ int
+ test_and_set_bit (int nr, volatile void *addr)
+ {
+-	__u32 bit, old, new;
+-	volatile __u32 *m;
++	u_int32_t bit, old, new;
++	volatile u_int32_t *m;
+ 	CMPXCHG_BUGCHECK_DECL
+ 
+-	m = (volatile __u32 *) addr + (nr >> 5);
++	m = (volatile u_int32_t *) addr + (nr >> 5);
+ 	bit = 1 << (nr & 31);
+ 	do {
+ 		CMPXCHG_BUGCHECK(m);
+@@ -181,8 +186,8 @@ test_and_set_bit (int nr, volatile void 
+ static __inline__ int
+ __test_and_set_bit (int nr, volatile void *addr)
+ {
+-	__u32 *p = (__u32 *) addr + (nr >> 5);
+-	__u32 m = 1 << (nr & 31);
++	u_int32_t *p = (u_int32_t *) addr + (nr >> 5);
++	u_int32_t m = 1 << (nr & 31);
+ 	int oldbitset = (*p & m) != 0;
+ 
+ 	*p |= m;
+@@ -200,11 +205,11 @@ __test_and_set_bit (int nr, volatile voi
+ static __inline__ int
+ test_and_clear_bit (int nr, volatile void *addr)
+ {
+-	__u32 mask, old, new;
+-	volatile __u32 *m;
++	u_int32_t mask, old, new;
++	volatile u_int32_t *m;
+ 	CMPXCHG_BUGCHECK_DECL
+ 
+-	m = (volatile __u32 *) addr + (nr >> 5);
++	m = (volatile u_int32_t *) addr + (nr >> 5);
+ 	mask = ~(1 << (nr & 31));
+ 	do {
+ 		CMPXCHG_BUGCHECK(m);
+@@ -226,8 +231,8 @@ test_and_clear_bit (int nr, volatile voi
+ static __inline__ int
+ __test_and_clear_bit(int nr, volatile void * addr)
+ {
+-	__u32 *p = (__u32 *) addr + (nr >> 5);
+-	__u32 m = 1 << (nr & 31);
++	u_int32_t *p = (u_int32_t *) addr + (nr >> 5);
++	u_int32_t m = 1 << (nr & 31);
+ 	int oldbitset = *p & m;
+ 
+ 	*p &= ~m;
+@@ -245,11 +250,11 @@ __test_and_clear_bit(int nr, volatile vo
+ static __inline__ int
+ test_and_change_bit (int nr, volatile void *addr)
+ {
+-	__u32 bit, old, new;
+-	volatile __u32 *m;
++	u_int32_t bit, old, new;
++	volatile u_int32_t *m;
+ 	CMPXCHG_BUGCHECK_DECL
+ 
+-	m = (volatile __u32 *) addr + (nr >> 5);
++	m = (volatile u_int32_t *) addr + (nr >> 5);
+ 	bit = (1 << (nr & 31));
+ 	do {
+ 		CMPXCHG_BUGCHECK(m);
+@@ -265,8 +270,8 @@ test_and_change_bit (int nr, volatile vo
+ static __inline__ int
+ __test_and_change_bit (int nr, void *addr)
+ {
+-	__u32 old, bit = (1 << (nr & 31));
+-	__u32 *m = (__u32 *) addr + (nr >> 5);
++	u_int32_t old, bit = (1 << (nr & 31));
++	u_int32_t *m = (u_int32_t *) addr + (nr >> 5);
+ 
+ 	old = *m;
+ 	*m = old ^ bit;
+@@ -276,7 +281,7 @@ __test_and_change_bit (int nr, void *add
+ static __inline__ int
+ test_bit (int nr, const volatile void *addr)
+ {
+-	return 1 & (((const volatile __u32 *) addr)[nr >> 5] >> (nr & 31));
++	return 1 & (((const volatile u_int32_t *) addr)[nr >> 5] >> (nr & 31));
+ }
+ 
+ /**
+--- kernel-headers/asm-ia64/intrinsics.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/asm-ia64/intrinsics.h	2006-07-20 08:11:17.000000000 -0400
+@@ -44,7 +44,7 @@ extern unsigned long __bad_increment_for
+ 
+ #define ia64_fetchadd(i,v,sem)								\
+ ({											\
+-	__u64 _tmp;									\
++	u_int64_t _tmp;									\
+ 	volatile __typeof__(*(v)) *_v = (v);						\
+ 	/* Can't use a switch () here: gcc isn't always smart enough for that... */	\
+ 	if ((i) == -16)									\
+@@ -82,19 +82,19 @@ extern void ia64_xchg_called_with_bad_po
+ 									\
+ 	switch (size) {							\
+ 	      case 1:							\
+-		__xchg_result = ia64_xchg1((__u8 *)ptr, x);		\
++		__xchg_result = ia64_xchg1((u_int8_t *)ptr, x);		\
+ 		break;							\
+ 									\
+ 	      case 2:							\
+-		__xchg_result = ia64_xchg2((__u16 *)ptr, x);		\
++		__xchg_result = ia64_xchg2((u_int16_t *)ptr, x);		\
+ 		break;							\
+ 									\
+ 	      case 4:							\
+-		__xchg_result = ia64_xchg4((__u32 *)ptr, x);		\
++		__xchg_result = ia64_xchg4((u_int32_t *)ptr, x);		\
+ 		break;							\
+ 									\
+ 	      case 8:							\
+-		__xchg_result = ia64_xchg8((__u64 *)ptr, x);		\
++		__xchg_result = ia64_xchg8((u_int64_t *)ptr, x);		\
+ 		break;							\
+ 	      default:							\
+ 		ia64_xchg_called_with_bad_pointer();			\
+@@ -121,30 +121,30 @@ extern long ia64_cmpxchg_called_with_bad
+ 
+ #define ia64_cmpxchg(sem,ptr,old,new,size)						\
+ ({											\
+-	__u64 _o_, _r_;									\
++	u_int64_t _o_, _r_;									\
+ 											\
+ 	switch (size) {									\
+-	      case 1: _o_ = (__u8 ) (long) (old); break;				\
+-	      case 2: _o_ = (__u16) (long) (old); break;				\
+-	      case 4: _o_ = (__u32) (long) (old); break;				\
+-	      case 8: _o_ = (__u64) (long) (old); break;				\
++	      case 1: _o_ = (u_int8_t ) (long) (old); break;				\
++	      case 2: _o_ = (u_int16_t) (long) (old); break;				\
++	      case 4: _o_ = (u_int32_t) (long) (old); break;				\
++	      case 8: _o_ = (u_int64_t) (long) (old); break;				\
+ 	      default: break;								\
+ 	}										\
+ 	switch (size) {									\
+ 	      case 1:									\
+-	      	_r_ = ia64_cmpxchg1_##sem((__u8 *) ptr, new, _o_);			\
++	      	_r_ = ia64_cmpxchg1_##sem((u_int8_t *) ptr, new, _o_);			\
+ 		break;									\
+ 											\
+ 	      case 2:									\
+-	       _r_ = ia64_cmpxchg2_##sem((__u16 *) ptr, new, _o_);			\
++	       _r_ = ia64_cmpxchg2_##sem((u_int16_t *) ptr, new, _o_);			\
+ 		break;									\
+ 											\
+ 	      case 4:									\
+-	      	_r_ = ia64_cmpxchg4_##sem((__u32 *) ptr, new, _o_);			\
++	      	_r_ = ia64_cmpxchg4_##sem((u_int32_t *) ptr, new, _o_);			\
+ 		break;									\
+ 											\
+ 	      case 8:									\
+-		_r_ = ia64_cmpxchg8_##sem((__u64 *) ptr, new, _o_);			\
++		_r_ = ia64_cmpxchg8_##sem((u_int64_t *) ptr, new, _o_);			\
+ 		break;									\
+ 											\
+ 	      default:									\
+--- kernel-headers/asm-ia64/pal.h.kheaders	2006-07-20 06:23:54.000000000 -0400
++++ kernel-headers/asm-ia64/pal.h	2006-07-20 08:11:17.000000000 -0400
+@@ -79,7 +79,7 @@
+ #define PAL_GET_PSTATE		262	/* get the current P-state */
+ #define PAL_SET_PSTATE		263	/* set the P-state */
+ 
+-#ifndef __ASSEMBLY__
++#if defined(__KERNEL__) &&  !defined(__ASSEMBLY__)
+ 
+ #include <linux/types.h>
+ #include <asm/processor.h>
+--- kernel-headers/asm-ia64/processor.h.kheaders	2006-07-20 06:23:54.000000000 -0400
++++ kernel-headers/asm-ia64/processor.h	2006-07-20 08:11:17.000000000 -0400
+@@ -21,6 +21,9 @@
+ #include <asm/ustack.h>
+ #include <asm/privop.h>
+ 
++#define asm __asm__
++#define volatile __volatile__
++
+ #define IA64_NUM_DBG_REGS	8
+ /*
+  * Limits for PMC and PMD are set to less than maximum architected values
+--- kernel-headers/asm-mips/string.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/asm-mips/string.h	2006-07-20 08:11:17.000000000 -0400
+@@ -10,8 +10,6 @@
+ #ifndef _ASM_STRING_H
+ #define _ASM_STRING_H
+ 
+-#include <linux/config.h>
+-
+ /*
+  * Most of the inline functions are rather naive implementations so I just
+  * didn't bother updating them for 64-bit ...
+--- kernel-headers/asm-powerpc/bitops.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/asm-powerpc/bitops.h	2006-07-20 08:11:17.000000000 -0400
+@@ -242,7 +242,7 @@ static __inline__ int fls(unsigned int x
+ {
+ 	int lz;
+ 
+-	asm ("cntlzw %0,%1" : "=r" (lz) : "r" (x));
++	__asm__ ("cntlzw %0,%1" : "=r" (lz) : "r" (x));
+ 	return 32 - lz;
+ }
+ #include <asm-generic/bitops/fls64.h>
+--- kernel-headers/asm-powerpc/byteorder.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/asm-powerpc/byteorder.h	2006-07-20 08:11:17.000000000 -0400
+@@ -75,12 +75,10 @@ static __inline__ __attribute_const__ __
+ 
+ #endif /* __KERNEL__ */
+ 
+-#ifndef __STRICT_ANSI__
+ #define __BYTEORDER_HAS_U64__
+ #ifndef __powerpc64__
+ #define __SWAB_64_THRU_32__
+ #endif /* __powerpc64__ */
+-#endif /* __STRICT_ANSI__ */
+ 
+ #endif /* __GNUC__ */
+ 
+--- kernel-headers/asm-s390/bitops.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/asm-s390/bitops.h	2006-07-20 08:11:17.000000000 -0400
+@@ -12,7 +12,6 @@
+  *    Copyright (C) 1992, Linus Torvalds
+  *
+  */
+-#include <linux/config.h>
+ #include <linux/compiler.h>
+ 
+ /*
+@@ -59,9 +58,6 @@
+ #define ALIGN_CS 0
+ #else
+ #define ALIGN_CS 1
+-#ifndef CONFIG_SMP
+-#error "bitops won't work without CONFIG_SMP"
+-#endif
+ #endif
+ 
+ /* bitmap tables from arch/S390/kernel/bitmap.S */
+@@ -113,7 +109,6 @@ extern const char _sb_findmap[];
+ #define __BITOPS_WORDS(bits) (((bits)+__BITOPS_WORDSIZE-1)/__BITOPS_WORDSIZE)
+ #define __BITOPS_BARRIER() __asm__ __volatile__ ( "" : : : "memory" )
+ 
+-#ifdef CONFIG_SMP
+ /*
+  * SMP safe set_bit routine based on compare and swap (CS)
+  */
+@@ -242,7 +237,8 @@ test_and_change_bit_cs(unsigned long nr,
+ 	__BITOPS_BARRIER();
+ 	return (old & mask) != 0;
+ }
+-#endif /* CONFIG_SMP */
++
++#ifdef __KERNEL__
+ 
+ /*
+  * fast, non-SMP set_bit routine
+@@ -485,22 +481,14 @@ test_and_change_bit_simple(unsigned long
+ }
+ #define __test_and_change_bit(X,Y)	test_and_change_bit_simple(X,Y)
+ 
+-#ifdef CONFIG_SMP
++#endif /* __KERNEL__ */
++
+ #define set_bit             set_bit_cs
+ #define clear_bit           clear_bit_cs
+ #define change_bit          change_bit_cs
+ #define test_and_set_bit    test_and_set_bit_cs
+ #define test_and_clear_bit  test_and_clear_bit_cs
+ #define test_and_change_bit test_and_change_bit_cs
+-#else
+-#define set_bit             set_bit_simple
+-#define clear_bit           clear_bit_simple
+-#define change_bit          change_bit_simple
+-#define test_and_set_bit    test_and_set_bit_simple
+-#define test_and_clear_bit  test_and_clear_bit_simple
+-#define test_and_change_bit test_and_change_bit_simple
+-#endif
+-
+ 
+ /*
+  * This routine doesn't need to be atomic.
+--- kernel-headers/asm-s390/ptrace.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/asm-s390/ptrace.h	2006-07-20 08:11:17.000000000 -0400
+@@ -181,7 +181,6 @@
+ #define PTRACE_OLDSETOPTIONS         21
+ 
+ #ifndef __ASSEMBLY__
+-#include <linux/config.h>
+ #include <linux/stddef.h>
+ #include <linux/types.h>
+ #include <asm/setup.h>
+--- kernel-headers/asm-s390/system.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/asm-s390/system.h	2006-07-20 08:11:17.000000000 -0400
+@@ -11,7 +11,9 @@
+ #ifndef __ASM_SYSTEM_H
+ #define __ASM_SYSTEM_H
+ 
++#ifdef __KERNEL__
+ #include <linux/config.h>
++#endif
+ #include <linux/kernel.h>
+ #include <asm/types.h>
+ #include <asm/ptrace.h>
+@@ -460,20 +462,11 @@ __set_psw_mask(unsigned long mask)
+ #define local_mcck_enable()  __set_psw_mask(PSW_KERNEL_BITS)
+ #define local_mcck_disable() __set_psw_mask(PSW_KERNEL_BITS & ~PSW_MASK_MCHECK)
+ 
+-#ifdef CONFIG_SMP
+-
+ extern void smp_ctl_set_bit(int cr, int bit);
+ extern void smp_ctl_clear_bit(int cr, int bit);
+ #define ctl_set_bit(cr, bit) smp_ctl_set_bit(cr, bit)
+ #define ctl_clear_bit(cr, bit) smp_ctl_clear_bit(cr, bit)
+ 
+-#else
+-
+-#define ctl_set_bit(cr, bit) __ctl_set_bit(cr, bit)
+-#define ctl_clear_bit(cr, bit) __ctl_clear_bit(cr, bit)
+-
+-#endif /* CONFIG_SMP */
+-
+ extern void (*_machine_restart)(char *command);
+ extern void (*_machine_halt)(void);
+ extern void (*_machine_power_off)(void);
+--- kernel-headers/asm-sparc/atomic.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/asm-sparc/atomic.h	2006-07-20 08:11:17.000000000 -0400
+@@ -10,8 +10,6 @@
+ #ifndef __ARCH_SPARC_ATOMIC__
+ #define __ARCH_SPARC_ATOMIC__
+ 
+-#include <linux/config.h>
+-
+ typedef struct { volatile int counter; } atomic_t;
+ 
+ #ifdef __KERNEL__
+@@ -58,13 +56,6 @@ extern void atomic_set(atomic_t *, int);
+  */
+ typedef struct { volatile int counter; } atomic24_t;
+ 
+-#ifndef CONFIG_SMP
+-
+-#define ATOMIC24_INIT(i)  { (i) }
+-#define atomic24_read(v)          ((v)->counter)
+-#define atomic24_set(v, i)        (((v)->counter) = i)
+-
+-#else
+ /* We do the bulk of the actual work out of line in two common
+  * routines in assembler, see arch/sparc/lib/atomic.S for the
+  * "fun" details.
+@@ -92,7 +83,6 @@ static inline int atomic24_read(const at
+ }
+ 
+ #define atomic24_set(v, i)	(((v)->counter) = ((i) << 8))
+-#endif
+ 
+ static inline int __atomic24_add(int i, atomic24_t *v)
+ {
+--- kernel-headers/asm-sparc/elf.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/asm-sparc/elf.h	2006-07-20 08:11:17.000000000 -0400
+@@ -6,7 +6,6 @@
+  * ELF register definitions..
+  */
+ 
+-#include <linux/config.h>
+ #include <asm/ptrace.h>
+ 
+ #ifdef __KERNEL__
+--- kernel-headers/asm-sparc/io.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/asm-sparc/io.h	2006-07-20 08:11:17.000000000 -0400
+@@ -4,275 +4,7 @@
+ #ifndef __SPARC_IO_H
+ #define __SPARC_IO_H
+ 
+-#include <linux/kernel.h>
+-#include <linux/types.h>
+-#include <linux/ioport.h>  /* struct resource */
+-
+-#include <asm/page.h>      /* IO address mapping routines need this */
+-#include <asm/system.h>
+-
+-#define page_to_phys(page)	(((page) - mem_map) << PAGE_SHIFT)
+-
+-static inline u32 flip_dword (u32 l)
+-{
+-	return ((l&0xff)<<24) | (((l>>8)&0xff)<<16) | (((l>>16)&0xff)<<8)| ((l>>24)&0xff);
+-}
+-
+-static inline u16 flip_word (u16 w)
+-{
+-	return ((w&0xff) << 8) | ((w>>8)&0xff);
+-}
+-
+-#define mmiowb()
+-
+-/*
+- * Memory mapped I/O to PCI
+- */
+-
+-static inline u8 __raw_readb(const volatile void __iomem *addr)
+-{
+-	return *(__force volatile u8 *)addr;
+-}
+-
+-static inline u16 __raw_readw(const volatile void __iomem *addr)
+-{
+-	return *(__force volatile u16 *)addr;
+-}
+-
+-static inline u32 __raw_readl(const volatile void __iomem *addr)
+-{
+-	return *(__force volatile u32 *)addr;
+-}
+-
+-static inline void __raw_writeb(u8 b, volatile void __iomem *addr)
+-{
+-	*(__force volatile u8 *)addr = b;
+-}
+-
+-static inline void __raw_writew(u16 w, volatile void __iomem *addr)
+-{
+-	*(__force volatile u16 *)addr = w;
+-}
+-
+-static inline void __raw_writel(u32 l, volatile void __iomem *addr)
+-{
+-	*(__force volatile u32 *)addr = l;
+-}
+-
+-static inline u8 __readb(const volatile void __iomem *addr)
+-{
+-	return *(__force volatile u8 *)addr;
+-}
+-
+-static inline u16 __readw(const volatile void __iomem *addr)
+-{
+-	return flip_word(*(__force volatile u16 *)addr);
+-}
+-
+-static inline u32 __readl(const volatile void __iomem *addr)
+-{
+-	return flip_dword(*(__force volatile u32 *)addr);
+-}
+-
+-static inline void __writeb(u8 b, volatile void __iomem *addr)
+-{
+-	*(__force volatile u8 *)addr = b;
+-}
+-
+-static inline void __writew(u16 w, volatile void __iomem *addr)
+-{
+-	*(__force volatile u16 *)addr = flip_word(w);
+-}
+-
+-static inline void __writel(u32 l, volatile void __iomem *addr)
+-{
+-	*(__force volatile u32 *)addr = flip_dword(l);
+-}
+-
+-#define readb(__addr)		__readb(__addr)
+-#define readw(__addr)		__readw(__addr)
+-#define readl(__addr)		__readl(__addr)
+-#define readb_relaxed(__addr)	readb(__addr)
+-#define readw_relaxed(__addr)	readw(__addr)
+-#define readl_relaxed(__addr)	readl(__addr)
+-
+-#define writeb(__b, __addr)	__writeb((__b),(__addr))
+-#define writew(__w, __addr)	__writew((__w),(__addr))
+-#define writel(__l, __addr)	__writel((__l),(__addr))
+-
+-/*
+- * I/O space operations
+- *
+- * Arrangement on a Sun is somewhat complicated.
+- *
+- * First of all, we want to use standard Linux drivers
+- * for keyboard, PC serial, etc. These drivers think
+- * they access I/O space and use inb/outb.
+- * On the other hand, EBus bridge accepts PCI *memory*
+- * cycles and converts them into ISA *I/O* cycles.
+- * Ergo, we want inb & outb to generate PCI memory cycles.
+- *
+- * If we want to issue PCI *I/O* cycles, we do this
+- * with a low 64K fixed window in PCIC. This window gets
+- * mapped somewhere into virtual kernel space and we
+- * can use inb/outb again.
+- */
+-#define inb_local(__addr)	__readb((void __iomem *)(unsigned long)(__addr))
+-#define inb(__addr)		__readb((void __iomem *)(unsigned long)(__addr))
+-#define inw(__addr)		__readw((void __iomem *)(unsigned long)(__addr))
+-#define inl(__addr)		__readl((void __iomem *)(unsigned long)(__addr))
+-
+-#define outb_local(__b, __addr)	__writeb(__b, (void __iomem *)(unsigned long)(__addr))
+-#define outb(__b, __addr)	__writeb(__b, (void __iomem *)(unsigned long)(__addr))
+-#define outw(__w, __addr)	__writew(__w, (void __iomem *)(unsigned long)(__addr))
+-#define outl(__l, __addr)	__writel(__l, (void __iomem *)(unsigned long)(__addr))
+-
+-#define inb_p(__addr)		inb(__addr)
+-#define outb_p(__b, __addr)	outb(__b, __addr)
+-#define inw_p(__addr)		inw(__addr)
+-#define outw_p(__w, __addr)	outw(__w, __addr)
+-#define inl_p(__addr)		inl(__addr)
+-#define outl_p(__l, __addr)	outl(__l, __addr)
+-
+-void outsb(unsigned long addr, const void *src, unsigned long cnt);
+-void outsw(unsigned long addr, const void *src, unsigned long cnt);
+-void outsl(unsigned long addr, const void *src, unsigned long cnt);
+-void insb(unsigned long addr, void *dst, unsigned long count);
+-void insw(unsigned long addr, void *dst, unsigned long count);
+-void insl(unsigned long addr, void *dst, unsigned long count);
+-
+-#define IO_SPACE_LIMIT 0xffffffff
+-
+-/*
+- * SBus accessors.
+- *
+- * SBus has only one, memory mapped, I/O space.
+- * We do not need to flip bytes for SBus of course.
+- */
+-static inline u8 _sbus_readb(const volatile void __iomem *addr)
+-{
+-	return *(__force volatile u8 *)addr;
+-}
+-
+-static inline u16 _sbus_readw(const volatile void __iomem *addr)
+-{
+-	return *(__force volatile u16 *)addr;
+-}
+-
+-static inline u32 _sbus_readl(const volatile void __iomem *addr)
+-{
+-	return *(__force volatile u32 *)addr;
+-}
+-
+-static inline void _sbus_writeb(u8 b, volatile void __iomem *addr)
+-{
+-	*(__force volatile u8 *)addr = b;
+-}
+-
+-static inline void _sbus_writew(u16 w, volatile void __iomem *addr)
+-{
+-	*(__force volatile u16 *)addr = w;
+-}
+-
+-static inline void _sbus_writel(u32 l, volatile void __iomem *addr)
+-{
+-	*(__force volatile u32 *)addr = l;
+-}
+-
+-/*
+- * The only reason for #define's is to hide casts to unsigned long.
+- */
+-#define sbus_readb(__addr)		_sbus_readb(__addr)
+-#define sbus_readw(__addr)		_sbus_readw(__addr)
+-#define sbus_readl(__addr)		_sbus_readl(__addr)
+-#define sbus_writeb(__b, __addr)	_sbus_writeb(__b, __addr)
+-#define sbus_writew(__w, __addr)	_sbus_writew(__w, __addr)
+-#define sbus_writel(__l, __addr)	_sbus_writel(__l, __addr)
+-
+-static inline void sbus_memset_io(volatile void __iomem *__dst, int c, __kernel_size_t n)
+-{
+-	while(n--) {
+-		sbus_writeb(c, __dst);
+-		__dst++;
+-	}
+-}
+-
+-static inline void
+-_memset_io(volatile void __iomem *dst, int c, __kernel_size_t n)
+-{
+-	volatile void __iomem *d = dst;
+-
+-	while (n--) {
+-		writeb(c, d);
+-		d++;
+-	}
+-}
+-
+-#define memset_io(d,c,sz)	_memset_io(d,c,sz)
+-
+-static inline void
+-_memcpy_fromio(void *dst, const volatile void __iomem *src, __kernel_size_t n)
+-{
+-	char *d = dst;
+-
+-	while (n--) {
+-		char tmp = readb(src);
+-		*d++ = tmp;
+-		src++;
+-	}
+-}
+-
+-#define memcpy_fromio(d,s,sz)	_memcpy_fromio(d,s,sz)
+-
+-static inline void 
+-_memcpy_toio(volatile void __iomem *dst, const void *src, __kernel_size_t n)
+-{
+-	const char *s = src;
+-	volatile void __iomem *d = dst;
+-
+-	while (n--) {
+-		char tmp = *s++;
+-		writeb(tmp, d);
+-		d++;
+-	}
+-}
+-
+-#define memcpy_toio(d,s,sz)	_memcpy_toio(d,s,sz)
+-
+-#ifdef __KERNEL__
+-
+-/*
+- * Bus number may be embedded in the higher bits of the physical address.
+- * This is why we have no bus number argument to ioremap().
+- */
+-extern void __iomem *ioremap(unsigned long offset, unsigned long size);
+-#define ioremap_nocache(X,Y)	ioremap((X),(Y))
+-extern void iounmap(volatile void __iomem *addr);
+-
+-/*
+- * Bus number may be in res->flags... somewhere.
+- */
+-extern void __iomem *sbus_ioremap(struct resource *res, unsigned long offset,
+-    unsigned long size, char *name);
+-extern void sbus_iounmap(volatile void __iomem *vaddr, unsigned long size);
+-
+-
+-/*
+- * At the moment, we do not use CMOS_READ anywhere outside of rtc.c,
+- * so rtc_port is static in it. This should not change unless a new
+- * hardware pops up.
+- */
+-#define RTC_PORT(x)   (rtc_port + (x))
+-#define RTC_ALWAYS_BCD  0
+-
+-/* Nothing to do */
+-/* P3: Only IDE DMA may need these. XXX Verify that it still does... */
+-
+-#define dma_cache_inv(_start,_size)		do { } while (0)
+-#define dma_cache_wback(_start,_size)		do { } while (0)
+-#define dma_cache_wback_inv(_start,_size)	do { } while (0)
+-
+-#endif
++#error "Never include asm/io.h ! This is kernel only."
+ 
+ #define __ARCH_HAS_NO_PAGE_ZERO_MAPPED		1
+ 
+--- kernel-headers/asm-sparc/page.h.kheaders	2006-07-20 06:23:39.000000000 -0400
++++ kernel-headers/asm-sparc/page.h	2006-07-20 08:11:17.000000000 -0400
+@@ -8,12 +8,8 @@
+ #ifndef _SPARC_PAGE_H
+ #define _SPARC_PAGE_H
+ 
+-#include <linux/config.h>
+-#ifdef CONFIG_SUN4
+-#define PAGE_SHIFT   13
+-#else
+ #define PAGE_SHIFT   12
+-#endif
++
+ #ifndef __ASSEMBLY__
+ /* I have my suspicions... -DaveM */
+ #define PAGE_SIZE    (1UL << PAGE_SHIFT)
+--- kernel-headers/asm-sparc/pgtable.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/asm-sparc/pgtable.h	2006-07-20 08:11:17.000000000 -0400
+@@ -11,7 +11,6 @@
+ 
+ #include <asm-generic/4level-fixup.h>
+ 
+-#include <linux/config.h>
+ #include <linux/spinlock.h>
+ #include <linux/swap.h>
+ #include <asm/types.h>
+--- kernel-headers/asm-sparc/system.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/asm-sparc/system.h	2006-07-20 08:11:17.000000000 -0400
+@@ -1,6 +1,4 @@
+ /* $Id: system.h,v 1.86 2001/10/30 04:57:10 davem Exp $ */
+-#include <linux/config.h>
+-
+ #ifndef __SPARC_SYSTEM_H
+ #define __SPARC_SYSTEM_H
+ 
+--- kernel-headers/asm-sparc64/io.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/asm-sparc64/io.h	2006-07-20 08:11:17.000000000 -0400
+@@ -2,523 +2,6 @@
+ #ifndef __SPARC64_IO_H
+ #define __SPARC64_IO_H
+ 
+-#include <linux/kernel.h>
+-#include <linux/compiler.h>
+-#include <linux/types.h>
+-
+-#include <asm/page.h>      /* IO address mapping routines need this */
+-#include <asm/system.h>
+-#include <asm/asi.h>
+-
+-/* PC crapola... */
+-#define __SLOW_DOWN_IO	do { } while (0)
+-#define SLOW_DOWN_IO	do { } while (0)
+-
+-extern unsigned long virt_to_bus_not_defined_use_pci_map(volatile void *addr);
+-#define virt_to_bus virt_to_bus_not_defined_use_pci_map
+-extern unsigned long bus_to_virt_not_defined_use_pci_map(volatile void *addr);
+-#define bus_to_virt bus_to_virt_not_defined_use_pci_map
+-
+-/* BIO layer definitions. */
+-extern unsigned long kern_base, kern_size;
+-#define page_to_phys(page)	(page_to_pfn(page) << PAGE_SHIFT)
+-#define BIO_VMERGE_BOUNDARY	8192
+-
+-/* Different PCI controllers we support have their PCI MEM space
+- * mapped to an either 2GB (Psycho) or 4GB (Sabre) aligned area,
+- * so need to chop off the top 33 or 32 bits.
+- */
+-extern unsigned long pci_memspace_mask;
+-
+-#define bus_dvma_to_mem(__vaddr) ((__vaddr) & pci_memspace_mask)
+-
+-static __inline__ u8 _inb(unsigned long addr)
+-{
+-	u8 ret;
+-
+-	__asm__ __volatile__("lduba\t[%1] %2, %0\t/* pci_inb */"
+-			     : "=r" (ret)
+-			     : "r" (addr), "i" (ASI_PHYS_BYPASS_EC_E_L));
+-
+-	return ret;
+-}
+-
+-static __inline__ u16 _inw(unsigned long addr)
+-{
+-	u16 ret;
+-
+-	__asm__ __volatile__("lduha\t[%1] %2, %0\t/* pci_inw */"
+-			     : "=r" (ret)
+-			     : "r" (addr), "i" (ASI_PHYS_BYPASS_EC_E_L));
+-
+-	return ret;
+-}
+-
+-static __inline__ u32 _inl(unsigned long addr)
+-{
+-	u32 ret;
+-
+-	__asm__ __volatile__("lduwa\t[%1] %2, %0\t/* pci_inl */"
+-			     : "=r" (ret)
+-			     : "r" (addr), "i" (ASI_PHYS_BYPASS_EC_E_L));
+-
+-	return ret;
+-}
+-
+-static __inline__ void _outb(u8 b, unsigned long addr)
+-{
+-	__asm__ __volatile__("stba\t%r0, [%1] %2\t/* pci_outb */"
+-			     : /* no outputs */
+-			     : "Jr" (b), "r" (addr), "i" (ASI_PHYS_BYPASS_EC_E_L));
+-}
+-
+-static __inline__ void _outw(u16 w, unsigned long addr)
+-{
+-	__asm__ __volatile__("stha\t%r0, [%1] %2\t/* pci_outw */"
+-			     : /* no outputs */
+-			     : "Jr" (w), "r" (addr), "i" (ASI_PHYS_BYPASS_EC_E_L));
+-}
+-
+-static __inline__ void _outl(u32 l, unsigned long addr)
+-{
+-	__asm__ __volatile__("stwa\t%r0, [%1] %2\t/* pci_outl */"
+-			     : /* no outputs */
+-			     : "Jr" (l), "r" (addr), "i" (ASI_PHYS_BYPASS_EC_E_L));
+-}
+-
+-#define inb(__addr)		(_inb((unsigned long)(__addr)))
+-#define inw(__addr)		(_inw((unsigned long)(__addr)))
+-#define inl(__addr)		(_inl((unsigned long)(__addr)))
+-#define outb(__b, __addr)	(_outb((u8)(__b), (unsigned long)(__addr)))
+-#define outw(__w, __addr)	(_outw((u16)(__w), (unsigned long)(__addr)))
+-#define outl(__l, __addr)	(_outl((u32)(__l), (unsigned long)(__addr)))
+-
+-#define inb_p(__addr) 		inb(__addr)
+-#define outb_p(__b, __addr)	outb(__b, __addr)
+-#define inw_p(__addr)		inw(__addr)
+-#define outw_p(__w, __addr)	outw(__w, __addr)
+-#define inl_p(__addr)		inl(__addr)
+-#define outl_p(__l, __addr)	outl(__l, __addr)
+-
+-extern void outsb(unsigned long, const void *, unsigned long);
+-extern void outsw(unsigned long, const void *, unsigned long);
+-extern void outsl(unsigned long, const void *, unsigned long);
+-extern void insb(unsigned long, void *, unsigned long);
+-extern void insw(unsigned long, void *, unsigned long);
+-extern void insl(unsigned long, void *, unsigned long);
+-
+-static inline void ioread8_rep(void __iomem *port, void *buf, unsigned long count)
+-{
+-	insb((unsigned long __force)port, buf, count);
+-}
+-static inline void ioread16_rep(void __iomem *port, void *buf, unsigned long count)
+-{
+-	insw((unsigned long __force)port, buf, count);
+-}
+-
+-static inline void ioread32_rep(void __iomem *port, void *buf, unsigned long count)
+-{
+-	insl((unsigned long __force)port, buf, count);
+-}
+-
+-static inline void iowrite8_rep(void __iomem *port, const void *buf, unsigned long count)
+-{
+-	outsb((unsigned long __force)port, buf, count);
+-}
+-
+-static inline void iowrite16_rep(void __iomem *port, const void *buf, unsigned long count)
+-{
+-	outsw((unsigned long __force)port, buf, count);
+-}
+-
+-static inline void iowrite32_rep(void __iomem *port, const void *buf, unsigned long count)
+-{
+-	outsl((unsigned long __force)port, buf, count);
+-}
+-
+-/* Memory functions, same as I/O accesses on Ultra. */
+-static inline u8 _readb(const volatile void __iomem *addr)
+-{	u8 ret;
+-
+-	__asm__ __volatile__("lduba\t[%1] %2, %0\t/* pci_readb */"
+-			     : "=r" (ret)
+-			     : "r" (addr), "i" (ASI_PHYS_BYPASS_EC_E_L));
+-	return ret;
+-}
+-
+-static inline u16 _readw(const volatile void __iomem *addr)
+-{	u16 ret;
+-
+-	__asm__ __volatile__("lduha\t[%1] %2, %0\t/* pci_readw */"
+-			     : "=r" (ret)
+-			     : "r" (addr), "i" (ASI_PHYS_BYPASS_EC_E_L));
+-
+-	return ret;
+-}
+-
+-static inline u32 _readl(const volatile void __iomem *addr)
+-{	u32 ret;
+-
+-	__asm__ __volatile__("lduwa\t[%1] %2, %0\t/* pci_readl */"
+-			     : "=r" (ret)
+-			     : "r" (addr), "i" (ASI_PHYS_BYPASS_EC_E_L));
+-
+-	return ret;
+-}
+-
+-static inline u64 _readq(const volatile void __iomem *addr)
+-{	u64 ret;
+-
+-	__asm__ __volatile__("ldxa\t[%1] %2, %0\t/* pci_readq */"
+-			     : "=r" (ret)
+-			     : "r" (addr), "i" (ASI_PHYS_BYPASS_EC_E_L));
+-
+-	return ret;
+-}
+-
+-static inline void _writeb(u8 b, volatile void __iomem *addr)
+-{
+-	__asm__ __volatile__("stba\t%r0, [%1] %2\t/* pci_writeb */"
+-			     : /* no outputs */
+-			     : "Jr" (b), "r" (addr), "i" (ASI_PHYS_BYPASS_EC_E_L));
+-}
+-
+-static inline void _writew(u16 w, volatile void __iomem *addr)
+-{
+-	__asm__ __volatile__("stha\t%r0, [%1] %2\t/* pci_writew */"
+-			     : /* no outputs */
+-			     : "Jr" (w), "r" (addr), "i" (ASI_PHYS_BYPASS_EC_E_L));
+-}
+-
+-static inline void _writel(u32 l, volatile void __iomem *addr)
+-{
+-	__asm__ __volatile__("stwa\t%r0, [%1] %2\t/* pci_writel */"
+-			     : /* no outputs */
+-			     : "Jr" (l), "r" (addr), "i" (ASI_PHYS_BYPASS_EC_E_L));
+-}
+-
+-static inline void _writeq(u64 q, volatile void __iomem *addr)
+-{
+-	__asm__ __volatile__("stxa\t%r0, [%1] %2\t/* pci_writeq */"
+-			     : /* no outputs */
+-			     : "Jr" (q), "r" (addr), "i" (ASI_PHYS_BYPASS_EC_E_L));
+-}
+-
+-#define readb(__addr)		_readb(__addr)
+-#define readw(__addr)		_readw(__addr)
+-#define readl(__addr)		_readl(__addr)
+-#define readq(__addr)		_readq(__addr)
+-#define readb_relaxed(__addr)	_readb(__addr)
+-#define readw_relaxed(__addr)	_readw(__addr)
+-#define readl_relaxed(__addr)	_readl(__addr)
+-#define readq_relaxed(__addr)	_readq(__addr)
+-#define writeb(__b, __addr)	_writeb(__b, __addr)
+-#define writew(__w, __addr)	_writew(__w, __addr)
+-#define writel(__l, __addr)	_writel(__l, __addr)
+-#define writeq(__q, __addr)	_writeq(__q, __addr)
+-
+-/* Now versions without byte-swapping. */
+-static __inline__ u8 _raw_readb(unsigned long addr)
+-{
+-	u8 ret;
+-
+-	__asm__ __volatile__("lduba\t[%1] %2, %0\t/* pci_raw_readb */"
+-			     : "=r" (ret)
+-			     : "r" (addr), "i" (ASI_PHYS_BYPASS_EC_E));
+-
+-	return ret;
+-}
+-
+-static __inline__ u16 _raw_readw(unsigned long addr)
+-{
+-	u16 ret;
+-
+-	__asm__ __volatile__("lduha\t[%1] %2, %0\t/* pci_raw_readw */"
+-			     : "=r" (ret)
+-			     : "r" (addr), "i" (ASI_PHYS_BYPASS_EC_E));
+-
+-	return ret;
+-}
+-
+-static __inline__ u32 _raw_readl(unsigned long addr)
+-{
+-	u32 ret;
+-
+-	__asm__ __volatile__("lduwa\t[%1] %2, %0\t/* pci_raw_readl */"
+-			     : "=r" (ret)
+-			     : "r" (addr), "i" (ASI_PHYS_BYPASS_EC_E));
+-
+-	return ret;
+-}
+-
+-static __inline__ u64 _raw_readq(unsigned long addr)
+-{
+-	u64 ret;
+-
+-	__asm__ __volatile__("ldxa\t[%1] %2, %0\t/* pci_raw_readq */"
+-			     : "=r" (ret)
+-			     : "r" (addr), "i" (ASI_PHYS_BYPASS_EC_E));
+-
+-	return ret;
+-}
+-
+-static __inline__ void _raw_writeb(u8 b, unsigned long addr)
+-{
+-	__asm__ __volatile__("stba\t%r0, [%1] %2\t/* pci_raw_writeb */"
+-			     : /* no outputs */
+-			     : "Jr" (b), "r" (addr), "i" (ASI_PHYS_BYPASS_EC_E));
+-}
+-
+-static __inline__ void _raw_writew(u16 w, unsigned long addr)
+-{
+-	__asm__ __volatile__("stha\t%r0, [%1] %2\t/* pci_raw_writew */"
+-			     : /* no outputs */
+-			     : "Jr" (w), "r" (addr), "i" (ASI_PHYS_BYPASS_EC_E));
+-}
+-
+-static __inline__ void _raw_writel(u32 l, unsigned long addr)
+-{
+-	__asm__ __volatile__("stwa\t%r0, [%1] %2\t/* pci_raw_writel */"
+-			     : /* no outputs */
+-			     : "Jr" (l), "r" (addr), "i" (ASI_PHYS_BYPASS_EC_E));
+-}
+-
+-static __inline__ void _raw_writeq(u64 q, unsigned long addr)
+-{
+-	__asm__ __volatile__("stxa\t%r0, [%1] %2\t/* pci_raw_writeq */"
+-			     : /* no outputs */
+-			     : "Jr" (q), "r" (addr), "i" (ASI_PHYS_BYPASS_EC_E));
+-}
+-
+-#define __raw_readb(__addr)		(_raw_readb((unsigned long)(__addr)))
+-#define __raw_readw(__addr)		(_raw_readw((unsigned long)(__addr)))
+-#define __raw_readl(__addr)		(_raw_readl((unsigned long)(__addr)))
+-#define __raw_readq(__addr)		(_raw_readq((unsigned long)(__addr)))
+-#define __raw_writeb(__b, __addr)	(_raw_writeb((u8)(__b), (unsigned long)(__addr)))
+-#define __raw_writew(__w, __addr)	(_raw_writew((u16)(__w), (unsigned long)(__addr)))
+-#define __raw_writel(__l, __addr)	(_raw_writel((u32)(__l), (unsigned long)(__addr)))
+-#define __raw_writeq(__q, __addr)	(_raw_writeq((u64)(__q), (unsigned long)(__addr)))
+-
+-/* Valid I/O Space regions are anywhere, because each PCI bus supported
+- * can live in an arbitrary area of the physical address range.
+- */
+-#define IO_SPACE_LIMIT 0xffffffffffffffffUL
+-
+-/* Now, SBUS variants, only difference from PCI is that we do
+- * not use little-endian ASIs.
+- */
+-static inline u8 _sbus_readb(const volatile void __iomem *addr)
+-{
+-	u8 ret;
+-
+-	__asm__ __volatile__("lduba\t[%1] %2, %0\t/* sbus_readb */"
+-			     : "=r" (ret)
+-			     : "r" (addr), "i" (ASI_PHYS_BYPASS_EC_E));
+-
+-	return ret;
+-}
+-
+-static inline u16 _sbus_readw(const volatile void __iomem *addr)
+-{
+-	u16 ret;
+-
+-	__asm__ __volatile__("lduha\t[%1] %2, %0\t/* sbus_readw */"
+-			     : "=r" (ret)
+-			     : "r" (addr), "i" (ASI_PHYS_BYPASS_EC_E));
+-
+-	return ret;
+-}
+-
+-static inline u32 _sbus_readl(const volatile void __iomem *addr)
+-{
+-	u32 ret;
+-
+-	__asm__ __volatile__("lduwa\t[%1] %2, %0\t/* sbus_readl */"
+-			     : "=r" (ret)
+-			     : "r" (addr), "i" (ASI_PHYS_BYPASS_EC_E));
+-
+-	return ret;
+-}
+-
+-static inline u64 _sbus_readq(const volatile void __iomem *addr)
+-{
+-	u64 ret;
+-
+-	__asm__ __volatile__("ldxa\t[%1] %2, %0\t/* sbus_readq */"
+-			     : "=r" (ret)
+-			     : "r" (addr), "i" (ASI_PHYS_BYPASS_EC_E));
+-
+-	return ret;
+-}
+-
+-static inline void _sbus_writeb(u8 b, volatile void __iomem *addr)
+-{
+-	__asm__ __volatile__("stba\t%r0, [%1] %2\t/* sbus_writeb */"
+-			     : /* no outputs */
+-			     : "Jr" (b), "r" (addr), "i" (ASI_PHYS_BYPASS_EC_E));
+-}
+-
+-static inline void _sbus_writew(u16 w, volatile void __iomem *addr)
+-{
+-	__asm__ __volatile__("stha\t%r0, [%1] %2\t/* sbus_writew */"
+-			     : /* no outputs */
+-			     : "Jr" (w), "r" (addr), "i" (ASI_PHYS_BYPASS_EC_E));
+-}
+-
+-static inline void _sbus_writel(u32 l, volatile void __iomem *addr)
+-{
+-	__asm__ __volatile__("stwa\t%r0, [%1] %2\t/* sbus_writel */"
+-			     : /* no outputs */
+-			     : "Jr" (l), "r" (addr), "i" (ASI_PHYS_BYPASS_EC_E));
+-}
+-
+-static inline void _sbus_writeq(u64 l, volatile void __iomem *addr)
+-{
+-	__asm__ __volatile__("stxa\t%r0, [%1] %2\t/* sbus_writeq */"
+-			     : /* no outputs */
+-			     : "Jr" (l), "r" (addr), "i" (ASI_PHYS_BYPASS_EC_E));
+-}
+-
+-#define sbus_readb(__addr)		_sbus_readb(__addr)
+-#define sbus_readw(__addr)		_sbus_readw(__addr)
+-#define sbus_readl(__addr)		_sbus_readl(__addr)
+-#define sbus_readq(__addr)		_sbus_readq(__addr)
+-#define sbus_writeb(__b, __addr)	_sbus_writeb(__b, __addr)
+-#define sbus_writew(__w, __addr)	_sbus_writew(__w, __addr)
+-#define sbus_writel(__l, __addr)	_sbus_writel(__l, __addr)
+-#define sbus_writeq(__l, __addr)	_sbus_writeq(__l, __addr)
+-
+-static inline void _sbus_memset_io(volatile void __iomem *dst, int c, __kernel_size_t n)
+-{
+-	while(n--) {
+-		sbus_writeb(c, dst);
+-		dst++;
+-	}
+-}
+-
+-#define sbus_memset_io(d,c,sz)	_sbus_memset_io(d,c,sz)
+-
+-static inline void
+-_memset_io(volatile void __iomem *dst, int c, __kernel_size_t n)
+-{
+-	volatile void __iomem *d = dst;
+-
+-	while (n--) {
+-		writeb(c, d);
+-		d++;
+-	}
+-}
+-
+-#define memset_io(d,c,sz)	_memset_io(d,c,sz)
+-
+-static inline void
+-_memcpy_fromio(void *dst, const volatile void __iomem *src, __kernel_size_t n)
+-{
+-	char *d = dst;
+-
+-	while (n--) {
+-		char tmp = readb(src);
+-		*d++ = tmp;
+-		src++;
+-	}
+-}
+-
+-#define memcpy_fromio(d,s,sz)	_memcpy_fromio(d,s,sz)
+-
+-static inline void 
+-_memcpy_toio(volatile void __iomem *dst, const void *src, __kernel_size_t n)
+-{
+-	const char *s = src;
+-	volatile void __iomem *d = dst;
+-
+-	while (n--) {
+-		char tmp = *s++;
+-		writeb(tmp, d);
+-		d++;
+-	}
+-}
+-
+-#define memcpy_toio(d,s,sz)	_memcpy_toio(d,s,sz)
+-
+-static inline int check_signature(void __iomem *io_addr,
+-				  const unsigned char *signature,
+-				  int length)
+-{
+-	int retval = 0;
+-	do {
+-		if (readb(io_addr) != *signature++)
+-			goto out;
+-		io_addr++;
+-	} while (--length);
+-	retval = 1;
+-out:
+-	return retval;
+-}
+-
+-#define mmiowb()
+-
+-#ifdef __KERNEL__
+-
+-/* On sparc64 we have the whole physical IO address space accessible
+- * using physically addressed loads and stores, so this does nothing.
+- */
+-static inline void __iomem *ioremap(unsigned long offset, unsigned long size)
+-{
+-	return (void __iomem *)offset;
+-}
+-
+-#define ioremap_nocache(X,Y)		ioremap((X),(Y))
+-
+-static inline void iounmap(volatile void __iomem *addr)
+-{
+-}
+-
+-#define ioread8(X)			readb(X)
+-#define ioread16(X)			readw(X)
+-#define ioread32(X)			readl(X)
+-#define iowrite8(val,X)			writeb(val,X)
+-#define iowrite16(val,X)		writew(val,X)
+-#define iowrite32(val,X)		writel(val,X)
+-
+-/* Create a virtual mapping cookie for an IO port range */
+-extern void __iomem *ioport_map(unsigned long port, unsigned int nr);
+-extern void ioport_unmap(void __iomem *);
+-
+-/* Create a virtual mapping cookie for a PCI BAR (memory or IO) */
+-struct pci_dev;
+-extern void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long max);
+-extern void pci_iounmap(struct pci_dev *dev, void __iomem *);
+-
+-/* Similarly for SBUS. */
+-#define sbus_ioremap(__res, __offset, __size, __name) \
+-({	unsigned long __ret; \
+-	__ret  = (__res)->start + (((__res)->flags & 0x1ffUL) << 32UL); \
+-	__ret += (unsigned long) (__offset); \
+-	if (! request_region((__ret), (__size), (__name))) \
+-		__ret = 0UL; \
+-	(void __iomem *) __ret; \
+-})
+-
+-#define sbus_iounmap(__addr, __size)	\
+-	release_region((unsigned long)(__addr), (__size))
+-
+-/* Nothing to do */
+-
+-#define dma_cache_inv(_start,_size)		do { } while (0)
+-#define dma_cache_wback(_start,_size)		do { } while (0)
+-#define dma_cache_wback_inv(_start,_size)	do { } while (0)
+-
+-/*
+- * Convert a physical pointer to a virtual kernel pointer for /dev/mem
+- * access
+- */
+-#define xlate_dev_mem_ptr(p)	__va(p)
+-
+-/*
+- * Convert a virtual cached pointer to an uncached pointer
+- */
+-#define xlate_dev_kmem_ptr(p)	p
+-
+-#endif
+-
++#error "Never include asm/io.h ! This is kernel only."
++  
+ #endif /* !(__SPARC64_IO_H) */
+--- kernel-headers/asm-sparc64/system.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/asm-sparc64/system.h	2006-07-20 08:11:17.000000000 -0400
+@@ -2,7 +2,6 @@
+ #ifndef __SPARC64_SYSTEM_H
+ #define __SPARC64_SYSTEM_H
+ 
+-#include <linux/config.h>
+ #include <asm/ptrace.h>
+ #include <asm/processor.h>
+ #include <asm/visasm.h>
+@@ -127,17 +126,10 @@ do {	__asm__ __volatile__("ba,pt	%%xcc, 
+ #define set_wmb(__var, __value) \
+ 	do { __var = __value; wmb(); } while(0)
+ 
+-#ifdef CONFIG_SMP
+ #define smp_mb()	mb()
+ #define smp_rmb()	rmb()
+ #define smp_wmb()	wmb()
+ #define smp_read_barrier_depends()	read_barrier_depends()
+-#else
+-#define smp_mb()	__asm__ __volatile__("":::"memory")
+-#define smp_rmb()	__asm__ __volatile__("":::"memory")
+-#define smp_wmb()	__asm__ __volatile__("":::"memory")
+-#define smp_read_barrier_depends()	do { } while(0)
+-#endif
+ 
+ #define flushi(addr)	__asm__ __volatile__ ("flush %0" : : "r" (addr) : "memory")
+ 
+--- kernel-headers/asm-sparc64/ttable.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/asm-sparc64/ttable.h	2006-07-20 08:11:56.000000000 -0400
+@@ -2,7 +2,6 @@
+ #ifndef _SPARC64_TTABLE_H
+ #define _SPARC64_TTABLE_H
+ 
+-#include <linux/config.h>
+ #include <asm/utrap.h>
+ 
+ #ifdef __ASSEMBLY__
+@@ -118,11 +117,6 @@
+ 	nop;						\
+ 	nop;
+ 
+-#ifdef CONFIG_SUNOS_EMUL
+-#define SUNOS_SYSCALL_TRAP SYSCALL_TRAP(linux_sparc_syscall32, sunos_sys_table)
+-#else
+-#define SUNOS_SYSCALL_TRAP TRAP(sunos_syscall)
+-#endif
+ #ifdef CONFIG_COMPAT
+ #define	LINUX_32BIT_SYSCALL_TRAP SYSCALL_TRAP(linux_sparc_syscall32, sys_call_table32)
+ #else
+@@ -131,11 +125,6 @@
+ #define LINUX_64BIT_SYSCALL_TRAP SYSCALL_TRAP(linux_sparc_syscall, sys_call_table64)
+ #define GETCC_TRAP TRAP(getcc)
+ #define SETCC_TRAP TRAP(setcc)
+-#ifdef CONFIG_SOLARIS_EMUL
+-#define SOLARIS_SYSCALL_TRAP TRAP(solaris_sparc_syscall)
+-#else
+-#define SOLARIS_SYSCALL_TRAP TRAP(solaris_syscall)
+-#endif
+ #define BREAKPOINT_TRAP TRAP(breakpoint_trap)
+ 
+ #define TRAP_IRQ(routine, level)			\
+--- kernel-headers/asm-x86_64/cache.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/asm-x86_64/cache.h	2006-07-20 08:11:17.000000000 -0400
+@@ -4,6 +4,8 @@
+ #ifndef __ARCH_X8664_CACHE_H
+ #define __ARCH_X8664_CACHE_H
+ 
++#ifdef __KERNEL__
++
+ #include <linux/config.h>
+ 
+ /* L1 cache line size */
+@@ -20,6 +22,8 @@
+        __attribute__((__section__(".data.page_aligned")))
+ #endif
+ 
++#endif /* __KERNEL__ */
++
+ #endif
+ 
+ #define __read_mostly __attribute__((__section__(".data.read_mostly")))
+--- kernel-headers/asm-x86_64/posix_types.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/asm-x86_64/posix_types.h	2006-07-20 08:11:17.000000000 -0400
+@@ -43,7 +43,7 @@ typedef __kernel_gid_t __kernel_gid32_t;
+ 
+ typedef unsigned long	__kernel_old_dev_t;
+ 
+-#ifdef __KERNEL__
++#if defined(__KERNEL__) || !defined(__GLIBC__) || (__GLIBC__ < 2)
+ 
+ #undef __FD_SET
+ static __inline__ void __FD_SET(unsigned long fd, __kernel_fd_set *fdsetp)
+--- kernel-headers/asm-x86_64/processor.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/asm-x86_64/processor.h	2006-07-20 08:11:17.000000000 -0400
+@@ -71,7 +71,7 @@ struct cpuinfo_x86 {
+ #endif
+ 	__u8	apicid;
+ 	__u8	booted_cores;	/* number of cores as seen by OS */
+-} ____cacheline_aligned;
++};
+ 
+ #define X86_VENDOR_INTEL 0
+ #define X86_VENDOR_CYRIX 1
+--- kernel-headers/asm-x86_64/types.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/asm-x86_64/types.h	2006-07-20 08:11:17.000000000 -0400
+@@ -19,8 +19,8 @@ typedef unsigned short __u16;
+ typedef __signed__ int __s32;
+ typedef unsigned int __u32;
+ 
+-typedef __signed__ long long __s64;
+-typedef unsigned long long  __u64;
++typedef __signed__ long __s64;
++typedef unsigned long  __u64;
+ 
+ #endif /* __ASSEMBLY__ */
+ 
+--- kernel-headers/asm-x86_64/atomic.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/asm-x86_64/atomic.h	2006-07-20 08:11:17.000000000 -0400
+@@ -11,11 +11,7 @@
+  * resource counting etc..
+  */
+ 
+-#ifdef CONFIG_SMP
+ #define LOCK "lock ; "
+-#else
+-#define LOCK ""
+-#endif
+ 
+ /*
+  * Make sure gcc doesn't try to be clever and move things around
+--- kernel-headers/linux/ethtool.h.kheaders	2006-07-20 06:23:54.000000000 -0400
++++ kernel-headers/linux/ethtool.h	2006-07-20 08:11:17.000000000 -0400
+@@ -15,24 +15,24 @@
+ 
+ /* This should work for both 32 and 64 bit userland. */
+ struct ethtool_cmd {
+-	u32	cmd;
+-	u32	supported;	/* Features this interface supports */
+-	u32	advertising;	/* Features this interface advertises */
+-	u16	speed;		/* The forced speed, 10Mb, 100Mb, gigabit */
+-	u8	duplex;		/* Duplex, half or full */
+-	u8	port;		/* Which connector port */
+-	u8	phy_address;
+-	u8	transceiver;	/* Which transceiver to use */
+-	u8	autoneg;	/* Enable or disable autonegotiation */
+-	u32	maxtxpkt;	/* Tx pkts before generating tx int */
+-	u32	maxrxpkt;	/* Rx pkts before generating rx int */
+-	u32	reserved[4];
++	__u32	cmd;
++	__u32	supported;	/* Features this interface supports */
++	__u32	advertising;	/* Features this interface advertises */
++	__u16	speed;		/* The forced speed, 10Mb, 100Mb, gigabit */
++	__u8	duplex;		/* Duplex, half or full */
++	__u8	port;		/* Which connector port */
++	__u8	phy_address;
++	__u8	transceiver;	/* Which transceiver to use */
++	__u8	autoneg;	/* Enable or disable autonegotiation */
++	__u32	maxtxpkt;	/* Tx pkts before generating tx int */
++	__u32	maxrxpkt;	/* Rx pkts before generating rx int */
++	__u32	reserved[4];
+ };
+ 
+ #define ETHTOOL_BUSINFO_LEN	32
+ /* these strings are set to whatever the driver author decides... */
+ struct ethtool_drvinfo {
+-	u32	cmd;
++	__u32	cmd;
+ 	char	driver[32];	/* driver short name, "tulip", "eepro100" */
+ 	char	version[32];	/* driver version string */
+ 	char	fw_version[32];	/* firmware version string, if applicable */
+@@ -40,53 +40,53 @@ struct ethtool_drvinfo {
+ 				/* For PCI devices, use pci_name(pci_dev). */
+ 	char	reserved1[32];
+ 	char	reserved2[16];
+-	u32	n_stats;	/* number of u64's from ETHTOOL_GSTATS */
+-	u32	testinfo_len;
+-	u32	eedump_len;	/* Size of data from ETHTOOL_GEEPROM (bytes) */
+-	u32	regdump_len;	/* Size of data from ETHTOOL_GREGS (bytes) */
++	__u32	n_stats;	/* number of u64's from ETHTOOL_GSTATS */
++	__u32	testinfo_len;
++	__u32	eedump_len;	/* Size of data from ETHTOOL_GEEPROM (bytes) */
++	__u32	regdump_len;	/* Size of data from ETHTOOL_GREGS (bytes) */
+ };
+ 
+ #define SOPASS_MAX	6
+ /* wake-on-lan settings */
+ struct ethtool_wolinfo {
+-	u32	cmd;
+-	u32	supported;
+-	u32	wolopts;
+-	u8	sopass[SOPASS_MAX]; /* SecureOn(tm) password */
++	__u32	cmd;
++	__u32	supported;
++	__u32	wolopts;
++	__u8	sopass[SOPASS_MAX]; /* SecureOn(tm) password */
+ };
+ 
+ /* for passing single values */
+ struct ethtool_value {
+-	u32	cmd;
+-	u32	data;
++	__u32	cmd;
++	__u32	data;
+ };
+ 
+ /* for passing big chunks of data */
+ struct ethtool_regs {
+-	u32	cmd;
+-	u32	version; /* driver-specific, indicates different chips/revs */
+-	u32	len; /* bytes */
+-	u8	data[0];
++	__u32	cmd;
++	__u32	version; /* driver-specific, indicates different chips/revs */
++	__u32	len; /* bytes */
++	__u8	data[0];
+ };
+ 
+ /* for passing EEPROM chunks */
+ struct ethtool_eeprom {
+-	u32	cmd;
+-	u32	magic;
+-	u32	offset; /* in bytes */
+-	u32	len; /* in bytes */
+-	u8	data[0];
++	__u32	cmd;
++	__u32	magic;
++	__u32	offset; /* in bytes */
++	__u32	len; /* in bytes */
++	__u8	data[0];
+ };
+ 
+ /* for configuring coalescing parameters of chip */
+ struct ethtool_coalesce {
+-	u32	cmd;	/* ETHTOOL_{G,S}COALESCE */
++	__u32	cmd;	/* ETHTOOL_{G,S}COALESCE */
+ 
+ 	/* How many usecs to delay an RX interrupt after
+ 	 * a packet arrives.  If 0, only rx_max_coalesced_frames
+ 	 * is used.
+ 	 */
+-	u32	rx_coalesce_usecs;
++	__u32	rx_coalesce_usecs;
+ 
+ 	/* How many packets to delay an RX interrupt after
+ 	 * a packet arrives.  If 0, only rx_coalesce_usecs is
+@@ -94,21 +94,21 @@ struct ethtool_coalesce {
+ 	 * to zero as this would cause RX interrupts to never be
+ 	 * generated.
+ 	 */
+-	u32	rx_max_coalesced_frames;
++	__u32	rx_max_coalesced_frames;
+ 
+ 	/* Same as above two parameters, except that these values
+ 	 * apply while an IRQ is being serviced by the host.  Not
+ 	 * all cards support this feature and the values are ignored
+ 	 * in that case.
+ 	 */
+-	u32	rx_coalesce_usecs_irq;
+-	u32	rx_max_coalesced_frames_irq;
++	__u32	rx_coalesce_usecs_irq;
++	__u32	rx_max_coalesced_frames_irq;
+ 
+ 	/* How many usecs to delay a TX interrupt after
+ 	 * a packet is sent.  If 0, only tx_max_coalesced_frames
+ 	 * is used.
+ 	 */
+-	u32	tx_coalesce_usecs;
++	__u32	tx_coalesce_usecs;
+ 
+ 	/* How many packets to delay a TX interrupt after
+ 	 * a packet is sent.  If 0, only tx_coalesce_usecs is
+@@ -116,22 +116,22 @@ struct ethtool_coalesce {
+ 	 * to zero as this would cause TX interrupts to never be
+ 	 * generated.
+ 	 */
+-	u32	tx_max_coalesced_frames;
++	__u32	tx_max_coalesced_frames;
+ 
+ 	/* Same as above two parameters, except that these values
+ 	 * apply while an IRQ is being serviced by the host.  Not
+ 	 * all cards support this feature and the values are ignored
+ 	 * in that case.
+ 	 */
+-	u32	tx_coalesce_usecs_irq;
+-	u32	tx_max_coalesced_frames_irq;
++	__u32	tx_coalesce_usecs_irq;
++	__u32	tx_max_coalesced_frames_irq;
+ 
+ 	/* How many usecs to delay in-memory statistics
+ 	 * block updates.  Some drivers do not have an in-memory
+ 	 * statistic block, and in such cases this value is ignored.
+ 	 * This value must not be zero.
+ 	 */
+-	u32	stats_block_coalesce_usecs;
++	__u32	stats_block_coalesce_usecs;
+ 
+ 	/* Adaptive RX/TX coalescing is an algorithm implemented by
+ 	 * some drivers to improve latency under low packet rates and
+@@ -140,18 +140,18 @@ struct ethtool_coalesce {
+ 	 * not implemented by the driver causes these values to be
+ 	 * silently ignored.
+ 	 */
+-	u32	use_adaptive_rx_coalesce;
+-	u32	use_adaptive_tx_coalesce;
++	__u32	use_adaptive_rx_coalesce;
++	__u32	use_adaptive_tx_coalesce;
+ 
+ 	/* When the packet rate (measured in packets per second)
+ 	 * is below pkt_rate_low, the {rx,tx}_*_low parameters are
+ 	 * used.
+ 	 */
+-	u32	pkt_rate_low;
+-	u32	rx_coalesce_usecs_low;
+-	u32	rx_max_coalesced_frames_low;
+-	u32	tx_coalesce_usecs_low;
+-	u32	tx_max_coalesced_frames_low;
++	__u32	pkt_rate_low;
++	__u32	rx_coalesce_usecs_low;
++	__u32	rx_max_coalesced_frames_low;
++	__u32	tx_coalesce_usecs_low;
++	__u32	tx_max_coalesced_frames_low;
+ 
+ 	/* When the packet rate is below pkt_rate_high but above
+ 	 * pkt_rate_low (both measured in packets per second) the
+@@ -162,43 +162,43 @@ struct ethtool_coalesce {
+ 	 * is above pkt_rate_high, the {rx,tx}_*_high parameters are
+ 	 * used.
+ 	 */
+-	u32	pkt_rate_high;
+-	u32	rx_coalesce_usecs_high;
+-	u32	rx_max_coalesced_frames_high;
+-	u32	tx_coalesce_usecs_high;
+-	u32	tx_max_coalesced_frames_high;
++	__u32	pkt_rate_high;
++	__u32	rx_coalesce_usecs_high;
++	__u32	rx_max_coalesced_frames_high;
++	__u32	tx_coalesce_usecs_high;
++	__u32	tx_max_coalesced_frames_high;
+ 
+ 	/* How often to do adaptive coalescing packet rate sampling,
+ 	 * measured in seconds.  Must not be zero.
+ 	 */
+-	u32	rate_sample_interval;
++	__u32	rate_sample_interval;
+ };
+ 
+ /* for configuring RX/TX ring parameters */
+ struct ethtool_ringparam {
+-	u32	cmd;	/* ETHTOOL_{G,S}RINGPARAM */
++	__u32	cmd;	/* ETHTOOL_{G,S}RINGPARAM */
+ 
+ 	/* Read only attributes.  These indicate the maximum number
+ 	 * of pending RX/TX ring entries the driver will allow the
+ 	 * user to set.
+ 	 */
+-	u32	rx_max_pending;
+-	u32	rx_mini_max_pending;
+-	u32	rx_jumbo_max_pending;
+-	u32	tx_max_pending;
++	__u32	rx_max_pending;
++	__u32	rx_mini_max_pending;
++	__u32	rx_jumbo_max_pending;
++	__u32	tx_max_pending;
+ 
+ 	/* Values changeable by the user.  The valid values are
+ 	 * in the range 1 to the "*_max_pending" counterpart above.
+ 	 */
+-	u32	rx_pending;
+-	u32	rx_mini_pending;
+-	u32	rx_jumbo_pending;
+-	u32	tx_pending;
++	__u32	rx_pending;
++	__u32	rx_mini_pending;
++	__u32	rx_jumbo_pending;
++	__u32	tx_pending;
+ };
+ 
+ /* for configuring link flow control parameters */
+ struct ethtool_pauseparam {
+-	u32	cmd;	/* ETHTOOL_{G,S}PAUSEPARAM */
++	__u32	cmd;	/* ETHTOOL_{G,S}PAUSEPARAM */
+ 
+ 	/* If the link is being auto-negotiated (via ethtool_cmd.autoneg
+ 	 * being true) the user may set 'autonet' here non-zero to have the
+@@ -210,9 +210,9 @@ struct ethtool_pauseparam {
+ 	 * then {rx,tx}_pause force the driver to use/not-use pause
+ 	 * flow control.
+ 	 */
+-	u32	autoneg;
+-	u32	rx_pause;
+-	u32	tx_pause;
++	__u32	autoneg;
++	__u32	rx_pause;
++	__u32	tx_pause;
+ };
+ 
+ #define ETH_GSTRING_LEN		32
+@@ -223,10 +223,10 @@ enum ethtool_stringset {
+ 
+ /* for passing string sets for data tagging */
+ struct ethtool_gstrings {
+-	u32	cmd;		/* ETHTOOL_GSTRINGS */
+-	u32	string_set;	/* string set id e.c. ETH_SS_TEST, etc*/
+-	u32	len;		/* number of strings in the string set */
+-	u8	data[0];
++	__u32	cmd;		/* ETHTOOL_GSTRINGS */
++	__u32	string_set;	/* string set id e.c. ETH_SS_TEST, etc*/
++	__u32	len;		/* number of strings in the string set */
++	__u8	data[0];
+ };
+ 
+ enum ethtool_test_flags {
+@@ -236,41 +236,41 @@ enum ethtool_test_flags {
+ 
+ /* for requesting NIC test and getting results*/
+ struct ethtool_test {
+-	u32	cmd;		/* ETHTOOL_TEST */
+-	u32	flags;		/* ETH_TEST_FL_xxx */
+-	u32	reserved;
+-	u32	len;		/* result length, in number of u64 elements */
+-	u64	data[0];
++	__u32	cmd;		/* ETHTOOL_TEST */
++	__u32	flags;		/* ETH_TEST_FL_xxx */
++	__u32	reserved;
++	__u32	len;		/* result length, in number of __u64 elements */
++	__u64	data[0];
+ };
+ 
+ /* for dumping NIC-specific statistics */
+ struct ethtool_stats {
+-	u32	cmd;		/* ETHTOOL_GSTATS */
+-	u32	n_stats;	/* number of u64's being returned */
+-	u64	data[0];
++	__u32	cmd;		/* ETHTOOL_GSTATS */
++	__u32	n_stats;	/* number of __u64's being returned */
++	__u64	data[0];
+ };
+ 
+ struct ethtool_perm_addr {
+-	u32	cmd;		/* ETHTOOL_GPERMADDR */
+-	u32	size;
+-	u8	data[0];
++	__u32	cmd;		/* ETHTOOL_GPERMADDR */
++	__u32	size;
++	__u8	data[0];
+ };
+ 
+ struct net_device;
+ 
+ /* Some generic methods drivers may use in their ethtool_ops */
+-u32 ethtool_op_get_link(struct net_device *dev);
+-u32 ethtool_op_get_tx_csum(struct net_device *dev);
+-int ethtool_op_set_tx_csum(struct net_device *dev, u32 data);
+-int ethtool_op_set_tx_hw_csum(struct net_device *dev, u32 data);
+-u32 ethtool_op_get_sg(struct net_device *dev);
+-int ethtool_op_set_sg(struct net_device *dev, u32 data);
+-u32 ethtool_op_get_tso(struct net_device *dev);
+-int ethtool_op_set_tso(struct net_device *dev, u32 data);
++__u32 ethtool_op_get_link(struct net_device *dev);
++__u32 ethtool_op_get_tx_csum(struct net_device *dev);
++int ethtool_op_set_tx_csum(struct net_device *dev, __u32 data);
++int ethtool_op_set_tx_hw_csum(struct net_device *dev, __u32 data);
++__u32 ethtool_op_get_sg(struct net_device *dev);
++int ethtool_op_set_sg(struct net_device *dev, __u32 data);
++__u32 ethtool_op_get_tso(struct net_device *dev);
++int ethtool_op_set_tso(struct net_device *dev, __u32 data);
+ int ethtool_op_get_perm_addr(struct net_device *dev, 
+-			     struct ethtool_perm_addr *addr, u8 *data);
+-u32 ethtool_op_get_ufo(struct net_device *dev);
+-int ethtool_op_set_ufo(struct net_device *dev, u32 data);
++			     struct ethtool_perm_addr *addr, __u8 *data);
++__u32 ethtool_op_get_ufo(struct net_device *dev);
++int ethtool_op_set_ufo(struct net_device *dev, __u32 data);
+ 
+ /**
+  * &ethtool_ops - Alter and report network device settings
+@@ -338,38 +338,38 @@ struct ethtool_ops {
+ 	void	(*get_regs)(struct net_device *, struct ethtool_regs *, void *);
+ 	void	(*get_wol)(struct net_device *, struct ethtool_wolinfo *);
+ 	int	(*set_wol)(struct net_device *, struct ethtool_wolinfo *);
+-	u32	(*get_msglevel)(struct net_device *);
+-	void	(*set_msglevel)(struct net_device *, u32);
++	__u32	(*get_msglevel)(struct net_device *);
++	void	(*set_msglevel)(struct net_device *, __u32);
+ 	int	(*nway_reset)(struct net_device *);
+-	u32	(*get_link)(struct net_device *);
++	__u32	(*get_link)(struct net_device *);
+ 	int	(*get_eeprom_len)(struct net_device *);
+-	int	(*get_eeprom)(struct net_device *, struct ethtool_eeprom *, u8 *);
+-	int	(*set_eeprom)(struct net_device *, struct ethtool_eeprom *, u8 *);
++	int	(*get_eeprom)(struct net_device *, struct ethtool_eeprom *, __u8 *);
++	int	(*set_eeprom)(struct net_device *, struct ethtool_eeprom *, __u8 *);
+ 	int	(*get_coalesce)(struct net_device *, struct ethtool_coalesce *);
+ 	int	(*set_coalesce)(struct net_device *, struct ethtool_coalesce *);
+ 	void	(*get_ringparam)(struct net_device *, struct ethtool_ringparam *);
+ 	int	(*set_ringparam)(struct net_device *, struct ethtool_ringparam *);
+ 	void	(*get_pauseparam)(struct net_device *, struct ethtool_pauseparam*);
+ 	int	(*set_pauseparam)(struct net_device *, struct ethtool_pauseparam*);
+-	u32	(*get_rx_csum)(struct net_device *);
+-	int	(*set_rx_csum)(struct net_device *, u32);
+-	u32	(*get_tx_csum)(struct net_device *);
+-	int	(*set_tx_csum)(struct net_device *, u32);
+-	u32	(*get_sg)(struct net_device *);
+-	int	(*set_sg)(struct net_device *, u32);
+-	u32	(*get_tso)(struct net_device *);
+-	int	(*set_tso)(struct net_device *, u32);
++	__u32	(*get_rx_csum)(struct net_device *);
++	int	(*set_rx_csum)(struct net_device *, __u32);
++	__u32	(*get_tx_csum)(struct net_device *);
++	int	(*set_tx_csum)(struct net_device *, __u32);
++	__u32	(*get_sg)(struct net_device *);
++	int	(*set_sg)(struct net_device *, __u32);
++	__u32	(*get_tso)(struct net_device *);
++	int	(*set_tso)(struct net_device *, __u32);
+ 	int	(*self_test_count)(struct net_device *);
+-	void	(*self_test)(struct net_device *, struct ethtool_test *, u64 *);
+-	void	(*get_strings)(struct net_device *, u32 stringset, u8 *);
+-	int	(*phys_id)(struct net_device *, u32);
++	void	(*self_test)(struct net_device *, struct ethtool_test *, __u64 *);
++	void	(*get_strings)(struct net_device *, __u32 stringset, __u8 *);
++	int	(*phys_id)(struct net_device *, __u32);
+ 	int	(*get_stats_count)(struct net_device *);
+-	void	(*get_ethtool_stats)(struct net_device *, struct ethtool_stats *, u64 *);
+-	int	(*get_perm_addr)(struct net_device *, struct ethtool_perm_addr *, u8 *);
++	void	(*get_ethtool_stats)(struct net_device *, struct ethtool_stats *, __u64 *);
++	int	(*get_perm_addr)(struct net_device *, struct ethtool_perm_addr *, __u8 *);
+ 	int	(*begin)(struct net_device *);
+ 	void	(*complete)(struct net_device *);
+-	u32     (*get_ufo)(struct net_device *);
+-	int     (*set_ufo)(struct net_device *, u32);
++	__u32     (*get_ufo)(struct net_device *);
++	int     (*set_ufo)(struct net_device *, __u32);
+ };
+ 
+ /* CMDs currently supported */
+--- kernel-headers/linux/genhd.h.kheaders	2006-07-20 06:23:43.000000000 -0400
++++ kernel-headers/linux/genhd.h	2006-07-20 08:11:17.000000000 -0400
+@@ -9,7 +9,6 @@
+  *		<drew@colorado.edu>
+  */
+ 
+-#include <linux/config.h>
+ #include <linux/types.h>
+ #include <linux/major.h>
+ #include <linux/device.h>
+@@ -254,8 +253,6 @@ static inline void set_capacity(struct g
+ 
+ #endif  /*  __KERNEL__  */
+ 
+-#ifdef CONFIG_SOLARIS_X86_PARTITION
+-
+ #define SOLARIS_X86_NUMSLICE	8
+ #define SOLARIS_X86_VTOC_SANE	(0x600DDEEEUL)
+ 
+@@ -280,9 +277,6 @@ struct solaris_x86_vtoc {
+ 	char	v_asciilabel[128];	/* for compatibility */
+ };
+ 
+-#endif /* CONFIG_SOLARIS_X86_PARTITION */
+-
+-#ifdef CONFIG_BSD_DISKLABEL
+ /*
+  * BSD disklabel support by Yossi Gottlieb <yogo@math.tau.ac.il>
+  * updated by Marc Espie <Marc.Espie@openbsd.org>
+@@ -337,9 +331,6 @@ struct bsd_disklabel {
+ 	} d_partitions[BSD_MAXPARTITIONS];	/* actually may be more */
+ };
+ 
+-#endif	/* CONFIG_BSD_DISKLABEL */
+-
+-#ifdef CONFIG_UNIXWARE_DISKLABEL
+ /*
+  * Unixware slices support by Andrzej Krzysztofowicz <ankry@mif.pg.gda.pl>
+  * and Krzysztof G. Baranowski <kgb@knm.org.pl>
+@@ -391,7 +382,6 @@ struct unixware_disklabel {
+ 
+ };  /* 408 */
+ 
+-#endif /* CONFIG_UNIXWARE_DISKLABEL */
+ 
+ #ifdef CONFIG_MINIX_SUBPARTITION
+ #   define MINIX_NR_SUBPARTITIONS  4
+--- kernel-headers/linux/timer.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/linux/timer.h	2006-07-20 08:11:17.000000000 -0400
+@@ -1,7 +1,6 @@
+ #ifndef _LINUX_TIMER_H
+ #define _LINUX_TIMER_H
+ 
+-#include <linux/config.h>
+ #include <linux/list.h>
+ #include <linux/spinlock.h>
+ #include <linux/stddef.h>
+@@ -84,13 +83,8 @@ static inline void add_timer(struct time
+ 	__mod_timer(timer, timer->expires);
+ }
+ 
+-#ifdef CONFIG_SMP
+-  extern int try_to_del_timer_sync(struct timer_list *timer);
+-  extern int del_timer_sync(struct timer_list *timer);
+-#else
+ # define try_to_del_timer_sync(t)	del_timer(t)
+ # define del_timer_sync(t)		del_timer(t)
+-#endif
+ 
+ #define del_singleshot_timer_sync(t) del_timer_sync(t)
+ 
+--- kernel-headers/linux/compiler.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/linux/compiler.h	2006-07-20 08:11:17.000000000 -0400
+@@ -3,7 +3,7 @@
+ 
+ #ifndef __ASSEMBLY__
+ 
+-#ifdef __CHECKER__
++#if defined(__KERNEL__) && defined(__CHECKER__)
+ # define __user		__attribute__((noderef, address_space(1)))
+ # define __kernel	/* default address space */
+ # define __safe		__attribute__((safe))
+--- kernel-headers/linux/crc-ccitt.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/linux/crc-ccitt.h	2006-07-20 08:11:17.000000000 -0400
+@@ -4,11 +4,11 @@
+ 
+ #include <linux/types.h>
+ 
+-extern u16 const crc_ccitt_table[256];
++extern __u16 const crc_ccitt_table[256];
+ 
+-extern u16 crc_ccitt(u16 crc, const u8 *buffer, size_t len);
++extern __u16 crc_ccitt(__u16 crc, const __u8 *buffer, size_t len);
+ 
+-static inline u16 crc_ccitt_byte(u16 crc, const u8 c)
++static inline __u16 crc_ccitt_byte(__u16 crc, const __u8 c)
+ {
+ 	return (crc >> 8) ^ crc_ccitt_table[(crc ^ c) & 0xff];
+ }
+--- kernel-headers/linux/net.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/linux/net.h	2006-07-20 08:16:05.000000000 -0400
+@@ -18,7 +18,6 @@
+ #ifndef _LINUX_NET_H
+ #define _LINUX_NET_H
+ 
+-#include <linux/config.h>
+ #include <linux/wait.h>
+ #include <linux/stringify.h>
+ #include <asm/socket.h>
+--- kernel-headers/linux/sched.h.kheaders	2006-07-20 06:23:50.000000000 -0400
++++ kernel-headers/linux/sched.h	2006-07-20 08:11:17.000000000 -0400
+@@ -3,7 +3,6 @@
+ 
+ #include <asm/param.h>	/* for HZ */
+ 
+-#include <linux/config.h>
+ #include <linux/capability.h>
+ #include <linux/threads.h>
+ #include <linux/kernel.h>
+--- kernel-headers/linux/capi.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/linux/capi.h	2006-07-20 08:11:17.000000000 -0400
+@@ -14,6 +14,7 @@
+ 
+ #include <asm/types.h>
+ #include <linux/ioctl.h>
++#include <linux/compiler.h>
+ #ifndef __KERNEL__
+ #include <linux/kernelcapi.h>
+ #endif
+--- kernel-headers/linux/config.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/linux/config.h	2006-07-20 08:11:17.000000000 -0400
+@@ -1,8 +0,0 @@
+-#ifndef _LINUX_CONFIG_H
+-#define _LINUX_CONFIG_H
+-/* This file is no longer in use and kept only for backward compatibility.
+- * autoconf.h is now included via -imacros on the commandline
+- */
+-#include <linux/autoconf.h>
+-
+-#endif
+--- kernel-headers/linux/types.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/linux/types.h	2006-07-20 08:11:17.000000000 -0400
+@@ -1,17 +1,7 @@
+ #ifndef _LINUX_TYPES_H
+ #define _LINUX_TYPES_H
+ 
+-#ifdef	__KERNEL__
+-#include <linux/config.h>
+-
+-#define BITS_TO_LONGS(bits) \
+-	(((bits)+BITS_PER_LONG-1)/BITS_PER_LONG)
+-#define DECLARE_BITMAP(name,bits) \
+-	unsigned long name[BITS_TO_LONGS(bits)]
+-
+-#define BITS_PER_BYTE 8
+-#endif
+-
++#include <linux/compiler.h>
+ #include <linux/posix_types.h>
+ #include <asm/types.h>
+ 
+@@ -33,25 +23,8 @@ typedef __kernel_timer_t	timer_t;
+ typedef __kernel_clockid_t	clockid_t;
+ typedef __kernel_mqd_t		mqd_t;
+ 
+-#ifdef __KERNEL__
+-typedef __kernel_uid32_t	uid_t;
+-typedef __kernel_gid32_t	gid_t;
+-typedef __kernel_uid16_t        uid16_t;
+-typedef __kernel_gid16_t        gid16_t;
+-
+-#ifdef CONFIG_UID16
+-/* This is defined by include/asm-{arch}/posix_types.h */
+-typedef __kernel_old_uid_t	old_uid_t;
+-typedef __kernel_old_gid_t	old_gid_t;
+-#endif /* CONFIG_UID16 */
+-
+-/* libc5 includes this file to define uid_t, thus uid_t can never change
+- * when it is included by non-kernel code
+- */
+-#else
+ typedef __kernel_uid_t		uid_t;
+ typedef __kernel_gid_t		gid_t;
+-#endif /* __KERNEL__ */
+ 
+ #if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+ typedef __kernel_loff_t		loff_t;
+@@ -141,16 +114,17 @@ typedef unsigned long sector_t;
+ typedef unsigned long blkcnt_t;
+ #endif
+ 
++#endif /* __KERNEL_STRICT_NAMES */
++
+ /*
+  * The type of an index into the pagecache.  Use a #define so asm/types.h
+  * can override it.
++ * XXX: temporary solution
+  */
+ #ifndef pgoff_t
+ #define pgoff_t unsigned long
+ #endif
+ 
+-#endif /* __KERNEL_STRICT_NAMES */
+-
+ /*
+  * Below are truly Linux-specific types that should never collide with
+  * any application/library that wants linux/types.h.
+@@ -180,11 +154,13 @@ typedef __u64 __bitwise __be64;
+ typedef unsigned __bitwise__ gfp_t;
+ #endif
+ 
++#ifdef __KERNEL__
+ struct ustat {
+ 	__kernel_daddr_t	f_tfree;
+ 	__kernel_ino_t		f_tinode;
+ 	char			f_fname[6];
+ 	char			f_fpack[6];
+ };
++#endif
+ 
+ #endif /* _LINUX_TYPES_H */
+--- kernel-headers/linux/module.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/linux/module.h	2006-07-20 08:11:17.000000000 -0400
+@@ -6,7 +6,6 @@
+  * Rewritten by Richard Henderson <rth@tamu.edu> Dec 1996
+  * Rewritten again by Rusty Russell, 2002
+  */
+-#include <linux/config.h>
+ #include <linux/sched.h>
+ #include <linux/spinlock.h>
+ #include <linux/list.h>
+--- kernel-headers/linux/nfs_fs.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/linux/nfs_fs.h	2006-07-20 08:11:17.000000000 -0400
+@@ -9,7 +9,6 @@
+ #ifndef _LINUX_NFS_FS_H
+ #define _LINUX_NFS_FS_H
+ 
+-#include <linux/config.h>
+ #include <linux/in.h>
+ #include <linux/mm.h>
+ #include <linux/pagemap.h>
+--- kernel-headers/linux/ixjuser.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/linux/ixjuser.h	2006-07-20 08:11:17.000000000 -0400
+@@ -42,6 +42,7 @@
+  *
+  *****************************************************************************/
+ 
++#include <linux/compiler.h>
+ #include <linux/telephony.h>
+ 
+ 
+--- kernel-headers/linux/in.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/linux/in.h	2006-07-20 08:11:17.000000000 -0400
+@@ -52,7 +52,7 @@ enum {
+ 
+ /* Internet address. */
+ struct in_addr {
+-	__u32	s_addr;
++	u_int32_t	s_addr;
+ };
+ 
+ #define IP_TOS		1
+@@ -123,42 +123,42 @@ struct ip_mreqn
+ };
+ 
+ struct ip_mreq_source {
+-	__u32		imr_multiaddr;
+-	__u32		imr_interface;
+-	__u32		imr_sourceaddr;
++	u_int32_t		imr_multiaddr;
++	u_int32_t		imr_interface;
++	u_int32_t		imr_sourceaddr;
+ };
+ 
+ struct ip_msfilter {
+-	__u32		imsf_multiaddr;
+-	__u32		imsf_interface;
+-	__u32		imsf_fmode;
+-	__u32		imsf_numsrc;
+-	__u32		imsf_slist[1];
++	u_int32_t		imsf_multiaddr;
++	u_int32_t		imsf_interface;
++	u_int32_t		imsf_fmode;
++	u_int32_t		imsf_numsrc;
++	u_int32_t		imsf_slist[1];
+ };
+ 
+ #define IP_MSFILTER_SIZE(numsrc) \
+-	(sizeof(struct ip_msfilter) - sizeof(__u32) \
+-	+ (numsrc) * sizeof(__u32))
++	(sizeof(struct ip_msfilter) - sizeof(u_int32_t) \
++	+ (numsrc) * sizeof(u_int32_t))
+ 
+ struct group_req
+ {
+-	__u32				 gr_interface;	/* interface index */
++	u_int32_t				 gr_interface;	/* interface index */
+ 	struct __kernel_sockaddr_storage gr_group;	/* group address */
+ };
+ 
+ struct group_source_req
+ {
+-	__u32				 gsr_interface;	/* interface index */
++	u_int32_t				 gsr_interface;	/* interface index */
+ 	struct __kernel_sockaddr_storage gsr_group;	/* group address */
+ 	struct __kernel_sockaddr_storage gsr_source;	/* source address */
+ };
+ 
+ struct group_filter
+ {
+-	__u32				 gf_interface;	/* interface index */
++	u_int32_t				 gf_interface;	/* interface index */
+ 	struct __kernel_sockaddr_storage gf_group;	/* multicast address */
+-	__u32				 gf_fmode;	/* filter mode */
+-	__u32				 gf_numsrc;	/* number of sources */
++	u_int32_t				 gf_fmode;	/* filter mode */
++	u_int32_t				 gf_numsrc;	/* number of sources */
+ 	struct __kernel_sockaddr_storage gf_slist[1];	/* interface index */
+ };
+ 
+--- kernel-headers/linux/threads.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/linux/threads.h	2006-07-20 08:11:17.000000000 -0400
+@@ -1,8 +1,6 @@
+ #ifndef _LINUX_THREADS_H
+ #define _LINUX_THREADS_H
+ 
+-#include <linux/config.h>
+-
+ /*
+  * The default limit for the nr of threads is now in
+  * /proc/sys/kernel/threads-max.
+@@ -14,11 +12,7 @@
+  * bitmasks used on that platform, i.e. 32 or 64.  Setting this smaller
+  * saves quite a bit of memory.
+  */
+-#ifdef CONFIG_SMP
+-#define NR_CPUS		CONFIG_NR_CPUS
+-#else
+-#define NR_CPUS		1
+-#endif
++#define NR_CPUS		sizeof(long)
+ 
+ #define MIN_THREADS_LEFT_FOR_ROOT 4
+ 
+--- kernel-headers/linux/ext2_fs_sb.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/linux/ext2_fs_sb.h	2006-07-20 08:11:17.000000000 -0400
+@@ -46,9 +46,9 @@ struct ext2_sb_info {
+ 	int s_inode_size;
+ 	int s_first_ino;
+ 	spinlock_t s_next_gen_lock;
+-	u32 s_next_generation;
++	u_int32_t s_next_generation;
+ 	unsigned long s_dir_count;
+-	u8 *s_debts;
++	u_int8_t *s_debts;
+ 	struct percpu_counter s_freeblocks_counter;
+ 	struct percpu_counter s_freeinodes_counter;
+ 	struct percpu_counter s_dirs_counter;
+--- kernel-headers/linux/mod_devicetable.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/linux/mod_devicetable.h	2006-07-20 08:11:17.000000000 -0400
+@@ -9,15 +9,17 @@
+ 
+ #ifdef __KERNEL__
+ #include <linux/types.h>
+-typedef unsigned long kernel_ulong_t;
++#else
++#include <stdint.h>
+ #endif
++typedef unsigned long kernel_ulong_t;
+ 
+ #define PCI_ANY_ID (~0)
+ 
+ struct pci_device_id {
+-	__u32 vendor, device;		/* Vendor and device ID or PCI_ANY_ID*/
+-	__u32 subvendor, subdevice;	/* Subsystem ID's or PCI_ANY_ID */
+-	__u32 class, class_mask;	/* (class,subclass,prog-if) triplet */
++	uint32_t vendor, device;		/* Vendor and device ID or PCI_ANY_ID*/
++	uint32_t subvendor, subdevice;	/* Subsystem ID's or PCI_ANY_ID */
++	uint32_t class, class_mask;	/* (class,subclass,prog-if) triplet */
+ 	kernel_ulong_t driver_data;	/* Data private to the driver */
+ };
+ 
+@@ -28,11 +30,11 @@ struct pci_device_id {
+ #define IEEE1394_MATCH_VERSION		0x0008
+ 
+ struct ieee1394_device_id {
+-	__u32 match_flags;
+-	__u32 vendor_id;
+-	__u32 model_id;
+-	__u32 specifier_id;
+-	__u32 version;
++	uint32_t match_flags;
++	uint32_t vendor_id;
++	uint32_t model_id;
++	uint32_t specifier_id;
++	uint32_t version;
+ 	kernel_ulong_t driver_data
+ 		__attribute__((aligned(sizeof(kernel_ulong_t))));
+ };
+@@ -97,23 +99,23 @@ struct ieee1394_device_id {
+  */
+ struct usb_device_id {
+ 	/* which fields to match against? */
+-	__u16		match_flags;
++	uint16_t		match_flags;
+ 
+ 	/* Used for product specific matches; range is inclusive */
+-	__u16		idVendor;
+-	__u16		idProduct;
+-	__u16		bcdDevice_lo;
+-	__u16		bcdDevice_hi;
++	uint16_t		idVendor;
++	uint16_t		idProduct;
++	uint16_t		bcdDevice_lo;
++	uint16_t		bcdDevice_hi;
+ 
+ 	/* Used for device class matches */
+-	__u8		bDeviceClass;
+-	__u8		bDeviceSubClass;
+-	__u8		bDeviceProtocol;
++	uint8_t		bDeviceClass;
++	uint8_t		bDeviceSubClass;
++	uint8_t		bDeviceProtocol;
+ 
+ 	/* Used for interface class matches */
+-	__u8		bInterfaceClass;
+-	__u8		bInterfaceSubClass;
+-	__u8		bInterfaceProtocol;
++	uint8_t		bInterfaceClass;
++	uint8_t		bInterfaceSubClass;
++	uint8_t		bInterfaceProtocol;
+ 
+ 	/* not matched against */
+ 	kernel_ulong_t	driver_info;
+@@ -133,12 +135,12 @@ struct usb_device_id {
+ 
+ /* s390 CCW devices */
+ struct ccw_device_id {
+-	__u16	match_flags;	/* which fields to match against */
++	uint16_t	match_flags;	/* which fields to match against */
+ 
+-	__u16	cu_type;	/* control unit type     */
+-	__u16	dev_type;	/* device type           */
+-	__u8	cu_model;	/* control unit model    */
+-	__u8	dev_model;	/* device model          */
++	uint16_t	cu_type;	/* control unit type     */
++	uint16_t	dev_type;	/* device type           */
++	uint8_t	cu_model;	/* control unit model    */
++	uint8_t	dev_model;	/* device model          */
+ 
+ 	kernel_ulong_t driver_info;
+ };
+@@ -153,15 +155,15 @@ struct ccw_device_id {
+ #define PNP_MAX_DEVICES	8
+ 
+ struct pnp_device_id {
+-	__u8 id[PNP_ID_LEN];
++	uint8_t id[PNP_ID_LEN];
+ 	kernel_ulong_t driver_data;
+ };
+ 
+ struct pnp_card_device_id {
+-	__u8 id[PNP_ID_LEN];
++	uint8_t id[PNP_ID_LEN];
+ 	kernel_ulong_t driver_data;
+ 	struct {
+-		__u8 id[PNP_ID_LEN];
++		uint8_t id[PNP_ID_LEN];
+ 	} devs[PNP_MAX_DEVICES];
+ };
+ 
+--- kernel-headers/linux/pci.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/linux/pci.h	2006-07-20 08:11:17.000000000 -0400
+@@ -17,7 +17,9 @@
+ #ifndef LINUX_PCI_H
+ #define LINUX_PCI_H
+ 
++#ifdef __KERNEL__
+ #include <linux/mod_devicetable.h>
++#endif
+ 
+ /* Include the pci register defines */
+ #include <linux/pci_regs.h>
+--- kernel-headers/linux/sysctl.h.kheaders	2006-07-20 06:23:39.000000000 -0400
++++ kernel-headers/linux/sysctl.h	2006-07-20 08:11:17.000000000 -0400
+@@ -18,6 +18,7 @@
+ #ifndef _LINUX_SYSCTL_H
+ #define _LINUX_SYSCTL_H
+ 
++#include <linux/compiler.h>
+ #include <linux/kernel.h>
+ #include <linux/types.h>
+ #include <linux/compiler.h>
+--- kernel-headers/linux/usbdevice_fs.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/linux/usbdevice_fs.h	2006-07-20 08:11:17.000000000 -0400
+@@ -32,6 +32,7 @@
+ #define _LINUX_USBDEVICE_FS_H
+ 
+ #include <linux/types.h>
++#include <linux/compiler.h>
+ 
+ /* --------------------------------------------------------------------- */
+ 
+--- kernel-headers/linux/percpu_counter.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/linux/percpu_counter.h	2006-07-20 08:11:17.000000000 -0400
+@@ -6,9 +6,7 @@
+  * WARNING: these things are HUGE.  4 kbytes per counter on 32-way P4.
+  */
+ 
+-#include <linux/config.h>
+ #include <linux/spinlock.h>
+-#include <linux/smp.h>
+ #include <linux/threads.h>
+ #include <linux/percpu.h>
+ 
+--- kernel-headers/linux/percpu.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/linux/percpu.h	2006-07-20 08:11:17.000000000 -0400
+@@ -1,5 +1,6 @@
+ #ifndef __LINUX_PERCPU_H
+ #define __LINUX_PERCPU_H
++#ifdef __KERNEL__
+ #include <linux/spinlock.h> /* For preempt_disable() */
+ #include <linux/slab.h> /* For kmalloc() */
+ #include <linux/smp.h>
+@@ -56,4 +57,5 @@ static inline void free_percpu(const voi
+ /* Simple wrapper for the common case: zeros memory. */
+ #define alloc_percpu(type)	((type *)(__alloc_percpu(sizeof(type))))
+ 
++#endif /* __KERNEL__ */
+ #endif /* __LINUX_PERCPU_H */
+--- kernel-headers/linux/spinlock.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/linux/spinlock.h	2006-07-20 08:11:17.000000000 -0400
+@@ -1,6 +1,8 @@
+ #ifndef __LINUX_SPINLOCK_H
+ #define __LINUX_SPINLOCK_H
+ 
++#ifdef __KERNEL__
++
+ /*
+  * include/linux/spinlock.h - generic spinlock/rwlock declarations
+  *
+@@ -244,4 +246,10 @@ extern int _atomic_dec_and_lock(atomic_t
+  */
+ #define spin_can_lock(lock)	(!spin_is_locked(lock))
+ 
++#else
++
++typedef struct { } spinlock_t;
++
++#endif /* __KERNEL__ */
++
+ #endif /* __LINUX_SPINLOCK_H */
+--- kernel-headers/linux/bitmap.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/linux/bitmap.h	2006-07-20 08:11:17.000000000 -0400
+@@ -1,6 +1,7 @@
+ #ifndef __LINUX_BITMAP_H
+ #define __LINUX_BITMAP_H
+ 
++#ifdef __KERNEL__
+ #ifndef __ASSEMBLY__
+ 
+ #include <linux/types.h>
+@@ -266,5 +267,6 @@ static inline void bitmap_shift_left(uns
+ }
+ 
+ #endif /* __ASSEMBLY__ */
++#endif /* __KERNEL__ */
+ 
+ #endif /* __LINUX_BITMAP_H */
+--- kernel-headers/linux/mman.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/linux/mman.h	2006-07-20 08:11:17.000000000 -0400
+@@ -1,6 +1,9 @@
+ #ifndef _LINUX_MMAN_H
+ #define _LINUX_MMAN_H
+ 
++#ifndef __KERNEL__
++#include <asm/mman.h>
++#else
+ #include <linux/config.h>
+ #include <linux/mm.h>
+ 
+@@ -64,4 +67,5 @@ calc_vm_flag_bits(unsigned long flags)
+ 	       _calc_vm_trans(flags, MAP_LOCKED,     VM_LOCKED    );
+ }
+ 
++#endif /* __KERNEL__ */
+ #endif /* _LINUX_MMAN_H */
+--- kernel-headers/linux/blkpg.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/linux/blkpg.h	2006-07-20 08:11:17.000000000 -0400
+@@ -24,6 +24,7 @@
+  *
+  * For today, only the partition stuff - aeb, 990515
+  */
++#include <linux/compiler.h>
+ #include <linux/ioctl.h>
+ 
+ #define BLKPG      _IO(0x12,105)
+--- kernel-headers/linux/cyclades.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/linux/cyclades.h	2006-07-20 08:11:17.000000000 -0400
+@@ -67,6 +67,8 @@
+ #ifndef _LINUX_CYCLADES_H
+ #define _LINUX_CYCLADES_H
+ 
++#include <linux/compiler.h>
++
+ struct cyclades_monitor {
+         unsigned long           int_count;
+         unsigned long           char_count;
+--- kernel-headers/linux/if_fddi.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/linux/if_fddi.h	2006-07-20 08:11:17.000000000 -0400
+@@ -24,6 +24,8 @@
+ #ifndef _LINUX_IF_FDDI_H
+ #define _LINUX_IF_FDDI_H
+ 
++#include <linux/netdevice.h>
++
+ /*
+  *  Define max and min legal sizes.  The frame sizes do not include
+  *  4 byte FCS/CRC (frame check sequence).
+--- kernel-headers/linux/fs.h.kheaders	2006-07-20 06:23:43.000000000 -0400
++++ kernel-headers/linux/fs.h	2006-07-20 08:11:17.000000000 -0400
+@@ -6,7 +6,6 @@
+  * structures etc.
+  */
+ 
+-#include <linux/config.h>
+ #include <linux/limits.h>
+ #include <linux/ioctl.h>
+ 
+--- kernel-headers/linux/smp.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/linux/smp.h	2006-07-20 08:17:47.000000000 -0400
+@@ -6,12 +6,8 @@
+  *		Alan Cox. <alan@redhat.com>
+  */
+ 
+-#include <linux/config.h>
+-
+ extern void cpu_idle(void);
+ 
+-#ifdef CONFIG_SMP
+-
+ #include <linux/preempt.h>
+ #include <linux/kernel.h>
+ #include <linux/compiler.h>
+@@ -75,31 +71,6 @@ int on_each_cpu(void (*func) (void *info
+  */
+ void smp_prepare_boot_cpu(void);
+ 
+-#else /* !SMP */
+-
+-/*
+- *	These macros fold the SMP functionality into a single CPU system
+- */
+-#define raw_smp_processor_id()			0
+-#define hard_smp_processor_id()			0
+-static inline int up_smp_call_function(void)
+-{
+-	return 0;
+-}
+-#define smp_call_function(func,info,retry,wait)	(up_smp_call_function())
+-#define on_each_cpu(func,info,retry,wait)	\
+-	({					\
+-		local_irq_disable();		\
+-		func(info);			\
+-		local_irq_enable();		\
+-		0;				\
+-	})
+-static inline void smp_send_reschedule(int cpu) { }
+-#define num_booting_cpus()			1
+-#define smp_prepare_boot_cpu()			do {} while (0)
+-
+-#endif /* !SMP */
+-
+ /*
+  * smp_processor_id(): get the current CPU ID.
+  *
+--- kernel-headers/linux/joystick.h.kheaders	2006-06-17 21:49:35.000000000 -0400
++++ kernel-headers/linux/joystick.h	2006-07-20 08:20:35.000000000 -0400
+@@ -111,25 +111,25 @@ struct js_corr {
+ #define JS_SET_ALL		8
+ 
+ struct JS_DATA_TYPE {
+-	int32_t buttons;
+-	int32_t x;
+-	int32_t y;
++	__s32 buttons;
++	__s32 x;
++	__s32 y;
+ };
+ 
+ struct JS_DATA_SAVE_TYPE_32 {
+-	int32_t JS_TIMEOUT;
+-	int32_t BUSY;
+-	int32_t JS_EXPIRETIME;
+-	int32_t JS_TIMELIMIT;
++	__s32 JS_TIMEOUT;
++	__s32 BUSY;
++	__s32 JS_EXPIRETIME;
++	__s32 JS_TIMELIMIT;
+ 	struct JS_DATA_TYPE JS_SAVE;
+ 	struct JS_DATA_TYPE JS_CORR;
+ };
+ 
+ struct JS_DATA_SAVE_TYPE_64 {
+-	int32_t JS_TIMEOUT;
+-	int32_t BUSY;
+-	int64_t JS_EXPIRETIME;
+-	int64_t JS_TIMELIMIT;
++	__s32 JS_TIMEOUT;
++	__s32 BUSY;
++	__s64 JS_EXPIRETIME;
++	__s64 JS_TIMELIMIT;
+ 	struct JS_DATA_TYPE JS_SAVE;
+ 	struct JS_DATA_TYPE JS_CORR;
+ };

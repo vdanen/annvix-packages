@@ -1,0 +1,35 @@
+# Fix linkage.
+
+--- glibc-2.5.orig/configure.in
++++ glibc-2.5/configure.in
+@@ -1950,7 +1950,7 @@ if test "$with_gd" != "no"; then
+   old_LDFLAGS="$LDFLAGS"
+   LDFLAGS="$LDFLAGS $libgd_ldflags"
+   old_LIBS="$LIBS"
+-  LIBS="$LIBS -lgd -lpng -lz -lm"
++  LIBS="$LIBS -lgd"
+   AC_TRY_LINK([#include <gd.h>], [gdImagePng (0, 0)], LIBGD=yes, LIBGD=no)
+   CFLAGS="$old_CFLAGS"
+   LDFLAGS="$old_LDFLAGS"
+--- glibc-2.5.orig/configure
++++ glibc-2.5/configure
+@@ -6574,7 +6574,7 @@ if test "$with_gd" != "no"; then
+   old_LDFLAGS="$LDFLAGS"
+   LDFLAGS="$LDFLAGS $libgd_ldflags"
+   old_LIBS="$LIBS"
+-  LIBS="$LIBS -lgd -lpng -lz -lm"
++  LIBS="$LIBS -lgd"
+   cat >conftest.$ac_ext <<_ACEOF
+ /* confdefs.h.  */
+ _ACEOF
+--- glibc-2.5.orig/malloc/Makefile
++++ glibc-2.5/malloc/Makefile
+@@ -99,7 +99,7 @@ do-memusagestat: $(objpfx)memusagestat
+ 
+ memusagestat-modules = memusagestat
+ $(objpfx)memusagestat: $(memusagestat-modules:%=$(objpfx)%.o)
+-	$(LINK.o) -o $@ $^ $(libgd-LDFLAGS) -lgd -lpng -lz -lm
++	$(LINK.o) -o $@ $^ $(libgd-LDFLAGS) -lgd
+ 
+ include ../Rules
+ 

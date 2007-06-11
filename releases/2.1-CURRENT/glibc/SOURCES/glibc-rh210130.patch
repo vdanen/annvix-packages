@@ -1,0 +1,987 @@
+2006-10-18  Ulrich Drepper  <drepper@redhat.com>
+
+	* elf/dl-lookup.c (_dl_lookup_symbol_x): Add warning to
+	_dl_lookup_symbol_x code.
+
+2006-10-17  Jakub Jelinek  <jakub@redhat.com>
+
+	* elf/dl-runtime.c: Include sysdep-cancel.h.
+	(_dl_fixup, _dl_profile_fixup): Use __rtld_mrlock_* and
+	scoperec->nusers only if !SINGLE_THREAD_P.  Use atomic_*
+	instead of catomic_* macros.
+	* elf/dl-sym.c: Include sysdep-cancel.h.
+	(do_sym): Use __rtld_mrlock_* and scoperec->nusers only
+	if !SINGLE_THREAD_P.  Use atomic_* instead of catomic_* macros.
+	* elf/dl-close.c: Include sysdep-cancel.h.
+	(_dl_close): Use __rtld_mrlock_* and scoperec->nusers only
+	if !SINGLE_THREAD_P.  Use atomic_* instead of catomic_* macros.
+	* elf/dl-open.c: Include sysdep-cancel.h.
+	(dl_open_worker): Use __rtld_mrlock_* and scoperec->nusers only
+	if !SINGLE_THREAD_P.  Use atomic_* instead of catomic_* macros.
+
+2006-10-09  Ulrich Drepper  <drepper@redhat.com>
+	    Jakub Jelinek  <jakub@redhat.com>
+
+	Implement reference counting of scope records.
+	* elf/dl-close.c (_dl_close): Remove all scopes from removed objects
+	from the list in objects which remain.  Always allocate new scope
+	record.
+	* elf/dl-open.c (dl_open_worker): When growing array for scopes,
+	don't resize, allocate a new one.
+	* elf/dl-runtime.c: Update reference counters before using a scope
+	array.
+	* elf/dl-sym.c: Likewise.
+	* elf/dl-libc.c: Adjust for l_scope name change.
+	* elf/dl-load.c: Likewise.
+	* elf/dl-object.c: Likewise.
+	* elf/rtld.c: Likewise.
+	* include/link.h: Include <rtld-lowlevel.h>.  Define struct
+	r_scoperec.  Replace r_scope with pointer to r_scoperec structure.
+	Add l_scoperec_lock.
+	* sysdeps/generic/ldsodefs.h: Include <rtld-lowlevel.h>.
+	* sysdeps/generic/rtld-lowlevel.h: New file.
+nptl/
+2006-10-17  Jakub Jelinek  <jakub@redhat.com>
+
+	* sysdeps/unix/sysv/linux/rtld-lowlevel.h (__rtld_mrlock_lock,
+	__rtld_mrlock_unlock, __rtld_mrlock_change, __rtld_mrlock_done): Use
+	atomic_* instead of catomic_* macros.
+
+2006-10-11  Ulrich Drepper  <drepper@redhat.com>
+
+	* sysdeps/unix/sysv/linux/rtld-lowlevel.h: Use catomic_*
+	operations instead of atomic_*.
+
+2006-10-09  Ulrich Drepper  <drepper@redhat.com>
+
+	* sysdeps/unix/sysv/linux/rtld-lowlevel.h: New file..
+
+--- libc/elf/dl-close.c	19 Sep 2006 14:39:42 -0000	1.117
++++ libc/elf/dl-close.c	18 Oct 2006 19:19:07 -0000	1.120
+@@ -19,6 +19,7 @@
+ 
+ #include <assert.h>
+ #include <dlfcn.h>
++#include <errno.h>
+ #include <libintl.h>
+ #include <stddef.h>
+ #include <stdio.h>
+@@ -29,12 +30,17 @@
+ #include <ldsodefs.h>
+ #include <sys/types.h>
+ #include <sys/mman.h>
++#include <sysdep-cancel.h>
+ 
+ 
+ /* Type of the constructor functions.  */
+ typedef void (*fini_t) (void);
+ 
+ 
++/* Special l_idx value used to indicate which objects remain loaded.  */
++#define IDX_STILL_USED -1
++
++
+ #ifdef USE_TLS
+ /* Returns true we an non-empty was found.  */
+ static bool
+@@ -188,7 +194,7 @@ _dl_close (void *_map)
+       done[done_index] = 1;
+       used[done_index] = 1;
+       /* Signal the object is still needed.  */
+-      l->l_idx = -1;
++      l->l_idx = IDX_STILL_USED;
+ 
+       /* Mark all dependencies as used.  */
+       if (l->l_initfini != NULL)
+@@ -196,7 +202,7 @@ _dl_close (void *_map)
+ 	  struct link_map **lp = &l->l_initfini[1];
+ 	  while (*lp != NULL)
+ 	    {
+-	      if ((*lp)->l_idx != -1)
++	      if ((*lp)->l_idx != IDX_STILL_USED)
+ 		{
+ 		  assert ((*lp)->l_idx >= 0 && (*lp)->l_idx < nloaded);
+ 
+@@ -217,7 +223,7 @@ _dl_close (void *_map)
+ 	  {
+ 	    struct link_map *jmap = l->l_reldeps[j];
+ 
+-	    if (jmap->l_idx != -1)
++	    if (jmap->l_idx != IDX_STILL_USED)
+ 	      {
+ 		assert (jmap->l_idx >= 0 && jmap->l_idx < nloaded);
+ 
+@@ -310,8 +316,9 @@ _dl_close (void *_map)
+       /* Else used[i].  */
+       else if (imap->l_type == lt_loaded)
+ 	{
+-	  if (imap->l_searchlist.r_list == NULL
+-	      && imap->l_initfini != NULL)
++	  struct r_scope_elem *new_list = NULL;
++
++	  if (imap->l_searchlist.r_list == NULL && imap->l_initfini != NULL)
+ 	    {
+ 	      /* The object is still used.  But one of the objects we are
+ 		 unloading right now is responsible for loading it.  If
+@@ -328,44 +335,119 @@ _dl_close (void *_map)
+ 	      imap->l_searchlist.r_list = &imap->l_initfini[cnt + 1];
+ 	      imap->l_searchlist.r_nlist = cnt;
+ 
+-	      for (cnt = 0; imap->l_scope[cnt] != NULL; ++cnt)
+-		/* This relies on l_scope[] entries being always set either
+-		   to its own l_symbolic_searchlist address, or some map's
+-		   l_searchlist address.  */
+-		if (imap->l_scope[cnt] != &imap->l_symbolic_searchlist)
+-		  {
+-		    struct link_map *tmap;
+-
+-		    tmap = (struct link_map *) ((char *) imap->l_scope[cnt]
+-						- offsetof (struct link_map,
+-							    l_searchlist));
+-		    assert (tmap->l_ns == ns);
+-		    if (tmap->l_idx != -1)
+-		      {
+-			imap->l_scope[cnt] = &imap->l_searchlist;
+-			break;
+-		      }
+-		  }
++	      new_list = &imap->l_searchlist;
+ 	    }
+-	  else
++
++	  /* Count the number of scopes which remain after the unload.
++	     When we add the local search list count it.  Always add
++	     one for the terminating NULL pointer.  */
++	  size_t remain = (new_list != NULL) + 1;
++	  bool removed_any = false;
++	  for (size_t cnt = 0; imap->l_scoperec->scope[cnt] != NULL; ++cnt)
++	    /* This relies on l_scope[] entries being always set either
++	       to its own l_symbolic_searchlist address, or some map's
++	       l_searchlist address.  */
++	    if (imap->l_scoperec->scope[cnt] != &imap->l_symbolic_searchlist)
++	      {
++		struct link_map *tmap = (struct link_map *)
++		  ((char *) imap->l_scoperec->scope[cnt]
++		   - offsetof (struct link_map, l_searchlist));
++		assert (tmap->l_ns == ns);
++		if (tmap->l_idx == IDX_STILL_USED)
++		  ++remain;
++		else
++		  removed_any = true;
++	      }
++	    else
++	      ++remain;
++
++	  if (removed_any)
+ 	    {
+-	      unsigned int cnt = 0;
+-	      while (imap->l_scope[cnt] != NULL)
++	      /* Always allocate a new array for the scope.  This is
++		 necessary since we must be able to determine the last
++		 user of the current array.  If possible use the link map's
++		 memory.  */
++	      size_t new_size;
++	      struct r_scoperec *newp;
++	      if (imap->l_scoperec != &imap->l_scoperec_mem
++		  && remain < NINIT_SCOPE_ELEMS (imap)
++		  && imap->l_scoperec_mem.nusers == 0)
++		{
++		  new_size = NINIT_SCOPE_ELEMS (imap);
++		  newp = &imap->l_scoperec_mem;
++		}
++	      else
++		{
++		  new_size = imap->l_scope_max;
++		  newp = (struct r_scoperec *)
++		    malloc (sizeof (struct r_scoperec)
++			    + new_size * sizeof (struct r_scope_elem *));
++		  if (newp == NULL)
++		    _dl_signal_error (ENOMEM, "dlclose", NULL,
++				      N_("cannot create scope list"));
++		}
++
++	      newp->nusers = 0;
++	      newp->remove_after_use = false;
++	      newp->notify = false;
++
++	      /* Copy over the remaining scope elements.  */
++	      remain = 0;
++	      for (size_t cnt = 0; imap->l_scoperec->scope[cnt] != NULL; ++cnt)
++		{
++		  if (imap->l_scoperec->scope[cnt]
++		      != &imap->l_symbolic_searchlist)
++		    {
++		      struct link_map *tmap = (struct link_map *)
++			((char *) imap->l_scoperec->scope[cnt]
++			 - offsetof (struct link_map, l_searchlist));
++		      if (tmap->l_idx != IDX_STILL_USED)
++			{
++			  /* Remove the scope.  Or replace with own map's
++			     scope.  */
++			  if (new_list != NULL)
++			    {
++			      newp->scope[remain++] = new_list;
++			      new_list = NULL;
++			    }
++			  continue;
++			}
++		    }
++
++		  newp->scope[remain++] = imap->l_scoperec->scope[cnt];
++		}
++	      newp->scope[remain] = NULL;
++
++	      struct r_scoperec *old = imap->l_scoperec;
++
++	      if (SINGLE_THREAD_P)
++		imap->l_scoperec = newp;
++	      else
+ 		{
+-		  if (imap->l_scope[cnt] == &map->l_searchlist)
++		  __rtld_mrlock_change (imap->l_scoperec_lock);
++		  imap->l_scoperec = newp;
++		  __rtld_mrlock_done (imap->l_scoperec_lock);
++
++		  if (atomic_increment_val (&old->nusers) != 1)
+ 		    {
+-		      while ((imap->l_scope[cnt] = imap->l_scope[cnt + 1])
+-			     != NULL)
+-			++cnt;
+-		      break;
++		      old->remove_after_use = true;
++		      old->notify = true;
++		      if (atomic_decrement_val (&old->nusers) != 0)
++			__rtld_waitzero (old->nusers);
+ 		    }
+-		  ++cnt;
+ 		}
++
++	      /* No user anymore, we can free it now.  */
++	      if (old != &imap->l_scoperec_mem)
++		free (old);
++
++	      imap->l_scope_max = new_size;
+ 	    }
+ 
+ 	  /* The loader is gone, so mark the object as not having one.
+-	     Note: l_idx != -1 -> object will be removed.  */
+-	  if (imap->l_loader != NULL && imap->l_loader->l_idx != -1)
++	     Note: l_idx != IDX_STILL_USED -> object will be removed.  */
++	  if (imap->l_loader != NULL
++	      && imap->l_loader->l_idx != IDX_STILL_USED)
+ 	    imap->l_loader = NULL;
+ 
+ 	  /* Remember where the first dynamically loaded object is.  */
+@@ -570,8 +652,8 @@ _dl_close (void *_map)
+ 	  free (imap->l_initfini);
+ 
+ 	  /* Remove the scope array if we allocated it.  */
+-	  if (imap->l_scope != imap->l_scope_mem)
+-	    free (imap->l_scope);
++	  if (imap->l_scoperec != &imap->l_scoperec_mem)
++	    free (imap->l_scoperec);
+ 
+ 	  if (imap->l_phdr_allocated)
+ 	    free ((void *) imap->l_phdr);
+--- libc/elf/dl-libc.c	12 Jun 2005 16:28:48 -0000	1.26
++++ libc/elf/dl-libc.c	10 Oct 2006 00:49:56 -0000	1.27
+@@ -133,7 +133,8 @@ do_dlsym_private (void *ptr)
+   struct do_dlsym_args *args = (struct do_dlsym_args *) ptr;
+   args->ref = NULL;
+   l = GLRO(dl_lookup_symbol_x) (args->name, args->map, &args->ref,
+-				args->map->l_scope, &vers, 0, 0, NULL);
++				args->map->l_scoperec->scope, &vers, 0, 0,
++				NULL);
+   args->loadbase = l;
+ }
+ 
+--- libc/elf/dl-load.c	29 Aug 2006 01:43:42 -0000	1.279
++++ libc/elf/dl-load.c	10 Oct 2006 00:49:56 -0000	1.280
+@@ -1473,7 +1473,7 @@ cannot enable executable stack as shared
+      have to do this for the main map.  */
+   if ((mode & RTLD_DEEPBIND) == 0
+       && __builtin_expect (l->l_info[DT_SYMBOLIC] != NULL, 0)
+-      && &l->l_searchlist != l->l_scope[0])
++      && &l->l_searchlist != l->l_scoperec->scope[0])
+     {
+       /* Create an appropriate searchlist.  It contains only this map.
+ 	 This is the definition of DT_SYMBOLIC in SysVr4.  */
+@@ -1490,11 +1490,11 @@ cannot enable executable stack as shared
+       l->l_symbolic_searchlist.r_nlist = 1;
+ 
+       /* Now move the existing entries one back.  */
+-      memmove (&l->l_scope[1], &l->l_scope[0],
+-	       (l->l_scope_max - 1) * sizeof (l->l_scope[0]));
++      memmove (&l->l_scoperec->scope[1], &l->l_scoperec->scope[0],
++	       (l->l_scope_max - 1) * sizeof (l->l_scoperec->scope[0]));
+ 
+       /* Now add the new entry.  */
+-      l->l_scope[0] = &l->l_symbolic_searchlist;
++      l->l_scoperec->scope[0] = &l->l_symbolic_searchlist;
+     }
+ 
+   /* Remember whether this object must be initialized first.  */
+--- libc/elf/dl-lookup.c	10 Jul 2006 21:49:38 -0000	1.122
++++ libc/elf/dl-lookup.c	18 Oct 2006 19:11:33 -0000	1.123
+@@ -207,7 +207,11 @@ _dl_debug_bindings (const char *undef_na
+ 
+ 
+ /* Search loaded objects' symbol tables for a definition of the symbol
+-   UNDEF_NAME, perhaps with a requested version for the symbol.  */
++   UNDEF_NAME, perhaps with a requested version for the symbol.
++
++   We must never have calls to the audit functions inside this function
++   or in any function which gets called.  If this would happen the audit
++   code might create a thread which can throw off all the scope locking.  */
+ lookup_t
+ internal_function
+ _dl_lookup_symbol_x (const char *undef_name, struct link_map *undef_map,
+--- libc/elf/dl-object.c	6 Jan 2005 22:40:26 -0000	1.40
++++ libc/elf/dl-object.c	10 Oct 2006 00:49:56 -0000	1.41
+@@ -82,8 +82,14 @@ _dl_new_object (char *realname, const ch
+   /* Use the 'l_scope_mem' array by default for the the 'l_scope'
+      information.  If we need more entries we will allocate a large
+      array dynamically.  */
+-  new->l_scope = new->l_scope_mem;
+-  new->l_scope_max = sizeof (new->l_scope_mem) / sizeof (new->l_scope_mem[0]);
++  new->l_scoperec = &new->l_scoperec_mem;
++  new->l_scope_max = (sizeof (new->l_scope_realmem.scope_elems)
++		      / sizeof (new->l_scope_realmem.scope_elems[0]));
++
++  /* No need to initialize the scope lock if the initializer is zero.  */
++#if _RTLD_MRLOCK_INITIALIZER != 0
++  __rtld_mrlock_initialize (new->l_scoperec_mem.lock);
++#endif
+ 
+   /* Counter for the scopes we have to handle.  */
+   idx = 0;
+@@ -98,7 +104,8 @@ _dl_new_object (char *realname, const ch
+       l->l_next = new;
+ 
+       /* Add the global scope.  */
+-      new->l_scope[idx++] = &GL(dl_ns)[nsid]._ns_loaded->l_searchlist;
++      new->l_scoperec->scope[idx++]
++	= &GL(dl_ns)[nsid]._ns_loaded->l_searchlist;
+     }
+   else
+     GL(dl_ns)[nsid]._ns_loaded = new;
+@@ -114,15 +121,15 @@ _dl_new_object (char *realname, const ch
+       loader = loader->l_loader;
+ 
+   /* Insert the scope if it isn't the global scope we already added.  */
+-  if (idx == 0 || &loader->l_searchlist != new->l_scope[0])
++  if (idx == 0 || &loader->l_searchlist != new->l_scoperec->scope[0])
+     {
+       if ((mode & RTLD_DEEPBIND) != 0 && idx != 0)
+ 	{
+-	  new->l_scope[1] = new->l_scope[0];
++	  new->l_scoperec->scope[1] = new->l_scoperec->scope[0];
+ 	  idx = 0;
+ 	}
+ 
+-      new->l_scope[idx] = &loader->l_searchlist;
++      new->l_scoperec->scope[idx] = &loader->l_searchlist;
+     }
+ 
+   new->l_local_scope[0] = &new->l_searchlist;
+--- libc/elf/dl-open.c	28 Aug 2006 22:56:50 -0000	1.128
++++ libc/elf/dl-open.c	18 Oct 2006 19:20:13 -0000	1.131
+@@ -31,6 +31,7 @@
+ #include <ldsodefs.h>
+ #include <bp-sym.h>
+ #include <caller.h>
++#include <sysdep-cancel.h>
+ 
+ #include <dl-dst.h>
+ 
+@@ -343,7 +344,7 @@ dl_open_worker (void *a)
+ 		 start the profiling.  */
+ 	      struct link_map *old_profile_map = GL(dl_profile_map);
+ 
+-	      _dl_relocate_object (l, l->l_scope, 1, 1);
++	      _dl_relocate_object (l, l->l_scoperec->scope, 1, 1);
+ 
+ 	      if (old_profile_map == NULL && GL(dl_profile_map) != NULL)
+ 		{
+@@ -356,7 +357,7 @@ dl_open_worker (void *a)
+ 	    }
+ 	  else
+ #endif
+-	    _dl_relocate_object (l, l->l_scope, lazy, 0);
++	    _dl_relocate_object (l, l->l_scoperec->scope, lazy, 0);
+ 	}
+ 
+       if (l == new)
+@@ -374,11 +375,13 @@ dl_open_worker (void *a)
+ 	 not been loaded here and now.  */
+       if (imap->l_init_called && imap->l_type == lt_loaded)
+ 	{
+-	  struct r_scope_elem **runp = imap->l_scope;
++	  struct r_scope_elem **runp = imap->l_scoperec->scope;
+ 	  size_t cnt = 0;
+ 
+ 	  while (*runp != NULL)
+ 	    {
++	      if (*runp == &new->l_searchlist)
++		break;
+ 	      ++cnt;
+ 	      ++runp;
+ 	    }
+@@ -391,35 +394,63 @@ dl_open_worker (void *a)
+ 	    {
+ 	      /* The 'r_scope' array is too small.  Allocate a new one
+ 		 dynamically.  */
+-	      struct r_scope_elem **newp;
+-	      size_t new_size = imap->l_scope_max * 2;
++	      size_t new_size;
++	      struct r_scoperec *newp;
+ 
+-	      if (imap->l_scope == imap->l_scope_mem)
++	      if (imap->l_scoperec != &imap->l_scoperec_mem
++		  && imap->l_scope_max < NINIT_SCOPE_ELEMS (imap)
++		  && imap->l_scoperec_mem.nusers == 0)
+ 		{
+-		  newp = (struct r_scope_elem **)
+-		    malloc (new_size * sizeof (struct r_scope_elem *));
+-		  if (newp == NULL)
+-		    _dl_signal_error (ENOMEM, "dlopen", NULL,
+-				      N_("cannot create scope list"));
+-		  imap->l_scope = memcpy (newp, imap->l_scope,
+-					  cnt * sizeof (imap->l_scope[0]));
++		  new_size = NINIT_SCOPE_ELEMS (imap);
++		  newp = &imap->l_scoperec_mem;
+ 		}
+ 	      else
+ 		{
+-		  newp = (struct r_scope_elem **)
+-		    realloc (imap->l_scope,
+-			     new_size * sizeof (struct r_scope_elem *));
++		  new_size = imap->l_scope_max * 2;
++		  newp = (struct r_scoperec *)
++		    malloc (sizeof (struct r_scoperec)
++			    + new_size * sizeof (struct r_scope_elem *));
+ 		  if (newp == NULL)
+ 		    _dl_signal_error (ENOMEM, "dlopen", NULL,
+ 				      N_("cannot create scope list"));
+-		  imap->l_scope = newp;
++		}
++
++	      newp->nusers = 0;
++	      newp->remove_after_use = false;
++	      newp->notify = false;
++	      memcpy (newp->scope, imap->l_scoperec->scope,
++		      cnt * sizeof (imap->l_scoperec->scope[0]));
++	      struct r_scoperec *old = imap->l_scoperec;
++
++	      if (old == &imap->l_scoperec_mem)
++		imap->l_scoperec = newp;
++	      else if (SINGLE_THREAD_P)
++		{
++		  imap->l_scoperec = newp;
++		  free (old);
++		}
++	      else
++		{
++		  __rtld_mrlock_change (imap->l_scoperec_lock);
++		  imap->l_scoperec = newp;
++		  __rtld_mrlock_done (imap->l_scoperec_lock);
++
++		  atomic_increment (&old->nusers);
++		  old->remove_after_use = true;
++		  if (atomic_decrement_val (&old->nusers) == 0)
++		    /* No user, we can free it here and now.  */
++		    free (old);
+ 		}
+ 
+ 	      imap->l_scope_max = new_size;
+ 	    }
+ 
+-	  imap->l_scope[cnt++] = &new->l_searchlist;
+-	  imap->l_scope[cnt] = NULL;
++	  /* First terminate the extended list.  Otherwise a thread
++	     might use the new last element and then use the garbage
++	     at offset IDX+1.  */
++	  imap->l_scoperec->scope[cnt + 1] = NULL;
++	  atomic_write_barrier ();
++	  imap->l_scoperec->scope[cnt] = &new->l_searchlist;
+ 	}
+ #if USE_TLS
+       /* Only add TLS memory if this object is loaded now and
+--- libc/elf/dl-runtime.c	7 Feb 2005 22:47:00 -0000	1.69
++++ libc/elf/dl-runtime.c	18 Oct 2006 19:16:52 -0000	1.72
+@@ -24,6 +24,7 @@
+ #include <unistd.h>
+ #include <sys/param.h>
+ #include <ldsodefs.h>
++#include <sysdep-cancel.h>
+ #include "dynamic-link.h"
+ 
+ #if (!defined ELF_MACHINE_NO_RELA && !defined ELF_MACHINE_PLT_REL) \
+@@ -92,16 +93,36 @@ _dl_fixup (
+ 	    version = NULL;
+ 	}
+ 
++      struct r_scoperec *scoperec = l->l_scoperec;
++      if (l->l_type == lt_loaded && !SINGLE_THREAD_P)
++	{
++	  __rtld_mrlock_lock (l->l_scoperec_lock);
++	  scoperec = l->l_scoperec;
++	  atomic_increment (&scoperec->nusers);
++	  __rtld_mrlock_unlock (l->l_scoperec_lock);
++	}
++
+       result = _dl_lookup_symbol_x (strtab + sym->st_name, l, &sym,
+-				    l->l_scope, version, ELF_RTYPE_CLASS_PLT,
++				    scoperec->scope, version,
++				    ELF_RTYPE_CLASS_PLT,
+ 				    DL_LOOKUP_ADD_DEPENDENCY, NULL);
+ 
++      if (l->l_type == lt_loaded && !SINGLE_THREAD_P
++	  && atomic_decrement_val (&scoperec->nusers) == 0
++	  && __builtin_expect (scoperec->remove_after_use, 0))
++	{
++	  if (scoperec->notify)
++	    __rtld_notify (scoperec->nusers);
++	  else
++	    free (scoperec);
++	}
++
+       /* Currently result contains the base load address (or link map)
+ 	 of the object that defines sym.  Now add in the symbol
+ 	 offset.  */
+       value = DL_FIXUP_MAKE_VALUE (result,
+-				   sym ? LOOKUP_VALUE_ADDRESS (result)
+-					 + sym->st_value : 0);
++				   sym ? (LOOKUP_VALUE_ADDRESS (result)
++					  + sym->st_value) : 0);
+     }
+   else
+     {
+@@ -174,11 +195,30 @@ _dl_profile_fixup (
+ 		version = NULL;
+ 	    }
+ 
++	  struct r_scoperec *scoperec = l->l_scoperec;
++	  if (l->l_type == lt_loaded && !SINGLE_THREAD_P)
++	    {
++	      __rtld_mrlock_lock (l->l_scoperec_lock);
++	      scoperec = l->l_scoperec;
++	      atomic_increment (&scoperec->nusers);
++	      __rtld_mrlock_unlock (l->l_scoperec_lock);
++	    }
++
+ 	  result = _dl_lookup_symbol_x (strtab + refsym->st_name, l, &defsym,
+-					l->l_scope, version,
++					scoperec->scope, version,
+ 					ELF_RTYPE_CLASS_PLT,
+ 					DL_LOOKUP_ADD_DEPENDENCY, NULL);
+ 
++	  if (l->l_type == lt_loaded && !SINGLE_THREAD_P
++	      && atomic_decrement_val (&scoperec->nusers) == 0
++	      && __builtin_expect (scoperec->remove_after_use, 0))
++	    {
++	      if (scoperec->notify)
++		__rtld_notify (scoperec->nusers);
++	      else
++		free (scoperec);
++	    }
++
+ 	  /* Currently result contains the base load address (or link map)
+ 	     of the object that defines sym.  Now add in the symbol
+ 	     offset.  */
+--- libc/elf/dl-sym.c	26 Feb 2006 20:48:48 -0000	1.27
++++ libc/elf/dl-sym.c	18 Oct 2006 19:18:11 -0000	1.30
+@@ -17,6 +17,7 @@
+    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+    02111-1307 USA.  */
+ 
++#include <assert.h>
+ #include <stddef.h>
+ #include <setjmp.h>
+ #include <libintl.h>
+@@ -24,6 +25,7 @@
+ #include <dlfcn.h>
+ #include <ldsodefs.h>
+ #include <dl-hash.h>
++#include <sysdep-cancel.h>
+ #ifdef USE_TLS
+ # include <dl-tls.h>
+ #endif
+@@ -58,6 +60,30 @@ _dl_tls_symaddr (struct link_map *map, c
+ #endif
+ 
+ 
++struct call_dl_lookup_args
++{
++  /* Arguments to do_dlsym.  */
++  struct link_map *map;
++  const char *name;
++  struct r_scope_elem **scope;
++  struct r_found_version *vers;
++  int flags;
++
++  /* Return values of do_dlsym.  */
++  lookup_t loadbase;
++  const ElfW(Sym) **refp;
++};
++
++static void
++call_dl_lookup (void *ptr)
++{
++  struct call_dl_lookup_args *args = (struct call_dl_lookup_args *) ptr;
++  args->map = GLRO(dl_lookup_symbol_x) (args->name, args->map, args->refp,
++					args->scope, args->vers, 0,
++					args->flags, NULL);
++}
++
++
+ static void *
+ internal_function
+ do_sym (void *handle, const char *name, void *who,
+@@ -84,10 +110,62 @@ do_sym (void *handle, const char *name, 
+ 	}
+ 
+   if (handle == RTLD_DEFAULT)
+-    /* Search the global scope.  */
+-    result = GLRO(dl_lookup_symbol_x) (name, match, &ref, match->l_scope,
+-				       vers, 0, flags|DL_LOOKUP_ADD_DEPENDENCY,
+-				       NULL);
++    {
++      /* Search the global scope.  We have the simple case where
++	 we look up in the scope of an object which was part of
++	 the initial binary.  And then the more complex part
++	 where the object is dynamically loaded and the scope
++	 array can change.  */
++      if (match->l_type != lt_loaded || SINGLE_THREAD_P)
++	result = GLRO(dl_lookup_symbol_x) (name, match, &ref,
++					   match->l_scoperec->scope, vers, 0,
++					   flags | DL_LOOKUP_ADD_DEPENDENCY,
++					   NULL);
++      else
++	{
++	  __rtld_mrlock_lock (match->l_scoperec_lock);
++	  struct r_scoperec *scoperec = match->l_scoperec;
++	  atomic_increment (&scoperec->nusers);
++	  __rtld_mrlock_unlock (match->l_scoperec_lock);
++
++	  struct call_dl_lookup_args args;
++	  args.name = name;
++	  args.map = match;
++	  args.scope = scoperec->scope;
++	  args.vers = vers;
++	  args.flags = flags | DL_LOOKUP_ADD_DEPENDENCY;
++	  args.refp = &ref;
++
++	  const char *objname;
++	  const char *errstring = NULL;
++	  bool malloced;
++	  int err = GLRO(dl_catch_error) (&objname, &errstring, &malloced,
++					  call_dl_lookup, &args);
++
++	  if (atomic_decrement_val (&scoperec->nusers) == 0
++	      && __builtin_expect (scoperec->remove_after_use, 0))
++	    {
++	      if (scoperec->notify)
++		__rtld_notify (scoperec->nusers);
++	      else
++		free (scoperec);
++	    }
++
++	  if (__builtin_expect (errstring != NULL, 0))
++	    {
++	      /* The lookup was unsuccessful.  Rethrow the error.  */
++	      char *errstring_dup = strdupa (errstring);
++	      char *objname_dup = strdupa (objname);
++	      if (malloced)
++		free ((char *) errstring);
++
++	      GLRO(dl_signal_error) (err, objname_dup, NULL, errstring_dup);
++	      /* NOTREACHED */
++	    }
++
++	  result = args.map;
++	}
++    }
+   else if (handle == RTLD_NEXT)
+     {
+       if (__builtin_expect (match == GL(dl_ns)[LM_ID_BASE]._ns_loaded, 0))
+--- libc/elf/rtld.c	2 Oct 2006 18:24:37 -0000	1.364
++++ libc/elf/rtld.c	10 Oct 2006 00:49:56 -0000	1.365
+@@ -609,7 +609,7 @@ relocate_doit (void *a)
+ {
+   struct relocate_args *args = (struct relocate_args *) a;
+ 
+-  _dl_relocate_object (args->l, args->l->l_scope, args->lazy, 0);
++  _dl_relocate_object (args->l, args->l->l_scoperec->scope, args->lazy, 0);
+ }
+ 
+ static void
+@@ -1963,8 +1963,8 @@ ERROR: ld.so: object '%s' cannot be load
+ 	    lookup_t result;
+ 
+ 	    result = _dl_lookup_symbol_x (INTUSE(_dl_argv)[i], main_map,
+-					  &ref, main_map->l_scope, NULL,
+-					  ELF_RTYPE_CLASS_PLT,
++					  &ref, main_map->l_scoperec->scope,
++					  NULL, ELF_RTYPE_CLASS_PLT,
+ 					  DL_LOOKUP_ADD_DEPENDENCY, NULL);
+ 
+ 	    loadbase = LOOKUP_VALUE_ADDRESS (result);
+@@ -2006,8 +2006,8 @@ ERROR: ld.so: object '%s' cannot be load
+ 		{
+ 		  /* Mark the link map as not yet relocated again.  */
+ 		  GL(dl_rtld_map).l_relocated = 0;
+-		  _dl_relocate_object (&GL(dl_rtld_map), main_map->l_scope,
+-				       0, 0);
++		  _dl_relocate_object (&GL(dl_rtld_map),
++				       main_map->l_scoperec->scope, 0, 0);
+ 		}
+             }
+ #define VERNEEDTAG (DT_NUM + DT_THISPROCNUM + DT_VERSIONTAGIDX (DT_VERNEED))
+@@ -2227,7 +2227,7 @@ ERROR: ld.so: object '%s' cannot be load
+ 	    }
+ 
+ 	  if (l != &GL(dl_rtld_map))
+-	    _dl_relocate_object (l, l->l_scope, GLRO(dl_lazy),
++	    _dl_relocate_object (l, l->l_scoperec->scope, GLRO(dl_lazy),
+ 				 consider_profiling);
+ 
+ #ifdef USE_TLS
+@@ -2303,7 +2303,8 @@ ERROR: ld.so: object '%s' cannot be load
+       HP_TIMING_NOW (start);
+       /* Mark the link map as not yet relocated again.  */
+       GL(dl_rtld_map).l_relocated = 0;
+-      _dl_relocate_object (&GL(dl_rtld_map), main_map->l_scope, 0, 0);
++      _dl_relocate_object (&GL(dl_rtld_map), main_map->l_scoperec->scope,
++			   0, 0);
+       HP_TIMING_NOW (stop);
+       HP_TIMING_DIFF (add, start, stop);
+       HP_TIMING_ACCUM_NT (relocate_time, add);
+--- libc/include/link.h	20 Sep 2006 20:28:55 -0000	1.40
++++ libc/include/link.h	10 Oct 2006 00:39:30 -0000	1.41
+@@ -43,6 +43,8 @@ extern unsigned int la_objopen (struct l
+ #include <bits/linkmap.h>
+ #include <dl-lookupcfg.h>
+ #include <tls.h>		/* Defines USE_TLS.  */
++#include <bits/libc-lock.h>
++#include <rtld-lowlevel.h>
+ 
+ 
+ /* Some internal data structures of the dynamic linker used in the
+@@ -73,6 +75,18 @@ struct r_search_path_struct
+   };
+ 
+ 
++/* Structure for a scope.  Each such data structure has a lock.  The
++   lock allows many readers.  It can be invalidated by setting bit 31
++   which means that no more lockers are allowe */
++struct r_scoperec
++{
++  bool remove_after_use;
++  bool notify;
++  int nusers;
++  struct r_scope_elem *scope[0];
++};
++
++
+ /* Structure describing a loaded shared object.  The `l_next' and `l_prev'
+    members form a chain of all the shared objects loaded at startup.
+ 
+@@ -212,12 +226,27 @@ struct link_map
+     ElfW(Addr) l_text_end;
+ 
+     /* Default array for 'l_scope'.  */
+-    struct r_scope_elem *l_scope_mem[4];
++    union
++    {
++      struct r_scoperec l_scoperec_mem;
++      struct
++      {
++	struct r_scoperec scoperec_struct;
++	/* XXX This number should be increased once the scope memory
++	   handling has been tested.  */
++	struct r_scope_elem *scope_elems[4];
++#define NINIT_SCOPE_ELEMS(map) \
++	(sizeof ((map)->l_scope_realmem.scope_elems)			      \
++	 / sizeof ((map)->l_scope_realmem.scope_elems[0]))
++      } l_scope_realmem;
++    };
+     /* Size of array allocated for 'l_scope'.  */
+     size_t l_scope_max;
+     /* This is an array defining the lookup scope for this link map.
+        There are initially at most three different scope lists.  */
+-    struct r_scope_elem **l_scope;
++    struct r_scoperec *l_scoperec;
++    /* We need to protect using the SCOPEREC.  */
++    __rtld_mrlock_define (, l_scoperec_lock)
+ 
+     /* A similar array, this time only with the local scope.  This is
+        used occasionally.  */
+--- libc/nptl/sysdeps/unix/sysv/linux/rtld-lowlevel.h	1 Jan 1970 00:00:00 -0000
++++ libc/nptl/sysdeps/unix/sysv/linux/rtld-lowlevel.h	18 Oct 2006 19:14:38 -0000	1.4
+@@ -0,0 +1,151 @@
++/* Defintions for lowlevel handling in ld.so.
++   Copyright (C) 2006 Free Software Foundation, Inc.
++   This file is part of the GNU C Library.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++#ifndef _RTLD_LOWLEVEL_H
++#define  _RTLD_LOWLEVEL_H 1
++
++#include <atomic.h>
++#include <lowlevellock.h>
++
++
++/* Special multi-reader lock used in ld.so.  */
++#define __RTLD_MRLOCK_WRITER 1
++#define __RTLD_MRLOCK_RWAIT 2
++#define __RTLD_MRLOCK_WWAIT 4
++#define __RTLD_MRLOCK_RBITS \
++  ~(__RTLD_MRLOCK_WRITER | __RTLD_MRLOCK_RWAIT | __RTLD_MRLOCK_WWAIT)
++#define __RTLD_MRLOCK_INC 8
++#define __RTLD_MRLOCK_TRIES 5
++
++
++typedef int __rtld_mrlock_t;
++
++
++#define __rtld_mrlock_define(CLASS,NAME) \
++  CLASS __rtld_mrlock_t NAME;
++
++
++#define _RTLD_MRLOCK_INITIALIZER 0
++#define __rtld_mrlock_initialize(NAME) \
++  (void) ((NAME) = 0
++
++
++#define __rtld_mrlock_lock(lock) \
++  do {									      \
++    __label__ out;							      \
++    while (1)								      \
++      {									      \
++	int oldval;							      \
++	for (int tries = 0; tries < __RTLD_MRLOCK_TRIES; ++tries)	      \
++	  {								      \
++	    oldval = lock;						      \
++	    while (__builtin_expect ((oldval				      \
++				      & (__RTLD_MRLOCK_WRITER		      \
++					 | __RTLD_MRLOCK_WWAIT))	      \
++				     == 0, 1))				      \
++	      {								      \
++		int newval = ((oldval & __RTLD_MRLOCK_RBITS)		      \
++			      + __RTLD_MRLOCK_INC);			      \
++		int ret = atomic_compare_and_exchange_val_acq (&(lock),	      \
++							       newval,	      \
++							       oldval);	      \
++		if (__builtin_expect (ret == oldval, 1))		      \
++		  goto out;						      \
++	      }								      \
++	    atomic_delay ();						      \
++	  }								      \
++	if ((oldval & __RTLD_MRLOCK_RWAIT) == 0)			      \
++	  {								      \
++	    atomic_or (&(lock), __RTLD_MRLOCK_RWAIT);			      \
++	    oldval |= __RTLD_MRLOCK_RWAIT;				      \
++	  }								      \
++	lll_futex_wait (lock, oldval);					      \
++      }									      \
++  out:;									      \
++  } while (0)
++
++
++#define __rtld_mrlock_unlock(lock) \
++  do {									      \
++    int oldval = atomic_exchange_and_add (&(lock), -__RTLD_MRLOCK_INC);	      \
++    if (__builtin_expect ((oldval					      \
++			   & (__RTLD_MRLOCK_RBITS | __RTLD_MRLOCK_WWAIT))     \
++			  == (__RTLD_MRLOCK_INC | __RTLD_MRLOCK_WWAIT), 0))   \
++      /* We have to wake all threads since there might be some queued	      \
++	 readers already.  */						      \
++      lll_futex_wake (&(lock), 0x7fffffff);				      \
++  } while (0)
++
++
++/* There can only ever be one thread trying to get the exclusive lock.  */
++#define __rtld_mrlock_change(lock) \
++  do {									      \
++    __label__ out;							      \
++    while (1)								      \
++      {									      \
++	int oldval;							      \
++	for (int tries = 0; tries < __RTLD_MRLOCK_TRIES; ++tries)	      \
++	  {								      \
++	    oldval = lock;						      \
++	    while (__builtin_expect ((oldval & __RTLD_MRLOCK_RBITS) == 0, 1)) \
++	      {								      \
++		int newval = ((oldval & __RTLD_MRLOCK_RWAIT)		      \
++			      + __RTLD_MRLOCK_WRITER);			      \
++		int ret = atomic_compare_and_exchange_val_acq (&(lock),	      \
++							       newval,	      \
++							       oldval);	      \
++		if (__builtin_expect (ret == oldval, 1))		      \
++		  goto out;						      \
++	      }								      \
++	    atomic_delay ();						      \
++	  }								      \
++	atomic_or (&(lock), __RTLD_MRLOCK_WWAIT);			      \
++	oldval |= __RTLD_MRLOCK_WWAIT;					      \
++	lll_futex_wait (lock, oldval);					      \
++      }									      \
++  out:;									      \
++  } while (0)
++
++
++#define __rtld_mrlock_done(lock) \
++  do {				 \
++    int oldval = atomic_exchange_and_add (&(lock), -__RTLD_MRLOCK_WRITER);    \
++    if (__builtin_expect ((oldval & __RTLD_MRLOCK_RWAIT) != 0, 0))	      \
++      lll_futex_wake (&(lock), 0x7fffffff);				      \
++  } while (0)
++
++
++/* Function to wait for variable become zero.  Used in ld.so for
++   reference counters.  */
++#define __rtld_waitzero(word) \
++  do {									      \
++    while (1)								      \
++      {									      \
++	int val = word;							      \
++	if (val == 0)							      \
++	  break;							      \
++	lll_futex_wait (&(word), val);					      \
++      }									      \
++  } while (0)
++
++
++#define __rtld_notify(word) \
++  lll_futex_wake (&(word), 1)
++
++#endif
+--- libc/sysdeps/generic/ldsodefs.h	24 Aug 2006 20:27:05 -0000	1.129
++++ libc/sysdeps/generic/ldsodefs.h	10 Oct 2006 00:27:22 -0000	1.130
+@@ -38,6 +38,7 @@
+ #include <bits/libc-lock.h>
+ #include <hp-timing.h>
+ #include <tls.h>
++#include <rtld-lowlevel.h>
+ 
+ __BEGIN_DECLS
+ 
+--- libc/sysdeps/generic/rtld-lowlevel.h	1 Jan 1970 00:00:00 -0000
++++ libc/sysdeps/generic/rtld-lowlevel.h	10 Oct 2006 00:20:42 -0000	1.1
+@@ -0,0 +1 @@
++#error "Lowlevel primitives for ld.so not implemented"

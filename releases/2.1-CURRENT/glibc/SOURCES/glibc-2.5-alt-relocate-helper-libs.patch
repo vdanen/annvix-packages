@@ -1,0 +1,48 @@
+# Relocate helper libraries from /%_lib to %_libdir.
+
+--- glibc-2.5.orig/debug/Makefile
++++ glibc-2.5/debug/Makefile
+@@ -107,12 +107,11 @@ generated = catchsegv xtrace
+ 
+ include ../Rules
+ 
+-sLIBdir := $(shell echo $(slibdir) | sed 's,lib\(\|64\)$$,\\\\$$LIB,')
++LIBdir := $(shell echo $(libdir) | sed 's,lib\(\|64\)$$,\\\\$$LIB,')
+ 
+ $(objpfx)catchsegv: catchsegv.sh $(common-objpfx)soversions.mk \
+ 		    $(common-objpfx)config.make
+-	slibpfx=`echo $(slibdir)|sed 's/lib\(64\|\)$$/\\\\\\\\$$LIB/'`; \
+-	sed -e 's|@VERSION@|$(version)|' -e "s|@SLIB@|$$slibpfx|" $< > $@.new
++	sed -e 's|@VERSION@|$(version)|' -e 's|@SLIB@|$(LIBdir)|' $< > $@.new
+ 	chmod 555 $@.new
+ 	mv -f $@.new $@
+ 
+@@ -121,7 +120,7 @@ sLIBdir := $(shell echo $(slibdir) | sed
+ $(objpfx)xtrace: xtrace.sh
+ 	rm -f $@.new
+ 	sed -e 's|@BASH@|$(BASH)|' -e 's|@VERSION@|$(version)|' \
+-	    -e 's|@SLIBDIR@|$(sLIBdir)|' -e 's|@BINDIR@|$(bindir)|' $^ > $@.new \
++	    -e 's|@SLIBDIR@|$(LIBdir)|' -e 's|@BINDIR@|$(bindir)|' $^ > $@.new \
+ 	&& rm -f $@ && mv $@.new $@ && chmod +x $@
+ 
+ # Depend on libc.so so a DT_NEEDED is generated in the shared objects.
+--- glibc-2.5.orig/malloc/Makefile
++++ glibc-2.5/malloc/Makefile
+@@ -127,7 +127,7 @@ tst-mcheck-ENV = MALLOC_CHECK_=3
+ # Uncomment this for test releases.  For public releases it is too expensive.
+ #CPPFLAGS-malloc.o += -DMALLOC_DEBUG=1
+ 
+-sLIBdir := $(shell echo $(slibdir) | sed 's,lib\(\|64\)$$,\\\\$$LIB,')
++LIBdir := $(shell echo $(libdir) | sed 's,lib\(\|64\)$$,\\\\$$LIB,')
+ 
+ $(objpfx)mtrace: mtrace.pl
+ 	rm -f $@.new
+@@ -138,7 +138,7 @@ sLIBdir := $(shell echo $(slibdir) | sed
+ $(objpfx)memusage: memusage.sh
+ 	rm -f $@.new
+ 	sed -e 's|@BASH@|$(BASH)|' -e 's|@VERSION@|$(version)|' \
+-	    -e 's|@SLIBDIR@|$(sLIBdir)|' -e 's|@BINDIR@|$(bindir)|' $^ > $@.new \
++	    -e 's|@SLIBDIR@|$(LIBdir)|' -e 's|@BINDIR@|$(bindir)|' $^ > $@.new \
+ 	&& rm -f $@ && mv $@.new $@ && chmod +x $@
+ 
+ 
