@@ -14,11 +14,13 @@
 
 # Module-Specific definitions
 %define apache_version	2.2.4
-%define mod_version	2.0
+%define mod_version	2.0.1
 %define mod_name	mod_apparmor
 %define mod_conf	01_%{mod_name}.conf
 %define mod_so		%{mod_name}.so
 %define sourcename	%{mod_name}-%{mod_version}
+
+%define svnrel		306
 
 Summary:	AppArmor module for Apache
 Name:		%{name}
@@ -27,7 +29,7 @@ Release:	%{release}
 License:	LGPL
 Group:		System/Servers
 URL:		http://forge.novell.com/modules/xfmod/project/?apparmor
-Source0:	apache2-mod-apparmor-%{mod_version}-64.tar.gz
+Source0:	apache2-%{mod_name}-%{mod_version}-%{svnrel}.tar.gz
 Source1:	%{mod_conf}
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -47,7 +49,7 @@ This package is part of a suite of tools that used to be named SubDomain.
 
 
 %prep
-%setup -q -n apache2-mod-apparmor-%{mod_version}
+%setup -q -n apache2-%{mod_name}-%{mod_version}
 
 
 %build
@@ -74,6 +76,9 @@ cat %{_sourcedir}/%{mod_conf} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod
 
 
 %changelog
+* Tue Jul 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.4_2.0.1
+- 2.0.1-306
+
 * Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.4_2.0
 - apache 2.2.4
 
