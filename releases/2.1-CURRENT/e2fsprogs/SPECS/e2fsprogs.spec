@@ -15,6 +15,8 @@
 %define	_root_sbindir	/sbin
 %define	_root_libdir	/%{_lib}
 %define libname		%mklibname ext2fs 2
+%define devname		%mklibname ext2fs -d
+%define odevname	%mklibname ext2fs 2 -d
 
 Summary:	Utilities used for the second extended (ext2) filesystem
 Name:		%{name}
@@ -51,6 +53,7 @@ filesystem utilities.
 Summary:	The libraries for Ext2fs
 Group:		System/Libraries
 Requires:	e2fsprogs
+Provides:	libext2fs = %{version}-%{release}
 
 %description -n %{libname}
 The e2fsprogs package contains a number of utilities for creating,
@@ -64,16 +67,16 @@ repair a corrupted filesystem or to create test cases for e2fsck), tune2fs
 filesystem utilities.
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:	The libraries for Ext2fs
 Group:		Development/C
 Requires:	%{libname} = %{version}
-Obsoletes:	%{name}-devel
-Provides:	%{name}-devel
+Provides:	%{name}-devel = %{version}-%{release}
+# XXX too many things require this right now; be sure to remove it later
 Provides:	libext2fs-devel
-Provides:	libe2fsprogs-devel
+Obsoletes:	%{odevname}
 
-%description -n %{libname}-devel
+%description -n %{devname}
 The e2fsprogs package contains a number of utilities for creating,
 checking, modifying and correcting any inconsistencies in second
 extended (ext2) filesystems.  E2fsprogs contains e2fsck (used to repair
@@ -154,11 +157,11 @@ chmod +x %{buildroot}%{_bindir}/{mk_cmds,compile_et}
 %postun -n %{libname} -p /sbin/ldconfig
 
 
-%post -n %{libname}-devel
+%post -n %{devname}
 %_install_info libext2fs.info
 
 
-%postun -n %{libname}-devel
+%postun -n %{devname}
 %_remove_install_info libext2fs.info
 
 
@@ -228,7 +231,7 @@ chmod +x %{buildroot}%{_bindir}/{mk_cmds,compile_et}
 %{_mandir}/man3/libblkid.3.bz2
 %{_libdir}/e2initrd_helper
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root,755)
 %{_infodir}/libext2fs.info*
 %{_bindir}/compile_et
@@ -271,6 +274,10 @@ chmod +x %{buildroot}%{_bindir}/{mk_cmds,compile_et}
 
 
 %changelog
+* Mon Jun 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.39
+- implement devel naming policy
+- implement library provides policy
+
 * Mon Aug 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.39
 - 1.39
 - use a direct-download url and add the gpg sig file
