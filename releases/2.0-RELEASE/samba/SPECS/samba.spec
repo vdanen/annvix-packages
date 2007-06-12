@@ -641,6 +641,10 @@ popd >/dev/null 2>&1
 %exclude %{_libdir}/%{name}/vfs/vscan*.so
 %dir %{_libdir}/%{name}/pdb
 %{_libdir}/%{name}/auth
+%{_libdir}/%{name}/fi.msg
+%dir %{_libdir}/%{name}/nss_info
+%{_libdir}/%{name}/nss_info/rfc2307.so
+%{_libdir}/%{name}/nss_info/sfu.so
 %{_libdir}/%{name}/*.so
 
 %{_mandir}/man1/profiles.1*
@@ -651,6 +655,28 @@ popd >/dev/null 2>&1
 %{_mandir}/man8/smbd.8*
 %{_mandir}/man8/pdbedit.8*
 %{_mandir}/man8/tdbbackup.8*
+%{_mandir}/man8/idmap_ad.8*
+%{_mandir}/man8/idmap_ldap.8*
+%{_mandir}/man8/idmap_nss.8*
+%{_mandir}/man8/idmap_rid.8*
+%{_mandir}/man8/idmap_tdb.8*
+%{_mandir}/man8/vfs_audit.8*
+%{_mandir}/man8/vfs_cacheprime.8*
+%{_mandir}/man8/vfs_cap.8*
+%{_mandir}/man8/vfs_catia.8*
+%{_mandir}/man8/vfs_commit.8*
+%{_mandir}/man8/vfs_default_quota.8*
+%{_mandir}/man8/vfs_extd_audit.8*
+%{_mandir}/man8/vfs_fake_perms.8*
+%{_mandir}/man8/vfs_full_audit.8*
+%{_mandir}/man8/vfs_gpfs.8*
+%{_mandir}/man8/vfs_netatalk.8*
+%{_mandir}/man8/vfs_notify_fam.8*
+%{_mandir}/man8/vfs_prealloc.8*
+%{_mandir}/man8/vfs_readahead.8*
+%{_mandir}/man8/vfs_readonly.8*
+%{_mandir}/man8/vfs_recycle.8*
+%{_mandir}/man8/vfs_shadow_copy.8*
 %attr(775,root,adm) %dir %{_localstatedir}/%{name}/netlogon
 %attr(755,root,root) %dir %{_localstatedir}/%{name}/profiles
 %attr(755,root,root) %dir %{_localstatedir}/%{name}/printers
@@ -729,6 +755,7 @@ popd >/dev/null 2>&1
 %{_mandir}/man8/smbmount.8*
 %{_mandir}/man8/smbspool.8*
 %{_mandir}/man8/smbumount.8*
+%{_mandir}/man8/eventlogadm.8*
 # Link of smbspool to CUPS
 %{_prefix}/lib/cups/backend/smb
 
@@ -763,6 +790,7 @@ popd >/dev/null 2>&1
 %{_mandir}/man8/net.8*
 %{_mandir}/man8/smbpasswd.8*
 %{_mandir}/man8/tdbdump.8*
+%{_mandir}/man8/tdbtool.8*
 %dir %{_libdir}/%{name}
 %{_libdir}/%{name}/*.dat
 %{_libdir}/%{name}/charset
