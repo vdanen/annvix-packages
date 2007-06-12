@@ -85,6 +85,8 @@ Requires:	tmpwatch
 Requires:	dialog
 Requires:	ed
 Requires:	info-install
+Requires:	libxau
+Requires:	libxdmcp
 Obsoletes:	cweb
 Provides:	cweb = %{version}
 
@@ -485,6 +487,9 @@ rm -f filelist.*
 
 
 %changelog
+* Mon Jun 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0
+- requires libxau and libxdmcp
+
 * Thu Apr 26 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0
 - rebuild against modular X
 - we don't build xdvik, so don't allow it to be enabled in configure
