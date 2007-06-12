@@ -9,8 +9,10 @@
 
 %define revision	$Rev$
 %define name		apparmor-profiles
-%define version		2.0
+%define version		2.0.2
 %define release		%_revrel
+
+%define svnrel		563
 
 %define aa_profilesdir	%{_sysconfdir}/apparmor/profiles
 
@@ -21,7 +23,7 @@ Release:	%{release}
 License:	GPL
 Group:		System/Configuration
 URL:		http://forge.novell.com/modules/xfmod/project/?apparmor
-Source0:	%{name}-%{version}-119.tar.gz
+Source0:	%{name}-%{version}-%{svnrel}.tar.gz
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
@@ -74,6 +76,9 @@ make DESTDIR=%{buildroot} \
 
 
 %changelog
+* Tue Jul 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0.2
+- 2.0.2-563
+
 * Fri Nov 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
 - r119 (October snapshot)
 - drop P0-P2: applied upstream
