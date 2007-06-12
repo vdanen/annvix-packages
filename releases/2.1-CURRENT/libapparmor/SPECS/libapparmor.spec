@@ -9,11 +9,15 @@
 
 %define revision	$Rev$
 %define name		libapparmor
-%define version		2.0
+%define version		2.0.1
 %define release		%_revrel
+
+%define svnrel		305
 
 %define major		1
 %define libname		%mklibname apparmor %{major}
+%define devname		%mklibname apparmor -d
+%define odevname	%mklibname apparmor 1 -d
 
 Summary:	Library to provide key AppArmor symbols
 Name:		%{name}
@@ -22,7 +26,7 @@ Release:	%{release}
 License:	LGPL
 Group:		System/Libraries
 URL:		http://forge.novell.com/modules/xfmod/project/?apparmor
-Source0:	%{name}-%{version}-132.tar.gz
+Source0:	%{name}-%{version}-%{svnrel}.tar.gz
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	glibc-devel
@@ -37,7 +41,7 @@ against this library.
 %package -n %{libname}
 Summary:        Library to provide key AppArmor symbols
 Group:          System/Libraries
-Provides:	libapparmor = %{version}-%{release}
+Provides:	%{name} = %{version}-%{release}
 
 %description -n %{libname}
 This package provides the libapparmor library, which contains the
@@ -46,13 +50,14 @@ Applications that wish to make use of change_hat(2) need to link
 against this library.
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:        The libapparmor include files and link library
 Group:          Development/C
 Requires:       %{libname} = %{version}-%{release}
-Provides:       libapparmor-devel = %{version}-%{release}
+Provides:       %{name}-devel = %{version}-%{release}
+Obsoletes:	%{odevname}
 
-%description -n %{libname}-devel
+%description -n %{devname}
 The development header / link library for libapparmor.
 
 
@@ -81,7 +86,7 @@ make DESTDIR=%{buildroot} LIB=/%{_lib} VERSION=%{version} RELEASE=%{major} insta
 %defattr(-,root,root)
 /%{_lib}/lib*.so.*
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 %{_includedir}/sys/*.h
 %{_libdir}/*.so
@@ -89,6 +94,9 @@ make DESTDIR=%{buildroot} LIB=/%{_lib} VERSION=%{version} RELEASE=%{major} insta
 
 
 %changelog
+* Tue Jun 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0.1
+- 2.0.1-305 (March 07 snapshot)
+
 * Fri Nov 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
 - r132 (October snapshot)
 - drop the -doc package (only contained the COPYING.LGPL file)
