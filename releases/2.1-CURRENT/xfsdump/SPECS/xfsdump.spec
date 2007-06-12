@@ -23,7 +23,7 @@ Source0:	ftp://oss.sgi.com/projects/xfs/download/cmd_tars/%{name}_%{version}-1.t
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	attr-devel
-BuildRequires:	libext2fs-devel
+BuildRequires:	e2fsprogs-devel
 BuildRequires:	xfs-devel >= 2.6.0
 BuildRequires:	dm-devel
 BuildRequires:	ncurses-devel
@@ -96,6 +96,10 @@ rm -rf %{buildroot}%{_datadir}/doc/xfsdump/
 
 
 %changelog
+* Mon Jun 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.42
+- build against new attr
+- fixed buildreqs as per new devel naming policy
+
 * Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.42
 - rebuild against new xfs-devel
 
