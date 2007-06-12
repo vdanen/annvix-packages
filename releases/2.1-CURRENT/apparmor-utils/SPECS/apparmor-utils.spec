@@ -9,8 +9,10 @@
 
 %define revision	$Rev$
 %define name		apparmor-utils
-%define version		2.0
+%define version		2.0.1
 %define release		%_revrel
+
+%define svnrel		449
 
 %define _requires_exceptions perl(Immunix::Ycp)
 
@@ -21,7 +23,7 @@ Release:	%{release}
 License:	LGPL
 Group:		System/Configuration
 URL:		http://forge.novell.com/modules/xfmod/project/?apparmor
-Source0:	%{name}-%{version}-142.tar.gz
+Source0:	%{name}-%{version}-%{svnrel}.tar.gz
 Patch0:		apparmor-utils-2.0-avx-socklog.patch
 Patch1:		apparmor-utils-2.0-avx-nofork.patch
 
@@ -75,6 +77,9 @@ make DESTDIR=%{buildroot} \
 
 
 %changelog
+* Tue Jun 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0.1
+- 2.0.1-449
+
 * Fri Nov 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
 - add a requires on audit
 
