@@ -391,6 +391,9 @@ update-alternatives --remove vim /usr/bin/vim-enhanced
 
 
 %changelog
+* Mon Jun 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 7.1
+- rebuild against new acl
+
 * Fri May 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 7.1
 - 7.1
 - rebuild against new python
