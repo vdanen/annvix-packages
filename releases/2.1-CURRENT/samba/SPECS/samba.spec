@@ -19,6 +19,9 @@
 
 %define lib_major	0
 %define libname		%mklibname smbclient %{lib_major}
+%define devname		%mklibname smbclient -d
+%define odevname	%mklibname smbclient 0 -d
+%define staticdevname	%mklibname smbclient -d -s
 
 Summary:	The Samba SMB server
 Name:		%{name}
@@ -64,11 +67,11 @@ Patch13:	http://samba.org/~metze/samba3-default-quota-ignore-error-01.diff
 BuildRoot:      %{_buildroot}/%{name}-%{version}
 BuildRequires:  pam-devel
 BuildRequires:	readline-devel
-BuildRequires:	libncurses-devel
+BuildRequires:	ncurses-devel
 BuildRequires:	popt-devel
 BuildRequires:  libxml2-devel
-BuildRequires:  libacl-devel
-BuildRequires:  libldap-devel
+BuildRequires:  acl-devel
+BuildRequires:  openldap-devel
 BuildRequires:	krb5-devel
 
 Requires:       pam >= 0.64
@@ -112,10 +115,8 @@ Requires:	perl-Crypt-SmbHash
 Requires:	libxml2
 Requires(post):	rpm-helper
 Requires(preun):rpm-helper
-Provides:       samba
+Provides:       samba = %{version}-%{release}
 Obsoletes:      samba
-Provides:       samba3-server
-Obsoletes:      samba3-server
 
 %description server
 Samba-server provides a SMB server which can be used to provide
@@ -129,8 +130,6 @@ protocol.
 Summary:        Samba (SMB) client programs
 Group:          Networking/Other
 Requires:       %{name}-common = %{version}
-Provides:       samba3-client
-Obsoletes:      samba3-client
 Obsoletes:      smbfs
 
 %description client
@@ -142,8 +141,6 @@ printing to SMB printers.
 %package common
 Summary:        Files used by both Samba servers and clients
 Group:          System/Servers
-Provides:       samba3-common
-Obsoletes:      samba3-common
 
 %description common
 Samba-common provides files necessary for both the server and client
@@ -155,8 +152,6 @@ Summary:        The Samba Web Administration Tool
 Group:          System/Servers
 Requires:       %{name}-server = %{version}
 Requires:       ipsvd
-Provides:       samba3-swat
-Obsoletes:      samba3-swat
 Requires(post):	rpm-helper
 Requires(preun): rpm-helper
 
@@ -205,25 +200,26 @@ suite of networking software, allowing other software to access
 SMB shares.
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:        SMB Client Library Development files
 Group:          Development/C
-Provides:       libsmbclient-devel
 Requires:       %{libname} = %{version}-%{release}
+Provides:       %{name}-devel
+Obsoletes:	%{odevname}
 
-%description -n %{libname}-devel
+%description -n %{devname}
 This package contains the development files for the SMB client
 library, part of the samba suite of networking software, allowing
 the development of other software to access SMB shares.
 
 
-%package -n %{libname}-static-devel
+%package -n %{staticdevname}
 Summary:        SMB Client Static Library Development files
 Group:          System/Libraries
-Provides:       libsmbclient-static-devel = %{version}-%{release}
 Requires:       %{libname}-devel = %{version}-%{release}
+Provides:       %{name}-static-devel = %{version}-%{release}
 
-%description -n %{libname}-static-devel
+%description -n %{staticdevname}
 This package contains the static development files for the SMB
 client library, part of the samba suite of networking software,
 allowing the development of other software to access SMB shares.
@@ -233,7 +229,7 @@ allowing the development of other software to access SMB shares.
 Summary:        On-access virus scanning for samba using Clam Antivirus
 Group:          System/Servers
 Requires:       %{name}-server = %{version}
-Provides:       %{name}-vscan
+Provides:       %{name}-vscan = %{version}-%{release}
 Requires:       clamd
 
 %description vscan-clamav
@@ -245,7 +241,7 @@ Clam antivirus scanner daemon.
 Summary:        On-access virus scanning for samba using ICAP
 Group:          System/Servers
 Requires:       %{name}-server = %{version}
-Provides:       %{name}-icap
+Provides:       %{name}-icap = %{version}-%{release}
 
 %description vscan-icap
 A vfs-module for samba to implement on-access scanning using
@@ -805,13 +801,13 @@ popd >/dev/null 2>&1
 %defattr(-,root,root)
 %{_libdir}/libsmbclient.so.*
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 %{_includedir}/*
 %{_libdir}/libsmbclient.so
 %{_mandir}/man7/libsmbclient.7*
 
-%files -n %{libname}-static-devel
+%files -n %{staticdevname}
 %defattr(-,root,root)
 %{_libdir}/lib*.a
 
@@ -827,6 +823,11 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Mon Jun 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0.24
+- implement devel naming policy
+- implement library provides policy
+- versioned requires
+
 * Tue Feb 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0.24
 - 3.0.24 (security fix for CVE-2007-0452, CVE-2007-0454)
 
