@@ -9,12 +9,13 @@
 
 %define revision	$Rev$
 %define name		attr
-%define version 	2.4.32
+%define version 	2.4.38
 %define release 	%_revrel
 
-%define libname_orig	lib%{name}
 %define major		1
 %define libname		%mklibname %{name} %{major}
+%define devname		%mklibname %{name} -d
+%define odevname	%mklibname %{name} 1 -d
 
 Summary:	Utility for managing filesystem extended attributes
 Name:		%{name}
@@ -29,31 +30,31 @@ BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	libtool
 
 %description
-A set of tools for manipulating extended attributes on filesystem
-objects, in particular getfattr(1) and setfattr(1).
-An attr(1) command is also provided which is largely compatible
-with the SGI IRIX tool of the same name.
+A set of tools for manipulating extended attributes on filesystem objects,
+in particular getfattr(1) and setfattr(1).
+
+An attr(1) command is also provided which is largely compatible with the
+SGI IRIX tool of the same name.
 
 
 %package -n %{libname}
 Summary:	Main library for %{libname_orig}
 Group:		System/Libraries
-Provides:	%{libname_orig} = %{version}-%{release}
+Provides:	lib%{name} = %{version}-%{release}
 
 %description -n %{libname}
 This package contains the library needed to run programs dynamically
-linked with %{libname_orig}.
+linked with lib%{name}.
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:	Extended attribute static libraries and headers
 Group:		Development/C
 Requires:	%{libname} = %{version}
-Provides:	%{libname_orig}-devel = %{version}-%{release}
-Provides:	attr-devel = %{version}-%{release}
-Obsoletes:	attr-devel
+Provides:	%{name}-devel = %{version}-%{release}
+Obsoletes:	%{odevname}
 
-%description -n %{libname}-devel
+%description -n %{devname}
 This package contains the libraries and header files needed to
 develop programs which make use of extended attributes.
 For Linux programs, the documented system call API is the
@@ -117,7 +118,7 @@ rm -rf %{buildroot}/%{_lib}/libattr.{a,la} %{buildroot}%{_libdir}/libattr.la
 %defattr(-,root,root)
 /%{_lib}/*.so.*
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 /%{_lib}/*.so
 %{_libdir}/*.so
@@ -133,6 +134,11 @@ rm -rf %{buildroot}/%{_lib}/libattr.{a,la} %{buildroot}%{_libdir}/libattr.la
 
 
 %changelog
+* Mon Jun 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.4.38
+- 2.4.38
+- implement devel naming policy
+- implement library provides policy
+
 * Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.32
 - use %%kill_lang
 
