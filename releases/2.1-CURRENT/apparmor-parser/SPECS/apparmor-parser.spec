@@ -9,8 +9,10 @@
 
 %define revision	$Rev$
 %define name		apparmor-parser
-%define version		2.0
+%define version		2.0.2
 %define release		%_revrel
+
+%define svnrel		662
 
 Summary:	AppArmor userlevel parser utility
 Name:		%{name}
@@ -19,11 +21,10 @@ Release:	%{release}
 License:	GPL
 Group:		System/Configuration
 URL:		http://forge.novell.com/modules/xfmod/project/?apparmor
-Source0:	%{name}-%{version}-150.tar.gz
+Source0:	%{name}-%{version}-%{svnrel}.tar.gz
 Source1:	rc.aaeventd.mandriva
 Source2:	apparmor-avx.init
-Patch0:		apparmor-parser-2.0-avx-fixes.patch
-Patch1:		apparmor-2.0-fix_fdopendir.patch
+Patch0:		apparmor-parser-2.0.2-avx-fixes.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	libcap-devel
@@ -63,10 +64,8 @@ This package contains the documentation for %{name}.
 %prep
 %setup -q
 %patch0 -p0 -b .avx
-%patch1 -p2 -b .fdopendir
 
 # copy our initscripts
-cp %{_sourcedir}/rc.aaeventd.mandriva rc.aaeventd.annvix
 cp %{_sourcedir}/apparmor-avx.init rc.apparmor.annvix
 
 
@@ -82,7 +81,6 @@ make DESTDIR=%{buildroot} \
      install
 
 mv %{buildroot}%{_initrddir}/rc.apparmor.functions %{buildroot}%{_initrddir}/apparmor.functions
-#install -m 0750 rc.aaeventd.annvix %{buildroot}%{_initrddir}/aaeventd
 
 %kill_lang %{name}
 %find_lang %{name}
@@ -94,12 +92,10 @@ mv %{buildroot}%{_initrddir}/rc.apparmor.functions %{buildroot}%{_initrddir}/app
 
 %post
 %_post_service apparmor
-#%_post_service aaeventd
 
 
 %preun
 %_preun_service apparmor
-#%#_preun_service aaeventd
 
 
 
@@ -110,8 +106,12 @@ mv %{buildroot}%{_initrddir}/rc.apparmor.functions %{buildroot}%{_initrddir}/app
 %dir %attr(0750,root,root) %{_sysconfdir}/apparmor
 %attr(0750,root,root) %{_initrddir}/apparmor.functions
 %attr(0750,root,root) %{_initrddir}/apparmor
-#%attr(0750,root,root) %{_initrddir}/aaeventd
 %dir %attr(0750,root,root) /var/lib/apparmor
+%{_mandir}/man5//apparmor.d.5*
+%{_mandir}/man5/apparmor.vim.5*
+%{_mandir}/man5/subdomain.conf.5*
+%{_mandir}/man7/apparmor.7*
+%{_mandir}/man8/apparmor_parser.8*
 
 %files -n apparmor
 %defattr(-,root,root)
@@ -122,6 +122,13 @@ mv %{buildroot}%{_initrddir}/rc.apparmor.functions %{buildroot}%{_initrddir}/app
 
 
 %changelog
+* Tue Jun 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0.2
+- 2.0.2-662
+- rediff P0
+- drop P1; fixes merged upstream
+- update our initscript to match the new apparmor_ names (rather than
+  subdomain_)
+
 * Fri Nov 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
 - r150 (October snapshot)
 - drop P1-P3: applied upstream

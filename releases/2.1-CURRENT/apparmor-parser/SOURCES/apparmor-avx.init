@@ -17,7 +17,7 @@ apparmor_functions="/etc/init.d/apparmor.functions"
 if [ -f "${apparmor_functions}" ]; then
 	source ${apparmor_functions}
 else
-	sd_log_failure_msg "Unable to find AppArmor initscript functions"
+	aa_log_failure_msg "Unable to find AppArmor initscript functions"
 	exit 1
 fi
 
@@ -28,30 +28,30 @@ function usage() {
 
 case "$1" in
     start)
-        subdomain_start
+        apparmor_start
         touch /var/lock/subsys/apparmor
         ;;
     stop)
-        subdomain_stop
+        apparmor_stop
         rm -f /var/lock/subsys/apparmor
         ;;
     restart|reload|force-reload)
-        subdomain_restart
+        apparmor_restart
         ;;
     try-restart)
-        subdomain_try_restart
+        apparmor_try_restart
         ;;
     debug)
-        subdomain_debug
+        apparmor_debug
         ;;
     kill)
-        subdomain_kill
+        apparmor_kill
         ;;
     status)
-        subdomain_status
+        apparmor_status
         ;;
     *)
-        printf "Usage: $0 {start|stop|restart|try-restart|reload|force-reload|status|kill}\n"
+        usage
         exit 1
     esac
 
