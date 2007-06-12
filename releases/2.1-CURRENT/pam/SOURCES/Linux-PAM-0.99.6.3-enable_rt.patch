@@ -1,0 +1,10 @@
+--- Linux-PAM-0.99.6.3/modules/pam_limits/limits.conf.enable_rt	2005-08-16 08:02:28.000000000 -0600
++++ Linux-PAM-0.99.6.3/modules/pam_limits/limits.conf	2007-06-10 23:22:59.532361250 -0600
+@@ -47,4 +47,7 @@
+ #ftp             hard    nproc           0
+ #@student        -       maxlogins       4
+ 
++*               -       rtprio           0
++*               -       nice             0
++
+ # End of file

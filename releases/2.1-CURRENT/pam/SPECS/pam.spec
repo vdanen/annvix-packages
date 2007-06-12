@@ -17,6 +17,7 @@
 %define pam_redhat_version 0.99.6-2
 
 %define libname		%mklibname %{name} 0
+%define devname		%mklibname %{name} -d
 
 Summary:	A security tool which provides authentication for applications
 Name:		%{name}
@@ -47,7 +48,7 @@ Patch104:	Linux-PAM-0.99.3.0-verbose-limits.patch
 #      access to /usr/X11R6/bin dir is controlled by a group
 Patch105:	Linux-PAM-0.99.3.0-xauth-groups.patch
 # (tv/blino) add defaults for nice/rtprio in /etc/security/limits.conf
-Patch106:	Linux-PAM-0.99.3.0-enable_rt.patch
+Patch106:	Linux-PAM-0.99.6.3-enable_rt.patch
 # (blino) fix parallel build (in doc/specs and pam_console)
 Patch109:	Linux-PAM-0.99.3.0-pbuild-rh.patch
 
@@ -61,8 +62,8 @@ BuildRequires:	glib2-devel
 BuildRequires:	db4-devel
 BuildRequires:	automake1.8
 BuildRequires:	openssl-devel
+BuildRequires:	glibc-crypt_blowfish-devel
 
-Requires:	glibc-crypt_blowfish-devel
 # pam_unix is now provided by pam_tcb
 Requires:	pam_tcb
 Requires:	pam_passwdqc
@@ -80,7 +81,6 @@ having to recompile programs that handle authentication.
 %package -n %{libname}
 Summary:	Libraries for %{name}
 Group:		System/Libraries
-Conflicts:	%{name} < 0.77-11sls
 
 %description -n %{libname}
 PAM (Pluggable Authentication Modules) is a system security tool that
@@ -90,15 +90,14 @@ having to recompile programs that handle authentication.
 This package contains the libraries for %{name}
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:	Development headers and libraries for %{name}
 Group:		Development/Other
 Requires:	%{libname} = %{version}
 Provides:	%{name}-devel = %{version}-%{release}
-Provides:	lib%{name}-devel = %{version}-%{release}
-Obsoletes:	%{name}-devel <= 0.77-10sls
+Obsoletes:	%mklibname %{name} 0 -d
 
-%description -n %{libname}-devel
+%description -n %{devname}
 PAM (Pluggable Authentication Modules) is a system security tool that
 allows system administrators to set authentication policy without
 having to recompile programs that handle authentication.
@@ -203,8 +202,8 @@ touch %{buildroot}%{_sysconfdir}/environment
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
-%post -n %libname -p /sbin/ldconfig
-%postun -n %libname -p /sbin/ldconfig
+%post -n %{libname} -p /sbin/ldconfig
+%postun -n %{libname} -p /sbin/ldconfig
 
 
 %files -f Linux-PAM.lang
@@ -246,7 +245,7 @@ touch %{buildroot}%{_sysconfdir}/environment
 /%{_lib}/security/*.so
 /%{_lib}/security/pam_filter
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 /%{_lib}/libpam.so
 /%{_lib}/libpam_misc.so
@@ -260,6 +259,12 @@ touch %{buildroot}%{_sysconfdir}/environment
 
 
 %changelog
+* Mon Jun 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.99.6.3
+- update P106 to remove the @audio group
+- remove unnecessary conflicts
+- implement devel naming policy
+- fix buildreq on glibc-crypt_blowfish-devel
+
 * Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.99.6.3
 - 0.99.6.3
 - rediff P200
