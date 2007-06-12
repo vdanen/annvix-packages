@@ -68,8 +68,8 @@ BuildRequires:	gettext
 BuildRequires:	termcap-devel
 BuildRequires:	pam-devel
 BuildRequires:	texinfo >= 4.3
-BuildRequires:	libacl-devel
-BuildRequires:	libattr-devel
+BuildRequires:	acl-devel
+BuildRequires:	attr-devel
 BuildRequires:	automake1.8
 BuildRequires:	autoconf2.5 > 2.59
 
@@ -257,6 +257,10 @@ true
 
 
 %changelog
+* Mon Jun 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.97
+- rebuild against new attr and acl
+- fix buildreqs as per devel naming policy
+
 * Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.97
 - 5.97
 - add buildreq on autoconf2.5 > 2.59 (says it wants 2.59d)
