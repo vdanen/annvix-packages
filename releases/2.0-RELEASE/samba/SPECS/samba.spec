@@ -9,11 +9,11 @@
 
 %define revision	$Rev$
 %define name		samba
-%define version		3.0.24
+%define version		3.0.25a
 %define release		%_revrel
 
 %define smbldapver	0.9.2
-%define vscanver	0.3.6b
+%define vscanver	0.3.6c-beta4
 %global vscandir	samba-vscan-%{vscanver}
 %global vfsdir		examples.bin/VFS
 
@@ -52,7 +52,6 @@ Source21:	samba.pamd
 Source22:	system-auth-winbind.pamd
 Source23:	smb.conf
 Source24:	smb.conf_full
-Patch1:         smbw.patch
 Patch2:         smbldap-tools-0.9.1-mdkconfig.patch
 Patch4:         samba-3.0-smbmount-sbin.patch
 Patch6:         samba-3.0.6-mdk-smbmount-unixext.patch
@@ -254,7 +253,6 @@ ICAP-capable antivirus software.
 
 %prep
 %setup -q -a 3
-%patch1 -p1 -b .smbw
 pushd examples/LDAP/smbldap-tools-%{smbldapver}
 %patch2 -p1
 popd
@@ -827,6 +825,13 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Tue Jun 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0.25a
+- 3.0.25a (security fixes for CVE-2007-2444, CVE-2007-2446, CVE-2007-2447)
+- drop the socket options in smb.conf (Mandriva bug #28459)
+- drop P1; the target isn't available anymore
+- vscan 0.3.6c-beta4 (this one builds with this version of samba)
+- updated P13 from Mandriva
+
 * Tue Feb 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0.24
 - 3.0.24 (security fix for CVE-2007-0452, CVE-2007-0454)
 
