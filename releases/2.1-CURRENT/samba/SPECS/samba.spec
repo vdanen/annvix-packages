@@ -9,11 +9,11 @@
 
 %define revision	$Rev$
 %define name		samba
-%define version		3.0.24
+%define version		3.0.25a
 %define release		%_revrel
 
 %define smbldapver	0.9.2
-%define vscanver	0.3.6b
+%define vscanver	0.3.6c-beta4
 %global vscandir	samba-vscan-%{vscanver}
 %global vfsdir		examples.bin/VFS
 
@@ -55,7 +55,6 @@ Source21:	samba.pamd
 Source22:	system-auth-winbind.pamd
 Source23:	smb.conf
 Source24:	smb.conf_full
-Patch1:         smbw.patch
 Patch2:         smbldap-tools-0.9.1-mdkconfig.patch
 Patch4:         samba-3.0-smbmount-sbin.patch
 Patch6:         samba-3.0.6-mdk-smbmount-unixext.patch
@@ -192,7 +191,8 @@ IP addresses.
 %package -n %{libname}
 Summary:        SMB Client Library
 Group:          System/Libraries
-Provides:       libsmbclient
+Provides:       libsmbclient = %{version}-%{release}
+Provides:	lib%{name} = %{version}-%{release}
 
 %description -n %{libname}
 This package contains the SMB client library, part of the samba
@@ -250,7 +250,6 @@ ICAP-capable antivirus software.
 
 %prep
 %setup -q -a 3
-%patch1 -p1 -b .smbw
 pushd examples/LDAP/smbldap-tools-%{smbldapver}
 %patch2 -p1
 popd
@@ -639,6 +638,11 @@ popd >/dev/null 2>&1
 %exclude %{_libdir}/%{name}/vfs/vscan*.so
 %dir %{_libdir}/%{name}/pdb
 %{_libdir}/%{name}/auth
+%{_libdir}/%{name}/fi.msg
+%dir %{_libdir}/%{name}/nss_info
+%{_libdir}/%{name}/nss_info/rfc2307.so
+%{_libdir}/%{name}/nss_info/sfu.so
+
 %{_libdir}/%{name}/*.so
 
 %{_mandir}/man1/profiles.1*
@@ -649,6 +653,28 @@ popd >/dev/null 2>&1
 %{_mandir}/man8/smbd.8*
 %{_mandir}/man8/pdbedit.8*
 %{_mandir}/man8/tdbbackup.8*
+%{_mandir}/man8/idmap_ad.8*
+%{_mandir}/man8/idmap_ldap.8*
+%{_mandir}/man8/idmap_nss.8*
+%{_mandir}/man8/idmap_rid.8*
+%{_mandir}/man8/idmap_tdb.8*
+%{_mandir}/man8/vfs_audit.8*
+%{_mandir}/man8/vfs_cacheprime.8*
+%{_mandir}/man8/vfs_cap.8*
+%{_mandir}/man8/vfs_catia.8*
+%{_mandir}/man8/vfs_commit.8*
+%{_mandir}/man8/vfs_default_quota.8*
+%{_mandir}/man8/vfs_extd_audit.8*
+%{_mandir}/man8/vfs_fake_perms.8*
+%{_mandir}/man8/vfs_full_audit.8*
+%{_mandir}/man8/vfs_gpfs.8*
+%{_mandir}/man8/vfs_netatalk.8*
+%{_mandir}/man8/vfs_notify_fam.8*
+%{_mandir}/man8/vfs_prealloc.8*
+%{_mandir}/man8/vfs_readahead.8*
+%{_mandir}/man8/vfs_readonly.8*
+%{_mandir}/man8/vfs_recycle.8*
+%{_mandir}/man8/vfs_shadow_copy.8*
 %attr(775,root,adm) %dir %{_localstatedir}/%{name}/netlogon
 %attr(755,root,root) %dir %{_localstatedir}/%{name}/profiles
 %attr(755,root,root) %dir %{_localstatedir}/%{name}/printers
@@ -727,6 +753,7 @@ popd >/dev/null 2>&1
 %{_mandir}/man8/smbmount.8*
 %{_mandir}/man8/smbspool.8*
 %{_mandir}/man8/smbumount.8*
+%{_mandir}/man8/eventlogadm.8*
 # Link of smbspool to CUPS
 %{_prefix}/lib/cups/backend/smb
 
@@ -761,6 +788,7 @@ popd >/dev/null 2>&1
 %{_mandir}/man8/net.8*
 %{_mandir}/man8/smbpasswd.8*
 %{_mandir}/man8/tdbdump.8*
+%{_mandir}/man8/tdbtool.8*
 %dir %{_libdir}/%{name}
 %{_libdir}/%{name}/*.dat
 %{_libdir}/%{name}/charset
@@ -823,6 +851,13 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Tue Jun 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0.25a
+- 3.0.25a (security fixes for CVE-2007-2444, CVE-2007-2446, CVE-2007-2447)
+- drop the socket options in smb.conf (Mandriva bug #28459)
+- drop P1; the target isn't available anymore
+- vscan 0.3.6c-beta4 (this one builds with this version of samba)
+- updated P13 from Mandriva
+
 * Mon Jun 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0.24
 - implement devel naming policy
 - implement library provides policy

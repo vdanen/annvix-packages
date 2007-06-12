@@ -40,7 +40,7 @@
 +	lp_parm_bool(SNUM((handle)->conn),DEFAULT_QUOTA_NAME,"ignore fs quota set error",\
 +		     DEFAULT_QUOTA_IGNORE_FS_QUOTA_SET_ERROR_DEFAULT)
 +
- static int default_quota_get_quota(vfs_handle_struct *handle, connection_struct *conn, enum SMB_QUOTA_TYPE qtype, unid_t id, SMB_DISK_QUOTA *dq)
+ static int default_quota_get_quota(vfs_handle_struct *handle, enum SMB_QUOTA_TYPE qtype, unid_t id, SMB_DISK_QUOTA *dq)
  {
  	int ret = -1;
 @@ -148,6 +160,7 @@
@@ -66,7 +66,7 @@
 @@ -180,7 +195,9 @@
  	}
  
- 	if ((ret=SMB_VFS_NEXT_SET_QUOTA(handle, conn, qtype, id, dq))!=0) {
+ 	if ((ret=SMB_VFS_NEXT_SET_QUOTA(handle, qtype, id, dq))!=0) {
 -		return ret;
 +		if (!ignore_set_error) {
 +			return ret;

@@ -167,10 +167,6 @@
 #  template shell = /bin/bash
 
 # 5. Browser Control and Networking Options:
-# Most people will find that this option gives better performance.
-# See speed.txt and the manual pages for details
-   socket options = TCP_NODELAY SO_RCVBUF=8192 SO_SNDBUF=8192
-
 # Configure Samba to use multiple interfaces
 # If you have multiple network interfaces then you must list them
 # here. See the man page for details.
