@@ -30,6 +30,7 @@ BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	libcap-devel
 BuildRequires:	bison
 BuildRequires:	flex
+BuildRequires:	perl-devel
 
 Requires:	sed
 Requires(post):	rpm-helper
@@ -122,6 +123,9 @@ mv %{buildroot}%{_initrddir}/rc.apparmor.functions %{buildroot}%{_initrddir}/app
 
 
 %changelog
+* Wed Jun 13 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0.2
+- buildrequires perl-devel
+
 * Tue Jun 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0.2
 - 2.0.2-662
 - rediff P0
