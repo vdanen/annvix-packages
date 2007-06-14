@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		spamassassin
-%define version		3.1.8
+%define version		3.1.9
 %define release		%_revrel
 
 %define fname		Mail-SpamAssassin
@@ -228,6 +228,9 @@ echo "-c -m5 -H" >%{buildroot}%{_srvdir}/spamd/env/OPTIONS
 
 
 %changelog
+* Thu Jun 14 2007 Ying-Hung Chen <ying-at-annvix.org> 3.1.9
+- 3.1.9
+
 * Fri Feb 23 2007 Vincent Danen <vdanen-at-annvix.org> 3.1.8
 - 3.1.8: security fix for CVE-2007-0451
 
