@@ -15,6 +15,8 @@
 
 %define aprver		1
 %define libname		%mklibname %{name} %{aprver}
+%define devname		%mklibname %{name} -d
+%define odevname	%mklibname %{name} 1 -d
 
 Summary:	Apache Portable Runtime library
 Name:		%{name}
@@ -40,7 +42,7 @@ BuildRequires:	libtool
 BuildRequires:	doxygen
 BuildRequires:	openssl-devel
 BuildRequires:	python
-BuildRequires:	libext2fs-devel
+BuildRequires:	e2fsprogs-devel
 
 %description
 The purpose of the Apache Portable Runtime (APR) is to provide a
@@ -52,9 +54,7 @@ including Unices, MS Win32, BeOS and OS/2.
 %package -n %{libname}
 Summary:	Apache Portable Runtime library
 Group: 		System/Libraries
-#Provides:	%{name} = %{version}-%{release}
 Provides:	lib%{name} = %{epoch}:%{version}-%{release}
-Obsoletes:	lib%{name}
 Epoch:		%{epoch}
 
 %description -n %{libname}
@@ -64,17 +64,15 @@ portability layer to as many operating systems as possible,
 including Unices, MS Win32, BeOS and OS/2.
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:	APR library development kit
 Group:		Development/C
-#Requires:	%{name} = %{version}
-Requires:	%{libname} = 1:%{version}
-Provides:	lib%{name}-devel = %{epoch}:%{version}-%{release}
+Requires:	%{libname} = %{epoch}:%{version}
 Provides:	%{name}-devel = %{epoch}:%{version}-%{release}
-Obsoletes:	lib%{name}-devel %{name}-devel
+Obsoletes:	%{odevname}
 Epoch:		%{epoch}
 
-%description -n	%{libname}-devel
+%description -n	%{devname}
 This package provides the support files which can be used to 
 build applications using the APR library.  The mission of the
 Apache Portable Runtime (APR) is to provide a free library of 
@@ -220,7 +218,7 @@ rm -f %{buildroot}%{_libdir}/apr.exp
 %defattr(-,root,root)
 %{_libdir}/libapr-%{aprver}.so.*
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 %{_bindir}/apr-%{aprver}-config
 %{_libdir}/libapr-%{aprver}.*a
@@ -241,6 +239,11 @@ rm -f %{buildroot}%{_libdir}/apr.exp
 
 
 %changelog
+* Sat Jun 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2.8
+- rebuild for pkgconfig provides
+- implement devel naming policy
+- implement library provides policy
+
 * Sat Dec 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.8
 - 1.2.8
 - P6: synced from Mandriva
