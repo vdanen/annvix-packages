@@ -31,37 +31,36 @@ Source2:	su.pamd
 Source3:	help2man
 Patch0:		coreutils-4.5.4-lug.patch
 # fileutils
-Patch101:	coreutils-5.93-spacedir.patch
-Patch102:	coreutils-5.1.1-sparc.patch
-Patch107:	fileutils-4.1.10-timestyle.patch
-Patch118:	fileutils-4.1-ls_h.patch
-Patch152:	coreutils-4.5.7-touch_errno.patch
-Patch500:	textutils-2.0.17-mem.patch
+Patch1:		coreutils-5.93-spacedir.patch
+Patch2:		coreutils-5.1.1-sparc.patch
+Patch3:		fileutils-4.1.10-timestyle.patch
+Patch4:		fileutils-4.1-ls_h.patch
+Patch5:		coreutils-4.5.7-touch_errno.patch
+Patch6:		textutils-2.0.17-mem.patch
 # sh-utils
-Patch703:	coreutils-5.93-dateman.patch
-Patch704:	sh-utils-1.16-paths.patch
+Patch7:		coreutils-5.93-dateman.patch
+Patch8:		sh-utils-1.16-paths.patch
 # RMS will never accept the PAM patch because it removes his historical
 # rant about Twenex and the wheel group, so we'll continue to maintain
 # it here indefinitely.
-Patch706:	coreutils-5.93-pam.patch
-Patch711:	sh-utils-2.0.12-hname.patch
+Patch9:		coreutils-5.93-pam.patch
 # (sb) lin18nux/lsb compliance - normally from here:
 # http://www.openi18n.org/subgroups/utildev/patch/
 # this one is actually a merger of 5.2 and 5.3, as join segfaults
 # compiled with gcc4 and the 5.1/5.2 patch
-Patch800:	coreutils-5.97-new-i18n.patch
+Patch10:	coreutils-5.97-new-i18n.patch
 # small pt_BR fix
-Patch801:	coreutils-5.2.1-ptbrfix.patch
-Patch904:	coreutils-5.0.91-allow_old_options.patch
-Patch909:	coreutils-5.1.0-64bit-fixes.patch
-Patch910:	coreutils-5.2.1-uname.patch
+Patch11:	coreutils-5.2.1-ptbrfix.patch
+Patch12:	coreutils-5.1.0-64bit-fixes.patch
+Patch13:	coreutils-5.2.1-uname.patch
 # posix acls and extended attributes
 # from http://ftp.opensuse.org/pub/opensuse/distribution/SL-OSS-factory/inst-source/suse/src/coreutils-5.97-4.src.rpm
 # this one is already merged in CVS:
-Patch1001:	coreutils-acl.diff
-Patch1002:	coreutils-acl+posix.diff
-Patch1003:	coreutils-xattr.diff
-Patch1004:	coreutils-xattr-va-list.diff
+Patch14:	coreutils-acl.diff
+Patch15:	coreutils-acl+posix.diff
+Patch16:	coreutils-xattr.diff
+Patch17:	coreutils-xattr-va-list.diff
+Patch18:	coreutils-5.97-force-option--override--interactive-option.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	gettext
@@ -124,33 +123,34 @@ This package contains the documentation for %{name}.
 mv po/{lg,lug}.po
 
 # fileutils
-%patch101 -p1 -b .space
-%patch102 -p1 -b .sparc
-%patch107 -p1 -b .timestyle
-%patch118 -p1
-%patch152 -p1
+%patch1 -p1 -b .space
+%patch2 -p1 -b .sparc
+%patch3 -p1 -b .timestyle
+%patch4 -p1
+%patch5 -p1
 
 # textutils
-%patch500 -p1
+%patch6 -p1
 
 # sh-utils
-%patch703 -p1 -b .dateman
-%patch704 -p1 -b .paths
-%patch706 -p1 -b .pam
+%patch7 -p1 -b .dateman
+%patch8 -p1 -b .paths
+%patch9 -p1 -b .pam
 
 # li18nux/lsb
-%patch800 -p1 -b .i18n
-%patch801 -p0 -b .ptbr
+%patch10 -p1 -b .i18n
+%patch11 -p0 -b .ptbr
 
-#%patch904 -p1 -b .old-options
-%patch909 -p1 -b .64bit
-%patch910 -p0 -b .cpu
+%patch12 -p1 -b .64bit
+%patch13 -p0 -b .cpu
 
 # posix acls and extended attributes
-%patch1001 -p1 -b .acl
-%patch1002 -p1 -b .acl+posix
-%patch1003 -p1 -b .xattr
-%patch1004 -p0 -b .xattr-va
+%patch14 -p1 -b .acl
+%patch15 -p1 -b .acl+posix
+%patch16 -p1 -b .xattr
+%patch17 -p0 -b .xattr-va
+
+%patch18 -p1 -b .override
 
 cp %{_sourcedir}/help2man man/help2man
 chmod +x man/help2man
@@ -257,6 +257,11 @@ true
 
 
 %changelog
+* Sat Jun 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.97
+- drop unapplied patches
+- renumber patches
+- P18: re-introduce rm -i -f override (Mandriva)
+
 * Mon Jun 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.97
 - rebuild against new attr and acl
 - fix buildreqs as per devel naming policy
