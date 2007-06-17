@@ -14,6 +14,8 @@
 
 %define apuver		1
 %define libname		%mklibname %{name} %{apuver}
+%define devname		%mklibname %{name} -d
+%define odevname	%mklibname %{name} 1 -d
 
 Summary:	Apache Portable Runtime Utility library
 Name:		%{name}
@@ -64,8 +66,6 @@ Summary:	Apache Portable Runtime Utility library
 Group: 		System/Libraries
 Provides:	%{name} = %{version}-%{release}
 Provides:	lib%{name} = %{version}-%{release}
-Obsoletes:	lib%{name}
-Obsoletes:	%{name}
 
 %description -n	%{libname}
 The purpose of the Apache Portable Runtime (APR) is to provide a
@@ -77,21 +77,18 @@ This package includes the DBD drivers for MySQL, PostgreSQL, and
 SQLite3.
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Group:		Development/C
 Summary:	APR utility library development kit
 Requires:	%{name} = %{version}
-Requires:	%{libname} = %{version}-%{release}
-Requires:	apr-util = %{version}
+Requires:	%{libname} = %{version}
 Requires:	apr-devel
 Requires:	openldap-devel
 Requires:	expat-devel
-Provides:	lib%{name}-devel = %{version}-%{release}
 Provides:	%{name}-devel = %{version}-%{release}
-Obsoletes:	lib%{name}-devel
-Obsoletes:	%{name}-devel
+Obsoletes:	%{odevname}
 
-%description -n	%{libname}-devel
+%description -n	%{devname}
 This package provides the support files which can be used to 
 build applications using the APR utility library.  The mission 
 of the Apache Portable Runtime (APR) is to provide a free 
@@ -235,7 +232,7 @@ rm -f %{buildroot}%{_libdir}/aprutil.exp
 %attr(755,root,root) %{_libdir}/apr_dbd_pgsql.so
 %attr(755,root,root) %{_libdir}/apr_dbd_sqlite3.so
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 %attr(0755,root,root) %{_bindir}/apu-%{apuver}-config
 %{_libdir}/libaprutil-%{apuver}.*a
@@ -253,6 +250,12 @@ rm -f %{buildroot}%{_libdir}/aprutil.exp
 
 
 %changelog
+* Sat Jun 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2.8
+- rebuild against new expat
+- implement devel naming policy
+- implement library provides policy
+- cleanup obsoletes/provides
+
 * Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2.8
 - rebuild against new postgresql
 
