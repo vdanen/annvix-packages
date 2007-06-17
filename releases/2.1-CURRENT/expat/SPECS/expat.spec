@@ -9,12 +9,13 @@
 
 %define revision	$Rev$
 %define name		expat
-%define version 	1.95.8
+%define version 	2.0.1
 %define release 	%_revrel
 
-%define libname_orig	libexpat
-%define major		0
+%define major		1
 %define libname		%mklibname %{name} %{major}
+%define devname		%mklibname %{name} -d
+%define odevname	%mklibname %{name} 0 -d
 
 Summary:	Expat is an XML parser written in C
 Name:		%{name}
@@ -23,7 +24,7 @@ Release:	%{release}
 License:	MPL or GPL
 Group:		Development/Other
 URL:		http://www.jclark.com/xml/expat.html
-Source:		http://prdownloads.sourceforge.net/expat/%{name}-%{version}.tar.bz2
+Source:		http://prdownloads.sourceforge.net/expat/%{name}-%{version}.tar.gz
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -37,25 +38,21 @@ fully conforming. It is currently not a validating XML parser.
 %package -n %{libname}
 Summary:	Main library for expat
 Group:		Development/C
-Obsoletes:	libexpat1_95
-Provides:	libexpat1_95 = %{version}-%{release}
+Provides:	lib%{name} = %{version}-%{release}
 
 %description -n %{libname}
 This package contains the library needed to run programs dynamically
 linked with expat.
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:	Development environment for the expat XML parser
 Group:		Development/C
 Requires:	%{libname} = %{version}
-Provides:       %{libname_orig}-devel = %{version}-%{release}
 Provides:	%{name}-devel = %{version}-%{release}
-Obsoletes:      %{name}-devel
-Obsoletes:      libexpat1_95-devel
-Provides:       libexpat1_95-devel = %{version}-%{release}
+Obsoletes:	%{odevname}
 
-%description -n %{libname}-devel
+%description -n %{devname}
 Development environment for the expat XML parser
 
 
@@ -93,7 +90,7 @@ Development environment for the expat XML parser
 %defattr(-,root,root)
 %{_libdir}/libexpat.so.*
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 %{_libdir}/libexpat.so
 %{_includedir}/expat.h
@@ -103,6 +100,12 @@ Development environment for the expat XML parser
 
 
 %changelog
+* Sat Jun 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0.1
+- 2.0.1
+- clean up provides/obsoletes
+- implement devel naming policy
+- implement library provides policy
+
 * Sat Jul 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.95.8
 - rebuild with gcc4
 
