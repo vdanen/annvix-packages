@@ -13,8 +13,8 @@
 %define release 	%_revrel
 
 %define major		2
-%define libname_orig	libdb%{major}
 %define libname		%mklibname db %{major}
+%define devname		%mklibname db2 -d
 
 Summary:	The BSD database library for C (version 2)
 Name:		%{name}
@@ -36,10 +36,6 @@ Patch5:		db2-sparc64-Makefile-fPIC.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
-%ifnarch ia64
-Conflicts:	glibc < 2.1.90
-%endif
-
 %description
 The Berkeley Database (Berkeley DB) is a programmatic toolkit that provides
 embedded database support for both traditional and client/server applications.
@@ -49,9 +45,8 @@ This library used to be part of the glibc package.
 %package -n %{libname}
 Summary:	The BSD database library for C (version 2)
 Group:		System/Libraries
-PreReq:		ldconfig
-Obsoletes:	%{name}
 Provides:	%{name} = %{version}-%{release}
+Obsoletes:	%{name}
 
 %description -n %{libname}
 The Berkeley Database (Berkeley DB) is a programmatic toolkit that provides
@@ -59,17 +54,13 @@ embedded database support for both traditional and client/server applications.
 This library used to be part of the glibc package.
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:	Development libs/header files for Berkeley DB (version 2) library
 Group:		Development/C
 Requires:	%{libname} = %{version}
-Obsoletes:	%{name}-devel
 Provides:	%{name}-devel = %{version}-%{release}
-%ifnarch ia64
-Conflicts:	glibc-devel < 2.1.90
-%endif
 
-%description -n %{libname}-devel
+%description -n %{devname}
 The Berkeley Database (Berkeley DB) is a programmatic toolkit that provides
 embedded database support for both traditional and client/server applications.
 Berkeley DB includes B tree, Hashing, Fixed and Variable-length
@@ -137,7 +128,7 @@ done
 %defattr(-,root,root)
 %{_libdir}/lib*.so.*
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 %dir %{_includedir}/db2
 %{_includedir}/db2/db.h
@@ -161,6 +152,10 @@ done
 
 
 %changelog
+* Sat Jun 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.4.14
+- implement devel naming policy
+- implement library provides policy
+
 * Thu Jun 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.14
 - add -doc subpackage
 - rebuild with gcc4
