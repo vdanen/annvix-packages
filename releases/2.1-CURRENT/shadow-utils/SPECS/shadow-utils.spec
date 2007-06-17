@@ -38,6 +38,7 @@ Patch4:		shadow-4.0.12-avx-alt-man.patch
 Patch6:		shadow-4.0.12-avx-owl-crypt_gensalt.patch
 Patch7:		shadow-4.0.12-avx-owl-usergroupname_max.patch
 Patch8:		shadow-4.0.12-avx-owl-tcb.patch
+Patch9:		shadow-4.0.12-unlock.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	gettext-devel
@@ -90,6 +91,7 @@ This package contains the documentation for %{name}.
 %patch6 -p1 -b .crypt_gensalt
 %patch7 -p1 -b .usergroupname_max
 %patch8 -p1 -b .tcb
+%patch9 -p1 -b .lock
 
 echo ".so man8/useradd.8" >man/adduser.8
 
@@ -220,6 +222,9 @@ rm -rf %{buildroot}%{_libdir}
 
 
 %changelog
+* Sat Jun 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.0.12
+- P9: don't leave lock files lying around (Mandriva)
+
 * Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.0.12
 - rebuild against new pam
 
