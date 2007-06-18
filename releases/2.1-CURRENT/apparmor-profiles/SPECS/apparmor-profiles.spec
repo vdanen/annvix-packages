@@ -55,6 +55,9 @@ make DESTDIR=%{buildroot} \
      EXTRASDIR=%{buildroot}%{aa_profilesdir}/extras/ \
      install
 
+# remove the profiles we don't want as profiles are shipped per-package now
+rm -f %{buildroot}%{_profiledir}/{bin,sbin,usr.sbin,usr.bin}.*
+
 %kill_lang %{name}
 %find_lang %{name}
 
@@ -65,17 +68,20 @@ make DESTDIR=%{buildroot} \
 
 %files
 %defattr(-,root,root)
-%dir %{_sysconfdir}/apparmor.d
-%dir %{_sysconfdir}/apparmor.d/abstractions
-%dir %{_sysconfdir}/apparmor.d/program-chunks
-%dir %{_sysconfdir}/apparmor.d/tunables
+%dir %{_profiledir}
+%dir %{_profiledir}/abstractions
+%dir %{_profiledir}/program-chunks
+%dir %{_profiledir}/tunables
 %dir %{aa_profilesdir}
 %dir %{aa_profilesdir}/extras
-%attr(0640,root,root) %config(noreplace) %{_sysconfdir}/apparmor.d/*
+%attr(0640,root,root) %config(noreplace) %{_profiledir}/*
 %attr(0640,root,root) %config(noreplace) %{aa_profilesdir}/extras/*
 
 
 %changelog
+* Mon Jul 18 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0.2
+- remove the profiles we don't want (leave the "extras" stuff as examples)
+
 * Tue Jul 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0.2
 - 2.0.2-563
 
