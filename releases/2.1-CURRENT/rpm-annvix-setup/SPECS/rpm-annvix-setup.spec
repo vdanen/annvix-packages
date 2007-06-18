@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		rpm-annvix-setup
-%define version		1.24
+%define version		1.24.1
 %define release		%_revrel
 
 Summary:	The Annvix rpm configuration and scripts
@@ -20,8 +20,6 @@ License:	GPL
 Group:		System/Configuration
 URL:		http://svn.annvix.org/cgi-bin/viewvc.cgi/tools/rpm-setup/trunk/
 Source0:	%{name}-%{version}.tar.bz2
-
-#Requires:	libssp0
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	rpm-devel
@@ -37,7 +35,6 @@ Requires:	spec-helper >= 0.6-5mdk
 Requires:	multiarch-utils >= 1.0.3
 Requires:	pkgconfig
 Requires:	%{name} = %{version}-%{release}
-#Requires:	libssp0-devel
 
 %description build
 The Annvix rpm configuration and scripts dedicated to build rpms.
@@ -87,6 +84,9 @@ make test
 
 
 %changelog
+* Mon Jun 18 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.24.1
+- 1.24.1 (add %%_aa_reload macro)
+
 * Sun May 20 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.24
 - 1.24
 - buildrequires: rpm-devel
