@@ -58,6 +58,7 @@ Requires:	procps
 Requires:	psmisc
 Requires:	rootfiles
 Requires:	rpm
+Requires:	rpm-annvix-setup >= 1.24.1
 Requires:	runit
 Requires:	sash
 Requires:	sed
@@ -93,6 +94,10 @@ should never be removed.
 
 
 %changelog
+* Mon Jun 18 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1
+- add a requires on rpm-annvix-setup >= 1.24.1 so we get the apparmor
+  reload macro
+
 * Wed Apr 18 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1
 - 2.1
 - require apparmor
