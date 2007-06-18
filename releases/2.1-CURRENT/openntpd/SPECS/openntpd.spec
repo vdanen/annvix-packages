@@ -24,6 +24,7 @@ URL:		http://www.openntpd.org/
 Source0:	ftp://ftp.openbsd.org/pub/OpenBSD/OpenNTPD/%{name}-%{version}.tar.gz
 Source1:	openntpd.run
 Source2:	openntpd-log.run
+Source3:	usr.sbin.ntpd.profile
 Patch0:		openntpd-20040824p-avx-ntpuser.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -72,15 +73,20 @@ mkdir -p %{buildroot}%{_srvdir}/ntpd/log
 install -m 0740 %{_sourcedir}/openntpd.run %{buildroot}%{_srvdir}/ntpd/run
 install -m 0740 %{_sourcedir}/openntpd-log.run %{buildroot}%{_srvdir}/ntpd/log/run
 
+mkdir -p %{buildroot}%{_profiledir}
+install -m 0640 %{_sourcedir}/usr.sbin.ntpd.profile %{buildroot}%{_profiledir}/usr.sbin.ntpd
+
 
 %pre
 %_pre_useradd ntp /var/empty /sbin/nologin 87
 
 %post
+%_aa_reload
 %_post_srv ntpd
 
 %preun
 %_preun_srv ntpd
+%_aa_reload
 
 %postun
 %_postun_userdel ntp
@@ -100,6 +106,7 @@ install -m 0740 %{_sourcedir}/openntpd-log.run %{buildroot}%{_srvdir}/ntpd/log/r
 %dir %attr(0750,root,admin) %{_srvdir}/ntpd/log
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/ntpd/run
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/ntpd/log/run
+%config(noreplace) %attr(0640,root,root) %{_profiledir}/usr.sbin.ntpd
 
 %files doc
 %defattr(-,root,root)
@@ -107,6 +114,9 @@ install -m 0740 %{_sourcedir}/openntpd-log.run %{buildroot}%{_srvdir}/ntpd/log/r
 
 
 %changelog
+* Mon Jun 18 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.9p1
+- add a default AppArmor profile
+
 * Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.9p1
 - rebuild against new openssl
 - spec cleanups
