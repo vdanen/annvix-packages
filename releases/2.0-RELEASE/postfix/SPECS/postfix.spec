@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		postfix
-%define version		2.3.7
+%define version		2.4.3
 %define release 	%_revrel
 %define epoch		1
 
@@ -17,18 +17,21 @@
 
 %define with_LDAP	1  
 %define with_MYSQL	1
+%define with_PGSQL      0
 %define with_PCRE	1
 %define with_SASL	1
 %define with_TLS	1
 
 %{?_without_ldap:  %{expand: %%define with_LDAP 0}}
 %{?_without_mysql: %{expand: %%define with_MYSQL 0}}
+%{?_without_pgsql: %{expand: %%define with_PGSQL 0}}
 %{?_without_pcre:  %{expand: %%define with_PCRE 0}}
 %{?_without_sasl:  %{expand: %%define with_SASL 0}}
 %{?_without_tls:   %{expand: %%define with_TLS 0}}
 
 %{?_with_ldap:  %{expand: %%define with_LDAP 1}}
 %{?_with_mysql: %{expand: %%define with_MYSQL 1}}
+%{?_with_pgsql: %{expand: %%define with_PGSQL 1}}
 %{?_with_pcre:  %{expand: %%define with_PCRE 1}}
 %{?_with_sasl:  %{expand: %%define with_SASL 1}}
 %{?_with_tls:   %{expand: %%define with_TLS 1}}
@@ -63,13 +66,13 @@ Source11:	http://jimsun.LinxNet.com/misc/header_checks.txt
 Source12:	http://jimsun.LinxNet.com/misc/body_checks.txt
 Source15:	postfix-smtpd.conf
 
-Patch0:		postfix-2.3.4-avx-config.patch
+Patch0:		postfix-2.4.3-avx-config.patch
 Patch1:		postfix-alternatives-mdk.patch
-Patch3: 	postfix-2.0.18-fdr-hostname-fqdn.patch
+Patch3: 	postfix-2.4.3-fdr-hostname-fqdn.patch
 Patch4:		postfix-2.1.1-fdr-pie.patch
 Patch5:		postfix-2.1.1-fdr-obsolete.patch
 Patch8:		postfix-2.3.4-avx-warnsetsid.patch
-Patch9:		postfix-2.3.7-vda-64.patch
+Patch9:	        postfix-2.4.0-vda-e-64.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	db4-devel
@@ -85,6 +88,9 @@ BuildRequires:	pcre-devel
 %endif
 %if %{with_MYSQL}
 BuildRequires:	mysql-devel
+%endif
+%if %{with_PGSQL}
+BuildRequires: postgresql-devel
 %endif
 %if %{with_SASL}
 BuildRequires:	libsasl-devel >= 2.0
@@ -180,6 +186,10 @@ CCARGS="${CCARGS} -fsigned-char"
 %if %{with_MYSQL}
     CCARGS="${CCARGS} -DHAS_MYSQL -I/usr/include/mysql"
     AUXLIBS="${AUXLIBS} -L%{_libdir}/mysql -lmysqlclient -lm"
+%endif
+%if %{with_PGSQL}
+    CCARGS="${CCARGS} -DHAS_PGSQL -I/usr/include/pgsql"
+    AUXLIBS="${AUXLIBS} -L%{_libdir} -lpq"
 %endif
 %if %{with_SASL}
     CCARGS="${CCARGS} -DUSE_SASL_AUTH -DUSE_CYRUS_SASL -I/usr/include/sasl"
@@ -446,6 +456,12 @@ done
 
 
 %changelog
+* Mon Jun 18 2007 Ying-Hung Chen <ying-at-yingternet.com> 2.4.3
+- 2.4.3
+- Updated P0, P3
+- Added postgresql support
+- Thanks to Lauris <lafriks-at-gmail.com> for submit the patches
+
 * Sat Feb 24 2007 Ying-Hung Chen <ying-at-yingternet.com> 2.3.7
 - 2.3.7
 - P9: update 2.3.7-vda patch to work with > 2GB quota on 64 bits systems
