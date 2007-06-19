@@ -33,6 +33,7 @@ Source1:	ftp://ftp.vim.org/pub/vim/unix//extra/%{name}-%{version}-lang.tar.bz2
 Source2:	vim-%{version}.%{patch_level}-patches.tar.bz2
 # http://vim.sourceforge.net/scripts/script.php?script_id=98
 Source3:	vim-spec-3.0.tar.bz2
+Source4:	apparmor.vim
 # MDK patches
 Patch2:		vim-5.6a-paths.patch
 Patch3:		vim-6.4-mdk-rpm-spec-syntax.patch
@@ -130,6 +131,7 @@ This package contains the documentation for %{name}.
 rm -f runtime/doc/pi_spec.txt
 rm -f runtime/ftpplugin/spec.vim
 tar tjf %{_sourcedir}/vim-spec-3.0.tar.bz2 -C runtime
+cp -a %{_sourcedir}/apparmor.vim runtime/syntax/
 #official patches
 for i in vim-%{version}.%{patch_level}-patches/%{version}*; do
     patch -p0 -s < $i
@@ -391,6 +393,9 @@ update-alternatives --remove vim /usr/bin/vim-enhanced
 
 
 %changelog
+* Mon Jun 18 2007 Vincent Danen <vdanen-at-build.annvix.org> 7.1
+- include apparmor syntax
+
 * Mon Jun 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 7.1
 - rebuild against new acl
 
