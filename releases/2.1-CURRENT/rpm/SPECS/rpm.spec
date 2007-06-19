@@ -123,6 +123,7 @@ Patch85:	rpm-4.4.4-perldirs.patch
 # Use temporary table for Depends DB (Olivier Thauvin upstream)
 Patch86:	rpm-4.4.4-depsdb.patch
 Patch87:	rpm4-CVE-2006-5466.patch
+Patch88:	rpm-4.4.5-avx-trans.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5 >= 2.57
@@ -336,6 +337,7 @@ This package contains the documentation for %{name}.
 %patch85 -p0 -b .perldirs
 %patch86 -p0 -b .depsdb
 %patch87 -p0 -b .cve-2006-5466
+%patch88 -p0 -b .trans
 
 # The sqlite from rpm tar ball is the same than the system one
 # rpm author just add LINT comment for his checking purpose
@@ -412,7 +414,7 @@ ln -s ../../%{_lib}/libpopt.so.0 %{buildroot}%{_libdir}
 ln -sf libpopt.so.0 %{buildroot}%{_libdir}/libpopt.so
 
 rm -f %{buildroot}%{_prefix}/lib/rpmpopt
-ln -s rpm/rpmpopt-%{rpmversion} %{buildroot}%{_prefix}/lib/rpmpopt
+ln -s rpm/rpmpopt-%{version} %{buildroot}%{_prefix}/lib/rpmpopt
 %ifarch ppc powerpc
 ln -sf ppc-annvix-linux %{buildroot}%{rpmdir}/powerpc-annvix-linux
 %endif
@@ -758,6 +760,10 @@ fi
 
 
 %changelog
+* Mon Jun 18 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.4.5
+- fix rpmpopt symlink
+- P88: support seeing %%posttrans and %%pretrans scripts
+
 * Fri May 24 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.4.5
 - rebuild against new python
 
