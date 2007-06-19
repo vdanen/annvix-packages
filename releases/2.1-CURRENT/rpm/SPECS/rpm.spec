@@ -10,13 +10,14 @@
 # mdk 4.4.5-2mdk
 
 %define revision	$Rev$
+%define rpmversion	4.4.5
 %define name		rpm
-%define version		4.4.5
+%define version		%{rpmversion}
 %define poptver		1.10.5
 %define pmodver		0.66
 %define release		%_revrel
 
-%define srcver		4.4.5
+%define srcver		%{rpmversion}
 %define libver		4.4
 %define libpoptver	0
 %define libname		%mklibname rpm %{libver}
@@ -414,7 +415,7 @@ ln -s ../../%{_lib}/libpopt.so.0 %{buildroot}%{_libdir}
 ln -sf libpopt.so.0 %{buildroot}%{_libdir}/libpopt.so
 
 rm -f %{buildroot}%{_prefix}/lib/rpmpopt
-ln -s rpm/rpmpopt-%{version} %{buildroot}%{_prefix}/lib/rpmpopt
+ln -s rpm/rpmpopt-%{rpmversion} %{buildroot}%{_prefix}/lib/rpmpopt
 %ifarch ppc powerpc
 ln -sf ppc-annvix-linux %{buildroot}%{rpmdir}/powerpc-annvix-linux
 %endif
