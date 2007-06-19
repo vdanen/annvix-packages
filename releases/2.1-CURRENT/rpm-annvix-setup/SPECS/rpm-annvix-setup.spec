@@ -84,6 +84,9 @@ make test
 
 
 %changelog
+* Mon Jun 18 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.25
+- 1.25 (change %%_aa_reload and add %_touch_aa_reload)
+
 * Mon Jun 18 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.24.1
 - 1.24.1 (add %%_aa_reload macro)
 
