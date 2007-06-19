@@ -80,16 +80,23 @@ install -m 0640 %{_sourcedir}/usr.sbin.ntpd.profile %{buildroot}%{_profiledir}/u
 %pre
 %_pre_useradd ntp /var/empty /sbin/nologin 87
 
+
 %post
-%_aa_reload
 %_post_srv ntpd
+%_touch_aa_reload
+
 
 %preun
 %_preun_srv ntpd
-%_aa_reload
+
 
 %postun
 %_postun_userdel ntp
+%_touch_aa_reload
+
+
+%posttrans
+%_aa_reload
 
 
 %clean
@@ -114,6 +121,10 @@ install -m 0640 %{_sourcedir}/usr.sbin.ntpd.profile %{buildroot}%{_profiledir}/u
 
 
 %changelog
+* Mon Jun 18 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.9p1
+- use %%posttrans to execute the apparmor reload, and use
+  %%_touch_aa_reload to signal we want the profile reloaded
+
 * Mon Jun 18 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.9p1
 - add a default AppArmor profile
 
