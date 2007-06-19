@@ -20,6 +20,10 @@ if [ ${num} != 1 ]; then
     if [ -d /service/${srv} ]; then
         SRVSTAT=`/sbin/sv status /service/${srv} 2>/dev/null | cut -d ';' -f 1 | egrep -q '^run: ' ; echo $?`
         if [ "${SRVSTAT}" = "0" ]; then
+            # first, see if we need to reload AppArmor
+            if [ -f /var/lock/subsys/apparmor ]; then
+                /sbin/service apparmor reload >/dev/null 2>&1 || :
+            fi
 	    /usr/sbin/srv --restart ${srv} || :
 	    # restart services that depend of portmap
 	    if [ "${srv}" = "portmap" ]; then

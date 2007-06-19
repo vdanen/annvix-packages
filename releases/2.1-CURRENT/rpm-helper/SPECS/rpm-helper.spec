@@ -83,6 +83,10 @@ cp %{_sourcedir}/{{add,del}-srv,mkdepends} .
 
 
 %changelog
+* Mon Jun 18 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.18.4
+- update add-srv and del-srv to handle apparmor reloading (silently)
+  without forcing the use of the %_aa_reload macro
+
 * Wed Apr 18 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.18.4
 - 0.18.4
 - requires: findutils

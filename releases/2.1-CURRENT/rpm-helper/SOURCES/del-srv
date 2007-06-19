@@ -19,6 +19,9 @@ if [ ${num} = 0 ]; then
     if [ -d /service/${srv} ]; then
 	/usr/sbin/srv --down ${srv} >/dev/null 2>&1 || :
 	/usr/sbin/srv --del ${srv}
+	if [ -f /var/lock/subsys/apparmor ]; then
+	    /sbin/service apparmor reload >/dev/null 2>&1 || :
+	fi
     fi
 fi
 
