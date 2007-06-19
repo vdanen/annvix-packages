@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		rpm-annvix-setup
-%define version		1.24.1
+%define version		1.25
 %define release		%_revrel
 
 Summary:	The Annvix rpm configuration and scripts
