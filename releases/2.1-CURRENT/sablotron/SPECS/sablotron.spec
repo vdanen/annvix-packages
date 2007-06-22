@@ -13,9 +13,10 @@
 %define release 	%_revrel
 
 %define	altname		Sablot
-%define libname_orig	libsablotron
 %define major		0
 %define libname		%mklibname %{name} %{major}
+%define devname		%mklibname %{name} -d
+%define odevname	%mklibname %{name} 0 -d
 
 Summary: 	XSLT, XPath and DOM processor
 Name: 		%{name}
@@ -54,21 +55,21 @@ for multi-platform XML applications.
 %package -n %{libname}
 Summary:	Main library for sablotron
 Group:		System/Libraries
-Provides:	%{libname_orig} = %{version}-%{release}
+Provides:	lib%{name} = %{version}-%{release}
 
 %description -n %{libname}
 Contains the library for sablotron.
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary: 	The development libraries and header files for Sablotron
 Requires: 	sablotron = %{version}
 Group: 		System/Libraries
 Requires: 	%{libname} = %{version}
-Provides: 	%{libname_orig}-devel = %{version}-%{release}
-Provides:	sablotron-devel
+Provides: 	%{name}-devel = %{version}-%{release}
+Obsoletes:	%{odevname}
 
-%description -n %{libname}-devel
+%description -n %{devname}
 These are the development libraries and header files for Sablotron
 
 
@@ -103,7 +104,8 @@ export CXXFLAGS="%{optflags}"
 
 # nuke installed docs
 rm -rf %{buildroot}%{_datadir}/doc
-
+# fix permissions
+chmod 0644 %{buildroot}%{_mandir}/man1/*
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -122,7 +124,7 @@ rm -rf %{buildroot}%{_datadir}/doc
 %defattr(-,root,root)
 %{_libdir}/libsablot.so.*
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 %multiarch %{multiarch_bindir}/sablot-config
 %{_bindir}/sablot-config
@@ -137,6 +139,11 @@ rm -rf %{buildroot}%{_datadir}/doc
 
 
 %changelog
+* Thu Jun 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0.2
+- implement devel naming policy
+- implement library provides policy
+- rebuild against new expat
+
 * Sat Dec 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.2
 - rebuild against new ncurses
 - clean spec
