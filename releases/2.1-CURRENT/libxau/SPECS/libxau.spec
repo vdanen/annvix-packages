@@ -100,7 +100,7 @@ Static development files for %{name}
 %{_libdir}/libXau.so.6
 %{_libdir}/libXau.so.6.0.0
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 %{_libdir}/pkgconfig/xau.pc
 %{_includedir}/X11/Xauth.h
@@ -108,7 +108,7 @@ Static development files for %{name}
 %{_libdir}/libXau.so
 %{_mandir}/man3/Xau*
 
-%files -n %{libname}-static-devel
+%files -n %{staticdevname}
 %defattr(-,root,root)
 %{_libdir}/libXau.a
 
