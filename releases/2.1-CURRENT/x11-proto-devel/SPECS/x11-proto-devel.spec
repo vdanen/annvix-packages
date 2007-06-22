@@ -163,6 +163,9 @@ rm -rf %{buildroot}%{_datadir}/doc/randrproto/randrproto.txt
 
 
 %changelog
+* Thu Jun 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2.0
+- rebuild for pkgconfig provides
+
 * Thu Apr 26 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2.0
 - clean source list
 
