@@ -12,7 +12,10 @@
 %define version 	1.0.1
 %define release 	%_revrel
 
-%define libsm		%mklibname sm 6
+%define libname		%mklibname sm 6
+%define devname		%mklibname sm -d
+%define staticdevname	%mklibname sm -d -s
+%define odevname	%mklibname sm 6 -d
 
 Summary:	X Session Management Library
 Name:		%{name}
@@ -34,37 +37,40 @@ BuildRequires:	libice-devel >= 1.0.0
 X Session Management Library.
 
 
-%package -n %{libsm}
+%package -n %{libname}
 Summary:	X Session Management Library
 Group:		Development/C
 Conflicts:	libxorg-x11 < 7.0
 Provides:	%{name} = %{version}
 
-%description -n %{libsm}
+%description -n %{libname}
 This is the X Session Management Library.
 
 
-%package -n %{libsm}-devel
+%package -n %{devname}
 Summary:	Development files for %{name}
 Group:		Development/C
-Requires:	%{libsm} = %{version}
+Requires:	%{libname} = %{version}
 Requires:	libice-devel >= 1.0.0
 Requires:	x11-proto-devel >= 1.0.0
-Provides:	libsm-devel = %{version}-%{release}
+Provides:	%{name}-devel = %{version}-%{release}
+Provides:	sm-devel = %{version}-%{release}
+Obsoletes:	%{odevname}
 Conflicts:	libxorg-x11-devel < 7.0
 
-%description -n %{libsm}-devel
+%description -n %{devname}
 Development files for %{name}
 
 
-%package -n %{libsm}-static-devel
+%package -n %{staticdevname}
 Summary:	Static development files for %{name}
 Group:		Development/C
-Requires:	%{libsm}-devel = %{version}
-Provides:	libsm-static-devel = %{version}-%{release}
+Requires:	%{devname} = %{version}
+Provides:	%{name}-static-devel = %{version}-%{release}
+Provides:	sm-static-devel = %{version}-%{release}
 Conflicts:	libxorg-x11-static-devel < 7.0
 
-%description -n %{libsm}-static-devel
+%description -n %{staticdevname}
 Static development files for %{name}
 
 
@@ -89,15 +95,15 @@ Static development files for %{name}
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
-%post -n %{libsm} -p /sbin/ldconfig
-%postun -n %{libsm} -p /sbin/ldconfig
+%post -n %{libname} -p /sbin/ldconfig
+%postun -n %{libname} -p /sbin/ldconfig
 
-%files -n %{libsm}
+%files -n %{libname}
 %defattr(-,root,root)
 %{_libdir}/libSM.so.6
 %{_libdir}/libSM.so.6.0.0
 
-%files -n %{libsm}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 %{_libdir}/libSM.so
 %{_libdir}/libSM.la
@@ -106,12 +112,16 @@ Static development files for %{name}
 %{_includedir}/X11/SM/SMlib.h
 %{_includedir}/X11/SM/SMproto.h
 
-%files -n %{libsm}-static-devel
+%files -n %{staticdevname}
 %defattr(-,root,root)
 %{_libdir}/libSM.a
 
 
 %changelog
+* Thu Jun 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0.1
+- implement devel naming policy
+- implement library provides policy
+
 * Wed Apr 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0.1
 - first Annvix package
 
