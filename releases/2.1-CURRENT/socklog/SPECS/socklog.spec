@@ -25,12 +25,11 @@ Source2:	socklog-unix.run
 Source3:	socklog-unix-log.run
 Source4:	socklog-klog.run
 Source5:	socklog-klog-log.run
-Source6:	socklog-rklog.run
-Source7:	socklog-rklog-log.run
 Source8:	socklog-tcp.run
 Source9:	socklog-tcp-log.run
 Source10:	socklog-udp.run
 Source11:	socklog-udp-log.run
+Source12:	bin.socklog.profile
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:  dietlibc-devel >= 0.28
@@ -100,7 +99,7 @@ popd
 install -d %{buildroot}/bin
 install -d %{buildroot}%{_mandir}/{man1,man8}
 
-mkdir -p %{buildroot}%{_srvdir}/socklog-{unix,klog,rklog,tcp,udp}/log
+mkdir -p %{buildroot}%{_srvdir}/socklog-{unix,klog,tcp,udp}/log
 
 pushd %{name}-%{version}
     for i in `cat package/commands` ;  do
@@ -115,8 +114,6 @@ install -m 0740 %{_sourcedir}/socklog-unix.run %{buildroot}%{_srvdir}/socklog-un
 install -m 0740 %{_sourcedir}/socklog-unix-log.run %{buildroot}%{_srvdir}/socklog-unix/log/run 
 install -m 0740 %{_sourcedir}/socklog-klog.run %{buildroot}%{_srvdir}/socklog-klog/run 
 install -m 0740 %{_sourcedir}/socklog-klog-log.run %{buildroot}%{_srvdir}/socklog-klog/log/run 
-install -m 0740 %{_sourcedir}/socklog-rklog.run %{buildroot}%{_srvdir}/socklog-rklog/run 
-install -m 0740 %{_sourcedir}/socklog-rklog-log.run %{buildroot}%{_srvdir}/socklog-rklog/log/run
 
 mkdir -p %{buildroot}%{_srvdir}/socklog-{tcp,udp}/env
 mkdir -p %{buildroot}%{_srvdir}/socklog-tcp/peers
@@ -139,6 +136,8 @@ pushd socklog-config
     chmod 0750 %{buildroot}/var/log/system/*
 popd
 
+mkdir -p %{buildroot}%{_profiledir}
+install -m 0640 %{_sourcedir}/bin.socklog.profile %{buildroot}%{_profiledir}/bin.socklog
 
 
 %clean 
@@ -152,13 +151,16 @@ popd
 %post
 %_post_srv socklog-unix
 %_post_srv socklog-klog
-%_post_srv socklog-rklog
+%_touch_aa_reload
 
 
 %preun
 %_preun_srv socklog-unix
 %_preun_srv socklog-klog
-%_preun_srv socklog-rklog
+
+
+%postun
+%_touch_aa_reload
 
 
 %post remote
@@ -167,11 +169,24 @@ popd
 pushd %{_srvdir}/socklog-tcp >/dev/null 2>&1
     ipsvd-cdb peers.cdb peers.cdb.tmp peers/
 popd >/dev/null 2>&1
+%_touch_aa_reload
 
 
 %preun remote
 %_preun_srv socklog-tcp
 %_preun_srv socklog-udp
+
+
+%postun remote
+%_touch_aa_reload
+
+
+%posttrans
+%_aa_reload
+
+
+%posttrans remote
+%_aa_reload
 
 
 %files
@@ -187,10 +202,6 @@ popd >/dev/null 2>&1
 %dir %attr(0750,root,admin) %{_srvdir}/socklog-klog/log
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/socklog-klog/run
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/socklog-klog/log/run
-%dir %attr(0750,root,admin) %{_srvdir}/socklog-rklog
-%dir %attr(0750,root,admin) %{_srvdir}/socklog-rklog/log
-%config(noreplace) %attr(0740,root,admin) %{_srvdir}/socklog-rklog/run
-%config(noreplace) %attr(0740,root,admin) %{_srvdir}/socklog-rklog/log/run
 # config files
 %attr(0750,root,syslogd) %dir /var/log/system
 %attr(0770,root,syslogd) %dir /var/log/system/all
@@ -221,6 +232,7 @@ popd >/dev/null 2>&1
 %attr(0640,root,syslogd) %config(noreplace) /var/log/system/syslog/config
 %attr(0770,root,syslogd) %dir /var/log/system/user
 %attr(0640,root,syslogd) %config(noreplace) /var/log/system/user/config
+%config(noreplace) %attr(0640,root,root) %{_profiledir}/bin.socklog
 
 %files remote
 %defattr(-,root,root)
@@ -252,6 +264,10 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Fri Jun 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1.0
+- drop the rklog service since we no longer use RSBAC
+- add AppArmor profile
+
 * Fri Aug 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1.0
 - fix requires; we need rpm-helper before install to setup our user/group
 - spec cleanups
