@@ -12,7 +12,10 @@
 %define version 	1.0.5
 %define release 	%_revrel
 
-%define libxt		%mklibname xt 6
+%define libname		%mklibname xt 6
+%define devname		%mklibname xt -d
+%define staticdevname	%mklibname xt -d -s
+%define odevname	%mklibname xt 6 -d
 
 Summary:	X Toolkit Library
 Name:		%{name}
@@ -34,38 +37,40 @@ BuildRequires:	libsm-devel >= 1.0.0
 X Toolkit Library
 
 
-%package -n %{libxt}
+%package -n %{libname}
 Summary:	X Toolkit Library
 Group:		Development/C
 Conflicts:	libxorg-x11 < 7.0
 Provides:	%{name} = %{version}
 
-%description -n %{libxt}
+%description -n %{libname}
 X Toolkit Library
 
 
-%package -n %{libxt}-devel
+%package -n %{devname}
 Summary:	Development files for %{name}
 Group:		Development/C
-Requires:	%{libxt} = %{version}
+Requires:	%{libname} = %{version}
 Requires:	x11-proto-devel >= 1.0.0
 Requires:	libx11-devel >= 1.0.0
 Requires:	libsm-devel >= 1.0.0
-Provides:	libxt-devel = %{version}-%{release}
+Provides:	%{name}-devel = %{version}-%{release}
+Provides:	xt-devel = %{version}-%{release}
 Conflicts:	libxorg-x11-devel < 7.0
 
-%description -n %{libxt}-devel
+%description -n %{devname}
 Development files for %{name}
 
 
-%package -n %{libxt}-static-devel
+%package -n %{staticdevname}
 Summary:	Static development files for %{name}
 Group:		Development/C
-Requires:	%{libxt}-devel = %{version}
-Provides:	libxt-static-devel = %{version}-%{release}
+Requires:	%{devname} = %{version}
+Provides:	%{name}-static-devel = %{version}-%{release}
+Provides:	xt-static-devel = %{version}-%{release}
 Conflicts:	libxorg-x11-static-devel < 7.0
 
-%description -n %{libxt}-static-devel
+%description -n %{staticdevname}
 Static development files for %{name}
 
 
@@ -91,16 +96,16 @@ Static development files for %{name}
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
-%post -n %{libxt} -p /sbin/ldconfig
-%postun -n %{libxt} -p /sbin/ldconfig
+%post -n %{libname} -p /sbin/ldconfig
+%postun -n %{libname} -p /sbin/ldconfig
 
 
-%files -n %{libxt}
+%files -n %{libname}
 %defattr(-,root,root)
 %{_libdir}/libXt.so.6
 %{_libdir}/libXt.so.6.0.0
 
-%files -n %{libxt}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 %{_bindir}/makestrs
 %{_libdir}/libXt.so
@@ -143,12 +148,16 @@ Static development files for %{name}
 %{_mandir}/man3/Menu*
 %{_mandir}/man1/makestrs.1*.bz2
 
-%files -n %{libxt}-static-devel
+%files -n %{staticdevname}
 %defattr(-,root,root)
 %{_libdir}/libXt.a
 
 
 %changelog
+* Thu Jun 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0.5
+- implement devel naming policy
+- implement library provides policy
+
 * Wed Apr 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0.5
 - first Annvix package
 
