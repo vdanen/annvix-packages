@@ -15,9 +15,10 @@
 %define docver  	2.5
 %define dirver  	2.5
 
-%define lib_major	%{dirver}
-%define libname_orig	libpython
-%define libname	%mklibname %{name} %{lib_major}
+%define major		%{dirver}
+%define libname		%mklibname %{name} %{major}
+%define devname		%mklibname %{name} -d
+%define odevname	%mklibname %{name} 2.5 -d
 
 Summary:	An interpreted, interactive object-oriented programming language
 Name:		%{name}
@@ -47,7 +48,7 @@ Patch6:		Python-2.4.1-gdbm.patch
 Patch7:		python-2.4.3-fix-buffer_overflow_with_glibc2.3.5.diff
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	libx11-devel 
+BuildRequires:	x11-devel 
 BuildRequires:	blt
 BuildRequires:	db2-devel
 BuildRequires:	db4-devel
@@ -82,6 +83,7 @@ Mac and MFC).
 %package -n %{libname}
 Summary:	Shared libraries for Python %{version}
 Group:		System/Libraries
+Provides:	lib%{name} = %{version}-%{release}
 Requires(post):	ldconfig
 Requires(postun): ldconfig
 
@@ -91,16 +93,15 @@ interpreted, interactive, object-oriented programming language often
 compared to Tcl, Perl, Scheme or Java.
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:	The libraries and header files needed for Python development
 Group:		Development/Python
 Requires:	%{name} = %{version}
 Requires:	%{libname} = %{version}
-Obsoletes:	%{name}-devel
 Provides:	%{name}-devel = %{version}-%{release}
-Provides:	%{libname_orig}-devel = %{version}-%{release}
+Obsoletes:	%{odevname}
 
-%description -n %{libname}-devel
+%description -n %{devname}
 The Python programming language's interpreter can be extended with
 dynamically loaded extensions and can be embedded in other programs.
 This package contains the header files and libraries needed to do
@@ -203,11 +204,11 @@ echo 'install_dir='"%{buildroot}%{_bindir}" >>setup.cfg
 mkdir -p %{buildroot}%{_mandir}
 %makeinstall_std
 
-(cd %{buildroot}%{_libdir}; ln -sf libpython%{lib_major}.so.* libpython%{lib_major}.so)
+(cd %{buildroot}%{_libdir}; ln -sf libpython%{major}.so.* libpython%{major}.so)
 
 # Provide a libpython%{dirver}.so symlink in /usr/lib/puthon*/config, so that
 # the shared library could be found when -L/usr/lib/python*/config is specified
-(cd %{buildroot}%{_libdir}/python%{dirver}/config; ln -sf ../../libpython%{lib_major}.so .)
+(cd %{buildroot}%{_libdir}/python%{dirver}/config; ln -sf ../../libpython%{major}.so .)
 
 # smtpd proxy
 mv -f %{buildroot}%{_bindir}/smtpd.py %{buildroot}%{_libdir}/python%{dirver}/
@@ -275,7 +276,7 @@ LD_LIBRARY_PATH=%{buildroot}%{_libdir} %{buildroot}%{_bindir}/python %{_sourcedi
 # fix non real scripts
 chmod 0644 %{buildroot}%{_libdir}/python*/test/test_{binascii,grp,htmlparser}.py*
 # fix python library not stripped
-chmod u+w %{buildroot}%{_libdir}/libpython%{lib_major}.so.1.0
+chmod u+w %{buildroot}%{_libdir}/libpython%{major}.so.1.0
 
 %multiarch_includes %{buildroot}/usr/include/python*/pyconfig.h
 
@@ -290,7 +291,7 @@ rm -f modules-list main.list
 
 
 %files -f main.list
-%defattr(-, root, root, 755)
+%defattr(-,root,root,755)
 %dir %{_libdir}/python*/lib-dynload
 %dir %{_libdir}/python*/site-packages
 
@@ -298,8 +299,8 @@ rm -f modules-list main.list
 %defattr(-,root,root)
 %{_libdir}/libpython*.so.1*
 
-%files -n %{libname}-devel
-%defattr(-, root, root, 755)
+%files -n %{devname}
+%defattr(-,root,root,755)
 %{_bindir}/python-config
 %{_bindir}/python%{dirver}-config
 %{_libdir}/libpython*.so
@@ -311,7 +312,7 @@ rm -f modules-list main.list
 
 
 %files -n tkinter
-%defattr(-, root, root, 755)
+%defattr(-,root,root,755)
 %dir %{_libdir}/python*/lib-tk
 %{_libdir}/python*/lib-tk/*.py*
 %{_libdir}/python*/lib-dynload/_tkinter*.so
@@ -323,7 +324,7 @@ rm -f modules-list main.list
 %{_bindir}/modulator
 
 %files base -f include.list
-%defattr(-, root, root, 755)
+%defattr(-,root,root,755)
 %dir %{_libdir}/python*
 
 %files doc
@@ -331,6 +332,11 @@ rm -f modules-list main.list
 
 
 %changelog
+* Thu Jun 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.5.1
+- implement devel naming policy
+- implement library provides policy
+- rebuild against new expat
+
 * Fri May 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.5.1
 - 2.5.1 (includes the fix for CVE-2007-2052)
 - updated P4 from Mandriva
