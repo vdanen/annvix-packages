@@ -12,7 +12,7 @@
 %define kernelver	2
 %define patchlevel	6
 %define sublevel	16
-%define minlevel	50
+%define minlevel	52
 %define avxrelease	%(echo %{revision}|cut -d ' ' -f 2)
 
 %define tar_version	%{kernelver}.%{patchlevel}.%{sublevel}.%{minlevel}
@@ -952,6 +952,10 @@ exit 0
 
 
 %changelog
+* Fri Jun 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.52
+- 2.6.16.52
+- updated SL60 (AppArmor fullseries v405)
+
 * Sat May 05 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.50
 - 2.6.16.50: various fixes and security fixes for CVE-2007-1357,
   CVE-2007-2242, CVE-2007-1861
