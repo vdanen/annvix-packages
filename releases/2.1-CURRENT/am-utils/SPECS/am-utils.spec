@@ -15,6 +15,8 @@
 
 %define major		2
 %define libname		%mklibname amu %{major}
+%define devname		%mklibname amu -d
+%define odevname	%mklibname amu 2 -d
 
 Summary:	Automount utilities including an updated version of Amd
 Name:		%{name}
@@ -61,19 +63,21 @@ local drives.
 %package -n %{libname}
 Summary:        Shared library files for am-utils
 Group:          System/Servers
-Provides:	lib%{name} = %{version}-%{release}
+Provides:	libamu = %{version}-%{release}
 
 %description -n %{libname}
 Shared library files from the am-utils package.
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:        Development files for am-utils
 Group:          Development/C
 Requires:       %{libname} = %{epoch}:%{version}
-Provides:       libamu-devel
+Provides:       amu-devel = %{version}-%{release}
+Provides:	%{name}-devel = %{version}-%{release}
+Obsoletes:	%{odevname}
 
-%description -n %{libname}-devel
+%description -n %{devname}
 Development headers, and files for development from the am-utils package.
 
 
@@ -178,7 +182,7 @@ rm -f %{buildroot}/amd
 %defattr(-,root,root)
 %{_libdir}/*.so.*
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 %{_libdir}/*.a
 %{_libdir}/*.so
@@ -190,6 +194,10 @@ rm -f %{buildroot}/amd
 
 
 %changelog
+* Thu Jun 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 6.1.5
+- implement devel naming policy
+- implement library provides policy
+
 * Sat Dec 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 6.1.5
 - 6.1.5
 - use AMD_OPTS instead of AMDOPTS to be more consisent (./env)
