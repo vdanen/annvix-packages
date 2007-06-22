@@ -24,12 +24,11 @@ Source: 	http://www.cpan.org/authors/id/C/CO/COOPERCL/%{module}-%{version}.tar.b
 Source1:	http://uucode.com/xml/perl/enc.tar.bz2
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
-BuildRequires: 	libexpat-devel
+BuildRequires:	chrpath
+BuildRequires: 	expat-devel
 BuildRequires:	perl-devel
 BuildRequires:	perl-libwww-perl
 BuildRequires:	perl(HTML::Parser)
-
-Requires: 	%mklibname expat 0
 
 %description
 A perl module for parsing XML documents.
@@ -49,7 +48,7 @@ This package contains the documentation for %{name}.
 
 %build
 perl Makefile.PL INSTALLDIRS=vendor
-%make OPTIMIZE="$RPM_OPT_FLAGS"
+%make OPTIMIZE="%{optflags}"
 
 
 %check
@@ -60,6 +59,7 @@ make test
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 install -m 0644 enc/koi8-r.enc %{buildroot}%{perl_vendorarch}/XML/Parser/Encodings
+chrpath -d %{buildroot}%{perl_vendorarch}/auto/XML/Parser/Expat/Expat.so
 
 
 %clean
@@ -78,6 +78,12 @@ install -m 0644 enc/koi8-r.enc %{buildroot}%{perl_vendorarch}/XML/Parser/Encodin
 
 
 %changelog
+* Thu Jun 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.34
+- rebuild against new expat
+- nuke the rpath (and buildrequires chrpath as a result)
+- drop the requires on libexpat0; the library requires will pick up what
+  it needs
+
 * Fri May 26 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.34
 - fix the requires so it works on x86_64 too
 
