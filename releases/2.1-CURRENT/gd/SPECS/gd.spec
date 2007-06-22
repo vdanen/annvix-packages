@@ -30,11 +30,12 @@ Patch2:		gd-2.0.33-CVE-2007-0455.patch
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5
 BuildRequires:	automake1.7
+BuildRequires:	fontconfig-devel
 BuildRequires:	freetype2-devel
 BuildRequires:	gettext-devel
 BuildRequires:	jpeg-devel
 BuildRequires:	png-devel
-BuildRequires:	libx11-devel
+BuildRequires:	x11-devel
 BuildRequires:	xpm-devel
 BuildRequires:	zlib-devel
 
@@ -190,6 +191,9 @@ libtoolize --copy --force; aclocal-1.7; automake-1.7 --copy --add-missing; autoc
 
 
 %changelog
+* Thu Jun 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0.33
+- buildrequires fontconfig
+
 * Thu Apr 26 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0.33
 - build against modular X
 
