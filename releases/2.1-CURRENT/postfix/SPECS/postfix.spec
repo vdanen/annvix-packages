@@ -17,7 +17,7 @@
 
 %define with_LDAP	1  
 %define with_MYSQL	1
-%define with_PGSQL      0
+%define with_PGSQL      1
 %define with_PCRE	1
 %define with_SASL	1
 %define with_TLS	1
@@ -72,7 +72,7 @@ Patch3: 	postfix-2.4.3-fdr-hostname-fqdn.patch
 Patch4:		postfix-2.1.1-fdr-pie.patch
 Patch5:		postfix-2.1.1-fdr-obsolete.patch
 Patch8:		postfix-2.3.4-avx-warnsetsid.patch
-Patch9:	        postfix-2.4.0-vda-e-64.patch
+Patch9:	        postfix-2.4.3-vda-ng.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	db4-devel
@@ -456,6 +456,13 @@ done
 
 
 %changelog
+* Wed Jun 20 2007 Ying-Hung Chen <ying-at-yingternet.com> 2.4.3
+- 2.4.3
+- Updated P9
+- Move to vda-ng patch, use virtual_maildir_extended instead of 
+  virtual_create_maildirsize 
+- Build with postgresql by default
+
 * Mon Jun 18 2007 Ying-Hung Chen <ying-at-yingternet.com> 2.4.3
 - 2.4.3
 - Updated P0, P3
