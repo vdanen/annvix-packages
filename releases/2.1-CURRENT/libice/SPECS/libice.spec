@@ -12,7 +12,10 @@
 %define version 	1.0.3
 %define release 	%_revrel
 
-%define libice		%mklibname ice 6
+%define libname		%mklibname ice 6
+%define devname		%mklibname ice -d
+%define staticdevname	%mklibname ice -d -s
+%define odevname	%mklibname ice 6 -d
 
 Summary:	X Inter Client Exchange Library
 Name:		%{name}
@@ -39,13 +42,13 @@ performing authentication, for negotiating versions, and for reporting
 errors.
 
 
-%package -n %{libice}
+%package -n %{libname}
 Summary:	X Inter Client Exchange Library
 Group:		Development/C
-Conflicts:	libxorg-x11 < 7.0
 Provides:	%{name} = %{version}
+Conflicts:	libxorg-x11 < 7.0
 
-%description -n %{libice}
+%description -n %{libname}
 libice provides an interface to ICE, the Inter-Client Exchange protocol.
 Motivated by issues arising from the need for X Window System clients to
 share data with each other, the ICE protocol provides a generic framework for
@@ -55,26 +58,29 @@ performing authentication, for negotiating versions, and for reporting
 errors.
 
 
-%package -n %{libice}-devel
+%package -n %{devname}
 Summary:	Development files for %{name}
 Group:		Development/C
-Requires:	%{libice} = %{version}
+Requires:	%{libname} = %{version}
 Requires:	x11-proto-devel >= 1.0.0
-Provides:	libice-devel = %{version}-%{release}
+Provides:	%{name}-devel = %{version}-%{release}
+Provides:	ice-devel = %{version}-%{release}
+Obsoletes:	%{odevname}
 Conflicts:	libxorg-x11-devel < 7.0
 
-%description -n %{libice}-devel
+%description -n %{devname}
 Development files for %{name}
 
 
-%package -n %{libice}-static-devel
+%package -n %{staticdevname}
 Summary:	Static development files for %{name}
 Group:		Development/C
-Requires:	%{libice}-devel = %{version}
-Provides:	libice-static-devel = %{version}-%{release}
+Requires:	%{devname} = %{version}
+Provides:	%{name}-static-devel = %{version}-%{release}
+Provides:	ice-static-devel = %{version}-%{release}
 Conflicts:	libxorg-x11-static-devel < 7.0
 
-%description -n %{libice}-static-devel
+%description -n %{staticdevname}
 Static development files for %{name}
 
 
@@ -99,15 +105,15 @@ Static development files for %{name}
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
-%post -n %{libice} -p /sbin/ldconfig
-%postun -n %{libice} -p /sbin/ldconfig
+%post -n %{libname} -p /sbin/ldconfig
+%postun -n %{libname} -p /sbin/ldconfig
 
-%files -n %{libice}
+%files -n %{libname}
 %defattr(-,root,root)
 %{_libdir}/libICE.so.6
 %{_libdir}/libICE.so.6.3.0
 
-%files -n %{libice}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 %{_libdir}/libICE.so
 %{_libdir}/libICE.la
@@ -119,12 +125,16 @@ Static development files for %{name}
 %{_includedir}/X11/ICE/ICElib.h
 %{_includedir}/X11/ICE/ICEmsg.h
 
-%files -n %{libice}-static-devel
+%files -n %{staticdevname}
 %defattr(-,root,root)
 %{_libdir}/libICE.a
 
 
 %changelog
+* Thu Jun 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0.3
+- implement devel naming policy
+- implement library provides policy
+
 * Wed Apr 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0.3
 - first Annvix package
 
