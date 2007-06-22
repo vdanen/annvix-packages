@@ -12,7 +12,10 @@
 %define version 	1.0.3
 %define release 	%_revrel
 
-%define libxau		%mklibname xau 6
+%define libname		%mklibname xau 6
+%define devname		%mklibname xau -d
+%define staticdevname	%mklibname xau -d -s
+%define odevname	%mklibname xau 6 -d
 
 Summary:	X authorization file management library
 Name:		%{name}
@@ -32,36 +35,39 @@ BuildRequires:	x11-util-macros >= 1.0.1
 X authorization file management library
 
 
-%package -n %{libxau}
+%package -n %{libname}
 Summary:	X authorization file management library
 Group:		Development/C
 Conflicts:	libxorg-x11 < 7.0
 Provides:	%{name} = %{version}
 
-%description -n %{libxau}
+%description -n %{libname}
 X authorization file management library
 
 
-%package -n %{libxau}-devel
+%package -n %{devname}
 Summary:	Development files for %{name}
 Group:		Development/C
-Requires:	%{libxau} = %{version}
+Requires:	%{libname} = %{version}
 Requires:	x11-proto-devel >= 1.0.0
-Provides:	libxau-devel = %{version}-%{release}
+Provides:	%{name}-devel = %{version}-%{release}
+Provides:	xau-devel = %{version}-%{release}
+Obsoletes:	%{odevname}
 Conflicts:	libxorg-x11-devel < 7.0
 
-%description -n %{libxau}-devel
+%description -n %{devname}
 Development files for %{name}
 
 
-%package -n %{libxau}-static-devel
+%package -n %{staticdevname}
 Summary:	Static development files for %{name}
 Group:		Development/C
-Requires:	%{libxau}-devel >= %{version}
-Provides:	libxau-static-devel = %{version}-%{release}
+Requires:	%{libname}-devel >= %{version}
+Provides:	%{name}-static-devel = %{version}-%{release}
+Provides:	xau-static-devel = %{version}-%{release}
 Conflicts:	libxorg-x11-static-devel < 7.0
 
-%description -n %{libxau}-static-devel
+%description -n %{staticdevname}
 Static development files for %{name}
 
 
@@ -86,15 +92,15 @@ Static development files for %{name}
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
-%post -n %{libxau} -p /sbin/ldconfig
-%postun -n %{libxau} -p /sbin/ldconfig
+%post -n %{libname} -p /sbin/ldconfig
+%postun -n %{libname} -p /sbin/ldconfig
 
-%files -n %{libxau}
+%files -n %{libname}
 %defattr(-,root,root)
 %{_libdir}/libXau.so.6
 %{_libdir}/libXau.so.6.0.0
 
-%files -n %{libxau}-devel
+%files -n %{libname}-devel
 %defattr(-,root,root)
 %{_libdir}/pkgconfig/xau.pc
 %{_includedir}/X11/Xauth.h
@@ -102,11 +108,15 @@ Static development files for %{name}
 %{_libdir}/libXau.so
 %{_mandir}/man3/Xau*
 
-%files -n %{libxau}-static-devel
+%files -n %{libname}-static-devel
 %defattr(-,root,root)
 %{_libdir}/libXau.a
 
 %changelog
+* Thu Jun 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0.3
+- implement devel naming policy
+- implement library provides policy
+
 * Wed Apr 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0.3
 - first Annvix package
 
