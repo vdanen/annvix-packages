@@ -56,6 +56,7 @@ Requires:	libx11-devel >= 1.0.0
 Requires:	libsm-devel >= 1.0.0
 Provides:	%{name}-devel = %{version}-%{release}
 Provides:	xt-devel = %{version}-%{release}
+Obsoletes:	%{odevname}
 Conflicts:	libxorg-x11-devel < 7.0
 
 %description -n %{devname}
