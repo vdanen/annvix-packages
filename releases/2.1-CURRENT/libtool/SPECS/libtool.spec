@@ -12,9 +12,10 @@
 %define version		1.5.20
 %define release		%_revrel
 
-%define lib_major	3
-%define libname_orig	libltdl
-%define libname		%mklibname ltdl %{lib_major}
+%define major		3
+%define libname		%mklibname ltdl %{major}
+%define devname		%mklibname ltdl -d
+%define odevname	%mklibname ltdl 3 -d
 
 %define gcc_ver		%(gcc -dumpversion)
 
@@ -79,21 +80,22 @@ libraries.
 %package -n %{libname}
 Group:		Development/C
 Summary:	Shared library files for libtool
-Provides:	%{libname_orig} = %{version}-%{release}
+Provides:	libltdl = %{version}-%{release}
 
 %description -n %{libname}
 Shared library files for libtool DLL library from the libtool package.
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Group:		Development/C
 Summary:	Development files for libtool
 Requires:	%{name} = %{version}
 Requires:	%{libname} = %{version}
-Provides:	%{libname_orig}-devel = %{version}-%{release}
-Provides:	%{name}-devel
+Provides:	libltdl-devel = %{version}-%{release}
+Provides:	%{name}-devel = %{version}-%{release}
+Obsoletes:	%{odevname}
 
-%description -n %{libname}-devel
+%description -n %{devname}
 Development headers, and files for development from the libtool package.
 
 
@@ -213,7 +215,7 @@ mv libltdl/README libltdl/README.libltdl
 %defattr(-,root,root)
 %{_libdir}/*.so.*
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 %{_includedir}/*
 %{_libdir}/*.a
@@ -226,6 +228,11 @@ mv libltdl/README libltdl/README.libltdl
 
 
 %changelog
+* Sat Jun 23 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.5.20
+- implement devel naming policy
+- implement library provides policy
+- rebuild against gcc 4.1.2
+
 * Tue Oct 31 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.5.20
 - 1.5.20
 - build against gcc 4.1
