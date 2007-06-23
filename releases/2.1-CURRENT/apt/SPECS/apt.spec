@@ -14,6 +14,8 @@
 
 %define major		0
 %define libname		%mklibname %{name} %{major}
+%define devname		%mklibname %{name} -d
+%define odevname	%mklibname %{name} 0 -d
 
 Summary:	Debian's Advanced Packaging Tool with RPM support 
 Name:		%{name}
@@ -52,22 +54,25 @@ multiple source capability and several other unique features.
 Summary:	Libraries for %{name}
 Group:		System/Libraries
 Requires:	%{name}
+Provides:	lib%{name} = %{version}-%{release}
 
 %description -n %{libname}
 This package contains APT's libapt-pkg package manipulation library
 modified for RPM.
 
-%package -n %{libname}-devel
+
+%package -n %{devname}
 Summary:	Development files for %{name}
 Group:		Development/C
-Provides:	%{_lib}apt-devel
-Provides:	apt-devel
-Requires:	%{libname} = %{version}-%{release}
+Requires:	%{libname} = %{version}
+Provides:	%{name}-devel = %{version}-%{release}
+Obsoletes:	%{odevname}
 
-%description -n %{libname}-devel
+%description -n %{devname}
 This package contains the header files and static libraries for
 developing with APT's libapt-pkg package manipulation library,
 modified for RPM.
+
 
 %package -n python-%{name}
 Summary:	Python extension for %{name}
@@ -183,7 +188,7 @@ install -m 0600 contrib/gpg-check/gpg-import.lua %{buildroot}%{_datadir}/apt/scr
 %defattr(-,root,root)
 %{_libdir}/*.so.*
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 %{_includedir}/apt-pkg
 %{_libdir}/*.so
@@ -200,6 +205,10 @@ install -m 0600 contrib/gpg-check/gpg-import.lua %{buildroot}%{_datadir}/apt/scr
 
 
 %changelog
+* Sat Jun 23 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.5.15lorg3.2
+- implement devel naming policy
+- implement library provides policy
+
 * Fri May 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.5.15lorg3.2
 - rebuild against new python
 
