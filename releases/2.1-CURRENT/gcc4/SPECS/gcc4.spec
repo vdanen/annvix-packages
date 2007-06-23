@@ -9,7 +9,7 @@
 
 %define revision		$Rev$
 %define name			gcc
-%define version			4.1.1
+%define version			4.1.2
 %define release			%_revrel
 
 %define _unpackaged_files_terminate_build 0
@@ -1110,6 +1110,10 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc.info.bz2 --dir=%{_info
 
 
 %changelog
+* Sat Jun 23 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.1.2
+- 4.1.2
+- updated P8 from Mandriva
+
 * Mon Jun 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.1.1
 - rebuild against new glibc, and require glibc >= 2.4
 - no longer build libssp as it's part of glibc now
