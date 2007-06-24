@@ -49,8 +49,6 @@ SQL Servers and any Data Source with an ODBC Driver.
 %package -n %{libname}
 Summary:	Libraries unixODBC 
 Group:		System/Libraries
-Provides:	lib%{name}2
-Obsoletes:	lib%{name}2
 
 %description -n %{libname}
 unixODBC libraries.
@@ -64,9 +62,7 @@ Provides:	%{name}-devel = %{version}-%{release}
 Provides:	lib%{name}-devel = %{version}-%{release}
 Provides:	libodbc.so
 Provides:	libodbcinst.so
-Provides:	lib%{name}2-devel = %{version}-%{release}
 Obsoletes:	%{name}-devel
-Obsoletes:	lib%{name}2-devel
 Obsoletes:	%{odevname}
 
 %description -n %{devname}
