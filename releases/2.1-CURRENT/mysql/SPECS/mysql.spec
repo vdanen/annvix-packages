@@ -14,6 +14,9 @@
 
 %define major		15
 %define libname		%mklibname mysql %{major}
+%define devname		%mklibname mysql -d
+%define staticdevname	%mklibname mysql -d -s
+%define odevname	%mklibname mysql 15 -d
 %define oldlibname	%mklibname mysql 14
 %define mysqld_user	mysql
 
@@ -125,27 +128,27 @@ This package contains MySQL benchmark scripts and data.
 %package -n %{libname}
 Summary:        MySQL shared libraries
 Group:          System/Libraries
+Provides:	lib%{name} = %{version}-%{release}
 Obsoletes:	%{oldlibname}
-Provides:	libmysql = %{version}-%{release}
 
 %description -n %{libname}
 This package contains the shared libraries (*.so*) which certain
 languages and applications need to dynamically load and use MySQL.
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:        MySQL development header files and libraries
 Group:          Development/Other
-Obsoletes:      MySQL-devel
-Provides:       mysql-devel = %{version}-%{release}
-Provides:       MySQL-devel = %{version}-%{release}
-Provides:       libmysql-devel = %{version}-%{release}
-Requires:       %{libname} = %{version}
+Requires:	%{libname} = %{version}
 Requires:	mysql = %{version}
 Requires:	mysql-client = %{version}
-Obsoletes:      %{oldlibname}-devel
+Provides:	%{name}-devel = %{version}-%{release}
+Provides:	MySQL-devel = %{version}-%{release}
+Obsoletes:	%{odevname}
+Obsoletes:	%{oldlibname}-devel
+Obsoletes:	MySQL-devel
 
-%description -n %{libname}-devel
+%description -n %{devname}
 This package contains the development header files and libraries
 necessary to develop MySQL client applications.
 
@@ -160,16 +163,16 @@ The API is identical for the embedded MySQL version and the
 client/server version.
 
 
-%package -n %{libname}-static-devel
+%package -n %{staticdevname}
 Summary:        MySQL static development libraries
 Group:          Development/Other
-Provides:       mysql-static-devel = %{version}-%{release}
-Provides:       MySQL-static-devel = %{version}-%{release}
-Provides:       libmysql-static-devel = %{version}-%{release}
 Requires:	mysql-devel = %{version}
 Requires:	mysql-client = %{version}
+Provides:       %{name}-static-devel = %{version}-%{release}
+Provides:       MySQL-static-devel = %{version}-%{release}
+Obsoletes:	%mklibname %{name} 15 -d -s
 
-%description -n %{libname}-static-devel
+%description -n %{staticdevname}
 This package contains the static development libraries.
 
 
@@ -575,7 +578,7 @@ fi
 %{_libdir}/*.so.*
 
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 %{_bindir}/comp_err
 %multiarch %{multiarch_bindir}/mysql_config
@@ -587,7 +590,7 @@ fi
 %{_libdir}/*.so
 %{_mandir}/man1/mysql_config.1*
 
-%files -n %{libname}-static-devel
+%files -n %{staticdevname}
 %defattr(-,root,root)
 %{_libdir}/*.a
 %{_libdir}/mysql/*.a
@@ -599,6 +602,11 @@ fi
 
 
 %changelog
+* Sun Jun 24 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.0.27
+- rebuild against new readline
+- implement devel naming policy
+- implement library provides policy
+
 * Fri Feb 02 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.0.27
 - make lib(64)mysql15 provide libmysql
 - version all the provides
