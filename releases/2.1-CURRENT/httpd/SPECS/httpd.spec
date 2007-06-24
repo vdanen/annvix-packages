@@ -1382,6 +1382,9 @@ fi
 
 
 %changelog
+* Sat Jun 23 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.4
+- rebuild against new expat
+
 * Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.4
 - 2.2.4
 - update P1 from Mandriva
