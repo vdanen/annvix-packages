@@ -91,7 +91,7 @@ Requires:	%{devname} = %{version}-%{release}
 Provides:	lib%{name}-static-devel = %{version}-%{release}
 Provides:	%{name}-static-devel = %{version}-%{release}
 Provides:	%{name}3-static-devel = %{version}-%{release}
-Obsoletes:	%mklibname %{name}3_ 0 -d
+Obsoletes:	%mklibname %{name}3_ 0 -d -s
 
 %description -n	%{staticdevname}
 SQLite is a C library that implements an embeddable SQL database
