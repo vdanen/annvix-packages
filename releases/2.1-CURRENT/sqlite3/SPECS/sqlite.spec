@@ -14,6 +14,9 @@
 
 %define	major		0
 %define libname		%mklibname %{name}3_ %{major}
+%define devname		%mklibname %{name} -d
+%define staticdevname	%mklibname %{name} -d -s
+%define odevname	%mklibname %{name}3_ 0 -d
 
 Summary:	SQLite is a C library that implements an embeddable SQL database engine
 Name:		%{name}
@@ -47,6 +50,7 @@ which serves as an example of how to use the SQLite library.
 Summary:	SQLite is a C library that implements an embeddable SQL database engine
 Group:          System/Libraries
 Provides:	libsqlite3 = %{version}-%{release}
+Provides:	lib%{name} = %{version}-%{release}
 
 %description -n	%{libname}
 SQLite is a C library that implements an embeddable SQL database
@@ -59,15 +63,16 @@ which serves as an example of how to use the SQLite library.
 This package contains the shared libraries for %{name}
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:	Development library and header files for the %{name} library
 Group:		Development/C
 Requires:	%{libname} = %{version}-%{release}
 Provides:	lib%{name}-devel = %{version}-%{release}
 Provides:	%{name}-devel = %{version}-%{release}
 Provides:	%{name}3-devel = %{version}-%{release}
+Obsoletes:	%{odevname}
 
-%description -n	%{libname}-devel
+%description -n	%{devname}
 SQLite is a C library that implements an embeddable SQL database
 engine. Programs that link with the SQLite library can have SQL
 database access without running a separate RDBMS process. The
@@ -79,15 +84,16 @@ This package contains the static %{libname} library and its header
 files.
 
 
-%package -n %{libname}-static-devel
+%package -n %{staticdevname}
 Summary:	Static development library for the %{name} library
 Group:		Development/C
-Requires:	%{libname}-devel = %{version}-%{release}
+Requires:	%{devname} = %{version}-%{release}
 Provides:	lib%{name}-static-devel = %{version}-%{release}
 Provides:	%{name}-static-devel = %{version}-%{release}
 Provides:	%{name}3-static-devel = %{version}-%{release}
+Obsoletes:	%mklibname %{name}3_ 0 -d
 
-%description -n	%{libname}-static-devel
+%description -n	%{staticdevname}
 SQLite is a C library that implements an embeddable SQL database
 engine. Programs that link with the SQLite library can have SQL
 database access without running a separate RDBMS process. The
@@ -102,7 +108,7 @@ Summary:	Command line tools for managing the %{libname} library
 Group:		Databases
 Requires:	%{libname} = %{version}-%{release}
 Provides:	%{name}3-tools = %{version}-%{release}
-Obsoletes:	%{name}3-tools = %{version}-%{release}
+Obsoletes:	%{name}3-tools
 
 %description tools
 SQLite is a C library that implements an embeddable SQL database
@@ -120,7 +126,7 @@ Summary:	Tcl binding for %{name}
 Group:		Databases
 Provides:	%{name}-tcl = %{version}-%{release}
 Provides:	%{name}3-tcl = %{version}-%{release}
-Obsoletes:	%{name}3-tcl = %{version}-%{release}
+Obsoletes:	%{name}3-tcl
 
 %description -n tcl-%{name}
 SQLite is a C library that implements an embeddable SQL database
@@ -193,14 +199,14 @@ chrpath -d %{buildroot}%{_bindir}/*
 %defattr(-,root,root)
 %{_libdir}/lib*.so.*
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 %{_includedir}/*.h
 %{_libdir}/lib*.la
 %{_libdir}/lib*.so
 %{_libdir}/pkgconfig/*.pc
 
-%files -n %{libname}-static-devel
+%files -n %{staticdevname}
 %defattr(-,root,root)
 %{_libdir}/lib*.a
 
@@ -219,6 +225,11 @@ chrpath -d %{buildroot}%{_bindir}/*
 
 
 %changelog
+* Sun Jun 24 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.3.8
+- rebuild against new readline
+- implement devel naming policy
+- implement library provides policy
+
 * Fri Feb 02 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.3.8
 - provide libsqlite3
 
