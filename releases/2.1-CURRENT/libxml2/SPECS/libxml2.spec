@@ -14,8 +14,7 @@
 
 %define major		2
 %define libname		%mklibname xml %{major}
-%define devname		%mklibname xml -d
-%define odevname	%mklibname xml 2 -d
+%define devname		%mklibname xml %{major} -d
 
 Summary:	Library providing XML and HTML support
 Name:		%{name}
@@ -95,7 +94,6 @@ Requires:	%{libname} = %{version}
 Requires:	zlib-devel
 Provides:	%{name}-devel = %{version}-%{release}
 Provides:	xml-devel = %{version}-%{release}
-Obsoletes:	%{odevname}
 
 %description -n %{devname}
 Libraries, include files, etc you can use to develop XML applications.
