@@ -23,7 +23,7 @@ URL:		http://www.cpan.org
 Source0:	%{module}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	libtermcap-devel
+BuildRequires:	termcap-devel
 BuildRequires:	perl-devel
 BuildRequires:	readline-devel
 
@@ -94,6 +94,9 @@ perl -pi -e 's!/usr/local/bin/perl!/usr/bin/perl!g' %{buildroot}%{perl_vendorarc
 
 
 %changelog
+* Sun Jun 24 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.15
+- rebuild against new readline
+
 * Thu Jun 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.15
 - rebuild against new readline
 
