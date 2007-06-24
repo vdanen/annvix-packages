@@ -14,6 +14,8 @@
 
 %define major		2
 %define libname		%mklibname xml %{major}
+%define devname		%mklibname xml -d
+%define odevname	%mklibname xml 2 -d
 
 Summary:	Library providing XML and HTML support
 Name:		%{name}
@@ -86,14 +88,16 @@ this includes parsing and validation even with complex DTDs, either
 at parse time or later once the document has been modified.
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:	Libraries, includes, etc. to develop XML and HTML applications
 Group:		Development/C
 Requires:	%{libname} = %{version}
 Requires:	zlib-devel
 Provides:	%{name}-devel = %{version}-%{release}
+Provides:	xml-devel = %{version}-%{release}
+Obsoletes:	%{odevname}
 
-%description -n %{libname}-devel
+%description -n %{devname}
 Libraries, include files, etc you can use to develop XML applications.
 This library allows to manipulate XML files. It includes support 
 to read, modify and write XML and HTML files. There is DTDs support
@@ -181,7 +185,7 @@ rm -rf	%{buildroot}%{_prefix}/doc \
 %{_libdir}/python%{pyver}/site-packages/*.so
 %{_libdir}/python%{pyver}/site-packages/*.py
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-, root, root)
 %multiarch %{multiarch_bindir}/xml2-config
 %{_bindir}/xml2-config
@@ -204,6 +208,11 @@ rm -rf	%{buildroot}%{_prefix}/doc \
 
 
 %changelog
+* Sun Jun 24 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.27
+- rebuild against new readline
+- implement devel naming policy
+- implement library provides policy
+
 * Fri May 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.27
 - rebuild againt new python
 
