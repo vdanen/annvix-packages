@@ -14,6 +14,8 @@
 
 %define major		1
 %define libname 	%mklibname %{name} %{major}
+%define devname		%mklibname %{name} -d
+%define odevname	%mklibname %{name} 1 -d
 
 Summary: 	Unix ODBC driver manager and database drivers
 Name: 		%{name}
@@ -51,22 +53,23 @@ Provides:	lib%{name}2
 Obsoletes:	lib%{name}2
 
 %description -n %{libname}
-unixODBC  libraries.
+unixODBC libraries.
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary: 	Includes and static libraries for ODBC development
 Group: 		Development/Other
 Requires: 	%{libname} = %{version}
-Provides:	%{name}-devel
-Provides:	lib%{name}-devel
+Provides:	%{name}-devel = %{version}-%{release}
+Provides:	lib%{name}-devel = %{version}-%{release}
 Provides:	libodbc.so
 Provides:	libodbcinst.so
-Provides:	lib%{name}2-devel
+Provides:	lib%{name}2-devel = %{version}-%{release}
 Obsoletes:	%{name}-devel
 Obsoletes:	lib%{name}2-devel
+Obsoletes:	%{odevname}
 
-%description -n %{libname}-devel
+%description -n %{devname}
 unixODBC aims to provide a complete ODBC solution for the Linux platform.
 This package contains the include files and static libraries for development.
 
@@ -168,7 +171,7 @@ rm -f libodbc-libs.filelist
 %files -n %{libname} -f libodbc-libs.filelist
 %defattr(-,root,root)
 
-%files -n %{libname}-devel 
+%files -n %{devname} 
 %defattr(-,root,root)
 %{_includedir}/*
 %{_libdir}/lib*.so
@@ -181,6 +184,11 @@ rm -f libodbc-libs.filelist
 
 
 %changelog
+* Sun Jun 24 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.11
+- rebuild against new readline
+- implement devel naming policy
+- implement library provides policy
+
 * Thu Jun 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.11
 - rebuild against new readline
 - add -doc subpackage
