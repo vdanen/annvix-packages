@@ -125,6 +125,9 @@ for i in en@boldquot en@quot ; do rm -rf %{buildroot}%{_datadir}/locale/$i; done
 
 
 %changelog
+* Sat Jun 23 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.4.7
+- rebuild against new readline
+
 * Wed Mar 07 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.4.7
 - 1.4.7: fixes CVE-2007-1263
 
