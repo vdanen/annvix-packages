@@ -148,6 +148,9 @@ fi
 
 
 %changelog
+* Sun Jun 24 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.02.09
+- rebuild against new readline
+
 * Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.02.09
 - 2.02.09 (lvm2)
 - chmod lvm so we have perms to strip it
