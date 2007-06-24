@@ -12,9 +12,10 @@
 %define version 	2.8.11
 %define release 	%_revrel
 
-%define libname_orig	libxfs
 %define major		1
 %define libname		%mklibname xfs %{major}
+%define devname		%mklibname xfs -d
+%define odevname	%mklibname xfs 1 -d
 
 Summary:	Utilities for managing the XFS filesystem
 Name:		%{name}
@@ -26,9 +27,9 @@ URL:		http://oss.sgi.com/projects/xfs/
 Source0:	ftp://oss.sgi.com/projects/xfs/download/cmd_tars/%{name}_%{version}-1.tar.gz
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	libext2fs-devel
-BuildRequires:	libreadline-devel
-BuildRequires:	libtermcap-devel
+BuildRequires:	e2fsprogs-devel
+BuildRequires:	readline-devel
+BuildRequires:	termcap-devel
 BuildRequires:	libtool
 
 Requires:	common-licenses
@@ -49,25 +50,26 @@ with the IRIX version of XFS.
 
 
 %package -n %{libname}
-Summary:	Main library for %{libname_orig}
+Summary:	Main library for libxfs
 Group:		System/Libraries
-Provides:	%{libname_orig} = %{version}-%{release}
+Provides:	libxfs = %{version}-%{release}
 
 %description -n %{libname}
 This package contains the library needed to run programs dynamically
-linked with %{libname_orig}.
+linked with libxfs.
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:	XFS filesystem-specific static libraries and headers
 Group:		Development/C
 Requires:	%{libname} = %{version}
-Provides:	%{libname_orig}-devel = %{version}-%{release}
+Provides:	libxfs-devel = %{version}-%{release}
 Provides:	xfs-devel = %{version}-%{release}
 Obsoletes:	xfs-devel
+Obsoletes:	%{odevname}
 
-%description -n %{libname}-devel
-%{libname}-devel contains the libraries and header files needed to
+%description -n %{devname}
+%{devname} contains the libraries and header files needed to
 develop XFS filesystem-specific programs.
 
 
@@ -146,7 +148,7 @@ rm -rf %{buildroot}%{_datadir}/locale
 %defattr(-,root,root)
 /%{_lib}/*.so.*
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 /%{_lib}/*.so
 /%{_lib}/*a
@@ -163,6 +165,11 @@ rm -rf %{buildroot}%{_datadir}/locale
 # NOTE: ref bug #43; xfsprogs > 2.8.11 doesn't work on i586
 
 %changelog
+* Sun Jun 24 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.8.11
+- rebuild against new readline
+- implement devel naming policy
+- implement library provides policy
+
 * Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.8.11
 - 2.8.11
 
