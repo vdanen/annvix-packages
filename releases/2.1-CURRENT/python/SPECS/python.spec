@@ -332,6 +332,9 @@ rm -f modules-list main.list
 
 
 %changelog
+* Sun Jun 24 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.5.1
+- rebuild against new readline
+
 * Thu Jun 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.5.1
 - implement devel naming policy
 - implement library provides policy
