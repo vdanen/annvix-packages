@@ -9,11 +9,13 @@
 
 %define revision	$Rev$
 %define name		readline
-%define version		5.1
+%define version		5.2
 %define	release		%_revrel
 
 %define major		5
 %define libname		%mklibname %{name} %{major}
+%define devname		%mklibname %{name} -d
+%define odevname	%mklibname %{name} 5 -d
 
 Summary:	Library for reading lines from a terminal
 Name:		%{name}
@@ -24,10 +26,10 @@ Group:		System/Libraries
 URL:		http://cnswww.cns.cwru.edu/php/chet/readline/rltop.html
 Source:		ftp://ftp.gnu.org/pub/gnu/readline/readline-%{version}.tar.gz
 Patch3:		readline-4.1-outdated.patch
-Patch5:		readline-4.1-resize.patch
-Patch11:	ftp://ftp.cwru.edu/pub/bash/readline-5.1-patches/readline51-001
+#Patch5:		readline-4.1-resize.patch
+Patch11:	readline52-001
 Patch16:	readline-4.3-no_rpath.patch
-Patch18:	readline-wrap.patch
+#Patch18:	readline-wrap.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -41,24 +43,25 @@ intuitive interface.
 %package -n %{libname}
 Summary:	Shared libraries for readline
 Group:		System/Libraries
-Obsoletes:	%{name}
 Provides:	%{name} = %{version}-%{release}
+Provides:	lib%{name} = %{version}-%{release}
+Obsoletes:	%{name}
 
 %description -n %{libname}
 This package contains the library needed to run programs dynamically
 linked to readline.
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:	Files for developing programs that use the readline library
 Group:		Development/C
 Requires:	%{libname} = %{version}-%{release}
-Obsoletes:	%{name}-devel
 Provides:	lib%{name}-devel = %{version}-%{release}
 Provides:	%{name}-devel = %{version}-%{release}
+Obsoletes:	%{odevname}
 Conflicts:	%{_lib}readline4-devel
 
-%description -n %{libname}-devel
+%description -n %{devname}
 The "readline" library will read a line from the terminal and return it,
 using prompt as a prompt.  If prompt is null, no prompt is issued.  The
 line returned is allocated with malloc(3), so the caller must free it when
@@ -77,10 +80,10 @@ This package contains the documentation for %{name}.
 %prep
 %setup -q
 %patch3 -p1 -b .outdated
-%patch5 -p1 -b .resize
+#%patch5 -p1 -b .resize
 %patch11 -p0 -b .001
 %patch16 -p1 -b .no_rpath
-%patch18 -p1 -b .wrap
+#%patch18 -p1 -b .wrap
 
 
 libtoolize --copy --force
@@ -127,12 +130,12 @@ chmod 0755 support/{config.rpath,mkinstalldirs}
 %postun -n %{libname} -p /sbin/ldconfig
 
 
-%post -n %{libname}-devel
+%post -n %{devname}
 %_install_info history.info
 %_install_info readline.info
 
 
-%preun -n %{libname}-devel
+%preun -n %{devname}
 %_remove_install_info history.info
 %_remove_install_info readline.info
 
@@ -141,7 +144,7 @@ chmod 0755 support/{config.rpath,mkinstalldirs}
 %defattr(-,root,root)
 /%{_lib}/lib*.so.*
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 %{_mandir}/man*/*
 %{_infodir}/*info*
@@ -157,6 +160,13 @@ chmod 0755 support/{config.rpath,mkinstalldirs}
 
 
 %changelog
+* Sat Jun 23 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2
+- 5.2
+- updated P11 for this version
+- drop P18, P5
+- implement devel naming policy
+- implement library provides policy
+
 * Thu Jun 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.1
 - 5.1
 - drop P2,P11-P15,P17; merged upstream
