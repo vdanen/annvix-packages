@@ -25,7 +25,7 @@
 %define odevname	%mklibname rpm 4.4 -d
 %define libpoptname	%mklibname popt %{libpoptver}
 %define devpoptname	%mklibname popt -d
-%define odevpoptname	%mklibname popt 1.10.5 -d
+%define odevpoptname	%mklibname popt 0 -d
 
 %define url		ftp://ftp.rpm.org/pub/rpm/dist/rpm-4.0.x
 
