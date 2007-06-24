@@ -851,6 +851,9 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Sun Jun 24 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0.25a
+- rebuild against new readline
+
 * Tue Jun 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0.25a
 - 3.0.25a (security fixes for CVE-2007-2444, CVE-2007-2446, CVE-2007-2447)
 - drop the socket options in smb.conf (Mandriva bug #28459)
