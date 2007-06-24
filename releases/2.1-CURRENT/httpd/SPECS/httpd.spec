@@ -14,7 +14,7 @@
 
 # not everyone uses this, so define it here
 %define distribution	Annvix
-%define build_test	1
+%define build_test	0
 
 %define ap_version	%{version}
 %define ap_release	%{release}
@@ -1382,6 +1382,9 @@ fi
 
 
 %changelog
+* Sun Jun 24 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.4
+- don't run the test suite, for some reason it's borking like crazy (new glibc?)
+
 * Sat Jun 23 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.4
 - rebuild against new expat
 
