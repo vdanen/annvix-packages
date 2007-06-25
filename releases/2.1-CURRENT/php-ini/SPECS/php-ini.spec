@@ -60,6 +60,9 @@ perl -pi -e 's|EXTENSIONDIR|%{_libdir}/php/extensions|g' %{buildroot}%{_sysconfd
 
 
 %changelog
+* Mon Jun 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.3
+- add [Session] to the main php.ini since it's now built-in
+
 * Sun Jun 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.3
 - php 5.2.3
 
