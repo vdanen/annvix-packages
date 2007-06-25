@@ -1,6 +1,5 @@
-diff -Naur php-5.1.2/ext/snmp/config.m4 php-5.1.2.oden/ext/snmp/config.m4
---- php-5.1.2/ext/snmp/config.m4	2005-11-29 19:26:00.000000000 +0100
-+++ php-5.1.2.oden/ext/snmp/config.m4	2006-01-15 10:18:20.000000000 +0100
+--- ext/snmp/config.m4	2005-11-29 19:26:00.000000000 +0100
++++ ext/snmp/config.m4.oden	2007-06-20 13:21:35.000000000 +0200
 @@ -46,12 +46,12 @@
          test -f $i/snmp/include/ucd-snmp/snmp.h && SNMP_INCDIR=$i/snmp/include/ucd-snmp
        done

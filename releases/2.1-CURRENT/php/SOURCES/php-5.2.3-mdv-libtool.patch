@@ -1,6 +1,6 @@
---- aclocal.m4	2005-03-30 16:35:19.000000000 +0200
-+++ aclocal.m4.oden	2005-04-01 14:02:48.569185576 +0200
-@@ -2089,6 +2089,20 @@
+--- aclocal.m4	2007-05-30 20:50:50.000000000 +0200
++++ aclocal.m4.oden	2007-06-20 13:03:05.000000000 +0200
+@@ -3276,6 +3276,20 @@
    rm -rf conftest*
    ;;
  
@@ -21,9 +21,9 @@
  *-*-sco3.2v5*)
    # On SCO OpenServer 5, we need -belf to get full-featured binaries.
    SAVE_CFLAGS="$CFLAGS"
-@@ -4160,6 +4174,13 @@
-   # before this can be enabled.
-   hardcode_into_libs=yes
+@@ -4255,6 +4269,13 @@
+     sys_lib_dlsearch_path_spec="/lib${libsuff} /usr/lib${libsuff} $lt_ld_extra"
+   fi
  
 +  case $host_cpu:$lt_cv_cc_64bit_output in
 +  powerpc64:yes | s390x:yes | sparc64:yes | x86_64:yes)

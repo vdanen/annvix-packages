@@ -1,6 +1,6 @@
-diff -Naur php-5.1.2/build/build2.mk php-5.1.2.oden/build/build2.mk
---- php-5.1.2/build/build2.mk	2006-01-01 13:50:00.000000000 +0100
-+++ php-5.1.2.oden/build/build2.mk	2006-01-15 10:20:50.000000000 +0100
+diff -Naur php-5.2.3/build/build2.mk php-5.2.3.oden/build/build2.mk
+--- php-5.2.3/build/build2.mk	2007-01-01 20:32:10.000000000 +0100
++++ php-5.2.3.oden/build/build2.mk	2007-06-20 13:24:36.000000000 +0200
 @@ -31,6 +31,7 @@
  
  PHP_AUTOCONF ?= 'autoconf'
@@ -9,9 +9,9 @@ diff -Naur php-5.1.2/build/build2.mk php-5.1.2.oden/build/build2.mk
  
  SUPPRESS_WARNINGS ?= 2>&1 | (egrep -v '(AC_TRY_RUN called without default to allow cross compiling|AC_PROG_CXXCPP was called before AC_PROG_CXX|defined in acinclude.m4 but never used|AC_PROG_LEX invoked multiple times|AC_DECL_YYTEXT is expanded from...|the top level)'||true)
  
-diff -Naur php-5.1.2/scripts/phpize.in php-5.1.2.oden/scripts/phpize.in
---- php-5.1.2/scripts/phpize.in	2005-12-12 12:51:45.000000000 +0100
-+++ php-5.1.2.oden/scripts/phpize.in	2006-01-15 10:22:18.000000000 +0100
+diff -Naur php-5.2.3/scripts/phpize.in php-5.2.3.oden/scripts/phpize.in
+--- php-5.2.3/scripts/phpize.in	2005-12-12 12:51:45.000000000 +0100
++++ php-5.2.3.oden/scripts/phpize.in	2007-06-20 13:24:36.000000000 +0200
 @@ -7,9 +7,11 @@
  includedir="`eval echo @includedir@`/php"
  builddir="`pwd`"

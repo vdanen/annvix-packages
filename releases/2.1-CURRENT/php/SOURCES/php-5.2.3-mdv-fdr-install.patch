@@ -1,6 +1,6 @@
---- php-4.3.3/sapi/apache2handler/config.m4.install
-+++ php-4.3.3/sapi/apache2handler/config.m4
-@@ -59,7 +59,7 @@
+--- sapi/apache2handler/config.m4	2005-09-01 16:33:47.000000000 +0200
++++ sapi/apache2handler/config.m4.oden	2007-06-20 13:06:20.000000000 +0200
+@@ -65,7 +65,7 @@
    fi
  
    APXS_LIBEXECDIR='$(INSTALL_ROOT)'`$APXS -q LIBEXECDIR`
@@ -8,4 +8,4 @@
 +  if true; then
      INSTALL_IT="\$(mkinstalldirs) '$APXS_LIBEXECDIR' && \
                   $APXS -S LIBEXECDIR='$APXS_LIBEXECDIR' \
-                        -i -n php4"
+                        -i -n php5"
