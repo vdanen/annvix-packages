@@ -1,0 +1,11 @@
+--- mdadm-2.6.2/Detail.c~	2007-06-25 17:26:27.121394750 -0600
++++ mdadm-2.6.2/Detail.c	2007-06-25 17:26:27.121394750 -0600
+@@ -59,7 +59,7 @@
+ 	void *super = NULL;
+ 	int rv = test ? 4 : 1;
+ 	int avail_disks = 0;
+-	char *avail;
++	char *avail = NULL;
+ 
+ 	if (fd < 0) {
+ 		fprintf(stderr, Name ": cannot open %s: %s\n",

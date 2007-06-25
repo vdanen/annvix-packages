@@ -9,13 +9,16 @@
 
 %define revision	$Rev$
 %define name		mdadm
-%define version		2.5.6
+%define version		2.6.2
 %define release		%_revrel
 
 %define use_dietlibc 	0
 %ifarch %{ix86} x86_64 ppc
 %define use_dietlibc 	1
 %endif
+
+# cannot build with SSP
+%define _ssp_cflags	%nil
 
 %define mdassemble_auto	"MDASSEMBLE_AUTO=1"
 
@@ -32,7 +35,7 @@ URL:		http://www.cse.unsw.edu.au/~neilb/source/mdadm/
 Source0:	http://www.kernel.org/pub/linux/utils/raid/mdadm/%{name}-%{version}.tar.bz2
 Source1:	mdadm.run
 Source2:	mdadm-log.run
-Patch0:		mdadm-2.5-rand.patch
+Patch0:		mdadm-2.6.2-mdv-werror.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	man
@@ -67,7 +70,7 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
-%patch0 -p1 -b .rand
+%patch0 -p1 -b .werror
 
 chmod 0644 ChangeLog
 
@@ -131,6 +134,11 @@ install -m 0740 %{_sourcedir}/mdadm-log.run %{buildroot}%{_srvdir}/mdadm/log/run
 
 
 %changelog
+* Mon Jun 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.2
+- 2.6.2
+- drop P0
+- P0: fix -Werror
+
 * Sun Dec 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5.6
 - really fix auto-assembly
 
