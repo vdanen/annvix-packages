@@ -130,6 +130,7 @@ Patch85:	rpm-4.4.4-perldirs.patch
 Patch86:	rpm-4.4.4-depsdb.patch
 Patch87:	rpm4-CVE-2006-5466.patch
 Patch88:	rpm-4.4.5-avx-trans.patch
+Patch89:	rpm-4.4.8-mdv-macro_doc_fmt.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5 >= 2.57
@@ -346,6 +347,7 @@ This package contains the documentation for %{name}.
 %patch86 -p0 -b .depsdb
 %patch87 -p0 -b .cve-2006-5466
 %patch88 -p0 -b .trans
+%patch89 -p0 -b .docdir-macros
 
 # The sqlite from rpm tar ball is the same than the system one
 # rpm author just add LINT comment for his checking purpose
@@ -768,6 +770,10 @@ fi
 
 
 %changelog
+* Mon Jun 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.4.5
+- P89: backport patch from CVS (from Mandriva) to set %%_docdir_fmt for
+  the doc directory name (allowing us to use name rather than name-version)
+
 * Sun Jun 24 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.4.5
 - rebuild against new readline
 - implement devel naming policy
