@@ -155,6 +155,9 @@ exit 0
 
 
 %changelog
+* Mon Jun 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.86
+- rebuild with SSP
+
 * Fri Aug 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.86
 - fix some requires
 - spec cleanups
