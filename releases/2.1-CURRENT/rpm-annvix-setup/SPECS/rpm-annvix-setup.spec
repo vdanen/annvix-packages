@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		rpm-annvix-setup
-%define version		1.25
+%define version		1.26
 %define release		%_revrel
 
 Summary:	The Annvix rpm configuration and scripts
@@ -84,6 +84,9 @@ make test
 
 
 %changelog
+* Mon Jun 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.26
+- 1.26: SSP is enabled by default
+
 * Mon Jun 18 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.25
 - 1.25 (change %%_aa_reload and add %_touch_aa_reload)
 
