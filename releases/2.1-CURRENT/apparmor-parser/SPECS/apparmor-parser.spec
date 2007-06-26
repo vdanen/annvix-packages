@@ -123,6 +123,10 @@ mv %{buildroot}%{_initrddir}/rc.apparmor.functions %{buildroot}%{_initrddir}/app
 
 
 %changelog
+* Tue Jun 26 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0.2
+- updated initscript to return proper errorlevels and add
+  condrestart/condreload (thanks, Andreas)
+
 * Wed Jun 13 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0.2
 - buildrequires perl-devel
 

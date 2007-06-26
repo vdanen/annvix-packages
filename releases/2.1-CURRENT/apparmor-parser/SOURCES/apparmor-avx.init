@@ -22,37 +22,70 @@ else
 fi
 
 function usage() {
-	echo "Usage: $0 {start|stop|restart|try-restart|reload|force-reload|status|kill}"
+	echo "Usage: $0 {start|stop|restart|try-restart|condrestart|condreload|reload|force-reload|status|kill}"
 }
 
+RETVAL=0
 
 case "$1" in
     start)
         apparmor_start
-        touch /var/lock/subsys/apparmor
+        RETVAL=$?
+        if [ "${RETVAL}" == "0" ]; then
+            touch /var/lock/subsys/apparmor
+        fi
         ;;
     stop)
         apparmor_stop
-        rm -f /var/lock/subsys/apparmor
+        RETVAL=$?
+        if [ "${RETVAL}" == "0" ]; then
+            rm -f /var/lock/subsys/apparmor
+        fi
         ;;
     restart|reload|force-reload)
+        rm -f /var/lock/subsys/apparmor
         apparmor_restart
+        RETVAL=$?
+        if [ "${RETVAL}" == "0" ]; then
+            touch /var/lock/subsys/apparmor
+        fi
         ;;
     try-restart)
+        rm -f /var/lock/subsys/apparmor
         apparmor_try_restart
+        RETVAL=$?
+        if [ "${RETVAL}" == "0" ]; then
+            touch /var/lock/subsys/apparmor
+        fi
+        ;;
+    condreload|condrestart)
+        if [ -f /var/lock/subsys/apparmor ]; then
+            rm -f /var/lock/subsys/apparmor
+            apparmor_restart
+            RETVAL=$?
+            if [ "${RETVAL}" == "0" ]; then
+                touch /var/lock/subsys/apparmor
+            fi
+        fi
         ;;
     debug)
         apparmor_debug
+        RETVAL=$?
         ;;
     kill)
         apparmor_kill
+        RETVAL=$?
+        if [ "${RETVAL}" == "0" ]; then
+            rm -f /var/lock/subsys/apparmor
+        fi
         ;;
     status)
         apparmor_status
+        RETVAL=$?
         ;;
     *)
         usage
         exit 1
     esac
 
-exit 0
+exit ${RETVAL}
