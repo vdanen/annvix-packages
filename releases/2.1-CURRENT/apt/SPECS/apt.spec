@@ -205,6 +205,9 @@ install -m 0600 contrib/gpg-check/gpg-import.lua %{buildroot}%{_datadir}/apt/scr
 
 
 %changelog
+* Mon Jun 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.5.15lorg3.2
+- rebuild with SSP
+
 * Sat Jun 23 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.5.15lorg3.2
 - implement devel naming policy
 - implement library provides policy
