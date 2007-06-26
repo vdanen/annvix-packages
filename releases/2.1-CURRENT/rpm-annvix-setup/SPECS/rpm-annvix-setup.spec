@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		rpm-annvix-setup
-%define version		1.26
+%define version		1.26.1
 %define release		%_revrel
 
 Summary:	The Annvix rpm configuration and scripts
@@ -84,6 +84,10 @@ make test
 
 
 %changelog
+* Tue Jun 26 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.26.1
+- 1.26.1: drop the %%_touch_aa_reload macro and change %%_aa_reload
+  to call service apparmor condreload
+
 * Mon Jun 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.26
 - 1.26: SSP is enabled by default
 
