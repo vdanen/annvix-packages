@@ -134,6 +134,9 @@ rm -rf %{buildroot}/%{_lib}/libattr.{a,la} %{buildroot}%{_libdir}/libattr.la
 
 
 %changelog
+* Mon Jun 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.4.38
+- rebuild with SSP
+
 * Mon Jun 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.4.38
 - 2.4.38
 - implement devel naming policy
