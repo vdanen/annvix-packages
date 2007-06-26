@@ -770,6 +770,9 @@ fi
 
 
 %changelog
+* Tue Jun 26 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.4.5
+- rebuild against new beecrypt
+
 * Mon Jun 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.4.5
 - P89: backport patch from CVS (from Mandriva) to set %%_docdir_fmt for
   the doc directory name (allowing us to use name rather than name-version)
