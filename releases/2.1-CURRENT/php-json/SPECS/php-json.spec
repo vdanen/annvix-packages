@@ -77,6 +77,9 @@ EOF
 
 
 %changelog
+* Mon Jun 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.3
+- rebuild with SSP
+
 * Sun Jun 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.3
 - php 5.2.3
 
