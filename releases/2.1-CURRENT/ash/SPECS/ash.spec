@@ -12,6 +12,9 @@
 %define version		0.3.8
 %define release		%_revrel
 
+# shouldn't required, but define it regardless
+%define %_ssp_cflags	%nil
+
 Summary:	The Almquist shell
 Name:		%{name}
 Version:	%{version}
@@ -35,6 +38,7 @@ BuildRequires:	make
 BuildRequires:	byacc
 BuildRequires:	dietlibc-devel
 
+Requires(post):	setup
 Provides:	ash-static
 
 %description
@@ -116,6 +120,9 @@ fi
 
 
 %changelog
+* Mon Jun 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.3.8
+- fix requires
+
 * Tue May 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.3.8
 - rebuild with gcc4
 
