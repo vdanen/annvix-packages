@@ -67,6 +67,9 @@ Patch29:	xpdf-3.00-goo-overflow.patch
 Patch30:	xpdf-3.00-chris-overflows.patch
 Patch31:	tetex-src-3.0-gd-CAN-2004-0941.patch
 Patch32:	tetex-src-3.0-gd-CVE-2006-2906.patch
+Patch33:	gd-2.0.33-CVE-2007-0455.patch
+Patch34:	gd-cvs-CVE-2007-2756.patch
+Patch35:	tetex-3.0-CVE-2007-0650.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	bison
@@ -248,6 +251,11 @@ pushd libs/xpdf
 popd
 %patch31 -p1 -b .can-2004-0941
 %patch32 -p1 -b .cve-2006-2906
+pushd libs/gd
+%patch33 -p1 -b .cve-2007-0455
+%patch34 -p0 -b .cve-2007-2756
+popd
+%patch35 -p1 -b .cve-2007-0650
 
 ## cputoolize to get updated config.{sub,guess}
 #%{?__cputoolize: %{__cputoolize} -c libs/ncurses}
@@ -487,6 +495,11 @@ rm -f filelist.*
 
 
 %changelog
+* Mon Jun 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0
+- P33: security fix for CVE-2007-0455
+- P34: security fix for CVE-2007-2756
+- P35: security fix for CVE-2007-0650
+
 * Mon Jun 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0
 - requires libxau and libxdmcp
 
