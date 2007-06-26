@@ -142,7 +142,7 @@ BuildRequires:	automake1.8
 BuildRequires:	glibc-static-devel
 BuildRequires:	elfutils-static-devel
 BuildRequires:	sed >= 4.0.3
-BuildRequires:	libbeecrypt-devel
+BuildRequires:	beecrypt-devel
 BuildRequires:	ed
 BuildRequires:	gettext-devel
 BuildRequires:	rpm-annvix-setup-build
@@ -772,6 +772,7 @@ fi
 %changelog
 * Tue Jun 26 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.4.5
 - rebuild against new beecrypt
+- buildrequires beecrypt-devel, not libbeecrypt-devel
 
 * Mon Jun 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.4.5
 - P89: backport patch from CVS (from Mandriva) to set %%_docdir_fmt for
