@@ -29,6 +29,7 @@ Patch0:		zsh-3.1.6-dev-22-path.patch
 Patch1:		zsh-4.0.1-pre-3-rpmnewopt.patch
 Patch2:		zsh-serial.patch
 Patch3:		zsh-4.1.0-dev-7-rebootin.patch
+Patch4:		zsh-4.3.4-promptsp_vs_ignoreeof.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	libtermcap-devel >= 2.0
@@ -63,6 +64,7 @@ This package contains the documentation for %{name}.
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
+%patch4 -p0
 
 cp %{_sourcedir}/zsh.urpmi_comp Completion/Mandriva/Command/_urpmi
 
@@ -162,6 +164,11 @@ mv docroot/Examples/compctl-examples docroot/StartupFiles
 
 
 %changelog
+* Mon Jun 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.3.4
+- P4: fix prompt display after ^D with both prpromptsp and ignoreeof
+  (zsh-workers/23409)
+- rebuild with SSP
+
 * Tue May 01 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.3.4
 - 4.3.4
 - s/Mandrake/Mandriva/
