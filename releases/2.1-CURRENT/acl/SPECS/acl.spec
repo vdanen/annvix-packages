@@ -128,6 +128,9 @@ rm -rf %{buildroot}%{_docdir}/acl
 
 
 %changelog
+* Mon Jun 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.44
+- rebuild with SSP
+
 * Mon Jun 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.44
 - 2.2.44
 - implement devel naming policy
