@@ -39,7 +39,7 @@ BuildRequires:	byacc
 BuildRequires:	dietlibc-devel
 
 Requires(post):	setup
-Provides:	ash-static
+Provides:	ash-static = %{version}-%{release}
 
 %description
 The Almquist shell is a clone of Berkeley's Bourne shell. Ash
@@ -122,6 +122,7 @@ fi
 %changelog
 * Mon Jun 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.3.8
 - fix requires
+- versioned provides
 
 * Tue May 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.3.8
 - rebuild with gcc4
