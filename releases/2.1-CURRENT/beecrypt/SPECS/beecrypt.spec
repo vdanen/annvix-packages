@@ -9,13 +9,13 @@
 
 %define revision	$Rev$
 %define name		beecrypt
-%define version		3.1.0
+%define version		4.1.2
 %define release		%_revrel
 
-%define libname		%mklibname %{name} 6
-%define libnamedev	%{libname}-devel
-
-%define	python_ver	2.5%{nil}
+%define major		6
+%define libname		%mklibname %{name} %{major}
+%define devname		%mklibname %{name} -d
+%define odevname	%mklibname %{name} 6 -d
 
 Summary:	An open source cryptography library
 Name:		%{name}
@@ -23,16 +23,16 @@ Version:	%{version}
 Release:	%{release}
 License:	LGPL
 Group:		System/Libraries
-URL:		http://beecrypt.virtualunlimited.com/
-Source0:	http://prdownloads.sourceforge.net/beecrypt/%{name}-3.1.0.tar.bz2
-Patch0:		beecrypt-3.1.0-rh.patch
-Patch1:		beecrypt-3.1.0-automake1.7.patch
-Patch2:		beecrypt-3.1.0-configure.patch
+URL:		http://beecrypt.sourceforge.net/
+Source0:	http://prdownloads.sourceforge.net/beecrypt/%{name}-%{version}.tar.gz
+Patch0:		beecrypt-4.1.2-fdr-base64.patch
+Patch1:		beecrypt-4.1.2-fdr-python-api.patch
+Patch2:		beecrypt-4.1.2-fdr-biarch.patch
+Patch3:		beecrypt-4.1.2-avx-lib64.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	doxygen
-BuildRequires:	python-devel >= %{python_ver}
-BuildRequires:	automake1.7
+BuildRequires:	python-devel >= 2.4
 
 %description
 Beecrypt is a general-purpose cryptography library.
@@ -46,21 +46,22 @@ Group:		System/Libraries
 Beecrypt is a general-purpose cryptography library.
 
 
-%package -n %{libnamedev}
+%package -n %{devname}
 Summary:	Files needed for developing applications with beecrypt
 Group:		Development/C
-Requires:	%{libname} = %{version}-%{release}
-Provides:	libbeecrypt-devel = %{version}-%{release}
+Requires:	%{libname} = %{version}
+Provides:	%{name}-devel = %{version}-%{release}
+Obsoletes:	%{odevname}
 
-%description -n %{libnamedev}
+%description -n %{devname}
 Beecrypt is a general-purpose cryptography library.  This package contains
 files needed for developing applications with beecrypt.
 
 
 %package python
-Summary:	Files needed for python applications using beecrypt.
+Summary:	Files needed for python applications using beecrypt
 Group:		Development/C
-Requires:	python >= %{python_ver}
+Requires:	python >= %{pyver}
 Requires:	%{libname} = %{version}-%{release}
 
 %description python
@@ -78,19 +79,19 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
-%patch0 -p1 -b .rh
-%patch1 -p1 -b .automake1.7
-%patch2 -p1 -b .configure
-
+%patch0 -p1 -b .base64
+%patch1 -p1 -b .python-api
+%patch2 -p1 -b .biarch
+%patch3 -p0 -b .lib64
 ./autogen.sh
 
 
 %build
-%configure2_5x \
+%configure \
     --enable-shared \
     --enable-static \
     --with-python \
-    CPPFLAGS="-I%{_includedir}/python%{python_ver}"
+    CPPFLAGS="-I%{_includedir}/python%{pyver}"
 
 %make
 doxygen
@@ -107,7 +108,7 @@ make bench || :
 %makeinstall_std
 
 # XXX nuke unpackaged files, artifacts from using libtool to produce module
-rm -f %{buildroot}%{_libdir}/python%{python_ver}/site-packages/_bc.*a
+rm -f %{buildroot}%{py_platsitedir}/_bc.*a
 
 
 %clean
@@ -122,7 +123,7 @@ rm -f %{buildroot}%{_libdir}/python%{python_ver}/site-packages/_bc.*a
 %defattr(-,root,root)
 %{_libdir}/*.so.*
 
-%files -n %{libnamedev}
+%files -n %{devname}
 %defattr(-,root,root)
 %{_includedir}/%{name}
 %{_libdir}/*.a
@@ -131,7 +132,7 @@ rm -f %{buildroot}%{_libdir}/python%{python_ver}/site-packages/_bc.*a
 
 %files python
 %defattr(-,root,root)
-%{_libdir}/python%{python_ver}/site-packages/_bc.so
+%{py_platsitedir}/_bc.so
 
 %files doc
 %defattr(-,root,root)
@@ -139,6 +140,15 @@ rm -f %{buildroot}%{_libdir}/python%{python_ver}/site-packages/_bc.*a
 
 
 %changelog
+* Tue Jun 26 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.1.2
+- 4.1.2
+- synced patches with Fedora
+- use python macros
+- implement devel naming policy
+- implement library provides policy
+- rebuild with SSP
+- P3: fix build on x86_64
+
 * Fri May 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.1.0
 - rebuild againt new python
 
