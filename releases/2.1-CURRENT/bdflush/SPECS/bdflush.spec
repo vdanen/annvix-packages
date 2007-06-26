@@ -72,7 +72,11 @@ install -m 0644 bdflush.8 %{buildroot}/%{_mandir}/man8/update.8
 /sbin/update
 %{_mandir}/man8/update.8*
 
+
 %changelog
+* Tue Jun 26 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.5
+- rebuild with SSP
+
 * Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.5
 - rebuild with gcc4
 
