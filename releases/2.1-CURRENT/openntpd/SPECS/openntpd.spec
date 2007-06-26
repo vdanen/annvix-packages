@@ -83,7 +83,6 @@ install -m 0640 %{_sourcedir}/usr.sbin.ntpd.profile %{buildroot}%{_profiledir}/u
 
 %post
 %_post_srv ntpd
-%_touch_aa_reload
 
 
 %preun
@@ -92,7 +91,6 @@ install -m 0640 %{_sourcedir}/usr.sbin.ntpd.profile %{buildroot}%{_profiledir}/u
 
 %postun
 %_postun_userdel ntp
-%_touch_aa_reload
 
 
 %posttrans
@@ -121,6 +119,9 @@ install -m 0640 %{_sourcedir}/usr.sbin.ntpd.profile %{buildroot}%{_profiledir}/u
 
 
 %changelog
+* Tue Jun 26 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.9p1
+- drop %%_touch_aa_reload; no longer needed
+
 * Mon Jun 18 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.9p1
 - use %%posttrans to execute the apparmor reload, and use
   %%_touch_aa_reload to signal we want the profile reloaded
