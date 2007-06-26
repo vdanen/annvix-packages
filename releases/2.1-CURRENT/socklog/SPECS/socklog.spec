@@ -151,16 +151,11 @@ install -m 0640 %{_sourcedir}/bin.socklog.profile %{buildroot}%{_profiledir}/bin
 %post
 %_post_srv socklog-unix
 %_post_srv socklog-klog
-%_touch_aa_reload
 
 
 %preun
 %_preun_srv socklog-unix
 %_preun_srv socklog-klog
-
-
-%postun
-%_touch_aa_reload
 
 
 %post remote
@@ -169,16 +164,11 @@ install -m 0640 %{_sourcedir}/bin.socklog.profile %{buildroot}%{_profiledir}/bin
 pushd %{_srvdir}/socklog-tcp >/dev/null 2>&1
     ipsvd-cdb peers.cdb peers.cdb.tmp peers/
 popd >/dev/null 2>&1
-%_touch_aa_reload
 
 
 %preun remote
 %_preun_srv socklog-tcp
 %_preun_srv socklog-udp
-
-
-%postun remote
-%_touch_aa_reload
 
 
 %posttrans
@@ -264,6 +254,9 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Tue Jun 26 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1.0
+- drop the %%_touch_aa_reload macro
+
 * Fri Jun 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1.0
 - drop the rklog service since we no longer use RSBAC
 - add AppArmor profile
