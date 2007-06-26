@@ -1578,6 +1578,9 @@ fi
 
 %changelog
 * Mon Jun 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.3
+- rebuild with SSP
+
+* Mon Jun 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.3
 - merge all modules we can into this package except filter, json, suhosin, xdebug,
   and imap (all are or have external sources)
 - build the following (previously separate) modules directly into php:
