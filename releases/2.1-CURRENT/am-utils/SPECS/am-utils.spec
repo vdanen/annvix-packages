@@ -194,6 +194,9 @@ rm -f %{buildroot}/amd
 
 
 %changelog
+* Mon Jun 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 6.1.5
+- rebuild with SSP
+
 * Thu Jun 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 6.1.5
 - implement devel naming policy
 - implement library provides policy
