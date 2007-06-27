@@ -25,11 +25,9 @@ License:	GPL
 Group:		System/Libraries
 URL:		http://cnswww.cns.cwru.edu/php/chet/readline/rltop.html
 Source:		ftp://ftp.gnu.org/pub/gnu/readline/readline-%{version}.tar.gz
-Patch3:		readline-4.1-outdated.patch
-#Patch5:		readline-4.1-resize.patch
-Patch11:	readline52-001
-Patch16:	readline-4.3-no_rpath.patch
-#Patch18:	readline-wrap.patch
+Patch0:		readline-4.1-outdated.patch
+Patch1:		readline52-001
+Patch2:		readline-4.3-no_rpath.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -79,11 +77,9 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
-%patch3 -p1 -b .outdated
-#%patch5 -p1 -b .resize
-%patch11 -p0 -b .001
-%patch16 -p1 -b .no_rpath
-#%patch18 -p1 -b .wrap
+%patch0 -p1 -b .outdated
+%patch1 -p0 -b .001
+%patch2 -p1 -b .no_rpath
 
 
 libtoolize --copy --force
@@ -160,6 +156,9 @@ chmod 0755 support/{config.rpath,mkinstalldirs}
 
 
 %changelog
+* Tue Jun 26 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2
+- renumber patches
+
 * Sat Jun 23 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2
 - 5.2
 - updated P11 for this version
