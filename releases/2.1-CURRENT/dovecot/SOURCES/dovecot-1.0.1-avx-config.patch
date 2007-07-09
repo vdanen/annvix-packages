@@ -1,6 +1,6 @@
---- dovecot-example.conf.annvix	2007-02-01 15:45:06.802564000 -0700
-+++ dovecot-example.conf	2007-02-01 15:47:04.353910500 -0700
-@@ -13,7 +13,7 @@
+--- dovecot-example.conf.avx_config	2007-06-28 09:19:49.604003500 +0300
++++ dovecot-example.conf	2007-06-28 09:19:14.365801250 +0300
+@@ -16,7 +16,7 @@
  # --with-ssldir=/etc/ssl
  
  # Base directory where to store runtime data.
@@ -9,16 +9,16 @@
  
  # Protocols we want to be serving: imap imaps pop3 pop3s
  # If you only want to use dovecot-auth, you can set this to "none".
-@@ -58,7 +58,7 @@
+@@ -61,7 +61,7 @@
  
- # Use this logfile instead of syslog(). /dev/stderr can be used if you want to
- # use stderr for logging (ONLY /dev/stderr - otherwise it is closed).
+ # Log file to use for error messages, instead of sending them to syslog.
+ # /dev/stderr can be used to log into stderr.
 -#log_path = 
-+log_path = /dev/stderr
++log_path = /dev/stderr 
  
- # For informational messages, use this logfile instead of the default
- #info_log_path = 
-@@ -87,8 +87,8 @@
+ # Log file to use for informational and debug messages.
+ # Default is the same as log_path.
+@@ -91,8 +91,8 @@
  # dropping root privileges, so keep the key file unreadable by anyone but
  # root. Included doc/mkcert.sh can be used to easily generate self-signed
  # certificate, just make sure to update the domains in dovecot-openssl.cnf
@@ -29,7 +29,7 @@
  
  # If key file is password protected, give the password here. Alternatively
  # give it when starting dovecot with -p parameter.
-@@ -121,7 +121,7 @@
+@@ -128,7 +128,7 @@
  # which login needs to be able to connect to. The sockets are created when
  # running as root, so you don't have to worry about permissions. Note that
  # everything in this directory is deleted when Dovecot is started.
@@ -37,11 +37,11 @@
 +login_dir = /var/lib/dovecot/login
  
  # chroot login process to the login_dir. Only reason not to do this is if you
- # wish to run the whole Dovecot without roots.
-@@ -133,7 +133,7 @@
+ # wish to run the whole Dovecot without roots. <doc/wiki/Rootless.txt>
+@@ -138,7 +138,7 @@
+ # and don't use it anywhere else. The user must also belong to a group where
  # only it has access, it's used to control access for authentication process.
- # Note that this user is NOT used to access mails.
- # http://wiki.dovecot.org/UserIds
+ # Note that this user is NOT used to access mails. <doc/wiki/UserIds.txt>
 -#login_user = dovecot
 +login_user = dovecot
  

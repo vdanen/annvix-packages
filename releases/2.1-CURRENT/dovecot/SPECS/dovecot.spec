@@ -9,10 +9,9 @@
 
 %define revision	$Rev$
 %define name		dovecot
-%define version		1.0
+%define version		1.0.1
 %define release		%_revrel
-
-%define prever		rc17
+	
 
 Summary:	Secure IMAP and POP3 server
 Name: 		%{name}
@@ -21,13 +20,13 @@ Release:	%{release}
 License:	GPL
 Group:		System/Servers
 URL:		http://dovecot.org
-Source0:	http://dovecot.org/releases/%{name}-%{version}.%{prever}.tar.gz
+Source0:	http://dovecot.org/releases/%{name}-%{version}.tar.gz
 Source1:	dovecot-pamd
 Source2:	dovecot.run
 Source3:	dovecot-log.run
 Source4:	http://dovecot.org/tools/migration_wuimp_to_dovecot.pl
 Source5:	http://dovecot.org/tools/mboxcrypt.pl
-Patch0:		dovecot-1.0.rc17-avx-config.patch
+Patch0:		dovecot-1.0.1-avx-config.patch
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildRequires:	pam-devel
@@ -82,7 +81,7 @@ This package contains the documentation for %{name}.
 
 
 %prep
-%setup -q -n %{name}-%{version}.%{prever}
+%setup -q -n %{name}-%{version}
 %patch0 -p0 -b .avx_config
 
 
@@ -119,6 +118,21 @@ cp %{_sourcedir}/mboxcrypt.pl .
 mkdir -p %{buildroot}%{_srvdir}/dovecot/log
 install -m 0740 %{_sourcedir}/dovecot.run %{buildroot}%{_srvdir}/dovecot/run
 install -m 0740 %{_sourcedir}/dovecot-log.run %{buildroot}%{_srvdir}/dovecot/log/run
+# dovecot-devel files
+install -m 0644 dovecot-config %{buildroot}%{_includedir}/%{name}
+install -m 0644 config.h %{buildroot}%{_includedir}/%{name}
+install -m 0644 stamp.h %{buildroot}%{_includedir}/%{name}
+# lib include files
+for folder in deliver imap lib lib-auth lib-charset lib-dict lib-imap lib-index lib-mail lib-ntlm lib-settings lib-sql lib-storage; do
+    mkdir -p %{buildroot}%{_includedir}/%{name}/$folder
+    install -m 0644 src/$folder/*.h %{buildroot}%{_includedir}/%{name}/$folder/
+done
+# lib files
+for folder in lib lib-auth lib-charset lib-dict lib-imap lib-index lib-mail lib-ntlm lib-settings lib-sql lib-storage; do
+    mkdir -p %{buildroot}%{_datadir}/%{name}/$folder
+    install -p -m644 src/$folder/*.a %{buildroot}%{_datadir}/%{name}/$folder/
+done
+
 
 # generate ghost .pem file
 mkdir -p %{buildroot}%{_sysconfdir}/ssl/dovecot/{certs,private}
@@ -196,8 +210,36 @@ exit 0
 
 %files devel
 %defattr(-,root,root)
+%dir %{_includedir}/%{name}
+%{_includedir}/%{name}/dovecot-config
+%{_includedir}/%{name}/*.h
+%{_includedir}/%{name}/deliver/*.h
+%{_includedir}/%{name}/imap/*.h
+%{_includedir}/%{name}/lib/*.h
+%{_includedir}/%{name}/lib-auth/*.h
+%{_includedir}/%{name}/lib-charset/*.h
+%{_includedir}/%{name}/lib-dict/*.h
+%{_includedir}/%{name}/lib-imap/*.h
+%{_includedir}/%{name}/lib-index/*.h
+%{_includedir}/%{name}/lib-mail/*.h
+%{_includedir}/%{name}/lib-ntlm/*.h
+%{_includedir}/%{name}/lib-settings/*.h
+%{_includedir}/%{name}/lib-sql/*.h
+%{_includedir}/%{name}/lib-storage/*.h
+%dir %{_datadir}/%{name}
 %{_datadir}/%{name}/*.a
+%{_datadir}/%{name}/lib/*.a
 %{_datadir}/%{name}/imap/*.a
+%{_datadir}/%{name}/lib-auth/*.a
+%{_datadir}/%{name}/lib-charset/*.a
+%{_datadir}/%{name}/lib-dict/*.a
+%{_datadir}/%{name}/lib-imap/*.a
+%{_datadir}/%{name}/lib-index/*.a
+%{_datadir}/%{name}/lib-mail/*.a
+%{_datadir}/%{name}/lib-ntlm/*.a
+%{_datadir}/%{name}/lib-settings/*.a
+%{_datadir}/%{name}/lib-sql/*.a
+%{_datadir}/%{name}/lib-storage/*.a
 
 %files doc
 %defattr(-,root,root)
@@ -207,6 +249,10 @@ exit 0
 
 
 %changelog
+* Thu Jun 28 2007 Lauris Bukðis-Haberkorns <lafriks-at-gmail.com> 1.0.1
+- 1.0.1
+- Add include files to devel package
+
 * Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org>  1.0
 - set the uid/gid to 93
 - P0: patch the config to set some paths
