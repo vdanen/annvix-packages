@@ -10,7 +10,7 @@
 %define module		HTML-Parser
 %define revision	$Rev$
 %define name		perl-%{module}
-%define version 	3.55
+%define version 	3.56
 %define release 	%_revrel
 
 Summary: 	Perl module to parse HTML documents
@@ -77,6 +77,9 @@ make test
 
 
 %changelog
+* Mon Jul 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.56
+- 3.56
+
 * Wed Dec 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.55
 - 3.55
 
