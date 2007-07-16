@@ -10,7 +10,7 @@
 %define module		Convert-ASN1
 %define revision	$Rev$
 %define name		perl-%{module}
-%define version 	0.20
+%define version 	0.21
 %define release 	%_revrel
 
 Summary: 	ASN.1 Encode/Decode library for perl
@@ -20,7 +20,7 @@ Release: 	%{release}
 License: 	GPL or Artistic
 Group: 		Development/Perl
 URL: 		http://search.cpan.org/dist/%{real_name}/
-Source: 	http://www.cpan.org/authors/id/GBARR/%{module}-%{version}.tar.bz2
+Source: 	http://www.cpan.org/authors/id/GBARR/%{module}-%{version}.tar.gz
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildArch: 	noarch
@@ -72,6 +72,9 @@ make test
 
 
 %changelog
+* Mon Jul 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.21
+- 0.21
+
 * Wed May 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.20
 - 0.20
 - rebuild against perl 5.8.8
