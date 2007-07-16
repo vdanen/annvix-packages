@@ -10,7 +10,7 @@
 %define module		CGI
 %define revision	$Rev$
 %define name		perl-%{module}
-%define version		3.16
+%define version		3.29
 %define release		%_revrel
 %define epoch		1
 
@@ -22,21 +22,19 @@ Epoch:		%{epoch}
 License:        GPL or Artistic
 Group:          Development/Perl
 URL:            http://stein.cshl.org/WWW/software/CGI/
-Source:		http://search.cpan.org/CPAN/authors/id/L/LD/LDS/CGI.pm-%{version}.tar.bz2
+Source:		http://search.cpan.org/CPAN/authors/id/L/LD/LDS/CGI.pm-%{version}.tar.gz
 
 BuildRoot:      %{_buildroot}/%{name}-%{version}
 BuildArch:      noarch
 BuildRequires:  perl-devel
 
 %description
-This perl library uses perl5 objects to make it easy to create
-Web fill-out forms and parse their contents.  This package
-defines CGI objects, entities that contain the values of the
-current query string and other state variables.  Using a CGI
-object's methods, you can examine keywords and parameters
-passed to your script, and create forms whose initial values
-are taken from the current query (thereby preserving state
-information).
+This perl library uses perl5 objects to make it easy to create Web fill-out
+forms and parse their contents.  This package defines CGI objects, entities
+that contain the values of the current query string and other state
+variables.  Using a CGI object's methods, you can examine keywords and
+parameters passed to your script, and create forms whose initial values are
+taken from the current query (thereby preserving state information).
 
 
 %package Fast
@@ -101,6 +99,9 @@ make test
 
 
 %changelog
+* Mon Jul 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.29
+- 3.29
+
 * Wed May 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.16
 - 3.16
 - rebuild against perl 5.8.8
