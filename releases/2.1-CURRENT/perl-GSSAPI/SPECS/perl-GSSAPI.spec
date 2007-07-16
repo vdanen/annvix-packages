@@ -5,10 +5,10 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-# $Id: perl-Authen-SASL.spec 6558 2006-12-27 05:01:51Z vdanen $
+# $Id$
 
 %define module		GSSAPI
-%define revision	$Rev: 6558 $
+%define revision	$Rev$
 %define name		perl-%{module}
 %define version 	0.24
 %define release 	%_revrel
