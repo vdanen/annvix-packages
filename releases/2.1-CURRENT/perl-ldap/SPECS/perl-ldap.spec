@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		perl-ldap
-%define version 	0.33
+%define version 	0.34
 %define release 	%_revrel
 
 Summary:	Perl module for ldap
@@ -19,13 +19,19 @@ Release:	%{release}
 License:	GPL or Artistic
 Group:		Development/Perl
 URL:		http://search.cpan.org/dist/%name/
-Source:		http:///www.cpan.org/authors/id/G/GB/GBARR/%{name}-%{version}.tar.bz2
+Source:		http://www.cpan.org/authors/id/G/GB/GBARR/%{name}-%{version}.tar.gz
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 BuildRequires:	perl-devel >= 5.8.0
 BuildRequires:	perl(Convert::ASN1) >= 0.07
 BuildRequires:	perl(IO::Socket::SSL)
+BuildRequires:	perl(GSSAPI)
+BuildRequires:	perl(Digest::MD5)
+BuildRequires:	perl(Digest::HMAC_MD5)
+BuildRequires:	perl(URI::ldap)
+BuildRequires:	perl(IO::Socket::SSL)
+BuildRequires:	perl(MIME::Base64)
 
 Requires:	perl(Authen::SASL) >= 2.00
 Requires:	perl(XML::Parser)
@@ -49,7 +55,7 @@ This package contains the documentation for %{name}.
 
 
 %build
-perl Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor </dev/null
 %make
 
 
@@ -79,6 +85,10 @@ perl Makefile.PL INSTALLDIRS=vendor
 
 
 %changelog
+* Mon Jul 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.34
+- 0.34
+- updated buildrequires
+
 * Mon May 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.33
 - 0.33
 - rebuild against perl 5.8.8
