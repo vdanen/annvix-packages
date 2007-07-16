@@ -10,7 +10,7 @@
 %define	module		Compress-Zlib
 %define	revision	$Rev$
 %define	name		perl-%{module}
-%define	version		1.42
+%define	version		2.005
 %define	release		%_revrel
 
 Summary:	Perl interface to the zlib compression library
@@ -25,6 +25,8 @@ Source0:	ftp://ftp.perl.org/pub/CPAN/modules/by-module/Compress/%{module}-%{vers
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel
 BuildRequires:	zlib-devel
+BuildRequires:	perl(IO::Compress::Gzip) >= %{version}
+BuildRequires:	perl(Compress::Raw::Zlib) >= %{version}
 
 %description
 The Compress::Zlib module provides a Perl interface to the zlib compression
@@ -64,8 +66,8 @@ make test
 %files
 %defattr(-,root,root)
 %{_mandir}/*/*
-%{perl_vendorarch}/Compress
-%{perl_vendorarch}/auto/Compress
+%{perl_vendorlib}/Compress
+%{perl_vendorlib}/auto/Compress
 
 %files doc
 %defattr(-,root,root)
@@ -73,6 +75,10 @@ make test
 
 
 %changelog
+* Mon Jul 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.005
+- 2.005
+- updated buildrequires
+
 * Wed Dec 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.42
 - 1.42
 
