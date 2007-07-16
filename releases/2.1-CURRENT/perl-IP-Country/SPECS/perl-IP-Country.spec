@@ -9,7 +9,7 @@
 %define module		IP-Country
 %define revision	$Rev$
 %define name		perl-%{module}
-%define version		2.20
+%define version		2.23
 %define release		%_revrel
 
 Summary:	IP::Country modules for Perl 
@@ -19,7 +19,7 @@ Release:	%{release}
 License:	GPL or Artistic
 Group:		Development/Perl
 URL:		http://www.cpan.org
-Source0:	http://cpan.uwinnipeg.ca/cpan/authors/id/N/NW/NWETTERS/%{module}-%{version}.tar.bz2
+Source0:	http://cpan.uwinnipeg.ca/cpan/authors/id/N/NW/NWETTERS/%{module}-%{version}.tar.gz
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel
@@ -75,6 +75,9 @@ make test
 
 
 %changelog
+* Mon Jul 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.23
+- 2.23
+
 * Fri May 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.20
 - rebuild against perl 5.8.8
 - create -doc subpackage
