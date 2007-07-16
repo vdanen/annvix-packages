@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		spamassassin
-%define version		3.1.9
+%define version		3.2.1
 %define release		%_revrel
 
 %define fname		Mail-SpamAssassin
@@ -29,7 +29,7 @@ Source3:	spamd-log.run
 Source4:	spamassassin-default.rc
 Source5:	spamassassin-spamc.rc
 # (fc) 2.60-5mdk don't use version dependent perl call in #!
-Patch1:		spamassassin-3.1.0-avx-fixbang.patch
+Patch1:		spamassassin-3.2.1-avx-fixbang.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel
@@ -111,7 +111,6 @@ user's own mail user-agent application.
 %package doc
 Summary:	Documentation for %{name}
 Group:		Documentation
-Obsoletes:	spamassassin-tools
 
 %description doc
 This package contains the documentation for %{name}.
@@ -190,9 +189,11 @@ echo "-c -m5 -H" >%{buildroot}%{_srvdir}/spamd/env/OPTIONS
 %config(noreplace) %{_sysconfdir}/mail/spamassassin/spamassassin-default.rc
 %dir %attr(0700,mail,mail) /var/spool/spamassassin
 %dir %{_localstatedir}/spamassassin
+%attr(0755,root,root) %{_bindir}/sa-compile
 %attr(0755,root,root) %{_bindir}/sa-learn
 %attr(0755,root,root) %{_bindir}/sa-update
 %attr(0755,root,root) %{_bindir}/spamassassin
+%{_mandir}/man1/sa-compile.1*
 %{_mandir}/man1/sa-learn.1*
 %{_mandir}/man1/sa-update.1*
 %{_mandir}/man1/spamassassin.1*
@@ -223,13 +224,17 @@ echo "-c -m5 -H" >%{buildroot}%{_srvdir}/spamd/env/OPTIONS
 %files doc
 %defattr(-,root,root)
 %doc README Changes sample-*.txt procmailrc.example INSTALL TRADEMARK USAGE
-%doc spamd/README* spamd/PROTOCOL
-%doc sql tools masses contrib
+%doc spamd/README* spamd/PROTOCOL sql
 
 
 %changelog
+* Mon Jul 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.2.1
+- 3.2.1
+- rediffed P0
+
 * Thu Jun 14 2007 Ying-Hung Chen <ying-at-annvix.org> 3.1.9
 - 3.1.9: fix for a local user symlink-attack denial of service vulnerability
+  (CVE-2007-2873)
 
 * Fri Feb 23 2007 Vincent Danen <vdanen-at-annvix.org> 3.1.8
 - 3.1.8: security fix for CVE-2007-0451
