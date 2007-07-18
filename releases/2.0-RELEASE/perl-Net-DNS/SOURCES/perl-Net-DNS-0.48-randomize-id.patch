@@ -1,0 +1,19 @@
+diff -urN Net-DNS-0.48.orig/lib/Net/DNS/Header.pm Net-DNS-0.48.patched/lib/Net/DNS/Header.pm
+--- Net-DNS-0.48.orig/lib/Net/DNS/Header.pm	2004-08-12 01:48:00.000000000 -0400
++++ Net-DNS-0.48.patched/lib/Net/DNS/Header.pm	2007-06-29 16:26:36.000000000 -0400
+@@ -44,11 +44,10 @@
+ =cut
+ 
+ {
+-	my $id = int rand(MAX_ID);
+-	
+-	sub nextid {
+-		return $id++ % (MAX_ID + 1);
+-	}
++
++        sub nextid {
++                int rand(MAX_ID);
++        }
+ }
+ 
+ sub new {

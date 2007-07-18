@@ -21,6 +21,8 @@ License:	GPL or Artistic
 Group:		Development/Perl
 URL:		http://search.cpan.org/dist/%{module}
 Source0:	http://search.cpan.org/CPAN/authors/id/O/OL/OLAF/%{module}-%{version}.tar.gz
+Patch0:		perl-Net-DNS-0.59-CVE-2007-3409.patch
+Patch1:		perl-Net-DNS-0.48-randomize-id.patch
 
 BuildRequires:	perl-devel
 BuildRequires:	perl(Digest::HMAC)
@@ -47,6 +49,8 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q -n %{module}-%{version} 
+%patch0 -p1 -b .cve-2007-3409
+%patch1 -p1 -b .cve-2007-3377
 
 
 %build
@@ -79,6 +83,10 @@ make test
 
 
 %changelog
+* Tue Jul 17 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.59
+- P0: security fix for CVE-2007-3409
+- P1: security fix for CVE-2007-3377
+
 * Wed Nov 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.59
 - 0.59
 
