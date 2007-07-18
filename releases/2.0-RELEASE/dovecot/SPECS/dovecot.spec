@@ -28,6 +28,7 @@ Source3:	dovecot-log.run
 Source4:	http://dovecot.org/tools/migration_wuimp_to_dovecot.pl
 Source5:	http://dovecot.org/tools/mboxcrypt.pl
 Patch0:		dovecot-1.0.rc17-avx-config.patch
+Patch1:		dovecot-1.0-rc17-CVE-2007-2231.patch
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildRequires:	pam-devel
@@ -84,6 +85,7 @@ This package contains the documentation for %{name}.
 %prep
 %setup -q -n %{name}-%{version}.%{prever}
 %patch0 -p0 -b .avx_config
+%patch1 -p0 -b .cve-2007-2231
 
 
 %build
@@ -207,6 +209,9 @@ exit 0
 
 
 %changelog
+* Tue Jul 17 2007 Vincent Danen <vdanen-at-build.annvix.org>  1.0
+- P0: security fix for CVE-2007-2231
+
 * Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org>  1.0
 - set the uid/gid to 93
 - P0: patch the config to set some paths
