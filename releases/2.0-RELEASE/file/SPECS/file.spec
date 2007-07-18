@@ -24,6 +24,8 @@ Group:		File Tools
 URL:		ftp://ftp.astron.com/pub/file/
 Source0:	ftp://ftp.astron.com/pub/file/%{name}-%{version}.tar.gz
 Source1:	magic.mime
+Patch0:		file-4.20-CVE-2007-2026.patch
+Patch1:		file-4.20-CVE-2007-2799.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl
@@ -96,6 +98,8 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
+%patch0 -p1 -b .cve-2007-2026
+%patch1 -p1 -b .cve-2007-2799
 
 
 %build
@@ -153,6 +157,10 @@ install -m 0644 src/file.h %{buildroot}%{_includedir}/
 
 
 %changelog
+* Wed Jul 18 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.20
+- P0: security fix for CVE-2007-2026
+- P1: security fix for CVE-2007-2799
+
 * Thu Mar 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.20
 - 4.20: fixes CVE-2007-1536
 
