@@ -10,7 +10,7 @@
 %define module		Net-DNS
 %define revision	$Rev$
 %define name		perl-%{module}
-%define version		0.59
+%define version		0.60
 %define release		%_revrel
 
 Summary:	Perl interface to the DNS resolver
@@ -79,6 +79,9 @@ make test
 
 
 %changelog
+* Tue Jul 17 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.60
+- 0.60 (fixes CVE-2007-3409 and CVE-2007-3377)
+
 * Wed Nov 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.59
 - 0.59
 
