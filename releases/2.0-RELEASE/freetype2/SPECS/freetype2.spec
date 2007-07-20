@@ -37,6 +37,7 @@ Patch6:		freetype-2.1.10-CVE-2006-2661.patch
 Patch7:		freetype-2.1.10-CVE-2006-1861.patch
 Patch8:		freetype-2.1.10-CVE-2006-1861-2.patch
 Patch9:		freetype-2.1.10-CVE-2006-3467.patch
+Patch10:	freetype-2.1.9-rh-CVE-2007-2754.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	zlib-devel
@@ -102,6 +103,7 @@ developing programs which will use the FreeType2 library.
 %patch7 -p1 -b .cve-2006-1861
 %patch8 -p1 -b .cve-2006-1861-2
 %patch9 -p1 -b .cve-2006-3467
+%patch10 -p1 -b .cve-2007-2754
 
 
 %build
@@ -151,6 +153,9 @@ developing programs which will use the FreeType2 library.
 
 
 %changelog
+* Fri Jul 20 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1.10
+- P10: security fix for CVE-2007-2754
+
 * Fri Feb 02 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1.10
 - P4: security fix for CVE-2006-0747
 - P5: security fix for ttkern DoS
