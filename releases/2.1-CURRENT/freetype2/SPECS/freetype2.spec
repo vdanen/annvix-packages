@@ -14,6 +14,9 @@
 
 %define major		6
 %define libname		%mklibname freetype %{major}
+%define devname		%mklibname freetype -d
+%define odevname	%mklibname freetype 6 -d
+%define staticdevname	%mklibname freetype -d -s
 
 Summary:	A free and portable TrueType font rendering engine
 Name:		%{name}
@@ -37,6 +40,7 @@ Patch6:		freetype-2.1.10-CVE-2006-2661.patch
 Patch7:		freetype-2.1.10-CVE-2006-1861.patch
 Patch8:		freetype-2.1.10-CVE-2006-1861-2.patch
 Patch9:		freetype-2.1.10-CVE-2006-3467.patch
+Patch10:	freetype-2.1.9-rh-CVE-2007-2754.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	zlib-devel
@@ -52,8 +56,9 @@ stand-alone application, though some utility applications are included
 %package -n %{libname}
 Summary:	Shared libraries for a free and portable TrueType font rendering engine
 Group:		System/Libraries
-Obsoletes:	%{name}
 Provides:	%{name} = %{version}-%{release}
+Provides:	lib%{name} = %{version}-%{release}
+Obsoletes:	%{name}
 
 %description -n %{libname}
 The FreeType2 engine is a free and portable TrueType font rendering
@@ -63,29 +68,28 @@ library, not a stand-alone application, though some utility
 applications are included
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:	Header files and static library for development with FreeType2
 Group:		Development/C
 Requires:	%{libname} = %{version}
 Requires:	zlib-devel
-Obsoletes:	%{name}-devel
 Provides:	%{name}-devel = %{version}-%{release}
-Provides:	libfreetype-devel = %{version}-%{release}
+Obsoletes:	%{odevname}
 
-%description -n %{libname}-devel
+%description -n %{devname}
 This package is only needed if you intend to develop or compile applications
 which rely on the FreeType2 library. If you simply want to run existing
 applications, you won't need this package.
 
 
-%package -n %{libname}-static-devel
+%package -n %{staticdevname}
 Summary:	Static libraries for programs which will use the FreeType2 library
 Group:		Development/C
-Requires:	%{libname}-devel = %{version}
-Obsoletes:	%{name}-static-devel
+Requires:	%{devname} = %{version}
 Provides:	%{name}-static-devel = %{version}-%{release}
+Obsoletes:	%mklibname freetype 6 -d -s
 
-%description -n %{libname}-static-devel
+%description -n %{staticdevname}
 This package includes the static libraries necessary for 
 developing programs which will use the FreeType2 library.
 
@@ -102,6 +106,7 @@ developing programs which will use the FreeType2 library.
 %patch7 -p1 -b .cve-2006-1861
 %patch8 -p1 -b .cve-2006-1861-2
 %patch9 -p1 -b .cve-2006-3467
+%patch10 -p1 -b .cve-2007-2754
 
 
 %build
@@ -130,7 +135,7 @@ developing programs which will use the FreeType2 library.
 %defattr(-, root, root)
 %{_libdir}/*.so.*
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-, root, root)
 %{_bindir}/freetype-config
 %{_libdir}/*.so
@@ -145,12 +150,17 @@ developing programs which will use the FreeType2 library.
 %multiarch %{multiarch_includedir}/freetype2/*
 
 
-%files -n %{libname}-static-devel
+%files -n %{staticdevname}
 %defattr(-, root, root)
 %{_libdir}/*.a
 
 
 %changelog
+* Fri Jul 20 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1.10
+- P10: security fix for CVE-2007-2754
+- implement devel naming policy
+- implement library provides policy
+
 * Fri Feb 02 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1.10
 - P4: security fix for CVE-2006-0747
 - P5: security fix for ttkern DoS
