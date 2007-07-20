@@ -9,12 +9,15 @@
 
 %define revision	$Rev$
 %define name		libpng
-%define version		1.2.16
+%define version		1.2.18
 %define release		%_revrel
 %define epoch		2
 
-%define lib_major	3
-%define libname		%mklibname png %{lib_major}
+%define major		3
+%define libname		%mklibname png %{major}
+%define devname		%mklibname png -d
+%define odevname	%mklibname png 3 -d
+%define staticdevname	%mklibname png -d -s
 
 Summary: 	A library of functions for manipulating PNG image format files
 Name: 		%{name}
@@ -51,30 +54,31 @@ This package contains the library needed to run programs dynamically
 linked with libpng.
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:	Development tools for programs to manipulate PNG image format files
 Group:		Development/C
-Requires:	%{libname} = %{epoch}:%{version}-%{release}
+Requires:	%{libname} = %{epoch}:%{version}
 Requires:	zlib-devel
-Obsoletes:	%{name}-devel
 Provides:	%{name}-devel = %{epoch}:%{version}-%{release}
 Provides:	png-devel = %{epoch}:%{version}-%{release}
+Obsoletes:	%{odevname}
 
-%description -n %{libname}-devel
+%description -n %{devname}
 The libpng-devel package contains the header files and libraries
 necessary for developing programs using the PNG (Portable Network
 Graphics) library.
 
 
-%package -n %{libname}-static-devel
+%package -n %{staticdevname}
 Summary:	Development static libraries
 Group:		Development/C
-Requires:	%{libname}-devel = %{epoch}:%{version}-%{release}
+Requires:	%{devname} = %{epoch}:%{version}
 Requires:	zlib-devel
 Provides:	%{name}-static-devel = %{epoch}:%{version}-%{release}
 Provides:	png-static-devel = %{epoch}:%{version}-%{release}
+Obsoletes:	%mklibname png 3 -d -s
 
-%description -n %{libname}-static-devel
+%description -n %{staticdevname}
 Libpng development static libraries.
 
 
@@ -136,7 +140,7 @@ rm -rf %{buildroot}{%{_prefix}/man,%{_libdir}/lib*.la}
 %{_libdir}/libpng12.so.*
 %{_mandir}/man5/*
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 %{_bindir}/libpng12-config
 %{_bindir}/libpng-config
@@ -147,7 +151,7 @@ rm -rf %{buildroot}{%{_prefix}/man,%{_libdir}/lib*.la}
 %{_libdir}/pkgconfig/*
 %{_mandir}/man3/*
 
-%files -n %{libname}-static-devel
+%files -n %{staticdevname}
 %defattr(-,root,root)
 %{_libdir}/libpng*.a
 
@@ -157,6 +161,11 @@ rm -rf %{buildroot}{%{_prefix}/man,%{_libdir}/lib*.la}
 
 
 %changelog
+* Fri Jul 20 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2.18
+- 1.2.18 (fixes CVE-2007-2445)
+- implement devel naming policy
+- implement library provides policy
+
 * Mon Apr 23 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2.16
 - 1.2.16
 - updated P0, P1 from Mandriva
