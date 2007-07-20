@@ -26,6 +26,7 @@ Source0:	http://www.boutell.com/gd/http/%{name}-%{version}.tar.bz2
 Patch0:		gd-2.0.33-CAN-2004-0941.patch
 Patch1:		gd-2.0.33-CVE-2006-2906.patch
 Patch2:		gd-2.0.33-CVE-2007-0455.patch
+Patch3:		gd-cvs-CVE-2007-2756.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5
@@ -124,6 +125,7 @@ This package contains the documentation for %{name}.
 %patch0 -p1 -b .CAN-2004-0941
 %patch1 -p1 -b .cve-2006-2906
 %patch2 -p1 -b .cve-2007-0455
+%patch3 -p0 -b .cve-2007-2756
 
 
 %build
@@ -190,6 +192,9 @@ libtoolize --copy --force; aclocal-1.7; automake-1.7 --copy --add-missing; autoc
 
 
 %changelog
+* Fri Jul 20 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0.33
+- P3: security fix for CVE-2007-2756
+
 * Tue Feb 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0.33
 - P2: security fix for CVE-2007-0455
 
