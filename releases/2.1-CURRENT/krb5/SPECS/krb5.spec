@@ -95,6 +95,7 @@ Summary:	Development files needed for compiling Kerberos 5 programs
 Group:		Development/Other
 Requires:	%{libname} = %{version}
 Provides:	%{name}-devel = %{version}-%{release}
+Obsoletes:	%{odevname}
 
 %description -n %{devname}
 Kerberos is a network authentication system.  The krb5-devel package
