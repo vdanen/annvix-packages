@@ -28,6 +28,7 @@ Source: 	http://prdownloads.sourceforge.net/libpng/%{name}-%{version}.tar.bz2
 Patch0:		libpng-1.2.5-mdkconf.patch
 Patch1:		libpng-1.2.6-lib64.patch
 Patch2:		libpng-1.2.12-CVE-2006-5793.patch
+Patch3:		libpng-1.2.10-CVE-2007-2445.patch
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildRequires: 	zlib-devel
@@ -91,6 +92,7 @@ This package contains the documentation for %{name}.
 %patch0 -p1 -b .mdkconf
 %patch1 -p1 -b .lib64
 %patch2 -p1 -b .cve-2006-5793
+%patch3 -p1 -b .cve-2007-2445
 
 perl -pi -e 's|^prefix=.*|prefix=%{_prefix}|' scripts/makefile.linux
 perl -pi -e 's|^(LIBPATH=.*)/lib\b|\1/%{_lib}|' scripts/makefile.linux
@@ -150,6 +152,9 @@ rm -rf %{buildroot}%{_prefix}/man
 
 
 %changelog
+* Thu Jul 20 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2.8
+- P3: security fix for CVE-2007-2445
+
 * Fri Feb 02 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2.8
 - P2: security fix for CVE-2006-5793
 
