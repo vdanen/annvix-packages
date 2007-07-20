@@ -35,7 +35,7 @@ BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5
 BuildRequires:	automake1.7
 BuildRequires:	fontconfig-devel
-BuildRequires:	freetype-devel
+BuildRequires:	freetype2-devel
 BuildRequires:	gettext-devel
 BuildRequires:	jpeg-devel
 BuildRequires:	png-devel
