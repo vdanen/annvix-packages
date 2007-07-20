@@ -1,0 +1,87 @@
+*** src/lib/rpc/svc_auth_gssapi.c       (revision 20015)
+--- src/lib/rpc/svc_auth_gssapi.c       (local)
+***************
+*** 149,154 ****
+--- 149,156 ----
+       rqst->rq_xprt->xp_auth = &svc_auth_none;
+       
+       memset((char *) &call_res, 0, sizeof(call_res));
++      creds.client_handle.length = 0;
++      creds.client_handle.value = NULL;
+       
+       cred = &msg->rm_call.cb_cred;
+       verf = &msg->rm_call.cb_verf;
+*** src/lib/rpc/svc_auth_unix.c (revision 20015)
+--- src/lib/rpc/svc_auth_unix.c (local)
+***************
+*** 64,71 ****
+  		char area_machname[MAX_MACHINE_NAME+1];
+  		int area_gids[NGRPS];
+  	} *area;
+! 	u_int auth_len;
+! 	int str_len, gid_len;
+  	register int i;
+
+  	rqst->rq_xprt->xp_auth = &svc_auth_none;
+--- 64,70 ----
+  		char area_machname[MAX_MACHINE_NAME+1];
+  		int area_gids[NGRPS];
+  	} *area;
+! 	u_int auth_len, str_len, gid_len;
+  	register int i;
+
+  	rqst->rq_xprt->xp_auth = &svc_auth_none;
+***************
+*** 74,80 ****
+  	aup = &area->area_aup;
+  	aup->aup_machname = area->area_machname;
+  	aup->aup_gids = area->area_gids;
+! 	auth_len = (u_int)msg->rm_call.cb_cred.oa_length;
+  	xdrmem_create(&xdrs, msg->rm_call.cb_cred.oa_base, auth_len,XDR_DECODE);
+  	buf = XDR_INLINE(&xdrs, (int)auth_len);
+  	if (buf != NULL) {
+--- 73,81 ----
+  	aup = &area->area_aup;
+  	aup->aup_machname = area->area_machname;
+  	aup->aup_gids = area->area_gids;
+! 	auth_len = msg->rm_call.cb_cred.oa_length;
+! 	if (auth_len > INT_MAX)
+! 		return AUTH_BADCRED;
+  	xdrmem_create(&xdrs, msg->rm_call.cb_cred.oa_base, auth_len,XDR_DECODE);
+  	buf = XDR_INLINE(&xdrs, (int)auth_len);
+  	if (buf != NULL) {
+***************
+*** 84,90 ****
+  			stat = AUTH_BADCRED;
+  			goto done;
+  		}
+! 		memmove(aup->aup_machname, (caddr_t)buf, (u_int)str_len);
+  		aup->aup_machname[str_len] = 0;
+  		str_len = RNDUP(str_len);
+  		buf += str_len / BYTES_PER_XDR_UNIT;
+--- 85,91 ----
+  			stat = AUTH_BADCRED;
+  			goto done;
+  		}
+! 		memmove(aup->aup_machname, buf, str_len);
+  		aup->aup_machname[str_len] = 0;
+  		str_len = RNDUP(str_len);
+  		buf += str_len / BYTES_PER_XDR_UNIT;
+***************
+*** 104,110 ****
+  		 * timestamp, hostname len (0), uid, gid, and gids len (0).
+  		 */
+  		if ((5 + gid_len) * BYTES_PER_XDR_UNIT + str_len > auth_len) {
+! 			(void) printf("bad auth_len gid %d str %d auth %d\n",
+  			    gid_len, str_len, auth_len);
+  			stat = AUTH_BADCRED;
+  			goto done;
+--- 105,111 ----
+  		 * timestamp, hostname len (0), uid, gid, and gids len (0).
+  		 */
+  		if ((5 + gid_len) * BYTES_PER_XDR_UNIT + str_len > auth_len) {
+! 			(void) printf("bad auth_len gid %u str %u auth %u\n",
+  			    gid_len, str_len, auth_len);
+  			stat = AUTH_BADCRED;
+  			goto done;
+

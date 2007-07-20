@@ -14,7 +14,8 @@
 
 %define major		3
 %define libname		%mklibname %{name} %{major}
-%define oldlibname	%mklibname %{name} 1
+%define devname		%mklibname %{name} -d
+%define odevname	%mklibname %{name} 3 -d
 
 Summary:	The Kerberos network authentication system
 Name:		%{name}
@@ -67,15 +68,17 @@ Patch20:	2006-003-patch.txt
 Patch21:        http://web.mit.edu/kerberos/advisories/2007-001-patch.txt
 Patch22:        http://web.mit.edu/kerberos/advisories/2007-002-patch.txt
 Patch23:        http://web.mit.edu/kerberos/advisories/2007-003-patch.txt
+Patch24:	krb5-1.5-MITKRB5-SA-2007-004.patch
+Patch25:	krb5-1.5-MITKRB5-SA-2007-005.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	bison
 BuildRequires:	flex
-BuildRequires:	libtermcap-devel
+BuildRequires:	termcap-devel
 BuildRequires:	texinfo
 BuildRequires:	tcl
 BuildRequires:	tcl-devel
-BuildRequires:	libext2fs-devel
+BuildRequires:	e2fsprogs-devel
 BuildRequires:	chrpath
 BuildRequires:	multiarch-utils >= 1.0.3
 
@@ -87,19 +90,13 @@ which can improve your network's security by eliminating the insecure
 practice of cleartext passwords.
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:	Development files needed for compiling Kerberos 5 programs
 Group:		Development/Other
 Requires:	%{libname} = %{version}
-Provides:	krb-devel
-Provides:	krb5-devel
-Provides:	libkrb-devel
-Provides:	libkrb5-devel
-Obsoletes:	krb-devel
-Obsoletes:	krb5-devel
-Obsoletes:	%{oldlibname}-devel
+Provides:	%{name}-devel = %{version}-%{release}
 
-%description -n %{libname}-devel
+%description -n %{devname}
 Kerberos is a network authentication system.  The krb5-devel package
 contains the header files and libraries needed for compiling Kerberos
 5 programs. If you want to develop Kerberos-aware programs, you'll
@@ -109,9 +106,7 @@ need to install this package.
 %package -n %{libname}
 Summary:	The shared libraries used by Kerberos 5
 Group:		System/Libraries
-Provides:	krb5-libs
-Obsoletes:	krb5-libs
-Obsoletes:	%{oldlibname}
+Provides:	lib%{name} = %{version}-%{release}
 
 %description -n %{libname}
 Kerberos is a network authentication system.  The krb5-libs package
@@ -243,6 +238,8 @@ This package contains the documentation for %{name}.
 %patch21 -p0 -b .cve-2007-0956
 %patch22 -p0 -b .cve-2007-0957
 %patch23 -p0 -b .cve-2007-1216
+%patch24 -p0 -b .cve-2007-2442_2443
+%patch25 -p0 -b .cve-2007-2798
 
 find . -type f -name "*.fixinfo" -exec rm -fv "{}" ";"
 gzip doc/*.ps
@@ -569,7 +566,7 @@ popd >/dev/null 2>&1
 %dir %{_libdir}/krb5/plugins
 
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 %{_bindir}/krb5-config
 %{_bindir}/sclient
@@ -640,6 +637,13 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Fri Jul 20 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.5.1
+- P24: security fix for CVE-2007-2442 and CVE-2007-2443
+- P25: security fix for CVE-2007-2798
+- implement devel naming policy
+- implement library provides policy
+- clean up some provides/obsoletes
+
 * Sat Apr 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.5.1
 - fix the tools looking for libs in the buildroot
 
