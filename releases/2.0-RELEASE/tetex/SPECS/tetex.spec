@@ -7,6 +7,8 @@
 #
 # $Id$
 
+%define _requires_exceptions /usr/local/bin/perl
+
 %define revision	$Rev$
 %define name		tetex
 %define version		3.0
@@ -544,6 +546,9 @@ rm -f filelist.*
 
 
 %changelog
+* Fri Jul 20 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0
+- rebuild to fix bogus requires on /usr/local/bin/perl
+
 * Mon Jun 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0
 - P33: security fix for CVE-2007-0455
 - P34: security fix for CVE-2007-2756
