@@ -51,6 +51,10 @@ Patch7:		db-4.1.24-amd64-mutexes.diff
 Patch8:		db-4.1.24-disable-pthreadsmutexes.diff
 Patch9:		mysql-5.0.15-disable-pthreadsmutexes.diff
 Patch10:	mysql-5.0.19-instance-manager.diff
+Patch11:	mysql-5.0.27-CVE-2007-1420.patch
+Patch12:	mysql-5.0.24-CVE-2007-2583.patch
+Patch13:	mysql-5.0.24-CVE-2007-2691.patch
+Patch14:	mysql-5.0.27-CVE-2007-2692.patch
 
 BuildRoot:      %{_buildroot}/%{name}-%{version}
 BuildRequires:	bison
@@ -191,6 +195,10 @@ This package contains the documentation for %{name}.
 %patch8 -p1 -b .pthreadsmutexes
 %patch9 -p0 -b .disable-pthreadsmutexes
 %patch10 -p0 -b .instance-manager
+%patch11 -p0 -b .cve-2007-1420
+%patch12 -p1 -b .cve-2007-2583
+%patch13 -p1 -b .cve-2007-2691
+%patch14 -p1 -b .cve-2007-2692
 
 # fix annoyances
 perl -pi -e "s|AC_PROG_RANLIB|AC_PROG_LIBTOOL|g" configure*
@@ -599,6 +607,12 @@ fi
 
 
 %changelog
+* Sun Jul 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.0.27
+- P11: security fix CVE-2007-1420
+- P12: security fix CVE-2007-2583
+- P13: security fix CVE-2007-2691
+- P14: security fix CVE-2007-2692
+
 * Fri Feb 02 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.0.27
 - make lib(64)mysql15 provide libmysql
 - version all the provides
