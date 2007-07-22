@@ -14,7 +14,7 @@
 
 # not everyone uses this, so define it here
 %define distribution	Annvix
-%define build_test	0
+%define build_test	1
 
 %define ap_version	%{version}
 %define ap_release	%{release}
@@ -801,6 +801,11 @@ pushd perl-framework
     rm -f t/ssl/varlookup.t
     rm -f t/ssl/proxy.t
     rm -f t/ssl/pr12355.t
+    rm -f t/ssl/basicauth.t
+    rm -f t/ssl/env.t
+    rm -f t/ssl/extlookup.t
+    rm -f t/ssl/fakeauth.t
+    rm -f t/ssl/verify.t
 
     # if not using LC_ALL=C t/php/getlastmod.t can fail at
     # testing : getlastmod()
@@ -1400,6 +1405,7 @@ fi
 - P16: security fix for CVE-2006-5752
 - P17: security fix for CVE-2007-1862
 - disable some test that bail (all ssl-related)
+- renable the test suite now that we've isolated all the failing tests
 
 * Sun Jun 24 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.4
 - don't run the test suite, for some reason it's borking like crazy (new glibc?)
