@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		mysql
-%define version		5.0.27
+%define version		5.0.45
 %define release		%_revrel
 
 %define major		15
@@ -44,8 +44,8 @@ Source7:	my.cnf
 Source8:	DATADIR.env
 Source9:    	LOG.env
 Source10:   	MYSQLD_OPTS.env
-Patch1:		mysql-5.0.15-install_script_mysqld_safe.diff
-Patch2:		mysql-5.0.23-lib64.diff
+Patch1:		mysql-5.0.45-mdv-install_script_mysqld_safe.patch
+Patch2:		mysql-5.0.45-mdv-lib64.patch
 Patch3:		mysql-5.0.15-noproc.diff
 Patch6:		mysql-errno.patch
 # Add fast AMD64 mutexes
@@ -54,6 +54,8 @@ Patch7:		db-4.1.24-amd64-mutexes.diff
 Patch8:		db-4.1.24-disable-pthreadsmutexes.diff
 Patch9:		mysql-5.0.15-disable-pthreadsmutexes.diff
 Patch10:	mysql-5.0.19-instance-manager.diff
+Patch11:	mysql-5.0.45-mdv-bug27303.patch
+Patch12:	mysql-5.0.41-fdr-install-test.patch
 
 BuildRoot:      %{_buildroot}/%{name}-%{version}
 BuildRequires:	bison
@@ -194,6 +196,8 @@ This package contains the documentation for %{name}.
 %patch8 -p1 -b .pthreadsmutexes
 %patch9 -p0 -b .disable-pthreadsmutexes
 %patch10 -p0 -b .instance-manager
+%patch11 -p0 -b .bug27303
+%patch12 -p1 -b .install_test
 
 # fix annoyances
 perl -pi -e "s|AC_PROG_RANLIB|AC_PROG_LIBTOOL|g" configure*
@@ -292,26 +296,12 @@ nm --numeric-sort sql/mysqld >mysqld.sym
 %if %{make_test}
 # disable failing tests
 echo "mysql_client_test : Unstable test case, bug#12258" >> mysql-test/t/disabled.def
-echo "openssl_1 : Unstable test case" >> mysql-test/t/disabled.def
-echo "rpl_openssl : Unstable test case" >> mysql-test/t/disabled.def
 echo "rpl_trigger : Unstable test case" >> mysql-test/t/disabled.def
-# set some test env, should be free high random ports...
-export MYSQL_TEST_MANAGER_PORT=9305
-export MYSQL_TEST_MASTER_PORT=9306
-export MYSQL_TEST_SLAVE_PORT=9308
-export MYSQL_TEST_NDB_PORT=9350
-make check
+echo "type_enum : Unstable test case" >> mysql-test/t/disabled.def
+echo "windows : For MS Windows only" >> mysql-test/t/disabled.def
 
-pushd mysql-test
-    ./mysql-test-run.pl \
-    --force \
-    --timer \
-    --master_port=$MYSQL_TEST_MASTER_PORT \
-    --slave_port=$MYSQL_TEST_SLAVE_PORT \
-    --ndbcluster_port=$MYSQL_TEST_NDB_PORT \
-    --testcase-timeout=5 \
-    --suite-timeout=30 || true
-popd
+make check
+make test
 %endif
 
 
@@ -360,8 +350,7 @@ rm -f %{buildroot}%{_bindir}/make_win_src_distribution
 rm -f %{buildroot}%{_bindir}/make_win_binary_distribution
 rm -f %{buildroot}%{_datadir}/mysql/*.spec
 rm -f %{buildroot}%{_datadir}/mysql/{postinstall,preinstall,mysql-log-rotate,mysql.server,binary-configure}
-rm -f %{buildroot}%{_bindir}/client_test
-rm -f %{buildroot}%{_bindir}/mysql_client_test*
+rm -f %{buildroot}%{_mandir}/man1/make_win_{bin_dist,src_distribution}.1*
 
 mkdir -p %{buildroot}%{_datadir}/afterboot
 install -m 0644 %{_sourcedir}/05_mysql.afterboot %{buildroot}%{_datadir}/afterboot/05_mysql
@@ -384,7 +373,7 @@ cp -f sql-bench/README README.sql-bench
 %post
 %_install_info mysql.info
 %_mkafterboot
-chown -R %{mysqld_user}:%{mysqld_user} %{_localstatedir}/mysql
+chown -R %{mysqld_user}:%{mysqld_user} %{_localstatedir}/mysql /var/run/mysqld /var/log/mysqld
 chmod 0711 %{_localstatedir}/mysql
 if [ "$1" == "1" ]; then
     # Initialize database
@@ -442,7 +431,6 @@ fi
 %{_bindir}/myisamchk
 %{_bindir}/myisamlog
 %{_bindir}/myisampack
-%{_bindir}/mysql_create_system_tables
 %{_bindir}/mysql_fix_privilege_tables
 %{_bindir}/mysql_convert_table_format
 %{_bindir}/mysql_install_db
@@ -486,27 +474,39 @@ fi
 %{_datadir}/mysql/charsets
 %{_datadir}/mysql/fill_help_tables.sql
 %{_datadir}/mysql/mysql_fix_privilege_tables.sql
+%{_datadir}/mysql/mysql_system_tables.sql
+%{_datadir}/mysql/mysql_system_tables_data.sql
+%{_datadir}/mysql/mysql_test_data_timezone.sql
 %{_datadir}/mysql/*.ini
 %{_datadir}/mysql/errmsg.txt
 %{_datadir}/afterboot/05_mysql
 %dir %{_libdir}/mysql
+%{_mandir}/man1/innochecksum.1*
+%{_mandir}/man1/my_print_defaults.1*
 %{_mandir}/man1/myisamchk.1*
 %{_mandir}/man1/myisamlog.1*
 %{_mandir}/man1/myisampack.1*
 %{_mandir}/man1/mysql.server.1*
+%{_mandir}/man1/mysql_explain_log.1*
+%{_mandir}/man1/mysql_convert_table_format.1*
+%{_mandir}/man1/mysql_fix_extensions.1*
 %{_mandir}/man1/mysql_fix_privilege_tables.1*
+%{_mandir}/man1/mysql_install_db.1*
+%{_mandir}/man1/mysql_secure_installation.1*
+%{_mandir}/man1/mysql_setpermission.1*
+%{_mandir}/man1/mysql_tzinfo_to_sql.1*
+%{_mandir}/man1/mysql_upgrade.1*
 %{_mandir}/man1/mysql_zap.1*
-%{_mandir}/man1/mysqld.1*
 %{_mandir}/man1/mysqld_multi.1*
 %{_mandir}/man1/mysqld_safe.1*
 %{_mandir}/man1/mysqlhotcopy.1*
 %{_mandir}/man1/mysqlman.1*
-%{_mandir}/man1/mysqlmanager.1*
+%{_mandir}/man1/mysqlmanagerc.1*
 %{_mandir}/man1/perror.1*
 %{_mandir}/man1/replace.1*
 %{_mandir}/man1/safe_mysqld.1*
-%{_mandir}/man1/mysql_upgrade.1*
-%{_mandir}/man1/mysql_explain_log.1*
+%{_mandir}/man1/resolveip.1*
+%{_mandir}/man1/resolve_stack_dump.1*
 %{_mandir}/man8/mysqld.8*
 %{_mandir}/man8/mysqlmanager.8*
 %lang(cz) %{_datadir}/mysql/czech
@@ -536,11 +536,17 @@ fi
 
 %files bench
 %defattr(-, root, root)
+%{_bindir}/mysql_client_test
 %{_bindir}/mysqltestmanager
 %{_bindir}/mysqltestmanager-pwgen
 %{_bindir}/mysqltestmanagerc
 %{_datadir}/sql-bench
 %{_datadir}/mysql-test
+%{_mandir}/man1/mysql-stress-test.pl.1*
+%{_mandir}/man1/mysql-test-run.pl.1*
+%{_mandir}/man1/mysql_client_test.1*
+%{_mandir}/man1/mysqlmanager-pwgen.1*
+%{_mandir}/man1/mysqltest.1*
 
 
 %files client
@@ -562,6 +568,7 @@ fi
 %{_bindir}/mysql_tableinfo
 %{_bindir}/mysql_waitpid
 %{_mandir}/man1/msql2mysql.1*
+%{_mandir}/man1/myisam_ftdump.1*
 %{_mandir}/man1/mysql.1*
 %{_mandir}/man1/mysqlaccess.1*
 %{_mandir}/man1/mysqladmin.1*
@@ -570,7 +577,9 @@ fi
 %{_mandir}/man1/mysqldump.1*
 %{_mandir}/man1/mysqlimport.1*
 %{_mandir}/man1/mysqlshow.1*
-%{_mandir}/man1/myisam_ftdump.1*
+%{_mandir}/man1/mysql_find_rows.1*
+%{_mandir}/man1/mysql_tableinfo.1*
+%{_mandir}/man1/mysql_waitpid.1*
 
 
 %files -n %{libname}
@@ -588,6 +597,7 @@ fi
 %dir %{_libdir}/mysql
 %{_libdir}/*.la
 %{_libdir}/*.so
+%{_mandir}/man1/comp_err.1*
 %{_mandir}/man1/mysql_config.1*
 
 %files -n %{staticdevname}
@@ -602,6 +612,14 @@ fi
 
 
 %changelog
+* Mon Jul 23 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.0.45
+- 5.0.45 (fixes CVE-2007-1420, CVE-2007-2583, CVE-2007-2691, CVE-2007-2692)
+- better ownership checks
+- updated P1, P2 from Mandriva
+- P11: fix the mysqlhotcopy script (mysql bug #27303)
+- P12: fix where mysql places regression tests (from fedora)
+- simplify the tests
+
 * Sun Jun 24 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.0.27
 - rebuild against new readline
 - implement devel naming policy

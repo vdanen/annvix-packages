@@ -18,7 +18,7 @@
 # ATTENTION: This /root/.my.cnf should be readable ONLY
 # for root !
 
-/var/log/mysqld/mysqld.log {
+/var/log/mysqld/mysqld.log /var/log/mysqld/mysqlmanager.log {
     notifempty
     missingok
     compress
