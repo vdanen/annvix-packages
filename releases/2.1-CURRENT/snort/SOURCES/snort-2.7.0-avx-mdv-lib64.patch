@@ -1,5 +1,5 @@
---- configure.in	2006-05-31 16:53:40.000000000 +0200
-+++ configure.in.oden	2006-07-23 13:11:49.000000000 +0200
+--- configure.in.lib64	2007-07-06 09:32:07.000000000 -0600
++++ configure.in	2007-07-24 11:44:08.125637500 -0600
 @@ -129,6 +129,31 @@
      extra_incl=-I/sw/include
  esac
@@ -32,25 +32,47 @@
  # any sparc platform has to have this one defined.
  AC_MSG_CHECKING(for sparc alignment)
  if eval "echo $host_cpu|grep -i sparc >/dev/null"; then
-@@ -429,7 +454,7 @@
-     fi
-   else
- 
--    for i in lib lib/mysql; do
-+    for i in $snort_libname $snort_libname/mysql; do
-       str="$MYSQL_DIR/$i/libmysqlclient.*"
-       for j in `echo $str`; do
-         if test -r $j; then
-@@ -442,7 +467,7 @@
-     if test -z "$MYSQL_LIB_DIR"; then
-       if test "$mysql_fail" != "no"; then
-         FAIL_MESSAGE("mysqlclient library", 
--                     "$MYSQL_DIR/lib $MYSQL_DIR/lib/mysql")
-+                     "$MYSQL_DIR/$snort_libname $MYSQL_DIR/$snort_libname/mysql")
-       else
-         AC_MSG_RESULT(no)
+@@ -526,7 +551,7 @@
+         done
        fi
-@@ -496,19 +521,19 @@
+       if test -z "$MYSQL_LIB_DIR"; then
+-        str="$i/lib/libmysqlclient.*"
++        str="$i/$snort_libname/libmysqlclient.*"
+         for j in `echo $str`; do
+           if test -r $j; then
+             MYSQL_LIB_DIR=$i/lib
+@@ -544,7 +569,7 @@
+         done 
+       fi
+       if test -z "$MYSQL_LIB_DIR"; then
+-        str="$i/mysql/lib/libmysqlclient.*"
++        str="$i/mysql/$snort_libname/libmysqlclient.*"
+         for j in `echo $str`; do
+           if test -r $j; then
+             MYSQL_LIB_DIR=$i/mysql/lib
+@@ -553,10 +578,10 @@
+         done
+       fi
+       if test -z "$MYSQL_LIB_DIR"; then
+-        str="$i/lib/mysql/libmysqlclient.*"
++        str="$i/$snort_libname/mysql/libmysqlclient.*"
+         for j in `echo $str`; do
+           if test -r $j; then
+-            MYSQL_LIB_DIR=$i/lib/mysql
++            MYSQL_LIB_DIR=$i/$snort_libname/mysql
+             break 2
+           fi
+         done
+@@ -579,7 +604,7 @@
+       if test "$mysql_fail" != "no"; then
+         tmp=""
+         for i in $mysql_lib_directory; do
+-          tmp="$tmp $i $i/lib $i/mysql $i/mysql/lib $i/lib/mysql"
++          tmp="$tmp $i $i/$snort_libname $i/mysql $i/mysql/$snort_libname $i/$snort_libname/mysql"
+         done
+         FAIL_MESSAGE("mysqlclient library (libmysqlclient.*)", $tmp)
+       else
+@@ -635,19 +660,19 @@
      fi
    else
  
@@ -74,7 +96,7 @@
  dnl          ODBC_LIB="iodbc"
  dnl        fi
  dnl      done
-@@ -516,7 +541,7 @@
+@@ -655,7 +680,7 @@
  
      if test -z "$ODBC_LIB_DIR"; then
        if test "$odbc_fail" != "no"; then
@@ -83,7 +105,7 @@
        else
          AC_MSG_RESULT(no)
        fi
-@@ -599,7 +624,7 @@
+@@ -738,7 +763,7 @@
  
    if test -z "$POSTGRESQL_DIR"; then
      for dir in $postgresql_directory; do
@@ -92,7 +114,7 @@
           str="$dir/$i/libpq.*"
           for j in `echo $str`; do
             if test -r $j; then
-@@ -616,7 +641,8 @@
+@@ -755,7 +780,8 @@
    if test -z "$POSTGRESQL_LIB_DIR"; then
       if test "$postgresql_fail" != "no"; then
         FAIL_MESSAGE("postgresql library libpq",
@@ -102,7 +124,7 @@
       else
         AC_MSG_RESULT(no);
       fi
-@@ -676,7 +702,7 @@
+@@ -815,7 +841,7 @@
      for i in rdbms/demo rdbms/public network/public; do
        ORACLE_CPP_FLAGS="$ORACLE_CPP_FLAGS -I$ORACLE_DIR/$i"
      done
@@ -111,7 +133,16 @@
      AC_MSG_RESULT(yes)
  
      LDFLAGS="${LDFLAGS} -L${ORACLE_LIB_DIR}"
-@@ -949,7 +975,7 @@
+@@ -986,7 +1012,7 @@
+     AC_MSG_WARN(libnet-config --libs is broken on your system.  If you)
+     AC_MSG_WARN(are using a precompiled package please notify the) 
+     AC_MSG_WARN(maintainer.)
+-    LDFLAGS="${LDFLAGS} -L/usr/local/lib -L/sw/lib"
++    LDFLAGS="${LDFLAGS}"
+     LIBS="${LIBS} -lnet"
+   fi
+ 
+@@ -1093,7 +1119,7 @@
    fi
  
    if test `libnet-config --cflags | wc -c` = "1"; then
@@ -120,7 +151,7 @@
      LIBNET_CONFIG_BROKEN_CFLAGS=yes
    fi
  
-@@ -957,7 +983,7 @@
+@@ -1101,7 +1127,7 @@
      AC_MSG_WARN(libnet-config --libs is broken on your system.  If you)
      AC_MSG_WARN(are using a precompiled package please notify the)
      AC_MSG_WARN(maintainer.)
