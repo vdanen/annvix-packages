@@ -14,6 +14,8 @@
 
 %define major		2
 %define libname		%mklibname sasl %{major}
+%define devname		%mklibname sasl -d
+%define odevname	%mklibname sasl 2 -d
 %define sasl2_db_fname	/var/lib/sasl2/sasl.db
 
 Summary:	SASL is the Simple Authentication and Security Layer
@@ -68,6 +70,7 @@ between the protocol and the connection.
 %package -n %{libname}
 Summary:	Libraries for SASL a the Simple Authentication and Security Layer
 Group:		System/Libraries
+Provides:	libsasl = %{version}-%{release}
 
 %description -n %{libname}
 SASL is the Simple Authentication and Security Layer, 
@@ -78,17 +81,15 @@ protocol interactions. If its use is negotiated, a security layer is inserted
 between the protocol and the connection. 
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:	Libraries for SASL a the Simple Authentication and Security Layer
 Group:		Development/C
-%if %{_lib} != lib
-Provides:	libsasl-devel = %{version}
-Provides:	libsasl2-devel = %{version}
-%endif
-Provides:	%{mklibname -d sasl} = %{version}
 Requires:	%{libname} = %{version}
+Provides:	%{name}-devel = %{version}-%{release}
+Provides:	libsasl-devel = %{version}-%{release}
+Obsoletes:	%{odevname}
 
-%description -n %{libname}-devel
+%description -n %{devname}
 SASL is the Simple Authentication and Security Layer, 
 a method for adding authentication support to connection-based protocols. 
 To use SASL, a protocol includes a command for identifying and authenticating 
@@ -101,7 +102,7 @@ between the protocol and the connection.
 Summary:	SASL ANONYMOUS mechanism plugin
 Group:		System/Libraries
 Requires:	%{libname} = %{version}
-Provides:	sasl-plug-anonymous
+Provides:	sasl-plug-anonymous = %{version}-%{release}
 
 %description -n %{libname}-plug-anonymous
 This plugin implements the SASL ANONYMOUS mechanism,
@@ -112,7 +113,7 @@ used for anonymous authentication.
 Summary:	SASL CRAM-MD5 mechanism plugin
 Group:		System/Libraries
 Requires:	%{libname} = %{version}
-Provides:	sasl-plug-crammd5
+Provides:	sasl-plug-crammd5 = %{version}-%{release}
 
 %description -n %{libname}-plug-crammd5
 This plugin implements the SASL CRAM-MD5 mechanism.
@@ -125,7 +126,7 @@ authenticate the user.
 Summary:	SASL DIGEST-MD5 mechanism plugin
 Group:		System/Libraries
 Requires:	%{libname} = %{version}
-Provides:	sasl-plug-digestmd5
+Provides:	sasl-plug-digestmd5 = %{version}-%{release}
 
 %description -n %{libname}-plug-digestmd5
 This plugin implements the latest draft of the SASL DIGEST-MD5
@@ -138,7 +139,7 @@ It's based on the digest md5 authentication system designed for HTTP.
 Summary:	SASL PLAIN mechanism plugin
 Group:		System/Libraries
 Requires:	%{libname} = %{version}
-Provides:	sasl-plug-plain
+Provides:	sasl-plug-plain = %{version}-%{release}
 
 %description -n %{libname}-plug-plain
 This plugin implements the SASL PLAIN mechanism.  Although insecure,
@@ -151,7 +152,7 @@ password.
 Summary:	SASL SCRAM-MD5 mechanism plugin
 Group:		System/Libraries
 Requires:	%{libname} = %{version}
-Provides:	sasl-plug-scrammd5
+Provides:	sasl-plug-scrammd5 = %{version}-%{release}
 
 %description -n %{libname}-plug-scrammd5
 This plugin implements the SASL SCRAM-MD5 mechanism.  Although
@@ -163,7 +164,7 @@ be useful for the time being.
 Summary:	SASL LOGIN mechanism plugin
 Group:		System/Libraries
 Requires:	%{libname} = %{version}
-Provides:	sasl-plug-login
+Provides:	sasl-plug-login = %{version}-%{release}
 
 %description -n %{libname}-plug-login
 This plugin implements the SASL LOGIN mechanism.
@@ -177,7 +178,7 @@ Summary:	SASL GSSAPI mechanism plugin
 Group:		System/Libraries
 Requires:	%{libname} = %{version}
 Requires:	krb5-libs
-Provides:	sasl-plug-gssapi
+Provides:	sasl-plug-gssapi = %{version}-%{release}
  
 %description -n %{libname}-plug-gssapi
 This plugin implements the SASL GSSAPI (kerberos 5)mechanism.
@@ -187,7 +188,7 @@ This plugin implements the SASL GSSAPI (kerberos 5)mechanism.
 Summary:	SASL OTP mechanism plugin
 Group:		System/Libraries
 Requires:	%{libname} = %{version}
-Provides:	sasl-plug-otp
+Provides:	sasl-plug-otp = %{version}-%{release}
 
 %description -n %{libname}-plug-otp
 This plugin implements the SASL OTP mechanism.
@@ -200,7 +201,7 @@ Requires(pre):	rpm-helper
 Requires(post):	rpm-helper
 Requires:	%{libname} = %{version}
 Requires:	%{name} = %{version}
-Provides:	sasl-plug-sasldb
+Provides:	sasl-plug-sasldb = %{version}-%{release}
 
 %description -n %{libname}-plug-sasldb
 This plugin implements the SASL sasldb mechanism.
@@ -210,7 +211,7 @@ This plugin implements the SASL sasldb mechanism.
 Summary:	SASL ntlm authentication plugin
 Group:		System/Libraries
 Requires:	%{libname} = %{version}
-Provides:	sasl-plug-ntlm
+Provides:	sasl-plug-ntlm = %{version}-%{release}
 
 %description -n %{libname}-plug-ntlm
 This plugin implements the (unsupported) ntlm authentication.
@@ -220,7 +221,7 @@ This plugin implements the (unsupported) ntlm authentication.
 Summary:	SASL sql auxprop plugin
 Group:		System/Libraries
 Requires:	%{libname} = %{version}
-Provides:	sasl-plug-sql
+Provides:	sasl-plug-sql = %{version}-%{release}
 
 %description -n %{libname}-plug-sql
 This plugin implements the SQL auxprop authentication method
@@ -231,7 +232,7 @@ supporting MySQL and PostgreSQL.
 Summary:	SASL ldapdb auxprop plugin
 Group:		System/Libraries
 Requires:	%{libname} = %{version}
-Provides:	sasl-plug-ldapdb
+Provides:	sasl-plug-ldapdb = %{version}-%{release}
 
 %description -n %{libname}-plug-ldapdb
 This plugin implements the LDAP auxprop authentication method.
@@ -509,7 +510,7 @@ fi
 %{_libdir}/sasl2/libldap*.so*
 %{_libdir}/sasl2/libldap*.la
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 %{_includedir}/*
 %{_libdir}/*.*so
@@ -523,6 +524,12 @@ fi
 
  
 %changelog
+* Tue Jul 24 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1.22
+- rebuild against new mysql
+- implement devel naming policy
+- implement library provides policy
+- verioned provides
+
 * Fri Jan 29 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1.22
 - rebuild against new postgresql
 
