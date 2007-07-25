@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		exim
-%define version 	4.66
+%define version 	4.67
 %define release 	%_revrel
 
 %define saversion   	4.2.1
@@ -364,6 +364,10 @@ fi
 
 
 %changelog
+* Tue Jul 24 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.67
+- 4.67
+- rebuild against new mysql
+
 * Fri Feb 02 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.66
 - finally fix the alternatives junk
 
