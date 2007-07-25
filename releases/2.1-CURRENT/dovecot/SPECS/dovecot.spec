@@ -249,6 +249,9 @@ exit 0
 
 
 %changelog
+* Tue Jul 24 2007 Vincent Danen <vdanen-at-build.annvix.org>  1.0.1
+- rebuild against new mysql
+
 * Thu Jun 28 2007 Lauris Bukðis-Haberkorns <lafriks-at-gmail.com> 1.0.1
 - 1.0.1
 - Add include files to devel package
