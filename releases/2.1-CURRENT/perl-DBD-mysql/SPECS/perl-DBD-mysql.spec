@@ -80,6 +80,9 @@ perl Makefile.PL INSTALLDIRS=vendor
 
 
 %changelog
+* Tue Jul 24 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.004
+- rebuild against new mysql 
+
 * Thu May 24 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.004
 - 4.004
 - versioned provides
