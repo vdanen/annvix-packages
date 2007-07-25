@@ -1,19 +1,24 @@
 /*
-         Copyright (c) 2003-6, WebThing Ltd and other contributors
+         Copyright (c) 2003-7, WebThing Ltd and other contributors
  
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
+(at your option) any later version.  Alternatively, where this program
+is aggregated with the Apache APR-UTIL package version 1.2 or later,
+you can distribute and/or modify it under the terms of the Apache
+License 2.0 as published by the Apache Software Foundation.
  
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+applicable License for more details.
  
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+You may obtain a copy of the Apache License 2.0 at:
+http://www.apache.org/licenses/LICENSE-2.0
  
 */
 
@@ -24,6 +29,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  * software to be distributed by apache.org, but this should
  * not be a problem for third-parties who wish to distribute
  * it alongside the APR and other Apache software.
+ * 
+ * It is updated to dual license after discussion with Debian
+ * and taking into account MySQL's FOSS exception.
+ * http://bahumbug.wordpress.com/2007/01/09/re-licensing-apr_dbd_mysql/
+ * http://www.mysql.com/company/legal/licensing/foss-exception.html
  *
  * MAINTAINERS
  *
@@ -36,6 +46,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 
 #include "apu.h"
+#define HAVE_MYSQL_MYSQL_H
 
 #if APU_HAVE_MYSQL
 

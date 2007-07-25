@@ -250,6 +250,10 @@ rm -f %{buildroot}%{_libdir}/aprutil.exp
 
 
 %changelog
+* Tue Jul 24 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2.8
+- rebuild against new mysql
+- updated apr_dbd_mysql.c with a clarified license
+
 * Sat Jun 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2.8
 - rebuild against new expat
 - implement devel naming policy
