@@ -51,7 +51,7 @@ BuildRequires:	lynx
 BuildRequires:	db4-devel >= 4.1
 BuildRequires:	pcre-devel
 BuildRequires:	perl-devel
-BuildRequires:	libmysql-devel
+BuildRequires:	mysql-devel
 BuildRequires:	postgresql-devel
 BuildRequires:	sqlite3-devel
 
@@ -367,6 +367,7 @@ fi
 * Tue Jul 24 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.67
 - 4.67
 - rebuild against new mysql
+- fix buildreqs
 
 * Fri Feb 02 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.66
 - finally fix the alternatives junk
