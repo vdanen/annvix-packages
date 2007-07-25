@@ -456,6 +456,9 @@ done
 
 
 %changelog
+* Tue Jul 24 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.4.3
+- rebuild against new mysql 
+
 * Wed Jun 20 2007 Ying-Hung Chen <ying-at-yingternet.com> 2.4.3
 - 2.4.3
 - Updated P9
