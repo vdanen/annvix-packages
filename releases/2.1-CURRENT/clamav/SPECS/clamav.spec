@@ -12,7 +12,7 @@
 %define version		0.91.1
 %define release		%_revrel
 
-%define	major		1
+%define	major		2
 %define libname		%mklibname %{name} %{major}
 %define devname		%mklibname %{name} -d
 %define odevname	%mklibname %{name} 1 -d
@@ -94,6 +94,7 @@ The actual virus database for %{name}
 Summary:	Shared libraries for %{name}
 Group:          System/Libraries
 Provides:	lib%{name} = %{version}-%{release}
+Obsoletes:	%{mklibname clamav 1}-devel
 
 %description -n	%{libname}
 Shared libraries for %{name}
@@ -250,7 +251,6 @@ done
 
 %files -n clamd
 %defattr(-,root,root)
-%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/clamd.conf
 %{_sbindir}/clamd
 %{_mandir}/man8/clamd.8*
 %dir %attr(0750,root,admin) %{_srvdir}/clamd
@@ -285,6 +285,11 @@ done
 
       
 %changelog
+* Tue Jul 31 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.91.1
+- update major
+- also patch freshclam.conf (P0)
+- clamd.conf doesn't need to be in two packages
+
 * Tue Jul 31 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.91.1
 - 0.91.1: fixes CVE-2007-3725
 - rediff P0
