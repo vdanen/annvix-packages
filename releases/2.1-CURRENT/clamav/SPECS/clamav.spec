@@ -9,11 +9,13 @@
 
 %define revision	$Rev$
 %define name		clamav
-%define version		0.90.3
+%define version		0.91.1
 %define release		%_revrel
 
 %define	major		1
 %define libname		%mklibname %{name} %{major}
+%define devname		%mklibname %{name} -d
+%define odevname	%mklibname %{name} 1 -d
 
 Summary:	An anti-virus utility for Unix
 Name:		%{name}
@@ -28,7 +30,7 @@ Source4:	clamd.run
 Source5:	clamd-log.run
 Source6:	freshclam.run
 Source7:	freshclam-log.run
-Patch0:		clamav-0.90.2-avx-config.patch
+Patch0:		clamav-0.91.1-avx-config.patch
 Patch1:		clamav-0.90.2-avx-stderr.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -91,21 +93,21 @@ The actual virus database for %{name}
 %package -n %{libname}
 Summary:	Shared libraries for %{name}
 Group:          System/Libraries
+Provides:	lib%{name} = %{version}-%{release}
 
 %description -n	%{libname}
 Shared libraries for %{name}
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:	Development library and header files for the %{name} library
 Group:		Development/C
 Requires:	%{libname} = %{version}
-Provides:	%{name}-devel = %{version}
-Provides:	lib%{name}-devel = %{version}
+Provides:	%{name}-devel = %{version}-%{release}
 Obsoletes:	%{name}-devel
-Obsoletes:	lib%{name}-devel
+Obsoletes:	%{odevname}
 
-%description -n	%{libname}-devel
+%description -n	%{devname}
 This package contains the static %{libname} library and its header
 files.
 
@@ -267,7 +269,7 @@ done
 %defattr(-,root,root)
 %{_libdir}/*.so.*
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 %{_bindir}/clamav-config
 %{_includedir}/*
@@ -283,6 +285,12 @@ done
 
       
 %changelog
+* Tue Jul 31 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.91.1
+- 0.91.1: fixes CVE-2007-3725
+- rediff P0
+- implement devel naming policy
+- implement library provides policy
+
 * Mon Jun 04 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.90.3
 - 0.90.3: fixes for CVE-2007-2650 and some other security-related issues
 

@@ -1,0 +1,107 @@
+--- clamav-0.91.1/etc/clamd.conf.avx	2007-07-05 15:52:20.000000000 -0600
++++ clamav-0.91.1/etc/clamd.conf	2007-07-31 22:23:34.148723500 -0600
+@@ -4,14 +4,11 @@
+ ##
+ 
+ 
+-# Comment or remove the line below.
+-Example
+-
+ # Uncomment this option to enable logging.
+ # LogFile must be writable for the user running daemon.
+ # A full path is required.
+ # Default: disabled
+-#LogFile /tmp/clamd.log
++LogFile /dev/stderr
+ 
+ # By default the log file is locked for writing - the lock protects against
+ # running clamd multiple times (if want to run another clamd, please
+@@ -49,31 +46,31 @@
+ 
+ # Enable verbose logging.
+ # Default: no
+-#LogVerbose yes
++LogVerbose yes
+ 
+ # This option allows you to save a process identifier of the listening
+ # daemon (main thread).
+ # Default: disabled
+-#PidFile /var/run/clamd.pid
++PidFile /var/run/clamav/clamd.pid
+ 
+ # Optional path to the global temporary directory.
+ # Default: system specific (usually /tmp or /var/tmp).
+-#TemporaryDirectory /var/tmp
++TemporaryDirectory /var/lib/clamav/tmp
+ 
+ # Path to the database directory.
+ # Default: hardcoded (depends on installation options)
+-#DatabaseDirectory /var/lib/clamav
++DatabaseDirectory /var/lib/clamav
+ 
+ # The daemon works in a local OR a network mode. Due to security reasons we
+ # recommend the local mode.
+ 
+ # Path to a local socket file the daemon will listen on.
+ # Default: disabled (must be specified by a user)
+-LocalSocket /tmp/clamd.socket
++LocalSocket /var/lib/clamav/clamd.socket
+ 
+ # Remove stale socket after unclean shutdown.
+ # Default: no
+-#FixStaleSocket yes
++FixStaleSocket yes
+ 
+ # TCP port address.
+ # Default: no
+@@ -107,12 +104,12 @@
+ 
+ # Maximum number of threads running at the same time.
+ # Default: 10
+-#MaxThreads 20
++MaxThreads 64
+ 
+ # Waiting for data from a client socket will timeout after this time (seconds).
+ # Value of 0 disables the timeout.
+ # Default: 120
+-#ReadTimeout 300
++ReadTimeout 300
+ 
+ # Waiting for a new job will timeout after this time (seconds).
+ # Default: 30
+@@ -124,11 +121,11 @@
+ 
+ # Follow directory symlinks.
+ # Default: no
+-#FollowDirectorySymlinks yes
++FollowDirectorySymlinks yes
+ 
+ # Follow regular file symlinks.
+ # Default: no
+-#FollowFileSymlinks yes
++FollowFileSymlinks yes
+ 
+ # Perform a database check.
+ # Default: 1800 (30 min)
+@@ -142,18 +139,18 @@
+ # Run as another user (clamd must be started by root to make this option
+ # working).
+ # Default: don't drop privileges
+-#User clamav
++User clamav
+ 
+ # Initialize supplementary group access (clamd must be started by root).
+ # Default: no
+-#AllowSupplementaryGroups no
++AllowSupplementaryGroups yes
+ 
+ # Stop daemon when libclamav reports out of memory condition.
+ #ExitOnOOM yes
+ 
+ # Don't fork into background.
+ # Default: no
+-#Foreground yes
++Foreground yes
+ 
+ # Enable debug messages in libclamav.
+ # Default: no
