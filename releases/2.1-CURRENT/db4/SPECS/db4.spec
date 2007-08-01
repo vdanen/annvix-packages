@@ -21,8 +21,8 @@
 
 %define libname_orig	%mklibname db
 %define libname		%{libname_orig}%{__soversion}
-%define libnamedev	%{libname}-devel
-%define libnamestatic	%{libname}-static-devel
+%define devname	%{libname}-devel
+%define staticdevname	%{libname}-static-devel
 
 %define libdbcxx	%{libname_orig}cxx%{__soversion}
 %define libdbtcl	%{libname_orig}tcl%{__soversion}
@@ -36,8 +36,8 @@ Version:	%{version}
 Release:	%{release}
 License:	BSD
 Group:		System/Libraries
-URL:		http://www.sleepycat.com
-Source:		http://www.sleepycat.com/update/%{version}/db-%{version}.tar.bz2
+URL:		http://www.oracle.com/technology/software/products/berkeley-db/db/
+Source:		http://download.oracle.com/berkeley-db/db-%{version}.tar.bz2
 Patch0:		http://www.sleepycat.com/update/4.2.52/patch.4.2.52.1
 Patch1:		http://www.sleepycat.com/update/4.2.52/patch.4.2.52.2
 # Add fast AMD64 mutexes
@@ -52,6 +52,8 @@ Patch7:		http://www.sleepycat.com/update/4.2.52/patch.4.2.52.4
 # no transaction patch from OpenLDAP 2.3 CVS pre-2.3.5, allows transactions
 # to be disabled for operations that specify it (TXN_NOLOG)
 Patch8:		BerkeleyDB42.patch
+Patch9:		http://www.oracle.com/technology/products/berkeley-db/db/update/4.2.52/patch.4.2.52.5
+Patch10:	http://www.stanford.edu/services/directory/openldap/configuration/patches/db/4252-region-fix.diff
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	tcl
@@ -72,6 +74,7 @@ should be installed on all systems.
 %package -n %{libname}
 Summary:	The Berkeley DB database library for C
 Group:		System/Libraries
+Provides:	lib%{name} = %{version}-%{release}
 Requires(post):	ldconfig
 Requires(postun): ldconfig
 
@@ -130,7 +133,7 @@ and database recovery. DB supports C, C++, Java and Perl APIs.
 This package contains command line tools for managing Berkeley DB databases.
 
 
-%package -n %{libnamedev}
+%package -n %{devname}
 Summary:	Development libraries/header files for the Berkeley DB library
 Group:		Development/Databases
 Requires:	%{libname} = %{version}-%{release}
@@ -143,7 +146,7 @@ Provides:	%{_lib}db-devel = %{version}-%{release}
 Conflicts:	%{libname_orig}3.3-devel
 Conflicts:	%{libname_orig}4.0-devel
 
-%description -n %{libnamedev}
+%description -n %{devname}
 The Berkeley Database (Berkeley DB) is a programmatic toolkit that provides
 embedded database support for both traditional and client/server applications.
 Berkeley DB includes B+tree, Extended Linear Hashing, Fixed and Variable-length
@@ -154,7 +157,7 @@ This package contains the header files, libraries, and documentation for
 building programs which use Berkeley DB.
 
 
-%package -n %{libnamestatic}
+%package -n %{staticdevname}
 Summary:	Development static libraries files for the Berkeley DB library
 Group:		Development/Databases
 Requires:	db4-devel = %{version}-%{release}
@@ -165,7 +168,7 @@ Provides:	%{_lib}db-static-devel = %{version}-%{release}
 Conflicts:	%{libname_orig}3.3-static-devel
 Conflicts:	%{libname_orig}4.0-static-devel
 
-%description -n %{libnamestatic}
+%description -n %{staticdevname}
 The Berkeley Database (Berkeley DB) is a programmatic toolkit that provides
 embedded database support for both traditional and client/server applications.
 Berkeley DB includes B+tree, Extended Linear Hashing, Fixed and Variable-length
@@ -234,6 +237,8 @@ This package contains the documentation for %{name}.
 %patch4 -p1 -b .db185
 %patch5 -p1 -b .libtool-fixes
 %patch8 -b .txn_nolog
+%patch9
+%patch10 -p1
 
 
 # Remove tags files which we don't need.
@@ -402,7 +407,7 @@ ln -sf libdb_tcl-%{__soversion}.a %{buildroot}%{_libdir}/libdb_tcl-4.a
 %{_bindir}/db*_upgrade
 %{_bindir}/db*_verify
 
-%files -n %{libnamedev}
+%files -n %{devname}
 %defattr(0644,root,root,0755)
 %dir %{_includedir}/db4
 %{_includedir}/db4/db.h
@@ -419,7 +424,7 @@ ln -sf libdb_tcl-%{__soversion}.a %{buildroot}%{_libdir}/libdb_tcl-4.a
 %{_libdir}/libdb_tcl-4.so
 %{_libdir}/libdb_tcl-%{__soversion}.la
 
-%files -n %{libnamestatic}
+%files -n %{staticdevname}
 %defattr(0644,root,root,0755)
 %{_libdir}/*.a
 
@@ -447,6 +452,13 @@ ln -sf libdb_tcl-%{__soversion}.a %{buildroot}%{_libdir}/libdb_tcl-4.a
 
 
 %changelog
+* Tue Jul 31 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.2.52
+- P9: 4.2.52.5 patch
+- P10: Howards cache memory leak fix
+- updates URLs
+- this one is too messy to apply the devel naming policy to
+- implement library provides policy
+
 * Tue Dec 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.2.52
 - rebuild against new tcl and adjust buildrequires
 
