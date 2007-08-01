@@ -1,6 +1,9 @@
---- bzip2-1.0.3/Makefile.makefile	2005-02-17 04:28:24.000000000 -0700
-+++ bzip2-1.0.3/Makefile	2005-05-18 15:21:16.000000000 -0600
-@@ -1,3 +1,10 @@
+--- Makefile	2007-01-03 04:49:21.000000000 +0100
++++ Makefile.oden	2007-01-05 19:50:56.000000000 +0100
+@@ -12,6 +12,14 @@
+ # in the file LICENSE.
+ # ------------------------------------------------------------------
+ 
 +include config.in
 +
 +# define libdir name
@@ -8,22 +11,25 @@
 +
 +# define standard opt flags
 +CFLAGS ?= -O2 -fomit-frame-pointer
- 
++
  SHELL=/bin/sh
  
-@@ -8,36 +15,58 @@
+ # To assist in cross-compiling
+@@ -20,37 +28,60 @@
+ RANLIB=ranlib
  LDFLAGS=
  
- BIGFILES=-D_FILE_OFFSET_BITS=64
--CFLAGS=-Wall -Winline -O -g $(BIGFILES)
--
--# Where you want it installed when you do 'make install'
--PREFIX=/usr
-+CFLAGS += $(BIGFILES)
+-BIGFILES=-D_FILE_OFFSET_BITS=64
+-CFLAGS=-Wall -Winline -O2 -g $(BIGFILES)
++# Large file support
++CFLAGS += -D_FILE_OFFSET_BITS=64
  
+-# Where you want it installed when you do 'make install'
+-PREFIX=/usr/local
 +# Warnings
 +CFLAGS += -Wall -Winline
  
+-
 -OBJS= blocksort.o  \
 -      huffman.o    \
 -      crctable.o   \
@@ -56,13 +62,14 @@
 +      decompress.lo \
 +      bzlib.lo
 +
-+LIB=	libbz2.la
++LIB=libbz2.la
 +
-+prefix=	      /usr
-+bindir=       $(prefix)/bin
-+libdir=       $(prefix)/$(lib)
-+mandir=       $(prefix)/share/man
-+includedir=   $(prefix)/include
++prefix=/usr
++bindir=$(prefix)/bin
++libdir=$(prefix)/$(lib)
++mandir=$(prefix)/share/man
++includedir=$(prefix)/include
++DESTDIR=
 +
 +all: $(LIB) bzip2 bzip2recover test
 +
@@ -98,7 +105,7 @@
  
  check: test
  test: bzip2
-@@ -56,74 +85,22 @@
+@@ -69,70 +100,18 @@
  	cmp sample3.tst sample3.ref
  	@cat words3
  
@@ -123,14 +130,14 @@
 -	cp -f libbz2.a $(PREFIX)/lib
 -	chmod a+r $(PREFIX)/lib/libbz2.a
 -	cp -f bzgrep $(PREFIX)/bin/bzgrep
--	ln $(PREFIX)/bin/bzgrep $(PREFIX)/bin/bzegrep
--	ln $(PREFIX)/bin/bzgrep $(PREFIX)/bin/bzfgrep
+-	ln -s -f $(PREFIX)/bin/bzgrep $(PREFIX)/bin/bzegrep
+-	ln -s -f $(PREFIX)/bin/bzgrep $(PREFIX)/bin/bzfgrep
 -	chmod a+x $(PREFIX)/bin/bzgrep
 -	cp -f bzmore $(PREFIX)/bin/bzmore
--	ln $(PREFIX)/bin/bzmore $(PREFIX)/bin/bzless
+-	ln -s -f $(PREFIX)/bin/bzmore $(PREFIX)/bin/bzless
 -	chmod a+x $(PREFIX)/bin/bzmore
 -	cp -f bzdiff $(PREFIX)/bin/bzdiff
--	ln $(PREFIX)/bin/bzdiff $(PREFIX)/bin/bzcmp
+-	ln -s -f $(PREFIX)/bin/bzdiff $(PREFIX)/bin/bzcmp
 -	chmod a+x $(PREFIX)/bin/bzdiff
 -	cp -f bzgrep.1 bzmore.1 bzdiff.1 $(PREFIX)/man/man1
 -	chmod a+r $(PREFIX)/man/man1/bzgrep.1
@@ -166,19 +173,13 @@
 -	$(CC) $(CFLAGS) -c bzip2.c
 -bzip2recover.o: bzip2recover.c
 -	$(CC) $(CFLAGS) -c bzip2recover.c
--
--
- distclean: clean
- 	rm -f manual.ps manual.html manual.pdf
- 
 +.SUFFIXES: .c .o .lo
 +
 +%.o: %.c bzlib.h bzlib_private.h
 +	$(CC) $(CFLAGS) -c $<
-+
+ 
 +%.lo: %.c bzlib.h bzlib_private.h
 +	libtool --mode=compile $(CC) $(CFLAGS) -c $<
-+
- DISTNAME=bzip2-1.0.3
- dist: check manual
- 	rm -f $(DISTNAME)
+ 
+ distclean: clean
+ 	rm -f manual.ps manual.html manual.pdf

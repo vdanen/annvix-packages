@@ -9,12 +9,13 @@
 
 %define revision	$Rev$
 %define name		bzip2
-%define version		1.0.3
+%define version		1.0.4
 %define release		%_revrel
 
-%define libname_orig	lib%{name}
 %define major		1
 %define libname		%mklibname %{name}_ %{major}
+%define devname		%mklibname %{name} -d
+%define odevname	%mklibname %{name}_ 1 -d
 
 Summary:	Extremely powerful file compression utility
 Name:		%{name}
@@ -23,17 +24,10 @@ Release:	%{release}
 License:	BSD
 Group:		Archiving
 URL:		http://www.bzip.org/
-Source:		http://www.bzip.org/1.0.3/%{name}-%{version}.tar.gz
+Source:		http://www.bzip.org/%{version}/%{name}-%{version}.tar.gz
 Source2:	bzme
 Source3:	bzme.1
-Patch0:		bzip2-1.0.2-mdv-mktemp.patch
-Patch1:		bzip2-1.0.3-mdv-makefile.patch
-# P2 implements a progress counter (in %). It also
-# display the percentage of the original file the new file is (size). 
-# URL: http://www.vanheusden.com/Linux/bzip2-1.0.2.diff.gz
-Patch2:		bzip2-1.0.2.diff
-Patch3:		bzip2-1.0.2-CAN-2005-0953.patch
-Patch4:		bzip2-1.0.2-bzgrep.patch
+Patch0:		bzip2-1.0.4-mdv-makefile.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	texinfo
@@ -57,21 +51,23 @@ but they are not identical.
 Summary:	Libraries for developing apps which will use bzip2
 Group:		System/Libraries
 Provides:	lib%{name}_%{major} = %{version}-%{release}
+Provides:	lib%{name} = %{version}-%{release}
 
 %description -n %{libname}
 Library of bzip2 functions, for developing apps which will use the
 bzip2 library (aka libz2).
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:	Header files for developing apps which will use bzip2
 Group:		Development/C
 Requires:	%{libname} = %{version}
 Provides:	lib%{name}-devel = %{version}-%{release}
 Provides:	%{name}-devel = %{version}-%{release}
 Obsoletes:	%{name}-devel
+Obsoletes:	%{odevname}
 
-%description -n %{libname}-devel
+%description -n %{devname}
 Header files and static library of bzip2 functions, for developing apps which
 will use the bzip2 library (aka libz2).
 
@@ -87,11 +83,7 @@ This package contains the documentation for %{name}.
 %prep
 %setup -q
 cp %{_sourcedir}/bzme .
-%patch0 -p1 -b .mktemp
-%patch1 -p1 -b .makefile
-%patch2 -p1
-%patch3 -p1 -b .can-2005-0953
-%patch4 -p1 -b .cve-2005-0758
+%patch0 -p0 -b .makefile
 
 echo "lib = %{_lib}" >>config.in
 echo "CFLAGS = %{optflags}" >>config.in
@@ -135,7 +127,7 @@ install -m 0644 bzlib_private.h %{buildroot}%{_includedir}/
 %defattr(-,root,root,755)
 %{_libdir}/libbz2.so.*
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root,755)
 %{_libdir}/libbz2.a
 %{_libdir}/libbz2.la
@@ -144,10 +136,18 @@ install -m 0644 bzlib_private.h %{buildroot}%{_includedir}/
 
 %files doc
 %defattr(-,root,root,755)
-%doc README LICENSE *.html
+%doc README LICENSE *.html CHANGES
 
 
 %changelog
+* Tue Jul 31 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0.4
+- 1.0.4
+- drop P2: it doesn't work with large files
+- drop P0, P3, P4: merged upstream
+- updated P1 (now P0) from Mandriva
+- implement devel naming policy
+- implement library provides policy
+
 * Fri Jun 01 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0.3
 - versioned provides
 - provide libbzip2_1 on 64bit (lafriks)
