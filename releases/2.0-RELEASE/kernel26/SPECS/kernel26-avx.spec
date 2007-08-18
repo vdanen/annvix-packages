@@ -12,7 +12,7 @@
 %define kernelver	2
 %define patchlevel	6
 %define sublevel	16
-%define minlevel	50
+%define minlevel	53
 %define avxrelease	%(echo %{revision}|cut -d ' ' -f 2)
 
 %define tar_version	%{kernelver}.%{patchlevel}.%{sublevel}.%{minlevel}
@@ -952,6 +952,9 @@ exit 0
 
 
 %changelog
+* Sat Aug 18 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.53
+- 2.6.16.53: various fixes and security fix for CVE-2007-2876
+
 * Sat May 05 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.50
 - 2.6.16.50: various fixes and security fixes for CVE-2007-1357,
   CVE-2007-2242, CVE-2007-1861
