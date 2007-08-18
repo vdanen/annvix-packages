@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		sudo
-%define version		1.6.8p12
+%define version		1.6.9p4
 %define release		%_revrel
 %define epoch		1
 
@@ -20,14 +20,13 @@ Release:	%{release}
 Epoch:		%{epoch}
 License:	GPL
 Group:		System/Base
-URL:		http://www.courtesan.com/sudo
-Source:		ftp://ftp.courtesan.com:/pub/sudo/%{name}-%{version}.tar.gz
-Source1:	ftp://ftp.courtesan.com:/pub/sudo/%{name}-%{version}.tar.gz.sig
+URL:		http://www.sudo.ws/
+Source:		ftp://ftp.sudo.ws/pub/sudo/%{name}-%{version}.tar.gz
+Source1:	ftp://ftp.sudo.ws/pub/sudo/%{name}-%{version}.tar.gz.sig
 Source2:	sudoers.annvix
 Source3:	sudo.pam
 Source4:	sudo.logrotate
 Source4:	sudo.logrotate
-Patch0:		sudo-1.6.8p8-default_whitelist.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:  pam-devel
@@ -51,10 +50,11 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
-%patch0 -p0 -b .default_whitelist
 
 
 %build
+%serverbuild
+
 CFLAGS="%{optflags} -D_GNU_SOURCE" \
 %configure --prefix=%{_prefix} \
     --with-logging=both \
@@ -65,8 +65,10 @@ CFLAGS="%{optflags} -D_GNU_SOURCE" \
     --with-pam \
     --with-env-editor \
     --with-noexec=no \
-    --with-secure-path="/sbin:/usr/sbin:/bin:/usr/bin:/usr/local/sbin:/usr/local/bin"
-%make CFLAGS="%{optflags} -D_GNU_SOURCE"
+    --with-secure-path="/sbin:/usr/sbin:/bin:/usr/bin:/usr/local/sbin:/usr/local/bin" \
+    CFLAGS="%{optflags} -D_GNU_SOURCE"
+
+%make
 
 
 %install
@@ -111,11 +113,17 @@ install -m 0440 %{SOURCE2} %{buildroot}%{_sysconfdir}/sudoers
 
 %files doc
 %defattr(-,root,root)
-%doc BUGS CHANGES HISTORY INSTALL PORTING README RUNSON TODO
+%doc BUGS CHANGES HISTORY INSTALL PORTING README TODO
 %doc TROUBLESHOOTING UPGRADE sample.sudoers
 
 
 %changelog
+* Sat Aug 18 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.6.9p4
+- 1.6.9p4
+- drop P0, no longer required
+- fix urls
+- use serverbuild to get -fstack-protector-all
+
 * Thu Feb 01 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.6.8p12
 - add the tty_tickets open as a default (authenticate per-tty)
 - remove the urpmi aliases
