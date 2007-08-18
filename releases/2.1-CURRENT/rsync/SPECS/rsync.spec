@@ -26,6 +26,7 @@ Source4:	http://rsync.samba.org/ftp/rsync/%{name}-%{version}.tar.gz.asc
 Source5:	rsync.run
 Source6:	rsync-log.run
 Source7:	07_rsync.afterboot
+Patch0:		rsync-2.6.9-suse-CVE-2007-4091.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	popt-devel
@@ -57,6 +58,7 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
+%patch0 -p1 -b .cve-2007-4091
 
 
 %build
@@ -133,6 +135,9 @@ popd
 
 
 %changelog
+* Sat Aug 18 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.9
+- P0: security fix for CVE-2007-4091
+
 * Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.9
 - 2.6.9
 
