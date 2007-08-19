@@ -9,11 +9,15 @@
 
 %define revision	$Rev$
 %define name		file
-%define version		4.20
+%define version		4.21
 %define release		%_revrel
 
 %define major		1
 %define libname		%mklibname magic %{major}
+%define devname		%mklibname magic -d
+%define odevname	%mklibname magic -d 1
+%define staticdevname	%mklibname magic -d -s
+%define ostaticdevname	%mklibname magic -d -s 1
 
 Summary:	A utility for determining file types
 Name:		%{name}
@@ -21,11 +25,8 @@ Version:	%{version}
 Release:	%{release}
 License:	BSD 
 Group:		File Tools
-URL:		ftp://ftp.astron.com/pub/file/
-Source0:	ftp://ftp.astron.com/pub/file/%{name}-%{version}.tar.gz
-Source1:	magic.mime
-Patch0:		file-4.20-CVE-2007-2026.patch
-Patch1:		file-4.20-CVE-2007-2799.patch
+URL:		http://www.darwinsys.com/file/
+Source0:	ftp://ftp.fu-berlin.de/unix/tools/file/%{name}-%{version}.tar.gz
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl
@@ -45,6 +46,7 @@ different graphics formats.
 %package -n %{libname}
 Summary:	Shared library for handling magic files
 Group:		System/Libraries
+Provides:	libmagic = %{version}-%{release}
 
 %description -n %{libname}
 The file command is used to identify a particular file according to the
@@ -56,14 +58,14 @@ Libmagic is a library for handlig the so called magic files the 'file'
 command is based on.
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:	Development files to build applications that handle magic files
 Group:		Development/C
 Requires:	%{libname} = %{version}
-Provides:	libmagic-devel = %{version}-%{release}
 Provides:	%{name}-devel = %{version}-%{release}
+Obsoletes:	%{odevname}
 
-%description -n %{libname}-devel
+%description -n %{devname}
 The file command is used to identify a particular file according to the
 type of data contained by the file.  File can identify many different
 file types, including ELF binaries, system libraries, RPM packages, and
@@ -73,12 +75,14 @@ Libmagic is a library for handlig the so called magic files the 'file'
 command is based on. 
 
 
-%package -n %{libname}-static-devel
+%package -n %{staticdevname}
 Summary:	Static library to build applications that handle magic files
 Group:		Development/C
-Requires:	%{libname}-devel = %{version}
+Requires:	%{devname} = %{version}
+Provides:	%{name}-static-devel = %{version}-%{release}
+Obsoletes:	%{ostaticdevname}
 
-%description -n %{libname}-static-devel
+%description -n %{staticdevname}
 The file command is used to identify a particular file according to the
 type of data contained by the file.  File can identify many different
 file types, including ELF binaries, system libraries, RPM packages, and
@@ -98,13 +102,10 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
-%patch0 -p1 -b .cve-2007-2026
-%patch1 -p1 -b .cve-2007-2799
 
 
 %build
-CFLAGS="%{optflags} -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE"
-
+CFLAGS="%{optflags} -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE" \
 %configure2_5x \
     --datadir=%{_datadir}/misc
 %make
@@ -114,8 +115,8 @@ CFLAGS="%{optflags} -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE"
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
-cat %{_sourcedir}/magic.mime > %{buildroot}%{_datadir}/misc/magic.mime
-ln -sf %{name}/magic %{buildroot}%{_datadir}/misc/magic
+ln -sf file/magic.mime %{buildroot}%{_datadir}/misc/magic.mime
+ln -sf file/magic %{buildroot}%{_datadir}/misc/magic
 
 install -m 0644 src/file.h %{buildroot}%{_includedir}/ 
 
@@ -139,7 +140,7 @@ install -m 0644 src/file.h %{buildroot}%{_includedir}/
 %defattr(-,root,root)
 %{_libdir}/*.so.*
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 %{_libdir}/*.so
 %{_libdir}/*.la
@@ -147,7 +148,7 @@ install -m 0644 src/file.h %{buildroot}%{_includedir}/
 %{_includedir}/magic.h
 %{_mandir}/man3/libmagic.3*
 
-%files -n %{libname}-static-devel
+%files -n %{staticdevname}
 %defattr(-,root,root)
 %{_libdir}/*.a
 
@@ -157,6 +158,11 @@ install -m 0644 src/file.h %{buildroot}%{_includedir}/
 
 
 %changelog
+* Sat Aug 18 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.21
+- 4.21
+- use the included magic.mime instead of our own
+- drop P0, P1; merged upstream
+
 * Wed Jul 18 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.20
 - P0: security fix for CVE-2007-2026
 - P1: security fix for CVE-2007-2799
