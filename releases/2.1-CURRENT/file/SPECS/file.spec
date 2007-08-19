@@ -162,6 +162,8 @@ install -m 0644 src/file.h %{buildroot}%{_includedir}/
 - 4.21
 - use the included magic.mime instead of our own
 - drop P0, P1; merged upstream
+- implement devel naming policy
+- implement library provides policy
 
 * Wed Jul 18 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.20
 - P0: security fix for CVE-2007-2026
