@@ -5,9 +5,9 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-# $Id: less.spec 6381 2006-12-08 21:32:53Z vdanen $
+# $Id$
 
-%define revision	$Rev: 6382 $
+%define revision	$Rev$
 %define name		psacct
 %define version		6.4
 %define release		%_revrel
