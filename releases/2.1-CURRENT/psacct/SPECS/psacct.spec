@@ -21,6 +21,7 @@ Group:		Monitoring
 URL:		http://savannah.gnu.org/projects/acct/
 Source:		http://www.physik3.uni-rostock.de/tim/kernel/utils/acct/acct-%{version}-pre1.tar.gz
 Source1:	psacct.logrotate
+Source2:	psacct-avx.init
 Patch0:		psacct-6.3.2-mdv-info.patch
 Patch1:		psacct-6.3.2-mdv-biarch-utmp.patch
 
