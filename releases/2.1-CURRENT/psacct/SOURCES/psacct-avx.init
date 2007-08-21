@@ -28,7 +28,7 @@ case "${1}" in
         fi
         ;;
  stop)
-        ebegin "Disabling process accountingkudzu"
+        ebegin "Disabling process accounting"
         /sbin/accton off >/dev/null 2>&1
         rm -f /var/lock/subsys/psacct
         eend $?
