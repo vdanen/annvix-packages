@@ -14,6 +14,8 @@
 
 %define major		2
 %define libname 	%mklibname %{name} %{major}
+%define devname		%mklibname %{name} -d
+%define odevname	%mklibname %{name} 2 -d
 
 Summary:	Thread-safe hash library
 Name:		%{name}
@@ -38,6 +40,7 @@ following RFC 2104.
 %package -n %{libname}
 Summary:	Thread-safe hash library
 Group:		System/Libraries
+Provides:	lib%{name} = %{version}-%{release}
 
 %description -n	%{libname}
 Mhash is a thread-safe hash library, implemented in C, and provides a
@@ -48,14 +51,14 @@ The HMAC support implements the basics for message authentication,
 following RFC 2104.
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:	Header files and libraries for developing apps which will use mhash
 Group:		Development/C
 Requires:	%{libname} = %{version}
-Provides:	libmhash-devel = %{version}
-Provides:	mhash-devel = %{version}
+Provides:	%{name}-devel = %{version}-%{release}
+Obsoletes:	%{odevname}
 
-%description -n	%{libname}-devel
+%description -n	%{devname}
 The mhash-devel package contains the header files and libraries needed
 to develop programs that use the mhash library.
 
@@ -92,6 +95,7 @@ make check
 install -m 0644 include/*.h %{buildroot}%{_includedir}/
 install -m 0644 include/mutils/*.h %{buildroot}%{_includedir}/mutils/
 
+
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
 
@@ -104,7 +108,7 @@ install -m 0644 include/mutils/*.h %{buildroot}%{_includedir}/mutils/
 %defattr(-,root,root)
 %{_libdir}/*.so.%{major}*
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-, root, root)
 %{_mandir}/man3/*
 %{_libdir}/*.a
@@ -118,7 +122,12 @@ install -m 0644 include/mutils/*.h %{buildroot}%{_includedir}/mutils/
 %defattr(-, root, root)
 %doc AUTHORS COPYING INSTALL ChangeLog NEWS README TODO doc/*.txt doc/*.c doc/skid2* 
 
+
 %changelog
+* Tue Aug 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.9.7.1
+- implement devel naming policy
+- implement library provides policy
+
 * Fri Jul 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.9.7.1
 - 0.9.7.1
 - spec cleanups
