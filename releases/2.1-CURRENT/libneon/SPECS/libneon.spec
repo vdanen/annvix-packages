@@ -14,6 +14,10 @@
 
 %define	major		0.24
 %define libname		%mklibname neon %{major}
+%define devname		%mklibname neon -d
+%define odevname	%mklibname neon 0.24 -d
+%define staticdevname	%mklibname neon -d -s
+%define ostaticdevname	%mklibname neon -d -s 0.24
 
 Summary: 	An HTTP and WebDAV client library, with a C interface
 Name: 		%{name}
@@ -29,17 +33,13 @@ Patch1:		neon-0.24.7-gssapi.patch
 Patch2:		neon-0.24.7-min.patch
 Patch3:		neon-0.24.7-avx-no_wildcard_match.patch
 
-Buildroot: 	%{_buildroot}/%{name}-%{version}
+BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildRequires:	openssl-devel >= 0.9.7
 BuildRequires:	libxml2-devel
 BuildRequires:	libxmlrpc-devel
 BuildRequires:	pkgconfig
 BuildRequires:	multiarch-utils >= 1.0.3
 BuildConflicts:	krb5-devel
-
-Requires:	openssl >= 0.9.7
-Provides:	libneon
-Provides:	neon
 
 %description
 neon is an HTTP and WebDAV client library for Unix systems, 
@@ -48,11 +48,13 @@ HTTP/1.1 and WebDAV  methods, and a low-level interface to
 HTTP request/response handling, allowing new methods to be 
 easily implemented.
 
+
 %package -n %{libname}
 Summary:	An HTTP and WebDAV client library, with a C interface
 Group:		System/Libraries
-Provides:	libneon
-Provides:	neon
+Provides:	libneon = %{version}-%{release}
+Provides:	neon = %{version}-%{release}
+Requires:	openssl >= 0.9.7
 
 %description -n %{libname}
 neon is an HTTP and WebDAV client library for Unix systems, 
@@ -61,26 +63,29 @@ HTTP/1.1 and WebDAV  methods, and a low-level interface to
 HTTP request/response handling, allowing new methods to be 
 easily implemented.
 
-%package -n %{libname}-devel
+
+%package -n %{devname}
 Summary:	Headers for developing programs that will use %{name}
 Group:		Development/C++
 Requires:	%{libname} = %{version}
-Provides:	libneon-devel = %{version}
-Provides:	neon-devel = %{version}
+Provides:	libneon-devel = %{version}-%{release}
+Provides:	neon-devel = %{version}-%{release}
+Obsoletes:	%{odevname}
 
-%description -n	%{libname}-devel
+%description -n	%{devname}
 This package contains the headers that programmers will need to develop
 applications which will use %{name}.
 
 
-%package -n %{libname}-static-devel
+%package -n %{staticdevname}
 Summary:	Static %{libname} library
 Group:		Development/C++
-Requires:	%{libname}-devel = %{version}
-Provides:	libneon-static-devel = %{version}
-Provides:	neon-static-devel = %{version}
+Requires:	%{devname} = %{version}
+Provides:	libneon-static-devel = %{version}-%{release}
+Provides:	neon-static-devel = %{version}-%{release}
+Obsoletes:	%{ostaticdevname}
 
-%description -n	%{libname}-static-devel
+%description -n	%{staticdevname}
 Static %{libname} library.
 
 
@@ -138,8 +143,9 @@ rm -rf %{buildroot}%{_datadir}/doc
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
 
-%post -n %{libname}-devel -p /sbin/ldconfig
-%postun -n %{libname}-devel -p /sbin/ldconfig
+
+%post -n %{devname} -p /sbin/ldconfig
+%postun -n %{devname} -p /sbin/ldconfig
 
 
 %clean
@@ -150,7 +156,7 @@ rm -rf %{buildroot}%{_datadir}/doc
 %defattr(-,root,root,755)
 %{_libdir}/lib*.so.*
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root,755)
 %multiarch %{multiarch_bindir}/neon-config
 %{_bindir}/neon-config
@@ -161,7 +167,7 @@ rm -rf %{buildroot}%{_datadir}/doc
 %{_mandir}/man1/*
 %{_mandir}/man3/*
 
-%files -n %{libname}-static-devel
+%files -n %{staticdevname}
 %defattr(644,root,root,755)
 %{_libdir}/lib*.a
 
@@ -172,6 +178,10 @@ rm -rf %{buildroot}%{_datadir}/doc
 
 
 %changelog
+* Tue Aug 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.24.7
+- implement devel naming policy
+- implement library provides policy
+
 * Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.24.7
 - build against new libxml2 
 
