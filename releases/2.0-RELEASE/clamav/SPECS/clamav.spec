@@ -9,10 +9,10 @@
 
 %define revision	$Rev$
 %define name		clamav
-%define version		0.90.3
+%define version		0.91.2
 %define release		%_revrel
 
-%define	major		1
+%define	major		2
 %define libname		%mklibname %{name} %{major}
 
 Summary:	An anti-virus utility for Unix
@@ -22,13 +22,13 @@ Release:	%{release}
 License:	GPL
 Group:		File Tools
 URL:		http://clamav.sourceforge.net/
-Source0:	http://www.clamav.net/%{name}-%{version}.tar.gz
-Source1:	http://www.clamav.net/%{name}-%{version}.tar.gz.sig
+Source0:	http://downloads.sourceforge.net/clamav/%{name}-%{version}.tar.gz
+Source1:	http://downloads.sourceforge.net/clamav/%{name}-%{version}.tar.gz.sig
 Source4:	clamd.run
 Source5:	clamd-log.run
 Source6:	freshclam.run
 Source7:	freshclam-log.run
-Patch0:		clamav-0.90.2-avx-config.patch
+Patch0:		clamav-0.91.1-avx-config.patch
 Patch1:		clamav-0.90.2-avx-stderr.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -283,6 +283,11 @@ done
 
       
 %changelog
+* Fri Aug 31 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.91.2
+- 0.91.2: fixes for CVE-2007-3725, CVE-2007-4510, CVE-2007-4560
+- merge updated P0 from 2.1-CURRENT branch
+- major is now 2
+
 * Mon Jun 04 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.90.3
 - 0.90.3: fixes for CVE-2007-2650 and some other security-related issues
 
