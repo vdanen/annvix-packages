@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		clamav
-%define version		0.91.1
+%define version		0.91.2
 %define release		%_revrel
 
 %define	major		2
@@ -24,8 +24,8 @@ Release:	%{release}
 License:	GPL
 Group:		File Tools
 URL:		http://clamav.sourceforge.net/
-Source0:	http://www.clamav.net/%{name}-%{version}.tar.gz
-Source1:	http://www.clamav.net/%{name}-%{version}.tar.gz.sig
+Source0:	http://downloads.sourceforge.net/clamav/%{name}-%{version}.tar.gz
+Source1:	http://downloads.sourceforge.net/clamav/%{name}-%{version}.tar.gz.sig
 Source4:	clamd.run
 Source5:	clamd-log.run
 Source6:	freshclam.run
@@ -285,6 +285,10 @@ done
 
       
 %changelog
+* Fri Aug 31 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.91.2
+- 0.91.2: fixes CVE-2007-4510, CVE-2007-4560
+- fixed source urls
+
 * Tue Jul 31 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.91.1
 - update major
 - also patch freshclam.conf (P0)
