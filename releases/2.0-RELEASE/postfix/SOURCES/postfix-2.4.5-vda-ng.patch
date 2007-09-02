@@ -1,6 +1,6 @@
-diff -u --new-file --recursive postfix-2.4.3-orig/README_FILES/VDA_README postfix-2.4.3/README_FILES/VDA_README
---- postfix-2.4.3-orig/README_FILES/VDA_README	1969-12-31 21:00:00.000000000 -0300
-+++ postfix-2.4.3/README_FILES/VDA_README	2007-06-06 11:40:58.000000000 -0300
+diff -u --new-file --recursive postfix-2.4.5-orig/README_FILES/VDA_README postfix-2.4.5/README_FILES/VDA_README
+--- postfix-2.4.5-orig/README_FILES/VDA_README	1969-12-31 21:00:00.000000000 -0300
++++ postfix-2.4.5/README_FILES/VDA_README	2007-08-01 20:10:07.000000000 -0300
 @@ -0,0 +1,97 @@
 +Installation:
 +
@@ -99,10 +99,10 @@ diff -u --new-file --recursive postfix-2.4.3-orig/README_FILES/VDA_README postfi
 +user2@domain.com.br # M2007022617 /^subject:.*Viagra.*/m REJECT /^subject:.*trash.*/m MOVE SpamFolder /^subject:.*pharmacy.*/m DISCARD
 +
 +More informations can be found at http://vda.sourceforge.net
-diff -u --new-file --recursive postfix-2.4.3-orig/src/global/mail_params.h postfix-2.4.3/src/global/mail_params.h
---- postfix-2.4.3-orig/src/global/mail_params.h	2007-02-24 23:15:42.000000000 -0300
-+++ postfix-2.4.3/src/global/mail_params.h	2007-06-06 11:40:59.000000000 -0300
-@@ -2099,6 +2099,54 @@
+diff -u --new-file --recursive postfix-2.4.5-orig/src/global/mail_params.h postfix-2.4.5/src/global/mail_params.h
+--- postfix-2.4.5-orig/src/global/mail_params.h	2007-07-10 20:47:45.000000000 -0300
++++ postfix-2.4.5/src/global/mail_params.h	2007-08-01 20:10:07.000000000 -0300
+@@ -2106,6 +2106,54 @@
  #define DEF_VIRT_GID_MAPS		""
  extern char *var_virt_gid_maps;
  
@@ -157,9 +157,9 @@ diff -u --new-file --recursive postfix-2.4.3-orig/src/global/mail_params.h postf
  #define VAR_VIRT_MINUID			"virtual_minimum_uid"
  #define DEF_VIRT_MINUID			100
  extern int var_virt_minimum_uid;
-diff -u --new-file --recursive postfix-2.4.3-orig/src/util/file_limit.c postfix-2.4.3/src/util/file_limit.c
---- postfix-2.4.3-orig/src/util/file_limit.c	2003-10-22 16:48:36.000000000 -0200
-+++ postfix-2.4.3/src/util/file_limit.c	2007-06-06 11:40:59.000000000 -0300
+diff -u --new-file --recursive postfix-2.4.5-orig/src/util/file_limit.c postfix-2.4.5/src/util/file_limit.c
+--- postfix-2.4.5-orig/src/util/file_limit.c	2003-10-22 16:48:36.000000000 -0200
++++ postfix-2.4.5/src/util/file_limit.c	2007-08-01 20:10:07.000000000 -0300
 @@ -85,7 +85,11 @@
  #else
      struct rlimit rlim;
@@ -173,10 +173,10 @@ diff -u --new-file --recursive postfix-2.4.3-orig/src/util/file_limit.c postfix-
      if (setrlimit(RLIMIT_FSIZE, &rlim) < 0)
  	msg_fatal("setrlimit: %m");
  #ifdef SIGXFSZ
-diff -u --new-file --recursive postfix-2.4.3-orig/src/virtual/mailbox.c postfix-2.4.3/src/virtual/mailbox.c
---- postfix-2.4.3-orig/src/virtual/mailbox.c	2006-06-26 09:59:19.000000000 -0300
-+++ postfix-2.4.3/src/virtual/mailbox.c	2007-06-06 11:40:59.000000000 -0300
-@@ -70,6 +70,58 @@
+diff -u --new-file --recursive postfix-2.4.5-orig/src/virtual/mailbox.c postfix-2.4.5/src/virtual/mailbox.c
+--- postfix-2.4.5-orig/src/virtual/mailbox.c	2006-06-26 09:59:19.000000000 -0300
++++ postfix-2.4.5/src/virtual/mailbox.c	2007-08-01 20:10:07.000000000 -0300
+@@ -70,6 +70,60 @@
  #define YES	1
  #define NO	0
  
@@ -220,11 +220,13 @@ diff -u --new-file --recursive postfix-2.4.3-orig/src/virtual/mailbox.c postfix-
 +            }
 +        }
 +        else {
++            /* Invalid limit size (negative), or zero. Use default virtual_mailbox_limit. */
 +            set_file_limit(var_virt_mailbox_limit);
 +            status = NO;
 +        }
 +    }
 +    else {
++        /* There is no limit in the maps. Use default virtual_mailbox_limit. */
 +        set_file_limit(var_virt_mailbox_limit);
 +        status = NO;
 +    }
@@ -235,7 +237,7 @@ diff -u --new-file --recursive postfix-2.4.3-orig/src/virtual/mailbox.c postfix-
  /* deliver_mailbox_file - deliver to recipient mailbox */
  
  static int deliver_mailbox_file(LOCAL_STATE state, USER_ATTR usr_attr)
-@@ -207,62 +259,72 @@
+@@ -207,62 +261,72 @@
       * Look up the mailbox owner rights. Defer in case of trouble.
       */
      uid_res = mail_addr_find(virtual_uid_maps, state.msg_attr.user,
@@ -343,9 +345,9 @@ diff -u --new-file --recursive postfix-2.4.3-orig/src/virtual/mailbox.c postfix-
  
      /*
       * Cleanup.
-diff -u --new-file --recursive postfix-2.4.3-orig/src/virtual/maildir.c postfix-2.4.3/src/virtual/maildir.c
---- postfix-2.4.3-orig/src/virtual/maildir.c	2006-06-26 09:59:19.000000000 -0300
-+++ postfix-2.4.3/src/virtual/maildir.c	2007-06-06 11:40:59.000000000 -0300
+diff -u --new-file --recursive postfix-2.4.5-orig/src/virtual/maildir.c postfix-2.4.5/src/virtual/maildir.c
+--- postfix-2.4.5-orig/src/virtual/maildir.c	2006-06-26 09:59:19.000000000 -0300
++++ postfix-2.4.5/src/virtual/maildir.c	2007-08-01 20:10:07.000000000 -0300
 @@ -63,28 +63,406 @@
  #include <mbox_open.h>
  #include <dsn_util.h>
@@ -784,7 +786,7 @@ diff -u --new-file --recursive postfix-2.4.3-orig/src/virtual/maildir.c postfix-
      }
  
      /*
-@@ -109,17 +486,81 @@
+@@ -109,17 +486,84 @@
       * attribute to reflect the final recipient.
       */
      if (vstream_fseek(state.msg_attr.fp, state.msg_attr.offset, SEEK_SET) < 0)
@@ -819,8 +821,11 @@ diff -u --new-file --recursive postfix-2.4.3-orig/src/virtual/maildir.c postfix-
 +    }
 +
 +    /*
-+     * Find the Maildir limit in the maps. Fall back to virtual_mailbox_limit in
-+     * case limit is smaller than message_size_limit.
++     * Look up the virtual maildir limit size for this user. Fall back to virtual_mailbox_limit in
++     * case lookup failed. If virtual maildir limit size is 0 or less, fall back to virtual_mailbox_limit.
++     * If it's more than 0 (positive int), check if the value is smaller than the maximum message size,
++     * if it is and the virtual maildir limit can't be overridden, fall back to virtual_mailbox_limit and
++     * warn the user, else use the value directly as the maildir limit.
 +     */
 +    if (*var_virt_mailbox_limit_maps != 0 && (limit_res = mail_addr_find(virtual_mailbox_limit_maps, state.msg_attr.user, (char **) NULL)) != 0) {
 +        n = atol(limit_res);
@@ -843,13 +848,13 @@ diff -u --new-file --recursive postfix-2.4.3-orig/src/virtual/maildir.c postfix-
 +            }
 +        }
 +        else {
-+            /* Invalid limit size (negative), or zero. Set n to 0. */
-+            n = 0;
++            /* Invalid limit size (negative), or zero. Use default virtual_mailbox_limit. */
++            n = var_virt_mailbox_limit;
 +        }
 +    }
 +    else {
-+        /* There is no limit in the maps. Set n to 0. */
-+        n = 0;
++        /* There is no limit in the maps. Use default virtual_mailbox_limit. */
++        n = var_virt_mailbox_limit;
 +    }
 +
 +    /*
@@ -872,7 +877,7 @@ diff -u --new-file --recursive postfix-2.4.3-orig/src/virtual/maildir.c postfix-
  
      /*
       * Create and write the file as the recipient, so that file quota work.
-@@ -174,46 +615,296 @@
+@@ -174,46 +618,296 @@
       * [...]
       */
      set_eugid(usr_attr.uid, usr_attr.gid);
@@ -1206,7 +1211,7 @@ diff -u --new-file --recursive postfix-2.4.3-orig/src/virtual/maildir.c postfix-
      }
      set_eugid(var_owner_uid, var_owner_gid);
  
-@@ -223,31 +914,64 @@
+@@ -223,31 +917,64 @@
       * location possibly under user control.
       */
      if (mail_copy_status & MAIL_COPY_STAT_CORRUPT) {
@@ -1290,9 +1295,9 @@ diff -u --new-file --recursive postfix-2.4.3-orig/src/virtual/maildir.c postfix-
 +
      return (deliver_status);
  }
-diff -u --new-file --recursive postfix-2.4.3-orig/src/virtual/virtual.c postfix-2.4.3/src/virtual/virtual.c
---- postfix-2.4.3-orig/src/virtual/virtual.c	2007-03-26 21:07:43.000000000 -0300
-+++ postfix-2.4.3/src/virtual/virtual.c	2007-06-06 11:40:59.000000000 -0300
+diff -u --new-file --recursive postfix-2.4.5-orig/src/virtual/virtual.c postfix-2.4.5/src/virtual/virtual.c
+--- postfix-2.4.5-orig/src/virtual/virtual.c	2007-03-26 21:07:43.000000000 -0300
++++ postfix-2.4.5/src/virtual/virtual.c	2007-08-01 20:10:07.000000000 -0300
 @@ -330,12 +330,28 @@
  int     var_virt_mailbox_limit;
  char   *var_mail_spool_dir;		/* XXX dependency fix */
@@ -1402,9 +1407,9 @@ diff -u --new-file --recursive postfix-2.4.3-orig/src/virtual/virtual.c postfix-
  		       MAIL_SERVER_PRIVILEGED,
  		       0);
  }
-diff -u --new-file --recursive postfix-2.4.3-orig/src/virtual/virtual.h postfix-2.4.3/src/virtual/virtual.h
---- postfix-2.4.3-orig/src/virtual/virtual.h	2006-01-07 21:59:47.000000000 -0200
-+++ postfix-2.4.3/src/virtual/virtual.h	2007-06-06 11:40:59.000000000 -0300
+diff -u --new-file --recursive postfix-2.4.5-orig/src/virtual/virtual.h postfix-2.4.5/src/virtual/virtual.h
+--- postfix-2.4.5-orig/src/virtual/virtual.h	2006-01-07 21:59:47.000000000 -0200
++++ postfix-2.4.5/src/virtual/virtual.h	2007-08-01 20:10:07.000000000 -0300
 @@ -34,6 +34,9 @@
  extern MAPS *virtual_mailbox_maps;
  extern MAPS *virtual_uid_maps;

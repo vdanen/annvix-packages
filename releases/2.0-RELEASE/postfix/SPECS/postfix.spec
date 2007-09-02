@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		postfix
-%define version		2.4.3
+%define version		2.4.5
 %define release 	%_revrel
 %define epoch		1
 
@@ -72,7 +72,7 @@ Patch3: 	postfix-2.4.3-fdr-hostname-fqdn.patch
 Patch4:		postfix-2.1.1-fdr-pie.patch
 Patch5:		postfix-2.1.1-fdr-obsolete.patch
 Patch8:		postfix-2.3.4-avx-warnsetsid.patch
-Patch9:	        postfix-2.4.3-vda-ng.patch
+Patch9:	        postfix-2.4.5-vda-ng.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	db4-devel
@@ -456,6 +456,9 @@ done
 
 
 %changelog
+* Sun Sep 2 2007 Ying-Hung Chen <ying-at-yingternet.com> 2.4.5
+- 2.4.5
+
 * Wed Jun 20 2007 Ying-Hung Chen <ying-at-yingternet.com> 2.4.3
 - 2.4.3
 - Updated P9
