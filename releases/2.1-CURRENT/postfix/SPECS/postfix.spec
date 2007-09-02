@@ -43,7 +43,7 @@
 %define maildrop_gid	79
 %define queue_directory	%{_var}/spool/postfix
 
-%define post_install_parameters	daemon_directory=%{_libdir}/postfix command_directory=%{_sbindir} queue_directory=%{queue_directory} sendmail_path=%{_sbindir}/sendmail newaliases_path=%{_bindir}/newaliases mailq_path=%{_bindir}/mailq mail_owner=postfix setgid_group=%{maildrop_group} manpage_directory=%{_mandir} readme_directory=%{_docdir}/%name-%version/README_FILES html_directory=%{_docdir}/%name-%version/html
+%define post_install_parameters	daemon_directory=%{_libdir}/postfix command_directory=%{_sbindir} queue_directory=%{queue_directory} sendmail_path=%{_sbindir}/sendmail newaliases_path=%{_bindir}/newaliases mailq_path=%{_bindir}/mailq mail_owner=postfix setgid_group=%{maildrop_group} manpage_directory=%{_mandir} readme_directory=%{_docdir}/%{name}/README_FILES html_directory=%{_docdir}/%{name}/html
 
 Summary:	Postfix Mail Transport Agent
 Name:		%{name}
@@ -144,7 +144,7 @@ This package contains the documentation for %{name}.
 mkdir -p conf/dist
 mv conf/main.cf conf/dist
 cp %{_sourcedir}/postfix-main.cf conf/main.cf
-perl -pi -e 's|@docdir@|%{_docdir}/%{name}-%{version}|g' conf/main.cf
+perl -pi -e 's|@docdir@|%{_docdir}/%{name}|g' conf/main.cf
 # hack for 64bit
 if [ "%{_lib}" != "lib" ]; then
     perl -pi -e 's|/lib/|/%{_lib}/|g' conf/main.cf
@@ -286,7 +286,7 @@ install -m 0740 %{_sourcedir}/postfix.run %{buildroot}%{_srvdir}/postfix/run
 rm -f %{buildroot}%{_sysconfdir}/postfix/LICENSE
 
 # fix docs
-mv %{buildroot}%{_docdir}/%{name}-%{version} %{buildroot}%{_docdir}/%{name}-doc
+mv %{buildroot}%{_docdir}/%{name} %{buildroot}%{_docdir}/%{name}-doc
 
 
 %pre
@@ -456,15 +456,24 @@ done
 
 
 %changelog
+* Sun Sep 2 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.4.5
+- put back missing changelog entries
+- revert the doc changes; they were proper before
+
 * Sun Sep 2 2007 Ying-Hung Chen <ying-at-yingternet.com> 2.4.5
 - 2.4.5
 - doc package Work around for 2.1-CURRENT
+
+* Tue Jul 24 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.4.3
+- rebuild against new mysql 
+- fix documentation
 
 * Wed Jun 20 2007 Ying-Hung Chen <ying-at-yingternet.com> 2.4.3
 - 2.4.3
 - Updated P9
 - Move to vda-ng patch, use virtual_maildir_extended instead of 
   virtual_create_maildirsize 
+- Build with postgresql by default
 
 * Mon Jun 18 2007 Ying-Hung Chen <ying-at-yingternet.com> 2.4.3
 - 2.4.3
