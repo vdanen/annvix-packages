@@ -9,11 +9,13 @@
 
 %define revision	$Rev$
 %define name		cups
-%define version		1.2.10
+%define version		1.3.0 
 %define release		%_revrel
 
 %define major		2
 %define libname		%mklibname %{name} %{major}
+%define devname		%mklibname %{name} -d
+%define odevname	%mklibname %{name} 2 -d
 
 Summary:	Common Unix Printing System
 Name:		%{name}
@@ -49,7 +51,7 @@ The Common Unix Printing System provides a portable printing layer for
 UNIX(TM) operating systems. It contains the command line utilities for
 printing and administration (lpr, lpq, lprm, lpadmin, lpc, ...), man
 pages, locales, and a sample configuration file for daemon-less CUPS
-clients (/etc/cups/client.conf).
+clients (%{_sysconfdir}/cups/client.conf).
 
 
 %package -n %{libname}
@@ -66,18 +68,18 @@ which contains common functions used by both the CUPS daemon and all
 CUPS frontends (lpr-cups, xpp, qtcups, kups, ...).
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:	Common Unix Printing System - Development environment "libcups"
 License:	LGPL
 Group:		Development/C
 Requires:	%{libname} >= %{version}
-Requires:	cups-common = %{version}
+Requires:	cups = %{version}
 Requires:	openssl
 Requires:	openssl-devel
-Provides:	libcups-devel = %{version}
-Provides:	cups-devel = %{version}
+Provides:	%{name}-devel = %{version}-%{release}
+Obsoletes:	%{odevname}
 
-%description -n %{libname}-devel
+%description -n %{devname}
 The Common Unix Printing System provides a portable printing layer for
 UNIX(TM) operating systems. This is the development package for
 creating additional printer drivers, printing software, and other CUPS
@@ -93,7 +95,7 @@ This package contains the documentation for %{name}.
 
 
 %prep
-%setup -q -n %{name}-%{version}
+%setup -q
 
 # fix the makefiles so they don't set file ownerships
 perl -p -i -e "s/ -o \\$.CUPS_USER.//" scheduler/Makefile
@@ -142,7 +144,7 @@ make install BUILDROOT=%{buildroot} \
 
 mkdir -p %{buildroot}%{_sysconfdir}/cups/ssl
 mkdir -p %{buildroot}%{_prefix}/lib/cups/driver
-mkdir -p %{buildroot}/var/run/cups/certs
+mkdir -p %{buildroot}%{_var}/run/cups/certs
 
 # install PPDs
 mkdir -p %{buildroot}%{_datadir}/cups/model
@@ -186,7 +188,7 @@ chmod 0644 %{buildroot}%{_sysconfdir}/pam.d/cups
 
 %post
 /sbin/ldconfig
-chgrp -R sys /etc/cups /var/*/cups
+chgrp -R sys %{_sysconfdir}/cups %{_var}/*/cups
 %_post_srv cupsd
 
 
@@ -218,6 +220,7 @@ chgrp -R sys /etc/cups /var/*/cups
 %config(noreplace) %attr(-,root,sys) %{_sysconfdir}/cups/ppd
 %config(noreplace) %attr(-,root,sys) %{_sysconfdir}/cups/ssl
 %config(noreplace) %{_sysconfdir}/pam.d/cups
+%config(noreplace) %{_sysconfdir}/cups/snmp.conf
 %{_bindir}/*
 %attr(6755,root,sys) %{_bindir}/lppasswd
 %exclude %{_bindir}/cups-config
@@ -237,7 +240,7 @@ chgrp -R sys /etc/cups /var/*/cups
 %dir %attr(0710,lp,sys) %{_var}/spool/cups
 %dir %attr(1700,lp,sys) %{_var}/spool/cups/tmp
 %dir %attr(0775,lp,sys) %{_var}/cache/cups
-%attr(0511,lp,sys) /var/run/cups/certs
+%attr(0511,lp,sys) %{_var}/run/cups/certs
 %dir %attr(0750,root,admin) %{_srvdir}/cupsd
 %dir %attr(0750,root,admin) %{_srvdir}/cupsd/log
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/cupsd/run
@@ -248,7 +251,7 @@ chgrp -R sys /etc/cups /var/*/cups
 %{_libdir}/libcups.so.*
 %{_libdir}/libcupsimage.so.*
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 %{_includedir}/cups/*
 %multiarch %{multiarch_includedir}/cups/*
@@ -262,6 +265,13 @@ chgrp -R sys /etc/cups /var/*/cups
 
 
 %changelog
+* Sun Sep 2 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.3.0
+- 1.3.0; fixes CVE-2007-3387
+- add some missing macros for /etc and /var
+- implement devel naming policy
+- implement library provides policy
+- fix requires
+
 * Wed Apr 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2.10
 - 1.2.10
 - rebuild against new libpng
