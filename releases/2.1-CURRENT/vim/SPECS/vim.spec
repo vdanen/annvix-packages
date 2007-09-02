@@ -270,10 +270,6 @@ for i in %{buildroot}/usr/share/man/man1/*.1; do
     perl -p -i -e "s|%{buildroot}||" $i
 done
 
-# prevent including twice the doc
-rm -fr %{buildroot}/usr/share/vim/doc
-ln -sf ../../../%{_defaultdocdir}/%{name}-common/doc %{buildroot}/usr/share/vim/doc
-
 %kill_lang %{name}
 
 # symlink locales in right place so that %find_land put needed %lang:
@@ -391,7 +387,6 @@ update-alternatives --remove vim /usr/bin/vim-enhanced
 %doc README*.txt runtime/termcap
 %doc --parents annvix/README*
 %doc doc
-%{_datadir}/vim/doc
 
 
 %changelog
