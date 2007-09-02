@@ -26,6 +26,7 @@ Source0:	ftp://ftp.easysw.com/pub/cups/%{version}/%{name}-%{version}-source.tar.
 Source1:	cupsd.run
 Source2:	cupsd-log.run
 Source3:	cups.pam
+Patch0:		cups-CVE-2007-3387.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	openssl-devel
@@ -94,6 +95,7 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q -n %{name}-%{version}
+%patch0 -p1 -b .cve-2007-3387
 
 # fix the makefiles so they don't set file ownerships
 perl -p -i -e "s/ -o \\$.CUPS_USER.//" scheduler/Makefile
@@ -261,6 +263,9 @@ chgrp -R sys /etc/cups /var/*/cups
 
 
 %changelog
+* Sun Sep 2 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2.7
+- P0: security fix for CVE-2007-3387
+
 * Fri Dec 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.7
 - 1.2.7
 - rebuild against new pam
