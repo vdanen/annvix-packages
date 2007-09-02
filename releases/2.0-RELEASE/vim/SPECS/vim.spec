@@ -48,6 +48,7 @@ Patch26:	vim-7.0-mdk-changelog-mode.patch
 Patch27:	vim-6.1-rpm42.patch
 Patch28:	vim-6.4-mdk-po-mode.patch
 Patch29:	vim-7.0-mdk-po-buildfix.patch
+Patch30:	vim-7.1-CVE-2007-2953.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel
@@ -149,6 +150,7 @@ done
 %patch27 -p0
 %patch28 -p0
 %patch29 -p0
+%patch30 -p1 -b .cve-2007-2953
 
 perl -pi -e 's|SYS_VIMRC_FILE "\$VIM/vimrc"|SYS_VIMRC_FILE "%{_sysconfdir}/vim/vimrc"|' src/os_unix.h
 # disable command echo
@@ -390,6 +392,9 @@ update-alternatives --remove vim /usr/bin/vim-enhanced
 
 
 %changelog
+* Sun Sep 2 2007 Vincent Danen <vdanen-at-build.annvix.org> 7.0
+- P30: security fix for CVE-2007-2953
+
 * Tue Dec 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 7.0
 - update to patchlevel 30
 
