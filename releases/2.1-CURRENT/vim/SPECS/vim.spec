@@ -16,7 +16,7 @@
 %define version		7.1
 %define release		%_revrel
 
-%define patch_level	002
+%define patch_level	87
 %define localedir	%{buildroot}%{_datadir}/locale/
 
 %define perl_version	%(rpm -q --qf '%%{epoch}:%%{version}' perl)
@@ -36,7 +36,7 @@ Source3:	vim-spec-3.0.tar.bz2
 Source4:	apparmor.vim
 # MDK patches
 Patch2:		vim-5.6a-paths.patch
-Patch3:		vim-6.4-mdk-rpm-spec-syntax.patch
+Patch3:		vim-7.1-mdv-rpm-spec-syntax.patch
 Patch8:		vim-6.0af-man-path.patch
 Patch10:	xxd-locale.patch
 Patch11:	vim-6.2-gcc31.patch
@@ -49,6 +49,7 @@ Patch26:	vim-7.0-mdk-changelog-mode.patch
 Patch27:	vim-6.1-rpm42.patch
 Patch28:	vim-6.4-mdk-po-mode.patch
 Patch29:	vim-7.0-mdk-po-buildfix.patch
+Patch30:	vim-7.0-mdv-fortify_warnings.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel
@@ -85,8 +86,8 @@ contains files which every VIM binary will need in order to run.
 Summary:	A minimal version of the VIM editor
 Group:		Editors
 Provides:	vim = %{version}
-Requires(post):	/usr/sbin/update-alternatives
-Requires(postun): /usr/sbin/update-alternatives
+Requires(post):	update-alternatives
+Requires(postun): update-alternatives
 
 %description minimal
 VIM (VIsual editor iMproved) is an updated and improved version of the vi
@@ -104,8 +105,8 @@ Requires:	vim-common >= %{version}
 Obsoletes:	vim-color
 Provides:	vim = %{version}
 Provides:	vim-color = %{version}
-Requires(post):	/usr/sbin/update-alternatives
-Requires(postun): /usr/sbin/update-alternatives
+Requires(post):	update-alternatives
+Requires(postun): update-alternatives
 
 %description enhanced
 VIM (VIsual editor iMproved) is an updated and improved version of the vi
@@ -152,6 +153,7 @@ done
 %patch27 -p0
 %patch28 -p0
 %patch29 -p0
+%patch30 -p1 -b .fortify
 
 perl -pi -e 's|SYS_VIMRC_FILE "\$VIM/vimrc"|SYS_VIMRC_FILE "%{_sysconfdir}/vim/vimrc"|' src/os_unix.h
 # disable command echo
@@ -175,9 +177,9 @@ CFLAGS="%{optflags}" CXXFLAGS="%{optflags}"  ./configure \
     --disable-gpm \
     --exec-prefix=%{_prefix}
 
-make
+%make
 mv src/vim src/vim-enhanced
-make -C src/ clean
+%make -C src/ clean
 
 # Second build: vim-minimal
 CFLAGS="%{optflags}" CXXFLAGS="%{optflags}" ./configure  \
@@ -201,9 +203,9 @@ CFLAGS="%{optflags}" CXXFLAGS="%{optflags}" ./configure  \
     --with-tlib=termcap \
     --disable-gpm
 
-make
+%make
 cp src/vim src/vim-minimal
-make -C src
+%make -C src
 
 cp -al runtime/doc doc
 # apply os_doc.diff
@@ -240,7 +242,7 @@ pushd %{buildroot}
     for i in ex vimdiff; do
         ln -sf vim-enhanced ./usr/bin/$i
     done
-    rm -f ./usr/man/man1/rvim.1.bz2
+    rm -f ./usr/man/man1/rvim.*
 popd
 
 # installing man pages
@@ -270,7 +272,7 @@ done
 
 # prevent including twice the doc
 rm -fr %{buildroot}/usr/share/vim/doc
-ln -sf ../../../%{_defaultdocdir}/%{name}-common-%{version}/doc %{buildroot}/usr/share/vim/doc
+ln -sf ../../../%{_defaultdocdir}/%{name}-common/doc %{buildroot}/usr/share/vim/doc
 
 %kill_lang %{name}
 
@@ -393,6 +395,15 @@ update-alternatives --remove vim /usr/bin/vim-enhanced
 
 
 %changelog
+* Sun Sep 2 2007 Vincent Danen <vdanen-at-build.annvix.org> 7.1
+- updated to patchlevel 87
+- fix docs
+- updated P3 to recognize %%serverbuild syntax
+- use parallel build
+- P30: fix warnings when using fortify
+- require package (update-alternatives), not files
+- NOTE: CVE-2007-2953 is already fixed here
+
 * Mon Jun 18 2007 Vincent Danen <vdanen-at-build.annvix.org> 7.1
 - include apparmor syntax
 

@@ -37,7 +37,7 @@
 +syn region specSectionMacroArea oneline matchgroup=specSectionMacro start='^%\(define\|patch\d*\|setup\|configure\|GNUconfigure\|find_lang\|makeinstall\|include\|\)\>' end='$' contains=specCommandOpts,specMacroIdentifier
  syn region specSectionMacroBracketArea oneline matchgroup=specSectionMacro start='^%{\(configure\|GNUconfigure\|find_lang\|makeinstall\)}' end='$' contains=specCommandOpts,specMacroIdentifier
 +"tip: remember do include new itens on specScriptAreaMDK's skip section
-+syn region specSectionMacroAreaMDK oneline matchgroup=specSectionMacro start='%{\|%\(_install_info\|configure\|configure2_5x\|clean_menus\|make\|makeinstall_std\|old_makeinstall\|_post_service\|_postun_groupdel\|_pre_groupadd\|_preun_service\|_remove_install_info\|update_menus\|mklibname\|mkrel\)\>' end='$' contains=specCommandOpts,specMacroIdentifier
++syn region specSectionMacroAreaMDK oneline matchgroup=specSectionMacro start='%{\|%\(_install_info\|configure\|configure2_5x\|clean_menus\|make\|makeinstall_std\|old_makeinstall\|_post_service\|_postun_groupdel\|_pre_groupadd\|_preun_service\|_remove_install_info\|update_menus\|mklibname\|mkrel\|serverbuild\)\>' end='$' contains=specCommandOpts,specMacroIdentifier
  
  "%% Files Section %%
  "TODO %config valid parameters: missingok\|noreplace
