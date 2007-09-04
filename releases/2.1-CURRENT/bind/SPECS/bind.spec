@@ -9,10 +9,10 @@
 
 %define revision	$Rev$
 %define name		bind
-%define version		9.3.4
+%define version		9.4.1
 %define release		%_revrel
 
-%define their_version	9.3.4
+%define their_version	9.4.1-P1
 
 Summary:	A DNS (Domain Name System) server
 Name:		%{name}
@@ -35,9 +35,11 @@ Source10:	named.run
 Source11:	named.finish
 Source12:	named-log.run
 #Source13:       rndc.key
-Patch1:		bind-9.3.2b2-fallback-to-second-server.diff
+#Patch1:        bind-9.3.2b2-fallback-to-second-server.diff
+Patch1:		bind-9.4.1-fallback-to-second-server.diff
 Patch2:		bind-9.3.0-mdk-libresolv.patch
-Patch4:		bind-9.2.3-bsdcompat.patch
+#Patch4:        bind-9.2.3-bsdcompat.patch
+Patch4:		bind-9.4.1-bsdcompat.patch
 Patch5:		bind-9.3.0beta2-libtool.diff
 Patch6:		libbind-9.3.1rc1-fix_h_errno.patch
 
@@ -315,6 +317,10 @@ fi
 
 
 %changelog
+* Tue Sep 04 2007 Ying-Hung Chen <ying-at-yingternet.com> 9.4.1
+- 9.4.1
+- Updated Patch1, Patch4
+
 * Tue Sep 04 2007 Ying-Hung Chen <ying-at-yingternet.com> 9.3.4
 - Update rndc.key, rndc.conf to ensure named is runnable by default
 - Fix named.finish script to make sure named will be restart
