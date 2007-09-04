@@ -34,7 +34,7 @@ Source9:	ftp://FTP.RS.INTERNIC.NET/domain/named.root
 Source10:	named.run
 Source11:	named.finish
 Source12:	named-log.run
-Source13:       rndc.key
+#Source13:       rndc.key
 Patch1:		bind-9.3.2b2-fallback-to-second-server.diff
 Patch2:		bind-9.3.0-mdk-libresolv.patch
 Patch4:		bind-9.2.3-bsdcompat.patch
@@ -173,8 +173,8 @@ install -d %{buildroot}%{_localstatedir}/named/var/named/{master,slaves,reverse}
 
 install -m 0644 caching-nameserver/named.conf %{buildroot}%{_localstatedir}/named/etc/named.conf
 install -m 0644 caching-nameserver/rndc.conf %{buildroot}%{_localstatedir}/named/etc/rndc.conf
-#install -m 0644 caching-nameserver/rndc.key %{buildroot}%{_localstatedir}/named/etc/rndc.key
-install -m 0644 %{_sourcedir}/rndc.key %{buildroot}%{_localstatedir}/named/etc/rndc.key
+install -m 0644 caching-nameserver/rndc.key %{buildroot}%{_localstatedir}/named/etc/rndc.key
+#install -m 0644 %{_sourcedir}/rndc.key %{buildroot}%{_localstatedir}/named/etc/rndc.key
 install -m 0644 caching-nameserver/logging.conf %{buildroot}%{_localstatedir}/named/etc/logging.conf
 install -m 0644 caching-nameserver/trusted_networks_acl.conf %{buildroot}%{_localstatedir}/named/etc/trusted_networks_acl.conf
 install -m 0644 caching-nameserver/bogon_acl.conf %{buildroot}%{_localstatedir}/named/etc/bogon_acl.conf
@@ -217,10 +217,10 @@ cp -f `find . -type f |grep html |sed -e 's#\/%{name}-%{version}##'|grep -v cont
 %_pre_useradd named %{_localstatedir}/named /bin/false 80
 
 %post
-if grep -q "_MY_KEY_" %{_localstatedir}/named/etc/rndc.conf %{_localstatedir}/named/etc/rndc.key; then
-    MYKEY="%{_sbindir}/dns-keygen"
-    perl -pi -e "s|_MY_KEY_|$MYKEY|g" %{_localstatedir}/named/etc/rndc.conf %{_localstatedir}/named/etc/rndc.key
-fi
+#if grep -q "_MY_KEY_" %{_localstatedir}/named/etc/rndc.conf %{_localstatedir}/named/etc/rndc.key; then
+#    MYKEY="%{_sbindir}/dns-keygen"
+#    perl -pi -e "s|_MY_KEY_|$MYKEY|g" %{_localstatedir}/named/etc/rndc.conf %{_localstatedir}/named/etc/rndc.key
+#fi
 
 %_post_srv named
 
@@ -315,6 +315,11 @@ fi
 
 
 %changelog
+* Tue Sep 04 2007 Ying-Hung Chen <ying-at-yingternet.com> 9.3.4
+- Update rndc.key, rndc.conf to ensure named is runnable by default
+- Fix named.finish script to make sure named will be restart
+  correctly after reboot
+
 * Thu Feb 08 2007 Ying-Hung Chen <ying-at-yingternet.com> 9.3.4
 - empty /etc/rndc.key file to make named runnable by default
 
