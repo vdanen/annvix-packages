@@ -4,4 +4,4 @@ PATH="/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
 # this is run before supervise kills named
 
 /usr/sbin/rndc -c /var/lib/named/etc/rndc.conf stop 2>&1
-touch down
+#touch down
