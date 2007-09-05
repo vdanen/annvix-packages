@@ -25,7 +25,7 @@ URL:		http://www.gnu.org/software/tar/tar.html
 Source0:	ftp://ftp.gnu.org/pub/gnu/tar/tar-%{version}.tar.bz2
 Source1:	ftp://ftp.gnu.org/pub/gnu/tar/tar-%{version}.tar.bz2.sig
 Source2:	tar-help2man
-Patch0:		tar-1.14-mdk-doubleslash.patch
+Patch0:		tar-1.15.1-alt-CVE-2007-4131.patch
 Patch1:		tar-1.16-CVE-2006-6097.patch
 
 Buildroot:	%{_buildroot}/%{name}-%{version}
@@ -55,7 +55,7 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
-%patch0 -p1 -b .doubleslash
+%patch0 -p1 -b .cve-2007-4131
 %patch1 -p1 -b .cve-2006-6097
 
 cp %{_sourcedir}/tar-help2man ./help2man
@@ -122,6 +122,9 @@ mv %{buildroot}%{_libexecdir}/rmt %{buildroot}/sbin/%{rmtrealname}
 
 
 %changelog
+* Wed Sep 5 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.16
+- replace P0 with a better patch that fixes CVE-2007-4131
+
 * Mon Dec 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.16
 - 1.16
 - put make check in %%check
