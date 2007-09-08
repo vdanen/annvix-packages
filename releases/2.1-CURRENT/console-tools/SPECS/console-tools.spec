@@ -19,6 +19,10 @@
 %define major		0
 %define fname		console
 %define libname 	%mklibname %{fname} %{major}
+%define devname		%mklibname %{fname} -d
+%define odevname	%mklibname %{fname} 0 -d
+%define staticdevname	%mklibname %{fname} -d -s
+%define ostaticdevname	%mklibname %{fname} 0 -d -s
 
 %define kbddir		%{_prefix}/lib/kbd
 
@@ -109,27 +113,29 @@ Provides:	lib%{fname} = %{version}-%{release}
 This package contains libraries for console tools
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:	Include and .so files for console tools
 Group:		Development/Other
 Requires:	%{libname} = %{version}-%{release}
-Obsoletes:	%{name}-devel
 Provides:	%{name}-devel = %{version}-%{release}
 Provides:	lib%{fname}-devel = %{version}-%{release}
+Obsoletes:	%{name}-devel
+Obsoletes:	%{odevname}
 
-%description -n %{libname}-devel
+%description -n %{devname}
 This package contains include and .so files for console tools
 
 
-%package -n %{libname}-static-devel
+%package -n %{staticdevname}
 Summary:	Static libraries for console tools
 Group:		Development/Other
 Requires:	%{name}-devel = %{version}-%{release}
-Obsoletes:	%{name}-static-devel
 Provides:	%{name}-static-devel = %{version}-%{release}
 Provides:  	lib%{fname}-static-devel = %{version}-%{release} 
+Obsoletes:	%{name}-static-devel
+Obsoletes:	%{ostaticdevname}
 
-%description -n %{libname}-static-devel
+%description -n %{staticdevname}
 This package contains static libraries for console tools.
 
 
@@ -181,6 +187,7 @@ DISABLE_RESIZECONS=
 DISABLE_RESIZECONS=--disable-resizecons
 %endif
 
+libtoolize -c -f
 aclocal-1.4
 automake-1.4
 export FORCE_AUTOCONF_2_5=1
@@ -355,14 +362,14 @@ fi
 %defattr(-,root,root)
 /lib/*.so.*
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 /lib/*.so
 %{_libdir}/*.la
 %dir %{_includedir}/lct
 %{_includedir}/lct/*
 
-%files -n %{libname}-static-devel
+%files -n %{staticdevname}
 %defattr(-,root,root,-)
 %{_libdir}/*.a
 
@@ -373,6 +380,11 @@ fi
 
 
 %changelog
+* Sat Sep 8 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.2.3
+- implement devel naming policy
+- implement library provides policy
+- fix build (call libtoolize)
+
 * Sat Dec 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.2.3
 - rebuild against new gettext
 
