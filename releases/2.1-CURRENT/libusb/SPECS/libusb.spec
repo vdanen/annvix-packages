@@ -15,6 +15,10 @@
 %define api		0.1
 %define major		4
 %define libname		%mklibname usb %{api} %{major}
+%define devname		%mklibname usb %{api} -d
+%define odevname	%mklibname usb %{api} 4 -d
+%define staticdevname	%mklibname usb %{api} -d -s
+%define ostaticdevname	%mklibname usb %{api} 4 -d -s
 %define basiclibname	%{name}%{api}
 
 Summary:	Libusb is a library which allows userspace access to USB devices
@@ -42,27 +46,29 @@ Provides:	%{basiclibname} = %{version}-%{release}
 Libusb is a library which allows userspace access to USB devices.
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:        Libusb is a library which allows userspace access to USB devices
 Group:          Development/C
 Provides:	%{name}-devel = %{version}-%{release}
 Provides:	%{basiclibname}-devel = %{version}-%{release}
+Obsoletes:	%{odevname}
 Requires:	%{libname} = %{version}
 
-%description -n	%{libname}-devel
+%description -n	%{devname}
 This package includes the header files and shared libraries
 necessary for developing programs which will access USB devices using
 the %{name} library.
 
 
-%package -n %{libname}-static-devel
+%package -n %{staticdevname}
 Summary:        Static libraries for libusb
 Group:          Development/C
 Provides:	%{name}-static-devel = %{version}-%{release}
 Provides:	%{basiclibname}-static-devel = %{version}-%{release}
-Requires:	%{libname}-devel = %{version}
+Obsoletes:	%{ostaticdevname}
+Requires:	%{devname} = %{version}
 
-%description -n	%{libname}-static-devel
+%description -n	%{staticdevname}
 This package includes the static libraries necessary for developing
 programs which will access USB devices using the %{name} library.
 
@@ -101,6 +107,7 @@ pushd %{buildroot}%{_libdir}
     # XXX: fix libusb.la if it's used with ltdlopen, i.e. current usage
     # only works to build stuff, aka .so symlink is not dispatched and.
     ln -sf ../../%{_lib}/libusb-%{api}.so.%{major} libusb.so
+    ln -sf ../../%{_lib}/libusbpp-%{api}.so.%{major} libusbpp.so
 popd
 ln -s ../usr/lib/libusb.la %{buildroot}/%{_lib}
 
@@ -117,7 +124,7 @@ ln -s ../usr/lib/libusb.la %{buildroot}/%{_lib}
 %defattr(-,root,root)
 /%{_lib}/*.so.*
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 %{_bindir}/libusb-config
 %multiarch %{multiarch_bindir}/libusb-config
@@ -127,7 +134,7 @@ ln -s ../usr/lib/libusb.la %{buildroot}/%{_lib}
 %{_libdir}/pkgconfig/*.pc
 /%{_lib}/*.la
 
-%files -n %{libname}-static-devel
+%files -n %{staticdevname}
 %defattr(-,root,root)
 %{_libdir}/*.a
 
@@ -137,6 +144,11 @@ ln -s ../usr/lib/libusb.la %{buildroot}/%{_lib}
 
 
 %changelog
+* Fri Sep 7 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.1.12
+- implement devel naming policy
+- implement library provides policy
+- fix libusbpp symlink
+
 * Fri Jul 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.1.12
 - 0.1.12
 - move *.la into the -devel package
