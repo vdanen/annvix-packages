@@ -23,7 +23,7 @@ Source0:	%{name}-%{version}.tar.gz
 Source1:	%{name}-%{version}.tar.gz.sig
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	libmhash-devel >= 0.8.15
+BuildRequires:	mhash-devel >= 0.8.15
 BuildRequires:	libmcrypt-devel >= 2.5.0
 BuildRequires:	libltdl-devel
 
@@ -79,6 +79,7 @@ This package contains the documentation for %{name}.
 %changelog
 * Sat Sep 8 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.6
 - 2.6.6
+- fix build dependencies
 
 * Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6.4
 - spec cleanups
