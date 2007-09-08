@@ -9,11 +9,15 @@
 
 %define revision	$Rev$
 %define name		libmcrypt
-%define version		2.5.7
+%define version		2.5.8
 %define release		%_revrel
 
 %define major		4
 %define libname		%mklibname mcrypt %{major}
+%define devname		%mklibname mcrypt -d
+%define odevname	%mklibname mcrypt 4 -d
+%define staticdevname	%mklibname mcrypt -d -s
+%define ostaticdevname	%mklibname mcrypt 4 -d -s
 
 Summary:	Thread-safe data encryption library
 Name:		%{name}
@@ -22,8 +26,7 @@ Release:	%{release}
 License:	LGPL
 Group:		System/Libraries
 URL:		http://mcrypt.sourceforge.net/
-Source0:	%{name}-%{version}.tar.gz
-Source1:	%{name}-%{version}.tar.gz.sig.asc
+Source0:	%{name}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	libtool-devel
@@ -52,26 +55,28 @@ SERPENT, RIJNDAEL, 3DES, GOST, SAFER+, CAST-256, RC2, XTEA, 3WAY,
 TWOFISH, BLOWFISH, ARCFOUR, WAKE and more. 
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:	Header files and libraries for developing apps with libmcrypt
 Group:		Development/C
 Requires:	%{libname} = %{version}
-Provides:	%{name}-devel = %{version}
+Provides:	%{name}-devel = %{version}-%{release}
+Obsoletes:	%{odevname}
 
-%description -n %{libname}-devel
+%description -n %{devname}
 This package contains the header files and libraries needed to
 develop programs that use the libmcrypt library.
 Install it if you want to develop such applications.
 
 
-%package -n %{libname}-static-devel
+%package -n %{staticdevname}
 Summary:	Static libraries for developing apps with libmcrypt
 Group:		Development/C
 Requires:	%{libname} = %{version}
 Requires:	%{name}-devel = %{version}
-Provides:	%{name}-static-devel = %{version}
+Provides:	%{name}-static-devel = %{version}-%{release}
+Obsoletes:	%{ostaticdevname}
 
-%description -n %{libname}-static-devel
+%description -n %{staticdevname}
 This package contains the static libraries needed to
 develop programs that use the libmcrypt library.
 Install it if you want to develop such applications.
@@ -147,7 +152,7 @@ make check
 %defattr(-,root,root)
 %{_libdir}/*.so.*
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-, root, root)
 %{_mandir}/man3/*
 %multiarch %{multiarch_bindir}/libmcrypt-config
@@ -155,9 +160,11 @@ make check
 %{_libdir}/*.la
 %{_libdir}/*.so
 %{_includedir}/mcrypt.h
+%dir %{_includedir}/mutils
+%{_includedir}/mutils/mcrypt.h
 %{_datadir}/aclocal/*.m4
 
-%files -n %{libname}-static-devel
+%files -n %{staticdevname}
 %defattr(-, root, root)
 %{_libdir}/*.a
 %{_libdir}/%{name}/*.a
@@ -168,6 +175,11 @@ make check
 
 
 %changelog
+* Sat Sep 8 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.5.8
+- 2.5.8
+- implement devel naming policy
+- implement library provides policy
+
 * Fri Jul 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5.7
 - add -doc subpackage
 - rebuild with gcc4
