@@ -13,8 +13,11 @@
 %define release 	%_revrel
 
 %define major		62
-%define libname_orig	libjpeg
 %define libname		%mklibname jpeg %{major}
+%define devname		%mklibname jpeg -d
+%define odevname	%mklibname jpeg 62 -d
+%define staticdevname	%mklibname jpeg -d -s
+%define ostaticdevname	%mklibname jpeg 62 -d -s
 
 Summary:	A library for manipulating JPEG image format files
 Name:		%{name}
@@ -24,16 +27,11 @@ License:	GPL-like
 Group:		System/Libraries
 URL:		http://www.ijg.org/
 Source0:	ftp://ftp.uu.net/graphics/jpeg/jpegsrc.v6b.tar.bz2
-Patch0:		libjpeg-6b-arm.patch
-Patch1:		libjpeg-ia64-acknowledge.patch
-# Patch for lossless cropping and joining of JPEG files from 
-# http://sylvana.net/jpegcrop/
-# This patch is derived by "diff"ing the source files of
-# http://sylvana.net/jpegcrop/droppatch.tar.gz with the appropriate
-# original source files
-Patch2:		jpegv6b-losslesscropndrop.patch
-# Use autoconf variables to know libdir et al.
-Patch3:		jpeg-6b-autoconf-vars.patch
+Source1:	http://jpegclub.org/droppatch.tar.bz2
+Source2:	http://jpegclub.org/jpegexiforient.c
+Source3:	http://jpegclub.org/exifautotran.txt
+Patch0:		jpeg-6b-autoconf-vars.patch
+Patch1:		jpeg-6b-mdv-c++fixes.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	libtool
@@ -54,28 +52,29 @@ This package contains the library needed to run programs dynamically
 linked with libjpeg.
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:	Development tools for programs which will use the libjpeg library
 Group:		Development/C
 Requires:	%{libname} = %{version}
 Provides:	jpeg-devel = %{version}-%{release}
 Provides:	%{name}-devel = %{version}-%{release}
-Obsoletes:	%{name}-devel
+Obsoletes:	%{odevname}
 
-%description -n %{libname}-devel
+%description -n %{devname}
 The libjpeg-devel package includes the header files necessary for 
 developing programs which will manipulate JPEG files using
 the libjpeg library.
 
 
-%package -n %{libname}-static-devel
+%package -n %{staticdevname}
 Summary:	Static libraries for programs which will use the libjpeg library
 Group:		Development/C
-Requires:	%{libname}-devel = %{version}-%{release}
+Requires:	%{devname} = %{version}-%{release}
 Provides:	%{name}-static-devel = %{version}-%{release}
 Provides:	jpeg-static-devel = %{version}-%{release}
+Obsoletes:	%{ostaticdevname}
 
-%description -n %{libname}-static-devel
+%description -n %{staticdevname}
 The libjpeg-devel package includes the static librariesnecessary for 
 developing programs which will manipulate JPEG files using
 the libjpeg library.
@@ -84,9 +83,9 @@ the libjpeg library.
 %package -n jpeg-progs
 Summary:	Programs for manipulating JPEG format image files
 Group:		Graphics
-Requires:	%libname = %{version}-%{release}
-Provides:	libjpeg-progs = %{version}-%{release}
-Obsoletes:	libjpeg-progs
+Requires:	%{libname} = %{version}-%{release}
+Provides:	%{name}-progs = %{version}-%{release}
+Obsoletes:	%{name}-progs
 
 %description -n jpeg-progs
 The jpeg-progs package contains simple client programs for accessing 
@@ -108,11 +107,15 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q -n jpeg-6b
-%patch0 -p1 
+%setup -q -T -D -a 1 -n jpeg-6b
+rm -f jpegtran
+%patch0 -p1
 %patch1 -p1
-%patch2 -p0
-%patch3 -p1
+
 cp `which libtool` .
+cp %{_sourcedir}/jpegexiforient.c .
+cp %{_sourcedir}/exifautotran.txt exifautotran
+
 
 %build
 %configure \
@@ -121,27 +124,21 @@ cp `which libtool` .
     --enable-static \
     --disable-rpath
 
-#cat > have_stdlib.sed <<\EOF
-#s/#define HAVE_STDLIB_H/#ifndef HAVE_STDLIB_H\
-#&\
-#endif/g
-#EOF
-#sed -f have_stdlib.sed jconfig.h > jconfig.tmp && mv jconfig.tmp jconfig.h
-#rm -f have_stdlib.sed
-#perl -pi -e 's,hardcode_libdir_flag_spec=",#hardcode_libdir_flag_spec=",;' libtool
-
-
 %make
-%ifnarch armv4l
-#FIX MEEE: we know this will fail on arm
 LD_LIBRARY_PATH=$PWD make test
-%endif
+
+gcc %{optflags} -o jpegexiforient jpegexiforient.c
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}{%{_bindir},%{_libdir},%{_includedir},%{_mandir}/man1}
+
 %makeinstall mandir=%{buildroot}/%{_mandir}/man1
+
+install -m 0644 jpegint.h %{buildroot}%{_includedir}/jpegint.h
+install -m 0755 jpegexiforient %{buildroot}%{_bindir}
+install -m 0755 exifautotran %{buildroot}%{_bindir}
 
 
 %post -n %{libname} -p /sbin/ldconfig
@@ -156,13 +153,13 @@ mkdir -p %{buildroot}{%{_bindir},%{_libdir},%{_includedir},%{_mandir}/man1}
 %defattr(-,root,root)
 %{_libdir}/lib*.so.*
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 %{_libdir}/*.so
 %{_includedir}/*.h
 %{_libdir}/*.la
 
-%files -n %{libname}-static-devel
+%files -n %{staticdevname}
 %defattr(-,root,root)
 %{_libdir}/*.a
 
@@ -178,6 +175,18 @@ mkdir -p %{buildroot}{%{_bindir},%{_libdir},%{_includedir},%{_mandir}/man1}
 
 
 %changelog
+* Sat Sep 8 2007 Vincent Danen <vdanen-at-build.annvix.org> 6b
+- implement devel naming policy
+- implement library provides policy
+- drop P2 and add S1 to replace it (lossless cropping of JPEG files and lossless
+  pasting of one JPEG into another)
+- added S2 and S3; sources to allow automatic lossless rotation of JPEG images
+  with orientation markings in EXIF data
+- P4: add guards for C++ code (i.e. OpenVRML); from Mandriva
+- remove P0 and build-hack for arm support
+- remove P1; we don't build for ia64
+- renumber patches
+
 * Fri Jul 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 6b
 - add -doc subpackage
 - rebuild with gcc4
