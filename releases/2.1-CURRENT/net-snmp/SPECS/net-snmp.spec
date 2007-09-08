@@ -17,7 +17,7 @@
 %define devname		%mklibname %{name} -d
 %define odevname	%mklibname %{name} 10 -d
 %define staticdevname	%mklibname %{name} -d -s
-%define staticdevname	%mklibname %{name} 10 -d -s
+%define ostaticdevname	%mklibname %{name} 10 -d -s
 
 Summary:	A collection of SNMP protocol tools and libraries
 Name: 		%{name}
