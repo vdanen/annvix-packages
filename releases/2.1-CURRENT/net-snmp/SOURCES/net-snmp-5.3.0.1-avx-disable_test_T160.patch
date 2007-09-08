@@ -1,9 +1,0 @@
---- net-snmp-5.3.0.1/testing/tests/T160snmpnetstat~	2006-04-20 21:29:36.000000000 -0600
-+++ net-snmp-5.3.0.1/testing/tests/T160snmpnetstat	2006-04-20 21:29:36.000000000 -0600
-@@ -1,5 +1,5 @@
- #!/bin/sh
--
-+SKIP
- . ../eval_tools.sh
- 
- HEADER "if snmpnetstat finds the running agent in udpTable"

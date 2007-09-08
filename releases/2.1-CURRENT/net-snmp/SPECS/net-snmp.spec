@@ -9,11 +9,15 @@
 
 %define revision	$Rev$
 %define name		net-snmp
-%define version		5.3.1
+%define version		5.4.1
 %define release		%_revrel
 
 %define major		10
 %define libname		%mklibname net-snmp %{major}
+%define devname		%mklibname %{name} -d
+%define odevname	%mklibname %{name} 10 -d
+%define staticdevname	%mklibname %{name} -d -s
+%define staticdevname	%mklibname %{name} 10 -d -s
 
 Summary:	A collection of SNMP protocol tools and libraries
 Name: 		%{name}
@@ -36,27 +40,21 @@ Source12:	NOTIFICATION-TEST-MIB.txt
 Source13:	TRAP-TEST-MIB.txt
 Patch0:		net-snmp-5.1-nodb.patch
 # OE: stolen from fedora
-Patch20:	net-snmp-5.0.6-syslog.patch
 Patch21:	net-snmp-5.0.8-ipv6-sock-close.patch
 Patch22:	net-snmp-5.0.8-readonly.patch
-Patch23:	net-snmp-5.1-async-getnext.patch
-Patch24:	net-snmp-5.1.1-pie.patch
-Patch25:	net-snmp-5.3.1-64bit.patch
+Patch24:	net-snmp-5.4-mdv-pie.patch
+Patch25:	net-snmp-5.4-mdv-64bit.patch
 Patch26:	net-snmp-5.1.2-dir-fix.patch
 Patch27:	net-snmp-5.2.1-file_offset.patch
 Patch28:	ucd-snmp-4.2.4.pre3-mnttab.patch
-Patch29:	net-snmp-5.3.0.1-maxsensors.patch
 Patch30:	net-snmp-5.3-agent-registry-unregister-free.patch
-Patch31:	net-snmp-5.3-proc_if_inet6.patch
-Patch32:	net-snmp-5.3-size_t.patch
 # Extra MDK patches
-Patch50:	net-snmp-5.3.1-64bit-fixes.diff
-Patch51:	net-snmp-5.2.1-no_rpath.diff
+Patch50:	net-snmp-5.4.1-mdv-64bit-fixes.patch
 # (gb) remove built-in libtool 1.4 and use the system one instead, be
 # on the safe side and don't touch to the rest
-Patch52:	net-snmp-5.2.1.2-libtool.patch
-Patch53:	net-snmp-5.3.0.1-no_perlinstall.diff
-Patch54:	net-snmp-5.3.0.1-avx-disable_test_T160.patch
+Patch52:	net-snmp-5.4.1-mdv-no_bundled_libtool.patch
+Patch53:	net-snmp-5.4.1-mdv-no_perlinstall.patch
+Patch54:	net-snmp-5.4.1-avx-disabled_tests.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5 >= 2.59
@@ -78,53 +76,50 @@ Requires:	net-snmp-utils
 Requires:	tcp_wrappers
 
 %description
-SNMP (Simple Network Management Protocol) is a protocol used for
-network management. The NET-SNMP project includes various SNMP
-tools: an extensible agent, an SNMP library, tools for requesting
-or setting information from SNMP agents, tools for generating and
-handling SNMP traps, a version of the netstat command which uses
-SNMP, and a Tk/Perl mib browser. This package contains the snmpd
-and snmptrapd daemons, documentation, etc.
-
-You will probably also want to install the net-snmp-utils package,
-which contains NET-SNMP utilities.
+SNMP (Simple Network Management Protocol) is a protocol used for network
+management. The NET-SNMP project includes various SNMP tools: an extensible
+agent, an SNMP library, tools for requesting or setting information from
+SNMP agents, tools for generating and handling SNMP traps, a version of the
+netstat command which uses SNMP, and a Tk/Perl mib browser.  This package
+contains the snmpd and snmptrapd daemons, documentation, etc.
 
 
 %package -n %{libname}
 Summary:	Libraries for Network management (SNMP), from the NET-SNMP project
 Group:		System/Libraries
+Provides:	lib%{name} = %{version}-%{release}
 Requires:	openssl
 
 %description -n	%{libname}
-The %{libname} package contains the libraries for use with
-the NET-SNMP project's network management tools.
+The %{libname} package contains the libraries for use with the NET-SNMP
+project's network management tools.
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:	The development environment for the NET-SNMP project
 Group:		Development/C
-Provides:	%{name}-devel
-Provides:	libnet-snmp-devel
+Provides:	%{name}-devel = %{version}-%{release}
 Requires:	%{libname} = %{version}
 Requires:	tcp_wrappers-devel
+Obsoletes:	%{odevname}
 
-%description -n	%{libname}-devel
-The %{libname}-devel package contains the development
-libraries and header files for use with the NET-SNMP project's
-network management tools.
+%description -n	%{devname}
+The %{devname} package contains the development libraries and header
+files for use with the NET-SNMP project's network management tools.
 
 
-%package -n %{libname}-static-devel
+%package -n %{staticdevname}
 Summary:	The static development libraries for the NET-SNMP project
 Group:		Development/C
-Provides:	%{name}-static-devel
-Requires:	%{libname}-devel = %{version}
+Provides:	%{name}-static-devel = %{version}-%{release}
+Requires:	%{devname} = %{version}
 Requires:	%{libname} = %{version}
+Obsoletes:	%{ostaticdevname}
 
-%description -n	%{libname}-static-devel
-The %{libname}-static-devel package contains the static
-development libraries and header files for use with the NET-SNMP
-project's network management tools.
+%description -n	%{staticdevname}
+The %{staticdevname} package contains the static development
+libraries and header files for use with the NET-SNMP project's network
+management tools.
 
 
 %package utils
@@ -135,8 +130,8 @@ Requires:	openssl
 Requires:	net-snmp-mibs
 
 %description utils
-The net-snmp package contains various utilities for use with the
-NET-SNMP network management project.
+The net-snmp package contains various utilities for use with the NET-SNMP
+network management project.
 
 
 %package mibs
@@ -144,8 +139,8 @@ Summary:	MIBs for the NET-SNMP project
 Group:		Networking/Other
 
 %description mibs
-The net-snmp-mibs package contains various MIBs for use with the
-NET-SNMP network management project.
+The net-snmp-mibs package contains various MIBs for use with the NET-SNMP
+network management project.
 
 %package trapd
 Summary:	The trap collecting daemon for %{name}
@@ -160,8 +155,8 @@ Requires:	net-snmp-utils
 Requires:	tcp_wrappers
 
 %description trapd
-The net-snmp-trapd package contains the trap collecting daemon for
-use with the NET-SNMP network management project.
+The net-snmp-trapd package contains the trap collecting daemon for use with
+the NET-SNMP network management project.
 
 
 %package -n perl-NetSNMP
@@ -173,11 +168,9 @@ Requires:	net-snmp-mibs
 Requires:	net-snmp-utils
 
 %description -n	perl-NetSNMP
-NET SNMP (Simple Network Management Protocol) Perl5 Support
-The Simple Network Management Protocol (SNMP) provides a framework
-for the exchange of management information between agents (servers)
-and clients.  The NET SNMP perl5 support files provide the perl
-functions for integration of SNMP into applications, written in perl.
+NET SNMP (Simple Network Management Protocol) Perl5 Support.  The NET SNMP
+perl5 support files provide the perl functions for integration of SNMP into
+applications, written in perl.
 
 
 %package doc
@@ -193,28 +186,21 @@ This package contains the documentation for %{name}.
 %patch0 -p0 -b .nodb
 
 # OE: added from fedora
-%patch20 -p1 -b .syslog
 %patch21 -p1 -b .ipv6-sock-close
 %patch22 -p1 -b .readonly
-%patch23 -p1 -b .async-getnext
 %ifnarch ia64
 %patch24 -p1 -b .pie
 %endif
-%patch25 -p0 -b .64bit
+%patch25 -p1 -b .64bit
 %patch26 -p1 -b .dir-fix
 %patch27 -p1 -b .file_offset
 %patch28 -p1 -b .mnttab
-%patch29 -p1 -b .maxsensors
-#%patch30 -p0
-%patch31 -p1 -b .proc_if
-%patch32 -p1 -b .size_t
 
 # Extra MDK patches
 %patch50 -p1 -b .64bit-fixes
-%patch51 -p0 -b .no_rpath
-%patch52 -p1 -b .libtool
+%patch52 -p0 -b .libtool
 %patch53 -p0 -b .no_perlinstall
-%patch54 -p1
+%patch54 -p0
 
 cat %{_datadir}/aclocal/libtool.m4 >> aclocal.m4
 
@@ -226,7 +212,10 @@ perl -pi -e "s|/tmp/snmp-test|$HERE/test_tmp_dir/snmp-test|g" testing/*
 # Do this patch with a perl hack...
 perl -pi -e "s|'\\\$install_libdir'|'%{_libdir}'|" ltmain.sh
 
+bzip2 -9f ChangeLog
+
 # regenerate configure script
+libtoolize --copy --force
 autoconf
 
 
@@ -242,7 +231,7 @@ export LDFLAGS="-L%{_libdir}"
     --enable-static \
     --enable-shared \
     --with-perl-modules="INSTALLDIRS=vendor" \
-    --with-cflags="$CFLAGS -D_REENTRANT " \
+    --with-cflags="%{optflags} -D_REENTRANT " \
     --with-sys-location="Unknown" \
     --with-logfile="/var/log/snmpd.log" \
     --with-persistent-directory="/var/lib/net-snmp" \
@@ -254,7 +243,7 @@ export LDFLAGS="-L%{_libdir}"
     --with-sys-contact="root@localhost" \
     --with-default-snmp-version="3"
 
-
+#sed -i -e "s,^#define HAVE_GETMNTENT,#define HAVE_GETMNTENT 1," include/net-snmp/net-snmp-config.h
 make
 
 # more verbose tests
@@ -273,6 +262,8 @@ make test
 %makeinstall_std -C perl
 
 mkdir -p %{buildroot}%{_sysconfdir}/snmp
+mkdir -p %{buildroot}/var/lib/net-snmp
+mkdir -p %{buildroot}/var/agentx/master
 
 mkdir -p %{buildroot}%{_srvdir}/snmpd/{log,env}
 install -m 0740 %{_sourcedir}/snmpd.run %{buildroot}%{_srvdir}/snmpd/run
@@ -418,8 +409,12 @@ file %{buildroot}%{_sbindir}/* | grep ELF | cut -d':' -f1 | xargs strip || :
 %{_datadir}/snmp/snmpconf-data
 %{_datadir}/snmp/mib2c-data
 %{_datadir}/snmp/snmp_perl_trapd.pl
+%{_datadir}/snmp/snmp_perl.pl
 %{_datadir}/snmp/*.conf
+%attr(0644,root,root) %{_mandir}/man1/encode_keychange.1*
+%attr(0644,root,root) %{_mandir}/man1/fixproc.1*
 %attr(0644,root,root) %{_mandir}/man1/mib2c.1*
+%attr(0644,root,root) %{_mandir}/man1/mib2c-update.1*
 %attr(0644,root,root) %{_mandir}/man1/snmpbulkget.1*
 %attr(0644,root,root) %{_mandir}/man1/snmpbulkwalk.1*
 %attr(0644,root,root) %{_mandir}/man1/snmpcmd.1*
@@ -437,8 +432,10 @@ file %{buildroot}%{_sbindir}/* | grep ELF | cut -d':' -f1 | xargs strip || :
 %attr(0644,root,root) %{_mandir}/man1/snmptranslate.1*
 %attr(0644,root,root) %{_mandir}/man1/snmptrap.1*
 %attr(0644,root,root) %{_mandir}/man1/snmpusm.1*
-%attr(0644,root,root) %{_mandir}/man1/snmpwalk.1*
 %attr(0644,root,root) %{_mandir}/man1/snmpvacm.1*
+%attr(0644,root,root) %{_mandir}/man1/snmpwalk.1*
+%attr(0644,root,root) %{_mandir}/man1/tkmib.1*
+%attr(0644,root,root) %{_mandir}/man1/traptoemail.1*
 %attr(0644,root,root) %{_mandir}/man5/mib2c.conf.5*
 
 %files mibs
@@ -449,7 +446,7 @@ file %{buildroot}%{_sbindir}/* | grep ELF | cut -d':' -f1 | xargs strip || :
 %defattr(-,root,root,-)
 %{_libdir}/lib*.so.*
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(0644,root,root,755)
 %defattr(-,root,root,-)
 %multiarch %{multiarch_bindir}/net-snmp-config
@@ -460,9 +457,12 @@ file %{buildroot}%{_sbindir}/* | grep ELF | cut -d':' -f1 | xargs strip || :
 #%{_includedir}/ucd-snmp
 %{_includedir}/net-snmp
 %{_includedir}/net-snmp/net-snmp-config.h
+%{_mandir}/man1/net-snmp-config.1*
 %{_mandir}/man3/*
+%dir /var/lib/net-snmp
+%dir /var/agentx/master
 
-%files -n %{libname}-static-devel
+%files -n %{staticdevname}
 %defattr(0644,root,root,755)
 %defattr(-,root,root,-)
 %{_libdir}/*.a
@@ -479,12 +479,26 @@ file %{buildroot}%{_sbindir}/* | grep ELF | cut -d':' -f1 | xargs strip || :
 
 %files doc
 %defattr(-,root,root,-)
-%doc AGENT.txt ChangeLog EXAMPLE.conf FAQ INSTALL NEWS README* TODO
+%doc AGENT.txt ChangeLog.bz2 EXAMPLE.conf FAQ INSTALL NEWS TODO
+%doc README README.agent* README.krb5 README.snmpv3 README.thread
 %doc local/passtest local/README.mib2c local/ipf-mod.pl
 %doc mibs/README.mibs
 
 
 %changelog
+* Sat Sep 8 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.4.1
+- 5.4.1
+- drop upstream/obsolete patches P20, P23, P29, P30, P31, P32, P51
+- updated patches from Mandriva: P24, P50, P52, P53
+- new P25 from Fedora
+- updated P54: disable test T115 as it fails too
+- doc compression and drop unwanted READMEs
+- fix the build
+- include /var/lib/net-snmp and /var/agentx/master
+- implement devel naming policy
+- implement library provides policy
+- versioned provides
+
 * Sun Dec 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.3.1
 - 5.3.1
 - updated patches from Mandriva

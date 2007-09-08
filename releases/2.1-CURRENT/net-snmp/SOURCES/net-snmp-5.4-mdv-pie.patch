@@ -1,0 +1,24 @@
+diff -Naur net-snmp-5.4.1/agent/Makefile.in net-snmp-5.4.1.oden/agent/Makefile.in
+--- net-snmp-5.4.1/agent/Makefile.in	2007-07-05 01:26:56.000000000 +0200
++++ net-snmp-5.4.1.oden/agent/Makefile.in	2007-08-08 10:51:56.000000000 +0200
+@@ -139,7 +139,7 @@
+ 	$(CC) $(CFLAGS) -o $@ -D_GETMIBSTAT_TEST -DDODEBUG -c $? 
+ 
+ snmpd$(EXEEXT):	${LAGENTOBJS} $(USELIBS) $(AGENTLIB) $(HELPERLIB) $(MIBLIB) $(LIBTARG) 
+-	$(LINK) $(CFLAGS) -o $@ ${LAGENTOBJS} $(LOCAL_LIBS) ${LDFLAGS} ${OUR_AGENT_LIBS}
++	$(LINK) $(CFLAGS) -o $@ -pie ${LAGENTOBJS} $(LOCAL_LIBS) ${LDFLAGS} ${OUR_AGENT_LIBS}
+ 
+ 
+ libnetsnmpagent.$(LIB_EXTENSION)$(LIB_VERSION):    ${LLIBAGENTOBJS} $(USELIBS)
+diff -Naur net-snmp-5.4.1/apps/Makefile.in net-snmp-5.4.1.oden/apps/Makefile.in
+--- net-snmp-5.4.1/apps/Makefile.in	2007-07-05 01:26:56.000000000 +0200
++++ net-snmp-5.4.1.oden/apps/Makefile.in	2007-08-08 10:52:53.000000000 +0200
+@@ -115,7 +115,7 @@
+ 	$(LINK) ${CFLAGS} -o $@ snmptest.$(OSUFFIX) $(LOCAL_LIBS) ${LDFLAGS} ${LIBS} 
+ 
+ snmptrapd$(EXEEXT):    $(TRAPD_OBJECTS) $(USETRAPLIBS) $(INSTALLLIBS)
+-	$(LINK) ${CFLAGS} -o $@ $(TRAPD_OBJECTS) $(INSTALLLIBS) $(LOCAL_LIBS) ${LDFLAGS} ${TRAPLIBS}
++	$(LINK) ${CFLAGS} -o $@ -pie $(TRAPD_OBJECTS) $(INSTALLLIBS) $(LOCAL_LIBS) ${LDFLAGS} ${TRAPLIBS}
+ 
+ snmptrap$(EXEEXT):    snmptrap.$(OSUFFIX) $(USELIBS)
+ 	$(LINK) ${CFLAGS} -o $@ snmptrap.$(OSUFFIX) $(LOCAL_LIBS) ${LDFLAGS} ${LIBS} 
