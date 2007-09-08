@@ -125,9 +125,12 @@ cp %{_sourcedir}/exifautotran.txt exifautotran
     --disable-rpath
 
 %make
-LD_LIBRARY_PATH=$PWD make test
 
 gcc %{optflags} -o jpegexiforient jpegexiforient.c
+
+
+%check
+LD_LIBRARY_PATH=$PWD make test
 
 
 %install
@@ -186,6 +189,7 @@ install -m 0755 exifautotran %{buildroot}%{_bindir}
 - remove P0 and build-hack for arm support
 - remove P1; we don't build for ia64
 - renumber patches
+- move make test into %%check
 
 * Fri Jul 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 6b
 - add -doc subpackage
