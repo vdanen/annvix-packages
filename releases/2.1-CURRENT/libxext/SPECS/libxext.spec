@@ -12,7 +12,12 @@
 %define version 	1.0.3
 %define release 	%_revrel
 
-%define libxext		%mklibname xext 6
+%define major		6
+%define libname		%mklibname xext %{major}
+%define devname		%mklibname xext -d
+%define odevname	%mklibname xext 6 -d
+%define staticdevname	%mklibname xext -d -s
+%define ostaticdevname	%mklibname xext 6 -d -s
 
 Summary:	Misc X Extension Library
 Name:		%{name}
@@ -35,36 +40,38 @@ BuildRequires:	libxdmcp-devel >= 1.0.0
 Misc X Extension Library.
 
 
-%package -n %{libxext}
+%package -n %{libname}
 Summary:	Misc X Extension Library
 Group:		Development/C
 Conflicts:	libxorg-x11 < 7.0
 Provides:	%{name} = %{version}
 
-%description -n %{libxext}
+%description -n %{libname}
 Misc X Extension Library
 
 
-%package -n %{libxext}-devel
+%package -n %{devname}
 Summary:	Development files for %{name}
 Group:		Development/C
-Requires:	%{libxext} = %{version}
+Requires:	%{libname} = %{version}
 Requires:	x11-proto-devel >= 1.0.0
-Provides:	libxext-devel = %{version}-%{release}
+Provides:	%{name}-devel = %{version}-%{release}
+Obsoletes:	%{odevname}
 Conflicts:	libxorg-x11-devel < 7.0
 
-%description -n %{libxext}-devel
+%description -n %{devname}
 Development files for %{name}
 
 
-%package -n %{libxext}-static-devel
+%package -n %{staticdevname}
 Summary:	Static development files for %{name}
 Group:		Development/C
-Requires:	%{libxext}-devel = %{version}
-Provides:	libxext-static-devel = %{version}-%{release}
+Requires:	%{devname} = %{version}
+Provides:	%{name}-static-devel = %{version}-%{release}
+Obsoletes:	%{ostaticdevname}
 Conflicts:	libxorg-x11-static-devel < 7.0
 
-%description -n %{libxext}-static-devel
+%description -n %{staticdevname}
 Static development files for %{name}
 
 
@@ -89,27 +96,30 @@ Static development files for %{name}
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
-%post -n %{libxext} -p /sbin/ldconfig
-%postun -n %{libxext} -p /sbin/ldconfig
+%post -n %{libname} -p /sbin/ldconfig
+%postun -n %{libname} -p /sbin/ldconfig
 
-%files -n %{libxext}
+%files -n %{libname}
 %defattr(-,root,root)
-%{_libdir}/libXext.so.6
-%{_libdir}/libXext.so.6.4.0
+%{_libdir}/libXext.so.%{major}*
 
-%files -n %{libxext}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 %{_libdir}/libXext.so
 %{_libdir}/libXext.la
 %{_libdir}/pkgconfig/xext.pc
 %{_mandir}/man3/*.3*.bz2
 
-%files -n %{libxext}-static-devel
+%files -n %{staticdevname}
 %defattr(-,root,root)
 %{_libdir}/libXext.a
 
 
 %changelog
+* Sun Sep 9 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0.3
+- implement devel naming policy
+- implement library provides policy
+
 * Wed Apr 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0.3
 - first Annvix package
 
