@@ -9,13 +9,16 @@
 
 %define revision	$Rev$
 %define name		elfutils
-%define version		0.120
+%define version		0.129
 %define release		%_revrel
 
 %define major		1
 %define libname		%mklibname %{name} %{major}
+%define devname		%mklibname %{name} -d
+%define odevname	%mklibname %{name} 1 -d
+%define staticdevname	%mklibname %{name} -d -s
+%define ostaticdevname	%mklibname %{name} 1 -d -s
 
-%define _gnu		%{nil}
 %define _programprefix 	eu-
 
 %define build_check		1
@@ -28,8 +31,11 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		Development/Other
-Source:		elfutils-%{version}.tar.bz2
-Patch0:		elfutils-0.120-mdv-robustify.patch
+Source:		ftp://sources.redhat.com/pub/systemtap/elfutils/%{name}-%{version}.tar.gz
+# these 2 patches are from ftp://sources.redhat.com/pub/systemtap/elfutils/
+Patch0:		elfutils-robustify.patch
+Patch1:		elfutils-strip-copy-symtab.patch
+Patch2:		elfutils-0.128-mdv-elflint.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	gcc >= 3.4
@@ -48,19 +54,16 @@ Elfutils is a collection of utilities, including:
    * %{_programprefix}elflint: to check for well-formed ELF files
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:	Development libraries to handle compiled objects
 License:	GPL
 Group:		Development/Other
-Requires:	%{libname} = %{version}-%{release}
-Provides:	%{name}-devel
-Provides:	lib%{name}-devel
-Provides:	libelf-devel
-Provides:	libelf0-devel
-Obsoletes:	libelf-devel
-Obsoletes:	libelf0-devel
+Requires:	%{libname} = %{version}
+Provides:	%{name}-devel = %{version}-%{release}
+Provides:	lib%{name}-devel = %{version}-%{release}
+Obsoletes:	%{odevname}
 
-%description -n %{libname}-devel
+%description -n %{devname}
 This package contains the headers and dynamic libraries to create
 applications for handling compiled objects.
 
@@ -70,19 +73,16 @@ applications for handling compiled objects.
    * libasm provides a programmable assembler interface.
 
 
-%package -n %{libname}-static-devel
+%package -n %{staticdevname}
 Summary:	Static libraries for development with libelfutils
 License:	GPL
 Group:		Development/Other
-Requires:	%{libname}-devel = %{version}-%{release}
-Provides:	%{name}-static-devel
-Provides:	lib%{name}-static-devel
-Provides:	libelf-static-devel
-Provides:	libelf0-static-devel
-Obsoletes:	libelf-static-devel
-Obsoletes:	libelf0-static-devel
+Requires:	%{devname} = %{version}
+Provides:	%{name}-static-devel = %{version}-%{release}
+Provides:	lib%{name}-static-devel = %{version}-%{release}
+Obsoletes:	%{ostaticdevname}
 
-%description -n %{libname}-static-devel
+%description -n %{staticdevname}
 This package contains the static libraries to create applications for
 handling compiled objects.
 
@@ -91,11 +91,8 @@ handling compiled objects.
 Summary:	Libraries to read and write ELF files
 License:	OSL
 Group:		System/Libraries
-Provides:	lib%{name}
-Provides:	libelf
-Provides:	libelf0
-Obsoletes:	libelf
-Obsoletes:	libelf0
+Provides:	lib%{name} = %{version}-%{release}
+Provides:	libelf = %{version}-%{release}
 
 %description -n %{libname}
 This package provides DSOs which allow reading and writing ELF files
@@ -117,11 +114,14 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
+
 # Don't use -Werror with -Wformat=2 -std=gnu99 as %a[ won't be caught
 # as the GNU %a extension.
 perl -pi -e '/AM_CFLAGS =/ and s/-Werror//g' ./tests/Makefile.{in,am}
-%patch0 -p1 -b .robustify
 
+%patch0 -p1 -b .robustify
+%patch1 -p1 -b .strip_copy_symtab
+%patch2 -p1 -b .erllint
 
 %build
 %ifarch x86_64
@@ -142,7 +142,8 @@ popd
 %check
 %if %{build_check}
 pushd build-%{_target_platform}
-#    %make check
+    %make check
+# || :
 popd
 %endif
 
@@ -177,22 +178,23 @@ chmod +x %{buildroot}%{_libdir}/elfutils/lib*.so*
 %files
 %defattr(-,root,root)
 %{_bindir}/eu-addr2line
+%{_bindir}/eu-ar
 %{_bindir}/eu-elfcmp
 %{_bindir}/eu-findtextrel
 %{_bindir}/eu-elflint
-#%{_bindir}/eu-ld
 %{_bindir}/eu-nm
 %{_bindir}/eu-ranlib
 %{_bindir}/eu-readelf
 %{_bindir}/eu-size
 %{_bindir}/eu-strings
 %{_bindir}/eu-strip
+%{_bindir}/eu-unstrip
 %{_libdir}/libdw-%{version}.so
 %{_libdir}/libdw*.so.*
 %dir %{_libdir}/elfutils
 %{_libdir}/elfutils/lib*.so
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 %{_includedir}/dwarf.h
 %{_includedir}/libelf.h
@@ -203,15 +205,11 @@ chmod +x %{buildroot}%{_libdir}/elfutils/lib*.so*
 %{_includedir}/elfutils/libebl.h
 %{_includedir}/elfutils/libdw.h
 %{_includedir}/elfutils/libdwfl.h
-#%{_libdir}/libasm.so
-#%{_libdir}/libdwarf.so
-#%{_libdir}/libebl.so
 %{_libdir}/libelf.so
 %{_libdir}/libdw.so
 
-%files -n %{libname}-static-devel
+%files -n %{staticdevname}
 %defattr(-,root,root)
-#%{_libdir}/libasm.a
 %{_libdir}/libebl.a
 %{_libdir}/libelf.a
 %{_libdir}/libdw.a
@@ -219,11 +217,7 @@ chmod +x %{buildroot}%{_libdir}/elfutils/lib*.so*
 %files -n %{libname}
 %defattr(-,root,root)
 %{_libdir}/libelf-%{version}.so
-%{_libdir}/libelf*.so.*
-#%{_libdir}/libasm-%{version}.so
-#%{_libdir}/libasm*.so.*
-#%{_libdir}/libebl-%{version}.so
-#%{_libdir}/libebl*.so.*
+%{_libdir}/libelf*.so.%{major}*
 
 %files doc
 %defattr(-,root,root)
@@ -231,6 +225,17 @@ chmod +x %{buildroot}%{_libdir}/elfutils/lib*.so*
 
 
 %changelog
+* Sun Sep 9 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.129
+- 0.129
+- P0-P1: new upstream patches from Red Hat
+- P2: elflint fix (Mandriva)
+- do the tests
+- don't redefine _gnu to %%{nil}
+- drop libelf[0] obsoletes/provides
+- versioned provides
+- implement devel naming policy
+- implement library provides policy
+
 * Fri Jul 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.120
 - 0.120
 - dropped P0, P1
