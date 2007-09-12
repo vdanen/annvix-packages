@@ -806,6 +806,7 @@ mkdir -p %{buildroot}%{_srvdir}/nscd/log
 install -m 0740 %{_sourcedir}/nscd.run %{buildroot}%{_srvdir}/nscd/run
 install -m 0740 %{_sourcedir}/nscd-log.run %{buildroot}%{_srvdir}/nscd/log/run
 install -m 0740 %{_sourcedir}/nscd.finish %{buildroot}%{_srvdir}/nscd/finish
+mkdir -p %{buildroot}/var/{db/nscd,run/nscd}
 
 rm -rf %{buildroot}%{_datadir}/zoneinfo
 rm -rf %{buildroot}%{_includedir}/netatalk/
@@ -1145,6 +1146,8 @@ fi
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/nscd/run
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/nscd/finish
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/nscd/log/run  
+%attr(0700,root,root) /var/db/nscd
+%attr(0755,root,root) /var/run/nscd
 
 
 %files doc
@@ -1157,6 +1160,9 @@ fi
 
 
 %changelog
+* Wed Sep 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.5
+- add missing directories for nscd to work properly
+
 * Mon Jun 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.5
 - 2.5-20061008T1257
 - merge with RHEL 2.5-12 and ALT's 2.5-alt4 (essentially replaced all
