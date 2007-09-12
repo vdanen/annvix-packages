@@ -9,7 +9,7 @@
 
 %define revision        $Rev$
 %define name            nut
-%define version         2.0.5
+%define version         2.2.0
 %define release         %_revrel
 
 %define nutuser		ups
@@ -21,15 +21,15 @@ Release:	%{release}
 License:	GPL
 Group:		System/Configuration
 URL:		http://random.networkupstools.org
-Source0:	http://random.networkupstools.org/source/2.0/%{name}-%{version}.tar.gz
-Source1:	upsd.run
-Source2:	upsd.finish
-Source3:	upsd-log.run
-Source4:	upsmon.run
-Source5:	upsmon.finish
-Source6:	upsmon-log.run
-Source7:	ups_command
-Patch0:		nut-2.0.1-lib64.patch
+Source0:	http://random.networkupstools.org/source/2.2/%{name}-%{version}.tar.gz
+Source1:	http://random.networkupstools.org/source/2.2/%{name}-%{version}.tar.gz.sig
+Source2:	upsd.run
+Source3:	upsd.finish
+Source4:	upsd-log.run
+Source5:	upsmon.run
+Source6:	upsmon.finish
+Source7:	upsmon-log.run
+Source8:	ups_command
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5
@@ -59,8 +59,8 @@ clients to see the information).
 %package server
 Summary:	Network UPS Tools server
 Group:		System/Servers
-Requires:	nut = %{version}-%{release}
-Requires(pre):	nut = %{version}-%{release}
+Requires:	nut = %{version}
+Requires(pre):	nut = %{version}
 Requires(preun): rpm-helper >= 0.8
 Requires(post):	rpm-helper >= 0.8
 
@@ -76,15 +76,6 @@ drivers which talk to the UPSes.  You also need to install the base NUT
 package.
 
 
-%package devel
-Summary:	Development for NUT Client
-Group:		Monitoring
-
-%description devel
-This package contains the development header files and libraries
-necessary to develop NUT client applications.
-
-
 %package doc
 Summary:	Documentation for %{name}
 Group:		Documentation
@@ -95,7 +86,6 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
-%patch0 -p1 -b .lib64
 env WANT_AUTOCONF_2_5=1 autoconf
 
 
@@ -103,16 +93,18 @@ env WANT_AUTOCONF_2_5=1 autoconf
 %serverbuild
 %configure2_5x \
     --without-cgi \
+    --with-snmp \
+    --with-usb \
+    --without-lib \
     --with-statepath=/var/run/ups \
     --with-drvpath=/sbin \
     --with-user=%{nutuser} \
     --with-group=%{nutuser} \
     --enable-shared \
-    --sysconfdir=%{_sysconfdir}/ups
+    --sysconfdir=%{_sysconfdir}/ups \
+    --with-pkgconfig-dir=%{_libdir}/pkgconfig
 
-# workaround buggy parrallel build:
-%make all usb snmp
-#%make
+%make
 
 
 %install
@@ -125,11 +117,6 @@ mkdir -p %{buildroot}%{_mandir}
 mkdir -p %{buildroot}%{_bindir}
 mkdir -p %{buildroot}%{_sbindir}
 make DESTDIR=%{buildroot} install
-make DESTDIR=%{buildroot} install-conf
-#make DESTDIR=%{buildroot} install-all-drivers
-make DESTDIR=%{buildroot} install-lib
-make DESTDIR=%{buildroot} install-usb
-make DESTDIR=%{buildroot} install-snmp
 
 mkdir -p %{buildroot}%{_srvdir}/{upsmon,upsd}/log
 install -m 0740 %{_sourcedir}/upsd.run %{buildroot}%{_srvdir}/upsd/run
@@ -202,6 +189,7 @@ cp -af data/driver.list docs/
 %{_bindir}/upscmd
 %{_bindir}/upsrw
 %{_bindir}/upslog
+%{_bindir}/upssched-cmd
 %{_sbindir}/upsmon
 %{_sbindir}/upssched
 %{_mandir}/man5/upsmon.conf.5*
@@ -225,10 +213,8 @@ cp -af data/driver.list docs/
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/upsd/log/run
 /sbin/*
 %{_sbindir}/upsd
-%{_bindir}/libupsclient-config
 %{_datadir}/cmdvartab
 %{_datadir}/driver.list
-%{_libdir}/pkgconfig/libupsclient.pc
 %{_mandir}/man5/ups.conf.5*
 %{_mandir}/man5/upsd.conf.5*
 %{_mandir}/man5/upsd.users.5*
@@ -240,18 +226,19 @@ cp -af data/driver.list docs/
 %exclude %{_mandir}/man8/upsmon.8*
 %exclude %{_mandir}/man8/upssched.8*
 
-%files devel
-%defattr(-,root,root)
-%{_includedir}/*.h
-%{_libdir}/libupsclient.a
-%{_mandir}/man3/upscli_*.3*
-
 %files doc
 %defattr(-,root,root)
-%doc ChangeLog COPYING CREDITS INSTALL MAINTAINERS NEWS README UPGRADING docs
+%doc ChangeLog COPYING INSTALL MAINTAINERS NEWS README UPGRADING docs
 
 
 %changelog
+* Wed Sep 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.0
+- 2.2.0
+- add package sig and renumber sources
+- rebuild against new net-snmp
+- don't build the libs; nothing builds against nut or libupsclient
+  (no more -devel package either)
+
 * Sat Jan 27 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0.5
 - 2.0.5
 - go back to using "make all usb snmp" or the usb drivers don't get built
