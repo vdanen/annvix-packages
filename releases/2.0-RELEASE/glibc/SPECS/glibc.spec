@@ -668,6 +668,7 @@ mkdir -p %{buildroot}%{_srvdir}/nscd/log
 install -m 0740 %{_sourcedir}/nscd.run %{buildroot}%{_srvdir}/nscd/run
 install -m 0740 %{_sourcedir}/nscd-log.run %{buildroot}%{_srvdir}/nscd/log/run
 install -m 0740 %{_sourcedir}/nscd.finish %{buildroot}%{_srvdir}/nscd/finish
+mkdir -p %{buildroot}/var/{db/nscd,run/nscd}
 
 rm -rf %{buildroot}%{_datadir}/zoneinfo
 rm -rf %{buildroot}%{_includedir}/netatalk/
@@ -1153,6 +1154,8 @@ fi
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/nscd/run
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/nscd/finish
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/nscd/log/run  
+%dir %attr(0700,root,root) /var/db/nscd
+%dir %attr(0755,root,root) /var/run/nscd
 
 %files doc
 %doc README* NEWS* INSTALL* FAQ* BUGS NOTES* PROJECTS CONFORMANCE
@@ -1162,6 +1165,9 @@ fi
 
 
 %changelog
+* Wed Sep 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.3.6
+- add missing directories to make nscd run properly
+
 * Sat Mar 10 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.3.6
 - don't build the timezone package anymore
 
