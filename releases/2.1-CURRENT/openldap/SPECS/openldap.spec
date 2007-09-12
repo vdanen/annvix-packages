@@ -9,13 +9,14 @@
 
 %define revision	$Rev$
 %define name		openldap
-%define version		2.3.30
+%define version		2.3.38
 %define release		%_revrel
 
 %define major 		2.3_0
 %define migtools_ver	45
-%define fname		ldap
-%define libname		%mklibname %{fname} %{major}
+%define libname		%mklibname ldap %{major}
+%define devname		%mklibname ldap -d
+%define staticdevname	%mklibname ldap -d -s
 
 %global db4_internal	0
 %define dbver		4.2.52
@@ -94,41 +95,41 @@ Source44:	calendar.schema
 Source45:	sudo.schema
 # from bind sdb_ldap page: http://www.venaas.no/ldap/bind-sdb/dnszone-schema.txt
 Source46:	dnszone.schema
-# from http://cvs.pld.org.pl/SOURCES/openldap-dhcp.schema
+# from http://www.newwave.net/~masneyb/dhcp-3.0.5-ldap-patch
 Source47:	dhcp.schema
-# Chris Patches
-Patch0: 	%{name}-2.3.4-config.patch
-Patch1:		%{name}-2.0.7-module.patch
-#
+Patch0: 	openldap-2.3.4-config.patch
+Patch1:		openldap-2.0.7-module.patch
 # For now only build support for SMB (no krb5) changing support in smbk5passwd overlay:
 Patch2:		openldap-2.3.4-smbk5passwd-only-smb.patch
-# RH + PLD Patches
-Patch15:	%{name}-cldap.patch
-# Migration tools Patch
-Patch40: 	MigrationTools-34-instdir.patch
-Patch41: 	MigrationTools-36-mktemp.patch
-Patch42: 	MigrationTools-27-simple.patch
-Patch43: 	MigrationTools-26-suffix.patch
-Patch45:	MigrationTools-45-i18n.patch
-# schema patch
-Patch46: 	openldap-2.0.21-schema.patch
+Patch3:		openldap-cldap.patch
+Patch4: 	openldap-2.0.21-schema.patch
+Patch5:		openldap-2.2.19-ntlm.patch
+# Migration tools patches
+Patch10: 	MigrationTools-34-instdir.patch
+Patch11: 	MigrationTools-36-mktemp.patch
+Patch12: 	MigrationTools-27-simple.patch
+Patch13: 	MigrationTools-26-suffix.patch
+Patch14:	MigrationTools-45-i18n.patch
 # http://qa.mandriva.com/show_bug.cgi?id=15499
-Patch48:	MigrationTools-45-structural.patch
-Patch50:	http://www.sleepycat.com/update/4.2.52/patch.4.2.52.1
-Patch51:	http://www.sleepycat.com/update/4.2.52/patch.4.2.52.2
-Patch55:	http://www.sleepycat.com/update/4.2.52/patch.4.2.52.3
-Patch56:	http://www.sleepycat.com/update/4.2.52/patch.4.2.52.4
-Patch52:	db-4.2.52-amd64-mutexes.patch
-Patch53:	openldap-2.2.19-ntlm.patch
+Patch15:	MigrationTools-45-structural.patch
 # preserves the temp file used to import data if an error occured
-Patch54:	MigrationTools-40-preserveldif.patch
+Patch16:	MigrationTools-40-preserveldif.patch
+# db 4.2.52 patches
+Patch100:	http://www.oracle.com/technology/products/berkeley-db/db/update/4.2.52/patch.4.2.52.1
+Patch101:	http://www.oracle.com/technology/products/berkeley-db/db/update/4.2.52/patch.4.2.52.2
+Patch102:	http://www.oracle.com/technology/products/berkeley-db/db/update/4.2.52/patch.4.2.52.3
+Patch103:	http://www.oracle.com/technology/products/berkeley-db/db/update/4.2.52/patch.4.2.52.4
+Patch104:	http://www.oracle.com/technology/products/berkeley-db/db/update/4.2.52/patch.4.2.52.5
+Patch105:	http://www.stanford.edu/services/directory/openldap/configuration/patches/db/4252-region-fix.diff
+Patch106:	db-4.2.52-amd64-mutexes.patch
+Patch107:	db-4.2.52-mdv-libtool-fixes.patch
 
 #patches in CVS
 
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
 %{?_with_cyrussasl:BuildRequires: 	libsasl-devel}
-%{?_with_kerberos:BuildRequires:	krb5-devel}
+BuildRequires:	krb5-devel
 %if %sql
 BuildRequires: 	unixODBC-devel
 %endif
@@ -148,7 +149,7 @@ BuildRequires:	libtool-devel
 # for make test:
 BuildRequires:	diffutils
 
-Requires: 	%{libname} = %{version}-%{release}
+Requires: 	%{libname} = %{version}
 Requires:	shadow-utils
 Requires:	setup >= 2.2.0-6mdk
 
@@ -176,16 +177,16 @@ Requires(postun): rpm-helper
 Requires(pre):	db4-utils
 Requires(post):	db4-utils
 Requires:	db4-utils
-Requires: 	%{libname} = %{version}-%{release}
+Requires: 	%{libname} = %{version}
 %endif
 Provides:	%{name}-back_dnssrv = %{version}-%{release}
 Provides:	%{name}-back_ldap = %{version}-%{release}
 Provides:	%{name}-back_passwd = %{version}-%{release}
 Provides:	%{name}-back_sql = %{version}-%{release}
-Obsoletes:	%{name}-back_dnssrv < %{version}-%{release}
-Obsoletes:	%{name}-back_ldap < %{version}-%{release}
-Obsoletes:	%{name}-back_passwd < %{version}-%{release}
-Obsoletes:	%{name}-back_sql < %{version}-%{release}
+Obsoletes:	%{name}-back_dnssrv
+Obsoletes:	%{name}-back_ldap
+Obsoletes:	%{name}-back_passwd
+Obsoletes:	%{name}-back_sql
 
 %description servers
 This package contains the OpenLDAP servers, slapd (LDAP server) and slurpd
@@ -199,7 +200,7 @@ database library.
 %package clients
 Summary: 	OpenLDAP clients and related files
 Group: 		System/Servers
-Requires: 	%{libname} = %{version}-%{release}
+Requires: 	%{libname} = %{version}
 
 %description clients
 This package contains command-line ldap clients (ldapsearch, ldapadd etc).
@@ -208,8 +209,8 @@ This package contains command-line ldap clients (ldapsearch, ldapadd etc).
 %package migration
 Summary: 	Set of scripts for migration of a nis domain to a ldap directory
 Group: 		System/Configuration
-Requires: 	%{name}-servers = %{version}-%{release}
-Requires: 	%{name}-clients = %{version}-%{release}
+Requires: 	%{name}-servers = %{version}
+Requires: 	%{name}-clients = %{version}
 Requires: 	perl(MIME::Base64)
 
 %description migration
@@ -220,7 +221,7 @@ This package contains a set of scripts for migrating data from local files
 %package -n %{libname}
 Summary: 	OpenLDAP libraries
 Group: 		System/Libraries
-Provides:       lib%{fname} = %{version}-%{release}
+Provides:       libldap = %{version}-%{release}
 # This is needed so all libldap2 applications get /etc/openldap/ldap.conf
 # which was moved from openldap-clients to openldap in 2.1.29-1avx
 Requires:	%{name} >= 2.1.29-1avx
@@ -229,38 +230,37 @@ Requires:	%{name} >= 2.1.29-1avx
 This package includes the libraries needed by ldap applications.
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary: 	OpenLDAP development libraries and header files
 Group: 		Development/C
-Provides: 	lib%{fname}-devel = %{version}-%{release}
-Provides:       openldap-devel = %{version}-%{release}
+Provides: 	libldap-devel = %{version}-%{release}
+Provides:       %{name}-devel = %{version}-%{release}
 Provides:	openldap2-devel = %{version}-%{release}
-Requires: 	%{libname} = %{version}-%{release}
-Obsoletes: 	openldap-devel
+Requires: 	%{libname} = %{version}
+Obsoletes: 	%{name}-devel
 Conflicts:	libldap1-devel
-Conflicts:	%mklibname -d ldap 2
-Conflicts:	%mklibname -d ldap 2.2_7
+Obsoletes:	%mklibname ldap 2.3_0 -d
+Conflicts:	%mklibname ldap 2 -d
+Conflicts:	%mklibname ldap 2.2_7 -d
 
-%description -n %{libname}-devel
+%description -n %{devname}
 This package includes the development libraries and header files
 needed for compiling applications that use LDAP internals.  Install
 this package only if you plan to develop or will need to compile
 LDAP clients.
 
 
-%package -n %{libname}-static-devel
+%package -n %{staticdevname}
 Summary: 	OpenLDAP development static libraries
 Group: 		Development/C
-Provides: 	lib%{fname}-devel-static = %{version}-%{release}
-Provides: 	lib%{fname}-static-devel = %{version}-%{release}
-Provides:	openldap-devel-static = %{version}-%{release}
-Provides:	openldap-static-devel = %{version}-%{release}
-Requires: 	%{libname}-devel = %{version}-%{release}
-Obsoletes: 	openldap-devel-static
+Provides: 	libldap-static-devel = %{version}-%{release}
+Provides:	%{name}-static-devel = %{version}-%{release}
+Requires: 	%{devname} = %{version}
+Obsoletes: 	%mklibname ldap 2.3_0 -d -s
 Conflicts:	libldap1-devel
 
 
-%description -n %{libname}-static-devel
+%description -n %{staticdevname}
 OpenLDAP development static libraries.
 
 
@@ -277,13 +277,16 @@ This package contains the documentation for %{name}.
 %setup -q -a 20 -a 25
 pushd db-%{dbver} >/dev/null
 # upstream patches
-%patch50
-%patch51
-%patch55
-%patch56
+%patch100
+%patch101
+%patch102
+%patch103
+%patch104
+%patch105 -p1
 
-%ifnarch %ix86
-%patch52 -p1 -b .amd64-mutexes
+%ifnarch %{ix86}
+%patch106 -p1 -b .amd64-mutexes
+%patch107 -p1 -b .libtool-fixes
 (cd dist && ./s_config)
 %endif
 popd >/dev/null
@@ -297,21 +300,19 @@ perl -pi -e 's/LDAP_DIRSEP "run" //g' include/ldap_defaults.h
 %patch1 -p1 -b .module
 %patch2 -p1 -b .only-smb
 
-%patch15 -p1 -b .cldap 
+%patch3 -p1 -b .cldap
+%patch4 -p1 -b .mdk
+%patch5 -p1 -b .ntlm
 
 pushd MigrationTools-%{migtools_ver}
-%patch40 -p1 -b .instdir
-%patch41 -p1 -b .mktemp
-%patch42 -p1 -b .simple
-%patch43 -p1 -b .suffix
-%patch45 -p2 -b .i18n
-%patch48 -p2 -b .account
-%patch54 -p1 -b .preserve
+%patch10 -p1 -b .instdir
+%patch11 -p1 -b .mktemp
+%patch12 -p1 -b .simple
+%patch13 -p1 -b .suffix
+%patch14 -p2 -b .i18n
+%patch15 -p2 -b .account
+%patch16 -p1 -b .preserve
 popd
-
-%patch46 -p1 -b .mdk
-#bgmilne %patch47 -p1 -b .maildropschema
-%patch53 -p1 -b .ntlm
 
 # patches from CVS
 
@@ -362,8 +363,8 @@ CONFIGURE_TOP="../dist" \
 # assembler mutexes since they're *way* faster and correctly implemented.
 
 perl -pi -e 's/^(libdb_base=\s+)\w+/\1libslapd_db/g' Makefile
-#Fix soname and libname in libtool:
-perl -pi -e 's/shared_ext/shrext/g' libtool
+# Fix soname and libname in libtool:
+#perl -pi -e 's/shared_ext/shrext/g' libtool
 make
 rm -Rf $dbdir
 mkdir -p $dbdir
@@ -446,6 +447,14 @@ make depend
 
 make 
 make -C contrib/slapd-modules/smbk5pwd
+pushd contrib/slapd-modules/acl
+    gcc -shared -fPIC -I../../../include -I../../../servers/slapd -Wall -g \
+        -o acl-posixgroup.so posixgroup.c
+popd
+pushd contrib/slapd-modules/passwd
+    gcc -shared -fPIC -I../../../include -Wall -g -o pw-netscape.so netscape.c
+    gcc -shared -fPIC -I../../../include -I /usr/kerberos/include -Wall -g -DHAVE_KRB5 -o pw-kerberos.so kerberos.c
+popd
 
 
 %check
@@ -459,6 +468,8 @@ make test
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 cp -af contrib/slapd-modules/smbk5pwd/README{,.smbk5passwd}
+cp -af contrib/slapd-modules/passwd/README{,.passwd}
+cp -af contrib/slapd-modules/acl/README{,.acl}
 
 %if %{db4_internal}
 pushd db-%{dbver}/build_unix >/dev/null
@@ -469,6 +480,9 @@ popd >/dev/null
 %makeinstall_std
 
 cp contrib/slapd-modules/smbk5pwd/.libs/smbk5pwd.so* %{buildroot}/%{_libdir}/%{name}
+cp contrib/slapd-modules/acl/acl-posixgroup.so %{buildroot}/%{_libdir}/%{name}
+cp contrib/slapd-modules/passwd/pw-netscape.so %{buildroot}/%{_libdir}/%{name}
+cp contrib/slapd-modules/passwd/pw-kerberos.so %{buildroot}/%{_libdir}/%{name}
 
 ### some hack
 perl -pi -e "s| -L../liblber/.libs||g" %{buildroot}%{_libdir}/libldap.la
@@ -819,7 +833,7 @@ fi
 %exclude %{_includedir}/db*.h
 %endif
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 %{_libdir}/libl*.so
 %{_libdir}/libl*.la
@@ -827,7 +841,7 @@ fi
 %{_includedir}/s*.h
 %{_mandir}/man3/*
 
-%files -n %{libname}-static-devel
+%files -n %{staticdevname}
 %defattr(-,root,root)
 %{_libdir}/lib*.a
 
@@ -837,6 +851,8 @@ fi
 %doc doc/rfc doc/drafts
 %doc README.migration TOOLS.migration
 %doc contrib/slapd-modules/smbk5pwd/README.smbk5passwd
+%doc contrib/slapd-modules/passwd/README.passwd
+%doc contrib/slapd-modules/acl/README.acl
 
 
 # TODO:
@@ -844,6 +860,17 @@ fi
 
 
 %changelog
+* Tue Sep 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.3.38
+- 2.3.38
+- cleanup requires/provides/obsoletes
+- add additional password modules and acl-posixgroup from contrib
+- renumber patches
+- P104: update to db 4.2.52.5
+- P105: Howard's cache memory leak fix
+- P107: libtool fixes for db 4.2.52
+- updated S47 (dhcp.schema, from version 3.0.5 of the dhcp patch)
+- always build with kerberos support
+
 * Tue Jan 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.3.30
 - really disable syslog support entirely (in slapd and in the post
   scripts); now slapd really only logs to it's own logging service
