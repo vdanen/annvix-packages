@@ -13,9 +13,10 @@
 %define release 	%_revrel
 
 %define picver		3.8.0
-%define lib_version	3.8.2
-%define lib_major	3
-%define libname		%mklibname tiff %{lib_major}
+%define major		3
+%define libname		%mklibname tiff %{major}
+%define devname		%mklibname tiff -d
+%define staticdevname	%mklibname tiff -d -s
 
 Summary:	A library of functions for manipulating TIFF format image files
 Name:		%{name}
@@ -31,7 +32,7 @@ Patch1:		tiff.tiff2pdf-octal-printf.patch
 
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	libjpeg-devel
+BuildRequires:	jpeg-devel
 BuildRequires:	zlib-devel
 
 %description
@@ -55,8 +56,8 @@ This package provides binaries needed to manipulate TIFF format image files.
 %package -n %{libname}
 Summary:	A library of functions for manipulating TIFF format image files
 Group:		System/Libraries
-Obsoletes:	%{name}
 Provides:	%{name} = %{version}-%{release}
+Obsoletes:	%{name}
 
 %description -n %{libname}
 The libtiff package contains a library of functions for manipulating TIFF
@@ -65,28 +66,29 @@ format for bitmapped images. TIFF files usually end in the .tif extension
 and they are often quite large.
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:	Development tools for programs which will use the libtiff library
 Group:		Development/C
 Requires:	%{libname} = %{version}
-Obsoletes:	%{name}-devel
 Provides:	%{name}-devel = %{version}-%{release}
 Provides:	tiff-devel = %{version}-%{release}
+Obsoletes:	%mklibname tiff 3 -d
 
-%description -n %{libname}-devel
+%description -n %{devname}
 This package contains the header files and .so libraries for developing
 programs which will manipulate TIFF format image files using the libtiff
 library.
 
 
-%package -n %{libname}-static-devel
+%package -n %{staticdevname}
 Summary:	Static libraries for programs which will use the libtiff library
 Group:		Development/C
-Requires:	%{libname}-devel = %{version}
+Requires:	%{devname} = %{version}
 Provides:	%{name}-static-devel = %{version}-%{release}
 Provides:	tiff-static-devel = %{version}-%{release}
+Obsoletes:	%mklibname tiff 3 -d -s
 
-%description -n %{libname}-static-devel
+%description -n %{staticdevname}
 This package contains the static libraries for developing
 programs which will manipulate TIFF format image files using the libtiff
 library.
@@ -165,14 +167,15 @@ rm -rf %{buildroot}%{_docdir}/tiff-%{version}
 %defattr(-,root,root,-)
 %{_libdir}/*.so.*
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root,0755)
-%{_includedir}/*
+%{_includedir}/*.h*
+%{multiarch_includedir}/tiffconf.h
 %{_libdir}/*.la
 %{_libdir}/*.so
 %{_mandir}/man3/*
 
-%files -n %{libname}-static-devel
+%files -n %{staticdevname}
 %defattr(-,root,root,-)
 %{_libdir}/*.a
 
@@ -182,6 +185,11 @@ rm -rf %{buildroot}%{_docdir}/tiff-%{version}
 
 
 %changelog
+* Thu Sep 13 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.8.2
+- implement devel naming policy
+- implement library provides policy
+- fix the devel files list so we don't provide %%multiarch_includedir
+
 * Fri Jul 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.8.2
 - 3.8.2
 - drop all patches; merged upstream
