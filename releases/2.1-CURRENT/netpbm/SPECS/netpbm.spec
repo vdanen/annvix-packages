@@ -14,6 +14,8 @@
 
 %define major		10
 %define libname		%mklibname %{name} %{major}
+%define devname		%mklibname %{name} -d
+%define staticdevname	%mklibname %{name} -d -s
 
 
 Summary:	Tools for manipulating graphics files in netpbm supported formats
@@ -50,54 +52,48 @@ BuildRequires:	libxml2-devel
 Requires:	%{libname} = %{version}-%{release}
 
 %description
-The netpbm package contains a library of functions which support
-programs for handling various graphics file formats, including .pbm
-(portable bitmaps), .pgm (portable graymaps), .pnm (portable anymaps),
-.ppm (portable pixmaps) and others.
+The netpbm package contains a library of functions which support programs
+for handling various graphics file formats, including .pbm (portable
+bitmaps), .pgm (portable graymaps), .pnm (portable anymaps), .ppm (portable
+pixmaps) and others.
 
 
 %package -n %{libname}
 Summary:        A library for handling different graphics file formats
 Group:          System/Libraries
 Provides:	lib%{name} = %{version}
-Provides:	libnetpbm1 = %{version}
-Obsoletes:	libnetpbm1
 
 %description -n %{libname}
-The netpbm package contains a library of functions which support
-programs for handling various graphics file formats, including .pbm
-(portable bitmaps), .pgm (portable graymaps), .pnm (portable anymaps),
-.ppm (portable pixmaps) and others.
+The netpbm package contains a library of functions which support programs
+for handling various graphics file formats, including .pbm (portable
+bitmaps), .pgm (portable graymaps), .pnm (portable anymaps), .ppm (portable
+pixmaps) and others.
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:	Development tools for programs which will use the netpbm libraries
 Group:		Development/C
-Requires:	%{libname} = %{version}-%{release}
-Provides:	lib%{name}-devel = %{version}
-Provides:	libnetpbm1-devel = %{version}
-Provides:	netpbm-devel = %{version}
-Obsoletes:	libnetpbm1-devel
+Requires:	%{libname} = %{version}
+Provides:	%{name}-devel = %{version}-%{release}
+Obsoletes:	%mklibname %{name} 10 -d
 
-%description -n %{libname}-devel
+%description -n %{devname}
 The netpbm-devel package contains the header files and programmer's
-documentation for developing programs which can handle the various
-graphics file formats supported by the netpbm libraries.
+documentation for developing programs which can handle the various graphics
+file formats supported by the netpbm libraries.
 
 
-%package -n %{libname}-static-devel
+%package -n %{staticdevname}
 Summary:	Static libraries for the netpbm libraries
 Group:		Development/C
-Requires:	%{libname}-devel = %{version}-%{release}
-Provides:	lib%{name}-static-devel = %{version}
-Provides:	libnetpbm1-static-devel = %{version}
-Provides:	netpbm-static-devel = %{version}
-Obsoletes:	libnetpbm1-static-devel
+Requires:	%{devname} = %{version}
+Provides:	%{name}-static-devel = %{version}-%{release}
+Obsoletes:	%mklibname %{name} 10 -d -s
 
-%description -n %{libname}-static-devel
-The netpbm-devel package contains the static libraries (.a)
-for developing programs which can handle the various
-graphics file formats supported by the netpbm libraries.
+%description -n %{staticdevname}
+The netpbm-devel package contains the static libraries (.a) for developing
+programs which can handle the various graphics file formats supported by
+the netpbm libraries.
 
 
 %package doc
@@ -122,7 +118,7 @@ This package contains the documentation for %{name}.
 %patch14 -p1 -b .CAN-2005-2471
 %patch15 -p1 -b .ppmtompeg
 
-tar xjf %{SOURCE2}
+tar xjf %{_sourcedir}/test-images.tar.bz2
 chmod 0644 doc/*
 
 
@@ -180,7 +176,7 @@ cp -af lib/libnetpbm.a %{buildroot}%{_libdir}/libnetpbm.a
 ln -sf libnetpbm.so.%{major} %{buildroot}%{_libdir}/libnetpbm.so
 
 mkdir -p %{buildroot}%{_mandir}
-tar jxf %{SOURCE3} -C %{buildroot}%{_mandir}
+tar jxf %{_sourcedir}/%{name}doc-%{version}.tar.bz2 -C %{buildroot}%{_mandir}
 
 mkdir -p %{buildroot}%{_datadir}/%{name}-%{version}
 mv %{buildroot}/usr/misc/*.map %{buildroot}%{_datadir}/%{name}-%{version}
@@ -193,7 +189,7 @@ rm -rf %{buildroot}/usr/pkginfo
 rm -rf %{buildroot}/usr/config_template
 
 mkdir -p %{buildroot}%{_datadir}/printconf/mf_rules
-cp %{SOURCE1} %{buildroot}%{_datadir}/printconf/mf_rules/
+cp %{_sourcedir}/mf50-netpbm_filters %{buildroot}%{_datadir}/printconf/mf_rules/
 
 mkdir -p %{buildroot}%{_datadir}/printconf/tests
 cp test-images/* %{buildroot}%{_datadir}/printconf/tests/
@@ -214,14 +210,14 @@ cp test-images/* %{buildroot}%{_datadir}/printconf/tests/
 %defattr(-,root,root)
 %attr(755,root,root) %{_libdir}/lib*.so.*
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 %{_includedir}/*.h
 %multiarch %{multiarch_includedir}/pm_config.h
 %attr(755,root,root) %{_libdir}/lib*.so
 %{_mandir}/man3/*
 
-%files -n %{libname}-static-devel
+%files -n %{staticdevname}
 %defattr(-,root,root)
 %{_libdir}/*.a
 
@@ -242,6 +238,10 @@ cp test-images/* %{buildroot}%{_datadir}/printconf/tests/
 
 
 %changelog
+* Wed Sep 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 10.34
+- implement devel naming policy
+- implement library provides policy
+
 * Thu Apr 26 2007 Vincent Danen <vdanen-at-build.annvix.org> 10.34
 - rebuild against new modular X
 - clean the obsoletes/provides mess
