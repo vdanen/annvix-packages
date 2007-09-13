@@ -176,6 +176,7 @@ Patch600:	glibc-2.3.5-avx-relocate_fcrypt.patch
 Patch601:	glibc-2.3.6-avx-increase_BF_FRAME.patch
 Patch602:	glibc-2.4-avx-kernel-headers-audit_support.patch
 Patch603:	glibc-2.4-avx-owl-crypt.patch
+Patch604:	glibc-2.5-avx-nscd.conf.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	patch
@@ -451,6 +452,7 @@ cp -a crypt_blowfish-%{crypt_bf_ver}/*.[chS] crypt/
 # Annvix
 %patch600 -p1
 %patch601 -p1
+%patch604 -p1
 
 pushd kernel-headers/
 TARGET=%{_target_cpu}
@@ -1160,6 +1162,9 @@ fi
 
 
 %changelog
+* Thu Sep 13 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.5
+- P604: don't enable host caching by default in nscd.conf
+
 * Wed Sep 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.5
 - add missing directories for nscd to work properly
 
