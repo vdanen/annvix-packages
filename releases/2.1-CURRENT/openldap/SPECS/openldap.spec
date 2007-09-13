@@ -97,6 +97,8 @@ Source45:	sudo.schema
 Source46:	dnszone.schema
 # from http://www.newwave.net/~masneyb/dhcp-3.0.5-ldap-patch
 Source47:	dhcp.schema
+# Apple's LDAP schema taken from 10.4.10
+Source48:	apple.schema
 Patch0: 	openldap-2.3.4-config.patch
 Patch1:		openldap-2.0.7-module.patch
 # For now only build support for SMB (no krb5) changing support in smbk5passwd overlay:
@@ -542,7 +544,8 @@ for i in rfc822-MailMember.schema \
     calendar.schema \
     sudo.schema \
     dnszone.schema \
-    dhcp.schema ; do
+    dhcp.schema \
+    apple.schema; do
         install -m 0644 %{_sourcedir}/${i} %{buildroot}%{_datadir}/openldap/schema/
 done
 
@@ -860,6 +863,9 @@ fi
 
 
 %changelog
+* Thu Sep 13 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.3.38
+- S48: add apple's schema (taken from OS X 10.4.10)
+
 * Tue Sep 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.3.38
 - 2.3.38
 - cleanup requires/provides/obsoletes
