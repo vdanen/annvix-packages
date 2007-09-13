@@ -14,6 +14,8 @@
 
 %define maj		0.9.8
 %define libname 	%mklibname %{name} %{maj}
+%define devname		%mklibname %{name} -d
+%define staticdevname	%mklibname %{name} -d -s
 
 # Number of threads to spawn when testing some threading fixes.
 #%define thread_test_threads %{?threads:%{threads}}%{!?threads:1}
@@ -49,7 +51,7 @@ BuildRequires:	multiarch-utils >= 1.0.3
 BuildRequires:	chrpath
 BuildRequires:	zlib-devel
 
-Requires:	%{libname} = %{version}-%{release}
+Requires:	%{libname} = %{version}
 Requires:	perl
 
 %description
@@ -61,15 +63,14 @@ includes cryptographic software written by Eric Young (eay@cryptsoft.com).
 This product includes software written by Tim Hudson (tjh@cryptsoft.com).
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:	Secure Sockets Layer communications static libs & headers & utils
 Group:		Development/Other
-Requires:	%{libname} = %{version}-%{release}
-Provides:	libopenssl-devel = %{version}-%{release}
+Requires:	%{libname} = %{version}
 Provides:	openssl-devel = %{version}-%{release}
-Obsoletes:	openssl-devel
+Obsoletes:	%mklibname %{name} 0.9.8 -d
 
-%description -n %{libname}-devel
+%description -n %{devname}
 The static libraries and include files needed to compile apps with support
 for various cryptographic algorithms and protocols, including DES, RC4, RSA
 and SSL.  This product includes software developed by the OpenSSL Project
@@ -81,14 +82,14 @@ Patches for many networking apps can be found at:
 	ftp://ftp.psy.uq.oz.au/pub/Crypto/SSLapps/
 
 
-%package -n %{libname}-static-devel
+%package -n %{staticdevname}
 Summary:	Secure Sockets Layer communications static libs & headers & utils
 Group:		Development/Other
-Requires:	%{libname}-devel = %{version}-%{release}
-Provides:	libopenssl-static-devel = %{version}-%{release}
+Requires:	%{devname} = %{version}
 Provides:	openssl-static-devel = %{version}-%{release}
+Obsoletes:	%mklibname %{name} 0.9.8 -d -s
 
-%description -n %{libname}-static-devel
+%description -n %{staticdevname}
 The static libraries and include files needed to compile apps with support
 for various cryptographic algorithms and protocols, including DES, RC4, RSA
 and SSL.  This product includes software developed by the OpenSSL Project
@@ -104,6 +105,7 @@ Patches for many networking apps can be found at:
 Summary:	Secure Sockets Layer communications libs
 Group:		System/Libraries
 Provides:	lib%{name}%{maj} = %{version}-%{release}
+Provides:	lib%{name} = %{version}-%{release}
 Conflicts:	openssh < 3.5p1-4mdk
 
 %description -n %{libname}
@@ -349,7 +351,7 @@ echo "%{_sysconfdir}/pki/tls"
 %dir %{_libdir}/openssl/engines
 %{_libdir}/openssl/engines/*.so
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 %dir %{_includedir}/openssl/
 %multiarch %{multiarch_includedir}/openssl/opensslconf.h
@@ -358,7 +360,7 @@ echo "%{_sysconfdir}/pki/tls"
 %{_mandir}/man3/*
 %{_libdir}/pkgconfig/*
 
-%files -n %{libname}-static-devel
+%files -n %{staticdevname}
 %defattr(-,root,root)
 %{_libdir}/lib*.a
 
@@ -371,6 +373,10 @@ echo "%{_sysconfdir}/pki/tls"
 
 
 %changelog
+* Thu Sep 13 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.9.8d
+- implement devel naming policy
+- implement library provides policy
+
 * Fri Jun 01 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.9.8d
 - versioned provides
 - provide libopenssl on 64bit (lafriks)
