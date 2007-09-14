@@ -253,6 +253,9 @@ fi
 
 
 %changelog
+* Fri Sep 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.97
+- rebuild with new binutils
+
 * Mon Apr 02 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.97
 - new grub splash image
 - add a trigger to change the foreground/background colors on update
