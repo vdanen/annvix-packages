@@ -1163,6 +1163,10 @@ fi
 
 %changelog
 * Thu Sep 13 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.5
+- P602: somehow the elf-em.h part got dropped in an update, which prevents
+  audit from building so put it back
+
+* Thu Sep 13 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.5
 - P604: don't enable host caching by default in nscd.conf
 
 * Wed Sep 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.5
