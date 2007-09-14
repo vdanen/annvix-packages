@@ -23,6 +23,7 @@ License:	BSD-like
 Group:		System/Libraries
 URL:		http://www.citi.umich.edu/projects/nfsv4/linux/
 Source0:	http://www.citi.umich.edu/projects/nfsv4/linux/%{name}/%{name}-%{version}.tar.bz2
+Patch0:		librpcsecgss-0.14-CVE-2007-3999.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	libgssapi-devel >= 0.9
@@ -73,6 +74,7 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
+%patch0 -p1 -b .cve-2007-3999
 # lib64 fix
 perl -pi -e "s|/lib/|/%{_lib}/|g" configure*
 
@@ -115,6 +117,9 @@ perl -pi -e "s|/lib/|/%{_lib}/|g" configure*
 
 
 %changelog
+* Fri Sep 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.12
+- P0: security fix for CVE-2007-3999
+
 * Thu Dec 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.12
 - first Annvix build (for nfsv4 support)
 
