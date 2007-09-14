@@ -41,6 +41,7 @@ was later modified to incorporate concepts from the xmlrpc protocol.
 Summary:	Library providing XMLRPC support in C
 Group:		System/Libraries
 Provides:	libxmlrpc = %{version}-%{release}
+Obsoletes:	libxmlrpc0 < %{version}-%{release}
 
 %description -n %{libname}
 xmlrpc-epi is an implementation of the xmlrpc protocol in C. It provides an 
@@ -56,7 +57,7 @@ Group:		Development/C
 Requires:	%{libname} = %{version}
 Provides:	%{libname}-devel = %{version}-%{release}
 Provides:	%{name}-devel = %{version}-%{release}
-Obsoletes:	%mklibname xmlrpc 0 -d
+Obsoletes:	libxmlrpc0 < %{version}-%{release}
 
 %description -n %{devname}
 xmlrpc-epi is an implementation of the xmlrpc protocol in C. It provides an
@@ -127,6 +128,9 @@ rm -f %{buildroot}%{_bindir}/{client,hello_{client,server},memtest,sample,server
 
 
 %changelog
+* Fri Sep 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.51
+- fix obsoletes so x86_64 upgrades properly
+
 * Fri Sep 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.51
 - fix this (seriously screwed up) package
 - implement devel naming policy
