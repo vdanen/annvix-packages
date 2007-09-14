@@ -1110,6 +1110,9 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc.info.bz2 --dir=%{_info
 
 
 %changelog
+* Thu Sep 13 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.1.2
+- rebuild against new binutils
+
 * Sat Jun 23 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.1.2
 - 4.1.2
 - updated P8 from Mandriva
