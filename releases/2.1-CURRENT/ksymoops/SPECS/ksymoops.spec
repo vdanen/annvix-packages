@@ -81,6 +81,9 @@ install -m 0644 %{SOURCE3} .
 
 
 %changelog
+* Fri Sep 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.4.9
+- rebuild with new binutils
+
 * Sat Jul 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.9
 - add -doc subpackage
 - rebuild with gcc4
