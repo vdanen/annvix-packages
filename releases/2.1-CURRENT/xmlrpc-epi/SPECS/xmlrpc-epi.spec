@@ -57,7 +57,7 @@ Group:		Development/C
 Requires:	%{libname} = %{version}
 Provides:	%{libname}-devel = %{version}-%{release}
 Provides:	%{name}-devel = %{version}-%{release}
-Obsoletes:	libxmlrpc0 < %{version}-%{release}
+Obsoletes:	libxmlrpc0-devel < %{version}-%{release}
 
 %description -n %{devname}
 xmlrpc-epi is an implementation of the xmlrpc protocol in C. It provides an
