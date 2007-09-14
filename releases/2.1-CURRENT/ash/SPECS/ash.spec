@@ -120,6 +120,9 @@ fi
 
 
 %changelog
+* Fri Sep 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.3.8
+- rebuild with new binutils
+
 * Mon Jun 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.3.8
 - fix requires
 - versioned provides
