@@ -115,7 +115,7 @@ make
 mkdir -p %{buildroot}/{sbin,%{_mandir}/man8,%{_lib}}
 mkdir -p %{buildroot}%{_sysconfdir}/sysconfig
 mkdir -p %{buildroot}{%{_includedir},%{_libdir}}
-make DESTDIR=%{buildroot} install
+make DESTDIR=%{buildroot} pythondir=%{_libdir}/python%{pyver}/site-packages install
 
 mkdir -p %{buildroot}%{_srvdir}/auditd/log
 install -m 0740 %{_sourcedir}/auditd.run %{buildroot}%{_srvdir}/auditd/run
