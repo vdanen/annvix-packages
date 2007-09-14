@@ -1162,6 +1162,9 @@ fi
 
 
 %changelog
+* Fri Sep 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.5
+- rebuild with new binutils
+
 * Thu Sep 13 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.5
 - P602: somehow the elf-em.h part got dropped in an update, which prevents
   audit from building so put it back
