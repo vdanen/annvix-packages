@@ -9,11 +9,12 @@
 
 %define revision	$Rev$
 %define name		librpcsecgss
-%define version		0.12
+%define version		0.15
 %define release		%_revrel
 
 %define	major		2
 %define libname		%mklibname rpcsecgss %{major}
+%define devname		%mklibname rpcsecgss -d
 
 Summary:	Allows secure rpc communication using the rpcsec_gss protocol
 Name:		%{name}
@@ -22,14 +23,10 @@ Release:	%{release}
 License:	BSD-like
 Group:		System/Libraries
 URL:		http://www.citi.umich.edu/projects/nfsv4/linux/
-Source0:	http://www.citi.umich.edu/projects/nfsv4/linux/%{name}/%{name}-%{version}.tar.bz2
+Source0:	http://www.citi.umich.edu/projects/nfsv4/linux/%{name}/%{name}-%{version}.tar.gz
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	libgssapi-devel >= 0.9
-BuildRequires:  automake1.7
-BuildRequires:  autoconf2.5
-BuildRequires:  pkgconfig
-BuildRequires:  libtool
+BuildRequires:  gssglue-devel
 
 %description
 Allows secure rpc communication using the rpcsec_gss protocol
@@ -40,6 +37,7 @@ protocol.
 %package -n %{libname}
 Summary:	Allows secure rpc communication using the rpcsec_gss protocol
 Group:		System/Libraries
+Provides:	%{name} = %{version}-%{release}
 
 %description -n	%{libname}
 Allows secure rpc communication using the rpcsec_gss protocol
@@ -47,14 +45,15 @@ librpcsecgss allows secure rpc communication using the rpcsec_gss
 protocol.
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:	Static library and header files for the librpcsecgss library
 Group:		Development/C
 Requires:	%{libname} = %{version}
-Provides:	librpcsecgss-devel = %{version}
-Provides:	rpcsecgss-devel = %{version}
+Provides:	%{name}-devel = %{version}-%{release}
+Provides:	rpcsecgss-devel = %{version}-%{release}
+Obsoletes:	%mklibname rpcsecgss 2 -d
 
-%description -n	%{libname}-devel
+%description -n	%{devname}
 Allows secure rpc communication using the rpcsec_gss protocol
 librpcsecgss allows secure rpc communication using the rpcsec_gss
 protocol.
@@ -73,8 +72,6 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
-# lib64 fix
-perl -pi -e "s|/lib/|/%{_lib}/|g" configure*
 
 
 %build
@@ -101,7 +98,7 @@ perl -pi -e "s|/lib/|/%{_lib}/|g" configure*
 %defattr(-,root,root)
 %{_libdir}/*.so.*
 
-%files  -n %{libname}-devel
+%files  -n %{devname}
 %defattr(-,root,root)
 %{_includedir}/rpcsecgss
 %{_libdir}/*.so
@@ -115,6 +112,12 @@ perl -pi -e "s|/lib/|/%{_lib}/|g" configure*
 
 
 %changelog
+* Fri Sep 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.15
+- 0.15; contains fix for CVE-2007-3999
+- implement devel naming policy
+- implement library provides policy
+- buildrequires on gssglue-devel now
+
 * Thu Dec 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.12
 - first Annvix build (for nfsv4 support)
 
