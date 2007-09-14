@@ -9,12 +9,13 @@
 
 %define revision	$Rev$
 %define name		libxslt
-%define version		1.1.19
+%define version		1.1.22
 %define release		%_revrel
 
 %define xml_ver_req	2.6.25
 %define major		1
 %define libname		%mklibname xslt %{major}
+%define devname		%mklibname xslt -d
 
 %define pylibxml2   	python-libxml2
 
@@ -56,7 +57,7 @@ mechanism.
 %package -n %{libname}
 Summary:	Library providing XSLT support
 Group:		System/Libraries
-Requires:	libxml2 >= %{xml_ver_req}
+Provides:	%{name} = %{version}-%{release}
 
 %description  -n %{libname}
 This C library allows to transform XML files into other XML files
@@ -85,18 +86,20 @@ the XSLT transformation context are possible to extend the XSLT language
 with XPath functions written in Python.
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:	Libraries, includes, etc. to develop XML and HTML applications
 Group:		Development/C
 Provides:	%{name}-devel = %{version}-%{release}
-Provides:	%{_lib}%{name}-devel = %{version}-%{release}
+Provides:	lib%{name}-devel = %{version}-%{release}
 Requires:	%{libname} = %{version}
 Requires:	libxml2-devel >= %{xml_ver_req}
+Obsoletes:	%mklibname xslt 1 -d
 
-%description -n %{libname}-devel
+%description -n %{devname}
 This C library allows to transform XML files into other XML files
 (or HTML, text, ...) using the standard XSLT stylesheet transformation
 mechanism. 
+
 
 %package doc
 Summary:	Documentation for %{name}
@@ -158,7 +161,7 @@ rm -rf %{buildroot}%{_docdir}/%{name}-%{version} \
 %{_libdir}/python%{pyver}/site-packages/*.py
 
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 %{_mandir}/man3/*
 %{_libdir}/lib*.so
@@ -172,7 +175,7 @@ rm -rf %{buildroot}%{_docdir}/%{name}-%{version} \
 
 %files doc
 %defattr(-,root,root)
-%doc AUTHORS ChangeLog NEWS README Copyright FEATURES
+%doc AUTHORS NEWS README Copyright FEATURES
 %doc doc/*.html
 %doc doc/tutorial doc/html
 %doc python/libxsltclass.txt
@@ -180,6 +183,12 @@ rm -rf %{buildroot}%{_docdir}/%{name}-%{version} \
 
 
 %changelog
+* Fri Sep 13 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.1.22
+- 1.1.22
+- implement devel naming policy  
+- implement library provides policy
+- drop explicit requires on libxml2 as it's implicit anyways
+
 * Fri May 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.1.19
 - rebuild againt new python
 
