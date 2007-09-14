@@ -15,6 +15,7 @@
 %define	major		4
 %define	LIBVER		4.11
 %define libname		%mklibname %{name} %{major}
+%define devname		%mklibname %{name} -d
 
 Summary:	A pixmap library for the X Window System
 Name:		%{name}
@@ -52,7 +53,8 @@ pixmapped images, and is used by many popular X programs.
 %package -n %{libname}
 Summary:	A pixmap library for the X Window System
 Group:		System/Libraries
-Provides:	%{name} = %{version}
+Provides:	%{name} = %{version}-%{release}
+Provides:	lib%{name} = %{version}-%{release}
 
 %description -n %{libname}
 The xpm package contains the XPM pixmap library for the X Window
@@ -60,14 +62,14 @@ System.  The XPM library allows applications to display color,
 pixmapped images, and is used by many popular X programs.
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:	Tools for developing apps which will use the XPM pixmap library
 Group:		Development/C
 Requires:	%{libname} = %{version}
-Provides:	%{name}-devel = %{version}
-Provides:	lib%{name}-devel = %{version}
+Provides:	%{name}-devel = %{version}-%{release}
+Obsoletes:	%mklibname %{name} 4 -d
 
-%description -n %{libname}-devel
+%description -n %{devname}
 The xpm-devel package contains the development libraries and header
 files  necessary for developing applications which will use the XPM
 library.  The XPM library is used by many programs for displaying
@@ -126,7 +128,7 @@ make DESTDIR=%{buildroot} install
 %defattr(-,root,root)
 %{_libdir}/libXpm.so.*
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 %{_bindir}/*
 %{_includedir}/X11/*
@@ -139,6 +141,10 @@ make DESTDIR=%{buildroot} install
 
 
 %changelog
+* Fri Sep 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.4k
+- implement devel naming policy
+- implement library provides policy
+
 * Thu Apr 26 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.4k
 - rebuild against new libx11 and (many) friends
 
