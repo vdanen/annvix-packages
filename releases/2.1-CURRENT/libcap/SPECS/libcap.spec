@@ -11,10 +11,10 @@
 %define name 		libcap
 %define version		1.10
 %define release		%_revrel
-%define sname		cap
 
 %define major		1
-%define libname		%mklibname %{sname} %{major}
+%define libname		%mklibname cap %{major}
+%define devname		%mklibname cap -d
 
 Summary:	Library for getting and setting POSIX.1e capabilities
 Name:		%{name}
@@ -38,22 +38,22 @@ draft 15 capabilities.
 %package -n %{libname}
 Summary:	Library for getting and setting POSIX.1e capabilities
 Group:		System/Libraries
+Provides:	libcap = %{version}-%{release}
 Obsoletes:	libcap
-Provides:	libcap = %{version}
 
 %description -n %{libname}
 libcap is a library for getting and setting POSIX.1e (formerly POSIX 6)
 draft 15 capabilities.
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:	Development files for libcap
 Group:		Development/Libraries
-Obsoletes:	libcap-devel
-Provides:	libcap-devel = %{version}-%{release}
 Requires:	%{libname} = %{version}
+Provides:	%{name}-devel = %{version}-%{release}
+Obsoletes:	%mklibname cap 1 -d
 
-%description -n %{libname}-devel
+%description -n %{devname}
 libcap is a library for getting and setting POSIX.1e (formerly POSIX 6)
 draft 15 capabilities.
 
@@ -123,7 +123,7 @@ rm -rf %{buildroot}%{_mandir}/man2
 %defattr(-,root,root)
 %{_libdir}/*.so.*
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 %{_includedir}/*
 %{_libdir}/*.so
@@ -135,6 +135,10 @@ rm -rf %{buildroot}%{_mandir}/man2
 
 
 %changelog
+* Fri Sep 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.10
+- implement devel naming policy  
+- implement library provides policy
+
 * Sat Mar 10 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.10
 - remove capget.2 and capset.2 as they're already in man-pages
 
