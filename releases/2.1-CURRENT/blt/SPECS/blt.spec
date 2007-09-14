@@ -14,7 +14,7 @@
 
 %define major		2
 %define	libname		%mklibname %{name} %{major}
-%define	libname_devel	%mklibname %{name} %{major} -d
+%define	devname		%mklibname %{name} -d
 
 Summary:	A Tk toolkit extension, including widgets, geometry managers, etc
 Name:		%{name}
@@ -62,6 +62,7 @@ installed in order to use BLT.
 Summary:	Shared libraries needed to use BLT
 Group:		System/Libraries
 Requires:	blt-scripts = %{version}
+Provides:	lib%{name} = %{version}-%{release}
 
 %description -n %{libname}
 BLT is an extension to the Tk toolkit. BLT's most useful feature is the
@@ -73,15 +74,14 @@ installed in order to use BLT.
 This package provides libraries needed to use BLT.
 
 
-%package -n %{libname_devel}
+%package -n %{devname}
 Summary:	Headers of BLT
 Group:		Development/Other
-Requires:	%{libname} = %{version}-%{release}
-Provides:	lib%{name}-devel = %{version}-%{release}
-Obsoletes:	blt-devel
-Provides:	blt-devel
+Requires:	%{libname} = %{version}
+Provides:	%{name}-devel = %{version}-%{release}
+Obsoletes:	%mklibname %{name} 2 -d
 
-%description -n %{libname_devel}
+%description -n %{devname}
 BLT is an extension to the Tk toolkiy. BLT's most useful feature is the
 provision of more widgets for Tk, but it also provides more geometry managers
 and miscellaneous other commands. Note that you won't need to any patching
@@ -106,7 +106,7 @@ This package contains the documentation for %{name}.
 %patch2 -p1 -b .libdir
 %patch3 -p1 -b .mkdir_p
 %patch4 -p1 -b .64bit-fixes
-autoconf
+autoconf-2.13
 
 
 %build
@@ -165,7 +165,7 @@ done
 %defattr(-,root,root,-)
 %{_libdir}/*.so
 
-%files -n %{libname_devel}
+%files -n %{devname}
 %defattr(-,root,root,-)
 %{_includedir}/*.h
 %multiarch %{multiarch_includedir}/*.h
@@ -180,6 +180,11 @@ done
 
 
 %changelog
+* Fri Sep 13 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.4z
+- use autoconf-2.13 explicitly
+- implement devel naming policy
+- implement library provides policy
+
 * Thu Apr 26 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.4z
 - build against modular X
 
