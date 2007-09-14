@@ -13,7 +13,8 @@
 %define release 	%_revrel
 
 %define major		0
-%define libname		%mklibname audit %{major}
+%define libname		%mklibname %{name} %{major}
+%define devname		%mklibname %{name} -d
 
 Summary:	User-space tools for Linux 2.6 kernel auditing
 Name: 		%{name}
@@ -49,22 +50,22 @@ Linux 2.6 kernel.
 %package -n %{libname}
 Summary:        Dynamic library for libaudit
 Group:          System/Libraries
-Provides:	libaudit
+Provides:	lib%{name} = %{version}-%{release}
 
 %description -n %{libname}
 This package contains the dynamic libraries needed for applications to
 use the audit framework.
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:	Libraries and header files for libaudit
 Group:		Development/Libraries
-Requires:	%{libname} = %{version}-%{release}
+Requires:	%{libname} = %{version}
 Requires:	glibc-devel
-Provides:	audit-devel
-Provides:	libaudit-devel
+Provides:	audit-devel = %{version}-%{release}
+Obsoletes:	%mklibname %{name} 0 -d
 
-%description -n %{libname}-devel
+%description -n %{devname}
 This package contains the static libraries and header files needed
 for developing applications that need to use the audit framework
 libraries.
@@ -73,7 +74,7 @@ libraries.
 %package -n %{libname}-python
 Summary:	Python bindings for libaudit
 Group:		Development/Libraries
-Requires:	%{libname} = %{version}-%{release}
+Requires:	%{libname} = %{version}
 Requires:	glibc-devel
 
 %description -n %{libname}-python
@@ -94,6 +95,8 @@ This package contains the documentation for %{name}.
 %patch0 -p1 -b .avx
 %patch1 -p1 -b .config
 
+# this is hard-coded for some stupid reason
+perl -pi -e s'|/lib/python2.4/site-packages|/%{_lib}/python%{pyver}/site-packages|' audisp/Makefile
 
 %build
 %serverbuild
@@ -128,14 +131,9 @@ pushd %{buildroot}%{_libdir}
     ln -s ../../%{_lib}/${LIBNAME} libaudit.so
 popd
 
-# this gets installed in the wrong place
-%ifarch x86_64
-mv %{buildroot}/usr/lib/python%{pyver}/site-packages/AuditMsg.py* %{buildroot}%{_libdir}/python%{pyver}/site-packages/
-%endif
-
 # remove unwanted files
 rm -f %{buildroot}/%{_lib}/libaudit.{so,la}
-rm -f %{buildroot}%{_libdir}/python2.4/site-packages/_audit.{a,la}
+rm -f %{buildroot}%{_libdir}/python%{pyver}/site-packages/_audit.{a,la}
 rm -rf %{buildroot}%{_sysconfdir}/rc.d
 rm -f %{buildroot}%{_sysconfdir}/sysconfig/auditd
 
@@ -183,7 +181,7 @@ strip %{buildroot}/sbin/auditd
 /%{_lib}/libaudit.so.*
 %config(noreplace) %attr(0640,root,root) %{_sysconfdir}/libaudit.conf
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 %{_includedir}/libaudit.h
 %{_libdir}/libaudit.a
@@ -201,6 +199,11 @@ strip %{buildroot}/sbin/auditd
 
 
 %changelog
+* Thu Sep 13 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2.9
+- implement devel naming policy
+- implement library provides policy
+- fix the build with python 2.5
+
 * Sat Dec 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.9
 - rebuild against new swig
 
