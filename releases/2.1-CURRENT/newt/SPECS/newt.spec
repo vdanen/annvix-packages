@@ -9,11 +9,12 @@
 
 %define revision	$Rev$
 %define name		newt
-%define version 	0.51.6
+%define version 	0.52.6
 %define release 	%_revrel
 
-%define major		0.51
+%define major		0.52
 %define libname		%mklibname %{name} %{major}
+%define devname		%mklibname %{name} -d
 
 Summary:	A development library for text mode user interfaces
 Name:		%{name}
@@ -21,11 +22,14 @@ Version:	%{version}
 Release:	%{release}
 License:	LGPL
 Group:		System/Libraries
-Source:		ftp://ftp.redhat.com/pub/redhat/linux/code/newt/newt-%{version}.tar.bz2
+Source:		ftp://ftp.redhat.com/pub/redhat/linux/code/newt/newt-%{version}.tar.gz
 Patch0:		newt-gpm-fix.diff
-Patch1:		newt-mdkconf.patch
+Patch1:		newt-0.52.6-mdvconf.patch
 Patch2:		newt-0.51.4-fix-wstrlen-for-non-utf8-strings.patch
-Patch3:		newt-0.51.6-avx-nostatic.patch
+Patch3:		newt-0.52.6-fdr-entry.patch
+Patch4:		newt-0.52.6-fdr-countitems.patch
+Patch5:		newt-0.52.6-fdr-cursor.patch
+Patch6:		newt-0.52.6-fdr-memleaks.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	glibc-static-devel
@@ -34,7 +38,7 @@ BuildRequires:	python-devel >= 2.2
 BuildRequires:	slang-devel
 
 Requires:	slang
-Provides:	snack
+Provides:	python-snack
 
 %description
 Newt is a programming library for color text mode, widget based user
@@ -48,7 +52,7 @@ slang library.
 %package -n %{libname}
 Summary:	Newt windowing toolkit development files library
 Group:		Development/C
-Provides:	%{name} = %{version}-%{release}
+Provides:	lib%{name} = %{version}-%{release}
 
 %description -n %{libname}
 Newt is a programming library for color text mode, widget based user
@@ -59,15 +63,14 @@ shared library needed by programs built with newt. Newt is based on the
 slang library.
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:	Newt windowing toolkit development files
 Group:		Development/C
 Requires:	slang-devel %{libname} = %{version}
-Provides:	lib%{name}-devel = %{version}-%{release}
 Provides:	%{name}-devel = %{version}-%{release}
-Obsoletes:	%{name}-devel
+Obsoletes:	%mklibname %{name} 0.51 -d
 
-%description -n %{libname}-devel
+%description -n %{devname}
 The newt-devel package contains the header files and libraries
 necessary for developing applications which use newt.  Newt is
 a development library for text mode user interfaces.  Newt is
@@ -86,16 +89,21 @@ This package contains the documentation for %{name}.
 %setup -q
 
 %patch0 -p0
-%patch1 -p0
+%patch1 -p1
 %patch2 -p1
-#%patch3 -p0 -b .nostatic
+%patch3 -p0 -b .entry
+%patch4 -p0 -b .countitems
+%patch5 -p0 -b .cursor
+%patch6 -p0 -b .memleaks
 
 
 %build
 export CFLAGS="%{optflags}"
 export CXXFLAGS="%{optflags}"
 export FFLAGS="%{optflags}"
-%configure --without-gpm-support
+%configure \
+    --without-gpm-support \
+    --without-tcl
 
 %make
 %make shared
@@ -108,6 +116,9 @@ mkdir -p %{buildroot}
 ln -sf lib%{name}.so.%{version} %{buildroot}%{_libdir}/lib%{name}.so.%{major}
 
 rm -rf  %{buildroot}%{_libdir}/python{1.5,2.0,2.1,2.2,2.3.2.4}
+
+%find_lang %{name}
+%kill_lang %{name}
 
 
 %clean
@@ -126,8 +137,9 @@ rm -rf  %{buildroot}%{_libdir}/python{1.5,2.0,2.1,2.2,2.3.2.4}
 %defattr (-,root,root)
 %{_bindir}/whiptail
 %{_libdir}/python%{pyver}/site-packages/*
+%{_mandir}/man1/whiptail.1*
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr (-,root,root)
 %{_includedir}/newt.h
 %{_libdir}/libnewt.a
@@ -140,6 +152,15 @@ rm -rf  %{buildroot}%{_libdir}/python{1.5,2.0,2.1,2.2,2.3.2.4}
 
 
 %changelog
+* Sat Sep 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.52.6
+- 0.52.6
+- updated P1 from Mandriva
+- P3, P4, P5, P6: assorted fixes from Fedora
+- provide python-snack instead of snack
+- build against new slang
+- implement devel naming policy
+- implement library provides policy
+
 * Fri May 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.51.6
 - rebuild againt new python
 
