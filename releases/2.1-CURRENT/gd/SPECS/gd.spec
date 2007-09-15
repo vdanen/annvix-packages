@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		gd
-%define version		2.0.33
+%define version		2.0.35
 %define release		%_revrel
 
 %define major		2
@@ -24,12 +24,8 @@ Version:	%{version}
 Release:	%{release}
 License:	BSD-style
 Group:		System/Libraries
-URL:		http://www.boutell.com/gd/
-Source0:	http://www.boutell.com/gd/http/%{name}-%{version}.tar.bz2
-Patch0:		gd-2.0.33-CAN-2004-0941.patch
-Patch1:		gd-2.0.33-CVE-2006-2906.patch
-Patch2:		gd-2.0.33-CVE-2007-0455.patch
-Patch3:		gd-cvs-CVE-2007-2756.patch
+URL:		http://www.libgd.org/
+Source0:	http://www.libgd.org/releases/%{name}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5
@@ -128,10 +124,6 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q -n gd-%{version}
-%patch0 -p1 -b .CAN-2004-0941
-%patch1 -p1 -b .cve-2006-2906
-%patch2 -p1 -b .cve-2007-0455
-%patch3 -p0 -b .cve-2007-2756
 
 
 %build
@@ -198,6 +190,10 @@ libtoolize --copy --force; aclocal-1.7; automake-1.7 --copy --add-missing; autoc
 
 
 %changelog
+* Fri Sep 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0.35
+- 2.0.35: fixes CVE-2007-347[2345678]
+- drop P0, P1, P2, P3: merged upstream
+
 * Fri Jul 20 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0.33
 - P3: security fix for CVE-2007-2756
 - implement devel naming policy
