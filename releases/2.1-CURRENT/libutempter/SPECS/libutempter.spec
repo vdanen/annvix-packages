@@ -11,11 +11,10 @@
 %define name		libutempter
 %define version		1.1.4
 %define release		%_revrel
-%define sname		utempter
 
 %define major		0
-%define libname		%mklibname %{sname} %{major}
-
+%define libname		%mklibname utempter %{major}
+%define devname		%mklibname utempter -d
 
 Summary:	Priviledged helper for utmp/wtmp updates
 Name:		%{name}
@@ -41,11 +40,12 @@ between root and the programs.
 %package -n %{libname}
 Summary:	Library used by %{name}
 Group:		System/Libraries
-Provides:	utempter = %{version}-%{release}
-Obsoletes:	utempter
 Requires(pre):	rpm-helper
 Requires(post):	rpm-helper
 Requires(postun): rpm-helper
+Provides:	utempter = %{version}-%{release}
+Provides:	%{name} = %{version}-%{release}
+Obsoletes:	utempter
 
 %description -n %{libname}
 Libutempter is an library which allows some non-privileged
@@ -54,14 +54,15 @@ security. It accomplishes this feat by acting as a buffer
 between root and the programs.
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:	Devel files for %{name}
 Group:		Development/C
-Provides:	%{name}-devel
-Provides:	%{sname}-devel
 Requires:	%{libname} = %{version}
+Provides:	%{name}-devel = %{version}-%{release}
+Provides:	utempter-devel = %{version}-%{release}
+Obsoletes:	%mklibname utempter 0 -d
 
-%description -n %{libname}-devel
+%description -n %{devname}
 Header files for writing apps using libutempter
 
 
@@ -103,7 +104,7 @@ make CC=gcc libexecdir="%{_libexecdir}"
 %attr(2711,root,utmp) %{_libexecdir}/utempter/utempter
 %{_libdir}/libutempter.so.*
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 %{_libdir}/libutempter.so
 %{_libdir}/libutempter.a
@@ -115,6 +116,10 @@ make CC=gcc libexecdir="%{_libexecdir}"
 
 
 %changelog
+* Sat Sep 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.1.4
+- implement devel naming policy
+- implement library provides policy
+
 * Fri Jul 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.1.4
 - 1.1.4
 - add -doc subpackage
