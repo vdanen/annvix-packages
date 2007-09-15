@@ -71,6 +71,14 @@ Patch32:	tetex-src-3.0-gd-CVE-2006-2906.patch
 Patch33:	gd-2.0.33-CVE-2007-0455.patch
 Patch34:	gd-cvs-CVE-2007-2756.patch
 Patch35:	tetex-3.0-CVE-2007-0650.patch
+Patch36:	xpdf-3.01-CVE-2007-3387.patch
+Patch37:	gd-2.0.33_CVE-2007-3472.patch
+Patch38:	gd-2.0.33_CVE-2007-3473.patch
+Patch39:	gd-2.0.33_CVE-2007-3474.patch
+Patch40:	gd-2.0.33_CVE-2007-3475.patch
+Patch41:	gd-2.0.33_CVE-2007-3476.patch
+Patch42:	gd-2.0.33_CVE-2007-3477.patch
+Patch43:	gd-2.0.33_CVE-2007-3478.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	bison
@@ -299,12 +307,20 @@ pushd libs/xpdf
 %patch28 -p1 -b .cve-2005-3191_2_3
 %patch29 -p1 -b .goo_overflow
 %patch30 -p1 -b .chris_overflows
+%patch36 -p1 -b .cve-2007-3387
 popd
 %patch31 -p1 -b .can-2004-0941
 %patch32 -p1 -b .cve-2006-2906
 pushd libs/gd
 %patch33 -p1 -b .cve-2007-0455
 %patch34 -p0 -b .cve-2007-2756
+%patch37 -p1 -b .cve-2007-3472
+%patch38 -p1 -b .cve-2007-3473
+%patch39 -p1 -b .cve-2007-3474
+%patch40 -p1 -b .cve-2007-3475
+%patch41 -p1 -b .cve-2007-3476
+%patch42 -p1 -b .cve-2007-3477
+%patch43 -p1 -b .cve-2007-3478
 popd
 %patch35 -p1 -b .cve-2007-0650
 
@@ -546,6 +562,16 @@ rm -f filelist.*
 
 
 %changelog
+* Fri Sep 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0
+- P36: security fix for CVE-2007-3387
+- P37: security fix for CVE-2007-3472
+- P38: security fix for CVE-2007-3473
+- P39: security fix for CVE-2007-3474
+- P40: security fix for CVE-2007-3475
+- P41: security fix for CVE-2007-3476
+- P42: security fix for CVE-2007-3477
+- P43: security fix for CVE-2007-3478
+
 * Fri Jul 20 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0
 - rebuild to fix bogus requires on /usr/local/bin/perl
 
