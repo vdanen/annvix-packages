@@ -379,7 +379,7 @@ find %{_builddir}/%{name}-%{version} -name "*\.h" | xargs perl -p -i -e "s|\"com
 
 # strip rpath
 chrpath -d %{buildroot}%{_libdir}/*so*
-strip %{buildroot}%{_bindir}/{ksu,v4rcp}
+strip %{buildroot}%{_bindir}/ksu
 
 # dump un-FHS examples location (files included in doc list now)
 rm -Rf %{buildroot}/%{_datadir}/examples
@@ -645,6 +645,7 @@ popd >/dev/null 2>&1
 * Fri Sep 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.5.1
 - P26: security fix for CVE-2007-3999 and CVE-2007-4000
 - P27: security fix for CVE-2007-4743 (the other half of CVE-2007-3999)
+- v4rcp is no longer built, so it no longer needs to be stripped
 
 * Fri Jul 20 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.5.1
 - P24: security fix for CVE-2007-2442 and CVE-2007-2443
