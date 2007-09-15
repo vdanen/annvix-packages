@@ -12,10 +12,11 @@
 %define version		7.6
 %define release		%_revrel
 
-%define libmajor	0
-%define libminor	7
+%define major		0
+%define minor		7
 %define librel		6
-%define libname		%mklibname wrap %{libmajor}
+%define libname		%mklibname wrap %{major}
+%define devname		%mklibname wrap -d
 
 Summary: 	A security tool which acts as a wrapper for TCP daemons
 Name: 		%{name}
@@ -58,21 +59,21 @@ filtering incoming network services requests.
 %package -n %{libname}
 Summary:	A security library which acts as a wrapper for TCP daemons
 Group:		System/Libraries
+Provides:	libwrap = %{version}-%{release}
 
 %description -n %{libname}
 This package contains the shared tcp_wrappers library (libwrap).
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:	A security library which acts as a wrapper for TCP daemons
 Group:		Development/C
 Requires:	%{libname} = %{version}
+Provides:	%{name}-devel = %{version}-%{release}
 Obsoletes:	%{name}-devel
-Obsoletes:	libwrap-devel
-Provides:	%{name}-devel = %{version}
-Provides:	libwrap-devel = %{version}
+Obsoletes:	%mklibname wrap 0 -d
 
-%description -n %{libname}-devel
+%description -n %{devname}
 This package contains the static tcp_wrappers library (libwrap) and
 its header files.
 
@@ -108,7 +109,7 @@ This package contains the documentation for %{name}.
 %build
 %make OPTFLAGS="%{optflags} -fPIC -DPIC -D_REENTRANT -DHAVE_STRERROR" \
     LDFLAGS="-pie" REAL_DAEMON_DIR=%{_sbindir} \
-    MAJOR=%{libmajor} MINOR=%{libminor} REL=%{librel} linux
+    MAJOR=%{major} MINOR=%{minor} REL=%{librel} linux
 
 
 %install
@@ -124,9 +125,9 @@ popd
 
 install -m 0644 tcpd.8 tcpdchk.8 tcpdmatch.8 %{buildroot}%{_mandir}/man8
 
-install -m 0755 libwrap.so.%{libmajor}.%{libminor}.%{librel} %{buildroot}%{_libdir}/
-ln -s libwrap.so.%{libmajor}.%{libminor}.%{librel} %{buildroot}%{_libdir}/libwrap.so.%{libmajor}
-ln -s libwrap.so.%{libmajor}.%{libminor}.%{librel} %{buildroot}%{_libdir}/libwrap.so
+install -m 0755 libwrap.so.%{major}.%{minor}.%{librel} %{buildroot}%{_libdir}/
+ln -s libwrap.so.%{major}.%{minor}.%{librel} %{buildroot}%{_libdir}/libwrap.so.%{major}
+ln -s libwrap.so.%{major}.%{minor}.%{librel} %{buildroot}%{_libdir}/libwrap.so
 
 install -m 0644 libwrap.a %{buildroot}%{_libdir}
 install -m 0644 tcpd.h %{buildroot}%{_includedir}
@@ -146,10 +147,6 @@ install -m 0755 try-from %{buildroot}%{_sbindir}
 %postun -n %{libname} -p /sbin/ldconfig
 
 
-%post -n %{libname}-devel -p /sbin/ldconfig
-%postun -n %{libname}-devel -p /sbin/ldconfig
-
-
 %files
 %defattr(-,root,root,755)
 %{_sbindir}/*
@@ -159,7 +156,7 @@ install -m 0755 try-from %{buildroot}%{_sbindir}
 %defattr(-,root,root)
 %{_libdir}/*.so.*
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 %{_includedir}/*
 %{_libdir}/*.so
@@ -171,6 +168,11 @@ install -m 0755 try-from %{buildroot}%{_sbindir}
 
 
 %changelog
+* Sat Sep 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 7.6
+- implement devel naming policy
+- implement library provides policy
+- don't call ldconfig on the devel packages
+
 * Tue May 01 2007 Vincent Danen <vdanen-at-build.annvix.org> 7.6
 - versioned provides
 
