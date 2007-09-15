@@ -52,7 +52,7 @@ Provides:	%{name}-devel = %{version}-%{release}
 Provides:	xcrypt-devel = %{version}-%{release}
 Obsoletes:	%{name}-devel < %{version}-%{release}
 
-%description devel
+%description -n %{devname}
 libxcrypt is a replacement for libcrypt, which comes with the GNU C
 Library. It supports, beside DES crypt and MD5, passwords with blowfish
 encryption.
