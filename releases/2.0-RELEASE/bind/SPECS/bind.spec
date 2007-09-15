@@ -40,6 +40,7 @@ Patch2:		bind-9.3.0-mdk-libresolv.patch
 Patch4:		bind-9.2.3-bsdcompat.patch
 Patch5:		bind-9.3.0beta2-libtool.diff
 Patch6:		libbind-9.3.1rc1-fix_h_errno.patch
+Patch7:		bind-9.3.2-CVE-2007-2926.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	openssl-devel
@@ -124,6 +125,7 @@ This package contains the documentation for %{name}.
 %patch4 -p1 -b .bsdcompat
 %patch5 -p1 -b .libtool
 %patch6 -p1 -b .fix_h_errno
+%patch7 -p1 -b .cve-2007-2926
 
 #(cd contrib/queryperf && autoconf-2.13)
 tar -xjf %{_sourcedir}/dhcp-dynamic-dns-examples.tar.bz2
@@ -315,6 +317,9 @@ fi
 
 
 %changelog
+* Fri Sep 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 9.3.4
+- P7: security fix for CVE-2007-2926
+
 * Tue Sep 04 2007 Ying-Hung Chen <ying-at-yingternet.com> 9.3.4
 - Update rndc.key, rndc.conf to ensure named is runnable by default
 - Fix named.finish script to make sure named will be restart
