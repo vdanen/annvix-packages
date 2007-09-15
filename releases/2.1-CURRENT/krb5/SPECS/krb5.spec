@@ -70,6 +70,8 @@ Patch22:        http://web.mit.edu/kerberos/advisories/2007-002-patch.txt
 Patch23:        http://web.mit.edu/kerberos/advisories/2007-003-patch.txt
 Patch24:	krb5-1.5-MITKRB5-SA-2007-004.patch
 Patch25:	krb5-1.5-MITKRB5-SA-2007-005.patch
+Patch26:	krb5-1.5.2-CVE-2007-3999_4000.patch
+Patch27:	krb5-1.5.2-CVE-2007-4743.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	bison
@@ -241,6 +243,8 @@ This package contains the documentation for %{name}.
 %patch23 -p0 -b .cve-2007-1216
 %patch24 -p0 -b .cve-2007-2442_2443
 %patch25 -p0 -b .cve-2007-2798
+%patch26 -p1 -b .cve-2007-3999_4000
+%patch27 -p1 -b .cve-2007-4743
 
 find . -type f -name "*.fixinfo" -exec rm -fv "{}" ";"
 gzip doc/*.ps
@@ -638,6 +642,10 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Fri Sep 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.5.1
+- P26: security fix for CVE-2007-3999 and CVE-2007-4000
+- P27: security fix for CVE-2007-4743 (the other half of CVE-2007-3999)
+
 * Fri Jul 20 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.5.1
 - P24: security fix for CVE-2007-2442 and CVE-2007-2443
 - P25: security fix for CVE-2007-2798
