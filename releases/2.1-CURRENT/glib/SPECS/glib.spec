@@ -14,6 +14,7 @@
 
 %define major    	1.2
 %define libname  	%mklibname %{name} %{major}
+%define devname		%mklibname %{name} -d
 
 Summary:	A library of handy utility functions
 Name:		%{name}
@@ -33,6 +34,7 @@ Patch4:		glib-1.2.10-mdk-pic.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	automake1.4
+BuildRequires:	autoconf2.1
 
 %description
 Glib is a handy library of utility functions. This C
@@ -47,6 +49,7 @@ Glib is used by GDK, GTK+ and many applications.
 Summary:	Main library for glib
 Group:		System/Libraries
 Provides:	glib = %{version}-%{release}
+Provides:	lib%{name} = %{version}-%{release}
 Obsoletes:	glib
 
 %description -n %{libname}
@@ -54,7 +57,7 @@ This package contains the library needed to run programs dynamically
 linked with the glib.
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:	GIMP Toolkit and GIMP Drawing Kit support library
 Group:		Development/C
 Requires:	%{libname} = %{version}
@@ -62,8 +65,9 @@ Requires:	pkgconfig
 Provides:	%{name}-devel = %{version}-%{release}
 Provides:	lib%{name}-devel = %{version}-%{release}
 Obsoletes:	glib-devel
+Obsoletes:	%mklibname %{name} 1.2 -d
 
-%description -n %{libname}-devel
+%description -n %{devname}
 Static libraries and header files for the support library for the GIMP's X
 libraries, which are available as public libraries.  GLIB includes generally
 useful data structures.
@@ -84,6 +88,7 @@ This package contains the documentation for %{name}.
 %patch2 -p1 -b .gcc34
 %patch3 -p1 -b .underquoted
 %patch4 -p1 -b .pic
+
 automake-1.4
 
 
@@ -111,10 +116,10 @@ make check
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
 
-%post -n %{libname}-devel
+%post -n %{devname}
 %_install_info %{name}.info
 
-%preun -n %{libname}-devel
+%preun -n %{devname}
 %_remove_install_info %{name}.info
 
 
@@ -122,7 +127,7 @@ make check
 %defattr(-,root,root)
 %{_libdir}/lib*.so.*
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 %{_libdir}/lib*.so
 %{_libdir}/*a
@@ -141,6 +146,10 @@ make check
 
 
 %changelog
+* Sat Sep 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2.10
+- implement devel naming policy
+- implement library provides policy
+
 * Sat Jul 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.10
 - add -doc subpackage
 - rebuild with gcc4
