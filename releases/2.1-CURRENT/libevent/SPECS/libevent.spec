@@ -14,6 +14,7 @@
 
 %define	major		1
 %define libname		%mklibname event %{major}
+%define devname		%mklibname event -d
 
 Summary:	Abstract asynchronous event notification library
 Name:		%{name}
@@ -36,9 +37,11 @@ libevent is meant to replace the asynchronous event loop found in event driven
 network servers. An application just needs to call event_dispatch() and can
 then add or remove events dynamically without having to change the event loop.
 
+
 %package -n %{libname}
 Summary:	Abstract asynchronous event notification library
 Group:          System/Libraries
+Provides:	%{name} = %{version}-%{release}
 
 %description -n	%{libname}
 The libevent API provides a mechanism to execute a callback function when a
@@ -47,13 +50,16 @@ libevent is meant to replace the asynchronous event loop found in event driven
 network servers. An application just needs to call event_dispatch() and can
 then add or remove events dynamically without having to change the event loop.
 
-%package -n %{libname}-devel
+
+%package -n %{devname}
 Summary:	Static library and header files for the libevent library
 Group:		Development/C
-Provides:	%{name}-devel = %{version}
 Requires:	%{libname} = %{version}
+Provides:	%{name}-devel = %{version}-%{release}
+Provides:	event-devel = %{version}-%{release}
+Obsoletes:	%mklibname event 1 -d
 
-%description -n	%{libname}-devel
+%description -n	%{devname}
 The libevent API provides a mechanism to execute a callback function when a
 specific event occurs on a file descriptor or after a timeout has been reached.
 libevent is meant to replace the asynchronous event loop found in event driven
@@ -113,7 +119,7 @@ rm -f %{buildroot}%{_bindir}/event_rpcgen.py
 %defattr(-,root,root)
 %{_libdir}/*.so.*
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 %{_includedir}/*
 %{_libdir}/*.so
@@ -127,6 +133,10 @@ rm -f %{buildroot}%{_bindir}/event_rpcgen.py
 
 
 %changelog
+* Sat Sep 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2a
+- implement devel naming policy
+- implement library provides policy
+
 * Thu Dec 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2a
 - first Annvix build (for nfsv4 support)
 
