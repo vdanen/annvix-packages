@@ -9,8 +9,12 @@
 
 %define revision	$Rev$
 %define name		libxcrypt
-%define version		2.0
+%define version		2.4
 %define release		%_revrel
+
+%define major		1
+%define libname		%mklibname xcrypt %{major}
+%define devname		%mklibname xcrypt -d
 
 Summary:	Crypt library for DES, MD5, and blowfish
 Name:		%{name}
@@ -18,7 +22,7 @@ Version:	%{version}
 Release:	%{release}
 License:	LGPL
 Group:		System/Libraries
-Source:		libxcrypt-%{version}.tar.bz2
+Source:		ftp://ftp.suse.com/pub/people/kukuk/libxcrypt/libxcrypt-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -28,10 +32,25 @@ Library. It supports DES crypt, MD5, and passwords with blowfish
 encryption.
 
 
-%package devel
+%package -n %{libname}
+Summary:        Crypt library for DES, MD5, and blowfish
+Group:          System/Libraries
+Provides:       %{name} = %{version}-%{release}
+Obsoletes:	%{name} < %{version}-%{release}
+
+%description -n %{libname}
+Libxcrypt is a replacement for libcrypt, which comes with the GNU C
+Library. It supports DES crypt, MD5, and passwords with blowfish
+encryption.
+
+
+%package -n %{devname}
 Summary:	Development files for Crypt library
 Group:		Development/C
-Requires:	libxcrypt = %{version}
+Requires:	%{libname} = %{version}
+Provides:	%{name}-devel = %{version}-%{release}
+Provides:	xcrypt-devel = %{version}-%{release}
+Obsoletes:	%{name}-devel < %{version}-%{release}
 
 %description devel
 libxcrypt is a replacement for libcrypt, which comes with the GNU C
@@ -68,17 +87,23 @@ rm -f %{buildroot}%{_libdir}/libxcrypt
 rm -f %{buildroot}%{_libdir}/libxcrypt.1
 
 
+%check
+make check
+
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%post -p /sbin/ldconfig
-%postun -p /sbin/ldconfig
 
-%files
+%post -n %{libname} -p /sbin/ldconfig
+%postun -n %{libname} -p /sbin/ldconfig
+
+
+%files -n %{libname}
 %defattr(-,root,root)
 %{_libdir}/libxcrypt.so.*
 
-%files devel
+%files -n %{devname}
 %defattr(-,root,root)
 %{_includedir}/*.h
 %{_libdir}/libxcrypt.a
@@ -87,10 +112,17 @@ rm -f %{buildroot}%{_libdir}/libxcrypt.1
 
 %files doc
 %defattr(-,root,root)
-%doc README NEWS README.ufc-crypt
+%doc README NEWS README.ufc-crypt README.bcrypt
 
 
 %changelog
+* Sat Sep 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.4
+- 2.4
+- implement devel naming policy
+- implement library provides policy
+- libify the package
+- use make check
+
 * Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0 
 - add -doc subpackage
 - rebuild with gcc4
