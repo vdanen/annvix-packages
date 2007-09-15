@@ -9,33 +9,31 @@
 
 %define revision	$Rev$
 %define name		slang
-%define version 	1.4.9
+%define version 	2.1.1
 %define release 	%_revrel
 
-%define docversion	1.4.8
-%define major		1
+%define major		2
 %define	libname		%mklibname %{name} %{major}
+%define devname		%mklibname %{name} -d
 
 Summary:	The shared library for the S-Lang extension language
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-License:	GPL
+License:	GPLv2+
 Group:		System/Libraries
-URL:		ftp://space.mit.edu/pub/davis/slang/
-Source:		ftp://space.mit.edu/pub/davis/slang/slang-%{version}.tar.bz2
-Source1:	ftp://space.mit.edu/pub/davis/slang/slang-%{docversion}-doc.tar.bz2
-Source2:	README.UTF-8
-# (mpol) utf8 patches from http://www.suse.de/~nadvornik/slang/
-Patch1:		slang-debian-utf8.patch
-Patch2:		slang-utf8-acs.patch
-Patch3:		slang-utf8-fix.patch
-Patch4:		slang-utf8-revert_soname.patch
-Patch5:		slang-1.4.9-offbyone.patch
-Patch6:		slang-1.4.5-utf8-segv.patch
-Patch7:		slang-1.4.9-gcc4.patch
+URL:		http://www.s-lang.org
+Source0:	ftp://space.mit.edu/pub/davis/slang/v2.1/%{name}-%{version}.tar.bz2
+Source1:	ftp://space.mit.edu/pub/davis/slang/v2.1/%{name}-%{version}.tar.bz2.sig
+Patch0:		slang-2.1.0-mdv-no_glibc_private.patch
+Patch1:		slang-2.1.0-mdv-slsh_install.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
+BuildRequires:	glibc-devel
+BuildRequires:	libtool
+BuildRequires:	autoconf2.5
+BuildRequires:	pcre-devel
+BuildRequires:	png-devel
 
 %description
 S-Lang is an interpreted language and a programming library.  The
@@ -49,7 +47,8 @@ to recode S-Lang procedures in C if you need to.
 %package -n %{libname}
 Summary:	The shared library for the S-Lang extension language
 Group:		System/Libraries
-Provides:	slang
+Provides:	%{name} = %{version}-%{release}
+Provides:	lib%{name} = %{version}-%{release}
 Obsoletes:	slang
 
 %description -n %{libname}
@@ -61,14 +60,14 @@ extension language.  S-Lang's syntax resembles C, which makes it easy
 to recode S-Lang procedures in C if you need to.
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:	The static library and header files for development using S-Lang
 Group:		Development/C
-Provides:	lib%{name}-devel slang-devel
-Obsoletes:	slang-devel
 Requires:	%{libname} = %{version}
+Provides:	%{name}-devel = %{version}-%{release}
+Obsoletes:	%mklibname %{name} 1 -d
 
-%description -n %{libname}-devel
+%description -n %{devname}
 This package contains the S-Lang extension language static libraries
 and header files which you'll need if you want to develop S-Lang based
 applications.  Documentation which may help you write S-Lang based
@@ -85,39 +84,30 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
-%patch4 -p1 -b .revert_soname
-%patch5 -p1 -b .offbyone
-%patch6 -p1 -b .segv
-%patch7 -p1 -b .gcc4
-
-cp %{SOURCE2} .
+%patch0 -p1 -b .no_glibc_private
+%patch1 -p1 -b .slsh_install
 
 
 %build
-%configure2_5x	--includedir=%{_includedir}/slang
+%configure2_5x --includedir=%{_includedir}/slang
 
-#(peroyvind) passing this to configure does'nt work..
-%make ELF_CFLAGS="%{optflags} -fno-strength-reduce -fPIC" elf
 %make all
+
+
+%check
+make check
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p %{buildroot}%{_includedir}/slang
-make prefix=%{buildroot}%{_prefix} \
-    install_lib_dir=%{buildroot}%{_libdir} \
-    install_include_dir=%{buildroot}%{_includedir}/slang \
-    install-elf install
-
-ln -sf lib%{name}.so.%{version} %{buildroot}%{_libdir}/lib%{name}.so.%{major}
-
-rm -f doc/doc/tm/tools/`arch`objs doc/doc/tm/tools/solarisobjs
+make DESTDIR=%{buildroot} install
 
 # Remove unpackages files
-rm -rf	%{buildroot}/usr/doc/slang
+rm -rf	%{buildroot}%{_docdir}/slang
+rm -f %{buildroot}%{_bindir}/slsh
+rm -rf %{buildroot}%{_datadir}/slsh
+rm -rf %{buildroot}%{_mandir}
+rm -rf %{buildroot}%{_sysconfdir}
 
 
 %clean
@@ -127,24 +117,39 @@ rm -rf	%{buildroot}/usr/doc/slang
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
 
-
 %files -n %{libname}
 %defattr(-,root,root)
-%{_libdir}/lib*.so.*
+%{_libdir}/libslang.so.%{major}*
+%dir %{_libdir}/slang
+%{_libdir}/slang/v%{major}
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
-%{_libdir}/lib*.a
 %{_libdir}/lib*.so
 %dir %{_includedir}/slang/
 %{_includedir}/slang/*.h
 
 %files doc
 %defattr(-,root,root)
-%doc COPYING COPYRIGHT README changes.txt README.UTF-8 NEWS
+%doc README changes.txt NEWS
 
 
 %changelog
+* Sat Sep 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1.1
+- 2.1.1
+- drop UTF8 patches; implemented upstream
+- dropped P7, no longer required
+- updated URL
+- P0: don't use private glibc symbols (fdr bug #161536)
+- P1: fix slsh install
+- drop S0
+- don't package slsh
+- update buildrequires
+- make tests
+- build against new pcre
+- implement devel naming policy
+- implement library provides policy
+
 * Fri Jun 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4.9
 - add -doc subpackage
 - rebuild with gcc4
