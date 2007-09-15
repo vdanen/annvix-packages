@@ -14,6 +14,7 @@
 
 %define major		0
 %define libname		%mklibname %{name} %{major}
+%define devname		%mklibname %{name} -d
 
 Summary:	A library to bind rpm constant
 Name:		%{name}
@@ -45,14 +46,14 @@ with their name. This is useful for perl/python or other language which has
 binding over rpmlib.
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:	Development files from librpmconstant
 Group:		Development/C
+Requires:	%{libname} = %{version}
 Provides:	%{name}-devel = %{version}-%{release}
-Provides:	lib%{name}-devel = %{version}-%{release}
-Requires:	%{libname} = %{version}-%{release}
+Obsoletes:	%mklibname %{name} 0 -d
 
-%description -n %{libname}-devel
+%description -n %{devname}
 This library provides basics functions to map internal rpm constant value
 with their name. This is useful for perl/python or other language which has
 binding over rpmlib.
@@ -99,7 +100,7 @@ This package contains the documentation for %{name}.
 %defattr(-,root,root)
 %{_libdir}/lib%{name}.so.*
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 %{_includedir}/%{name}/%{name}.h
 %{_libdir}/lib%{name}.so
@@ -112,6 +113,10 @@ This package contains the documentation for %{name}.
 
 
 %changelog
+* Sat Sep 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.1.2
+- implement devel naming policy
+- implement library provides policy
+
 * Sat Jun 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.1.2
 - 0.1.2
 - P0: remove some definitions that are not present in rpm 4.4.5
