@@ -9,12 +9,12 @@
 
 %define revision	$Rev$
 %define name		pcre
-%define version		6.7
+%define version		7.3
 %define	release		%_revrel
 
 %define major		0
-%define libname_orig	lib%{name}
-%define libname		%mklibname pcre %{major}
+%define libname		%mklibname %{name} %{major}
+%define devname		%mklibname %{name} -d
 
 Summary: 	PCRE is a Perl-compatible regular expression library
 Name:	 	%{name}
@@ -23,12 +23,12 @@ Release:	%{release}
 License: 	BSD-Style
 Group: 		File Tools
 URL: 		http://www.pcre.org/
-Source:		ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/%{name}-%{version}.tar.bz2
-Patch0:		pcre-6.2-avx-skip_runtest_2.patch
+Source0:	ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/%{name}-%{version}.tar.bz2
+Source1:	ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/%{name}-%{version}.tar.bz2.sig
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5
-BuildRequires:	automake1.7
+BuildRequires:	automake
 
 Requires: 	%{libname} = %{version}
 
@@ -43,7 +43,7 @@ This package contains a grep variant based on the PCRE library.
 %package -n %{libname}
 Group:		System/Libraries
 Summary:	PCRE is a Perl-compatible regular expression library
-Provides:	%{libname_orig} = %{version}-%{release}
+Provides:	lib%{name} = %{version}-%{release}
 
 %description -n %{libname}
 PCRE has its own native API, but a set of "wrapper" functions that are based on
@@ -56,14 +56,14 @@ that name by distributing it that way. To use it with an existing program that
 uses the POSIX API, it will have to be renamed or pointed at by a link.
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Group:		Development/C
 Summary:	Headers and static lib for pcre development
 Requires:	%{libname} = %{version}
-Provides:	%{libname_orig}-devel = %{version}-%{release}
 Provides:	%{name}-devel = %{version}-%{release}
+Obsoletes:	%mklibname %{name} 0 -d
 
-%description -n %{libname}-devel
+%description -n %{devname}
 Install this package if you want do compile applications using the pcre
 library.
 
@@ -78,11 +78,6 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
-%patch0 -p0
-# always regen, otherwise libtool will behave funny
-%__libtoolize -c -f
-aclocal-1.7
-autoconf
 
 
 %build
@@ -92,11 +87,6 @@ autoconf
 
 %check
 export LC_ALL=C
-# Tests, patch out actual pcre_study_size in expected results
-echo 'int main() { printf("%d", sizeof(pcre_study_data)); return 0; }' | \
-%{__cc} -xc - -include "pcre_internal.h" -o study_size
-STUDY_SIZE=`./study_size`
-perl -pi -e "s,(Study size\s+=\s+)\d+,\${1}$STUDY_SIZE," testdata/testoutput*
 make check
 
 
@@ -111,6 +101,9 @@ mv %{buildroot}/%{_libdir}/lib%{name}.so.%{major}.* %{buildroot}/%{_lib}
 cd %{buildroot}/%{_libdir}
 ln -s ../../%{_lib}/lib%{name}.so.%{major}.* .
 
+# remove unwanted files
+rm -rf %{buildroot}%{_docdir}/%{name}/html
+rm -f %{buildroot}%{_docdir}/%{name}/{AUTHORS,ChangeLog,COPYING,LICENCE,NEWS,README,pcre{,grep,test,-config}.txt}
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -132,23 +125,33 @@ ln -s ../../%{_lib}/lib%{name}.so.%{major}.* .
 /%{_lib}/lib*.so.*
 %{_libdir}/lib*.so.*
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 %{_libdir}/lib*.a
 %{_libdir}/lib*.la
 %{_libdir}/lib*.so
 %{_libdir}/pkgconfig/libpcre.pc
+%{_libdir}/pkgconfig/libpcrecpp.pc
 %{_includedir}/*.h
 %{_bindir}/pcre-config
 %multiarch %{multiarch_bindir}/pcre-config
+%{_mandir}/man1/pcre-config.1*
 %{_mandir}/man3/*.3*
 
 %files doc
 %defattr(-,root,root)
-%doc AUTHORS ChangeLog NEWS README NON-UNIX-USE
+%doc AUTHORS NEWS README NON-UNIX-USE
 
 
 %changelog
+* Sat Sep 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 7.3
+- 7.3
+- implement devel naming policy
+- implement library provides policy
+- build fixes
+- drop P0; no longer required
+- add the gpg sig for the source tarball
+
 * Mon Nov 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 6.7
 - 6.7
 - put the tests inside %%check
