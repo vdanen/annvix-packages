@@ -27,6 +27,13 @@ Patch0:		gd-2.0.33-CAN-2004-0941.patch
 Patch1:		gd-2.0.33-CVE-2006-2906.patch
 Patch2:		gd-2.0.33-CVE-2007-0455.patch
 Patch3:		gd-cvs-CVE-2007-2756.patch
+Patch4:		gd-2.0.33_CVE-2007-3472.patch
+Patch5:		gd-2.0.33_CVE-2007-3473.patch
+Patch6:		gd-2.0.33_CVE-2007-3474.patch
+Patch7:		gd-2.0.33_CVE-2007-3475.patch
+Patch8:		gd-2.0.33_CVE-2007-3476.patch
+Patch9:		gd-2.0.33_CVE-2007-3477.patch
+Patch10:	gd-2.0.33_CVE-2007-3478.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5
@@ -126,6 +133,13 @@ This package contains the documentation for %{name}.
 %patch1 -p1 -b .cve-2006-2906
 %patch2 -p1 -b .cve-2007-0455
 %patch3 -p0 -b .cve-2007-2756
+%patch4 -p1 -b .cve-2007-3472
+%patch5 -p1 -b .cve-2007-3473
+%patch6 -p1 -b .cve-2007-3474
+%patch7 -p1 -b .cve-2007-3475
+%patch8 -p1 -b .cve-2007-3476
+%patch9 -p1 -b .cve-2007-3477
+%patch10 -p1 -b .cve-2007-3478
 
 
 %build
@@ -192,6 +206,15 @@ libtoolize --copy --force; aclocal-1.7; automake-1.7 --copy --add-missing; autoc
 
 
 %changelog
+* Fri Sep 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0.33
+- P4: security fix for CVE-2007-3472
+- P5: security fix for CVE-2007-3473
+- P6: security fix for CVE-2007-3474
+- P7: security fix for CVE-2007-3475
+- P8: security fix for CVE-2007-3476
+- P9: security fix for CVE-2007-3477
+- P10: security fix for CVE-2007-3478
+
 * Fri Jul 20 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0.33
 - P3: security fix for CVE-2007-2756
 
