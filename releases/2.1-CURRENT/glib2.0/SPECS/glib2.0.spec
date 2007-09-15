@@ -9,12 +9,13 @@
 
 %define revision	$Rev$
 %define name		glib%{api_version}
-%define version		2.12.1
+%define version		2.14.0
 %define release		%_revrel
 
 %define api_version	2.0
-%define lib_major	0
-%define libname		%mklibname %{name}_ %{lib_major}
+%define major		0
+%define libname		%mklibname %{name}_ %{major}
+%define devname		%mklibname %{name} -d
 
 Summary:	GIMP Toolkit and GIMP Drawing Kit support library
 Name:		%{name}
@@ -23,7 +24,7 @@ Release:	%{release}
 License:	LGPL
 Group:		System/Libraries
 URL:		http://www.gtk.org
-Source0:	ftp://ftp.gnome.org/pub/GNOME/sources/glib/2.12/glib-%{version}.tar.bz2
+Source0:	ftp://ftp.gnome.org/pub/GNOME/sources/glib/2.14/glib-%{version}.tar.bz2
 Source1:	glib20.sh
 Source2:	glib20.csh
 
@@ -36,35 +37,33 @@ BuildRequires:	locales-en
 Requires:	common-licenses
 
 %description
-Glib is a handy library of utility functions. This C
-library is designed to solve some portability problems
-and provide other useful functionality which most
-programs require.
+Glib is a handy library of utility functions. This C library is designed to
+solve some portability problems and provide other useful functionality which
+most programs require.
 
 Glib is used by GDK, GTK+ and many applications.
 
 
 %package -n %{libname}
-Summary:	%{summary}
-Group:		%{group}
+Summary:	GIMP Toolkit and GIMP Drawing Kit support library
+Group:		System/Libraries
 Provides:	glib2 = %{version}-%{release}
 Provides:	libglib2 = %{version}-%{release}
 Provides:	lib%{name} = %{version}-%{release}
 Conflicts:	libglib1.3_13
 
 %description -n %{libname}
-Glib is a handy library of utility functions. This C
-library is designed to solve some portability problems
-and provide other useful functionality which most
-programs require.
+Glib is a handy library of utility functions. This C library is designed to
+solve some portability problems and provide other useful functionality which
+most programs require.
 
 Glib is used by GDK, GTK+ and many applications.
 
-This package contains the library needed to run programs dynamically
-linked with the glib.
+This package contains the library needed to run programs dynamically linked
+with the glib.
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:	Static libraries and header files of %{name}
 Group:		Development/C
 Provides:	glib2-devel = %{version}-%{release}
@@ -74,8 +73,9 @@ Requires:	%{libname} = %{version}
 Requires:	pkgconfig >= 0.12
 Requires:	glib-gettextize >= %{version}
 Conflicts:	libglib1.3_13-devel
+Obsoletes:	%mklibname %{name}_ 0 -d
 
-%description -n %{libname}-devel
+%description -n %{devname}
 Static libraries and header files for the support library for the GIMP's X
 libraries, which are available as public libraries.  GLIB includes generally
 useful data structures.
@@ -86,12 +86,12 @@ Summary:	Gettextize replacement
 Group:		Development/Other
 
 %description -n glib-gettextize
-%{name} package is designed to replace gettextize completely.
-Various gettext related files are modified in glib and gtk+ to
-allow better and more flexible i18n; however gettextize overwrites
-them with its own copy of files, thus nullifying the changes.
-If this replacement of gettextize is run instead, then all gnome
-packages can potentially benefict from the changes.
+%{name} package is designed to replace gettextize completely.  Various
+gettext related files are modified in glib and gtk+ to allow better and more
+flexible i18n; however gettextize overwrites them with its own copy of
+files, thus nullifying the changes.  If this replacement of gettextize is
+run instead, then all gnome packages can potentially benefict from the
+changes.
 
 
 %package doc
@@ -115,7 +115,8 @@ This package contains the documentation for %{name}.
     --enable-gtk-doc=no
 
 %make
-make check
+# see http://bugzilla.gnome.org/show_bug.cgi?id=440544
+#make check
 
 
 %install
@@ -123,8 +124,8 @@ make check
 %makeinstall_std
 
 mkdir -p %{buildroot}%{_sysconfdir}/profile.d
-cat %{_sourcedir}/glib20.sh > %{buildroot}%{_sysconfdir}/profile.d/glib20.sh
-cat %{_sourcedir}/glib20.csh > %{buildroot}%{_sysconfdir}/profile.d/glib20.csh
+install -m 0755 %{_sourcedir}/glib20.sh %{buildroot}%{_sysconfdir}/profile.d/glib20.sh
+install -m 0755 %{_sourcedir}/glib20.csh %{buildroot}%{_sysconfdir}/profile.d/glib20.csh
 
 %kill_lang glib20
 %find_lang glib20
@@ -146,7 +147,7 @@ cat %{_sourcedir}/glib20.csh > %{buildroot}%{_sysconfdir}/profile.d/glib20.csh
 %{_libdir}/libgthread-%{api_version}.so.*
 %{_libdir}/libgobject-%{api_version}.so.*
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 %{_libdir}/lib*.so
 %{_libdir}/lib*.la
@@ -173,6 +174,14 @@ cat %{_sourcedir}/glib20.csh > %{buildroot}%{_sysconfdir}/profile.d/glib20.csh
 
 
 %changelog
+* Sat Sep 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.14.0
+- 2.14.0
+- make profile scripts executable and fix them so there doesn't end
+  up a bogus requires on tcsh
+- implement devel naming policy
+- implement library provides policy
+- disable make check; broken upstream (ref gnome bug #440544)
+
 * Mon Aug 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.12.1
 - 2.12.1
 - spec cleanups
