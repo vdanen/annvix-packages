@@ -13,7 +13,8 @@
 %define release 	%_revrel
 
 %define major		3
-%define libname	%mklibname gdbm %{major}
+%define libname		%mklibname %{name} %{major}
+%define devname		%mklibname %{name} -d
 
 Summary:	A GNU set of database routines which use extensible hashing
 Name:		%{name}
@@ -43,30 +44,28 @@ applications which will use such a database.
 %package -n %{libname}
 Summary:	Main library for gdbm
 Group:		System/Libraries
-Obsoletes:	%{name}
-Obsoletes:	libgdbm1
-Provides:	libgdbm1
 Provides:	%{name} = %{version}-%{release}
+Provides:	lib%{name} = %{version}-%{release}
+Obsoletes:	%{name}
 
 %description -n %{libname}
 This package provides library needed to run programs dynamically linked
 with gdbm.
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:	Development libraries and header files for the gdbm library
 Group:		Development/Databases
 Requires:	%{libname} = %{version}
 Requires(post):	info-install
 Requires(preun): info-install
+Provides:	%{name}-devel = %{version}-%{release}
+Provides:	lib%{name}-devel = %{version}-%{release}
 Obsoletes:	%{name}-devel
-Obsoletes:	libgdbm1-devel
-Provides:	%{name}-devel
-Provides:	libgdbm1-devel
-Provides:	lib%{name}-devel
-Conflicts:	%{mklibname gdbm 2}-devel
+Obsoletes:	%mklibname gdbm 3 -d
+Conflicts:	%mklibname gdbm 2 -d
 
-%description -n %{libname}-devel
+%description -n %{devname}
 Gdbm-devel contains the development libraries and header files
 for gdbm, the GNU database system.  These libraries and header files are
 necessary if you plan to do development using the gdbm database.
@@ -113,10 +112,10 @@ chmod 0644 COPYING INSTALL NEWS README
 %postun -n %{libname} -p /sbin/ldconfig
 
 
-%post -n %{libname}-devel
+%post -n %{devname}
 %_install_info gdbm.info
 
-%preun -n %{libname}-devel
+%preun -n %{devname}
 %_remove_install_info gdbm.info
 
 
@@ -124,7 +123,7 @@ chmod 0644 COPYING INSTALL NEWS README
 %defattr(-,root,root)
 %{_libdir}/libgdbm*.so.*
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 %{_libdir}/libgdbm*.so
 %{_libdir}/libgdbm*.la
@@ -141,6 +140,10 @@ chmod 0644 COPYING INSTALL NEWS README
 
 
 %changelog
+* Sat Sep 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.8.3
+- implement devel naming policy
+- implement library provides policy
+
 * Sat Jul 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.8.3
 - add -doc subpackage
 - rebuild with gcc4
