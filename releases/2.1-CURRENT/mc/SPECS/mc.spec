@@ -17,7 +17,7 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 License:	GPL
-Group:		File tools
+Group:		File Tools
 URL:		http://www.ibiblio.org/mc/
 Source0:	ftp://ftp.gnome.org:/pub/GNOME/stable/sources/mc/%{name}-%{version}.tar.bz2
 Patch0:		mc-4.6.1-fdr-utf8.patch
@@ -141,6 +141,7 @@ rm -rf %{buildroot}%{_datadir}/locale
 - P3: fix build against new slang
 - rebuild against new slang
 - rebuild against new glib2
+- fix group
 
 * Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.6.1
 - rebuild against new pam
