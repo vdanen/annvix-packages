@@ -21,8 +21,8 @@ Release:	%{release}
 License:	Distributable
 Group:		System/Servers
 URL:		http://www.isc.org/products/BIND/
-Source0:	ftp://ftp.isc.org/isc/%{name}9/%{version}-P1/%{name}-%{their_version}.tar.gz
-Source1:	ftp://ftp.isc.org/isc/%{name}9/%{version}/%{name}-%{their_version}.tar.gz.asc
+Source0:	ftp://ftp.isc.org/isc/%{name}9/%{their_version}/%{name}-%{their_version}.tar.gz
+Source1:	ftp://ftp.isc.org/isc/%{name}9/%{their_version}/%{name}-%{their_version}.tar.gz.asc
 Source2:	bind-manpages.tar.bz2
 Source3:	caching-nameserver.tar.bz2
 Source4:	bind-9.3.1-missing_tools.tar.gz
@@ -317,6 +317,10 @@ fi
 
 
 %changelog
+* Fri Sep 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 9.4.1-P1
+- fix source urls
+- this is actually 9.4.1-P1 which fixes CVE-2007-2925 and CVE-2007-2926
+
 * Tue Sep 04 2007 Ying-Hung Chen <ying-at-yingternet.com> 9.4.1
 - 9.4.1
 - Updated Patch1, Patch4
