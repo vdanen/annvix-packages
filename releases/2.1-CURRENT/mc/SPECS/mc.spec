@@ -22,6 +22,8 @@ URL:		http://www.ibiblio.org/mc/
 Source0:	ftp://ftp.gnome.org:/pub/GNOME/stable/sources/mc/%{name}-%{version}.tar.bz2
 Patch0:		mc-4.6.1-fdr-utf8.patch
 Patch1:		mc-4.6.1-rpm_obsolete_tags.patch
+Patch2:		mc-4.6.1-mdv-bash32.patch
+Patch3:		mc-4.6.1-mdv-slang2.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	libext2fs-devel
@@ -50,6 +52,8 @@ This package contains the documentation for %{name}.
 %setup -q
 %patch0 -p1 -b .utf8
 %patch1 -p1 -b .rpm_obsolete_tags
+%patch2 -p0 -b .bash32
+%patch3 -p0 -b .slang2
 
 
 %build
@@ -132,6 +136,12 @@ rm -rf %{buildroot}%{_datadir}/locale
 
 
 %changelog
+* Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.6.1
+- P2: fix build against recent bash
+- P3: fix build against new slang
+- rebuild against new slang
+- rebuild against new glib2
+
 * Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.6.1
 - rebuild against new pam
 
