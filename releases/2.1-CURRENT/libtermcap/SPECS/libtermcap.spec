@@ -13,8 +13,8 @@
 %define release		%_revrel
 
 %define major		2
-%define libname_orig	libtermcap
 %define libname		%mklibname termcap %{major}
+%define devname		%mklibname termcap -d
 
 Summary:	A basic system library for accessing the termcap database
 Name:		%{name}
@@ -54,10 +54,8 @@ a terminal-independent manner.
 %package -n %{libname}
 Summary:        Development tools for programs which will access the termcap database
 Group:          System/Libraries
-Obsoletes:	%{libname_orig}
-Provides:	%{libname_orig}
-Requires(post):	ldconfig
-Requires(postun): ldconfig
+Provides:	%{name} = %{version}-%{release}
+Obsoletes:	%{name}
 
 %description -n %{libname}
 The libtermcap package contains a basic system library needed to access
@@ -66,15 +64,15 @@ termcap database, so that programs can output character-based displays in
 a terminal-independent manner.
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:	Development tools for programs which will access the termcap database
 Group:		Development/C
-Requires:	%{libname} = %{version}-%{release}
-Obsoletes:	%{libname_orig}-devel
-Provides:	%{libname_orig}-devel = %{version}-%{release}
+Requires:	%{libname} = %{version}
+Provides:	%{name}-devel = %{version}-%{release}
 Provides:	termcap-devel = %{version}-%{release}
+Obsoletes:	%mklibname termcap 2 -d
 
-%description -n %{libname}-devel
+%description -n %{devname}
 This package includes the libraries and header files necessary for
 developing programs which will access the termcap database.
 
@@ -142,16 +140,16 @@ rm -f %{buildroot}%{_sysconfdir}/termcap
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
 
-%post -n %{libname}-devel
+%post -n %{devname}
 /sbin/install-info \
     --section="Libraries" --entry="* Termcap: (termcap).               The GNU termcap library." \
-    --info-dir=%{_infodir} %{_infodir}/termcap.info.bz2
+    --info-dir=%{_infodir} %{_infodir}/termcap.info%{_extension}
 
-%postun -n %{libname}-devel
+%postun -n %{devname}
 if [ $1 = 0 ]; then
     /sbin/install-info --delete \
 	--section="Libraries" --entry="* Termcap: (termcap).               The GNU termcap library." \
-	--info-dir=%{_infodir} %{_infodir}/termcap.info.bz2
+	--info-dir=%{_infodir} %{_infodir}/termcap.info%{_extension}
 fi
 
 
@@ -159,7 +157,7 @@ fi
 %defattr(-,root,root)
 /%{_lib}/*.so.*
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 /%{_lib}/*.so
 %{_infodir}/termcap.info*
@@ -173,6 +171,10 @@ fi
 
 
 %changelog
+* Sat Sep 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0.8
+- implement devel naming policy
+- implement library provides policy
+
 * Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0.8
 - really add -doc subpackage
 
