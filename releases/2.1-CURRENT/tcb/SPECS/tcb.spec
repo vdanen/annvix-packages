@@ -13,7 +13,8 @@
 %define release 	%_revrel
 
 %define major		0
-%define libname		%mklibname tcb %{major}
+%define libname		%mklibname %{name} %{major}
+%define devname		%mklibname %{name} -d
 
 Summary:	Libraries and tools implementing the tcb password shadowing scheme
 Name: 		%{name}
@@ -28,10 +29,10 @@ BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildRequires:	glibc-crypt_blowfish-devel
 BuildRequires:	pam-devel
 
-Requires:	%{libname} = %{version}-%{release}
-Requires:	pam_tcb = %{version}-%{release}
-Requires:	nss_tcb = %{version}-%{release}
 Requires(pre):	setup >= 2.5-5873avx
+Requires:	%{libname} = %{version}
+Requires:	pam_tcb = %{version}
+Requires:	nss_tcb = %{version}
 
 %description
 The tcb package consists of three components: pam_tcb, libnss_tcb, and
@@ -48,7 +49,7 @@ package.
 Summary:        Libraries and tools implementing the tcb password shadowing scheme
 Group:          System/Libraries
 Requires:	glibc-crypt_blowfish
-Provides:	libtcb = %{version}
+Provides:	lib%{name} = %{version}-%{release}
 
 %description -n %{libname}
 libtcb contains code shared by the PAM and NSS modules and is also used
@@ -58,7 +59,7 @@ by programs from the shadow-utils package.
 %package -n pam_tcb
 Summary:	PAM module for TCB
 Group:		System/Libraries
-Requires:	%{libname} = %{version}-%{release}
+Requires:	%{libname} = %{version}
 
 %description -n pam_tcb
 pam_tcb is a PAM module which supersedes pam_unix and pam_pwdb.
@@ -70,21 +71,22 @@ being the primary example) to operate with little privilege.
 %package -n nss_tcb
 Summary:	NSS library for TCB
 Group:		System/Libraries
-Requires:	%{libname} = %{version}-%{release}
 Requires(post):	rpm-helper
 Requires(postun): rpm-helper
+Requires:	%{libname} = %{version}
 
 %description -n nss_tcb
 libnss_tcb is the accompanying NSS module for pam_tcb.
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:	Libraries and header files for building tcb-aware applications
 Group:		Development/Libraries
-Requires:	%{libname} = %{version}-%{release}
-Provides:	tcb-devel = %{version}
+Requires:	%{libname} = %{version}
+Provides:	tcb-devel = %{version}-%{release}
+Obsoletes:	%mklibname %{name} 0 -d
 
-%description -n %{libname}-devel
+%description -n %{devname}
 This package contains static libraries and header files needed for
 building tcb-aware applications.
 
@@ -177,7 +179,7 @@ fi
 %{_mandir}/man8/pam_tcb.8*
 %{_mandir}/man8/pam_unix.8*
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 %_includedir/tcb.h
 %{_libdir}/libtcb.a
@@ -189,6 +191,10 @@ fi
 
 
 %changelog
+* Sat Sep 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0
+- implement devel naming policy
+- implement library provides policy
+
 * Tue May 01 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0
 - versioned provides
 
