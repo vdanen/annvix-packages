@@ -14,6 +14,7 @@
 
 %define major		8.4
 %define libname		%mklibname %{name} %{major}
+%define devname		%mklibname %{name} -d
 
 Summary:	Tk GUI toolkit for Tcl
 Name:		%{name}
@@ -44,6 +45,7 @@ and Macintosh platforms.
 %package -n %{libname}
 Summary:	Shared libraries for %{name}
 Group:		System/Libraries
+Provides:	lib%{name} = %{version}-%{release}
 
 %description -n	%{libname}
 Tk is a X Windows widget set designed to work closely with the tcl
@@ -53,14 +55,14 @@ text based interface. Tcl/Tk applications can also be run on Windows
 and Macintosh platforms.
 
 
-%package -n %{libname}-devel 
+%package -n %{devname} 
 Summary:	Development files for %{name}
 Group:		Development/Other
 Requires:	%{libname} = %{version}
 Provides:	%{name}-devel = %{version}-%{release}
-Provides:	lib%{name}-devel = %{version}-%{release}
+Obsoletes:	%mklibname %{name} 8.4 -d
 
-%description -n	%{libname}-devel
+%description -n	%{devname}
 This package contains development files for %{name}.
 
 
@@ -133,10 +135,10 @@ perl -pi -e "s|`pwd`|%{_includedir}/tk%{version}|g" %{buildroot}%{_libdir}/tkCon
 
 # Arrangements for lib64 platforms
 echo "# placeholder" >> %{libname}.files
-echo "# placeholder" >> %{libname}-devel.files
+echo "# placeholder" >> %{devname}.files
 if [[ "%{_lib}" != "lib" ]]; then
     ln -s %{_libdir}/tkConfig.sh %{buildroot}%{_prefix}/lib/tkConfig.sh
-    echo "%{_prefix}/lib/tkConfig.sh" >> %{libname}-devel.files
+    echo "%{_prefix}/lib/tkConfig.sh" >> %{devname}.files
     echo "%{_libdir}/%{name}%{major}/pkgIndex.tcl" >> %{libname}.files
 fi
 
@@ -164,7 +166,7 @@ chmod 0755 %{buildroot}%{_libdir}/*.so*
 %defattr(-,root,root)
 %attr(0755,root,root) %{_libdir}/lib*.so.*
 
-%files -n %{libname}-devel -f %{libname}-devel.files
+%files -n %{devname} -f %{devname}.files
 %defattr(-,root,root)
 %dir %{_includedir}/tk%{version}
 %dir %{_includedir}/tk%{version}/compat
@@ -180,6 +182,10 @@ chmod 0755 %{buildroot}%{_libdir}/*.so*
 
 
 %changelog
+* Sun Sep 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.4.13
+- implement devel naming policy
+- implement library provides policy
+
 * Thu Apr 26 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.4.13
 - build against modular X
 
