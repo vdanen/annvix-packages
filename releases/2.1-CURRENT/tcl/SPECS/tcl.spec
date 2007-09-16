@@ -14,6 +14,7 @@
 
 %define major		8.4
 %define libname		%mklibname %{name} %{major}
+%define devname		%mklibname %{name} -d
 
 Summary:	An embeddable scripting language
 Name:		%{name}
@@ -42,6 +43,7 @@ tclsh, a simple example of a Tcl application.
 %package -n %{libname}
 Summary:	Shared libraries for %{name}
 Group:		System/Libraries
+Provides:	lib%{name} = %{version}-%{release}
 
 %description -n %{libname}
 Tcl is a simple scripting language designed to be embedded into
@@ -50,14 +52,14 @@ set, which is provided in the tk package.  This package also includes
 tclsh, a simple example of a Tcl application.
 
 
-%package -n %{libname}-devel 
+%package -n %{devname} 
 Summary:	Development files for %{name}
 Group:		Development/Other
 Requires:	%{libname} = %{version}
-Provides:	%{name}-devel = %{version}
-Provides:	lib%{name}-devel = %{version}
+Provides:	%{name}-devel = %{version}-%{release}
+Obsoletes:	%mklibname %{name} 8.4 -d
 
-%description -n	%{libname}-devel
+%description -n	%{devname}
 This package contains development files for %{name}.
 
 
@@ -130,10 +132,10 @@ perl -pi -e "s|`pwd`/unix/lib|%{_libdir}/lib|g" %{buildroot}%{_libdir}/tclConfig
 perl -pi -e "s|`pwd`|%{_includedir}/tcl%{version}|g" %{buildroot}%{_libdir}/tclConfig.sh
 
 # Arrangements for lib64 platforms
-echo "# placeholder" >> %{libname}-devel.files
+echo "# placeholder" >> %{devname}.files
 if [[ "%{_lib}" != "lib" ]]; then
     ln -s %{_libdir}/tclConfig.sh %{buildroot}%{_prefix}/lib/tclConfig.sh
-    echo "%{_prefix}/lib/tclConfig.sh" >> %{libname}-devel.files
+    echo "%{_prefix}/lib/tclConfig.sh" >> %{devname}.files
 fi
 
 # (fc) make sure .so files are writable by root
@@ -160,7 +162,7 @@ chmod 0755 %{buildroot}%{_libdir}/*.so*
 %defattr(-,root,root)
 %attr(0755,root,root) %{_libdir}/lib*.so.*
 
-%files -n %{libname}-devel -f %{libname}-devel.files
+%files -n %{devname} -f %{devname}.files
 %defattr(-,root,root)
 %dir %{_includedir}/tcl%{version}
 %dir %{_includedir}/tcl%{version}/compat
@@ -176,6 +178,10 @@ chmod 0755 %{buildroot}%{_libdir}/*.so*
 
 
 %changelog
+* Sun Sep 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.4.13
+- implement devel naming policy
+- implement library provides policy
+
 * Mon May 07 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.4.13
 - versioned provides
 
