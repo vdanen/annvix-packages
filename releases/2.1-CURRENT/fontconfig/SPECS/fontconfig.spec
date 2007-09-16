@@ -14,6 +14,7 @@
 
 %define major		1
 %define libname		%mklibname %{name} %{major}
+%define devname		%mklibname %{name} -d
 
 %define freetype_ver	2.1.7
 
@@ -39,37 +40,36 @@ BuildRequires:	autoconf2.5 >= 2.54
 Requires(post):	%{libname} >= %{version}-%{release}
 
 %description
-Fontconfig is designed to locate fonts within the
-system and select them according to requirements specified by 
-applications.
+Fontconfig is designed to locate fonts within the system and select them
+according to requirements specified by applications.
 
 
 %package -n %{libname}
 Summary:	Font configuration and customization library
 Group:		System/Libraries
-Requires:	%{name} >= %{version}-%{release}
+Requires:	%{name} >= %{version}
 Provides:	lib%{name} = %{version}-%{release}
 Provides:	%{name}-libs = %{version}-%{release}
 
 %description -n %{libname}
-Fontconfig is designed to locate fonts within the
-system and select them according to requirements specified by 
-applications.
+Fontconfig is designed to locate fonts within the system and select them
+ according to requirements specified by applications.
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:	Font configuration and customization library
 Group:		Development/C
-Provides:	lib%{name}-devel = %{version}-%{release}
-Provides:	%{name}-devel = %{version}-%{release}
-Requires:	%{name} = %{version}-%{release}
-Requires:	%{libname} = %{version}-%{release}
+Requires:	%{name} = %{version}
+Requires:	%{libname} = %{version}
 Requires:	freetype2-devel >= %{freetype_ver}
 Requires:	expat-devel
+Provides:	lib%{name}-devel = %{version}-%{release}
+Provides:	%{name}-devel = %{version}-%{release}
+Obsoletes:	%mklibname %{name} 1 -d
 
-%description -n %{libname}-devel
-The fontconfig-devel package includes the header files,
-and developer docs for the fontconfig package.
+%description -n %{devname}
+The fontconfig-devel package includes the header files, and developer docs
+for the fontconfig package.
 
 
 %package doc
@@ -123,7 +123,7 @@ rm -rf %{buildroot}%{_sysconfdir}/fonts/conf.d
 %{_bindir}/fc-match
 %{_bindir}/fc-list
 %dir %{_sysconfdir}/fonts
-%{_sysconfdir}/fonts/fonts.dtd
+%config %{_sysconfdir}/fonts/fonts.dtd
 %config(noreplace) %{_sysconfdir}/fonts/*.conf
 %{_mandir}/man1/*
 
@@ -131,7 +131,7 @@ rm -rf %{buildroot}%{_sysconfdir}/fonts/conf.d
 %defattr(-,root,root)
 %{_libdir}/*.so.*
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 %{_libdir}/*.la
 %{_libdir}/*.a
@@ -146,6 +146,10 @@ rm -rf %{buildroot}%{_sysconfdir}/fonts/conf.d
 
 
 %changelog
+* Sun Sep 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.3.2
+- implement devel naming policy
+- implement library provides policy
+
 * Fri Feb 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.3.2
 - rebuild against patched freetype
 
