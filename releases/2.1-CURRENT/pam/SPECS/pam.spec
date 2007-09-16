@@ -81,6 +81,7 @@ having to recompile programs that handle authentication.
 %package -n %{libname}
 Summary:	Libraries for %{name}
 Group:		System/Libraries
+Provides:	lib%{name} = %{version}-%{release}
 
 %description -n %{libname}
 PAM (Pluggable Authentication Modules) is a system security tool that
@@ -259,6 +260,9 @@ touch %{buildroot}%{_sysconfdir}/environment
 
 
 %changelog
+* Sun Sep 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.99.6.3
+- implement library provides policy
+
 * Mon Jun 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.99.6.3
 - update P106 to remove the @audio group
 - remove unnecessary conflicts
