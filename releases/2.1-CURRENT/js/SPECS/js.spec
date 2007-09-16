@@ -16,6 +16,9 @@
 %define srcver		1.5-rc5a
 %define major		1
 %define libname		%mklibname %{name} %{major}
+%define devname		%mklibname %{name} -d
+
+%define _ssp_cflags	%nil
 
 Summary:	JavaScript engine
 Name:		%{name}
@@ -44,6 +47,7 @@ and sources.
 %package -n %{libname}
 Summary:	JavaScript engine library
 Group:		System/Libraries
+Provides:	lib%{name} = %{version}-%{release}
 
 %description -n	%{libname}
 JavaScript is the Netscape-developed object scripting languages. This
@@ -52,14 +56,14 @@ embedding in applications. See http://www.mozilla.org/js for details
 and sources.
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:	The header files for %{libname}
 Group:		Development/Other
 Requires:	%{libname} = %{epoch}:%{version}-%{release}
-Provides:	lib%{name}-devel = %{version}-%{release}
 Provides:	%{name}-devel = %{version}-%{release}
+Obsoletes:	%mklibname %{name} 1 -d
 
-%description -n	%{libname}-devel
+%description -n	%{devname}
 These are the header files for %{libname}
 
 
@@ -131,7 +135,7 @@ install -m 0755 src/Linux_All_OPT.OBJ/%{name} %{buildroot}%{_bindir}/
 %defattr(-,root,root)
 %{_libdir}/*.so.*
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 %multiarch %{multiarch_includedir}/js/jsautocfg.h
 %{_includedir}/js
@@ -144,6 +148,11 @@ install -m 0755 src/Linux_All_OPT.OBJ/%{name} %{buildroot}%{_bindir}/
 
 
 %changelog
+* Sat Sep 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.5.rc5a
+- implement devel naming policy
+- implement library provides policy
+- don't build with SSP
+
 * Fri Jul 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.5.rc5a
 - add -doc subpackage
 - rebuild with gcc4
