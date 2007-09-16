@@ -14,6 +14,7 @@
 
 %define major		4
 %define libname 	%mklibname %{name} %{major}
+%define devname		%mklibname %{name} -d
 
 Summary:	Gets a file from a FTP, GOPHER or HTTP server
 Name:		%{name}
@@ -103,7 +104,9 @@ make check
 chrpath -d %{buildroot}%{_bindir}/curl
 chrpath -d %{buildroot}%{_libdir}/*.so*
 
-rm -rf docs/examples/{.libs,.deps,*.o}
+# we can't nuke some files in docs/examples because the tests want them
+cp -av docs/examples examples
+rm -rf examples/{.libs,.deps,*.o}
 
 
 %clean
@@ -139,7 +142,7 @@ rm -rf docs/examples/{.libs,.deps,*.o}
 %files doc
 %defattr(-,root,root)
 %doc docs/BUGS docs/KNOWN_BUGS docs/CONTRIBUTE docs/FAQ CHANGES
-%doc docs/FEATURES docs/RESOURCES docs/TODO docs/THANKS docs/examples docs/INTERNALS
+%doc docs/FEATURES docs/RESOURCES docs/TODO docs/THANKS examples docs/INTERNALS
 
 
 %changelog
