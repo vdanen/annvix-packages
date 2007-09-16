@@ -9,20 +9,11 @@
 
 %define revision	$Rev$
 %define name		curl
-%define version 	7.16.0
+%define version 	7.17.0
 %define release		%_revrel
 
 %define major		4
 %define libname 	%mklibname %{name} %{major}
-%define old_libname 	%mklibname %{name} 3
-
-# Define to make check (default behavior)
-%define do_check	1
-%define __libtoolize	/bin/true
-
-# Enable --with[out] <feature> at rpm command line
-%{?_with_CHECK: %{expand: %%define do_check 1}}
-%{?_without_CHECK: %{expand: %%define do_check 0}}
 
 Summary:	Gets a file from a FTP, GOPHER or HTTP server
 Name:		%{name}
@@ -40,6 +31,7 @@ BuildRequires:	bison
 BuildRequires:	groff-for-man
 BuildRequires:	openssl-devel
 BuildRequires:	zlib-devel
+BuildRequires:	chrpath
 
 Provides:	webfetch
 Requires:	%{libname} = %{version}
@@ -58,25 +50,22 @@ This version is compiled with SSL (https) support.
 %package -n %{libname}
 Summary:	A library of functions for file transfer
 Group:		Networking/Other
-Provides:	curl-lib = %{version}-%{release}
-Obsoletes:	curl-lib
 
 %description  -n %{libname}
 libcurl is a library of functions for sending and receiving files through 
 various protocols, including http and ftp.
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:	Header files and static libraries for libcurl
 Group:		Networking/Other
 Requires:	%{libname} = %{version}
 Provides:	%{name}-devel = %{version}-%{release}
-Provides:	lib%{name}-devel
-Provides:	lib%{name}%{major}-devel
-Obsoletes:	%{name}-devel
-Obsoletes:	%{old_libname}-devel
+Provides:	lib%{name}-devel = %{version}-%{release}
+Obsoletes:	%mklibname %{name} 3 -d
+Obsoletes:	%mklibname %{name} 4 -d
 
-%description -n %{libname}-devel
+%description -n %{devname}
 libcurl is a library of functions for sending and receiving files through
 various protocols, including http and ftp.
 
@@ -96,35 +85,25 @@ This package contains the documentation for %{name}.
 
 %build
 export LIBS="-L%{_libdir} $LIBS"
-CFLAGS="%{optflags} -O0" \
-    ./configure \
-    --prefix=%{_prefix} \
-    --mandir=%{_mandir} \
-    --datadir=%{_datadir} \
-    --libdir=%{_libdir} \
-    --includedir=%{_includedir} \
-    --with-ssl
+%configure2_5x \
+    --with-ssl \
+    --with-zlib \
+    --with-random
 %make
-
-skip_tests=
-[ -n "$skip_tests" ] && {
-    mkdir ./tests/data/skip/
-    for t in $skip_tests; do
-        mv ./tests/data/test$t ./tests/data/skip/
-    done
-}
 
 
 %check
-%if %{do_check}
-# At this stage, all tests must pass
 make check
-%endif
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-%make install DESTDIR="%{buildroot}"
+%makeinstall_std
+
+chrpath -d %{buildroot}%{_bindir}/curl
+chrpath -d %{buildroot}%{_libdir}/*.so*
+
+rm -rf docs/examples/{.libs,.deps,*.o}
 
 
 %clean
@@ -137,24 +116,24 @@ make check
 
 %files
 %defattr(-,root,root)
-%attr(0755,root,root) %{_bindir}/curl
-%attr(0644,root,root) %{_mandir}/man1/curl.1*
+%{_bindir}/curl
 %dir %{_datadir}/curl
 %{_datadir}/curl/*
+%{_mandir}/man1/curl.1*
 
 %files -n %{libname}
 %defattr(-,root,root)
-%{_libdir}/libcurl.so.*
+%{_libdir}/*.so.%{major}*
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
-%attr(0755,root,root) %{_bindir}/curl-config
-%attr(0644,root,root) %{_mandir}/man1/curl-config.1*
+%{_bindir}/curl-config
 %{_libdir}/libcurl.so
 %dir %{_includedir}/curl
 %{_includedir}/curl/*
 %{_libdir}/libcurl*a
 %{_libdir}/pkgconfig/*.pc
+%{_mandir}/man1/curl-config.1*
 %{_mandir}/man3/*
 
 %files doc
@@ -164,6 +143,11 @@ make check
 
 
 %changelog
+* Sun Sep 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 7.17.0
+- 7.17.0
+- implement devel naming policy
+- implement library provides policy
+
 * Sat Dec 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 7.16.0
 - 7.16.0
 - library major is 4
