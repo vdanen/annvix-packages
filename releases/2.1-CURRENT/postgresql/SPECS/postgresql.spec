@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		postgresql
-%define version		8.2.4
+%define version		8.2.5
 %define release		%_revrel
 
 %define pyver		%(python -c 'import sys;print(sys.version[0:3])')
@@ -25,7 +25,9 @@
 %define current_major_version 8.2
 
 %define libname		%mklibname pq %{major}
+%define devname		%mklibname pq -d
 %define libecpg		%mklibname ecpg %{major_ecpg}
+%define devecpgname	%mklibname ecpg -d
 
 Summary: 	PostgreSQL client programs and libraries
 Name:		%{name}
@@ -92,10 +94,9 @@ if you're installing the postgresql-server package.
 %package -n %{libname}
 Summary:	The shared libraries required for any PostgreSQL clients
 Group:		System/Libraries
-Obsoletes:	postgresql-libs
 Provides:	postgresql-libs = %{version}-%{release}
 Provides:	libpq = %{version}-%{release}
-Conflicts:	%{_lib}pq3 = 8.0.1
+Obsoletes:	postgresql-libs
 
 %description -n %{libname}
 C and C++ libraries to enable user programs to communicate with the
@@ -103,23 +104,23 @@ PostgreSQL database backend. The backend can be on another machine and
 accessed through TCP/IP.
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:	Development library for libpq
 Group:		Development/C
-Requires:	%{libname} = %{version}-%{release}
+Requires:	%{libname} = %{version}
 Provides:	postgresql-libs-devel = %{version}-%{release}
 Provides:	libpq-devel = %{version}-%{release}
-Conflicts:	%{_lib}pg3-devel = 8.0.1
-Conflicts:	%mklibname pq 4
+Provides:	pq-devel = %{version}-%{release}
+Obsoletes:	%mklibname pg 5 -d
 
-%description -n %{libname}-devel
+%description -n %{devname}
 Development libraries for libpq
 
 
 %package -n %{libecpg}
 Summary:	Shared library libecpg for PostgreSQL
 Group:		System/Libraries
-Requires:	postgresql = %{version}-%{release}
+Requires:	postgresql = %{version}
 Provides:	libecpg = %{version}-%{release}
 
 %description -n %{libecpg}
@@ -127,13 +128,15 @@ Libecpg is used by programs built with ecpg (Embedded PostgreSQL for C)
 Use postgresql-dev to develop such programs.
 
 
-%package -n %{libecpg}-devel
+%package -n %{devecpgname}
 Summary:	Development library to libecpg
 Group:		Development/C
-Requires:	%{libecpg} = %{version}-%{release}
+Requires:	%{libecpg} = %{version}
 Provides:	libecpg-devel = %{version}-%{release} 
+Provides:	ecpg-devel = %{version}-%{release} 
+Obsoletes:	%mklibname ecpg 5 -d
 
-%description -n %{libecpg}-devel
+%description -n %{devecpgname}
 Development library to libecpg.
 
 
@@ -144,14 +147,13 @@ Provides:	sqlserver
 Provides:	%{name}-server-ABI = %{current_major_version}
 Requires(post):	rpm-helper
 Requires(post):	afterboot
-Requires(post):	%{libname} >= %{version}-%{release}
-Requires(post):	postgresql = %{version}-%{release}
+Requires(post):	%{libname} >= %{version}
+Requires(post):	postgresql = %{version}
 Requires(postun): rpm-helper
 Requires(postun): afterboot
 Requires(pre):	rpm-helper
-Requires(pre):	postgresql = %{version}-%{release}
+Requires(pre):	postgresql = %{version}
 Requires(preun): rpm-helper
-Conflicts:	postgresql < 7.3
 
 %description server
 The postgresql-server package includes the programs needed to create
@@ -179,9 +181,9 @@ the PostgreSQL tarball.  Selected contrib modules are prebuilt.
 %package devel
 Summary:	PostgreSQL development header files and libraries
 Group:		Development/Databases
-Requires:	postgresql = %{version}-%{release}
-Requires:	%{libname} = %{version}-%{release}
-Requires:	%{libecpg} = %{version}-%{release}
+Requires:	postgresql = %{version}
+Requires:	%{libname} = %{version}
+Requires:	%{libecpg} = %{version}
 
 %description devel
 The postgresql-devel package contains the header files and libraries
@@ -196,9 +198,9 @@ package.
 %package pl
 Summary:	The PL/Perl procedural language for PostgreSQL
 Group:		Databases
-Obsoletes:	libpgsql2
 Requires:	postgresql = %{version}
 Requires:	perl-base = %{perl_epoch}:%{perl_version}
+Obsoletes:	libpgsql2
 
 %description pl
 PostgreSQL is an advanced Object-Relational database management
@@ -210,8 +212,8 @@ of the core server package.
 %package test
 Summary:	The test suite distributed with PostgreSQL
 Group:		Databases
-Requires:	postgresql >= %{version}-%{release}
-Requires:	postgresql-pl = %{version}-%{release}
+Requires:	postgresql >= %{version}
+Requires:	postgresql-pl = %{version}
 
 %description test
 PostgreSQL is an advanced Object-Relational database management
@@ -487,7 +489,7 @@ fi
 %defattr(-,root,root)
 %{_libdir}/libpq.so.%{major}*
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 %{_libdir}/libpq.so
 
@@ -497,7 +499,7 @@ fi
 %{_libdir}/libecpg_compat.so.*
 %{_libdir}/libpgtypes.so.*
 
-%files -n %{libecpg}-devel
+%files -n %{devecpgname}
 %defattr(-,root,root)
 %{_libdir}/libecpg.so
 
@@ -624,6 +626,11 @@ fi
 
 
 %changelog
+* Sun Sep 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.2.5
+- 8.2.5
+- implement devel naming policy
+- implement library provides policy
+
 * Fri May 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.2.4
 - rebuild againt new python
 
