@@ -12,9 +12,9 @@
 %define	version		2.2.5
 %define	release		%_revrel
 
-%define lib_name_orig	libdm
-%define lib_major	0
-%define lib_name	%mklibname dm %{lib_major}
+%define major		0
+%define libname		%mklibname dm %{major}
+%define devname		%mklibname dm -d
 
 Summary:	Data Management API runtime environment
 Name:		%{name}
@@ -38,25 +38,25 @@ X/Open document:  Systems Management: Data Storage Managment
 by the libdm library.
 
 
-%package -n %{lib_name}
-Summary:	Main library for %{lib_name_orig}
+%package -n %{libname}
+Summary:	Main library for libdm
 Group:		System/Libraries
-Provides:	%{lib_name_orig} = %{version}-%{release}
+Provides:	libdm = %{version}-%{release}
 
-%description -n	%{lib_name}
+%description -n	%{libname}
 This package contains the library needed to run programs dynamically
-linked with %{lib_name_orig}.
+linked with libdm.
 
 
-%package -n %{lib_name}-devel
+%package -n %{devname}
 Summary:	Data Management API static libraries and headers
 Group:		Development/C
-Requires:	%{lib_name} = %{version}
-Provides:	%{lib_name_orig}-devel = %{version}-%{release}
+Requires:	%{libname} = %{version}
+Provides:	libdm-devel = %{version}-%{release}
 Provides:	dm-devel = %{version}-%{release}
-Obsoletes:	dm-devel
+Obsoletes:	%mklibname dm 0 -d
 
-%description -n	%{lib_name}-devel
+%description -n	%{devname}
 dmapi-devel contains the libraries and header files needed to
 develop programs which make use of the Data Management API
 (DMAPI).  If you install dmapi-devel, you'll also want to install
@@ -95,15 +95,15 @@ rm -rf %{buildroot}%{_datadir}/doc/dmapi
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
-%post -n %{lib_name} -p /sbin/ldconfig
-%postun -n %{lib_name} -p /sbin/ldconfig
+%post -n %{libname} -p /sbin/ldconfig
+%postun -n %{libname} -p /sbin/ldconfig
 
 
-%files -n %{lib_name}
+%files -n %{libname}
 %defattr(-,root,root)
 /%{_lib}/*.so.*
 
-%files -n %{lib_name}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 /%{_lib}/*.so
 /%{_lib}/*a
@@ -118,6 +118,10 @@ rm -rf %{buildroot}%{_datadir}/doc/dmapi
 
 
 %changelog
+* Sat Sep 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.5
+- implement devel naming policy
+- implement library provides policy
+
 * Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.5
 - rebuild against new xfs-devel
 
