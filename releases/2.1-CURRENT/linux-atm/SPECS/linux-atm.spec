@@ -13,8 +13,8 @@
 %define release		%_revrel
 
 %define major		1
-%define libname		lib%{name}
-%define fulllibname	%mklibname %{name} %{major}
+%define libname		%mklibname %{name} %{major}
+%define devname		%mklibname %{name} -d
 
 Summary:	Tools and libraries for ATM
 Name:		%{name}
@@ -39,23 +39,25 @@ Tools and libraries to support ATM (Asynchronous Transfer Mode)
 networking and some types of DSL modems.
 
 
-%package -n %{fulllibname}
+%package -n %{libname}
 Summary:	Libraries for %{name}
 Group:		System/Libraries
 Provides:	%{name} = %{version}-%{release}
+Provides:	lib%{name} = %{version}-%{release}
 
-%description -n %{fulllibname}
+%description -n %{libname}
 This package contains libraries needed to run programs linked with %{name}.
 
 
-%package -n %{fulllibname}-devel
+%package -n %{devname}
 Summary:	Development files for %{name}
 Group:		Development/C
-Requires:	%{fulllibname} = %{version}-%{release}
-Provides:	%{libname}-devel = %{version}-%{release}
+Requires:	%{libname} = %{version}
+Provides:	lib%{name}-devel = %{version}-%{release}
 Provides:	%{name}-devel = %{version}-%{release}
+Obsoletes:	%mklibname %{name} 1 -d
 
-%description -n %{fulllibname}-devel
+%description -n %{devname}
 This package contains development files needed to compile programs which
 use %{name}.
 
@@ -95,8 +97,8 @@ automake-1.4 --foreign
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
-%post -n %{fulllibname} -p /sbin/ldconfig
-%postun -n %{fulllibname} -p /sbin/ldconfig
+%post -n %{libname} -p /sbin/ldconfig
+%postun -n %{libname} -p /sbin/ldconfig
 
 
 %files
@@ -108,11 +110,11 @@ automake-1.4 --foreign
 %{_mandir}/man7/*
 %{_mandir}/man8/*
 
-%files -n %{fulllibname}
+%files -n %{libname}
 %defattr(-,root,root)
 %{_libdir}/*.so.*
 
-%files -n %{fulllibname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 %{_includedir}/*
 %{_libdir}/*.a
@@ -126,7 +128,11 @@ automake-1.4 --foreign
 
 
 %changelog
-* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.1 
+* Sun Sep 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.4.1
+- implement devel naming policy
+- implement library provides policy
+
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.1
 - add -doc subpackage
 - rebuild with gcc4
 
