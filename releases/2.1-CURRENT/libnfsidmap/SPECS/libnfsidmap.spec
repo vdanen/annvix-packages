@@ -14,6 +14,7 @@
 
 %define	major		0
 %define libname		%mklibname nfsidmap %{major}
+%define devname		%mklibname nfsidmap -d
 
 Summary:	Library to help mapping id's, mainly for NFSv4
 Name:		%{name}
@@ -45,8 +46,8 @@ secure communications.
 %package -n %{libname}
 Summary:	Library to help mapping id's, mainly for NFSv4
 Group:		System/Libraries
-Provides:	libnfsidmap
-Provides:	nfsidmap
+Provides:	%{name} = %{version}-%{release}
+Provides:	nfsidmap = %{version}-%{release}
 
 %description -n	%{libname}
 libnfsidmap is a library holding mulitiple methods of mapping
@@ -57,14 +58,15 @@ Kerberos v5), the NFSv4 server mapping functions MUST use
 secure communications.
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:	Static library and header files for the nfsidmap library
 Group:		Development/C
 Requires:	%{libname} = %{version}
-Provides:	libnfsidmap-devel = %{version}
-Provides:	nfsidmap-devel  = %{version}
+Provides:	%{name}-devel = %{version}-%{release}
+Provides:	nfsidmap-devel  = %{version}-%{release}
+Obsoletes:	%mklibname nfsidmap 0 -d
 
-%description -n	%{libname}-devel
+%description -n	%{devname}
 libnfsidmap is a library holding mulitiple methods of mapping
 names to id's and visa versa, mainly for NFSv4. 
 
@@ -118,7 +120,7 @@ libtoolize --copy --force && aclocal-1.7 && autoconf && automake-1.7 --gnu
 %{_libdir}/*.so.*
 %{_mandir}/man3/*
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 %{_includedir}/*
 %{_libdir}/*.so
@@ -132,6 +134,10 @@ libtoolize --copy --force && aclocal-1.7 && autoconf && automake-1.7 --gnu
 
 
 %changelog
+* Sun Sep 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.16
+- implement devel naming policy
+- implement library provides policy
+
 * Thu Dec 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.16
 - first Annvix build (for nfsv4 support)
 
