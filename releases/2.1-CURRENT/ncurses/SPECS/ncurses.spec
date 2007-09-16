@@ -17,6 +17,8 @@
 %define majorminor	5.5
 %define libname		%mklibname %{name} %{major}
 %define utf8libname	%mklibname %{name}w %{major}
+%define devname		%mklibname %{name} -d
+%define utf8devname	%mklibname %{name}w -d
 
 Summary:	A CRT screen handling and optimization package
 Name:		%{name}
@@ -50,6 +52,7 @@ classic curses library.
 Summary:	The development files for applications which use ncurses
 Group:		System/Libraries
 Requires:	ncurses
+Provides:	lib%{name} = %{version}-%{release}
 
 %description -n %{libname}
 The curses library routines are a terminal-independent method of updating
@@ -62,6 +65,7 @@ classic curses library.
 Summary:	Ncurses libraries which support UTF8
 Group:		System/Libraries
 Requires:	ncurses
+Provides:	lib%{name}w = %{version}-%{release}
 
 %description -n %{utf8libname}
 The curses library routines are a terminal-independent method of updating
@@ -73,13 +77,14 @@ This package contains ncurses libraries which support wide char (UTF8),
 and is not compatible with those without.
 
 
-%package -n %{utf8libname}-devel
+%package -n %{utf8devname}
 Summary:	The development files for applications which use ncurses
 Group:		Development/C
-Requires:	%{utf8libname} = %{version}-%{release}
-Provides:	lib%{name}w-devel = %{version}-%{release}
+Requires:	%{utf8libname} = %{version}
+Provides:	%{name}w-devel = %{version}-%{release}
+Obsoletes:	%mklibname %{name}w 5 -d
 
-%description -n %{utf8libname}-devel
+%description -n %{utf8devname}
 The libraries for developing applications that use ncurses CRT screen
 handling and optimization package. Install it if you want to develop
 applications which will use ncurses.
@@ -99,14 +104,14 @@ Requires:	ncurses
 Install the ncurses-extraterms package if you use some exotic terminals.
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:	The development files for applications which use ncurses
 Group:		Development/C
-Provides:	lib%{name}-devel %{name}-devel
-Obsoletes:	lib%{name}-devel %{name}-devel
-Requires:	%{libname} = %{version}-%{release}
+Requires:	%{libname} = %{version}
+Provides:	%{name}-devel = %{version}-%{release}
+Obsoletes:	%mklibname %{name} 5 -d
 
-%description -n %{libname}-devel
+%description -n %{devname}
 The header files and libraries for developing applications that use
 the ncurses CRT screen handling and optimization package.
 
@@ -244,7 +249,7 @@ perl -pe 's||%{_datadir}/terminfo/|' %{_sourcedir}/ncurses-usefull-terms >> %{na
 
 perl -ni -e 'BEGIN { open F, "%{name}.list"; /^%/ or $s{$_} = 1 foreach <F>; } print unless $s{$_}' %{name}-extraterms.list
 
-find %{buildroot}%{_libdir} -name 'lib*.a' -not -type d -not -name "*_g.a" -not -name "*_p.a" -not -name "*w.a" | sed -e "s#^%{buildroot}##" > %{libname}-devel.list
+find %{buildroot}%{_libdir} -name 'lib*.a' -not -type d -not -name "*_g.a" -not -name "*_p.a" -not -name "*w.a" | sed -e "s#^%{buildroot}##" > %{devname}.list
 
 
 %clean
@@ -280,7 +285,7 @@ find %{buildroot}%{_libdir} -name 'lib*.a' -not -type d -not -name "*_g.a" -not 
 %files extraterms -f %{name}-extraterms.list
 %defattr(-,root,root)
 
-%files -n %{libname}-devel -f %{libname}-devel.list
+%files -n %{devname} -f %{devname}.list
 %defattr(-,root,root)
 /%{_lib}/lib*.so
 %{_libdir}/lib*.so
@@ -289,7 +294,7 @@ find %{buildroot}%{_libdir} -name 'lib*.a' -not -type d -not -name "*_g.a" -not 
 %{_includedir}/*.h
 %{_mandir}/man3/*
 
-%files -n %{utf8libname}-devel
+%files -n %{utf8devname}
 %defattr(-,root,root)
 %{_libdir}/lib*w.so
 %{_libdir}/lib*w.a
@@ -301,6 +306,10 @@ find %{buildroot}%{_libdir} -name 'lib*.a' -not -type d -not -name "*_g.a" -not 
 
 
 %changelog
+* Sat Sep 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.5
+- implement devel naming policy
+- implement library provides policy
+
 * Sat Dec 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.5
 - 5.5
 - drop P6, P8, P14, P15
