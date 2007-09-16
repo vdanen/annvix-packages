@@ -9,12 +9,13 @@
 
 %define revision	$Rev$
 %define name		libpcap
-%define version		0.9.1
+%define version		0.9.7
 %define release		%_revrel
 
 %define	major		0
 %define minor		9
 %define libname 	%mklibname pcap %{major}
+%define devname		%mklibname pcap -d
 
 Summary:        A system-independent interface for user-level packet capture
 Name:		%{name}
@@ -30,10 +31,6 @@ BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	bison
 BuildRequires:	flex
 
-Obsoletes:	libpcap
-Provides:	libpcap
-Provides:	libpcap = %{version}
-
 %description
 Libpcap provides a portable framework for low-level network monitoring.
 Libpcap can provide network statistics collection, security monitoring
@@ -46,7 +43,6 @@ several system-dependent packet capture modules in each application.
 %package -n %{libname}
 Summary:	A system-independent interface for user-level packet capture
 Group:          System/Libraries
-Obsoletes:      %{name}
 Provides:	%{name} = %{version}-%{release}
 
 %description -n %{libname}
@@ -58,15 +54,15 @@ system-independent API to ease in porting and to alleviate the need for
 several system-dependent packet capture modules in each application.
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:	Static library and header files for the pcap library
 Group:		Development/C
 License: 	BSD
-Obsoletes:	%{name}-devel
-Provides:	%{name}-devel = %{version}-%{release}
 Requires:	%{libname} = %{version}-%{release}
+Provides:	%{name}-devel = %{version}-%{release}
+Obsoletes:	%mklibname pcap 0 -d
 
-%description -n %{libname}-devel
+%description -n %{devname}
 Libpcap provides a portable framework for low-level network monitoring.
 Libpcap can provide network statistics collection, security monitoring
 and network debugging.  Since almost every system vendor provides a
@@ -91,6 +87,7 @@ This package contains the documentation for %{name}.
 
 
 %build
+%serverbuild
 %configure2_5x --enable-ipv6
 
 %make "CCOPT=%{optflags} -fPIC"
@@ -131,7 +128,7 @@ install -m 0644 pcap-int.h %{buildroot}%{_includedir}/
 %defattr(-,root,root)
 %{_libdir}/libpcap.so.*
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 %{_includedir}/*
 %{_libdir}/libpcap.so
@@ -144,18 +141,24 @@ install -m 0644 pcap-int.h %{buildroot}%{_includedir}/
 
 
 %changelog
-* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.8.3
+* Sat Sep 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.9.7
+- 0.9.7
+- use %%serverbuild
+- implement devel naming policy
+- implement library provides policy
+
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.9.1
 - add -doc subpackage
 - rebuild with gcc4
 
-* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.8.3
+* Wed Jan 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.9.1
 - Clean rebuild
 
-* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.8.3
+* Fri Jan 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.9.1
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
-* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.8.3-5avx
+* Wed Aug 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 0.9.1
 - 0.9.1
 - bump minor to 9
 - install additional headers
