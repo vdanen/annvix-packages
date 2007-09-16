@@ -12,8 +12,8 @@
 %define version		1.2.3
 %define release 	%_revrel
 
-%define lib_major	1
-%define libname		%{name}%{lib_major}
+%define major		1
+%define libname		%{name}%{major}
 
 %define build_biarch	0
 
@@ -50,10 +50,8 @@ system programs.
 %package -n %{libname}
 Summary:	The zlib compression and decompression library
 Group:		System/Libraries
-Obsoletes:	libz, libz1, %{name}
-Provides:	libz = %{version}-%{release}
-Provides:	libz1 = %{version}-%{release}
 Provides:	%{name} = %{version}-%{release}
+Obsoletes:	%{name}
 
 %description -n %{libname}
 The zlib compression library provides in-memory compression and
@@ -64,16 +62,14 @@ the same stream interface.  The zlib library is used by many different
 system programs.
 
 
-%package -n %{libname}-devel
+%package devel
 Summary:	Header files and libraries for developing apps which will use zlib
 Group:		Development/C
-Requires:	%{libname} = %{version}-%{release}
-Obsoletes:	libz1-devel, libz-devel, zlib-devel
-Provides:	libz-devel = %{version}-%{release}
-Provides:	libz1-devel = %{version}-%{release}
-Provides:	%{name}-devel = %{version}-%{release}
+Requires:	%{libname} = %{version}
+Provides:	%{libname}-devel = %{version}-%{release}
+Obsoletes:	%{libname}-devel
 
-%description -n %{libname}-devel
+%description devel
 The zlib-devel package contains the header files and libraries needed
 to develop programs that use the zlib compression and decompression
 library.
@@ -160,7 +156,7 @@ ln -s ../../%{_lib}/libz.so.%{version} %{buildroot}%{_libdir}/
 %{_prefix}/lib/libz.so.*
 %endif
 
-%files -n %{libname}-devel
+%files devel
 %defattr(-, root, root)
 %{_libdir}/*.a
 %{_libdir}/*.so
@@ -177,6 +173,10 @@ ln -s ../../%{_lib}/libz.so.%{version} %{buildroot}%{_libdir}/
 
 
 %changelog
+* Sun Sep 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2.3
+- implement devel naming policy
+- implement library provides policy
+
 * Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2.3
 - add -doc subpackage
 - rebuild with gcc4
