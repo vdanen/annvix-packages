@@ -14,6 +14,7 @@
 
 %define	major		1
 %define libname		%mklibname %{name} %{major}
+%define devname		%mklibname %{name} -d
 %define diethome	%{_prefix}/lib/dietlibc
 
 Summary:	MatrixSSL is an embedded SSL implementation
@@ -44,6 +45,7 @@ operating systems, cipher suites, and cryptography providers.
 %package -n %{libname}
 Summary:	MatrixSSL is an embedded SSL implementation
 Group:          System/Libraries
+Provides:	lib%{name} = %{version}-%{release}
 
 %description -n	%{libname}
 PeerSec MatrixSSL is an embedded SSL implementation designed for 
@@ -56,15 +58,15 @@ well documented and contains portability layers for additional
 operating systems, cipher suites, and cryptography providers. 
 
 
-%package -n %{libname}-devel
+%package -n %{devname}
 Summary:	Static library and header files for the %{name} library
 Group:		Development/C
-Obsoletes:	%{name}-devel lib%{name}-devel
-Provides:	%{name}-devel lib%{name}-devel
 Requires:	%{libname} = %{version}
 Requires:	dietlibc-devel >= 0.20
+Provides:	%{name}-devel = %{version}-%{release}
+Obsoletes:	%mklibname %{name} 1 -d
 
-%description -n	%{libname}-devel
+%description -n	%{devname}
 PeerSec MatrixSSL is an embedded SSL implementation designed for 
 small footprint devices and applications requiring low overhead per 
 connection. The library is less than 50K on disk with cipher suites.
@@ -95,6 +97,7 @@ This package contains the documentation for %{name}.
 mkdir -p dietlibc
 cp -rp src dietlibc/
 cp matrixSsl.h matrixCommon.h dietlibc/
+
 
 %build
 # first make the standard glibc stuff...
@@ -157,7 +160,7 @@ rm -f examples/*.p12
 %defattr(-,root,root)
 %{_libdir}/*.so.*
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 %{_includedir}/*
 %{diethome}/include/*
@@ -171,6 +174,10 @@ rm -f examples/*.p12
 
 
 %changelog
+* Sat Sep 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.8.2
+- implement devel naming policy
+- implement library provides policy
+
 * Sat Dec 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.8.2
 - 1.8.2
 - updated P1
