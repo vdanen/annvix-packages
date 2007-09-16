@@ -15,6 +15,7 @@
 
 %define major		5.43
 %define libname		%mklibname %{name} %{major}
+%define devname		%mklibname %{name} -d
 
 Summary:	A tcl extension for simplifying program-script interaction
 Name:		%{name}
@@ -56,6 +57,7 @@ package.
 %package -n %{libname}
 Summary:	Shared libraries for %{name}
 Group:		System/Libraries
+Provides:	lib%{name} = %{epoch}:%{version}-%{release}
 
 %description -n %{libname}
 Expect is a tcl extension for automating interactive applications such
@@ -68,14 +70,15 @@ with interactive applications.  You'll also need to install the tcl
 package.
 
 
-%package -n %{libname}-devel 
+%package -n %{devname} 
 Summary:	Development files for %{name}
 Group:		Development/Other
 Requires:	%{libname} = %{epoch}:%{version}
 Provides:	%{name}-devel = %{epoch}:%{version}-%{release}
 Provides:	lib%{name}-devel = %{epoch}:%{version}-%{release}
+Obsoletes:	%mklibname %{name} 5.43 -d
 
-%description -n	%{libname}-devel
+%description -n	%{devname}
 This package contains development files for %{name}.
 
 
@@ -166,7 +169,7 @@ chmod 0755 %{buildroot}%{_libdir}/*.so
 %defattr(-,root,root)
 %{_libdir}/lib*.so.*
 
-%files -n %{libname}-devel
+%files -n %{devname}
 %defattr(-,root,root)
 %{_includedir}/*
 %{_libdir}/*.so
@@ -177,6 +180,10 @@ chmod 0755 %{buildroot}%{_libdir}/*.so
 
 
 %changelog
+* Sun Sep 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.43.0
+- implement devel naming policy
+- implement library provides policy
+
 * Tue Dec 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.43.0
 - fix the epoch usage
 
