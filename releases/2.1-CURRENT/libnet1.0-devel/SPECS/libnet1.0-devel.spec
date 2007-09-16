@@ -1,4 +1,4 @@
-#
+ #
 # spec file for package libnet1.0
 #
 # Package for the Annvix Linux distribution: http://annvix.org/
@@ -54,7 +54,7 @@ This package contains the documentation for %{name}.
 
 
 %prep
-%setup -n Libnet-%{version} -q
+%setup -q -n Libnet-%{version}
 %patch0 -p1 -b .strings
 find . -type 'd' -name "CVS" -print | xargs /bin/rm -rf
 
@@ -73,7 +73,12 @@ find . -type 'd' -name "CVS" -print | xargs /bin/rm -rf
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}{%{_bindir},%{_includedir},%{_libdir},%{_mandir}/man3}
 
-make install DESTDIR=%{buildroot} INSTALL="/usr/bin/install" MAN_PREFIX=%{_mandir}/man3
+make \
+    DESTDIR=%{buildroot} \
+    INSTALL="/usr/bin/install" \
+    MAN_PREFIX=%{_mandir}/man3 \
+    install
+
 rm -f %{buildroot}/%{_libdir}/libpwrite
 
 
@@ -96,6 +101,9 @@ rm -f %{buildroot}/%{_libdir}/libpwrite
 
 
 %changelog
+* Sun Sep 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0.2a
+- minor spec cleanups
+
 * Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.2a
 - add -doc subpackage
 - rebuild with gcc4
