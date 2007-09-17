@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		snort
-%define version		2.7.0
+%define version		2.7.0.1
 %define release		%_revrel
 
 Summary:	An intrusion detection system
@@ -29,14 +29,12 @@ Source6:	snortdb-extra
 # snort rules are now bundled separately; these "community" rules are under the GPL
 Source7:	http://www.snort.org/pub-bin/downloads.cgi/Download/comm_rules/Community-Rules-2.4.tar.gz
 
-Patch0:		snort-2.7.0-avx-mdv-lib64.patch
+Patch0:		snort-2.7.0.1-mdv-lib64.patch
 # (oe): make -L work as stated in the man page.
 Patch1:		snort-2.6.1.5-mdv-no_timestamp.patch
 Patch2:		snort-2.6.1-mdv-plugins_fix.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	autoconf2.5
-BuildRequires:	automake1.7
 BuildRequires:	libpcap-devel >= 0.6
 BuildRequires:	mysql-devel
 BuildRequires:	openssl-devel
@@ -177,7 +175,7 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q -a 7
-%patch0 -p0 -b .lib64
+%patch0 -p1 -b .lib64
 %patch1 -p1 -b .no_timestamp
 %patch2 -p1 -b .plugins_fix
 
@@ -465,7 +463,6 @@ pushd building
 popd
 }
 
-[[ -f "%{name}.8.bz2" ]] || bzip2 %{name}.8
 install %{name}.8* %{buildroot}%{_mandir}/man8
 perl -pi -e "s|var RULE_PATH ../rules|var RULE_PATH rules|" etc/%{name}.conf
 
@@ -653,6 +650,12 @@ update-alternatives --remove %{name} %{_sbindir}/%{name}-inline+flexresp
 
 
 %changelog
+* Tue Jul 24 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.7.0
+- 2.7.0.1
+- updated P0 from Mandriva due to mysqlclient check changes
+- don't bzip2 the manpages manually
+- rebuild against new libpcap, pcre, postgresql
+
 * Tue Jul 24 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.7.0
 - 2.7.0
 - rediffed P0
