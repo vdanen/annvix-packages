@@ -47,7 +47,7 @@ Patch21:	ppp-2.4.3-fixprotoinc.patch
 Patch22:	ppp-2.4.3-hspeed.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	liblinux-atm-devel
+BuildRequires:	linux-atm-devel
 BuildRequires:	libpcap-devel 
 BuildRequires:	openssl-devel >= 0.9.7
 BuildRequires:	pam-devel
@@ -278,6 +278,7 @@ rm -rf %{buildroot}%{_libdir}/*rad*
 %changelog
 * Sun Sep 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.4.4
 - rebuild against new libpcap
+- fix buildreq's
 
 * Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.4
 - rebuild against new pam
