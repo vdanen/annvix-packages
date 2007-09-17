@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		kudzu
-%define version		1.2.60
+%define version		1.2.71
 %define release		%_revrel
 
 Summary:	The Red Hat Linux hardware probing tool
@@ -38,11 +38,7 @@ Requires:	pam >= 0.74-17
 Requires:	hwdata
 Requires:	python-base >= %{py_ver}
 Requires:	modutils >= 2.3.11-5
-%ifarch x86_64 amd64
-Requires:	lib64newt0.51
-%else
-Requires:	libnewt0.51
-%endif
+Requires:	libnewt
 
 %description
 Kudzu is a hardware probing tool run at system boot time to determine
@@ -129,6 +125,11 @@ echo "no" >%{buildroot}%{_sysconfdir}/sysconfig/env/kudzu/SAFE
 
 
 %changelog
+* Sun Sep 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2.71
+- 1.2.71
+- rebuild against new newt
+- fix requires
+
 * Fri May 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2.60
 - rebuild againt new python
 
