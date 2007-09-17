@@ -447,6 +447,9 @@ rm -f %{buildroot}/sbin/sln
 
 
 %changelog
+* Sun Sep 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.12r
+- rebuild against new slang
+
 * Mon Jun 04 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.12r
 - P1212: security fix for CVE-2006-7108
 
