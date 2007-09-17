@@ -276,6 +276,9 @@ rm -rf %{buildroot}%{_libdir}/*rad*
 
 
 %changelog
+* Sun Sep 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.4.4
+- rebuild against new libpcap
+
 * Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.4
 - rebuild against new pam
 
