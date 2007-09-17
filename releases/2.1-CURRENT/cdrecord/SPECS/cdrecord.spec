@@ -9,11 +9,9 @@
 
 %define revision	$Rev$
 %define name		cdrecord
-%define version 	2.01.01a03
+%define version 	2.01.01a35
 %define release 	%_revrel
 %define epoch		4
-
-%define archname	cdrtools
 
 %define mkisofs_ver	2.01.01
 %define mkisofs_rel	%{release}
@@ -24,27 +22,15 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 Epoch:		%{epoch}
-License:	GPL
+License:	CDDL
 Group:		Archiving
 URL:		http://cdrecord.berlios.de/old/private/cdrecord.html
-Source:		ftp://ftp.berlios.de/pub/cdrecord/%{archname}-%{version}.tar.bz2
-Patch0:		cdrecord-2.01-CAN-2004-0806.patch
-Patch6:		cdrtools-2.01.01-CAN-2005-0866.patch
-Patch10:	cdrtools-2.01.01a03-dvd.patch
-Patch11:	cdrtools-2.01a28-o_excl.patch
-Patch12:	cdrtools-2.01a27-writemode.patch
-Patch13:	cdrtools-2.01.01a03-rawio.patch
-Patch14:	cdrtools-2.01.01a03-warnings.patch
-Patch15:	cdrtools-2.01.01a01-scanbus.patch
-Patch16:	cdrtools-2.01.01a03-rezero.patch
-Patch17:	cdrtools-2.01.01-scsibuf.patch
+Source0:	ftp://ftp.berlios.de/pub/cdrecord/alpha/cdrtools-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	libpcap-devel
 
 Requires:	mkisofs
-Obsoletes:	cdrecord-dvdhack =< 4:2.01-0.a15.2mdk
-Provides:	cdrecord-dvdhack = %{epoch}:%{version}-%{release}
 
 %description
 Cdrecord allows you to create CDs on a CD-Recorder (SCSI/ATAPI).
@@ -95,15 +81,7 @@ This package contains the documentation for %{name}.
 
 
 %prep
-%setup -q -n %{archname}-%{version}
-%patch0 -p1 -z .can-2004-0806
-%patch6 -p1 -z .can-2005-0866
-%patch10 -p1 -z .dvd
-#%patch13 -p1 -z .rawio
-%patch14 -p1 -z .warnings
-%patch15 -p1 -z .scanbus
-%patch16 -p1 -z .rezero
-%patch17 -p1 -z .scsibuf
+%setup -q -n cdrtools-%{version}
 
 
 %build
@@ -131,9 +109,18 @@ rm -f %{buildroot}%{_bindir}/cdda2wav
 rm -f %{buildroot}%{_mandir}/man1/cdda2wav.1*
 rm -f %{buildroot}%{_mandir}/man1/cdda2ogg.1*
 
+rm -rf %{buildroot}%{_datadir}/doc/{cdda2wav,cdrecord,libparanoia,mkisofs,rscsi}
+
 # Move libraries to the right directories
 [[ "%{_lib}" != "lib" ]] && \
-mv %{buildroot}%{_prefix}/lib %{buildroot}%{_libdir}/
+mv %{buildroot}%{_prefix}/lib %{buildroot}%{_libdir}
+
+# move config files
+mkdir %{buildroot}%{_sysconfdir}
+mv %{buildroot}%{_prefix}%{_sysconfdir}/default %{buildroot}%{_sysconfdir}/
+rmdir %{buildroot}%{_prefix}%{_sysconfdir}
+
+find %{buildroot}%{_includedir} -type d -exec chmod 0755 {} \;
 
 
 %clean
@@ -141,43 +128,61 @@ mv %{buildroot}%{_prefix}/lib %{buildroot}%{_libdir}/
 
 
 %files
+%config(noreplace) %{_sysconfdir}/default/cdrecord
+%config(noreplace) %{_sysconfdir}/default/rscsi
+%attr(0755,root,cdwriter) %{_bindir}/btcflash
 %attr(0755,root,cdwriter) %{_bindir}/cdrecord
-%attr(755,root,cdwriter) %{_bindir}/devdump
-%attr(755,root,cdwriter) %{_bindir}/scgcheck
+%attr(0755,root,cdwriter) %{_bindir}/devdump
+%attr(0755,root,cdwriter) %{_bindir}/scgcheck
+%attr(0755,root,cdwriter) %{_bindir}/scgskeleton
 %attr(0750,root,cdwriter) %{_bindir}/readcd
-%attr(755,root,cdwriter) %{_bindir}/skel
-%attr(755,root,cdwriter) %{_sbindir}/rscsi
-%attr(644,root,root) %{_mandir}/man1/cdrecord.1*
-%attr(644,root,root) %{_mandir}/man1/readcd.1*
-%attr(644,root,root) %{_mandir}/man1/scgcheck.1*
-%attr(644,root,root) %{_mandir}/man5/makefiles.5*
-%attr(644,root,root) %{_mandir}/man5/makerules.5*
-%attr(644,root,root) %{_mandir}/man8/isoinfo.8*
+%attr(0755,root,cdwriter) %{_sbindir}/rscsi
+%dir %{_libdir}/siconv
+%{_libdir}/siconv/*
+%{_mandir}/man1/btcflash.1*
+%{_mandir}/man1/cdrecord.1*
+%{_mandir}/man1/readcd.1*
+%{_mandir}/man1/scgcheck.1*
+%{_mandir}/man5/makefiles.5*
+%{_mandir}/man5/makerules.5*
+%{_mandir}/man8/devdump.8*
 
 %files devel
 %defattr(-,root,root)
-%attr(644,root,root) %{_libdir}/*.a
-%attr(644,root,root) %{_includedir}/*.h
+ %{_libdir}/*.a
+%dir %{_includedir}/schily
+%{_includedir}/schily/*
 
 %files -n mkisofs
 %defattr(-,root,root)
 %{_bindir}/mkisofs
 %{_bindir}/mkhybrid
-%attr(644,root,root) %{_mandir}/man8/mkisofs.8*
-%attr(644,root,root) %{_mandir}/man8/mkhybrid.8*
+%{_mandir}/man8/mkisofs.8*
+%{_mandir}/man8/mkhybrid.8*
 
 %files isotools
 %defattr(-,root,root)
-%attr(755,root,cdwriter) %{_bindir}/isodump
-%attr(755,root,cdwriter) %{_bindir}/isodebug
-%attr(755,root,cdwriter) %{_bindir}/isoinfo
-%attr(755,root,cdwriter) %{_bindir}/isovfy
+%attr(0755,root,cdwriter) %{_bindir}/isodebug
+%attr(0755,root,cdwriter) %{_bindir}/isodump
+%attr(0755,root,cdwriter) %{_bindir}/isoinfo
+%attr(0755,root,cdwriter) %{_bindir}/isovfy
+%{_mandir}/man8/isodebug.8*
+%{_mandir}/man8/isodump.8*
+%{_mandir}/man8/isoinfo.8*
+%{_mandir}/man8/isovfy.8*
 
 %files doc
 %doc Changelog README* AN-* mkisofs-doc
 
 
 %changelog
+* Mon Sep 17 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.01.01a35
+- 2.01.01a35
+- drop all patches
+- rebuild against new libpcap
+- fix file lists
+- update license
+
 * Tue Jun 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.01.01a03
 - add -doc subpackage
 - rebuild with gcc4
