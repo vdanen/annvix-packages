@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		tcpdump
-%define version		3.9.4
+%define version		3.9.7
 %define release		%_revrel
 %define epoch		2
 
@@ -23,7 +23,6 @@ Group:	 	Monitoring
 URL:		http://www.tcpdump.org
 Source0:	http://www.tcpdump.org/release/%{name}-%{version}.tar.gz
 Source1:	http://www.tcpdump.org/release/%{name}-%{version}.tar.gz.sig
-Patch0:		tcpdump-3.9.4-CVE-2007-1218.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	libpcap-devel
@@ -45,7 +44,6 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
-%patch0 -p1 -b .cve-2007-1218
 
 
 %build
@@ -77,6 +75,11 @@ libtoolize --copy --force
 
 
 %changelog
+* Mon Sep 17 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.9.7
+- 3.9.7; fixes CVE-2007-3798
+- drop P0; fixed upstream
+- rebuild against new libpcap
+
 * Thu Mar 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.9.4
 - P0: security fix for CVE-2007-1218
 
