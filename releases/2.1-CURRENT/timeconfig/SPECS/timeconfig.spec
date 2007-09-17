@@ -24,7 +24,7 @@ Patch1:		timeconfig-mdkconf.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	gettext
-BuildRequires:	libnewt-devel
+BuildRequires:	newt-devel
 BuildRequires:	popt-devel
 BuildRequires:	slang-devel
 
@@ -91,6 +91,9 @@ fi
 
 
 %changelog
+* Sun Sep 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.2
+- rebuild against new slang, new newt
+
 * Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.2
 - spec cleanups
 - remove locales
