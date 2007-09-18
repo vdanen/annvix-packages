@@ -9,14 +9,14 @@
 
 %define revision	$Rev$
 %define name		php
-%define version		5.2.3
+%define version		5.2.4
 %define release		%_revrel
 %define epoch		2
 
 %define libversion	5
 %define libname		%mklibname php_common %{libversion}
 
-%define suhosin_ver	5.2.3-0.9.6.2
+%define suhosin_ver	5.2.4-0.9.6.2
 
 %define _requires_exceptions BEGIN\\|mkinstalldirs\\|pear(\\|/usr/bin/tclsh
 
@@ -33,13 +33,12 @@ Source0:	http://static.php.net/www.php.net/distributions/php-%{version}.tar.bz2
 # Mandriva/Annvix patches
 #
 Patch0:		php-4.3.0-mdk-init.patch
-Patch1:		php-5.2.0-mdv-shared.patch
+Patch1:		php-5.2.4-mdv-shared.patch
 Patch2:		php-4.3.0-mdk-imap.patch
 Patch3:		php-4.3.4RC3-mdk-64bit.patch
-Patch4:		php-5.1.2-mdk-lib64.patch
 Patch5:		php-4.3.11-mdk-libtool.patch
-Patch6:		php-5.2.0-mdv-no_egg.patch
-Patch7:		php-5.1.2-mdk-phpize.patch
+Patch6:		php-5.2.4-mdv-no_egg.patch
+Patch7:		php-5.2.4-mdv-phpize.patch
 Patch8:		php-5.1.0RC4-mdk-remove_bogus_iconv_deps.patch
 Patch9:		php-5.1.0RC1-mdk-phpbuilddir.patch
 # http://www.outoforder.cc/projects/apache/mod_transform/patches/php5-apache2-filters.patch
@@ -61,12 +60,10 @@ Patch28:	php-5.0.0b3-pld-zlib.patch
 #
 Patch50:	php-5.1.0b1-fdr-cxx.patch
 Patch51:	php-4.3.3-fdr-install.patch
-Patch52:	php-5.0.4-fdr-norpath.patch
 Patch53:	php-5.2.1-fdr-umask.patch
 #
 # General fixes (70+)
 #
-Patch70:	php-4.3.1-mdk-odbc.patch
 Patch71:	php-4.3.11-mdk-shutdown.patch
 # Functional changes
 Patch72:	php-5.0.4-mdk-dlopen.patch
@@ -303,7 +300,6 @@ This package contains the documentation for %{name}.
 %patch1 -p1 -b .shared.avx
 %patch2 -p0 -b .imap.avx
 %patch3 -p1 -b .64bit.avx
-%patch4 -p1 -b .lib64.avx
 %patch5 -p0 -b .libtool.avx
 %patch6 -p1 -b .no_egg.avx
 %patch7 -p1 -b .phpize.avx
@@ -322,10 +318,8 @@ This package contains the documentation for %{name}.
 # from Fedora
 %patch50 -p0 -b .cxx.avx
 %patch51 -p1 -b .install.avx
-%patch52 -p1 -b .norpath.avx
 %patch53 -p0 -b .umask.avx
 #
-%patch70 -p1 -b .odbc.avx
 %patch71 -p1 -b .shutdown.avx
 %patch72 -p1 -b .dlopen.avx
 #
@@ -454,7 +448,7 @@ for i in cgi cli fcgi apxs; do
         --enable-trans-sid \
         --enable-memory-limit \
         --with-versioning \
-        --with-mod_charset \
+        --enable-mod_charset \
         --with-pear=%{_datadir}/pear \
         --with-pcre-regex \
         --enable-xml
@@ -656,6 +650,14 @@ fi
 
 
 %changelog
+* Tue Sep 18 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.4
+- 5.2.4 (fixes for CVE-2007-2872, CVE-2007-3378, CVE-2007-3997, CVE-2007-3998,
+  CVE-2007-4652, CVE-2007-4657, CVE-2007-4658, CVE-2007-4659, CVE-2007-4661,
+  CVE-2007-4662, CVE-2007-4663, CVE-2007-4670)
+- suhosin patch for 5.2.4
+- updated P1, P6, P7 from Mandriva
+- dropped old/obsolete patches: P4, P52, P70
+
 * Mon Jun 04 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.3
 - fix the php-fcgi build
 
