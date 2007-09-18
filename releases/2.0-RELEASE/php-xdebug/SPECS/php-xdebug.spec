@@ -13,7 +13,7 @@
 %define release		%_revrel
 %define epoch		1
 
-%define phpversion	5.2.3
+%define phpversion	5.2.4
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir		%{_libdir}/php
 
@@ -115,6 +115,9 @@ perl -pi -e 's|/usr/lib|%{_libdir}|g' %{buildroot}%{_sysconfdir}/php.d/%{inifile
 
 
 %changelog
+* Tue Sep 18 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.4
+- php 5.2.4
+
 * Sun Jun 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.3
 - php 5.2.3
 

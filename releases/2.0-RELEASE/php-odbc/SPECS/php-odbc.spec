@@ -12,7 +12,7 @@
 %define version		%{phpversion}
 %define release		%_revrel
 
-%define phpversion	5.2.3
+%define phpversion	5.2.4
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir		%{_libdir}/php
 
@@ -85,6 +85,9 @@ install -m 0644 %{_sourcedir}/odbc.ini %{buildroot}%{_sysconfdir}/php.d/%{inifil
 
 
 %changelog
+* Tue Sep 18 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.4
+- php 5.2.4
+
 * Sun Jun 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.3
 - php 5.2.3
 
