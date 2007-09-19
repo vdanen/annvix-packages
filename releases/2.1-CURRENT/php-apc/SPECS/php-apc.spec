@@ -13,7 +13,7 @@
 %define release		%_revrel
 %define epoch		1
 
-%define phpversion	5.2.3
+%define phpversion	5.2.4
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir		%{_libdir}/php
 
@@ -80,6 +80,7 @@ This package contains the documentation for %{name}.
 
 
 %build
+%serverbuild
 phpize
 %configure2_5x \
     --enable-%{modname}=shared,%{_prefix} \
@@ -115,10 +116,14 @@ install -m 0755 %{soname} %{buildroot}%{phpdir}/extensions/
 
 
 %changelog
-* Mon Jun 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.3
+* Mon Jun 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0.14
+- php 5.2.4
+- use %%serverbuild
+
+* Mon Jun 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0.14
 - rebuild with SSP
 
-* Sun Jun 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.3
+* Sun Jun 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0.14
 - php 5.2.3
 
 * Fri May 04 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0.14
