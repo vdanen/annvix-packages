@@ -9,14 +9,14 @@
 
 %define revision	$Rev$
 %define name		php
-%define version		5.2.3
+%define version		5.2.4
 %define release		%_revrel
 %define epoch		2
 
 %define libversion	5
 %define libname		%mklibname php_common %{libversion}
 
-%define suhosin_ver	5.2.3-0.9.6.2
+%define suhosin_ver	5.2.4-0.9.6.2
 
 %define _requires_exceptions BEGIN\\|mkinstalldirs\\|pear(\\|/usr/bin/tclsh
 
@@ -44,12 +44,11 @@ Source11:	php-mime_magic.ini
 # Mandriva/Annvix patches
 #
 Patch0:		php-5.2.3-mdv-init.patch
-Patch1:		php-5.2.3-mdv-shared.patch
+Patch1:		php-5.2.4-mdv-shared.patch
 Patch3:		php-5.2.3-mdv-64bit.patch
-Patch4:		php-5.2.3-mdv-lib64.patch
 Patch5:		php-5.2.3-mdv-libtool.patch
-Patch6:		php-5.2.0-mdv-no_egg.patch
-Patch7:		php-5.2.3-mdv-phpize.patch
+Patch6:		php-5.2.4-mdv-no_egg.patch
+Patch7:		php-5.2.4-mdv-phpize.patch
 Patch8:		php-5.2.3-mdv-remove_bogus_iconv_deps.patch
 Patch9:		php-5.2.3-mdv-phpbuilddir.patch
 # http://www.outoforder.cc/projects/apache/mod_transform/patches/php5-apache2-filters.patch
@@ -76,12 +75,10 @@ Patch30:	php-5.2.3-mdv-deb-exif_nesting_level.patch
 #
 Patch50:	php-5.2.3-mdv-fdr-cxx.patch
 Patch51:	php-5.2.3-mdv-fdr-install.patch
-Patch52:	php-5.2.3-mdv-fdr-norpath.patch
 Patch53:	php-5.2.1-fdr-umask.patch
 #
 # General fixes (70+)
 #
-Patch70:	php-5.2.3-mdv-odbc.patch
 Patch71:	php-5.2.3-mdv-shutdown.patch
 # Functional changes
 Patch72:	php-5.2.3-mdv-dlopen.patch
@@ -929,7 +926,6 @@ This package contains the documentation for %{name}.
 %patch0 -p0 -b .init.avx
 %patch1 -p1 -b .shared.avx
 %patch3 -p1 -b .64bit.avx
-%patch4 -p0 -b .lib64.avx
 %patch5 -p0 -b .libtool.avx
 %patch6 -p1 -b .no_egg.avx
 %patch7 -p1 -b .phpize.avx
@@ -949,10 +945,8 @@ This package contains the documentation for %{name}.
 # from Fedora
 %patch50 -p0 -b .cxx.avx
 %patch51 -p0 -b .install.avx
-%patch52 -p0 -b .norpath.avx
 %patch53 -p0 -b .umask.avx
 #
-%patch70 -p0 -b .odbc.avx
 %patch71 -p1 -b .shutdown.avx
 %patch72 -p0 -b .dlopen.avx
 #
@@ -1088,7 +1082,7 @@ for i in cgi cli fcgi apxs; do
         --enable-trans-sid \
         --enable-memory-limit \
         --with-versioning \
-        --with-mod_charset \
+        --enable-mod_charset \
         --with-pear=%{_datadir}/pear \
         --enable-xml \
         --enable-bcmath=shared,%{_prefix} \
@@ -1577,6 +1571,14 @@ fi
 
 
 %changelog
+* Wed Sep 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.4
+- 5.2.4 (fixes for CVE-2007-2872, CVE-2007-3378, CVE-2007-3997, CVE-2007-3998,
+  CVE-2007-4652, CVE-2007-4657, CVE-2007-4658, CVE-2007-4659, CVE-2007-4661,
+  CVE-2007-4662, CVE-2007-4663, CVE-2007-4670)
+- suhosin patch for 5.2.4
+- updated P1, P6, P7 from Mandriva
+- dropped old/obsolete patches: P4, P52, P70
+
 * Mon Jun 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.3
 - rebuild with SSP
 
