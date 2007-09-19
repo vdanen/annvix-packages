@@ -12,7 +12,7 @@
 %define version		0.11.0
 %define release		%_revrel
 
-%define phpversion	5.2.3
+%define phpversion	5.2.4
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir          %{_libdir}/php
 
@@ -49,6 +49,7 @@ ln -s %{phpsource}/ext .
 
 
 %build
+%serverbuild
 phpize
 %configure2_5x \
     --with-libdir=%{_lib} \
@@ -80,10 +81,14 @@ install -m 0644 %{_sourcedir}/filter.ini %{buildroot}%{_sysconfdir}/php.d/%{inif
 
 
 %changelog
-* Mon Jun 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.3
+* Wed Sep 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.11.0
+- php 5.2.4
+- use %%serverbuild
+
+* Mon Jun 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.11.0
 - rebuild with SSP
 
-* Sun Jun 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.3
+* Sun Jun 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.11.0
 - php 5.2.3
 
 * Fri May 04 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.11.0
