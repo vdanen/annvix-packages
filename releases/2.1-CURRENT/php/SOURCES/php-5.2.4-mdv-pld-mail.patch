@@ -1,5 +1,5 @@
---- ext/standard/mail.c	2007-03-30 02:28:58.000000000 +0200
-+++ ext/standard/mail.c.oden	2007-06-20 12:13:30.000000000 +0200
+--- ext/standard/mail.c	2007-07-11 19:36:56.000000000 +0200
++++ ext/standard/mail.c.oden	2007-08-06 14:38:36.000000000 +0200
 @@ -21,6 +21,8 @@
  #include <stdlib.h>
  #include <ctype.h>
@@ -16,10 +16,10 @@
 +#include "zend_operators.h"
 +#include "zend_globals.h"
 +
- #if HAVE_SENDMAIL
  #ifdef PHP_WIN32
  #include "win32/sendmail.h"
-@@ -124,6 +129,18 @@
+ #endif
+@@ -123,6 +128,18 @@
  		MAIL_ASCIIZ_CHECK(extra_cmd, extra_cmd_len);
  	}
  
@@ -38,7 +38,7 @@
  	if (to_len > 0) {
  		to_r = estrndup(to, to_len);
  		for (; to_len; to_len--) {
-@@ -245,8 +262,42 @@
+@@ -244,8 +261,42 @@
  			return 0;
  		}
  #endif

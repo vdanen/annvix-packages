@@ -57,11 +57,10 @@ Patch10:	php5-apache2-filters.patch
 Patch11:	php-5.2.3-mdv-extension_dep_macro_revert.patch
 Patch12:	php-5.2.3-mdv-no_libedit.patch
 Patch13:	php-5.2.1-mdv-extraimapcheck.patch
-Patch14:	php-5.2.3-mdv-pdo_odbc_libdir.patch
 #
 # from PLD (20-29)
 #
-Patch20:	php-5.2.3-mdv-pld-mail.patch
+Patch20:	php-5.2.4-mdv-pld-mail.patch
 Patch21:	php-4.3.3RC3-pld-sybase-fix.patch
 Patch25:	php-5.2.3-pld-dba-link.patch
 Patch27:	php-4.4.1-pld-zlib-for-getimagesize.patch
@@ -124,7 +123,7 @@ Group:		Development/PHP
 URL:		http://www.php.net
 Requires(pre):	php-ini
 Requires:	%{libname} >= %{epoch}:%{version}-%{release}
-Requires:	php-suhosin >= 0.9.10
+Requires:	php-suhosin >= 0.9.20
 Requires:	php-filter >= 0.11.0
 Requires:	php-json >= 1.2.1
 Provides:	php = %{version}
@@ -152,7 +151,7 @@ Group:		Development/PHP
 URL:		http://www.php.net
 Requires(pre):	php-ini
 Requires:	%{libname} >= %{epoch}:%{version}-%{release}
-Requires:	php-suhosin >= 0.9.10
+Requires:	php-suhosin >= 0.9.20
 Requires:	php-filter >= 0.11.0
 Requires:	php-json >= 1.2.1
 Provides:	php = %{version}
@@ -180,7 +179,7 @@ Group:		Development/PHP
 URL:		http://www.php.net
 Requires(pre):	php-ini
 Requires:	%{libname} >= %{epoch}:%{version}-%{release}
-Requires:	php-suhosin >= 0.9.10
+Requires:	php-suhosin >= 0.9.20
 Requires:	php-filter >= 0.11.0
 Requires:	php-json >= 1.2.1
 Provides:	php = %{version}
@@ -473,6 +472,14 @@ character set. Supported character sets depend on the iconv implementation of
 your system. Note that the iconv function on some systems may not work as you
 expect. In such case, it'd be a good idea to install the GNU libiconv library.
 It will most likely end up with more consistent results.
+
+
+%package json
+Summary:	JavaScript Object Notation
+Group:		Development/PHP
+
+%description json
+Support for JSON (JavaScript Object Notation) serialization.
 
 
 %package ldap
@@ -935,7 +942,6 @@ This package contains the documentation for %{name}.
 %patch11 -p1 -b .extension_dep_macro_revert.avx
 %patch12 -p0 -b .no_libedit.avx
 %patch13 -p0 -b .extraimapcheck.avx
-%patch14 -p0 -b .pdo_odbc_libdir.avx
 # from PLD
 %patch20 -p0 -b .mail.avx
 %patch21 -p1 -b .sybase-fix.avx
@@ -1002,6 +1008,8 @@ rm -rf ext/xmlrpc/libxmlrpc
 
 
 %build
+%serverbuild
+
 cat > php-devel/buildext <<EOF
 #!/bin/bash
 gcc -Wall -fPIC -shared %{optflags} \\
@@ -1095,7 +1103,7 @@ for i in cgi cli fcgi apxs; do
         --enable-dom=shared,%{_prefix} \
         --enable-exif=shared \
         --disable-filter \
-        --disable-json \
+        --enable-json=shared \
         --enable-ftp \
         --with-gd=shared --enable-gd-native-ttf \
         --with-gettext=%{_prefix} \
@@ -1234,6 +1242,7 @@ echo "extension = xmlreader.so"		> %{buildroot}%{_sysconfdir}/php.d/63_xmlreader
 echo "extension = xmlwriter.so"		> %{buildroot}%{_sysconfdir}/php.d/64_xmlwriter.ini
 echo "extension = xsl.so"		> %{buildroot}%{_sysconfdir}/php.d/63_xsl.ini
 echo "extension = wddx.so"		> %{buildroot}%{_sysconfdir}/php.d/63_wddx.ini
+echo "extension = json.so"		> %{buildroot}%{_sysconfdir}/php.d/82_json.ini
 
 # fix docs
 cp Zend/LICENSE Zend/ZEND_LICENSE
@@ -1420,6 +1429,11 @@ fi
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/php.d/*_iconv.ini
 %attr(0755,root,root) %{_libdir}/php/extensions/iconv.so
 
+%files json
+%defattr(-,root,root)
+%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/php.d/*_json.ini
+%attr(0755,root,root) %{_libdir}/php/extensions/json.so
+
 %files ldap 
 %defattr(-,root,root)
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/php.d/*_ldap.ini
@@ -1571,6 +1585,13 @@ fi
 
 
 %changelog
+* Wed Sep 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.4
+- drop P14, merged upstream
+- updated P20 from Mandriva
+- require the latest suhosin
+- use %%serverbuild
+- use the bundled json instead of the pecl one
+
 * Wed Sep 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.4
 - 5.2.4 (fixes for CVE-2007-2872, CVE-2007-3378, CVE-2007-3997, CVE-2007-3998,
   CVE-2007-4652, CVE-2007-4657, CVE-2007-4658, CVE-2007-4659, CVE-2007-4661,
