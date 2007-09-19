@@ -55,7 +55,7 @@ was later modified to incorporate concepts from the xmlrpc protocol.
 Summary:	Libraries, includes, etc. to develop XML and HTML applications
 Group:		Development/C
 Requires:	%{libname} = %{version}
-Provides:	%{libname}-devel = %{version}-%{release}
+Provides:	libxmlrpc-devel = %{version}-%{release}
 Provides:	%{name}-devel = %{version}-%{release}
 Obsoletes:	libxmlrpc0-devel < %{version}-%{release}
 
@@ -128,6 +128,9 @@ rm -f %{buildroot}%{_bindir}/{client,hello_{client,server},memtest,sample,server
 
 
 %changelog
+* Wed Sep 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.51
+- fix devel provides
+
 * Fri Sep 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.51
 - fix obsoletes so x86_64 upgrades properly
 
