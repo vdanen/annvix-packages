@@ -13,7 +13,7 @@
 %define release		%_revrel
 %define epoch		1
 
-%define phpversion	5.2.3
+%define phpversion	5.2.4
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir		%{_libdir}/php
 
@@ -30,9 +30,8 @@ Epoch:		%{epoch}
 License:	PHP License
 Group:		Development/PHP
 URL:		http://xdebug.org/
-Source0:	http://xdebug.org/files/%{modname}-%{version}RC4.tgz
+Source0:	http://xdebug.org/files/%{modname}-%{version}.tgz
 Source1:	xdebug.ini
-Source2:	xdebug-docs.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:  php-devel >= %{phpversion}
@@ -67,10 +66,12 @@ This package contains the documentation for %{name}.
 
 
 %prep
-%setup -q -n %{modname}-%{version}RC4 -a 2
+%setup -q -n %{modname}-%{version}
+[ "../package*.xml" != "/" ] && mv ../package*.xml .
 
 
 %build
+%serverbuild
 phpize
 %configure2_5x \
     --enable-%{modname}=shared,%{_prefix}
@@ -111,14 +112,20 @@ perl -pi -e 's|/usr/lib|%{_libdir}|g' %{buildroot}%{_sysconfdir}/php.d/%{inifile
 
 %files doc
 %defattr(-,root,root)
-%doc CREDITS Changelog LICENSE NEWS README xdebug-docs/*
+%doc CREDITS Changelog LICENSE NEWS README
 
 
 %changelog
-* Mon Jun 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.3
+* Wed Sep 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0.0
+- 2.0.0 final
+- php 5.2.4
+- drop old html docs
+- use %%serverbuild
+
+* Mon Jun 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0.0RC4
 - rebuild with SSP
 
-* Sun Jun 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.3
+* Sun Jun 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0.0RC4
 - php 5.2.3
 
 * Mon May 28 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0.0RC4
