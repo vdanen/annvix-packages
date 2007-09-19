@@ -116,7 +116,7 @@ install -m 0755 %{soname} %{buildroot}%{phpdir}/extensions/
 
 
 %changelog
-* Mon Jun 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0.14
+* Wed Sep 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0.14
 - php 5.2.4
 - use %%serverbuild
 
