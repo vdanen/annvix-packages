@@ -58,6 +58,8 @@ This package contains the documentation for %{name}.
 
 
 %build
+%serverbuild
+
 phpize
 %configure2_5x \
     --with-libdir=%{_lib} \
@@ -92,10 +94,14 @@ install -m 0755 %{soname} %{buildroot}%{phpdir}/extensions/
 
 
 %changelog
-* Mon Jun 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.3
+* Wed Sep 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.9.20
+- php 5.2.4
+- use %%serverbuild
+
+* Mon Jun 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.9.20
 - rebuild with SSP
 
-* Sun Jun 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.3
+* Sun Jun 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.9.20
 - php 5.2.3
 
 * Mon May 28 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.9.20
