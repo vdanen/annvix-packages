@@ -474,6 +474,21 @@ expect. In such case, it'd be a good idea to install the GNU libiconv library.
 It will most likely end up with more consistent results.
 
 
+%package imap
+Summary:	IMAP extension module for PHP
+Epoch:		0
+Group:		Development/PHP
+BuildRequires:	imap-devel >= 2006
+BuildRequires:	libc-client-php-devel >= 2006
+
+%description imap
+This is a dynamic shared object (DSO) for PHP that will add IMAP support.
+
+These functions are not limited to the IMAP protocol, despite their name. The
+underlying c-client library also supports NNTP, POP3 and local mailbox access
+methods.
+
+
 %package json
 Summary:	JavaScript Object Notation
 Group:		Development/PHP
@@ -1110,7 +1125,7 @@ for i in cgi cli fcgi apxs; do
         --with-gmp=shared,%{_prefix} \
         --enable-hash=%{_prefix} \
         --with-iconv=shared \
-        --without-imap \
+        --with-imap=shared,%{_prefix} --with-imap-ssl=%{_prefix} \
         --with-ldap=shared,%{_prefix} --with-ldap-sasl=%{_prefix} \
         --enable-mbstring=shared,%{_prefix} --enable-mbregex \
         --with-mcrypt=shared,%{_prefix} \
@@ -1213,6 +1228,7 @@ cp %{_sourcedir}/php-exif.ini %{buildroot}%{_sysconfdir}/php.d/19_exif.ini
 cp %{_sourcedir}/php-gd.ini %{buildroot}%{_sysconfdir}/php.d/23_gd.ini
 echo "extension = gmp.so"	> %{buildroot}%{_sysconfdir}/php.d/25_gmp.ini
 echo "extension = iconv.so"	> %{buildroot}%{_sysconfdir}/php.d/26_iconv.ini
+echo "extension = imap.so"	> %{buildroot}%{_sysconfdir}/php.d/26_imap.ini
 echo "extension = ldap.so"	> %{buildroot}%{_sysconfdir}/php.d/27_ldap.ini
 echo "extension = mbstring.so"	> %{buildroot}%{_sysconfdir}/php.d/29_mbstring.ini
 cp %{_sourcedir}/php-mcrypt.ini %{buildroot}%{_sysconfdir}/php.d/29_mcrypt.ini
@@ -1429,6 +1445,11 @@ fi
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/php.d/*_iconv.ini
 %attr(0755,root,root) %{_libdir}/php/extensions/iconv.so
 
+%files imap
+%defattr(-,root,root)
+%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/php.d/*_imap.ini
+%attr(0755,root,root) %{_libdir}/php/extensions/imap.so
+
 %files json
 %defattr(-,root,root)
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/php.d/*_json.ini
@@ -1585,6 +1606,10 @@ fi
 
 
 %changelog
+* Thu Sep 20 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.4
+- with an external imap development package and libs, we can build php-imap
+  here now
+
 * Wed Sep 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.4
 - drop P14, merged upstream
 - updated P20 from Mandriva
