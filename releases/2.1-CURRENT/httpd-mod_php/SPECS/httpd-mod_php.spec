@@ -14,7 +14,7 @@
 
 # Module-Specific definitions
 %define apache_version	2.2.4
-%define phpversion	5.2.2
+%define phpversion	5.2.4
 %define mod_name	mod_php
 %define mod_conf	70_%{mod_name}.conf
 %define mod_so		%{mod_name}5.so
@@ -117,6 +117,9 @@ cat %{_sourcedir}/%{mod_conf} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod
 
 
 %changelog
+* Thu Sep 20 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.4_5.2.4
+- php 5.2.4
+
 * Fri May 04 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.4_5.2.2
 - php 5.2.2
 - versioned provides
