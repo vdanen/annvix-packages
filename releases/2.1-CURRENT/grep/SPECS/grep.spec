@@ -83,10 +83,14 @@ rm -rf %{buildroot}%{_infodir}
 
 %files doc
 %defattr(-,root,root)
-%doc AUTHORS THANKS TODO NEWS README ChangeLog
+%doc AUTHORS THANKS TODO NEWS README
 
 
 %changelog
+* Fri Sep 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.5.1a
+- rebuild against new pcre
+- drop the big ChangeLog (NEWS is sufficient)
+
 * Mon Nov 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5.1a
 - rebuild against new pcre
 - put testing in %%check
