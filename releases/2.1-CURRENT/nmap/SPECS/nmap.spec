@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		nmap
-%define version		4.11
+%define version		4.20
 %define release		%_revrel
 %define epoch		1
 
@@ -24,7 +24,7 @@ URL:		http://www.insecure.org/nmap/
 Source0:	http://download.insecure.org/nmap/dist/%{name}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	libpcre-devel
+BuildRequires:	pcre-devel
 BuildRequires:	openssl-devel
 
 %description
@@ -83,6 +83,10 @@ perl  -pi -e 's|/lib\b|/%{_lib}|g' configure*
 
 
 %changelog
+* Fri Sep 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.20
+- 4.20
+- rebuild against new pcre
+
 * Mon Nov 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.11
 - 4.11
 - rebuild against new pcre
