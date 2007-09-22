@@ -13,7 +13,7 @@
 %define release 	%_revrel
 
 # Module-Specific definitions
-%define apache_version	2.2.4
+%define apache_version	2.2.6
 %define mod_name	mod_suexec
 %define mod_conf	69_%{mod_name}.conf
 %define mod_so		%{mod_name}.so
@@ -33,8 +33,6 @@ BuildRequires:	httpd-source >= %{apache_version}
 
 Requires(pre):	httpd >= %{apache_version}
 Requires(pre):	httpd-conf >= 2.2.0
-Provides:	apache2-mod_suexec
-Obsoletes:	apache2-mod_suexec
 
 %description
 This module, in combination with the suexec support program
@@ -89,7 +87,7 @@ gcc `%{_sbindir}/apxs -q CFLAGS -Wall` -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE_S
 
 mkdir -p %{buildroot}%{_sbindir}
 mkdir -p %{buildroot}%{_mandir}/man8
-mkdir -p %{buildroot}%{_libdir}/httpd-extramodules
+mkdir -p %{buildroot}%{_libdir}/httpd
 mkdir -p %{buildroot}%{_sysconfdir}/httpd/modules.d
 
 install -m 0755 suexec %{buildroot}%{_sbindir}/httpd-suexec
@@ -97,8 +95,8 @@ install suexec.8 %{buildroot}%{_mandir}/man8/httpd-suexec.8
 
 mkdir -p %{buildroot}%{_libdir}/httpd-extramodules
 mkdir -p %{buildroot}%{_sysconfdir}/httpd/modules.d
-install -m 0755 .libs/*.so %{buildroot}%{_libdir}/httpd-extramodules/
-cat %{_sourcedir}/%{mod_conf} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
+install -m 0755 .libs/*.so %{buildroot}%{_libdir}/httpd/
+install -m 0644 %{_sourcedir}/%{mod_conf} %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 
 %clean
@@ -108,7 +106,7 @@ cat %{_sourcedir}/%{mod_conf} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod
 %files
 %defattr(-,root,root)
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/modules.d/%{mod_conf}
-%attr(0755,root,root) %{_libdir}/httpd-extramodules/%{mod_so}
+%attr(0755,root,root) %{_libdir}/httpd/%{mod_so}
 %attr(4710,root,apache) %{_sbindir}/httpd-suexec
 %{_mandir}/man8/*
 
@@ -118,6 +116,11 @@ cat %{_sourcedir}/%{mod_conf} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod
 
 
 %changelog
+* Sat Sep 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.6
+- apache 2.2.6
+- don't put the module in httpd-extramodules as this isn't a third-party
+  module
+
 * Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.4
 - apache 2.2.4
 
