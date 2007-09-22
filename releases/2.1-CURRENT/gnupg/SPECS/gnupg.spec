@@ -52,17 +52,14 @@ This package contains the documentation for %{name}.
 
 
 %build
-%ifnarch sparc sparc64
-    mguard="--enable-m-guard"
-%endif
 %configure2_5x \
     --with-included-gettext \
     --enable-static-rnd=linux \
     --disable-ldap \
     --without-ldap \
     --enable-noexecstack \
-    $mguard
-make
+    --enable-m-guard
+%make
 
 
 %check
@@ -116,15 +113,21 @@ for i in en@boldquot en@quot ; do rm -rf %{buildroot}%{_datadir}/locale/$i; done
 %{_datadir}/gnupg/options.skel
 %{_mandir}/man1/*
 %{_mandir}/man7/*
-%{_infodir}/gnupg*.info.bz2
+%{_infodir}/gnupg*.info*
 
 %files doc
 %defattr(-,root,root)
-%doc README NEWS THANKS TODO ChangeLog doc/DETAILS doc/FAQ doc/HACKING
+%doc README NEWS THANKS TODO doc/DETAILS doc/FAQ doc/HACKING
 %doc doc/faq.html doc/OpenPGP doc/samplekeys.asc
 
 
 %changelog
+* Sat Sep 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.4.7
+- use parallel build
+- remove sparc conditionals
+- build against new curl
+- drop ChangeLog, we already have NEWS
+
 * Sat Jun 23 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.4.7
 - rebuild against new readline
 
