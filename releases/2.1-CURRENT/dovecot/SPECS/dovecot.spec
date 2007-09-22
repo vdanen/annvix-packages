@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		dovecot
-%define version		1.0.1
+%define version		1.0.5
 %define release		%_revrel
 	
 
@@ -17,15 +17,16 @@ Summary:	Secure IMAP and POP3 server
 Name: 		%{name}
 Version:	%{version}
 Release:	%{release}
-License:	GPL
+License:	MIT and LGPLv2 and BSD-like and Public Domain
 Group:		System/Servers
 URL:		http://dovecot.org
-Source0:	http://dovecot.org/releases/%{name}-%{version}.tar.gz
-Source1:	dovecot-pamd
-Source2:	dovecot.run
-Source3:	dovecot-log.run
-Source4:	http://dovecot.org/tools/migration_wuimp_to_dovecot.pl
-Source5:	http://dovecot.org/tools/mboxcrypt.pl
+Source0:	http://dovecot.org/releases/1.0/%{name}-%{version}.tar.gz
+Source1:	http://dovecot.org/releases/1.0/%{name}-%{version}.tar.gz.sig
+Source2:	dovecot-pamd
+Source3:	dovecot.run
+Source4:	dovecot-log.run
+Source5:	http://dovecot.org/tools/migration_wuimp_to_dovecot.pl
+Source6:	http://dovecot.org/tools/mboxcrypt.pl
 Patch0:		dovecot-1.0.1-avx-config.patch
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
@@ -35,6 +36,8 @@ BuildRequires:	openldap-devel
 BuildRequires:	libsasl-devel
 BuildRequires:	mysql-devel
 BuildRequires:	postgresql-devel
+BuildRequires:	gssglue-devel
+BuildRequires:	krb5-devel
 
 Provides:	imap-server
 Provides:	pop3-server
@@ -95,7 +98,8 @@ This package contains the documentation for %{name}.
     --with-sql \
     --with-pgsql \
     --with-mysql \
-    --with-cyrus-sasl2
+    --with-cyrus-sasl2 \
+    --with-gssapi
 
 %make
 
@@ -249,6 +253,13 @@ exit 0
 
 
 %changelog
+* Sat Sep 22 2007 Vincent Danen <vdanen-at-build.annvix.org>  1.0.5
+- 1.0.5
+- include gpg sig
+- include system-auth, not require it (for pamd file)
+- rebuild against new postgresql, new pam, new openldap
+- build with GSSAPI support
+
 * Tue Jul 24 2007 Vincent Danen <vdanen-at-build.annvix.org>  1.0.1
 - rebuild against new mysql
 

@@ -1,3 +1,5 @@
 #%PAM-1.0
-auth       required     system-auth
-account    required     system-auth
+# $Id$
+
+auth		include		system-auth
+account		include		system-auth
