@@ -18,7 +18,7 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		System/Base
-URL:		http://svn.annvix.org/cgi-bin/viewvc.cgi/initscripts/?root=tools
+URL:		http://svn.annvix.org/cgi-bin/viewvc.cgi/tools/initscripts/
 Source0:	initscripts-%{version}.tar.bz2
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
@@ -214,6 +214,10 @@ chmod 0600 /var/log/btmp
 
 
 %changelog
+* Sat Sep 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.37.1
+- fix url
+- build against new glib2
+
 * Fri Feb 09 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.37.1
 - 8.37.1; lots of cleanups
 
