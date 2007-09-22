@@ -1,0 +1,25 @@
+--- Linux-PAM-0.99.8.1/modules/pam_console/50-default.perms.mdvclasses	2007-07-23 14:48:41.000000000 +0200
++++ Linux-PAM-0.99.8.1/modules/pam_console/50-default.perms	2007-08-13 13:00:23.000000000 +0200
+@@ -4,10 +4,12 @@
+ <sound>=/dev/dsp* /dev/audio* /dev/midi* \
+ 	/dev/mixer* /dev/sequencer* \
+ 	/dev/sound/* /dev/beep \
++	/dev/admm* /dev/aload* /dev/amidi* \
++	/dev/dmfm* /dev/dmmidi* /dev/sndstat \
+ 	/dev/snd/* /dev/adsp*
+ <cdrom>=/dev/cdrom* /dev/cdroms/* /dev/cdwriter* /mnt/cdrom*
+ <pilot>=/dev/pilot
+-<jaz>=/mnt/jaz*
++<jaz>=/mnt/jaz* /dev/jaz*
+ <zip>=/mnt/pocketzip* /mnt/zip* /dev/zip*
+ <ls120>=/dev/ls120 /mnt/ls120*
+ <scanner>=/dev/scanner* /dev/usb/scanner*
+@@ -20,7 +22,7 @@
+ <fb>=/dev/fb /dev/fb[0-9]* \
+      /dev/fb/*
+ <kbd>=/dev/kbd
+-<joystick>=/dev/js[0-9]*
++<joystick>=/dev/js[0-9]* /dev/input/by-path/*-joystick
+ <v4l>=/dev/video* /dev/radio* /dev/winradio* /dev/vtx* /dev/vbi* \
+       /dev/video/*
+ <gpm>=/dev/gpmctl

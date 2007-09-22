@@ -11,10 +11,10 @@
 
 %define revision	$Rev$
 %define name		pam
-%define version		0.99.6.3
+%define version		0.99.8.1
 %define release		%_revrel
 
-%define pam_redhat_version 0.99.6-2
+%define pam_redhat_version 0.99.8-1 
 
 %define libname		%mklibname %{name} 0
 %define devname		%mklibname %{name} -d
@@ -27,33 +27,31 @@ License:	GPL or BSD
 Group:		System/Libraries
 URL:		http://www.us.kernel.org/pub/linux/libs/pam/index.html
 Source0:	ftp://ftp.kernel.org/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2
-Source1:	pam-redhat-%{pam_redhat_version}.tar.bz2
-Source2:	other.pamd
-Source3:	system-auth.pamd
-Source4:	pam-0.99.3.0-README.update
+Source1:	ftp://ftp.kernel.org/pub/linux/libs/pam/pre/library/Linux-PAM-%{version}.tar.bz2.sign
+Source2:	pam-redhat-%{pam_redhat_version}.tar.bz2
+Source3:	other.pamd
+Source4:	system-auth.pamd
 Source5:	pam-annvix.perms
+Source6:	config-util.pamd
+Source7:	dlopen.sh
 
-# RedHat patches (0-100)
-Patch0:		pam-0.99.6.3.pre-redhat-modules.patch
-Patch1:		pam-0.78-unix-hpux-aging.patch
-
-# Mandriva patches (101-200)
-Patch100:	Linux-PAM-0.99.6.0-mdvperms.patch
-# (fl) fix infinite loop
-Patch101:	pam-0.74-loop.patch
-# (fc) 0.75-29mdk don't complain when / is owned by root.adm
-Patch103:	Linux-PAM-0.99.3.0-pamtimestampadm.patch
-Patch104:	Linux-PAM-0.99.3.0-verbose-limits.patch
-# (fl) pam_xauth: set extra groups because in high security levels
-#      access to /usr/X11R6/bin dir is controlled by a group
-Patch105:	Linux-PAM-0.99.3.0-xauth-groups.patch
-# (tv/blino) add defaults for nice/rtprio in /etc/security/limits.conf
-Patch106:	Linux-PAM-0.99.6.3-enable_rt.patch
-# (blino) fix parallel build (in doc/specs and pam_console)
-Patch109:	Linux-PAM-0.99.3.0-pbuild-rh.patch
-
-# Annvix patches (200+)
-Patch200:	pam-0.99.6.3-annvix-perms.patch
+Patch0:		pam-0.99.7.0-redhat-modules.patch
+Patch1:		pam-0.99.7.1-rh-unix-hpux-aging.patch
+Patch2:		pam-0.99.8.1-rh-unix-update-helper.patch
+Patch3:		pam-0.99.3.0-rh-tally-fail-close.patch
+Patch4:		pam-0.99.7.1-rh-namespace-temp-logon.patch
+Patch5:		pam-0.99.8.1-fdr-audit-no-log.patch
+Patch6:		pam-0.99.8.1-fdr-namespace-init.patch
+Patch7:		pam-0.99.7.1-rh-namespace-homedir.patch
+Patch8:		Linux-PAM-0.99.8.1-mdvclasses.patch
+Patch9:		Linux-PAM-0.99.8.1-mdvgroups.patch
+Patch10:	pam-0.74-mdv-loop.patch
+Patch11:	Linux-PAM-0.99.3.0-mdv-pamtimestampadm.patch
+Patch12:	Linux-PAM-0.99.3.0-mdv-verbose-limits.patch
+Patch13:	Linux-PAM-0.99.3.0-mdv-xauth-groups.patch
+Patch14:	Linux-PAM-0.99.6.3-mdv-enable_rt.patch
+Patch15:	Linux-PAM-0.99.3.0-mdv-pbuild-rh.patch
+Patch16:	pam-0.99.8.1-avx-annvix-perms.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	bison
@@ -63,6 +61,7 @@ BuildRequires:	db4-devel
 BuildRequires:	automake1.8
 BuildRequires:	openssl-devel
 BuildRequires:	glibc-crypt_blowfish-devel
+BuildRequires:	audit-devel
 
 # pam_unix is now provided by pam_tcb
 Requires:	pam_tcb
@@ -115,24 +114,30 @@ This package contains the documentation for %{name}.
 
 
 %prep
-%setup -q -n Linux-PAM-%{version} -a 1
+%setup -q -n Linux-PAM-%{version} -a 2
 # (RH)
 %patch0 -p1 -b .redhat-modules
+%patch5 -p1 -b .no-log
+%patch2 -p1 -b .update-helper
 %patch1 -p1 -b .unix-hpux-aging
-
-# (Mandriva)
-%patch100 -p1 -b .mdvperms
-%patch101 -p1 -b .loop
-%patch103 -p1 -b .pamtimestampadm
-%patch104 -p1 -b .verbose-limits
-%patch105 -p1 -b .xauth-groups
-%patch106 -p1 -b .enable_rt
-%patch109 -p1 -b .pbuild-rh
-
-%patch200 -p1 -b .avxperms
+%patch3 -p1 -b .fail-close
+%patch4 -p1 -b .temp-logon
+%patch6 -p1 -b .ns-init
+%patch7 -p1 -b .ns-homedir 
+%patch8 -p1 -b .mdvclasses
+%patch9 -p1 -b .mdvgroups
+# (blino) make sure devices are accessible by their group if specified
+perl -pi.660 -e 's/0600/0660/g if m|\broot\.| && !m|\B/dev/console\b|' modules/pam_console/50-default.perms
+%patch10 -p1 -b .loop
+%patch11 -p1 -b .pamtimestampadm
+%patch12 -p1 -b .verbose-limits
+%patch13 -p1 -b .xauth-groups
+%patch14 -p1 -b .enable_rt
+%patch15 -p1 -b .pbuild-rh
+%patch16 -p1 -b .avxperms
 
 # Remove unwanted modules.
-for d in pam_{cracklib,debug,postgresok,rps,selinux,unix,namespace}; do
+for d in pam_{cracklib,debug,postgresok,rps,selinux,unix}; do
     rm -r modules/$d
     sed -i "s,modules/$d/Makefile,," configure.in
     sed -i "s/ $d / /" modules/Makefile.am
@@ -165,16 +170,35 @@ mkdir -p %{buildroot}%{_includedir}/security
 mkdir -p %{buildroot}/%{_lib}/security
 make install DESTDIR=%{buildroot} LDCONFIG=:
 
-mkdir -p %{buildroot}/etc/pam.d
-install -m 0644 %{_sourcedir}/other.pamd %{buildroot}/etc/pam.d/other
-install -m 0644 %{_sourcedir}/system-auth.pamd %{buildroot}/etc/pam.d/system-auth
-chmod 0644 %{buildroot}/etc/pam.d/{other,system-auth}
+mkdir -p %{buildroot}%{_sysconfdir}/pam.d
+install -m 0644 %{_sourcedir}/other.pamd %{buildroot}%{_sysconfdir}/pam.d/other
+install -m 0644 %{_sourcedir}/system-auth.pamd %{buildroot}%{_sysconfdir}/pam.d/system-auth
+install -m 0644 %{_sourcedir}/config-util.pamd %{buildroot}%{_sysconfdir}/pam.d/config-util
+install -m 0600 /dev/null %{buildroot}%{_sysconfdir}/security/opasswd
 
 # Install man pages.
 mkdir -p %{buildroot}%{_mandir}/man[358]
 install -m 0644 doc/man/*.3 %{buildroot}%{_mandir}/man3/
 install -m 0644 doc/man/*.8 %{buildroot}%{_mandir}/man8/
 
+install -m 0644 %{_sourcedir}/pam-annvix.perms %{buildroot}%{_sysconfdir}/security/console.perms.d/50-annvix.perms
+
+mkdir -p %{buildroot}/var/log
+install -m 0600 /dev/null %{buildroot}/var/log/faillog
+install -m 0600 /dev/null %{buildroot}/var/log/tallylog
+
+#remove unpackaged files
+rm -rf %{buildroot}/%{_lib}/*.la \
+    %{buildroot}/%{_lib}/security/*.la \
+    %{buildroot}%{_datadir}/doc/Linux-PAM \
+    %{buildroot}%{_datadir}/doc/pam
+
+
+%kill_lang Linux-PAM
+%find_lang Linux-PAM
+
+
+%check
 # Make sure every module built.
 for dir in modules/pam_* ; do
 if [ -d ${dir} ] && [ ${dir} != "modules/pam_selinux" ] && [ ${dir} != "modules/pam_pwdb" ]; then
@@ -185,18 +209,23 @@ if [ -d ${dir} ] && [ ${dir} != "modules/pam_selinux" ] && [ ${dir} != "modules/
 fi
 done
 
-install -m 0644 %{_sourcedir}/pam-annvix.perms %{buildroot}/etc/security/console.perms.d/50-annvix.perms
+# Check for module problems.  Specifically, check that every module we just
+# installed can actually be loaded by a minimal PAM-aware application.
+/sbin/ldconfig -n %{buildroot}/%{_lib}
+for module in %{buildroot}/%{_lib}/security/pam*.so ; do
+    if ! env LD_LIBRARY_PATH=%{buildroot}/%{_lib} %{_sourcedir}/dlopen.sh -ldl -lpam -L%{buildroot}/%{_lib} ${module} ; then
+        echo ERROR module: ${module} cannot be loaded.
+        exit 1
+    fi
+    # And for good measure, make sure that none of the modules pull in threading
+    # libraries, which if loaded in a non-threaded application, can cause Very
+    # Bad Things to happen.
+    if env LD_LIBRARY_PATH=%{buildroot}/%{_lib} LD_PRELOAD=%{buildroot}/%{_lib}/libpam.so ldd -r ${module} | fgrep -q libpthread ; then
+        echo ERROR module: ${module} pulls threading libraries.
+        exit 1
+    fi
+done
 
-#remove unpackaged files
-rm -rf %{buildroot}/%{_lib}/*.la \
-    %{buildroot}/%{_lib}/security/*.la \
-    %{buildroot}%{_prefix}/doc/Linux-PAM \
-    %{buildroot}%{_datadir}/doc/pam
-
-touch %{buildroot}%{_sysconfdir}/environment
-
-%kill_lang Linux-PAM
-%find_lang Linux-PAM
 
 
 %clean
@@ -207,33 +236,44 @@ touch %{buildroot}%{_sysconfdir}/environment
 %postun -n %{libname} -p /sbin/ldconfig
 
 
+%post
+if [ ! -a /var/log/faillog ]; then
+    install -m 0600 /dev/null /var/log/faillog
+fi
+if [ ! -a /var/log/tallylog ]; then
+    install -m 0600 /dev/null /var/log/tallylog
+fi
+
+
 %files -f Linux-PAM.lang
 %defattr(-,root,root)
-%dir /etc/pam.d
+%dir %{_sysconfdir}/pam.d
 %config(noreplace) %{_sysconfdir}/environment
-%config(noreplace) /etc/pam.d/other
-%config(noreplace) /etc/pam.d/system-auth
-%config(noreplace) /etc/security/access.conf
-%config(noreplace) /etc/security/chroot.conf
-%config(noreplace) /etc/security/time.conf
-%config(noreplace) /etc/security/group.conf
-%config(noreplace) /etc/security/limits.conf
-#%config(noreplace) /etc/security/namespace.conf
-#%attr(0755,root,root) %config(noreplace) /etc/security/namespace.init
-%config(noreplace) /etc/security/pam_env.conf
-%config(noreplace) /etc/security/console.perms
-%config(noreplace) /etc/security/console.handlers
+%config(noreplace) %{_sysconfdir}/pam.d/config-util
+%config(noreplace) %{_sysconfdir}/pam.d/other
+%config(noreplace) %{_sysconfdir}/pam.d/system-auth
+%config(noreplace) %{_sysconfdir}/security/access.conf
+%config(noreplace) %{_sysconfdir}/security/chroot.conf
+%config(noreplace) %{_sysconfdir}/security/group.conf
+%config(noreplace) %{_sysconfdir}/security/limits.conf
+%config(noreplace) %{_sysconfdir}/security/namespace.conf
+%config(noreplace) %{_sysconfdir}/security/opasswd
+%config(noreplace) %{_sysconfdir}/security/time.conf
+%attr(0755,root,root) %config(noreplace) %{_sysconfdir}/security/namespace.init
+%config(noreplace) %{_sysconfdir}/security/pam_env.conf
+%config(noreplace) %{_sysconfdir}/security/console.perms
+%config(noreplace) %{_sysconfdir}/security/console.handlers
 %dir %{_sysconfdir}/security/console.perms.d
-%config(noreplace) /etc/security/console.perms.d/50-default.perms
-%config(noreplace) /etc/security/console.perms.d/50-annvix.perms
+%config(noreplace) %{_sysconfdir}/security/console.perms.d/50-default.perms
+%config(noreplace) %{_sysconfdir}/security/console.perms.d/50-annvix.perms
 /sbin/pam_console_apply
 /sbin/pam_tally
 /sbin/pam_tally2
-%dir /etc/security/console.apps
 %attr(4755,root,root) /sbin/pam_timestamp_check
-#%attr(4755,root,root) /sbin/unix_chkpwd
-%dir /etc/security/console.apps
+%dir %{_sysconfdir}/security/console.apps
 %dir /var/run/console
+%ghost %verify(not md5 size mtime) /var/log/faillog
+%ghost %verify(not md5 size mtime) /var/log/tallylog
 %{_mandir}/man5/*
 %{_mandir}/man8/*
 
@@ -260,6 +300,26 @@ touch %{buildroot}%{_sysconfdir}/environment
 
 
 %changelog
+* Sat Sep 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.99.8.1
+- 0.99.8.1
+- pam-redhat 0.99.8-1
+- updated P0, P1
+- new P2, P3, P4 from redhat
+- P5: don't log an audit error when uid !=0 (from Fedora)
+- P6: add user and new instance parameter to namespace init (from Fedora)
+- P7: fix homedir init with namespace module (RH)
+- new P8, P9 from Mandriva (split old P100 into two patches)
+- updated P16 (old P200)
+- add config-util pam config
+- add gpg signature
+- add buildreq on audit-devel
+- include /var/log/{faillog,tallylog} as ghosts and create them in post script
+- put the checks in %%check and add more module checks from Fedora (using new S8)
+- add the /etc/security/opasswd file
+- drop the upgrading README
+- renumber patches and rename patches
+- build the namespace module
+
 * Sun Sep 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.99.6.3
 - implement library provides policy
 
