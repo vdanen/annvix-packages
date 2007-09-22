@@ -105,7 +105,6 @@ Provides:	MailTransportAgent
 # we need the postdrop group (gid 36)
 Requires:	setup >= 2.2.0-26mdk
 Requires(post):	coreutils
-Requires(post):	fileutils
 Requires(post):	rpm-helper >= 0.3
 Requires(postun): rpm-helper >= 0.3
 Requires(pre):	rpm-helper >= 0.3
@@ -261,7 +260,7 @@ done
 # - Edit postfix-files to reflect this, so post-install won't get confused
 #   when called during package installation.
 ed %{buildroot}%{_sysconfdir}/postfix/postfix-files <<EOF || exit 1
-    %s/\(\/man[158]\/.*\.[158]\):/\1.bz2:/
+    %s/\(\/man[158]\/.*\.[158]\):/\1%{_extension}:/
     w
     q
 EOF
@@ -456,6 +455,11 @@ done
 
 
 %changelog
+* Fri Sep 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.4.5
+- rebuild against new pcre
+- coreutils already provides fileutils
+- use %%_extension instead of hard-coding the manpage extension
+
 * Sun Sep 2 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.4.5
 - put back missing changelog entries
 - revert the doc changes; they were proper before
