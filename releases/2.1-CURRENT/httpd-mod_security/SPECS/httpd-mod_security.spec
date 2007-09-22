@@ -13,7 +13,7 @@
 %define release 	%_revrel
 
 # Module-Specific definitions
-%define apache_version	2.2.4
+%define apache_version	2.2.6
 %define mod_version	1.9.4
 %define mod_name	mod_security
 %define mod_conf	82_%{mod_name}.conf
@@ -39,14 +39,11 @@ BuildRequires:	httpd-devel >= %{apache_version}
 
 Requires(pre):	httpd >= %{apache_version}
 Requires(pre):	httpd-conf >= 2.2.0
-Provides:	apache2-mod_security
-Obsoletes:	apache2-mod_security
 
 %description
-ModSecurity is an open source intrustion detection and prevention
-engine for web applications. It operates embedded into the web
-server, acting as a powerful umbrella - shielding applications
-from attacks.
+ModSecurity is an open source intrustion detection and prevention engine for
+web applications.  It operates embedded into the web server, acting as a
+powerful umbrella - shielding applications from attacks.
 
 
 %package doc
@@ -86,7 +83,7 @@ cp apache2/%{mod_name}.c .
 mkdir -p %{buildroot}%{_libdir}/httpd-extramodules
 mkdir -p %{buildroot}%{_sysconfdir}/httpd/modules.d
 install -m 0755 .libs/*.so %{buildroot}%{_libdir}/httpd-extramodules/
-cat %{_sourcedir}/%{mod_conf} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
+install -m 0644 %{_sourcedir}/%{mod_conf} %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 mkdir -p %{buildroot}{%{_sbindir},%{_sysconfdir}/httpd/conf}
 
@@ -121,6 +118,9 @@ install -m 0644 modsecurity-php.conf %{buildroot}%{_sysconfdir}/httpd/conf/
 
 
 %changelog
+* Sat Sep 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.6_1.9.4
+- apache 2.2.6
+
 * Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.4_1.9.4
 - apache 2.2.4 (we're keeping this for now for backwards compatibility, for
   2.1 it'll be removed to favour mod_security2)
