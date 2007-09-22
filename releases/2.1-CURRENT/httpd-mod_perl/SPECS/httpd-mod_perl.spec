@@ -13,7 +13,7 @@
 %define release 	%_revrel
 
 # Module-Specific definitions
-%define apache_version	2.2.4
+%define apache_version	2.2.6
 %define mod_version	2.0.3
 %define mod_name	mod_perl
 %define mod_conf	75_%{mod_name}.conf
@@ -48,17 +48,14 @@ Requires(pre):	httpd >= %{apache_version}
 Requires(pre):	httpd-conf
 Requires(pre):	perl
 Requires(pre):	rpm-helper
-Provides:	apache-mod_perl = %{version}
-Provides:	apache2-mod_perl
-Obsoletes:	apache2-mod_perl
 
 %description
-%{name} incorporates a Perl interpreter into the Apache web server,
-so that the Apache2 web server can directly execute Perl code.
-Mod_perl links the Perl runtime library into the Apache web server and
-provides an object-oriented Perl interface for Apache's C language
-API.  The end result is a quicker CGI script turnaround process, since
-no external Perl interpreter has to be started.
+Mod_perl incorporates a Perl interpreter into the Apache web server, so that
+the Apache2 web server can directly execute Perl code.  Mod_perl links the
+Perl runtime library into the Apache web server and provides an object-
+oriented Perl interface for Apache's C language API.  The end result is a
+quicker CGI script turnaround process, since no external Perl interpreter
+has to be started.
 
 
 %package devel
@@ -118,7 +115,7 @@ mkdir -p %{buildroot}%{_includedir}/httpd
     MODPERL_AP_INCLUDEDIR=%{_includedir}/httpd \
     INSTALLDIRS=vendor DESTDIR=%{buildroot}
 
-cat %{_sourcedir}/%{mod_conf} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
+install -m 0644 %{_sourcedir}/%{mod_conf} %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 # Remove empty file
 rm -f docs/api/mod_perl-2.0/pm_to_blib
@@ -147,10 +144,11 @@ rm -f %{buildroot}%{_mandir}/man3/Bundle::ApacheTest.3pm
 
 
 %post
-%_post_srv httpd2
+%_post_srv httpd
+
 
 %postun
-%_post_srv httpd2
+%_post_srv httpd
 
 
 %files
@@ -172,6 +170,9 @@ rm -f %{buildroot}%{_mandir}/man3/Bundle::ApacheTest.3pm
 
 
 %changelog
+* Sat Sep 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.6_2.0.3
+- apache 2.2.6
+
 * Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.4_2.0.3
 - apache 2.2.4
 
