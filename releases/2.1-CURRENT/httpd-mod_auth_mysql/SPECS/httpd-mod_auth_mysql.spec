@@ -13,7 +13,7 @@
 %define release 	%_revrel
 
 # Module-Specific definitions
-%define apache_version	2.2.4
+%define apache_version	2.2.6
 %define mod_version	3.0.0
 %define mod_name	mod_auth_mysql
 %define mod_conf	12_%{mod_name}.conf
@@ -39,9 +39,9 @@ Requires(pre):	httpd = %{apache_version}
 Requires(pre):	httpd-conf >= 2.2.0
 
 %description
-mod_auth_mysql is an Apache module to authenticate users and
-authorize access through a MySQL database.  It is flexible and
-support several encryption methods.
+mod_auth_mysql is an Apache module to authenticate users and authorize access
+through a MySQL database.  It is flexible and support several encryption
+methods.
 
 
 %package doc
@@ -68,7 +68,7 @@ This package contains the documentation for %{name}.
 mkdir -p %{buildroot}%{_libdir}/httpd-extramodules
 mkdir -p %{buildroot}%{_sysconfdir}/httpd/modules.d
 install -m 0755 .libs/*.so %{buildroot}%{_libdir}/httpd-extramodules/
-cat %{_sourcedir}/%{mod_conf} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
+install -m 0644 %{_sourcedir}/%{mod_conf} %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 
 %clean
@@ -86,6 +86,9 @@ cat %{_sourcedir}/%{mod_conf} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod
 
 
 %changelog
+* Sat Sep 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.6_3.0.0
+- apache 2.2.6
+
 * Tue Jul 24 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.4_3.0.0
 - rebuild against new mysql
 
