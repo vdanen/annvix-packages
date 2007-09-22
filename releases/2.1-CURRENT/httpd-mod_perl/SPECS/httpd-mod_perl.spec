@@ -35,7 +35,7 @@ Source1:	%{sourcename}.tar.gz.asc
 Source2:	%{mod_conf}
 Source3:	apache2-mod_perl-testscript.pl
 Patch0:		mod_perl-2.0.3-mdv-external_perl-apache-test.patch
-Patch1:		mod_perl-2.0.2-DESTDIR.diff
+Patch1:		apache-mod_perl-2.x-CVE-2007-1349.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel >= 5.8.6
@@ -80,7 +80,7 @@ This package contains the documentation for %{name}.
 %prep
 %setup -q -n %{sourcename}
 %patch0 -p1
-%patch1 -p0
+%patch1 -p3
 rm -rf Apache-Test
 
 
@@ -172,6 +172,8 @@ rm -f %{buildroot}%{_mandir}/man3/Bundle::ApacheTest.3pm
 %changelog
 * Sat Sep 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.6_2.0.3
 - apache 2.2.6
+- drop the old P1; no longer required
+- P1: security fix for CVE-2007-1349
 
 * Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.4_2.0.3
 - apache 2.2.4
