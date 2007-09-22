@@ -13,7 +13,7 @@
 %define release		%_revrel
 
 # Module-Specific definitions
-%define apache_version	2.2.4
+%define apache_version	2.2.6
 %define phpversion	5.2.4
 %define mod_name	mod_php
 %define mod_conf	70_%{mod_name}.conf
@@ -52,15 +52,13 @@ Requires:       php-suhosin >= 0.9.10
 Requires:	%{plibname} >= %{phpversion}
 Requires:	php-filter >= 0.11.0
 Requires:	php-json >= 1.2.1
-Provides:	php = %{phpversion}
-Provides:	php5 = %{phpversion}
-Provides:	mod_php = %{version}
-Provides:	apache2-mod_php = %{version}
-Obsoletes:	apache2-mod_php
 Requires(pre):	httpd >= %{apache_version}
 Requires(pre):	httpd-conf >= %{apache_version}
 Requires(pre):	rpm-helper
 Requires(postun): rpm-helper
+Provides:	php = %{phpversion}
+Provides:	php5 = %{phpversion}
+Provides:	mod_php = %{version}
 
 %description
 PHP is an HTML-embedded scripting language.  PHP attempts to make it easy for
@@ -96,7 +94,7 @@ cp %{_includedir}/php/ext/date/lib/timelib_config.h .
 mkdir -p %{buildroot}%{_libdir}/httpd-extramodules
 mkdir -p %{buildroot}%{_sysconfdir}/httpd/modules.d
 install -m 0755 .libs/*.so %{buildroot}%{_libdir}/httpd-extramodules/
-cat %{_sourcedir}/%{mod_conf} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
+install -m 0644 %{_sourcedir}/%{mod_conf} %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 
 %clean
@@ -117,6 +115,9 @@ cat %{_sourcedir}/%{mod_conf} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod
 
 
 %changelog
+* Sat Sep 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.6_5.2.4
+- apache 2.2.6
+
 * Thu Sep 20 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.4_5.2.4
 - php 5.2.4
 
