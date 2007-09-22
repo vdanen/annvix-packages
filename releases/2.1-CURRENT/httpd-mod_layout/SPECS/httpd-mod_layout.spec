@@ -38,8 +38,6 @@ BuildRequires:  httpd-devel >= %{apache_version}
 
 Requires(pre):	httpd >= %{apache_version}
 Requires(pre):	httpd-conf >= 2.2.2
-Provides:	apache2-mod_layout
-Obsoletes:	apache2-mod_layout
 
 %description
 Mod_Layout creates a framework for doing design. Whether you need a simple
