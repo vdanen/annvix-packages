@@ -16,7 +16,6 @@
 %define aprver		1
 %define libname		%mklibname %{name} %{aprver}
 %define devname		%mklibname %{name} -d
-%define odevname	%mklibname %{name} 1 -d
 
 Summary:	Apache Portable Runtime library
 Name:		%{name}
@@ -53,8 +52,8 @@ including Unices, MS Win32, BeOS and OS/2.
 %package -n %{libname}
 Summary:	Apache Portable Runtime library
 Group: 		System/Libraries
-Provides:	lib%{name} = %{epoch}:%{version}-%{release}
 Epoch:		%{epoch}
+Provides:	lib%{name} = %{epoch}:%{version}-%{release}
 
 %description -n %{libname}
 The purpose of the Apache Portable Runtime (APR) is to provide a
@@ -66,10 +65,10 @@ including Unices, MS Win32, BeOS and OS/2.
 %package -n %{devname}
 Summary:	APR library development kit
 Group:		Development/C
+Epoch:		%{epoch}
 Requires:	%{libname} = %{epoch}:%{version}
 Provides:	%{name}-devel = %{epoch}:%{version}-%{release}
-Obsoletes:	%{odevname}
-Epoch:		%{epoch}
+Obsoletes:	%mklibname %{name} 1 -d
 
 %description -n	%{devname}
 This package provides the support files which can be used to 
