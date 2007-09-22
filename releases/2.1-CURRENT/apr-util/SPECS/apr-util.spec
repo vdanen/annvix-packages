@@ -9,13 +9,12 @@
 
 %define revision	$Rev$
 %define name		apr-util
-%define version		1.2.8
+%define version		1.2.10
 %define release		%_revrel
 
 %define apuver		1
 %define libname		%mklibname %{name} %{apuver}
 %define devname		%mklibname %{name} -d
-%define odevname	%mklibname %{name} 1 -d
 
 Summary:	Apache Portable Runtime Utility library
 Name:		%{name}
@@ -30,7 +29,6 @@ Source1:	http://www.apache.org/dist/apr/%{name}-%{version}.tar.gz.asc
 # http://apache.webthing.com/svn/apache/apr/apr_dbd_mysql.c
 Source2:	apr_dbd_mysql.c
 Patch0:		apr-util-1.2.2-config.diff
-Patch1:		apr-util-0.9.5-lib64.diff
 Patch2:		apr-util-1.2.8-postgresql.patch
 Patch3:		apr-util-1.2.8-no_linkage.diff
 Patch4:		apr-util-1.2.7-dso.diff
@@ -86,7 +84,7 @@ Requires:	apr-devel
 Requires:	openldap-devel
 Requires:	expat-devel
 Provides:	%{name}-devel = %{version}-%{release}
-Obsoletes:	%{odevname}
+Obsoletes:	%mklibname %{name} 1 -d
 
 %description -n	%{devname}
 This package provides the support files which can be used to 
@@ -106,7 +104,6 @@ This package contains the documentation for %{name}.
 %prep
 %setup -q
 %patch0 -p0 -b .config
-%patch1 -p0 -b .lib64
 %patch2 -p1 -b .postgresql
 %patch3 -p0 -b .exports
 %patch4 -p0 -b .dso
@@ -250,6 +247,11 @@ rm -f %{buildroot}%{_libdir}/aprutil.exp
 
 
 %changelog
+* Fri Sep 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2.10
+- rebuild against new postgresql, openldap, apr
+- drop P1; no longer required
+- updated apr_dbd_mysql.c
+
 * Tue Jul 24 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2.8
 - rebuild against new mysql
 - updated apr_dbd_mysql.c with a clarified license
