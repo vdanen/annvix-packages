@@ -5,9 +5,9 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-# $Id: apr.spec 7689 2007-09-22 02:08:30Z vdanen $
+# $Id$
 
-%define revision	$Rev: 7689 $
+%define revision	$Rev$
 %define name		apr_memcache
 %define version		0.7.0
 %define release		%_revrel
