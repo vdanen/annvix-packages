@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name 		tcb
-%define version 	1.0
+%define version 	1.0.2
 %define release 	%_revrel
 
 %define major		0
@@ -191,6 +191,10 @@ fi
 
 
 %changelog
+* Sat Sep 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0.2
+- 1.0.2
+- rebuild against new pam
+
 * Sat Sep 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0
 - implement devel naming policy
 - implement library provides policy
