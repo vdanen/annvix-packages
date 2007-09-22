@@ -13,7 +13,7 @@
 %define release 	%_revrel
 
 # Module-Specific definitions
-%define apache_version	2.2.4
+%define apache_version	2.2.6
 %define mod_version	4.0.1a
 %define mod_name	mod_layout
 %define mod_conf	15_%{mod_name}.conf
@@ -42,14 +42,13 @@ Provides:	apache2-mod_layout
 Obsoletes:	apache2-mod_layout
 
 %description
-Mod_Layout creates a framework for doing design. Whether you need
-a simple copyright or ad banner attached to every page, or need to
-have something more challenging such a custom look and feel for a
-site that employs an array of technologies (Java Servlets,
-mod_perl, PHP, CGI's, static HTML, etc...), Mod_Layout creates a
-framework for such an environment. By allowing you to cache static
-components and build sites in pieces, it gives you the tools for
-creating large custom portal sites. 
+Mod_Layout creates a framework for doing design. Whether you need a simple
+copyright or ad banner attached to every page, or need to have something
+more challenging such a custom look and feel for a site that employs an
+array of technologies (Java Servlets, mod_perl, PHP, CGI's, static HTML,
+etc.), Mod_Layout creates a framework for such an environment.  By
+allowing you to cache static components and build sites in pieces, it gives
+you the tools for creating large custom portal sites. 
 
 
 %package doc
@@ -77,7 +76,7 @@ This package contains the documentation for %{name}.
 mkdir -p %{buildroot}%{_libdir}/httpd-extramodules
 mkdir -p %{buildroot}%{_sysconfdir}/httpd/modules.d
 install -m 0755 .libs/*.so %{buildroot}%{_libdir}/httpd-extramodules/
-cat %{_sourcedir}/%{mod_conf} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
+install -m 0644 %{_sourcedir}/%{mod_conf} %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 
 %clean
@@ -95,6 +94,9 @@ cat %{_sourcedir}/%{mod_conf} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod
 
 
 %changelog
+* Sat Sep 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.6_4.0.1a
+- apache 2.2.6
+
 * Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.4_4.0.1a
 - apache 2.2.4
 
