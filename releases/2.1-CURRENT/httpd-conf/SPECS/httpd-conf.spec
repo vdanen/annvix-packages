@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		httpd-conf
-%define version		2.2.4
+%define version		2.2.6
 %define release		%_revrel
 
 %define compat_dir	/etc/httpd
@@ -38,7 +38,6 @@ Source15:	03_apache2.afterboot
 Source16:	httpd.logrotate
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	dietlibc-devel >= 0.20-1mdk
 
 Requires:	lynx >= 2.8.5
 Requires:	httpd >= %{version}
@@ -48,20 +47,13 @@ Requires(postun): afterboot
 Requires(pre):	rpm-helper
 Requires(pre):	afterboot
 Requires(preun): rpm-helper
-Provides:	apache2-conf
-Provides:	apache-conf
-Obsoletes:	apache2-conf
-Obsoletes:	apache-conf
-#JMD: We have to do this here, since files have moved
-Obsoletes:	apache-common
 
 %description
-This package contains configuration files for apache. It is
-necessary for operation of the apache webserver. Having those
-files into a separate modules provides better customization for
-OEMs and ISPs, who can modify the look and feel of the apache
-webserver without having to re-compile the whole suite to change
-a logo or config file.
+This package contains configuration files for apache. It is necessary for
+operation of the apache webserver. Having those files into a separate
+modules provides better customization for OEMs and ISPs, who can modify the
+look and feel of the apache webserver without having to re-compile the
+whole suite to change a logo or config file.
 
 
 %prep
@@ -69,13 +61,9 @@ a logo or config file.
 
 
 %build
-%ifarch x86_64
-COMP="diet x86_64-annvix-linux-gnu-gcc"
-%else
-COMP="diet gcc"
-%endif
+%serverbuild
 
-$COMP -Os -s -static -nostdinc -o advxsplitlogfile-DIET advxsplitlogfile.c
+gcc %{optflags} -o advxsplitlogfile.bin advxsplitlogfile.c
 
 
 %install
@@ -89,7 +77,6 @@ mkdir -p %{buildroot}%{_sysconfdir}/httpd/conf/vhosts.d
 mkdir -p %{buildroot}%{_sysconfdir}/httpd/conf/addon-modules
 mkdir -p %{buildroot}%{_sysconfdir}/logrotate.d
 
-mkdir -p %{buildroot}/var/cache/httpd
 mkdir -p %{buildroot}/var/log/httpd
 mkdir -p %{buildroot}/var/www/cgi-bin
 mkdir -p %{buildroot}/var/www/icons
@@ -98,8 +85,8 @@ mkdir -p %{buildroot}/var/www/html
 mkdir -p %{buildroot}%{_datadir}/ADVX
 
 
-install -m 0755 advxsplitlogfile-DIET %{buildroot}%{_sbindir}/
-install -m 0644 advxsplitlogfile %{buildroot}%{_sbindir}/
+install -m 0755 advxsplitlogfile.bin %{buildroot}%{_sbindir}/advxsplitlogfile
+install -m 0755 advxsplitlogfile %{buildroot}%{_sbindir}/advxsplitlogfile.pl
 install -m 0755 apache-2.0.40-testscript.pl %{buildroot}/var/www/cgi-bin/test.cgi
 install -m 0755 apache-2.0.40-testscript.pl %{buildroot}/var/www/perl/test.pl
 install -m 0755 mod_ssl-gentestcrt.sh %{buildroot}%{_sbindir}/mod_ssl-gentestcrt
@@ -194,7 +181,6 @@ rm -rf %{buildroot}%{_datadir}/ADVX
 
 %attr(0755,apache,apache) %dir /var/www
 %attr(0755,root,root) %dir /var/www/html
-%attr(0755,apache,apache) %dir /var/cache/httpd
 
 %dir /var/log/httpd
 %dir /var/www/cgi-bin
@@ -225,6 +211,14 @@ rm -rf %{buildroot}%{_datadir}/ADVX
 
 
 %changelog
+* Fri Sep 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.6
+- 2.2.6
+- add mod_speling clause to the config
+- time to get rid of the apache/apache2 obsoletes/provides
+- don't own /var/cache/httpd; the httpd-common package already does
+- don't build advxsplitlogfile against dietlibc as it can create strange logfiles
+- updated mime-types with the vanilla one from 2.2.6
+
 * Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.4
 - apache 2.2.4
 
