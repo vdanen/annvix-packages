@@ -164,6 +164,9 @@ mv docroot/Examples/compctl-examples docroot/StartupFiles
 
 
 %changelog
+* Fri Sep 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.3.4
+- rebuild against new pcre
+
 * Mon Jun 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.3.4
 - P4: fix prompt display after ^D with both prpromptsp and ignoreeof
   (zsh-workers/23409)
