@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		apr
-%define version		1.2.8
+%define version		1.2.11
 %define release		%_revrel
 %define epoch		1
 
@@ -31,7 +31,6 @@ Patch0:		apr-0.9.3-deplibs.patch
 Patch1:		apr-1.1.0-config.diff
 Patch2:		apr-1.0.0-mutextype_reorder.diff
 Patch3:		apr-0.9.6-readdir64.patch
-Patch4:		apr-0.9.6-fdr-procexit.patch
 Patch5:		apr-1.2.2-locktimeout.patch
 Patch6:		apr-1.2.7-psprintfpi.patch
 
@@ -93,7 +92,6 @@ This package contains the documentation for %{name}.
 %patch1 -p0 -b .config
 %patch2 -p0 -b .mutextype_reorder
 %patch3 -p1 -b .readdir64
-%patch4 -p1 -b .procexit
 %patch5 -p1 -b .locktimeout
 %patch6 -p1 -b .psprintfpi
 
@@ -239,6 +237,10 @@ rm -f %{buildroot}%{_libdir}/apr.exp
 
 
 %changelog
+* Fri Sep 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2.11
+- 1.2.11
+- drop P4; merged upstream
+
 * Sat Jun 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2.8
 - rebuild for pkgconfig provides
 - implement devel naming policy
