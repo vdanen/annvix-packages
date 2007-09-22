@@ -13,7 +13,7 @@
 %define release 	%_revrel
 
 # Module-Specific definitions
-%define apache_version	2.2.4
+%define apache_version	2.2.6
 %define mod_version	2.0.3
 %define mod_name	mod_auth_pgsql
 %define mod_conf	13_%{mod_name}.conf
@@ -40,9 +40,8 @@ Requires(pre):	httpd = %{apache_version}
 Requires(pre):	httpd-conf >= 2.2.0
 
 %description
-mod_auth_pgsql can be used to limit access to documents served by
-a web server by checking fields in a table in a PostgresQL
-database.
+mod_auth_pgsql can be used to limit access to documents served by a web
+server by checking fields in a table in a PostgresQL database.
 
 
 %package doc
@@ -69,7 +68,7 @@ This package contains the documentation for %{name}.
 mkdir -p %{buildroot}%{_libdir}/httpd-extramodules
 mkdir -p %{buildroot}%{_sysconfdir}/httpd/modules.d
 install -m 0755 .libs/*.so %{buildroot}%{_libdir}/httpd-extramodules/
-cat %{_sourcedir}/%{mod_conf} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
+install -m 0644 %{_sourcedir}/%{mod_conf} %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 
 %clean
@@ -87,6 +86,10 @@ cat %{_sourcedir}/%{mod_conf} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod
 
 
 %changelog
+* Sat Sep 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.6_2.0.3
+- apache 2.2.6
+- rebuild against new postgresql
+
 * Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.4_2.0.3
 - apache 2.2.4
 - rebuild against new postgresql
