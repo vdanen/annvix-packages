@@ -14,7 +14,7 @@
 %define epoch		1
 
 # Module-Specific definitions
-%define apache_version	2.2.4
+%define apache_version	2.2.6
 %define mod_version	0.1
 %define mod_name	mod_auth_remote
 %define mod_conf	82_%{mod_name}.conf
@@ -40,26 +40,23 @@ BuildRequires:  httpd-devel >= %{apache_version}
 
 Requires(pre):	httpd >= %{apache_version}
 Requires(pre):	httpd-conf >= 2.2.0
-Provides:	apache2-mod_auth_remote
-Obsoletes:	apache2-mod_auth_remote
 
 
 %description
-This module is a very simple, lightweight method of setting up a
-single signon system across multiple web-applicaitions hosted on
-different servers.
+This module is a very simple, lightweight method of setting up a single
+signon system across multiple web-applicaitions hosted on different
+servers.
 
-The actual authentication & authorization system is deployed on a
-single server instead of each individual server. All other servers
-are built with mod_auth_remote enabled. When a request comes in,
-mod_auth_remote obtains the client username & password from the
-client via basic authentication scheme.
+The actual authentication & authorization system is deployed on a single
+server instead of each individual server.  All other servers are built with
+mod_auth_remote enabled.  When a request comes in, mod_auth_remote obtains
+the client username & password from the client via basic authentication
+scheme.
 
-It then builds a HTTP header with authorization header built from
-the client's userid:passwd. mod_auth_remote then makes a HEAD
-request to the authentication server. On reciept of a 2XX
-response, the client is validated; for all other responses the
-client is not validated.
+It then builds a HTTP header with authorization header built from the
+client's userid:passwd.  mod_auth_remote then makes a HEAD request to the
+authentication server.  On reciept of a 2XX response, the client is
+validated; for all other responses the client is not validated.
 
 
 %package doc
@@ -87,7 +84,7 @@ This package contains the documentation for %{name}.
 mkdir -p %{buildroot}%{_libdir}/httpd-extramodules
 mkdir -p %{buildroot}%{_sysconfdir}/httpd/modules.d
 install -m 0755 .libs/*.so %{buildroot}%{_libdir}/httpd-extramodules/
-cat %{_sourcedir}/%{mod_conf} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
+install -m 0644 %{_sourcedir}/%{mod_conf} %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 
 %clean
@@ -105,6 +102,9 @@ cat %{_sourcedir}/%{mod_conf} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod
 
 
 %changelog
+* Sat Sep 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.6_0.1
+- apache 2.2.6
+
 * Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.4_0.1
 - apache 2.2.4
 
