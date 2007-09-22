@@ -13,8 +13,8 @@
 %define release 	%_revrel
 
 # Module-Specific definitions
-%define apache_version	2.2.4
-%define mod_version	2.0.4
+%define apache_version	2.2.6
+%define mod_version	2.1.2
 %define mod_name	mod_security2
 %define mod_conf	82_%{mod_name}.conf
 %define mod_so		%{mod_name}.so
@@ -40,10 +40,9 @@ Requires(pre):	httpd-conf >= 2.2.0
 Conflicts:	httpd-mod_security
 
 %description
-ModSecurity is an open source intrustion detection and prevention
-engine for web applications. It operates embedded into the web
-server, acting as a powerful umbrella - shielding applications
-from attacks.
+ModSecurity is an open source intrustion detection and prevention engine for
+web applications.  It operates embedded into the web server, acting as a
+powerful umbrella - shielding applications from attacks.
 
 
 %package doc
@@ -62,11 +61,13 @@ find doc -type f -exec chmod 0644 {} \;
 
 
 %build
+CFLAGS=`%{_sbindir}/apxs -q CFLAGS`
+
 %make -C apache2 \
     top_dir="%{_libdir}/httpd" \
     INCLUDES="-I%{_includedir}/libxml2" \
     DEFS="-DWITH_LIBXML2 -DWITH_PCRE_STUDY" \
-    CFLAGS="-Wl,-lxml2"
+    CFLAGS="$CFLAGS -Wl,-lxml2"
 
 
 %install
@@ -77,7 +78,7 @@ mkdir -p %{buildroot}%{_sysconfdir}/httpd/modules.d
 mkdir -p %{buildroot}{%{_sbindir},%{_sysconfdir}/httpd/conf/modsecurity}
 
 install -m 0755 apache2/.libs/*.so %{buildroot}%{_libdir}/httpd-extramodules/
-cp %{_sourcedir}/%{mod_conf} %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
+install -m 0644 %{_sourcedir}/%{mod_conf} %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 for conf in `ls -1 modsecurity_crs*conf`; do
     install -m 0644 ${conf} %{buildroot}%{_sysconfdir}/httpd/conf/modsecurity/
@@ -101,6 +102,11 @@ done
 
 
 %changelog
+* Sat Sep 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.6_2.1.2
+- 2.1.2
+- apache 2.2.6
+- use the same CFLAGS as apache
+
 * Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.4_2.0.4
 - apache 2.2.4
 
