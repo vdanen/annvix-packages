@@ -14,7 +14,7 @@
 %define epoch		1
 
 # Module-Specific definitions
-%define apache_version	2.2.4
+%define apache_version	2.2.6
 %define mod_version	1.5.7
 %define mod_name	mod_auth_radius
 %define mod_conf	14_%{mod_name}.conf
@@ -39,12 +39,9 @@ BuildRequires:  httpd-devel >= %{apache_version}
 
 Requires(pre):	httpd >= %{apache_version}
 Requires(pre):	httpd-conf >= 2.2.0
-Provides:	apache2-mod_auth_radius
-Obsoletes:	apache2-mod_auth_radius
 
 %description
-Make Apache a RADIUS client for authentication and
-accounting requests.
+Make Apache a RADIUS client for authentication and accounting requests.
 
 
 %package doc
@@ -73,7 +70,7 @@ mv mod_auth_radius-2.0.c mod_auth_radius.c
 mkdir -p %{buildroot}%{_libdir}/httpd-extramodules
 mkdir -p %{buildroot}%{_sysconfdir}/httpd/modules.d
 install -m 0755 .libs/*.so %{buildroot}%{_libdir}/httpd-extramodules/
-cat %{_sourcedir}/%{mod_conf} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
+install -m 0644 %{_sourcedir}/%{mod_conf} %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 
 %clean
@@ -91,6 +88,9 @@ cat %{_sourcedir}/%{mod_conf} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod
 
 
 %changelog
+* Sat Sep 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.6_1.5.7
+- apache 2.2.6
+
 * Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.4_1.5.7
 - apache 2.2.4
 
