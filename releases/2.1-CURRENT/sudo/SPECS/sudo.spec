@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		sudo
-%define version		1.6.9p4
+%define version		1.6.9p5
 %define release		%_revrel
 %define epoch		1
 
@@ -113,11 +113,15 @@ install -m 0440 %{SOURCE2} %{buildroot}%{_sysconfdir}/sudoers
 
 %files doc
 %defattr(-,root,root)
-%doc BUGS CHANGES HISTORY INSTALL PORTING README TODO
+%doc BUGS CHANGES HISTORY INSTALL PORTING README
 %doc TROUBLESHOOTING UPGRADE sample.sudoers
 
 
 %changelog
+* Sat Sep 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.6.9p5
+- 1.6.9p5
+- rebuild against new pam
+
 * Sat Aug 18 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.6.9p4
 - 1.6.9p4
 - drop P0, no longer required
