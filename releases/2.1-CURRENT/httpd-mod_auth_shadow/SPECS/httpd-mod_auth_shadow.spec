@@ -13,8 +13,8 @@
 %define release 	%_revrel
 
 # Module-Specific definitions
-%define apache_version	2.2.4
-%define mod_version	2.1
+%define apache_version	2.2.6
+%define mod_version	2.2
 %define mod_name	mod_auth_shadow
 %define mod_conf	83_%{mod_name}.conf
 %define mod_so		%{mod_name}.so
@@ -27,7 +27,7 @@ Release:	%{release}
 License:	GPL
 Group:		System/Servers
 URL:		http://mod-auth-shadow.sourceforge.net/
-Source0:	%{mod_name}-%{mod_version}.tar.bz2
+Source0:	%{mod_name}-%{mod_version}.tar.gz
 Source1:	%{mod_conf}
 Patch0:		mod_auth_shadow-2.1-register.patch
 Patch1:		mod_auth_shadow-2.1-makefile.patch
@@ -37,8 +37,6 @@ BuildRequires:  httpd-devel >= %{apache_version}
 
 Requires(pre):	httpd >= %{apache_version}
 Requires(pre):	httpd-conf >= 2.2.0
-Provides:	apache2-mod_auth_shadow
-Obsoletes:	apache2-mod_auth_shadow
 
 %description
 %{mod_name} is an Apache module which authenticates against
@@ -62,6 +60,7 @@ This package contains the documentation for %{name}.
 
 
 %build
+%serverbuild
 export PATH="$PATH:/usr/sbin"
 %make CFLAGS="%{optflags}" -f makefile
 
@@ -72,7 +71,7 @@ export PATH="$PATH:/usr/sbin"
 mkdir -p %{buildroot}%{_libdir}/httpd-extramodules
 mkdir -p %{buildroot}%{_sysconfdir}/httpd/modules.d
 install -m 0755 .libs/*.so %{buildroot}%{_libdir}/httpd-extramodules/
-cat %{_sourcedir}/%{mod_conf} > %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
+install -m 0644 %{_sourcedir}/%{mod_conf} %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
 
 install -d %{buildroot}%{_sbindir}
 install -m 4755 validate %{buildroot}%{_sbindir}/
@@ -94,6 +93,11 @@ install -m 4755 validate %{buildroot}%{_sbindir}/
 
 
 %changelog
+* Sat Sep 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.6_2.2
+- 2.2
+- apache 2.2.6
+- use %%serverbuild
+
 * Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.4_2.1
 - apache 2.2.4
 
