@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		httpd
-%define version		2.2.4
+%define version		2.2.6
 %define release		%_revrel
 
 # not everyone uses this, so define it here
@@ -19,9 +19,6 @@
 %define ap_version	%{version}
 %define ap_release	%{release}
 %define srcdir		%{_prefix}/src/httpd-%{version}
-
-# the name for libapr will be different on 64bit
-%define libapr		%mklibname apr 1
 
 Summary:	Apache web server (prefork mpm)
 Name:		%{name}
@@ -40,7 +37,7 @@ Source6:	certwatch.tar.bz2
 Source30:	30_mod_proxy.conf
 Source31:	31_mod_proxy_ajp.conf
 Source40:	40_mod_ssl.conf
-Source41:	41_mod_ssl.default-vhost.conf
+Source41:	01_mod_ssl.default-vhost.conf
 Source45: 	45_mod_dav.conf
 Source46: 	46_mod_ldap.conf
 Source47:	47_mod_authnz_ldap.conf
@@ -77,13 +74,16 @@ Patch11:	httpd-2.2.0-mod_ssl_memcache.diff
 Patch12:	httpd-2.2.2-french_fixes.diff
 Patch13:	httpd-2.2.0-authnoprov.patch
 Patch14:	certwatch-avx-annvix.patch
-Patch15:	httpd-2.2.4-CVE-2007-3304.patch
-Patch16:	httpd-2.2.3-CVE-2006-5752.patch
-Patch17:	apache-2.2.4-CVE-2007-1862.diff
+Patch15:	httpd-2.2.4-mdv-fix_extra_htaccess_check.patch
+Patch16:	httpd-bug36780.patch
+Patch17:	worker_init_patch_plus_r572937_2.2.x.patch
+Patch18:	httpd-bug42829.patch
+Patch19:	httpd-bug43415.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	apr-devel >= 1:1.2.7
-BuildRequires:	apr-util-devel >= 1.2.7
+BuildRequires:	apr-devel >= 1:1.2.11
+BuildRequires:	apr-util-devel >= 1.2.10
+BuildRequires:	apr_memcache-devel >= 0.7.0
 BuildRequires:	pcre-devel >= 5.0
 BuildRequires:	byacc
 BuildRequires:	db4-devel
@@ -108,11 +108,14 @@ BuildRequires:	perl(BSD::Resource)
 BuildRequires:	perl(HTTP::DAV)
 BuildRequires:	perl-libwww-perl
 BuildRequires:	perl-perldoc
+BuildRequires:	perl(Crypt::SSLeay)
+BuildRequires:	perl(XML::DOM)
+BuildRequires:	perl(XML::Parser)
 %endif
 
 
 Requires:	libapr-util >= 1.2.7
-Requires:	%{libapr} >= 1:1.2.7
+Requires:	libapr >= 1:1.2.7
 Requires:	httpd-conf >= 2.2.2
 Requires:	httpd-common = %{version}-%{release}
 Requires:	httpd-modules = %{version}-%{release}
@@ -121,18 +124,13 @@ Requires(pre):	httpd-conf >= 2.2.2-1avx
 Requires(pre):	httpd-common = %{version}-%{release}
 Requires(pre):	httpd-modules = %{version}-%{release}
 Requires(preun): libapr-util >= 1.2.7
-Requires(preun): %{libapr} >= 1:1.2.7
+Requires(preun): libapr >= 1:1.2.7
 Requires(post):	libapr-util >= 1.2.7
-Requires(post):	%{libapr} >= 1:1.2.7
+Requires(post):	libapr >= 1:1.2.7
 Requires(postun): rpm-helper
 Provides:	webserver
-Provides:	apache
-Provides:	apache2
-Provides:	apache-mpm
-Provides:	apache2-prefork
-Provides:	httpd-mpm
+Provides:	httpd-mpm = %{version}-%{release}
 Provides:	httpd-prefork = %{version}-%{release}
-Obsoletes:	apache2
 
 %description
 This package contains the main binary of Apache, a powerful,
@@ -153,15 +151,13 @@ You can build Apache with some conditional build switches;
 Summary:	Files common for httpd and httpd-mod_perl installations
 Group:		System/Servers
 Requires:	libapr-util >= 1.2.7
-Requires:	%{libapr} >= 1:1.2.7
+Requires:	libapr >= 1:1.2.7
 Requires(pre):	rpm-helper
 Requires(preun): libapr-util >= 1.2.7
-Requires(preun): %{libapr} >= 1:1.2.7
+Requires(preun): libapr >= 1:1.2.7
 Requires(post):	libapr-util >= 1.2.7
-Requires(post):	%{libapr} >= 1:1.2.7
+Requires(post):	libapr >= 1:1.2.7
 Requires(postun): rpm-helper
-Obsoletes:	apache2-common
-Provides:	apache2-common
 
 %description common
 This package contains files required for both httpd and httpd-mod_perl
@@ -524,6 +520,7 @@ Summary:	Module development tools for the Apache web server
 Group:		Development/C
 Requires:	apr-devel >= 1.2.7
 Requires:	apr-util-devel >= 1.2.7
+Requires:	apr_memcache-devel >= 0.7.0
 Requires:	pcre-devel >= 5.0
 Requires:	byacc
 Requires:	db4-devel
@@ -537,8 +534,6 @@ Requires:	autoconf2.5
 Requires:	automake1.7
 Requires:	pkgconfig
 Requires:	perl-devel
-Provides:	apache2-devel apache2-mod_ssl-devel apache-mod_ssl-devel
-Obsoletes:	apache2-devel apache2-mod_ssl-devel
 
 %description devel
 The httpd-devel package contains the source code for the Apache
@@ -580,9 +575,11 @@ This package contains the documentation for %{name}.
 %patch12 -p1 -b .french_fixes.droplet
 %patch13 -p1 -b .authnoprov.droplet
 %patch14 -p0 -b .certwatch.droplet
-%patch15 -p1 -b .cve-2007-3304
-%patch16 -p1 -b .cve-2006-5752
-%patch17 -p0 -b .cve-2007-1862
+%patch15 -p0 -b .fix_extra_htaccess_check.droplet
+%patch16 -p1 -b .oldflush.droplet
+%patch17 -p0 -b .worker_init_patch_plus_r572937_2.2.x.droplet
+%patch18 -p0 -b .bug42829.droplet
+%patch19 -p1 -b .bug43415.droplet
 
 # forcibly prevent use of bundled apr, apr-util, pcre
 rm -rf srclib/{apr,apr-util,pcre}
@@ -661,6 +658,7 @@ cp %{_sourcedir}/httpd-README.urpmi README.urpmi
 # configure and build phase
 #
 export WANT_AUTOCONF_2_5="1"
+%serverbuild
 
 # use a minimal buildconf instead
 cp %{_sourcedir}/buildconf buildconf
@@ -929,11 +927,10 @@ ln -s ../../..%{_libdir}/httpd/build %{buildroot}%{_sysconfdir}/httpd/build
 ##################################################################
 
 # install module conf files for the "modules.d" dir loading structure
-install -d %{buildroot}/%{_sysconfdir}/httpd/modules.d
+mkdir -p %{buildroot}/%{_sysconfdir}/httpd/{modules.d,conf/vhosts.d}
 cp %{_sourcedir}/30_mod_proxy.conf %{buildroot}/%{_sysconfdir}/httpd/modules.d/30_mod_proxy.conf
 cp %{_sourcedir}/31_mod_proxy_ajp.conf %{buildroot}%{_sysconfdir}/httpd/modules.d/31_mod_proxy_ajp.conf
 cp %{_sourcedir}/40_mod_ssl.conf %{buildroot}%{_sysconfdir}/httpd/modules.d/40_mod_ssl.conf
-cp %{_sourcedir}/41_mod_ssl.default-vhost.conf %{buildroot}%{_sysconfdir}/httpd/modules.d/41_mod_ssl.default-vhost.conf
 cp %{_sourcedir}/45_mod_dav.conf %{buildroot}/%{_sysconfdir}/httpd/modules.d/45_mod_dav.conf
 cp %{_sourcedir}/46_mod_ldap.conf %{buildroot}/%{_sysconfdir}/httpd/modules.d/46_mod_ldap.conf
 cp %{_sourcedir}/47_mod_authnz_ldap.conf %{buildroot}%{_sysconfdir}/httpd/modules.d/47_mod_authnz_ldap.conf
@@ -945,6 +942,8 @@ cp %{_sourcedir}/59_mod_deflate.conf %{buildroot}/%{_sysconfdir}/httpd/modules.d
 cp %{_sourcedir}/60_mod_dbd.conf %{buildroot}%{_sysconfdir}/httpd/modules.d/60_mod_dbd.conf
 cp %{_sourcedir}/61_mod_authn_dbd.conf %{buildroot}%{_sysconfdir}/httpd/modules.d/61_mod_authn_dbd.conf
 cp %{_sourcedir}/67_mod_userdir.conf %{buildroot}/%{_sysconfdir}/httpd/modules.d/67_mod_userdir.conf
+
+cp %{_sourcedir}/01_mod_ssl.default-vhost.conf %{buildroot}%{_sysconfdir}/httpd/conf/vhosts.d/01_mod_ssl.default-vhost.conf
 
 # install missing files
 install -m 0755 build-prefork/support/split-logfile %{buildroot}%{_sbindir}/split-logfile
@@ -1109,6 +1108,13 @@ if [ "$1" = "0" ]; then
 fi
 
 
+%pre mod_ssl
+# If there was default mod_ssl vhost misplaced move it as rpmsave
+if [ -f %{_sysconfdir}/httpd/modules.d/41_mod_ssl.default-vhost.conf -o ! -f  %{_sysconfdir}/httpd/conf/vhosts.d/01_default_ssl_vhost.conf ]; then
+    mv -vf %{_sysconfdir}/httpd/modules.d/41_mod_ssl.default-vhost.conf %{_sysconfdir}/httpd/conf/vhosts.d/01_default_ssl_vhost.conf
+fi
+
+
 %post mod_ssl
 if [ "$1" = "1" ]; then 
     if [ -d %{_sysconfdir}/ssl/httpd ]; then
@@ -1265,7 +1271,8 @@ fi
 %{_libdir}/httpd/mod_proxy_ftp.so
 %{_libdir}/httpd/mod_proxy_http.so
 %{_libdir}/httpd/mod_proxy.so
-%attr(0770,root,apache) %dir /var/cache/httpd/mod_proxy
+%attr(0750,apache,apache) %dir /var/cache/httpd
+%attr(0750,apache,apache) %dir /var/cache/httpd/mod_proxy
 
 %files mod_proxy_ajp
 %defattr(-,root,root)
@@ -1323,7 +1330,7 @@ fi
 %files mod_ssl
 %defattr(-,root,root)
 %config(noreplace) %{_sysconfdir}/httpd/modules.d/*_mod_ssl.conf
-%config(noreplace) %{_sysconfdir}/httpd/modules.d/*_mod_ssl.default-vhost.conf
+%config(noreplace) %{_sysconfdir}/httpd/conf/vhosts.d/*_mod_ssl.default-vhost.conf
 %dir %{_sysconfdir}/ssl/httpd
 %{_sysconfdir}/cron.daily/certwatch
 %attr(0755,root,root) %{_sbindir}/certwatch
@@ -1355,7 +1362,6 @@ fi
 /var/www/icons/README*
 /var/www/icons/*.gif
 /var/www/icons/*.png
-/var/www/icons/small/README*
 /var/www/icons/small/*.gif
 /var/www/icons/small/*.png
 %{_mandir}/*/*
@@ -1400,6 +1406,20 @@ fi
 
 
 %changelog
+* Fri Sep 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.6
+- 2.2.6
+- explicitly own /var/cache/httpd
+- updated perl-framework
+- drop P15, P16, P17: merged upstream
+- updated buildrequires for make test
+- get rid of the apache2 obsoletes/provides
+- move the SSL vhost file to the right location
+- build against new pcre and openldap
+- P15: get rid of extraneous .htaccess checks to speed things up
+  (patch by Allen Pulsifer)
+- P16, P17, P18, P19: upstream bugfixes
+- requires/buildrequires apr_memcache-devel
+
 * Sun Jul 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.4
 - P15: security fix for CVE-2007-3304
 - P16: security fix for CVE-2006-5752

@@ -1,0 +1,80 @@
+
+ http://issues.apache.org/bugzilla/show_bug.cgi?id=43415
+
+diff -Naur httpd-2.2.6/modules/loggers/mod_log_config.c httpd-2.2.6.oden/modules/loggers/mod_log_config.c
+--- httpd-2.2.6/modules/loggers/mod_log_config.c	2006-07-12 05:38:44.000000000 +0200
++++ httpd-2.2.6.oden/modules/loggers/mod_log_config.c	2007-09-19 19:23:44.000000000 +0200
+@@ -95,6 +95,7 @@
+  * %...{format}P: the process ID or thread ID of the child/thread that
+  *                serviced the request
+  * %...r:  first line of request
++ * %...R:  the port on the remote host
+  * %...s:  status.  For requests that got internally redirected, this
+  *         is status of the *original* request --- %...>s for the last.
+  * %...t:  time, in common log format time format
+@@ -637,6 +638,13 @@
+                         r->server->port ? r->server->port : ap_default_port(r));
+ }
+ 
++
++static const char *log_remote_port(request_rec *r, char *a)
++{
++	return apr_psprintf(r->pool, "%u", r->connection->remote_addr->port);
++}
++
++
+ /* This respects the setting of UseCanonicalName so that
+  * the dynamic mass virtual hosting trick works better.
+  */
+@@ -1488,6 +1496,7 @@
+         log_pfn_register(p, "X", log_connection_status, 0);
+         log_pfn_register(p, "C", log_cookie, 0);
+         log_pfn_register(p, "r", log_request_line, 1);
++        log_pfn_register(p, "R", log_remote_port, 0);
+         log_pfn_register(p, "D", log_request_duration_microseconds, 1);
+         log_pfn_register(p, "T", log_request_duration, 1);
+         log_pfn_register(p, "U", log_request_uri, 1);
+diff -Naur httpd-2.2.6/docs/manual/mod/mod_log_config.html.en httpd-2.2.6.oden/docs/manual/mod/mod_log_config.html.en
+--- httpd-2.2.6/docs/manual/mod/mod_log_config.html.en	2007-09-01 14:19:34.000000000 +0200
++++ httpd-2.2.6.oden/docs/manual/mod/mod_log_config.html.en	2007-09-19 19:27:53.000000000 +0200
+@@ -133,29 +133,31 @@
+         string exists, otherwise an empty string)</td></tr>
+ <tr><td><code>%r</code></td>
+         <td>First line of request</td></tr>
+-<tr class="odd"><td><code>%s</code></td>
++<tr class="odd"><td><code>%R</code></td>
++        <td>The port of the client requesting the request</td></tr>
++<tr><td><code>%s</code></td>
+         <td>Status. For requests that got internally redirected, this is
+         the status of the *original* request --- <code>%&gt;s</code>
+         for the last.</td></tr>
+-<tr><td><code>%t</code></td>
++<tr class="odd"><td><code>%t</code></td>
+         <td>Time the request was received (standard english
+         format)</td></tr>
+-<tr class="odd"><td><code>%{<var>format</var>}t</code></td>
++<tr><td><code>%{<var>format</var>}t</code></td>
+         <td>The time, in the form given by format, which should be in
+         <code>strftime(3)</code> format. (potentially localized)</td></tr>
+-<tr><td><code>%T</code></td>
++<tr class="odd"><td><code>%T</code></td>
+         <td>The time taken to serve the request, in seconds.</td></tr>
+-<tr class="odd"><td><code>%u</code></td>
++<tr><td><code>%u</code></td>
+         <td>Remote user (from auth; may be bogus if return status
+         (<code>%s</code>) is 401)</td></tr>
+-<tr><td><code>%U</code></td>
++<tr class="odd"><td><code>%U</code></td>
+         <td>The URL path requested, not including any query string.</td></tr>
+-<tr class="odd"><td><code>%v</code></td>
++<tr><td><code>%v</code></td>
+         <td>The canonical <code class="directive"><a href="../mod/core.html#servername">ServerName</a></code>
+         of the server serving the request.</td></tr>
+-<tr><td><code>%V</code></td>
++<tr class="odd"><td><code>%V</code></td>
+         <td>The server name according to the <code class="directive"><a href="../mod/core.html#usecanonicalname">UseCanonicalName</a></code> setting.</td></tr>
+-<tr class="odd"><td><code>%X</code></td>
++<tr><td><code>%X</code></td>
+         <td>Connection status when response is completed:
+ 
+         <table>
