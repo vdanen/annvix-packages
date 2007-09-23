@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name 		nss_ldap
-%define version 	253
+%define version 	257
 %define release 	%_revrel
 
 Summary:	NSS library for LDAP
@@ -115,6 +115,10 @@ rm -rf %{buildroot}%{_libdir}/libnss_ldap.so.2
 
 
 %changelog
+* Sat Sep 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 257
+- 257
+- rebuild against new openldap
+
 * Sat Dec 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 253
 - fix buildrequires and rebuild against new krb5
 
