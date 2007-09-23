@@ -496,7 +496,6 @@ popd >/dev/null 2>&1
 
 %files -n httpd-mod_dontdothat
 %defattr(-,root,root)
-%doc contrib/server-side/mod_dontdothat/README
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/modules.d/48_mod_dontdothat.conf
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/conf/dontdothat.conf
 %attr(0755,root,root) %{_libdir}/httpd-extramodules/mod_dontdothat.so
