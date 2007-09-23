@@ -59,6 +59,7 @@ Patch7:         samba-3.0.23-mdv-revert-libsmbclient-move.patch
 Patch8:         samba-3.0.20-avx-annvix-config.patch
 Patch11:	samba-3.0-mandriva-packaging.patch
 Patch13:	http://samba.org/~metze/samba3-default-quota-ignore-error-01.diff
+Patch14:	samba-3.0.25-CVE-2007-4138.patch
 
 BuildRoot:      %{_buildroot}/%{name}-%{version}
 BuildRequires:  pam-devel
@@ -264,6 +265,8 @@ popd
 pushd source
 %patch13
 popd
+%patch14 -p1 -b .cve-2007-4138
+
 # patches from cvs/samba team
 
 # Make a copy of examples so that we have a clean one for doc:
@@ -853,6 +856,9 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Sun Sep 23 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0.25a
+- P14: security fix for CVE-2007-4138
+
 * Tue Jun 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0.25a
 - 3.0.25a (security fixes for CVE-2007-2444, CVE-2007-2446, CVE-2007-2447)
 - drop the socket options in smb.conf (Mandriva bug #28459)
