@@ -9,11 +9,11 @@
 
 %define revision	$Rev$
 %define name		samba
-%define version		3.0.25a
+%define version		3.0.26a
 %define release		%_revrel
 
 %define smbldapver	0.9.2
-%define vscanver	0.3.6c-beta4
+%define vscanver	0.3.6c-beta5
 %global vscandir	samba-vscan-%{vscanver}
 %global vfsdir		examples.bin/VFS
 
@@ -32,8 +32,8 @@ Group:		System/Servers
 URL:		http://www.samba.org
 Source0:        http://us1.samba.org/samba/ftp/stable/samba-%{version}.tar.gz
 Source1:        http://us1.samba.org/samba/ftp/stable/samba-%{version}.tar.asc
-Source2:        samba.log
-Source3:        samba-vscan-%{vscanver}.tar.bz2
+Source2:	samba.log
+Source3:	http://www.openantivirus.org/download/samba-vscan-%{vscanver}.tar.gz
 Source4:        samba-print-pdf.sh
 Source5:        swat.run
 Source6:        swat-log.run
@@ -78,7 +78,7 @@ Requires:	samba-common = %{version}
 Requires:	srv >= 0.7
 Requires(pre):	mktemp
 Requires(pre):	psmisc
-Requires(pre):	fileutils
+Requires(pre):	coreutils
 Requires(pre):	sed
 Requires(pre):	grep
 
@@ -851,6 +851,12 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Sun Sep 23 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0.26a
+- 3.0.26a; fixes CVE-2007-4138
+- samba-vscan 0.3.6c-beta5
+- build against new openldap, new pam
+- coreutils provides fileutils
+
 * Sun Jun 24 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0.25a
 - rebuild against new readline
 
