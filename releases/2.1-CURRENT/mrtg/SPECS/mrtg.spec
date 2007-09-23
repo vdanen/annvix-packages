@@ -9,11 +9,12 @@
 
 %define revision	$Rev$
 %define	name		mrtg
-%define version		2.14.4
+%define version		2.15.2
 %define release		%_revrel
 
-%define _provides_exceptions perl(MRTG_lib)\\|perl(locales_mrtg)\\|perl(stat.pl)\\|perl(find.pl)\\|perl(MRP::BaseClass)\\|%{_bindir}/ksh\\|%{_bindir}/expect
-%define _requires_exceptions perl(MRTG_lib)\\|perl(locales_mrtg)\\|perl(stat.pl)\\|perl(find.pl)\\|perl(MRP::BaseClass)\\|%{_bindir}/ksh\\|%{_bindir}/expect\\|pear(.*.inc.php)\\|perl(Net::SNMP)
+%define _provides_exceptions perl(.*)
+#|%{_bindir}/ksh\\|%{_bindir}/expect
+%define _requires_exceptions perl(MRTG_lib)\\|perl(locales_mrtg)\\|perl(stat.pl)\\|perl(find.pl)\\|perl(MRP::BaseClass)\\|%{_bindir}/ksh\\|%{_bindir}/expect\\|pear(.*.inc.php)\\|perl(Net::SNMP)\\|perl(BER)\\|perl(SNMP_Session)
 
 Summary:	Multi Router Traffic Grapher
 Name:		%{name}
@@ -31,7 +32,6 @@ BuildRequires:	png-devel
 BuildRequires:	chrpath
 
 Requires:	perl
-Requires:	net-snmp
 
 %description
 The Multi Router Traffic Grapher (MRTG) is a tool to monitor the
@@ -43,8 +43,8 @@ PNG images which provide a LIVE visual representation of this traffic.
 Summary:	Multi Router Traffic Grapher contribs
 Group:		Networking/Other
 Requires:	%{name} = %{version}
-Requires(pre):	expect
-Requires(pre):	pdksh
+Requires:	expect
+Requires:	pdksh
 
 %description contribs
 Contributed softwares for The Multi Router Traffic Grapher (MRTG)
@@ -65,43 +65,24 @@ This package contains the documentation for %{name}.
 perl -pi -e "s|^sleep .*||g" configure*
 
 # fix perl path
-find -type f | xargs perl -pi -e "s|/store/bin/perl|%{_bindir}/perl|g; \
-    s|/usr/local/bin/perl|%{_bindir}/perl|g; \
-    s|/usr/sepp/bin/perl|%{_bindir}/perl|g; \
-    s|/usr/tardis/local/gnu/bin/perl5|%{_bindir}/perl|g; \
-    s|/usr/local/gnu/bin/perl5|%{_bindir}/perl|g; \
-    s|/usr/drwho/local/bin/perl|%{_bindir}/perl|g; \
-    s|c\:\\\perl\\\bin|%{_bindir}/perl|g; \
-    s|/opt/gnu/bin/perl|%{_bindir}/perl|g; \
-    s|/pkg/gnu/bin/perl|%{_bindir}/perl|g"
-
+find -type f | xargs perl -pi \
+    -e 's|(?:/\w+)+/perl|%{_bindir}/perl|g;' \
+    -e 's|c:\\\perl\\\bin|%{_bindir}/perl|g;'
 
 %build
-export LIBS="$LIBS -L%{_prefix}/X11R6/%{_lib} -lXpm -lX11"
-
-%configure \
-    --with-gd=%{_prefix} \
-    --with-gd-lib=%{_libdir} \
-    --with-gd-inc=%{_includedir} \
-    --with-z=%{_prefix} \
-    --with-z-lib=%{_libdir} \
-    --with-z-inc=%{_includedir} \
-    --with-png=%{_prefix} \
-    --with-png-lib=%{_libdir} \
-    --with-png-inc=%{_includedir}
-
+%configure2_5x LIBS="-lXpm -lX11"
 %make
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-%makeinstall
+%makeinstall_std
 
 mkdir -p %{buildroot}%{_datadir}
 mkdir -p %{buildroot}/var/www/html/mrtg
 mkdir -p %{buildroot}%{perl_vendorarch}
 
-find contrib | cpio -dpm %{buildroot}%{_datadir}/mrtg2
+find contrib | cpio -dpm %{buildroot}%{_datadir}/mrtg
 
 install -m 0644 images/*.png %{buildroot}/var/www/html/mrtg
 install -m 0644 -c lib/mrtg2/{Pod/*pm,*pm} %{buildroot}%{perl_vendorarch}/
@@ -110,7 +91,7 @@ install -m 0644 -c lib/mrtg2/{Pod/*pm,*pm} %{buildroot}%{perl_vendorarch}/
 rm -rf %{buildroot}/%{_libdir}/mrtg2/{*gif,*png,Pod/*pm,*pm}
 rm -rf %{buildroot}/%{_libdir}/mrtg2/contrib/mrtgmk/src/
 
-pushd %{buildroot}/%{_datadir}/mrtg2
+pushd %{buildroot}/%{_datadir}/mrtg
     for i in `find -name "*.h"` `find -name "*.c"`; do
 	rm -f $i
     done
@@ -135,7 +116,6 @@ mv %{buildroot}%{_datadir}/doc/mrtg2 .
 
 %files
 %defattr(-,root,root)
-%attr(755,root,root) %dir /var/www/html/mrtg
 %attr(755,root,root) %{_bindir}/*
 %attr(644,root,root) %{perl_vendorarch}/*
 %{_mandir}/man1/cfgmaker.1*
@@ -153,12 +133,13 @@ mv %{buildroot}%{_datadir}/doc/mrtg2 .
 %{_mandir}/man1/mrtg-webserver.1*
 %{_mandir}/man1/mrtg-ipv6.1*
 %{_mandir}/man1/mrtg-nw-guide.1*
+%attr(755,root,root) %dir /var/www/html/mrtg
 %attr(644,root,root) /var/www/html/mrtg/*
 
 %files contribs
 %defattr(-,root,root)
 %{_mandir}/man1/mrtg-contrib.1*
-%{_datadir}/mrtg2/contrib/*
+%{_datadir}/mrtg/contrib/*
 
 %files doc
 %defattr(-,root,root)
@@ -180,6 +161,14 @@ mv %{buildroot}%{_datadir}/doc/mrtg2 .
 
 
 %changelog
+* Sun Sep 23 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.152
+- 2.15.2
+- build against new gd
+- cleanup the configure call
+- cleanup the perl path regexp
+- doesn't require net-snmp
+- exclude more private perl modules
+
 * Tue Dec 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.14.4
 - 2.14.4
 - fix source url
