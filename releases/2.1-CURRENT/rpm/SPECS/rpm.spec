@@ -770,6 +770,9 @@ fi
 
 
 %changelog
+* Sat Sep 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.4.5
+- rebuild against new elfutils
+
 * Tue Jun 26 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.4.5
 - rebuild against new beecrypt
 - buildrequires beecrypt-devel, not libbeecrypt-devel
