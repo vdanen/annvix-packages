@@ -9,10 +9,10 @@
 
 %define revision	$Rev$
 %define name		subversion
-%define svn_version	1.4.3
+%define svn_version	1.4.5
 %define release		%_revrel
 
-%define apache_version	2.2.4
+%define apache_version	2.2.6
 %define mod_version 	%{apache_version}_%{svn_version}
 %define mod_dav_name	mod_dav_svn
 %define mod_dav_conf	46_%{mod_dav_name}.conf
@@ -20,6 +20,7 @@
 %define mod_authz_name	mod_authz_svn
 %define mod_authz_conf	47_%{mod_authz_name}.conf
 %define mod_authz_so	%{mod_authz_name}.so
+%define mod_dontdothat_conf 48_mod_dontdothat.conf
 
 %define build_test 0
 %{?_with_test: %{expand: %%global build_test 1}}
@@ -39,6 +40,8 @@ Source4:	svn.run
 Source5:	svn-log.run
 Source6:	clients-config
 Source7:	servers-config
+Source8:	%{mod_dontdothat_conf}
+Source9:	dontdothat.conf
 Patch1:		subversion-1.3.1-use_apr1.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{svn_version}
@@ -79,12 +82,7 @@ Requires(preun): rpm-helper
 Requires:	ipsvd
 
 %description server
-This package contains a myriad of server for subversion server
-and repository admins:
-  * hot-backup makes a backup of a svn repo without stopping
-  * mirror_dir_through_svn.cgi 
-  * various hook scripts
-  * xslt example 
+This package contains the subversion server.
 
 
 %package tools
@@ -93,12 +91,8 @@ Group:		Development/Other
 Requires:	%{name}-server =  %{svn_version}-%{release}
 
 %description tools
-This package contains a myriad of tools for subversion server
-and repository admins:
-  * hot-backup makes a backup of a svn repo without stopping
-  * mirror_dir_through_svn.cgi 
-  * various hook scripts
-  * xslt example 
+This package contains some extra tools for subversion server and repository
+admins.
 
 
 %package -n python-svn
@@ -108,8 +102,8 @@ Requires:	%{name} = %{svn_version}-%{release}
 Provides:	python-subversion = %{svn_version}-%{release}
 
 %description -n python-svn
-This package contains the files necessary to use the subversion
-library functions within python scripts.
+This package contains the files necessary to use the subversion library
+functions within python scripts.
 
 
 %package -n perl-SVN
@@ -120,8 +114,8 @@ Obsoletes:	perl-svn
 Provides:	perl-svn = %{version}-%{release}
 
 %description -n	perl-SVN
-This package contains the files necessary to use the subversion
-library functions within perl scripts.
+This package contains the files necessary to use the subversion library
+functions within perl scripts.
 
 
 %package devel
@@ -130,8 +124,8 @@ Group:		Development/Other
 Provides:	libsvn-devel = %{svn_version}-%{release}
 
 %description devel
-This package contains the header files and linker scripts for
-subversion libraries.
+This package contains the header files and linker scripts for subversion
+libraries.
 
 
 %package -n httpd-mod_dav_svn
@@ -144,20 +138,34 @@ Requires(postun): rpm-helper
 Requires(pre):	httpd-conf >= %{apache_version}
 Requires(pre):	httpd >= %{apache_version}
 Requires(pre):	httpd-mod_dav >= %{apache_version}
-Provides:	apache2-%{mod_dav_name} = %{mod_version}
-Obsoletes:	apache2-mod_dav_svn
-Obsoletes:	apache-mod_authz_svn
 
 %description -n httpd-mod_dav_svn
-Subversion is a concurrent version control system which enables
-one or more users to collaborate in developing and maintaining a
-hierarchy of files and directories while keeping a history of all
-changes. Subversion only stores the differences between versions,
-instead of every complete file. Subversion also keeps a log of
-who, when, and why changes occured.
+Subversion is a concurrent version control system which enables one or more
+users to collaborate in developing and maintaining a hierarchy of files and
+directories while keeping a history of all changes.  Subversion only stores
+the differences between versions, instead of every complete file.  Subversion
+also keeps a log of who, when, and why changes occured.
 
-This package contains the apache server extension DSO for running
-a subversion server.
+This package contains the apache server extension DSO for running a
+subversion server.
+
+
+%package -n httpd-mod_dontdothat
+Summary:       An Apache module that allows you to block specific types of Subversion requests
+Group:         System/Servers
+Requires(pre): rpm-helper
+Requires(postun): rpm-helper
+Requires(pre): httpd-conf >= %{apache_version}
+Requires(pre): httpd >= %{apache_version}
+Requires(pre): httpd-mod_dav_svn = 1:%{version}
+
+%description -n httpd-mod_dontdothat
+mod_dontdothat is an Apache module that allows you to block specific types
+of Subversion requests.  Specifically, it's designed to keep users from doing
+things that are particularly hard on the server, like checking out the root
+of the tree, or the tags or branches directories.  It works by sticking an
+input filter in front of all REPORT requests and looking for dangerous types
+of requests.  If it finds any, it returns a 403 Forbidden error.
 
 
 %package doc
@@ -175,7 +183,7 @@ This package contains the documentation for %{name}.
 rm -rf neon apr apr-util db4
 
 # fix shellbang lines, #111498
-perl -pi -e 's|/usr/bin/env perl -w|/usr/bin/perl -w|' tools/hook-scripts/*.pl.in
+perl -pi -e 's|/usr/bin/env perl|%{_bindir}/perl|g' tools/hook-scripts/*.pl.in
 
 # fix perms
 chmod 0644 BUGS CHANGES COMMITTERS COPYING HACKING INSTALL README
@@ -209,10 +217,18 @@ perl -pi -e "s|%{_libdir}/httpd|%{_libdir}/httpd-extramodules|g" Makefile subver
 %make swig-py swig_pydir=%{py_platsitedir}/libsvn swig_pydir_extra=%{py_sitedir}/svn
 %make swig-pl
 
+# complete the extra apache module as well
+%{_sbindir}/apxs -c -Isubversion/include -Isubversion contrib/server-side/mod_dontdothat/mod_dontdothat.c subversion/libsvn_subr/libsvn_subr-1.la
+
+# put the apache modules in the correct place
+    perl -pi -e "s|%{_libdir}/httpd|%{_libdir}/httpd-extramodules|g" contrib/server-side/mod_dontdothat/mod_dontdothat.la
+
 # move some docs
 mv subversion/bindings/swig/INSTALL INSTALL.swig
 mv subversion/bindings/swig/NOTES NOTES.swig
 mv subversion/%{mod_authz_name}/INSTALL INSTALL.%{mod_authz_name}
+mv contrib/server-side/mod_dontdothat/README contrib/server-side/mod_dontdothat/README.mod_dontdothat
+
 
 %install
 [ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
@@ -246,9 +262,15 @@ make LC_ALL=C LANG=C LD_LIBRARY_PATH="`pwd`/subversion/bindings/swig/perl/libsvn
 # perl bindings
 make DESTDIR=%{buildroot} pure_vendor_install -C subversion/bindings/swig/perl/native 
 
-mkdir -p %{buildroot}%{_sysconfdir}/httpd/modules.d
+mkdir -p %{buildroot}%{_sysconfdir}/httpd/{modules.d,conf}
 cp %{_sourcedir}/%{mod_dav_conf} %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_dav_conf}
 cp %{_sourcedir}/%{mod_authz_conf} %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_authz_conf}
+cp %{_sourcedir}/%{mod_dontdothat_conf} %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_dontdothat_conf}
+cp %{_sourcedir}/dontdothat.conf %{buildroot}%{_sysconfdir}/httpd/conf/dontdothat.conf
+
+# install the extra apache module
+libtool --mode=install cp contrib/server-side/mod_dontdothat/mod_dontdothat.la %{buildroot}%{_libdir}/httpd-extramodules/
+rm -f %{buildroot}%{_libdir}/httpd-extramodules/mod_dontdothat.*a
 
 ######################
 ###  client-tools  ###
@@ -280,28 +302,28 @@ install -m 0644 %{_sourcedir}/servers-config %{buildroot}%{_sysconfdir}/subversi
 install -m 0755 tools/backup/hot-backup.py %{buildroot}%{_bindir}
 (cd %{buildroot}%{_bindir}; ln -s hot-backup.py hot-backup)
 
-mkdir -p %{buildroot}%{_datadir}/%{name}-%{svn_version}/repo-tools/{hook-scripts,xslt,cgi}
+mkdir -p %{buildroot}%{_datadir}/%{name}/repo-tools/{hook-scripts,xslt,cgi}
 
 # hook-scripts
 pushd tools/hook-scripts
-    install -m 0644 commit-access-control.cfg.example %{buildroot}/%{_datadir}/%{name}-%{svn_version}/repo-tools/hook-scripts
-    install -m 0755 commit-access-control.pl %{buildroot}/%{_datadir}/%{name}-%{svn_version}/repo-tools/hook-scripts
-    install -m 0755 commit-email.pl %{buildroot}/%{_datadir}/%{name}-%{svn_version}/repo-tools/hook-scripts
-    install -m 0644 svnperms.conf.example %{buildroot}/%{_datadir}/%{name}-%{svn_version}/repo-tools/hook-scripts
-    install -m 0755 svnperms.py %{buildroot}/%{_datadir}/%{name}-%{svn_version}/repo-tools/hook-scripts
-    install -m 0755 mailer/mailer.py %{buildroot}/%{_datadir}/%{name}-%{svn_version}/repo-tools/hook-scripts
-    install -m 0644 mailer/mailer.conf.example %{buildroot}/%{_datadir}/%{name}-%{svn_version}/repo-tools/hook-scripts
-    install -m 0644 README %{buildroot}/%{_datadir}/%{name}-%{svn_version}/repo-tools/hook-scripts
+    install -m 0644 commit-access-control.cfg.example %{buildroot}/%{_datadir}/%{name}/repo-tools/hook-scripts
+    install -m 0755 commit-access-control.pl %{buildroot}/%{_datadir}/%{name}/repo-tools/hook-scripts
+    install -m 0755 commit-email.pl %{buildroot}/%{_datadir}/%{name}/repo-tools/hook-scripts
+    install -m 0644 svnperms.conf.example %{buildroot}/%{_datadir}/%{name}/repo-tools/hook-scripts
+    install -m 0755 svnperms.py %{buildroot}/%{_datadir}/%{name}/repo-tools/hook-scripts
+    install -m 0755 mailer/mailer.py %{buildroot}/%{_datadir}/%{name}/repo-tools/hook-scripts
+    install -m 0644 mailer/mailer.conf.example %{buildroot}/%{_datadir}/%{name}/repo-tools/hook-scripts
+    install -m 0644 README %{buildroot}/%{_datadir}/%{name}/repo-tools/hook-scripts
 popd
 
 # xslt
-install -m 0644 tools/xslt/svnindex.css %{buildroot}%{_datadir}/%{name}-%{svn_version}/repo-tools/xslt
-install -m 0644 tools/xslt/svnindex.xsl %{buildroot}%{_datadir}/%{name}-%{svn_version}/repo-tools/xslt
+install -m 0644 tools/xslt/svnindex.css %{buildroot}%{_datadir}/%{name}/repo-tools/xslt
+install -m 0644 tools/xslt/svnindex.xsl %{buildroot}%{_datadir}/%{name}/repo-tools/xslt
 
 # cgi
-install -m 0755 contrib/cgi/mirror_dir_through_svn.cgi %{buildroot}%{_datadir}/%{name}-%{svn_version}/repo-tools/cgi
-install -m 0644 contrib/cgi/mirror_dir_through_svn.README %{buildroot}%{_datadir}/%{name}-%{svn_version}/repo-tools/cgi
-install -m 0755 contrib/cgi/tweak-log.cgi %{buildroot}%{_datadir}/%{name}-%{svn_version}/repo-tools/cgi
+install -m 0755 contrib/cgi/mirror_dir_through_svn.cgi %{buildroot}%{_datadir}/%{name}/repo-tools/cgi
+install -m 0644 contrib/cgi/mirror_dir_through_svn.README %{buildroot}%{_datadir}/%{name}/repo-tools/cgi
+install -m 0755 contrib/cgi/tweak-log.cgi %{buildroot}%{_datadir}/%{name}/repo-tools/cgi
 
 # install a nice icon for web usage
 mkdir -p %{buildroot}/var/www/icons
@@ -404,7 +426,7 @@ popd >/dev/null 2>&1
 %{_libdir}/libsvn_subr-*so.*
 %{_libdir}/libsvn_diff-*so.*
 %{_mandir}/man1/svn*
-%dir %{_datadir}/subversion-%{svn_version}
+%dir %{_datadir}/subversion
 %dir %{_sysconfdir}/subversion
 %config(noreplace) %{_sysconfdir}/subversion/config
 
@@ -437,8 +459,8 @@ popd >/dev/null 2>&1
 %files tools
 %defattr(-,root,root)
 %{_bindir}/hot-backup*
-%dir %{_datadir}/%{name}-%{svn_version}/repo-tools
-%{_datadir}/%{name}-%{svn_version}/repo-tools/*
+%dir %{_datadir}/%{name}/repo-tools
+%{_datadir}/%{name}/repo-tools/*
 
 
 %files -n python-svn
@@ -472,15 +494,29 @@ popd >/dev/null 2>&1
 %attr(0644,root,root) %{_var}/www/icons/subversion.png
 
 
+%files -n httpd-mod_dontdothat
+%defattr(-,root,root)
+%doc contrib/server-side/mod_dontdothat/README
+%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/modules.d/48_mod_dontdothat.conf
+%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/conf/dontdothat.conf
+%attr(0755,root,root) %{_libdir}/httpd-extramodules/mod_dontdothat.so
+
+
 %files doc
 %defattr(-,root,root)
 %doc BUGS CHANGES COMMITTERS COPYING HACKING INSTALL README
 %doc notes/repos_upgrade_HOWTO
 %doc INSTALL.%{mod_authz_name} INSTALL.swig NOTES.swig
-%doc tools/examples/*.py
+%doc tools/examples/*.py contrib/server-side/mod_dontdothat/README.mod_dontdothat
 
 
 %changelog
+* Sat Sep 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.4.5
+- 1.4.5
+- rebuild against new apache, apr
+- don't version the repo-tools
+- add the apache mod_dontdothat module
+
 * Fri May 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.4.3
 - rebuild againt new python
 - fix requires
