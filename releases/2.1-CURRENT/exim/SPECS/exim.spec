@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		exim
-%define version 	4.67
+%define version 	4.68
 %define release 	%_revrel
 
 %define saversion   	4.2.1
@@ -145,6 +145,8 @@ cat sa-exim*/localscan_dlopen_exim_4.20_or_better.patch | patch -p1
 
 
 %build
+%serverbuild
+
 %ifarch amd64 x86_64
 perl -pi -e 's|X11\)/lib|X11\)/lib64|g' OS/Makefile-Linux
 %endif
@@ -364,6 +366,11 @@ fi
 
 
 %changelog
+* Sat Sep 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.68
+- 4.68
+- rebuild against new postgresql, openldap, pam
+- use %%serverbuild
+
 * Tue Jul 24 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.67
 - 4.67
 - rebuild against new mysql
