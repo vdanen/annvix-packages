@@ -437,6 +437,8 @@ fi
 
 %files
 %defattr(-,root,root)
+%dir %{_sysconfdir}/sasl2
+%{_sysconfdir}/sasl2/service.conf.example
 %dir /var/lib/sasl2
 %dir %attr(0750,root,admin) %{_srvdir}/saslauthd
 %dir %attr(0750,root,admin) %{_srvdir}/saslauthd/log
@@ -450,8 +452,6 @@ fi
 
 %files -n %{libname}
 %defattr(-,root,root)
-%dir %{_sysconfdir}/sasl2
-%{_sysconfdir}/sasl2/service.conf.example
 %dir %{_libdir}/sasl2
 %{_libdir}/libsasl*.so.*
 
@@ -524,6 +524,10 @@ fi
 
  
 %changelog
+* Sat Sep 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1.22
+- rebuild against new postgresql, pam, openldap
+- /etc/sasl2 should be in the main package, not the libs
+
 * Tue Jul 24 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1.22
 - rebuild against new mysql
 - implement devel naming policy
