@@ -178,6 +178,9 @@ rm -rf %{buildroot}%{_datadir}/doc
 
 
 %changelog
+* Sun Sep 23 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.24.7
+- rebuild against new libxmlrpc
+
 * Tue Aug 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.24.7
 - implement devel naming policy
 - implement library provides policy
