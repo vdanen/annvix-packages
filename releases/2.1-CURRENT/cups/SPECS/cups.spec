@@ -265,6 +265,9 @@ chgrp -R sys %{_sysconfdir}/cups %{_var}/*/cups
 
 
 %changelog
+* Sat Sep 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.3.0
+- rebuild against new pam, openldap
+
 * Sun Sep 2 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.3.0
 - 1.3.0; fixes CVE-2007-3387
 - add some missing macros for /etc and /var
