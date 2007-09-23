@@ -444,9 +444,9 @@ fi
 %dir %attr(0750,root,admin) %{_srvdir}/saslauthd/log
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/saslauthd/run
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/saslauthd/log/run
-%config(noreplace) %attr(0740,root,admin)%{_srvdir}/saslauthd/env/SASLAUTHD_OPTS
-%config(noreplace) %attr(0740,root,admin)%{_srvdir}/saslauthd/env/SASL_AUTHMECH
-%config(noreplace) %attr(0740,root,admin)%{_srvdir}/saslauthd/env/SASL_MECH_OPTIONS
+%config(noreplace) %attr(0640,root,admin)%{_srvdir}/saslauthd/env/SASLAUTHD_OPTS
+%config(noreplace) %attr(0640,root,admin)%{_srvdir}/saslauthd/env/SASL_AUTHMECH
+%config(noreplace) %attr(0640,root,admin)%{_srvdir}/saslauthd/env/SASL_MECH_OPTIONS
 %{_sbindir}/*
 %{_mandir}/man8/*
 
@@ -527,6 +527,7 @@ fi
 * Sat Sep 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1.22
 - rebuild against new postgresql, pam, openldap
 - /etc/sasl2 should be in the main package, not the libs
+- environment files shouldn't be executable
 
 * Tue Jul 24 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1.22
 - rebuild against new mysql
