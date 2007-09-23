@@ -151,13 +151,14 @@ subversion server.
 
 
 %package -n httpd-mod_dontdothat
-Summary:       An Apache module that allows you to block specific types of Subversion requests
-Group:         System/Servers
-Requires(pre): rpm-helper
+Summary:	An Apache module that allows you to block specific types of Subversion requests
+Version:	%{modversion}
+Group:		System/Servers
+Requires(pre):	rpm-helper
 Requires(postun): rpm-helper
-Requires(pre): httpd-conf >= %{apache_version}
-Requires(pre): httpd >= %{apache_version}
-Requires(pre): httpd-mod_dav_svn = 1:%{version}
+Requires(pre):	httpd-conf >= %{apache_version}
+Requires(pre):	httpd >= %{apache_version}
+Requires(pre):	httpd-mod_dav_svn = 1:%{version}
 
 %description -n httpd-mod_dontdothat
 mod_dontdothat is an Apache module that allows you to block specific types
