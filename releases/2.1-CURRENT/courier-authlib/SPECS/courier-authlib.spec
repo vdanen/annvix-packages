@@ -29,7 +29,7 @@ Patch1:		courier-authlib-0.58.automake.patch
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	automake1.9
 BuildRequires:	expect
-BuildRequires:	libltdl-devel
+BuildRequires:	libtool-devel
 BuildRequires:	gdbm-devel
 BuildRequires:	openldap-devel
 BuildRequires:	pam-devel
@@ -375,6 +375,9 @@ test -f %{_sysconfdir}/courier/authpgsqlrc.rpmnew && %{_libdir}/courier-authlib/
 
 
 %changelog
+* Sat Sep 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.59.3
+- rebuild against new postgresql, new pam, new openldap
+
 * Tue Jul 24 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.59.3
 - rebuild against new mysql 
 
