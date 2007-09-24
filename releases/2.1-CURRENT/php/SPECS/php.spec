@@ -1606,6 +1606,9 @@ fi
 
 
 %changelog
+* Sun Sep 23 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.4
+- rebuild against new pam
+
 * Thu Sep 20 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.4
 - with an external imap development package and libs, we can build php-imap
   here now
