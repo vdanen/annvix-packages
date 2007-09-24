@@ -44,6 +44,7 @@ cp %{_sourcedir}/passwd.pamd .
 
 
 %build
+%serverbuild
 %make CFLAGS="%{optflags} -W -Werror" libdir=/%{_lib}
 
 
@@ -67,6 +68,10 @@ make DESTDIR=%{buildroot} install
 
 		
 %changelog
+* Sun Sep 23 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0.12
+- rebuild against new pam
+- use %%serverbuild
+
 * Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.12
 - 1.0.12 (new passwd from ALT Linux, this one is much slimmer and has
   been audited)
