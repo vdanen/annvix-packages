@@ -488,7 +488,6 @@ mkdir -p %{buildroot}%{_srvdir}/smbd/depends
 
 %post server
 %_post_srv nmbd
-%_post_srv smbd
 
 # Add a unix group for samba machine accounts
 groupadd -frg 101 machines
@@ -851,6 +850,11 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Tue Sep 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0.26a
+- don't use %%_post_srv on smbd as it causes an extra smbd restart for
+  no reason since smbd depends on nmbd, restarting smbd will also restart
+  smbd
+
 * Sun Sep 23 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0.26a
 - 3.0.26a; fixes CVE-2007-4138
 - samba-vscan 0.3.6c-beta5
