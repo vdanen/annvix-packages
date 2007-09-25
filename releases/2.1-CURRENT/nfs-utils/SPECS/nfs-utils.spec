@@ -38,6 +38,7 @@ Source14:	rpc.svcgssd-log.run
 Source15:	nfsv4.schema
 Source16:	gssapi_mech.conf
 Source17:	idmapd.conf
+Source18:	STATD_OPTIONS
 
 Patch1:		eepro-support.patch
 Patch2:		nfs-utils-1.1.0-gssglue.patch
