@@ -12,15 +12,8 @@ if [ -x /sbin/lsmod -a -x /sbin/modprobe ]; then
     fi
 fi
 
-STATDARG=""
+STATD_OPTIONS=""
 envdir=/etc/sysconfig/env/nfs
-[[ -f ${envdir}/STATD_HOSTNAME ]] && STATD_HOSTNAME="$(head -1 ${envdir}/STATD_HOSTNAME)"
-[[ -f ${envdir}/STATD_OUTPORT ]]  && STATD_OUTPORT="$(head -1 ${envdir}/STATD_OUTPORT)"
-[[ -f ${envdir}/STATD_PORT ]]     && STATD_PORT="$(head -1 ${envdir}/STATD_PORT)"
-[[ -n "${STATD_HOSTNAME}" ]] && STATDARG="-n ${STATD_HOSTNAME}"
-[[ -n "${STATD_PORT}" ]]     && STATDARG="${STATDARG} -p ${STATD_PORT}"
-[[ -n "${STATD_OUTPORT}" ]]  && STATDARG="${STATDARG} -o ${STATD_OUTPORT}"
+[[ -f ${envdir}/STATD_OPTIONS ]] && STATD_OPTIONS="$(head -1 ${envdir}/STATD_OPTIONS)"
 
-/sbin/rpc.lockd 2>&1
-
-exec /sbin/rpc.statd -F ${STATDARG} 2>&1
+exec /sbin/rpc.statd -F ${STATD_OPTIONS} 2>&1

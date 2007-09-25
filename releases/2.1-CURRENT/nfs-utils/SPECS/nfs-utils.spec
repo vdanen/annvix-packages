@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		nfs-utils
-%define	version		1.0.10
+%define	version		1.1.0
 %define release		%_revrel
 %define epoch		1
 
@@ -40,35 +40,32 @@ Source16:	gssapi_mech.conf
 Source17:	idmapd.conf
 
 Patch1:		eepro-support.patch
-Patch3:		nfs-utils-1.0.7-binary-or-shlib-defines-rpath.diff
-# (oe) boldly stolen from gentoo
-Patch40:	nfs-utils-1.0.7-gcc4.patch
+Patch2:		nfs-utils-1.1.0-gssglue.patch
 #
 # Local Patches (FC)
 #
-Patch50:	nfs-utils-1.0.5-statdpath.patch
-Patch51:	nfs-utils-1.0.6-mountd.patch
-Patch52:	nfs-utils-1.0.6-idmap.conf.patch
-Patch54:	nfs-utils-1.0.7-mountd-stat64.patch
-Patch100:	nfs-utils-1.0.8-compile.diff
-Patch150:	nfs-utils-1.0.6-pie.patch
-Patch151:	nfs-utils-1.0.7-strip.patch
+Patch50:	nfs-utils-1.0.6-mountd.patch
+Patch51:	nfs-utils-1.0.6-idmap.conf.patch
+Patch52:	nfs-utils-1.0.7-mountd-stat64.patch
+#
+# NFS4 patches
+#
+Patch100:	nfs-utils-1.1.0-001-memory-leak-in-mountd.dif
+Patch101:	nfs-utils-1.1.0-002-mount-nfs-nfsv4-mounts-give.dif
+Patch102:	nfs-utils-1.1.0-003-gssd_fix_usage_message.dif
+Patch103:	nfs-utils-1.1.0-004-mount_fix_compiler_warning.dif
+Patch104:	nfs-utils-1.1.0-005-nfslib_move_pseudoflavor_to_common_location.dif
+Patch105:	nfs-utils-1.1.0-006-libnfs_add_secinfo_support.dif
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	tcp_wrappers-devel
 BuildRequires:	nfsidmap-devel >= 0.16
 BuildRequires:	krb5-devel >= 1.3
 BuildRequires:	libevent-devel
-BuildRequires:	rpcsecgss-devel >= 0.12
-BuildRequires:	gssapi-devel >= 0.9
+BuildRequires:	rpcsecgss-devel >= 0.16
+BuildRequires:	gssglue-devel >= 0.1
 
-ExcludeArch:	armv4l
-Obsoletes:	nfs-server
-Obsoletes:	knfsd
-Obsoletes:	nfs-server-clients
 Provides:	nfs-server = %{version}
-Provides:	knfsd = %{version}
-Provides:	nfs-server-clients = %{version}
 Requires:	nfs-utils-clients
 Requires:	kernel >= 2.2.5
 Requires:	portmap >= 4.0
@@ -78,6 +75,7 @@ Requires:	kernel >= 2.6.0
 Requires:	module-init-tools >= 3.0-5mdk
 Requires(post):	rpm-helper
 Requires(preun): rpm-helper
+Conflicts:	setup <= 2.8-6672avx
 
 %description
 The nfs-utils package provides a daemon for the kernel NFS server and
@@ -93,10 +91,6 @@ clients which are mounted on that host.
 %package clients
 Summary:	The utilities for Linux NFS client
 Group:		Networking/Other
-Obsoletes:	knfsd-clients
-Obsoletes:	knfsd-lock
-Provides:	knfsd-clients
-Provides:	knfsd-lock = %{version}
 Requires:	kernel >= 2.6
 Requires:	module-init-tools >= 3.0-5mdk
 Requires:	portmap >= 4.0
@@ -134,34 +128,30 @@ find . -type f -perm 0555 -exec chmod 755 {} \;
 find . -type f -perm 0444 -exec chmod 644 {} \;
 
 %patch1 -p1 -b .eepro-support
-#patch3 -p1 -b .binary-or-shlib-defines-rpath
-# (oe) boldly stolen from gentoo
-#patch40 -p1 -b .gcc4
-%patch50 -p1 -b .statdpath
-%patch51 -p1 -b .mountd
-%patch52 -p1 -b .conf
-%patch54 -p1 -b .stat64
-%patch100 -p1 -b .compile
-#patch150 -p1 -b .pie
-#patch151 -p1 -b .strip
-
-# lib64 fixes
-perl -pi -e "s|\\$dir/lib/|\\$dir/%{_lib}/|g" configure
+%patch2 -p1 -b .gssglue
+%patch50 -p1 -b .mountd
+%patch51 -p1 -b .conf
+%patch52 -p1 -b .stat64
+%patch100 -p1 -b .memory-leak-in-mountd
+%patch101 -p1 -b .mount-nfs-nfsv4-mounts-give
+%patch102 -p1 -b .gssd_fix_usage_message
+%patch103 -p1 -b .mount_fix_compiler_warning
+%patch104 -p1 -b .nfslib_move_pseudoflavor_to_common_location
+%patch105 -p1 -b .libnfs_add_secinfo_support.dif
 
 
 %build
-sh autogen.sh
-
+autoreconf
 %serverbuild
 %configure2_5x \
     --with-statedir=%{_localstatedir}/nfs \
     --with-statduser=rpcuser \
     --enable-nfsv3 \
-    --disable-rquotad \
     --enable-nfsv4 \
     --enable-gss \
     --enable-secure-statd \
-    --with-krb5=%{_prefix}
+    --with-krb5=%{_prefix} \
+    --disable-rquotad
 
 make all
 
@@ -172,7 +162,7 @@ make all
 mkdir -p %{buildroot}{/sbin,%{_sbindir}}
 mkdir -p %{buildroot}%{_mandir}/{man5,man8}
 mkdir -p %{buildroot}%{_sysconfdir}/sysconfig/env/nfs
-mkdir -p %{buildroot}%{_localstatedir}/nfs/{statd,v4recovery}
+mkdir -p %{buildroot}%{_localstatedir}/nfs/{statd,v4recovery,sm}
 
 %make \
     DESTDIR=%{buildroot} \
@@ -185,13 +175,19 @@ ln -snf rpcdebug %{buildroot}/sbin/nfsdebug
 ln -snf rpcdebug %{buildroot}/sbin/nfsddebug
 
 touch %{buildroot}%{_localstatedir}/nfs/rmtab
-mv %{buildroot}%{_sbindir}/{rpc.lockd,rpc.statd} %{buildroot}/sbin
+mv %{buildroot}%{_sbindir}/rpc.statd %{buildroot}/sbin/
 
 install -m 0644 %{_sourcedir}/idmapd.conf %{buildroot}%{_sysconfdir}/idmapd.conf
 install -m 0644 %{_sourcedir}/gssapi_mech.conf %{buildroot}%{_sysconfdir}/gssapi_mech.conf
 perl -pi -e "s|/usr/lib|%{_libdir}|g" %{buildroot}%{_sysconfdir}/gssapi_mech.conf
 mkdir -p %{buildroot}%{_localstatedir}/nfs/rpc_pipefs
 
+cat >%{buildroot}%{_sysconfdir}/exports <<EOF
+# /etc/exports: the access control list for filesystems which may be exported
+#               to NFS clients.  See exports(5).
+EOF
+
+install -m 0640 %{_sourcedir}/STATD_OPTIONS %{buildroot}%{_sysconfdir}/sysconfig/env/nfs/STATD_OPTIONS
 
 mkdir -p %{buildroot}%{_srvdir}/{nfs.statd,nfs.mountd,rpc.idmapd,rpc.gssd,rpc.svcgssd}/log
 install -m 0740 %{_sourcedir}/nfs.statd.run %{buildroot}%{_srvdir}/nfs.statd/run
@@ -219,6 +215,7 @@ mkdir -p %{buildroot}%{_srvdir}/{nfs.mountd,nfs.statd,rpc.svcgssd,rpc.idmapd}/de
 rm -f %{buildroot}%{_sbindir}/rpcdebug
 rm -f %{buildroot}%{_mandir}/man8/rpcdebug.8
 
+
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
@@ -236,11 +233,6 @@ rm -f %{buildroot}%{_mandir}/man8/rpcdebug.8
 
 
 %preun
-# create a bare-bones /etc/exports
-if [ ! -s %{_sysconfdir}/exports ]; then
-    echo "#" >%{_sysconfdir}/exports
-    chmod 0644 %{_sysconfdir}/exports
-fi
 %_preun_srv nfs.statd
 %_preun_srv nfs.mountd
 %_preun_srv rpc.gssd
@@ -267,9 +259,11 @@ fi
 %files
 %defattr(-,root,root)
 %dir %attr(0750,root,admin) %{_sysconfdir}/sysconfig/env/nfs
+%attr(0640,root,admin) %config(noreplace) %{_sysconfdir}/sysconfig/env/nfs/STATD_OPTIONS
 %config(noreplace) %ghost  %{_localstatedir}/nfs/xtab
 %config(noreplace) %ghost  %{_localstatedir}/nfs/etab
 %config(noreplace) %ghost  %{_localstatedir}/nfs/rmtab
+%config(noreplace) %{_sysconfdir}/exports
 %config(noreplace) %{_sysconfdir}/idmapd.conf
 %config(noreplace) %{_sysconfdir}/gssapi_mech.conf
 /sbin/rpcdebug
@@ -277,10 +271,6 @@ fi
 /sbin/nfsddebug
 %{_sbindir}/exportfs
 %{_sbindir}/nfsstat
-%{_sbindir}/nhfsgraph
-%{_sbindir}/nhfsnums
-%{_sbindir}/nhfsrun
-%{_sbindir}/nhfsstone
 %{_sbindir}/rpc.mountd
 %{_sbindir}/rpc.nfsd
 %{_sbindir}/rpc.idmapd
@@ -295,10 +285,6 @@ fi
 %{_mandir}/man8/mountd.8*
 %{_mandir}/man8/nfsd.8*
 %{_mandir}/man8/nfsstat.8*
-%{_mandir}/man8/nhfsgraph.8*
-%{_mandir}/man8/nhfsnums.8*
-%{_mandir}/man8/nhfsrun.8*
-%{_mandir}/man8/nhfsstone.8*
 %{_mandir}/man8/rpc.mountd.8*
 %{_mandir}/man8/rpc.nfsd.8*
 %{_mandir}/man8/gssd.8*
@@ -335,14 +321,14 @@ fi
 
 %files clients
 %defattr(-,root,root)
-/sbin/rpc.lockd
+/sbin/mount.nfs
+/sbin/mount.nfs4
+/sbin/umount.nfs
+/sbin/umount.nfs4
 /sbin/rpc.statd
 %{_sbindir}/showmount
-%{_mandir}/man8/lockd.8*
-%{_mandir}/man8/rpc.lockd.8*
-%{_mandir}/man8/rpc.statd.8*
-%{_mandir}/man8/statd.8*
-%{_mandir}/man8/showmount.8*
+%{_sbindir}/sm-notify
+%{_sbindir}/start-statd
 %dir %{_localstatedir}/nfs
 %dir %{_localstatedir}/nfs/state
 %dir %{_localstatedir}/nfs/v4recovery
@@ -354,6 +340,19 @@ fi
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/nfs.statd/log/run
 %dir %attr(0750,root,admin) %{_srvdir}/nfs.statd/depends
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/nfs.statd/depends/portmap
+%{_mandir}/man5/nfs.5*
+%{_mandir}/man8/gssd.8*
+%{_mandir}/man8/idmapd.8*
+%{_mandir}/man8/mount.nfs.8*
+%{_mandir}/man8/rpc.gssd.8*
+%{_mandir}/man8/rpc.idmapd.8*
+%{_mandir}/man8/rpc.sm-notify.8*
+%{_mandir}/man8/rpc.statd.8*
+%{_mandir}/man8/sm-notify.8*
+%{_mandir}/man8/statd.8*
+%{_mandir}/man8/showmount.8*
+%{_mandir}/man8/umount.nfs.8*
+
 
 %files doc
 %defattr(-,root,root)
@@ -363,6 +362,15 @@ fi
 
 
 %changelog
+* Mon Sep 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.1.0
+- 1.1.0
+- sync patches with Mandriva (1.0.12-9mdv)
+- drop old obsoletes/provides of knfsd
+- requires a new librpcsecgss
+- consolidate multiple options to rpc.statd in a single STATD_OPTIONS
+  file
+- put /etc/exports here instead of setup and conflict accordingly
+
 * Sat Apr 28 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0.10
 - fix nfs.mountd's runscript to use the right $RPCNFSDCOUNT variable
 
