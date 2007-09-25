@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		librpcsecgss
-%define version		0.15
+%define version		0.16
 %define release		%_revrel
 
 %define	major		2
@@ -112,6 +112,9 @@ This package contains the documentation for %{name}.
 
 
 %changelog
+* Mon Sep 24 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.16
+- 0.16
+
 * Fri Sep 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.15
 - 0.15; contains fix for CVE-2007-3999
 - implement devel naming policy
