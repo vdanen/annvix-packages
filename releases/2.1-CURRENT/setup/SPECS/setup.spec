@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		setup
-%define version 	2.8
+%define version 	2.9
 %define release 	%_revrel
 
 Summary:	A set of system configuration and setup files
@@ -45,7 +45,6 @@ make install RPM_BUILD_ROOT=%{buildroot} mandir=%{_mandir}
 
 rm -rf %{buildroot}%{_datadir}/base-passwd %{buildroot}%{_sbindir}
 rm -f  `find %{buildroot}%{_mandir} -name 'update-passwd*'`
-mkdir -p %{buildroot}/var/lib/rsbac
 
 # remove unwanted locale files
 rm -rf %{buildroot}%{_mandir}/{cs,et,eu,fr,uk}
@@ -88,7 +87,6 @@ fi
 %{_mandir}/man8/*8*
 /usr/bin/run-parts
 %config(noreplace) /etc/services
-%config(noreplace) /etc/exports
 %config(noreplace) /etc/inputrc
 %config(noreplace) /etc/filesystems
 %config(noreplace) /etc/host.conf
@@ -110,10 +108,14 @@ fi
 %dir /etc/profile.d
 %config(noreplace) /etc/profile.d/*
 %verify(not md5 size mtime) /var/log/lastlog
-%attr(0700,rsbadmin,rsbadmin) %dir /var/lib/rsbac
 
 
 %changelog
+* Mon Sep 24 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.9
+- 2.9
+- /etc/exports is no longer provided (in nfs-utils instead)
+- drop the rsbac stuff too
+
 * Sat Jan 13 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.8
 - change the urls in motd
 
