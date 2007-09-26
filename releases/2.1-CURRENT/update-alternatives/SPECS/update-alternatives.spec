@@ -11,7 +11,7 @@
 
 %define revision	$Rev$
 %define name		update-alternatives
-%define version		1.8.4
+%define version		1.9.0
 %define release		%_revrel
 
 Summary:	Alternative management system
@@ -20,9 +20,9 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		System/Configuration
-URL:		http://cvs.mandriva.com/cgi-bin/cvsweb.cgi/soft/update-alternatives/
+URL:		http://svn.mandriva.com/cgi-bin/viewvc.cgi/soft/update-alternatives/
 Source0:	%{name}-%{version}.tar.bz2
-Patch0:		update-alternatives-1.8.4-avx-annvix.patch
+Patch0:		update-alternatives-1.9.0-avx-annvix.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
@@ -36,16 +36,19 @@ Debian but has been patched by Mandriva for use with rpm systems.
 
 %prep
 %setup -q
-%patch0 -p1 -b .avx
+%patch0 -p0 -b .avx
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-%make install DESTDIR=%{buildroot} prefix=%{_prefix}
+%makeinstall
 
 mkdir -p %{buildroot}%{_sysconfdir}/alternatives
 mkdir -p %{buildroot}%{_localstatedir}/rpm/alternatives
+
+(cd %{buildroot}%{_localstatedir} && ln -s rpm/alternatives alternatives)
+(cd %{buildroot}%{_sbindir} && ln -s update-alternatives alternatives)
 
 
 %clean
@@ -54,13 +57,20 @@ mkdir -p %{buildroot}%{_localstatedir}/rpm/alternatives
 
 %files
 %defattr(-,root,root)
-%dir %{_sysconfdir}/alternatives
+%{_sbindir}/alternatives
 %{_sbindir}/update-alternatives
 %{_mandir}/man8/update-alternatives.8*
+%dir %{_localstatedir}/alternatives
 %dir %{_localstatedir}/rpm/alternatives
+%dir %{_sysconfdir}/alternatives
 
 
 %changelog
+* Tue Sep 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.9.0
+- 1.9.0
+- fix URL
+- updated P0
+
 * Sat Jun 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.8.4
 - 1.8.4
 - P0 to remove Mandriva references
