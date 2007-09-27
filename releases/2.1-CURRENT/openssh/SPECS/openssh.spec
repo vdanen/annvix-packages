@@ -337,7 +337,7 @@ popd >/dev/null 2>&1
 
 
 %changelog
-* Thu Sep 27 2007 Ying-Hung Chen <ying-at-yingternet.com> 4.7777777p1
+* Thu Sep 27 2007 Ying-Hung Chen <ying-at-yingternet.com> 4.7p1
 - 4.7p1
 - Update Patch1
 
