@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		openssh
-%define version		4.6p1
+%define version		4.7p1
 %define release 	%_revrel
 
 Summary:	OpenSSH free Secure Shell (SSH) implementation
@@ -30,7 +30,7 @@ Source6:	ssh-client.sh
 Source8:	sshd.run
 Source9:	sshd-log.run
 Source10:	convert_known_hosts-4.0.pl
-Patch1:		openssh-4.3p1-avx-annvixconf.patch
+Patch1:		openssh-4.7p1-avx-annvixconf.patch
 # authorized by Damien Miller <djm@openbsd.com>
 Patch2:		openssh-3.1p1-mdk-check-only-ssl-version.patch
 
@@ -128,7 +128,7 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
-%patch1 -p0 -b .avx
+%patch1 -p1 -b .avx
 %patch2 -p1 -b .ssl_ver
 
 
@@ -337,6 +337,10 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Thu Sep 27 2007 Ying-Hung Chen <ying-at-yingternet.com> 4.7777777p1
+- 4.7p1
+- Update Patch1
+
 * Tue May 01 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.6p1
 - 4.6p1
 - versioned provides
