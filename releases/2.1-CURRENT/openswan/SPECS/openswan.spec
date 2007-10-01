@@ -139,6 +139,9 @@ rm -rf %{buildroot}%{_sysconfdir}/%{name}/ipsec.d/examples
 
 
 %changelog
+* Sun Sep 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.4.7
+- rebuild against new pam
+
 * Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.4.7
 - 2.4.7
 - rebuild against new pam
