@@ -16,7 +16,7 @@ Summary:	A user-friendly file manager and visual shell
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-License:	GPL
+License:	GPLv2+
 Group:		File Tools
 URL:		http://www.ibiblio.org/mc/
 Source0:	ftp://ftp.gnome.org:/pub/GNOME/stable/sources/mc/%{name}-%{version}.tar.bz2
@@ -24,6 +24,8 @@ Patch0:		mc-4.6.1-fdr-utf8.patch
 Patch1:		mc-4.6.1-rpm_obsolete_tags.patch
 Patch2:		mc-4.6.1-mdv-bash32.patch
 Patch3:		mc-4.6.1-mdv-slang2.patch
+Patch4:		mc-4.6.1-mdv-tempfiles.patch
+Patch5:		mc-4.6.1-mdv-2gb.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	libext2fs-devel
@@ -54,6 +56,8 @@ This package contains the documentation for %{name}.
 %patch1 -p1 -b .rpm_obsolete_tags
 %patch2 -p0 -b .bash32
 %patch3 -p0 -b .slang2
+%patch4 -p1 -b .tempfiles
+%patch5 -p1 -b .2gb
 
 
 %build
@@ -136,6 +140,13 @@ rm -rf %{buildroot}%{_datadir}/locale
 
 
 %changelog
+* Mon Oct 01 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.6.1
+- P4: fix bug that leaves temporary files lying around (upstrem bug
+  #13953)
+- P5: fix a bug that prevents >2GB ssh file transfers from working (upstream
+  bug #15524)
+- rebuild against new pam
+
 * Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.6.1
 - P2: fix build against recent bash
 - P3: fix build against new slang
