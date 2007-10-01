@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		spec-helper
-%define version 	0.24
+%define version 	0.27.2
 %define release 	%_revrel
 
 %define distrib		Annvix
@@ -22,7 +22,6 @@ License:	GPL
 Group:		Development/Other
 URL:		http://www.mandriva.com
 Source0:	%{name}-%{version}.tar.bz2
-Patch0:		spec-helper-0.24-avx-pam_symlink_fix.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
@@ -48,12 +47,6 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
-%patch0 -p0
-# without the following, make has a hard time... stupid mkrel
-perl -pi -e 's|%%mkrel||g' spec-helper.spec
-
-
-%build
 
 
 %install
@@ -73,10 +66,14 @@ make install DESTDIR=%{buildroot} bindir=%{_bindir} rpmmacrosdir=%{_sys_macros_d
 
 %files doc
 %defattr(-,root,root)
-%doc AUTHORS Howto-spec-helper ChangeLog
+%doc AUTHORS README NEWS
 
 
 %changelog
+* Mon Oct 01 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.27.2
+- 0.27.2
+- drop P0; fixed upstream
+
 * Sat Jul 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.24
 - 0.24
 - P0: fix issue where pam.d/* symlinks would be turned into regular
