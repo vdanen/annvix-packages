@@ -626,6 +626,9 @@ fi
 
 
 %changelog
+* Sun Sep 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.2.5
+- rebuild against new pam
+
 * Sun Sep 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.2.5
 - 8.2.5
 - implement devel naming policy
