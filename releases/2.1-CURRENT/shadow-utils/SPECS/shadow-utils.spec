@@ -222,6 +222,9 @@ rm -rf %{buildroot}%{_libdir}
 
 
 %changelog
+* Sun Sep 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.0.12
+- rebuild against new pam
+
 * Sat Jun 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.0.12
 - P9: don't leave lock files lying around (Mandriva)
 
