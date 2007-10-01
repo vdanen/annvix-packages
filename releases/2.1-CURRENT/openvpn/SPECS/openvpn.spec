@@ -149,6 +149,9 @@ install -m 0644 %{_sourcedir}/06_openvpn.afterboot %{buildroot}%{_datadir}/after
 
 
 %changelog
+* Sun Sep 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0.9
+- rebuild against new pam
+
 * Mon May 07 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0.9
 - 2.0.9
 - provide default runscripts
