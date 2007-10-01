@@ -1,7 +1,7 @@
-diff -urN squid-2.5.STABLE1/src/cf.data.pre squid-2.5.STABLE1-modified/src/cf.data.pre
---- squid-2.5.STABLE1/src/cf.data.pre	2002-09-04 15:35:01.000000000 +0200
-+++ squid-2.5.STABLE1-modified/src/cf.data.pre	2002-10-18 15:59:46.000000000 +0200
-@@ -2071,7 +2071,7 @@
+diff -Naur squid-2.6.STABLE16/src/cf.data.pre squid-2.6.STABLE16.oden/src/cf.data.pre
+--- squid-2.6.STABLE16/src/cf.data.pre	2007-09-05 23:50:15.000000000 +0200
++++ squid-2.6.STABLE16.oden/src/cf.data.pre	2007-09-06 09:34:46.000000000 +0200
+@@ -692,7 +692,7 @@
  #http_access allow our_networks
  
  # And finally deny all other access to this proxy
@@ -10,16 +10,7 @@ diff -urN squid-2.5.STABLE1/src/cf.data.pre squid-2.5.STABLE1-modified/src/cf.da
  NOCOMMENT_END
  DOC_END
  
-@@ -2286,7 +2286,7 @@
- 
- NAME: cache_mgr
- TYPE: string
--DEFAULT: webmaster
-+DEFAULT: root
- LOC: Config.adminEmail
- DOC_START
- 	Email-address of local cache manager who will receive
-@@ -2526,7 +2526,7 @@
+@@ -2250,7 +2250,7 @@
  
  NAME: logfile_rotate
  TYPE: int
@@ -28,7 +19,16 @@ diff -urN squid-2.5.STABLE1/src/cf.data.pre squid-2.5.STABLE1-modified/src/cf.da
  LOC: Config.Log.rotateNumber
  DOC_START
  	Specifies the number of logfile rotations to make when you
-@@ -3060,7 +3060,18 @@
+@@ -3342,7 +3342,7 @@
+ 
+ NAME: cache_mgr
+ TYPE: string
+-DEFAULT: webmaster
++DEFAULT: root
+ LOC: Config.adminEmail
+ DOC_START
+ 	Email-address of local cache manager who will receive
+@@ -4405,12 +4405,22 @@
  	If you wish to create your own versions of the default
  	(English) error files, either to customize them to suit your
  	language or company copy the template English files to another
@@ -42,20 +42,24 @@ diff -urN squid-2.5.STABLE1/src/cf.data.pre squid-2.5.STABLE1-modified/src/cf.da
 +	either to customize them to suit your language or company,
 +	copy the template English files to another
  	directory and point this tag at them.
-+
+ 
+ 	The squid developers are interested in making squid available in
+ 	a wide variety of languages. If you are making translations for a
+ 	langauge that Squid does not currently provide please consider
+ 	contributing your translation back to the project.
 +error_directory @DEFAULT_ERROR_DIR@
  DOC_END
  
- NAME: minimum_retry_timeout
-diff -urN squid-2.5.STABLE1/src/defines.h squid-2.5.STABLE1-modified/src/defines.h
---- squid-2.5.STABLE1/src/defines.h	2002-08-08 22:17:39.000000000 +0200
-+++ squid-2.5.STABLE1-modified/src/defines.h	2002-10-18 16:00:34.000000000 +0200
-@@ -219,7 +219,7 @@
+ NAME: error_map
+diff -Naur squid-2.6.STABLE16/src/defines.h squid-2.6.STABLE16.oden/src/defines.h
+--- squid-2.6.STABLE16/src/defines.h	2007-02-03 23:58:20.000000000 +0100
++++ squid-2.6.STABLE16.oden/src/defines.h	2007-09-06 09:35:22.000000000 +0200
+@@ -259,7 +259,7 @@
  
  /* were to look for errors if config path fails */
  #ifndef DEFAULT_SQUID_ERROR_DIR
 -#define DEFAULT_SQUID_ERROR_DIR "/usr/local/squid/etc/errors"
-+#define DEFAULT_SQUID_ERROR_DIR "/usr/squid/errors"
++#define DEFAULT_SQUID_ERROR_DIR "/etc/squid/errors"
  #endif
  
  /* gb_type operations */

@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		squid
-%define version		2.6.STABLE3
+%define version		2.6.STABLE16
 %define release		%_revrel
 
 ## Redefine configure values.
@@ -25,7 +25,7 @@ Release:	%{release}
 License:	GPL
 Group:		System/Servers
 URL:		http://www.squid-cache.org
-Source0:	ftp://ftp.squid-cache.org/pub/squid-2/STABLE/%{name}-%{version}.tar.bz2
+Source0:	ftp://ftp.squid-cache.org/pub/squid-2/STABLE/%{name}-%{version}.tar.gz
 Source1:	squid.logrotate
 Source2:	squid.conf.authenticate
 Source3:	smb.conf
@@ -36,8 +36,9 @@ Source7:	squid.run
 Source8:	squid-log.run
 Source9:	squid.stop
 Source10:	squid.sysconfig
+Source11:	squid.pamd
 Patch0:		squid-2.6.STABLE5-avx-make.patch
-Patch1:		squid-2.5-config.patch
+Patch1:		squid-2.6-mdv-config.patch
 Patch2:		squid-2.5.STABLE7-avx-user_group.patch
 Patch3:		squid-2.5.STABLE2-ssl.patch
 Patch4: 	http://dansguardian.org/downloads/squid-xforward_logging.patch
@@ -45,9 +46,6 @@ Patch5: 	squid-2.6.STABLE1-db4.diff
 Patch6: 	squid-2.6.STABLE1-visible_hostname.diff
 Patch7: 	squid-2.6.STABLE-smb-auth.diff
 Patch8:		squid-2.6.STABLE1-getconf_mess.diff
-Patch9:		squid-2.6.STABLE6-CVE-2007-0247.patch
-Patch10:	squid-2.6.STABLE6-CVE-2007-0248.patch
-Patch11:	squid-2.6.STABLE6-auth_ntlm_max_user_ip.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	openldap-devel
@@ -95,9 +93,6 @@ This package contains the documentation for %{name}.
 %patch6 -p0 -b .visible_hostname
 %patch7 -p0 -b .backslashes
 %patch8 -p0 -b .getconf
-%patch9 -p0 -b .cve-2007-0247
-%patch10 -p1 -b .cve-2007-0248
-%patch11 -p1 -b .bug1792
 
 perl -p -i -e "s|^SAMBAPREFIX.*|SAMBAPREFIX = /usr|" helpers/basic_auth/SMB/Makefile.in
 perl -p -i -e "s|^icondir.*|icondir = \\$\(libexecdir\)/icons|" icons/Makefile.am icons/Makefile.in
@@ -227,18 +222,7 @@ cp %{_sourcedir}/rc.firewall rc.firewall
 mkdir -p %{buildroot}/%{_libexecdir}/errors/English
 cp %{_sourcedir}/ERR_CUSTOM_ACCESS_DENIED.English %{buildroot}/%{_libexecdir}/errors/English/ERR_CUSTOM_ACCESS_DENIED
 
-strip %{buildroot}/%{_libexecdir}/{msnt_auth,pam_auth,unlinkd,diskd}
-strip %{buildroot}/%{_libexecdir}/{ncsa_auth,smb_auth,squid_ldap_auth,yp_auth}
-
-cat >> %{buildroot}/etc/pam.d/squid <<EOF
-#%PAM-1.0
-auth		include		system-auth
-auth		required	pam_nologin.so
-account		include		system-auth
-password	include		system-auth
-session		include		system-auth
-session		required	pam_limits.so
-EOF
+cp %{_sourcedir}/squid.pamd %{buildroot}/etc/pam.d/squid
 
 mkdir -p %{buildroot}/var/log/squid
 mkdir -p %{buildroot}/var/spool/squid
@@ -327,6 +311,13 @@ fi
 
 
 %changelog
+* Sun Sep 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.STABLE16
+- 2.6.STABLE16
+- updated P1
+- drop P9, P10, P11: fixed upstream
+- don't manually strip files
+- make the squid pam config an external source file
+
 * Tue Jan 23 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.STABLE3
 - P9: security fix for CVE-2007-0247
 - P10: security fix for CVE-2007-0248
