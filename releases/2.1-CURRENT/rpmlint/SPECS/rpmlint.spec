@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		rpmlint
-%define version 	0.80
+%define version 	0.81
 %define release 	%_revrel
 
 Summary:	RPM correctness checker
@@ -84,6 +84,10 @@ touch %{buildroot}%{_datadir}/rpmlint/GROUPS
 
 
 %changelog
+* Mon Oct 01 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.81
+- 0.81
+- updated config
+
 * Tue May 01 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.80
 - 0.80
 - updated config
