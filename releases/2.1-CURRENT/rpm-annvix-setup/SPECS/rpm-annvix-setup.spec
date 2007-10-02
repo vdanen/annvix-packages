@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		rpm-annvix-setup
-%define version		1.26.2
+%define version		1.27
 %define release		%_revrel
 
 Summary:	The Annvix rpm configuration and scripts
@@ -66,6 +66,11 @@ make test
 
 %files
 %defattr(-,root,root)
+%{_bindir}/rpmgenplatform
+%config(noreplace) %{_sysconfdir}/rpm/platform  
+%ifarch x86_64
+%config(noreplace) %{_sysconfdir}/rpm/platform32
+%endif
 %dir %{_prefix}/lib/rpm/annvix
 %{_prefix}/lib/rpm/annvix/rpmrc
 %{_prefix}/lib/rpm/annvix/macros
@@ -84,6 +89,9 @@ make test
 
 
 %changelog
+* Mon Oct 01 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.27
+- 1.27: many fixes and updates
+
 * Sat Aug 18 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.26.2
 - 1.26.2: fixed serverbuild macro
 
