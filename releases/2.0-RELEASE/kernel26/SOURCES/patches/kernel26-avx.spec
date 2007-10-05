@@ -952,6 +952,9 @@ exit 0
 
 
 %changelog
+* Fri Oct 05 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.53
+- smp and build kernels now support 64GB RAM, and up/BOOT kernels support 4GB
+
 * Sat Aug 18 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.53
 - 2.6.16.53: various fixes and security fix for CVE-2007-2876
 
