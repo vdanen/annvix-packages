@@ -12,7 +12,7 @@
 %define kernelver	2
 %define patchlevel	6
 %define sublevel	16
-%define minlevel	52
+%define minlevel	53
 %define avxrelease	%(echo %{revision}|cut -d ' ' -f 2)
 
 %define tar_version	%{kernelver}.%{patchlevel}.%{sublevel}.%{minlevel}
@@ -952,6 +952,10 @@ exit 0
 
 
 %changelog
+* Thu Oct 04 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.53
+- 2.6.16.53; fixes CVE-2007-2876 amongst other issues
+- smp and build kernels now support 64GB RAM, and up/BOOT kernels support 4GB
+
 * Fri Jun 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.52
 - 2.6.16.52
 - updated SL60 (AppArmor fullseries v405)

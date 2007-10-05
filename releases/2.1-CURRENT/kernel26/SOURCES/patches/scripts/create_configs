@@ -26,10 +26,10 @@ my $configs_dir="";
 my @archs = qw(i386 x86_64);
 
 my @configs = (
-     [ qw(i586 up  1GB  up) ],
-     [ qw(i586 smp 4GB  smp) ],
-     [ qw(i586 smp 4GB  build) ],
-     [ qw(i586 up  1GB  BOOT) ],
+     [ qw(i586 up  4GB  up) ],
+     [ qw(i586 smp 64GB  smp) ],
+     [ qw(i586 smp 64GB  build) ],
+     [ qw(i586 up  4GB  BOOT) ],
 
      [ qw(x86_64 up  none up) ],
      [ qw(x86_64 smp none smp) ],
@@ -624,8 +624,12 @@ sub config_x86_highmem {
         $values{HIGHMEM4G}= "y" ;
         $values{HIGHMEM64G}= "n" ;
         $values{HIGHPTE}= "n";
-    } else {# 64GB
-        # nothnig yet 
+    } elsif ($mem eq "64GB" ) {   
+        $values{HIGHMEM4G}= "n" ;
+        $values{HIGHMEM64G}= "y" ;
+        $values{HIGHPTE}= "n";
+    } else {
+        # nothing yet 
     }
 }
 
