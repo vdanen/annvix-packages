@@ -9,19 +9,13 @@
 
 %define revision	$Rev$
 %define name		libtool
-%define version		1.5.20
+%define version		1.5.22
 %define release		%_revrel
 
 %define major		3
 %define libname		%mklibname ltdl %{major}
 %define devname		%mklibname ltdl -d
 %define odevname	%mklibname ltdl 3 -d
-
-%define gcc_ver		%(gcc -dumpversion)
-
-# do "make check" by default
-%define do_check 	1
-%{?_without_check: %global do_check 0}
 
 # define biarch platforms
 %define biarches 	x86_64 ppc64 sparc64
@@ -53,7 +47,9 @@ Patch2:		libtool-1.5.6-ltmain-SED.patch
 Patch3:		libtool-1.5.6-libtoolize--config-only.patch
 Patch4:		libtool-1.5.6-test-dependency.patch
 Patch5:		libtool-1.5-testfailure.patch
-Patch6:		libtool-1.5.6-old-libtool.patch
+Patch6:		libtool-1.5.22-mdv-old-libtool.patch
+Patch7:		libtool-1.5.22-mdv-fix-link.test.patch
+Patch8:		libtool-1.5.22-fdr-anygcc.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	automake1.8
@@ -63,7 +59,6 @@ BuildRequires:	setarch
 %endif
 
 Requires:	file
-Requires:	gcc = %{gcc_ver}
 Requires:	sed
 Requires(post):	info-install
 Requires(preun): info-install
@@ -78,8 +73,9 @@ libraries.
 
 
 %package -n %{libname}
-Group:		Development/C
 Summary:	Shared library files for libtool
+Group:		Development/C
+License:	LGPL
 Provides:	libltdl = %{version}-%{release}
 
 %description -n %{libname}
@@ -87,8 +83,9 @@ Shared library files for libtool DLL library from the libtool package.
 
 
 %package -n %{devname}
-Group:		Development/C
 Summary:	Development files for libtool
+Group:		Development/C
+License:	LGPL
 Requires:	%{name} = %{version}
 Requires:	%{libname} = %{version}
 Provides:	libltdl-devel = %{version}-%{release}
@@ -116,6 +113,8 @@ This package contains the documentation for %{name}.
 %patch4 -p1 -b .test-dependency
 %patch5 -p1
 %patch6 -p1 -b .old-libtool
+%patch7 -p1 -b .fix_test.link
+%patch8 -p1 -b .anygcc
 
 ACLOCAL=aclocal-1.8 AUTOMAKE=automake-1.8 ./bootstrap
 
@@ -139,27 +138,26 @@ popd
 %endif
 
 mkdir -p build-%{_target_cpu}-%{_target_os}
-    pushd build-%{_target_cpu}-%{_target_os}
+pushd build-%{_target_cpu}-%{_target_os}
     CONFIGURE_TOP=.. %configure2_5x
     make
+popd
 
-    %if %{do_check}
+
+%check
+pushd build-%{_target_cpu}-%{_target_os}
+    # this README is required or make check fails
+    touch libltdl/README
     set +x
     echo ====================TESTING=========================
     set -x
-    #%ifarch ia64
-    # - ia64: SIGILL when running hellodl
-    #make check || echo make check failed
-    #%else
     # all tests must pass here
     make check
-    #%endif
     set +x
     echo ====================TESTING END=====================
     set -x
 
     make -C demo clean
-    %endif
 popd
 
 
@@ -224,10 +222,19 @@ mv libltdl/README libltdl/README.libltdl
 
 %files doc
 %doc demo libltdl/README.libltdl
-%doc AUTHORS INSTALL NEWS README THANKS TODO ChangeLog*
+%doc AUTHORS INSTALL NEWS README THANKS TODO
 
 
 %changelog
+* Sat Oct 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.5.22
+- 1.5.22
+- libs are LGPL licensed
+- updated P6 from Mandriva
+- P7: fix link.test check (Mandriva)
+- P8: detect gcc path at runtime instead of requiring a specific version (Fedora)
+- don't package changelogs; we have NEWS
+- use %%check
+
 * Sat Jun 23 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.5.20
 - implement devel naming policy
 - implement library provides policy
