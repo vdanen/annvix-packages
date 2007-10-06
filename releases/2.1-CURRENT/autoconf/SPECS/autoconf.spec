@@ -41,7 +41,7 @@ Requires:	perl
 Requires:	perl(MDK::Common)
 Obsoletes:	autoconf2.5
 Provides:	autoconf2.5 = %{epoch}:%{version}-%{release}
-Conflicts:	autoconf 2.1 < 1:2.13-7756avx
+Conflicts:	autoconf2.1 < 1:2.13-7756avx
 
 # for tests
 %if %{docheck}
