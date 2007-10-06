@@ -28,6 +28,7 @@ Group:		Development/Other
 URL:		http://sources.redhat.com/automake/
 Source:		ftp://ftp.gnu.org/gnu/automake/automake-%{version}.tar.bz2
 Patch0:		automake-1.7.9-infofiles.patch
+Patch1:		automake-1.7.9-mdv-new-autoconf-and-gettext.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
@@ -66,6 +67,7 @@ This package contains the documentation for %{name}.
 %prep
 %setup -q -n automake-%{version}
 %patch0 -p0 -b .parallel
+%patch1 -p1 -b .autoconf_gettext
 
 
 %build
@@ -128,6 +130,9 @@ update-alternatives --remove automake %{_bindir}/automake-%{amversion}
 
 
 %changelog
+* Sat Oct 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.7.9
+- P1: fix build against new autoconf and gettext (Mandriva)
+
 * Tue May 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.7.9
 - add -doc subpackage
 - remove alternatives and provides for 'automake'
