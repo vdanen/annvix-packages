@@ -107,6 +107,9 @@ update-alternatives --remove automake %{_bindir}/automake-%{amversion}
 
 
 %changelog
+* Sat Oct 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.4p6
+- rebuild
+
 * Tue May 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4p6
 - add -doc subpackage
 
