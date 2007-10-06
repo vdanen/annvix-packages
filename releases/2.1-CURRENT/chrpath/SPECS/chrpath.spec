@@ -67,6 +67,9 @@ rm -fr %{buildroot}%{_prefix}/doc
 
 
 %changelog
+* Sat Oct 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.13
+- rebuild
+
 * Tue May 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.13
 - add -doc subpackage
 - rebuild with gcc4
