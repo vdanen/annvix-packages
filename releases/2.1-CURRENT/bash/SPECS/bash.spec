@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		bash
-%define version		3.1
+%define version		3.2
 %define release		%_revrel
 
 %define i18ndate 	20010626
@@ -30,10 +30,10 @@ Source2:	dot-bashrc
 Source3:	dot-bash_profile
 Source4:	dot-bash_logout
 Source5:	alias.sh
+Source6:	bashrc
 Patch0:		bash-2.02-security.patch
 Patch1:		bash-2.03-profile.patch
 Patch2:		bash-2.04-compat.patch
-Patch3:		bash-2.05-s390x-unwind.patch
 Patch4:		bash-2.05b-dietlibc.patch
 Patch5:		bash-2.05b-builtins.patch
 Patch6:		bash-2.05b-disable-nontrivial-matches.patch
@@ -41,23 +41,23 @@ Patch7:		bash-strcoll-bug.diff
 Patch8:		bash-2.05b-checkwinsize.patch
 Patch9:		bash-3.1-extended_quote.patch
 # upstream bugfixes
-Patch20:	ftp://ftp.cwru.edu/pub/bash/bash-3.1-patches/bash31-001
-Patch21:	ftp://ftp.cwru.edu/pub/bash/bash-3.1-patches/bash31-002
-Patch22:	ftp://ftp.cwru.edu/pub/bash/bash-3.1-patches/bash31-003
-Patch23:	ftp://ftp.cwru.edu/pub/bash/bash-3.1-patches/bash31-004
-Patch24:	ftp://ftp.cwru.edu/pub/bash/bash-3.1-patches/bash31-005
-Patch25:	ftp://ftp.cwru.edu/pub/bash/bash-3.1-patches/bash31-006
-Patch26:	ftp://ftp.cwru.edu/pub/bash/bash-3.1-patches/bash31-007
-Patch27:	ftp://ftp.cwru.edu/pub/bash/bash-3.1-patches/bash31-008
-Patch28:	ftp://ftp.cwru.edu/pub/bash/bash-3.1-patches/bash31-009
-Patch29:	ftp://ftp.cwru.edu/pub/bash/bash-3.1-patches/bash31-010
-Patch30:	ftp://ftp.cwru.edu/pub/bash/bash-3.1-patches/bash31-011
-Patch31:	ftp://ftp.cwru.edu/pub/bash/bash-3.1-patches/bash31-012
-Patch32:	ftp://ftp.cwru.edu/pub/bash/bash-3.1-patches/bash31-013
-Patch33:	ftp://ftp.cwru.edu/pub/bash/bash-3.1-patches/bash31-014
-Patch34:	ftp://ftp.cwru.edu/pub/bash/bash-3.1-patches/bash31-015
-Patch35:	ftp://ftp.cwru.edu/pub/bash/bash-3.1-patches/bash31-016
-Patch36:	ftp://ftp.cwru.edu/pub/bash/bash-3.1-patches/bash31-017
+Patch20:	ftp://ftp.gnu.org/gnu/bash/bash-3.2-patches/bash32-001
+Patch21:	ftp://ftp.gnu.org/gnu/bash/bash-3.2-patches/bash32-002
+Patch22:	ftp://ftp.gnu.org/gnu/bash/bash-3.2-patches/bash32-003
+Patch23:	ftp://ftp.gnu.org/gnu/bash/bash-3.2-patches/bash32-004
+Patch24:	ftp://ftp.gnu.org/gnu/bash/bash-3.2-patches/bash32-005
+Patch25:	ftp://ftp.gnu.org/gnu/bash/bash-3.2-patches/bash32-006
+Patch26:	ftp://ftp.gnu.org/gnu/bash/bash-3.2-patches/bash32-007
+Patch27:	ftp://ftp.gnu.org/gnu/bash/bash-3.2-patches/bash32-008
+Patch28:	ftp://ftp.gnu.org/gnu/bash/bash-3.2-patches/bash32-009
+Patch29:	ftp://ftp.gnu.org/gnu/bash/bash-3.2-patches/bash32-010
+Patch30:	ftp://ftp.gnu.org/gnu/bash/bash-3.2-patches/bash32-011
+Patch31:	ftp://ftp.gnu.org/gnu/bash/bash-3.2-patches/bash32-012
+Patch32:	ftp://ftp.gnu.org/gnu/bash/bash-3.2-patches/bash32-013
+Patch33:	ftp://ftp.gnu.org/gnu/bash/bash-3.2-patches/bash32-014
+Patch34:	ftp://ftp.gnu.org/gnu/bash/bash-3.2-patches/bash32-015
+Patch35:	ftp://ftp.gnu.org/gnu/bash/bash-3.2-patches/bash32-016
+Patch36:	ftp://ftp.gnu.org/gnu/bash/bash-3.2-patches/bash32-017
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5
@@ -68,6 +68,7 @@ Requires(post):	info-install
 Requires(preun): info-install
 Conflicts:	etcskel <= 1.63-11mdk
 Conflicts:	fileutils < 4.1-5mdk
+Conflicts:	setup < 2.9.1
 
 %description
 Bash is a GNU project sh-compatible shell or command language
@@ -98,9 +99,6 @@ mv doc/README .
 %patch0 -p1 -b .security
 %patch1 -p1 -b .profile
 %patch2 -p1 -b .compat
-%ifarch s390x
-%patch3 -p1 -b .s390x
-%endif
 %patch4 -p1 -b .dietlibc
 %patch5 -p0 -b .fix_so
 %patch6 -p0
@@ -220,16 +218,17 @@ cat man.pages |tr -s ' ' '\n' |sed '
 1i\
 %defattr(0644,root,root,0755)
 s:^:%{_mandir}/man1/:
-s/$/.1.bz2/
+s/$/.1%{_extension}/
 ' > ../man.pages
 
-perl -p -i -e 's!.*/(printf|export|echo|pwd|test|kill).1.bz2!!' ../man.pages
+perl -p -i -e 's!.*/(printf|export|echo|pwd|test|kill).1%{_extension}!!' ../man.pages
 
 mkdir -p %{buildroot}%{_sysconfdir}/{skel,profile.d}
 install -m 0644 %{_sourcedir}/dot-bashrc %{buildroot}%{_sysconfdir}/skel/.bashrc
 install -m 0644 %{_sourcedir}/dot-bash_profile %{buildroot}%{_sysconfdir}/skel/.bash_profile
 install -m 0644 %{_sourcedir}/dot-bash_logout %{buildroot}%{_sysconfdir}/skel/.bash_logout
 install -m 0755 %{_sourcedir}/alias.sh %{buildroot}%{_sysconfdir}/profile.d/alias.sh
+install -m 0644 %{_sourcedir}/bashrc %{buildroot}%{_sysconfdir}/bashrc
 
 ln -s bash %{buildroot}/bin/rbash
 
@@ -239,6 +238,8 @@ rm -f %{buildroot}{%{_infodir}/dir,%{_mandir}/man1/{echo,export,kill,printf,pwd,
 cd ..
 
 install -m 0644 bash-dynamic/doc/bash.info %{buildroot}%{_infodir}/
+
+rm -rf %{buildroot}%{_datadir}/locale
 
 
 %clean
@@ -256,6 +257,7 @@ install -m 0644 bash-dynamic/doc/bash.info %{buildroot}%{_infodir}/
 %files -f man.pages
 %defattr(-,root,root)
 %config(noreplace) %{_sysconfdir}/skel/.b*
+%config(noreplace) %{_sysconfdir}/bashrc
 %{_sysconfdir}/profile.d/alias.sh
 /bin/rbash
 /bin/bash
@@ -277,6 +279,14 @@ install -m 0644 bash-dynamic/doc/bash.info %{buildroot}%{_infodir}/
 
 
 %changelog
+* Sat Oct 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.2
+- 3.2
+- updated upstream patches
+- drop P3; we don't care about s390x archs
+- use --color with {e,f,}grep by default
+- put /etc/bashrc here instead of in setup and update it from Mandriva
+- conflict on older setup packages
+
 * Fri Aug 04 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.1
 - need to require info-install
 - spec cleanups

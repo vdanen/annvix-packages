@@ -55,6 +55,10 @@ alias cp="cp -i"
 alias mv="mv -i"
 alias rm="rm -i"
 
+alias grep="grep --color"	# colored grep by default
+alias egrep="egrep --color"
+alias fgrep="fgrep --color"
+
 # Size of a directory (by default Human Readable).
 alias du='du -h'                              
                                               
