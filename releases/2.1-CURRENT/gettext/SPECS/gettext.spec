@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		gettext
-%define version 	0.16
+%define version 	0.16.1
 %define release 	%_revrel
 
 %define major		8
@@ -30,15 +30,15 @@ Patch0:		gettext-0.14.6-mdv-pic.patch
 Patch1:		gettext-0.14.2-charsets.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	autoconf2.5
+BuildRequires:	autoconf
 BuildRequires:	bison
 BuildRequires:	texinfo
-BuildRequires:	automake1.8
+BuildRequires:	automake
 BuildRequires:	flex
 
 Requires:	%{name}-base = %{version}-%{release}
 Requires:	%{libname} = %{version}-%{release}
-Requires:	%mklibname expat 0
+Requires:	%mklibname expat 1
 Requires(post):	info-install
 Requires(preun): info-install
 
@@ -69,8 +69,9 @@ This package contains the libintl library for the gettext package.
 
 %package devel
 Summary:	GNU libraries and utilities for producing multi-lingual messages
-Group:		Development/Other
+Group:		Development/C
 Requires:	%{name} = %{version}
+Requires:	cvs
 Requires(post):	info-install
 Requires(preun): info-install
 
@@ -111,7 +112,7 @@ sed -i -e 's/lang-java//' gettext-tools/tests/Makefile.in
     --with-included-gettext \
     --disable-csharp
 
-make
+%make
 
 
 %check
@@ -241,6 +242,13 @@ popd
 
 
 %changelog
+* Sat Oct 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.16.1
+- 0.16.1
+- use parallel make
+- autopoint requires cvs to work, so add a requires on the -devel package
+- require lib*expat1, not 0
+- update the buildrequires for autoconf/automake
+
 * Sat Dec 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.16
 - 0.16
 - make it obsolete and provide libintl3 as the two cannot coexist
