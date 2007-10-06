@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		setup
-%define version 	2.9
+%define version 	2.9.1
 %define release 	%_revrel
 
 Summary:	A set of system configuration and setup files
@@ -95,7 +95,6 @@ fi
 %config(noreplace) /etc/motd
 %config(noreplace) /etc/printcap
 %config(noreplace) /etc/profile
-%config(noreplace) /etc/bashrc
 %config(noreplace) /etc/shells
 %config(noreplace) /etc/protocols
 %attr(0644,root,root) %config(missingok,noreplace) /etc/securetty
@@ -111,6 +110,9 @@ fi
 
 
 %changelog
+* Sat Oct 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.9.1
+- 2.9.1: don't provide bashrc anymore, bash does
+
 * Mon Sep 24 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.9
 - 2.9
 - /etc/exports is no longer provided (in nfs-utils instead)
