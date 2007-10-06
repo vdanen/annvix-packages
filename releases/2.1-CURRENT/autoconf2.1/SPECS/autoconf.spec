@@ -13,9 +13,6 @@
 %define release 	%_revrel
 %define epoch		1
 
-# Factorize uses of autoconf libdir home and handle only one exception in rpmlint
-%define scriptdir	%{_datadir}/autotools
-
 # we need to patch out the 3 F77 tests before we can re-enable this
 %define docheck		0
 %{?_without_check: %global docheck 0}
@@ -29,7 +26,6 @@ License:	GPL
 Group:		Development/Other
 URL:		http://www.gnu.org/software/autoconf/
 Source:		ftp://ftp.gnu.org/pub/gnu/autoconf/autoconf-%{version}.tar.bz2
-Source3:	autoconf_special_readme2.1
 Patch0:		autoconf-2.12-race.patch
 Patch1:		autoconf-2.13-mawk.patch
 Patch2:		autoconf-2.13-notmp.patch
@@ -47,10 +43,7 @@ Requires(preun): info-install
 Requires:	gawk
 Requires:	m4
 Requires:	mktemp
-Requires:	%{scriptdir}/ac-wrapper.pl
 Conflicts:	autoconf2.5 <= 1:2.59-2avx
-Obsoletes:	autoconf <= 1:2.13-22avx
-Provides:	autoconf = %{epoch}:%{version}-%{release}
 # for tests
 %if %{docheck}
 BuildRequires:	bison
@@ -69,8 +62,6 @@ may be configuring software with an Autoconf-generated script;
 Autoconf is only required for the generation of the scripts, not
 their use.
 
-%{expand:%(cat %{_sourcedir}/autoconf_special_readme2.1)}
-
 
 %package doc
 Summary:	Documentation for %{name}
@@ -88,7 +79,6 @@ This package contains the documentation for %{name}.
 %patch3 -p0
 %patch4 -p1 -b .parallel
 %patch5 -p1 -b .automake14
-install -m 0644 %{_sourcedir}/autoconf_special_readme2.1 IMPORTANT.README.Annvix
 
 
 %build
@@ -134,10 +124,13 @@ cp install-sh %{buildroot}%{_datadir}/autoconf
 
 %files doc
 %defattr(-,root,root)
-%doc README IMPORTANT.README.Annvix
+%doc README
 
 
 %changelog
+* Sat Oct 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.13
+- drop support for the wrapper script so we can rename autoconf2.5 to autoconf
+
 * Tue May 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.13
 - add -doc subpackage
 - fix pre-req
