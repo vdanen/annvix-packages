@@ -1,5 +1,5 @@
 #
-# spec file for package automake1.8
+# spec file for package automake
 #
 # Package for the Annvix Linux distribution: http://annvix.org/
 #
@@ -8,12 +8,11 @@
 # $Id$
 
 %define revision	$Rev$
-%define name		automake%{pkgamversion}
-%define version 	1.9.6
+%define name		automake
+%define version 	1.10
 %define release 	%_revrel
 
-%define amversion	1.9
-%define pkgamversion	1.8
+%define amversion	1.10
 
 %define docheck		1
 %{?_without_check: %global docheck 0}
@@ -26,8 +25,7 @@ License:	GPL
 Group:		Development/Other
 URL:		http://sources.redhat.com/automake/
 Source0:	ftp://ftp.gnu.org/gnu/automake/automake-%{version}.tar.bz2
-Patch0:		automake-1.9.4-infofiles.patch
-Patch1:		automake-1.9.4-avx-skiptests.patch
+Patch1:		automake-1.10-avx-skiptests.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
@@ -40,16 +38,15 @@ BuildRequires:	flex
 BuildRequires:	python
 %endif
 
-Provides:	automake = %{version}-%{release}
+Provides:	automake1.8 = %{version}-%{release}
 Provides:	automake1.9 = %{version}-%{release}
 Conflicts:	automake1.5
-Conflicts:	automake < 1.4-0.p6.27avx
+Obsoletes:	automake1.8
 Obsoletes:	automake1.9
-Requires:	autoconf2.5 >= 1:2.59-3avx
+Requires:	autoconf >= 1:2.59-3avx
+Requires(pre):	update-alternatives
 Requires(post):	info-install
-Requires(post):	update-alternatives
 Requires(preun): info-install
-Requires(preun): update-alternatives
 
 %description
 Automake is a tool for automatically generating Makefiles compliant with
@@ -66,17 +63,16 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q -n automake-%{version}
-%patch0 -p1 -b .parallel
 %patch1 -p1 -b .skiptests
 
 
 %build
 # (Abel) config* don't understand noarch-annvix-linux-gnu arch
-%define _target_platform i586-annvix-linux-gnu
-
-%configure2_5x
+%configure2_5x --build=i586-%{_target_vendor}-%{_target_os}%{?_gnu}
 %make
 
+
+%check
 %if %{docheck}
 # (Abel) reqd2.test tries to make sure automake won't work if ltmain.sh
 # is not present. But automake behavior changed, now it can handle missing
@@ -85,63 +81,74 @@ perl -pi -e 's/reqd2.test//g' tests/Makefile
 make check	# VERBOSE=1
 %endif
 
-# (Abel) forcefully modify info filename, otherwise info page will refer to
-# old automake
-pushd doc
-    makeinfo -I . -o %{name}.info automake.texi
-popd
-
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
-rm -f %{buildroot}/%{_bindir}/{automake,aclocal}
-
-# provide -1.8 symlinks
-ln -s automake-%{amversion} %{buildroot}%{_bindir}/automake-%{pkgamversion}
-ln -s aclocal-%{amversion} %{buildroot}%{_bindir}/aclocal-%{pkgamversion}
+# provide -1.8 and -1.9 symlinks
+ln -s automake-%{amversion} %{buildroot}%{_bindir}/automake-1.8
+ln -s aclocal-%{amversion} %{buildroot}%{_bindir}/aclocal-1.8
+ln -s automake-%{amversion} %{buildroot}%{_bindir}/automake-1.9
+ln -s aclocal-%{amversion} %{buildroot}%{_bindir}/aclocal-1.9
 
 rm -f %{buildroot}/%{_infodir}/*
 install -m 0644 doc/%{name}.info* %{buildroot}/%{_infodir}/
 
-perl -p -i -e 's|\(automake\)Extending aclocal|(%{name})Extending aclocal|' \
-    %{buildroot}/%{_bindir}/aclocal-%{amversion}
-
 mkdir -p %{buildroot}%{_datadir}/aclocal
+
+rm -rf %{buildroot}%{_datadir}/doc
 
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
+%pre
+if [ "$1" = 1 ]; then
+  update-alternatives --remove automake %{_bindir}/automake-1.8
+  update-alternatives --remove automake %{_bindir}/automake-1.9
+fi
+
+
+
 %post
 %_install_info %{name}.info
-update-alternatives \
-    --install %{_bindir}/automake automake %{_bindir}/automake-%{amversion} 30 \
-    --slave   %{_bindir}/aclocal  aclocal  %{_bindir}/aclocal-%{amversion}
 
 
 %preun
 %_remove_install_info %{name}.info
-if [ $1 = 0 ]; then
-    update-alternatives --remove automake %{_bindir}/automake-%{amversion}
-fi
 
 
 %files
 %defattr(-,root,root)
-%{_bindir}/*
+%{_bindir}/automake
+%{_bindir}/aclocal
+%{_bindir}/automake-%{version}
+%{_bindir}/aclocal-%{version}
+%{_bindir}/automake-1.8
+%{_bindir}/aclocal-1.8
+%{_bindir}/automake-1.9
+%{_bindir}/aclocal-1.9
 %{_datadir}/automake*
 %{_infodir}/automake*
 %{_datadir}/aclocal*
 
 %files doc
 %defattr(-,root,root)
-%doc AUTHORS COPYING ChangeLog NEWS README THANKS TODO
-
+%doc AUTHORS COPYING NEWS README THANKS TODO
+	
 
 %changelog
+* Tue May 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.9.6
+- 1.10
+- drop P1
+- rediff P0 and add one new failing test: txinfo21
+- rename automake1.8 to automake
+- don't package the ChangeLog; we have NEWS
+- include automake and aclocal symlinks in the package instead of using
+  update-alternatives
+
 * Tue May 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.9.6
 - 1.9.6
 - add -doc subpackage
