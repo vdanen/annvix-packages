@@ -1,5 +1,5 @@
 #
-# spec file for package autoconf2.5
+# spec file for package autoconf
 #
 # Package for the Annvix Linux distribution: http://annvix.org/
 #
@@ -8,17 +8,13 @@
 # $Id$
 
 %define revision	$Rev$
-%define name		autoconf2.5
-%define version		2.60
+%define name		autoconf
+%define version		2.61
 %define release 	%_revrel
 %define epoch		1
 
 %define docheck		0
 %{?_without_check: %global docheck 0}
-
-# Factorize uses of autoconf libdir home and
-# handle only one exception in rpmlint
-%define scriptdir	%{_datadir}/autotools
 
 Summary:	A GNU tool for automatically configuring source code
 Name:		%{name}
@@ -29,10 +25,7 @@ License:	GPL
 Group:		Development/Other
 URL:		http://www.gnu.org/software/autoconf/
 Source:		ftp://ftp.gnu.org/gnu/autoconf/autoconf-%{version}.tar.bz2
-Source2:	autoconf_special_readme2.5
-Source3:	autoconf-ac-wrapper.pl
-Patch0:		autoconf-2.58-fix-info.patch
-Patch1:		autoconf-2.60-avx-dont_use_help2man.patch
+Patch1:		autoconf-2.61-avx-dont_use_help2man.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
@@ -46,10 +39,9 @@ Requires:	m4
 Requires:	mktemp
 Requires:	perl
 Requires:	perl(MDK::Common)
-# autoconf provides %{aclibdir}/ac-wrapper.pl, which we need
-Requires:	autoconf2.1
-Conflicts:	autoconf <= 1:2.13-22avx
-Provides:	autoconf = %{epoch}:%{version}-%{release}
+Obsoletes:	autoconf2.5
+Provides:	autoconf2.5 = %{epoch}:%{version}-%{release}
+Conflicts:	autoconf 2.1 < 1:2.13-7756avx
 
 # for tests
 %if %{docheck}
@@ -68,8 +60,6 @@ may be configuring software with an Autoconf-generated script;
 Autoconf is only required for the generation of the scripts, not
 their use.
 
-%{expand:%(cat %{_sourcedir}/autoconf_special_readme2.5)}
-
 
 %package doc
 Summary:	Documentation for %{name}
@@ -81,10 +71,7 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q -n autoconf-%{version}
-%patch0 -p1 -b .addinfo
 %patch1 -p1 -b .dont_use_help2man
-
-install -m 0644 %{_sourcedir}/autoconf_special_readme2.5 IMPORTANT.README.Annvix
 
 
 %build
@@ -100,22 +87,11 @@ make check	# VERBOSE=1
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-%makeinstall_std
-
-# automatic autoconf wrapper
-install -D -m 0755 %{_sourcedir}/autoconf-ac-wrapper.pl %{buildroot}%{scriptdir}/ac-wrapper.pl
+%makeinstall
 
 # We don't want to include the standards.info stuff in the package,
 # because it comes from binutils...
 rm -f %{buildroot}%{_infodir}/standards*
-
-# links all scripts to wrapper
-for i in %{buildroot}%{_bindir}/*; do
-    mv $i ${i}-2.5x
-    ln -s %{scriptdir}/ac-wrapper.pl $i
-done
-
-mv %{buildroot}%{_infodir}/autoconf.info %{buildroot}%{_infodir}/autoconf-2.5x.info
 
 
 %clean
@@ -123,11 +99,11 @@ mv %{buildroot}%{_infodir}/autoconf.info %{buildroot}%{_infodir}/autoconf-2.5x.i
 
 
 %post
-%_install_info autoconf-2.5x.info
+%_install_info autoconf.info
 
 
 %preun
-%_remove_install_info autoconf-2.5x.info
+%_remove_install_info autoconf.info
 
 
 %files
@@ -136,14 +112,20 @@ mv %{buildroot}%{_infodir}/autoconf.info %{buildroot}%{_infodir}/autoconf-2.5x.i
 %{_datadir}/autoconf
 %{_infodir}/*
 %{_mandir}/*/*
-%{scriptdir}
 
 %files doc
 %defattr(-,root,root)
-%doc README IMPORTANT.README.Annvix
+%doc README AUTHORS BUGS COPYING INSTALL NEWS THANKS TODO
 
 
 %changelog
+* Sat Oct 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.61
+- 2.61
+- drop P0; no longer required
+- rediff P1
+- add more docs
+- drop the wrapper support and rename to autoconf
+
 * Wed Apr 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.60
 - add requires on perl(MDK::Common)
 
