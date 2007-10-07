@@ -132,10 +132,8 @@ chmod +w ./src/dircolors.h
 
 %build
 export DEFAULT_POSIX2_VERSION=199209
-aclocal-1.8 -I m4
-automake-1.8 -a -c
-#aclocal-1.10 -I m4
-#automake-1.10 --gnits --add-missing
+aclocal-1.10
+automake-1.10 --gnits --add-missing
 autoconf
 %configure2_5x \
     --enable-largefile \
