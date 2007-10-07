@@ -37,7 +37,7 @@ Requires(preun): rpm-helper
 Requires:	pam >= 0.74-17
 Requires:	hwdata
 Requires:	python-base >= %{py_ver}
-Requires:	modutils >= 2.3.11-5
+Requires:	module-init-tools
 Requires:	libnewt
 
 %description
@@ -125,6 +125,9 @@ echo "no" >%{buildroot}%{_sysconfdir}/sysconfig/env/kudzu/SAFE
 
 
 %changelog
+* Sun Oct 07 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2.71
+- requires module-init-tools, not modutils
+
 * Sun Sep 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2.71
 - 1.2.71
 - rebuild against new newt
