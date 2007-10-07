@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		nasm
-%define version		0.98.39
+%define version		0.99.01
 %define release		%_revrel
 
 Summary:	The Netwide Assembler, a portable x86 assembler with Intel-like syntax
@@ -20,7 +20,6 @@ License:	LGPL
 Group:		Development/Other
 URL:		http://nasm.sourceforge.net
 Source:		http://prdownloads.sourceforge.net/nasm/%{name}-%{version}.tar.bz2
-Patch0:		nasm-0.98.39-CAN-2005-1194.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	groff
@@ -52,7 +51,6 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
-%patch0 -p1 -b .can-2005-1194
 
 
 %build
@@ -99,6 +97,10 @@ mkdir -p %{buildroot}{%{_bindir},%{_infodir},%{_mandir}/man1}
 
 
 %changelog
+* Sat Oct 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.99.01
+- 0.99.01
+- drop P0; merged upstream
+
 * Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.98.39
 - add -doc subpackage
 - rebuild with gcc4
