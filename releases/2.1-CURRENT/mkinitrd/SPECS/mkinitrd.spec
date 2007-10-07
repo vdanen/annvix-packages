@@ -64,7 +64,7 @@ Requires:	tar
 Requires:	findutils >= 4.1.7-3mdk
 Requires:	gawk
 Requires:	cpio
-Requires:	modutils >= 2.4.26-5187avx
+Requires:	module-init-tools
 
 %description
 Mkinitrd creates filesystem images for use as initial ramdisk (initrd)
@@ -132,6 +132,9 @@ cp insmod/insmod %{buildroot}/sbin/insmod-DIET
 
 
 %changelog
+* Sun Oct 07 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.2.17
+- requires module-init-tools, not modutils
+
 * Sun Aug 06 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.2.17
 - P14: our own branding
 - fix dietlibc compile on x86_64
