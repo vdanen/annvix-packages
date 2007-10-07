@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		dietlibc
-%define version 	0.29
+%define version 	0.30
 %define release 	%_revrel
 
 # This is eventually a biarch package, so no %_lib for diethome
@@ -30,23 +30,24 @@ URL:		http://www.fefe.de/dietlibc/
 Source0:	http://www.fefe.de/dietlibc/%{name}-%{version}.tar.bz2
 Source1:	http://www.fefe.de/dietlibc/%{name}-%{version}.tar.bz2.sig
 Patch0:		dietlibc-0.29-features.patch
-Patch1:		dietlibc-0.27-mdkconfig.patch
+Patch1:		dietlibc-0.30-mdkconfig.patch
 Patch3:		dietlibc-0.22-tests.patch
 Patch4:		dietlibc-0.27-fix-getpriority.patch
 Patch5:		dietlibc-0.22-net-ethernet.patch
 Patch6:		dietlibc-0.24-rpc-types.patch
 Patch9:		dietlibc-0.27-glibc-nice.patch
 Patch13:	dietlibc-0.27-x86_64-lseek64.patch
-# (oe) http://synflood.at/patches/contrapolice/contrapolice-0.3.patch
-Patch14:	dietlibc-0.28-contrapolice.diff
 Patch16:	dietlibc-0.27-test-makefile-fix.patch
 Patch17:	dietlibc-0.27-x86_64-stat64.patch
 Patch23:	dietlibc-0.29-biarch.patch
 Patch24:	dietlibc-0.27-quiet.patch
 Patch26:	dietlibc-0.29-avx-stackgap_off.patch
-Patch27:	dietlibc-0.28-64bit-size_t.patch
 Patch28:	dietlibc-0.29-avx-fix_no_ipv6.patch
-Patch29:	dietlibc-0.26-gentoo-ssp.patch
+Patch30:	dietlibc-0.29-mdv-64bit-fixes-printf.patch
+Patch31:	dietlibc-0.29-mdv-fix-strncmp.patch
+Patch32:	dietlibc-0.30-alt-fstatfs64-typo.patch
+Patch33:	dietlibc-0.30-mdv-relatime.patch
+Patch34:	dietlibc-0.30-mdv-force-no-stack-protector.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -81,17 +82,17 @@ This package contains the documentation for %{name}.
 %patch6 -p1 -b .rpc-types
 %patch9 -p1 -b .glibc-nice -E
 %patch13 -p1 -b .x86_64-lseek64
-# (oe) http://synflood.at/patches/contrapolice/contrapolice-0.3.patch
-# reject
-#%patch14 -p1 -b .contrapolice
 %patch16 -p1 -b .inettest
 %patch17 -p1 -b .x86_64-stat64
 %patch23 -p1 -b .biarch
 %patch24 -p1 -b .quiet
 %patch26 -p1 -b .stackgap_off
-%patch27 -p1 -b .64bit-size_t
 %patch28 -p1 -b .fix_no_ipv6
-%patch29 -p1 -b .ssp
+%patch30 -p1 -b .64bit-fixes-printf
+%patch31 -p1 -b .fix-stncmp
+%patch32 -p1 -b .fstatfs64
+%patch33 -p1 -b .relatime
+%patch34 -p1 -b .stack-protector
 
 # fix execute permissions on test scripts
 chmod a+x test/{dirent,inet,stdio,string,stdlib,time}/runtests.sh
@@ -167,6 +168,18 @@ make MYARCH=i386 DESTDIR=%{buildroot} install
 
 
 %changelog
+* Sat Oct 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.30
+- 0.30
+- updated P1 from Mandriva
+- drop P14; it doesn't apply and wasn't being used
+- drop P27; merged upstream
+- drop P29; we don't want SSP support in dietlibc
+- P30: fix *printf("%u") for 64bit platforms (dmraid)
+- P31: fix strncmp() (nano)
+- P32: fix build of fstatfs64 (from ALT)
+- P33: add MS_RELATIME definition
+- P34: add -fno-stack-protector to override default %%optflags
+
 * Mon Jun 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.29
 - rebuild
 
