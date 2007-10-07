@@ -1,0 +1,4 @@
+# blacklisted modules for PCI coldplug
+# see also /etc/modprobe.d/blacklist-compat
+
+blacklist rivatv

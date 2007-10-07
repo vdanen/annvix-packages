@@ -9,15 +9,18 @@
 
 %define revision	$Rev$
 %define name		module-init-tools
-%define version		3.2.2
+%define version		3.3
 %define release		%_revrel
+%define realver		%{version}-pre11
 
-%define priority	20
+%define major		0
+%define libname		%mklibname modprobe %{major}
+%define devname		%mklibname modprobe -d
+
 %define _bindir		/bin
 %define _sbindir	/sbin
 %define _libdir		/lib
 %define _libexecdir	/lib
-%define toalternate	insmod lsmod modprobe rmmod depmod modinfo
 
 Summary: 	Tools for managing Linux kernel modules
 Name:		module-init-tools
@@ -25,25 +28,31 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		System/Kernel and hardware
-URL:		ftp://ftp.kernel.org/pub/linux/kernel/people/rusty/modules/
-Source0:	ftp://ftp.kernel.org/pub/linux/kernel/people/rusty/modules//%{name}-%{version}.tar.bz2
+URL:		http://www.kerneltools.org/pub/downloads/module-init-tools/
+Source0:	ftp://ftp.kernel.org/pub/linux/kernel/people/rusty/modules/%{name}-%{realver}.tar.bz2
+Source1:	module-init-tools-man.tar.bz2
+Source2:	blacklist-mdv
 Source3:	modprobe.default
 Source4:	modprobe.compat
 Source5:	modprobe.preload
-Patch1: 	module-init-tools-3.2-pre8-no-rename.patch
+Source6:	blacklist-compat
+Patch1:		module-init-tools-libify.patch
 Patch2: 	module-init-tools-3.2-pre8-dont-break-depend.patch
 Patch3:		module-init-tools-3.2-pre8-all-defaults.patch
 Patch7:		module-init-tools-3.2-pre8-modprobe-default.patch
 Patch8:		module-init-tools-3.2.2-generate-modprobe.conf-no-defaults.patch
 Patch9:		module-init-tools-3.0-failed.unknown.symbol.patch
+Patch10:	module-init-tools-3.3-pre11-insmod-strrchr.patch
+Patch11:	module-init-tools-libify-2.patch
+Patch12:	module-init-tools-3.3-pre11-avx-no-docbook2man.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	autoconf2.5
+BuildRequires:	autoconf
 BuildRequires:	glibc-static-devel
 BuildRequires:	zlib-devel
+BuildRequires:	dietlibc-devel
 
-Requires(post):	update-alternatives
-Requires(postun): update-alternatives
+Obsoletes:	modutils
 Conflicts:	modutils < 2.4.22-10mdk
 Conflicts:	devfsd < 1.3.25-31mdk
 
@@ -55,6 +64,26 @@ serves the same function that the "modutils" package serves for Linux
 2.4.
 
 
+%package -n %{libname}
+Summary:	Library for %{name}
+Group: 		System/Libraries
+Provides:	lib%{name} = %{version}-%{release}
+
+%description -n %{libname}
+Library for %{name}.
+
+
+%package -n %{devname}
+Summary:	Development files for %{name}
+Group:		Development/C
+Requires:	%{libname} = %{version}
+Provides:	%{name}-devel = %{version}-%{release}
+Provides:	modprobe-devel = %{version}-%{release}
+
+%description -n %{devname}
+Development files for %{name}
+
+
 %package doc
 Summary:	Documentation for %{name}
 Group:		Documentation
@@ -64,69 +93,85 @@ This package contains the documentation for %{name}.
 
 
 %prep
-%setup -q
-%patch1 -p1 -b .no-rename
+%setup -q -n %{name}-%{realver}
+%patch1 -p1 -b .lib
 %patch2 -p1 -b .dont-break-depend
 %patch3 -p1 -b .all-defaults
 %patch7 -p1 -b .modprobe-default
 %patch8 -p1 -b .generate-modprobe.conf-no-defaults
 %patch9 -p1 -b .failed-symb
+%patch10 -p1 -b .fix_insmod_strrchr
+%patch11 -p1 -b .liberror
+%patch12 -p0 -b .no-docbook2man
 
 
 %build
 %serverbuild
-%configure2_5x --enable-zlib
-%make
+rm -f Makefile{,.in}
+libtoolize -c
+aclocal --force
+automake -c -f
+autoconf
+
+mkdir -p objs-diet
+pushd objs-diet
+    %ifarch x86_64
+    COMP="diet x86_64-annvix-linux-gnu-gcc"
+    %else
+    COMP="diet gcc"
+    %endif
+    CONFIGURE_TOP=.. %configure2_5x --enable-zlib --disable-shared
+    %make CFLAGS="-Os" CC="$COMP"
+popd
+
+
+mkdir -p objs
+pushd objs
+    CONFIGURE_TOP=.. %configure2_5x --enable-zlib
+     %make CFLAGS="%{optflags} -fPIC"
+popd
+
+pushd doc
+    tar xvjf %{_sourcedir}/module-init-tools-man.tar.bz2
+popd
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-%makeinstall transform=
 
-mv %{buildroot}%{_bindir}/lsmod %{buildroot}%{_sbindir}
+pushd objs
+    %makeinstall transform=
+    mv %{buildroot}%{_bindir}/lsmod %{buildroot}%{_sbindir}
+popd
 
-pushd %{buildroot}%{_sbindir} && {
-    for i in %{toalternate};do
-        mv $i $i-25
-    done
-} && popd
+install -d %{buildroot}%{_prefix}/lib/dietlibc/lib-%{_arch}
+install objs-diet/.libs/libmodprobe.a %{buildroot}%{_prefix}/lib/dietlibc/lib-%{_arch}/libmodprobe.a
 
-rm -rf %{buildroot}/%{_mandir}
-for n in 5 8;do
-    install -d %{buildroot}/%{_mandir}/man$n/
-    for i in *.$n;do
-        [[ $n == 8 ]] && ext="-25" || ext=""
-        install -m644 $i %{buildroot}/%{_mandir}/man${n}/${i%%.*}${ext}.$n
-    done
-done
+mkdir -p %{buildroot}{%{_includedir},%{_mandir}/man{5,8}}
+install -m 0644 modprobe.h list.h %{buildroot}%{_includedir}
+install -m 0644 doc/*.5 %{buildroot}%{_mandir}/man5/
+install -m 0644 doc/*.8 %{buildroot}%{_mandir}/man8/
 
-pushd %{buildroot}%{_sbindir} && {
-%ifnarch %{ix86}
-    mv insmod.static insmod.static-25
-%else
-    rm -f insmod.static
+%ifarch %{ix86}
+rm -f %{buildroot}%{_sbindir}/insmod.static
 %endif
-} && popd
 
-install -d -m755 %{buildroot}%{_sysconfdir}/
+mkdir -p %{buildroot}%{_sysconfdir}/modprobe.d
 touch %{buildroot}%{_sysconfdir}/modprobe.conf
-install -m 644 %{SOURCE5} %{buildroot}%{_sysconfdir}
-install -d -m755 %{buildroot}%{_sysconfdir}/modprobe.d/
+install -m 0644 %{_sourcedir}/modprobe.preload %{buildroot}%{_sysconfdir}
+install -m 0644 %{_sourcedir}/blacklist-compat %{buildroot}%{_sysconfdir}/modprobe.d
+install -m 0644 %{_sourcedir}/blacklist-mdv %{buildroot}%{_sysconfdir}/modprobe.d/blacklist-avx
 
-install -d -m755 %{buildroot}%{_libdir}/module-init-tools
-install -m 644 %{SOURCE3} %{buildroot}%{_libdir}/module-init-tools
-install -m 644 %{SOURCE4} %{buildroot}%{_libdir}/module-init-tools
+mkdir -p %{buildroot}%{_libdir}/module-init-tools
+install -m 0644 %{_sourcedir}/modprobe.default %{buildroot}%{_libdir}/module-init-tools
+install -m 0644 %{_sourcedir}/modprobe.compat %{buildroot}%{_libdir}/module-init-tools
+
+
+%post -n %{libname} -p /sbin/ldconfig
+%postun -n %{libname} -p /sbin/ldconfig
 
 
 %post
-for i in %{toalternate};do
-    update-alternatives --install %{_sbindir}/$i $i %{_sbindir}/$i-25 %{priority}
-    update-alternatives --install \
-    %{_mandir}/man8/$i.8%{_extension} man-$i %{_mandir}/man8/$i-25.8%{_extension} %{priority}
-    [ -e %{_sbindir}/$i ] || update-alternatives --auto $i
-    [ -e %{_mandir}/$i.8%{_extension} ] || update-alternatives --auto man-$i
-done
-
 if [ ! -s %{_sysconfdir}/modprobe.conf ]; then
     MODPROBE_CONF=%{_sysconfdir}/modprobe.conf
 elif [ -e %{_sysconfdir}/modprobe.conf.rpmnew ]; then
@@ -142,20 +187,7 @@ fi
 if [ -s %{_sysconfdir}/modprobe.conf ]; then
     perl -pi -e 's/(^\s*include\s.*modprobe\.(default|compat).*)/# This file is now included automatically by modprobe\n# $1/' %{_sysconfdir}/modprobe.conf
 fi
-
-
-%postun
-for i in %{toalternate};do
-    if [ ! -f %{_sbindir}/$i-25 ]; then
-        update-alternatives --remove $i %{_sbindir}/$i
-    fi
-    [ -e %{_sbindir}/$i ] || update-alternatives --auto $i
-
-    if [ ! -f %{_mandir}/man8/$i-25.8%{_extension} ]; then
-        update-alternatives --remove man-$i %{_mandir}/man8/$i.8%{_extension}
-    fi
-    [ -e %{_mandir}/man8/$i.8%{_extension} ] || update-alternatives --auto man-$i
-done
+exit 0
 
 
 %clean
@@ -167,11 +199,24 @@ done
 %config(noreplace) %{_sysconfdir}/modprobe.conf
 %config(noreplace) %{_sysconfdir}/modprobe.preload
 %dir %{_sysconfdir}/modprobe.d/
+%config(noreplace) %{_sysconfdir}/modprobe.d/*
 %dir %{_libdir}/module-init-tools
 %{_libdir}/module-init-tools/*
-%{_sbindir}/generate-modprobe.conf
-%{_sbindir}/*25
+%{_sbindir}/*
 %{_mandir}/*/*
+
+%files -n %{devname}
+%defattr(-,root,root)
+%_includedir/*.h
+%{_libdir}/libmodprobe.a
+%{_prefix}/lib/dietlibc/lib-%{_arch}/libmodprobe.a
+%{_libdir}/libmodprobe.la
+%{_libdir}/libmodprobe.so
+
+%files -n %{libname}
+%defattr(-,root,root)
+%{_libdir}/libmodprobe.so.*
+
 
 %files doc
 %defattr(-,root,root)
@@ -180,6 +225,23 @@ done
 
 
 %changelog
+* Sun Oct 07 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.3-pre11
+- 3.3pre11 (synced more or less with Mandriva's 3.3-pre11.30mdv)
+- call this 3.3 (without the pre stuff) to prevent wierd upgrade issues later
+- drop P1; broke modprobe -r
+- rediffed P2, P3, and P7 from Mandriva
+- new P1: libify modprobe for ldetect
+- P10: fix insmod when using it without an absolute path
+- P11: exit() is not a user-friendly user management method in a library
+- P12: drop calls to docbook2man from the makefiles
+- S1: add mandriva's blacklist
+- S6: add a blacklist-compat list to blacklist certain drivers (Fedora)
+- drop alternatives; we no longer support 2.4 kernels so we don't need modutils
+- use dietlibc
+- build a shared library and package development files
+- obsoletes modutils
+- package our own manpages as we won't ship docbook and friends to build them
+
 * Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.2.2
 - add -doc subpackage
 - requires packages, not files

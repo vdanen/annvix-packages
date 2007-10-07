@@ -141,7 +141,6 @@ install dummy1 /sbin/modprobe -o dummy1 --first-time --ignore-install dummy
 install eth0 /bin/true
 install net-pf-3 /bin/true
 install ov518_decomp { /sbin/modprobe ov511; }; /sbin/modprobe --first-time --ignore-install ov518_decomp
-install usblp /sbin/modprobe --first-time --ignore-install usblp && { /usr/bin/killall -HUP cupsd || :; }
 remove binfmt_misc { /bin/umount /proc/sys/fs/binfmt_misc > /dev/null 2>&1 || :; }; /sbin/modprobe -r --first-time --ignore-remove binfmt_misc
 remove ov518_decomp /sbin/modprobe -r --first-time --ignore-remove ov518_decomp && { /sbin/modprobe -r ov511; /bin/true; }
 

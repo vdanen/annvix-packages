@@ -1,0 +1,75 @@
+--- ./libmodprobe.c.tv2	2007-08-13 19:41:53.000000000 +0200
++++ ./libmodprobe.c	2007-08-13 19:52:51.000000000 +0200
+@@ -49,6 +49,18 @@ void warn(const char *fmt, ...)
+ 	va_end(arglist);
+ }
+ 
++#define libfatal(fmt, ...) { \
++	__libfatal(fmt, ## __VA_ARGS__); \
++	return; \
++};
++static void __libfatal(const char *fmt, ...)
++{
++	va_list arglist;
++	va_start(arglist, fmt);
++	message("FATAL:", fmt, &arglist);
++	va_end(arglist);
++	return;
++}
+ void fatal(const char *fmt, ...)
+ {
+ 	va_list arglist;
+@@ -68,7 +80,7 @@ void grammar(const char *cmd, const char
+ void *do_nofail(void *ptr, const char *file, int line, const char *expr)
+ {
+ 	if (!ptr) {
+-		fatal("Memory allocation failure %s line %d: %s.\n",
++		libfatal("Memory allocation failure %s line %d: %s.\n",
+ 		      file, line, expr);
+ 	}
+ 	return ptr;
+@@ -273,7 +285,7 @@ void read_depends(const char *dirname,
+ 	asprintf(&modules_dep_name, "%s/%s", dirname, "modules.dep");
+ 	modules_dep = fopen(modules_dep_name, "r");
+ 	if (!modules_dep)
+-		fatal("Could not load %s: %s\n",
++		libfatal("Could not load %s: %s\n",
+ 		      modules_dep_name, strerror(errno));
+ 
+ 	/* Stop at first line, as we can have duplicates (eg. symlinks
+@@ -374,7 +386,7 @@ void replace_modname(struct module *modu
+ 
+ 	/* 64 - sizeof(unsigned long) - 1 */
+ 	if (strlen(newname) > 55)
+-		fatal("New name %s is too long\n", newname);
++		libfatal("New name %s is too long\n", newname);
+ 
+ 	/* Find where it is in the module structure.  Don't assume layout! */
+ 	for (p = mem; p < (char *)mem + len - strlen(oldname); p++) {
+@@ -904,7 +916,7 @@ void rmmod(struct list_head *list,
+ 
+ nonexistent_module:
+ 	if (first_time)
+-		fatal("Module %s is not in kernel.\n", mod->modname);
++		libfatal("Module %s is not in kernel.\n", mod->modname);
+ 	goto remove_rest;
+ }
+ 
+@@ -962,7 +974,7 @@ int do_wildcard(const char *dirname,
+ 	sprintf(modules_dep_name, "%s/%s", dirname, "modules.dep");
+ 	modules_dep = fopen(modules_dep_name, "r");
+ 	if (!modules_dep)
+-		fatal("Could not load %s: %s\n",
++		libfatal("Could not load %s: %s\n",
+ 		      modules_dep_name, strerror(errno));
+ 
+ 	while ((line = getline_wrapped(modules_dep, NULL)) != NULL) {
+@@ -1176,7 +1188,7 @@ void read_toplevel_config(const char *fi
+ 	if (filename) {
+ 		if (!read_config(filename, name, dump_only, removing,
+ 				 options, commands, aliases, blacklist))
+-			fatal("Failed to open config file %s: %s\n",
++			libfatal("Failed to open config file %s: %s\n",
+ 			      filename, strerror(errno));
+ 		return;
+ 	}
