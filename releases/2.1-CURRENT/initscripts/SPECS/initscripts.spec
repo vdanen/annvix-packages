@@ -33,7 +33,7 @@ Requires:	mktemp
 Requires:	e2fsprogs
 Requires:	gettext-base
 Requires:	procps
-Requires:	modutils
+Requires:	module-init-tools
 Requires:	psmisc
 Requires:	which
 Requires:	setup
@@ -214,6 +214,9 @@ chmod 0600 /var/log/btmp
 
 
 %changelog
+* Sun Oct 07 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.37.1
+- requires module-init-tools, not modutils
+
 * Sat Sep 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.37.1
 - fix url
 - build against new glib2
