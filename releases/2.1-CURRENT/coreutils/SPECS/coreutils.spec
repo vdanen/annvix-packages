@@ -14,9 +14,6 @@
 %define version		6.9
 %define release		%_revrel
 
-# for sh-utils :
-%define optflags $RPM_OPT_FLAGS -D_GNU_SOURCE=1
-
 Summary:	The GNU core utilities: a set of tools commonly used in shell scripts
 Name:		%{name}
 Version:	%{version}
@@ -232,6 +229,10 @@ true
 
 
 %changelog
+* Sat Oct 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 6.9
+- remove the %%optflags re-define as it's not taking our old CFLAGS
+  definitions so everything is built unoptimized and unprotected
+
 * Sat Oct 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 6.9
 - 6.9
 - drop S1, use P0 instead to patch dircolors.hin for custom color support
