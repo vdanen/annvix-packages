@@ -16,7 +16,7 @@ Summary: 	Reads and writes data across network connections using TCP or UDP
 Name: 		%{name}
 Version: 	%{version}
 Release: 	%{release}
-License: 	GPL
+License: 	Public Domain
 Group: 		Networking/Other
 URL:		http://www.vulnwatch.org/netcat/
 Source0:	http://www.vulnwatch.org/netcat/nc110.tar.bz2
@@ -56,7 +56,7 @@ This package contains the documentation for %{name}.
 
 
 %prep
-%setup -c -n nc -q
+%setup -q -c nc
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
@@ -74,7 +74,7 @@ This package contains the documentation for %{name}.
 # Make linux is supported, but it makes a static binary. 
 # don't build with -DGAPING_SECURITY_HOLE
 %make CFLAGS="%{optflags}" \
-      DFLAGS='-DLINUX' generic
+      DFLAGS='-DLINUX -DTELNET' generic
 
 
 %install
@@ -82,9 +82,11 @@ This package contains the documentation for %{name}.
 mkdir -p %{buildroot}{%{_bindir},%{_mandir}/man1}
 
 install -m 0755 nc %{buildroot}%{_bindir}
-(cd %{buildroot}%{_bindir}; ln -s nc netcat)
+install -m 0644 %{_sourcedir}/nc.1 %{buildroot}%{_mandir}/man1
 
-install -m 0644 %{SOURCE1} %{buildroot}%{_mandir}/man1
+(cd %{buildroot}%{_bindir}; ln -s nc netcat)
+(cd %{buildroot}%{_mandir}/man1; ln -s nc.1 netcat.1)
+
 
 
 %clean
@@ -96,6 +98,7 @@ install -m 0644 %{SOURCE1} %{buildroot}%{_mandir}/man1
 %{_bindir}/nc
 %{_bindir}/netcat
 %{_mandir}/man1/nc.1*
+%{_mandir}/man1/netcat.1*
 
 %files doc
 %defattr(-,root,root)
@@ -104,6 +107,11 @@ install -m 0644 %{SOURCE1} %{buildroot}%{_mandir}/man1
 
 
 %changelog
+* Sat Oct 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.10
+- build with -DTELNET
+- we package a symlink to netcat, so do the same for the manpage
+- license is not GPL
+
 * Sat Jul 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.10
 - add -doc subpackage
 - rebuild with gcc4
