@@ -49,7 +49,7 @@ Requires:	logrotate
 Requires:	losetup
 Requires:	mingetty
 Requires:	mkinitrd
-Requires:	modutils
+Requires:	module-init-tools
 Requires:	mount
 Requires:	net-tools
 Requires:	passwd
@@ -94,6 +94,9 @@ should never be removed.
 
 
 %changelog
+* Sun Oct 07 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1
+- requires module-init-tools, not modutils
+
 * Mon Jun 18 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1
 - add a requires on rpm-annvix-setup >= 1.24.1 so we get the apparmor
   reload macro
