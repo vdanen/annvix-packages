@@ -11,7 +11,7 @@
 
 %define revision	$Rev$
 %define name		coreutils
-%define version		5.97
+%define version		6.9
 %define release		%_revrel
 
 # for sh-utils :
@@ -25,42 +25,25 @@ License:	GPL
 Group:		System/Base
 URL:		ftp://alpha.gnu.org/gnu/coreutils/
 
-Source0:	ftp://prep.ai.mit.edu/pub/gnu/%{name}/%{name}-%{version}.tar.bz2
-Source1:	DIR_COLORS
+Source0:	http://ftp.gnu.org/gnu/coreutils/%{name}-%{version}.tar.bz2
 Source2:	su.pamd
 Source3:	help2man
-Patch0:		coreutils-4.5.4-lug.patch
-# fileutils
+Patch0:		coreutils-6.9-DIR_COLORS-mdkconf.patch
 Patch1:		coreutils-5.93-spacedir.patch
-Patch2:		coreutils-5.1.1-sparc.patch
-Patch3:		fileutils-4.1.10-timestyle.patch
 Patch4:		fileutils-4.1-ls_h.patch
 Patch5:		coreutils-4.5.7-touch_errno.patch
 Patch6:		textutils-2.0.17-mem.patch
-# sh-utils
 Patch7:		coreutils-5.93-dateman.patch
 Patch8:		sh-utils-1.16-paths.patch
-# RMS will never accept the PAM patch because it removes his historical
-# rant about Twenex and the wheel group, so we'll continue to maintain
-# it here indefinitely.
-Patch9:		coreutils-5.93-pam.patch
-# (sb) lin18nux/lsb compliance - normally from here:
-# http://www.openi18n.org/subgroups/utildev/patch/
-# this one is actually a merger of 5.2 and 5.3, as join segfaults
-# compiled with gcc4 and the 5.1/5.2 patch
-Patch10:	coreutils-5.97-new-i18n.patch
-# small pt_BR fix
+Patch9:		coreutils-6.9-mdv-pam.patch
+Patch10:	coreutils-6.9-mdv-new-i18n.patch
 Patch11:	coreutils-5.2.1-ptbrfix.patch
 Patch12:	coreutils-5.1.0-64bit-fixes.patch
 Patch13:	coreutils-5.2.1-uname.patch
-# posix acls and extended attributes
-# from http://ftp.opensuse.org/pub/opensuse/distribution/SL-OSS-factory/inst-source/suse/src/coreutils-5.97-4.src.rpm
-# this one is already merged in CVS:
-Patch14:	coreutils-acl.diff
-Patch15:	coreutils-acl+posix.diff
-Patch16:	coreutils-xattr.diff
-Patch17:	coreutils-xattr-va-list.diff
-Patch18:	coreutils-5.97-force-option--override--interactive-option.patch
+Patch18:	coreutils-6.9-mdv-force-option--override--interactive-option.patch
+Patch19:	coreutils-6.9-fdr-ls-x.patch
+Patch20: 	coreutils-6.9-mdv-always-blinking-colors-on-broken-symlinks.patch
+Patch21:	coreutils-6.9-fdr-futimens.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	gettext
@@ -69,8 +52,8 @@ BuildRequires:	pam-devel
 BuildRequires:	texinfo >= 4.3
 BuildRequires:	acl-devel
 BuildRequires:	attr-devel
-BuildRequires:	automake1.8
-BuildRequires:	autoconf2.5 > 2.59
+BuildRequires:	automake >= 1.10
+BuildRequires:	autoconf >= 2.61
 
 Requires:  	pam >= 0.66-12
 Provides:	fileutils = %{version}
@@ -84,28 +67,29 @@ Obsoletes:	textutils
 Conflicts:	tetex < 1.0.7-49mdk
 
 %description
-These are the GNU core utilities.  This package is the union of
-the old GNU fileutils, sh-utils, and textutils packages.
+These are the GNU core utilities.  This package is the union of the old
+GNU fileutils, sh-utils, and textutils packages.
 
-These tools're the GNU versions of common useful and popular
-file & text utilities which are used for:
+These tools are the GNU versions of common useful and popular file & text
+utilities which are used for:
+
 - file management
 - shell scripts
 - modifying text file (spliting, joining, comparing, modifying, ...)
 
 Most of these programs have significant advantages over their Unix
-counterparts, such as greater speed, additional options, and fewer
-arbitrary limits.
+counterparts, such as greater speed, additional options, and fewer arbitrary
+limits.
 
 The following tools are included:
 
-  basename cat chgrp chmod chown chroot cksum comm cp csplit cut date dd
-  df dir dircolors dirname du echo env expand expr factor false fmt fold
-  ginstall groups head hostid hostname id join kill link ln logname ls
-  md5sum mkdir mkfifo mknod mv nice nl nohup od paste pathchk pinky pr
-  printenv printf ptx pwd readlink rm rmdir seq sha1sum shred sleep sort
-  split stat stty su sum sync tac tail tee test touch tr true tsort tty
-  uname unexpand uniq unlink uptime users vdir wc who whoami yes
+  base64 basename cat chgrp chmod chown chroot cksum comm cp csplit cut
+  date dd df dir dircolors dirname du echo env expand expr factor false
+  fmt fold groups head hostid id install join kill link ln logname ls
+  printenv printf ptx pwd readlink rm rmdir seq sha1sum sha224sum
+  sha256sum sha384sum sha512sum shred shuf sleep sort split stat stty
+  su sum sync tac tail tee test touch tr true tsort tty uname unexpand
+  uniq unlink users vdir wc who whoami yes
 
 
 %package doc
@@ -118,48 +102,40 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
-
-%patch0 -p1 -b .lug
-mv po/{lg,lug}.po
-
-# fileutils
+%patch0 -p1 -b .colors_mdkconf
 %patch1 -p1 -b .space
-%patch2 -p1 -b .sparc
-%patch3 -p1 -b .timestyle
-%patch4 -p1
-%patch5 -p1
+%patch4 -p1 -b .ls_h
+%patch5 -p1 -b .touch_errno
 
-# textutils
-%patch6 -p1
+%patch6 -p1 -b .textutils_mem
 
-# sh-utils
 %patch7 -p1 -b .dateman
 %patch8 -p1 -b .paths
 %patch9 -p1 -b .pam
 
-# li18nux/lsb
 %patch10 -p1 -b .i18n
 %patch11 -p0 -b .ptbr
 
 %patch12 -p1 -b .64bit
 %patch13 -p0 -b .cpu
 
-# posix acls and extended attributes
-%patch14 -p1 -b .acl
-%patch15 -p1 -b .acl+posix
-%patch16 -p1 -b .xattr
-%patch17 -p0 -b .xattr-va
-
-%patch18 -p1 -b .override
+%patch18 -p0 -b .override
+%patch19 -p1 -b .ls-x
+%patch20 -p1 -b .broken_blink
+%patch21 -p1 -b .futimens
 
 cp %{_sourcedir}/help2man man/help2man
 chmod +x man/help2man
+chmod +w ./src/dircolors.h
+./src/dcgen ./src/dircolors.hin > ./src/dircolors.h
 
 
 %build
 export DEFAULT_POSIX2_VERSION=199209
 aclocal-1.8 -I m4
 automake-1.8 -a -c
+#aclocal-1.10 -I m4
+#automake-1.10 --gnits --add-missing
 autoconf
 %configure2_5x \
     --enable-largefile \
@@ -173,7 +149,8 @@ perl -pi -e 's,/etc/utmp,/var/run/utmp,g;s,/etc/wtmp,/var/run/wtmp,g' doc/coreut
 
 %check
 # Run the test suite.
-chmod +x ./tests/sort/sort-mb-tests
+chmod a+x tests/sort/sort-mb-tests
+chmod a+x tests/ls/x-option
 %make check
 
 
@@ -202,7 +179,7 @@ mv %{buildroot}/{%{_bindir},%{_sbindir}}/chroot
 # {cat,sort,cut} were previously moved from bin to /usr/bin and linked into 
 for i in env cut; do ln -sf ../../bin/$i %{buildroot}/usr/bin; done
 
-install -c -m 0644 %{_sourcedir}/DIR_COLORS %{buildroot}/etc/
+install -m644 src/dircolors.hin -D %{buildroot}%{_sysconfdir}/DIR_COLORS
 
 # su
 install -m 0755 src/su %{buildroot}/bin
@@ -214,7 +191,7 @@ done
 
 install -m 0644 %{_sourcedir}/su.pamd %{buildroot}%{_sysconfdir}/pam.d/su
 
-bzip2 -f9 old/*/C* || :
+bzip2 -9f old/*/C* || :
 
 # fix conflicts with util-linux
 rm -f %{buildroot}%{_mandir}/man1/kill.1
@@ -244,7 +221,7 @@ true
 %files -f %{name}.lang
 %defattr(-,root,root)
 %config(noreplace) %{_sysconfdir}/D*
-%config(noreplace) /etc/pam.d/su
+%config(noreplace) %{_sysconfdir}/pam.d/su
 /bin/*
 %{_bindir}/*
 %{_sbindir}/chroot
@@ -257,6 +234,19 @@ true
 
 
 %changelog
+* Sat Oct 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 6.9
+- 6.9
+- drop S1, use P0 instead to patch dircolors.hin for custom color support
+- drop P0, no longer required
+- drop P2, no longer required
+- drop P2, obsoleted by upstream code
+- drop P14, P15, P16, P17: old ACL patches are no longer required
+- updated P9, P10, P18 from Mandriva
+- P19: fix ls -x (Fedora)
+- P20: always blink on broken symlinks (Mandriva)
+- P21: allows to build against glibc 2.6 (Fedora)
+- requires newer autoconf and automake
+
 * Sat Jun 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.97
 - drop unapplied patches
 - renumber patches

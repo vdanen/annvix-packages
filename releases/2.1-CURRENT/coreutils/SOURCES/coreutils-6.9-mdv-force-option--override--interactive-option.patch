@@ -1,0 +1,29 @@
+--- src/cp.c~	2007-03-19 05:36:43.000000000 +0800
++++ src/cp.c	2007-07-12 09:07:04.000000000 +0800
+@@ -905,6 +905,7 @@
+ 	  break;
+ 
+ 	case 'f':
++	  x.interactive = I_ALWAYS_YES;
+ 	  x.unlink_dest_after_failed_open = true;
+ 	  break;
+ 
+--- tests/mv/i-2~	2007-03-19 05:36:43.000000000 +0800
++++ tests/mv/i-2	2007-07-12 09:09:23.000000000 +0800
+@@ -59,11 +59,12 @@
+ # Before 4.0s, this would not prompt.
+ cp -if e f < y > out 2>&1 || fail=1
+ 
++#(peroyvind) this test is bogus, we don't want to be prompted when forcing
+ # Make sure out contains the prompt.
+-case "`cat out`" in
+-  "cp: try to overwrite \`f', overriding mode 0000 (---------)?"*) ;;
+-  *) fail=1 ;;
+-esac
++#case "`cat out`" in
++#  "cp: try to overwrite \`f', overriding mode 0000 (---------)?"*) ;;
++#  *) fail=1 ;;
++#esac
+ 
+ test -f e || fail=1
+ test -f f || fail=1
