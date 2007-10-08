@@ -3,11 +3,10 @@ and dsdt.aml.
 
 Rtp
 
---- mkinitrd-4.2.17/mkinitrd.initramfs-dsdt	2006-04-10 18:28:51.000000000 +0200
-+++ mkinitrd-4.2.17/mkinitrd	2006-04-10 18:29:16.000000000 +0200
-@@ -49,8 +49,8 @@ tmpdir=
+--- mkinitrd-4.2.17/mkinitrd.initramfs-dsdt	2006-09-07 08:38:44.000000000 +0200
++++ mkinitrd-4.2.17/mkinitrd	2006-09-07 08:44:23.000000000 +0200
+@@ -49,7 +49,7 @@
  rc=0
- kernel25=""
  
 -DEFAULT_DSDT_FILE="/boot/dsdt.aml"
 -dsdt_file=""
@@ -16,7 +15,16 @@ Rtp
  
  IMAGESIZE=100
  NB_INODES=100
-@@ -534,9 +534,9 @@ while [ $# -gt 0 ]; do
+@@ -60,6 +60,8 @@
+ 
+ [ -f /etc/sysconfig/mkinitrd ] && source /etc/sysconfig/mkinitrd
+ 
++[ -z "$dsdt_files" -a -n "$dsdt_file" ] && dsdt_files="$dsdt_file"
++
+ IGNOREMODS="$IGNOREMODS ppa imm ide-scsi"
+ 
+ usage () {
+@@ -542,9 +544,9 @@
  	    ;;
  	--dsdt*)
  	    if echo $1 | grep '=' >/dev/null ; then
@@ -28,7 +36,7 @@ Rtp
  	    fi		    
  	    ;;
  	--debug-busybox*)
-@@ -1302,6 +1302,14 @@ case $initrdfs in
+@@ -1323,6 +1325,14 @@
  	genromfs -d "$MNTIMAGE" -f "$IMAGE"
  	;;
      initramfs)
@@ -43,20 +51,20 @@ Rtp
  	(cd $MNTIMAGE; find . | cpio --quiet -c -o) >| $IMAGE || exit 1
  	;;
  esac
-@@ -1312,10 +1320,14 @@ else
+@@ -1333,10 +1343,14 @@
      cp -a $IMAGE $target || exit 1
  fi
  
 -if [[ -n "$dsdt_file" && -f "$dsdt_file" ]]; then
 -    echo -n "INITRDDSDT123DSDT123" >> $target
 -    cat "$dsdt_file" >> $target
--    [ -n "$kernel25" ] && echo -n "INITRDDSDT321DSDT321" >> $target
+-    echo -n "INITRDDSDT321DSDT321" >> $target
 +if [[ -n "$dsdt_files" ]]; then
 +   for dsdt_file in $dsdt_files; do
 +      if [[ -f $dsdt_file ]]; then
 +	 echo -n "INITRDDSDT123DSDT123" >> $target
 +	 cat "$dsdt_file" >> $target
-+	 [ -n "$kernel25" ] && echo -n "INITRDDSDT321DSDT321" >> $target
++	 echo -n "INITRDDSDT321DSDT321" >> $target
 +      fi
 +   done
  fi

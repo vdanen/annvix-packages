@@ -15,7 +15,7 @@
  fstab="/etc/fstab"
 -IGNOREMODS="$IGNOREMODS ppa imm ide-scsi $initrdfs"
  
- [ -f /etc/udev/udev.conf -a -x /sbin/udevstart ] && USE_UDEV=yes
+ [ -f /etc/udev/udev.conf -a \( -x /sbin/udevstart -o -x /sbin/start_udev \) ] && USE_UDEV=yes
  
  [ -f /etc/sysconfig/mkinitrd ] && source /etc/sysconfig/mkinitrd
  
@@ -24,18 +24,13 @@
  usage () {
      echo "usage: `basename $0` [--version] [-v] [-f] [--preload <module>]" >&2
      echo "       [--with=<module>] [--omit-scsi-modules] [--omit-raid-modules]" >&2
-@@ -83,6 +84,7 @@ check_kernel_25() {
+@@ -559,4 +561,11 @@ fi
  
- 	if [ $major -ge 3 -o $major -eq 2 -a $minor -ge 5 ]; then
- 		kernel25=yes
-+		definitrdfs="initramfs"
- 		modulefile=/etc/modprobe.conf
- 		modulemap="s@pdc-ultra@sata_promise@;s@usb-uhci@uhci-hcd@;s@usb-ohci@ohci-hcd@;s@^uhci\$@uhci-hcd@"
- 		IGNORE="$IGNORE ataraid"
-@@ -559,6 +561,8 @@ fi
- 
- check_kernel_25 "$kernel"
- 
++# busybox doesn't startup from cpio:
++if [ -z "$debug_busybox" ]; then
++	definitrdfs="initramfs"
++fi
++
 +: ${initrdfs:=$definitrdfs}
 +
  if [ -n "$img_vers" ]; then

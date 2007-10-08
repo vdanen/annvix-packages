@@ -1,0 +1,17 @@
+* 2006-09-07 Luca Berra <bluca@vodka.it>
+- support modular ps2 keyboards
+
+--- mkinitrd-4.2.17/mkinitrd.atkbd	2006-09-07 08:48:56.000000000 +0200
++++ mkinitrd-4.2.17/mkinitrd	2006-09-07 08:51:15.000000000 +0200
+@@ -647,7 +647,10 @@
+ 		/Phys=/ {ph="UNKNOWN";next}
+ 		/Handlers=.*kbd/ && k == 1 {print ph}
+ 	' /proc/bus/input/devices)"
+-if [ -n "${kbddrivers##*ps2*}" -a -z "${kbddrivers##*usb*}" ]; then
++if [ -z "${kbddrivers##*ps2*}" ]; then
++    findmodule -atkbd
++    findmodule -i8042
++elif [ -z "${kbddrivers##*usb*}" ]; then
+     usbdriver
+     findmodule -usbhid
+ fi

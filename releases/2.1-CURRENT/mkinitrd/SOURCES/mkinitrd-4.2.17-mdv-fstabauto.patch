@@ -1,0 +1,22 @@
+2007-06-10  Luca Berra <bluca@vodka.it>
+	* probe devices to find filesystem if we have auto in fstab
+
+--- mkinitrd-4.2.17/mkinitrd.fstab-auto	2007-06-10 19:19:24.000000000 +0200
++++ mkinitrd-4.2.17/mkinitrd	2007-06-10 19:36:48.000000000 +0200
+@@ -1019,6 +1019,16 @@ done
+ rootfs=$(awk '{ if ($1 !~ /^[ \t]*#/ && $2 == "/") { print $3; }}' $fstab)
+ rootopts=$(awk '{ if ($1 !~ /^[ \t]*#/ && $2 == "/") { print $4; }}' $fstab)
+ 
++if [ "$rootfs" = "auto" ]; then
++	rootfs=`blkid -s TYPE $rootdev`
++	rootfs=${rootfs##*TYPE=\"}
++	rootfs=${rootfs%%\"*}
++fi
++if [ -z "$rootfs" ]; then
++	echo "Cannot determine root filesystem type from fstab" 1>&2
++	exit 1
++fi
++
+ # in case the root filesystem is modular
+ findmodule -${rootfs}
+ 

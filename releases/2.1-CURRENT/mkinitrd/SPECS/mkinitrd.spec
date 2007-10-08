@@ -26,8 +26,8 @@ Epoch:		%{epoch}
 License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://www.redhat.com/
-Source:		ftp://ftp.redhat.com/mkinitrd-%{version}.tar.bz2
-Source1:	mkinitrd-insmod-3.5.24.tar.bz2
+Source0:	ftp://ftp.redhat.com/mkinitrd-%{version}.tar.bz2
+Source1:	mkinitrd.sysconfig
 Patch0:		mkinitrd-4.2.17-mdk.patch
 Patch1:		mkinitrd-4.2.17-label.patch
 Patch2:		mkinitrd-4.2.17-cdrom.patch
@@ -43,14 +43,31 @@ Patch11:	mkinitrd-4.2.17-initramfs-dsdt.patch
 Patch12:	mkinitrd-4.2.17-ide.patch
 Patch13:	mkinitrd-4.2.17-avx-fix_switchroot.patch
 Patch14:	mkinitrd-4.2.17-avx-version.patch
+Patch15:	mkinitrd-4.2.17-mdv-atkbd.patch
+Patch16:	mkinitrd-4.2.17-mdv-suspend2.patch
+Patch17:	mkinitrd-4.2.17-mdv-resumemd.patch
+Patch18:	mkinitrd-4.2.17-mdv-usb-1394.patch
+Patch19:	mkinitrd-4.2.17-mdv-new_raid.patch
+Patch20:	mkinitrd-4.2.17-mdv-switchroot.patch
+Patch21:	mkinitrd-4.2.17-mdv-fstabauto.patch
+Patch22:	mkinitrd-4.2.17-mdv-uuid.patch
+Patch23:	mkinitrd-4.2.17-mdv-relatime.patch
+Patch24:	mkinitrd-4.2.17-mdv-scsi_wait_scan.patch
+Patch25:	mkinitrd-4.2.17-mdv-omit_ide.patch
+Patch26:	mkinitrd-4.2.17-mdv-rtc.patch
+Patch27:	mkinitrd-4.2.17-mdv-modinfo_kver.patch
+Patch28:	mkinitrd-4.2.17-mdv-ide_pata.patch
+Patch29:	mkinitrd-4.2.17-mdv-modfilename.patch
+Patch30:	mkinitrd-4.2.17-mdv-tuxonice.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl
+BuildRequires:	volume_id-devel
 %if %{use_dietlibc}
 BuildRequires:	dietlibc-devel
+# >= 0.30
 %else
 BuildRequires:	glibc-static-devel
-Requires:	/sbin/insmod.static
 %endif
 
 Requires:	mktemp >= 1.5-9mdk
@@ -64,7 +81,7 @@ Requires:	tar
 Requires:	findutils >= 4.1.7-3mdk
 Requires:	gawk
 Requires:	cpio
-Requires:	module-init-tools
+Requires:	module-init-tools >= 3.3-pre11
 
 %description
 Mkinitrd creates filesystem images for use as initial ramdisk (initrd)
@@ -83,7 +100,7 @@ ramdisk using information found in the /etc/modules.conf file.
 
 
 %prep
-%setup -q -a 1
+%setup -q
 %patch0 -p1 -b .mdk
 %patch1 -p1 -b .label
 %patch2 -p1 -b .cdrom
@@ -99,14 +116,30 @@ ramdisk using information found in the /etc/modules.conf file.
 %patch12 -p1 -b .ide
 %patch13 -p1 -b .fix_switchroot
 %patch14 -p1 -b .avx_version
+%patch15 -p1 -b .atkbd
+%patch16 -p1 -b .suspend2
+%patch17 -p1 -b .resumemd
+%patch18 -p1 -b .usb-1394
+%patch19 -p1 -b .new_raid
+%patch20 -p1 -b .switchroot
+%patch21 -p1 -b .fstabauto
+%patch22 -p1 -b .uuid
+%patch23 -p1 -b .relatime
+%patch24 -p1 -b .scsi_wait_scan
+%patch25 -p1 -b .omit_ide
+%patch26 -p1 -b .rtc
+%patch27 -p1 -b .modinfo_kver
+%patch28 -p1 -b .ide_pata
+%patch29 -p1 -b .modfilename
+%patch30 -p1 -b .tuxonice
 
 
 %build
 %if %{use_dietlibc}
 %ifarch x86_64
-    make DIET=1 CC="diet x86_64-annvix-linux-gnu-gcc"
+    make DIET=1 CC="diet x86_64-annvix-linux-gnu-gcc" DIETLIBC_LIB=%{_prefix}/lib/dietlibc/lib-%{_arch}
 %else
-    make DIET=1
+    make DIET=1 DIETLIBC_LIB=%{_prefix}/lib/dietlibc/lib-%{_arch}
 %endif
 %else
 make
@@ -116,9 +149,8 @@ make
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make BUILDROOT=%{buildroot} mandir=%{_mandir} install
-%if %{use_dietlibc}
-cp insmod/insmod %{buildroot}/sbin/insmod-DIET
-%endif
+mkdir -p %{buildroot}%{_sysconfdir}/sysconfig
+install -m 0644 %{_sourcedir}/mkinitrd.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/mkinitrd
 
 
 %clean
@@ -128,10 +160,55 @@ cp insmod/insmod %{buildroot}/sbin/insmod-DIET
 %files
 %defattr(-, root, root)
 /sbin/*
+%config(noreplace) %{_sysconfdir}/sysconfig/mkinitrd
 %{_mandir}/*/*
 
 
 %changelog
+* Sun Oct 07 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.2.17
+- sync with Mandriva 4.2.17-54mdv:
+  - updated P0 to fix infinite loop when parsing /proc/scsi/scsi
+  - updated P0 also removes the need for insmod-DIET and requirement
+    on insmod.static; not needed with a 2.6 kernel
+  - updated P0 uses st_rdev instead of st_dev when comparing device files
+    to prevent smartmknod() from failing on existing device nodes
+  - dropped S1 as a result of the above change in P0
+  - updated P1 to support LABEL= and UUID= mounts in /etc/fstab
+  - updated P5 to fix dsdt_file parameter name change and workaround --debug-busybox
+    by defaulting to ext2 when used
+  - updated P6 to allow resuming if device is specified in suspend.conf
+    instead of the commandline; also check if resume device exists prior
+    to resuming
+  - updated P8 to provide support for raid10 fakeraids and lvm and md
+    over dmraid and adds support for group sets (i.e. isw)
+  - updated P9 to fix copying of libgcc_s.so.1 when using EVMS and fixes using
+    --force_evms on x86_64
+  - P15: add support for modular ps2 keyboard
+  - P16: patch from rapsys for suspend2 support
+  - P17: support resume when booting from md
+  - P18: fix adding usb/1394 host drivers in certain situations
+  - P19: support md raid10 and combined raid456 module
+  - P20: fix switchroot when used without --movedev
+  - P21: probe devices to find filesystem in using auto in fstab
+  - P22: libvolume_id returns a textual representation of UUID so use it
+  - P23: support the relatime mount option
+  - P24: load scsi_wait_scan driver for SCSI devices, but don't make it mandatory
+  - P25: add --omit-ide-modules which is useful for migrating from an IDE kernel
+  - P26: pre-create /dev/rtc in initrd and when /dev is mounted as tmpfs
+  - P27: pass kernel version when running modinfo to find the module if it does not
+    exist for the running kernel
+  - P28: add pata drivers in initrd if listed in scsi_hostadapter, for when
+    mkinitrd is run from a kernel with legacy IDE modules
+  - P29: use modinfo to find the module filename which should fix loading modules with
+    an underscore in modname and dashes in the filename (such as usb_storage)
+  - P30: add tuxonice support
+  - provide a default /etc/sysconfig/mkinitrd
+  - buildrequires volume_id-devel
+  - require a newer module-init-tools for modinfo -k
+  - drop the requires on modutils
+- NOTE: this release kills any support for 2.4 kernels
+- NOTE2: P20 may invalidate P13 (this needs to be verified)
+
 * Sun Oct 07 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.2.17
 - requires module-init-tools, not modutils
 

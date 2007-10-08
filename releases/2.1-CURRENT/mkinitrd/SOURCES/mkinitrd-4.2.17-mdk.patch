@@ -138,7 +138,7 @@
 +Luca Berra <bluca at vodka.it>
  .fi
 --- mkinitrd-4.2.17/nash/nash.c.mdk	2005-06-24 17:41:11.000000000 +0200
-+++ mkinitrd-4.2.17/nash/nash.c	2005-12-16 12:34:21.000000000 +0100
++++ mkinitrd-4.2.17/nash/nash.c	2007-04-23 20:58:58.000000000 +0200
 @@ -7,6 +7,7 @@
   * Erik Troan (ewt@redhat.com)
   * Jeremy Katz (katzj@redhat.com)
@@ -174,7 +174,7 @@
 +
 +    if ((stat(device, &statbuf) == 0) &&
 +	((mode & S_IFMT) == (statbuf.st_mode & S_IFMT)) &&
-+	(dev == statbuf.st_dev))
++	(dev == statbuf.st_rdev))
 +	    return 0;
  
      strncpy(buf, device, 256);
@@ -468,13 +468,12 @@
 +	quiet = 1;
 +	reallyquiet = 1;
 +
-     }
++    }
 +
 +    free(buf);
 +    return 0;
- }
- 
--static int dev_probe(char * cmd, char * end)
++}
++
 +int remountdevCommand(char * cmd, char * end) {
 +    int forceflag = 0;
 +    char * newdev;
@@ -528,13 +527,14 @@
 +    /* create fb0 device if we are using graphics boot and udev */
 +    if (dev_read_devnum("/sys/class/graphics/fb0", &dev) == 0) {
 +	    smartmknod("/dev/fb0", S_IFCHR | 0600, dev);
-+    }
+     }
 +    mkdir("/dev/shm", 0755);
 +    mkdir("/dev/pts", 0755);
 +
 +    return 0;
-+}
-+
+ }
+ 
+-static int dev_probe(char * cmd, char * end)
 +/* this was grabbed from modules-init-tools
 +    insmod.c: insert a module into the kernel.
 +    Copyright (C) 2001  Rusty Russell.
@@ -668,16 +668,20 @@
  #ifdef DEBUG
          else if (!strncmp(start, "cat", MAX(3, chptr-start)))
              rc = catCommand(chptr, end);
-@@ -1847,7 +1990,7 @@
+@@ -1847,12 +1990,6 @@
  
      if (!strcmp(name, "modprobe"))
  	exit(0);
 -    if (!strcmp(name, "hotplug")) {
-+    if (strstr(name, "hotplug")) {
-         argv[0] = strdup("/sbin/udev");
-         execv(argv[0], argv);
-         printf("ERROR: exec of udev failed!\n");
-@@ -1874,6 +2017,17 @@
+-        argv[0] = strdup("/sbin/udev");
+-        execv(argv[0], argv);
+-        printf("ERROR: exec of udev failed!\n");
+-        exit(1);
+-    }
+ 
+     testing = (getppid() != 0) && (getppid() != 1);
+     argv++, argc--;
+@@ -1874,6 +2011,17 @@
  	}
      }
  
@@ -697,7 +701,7 @@
  
 --- mkinitrd-4.2.17/Makefile.mdk	2005-01-21 20:53:58.000000000 +0100
 +++ mkinitrd-4.2.17/Makefile	2005-12-16 12:34:21.000000000 +0100
-@@ -3,18 +3,11 @@
+@@ -3,18 +3,8 @@
  CVSTAG = r$(subst .,-,$(VERSION)-$(RELEASE))
  CVSROOT=$(shell cat CVS/Root)
  
@@ -714,9 +718,6 @@
 -#ifeq ($(ARCH),i386)
 -#SUBDIRS += loadinitrd
 -#endif
-+ifeq ($(DIET),1)
-+SUBDIRS += insmod
-+endif
  
  mandir=usr/share/man
  
@@ -737,7 +738,7 @@
  	install -m644 mkinitrd.8 $(BUILDROOT)/$(mandir)/man8/mkinitrd.8
  
 --- mkinitrd-4.2.17/mkinitrd.mdk	2005-06-24 17:41:30.000000000 +0200
-+++ mkinitrd-4.2.17/mkinitrd	2005-12-16 12:37:58.000000000 +0100
++++ mkinitrd-4.2.17/mkinitrd	2007-04-23 20:58:47.000000000 +0200
 @@ -23,13 +23,15 @@
  #	Bill Nottingham <notting@redhat.com>
  #       Guillaume Cottenceau <gc@mandrakesoft.com>
@@ -755,7 +756,7 @@
  
  compress=1
  allowmissing=""
-@@ -41,46 +43,70 @@
+@@ -41,46 +43,57 @@
  img_vers=""
  builtins=""
  pivot=1
@@ -764,7 +765,6 @@
  modulefile=/etc/modules.conf
 +tmpdir=
  rc=0
-+kernel25=""
  
 -IMAGESIZE=8000
 -PRESCSIMODS="scsi_mod sd_mod unknown"
@@ -781,7 +781,7 @@
 -    UDEV_TMPFS="yes"
 -    UDEV_KEEP_DEV="yes"
 -fi
-+[ -f /etc/udev/udev.conf -a -x /sbin/udevstart ] && USE_UDEV=yes
++[ -f /etc/udev/udev.conf -a \( -x /sbin/udevstart -o -x /sbin/start_udev \) ] && USE_UDEV=yes
 +
 +[ -f /etc/sysconfig/mkinitrd ] && source /etc/sysconfig/mkinitrd
  
@@ -803,21 +803,9 @@
      exit 1
  }
  
-+check_kernel_25() {
-+	local -i major minor
-+
-+	major=$(expr "$1" : '\([^.]\+\)\..*')
-+	minor=$(expr "$1" : '[^.]\+\.\([^.]\+\)\..*')
-+
-+	if [ $major -ge 3 -o $major -eq 2 -a $minor -ge 5 ]; then
-+		kernel25=yes
-+		modulefile=/etc/modprobe.conf
-+		modulemap="s@pdc-ultra@sata_promise@;s@usb-uhci@uhci-hcd@;s@usb-ohci@ohci-hcd@;s@^uhci\$@uhci-hcd@"
-+		IGNORE="$IGNORE ataraid"
-+	else
-+		USE_UDEV=
-+	fi
-+}
++modulefile=/etc/modprobe.conf
++modulemap="s@pdc-ultra@sata_promise@;s@usb-uhci@uhci-hcd@;s@usb-ohci@ohci-hcd@;s@^uhci\$@uhci-hcd@"
++IGNORE="$IGNORE ataraid"
 +
  moduledep() {
      if [ ! -f "/lib/modules/$kernel/modules.dep" ]; then
@@ -1072,7 +1060,7 @@
 +		if (i++==count) {exit }
 +	    }
 +	    ' /proc/scsi/scsi`
-+	for i in `seq 0 $bus`; do
++	for i in $bus; do
 +	    for j in /proc/scsi/*/$i; do
 +		if [ -f $j ]; then
 +		    j=${j%/$i}
@@ -1230,16 +1218,7 @@
  	*)
  	    if [ -z "$target" ]; then
  		target=$1
-@@ -286,6 +513,8 @@
-     usage
- fi
- 
-+check_kernel_25 "$kernel"
-+
- if [ -n "$img_vers" ]; then
-     target="$target-$kernel"
- fi
-@@ -305,218 +534,321 @@
+@@ -305,218 +534,317 @@
      exit 1
  fi
  
@@ -1323,12 +1302,9 @@
 -	findmodule scsi_mod
 -	findmodule sd_mod
 -	findmodule usb-storage
+-    fi
 +if [ -n "$forceusb" ]; then
-+    if [ -n "$kernel25" ]; then
-+        DRIVERLIST=(uhci-hcd ehci-hcd ohci-hcd)
-+    else
-+        DRIVERLIST=(scsi_mod uhci usb-uhci ehci-hcd usb-ohci)
-     fi
++    DRIVERLIST=(uhci-hcd ehci-hcd ohci-hcd)
 +    for driver in ${DRIVERLIST[*]}; do
 +	findmodule $driver
 +    done
@@ -1729,7 +1705,7 @@
  for n in $basicmodules; do 
      findmodule $n
  done
-@@ -526,147 +865,100 @@
+@@ -526,147 +858,93 @@
  fi
  
  
@@ -1823,14 +1799,8 @@
  
 -if [ -n "$USE_UDEV" ]; then
 -    ln -s /sbin/nash $MNTIMAGE/sbin/hotplug
+-fi
 +inst /sbin/nash "$MNTIMAGE/bin/nash"
-+if [[ -z "$kernel25" ]]; then
-+    if [[ -f /sbin/insmod-DIET ]]; then
-+	inst /sbin/insmod-DIET "$MNTIMAGE/bin/insmod"
-+    elif [[ -f /sbin/insmod.static ]]; then
-+	inst /sbin/insmod.static "$MNTIMAGE/bin/insmod"
-+    fi
- fi
 +ln -s ../bin/nash $MNTIMAGE/sbin/modprobe
  
  for MODULE in $MODULES; do
@@ -1929,7 +1899,7 @@
  
      if [ -n "$verbose" ]; then
  	if [ -n "$options" ]; then
-@@ -674,117 +966,257 @@
+@@ -674,117 +959,249 @@
  	fi
          echo "Loading module $module$text"
      fi
@@ -1958,24 +1928,19 @@
 -# HACK: module loading + device creation isn't necessarily synchronous...
 -# this will make sure that we have all of our devices before trying
 -# things like RAID or LVM
+-if [ -n "$USE_UDEV" ]; then
+-  echo "makedevs" >> $RCFILE
+-fi
 +[ "$debug_busybox" = "modload" ] && echo "echo run debug shell" >> $RCFILE && echo "/usr/bin/sh" >> $RCFILE
 +
 +echo "echo Mounting /proc filesystem" >> $RCFILE
 +echo "mount -t proc /proc /proc" >> $RCFILE
-+if [ -n "$kernel25" ];then
-+    echo "echo Mounting sysfs" >> $RCFILE
-+    echo "mount -t sysfs none /sys" >> $RCFILE
-+fi
-+
++echo "echo Mounting sysfs" >> $RCFILE
++echo "mount -t sysfs none /sys" >> $RCFILE
+ 
+-if [ -n "$startraid" ]; then
 +echo "echo Creating device files" >> $RCFILE
 +[ -n "$readonly" -o -n "$USE_UDEV" ] && echo "mountdev size=32M,mode=0755" >> $RCFILE
- if [ -n "$USE_UDEV" ]; then
--  echo "makedevs" >> $RCFILE
-+    ln -s /sbin/nash $MNTIMAGE/sbin/hotplug
-+    echo "echo -n /sbin/hotplug > /proc/sys/kernel/hotplug" >> $RCFILE
-+    # pretend we are using udev to trick rc.sysinit later
-+    echo "mkdir /dev/.udevdb" >> $RCFILE
-+fi
 +echo "mkdevices /dev" >> $RCFILE
 +if [ -z "$readonly" ]; then
 +    _partitions=`cat /proc/partitions | wc -l`
@@ -1986,9 +1951,8 @@
 +    echo "echo Mount fatx host filesystem to find root filesystem (Xbox)" >> $RCFILE
 +    echo "mkdir -p /fatx" >> $RCFILE
 +    echo "mount -t fatx /dev/hda50 /fatx" >> $RCFILE
- fi
- 
--if [ -n "$startraid" ]; then
++fi
++
 +if [ -n "$raiddevices" ]; then
 +    echo "echo Activating md devices" >> $RCFILE
 +    [ -x /sbin/mdadm ] && echo "DEVICE partitions" >| $MNTIMAGE/etc/mdadm.conf
@@ -2144,14 +2108,14 @@
 +    echo "mkrootdev /dev/root" >> $RCFILE
 +    rootdev=/dev/root
 +fi
-+
+ 
+-  if [ -n "$pivot" ]; then
+-    echo "echo 0x0100 > /proc/sys/kernel/real-root-dev" >> $RCFILE
 +if [ -n "$fatxloop" ]; then
 +    echo "echo Run losetup since root device is mounted on loopback (Xbox)" >> $RCFILE
 +    echo "losetup /dev/root /fatx/mandriva/rootfs" >> $RCFILE
 +fi
- 
--  if [ -n "$pivot" ]; then
--    echo "echo 0x0100 > /proc/sys/kernel/real-root-dev" >> $RCFILE
++
 +[ "$debug_busybox" = "pivot" ] && echo "echo run debug shell" >> $RCFILE && echo "/usr/bin/sh" >> $RCFILE
  
 -    echo "echo Mounting root filesystem" >> $RCFILE
@@ -2163,7 +2127,7 @@
 -    echo "pivot_root /sysroot /sysroot/initrd" >> $RCFILE
 -    echo "umount /initrd/proc" >> $RCFILE
 -  else
-+    if [ -n "$kernel25" -a "$initrdfs" = "initramfs" ]; then
++    if [ "$initrdfs" = "initramfs" ]; then
 +	echo "echo Switching to new root" >> $RCFILE
 +	if [ -n "$USE_UDEV" ]; then
 +	    echo "switchroot --movedev /sysroot" >> $RCFILE
@@ -2173,12 +2137,12 @@
 +    else	
 +	echo "echo 0x0100 > /proc/sys/kernel/real-root-dev" >> $RCFILE
 +	echo "pivot_root /sysroot /sysroot/initrd" >> $RCFILE
-+	[ -n "$kernel25" ] && echo "umount /initrd/sys" >> $RCFILE
++	echo "umount /initrd/sys" >> $RCFILE
 +	echo "umount /initrd/proc" >> $RCFILE
 +    fi
 +else
 +    [ -n "$readonly" ] && echo "umount /dev" >> $RCFILE
-+    [ -n "$kernel25" ] && echo "umount /sys" >> $RCFILE
++    echo "umount /sys" >> $RCFILE
      echo "umount /proc" >> $RCFILE
 -  fi
 -
@@ -2262,7 +2226,7 @@
 +if [[ -n "$dsdt_file" && -f "$dsdt_file" ]]; then
 +    echo -n "INITRDDSDT123DSDT123" >> $target
 +    cat "$dsdt_file" >> $target
-+    [ -n "$kernel25" ] && echo -n "INITRDDSDT321DSDT321" >> $target
++    echo -n "INITRDDSDT321DSDT321" >> $target
  fi
 -rm -rf $MNTIMAGE $IMAGE
 -if [ -n "$MNTPOINT" ]; then rm -rf $MNTPOINT ; fi
