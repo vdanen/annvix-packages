@@ -8,7 +8,7 @@
 VERSION=0.2
 
 usage () {
-    echo "usage: `basename $0` [--version] [-v]  [--config_dir=<configs_dir>]" >&2
+    echo "usage: `basename $0` [--version] [-v]  [--configs_dir=<configs_dir>]" >&2
     echo -e "\t(ex: `basename $0`" >&2
     exit 1
 }
@@ -63,11 +63,7 @@ for i in $configs_dir/*.config; do
 		print dealing with arch $architecture
 		install -m 644 $i $i.old
 		install -m 644 $i .config
-		if [ "${architecture%xen*}" != "$architecture" ]; then
-			make ARCH=xen oldconfig	
-		else
-			make ARCH=$architecture oldconfig	
-		fi
+		make ARCH=$architecture oldconfig	
 		install -m 644  .config $i
 	else
 		echo "file $i don't exist"

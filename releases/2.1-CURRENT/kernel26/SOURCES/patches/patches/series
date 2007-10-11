@@ -1,0 +1,76 @@
+#
+# Annvix kernel series file
+#
+# This file describes the order in which patches should be applied
+# in the kernel and why th patch is needed.
+#
+# Vincent Danen <vdanen@annvix.org>
+
+##
+## Core
+##
+## Patches that change the kernel's core
+##
+
+# adds the Chum framebuffer logo
+CZ01_Annvix_linux_logo_framebuffer.patch
+
+##
+## Security-Related Enhancement Patches
+##
+## Patches that add various security features to the kernel
+##
+
+# Novell AppArmor 2.1.0 pre-rerelease (SUSE 10_3 branch, commit 961)
+# https://forgesvn1.novell.com/viewsvn/apparmor/branches/10_3/
+SA01_security-create.diff.patch
+SA02_remove_suid.diff.patch
+SA03_vfs-notify_change.diff.patch
+SA04_security-setattr.diff.patch
+SA05_vfs-mkdir.diff.patch
+SA06_security-mkdir.diff.patch
+SA07_vfs-mknod.diff.patch
+SA08_security-mknod.diff.patch
+SA09_vfs-symlink.diff.patch
+SA10_security-symlink.diff.patch
+SA11_security-readlink.diff.patch
+SA12_vfs-link.diff.patch
+SA13_security-link.diff.patch
+SA14_vfs-rmdir.diff.patch
+SA15_security-rmdir.diff.patch
+SA16_fix-vfs_rmdir.diff.patch
+SA17_vfs-unlink.diff.patch
+SA18_security-unlink.diff.patch
+SA19_vfs-rename.diff.patch
+SA20_security-rename.diff.patch
+SA21_vfs-setxattr.diff.patch
+SA22_security-setxattr.diff.patch
+SA23_vfs-getxattr.diff.patch
+SA24_security-getxattr.diff.patch
+SA25_vfs-listxattr.diff.patch
+SA26_security-listxattr.diff.patch
+SA27_vfs-removexattr.diff.patch
+SA28_security-removexattr.diff.patch
+SA29_unambiguous-__d_path.diff.patch
+SA30_mount-consistent-__d_path.diff.patch
+SA31_d_namespace_path.diff.patch
+SA32_file-handle-ops.diff.patch
+SA33_security-xattr-file.diff.patch
+SA34_sysctl-pathname.diff.patch
+SA35_parent-permission.diff.patch
+SA36_apparmor-audit.diff.patch
+SA37_apparmor-main.diff.patch
+SA38_apparmor-lsm.diff.patch
+SA39_apparmor-module_interface.diff.patch
+SA40_apparmor-misc.diff.patch
+SA41_apparmor-intree.diff.patch
+SA42_apparmor-network.diff.patch
+SA43_do_path_lookup-nameidata.diff.patch
+SA44_sys_fchdir-nameidata.diff.patch
+SA45_file_permission-nameidata.diff.patch
+SA46_stack_secondary.diff.patch
+SA47_apparmor-log-audit-type.diff.patch
+SA48_apparmor-fix-return-code-and-rejected-mask.patch
+
+# forward port of Openwall's 2.4 patch to protect /proc
+SL61_avx-openwall-harden-proc.patch

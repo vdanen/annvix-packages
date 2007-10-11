@@ -5,7 +5,7 @@
 # Redistribution of this file is permitted under the terms of the GNU 
 # Public License (GPL)
 
-# stealed from use MDK::Common;
+# stolen from use MDK::Common;
 
 sub dirname { local $_ = shift; s|[^/]*/*\s*$||; s|(.)/*$|$1|; $_ || '.' }
 sub basename { local $_ = shift; s|/*\s*$||; s|.*/||; $_ }
@@ -26,35 +26,20 @@ my $configs_dir="";
 my @archs = qw(i386 x86_64);
 
 my @configs = (
-     [ qw(i586 up  4GB  up) ],
-     [ qw(i586 smp 64GB  smp) ],
-     [ qw(i586 smp 64GB  build) ],
-     [ qw(i586 up  4GB  BOOT) ],
+     [ qw(i686 smp 64GB  smp) ],
 
-     [ qw(x86_64 up  none up) ],
-     [ qw(x86_64 smp none smp) ],
-     [ qw(x86_64 smp none build) ],
-     [ qw(x86_64 up  none BOOT) ]
+     [ qw(x86_64 smp none smp) ]
 );
 
-# for xen-enabeld kernels
-#     [ qw(i586 smp none xenU) ],
-#     [ qw(i586 smp none xen0) ],
-#     [ qw(x86_64 smp none xenU) ],
-#     [ qw(x86_64 smp none xen0) ]
-
 my %cpu2arch = (
-    alpha => alpha,
-
-    i386 => i386,
-    i486 => i386,
-    i586 => i386,
-    i686 => i386,
-    p3   => i386,
+    i386   => i386,
+    i486   => i386,
+    i586   => i386,
+    i686   => i386,
+    p3     => i386,
     athlon => i386,
 
-    x86_64 => x86_64,
-
+    x86_64 => x86_64
 );
 
 sub dprint { print @_ if $verbose; }
@@ -67,501 +52,6 @@ sub config_init_globals {
     %values = %to_add = ();
 }
 
-my @nls_options = qw(
-    NLS_CODEPAGE_737
-    NLS_CODEPAGE_775
-    NLS_CODEPAGE_850
-    NLS_CODEPAGE_852
-    NLS_CODEPAGE_855
-    NLS_CODEPAGE_857
-    NLS_CODEPAGE_860
-    NLS_CODEPAGE_861
-    NLS_CODEPAGE_862
-    NLS_CODEPAGE_863
-    NLS_CODEPAGE_864
-    NLS_CODEPAGE_865
-    NLS_CODEPAGE_866
-    NLS_CODEPAGE_869
-    NLS_CODEPAGE_936
-    NLS_CODEPAGE_950
-    NLS_CODEPAGE_932
-    NLS_CODEPAGE_949
-    NLS_CODEPAGE_874
-    NLS_CODEPAGE_1250
-    NLS_CODEPAGE_1251
-    NLS_ISO8859_2
-    NLS_ISO8859_3
-    NLS_ISO8859_4
-    NLS_ISO8859_5
-    NLS_ISO8859_6
-    NLS_ISO8859_7
-    NLS_ISO8859_8
-    NLS_ISO8859_9
-    NLS_ISO8859_13
-    NLS_ISO8859_14
-    NLS_ISO8859_15
-    NLS_KOI8_R
-    NLS_KOI8_U
-    NLS_UTF8
-);
-
-sub disable_nls {
-    foreach (@nls_options) {
-	$values{$_} = "n";
-    }
-}
-
-
-my @disable_boot_options = qw(
-    SOFTWARE_SUSPEND
-    MODVERSIONS			      
-    KMOD
-
-    PROFILING
-
-    ACPI_INITRD
-    ACPI_SLEEP_PROC_FS
-    ACPI_AC
-    ACPI_BATTERY
-    ACPI_BUTTON
-    ACPI_FAN
-    ACPI_THERMAL
-    ACPI_EC
-
-    BSD_PROCESS_ACCT
-    AUDIT
-    AUDIT_SYSCALL
-    BINFMT_MISC
-    PM
-    PARPORT_SERIAL
-    IOSCHED_NOOP
-    IOSCHED_DEADLINE
-    IOSCHED_CFQ
-
-    PACKET_MMAP
-    NETLINK_DEV
-    IP_MULTICAST
-    IP_ADVANCED_ROUTER
-    NET_IPIP
-    NET_IPGRE
-    SYN_COOKIES
-
-    IPV6
-    VLAN_8021Q
-    IPX
-    ATALK
-    BRIDGE
-    NET_PKTGEN
-    WAN_ROUTER
-    NET_SCHED
-    IPSEC
-    BONDING
-    TUN
-    ETHERTAP
-    FDDI
-    SHAPER
-    WAN
-
-    SLIP_COMPRESSED
-    SLIP_SMART
-    SLIP_MODE_SLIP6
-
-    SCSI_CONSTANTS
-    AIC7XXX_OLD_TCQ_ON_BY_DEFAULT
-    AIC7XXX_OLD_PROC_STATS
-    AIC7XXX_REG_PRETTY_PRINT
-    AIC79XX_REG_PRETTY_PRINT
-    SCSI_LOGGING
-    SCSI_DEBUG
-
-    INPUT_JOYSTICK
-    INPUT_SERIO
-    INPUT_SERPORT
-    GAMEPORT
-    INPUT_IFORCE_USB
-    INPUT_DB9
-    INPUT_GAMECON
-    INPUT_TURBOGRAFX
-
-    ECC
-    INOTIFY
-    SERIAL_NONSTANDARD	     
-    UNIX98_PTYS
-
-    PARIDE
-    CDROM_PKTCDVD
-    BLUEZ
-    BT
-    I2C
-    W1
-    IPMI_HANDLER
-    WATCHDOG
-    AMD_RNG
-    NVRAM
-    DTLK
-    DRM
-    MWAVE
-    VIDEO_SAA7146_VV
-    VIDEO_SAA7146
-    VIDEO_DEV
-    DVB
-
-    HAMRADIO
-
-    CD_NO_IDESCSI
-    FTAPE
-    QIC02_TAPE
-
-    QUOTA
-    AUTOFS_FS
-    AUTOFS4_FS
-    ADFS_FS
-    AFFS_FS
-    SUPERMOUNT
-    HFS_FS
-    HFSPLUS_FS
-    BEFS_FS
-    BFS_FS
-    MSDOS_FS
-    UMSDOS_FS
-    EFS_FS
-    CRAMFS
-    JOLIET
-    ZISOFS
-    MINIX_FS
-    VXFS_FS
-    HPFS_FS
-    DEVFS_FS
-    DEVPTS_FS
-    ROMFS_FS
-    SYSV_FS
-    UDF_FS
-    UDF_RW
-    UFS_FS
-    XFS_QUOTA
-    XFS_DMAPI
-    CODA_FS
-    INTERMEZZO_FS
-    NFSD
-    CIFS
-    SMB_FS
-    NCP_FS
-    DAV_FS
-    PARTITION_ADVANCED
-
-    MDA_CONSOLE
-    FB_RIVA
-    FB_CLGEN
-    FB_PM2
-    FB_PM3
-    FB_CYBER2000
-    FB_VGA16
-    FB_HGA
-    FB_MATROX
-    FB_ATY
-    FB_RADEON
-    FB_ATY128
-    FB_SIS
-    FB_3DFX
-    FB_VOODOO1
-    FB_TRIDENT
-    FB_NEOMAGIC
-    FB_VIRTUAL
-
-    SOUND
-
-    USB_DYNAMIC_MINORS
-    USB_HIDDEV
-    USB_STORAGE_DPCM
-    USB_STORAGE_HP8200e
-    USB_STORAGE_SDDR09
-    USB_DC2XX
-    USB_MDC800
-    USB_SERIAL_GENERIC
-    USB_SERIAL_BELKIN
-    USB_SERIAL_WHITEHEAT
-    USB_SERIAL_DIGI_ACCELEPORT
-    USB_SERIAL_EMPEG
-    USB_SERIAL_FTDI_SIO
-    USB_SERIAL_VISOR
-    USB_SERIAL_IPAQ
-    USB_SERIAL_IR
-    USB_SERIAL_EDGEPORT
-    USB_SERIAL_EDGEPORT_TI
-    USB_SERIAL_KEYSPAN_PDA
-    USB_SERIAL_KEYSPAN
-    USB_SERIAL_MCT_U232
-    USB_SERIAL_KLSI
-    USB_SERIAL_PL2303
-    USB_SERIAL_XIRCOM
-    USB_SERIAL_OMNINET
-
-    USB_DABUSB
-    USB_POWERMATE
-    USB_ARMLINUX
-    USB_EPSON2888
-    USB_ZAURUS
-    USB_EMI62
-    USB_EMI26
-    USB_TIGL
-    USB_RIO500
-    USB_LEGOTOWER
-    USB_LCD
-    USB_LED
-    USB_CYTHERM
-    USB_PHIDGETSERVO
-    USB_TEST
-    HID_FF
-
-    MAGIC_SYSRQ
-    DEBUG_BUGVERBOSE
-
-    ACECAD
-    ISCSI_MOD
-    BCM5820
-    P4B_SMBUS
-    M7101
-    PLUSTEK
-    MOD_MARVEL
-    MOD_ZORAN
-    MOD_QUICKCAM
-    PAEP
-    SAM9407
-    VT_AR5K
-    DFG1394
-    QC_USB
-
-    AGP_ALI
-    AGP_ATI
-    AGP_AMD
-    AGP_AMD64
-    AGP_NVIDIA
-    AGP_SIS
-    AGP_SWORKS
-    AGP_VIA
-
-    ISDN_PPP
-    ISDN_AUDIO
-    ISDN_DRV_LOOP
-    ISDN_DIVERSION
-    ISDN_DRV_HISAX
-    ISDN_DRV_ICN
-    ISDN_DRV_PCBIT
-    ISDN_DRV_SC
-    ISDN_DRV_ACT2000
-    ISDN_DRV_EICON
-    ISDN_CAPI
-    ISDN_HYSDN
-
-    IEEE1394_VIDEO1394
-    IEEE1394_DV1394
-    IEEE1394_RAWIO
-    IEEE1394_AMDTP
-
-    SECURITY
-    RSBAC
-
-    CRYPTO_TEST
-
-);
-
-my @enable_boot_options = qw(
-    BOOT_KERNEL
-    XFS_FS
-    EXT3_FS
-    REISERFS_FS
-    BLK_DEV_MD
-    MD_LINEAR
-    MD_RAID0
-    MD_RAID1
-    MD_RAID5
-    MD_RAID6
-    MD_RAID10
-    MD_MULTIPATH
-    BLK_DEV_LVM
-    CC_OPTIMIZE_FOR_SIZE
-
-    PARPORT_PC_SUPERIO
-);
-
-
-my @module_boot_options = qw(
-    NFS_FS
-    SERIAL
-    BLK_DEV_MD    
-);
-
-my @disable_xen0_options = qw(
-    XEN_UNPRIVILEGED_GUEST
-    XEN_BLKDEV_TAP_BE  
-    XEN_TPMDEV_BACKEND 
-    XEN_NETDEV_PIPELINED_TRANSMITTER
-    XEN_BLKDEV_TAP
-    XEN_TPMDEV_FRONTEND
-    XEN_SHADOW_MODE
-    XEN_UNPRIVILEGED_GUEST
-    XEN_PCIDEV_FE_DEBUG
-    XEN_PCIDEV_BACKEND_PASS
-    XEN_PCIDEV_BE_DEBUG
-    CPU_FREQ
-    SCHED_MC
-    XEN_COMPAT_LATEST_ONLY
-);
-
-my @enable_xen0_options = qw(
-    XEN
-    XEN_PRIVILEGED_GUEST
-    XEN_UNPRIVILEGED_GUEST
-    XEN_PHYSDEV_ACCESS
-    XEN_PCIDEV_FRONTEND
-    XEN_BLKDEV_BACKEND 
-    XEN_NETDEV_BACKEND 
-    XEN_BLKDEV_FRONTEND
-    XEN_NETDEV_FRONTEND
-    XEN_SCRUB_PAGES
-    XEN_DISABLE_SERIAL
-    XEN_NETDEV_LOOPBACK
-    XEN_BACKEND
-    XEN_PCIDEV_BACKEND
-    XEN_PCIDEV_BACKEND_VPCI
-    XEN_SYSFS
-    XEN_COMPAT_030002_AND_LATER
-    XEN_COMPAT_030002
-);
-
-my @disable_xenU_options = qw(
-    XEN_DISABLE_SERIAL
-    XEN_PRIVILEGED_GUEST
-    XEN_NETDEV_FRONTEND_PIPELINED_TRANSMITTER
-    XEN_BLKDEV_TAP
-    XEN_TPMDEV_FRONTEND
-    XEN_SHADOW_MODE
-    XEN_PCIDEV_FE_DEBUG
-    HOTPLUG_PCI_SHPC_PHPRM_LEGACY
-    XEN_PCIDEV_BE_DEBUG
-    XEN_BLKDEV_TAP_BE  
-    XEN_NETDEV_PIPELINED_TRANSMITTER
-    XEN_TPMDEV_BACKEND
-    XEN_PCIDEV_BACKEND_PASS
-    CPU_FREQ
-    SCHED_MC
-    XEN_COMPAT_LATEST_ONLY
-);
-
-my @enable_xenU_options = qw(
-    XEN
-    XEN_UNPRIVILEGED_GUEST
-    XEN_PCIDEV_FRONTEND
-    XEN_BLKDEV_FRONTEND   
-    XEN_NETDEV_FRONTEND
-    XEN_SCRUB_PAGES
-    XEN_DISABLE_SERIAL
-    XEN_BACKEND
-    XEN_PCIDEV_BACKEND
-    XEN_PCIDEV_BACKEND_VPCI
-    XEN_BLKDEV_BACKEND
-    XEN_NETDEV_BACKEND
-    XEN_NETDEV_LOOPBACK
-    XEN_SYSFS
-    XEN_COMPAT_030002_AND_LATER
-    XEN_COMPAT_030002  
-);
-
-sub config_boot {
-    foreach (@enable_boot_options) {
-	$values{$_} = "y";
-    }
-
-    foreach (@disable_boot_options) {
-	$values{$_} = "n";
-    }
-
-    foreach (@module_boot_options) {
-	$values{$_} = "m";
-    }
-    
-    disable_nls();
-}
-
-my @disable_boot_x86 = qw (
-    CPU_FREQ
-    TOSHIBA
-    I8K
-    SONYPI
-    VIDEO_MEYE
-    MICROCODE
-    E820_PROC
-    ISA
-    EISA
-    HOTPLUG_PCI
-    BINFMT_AOUT
-    CDROM_PKTCDVD
-    MTD
-    PARPORT_OTHER
-    PNP
-    BLK_DEV_XD
-    INET_ECN
-    KHTTPD
-    DECNET
-    X25
-    LAPB
-    ECONET
-    PHONE
-    IDE_TASK_IOCTL
-    I2O
-    ARCNET
-    IRDA
- 
-    SCSI_GENERIC_NCR53C400
-    SCSI_U14_34F_LINKED_COMMANDS
-
-    FRAME_POINTER
-    KALLSYMS
-);
-
-my @disable_boot_x86_64 = qw (
-    CPU_FREQ
-    MICROCODE
-    HOTPLUG_PCI
-    BINFMT_AOUT
-    IA32_AOUT
-    MTD
-    PARPORT_OTHER
-    PNP
-    BLK_DEV_XD
-    INET_ECN
-    DECNET
-    X25
-    LAPB
-    ECONET
-    PHONE
-    IDE_TASK_IOCTL
-    I2O
-    ARCNET
-    IRDA
-    EQUALIZER
-    TR
-
-    KALLSYMS
-);
-
-sub config_boot_x86 {
-    config_boot();
-
-    foreach (@disable_boot_x86) {
-	$values{$_} = "n";
-    }
-}
-
-sub config_boot_x86_64 {
-    config_boot();
-
-    foreach (@disable_boot_x86_64) {
-	$values{$_} = "n";
-    }
-    $to_add{GEN_RTC}="n";
-}
-
 sub config_nproc {
     my ($nproc) = @_;
     
@@ -569,6 +59,7 @@ sub config_nproc {
 	$values{SMP} = "y";
 	$to_add{NR_CPUS} = "32";
 	$to_add{HOTPLUG_CPU } = "n";
+	$to_add{PREEMPT_BKL} = "n";
     } else {
 	$values{SMP} = "n";
     }
@@ -581,10 +72,13 @@ sub config_nproc_x86 {
 
     if ($nproc eq "smp") {
 	$to_add{HOTPLUG_CPU} = "y";
-	$to_add{CPU_FREQ} = "n";
+	$to_add{HOTPLUG_CPU} = "y";
+	$to_add{SMP_ALTERNATIVES} = "n";
 	$to_add{SCHED_SMT} = "y";
-	$to_add{IRQBALANCE} = "y";
-        $to_add{CPUSETS} = "n";
+	$to_add{IRQBALANCE} = "n";
+	$to_add{CPUSETS} = "n";
+	$to_add{NUMA} = "n";
+	$to_add{SCHED_MC} = "y";
     } else {
 	$to_add{X86_UP_APIC} = "y";
 	$to_add{X86_UP_IOAPIC} = "y";
@@ -601,12 +95,16 @@ sub config_nproc_x86_64 {
     config_nproc($nproc);	
     
     if ($nproc eq "smp" ) {
-	$to_add{SCHED_SMT} = "n";
-	$to_add{K8_NUMA} = "y";
-	$to_add{NUMA_EMU} = "n";
-	$to_add{NO_KGDB_CPUS} = "8";
-	$to_add{ACPI_NUMA} = "y";
+        $to_add{HOTPLUG_CPU} = "y";
+        $to_add{SCHED_SMT} = "n";
+        $to_add{K8_NUMA} = "y";
+        $to_add{X86_64_ACPI_NUMA} = "y";
+        $to_add{NUMA_EMU} = "n";
+        $to_add{ACPI_NUMA} = "y";
+        $to_add{NUMA} = "y";
         $to_add{CPUSETS} = "n";
+        $to_add{SCHED_MC} = "y";
+        $to_add{MIGRATION} = "y";
     } else {
 	# nothing from now
     }
@@ -616,20 +114,36 @@ sub config_x86_highmem {
     my ($mem) = @_;
     
     if ($mem eq "1GB" ) {
-        $values{HIGHMEM}= "n";
-        $values{HIGHMEM64G}= "n";
-        $values{NOHIGHMEM}= "y" ;
-        $values{HIGHPTE}= "n";
-    } elsif ($mem eq "4GB" ) {   
-        $values{HIGHMEM4G}= "y" ;
-        $values{HIGHMEM64G}= "n" ;
-        $values{HIGHPTE}= "n";
-    } elsif ($mem eq "64GB" ) {   
-        $values{HIGHMEM4G}= "n" ;
-        $values{HIGHMEM64G}= "y" ;
-        $values{HIGHPTE}= "n";
-    } else {
-        # nothing yet 
+	$values{HIGHMEM}= "n";
+	$values{HIGHMEM4G}= "n" ;
+	$values{HIGHMEM64G}= "n";
+	$values{NOHIGHMEM}= "y" ;
+	$values{HIGHPTE}= "n";
+	$values{VMSPLIT_3G} = "y";
+	$values{VMSPLIT_3G_OPT} = "n";
+	$values{VMSPLIT_2G} = "n";
+	$values{VMSPLIT_1G} = "n";
+    } elsif ($mem eq "4GB" ) {
+	$values{HIGHMEM}= "y";
+	$values{NOHIGHMEM}= "n" ;
+	$values{HIGHMEM4G}= "y" ;
+	$values{HIGHMEM64G}= "n" ;
+	$values{HIGHPTE}= "n";
+	$values{VMSPLIT_3G} = "y";
+	$values{VMSPLIT_3G_OPT} = "n";
+	$values{VMSPLIT_2G} = "n";
+	$values{VMSPLIT_1G} = "n";
+    } elsif ($mem eq "64GB") {
+	$values{HIGHMEM}= "y";
+	$values{NOHIGHMEM}= "n" ;
+	$values{HIGHMEM4G}= "n" ;
+	$values{HIGHMEM64G}= "y" ;
+	$values{HIGHPTE}= "n";
+	$values{VMSPLIT_3G} = "y";
+	$values{VMSPLIT_3G_OPT} = "n";
+	$values{VMSPLIT_2G} = "n";
+	$values{VMSPLIT_1G} = "n";
+	$to_add{I2O_EXT_ADAPTEC_DMA64} = "y";
     }
 }
 
@@ -646,8 +160,7 @@ sub config_x86_cpu {
 	$values{M686} = "n";
 	$values{M586} = "y";
     } elsif ($cpu eq "i686") {
-    	$values{M686} = "y";
-	$values{M586} = "n";
+        # nothing to do
     } elsif ($cpu eq "p3") {
 	$values{M686} = "n";
 	$values{MPENTIUMIII} = "y";
@@ -655,6 +168,26 @@ sub config_x86_cpu {
 	$values{M686} = "n";
 	$values{MK7} = "y";
     }
+}
+
+sub config_smp {
+    my ($name) =@_;
+
+	$values{PREEMPT_NONE} = "y";
+	$values{PREEMPT_VOLUNTARY} = "n";
+	$values{CPUSETS} = "y";
+	$values{HZ_100} = "y";
+	$values{HZ_1000} = "n";
+	$values{HZ} = "100";
+	$values{SWAP_PREFETCH} = "n";
+	$values{SERIAL_8250_NR_UARTS} = "32";
+	$values{SERIAL_8250_MANY_PORTS} = "y";
+	$values{DRBD} = "m";
+	$to_add{SERIAL_8250_FOURPORT} = "m";
+	$to_add{SERIAL_8250_ACCENT} = "m";
+	$to_add{SERIAL_8250_BOCA} = "m";
+	$to_add{SERIAL_8250_EXAR_ST16C554} = "m";
+	$to_add{SERIAL_8250_HUB6} = "m";
 }
 
 sub config_i386 {
@@ -678,10 +211,9 @@ sub config_i386 {
     config_x86_highmem($mem);
 
     $values{ACPI_HT_ONLY}= "y" unless $acpi;
+    $to_add{USB_STORAGE_ONETOUCH} = "y";
 
-    config_boot_x86() if $name eq "BOOT";
-    config_xenU($cpu, $nproc, $mem, $name) if $name eq "xenU";
-    config_xen0($cpu, $nproc, $mem, $name) if $name eq "xen0";
+    config_smp() if $name eq "smp";
 }
 
 sub config_x86_64 {
@@ -701,84 +233,9 @@ sub config_x86_64 {
     config_nproc_x86_64($nproc);
 
     $values{ACPI_HT_ONLY}= "y" unless $acpi;
+    $to_add{USB_STORAGE_ONETOUCH} = "n";
 
-    config_boot_x86_64() if $name eq "BOOT";
-    config_xenU($cpu, $nproc, $mem, $name) if $name eq "xenU";
-    config_xen0($cpu, $nproc, $mem, $name) if $name eq "xen0";
-}
-
-sub config_xenU {
-    my ($cpu, $nproc, $mem, $name) = @_;
-    my $arch = $cpu2arch{$cpu};
-    
-    dprint "config $name\n";
-
-    if ( "$arch" eq "i386" ) {
-	    $values{X86_XEN} = "y";
-	    $values{X86_PC} = "n";
-    }
-    else {
-	    $values{X86_64_XEN} = "y";
-    }
-    $values{TCG_TPM} = "n";
-    $values{SYNCLINK} = "n";
-    $values{MICROCODE} = "n";
-    $values{IPMI_HANDLER} = "n";
-    $values{HIGHMEM4G} = "y";
-    $values{HIGHMEM64G} = "n";
-    $values{X86_PAE} = "n";
-    $values{KEXEC} = "n";
-    $values{BADRAM} = "n";
-    $values{TOSHIBA} = "n";
-    $values{ACERHK} = "n";
-    
-    # FIXME: why this is needed... kbuild magic should handle this afaik
-    $values{ARCNET} = "n";
-    $values{NDISWRAPPER} = "n";
-    $values{BCM4400} = "n";
-    $values{HP100} = "n";
-    $values{B44} = "n";
-
-    foreach (@enable_xenU_options) {
-	$to_add{$_} = "y";
-    }
-
-    foreach (@disable_xenU_options) {
-	$to_add{$_} = "n";
-    }
-}
-
-sub config_xen0 {
-    my ($cpu, $nproc, $mem, $name) = @_;
-    my $arch = $cpu2arch{$cpu};
-    dprint "config $name\n";
-
-    if ( "$arch" eq "i386" ) {
-	    $values{X86_XEN} = "y";
-	    $values{X86_PC} = "n";
-    }
-    else {
-	    $values{X86_64_XEN} = "y";
-	    # too bad dma_get_cache_coherent not implented yet
-	    $values{B44} = "n";
-    }
-    $values{TCG_TPM} = "n";
-    $values{SYNCLINK} = "n";
-    $values{MICROCODE} = "n";
-    $values{IPMI_HANDLER} = "n";
-    $values{HIGHMEM4G} = "y";
-    $values{HIGHMEM64G} = "n";
-    $values{X86_PAE} = "n";
-    $values{KEXEC} = "n";
-    $values{BADRAM} = "n";
-
-    foreach (@enable_xen0_options) {
-	$to_add{$_} = "y";
-    }
-
-    foreach (@disable_xen0_options) {
-	$to_add{$_} = "n";
-    }
+    config_smp() if $name eq "smp";
 }
 
 sub modify_config {
@@ -828,7 +285,7 @@ sub config_name {
     my ($cpu, $nproc, $mem, $name) = @_;
     dprint "creating config name $cpu $nproc $mem $name\n";
 
-    if ( $name eq 'up' ) {
+    if ( $name eq 'default' ) {
 	return "";
     } elsif ($name eq 'none') {
 	@options = ($cpu, $nproc, $mem);
@@ -860,9 +317,6 @@ sub create_config {
 
     my $extension = config_name($cpu, $nproc, $mem, $name);
     mysystem("install -m 644 .config arch/$arch/defconfig$extension");
-    if ( "$arch" eq "xen") {
-        mysystem("make ARCH=$arch clean");
-    }
 }
 
 sub create_all_configs {
@@ -873,31 +327,12 @@ sub create_all_configs {
 
 sub copy_all_defconfigs {
     foreach my $arch (@archs) {
-	if ( "$arch" eq "xen" ) {
-		$file = "$configs_dir/xen0.$user_cpu.config";
-		$generic_file = "$configs_dir/xen0.config";
-		if ( -f $file || -f ( $file = $generic_file ) ) {
-		    dprint "dealing with $arch\n";
-		    mysystem "install -m 644 $file arch/$arch/defconfig-xen0";
-		} else {
-		    die "file $file don't exist";
-		}
-		$file = "$configs_dir/xenU.$user_cpu.config";
-		$generic_file = "$configs_dir/xenU.config";
-		if ( -f $file || -f ( $file = $generic_file ) ) {
-		    dprint "dealing with $arch\n";
-		    mysystem "install -m 644 $file arch/$arch/defconfig-xenU";
-		} else {
-		    die "file $file don't exist";
-		}
+	$file = "$configs_dir/$arch.config";
+	if ( -f $file ) {
+            dprint "dealing with $arch\n";
+	    mysystem "install -m 644 $file arch/$arch/defconfig-maximum";
 	} else {
-		$file = "$configs_dir/$arch.config";
-		if ( -f $file ) {
-		    dprint "dealing with $arch\n";
-		    mysystem "install -m 644 $file arch/$arch/defconfig-maximum";
-		} else {
-		    die "file $file don't exist";
-		}
+	    die "file $file don't exist";
 	}
     }
 }

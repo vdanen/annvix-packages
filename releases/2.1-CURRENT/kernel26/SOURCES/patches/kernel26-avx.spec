@@ -9,64 +9,49 @@
 
 %define revision	$Rev$
 %define kname		kernel
-%define kernelver	2
+%define kernelversion	2
 %define patchlevel	6
-%define sublevel	16
-%define minlevel	52
+%define sublevel	22
+%define minlevel	10
 %define avxrelease	%(echo %{revision}|cut -d ' ' -f 2)
 
-%define tar_version	%{kernelver}.%{patchlevel}.%{sublevel}.%{minlevel}
+%define kversion	%{kernelversion}.%{patchlevel}.%{sublevel}.%{minlevel}
+%define tar_ver		%{kversion}
 %define patchversion	avx%{avxrelease}
-%define realrelease	%{avxrelease}avx
+%define realrelease	%_revrel
 
 # never touch the folowing two fields
 %define rpmversion	1
 %define rpmrelease	1avx
-%define realversion	%{kernelver}.%{patchlevel}.%{sublevel}.%{minlevel}
-%define avxversion	%{realversion}-%{realrelease}
-%define patches_ver	%{realversion}-%{patchversion}
 
+%define realversion	%{kernelversion}.%{patchlevel}.%{sublevel}.%{minlevel}
+%define avxversion	%{kversion}-%{realrelease}
+%define patches_ver	%{kversion}-%{patchversion}
 
 # having different top level names for packges means
 # that you have to remove them by hard :(
-%define top_dir_name	%{kname}-avx
+%define top_dir_name	%{kname}-%{_arch}
 %define build_dir	${RPM_BUILD_DIR}/%{top_dir_name}
-%define src_dir		%{build_dir}/linux-%{tar_version}
-%define KVERREL		%{realversion}-%{realrelease}
-
-# this is the config that contains all the drivers for the hardware/
-# things that I use (Juan Quintela).
-%define build_minimal	0
+%define src_dir		%{build_dir}/linux-%{tar_ver}
 
 %define build_kheaders	0
 %define build_debug	0
 %define build_doc	0
 %define build_source	1
-%define build_BOOT	1
-%define build_build	0
-%define build_up	1
-%define build_smp	1
-%define build_xen	0
+%define build_devel	1
+%define build_BOOT	0
 
 # End of user definitions
 %{?_without_BOOT: %global build_BOOT 0}
-%{?_without_build: %global build_build 0}
-%{?_without_up: %global build_up 0}
-%{?_without_smp: %global build_smp 0}
-%{?_without_xen: %global build_xen 0}
 %{?_without_doc: %global build_doc 0}
 %{?_without_source: %global build_source 0}
-%{?_without_minimal: %global build_minimal 0}
+%{?_without_devel: %global build_devel 0}
 %{?_without_debug: %global build_debug 0}
 
 %{?_with_BOOT: %global build_BOOT 1}
-%{?_with_build: %global build_build 1}
-%{?_with_up: %global build_up 1}
-%{?_with_smp: %global build_smp 1}
-%{?_with_xen: %global build_xen 1}
 %{?_with_doc: %global build_doc 1}
 %{?_with_source: %global build_source 1}
-%{?_with_minimal: %global build_minimal 1}
+%{?_with_devel: %global build_devel 1}
 %{?_with_debug: %global build_debug 1}
 
 %{?_with_kheaders: %global build_kheaders 1}
@@ -74,24 +59,25 @@
 %define build_nosrc 			0
 %{?_with_nosrc: %global build_nosrc 1}
 
-
-
-%define kmake	%make
+%if %(if [ -z "$CC" ] ; then echo 0; else echo 1; fi)
+%define kmake %make CC="$CC"
+%else
+%define kmake %make
+%endif
 # there are places where parallel make don't work
-%define smake	make
+%define smake make
 
-# Aliases for amd64 builds (better make source links?)
-%define target_cpu	%(echo %{_target_cpu} | sed -e "s/amd64/x86_64/")
-%define target_arch	%(echo %{_arch} | sed -e "s/amd64/x86_64/")
+%define target_arch	%(echo %{_arch})
+%define target_cpu	%(echo %{_target_cpu})
 
-Summary:	The Linux %{kernelver}.%{patchlevel} kernel (the core of the Linux operating system)
+Summary:	The Linux %{kernelversion}.%{patchlevel} kernel (the core of the Linux operating system)
 Name:		%{kname}-%{avxversion}
 Version:	%{rpmversion}
 Release:	%{rpmrelease}
 License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://www.kernel.org/
-ExclusiveArch:	%{ix86} x86_64 amd64
+ExclusiveArch:	%{ix86} x86_64
 ExclusiveOS:	Linux
 
 ####################################################################
@@ -99,8 +85,8 @@ ExclusiveOS:	Linux
 # Sources
 #
 ### This is for full SRC RPM
-Source0: ftp://ftp.kernel.org/pub/linux/kernel/v%{kernelver}.%{patchlevel}/linux-%{tar_version}.tar.bz2
-Source1: ftp://ftp.kernel.org/pub/linux/kernel/v%{kernelver}.%{patchlevel}/linux-%{tar_version}.tar.bz2.sign
+Source0: ftp://ftp.kernel.org/pub/linux/kernel/v%{kernelversion}.%{patchlevel}/linux-%{tar_ver}.tar.bz2
+Source1: ftp://ftp.kernel.org/pub/linux/kernel/v%{kernelversion}.%{patchlevel}/linux-%{tar_ver}.tar.bz2.sign
 
 ### This is for stripped SRC RPM
 %if %build_nosrc
@@ -137,9 +123,9 @@ Source100:	linux-%{patches_ver}.tar.bz2
 %define requires3	bootloader-utils >= 1.6-5avx
 
 %define conflicts	iptables <= 1.2.9-1avx
-%define kprovides	kernel = %{realversion}
+%define kprovides	kernel = %{kversion}
 
-BuildRoot:	%{_buildroot}/%{kname}-%{realversion}
+BuildRoot:	%{_buildroot}/%{kname}-%{kversion}
 BuildRequires:	gcc >= 3.3.1-5avx
 BuildRequires:	module-init-tools
 
@@ -153,95 +139,61 @@ Conflicts:	%{conflicts}
 
 
 %description
-This is the default Annvix kernel version %{realversion} for single-CPU
-systems.
+This is the default Annvix kernel %{kversion}.  It supports SMP
+(multi-processor) systems with up to 64GB of RAM.
 
 
 #
-# kernel-up virtual rpm
+# kernel virtual rpm
 #
 
-%package -n %{kname}-up
-Summary:	Virtual rpm for the latest %{kname}-up kernel
-Version:	%{realversion}
+%package -n %{kname}
+Summary:	Virtual rpm for the latest %{kname} kernel
+Version:	%{kversion}
 Release:	%{realrelease}
 Group:		System/Kernel and hardware
 Requires:	%{kname}-%{avxversion}
 Provides:	kernel26-up
+Provides:	%{kname}-up
+Provides:	%{kname}-smp
+Obsoletes:	%{kname}-up
+Obsoletes:	%{kname}-smp
 
-%description -n %{kname}-up
+%description -n %{kname}
 This package is a virtual rpm that aims to make sure you always have the
-latest %{kname}-up installed.
+latest %{kname} installed.
 
 
 #
-# kernel-smp: Symmetric MultiProcessing kernel
+# kernel-devel rpm
 #
+%package -n %{kname}-devel-%{avxversion}
+Summary:	The kernel-devel files for the %{kname} kernel
+Group:		Development/Kernel
+Requires:	glibc-devel
+Requires:	ncurses-devel
+Requires:	make
+Requires:	gcc
+Requires:	perl
+Provides:	kernel-devel = %{version}
 
-%package -n %{kname}-smp-%{avxversion}
-Summary:	The Linux Kernel compiled for SMP machines
-Group:		System/Kernel and hardware
-Provides:	%{kprovides}
-Requires:	%{requires1}
-Requires:	%{requires2}
-Requires:	%{requires3}
-
-%description -n %{kname}-smp-%{avxversion}
-This is the default Annvix kernel %{realversion} for 4GB SMP systems.
-It is required only on machines with two or more CPUs, although it
-should work find on single-CPU systems.
-
+%description -n %{kname}-devel-%{avxversion}
+This package contains the kernel-devel files that should be sufficient to
+build 3rd-party drivers againt for use with the %{kname} kernel.
 
 #
-# kernel-smp virtual rpm
+# kernel-devel virtual RPM
 #
-
-%package -n %{kname}-smp
-Summary:	Virtual rpm for the latest %{kname}-smp kernel
-Version:	%{realversion}
+%package -n %{kname}-devel
+Summary:	Virtual rpm for the latest %{kname}-devel package
+Version:	%{kversion}
 Release:	%{realrelease}
-Group:		System/Kernel and hardware
-Requires:	%{kname}-smp-%{avxversion}
-Provides:	kernel26-smp
+Group:		Development/Kernel
+Requires:	%{kname}-devel-%{avxversion}
 
-%description -n %{kname}-smp
+%description -n %{kname}-devel
 This package is a virtual rpm that aims to make sure you always have the
-latest %{kname}-smp installed.
-
-
-#
-# kernel-build: standard up kernel without security features
-#
-
-%package -n %{kname}-build-%{avxversion}
-Summary:	The Linux kernel compiled without security features
-Group:		System/Kernel and hardware
-Provides:	%{kprovides}
-Requires:	%{requires1}
-Requires:	%{requires2}
-Requires:	%{requires3}
-
-%description -n %{kname}-build-%{avxversion}
-This is the "build" Anvix kernel version %{realversion}, which does not
-include any security enhancements and is only suitable for dedicated build
-systems that are otherwise adequately secured and non-public.
-
-
-#
-# kernel-build virtual rpm
-#
-
-%package -n %{kname}-build
-Summary:	Virtual rpm for the latest %{kname}-build kernel
-Version:	%{realversion}
-Release:	%{realrelease}
-Group:		System/Kernel and hardware
-Requires:	%{kname}-build-%{avxversion}
-Provides:	kernel26-build
-
-%description -n %{kname}-build
-This package is a virtual rpm that aims to make sure you always have the
-latest %{kname}-build installed.
+latest %{kname}-devel installed.
 
 
 #
@@ -265,7 +217,7 @@ turned off because of the size constraints.
 
 %package -n %{kname}-BOOT
 Summary:	Virtual rpm for the latest %{kname}-BOOT kernel
-Version:	%{realversion}
+Version:	%{kversion}
 Release:	%{realrelease}
 Group:		System/Kernel and hardware
 Requires:	%{kname}-BOOT-%{avxversion}
@@ -277,72 +229,12 @@ latest %{kname}-BOOT installed.
 
 
 #
-# kernel-xen0: XEN Kernel
-#
-
-%package -n %{kname}-xen0-%{avxversion}
-Summary:	The XEN hypervisor kernel
-Group:		System/Kernel and hardware
-
-%description -n %{kname}-xen0-%{avxversion}
-This package contains the XEN hypervisor kernel which provides device
-services to unprivileged guests.
-
-
-#
-# kernel-xen0 virtual rpm
-#
-
-%package -n %{kname}-xen0
-Summary:	Virtual rpm for the latest %{kname}-xen0 kernel
-Version:	%{realversion}
-Release:	%{realrelease}
-Group:		System/Kernel and hardware
-Requires:	%{kname}-xen0-%{avxversion}
-Provides:	kernel26-xen0
-
-%description -n %{kname}-xen0
-This package is a virtual rpm that aims to make sure you always have the
-latest %{kname}-xen0 installed.
-
-
-#
-# kernel-xenU: XEN Kernel
-#
-
-%package -n %{kname}-xenU-%{avxversion}
-Summary:	The XEN guest kernel
-Group:		System/Kernel and hardware
-
-%description -n %{kname}-xenU-%{avxversion}
-This package contains the XEN guest kernel which runs in XEN unprivileged
-guest VMs.
-
-
-#
-# kernel-xenU virtual rpm
-#
-
-%package -n %{kname}-xenU
-Summary:	Virtual rpm for the latest %{kname}-xenU kernel
-Version:	%{realversion}
-Release:	%{realrelease}
-Group:		System/Kernel and hardware
-Requires:	%{kname}-xenU-%{avxversion}
-Provides:	kernel26-xenU
-
-%description -n %{kname}-xenU
-This package is a virtual rpm that aims to make sure you always have the
-latest %{kname}-xenU installed.
-
-
-#
 # kernel-source: Kernel source
 #
 
 %package -n %{kname}-source
 Summary:	The source code for the Linux kernel
-Version:	%{realversion}
+Version:	%{kversion}
 Release:	%{realrelease}
 Requires:	glibc-devel
 Requires:	ncurses-devel
@@ -403,6 +295,8 @@ cd %{src_dir}
 %{patches_dir}/scripts/apply_patches
 
 # PATCH END
+
+
 #
 # Setup Begin
 #
@@ -415,13 +309,7 @@ cd %{src_dir}
 %define debug --no-debug
 %endif
 
-%if %{build_minimal}
-%define minimal --minimal
-%else
-%define minimal --no-minimal
-%endif
-
-%{patches_dir}/scripts/create_configs %{debug} %{minimal} --user_cpu="%{target_cpu}"
+%{patches_dir}/scripts/create_configs %{debug} --user_cpu="%{target_cpu}"
 
 # make sure the kernel has the sublevel we know it has...
 LC_ALL=C perl -p -i -e "s/^SUBLEVEL.*/SUBLEVEL = %{sublevel}/" Makefile
@@ -446,10 +334,9 @@ popd
 
 %build
 # Common target directories
-%define _kerneldir	/usr/src/linux-%{KVERREL}
+%define _kerneldir	/usr/src/linux-%{avxversion}
 %define _bootdir	/boot
 %define _modulesdir	/lib/modules
-%define _savedheaders	../../savedheaders/
 
 # Directories definition needed for building
 %define temp_root %{build_dir}/temp-root
@@ -460,21 +347,20 @@ popd
 PrepareKernel() {
     name=$1
     extension=$2
-    echo "Prepare compilation for kernel $extension"
+    echo "Make dep for kernel $extension"
+    %{smake} -s mrproper
 
-    # We can't use only defconfig anyore because we have the autoconf patch,
-
-    if [ -z "$name" ]; then
-        config_name="defconfig"
+    if [ "$name" = "" ]; then
+        cp arch/%{target_arch}/defconfig-smp .config
     else
-        config_name="defconfig-$name"
+        cp arch/%{target_arch}/defconfig-$name .config
     fi
 
     # make sure EXTRAVERSION says what we want it to say
     LC_ALL=C perl -p -i -e "s/^EXTRAVERSION.*/EXTRAVERSION = .%{minlevel}-$extension/" Makefile
+    ### FIXME MDV bugs #29744, #29074, will be removed when fixed upstream
+    LC_ALL=C perl -p -i -e "s/^source/### source/" drivers/crypto/Kconfig
 
-    %{smake} -s mrproper
-    cp arch/%{target_arch}/$config_name .config
     %{smake} oldconfig
 }
 
@@ -489,87 +375,203 @@ BuildKernel() {
     install -m 0644 System.map %{temp_boot}/System.map-$KernelVer
     install -m 0644 .config %{temp_boot}/config-$KernelVer
 
-    %ifarch %{ix86}
-    if [ "$KernelVer" == "%{KVERREL}xen0" -o "$KernelVer" == "%{KVERREL}xenU" ]; then
-        cp -f vmlinuz %{temp_boot}/vmlinuz-$KernelVer
-    else
-        cp -f arch/i386/boot/bzImage %{temp_boot}/vmlinuz-$KernelVer
-    fi
-    %endif
-    %ifarch x86_64
-    if [ "$KernelVer" == "%{KVERREL}xen0" -o "$KernelVer" == "%{KVERREL}xenU" ]; then
-        cp -f vmlinuz %{temp_boot}/vmlinuz-$KernelVer
-    else
-        cp -f arch/x86_64/boot/bzImage %{temp_boot}/vmlinuz-$KernelVer
-    fi
-    %endif
+    cp -f arch/%{target_arch}/boot/bzImage %{temp_boot}/vmlinuz-$KernelVer
 
     # modules
     install -d %{temp_modules}/$KernelVer
     %{smake} INSTALL_MOD_PATH=%{temp_root} KERNELRELEASE=$KernelVer modules_install 
 }
 
-SaveHeaders() {
-    flavour=$1
-    flavour_name="`echo $flavour | sed 's/-/_/g'`"
+SaveDevel() {
+    devel_flavour=$1
 
-%if %{build_source}
-    HeadersRoot=%{temp_source}/savedheaders
-    HeadersArch=$HeadersRoot/%{target_cpu}/$flavour
-    echo "Saving headers for $flavour %{target_cpu}"
+    DevelRoot=/usr/src/linux-%{avxversion}-$devel_flavour-%{rpmrelease}
+    TempDevelRoot=%{temp_root}$DevelRoot
 
-    # deal with the kernel headers that are version specific
-    install -d $HeadersArch
-    install -m 0644 include/linux/autoconf.h $HeadersArch/autoconf.h
-    install -m 0644 include/linux/version.h $HeadersArch/version.h
-    echo "%{target_cpu} $flavour_name %{_savedheaders}%{target_cpu}/$flavour/" >> $HeadersRoot/list
-%endif
+    mkdir -p $TempDevelRoot
+    for i in $(find . -name Makefile -o -name Makefile-* -o -name Makefile.*); do cp -R --parents $i $TempDevelRoot;done
+    for i in $(find . -name Kconfig -o -name Kconfig.* -o -name Kbuild -o -name Kbuild.*); do cp -R --parents $i $TempDevelRoot;done
+    cp -fR include $TempDevelRoot
+    cp -fR scripts $TempDevelRoot
+    cp -fR arch/%{target_arch}/kernel/asm-offsets.{c,s} $TempDevelRoot/arch/%{target_arch}/kernel/
+    %ifarch %{ix86}
+    cp -fR arch/%{target_arch}/kernel/sigframe.h $TempDevelRoot/arch/%{target_arch}/kernel/
+    %endif
+    cp -fR .config Module.symvers $TempDevelRoot
+	
+    # Needed for truecrypt build (Danny)
+    cp -fR drivers/md/dm.h $TempDevelRoot/drivers/md/
+	
+    for i in alpha arm arm26 avr32 blackfin cris frv h8300 ia64 mips m32r m68knommu parisc s390 sh sh64 v850 xtensa m68k ppc powerpc sparc sparc64; do
+        rm -rf $TempDevelRoot/arch/$i
+        rm -rf $TempDevelRoot/include/asm-$i
+    done
+	
+    # fix permissions
+    chmod -R a+rX $TempDevelRoot
+
+    kernel_devel_files=../kernel_devel_files.$devel_flavour
+	
+
+### Create the kernel_devel_files.*
+cat > $kernel_devel_files <<EOF
+%defattr(-,root,root)
+%dir $DevelRoot
+%dir $DevelRoot/arch
+%dir $DevelRoot/include
+$DevelRoot/Documentation
+$DevelRoot/arch/i386
+$DevelRoot/arch/x86_64
+$DevelRoot/arch/um
+$DevelRoot/block
+$DevelRoot/crypto
+$DevelRoot/drivers
+$DevelRoot/fs
+$DevelRoot/include/Kbuild
+$DevelRoot/include/acpi
+$DevelRoot/include/asm
+$DevelRoot/include/asm-generic
+$DevelRoot/include/asm-i386
+$DevelRoot/include/asm-x86_64
+$DevelRoot/include/asm-um
+$DevelRoot/include/config
+$DevelRoot/include/crypto
+$DevelRoot/include/keys
+$DevelRoot/include/linux
+$DevelRoot/include/math-emu
+$DevelRoot/include/media
+$DevelRoot/include/mtd
+$DevelRoot/include/net
+$DevelRoot/include/pcmcia
+$DevelRoot/include/rdma
+$DevelRoot/include/rxrpc
+$DevelRoot/include/scsi
+$DevelRoot/include/sound
+$DevelRoot/include/video
+$DevelRoot/init
+$DevelRoot/ipc
+$DevelRoot/kernel
+$DevelRoot/lib
+$DevelRoot/mm
+$DevelRoot/net
+$DevelRoot/scripts
+$DevelRoot/security
+$DevelRoot/sound
+$DevelRoot/usr
+$DevelRoot/.config
+$DevelRoot/Kbuild
+$DevelRoot/Makefile
+$DevelRoot/Module.symvers
+EOF
+
+
+### Create -devel Post script on the fly
+cat > $kernel_devel_files-post <<EOF
+if [ -d /lib/modules/%{avxversion}-$devel_flavour-%{rpmrelease} ]; then
+    rm -f /lib/modules/%{avxversion}-$devel_flavour-%{rpmrelease}/{build,source}
+    ln -sf $DevelRoot /lib/modules/%{avxversion}-$devel_flavour-%{rpmrelease}/build
+    ln -sf $DevelRoot /lib/modules/%{avxversion}-$devel_flavour-%{rpmrelease}/source
+fi
+EOF
+
+
+### Create -devel Preun script on the fly
+cat > $kernel_devel_files-preun <<EOF
+if [ -L /lib/modules/%{avxversion}-$devel_flavour-%{rpmrelease}/build ]; then
+    rm -f /lib/modules/%{avxversion}-$devel_flavour-%{rpmrelease}/build
+fi
+if [ -L /lib/modules/%{avxversion}-$devel_flavour-%{rpmrelease}$devel_cpu/source ]; then
+    rm -f /lib/modules/%{avxversion}-$devel_flavour-%{rpmrelease}/source
+fi
+exit 0
+EOF
 }
+
 
 CreateFiles() {
-    kversion=$1
-    output=../kernel_files.$kversion
+    kernel_flavour=$1
+	
+    kernel_files=../kernel_files.$kernel_flavour
+	
+### Create the kernel_files.*
+cat > $kernel_files <<EOF
+%defattr(-,root,root)
+%{_bootdir}/System.map-%{avxversion}$kernel_flavour}
+%{_bootdir}/config-%{avxversion}$kernel_flavour}
+%{_bootdir}/vmlinuz-%{avxversion}$kernel_flavour
+%dir %{_modulesdir}/%{avxversion}$kernel_flavour/
+%{_modulesdir}/%{avxversion}$kernel_flavour/kernel
+%{_modulesdir}/%{avxversion}$kernel_flavour/modules.*
+EOF
 
-    echo "%defattr(-,root,root)" > $output
-    echo "%{_bootdir}/config-${kversion}" >> $output
-    echo "%{_bootdir}/vmlinuz-${kversion}" >> $output
-    echo "%{_bootdir}/System.map-${kversion}" >> $output
-    echo "%dir %{_modulesdir}/${kversion}/" >> $output
-    echo "%{_modulesdir}/${kversion}/kernel" >> $output
-    echo "%{_modulesdir}/${kversion}/modules.*" >> $output
+
+### Create kernel Post script
+cat > $kernel_files-post <<EOF
+/sbin/installkernel %{avxversion}$kernel_flavour
+pushd /boot > /dev/null
+    if [ -L vmlinuz-$kernel_flavour ]; then
+        rm -f vmlinuz-$kernel_flavour
+    fi
+    ln -sf vmlinuz-%{avxversion}$kernel_flavour vmlinuz-$kernel_flavour
+    if [ -L initrd-$kernel_flavour.img ]; then
+        rm -f initrd-$kernel_flavour.img
+    fi
+    ln -sf initrd-%{avxversion}$kernel_flavour.img initrd-$kernel_flavour.img
+popd > /dev/null
+%if %build_devel
+if [ -d /usr/src/linux-%{avxversion}$kernel_flavour ]; then
+    rm -f /lib/modules/%{avxversion}$kernel_flavour/{build,source}
+    ln -sf /usr/src/linux-%{avxversion}$kernel_flavour /lib/modules/%{avxversion}$kernel_flavour/build
+    ln -sf /usr/src/linux-%{avxversion}$kernel_flavour /lib/modules/%{avxversion}$kernel_flavour/source
+fi
+%endif
+EOF
+
+
+### Create kernel Preun script on the fly
+cat > $kernel_files-preun <<EOF
+/sbin/installkernel -R %{avxversion}$kernel_flavour
+pushd /boot > /dev/null
+    if [ -L vmlinuz-$kernel_flavour ]; then
+        if [ \$(readlink vmlinuz-$kernel_flavour) = "vmlinuz-%{avxversion}$kernel_flavour" ]; then
+            rm -f vmlinuz-$kernel_flavour
+        fi
+    fi
+    if [ -L initrd-$kernel_flavour.img ]; then
+        if [ \$(readlink initrd-$kernel_flavour.img) = "initrd-%{avxversion}$kernel_flavour.img" ]; then
+            rm -f initrd-$kernel_flavour.img
+        fi
+    fi
+popd > /dev/null
+%if %build_devel
+if [ -L /lib/modules/%{avxversion}$kernel_flavour/build ]; then
+    rm -f /lib/modules/%{avxversion}$kernel_flavour/build
+fi
+if [ -L /lib/modules/%{avxversion}$kernel_flavour/source ]; then
+    rm -f /lib/modules/%{avxversion}$kernel_flavour/source
+fi
+%endif
+exit 0
+EOF
+
+
+### Create kernel Postun script on the fly
+cat > $kernel_files-postun <<EOF
+/sbin/kernel_remove_initrd %{avxversion}$kernel_flavour
+EOF
 }
+
 
 CreateKernel() {
     flavour=$1
 
-    if [ "$flavour" = "up" ]; then
-        KernelVer=%{KVERREL}
-        PrepareKernel "" %realrelease
-    else
-        KernelVer=%{KVERREL}$flavour
-        PrepareKernel $flavour %{realrelease}$flavour
-    fi
+    PrepareKernel $flavour %{realrelease}$flavour
 
-    BuildKernel $KernelVer
-    SaveHeaders $flavour
-    CreateFiles $KernelVer
+    BuildKernel %{avxversion}$flavour
+    SaveDevel $flavour
+    CreateFiles $flavour
 }
 
-
-CreateKernelNoName() {
-    arch=$1
-    nprocs=$2
-    memory=$3
-
-    name=$arch-$nprocs-$memory
-    extension="%{realrelease}-$name"
-
-    KernelVer="%{KVERREL}-$arch-$nprocs-$memory"
-    PrepareKernel $name $extension
-    BuildKernel $KernelVer
-    SaveHeaders $name
-    CreateFiles $KernelVer
-}
 
 ###
 # DO it...
@@ -582,32 +584,12 @@ install -d %{temp_root}
 # make sure we are in the directory
 cd %{src_dir}
 
-%if %{build_BOOT}
-CreateKernel BOOT
-%endif
-
-%if %{build_smp}
+# this is the default kernel
 CreateKernel smp
-%endif
-
-%if %{build_build}
-CreateKernel build
-%endif
-
-%if %{build_up}
-CreateKernel up
-%endif
-
-%if %{build_xen}
-CreateKernel xen0
-CreateKernel xenU
-%endif
 
 # We don't make to repeat the depend code at the install phase
 %if %{build_source}
 PrepareKernel "" %{realrelease}custom
-# From > 2.6.13 prepare-all is deprecated and relies on include/linux/autoconf
-# To have modpost and other scripts, one has to use the target scripts
 %{smake} -s prepare
 %{smake} -s scripts
 %endif
@@ -640,7 +622,7 @@ chmod -R a+rX %{target_source}
 # we remove all the source files that we don't ship
 
 # first architecture files
-for i in alpha arm cris m68k mips mips64 parisc ppc ppc64 powerpc s390 s390x sh sh64 arm26 sparc sparc64 h8300 m68knommu v850 m32r frv xtensa; do
+for i in alpha arm avr32 blackfin cris ia64 m68k mips mips64 parisc ppc ppc64 powerpc s390 s390x sh sh64 arm26 sparc sparc64 h8300 m68knommu v850 m32r frv xtensa; do
     rm -rf %{target_source}/arch/$i
     rm -rf %{target_source}/include/asm-$i
 done
@@ -652,55 +634,12 @@ rm -rf %{target_source}/include/config
 rm -rf %{target_source}/%{patches_ver}
 
 # other misc files
-rm -f %{target_source}/{.config.old,.config.cmd}
-%if %{build_xen}
-rm -f %{target_source}/include/.asm-ignore
-rm -f %{target_source}/vmlinux-stripped
-rm -f %{target_source}/vmlinuz
-%endif
+rm -f %{target_source}/{.config.old,.config.cmd,.mailmap,.missing-syscalls.d}
 
 
 # copy README's
 cp %{_sourcedir}/README.Annvix %{target_source}/
 cp %{_sourcedir}/README.annvix-kernel-sources %{target_source}/
-
-pushd %{target_source}/include/linux ; {
-    install -m 0644 %{_sourcedir}/linux-annvix-config.h rhconfig.h
-    rm -rf autoconf.h version.h
-    # Create autoconf.h file
-    echo '#include <linux/rhconfig.h>' > autoconf.h
-    sed 's,$,autoconf.h,' %{_savedheaders}list | awk -f %{_sourcedir}/annvix-linux-merge-config.awk >> autoconf.h
-    # Create version.h
-    echo "#include <linux/rhconfig.h>" > version.h
-    loop_cnt=0
-    for i in BOOT up smp build xen0; do
-        if [ -d %{_savedheaders}%{target_cpu}/$i -a -f %{_savedheaders}%{target_cpu}/$i/version.h ]; then
-            name=`echo $i | sed 's/-/_/g'`
-            if [ $loop_cnt = 0 ]; then
-                buf="#if defined(__module__$name)"
-            else
-                buf="#elif defined(__module__$name)"
-            fi
-            echo "$buf" >> version.h
-            grep UTS_RELEASE %{_savedheaders}%{target_cpu}/$i/version.h >> version.h
-            loop_cnt=$[loop_cnt + 1]
-        fi
-    done
-    # write last lines
-    if [ $loop_cnt -eq 0 ]; then
-        echo "You need to build at least one kernel"
-        exit 1;
-    fi
-    echo "#else" >> version.h
-    echo '#define UTS_RELEASE "'%{KVERREL}custom'"' >> version.h
-    echo "#endif" >> version.h
-
-    # Any of the version.h are ok, as they only differ in the first line
-    ls %{_savedheaders}%{target_cpu}/*/version.h | head -n 1 | xargs grep -v UTS_RELEASE >> version.h
-    rm -rf %{_savedheaders}
-    } ;
-popd
-#endif build_source
 %endif
 
 # Gzip modules
@@ -716,7 +655,7 @@ done
 
 pushd %{target_modules}
     for i in *; do
-        /sbin/depmod-25 -u -ae -b %{buildroot} -r -F %{target_boot}/System.map-$i $i
+        /sbin/depmod -u -ae -b %{buildroot} -r -F %{target_boot}/System.map-$i $i
         echo $?
     done
 
@@ -724,7 +663,7 @@ pushd %{target_modules}
         pushd $i
             echo "Creating module.description for $i"
             modules=`find . -name "*.ko.gz"`
-            echo $modules | xargs /sbin/modinfo-25 \
+            echo $modules | xargs /sbin/modinfo \
               | perl -lne 'print "$name\t$1" if $name && /^description:\s*(.*)/; $name = $1 if m!^filename:\s*(.*)\.k?o!; $name =~ s!.*/!!' > modules.description
         popd
     done
@@ -746,82 +685,47 @@ popd
 ### scripts
 ###
 
-%define options_preun -g -R -S -c
-%define options_post -g -s -c
-
-
-# up kernel
-%preun
-/sbin/installkernel %options_preun %{KVERREL}
-exit 0
-
-%post
-/sbin/installkernel %options_post %{KVERREL}
-
-%postun
-/sbin/kernel_remove_initrd %{KVERREL}
-
-
-# smp kernel
-%preun -n %{kname}-smp-%{avxversion}
-/sbin/installkernel %options_preun %{KVERREL}smp
-exit 0
-
-%post -n %{kname}-smp-%{avxversion}
-/sbin/installkernel %options_post %{KVERREL}smp
-
-%postun -n %{kname}-smp-%{avxversion}
-/sbin/kernel_remove_initrd %{KVERREL}smp
-
-
-# build kernel
-%preun -n %{kname}-build-%{avxversion}
-/sbin/installkernel %options_preun %{KVERREL}build
-exit 0
-
-%post -n %{kname}-build-%{avxversion}
-/sbin/installkernel %options_post %{KVERREL}build
-
-%postun -n %{kname}-build-%{avxversion}
-/sbin/kernel_remove_initrd %{KVERREL}build
+# default kernel
+%preun -f kernl_files.smp-preun
+%post -f kernel_files.smp-post
+%postun -f kernel_files.smp-postun
 
 
 # BOOT kernel
-%preun -n %{kname}-BOOT-%{avxversion}
-/sbin/installkernel %options_preun %{KVERREL}BOOT
-exit 0
+%preun -n %{kname}-BOOT-%{avxversion} -f kernel_files.BOOT-preun
+%post -n %{kname}-BOOT-%{avxversion} -f kernel_files.BOOT-post
+%postun -n %{kname}-BOOT-%{avxversion} -f kernel_files.BOOT-postun
 
-%post -n %{kname}-BOOT-%{avxversion}
-/sbin/installkernel %options_post %{KVERREL}BOOT
-
-%postun -n %{kname}-BOOT-%{avxversion}
-/sbin/kernel_remove_initrd %{KVERREL}BOOT
+# devel files
+%post -n %{kname}-devel-%{avxversion} -f kernel_devel_files.smp-post
+%preun -n %{kname}-devel-%{avxversion} -f kernel_devel_files.smp-preun
 
 
 ### kernel source
 %post -n %{kname}-source
 pushd /usr/src >/dev/null 2>&1
     rm -f linux
-    ln -snf linux-%{KVERREL} linux
+    ln -snf linux-%{avxversion} linux
     /sbin/service kheader start 2>/dev/null >/dev/null || :
     # we need to create /build only when there is a source tree.
 
-    for i in /lib/modules/%{KVERREL}*; do
+    for i in /lib/modules/%{avxversion}*; do
         if [ -d $i ]; then
-            ln -sf /usr/src/linux-%{KVERREL} $i/build
-            ln -sf /usr/src/linux-%{KVERREL} $i/source
+            ln -sf /usr/src/linux-%{avxversion} $i/build
+            ln -sf /usr/src/linux-%{avxversion} $i/source
         fi
     done
 popd >/dev/null 2>&1
 
+
 %postun -n %{kname}-source
 if [ -L /usr/src/linux ]; then 
-    if [ -L /usr/src/linux -a `ls -l /usr/src/linux 2>/dev/null| awk '{ print $11 }'` = "linux-%{KVERREL}" ]; then
+    if [ -L /usr/src/linux -a `ls -l /usr/src/linux 2>/dev/null| awk '{ print $11 }'` = "linux-%{avxversion}" ]; then
         [ $1 = 0 ] && rm -f /usr/src/linux
     fi
 fi
 # we need to delete <modules>/build at unsinstall
-for i in /lib/modules/%{KVERREL}*/{build,source}; do
+for i in /lib/modules/%{avxversion}*/{build,source}; do
     if [ -L $i ]; then
         rm -f $i
     fi
@@ -832,45 +736,26 @@ exit 0
 ### file lists
 ###
 
-%if %{build_up}
-%files -f kernel_files.%{KVERREL}
+%files -n %{kname}-%{avxversion} -f kernel_files.smp
 
-%files -n %{kname}-up
+%files -n %{kname}
 %defattr(-,root,root)
-%endif
 
-%if %{build_smp}
-%files -n %{kname}-smp-%{avxversion} -f kernel_files.%{KVERREL}smp
-
-%files -n %{kname}-smp
-%defattr(-,root,root)
-%endif
-
-%if %{build_build}
-%files -n %{kname}-build-%{avxversion} -f kernel_files.%{KVERREL}build
-
-%files -n %{kname}-build
-%defattr(-,root,root)
-%endif
 
 %if %{build_BOOT}
-%files -n %{kname}-BOOT-%{avxversion} -f kernel_files.%{KVERREL}BOOT
+%files -n %{kname}-BOOT-%{avxversion} -f kernel_files.BOOT
 
 %files -n %{kname}-BOOT
 %defattr(-,root,root)
 %endif
 
-%if %{build_xen}
-%files -n %{kname}-xen0-%{avxversion} -f kernel_files.%{KVERREL}xen0
+%if %{build_devel}
+%files -n %{kname}-devel-%{avxversion} -f kernel_devel_files.smp
 
-%files -n %{kname}-xen0
-%defattr(-,root,root)
-
-%files -n %{kname}-xenU-%{avxversion} -f kernel_files.%{KVERREL}xenU
-
-%files -n %{kname}-xenU
+%files -n %{kname}-devel
 %defattr(-,root,root)
 %endif
+
 
 %if %{build_source}
 %files -n %{kname}-source
@@ -880,8 +765,8 @@ exit 0
 %dir %{_kerneldir}/include
 %{_kerneldir}/.config
 %{_kerneldir}/.gitignore
-%{_kerneldir}/.kconfig.d
-%{_kerneldir}/.kernelrelease
+#%{_kerneldir}/.kconfig.d
+#%{_kerneldir}/.kernelrelease
 %{_kerneldir}/Kbuild
 %{_kerneldir}/COPYING
 %{_kerneldir}/CREDITS
@@ -893,7 +778,6 @@ exit 0
 %{_kerneldir}/README.annvix-kernel-sources
 %{_kerneldir}/REPORTING-BUGS
 %{_kerneldir}/arch/i386
-%{_kerneldir}/arch/ia64
 %{_kerneldir}/arch/x86_64
 %{_kerneldir}/arch/um
 %{_kerneldir}/block
@@ -911,10 +795,10 @@ exit 0
 %{_kerneldir}/sound
 %{_kerneldir}/scripts
 %{_kerneldir}/usr
+%{_kerneldir}/include/Kbuild
 %{_kerneldir}/include/acpi
 %{_kerneldir}/include/asm-generic
 %{_kerneldir}/include/asm-i386
-%{_kerneldir}/include/asm-ia64
 %{_kerneldir}/include/asm-x86_64
 %{_kerneldir}/include/asm-um
 %{_kerneldir}/include/asm
@@ -933,25 +817,42 @@ exit 0
 #%{_kerneldir}/include/xen
 #Openswan 2.x.x
 %{_kerneldir}/include/crypto
-%{_kerneldir}/include/des
-%{_kerneldir}/include/mast.h
-%{_kerneldir}/include/openswan.h
-%{_kerneldir}/include/openswan
-%{_kerneldir}/include/pfkey.h
-%{_kerneldir}/include/pfkeyv2.h
-%{_kerneldir}/include/zlib
-%{_kerneldir}/README.openswan-2
+#%{_kerneldir}/include/des
+#%{_kerneldir}/include/mast.h
+#%{_kerneldir}/include/openswan.h
+#%{_kerneldir}/include/openswan
+#%{_kerneldir}/include/pfkey.h
+#%{_kerneldir}/include/pfkeyv2.h
+#%{_kerneldir}/include/zlib
+#%{_kerneldir}/README.openswan-2
 #endif %build_source
 %endif
 
 %if %{build_doc}
 %files -n %{kname}-doc
 %defattr(-,root,root)
-%doc linux-%{tar_version}/Documentation/*
+%doc linux-%{tar_ver}/Documentation/*
 %endif
 
 
 %changelog
+* Thu Oct 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.22.10
+- 2.6.22.10
+- build -devel packages, ala Mandriva
+- only build an smp kernel; no more build/BOOT/smp/up kernel flavours
+  (NOTE: this depends on whether or not our netinstall ISO will boot with
+  a "normal" kernel)
+- rediff SL61
+- SA[01-48]: Novell AppArmor 2.1.0 pre-release (commit 961, SUSE 10.3)
+- drop the openswan patches; according to the website openswan can use the
+  2.6 kernel's builtin NETKEY IPsec stack (as opposed to openswan's KLIPS)
+- drop xen kernel build stuff
+- updated configs and scripts to handle the new kernel
+
+* Thu Oct 04 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.53
+- 2.6.16.53; fixes CVE-2007-2876 amongst other issues
+- smp and build kernels now support 64GB RAM, and up/BOOT kernels support 4GB
+
 * Fri Jun 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.52
 - 2.6.16.52
 - updated SL60 (AppArmor fullseries v405)
