@@ -496,8 +496,8 @@ CreateFiles() {
 ### Create the kernel_files.*
 cat > $kernel_files <<EOF
 %defattr(-,root,root)
-%{_bootdir}/System.map-%{avxversion}$kernel_flavour}
-%{_bootdir}/config-%{avxversion}$kernel_flavour}
+%{_bootdir}/System.map-%{avxversion}$kernel_flavour
+%{_bootdir}/config-%{avxversion}$kernel_flavour
 %{_bootdir}/vmlinuz-%{avxversion}$kernel_flavour
 %dir %{_modulesdir}/%{avxversion}$kernel_flavour/
 %{_modulesdir}/%{avxversion}$kernel_flavour/kernel
