@@ -766,6 +766,7 @@ exit 0
 %{_kerneldir}/include/asm-x86_64
 %{_kerneldir}/include/asm-um
 %{_kerneldir}/include/asm
+%{_kerneldir}/include/crypto
 %{_kerneldir}/include/keys
 %{_kerneldir}/include/linux
 %{_kerneldir}/include/math-emu
