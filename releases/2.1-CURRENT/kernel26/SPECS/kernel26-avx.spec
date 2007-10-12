@@ -507,7 +507,7 @@ EOF
 
 ### Create kernel Post script
 cat > $kernel_files-post <<EOF
-/sbin/installkernel %{avxversion}$kernel_flavour
+/sbin/installkernel -g -s -c %{avxversion}$kernel_flavour
 pushd /boot > /dev/null
     if [ -L vmlinuz-$kernel_flavour ]; then
         rm -f vmlinuz-$kernel_flavour
@@ -525,12 +525,13 @@ if [ -d /usr/src/linux-%{avxversion}$kernel_flavour ]; then
     ln -sf /usr/src/linux-%{avxversion}$kernel_flavour /lib/modules/%{avxversion}$kernel_flavour/source
 fi
 %endif
+exit 0
 EOF
 
 
 ### Create kernel Preun script on the fly
 cat > $kernel_files-preun <<EOF
-/sbin/installkernel -R %{avxversion}$kernel_flavour
+/sbin/installkernel -g -s -c -R %{avxversion}$kernel_flavour
 pushd /boot > /dev/null
     if [ -L vmlinuz-$kernel_flavour ]; then
         if [ \$(readlink vmlinuz-$kernel_flavour) = "vmlinuz-%{avxversion}$kernel_flavour" ]; then
@@ -558,6 +559,7 @@ EOF
 ### Create kernel Postun script on the fly
 cat > $kernel_files-postun <<EOF
 /sbin/kernel_remove_initrd %{avxversion}$kernel_flavour
+exit 0
 EOF
 }
 
@@ -681,22 +683,20 @@ popd
 # phase without repeating compilation phase
 #rm -rf %{temp_root} 
 
+
 ###
 ### scripts
 ###
-
-# default kernel
-%preun -f kernl_files.smp-preun
+%preun -f kernel_files.smp-preun
 %post -f kernel_files.smp-post
 %postun -f kernel_files.smp-postun
 
 
-# BOOT kernel
 %preun -n %{kname}-BOOT-%{avxversion} -f kernel_files.BOOT-preun
 %post -n %{kname}-BOOT-%{avxversion} -f kernel_files.BOOT-post
 %postun -n %{kname}-BOOT-%{avxversion} -f kernel_files.BOOT-postun
 
-# devel files
+
 %post -n %{kname}-devel-%{avxversion} -f kernel_devel_files.smp-post
 %preun -n %{kname}-devel-%{avxversion} -f kernel_devel_files.smp-preun
 
@@ -836,6 +836,11 @@ exit 0
 
 
 %changelog
+* Thu Oct 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.22.10
+- fix the calls to install-kernel; we're stuck with an older bootloader-utils
+  as newer Mandriva bootloader-utils require drakx which we are not importing
+  so adjust as necessary
+
 * Thu Oct 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.22.10
 - 2.6.22.10
 - build -devel packages, ala Mandriva
