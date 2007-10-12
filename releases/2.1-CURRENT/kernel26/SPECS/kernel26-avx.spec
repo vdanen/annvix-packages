@@ -28,13 +28,11 @@
 %define avxversion	%{kversion}-%{realrelease}
 %define patches_ver	%{kversion}-%{patchversion}
 
-# having different top level names for packges means
-# that you have to remove them by hard :(
+# having different top level names for packges means that you have to remove them by hand :(
 %define top_dir_name	%{kname}-%{_arch}
 %define build_dir	${RPM_BUILD_DIR}/%{top_dir_name}
 %define src_dir		%{build_dir}/linux-%{tar_ver}
 
-%define build_kheaders	0
 %define build_debug	0
 %define build_doc	0
 %define build_source	1
@@ -54,18 +52,16 @@
 %{?_with_devel: %global build_devel 1}
 %{?_with_debug: %global build_debug 1}
 
-%{?_with_kheaders: %global build_kheaders 1}
-
 %define build_nosrc 			0
 %{?_with_nosrc: %global build_nosrc 1}
 
 %if %(if [ -z "$CC" ] ; then echo 0; else echo 1; fi)
-%define kmake %make CC="$CC"
+%define kmake		%make CC="$CC"
 %else
-%define kmake %make
+%define kmake		%make
 %endif
 # there are places where parallel make don't work
-%define smake make
+%define smake		make
 
 %define target_arch	%(echo %{_arch})
 %define target_cpu	%(echo %{_target_cpu})
@@ -74,7 +70,7 @@ Summary:	The Linux %{kernelversion}.%{patchlevel} kernel (the core of the Linux 
 Name:		%{kname}-%{avxversion}
 Version:	%{rpmversion}
 Release:	%{rpmrelease}
-License:	GPL
+License:	GPLv2
 Group:		System/Kernel and hardware
 URL:		http://www.kernel.org/
 ExclusiveArch:	%{ix86} x86_64
@@ -89,7 +85,7 @@ Source0: ftp://ftp.kernel.org/pub/linux/kernel/v%{kernelversion}.%{patchlevel}/l
 Source1: ftp://ftp.kernel.org/pub/linux/kernel/v%{kernelversion}.%{patchlevel}/linux-%{tar_ver}.tar.bz2.sign
 
 ### This is for stripped SRC RPM
-%if %build_nosrc
+%if %{build_nosrc}
 NoSource: 0
 NoSource: 1
 %endif
@@ -146,7 +142,6 @@ This is the default Annvix kernel %{kversion}.  It supports SMP
 #
 # kernel virtual rpm
 #
-
 %package -n %{kname}
 Summary:	Virtual rpm for the latest %{kname} kernel
 Version:	%{kversion}
@@ -181,6 +176,7 @@ Provides:	kernel-devel = %{version}
 This package contains the kernel-devel files that should be sufficient to
 build 3rd-party drivers againt for use with the %{kname} kernel.
 
+
 #
 # kernel-devel virtual RPM
 #
@@ -199,7 +195,6 @@ latest %{kname}-devel installed.
 #
 # kernel-boot: BOOT Kernel
 #
-
 %package -n %{kname}-BOOT-%{avxversion}
 Summary:	The version of the Linux kernel used on installation boot disks
 Group:		System/Kernel and hardware
@@ -214,7 +209,6 @@ turned off because of the size constraints.
 #
 # kernel-BOOT virtual rpm
 #
-
 %package -n %{kname}-BOOT
 Summary:	Virtual rpm for the latest %{kname}-BOOT kernel
 Version:	%{kversion}
@@ -231,7 +225,6 @@ latest %{kname}-BOOT installed.
 #
 # kernel-source: Kernel source
 #
-
 %package -n %{kname}-source
 Summary:	The source code for the Linux kernel
 Version:	%{kversion}
@@ -254,7 +247,6 @@ doing).
 #
 # kernel-doc: documentation for the Linux kernel
 #
-
 %package -n %{kname}-doc
 Summary:	Various documentation bits found in the kernel source
 Version:	%{version}
@@ -268,20 +260,17 @@ with it are documented in these files. You also might want install this
 package if you need a reference to the options that can be passed to Linux
 kernel modules at load time.
 
-#
-# End packages - here begins build stage
-#
+
 
 %prep
-# now that we build out of svn, we need to dynamically create the
-# patch tarball
+# now that we build out of svn, we need to dynamically create the patch tarball
 pushd %{_sourcedir}
-if [ -d patches ]; then
-  cp -a patches %{patches_ver}
-  find %{patches_ver} -name .svn -print|xargs rm -rf
-  rm -f linux-%{patches_ver}.tar.bz2
-  tar cjf linux-%{patches_ver}.tar.bz2 %{patches_ver} && rm -rf %{patches_ver}
-fi
+    if [ -d patches ]; then
+        cp -a patches %{patches_ver}
+        find %{patches_ver} -name .svn -print|xargs rm -rf
+        rm -f linux-%{patches_ver}.tar.bz2
+        tar cjf linux-%{patches_ver}.tar.bz2 %{patches_ver} && rm -rf %{patches_ver}
+    fi
 popd
 
 %setup -q -n %{top_dir_name} -c
@@ -289,47 +278,33 @@ popd
 
 %define patches_dir ../%{patches_ver}/
 
-cd %{src_dir}
-
-
-%{patches_dir}/scripts/apply_patches
-
-# PATCH END
-
-
 #
-# Setup Begin
+# apply patches
 #
+pushd %{src_dir}
+    %{patches_dir}/scripts/apply_patches
 
-# Prepare all the variables for calling create configs
 
-%if %{build_debug}
-%define debug --debug
-%else
-%define debug --no-debug
-%endif
+    #
+    # setup the build
+    #
 
-%{patches_dir}/scripts/create_configs %{debug} --user_cpu="%{target_cpu}"
+    # Prepare all the variables for calling create configs
+    %if %{build_debug}
+    %define debug --debug
+    %else
+    %define debug --no-debug
+    %endif
 
-# make sure the kernel has the sublevel we know it has...
-LC_ALL=C perl -p -i -e "s/^SUBLEVEL.*/SUBLEVEL = %{sublevel}/" Makefile
+    %{patches_dir}/scripts/create_configs %{debug} --user_cpu="%{target_cpu}"
 
-# get rid of unwanted files
-find . -name '*~' -o -name '*.orig' -o -name '*.append' |xargs rm -f
+    # make sure the kernel has the sublevel we know it has...
+    LC_ALL=C perl -p -i -e "s/^SUBLEVEL.*/SUBLEVEL = %{sublevel}/" Makefile
 
-%if %build_kheaders
-
-kheaders_dirs=`echo $PWD/include/{asm-*,linux,sound}`
-
-pushd %{build_dir}
-    install -d kernel-headers/
-    cp -a $kheaders_dirs kernel-headers/
-    tar cf kernel-headers-%{avxversion}.tar kernel-headers/
-    bzip2 -9f kernel-headers-%{avxversion}.tar
-    rm -rf kernel-headers/
-    # build_kheaders
+    # get rid of unwanted files
+    find . -name '*~' -o -name '*.orig' -o -name '*.append' | xargs rm -f
 popd
-%endif
+
 
 
 %build
@@ -339,10 +314,11 @@ popd
 %define _modulesdir	/lib/modules
 
 # Directories definition needed for building
-%define temp_root %{build_dir}/temp-root
-%define temp_source %{temp_root}%{_kerneldir}
-%define temp_boot %{temp_root}%{_bootdir}
-%define temp_modules %{temp_root}%{_modulesdir}
+%define temp_root	%{build_dir}/temp-root
+%define temp_source	%{temp_root}%{_kerneldir}
+%define temp_boot	%{temp_root}%{_bootdir}
+%define temp_modules	%{temp_root}%{_modulesdir}
+
 
 PrepareKernel() {
     name=$1
@@ -364,6 +340,7 @@ PrepareKernel() {
     %{smake} oldconfig
 }
 
+
 BuildKernel() {
     KernelVer=$1
     echo "Building kernel $KernelVer"
@@ -381,6 +358,7 @@ BuildKernel() {
     install -d %{temp_modules}/$KernelVer
     %{smake} INSTALL_MOD_PATH=%{temp_root} KERNELRELEASE=$KernelVer modules_install 
 }
+
 
 SaveDevel() {
     devel_flavour=$1
@@ -412,9 +390,8 @@ SaveDevel() {
 
     kernel_devel_files=../kernel_devel_files.$devel_flavour
 	
-
-### Create the kernel_devel_files.*
-cat > $kernel_devel_files <<EOF
+    ### Create the kernel_devel_files.*
+    cat > $kernel_devel_files <<EOF
 %defattr(-,root,root)
 %dir $DevelRoot
 %dir $DevelRoot/arch
@@ -465,18 +442,19 @@ $DevelRoot/Module.symvers
 EOF
 
 
-### Create -devel Post script on the fly
-cat > $kernel_devel_files-post <<EOF
+    ### Create -devel Post script on the fly
+    cat > $kernel_devel_files-post <<EOF
 if [ -d /lib/modules/%{avxversion}-$devel_flavour-%{rpmrelease} ]; then
     rm -f /lib/modules/%{avxversion}-$devel_flavour-%{rpmrelease}/{build,source}
     ln -sf $DevelRoot /lib/modules/%{avxversion}-$devel_flavour-%{rpmrelease}/build
     ln -sf $DevelRoot /lib/modules/%{avxversion}-$devel_flavour-%{rpmrelease}/source
 fi
+exit 0
 EOF
 
 
-### Create -devel Preun script on the fly
-cat > $kernel_devel_files-preun <<EOF
+    ### Create -devel Preun script on the fly
+    cat > $kernel_devel_files-preun <<EOF
 if [ -L /lib/modules/%{avxversion}-$devel_flavour-%{rpmrelease}/build ]; then
     rm -f /lib/modules/%{avxversion}-$devel_flavour-%{rpmrelease}/build
 fi
@@ -493,8 +471,8 @@ CreateFiles() {
 	
     kernel_files=../kernel_files.$kernel_flavour
 	
-### Create the kernel_files.*
-cat > $kernel_files <<EOF
+    ### Create the kernel_files.*
+    cat > $kernel_files <<EOF
 %defattr(-,root,root)
 %{_bootdir}/System.map-%{avxversion}$kernel_flavour
 %{_bootdir}/config-%{avxversion}$kernel_flavour
@@ -505,10 +483,10 @@ cat > $kernel_files <<EOF
 EOF
 
 
-### Create kernel Post script
-cat > $kernel_files-post <<EOF
+    ### Create kernel Post script
+    cat > $kernel_files-post <<EOF
 /sbin/installkernel -g -s -c %{avxversion}$kernel_flavour
-pushd /boot > /dev/null
+pushd /boot >/dev/null 2>&1
     if [ -L vmlinuz-$kernel_flavour ]; then
         rm -f vmlinuz-$kernel_flavour
     fi
@@ -517,7 +495,7 @@ pushd /boot > /dev/null
         rm -f initrd-$kernel_flavour.img
     fi
     ln -sf initrd-%{avxversion}$kernel_flavour.img initrd-$kernel_flavour.img
-popd > /dev/null
+popd >/dev/null 2>&1
 %if %build_devel
 if [ -d /usr/src/linux-%{avxversion}$kernel_flavour ]; then
     rm -f /lib/modules/%{avxversion}$kernel_flavour/{build,source}
@@ -529,10 +507,10 @@ exit 0
 EOF
 
 
-### Create kernel Preun script on the fly
-cat > $kernel_files-preun <<EOF
+    ### Create kernel Preun script on the fly
+    cat > $kernel_files-preun <<EOF
 /sbin/installkernel -g -s -c -R %{avxversion}$kernel_flavour
-pushd /boot > /dev/null
+pushd /boot >/dev/null 2>&1
     if [ -L vmlinuz-$kernel_flavour ]; then
         if [ \$(readlink vmlinuz-$kernel_flavour) = "vmlinuz-%{avxversion}$kernel_flavour" ]; then
             rm -f vmlinuz-$kernel_flavour
@@ -543,7 +521,7 @@ pushd /boot > /dev/null
             rm -f initrd-$kernel_flavour.img
         fi
     fi
-popd > /dev/null
+popd >/dev/null 2>&1
 %if %build_devel
 if [ -L /lib/modules/%{avxversion}$kernel_flavour/build ]; then
     rm -f /lib/modules/%{avxversion}$kernel_flavour/build
@@ -556,8 +534,8 @@ exit 0
 EOF
 
 
-### Create kernel Postun script on the fly
-cat > $kernel_files-postun <<EOF
+    ### Create kernel Postun script on the fly
+    cat > $kernel_files-postun <<EOF
 /sbin/kernel_remove_initrd %{avxversion}$kernel_flavour
 exit 0
 EOF
@@ -575,19 +553,19 @@ CreateKernel() {
 }
 
 
-###
-# DO it...
-###
+#
+# time to do the actual build
+#
 
-# Create a simulacro of %buildroot
+# create a fake buildroot
 rm -rf %{temp_root}
-install -d %{temp_root}
+mkdir -p %{temp_root}
 
-# make sure we are in the directory
 cd %{src_dir}
 
-# this is the default kernel
+# create the kernels; "smp" is the default flavour
 CreateKernel smp
+#CreateKernel BOOT
 
 # We don't make to repeat the depend code at the install phase
 %if %{build_source}
@@ -597,13 +575,8 @@ PrepareKernel "" %{realrelease}custom
 %endif
 
 
-###
-### install
-###
-%install
-install -m 0644 %{_sourcedir}/README.annvix-kernel-sources  .
-install -m 0644 %{_sourcedir}/README.Annvix  .
 
+%install
 cd %{src_dir}
 # Directories definition needed for installing
 %define target_source	%{buildroot}/%{_kerneldir}
@@ -616,13 +589,13 @@ cp -a %{temp_root} %{buildroot}
 
 # Create directories infastructure
 %if %{build_source}
-install -d %{target_source} 
+mkdir -p %{target_source} 
 
 tar cf - . | tar xf - -C %{target_source}
 chmod -R a+rX %{target_source}
 
-# we remove all the source files that we don't ship
-
+# remove all the source files that we don't ship
+#
 # first architecture files
 for i in alpha arm avr32 blackfin cris ia64 m68k mips mips64 parisc ppc ppc64 powerpc s390 s390x sh sh64 arm26 sparc sparc64 h8300 m68knommu v850 m32r frv xtensa; do
     rm -rf %{target_source}/arch/$i
@@ -638,23 +611,20 @@ rm -rf %{target_source}/%{patches_ver}
 # other misc files
 rm -f %{target_source}/{.config.old,.config.cmd,.mailmap,.missing-syscalls.d}
 
-
 # copy README's
 cp %{_sourcedir}/README.Annvix %{target_source}/
 cp %{_sourcedir}/README.annvix-kernel-sources %{target_source}/
 %endif
 
 # Gzip modules
-find %{target_modules} -type f -name '*.ko'|xargs gzip -9f
+find %{target_modules} -type f -name '*.ko' | xargs gzip -9f
 
 for i in %{target_modules}/*; do
     rm -f $i/build $i/source $i/modules.*
     rm -rf  $i/pcmcia/
 done
 
-# sniff, if we gzipped all the modules, we change the stamp :(
-# we really need the depmod -ae here
-
+# we need to call depmod -ae because when the modules were gzipped, the stamp was changed
 pushd %{target_modules}
     for i in *; do
         /sbin/depmod -u -ae -b %{buildroot} -r -F %{target_boot}/System.map-$i $i
@@ -672,9 +642,6 @@ pushd %{target_modules}
 popd
 
 
-###
-### clean
-###
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -684,12 +651,11 @@ popd
 #rm -rf %{temp_root} 
 
 
-###
-### scripts
-###
+
 %preun -f kernel_files.smp-preun
 %post -f kernel_files.smp-post
 %postun -f kernel_files.smp-postun
+
 
 
 %preun -n %{kname}-BOOT-%{avxversion} -f kernel_files.BOOT-preun
@@ -697,11 +663,12 @@ popd
 %postun -n %{kname}-BOOT-%{avxversion} -f kernel_files.BOOT-postun
 
 
+
 %post -n %{kname}-devel-%{avxversion} -f kernel_devel_files.smp-post
 %preun -n %{kname}-devel-%{avxversion} -f kernel_devel_files.smp-preun
 
 
-### kernel source
+
 %post -n %{kname}-source
 pushd /usr/src >/dev/null 2>&1
     rm -f linux
@@ -718,6 +685,7 @@ pushd /usr/src >/dev/null 2>&1
 popd >/dev/null 2>&1
 
 
+
 %postun -n %{kname}-source
 if [ -L /usr/src/linux ]; then 
     if [ -L /usr/src/linux -a `ls -l /usr/src/linux 2>/dev/null| awk '{ print $11 }'` = "linux-%{avxversion}" ]; then
@@ -732,9 +700,7 @@ for i in /lib/modules/%{avxversion}*/{build,source}; do
 done
 exit 0
 
-###
-### file lists
-###
+
 
 %files -n %{kname}-%{avxversion} -f kernel_files.smp
 
@@ -748,6 +714,7 @@ exit 0
 %files -n %{kname}-BOOT
 %defattr(-,root,root)
 %endif
+
 
 %if %{build_devel}
 %files -n %{kname}-devel-%{avxversion} -f kernel_devel_files.smp
@@ -765,8 +732,6 @@ exit 0
 %dir %{_kerneldir}/include
 %{_kerneldir}/.config
 %{_kerneldir}/.gitignore
-#%{_kerneldir}/.kconfig.d
-#%{_kerneldir}/.kernelrelease
 %{_kerneldir}/Kbuild
 %{_kerneldir}/COPYING
 %{_kerneldir}/CREDITS
@@ -786,7 +751,6 @@ exit 0
 %{_kerneldir}/fs
 %{_kerneldir}/init
 %{_kerneldir}/ipc
-#%{_kerneldir}/kdb
 %{_kerneldir}/kernel
 %{_kerneldir}/lib
 %{_kerneldir}/mm
@@ -814,19 +778,9 @@ exit 0
 %{_kerneldir}/include/scsi
 %{_kerneldir}/include/sound
 %{_kerneldir}/include/video
-#%{_kerneldir}/include/xen
-#Openswan 2.x.x
-%{_kerneldir}/include/crypto
-#%{_kerneldir}/include/des
-#%{_kerneldir}/include/mast.h
-#%{_kerneldir}/include/openswan.h
-#%{_kerneldir}/include/openswan
-#%{_kerneldir}/include/pfkey.h
-#%{_kerneldir}/include/pfkeyv2.h
-#%{_kerneldir}/include/zlib
-#%{_kerneldir}/README.openswan-2
 #endif %build_source
 %endif
+
 
 %if %{build_doc}
 %files -n %{kname}-doc
@@ -836,6 +790,11 @@ exit 0
 
 
 %changelog
+* Fri Oct 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.22.10
+- normalize the x86_64 config
+- some more spec cleaning
+- remove config settings that are non-existant
+
 * Thu Oct 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.22.10
 - fix the calls to install-kernel; we're stuck with an older bootloader-utils
   as newer Mandriva bootloader-utils require drakx which we are not importing

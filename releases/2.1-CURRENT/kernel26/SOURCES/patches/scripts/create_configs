@@ -73,7 +73,6 @@ sub config_nproc_x86 {
     if ($nproc eq "smp") {
 	$to_add{HOTPLUG_CPU} = "y";
 	$to_add{HOTPLUG_CPU} = "y";
-	$to_add{SMP_ALTERNATIVES} = "n";
 	$to_add{SCHED_SMT} = "y";
 	$to_add{IRQBALANCE} = "n";
 	$to_add{CPUSETS} = "n";
