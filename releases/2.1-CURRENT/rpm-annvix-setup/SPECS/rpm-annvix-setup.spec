@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		rpm-annvix-setup
-%define version		1.27
+%define version		1.27.1
 %define release		%_revrel
 
 Summary:	The Annvix rpm configuration and scripts
@@ -89,6 +89,10 @@ make test
 
 
 %changelog
+* Fri Oct 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.27.1
+- 1.27.1: no longer define %%buildroot by default as it messes up
+  the (odd) kernel build
+
 * Mon Oct 01 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.27
 - 1.27: many fixes and updates
 
