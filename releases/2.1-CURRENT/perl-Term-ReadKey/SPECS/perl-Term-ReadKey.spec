@@ -25,8 +25,6 @@ Source0:	http://search.cpan.org/CPAN/authors/id/J/JS/JSTOWE/TermReadKey-%{versio
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel
 
-Requires:	perl(Geography::Countries)
-
 %description
 This module, ReadKey, provides ioctl control for terminals so the input modes
 can be changed (thus allowing reads of a single character at a time), and
