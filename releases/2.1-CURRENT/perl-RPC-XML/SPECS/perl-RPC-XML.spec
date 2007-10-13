@@ -7,7 +7,7 @@
 #
 
 %define module		RPC-XML
-%define revision	$Rev: 7495 $
+%define revision	$Rev$
 %define name		perl-%{module}
 %define version		0.59
 %define release		%_revrel
