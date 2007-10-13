@@ -5,6 +5,7 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
+# $Id$
 
 %define module		Term-ReadKey
 %define revision	$Rev$
