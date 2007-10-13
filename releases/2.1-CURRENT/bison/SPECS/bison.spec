@@ -104,6 +104,9 @@ rm -f %{buildroot}%{_libdir}/liby.a
 
 
 %changelog
+* Fri Oct 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.3
+- rebuild
+
 * Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3
 - 2.3
 
