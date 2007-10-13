@@ -300,8 +300,6 @@ rm -f %{buildroot}%{_profiledir}/{bin,sbin,usr.sbin,usr.bin}.*
 %files profiles
 %defattr(-,root,root)
 %dir %{_sysconfdir}/apparmor.d
-%config(noreplace) %{_sysconfdir}/apparmor.d/usr.*
-%config(noreplace) %{_sysconfdir}/apparmor.d/sbin.*
 %dir %{_sysconfdir}/apparmor.d/abstractions
 %dir %{_sysconfdir}/apparmor.d/program-chunks
 %dir %{_sysconfdir}/apparmor.d/tunables
