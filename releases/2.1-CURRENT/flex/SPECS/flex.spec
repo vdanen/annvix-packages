@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		flex
-%define version		2.5.4a
+%define version		2.5.33
 %define release		%_revrel
 
 Summary:	A tool for creating scanners (text pattern recognizers)
@@ -18,14 +18,15 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		Development/Other
-URL: 		http://www.gnu.org/software/flex/flex.htm
-Source:		ftp.gnu.org:/non-gnu/flex/flex-2.5.4a.tar.bz2
+URL: 		http://flex.sourceforge.net/
+Source:		http://prdownloads.sourceforge.net/flex/%{name}-%{version}.tar.bz2
 Patch0:		flex-2.5.4a-skel.patch
-Patch1:         flex-2.5.4-glibc22.patch
-Patch2:		flex-2.5.4-c++fixes.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	byacc
+
+Requires(post):	info-install
+Requires(postun): info-install
 
 %description 
 The flex program generates scanners. Scanners are
@@ -52,10 +53,8 @@ This package contains the documentation for %{name}.
 
 
 %prep
-%setup -q -n flex-2.5.4
+%setup -q
 %patch0 -p1
-%patch1 -p1
-%patch2 -p1 -b .c++fixes
 # Force regeneration of skel.c with Patch2 changes
 rm -f skel.c
 # Force regeneration of configure script with --libdir= support
@@ -74,24 +73,33 @@ autoconf
 cd %{buildroot}%{_bindir}
 ln -sf flex lex
 
-cd %{buildroot}%{_mandir}/
-mkdir man1
-mv flex.1 man1
-cd man1
+cd %{buildroot}%{_mandir}/man1
 ln -s flex.1 lex.1
 ln -s flex.1 flex++.1
+
+
+%kill_lang %{name}
+%find_lang %{name}
 
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
+%post
+%_install_info flex.info
+
+%postun
+%_remove_install_info flex.info
+
+
 %files
-%defattr(-,root,root,755)
+%defattr(-,root,root)
 %{_bindir}/*
 %{_mandir}/man1/*
 %{_libdir}/libfl.a
 %{_includedir}/FlexLexer.h
+%{_infodir}/*
 
 %files doc
 %defattr(-,root,root,755)
@@ -99,6 +107,12 @@ ln -s flex.1 flex++.1
 
 
 %changelog
+* Fri Oct 13 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.5.33
+- 2.5.33
+- drop P1, P2: no longer required
+- updated url
+- install/uninstall info pages
+
 * Sat Jul 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5.4a
 - add -doc subpackage
 - rebuild with gcc4
