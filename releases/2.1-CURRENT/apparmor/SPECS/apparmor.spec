@@ -130,6 +130,9 @@ order to switch to a user-specific security policy.
 Summary:        AppArmor userlevel utilities
 License:        GPL
 Group:          System/Base
+Requires:	perl-libapparmor
+Requires:	perl(RPC::XML)
+Requires:	perl(Term::ReadKey)
 
 %description utils
 This package contains programs to help create and manage AppArmor profiles.
@@ -244,14 +247,7 @@ pushd changehat/mod_apparmor
 popd
 
 # remove profiles shipped elsewhere
-rm -f \
-    %{buildroot}%{_sysconfdir}/apparmor.d/sbin.rpcbind \
-    %{buildroot}%{_sysconfdir}/apparmor.d/usr.sbin.traceroute \
-    %{buildroot}%{_sysconfdir}/apparmor.d/bin.ping \
-    %{buildroot}%{_sysconfdir}/apparmor.d/bin.netstat \
-    %{buildroot}%{_sysconfdir}/apparmor.d/sbin.syslogd \
-    %{buildroot}%{_sysconfdir}/apparmor.d/sbin.klogd \
-    %{buildroot}%{_sysconfdir}/apparmor.d/usr.sbin.ntpd
+rm -f %{buildroot}%{_profiledir}/{bin,sbin,usr.sbin,usr.bin}.*
 
 %kill_lang %{name}-parser
 %find_lang %{name}-parser
@@ -378,6 +374,11 @@ rm -f \
 
 
 %changelog
+* Fri Oct 13 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1
+- add some requires
+- (re-)nuke the profiles that we either won't use or will be shipping
+  elsewhere
+
 * Fri Oct 13 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1
 - merge all the apparmor specs into one spec now that it is
   shipped in one tarball (thanks to Mandriva for this)
