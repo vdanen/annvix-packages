@@ -5,11 +5,7 @@
 
 # by default, we want this to get set.
 # Even for non-interactive, non-login shells.
-if [ "`id -gn`" = "`id -un`" -a `id -u` -gt 99 ]; then
-	umask 002
-else
-	umask 022
-fi
+umask 022
 
 # are we an interactive shell?
 if [ "$PS1" ]; then

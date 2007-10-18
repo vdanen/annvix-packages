@@ -280,6 +280,10 @@ rm -rf %{buildroot}%{_datadir}/locale
 
 %changelog
 * Sat Oct 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.2
+- the updated Mandriva bashrc had stupid umask settings so revert them
+  to set umask to 022, not 002
+
+* Sat Oct 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.2
 - 3.2
 - updated upstream patches
 - drop P3; we don't care about s390x archs
