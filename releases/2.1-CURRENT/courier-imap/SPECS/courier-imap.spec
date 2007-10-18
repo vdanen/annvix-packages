@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		courier-imap
-%define version		4.1.3
+%define version		4.2.1
 %define release		%_revrel
 
 Summary:	Courier-IMAP is an IMAP server that uses Maildirs
@@ -35,7 +35,7 @@ Source12:	MAX_CONN.env
 Source13:	MAX_PER_HOST.env
 Source14:	IP.env
 Patch0: 	courier-imap-4.1.1-pam_service_name.diff
-Patch1:		courier-imap-4.1.3-avx-cert_location.patch
+Patch1:		courier-imap-4.2.1-avx-cert_location.patch
 Patch2:		courier-imap-4.1.1-avx-tcpsvd_configs.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -76,7 +76,7 @@ This package contains the base files for POP and IMAP servers.
 %package -n courier-pop
 Summary:	Courier-IMAP POP servers
 Group:		System/Servers
-Requires:	courier-base = %{version}-%{release}
+Requires:	courier-base = %{version}
 Requires:	courier-authdaemon
 Requires:	ipsvd
 Requires(post):	rpm-helper
@@ -366,6 +366,11 @@ done
 
 
 %changelog
+* Wed Oct 17 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.2.1
+- 4.2.1
+- build against new courier-authlib
+- rediff P1
+
 * Thu Apr 26 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.1.3
 - 4.1.3
 - rediff P1
