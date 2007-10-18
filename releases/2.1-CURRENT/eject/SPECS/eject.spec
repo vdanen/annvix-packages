@@ -77,6 +77,9 @@ mkdir -p %{buildroot}%{_mandir}/man1
 
 
 %changelog
+* Wed Oct 17 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1.5
+- rebuild
+
 * Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1.5
 - spec cleanups
 - remove locales
