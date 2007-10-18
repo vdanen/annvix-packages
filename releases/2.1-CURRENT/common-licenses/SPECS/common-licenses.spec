@@ -16,7 +16,7 @@ Summary:	Contains the various common licenses uses by the distribution
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-License:	GPL
+License:	GPLv2+
 Group:		System/Base
 Source0:	%{name}.tar.bz2
 
@@ -48,6 +48,12 @@ cp -a %{name} %{buildroot}%{_datadir}
 
 
 %changelog
+* Wed Oct 17 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0
+- update license
+- drop LGPLv2: LGPLv2 and LGPLV2.1 are identical except for the name; don't need both
+- update GFDL to 1.2
+- add GPLv3 and LGPLv3
+
 * Mon Jul 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0
 - remove pre-Annvix changelog
 
