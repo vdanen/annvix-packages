@@ -77,6 +77,9 @@ ln -s yacc.1 %{buildroot}%{_mandir}/man1/byacc.1
 
 
 %changelog
+* Wed Oct 17 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.9
+- rebuild
+
 * Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.9
 - add -doc subpackage
 - rebuild with gcc4
