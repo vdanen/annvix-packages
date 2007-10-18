@@ -9,19 +9,19 @@
 
 %define revision	$Rev$
 %define name		cdialog
-%define version		0.9b
+%define version		1.1
 %define release		%_revrel
 
-%define datetag 	20040421
+%define datetag 	20070930
 
 Summary:	A utility for creating TTY dialog boxes
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-License:	GPL
+License:	LGPLv2+
 Group:		Development/Other
 URL:		http://invisible-island.net/dialog/
-Source:		dialog-%{version}-%{datetag}.tar.bz2
+Source:		ftp://invisible-island.net/dialog/dialog-%{version}-%{datetag}.tgz
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	ncurses-devel
@@ -60,7 +60,7 @@ mkdir -p %{buildroot}%{_bindir}
 mkdir -p %{buildroot}%{_mandir}/man1
 %makeinstall \
     BINDIR=%{buildroot}%{_bindir} \
-    MANDIR=%{buildroot}%{_mandir}/man1
+    MANDIR=%{buildroot}%{_mandir}
 
 
 %clean
@@ -74,10 +74,14 @@ mkdir -p %{buildroot}%{_mandir}/man1
 
 %files doc
 %defattr(-,root,root)
-%doc COPYING README samples
+%doc README samples
 
 
 %changelog
+* Wed Oct 17 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.9b
+- 1.1-20070930
+- correct license
+
 * Sat Dec 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.9b
 - rebuild against new ncurses
 - clean spec
