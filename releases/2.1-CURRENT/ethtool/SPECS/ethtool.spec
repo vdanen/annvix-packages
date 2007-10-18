@@ -65,6 +65,9 @@ This package contains the documentation for %{name}.
 
 
 %changelog
+* Wed Oct 17 2007 Vincent Danen <vdanen-at-build.annvix.org> 3
+- rebuild
+
 * Tue Jul 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 3
 - first Annvix package (needed by new initscripts)
 
