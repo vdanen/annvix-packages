@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		sudo
-%define version		1.6.9p5
+%define version		1.6.9p6
 %define release		%_revrel
 %define epoch		1
 
@@ -118,6 +118,9 @@ install -m 0440 %{SOURCE2} %{buildroot}%{_sysconfdir}/sudoers
 
 
 %changelog
+* Wed Oct 17 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.6.9p6
+- 1.6.9p6
+
 * Sat Sep 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.6.9p5
 - 1.6.9p5
 - rebuild against new pam
