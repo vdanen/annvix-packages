@@ -9,13 +9,11 @@
 
 %define revision	$Rev$
 %define name		dhcp
-%define version		3.0.5
+%define version		3.0.6
 %define release		%_revrel
 %define epoch		2
 
 %define _catdir		/var/cache/man
-
-%define _requires_exceptions perl(Win32API::Registry)
 
 Summary:	The ISC DHCP (Dynamic Host Configuration Protocol) server/relay agent/client
 Name:		%{name}
@@ -26,7 +24,7 @@ License:	Distributable
 Group:		System/Servers
 URL:		http://www.isc.org/dhcp.html
 Source0:	ftp://ftp.isc.org/isc/%{name}/%{name}-%{version}.tar.gz
-Source1:	dhcpd.conf.sample
+Source1:	dhcpd.conf
 Source3:	dhcp-dynamic-dns-examples.tar.bz2
 Source5:	update_dhcp.pl
 Source6:	dhcpreport.pl
@@ -40,7 +38,7 @@ Source14:	LEASEFILE.env
 Source15:	OPTIONS.env
 Source16:	OPTIONS-dhcrelay.env
 Source17:	SERVERS-dhcrelay.env
-Patch0:		dhcp-3.0.4b2-ifup.patch
+Patch0:		dhcp-3.0.6-avx-ifup.patch
 # http://www.episec.com/people/edelkind/patches/
 Patch1:		dhcp-3.0.1-paranoia.diff
 
@@ -190,7 +188,7 @@ mkdir -p %{buildroot}/var/run/dhcpd
 touch %{buildroot}%{_localstatedir}/dhcp/dhcpd.leases
 touch %{buildroot}%{_localstatedir}/dhcp/dhclient.leases
 
-install -m 0644 %{_sourcedir}/dhcpd.conf.sample %{buildroot}%{_sysconfdir}
+install -m 0644 %{_sourcedir}/dhcpd.conf %{buildroot}%{_sysconfdir}
 install -m 0755 %{_sourcedir}/update_dhcp.pl %{buildroot}%{_sbindir}/
 install -m 0755 %{_sourcedir}/dhcpreport.pl %{buildroot}%{_sbindir}/
 
@@ -263,7 +261,7 @@ rm -rf %{_localstatedir}/dhcp/dhclient.leases
 %files server
 %defattr(-,root,root)
 %config(noreplace) %ghost %{_localstatedir}/dhcp/dhcpd.leases
-%{_sysconfdir}/dhcpd.conf.sample
+%{_sysconfdir}/dhcpd.conf
 %{_sbindir}/dhcpd
 %{_sbindir}/update_dhcp.pl
 %{_sbindir}/dhcpreport.pl
@@ -319,6 +317,12 @@ rm -rf %{_localstatedir}/dhcp/dhclient.leases
 
 
 %changelog
+* Wed Oct 17 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0.6
+- 3.0.6
+- install the config file as a config, not as a sample
+- updated P0
+- drop the useless requires exception
+
 * Wed Feb 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0.5
 - update the run script: don't use "-q" by default to OPTIONS (not only does it silence
   the copyright info it also prevents all logging to stderr), and only use "-d", not

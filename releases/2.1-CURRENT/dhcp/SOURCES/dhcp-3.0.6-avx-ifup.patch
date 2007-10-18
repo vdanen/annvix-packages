@@ -1,6 +1,6 @@
---- dhcp-3.0.4b2/client/scripts/linux.ifup	2002-11-15 02:09:09.000000000 +0100
-+++ dhcp-3.0.4b2/client/scripts/linux	2006-02-06 19:29:03.000000000 +0100
-@@ -1,8 +1,11 @@
+--- dhcp-3.0.6/client/scripts/linux.ifup	2002-11-14 18:09:09.000000000 -0700
++++ dhcp-3.0.6/client/scripts/linux	2007-10-17 20:00:24.269335500 -0600
+@@ -1,8 +1,12 @@
  #!/bin/bash
 -# dhclient-script for Linux. Dan Halbert, March, 1997.
 -# Updated for Linux 2.[12] by Brian J. Murrell, January 1999.
@@ -12,11 +12,12 @@
 +#   dhclient-script for Linux. Dan Halbert, March, 1997.
 +#   Updated for Linux 2.[12] by Brian J. Murrell, January 1999.
 +#   Modified for Mandriva Linux 1999-2005
++#   Modified for Annvix, 2007
 +
  
  # Notes:
  
-@@ -19,17 +22,27 @@
+@@ -19,17 +23,25 @@
  # address if it is not supplied. This might be much more easily done
  # by the dhclient C code, and passed on.
  
@@ -46,19 +47,17 @@
 +  if [ -n "$d" -o -n "$ns" ]; then
 +      change_resolv_conf "$d" "$ns"
 +  fi
-+
-+  [ -x /sbin/update-resolvrdv ] && /sbin/update-resolvrdv
  }
  
  # Must be used on exit.   Invokes the local dhcp client exit hooks, if any.
-@@ -53,6 +66,24 @@
+@@ -53,6 +65,25 @@
    fi
  fi
  
-+# Import Mandriva Linux configuration
++# Import Annvix configuration
 +cd /etc/sysconfig/network-scripts;
 +. /etc/sysconfig/network-scripts/network-functions
-+. /etc/rc.d/init.d/functions
++. /etc/init.d/functions
 +
 +[ -f ../network ] && . ../network
 +[ -f ../networking/network ] && . ../networking/network
@@ -71,6 +70,7 @@
 +    source_config
 +else
 +    echo $"$0: configuration for $interface not found." >&2
++    DEVICE=$interface
 +fi
 +
  release=`uname -r`
@@ -91,13 +91,18 @@
      
    if [ x$old_ip_address != x ] && [ x$alias_ip_address != x ] && \
  		[ x$alias_ip_address != x$old_ip_address ]; then
-@@ -137,16 +160,31 @@
+@@ -136,17 +159,36 @@
+ 		( [ $relmajor -eq 2 ] && [ $relminor -eq 0 ] ); then
        route add -net $new_network_number $new_subnet_arg dev $interface
      fi
-     for router in $new_routers; do
+-    for router in $new_routers; do
 -      route add default gw $router
-+      route add default gw $router $interface
-     done
+-    done
++    if [ "${PEERGATEWAY}" != "no" ]; then 
++      for router in $new_routers; do
++        route add default gw $router $interface
++      done
++    fi
    fi
 -  if [ x$new_ip_address != x$alias_ip_address ] && [ x$alias_ip_address != x ];
 -   then
@@ -107,10 +112,13 @@
      route add -host $alias_ip_address $interface:0
    fi
 -  make_resolv_conf
++  if [ -n "$METRIC" ]; then
++      ifmetric $interface $METRIC
++  fi
 +  if [ "${PEERDNS}" != "no" ]; then 
 +      make_resolv_conf
 +  fi
-+  if [ "$NEEDHOSTNAME" != no ]; then
++  if [ "${NEEDHOSTNAME}" = "yes" ]; then
 +      if [ -z "$new_host_name" ]; then
 +	  eval `/bin/ipcalc --silent --hostname $new_ip_address`
 +	  new_host_name=$HOSTNAME
@@ -123,11 +131,10 @@
 +	  fi
 +      fi
 +  fi
-+  
    exit_with_hooks 0
  fi
  
-@@ -174,8 +212,7 @@
+@@ -174,8 +216,7 @@
    ifconfig $interface inet $new_ip_address $new_subnet_arg \
  					$new_broadcast_arg
    set $new_routers
@@ -137,14 +144,22 @@
      if [ x$new_ip_address != x$alias_ip_address ] && \
  			[ x$alias_ip_address != x ]; then
        ifconfig $interface:0 inet $alias_ip_address $alias_subnet_arg
-@@ -186,9 +223,11 @@
+@@ -185,10 +226,17 @@
+ 		( [ $relmajor -eq 2 ] && [ $relminor -eq 0 ] ); then
        route add -net $new_network_number
      fi
-     for router in $new_routers; do
+-    for router in $new_routers; do
 -      route add default gw $router
-+      route add default gw $router $interface
-     done
+-    done
 -    make_resolv_conf
++    if [ "${PEERGATEWAY}" != "no" ]; then 
++      for router in $new_routers; do
++        route add default gw $router $interface
++      done
++    fi
++    if [ -n "$METRIC" ]; then
++	ifmetric $interface $METRIC
++    fi
 +    if [ "${PEERDNS}" != "no" ]; then 
 +      make_resolv_conf
 +    fi
