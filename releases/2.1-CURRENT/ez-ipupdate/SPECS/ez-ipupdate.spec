@@ -18,7 +18,7 @@ Version:	%{version}
 Release:	%{release}
 Group:		Networking/Other
 License:	GPL
-URL:		http://www.gusnet.cx:8080/proj/ez-ipupdate/
+URL:		http://ez-ipupdate.com/
 Source:		%{name}-%{version}.tar.bz2
 Source1:	ez-ipupdate.run
 Source2:	ez-ipupdate-log.run
@@ -107,6 +107,10 @@ install -m 0740 %{_sourcedir}/ez-ipupdate-log.run %{buildroot}%{_srvdir}/ez-ipup
 
 
 %changelog
+* Wed Oct 17 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0.11b8
+- fix url
+- rebuild
+
 * Sun Jul 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.11b8
 - add -doc subpackage
 - rebuild with gcc4
