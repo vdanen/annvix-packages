@@ -27,6 +27,7 @@ Source1:	cupsd.run
 Source2:	cupsd-log.run
 Source3:	cups.pam
 Patch0:		cups-CVE-2007-3387.patch
+Patch1:		cups-1.2-CVE-2007-4351.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	openssl-devel
@@ -96,6 +97,7 @@ This package contains the documentation for %{name}.
 %prep
 %setup -q -n %{name}-%{version}
 %patch0 -p1 -b .cve-2007-3387
+%patch1 -p0 -b .cve-2007-4351
 
 # fix the makefiles so they don't set file ownerships
 perl -p -i -e "s/ -o \\$.CUPS_USER.//" scheduler/Makefile
@@ -263,6 +265,9 @@ chgrp -R sys /etc/cups /var/*/cups
 
 
 %changelog
+* Thu Nov 01 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2.7
+- P1: security fix for CVE-2007-4351
+
 * Sun Sep 2 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2.7
 - P0: security fix for CVE-2007-3387
 
