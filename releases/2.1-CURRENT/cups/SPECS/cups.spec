@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		cups
-%define version		1.3.0 
+%define version		1.3.4
 %define release		%_revrel
 
 %define major		2
@@ -265,6 +265,9 @@ chgrp -R sys %{_sysconfdir}/cups %{_var}/*/cups
 
 
 %changelog
+* Thu Nov 01 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.3.4
+- 1.3.4; fixes CVE-2007-4351
+
 * Sat Sep 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.3.0
 - rebuild against new pam, openldap
 
