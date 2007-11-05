@@ -60,6 +60,7 @@ Patch35:	perl-27211.patch
 Patch36:	perl-27359.patch
 Patch37:	perl-27363.patch
 Patch38:	perl-5.8.8-mdv-donot-defer-sig11.patch
+Patch39:	perl-5.8.8-rh-CVE-2007-5116.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 # for NDBM
@@ -190,6 +191,7 @@ This package contains the documentation for %{name}.
 %patch36 -p1
 %patch37 -p1
 %patch38 -p1
+%patch39 -p1
 
 
 %build
@@ -565,6 +567,9 @@ EOF
 
 
 %changelog
+* Mon Nov 05 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.8.8
+- P39: security fix for CVE-2007-5116
+
 * Sat Nov 18 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.8.8
 - P38: do not defer segfaulting (SIG11)
 - clean spec
