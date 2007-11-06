@@ -413,14 +413,14 @@ EOF
 %{_bindir}/splain
 %{_bindir}/s2p
 %{_mandir}/man3/*
-%exclude %{_mandir}/man3/Pod::Perldoc::ToChecker.3pm.bz2
-%exclude %{_mandir}/man3/Pod::Perldoc::ToMan.3pm.bz2
-%exclude %{_mandir}/man3/Pod::Perldoc::ToNroff.3pm.bz2
-%exclude %{_mandir}/man3/Pod::Perldoc::ToPod.3pm.bz2
-%exclude %{_mandir}/man3/Pod::Perldoc::ToRtf.3pm.bz2
-%exclude %{_mandir}/man3/Pod::Perldoc::ToText.3pm.bz2
-%exclude %{_mandir}/man3/Pod::Perldoc::ToTk.3pm.bz2
-%exclude %{_mandir}/man3/Pod::Perldoc::ToXml.3pm.bz2
+%exclude %{_mandir}/man3/Pod::Perldoc::ToChecker.3pm*
+%exclude %{_mandir}/man3/Pod::Perldoc::ToMan.3pm*
+%exclude %{_mandir}/man3/Pod::Perldoc::ToNroff.3pm*
+%exclude %{_mandir}/man3/Pod::Perldoc::ToPod.3pm*
+%exclude %{_mandir}/man3/Pod::Perldoc::ToRtf.3pm*
+%exclude %{_mandir}/man3/Pod::Perldoc::ToText.3pm*
+%exclude %{_mandir}/man3/Pod::Perldoc::ToTk.3pm*
+%exclude %{_mandir}/man3/Pod::Perldoc::ToXml.3pm*
 %exclude %{perl_root}/%{version}/Pod/Perldoc.pm
 %exclude %{perl_root}/%{version}/Pod/Perldoc
 %exclude %{perl_root}/%{version}/Pod/Perldoc/BaseTo.pm
@@ -437,7 +437,7 @@ EOF
 
    cat > perl-perldoc.list <<EOF
 %{_bindir}/perldoc
-%{_mandir}/man1/perldoc.1.bz2
+%{_mandir}/man1/perldoc.1*
 %{perl_root}/%{version}/Pod/Perldoc.pm
 %{perl_root}/%{version}/Pod/Perldoc
 %{perl_root}/%{version}/Pod/Perldoc/BaseTo.pm
@@ -529,15 +529,18 @@ EOF
 %{perl_root}/%{version}/%{full_arch}/CORE/warnings.h
 EOF
 
-   rel_perl_root=`echo %{perl_root} | sed "s,/,,"`
-   rel_mandir=`echo %{_mandir} | sed "s,/,,"`
-   (cd %{buildroot} ; find $rel_perl_root/%{version} "(" -name "*.pod" -o -iname "Changes*" -o -iname "ChangeLog*" -o -iname "README*" ")" -a -not -name perldiag.pod -printf "%%%%doc /%%p\n") >> perl-perldoc.list
-   (cd %{buildroot} ; find $rel_mandir/man1 ! -name "perlivp.1*" ! -type d -printf "/%%p\n") >> perl.list
-   (cd %{buildroot} ; find $rel_perl_root/%{version} ! -type d -printf "/%%p\n") >> perl.list
-   (cd %{buildroot} ; find $rel_perl_root/%{version} -type d -printf "%%%%dir /%%p\n") >> perl.list
-   perl -ni -e 'BEGIN { open F, "perl-base.list"; $s{$_} = 1 foreach <F>; } print unless $s{$_}' perl.list
-   perl -ni -e 'BEGIN { open F, "perl-devel.list"; $s{$_} = 1 foreach <F>; } print unless $s{$_}' perl.list
-   perl -ni -e 'BEGIN { open F, "perl-perldoc.list"; !/perldiag/ and m|(/.*\n)| and $s{$1} = 1 foreach <F>; } print unless $s{$_}' perl.list
+    rel_perl_root=`echo %{perl_root} | sed "s,/,,"`
+    rel_mandir=`echo %{_mandir} | sed "s,/,,"`
+    (cd %{buildroot} ; find $rel_perl_root/%{version} "(" -name "*.pod" -o -iname "Changes*" -o -iname "ChangeLog*" -o -iname "README*" ")" -a -not -name perldiag.pod -printf "%%%%doc /%%p\n") >> perl-perldoc.list
+    (cd %{buildroot} ; find $rel_mandir/man1 ! -name "perlivp.1*" ! -type d -printf "/%%p*\n") >> perl.list
+    (cd %{buildroot} ; find $rel_perl_root/%{version} ! -type d -printf "/%%p\n") >> perl.list
+    (cd %{buildroot} ; find $rel_perl_root/%{version} -type d -printf "%%%%dir /%%p\n") >> perl.list
+    perl -ni -e 'BEGIN { open F, "perl-base.list"; $s{$_} = 1 foreach <F>; } print unless $s{$_}' perl.list
+    perl -ni -e 'BEGIN { open F, "perl-devel.list"; $s{$_} = 1 foreach <F>; } print unless $s{$_}' perl.list
+    perl -ni -e 'BEGIN { open F, "perl-perldoc.list"; !/perldiag/ and m|(/.*\n)| and $s{$1} = 1 foreach <F>; } print unless $s{$_}' perl.list
+    # need to do some re-arranging... not sure why the files are showing up as .bs and not .so
+    perl -pi -e 's|\.bs|\.so|g' perl.list
+    perl -pi -e "s|/usr/lib/perl5/%{version}/%{_arch}-linux/.packlist||" perl.list
 )
 
 
@@ -569,6 +572,8 @@ EOF
 %changelog
 * Mon Nov 05 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.8.8
 - P39: security fix for CVE-2007-5116
+- fix manpage extension
+- fix filelist building
 
 * Sat Nov 18 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.8.8
 - P38: do not defer segfaulting (SIG11)
