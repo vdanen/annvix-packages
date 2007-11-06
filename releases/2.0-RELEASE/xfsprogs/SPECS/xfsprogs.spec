@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		xfsprogs
-%define version 	2.8.11
+%define version 	2.9.4
 %define release 	%_revrel
 
 %define libname_orig	libxfs
@@ -137,6 +137,8 @@ rm -rf %{buildroot}%{_datadir}/locale
 %{_sbindir}/xfs_ncheck
 %{_sbindir}/xfs_quota
 %{_sbindir}/xfs_rtcp
+%{_sbindir}/xfs_mdrestore
+%{_sbindir}/xfs_metadump
 /sbin/fsck.xfs
 /sbin/mkfs.xfs
 /sbin/xfs_repair
@@ -160,9 +162,10 @@ rm -rf %{buildroot}%{_datadir}/locale
 %defattr(-,root,root)
 %doc doc/CHANGES.gz doc/COPYING doc/CREDITS doc/PORTING README
 
-# NOTE: ref bug #43; xfsprogs > 2.8.11 doesn't work on i586
-
 %changelog
+* Tue Nov 6 2007 Ying-Hung Chen <ying-at-yingternet.com> 2.9.4
+- 2.9.4 (major xfs_repair updates)
+
 * Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.8.11
 - 2.8.11
 
