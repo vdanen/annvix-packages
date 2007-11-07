@@ -38,6 +38,7 @@ Patch11:	netpbm-10.24-nodoc.patch
 Patch13:	netpbm-10.34-bmptopnm.patch
 Patch14:	netpbm-10.28-CAN-2005-2471.patch
 Patch15:	netpbm-10.33-ppmtompeg.patch
+Patch16:	libjasper-1.701.0-CVE-2007-2721.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	flex
@@ -137,6 +138,9 @@ This package contains the documentation for %{name}.
 %patch13 -p1 -b .bmptopnm
 %patch14 -p1 -b .CAN-2005-2471
 %patch15 -p1 -b .ppmtompeg
+pushd converter/other/jpeg2000
+%patch16 -p1 -b .cve-2007-2721
+popd
 
 tar xjf %{SOURCE2}
 chmod 0644 doc/*
@@ -258,6 +262,9 @@ cp test-images/* %{buildroot}%{_datadir}/printconf/tests/
 
 
 %changelog
+* Tue Nov 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 10.34
+- P16: security fix for CVE-2007-2721
+
 * Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 10.34
 - build against new libxml2 
 
