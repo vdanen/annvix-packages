@@ -27,6 +27,7 @@ Source1:	ftp://ftp.gnu.org/pub/gnu/tar/tar-%{version}.tar.bz2.sig
 Source2:	tar-help2man
 Patch0:		tar-1.15.1-alt-CVE-2007-4131.patch
 Patch1:		tar-1.16-CVE-2006-6097.patch
+Patch2:		tar-1.15.91-CVE-2007-4476.patch
 
 Buildroot:	%{_buildroot}/%{name}-%{version}
 
@@ -57,6 +58,7 @@ This package contains the documentation for %{name}.
 %setup -q
 %patch0 -p1 -b .cve-2007-4131
 %patch1 -p1 -b .cve-2006-6097
+%patch2 -p1 -b .cve-2007-4476
 
 cp %{_sourcedir}/tar-help2man ./help2man
 chmod +x ./help2man
@@ -122,6 +124,9 @@ mv %{buildroot}%{_libexecdir}/rmt %{buildroot}/sbin/%{rmtrealname}
 
 
 %changelog
+* Tue Nov 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.16
+- P2: security fix for CVE-2007-4476
+
 * Wed Sep 5 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.16
 - replace P0 with a better patch that fixes CVE-2007-4131
 
