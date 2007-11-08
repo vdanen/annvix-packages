@@ -12,7 +12,7 @@
 %define kernelversion	2
 %define patchlevel	6
 %define sublevel	22
-%define minlevel	10
+%define minlevel	12
 %define avxrelease	%(echo %{revision}|cut -d ' ' -f 2)
 
 %define kversion	%{kernelversion}.%{patchlevel}.%{sublevel}.%{minlevel}
@@ -791,6 +791,9 @@ exit 0
 
 
 %changelog
+* Thu Nov 08 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.22.12
+- 2.6.22.12: fixes CVE-2006-6058
+
 * Fri Oct 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.22.10
 - normalize the x86_64 config
 - some more spec cleaning
