@@ -122,6 +122,7 @@ Patch52:	db-4.2.52-amd64-mutexes.patch
 Patch53:	openldap-2.2.19-ntlm.patch
 # preserves the temp file used to import data if an error occured
 Patch54:	MigrationTools-40-preserveldif.patch
+Patch57:	openldap-2.3.27-CVE-2007-5707.patch
 
 #patches in CVS
 
@@ -312,6 +313,8 @@ popd
 %patch46 -p1 -b .mdk
 #bgmilne %patch47 -p1 -b .maildropschema
 %patch53 -p1 -b .ntlm
+
+%patch57 -p0 -b .cve-2007-5707
 
 # patches from CVS
 
@@ -844,6 +847,9 @@ fi
 
 
 %changelog
+* Thu Nov 08 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.3.30
+- P57: security fix for CVE-2007-5707
+
 * Tue Jan 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.3.30
 - really disable syslog support entirely (in slapd and in the post
   scripts); now slapd really only logs to it's own logging service
