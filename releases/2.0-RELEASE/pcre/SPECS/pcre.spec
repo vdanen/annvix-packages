@@ -25,6 +25,8 @@ Group: 		File Tools
 URL: 		http://www.pcre.org/
 Source:		ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/%{name}-%{version}.tar.bz2
 Patch0:		pcre-6.2-avx-skip_runtest_2.patch
+Patch1:		pcre-6.6-CVE-2007-1659.patch
+Patch2:		pcre-6.6-CVE-2007-1660.patch
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5
@@ -79,6 +81,9 @@ This package contains the documentation for %{name}.
 %prep
 %setup -q
 %patch0 -p0
+%patch1 -p1 -b .cve-2007-1659
+%patch2 -p1 -b .cve-2007-1660
+
 # always regen, otherwise libtool will behave funny
 %__libtoolize -c -f
 aclocal-1.7
@@ -149,6 +154,10 @@ ln -s ../../%{_lib}/lib%{name}.so.%{major}.* .
 
 
 %changelog
+* Thu Nov 08 2007 Vincent Danen <vdanen-at-build.annvix.org> 6.7
+- P1: security fix for CVE-2007-1659
+- P2: security fix for CVE-2007-1660
+
 * Mon Nov 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 6.7
 - 6.7
 - put the tests inside %%check
