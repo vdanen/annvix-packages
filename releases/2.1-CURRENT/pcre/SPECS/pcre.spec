@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		pcre
-%define version		7.3
+%define version		7.4
 %define	release		%_revrel
 
 %define major		0
@@ -144,6 +144,9 @@ rm -f %{buildroot}%{_docdir}/%{name}/{AUTHORS,ChangeLog,COPYING,LICENCE,NEWS,REA
 
 
 %changelog
+* Thu Nov 08 2007 Vincent Danen <vdanen-at-build.annvix.org> 7.4
+- 7.4
+
 * Sat Sep 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 7.3
 - 7.3
 - implement devel naming policy
