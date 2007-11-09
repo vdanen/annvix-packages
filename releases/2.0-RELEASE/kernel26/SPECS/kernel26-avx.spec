@@ -12,7 +12,7 @@
 %define kernelver	2
 %define patchlevel	6
 %define sublevel	16
-%define minlevel	53
+%define minlevel	57
 %define avxrelease	%(echo %{revision}|cut -d ' ' -f 2)
 
 %define tar_version	%{kernelver}.%{patchlevel}.%{sublevel}.%{minlevel}
@@ -952,6 +952,12 @@ exit 0
 
 
 %changelog
+* Thu Nov 08 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.57
+- 2.6.16.57: fixes CVE-2007-4308, CVE-2007-3740, CVE-2007-4997, CVE-2007-5093,
+  CVE-2007-3739, CVE-2007-4133, CVE-2007-4571, CVE-2007-3104, CVE-2007-3105,
+  CVE-2007-2453, CVE-2007-3848, CVE-2005-0504, CVE-2007-4573, 
+- FA01: add autofs4 v5 support
+
 * Fri Oct 05 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.16.53
 - smp and build kernels now support 64GB RAM, and up/BOOT kernels support 4GB
 

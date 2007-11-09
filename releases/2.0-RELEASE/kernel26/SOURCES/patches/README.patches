@@ -12,6 +12,8 @@ CB00_CORE.desc
 
 FA00_FILESYSTEM.desc
 ** Patches to enhance or fix filesystem support
+	FA01_autofs4-2.6.16-v5-update.patch
+	- patch to provide autofsv5 support
 
 SL00_SECURITY.desc
 ** Security-related enhancement patches
