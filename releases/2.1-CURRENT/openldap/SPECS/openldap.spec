@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		openldap
-%define version		2.3.38
+%define version		2.3.39
 %define release		%_revrel
 
 %define major 		2.3_0
@@ -863,6 +863,9 @@ fi
 
 
 %changelog
+* Fri Nov 09 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.3.39
+- 2.3.39; includes the fix for CVE-2007-5707
+
 * Thu Sep 13 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.3.38
 - S48: add apple's schema (taken from OS X 10.4.10)
 
