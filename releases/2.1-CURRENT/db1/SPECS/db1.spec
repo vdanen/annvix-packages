@@ -138,6 +138,9 @@ popd
 
 
 %changelog
+* Sun Nov 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.85
+- rebuild
+
 * Thu Jun 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.85
 - add -doc subpackage
 - rebuild with gcc4
