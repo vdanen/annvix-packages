@@ -161,6 +161,9 @@ fi
 
 
 %changelog
+* Sun Nov 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.2
+- rebuild
+
 * Wed Feb 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.2
 - include a non-diet build of the binaries (crond-libc and crontab-libc); there
   seems to be a bug in dietlibc that makes localtime() not work properly on
