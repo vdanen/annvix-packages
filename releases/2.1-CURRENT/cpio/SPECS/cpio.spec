@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		cpio
-%define version 	2.6
+%define version 	2.9
 %define release 	%_revrel
 
 Summary:	A GNU archiving program
@@ -18,17 +18,10 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		Archiving
-URL:		http://www.fsf.org/software/cpio
-Source:		ftp://prep.ai.mit.edu/pub/gnu/%{name}-%{version}.tar.bz2
-Patch0:		cpio-2.6-mtime.patch
-Patch1:		cpio-2.6-svr4compat.patch
-Patch2:		cpio-2.6-no-libnsl.patch
-Patch3:		cpio-2.6-i18n.patch
-Patch4:		cpio-2.6-CAN-1999-1572.patch
-Patch5:		cpio-2.6-chmodRaceC.patch
-Patch6:		cpio-2.6-dirTraversal.patch
-Patch7:		cpio-2.6-compil-gcc4.patch
-Patch8:		cpio-2.6-CVE-2005-4268.patch
+URL:		http://www.gnu.org/software/cpio
+Source0:	ftp://ftp.gnu.org/pub/gnu/%{name}/%{name}-%{version}.tar.bz2
+Source1:	ftp://ftp.gnu.org/pub/gnu/%{name}/%{name}-%{version}.tar.bz2.sig
+Patch1:		cpio-2.7-mdv-svr4compat.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	texinfo
@@ -60,18 +53,7 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
-%patch0 -p1 -b .mtime
 %patch1 -p1 -b .svr4compat
-%patch2 -p1 -b .no-libnsl
-%patch3 -p1 -b .i18n
-%patch4 -p0 -b .can-1999-1572
-%patch5 -p1 -b .can-2005-1111
-%patch6 -p1 -b .can-2005-1229
-%patch7 -p0 -b .gcc4
-%patch8 -p1 -b .cve-2005-4268
-
-# needed by P4
-autoconf
 
 
 %build
@@ -81,6 +63,9 @@ autoconf
     CPPFLAGS=-DHAVE_LSTAT=1
 
 %make
+
+
+%check
 make check
 
 
@@ -119,6 +104,14 @@ rm -f %{buildroot}%{_mandir}/man1/mt.1
 
 
 %changelog
+* Sun Nov 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.9
+- 2.9
+- drop P0, P2, P3, P4, P5, P6, P7, P8: fixed upstream or no longer needed
+- rediffed P1
+- use %%check
+- fix url and source urls
+- add gpg sig
+
 * Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.6
 - spec cleanups
 - remove locales
