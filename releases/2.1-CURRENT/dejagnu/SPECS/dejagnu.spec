@@ -97,6 +97,9 @@ rm -f %{buildroot}%{_includedir}/dejagnu.h
 
 
 %changelog
+* Sun Nov 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.4.2
+- rebuild
+
 * Sat Jul 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4.2
 - add -doc subpackage
 - rebuild with gcc4
