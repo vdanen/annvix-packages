@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		logrotate
-%define version		3.7.3
+%define version		3.7.5
 %define release		%_revrel
 
 Summary:	Rotates, compresses, and mails system logs
@@ -18,28 +18,32 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		File Tools
-URL:		http://download.fedora.redhat.com/pub/fedora/linux/core/1/i386/os/SRPMS
-Source0:	ftp://ftp.redhat.com/pub/redhat/code/logrotate/%{name}-%{version}.tar.bz2
+URL:		http://download.fedora.redhat.com/pub/fedora/linux/core/development/source/SRPMS/
+Source0:	ftp://ftp.redhat.com/pub/redhat/code/logrotate/%{name}-%{version}.tar.gz
 Source1:	logrotate.conf.annvix
-Patch0:		logrotate-3.7.3-mdv-glob.patch
+Patch0:		logrotate-3.7.5-mdv-run_scripts_with_arg0.patch
+Patch1:		logrotate-3.7.5-mdv-stop_on_script_errors.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	popt-devel
 
 %description
-Logrotate is designed to ease administration of systems that generate
-large numbers of log files. It allows automatic rotation, compression,
-removal, and mailing of log files. Each log file may be handled daily,
-weekly, monthly, or when it grows too large.
+The logrotate utility is designed to simplify the administration of log
+files on a system which generates a lot of log files.  Logrotate allows for
+the automatic rotation compression, removal and mailing of log files.
+Logrotate can be set to handle a log file daily, weekly,monthly or when the
+log file gets to a certain size.  Normally, logrotate runs as a daily cron
+job.
 
 
 %prep
 %setup -q
-%patch0 -p0 -b .glob
+%patch0 -p1 -b .run_scripts_with_arg0
+%patch1 -p1 -b .stop_on_script_errors
 
 
 %build
-%make RPM_OPT_FLAGS="%{optflags}"
+%make RPM_OPT_FLAGS="%{optflags}" WITH_SELINUX=no
 
 
 %check
@@ -59,11 +63,15 @@ chmod 0644 %{buildroot}%{_sysconfdir}/%{name}.conf
 
 install -m 0755 examples/%{name}.cron %{buildroot}%{_sysconfdir}/cron.daily/%{name}
 
-touch %{buildroot}/var/lib/logrotate.status
-
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
+
+%post
+if [ "${1}" == "1" ]; then
+    /bin/touch %{_var}/lib/logrotate.staus
+fi
 
 
 %files
@@ -73,10 +81,17 @@ touch %{buildroot}/var/lib/logrotate.status
 %attr(0755,root,root) %{_sysconfdir}/cron.daily/%{name}
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/%{name}.conf
 %attr(0755,root,root) %dir %{_sysconfdir}/%{name}.d
-%attr(0644,root,root) %verify(not size md5 mtime) %config(noreplace) /var/lib/logrotate.status
 
 
 %changelog
+* Sun Nov 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.7.5
+- 3.7.5
+- don't ship status files, create it in %%post
+- don't rotate lastlog
+- drop old P0; no longer required
+- P0: run scripts passing a simple fixed $0 for error messages and such
+- P1: stop processing logs when scripts exit with error
+
 * Mon Aug 07 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.7.3
 - 3.7.3
 - drop P1, P2

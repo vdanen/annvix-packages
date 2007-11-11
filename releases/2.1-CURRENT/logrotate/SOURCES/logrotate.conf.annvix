@@ -28,9 +28,4 @@ include /etc/logrotate.d
     rotate 1
 }
 
-/var/log/lastlog {
-    monthly
-    rotate 1
-}
-
 # system-specific logs may be configured here
