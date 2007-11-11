@@ -1,0 +1,26 @@
+diff -Naur --exclude '*~' autofs-5.0.2/lib/defaults.c autofs-5.0.2-rename-configuration-file/lib/defaults.c
+--- autofs-5.0.2/lib/defaults.c	2007-06-18 09:18:08.000000000 +0200
++++ autofs-5.0.2-rename-configuration-file/lib/defaults.c	2007-09-15 14:35:57.000000000 +0200
+@@ -20,7 +20,7 @@
+ #include "defaults.h"
+ #include "log.h"
+ 
+-#define DEFAULTS_CONFIG_FILE		AUTOFS_CONF_DIR "/autofs"
++#define DEFAULTS_CONFIG_FILE		AUTOFS_CONF_DIR "/autofs.conf"
+ #define MAX_LINE_LEN			256
+ 
+ #define ENV_NAME_MASTER_MAP		"MASTER_MAP_NAME"
+diff -Naur --exclude '*~' autofs-5.0.2/samples/Makefile autofs-5.0.2-rename-configuration-file/samples/Makefile
+--- autofs-5.0.2/samples/Makefile	2007-06-18 09:18:08.000000000 +0200
++++ autofs-5.0.2-rename-configuration-file/samples/Makefile	2007-09-15 14:38:10.000000000 +0200
+@@ -50,8 +50,8 @@
+ 		echo "Installed package default configuration file as \"autofs.conf.new\"." ; \
+ 	else \
+ 		install -v autofs.conf.default -m 644 $(CONFIG) \
+-				$(INSTALLROOT)$(autofsconfdir)/autofs ; \
+-		echo "Installed package configuration configuration as \"autofs\"." ; \
++				$(INSTALLROOT)$(autofsconfdir)/autofs.conf ; \
++		echo "Installed package configuration configuration as \"autofs.conf\"." ; \
+ 		if test -z "$(CEXISTS)" ; \
+ 		then \
+ 			echo "Backup of existing configuration made to \"autofs.orig\"." ; \
