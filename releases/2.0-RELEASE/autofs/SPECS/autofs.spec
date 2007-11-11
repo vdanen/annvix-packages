@@ -58,7 +58,7 @@ Buildroot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	openldap-devel
 BuildRequires:	flex
 BuildRequires:	bison
-BuildRequires:	cyrus-sasl-devel
+BuildRequires:	libsasl-devel
 BuildRequires:	krb5-devel
 
 Requires:	nfs-utils-clients
@@ -180,6 +180,10 @@ install -m 0740 %{_sourcedir}/autofs-log.run %{buildroot}%{_srvdir}/autofs/log/r
 
 
 %changelog
+* Sat Nov 10 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.0.2
+- backport to 2.0-RELEASE (from 2.1-CURRENT)
+- fix build dependencies for 2.0-RELEASE
+
 * Sat Nov 10 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.0.2
 - first Annvix package (taken from Mandriva cooker)
 - P29: log to stderr and uncomment -f in --help
