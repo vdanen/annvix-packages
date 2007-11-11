@@ -9,12 +9,12 @@
 
 %define revision	$Rev$
 %define name		libxml2
-%define version		2.6.27
+%define version		2.6.30
 %define release		%_revrel
 
 %define major		2
-%define libname		%mklibname xml %{major}
-%define devname		%mklibname xml %{major} -d
+%define libname		%mklibname xml2_ %{major}
+%define devname		%mklibname xml2 -d
 
 Summary:	Library providing XML and HTML support
 Name:		%{name}
@@ -46,19 +46,17 @@ available, with existing HTTP and FTP modules and combined to an
 URI library.
 
 
-%if "%{libname}" != "%{name}"
 %package -n %{libname}
-Summary:	Shard libraries providing XML and HTML support
+Summary:	Shared libraries providing XML and HTML support
 Group: 		System/Libraries
 Provides:	%{name} = %{version}-%{release}
+Obsoletes:	%{mklibname xml 2}
 
 %description -n %{libname}
 This library allows to manipulate XML files. It includes support 
 to read, modify and write XML and HTML files. There is DTDs support
 this includes parsing and validation even with complex DtDs, either
 at parse time or later once the document has been modified.
-%endif
-
 
 %package utils
 Summary:	Utilities to manipulate XML files
@@ -69,14 +67,17 @@ Requires:	%{libname} >= %{version}
 This packages contains utils to manipulate XML files.
 
 
-%package -n %{libname}-python
+%package python
 Summary:	Python bindings for the libxml2 library
 Group:		Development/Python
 Requires:	%{libname} >= %{version}
 Requires:	python >= %{pyver}
 Provides:	python-%{name} = %{version}-%{release}
+%if "%{_lib}" != "lib"
+Obsoletes:	%{_lib}xml2-python < 2.6.30
+%endif
 
-%description -n %{libname}-python
+%description python
 The libxml2-python package contains a module that permits applications
 written in the Python programming language to use the interface
 supplied by the libxml2 library to manipulate XML files.
@@ -122,9 +123,7 @@ This package contains the documentation for %{name}.
 %patch1 -p1 -b .libdir
 
 # needed by patch 1
-aclocal-1.9
-automake-1.9
-autoconf
+autoreconf
 
 
 %build
@@ -178,7 +177,7 @@ rm -rf	%{buildroot}%{_prefix}/doc \
 %{_mandir}/man1/xmlcatalog*
 %{_mandir}/man1/xmllint*
 
-%files -n %{libname}-python
+%files python
 %defattr(-, root, root)
 %{_libdir}/python%{pyver}/site-packages/*.so
 %{_libdir}/python%{pyver}/site-packages/*.py
@@ -206,6 +205,12 @@ rm -rf	%{buildroot}%{_prefix}/doc \
 
 
 %changelog
+* Sun Nov 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.30
+- 2.6.30
+- use autoreconf instead of calling each bit manually
+- python package follows %%name, not %%libname
+- use a correct libname
+
 * Sun Jun 24 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.27
 - rebuild against new readline
 - implement devel naming policy
