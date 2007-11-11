@@ -13,6 +13,7 @@
 %define release		%_revrel
 
 %define _requires_exceptions tcsh
+%define _fortify_cflags	%{nil}
 
 Summary:	A version control system
 Name:		%{name}
@@ -89,7 +90,7 @@ This package contains the documentation for %{name}.
 export SENDMAIL="%{_sbindir}/sendmail"
 
 %serverbuild
-export CFLAGS="%(echo %optflags | sed 's/-Wp,-D_FORTIFY_SOURCE=2//')"
+export CFLAGS="%{optflags}"
 export CXXFLAGS="${CFLAGS}"
 export CCFLAGS="${CFLAGS}"
 
@@ -178,6 +179,9 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Sun Nov 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.12.13
+- don't build with FORTIFY_SOURCE as per mdv bug #31848 (causes cvs to crash)
+
 * Wed Dec 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.12.13
 - rebuild against new krb5
 
