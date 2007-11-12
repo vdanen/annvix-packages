@@ -41,17 +41,25 @@ Source3:	locale_uninstall.sh
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	glibc-i18ndata = %{glibc_epoch}:%{glibc_ver}
 
-Prereq:		glibc = %{glibc_epoch}:%{glibc_ver}
 Requires:	glibc = %{glibc_epoch}:%{glibc_ver}
 Requires:	basesystem
 AutoReqProv:	no
 
 %description
-These are the base files for language localization.
-You also need to install the specific locales-?? for the
-language(s) you want. Then the user need to set the
-LANG variable to their preferred language in their
+These are the base files for language localization.  You also need to
+install the specific locales-?? for the language(s) you want.  Then the user
+ need to set the LANG variable to their preferred language in their
 ~/.profile configuration file.
+
+
+%package -n locales-en
+Summary:	Base files for localization (English)
+Group:		System/Internationalization
+Requires:	locales = %{version}-%{release}
+
+%description -n locales-en
+These are the base files for English language localization.
+Contains: en_CA en_DK en_GB en_IE en_US
 
 
 %prep
@@ -210,9 +218,23 @@ rm /usr/share/locale/*@euro > /dev/null 2> /dev/null || :
 if [ "$1" = "1" ]; then
 	%{loc_add} "UTF-8"
 fi
+
+
 %preun
 if [ "$1" = "0" ]; then
 	%{loc_del} "UTF-8"
+fi
+
+
+%post -n locales-en
+if [ "$1" = "1" ]; then
+	%{loc_add} en en_GB en_IE en_US
+fi
+
+
+%postun -n locales-en
+if [ "$1" = "0" ]; then
+	%{loc_del} en en_GB en_IE en_US
 fi
 
 
@@ -226,31 +248,16 @@ fi
 /usr/bin/*
 
 
-
-%package -n locales-en
-Summary:	Base files for localization (English)
-Group:		System/Internationalization
-Requires:	locales = %{version}-%{release}
-
-%description -n locales-en
-These are the base files for English language localization.
-Contains: en_CA en_DK en_GB en_IE en_US
-
-%post -n locales-en
-if [ "$1" = "1" ]; then
-	%{loc_add} en en_GB en_IE en_US
-fi
-%postun -n locales-en
-if [ "$1" = "0" ]; then
-	%{loc_del} en en_GB en_IE en_US
-fi
-
 %files -n locales-en
 %defattr(-,root,root)
 /usr/share/locale/en*
 
 
 %changelog
+* Sun Nov 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.5
+- drop the prereq
+- clean the spec
+
 * Mon Jun 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.5
 - 2.5
 
