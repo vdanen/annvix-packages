@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		lsof
-%define version		4.77
+%define version		4.78
 %define release		%_revrel
 
 %define dname		%{name}_%{version}
@@ -21,7 +21,7 @@ Release:	%{release}
 License:	Free
 Group:		Monitoring
 URL:		ftp://vic.cc.purdue.edu/pub/tools/unix/lsof/
-Source0:	ftp://vic.cc.purdue.edu/pub/tools/unix/%{name}/%{dname}.tar.bz2
+Source0:	ftp://vic.cc.purdue.edu/pub/tools/unix/%{name}/%{name}_%{version}.tar.bz2
 Patch0:		lsof_4.64-perl-example-fix.patch
 Patch1:		lsof_4.60-has-security.patch
 
@@ -89,6 +89,9 @@ install -m 0644 lsof.8 %{buildroot}%{_mandir}/man8/
 
 
 %changelog
+* Sun Nov 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.78
+- 4.78
+
 * Mon Jul 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.77
 - 4.77
 - add -doc subpackage
