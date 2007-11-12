@@ -81,6 +81,9 @@ This package contains the documentation for %{name}.
 
 
 %changelog
+* Sun Nov 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.5.5
+- rebuild
+
 * Sat Dec 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5.5
 - 2.5.5
 - drop P1; no longer needed
