@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		m4
-%define version 	1.4.8
+%define version 	1.4.10
 %define release 	%_revrel
 
 Summary:	The GNU macro processor
@@ -77,14 +77,18 @@ make check
 %defattr(-,root,root)
 %{_bindir}/m4
 %{_infodir}/*
-%{_mandir}/man1/m4.1*
+%{_mandir}/man1/*
 
 %files doc
 %defattr(-,root,root)
-%doc NEWS README COPYING BACKLOG THANKS ChangeLog
+%doc NEWS README COPYING BACKLOG THANKS
 
 
 %changelog
+* Sun Nov 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.4.10
+- 1.4.10
+- don't package ChangeLog, we already have NEWS
+
 * Tue Dec 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4.8
 - 1.4.8
 
