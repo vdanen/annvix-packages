@@ -67,6 +67,9 @@ install -m 0644 mingetty.8 %{buildroot}/%{_mandir}/man8/
 
 
 %changelog
+* Sun Nov 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.07
+- rebuild
+
 * Fri Jul 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.07
 - add -doc subpackage
 - rebuild with gcc4
