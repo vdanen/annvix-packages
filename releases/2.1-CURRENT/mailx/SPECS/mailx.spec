@@ -90,6 +90,9 @@ ln -sf mail.1 %{buildroot}%{_mandir}/man1/Mail.1
 
 
 %changelog
+* Sun Nov 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.1.1
+- rebuild
+
 * Fri Jul 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.1.1
 - rebuild with gcc4
 
