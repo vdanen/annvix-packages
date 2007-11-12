@@ -98,12 +98,15 @@ ln -sf make %{buildroot}%{_bindir}/gmake
 
 %files doc
 %defattr(-,root,root)
-%doc ABOUT-NLS AUTHORS COPYING ChangeLog README README.customs SCOPTIONS NEWS
+%doc ABOUT-NLS AUTHORS ChangeLog README README.customs SCOPTIONS NEWS
 %doc glob/COPYING.LIB glob/ChangeLog
 
 
 %changelog
-* Sat Dec 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.80
+* Sun Nov 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.81
+- rebuild
+
+* Sat Dec 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.81
 - 3.81
 - drop P2; merged upstream
 - rebuild against new gettext
