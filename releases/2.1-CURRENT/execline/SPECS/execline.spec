@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name 		execline
-%define version		1.06
+%define version		1.07
 %define release		%_revrel
 
 %define _bindir		/bin
@@ -56,6 +56,7 @@ COMP="diet gcc"
 pushd %{name}-%{version}
     echo "$COMP -O2 -W -Wall -fomit-frame-pointer -pipe" > conf-compile/conf-cc
     echo "$COMP -Os -static -s" > conf-compile/conf-ld
+    echo "strip" >conf-compile/conf-stripbins
 
     echo "linux-:%{_target_cpu}-:" > src/sys/systype
 
@@ -94,6 +95,10 @@ popd
 
 
 %changelog
+* Mon Nov 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.07
+- 1.07
+- explicitly set 'strip' as conf-compile/conf-stripbins
+
 * Sat Jun 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.06
 - add -doc subpackage
 - rebuild with gcc4
