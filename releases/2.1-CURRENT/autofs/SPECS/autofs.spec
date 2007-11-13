@@ -23,6 +23,7 @@ Source0:	ftp://ftp.kernel.org/pub/linux/daemons/autofs/v5/autofs-%{version}.tar.
 Source1:	ftp://ftp.kernel.org/pub/linux/daemons/autofs/v5/autofs-%{version}.tar.bz2.sign
 Source2:	autofs.run
 Source3:	autofs-log.run
+Source4:	autofs.finish
 Patch0:		autofs-5.0.2-add-krb5-include.patch
 Patch1:		autofs-5.0.2-bad-proto-init.patch
 Patch2:		autofs-5.0.2-add-missing-multi-support.patch
@@ -70,6 +71,7 @@ Patch43:	autofs-5.0.2-master-check-underscore.patch
 Patch44:	autofs-5.0.2-add-ldap-schema-discovery-fix-2.patch
 Patch100:	autofs-5.0.2-mdv-rename-configuration-file.patch
 Patch101:	autofs-5.0.2-mdv-separate-config-files.patch
+Patch102:	autofs-5.0.2-avx-config_fixes.patch
 
 Buildroot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	openldap-devel
@@ -149,6 +151,7 @@ This package contains the documentation for %{name}.
 
 %patch100 -p1
 %patch101 -p1
+%patch102 -p1
 
 %build
 autoconf
@@ -180,6 +183,7 @@ rm -f %{buildroot}%{_mandir}/man8/autofs*
 
 mkdir -p %{buildroot}%{_srvdir}/autofs/{log,peers,env}
 install -m 0740 %{_sourcedir}/autofs.run %{buildroot}%{_srvdir}/autofs/run
+install -m 0740 %{_sourcedir}/autofs.finish %{buildroot}%{_srvdir}/autofs/finish
 install -m 0740 %{_sourcedir}/autofs-log.run %{buildroot}%{_srvdir}/autofs/log/run
 >%{buildroot}%{_srvdir}/autofs/env/OPTIONS
 
@@ -206,6 +210,7 @@ install -m 0740 %{_sourcedir}/autofs-log.run %{buildroot}%{_srvdir}/autofs/log/r
 %dir %attr(0750,root,admin) %{_srvdir}/autofs
 %dir %attr(0750,root,admin) %{_srvdir}/autofs/log
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/autofs/run
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/autofs/finish
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/autofs/log/run
 %attr(0640,root,admin) %{_srvdir}/autofs/env/OPTIONS
 
@@ -224,6 +229,8 @@ install -m 0740 %{_sourcedir}/autofs-log.run %{buildroot}%{_srvdir}/autofs/log/r
 - drop our stderr patch; it got fixed (somewhere) in one of the new patches
 - drop some Mandriva patches
 - drop the initscript
+- add a finish script to killall -9 automount since it seems to be quite stubborn
+- P102: patch the config file have it only automount /net
 
 * Sat Nov 10 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.0.2
 - first Annvix package (taken from Mandriva cooker)
