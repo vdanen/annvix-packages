@@ -64,18 +64,20 @@ pushd %{name}-%{version}
     echo "%{_libdir}/skalibs" >> conf-compile/import
 
     package/compile
+    perl -pi -e 's|\/command|\/bin|g' etc/execline-{startup,shell}
 popd
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-install -d %{buildroot}/bin
+mkdir -p %{buildroot}{%{_sysconfdir},/bin}
 
 pushd %{name}-%{version}
     for i in `cat package/command.exported` ;  do
         install -m 0755 command/$i %{buildroot}/bin/
     done
+    install -m 0755 etc/* %{buildroot}%{_sysconfdir}/
 popd
 
 
@@ -86,6 +88,8 @@ popd
 %files
 %defattr(-,root,root)
 /bin/*
+%config(noreplace) %{_sysconfdir}/execline-shell
+%config(noreplace) %{_sysconfdir}/execline-startup
 
 %files doc
 %defattr(-,root,root)
@@ -98,6 +102,7 @@ popd
 * Mon Nov 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.07
 - 1.07
 - explicitly set 'strip' as conf-compile/conf-stripbins
+- put in the /etc files
 
 * Sat Jun 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.06
 - add -doc subpackage
