@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name 		skalibs
-%define version		0.45
+%define version		0.46
 %define release		%_revrel
 
 Summary:	The skarnet.org development library
@@ -102,6 +102,9 @@ popd
 
 
 %changelog
+* Mon Nov 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.46
+- 0.46
+
 * Sat Jun 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.45
 - add -doc subpackage
 - rebuild with gcc4
