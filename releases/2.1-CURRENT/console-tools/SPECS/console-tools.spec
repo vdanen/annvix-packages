@@ -380,6 +380,9 @@ fi
 
 
 %changelog
+* Wed Nov 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.2.3
+- rebuild against new gettext
+
 * Sat Sep 8 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.2.3
 - implement devel naming policy
 - implement library provides policy
