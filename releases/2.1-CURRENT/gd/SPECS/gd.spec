@@ -190,6 +190,9 @@ libtoolize --copy --force; aclocal-1.7; automake-1.7 --copy --add-missing; autoc
 
 
 %changelog
+* Wed Nov 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0.35
+- rebuild against new gettext
+
 * Fri Sep 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0.35
 - 2.0.35: fixes CVE-2007-347[2345678]
 - drop P0, P1, P2, P3: merged upstream
