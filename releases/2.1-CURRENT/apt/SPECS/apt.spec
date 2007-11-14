@@ -205,6 +205,9 @@ install -m 0600 contrib/gpg-check/gpg-import.lua %{buildroot}%{_datadir}/apt/scr
 
 
 %changelog
+* Wed Nov 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.5.15lorg3.2
+- rebuild against new gettext
+
 * Mon Jun 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.5.15lorg3.2
 - rebuild with SSP
 
