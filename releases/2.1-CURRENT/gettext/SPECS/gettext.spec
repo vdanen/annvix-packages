@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		gettext
-%define version 	0.16.1
+%define version 	0.17
 %define release 	%_revrel
 
 %define major		8
@@ -198,8 +198,9 @@ popd
 %{_libdir}/%{name}/user-email
 %{_infodir}/gettext*
 %{_mandir}/man1/msg*
-%{_mandir}/man1/xgettext*
 %{_mandir}/man1/envsubst*
+%{_mandir}/man1/recode-sr-latin*
+%{_mandir}/man1/xgettext*
 %{_mandir}/man3/*
 
 %files base -f gettext.lang
@@ -242,6 +243,9 @@ popd
 
 
 %changelog
+* Tue Nov 13 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.17
+- 0.17
+
 * Sat Oct 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.16.1
 - 0.16.1
 - use parallel make
