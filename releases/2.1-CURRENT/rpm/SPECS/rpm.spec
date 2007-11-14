@@ -65,7 +65,6 @@
 #       of rpm is supported anyway, per architecture
 %define rpmdir %{_prefix}/lib/rpm
 
-%define __os_install_post	%{_datadir}/spec-helper/spec-helper
 %define __find_requires		%{rpmdir}/%{_host_vendor}/find-requires %{?buildroot:%{buildroot}} %{?_target_cpu:%{_target_cpu}}
 %define __find_provides		%{rpmdir}/%{_host_vendor}/find-provides
 
@@ -133,19 +132,19 @@ Patch88:	rpm-4.4.5-avx-trans.patch
 Patch89:	rpm-4.4.8-mdv-macro_doc_fmt.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	autoconf2.5 >= 2.57
+BuildRequires:	autoconf >= 2.57
 BuildRequires:	doxygen
 BuildRequires:	python-devel
 BuildRequires:	perl-devel
 BuildRequires:	zlib-devel
-BuildRequires:	automake1.8
+BuildRequires:	automake >= 1.8
 BuildRequires:	glibc-static-devel
 BuildRequires:	elfutils-static-devel
 BuildRequires:	sed >= 4.0.3
 BuildRequires:	beecrypt-devel
 BuildRequires:	ed
 BuildRequires:	gettext-devel
-BuildRequires:	rpm-annvix-setup-build
+BuildRequires:	rpm-annvix-setup-build >= 1.27.1
 BuildRequires:	readline-devel
 BuildRequires:	ncurses-devel
 BuildRequires:	neon-static-devel
@@ -224,7 +223,7 @@ Requires:	make
 Requires:	unzip
 Requires:	elfutils
 Requires:	rpm = %{version}-%{release}
-Requires:	spec-helper
+Requires:	spec-helper >= 0.27.2
 Requires:	rpm-annvix-setup-build
 
 %description build
@@ -355,12 +354,16 @@ mv sqlite sqlite.orig
 
 
 %build
+# this is needed otherwise automake-1.10 complains and kills
+# make
+touch config.rpath
+
 for dir in . popt file zlib db/dist; do
     (
     cd $dir
     libtoolize --force
     aclocal
-    automake-1.8 -a
+    automake -a
     autoconf
     )
 done
@@ -369,11 +372,8 @@ done
 # configure breaks make install, but this does not matter.
 # --build, we explictly set 'annvix' as our config subdir and 
 # _host_vendor are 'annvix'
-%ifarch x86_64
-fpic="-fPIC"
-%endif
 
-CFLAGS="%{optflags} $fpic" CXXFLAGS="%{optflags} $fpic" \
+CFLAGS="%{optflags} -fPIC" CXXFLAGS="%{optflags} -fPIC" \
     ./configure \
         --build=%{_target_cpu}-%{_host_vendor}-%{_target_os}%{?_gnu} \
         --prefix=%{_prefix} \
@@ -393,21 +393,16 @@ CFLAGS="%{optflags} $fpic" CXXFLAGS="%{optflags} $fpic" \
         --with-apidocs \
         --without-selinux
 
-# We should use the zlib provided whit rpm:
+# We should use the zlib provided with rpm:
 # 21:17 < Nanar> why using ../../zlib in file/ instead system library ?
 # 21:38 < jbj> Nanar: zlib modified to make *.rpm packages rsync friendly.
 #              See https://svn.uhulinux.hu/packages/dev/zlib/patches/02-rsync.patch
 # 21:38 < jbj> rip if you don't want to be rsync friendly. <shrug>
 
-# Zlib tree don't support make -j
-# building in first
+# Zlib tree don't support make -j; so build it first alone
+make -C zlib AM_CFLAGS="%{optflags}" LDFLAGS="-fPIC"
 
-(
-    cd zlib
-    make
-)
-
-%make
+make
 
 
 %install
@@ -480,8 +475,8 @@ pushd %{buildroot}
 popd
 
 %{rpmdir}/%{_host_vendor}/kill-lang.sh %{buildroot} %{name}
-%{rpmdir}/%{_host_vendor}/find-lang.sh %{buildroot} %{name}
-%{rpmdir}/%{_host_vendor}/find-lang.sh %{buildroot} popt
+%{rpmdir}/%{_host_vendor}/find-lang.pl %{buildroot} %{name}
+%{rpmdir}/%{_host_vendor}/find-lang.pl %{buildroot} popt
 
 # install RPM-GPG-KEYS
 mkdir -p %{buildroot}%{_sysconfdir}/RPM-GPG-KEYS
@@ -772,6 +767,13 @@ fi
 %changelog
 * Wed Nov 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.4.5
 - rebuild against new gettext
+- fix auto* tools buildrequires
+- fix build when using automake 1.10
+- use find-lang.pl, not find-lang.sh
+- arbitrarily set -fPIC
+- simplify zlib build
+- don't redefine %%__os_install_post
+- update the versions of some requires/buildrequires (spec-helper, rpm-annvix-setup-build)
 
 * Sat Sep 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.4.5
 - rebuild against new elfutils
