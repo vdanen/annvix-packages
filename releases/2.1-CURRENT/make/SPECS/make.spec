@@ -103,6 +103,9 @@ ln -sf make %{buildroot}%{_bindir}/gmake
 
 
 %changelog
+* Wed Nov 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.81
+- rebuild against new gettext
+
 * Sun Nov 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.81
 - rebuild
 
