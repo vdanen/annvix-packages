@@ -77,6 +77,9 @@ mkdir -p %{buildroot}%{_mandir}/man1
 
 
 %changelog
+* Wed Nov 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1.5
+- rebuild against new gettext
+
 * Wed Oct 17 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1.5
 - rebuild
 
