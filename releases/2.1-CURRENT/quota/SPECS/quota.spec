@@ -67,7 +67,11 @@ mounts.
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}{/sbin,%{_sysconfdir},%{_sbindir},%{_bindir},%{_mandir}/{man1,man2,man3,man8}}
 
-make install ROOTDIR=%{buildroot}
+make install \
+    ROOTDIR=%{buildroot} \
+    DEF_BIN_MODE=755 \
+    DEF_SBIN_MODE=755 \
+    DEF_MAN_MODE=644
 
 install -m 0644 warnquota.conf %{buildroot}%{_sysconfdir}
 
@@ -79,11 +83,6 @@ install -m 0740 %{_sourcedir}/rpc.rquotad-log.run %{buildroot}%{_srvdir}/rpc.rqu
 %kill_lang %{name}
 %find_lang %{name}
 
-# we don't want suid files
-chmod 0755 %{buildroot}/sbin/*
-chmod 0755 %{buildroot}%{_sbindir}/*
-chmod 0755 %{buildroot}%{_bindir}/*
-
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -91,6 +90,7 @@ chmod 0755 %{buildroot}%{_bindir}/*
 
 %preun
 %_preun_srv rpc.rquotad
+
 
 %post
 %_post_srv rpc.rquotad
@@ -101,14 +101,14 @@ chmod 0755 %{buildroot}%{_bindir}/*
 %config(noreplace) %{_sysconfdir}/warnquota.conf
 %config(noreplace) %{_sysconfdir}/quotagrpadmins
 %config(noreplace) %{_sysconfdir}/quotatab
-%attr(0755,root,root) /sbin/*
-%attr(0755,root,root) %{_bindir}/*
-%attr(0755,root,root) %{_sbindir}/*
+/sbin/*
+%{_bindir}/*
+%{_sbindir}/*
 %{_includedir}/rpcsvc/*
-%attr(0644,root,root) %{_mandir}/man1/*
-%attr(0644,root,root) %{_mandir}/man2/*
-%attr(0644,root,root) %{_mandir}/man3/*
-%attr(0644,root,root) %{_mandir}/man8/*
+%{_mandir}/man1/*
+%{_mandir}/man2/*
+%{_mandir}/man3/*
+%{_mandir}/man8/*
 %dir %attr(0750,root,admin) %{_srvdir}/rpc.rquotad
 %dir %attr(0750,root,admin) %{_srvdir}/rpc.rquotad/log
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/rpc.rquotad/run
@@ -116,6 +116,10 @@ chmod 0755 %{buildroot}%{_bindir}/*
 
 
 %changelog
+* Wed Nov 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.13
+- rebuild against new gettext
+- clean the spec a bit
+
 * Sat Dec 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.13
 - runscripts for rpc.rquotad
 
