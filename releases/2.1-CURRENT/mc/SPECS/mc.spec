@@ -140,8 +140,11 @@ rm -rf %{buildroot}%{_datadir}/locale
 
 
 %changelog
+* Wed Nov 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.6.1
+- rebuild against new glib2.0
+
 * Mon Oct 01 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.6.1
-- P4: fix bug that leaves temporary files lying around (upstrem bug
+- P4: fix bug that leaves temporary files lying around (upstream bug
   #13953)
 - P5: fix a bug that prevents >2GB ssh file transfers from working (upstream
   bug #15524)
