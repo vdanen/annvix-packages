@@ -97,7 +97,7 @@ echo ".so man8/useradd.8" >man/adduser.8
 
 
 %build
-libtoolize --copy --force; aclocal; autoconf; automake
+libtoolize --copy --force; aclocal; autoconf; automake --add-missing
 CFLAGS="%{optflags} -DSHADOWTCB -DEXTRA_CHECK_HOME_DIR" \
 %configure \
     --disable-shared \
@@ -224,6 +224,7 @@ rm -rf %{buildroot}%{_libdir}
 %changelog
 * Wed Nov 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.0.12
 - rebuild against new gettext
+- update automake call
 
 * Sun Sep 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.0.12
 - rebuild against new pam
