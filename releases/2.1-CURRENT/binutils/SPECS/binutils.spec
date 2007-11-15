@@ -237,6 +237,9 @@ rm -rf %{buildroot}%{_datadir}/locale/
 
 
 %changelog
+* Wed Nov 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.17.50.0.12
+- rebuild against new gettext
+
 * Thu Sep 13 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.17.50.0.12
 - 2.17.50.0.12
 - sync patches with Mandriva 2.17.50.0.12-1mdv
