@@ -237,10 +237,10 @@ done
 
 
 %post
-if [ ! -a /var/log/faillog ]; then
+if [ ! -f /var/log/faillog ]; then
     cp -a /dev/null /var/log/faillog && chmod 0600 /var/log/faillog
 fi
-if [ ! -a /var/log/tallylog ]; then
+if [ ! -f /var/log/tallylog ]; then
     cp -a /dev/null /var/log/tallylog && chmod 0600 /var/log/tallylog
 fi
 
