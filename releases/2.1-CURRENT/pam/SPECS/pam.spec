@@ -238,10 +238,10 @@ done
 
 %post
 if [ ! -a /var/log/faillog ]; then
-    install -m 0600 /dev/null /var/log/faillog
+    cp -a /dev/null /var/log/faillog && chmod 0600 /var/log/faillog
 fi
 if [ ! -a /var/log/tallylog ]; then
-    install -m 0600 /dev/null /var/log/tallylog
+    cp -a /dev/null /var/log/tallylog && chmod 0600 /var/log/tallylog
 fi
 
 
@@ -300,6 +300,10 @@ fi
 
 
 %changelog
+* Wed Nov 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.99.8.1
+- rebuild against new glib2.0
+- don't use install in %%post to avoid a circular dependency on coreutils
+
 * Sat Sep 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.99.8.1
 - 0.99.8.1
 - pam-redhat 0.99.8-1
