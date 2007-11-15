@@ -29,7 +29,7 @@ BuildRequires:	popt-devel
 BuildRequires:	slang-devel
 
 Requires:	initscripts >= 2.81
-Requires(post):	fileutils
+Requires(post):	coreutils
 Requires(post):	gawk
 
 %description
@@ -91,6 +91,9 @@ fi
 
 
 %changelog
+* Wed Nov 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.2
+- rebuild against new gettext
+
 * Sun Sep 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.2
 - rebuild against new slang, new newt
 
