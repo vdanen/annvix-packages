@@ -60,6 +60,8 @@ Patch8:         samba-3.0.20-avx-annvix-config.patch
 Patch11:	samba-3.0-mandriva-packaging.patch
 Patch13:	http://samba.org/~metze/samba3-default-quota-ignore-error-01.diff
 Patch14:	samba-3.0.25-CVE-2007-4138.patch
+Patch15:	samba-3.0.25b-CVE-2007-4572.patch
+Patch16:	samba-CVE-2007-5398.patch
 
 BuildRoot:      %{_buildroot}/%{name}-%{version}
 BuildRequires:  pam-devel
@@ -266,6 +268,8 @@ pushd source
 %patch13
 popd
 %patch14 -p1 -b .cve-2007-4138
+%patch15 -p1 -b .cve-2007-4572
+%patch16 -p1 -b .cve-2007-5398
 
 # patches from cvs/samba team
 
@@ -856,6 +860,10 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Sat Nov 17 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0.25a
+- P15: security fix for CVE-2007-4572
+- P16: security fix for CVE-2007-5398
+
 * Sun Sep 23 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0.25a
 - P14: security fix for CVE-2007-4138
 
