@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		samba
-%define version		3.0.26a
+%define version		3.0.27
 %define release		%_revrel
 
 %define smbldapver	0.9.2
@@ -323,7 +323,7 @@ pushd source
 
     make proto_exists
     %make all libsmbclient smbfilter wins modules bin/smbget
-#client/mount.cifs client/umount.cifs
+    %make CFLAGS="%{optflags} -fPIC" client/mount.cifs client/umount.cifs
 popd
 
 pushd %{vfsdir}/%{vscandir}  
@@ -850,6 +850,9 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Sat Nov 17 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0.27
+- 3.0.27: fixes CVE-2007-4572 and CVE-2007-5398
+
 * Tue Sep 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0.26a
 - don't use %%_post_srv on smbd as it causes an extra smbd restart for
   no reason since smbd depends on nmbd, restarting smbd will also restart
