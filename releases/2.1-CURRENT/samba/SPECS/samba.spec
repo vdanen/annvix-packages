@@ -62,6 +62,7 @@ Patch7:         samba-3.0.23-mdv-revert-libsmbclient-move.patch
 Patch8:         samba-3.0.20-avx-annvix-config.patch
 Patch11:	samba-3.0-mandriva-packaging.patch
 Patch13:	http://samba.org/~metze/samba3-default-quota-ignore-error-01.diff
+Patch14:	samba-cvs-bug5087.patch
 
 BuildRoot:      %{_buildroot}/%{name}-%{version}
 BuildRequires:  pam-devel
@@ -261,7 +262,9 @@ popd
 pushd source
 %patch13
 popd
+
 # patches from cvs/samba team
+%patch14 -p0 -b .bug5087
 
 # Make a copy of examples so that we have a clean one for doc:
 cp -a examples examples.bin
@@ -850,6 +853,9 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Wed Nov 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0.27
+- P14: patch to fix samba bug #5087 (regression in fix for CVE-2007-4572)
+
 * Sat Nov 17 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0.27
 - 3.0.27: fixes CVE-2007-4572 and CVE-2007-5398
 
