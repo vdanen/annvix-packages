@@ -55,6 +55,8 @@ Patch11:	mysql-5.0.27-CVE-2007-1420.patch
 Patch12:	mysql-5.0.24-CVE-2007-2583.patch
 Patch13:	mysql-5.0.24-CVE-2007-2691.patch
 Patch14:	mysql-5.0.27-CVE-2007-2692.patch
+Patch15:	mysql-5.0.22-rh-CVE-2007-3780.patch
+Patch16:	mysql-5.0.27-CVE-2007-3782.patch
 
 BuildRoot:      %{_buildroot}/%{name}-%{version}
 BuildRequires:	bison
@@ -199,6 +201,8 @@ This package contains the documentation for %{name}.
 %patch12 -p1 -b .cve-2007-2583
 %patch13 -p1 -b .cve-2007-2691
 %patch14 -p1 -b .cve-2007-2692
+%patch15 -p1 -b .cve-2007-3780
+%patch16 -p1 -b .cve-2007-3782
 
 # fix annoyances
 perl -pi -e "s|AC_PROG_RANLIB|AC_PROG_LIBTOOL|g" configure*
@@ -607,6 +611,10 @@ fi
 
 
 %changelog
+* Tue Nov 20 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.0.27
+- P15: security fix CVE-2007-3780
+- P16: security fix CVE-2007-3782
+
 * Sun Jul 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.0.27
 - P11: security fix CVE-2007-1420
 - P12: security fix CVE-2007-2583
