@@ -613,7 +613,8 @@ fi
 
 %changelog
 * Mon Jul 23 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.0.45
-- 5.0.45 (fixes CVE-2007-1420, CVE-2007-2583, CVE-2007-2691, CVE-2007-2692)
+- 5.0.45 (fixes CVE-2007-1420, CVE-2007-2583, CVE-2007-2691, CVE-2007-2692,
+  CVE-2007-3780, CVE-2007-3782)
 - better ownership checks
 - updated P1, P2 from Mandriva
 - P11: fix the mysqlhotcopy script (mysql bug #27303)
