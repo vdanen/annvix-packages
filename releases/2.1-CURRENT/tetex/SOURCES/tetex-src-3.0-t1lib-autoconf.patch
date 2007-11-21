@@ -1,0 +1,19 @@
+--- tetex-src-3.0/libs/t1lib/t1lib.ac.t1auto	2007-01-16 19:56:07.000000000 +0100
++++ tetex-src-3.0/libs/t1lib/t1lib.ac	2007-01-16 19:48:42.000000000 +0100
+@@ -62,12 +62,10 @@
+         || (version_num < 10 && version_num >= 5))
+         exit(0);
+     exit(1);
+-}
+-	],
+-        ac_compile_t1lib=0,
+-        ac_compile_t1lib=1,
+-        ac_compile_t1lib=1
+-	])
++}],     [ac_compile_t1lib=0],
++	[ac_compile_t1lib=1], 
++	[ac_compile_t1lib=1])
++
+       if test $ac_compile_t1lib = 0; then
+ 	  AC_MSG_RESULT(yes)
+       else

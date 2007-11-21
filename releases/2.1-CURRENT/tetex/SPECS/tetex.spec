@@ -18,7 +18,7 @@
 %define tetexversion	3.0
 %define texmfversion	3.0
 %define texmfsrcversion	3.0
-%define texmfggversion	3.0d
+%define texmfggversion	3.0k
 %define xmltexname	xmltex
 %define xmltexversion	1.9
 %define csidxversion	19990820
@@ -82,12 +82,15 @@ Patch44:	xpdf-3.00-CVE-2007-4352_5392_5393.patch
 Patch45:	tetex-deb-dvips-CVE-2007-5935.patch
 Patch46:	t1lib-5.1.0-ub-CVE-2007-4033.patch
 Patch47:	tetex-3.0-gentoo-mdv-CVE-2007-5936_5937-cs4.patch
+Patch48:	tetex-src-3.0-t1lib-autoconf.patch
+Patch49:	koffce-xpdf-CVE-2007-0104.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	bison
 BuildRequires:	ed
 BuildRequires:	flex
 BuildRequires:	gettext-devel
+BuildRequires:	libtool
 BuildRequires:	autoconf2.1
 BuildRequires:	automake1.7
 BuildRequires:	ncurses-devel
@@ -103,7 +106,7 @@ Requires:	info-install
 Requires:	libxau
 Requires:	libxdmcp
 Obsoletes:	cweb
-Provides:	cweb = %{version}
+Provides:	cweb = %{version}-%{release}
 
 %description
 teTeX is an implementation of TeX for Linux or UNIX systems. TeX takes
@@ -262,6 +265,7 @@ pushd libs/xpdf
 %patch30 -p1 -b .chris_overflows
 %patch36 -p1 -b .cve-2007-3387
 %patch44 -p0 -b .cve-2007-4352_5392_5393
+%patch49 -p4 -b .cve-2007-0104
 popd
 %patch31 -p1 -b .can-2004-0941
 %patch32 -p1 -b .cve-2006-2906
@@ -287,6 +291,7 @@ pushd libs/t1lib
 popd
 
 %patch47 -p0 -b .cve-2007-5936_5937
+%patch48 -p1 -b .t1auto
 
 ## cputoolize to get updated config.{sub,guess}
 #%{?__cputoolize: %{__cputoolize} -c libs/ncurses}
@@ -297,6 +302,8 @@ popd
 
 %build
 perl -pi -e 's@^vartexfonts\s*=\s.*@vartexfonts = %vartexfonts@g' texk/make/paths.mk
+# new autoconf doesn't understand '-m'
+perl -pi -e 's|autoconf -m|autoconf-2.13 -m|g' reautoconf
 sh ./reautoconf
 %configure \
     --with-system-ncurses \
@@ -372,7 +379,7 @@ find %{buildroot} -type f -or -type l | \
         -e "s|%{_datadir}/texmf/xdvi/XDvi|%config &|" \
         -e "s|%{_datadir}/texmf/tex/generic/config/.*|%config &|" \
         -e "s|%{_datadir}/texmf/tex/dvips/config/updmap$|%config(noreplace) &|" \
-        -e "s|^%{_mandir}\(.*\)|%attr(644,root,root) \%{_mandir}\1|" > filelist.full
+        -e "s|^%{_mandir}\(.*\)|%attr(644,root,root) \%{_mandir}\1.\*|" > filelist.full
 
 find %{buildroot}%{_datadir}/texmf* \
     %{buildroot}%{_includedir}/kpathsea -type d | \
@@ -404,6 +411,7 @@ echo "%{_bindir}/dvi2fax" >> filelist.dvips
 grep -v "/doc/" filelist.full | grep dvipdfm | \
     grep -v "%{_datadir}/texmf/tex"	|
     grep -v "%{_datadir}/texmf/dvipdfm/config/config" |
+    grep -v "%{_datadir}/texmf/fonts/map/dvips/tetex/dvipdfm35.map" |
     grep -v "%{_datadir}/texmf/dvips" > filelist.dvipdfm
 echo "%{_bindir}/ebb" >> filelist.dvipdfm
 echo "%{_bindir}/dvipdft" >> filelist.dvipdfm
@@ -423,9 +431,9 @@ EOF
 
 cat > filelist.texi2html <<EOF
 %{_bindir}/texi2html
-%attr(644,root,root) %{_mandir}/man1/texi2html.1.bz2
+%attr(644,root,root) %{_mandir}/man1/texi2html.1*
 %{_datadir}/texinfo/html/texi2html.html
-%{_infodir}/texi2html.info.bz2
+%{_infodir}/texi2html.info*
 EOF
 
 # now files listed only once, i.e. not included in any subpackage, will
@@ -531,6 +539,13 @@ rm -f filelist.*
 - P45: security fix for CVE-2007-5935
 - P46: security fix for CVE-2007-4033
 - P47: security fix for CVE-2007-{5936,5937}
+- P48: fix build with autoconf 2.5.60
+- P49: security fix for CVE-2007-0104
+- texmfg 3.0k
+- buildrequires: libtool
+- move dvipdfm35.map to -dvips, not to -dvipdfm
+- explicitly use autoconf-2.13 in reautoconf as the new autoconf doesn't
+  understand the '-m' option
 
 * Fri Sep 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0
 - P36: security fix for CVE-2007-3387
