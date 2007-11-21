@@ -94,7 +94,7 @@ This package contains the documentation for %{name}.
 %patch1 -p1 -b .lib64
 %patch2 -p1 -b .cve-2006-5793
 %patch3 -p1 -b .cve-2007-2445
-%patch5 -p1 -b .cve-2007-5269
+%patch4 -p1 -b .cve-2007-5269
 
 perl -pi -e 's|^prefix=.*|prefix=%{_prefix}|' scripts/makefile.linux
 perl -pi -e 's|^(LIBPATH=.*)/lib\b|\1/%{_lib}|' scripts/makefile.linux
