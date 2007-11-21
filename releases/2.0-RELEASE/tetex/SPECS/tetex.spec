@@ -79,6 +79,10 @@ Patch40:	gd-2.0.33_CVE-2007-3475.patch
 Patch41:	gd-2.0.33_CVE-2007-3476.patch
 Patch42:	gd-2.0.33_CVE-2007-3477.patch
 Patch43:	gd-2.0.33_CVE-2007-3478.patch
+Patch44:	xpdf-3.00-CVE-2007-4352_5392_5393.patch
+Patch45:	tetex-deb-dvips-CVE-2007-5935.patch
+Patch46:	t1lib-5.1.0-ub-CVE-2007-4033.patch
+Patch47:	tetex-3.0-gentoo-mdv-CVE-2007-5936_5937-cs4.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	bison
@@ -308,6 +312,7 @@ pushd libs/xpdf
 %patch29 -p1 -b .goo_overflow
 %patch30 -p1 -b .chris_overflows
 %patch36 -p1 -b .cve-2007-3387
+%patch44 -p0 -b .cve-2007-4352_5392_5393
 popd
 %patch31 -p1 -b .can-2004-0941
 %patch32 -p1 -b .cve-2006-2906
@@ -323,6 +328,17 @@ pushd libs/gd
 %patch43 -p1 -b .cve-2007-3478
 popd
 %patch35 -p1 -b .cve-2007-0650
+
+pushd texk/dvipsk
+%patch45 -p0 -b .cve-2007-5935
+popd
+
+pushd libs/t1lib
+%patch46 -p3 -b .cve-2007-4033
+popd
+
+%patch47 -p0 -b .cve-2007-5936_5937
+
 
 ## cputoolize to get updated config.{sub,guess}
 #%{?__cputoolize: %{__cputoolize} -c libs/ncurses}
@@ -562,6 +578,12 @@ rm -f filelist.*
 
 
 %changelog
+* Tue Nov 20 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0
+- P44: security fix for CVE-2007-{4352,5392,5393}
+- P45: security fix for CVE-2007-5935
+- P46: security fix for CVE-2007-4033
+- P47: security fix for CVE-2007-{5936,5937}
+
 * Fri Sep 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0
 - P36: security fix for CVE-2007-3387
 - P37: security fix for CVE-2007-3472
