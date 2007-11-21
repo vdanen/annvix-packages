@@ -20,7 +20,6 @@
 %define lib_major	0
 %define libname		%mklibname smbclient %{lib_major}
 %define devname		%mklibname smbclient -d
-%define odevname	%mklibname smbclient 0 -d
 %define staticdevname	%mklibname smbclient -d -s
 
 Summary:	The Samba SMB server
@@ -206,7 +205,7 @@ Summary:        SMB Client Library Development files
 Group:          Development/C
 Requires:       %{libname} = %{version}-%{release}
 Provides:       %{name}-devel
-Obsoletes:	%{odevname}
+Obsoletes:	%mklibname smbclient 0 -d
 
 %description -n %{devname}
 This package contains the development files for the SMB client
@@ -855,6 +854,7 @@ popd >/dev/null 2>&1
 %changelog
 * Wed Nov 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0.27
 - P14: patch to fix samba bug #5087 (regression in fix for CVE-2007-4572)
+- get rid of %%odevname
 
 * Sat Nov 17 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0.27
 - 3.0.27: fixes CVE-2007-4572 and CVE-2007-5398
