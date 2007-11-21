@@ -9,14 +9,13 @@
 
 %define revision	$Rev$
 %define name		libpng
-%define version		1.2.18
+%define version		1.2.23
 %define release		%_revrel
 %define epoch		2
 
 %define major		3
 %define libname		%mklibname png %{major}
 %define devname		%mklibname png -d
-%define odevname	%mklibname png 3 -d
 %define staticdevname	%mklibname png -d -s
 
 Summary: 	A library of functions for manipulating PNG image format files
@@ -28,9 +27,6 @@ License: 	GPL-like
 Group: 		System/Libraries
 URL: 		http://www.libpng.org/pub/png/libpng.html
 Source: 	http://prdownloads.sourceforge.net/libpng/%{name}-%{version}.tar.bz2
-Patch0:		libpng-1.2.10-mdv-mdkconf.patch
-Patch1:		libpng-1.2.10-mdv-lib64.patch
-Patch2:		libpng-1.2.12-mdv-x86-32-mmx.patch
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildRequires: 	zlib-devel
@@ -61,7 +57,7 @@ Requires:	%{libname} = %{epoch}:%{version}
 Requires:	zlib-devel
 Provides:	%{name}-devel = %{epoch}:%{version}-%{release}
 Provides:	png-devel = %{epoch}:%{version}-%{release}
-Obsoletes:	%{odevname}
+Obsoletes:	%mklibname png 3 -d
 
 %description -n %{devname}
 The libpng-devel package contains the header files and libraries
@@ -92,17 +88,16 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
-%patch0 -p1 -b .mdkconf
-%patch1 -p1 -b .lib64
-%patch2 -p1 -b .x86_mmx
-
-perl -pi -e 's|^prefix=.*|prefix=%{_prefix}|' scripts/makefile.linux
-perl -pi -e 's|^(LIBPATH=.*)/lib\b|\1/%{_lib}|' scripts/makefile.linux
-
-ln -s scripts/makefile.linux ./Makefile
 
 
 %build
+%ifnarch %{ix86}
+export CFLAGS="%{optflags} -DPNG_NO_MMX_CODE"
+%else
+export CFLAGS="%{optflags}"
+%endif
+
+%configure2_5x
 %make
 
 
@@ -112,7 +107,7 @@ make test
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-%makeinstall
+%makeinstall_std
 
 mkdir -p %{buildroot}%{_mandir}/man{3,5}
 install -m 0644 {libpng,libpngpf}.3 %{buildroot}%{_mandir}/man3
@@ -136,9 +131,8 @@ rm -rf %{buildroot}{%{_prefix}/man,%{_libdir}/lib*.la}
 
 %files -n %{libname}
 %defattr(-,root,root)
-%{_libdir}/libpng.so.*
+%{_libdir}/*.so.%{major}*
 %{_libdir}/libpng12.so.*
-%{_mandir}/man5/*
 
 %files -n %{devname}
 %defattr(-,root,root)
@@ -149,7 +143,7 @@ rm -rf %{buildroot}{%{_prefix}/man,%{_libdir}/lib*.la}
 %{_libdir}/libpng.so
 %{_libdir}/libpng12.so
 %{_libdir}/pkgconfig/*
-%{_mandir}/man3/*
+%{_mandir}/man?/*
 
 %files -n %{staticdevname}
 %defattr(-,root,root)
@@ -161,6 +155,12 @@ rm -rf %{buildroot}{%{_prefix}/man,%{_libdir}/lib*.la}
 
 
 %changelog
+* Tue Nov 20 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2.23
+- 1.2.23 (fixes CVE-2007-5269)
+- move the man5 manpages to the -devel package
+- drop P2 and export -DPNG_NO_MMX_CODE for non-x86 instead
+- drop P0 and P1; use configure instead
+
 * Fri Jul 20 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2.18
 - 1.2.18 (fixes CVE-2007-2445)
 - implement devel naming policy
