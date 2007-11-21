@@ -57,6 +57,7 @@ Patch51:	net-snmp-5.2.1-no_rpath.diff
 Patch52:	net-snmp-5.2.1.2-libtool.patch
 Patch53:	net-snmp-5.3.0.1-no_perlinstall.diff
 Patch54:	net-snmp-5.3.0.1-avx-disable_test_T160.patch
+Patch55:	net-snmp-5.3-CVE-2007-5846.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5 >= 2.59
@@ -215,6 +216,7 @@ This package contains the documentation for %{name}.
 %patch52 -p1 -b .libtool
 %patch53 -p0 -b .no_perlinstall
 %patch54 -p1
+%patch55 -p1 -b .cve-2007-5846
 
 cat %{_datadir}/aclocal/libtool.m4 >> aclocal.m4
 
@@ -485,6 +487,9 @@ file %{buildroot}%{_sbindir}/* | grep ELF | cut -d':' -f1 | xargs strip || :
 
 
 %changelog
+* Tue Nov 20 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.3.1
+- P55: security fix for CVE-2007-5846
+
 * Sun Dec 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.3.1
 - 5.3.1
 - updated patches from Mandriva
