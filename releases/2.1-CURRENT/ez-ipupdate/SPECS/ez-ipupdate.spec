@@ -22,6 +22,7 @@ URL:		http://ez-ipupdate.com/
 Source:		%{name}-%{version}.tar.bz2
 Source1:	ez-ipupdate.run
 Source2:	ez-ipupdate-log.run
+Patch0:		ez-ipupdate-3.0.11b8-mdv-64bit.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -61,7 +62,7 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
-
+%patch0 -p1 -b .missing_header
 
 %build
 %configure
@@ -107,6 +108,10 @@ install -m 0740 %{_sourcedir}/ez-ipupdate-log.run %{buildroot}%{_srvdir}/ez-ipup
 
 
 %changelog
+* Sat Nov 24 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0.11b8
+- P0: add missing header to fix crash on x86_64
+- fix the runscript
+
 * Wed Oct 17 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0.11b8
 - fix url
 - rebuild
