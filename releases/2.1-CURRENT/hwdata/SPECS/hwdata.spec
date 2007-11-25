@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		hwdata
-%define version		0.191
+%define version		0.207
 %define release		%_revrel
 
 Summary:	Hardware identification and configuration data
@@ -52,6 +52,9 @@ rm -rf %{buildroot}%{_sysconfdir}/{hotplug,pcmcia}
 
 
 %changelog
+* Sun Nov 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.207
+- 0.207
+
 * Tue Dec 19 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.191
 - 0.191
 
