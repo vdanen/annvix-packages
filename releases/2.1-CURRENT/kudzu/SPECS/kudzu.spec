@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		kudzu
-%define version		1.2.71
+%define version		1.2.79
 %define release		%_revrel
 
 Summary:	The Red Hat Linux hardware probing tool
@@ -29,6 +29,7 @@ BuildRequires:	pciutils-devel >= 2.2.3
 BuildRequires:	python-devel
 BuildRequires:	python
 BuildRequires:	newt-devel
+BuildRequires:	popt-devel
 
 Requires(post):	runit
 Requires(post):	rpm-helper
@@ -78,6 +79,7 @@ make RPM_OPT_FLAGS="%{optflags} -I." all kudzu
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 make install install-program DESTDIR=%{buildroot} libdir=%{buildroot}%{_libdir}
 install -m 0755 fix-mouse-psaux %{buildroot}%{_sbindir}
+
 mkdir -p %{buildroot}%{_initrddir}
 install -m 0750 %{_sourcedir}/kudzu-avx.init %{buildroot}%{_initrddir}/kudzu
 rm -rf %{buildroot}%{_sysconfdir}/rc.d/init.d
@@ -125,6 +127,10 @@ echo "no" >%{buildroot}%{_sysconfdir}/sysconfig/env/kudzu/SAFE
 
 
 %changelog
+* Sun Nov 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2.79
+- 1.2.79
+- buildrequires: popt-devel
+
 * Sun Oct 07 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2.71
 - requires module-init-tools, not modutils
 
