@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		srv
-%define version 	0.26.2
+%define version 	0.27
 %define release 	%_revrel
 
 Summary:	Tool to manage runsv-controlled services
@@ -62,6 +62,9 @@ install -m 0755 nothing %{buildroot}%{_bindir}
 
 
 %changelog
+* Mon Nov 26 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.27
+- 0.27
+
 * Tue Jul 17 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.26.2
 - 0.26.2: fixes bug #47
 
