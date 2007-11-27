@@ -63,6 +63,8 @@ Patch14:	samba-3.0.25-CVE-2007-4138.patch
 Patch15:	samba-3.0.25b-CVE-2007-4572.patch
 Patch16:	samba-CVE-2007-5398.patch
 Patch17:	samba-cvs-bug5087.patch
+Patch18:	samba-3.0.27a-git-regression-fix.patch
+Patch19:	samba3-deb-regression-fix.patch
 
 BuildRoot:      %{_buildroot}/%{name}-%{version}
 BuildRequires:  pam-devel
@@ -272,6 +274,8 @@ popd
 %patch15 -p1 -b .cve-2007-4572
 %patch16 -p1 -b .cve-2007-5398
 %patch17 -p0 -b .bug5087
+%patch18 -p1 -b .regression-git
+%patch19 -p1 -b .regression-deb
 
 # patches from cvs/samba team
 
@@ -862,6 +866,10 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Tue Nov 27 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0.25a
+- P18: another regression fix from the samba team
+- P19: another regression fix from Debian
+
 * Wed Nov 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0.25a
 - P17: patch to fix samba bug #5087 (regression in fix for CVE-2007-4572)
 

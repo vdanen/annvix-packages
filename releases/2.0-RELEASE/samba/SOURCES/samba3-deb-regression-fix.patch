@@ -1,0 +1,16 @@
+Patch to fix a final regression due to CVE-2007-4572, from Debian
+--- samba-3.0.25a/source/smbd/sesssetup.c~	2007-11-27 09:47:02.230607500 -0700
++++ samba-3.0.25a/source/smbd/sesssetup.c	2007-11-27 09:47:02.230607500 -0700
+@@ -68,9 +68,9 @@ static int add_signature(char *outbuf, c
+ 
+ 	fstr_sprintf( lanman, "Samba %s", SAMBA_VERSION_STRING);
+ 
+-	p += srvstr_push(outbuf, p, "Unix", -1, STR_TERMINATE);
+-	p += srvstr_push(outbuf, p, lanman, -1, STR_TERMINATE);
+-	p += srvstr_push(outbuf, p, lp_workgroup(), -1, STR_TERMINATE);
++	p += srvstr_push(outbuf, p, "Unix", BUFFER_SIZE - (p - outbuf), STR_TERMINATE);
++	p += srvstr_push(outbuf, p, lanman, BUFFER_SIZE - (p - outbuf), STR_TERMINATE);
++	p += srvstr_push(outbuf, p, lp_workgroup(), BUFFER_SIZE - (p - outbuf), STR_TERMINATE);
+ 
+ 	return PTR_DIFF(p, start);
+ }
