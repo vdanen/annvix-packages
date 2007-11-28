@@ -1,0 +1,10 @@
+--- LVM2.2.02.27/lib/misc/timestamp.c	2006-10-12 10:18:40.000000000 -0700
++++ LVM2.2.02.27/lib/misc/timestamp.c.new	2007-08-21 20:00:38.000000000 -0700
+@@ -30,7 +30,6 @@
+ #ifdef HAVE_REALTIME
+ 
+ #include <time.h>
+-#include <bits/time.h>
+ 
+ struct timestamp {
+ 	struct timespec t;

@@ -129,3 +129,31 @@
     "version\n" )
 +#endif
  
+--- LVM2.2.02.27/configure.in	2007-07-13 10:08:00.000000000 -0700
++++ LVM2.2.02.27/configure.in.new	2007-08-22 12:20:36.000000000 -0700
+@@ -456,16 +456,16 @@ fi
+ 
+ ################################################################################
+ dnl -- Check for realtime clock support
+-if test x$REALTIME = xyes; then
+-	AC_CHECK_LIB(rt, clock_gettime, HAVE_REALTIME=yes, HAVE_REALTIME=no)
+-
+-	if test x$HAVE_REALTIME = xyes; then
+-		AC_DEFINE([HAVE_REALTIME], 1, [Define to 1 to include support for realtime clock.])
+-		LIBS="-lrt $LIBS"
+-	else
++dnl if test x$REALTIME = xyes; then
++dnl	AC_CHECK_LIB(rt, clock_gettime, HAVE_REALTIME=yes, HAVE_REALTIME=no)
++dnl
++dnl	if test x$HAVE_REALTIME = xyes; then
++dnl		AC_DEFINE([HAVE_REALTIME], 1, [Define to 1 to include support for realtime clock.])
++dnl		LIBS="-lrt $LIBS"
++dnl	else
+ 		AC_MSG_WARN(Disabling realtime clock)
+-	fi
+-fi
++dnl	fi
++dnl fi
+ 
+ ################################################################################
+ dnl -- Check for getopt

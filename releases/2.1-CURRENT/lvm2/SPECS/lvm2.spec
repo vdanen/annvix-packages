@@ -9,8 +9,11 @@
 
 %define revision        $Rev$
 %define name            lvm2
-%define version         2.02.09
+%define version         2.02.27
 %define release         %_revrel
+
+# cannot build with SSP
+%define _ssp_cflags	%nil
 
 Summary:	Logical Volume Manager administration tools
 Name:		%{name}
@@ -19,20 +22,22 @@ Release:	%{release}
 License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://sources.redhat.com/lvm2/
-Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tar.bz2
+Source0:	ftp://sources.redhat.com/pub/lvm2/LVM2.%{version}.tgz
 
-Patch0:		lvm2-alternatives.patch
-Patch1:		lvm2-2.02.09-diet.patch
+Patch0:		lvm2-2.02.27-mdv-alternatives.patch
+Patch1:		lvm2-2.02.27-mdv-diet.patch
 Patch2:		lvm2-2.01.15-stdint.patch
 Patch3:		lvm2-termcap.patch
 Patch4:		lvm2-ignorelock.patch
 Patch5:		lvm2-fdlog.patch
+Patch6:		lvm2-2.02.27-mdv-types.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	device-mapper-devel >= 1.02
+BuildRequires:	device-mapper-devel >= 1.02.22
 BuildRequires:	readline-devel
 BuildRequires:	termcap-devel
 BuildRequires:	dietlibc-devel
+BuildRequires:	autoconf
 
 Conflicts:	lvm
 Conflicts:	lvm1
@@ -62,6 +67,7 @@ This package contains the documentation for %{name}.
 %patch3 -p1 -b .termcap
 %patch4 -p1 -b .ignorelock
 %patch5 -p1 -b .fdlog
+%patch6 -p1 -b .types
 
 
 %build
@@ -148,6 +154,12 @@ fi
 
 
 %changelog
+* Wed Nov 28 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.02.27
+- 2.02.27
+- updated P0, P1 from Mandriva
+- P6: fixes a conflicting types error with dietlibc
+- disable SSP for building
+
 * Sun Jun 24 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.02.09
 - rebuild against new readline
 
