@@ -1,0 +1,12 @@
+--- device-mapper.1.02.22/configure.in	2007-08-14 12:11:31.000000000 -0700
++++ device-mapper.1.02.22/configure.in.new	2007-08-21 23:29:34.000000000 -0700
+@@ -213,7 +213,9 @@ AC_CHECK_LIB(c, getline, AC_DEFINE([HAVE
+ ################################################################################
+ dnl -- canonicalize_file_name included in recent libc
+ 
++if test $STATIC_LINK_DIET = xno; then
+ AC_CHECK_LIB(c, canonicalize_file_name, AC_DEFINE([HAVE_CANONICALIZE_FILE_NAME], 1, [Define to 1 if canonicalize_file_name is available.]))
++fi
+ 
+ ################################################################################
+ dnl -- Disable selinux

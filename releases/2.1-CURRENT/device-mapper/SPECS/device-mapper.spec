@@ -9,8 +9,7 @@
 
 %define revision	$Rev$
 %define	name		device-mapper
-%define	version		1.02.09
-%define	extraversion	%{nil}
+%define	version		1.02.22
 %define	release		%_revrel
 
 %define	_sbindir	/sbin
@@ -21,25 +20,25 @@
 
 %define	libname		%mklibname devmapper %{major}
 %define	devname		%mklibname devmapper -d
-%define odevname	%mklibname devmapper -d 1.02
 %define	elibname	%mklibname devmapper-event %{major}
 %define	edevname	%mklibname devmapper-event -d
-%define	oedevname	%mklibname devmapper-event -d 1.02
 
 Summary:	Device mapper
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-License:	GPL
+License:	GPLv2 or LGPLv2
 Group:		System/Kernel and hardware
 URL:		http://sources.redhat.com/dm/
-Source0:	ftp://sources.redhat.com/pub/dm/%{name}.%{version}%{extraversion}.tar.bz2
-Patch0:		device-mapper.1.02.07-build.patch
-Patch2:		device-mapper.1.02.09-mdv-pkgconfig.patch
-Patch3:		device-mapper.1.02.09-misc.patch
+Source0:	ftp://sources.redhat.com/pub/dm/%{name}.%{version}.tgz
+Source1:	ftp://sources.redhat.com/pub/dm/%{name}.%{version}.tgz.asc
+Patch0:		device-mapper.1.02.22-mdv-build.patch
+Patch2:		device-mapper.1.02.22-mdv-pkgconfig.patch
+Patch3:		device-mapper.1.02.22-mdv-canonicalize.patch
+Patch4:		device-mapper.1.02.22-mdv-uint64.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	autoconf2.5 >= 2.53
+BuildRequires:	autoconf
 BuildRequires:	dietlibc-devel
 
 %description
@@ -81,7 +80,7 @@ Summary:	Device mapper development library
 Group:		Development/C
 Provides:	%{name}-devel = %{version}-%{release}
 Provides:	libdevmapper-devel = %{version}-%{release}
-Obsoletes:	%{odevname}
+Obsoletes:	%mklibname devmapper -d 1.02
 Requires:	%{libname} = %{version}-%{release}
 Requires:	pkgconfig
 Conflicts:	device-mapper-devel < %{version}-%{release}
@@ -114,7 +113,7 @@ Summary:	Device mapper event development library
 Group:		Development/C
 Provides:	%{name}-event-devel = %{version}-%{release}
 Provides:	libdevmapper-event-devel = %{version}-%{release}
-Obsoletes:	%{oedevname}
+Obsoletes:	%mklibname devmapper-event -d 1.02
 Requires:	%{elibname} = %{version}-%{release}
 Requires:	%{devname} = %{version}-%{release}
 Requires:	pkgconfig
@@ -136,10 +135,11 @@ This package contains the documentation for %{name}.
 
 
 %prep
-%setup -q -n %{name}.%{version}%{extraversion}
+%setup -q -n %{name}.%{version}
 %patch0 -p1 -b .build
 %patch2 -p1 -b .pkgconfig
-%patch3 -p1 -b .misc
+%patch3 -p1 -b .canonicalize
+%patch4 -p1 -b .uint64
 autoconf
 
 
@@ -156,7 +156,7 @@ CC="gcc"
     --enable-static_link_dietlibc \
     --disable-selinux \
     --enable-dmeventd \
-    --enable-pkgconfig \
+    --enable-pkgconfig
 
 %make CC="${CC}"
 
@@ -187,6 +187,7 @@ chmod -R u+w %{buildroot} #else brp won't strip binaries
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_sbindir}/dmsetup
 %attr(755,root,root) %{_sbindir}/dmsetup-static
+%attr(755,root,root) %{_sbindir}/dmeventd
 %{_mandir}/man8/dmsetup.8*
 
 %files -n %{libname}
@@ -221,6 +222,14 @@ chmod -R u+w %{buildroot} #else brp won't strip binaries
 
 
 %changelog
+* Wed Nov 28 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.02.22
+- 1.02.22
+- rediff P0, P2 from Mandriva
+- drop P3
+- new P3, P4 to fix build issues with dietlibc
+- add dmeventd to dmsetup package
+- S1: add the gpg signature
+
 * Sat Aug 18 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.02.09
 - implement devel naming policy
 - implement library provides policy

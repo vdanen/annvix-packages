@@ -17,55 +17,7 @@ allow building of static, dynamic and dietlibc at the same time
  
  ifeq ("@PKGCONFIG@", "yes")
    INSTALL_TYPE += install_pkgconfig
---- device-mapper.1.02.07/dmsetup/Makefile.in.build	2005-01-27 17:16:52.000000000 +0100
-+++ device-mapper.1.02.07/dmsetup/Makefile.in	2006-05-28 19:27:52.000000000 +0200
-@@ -20,12 +20,17 @@
- INSTALL_TYPE = install_dynamic
- 
- ifeq ("@STATIC_LINK@", "yes")
--  TARGETS += dmsetup.static
-+  TARGETS += dmsetup-static
-   INSTALL_TYPE += install_static
- endif
- 
-+ifeq ("@STATIC_LINK_DIET@", "yes")
-+  TARGETS += dmsetup-static-diet
-+  INSTALL_TYPE += install_static_diet
-+endif
-+
- SOURCES = dmsetup.c
--CLEAN_TARGETS = dmsetup dmsetup.static
-+CLEAN_TARGETS = dmsetup dmsetup-static dmsetup-static-diet
- 
- include ../make.tmpl
- 
-@@ -33,10 +38,14 @@
- 	$(CC) -o $@ $(OBJECTS) $(LDFLAGS) \
- 	      -L$(interfacedir) -L$(DESTDIR)/lib -ldevmapper $(LIBS)
- 
--dmsetup.static: $(OBJECTS) $(interfacedir)/libdevmapper.a
-+dmsetup-static: $(OBJECTS) $(interfacedir)/libdevmapper.a
- 	$(CC) -o $@ $(OBJECTS) $(LDFLAGS) -static \
- 	      -L$(interfacedir) -L$(DESTDIR)/lib -ldevmapper $(LIBS)
- 
-+dmsetup-static-diet: $(DIET_OBJECTS) $(interfacedir)/libdevmapper-diet.a
-+	diet $(CC) -o $@ $(DIET_OBJECTS) $(LDFLAGS) -static \
-+	      -L$(interfacedir) -L$(DESTDIR)/lib -ldevmapper-diet -lcompat $(LIBS)
-+
- install: $(INSTALL_TYPE)
- 
- .PHONY: install_dynamic install_static
-@@ -44,6 +53,9 @@
- install_dynamic: dmsetup
- 	$(INSTALL) -D $(OWNER) $(GROUP) -m 555 $(STRIP) $< $(sbindir)/$<
- 
--install_static: dmsetup.static
-+install_static: dmsetup-static
-+	$(INSTALL) -D $(OWNER) $(GROUP) -m 555 $(STRIP) $< $(sbindir)/$<
-+
-+install_static_diet: dmsetup-static-diet
- 	$(INSTALL) -D $(OWNER) $(GROUP) -m 555 $(STRIP) $< $(sbindir)/$<
- 
+
 --- device-mapper.1.02.07/lib/Makefile.in.build	2006-04-19 19:24:00.000000000 +0200
 +++ device-mapper.1.02.07/lib/Makefile.in	2006-05-28 19:27:52.000000000 +0200
 @@ -40,22 +40,28 @@
@@ -122,109 +74,7 @@ allow building of static, dynamic and dietlibc at the same time
  .PHONY: distclean_lib distclean
  
  distclean_lib: 
---- device-mapper.1.02.07/make.tmpl.in.build	2006-05-10 21:38:25.000000000 +0200
-+++ device-mapper.1.02.07/make.tmpl.in	2006-05-28 19:31:34.000000000 +0200
-@@ -58,7 +58,9 @@
- 
- .SUFFIXES: .c .d .o .so .a .po .pot .mo .dylib
- 
--CFLAGS += -fPIC -Wall -Wundef -Wshadow -Wcast-align -Wwrite-strings -Wmissing-prototypes -Wmissing-declarations -Wnested-externs -Winline
-+PIC = -fPIC
-+
-+CFLAGS += -Wall -Wundef -Wshadow -Wcast-align -Wwrite-strings -Wmissing-prototypes -Wmissing-declarations -Wnested-externs -Winline
- 
- #CFLAGS += -W -Wconversion -Wpointer-arith -Wredundant-decls -Wbad-function-cast -Wcast-qual -Wmissing-noreturn
- 
-@@ -68,6 +70,7 @@
-   CFLAGS += -g -fno-omit-frame-pointer
-   DEFS += -DDEBUG
-   DEFS += -DDEBUG_MEM
-+  LDFLAGS += -g
- endif
- 
- ifeq ("@INTL@", "yes")
-@@ -112,7 +115,10 @@
- DEPS = $(top_srcdir)/make.tmpl $(top_srcdir)/VERSION Makefile $(INC_LNS)
- 
- OBJECTS = $(SOURCES:%.c=%.o)
-+PIC_OBJECTS = $(SOURCES:%.c=%.pic.o)
-+DIET_OBJECTS = $(SOURCES:%.c=%.diet.o)
- POTFILES = $(SOURCES:%.c=%.pot)
-+DEPFILES = $(SOURCES:%.c=%.d)
- 
- SUBDIRS.install := $(SUBDIRS:=.install)
- SUBDIRS.pofile := $(SUBDIRS:=.pofile)
-@@ -123,7 +129,7 @@
- .PHONY: $(SUBDIRS) $(SUBDIRS.install) $(SUBDIRS.clean) $(SUBDIRS.distclean)
- .PHONY: $(SUBDIRS.pofile)
- 
--TARGETS += $(LIB_SHARED) $(LIB_STATIC)
-+TARGETS += $(LIB_SHARED) $(LIB_STATIC) $(LIB_STATIC_DIET)
- 
- all: $(SUBDIRS) $(TARGETS)
- 
-@@ -153,6 +159,12 @@
- %.o: %.c
- 	$(CC) -c $(INCLUDES) $(DEFS) $(CFLAGS) $< -o $@
- 
-+%.pic.o: %.c
-+	$(CC) -c $(INCLUDES) $(DEFS) $(CFLAGS) $(PIC) $< -o $@
-+
-+%.diet.o: %.c
-+	diet $(CC) -c $(INCLUDES) $(DEFS) $(CFLAGS) $(PIC) $< -o $@
-+
- %.pot: %.c Makefile
- 	$(CC) -E $(INCLUDES) -include $(top_srcdir)/include/pogen.h \
- 		$(DEFS) $(CFLAGS) $< > $@
-@@ -161,21 +173,27 @@
- 	$(CC) -c $(INCLUDES) $(DEFS) $(CFLAGS) $< -o $@
- 
- ifeq ("@LIB_SUFFIX@","so")
--$(LIB_SHARED): $(OBJECTS) $(LDDEPS)
-+$(LIB_SHARED): $(PIC_OBJECTS) $(LDDEPS)
- 	$(CC) -shared -Wl,-soname,$(notdir $@).$(LIB_VERSION) \
--	$(CLDFLAGS) $(OBJECTS) $(LIBS) -o $@
-+	$(CLDFLAGS) $(PIC_OBJECTS) $(LIBS) -o $@
- endif
- 
- ifeq ("@LIB_SUFFIX@","dylib")
--$(LIB_SHARED): $(OBJECTS) $(LDDEPS)
-+$(LIB_SHARED): $(PIC_OBJECTS) $(LDDEPS)
- 	$(CC) -dynamiclib -dylib_current_version,$(LIB_VERSION) \
--	$(CLDFLAGS) $(OBJECTS) $(LIBS) -o $@
-+	$(CLDFLAGS) $(PIC_OBJECTS) $(LIBS) -o $@
- endif
- 
- $(LIB_STATIC): $(OBJECTS)
- 	$(RM) $@
- 	$(AR) rs $@ $(OBJECTS)
- 
-+ifeq ("@STATIC_LINK_DIET@", "yes")
-+$(LIB_STATIC_DIET): $(DIET_OBJECTS)
-+	$(RM) $@
-+	$(AR) rs $@ $(DIET_OBJECTS)
-+endif
-+
- %.d: %.c
- 	set -e; \
- 	FILE=`echo $@ | sed 's/\\//\\\\\\//g;s/\\.d//g'`; \
-@@ -188,12 +206,12 @@
- 	$(MSGFMT) -o $@ $<
- 
- clean: $(SUBDIRS.clean)
--	$(RM) $(OBJECTS) $(TARGETS) $(CLEAN_TARGETS) $(SOURCES:%.c=%.d) \
--	      $(SOURCES:%.c=%.pot) $(LDDEPS)
-+	$(RM) $(OBJECTS) $(PIC_OBJECTS) $(TARGETS) $(CLEAN_TARGETS) $(DEPFILES) \
-+	      $(POTFILES) $(LDDEPS) $(DIET_OBJECTS)
- 
- distclean: $(SUBDIRS.distclean)
--	$(RM) $(OBJECTS) $(TARGETS) $(CLEAN_TARGETS) $(SOURCES:%.c=%.d) \
--	      $(SOURCES:%.c=%.pot) $(LDDEPS) \
-+	$(RM) $(OBJECTS) $(PIC_OBJECTS) $(TARGETS) $(CLEAN_TARGETS) $(DEPFILES) \
-+	      $(POTFILES) $(LDDEPS) $(DIET_OBJECTS) \
- 	      config.cache config.log config.status \
- 	      Makefile make.tmpl core \
- 	      device-mapper.po
+
 --- device-mapper.1.02.07/configure.in.build	2006-05-10 21:38:25.000000000 +0200
 +++ device-mapper.1.02.07/configure.in	2006-05-28 19:27:52.000000000 +0200
 @@ -198,6 +198,11 @@
@@ -247,3 +97,155 @@ allow building of static, dynamic and dietlibc at the same time
  AC_SUBST(OWNER)
  AC_SUBST(GROUP)
  AC_SUBST(LIBS)
+--- device-mapper.1.02.22/dmsetup/Makefile.in	2007-08-21 09:26:06.000000000 -0700
++++ device-mapper.1.02.22/dmsetup/Makefile.in.new	2007-08-21 20:18:57.000000000 -0700
+@@ -20,12 +20,17 @@ TARGETS = dmsetup
+ INSTALL_TYPE = install_dynamic
+ 
+ ifeq ("@STATIC_LINK@", "yes")
+-  TARGETS += dmsetup.static
++  TARGETS += dmsetup-static
+   INSTALL_TYPE += install_static
+ endif
++ 
++ifeq ("@STATIC_LINK_DIET@", "yes")
++  TARGETS += dmsetup-static-diet
++  INSTALL_TYPE += install_static_diet
++endif
+ 
+ SOURCES = dmsetup.c
+-CLEAN_TARGETS = dmsetup dmsetup.static
++CLEAN_TARGETS = dmsetup dmsetup-static dmsetup-static-diet
+ 
+ include ../make.tmpl
+ 
+@@ -33,10 +38,14 @@ dmsetup: $(OBJECTS) $(interfacedir)/libd
+ 	$(CC) -o $@ $(OBJECTS) $(CFLAGS) $(LDFLAGS) \
+ 	      -L$(interfacedir) -L$(DESTDIR)/lib -ldevmapper $(LIBS)
+ 
+-dmsetup.static: $(OBJECTS) $(interfacedir)/libdevmapper.a
++dmsetup-static: $(OBJECTS) $(interfacedir)/libdevmapper.a
+ 	$(CC) -o $@ $(OBJECTS) $(CFLAGS) $(LDFLAGS) -static \
+ 	      -L$(interfacedir) -L$(DESTDIR)/lib -ldevmapper $(LIBS)
+ 
++dmsetup-static-diet: $(DIET_OBJECTS) $(interfacedir)/libdevmapper-diet.a
++	diet $(CC) -o $@ $(DIET_OBJECTS) $(LDFLAGS) -static \
++	      -L$(interfacedir) -L$(DESTDIR)/lib -ldevmapper-diet -lcompat $(LIBS)
++
+ install: $(INSTALL_TYPE)
+ 
+ .PHONY: install_dynamic install_static
+@@ -44,6 +53,9 @@ install: $(INSTALL_TYPE)
+ install_dynamic: dmsetup
+ 	$(INSTALL) -D $(OWNER) $(GROUP) -m 555 $(STRIP) $< $(sbindir)/$<
+ 
+-install_static: dmsetup.static
++install_static: dmsetup-static
++	$(INSTALL) -D $(OWNER) $(GROUP) -m 555 $(STRIP) $< $(sbindir)/$<
++
++install_static_diet: dmsetup-static-diet
+ 	$(INSTALL) -D $(OWNER) $(GROUP) -m 555 $(STRIP) $< $(sbindir)/$<
+ 
+--- device-mapper.1.02.22/make.tmpl.in	2007-01-11 08:23:21.000000000 -0800
++++ device-mapper.1.02.22/make.tmpl.in.new	2007-08-21 20:26:57.000000000 -0700
+@@ -58,7 +58,9 @@ endif
+ 
+ .SUFFIXES: .c .d .o .so .a .po .pot .mo .dylib
+ 
+-CFLAGS += -fPIC -Wall -Wundef -Wshadow -Wcast-align -Wwrite-strings -Wmissing-prototypes -Wmissing-declarations -Wnested-externs -Winline
++PIC = -fPIC
++
++CFLAGS += -Wall -Wundef -Wshadow -Wcast-align -Wwrite-strings -Wmissing-prototypes -Wmissing-declarations -Wnested-externs -Winline
+ 
+ #CFLAGS += -W -Wconversion -Wpointer-arith -Wredundant-decls -Wbad-function-cast -Wcast-qual -Wmissing-noreturn
+ 
+@@ -68,6 +70,7 @@ ifeq ("@DEBUG@", "yes")
+   CFLAGS += -g -fno-omit-frame-pointer
+   DEFS += -DDEBUG
+   DEFS += -DDEBUG_MEM
++  LDFLAGS += -g
+ endif
+ 
+ ifeq ("@INTL@", "yes")
+@@ -112,7 +115,10 @@ INC_LNS = $(top_srcdir)/include/.symlink
+ DEPS = $(top_srcdir)/make.tmpl $(top_srcdir)/VERSION Makefile $(INC_LNS)
+ 
+ OBJECTS = $(SOURCES:%.c=%.o)
++PIC_OBJECTS = $(SOURCES:%.c=%.pic.o)
++DIET_OBJECTS = $(SOURCES:%.c=%.diet.o)
+ POTFILES = $(SOURCES:%.c=%.pot)
++DEPFILES = $(SOURCES:%.c=%.d)
+ 
+ SUBDIRS.install := $(SUBDIRS:=.install)
+ SUBDIRS.pofile := $(SUBDIRS:=.pofile)
+@@ -123,7 +129,7 @@ SUBDIRS.distclean := $(SUBDIRS:=.distcle
+ .PHONY: $(SUBDIRS) $(SUBDIRS.install) $(SUBDIRS.clean) $(SUBDIRS.distclean)
+ .PHONY: $(SUBDIRS.pofile)
+ 
+-TARGETS += $(LIB_SHARED) $(LIB_STATIC)
++TARGETS += $(LIB_SHARED) $(LIB_STATIC) $(LIB_STATIC_DIET)
+ 
+ all: $(SUBDIRS) $(TARGETS)
+ 
+@@ -153,6 +159,12 @@ $(TARGETS): $(OBJECTS)
+ %.o: %.c
+ 	$(CC) -c $(INCLUDES) $(DEFS) $(CFLAGS) $< -o $@
+ 
++%.pic.o: %.c
++	$(CC) -c $(INCLUDES) $(DEFS) $(CFLAGS) $(PIC) $< -o $@
++
++%.diet.o: %.c
++	diet $(CC) -c $(INCLUDES) $(DEFS) $(CFLAGS) $(PIC) $< -o $@
++
+ %.pot: %.c Makefile
+ 	$(CC) -E $(INCLUDES) -include $(top_srcdir)/include/pogen.h \
+ 		$(DEFS) $(CFLAGS) $< > $@
+@@ -161,21 +173,27 @@ $(TARGETS): $(OBJECTS)
+ 	$(CC) -c $(INCLUDES) $(DEFS) $(CFLAGS) $< -o $@
+ 
+ ifeq ("@LIB_SUFFIX@","so")
+-$(LIB_SHARED): $(OBJECTS) $(LDDEPS)
++$(LIB_SHARED): $(PIC_OBJECTS) $(LDDEPS)
+ 	$(CC) -shared -Wl,-soname,$(notdir $@).$(LIB_VERSION) \
+-	$(CFLAGS) $(CLDFLAGS) $(OBJECTS) $(LIBS) -o $@
++	$(CFLAGS) $(CLDFLAGS) $(PIC_OBJECTS) $(LIBS) -o $@
+ endif
+ 
+ ifeq ("@LIB_SUFFIX@","dylib")
+-$(LIB_SHARED): $(OBJECTS) $(LDDEPS)
++$(LIB_SHARED): $(PIC_OBJECTS) $(LDDEPS)
+ 	$(CC) -dynamiclib -dylib_current_version,$(LIB_VERSION) \
+-	$(CFLAGS) $(CLDFLAGS) $(OBJECTS) $(LIBS) -o $@
++	$(CFLAGS) $(CLDFLAGS) $(PIC_OBJECTS) $(LIBS) -o $@
+ endif
+ 
+ $(LIB_STATIC): $(OBJECTS)
+ 	$(RM) $@
+ 	$(AR) rs $@ $(OBJECTS)
+ 
++ifeq ("@STATIC_LINK_DIET@", "yes")
++$(LIB_STATIC_DIET): $(DIET_OBJECTS)
++	$(RM) $@
++	$(AR) rs $@ $(DIET_OBJECTS)
++endif
++
+ %.d: %.c
+ 	set -e; \
+ 	FILE=`echo $@ | sed 's/\\//\\\\\\//g;s/\\.d//g'`; \
+@@ -188,12 +206,12 @@ $(LIB_STATIC): $(OBJECTS)
+ 	$(MSGFMT) -o $@ $<
+ 
+ clean: $(SUBDIRS.clean)
+-	$(RM) $(OBJECTS) $(TARGETS) $(CLEAN_TARGETS) $(SOURCES:%.c=%.d) \
+-	      $(SOURCES:%.c=%.pot) $(LDDEPS)
++	$(RM) $(OBJECTS) $(PIC_OBJECTS) $(TARGETS) $(CLEAN_TARGETS) $(DEPFILES) \
++	      $(POTFILES) $(LDDEPS) $(DIET_OBJECTS)
+ 
+ distclean: $(SUBDIRS.distclean)
+-	$(RM) $(OBJECTS) $(TARGETS) $(CLEAN_TARGETS) $(SOURCES:%.c=%.d) \
+-	      $(SOURCES:%.c=%.pot) $(LDDEPS) \
++	$(RM) $(OBJECTS) $(PIC_OBJECTS) $(TARGETS) $(CLEAN_TARGETS) $(DEPFILES) \
++	      $(POTFILES) $(LDDEPS) $(DIET_OBJECTS) \
+ 	      config.cache config.log config.status \
+ 	      Makefile make.tmpl core \
+ 	      device-mapper.po
