@@ -74,3 +74,7 @@ SA48_apparmor-fix-return-code-and-rejected-mask.patch
 
 # forward port of Openwall's 2.4 patch to protect /proc
 SL61_avx-openwall-harden-proc.patch
+
+##
+## security fixes
+##

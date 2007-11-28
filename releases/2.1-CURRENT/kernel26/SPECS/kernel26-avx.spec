@@ -12,7 +12,7 @@
 %define kernelversion	2
 %define patchlevel	6
 %define sublevel	22
-%define minlevel	12
+%define minlevel	14
 %define avxrelease	%(echo %{revision}|cut -d ' ' -f 2)
 
 %define kversion	%{kernelversion}.%{patchlevel}.%{sublevel}.%{minlevel}
@@ -791,6 +791,9 @@ exit 0
 
 
 %changelog
+* Wed Nov 28 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.22.14
+- 2.6.22.14: fixes CVE-2007-5500 and CVE-2007-5501
+
 * Thu Nov 08 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.22.12
 - 2.6.22.12: fixes CVE-2006-6058
 
