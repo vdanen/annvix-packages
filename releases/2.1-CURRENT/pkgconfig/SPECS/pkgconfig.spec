@@ -94,6 +94,9 @@ mkdir -p %{buildroot}%{_datadir}/pkgconfig
 
 
 %changelog
+* Wed Nov 28 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.21
+- rebuild
+
 * Sat Dec 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.21
 - 0.21
 - updated P0 from Mandriva
