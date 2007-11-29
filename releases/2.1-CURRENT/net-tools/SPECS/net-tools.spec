@@ -28,6 +28,7 @@ Source4:	ether-wake.c
 Source5:	ether-wake.8
 Source6:	mii-diag.c
 Source7:	mii-diag.8
+Source8:	bin.netstat.profile
 Patch1:		net-tools-1.57-bug22040.patch
 Patch2:		net-tools-1.60-miiioctl.patch
 Patch3:		net-tools-1.60-manydevs.patch
@@ -148,6 +149,9 @@ make BASEDIR=%{buildroot} mandir=%{_mandir} install
 install -m 0755 ether-wake %{buildroot}/sbin
 install -m 0755 mii-diag %{buildroot}/sbin
 
+mkdir -p %{buildroot}%{_profiledir}
+install -m 0640 %{_sourcedir}/bin.netstat.profile %{buildroot}%{_profiledir}/bin.netstat
+
 rm -f %{buildroot}/sbin/rarp
 rm -f %{buildroot}%{_mandir}/man8/rarp.8*
 
@@ -159,10 +163,15 @@ rm -f %{buildroot}%{_mandir}/man8/rarp.8*
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
+%posttrans
+%_aa_reload
+
+
 %files -f %{name}.lang
 %defattr(-,root,root)
 /bin/*
 /sbin/*
+%config(noreplace) %attr(0640,root,root) %{_profiledir}/bin.netstat
 %{_mandir}/man[158]/*
 
 %files doc
@@ -171,6 +180,9 @@ rm -f %{buildroot}%{_mandir}/man8/rarp.8*
 
 
 %changelog
+* Wed Nov 28 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.60
+- add apparmor profile (from Mandriva)
+
 * Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.60
 - spec cleanups
 - remove locales
