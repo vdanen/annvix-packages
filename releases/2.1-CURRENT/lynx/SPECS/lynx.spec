@@ -118,6 +118,9 @@ EOF
 
 
 %changelog
+* Wed Nov 28 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.8.5
+- rebuild
+
 * Sat Dec 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.8.5
 - rebuild against new ncurses
 
