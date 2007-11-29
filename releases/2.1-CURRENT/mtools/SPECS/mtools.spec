@@ -112,6 +112,9 @@ cp -a %{buildroot}%{_bindir}/mtools %{buildroot}%{_bindir}/mformat
 
 
 %changelog
+* Wed Nov 28 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.9.9
+- rebuild
+
 * Sat Jul 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.9.9
 - add -doc subpackage
 - rebuild with gcc4
