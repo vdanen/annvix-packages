@@ -58,6 +58,9 @@ install -m 0644 chkauth.8 %{buildroot}/%{_mandir}/man8/
 
 
 %changelog
+* Wed Nov 28 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.5
+- rebuild
+
 * Sat Mar 31 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.5
 - 0.5: fixed some pam problems
 
