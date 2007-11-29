@@ -61,6 +61,9 @@ binaries and include files during RPM package build.
 
 
 %changelog
+* Wed Nov 28 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0.9
+- rebuild
+
 * Wed Apr 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0.9
 - add requires on perl(MDK::Common)
 
