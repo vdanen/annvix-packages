@@ -58,6 +58,9 @@ perl -pi -e "s!/usr/man!%{_mandir}!g" Makefile
 
 
 %changelog
+* Wed Nov 28 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.6
+- rebuild
+
 * Fri Jul 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.6
 - rebuild with gcc4
 
