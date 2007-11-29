@@ -1,0 +1,30 @@
+--- mt-st-0.8/Makefile.redhat	2004-04-03 11:52:08.000000000 +0200
++++ mt-st-0.8/Makefile	2004-08-09 14:37:47.240013472 +0200
+@@ -1,7 +1,8 @@
+-CFLAGS=  -Wall -O2
+-SBINDIR= /sbin
+-BINDIR=  /bin
+-MANDIR= /usr/share/man
++CFLAGS=  $(RPM_OPT_FLAGS)
++SBINDIR= $(RPM_BUILD_ROOT)/sbin
++BINDIR=  $(RPM_BUILD_ROOT)/bin
++MANDIR= $(RPM_BUILD_ROOT)/$(mandir)
++CC=gcc
+ 
+ all:	mt stinit
+ 
+@@ -12,11 +13,12 @@
+ 	$(CC) $(CFLAGS) -o stinit stinit.c
+ 
+ install: mt stinit
+-	install -s mt $(BINDIR)
++	mkdir -p $(BINDIR) $(SBINDIR) $(MANDIR)/man1 $(MANDIR)/man8
++	install -m 755 mt $(BINDIR)
+ 	install -c -m 444 mt.1 $(MANDIR)/man1
+ 	(if [ -f $(MANDIR)/man1/mt.1.gz ] ; then \
+ 	  rm -f $(MANDIR)/man1/mt.1.gz; gzip $(MANDIR)/man1/mt.1; fi)
+-	install -s stinit $(SBINDIR)
++	install -m 755 stinit $(SBINDIR)
+ 	install -c -m 444 stinit.8 $(MANDIR)/man8
+ 	(if [ -f $(MANDIR)/man8/stinit.8.gz ] ; then \
+ 	  rm -f $(MANDIR)/man8/stinit.8.gz; gzip $(MANDIR)/man8/stinit.8; fi)

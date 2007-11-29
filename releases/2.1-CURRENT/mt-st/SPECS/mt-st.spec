@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		mt-st
-%define version		0.8
+%define version		0.9b
 %define release		%_revrel
 
 Summary:	Programs to control tape device operations
@@ -18,8 +18,13 @@ Version:	%{version}
 Release:	%{release}
 License:	BSD
 Group:		Archiving
-URL:		http://ibiblio.org/pub/Linux
-Source:		http://ibiblio.org/pub/Linux/system/backup/%{name}-%{version}.tar.bz2
+URL:		ftp://metalab.unc.edu/pub/Linux/system/backup/
+Source0:	ftp://metalab.unc.edu/pub/Linux/system/backup/mt-st-%{version}.tar.gz
+Patch0:		mt-st-0.8-redhat.patch
+Patch1:		mt-st-0.7-SDLT.patch
+Patch2:		mt-st-0.7-config-files.patch
+Patch3:		mt-st-0.9b-manfix.patch
+Patch4:		mt-st-0.9b-mtio.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -40,21 +45,21 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
+%patch0 -p1 -b .redhat
+%patch1 -p1 -b .sdlt
+%patch2 -p1 -b .configfiles
+%patch3 -p1 -b .manfix
+%patch4 -p1 -b .mtio
 
 
 %build
-%make CFLAGS="%{optflags} -Wall" MANDIR=%{_mandir}
+%make CFLAGS="%{optflags}"
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-mkdir -p %{buildroot}/{bin,sbin}
-mkdir -p %{buildroot}%{_mandir}/man{1,8}
-%makeinstall \
-    MANDIR=%{buildroot}%{_mandir} \
-    BINDIR=%{buildroot}/bin \
-    SBINDIR=%{buildroot}/sbin
+make install mandir=%{_mandir}
 
 
 %clean
@@ -74,6 +79,10 @@ mkdir -p %{buildroot}%{_mandir}/man{1,8}
 
 
 %changelog
+* Wed Nov 28 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.9b
+- 0.9b
+- sync with Mandriva 0.9b-3 (which was a sync of mt-st-0.9b-4.fc8)
+
 * Fri Jul 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.8
 - add -doc subpackage
 - rebuild with gcc4
