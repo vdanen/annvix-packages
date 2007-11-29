@@ -119,14 +119,13 @@ Source100:	linux-%{patches_ver}.tar.bz2
 %define requires3	bootloader-utils >= 1.6-5avx
 
 %define conflicts	iptables <= 1.2.9-1avx
-%define kprovides	kernel = %{kversion}
 
 BuildRoot:	%{_buildroot}/%{kname}-%{kversion}
 BuildRequires:	gcc >= 3.3.1-5avx
 BuildRequires:	module-init-tools
 
 Provides:	module-info
-Provides:	%{kprovides}
+Provides:	linux = %{kversion}
 Autoreqprov:	no
 Requires:	%{requires1}
 Requires:	%{requires2}
@@ -148,9 +147,10 @@ Version:	%{kversion}
 Release:	%{realrelease}
 Group:		System/Kernel and hardware
 Requires:	%{kname}-%{avxversion}
-Provides:	kernel26-up
-Provides:	%{kname}-up
-Provides:	%{kname}-smp
+Provides:	kernel26-up = %{kversion}
+Provides:	%{kname}-up = %{kversion}
+Provides:	%{kname}-smp = %{kversion}
+Provides:	linux = %{kversion}
 Obsoletes:	%{kname}-up
 Obsoletes:	%{kname}-smp
 
@@ -791,6 +791,9 @@ exit 0
 
 
 %changelog
+* Thu Nov 29 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.22.14
+- adjust provides to ease apt upgrades
+
 * Wed Nov 28 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.22.14
 - 2.6.22.14: fixes CVE-2007-5500 and CVE-2007-5501
 
