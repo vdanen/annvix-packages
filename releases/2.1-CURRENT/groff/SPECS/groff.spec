@@ -18,7 +18,7 @@ Summary:	A document formatting system
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-License:	GPL
+License:	GPLv2+
 Group:		Text Tools
 URL:		http://www.gnu.org/directory/GNU/groff.html
 Source0:	http://ftp.gnu.org/gnu/groff/%{name}-%{version}.tar.gz
@@ -96,7 +96,7 @@ This package contains the documentation for %{name}.
 
 cp -f %{_sourcedir}/README.A4 .
 
-WANT_AUTOCONF_2_5=1 autoconf
+autoconf
 
 
 %build
@@ -171,9 +171,9 @@ cat <<EOF > groff-perl.list
 %{_bindir}/grog
 %{_bindir}/mmroff
 %{_bindir}/afmtodit
-%{_mandir}/man1/afmtodit.1.bz2
-%{_mandir}/man1/grog.1.bz2
-%{_mandir}/man1/mmroff.1.bz2
+%{_mandir}/man1/afmtodit.1*
+%{_mandir}/man1/grog.1*
+%{_mandir}/man1/mmroff.1*
 EOF
 
 dirs=usr/share/man/*
@@ -216,10 +216,13 @@ rm -rf %{buildroot}%{_docdir}/groff/%{version}
 
 %files doc
 %defattr(-,root,root)
-%doc BUG-REPORT COPYING NEWS PROBLEMS README README.A4 TODO VERSION
+%doc BUG-REPORT NEWS PROBLEMS README README.A4 TODO VERSION
 
 
 %changelog
+* Thu Apr 26 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.19.2
+- minor spec cleanups
+
 * Thu Apr 26 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.19.2
 - 1.19.2 (fixes build with gcc4.1)
 - rediff P5
