@@ -85,6 +85,9 @@ rm -f %{buildroot}/sbin/fsck.*
 
 
 %changelog
+* Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.11
+- rebuild
+
 * Tue Jul 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.11
 - 2.11
 - sync patches with Mandriva
