@@ -1,0 +1,291 @@
+
+
+This patch fixed the bug in the isw RAID 10 patch that didn't support
+two volumes. It also moved the RAID 10 raid set under a t-group raid set
+
+as a subset.
+
+Signed-off-by: Ying Fang <ying.fang@intel.com>
+
+--- lib/format/ataraid/isw.c.orig	2007-08-13 20:18:15.000000000 -0700
++++ lib/format/ataraid/isw.c	2007-08-13 19:25:52.000000000 -0700
+@@ -26,7 +26,7 @@
+ 
+ static const char *handler = HANDLER;
+ static struct isw_disk *_get_disk(struct isw *isw, struct dev_info *di);
+-int is_raid10(struct isw *isw);
++int is_raid10(struct isw_dev *dev);
+ 
+ static size_t _name(struct isw *isw, char *str, size_t len, int subset,
+ 						int num, struct isw_dev *dev)
+@@ -35,7 +35,7 @@
+ 	case 2:
+ 		return snprintf(str, len, "isw_%u", isw->family_num);
+ 	case 1:
+-		if(!is_raid10(isw))
++		if(!is_raid10(dev))
+ 			return snprintf(str, len, "isw_%u_%s",
+ 			isw->family_num, (char*) dev->volume);
+ 		else	
+@@ -49,16 +49,15 @@
+ }
+ 
+ static char *name(struct lib_context *lc, struct raid_dev *rd,
+-						unsigned int subset)
++				struct isw_dev *dev, unsigned int subset)
+ {
+ 	size_t len;
+ 	char *ret = NULL;
+ 	int id = 0;
+ 	struct isw *isw = META(rd, isw);
+ 	struct isw_disk *disk = isw->disk;
+-	struct isw_dev *dev = (struct isw_dev*) (isw->disk + isw->num_disks);
+ 
+-	if((subset == 1) && (is_raid10(isw))) {
++	if((subset == 1) && (is_raid10(dev))) {
+ 		if ((disk = _get_disk(isw, rd->di))) {
+ 			if(disk == isw->disk)	id = 0;
+ 			else if(disk == isw->disk + 1)	id = 1;
+@@ -70,10 +69,10 @@
+ 	}
+ 
+ 	if ((ret = dbg_malloc((len = _name(isw, ret, 0, subset, id,
+-							dev) + 1)))) {
+-					_name(isw, ret, len, subset, id, dev);
+-		mk_alpha(lc, ret + HANDLER_LEN, snprintf(ret, 0, "%u",
+-							isw->family_num));
++								dev) + 1)))) {
++		_name(isw, ret, len, subset, id, dev);
++		len=snprintf(ret, 0, "%u", isw->family_num);
++		mk_alpha(lc, ret + HANDLER_LEN, len );
+ 	} else
+ 		log_alloc_err(lc, handler);
+ 
+@@ -131,7 +130,7 @@
+ }
+ 
+ /* Neutralize disk type. */
+-static enum type type(struct isw *isw)
++static enum type type(struct isw_dev *dev)
+ {
+ 	/* Mapping of Intel types to generic types. */
+ 	static struct types types[] = {
+@@ -141,24 +140,21 @@
+ 	        { ISW_T_RAID10, t_raid0},
+ 	        { 0, t_undef},
+ 	};
+-
+-	struct isw_dev *dev = (struct isw_dev*) (isw->disk + isw->num_disks);
+ 	
+-	if(is_raid10(isw))
++	if(is_raid10(dev))
+ 		dev->vol.map.raid_level = ISW_T_RAID10;
+ 
+ 	return dev ? rd_type(types, (unsigned int) dev->vol.map.raid_level) :
+ 		     t_group;
+ }
+ 
+-int is_raid10(struct isw *isw)
++int is_raid10(struct isw_dev *dev)
+ {
+ 	int ret;
+-	struct isw_dev *dev = (struct isw_dev*) (isw->disk + isw->num_disks);
+ 
+ 	ret = ((dev->vol.map.raid_level == ISW_T_RAID10) ||
+-			(dev->vol.map.raid_level == ISW_T_RAID1 &&
+-			isw->num_disks > 3));
++				(dev->vol.map.raid_level == ISW_T_RAID1 && 
++				dev->vol.map.num_members > 3));
+ 
+ 	return ret;
+ }
+@@ -341,8 +337,7 @@
+ }
+ 
+ /* Check for RAID disk ok. */
+-static int disk_ok(struct lib_context *lc, struct dev_info *di,
+-						struct isw *isw)
++static int disk_ok(struct lib_context *lc, struct dev_info *di, struct isw *isw)
+ {
+ 	struct isw_disk *disk = get_disk(lc, di, isw);
+ 
+@@ -358,7 +353,7 @@
+ 	struct isw *isw;
+ 
+ 	if (!(isw = alloc_private_and_read(lc, handler, size,
+-					di->path, isw_sboffset)))
++						di->path, isw_sboffset)))
+ 		goto out;
+ 
+ 	/*
+@@ -466,6 +461,7 @@
+ 		goto free;
+ 	memcpy(r->private.ptr, dev, sizeof(*dev));
+ 
++
+ 	if (!(r->meta_areas = alloc_meta_areas(lc, rd, handler, 1)))
+ 		return 0;
+ 
+@@ -473,13 +469,13 @@
+ 	r->meta_areas->size = rd->meta_areas->size; 
+ 	r->meta_areas->area = rd->meta_areas->area; 
+ 
+-	if ((r->type = type(isw)) == t_undef) {
++	if ((r->type = type(dev)) == t_undef) {
+ 		log_err(lc, "%s: RAID type %u not supported",
+ 			handler, (unsigned int) dev->vol.map.raid_level);
+ 		goto free;
+ 	}
+ 
+-        if (!(r->name = name(lc, rd, 1)))
++        if (!(r->name = name(lc, rd, dev, 1)))
+ 		goto free;
+ 
+ 	r->di = rd->di;
+@@ -527,8 +523,8 @@
+  * and shall be returned on success (or NULL on error).
+  */
+ static struct raid_set *group_rd(struct lib_context *lc,
+-				struct raid_set *rs_group,
+-				struct raid_dev *rd_meta)
++					struct raid_set *rs_group,
++					struct raid_dev *rd_meta)
+ {
+ 	unsigned int d;
+ 	void *private;
+@@ -545,10 +541,11 @@
+ 		if (!(rd = _create_rd(lc, rd_meta, isw, dev)))
+ 			return NULL;
+ 
+-		if(is_raid10(isw)) {
+-			nm = name(lc, rd, 0);
+-			ss = find_or_alloc_raid_set(lc, nm, FIND_TOP, rd,
+-						LC_RS(lc), super_created, dev);
++		if(is_raid10(dev)) {
++			nm = name(lc, rd, dev, 0);
++			ss = find_or_alloc_raid_set(lc, nm, FIND_ALL, rd,
++					 &rs_group->sets, super_created, dev);
++
+ 	 		if (!(rs = find_or_alloc_raid_set(lc, rd->name,
+ 					FIND_ALL, rd, &ss->sets, create_rs,
+ 					dev))) {
+@@ -556,7 +553,7 @@
+ 				return NULL;
+ 			}
+ 		} else {
+-			if (!(rs = find_or_alloc_raid_set(lc, rd->name,
++			if (!(rs = find_or_alloc_raid_set(lc, rd->name, 
+ 						FIND_ALL, rd, &rs_group->sets,
+ 						create_rs, dev))) {
+ 				free_raid_dev(lc, &rd);
+@@ -573,11 +570,6 @@
+ 		/* Restore. */
+ 		rd->private.ptr = private;
+ 
+-		if(is_raid10(isw)) {
+-			ss = join_superset(lc, name, super_created, set_sort,
+-								rs, rd);
+-			return ss;
+-		}
+ 	}
+ 
+ 	return rs_group;
+@@ -585,35 +577,35 @@
+ 
+ /* Add an Intel SW RAID device to a set */
+ static struct raid_set *isw_group(struct lib_context *lc,
+-		struct raid_dev *rd_meta)
++					struct raid_dev *rd_meta)
+ {
+ 	struct raid_set *rs_group = NULL;
+-	struct isw *isw = META(rd_meta, isw);
+ 
+ 	if (T_SPARE(rd_meta))
+ 		return NULL;
+ 
+-	if(!is_raid10(isw)) {
+-		/*
+-	 	* Once we get here, an Intel SW RAID disk containing a metadata
+-		* area with a volume table has been discovered by isw_read.
+-	 	*/
+-		/* Check if a top level group RAID set already exists. */
+-		if (!(rs_group = find_or_alloc_raid_set(lc, rd_meta->name,
+-				FIND_TOP, rd_meta, LC_RS(lc),
+-				NO_CREATE, NO_CREATE_ARG)))
+-			return NULL;
++	/*
++	 * Once we get here, an Intel SW RAID disk containing a metadata area
++	 * with a volume table has been discovered by isw_read. There is one 
++	 * goup RAID set for each metadata configuration. The volume defined in
++	 * the metadata is a subset of the group RAID set.
++	 */
++		
++	 /* Check if a top level group RAID set already exists. */
++	if (!(rs_group = find_or_alloc_raid_set(lc, rd_meta->name, FIND_TOP,
++				      		rd_meta, LC_RS(lc),
++						NO_CREATE, NO_CREATE_ARG)))
++		return NULL;
+ 
+-		/*
+-	 	* Add the whole underlying (meta) RAID device to the group set.
+-	 	* Sorting is no problem here, because RAID sets and devices
+-	 	* will be created for all the Volumes of an ISW set and those
+-		* need sorting.
+-	 	*/
+-		rd_meta->private.ptr = rd_meta->meta_areas->area;
+-		list_add_sorted(lc, &rs_group->devs, &rd_meta->devs, dev_sort);
+-		rd_meta->private.ptr = NULL;
+-	}
++	/*
++	 * Add the whole underlying (meta) RAID device to the group set.
++	 * Sorting is no problem here, because RAID sets and devices will
++	 * be created for all the Volumes of an ISW set and those need sorting.
++	*/
++	rd_meta->private.ptr = rd_meta->meta_areas->area;
++	list_add_sorted(lc, &rs_group->devs, &rd_meta->devs, dev_sort);
++	rd_meta->private.ptr = NULL;
++	
+ 
+ 	/*
+ 	 * We need to run through the volume table and create a RAID set and
+@@ -651,18 +643,23 @@
+ 
+ static int _isw_check(struct lib_context *lc, struct raid_set *rs)
+ {
+-	return check_raid_set(lc, rs, devices, NULL, check_rd, NULL, handler);
++        struct raid_set *r;
++	
++	list_for_each_entry(r, &rs->sets, list) {
++		if(SETS(r))
++			check_raid_set(lc, r, devices, NULL,
++						NO_CHECK_RD, NULL, handler);
++		else
++			check_raid_set(lc, r, devices, NULL, check_rd,
++								NULL, handler);
++	}
++	return 1;
+ }
+ 
+ static int isw_check(struct lib_context *lc, struct raid_set *rs)
+ {
+-	/* If it is a stacked set like RAID10 */
+-	if((!T_GROUP(rs)) && SETS(rs)) {
+-		return check_raid_set(lc, rs, devices, NULL,
+-				NO_CHECK_RD, NULL, handler);
+-	} else {
+-		return T_GROUP(rs) ? _isw_check(lc, rs) : 0;
+-	}
++	return T_GROUP(rs) ? _isw_check(lc, rs) : 0;
++	
+ }
+ /*
+  * IO error event handler.
+@@ -886,7 +883,7 @@
+ 	rd->status = status(lc, rd);
+ 	rd->type   = t_group;
+ 
+-        return (rd->name = name(lc, rd, 2)) ? 1 : 0;
++        return (rd->name = name(lc, rd, NULL, 2)) ? 1 : 0;
+ }
+ 
+ 

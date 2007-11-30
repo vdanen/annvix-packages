@@ -1,0 +1,40 @@
+Index: 1.0.0.rc14/lib/format/ataraid/pdc.c
+===================================================================
+--- 1.0.0.rc14.orig/lib/format/ataraid/pdc.c
++++ 1.0.0.rc14/lib/format/ataraid/pdc.c
+@@ -155,6 +155,21 @@ static void *pdc_read_metadata(struct li
+ 			}
+ 		}
+ 
++		/* Some pdc card detect only PDC_MAX_SECTOR sectors, even
++		 * if the disk is bigger, this prevents dmraid from discovering
++		 * the metadata. This quirk searches for metadata at the
++		 * sector PDC_MAX_SECTOR
++		 */
++		if (di->sectors >= PDC_MAX_SECTOR) {
++			if (read_file(lc, handler, di->path, ret, sizeof(*ret),
++				      PDC_MAX_SECTOR << 9) &&
++			    !strncmp((const char*) ret->promise_id, PDC_MAGIC,
++				     PDC_ID_LENGTH)) {
++				info->u32 = PDC_MAX_SECTOR;
++				return (void*) ret;
++			}
++		}
++
+ 		dbg_free(ret);
+ 	}
+ 
+Index: 1.0.0.rc14/lib/format/ataraid/pdc.h
+===================================================================
+--- 1.0.0.rc14.orig/lib/format/ataraid/pdc.h
++++ 1.0.0.rc14/lib/format/ataraid/pdc.h
+@@ -16,6 +16,9 @@
+ #define PDC_CONFIGOFFSETS	63,255,256,16,399,735
+ #define	PDC_DATAOFFSET 0
+ 
++/* maximum device size (sectors) which can be detected by some pdc card */
++#define PDC_MAX_SECTOR 268435377UL
++
+ /* Ondisk metadata for Promise Fastrack */
+ struct pdc {
+ #define PDC_ID_LENGTH	24

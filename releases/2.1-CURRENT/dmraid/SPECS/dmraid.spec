@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		dmraid
-%define version		1.0.0.rc11
+%define version		1.0.0.rc14
 %define release		%_revrel
 #%define epoch		0
 
@@ -32,11 +32,11 @@ License:	GPL
 URL:		http://people.redhat.com/~heinzm
 Source0:	http://people.redhat.com/~heinzm/sw/dmraid/src/dmraid-%{version}.tar.bz2
 Patch0:		dmraid-mdk.patch
-# patches from fedora development
-Patch10:	dmraid-1.0.0.rc11-metadata-stride.patch
-Patch11:	dmraid-1.0.0.rc11-format-handler-dos.patch
-Patch12:	dmraid-1.0.0.rc11-hpt37x-errorlog.patch
-Patch13:	dmraid-1.0.0.rc11-dupes.patch
+Patch1:		dmraid-isw_raid10.patch
+Patch2:		dmraid-isw_raid10_1.patch
+Patch3:		dmraid-isw_segfault.patch
+Patch4:		dmraid-pdc_max_sectors.patch
+Patch5:		dmraid-pdc_configoffsets.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	device-mapper-devel >= 1.00.09
@@ -75,11 +75,12 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q -n %{name}/%{version}
-%patch10 -p2
-%patch11 -p2
-%patch12 -p2
-%patch13 -p2
 %patch0 -p2 -b .mdk
+%patch1 -p1 -b .isw_raid10
+%patch2 -p0 -b .isw_raid101
+%patch3 -p0 -b .isw_segfault
+%patch4 -p1 -b .pdc_max_sectors
+%patch5 -p0 -b .pdc_configoffsets
 
 
 %build
@@ -141,13 +142,20 @@ rm -rf %{buildroot}%{_includedir}/dmraid
 
 
 %changelog
-* Fri Dec 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.00.rc11
+* Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0.0.rc14
+- 1.0.0.rc14
+- drop fedora patches, merged upstream
+- P1, P2: add raid10 support for isw format
+- P3: fix a segfault issue with dmraid -r -E with isw
+- P4, P5: improve Promise FastTrack metadata detection
+
+* Fri Dec 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.0.rc11
 - rebuild against new device-mapper
 
-* Wed Aug 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.00.rc11
+* Wed Aug 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.0.rc11
 - dietlibc fixes for x86_64
 
-* Wed Aug 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.00.rc11
+* Wed Aug 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.0.rc11
 - first Annvix build based on Mandriva's 1.0.0-0.rc11.1mdv
 - there's no help for it, comment out to remind we need to use epoch once
   the final (assuming 1.0.0) is released due to RH's idiot versioning
