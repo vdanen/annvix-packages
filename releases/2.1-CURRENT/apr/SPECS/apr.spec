@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		apr
-%define version		1.2.11
+%define version		1.2.12
 %define release		%_revrel
 %define epoch		1
 
@@ -31,7 +31,6 @@ Patch1:		apr-1.1.0-config.diff
 Patch2:		apr-1.0.0-mutextype_reorder.diff
 Patch3:		apr-0.9.6-readdir64.patch
 Patch5:		apr-1.2.2-locktimeout.patch
-Patch6:		apr-1.2.7-psprintfpi.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5
@@ -92,7 +91,6 @@ This package contains the documentation for %{name}.
 %patch2 -p0 -b .mutextype_reorder
 %patch3 -p1 -b .readdir64
 %patch5 -p1 -b .locktimeout
-%patch6 -p1 -b .psprintfpi
 
 cat >> config.layout << EOF
 <Layout AVX>
@@ -153,15 +151,9 @@ EOF
 %make
 make dox
 
-# Run non-interactive tests
-%ifarch x86_64
-# https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=97611
-excludes=testlock
-%endif
-pushd test
-    %make testall CFLAGS="-fno-strict-aliasing"
-    TZ=PST8PDT ./testall -v ${excludes+-x $excludes} || exit 1
-popd
+
+%check
+make test
 
 
 %install
@@ -236,6 +228,11 @@ rm -f %{buildroot}%{_libdir}/apr.exp
 
 
 %changelog
+* Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2.12
+- 1.2.12
+- drop P6, merged upstream
+- run all of the tests
+
 * Fri Sep 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2.11
 - 1.2.11
 - drop P4; merged upstream
