@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		ed
-%define version		0.2
+%define version		0.8
 %define release		%_revrel
 
 %define _exec_prefix	/
@@ -18,16 +18,13 @@ Summary:	The GNU line editor
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-License:	GPL
+License:	GPLv3+
 Group:		Text Tools
 URL:		http://www.gnu.org/software/ed/ed.html 
-Source:		ftp://ftp.gnu.org/pub/gnu/ed/ed-0.2.tar.bz2
-Patch0:		ed-0.2-security-tempfile.patch
-Patch1:		ed-0.2-fixinfo.patch
-Patch2:		ed-0.2-li18nux-patch
+Source:		ftp://ftp.gnu.org/pub/gnu/ed/%{name}-%{version}.tar.bz2
+Patch0:		ed-0.4-mdv-install.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	autoconf2.1
 
 Requires(post):	info-install
 Requires(preun): info-install
@@ -54,15 +51,10 @@ This package contains the documentation for %{name}.
 %prep
 %setup -q
 %patch0 -p1
-%patch1 -p1
-%patch2 -p1
 
 
 %build
-rm -f ./configure
-WANT_AUTOCONF_2_1=1 autoconf
-rm -f regex.*
-%configure
+%configure2_5x
 
 %make CFLAGS="%{optflags}"
 
@@ -74,7 +66,7 @@ make check
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-%makeinstall mandir=%{buildroot}%{_mandir}/man1/
+%makeinstall
 
 
 %post
@@ -97,10 +89,15 @@ make check
 
 %files doc
 %defattr(-,root,root,0755)
-%doc NEWS POSIX README THANKS
+%doc NEWS README AUTHORS TODO ChangeLog
 
 
 %changelog
+* Thu Nov 29 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.8
+- 0.8
+- drop P0, P1, P2: merged upstream
+- P0: fix install
+
 * Sun Jul 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.2
 - add -doc subpackage
 - rebuild with gcc4
