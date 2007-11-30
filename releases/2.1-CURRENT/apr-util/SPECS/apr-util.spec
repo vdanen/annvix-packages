@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		apr-util
-%define version		1.2.10
+%define version		1.2.12
 %define release		%_revrel
 
 %define apuver		1
@@ -30,7 +30,7 @@ Source1:	http://www.apache.org/dist/apr/%{name}-%{version}.tar.gz.asc
 Source2:	apr_dbd_mysql.c
 Patch0:		apr-util-1.2.2-config.diff
 Patch2:		apr-util-1.2.8-postgresql.patch
-Patch3:		apr-util-1.2.8-no_linkage.diff
+Patch3:		apr-util-1.2.12-mdv-no_linkage.patch
 Patch4:		apr-util-1.2.7-dso.diff
 Patch5:		apr-util-1.2.7-link.diff
 Patch6:		apr-util-1.2.7-apr_dbd_mysql_headers.diff
@@ -40,7 +40,7 @@ BuildRequires:	autoconf2.5
 BuildRequires:	automake1.7
 BuildRequires:	libtool
 BuildRequires:	doxygen
-BuildRequires:	apr-devel >= 1:1.2.8
+BuildRequires:	apr-devel >= 1:1.2.12
 BuildRequires:	openldap-devel
 BuildRequires:	db4-devel
 BuildRequires:	gdbm-devel
@@ -247,6 +247,12 @@ rm -f %{buildroot}%{_libdir}/aprutil.exp
 
 
 %changelog
+* Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2.12
+- 1.2.12
+- rebuild against new apr
+- buildrequires apr >= 1.2.12
+- updated P3 from Mandriva
+
 * Fri Sep 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2.10
 - rebuild against new postgresql, openldap, apr
 - drop P1; no longer required
