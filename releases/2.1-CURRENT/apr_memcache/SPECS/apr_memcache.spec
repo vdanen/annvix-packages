@@ -121,6 +121,9 @@ sh ./autogen.sh
 
 
 %changelog
+* Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.7.0
+- rebuild against new apr and apr-util
+
 * Fri Sep 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.7.0
 - first Annvix build
 
