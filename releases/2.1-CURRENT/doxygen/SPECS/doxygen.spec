@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		doxygen
-%define version 	1.5.1
+%define version 	1.5.4
 %define release 	%_revrel
 
 Summary:	Doxygen is THE documentation system for C/C++
@@ -22,10 +22,12 @@ Group:		Development/Other
 URL:		http://www.stack.nl/~dimitri/doxygen/
 Source:		ftp://ftp.stack.nl/pub/users/dimitri/%{name}-%{version}.src.tar.gz
 Patch0:		doxygen-1.2.12-fix-latex.patch
+Patch1:		doxygen-1.5.2-mdv-syspng.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	flex
 BuildRequires:	gcc-c++
+BuildRequires:	png-devel
 
 %description
 Doxygen is a documentation system for C, C++ and IDL. It can generate
@@ -42,8 +44,8 @@ your way in large source distributions.
 
 %prep
 %setup -q
-rm -f src/unistd.h
 %patch0 -p1
+%patch1 -p1 -b .syspng
 
 perl -pi -e "s|^TMAKE_CFLAGS_RELEASE.*|TMAKE_CFLAGS_RELEASE = %{optflags}|" tmake/lib/linux-g++/tmake.conf
 %ifarch x86_64 sparc64 ppc64 s390x
@@ -51,6 +53,8 @@ perl -pi -e 's/^LIBDIR=.*/LIBDIR=%{_lib}/' configure
 perl -pi -e "s|/lib$|/%{_lib}|" tmake/lib/linux-g++/tmake.conf
 %endif
 find -type d -exec chmod 0755 {} \;
+# use the system libpng
+rm -rf libpng
 
 
 %build
@@ -78,6 +82,10 @@ install -s bin/doxy* %{buildroot}%{_bindir}
 
 
 %changelog
+* Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.5.4
+- 1.5.4
+- P1: use system libpng
+
 * Thu Dec 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.5.1
 - 1.5.1
 
