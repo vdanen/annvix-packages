@@ -642,6 +642,10 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.5.1
+- rebuild against new e2fsprogs
+- update the buildreqs
+
 * Fri Sep 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.5.1
 - P26: security fix for CVE-2007-3999 and CVE-2007-4000
 - P27: security fix for CVE-2007-4743 (the other half of CVE-2007-3999)
