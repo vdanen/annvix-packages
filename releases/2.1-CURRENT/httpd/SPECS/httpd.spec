@@ -79,6 +79,7 @@ Patch16:	httpd-bug36780.patch
 Patch17:	worker_init_patch_plus_r572937_2.2.x.patch
 Patch18:	httpd-bug42829.patch
 Patch19:	httpd-bug43415.patch
+Patch20:	httpd-2.2.6-ssllibver.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	apr-devel >= 1:1.2.11
@@ -580,6 +581,7 @@ This package contains the documentation for %{name}.
 %patch17 -p0 -b .worker_init_patch_plus_r572937_2.2.x.droplet
 %patch18 -p0 -b .bug42829.droplet
 %patch19 -p1 -b .bug43415.droplet
+%patch20 -p1 -b .ssllibver.droplet
 
 # forcibly prevent use of bundled apr, apr-util, pcre
 rm -rf srclib/{apr,apr-util,pcre}
@@ -1110,7 +1112,7 @@ fi
 
 %pre mod_ssl
 # If there was default mod_ssl vhost misplaced move it as rpmsave
-if [ -f %{_sysconfdir}/httpd/modules.d/41_mod_ssl.default-vhost.conf -o ! -f  %{_sysconfdir}/httpd/conf/vhosts.d/01_default_ssl_vhost.conf ]; then
+if [ -f %{_sysconfdir}/httpd/modules.d/41_mod_ssl.default-vhost.conf -a ! -f  %{_sysconfdir}/httpd/conf/vhosts.d/01_default_ssl_vhost.conf ]; then
     mv -vf %{_sysconfdir}/httpd/modules.d/41_mod_ssl.default-vhost.conf %{_sysconfdir}/httpd/conf/vhosts.d/01_default_ssl_vhost.conf
 fi
 
@@ -1406,6 +1408,11 @@ fi
 
 
 %changelog
+* Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.6
+- rebuild against new apr and apr-util
+- fix %%pre mod_ssl
+- P20: fix for SSL library string regression (jorton)
+
 * Fri Sep 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.6
 - 2.2.6
 - explicitly own /var/cache/httpd
