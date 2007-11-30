@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		ghostscript
-%define version		8.15.3
+%define version		8.60
 %define release		%_revrel
 
 Summary:	PostScript/PDF interpreter and renderer
@@ -18,8 +18,8 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		Publishing
-URL:		http://www.cups.org/espgs/index.php
-Source0:	http://ftp.easysw.com/pub/ghostscript/%{version}/espgs-%{version}-source.tar.bz2
+URL:		http://www.ghostscript.com/awki/Index
+Source0:	ftp://mirror.cs.wisc.edu/pub/mirrors/ghost/GPL/gs860/%{name}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	gettext-devel
@@ -45,7 +45,7 @@ This package contains the documentation for %{name}.
 
 
 %prep
-%setup -q -n espgs-%{version}
+%setup -q
 
 
 %build
@@ -61,7 +61,7 @@ make
 mkdir -p %{buildroot}{%{_bindir},%{_libdir}/ghostscript,%{_sysconfdir},%{_mandir}/man1,%{_docdir}/ghostscript-%{version}}
 
 make prefix=%{_prefix} \
-    install_prefix=%{buildroot} \
+    DESTDIR=%{buildroot} \
     gssharedir=%{_libdir}/ghostscript/%{version} \
     docdir=%{_docdir}/ghostscript-%{version} \
     bindir=%{_bindir} \
@@ -72,10 +72,10 @@ ln -sf gs.1.bz2 %{buildroot}%{_mandir}/man1/ghostscript.1.bz2
 ln -sf gs %{buildroot}%{_bindir}/ghostscript
 
 mkdir -p %{buildroot}{%{_libdir}/cups/filter,%{_datadir}/cups/model,%{_sysconfdir}/cups}
-install -m 0755 pstoraster/pstoraster %{buildroot}%{_libdir}/cups/filter
-install -m 0755 pstoraster/pstopxl %{buildroot}%{_libdir}/cups/filter
-install -m 0755 pstoraster/*.ppd %{buildroot}%{_datadir}/cups/model
-install -m 0644 pstoraster/pstoraster.convs %{buildroot}%{_sysconfdir}/cups
+install -m 0755 cups/pstoraster %{buildroot}%{_libdir}/cups/filter
+install -m 0755 cups/pstopxl %{buildroot}%{_libdir}/cups/filter
+install -m 0755 cups/*.ppd %{buildroot}%{_datadir}/cups/model
+install -m 0644 cups/pstoraster.convs %{buildroot}%{_sysconfdir}/cups
 
 rm -rf %{buildroot}%{_mandir}/de
 
@@ -90,8 +90,8 @@ rm -rf %{buildroot}%{_mandir}/de
 %{_bindir}/*
 %{_mandir}/man1/*
 %attr(0755,root,root) %{_libdir}/cups/filter/*
-%dir %{_datadir}/ghostscript/8.15
-%{_datadir}/ghostscript/8.15/*
+%dir %{_datadir}/ghostscript/8.60
+%{_datadir}/ghostscript/8.60/*
 %{_datadir}/cups/model/*
 %config(noreplace) %{_sysconfdir}/cups/pstoraster.convs
 
@@ -101,6 +101,9 @@ rm -rf %{buildroot}%{_mandir}/de
 
 
 %changelog
+* Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.60
+- 8.60
+
 * Sat Dec 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 8.15.3
 - 8.15.3
 - fix install
