@@ -108,6 +108,9 @@ popd
 
 
 %changelog
+* Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1.6
+- rebuild
+
 * Tue Jun 27 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.1.6
 - add /sys for sysfs
 
