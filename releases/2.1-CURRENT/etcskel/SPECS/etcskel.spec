@@ -51,6 +51,9 @@ make install RPM_BUILD_ROOT=%{buildroot}
 
 
 %changelog
+* Thu Nov 29 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.63
+- rebuild
+
 * Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.63
 - add -doc subpackage
 - make all of /etc/skel not replaceable
