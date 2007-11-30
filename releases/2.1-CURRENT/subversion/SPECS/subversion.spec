@@ -152,7 +152,7 @@ subversion server.
 
 %package -n httpd-mod_dontdothat
 Summary:	An Apache module that allows you to block specific types of Subversion requests
-Version:	%{modversion}
+Version:	%{mod_version}
 Group:		System/Servers
 Requires(pre):	rpm-helper
 Requires(postun): rpm-helper
@@ -513,6 +513,7 @@ popd >/dev/null 2>&1
 %changelog
 * Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.4.5
 - rebuild against new apr and apr-util
+- fix the versioning of mod_dontdothat
 
 * Sat Sep 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.4.5
 - 1.4.5
