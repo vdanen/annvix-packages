@@ -32,7 +32,7 @@ Patch8:		sash-3.7-special-script-call-esp-for-glibc-post.patch
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	zlib-devel
 BuildRequires:	glibc-static-devel
-BuildRequires:	libext2fs-devel
+BuildRequires:	e2fsprogs-devel
 
 %description
 Sash is a simple, standalone, statically linked shell which includes
@@ -78,6 +78,10 @@ install -m 0644 sash.1 %{buildroot}%{_mandir}/man8/sash.8
 
 
 %changelog
+* Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.7
+- rebuild against new e2fsprogs
+- update the buildreqs
+
 * Mon Aug 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.7
 - rebuild against new e2fsprogs
 - spec cleanups
