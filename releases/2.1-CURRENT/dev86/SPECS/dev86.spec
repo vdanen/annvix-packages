@@ -9,8 +9,10 @@
 
 %define revision	$Rev$
 %define name		dev86
-%define version		0.16.16
+%define version		0.16.17
 %define release		%_revrel
+
+%define bccdir		%{_prefix}/lib/bcc
 
 Summary:	A real mode 80x86 assembler and linker
 Name:		%{name}
@@ -18,13 +20,13 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		Development/Other
-URL:		http://www.cix.co.uk/~mayday/
-Source:		http://www.cix.co.uk/~mayday/Dev86src-%{version}.tar.bz2
+URL:		http://homepage.ntlworld.com/robert.debath/dev86/
+Source:		http://homepage.ntlworld.com/robert.debath/dev86/Dev86src-%{version}.tar.gz
+Patch0:		dev86-0.16.17-x86_64-no-elksemu.patch
 Patch5:		dev86-0.16.3-missing-header.patch
-Patch6:		dev86-0.16.16-overflow.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-ExclusiveArch:	%{ix86} ppc
+ExclusiveArch:	%{ix86} ppc x86_64
 
 Obsoletes:	bin86
 Provides:	bin86
@@ -61,8 +63,8 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
+%patch0 -p1 -b .x86_64-no-elksemu
 %patch5 -p1 -b .errno
-%patch6 -p1 -b .overflow
 
 mkdir -p lib/bcc
 ln -s ../../include lib/bcc/include
@@ -100,17 +102,18 @@ ln -f bin86/ChangeLog ChangeLog.bin86
 
 %files
 %defattr(-,root,root)
-%dir %{_libdir}/bcc
+%dir %{bccdir}
 %{_bindir}/*
-%{_libdir}/bcc/*
+%dir %{bccdir}
+%{bccdir}/*
 %{_mandir}/man1/*
-%exclude %{_libdir}/bcc/i386/lib*
+%exclude %{bccdir}/i386/lib*
 
 %files devel
 %defattr(-,root,root)
-%dir %{_libdir}/bcc/include
-%{_libdir}/bcc/include/*
-%{_libdir}/bcc/i386/lib*
+%dir %{bccdir}/include
+%{bccdir}/include/*
+%{bccdir}/i386/lib*
 
 %files doc
 %defattr(-,root,root)
@@ -118,7 +121,12 @@ ln -f bin86/ChangeLog ChangeLog.bin86
 
 
 %changelog
-* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.16.17
+- 0.16.17
+- drop P6; merged upstream
+- P1: allow it to build on x86_64 too
+
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.16.16
 - add -doc subpackage
 - rebuild with gcc4
 
