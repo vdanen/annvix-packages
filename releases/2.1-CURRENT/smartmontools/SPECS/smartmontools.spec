@@ -112,6 +112,9 @@ echo "1800" > %{buildroot}%{_srvdir}/smartd/env/INTERVAL
 
 
 %changelog
+* Thu Nov 29 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.36
+- rebuild
+
 * Tue Dec 26 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.36
 - use %%serverbuild
 
