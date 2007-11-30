@@ -27,7 +27,7 @@ Source0:	ftp://oss.sgi.com/projects/xfs/download/cmd_tars/%{name}_%{version}-1.t
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	xfs-devel
-BuildRequires:	libext2fs-devel
+BuildRequires:	e2fsprogs-devel
 BuildRequires:	libtool
 
 %description
@@ -118,6 +118,10 @@ rm -rf %{buildroot}%{_datadir}/doc/dmapi
 
 
 %changelog
+* Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.5
+- rebuild against new e2fsprogs
+- update the buildreqs
+
 * Sat Sep 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.5
 - implement devel naming policy
 - implement library provides policy
