@@ -79,6 +79,9 @@ rm -f %{buildroot}%{_datadir}/doc/gperf/gperf.html
 
 
 %changelog
+* Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0.2
+- rebuild
+
 * Sat Jul 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.0.2
 - 3.0.2
 - add -doc subpackage
