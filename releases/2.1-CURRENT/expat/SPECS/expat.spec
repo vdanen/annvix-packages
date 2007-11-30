@@ -100,6 +100,9 @@ Development environment for the expat XML parser
 
 
 %changelog
+* Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0.1
+- rebuild
+
 * Sat Jun 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0.1
 - 2.0.1
 - clean up provides/obsoletes
