@@ -511,6 +511,9 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.4.5
+- rebuild against new apr and apr-util
+
 * Sat Sep 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.4.5
 - 1.4.5
 - rebuild against new apache, apr
