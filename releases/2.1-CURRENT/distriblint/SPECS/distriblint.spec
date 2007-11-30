@@ -85,6 +85,9 @@ make test
 
 
 %changelog
+* Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org>  0.1.2
+- rebuild
+
 * Mon May 15 2006 Vincent Danen <vdanen-at-build.annvix.org>  0.1.2
 - rebuild against perl 5.8.8
 - create -doc subpackage
