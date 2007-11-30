@@ -15,7 +15,6 @@
 %define major		1
 %define libname		%mklibname xfs %{major}
 %define devname		%mklibname xfs -d
-%define odevname	%mklibname xfs 1 -d
 
 Summary:	Utilities for managing the XFS filesystem
 Name:		%{name}
@@ -66,7 +65,7 @@ Requires:	%{libname} = %{version}
 Provides:	libxfs-devel = %{version}-%{release}
 Provides:	xfs-devel = %{version}-%{release}
 Obsoletes:	xfs-devel
-Obsoletes:	%{odevname}
+Obsoletes:	%mklibname xfs 1 -d
 
 %description -n %{devname}
 %{devname} contains the libraries and header files needed to
@@ -88,7 +87,6 @@ perl -pi -e "/(libuuid|pkg_s?lib_dir)=/ and s|/lib\b|/%{_lib}|;" configure
 
 
 %build
-aclocal && autoconf
 %configure2_5x \
     --libdir=/%{_lib} \
     --libexecdir=%{_libdir} \
@@ -165,6 +163,10 @@ rm -rf %{buildroot}%{_datadir}/locale
 %doc doc/CHANGES.gz doc/COPYING doc/CREDITS doc/PORTING README
 
 %changelog
+* Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.9.4
+- rebuild against new e2fsprogs
+- drop the unnecessary aclocal/autoconf calls
+
 * Tue Nov 6 2007 Ying-Hung Chen <ying-at-yingternet.com> 2.9.4
 - 2.9.4 (major xfs_repair updates)
 
