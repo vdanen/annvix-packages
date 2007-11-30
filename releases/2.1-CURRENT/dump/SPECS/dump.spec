@@ -122,6 +122,9 @@ popd
 
 
 %changelog
+* Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.4b40
+- rebuild against new e2fsprogs
+
 * Sat Jan 13 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.4b40
 - fix the rmt symlink
 
