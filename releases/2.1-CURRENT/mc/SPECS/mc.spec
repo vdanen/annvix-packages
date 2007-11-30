@@ -28,7 +28,7 @@ Patch4:		mc-4.6.1-mdv-tempfiles.patch
 Patch5:		mc-4.6.1-mdv-2gb.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	libext2fs-devel
+BuildRequires:	e2fsprogs-devel
 BuildRequires:	pam-devel
 BuildRequires:	slang-devel
 BuildRequires:	glib2-devel
@@ -140,6 +140,10 @@ rm -rf %{buildroot}%{_datadir}/locale
 
 
 %changelog
+* Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.6.1
+- rebuild against new e2fsprogs
+- update the buildreqs
+
 * Wed Nov 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.6.1
 - rebuild against new glib2.0
 
