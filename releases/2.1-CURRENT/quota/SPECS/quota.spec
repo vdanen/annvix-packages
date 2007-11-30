@@ -29,7 +29,7 @@ Patch3:		quota-tools-default-conf.patch
 Patch4:		quota-3.06-pie.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	libext2fs-devel
+BuildRequires:	e2fsprogs-devel
 BuildRequires:	gettext
 BuildRequires:	tcp_wrappers-devel >= 7.6-29avx
 
@@ -116,6 +116,10 @@ install -m 0740 %{_sourcedir}/rpc.rquotad-log.run %{buildroot}%{_srvdir}/rpc.rqu
 
 
 %changelog
+* Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.13
+- rebuild against new e2fsprogs
+- update the buildreqs
+
 * Wed Nov 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.13
 - rebuild against new gettext
 - clean the spec a bit
