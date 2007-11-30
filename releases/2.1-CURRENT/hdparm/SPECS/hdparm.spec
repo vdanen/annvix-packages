@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		hdparm
-%define version 	6.6
+%define version 	7.7
 %define release 	%_revrel
 
 Summary:	A utility for displaying and/or setting hard disk parameters
@@ -19,7 +19,7 @@ Release:	%{release}
 License:	BSD
 Group:		System/Kernel and hardware
 URL:		http://sourceforge.net/projects/hdparm/
-Source:		ftp://sunsite.unc.edu/pub/Linux/system/hardware/%{name}-%{version}.tar.gz
+Source:		http://nchc.dl.sourceforge.net/sourceforge/hdparm/%{name}-%{version}.tar.gz
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -52,7 +52,7 @@ make clean
 mkdir -p %{buildroot}/sbin
 install -D -m 0755 hdparm %{buildroot}/sbin/hdparm
 install -D -m 0644 hdparm.8 %{buildroot}%{_mandir}/man8/hdparm.8
-mkdir -p %{buildroot}/etc/sysconfig/env/hdparm
+mkdir -p %{buildroot}%{_sysconfdir}/sysconfig/env/hdparm
 
 
 %clean
@@ -63,14 +63,17 @@ mkdir -p %{buildroot}/etc/sysconfig/env/hdparm
 %defattr(-,root,root)
 /sbin/hdparm
 %{_mandir}/man8/hdparm.8*
-%dir /etc/sysconfig/env/hdparm
+%dir %{_sysconfdir}/sysconfig/env/hdparm
 
 %files doc
 %defattr(-,root,root)
-%doc hdparm.lsm Changelog contrib/README README.acoustic
+%doc hdparm.lsm Changelog README.acoustic
 
 
 %changelog
+* Thu Nov 29 2007 Vincent Danen <vdanen-at-build.annvix.org> 7.7
+- 7.7
+
 * Fri Feb 09 2007 Vincent Danen <vdanen-at-build.annvix.org> 6.6
 - add /etc/sysconfig/env/hdparm and remove the sysconfig file
 
