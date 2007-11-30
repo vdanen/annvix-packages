@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		gzip
-%define version		1.3.5
+%define version		1.3.12
 %define release 	%_revrel
 
 Summary:	The GNU data compression program
@@ -20,11 +20,19 @@ License:	GPL
 Group:		Archiving
 URL:		http://www.gzip.org/
 Source:		ftp://alpha.gnu.org/pub/gnu/gzip/gzip-%{version}.tar.gz
-Patch0:		gzip-1.3.5-mdv-znew.patch
-Patch1:		gzip-1.2.4a-CAN-2005-1228.patch
-Patch2:		gzip-1.3.5-mdv-CAN-2005-0988.patch
-Patch3:		gzip-1.3.5-fdr-zgrep-sed.patch
-Patch4:		gzip-1.3.5-goo-sec.diff
+Patch0:		gzip-1.3.12-openbsd-owl-tmp.patch
+Patch1:		gzip-1.3.5-zforce.patch
+Patch2:		gzip-1.3.9-stderr.patch
+Patch3:		gzip-1.3.10-zgreppipe.patch
+Patch4:		gzip-1.3.9-rsync.patch
+Patch5:		gzip-1.3.3-window-size.patch
+Patch6:		gzip-1.3.9-addsuffix.patch
+Patch7:		gzip-1.3.5-cve-2006-4335.patch
+Patch8:		gzip-1.3.5-cve-2006-4336.patch
+Patch9:		gzip-1.3.5-cve-2006-4338.patch
+Patch10:	gzip-1.3.9-cve-2006-4337.patch
+Patch11:	gzip-1.3.5-cve-2006-4337_len.patch
+Patch12:	gzip-1.3.12-futimens.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	texinfo
@@ -35,8 +43,8 @@ Requires(post):	info-install
 Requires(preun): info-install
 
 %description
-The gzip package contains the popular GNU gzip data compression
-program.  Gzipped files have a .gz extension.  
+The gzip package contains the popular GNU gzip data compression program.
+Gzipped files have a .gz extension.  
 
 
 %package doc
@@ -49,34 +57,43 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
-%patch0 -p1 -b .znew
-%patch1 -p1 -b .can-2005-1228
-%patch2 -p1 -b .can-2005-0988
-%patch3 -p0 -b .cve-2005-0758
-%patch4 -p1 -b .cve-2006-4334_8
+%patch0 -p1 -b .owl-tmp
+%patch1 -p1 -b .zforce
+%patch2 -p1 -b .stderr
+%patch3 -p1 -b .nixi
+%patch4 -p1 -b .rsync
+%patch5 -p1 -b .window-size
+%patch6 -p1 -b .addsuffix
+%patch7 -p1 -b .4335
+%patch8 -p1 -b .4336
+%patch9 -p1 -b .4338
+%patch10 -p1 -b .4337
+%patch11 -p1 -b .4337l
+%patch12 -p1 -b .futimens
 
 
 %build
 export DEFS="-DNO_ASM"
-%configure
-%make all gzip.info
+export CPPFLAGS="-DHAVE_LSTAT"
+
+%configure2_5x
+%make
+
+
+%check
+make check
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}{%{_mandir},/bin}
 
-%makeinstall mandir=%{buildroot}%{_mandir}
+%makeinstall_std
 
-mv -f %{buildroot}%{_bindir}/gzip %{buildroot}/bin/gzip
-
-rm -f %{buildroot}%{_bindir}/gunzip
-rm -f %{buildroot}%{_bindir}/zcat
-
-ln -f %{buildroot}/bin/gzip %{buildroot}/bin/gunzip
-ln -f %{buildroot}/bin/gzip %{buildroot}/bin/zcat
-ln -sf ../../bin/gzip %{buildroot}%{_bindir}/gzip
-ln -sf ../../bin/gunzip %{buildroot}%{_bindir}/gunzip
+for i in gzip gunzip zcat; do
+    mv -f %{buildroot}%{_bindir}/$i %{buildroot}/bin/$i
+    ln -sf ../../bin/$i %{buildroot}%{_bindir}/$i
+done
 
 for i in zcmp zdiff zforce zgrep zmore znew ; do
     sed -e "s|%{buildroot}||g" < %{buildroot}%{_bindir}/$i > %{buildroot}%{_bindir}/.$i
@@ -84,6 +101,9 @@ for i in zcmp zdiff zforce zgrep zmore znew ; do
     mv %{buildroot}%{_bindir}/.$i %{buildroot}%{_bindir}/$i
     chmod 0755 %{buildroot}%{_bindir}/$i
 done
+
+# this is part of ncompress
+rm -f %{buildroot}%{_bindir}/uncompress
 
 cat > %{buildroot}%{_bindir}/zless <<EOF
 #!/bin/sh
@@ -113,10 +133,19 @@ chmod 0755 %{buildroot}%{_bindir}/zless
 
 %files doc 
 %defattr(-,root,root)
-%doc NEWS README
+%doc NEWS README AUTHORS ChangeLog
 
 
 %changelog
+* Thu Nov 29 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.3.12
+- 1.3.12
+- dropped all patches (P1, P2, P3: merged upstream)
+- added patches from Fedora
+- gzip no longer does anything special when called as gunzip or zcat,
+  so keep the real binaries
+- remove uncompress as it's in the ncompress package
+- run make check
+
 * Mon Sep 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.5
 - P4: security fix for CVE-2006-433[45678]
 
