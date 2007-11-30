@@ -20,6 +20,7 @@ License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://oss.sgi.com/projects/xfs/
 Source0:	ftp://oss.sgi.com/projects/xfs/download/cmd_tars/%{name}_%{version}-1.tar.gz
+Patch0:		xfsdump-CVE-2007-2654.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	attr-devel
@@ -57,9 +58,10 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
+%patch0 -p0 -b .cve-2007-2654
 
 # make it lib64 aware, better make a patch?
-perl -pi -e "/(libuuid|pkg_s?lib_dir)=/ and s|/lib\b|/%{_lib}|;" configure
+#perl -pi -e "/(libuuid|pkg_s?lib_dir)=/ and s|/lib\b|/%{_lib}|;" configure
 
 
 %build
@@ -96,6 +98,11 @@ rm -rf %{buildroot}%{_datadir}/doc/xfsdump/
 
 
 %changelog
+* Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.42
+- P0: fix for CVE-2007-2654
+- rebuild against new e2fsprogs
+- remove the perl call as configure isn't even created at this point
+
 * Mon Jun 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.42
 - build against new attr
 - fixed buildreqs as per new devel naming policy
