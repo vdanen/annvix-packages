@@ -84,6 +84,9 @@ install -m 0644 dhcpcd.8 %{buildroot}%{_mandir}/man8/dhcpcd.8
 
 
 %changelog
+* Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.3.22pl4
+- rebuild
+
 * Fri Jan 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.3.22pl4
 - get rid of the %%post stuff; all it does is drop a useless file in /
   and there's no logrotating going on here
