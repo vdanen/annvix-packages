@@ -130,6 +130,9 @@ popd
 
 
 %changelog
+* Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.1.2
+- rebuild
+
 * Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.1.2
 - spec cleanups
 - remove locales
