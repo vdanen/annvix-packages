@@ -16,7 +16,7 @@ Summary:	A GNU collection of diff utilities
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-License:	GPL
+License:	GPLv2+
 Group:		Development/Other
 URL:		http://www.gnu.org/software/diffutils/
 Source:		ftp://ftp.gnu.org/pub/gnu/diffutils-%{version}.tar.bz2
@@ -101,6 +101,9 @@ rm -fr %{buildroot}%{_infodir}/dir
 
 
 %changelog
+* Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.8.4
+- rebuild
+
 * Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.8.4
 - spec cleanups
 - remove locales
