@@ -131,7 +131,7 @@ mkdir -p %{buildroot}/%{_libdir}/rhs/rhs-printfilters
 install -m 0755 %{_sourcedir}/troff-to-ps.fpi %{buildroot}%{_libdir}/rhs/rhs-printfilters
 
 # call spec-helper before creating the file list
-s=/usr/share/spec-helper/spec-helper ; [ -x $s ] && $s
+%{?__spec_helper_post}
 
 cat <<EOF > groff.list
 %dir %{_libdir}/groff
@@ -220,8 +220,9 @@ rm -rf %{buildroot}%{_docdir}/groff/%{version}
 
 
 %changelog
-* Thu Apr 26 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.19.2
+* Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.19.2
 - minor spec cleanups
+- the spec-helper script is no more, use the rpm macro instead
 
 * Thu Apr 26 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.19.2
 - 1.19.2 (fixes build with gcc4.1)
