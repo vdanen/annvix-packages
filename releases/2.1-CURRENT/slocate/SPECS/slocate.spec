@@ -113,6 +113,9 @@ fi
 
 
 %changelog
+* Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.1
+- rebuild
+
 * Fri Jun 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.1
 - 3.1
 - fix url/source locations
