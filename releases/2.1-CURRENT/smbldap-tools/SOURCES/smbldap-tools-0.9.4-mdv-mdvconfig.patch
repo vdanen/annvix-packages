@@ -1,36 +1,35 @@
---- smbldap-tools-0.9.1/smbldap.conf.orig	2005-05-31 10:49:26.000000000 +0200
-+++ smbldap-tools-0.9.1/smbldap.conf	2005-09-18 21:59:31.000000000 +0200
+diff -Naur --exclude '*~' smbldap-tools-0.9.4/smbldap.conf smbldap-tools-0.9.4-mdvconfig/smbldap.conf
+--- smbldap-tools-0.9.4/smbldap.conf	2007-09-17 13:05:48.000000000 +0200
++++ smbldap-tools-0.9.4-mdvconfig/smbldap.conf	2007-11-12 23:38:02.000000000 +0100
 @@ -39,7 +39,7 @@
  # Domain name the Samba server is in charged.
  # If not defined, parameter is taking from smb.conf configuration file
  # Ex: sambaDomain="IDEALX-NT"
--sambaDomain="IDEALX-NT"
+-sambaDomain="DOMSMB"
 +sambaDomain="example"
  
  ##############################################################################
  #
-@@ -85,34 +85,34 @@
+@@ -85,15 +85,15 @@
  
  # CA certificate
  # see "man Net::LDAP" in start_tls section for more details
--cafile="/etc/opt/IDEALX/smbldap-tools/ca.pem"
-+cafile="/etc/ssl/cacert.pem"
+-cafile="/etc/smbldap-tools/ca.pem"
++cafile="/etc/pki/tls/cacert.pem"
  
  # certificate to use to connect to the ldap server
  # see "man Net::LDAP" in start_tls section for more details
--clientcert="/etc/opt/IDEALX/smbldap-tools/smbldap-tools.pem"
+-clientcert="/etc/smbldap-tools/smbldap-tools.pem"
 +clientcert=""
  
  # key certificate to use to connect to the ldap server
  # see "man Net::LDAP" in start_tls section for more details
--clientkey="/etc/opt/IDEALX/smbldap-tools/smbldap-tools.key"
+-clientkey="/etc/smbldap-tools/smbldap-tools.key"
 +clientkey=""
  
  # LDAP Suffix
  # Ex: suffix=dc=IDEALX,dc=ORG
--suffix="dc=idealx,dc=org"
-+suffix="dc=example,dc=com"
- 
+@@ -102,17 +102,17 @@
  # Where are stored Users
  # Ex: usersdn="ou=Users,dc=IDEALX,dc=ORG"
  # Warning: if 'suffix' is not set here, you must set the full dn for usersdn
@@ -51,15 +50,6 @@
  
  # Where are stored Idmap entries (used if samba is a domain member server)
  # Ex: groupsdn="ou=Idmap,dc=IDEALX,dc=ORG"
-@@ -123,7 +123,7 @@
- # If not defined, entries are stored in sambaDomainName object.
- # Ex: sambaUnixIdPooldn="sambaDomainName=${sambaDomain},${suffix}"
- # Ex: sambaUnixIdPooldn="cn=NextFreeUnixId,${suffix}"
--sambaUnixIdPooldn="sambaDomainName=IDEALX-NT,${suffix}"
-+sambaUnixIdPooldn="sambaDomainName=example,${suffix}"
- 
- # Default scope Used
- scope="sub"
 @@ -181,29 +181,29 @@
  # Just set it to a null string if you want to use the smb.conf 'logon home'
  # directive and/or disable roaming profiles

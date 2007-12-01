@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name 		smbldap-tools
-%define version 	0.9.2
+%define version 	0.9.4
 %define release 	%_revrel
 
 Summary:	User & Group administration tools for Samba-OpenLDAP
@@ -18,13 +18,13 @@ Version: 	%{version}
 Release: 	%{release}
 Group: 		System/Servers
 License: 	GPL
-URL:		http://samba.IDEALX.org/
-Source0: 	http://samba.idealx.org/dist/smbldap-tools-%{version}.tar.bz2
+URL:		https://gna.org/projects/smbldap-tools/
+Source0: 	http://download.gna.org/smbldap-tools/packages/%{name}-%{version}.tgz
 Source1: 	mkntpwd.tar.bz2
-Patch0:		smbldap-tools-0.9.1-mdkconfig.patch
-Patch1:		smbldap-tools-0.9.2-accountOC.patch
+Patch0:		smbldap-tools-0.9.4-mdv-mdvconfig.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
+BuildRequires:	perl-perldoc
 
 Requires:	perl-IO-Socket-SSL
 
@@ -56,8 +56,14 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q -a1
-%patch0 -p1 -b .mdkconf
-%patch1 -p1 -b .accountOC
+%patch0 -p1 -b .mdvconf
+
+# nuke that IDEALX stuff from the code
+for i in `find -type f`; do
+    perl -pi -e "s|/etc/opt/IDEALX/smbldap-tools/|%{_sysconfdir}/smbldap-tools/|g; \
+    s|/opt/IDEALX/bin:||g; \
+    s|/opt/IDEALX/sbin|%{_sbindir}|g" $i
+done
 
 
 %build
@@ -65,10 +71,16 @@ pushd mkntpwd
     %make CFLAGS="%{optflags}"
 popd
 
+# make some manpages
+for i in smbldap-groupadd smbldap-groupdel smbldap-groupmod smbldap-groupshow smbldap-passwd \
+    smbldap-populate smbldap-useradd smbldap-userdel smbldap-userinfo smbldap-usermod smbldap-usershow; do
+    perldoc $i > $i.1
+done
+
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p %{buildroot}{%{_sysconfdir}/smbldap-tools,%{_sbindir},%{perl_vendorlib}}
+mkdir -p %{buildroot}{%{_sysconfdir}/smbldap-tools,%{_sbindir},%{perl_vendorlib},%{_mandir}/man1}
 
 install -m 0644 smbldap.conf %{buildroot}%{_sysconfdir}/smbldap-tools/
 install -m 0644 smbldap_bind.conf %{buildroot}%{_sysconfdir}/smbldap-tools/
@@ -87,6 +99,7 @@ install -m 0755 smbldap-usermod %{buildroot}%{_sbindir}/
 install -m 0755 smbldap-usershow %{buildroot}%{_sbindir}/
 install -m 0755 mkntpwd/mkntpwd %{buildroot}%{_sbindir}/
 install -m 0755 mkntpwd/mkntpwd %{buildroot}%{_sbindir}/
+install -m 0644 smbldap-*.1 %{buildroot}%{_mandir}/man1/
 
 
 %clean
@@ -109,15 +122,23 @@ install -m 0755 mkntpwd/mkntpwd %{buildroot}%{_sbindir}/
 %{_sbindir}/smbldap-usermod
 %{_sbindir}/smbldap-userinfo
 %{_sbindir}/smbldap-usershow
+%{_mandir}/man1/*.1*
 %{perl_vendorlib}/smbldap_tools.pm
 
 %files doc
 %defattr(-,root,root)
 %doc CONTRIBUTORS COPYING ChangeLog INFRA INSTALL README TODO doc
-%doc smb.conf smbldap.conf smbldap_bind.conf configure.pl
+%doc smbldap.conf smbldap_bind.conf configure.pl
 
 
 %changelog
+* Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.9.4
+- 0.9.4
+- update url
+- build the man pages, so require perl-perldoc
+- drop P1; merged upstream
+- updated P0 from Mandriva
+
 * Sun Dec 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.9.2
 - 0.9.2
 - fix requires
