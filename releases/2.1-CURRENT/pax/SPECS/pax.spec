@@ -69,10 +69,10 @@ mkdir -p %{buildroot}%{_mandir}/man1
 
 
 %changelog
-* Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org>
+* Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.4
 - rebuild
 
-* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org>
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.4
 - add -doc subpackage
 - rebuild with gcc4
 
