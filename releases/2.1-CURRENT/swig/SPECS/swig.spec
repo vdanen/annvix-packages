@@ -12,6 +12,8 @@
 %define version		1.3.31
 %define release		%_revrel
 
+%define _provides_exceptions	perl(Test::More)\\perl(Test::Builder)
+
 Summary:	Simplified Wrapper and Interface Generator (SWIG)
 Name:		%{name}
 Version:	%{version}
@@ -103,6 +105,9 @@ install -m 0644 ./Source/DOH/doh.h -D %{buildroot}%{_includedir}/doh.h
 
 
 %changelog
+* Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.3.31
+- remove some unwanted perl provides
+
 * Fri May 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.3.31
 - rebuild against new python
 
