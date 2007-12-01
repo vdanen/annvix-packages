@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		gif2png
-%define version 	2.4.7
+%define version 	2.5.1
 %define release 	%_revrel
 
 Summary:	Tools for converting websites from using GIFs to using PNGs
@@ -19,7 +19,8 @@ Release:	%{release}
 License:	MIT style
 Group:		Graphics
 URL:		http://www.catb.org/~esr/gif2png/
-Source:		http://www.catb.org/~esr/gif2png/%{name}-%{version}.tar.bz2
+Source:		http://www.catb.org/~esr/gif2png/%{name}-%{version}.tar.gz
+Patch0:		gif2png-2.5.1-gentoo-libpng_compile_fixes.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	libpng-devel
@@ -43,6 +44,7 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
+%patch0 -p0
 
 
 %build
@@ -70,8 +72,9 @@ This package contains the documentation for %{name}.
 
 
 %changelog
-* Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.4.7
-- rebuild
+* Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.5.1
+- 2.5.1
+- P0: patch from Gentoo to build against libpng 1.2.12+
 
 * Wed Apr 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.4.7
 - rebuild against new libpng
