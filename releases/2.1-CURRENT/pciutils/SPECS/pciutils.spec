@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		pciutils
-%define version		2.2.3
+%define version		2.2.6
 %define release		%_revrel
 
 Summary:	PCI bus related utilities
@@ -20,19 +20,14 @@ License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://atrey.karlin.mff.cuni.cz/~mj/pciutils.html
 Source0:	ftp://atrey.karlin.mff.cuni.cz/pub/linux/pci/%{name}-%{version}.tar.gz
-Patch0:		pciutils-strip.patch
-Patch2:		pciutils-2.1.10-scan.patch
-Patch3:		pciutils-havepread.patch
-Patch5:		pciutils-devicetype.patch
-Patch6:		pciutils-2.2.1-idpath.patch
-Patch7:		pciutils-2.1.99-gcc4.patch
-Patch8:		pciutils-2.2.3-multilib.patch
-Patch9:		pciutils-2.2.3-sata.patch
+Patch0: 	pciutils-2.2.1-mdv-use-stdint.patch
+Patch1:		pciutils-2.2.4-mdv-pcimodules.patch
+Patch2:		pciutils-2.2.1-mdv-cardbus-only-when-root.patch
+# allow build with dietlibc, using sycall() and sys/io.h
+Patch3:		pciutils-2.2.6-mdv-noglibc.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-%ifarch %{ix86}
 BuildRequires:	dietlibc-devel
-%endif
 
 Requires:	kernel >= 2.1.82
 Requires:	hwdata
@@ -64,38 +59,32 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
-%patch0 -p1 -b .strip
-%patch2 -p1 -b .scan
-%patch3 -p1 -b .pread
-%patch5 -p1 -b .devicetype
-%patch6 -p1 -b .idpath
-%patch7 -p1 -b .glibcmacros
-%patch8 -p1 -b .multilib
-%patch9 -p1 -b .sata
-
+%patch0 -p1
+%patch1 -p1
+%patch2 -p1
+%patch3 -p1
 
 %build
-%ifarch %{ix86}
-make OPT="%{optflags} -D_GNU_SOURCE=1" CC="diet gcc" PREFIX="/usr"  IDSDIR="/usr/share/hwdata"
-mv lib/libpci.a lib/libpci_loader_a
+%make PREFIX=%{_prefix} ZLIB=no OPT="-Os" CC="diet gcc" lib/libpci.a
+cp lib/libpci.a libpci.a.diet
 make clean
-%endif
 
-make OPT="%{optflags} -D_GNU_SOURCE=1" PREFIX="/usr" IDSDIR="/usr/share/hwdata"
+%make PREFIX=%{_prefix} OPT="$RPM_OPT_FLAGS -fPIC" ZLIB=no
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-install -d %{buildroot}{/sbin,%{_mandir}/man8,%{_libdir},%{_includedir}/pci}
+install -d %{buildroot}{%{_bindir},%{_mandir}/man8,%{_libdir},%{_includedir}/pci}
 
-install -s lspci setpci %{buildroot}/sbin
-install -m 0644 lspci.8 setpci.8 %{buildroot}%{_mandir}/man8
+install -m 0755 pcimodules lspci setpci %{buildroot}%{_bindir}
+install -m 0644 pcimodules.man lspci.8 setpci.8 %{buildroot}%{_mandir}/man8
 install -m 0644 lib/libpci.a %{buildroot}%{_libdir}
 install -m 0644 lib/{pci.h,header.h,config.h,types.h} %{buildroot}%{_includedir}/pci
 
-%ifarch %{ix86}
-install lib/libpci_loader_a %{buildroot}%{_libdir}/libpci_loader.a
-%endif
+install -d %{buildroot}%{_prefix}/lib/dietlibc/lib-%{_arch}
+install libpci.a.diet %{buildroot}%{_prefix}/lib/dietlibc/lib-%{_arch}/libpci.a
+
+%multiarch_includes %{buildroot}%{_includedir}/pci/config.h
 
 
 %clean
@@ -103,24 +92,34 @@ install lib/libpci_loader_a %{buildroot}%{_libdir}/libpci_loader.a
 
 
 %files
-%defattr(0644,root,root,0755)
+%defattr(-,root,root)
 %{_mandir}/man8/*
-%attr(0755,root,root) /sbin/*
+%{_bindir}/lspci
+%{_bindir}/pcimodules
+%{_bindir}/setpci
+
 
 %files devel
-%defattr(0644,root,root,0755)
-%{_libdir}/libpci.a
-%ifarch %{ix86}
-%{_libdir}/libpci_loader.a
-%endif
+%defattr(-,root,root)
+%{_libdir}/*.a
+%{_prefix}/lib/dietlibc/lib-%{_arch}/libpci.a
 %{_includedir}/pci
+%{_includedir}/*/pci
+%multiarch %{_includedir}/multiarch-*/pci/config.h
+
 
 %files doc
 %defattr(-,root,root)
-%doc README ChangeLog pciutils.lsm
+%doc README ChangeLog pciutils.lsm TODO 
 
 
 %changelog
+* Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.6
+- 2.2.6
+- updated patches from Mandriva 2.2.6-3mdv
+- always build with dietlibc
+- relocate binaries from /sbin to /usr/bin
+
 * Tue Dec 19 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.2.3
 - spec cleanups
 
