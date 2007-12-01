@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		sharutils
-%define version		4.2.1
+%define version		4.7
 %define release		%_revrel
 
 Summary:	The GNU shar utilities for packaging and unpackaging shell archives
@@ -19,19 +19,7 @@ Release:	%{release}
 License:	GPL
 Group:		Archiving
 URL:		http://www.gnu.org/software/sharutils/
-Source:		ftp://prep.ai.mit.edu/pub/gnu/%{name}/%{name}-%{version}.tar.bz2
-Patch1:		sharutils-4.2-gmo.patch
-Patch2:		sharutils-4.2-man.patch
-Patch3:		sharutils-4.2-po.patch
-Patch4:		sharutils-4.2-share.patch
-Patch5:		sharutils-4.2-uudecode.patch
-Patch6:		sharutils-4.2.1-mktemp.patch
-Patch7:		sharutils-4.2.1-uudecode.patch
-Patch10:	sharutils-4.2.1-remsync-typo.patch
-Patch11:	sharutils-4.2.1-bogus-entries.patch
-Patch12:	sharutils-4.2.1-CAN-2004-1772.patch
-Patch13:	sharutils-4.2.1-CAN-2004-1773.patch
-Patch14:	sharutils-4.2.1-deb-302412.patch
+Source0:	ftp://ftp.gnu.org/pub/gnu/%{name}/REL-%{version}/%{name}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	texinfo
@@ -55,39 +43,18 @@ files.
 
 %prep
 %setup -q
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
-%patch4 -p1
-%patch5 -p1
-%patch6 -p1
-%patch7 -p1
-%patch10 -p1
-%patch11 -p1
-%patch12 -p0 -b .can-2004-1772
-%patch13 -p1 -b .can-2004-1773
-%patch14 -p1 -b .deb-302412
 
 
 %build
-%configure
-
-# do not need to link with libintl explicitly for gettext support
-perl -pi -e 's/-lintl//g' src/Makefile
+%configure2_5x --disable-rpath
 
 %make
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-%makeinstall install-man
+%makeinstall_std
 
-# fix japanese catalog file
-if [ -d %{buildroot}/%{_datadir}/locale/ja_JP.EUC/LC_MESSAGES ]; then
-    pushd %{buildroot}%{_datadir}/locale
-        mv ja_JP.EUC ja
-    popd
-fi
 
 %kill_lang %{name}
 %find_lang %{name}
@@ -95,6 +62,7 @@ fi
 
 %post
 %_install_info %{name}.info
+
 
 %preun
 %_remove_install_info %{name}.info
@@ -105,14 +73,18 @@ fi
 
 
 %files -f %{name}.lang
-%defattr(-,root,root,755)
+%defattr(-,root,root)
 %{_bindir}/*
 %{_infodir}/sharutils*
-%{_infodir}/remsync*
 %{_mandir}/man?/*
 
 
 %changelog
+* Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.7
+- 4.7
+- drop all patches; merged upstream
+- update source url
+
 * Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.2.1
 - spec cleanups
 - remove locales
