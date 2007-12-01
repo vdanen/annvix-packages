@@ -100,6 +100,9 @@ rm -rf %{buildroot}%{perl_vendorlib}/auto
 
 
 %changelog
+* Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.1.1
+- rebuild
+
 * Sat Jan 27 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.1.1
 - fix requires
 
