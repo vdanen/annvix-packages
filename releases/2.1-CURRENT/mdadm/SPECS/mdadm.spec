@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		mdadm
-%define version		2.6.2
+%define version		2.6.4
 %define release		%_revrel
 
 %define use_dietlibc 	0
@@ -134,6 +134,9 @@ install -m 0740 %{_sourcedir}/mdadm-log.run %{buildroot}%{_srvdir}/mdadm/log/run
 
 
 %changelog
+* Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.4
+- 2.6.4
+
 * Mon Jun 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.2
 - 2.6.2
 - drop P0
