@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		strace
-%define version		4.5.14
+%define version		4.5.16
 %define release		%_revrel
 
 Summary:	Tracks and displays system calls associated with a running process
@@ -19,8 +19,8 @@ Release:	%{release}
 License:	BSD
 Group:		Development/Kernel
 URL:		http://sourceforge.net/projects/strace/
-Source0:	%{name}-%{version}.tar.bz2
-Patch3:		strace-4.5.13-alt-keep_status.diff
+Source0:	http://easynews.dl.sourceforge.net/sourceforge/strace/%{name}-%{version}.tar.bz2
+Patch0:		strace-4.5.16-avx-alt-keep_status.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -42,7 +42,7 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
-%patch3 -p1 -b .keep_status
+%patch0 -p0 -b .keep_status
 
 %ifarch x86_64
 # we need to copy the right syscallent.h for x86_64 otherwise make dies with:
@@ -75,10 +75,14 @@ rm -f %{buildroot}%{_bindir}/strace-graph
 
 %files doc
 %defattr(-,root,root)
-%doc COPYRIGHT README* CREDITS ChangeLog INSTALL NEWS PORTING TODO
+%doc COPYRIGHT README* CREDITS INSTALL NEWS PORTING TODO
 
 
 %changelog
+* Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.5.16
+- 4.5.16
+- rediff P3 and rename it to P0
+
 * Fri Jun 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.5.14
 - 4.5.14
 - drop P1, P2: applied upstream
