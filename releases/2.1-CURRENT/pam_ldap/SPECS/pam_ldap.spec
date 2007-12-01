@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name 		pam_ldap
-%define version 	183
+%define version 	184
 %define release 	%_revrel
 
 Summary:	PAM module for LDAP
@@ -90,6 +90,9 @@ rm -rf %{buildroot}%{_sysconfdir}/ldap.conf
 
 
 %changelog
+* Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 184
+- 184
+
 * Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 183
 - rebuild against new pam
 
