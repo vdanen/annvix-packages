@@ -79,10 +79,13 @@ make "CFLAGS=%{optflags} -D_GNU_SOURCE -W -Wall" LDFLAGS=-s
 
 %files doc
 %defattr(-,root,root)
-%doc NEWS README AUTHORS ChangeLog
+%doc NEWS README AUTHORS
 
 
 %changelog
+* Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.5.9
+- rebuild
+
 * Fri Jul 21 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.5.9
 - really remove the docs from the main package
 
