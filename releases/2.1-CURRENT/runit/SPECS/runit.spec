@@ -9,10 +9,10 @@
 
 %define	revision	$Rev$
 %define	name		runit
-%define	version		1.7.2
+%define	version		1.8.0
 %define	release		%_revrel
 
-%define aver		0.15
+%define aver		0.16
 
 Summary:	A UN*X init scheme with service supervision
 Name:		%{name}
@@ -291,6 +291,10 @@ fi
 
 
 %changelog
+* Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.8.0
+- runit 1.8.0
+- annvix-runit 0.16
+
 * Sat Mar 31 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.7.2
 - annvix-runit 0.15
 
