@@ -17,7 +17,7 @@ Name:		%{name}
 Version:	%{version}
 Release: 	%{release}
 License:	GPL
-Group:		File tools
+Group:		File Tools
 URL:		http://slocate.trakker.ca/
 Source:		http://slocate.trakker.ca/files/%{name}-%{version}.tar.gz
 Source1:	slocate.cron
@@ -115,6 +115,7 @@ fi
 %changelog
 * Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.1
 - rebuild
+- fix group
 
 * Fri Jun 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.1
 - 3.1
