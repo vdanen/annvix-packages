@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name 		pam_passwdqc
-%define version 	1.0.2
+%define version 	1.0.4
 %define release 	%_revrel
 
 Summary:	PAM module for password quality control
@@ -67,6 +67,9 @@ make CFLAGS="-Wall -fPIC -DHAVE_SHADOW -DLINUX_PAM %{optflags}"
 
 
 %changelog
+* Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0.4
+- 1.0.4
+
 * Mon Jul 03 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.2
 - lib64 fixes
 
