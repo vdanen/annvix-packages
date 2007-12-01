@@ -61,6 +61,10 @@ Patch36:	perl-27359.patch
 Patch37:	perl-27363.patch
 Patch38:	perl-5.8.8-mdv-donot-defer-sig11.patch
 Patch39:	perl-5.8.8-rh-CVE-2007-5116.patch
+Patch40:	perl-5.8.8-mdv-perlio-encoding.patch
+Patch41:	perl-5.8.8-mdv-fix-compiling-with-gcc42.patch
+Patch42:	perl-5.8.8-mdv-allow-to-override-core-modules.patch
+Patch43:	perl-5.8.8-mdv-fix-Math-Trig-great_circle_waypoint.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 # for NDBM
@@ -75,7 +79,6 @@ BuildRequires:	devel(libgdbm_compat)
 %endif
 
 Requires:	perl-base = %{epoch}:%{version}-%{release}
-Provides:	libperl.so
 Provides:	perl(getopts.pl)
 Provides:	perl(ctime.pl)
 Provides:	perl(flush.pl)
@@ -174,7 +177,7 @@ This package contains the documentation for %{name}.
 
 
 %prep
-%setup -q -n %{name}-%{version}%{rel} -a 2
+%setup -q -n %{name}-%{version}%{rel}
 %patch3 -p1
 %patch6 -p0
 %patch14 -p1
@@ -192,6 +195,10 @@ This package contains the documentation for %{name}.
 %patch37 -p1
 %patch38 -p1
 %patch39 -p1
+%patch40 -p0
+%patch41 -p1
+%patch42 -p1
+%patch43 -p1
 
 
 %build
@@ -225,7 +232,7 @@ sh Configure -des \
     -Ud_longdbl \
 %endif
   
-make
+%make
 
 #%check
 # for test, building a perl with no rpath
@@ -280,7 +287,7 @@ perl -ni -e 'print unless m/sub __syscall_nr/' %{buildroot}%{perl_root}/%{versio
 
 # call spec-helper before creating the file list
 # (spec-helper removes some files, and compress some others)
-s=/usr/share/spec-helper/spec-helper ; [ -x $s ] && $s
+%{?__spec_helper_post}
 
 (
    cat > perl-base.list <<EOF
@@ -339,9 +346,12 @@ s=/usr/share/spec-helper/spec-helper ; [ -x $s ] && $s
 %{perl_root}/%{version}/%{full_arch}/lib.pm
 %{perl_root}/%{version}/%{full_arch}/Cwd.pm
 %{perl_root}/%{version}/%{full_arch}/Data/Dumper.pm
+%{perl_root}/%{version}/%{full_arch}/Fcntl.pm
 %dir %{perl_root}/%{version}/%{full_arch}/File
 %{perl_root}/%{version}/%{full_arch}/File/Glob.pm
+%{perl_root}/%{version}/%{full_arch}/IO.pm
 %dir %{perl_root}/%{version}/%{full_arch}/IO
+%{perl_root}/%{version}/%{full_arch}/IO/File.pm
 %{perl_root}/%{version}/%{full_arch}/IO/Handle.pm
 %{perl_root}/%{version}/%{full_arch}/IO/Seekable.pm
 %{perl_root}/%{version}/%{full_arch}/IO/Select.pm
@@ -354,6 +364,8 @@ s=/usr/share/spec-helper/spec-helper ; [ -x $s ] && $s
 %dir %{perl_root}/%{version}/%{full_arch}/auto/Data
 %dir %{perl_root}/%{version}/%{full_arch}/auto/Data/Dumper
 %{perl_root}/%{version}/%{full_arch}/auto/Data/Dumper/Dumper.so
+%dir %{perl_root}/%{version}/%{full_arch}/auto/Fcntl
+%{perl_root}/%{version}/%{full_arch}/auto/Fcntl/Fcntl.so
 %dir %{perl_root}/%{version}/%{full_arch}/auto/File
 %dir %{perl_root}/%{version}/%{full_arch}/auto/File/Glob
 %{perl_root}/%{version}/%{full_arch}/auto/File/Glob/Glob.so
@@ -412,34 +424,13 @@ EOF
 %{_bindir}/pod2latex
 %{_bindir}/splain
 %{_bindir}/s2p
-%{_mandir}/man3/*
-%exclude %{_mandir}/man3/Pod::Perldoc::ToChecker.3pm*
-%exclude %{_mandir}/man3/Pod::Perldoc::ToMan.3pm*
-%exclude %{_mandir}/man3/Pod::Perldoc::ToNroff.3pm*
-%exclude %{_mandir}/man3/Pod::Perldoc::ToPod.3pm*
-%exclude %{_mandir}/man3/Pod::Perldoc::ToRtf.3pm*
-%exclude %{_mandir}/man3/Pod::Perldoc::ToText.3pm*
-%exclude %{_mandir}/man3/Pod::Perldoc::ToTk.3pm*
-%exclude %{_mandir}/man3/Pod::Perldoc::ToXml.3pm*
-%exclude %{perl_root}/%{version}/Pod/Perldoc.pm
-%exclude %{perl_root}/%{version}/Pod/Perldoc
-%exclude %{perl_root}/%{version}/Pod/Perldoc/BaseTo.pm
-%exclude %{perl_root}/%{version}/Pod/Perldoc/GetOptsOO.pm
-%exclude %{perl_root}/%{version}/Pod/Perldoc/ToChecker.pm
-%exclude %{perl_root}/%{version}/Pod/Perldoc/ToMan.pm
-%exclude %{perl_root}/%{version}/Pod/Perldoc/ToNroff.pm
-%exclude %{perl_root}/%{version}/Pod/Perldoc/ToPod.pm
-%exclude %{perl_root}/%{version}/Pod/Perldoc/ToRtf.pm
-%exclude %{perl_root}/%{version}/Pod/Perldoc/ToText.pm
-%exclude %{perl_root}/%{version}/Pod/Perldoc/ToTk.pm
-%exclude %{perl_root}/%{version}/Pod/Perldoc/ToXml.pm
 EOF
 
    cat > perl-perldoc.list <<EOF
 %{_bindir}/perldoc
 %{_mandir}/man1/perldoc.1*
 %{perl_root}/%{version}/Pod/Perldoc.pm
-%{perl_root}/%{version}/Pod/Perldoc
+%dir %{perl_root}/%{version}/Pod/Perldoc
 %{perl_root}/%{version}/Pod/Perldoc/BaseTo.pm
 %{perl_root}/%{version}/Pod/Perldoc/GetOptsOO.pm
 %{perl_root}/%{version}/Pod/Perldoc/ToChecker.pm
@@ -450,7 +441,6 @@ EOF
 %{perl_root}/%{version}/Pod/Perldoc/ToText.pm
 %{perl_root}/%{version}/Pod/Perldoc/ToTk.pm
 %{perl_root}/%{version}/Pod/Perldoc/ToXml.pm
-%{_mandir}/man3/Pod::Perldoc*
 EOF
 
    cat > perl-devel.list <<EOF
@@ -532,12 +522,15 @@ EOF
     rel_perl_root=`echo %{perl_root} | sed "s,/,,"`
     rel_mandir=`echo %{_mandir} | sed "s,/,,"`
     (cd %{buildroot} ; find $rel_perl_root/%{version} "(" -name "*.pod" -o -iname "Changes*" -o -iname "ChangeLog*" -o -iname "README*" ")" -a -not -name perldiag.pod -printf "%%%%doc /%%p\n") >> perl-perldoc.list
-    (cd %{buildroot} ; find $rel_mandir/man1 ! -name "perlivp.1*" ! -type d -printf "/%%p*\n") >> perl.list
+    (cd %{buildroot} ; find $rel_mandir/man1 ! -name "perlivp.1*" ! -type d -printf "/%%p\n") >> perl.list
+    (cd %{buildroot} ; find $rel_mandir/man3 ! -type d ! -name "Pod::Perldoc*" -printf "/%%p\n") >> perl.list
+    (cd %{buildroot} ; find $rel_mandir/man3 ! -type d -name "Pod::Perldoc*" -printf "/%%p\n") >> perl-perldoc.list
     (cd %{buildroot} ; find $rel_perl_root/%{version} ! -type d -printf "/%%p\n") >> perl.list
     (cd %{buildroot} ; find $rel_perl_root/%{version} -type d -printf "%%%%dir /%%p\n") >> perl.list
+
     perl -ni -e 'BEGIN { open F, "perl-base.list"; $s{$_} = 1 foreach <F>; } print unless $s{$_}' perl.list
     perl -ni -e 'BEGIN { open F, "perl-devel.list"; $s{$_} = 1 foreach <F>; } print unless $s{$_}' perl.list
-    perl -ni -e 'BEGIN { open F, "perl-perldoc.list"; !/perldiag/ and m|(/.*\n)| and $s{$1} = 1 foreach <F>; } print unless $s{$_}' perl.list
+    perl -ni -e 'BEGIN { open F, "perl-perldoc.list"; $s{$_} = 1 foreach <F>; } print unless $s{$_}' perl.list
     # need to do some re-arranging... not sure why the files are showing up as .bs and not .so
     perl -pi -e 's|\.bs|\.so|g' perl.list
     perl -pi -e "s|/usr/lib/perl5/%{version}/%{_arch}-linux/.packlist||" perl.list
@@ -570,6 +563,20 @@ EOF
 
 
 %changelog
+* Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.8.8
+- P40: fix a segfault when using a non-utf8 locale (mdv bug #28537, perl bug #41442)
+- P41: fix compilation with gcc 4.2.x (pre-emptive patch; upstream)
+- P42: allow perl modules in site_perl and vendor_perl to override perl builtin
+  modules (mdv bug #33090)
+- P43: backported upstream fix from Math-Complex-1.37 (mdv gub #35488)
+- include more files (to remain consistent with Mandriva packaging)
+- remove bad explicit provides on libperl.so from perl; it's still provided by perl-base
+- parallel make
+- use the rpm macro instead of calling spec-helper directly
+- handle Pod::Perldoc manpages in perl-perldoc through the file list
+- don't list Pod/Perldoc/* modules twice
+- remove old broken perldiag special case
+
 * Mon Nov 05 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.8.8
 - P39: security fix for CVE-2007-5116
 - fix manpage extension

@@ -1,0 +1,86 @@
+--- perl-5.8.8/perl.c.pix	2007-09-04 09:37:34.000000000 +0200
++++ perl-5.8.8/perl.c	2007-09-04 12:46:18.000000000 +0200
+@@ -4771,6 +4771,39 @@ S_init_perllib(pTHX)
+ #endif /* VMS */
+     }
+ 
++#ifdef SITEARCH_EXP
++    /* sitearch is always relative to sitelib on Windows for
++     * DLL-based path intuition to work correctly */
++#  if !defined(WIN32)
++    incpush(SITEARCH_EXP, FALSE, FALSE, TRUE);
++#  endif
++#endif
++
++#ifdef SITELIB_EXP
++#  if defined(WIN32)
++    /* this picks up sitearch as well */
++    incpush(SITELIB_EXP, TRUE, FALSE, TRUE);
++#  else
++    incpush(SITELIB_EXP, FALSE, FALSE, TRUE);
++#  endif
++#endif
++
++#ifdef PERL_VENDORARCH_EXP
++    /* vendorarch is always relative to vendorlib on Windows for
++     * DLL-based path intuition to work correctly */
++#  if !defined(WIN32)
++    incpush(PERL_VENDORARCH_EXP, FALSE, FALSE, TRUE);
++#  endif
++#endif
++
++#ifdef PERL_VENDORLIB_EXP
++#  if defined(WIN32)
++    incpush(PERL_VENDORLIB_EXP, TRUE, FALSE, TRUE);	/* this picks up vendorarch as well */
++#  else
++    incpush(PERL_VENDORLIB_EXP, FALSE, FALSE, TRUE);
++#  endif
++#endif
++
+ /* Use the ~-expanded versions of APPLLIB (undocumented),
+     ARCHLIB PRIVLIB SITEARCH SITELIB VENDORARCH and VENDORLIB
+ */
+@@ -4811,43 +4844,10 @@ S_init_perllib(pTHX)
+     incpush(PRIVLIB_EXP, FALSE, FALSE, TRUE);
+ #endif
+ 
+-#ifdef SITEARCH_EXP
+-    /* sitearch is always relative to sitelib on Windows for
+-     * DLL-based path intuition to work correctly */
+-#  if !defined(WIN32)
+-    incpush(SITEARCH_EXP, FALSE, FALSE, TRUE);
+-#  endif
+-#endif
+-
+-#ifdef SITELIB_EXP
+-#  if defined(WIN32)
+-    /* this picks up sitearch as well */
+-    incpush(SITELIB_EXP, TRUE, FALSE, TRUE);
+-#  else
+-    incpush(SITELIB_EXP, FALSE, FALSE, TRUE);
+-#  endif
+-#endif
+-
+ #ifdef SITELIB_STEM /* Search for version-specific dirs below here */
+     incpush(SITELIB_STEM, FALSE, TRUE, TRUE);
+ #endif
+ 
+-#ifdef PERL_VENDORARCH_EXP
+-    /* vendorarch is always relative to vendorlib on Windows for
+-     * DLL-based path intuition to work correctly */
+-#  if !defined(WIN32)
+-    incpush(PERL_VENDORARCH_EXP, FALSE, FALSE, TRUE);
+-#  endif
+-#endif
+-
+-#ifdef PERL_VENDORLIB_EXP
+-#  if defined(WIN32)
+-    incpush(PERL_VENDORLIB_EXP, TRUE, FALSE, TRUE);	/* this picks up vendorarch as well */
+-#  else
+-    incpush(PERL_VENDORLIB_EXP, FALSE, FALSE, TRUE);
+-#  endif
+-#endif
+-
+ #ifdef PERL_VENDORLIB_STEM /* Search for version-specific dirs below here */
+     incpush(PERL_VENDORLIB_STEM, FALSE, TRUE, TRUE);
+ #endif
