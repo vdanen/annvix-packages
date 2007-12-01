@@ -85,6 +85,9 @@ done
 
 
 %changelog
+* Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0
+- rebuild
+
 * Fri Jun 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.0
 - 2.0
 - drop P0; merged upstream
