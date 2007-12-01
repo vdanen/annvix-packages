@@ -70,6 +70,9 @@ This package contains the documentation for %{name}.
 
 
 %changelog
+* Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.4.7
+- rebuild
+
 * Wed Apr 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.4.7
 - rebuild against new libpng
 
