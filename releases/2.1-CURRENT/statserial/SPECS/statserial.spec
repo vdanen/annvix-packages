@@ -63,6 +63,9 @@ install -m 0444 statserial.1 %{buildroot}%{_mandir}/man1/statserial.1
 
 
 %changelog
+* Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.1
+- rebuild
+
 * Fri Dec 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.1
 - rebuild against new ncurses
 
