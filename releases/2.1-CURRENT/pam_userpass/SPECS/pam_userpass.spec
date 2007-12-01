@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name 		pam_userpass
-%define version 	1.0
+%define version 	1.0.2
 %define release 	%_revrel
 
 Summary:	PAM module for USER/PASS-style protocols
@@ -88,7 +88,10 @@ CFLAGS="-Wall -fPIC %{optflags}" %make
 
 
 %changelog
-* Mon Jul 03 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0.2
+* Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0.2
+- 1.0.2
+
+* Mon Jul 03 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0
 - lib64 fixes
 
 * Sat Jul 01 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.0
