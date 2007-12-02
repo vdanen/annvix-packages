@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		rsec
-%define version		0.67
+%define version		0.68
 %define release		%_revrel
 
 Summary:	Security Reporting tool for Annvix
@@ -63,7 +63,7 @@ make CFLAGS="%{optflags}"
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-mkdir -p %{buildroot}{%{_sysconfdir}/{security,logrotate.d,cron.daily,cron.hourly}}
+mkdir -p %{buildroot}%{_sysconfdir}/{security,logrotate.d,cron.daily,cron.hourly}
 mkdir -p %{buildroot}{%{_datadir}/rsec,%{_bindir},/var/log/security,%{_mandir}/man8}
 
 install -m 0640 cron-sh/{security,diff}_check.sh %{buildroot}%{_datadir}/rsec
@@ -111,7 +111,11 @@ touch /var/log/security.log && chmod 0640 /var/log/security.log
 %doc AUTHORS COPYING ChangeLog
 
 %changelog
-* Sat Feb 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.66
+* Sat Dec 01 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.68
+- 0.68
+- fix the %%install
+
+* Sat Feb 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.67
 - 0.67
 
 * Sat Sep 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.66
