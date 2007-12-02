@@ -77,6 +77,9 @@ install -m 0755 -D conf_convert.sh %{buildroot}%_datadir/%{name}/conf_convert.sh
 
 
 %changelog
+* Sat Dec 01 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.3.2
+- rebuild
+
 * Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.3.2
 - add -doc subpackage
 - rebuild with gcc4
