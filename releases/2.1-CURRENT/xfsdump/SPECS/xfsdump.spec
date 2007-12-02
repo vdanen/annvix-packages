@@ -9,7 +9,7 @@
 
 %define	revision	$Rev$
 %define	name		xfsdump
-%define	version		2.2.42
+%define	version		2.2.46
 %define	release		%_revrel
 
 Summary:	Administrative utilities for the XFS filesystem
@@ -20,7 +20,6 @@ License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://oss.sgi.com/projects/xfs/
 Source0:	ftp://oss.sgi.com/projects/xfs/download/cmd_tars/%{name}_%{version}-1.tar.gz
-Patch0:		xfsdump-CVE-2007-2654.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	attr-devel
@@ -58,7 +57,6 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
-%patch0 -p0 -b .cve-2007-2654
 
 # make it lib64 aware, better make a patch?
 #perl -pi -e "/(libuuid|pkg_s?lib_dir)=/ and s|/lib\b|/%{_lib}|;" configure
@@ -98,6 +96,9 @@ rm -rf %{buildroot}%{_datadir}/doc/xfsdump/
 
 
 %changelog
+* Sat Dec 1 2007 Ying-Hung Chen <ying-at-yingternet.com> 2.2.46
+- 2.2.46
+
 * Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.42
 - P0: fix for CVE-2007-2654
 - rebuild against new e2fsprogs
