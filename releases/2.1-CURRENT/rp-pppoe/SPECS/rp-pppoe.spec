@@ -60,6 +60,8 @@ This package contains the documentation for %{name}.
 
 
 %build
+%serverbuild
+
 pushd src
     autoconf
     %configure2_5x
@@ -121,6 +123,9 @@ rm -rf %{buildroot}%{_docdir}/%{name}-%{version}
 
 
 %changelog
+* Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.8
+- use %%serverbuild
+
 * Thu Dec 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.8
 - 3.8
 - build against ppp 2.4.4
