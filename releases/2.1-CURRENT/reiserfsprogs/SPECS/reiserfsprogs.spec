@@ -18,35 +18,25 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 Epoch:		%{epoch}
-License:	GPL
+License:	GPLv2-like
 Group:		System/Kernel and hardware
 URL:		http://www.namesys.com/
 Source0:	ftp://ftp.namesys.com/pub/reiserfsprogs/%{name}-%{version}.tar.bz2
 Patch1:		reiserfsprogs-3.6.2-make-the-force-option-works-in-resize_reiserfs.patch
+Patch2:		reiserfsprogs-3.6.19-mdv-ubu-unaligned.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
+BuildRequires:	e2fsprogs-devel
 
 Obsoletes:	reiserfs-utils
 Provides:	reiserfs-utils
 
 %description
-Reiserfs is a file system using a plug-in based object oriented
-variant on classical balanced tree algorithms. The results when
-compared to the ext2fs conventional block allocation based file system
-running under the same operating system and employing the same
-buffering code suggest that these algorithms are overall more
-efficient, and are becoming more so every passing month.  Loosely
-speaking, every month we find another performance cranny that needs
-work, and we fix it, and every month we find some way of improving our
-overall general usage performance. The improvement in small file space
-and time performance suggests that we may now revisit a common OS
-design assumption that one should aggregate small objects using layers
-above the file system layer. Being more effective at small files DOES
-NOT make us less effective for other files, this is a general purpose
-FS, and our overall traditional FS usage performance is high enough to
-establish that. Reiserfs has a commitment to opening up the FS design
-to contributions, and we are now now adding plug-ins so that you can
-create your own types of directories and files.
+Reiserfs is a file system using a plug-in based object oriented variant
+on classical balanced tree algorithms. The results when compared to the
+ext2fs conventional block allocation based file system running under
+the same operating system and employing the same buffering code suggest
+that these algorithms are overall more efficient.
 
 
 %package doc
@@ -60,6 +50,7 @@ This package contains the documentation for %{name}.
 %prep
 %setup -q
 %patch1 -p1
+%patch2 -p1
 
 
 %build
@@ -90,10 +81,16 @@ ln -s reiserfsck.8 %{buildroot}%{_mandir}/man8/fsck.reiserfs.8
 
 %files doc
 %defattr(-,root,root)
-%doc README ChangeLog COPYING
+%doc README ChangeLog
 
 
 %changelog
+* Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.6.19
+- update the description
+- update the license
+- P2: patch to avoid use of unaligned.h which no longer exists
+- buildrequires e2fsprogs to get uuid generation support
+
 * Sat Jun 03 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.6.19
 - add -doc subpackage
 - rebuild with gcc4
