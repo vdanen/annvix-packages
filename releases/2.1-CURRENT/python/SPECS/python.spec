@@ -332,6 +332,9 @@ rm -f modules-list main.list
 
 
 %changelog
+* Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.5.1
+- rebuild
+
 * Sun Jun 24 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.5.1
 - rebuild against new readline
 
