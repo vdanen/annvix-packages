@@ -111,6 +111,9 @@ install lib/*.a %{buildroot}%{_libdir}/
 
 
 %changelog
+* Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 1999
+- rebuild
+
 * Sat Jun 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 1999
 - add -doc subpackage
 - rebuild with gcc4
