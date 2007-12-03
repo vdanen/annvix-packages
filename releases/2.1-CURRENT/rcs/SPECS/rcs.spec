@@ -77,6 +77,9 @@ touch src/conf.h
 
 
 %changelog
+* Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.7
+- rebuild
+
 * Thu Jun 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.7
 - add -doc subpackage
 - rebuild with gcc4
