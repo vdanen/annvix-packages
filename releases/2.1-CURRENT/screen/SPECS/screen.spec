@@ -124,7 +124,7 @@ EOF
 %files
 %defattr(-,root,root)
 %{_bindir}/screen
-%{_mandir}/man1/screen.1.bz2
+%{_mandir}/man1/screen.1*
 %{_infodir}/screen.info*
 %attr(755,root,root) %config(noreplace) %{_sysconfdir}/profile.d/screen.sh
 %config(noreplace) %{_sysconfdir}/screenrc
@@ -137,6 +137,9 @@ EOF
 
 
 %changelog
+* Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.0.3
+- rebuild
+
 * Sat Dec 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.0.3
 - drop P5; it's not used anywhere
 - rebuild against new ncurses
