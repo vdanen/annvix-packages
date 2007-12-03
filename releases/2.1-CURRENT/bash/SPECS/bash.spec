@@ -58,6 +58,14 @@ Patch33:	ftp://ftp.gnu.org/gnu/bash/bash-3.2-patches/bash32-014
 Patch34:	ftp://ftp.gnu.org/gnu/bash/bash-3.2-patches/bash32-015
 Patch35:	ftp://ftp.gnu.org/gnu/bash/bash-3.2-patches/bash32-016
 Patch36:	ftp://ftp.gnu.org/gnu/bash/bash-3.2-patches/bash32-017
+Patch37:	ftp://ftp.gnu.org/gnu/bash/bash-3.2-patches/bash32-018
+Patch38:	ftp://ftp.gnu.org/gnu/bash/bash-3.2-patches/bash32-019
+Patch39:	ftp://ftp.gnu.org/gnu/bash/bash-3.2-patches/bash32-020
+Patch40:	ftp://ftp.gnu.org/gnu/bash/bash-3.2-patches/bash32-021
+Patch41:	ftp://ftp.gnu.org/gnu/bash/bash-3.2-patches/bash32-022
+Patch42:	ftp://ftp.gnu.org/gnu/bash/bash-3.2-patches/bash32-023
+Patch43:	ftp://ftp.gnu.org/gnu/bash/bash-3.2-patches/bash32-024
+Patch44:	ftp://ftp.gnu.org/gnu/bash/bash-3.2-patches/bash32-025
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5
@@ -124,6 +132,14 @@ mv doc/README .
 %patch34 -p0 -b .015
 %patch35 -p0 -b .016
 %patch36 -p0 -b .017
+%patch37 -p0 -b .018
+%patch38 -p0 -b .019
+%patch39 -p0 -b .020
+%patch40 -p0 -b .021
+%patch41 -p0 -b .022
+%patch42 -p0 -b .023
+%patch43 -p0 -b .024
+%patch44 -p0 -b .025
 
 echo %{version} > _distribution
 echo %{release} > _patchlevel
@@ -161,7 +177,11 @@ pushd bash-dynamic
     %configure2_5x \
         --disable-command-timing
     %make CFLAGS="%{optflags}"
-    # all tests must pass
+popd
+
+
+%check
+pushd bash-dynamic
     make check
 popd
 
@@ -279,6 +299,11 @@ rm -rf %{buildroot}%{_datadir}/locale
 
 
 %changelog
+* Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.2
+- test profile scripts for readabiliy, not whether they're executable (/etc/bashrc)
+- P37-P44: update to patchlevel 025
+- put the tests in %%check
+
 * Sat Oct 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.2
 - the updated Mandriva bashrc had stupid umask settings so revert them
   to set umask to 022, not 002

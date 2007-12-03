@@ -24,7 +24,7 @@ if [ "$PS1" ]; then
 	# themselves.
 	if [ -n "${BASH_VERSION}${KSH_VERSION}${ZSH_VERSION}" ]; then
             for i in /etc/profile.d/*.sh; do
-	        if [ -x $i ]; then
+	        if [ -r $i ]; then
 	            . $i
 	        fi
 	    done
