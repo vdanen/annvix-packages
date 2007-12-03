@@ -62,6 +62,9 @@ rm -f %{buildroot}/root/.bash_completion
 
 
 %changelog
+* Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 10.2
+- rebuild
+
 * Mon Jul 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 10.2
 - rebuild for 2.0
 - remove pre-Annvix changelog
