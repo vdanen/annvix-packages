@@ -88,6 +88,9 @@ rm -rf %{buildroot}%{_datadir}/doc
 
 
 %changelog
+* Sat Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.1.5
+- rebuild
+
 * Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 4.1.5
 - spec cleanups
 - remove locales
