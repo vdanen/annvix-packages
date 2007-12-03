@@ -87,6 +87,9 @@ rm -f examples/mailstat
 
 
 %changelog
+* Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.22
+- rebuild
+
 * Thu Jun 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.22
 - add -doc subpackage
 - rebuild with gcc4
