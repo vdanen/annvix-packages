@@ -156,6 +156,9 @@ chmod 0755 support/{config.rpath,mkinstalldirs}
 
 
 %changelog
+* Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2
+- rebuild
+
 * Tue Jun 26 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2
 - renumber patches
 
