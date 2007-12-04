@@ -90,6 +90,9 @@ make LDFLAGS=-s
 
 
 %changelog
+* Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.7
+- rebuild
+
 * Fri Jun 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.7
 - drop the docs for such a small package
 - rebuild with gcc4
