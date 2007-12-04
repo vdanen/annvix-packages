@@ -59,12 +59,18 @@ mv %{buildroot}%{_bindir}/fuser %{buildroot}/sbin/
 %defattr(-,root,root)
 /sbin/fuser
 %{_bindir}/killall
+%ifarch %{x86}
 %{_bindir}/peekfd
+%endif
 %{_bindir}/pstree*
 %{_bindir}/oldfuser
 %{_mandir}/man1/fuser.1*
 %{_mandir}/man1/killall.1*
+%ifarch %{x86}
 %{_mandir}/man1/peekfd.1*
+%else
+%exclude %{_mandir}/man1/peekfd.1*
+%endif
 %{_mandir}/man1/pstree.1*
 
 
@@ -72,6 +78,7 @@ mv %{buildroot}%{_bindir}/fuser %{buildroot}/sbin/
 * Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 22.6
 - 22.6
 - drop P0; useless as we're not using libsafe
+- peekfd only builds on x86
 
 * Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 22.2
 - spec cleanups
