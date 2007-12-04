@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		procps
-%define version		3.2.6
+%define version		3.2.7
 %define release		%_revrel
 
 Summary:	Utilities for monitoring your system and processes on your system
@@ -21,13 +21,13 @@ Group:		Monitoring
 URL:		http://procps.sf.net/
 Source:		http://procps.sourceforge.net/%{name}-%{version}.tar.gz
 Patch0:		procps-3.2.3-sysctlshutup.patch
-Patch1:		procps-3.2.3-perm-top.patch
-Patch2:		procps-3.2.3-perror.patch
+Patch1:		procps-3.2.7-mdv-fix-buffer-overflow.patch
+Patch2:		procps-3.2.7-mdv-dont-strip.patch
+Patch3:		procps-3.2.5-fdr-top-rc.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	ncurses-devel
 
-Provides:	libproc.so.3.1
 Provides:	procps3
 Obsoletes:	procps3
 Requires(post):	coreutils
@@ -80,8 +80,9 @@ This package contains the documentation for %{name}.
 %prep
 %setup -q
 %patch0 -p0 -b .sysctl
-%patch1 -p1 -b .perm-top
-%patch2 -p1 -b .perror
+%patch1 -p1 -b .fix-buffer-overflow
+%patch2 -p1 -b .dont-strip
+%patch3 -p1 -b .top-rc
 
 
 %build
@@ -170,6 +171,14 @@ rm -f /etc/psdevtab /etc/psdatabase
 
 
 %changelog
+* Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.2.7
+- 3.2.7
+- drop P1, P2: no longer required
+- P1: fix a buffer overflow in sysctl
+- P2: don't strip binaries
+- P3: fix bad saving of .toprc files
+- drop the provides on libproc.so.3.1 as I have no idea why it's there
+
 * Sat Dec 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.2.6
 - rebuild against new ncurses
 - clean spec
