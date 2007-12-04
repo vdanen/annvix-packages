@@ -27,7 +27,7 @@ Patch0:		iproute2-2.6.16-rh-flags.patch
 Patch1:		iproute2-mdv-def-echo.patch
 Patch2:		iproute2-2.4.7-mdv-bashfix.patch
 Patch3:		iproute2-2.6.X-mdv-ss040702-build-fix.patch
-Patch4:		iproute2-2.6.16-rh-libdir.patch
+Patch4:		iproute2-2.6.16-avx-rh-libdir.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	db4-devel
@@ -68,7 +68,7 @@ This package contains the documentation for %{name}.
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-%makeinstall_std SBINDIR=/sbin
+%makeinstall_std SBINDIR=/sbin LIBDIR=%{_libdir}
 mv -f %{buildroot}/sbin/arpd %{buildroot}/sbin/iproute-arpd
 
 # do not install q_atm.so as it adds a dep on libatm
@@ -98,6 +98,10 @@ tar xjf %{_sourcedir}/iproute2-man8.tar.bz2 -C %{buildroot}%{_mandir}
 
 
 %changelog
+* Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.20
+- fix P4; it didn't set the install location for LIBDIR
+- also set LIBDIR for %%makeinstall so it installs to the right place
+
 * Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.20
 - 2.6.20, snap 070313
 - simplify the install

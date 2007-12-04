@@ -1,5 +1,5 @@
---- iproute2-2.6.16-060323/tc/Makefile.libdir	2005-07-06 00:11:37.000000000 +0200
-+++ iproute2-2.6.16-060323/tc/Makefile	2006-03-27 07:09:28.000000000 +0200
+--- iproute2/tc/Makefile.libdir	2007-03-13 15:50:56.000000000 -0600
++++ iproute2/tc/Makefile	2007-12-03 23:26:20.772089250 -0700
 @@ -42,7 +42,7 @@
  TCLIB += tc_cbq.o
  TCLIB += tc_estimator.o
@@ -9,6 +9,33 @@
  
  TCSO :=
  TCSO += q_netem.so
+@@ -69,10 +69,10 @@
+ 	$(AR) rcs $@ $(TCLIB)
+ 
+ install: all
+-	mkdir -p $(DESTDIR)/usr/lib/tc
++	mkdir -p $(DESTDIR)$(LIBDIR)/tc
+ 	install -m 0755 -s tc $(DESTDIR)$(SBINDIR)
+ 	for i in $(TCSO); \
+-	do install -m 755 -s $$i $(DESTDIR)/usr/lib/tc; \
++	do install -m 755 -s $$i $(DESTDIR)$(LIBDIR)/tc; \
+ 	done
+ 
+ clean:
+--- iproute2/netem/Makefile.libdir	2007-12-03 23:30:34.775963500 -0700
++++ iproute2/netem/Makefile	2007-12-03 23:30:54.009165500 -0700
+@@ -19,9 +19,9 @@
+ 	$(HOSTCC) $(CCOPTS) -I../include -o $@ $@.c -lm
+ 
+ install: all
+-	mkdir -p $(DESTDIR)/usr/lib/tc
++	mkdir -p $(DESTDIR)$(LIBDIR)/tc
+ 	for i in $(DISTDATA); \
+-	do install -m 755 $$i $(DESTDIR)/usr/lib/tc; \
++	do install -m 755 $$i $(DESTDIR)$(LIBDIR)/tc; \
+ 	done
+ 
+ clean:
 --- iproute2-2.6.16-060323/tc/q_netem.c.libdir	2005-12-10 01:01:02.000000000 +0100
 +++ iproute2-2.6.16-060323/tc/q_netem.c	2006-03-27 07:09:28.000000000 +0200
 @@ -60,7 +60,11 @@
