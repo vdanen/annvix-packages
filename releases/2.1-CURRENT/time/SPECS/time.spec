@@ -59,7 +59,7 @@ export FORCE_AUTOCONF_2_5=1
 aclocal-1.4
 autoconf
 automake-1.4 -a
-autoheader
+#autoheader
 
 
 %build
@@ -92,6 +92,7 @@ make LDFLAGS=-s
 %changelog
 * Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.7
 - rebuild
+- don't call autoheader as it craps out the build
 
 * Fri Jun 02 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.7
 - drop the docs for such a small package
