@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		iptables
-%define version		1.3.5
+%define version		1.3.8
 %define release		%_revrel
 
 Summary:	Tools for managing Linux kernel packet filtering capabilities
@@ -20,18 +20,16 @@ License:	GPL
 Group:		System/Kernel and hardware
 URL:		http://netfilter.org/
 
-Source:		http://www.netfilter.org/projects/iptables/files/%{name}-%{version}.tar.bz2
-Source6:	http://www.netfilter.org/projects/iptables/files/%{name}-%{version}.tar.bz2.sig
-Source1:	iptables-avx.init
-Source2:	ip6tables-avx.init
-Source3:	iptables.config
-Source4:	ip6tables.config
-Source5:	iptables-kernel-headers.tar.bz2
-Patch1:		iptables-1.3.5-stealth_grsecurity.patch 
+Source0:	http://www.netfilter.org/projects/iptables/files/%{name}-%{version}.tar.bz2
+Source1:	http://www.netfilter.org/projects/iptables/files/%{name}-%{version}.tar.bz2.sig
+Source2:	iptables-avx.init
+Source3:	ip6tables-avx.init
+Source4:	iptables.config
+Source5:	ip6tables.config
+Source6:	iptables-kernel-headers.tar.bz2
+Patch1:		iptables-1.3.8-stealth_grsecurity.patch 
 Patch2:		iptables-1.2.8-imq.patch 
 Patch3:		iptables-1.3.5-libiptc.h.patch 
-Patch4:		iptables-1.3.5-fix_extension_test.patch
-Patch5:		iptables-1.3.2-ipp2p_extension.patch
 Patch6:		iptables-1.3.3-IFWLOG_extension.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -83,28 +81,20 @@ This package contains the documentation for %{name}.
 
 
 %prep
-%setup -q -a 5
+%setup -q -a 6
 %patch1 -p1 -b .stealth
 %patch2 -p1 -b .imq
 %patch3 -p1 -b .libiptc
-%patch4 -p1 -b .fix_extension_test
-%patch5 -p1 -b .ipp2p
 %patch6 -p1 -b .IFWLOG
 
-chmod +x extensions/.IMQ-test
-chmod +x extensions/.ipp2p-test
-chmod +x extensions/.IFWLOG-test
+chmod +x extensions/.*-test
 
 find . -type f | xargs perl -pi -e "s,/usr/local,%{_prefix},g"
 
 
 %build
 %serverbuild
-%ifarch alpha
-    OPT=`echo %{optflags} | sed -e "s/-O./-O1/"`
-%else
-    OPT="%{optflags} -DNDEBUG"
-%endif
+OPT="%{optflags} -DNDEBUG"
 
 make COPT_FLAGS="$OPT" KERNEL_DIR=$PWD/linux-2.6-vanilla LIBDIR=/lib all
 
@@ -126,6 +116,8 @@ make install-devel \
     BINDIR=/sbin \
     LIBDIR=%{_libdir} \
     MANDIR=%{_mandir}
+
+install -m 0644 libiptc/libiptc.a -D %{buildroot}%{_libdir}/libiptc.a
 
 install -c -D -m 0755 %{_sourcedir}/iptables-avx.init %{buildroot}%{_initrddir}/iptables
 install -c -D -m 0755 %{_sourcedir}/ip6tables-avx.init %{buildroot}%{_initrddir}/ip6tables
@@ -160,6 +152,7 @@ rm -rf %{_builddir}/file.list.%{name}
 /sbin/iptables
 /sbin/iptables-save
 /sbin/iptables-restore
+/sbin/iptables-xml
 %{_mandir}/*/iptables*
 %dir /lib/iptables
 /lib/iptables/libipt*
@@ -186,6 +179,14 @@ rm -rf %{_builddir}/file.list.%{name}
 
 
 %changelog
+* Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.3.8
+- 1.3.8
+- drop P4, no longer required
+- drop P5; Mandriva doesn't apply it so neither will we
+- updated P1 from Mandriva
+- drop the alpha conditionals
+- renumber sources
+
 * Sun Oct 22 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.3.5
 - new initscripts
 
