@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		which
-%define version		2.16
+%define version		2.17
 %define release		%_revrel
 
 Summary:	Displays where a particular program in your path is located
@@ -19,7 +19,7 @@ Release:	%{release}
 License:	GPL
 Group:		System/Base
 URL:		ftp://ftp.gnu.org/gnu/which/
-Source:		ftp://ftp.gnu.org/gnu/which/%{name}-%{version}.tar.bz2
+Source:		ftp://ftp.gnu.org/gnu/which/%{name}-%{version}.tar.gz
 Patch0:		which-2.6.jbj.patch
 Patch1:		which-2.12-fixinfo.patch
 Patch2:		which-2.16-afs.patch
@@ -84,6 +84,9 @@ rm -rf %{buildroot}%{_infodir}/dir
 
 
 %changelog
+* Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.17
+- 2.17
+
 * Sat Jun 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.16
 - add -doc subpackage
 - rebuild with gcc4
