@@ -101,6 +101,9 @@ EOF
 
 
 %changelog
+* Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.52
+- rebuild
+
 * Fri Jun 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.52
 - add -doc subpackage
 - rebuild with gcc4
