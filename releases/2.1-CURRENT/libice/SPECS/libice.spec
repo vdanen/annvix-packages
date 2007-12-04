@@ -15,7 +15,6 @@
 %define libname		%mklibname ice 6
 %define devname		%mklibname ice -d
 %define staticdevname	%mklibname ice -d -s
-%define odevname	%mklibname ice 6 -d
 
 Summary:	X Inter Client Exchange Library
 Name:		%{name}
@@ -65,7 +64,7 @@ Requires:	%{libname} = %{version}
 Requires:	x11-proto-devel >= 1.0.0
 Provides:	%{name}-devel = %{version}-%{release}
 Provides:	ice-devel = %{version}-%{release}
-Obsoletes:	%{odevname}
+Obsoletes:	%mklibname ice 6 -d
 Conflicts:	libxorg-x11-devel < 7.0
 
 %description -n %{devname}
@@ -131,6 +130,9 @@ Static development files for %{name}
 
 
 %changelog
+* Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0.3
+- rebuild
+
 * Thu Jun 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0.3
 - implement devel naming policy
 - implement library provides policy
