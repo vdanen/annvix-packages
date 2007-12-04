@@ -1,11 +1,12 @@
 #!/bin/sh
 
-/usr/sbin/tmpwatch 240 /tmp /var/tmp
+/usr/sbin/tmpwatch 10d /tmp
+/usr/sbin/tmpwatch 30d /var/tmp
 
-[ -f /etc/sysconfig/i18n ] && . /etc/sysconfig/i18n 
+[ -f /etc/sysconfig/i18n ] && . /etc/sysconfig/i18n
 
-if [ -d /usr/share/man/$LANG/ ] && [ -d /var/catman/$LANG/ ]; then 
-    /usr/sbin/tmpwatch -f 240 /var/catman/{X11R6/cat?,cat?,local/cat?,$LANG/cat?} 
-else 
-    /usr/sbin/tmpwatch -f 240 /var/catman/{X11R6/cat?,cat?,local/cat?}
-fi
+for d in /var/{cache/man,catman}/{cat?,X11R6/cat?,local/cat?,${LANG}/cat?}; do
+    if [ -d "${d}" ]; then
+        /usr/sbin/tmpwatch -f 30d "${d}"
+    fi
+done

@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name 		tmpwatch
-%define version		2.9.7
+%define version		2.9.10
 %define release		%_revrel
 
 # CVSROOT=':ext:user@devserv.devel.redhat.com:/home/devel/CVS'
@@ -64,6 +64,9 @@ install -m 0755 %{_sourcedir}/tmpwatch.cron %{buildroot}%{_sysconfdir}/cron.dail
 
 
 %changelog
+* Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.9.7
+- update the cron script; make sure it only checks directories that exist
+
 * Fri Dec 29 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.9.7
 - 2.9.7
 - cron script isn't a config file
