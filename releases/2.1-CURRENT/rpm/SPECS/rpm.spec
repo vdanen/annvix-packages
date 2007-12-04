@@ -765,6 +765,9 @@ fi
 
 
 %changelog
+* Tue Dec 04 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.4.5
+- rebuild against new sqlite3
+
 * Wed Nov 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.4.5
 - rebuild against new gettext
 - fix auto* tools buildrequires
