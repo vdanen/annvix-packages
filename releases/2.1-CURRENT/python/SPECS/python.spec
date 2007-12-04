@@ -332,6 +332,9 @@ rm -f modules-list main.list
 
 
 %changelog
+* Tue Dec 04 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.5.1
+- rebuild against new sqlite3
+
 * Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.5.1
 - rebuild
 
