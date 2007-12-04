@@ -59,14 +59,14 @@ mv %{buildroot}%{_bindir}/fuser %{buildroot}/sbin/
 %defattr(-,root,root)
 /sbin/fuser
 %{_bindir}/killall
-%ifarch %{x86}
+%ifarch %{ix86}
 %{_bindir}/peekfd
 %endif
 %{_bindir}/pstree*
 %{_bindir}/oldfuser
 %{_mandir}/man1/fuser.1*
 %{_mandir}/man1/killall.1*
-%ifarch %{x86}
+%ifarch %{ix86}
 %{_mandir}/man1/peekfd.1*
 %else
 %exclude %{_mandir}/man1/peekfd.1*
