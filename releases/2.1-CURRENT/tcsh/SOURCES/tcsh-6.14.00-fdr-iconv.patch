@@ -1,0 +1,12 @@
+diff -urN tcsh-6.13.00/nls/Makefile tcsh/nls/Makefile
+--- tcsh-6.13.00/nls/Makefile	2004-02-21 21:34:26.000000000 +0100
++++ tcsh/nls/Makefile	2004-07-16 19:09:58.000000000 +0200
+@@ -2,7 +2,7 @@
+ SUBDIRS=	C et finnish french german greek italian ja pl russian \
+ 		spanish ukrainian
+ #GENCAT=	gencat --new
+-#CHARSET=	charset
++CHARSET=	charset
+ GENCAT=		gencat
+ 
+ catalogs:

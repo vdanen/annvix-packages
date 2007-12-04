@@ -22,12 +22,22 @@ Group:		Shells
 URL:		http://www.tcsh.org/
 Source:		ftp://ftp.funet.fi/pub/unix/shells/tcsh/tcsh-%{version}.00.tar.bz2
 Source1:	alias.csh
-Patch1:		tcsh-6.09.00-termios.patch
-Patch3:		tcsh-6.14.00-lsF.patch
-Patch4:		tcsh-6.14.00-dashn.patch
-Patch5:		tcsh-6.14.00-read.patch
-Patch6:		tcsh-6.10.00-glibc_compat.patch
-Patch7:		tcsh-6.14.00-getauthuid-is-not-in-auth_h.patch
+Patch0:		tcsh-6.14.00-fdr-config.patch
+Patch1:		tcsh-6.14.00-fdr-closem.patch
+Patch2:		tcsh-6.14.00-fdr-iconv.patch
+Patch3:		tcsh-6.14.00-fdr-lsF.patch
+Patch4:		tcsh-6.14.00-fdr-dashn.patch
+Patch5:		tcsh-6.14.00-fdr-read.patch
+Patch6:		tcsh-6.14.00-fdr-sigint.patch
+Patch7:		tcsh-6.14.00-fdr-wide-crash.patch
+Patch8:		tcsh-6.14.00-fdr-colors.patch
+Patch9:		tcsh-6.14.00-fdr-wide-seeks.patch
+Patch10:	tcsh-6.14.00-fdr-spell-crash.patch
+Patch11:	tcsh-6.14.00-fdr-remotehost.patch
+Patch12:	tcsh-6.14.00-fdr-tinfo.patch
+Patch13:	tcsh-6.09.00-mdv-termios.patch
+Patch14:	tcsh-6.10.00-mdv-glibc_compat.patch
+Patch15:	tcsh-6.14.00-mdv-getauthuid-is-not-in-auth_h.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	libtermcap-devel
@@ -56,12 +66,22 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q -n %{name}-%{rversion}
-%patch1 -p1 -b .termios
+%patch0 -p1 -b .config
+%patch1 -p1 -b .closem
+%patch2 -p1 -b .iconv
 %patch3 -p1 -b .lsF
 %patch4 -p1 -b .dashn
 %patch5 -p1 -b .read
-%patch6 -p1 -b .glibc_compat
-%patch7 -p1
+%patch6 -p1 -b .sigint
+%patch7 -p1 -b .wide-crash
+%patch8 -p1 -b .colors
+%patch9 -p1 -b .wide-seeks
+%patch10 -p1 -b .spell-crash
+%patch11 -p1 -b .remotehost
+%patch12 -p1 -b .tinfo
+%patch13 -p1 -b .termios
+%patch14 -p1 -b .glibc_compat
+%patch15 -p1
 
 
 %build
@@ -111,6 +131,9 @@ install %{_sourcedir}/alias.csh %{buildroot}%{_sysconfdir}/profile.d/alias.csh
 
 
 %changelog
+* Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 6.14
+- sync patches with Mandriva 6.14-4mdv, which synced most patches to Fedora
+
 * Sun Sep 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 6.14
 - use %%_post_shelladd and %%_preun_shelldel
 

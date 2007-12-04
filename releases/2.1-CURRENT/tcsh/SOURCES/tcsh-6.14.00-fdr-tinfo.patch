@@ -1,0 +1,11 @@
+--- tcsh-6.14.00/configure.in.ncurses	2006-11-30 15:51:16.000000000 +0100
++++ tcsh-6.14.00/configure.in	2006-11-30 15:51:30.000000000 +0100
+@@ -257,7 +257,7 @@
+ dnl Checks for libraries
+ AC_SEARCH_LIBS(crypt, crypt)
+ AC_SEARCH_LIBS(getspnam, sec)
+-AC_SEARCH_LIBS(tgetent, termlib termcap curses ncurses)
++AC_SEARCH_LIBS(tgetent, tinfo)
+ AC_SEARCH_LIBS(gethostbyname, nsl)
+ AC_SEARCH_LIBS(connect, socket)
+ AC_SEARCH_LIBS([iconv], [iconv], [AC_DEFINE([HAVE_ICONV], [1],
