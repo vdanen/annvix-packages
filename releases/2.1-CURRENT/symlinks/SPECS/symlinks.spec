@@ -16,7 +16,7 @@ Summary:	A utility which maintains a system's symbolic links
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-Group:		File tools
+Group:		File Tools
 License:	BSD-style
 URL:		http://www.ibiblio.org/pub/Linux/utils/file/
 Source0:	ftp://sunsite.unc.edu/pub/Linux/utils/file/%{name}-%{version}.tar.bz2
@@ -62,6 +62,7 @@ install -m 0644 %{name}.8 -D %{buildroot}%{_mandir}/man8/%{name}.8
 %changelog
 * Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2
 - rebuild
+- fix group
 
 * Fri Jun 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.2
 - rebuild with gcc4
