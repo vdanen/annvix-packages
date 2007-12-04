@@ -228,6 +228,9 @@ rm -f %{buildroot}%{_libdir}/apr.exp
 
 
 %changelog
+* Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2.12
+- rebuild against new sqlite3
+
 * Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2.12
 - 1.2.12
 - drop P6, merged upstream
