@@ -19,7 +19,8 @@ Release:	%{release}
 License:	BSD
 Group:		Monitoring
 URL:		http://www.chiark.greenend.org.uk/ucgi/~richard/cvsweb/debfix/packages/traceroute/
-Source:		ftp://ftp.ee.lbl.gov/traceroute-%{version}.tar.bz2
+Source0:	ftp://ftp.ee.lbl.gov/traceroute-%{version}.tar.bz2
+Source1:	usr.sbin.traceroute.profile
 Patch1:		traceroute-1.4a5-secfix.patch
 Patch3:		traceroute-1.4a5-autoroute.patch
 Patch4:		traceroute-1.4a5-autoroute2.patch
@@ -57,18 +58,29 @@ mkdir -p %{buildroot}{%{_sbindir},%{_mandir}/man8}
 install traceroute %{buildroot}%{_sbindir}
 cp traceroute.8 %{buildroot}%{_mandir}/man8
 
+mkdir -p %{buildroot}%{_profiledir}
+install -m 0640 %{_sourcedir}/usr.sbin.traceroute.profile %{buildroot}%{_profiledir}/usr.sbin.traceroute
+
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
+
+%posttrans
+%_aa_reload
 
 
 %files
 %defattr(-,root,root)
 %attr(0755,root,bin) %{_sbindir}/traceroute
 %{_mandir}/man8/traceroute.8*
+%config(noreplace) %attr(0640,root,root) %{_profiledir}/usr.sbin.traceroute
 
 
 %changelog
+* Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.4a12
+- add an apparmor profile
+
 * Fri Jun 16 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4a12
 - rebuild with gcc4
 
