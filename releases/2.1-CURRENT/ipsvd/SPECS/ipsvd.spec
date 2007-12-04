@@ -9,7 +9,7 @@
 
 %define	revision	$Rev$
 %define	name		ipsvd
-%define	version		0.12.1
+%define	version		0.13.0
 %define	release		%_revrel
 
 Summary:	Internet protocol service daemons
@@ -20,7 +20,7 @@ License:	BSD
 Group:		System/Servers
 URL:		http://smarden.org/ipsvd/
 Source0:	http://smarden.org/ipsvd/%{name}-%{version}.tar.gz
-Patch0:		ipsvd-0.12.1-avx-system_matrixssl.patch
+Patch0:		ipsvd-0.13.0-avx-system_matrixssl.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	dietlibc-devel >= 0.27-2avx
@@ -83,6 +83,7 @@ pushd %{name}-%{version}/src
     echo "$COMP -Os -pipe -nostdinc" > conf-cc
     echo "$COMP -Os -static -s -nostdinc" > conf-ld
     make
+    make sslsvd
 popd
 
 
@@ -144,6 +145,10 @@ echo "20" >%{buildroot}%{_sysconfdir}/sysconfig/env/tcpsvd/MAX_BACKLOG
 
 
 %changelog
+* Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.13.0
+- 0.13.0
+- rediff P0
+
 * Sat Dec 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.12.1
 - 0.12.1
 - build against new matrixssl
