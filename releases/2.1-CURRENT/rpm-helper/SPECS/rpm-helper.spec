@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		rpm-helper
-%define version		0.18.4
+%define version		0.20.0
 %define release		%_revrel
 
 Summary:	Helper scripts for rpm scriptlets
@@ -23,9 +23,7 @@ Source0:	%{name}-%{version}.tar.bz2
 Source1:	add-srv
 Source2:	del-srv
 Source3:	mkdepends
-Patch0:		rpm-helper-0.18.4-avx-srv.patch
-Patch1:		rpm-helper-0.15-avx-fix_chown_syntax.patch
-Patch2:		rpm-helper-0.18.4-avx-fix_preun_shelldel.patch
+Patch0:		rpm-helper-0.20.0-avx-srv.patch
 
 BuildArch:	noarch
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -57,8 +55,6 @@ This package contains the documentation for %{name}.
 %prep
 %setup -q
 %patch0 -p0 -b .avx
-%patch1 -p0 -b .chown_syntax
-%patch2 -p0 -b .preun_shelldel
 cp %{_sourcedir}/{{add,del}-srv,mkdepends} .
 
 
@@ -76,13 +72,19 @@ cp %{_sourcedir}/{{add,del}-srv,mkdepends} .
 %dir %{_datadir}/%{name}
 %{_datadir}/%{name}/*
 %{_sys_macros_dir}/%{name}.macros
+%config(noreplace) %{_sysconfdir}/sysconfig/ssl
 
 %files doc
 %defattr(-,root,root)
-%doc README* ChangeLog AUTHORS
+%doc README* NEWS AUTHORS
 
 
 %changelog
+* Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.20.0
+- 0.20.0: provides support for creating ssl certificates
+- drop P1, P2: merged upstream
+- rediff P0
+
 * Mon Jun 18 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.18.4
 - revert the changes to add-srv and del-srv
 

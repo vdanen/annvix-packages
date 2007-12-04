@@ -1,15 +1,15 @@
---- Makefile.avx	2007-03-07 05:19:03.000000000 -0700
-+++ Makefile	2007-04-18 22:26:05.363421000 -0600
+--- Makefile.avx	2007-09-06 04:37:12.000000000 -0600
++++ Makefile	2007-12-03 19:06:11.360960250 -0700
 @@ -5,7 +5,8 @@
  SCRIPT_FILES = add-user del-user add-service del-service create-file \
  	       add-group del-group add-shell del-shell verify-shell \
  	       add-syslog del-syslog add-webapp del-webapp \
--	       get-free-syslog-facility get-password
-+	       get-free-syslog-facility get-password \
+-	       get-password create-ssl-certificate
++	       get-password create-ssl-certificate \
 +	       add-srv del-srv mkdepends
  MACROS_FILES = rpm-helper.macros
- FILES        = AUTHORS README COPYING ChangeLog Makefile \
-                $(SCRIPT_FILES) $(MACROS_FILES:=.in)
+ CONF_FILES   = ssl
+ FILES        = AUTHORS README COPYING NEWS Makefile \
 --- add-group.avx	2007-02-15 07:18:09.000000000 -0700
 +++ add-group	2007-04-18 22:25:03.561826000 -0600
 @@ -11,16 +11,17 @@
