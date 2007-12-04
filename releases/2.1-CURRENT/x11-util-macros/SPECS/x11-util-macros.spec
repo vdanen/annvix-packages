@@ -53,6 +53,9 @@ Macros used for x.org development.
 
 
 %changelog
+* Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.1.5
+- rebuild
+
 * Wed Apr 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.1.5
 - first Annvix package
 
