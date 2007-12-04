@@ -64,6 +64,9 @@ Abstract network code for X.
 %{_includedir}/X11/Xtrans/transport.c
 
 %changelog
+* Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0.3
+- rebuild
+
 * Wed Apr 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0.3
 - first Annvix package
 
