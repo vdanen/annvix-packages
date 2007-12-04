@@ -205,11 +205,9 @@ chrpath -d %{buildroot}%{_bindir}/*
 
 %files -n %{devname}
 %defattr(-,root,root)
-#%attr(0644,root,root) 
 %{_includedir}/*.h
 %{_libdir}/lib*.la
 %{_libdir}/lib*.so
-#%attr(0644,root,root)
 %{_libdir}/pkgconfig/*.pc
 
 %files -n %{staticdevname}
@@ -233,7 +231,6 @@ chrpath -d %{buildroot}%{_bindir}/*
 %changelog
 * Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.5.2
 - 3.5.2
-- fix header and pkgconfig file permissions
 - drop P0, P1; no longer needed
 - new P1 to skip one minor failing test on x86_64 (io-4.2.2)
 - re-enable the tests
