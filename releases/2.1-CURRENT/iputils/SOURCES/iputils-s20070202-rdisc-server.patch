@@ -1,5 +1,5 @@
---- iputils/rdisc.c-org	Wed May  1 00:27:34 2002
-+++ iputils/rdisc.c	Wed May  1 00:32:40 2002
+--- iputils-s20070202/rdisc.c.rdisc-server	2007-02-02 13:55:46.000000000 +0100
++++ iputils-s20070202/rdisc.c	2007-04-20 18:15:15.000000000 +0200
 @@ -63,6 +63,8 @@
  
  #include "SNAPSHOT.h"
@@ -23,18 +23,7 @@
  ;
  
  
-@@ -875,7 +874,9 @@
- 				((max_adv_int - min_adv_int) 
- 				 * (random() % 1000)/1000);
- 		} else {
--			if (!is_directly_connected(ip->saddr)) {
-+			struct in_addr tmp;
-+			tmp.s_addr = ip->saddr;
-+			if (!is_directly_connected(tmp)) {
- 				if (verbose)
- 					logtrace("ICMP %s from %s: source not directly connected\n",
- 						      pr_type((int)icp->type),
-@@ -945,7 +946,6 @@
+@@ -945,7 +944,6 @@
  {
  #ifdef RDISC_SERVER
  	if (responder) {
