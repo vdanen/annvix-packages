@@ -85,6 +85,9 @@ install -m 0755 rpmbuildupdate-%{rbuver}/rpmbuildupdate %{buildroot}%{_bindir}/
 
 
 %changelog
+* Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.27
+- rebuild
+
 * Tue May 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.27
 - 0.27
 - the 0.26 release removed rpmbuildupdate to it's own package, but
