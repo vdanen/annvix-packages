@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		psmisc
-%define version		22.2
+%define version		22.6
 %define release		%_revrel
 
 Summary:	Utilities for managing processes on your system
@@ -19,8 +19,7 @@ Release:	%{release}
 License:	GPL
 Group:		Monitoring
 URL:		http://psmisc.sourceforge.net
-Source:		http://download.sourceforge.net/psmisc/psmisc-%{version}.tar.bz2
-Patch1:		psmisc-21.9-libsafe.patch
+Source0:	http://download.sourceforge.net/psmisc/psmisc-%{version}.tar.gz
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -35,16 +34,16 @@ of processes that are using specified files or filesystems.
 
 %prep
 %setup -q 
-%patch1 -p1
 
 
 %build
-%configure
+%configure2_5x --disable-rpath
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-%makeinstall
+%makeinstall_std
+
 mkdir %{buildroot}/sbin
 mv %{buildroot}%{_bindir}/fuser %{buildroot}/sbin/
 
@@ -60,14 +59,20 @@ mv %{buildroot}%{_bindir}/fuser %{buildroot}/sbin/
 %defattr(-,root,root)
 /sbin/fuser
 %{_bindir}/killall
+%{_bindir}/peekfd
 %{_bindir}/pstree*
 %{_bindir}/oldfuser
 %{_mandir}/man1/fuser.1*
 %{_mandir}/man1/killall.1*
+%{_mandir}/man1/peekfd.1*
 %{_mandir}/man1/pstree.1*
 
 
 %changelog
+* Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 22.6
+- 22.6
+- drop P0; useless as we're not using libsafe
+
 * Tue Aug 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 22.2
 - spec cleanups
 - remove locales
