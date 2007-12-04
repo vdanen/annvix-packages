@@ -366,6 +366,9 @@ fi
 
 
 %changelog
+* Tue Dec 04 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.68
+- rebuild against new sqlite3
+
 * Sat Sep 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.68
 - 4.68
 - rebuild against new postgresql, openldap, pam
