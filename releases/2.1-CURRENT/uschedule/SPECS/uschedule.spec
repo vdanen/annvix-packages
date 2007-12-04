@@ -108,6 +108,9 @@ popd
 
 
 %changelog
+* Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.7.1
+- rebuild
+
 * Fri Dec 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.7.1
 - P2: fix the uschedulecmd's creation of the environment script that
   actually runs the commands otherwise jobs created using -e (to
