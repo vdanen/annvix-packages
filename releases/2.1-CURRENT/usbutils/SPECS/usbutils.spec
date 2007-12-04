@@ -59,6 +59,9 @@ rm -f %{buildroot}{%{_includedir}/libusb.h,%{_libdir}/libusb*}
 
 
 %changelog
+* Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.72
+- rebuild
+
 * Fri Jul 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.72
 - rebuild against new libusb
 
