@@ -76,6 +76,9 @@ ln -sf linux.words %{buildroot}%{_dict_dir}words
 
 
 %changelog
+* Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 2
+- rebuild
+
 * Sat Jun 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 2
 - add -doc subpackage
 
