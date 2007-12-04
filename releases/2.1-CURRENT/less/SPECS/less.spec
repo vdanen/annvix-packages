@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		less
-%define version		394
+%define version		416
 %define release		%_revrel
 
 %define lessp_ver	1.53
@@ -21,7 +21,7 @@ Release:	%{release}
 License:	GPL
 Group:		File Tools
 URL:		http://www.greenwoodsoftware.com/less
-Source:		ftp://ftp.gnu.org/pub/gnu/less/%{name}-%{version}.tar.bz2
+Source0:	http://www.greenwoodsoftware.com/less/%{name}-%{version}.tar.gz
 Source1:	faq_less.html
 Source2:	http://www-zeuthen.desy.de/~friebel/unix/less/lesspipe-%{lessp_ver}.tar.bz2
 Patch0:		less-374-mdv-manpages.patch
@@ -81,7 +81,7 @@ popd
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall
 # faq
-install -m 0644 %SOURCE1 .
+install -m 0644 %{_sourcedir}/faq_less.html .
 
 pushd lesspipe-%{lessp_ver}
     %makeinstall PREFIX=%{buildroot}%{_prefix}
@@ -153,6 +153,9 @@ install -m 0644 lessecho.1 %{buildroot}%{_mandir}/man1
 
 
 %changelog
+* Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 416
+- 416
+
 * Fri Dec 08 2006 Vincent Danen <vdanen-at-build.annvix.org> 394
 - rebuild against new ncurses
 
