@@ -1,0 +1,20 @@
+--- sqlite-3.5.2/test/io.test~	2007-12-03 18:23:09.788010000 -0700
++++ sqlite-3.5.2/test/io.test	2007-12-03 18:23:09.788010000 -0700
+@@ -441,17 +441,6 @@
+   execsql { INSERT INTO abc VALUES('c', 'd') }
+   file exists test.db-journal
+ } {1}
+-if {$::tcl_platform(platform)=="unix"} {
+-  do_test io-4.2.2 {
+-    set fd [open test.db-journal]
+-    fconfigure $fd -translation binary -encoding binary
+-    seek $fd 8
+-    set blob [read $fd 4]
+-    close $fd
+-    binary scan $blob i res
+-    format 0x%X $res
+-  } {0xFFFFFFFF}
+-}
+ do_test io-4.2.3 {
+   execsql { COMMIT }
+   nSync
