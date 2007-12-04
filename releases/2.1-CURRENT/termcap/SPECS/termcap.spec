@@ -31,10 +31,6 @@ Patch4:		termcap-Eterm.patch
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
 
-%ifarch sparc
-Obsoletes:	termfiles_sparc
-Provides:	termfiles_sparc
-%endif
 
 %description
 The termcap package provides the /etc/termcap file.  /etc/termcap is
@@ -71,6 +67,9 @@ install -m 0644 termcap %{buildroot}%{_sysconfdir}/
 
 
 %changelog
+* Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 11.0.1
+- drop the sparc conditionals
+
 * Thu Dec 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 11.0.1
 - set the URL
 
