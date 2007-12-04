@@ -25,7 +25,7 @@ License:	Public Domain
 Group:		System/Libraries
 URL:		http://www.sqlite.org/
 Source0:	http://www.sqlite.org/%{name}-%{version}.tar.gz
-Patch0:		sqlite-3.5.3-avx-skip_tests.patch
+Patch0:		sqlite-3.5.2-avx-skip_tests.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}-%{release}
 BuildRequires:	chrpath
