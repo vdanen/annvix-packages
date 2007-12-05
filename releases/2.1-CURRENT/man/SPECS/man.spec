@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		man
-%define version		1.5m2
+%define version		1.6e
 %define release		%_revrel
 
 Summary:	A set of documentation tools:  man, apropos and whatis
@@ -18,24 +18,22 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		System/Base
-URL:		ftp://ftp.win.tue.nl:/pub/linux-local/utils/man
-Source0:	ftp://ftp.win.tue.nl/pub/linux-local/utils/man/man-%{version}.tar.bz2
+URL:		http://primates.ximian.com/~flucifredi/man/
+Source0:	http://primates.ximian.com/~flucifredi/man/%{name}-%{version}.tar.gz
 Source1:	makewhatis.cronweekly
 Source2:	makewhatis.crondaily
-Source3:	man.config.5
 # changed 'groff -Tlatin' to 'nroff' (no -T option); that makes auto-detect
 # the charset to use for the output -- pablo
 Patch1:		man-1.5k-confpath.patch
 Patch4:		man-1.5h1-make.patch
 Patch5:		man-1.5k-nonascii.patch
-Patch6:		man-1.5m2-security.patch
-Patch7:		man-1.5m2-avx-manpaths.patch
+Patch6:		man-1.6e-security.patch
+Patch7:		man-1.6e-mandirs.patch
 Patch8:		man-1.5m2-bug11621.patch
 Patch9:		man-1.5k-sofix.patch
 Patch10:	man-1.5m2-buildroot.patch
-Patch12:	man-1.5m2-ro-usr.patch
+Patch12:	man-1.6e-ro_usr.patch
 Patch14:	man-1.5i2-newline.patch
-Patch15:	man-1.5k-lookon.patch
 Patch17:	man-1.5j-utf8.patch
 # comment out the NJROFF line of man.conf, so that the nroff script
 # can take care of japanese -- pablo
@@ -43,18 +41,17 @@ Patch18:	man-1.5k-nroff.patch
 Patch19:	man-1.5i2-overflow.patch
 Patch22:	man-1.5j-nocache.patch
 Patch24:	man-1.5i2-initial.patch
+Patch25:	man-1.5m2-sigpipe.patch
 # Japanese patches
 Patch51:	man-1.5h1-gencat.patch
-Patch101:	man-1.5m2-lang-aware_whatis.patch
 Patch102:	man-1.5g-nonrootbuild.patch
 Patch104:	man-1.5m2-tv_fhs.patch
 Patch105:	man-1.5j-i18n.patch
-Patch106:	man-1.5j-perlman.patch
-Patch107:	man-1.5j-whatis2.patch
+Patch107:	man-1.6e-whatis2.patch
 Patch200:	man-1.5m2-colored_groff.patch
-Patch201:	man-1.5m2-l10ned-whatis.patch
+Patch201:	man-1.6e-i18n_whatis.patch
 
-Patch300:	man-1.5m2-new-sections.patch
+Patch300:	man-1.6e-new_sections.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -80,46 +77,46 @@ searches its own database for a complete word.
 %patch8 -p1 -b .ad
 %patch9 -p1 -b .sofix
 %patch10 -p1 -b .less
-%patch12 -p1 -b .usr
+%patch12 -p1 -b .ro_usr
 %patch14 -p1 -b .newline
-%patch15 -p1 -b .lookon
 %patch51 -p1 -b .jp2
 %patch17 -p1 -b .utf8
 %patch18 -p1 -b ._nroff
 %patch19 -p1 -b .overflow
 %patch22 -p1 -b .nocache
 %patch24 -p1 -b .initial
+%patch25 -p1 -b .sigpipe
 
-%patch101 -p1 -b .whatbz2
 %patch102 -p1
 %patch104 -p1 -b .tv_fhs
 %patch105 -p1 -b .i18n
-%patch106 -p0 -b .perl
-%patch107 -p0
+%patch107 -p1 -b .whatis2
 %patch200 -p0 -b .color
-%patch201 -p0 -b .l10n
-%patch300 -p1 -b .sec
+%patch201 -p1 -b .i18n_whatis
+%patch300 -p1 -b .new_sections
 
-/bin/rm -f %{_builddir}/man-%{version}/man/en/man.conf.man
+pushd man
+    for i in `find -name man.conf.man`; do
+        sed -e 's/MAN\.CONF/MAN\.CONFIG/g' \
+            -e 's/man\.conf/man\.config/g' \
+            -i $i
+        mv $i `echo $i|sed -e 's/conf.man/config.man/g'`
+    done
+popd
 
 
 %build
-(cd man; for i in `find -name man.conf.man`; do mv $i `echo $i|sed -e 's/conf.man/config.man/g'`;done)
-install -m 0644 %{_sourcedir}/man.config.5 man/en/
-./configure -default -confdir /etc +fsstnd +sgid +fhs +lang all \
+./configure -default -confdir %{_sysconfdir} +fsstnd +sgid +fhs +lang all \
     -compatibility_mode_for_colored_groff
-make CC="gcc -g %{optflags} -D_GNU_SOURCE"
+make CC="gcc -g %{optflags} -D_GNU_SOURCE" MANDIR=%{_mandir}
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-mkdir -p  %{buildroot}%{_bindir}
-mkdir -p  %{buildroot}%{_sbindir}
-mkdir -p  %{buildroot}%{_mandir}
 mkdir -p  %{buildroot}%{_sysconfdir}/cron.{daily,weekly}
-perl -pi -e 's!/usr/man!/usr/share/man!g' conf_script
+
 perl -pi -e 's!mandir = .*$!mandir ='"%{_mandir}"'!g' man2html/Makefile
-make install PREFIX=%{buildroot}/  mandir=%{buildroot}/%{_mandir}
+make install PREFIX=%{buildroot} mandir=%{buildroot}/%{_mandir}
 
 install -m 0755 %{_sourcedir}/makewhatis.cronweekly %{buildroot}%{_sysconfdir}/cron.weekly/makewhatis.cron
 install -m 0755 %{_sourcedir}/makewhatis.crondaily %{buildroot}%{_sysconfdir}/cron.daily/makewhatis.cron
@@ -135,21 +132,21 @@ done
 # symlinks for manpath
 pushd %{buildroot}
     ln -s man .%{_bindir}/manpath
-    ln -s man.1.bz2 .%{_mandir}/man1/manpath.1.bz2
-    #perl -pi -e 's!nippon!latin1!g;s!-mandocj!-mandoc!g' etc/man.config
+    ln -s man.1%{_extension} .%{_mandir}/man1/manpath.1%{_extension}
 popd
 
-/bin/rm -fr %{buildroot}/%{_mandir}/{de,fr,it,pl}
+rm -rf %{buildroot}%{_mandir}/{de,fr,it,pl}
 perl -pi -e 's!less -is!less -isr!g' %{buildroot}%{_sysconfdir}/man.config
-#perl -pi -e 's!/usr/man!/usr/share/man!g' %{buildroot}%{_sbindir}/makewhatis
 
 # Fix makewhatis perms
 chmod 0755 %{buildroot}%{_sbindir}/makewhatis
 
+%find_lang %{name}
 %kill_lang %{name}
 
+
 %clean
-#[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
 %files
@@ -177,6 +174,15 @@ chmod 0755 %{buildroot}%{_sbindir}/makewhatis
 
 
 %changelog
+* Tue Dec 04 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.6e
+- 1.6e
+- dropped P15, P101, P106: no longer required or wanted
+- updated P201 for better i18n support
+- updated versions of P6, P7, P12, P107, P201, P300 from Mandriva
+- drop S3
+- P25: ignore SIGPIPE signals so no error messages are displayed when
+  the pipe is broken before the formatting of the man page
+
 * Fri Apr 27 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.5m2
 - update P7 to pickup manpages in /usr/local properly
 

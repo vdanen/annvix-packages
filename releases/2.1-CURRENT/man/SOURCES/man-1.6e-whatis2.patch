@@ -1,6 +1,6 @@
---- src/makewhatis.sh.orig	2002-05-22 17:17:08.000000000 +0200
-+++ src/makewhatis.sh	2002-05-22 18:58:23.000000000 +0200
-@@ -130,10 +130,15 @@
+--- man-1.6e-ro_usr/src/makewhatis.sh	2007-05-18 11:41:50.000000000 -0300
++++ man-1.6e/src/makewhatis.sh	2007-05-18 13:27:16.000000000 -0300
+@@ -162,10 +162,15 @@
  fi
  catpath=`echo ${catpath} | tr : ' '`
  
@@ -17,7 +17,7 @@
  fi
  
  for pages in man cat
-@@ -356,13 +360,13 @@
+@@ -395,13 +400,13 @@
  
         cd $here
  
@@ -27,8 +27,8 @@
 -	 cat /var/cache/man/whatis >> $TMPFILE
 +	 cat $WHATIS_DIR/whatis >> $TMPFILE
         fi
--       sed '/^$/d' < $TMPFILE | sort | uniq > /var/cache/man/whatis
-+       sed '/^$/d' < $TMPFILE | sort | uniq > $WHATIS_DIR/whatis
+-       tr -s '\n' < $TMPFILE | sort -u > /var/cache/man/whatis
++       tr -s '\n' < $TMPFILE | sort -u > $WHATIS_DIR/whatis
  
 -       chmod 644 /var/cache/man/whatis
 +       chmod 644 $WHATIS_DIR/whatis
