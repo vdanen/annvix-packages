@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		memtest86+
-%define version		1.60
+%define version		1.70
 %define release		%_revrel
 
 Summary: 	A stand alone memory test for i386 architecture systems
@@ -19,7 +19,7 @@ Release: 	%{release}
 License: 	GPL
 Group: 		System/Kernel and hardware
 URL: 		http://www.memtest.org
-Source0: 	http://www.memtest.org/download/%{version}/%{name}-%{version}.tar.bz2
+Source0: 	http://www.memtest.org/download/%{version}/%{name}-%{version}.tar.gz
 Patch0:		memtest86-1.15-avx-nostack.patch
 Patch1:		memtest86-1.15-avx-no_static_link.patch
 
@@ -31,7 +31,7 @@ Requires(post):	bootloader-utils >= 1.6-12avx
 Requires(preun): bootloader-utils >= 1.6-12avx
 ExclusiveArch: 	%{ix86} x86_64
 Obsoletes: 	memtest86
-Provides: 	memtest86
+Provides: 	memtest86 = %{version}-%{release}
 
 %description
 Memtest86 is thorough, stand alone memory test for i386 architecture
@@ -85,6 +85,10 @@ install -m 0644 memtest.bin %{buildroot}/boot/memtest-%{version}.bin
 
 
 %changelog
+* Tue Dec 04 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.70
+- 1.70
+- version provides
+
 * Sun Jul 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.60
 - add -doc subpackage
 - rebuild with gcc4
