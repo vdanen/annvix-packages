@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		shorewall
-%define version 	3.2.7
+%define version 	3.4.6
 %define release 	%_revrel
 
 Summary:	Shoreline Firewall is an iptables-based firewall for Linux systems
@@ -19,8 +19,8 @@ Release:	%{release}
 License:	GPL
 Group:		System/Servers
 URL:		http://www.shorewall.net/
-Source0:	ftp://ftp.shorewall.net/pub/shorewall/3.2/%{name}-%{version}/%{name}-%{version}.tgz
-Source1:	ftp://ftp.shorewall.net/pub/shorewall/3.2/%{name}-%{version}/%{version}.sha1sums
+Source0:	ftp://ftp.shorewall.net/pub/shorewall/3.4/%{name}-%{version}/%{name}-%{version}.tgz
+Source1:	ftp://ftp.shorewall.net/pub/shorewall/3.4/%{name}-%{version}/%{version}.sha1sums
 Source2:	shorewall-avx.init
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -92,9 +92,11 @@ export DONT_GPRINTIFY=1
 %config(noreplace) %{_sysconfdir}/%{name}/*
 %attr(0700,root,root) %dir %{_datadir}/%{name}
 %attr(0640,root,root) %{_datadir}/%{name}/*
+%attr(0750,root,root) %{_datadir}/%{name}/compiler
 %attr(0540,root,root) /sbin/shorewall
 %attr(0700,root,root) %dir %{_var}/lib/%{name}
-
+%{_mandir}/man5/*.5*
+%{_mandir}/man8/*.8*
 
 %files doc
 %defattr(-,root,root)
@@ -102,6 +104,9 @@ export DONT_GPRINTIFY=1
 
 
 %changelog
+* Tue Dec 04 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.4.6
+- 3.4.6 ( please refer to http://www.shorewall.net/upgrade_issues.htm#V3.4.0 )
+
 * Thu Dec 28 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.2.7
 - 3.2.7 ( please refer to http://www.shorewall.net/upgrade_issues.htm )
 - tighten some perms and other minor cleanups
