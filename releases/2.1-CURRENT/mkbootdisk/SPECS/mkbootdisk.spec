@@ -25,20 +25,14 @@ Patch1: 	mkbootdisk-1.5.1-devfs-compliant.patch
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
 
-ExclusiveArch: 	sparc sparc64 %{ix86} x86_64 amd64
+ExclusiveArch: 	%{ix86} x86_64 amd64
 ExclusiveOs: 	Linux
 Requires: 	mkinitrd
 Requires:	gawk
 Requires:	dosfstools
 Requires:	mktemp
 Conflicts:	modutils < 2.3.11-5
-%ifarch %ix86 x86_64 amd64
 Requires:	syslinux >= 1.76-2mdk
-%endif
-%ifarch sparc sparc64
-Requires: 	silo
-Requires:	genromfs
-%endif
 
 %description
 The mkbootdisk program creates a standalone boot floppy disk for booting
@@ -70,6 +64,9 @@ the system.
 
 
 %changelog
+* Tue Dec 04 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.5.1
+- drop the sparc support
+
 * Mon Jul 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.5.1
 - rebuild with gcc4
 - remove pre-Annvix changelog
