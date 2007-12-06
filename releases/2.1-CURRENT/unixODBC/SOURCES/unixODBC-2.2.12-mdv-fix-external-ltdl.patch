@@ -1,0 +1,21 @@
+--- unixODBC-2.2.12/exe/Makefile.am.orig	2007-07-25 19:57:33.000000000 -0300
++++ unixODBC-2.2.12/exe/Makefile.am	2007-07-25 19:58:19.000000000 -0300
+@@ -101,8 +101,5 @@
+ 
+ odbc_config_SOURCES = odbc-config.c
+ 
+-if WITHLT
+ dltest_DEPENDENCIES = $(LIBLTDL)
+ dltest_LDADD = $(LIBLTDL) $(LIBADD_DL)
+-else
+-endif
+--- unixODBC-2.2.12/Makefile.am.orig	2007-07-25 20:00:09.000000000 -0300
++++ unixODBC-2.2.12/Makefile.am	2007-07-25 20:00:19.000000000 -0300
+@@ -3,7 +3,6 @@
+     log \
+ 	lst \
+ 	ini \
+-    	libltdl \
+ 	odbcinst \
+ 	DriverManager \
+ 	odbcinstQ \

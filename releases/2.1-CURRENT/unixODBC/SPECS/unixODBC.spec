@@ -9,13 +9,12 @@
 
 %define revision	$Rev$
 %define name		unixODBC
-%define version		2.2.11
+%define version		2.2.12
 %define release		%_revrel
 
 %define major		1
 %define libname 	%mklibname %{name} %{major}
 %define devname		%mklibname %{name} -d
-%define odevname	%mklibname %{name} 1 -d
 
 Summary: 	Unix ODBC driver manager and database drivers
 Name: 		%{name}
@@ -24,12 +23,10 @@ Release:	%{release}
 Group: 		Databases
 License: 	LGPL
 URL: 		http://www.unixODBC.org
-Source0: 	http://www.unixodbc.org/%{name}-%{version}.tar.bz2
+Source0: 	http://www.unixodbc.org/%{name}-%{version}.tar.gz
 Source2:	odbcinst.ini
-Source3:	qt-attic.tar.bz2
-Source4:	qt-attic2.tar.bz2
-Patch0:		unixODBC-2.2.6-lib64.patch
-Patch1:		unixODBC-2.2.11-libtool.patch
+Patch1:		unixODBC-2.2.12-mdv-libtool.patch
+Patch2:		unixODBC-2.2.12-mdv-fix-external-ltdl.patch
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
 # don't take away readline, we do want to build unixODBC with readline.
@@ -60,10 +57,8 @@ Group: 		Development/Other
 Requires: 	%{libname} = %{version}
 Provides:	%{name}-devel = %{version}-%{release}
 Provides:	lib%{name}-devel = %{version}-%{release}
-Provides:	libodbc.so
-Provides:	libodbcinst.so
 Obsoletes:	%{name}-devel
-Obsoletes:	%{odevname}
+Obsoletes:	%mklibname %{name} 1 -d
 
 %description -n %{devname}
 unixODBC aims to provide a complete ODBC solution for the Linux platform.
@@ -79,20 +74,26 @@ This package contains the documentation for %{name}.
 
 
 %prep
-%setup -q -a3 -a4
-%patch0 -p1 -b .lib64
+%setup -q
 %patch1 -p1 -b .libtool
+%patch2 -p1 -b .libltdl
 
 autoconf
 
 
 %build
 unset QTDIR
-
 export EGREP='grep -E'
-libtoolize --copy --force
+
+rm -rf libltdl
+
+aclocal && libtoolize --copy --force && automake -a && autoconf
+
 %configure2_5x \
-    --enable-static
+    --enable-static \
+    --without-x \
+    --disable-gui \
+    --enable-ltdllib
 make
 
 
@@ -180,6 +181,14 @@ rm -f libodbc-libs.filelist
 
 
 %changelog
+* Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.12
+- 2.2.12
+- drop P0: no longer requires
+- drop the explicit file provides
+- P2: fix the ability to use the external libltdl
+- drop S3, S4: not used
+- explicitly disable X and GUI support
+
 * Sun Jun 24 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.11
 - rebuild against new readline
 - implement devel naming policy
