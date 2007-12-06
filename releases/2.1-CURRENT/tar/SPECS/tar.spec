@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		tar
-%define version		1.16
+%define version		1.19
 %define release		%_revrel
 
 %define rmtrealname	rmt-tar
@@ -19,15 +19,12 @@ Summary:	A GNU file archiving program
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-License:	GPL
+License:	GPLv3
 Group:		Archiving
 URL:		http://www.gnu.org/software/tar/tar.html
 Source0:	ftp://ftp.gnu.org/pub/gnu/tar/tar-%{version}.tar.bz2
 Source1:	ftp://ftp.gnu.org/pub/gnu/tar/tar-%{version}.tar.bz2.sig
 Source2:	tar-help2man
-Patch0:		tar-1.15.1-alt-CVE-2007-4131.patch
-Patch1:		tar-1.16-CVE-2006-6097.patch
-Patch2:		tar-1.15.91-CVE-2007-4476.patch
 
 Buildroot:	%{_buildroot}/%{name}-%{version}
 
@@ -56,9 +53,6 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
-%patch0 -p1 -b .cve-2007-4131
-%patch1 -p1 -b .cve-2006-6097
-%patch2 -p1 -b .cve-2007-4476
 
 cp %{_sourcedir}/tar-help2man ./help2man
 chmod +x ./help2man
@@ -69,7 +63,7 @@ gzip ChangeLog
 %configure2_5x \
     --enable-backup-scripts \
     --bindir=%{_bindir} \
-    DEFAULT_RMT_COMMAND="/sbin/rmt"
+    --disable-rpath
 
 %make
 
@@ -89,7 +83,7 @@ install -D -m 0644 tar.1 %{buildroot}%{_mandir}/man1/tar.1
 
 # rmt is provided by rmt ...
 mkdir -p %{buildroot}/sbin
-mv %{buildroot}%{_libexecdir}/rmt %{buildroot}/sbin/%{rmtrealname}
+mv %{buildroot}%{_libdir}/rmt %{buildroot}/sbin/%{rmtrealname}
 
 %kill_lang %{name}
 %find_lang %{name}
@@ -124,6 +118,12 @@ mv %{buildroot}%{_libexecdir}/rmt %{buildroot}/sbin/%{rmtrealname}
 
 
 %changelog
+* Wed Dec 05 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.19
+- 1.19
+- drop P0, P2; fixed upstream
+- drop P1; no longer seems applicable
+- nuke rpath
+
 * Tue Nov 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.16
 - P2: security fix for CVE-2007-4476
 
