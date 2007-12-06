@@ -11,6 +11,6 @@ if [ -z "${ZONE}" ]; then
     ZONE="Canada/Mountain"
 fi
 
-if [ -f ${zonedir}/${ZONE} ]; then
+if [ -f ${zonedir}/${ZONE} ] && [ ! -L ${localtime_file} ]; then
     cp -f ${zonedir}/${ZONE} ${localtime_file}
 fi

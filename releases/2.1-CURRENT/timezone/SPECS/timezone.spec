@@ -110,6 +110,10 @@ fi
 
 %changelog
 * Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 2007j
+- fix update-localtime to not try to copy a timezone file if /etc/localtime
+  is a symlink
+
+* Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 2007j
 - 2007j
 - rediffed P1
 - drop P2; no longer required
