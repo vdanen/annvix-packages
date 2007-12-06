@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		man-pages
-%define version		2.44
+%define version		2.69
 %define release 	%_revrel
 
 Summary:	English man (manual) pages from the Linux Documentation Project
@@ -18,8 +18,8 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL-style
 Group:		System/Internationalization
-URL:		ftp://ftp.kernel.org/pub/linux/docs/manpages/
-Source0:	ftp.kernel.org/pub/linux/docs/manpages/%{name}-%{version}.tar.bz2
+URL:		http://www.kernel.org/doc/man-pages
+Source0:	ftp://ftp.kernel.org/pub/linux/docs/man-pages/%{name}-%{version}.tar.bz2
 Source1:	man-pages-extralocale.tar.bz2
 Source2:	man9-19971126.tar.bz2
 Source3:	man2.tar.bz2
@@ -41,15 +41,15 @@ A large collection of man pages (reference material) from the Linux
 Documentation Project (LDP).  The man pages are organized into the
 following sections:
 
-        Section 1:  User commands (intro only)
-        Section 2:  System calls
-        Section 3:  Libc calls
-        Section 4:  Devices (e.g., hd, sd)
-        Section 5:  File formats and protocols (e.g., wtmp, /etc/passwd, nfs)
-        Section 6:  Games (intro only)
-        Section 7:  Conventions, macro packages, etc. (e.g., nroff, ascii)
-        Section 8:  System administration (intro only)
-        Section 9:  Kernel internal routines
+Section 1:  User commands (intro only)
+Section 2:  System calls
+Section 3:  Libc calls
+Section 4:  Devices (e.g., hd, sd)
+Section 5:  File formats and protocols (e.g., wtmp, /etc/passwd, nfs)
+Section 6:  Games (intro only)
+Section 7:  Conventions, macro packages, etc. (e.g., nroff, ascii)
+Section 8:  System administration (intro only)
+Section 9:  Kernel internal routines
 
 
 %package doc
@@ -89,8 +89,6 @@ rm -f man1/rpcgen.1.bz2
 # this conflicts with shadow-utils
 rm -f man3/getspnam.3
 				
-mv man1/README README.GNU-INFOvsMAN
-
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -135,6 +133,10 @@ mkdir -p  %{buildroot}{%{_mandir}/en,/var/catman/}
 
 
 %changelog
+* Wed Dec 05 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.69
+- 2.69
+- update URL
+
 * Mon Apr 23 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.44
 - 2.44
 
