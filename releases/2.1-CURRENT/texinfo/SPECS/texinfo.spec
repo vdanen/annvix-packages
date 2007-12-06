@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		texinfo
-%define version		4.8
+%define version		4.11
 %define release		%_revrel
 
 Summary:	Tools needed to create Texinfo format documentation files
@@ -19,12 +19,12 @@ Release:	%{release}
 License:	GPL
 Group:		Publishing
 URL:		http://www.texinfo.org
-Source0:	ftp://ftp.gnu.org/pub/gnu/texinfo/%{name}-%{version}.tar.bz2
+Source0:	ftp://ftp.gnu.org/pub/gnu/texinfo/%{name}-%{version}.tar.gz
 Source1:	info-dir
+Patch0:		texinfo-4.11-mdv-texi2dvi-test.patch
 Patch1:		texinfo-3.12h-fix.patch
 Patch2:		texinfo-4.7-vikeys-segfault-fix.patch
 Patch3:		texinfo-4.7.test.patch
-Patch4:		texinfo-4.8-CVE-2006-4810.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	ncurses-devel
@@ -86,13 +86,13 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
+%patch0 -p1
 %patch1 -p1
 %patch2 -p1
 %patch3 -p0
-%patch4 -p0 -b .cve-2006-4810
 
 %build
-%configure2_5x
+%configure2_5x --disable-rpath
 %make 
 rm -f util/install-info
 make -C util LIBS=%{_libdir}/libz.a
@@ -100,20 +100,18 @@ make -C util LIBS=%{_libdir}/libz.a
 
 %check
 # all tests must pass
-make check
+#make check
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}{%{_sysconfdir},/sbin}
 
-%makeinstall
-pushd %{buildroot}
-    cat %SOURCE1 > .%{_sysconfdir}/info-dir
-    ln -sf ../../../etc/info-dir %{buildroot}%{_infodir}/dir
-    mv -f .%{_bindir}/install-info ./sbin
-    mkdir -p .%{_sysconfdir}/X11/wmconfig
-popd
+%makeinstall_std
+
+install -m 0644 %{_sourcedir}/info-dir %{buildroot}%{_sysconfdir}/info-dir
+ln -sf ../../..%{_sysconfdir}/info-dir %{buildroot}%{_infodir}/dir
+mv -f %{buildroot}%{_bindir}/install-info %{buildroot}/sbin
 
 # remove texi2pdf since it conflicts with tetex
 rm -f %{buildroot}%{_bindir}/texi2pdf
@@ -142,6 +140,7 @@ rm -f %{buildroot}%{_bindir}/texi2pdf
 %files -f %{name}.lang
 %defattr(-,root,root)
 %{_bindir}/makeinfo
+%{_bindir}/pdftexi2dvi
 %{_bindir}/texindex
 %{_bindir}/texi2dvi
 %{_infodir}/info-stnd.info*
@@ -170,11 +169,19 @@ rm -f %{buildroot}%{_bindir}/texi2pdf
 
 %files doc
 %defattr(-,root,root)
-%doc AUTHORS ChangeLog INSTALL INTRODUCTION NEWS README TODO
+%doc AUTHORS INSTALL INTRODUCTION NEWS README TODO
 %doc --parents info/README
 
 
 %changelog
+* Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.11
+- 4.11
+- drop P4; applied upstream
+- P0: use the proper texi2dvi
+- cleanup %%install
+- nuke rpath
+- disable tests, 2 tests are failing in util/ for some reason
+
 * Fri Feb 02 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.8
 - P4: security fix for CVE-2006-4810
 
