@@ -1,0 +1,13 @@
+--- openldap-2.3.39/servers/slapd/back-bdb/tools.c.orig	2007-08-11 02:32:20.000000000 +0200
++++ openldap-2.3.39/servers/slapd/back-bdb/tools.c	2007-12-05 18:12:02.000000000 +0200
+@@ -668,6 +668,10 @@
+ 		(long) e->e_id, e->e_dn, 0 );
+ 
+ 	if (! (slapMode & SLAP_TOOL_QUICK)) {
++               if( cursor ) {
++                       cursor->c_close( cursor );
++                       cursor = NULL;
++               }
+ 	rc = TXN_BEGIN( bdb->bi_dbenv, NULL, &tid, 
+ 		bdb->bi_db_opflags );
+ 	if( rc != 0 ) {

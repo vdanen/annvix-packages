@@ -106,6 +106,7 @@ Patch2:		openldap-2.3.4-smbk5passwd-only-smb.patch
 Patch3:		openldap-cldap.patch
 Patch4: 	openldap-2.0.21-schema.patch
 Patch5:		openldap-2.2.19-ntlm.patch
+Patch6:		openldap-2.3.39-mdv-fix-hang-slapadd-noquick.patch
 # Migration tools patches
 Patch10: 	MigrationTools-34-instdir.patch
 Patch11: 	MigrationTools-36-mktemp.patch
@@ -305,6 +306,7 @@ perl -pi -e 's/LDAP_DIRSEP "run" //g' include/ldap_defaults.h
 %patch3 -p1 -b .cldap
 %patch4 -p1 -b .mdk
 %patch5 -p1 -b .ntlm
+%patch6 -p1 -b .slapadd-hang
 
 pushd MigrationTools-%{migtools_ver}
 %patch10 -p1 -b .instdir
@@ -863,6 +865,11 @@ fi
 
 
 %changelog
+* Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.3.39
+- rebuild against new unixODBC
+- fix spacing in sudo.schema
+- P6: fix slapadd hanging when not using quick mode (-q) (bgmilne)
+
 * Fri Nov 09 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.3.39
 - 2.3.39; includes the fix for CVE-2007-5707
 
