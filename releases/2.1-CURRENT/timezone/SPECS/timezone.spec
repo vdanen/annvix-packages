@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		timezone
-%define version		2007c
+%define version		2007j
 %define release		%_revrel
 %define epoch		6
 
@@ -17,10 +17,6 @@
 
 %define tzdata_version	%{version}
 %define tzcode_version	%{version}
-
-# don't use new TZ format yet (zic & zdump from glibc 2.4.90); we probably want glibc 2.4.x first
-%define new_format 0
-#%define new_format 1
 
 Summary:	Timezone data
 Name:		%{name}
@@ -35,7 +31,6 @@ Source2:	ftp://elsie.nci.nih.gov/pub/tzcode%{tzcode_version}.tar.gz
 Source3:	update-localtime.sh
 Patch0:		tzdata-mdvconfig.patch
 Patch1:		tzdata-extra-tz-links.patch
-Patch2:		tzdata-tzcode2006a.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	gawk
@@ -57,11 +52,6 @@ tar xzf %{_sourcedir}/tzcode%{tzcode_version}.tar.gz -C tzcode%{tzcode_version}
 
 %patch0 -p1 -b .mdvconfig
 %patch1 -p1 -b .extra-tz-links
-%if ! %{new_format}
-cd tzcode%{tzcode_version}
-%patch2 -p2 -b .tzcode2006a
-cd ..
-%endif
 
 ln -s Makeconfig.in Makeconfig
 cat > config.mk << EOF
@@ -119,6 +109,11 @@ fi
 
 
 %changelog
+* Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 2007j
+- 2007j
+- rediffed P1
+- drop P2; no longer required
+
 * Sat Mar 10 2007 Vincent Danen <vdanen-at-build.annvix.org> 2007c
 - stand-alone timezone package taken from Mandriva
 
