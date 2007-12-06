@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		afterboot
-%define version 	0.2
+%define version 	0.3
 %define release 	%_revrel
 
 Summary:	Dynamic afterboot manpage
@@ -18,7 +18,7 @@ Version:	%{version}
 Release: 	%{release}
 License:	GPL
 Group:		System/Base
-URL:		http://svn.annvix.org/cgi-bin/viewvc.cgi/afterboot/?root=tools
+URL:		http://svn.annvix.org/cgi-bin/viewvc.cgi/tools/afterboot/
 Source:		%{name}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -38,10 +38,7 @@ A tool to create the dynamic 'afterboot' manpage.
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-mkdir -p %{buildroot}{%{_datadir}/afterboot,%{_mandir}/man8}
-install -m 0644 00_afterboot %{buildroot}%{_datadir}/afterboot
-install -m 0644 99_afterboot %{buildroot}%{_datadir}/afterboot
-install -m 0700 mkafterboot %{buildroot}%{_datadir}/afterboot
+make install
 touch %{buildroot}%{_mandir}/man8/afterboot.8.bz2
 
 
@@ -61,6 +58,11 @@ touch %{buildroot}%{_mandir}/man8/afterboot.8.bz2
 
 
 %changelog
+* Wed Dec 05 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.3
+- 0.3
+- update URL
+- use make install
+
 * Sat Sep 09 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.2
 - fix URL
 
