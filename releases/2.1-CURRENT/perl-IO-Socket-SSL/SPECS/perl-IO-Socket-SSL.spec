@@ -9,7 +9,7 @@
 %define	module		IO-Socket-SSL
 %define revision	$Rev$
 %define name		perl-%{module}
-%define version		1.06
+%define version		1.11
 %define release		%_revrel
 
 Summary:	%{module} perl module
@@ -19,7 +19,7 @@ Release: 	%{release}
 License:	GPL or Artistic
 Group:		Development/Perl
 URL:		ftp://ftp.perl.org/pub/CPAN/modules/by-module/IO/
-Source0:	ftp://ftp.perl.org/pub/CPAN/modules/by-module/IO/%{module}-%{version}.tar.gz
+Source0:	ftp://ftp.perl.org/pub/CPAN/modules/by-module/IO/IO-Socket-SSL-%{version}.tar.gz
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel
@@ -72,6 +72,9 @@ make
 
 
 %changelog
+* Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.11
+- 1.11
+
 * Mon Jul 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.06
 - 1.06
 
