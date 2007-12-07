@@ -78,7 +78,10 @@ LANG=C %make test
 
 
 %changelog
-* Wed May 10 2006 Vincent Danen <vdanen-at-build.annvix.org>  5.3
+* Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.3
+- rebuild
+
+* Wed May 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.3
 - rebuild against perl 5.8.8
 - create -doc subpackage
 
