@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		tcl
-%define version		8.4.13
+%define version		8.4.14
 %define release		%_revrel
 
 %define major		8.4
@@ -23,7 +23,7 @@ Release:	%{release}
 Group:		System/Libraries
 License:	BSD
 URL:		http://tcl.sourceforge.net/
-Source0:	http://prdownloads.sourceforge.net/tcl/%{name}%{version}-src.tar.bz2
+Source0:	http://prdownloads.sourceforge.net/tcl/%{name}%{version}-src.tar.gz
 Patch0:		tcl-8.4.11-rpath.patch
 Patch1:		tcl8.4.11-soname.diff
 Patch2:		tcl-8.4.2-dlopen.patch
@@ -178,6 +178,9 @@ chmod 0755 %{buildroot}%{_libdir}/*.so*
 
 
 %changelog
+* Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.4.14
+- 8.4.14
+
 * Sun Sep 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.4.13
 - implement devel naming policy
 - implement library provides policy
