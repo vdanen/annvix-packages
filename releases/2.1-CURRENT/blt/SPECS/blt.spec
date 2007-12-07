@@ -180,6 +180,9 @@ done
 
 
 %changelog
+* Fri Dec 07 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.4z
+- rebuild against new tcl, tk
+
 * Fri Sep 13 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.4z
 - use autoconf-2.13 explicitly
 - implement devel naming policy
