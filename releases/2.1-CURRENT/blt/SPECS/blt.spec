@@ -29,6 +29,7 @@ Patch1:		blt2.4z-configure.in-disable-rpath.patch
 Patch2:		blt2.4z-libdir.patch
 Patch3:		blt2.4z-mkdir_p.patch
 Patch4:		blt2.4z-64bit-fixes.patch
+Patch5:		blt-2.4z-mdv-tcl8.5-fix.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:  libx11-devel
@@ -106,6 +107,7 @@ This package contains the documentation for %{name}.
 %patch2 -p1 -b .libdir
 %patch3 -p1 -b .mkdir_p
 %patch4 -p1 -b .64bit-fixes
+%patch5 -p1 -b .tcl8.5
 autoconf-2.13
 
 
@@ -182,6 +184,7 @@ done
 %changelog
 * Fri Dec 07 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.4z
 - rebuild against new tcl, tk
+- P5: fixes build for tcl 8.5, but also 8.4.14
 
 * Fri Sep 13 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.4z
 - use autoconf-2.13 explicitly
