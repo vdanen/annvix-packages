@@ -10,7 +10,7 @@
 %define	module		XML-Parser
 %define	revision	$Rev$
 %define	name		perl-%{module}
-%define	version		2.34
+%define	version		2.36
 %define	release		%_revrel
 
 Summary: 	A perl module for parsing XML documents
@@ -19,8 +19,8 @@ Version: 	%{version}
 Release: 	%{release}
 License: 	GPL
 Group: 		Development/Perl
-URL: 		http://www.cpan.org
-Source: 	http://www.cpan.org/authors/id/C/CO/COOPERCL/%{module}-%{version}.tar.bz2
+URL: 		http://search.cpan.org/~msergeant/%{module}/
+Source: 	http://search.cpan.org/CPAN/authors/id/M/MS/MSERGEANT/%{module}-%{version}.tar.gz
 Source1:	http://uucode.com/xml/perl/enc.tar.bz2
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
@@ -78,6 +78,10 @@ chrpath -d %{buildroot}%{perl_vendorarch}/auto/XML/Parser/Expat/Expat.so
 
 
 %changelog
+* Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.36
+- 2.36
+- updated url and download location
+
 * Thu Jun 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.34
 - rebuild against new expat
 - nuke the rpath (and buildrequires chrpath as a result)
