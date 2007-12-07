@@ -10,10 +10,11 @@
 %define module		Apache-Test
 %define revision	$Rev$
 %define name		perl-%{module}
-%define version		1.29
+%define version		1.30
 %define release		%_revrel
 
 %define _requires_exceptions perl(Apache2::Const)\\|perl(ModPerl::Config)
+%define _provides_exceptions perl(HTTP::Request::Common)
 
 Summary:	Apache::Test - Test.pm wrapper with helpers for testing Apache
 Name: 		%{name}
@@ -29,7 +30,6 @@ BuildArch:	noarch
 BuildRequires:	perl-devel
 
 Requires:	httpd-mod_perl
-Requires:	perl(Compress::Zlib)
 Requires:	perl(Module::Build)
 Provides:	perl(Apache::TestConfigParse)
 Provides:	perl(Apache::TestConfigPerl)
@@ -78,6 +78,10 @@ This package contains the documentation for %{name}.
 
 
 %changelog
+* Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.30
+- 1.30
+- don't wrongly provide HTTP::Request::Common
+
 * Wed Dec 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.29
 - 1.29
 
