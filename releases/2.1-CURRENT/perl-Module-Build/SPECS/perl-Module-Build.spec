@@ -63,7 +63,7 @@ perl Build.PL installdirs=vendor
 ./Build install destdir=%{buildroot}
 
 
-#%check
+%check
 ./Build test
 
 
@@ -83,6 +83,9 @@ perl Build.PL installdirs=vendor
 
 
 %changelog
+* Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.2805
+- rebuild
+
 * Wed Dec 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.2805
 - 0.2805
 
