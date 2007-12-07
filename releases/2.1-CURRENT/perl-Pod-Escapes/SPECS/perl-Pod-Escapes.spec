@@ -71,6 +71,9 @@ perl Makefile.PL INSTALLDIRS=vendor
 
 
 %changelog
+* Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.04
+- rebuild
+
 * Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.04
 - first Annvix build (needed by perl-Pod-Simple)
 
