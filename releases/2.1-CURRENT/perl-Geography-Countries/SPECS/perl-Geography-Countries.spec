@@ -62,6 +62,9 @@ make test
 
 
 %changelog
+* Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.4
+- rebuild
+
 * Fri May 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.4
 - rebuild against perl 5.8.8
 
