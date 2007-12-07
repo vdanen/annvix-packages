@@ -10,7 +10,7 @@
 %define module		Crypt-SSLeay
 %define revision	$Rev$
 %define name		perl-%{module}
-%define version		0.51
+%define version		0.57
 %define release		%_revrel
 
 Summary:	Support for the https protocol under LWP
@@ -20,10 +20,8 @@ Release:	%{release}
 License:	GPL or Artistic
 Group:		Development/Perl
 URL:		http://search.cpan.org/dist/%{module}
-Source:		ftp://ftp.cpan.org/pub/CPAN/modules/by-module/Crypt/Crypt-SSLeay-%{version}.tar.bz2
+Source:		ftp://ftp.cpan.org/pub/CPAN/modules/by-module/Crypt/Crypt-SSLeay-%{version}.tar.gz
 Patch0:		perl-Crypt-SSLeay-cryptdef.patch
-Patch1:		perl-Crypt-SSLeay-lib64.patch
-Patch2:		perl-Crypt-SSLeay-openssl-098.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel
@@ -53,8 +51,6 @@ This package contains the documentation for %{name}.
 %prep
 %setup -q -n %{module}-%{version}
 %patch0 -p1 -b .cryptdef
-%patch1 -p1 -b .lib64
-%patch2 -p1 -b .openssl-098
 
 
 %build
@@ -88,6 +84,11 @@ make test
 
 
 %changelog
+* Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.57
+- 0.57
+- drop P1, no longer required
+- drop P2, merged upstream
+
 * Sat Aug 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.51
 - rebuild against new openssl
 - spec cleanups
