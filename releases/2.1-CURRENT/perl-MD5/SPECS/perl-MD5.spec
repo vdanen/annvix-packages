@@ -75,6 +75,9 @@ rm -f %{buildroot}%{perl_archlib}/perllocal.pod
 
 
 %changelog
+* Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.03
+- rebuild
+
 * Thu May 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 2.03
 - first Annvix build (needed by perl-HTTP-DAV)
 
