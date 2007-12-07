@@ -1,0 +1,158 @@
+# ncurses 5.6 - patch 20070716 - Thomas E. Dickey
+#
+# ------------------------------------------------------------------------------
+#
+# Ncurses 5.6 is at
+# 	ftp.gnu.org:/pub/gnu
+#
+# Patches for ncurses 5.6 are in the subdirectory
+# 	ftp://invisible-island.net/ncurses/5.6
+#
+# ------------------------------------------------------------------------------
+# patch by Thomas E. Dickey <dickey@invisible-island.net>
+# created  Mon Jul 16 22:24:03 UTC 2007
+# ------------------------------------------------------------------------------
+# NEWS                      |    8 +++++++-
+# dist.mk                   |    4 ++--
+# ncurses/curses.priv.h     |    4 +++-
+# ncurses/tinfo/lib_data.c  |    4 +++-
+# ncurses/tinfo/lib_setup.c |   16 +++++++++++++---
+# 5 files changed, 28 insertions(+), 8 deletions(-)
+# ------------------------------------------------------------------------------
+Index: NEWS
+Prereq:  1.1143 
+--- ncurses-5.6-20070714+/NEWS	2007-07-14 23:19:06.000000000 +0000
++++ ncurses-5.6-20070716/NEWS	2007-07-16 21:14:00.000000000 +0000
+@@ -25,7 +25,7 @@
+ -- sale, use or other dealings in this Software without prior written        --
+ -- authorization.                                                            --
+ -------------------------------------------------------------------------------
+--- $Id: NEWS,v 1.1143 2007/07/14 23:19:06 tom Exp $
++-- $Id: NEWS,v 1.1145 2007/07/16 21:14:00 tom Exp $
+ -------------------------------------------------------------------------------
+ 
+ This is a log of changes that ncurses has gone through since Zeyd started
+@@ -45,6 +45,12 @@
+ Changes through 1.9.9e did not credit all contributions;
+ it is not possible to add this information.
+ 
++20070716
++	+ restore a call to obtain screen-size in _nc_setupterm(), which
++	  is used in tput and other non-screen applications via setupterm()
++	  (Debian #433357, reported by Florent Bayle, Christian Ohm,
++	  cf: 20070310).
++
+ 20070714
+ 	+ add test/savescreen.c test-program
+ 	+ add check to trace-file open, if the given name is a directory, add
+Index: dist.mk
+Prereq:  1.601 
+--- ncurses-5.6-20070714+/dist.mk	2007-07-14 13:33:27.000000000 +0000
++++ ncurses-5.6-20070716/dist.mk	2007-07-16 19:48:46.000000000 +0000
+@@ -25,7 +25,7 @@
+ # use or other dealings in this Software without prior written               #
+ # authorization.                                                             #
+ ##############################################################################
+-# $Id: dist.mk,v 1.601 2007/07/14 13:33:27 tom Exp $
++# $Id: dist.mk,v 1.602 2007/07/16 19:48:46 tom Exp $
+ # Makefile for creating ncurses distributions.
+ #
+ # This only needs to be used directly as a makefile by developers, but
+@@ -37,7 +37,7 @@
+ # These define the major/minor/patch versions of ncurses.
+ NCURSES_MAJOR = 5
+ NCURSES_MINOR = 6
+-NCURSES_PATCH = 20070714
++NCURSES_PATCH = 20070716
+ 
+ # We don't append the patch to the version, since this only applies to releases
+ VERSION = $(NCURSES_MAJOR).$(NCURSES_MINOR)
+Index: ncurses/curses.priv.h
+Prereq:  1.334 
+--- ncurses-5.6-20070714+/ncurses/curses.priv.h	2007-06-09 17:21:53.000000000 +0000
++++ ncurses-5.6-20070716/ncurses/curses.priv.h	2007-07-16 20:32:12.000000000 +0000
+@@ -34,7 +34,7 @@
+ 
+ 
+ /*
+- * $Id: curses.priv.h,v 1.334 2007/06/09 17:21:53 tom Exp $
++ * $Id: curses.priv.h,v 1.335 2007/07/16 20:32:12 tom Exp $
+  *
+  *	curses.priv.h
+  *
+@@ -556,6 +556,8 @@
+ 	TTY		*saved_tty;	/* savetty/resetty information	    */
+ #if BROKEN_LINKER || USE_REENTRANT
+ 	chtype		*real_acs_map;
++	int		_LINES;
++	int		_COLS;
+ #endif
+ } NCURSES_PRESCREEN;
+ 
+Index: ncurses/tinfo/lib_data.c
+Prereq:  1.26 
+--- ncurses-5.6-20070714+/ncurses/tinfo/lib_data.c	2007-05-26 18:48:07.000000000 +0000
++++ ncurses-5.6-20070716/ncurses/tinfo/lib_data.c	2007-07-16 20:29:04.000000000 +0000
+@@ -41,7 +41,7 @@
+ 
+ #include <curses.priv.h>
+ 
+-MODULE_ID("$Id: lib_data.c,v 1.26 2007/05/26 18:48:07 tom Exp $")
++MODULE_ID("$Id: lib_data.c,v 1.27 2007/07/16 20:29:04 tom Exp $")
+ 
+ /*
+  * OS/2's native linker complains if we don't initialize public data when
+@@ -213,6 +213,8 @@
+     NULL,			/* saved_tty */
+ #if BROKEN_LINKER || USE_REENTRANT
+     NULL,			/* real_acs_map */
++    0,				/* LINES */
++    0,				/* COLS */
+ #endif
+ };
+ /* *INDENT-ON* */
+Index: ncurses/tinfo/lib_setup.c
+Prereq:  1.98 
+--- ncurses-5.6-20070714+/ncurses/tinfo/lib_setup.c	2007-04-21 19:57:42.000000000 +0000
++++ ncurses-5.6-20070716/ncurses/tinfo/lib_setup.c	2007-07-16 20:32:27.000000000 +0000
+@@ -53,7 +53,7 @@
+ 
+ #include <term.h>		/* lines, columns, cur_term */
+ 
+-MODULE_ID("$Id: lib_setup.c,v 1.98 2007/04/21 19:57:42 tom Exp $")
++MODULE_ID("$Id: lib_setup.c,v 1.99 2007/07/16 20:32:27 tom Exp $")
+ 
+ /****************************************************************************
+  *
+@@ -108,12 +108,12 @@
+ NCURSES_EXPORT(int)
+ NCURSES_PUBLIC_VAR(LINES) (void)
+ {
+-    return SP ? SP->_LINES : 0;
++    return (SP ? SP->_LINES : _nc_prescreen._LINES);
+ }
+ NCURSES_EXPORT(int)
+ NCURSES_PUBLIC_VAR(COLS) (void)
+ {
+-    return SP ? SP->_COLS : 0;
++    return SP ? SP->_COLS : _nc_prescreen._COLS;
+ }
+ NCURSES_EXPORT(int)
+ NCURSES_PUBLIC_VAR(TABSIZE) (void)
+@@ -564,6 +564,16 @@
+ 	}
+     }
+ 
++    /*
++     * We should always check the screensize, just in case.
++     */
++#if USE_REENTRANT
++    _nc_get_screensize(SP ? &(SP->_LINES) : &(_nc_prescreen._LINES),
++		       SP ? &(SP->_COLS) : &(_nc_prescreen._COLS));
++#else
++    _nc_get_screensize(&LINES, &COLS);
++#endif
++
+     if (errret)
+ 	*errret = TGETENT_YES;
+ 

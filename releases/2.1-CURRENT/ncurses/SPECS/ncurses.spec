@@ -9,12 +9,11 @@
 
 %define revision	$Rev$
 %define name		ncurses
-%define version		5.5
+%define version		5.6
 %define release		%_revrel
 
-%define patchdate	20051029
 %define major		5
-%define majorminor	5.5
+%define majorminor	5.6
 %define libname		%mklibname %{name} %{major}
 %define utf8libname	%mklibname %{name}w %{major}
 %define devname		%mklibname %{name} -d
@@ -27,18 +26,34 @@ Release:	%{release}
 License:	MIT
 Group:		System/Libraries
 URL:		http://www.gnu.org/software/ncurses/ncurses.html
-Source0:	http://ftp.gnu.org/gnu/ncurses/%{name}-%{version}.tar.bz2
+Source0:	http://ftp.gnu.org/gnu/ncurses/%{name}-%{version}.tar.gz
 Source1:	ncurses-resetall.sh
 Source2:	ncurses-usefull-terms
-Patch0:		ncurses-5.3-xterm-debian.patch
+# rollup patches from ftp://invisible-island.net/ncurses/5.6/
+Source3:	ncurses-5.6-20070714-patch.sh
+Patch0:		ncurses-5.6-xterm-debian.patch
 Patch1:		ncurses-5.3-parallel.patch
 Patch2:		ncurses-5.3-utf8.patch
-Patch3:		ncurses-5.5-20051015.patch
-Patch4:		ncurses-5.5-20051022.patch
-Patch5:		ncurses-5.5-20051029.patch
+# patches from ftp://invisible-island.net/ncurses/5.6/
+Patch3:		ncurses-5.6-20070716.patch
+Patch4:		ncurses-5.6-20070721.patch
+Patch5:		ncurses-5.6-20070728.patch
+Patch6:		ncurses-5.6-20070812.patch
+Patch7:		ncurses-5.6-20070818.patch
+Patch8:		ncurses-5.6-20070825.patch
+Patch9:		ncurses-5.6-20070901.patch
+Patch10:	ncurses-5.6-20070908.patch
+Patch11:	ncurses-5.6-20070915.patch
+Patch12:	ncurses-5.6-20070929.patch
+Patch13:	ncurses-5.6-20071006.patch
+Patch14:	ncurses-5.6-20071013.patch
+Patch15:	ncurses-5.6-20071020.patch
+Patch16:	ncurses-5.6-20071103.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	sharutils
+
+Conflicts:	ncurses-extraterms < 5.6
 
 
 %description
@@ -98,7 +113,7 @@ i.e. -lformw, -lmenuw, -lncursesw, -lpanelw.
 %package extraterms
 Summary:	Some exotic terminal descriptions
 Group:		System/Libraries
-Requires:	ncurses
+Requires:	ncurses = %{version}-%{release}
 
 %description extraterms
 Install the ncurses-extraterms package if you use some exotic terminals.
@@ -129,10 +144,26 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
+# the rollup patch comes first
+cp %{_sourcedir}/ncurses-5.6-20070714-patch.sh .
+/bin/sh ncurses-5.6-20070714-patch.sh
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
-%patch1 -p1 -b .parallel
+%patch6 -p1
+%patch7 -p1
+%patch8 -p1
+%patch9 -p1
+%patch10 -p1
+%patch11 -p1
+%patch12 -p1
+%patch13 -p1
+%patch14 -p1
+%patch15 -p1
+%patch16 -p1
+
+
+#%patch1 -p1 -b .parallel
 %patch2 -p1 -b .utf8
 # regenerating configure needs patched autoconf, so modify configure
 # directly
@@ -144,9 +175,9 @@ chmod 0755 c++/edit_cfg.sh test/listused.sh test/configure test/tracemunch
 
 
 %build
-OPT_FLAGS="%{optflags} -DPURE_TERMINFO -fno-omit-frame-pointer"
-CFLAGS="$OPT_FLAGS -DSVR4_CURSES"
-CXXFLAGS="$OPT_FLAGS"
+#OPT_FLAGS="%{optflags} -DPURE_TERMINFO -fno-omit-frame-pointer"
+#CFLAGS="$OPT_FLAGS -DSVR4_CURSES"
+#CXXFLAGS="$OPT_FLAGS"
 
 mkdir -p ncurses-normal
 pushd ncurses-normal
@@ -170,7 +201,7 @@ pushd ncurses-normal
         --enable-colorfgbg \
         --with-ospeed=unsigned
 
-    %make
+    %make -j1
 popd
 
 mkdir -p ncurses-utf8
@@ -196,7 +227,7 @@ pushd ncurses-utf8
         --enable-colorfgbg \
         --with-ospeed=unsigned
 
-    %make
+    %make -j1
 popd
 
 
@@ -225,11 +256,10 @@ mv %{buildroot}%{_libdir}/libncurses.so* %{buildroot}/%{_lib}
 ln -s /%{_lib}/libncurses.so.%{majorminor} %{buildroot}%{_libdir}/libncurses.so.%{majorminor}
 ln -s /%{_lib}/libncurses.so.%{majorminor} %{buildroot}%{_libdir}/libncurses.so.%{major}
 ln -s /%{_lib}/libncurses.so.%{majorminor} %{buildroot}%{_libdir}/libncurses.so
-ln -s %{buildroot}%{_libdir}/libncurses.so.%{majorminor} %{buildroot}/%{_lib}/libncurses.so.4
 
 #
 # FIXME
-# OK do not time to debbug it now
+# OK do not time to debug it now
 #
 cp %{buildroot}%{_datadir}/terminfo/x/xterm %{buildroot}%{_datadir}/terminfo/x/xterm2
 cp %{buildroot}%{_datadir}/terminfo/x/xterm-new %{buildroot}%{_datadir}/terminfo/x/xterm
@@ -306,6 +336,13 @@ find %{buildroot}%{_libdir} -name 'lib*.a' -not -type d -not -name "*_g.a" -not 
 
 
 %changelog
+* Fri Dec 07 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.6
+- 5.6, patches through 20071103 (S3, P3-P16)
+- updated P0 from Mandriva
+- add screen.linux, cygwin, and putty as a useful terms instead of
+  being in the extraterms
+- don't provide old major
+
 * Sat Sep 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.5
 - implement devel naming policy
 - implement library provides policy

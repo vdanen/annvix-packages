@@ -1,0 +1,1221 @@
+# ncurses 5.6 - patch 20071013 - Thomas E. Dickey
+#
+# ------------------------------------------------------------------------------
+#
+# Ncurses 5.6 is at
+# 	ftp.gnu.org:/pub/gnu
+#
+# Patches for ncurses 5.6 are in the subdirectory
+# 	ftp://invisible-island.net/ncurses/5.6
+#
+# ------------------------------------------------------------------------------
+# patch by Thomas E. Dickey <dickey@invisible-island.net>
+# created  Sun Oct 14 00:38:28 UTC 2007
+# ------------------------------------------------------------------------------
+# NEWS                        |   15 ++++++
+# dist.mk                     |    4 -
+# form/fld_def.c              |   10 ++--
+# form/fld_dup.c              |    4 -
+# form/fld_ftlink.c           |    4 -
+# form/fld_link.c             |    4 -
+# form/fld_newftyp.c          |    4 -
+# form/frm_def.c              |    6 +-
+# form/frm_driver.c           |    6 +-
+# form/fty_alnum.c            |    6 +-
+# form/fty_alpha.c            |    6 +-
+# form/fty_enum.c             |    6 +-
+# form/fty_int.c              |    6 +-
+# form/fty_num.c              |    6 +-
+# form/fty_regex.c            |   14 +++---
+# misc/terminfo.src           |   93 +++++++++++++++++++++++++++++++++---------
+# ncurses/base/lib_addstr.c   |    8 ++-
+# ncurses/base/lib_redrawln.c |   10 +++-
+# ncurses/base/lib_restart.c  |   14 +++---
+# ncurses/base/lib_slkset.c   |   13 ++++-
+# ncurses/base/resizeterm.c   |   25 +++++++----
+# ncurses/curses.priv.h       |   46 +++++++-------------
+# ncurses/tty/hashmap.c       |   10 ++--
+# ncurses/tty/tty_update.c    |    6 ++
+# progs/Makefile.in           |   28 +++++++-----
+# progs/clear.c               |    5 +-
+# progs/progs.priv.h          |    6 ++
+# progs/toe.c                 |    5 --
+# progs/tput.c                |    3 -
+# progs/tset.c                |    3 -
+# 30 files changed, 232 insertions(+), 144 deletions(-)
+# ------------------------------------------------------------------------------
+Index: NEWS
+Prereq:  1.1172 
+--- ncurses-5.6-20071006+/NEWS	2007-10-06 21:32:14.000000000 +0000
++++ ncurses-5.6-20071013/NEWS	2007-10-13 22:24:34.000000000 +0000
+@@ -25,7 +25,7 @@
+ -- sale, use or other dealings in this Software without prior written        --
+ -- authorization.                                                            --
+ -------------------------------------------------------------------------------
+--- $Id: NEWS,v 1.1172 2007/10/06 21:32:14 tom Exp $
++-- $Id: NEWS,v 1.1177 2007/10/13 22:24:34 tom Exp $
+ -------------------------------------------------------------------------------
+ 
+ This is a log of changes that ncurses has gone through since Zeyd started
+@@ -45,6 +45,19 @@
+ Changes through 1.9.9e did not credit all contributions;
+ it is not possible to add this information.
+ 
++20071013
++	+ modify makefile rules to allow clear, tput and tset to be built
++	  without libtic.  The other programs (infocmp, tic and toe) rely on
++	  that library.
++	+ add/modify null-pointer checks in several functions for SP and/or
++	  the WINDOW* parameter (report by Thorben Krueger).
++	+ fixes for field_buffer() in formw library (see Redhat Bugzilla
++	  #310071, patches by Miroslav Lichvar).
++	+ improve performance of NCURSES_CHAR_EQ code (patch by Miroslav
++	  Lichvar).
++	+ update/improve mlterm and rxvt terminfo entries, e.g., for
++	  the modified cursor- and keypad-keys -TD
++
+ 20071006
+ 	+ add code to curses.priv.h ifdef'd with NCURSES_CHAR_EQ, which
+ 	  changes the CharEq() macro to an inline function to allow comparing
+Index: dist.mk
+Prereq:  1.612 
+--- ncurses-5.6-20071006+/dist.mk	2007-10-06 19:39:13.000000000 +0000
++++ ncurses-5.6-20071013/dist.mk	2007-10-13 11:47:05.000000000 +0000
+@@ -25,7 +25,7 @@
+ # use or other dealings in this Software without prior written               #
+ # authorization.                                                             #
+ ##############################################################################
+-# $Id: dist.mk,v 1.612 2007/10/06 19:39:13 tom Exp $
++# $Id: dist.mk,v 1.613 2007/10/13 11:47:05 tom Exp $
+ # Makefile for creating ncurses distributions.
+ #
+ # This only needs to be used directly as a makefile by developers, but
+@@ -37,7 +37,7 @@
+ # These define the major/minor/patch versions of ncurses.
+ NCURSES_MAJOR = 5
+ NCURSES_MINOR = 6
+-NCURSES_PATCH = 20071006
++NCURSES_PATCH = 20071013
+ 
+ # We don't append the patch to the version, since this only applies to releases
+ VERSION = $(NCURSES_MAJOR).$(NCURSES_MINOR)
+Index: form/fld_def.c
+Prereq:  1.34 
+--- ncurses-5.6-20071006+/form/fld_def.c	2007-02-03 23:37:46.000000000 +0000
++++ ncurses-5.6-20071013/form/fld_def.c	2007-10-13 19:29:58.000000000 +0000
+@@ -32,7 +32,7 @@
+ 
+ #include "form.priv.h"
+ 
+-MODULE_ID("$Id: fld_def.c,v 1.34 2007/02/03 23:37:46 tom Exp $")
++MODULE_ID("$Id: fld_def.c,v 1.36 2007/10/13 19:29:58 tom Exp $")
+ 
+ /* this can't be readonly */
+ static FIELD default_field =
+@@ -93,7 +93,7 @@
+       assert(err != 0 && ap != (va_list *)0);
+       if ((typ->status & _LINKED_TYPE) != 0)
+ 	{
+-	  p = (TypeArgument *)malloc(sizeof(TypeArgument));
++	  p = typeMalloc(TypeArgument, 1);
+ 
+ 	  if (p != 0)
+ 	    {
+@@ -141,7 +141,7 @@
+       assert(err != 0 && argp != 0);
+       if ((typ->status & _LINKED_TYPE) != 0)
+ 	{
+-	  p = (TypeArgument *)malloc(sizeof(TypeArgument));
++	  p = typeMalloc(TypeArgument, 1);
+ 
+ 	  if (p != 0)
+ 	    {
+@@ -289,7 +289,7 @@
+       nrow >= 0 &&
+       nbuf >= 0 &&
+       ((err = E_SYSTEM_ERROR) != 0) &&	/* trick: this resets the default error */
+-      (New_Field = (FIELD *)malloc(sizeof(FIELD))) != 0)
++      (New_Field = typeMalloc(FIELD, 1)) != 0)
+     {
+       T((T_CREATE("field %p"), New_Field));
+       *New_Field = default_field;
+@@ -305,7 +305,7 @@
+ 
+ #if USE_WIDEC_SUPPORT
+       New_Field->working = newpad(1, Buffer_Length(New_Field) + 1);
+-      New_Field->expanded = (char **)calloc(1 + (unsigned)rows, sizeof(char *));
++      New_Field->expanded = typeCalloc(char *, 1 + (unsigned)nbuf);
+ #endif
+ 
+       if (_nc_Copy_Type(New_Field, &default_field))
+Index: form/fld_dup.c
+Prereq:  1.11 
+--- ncurses-5.6-20071006+/form/fld_dup.c	2007-02-03 23:37:46.000000000 +0000
++++ ncurses-5.6-20071013/form/fld_dup.c	2007-10-13 19:30:21.000000000 +0000
+@@ -32,7 +32,7 @@
+ 
+ #include "form.priv.h"
+ 
+-MODULE_ID("$Id: fld_dup.c,v 1.11 2007/02/03 23:37:46 tom Exp $")
++MODULE_ID("$Id: fld_dup.c,v 1.12 2007/10/13 19:30:21 tom Exp $")
+ 
+ /*---------------------------------------------------------------------------
+ |   Facility      :  libnform
+@@ -56,7 +56,7 @@
+   T((T_CALLED("dup_field(%p,%d,%d)"), field, frow, fcol));
+   if (field && (frow >= 0) && (fcol >= 0) &&
+       ((err = E_SYSTEM_ERROR) != 0) &&	/* trick : this resets the default error */
+-      (New_Field = (FIELD *)malloc(sizeof(FIELD))))
++      (New_Field = typeMalloc(FIELD, 1)))
+     {
+       T((T_CREATE("field %p"), New_Field));
+       *New_Field = *_nc_Default_Field;
+Index: form/fld_ftlink.c
+Prereq:  1.12 
+--- ncurses-5.6-20071006+/form/fld_ftlink.c	2007-02-03 23:37:46.000000000 +0000
++++ ncurses-5.6-20071013/form/fld_ftlink.c	2007-10-13 19:30:35.000000000 +0000
+@@ -32,7 +32,7 @@
+ 
+ #include "form.priv.h"
+ 
+-MODULE_ID("$Id: fld_ftlink.c,v 1.12 2007/02/03 23:37:46 tom Exp $")
++MODULE_ID("$Id: fld_ftlink.c,v 1.13 2007/10/13 19:30:35 tom Exp $")
+ 
+ /*---------------------------------------------------------------------------
+ |   Facility      :  libnform  
+@@ -56,7 +56,7 @@
+   T((T_CALLED("link_fieldtype(%p,%p)"), type1, type2));
+   if (type1 && type2)
+     {
+-      nftyp = (FIELDTYPE *)malloc(sizeof(FIELDTYPE));
++      nftyp = typeMalloc(FIELDTYPE, 1);
+ 
+       if (nftyp)
+ 	{
+Index: form/fld_link.c
+Prereq:  1.10 
+--- ncurses-5.6-20071006+/form/fld_link.c	2007-02-03 23:37:46.000000000 +0000
++++ ncurses-5.6-20071013/form/fld_link.c	2007-10-13 19:30:43.000000000 +0000
+@@ -32,7 +32,7 @@
+ 
+ #include "form.priv.h"
+ 
+-MODULE_ID("$Id: fld_link.c,v 1.10 2007/02/03 23:37:46 tom Exp $")
++MODULE_ID("$Id: fld_link.c,v 1.11 2007/10/13 19:30:43 tom Exp $")
+ 
+ /*---------------------------------------------------------------------------
+ |   Facility      :  libnform  
+@@ -57,7 +57,7 @@
+   T((T_CALLED("link_field(%p,%d,%d)"), field, frow, fcol));
+   if (field && (frow >= 0) && (fcol >= 0) &&
+       ((err = E_SYSTEM_ERROR) != 0) &&	/* trick: this resets the default error */
+-      (New_Field = (FIELD *)malloc(sizeof(FIELD))))
++      (New_Field = typeMalloc(FIELD, 1)))
+     {
+       T((T_CREATE("field %p"), New_Field));
+       *New_Field = *_nc_Default_Field;
+Index: form/fld_newftyp.c
+Prereq:  1.14 
+--- ncurses-5.6-20071006+/form/fld_newftyp.c	2007-02-03 23:37:46.000000000 +0000
++++ ncurses-5.6-20071013/form/fld_newftyp.c	2007-10-13 19:30:55.000000000 +0000
+@@ -32,7 +32,7 @@
+ 
+ #include "form.priv.h"
+ 
+-MODULE_ID("$Id: fld_newftyp.c,v 1.14 2007/02/03 23:37:46 tom Exp $")
++MODULE_ID("$Id: fld_newftyp.c,v 1.15 2007/10/13 19:30:55 tom Exp $")
+ 
+ static FIELDTYPE const default_fieldtype =
+ {
+@@ -76,7 +76,7 @@
+   T((T_CALLED("new_fieldtype(%p,%p)"), field_check, char_check));
+   if ((field_check) || (char_check))
+     {
+-      nftyp = (FIELDTYPE *)malloc(sizeof(FIELDTYPE));
++      nftyp = typeMalloc(FIELDTYPE, 1);
+ 
+       if (nftyp)
+ 	{
+Index: form/frm_def.c
+Prereq:  1.21 
+--- ncurses-5.6-20071006+/form/frm_def.c	2007-02-03 23:37:46.000000000 +0000
++++ ncurses-5.6-20071013/form/frm_def.c	2007-10-13 19:31:17.000000000 +0000
+@@ -32,7 +32,7 @@
+ 
+ #include "form.priv.h"
+ 
+-MODULE_ID("$Id: frm_def.c,v 1.21 2007/02/03 23:37:46 tom Exp $")
++MODULE_ID("$Id: frm_def.c,v 1.22 2007/10/13 19:31:17 tom Exp $")
+ 
+ /* this can't be readonly */
+ static FORM default_form =
+@@ -186,7 +186,7 @@
+     RETURN(E_BAD_ARGUMENT);
+ 
+   /* allocate page structures */
+-  if ((pg = (_PAGE *) malloc(page_nr * sizeof(_PAGE))) != (_PAGE *) 0)
++  if ((pg = typeMalloc(_PAGE, page_nr)) != (_PAGE *) 0)
+     {
+       T((T_CREATE("_PAGE %p"), pg));
+       form->page = pg;
+@@ -291,7 +291,7 @@
+ {
+   int err = E_SYSTEM_ERROR;
+ 
+-  FORM *form = (FORM *)malloc(sizeof(FORM));
++  FORM *form = typeMalloc(FORM, 1);
+ 
+   T((T_CALLED("new_form(%p)"), fields));
+   if (form)
+Index: form/frm_driver.c
+Prereq:  1.82 
+--- ncurses-5.6-20071006+/form/frm_driver.c	2007-06-02 22:59:24.000000000 +0000
++++ ncurses-5.6-20071013/form/frm_driver.c	2007-10-13 19:26:54.000000000 +0000
+@@ -32,7 +32,7 @@
+ 
+ #include "form.priv.h"
+ 
+-MODULE_ID("$Id: frm_driver.c,v 1.82 2007/06/02 22:59:24 tom Exp $")
++MODULE_ID("$Id: frm_driver.c,v 1.84 2007/10/13 19:26:54 tom Exp $")
+ 
+ /*----------------------------------------------------------------------------
+   This is the core module of the form library. It contains the majority
+@@ -4379,7 +4379,7 @@
+   wclear(field->working);
+   mvwaddstr(field->working, 0, 0, value);
+ 
+-  if ((widevalue = (FIELD_CELL *)calloc(len + 1, sizeof(FIELD_CELL))) == 0)
++  if ((widevalue = typeCalloc(FIELD_CELL, len + 1)) == 0)
+     {
+       RETURN(E_SYSTEM_ERROR);
+     }
+@@ -4476,7 +4476,7 @@
+ 	{
+ 	  wclear(field->working);
+ 	  mvwadd_wchnstr(field->working, 0, 0, data, size);
+-	  mvwinnstr(field->working, 0, 0, result, (int)need + 1);
++	  mvwinnstr(field->working, 0, 0, result, (int)need);
+ 	}
+ #else
+       result = Address_Of_Nth_Buffer(field, buffer);
+Index: form/fty_alnum.c
+Prereq:  1.20 
+--- ncurses-5.6-20071006+/form/fty_alnum.c	2007-02-03 23:37:46.000000000 +0000
++++ ncurses-5.6-20071013/form/fty_alnum.c	2007-10-13 19:31:52.000000000 +0000
+@@ -34,7 +34,7 @@
+ 
+ #include "form.priv.h"
+ 
+-MODULE_ID("$Id: fty_alnum.c,v 1.20 2007/02/03 23:37:46 tom Exp $")
++MODULE_ID("$Id: fty_alnum.c,v 1.21 2007/10/13 19:31:52 tom Exp $")
+ 
+ #define thisARG alnumARG
+ 
+@@ -55,7 +55,7 @@
+ static void *
+ Make_This_Type(va_list *ap)
+ {
+-  thisARG *argp = (thisARG *) malloc(sizeof(thisARG));
++  thisARG *argp = typeMalloc(thisARG, 1);
+ 
+   if (argp)
+     {
+@@ -78,7 +78,7 @@
+ Copy_This_Type(const void *argp)
+ {
+   const thisARG *ap = (const thisARG *)argp;
+-  thisARG *result = (thisARG *) malloc(sizeof(thisARG));
++  thisARG *result = typeMalloc(thisARG, 1);
+ 
+   if (result)
+     {
+Index: form/fty_alpha.c
+Prereq:  1.22 
+--- ncurses-5.6-20071006+/form/fty_alpha.c	2007-02-03 23:37:46.000000000 +0000
++++ ncurses-5.6-20071013/form/fty_alpha.c	2007-10-13 19:32:09.000000000 +0000
+@@ -34,7 +34,7 @@
+ 
+ #include "form.priv.h"
+ 
+-MODULE_ID("$Id: fty_alpha.c,v 1.22 2007/02/03 23:37:46 tom Exp $")
++MODULE_ID("$Id: fty_alpha.c,v 1.23 2007/10/13 19:32:09 tom Exp $")
+ 
+ #define thisARG alphaARG
+ 
+@@ -55,7 +55,7 @@
+ static void *
+ Make_This_Type(va_list *ap)
+ {
+-  thisARG *argp = (thisARG *) malloc(sizeof(thisARG));
++  thisARG *argp = typeMalloc(thisARG, 1);
+ 
+   if (argp)
+     {
+@@ -78,7 +78,7 @@
+ Copy_This_Type(const void *argp)
+ {
+   const thisARG *ap = (const thisARG *)argp;
+-  thisARG *result = (thisARG *) malloc(sizeof(thisARG));
++  thisARG *result = typeMalloc(thisARG, 1);
+ 
+   if (result)
+     {
+Index: form/fty_enum.c
+Prereq:  1.21 
+--- ncurses-5.6-20071006+/form/fty_enum.c	2007-02-03 23:37:46.000000000 +0000
++++ ncurses-5.6-20071013/form/fty_enum.c	2007-10-13 19:32:26.000000000 +0000
+@@ -34,7 +34,7 @@
+ 
+ #include "form.priv.h"
+ 
+-MODULE_ID("$Id: fty_enum.c,v 1.21 2007/02/03 23:37:46 tom Exp $")
++MODULE_ID("$Id: fty_enum.c,v 1.22 2007/10/13 19:32:26 tom Exp $")
+ 
+ typedef struct
+   {
+@@ -56,7 +56,7 @@
+ static void *
+ Make_Enum_Type(va_list *ap)
+ {
+-  enumARG *argp = (enumARG *)malloc(sizeof(enumARG));
++  enumARG *argp = typeMalloc(enumARG, 1);
+ 
+   if (argp)
+     {
+@@ -97,7 +97,7 @@
+     {
+       const enumARG *ap = (const enumARG *)argp;
+ 
+-      result = (enumARG *)malloc(sizeof(enumARG));
++      result = typeMalloc(enumARG, 1);
+ 
+       if (result)
+ 	{
+Index: form/fty_int.c
+Prereq:  1.21 
+--- ncurses-5.6-20071006+/form/fty_int.c	2007-02-03 23:37:46.000000000 +0000
++++ ncurses-5.6-20071013/form/fty_int.c	2007-10-13 19:32:40.000000000 +0000
+@@ -34,7 +34,7 @@
+ 
+ #include "form.priv.h"
+ 
+-MODULE_ID("$Id: fty_int.c,v 1.21 2007/02/03 23:37:46 tom Exp $")
++MODULE_ID("$Id: fty_int.c,v 1.22 2007/10/13 19:32:40 tom Exp $")
+ 
+ #if USE_WIDEC_SUPPORT
+ #define isDigit(c) (iswdigit((wint_t)(c)) || isdigit(UChar(c)))
+@@ -63,7 +63,7 @@
+ static void *
+ Make_This_Type(va_list *ap)
+ {
+-  thisARG *argp = (thisARG *) malloc(sizeof(thisARG));
++  thisARG *argp = typeMalloc(thisARG, 1);
+ 
+   if (argp)
+     {
+@@ -91,7 +91,7 @@
+ 
+   if (argp)
+     {
+-      result = (thisARG *) malloc(sizeof(thisARG));
++      result = typeMalloc(thisARG, 1);
+       if (result)
+ 	{
+ 	  T((T_CREATE("thisARG %p"), result));
+Index: form/fty_num.c
+Prereq:  1.24 
+--- ncurses-5.6-20071006+/form/fty_num.c	2007-02-03 23:37:46.000000000 +0000
++++ ncurses-5.6-20071013/form/fty_num.c	2007-10-13 19:32:54.000000000 +0000
+@@ -34,7 +34,7 @@
+ 
+ #include "form.priv.h"
+ 
+-MODULE_ID("$Id: fty_num.c,v 1.24 2007/02/03 23:37:46 tom Exp $")
++MODULE_ID("$Id: fty_num.c,v 1.25 2007/10/13 19:32:54 tom Exp $")
+ 
+ #if HAVE_LOCALE_H
+ #include <locale.h>
+@@ -74,7 +74,7 @@
+ static void *
+ Make_This_Type(va_list *ap)
+ {
+-  thisARG *argn = (thisARG *) malloc(sizeof(thisARG));
++  thisARG *argn = typeMalloc(thisARG, 1);
+ 
+   if (argn)
+     {
+@@ -108,7 +108,7 @@
+ 
+   if (argp)
+     {
+-      result = (thisARG *) malloc(sizeof(thisARG));
++      result = typeMalloc(thisARG, 1);
+       if (result)
+ 	{
+ 	  T((T_CREATE("thisARG %p"), result));
+Index: form/fty_regex.c
+Prereq:  1.20 
+--- ncurses-5.6-20071006+/form/fty_regex.c	2007-02-03 23:37:46.000000000 +0000
++++ ncurses-5.6-20071013/form/fty_regex.c	2007-10-13 19:33:50.000000000 +0000
+@@ -34,7 +34,7 @@
+ 
+ #include "form.priv.h"
+ 
+-MODULE_ID("$Id: fty_regex.c,v 1.20 2007/02/03 23:37:46 tom Exp $")
++MODULE_ID("$Id: fty_regex.c,v 1.21 2007/10/13 19:33:50 tom Exp $")
+ 
+ #if HAVE_REGEX_H_FUNCS		/* We prefer POSIX regex */
+ #include <regex.h>
+@@ -105,17 +105,17 @@
+   char *rx = va_arg(*ap, char *);
+   RegExp_Arg *preg;
+ 
+-  preg = (RegExp_Arg *)malloc(sizeof(RegExp_Arg));
++  preg = typeMalloc(RegExp_Arg, 1);
+ 
+   if (preg)
+     {
+       T((T_CREATE("RegExp_Arg %p"), preg));
+-      if (((preg->pRegExp = (regex_t *) malloc(sizeof(regex_t))) != 0)
++      if (((preg->pRegExp = typeMalloc(regex_t, 1)) != 0)
+ 	  && !regcomp(preg->pRegExp, rx,
+ 		      (REG_EXTENDED | REG_NOSUB | REG_NEWLINE)))
+ 	{
+ 	  T((T_CREATE("regex_t %p"), preg->pRegExp));
+-	  preg->refCount = (unsigned long *)malloc(sizeof(unsigned long));
++	  preg->refCount = typeMalloc(unsigned long, 1);
+ 
+ 	  *(preg->refCount) = 1;
+ 	}
+@@ -132,7 +132,7 @@
+   char *rx = va_arg(*ap, char *);
+   RegExp_Arg *pArg;
+ 
+-  pArg = (RegExp_Arg *)malloc(sizeof(RegExp_Arg));
++  pArg = typeMalloc(RegExp_Arg, 1);
+ 
+   if (pArg)
+     {
+@@ -140,13 +140,13 @@
+ 
+       T((T_CREATE("RegExp_Arg %p"), pArg));
+       pArg->compiled_expression = NULL;
+-      pArg->refCount = (unsigned long *)malloc(sizeof(unsigned long));
++      pArg->refCount = typeMalloc(unsigned long, 1);
+ 
+       *(pArg->refCount) = 1;
+ 
+       do
+ 	{
+-	  char *buf = (char *)malloc(blen);
++	  char *buf = typeMalloc(char, blen);
+ 
+ 	  if (buf)
+ 	    {
+Index: misc/terminfo.src
+--- ncurses-5.6-20071006+/misc/terminfo.src	2007-08-18 22:27:38.000000000 +0000
++++ ncurses-5.6-20071013/misc/terminfo.src	2007-10-13 17:26:29.000000000 +0000
+@@ -6,8 +6,8 @@
+ # Report bugs and new terminal descriptions to
+ #	bug-ncurses@gnu.org
+ #
+-#	$Revision: 1.310 $
+-#	$Date: 2007/08/18 22:27:38 $
++#	$Revision: 1.312 $
++#	$Date: 2007/10/13 17:26:29 $
+ #
+ # The original header is preserved below for reference.  It is noted that there
+ # is a "newer" version which differs in some cosmetic details (but actually
+@@ -3582,14 +3582,25 @@
+ konsole-256color|KDE console window with xterm 256-colors,
+ 	initc@, use=xterm+256color, use=konsole,
+ 
+-# Based on mlterm 2.9.2's mlterm.ti, with corrections/additions from reading
+-# the source code and running tack -TD
++# This is mlterm 2.9.3's mlterm.ti, with some additions/corrections -TD
+ #
+-# This is nominally a vt102 emulator, with features borrowed from rxvt and
++# It is nominally a vt102 emulator, with features borrowed from rxvt and
+ # xterm.
+ #
+-# There are some problems with vttest:
+-#	test of character sets leaves it in line-drawing mode.
++# The function keys are numbered based on shift/control/alt modifiers, except
++# that the control-modifier itself is used to spawn a new copy of mlterm (the
++# "-P" option).  So control/F1 to control/F12 may not be usable, depending on
++# how it is configured.
++#
++#				kf1 to kf12	\E[11~   to \E[24~
++#	shift			kf1 to kf12	\E[11;2~ to \E[24;2~
++#	alt			kf1 to kf12	\E[11;3~ to \E[24;3~
++#	shift/alt		kf1 to kf12	\E[11;4~ to \E[24;4~
++#	control			kf1 to kf12	\E[11;5~ to \E[24;5~ (maybe)
++#	control/shift		kf1 to kf12	\E[11;6~ to \E[24;6~
++#	control/alt		kf1 to kf12	\E[11;7~ to \E[24;7~
++#	control/shit/alt	kf1 to kf12	\E[11;8~ to \E[24;8~
++#
+ mlterm|multi lingual terminal emulator,
+ 	am, eslok, km, mc5i, mir, msgr, npc, xenl,
+ 	colors#8, cols#80, it#8, lines#24, pairs#64,
+@@ -3606,20 +3617,47 @@
+ 	is2=\E7\E[r\E[m\E[?7h\E[?1;3;4;6l\E[4l\E8\E>,
+ 	kbs=\177, kcub1=\EOD, kcud1=\EOB, kcuf1=\EOC, kcuu1=\EOA,
+ 	kdch1=\E[3~, kend=\EOF, kent=\EOM, kf1=\E[11~, kf10=\E[21~,
+-	kf11=\E[23~, kf12=\E[24~, kf2=\E[12~, kf3=\E[13~,
+-	kf4=\E[14~, kf5=\E[15~, kf6=\E[17~, kf7=\E[18~, kf8=\E[19~,
+-	kf9=\E[20~, kfnd=\E[1~, khome=\EOH, kich1=\E[2~,
+-	kmous=\E[M, knp=\E[6~, kpp=\E[5~, kslt=\E[4~, mc0=\E[i,
+-	nel=\EE, op=\E[39;49m, rc=\E8, rev=\E[7m, ri=\EM,
+-	rin=\E[%p1%dT, rmacs=\E(B, rmam=\E[?7l,
+-	rmcup=\E[2J\E[?47l\E8, rmir=\E[4l, rmkx=\E[?1l\E>,
++	kf11=\E[23~, kf12=\E[24~, kf13=\E[11;2~, kf14=\E[12;2~,
++	kf15=\E[13;2~, kf16=\E[14;2~, kf17=\E[15;2~,
++	kf18=\E[17;2~, kf19=\E[18;2~, kf2=\E[12~, kf20=\E[19;2~,
++	kf21=\E[20;2~, kf22=\E[21;2~, kf23=\E[23;2~,
++	kf24=\E[24;2~, kf25=\E[11;5~, kf26=\E[12;5~,
++	kf27=\E[13;5~, kf28=\E[14;5~, kf29=\E[15;5~, kf3=\E[13~,
++	kf30=\E[17;5~, kf31=\E[18;5~, kf32=\E[19;5~,
++	kf33=\E[20;5~, kf34=\E[21;5~, kf35=\E[23;5~,
++	kf36=\E[24;5~, kf37=\E[11;6~, kf38=\E[12;6~,
++	kf39=\E[13;6~, kf4=\E[14~, kf40=\E[14;6~, kf41=\E[15;6~,
++	kf42=\E[17;6~, kf43=\E[18;6~, kf44=\E[19;6~,
++	kf45=\E[20;6~, kf46=\E[21;6~, kf47=\E[23;6~,
++	kf48=\E[24;6~, kf49=\E[11;3~, kf5=\E[15~, kf50=\E[12;3~,
++	kf51=\E[13;3~, kf52=\E[14;3~, kf53=\E[15;3~,
++	kf54=\E[17;3~, kf55=\E[18;3~, kf56=\E[19;3~,
++	kf57=\E[20;3~, kf58=\E[21;3~, kf59=\E[23;3~, kf6=\E[17~,
++	kf60=\E[24;3~, kf61=\E[11;4~, kf62=\E[12;4~,
++	kf63=\E[13;4~, kf7=\E[18~, kf8=\E[19~, kf9=\E[20~,
++	kfnd=\E[1~, khome=\EOH, kich1=\E[2~, kmous=\E[M, knp=\E[6~,
++	kpp=\E[5~, kslt=\E[4~, mc0=\E[i, nel=\EE, op=\E[39;49m,
++	rc=\E8, rev=\E[7m, ri=\EM, rin=\E[%p1%dT, rmacs=\E(B,
++	rmam=\E[?7l, rmcup=\E[?1049l, rmir=\E[4l, rmkx=\E[?1l\E>,
+ 	rmso=\E[27m, rmul=\E[24m,
+ 	rs2=\E7\E[r\E8\E[m\E[?7h\E[?1;3;4;6l\E[4l\E>\E[?1000l,
+ 	sc=\E7, setab=\E[4%p1%dm, setaf=\E[3%p1%dm,
+ 	sgr=\E[0%?%p6%t;1%;%?%p2%t;4%;%?%p1%p3%|%t;7%;m%?%p9%t\E(0%e\E(B%;,
+-	sgr0=\E[m\E(B, smacs=\E(0, smam=\E[?7h, smcup=\E7\E[?47h,
++	sgr0=\E[m\E(B, smacs=\E(0, smam=\E[?7h, smcup=\E[?1049h,
+ 	smir=\E[4h, smkx=\E[?1h\E=, smso=\E[7m, smul=\E[4m,
+-	tbc=\E[3g, vpa=\E[%i%p1%dd, use=vt100+enq,
++	tbc=\E[3g, u6=\E[%i%d;%dR, u7=\E[6n, u8=\E[?1;2c, u9=\E[c,
++	vpa=\E[%i%p1%dd, use=mlterm+pcfkeys,
++
++# The insert/delete/home/end keys do not respond to modifiers because mlterm
++# looks in its termcap to decide which string to send.  If it used terminfo
++# (when available), it could use the extended names introduced for xterm.
++mlterm+pcfkeys|fragment for PC-style fkeys,
++	kLFT=\EO1;2D, kNXT=\E[6;2~, kPRV=\E[5;2~, kRIT=\EO1;2C,
++	kDN=\EO1;2B, kDN5=\EO1;5B, kDN6=\EO1;6B, kIC5=\E[2;5~,
++	kIC6=\E[2;6~, kLFT5=\EO1;5D, kLFT6=\EO1;6D,
++	kNXT5=\E[6;5~, kNXT6=\E[6;6~, kPRV5=\E[5;5~,
++	kPRV6=\E[5;6~, kRIT5=\EO1;5C, kRIT6=\EO1;6C, kUP=\EO1;2A,
++	kUP5=\EO1;5A, kUP6=\EO1;6A,
+ 
+ # From: Thomas Dickey <dickey@clark.net> 04 Oct 1997
+ # Updated: Oezguer Kesim <kesim@math.fu-berlin.de> 02 Nov 1997
+@@ -3708,6 +3746,7 @@
+ #  F18              ESC [ 32 ~   ESC [ 32 $   ESC [ 32 ^   ESC [ 32 @
+ #  F19              ESC [ 33 ~   ESC [ 33 $   ESC [ 33 ^   ESC [ 33 @
+ #  F20              ESC [ 34 ~   ESC [ 34 $   ESC [ 34 ^   ESC [ 34 @
++#
+ #                                                          Application
+ #  Up               ESC [ A      ESC [ a      ESC O a      ESC O A
+ #  Down             ESC [ B      ESC [ b      ESC O b      ESC O B
+@@ -3735,10 +3774,18 @@
+ #  XK_KP_8          8                                      ESC O x
+ #  XK_KP_9          9                                      ESC O y
+ #
++# The source-code for rxvt actually defines mappings for F21-F35, using
++# "ESC [ 35 ~" to "ESC [  49 ~".  Keyboards with more than 12 function keys
++# are rare, so this entry uses the shift- and control-modifiers as in
++# xterm+pcfkeys to define keys past F12.
++#
++# kIC is normally not used, since rxvt performs a paste for that (shifted
++# insert), unless private mode 35 is set.
++#
+ # kDN, kDN5, kDN6, etc are extensions based on the names from xterm+pcfkeys -TD
+ # Removed kDN6, etc (control+shift) since rxvt does not implement this -TD
+ rxvt+pcfkeys|fragment for PC-style fkeys,
+-	kDC=\E[3$, kEND=\E[8$, kHOM=\E[7$, kIC=\E2$, kLFT=\E[d,
++	kDC=\E[3$, kEND=\E[8$, kHOM=\E[7$, kIC=\E[2$, kLFT=\E[d,
+ 	kNXT=\E[6$, kPRV=\E[5$, kRIT=\E[c, kcub1=\E[D, kcud1=\E[B,
+ 	kcuf1=\E[C, kcuu1=\E[A, kdch1=\E[3~, kel=\E[8\^,
+ 	kend=\E[8~, kf1=\E[11~, kf10=\E[21~, kf11=\E[23~,
+@@ -3753,7 +3800,10 @@
+ 	kf41=\E[33\^, kf42=\E[34\^, kf43=\E[23@, kf44=\E[24@,
+ 	kf5=\E[15~, kf6=\E[17~, kf7=\E[18~, kf8=\E[19~, kf9=\E[20~,
+ 	kfnd=\E[1~, khome=\E[7~, kich1=\E[2~, knp=\E[6~, kpp=\E[5~,
+-	kslt=\E[4~, kDN=\E[b, kDN5=\EOb, kLFT5=\EOd, kRIT5=\EOc,
++	kslt=\E[4~, kDC5=\E[3\^, kDC6=\E[3@, kDN=\E[b, kDN5=\EOb,
++	kEND5=\E[8\^, kEND6=\E[8@, kHOM5=\E[7\^, kHOM6=\E[7@,
++	kIC5=\E[2\^, kIC6=\E[2@, kLFT5=\EOd, kNXT5=\E[6\^,
++	kNXT6=\E[6@, kPRV5=\E[5\^, kPRV6=\E[5@, kRIT5=\EOc,
+ 	kUP=\E[a, kUP5=\EOa,
+ 
+ rxvt|rxvt terminal emulator (X Window System),
+@@ -21524,6 +21574,13 @@
+ # 2007-08-18
+ #	* add 9term entry (request by Juhapekka Tolvanen) -TD
+ #
++# 2007-10-13
++#	* correct kIC in rxvt+pcfkeys (prompted by Debian #446444) -TD
++#	* add shift-control- and control-modified keys for rxvt editing
++#	  keypad -TD
++#	* update mlterm entry to 2.9.3 -TD
++#	* add mlterm+pcfkeys -TD
++#
+ # The following sets edit modes for GNU EMACS.
+ # Local Variables:
+ # fill-prefix:"\t"
+Index: ncurses/base/lib_addstr.c
+Prereq:  1.47 
+--- ncurses-5.6-20071006+/ncurses/base/lib_addstr.c	2007-04-07 17:13:21.000000000 +0000
++++ ncurses-5.6-20071013/ncurses/base/lib_addstr.c	2007-10-13 19:56:57.000000000 +0000
+@@ -44,7 +44,7 @@
+ 
+ #include <curses.priv.h>
+ 
+-MODULE_ID("$Id: lib_addstr.c,v 1.47 2007/04/07 17:13:21 tom Exp $")
++MODULE_ID("$Id: lib_addstr.c,v 1.48 2007/10/13 19:56:57 tom Exp $")
+ 
+ NCURSES_EXPORT(int)
+ waddnstr(WINDOW *win, const char *astr, int n)
+@@ -129,8 +129,8 @@
+ wadd_wchnstr(WINDOW *win, const cchar_t *astr, int n)
+ {
+     static const NCURSES_CH_T blank = NewChar(BLANK_TEXT);
+-    NCURSES_SIZE_T y = win->_cury;
+-    NCURSES_SIZE_T x = win->_curx;
++    NCURSES_SIZE_T y;
++    NCURSES_SIZE_T x;
+     int code = OK;
+     struct ldat *line;
+     int i, j, start, len, end;
+@@ -140,6 +140,8 @@
+     if (!win)
+ 	returnCode(ERR);
+ 
++    y = win->_cury;
++    x = win->_curx;
+     if (n < 0) {
+ 	n = _nc_wchstrlen(astr);
+     }
+Index: ncurses/base/lib_redrawln.c
+Prereq:  1.11 
+--- ncurses-5.6-20071006+/ncurses/base/lib_redrawln.c	2006-11-04 23:08:47.000000000 +0000
++++ ncurses-5.6-20071013/ncurses/base/lib_redrawln.c	2007-10-13 20:08:56.000000000 +0000
+@@ -1,5 +1,5 @@
+ /****************************************************************************
+- * Copyright (c) 1998-2001,2006 Free Software Foundation, Inc.              *
++ * Copyright (c) 1998-2006,2007 Free Software Foundation, Inc.              *
+  *                                                                          *
+  * Permission is hereby granted, free of charge, to any person obtaining a  *
+  * copy of this software and associated documentation files (the            *
+@@ -39,17 +39,20 @@
+ 
+ #include <curses.priv.h>
+ 
+-MODULE_ID("$Id: lib_redrawln.c,v 1.11 2006/11/04 23:08:47 tom Exp $")
++MODULE_ID("$Id: lib_redrawln.c,v 1.12 2007/10/13 20:08:56 tom Exp $")
+ 
+ NCURSES_EXPORT(int)
+ wredrawln(WINDOW *win, int beg, int num)
+ {
+     int i;
+     int end;
+-    size_t len = (win->_maxx + 1);
++    size_t len;
+ 
+     T((T_CALLED("wredrawln(%p,%d,%d)"), win, beg, num));
+ 
++    if (win == 0)
++	returnCode(ERR);
++
+     if (beg < 0)
+ 	beg = 0;
+ 
+@@ -65,6 +68,7 @@
+     if (end > win->_maxy + 1)
+ 	end = win->_maxy + 1;
+ 
++    len = (win->_maxx + 1);
+     if (len > (size_t) (curscr->_maxx + 1))
+ 	len = (size_t) (curscr->_maxx + 1);
+     len *= sizeof(curscr->_line[0].text[0]);
+Index: ncurses/base/lib_restart.c
+Prereq:  1.7 
+--- ncurses-5.6-20071006+/ncurses/base/lib_restart.c	2007-04-19 21:05:25.000000000 +0000
++++ ncurses-5.6-20071013/ncurses/base/lib_restart.c	2007-10-13 19:59:47.000000000 +0000
+@@ -48,22 +48,22 @@
+ 
+ #include <term.h>		/* lines, columns, cur_term */
+ 
+-MODULE_ID("$Id: lib_restart.c,v 1.7 2007/04/19 21:05:25 tom Exp $")
++MODULE_ID("$Id: lib_restart.c,v 1.8 2007/10/13 19:59:47 tom Exp $")
+ 
+ NCURSES_EXPORT(int)
+ restartterm(NCURSES_CONST char *termp, int filenum, int *errret)
+ {
+-    int saveecho = SP->_echo;
+-    int savecbreak = SP->_cbreak;
+-    int saveraw = SP->_raw;
+-    int savenl = SP->_nl;
+     int result;
+ 
+     T((T_CALLED("restartterm(%s,%d,%p)"), termp, filenum, errret));
+ 
+     if (setupterm(termp, filenum, errret) != OK) {
+ 	result = ERR;
+-    } else {
++    } else if (SP != 0) {
++	int saveecho = SP->_echo;
++	int savecbreak = SP->_cbreak;
++	int saveraw = SP->_raw;
++	int savenl = SP->_nl;
+ 
+ 	if (saveecho)
+ 	    echo();
+@@ -92,6 +92,8 @@
+ #endif
+ 
+ 	result = OK;
++    } else {
++	result = ERR;
+     }
+     returnCode(result);
+ }
+Index: ncurses/base/lib_slkset.c
+Prereq:  1.16 
+--- ncurses-5.6-20071006+/ncurses/base/lib_slkset.c	2006-12-17 19:47:09.000000000 +0000
++++ ncurses-5.6-20071013/ncurses/base/lib_slkset.c	2007-10-13 20:08:46.000000000 +0000
+@@ -1,5 +1,5 @@
+ /****************************************************************************
+- * Copyright (c) 1998-2004,2005 Free Software Foundation, Inc.              *
++ * Copyright (c) 1998-2005,2007 Free Software Foundation, Inc.              *
+  *                                                                          *
+  * Permission is hereby granted, free of charge, to any person obtaining a  *
+  * copy of this software and associated documentation files (the            *
+@@ -44,12 +44,12 @@
+ #endif
+ #endif
+ 
+-MODULE_ID("$Id: lib_slkset.c,v 1.16 2006/12/17 19:47:09 tom Exp $")
++MODULE_ID("$Id: lib_slkset.c,v 1.17 2007/10/13 20:08:46 tom Exp $")
+ 
+ NCURSES_EXPORT(int)
+ slk_set(int i, const char *astr, int format)
+ {
+-    SLK *slk = SP->_slk;
++    SLK *slk;
+     int offset;
+     int numchrs;
+     int numcols;
+@@ -59,7 +59,12 @@
+ 
+     T((T_CALLED("slk_set(%d, \"%s\", %d)"), i, str, format));
+ 
+-    if (slk == NULL || i < 1 || i > slk->labcnt || format < 0 || format > 2)
++    if (SP == 0
++	|| (slk = SP->_slk) == 0
++	|| i < 1
++	|| i > slk->labcnt
++	|| format < 0
++	|| format > 2)
+ 	returnCode(ERR);
+     if (str == NULL)
+ 	str = "";
+Index: ncurses/base/resizeterm.c
+Prereq:  1.22 
+--- ncurses-5.6-20071006+/ncurses/base/resizeterm.c	2007-09-29 20:37:13.000000000 +0000
++++ ncurses-5.6-20071013/ncurses/base/resizeterm.c	2007-10-13 20:12:13.000000000 +0000
+@@ -41,7 +41,7 @@
+ #include <curses.priv.h>
+ #include <term.h>
+ 
+-MODULE_ID("$Id: resizeterm.c,v 1.22 2007/09/29 20:37:13 tom Exp $")
++MODULE_ID("$Id: resizeterm.c,v 1.23 2007/10/13 20:12:13 tom Exp $")
+ 
+ #define stolen_lines (screen_lines - SP->_lines_avail)
+ 
+@@ -250,12 +250,16 @@
+ resize_term(int ToLines, int ToCols)
+ {
+     int result = OK EXTRA_ARGS;
+-    int was_stolen = (screen_lines - SP->_lines_avail);
++    int was_stolen;
+ 
+     T((T_CALLED("resize_term(%d,%d) old(%d,%d)"),
+        ToLines, ToCols,
+        screen_lines, screen_columns));
+ 
++    if (SP == 0) {
++	returnCode(ERR);
++    }
++    was_stolen = (screen_lines - SP->_lines_avail);
+     if (is_term_resized(ToLines, ToCols)) {
+ 	int myLines = CurLines = screen_lines;
+ 	int myCols = CurCols = screen_columns;
+@@ -325,22 +329,25 @@
+ NCURSES_EXPORT(int)
+ resizeterm(int ToLines, int ToCols)
+ {
+-    int result = OK;
+-
+-    SP->_sig_winch = FALSE;
++    int result = ERR;
+ 
+     T((T_CALLED("resizeterm(%d,%d) old(%d,%d)"),
+        ToLines, ToCols,
+        screen_lines, screen_columns));
+ 
+-    if (is_term_resized(ToLines, ToCols)) {
++    if (SP != 0) {
++	result = OK;
++	SP->_sig_winch = FALSE;
++
++	if (is_term_resized(ToLines, ToCols)) {
+ 
+ #if USE_SIGWINCH
+-	ungetch(KEY_RESIZE);	/* so application can know this */
+-	clearok(curscr, TRUE);	/* screen contents are unknown */
++	    ungetch(KEY_RESIZE);	/* so application can know this */
++	    clearok(curscr, TRUE);	/* screen contents are unknown */
+ #endif
+ 
+-	result = resize_term(ToLines, ToCols);
++	    result = resize_term(ToLines, ToCols);
++	}
+     }
+ 
+     returnCode(result);
+Index: ncurses/curses.priv.h
+Prereq:  1.344 
+--- ncurses-5.6-20071006+/ncurses/curses.priv.h	2007-10-06 21:29:02.000000000 +0000
++++ ncurses-5.6-20071013/ncurses/curses.priv.h	2007-10-13 18:55:29.000000000 +0000
+@@ -34,7 +34,7 @@
+ 
+ 
+ /*
+- * $Id: curses.priv.h,v 1.344 2007/10/06 21:29:02 tom Exp $
++ * $Id: curses.priv.h,v 1.346 2007/10/13 18:55:29 Miroslav.Lichvar Exp $
+  *
+  *	curses.priv.h
+  *
+@@ -936,43 +936,29 @@
+ #define NulColor	/* nothing */
+ #endif
+ 
+-#define AttrEq(a,b)	((a).attr == (b).attr)
+-#define ExtcEq(a,b)	((a).ext_color == (b).ext_color)
+-#define TextEq(a,b)	(!memcmp((a).chars, (b).chars, sizeof(a.chars)))
+-
+-/*
+- * cchar_t may not be packed, e.g., on a 64-bit platform.
+- *
+- * Set "NCURSES_CHAR_EQ" to use a workaround that compares the structure
+- * member-by-member so that valgrind will not see compares against the
+- * uninitialized filler bytes.
+- */
+-#if NCURSES_CHAR_EQ
+-#if defined(USE_TERMLIB) && !defined(NEED_NCURSES_CH_T)
+-#else
+-static NCURSES_INLINE int
+-_nc_char_eq(NCURSES_CH_T a, NCURSES_CH_T b)
+-{
+-#if NCURSES_EXT_COLORS
+-    return (AttrEq(a,b) && TextEq(a,b) && ExtcEq(a,b));
+-#else
+-    return (AttrEq(a,b) && TextEq(a,b));
+-#endif
+-}
+-#define CharEq(a,b)	_nc_char_eq(a,b)
+-#endif
+-#else
+-#define CharEq(a,b)	(!memcmp(&(a), &(b), sizeof(a)))
+-#endif
+-
+ #define NulChar		0,0,0,0	/* FIXME: see CCHARW_MAX */
+ #define CharOf(c)	((c).chars[0])
+ #define AttrOf(c)	((c).attr)
++
+ #define AddAttr(c,a)	AttrOf(c) |=  ((a) & A_ATTRIBUTES)
+ #define RemAttr(c,a)	AttrOf(c) &= ~((a) & A_ATTRIBUTES)
+ #define SetAttr(c,a)	AttrOf(c) =   ((a) & A_ATTRIBUTES) | WidecExt(c)
++
+ #define NewChar2(c,a)	{ a, { c, NulChar } NulColor }
+ #define NewChar(ch)	NewChar2(ChCharOf(ch), ChAttrOf(ch))
++
++#if CCHARW_MAX == 5
++#define CharEq(a,b)	(((a).attr == (b).attr) \
++		       && (a).chars[0] == (b).chars[0] \
++		       && (a).chars[1] == (b).chars[1] \
++		       && (a).chars[2] == (b).chars[2] \
++		       && (a).chars[3] == (b).chars[3] \
++		       && (a).chars[4] == (b).chars[4] \
++			if_EXT_COLORS(&& (a).ext_color == (b).ext_color))
++#else
++#define CharEq(a,b)	(!memcmp(&(a), &(b), sizeof(a)))
++#endif
++
+ #define SetChar(ch,c,a) do {							    \
+ 			    NCURSES_CH_T *_cp = &ch;				    \
+ 			    memset(_cp, 0, sizeof(ch));				    \
+Index: ncurses/tty/hashmap.c
+Prereq:  1.55 
+--- ncurses-5.6-20071006+/ncurses/tty/hashmap.c	2007-07-14 15:33:39.000000000 +0000
++++ ncurses-5.6-20071013/ncurses/tty/hashmap.c	2007-10-13 18:47:25.000000000 +0000
+@@ -70,7 +70,7 @@
+ #include <curses.priv.h>
+ #include <term.h>		/* for back_color_erase */
+ 
+-MODULE_ID("$Id: hashmap.c,v 1.55 2007/07/14 15:33:39 tom Exp $")
++MODULE_ID("$Id: hashmap.c,v 1.56 2007/10/13 18:47:25 Miroslav.Lichvar Exp $")
+ 
+ #ifdef HASHDEBUG
+ 
+@@ -131,8 +131,8 @@
+     int cost = 0;
+     int i;
+ 
+-    for (i = TEXTWIDTH; i > 0; i--)
+-	if (!(CharEq(*from++, *to++)))
++    for (i = TEXTWIDTH; i > 0; i--, from++, to++)
++	if (!(CharEq(*from, *to)))
+ 	    cost++;
+ 
+     return cost;
+@@ -148,8 +148,8 @@
+     if (back_color_erase)
+ 	SetPair(blank, GetPair(stdscr->_nc_bkgd));
+ 
+-    for (i = TEXTWIDTH; i > 0; i--)
+-	if (!(CharEq(blank, *to++)))
++    for (i = TEXTWIDTH; i > 0; i--, to++)
++	if (!(CharEq(blank, *to)))
+ 	    cost++;
+ 
+     return cost;
+Index: ncurses/tty/tty_update.c
+Prereq:  1.242 
+--- ncurses-5.6-20071006+/ncurses/tty/tty_update.c	2007-09-29 20:37:13.000000000 +0000
++++ ncurses-5.6-20071013/ncurses/tty/tty_update.c	2007-10-13 20:03:32.000000000 +0000
+@@ -74,7 +74,7 @@
+ #include <ctype.h>
+ #include <term.h>
+ 
+-MODULE_ID("$Id: tty_update.c,v 1.242 2007/09/29 20:37:13 tom Exp $")
++MODULE_ID("$Id: tty_update.c,v 1.243 2007/10/13 20:03:32 tom Exp $")
+ 
+ /*
+  * This define controls the line-breakout optimization.  Every once in a
+@@ -624,6 +624,10 @@
+ 
+     T((T_CALLED("doupdate()")));
+ 
++    if (curscr == 0
++	|| newscr == 0)
++	returnCode(ERR);
++
+ #ifdef TRACE
+     if (USE_TRACEF(TRACE_UPDATE)) {
+ 	if (curscr->_clear)
+Index: progs/Makefile.in
+Prereq:  1.74 
+--- ncurses-5.6-20071006+/progs/Makefile.in	2007-04-28 15:47:19.000000000 +0000
++++ ncurses-5.6-20071013/progs/Makefile.in	2007-10-13 22:25:53.000000000 +0000
+@@ -1,4 +1,4 @@
+-# $Id: Makefile.in,v 1.74 2007/04/28 15:47:19 tom Exp $
++# $Id: Makefile.in,v 1.77 2007/10/13 22:25:53 tom Exp $
+ ##############################################################################
+ # Copyright (c) 1998-2006,2007 Free Software Foundation, Inc.                #
+ #                                                                            #
+@@ -99,7 +99,7 @@
+ 
+ LD		= @LD@
+ LINK		= @LINK_PROGS@ $(LIBTOOL_LINK)
+-LDFLAGS		= @EXTRA_LDFLAGS@ @LDFLAGS_STATIC@ @TICS_ARGS@ @TINFO_ARGS@ @LDFLAGS_SHARED@ @LDFLAGS@ @LD_MODEL@ @LIBS@
++LDFLAGS		= @EXTRA_LDFLAGS@ @LDFLAGS@
+ 
+ LDFLAGS_LIBTOOL	= $(LDFLAGS) $(CFLAGS_LIBTOOL)
+ LDFLAGS_NORMAL	= $(LDFLAGS) $(CFLAGS_NORMAL)
+@@ -109,6 +109,12 @@
+ 
+ LDFLAGS_DEFAULT	= $(LDFLAGS_@DFT_UPR_MODEL@)
+ 
++LIBS_TIC	= @LDFLAGS_STATIC@ @TICS_ARGS@ @TINFO_ARGS@ @LDFLAGS_SHARED@ @LD_MODEL@ @LIBS@
++LDFLAGS_TIC	= $(LDFLAGS_@DFT_UPR_MODEL@) $(LIBS_TIC)
++
++LIBS_TINFO	= @LDFLAGS_STATIC@ @TINFO_ARGS@ @LDFLAGS_SHARED@ @LD_MODEL@ @LIBS@
++LDFLAGS_TINFO	= $(LDFLAGS_@DFT_UPR_MODEL@) $(LIBS_TINFO)
++
+ LINT		= @LINT@
+ LINT_OPTS	= @LINT_OPTS@
+ LINT_LIBS	= -lncurses @LIBS@
+@@ -210,40 +216,38 @@
+ 	$(MODEL)/dump_entry$o
+ 
+ tic$x: $(DEPS_TIC) $(DEPS_CURSES) transform.h
+-	@ECHO_LINK@ $(LINK) $(DEPS_TIC) $(LDFLAGS_DEFAULT) -o $@
++	@ECHO_LINK@ $(LINK) $(DEPS_TIC) $(LDFLAGS_TIC) -o $@
+ 
+ DEPS_TOE = \
+-	$(MODEL)/toe$o \
+-	$(MODEL)/dump_entry$o
++	$(MODEL)/toe$o
+ 
+ toe$x: $(DEPS_TOE) $(DEPS_CURSES)
+-	@ECHO_LINK@ $(LINK) $(DEPS_TOE) $(LDFLAGS_DEFAULT) -o $@
++	@ECHO_LINK@ $(LINK) $(DEPS_TOE) $(LDFLAGS_TIC) -o $@
+ 
+ DEPS_CLEAR = \
+ 	$(MODEL)/clear$o
+ 
+ clear$x: $(DEPS_CLEAR) $(DEPS_CURSES)
+-	@ECHO_LINK@ $(LINK) $(DEPS_CLEAR) $(LDFLAGS_DEFAULT) -o $@
++	@ECHO_LINK@ $(LINK) $(DEPS_CLEAR) $(LDFLAGS_TINFO) -o $@
+ 
+ DEPS_TPUT = \
+ 	$(MODEL)/tput$o
+ 
+ tput$x: $(DEPS_TPUT) $(DEPS_CURSES) transform.h
+-	@ECHO_LINK@ $(LINK) $(DEPS_TPUT) $(LDFLAGS_DEFAULT) -o $@
++	@ECHO_LINK@ $(LINK) $(DEPS_TPUT) $(LDFLAGS_TINFO) -o $@
+ 
+ DEPS_INFOCMP = \
+ 	$(MODEL)/infocmp$o \
+ 	$(MODEL)/dump_entry$o
+ 
+ infocmp$x: $(DEPS_INFOCMP) $(DEPS_CURSES)
+-	@ECHO_LINK@ $(LINK) $(DEPS_INFOCMP) $(LDFLAGS_DEFAULT) -o $@
++	@ECHO_LINK@ $(LINK) $(DEPS_INFOCMP) $(LDFLAGS_TIC) -o $@
+ 
+ DEPS_TSET = \
+-	$(MODEL)/tset$o \
+-	$(MODEL)/dump_entry$o
++	$(MODEL)/tset$o
+ 
+ tset$x: $(DEPS_TSET) $(DEPS_CURSES) transform.h
+-	@ECHO_LINK@ $(LINK) $(DEPS_TSET) $(LDFLAGS_DEFAULT) -o $@
++	@ECHO_LINK@ $(LINK) $(DEPS_TSET) $(LDFLAGS_TINFO) -o $@
+ 
+ termsort.c: $(srcdir)/MKtermsort.sh
+ 	sh $(srcdir)/MKtermsort.sh $(AWK) $(srcdir)/../include/@TERMINFO_CAPS@ >$@
+Index: progs/clear.c
+Prereq:  1.10 
+--- ncurses-5.6-20071006+/progs/clear.c	2006-05-20 17:47:47.000000000 +0000
++++ ncurses-5.6-20071013/progs/clear.c	2007-10-13 22:16:02.000000000 +0000
+@@ -1,5 +1,5 @@
+ /****************************************************************************
+- * Copyright (c) 1998-2005,2006 Free Software Foundation, Inc.              *
++ * Copyright (c) 1998-2006,2007 Free Software Foundation, Inc.              *
+  *                                                                          *
+  * Permission is hereby granted, free of charge, to any person obtaining a  *
+  * copy of this software and associated documentation files (the            *
+@@ -36,9 +36,10 @@
+  * clear.c --  clears the terminal's screen
+  */
+ 
++#define USE_LIBTINFO
+ #include <progs.priv.h>
+ 
+-MODULE_ID("$Id: clear.c,v 1.10 2006/05/20 17:47:47 tom Exp $")
++MODULE_ID("$Id: clear.c,v 1.11 2007/10/13 22:16:02 tom Exp $")
+ 
+ static int
+ putch(int c)
+Index: progs/progs.priv.h
+Prereq:  1.32 
+--- ncurses-5.6-20071006+/progs/progs.priv.h	2007-02-03 19:59:02.000000000 +0000
++++ ncurses-5.6-20071013/progs/progs.priv.h	2007-10-13 20:33:53.000000000 +0000
+@@ -30,7 +30,7 @@
+  *  Author: Thomas E. Dickey                    1997-on                     *
+  ****************************************************************************/
+ /*
+- * $Id: progs.priv.h,v 1.32 2007/02/03 19:59:02 tom Exp $
++ * $Id: progs.priv.h,v 1.33 2007/10/13 20:33:53 tom Exp $
+  *
+  *	progs.priv.h
+  *
+@@ -114,8 +114,12 @@
+ #include <nc_alloc.h>
+ #if HAVE_NC_FREEALL
+ #undef ExitProgram
++#ifdef USE_LIBTINFO
++#define ExitProgram(code) _nc_free_tinfo(code)
++#else
+ #define ExitProgram(code) _nc_free_tic(code)
+ #endif
++#endif
+ 
+ /* usually in <unistd.h> */
+ #ifndef STDOUT_FILENO
+Index: progs/toe.c
+Prereq:  1.44 
+--- ncurses-5.6-20071006+/progs/toe.c	2007-07-21 17:45:59.000000000 +0000
++++ ncurses-5.6-20071013/progs/toe.c	2007-10-13 22:26:38.000000000 +0000
+@@ -40,13 +40,11 @@
+ 
+ #include <sys/stat.h>
+ 
+-#include <dump_entry.h>
+-
+ #if USE_HASHED_DB
+ #include <hashed_db.h>
+ #endif
+ 
+-MODULE_ID("$Id: toe.c,v 1.44 2007/07/21 17:45:59 tom Exp $")
++MODULE_ID("$Id: toe.c,v 1.46 2007/10/13 22:26:38 tom Exp $")
+ 
+ #define isDotname(name) (!strcmp(name, ".") || !strcmp(name, ".."))
+ 
+@@ -59,7 +57,6 @@
+ ExitProgram(int code)
+ {
+     _nc_free_entries(_nc_head);
+-    _nc_leaks_dump_entry();
+     _nc_free_tic(code);
+ }
+ #endif
+Index: progs/tput.c
+Prereq:  1.40 
+--- ncurses-5.6-20071006+/progs/tput.c	2007-07-21 17:45:59.000000000 +0000
++++ ncurses-5.6-20071013/progs/tput.c	2007-10-13 20:34:16.000000000 +0000
+@@ -38,6 +38,7 @@
+  * Ross Ridge's mytinfo package.
+  */
+ 
++#define USE_LIBTINFO
+ #include <progs.priv.h>
+ 
+ #if !PURE_TERMINFO
+@@ -45,7 +46,7 @@
+ #endif
+ #include <transform.h>
+ 
+-MODULE_ID("$Id: tput.c,v 1.40 2007/07/21 17:45:59 tom Exp $")
++MODULE_ID("$Id: tput.c,v 1.41 2007/10/13 20:34:16 tom Exp $")
+ 
+ #define PUTS(s)		fputs(s, stdout)
+ #define PUTCHAR(c)	putchar(c)
+Index: progs/tset.c
+Prereq:  1.69 
+--- ncurses-5.6-20071006+/progs/tset.c	2007-09-29 15:51:35.000000000 +0000
++++ ncurses-5.6-20071013/progs/tset.c	2007-10-13 22:22:04.000000000 +0000
+@@ -73,6 +73,7 @@
+  * SUCH DAMAGE.
+  */
+ 
++#define USE_LIBTINFO
+ #define __INTERNAL_CAPS_VISIBLE	/* we need to see has_hardware_tabs */
+ #include <progs.priv.h>
+ 
+@@ -103,7 +104,7 @@
+ #include <dump_entry.h>
+ #include <transform.h>
+ 
+-MODULE_ID("$Id: tset.c,v 1.69 2007/09/29 15:51:35 tom Exp $")
++MODULE_ID("$Id: tset.c,v 1.70 2007/10/13 22:22:04 tom Exp $")
+ 
+ extern char **environ;
+ 

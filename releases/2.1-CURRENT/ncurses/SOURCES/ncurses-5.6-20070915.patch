@@ -1,0 +1,573 @@
+# ncurses 5.6 - patch 20070915 - Thomas E. Dickey
+#
+# ------------------------------------------------------------------------------
+#
+# Ncurses 5.6 is at
+# 	ftp.gnu.org:/pub/gnu
+#
+# Patches for ncurses 5.6 are in the subdirectory
+# 	ftp://invisible-island.net/ncurses/5.6
+#
+# ------------------------------------------------------------------------------
+# patch by Thomas E. Dickey <dickey@invisible-island.net>
+# created  Sat Sep 15 22:30:31 UTC 2007
+# ------------------------------------------------------------------------------
+# Ada95/gen/Makefile.in |   55 +++++------
+# Ada95/src/Makefile.in |    8 -
+# NEWS                  |    9 +
+# dist.mk               |    4 
+# test/worm.c           |  231 +++++++++++++++++++++++++++++-------------------
+# 5 files changed, 184 insertions(+), 123 deletions(-)
+# ------------------------------------------------------------------------------
+Index: Ada95/gen/Makefile.in
+Prereq:  1.58 
+--- ncurses-5.6-20070908+/Ada95/gen/Makefile.in	2007-05-05 19:54:57.000000000 +0000
++++ ncurses-5.6-20070915/Ada95/gen/Makefile.in	2007-09-15 17:55:33.000000000 +0000
+@@ -28,7 +28,7 @@
+ #
+ #  Author:  Juergen Pfeifer, 1996
+ #
+-#  $Id: Makefile.in,v 1.58 2007/05/05 19:54:57 tom Exp $
++#  $Id: Makefile.in,v 1.60 2007/09/15 17:55:33 tom Exp $
+ #
+ .SUFFIXES:
+ 
+@@ -83,6 +83,7 @@
+ 
+ ADACURSES_CONFIG = adacurses-config
+ 
++WRAPPER		= sh $(top_srcdir)/misc/shlib
+ GENERATE	= ./gen$x '@DFT_ARG_SUFFIX@'
+ DEL_ADAMODE	= sed -e '/^\-\-\ \ \-\*\-\ ada\ \-\*\-.*/d'
+ 
+@@ -210,82 +211,82 @@
+ 	$(HOST_CC) $(CFLAGS_NORMAL) -c -o $@ $(srcdir)/gen.c
+ ################################################################################
+ Character_Attribute_Set_Rep: gen$x
+-	$(GENERATE) B A >$@
++	$(WRAPPER) "$(GENERATE) B A" >$@
+ 
+ Base_Defs: gen$x
+-	$(GENERATE) B B >$@
++	$(WRAPPER) "$(GENERATE) B B" >$@
+ 
+ Color_Defs: gen$x
+-	$(GENERATE) B C >$@
++	$(WRAPPER) "$(GENERATE) B C" >$@
+ 
+ Window_Offsets: gen$x
+-	$(GENERATE) B D >$@
++	$(WRAPPER) "$(GENERATE) B D" >$@
+ 
+ Key_Definitions: gen$x
+-	$(GENERATE) B K >$@
++	$(WRAPPER) "$(GENERATE) B K" >$@
+ 
+ Linker_Options: gen$x
+-	$(GENERATE) B L >$@
++	$(WRAPPER) "$(GENERATE) B L" >$@
+ 
+ ACS_Map: gen$x
+-	$(GENERATE) B M >$@
++	$(WRAPPER) "$(GENERATE) B M" >$@
+ 
+ Old_Keys: gen$x
+-	$(GENERATE) B O >$@
++	$(WRAPPER) "$(GENERATE) B O" >$@
+ 
+ Public_Variables: gen$x
+-	$(GENERATE) B P >$@
++	$(WRAPPER) "$(GENERATE) B P" >$@
+ 
+ AC_Rep: gen$x
+-	$(GENERATE) B R >$@
++	$(WRAPPER) "$(GENERATE) B R" >$@
+ 
+ Version_Info: gen$x
+-	$(GENERATE) B V >$@
++	$(WRAPPER) "$(GENERATE) B V" >$@
+ 
+ Trace_Defs: gen$x
+-	$(GENERATE) B T >$@
++	$(WRAPPER) "$(GENERATE) B T" >$@
+ ################################################################################
+ Menu_Opt_Rep: gen$x
+-	$(GENERATE) M R >$@
++	$(WRAPPER) "$(GENERATE) M R" >$@
+ 
+ Menu_Base_Defs: gen$x
+-	$(GENERATE) M B >$@
++	$(WRAPPER) "$(GENERATE) M B" >$@
+ 
+ Menu_Linker_Options: gen$x
+-	$(GENERATE) M L >$@
++	$(WRAPPER) "$(GENERATE) M L" >$@
+ 
+ Item_Rep: gen$x
+-	$(GENERATE) M I >$@
++	$(WRAPPER) "$(GENERATE) M I" >$@
+ ################################################################################
+ Form_Opt_Rep: gen$x
+-	$(GENERATE) F R >$@
++	$(WRAPPER) "$(GENERATE) F R" >$@
+ 
+ Form_Base_Defs: gen$x
+-	$(GENERATE) F B >$@
++	$(WRAPPER) "$(GENERATE) F B" >$@
+ 
+ Form_Linker_Options: gen$x
+-	$(GENERATE) F L >$@
++	$(WRAPPER) "$(GENERATE) F L" >$@
+ 
+ Field_Rep: gen$x
+-	$(GENERATE) F I >$@
++	$(WRAPPER) "$(GENERATE) F I" >$@
+ ################################################################################
+ Mouse_Base_Defs: gen$x
+-	$(GENERATE) P B >$@
++	$(WRAPPER) "$(GENERATE) P B" >$@
+ 
+ Mouse_Event_Rep: gen$x
+-	$(GENERATE) P M >$@
++	$(WRAPPER) "$(GENERATE) P M" >$@
+ 
+ Mouse_Events: gen$x
+-	$(GENERATE) B E >$@
++	$(WRAPPER) "$(GENERATE) B E" >$@
+ 
+ Panel_Linker_Options: gen$x
+-	$(GENERATE) P L >$@
++	$(WRAPPER) "$(GENERATE) P L" >$@
+ 
+ Chtype_Def: gen$x
+-	$(GENERATE) E C >$@
++	$(WRAPPER) "$(GENERATE) E C" >$@
+ 
+ Eti_Defs: gen$x
+-	$(GENERATE) E E >$@
++	$(WRAPPER) "$(GENERATE) E E" >$@
+ ################################################################################
+ $(ADA_SRCDIR)/$(ABASE).ads: 	$(srcdir)/$(ABASE).ads.m4 \
+ 				$(GEN_FILES1) $(srcdir)/normal.m4
+Index: Ada95/src/Makefile.in
+Prereq:  1.30 
+--- ncurses-5.6-20070908+/Ada95/src/Makefile.in	2004-08-21 21:29:50.000000000 +0000
++++ ncurses-5.6-20070915/Ada95/src/Makefile.in	2007-09-15 18:22:24.000000000 +0000
+@@ -28,7 +28,7 @@
+ #
+ #  Author:  Juergen Pfeifer, 1996
+ #
+-#  $Id: Makefile.in,v 1.30 2004/08/21 21:29:50 tom Exp $
++#  $Id: Makefile.in,v 1.31 2007/09/15 18:22:24 tom Exp $
+ #
+ .SUFFIXES:
+ 
+@@ -197,7 +197,7 @@
+ 
+ realclean :: distclean
+ 
+-BASEDEPS=$(ABASE).ads $(ABASE)-aux.ads $(srcdir)/$(ABASE).adb
++BASEDEPS=$(ABASE).ads $(ABASE)-aux.ads $(ABASE).adb
+ 
+ $(ALIB).o: $(srcdir)/$(ALIB).ads
+ 	$(ADA) $(ADAFLAGS) -c -o $@ $(srcdir)/$(ALIB).ads
+@@ -207,8 +207,8 @@
+ 	$(ADA) $(ADAFLAGS) -c -o $@ $(srcdir)/$(ABASE)-aux.adb
+ 
+ 
+-$(ABASE).o: $(srcdir)/$(ABASE).adb $(BASEDEPS)
+-	$(ADA) $(ADAFLAGS) -c -o $@ $(srcdir)/$(ABASE).adb
++$(ABASE).o: $(ABASE).adb $(BASEDEPS)
++	$(ADA) $(ADAFLAGS) -c -o $@ $(ABASE).adb
+ 
+ 
+ $(ABASE)-terminfo.o: \
+Index: NEWS
+Prereq:  1.1166 
+--- ncurses-5.6-20070908+/NEWS	2007-09-08 21:55:19.000000000 +0000
++++ ncurses-5.6-20070915/NEWS	2007-09-15 21:33:37.000000000 +0000
+@@ -25,7 +25,7 @@
+ -- sale, use or other dealings in this Software without prior written        --
+ -- authorization.                                                            --
+ -------------------------------------------------------------------------------
+--- $Id: NEWS,v 1.1166 2007/09/08 21:55:19 tom Exp $
++-- $Id: NEWS,v 1.1168 2007/09/15 21:33:37 tom Exp $
+ -------------------------------------------------------------------------------
+ 
+ This is a log of changes that ncurses has gone through since Zeyd started
+@@ -45,6 +45,13 @@
+ Changes through 1.9.9e did not credit all contributions;
+ it is not possible to add this information.
+ 
++20070915
++	+ modify Ada95/gen/Makefile to use shlib script, to simplify building
++	  shared-library configuration on platforms lacking rpath support.
++	+ build-fix for Ada95/src/Makefile to reflect changed dependency for
++	  the terminal-interface-curses-aux.adb file which is now generated.
++	+ restructuring test/worm.c, for use_window() example.
++
+ 20070908
+ 	+ add use_window() and use_screen() functions, to develop into support
+ 	  for threaded library (incomplete).
+Index: dist.mk
+Prereq:  1.609 
+--- ncurses-5.6-20070908+/dist.mk	2007-09-08 18:37:50.000000000 +0000
++++ ncurses-5.6-20070915/dist.mk	2007-09-15 14:29:36.000000000 +0000
+@@ -25,7 +25,7 @@
+ # use or other dealings in this Software without prior written               #
+ # authorization.                                                             #
+ ##############################################################################
+-# $Id: dist.mk,v 1.609 2007/09/08 18:37:50 tom Exp $
++# $Id: dist.mk,v 1.610 2007/09/15 14:29:36 tom Exp $
+ # Makefile for creating ncurses distributions.
+ #
+ # This only needs to be used directly as a makefile by developers, but
+@@ -37,7 +37,7 @@
+ # These define the major/minor/patch versions of ncurses.
+ NCURSES_MAJOR = 5
+ NCURSES_MINOR = 6
+-NCURSES_PATCH = 20070908
++NCURSES_PATCH = 20070915
+ 
+ # We don't append the patch to the version, since this only applies to releases
+ VERSION = $(NCURSES_MAJOR).$(NCURSES_MINOR)
+Index: test/worm.c
+Prereq:  1.41 
+--- ncurses-5.6-20070908+/test/worm.c	2006-07-01 22:57:24.000000000 +0000
++++ ncurses-5.6-20070915/test/worm.c	2007-09-15 21:42:16.000000000 +0000
+@@ -1,5 +1,5 @@
+ /****************************************************************************
+- * Copyright (c) 1998-2005,2006 Free Software Foundation, Inc.              *
++ * Copyright (c) 1998-2006,2007 Free Software Foundation, Inc.              *
+  *                                                                          *
+  * Permission is hereby granted, free of charge, to any person obtaining a  *
+  * copy of this software and associated documentation files (the            *
+@@ -61,7 +61,7 @@
+   traces will be dumped.  The program stops and waits for one character of
+   input at the beginning and end of the interval.
+ 
+-  $Id: worm.c,v 1.41 2006/07/01 22:57:24 tom Exp $
++  $Id: worm.c,v 1.48 2007/09/15 21:42:16 tom Exp $
+ */
+ 
+ #include <test.priv.h>
+@@ -77,17 +77,24 @@
+ {
+     -1, 0, 1, 1, 1, 0, -1, -1
+ };
+-static struct worm {
+-    int orientation, head;
+-    short *xpos, *ypos;
+-} worm[40];
++
++typedef struct worm {
++    int orientation;
++    int head;
++    short *xpos;
++    short *ypos;
++    chtype attrs;
++} WORM;
++
++static WORM worm[40];
++static short **refs;
+ 
+ static const char *field;
+ static int length = 16, number = 3;
+ static chtype trail = ' ';
+ 
+ #ifdef TRACE
+-static int generation, trace_start, trace_end, singlestep;
++static int generation, trace_start, trace_end;
+ #endif /* TRACE */
+ /* *INDENT-OFF* */
+ static const struct options {
+@@ -200,15 +207,110 @@
+     return ((float) r / 32768.);
+ }
+ 
++static int
++draw_worm(WINDOW *win, void *data)
++{
++    WORM *w = (WORM *) data;
++    const struct options *op;
++
++    int x;
++    int y;
++    int h;
++
++    int bottom = LINES - 1;
++    int last = COLS - 1;
++
++    bool done = FALSE;
++
++    if ((x = w->xpos[h = w->head]) < 0) {
++	wmove(win, y = w->ypos[h] = bottom, x = w->xpos[h] = 0);
++	waddch(win, w->attrs);
++	refs[y][x]++;
++    } else {
++	y = w->ypos[h];
++    }
++
++    if (x > last)
++	x = last;
++    if (y > bottom)
++	y = bottom;
++
++    if (++h == length)
++	h = 0;
++
++    if (w->xpos[w->head = h] >= 0) {
++	int x1, y1;
++	x1 = w->xpos[h];
++	y1 = w->ypos[h];
++	if (y1 < LINES
++	    && x1 < COLS
++	    && --refs[y1][x1] == 0) {
++	    wmove(win, y1, x1);
++	    waddch(win, trail);
++	}
++    }
++
++    op = &(x == 0
++	   ? (y == 0
++	      ? upleft
++	      : (y == bottom
++		 ? lowleft
++		 : left))
++	   : (x == last
++	      ? (y == 0
++		 ? upright
++		 : (y == bottom
++		    ? lowright
++		    : right))
++	      : (y == 0
++		 ? upper
++		 : (y == bottom
++		    ? lower
++		    : normal))))[w->orientation];
++
++    switch (op->nopts) {
++    case 0:
++	done = TRUE;
++	break;
++    case 1:
++	w->orientation = op->opts[0];
++	break;
++    default:
++	w->orientation = op->opts[(int) (ranf() * (float) op->nopts)];
++	break;
++    }
++
++    if (!done) {
++	x += xinc[w->orientation];
++	y += yinc[w->orientation];
++	wmove(win, y, x);
++
++	if (y < 0)
++	    y = 0;
++	waddch(win, w->attrs);
++
++	w->ypos[h] = y;
++	w->xpos[h] = x;
++	refs[y][x]++;
++    }
++
++    return done;
++}
++
++#if !defined(NCURSES_VERSION_PATCH) || (NCURSES_VERSION_PATCH < 20070915)
++static int
++use_window(WINDOW *win, int (*func)(WINDOW *, void *), void *data)
++{
++    return func(win, data);
++}
++#endif
++
+ int
+ main(int argc, char *argv[])
+ {
+-    short **ref;
+     int x, y;
+     int n;
+     struct worm *w;
+-    const struct options *op;
+-    int h;
+     short *ip;
+     int last, bottom;
+     bool done = FALSE;
+@@ -244,9 +346,6 @@
+ 	    trail = '.';
+ 	    break;
+ #ifdef TRACE
+-	case 'S':
+-	    singlestep = TRUE;
+-	    break;
+ 	case 'T':
+ 	    trace_start = atoi(argv[++x]);
+ 	    trace_end = atoi(argv[++x]);
+@@ -297,21 +396,24 @@
+     }
+ #endif /* A_COLOR */
+ 
+-    ref = typeMalloc(short *, LINES);
++    refs = typeMalloc(short *, LINES);
+     for (y = 0; y < LINES; y++) {
+-	ref[y] = typeMalloc(short, COLS);
++	refs[y] = typeMalloc(short, COLS);
+ 	for (x = 0; x < COLS; x++) {
+-	    ref[y][x] = 0;
++	    refs[y][x] = 0;
+ 	}
+     }
+ 
+ #ifdef BADCORNER
+     /* if addressing the lower right corner doesn't work in your curses */
+-    ref[bottom][last] = 1;
++    refs[bottom][last] = 1;
+ #endif /* BADCORNER */
+ 
+     for (n = number, w = &worm[0]; --n >= 0; w++) {
+-	w->orientation = w->head = 0;
++	w->attrs = flavor[n % SIZEOF(flavor)];
++	w->orientation = 0;
++	w->head = 0;
++
+ 	if (!(ip = typeMalloc(short, (length + 1)))) {
+ 	    fprintf(stderr, "%s: out of memory\n", *argv);
+ 	    ExitProgram(EXIT_FAILURE);
+@@ -340,48 +442,43 @@
+     }
+     napms(10);
+     refresh();
+-#ifndef TRACE
+     nodelay(stdscr, TRUE);
+-#endif
+ 
+     while (!done) {
+-#ifdef TRACE
+-	if (trace_start || trace_end) {
+-	    if (generation == trace_start) {
+-		trace(TRACE_CALLS);
+-		getch();
+-	    } else if (generation == trace_end) {
+-		trace(0);
+-		getch();
+-	    }
+-
+-	    if (singlestep && generation > trace_start && generation < trace_end)
+-		getch();
+-
+-	    generation++;
+-	}
+-#else
+ 	int ch;
+ 
+ 	if ((ch = getch()) > 0) {
++#ifdef TRACE
++	    if (trace_start || trace_end) {
++		if (generation == trace_start) {
++		    trace(TRACE_CALLS);
++		    getch();
++		} else if (generation == trace_end) {
++		    trace(0);
++		    getch();
++		}
++
++		generation++;
++	    }
++#endif
+ #ifdef KEY_RESIZE
+ 	    if (ch == KEY_RESIZE) {
+ 		if (last != COLS - 1) {
+ 		    for (y = 0; y <= bottom; y++) {
+-			ref[y] = typeRealloc(short, COLS, ref[y]);
++			refs[y] = typeRealloc(short, COLS, refs[y]);
+ 			for (x = last + 1; x < COLS; x++)
+-			    ref[y][x] = 0;
++			    refs[y][x] = 0;
+ 		    }
+ 		    last = COLS - 1;
+ 		}
+ 		if (bottom != LINES - 1) {
+ 		    for (y = LINES; y <= bottom; y++)
+-			free(ref[y]);
+-		    ref = typeRealloc(short *, LINES, ref);
++			free(refs[y]);
++		    refs = typeRealloc(short *, LINES, refs);
+ 		    for (y = bottom + 1; y < LINES; y++) {
+-			ref[y] = typeMalloc(short, COLS);
++			refs[y] = typeMalloc(short, COLS);
+ 			for (x = 0; x < COLS; x++)
+-			    ref[y][x] = 0;
++			    refs[y][x] = 0;
+ 		    }
+ 		    bottom = LINES - 1;
+ 		}
+@@ -400,54 +497,10 @@
+ 		nodelay(stdscr, TRUE);
+ 	    }
+ 	}
+-#endif /* TRACE */
+ 
+ 	for (n = 0, w = &worm[0]; n < number; n++, w++) {
+-	    if ((x = w->xpos[h = w->head]) < 0) {
+-		move(y = w->ypos[h] = bottom, x = w->xpos[h] = 0);
+-		addch(flavor[n % SIZEOF(flavor)]);
+-		ref[y][x]++;
+-	    } else {
+-		y = w->ypos[h];
+-	    }
+-	    if (x > last)
+-		x = last;
+-	    if (y > bottom)
+-		y = bottom;
+-	    if (++h == length)
+-		h = 0;
+-	    if (w->xpos[w->head = h] >= 0) {
+-		int x1, y1;
+-		x1 = w->xpos[h];
+-		y1 = w->ypos[h];
+-		if (y1 < LINES
+-		    && x1 < COLS
+-		    && --ref[y1][x1] == 0) {
+-		    move(y1, x1);
+-		    addch(trail);
+-		}
+-	    }
+-	    op = &(x == 0 ? (y == 0 ? upleft : (y == bottom ? lowleft :
+-						left)) :
+-		   (x == last ? (y == 0 ? upright : (y == bottom ? lowright :
+-						     right)) :
+-		    (y == 0 ? upper : (y == bottom ? lower : normal))))[w->orientation];
+-	    switch (op->nopts) {
+-	    case 0:
++	    if (use_window(stdscr, draw_worm, w))
+ 		done = TRUE;
+-		continue;
+-	    case 1:
+-		w->orientation = op->opts[0];
+-		break;
+-	    default:
+-		w->orientation = op->opts[(int) (ranf() * (float) op->nopts)];
+-	    }
+-	    move(y += yinc[w->orientation], x += xinc[w->orientation]);
+-
+-	    if (y < 0)
+-		y = 0;
+-	    addch(flavor[n % SIZEOF(flavor)]);
+-	    ref[w->ypos[h] = y][w->xpos[h] = x]++;
+ 	}
+ 	napms(10);
+ 	refresh();
+@@ -456,9 +509,9 @@
+     cleanup();
+ #ifdef NO_LEAKS
+     for (y = 0; y < LINES; y++) {
+-	free(ref[y]);
++	free(refs[y]);
+     }
+-    free(ref);
++    free(refs);
+     for (n = number, w = &worm[0]; --n >= 0; w++) {
+ 	free(w->xpos);
+ 	free(w->ypos);

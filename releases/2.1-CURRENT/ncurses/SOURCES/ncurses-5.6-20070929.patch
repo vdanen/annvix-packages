@@ -1,0 +1,1065 @@
+# ncurses 5.6 - patch 20070929 - Thomas E. Dickey
+#
+# ------------------------------------------------------------------------------
+#
+# Ncurses 5.6 is at
+# 	ftp.gnu.org:/pub/gnu
+#
+# Patches for ncurses 5.6 are in the subdirectory
+# 	ftp://invisible-island.net/ncurses/5.6
+#
+# ------------------------------------------------------------------------------
+# patch by Thomas E. Dickey <dickey@invisible-island.net>
+# created  Sat Sep 29 23:30:37 UTC 2007
+# ------------------------------------------------------------------------------
+# NEWS                       |   10 +++-
+# dist.mk                    |    4 -
+# ncurses/base/lib_getch.c   |   10 +++-
+# ncurses/base/lib_mouse.c   |   16 ++++--
+# ncurses/base/lib_refresh.c |   10 +++-
+# ncurses/base/lib_ungetch.c |    8 ++-
+# ncurses/base/resizeterm.c  |    9 ++-
+# ncurses/base/tries.c       |    6 +-
+# ncurses/base/wresize.c     |   10 +++-
+# ncurses/curses.priv.h      |   60 ++++++++++++++++++++++---
+# ncurses/tinfo/lib_acs.c    |    5 +-
+# ncurses/tinfo/lib_data.c   |    9 +++
+# ncurses/tinfo/lib_raw.c    |    8 +--
+# ncurses/tinfo/lib_tparm.c  |    5 +-
+# ncurses/tinfo/lib_tputs.c  |   17 +++----
+# ncurses/trace/lib_trace.c  |  100 ++++++++++++++++++++++++++++++++++++++++---
+# ncurses/tty/hardscroll.c   |    8 ++-
+# ncurses/tty/tty_update.c   |   12 +++--
+# progs/tset.c               |   19 +++++++-
+# test/worm.c                |   53 ++++++++++++++++++++--
+# 20 files changed, 307 insertions(+), 72 deletions(-)
+# ------------------------------------------------------------------------------
+Index: NEWS
+Prereq:  1.1168 
+--- ncurses-5.6-20070915+/NEWS	2007-09-15 21:33:37.000000000 +0000
++++ ncurses-5.6-20070929/NEWS	2007-09-29 21:53:42.000000000 +0000
+@@ -25,7 +25,7 @@
+ -- sale, use or other dealings in this Software without prior written        --
+ -- authorization.                                                            --
+ -------------------------------------------------------------------------------
+--- $Id: NEWS,v 1.1168 2007/09/15 21:33:37 tom Exp $
++-- $Id: NEWS,v 1.1171 2007/09/29 21:53:42 tom Exp $
+ -------------------------------------------------------------------------------
+ 
+ This is a log of changes that ncurses has gone through since Zeyd started
+@@ -45,6 +45,14 @@
+ Changes through 1.9.9e did not credit all contributions;
+ it is not possible to add this information.
+ 
++20070929
++	+ add new functions to lib_trace.c to setup mutex's for the _tracef()
++	  calls within the ncurses library.
++	+ for the reentrant model, move _nc_tputs_trace and _nc_outchars into
++	  the SCREEN. 
++	+ start modifying test/worm.c to provide threading demo (incomplete).
++	+ separated ifdef's for some BSD-related symbols in tset.c, to make
++	  it compile on LynxOS (report by Greg Gemmer).
+ 20070915
+ 	+ modify Ada95/gen/Makefile to use shlib script, to simplify building
+ 	  shared-library configuration on platforms lacking rpath support.
+Index: dist.mk
+Prereq:  1.610 
+--- ncurses-5.6-20070915+/dist.mk	2007-09-15 14:29:36.000000000 +0000
++++ ncurses-5.6-20070929/dist.mk	2007-09-29 15:48:09.000000000 +0000
+@@ -25,7 +25,7 @@
+ # use or other dealings in this Software without prior written               #
+ # authorization.                                                             #
+ ##############################################################################
+-# $Id: dist.mk,v 1.610 2007/09/15 14:29:36 tom Exp $
++# $Id: dist.mk,v 1.611 2007/09/29 15:48:09 tom Exp $
+ # Makefile for creating ncurses distributions.
+ #
+ # This only needs to be used directly as a makefile by developers, but
+@@ -37,7 +37,7 @@
+ # These define the major/minor/patch versions of ncurses.
+ NCURSES_MAJOR = 5
+ NCURSES_MINOR = 6
+-NCURSES_PATCH = 20070915
++NCURSES_PATCH = 20070929
+ 
+ # We don't append the patch to the version, since this only applies to releases
+ VERSION = $(NCURSES_MAJOR).$(NCURSES_MINOR)
+Index: ncurses/base/lib_getch.c
+Prereq:  1.79 
+--- ncurses-5.6-20070915+/ncurses/base/lib_getch.c	2007-04-19 20:57:49.000000000 +0000
++++ ncurses-5.6-20070929/ncurses/base/lib_getch.c	2007-09-29 20:39:34.000000000 +0000
+@@ -41,7 +41,7 @@
+ 
+ #include <curses.priv.h>
+ 
+-MODULE_ID("$Id: lib_getch.c,v 1.79 2007/04/19 20:57:49 tom Exp $")
++MODULE_ID("$Id: lib_getch.c,v 1.80 2007/09/29 20:39:34 tom Exp $")
+ 
+ #include <fifo_defs.h>
+ 
+@@ -112,8 +112,10 @@
+ 	h_inc();
+ 
+ #ifdef TRACE
+-    if (_nc_tracing & TRACE_IEVENT)
++    if (USE_TRACEF(TRACE_IEVENT)) {
+ 	_nc_fifo_dump();
++	_nc_unlock_global(tracef);
++    }
+ #endif
+     return ch;
+ }
+@@ -208,8 +210,10 @@
+     t_inc();
+     TR(TRACE_IEVENT, ("pushed %s at %d", _tracechar(ch), tail));
+ #ifdef TRACE
+-    if (_nc_tracing & TRACE_IEVENT)
++    if (USE_TRACEF(TRACE_IEVENT)) {
+ 	_nc_fifo_dump();
++	_nc_unlock_global(tracef);
++    }
+ #endif
+     return ch;
+ }
+Index: ncurses/base/lib_mouse.c
+Prereq:  1.87 
+--- ncurses-5.6-20070915+/ncurses/base/lib_mouse.c	2006-12-30 16:30:06.000000000 +0000
++++ ncurses-5.6-20070929/ncurses/base/lib_mouse.c	2007-09-29 21:50:04.000000000 +0000
+@@ -1,5 +1,5 @@
+ /****************************************************************************
+- * Copyright (c) 1998-2005,2006 Free Software Foundation, Inc.              *
++ * Copyright (c) 1998-2006,2007 Free Software Foundation, Inc.              *
+  *                                                                          *
+  * Permission is hereby granted, free of charge, to any person obtaining a  *
+  * copy of this software and associated documentation files (the            *
+@@ -79,7 +79,7 @@
+ 
+ #include <curses.priv.h>
+ 
+-MODULE_ID("$Id: lib_mouse.c,v 1.87 2006/12/30 16:30:06 tom Exp $")
++MODULE_ID("$Id: lib_mouse.c,v 1.88 2007/09/29 21:50:04 tom Exp $")
+ 
+ #include <term.h>
+ #include <tic.h>
+@@ -985,12 +985,13 @@
+     }
+ 
+ #ifdef TRACE
+-    if (_nc_tracing & TRACE_IEVENT) {
++    if (USE_TRACEF(TRACE_IEVENT)) {
+ 	_trace_slot("before mouse press/release merge:");
+ 	_tracef("_nc_mouse_parse: run starts at %ld, ends at %ld, count %d",
+ 		(long) (runp - SP->_mouse_events),
+ 		(long) ((eventp - SP->_mouse_events) + (EV_MAX - 1)) % EV_MAX,
+ 		runcount);
++	_nc_unlock_global(tracef);
+     }
+ #endif /* TRACE */
+ 
+@@ -1028,12 +1029,13 @@
+ 	(merge);
+ 
+ #ifdef TRACE
+-    if (_nc_tracing & TRACE_IEVENT) {
++    if (USE_TRACEF(TRACE_IEVENT)) {
+ 	_trace_slot("before mouse click merge:");
+ 	_tracef("_nc_mouse_parse: run starts at %ld, ends at %ld, count %d",
+ 		(long) (runp - SP->_mouse_events),
+ 		(long) ((eventp - SP->_mouse_events) + (EV_MAX - 1)) % EV_MAX,
+ 		runcount);
++	_nc_unlock_global(tracef);
+     }
+ #endif /* TRACE */
+ 
+@@ -1099,12 +1101,13 @@
+ 	(merge);
+ 
+ #ifdef TRACE
+-    if (_nc_tracing & TRACE_IEVENT) {
++    if (USE_TRACEF(TRACE_IEVENT)) {
+ 	_trace_slot("before mouse event queue compaction:");
+ 	_tracef("_nc_mouse_parse: run starts at %ld, ends at %ld, count %d",
+ 		(long) (runp - SP->_mouse_events),
+ 		(long) ((eventp - SP->_mouse_events) + (EV_MAX - 1)) % EV_MAX,
+ 		runcount);
++	_nc_unlock_global(tracef);
+     }
+ #endif /* TRACE */
+ 
+@@ -1117,12 +1120,13 @@
+ 	    SP->_mouse_eventp = eventp = prev;
+ 	}
+ #ifdef TRACE
+-    if (_nc_tracing & TRACE_IEVENT) {
++    if (USE_TRACEF(TRACE_IEVENT)) {
+ 	_trace_slot("after mouse event queue compaction:");
+ 	_tracef("_nc_mouse_parse: run starts at %ld, ends at %ld, count %d",
+ 		(long) (runp - SP->_mouse_events),
+ 		(long) ((eventp - SP->_mouse_events) + (EV_MAX - 1)) % EV_MAX,
+ 		runcount);
++	_nc_unlock_global(tracef);
+     }
+     for (ep = runp; ep != eventp; ep = NEXT(ep))
+ 	if (ep->id != INVALID_EVENT)
+Index: ncurses/base/lib_refresh.c
+Prereq:  1.40 
+--- ncurses-5.6-20070915+/ncurses/base/lib_refresh.c	2007-07-07 22:08:38.000000000 +0000
++++ ncurses-5.6-20070929/ncurses/base/lib_refresh.c	2007-09-29 20:39:34.000000000 +0000
+@@ -41,7 +41,7 @@
+ 
+ #include <curses.priv.h>
+ 
+-MODULE_ID("$Id: lib_refresh.c,v 1.40 2007/07/07 22:08:38 tom Exp $")
++MODULE_ID("$Id: lib_refresh.c,v 1.41 2007/09/29 20:39:34 tom Exp $")
+ 
+ NCURSES_EXPORT(int)
+ wrefresh(WINDOW *win)
+@@ -84,8 +84,10 @@
+ 
+     T((T_CALLED("wnoutrefresh(%p)"), win));
+ #ifdef TRACE
+-    if (_nc_tracing & TRACE_UPDATE)
++    if (USE_TRACEF(TRACE_UPDATE)) {
+ 	_tracedump("...win", win);
++	_nc_unlock_global(tracef);
++    }
+ #endif /* TRACE */
+ 
+     /*
+@@ -277,8 +279,10 @@
+     newscr->_leaveok = win->_leaveok;
+ 
+ #ifdef TRACE
+-    if (_nc_tracing & TRACE_UPDATE)
++    if (USE_TRACEF(TRACE_UPDATE)) {
+ 	_tracedump("newscr", newscr);
++	_nc_unlock_global(tracef);
++    }
+ #endif /* TRACE */
+     returnCode(OK);
+ }
+Index: ncurses/base/lib_ungetch.c
+Prereq:  1.8 
+--- ncurses-5.6-20070915+/ncurses/base/lib_ungetch.c	2002-08-24 22:08:48.000000000 +0000
++++ ncurses-5.6-20070929/ncurses/base/lib_ungetch.c	2007-09-29 21:49:56.000000000 +0000
+@@ -1,5 +1,5 @@
+ /****************************************************************************
+- * Copyright (c) 1998-2001,2002 Free Software Foundation, Inc.              *
++ * Copyright (c) 1998-2002,2007 Free Software Foundation, Inc.              *
+  *                                                                          *
+  * Permission is hereby granted, free of charge, to any person obtaining a  *
+  * copy of this software and associated documentation files (the            *
+@@ -40,7 +40,7 @@
+ 
+ #include <curses.priv.h>
+ 
+-MODULE_ID("$Id: lib_ungetch.c,v 1.8 2002/08/24 22:08:48 tom Exp $")
++MODULE_ID("$Id: lib_ungetch.c,v 1.9 2007/09/29 21:49:56 tom Exp $")
+ 
+ #include <fifo_defs.h>
+ 
+@@ -72,8 +72,10 @@
+     SP->_fifo[head] = ch;
+     T(("ungetch %s ok", _tracechar(ch)));
+ #ifdef TRACE
+-    if (_nc_tracing & TRACE_IEVENT)
++    if (USE_TRACEF(TRACE_IEVENT)) {
+ 	_nc_fifo_dump();
++	_nc_unlock_global(tracef);
++    }
+ #endif
+     returnCode(OK);
+ }
+Index: ncurses/base/resizeterm.c
+Prereq:  1.21 
+--- ncurses-5.6-20070915+/ncurses/base/resizeterm.c	2007-03-10 23:45:14.000000000 +0000
++++ ncurses-5.6-20070929/ncurses/base/resizeterm.c	2007-09-29 20:37:13.000000000 +0000
+@@ -41,7 +41,7 @@
+ #include <curses.priv.h>
+ #include <term.h>
+ 
+-MODULE_ID("$Id: resizeterm.c,v 1.21 2007/03/10 23:45:14 tom Exp $")
++MODULE_ID("$Id: resizeterm.c,v 1.22 2007/09/29 20:37:13 tom Exp $")
+ 
+ #define stolen_lines (screen_lines - SP->_lines_avail)
+ 
+@@ -261,8 +261,10 @@
+ 	int myCols = CurCols = screen_columns;
+ 
+ #ifdef TRACE
+-	if (_nc_tracing & TRACE_UPDATE)
++	if (USE_TRACEF(TRACE_UPDATE)) {
+ 	    show_window_sizes("before");
++	    _nc_unlock_global(tracef);
++	}
+ #endif
+ 	if (ToLines > screen_lines) {
+ 	    increase_size(myLines = ToLines, myCols, was_stolen EXTRA_ARGS);
+@@ -293,10 +295,11 @@
+ 	    FreeAndNull(SP->newhash);
+ 	}
+ #ifdef TRACE
+-	if (_nc_tracing & TRACE_UPDATE) {
++	if (USE_TRACEF(TRACE_UPDATE)) {
+ 	    SET_LINES(ToLines - was_stolen);
+ 	    SET_COLS(ToCols);
+ 	    show_window_sizes("after");
++	    _nc_unlock_global(tracef);
+ 	}
+ #endif
+     }
+Index: ncurses/base/tries.c
+Prereq:  1.24 
+--- ncurses-5.6-20070915+/ncurses/base/tries.c	2007-04-07 17:14:27.000000000 +0000
++++ ncurses-5.6-20070929/ncurses/base/tries.c	2007-09-29 20:37:13.000000000 +0000
+@@ -39,7 +39,7 @@
+ 
+ #include <curses.priv.h>
+ 
+-MODULE_ID("$Id: tries.c,v 1.24 2007/04/07 17:14:27 tom Exp $")
++MODULE_ID("$Id: tries.c,v 1.25 2007/09/29 20:37:13 tom Exp $")
+ 
+ /*
+  * Expand a keycode into the string that it corresponds to, returning null if
+@@ -71,8 +71,10 @@
+ 	if (ptr != 0 && (result[len] = ptr->ch) == 0)
+ 	    *((unsigned char *) (result + len)) = 128;
+ #ifdef TRACE
+-	if (len == 0 && _nc_tracing != 0)
++	if (len == 0 && USE_TRACEF(TRACE_MAXIMUM)) {
+ 	    _tracef("expand_key %s %s", _tracechar(code), _nc_visbuf(result));
++	    _nc_unlock_global(tracef);
++	}
+ #endif
+     }
+     return result;
+Index: ncurses/base/wresize.c
+Prereq:  1.25 
+--- ncurses-5.6-20070915+/ncurses/base/wresize.c	2007-04-07 17:13:42.000000000 +0000
++++ ncurses-5.6-20070929/ncurses/base/wresize.c	2007-09-29 20:37:13.000000000 +0000
+@@ -32,7 +32,7 @@
+ 
+ #include <curses.priv.h>
+ 
+-MODULE_ID("$Id: wresize.c,v 1.25 2007/04/07 17:13:42 tom Exp $")
++MODULE_ID("$Id: wresize.c,v 1.26 2007/09/29 20:37:13 tom Exp $")
+ 
+ static int
+ cleanup_lines(struct ldat *data, int length)
+@@ -96,8 +96,10 @@
+ 			  (long) win->_begy, (long) win->_begx,
+ 			  (long) win->_maxy, (long) win->_maxx,
+ 			  (long) win->_regtop, (long) win->_regbottom));
+-	if (_nc_tracing & TRACE_UPDATE)
++	if (USE_TRACEF(TRACE_UPDATE)) {
+ 	    _tracedump("...before", win);
++	    _nc_unlock_global(tracef);
++	}
+     }
+ #endif
+ 
+@@ -232,8 +234,10 @@
+ 		      (long) win->_begy, (long) win->_begx,
+ 		      (long) win->_maxy, (long) win->_maxx,
+ 		      (long) win->_regtop, (long) win->_regbottom));
+-    if (_nc_tracing & TRACE_UPDATE)
++    if (USE_TRACEF(TRACE_UPDATE)) {
+ 	_tracedump("...after:", win);
++	_nc_unlock_global(tracef);
++    }
+ #endif
+     returnCode(OK);
+ }
+Index: ncurses/curses.priv.h
+Prereq:  1.340 
+--- ncurses-5.6-20070915+/ncurses/curses.priv.h	2007-09-08 21:44:40.000000000 +0000
++++ ncurses-5.6-20070929/ncurses/curses.priv.h	2007-09-29 21:33:24.000000000 +0000
+@@ -34,7 +34,7 @@
+ 
+ 
+ /*
+- * $Id: curses.priv.h,v 1.340 2007/09/08 21:44:40 tom Exp $
++ * $Id: curses.priv.h,v 1.343 2007/09/29 21:33:24 tom Exp $
+  *
+  *	curses.priv.h
+  *
+@@ -560,6 +560,9 @@
+        pthread_mutex_t	mutex_set_SP;
+        pthread_mutex_t	mutex_use_screen;
+        pthread_mutex_t	mutex_windowlist;
++       pthread_mutex_t	mutex_tst_tracef;
++       pthread_mutex_t	mutex_tracef;
++       int		nested_tracef;
+ #endif
+ } NCURSES_GLOBALS;
+ 
+@@ -583,6 +586,10 @@
+ 	chtype		*real_acs_map;
+ 	int		_LINES;
+ 	int		_COLS;
++#ifdef TRACE
++	long		_outchars;
++	const char	*_tputs_trace;
++#endif
+ #endif
+ } NCURSES_PRESCREEN;
+ 
+@@ -805,6 +812,10 @@
+ 	int		_TABSIZE;
+ 	int		_LINES;
+ 	int		_COLS;
++#ifdef TRACE
++	int		_outchars;
++	const char	*_tputs_trace;
++#endif
+ #endif
+ 	/*
+ 	 * ncurses/ncursesw are the same up to this point.
+@@ -895,11 +906,17 @@
+ #endif
+ 
+ #ifdef TRACE
+-#define TRACE_OUTCHARS(n) _nc_outchars += (n);
++#if USE_REENTRANT
++#define COUNT_OUTCHARS(n) _nc_count_outchars(n);
++#else
++#define COUNT_OUTCHARS(n) _nc_outchars += (n);
++#endif
+ #else
+-#define TRACE_OUTCHARS(n) /* nothing */
++#define COUNT_OUTCHARS(n) /* nothing */
+ #endif
+ 
++#define RESET_OUTCHARS() COUNT_OUTCHARS(-_nc_outchars)
++
+ #define UChar(c)	((unsigned char)(c))
+ #define ChCharOf(c)	((c) & (chtype)A_CHARTEXT)
+ #define ChAttrOf(c)	((c) & (chtype)A_ATTRIBUTES)
+@@ -945,7 +962,7 @@
+ #define PUTC(ch,b)	do { if(!isWidecExt(ch)) {				    \
+ 			if (Charable(ch)) {					    \
+ 			    fputc(CharOf(ch), b);				    \
+-			    TRACE_OUTCHARS(1);					    \
++			    COUNT_OUTCHARS(1);					    \
+ 			} else {						    \
+ 			    PUTC_INIT;						    \
+ 			    for (PUTC_i = 0; PUTC_i < CCHARW_MAX; ++PUTC_i) {	    \
+@@ -961,7 +978,7 @@
+ 				}						    \
+ 				fwrite(PUTC_buf, (unsigned) PUTC_n, 1, b);	    \
+ 			    }							    \
+-			    TRACE_OUTCHARS(PUTC_i);				    \
++			    COUNT_OUTCHARS(PUTC_i);				    \
+ 			} } } while (0)
+ 
+ #define BLANK		{ WA_NORMAL, {' '} NulColor }
+@@ -1091,6 +1108,12 @@
+ 
+ #ifdef TRACE
+ 
++#if USE_REENTRANT
++#define TPUTS_TRACE(s)	_nc_set_tputs_trace(s);
++#else
++#define TPUTS_TRACE(s)	_nc_tputs_trace = s;
++#endif
++
+ #define START_TRACE() \
+ 	if ((_nc_tracing & TRACE_MAXIMUM) == 0) { \
+ 	    int t = _nc_getenv_num("NCURSES_TRACE"); \
+@@ -1098,9 +1121,21 @@
+ 		trace((unsigned) t); \
+ 	}
+ 
+-#define TR(n, a)	if (_nc_tracing & (n)) _tracef a
++/*
++ * Many of the _tracef() calls use static buffers; lock the trace state before
++ * trying to fill them.
++ */
++#if USE_REENTRANT
++#define USE_TRACEF(mask) _nc_use_tracef(mask)
++extern NCURSES_EXPORT(int)	_nc_use_tracef (unsigned);
++extern NCURSES_EXPORT(void)	_nc_locked_tracef (const char *, ...) GCC_PRINTFLIKE(1,2);
++#else
++#define USE_TRACEF(mask) (_nc_tracing & (mask))
++#define _nc_locked_tracef _tracef
++#endif
++
++#define TR(n, a)	if (USE_TRACEF(n)) _nc_locked_tracef a
+ #define T(a)		TR(TRACE_CALLS, a)
+-#define TPUTS_TRACE(s)	_nc_tputs_trace = s;
+ #define TRACE_RETURN(value,type) return _nc_retrace_##type(value)
+ 
+ #define returnAttr(code)	TRACE_RETURN(code,attr_t)
+@@ -1131,8 +1166,19 @@
+ extern NCURSES_EXPORT(unsigned)         _nc_retrace_unsigned (unsigned);
+ extern NCURSES_EXPORT(void *)           _nc_retrace_void_ptr (void *);
+ extern NCURSES_EXPORT(void)             _nc_fifo_dump (void);
++
++#if USE_REENTRANT
++NCURSES_WRAPPED_VAR(long, _nc_outchars);
++NCURSES_WRAPPED_VAR(const char *, _nc_tputs_trace);
++#define _nc_outchars       NCURSES_PUBLIC_VAR(_nc_outchars())
++#define _nc_tputs_trace    NCURSES_PUBLIC_VAR(_nc_tputs_trace())
++extern NCURSES_EXPORT(void)		_nc_set_tputs_trace (const char *);
++extern NCURSES_EXPORT(void)		_nc_count_outchars (long);
++#else
+ extern NCURSES_EXPORT_VAR(const char *) _nc_tputs_trace;
+ extern NCURSES_EXPORT_VAR(long)         _nc_outchars;
++#endif
++
+ extern NCURSES_EXPORT_VAR(unsigned)     _nc_tracing;
+ 
+ #if USE_WIDEC_SUPPORT
+Index: ncurses/tinfo/lib_acs.c
+Prereq:  1.33 
+--- ncurses-5.6-20070915+/ncurses/tinfo/lib_acs.c	2007-04-21 23:31:24.000000000 +0000
++++ ncurses-5.6-20070929/ncurses/tinfo/lib_acs.c	2007-09-29 20:37:13.000000000 +0000
+@@ -35,7 +35,7 @@
+ #include <curses.priv.h>
+ #include <term.h>		/* ena_acs, acs_chars */
+ 
+-MODULE_ID("$Id: lib_acs.c,v 1.33 2007/04/21 23:31:24 tom Exp $")
++MODULE_ID("$Id: lib_acs.c,v 1.34 2007/09/29 20:37:13 tom Exp $")
+ 
+ #if BROKEN_LINKER || USE_REENTRANT
+ #define MyBuffer _nc_prescreen.real_acs_map
+@@ -166,7 +166,7 @@
+     /* Show the equivalent mapping, noting if it does not match the
+      * given attribute, whether by re-ordering or duplication.
+      */
+-    if (_nc_tracing & TRACE_CALLS) {
++    if (USE_TRACEF(TRACE_CALLS)) {
+ 	size_t n, m;
+ 	char show[ACS_LEN * 2 + 1];
+ 	for (n = 1, m = 0; n < ACS_LEN; n++) {
+@@ -187,6 +187,7 @@
+ 		   ? "DIFF"
+ 		   : "SAME"),
+ 		_nc_visbuf(show));
++	_nc_unlock_global(tracef);
+     }
+ #endif /* TRACE */
+ }
+Index: ncurses/tinfo/lib_data.c
+Prereq:  1.30 
+--- ncurses-5.6-20070915+/ncurses/tinfo/lib_data.c	2007-09-08 21:59:56.000000000 +0000
++++ ncurses-5.6-20070929/ncurses/tinfo/lib_data.c	2007-09-29 21:34:21.000000000 +0000
+@@ -41,7 +41,7 @@
+ 
+ #include <curses.priv.h>
+ 
+-MODULE_ID("$Id: lib_data.c,v 1.30 2007/09/08 21:59:56 tom Exp $")
++MODULE_ID("$Id: lib_data.c,v 1.32 2007/09/29 21:34:21 tom Exp $")
+ 
+ /*
+  * OS/2's native linker complains if we don't initialize public data when
+@@ -180,6 +180,9 @@
+     PTHREAD_MUTEX_INITIALIZER,	/* mutex_set_SP */
+     PTHREAD_MUTEX_INITIALIZER,	/* mutex_use_screen */
+     PTHREAD_MUTEX_INITIALIZER,	/* mutex_windowlist */
++    PTHREAD_MUTEX_INITIALIZER,	/* mutex_tst_tracef */
++    PTHREAD_MUTEX_INITIALIZER,	/* mutex_tracef */
++    0,				/* nested_tracef */
+ #endif
+ };
+ 
+@@ -220,6 +223,10 @@
+     NULL,			/* real_acs_map */
+     0,				/* LINES */
+     0,				/* COLS */
++#ifdef TRACE
++    0L,				/* _outchars */
++    NULL,			/* _tputs_trace */
++#endif
+ #endif
+ };
+ /* *INDENT-ON* */
+Index: ncurses/tinfo/lib_raw.c
+Prereq:  1.13 
+--- ncurses-5.6-20070915+/ncurses/tinfo/lib_raw.c	2002-07-06 22:00:45.000000000 +0000
++++ ncurses-5.6-20070929/ncurses/tinfo/lib_raw.c	2007-09-29 21:50:22.000000000 +0000
+@@ -1,5 +1,5 @@
+ /****************************************************************************
+- * Copyright (c) 1998-2001,2002 Free Software Foundation, Inc.              *
++ * Copyright (c) 1998-2002,2007 Free Software Foundation, Inc.              *
+  *                                                                          *
+  * Permission is hereby granted, free of charge, to any person obtaining a  *
+  * copy of this software and associated documentation files (the            *
+@@ -49,7 +49,7 @@
+ #include <curses.priv.h>
+ #include <term.h>		/* cur_term */
+ 
+-MODULE_ID("$Id: lib_raw.c,v 1.13 2002/07/06 22:00:45 tom Exp $")
++MODULE_ID("$Id: lib_raw.c,v 1.14 2007/09/29 21:50:22 tom Exp $")
+ 
+ #if SVR4_TERMIO && !defined(_POSIX_SOURCE)
+ #define _POSIX_SOURCE
+@@ -69,8 +69,8 @@
+ #define COOKED_INPUT	(IXON|BRKINT|PARMRK)
+ 
+ #ifdef TRACE
+-#define BEFORE(N)	if (_nc_tracing&TRACE_BITS) _tracef("%s before bits: %s", N, _nc_tracebits())
+-#define AFTER(N)	if (_nc_tracing&TRACE_BITS) _tracef("%s after bits: %s", N, _nc_tracebits())
++#define BEFORE(N)	if (USE_TRACEF(TRACE_BITS)) _nc_locked_tracef("%s before bits: %s", N, _nc_tracebits())
++#define AFTER(N)	if (USE_TRACEF(TRACE_BITS)) _nc_locked_tracef("%s after bits: %s", N, _nc_tracebits())
+ #else
+ #define BEFORE(s)
+ #define AFTER(s)
+Index: ncurses/tinfo/lib_tparm.c
+Prereq:  1.73 
+--- ncurses-5.6-20070915+/ncurses/tinfo/lib_tparm.c	2007-04-21 20:43:19.000000000 +0000
++++ ncurses-5.6-20070929/ncurses/tinfo/lib_tparm.c	2007-09-29 20:37:13.000000000 +0000
+@@ -43,7 +43,7 @@
+ #include <term.h>
+ #include <tic.h>
+ 
+-MODULE_ID("$Id: lib_tparm.c,v 1.73 2007/04/21 20:43:19 tom Exp $")
++MODULE_ID("$Id: lib_tparm.c,v 1.74 2007/09/29 20:37:13 tom Exp $")
+ 
+ /*
+  *	char *
+@@ -508,7 +508,7 @@
+ 	    npush(param[i]);
+     }
+ #ifdef TRACE
+-    if (_nc_tracing & TRACE_CALLS) {
++    if (USE_TRACEF(TRACE_CALLS)) {
+ 	for (i = 0; i < popcount; i++) {
+ 	    if (p_is_s[i] != 0)
+ 		save_text(", %s", _nc_visbuf(p_is_s[i]), 0);
+@@ -517,6 +517,7 @@
+ 	}
+ 	_tracef(T_CALLED("%s(%s%s)"), TPS(tname), _nc_visbuf(cp), TPS(out_buff));
+ 	TPS(out_used) = 0;
++	_nc_unlock_global(tracef);
+     }
+ #endif /* TRACE */
+ 
+Index: ncurses/tinfo/lib_tputs.c
+Prereq:  1.62 
+--- ncurses-5.6-20070915+/ncurses/tinfo/lib_tputs.c	2003-08-23 21:39:20.000000000 +0000
++++ ncurses-5.6-20070929/ncurses/tinfo/lib_tputs.c	2007-09-29 20:37:13.000000000 +0000
+@@ -1,5 +1,5 @@
+ /****************************************************************************
+- * Copyright (c) 1998-2002,2003 Free Software Foundation, Inc.              *
++ * Copyright (c) 1998-2003,2007 Free Software Foundation, Inc.              *
+  *                                                                          *
+  * Permission is hereby granted, free of charge, to any person obtaining a  *
+  * copy of this software and associated documentation files (the            *
+@@ -45,12 +45,12 @@
+ #include <termcap.h>		/* ospeed */
+ #include <tic.h>
+ 
+-MODULE_ID("$Id: lib_tputs.c,v 1.62 2003/08/23 21:39:20 tom Exp $")
++MODULE_ID("$Id: lib_tputs.c,v 1.64 2007/09/29 20:37:13 tom Exp $")
+ 
+-NCURSES_EXPORT_VAR(char) PC = 0;		/* used by termcap library */
+-NCURSES_EXPORT_VAR(NCURSES_OSPEED) ospeed = 0;	/* used by termcap library */
++NCURSES_EXPORT_VAR(char) PC = 0;              /* used by termcap library */
++NCURSES_EXPORT_VAR(NCURSES_OSPEED) ospeed = 0;        /* used by termcap library */
+ 
+-NCURSES_EXPORT_VAR(int) _nc_nulls_sent = 0;	/* used by 'tack' program */
++NCURSES_EXPORT_VAR(int) _nc_nulls_sent = 0;   /* used by 'tack' program */
+ 
+ static int (*my_outch) (int c) = _nc_outch;
+ 
+@@ -84,7 +84,7 @@
+ NCURSES_EXPORT(int)
+ _nc_outch(int ch)
+ {
+-    TRACE_OUTCHARS(1);
++    COUNT_OUTCHARS(1);
+ 
+     if (SP != 0
+ 	&& SP->_cleanup) {
+@@ -119,7 +119,7 @@
+ #ifdef TRACE
+     char addrbuf[32];
+ 
+-    if (_nc_tracing & TRACE_TPUTS) {
++    if (USE_TRACEF(TRACE_TPUTS)) {
+ 	if (outc == _nc_outch)
+ 	    (void) strcpy(addrbuf, "_nc_outch");
+ 	else
+@@ -130,7 +130,8 @@
+ 	} else {
+ 	    _tracef("tputs(%s, %d, %s) called", _nc_visbuf(string), affcnt, addrbuf);
+ 	}
+-	_nc_tputs_trace = (char *) NULL;
++	TPUTS_TRACE(NULL);
++	_nc_unlock_global(tracef);
+     }
+ #endif /* TRACE */
+ 
+Index: ncurses/trace/lib_trace.c
+Prereq:  1.62 
+--- ncurses-5.6-20070915+/ncurses/trace/lib_trace.c	2007-07-14 19:32:54.000000000 +0000
++++ ncurses-5.6-20070929/ncurses/trace/lib_trace.c	2007-09-29 21:47:46.000000000 +0000
+@@ -46,13 +46,43 @@
+ 
+ #include <ctype.h>
+ 
+-MODULE_ID("$Id: lib_trace.c,v 1.62 2007/07/14 19:32:54 tom Exp $")
++MODULE_ID("$Id: lib_trace.c,v 1.65 2007/09/29 21:47:46 tom Exp $")
+ 
+ NCURSES_EXPORT_VAR(unsigned) _nc_tracing = 0; /* always define this */
+ 
+ #ifdef TRACE
++
++#if USE_REENTRANT
++NCURSES_EXPORT(const char *)
++NCURSES_PUBLIC_VAR(_nc_tputs_trace) (void)
++{
++    return SP ? SP->_tputs_trace : _nc_prescreen._tputs_trace;
++}
++NCURSES_EXPORT(long)
++NCURSES_PUBLIC_VAR(_nc_outchars) (void)
++{
++    return SP ? SP->_outchars : _nc_prescreen._outchars;
++}
++NCURSES_EXPORT(void)
++_nc_set_tputs_trace(const char *s)
++{
++    if (SP)
++	SP->_tputs_trace = s;
++    else
++	_nc_prescreen._tputs_trace = s;
++}
++NCURSES_EXPORT(void)
++_nc_count_outchars(long increment)
++{
++    if (SP)
++	SP->_outchars += increment;
++    else
++	_nc_prescreen._outchars += increment;
++}
++#else
+ NCURSES_EXPORT_VAR(const char *) _nc_tputs_trace = "";
+ NCURSES_EXPORT_VAR(long) _nc_outchars = 0;
++#endif
+ 
+ #define TraceFP		_nc_globals.trace_fp
+ #define TracePath	_nc_globals.trace_fname
+@@ -107,12 +137,12 @@
+     }
+ }
+ 
+-NCURSES_EXPORT(void)
+-_tracef(const char *fmt,...)
++static void
++_nc_va_tracef(const char *fmt, va_list ap)
+ {
+     static const char Called[] = T_CALLED("");
+     static const char Return[] = T_RETURN("");
+-    va_list ap;
++
+     bool before = FALSE;
+     bool after = FALSE;
+     unsigned doit = _nc_tracing;
+@@ -142,18 +172,27 @@
+ 	    for (n = 1; n < TraceLevel; n++)
+ 		fputs("+ ", TraceFP);
+ 	}
+-	va_start(ap, fmt);
+ 	vfprintf(TraceFP, fmt, ap);
+ 	fputc('\n', TraceFP);
+-	va_end(ap);
+ 	fflush(TraceFP);
+     }
+ 
+     if (after && TraceLevel)
+ 	TraceLevel--;
++
+     errno = save_err;
+ }
+ 
++NCURSES_EXPORT(void)
++_tracef(const char *fmt,...)
++{
++    va_list ap;
++
++    va_start(ap, fmt);
++    _nc_va_tracef(fmt, ap);
++    va_end(ap);
++}
++
+ /* Trace 'bool' return-values */
+ NCURSES_EXPORT(NCURSES_BOOL)
+ _nc_retrace_bool(NCURSES_BOOL code)
+@@ -225,4 +264,53 @@
+     T((T_RETURN("%p"), code));
+     return code;
+ }
++
++#if USE_REENTRANT
++/*
++ * Check if the given trace-mask is enabled.
++ *
++ * This function may be called from within one of the functions that fills
++ * in parameters for _tracef(), but in that case we do not want to lock the
++ * mutex, since it is already locked.
++ */
++NCURSES_EXPORT(int)
++_nc_use_tracef(unsigned mask)
++{
++    bool result = FALSE;
++
++    _nc_lock_global(tst_tracef);
++    if (!_nc_globals.nested_tracef++) {
++	if ((result = (_nc_tracing & (mask))) != 0) {
++	    /* we will call _nc_locked_tracef(), no nesting so far */
++	    _nc_lock_global(tracef);
++	} else {
++	    /* we will not call _nc_locked_tracef() */
++	    _nc_globals.nested_tracef = 0;
++	}
++    } else {
++	/* we may call _nc_locked_tracef(), but with nested_tracef > 0 */
++	result = (_nc_tracing & (mask));
++    }
++    _nc_unlock_global(tst_tracef);
++    return result;
++}
++
++/*
++ * We call this if _nc_use_tracef() returns true, which means we must unlock
++ * the tracef mutex.
++ */
++NCURSES_EXPORT(void)
++_nc_locked_tracef(const char *fmt,...)
++{
++    va_list ap;
++
++    va_start(ap, fmt);
++    _nc_va_tracef(fmt, ap);
++    va_end(ap);
++
++    if (--(_nc_globals.nested_tracef) == 0)
++	_nc_unlock_global(tracef);
++}
++#endif /* USE_REENTRANT */
++
+ #endif /* TRACE */
+Index: ncurses/tty/hardscroll.c
+Prereq:  1.40 
+--- ncurses-5.6-20070915+/ncurses/tty/hardscroll.c	2007-06-30 21:11:01.000000000 +0000
++++ ncurses-5.6-20070929/ncurses/tty/hardscroll.c	2007-09-29 21:48:36.000000000 +0000
+@@ -145,7 +145,7 @@
+ 
+ #include <curses.priv.h>
+ 
+-MODULE_ID("$Id: hardscroll.c,v 1.40 2007/06/30 21:11:01 tom Exp $")
++MODULE_ID("$Id: hardscroll.c,v 1.41 2007/09/29 21:48:36 tom Exp $")
+ 
+ #if defined(SCROLLDEBUG) || defined(HASHDEBUG)
+ 
+@@ -158,7 +158,7 @@
+ # undef TR
+ # define TR(n, a)	if (_nc_tracing & (n)) { _tracef a ; putchar('\n'); }
+ 
+-extern NCURSES_EXPORT_VAR(unsigned)     _nc_tracing;
++extern NCURSES_EXPORT_VAR(unsigned) _nc_tracing;
+ 
+ #else /* no debug */
+ 
+@@ -204,8 +204,10 @@
+ #endif /* !defined(SCROLLDEBUG) && !defined(HASHDEBUG) */
+ 
+ #ifdef TRACE
+-    if (_nc_tracing & (TRACE_UPDATE | TRACE_MOVE))
++    if (USE_TRACEF(TRACE_UPDATE | TRACE_MOVE)) {
+ 	_nc_linedump();
++	_nc_unlock_global(tracef);
++    }
+ #endif /* TRACE */
+ 
+     /* pass 1 - from top to bottom scrolling up */
+Index: ncurses/tty/tty_update.c
+Prereq:  1.240 
+--- ncurses-5.6-20070915+/ncurses/tty/tty_update.c	2007-06-30 21:07:51.000000000 +0000
++++ ncurses-5.6-20070929/ncurses/tty/tty_update.c	2007-09-29 20:37:13.000000000 +0000
+@@ -74,7 +74,7 @@
+ #include <ctype.h>
+ #include <term.h>
+ 
+-MODULE_ID("$Id: tty_update.c,v 1.240 2007/06/30 21:07:51 tom Exp $")
++MODULE_ID("$Id: tty_update.c,v 1.242 2007/09/29 20:37:13 tom Exp $")
+ 
+ /*
+  * This define controls the line-breakout optimization.  Every once in a
+@@ -289,7 +289,7 @@
+ #endif
+     {
+ 	PUTC(CHDEREF(ch), SP->_ofp);	/* macro's fastest... */
+-	TRACE_OUTCHARS(1);
++	COUNT_OUTCHARS(1);
+     }
+     SP->_curscol += chlen;
+     if (char_padding) {
+@@ -625,12 +625,13 @@
+     T((T_CALLED("doupdate()")));
+ 
+ #ifdef TRACE
+-    if (_nc_tracing & TRACE_UPDATE) {
++    if (USE_TRACEF(TRACE_UPDATE)) {
+ 	if (curscr->_clear)
+ 	    _tracef("curscr is clear");
+ 	else
+ 	    _tracedump("curscr", curscr);
+ 	_tracedump("newscr", newscr);
++	_nc_unlock_global(tracef);
+     }
+ #endif /* TRACE */
+ 
+@@ -666,7 +667,7 @@
+     }
+ #if USE_TRACE_TIMES
+     /* zero the metering machinery */
+-    _nc_outchars = 0;
++    RESET_OUTCHARS();
+     (void) times(&before);
+ #endif /* USE_TRACE_TIMES */
+ 
+@@ -826,9 +827,10 @@
+ 
+ #ifdef TRACE
+ 	/* show altered highlights after magic-cookie check */
+-	if (_nc_tracing & TRACE_UPDATE) {
++	if (USE_TRACEF(TRACE_UPDATE)) {
+ 	    _tracef("After magic-cookie check...");
+ 	    _tracedump("newscr", newscr);
++	    _nc_unlock_global(tracef);
+ 	}
+ #endif /* TRACE */
+     }
+Index: progs/tset.c
+Prereq:  1.68 
+--- ncurses-5.6-20070915+/progs/tset.c	2007-07-21 17:46:24.000000000 +0000
++++ ncurses-5.6-20070929/progs/tset.c	2007-09-29 15:51:35.000000000 +0000
+@@ -103,7 +103,7 @@
+ #include <dump_entry.h>
+ #include <transform.h>
+ 
+-MODULE_ID("$Id: tset.c,v 1.68 2007/07/21 17:46:24 tom Exp $")
++MODULE_ID("$Id: tset.c,v 1.69 2007/09/29 15:51:35 tom Exp $")
+ 
+ extern char **environ;
+ 
+@@ -777,7 +777,22 @@
+ 		      | OFDEL
+ #endif
+ #ifdef NLDLY
+-		      | NLDLY | CRDLY | TABDLY | BSDLY | VTDLY | FFDLY
++		      | NLDLY
++#endif
++#ifdef CRDLY 
++		      | CRDLY
++#endif
++#ifdef TABDLY 
++		      | TABDLY
++#endif
++#ifdef BSDLY 
++		      | BSDLY
++#endif
++#ifdef VTDLY 
++		      | VTDLY
++#endif
++#ifdef FFDLY
++		      | FFDLY
+ #endif
+ 	);
+ 
+Index: test/worm.c
+Prereq:  1.48 
+--- ncurses-5.6-20070915+/test/worm.c	2007-09-15 21:42:16.000000000 +0000
++++ ncurses-5.6-20070929/test/worm.c	2007-09-29 17:35:57.000000000 +0000
+@@ -61,11 +61,15 @@
+   traces will be dumped.  The program stops and waits for one character of
+   input at the beginning and end of the interval.
+ 
+-  $Id: worm.c,v 1.48 2007/09/15 21:42:16 tom Exp $
++  $Id: worm.c,v 1.49 2007/09/29 17:35:57 tom Exp $
+ */
+ 
+ #include <test.priv.h>
+ 
++#ifdef USE_PTHREADS
++#include <pthread.h>
++#endif
++
+ static chtype flavor[] =
+ {
+     'O', '*', '#', '$', '%', '0', '@',
+@@ -84,6 +88,9 @@
+     short *xpos;
+     short *ypos;
+     chtype attrs;
++#ifdef USE_PTHREADS
++    pthread_t thread;
++#endif
+ } WORM;
+ 
+ static WORM worm[40];
+@@ -299,12 +306,49 @@
+ 
+ #if !defined(NCURSES_VERSION_PATCH) || (NCURSES_VERSION_PATCH < 20070915)
+ static int
+-use_window(WINDOW *win, int (*func)(WINDOW *, void *), void *data)
++use_window(WINDOW *win, int (*func) (WINDOW *, void *), void *data)
+ {
+     return func(win, data);
+ }
+ #endif
+ 
++#ifdef USE_PTHREADS
++static void *
++start_worm(void *arg)
++{
++    for (;;) {
++	napms(20);
++	use_window(stdscr, draw_worm, arg);
++    }
++    return NULL;
++}
++#endif
++
++static bool
++draw_all_worms(void)
++{
++    bool done = FALSE;
++    int n;
++    struct worm *w;
++
++#ifdef USE_PTHREADS
++    static bool first = TRUE;
++    if (first) {
++	first = FALSE;
++	for (n = 0, w = &worm[0]; n < number; n++, w++) {
++	    int rc;
++	    rc = pthread_create(&(w->thread), NULL, start_worm, w);
++	}
++    }
++#else
++    for (n = 0, w = &worm[0]; n < number; n++, w++) {
++	if (use_window(stdscr, draw_worm, w))
++	    done = TRUE;
++    }
++#endif
++    return done;
++}
++
+ int
+ main(int argc, char *argv[])
+ {
+@@ -498,10 +542,7 @@
+ 	    }
+ 	}
+ 
+-	for (n = 0, w = &worm[0]; n < number; n++, w++) {
+-	    if (use_window(stdscr, draw_worm, w))
+-		done = TRUE;
+-	}
++	done = draw_all_worms();
+ 	napms(10);
+ 	refresh();
+     }

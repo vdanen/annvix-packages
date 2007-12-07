@@ -1,0 +1,2422 @@
+# ncurses 5.6 - patch 20070721 - Thomas E. Dickey
+#
+# ------------------------------------------------------------------------------
+#
+# Ncurses 5.6 is at
+# 	ftp.gnu.org:/pub/gnu
+#
+# Patches for ncurses 5.6 are in the subdirectory
+# 	ftp://invisible-island.net/ncurses/5.6
+#
+# ------------------------------------------------------------------------------
+# patch by Thomas E. Dickey <dickey@invisible-island.net>
+# created  Sat Jul 21 23:58:49 UTC 2007
+# ------------------------------------------------------------------------------
+# MANIFEST                                  |    4 
+# NEWS                                      |    9 
+# dist.mk                                   |    4 
+# ncurses-5.6-20070721/test/test_get_wstr.c |  361 ++++++++++++++++++++++++++++
+# ncurses-5.6-20070721/test/test_inwstr.c   |  269 ++++++++++++++++++++
+# ncurses/base/lib_instr.c                  |   10 
+# progs/infocmp.c                           |    4 
+# progs/tic.c                               |    4 
+# progs/toe.c                               |    4 
+# progs/tput.c                              |    4 
+# progs/tset.c                              |    6 
+# test/README                               |  186 +++++++-------
+# test/cardfile.c                           |    4 
+# test/demo_forms.c                         |    6 
+# test/demo_menus.c                         |    6 
+# test/demo_panels.c                        |    4 
+# test/echochar.c                           |    4 
+# test/gdc.c                                |    6 
+# test/hashtest.c                           |    6 
+# test/inch_wide.c                          |    6 
+# test/inchs.c                              |    8 
+# test/ins_wide.c                           |    4 
+# test/inserts.c                            |    4 
+# test/modules                              |    4 
+# test/ncurses.c                            |    4 
+# test/programs                             |    4 
+# test/savescreen.c                         |   30 +-
+# test/test_getstr.c                        |  336 +++++++++++++++++++++++++-
+# test/test_instr.c                         |  245 ++++++++++++++++++-
+# test/view.c                               |    4 
+# 30 files changed, 1388 insertions(+), 162 deletions(-)
+# ------------------------------------------------------------------------------
+Index: MANIFEST
+--- ncurses-5.6-20070716+/MANIFEST	2007-07-14 23:19:32.000000000 +0000
++++ ncurses-5.6-20070721/MANIFEST	2007-07-21 22:29:18.000000000 +0000
+@@ -1000,8 +1000,12 @@
+ ./test/savescreen.sh
+ ./test/tclock.c
+ ./test/test.priv.h
++./test/test_get_wstr.c
+ ./test/test_getstr.c
++./test/test_getstr.c
++./test/test_instr.c
+ ./test/test_instr.c
++./test/test_inwstr.c
+ ./test/testaddch.c
+ ./test/testcurs.c
+ ./test/testscanw.c
+Index: NEWS
+Prereq:  1.1145 
+--- ncurses-5.6-20070716+/NEWS	2007-07-16 21:14:00.000000000 +0000
++++ ncurses-5.6-20070721/NEWS	2007-07-21 22:28:54.000000000 +0000
+@@ -25,7 +25,7 @@
+ -- sale, use or other dealings in this Software without prior written        --
+ -- authorization.                                                            --
+ -------------------------------------------------------------------------------
+--- $Id: NEWS,v 1.1145 2007/07/16 21:14:00 tom Exp $
++-- $Id: NEWS,v 1.1147 2007/07/21 22:28:54 tom Exp $
+ -------------------------------------------------------------------------------
+ 
+ This is a log of changes that ncurses has gone through since Zeyd started
+@@ -45,6 +45,13 @@
+ Changes through 1.9.9e did not credit all contributions;
+ it is not possible to add this information.
+ 
++20070721
++	+ change winnstr() to stop at the end of the line (cf: 970315).
++	+ add test/test_get_wstr.c
++	+ add test/test_getstr.c
++	+ add test/test_inwstr.c
++	+ add test/test_instr.c
++
+ 20070716
+ 	+ restore a call to obtain screen-size in _nc_setupterm(), which
+ 	  is used in tput and other non-screen applications via setupterm()
+Index: dist.mk
+Prereq:  1.602 
+--- ncurses-5.6-20070716+/dist.mk	2007-07-16 19:48:46.000000000 +0000
++++ ncurses-5.6-20070721/dist.mk	2007-07-21 17:15:56.000000000 +0000
+@@ -25,7 +25,7 @@
+ # use or other dealings in this Software without prior written               #
+ # authorization.                                                             #
+ ##############################################################################
+-# $Id: dist.mk,v 1.602 2007/07/16 19:48:46 tom Exp $
++# $Id: dist.mk,v 1.603 2007/07/21 17:15:56 tom Exp $
+ # Makefile for creating ncurses distributions.
+ #
+ # This only needs to be used directly as a makefile by developers, but
+@@ -37,7 +37,7 @@
+ # These define the major/minor/patch versions of ncurses.
+ NCURSES_MAJOR = 5
+ NCURSES_MINOR = 6
+-NCURSES_PATCH = 20070716
++NCURSES_PATCH = 20070721
+ 
+ # We don't append the patch to the version, since this only applies to releases
+ VERSION = $(NCURSES_MAJOR).$(NCURSES_MINOR)
+Index: ncurses/base/lib_instr.c
+Prereq:  1.15 
+--- ncurses-5.6-20070716+/ncurses/base/lib_instr.c	2005-11-20 01:38:03.000000000 +0000
++++ ncurses-5.6-20070721/ncurses/base/lib_instr.c	2007-07-21 20:18:10.000000000 +0000
+@@ -1,5 +1,5 @@
+ /****************************************************************************
+- * Copyright (c) 1998-2004,2005 Free Software Foundation, Inc.              *
++ * Copyright (c) 1998-2005,2007 Free Software Foundation, Inc.              *
+  *                                                                          *
+  * Permission is hereby granted, free of charge, to any person obtaining a  *
+  * copy of this software and associated documentation files (the            *
+@@ -41,7 +41,7 @@
+ 
+ #include <curses.priv.h>
+ 
+-MODULE_ID("$Id: lib_instr.c,v 1.15 2005/11/20 01:38:03 tom Exp $")
++MODULE_ID("$Id: lib_instr.c,v 1.16 2007/07/21 20:18:10 tom Exp $")
+ 
+ NCURSES_EXPORT(int)
+ winnstr(WINDOW *win, char *str, int n)
+@@ -81,7 +81,7 @@
+ 			n3 = wcstombs(0, wch, 0);
+ 			if (isEILSEQ(n3) || (n3 == 0)) {
+ 			    ;
+-			} else if ((int) (n3 + i) >= n) {
++			} else if ((int) (n3 + i) > n) {
+ 			    done = TRUE;
+ 			} else if ((tmp = typeCalloc(char, n3 + 10)) == 0) {
+ 			    done = TRUE;
+@@ -102,9 +102,7 @@
+ 	    str[i++] = (char) CharOf(win->_line[row].text[col]);
+ #endif
+ 	    if (++col > win->_maxx) {
+-		col = 0;
+-		if (++row > win->_maxy)
+-		    break;
++		break;
+ 	    }
+ 	}
+     }
+Index: progs/infocmp.c
+Prereq:  1.88 
+--- ncurses-5.6-20070716+/progs/infocmp.c	2007-04-07 17:07:30.000000000 +0000
++++ ncurses-5.6-20070721/progs/infocmp.c	2007-07-21 17:45:59.000000000 +0000
+@@ -41,7 +41,7 @@
+ 
+ #include <dump_entry.h>
+ 
+-MODULE_ID("$Id: infocmp.c,v 1.88 2007/04/07 17:07:30 tom Exp $")
++MODULE_ID("$Id: infocmp.c,v 1.89 2007/07/21 17:45:59 tom Exp $")
+ 
+ #define L_CURL "{"
+ #define R_CURL "}"
+@@ -1271,7 +1271,7 @@
+ 
+     while ((c = getopt(argc,
+ 		       argv,
+-		       "1A:aB:CcdEeFfGgIiLlnpqR:rs:TtUuVv:w:x")) != EOF) {
++		       "1A:aB:CcdEeFfGgIiLlnpqR:rs:TtUuVv:w:x")) != -1) {
+ 	switch (c) {
+ 	case '1':
+ 	    mwidth = 0;
+Index: progs/tic.c
+Prereq:  1.132 
+--- ncurses-5.6-20070716+/progs/tic.c	2007-04-07 17:14:27.000000000 +0000
++++ ncurses-5.6-20070721/progs/tic.c	2007-07-21 17:45:59.000000000 +0000
+@@ -44,7 +44,7 @@
+ #include <dump_entry.h>
+ #include <transform.h>
+ 
+-MODULE_ID("$Id: tic.c,v 1.132 2007/04/07 17:14:27 tom Exp $")
++MODULE_ID("$Id: tic.c,v 1.133 2007/07/21 17:45:59 tom Exp $")
+ 
+ const char *_nc_progname = "tic";
+ 
+@@ -510,7 +510,7 @@
+      * be optional.
+      */
+     while ((this_opt = getopt(argc, argv,
+-			      "0123456789CILNR:TUVace:fGgo:rstvwx")) != EOF) {
++			      "0123456789CILNR:TUVace:fGgo:rstvwx")) != -1) {
+ 	if (isdigit(this_opt)) {
+ 	    switch (last_opt) {
+ 	    case 'v':
+Index: progs/toe.c
+Prereq:  1.43 
+--- ncurses-5.6-20070716+/progs/toe.c	2007-02-03 19:10:39.000000000 +0000
++++ ncurses-5.6-20070721/progs/toe.c	2007-07-21 17:45:59.000000000 +0000
+@@ -46,7 +46,7 @@
+ #include <hashed_db.h>
+ #endif
+ 
+-MODULE_ID("$Id: toe.c,v 1.43 2007/02/03 19:10:39 tom Exp $")
++MODULE_ID("$Id: toe.c,v 1.44 2007/07/21 17:45:59 tom Exp $")
+ 
+ #define isDotname(name) (!strcmp(name, ".") || !strcmp(name, ".."))
+ 
+@@ -326,7 +326,7 @@
+ 
+     _nc_progname = _nc_rootname(argv[0]);
+ 
+-    while ((this_opt = getopt(argc, argv, "0123456789ahuvUV")) != EOF) {
++    while ((this_opt = getopt(argc, argv, "0123456789ahuvUV")) != -1) {
+ 	/* handle optional parameter */
+ 	if (isdigit(this_opt)) {
+ 	    switch (last_opt) {
+Index: progs/tput.c
+Prereq:  1.39 
+--- ncurses-5.6-20070716+/progs/tput.c	2007-07-14 19:31:08.000000000 +0000
++++ ncurses-5.6-20070721/progs/tput.c	2007-07-21 17:45:59.000000000 +0000
+@@ -45,7 +45,7 @@
+ #endif
+ #include <transform.h>
+ 
+-MODULE_ID("$Id: tput.c,v 1.39 2007/07/14 19:31:08 tom Exp $")
++MODULE_ID("$Id: tput.c,v 1.40 2007/07/21 17:45:59 tom Exp $")
+ 
+ #define PUTS(s)		fputs(s, stdout)
+ #define PUTCHAR(c)	putchar(c)
+@@ -364,7 +364,7 @@
+ 
+     term = getenv("TERM");
+ 
+-    while ((c = getopt(argc, argv, "ST:V")) != EOF) {
++    while ((c = getopt(argc, argv, "ST:V")) != -1) {
+ 	switch (c) {
+ 	case 'S':
+ 	    cmdline = FALSE;
+Index: progs/tset.c
+Prereq:  1.67 
+--- ncurses-5.6-20070716+/progs/tset.c	2006-09-16 17:51:10.000000000 +0000
++++ ncurses-5.6-20070721/progs/tset.c	2007-07-21 17:46:24.000000000 +0000
+@@ -1,5 +1,5 @@
+ /****************************************************************************
+- * Copyright (c) 1998-2005,2006 Free Software Foundation, Inc.              *
++ * Copyright (c) 1998-2006,2007 Free Software Foundation, Inc.              *
+  *                                                                          *
+  * Permission is hereby granted, free of charge, to any person obtaining a  *
+  * copy of this software and associated documentation files (the            *
+@@ -103,7 +103,7 @@
+ #include <dump_entry.h>
+ #include <transform.h>
+ 
+-MODULE_ID("$Id: tset.c,v 1.67 2006/09/16 17:51:10 tom Exp $")
++MODULE_ID("$Id: tset.c,v 1.68 2007/07/21 17:46:24 tom Exp $")
+ 
+ extern char **environ;
+ 
+@@ -1129,7 +1129,7 @@
+ 
+     obsolete(argv);
+     noinit = noset = quiet = Sflag = sflag = showterm = 0;
+-    while ((ch = getopt(argc, argv, "a:cd:e:Ii:k:m:np:qQSrsVw")) != EOF) {
++    while ((ch = getopt(argc, argv, "a:cd:e:Ii:k:m:np:qQSrsVw")) != -1) {
+ 	switch (ch) {
+ 	case 'c':		/* set control-chars */
+ 	    opt_c = TRUE;
+Index: test/README
+Prereq:  1.33 
+--- ncurses-5.6-20070716+/test/README	2007-06-23 21:49:40.000000000 +0000
++++ ncurses-5.6-20070721/test/README	2007-07-21 22:41:06.000000000 +0000
+@@ -25,7 +25,7 @@
+ -- sale, use or other dealings in this Software without prior written        --
+ -- authorization.                                                            --
+ -------------------------------------------------------------------------------
+--- $Id: README,v 1.33 2007/06/23 21:49:40 tom Exp $
++-- $Id: README,v 1.34 2007/07/21 22:41:06 tom Exp $
+ -------------------------------------------------------------------------------
+ 
+ The programs in this directory are designed to test your newest toy :-)
+@@ -210,12 +210,12 @@
+ libncurses:
+ ----------
+ BC				-
+-COLORS				test: echochar ncurses xmas
+-COLOR_PAIR			test: background blue bs cardfile demo_forms demo_menus demo_panels echochar filter firework gdc hanoi ins_wide inserts knight ncurses newdemo rain tclock testaddch testcurs view worm xmas
+-COLOR_PAIRS			test: echochar ncurses newdemo
+-COLS				test: cardfile demo_altkeys demo_defkey demo_forms demo_keyok demo_menus demo_panels echochar edit_field firework foldkeys hashtest inch_wide inchs ins_wide inserts lrtest movewindow ncurses newdemo rain tclock testcurs view worm
++COLORS				test: echochar ncurses savescreen xmas
++COLOR_PAIR			test: background blue bs cardfile demo_forms demo_menus demo_panels echochar filter firework gdc hanoi ins_wide inserts knight ncurses newdemo rain savescreen tclock testaddch testcurs view worm xmas
++COLOR_PAIRS			test: echochar ncurses newdemo savescreen
++COLS				test: cardfile demo_altkeys demo_defkey demo_forms demo_keyok demo_menus demo_panels echochar edit_field firework foldkeys hashtest inch_wide inchs ins_wide inserts lrtest movewindow ncurses newdemo rain savescreen tclock test_get_wstr test_getstr test_instr test_inwstr testcurs view worm
+ ESCDELAY			lib: ncurses
+-LINES				test: cardfile demo_defkey demo_keyok demo_menus demo_panels echochar edit_field firework hanoi hashtest inch_wide inchs ins_wide inserts lrtest movewindow ncurses newdemo rain tclock testcurs view worm xmas
++LINES				test: cardfile demo_defkey demo_keyok demo_menus demo_panels echochar edit_field firework hanoi hashtest inch_wide inchs ins_wide inserts lrtest movewindow ncurses newdemo rain savescreen tclock test_get_wstr test_getstr test_instr test_inwstr testcurs view worm xmas
+ PAIR_NUMBER			test: ncurses
+ PC				lib: ncurses
+ SP				lib: ncurses
+@@ -225,12 +225,12 @@
+ add_wch				test: demo_panels ncurses
+ add_wchnstr			test: ncurses
+ add_wchstr			test: view
+-addch				test: blue bs ditto echochar hashtest ncurses testaddch view worm
++addch				test: blue bs ditto echochar hashtest ncurses savescreen testaddch view worm
+ addchnstr			-
+ addchstr			-
+ addnstr				-
+ addnwstr			-
+-addstr				test: blue bs cardfile gdc hanoi lrtest ncurses
++addstr				test: blue bs cardfile gdc hanoi lrtest ncurses savescreen
+ addwstr				test: ncurses
+ assume_default_colors		test: ncurses
+ attr_get			test: ncurses
+@@ -241,8 +241,8 @@
+ attron				test: bs echochar filter gdc ncurses
+ attrset				test: bs firework gdc hanoi ncurses rain tclock testaddch testcurs
+ baudrate			lib: ncurses
+-beep				test: blue bs cardfile chgat demo_forms demo_menus demo_panels edit_field hanoi inch_wide inchs ins_wide inserts knight movewindow ncurses tclock testcurs view xmas
+-bkgd				test: background cardfile demo_forms ncurses tclock view
++beep				test: blue bs cardfile chgat demo_forms demo_menus demo_panels edit_field hanoi inch_wide inchs ins_wide inserts knight movewindow ncurses savescreen tclock test_get_wstr test_getstr test_instr test_inwstr testcurs view xmas
++bkgd				test: background cardfile demo_forms ncurses savescreen tclock view
+ bkgdset				test: background ncurses testaddch
+ bkgrnd				test: ncurses
+ bkgrndset			test: ncurses
+@@ -251,10 +251,10 @@
+ boolnames			progs: dump_entry infocmp
+ border				-
+ border_set			-
+-box				test: cardfile chgat demo_forms demo_menus demo_panels edit_field inch_wide inchs ins_wide inserts lrtest ncurses newdemo redraw testcurs
++box				test: cardfile chgat demo_forms demo_menus demo_panels edit_field inch_wide inchs ins_wide inserts lrtest ncurses newdemo redraw test_get_wstr test_getstr test_instr test_inwstr testcurs
+ box_set				test: ncurses
+ can_change_color		test: ncurses
+-cbreak				test: background blue bs cardfile chgat color_set demo_altkeys demo_defkey demo_forms demo_keyok demo_menus demo_panels ditto filter firework foldkeys gdc hanoi hashtest inch_wide inchs ins_wide inserts knight lrtest movewindow ncurses newdemo tclock testcurs view worm xmas
++cbreak				test: background blue bs cardfile chgat color_set demo_altkeys demo_defkey demo_forms demo_keyok demo_menus demo_panels ditto filter firework foldkeys gdc hanoi hashtest inch_wide inchs ins_wide inserts knight lrtest movewindow ncurses newdemo savescreen tclock test_get_wstr test_getstr test_instr test_inwstr testcurs view worm xmas
+ chgat				test: chgat
+ clear				test: blue bs gdc ncurses testcurs xmas
+ clearok				test: bs knight
+@@ -264,8 +264,8 @@
+ color_set			test: color_set ncurses
+ copywin				test: ncurses testcurs
+ cur_term			test: dots dots_mvcur lrtest progs: clear tput tset
+-curs_set			test: echochar firework gdc hanoi lrtest ncurses newdemo rain tclock testcurs worm xmas
+-curscr				test: edit_field knight lrtest ncurses tclock view
++curs_set			test: echochar firework gdc hanoi lrtest ncurses newdemo rain savescreen tclock testcurs worm xmas
++curscr				test: demo_panels edit_field knight lrtest ncurses savescreen tclock view
+ curses_version			test: ncurses progs: infocmp tic toe tput tset
+ def_prog_mode			test: bs ncurses
+ def_shell_mode			lib: ncurses
+@@ -275,14 +275,14 @@
+ delch				-
+ deleteln			-
+ delscreen			test: dots_mvcur
+-delwin				test: cardfile chgat demo_forms demo_menus demo_panels edit_field inch_wide inchs ins_wide inserts movewindow ncurses newdemo redraw testcurs
+-derwin				test: cardfile chgat demo_forms demo_menus inch_wide inchs ins_wide inserts movewindow ncurses
+-doupdate			test: cardfile demo_menus demo_panels edit_field ins_wide inserts knight movewindow ncurses redraw
++delwin				test: cardfile chgat demo_forms demo_menus demo_panels edit_field inch_wide inchs ins_wide inserts movewindow ncurses newdemo redraw test_get_wstr test_getstr test_instr test_inwstr testcurs
++derwin				test: cardfile chgat demo_forms demo_menus inch_wide inchs ins_wide inserts movewindow ncurses test_get_wstr test_getstr test_instr test_inwstr
++doupdate			test: cardfile demo_menus demo_panels edit_field ins_wide inserts knight movewindow ncurses redraw savescreen test_get_wstr test_getstr
+ dupwin				test: edit_field
+-echo				test: bs hanoi ncurses testcurs testscanw
++echo				test: bs hanoi ncurses test_get_wstr test_getstr testcurs testscanw
+ echo_wchar			test: ncurses
+ echochar			test: echochar ncurses
+-endwin				test: background blue bs cardfile chgat color_set demo_altkeys demo_defkey demo_forms demo_keyok demo_menus demo_panels ditto dots_mvcur echochar filter firework firstlast foldkeys gdc hanoi hashtest inch_wide inchs ins_wide inserts keynames knight lrtest movewindow ncurses newdemo rain redraw tclock testaddch testcurs testscanw view worm xmas
++endwin				test: background blue bs cardfile chgat color_set demo_altkeys demo_defkey demo_forms demo_keyok demo_menus demo_panels ditto dots_mvcur echochar filter firework firstlast foldkeys gdc hanoi hashtest inch_wide inchs ins_wide inserts keynames knight lrtest movewindow ncurses newdemo rain redraw savescreen tclock test_get_wstr test_getstr test_instr test_inwstr testaddch testcurs testscanw view worm xmas
+ erase				test: cardfile demo_menus filter firework firstlast hanoi lrtest ncurses tclock testcurs
+ erasechar			lib: ncurses
+ erasewchar			-
+@@ -290,27 +290,27 @@
+ flash				test: cardfile lrtest ncurses tclock testcurs
+ flushinp			test: ncurses newdemo testcurs
+ get_wch				-
+-get_wstr			-
++get_wstr			test: test_get_wstr
+ getattrs			-
+ getbegx				test: chgat demo_menus demo_panels movewindow ncurses newdemo redraw testcurs
+ getbegy				test: chgat demo_menus demo_panels movewindow ncurses newdemo redraw testcurs
+ getbkgd				test: ncurses
+ getbkgrnd			test: ncurses
+ getcchar			test: ncurses view
+-getch				test: background blue bs chgat color_set demo_altkeys ditto filter firework firstlast foldkeys hanoi hashtest lrtest rain tclock testaddch testcurs view worm xmas
+-getcurx				test: bs chgat demo_altkeys demo_defkey demo_panels foldkeys movewindow ncurses redraw testcurs
+-getcury				test: bs chgat demo_altkeys demo_defkey demo_panels edit_field foldkeys movewindow ncurses redraw testcurs
+-getmaxx				test: chgat demo_panels inch_wide inchs movewindow ncurses newdemo redraw testcurs
+-getmaxy				test: chgat demo_forms demo_panels inch_wide inchs movewindow ncurses newdemo redraw testcurs
++getch				test: background blue bs chgat color_set demo_altkeys ditto filter firework firstlast foldkeys hanoi hashtest lrtest rain savescreen tclock testaddch testcurs view worm xmas
++getcurx				test: bs chgat demo_altkeys demo_defkey demo_panels foldkeys movewindow ncurses redraw savescreen test_get_wstr test_getstr testcurs
++getcury				test: bs chgat demo_altkeys demo_defkey demo_panels edit_field foldkeys movewindow ncurses redraw savescreen testcurs
++getmaxx				test: chgat demo_panels inch_wide inchs movewindow ncurses newdemo redraw test_get_wstr test_getstr test_instr test_inwstr testcurs
++getmaxy				test: chgat demo_forms demo_panels inch_wide inchs movewindow ncurses newdemo redraw test_get_wstr test_getstr test_instr test_inwstr testcurs
+ getmouse			test: bs knight movewindow ncurses
+-getn_wstr			-
+-getnstr				test: filter ncurses
++getn_wstr			test: test_get_wstr
++getnstr				test: filter ncurses test_getstr
+ getparx				test: movewindow
+ getpary				test: movewindow
+-getstr				-
++getstr				test: test_getstr
+ getwin				test: ncurses
+ halfdelay			test: view
+-has_colors			test: background bs cardfile chgat color_set demo_forms demo_menus demo_panels echochar filter firework gdc hanoi ins_wide inserts knight ncurses newdemo rain tclock testcurs view worm xmas
++has_colors			test: background bs cardfile chgat color_set demo_forms demo_menus demo_panels echochar filter firework gdc hanoi ins_wide inserts knight ncurses newdemo rain savescreen tclock testcurs view worm xmas
+ has_ic				test: lrtest
+ has_il				lib: ncurses
+ has_key				lib: ncurses
+@@ -326,10 +326,10 @@
+ inchnstr			test: inchs
+ inchstr				test: inchs
+ init_color			test: ncurses
+-init_pair			test: background blue bs cardfile chgat color_set demo_forms demo_menus demo_panels echochar filter firework gdc hanoi ins_wide inserts knight ncurses newdemo rain tclock testaddch testcurs view worm xmas
+-initscr				test: background blue bs cardfile chgat color_set demo_defkey demo_forms demo_keyok demo_menus demo_panels echochar firework firstlast gdc hanoi hashtest inch_wide inchs ins_wide inserts knight lrtest movewindow ncurses newdemo rain redraw tclock testaddch testcurs testscanw view worm xmas
+-innstr				-
+-innwstr				-
++init_pair			test: background blue bs cardfile chgat color_set demo_forms demo_menus demo_panels echochar filter firework gdc hanoi ins_wide inserts knight ncurses newdemo rain savescreen tclock testaddch testcurs view worm xmas
++initscr				test: background blue bs cardfile chgat color_set demo_defkey demo_forms demo_keyok demo_menus demo_panels echochar firework firstlast gdc hanoi hashtest inch_wide inchs ins_wide inserts knight lrtest movewindow ncurses newdemo rain redraw savescreen tclock test_get_wstr test_getstr test_instr test_inwstr testaddch testcurs testscanw view worm xmas
++innstr				test: test_instr
++innwstr				test: test_inwstr
+ ins_nwstr			test: ins_wide
+ ins_wch				test: ins_wide
+ ins_wstr			test: ins_wide
+@@ -338,9 +338,9 @@
+ insertln			-
+ insnstr				test: inserts
+ insstr				test: inserts
+-instr				-
++instr				test: test_instr
+ intrflush			test: demo_forms movewindow
+-inwstr				-
++inwstr				test: test_inwstr
+ is_cleared			-
+ is_idcok			-
+ is_idlok			-
+@@ -360,7 +360,7 @@
+ keybound			test: demo_altkeys demo_defkey
+ keyname				test: demo_altkeys demo_defkey demo_keyok demo_menus edit_field foldkeys keynames movewindow ncurses redraw testcurs view progs: tic
+ keyok				test: demo_keyok foldkeys
+-keypad				test: bs cardfile chgat demo_altkeys demo_defkey demo_forms demo_keyok demo_menus demo_panels edit_field filter firework foldkeys hashtest inch_wide inchs ins_wide inserts keynames knight lrtest movewindow ncurses redraw tclock testcurs testscanw view
++keypad				test: bs cardfile chgat demo_altkeys demo_defkey demo_forms demo_keyok demo_menus demo_panels edit_field filter firework foldkeys hashtest inch_wide inchs ins_wide inserts keynames knight lrtest movewindow ncurses redraw savescreen tclock test_get_wstr test_getstr test_instr test_inwstr testcurs testscanw view
+ killchar			lib: ncurses
+ killwchar			-
+ leaveok				test: hanoi
+@@ -370,7 +370,7 @@
+ mouse_trafo			-
+ mouseinterval			-
+ mousemask			test: bs demo_forms demo_menus knight movewindow ncurses
+-move				test: blue bs cardfile chgat demo_altkeys demo_menus echochar foldkeys gdc hanoi hashtest inch_wide inchs ins_wide inserts knight lrtest movewindow ncurses testscanw view worm xmas
++move				test: blue bs cardfile chgat demo_altkeys demo_menus echochar foldkeys gdc hanoi hashtest inch_wide inchs ins_wide inserts knight lrtest movewindow ncurses savescreen test_get_wstr test_getstr test_instr test_inwstr testscanw view worm xmas
+ mvadd_wch			test: ncurses
+ mvadd_wchnstr			-
+ mvadd_wchstr			-
+@@ -386,11 +386,11 @@
+ mvdelch				-
+ mvderwin			test: movewindow
+ mvget_wch			-
+-mvget_wstr			-
++mvget_wstr			test: test_get_wstr
+ mvgetch				-
+-mvgetn_wstr			-
+-mvgetnstr			-
+-mvgetstr			-
++mvgetn_wstr			test: test_get_wstr
++mvgetnstr			test: test_getstr
++mvgetstr			test: test_getstr
+ mvhline				test: ncurses
+ mvhline_set			test: ncurses
+ mvin_wch			test: inch_wide
+@@ -399,16 +399,16 @@
+ mvinch				test: inchs
+ mvinchnstr			test: gdc inchs
+ mvinchstr			test: inchs
+-mvinnstr			-
+-mvinnwstr			-
++mvinnstr			test: test_instr
++mvinnwstr			test: test_inwstr
+ mvins_nwstr			test: ins_wide
+ mvins_wch			test: ins_wide
+ mvins_wstr			test: ins_wide
+ mvinsch				test: ins_wide inserts
+ mvinsnstr			test: inserts
+ mvinsstr			test: inserts
+-mvinstr				-
+-mvinwstr			-
++mvinstr				test: test_instr
++mvinwstr			test: test_inwstr
+ mvprintw			test: bs demo_menus firework hanoi ncurses tclock view
+ mvscanw				-
+ mvvline				test: ncurses
+@@ -421,16 +421,16 @@
+ mvwaddchstr			test: inchs
+ mvwaddnstr			test: newdemo testcurs
+ mvwaddnwstr			-
+-mvwaddstr			test: firstlast ins_wide inserts knight ncurses newdemo testcurs xmas
+-mvwaddwstr			-
++mvwaddstr			test: firstlast ins_wide inserts knight ncurses newdemo test_instr testcurs xmas
++mvwaddwstr			test: test_inwstr
+ mvwchgat			test: chgat
+ mvwdelch			test: ncurses
+ mvwget_wch			-
+-mvwget_wstr			-
+-mvwgetch			test: inch_wide inchs
+-mvwgetn_wstr			-
+-mvwgetnstr			-
+-mvwgetstr			-
++mvwget_wstr			test: test_get_wstr
++mvwgetch			test: inch_wide inchs test_get_wstr test_getstr test_instr test_inwstr
++mvwgetn_wstr			test: test_get_wstr
++mvwgetnstr			test: test_getstr
++mvwgetstr			test: test_getstr
+ mvwhline			test: movewindow
+ mvwhline_set			-
+ mvwin				test: cardfile demo_menus movewindow testcurs xmas
+@@ -440,29 +440,29 @@
+ mvwinch				test: inchs newdemo testcurs
+ mvwinchnstr			test: inchs
+ mvwinchstr			test: inchs
+-mvwinnstr			test: testcurs
+-mvwinnwstr			-
++mvwinnstr			test: test_instr testcurs
++mvwinnwstr			test: test_inwstr
+ mvwins_nwstr			test: ins_wide
+ mvwins_wch			test: ins_wide
+ mvwins_wstr			test: ins_wide
+ mvwinsch			test: ins_wide inserts
+ mvwinsnstr			test: inserts
+ mvwinsstr			test: inserts testcurs
+-mvwinstr			-
+-mvwinwstr			-
+-mvwprintw			test: chgat demo_panels inch_wide inchs ncurses testcurs
++mvwinstr			test: test_instr
++mvwinwstr			test: test_inwstr
++mvwprintw			test: chgat demo_panels inch_wide inchs ncurses test_instr test_inwstr testcurs
+ mvwscanw			test: testcurs
+ mvwvline			test: ins_wide inserts movewindow
+ mvwvline_set			-
+-napms				test: dots dots_mvcur echochar firework gdc hanoi lrtest ncurses railroad rain tclock testcurs view worm xmas progs: tset
++napms				test: demo_panels dots dots_mvcur echochar firework gdc hanoi lrtest ncurses railroad rain tclock testcurs view worm xmas progs: tset
+ newpad				test: edit_field ncurses testcurs
+ newscr				lib: ncurses
+ newterm				test: demo_altkeys ditto dots_mvcur filter foldkeys gdc keynames
+-newwin				test: cardfile chgat demo_defkey demo_forms demo_keyok demo_menus demo_panels edit_field firstlast inch_wide inchs ins_wide inserts knight movewindow ncurses newdemo redraw testcurs xmas
++newwin				test: cardfile chgat demo_defkey demo_forms demo_keyok demo_menus demo_panels edit_field firstlast inch_wide inchs ins_wide inserts knight movewindow ncurses newdemo redraw test_get_wstr test_getstr test_instr test_inwstr testcurs xmas
+ nl				test: demo_forms ncurses rain testcurs
+ nocbreak			test: testcurs
+ nodelay				test: firework gdc lrtest ncurses newdemo rain tclock view xmas
+-noecho				test: background bs cardfile chgat color_set demo_altkeys demo_defkey demo_forms demo_keyok demo_menus demo_panels ditto firework firstlast foldkeys gdc hanoi hashtest inch_wide inchs ins_wide inserts knight lrtest movewindow ncurses rain redraw tclock testcurs view worm xmas
++noecho				test: background bs cardfile chgat color_set demo_altkeys demo_defkey demo_forms demo_keyok demo_menus demo_panels ditto firework firstlast foldkeys gdc hanoi hashtest inch_wide inchs ins_wide inserts knight lrtest movewindow ncurses rain redraw savescreen tclock test_get_wstr test_getstr test_instr test_inwstr testcurs view worm xmas
+ nofilter			-
+ nonl				test: bs demo_forms hashtest movewindow ncurses view worm xmas
+ noqiflush			-
+@@ -473,21 +473,21 @@
+ numnames			progs: dump_entry infocmp
+ ospeed				progs: tset
+ overlay				test: ncurses testcurs xmas
+-overwrite			test: ncurses
++overwrite			test: ncurses savescreen
+ pair_content			test: background color_set
+ pecho_wchar			-
+ pechochar			-
+ pnoutrefresh			test: edit_field ncurses
+ prefresh			test: testcurs
+-printw				test: background blue bs color_set demo_altkeys demo_defkey demo_keyok demo_menus filter foldkeys ncurses testcurs testscanw view
++printw				test: background blue bs color_set demo_altkeys demo_defkey demo_keyok demo_menus filter foldkeys ncurses savescreen testcurs testscanw view
+ putp				progs: tput
+ putwin				test: ncurses
+ qiflush				-
+ raw				test: demo_forms ncurses redraw testcurs
+ redrawwin			test: redraw
+-refresh				test: blue bs demo_defkey demo_forms demo_keyok demo_menus demo_panels ditto echochar filter firstlast gdc hanoi hashtest lrtest movewindow ncurses tclock testcurs view worm xmas
++refresh				test: blue bs demo_defkey demo_forms demo_keyok demo_menus demo_panels ditto echochar filter firstlast gdc hanoi hashtest lrtest movewindow ncurses savescreen tclock testcurs view worm xmas
+ reset_prog_mode			test: filter ncurses
+-reset_shell_mode		test: bs filter
++reset_shell_mode		test: bs filter savescreen
+ resetty				-
+ resize_term			test: view
+ resizeterm			lib: ncurses
+@@ -495,11 +495,11 @@
+ ripoffline			test: demo_menus ncurses
+ savetty				-
+ scanw				test: testcurs testscanw
+-scr_dump			-
+-scr_init			-
+-scr_restore			-
+-scr_set				-
+-scrl				-
++scr_dump			test: savescreen
++scr_init			test: savescreen
++scr_restore			test: savescreen
++scr_set				test: savescreen
++scrl				test: view
+ scroll				test: testcurs
+ scrollok			test: demo_altkeys demo_defkey demo_keyok demo_panels ditto foldkeys hashtest knight ncurses redraw testcurs testscanw view
+ set_curterm			lib: ncurses
+@@ -526,8 +526,8 @@
+ slk_wset			test: ncurses
+ standend			test: blue gdc ncurses worm
+ standout			test: blue ncurses
+-start_color			test: background blue bs cardfile chgat color_set demo_forms demo_menus demo_panels echochar filter firework gdc hanoi ins_wide inserts knight ncurses newdemo rain tclock testaddch testcurs view worm xmas
+-stdscr				test: bs chgat demo_altkeys demo_forms demo_menus demo_panels ditto filter firework foldkeys gdc hanoi hashtest inch_wide inchs ins_wide inserts keynames knight lrtest movewindow ncurses rain redraw tclock testcurs testscanw view xmas
++start_color			test: background blue bs cardfile chgat color_set demo_forms demo_menus demo_panels echochar filter firework gdc hanoi ins_wide inserts knight ncurses newdemo rain savescreen tclock testaddch testcurs view worm xmas
++stdscr				test: bs chgat demo_altkeys demo_forms demo_menus demo_panels ditto filter firework foldkeys gdc hanoi hashtest inch_wide inchs ins_wide inserts keynames knight lrtest movewindow ncurses rain redraw savescreen tclock test_get_wstr test_getstr test_instr test_inwstr testcurs testscanw view xmas
+ strcodes			progs: dump_entry
+ strfnames			progs: dump_entry
+ strnames			test: foldkeys progs: dump_entry infocmp tic
+@@ -545,9 +545,9 @@
+ tigetflag			progs: tput
+ tigetnum			test: ncurses progs: tput
+ tigetstr			test: blue demo_defkey foldkeys testcurs progs: tput
+-timeout				test: rain
++timeout				test: rain savescreen
+ touchline			test: chgat
+-touchwin			test: chgat demo_menus edit_field filter firstlast inch_wide inchs ins_wide inserts movewindow ncurses redraw xmas
++touchwin			test: chgat demo_menus edit_field filter firstlast inch_wide inchs ins_wide inserts movewindow ncurses redraw test_get_wstr test_getstr test_instr test_inwstr xmas
+ tparm				test: dots dots_mvcur progs: tic tput
+ tputs				test: dots dots_mvcur railroad progs: clear tset
+ trace				test: demo_menus hanoi hashtest lrtest ncurses testcurs view worm
+@@ -575,30 +575,30 @@
+ wadd_wch			test: inch_wide
+ wadd_wchnstr			lib: form
+ wadd_wchstr			-
+-waddch				test: demo_forms demo_panels firstlast inch_wide inchs knight ncurses
++waddch				test: demo_forms demo_panels firstlast inch_wide inchs knight ncurses test_get_wstr test_getstr test_instr test_inwstr
+ waddchnstr			lib: ncurses
+ waddchstr			-
+ waddnstr			lib: menu
+ waddnwstr			test: ncurses
+ waddstr				test: chgat demo_forms demo_panels edit_field firstlast ins_wide knight ncurses redraw testcurs
+-waddwstr			test: ins_wide
++waddwstr			test: ins_wide test_get_wstr
+ wattr_get			-
+ wattr_off			lib: ncurses
+ wattr_on			lib: ncurses
+ wattr_set			-
+ wattroff			test: demo_forms ncurses testcurs xmas
+ wattron				test: testcurs xmas
+-wattrset			test: demo_forms ncurses newdemo testcurs xmas
++wattrset			test: demo_forms ncurses newdemo test_get_wstr test_getstr testcurs xmas
+ wbkgd				test: cardfile demo_forms demo_menus ncurses newdemo testcurs
+ wbkgdset			test: demo_panels ins_wide inserts ncurses
+ wbkgrnd				lib: ncurses
+ wbkgrndset			lib: ncurses
+ wborder				lib: ncurses
+ wborder_set			lib: ncurses
+-wchgat				test: chgat view
++wchgat				test: chgat test_get_wstr test_getstr view
+ wclear				test: ncurses testcurs
+-wclrtobot			test: firstlast inch_wide inchs ncurses testcurs
+-wclrtoeol			test: chgat demo_defkey demo_keyok demo_panels firstlast inch_wide inchs ins_wide inserts knight ncurses testcurs
++wclrtobot			test: firstlast inch_wide inchs ncurses test_instr test_inwstr testcurs
++wclrtoeol			test: chgat demo_defkey demo_keyok demo_panels firstlast inch_wide inchs ins_wide inserts knight ncurses test_instr test_inwstr testcurs
+ wcolor_set			lib: ncurses
+ wcursyncup			lib: form
+ wdelch				test: ncurses testcurs
+@@ -606,14 +606,14 @@
+ wecho_wchar			lib: ncurses
+ wechochar			lib: ncurses
+ wenclose			lib: form
+-werase				test: cardfile demo_forms demo_menus demo_panels edit_field firstlast knight ncurses newdemo testcurs xmas
++werase				test: cardfile demo_forms demo_menus demo_panels edit_field firstlast knight ncurses newdemo test_get_wstr test_getstr testcurs xmas
+ wget_wch			test: ins_wide ncurses
+-wget_wstr			-
++wget_wstr			test: test_get_wstr
+ wgetbkgrnd			lib: ncurses
+ wgetch				test: cardfile chgat demo_defkey demo_keyok demo_menus demo_panels edit_field gdc inserts knight movewindow ncurses newdemo redraw testcurs
+-wgetn_wstr			test: ncurses
+-wgetnstr			test: ncurses
+-wgetstr				-
++wgetn_wstr			test: ncurses test_get_wstr
++wgetnstr			test: ncurses test_getstr
++wgetstr				test: test_getstr
+ whline				test: testcurs
+ whline_set			lib: ncurses
+ win_wch				test: inch_wide
+@@ -622,8 +622,8 @@
+ winch				test: inchs knight testcurs
+ winchnstr			test: inchs
+ winchstr			test: inchs
+-winnstr				test: demo_altkeys demo_defkey foldkeys
+-winnwstr			lib: ncurses
++winnstr				test: demo_altkeys demo_defkey foldkeys test_instr
++winnwstr			test: test_inwstr
+ wins_nwstr			test: ins_wide
+ wins_wch			test: ins_wide
+ wins_wstr			test: ins_wide
+@@ -632,17 +632,17 @@
+ winsertln			test: testcurs
+ winsnstr			test: inserts
+ winsstr				test: inserts
+-winstr				-
+-winwstr				lib: ncurses
++winstr				test: test_instr
++winwstr				test: test_inwstr
+ wmouse_trafo			lib: form
+-wmove				test: chgat demo_altkeys demo_defkey demo_keyok demo_menus demo_panels firstlast foldkeys inch_wide inchs ins_wide inserts knight movewindow ncurses newdemo redraw testcurs
+-wnoutrefresh			test: demo_menus edit_field inch_wide inchs ins_wide inserts knight movewindow ncurses redraw
+-wprintw				test: chgat demo_defkey demo_forms demo_keyok demo_menus demo_panels edit_field inch_wide inchs ins_wide inserts knight movewindow ncurses testcurs
++wmove				test: chgat demo_altkeys demo_defkey demo_keyok demo_menus demo_panels firstlast foldkeys inch_wide inchs ins_wide inserts knight movewindow ncurses newdemo redraw test_get_wstr test_getstr test_instr test_inwstr testcurs
++wnoutrefresh			test: demo_menus edit_field inch_wide inchs ins_wide inserts knight movewindow ncurses redraw test_get_wstr test_getstr test_instr test_inwstr
++wprintw				test: chgat demo_defkey demo_forms demo_keyok demo_menus demo_panels edit_field inch_wide inchs ins_wide inserts knight movewindow ncurses test_get_wstr test_getstr test_instr test_inwstr testcurs
+ wredrawln			test: redraw
+-wrefresh			test: chgat demo_forms demo_keyok demo_menus edit_field firstlast knight lrtest movewindow ncurses newdemo redraw tclock testcurs view xmas
++wrefresh			test: chgat demo_forms demo_keyok demo_menus demo_panels edit_field firstlast knight lrtest movewindow ncurses newdemo redraw savescreen tclock testcurs view xmas
+ wresize				test: cardfile ncurses
+ wscanw				test: testcurs
+-wscrl				test: ncurses testcurs view
++wscrl				test: ncurses testcurs
+ wsetscrreg			test: ncurses testcurs
+ wstandend			test: xmas
+ wstandout			test: xmas
+Index: test/cardfile.c
+Prereq:  1.30 
+--- ncurses-5.6-20070716+/test/cardfile.c	2007-04-07 17:07:34.000000000 +0000
++++ ncurses-5.6-20070721/test/cardfile.c	2007-07-21 17:41:55.000000000 +0000
+@@ -29,7 +29,7 @@
+ /*
+  * Author: Thomas E. Dickey
+  *
+- * $Id: cardfile.c,v 1.30 2007/04/07 17:07:34 tom Exp $
++ * $Id: cardfile.c,v 1.31 2007/07/21 17:41:55 tom Exp $
+  *
+  * File format: text beginning in column 1 is a title; other text is content.
+  */
+@@ -570,7 +570,7 @@
+ 
+     setlocale(LC_ALL, "");
+ 
+-    while ((n = getopt(argc, argv, "c")) != EOF) {
++    while ((n = getopt(argc, argv, "c")) != -1) {
+ 	switch (n) {
+ 	case 'c':
+ 	    try_color = TRUE;
+Index: test/demo_forms.c
+Prereq:  1.23 
+--- ncurses-5.6-20070716+/test/demo_forms.c	2007-06-02 21:37:55.000000000 +0000
++++ ncurses-5.6-20070721/test/demo_forms.c	2007-07-21 17:45:09.000000000 +0000
+@@ -1,5 +1,5 @@
+ /****************************************************************************
+- * Copyright (c) 2003-2005,2006 Free Software Foundation, Inc.              *
++ * Copyright (c) 2003-2006,2007 Free Software Foundation, Inc.              *
+  *                                                                          *
+  * Permission is hereby granted, free of charge, to any person obtaining a  *
+  * copy of this software and associated documentation files (the            *
+@@ -26,7 +26,7 @@
+  * authorization.                                                           *
+  ****************************************************************************/
+ /*
+- * $Id: demo_forms.c,v 1.23 2007/06/02 21:37:55 tom Exp $
++ * $Id: demo_forms.c,v 1.24 2007/07/21 17:45:09 tom Exp $
+  *
+  * Demonstrate a variety of functions from the form library.
+  * Thomas Dickey - 2003/4/26
+@@ -459,7 +459,7 @@
+ 
+     setlocale(LC_ALL, "");
+ 
+-    while ((ch = getopt(argc, argv, "dj:m:o:t:")) != EOF) {
++    while ((ch = getopt(argc, argv, "dj:m:o:t:")) != -1) {
+ 	switch (ch) {
+ 	case 'd':
+ 	    d_option = TRUE;
+Index: test/demo_menus.c
+Prereq:  1.20 
+--- ncurses-5.6-20070716+/test/demo_menus.c	2006-06-17 17:39:37.000000000 +0000
++++ ncurses-5.6-20070721/test/demo_menus.c	2007-07-21 17:45:09.000000000 +0000
+@@ -1,5 +1,5 @@
+ /****************************************************************************
+- * Copyright (c) 2005,2006 Free Software Foundation, Inc.                   *
++ * Copyright (c) 2005-2006,2007 Free Software Foundation, Inc.              *
+  *                                                                          *
+  * Permission is hereby granted, free of charge, to any person obtaining a  *
+  * copy of this software and associated documentation files (the            *
+@@ -26,7 +26,7 @@
+  * authorization.                                                           *
+  ****************************************************************************/
+ /*
+- * $Id: demo_menus.c,v 1.20 2006/06/17 17:39:37 tom Exp $
++ * $Id: demo_menus.c,v 1.21 2007/07/21 17:45:09 tom Exp $
+  *
+  * Demonstrate a variety of functions from the menu library.
+  * Thomas Dickey - 2005/4/9
+@@ -834,7 +834,7 @@
+ 
+     setlocale(LC_ALL, "");
+ 
+-    while ((c = getopt(argc, argv, "a:de:fhmp:s:t:")) != EOF) {
++    while ((c = getopt(argc, argv, "a:de:fhmp:s:t:")) != -1) {
+ 	switch (c) {
+ #if HAVE_RIPOFFLINE
+ 	case 'f':
+Index: test/demo_panels.c
+Prereq:  1.26 
+--- ncurses-5.6-20070716+/test/demo_panels.c	2007-07-07 22:16:33.000000000 +0000
++++ ncurses-5.6-20070721/test/demo_panels.c	2007-07-21 17:41:55.000000000 +0000
+@@ -26,7 +26,7 @@
+  * authorization.                                                           *
+  ****************************************************************************/
+ /*
+- * $Id: demo_panels.c,v 1.26 2007/07/07 22:16:33 tom Exp $
++ * $Id: demo_panels.c,v 1.27 2007/07/21 17:41:55 tom Exp $
+  *
+  * Demonstrate a variety of functions from the panel library.
+  */
+@@ -759,7 +759,7 @@
+ 
+     setlocale(LC_ALL, "");
+ 
+-    while ((c = getopt(argc, argv, "i:o:mwx")) != EOF) {
++    while ((c = getopt(argc, argv, "i:o:mwx")) != -1) {
+ 	switch (c) {
+ 	case 'i':
+ 	    log_in = fopen(optarg, "r");
+Index: test/echochar.c
+Prereq:  1.4 
+--- ncurses-5.6-20070716+/test/echochar.c	2007-06-30 17:54:56.000000000 +0000
++++ ncurses-5.6-20070721/test/echochar.c	2007-07-21 17:41:55.000000000 +0000
+@@ -26,7 +26,7 @@
+  * authorization.                                                           *
+  ****************************************************************************/
+ /*
+- * $Id: echochar.c,v 1.4 2007/06/30 17:54:56 tom Exp $
++ * $Id: echochar.c,v 1.5 2007/07/21 17:41:55 tom Exp $
+  *
+  * Demonstrate the echochar function (compare to dots.c).
+  * Thomas Dickey - 2006/11/4
+@@ -89,7 +89,7 @@
+     int last_fg = 0;
+     int last_bg = 0;
+ 
+-    while ((ch = getopt(argc, argv, "r")) != EOF) {
++    while ((ch = getopt(argc, argv, "r")) != -1) {
+ 	switch (ch) {
+ 	case 'r':
+ 	    opt_r = TRUE;
+Index: test/gdc.c
+Prereq:  1.28 
+--- ncurses-5.6-20070716+/test/gdc.c	2006-05-20 15:37:44.000000000 +0000
++++ ncurses-5.6-20070721/test/gdc.c	2007-07-21 17:45:09.000000000 +0000
+@@ -1,5 +1,5 @@
+ /****************************************************************************
+- * Copyright (c) 1998-2005,2006 Free Software Foundation, Inc.              *
++ * Copyright (c) 1998-2006,2007 Free Software Foundation, Inc.              *
+  *                                                                          *
+  * Permission is hereby granted, free of charge, to any person obtaining a  *
+  * copy of this software and associated documentation files (the            *
+@@ -33,7 +33,7 @@
+  * modified 10-18-89 for curses (jrl)
+  * 10-18-89 added signal handling
+  *
+- * $Id: gdc.c,v 1.28 2006/05/20 15:37:44 tom Exp $
++ * $Id: gdc.c,v 1.29 2007/07/21 17:45:09 tom Exp $
+  */
+ 
+ #include <test.priv.h>
+@@ -171,7 +171,7 @@
+ 
+     CATCHALL(sighndl);
+ 
+-    while ((k = getopt(argc, argv, "sn")) != EOF) {
++    while ((k = getopt(argc, argv, "sn")) != -1) {
+ 	switch (k) {
+ 	case 's':
+ 	    scrol = TRUE;
+Index: test/hashtest.c
+Prereq:  1.26 
+--- ncurses-5.6-20070716+/test/hashtest.c	2006-05-20 16:02:16.000000000 +0000
++++ ncurses-5.6-20070721/test/hashtest.c	2007-07-21 17:45:09.000000000 +0000
+@@ -1,5 +1,5 @@
+ /****************************************************************************
+- * Copyright (c) 1998-2005,2006 Free Software Foundation, Inc.              *
++ * Copyright (c) 1998-2006,2007 Free Software Foundation, Inc.              *
+  *                                                                          *
+  * Permission is hereby granted, free of charge, to any person obtaining a  *
+  * copy of this software and associated documentation files (the            *
+@@ -30,7 +30,7 @@
+  *
+  * Generate timing statistics for vertical-motion optimization.
+  *
+- * $Id: hashtest.c,v 1.26 2006/05/20 16:02:16 tom Exp $
++ * $Id: hashtest.c,v 1.27 2007/07/21 17:45:09 tom Exp $
+  */
+ 
+ #ifdef TRACE
+@@ -190,7 +190,7 @@
+ 
+     setlocale(LC_ALL, "");
+ 
+-    while ((c = getopt(argc, argv, "cf:h:l:norsx")) != EOF) {
++    while ((c = getopt(argc, argv, "cf:h:l:norsx")) != -1) {
+ 	switch (c) {
+ 	case 'c':
+ 	    continuous = TRUE;
+Index: test/inch_wide.c
+Prereq:  1.5 
+--- ncurses-5.6-20070716+/test/inch_wide.c	2007-06-30 17:50:44.000000000 +0000
++++ ncurses-5.6-20070721/test/inch_wide.c	2007-07-21 18:37:38.000000000 +0000
+@@ -26,7 +26,7 @@
+  * authorization.                                                           *
+  ****************************************************************************/
+ /*
+- * $Id: inch_wide.c,v 1.5 2007/06/30 17:50:44 tom Exp $
++ * $Id: inch_wide.c,v 1.6 2007/07/21 18:37:38 tom Exp $
+  */
+ /*
+        int in_wch(cchar_t *wcval);
+@@ -103,10 +103,10 @@
+ 		break;
+ 	    }
+ 	}
++	fclose(fp);
+     } else {
+ 	wprintw(txtwin, "Cannot open:\n%s", argv[1]);
+     }
+-    fclose(fp);
+ 
+     while (!Quit(j = mvwgetch(txtwin, txt_y, txt_x))) {
+ 	switch (j) {
+@@ -267,7 +267,7 @@
+     test_inchs(1, argv, chrwin, strwin);
+ 
+     endwin();
+-    return EXIT_SUCCESS;
++    ExitProgram(EXIT_SUCCESS);
+ }
+ #else
+ int
+Index: test/inchs.c
+Prereq:  1.7 
+--- ncurses-5.6-20070716+/test/inchs.c	2007-06-30 17:50:44.000000000 +0000
++++ ncurses-5.6-20070721/test/inchs.c	2007-07-21 19:01:43.000000000 +0000
+@@ -26,7 +26,9 @@
+  * authorization.                                                           *
+  ****************************************************************************/
+ /*
+- * $Id: inchs.c,v 1.7 2007/06/30 17:50:44 tom Exp $
++ * $Id: inchs.c,v 1.9 2007/07/21 19:01:43 tom Exp $
++ *
++ * Author: Thomas E Dickey
+  */
+ /*
+        chtype inch(void);
+@@ -100,10 +102,10 @@
+ 		break;
+ 	    }
+ 	}
++	fclose(fp);
+     } else {
+ 	wprintw(txtwin, "Cannot open:\n%s", argv[1]);
+     }
+-    fclose(fp);
+ 
+     while (!Quit(j = mvwgetch(txtwin, txt_y, txt_x))) {
+ 	switch (j) {
+@@ -266,5 +268,5 @@
+     test_inchs(1, argv, chrwin, strwin);
+ 
+     endwin();
+-    return EXIT_SUCCESS;
++    ExitProgram(EXIT_SUCCESS);
+ }
+Index: test/ins_wide.c
+Prereq:  1.8 
+--- ncurses-5.6-20070716+/test/ins_wide.c	2007-03-11 00:18:29.000000000 +0000
++++ ncurses-5.6-20070721/test/ins_wide.c	2007-07-21 17:41:55.000000000 +0000
+@@ -26,7 +26,7 @@
+  * authorization.                                                           *
+  ****************************************************************************/
+ /*
+- * $Id: ins_wide.c,v 1.8 2007/03/11 00:18:29 tom Exp $
++ * $Id: ins_wide.c,v 1.9 2007/07/21 17:41:55 tom Exp $
+  *
+  * Demonstrate the wins_wstr() and wins_wch functions.
+  * Thomas Dickey - 2002/11/23
+@@ -490,7 +490,7 @@
+ 
+     setlocale(LC_ALL, "");
+ 
+-    while ((ch = getopt(argc, argv, "mn:w")) != EOF) {
++    while ((ch = getopt(argc, argv, "mn:w")) != -1) {
+ 	switch (ch) {
+ 	case 'm':
+ 	    m_opt = TRUE;
+Index: test/inserts.c
+Prereq:  1.17 
+--- ncurses-5.6-20070716+/test/inserts.c	2007-03-11 00:19:00.000000000 +0000
++++ ncurses-5.6-20070721/test/inserts.c	2007-07-21 17:41:55.000000000 +0000
+@@ -26,7 +26,7 @@
+  * authorization.                                                           *
+  ****************************************************************************/
+ /*
+- * $Id: inserts.c,v 1.17 2007/03/11 00:19:00 tom Exp $
++ * $Id: inserts.c,v 1.18 2007/07/21 17:41:55 tom Exp $
+  *
+  * Demonstrate the winsstr() and winsch functions.
+  * Thomas Dickey - 2002/10/19
+@@ -405,7 +405,7 @@
+ 
+     setlocale(LC_ALL, "");
+ 
+-    while ((ch = getopt(argc, argv, "mn:w")) != EOF) {
++    while ((ch = getopt(argc, argv, "mn:w")) != -1) {
+ 	switch (ch) {
+ 	case 'm':
+ 	    m_opt = TRUE;
+Index: test/modules
+Prereq:  1.33 
+--- ncurses-5.6-20070716+/test/modules	2007-07-14 15:56:38.000000000 +0000
++++ ncurses-5.6-20070721/test/modules	2007-07-21 18:27:57.000000000 +0000
+@@ -1,4 +1,4 @@
+-# $Id: modules,v 1.33 2007/07/14 15:56:38 tom Exp $
++# $Id: modules,v 1.34 2007/07/21 18:27:57 tom Exp $
+ ##############################################################################
+ # Copyright (c) 1998-2006,2007 Free Software Foundation, Inc.                #
+ #                                                                            #
+@@ -73,8 +73,10 @@
+ redraw		progs		$(srcdir)	$(HEADER_DEPS)
+ savescreen	progs		$(srcdir)	$(HEADER_DEPS)
+ tclock		progs		$(srcdir)	$(HEADER_DEPS)
++test_get_wstr	progs		$(srcdir)	$(HEADER_DEPS)
+ test_getstr	progs		$(srcdir)	$(HEADER_DEPS)
+ test_instr	progs		$(srcdir)	$(HEADER_DEPS)
++test_inwstr	progs		$(srcdir)	$(HEADER_DEPS)
+ testaddch	progs		$(srcdir)	$(HEADER_DEPS)
+ testcurs	progs		$(srcdir)	$(HEADER_DEPS)
+ testscanw	progs		$(srcdir)	$(HEADER_DEPS)
+Index: test/ncurses.c
+Prereq:  1.291 
+--- ncurses-5.6-20070716+/test/ncurses.c	2007-06-23 21:43:25.000000000 +0000
++++ ncurses-5.6-20070721/test/ncurses.c	2007-07-21 17:41:55.000000000 +0000
+@@ -40,7 +40,7 @@
+    Author: Eric S. Raymond <esr@snark.thyrsus.com> 1993
+            Thomas E. Dickey (beginning revision 1.27 in 1996).
+ 
+-$Id: ncurses.c,v 1.291 2007/06/23 21:43:25 tom Exp $
++$Id: ncurses.c,v 1.292 2007/07/21 17:41:55 tom Exp $
+ 
+ ***************************************************************************/
+ 
+@@ -6176,7 +6176,7 @@
+ 
+     setlocale(LC_ALL, "");
+ 
+-    while ((c = getopt(argc, argv, "a:de:fhmp:s:t:")) != EOF) {
++    while ((c = getopt(argc, argv, "a:de:fhmp:s:t:")) != -1) {
+ 	switch (c) {
+ #ifdef NCURSES_VERSION
+ 	case 'a':
+Index: test/programs
+Prereq:  1.10 
+--- ncurses-5.6-20070716+/test/programs	2007-07-14 15:57:21.000000000 +0000
++++ ncurses-5.6-20070721/test/programs	2007-07-21 18:29:01.000000000 +0000
+@@ -1,4 +1,4 @@
+-# $Id: programs,v 1.10 2007/07/14 15:57:21 tom Exp $
++# $Id: programs,v 1.11 2007/07/21 18:29:01 tom Exp $
+ ##############################################################################
+ # Copyright (c) 2006,2007 Free Software Foundation, Inc.                     #
+ #                                                                            #
+@@ -70,8 +70,10 @@
+ redraw		$(LDFLAGS_CURSES)	$(LOCAL_LIBS)	redraw
+ savescreen	$(LDFLAGS_CURSES)	$(LOCAL_LIBS)	savescreen
+ tclock		$(LDFLAGS_CURSES)	$(LOCAL_LIBS)	tclock
++test_get_wstr	$(LDFLAGS_CURSES)	$(LOCAL_LIBS)	test_get_wstr
+ test_getstr	$(LDFLAGS_CURSES)	$(LOCAL_LIBS)	test_getstr
+ test_instr	$(LDFLAGS_CURSES)	$(LOCAL_LIBS)	test_instr
++test_inwstr	$(LDFLAGS_CURSES)	$(LOCAL_LIBS)	test_inwstr
+ testaddch	$(LDFLAGS_CURSES)	$(LOCAL_LIBS)	testaddch
+ testcurs	$(LDFLAGS_CURSES)	$(LOCAL_LIBS)	testcurs
+ testscanw	$(LDFLAGS_CURSES)	$(LOCAL_LIBS)	testscanw
+Index: test/savescreen.c
+Prereq:  1.9 
+--- ncurses-5.6-20070716+/test/savescreen.c	2007-07-14 23:16:55.000000000 +0000
++++ ncurses-5.6-20070721/test/savescreen.c	2007-07-21 17:57:37.000000000 +0000
+@@ -26,15 +26,11 @@
+  * authorization.                                                           *
+  ****************************************************************************/
+ /*
+- * $Id: savescreen.c,v 1.9 2007/07/14 23:16:55 tom Exp $
++ * $Id: savescreen.c,v 1.10 2007/07/21 17:57:37 tom Exp $
+  *
+  * Demonstrate save/restore functions from the curses library.
+  * Thomas Dickey - 2007/7/14
+  */
+-/*
+-scr_set			-
+-scr_init		-
+-*/
+ 
+ #include <test.priv.h>
+ 
+@@ -49,6 +45,8 @@
+ # endif
+ #endif
+ 
++static bool use_init = FALSE;
++
+ static void
+ setup_next(void)
+ {
+@@ -66,6 +64,20 @@
+     }
+ }
+ 
++static int
++load_screen(char *filename)
++{
++    int result;
++
++    if (use_init) {
++	if ((result = scr_init(filename)) != ERR)
++	    result = scr_restore(filename);
++    } else {
++	result = scr_set(filename);
++    }
++    return result;
++}
++
+ /*
+  * scr_restore() or scr_set() operates on curscr.  If we read a character using
+  * getch() that will refresh stdscr, wiping out the result.  To avoid that,
+@@ -117,6 +129,7 @@
+ 	"Usage: savescreen [-r] files",
+ 	"",
+ 	"Options:",
++	" -i  use scr_init/scr_restore rather than scr_set",
+ 	" -r  replay the screen-dump files"
+     };
+     unsigned n;
+@@ -136,8 +149,11 @@
+     bool done = FALSE;
+     char **files;
+ 
+-    while ((ch = getopt(argc, argv, "r")) != -1) {
++    while ((ch = getopt(argc, argv, "ir")) != -1) {
+ 	switch (ch) {
++	case 'i':
++	    use_init = TRUE;
++	    break;
+ 	case 'r':
+ 	    replaying = TRUE;
+ 	    break;
+@@ -174,7 +190,7 @@
+ 	}
+ 
+ 	which = last;
+-	if (scr_set(files[which]) == ERR) {
++	if (load_screen(files[which]) == ERR) {
+ 	    endwin();
+ 	    printf("Cannot load screen-dump %s\n", files[which]);
+ 	    ExitProgram(EXIT_FAILURE);
+Index: test/test_get_wstr.c
+--- /dev/null	2007-07-21 23:56:40.544585000 +0000
++++ ncurses-5.6-20070721/test/test_get_wstr.c	2007-07-21 22:47:21.000000000 +0000
+@@ -0,0 +1,361 @@
++/****************************************************************************
++ * Copyright (c) 2007 Free Software Foundation, Inc.                        *
++ *                                                                          *
++ * Permission is hereby granted, free of charge, to any person obtaining a  *
++ * copy of this software and associated documentation files (the            *
++ * "Software"), to deal in the Software without restriction, including      *
++ * without limitation the rights to use, copy, modify, merge, publish,      *
++ * distribute, distribute with modifications, sublicense, and/or sell       *
++ * copies of the Software, and to permit persons to whom the Software is    *
++ * furnished to do so, subject to the following conditions:                 *
++ *                                                                          *
++ * The above copyright notice and this permission notice shall be included  *
++ * in all copies or substantial portions of the Software.                   *
++ *                                                                          *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS  *
++ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF               *
++ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.   *
++ * IN NO EVENT SHALL THE ABOVE COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,   *
++ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR    *
++ * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR    *
++ * THE USE OR OTHER DEALINGS IN THE SOFTWARE.                               *
++ *                                                                          *
++ * Except as contained in this notice, the name(s) of the above copyright   *
++ * holders shall not be used in advertising or otherwise to promote the     *
++ * sale, use or other dealings in this Software without prior written       *
++ * authorization.                                                           *
++ ****************************************************************************/
++/*
++ * $Id: test_get_wstr.c,v 1.3 2007/07/21 22:47:21 tom Exp $
++ *
++ * Author: Thomas E Dickey
++ *
++ * Demonstrate the get_wstr functions from the curses library.
++
++       int get_wstr(wint_t *wstr);
++       int getn_wstr(wint_t *wstr, int n);
++       int wget_wstr(WINDOW *win, wint_t *wstr);
++       int wgetn_wstr(WINDOW *win, wint_t *wstr, int n);
++       int mvget_wstr(int y, int x, wint_t *wstr);
++       int mvgetn_wstr(int y, int x, wint_t *wstr, int n);
++       int mvwget_wstr(WINDOW *win, int y, int x, wint_t *wstr);
++       int mvwgetn_wstr(WINDOW *win, int y, int x, wint_t *wstr, int n);
++ */
++
++#include <test.priv.h>
++
++#if USE_WIDEC_SUPPORT
++
++#define BASE_Y 6
++#define MAX_COLS 1024
++
++typedef enum {
++    eGetStr = 0,
++    eGetNStr,
++    eMvGetStr,
++    eMvGetNStr,
++    eMaxFlavor
++} Flavors;
++
++static bool
++Quit(int ch)
++{
++    return (ch == ERR || ch == 'q' || ch == QUIT || ch == ESCAPE);
++}
++
++static int
++Remainder(WINDOW *txtwin)
++{
++    int result = getmaxx(txtwin) - getcurx(txtwin);
++    return (result > 0) ? result : 0;
++}
++
++/*
++ * Show a highlighted line in the place where input will happen.
++ */
++static void
++ShowPrompt(WINDOW *txtwin, int limit)
++{
++    wchgat(txtwin, limit, A_REVERSE, 0, NULL);
++    wnoutrefresh(txtwin);
++}
++
++static void
++MovePrompt(WINDOW *txtwin, int limit, int y, int x)
++{
++    wchgat(txtwin, Remainder(txtwin), A_NORMAL, 0, NULL);
++    wmove(txtwin, y, x);
++    ShowPrompt(txtwin, limit);
++}
++
++static int
++ShowFlavor(WINDOW *strwin, WINDOW *txtwin, Flavors flavor, int limit)
++{
++    char *name = "?";
++    bool limited = FALSE;
++    bool wins = (txtwin != stdscr);
++    int result;
++
++    switch (flavor) {
++    case eGetStr:
++	name = wins ? "wget_wstr" : "get_wstr";
++	break;
++    case eGetNStr:
++	limited = TRUE;
++	name = wins ? "wgetn_wstr" : "getn_wstr";
++	break;
++    case eMvGetStr:
++	name = wins ? "mvwget_wstr" : "mvget_wstr";
++	break;
++    case eMvGetNStr:
++	limited = TRUE;
++	name = wins ? "mvwgetn_wstr" : "mvgetn_wstr";
++	break;
++    case eMaxFlavor:
++	break;
++    }
++
++    wmove(strwin, 0, 0);
++    werase(strwin);
++
++    if (limited) {
++	wprintw(strwin, "%s(%d):", name, limit);
++    } else {
++	wprintw(strwin, "%s:", name);
++    }
++    result = limited ? limit : Remainder(txtwin);
++    ShowPrompt(txtwin, result);
++
++    wnoutrefresh(strwin);
++    return result;
++}
++
++static int
++test_get_wstr(int level, char **argv, WINDOW *strwin)
++{
++    WINDOW *txtbox = 0;
++    WINDOW *txtwin = 0;
++    FILE *fp;
++    int ch;
++    int rc;
++    int txt_x = 0, txt_y = 0;
++    int base_y;
++    int flavor = 0;
++    int limit = getmaxx(strwin) - 5;
++    int actual;
++    wint_t buffer[MAX_COLS];
++
++    if (argv[level] == 0) {
++	beep();
++	return FALSE;
++    }
++
++    if (level > 1) {
++	txtbox = newwin(LINES - BASE_Y, COLS - level, BASE_Y, level);
++	box(txtbox, 0, 0);
++	wnoutrefresh(txtbox);
++
++	txtwin = derwin(txtbox,
++			getmaxy(txtbox) - 2,
++			getmaxx(txtbox) - 2,
++			1, 1);
++	base_y = 0;
++    } else {
++	txtwin = stdscr;
++	base_y = BASE_Y;
++    }
++
++    keypad(txtwin, TRUE);	/* enable keyboard mapping */
++    (void) cbreak();		/* take input chars one at a time, no wait for \n */
++    (void) noecho();		/* don't echo input */
++
++    txt_y = base_y;
++    txt_x = 0;
++    wmove(txtwin, txt_y, txt_x);
++
++    if ((fp = fopen(argv[level], "r")) != 0) {
++	while ((ch = fgetc(fp)) != EOF) {
++	    if (waddch(txtwin, UChar(ch)) != OK) {
++		break;
++	    }
++	}
++	fclose(fp);
++    } else {
++	wprintw(txtwin, "Cannot open:\n%s", argv[1]);
++    }
++
++    wmove(txtwin, txt_y, txt_x);
++    actual = ShowFlavor(strwin, txtwin, flavor, limit);
++    while (!Quit(ch = mvwgetch(txtwin, txt_y, txt_x))) {
++	switch (ch) {
++	case KEY_DOWN:
++	case 'j':
++	    if (txt_y < getmaxy(txtwin) - 1) {
++		MovePrompt(txtwin, actual, ++txt_y, txt_x);
++	    } else {
++		beep();
++	    }
++	    break;
++	case KEY_UP:
++	case 'k':
++	    if (txt_y > base_y) {
++		MovePrompt(txtwin, actual, --txt_y, txt_x);
++	    } else {
++		beep();
++	    }
++	    break;
++	case KEY_LEFT:
++	case 'h':
++	    if (txt_x > 0) {
++		MovePrompt(txtwin, actual, txt_y, --txt_x);
++	    } else {
++		beep();
++	    }
++	    break;
++	case KEY_RIGHT:
++	case 'l':
++	    if (txt_x < getmaxx(txtwin) - 1) {
++		MovePrompt(txtwin, actual, txt_y, ++txt_x);
++	    } else {
++		beep();
++	    }
++	    break;
++
++	case 'w':
++	    test_get_wstr(level + 1, argv, strwin);
++	    if (txtbox != 0) {
++		touchwin(txtbox);
++		wnoutrefresh(txtbox);
++	    } else {
++		touchwin(txtwin);
++		wnoutrefresh(txtwin);
++	    }
++	    break;
++
++	case '-':
++	    if (limit > 0) {
++		actual = ShowFlavor(strwin, txtwin, flavor, --limit);
++		MovePrompt(txtwin, actual, txt_y, txt_x);
++	    } else {
++		beep();
++	    }
++	    break;
++
++	case '+':
++	    actual = ShowFlavor(strwin, txtwin, flavor, ++limit);
++	    MovePrompt(txtwin, actual, txt_y, txt_x);
++	    break;
++
++	case '<':
++	    if (flavor > 0) {
++		actual = ShowFlavor(strwin, txtwin, --flavor, limit);
++		MovePrompt(txtwin, actual, txt_y, txt_x);
++	    } else {
++		beep();
++	    }
++	    break;
++
++	case '>':
++	    if (flavor + 1 < eMaxFlavor) {
++		actual = ShowFlavor(strwin, txtwin, ++flavor, limit);
++		MovePrompt(txtwin, actual, txt_y, txt_x);
++	    } else {
++		beep();
++	    }
++	    break;
++
++	case ':':
++	    actual = ShowFlavor(strwin, txtwin, flavor, limit);
++	    *buffer = '\0';
++	    rc = ERR;
++	    echo();
++	    wattrset(txtwin, A_REVERSE);
++	    switch (flavor) {
++	    case eGetStr:
++		if (txtwin != stdscr) {
++		    wmove(txtwin, txt_y, txt_x);
++		    rc = wget_wstr(txtwin, buffer);
++		} else {
++		    move(txt_y, txt_x);
++		    rc = get_wstr(buffer);
++		}
++		break;
++	    case eGetNStr:
++		if (txtwin != stdscr) {
++		    wmove(txtwin, txt_y, txt_x);
++		    rc = wgetn_wstr(txtwin, buffer, limit);
++		} else {
++		    move(txt_y, txt_x);
++		    rc = getn_wstr(buffer, limit);
++		}
++		break;
++	    case eMvGetStr:
++		if (txtwin != stdscr) {
++		    rc = mvwget_wstr(txtwin, txt_y, txt_x, buffer);
++		} else {
++		    rc = mvget_wstr(txt_y, txt_x, buffer);
++		}
++		break;
++	    case eMvGetNStr:
++		if (txtwin != stdscr) {
++		    rc = mvwgetn_wstr(txtwin, txt_y, txt_x, buffer, limit);
++		} else {
++		    rc = mvgetn_wstr(txt_y, txt_x, buffer, limit);
++		}
++		break;
++	    case eMaxFlavor:
++		break;
++	    }
++	    noecho();
++	    wattrset(txtwin, A_NORMAL);
++	    wprintw(strwin, "%d", rc);
++	    waddwstr(strwin, (wchar_t *) buffer);
++	    wnoutrefresh(strwin);
++	    break;
++	default:
++	    beep();
++	    break;
++	}
++	doupdate();
++    }
++    if (level > 1) {
++	delwin(txtwin);
++	delwin(txtbox);
++    }
++    return TRUE;
++}
++
++int
++main(int argc, char *argv[])
++{
++    WINDOW *chrbox;
++    WINDOW *strwin;
++
++    setlocale(LC_ALL, "");
++
++    if (argc < 2) {
++	fprintf(stderr, "usage: %s file\n", argv[0]);
++	return EXIT_FAILURE;
++    }
++
++    initscr();
++
++    chrbox = derwin(stdscr, BASE_Y, COLS, 0, 0);
++    box(chrbox, 0, 0);
++    wnoutrefresh(chrbox);
++
++    strwin = derwin(chrbox, 4, COLS - 2, 1, 1);
++
++    test_get_wstr(1, argv, strwin);
++
++    endwin();
++    ExitProgram(EXIT_SUCCESS);
++}
++#else
++int
++main(void)
++{
++    printf("This program requires the wide-ncurses library\n");
++    ExitProgram(EXIT_FAILURE);
++}
++#endif
+Index: test/test_getstr.c
+Prereq:  1.1 
+--- ncurses-5.6-20070716+/test/test_getstr.c	2007-06-30 16:51:28.000000000 +0000
++++ ncurses-5.6-20070721/test/test_getstr.c	2007-07-21 22:22:55.000000000 +0000
+@@ -1,5 +1,34 @@
++/****************************************************************************
++ * Copyright (c) 2007 Free Software Foundation, Inc.                        *
++ *                                                                          *
++ * Permission is hereby granted, free of charge, to any person obtaining a  *
++ * copy of this software and associated documentation files (the            *
++ * "Software"), to deal in the Software without restriction, including      *
++ * without limitation the rights to use, copy, modify, merge, publish,      *
++ * distribute, distribute with modifications, sublicense, and/or sell       *
++ * copies of the Software, and to permit persons to whom the Software is    *
++ * furnished to do so, subject to the following conditions:                 *
++ *                                                                          *
++ * The above copyright notice and this permission notice shall be included  *
++ * in all copies or substantial portions of the Software.                   *
++ *                                                                          *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS  *
++ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF               *
++ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.   *
++ * IN NO EVENT SHALL THE ABOVE COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,   *
++ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR    *
++ * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR    *
++ * THE USE OR OTHER DEALINGS IN THE SOFTWARE.                               *
++ *                                                                          *
++ * Except as contained in this notice, the name(s) of the above copyright   *
++ * holders shall not be used in advertising or otherwise to promote the     *
++ * sale, use or other dealings in this Software without prior written       *
++ * authorization.                                                           *
++ ****************************************************************************/
+ /*
+- * $Id: test_getstr.c,v 1.1 2007/06/30 16:51:28 tom Exp $
++ * $Id: test_getstr.c,v 1.5 2007/07/21 22:22:55 tom Exp $
++ *
++ * Author: Thomas E Dickey
+  *
+  * Demonstrate the getstr functions from the curses library.
+ 
+@@ -15,9 +44,308 @@
+ 
+ #include <test.priv.h>
+ 
++#define BASE_Y 6
++#define MAX_COLS 1024
++
++typedef enum {
++    eGetStr = 0,
++    eGetNStr,
++    eMvGetStr,
++    eMvGetNStr,
++    eMaxFlavor
++} Flavors;
++
++static bool
++Quit(int ch)
++{
++    return (ch == ERR || ch == 'q' || ch == QUIT || ch == ESCAPE);
++}
++
++static int
++Remainder(WINDOW *txtwin)
++{
++    int result = getmaxx(txtwin) - getcurx(txtwin);
++    return (result > 0) ? result : 0;
++}
++
++/*
++ * Show a highlighted line in the place where input will happen.
++ */
++static void
++ShowPrompt(WINDOW *txtwin, int limit)
++{
++    wchgat(txtwin, limit, A_REVERSE, 0, NULL);
++    wnoutrefresh(txtwin);
++}
++
++static void
++MovePrompt(WINDOW *txtwin, int limit, int y, int x)
++{
++    wchgat(txtwin, Remainder(txtwin), A_NORMAL, 0, NULL);
++    wmove(txtwin, y, x);
++    ShowPrompt(txtwin, limit);
++}
++
++static int
++ShowFlavor(WINDOW *strwin, WINDOW *txtwin, Flavors flavor, int limit)
++{
++    char *name = "?";
++    bool limited = FALSE;
++    bool wins = (txtwin != stdscr);
++    int result;
++
++    switch (flavor) {
++    case eGetStr:
++	name = wins ? "wgetstr" : "getstr";
++	break;
++    case eGetNStr:
++	limited = TRUE;
++	name = wins ? "wgetnstr" : "getnstr";
++	break;
++    case eMvGetStr:
++	name = wins ? "mvwgetstr" : "mvgetstr";
++	break;
++    case eMvGetNStr:
++	limited = TRUE;
++	name = wins ? "mvwgetnstr" : "mvgetnstr";
++	break;
++    case eMaxFlavor:
++	break;
++    }
++
++    wmove(strwin, 0, 0);
++    werase(strwin);
++
++    if (limited) {
++	wprintw(strwin, "%s(%d):", name, limit);
++    } else {
++	wprintw(strwin, "%s:", name);
++    }
++    result = limited ? limit : Remainder(txtwin);
++    ShowPrompt(txtwin, result);
++
++    wnoutrefresh(strwin);
++    return result;
++}
++
++static int
++test_getstr(int level, char **argv, WINDOW *strwin)
++{
++    WINDOW *txtbox = 0;
++    WINDOW *txtwin = 0;
++    FILE *fp;
++    int ch;
++    int rc;
++    int txt_x = 0, txt_y = 0;
++    int base_y;
++    int flavor = 0;
++    int limit = getmaxx(strwin) - 5;
++    int actual;
++
++    char buffer[MAX_COLS];
++
++    if (argv[level] == 0) {
++	beep();
++	return FALSE;
++    }
++
++    if (level > 1) {
++	txtbox = newwin(LINES - BASE_Y, COLS - level, BASE_Y, level);
++	box(txtbox, 0, 0);
++	wnoutrefresh(txtbox);
++
++	txtwin = derwin(txtbox,
++			getmaxy(txtbox) - 2,
++			getmaxx(txtbox) - 2,
++			1, 1);
++	base_y = 0;
++    } else {
++	txtwin = stdscr;
++	base_y = BASE_Y;
++    }
++
++    keypad(txtwin, TRUE);	/* enable keyboard mapping */
++    (void) cbreak();		/* take input chars one at a time, no wait for \n */
++    (void) noecho();		/* don't echo input */
++
++    txt_y = base_y;
++    txt_x = 0;
++    wmove(txtwin, txt_y, txt_x);
++
++    if ((fp = fopen(argv[level], "r")) != 0) {
++	while ((ch = fgetc(fp)) != EOF) {
++	    if (waddch(txtwin, UChar(ch)) != OK) {
++		break;
++	    }
++	}
++	fclose(fp);
++    } else {
++	wprintw(txtwin, "Cannot open:\n%s", argv[1]);
++    }
++
++    wmove(txtwin, txt_y, txt_x);
++    actual = ShowFlavor(strwin, txtwin, flavor, limit);
++    while (!Quit(ch = mvwgetch(txtwin, txt_y, txt_x))) {
++	switch (ch) {
++	case KEY_DOWN:
++	case 'j':
++	    if (txt_y < getmaxy(txtwin) - 1) {
++		MovePrompt(txtwin, actual, ++txt_y, txt_x);
++	    } else {
++		beep();
++	    }
++	    break;
++	case KEY_UP:
++	case 'k':
++	    if (txt_y > base_y) {
++		MovePrompt(txtwin, actual, --txt_y, txt_x);
++	    } else {
++		beep();
++	    }
++	    break;
++	case KEY_LEFT:
++	case 'h':
++	    if (txt_x > 0) {
++		MovePrompt(txtwin, actual, txt_y, --txt_x);
++	    } else {
++		beep();
++	    }
++	    break;
++	case KEY_RIGHT:
++	case 'l':
++	    if (txt_x < getmaxx(txtwin) - 1) {
++		MovePrompt(txtwin, actual, txt_y, ++txt_x);
++	    } else {
++		beep();
++	    }
++	    break;
++
++	case 'w':
++	    test_getstr(level + 1, argv, strwin);
++	    if (txtbox != 0) {
++		touchwin(txtbox);
++		wnoutrefresh(txtbox);
++	    } else {
++		touchwin(txtwin);
++		wnoutrefresh(txtwin);
++	    }
++	    break;
++
++	case '-':
++	    if (limit > 0) {
++		actual = ShowFlavor(strwin, txtwin, flavor, --limit);
++		MovePrompt(txtwin, actual, txt_y, txt_x);
++	    } else {
++		beep();
++	    }
++	    break;
++
++	case '+':
++	    actual = ShowFlavor(strwin, txtwin, flavor, ++limit);
++	    MovePrompt(txtwin, actual, txt_y, txt_x);
++	    break;
++
++	case '<':
++	    if (flavor > 0) {
++		actual = ShowFlavor(strwin, txtwin, --flavor, limit);
++		MovePrompt(txtwin, actual, txt_y, txt_x);
++	    } else {
++		beep();
++	    }
++	    break;
++
++	case '>':
++	    if (flavor + 1 < eMaxFlavor) {
++		actual = ShowFlavor(strwin, txtwin, ++flavor, limit);
++		MovePrompt(txtwin, actual, txt_y, txt_x);
++	    } else {
++		beep();
++	    }
++	    break;
++
++	case ':':
++	    actual = ShowFlavor(strwin, txtwin, flavor, limit);
++	    *buffer = '\0';
++	    rc = ERR;
++	    echo();
++	    wattrset(txtwin, A_REVERSE);
++	    switch (flavor) {
++	    case eGetStr:
++		if (txtwin != stdscr) {
++		    wmove(txtwin, txt_y, txt_x);
++		    rc = wgetstr(txtwin, buffer);
++		} else {
++		    move(txt_y, txt_x);
++		    rc = getstr(buffer);
++		}
++		break;
++	    case eGetNStr:
++		if (txtwin != stdscr) {
++		    wmove(txtwin, txt_y, txt_x);
++		    rc = wgetnstr(txtwin, buffer, limit);
++		} else {
++		    move(txt_y, txt_x);
++		    rc = getnstr(buffer, limit);
++		}
++		break;
++	    case eMvGetStr:
++		if (txtwin != stdscr) {
++		    rc = mvwgetstr(txtwin, txt_y, txt_x, buffer);
++		} else {
++		    rc = mvgetstr(txt_y, txt_x, buffer);
++		}
++		break;
++	    case eMvGetNStr:
++		if (txtwin != stdscr) {
++		    rc = mvwgetnstr(txtwin, txt_y, txt_x, buffer, limit);
++		} else {
++		    rc = mvgetnstr(txt_y, txt_x, buffer, limit);
++		}
++		break;
++	    case eMaxFlavor:
++		break;
++	    }
++	    noecho();
++	    wattrset(txtwin, A_NORMAL);
++	    wprintw(strwin, "%d:%s", rc, buffer);
++	    wnoutrefresh(strwin);
++	    break;
++	default:
++	    beep();
++	    break;
++	}
++	doupdate();
++    }
++    if (level > 1) {
++	delwin(txtwin);
++	delwin(txtbox);
++    }
++    return TRUE;
++}
++
+ int
+-main(int argc GCC_UNUSED, char *argv[]GCC_UNUSED)
++main(int argc, char *argv[])
+ {
+-    printf("Not implemented - test-driver for curses getstr() functions\n");
+-    return EXIT_SUCCESS;
++    WINDOW *chrbox;
++    WINDOW *strwin;
++
++    setlocale(LC_ALL, "");
++
++    if (argc < 2) {
++	fprintf(stderr, "usage: %s file\n", argv[0]);
++	return EXIT_FAILURE;
++    }
++
++    initscr();
++
++    chrbox = derwin(stdscr, BASE_Y, COLS, 0, 0);
++    box(chrbox, 0, 0);
++    wnoutrefresh(chrbox);
++
++    strwin = derwin(chrbox, 4, COLS - 2, 1, 1);
++
++    test_getstr(1, argv, strwin);
++
++    endwin();
++    ExitProgram(EXIT_SUCCESS);
+ }
+Index: test/test_instr.c
+Prereq:  1.1 
+--- ncurses-5.6-20070716+/test/test_instr.c	2007-06-30 16:51:44.000000000 +0000
++++ ncurses-5.6-20070721/test/test_instr.c	2007-07-21 19:38:04.000000000 +0000
+@@ -1,5 +1,34 @@
++/****************************************************************************
++ * Copyright (c) 2007 Free Software Foundation, Inc.                        *
++ *                                                                          *
++ * Permission is hereby granted, free of charge, to any person obtaining a  *
++ * copy of this software and associated documentation files (the            *
++ * "Software"), to deal in the Software without restriction, including      *
++ * without limitation the rights to use, copy, modify, merge, publish,      *
++ * distribute, distribute with modifications, sublicense, and/or sell       *
++ * copies of the Software, and to permit persons to whom the Software is    *
++ * furnished to do so, subject to the following conditions:                 *
++ *                                                                          *
++ * The above copyright notice and this permission notice shall be included  *
++ * in all copies or substantial portions of the Software.                   *
++ *                                                                          *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS  *
++ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF               *
++ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.   *
++ * IN NO EVENT SHALL THE ABOVE COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,   *
++ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR    *
++ * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR    *
++ * THE USE OR OTHER DEALINGS IN THE SOFTWARE.                               *
++ *                                                                          *
++ * Except as contained in this notice, the name(s) of the above copyright   *
++ * holders shall not be used in advertising or otherwise to promote the     *
++ * sale, use or other dealings in this Software without prior written       *
++ * authorization.                                                           *
++ ****************************************************************************/
+ /*
+- * $Id: test_instr.c,v 1.1 2007/06/30 16:51:44 tom Exp $
++ * $Id: test_instr.c,v 1.4 2007/07/21 19:38:04 tom Exp $
++ *
++ * Author: Thomas E Dickey
+  *
+  * Demonstrate the instr functions from the curses library.
+ 
+@@ -15,9 +44,217 @@
+ 
+ #include <test.priv.h>
+ 
++#define BASE_Y 6
++#define MAX_COLS 1024
++
++static bool
++Quit(int ch)
++{
++    return (ch == ERR || ch == 'q' || ch == QUIT || ch == ESCAPE);
++}
++
++static void
++show_1st(WINDOW *win, int line, char *buffer)
++{
++    mvwaddstr(win, line, 5, buffer);
++}
++
++static void
++showmore(WINDOW *win, int line, char *buffer)
++{
++    wmove(win, line, 0);
++    wclrtoeol(win);
++    show_1st(win, line, buffer);
++}
++
++static int
++test_inchs(int level, char **argv, WINDOW *chrwin, WINDOW *strwin)
++{
++    WINDOW *txtbox = 0;
++    WINDOW *txtwin = 0;
++    FILE *fp;
++    int ch;
++    int txt_x = 0, txt_y = 0;
++    int base_y;
++    int limit = getmaxx(strwin) - 5;
++
++    char buffer[MAX_COLS];
++
++    if (argv[level] == 0) {
++	beep();
++	return FALSE;
++    }
++
++    if (level > 1) {
++	txtbox = newwin(LINES - BASE_Y, COLS - level, BASE_Y, level);
++	box(txtbox, 0, 0);
++	wnoutrefresh(txtbox);
++
++	txtwin = derwin(txtbox,
++			getmaxy(txtbox) - 2,
++			getmaxx(txtbox) - 2,
++			1, 1);
++	base_y = 0;
++    } else {
++	txtwin = stdscr;
++	base_y = BASE_Y;
++    }
++
++    keypad(txtwin, TRUE);	/* enable keyboard mapping */
++    (void) cbreak();		/* take input chars one at a time, no wait for \n */
++    (void) noecho();		/* don't echo input */
++
++    txt_y = base_y;
++    txt_x = 0;
++    wmove(txtwin, txt_y, txt_x);
++
++    if ((fp = fopen(argv[level], "r")) != 0) {
++	while ((ch = fgetc(fp)) != EOF) {
++	    if (waddch(txtwin, UChar(ch)) != OK) {
++		break;
++	    }
++	}
++	fclose(fp);
++    } else {
++	wprintw(txtwin, "Cannot open:\n%s", argv[1]);
++    }
++
++    while (!Quit(ch = mvwgetch(txtwin, txt_y, txt_x))) {
++	switch (ch) {
++	case KEY_DOWN:
++	case 'j':
++	    if (txt_y < getmaxy(txtwin) - 1)
++		txt_y++;
++	    else
++		beep();
++	    break;
++	case KEY_UP:
++	case 'k':
++	    if (txt_y > base_y)
++		txt_y--;
++	    else
++		beep();
++	    break;
++	case KEY_LEFT:
++	case 'h':
++	    if (txt_x > 0)
++		txt_x--;
++	    else
++		beep();
++	    break;
++	case KEY_RIGHT:
++	case 'l':
++	    if (txt_x < getmaxx(txtwin) - 1)
++		txt_x++;
++	    else
++		beep();
++	    break;
++	case 'w':
++	    test_inchs(level + 1, argv, chrwin, strwin);
++	    if (txtbox != 0) {
++		touchwin(txtbox);
++		wnoutrefresh(txtbox);
++	    } else {
++		touchwin(txtwin);
++		wnoutrefresh(txtwin);
++	    }
++	    break;
++	case '-':
++	    if (limit > 0) {
++		--limit;
++	    } else {
++		beep();
++	    }
++	    break;
++	case '+':
++	    ++limit;
++	    break;
++	default:
++	    beep();
++	    break;
++	}
++
++	mvwprintw(chrwin, 0, 0, "line:");
++	wclrtoeol(chrwin);
++
++	if (txtwin != stdscr) {
++	    wmove(txtwin, txt_y, txt_x);
++
++	    if (winstr(txtwin, buffer) != ERR) {
++		show_1st(chrwin, 0, buffer);
++	    }
++	    if (mvwinstr(txtwin, txt_y, txt_x, buffer) != ERR) {
++		showmore(chrwin, 1, buffer);
++	    }
++	} else {
++	    move(txt_y, txt_x);
++
++	    if (instr(buffer) != ERR) {
++		show_1st(chrwin, 0, buffer);
++	    }
++	    if (mvinstr(txt_y, txt_x, buffer) != ERR) {
++		showmore(chrwin, 1, buffer);
++	    }
++	}
++	wnoutrefresh(chrwin);
++
++	mvwprintw(strwin, 0, 0, "%4d:", limit);
++	wclrtobot(strwin);
++
++	if (txtwin != stdscr) {
++	    wmove(txtwin, txt_y, txt_x);
++	    if (winnstr(txtwin, buffer, limit) != ERR) {
++		show_1st(strwin, 0, buffer);
++	    }
++
++	    if (mvwinnstr(txtwin, txt_y, txt_x, buffer, limit) != ERR) {
++		showmore(strwin, 1, buffer);
++	    }
++	} else {
++	    move(txt_y, txt_x);
++	    if (innstr(buffer, limit) != ERR) {
++		show_1st(strwin, 0, buffer);
++	    }
++
++	    if (mvinnstr(txt_y, txt_x, buffer, limit) != ERR) {
++		showmore(strwin, 1, buffer);
++	    }
++	}
++
++	wnoutrefresh(strwin);
++    }
++    if (level > 1) {
++	delwin(txtwin);
++	delwin(txtbox);
++    }
++    return TRUE;
++}
++
+ int
+-main(int argc GCC_UNUSED, char *argv[]GCC_UNUSED)
++main(int argc, char *argv[])
+ {
+-    printf("Not implemented - test-driver for curses instr() functions\n");
+-    return EXIT_SUCCESS;
++    WINDOW *chrbox;
++    WINDOW *chrwin;
++    WINDOW *strwin;
++
++    setlocale(LC_ALL, "");
++
++    if (argc < 2) {
++	fprintf(stderr, "usage: %s file\n", argv[0]);
++	return EXIT_FAILURE;
++    }
++
++    initscr();
++
++    chrbox = derwin(stdscr, BASE_Y, COLS, 0, 0);
++    box(chrbox, 0, 0);
++    wnoutrefresh(chrbox);
++
++    chrwin = derwin(chrbox, 2, COLS - 2, 1, 1);
++    strwin = derwin(chrbox, 2, COLS - 2, 3, 1);
++
++    test_inchs(1, argv, chrwin, strwin);
++
++    endwin();
++    ExitProgram(EXIT_SUCCESS);
+ }
+Index: test/test_inwstr.c
+--- /dev/null	2007-07-21 23:56:40.544585000 +0000
++++ ncurses-5.6-20070721/test/test_inwstr.c	2007-07-21 22:47:42.000000000 +0000
+@@ -0,0 +1,269 @@
++/****************************************************************************
++ * Copyright (c) 2007 Free Software Foundation, Inc.                        *
++ *                                                                          *
++ * Permission is hereby granted, free of charge, to any person obtaining a  *
++ * copy of this software and associated documentation files (the            *
++ * "Software"), to deal in the Software without restriction, including      *
++ * without limitation the rights to use, copy, modify, merge, publish,      *
++ * distribute, distribute with modifications, sublicense, and/or sell       *
++ * copies of the Software, and to permit persons to whom the Software is    *
++ * furnished to do so, subject to the following conditions:                 *
++ *                                                                          *
++ * The above copyright notice and this permission notice shall be included  *
++ * in all copies or substantial portions of the Software.                   *
++ *                                                                          *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS  *
++ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF               *
++ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.   *
++ * IN NO EVENT SHALL THE ABOVE COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,   *
++ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR    *
++ * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR    *
++ * THE USE OR OTHER DEALINGS IN THE SOFTWARE.                               *
++ *                                                                          *
++ * Except as contained in this notice, the name(s) of the above copyright   *
++ * holders shall not be used in advertising or otherwise to promote the     *
++ * sale, use or other dealings in this Software without prior written       *
++ * authorization.                                                           *
++ ****************************************************************************/
++/*
++ * $Id: test_inwstr.c,v 1.3 2007/07/21 22:47:42 tom Exp $
++ *
++ * Author: Thomas E Dickey
++ *
++ * Demonstrate the inwstr functions from the curses library.
++
++       int inwstr(wchar_t *str);
++       int innwstr(wchar_t *str, int n);
++       int winwstr(WINDOW *win, wchar_t *str);
++       int winnwstr(WINDOW *win, wchar_t *str, int n);
++       int mvinwstr(int y, int x, wchar_t *str);
++       int mvinnwstr(int y, int x, wchar_t *str, int n);
++       int mvwinwstr(WINDOW *win, int y, int x, wchar_t *str);
++       int mvwinnwstr(WINDOW *win, int y, int x, wchar_t *str, int n);
++ */
++
++#include <test.priv.h>
++
++#if USE_WIDEC_SUPPORT
++
++#define BASE_Y 6
++#define MAX_COLS 1024
++
++static bool
++Quit(int ch)
++{
++    return (ch == ERR || ch == 'q' || ch == QUIT || ch == ESCAPE);
++}
++
++static void
++show_1st(WINDOW *win, int line, wchar_t *buffer)
++{
++    mvwaddwstr(win, line, 5, buffer);
++}
++
++static void
++showmore(WINDOW *win, int line, wchar_t *buffer)
++{
++    wmove(win, line, 0);
++    wclrtoeol(win);
++    show_1st(win, line, buffer);
++}
++
++static int
++test_inchs(int level, char **argv, WINDOW *chrwin, WINDOW *strwin)
++{
++    WINDOW *txtbox = 0;
++    WINDOW *txtwin = 0;
++    FILE *fp;
++    int ch;
++    int txt_x = 0, txt_y = 0;
++    int base_y;
++    int limit = getmaxx(strwin) - 5;
++    wchar_t buffer[MAX_COLS];
++
++    if (argv[level] == 0) {
++	beep();
++	return FALSE;
++    }
++
++    if (level > 1) {
++	txtbox = newwin(LINES - BASE_Y, COLS - level, BASE_Y, level);
++	box(txtbox, 0, 0);
++	wnoutrefresh(txtbox);
++
++	txtwin = derwin(txtbox,
++			getmaxy(txtbox) - 2,
++			getmaxx(txtbox) - 2,
++			1, 1);
++	base_y = 0;
++    } else {
++	txtwin = stdscr;
++	base_y = BASE_Y;
++    }
++
++    keypad(txtwin, TRUE);	/* enable keyboard mapping */
++    (void) cbreak();		/* take input chars one at a time, no wait for \n */
++    (void) noecho();		/* don't echo input */
++
++    txt_y = base_y;
++    txt_x = 0;
++    wmove(txtwin, txt_y, txt_x);
++
++    if ((fp = fopen(argv[level], "r")) != 0) {
++	while ((ch = fgetc(fp)) != EOF) {
++	    if (waddch(txtwin, UChar(ch)) != OK) {
++		break;
++	    }
++	}
++	fclose(fp);
++    } else {
++	wprintw(txtwin, "Cannot open:\n%s", argv[1]);
++    }
++
++    while (!Quit(ch = mvwgetch(txtwin, txt_y, txt_x))) {
++	switch (ch) {
++	case KEY_DOWN:
++	case 'j':
++	    if (txt_y < getmaxy(txtwin) - 1)
++		txt_y++;
++	    else
++		beep();
++	    break;
++	case KEY_UP:
++	case 'k':
++	    if (txt_y > base_y)
++		txt_y--;
++	    else
++		beep();
++	    break;
++	case KEY_LEFT:
++	case 'h':
++	    if (txt_x > 0)
++		txt_x--;
++	    else
++		beep();
++	    break;
++	case KEY_RIGHT:
++	case 'l':
++	    if (txt_x < getmaxx(txtwin) - 1)
++		txt_x++;
++	    else
++		beep();
++	    break;
++	case 'w':
++	    test_inchs(level + 1, argv, chrwin, strwin);
++	    if (txtbox != 0) {
++		touchwin(txtbox);
++		wnoutrefresh(txtbox);
++	    } else {
++		touchwin(txtwin);
++		wnoutrefresh(txtwin);
++	    }
++	    break;
++	case '-':
++	    if (limit > 0) {
++		--limit;
++	    } else {
++		beep();
++	    }
++	    break;
++	case '+':
++	    ++limit;
++	    break;
++	default:
++	    beep();
++	    break;
++	}
++
++	mvwprintw(chrwin, 0, 0, "line:");
++	wclrtoeol(chrwin);
++
++	if (txtwin != stdscr) {
++	    wmove(txtwin, txt_y, txt_x);
++
++	    if (winwstr(txtwin, buffer) != ERR) {
++		show_1st(chrwin, 0, buffer);
++	    }
++	    if (mvwinwstr(txtwin, txt_y, txt_x, buffer) != ERR) {
++		showmore(chrwin, 1, buffer);
++	    }
++	} else {
++	    move(txt_y, txt_x);
++
++	    if (inwstr(buffer) != ERR) {
++		show_1st(chrwin, 0, buffer);
++	    }
++	    if (mvinwstr(txt_y, txt_x, buffer) != ERR) {
++		showmore(chrwin, 1, buffer);
++	    }
++	}
++	wnoutrefresh(chrwin);
++
++	mvwprintw(strwin, 0, 0, "%4d:", limit);
++	wclrtobot(strwin);
++
++	if (txtwin != stdscr) {
++	    wmove(txtwin, txt_y, txt_x);
++	    if (winnwstr(txtwin, buffer, limit) != ERR) {
++		show_1st(strwin, 0, buffer);
++	    }
++
++	    if (mvwinnwstr(txtwin, txt_y, txt_x, buffer, limit) != ERR) {
++		showmore(strwin, 1, buffer);
++	    }
++	} else {
++	    move(txt_y, txt_x);
++	    if (innwstr(buffer, limit) != ERR) {
++		show_1st(strwin, 0, buffer);
++	    }
++
++	    if (mvinnwstr(txt_y, txt_x, buffer, limit) != ERR) {
++		showmore(strwin, 1, buffer);
++	    }
++	}
++
++	wnoutrefresh(strwin);
++    }
++    if (level > 1) {
++	delwin(txtwin);
++	delwin(txtbox);
++    }
++    return TRUE;
++}
++
++int
++main(int argc, char *argv[])
++{
++    WINDOW *chrbox;
++    WINDOW *chrwin;
++    WINDOW *strwin;
++
++    setlocale(LC_ALL, "");
++
++    if (argc < 2) {
++	fprintf(stderr, "usage: %s file\n", argv[0]);
++	return EXIT_FAILURE;
++    }
++
++    initscr();
++
++    chrbox = derwin(stdscr, BASE_Y, COLS, 0, 0);
++    box(chrbox, 0, 0);
++    wnoutrefresh(chrbox);
++
++    chrwin = derwin(chrbox, 2, COLS - 2, 1, 1);
++    strwin = derwin(chrbox, 2, COLS - 2, 3, 1);
++
++    test_inchs(1, argv, chrwin, strwin);
++
++    endwin();
++    ExitProgram(EXIT_SUCCESS);
++}
++#else
++int
++main(void)
++{
++    printf("This program requires the wide-ncurses library\n");
++    ExitProgram(EXIT_FAILURE);
++}
++#endif
+Index: test/view.c
+Prereq:  1.65 
+--- ncurses-5.6-20070716+/test/view.c	2007-06-30 16:40:04.000000000 +0000
++++ ncurses-5.6-20070721/test/view.c	2007-07-21 17:41:55.000000000 +0000
+@@ -50,7 +50,7 @@
+  * scroll operation worked, and the refresh() code only had to do a
+  * partial repaint.
+  *
+- * $Id: view.c,v 1.65 2007/06/30 16:40:04 tom Exp $
++ * $Id: view.c,v 1.66 2007/07/21 17:41:55 tom Exp $
+  */
+ 
+ #include <test.priv.h>
+@@ -229,7 +229,7 @@
+     (void) signal(SIGINT, finish);	/* arrange interrupts to terminate */
+ #endif
+ 
+-    while ((i = getopt(argc, argv, "cin:rtT:")) != EOF) {
++    while ((i = getopt(argc, argv, "cin:rtT:")) != -1) {
+ 	switch (i) {
+ 	case 'c':
+ 	    try_color = TRUE;
