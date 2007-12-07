@@ -64,7 +64,7 @@ perl -p -i -e 's|/usr/local/bin|/usr/bin|g;' *.pm examples/*
 
 
 %check
-make test
+#make test
 
 
 %install
@@ -90,6 +90,7 @@ make test
 %changelog
 * Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.30
 - rebuild
+- don't make test as secure.worldgaming.net no longer exists
 
 * Wed Dec 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.30
 - spec cleanups
