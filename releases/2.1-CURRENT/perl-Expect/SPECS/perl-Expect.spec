@@ -10,7 +10,7 @@
 %define module		Expect
 %define revision	$Rev$
 %define name		perl-%{module}
-%define version 	1.17
+%define version 	1.21
 %define release 	%_revrel
 
 Summary:	Expect perl module
@@ -79,6 +79,9 @@ make test
 
 
 %changelog
+* Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.21        
+- 1.21
+
 * Wed Dec 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.17
 - 1.17
 
