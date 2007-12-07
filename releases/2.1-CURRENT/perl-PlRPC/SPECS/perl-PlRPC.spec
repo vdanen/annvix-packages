@@ -10,7 +10,7 @@
 %define module 		PlRPC
 %define revision	$Rev$
 %define name		perl-%{module}
-%define version 	0.2018
+%define version 	0.2020
 %define release 	%_revrel
 
 Summary:	%{module} perl module
@@ -19,8 +19,8 @@ Version: 	%{version}
 Release: 	%{release}
 License: 	GPL or Artistic
 Group:		Development/Perl
-URL:		ftp://ftp.funet.fi/pub/languages/perl/CPAN/authors/id/JWIED
-Source0:	%{module}-%{version}.tar.bz2
+URL:		http://search.cpan.org/dist/%{module}/
+Source0:	http://search.cpan.org/CPAN/authors/id/M/MN/MNOONING/%{module}/%{module}-%{version}.tar.gz
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel
@@ -40,7 +40,7 @@ This package contains the documentation for %{name}.
 
 
 %prep
-%setup -q -n %{module}-%{version}
+%setup -q -n %{module}
 
 
 %build
@@ -69,6 +69,10 @@ make
 
 
 %changelog
+* Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.2020
+- 0.2020
+- update url and download location
+
 * Sat May 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.2018
 - rebuild against perl 5.8.8
 - create -doc subpackage
