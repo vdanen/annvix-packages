@@ -11,7 +11,7 @@
 
 %define revision	$Rev$
 %define name		perl-%{module}
-%define version 	1.54
+%define version 	1.601
 %define release 	%_revrel
 
 Summary:	The Perl Database Interface
@@ -21,7 +21,7 @@ Release:	%{release}
 License:	GPL
 Group:		Development/Perl
 URL:		http://dbi.perl.org
-Source0:	ftp://ftp.perl.org/pub/CPAN/modules/by-module/DBI/%{module}-%{version}.tar.gz
+Source0:	ftp://ftp.perl.org/pub/CPAN/modules/by-module/DBI/DBI-%{version}.tar.gz
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel
@@ -107,6 +107,7 @@ rm -f %{buildroot}%{_mandir}/man3pm/TASKS.3pm*
 
 %files
 %defattr(-,root,root)
+%{_bindir}/dbilogstrip
 %{_bindir}/dbiprof
 %{_mandir}/*/*
 %exclude %{_mandir}/man1/dbiproxy.1*
@@ -115,6 +116,7 @@ rm -f %{buildroot}%{_mandir}/man3pm/TASKS.3pm*
 %exclude %{_mandir}/man3*/DBI::ProfileDumper::Apache.3pm*
 %{perl_vendorarch}/Bundle
 %{perl_vendorarch}/DBD
+%{perl_vendorarch}/dbixs_rev.pl
 %exclude %{perl_vendorarch}/DBD/Proxy.pm
 %{perl_vendorarch}/DBI.pm
 %{perl_vendorarch}/DBI
@@ -141,6 +143,9 @@ rm -f %{buildroot}%{_mandir}/man3pm/TASKS.3pm*
 
 
 %changelog
+* Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.601
+- 1.601
+
 * Mon Jul 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.54
 - 1.54
 
