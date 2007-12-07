@@ -53,6 +53,19 @@ This package contains the documentation for %{name}.
 %prep
 %setup -q -n %{name}-%{version}
 
+# fix the perl path
+find -type f | xargs perl -pi -e "s|/usr/local/bin/perl|%{_bindir}/perl|g"
+chmod 0644 contrib/*
+
+cat > test.cfg << EOF
+\$SERVER_EXE = "%{_sbindir}/slapd";
+\$SERVER_TYPE = "openldap2+ssl+ipc+sasl";
+\$HOST = "localhost";
+\$SCHEMA_DIR = "%{_datadir}/openldap/schema";
+\$EXTERNAL_TESTS = 0;
+1;
+EOF
+
 
 %build
 perl Makefile.PL INSTALLDIRS=vendor </dev/null
@@ -81,10 +94,13 @@ perl Makefile.PL INSTALLDIRS=vendor </dev/null
 
 %files doc
 %defattr(-,root,root)
-%doc CREDITS README
+%doc CREDITS README contrib
 
 
 %changelog
+* Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.34
+- enable all the tests
+
 * Mon Jul 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.34
 - 0.34
 - updated buildrequires
