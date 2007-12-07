@@ -73,6 +73,9 @@ make test
 
 
 %changelog
+* Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.03
+- rebuild
+
 * Thu May 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.03
 - first Annvix build (needed by perl-XML-DOM)
 
