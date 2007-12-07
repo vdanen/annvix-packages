@@ -10,7 +10,7 @@
 %define module		libwww-perl
 %define revision	$Rev$
 %define name		perl-%{module}
-%define version 	5.803
+%define version 	5.808
 %define release 	%_revrel
 
 %define _requires_exceptions Authen::NTLM\\|HTTP::GHTTP\\|Win32
@@ -91,6 +91,9 @@ make test
 
 
 %changelog
+* Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.808
+- 5.808
+
 * Mon May 15 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.803
 - rebuild against perl 5.8.8
 - create -doc subpackage
