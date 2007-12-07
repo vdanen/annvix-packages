@@ -81,6 +81,9 @@ make test
 
 
 %changelog
+* Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.62
+- rebuild
+
 * Wed Dec 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.62
 - 0.62
 
