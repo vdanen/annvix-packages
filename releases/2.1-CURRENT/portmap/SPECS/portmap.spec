@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		portmap
-%define version		4.0
+%define version		6.0
 %define release		%_revrel
 %define ver		4
 
@@ -19,21 +19,13 @@ Version:	%{version}
 Release:	%{release}
 Group:		System/Servers
 License:	BSD
-URL:		ftp://ftp.porcupine.org/pub/security/index.html
-Source0:	ftp://coast.cs.purdue.edu:/pub/tools/unix/netutils/portmap/portmap_%{ver}.tar.bz2
+URL:		http://neil.brown.name/portmap/
+Source0:	http://neil.brown.name/portmap/%{name}-%{version}.tgz
 Source2:	pmap_set.8
 Source3:	pmap_dump.8
 Source4:	portmap.8
 Source5:	portmap.run
 Source6:	portmap-log.run
-Patch0:		portmap-4.0-linux.patch
-Patch1:		portmap-malloc.patch
-Patch2:		portmap-4.0-cleanup.patch
-Patch3:		portmap-4.0-rpc_user.patch
-Patch4:		portmap-4.0-sigpipe.patch
-Patch5:		portmap-4.0-errno.patch
-Patch6:		portmap-4.0-pie.diff
-Patch7:		portmap_4-bind_to_ip_or_host_address.diff
 Patch8:		portmap-4.0-mdk-typo.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -61,15 +53,7 @@ This package contains the documentation for %{name}.
 
 
 %prep 
-%setup -q -n portmap_%{ver}
-%patch0 -p1
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
-%patch4 -p1
-%patch5 -p1
-%patch6 -p1
-%patch7 -p0
+%setup -q -n %{name}_%{version}
 %patch8 -p1 -b .typo
 
 
@@ -103,13 +87,16 @@ strip %{buildroot}/sbin/portmap
 
 
 %pre
-%_pre_useradd rpc / /bin/false 72
+%_pre_useradd rpc /var/empty /bin/false 72
+
 
 %post
 %_post_srv portmap
 
+
 %preun
 %_preun_srv portmap
+
 
 %postun
 %_postun_userdel rpc
@@ -129,10 +116,17 @@ strip %{buildroot}/sbin/portmap
 
 %files doc
 %defattr(-,root,root)
-%doc README CHANGES BLURB
+%doc README* CHANGES BLURBv5
 
 
 %changelog
+* Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 6.0
+- 6.0
+- drop P0-P7
+- change the runscript to use -f (foreground) instead of -d (debug)
+- change the rpc user's homedir from / to /var/empty (wtf?!?)
+- change the runscript to chroot portmap in /var/empty
+
 * Fri Feb 09 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.0
 - drop the sysconfig file; it's not used (envdir instead)
 

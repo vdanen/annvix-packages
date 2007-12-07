@@ -9,8 +9,8 @@
 
 /bin/ifthenelse { /usr/bin/test ! -z ${BIND_HOST} }
 {
-    /sbin/portmap -d -i ${BIND_HOST}
+    /sbin/portmap -f -t /var/empty -i ${BIND_HOST}
 }
 {
-    /sbin/portmap -d
+    /sbin/portmap -f -t /var/empty
 }
