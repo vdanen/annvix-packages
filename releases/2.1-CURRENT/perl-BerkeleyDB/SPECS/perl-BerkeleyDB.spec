@@ -82,6 +82,9 @@ make test
 
 
 %changelog
+* Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.26
+- rebuild
+
 * Fri Jun 30 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.26
 - rebuild against new db4
 
