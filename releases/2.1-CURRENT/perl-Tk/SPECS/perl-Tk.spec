@@ -132,6 +132,9 @@ rm -f %{buildroot}%{perl_vendorarch}/Tk/README.Adjust
 
 
 %changelog
+* Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 800.027
+- rebuild
+
 * Thu Apr 26 2007 Vincent Danen <vdanen-at-build.annvix.org> 800.027
 - build against modular X
 
