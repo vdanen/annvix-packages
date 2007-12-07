@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		openssl
-%define version		0.9.8d
+%define version		0.9.8g
 %define release		%_revrel
 
 %define maj		0.9.8
@@ -36,7 +36,7 @@ Source4:	openssl-thread-test.c
 # (fg) 20010202 Patch from RH: some funcs now implemented with ia64 asm
 Patch1:		openssl-0.9.7-mdk-ia64-asm.patch
 # (gb) 0.9.7b-4mdk: Handle RPM_OPT_FLAGS in Configure
-Patch2:		openssl-0.9.8a-mdk-optflags.patch
+Patch2:		openssl-0.9.8f-mdv-optflags.patch
 # (gb) 0.9.7b-4mdk: Make it lib64 aware. TODO: detect in Configure
 Patch3:		openssl-0.9.8b-lib64.diff
 Patch6:		openssl-0.9.8-beta6-icpbrasil.diff
@@ -50,6 +50,7 @@ BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	multiarch-utils >= 1.0.3
 BuildRequires:	chrpath
 BuildRequires:	zlib-devel
+#BuildRequires:	bc
 
 Requires:	%{libname} = %{version}
 Requires:	perl
@@ -373,6 +374,11 @@ echo "%{_sysconfdir}/pki/tls"
 
 
 %changelog
+* Fri Dec 07 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.9.8g
+- 0.9.8g
+- updated P2 from Mandriva
+- buildrequires bc, for the test suite
+
 * Thu Sep 13 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.9.8d
 - implement devel naming policy
 - implement library provides policy
