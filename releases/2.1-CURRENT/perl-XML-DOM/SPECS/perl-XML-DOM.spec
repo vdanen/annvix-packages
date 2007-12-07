@@ -93,6 +93,9 @@ rm -f t/dom_jp_print.t
 
 
 %changelog
+* Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.44
+- rebuild
+
 * Thu May 25 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.44
 - first Annvix build (needed by perl-HTTP-DAV)
 - don't make test as we'd then also need perl-libxml-perl
