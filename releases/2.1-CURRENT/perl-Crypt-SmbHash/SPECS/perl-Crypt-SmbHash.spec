@@ -72,6 +72,9 @@ perl Makefile.PL INSTALLDIRS=vendor
 
 
 %changelog
+* Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.12
+- rebuild
+
 * Wed May 10 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.12
 - rebuild against perl 5.8.8
 - create -doc subpackage
