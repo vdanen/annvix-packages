@@ -76,6 +76,9 @@ perl Makefile.PL INSTALLDIRS=vendor
 
 
 %changelog
+* Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.50
+- rebuild
+
 * Wed May 17 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.50
 - first Annvix build (for perl-YAML)
 
