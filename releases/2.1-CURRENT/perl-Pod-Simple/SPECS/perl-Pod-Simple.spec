@@ -73,6 +73,9 @@ make test
 
 
 %changelog
+* Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.04
+- rebuild
+
 * Wed May 24 2006 Vincent Danen <vdanen-at-build.annvix.org> 3.04
 - first Annvix build (needed by perl-perldoc)
 
