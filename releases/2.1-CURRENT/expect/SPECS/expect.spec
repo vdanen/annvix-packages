@@ -39,6 +39,7 @@ BuildRequires:	tcl
 BuildRequires:	tcl-devel
 BuildRequires:	tk
 BuildRequires:	tk-devel
+BuildRequires:	autoconf2.1
 
 Requires:	tcl
 Requires:	%{libname} = %{epoch}:%{version}
@@ -180,6 +181,10 @@ chmod 0755 %{buildroot}%{_libdir}/*.so
 
 
 %changelog
+* Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.43.0        
+- buildrequires autoconf2.1
+- rebuild against new tk, tcl
+
 * Sun Sep 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.43.0
 - implement devel naming policy
 - implement library provides policy
