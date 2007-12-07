@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		nasm
-%define version		0.99.01
+%define version		2.00
 %define release		%_revrel
 
 Summary:	The Netwide Assembler, a portable x86 assembler with Intel-like syntax
@@ -24,6 +24,7 @@ Source:		http://prdownloads.sourceforge.net/nasm/%{name}-%{version}.tar.bz2
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	groff
 BuildRequires:	texinfo
+BuildRequires:	glibc-static-devel
 
 %description
 NASM is the Netwide Assembler, a free portable assembler for the Intel
@@ -56,9 +57,9 @@ This package contains the documentation for %{name}.
 %build
 rm -f config.cache config.status config.log
 %configure2_5x
-%make
-%make rdf
-
+make
+make rdf
+ 
 mv rdoff/README README.rdoff
 mv rdoff/doc/v1-v2.txt rdoff-v1-v2.txt
 
@@ -97,6 +98,10 @@ mkdir -p %{buildroot}{%{_bindir},%{_infodir},%{_mandir}/man1}
 
 
 %changelog
+* Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.00
+- 2.00
+- buildrequires: glibc-static-devel
+
 * Sat Oct 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.99.01
 - 0.99.01
 - drop P0; merged upstream
