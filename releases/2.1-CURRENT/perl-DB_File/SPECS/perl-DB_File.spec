@@ -10,7 +10,7 @@
 %define revision	$Rev$
 %define name		perl-%{module}
 %define module		DB_File
-%define version		1.815
+%define version		1.816
 %define release		%_revrel
 
 Summary:	Perl module for use of the Berkeley DB version 1
@@ -20,7 +20,7 @@ Release:	%{release}
 License:	GPL or Artistic
 Group:		Development/Perl
 URL:		http://search.cpan.org/dist/%{module}/
-Source0:	http://search.cpan.org/CPAN/authors/id/P/PM/PMQS/%{module}-%{version}.tar.gz
+Source0:	http://search.cpan.org/CPAN/authors/id/P/PM/PMQS/DB_File-%{version}.tar.gz
 Patch:		%{module}-1.805-makefile.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -89,6 +89,9 @@ make test
 
 
 %changelog
+* Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.816
+- 1.816
+
 * Mon Jul 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.815
 - 1.815
 
