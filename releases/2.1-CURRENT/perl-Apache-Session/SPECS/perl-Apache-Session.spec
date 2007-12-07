@@ -10,7 +10,7 @@
 %define revision	$Rev$
 %define name		perl-%{module}
 %define module		Apache-Session
-%define version		1.83
+%define version		1.84
 %define release		%_revrel
 %define epoch		1
 
@@ -22,7 +22,7 @@ Epoch:		%{epoch}
 License:	GPL or Artistic
 Group:		Development/Perl
 URL:		http://search.cpan.org/dist/%{module}/
-Source0:	http://www.cpan.org/modules/by-module/Apache/%{module}-%{version}.tar.gz
+Source0:	http://www.cpan.org/modules/by-module/Apache/Apache-Session-%{version}.tar.gz
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel
@@ -86,6 +86,9 @@ find %{buildroot}%{_prefix} -type f -print | sed "s@^%{buildroot}@@g" | grep -v 
 
 
 %changelog
+* Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.84
+- 1.84
+
 * Mon Jul 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.83
 - 1.83
 
