@@ -10,7 +10,7 @@
 %define module		File-HomeDir
 %define revision	$Rev$
 %define name		perl-%{module}
-%define	version		0.58
+%define	version		0.67
 %define release		%_revrel
 
 Summary:  	Get home directory for self or other users
@@ -20,7 +20,7 @@ Release:	%{release}
 License:	GPL or Artistic
 Group:		Development/Perl
 URL:		http://search.cpan.org/dist/%{module}/
-Source0:	http://www.cpan.org/modules/by-module/File/%{module}-%{version}.tar.bz2
+Source0:	http://www.cpan.org/modules/by-module/File/File-HomeDir-%{version}.tar.gz
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
@@ -71,6 +71,9 @@ make test
 
 
 %changelog
+* Fri Dec 07 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.67
+- 0.67
+
 * Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.58
 - rebuild
 
