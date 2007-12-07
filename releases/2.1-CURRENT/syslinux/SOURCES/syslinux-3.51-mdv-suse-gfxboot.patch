@@ -1,5 +1,5 @@
---- syslinux-3.35/com32/samples/keytest.c.opensuse	2007-01-29 02:56:21.000000000 +0100
-+++ syslinux-3.35/com32/samples/keytest.c	2007-01-29 10:56:11.000000000 +0100
+--- syslinux-3.51/com32/samples/keytest.c.opensuse	2007-06-11 00:51:39.000000000 +0200
++++ syslinux-3.51/com32/samples/keytest.c	2007-07-02 12:48:21.000000000 +0200
 @@ -25,6 +25,10 @@
  #include <consoles.h>		/* Provided by libutil */
  #include <getkey.h>
@@ -11,8 +11,8 @@
  static void cooked_keys(void)
  {
    int key;
---- syslinux-3.35/com32/libutil/get_key.c.opensuse	2007-01-29 02:56:21.000000000 +0100
-+++ syslinux-3.35/com32/libutil/get_key.c	2007-01-29 10:56:11.000000000 +0100
+--- syslinux-3.51/com32/libutil/get_key.c.opensuse	2007-06-11 00:51:39.000000000 +0200
++++ syslinux-3.51/com32/libutil/get_key.c	2007-07-02 12:48:21.000000000 +0200
 @@ -42,6 +42,10 @@
  #include <getkey.h>
  #include <libutil.h>
@@ -24,9 +24,9 @@
  struct keycode {
    int code;
    int seqlen;
---- syslinux-3.35/com32/modules/cpuid.c.opensuse	2007-01-29 02:56:21.000000000 +0100
-+++ syslinux-3.35/com32/modules/cpuid.c	2007-01-29 10:56:11.000000000 +0100
-@@ -238,7 +238,7 @@
+--- syslinux-3.51/com32/modules/cpuid.c.opensuse	2007-06-11 00:51:39.000000000 +0200
++++ syslinux-3.51/com32/modules/cpuid.c	2007-07-02 12:48:21.000000000 +0200
+@@ -238,7 +238,7 @@ static int mpf_checksum(unsigned char *m
  
  static int smp_scan_config (unsigned long base, unsigned long length)
  {
@@ -35,8 +35,8 @@
          struct intel_mp_floating *mpf;
  
  //        printf("Scan SMP from %p for %ld bytes.\n", bp,length);
---- syslinux-3.35/abort.inc.opensuse	2007-01-29 02:56:21.000000000 +0100
-+++ syslinux-3.35/abort.inc	2007-01-29 10:56:11.000000000 +0100
+--- syslinux-3.51/abort.inc.opensuse	2007-06-11 00:51:39.000000000 +0200
++++ syslinux-3.51/abort.inc	2007-07-02 12:48:21.000000000 +0200
 @@ -21,6 +21,11 @@
  ; abort_check: let the user abort with <ESC> or <Ctrl-C>
  ;
@@ -49,8 +49,8 @@
  		call pollchar
  		jz .ret1
  		pusha
---- syslinux-3.35/add_crc.opensuse	2007-01-29 10:56:11.000000000 +0100
-+++ syslinux-3.35/add_crc	2007-01-29 10:56:11.000000000 +0100
+--- syslinux-3.51/add_crc.opensuse	2007-07-02 12:48:21.000000000 +0200
++++ syslinux-3.51/add_crc	2007-07-02 12:48:21.000000000 +0200
 @@ -0,0 +1,57 @@
 +#! /usr/bin/perl
 +
@@ -68,7 +68,7 @@
 +
 +$file = shift;
 +$list = "$file";
-+$list =~ s/\.bin$/.lst/;
++$list =~ s/\.bin$/.lsr/;
 +
 +open F, $list;
 +
@@ -109,9 +109,9 @@
 +
 +syswrite F, $buf;
 +
---- syslinux-3.35/conio.inc.opensuse	2007-01-29 02:56:21.000000000 +0100
-+++ syslinux-3.35/conio.inc	2007-01-29 10:56:11.000000000 +0100
-@@ -47,6 +47,13 @@
+--- syslinux-3.51/conio.inc.opensuse	2007-06-11 00:51:39.000000000 +0200
++++ syslinux-3.51/conio.inc	2007-07-02 12:48:21.000000000 +0200
+@@ -47,6 +47,13 @@ loadkeys_ret:	ret
  ;               set by routine searchdir
  ;
  get_msg_file:
@@ -125,8 +125,8 @@
  		push es
  		shl edx,16			; EDX <- DX:AX (length of file)
  		mov dx,ax
---- syslinux-3.35/gfxboot.inc.opensuse	2007-01-29 10:56:11.000000000 +0100
-+++ syslinux-3.35/gfxboot.inc	2007-01-29 10:56:11.000000000 +0100
+--- syslinux-3.51/gfxboot.inc.opensuse	2007-07-02 12:48:21.000000000 +0200
++++ syslinux-3.51/gfxboot.inc	2007-07-02 12:48:21.000000000 +0200
 @@ -0,0 +1,1369 @@
 +		section .text
 +
@@ -1464,7 +1464,7 @@
 +		stosb
 +		or al,al
 +		jz cb_chdir_60
-+		cmp di,isolinux_cfg - 1
++		cmp di,config_name - 1
 +		jb cb_chdir_20
 +		xor al,al
 +		stosb
@@ -1497,8 +1497,8 @@
 +		xor al,al
 +		ret
 +
---- syslinux-3.35/isolinux.asm.opensuse	2007-01-29 02:56:21.000000000 +0100
-+++ syslinux-3.35/isolinux.asm	2007-01-29 10:56:11.000000000 +0100
+--- syslinux-3.51/isolinux.asm.opensuse	2007-06-11 00:51:39.000000000 +0200
++++ syslinux-3.51/isolinux.asm	2007-07-02 12:51:47.000000000 +0200
 @@ -19,6 +19,10 @@
  ; ****************************************************************************
  
@@ -1510,7 +1510,7 @@
  %include "head.inc"
  
  ;
-@@ -70,6 +74,7 @@
+@@ -71,6 +75,7 @@ real_mode_seg	equ 3000h
  vk_seg          equ 2000h		; Virtual kernels
  xfer_buf_seg	equ 1000h		; Bounce buffer for I/O to high mem
  comboot_seg	equ real_mode_seg	; COMBOOT image loading zone
@@ -1518,7 +1518,7 @@
  
  ;
  ; File structure.  This holds the information for each currently open file.
-@@ -266,6 +271,21 @@
+@@ -267,6 +272,21 @@ initial_csum:	xor edi,edi
  		mov [FirstSecSum],edi
  
  		mov [DriveNo],dl
@@ -1540,7 +1540,7 @@
  %ifdef DEBUG_MESSAGES
  		mov si,startup_msg
  		call writemsg
-@@ -290,6 +310,9 @@
+@@ -291,6 +311,9 @@ initial_csum:	xor edi,edi
  		; Other nonzero fields
  		inc word [dsp_sectors]
  
@@ -1550,7 +1550,7 @@
  		; Now figure out what we're actually doing
  		; Note: use passed-in DL value rather than 7Fh because
  		; at least some BIOSes will get the wrong value otherwise
-@@ -310,6 +333,8 @@
+@@ -311,6 +334,8 @@ initial_csum:	xor edi,edi
  		call crlf
  %endif
  
@@ -1559,7 +1559,7 @@
  found_drive:
  		; Alright, we have found the drive.  Now, try to find the
  		; boot file itself.  If we have a boot info table, life is
-@@ -434,6 +459,9 @@
+@@ -435,6 +460,9 @@ integrity_ok:
  %endif
  		jmp all_read			; Jump to main code
  
@@ -1569,7 +1569,7 @@
  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
  ;; Start of BrokenAwardHack --- 10-nov-2002           Knut_Petersen@t-online.de
  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-@@ -617,6 +645,7 @@
+@@ -618,6 +646,7 @@ spec_query_failed:
  		mov si,trysbm_msg
  		call writemsg
  		jmp .found_drive		; Pray that this works...
@@ -1577,7 +1577,7 @@
  
  fatal_error:
  		mov si,nothing_msg
-@@ -676,10 +705,17 @@
+@@ -677,10 +706,17 @@ getonesec:
  ;
  getlinsec:
  		mov si,dapa			; Load up the DAPA
@@ -1598,7 +1598,7 @@
  .loop:
  		push bp				; Sectors left
  		cmp bp,[MaxTransfer]
-@@ -706,14 +742,77 @@
+@@ -707,14 +743,77 @@ getlinsec:
  		; INT 13h with retry
  xint13:		mov byte [RetryCount],retry_count
  .try:		pushad
@@ -1676,7 +1676,7 @@
  		dec byte [RetryCount]
  		jz .real_error
  		push ax
-@@ -756,6 +855,17 @@
+@@ -757,6 +856,17 @@ xint13:		mov byte [RetryCount],retry_cou
  ;
  kaboom:
  		RESET_STACK_AND_SEGS AX
@@ -1694,7 +1694,7 @@
  		mov si,err_bootfailed
  		call cwritestr
  		call getchar
-@@ -807,6 +917,9 @@
+@@ -808,6 +918,9 @@ bailmsg		equ err_bootfailed
  crlf_msg	db CR, LF
  null_msg	db 0
  
@@ -1704,7 +1704,7 @@
  		alignb 4, db 0
  StackPtr	dw StackBuf, 0			; SS:SP for stack reset
  MaxTransfer	dw 32				; Max sectors per transfer
-@@ -876,6 +989,9 @@
+@@ -866,6 +979,9 @@ all_read:
  ; (which will be at 16 only for a single-session disk!); from the PVD
  ; we should be able to find the rest of what we need to know.
  ;
@@ -1714,7 +1714,7 @@
  get_fs_structures:
  		mov eax,[bi_pvd]
  		mov bx,trackbuf
-@@ -901,10 +1017,15 @@
+@@ -891,10 +1007,15 @@ get_fs_structures:
  		; Look for an isolinux directory, and if found,
  		; make it the current directory instead of the root
  		; directory.
@@ -1730,7 +1730,7 @@
  		mov di,isolinux_dir
  		mov al,02h			; Search for /isolinux
  		call searchdir_iso
-@@ -925,6 +1046,9 @@
+@@ -915,6 +1036,9 @@ get_fs_structures:
  		call crlf
  %endif
  .no_isolinux_dir:
@@ -1740,7 +1740,7 @@
  
  ;
  ; Locate the configuration file
-@@ -1103,6 +1227,9 @@
+@@ -1097,6 +1221,9 @@ is_disk_image:
  ; 0xFFFF in case we should execute INT 18h ("next device.")
  ;
  local_boot:
@@ -1750,7 +1750,7 @@
  		call vgaclearmode
  		lss sp,[cs:Stack]		; Restore stack pointer
  		xor dx,dx
-@@ -1120,7 +1247,7 @@
+@@ -1114,7 +1241,7 @@ local_boot:
  		xor dh,dh
  		push dx
  		xor ax,ax			; Reset drive
@@ -1759,7 +1759,7 @@
  		mov ax,0201h			; Read one sector
  		mov cx,0001h			; C/H/S = 0/0/1 (first sector)
  		mov bx,trackbuf
-@@ -1486,6 +1613,9 @@
+@@ -1495,6 +1622,9 @@ getfssec:
  %include "strcpy.inc"		; strcpy()
  %include "rawcon.inc"		; Console I/O w/o using the console functions
  
@@ -1769,7 +1769,7 @@
  ; -----------------------------------------------------------------------------
  ;  Begin data section
  ; -----------------------------------------------------------------------------
-@@ -1507,7 +1637,8 @@
+@@ -1516,7 +1646,8 @@ err_noram	db 'It appears your computer h
  		db 'booting, and I will take your word for it.', CR, LF, 0
  err_badcfg      db 'Unknown keyword in config file.', CR, LF, 0
  err_noparm      db 'Missing parameter in config file.', CR, LF, 0
@@ -1779,25 +1779,25 @@
  err_nohighmem   db 'Not enough memory to load specified kernel.', CR, LF, 0
  err_highload    db CR, LF, 'Kernel transfer failure.', CR, LF, 0
  err_oldkernel   db 'Cannot load a ramdisk with an old kernel image.'
-@@ -1532,6 +1663,7 @@
+@@ -1540,6 +1671,7 @@ default_str	db 'default', 0
  default_len	equ ($-default_str)
  boot_dir	db '/boot'			; /boot/isolinux
  isolinux_dir	db '/isolinux', 0
 +		zb 64
- ConfigName	equ $
- isolinux_cfg	db 'isolinux.cfg', 0
+ config_name	db 'isolinux.cfg', 0
  err_disk_image	db 'Cannot load disk image (invalid file)?', CR, LF, 0
---- syslinux-3.35/keywords.opensuse	2007-01-29 02:56:21.000000000 +0100
-+++ syslinux-3.35/keywords	2007-01-29 10:56:11.000000000 +0100
-@@ -33,3 +33,5 @@
+ 
+--- syslinux-3.51/keywords.opensuse	2007-06-11 00:51:39.000000000 +0200
++++ syslinux-3.51/keywords	2007-07-02 12:48:21.000000000 +0200
+@@ -42,3 +42,5 @@ f9
  f10
  f11
  f12
 +gfxboot
 +disksize
---- syslinux-3.35/keywords.inc.opensuse	2007-01-29 02:56:21.000000000 +0100
-+++ syslinux-3.35/keywords.inc	2007-01-29 11:00:00.000000000 +0100
-@@ -79,8 +79,15 @@
+--- syslinux-3.51/keywords.inc.opensuse	2007-06-11 00:51:39.000000000 +0200
++++ syslinux-3.51/keywords.inc	2007-07-02 12:48:21.000000000 +0200
+@@ -90,8 +90,15 @@ keywd_table:
  %if IS_PXELINUX
  		keyword ipappend,	pc_ipappend
  %endif
@@ -1814,22 +1814,22 @@
 +%endif
 +
  keywd_count	equ ($-keywd_table)/keywd_size
---- syslinux-3.35/layout.inc.opensuse	2007-01-29 02:56:21.000000000 +0100
-+++ syslinux-3.35/layout.inc	2007-01-29 10:56:11.000000000 +0100
-@@ -26,7 +26,11 @@
+--- syslinux-3.51/layout.inc.opensuse	2007-06-11 00:51:39.000000000 +0200
++++ syslinux-3.51/layout.inc	2007-07-02 12:59:27.000000000 +0200
+@@ -26,7 +26,11 @@ TEXT_START	equ 7C00h
  ; The secondary BSS section, above the text; we really wish we could
  ; just make it follow .bcopy32 or hang off the end,
  ; but it doesn't seem to work that way.
 +%ifdef WITH_GFX
 +LATEBSS_START	equ 0B800h
 +%else
- LATEBSS_START	equ 0B400h
+ LATEBSS_START	equ 0B300h
 +%endif
  
  ; Reserve memory for the stack.  This causes checkov to abort the
  ; compile if we violate this space.
---- syslinux-3.35/ldlinux.asm.opensuse	2007-01-29 02:56:21.000000000 +0100
-+++ syslinux-3.35/ldlinux.asm	2007-01-29 10:56:11.000000000 +0100
+--- syslinux-3.51/ldlinux.asm.opensuse	2007-06-11 00:51:39.000000000 +0200
++++ syslinux-3.51/ldlinux.asm	2007-07-02 12:48:21.000000000 +0200
 @@ -24,6 +24,9 @@
  %ifndef IS_MDSLINUX
  %define IS_SYSLINUX 1
@@ -1840,7 +1840,7 @@
  %include "head.inc"
  
  ;
-@@ -82,6 +85,7 @@
+@@ -83,6 +86,7 @@ cache_seg	equ 3000h		; 64K area for meta
  vk_seg          equ 2000h		; Virtual kernels
  xfer_buf_seg	equ 1000h		; Bounce buffer for I/O to high mem
  comboot_seg	equ real_mode_seg	; COMBOOT image loading zone
@@ -1848,7 +1848,7 @@
  
  ;
  ; File structure.  This holds the information for each currently open file.
-@@ -368,6 +372,8 @@
+@@ -368,6 +372,8 @@ getlinsec:
  		add eax,[bsHidden]		; Add partition offset
  		xor edx,edx			; Zero-extend LBA (eventually allow 64 bits)
  
@@ -1857,7 +1857,7 @@
  .jmp:		jmp strict short getlinsec_cbios
  
  ;
-@@ -936,6 +942,50 @@
+@@ -943,6 +949,50 @@ getfattype:
  %include "bootsect.inc"
  
  ;
@@ -1908,7 +1908,7 @@
  ; Abort loading code
  ;
  %include "abort.inc"
-@@ -1149,6 +1199,15 @@
+@@ -1167,6 +1217,15 @@ PrevDir		resd 1			; Last scanned directo
  ;	   starting with "kaboom.patch" with this part
  
  kaboom2:
@@ -1923,8 +1923,8 @@
 +.nogfx:
  		mov si,err_bootfailed
  		call cwritestr
- 		call getchar
-@@ -1542,6 +1601,8 @@
+ 		cmp byte [kaboom.again+1],18h	; INT 18h version?
+@@ -1570,6 +1629,8 @@ getfatsector:
  %include "strcpy.inc"           ; strcpy()
  %include "cache.inc"		; Metadata disk cache
  
@@ -1933,7 +1933,7 @@
  ; -----------------------------------------------------------------------------
  ;  Begin data section
  ; -----------------------------------------------------------------------------
-@@ -1564,7 +1625,8 @@
+@@ -1592,7 +1653,8 @@ err_noram	db 'It appears your computer h
  		db 'booting, and I will take your word for it.', CR, LF, 0
  err_badcfg      db 'Unknown keyword in syslinux.cfg.', CR, LF, 0
  err_noparm      db 'Missing parameter in syslinux.cfg.', CR, LF, 0
@@ -1943,7 +1943,7 @@
  err_nohighmem   db 'Not enough memory to load specified kernel.', CR, LF, 0
  err_highload    db CR, LF, 'Kernel transfer failure.', CR, LF, 0
  err_oldkernel   db 'Cannot load a ramdisk with an old kernel image.'
-@@ -1574,7 +1636,9 @@
+@@ -1602,7 +1664,9 @@ err_comlarge	db 'COMBOOT image too large
  err_a20		db CR, LF, 'A20 gate not responding!', CR, LF, 0
  err_bootfailed	db CR, LF, 'Boot failed: please change disks and press '
  		db 'a key to continue.', CR, LF, 0
@@ -1953,9 +1953,9 @@
  crlfloading_msg	db CR, LF
  loading_msg     db 'Loading ', 0
  dotdot_msg      db '.'
---- syslinux-3.35/loadhigh.inc.opensuse	2007-01-29 02:56:21.000000000 +0100
-+++ syslinux-3.35/loadhigh.inc	2007-01-29 10:56:11.000000000 +0100
-@@ -47,7 +47,12 @@
+--- syslinux-3.51/loadhigh.inc.opensuse	2007-06-11 00:51:39.000000000 +0200
++++ syslinux-3.51/loadhigh.inc	2007-07-02 12:48:21.000000000 +0200
+@@ -47,7 +47,12 @@ load_high:
  .read_loop:
  		and si,si			; If SI == 0 then we have end of file
  		jz .eof
@@ -1968,7 +1968,7 @@
  		push bx				; <AA> Pausebird function
  
  		push eax			; <A> Total bytes to transfer
-@@ -63,7 +68,15 @@
+@@ -63,7 +68,15 @@ load_high:
  		push edi			; <C> Target buffer
  		mov cx,ax
  		xor bx,bx			; ES:0
@@ -1984,41 +1984,23 @@
  		pop edi				; <C> Target buffer
  		pop ecx				; <B> Byte count this round
  		push ecx			; <B> Byte count this round
---- syslinux-3.35/Makefile.opensuse	2007-01-29 02:56:21.000000000 +0100
-+++ syslinux-3.35/Makefile	2007-01-29 10:56:11.000000000 +0100
-@@ -124,7 +124,7 @@
- kwdhash.gen: keywords genhash.pl
+--- syslinux-3.51/Makefile.opensuse	2007-06-11 00:51:39.000000000 +0200
++++ syslinux-3.51/Makefile	2007-07-02 13:01:49.000000000 +0200
+@@ -138,9 +138,10 @@ kwdhash.gen: keywords genhash.pl
  	$(PERL) genhash.pl < keywords > kwdhash.gen
  
--ldlinux.bin: ldlinux.asm kwdhash.gen version.gen
-+ldlinux.bin: ldlinux.asm kwdhash.gen version.gen gfxboot.inc
- 	$(NASM) -f bin -DDATE_STR="'$(DATE)'" -DHEXDATE="$(HEXDATE)" \
- 		-DMAP=$(@:.bin=.map) -l $(@:.bin=.lst) -o $@ $<
- 	$(PERL) checkov.pl ldlinux.map $@
-@@ -134,16 +134,18 @@
- 		-DMAP=$(@:.bin=.map) -l $(@:.bin=.lst) -o $@ $<
+ # Standard rule for {ldlinux,pxelinux,isolinux,isolinux-debug,extlinux}.bin
+-%.bin: %.asm kwdhash.gen version.gen
++%.bin: %.asm kwdhash.gen version.gen gfxboot.inc
+ 	$(NASM) -O99 -f bin -DDATE_STR="'$(DATE)'" -DHEXDATE="$(HEXDATE)" \
+ 		-DMAP=$(@:.bin=.map) -l $(@:.bin=.lsr) -o $@ $<
++	[ -z "$(findstring isolinux,$@)" ] || ./add_crc $@
+ 	$(PERL) lstadjust.pl $(@:.bin=.lsr) $(@:.bin=.map) $(@:.bin=.lst)
  	$(PERL) checkov.pl $(@:.bin=.map) $@
  
--isolinux.bin: isolinux.asm kwdhash.gen version.gen checksumiso.pl
-+isolinux.bin: isolinux.asm kwdhash.gen version.gen checksumiso.pl gfxboot.inc
- 	$(NASM) -f bin -DDATE_STR="'$(DATE)'" -DHEXDATE="$(HEXDATE)" \
- 		-DMAP=$(@:.bin=.map) -l $(@:.bin=.lst) -o $@ $<
-+	./add_crc $@
- 	$(PERL) checkov.pl $(@:.bin=.map) $@
- 	$(PERL) checksumiso.pl $@
- 
- # Special verbose version of isolinux.bin
--isolinux-debug.bin: isolinux-debug.asm kwdhash.gen version.gen checksumiso.pl
-+isolinux-debug.bin: isolinux-debug.asm kwdhash.gen version.gen checksumiso.pl gfxboot.inc
- 	$(NASM) -f bin -DDATE_STR="'$(DATE)'" -DHEXDATE="$(HEXDATE)" \
- 		-DMAP=$(@:.bin=.map) -l $(@:.bin=.lst) -o $@ $<
-+	./add_crc $@
- 	$(PERL) checkov.pl $(@:.bin=.map) $@
- 	$(PERL) checksumiso.pl $@
- 
---- syslinux-3.35/parseconfig.inc.opensuse	2007-01-29 02:56:21.000000000 +0100
-+++ syslinux-3.35/parseconfig.inc	2007-01-29 10:56:11.000000000 +0100
-@@ -81,7 +81,7 @@
+--- syslinux-3.51/parseconfig.inc.opensuse	2007-06-11 00:51:39.000000000 +0200
++++ syslinux-3.51/parseconfig.inc	2007-07-02 12:48:21.000000000 +0200
+@@ -81,7 +81,7 @@ pc_ipappend:	call getint
  ;
  ; "localboot" command (PXELINUX, ISOLINUX)
  ;
@@ -2027,7 +2009,7 @@
  pc_localboot:	call getint
  		cmp byte [VKernel],0		; ("label" section only)
  		je .err
-@@ -262,6 +262,25 @@
+@@ -275,6 +275,25 @@ pc_serial:	call getint
  		mov [SerialPort], word 0
  		ret
  
@@ -2053,9 +2035,9 @@
  ;
  ; "F"-key command
  ;
---- syslinux-3.35/pxelinux.asm.opensuse	2007-01-29 02:56:21.000000000 +0100
-+++ syslinux-3.35/pxelinux.asm	2007-01-29 10:56:11.000000000 +0100
-@@ -899,6 +899,9 @@
+--- syslinux-3.51/pxelinux.asm.opensuse	2007-06-11 00:51:39.000000000 +0200
++++ syslinux-3.51/pxelinux.asm	2007-07-02 12:48:21.000000000 +0200
+@@ -877,6 +877,9 @@ config_scan:
  ; AX contains the appropriate return code.
  ;
  local_boot:
@@ -2065,8 +2047,8 @@
  		push cs
  		pop ds
  		mov [LocalBootType],ax
---- syslinux-3.35/README.gfxboot.opensuse	2007-01-29 10:56:11.000000000 +0100
-+++ syslinux-3.35/README.gfxboot	2007-01-29 10:56:11.000000000 +0100
+--- syslinux-3.51/README.gfxboot.opensuse	2007-07-02 12:48:21.000000000 +0200
++++ syslinux-3.51/README.gfxboot	2007-07-02 12:48:21.000000000 +0200
 @@ -0,0 +1,41 @@
 +Graphical boot screen
 +=====================
@@ -2109,8 +2091,8 @@
 +  the correct disk has been inserted (its last hex digit is the zero based
 +  disk number).
 +
---- syslinux-3.35/rllpack.inc.opensuse	2007-01-29 02:56:21.000000000 +0100
-+++ syslinux-3.35/rllpack.inc	2007-01-29 10:56:11.000000000 +0100
+--- syslinux-3.51/rllpack.inc.opensuse	2007-06-11 00:51:39.000000000 +0200
++++ syslinux-3.51/rllpack.inc	2007-07-02 12:48:21.000000000 +0200
 @@ -28,7 +28,7 @@
  ;
  ; rllpack:
@@ -2120,9 +2102,9 @@
  ;
  rllpack:
  		push ax
---- syslinux-3.35/runkernel.inc.opensuse	2007-01-29 02:56:21.000000000 +0100
-+++ syslinux-3.35/runkernel.inc	2007-01-29 10:56:11.000000000 +0100
-@@ -202,6 +202,15 @@
+--- syslinux-3.51/runkernel.inc.opensuse	2007-06-11 00:51:39.000000000 +0200
++++ syslinux-3.51/runkernel.inc	2007-07-02 13:02:46.000000000 +0200
+@@ -202,6 +202,15 @@ cmdline_end:
                  pop ds
  		sub si,cmd_line_here
  		mov [CmdLineLen],si		; Length including final null
@@ -2138,7 +2120,7 @@
  ;
  ; Now check if we have a large kernel, which needs to be loaded high
  ;
-@@ -299,6 +308,19 @@
+@@ -308,6 +317,19 @@ load_initrd:
                  jz nk_noinitrd
  		call parse_load_initrd
  nk_noinitrd:
@@ -2158,7 +2140,7 @@
  ;
  ; Abandon hope, ye that enter here!  We do no longer permit aborts.
  ;
-@@ -307,6 +329,10 @@
+@@ -316,6 +338,10 @@ nk_noinitrd:
  		mov si,ready_msg
  		call cwritestr
  
@@ -2169,7 +2151,7 @@
  		call vgaclearmode		; We can't trust ourselves after this
  
  		UNLOAD_PREP			; Module-specific hook
-@@ -521,6 +547,34 @@
+@@ -556,6 +582,34 @@ parse_load_initrd:
  
  .got_start:
  		push si
@@ -2204,7 +2186,7 @@
  		mov di,InitRD		; Target buffer for mangled name
  		call mangle_name
  		call loadinitrd
-@@ -608,6 +662,20 @@
+@@ -643,6 +697,20 @@ loadinitrd:
  		jmp crlf			; Print carriage return and return
  
  .notthere:
@@ -2225,10 +2207,10 @@
                  mov si,err_noinitrd
                  call cwritestr
                  mov si,InitRDCName
-@@ -616,6 +684,20 @@
+@@ -651,6 +719,20 @@ loadinitrd:
                  jmp abort_load
  
- no_high_mem:    				; Error routine
+ no_high_mem:					; Error routine
 +
 +%ifdef WITH_GFX
 +		cmp byte [gfx_ok],0
@@ -2246,9 +2228,9 @@
  		mov si,err_nohighmem
                  jmp abort_load
  
---- syslinux-3.35/syslinux.doc.opensuse	2007-01-29 02:56:21.000000000 +0100
-+++ syslinux-3.35/syslinux.doc	2007-01-29 10:56:11.000000000 +0100
-@@ -196,7 +196,7 @@
+--- syslinux-3.51/syslinux.doc.opensuse	2007-06-11 00:51:39.000000000 +0200
++++ syslinux-3.51/syslinux.doc	2007-07-02 12:48:21.000000000 +0200
+@@ -216,7 +216,7 @@ LABEL label
          Append nothing.  APPEND with a single hyphen as argument in a
          LABEL section can be used to override a global APPEND.
  
@@ -2257,7 +2239,7 @@
  	On PXELINUX, specifying "LOCALBOOT 0" instead of a "KERNEL"
  	option means invoking this particular label will cause a local
  	disk boot instead of booting a kernel.
-@@ -210,12 +210,11 @@
+@@ -230,12 +230,11 @@ LABEL label
  	UNDI or PXE stacks are, don't worry -- you don't want them,
  	just specify 0.
  
@@ -2275,22 +2257,20 @@
  
  IMPLICIT flag_val
          If flag_val is 0, do not load a kernel image unless it has been
---- syslinux-3.35/ui.inc.opensuse	2007-01-29 02:56:21.000000000 +0100
-+++ syslinux-3.35/ui.inc	2007-01-29 10:56:11.000000000 +0100
-@@ -15,6 +15,12 @@
- ;
+--- syslinux-3.51/ui.inc.opensuse	2007-06-11 00:51:39.000000000 +0200
++++ syslinux-3.51/ui.inc	2007-07-02 13:03:29.000000000 +0200
+@@ -16,6 +16,10 @@
+ load_config_file:
  		call parse_config		; Parse configuration file
  no_config_file:
-+
 +%ifdef WITH_GFX
 +		; build gfx menu
 +		call gfx_setup_menu
 +%endif
-+
+ 
  ;
  ; Check whether or not we are supposed to display the boot prompt.
- ;
-@@ -28,6 +34,21 @@
+@@ -30,6 +34,21 @@ enter_command:
  		cmp word [NoEscape],0		; If NOESCAPE, no prompt,
  		jne auto_boot			; always run default cmd
  
@@ -2312,7 +2292,7 @@
  		mov si,boot_prompt
  		call cwritestr
  
-@@ -260,9 +281,21 @@
+@@ -303,9 +322,21 @@ vk_check:
  		push word real_mode_seg
  		pop es
  		mov di,cmd_line_here
@@ -2334,16 +2314,16 @@
  		mov [CmdLinePtr],di		; Where to add rest of cmd
  		pop es
  		mov di,KernelName
-@@ -277,7 +310,7 @@
- %endif
- 		xor bx,bx			; Try only one version
+@@ -323,7 +354,7 @@ vk_check:
+ 		mov al, [VKernelBuf+vk_type]
+ 		mov [KernelType], al
  
 -%if IS_PXELINUX || IS_ISOLINUX
 +%if IS_PXELINUX || IS_ISOLINUX || IS_SYSLINUX
  		; Is this a "localboot" pseudo-kernel?
  %if IS_PXELINUX
  		cmp byte [VKernelBuf+vk_rname+4], 0
-@@ -361,6 +394,19 @@
+@@ -401,6 +432,19 @@ bad_kernel:
  		push di
                  call unmangle_name              ; Get human form
  		mov si,err_notfound		; Complain about missing kernel

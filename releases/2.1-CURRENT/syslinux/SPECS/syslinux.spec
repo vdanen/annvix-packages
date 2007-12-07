@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		syslinux
-%define version 	3.35
+%define version 	3.51
 %define release 	%_revrel
 
 %define pxebase		/var/lib/tftpboot/X86PC/linux
@@ -26,21 +26,18 @@ Source0:	http://www.kernel.org/pub/linux/utils/boot/syslinux/%{name}-%{version}.
 Source1:	pxelinux-help.txt
 Source2:	pxelinux-messages
 Source3:	pxelinux-default
-Patch0:         syslinux-3.11-mdv-vfat.patch
-Patch1:		syslinux-3.35-opensuse-pre.patch
+Source4:	system-lib-png-1.2.23.tar.bz2
+Patch1:		syslinux-3.51-mdv-suse-gfxboot.patch
 Patch2:		syslinux-3.20-mdv-date.patch
-Patch3:		syslinux-3.31-mdv-system_png.patch
-Patch4:		syslinux-3.20-mdv-png_com32.patch
 # no idea if these need to be rediffed or not; they're currently not applied
 Patch6:		syslinux-1.76-avx-nostack.patch
 Patch7:		syslinux-2.13-avx-nostack.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	nasm >= 0.97
+BuildRequires:	nasm >= 2.00
 BuildRequires:	netpbm
 BuildRequires:	png-static-devel
 
-ExclusiveArch:	%{ix86}
 Obsoletes:	isolinux < %{version}
 Provides:	isolinux = %{version}
 
@@ -82,13 +79,12 @@ This package contains the documentation for %{name}.
 %prep
 %setup -q
 #%patch7 -p1 -b .nostack
-%patch0 -p1 -b .vfat
 %patch1 -p1 -b .gfx
 %patch2 -p1 -b .bootdir
-%patch3 -p1 -b .syspng
-install %{_includedir}/png.h %{_includedir}/pngconf.h com32/include
-%patch4 -p1
 #%patch6 -p1 -b .nostack
+
+rm -rf com32/lib/libpng
+tar xjf %{_sourcedir}/system-lib-png-1.2.23.tar.bz2
 
 
 %build
@@ -114,13 +110,13 @@ mv isolinux.bin.normal isolinux.bin
     INSTALLROOT=%{buildroot} \
     BINDIR=%{_bindir} \
     SBINDIR=%{_sbindir} \
-    LIBDIR=%{_libdir} \
+    LIBDIR=%{_prefix}/lib \
     INCDIR=%{_includedir}
 
-mkdir -p %{buildroot}%{_libdir}/%{name}/menu
-cp -av menu/* %{buildroot}%{_libdir}/%{name}/menu/
+mkdir -p %{buildroot}%{_prefix}/lib/%{name}/menu
+cp -av menu/* %{buildroot}%{_prefix}/lib/%{name}/menu/
 
-cp gethostip sha1pass mkdiskimage sys2ansi.pl keytab-lilo.pl %{buildroot}%{_libdir}/syslinux
+cp gethostip sha1pass mkdiskimage sys2ansi.pl keytab-lilo.pl %{buildroot}%{_prefix}/lib/syslinux
 
 mkdir -p %{buildroot}%{pxebase}/pxelinux.cfg
 install -m 0644 %{_sourcedir}/pxelinux-help.txt %{buildroot}%{pxebase}/help.txt
@@ -129,8 +125,8 @@ install -m 0644 %{_sourcedir}/pxelinux-default %{buildroot}%{pxebase}/pxelinux.c
 perl -pi -e "s|VERSION|%version|g" %{buildroot}%{pxebase}/messages
 install -m 0644 pxelinux.0 %{buildroot}%{pxebase}/linux.0
 install -m 0644 memdisk/memdisk %{buildroot}%{pxebase}/memdisk
-install -m 0644 isolinux-i586.bin %{buildroot}%{_libdir}/syslinux/
-install -m 0644 isolinux-x86_64.bin %{buildroot}%{_libdir}/syslinux/
+install -m 0644 isolinux-i586.bin %{buildroot}%{_prefix}/lib/syslinux/
+install -m 0644 isolinux-x86_64.bin %{buildroot}%{_prefix}/lib/syslinux/
 
 
 %clean
@@ -141,9 +137,9 @@ install -m 0644 isolinux-x86_64.bin %{buildroot}%{_libdir}/syslinux/
 %defattr(-,root,root)
 %{_bindir}/*
 %{_sbindir}/*
-%exclude %{_libdir}/%{name}/com32
-%exclude %{_libdir}/%{name}/menu
-%{_libdir}/%{name}/*
+%exclude %{_prefix}/lib/%{name}/com32
+%exclude %{_prefix}/lib/%{name}/menu
+%{_prefix}/lib/%{name}/*
 
 %files -n pxelinux
 %{pxebase}/*.0
@@ -154,8 +150,8 @@ install -m 0644 isolinux-x86_64.bin %{buildroot}%{_libdir}/syslinux/
 
 %files devel
 %defattr(-,root,root)
-%{_libdir}/syslinux/com32
-%{_libdir}/%{name}/menu
+%{_prefix}/lib/syslinux/com32
+%{_prefix}/lib/%{name}/menu
 
 %files doc
 %defattr(-,root,root)
@@ -164,6 +160,16 @@ install -m 0644 isolinux-x86_64.bin %{buildroot}%{_libdir}/syslinux/
 
 
 %changelog
+* Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.51
+- 3.51
+- drop P0, merged upstream
+- update P1 from Mandriva
+- drop P3 and P4 and use a bundled copy of the libpng sources (S4,
+  taken from libpng 1.2.23)
+- builds on x86_64, but install to /usr/lib/syslinux as there are no
+  real x86_64 files
+- requires newer nasm
+
 * Mon May 28 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.35
 - 3.35
 - drop P1 (ASM graphic patch); no longer maintained
