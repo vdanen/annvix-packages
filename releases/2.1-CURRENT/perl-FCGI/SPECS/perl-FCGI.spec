@@ -76,6 +76,9 @@ echo | CFLAGS="%{optflags}" perl Makefile.PL INSTALLDIRS=vendor
 
 
 %changelog
+* Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.67
+- rebuild
+
 * Fri May 12 2006 Vincent Danen <vdanen-at-build.annvix.org>  0.67
 - rebuild against perl 5.8.8
 - create -doc subpackage
