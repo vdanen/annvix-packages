@@ -10,7 +10,7 @@
 %define	module		Compress-Raw-Zlib
 %define	revision	$Rev$
 %define	name		perl-%{module}
-%define	version		2.005
+%define	version		2.008
 %define	release		%_revrel
 
 Summary:	Low-level interface to the zlib compression library
@@ -20,7 +20,7 @@ Release:	%{release}
 License:	GPL or Artistic
 Group:		Development/Perl
 URL:		http://search.cpan.org/dist/%{module}/
-Source0:	http://search.cpan.org/CPAN/authors/id/P/PM/PMQS/%{module}-%{version}.tar.gz
+Source0:	http://search.cpan.org/CPAN/authors/id/P/PM/PMQS/Compress-Raw-Zlib-%{version}.tar.gz
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel
@@ -72,6 +72,9 @@ make test
 
 
 %changelog
+* Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.008
+- 2.008
+
 * Mon Jul 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.005
 - first Annvix build
 
