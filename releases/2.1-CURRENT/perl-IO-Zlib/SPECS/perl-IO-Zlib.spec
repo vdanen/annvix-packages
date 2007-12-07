@@ -10,7 +10,7 @@
 %define module		IO-Zlib
 %define revision	$Rev$
 %define name		perl-%{module}
-%define version		1.04
+%define version		1.08
 %define release		%_revrel
 
 Summary:	IO:: style interface to Compress::Zlib
@@ -20,7 +20,7 @@ Release:	%{release}
 License:	GPL
 Group:		Development/Perl
 URL:		http://search.cpan.org/dist/%{module}
-Source0:	http://search.cpan.org/CPAN/authors/id/G/GA/GAAS/%{module}-%{version}.tar.bz2
+Source0:	http://www.cpan.org/modules/by-module/IO/%{module}-%{version}.tar.gz
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel
@@ -74,6 +74,9 @@ make test
 
 
 %changelog
+* Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.08
+- 1.08
+
 * Wed Dec 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.04
 - spec cleaning
 
