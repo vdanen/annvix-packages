@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		tk
-%define version		8.4.13
+%define version		8.4.14
 %define release		%_revrel
 
 %define major		8.4
@@ -23,7 +23,7 @@ Release:	%{release}
 License:	BSD
 Group:		System/Libraries
 URL:		http://tcl.sourceforge.net/
-Source0:	http://prdownloads.sourceforge.net/tcl/%{name}%{version}-src.tar.bz2
+Source0:	http://prdownloads.sourceforge.net/tcl/%{name}%{version}-src.tar.gz
 Patch0:		tk8.4.11-rpath.diff
 Patch1:		tk8.4.11-soname.diff
 Requires:	%{libname} = %{version}
@@ -59,6 +59,7 @@ and Macintosh platforms.
 Summary:	Development files for %{name}
 Group:		Development/Other
 Requires:	%{libname} = %{version}
+Requires:	x11-devel
 Provides:	%{name}-devel = %{version}-%{release}
 Obsoletes:	%mklibname %{name} 8.4 -d
 
@@ -182,6 +183,10 @@ chmod 0755 %{buildroot}%{_libdir}/*.so*
 
 
 %changelog
+* Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.4.14        
+- 8.4.14
+- development package requires x11-devel
+
 * Sun Sep 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.4.13
 - implement devel naming policy
 - implement library provides policy
