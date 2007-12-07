@@ -72,6 +72,9 @@ make test
 
 
 %changelog
+* Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.79
+- rebuild
+
 * Thu May 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 0.79
 - first Annvix package (needed by swatch)
 
