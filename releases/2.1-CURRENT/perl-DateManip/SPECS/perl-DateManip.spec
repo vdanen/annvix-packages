@@ -7,10 +7,10 @@
 #
 # $Id$
 
-%define	module		DateManip
+%define	module		Date-Manip
 %define revision	$Rev$
 %define name		perl-%{module}
-%define	version		5.44
+%define	version		5.48
 %define	release		%_revrel
 
 Summary: 	%{module} module for perl
@@ -20,13 +20,15 @@ Release:	%{release}
 License: 	GPL or Artistic
 Group:		Development/Perl
 URL:		http://search.cpan.org/dist/%{module}/
-Source:		ftp://ftp.perl.org/pub/CPAN/modules/by-module/Date/%{module}-%{version}.tar.bz2
+Source:		http://www.cpan.org/modules/by-module/Date/Date-Manip-%{version}.tar.gz
 Patch0:		DateManip-COT.patch
-Patch1:		DateManip-SORT.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel
 BuildArch:	noarch
+
+Obsoletes:	perl-DateManip < 5.46
+Provides:	perl-DateManip = %{version}-%{release}
 
 %description
 This is a set of routines designed to make any common date/time
@@ -46,7 +48,6 @@ This package contains the documentation for %{name}.
 %prep
 %setup -q -n %{module}-%{version}
 %patch0 -p1 -b .cot
-%patch1 -p0 -b .sort
 
 
 %build
@@ -78,6 +79,11 @@ make test
 
 
 %changelog
+* Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.48
+- 5.48
+- upstream package name changed, so obsolete/provide old package name
+- drop P1
+
 * Thu May 11 2006 Vincent Danen <vdanen-at-build.annvix.org> 5.44
 - first Annvix package (needed by swatch)
 
