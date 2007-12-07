@@ -94,6 +94,9 @@ perl -pi -e 's!/usr/local/bin/perl!/usr/bin/perl!g' %{buildroot}%{perl_vendorarc
 
 
 %changelog
+* Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.15
+- rebuild
+
 * Sun Jun 24 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.15
 - rebuild against new readline
 
