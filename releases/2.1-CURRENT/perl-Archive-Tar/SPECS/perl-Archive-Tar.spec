@@ -10,7 +10,7 @@
 %define	module		Archive-Tar
 %define revision	$Rev$
 %define	name		perl-%{module}
-%define version		1.30
+%define version		1.36
 %define release		%_revrel
 
 Summary:	Perl module for manipulation of tar archives
@@ -20,7 +20,7 @@ Release:	%{release}
 License:	GPL or Artistic
 Group:		Development/Perl
 URL:		http://search.cpan.org/dist/%{module}
-Source0:	ftp://ftp.perl.org/pub/CPAN/modules/by-module/Archive/%{module}-%{version}.tar.gz
+Source0:	ftp://ftp.perl.org/pub/CPAN/modules/by-module/Archive/Archive-Tar-%{version}.tar.gz
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel
@@ -72,6 +72,9 @@ make test
 
 
 %changelog
+* Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.36
+- 1.36
+
 * Wed Dec 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.30
 - 1.30
 
