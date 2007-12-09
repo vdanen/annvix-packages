@@ -186,7 +186,7 @@ addtest=""
 %endif
 
 export TMP="/tmp" TMPDIR="/tmp"
-make test TESTOPTS="-w -l -x test_linuxaudiodev -x test_openpty -x test_nis -x test_sqlite ${addtest}"
+make test TESTOPTS="-w -l -x test_linuxaudiodev -x test_openpty -x test_nis ${addtest}"
 
 
 %install
@@ -333,7 +333,8 @@ rm -f modules-list main.list
 
 %changelog
 * Sun Dec 09 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.5.1
-- rebuild against new openssl, ncurses, tcl, tk
+- rebuild against new openssl, ncurses, tcl, tk, sqlite
+- re-enable sqlite test
 
 * Tue Dec 04 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.5.1
 - rebuild against new sqlite3
