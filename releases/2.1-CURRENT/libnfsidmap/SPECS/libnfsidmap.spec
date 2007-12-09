@@ -9,7 +9,7 @@
 
 %define revision	$rev: 6159 $
 %define name		libnfsidmap
-%define version		0.16
+%define version		0.20
 %define release		%_revrel
 
 %define	major		0
@@ -23,7 +23,7 @@ Release:	%{release}
 License:	BSD-like
 Group:		System/Libraries
 URL:		http://www.citi.umich.edu/projects/nfsv4/linux/
-Source0:	http://www.citi.umich.edu/projects/nfsv4/linux/libnfsidmap/libnfsidmap-%{version}.tar.bz2
+Source0:	http://www.citi.umich.edu/projects/nfsv4/linux/libnfsidmap/libnfsidmap-%{version}.tar.gz
 Patch0:		nfsidmap-0.11-portable.diff
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -134,6 +134,9 @@ libtoolize --copy --force && aclocal-1.7 && autoconf && automake-1.7 --gnu
 
 
 %changelog
+* Sun Dec 09 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.20
+- 0.20
+
 * Sun Sep 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.16
 - implement devel naming policy
 - implement library provides policy
