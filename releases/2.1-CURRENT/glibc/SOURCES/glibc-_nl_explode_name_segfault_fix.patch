@@ -1,0 +1,254 @@
+Hi!
+
+The attached patch fixes a segfault when _nl_normalize_codeset
+returned NULL because of a malloc failure.  Although _nl_explode_name
+returns a bitmask, it only uses a few low bits, so using -1 to signal
+a failure seems best to me.  Silently pretending that the codeset
+is normalized seems to be a bad choice, so I think we should signal
+a failure.  Here is a testcase.  In addition to the occassional segfaults
+which are fixed by this patch the output is sometimes incorrectly encoded
+in EUC-JP (the original encoding of ja.po) - this happens when e.g. dlopen
+of the EUC-JP.so gconv module fails and in the end __gconv_open returns
+__GCONV_NOCONV.  That's a separate bug I don't have a fix for.
+
+#define _GNU_SOURCE
+#include <stdio.h>
+#include <errno.h>
+#include <stdlib.h>
+#include <string.h>
+#include <locale.h>
+#include <dlfcn.h>
+#include <time.h>
+
+int mayret;
+
+void *
+malloc (size_t x)
+{
+  void *(*fn) (size_t) = dlsym (RTLD_NEXT, "malloc");
+  if (mayret && (random () & 31) == 0)
+    {
+      errno = ENOMEM;
+      return NULL;
+    }
+  return fn (x);
+}
+
+void
+free (void *x)
+{
+  void (*fn) (void *) = dlsym (RTLD_NEXT, "free");
+  return fn (x);
+}
+
+void *
+realloc (void *p, size_t x)
+{
+  void *(*fn) (void *, size_t) = dlsym (RTLD_NEXT, "realloc");
+  if (mayret && (random () & 7) == 0)
+    {
+      errno = ENOMEM;
+      return NULL;
+    }
+  return fn (p, x);
+}
+
+void *
+calloc (size_t x, size_t y)
+{
+  void *ret = malloc (x * y);
+  if (ret != NULL)
+    memset (ret, 0, x * y);
+  return ret;
+}
+
+int
+main (int argc, char *argv[])
+{
+  char *msg;
+  int i;
+  long long l;
+  if (argc > 1)
+    l = strtoul (argv[1], NULL, 0);
+  else
+    {
+#ifdef __x86_64__
+# define HP_TIMING_NOW(Var) \
+      ({ unsigned int _hi, _lo; \
+	 asm volatile ("rdtsc" : "=a" (_lo), "=d" (_hi)); \
+	 (Var) = ((unsigned long long int) _hi << 32) | _lo; })
+#elif defined __i386__
+# define HP_TIMING_NOW(Var) __asm__ __volatile__ ("rdtsc" : "=A" (Var))
+#else
+# define HP_TIMING_NOW(Var) (Var) = 0
+#endif
+      HP_TIMING_NOW (l);
+    }
+  printf ("0x%x\n", (unsigned int) l);
+  srandom ((unsigned int) l);
+  setlocale (LC_ALL, "ja_JP.UTF-8");
+  mayret = 1;
+  for (i = 0; i < 64; i++)
+    {
+      msg = strerror (i);
+      puts (msg);
+    }
+  return 0;
+}
+
+
+ 2007-07-11  Jakub Jelinek  <jakub@redhat.com>
+
+	* intl/finddomain.c (_nl_find_domain): If _nl_explode_name
+	returned -1, return NULL.
+	* intl/explodename.c (_nl_explode_name): Return -1 if
+	_nl_normalize_codeset failed.
+
+--- libc/intl/finddomain.c.jj	2006-04-07 05:27:32.000000000 +0200
++++ libc/intl/finddomain.c	2007-07-10 20:53:26.000000000 +0200
+@@ -1,5 +1,5 @@
+ /* Handle list of needed message catalogs
+-   Copyright (C) 1995-1999, 2000, 2001, 2002, 2004, 2006
++   Copyright (C) 1995-1999, 2000, 2001, 2002, 2004, 2006, 2007
+    Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+    Written by Ulrich Drepper <drepper@gnu.org>, 1995.
+@@ -126,6 +126,9 @@ _nl_find_domain (dirname, locale, domain
+      we use XPG4 style, and `_', `+', and `,' if we use CEN syntax.  */
+   mask = _nl_explode_name (locale, &language, &modifier, &territory,
+ 			   &codeset, &normalized_codeset);
++  if (mask == -1)
++    /* This means we are out of core.  */
++    return NULL;
+ 
+   /* We need to protect modifying the _NL_LOADED_DOMAINS data.  */
+   __libc_rwlock_wrlock (lock);
+--- libc/intl/explodename.c.jj	2006-04-07 08:59:29.000000000 +0200
++++ libc/intl/explodename.c	2007-07-10 20:46:47.000000000 +0200
+@@ -1,4 +1,4 @@
+-/* Copyright (C) 1995-2002, 2003, 2006 Free Software Foundation, Inc.
++/* Copyright (C) 1995-2002, 2003, 2006, 2007 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+    Contributed by Ulrich Drepper <drepper@gnu.ai.mit.edu>, 1995.
+ 
+@@ -108,7 +108,9 @@ _nl_explode_name (name, language, modifi
+ 	    {
+ 	      *normalized_codeset = _nl_normalize_codeset (*codeset,
+ 							   cp - *codeset);
+-	      if (strcmp (*codeset, *normalized_codeset) == 0)
++	      if (*normalized_codeset == NULL)
++		return -1;
++	      else if (strcmp (*codeset, *normalized_codeset) == 0)
+ 		free ((char *) *normalized_codeset);
+ 	      else
+ 		mask |= XPG_NORM_CODESET;
+
+	Jakub
+
+Hi!
+
+This patch fixes the rest of the issues on the
+http://sources.redhat.com/ml/libc-hacker/2007-07/msg00010.html
+testcase.  __gconv_open returns __GCONV_NOCONV both for various errors
+and also for GCONV_AVOID_NOCONV requested copy only conversion.
+For errors we want gettext etc. to print untranslated message
+preferrably over e.g. printing translated message in wrong encoding.
+For no conversion we of course don't need to convert.
+Removing GCONV_AVOID_NOCONV argument to __gconv_open in dcigettext.c
+would fix this, but would be inefficient.
+Fortunately it seems GCONV_AVOID_NOCONV is libc.so internal flag
+and dcigettext.c is the only user of that flag, so IMHO best is just
+to let __gconv_open return a different value for "no conversion
+needed and GCONV_AVOID_NOCONV requested" from "no conversion available
+or whatever other error happened".
+I'm defining the new error code in gconv_int.h, so that it is gconv
+internal thing, not part of the exported API e.g. for gconv modules.
+
+ 2007-07-19  Jakub Jelinek  <jakub@redhat.com>
+
+	* iconv/gconv_int.h (__GCONV_NULCONV): New internal only error code.
+	* iconv/gconv_cache.c (__gconv_lookup_cache): Return __GCONV_NULCONV
+	if from and to charsets are the same.
+	* iconv/gconv_db.c (__gconv_find_transform): Likewise.
+	* intl/dcigettext.c (_nl_find_msg): Return NULL even if __gconv_open
+	returns __GCONV_NOCONV, but not for __GCONV_NULCONV.
+
+--- libc/iconv/gconv_int.h.jj	2006-05-15 22:14:44.000000000 +0200
++++ libc/iconv/gconv_int.h	2007-07-19 21:07:16.000000000 +0200
+@@ -1,4 +1,4 @@
+-/* Copyright (C) 1997-2005, 2006 Free Software Foundation, Inc.
++/* Copyright (C) 1997-2005, 2006, 2007 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1997.
+ 
+@@ -114,6 +114,12 @@ enum
+   GCONV_AVOID_NOCONV = 1 << 0
+ };
+ 
++/* When GCONV_AVOID_NOCONV is set and no conversion is needed,
++   __GCONV_NULCONV should be returned.  */
++enum
++{
++  __GCONV_NULCONV = -1
++};
+ 
+ /* Global variables.  */
+ 
+--- libc/iconv/gconv_cache.c.jj	2006-01-11 08:08:29.000000000 +0100
++++ libc/iconv/gconv_cache.c	2007-07-19 21:09:19.000000000 +0200
+@@ -1,5 +1,5 @@
+ /* Cache handling for iconv modules.
+-   Copyright (C) 2001, 2002, 2003, 2005 Free Software Foundation, Inc.
++   Copyright (C) 2001, 2002, 2003, 2005, 2007 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+    Contributed by Ulrich Drepper <drepper@cygnus.com>, 2001.
+ 
+@@ -285,7 +285,7 @@ __gconv_lookup_cache (const char *toset,
+ 
+   /* Avoid copy-only transformations if the user requests.   */
+   if (__builtin_expect (flags & GCONV_AVOID_NOCONV, 0) && fromidx == toidx)
+-    return __GCONV_NOCONV;
++    return __GCONV_NULCONV;
+ 
+   /* If there are special conversions available examine them first.  */
+   if (fromidx != 0 && toidx != 0
+--- libc/iconv/gconv_db.c.jj	2006-04-25 19:45:02.000000000 +0200
++++ libc/iconv/gconv_db.c	2007-07-19 21:08:58.000000000 +0200
+@@ -1,5 +1,6 @@
+ /* Provide access to the collection of available transformation modules.
+-   Copyright (C) 1997-2003, 2004, 2005, 2006 Free Software Foundation, Inc.
++   Copyright (C) 1997-2003, 2004, 2005, 2006, 2007
++   Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1997.
+ 
+@@ -756,7 +757,7 @@ __gconv_find_transform (const char *tose
+     {
+       /* Both character sets are the same.  */
+       __libc_lock_unlock (__gconv_lock);
+-      return __GCONV_NOCONV;
++      return __GCONV_NULCONV;
+     }
+ 
+   result = find_derivation (toset, toset_expand, fromset, fromset_expand,
+--- libc/intl/dcigettext.c.jj	2006-06-23 01:58:37.000000000 +0200
++++ libc/intl/dcigettext.c	2007-07-19 21:19:45.000000000 +0200
+@@ -1,5 +1,5 @@
+ /* Implementation of the internal dcigettext function.
+-   Copyright (C) 1995-2005, 2006 Free Software Foundation, Inc.
++   Copyright (C) 1995-2005, 2006, 2007 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+ 
+    The GNU C Library is free software; you can redistribute it and/or
+@@ -948,7 +948,7 @@ _nl_find_msg (domain_file, domainbinding
+ 			/* If the output encoding is the same there is
+ 			   nothing to do.  Otherwise do not use the
+ 			   translation at all.  */
+-			if (__builtin_expect (r != __GCONV_NOCONV, 1))
++			if (__builtin_expect (r != __GCONV_NULCONV, 1))
+ 			  return NULL;
+ 
+ 			convd->conv = (__gconv_t) -1;
+
+	Jakub
+

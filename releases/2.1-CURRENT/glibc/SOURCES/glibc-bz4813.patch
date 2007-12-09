@@ -1,0 +1,29 @@
+ 2007-07-20  Jakub Jelinek  <jakub@redhat.com>
+
+	[BZ #4813]
+	* login/forkpty.c (forkpty): Close master and slave fds on
+	fork failure.  Patch by
+	Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>.
+
+===================================================================
+RCS file: /cvs/glibc/libc/login/forkpty.c,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -u -r1.2 -r1.3
+--- libc/login/forkpty.c	2001/07/06 04:55:34	1.2
++++ libc/login/forkpty.c	2007/07/20 07:20:07	1.3
+@@ -1,4 +1,4 @@
+-/* Copyright (C) 1998 Free Software Foundation, Inc.
++/* Copyright (C) 1998, 2007 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+    Contributed by Zack Weinberg <zack@rabi.phys.columbia.edu>, 1998.
+ 
+@@ -38,6 +38,8 @@
+   switch (pid = fork ())
+     {
+     case -1:
++      close (master);
++      close (slave);
+       return -1;
+     case 0:
+       /* Child.  */

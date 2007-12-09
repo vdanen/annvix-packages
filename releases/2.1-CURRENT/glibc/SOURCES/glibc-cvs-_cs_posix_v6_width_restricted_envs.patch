@@ -1,0 +1,58 @@
+Hi!
+
+Both
+http://www.opengroup.org/onlinepubs/009695399/functions/confstr.html
+http://www.opengroup.org/onlinepubs/009695399/basedefs/unistd.h.html
+mention _CS_POSIX_V6_WIDTH_RESTRICTED_ENVS rather than
+_CS_V6_WIDTH_RESTRICTED_ENVS glibc currently defines.
+http://www.opengroup.org/onlinepubs/009695399/utilities/getconf.html
+says for confstr variables the getconf names should be without
+_CS_ prefix, i.e. neither _POSIX_V6_WIDTH_RESTRICTED_ENVS
+nor V6_WIDTH_RESTRICTED_ENVS getconf ATM supports.
+The following patch instead of changing the name for compatibility
+adds new macro and new getconf variable.
+
+ 2007-07-17  Jakub Jelinek  <jakub@redhat.com>
+
+	* bits/confname.h (_CS_POSIX_V6_WIDTH_RESTRICTED_ENVS): Define.
+	* posix/getconf.c (vars): Add POSIX_V6_WIDTH_RESTRICTED_ENVS.
+
+===================================================================
+RCS file: /cvs/glibc/libc/posix/getconf.c,v
+retrieving revision 1.45
+retrieving revision 1.46
+diff -u -r1.45 -r1.46
+--- libc/posix/getconf.c	2007/07/16 00:55:00	1.45
++++ libc/posix/getconf.c	2007/07/19 17:09:25	1.46
+@@ -610,6 +610,7 @@
+ 
+ #ifdef _CS_V6_WIDTH_RESTRICTED_ENVS
+     { "_POSIX_V6_WIDTH_RESTRICTED_ENVS", _CS_V6_WIDTH_RESTRICTED_ENVS, CONFSTR },
++    { "POSIX_V6_WIDTH_RESTRICTED_ENVS", _CS_V6_WIDTH_RESTRICTED_ENVS, CONFSTR },
+ #endif
+ 
+ #ifdef _SC_V6_ILP32_OFFBIG
+===================================================================
+RCS file: /cvs/glibc/libc/bits/confname.h,v
+retrieving revision 1.29
+retrieving revision 1.30
+diff -u -r1.29 -r1.30
+--- libc/bits/confname.h	2004/11/27 20:52:06	1.29
++++ libc/bits/confname.h	2007/07/19 17:08:44	1.30
+@@ -1,5 +1,5 @@
+ /* `sysconf', `pathconf', and `confstr' NAME values.  Generic version.
+-   Copyright (C) 1993,1995-1998,2000,2001,2003,2004
++   Copyright (C) 1993,1995-1998,2000,2001,2003,2004,2007
+    Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+ 
+@@ -509,7 +509,8 @@
+ #define _CS_PATH		_CS_PATH
+ 
+     _CS_V6_WIDTH_RESTRICTED_ENVS,
+-# define _CS_V6_WIDTH_RESTRICTED_ENVS	_CS_V6_WIDTH_RESTRICTED_ENVS
++#define _CS_V6_WIDTH_RESTRICTED_ENVS	_CS_V6_WIDTH_RESTRICTED_ENVS
++#define _CS_POSIX_V6_WIDTH_RESTRICTED_ENVS	_CS_V6_WIDTH_RESTRICTED_ENVS
+ 
+     _CS_GNU_LIBC_VERSION,
+ #define _CS_GNU_LIBC_VERSION	_CS_GNU_LIBC_VERSION

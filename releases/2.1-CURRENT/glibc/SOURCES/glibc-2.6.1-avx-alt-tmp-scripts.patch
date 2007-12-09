@@ -1,0 +1,91 @@
+# Fix tmp file handling.
+
+--- glibc-2.6.1/debug/xtrace.sh.tmp	2007-12-07 22:47:49.045945500 -0700
++++ glibc-2.6.1/debug/xtrace.sh	2007-12-07 22:51:11.978628000 -0700
+@@ -151,6 +151,15 @@
+   help_info
+ fi
+ 
++fifodir=
++exit_handler()
++{
++	local rc=$?
++	trap - EXIT
++	[ -z "$fifodir" ] || rm -rf -- "$fifodir"
++	exit $rc
++}
++
+ # We have two modes.  If a data file is given simply print the included data.
+ printf "%-20s  %-*s  %6s\n" Function $(expr $COLUMNS - 30) File Line
+ for i in $(seq 1 $COLUMNS); do printf -; done; printf '\n'
+@@ -165,8 +174,9 @@
+     fi
+   done
+ else
+-  fifo=$(mktemp -ut xtrace.XXXXXX) || exit
+-  trap 'rm -f "$fifo"; exit 1' HUP INT QUIT TERM PIPE
++  fifodir=$(mktemp -dt xtrace.XXXXXXXXXX) || exit
++  trap exit_handler EXIT HUP INT QUIT PIPE TERM
++  fifo="$fifodir/fifo"
+   mkfifo -m 0600 $fifo || exit 1
+ 
+   # Now start the program and let it write to the FIFO.
+@@ -186,7 +196,6 @@
+   done
+   read -p "Press return here to close $TERMINAL_PROG($program)."
+   echo > "$fifo"
+-  rm "$fifo"
+ fi
+ 
+ exit 0
+--- glibc-2.6.1/malloc/memusage.sh.tmp	2007-02-17 01:31:17.000000000 -0700
++++ glibc-2.6.1/malloc/memusage.sh	2007-12-07 22:54:13.309960500 -0700
+@@ -86,6 +86,14 @@
+ progname=
+ tracemmap=
+ 
++data=
++progname=
++png=
++buffer=
++notimer=
++tracemmap=
++memusagestat_args=
++
+ # Process arguments.  But stop as soon as the program name is found.
+ while test $# -gt 0; do
+   case "$1" in
+@@ -219,11 +227,20 @@
+ 
+ # Generate data file name.
+ datafile=
++
++exit_handler()
++{
++	local rc=$?
++	trap - EXIT
++	[ -z "$datafile" -o -n "$data" ] || rm -f -- "$datafile"
++	exit $rc
++}
++
+ if test -n "$data"; then
+   datafile="$data"
+ elif test -n "$png"; then
+-  datafile=$(mktemp -t memusage.XXXXXX) || exit
+-  trap 'rm -f "$datafile"; exit 1' HUP INT QUIT TERM PIPE
++  datafile=$(mktemp -t memusage.XXXXXXXXXX) || exit
++  trap exit_handler EXIT HUP INT QUIT PIPE TERM
+ fi
+ if test -n "$datafile"; then
+   add_env="$add_env MEMUSAGE_OUTPUT=$datafile"
+@@ -264,10 +281,6 @@
+   $memusagestat $memusagestat_args "$datafile" "$png"
+ fi
+ 
+-if test -z "$data" -a -n "$datafile"; then
+-  rm -f "$datafile"
+-fi
+-
+ exit $result
+ # Local Variables:
+ #  mode:ksh

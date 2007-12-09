@@ -1,0 +1,22 @@
+ 2007-07-28  Ulrich Drepper  <drepper@redhat.com>
+
+	* posix/getconf.c (vars): Add missing _SC_LEVEL4_CACHE_LINESIZE
+	entry.
+
+===================================================================
+RCS file: /cvs/glibc/libc/posix/getconf.c,v
+retrieving revision 1.46
+retrieving revision 1.47
+diff -u -r1.46 -r1.47
+--- libc/posix/getconf.c	2007/07/19 17:09:25	1.46
++++ libc/posix/getconf.c	2007/07/29 05:39:36	1.47
+@@ -911,6 +911,9 @@
+ #ifdef _SC_LEVEL4_CACHE_ASSOC
+     { "LEVEL4_CACHE_ASSOC", _SC_LEVEL4_CACHE_ASSOC, SYSCONF },
+ #endif
++#ifdef _SC_LEVEL4_CACHE_LINESIZE
++    { "LEVEL4_CACHE_LINESIZE", _SC_LEVEL4_CACHE_LINESIZE, SYSCONF },
++#endif
+ 
+ #ifdef _SC_IPV6
+     { "IPV6", _SC_IPV6, SYSCONF },

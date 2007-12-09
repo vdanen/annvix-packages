@@ -11,7 +11,7 @@
 
 # alt 2.5-alt4
 # rh 2.5-12
-%define basevers	2.5
+%define basevers	2.6.1
 %define crypt_bf_ver	1.0.2
 
 %define revision	$Rev$
@@ -19,20 +19,21 @@
 %define version		%{basevers}
 %define release		%_revrel
 %define epoch		6
-%define glibcdate	20061008T1257
-%define glibcsrcdir	%{name}-%{version}-%{glibcdate}
+%define glibcsrcdir	%{name}-%{version}
 
 # <version>-<release> tags from kernel package where headers were
 # actually extracted from
-%define kheaders_ver    2.6.17
-%define kheaders_rel    1mdk
+%define kheaders_ver    2.6.22
+%define kheaders_rel    3mdv
 
 %define build_check	0
 %define build_profile	1
 %define build_locales	1
 %define build_locales_utf8 0
 
-%define gnu_hash_support 1
+# allow make check to fail only when running kernels where
+# we know tests must pass (no missing features or bugs in the kernel)
+%define check_min_kver	2.6.21
 
 %define build_biarch	0
 %ifarch x86_64
@@ -58,19 +59,24 @@ License:	LGPL
 Group:		System/Libraries
 URL:		http://www.gnu.org/software/libc/
 
-Source0:	glibc-%{version}-%{glibcdate}.tar.bz2
-Source1:	glibc-%{version}-fedora-%{glibcdate}.tar.bz2
+Source0:	http://ftp.gnu.org/gnu/glibc/glibc-%{version}.tar.bz2
+Source2:	http://ftp.gnu.org/gnu/glibc/glibc-%{version}.tar.bz2.sig
+Source1:	glibc-redhat.tar.bz2
 Source3:	crypt_blowfish-%{crypt_bf_ver}.tar.gz
 Source4:	crypt_freesec.c
 Source5:	crypt_freesec.h
 Source6:	strlcpy.3
 Source7:	glibc-manpages.tar.bz2
+Source8:	http://ftp.gnu.org/gnu/glibc/glibc-libidn-%{version}.tar.bz2
+Source9:	http://ftp.gnu.org/gnu/glibc/glibc-libidn-%{version}.tar.bz2.sig
 Source10:	glibc-find-requires.sh
 Source11:	nsswitch.conf
+Source12:	glibc-check.sh
 Source14:       nscd.run
 Source15:       nscd-log.run
 Source16:       nscd.finish
-# Generated from Kernel-RPM
+# kernel-headers tarball generated from mandriva kernel in svn with:
+# make INSTALL_HDR_PATH=[path] headers_install_all
 Source20:       kernel-headers-%{kheaders_ver}.%{kheaders_rel}.tar.bz2
 Source21:       make_versionh.sh
 Source22:       create_asm_headers.sh
@@ -86,53 +92,39 @@ Source22:       create_asm_headers.sh
 # 500-599 - Mandriva
 # 600-699 - Annvix
 # CVS
+# Additional patches from 2.6-branch/trunk
+Patch0:		glibc-cvs-nscd_dont_cache_ttl0.patch
+Patch1:		glibc-cvs-utimensat.patch
+Patch2:		glibc-bz4599.patch
+Patch3:		glibc-bz4125.patch
+Patch4:		glibc-cvs-gcc_init_fini.patch
+Patch5:		glibc-bz4647.patch
+Patch6:		glibc-bz4773.patch
+Patch7:		glibc-_nl_explode_name_segfault_fix.patch
+Patch8:		glibc-bz4776.patch
+Patch9:		glibc-bz4775.patch
+Patch10:	glibc-cvs-popen_bug_fix.patch
+Patch11:	glibc-bz4792.patch
+Patch12:	glibc-cvs-_cs_posix_v6_width_restricted_envs.patch
+Patch13:	glibc-bz4813.patch
+Patch14:	glibc-bz4812.patch
+Patch15:	glibc-bz4772.patch
+Patch16:	glibc-cvs-warning_patrol_fixes.patch
+Patch17:	glibc-cvs-getconf_add_missing_lvl4_cache_linesize.patch
+Patch18:	glibc-cvs-libc_texinfo_update.patch
+Patch19:	glibc-cvs-ix86_rwlock_fixes.patch
+Patch20:	glibc-cvs-gettext_memleak_fixes.patch
+Patch21:	glibc-cvs-strtod_handle_minuszero.patch
+Patch22:	glibc-cvs-ar_SA-dz_BT-LC_TIME-fixes.patch
+Patch23:	glibc-cvs-po_updates.patch
+Patch24:	glibc-cvs-rh250492.patch
 # RH
-Patch100:	glibc-2.5-fedora.patch
-Patch101:	glibc-bz3352.patch
-Patch102:	glibc-bz3369.patch
-Patch103:	glibc-i386-syscall6.patch
-Patch104:	glibc-rh210130.patch
-Patch105:	glibc-rh211116.patch
-Patch106:	glibc-bz3429.patch
-Patch107:	glibc-bz3451.patch
-Patch108:	glibc-nptl_db-dtvp.patch
-Patch109:	glibc-r_debug-r_map.patch
-Patch110:	glibc-rh213656.patch
-Patch111:	glibc-rh214569.patch
-Patch112:	glibc-strxfrm.patch
-Patch113:	glibc-sysconf-intel-core-duo.patch
-Patch114:	glibc-tzfile64.patch
-Patch115:	glibc-bz3320.patch
-Patch116:	glibc-bz3559.patch
-Patch117:	glibc-mai_IN.patch
-Patch118:	glibc-po-update.patch
-Patch119:	glibc-powerpc-cpu-addon-update.patch
-Patch120:	glibc-rh215572.patch
-Patch121:	glibc-bz3632.patch
-Patch122:	glibc-memusage.patch
-Patch123:	glibc-nis+-getenv.patch
-Patch124:	glibc-rh206483.patch
-Patch125:	glibc-rh218276.patch
-Patch126:	glibc-rh218782.patch
-Patch127:	glibc-rh218802.patch
-Patch128:	glibc-strtod.patch
-Patch129:	glibc-bz2337.patch
-Patch130:	glibc-bz3747.patch
-Patch131:	glibc-rh216970.patch
-Patch132:	glibc-rh219107.patch
-Patch133:	glibc-rh219145.patch
-Patch134:	glibc-tst-pselect.patch
-Patch135:	glibc-rh220420.patch
-Patch136:	glibc-rh220658.patch
-Patch137:	glibc-nis-getservbyname.patch
-Patch138:	glibc-rh210748-workaround.patch
 # SuSE
 Patch200:	glibc-2.3.2-suse-resolv-response-length.diff
 # Gentoo
 # ALT/Openwall
 Patch300:	glibc-2.3.3-owl-crypt_freesec.diff
-Patch301:	glibc-2.3.5-openbsd-strlcpy-strlcat.diff
-Patch302:	glibc-2.5-alt-texinfo.patch
+Patch301:	glibc-2.6.1-avx-openbsd-strlcpy-strlcat.patch
 Patch303:	glibc-2.5-alt-pt_chown.patch
 Patch304:	glibc-2.3.5-alt-string2.patch
 Patch305:	glibc-2.5-alt-sys-mount.patch
@@ -149,32 +141,28 @@ Patch315:	glibc-2.5-alt-ldconfig-exit-during-install.patch
 Patch316:	glibc-2.5-alt-i18n.patch
 Patch317:	glibc-2.5-alt-relocate-helper-libs.patch
 Patch318:	glibc-2.5-alt-xtrace-xvt.patch
-Patch319:	glibc-2.5-owl-alt-ldd.patch
+Patch319:	glibc-2.6.1-avx-owl-alt-ldd.patch
 Patch320:	glibc-2.5-alt-ldconfig-search_dir.patch
 Patch321:	glibc-2.5-alt-linux-dl-execstack.patch
 Patch322:	glibc-2.5-alt-assume_kernel.patch
 Patch323:	glibc-2.5-alt-libgd.patch
-Patch324:	glibc-2.5-alt-tmp-scripts.patch
+Patch324:	glibc-2.6.1-avx-alt-tmp-scripts.patch
 Patch325:	glibc-2.5-owl-rpcgen-cpp.patch
 Patch326:	glibc-2.5-owl-alt-resolv-QFIXEDSZ-underfills.patch
-Patch327:	glibc-2.5-owl-alt-sanitize-env.patch
+Patch327:	glibc-2.6.1-avx-owl-alt-sanitize-env.patch
 Patch328:	glibc-2.5-alt-__locale_getenv.patch
 Patch329: 	glibc-2.5-alt-getconf.patch
-Patch330:	glibc-2.5-alt-nscd-path.patch
 Patch331:	glibc-2.5-alt-default_nss.patch
 # Mandriva
-Patch500:       kernel-headers-include-%{kheaders_ver}.%{kheaders_rel}.patch
 Patch501:       kernel-headers-gnu-extensions.patch
-Patch502:	kernel-headers-syscall-mem-clobbers.patch
 Patch503:	glibc-2.2.5-share-locale.patch
 Patch504:	glibc-2.2.2-mdv-fhs.patch
-Patch505:	glibc-2.4.90-mdv-multiarch.patch
-# glibc-2.4.90-DT_GNU_HASH.patch ## requires newer binutils
+Patch505:	glibc-2.6-mdv-multiarch.patch
+Patch506:	glibc-2.6.1-avx-mdv-suse-ldconfig-old-cache.patch
 
 # Annvix
 Patch600:	glibc-2.3.5-avx-relocate_fcrypt.patch
 Patch601:	glibc-2.3.6-avx-increase_BF_FRAME.patch
-Patch602:	glibc-2.4-avx-kernel-headers-audit_support.patch
 Patch603:	glibc-2.4-avx-owl-crypt.patch
 Patch604:	glibc-2.5-avx-nscd.conf.patch
 
@@ -183,7 +171,8 @@ BuildRequires:	patch
 BuildRequires:	gettext
 BuildRequires:	perl
 BuildRequires:	autoconf2.5
-BuildRequires:	binutils >= 2.13.90.0.18-2mdk
+# we need suitable linker for -Wl,--hash-style=both
+BuildRequires:	binutils >= 2.16.91.0.7
 BuildRequires:	gcc >= 4.1.0
 BuildRequires:	gd-devel
 
@@ -193,6 +182,8 @@ Provides:	glibc-localedata
 Provides:	ld.so
 Provides:	ldconfig = %{epoch}:%{version}-%{release}
 Provides:	/sbin/ldconfig
+# the dynamic linker supports DT_GNU_HASH
+Provides:	rtld(GNU_HASH)
 Obsoletes:	ldconfig
 Obsoletes:	libc-static
 Obsoletes:	libc-devel
@@ -317,50 +308,38 @@ This package contains the documentation for %{name}.
 
 
 %prep
-%setup -q -n glibc-%{version}-%{glibcdate} -a 1 -a 3 -a 7 -a 20
+%setup -q -n glibc-%{version} -a 1 -a 3 -a 7 -a 20
+tar xjf %{_sourcedir}/glibc-libidn-%{version}.tar.bz2
+mv glibc-libidn-%{version} libidn
 
 # CVS
+%patch0 -p1 -b .nscd_dont_cache_ttl0
+%patch1 -p1 -b .utimensat
+%patch2 -p1 -b .bz4599
+%patch3 -p1 -b .bz4125
+%patch4 -p1 -b .gcc_init_fini
+%patch5 -p1 -b .bz4647
+%patch6 -p1 -b .bz4773
+%patch7 -p1 -b ._nl_explode_name_segfault_fix
+%patch8 -p1 -b .bz4776
+%patch9 -p1 -b .bz4775
+%patch10 -p1 -b .popen_bug_fix
+%patch11 -p1 -b .bz4792
+%patch12 -p1 -b ._cs_posix_v6_width_restricted_envs
+%patch13 -p1 -b .bz4813
+%patch14 -p1 -b .bz4812
+%patch15 -p1 -b .bz4772
+%patch16 -p1 -b .warning_patrol_fixes
+%patch17 -p1 -b .getconf_add_missing_lvl4_cache_linesize
+%patch18 -p1 -b .libc_texinfo_update
+%patch19 -p1 -b .ix86_rwlock_fixes
+%patch20 -p1 -b .gettext_memleak_fixes
+%patch21 -p1 -b .strtod_handle_minuszero
+%patch22 -p1 -b .ar_SA-dz_BT-LC_TIME-fixes
+%patch23 -p1 -b .po_updates
+%patch24 -p1 -b .rh250492
 
 # RH
-%patch100 -E -p1
-%patch101 -p1
-%patch102 -p1
-%patch103 -p1
-#%patch104 -p1
-%patch105 -p1
-%patch106 -p1
-%patch107 -p1
-%patch108 -p1
-%patch109 -p1
-%patch110 -p1
-%patch111 -p1
-%patch112 -p1
-%patch113 -p1
-%patch114 -p1
-%patch115 -p1
-%patch116 -p1
-%patch117 -p1
-%patch118 -p1
-%patch119 -p1
-%patch120 -p1
-%patch121 -p1
-%patch122 -p1
-%patch123 -p1
-%patch124 -p1
-%patch125 -p1
-%patch126 -p1
-%patch127 -p1
-%patch128 -p1
-%patch129 -p1
-%patch130 -p1
-%patch131 -p1
-%patch132 -p1
-%patch133 -p1
-%patch134 -p1
-%patch135 -p1
-%patch136 -p1
-%patch137 -p1
-%patch138 -p1
 
 # SuSE
 # avoid read buffer overruns in apps using res_* calls
@@ -382,8 +361,6 @@ cp -a crypt_blowfish-%{crypt_bf_ver}/*.[chS] crypt/
 %patch300 -p1
 # Import strlcpy/strlcat from OpenBSD.
 %patch301 -p1
-# Fix texinfo documentation according to ALT info policy.
-%patch302 -p1
 # Do not install pt_chown.
 %patch303 -p1
 # Fix -Wpointer-arith issue in string2.h
@@ -439,8 +416,6 @@ cp -a crypt_blowfish-%{crypt_bf_ver}/*.[chS] crypt/
 %patch328 -p1
 # Introduce _CS_LIBDIR and _CS_SLIB to confstr and getconf.
 %patch329 -p1
-# Change persistent storage paths from /var/db to /var/lib.
-%patch330 -p1
 # Change /etc/default/nss to /etc/nss.conf.
 %patch331 -p1
 
@@ -448,6 +423,7 @@ cp -a crypt_blowfish-%{crypt_bf_ver}/*.[chS] crypt/
 %patch503 -p1 -b .share_locale
 %patch504 -p1 -b .fhs
 %patch505 -p1 -b .multiarch
+%patch506 -p1 -b .ldconfig_old_cache
 
 # Annvix
 %patch600 -p1
@@ -456,10 +432,7 @@ cp -a crypt_blowfish-%{crypt_bf_ver}/*.[chS] crypt/
 
 pushd kernel-headers/
 TARGET=%{_target_cpu}
-%patch500 -p1
 %patch501 -p1
-%patch502 -p1
-%patch602 -p1
 %{expand:%(%__cat %{_sourcedir}/make_versionh.sh)}
 %{expand:%(%__cat %{_sourcedir}/create_asm_headers.sh)}
 popd
@@ -503,6 +476,44 @@ CheckList=$PWD/Check.list
 rm -f $CheckList
 touch $CheckList
 
+# CompareKver <kernel version>
+# function to compare the desired kernel version with running kernel
+# version (package releases not taken into account in comparison). The
+# function returns:
+# -1 = <kernel version> is lesser than current running kernel
+#  0 = <kernel version> is equal to the current running kernel
+#  1 = <kernel version> is greater than current running kernel
+#
+function CompareKver() {
+  v1=`echo $1 | sed 's/\.\?$/./'`
+  v2=`uname -r | sed 's/[^.0-9].*//' | sed 's/\.\?$/./'`
+  n=1
+  s=0
+  while true; do
+    c1=`echo "$v1" | cut -d "." -f $n`
+    c2=`echo "$v2" | cut -d "." -f $n`
+    if [ -z "$c1" -a -z "$c2" ]; then
+      break
+    elif [ -z "$c1" ]; then
+      s=-1
+      break
+    elif [ -z "$c2" ]; then
+      s=1
+      break
+    elif [ "$c1" -gt "$c2" ]; then
+      s=1
+      break
+    elif [ "$c2" -gt "$c1" ]; then
+      s=-1
+      break
+    fi
+    n=$((n + 1))
+  done
+  echo $s
+}
+
+#
+
 #
 # BuildGlibc <arch> [<extra_configure_options>+]
 #
@@ -520,11 +531,14 @@ function BuildGlibc() {
     BuildFlags=""
     case $arch in
         i[3456]86 | athlon)
-            BuildFlags="-march=$arch"
+            BuildFlags="-march=$arch -mtune=generic"
             if [[ "`uname -m`" = "x86_64" ]]; then
                 BuildAltArch="yes"
                 BuildCompFlags="-m32"
             fi
+            ;;
+        x86_64)
+            BuildFlags="-mtune=generic"
             ;;
     esac
 
@@ -550,8 +564,8 @@ function BuildGlibc() {
     BuildFlags="$BuildFlags -U_FORTIFY_SOURCE"
 
     # Extra configure flags
-    %if !%{build_profile}
-        ExtraFlags="$ExtraFlags --disable-profile"
+    %if %{build_profile}
+        ExtraFlags="$ExtraFlags --enable-profile"
     %endif
 
     # NPTL+TLS are now the default
@@ -559,7 +573,7 @@ function BuildGlibc() {
     TlsFlags="--with-tls --with-__thread"
 
     # Add-ons
-    AddOns="$Pthreads"
+    AddOns="$Pthreads,libidn"
     if [[ "$cpu" != "$arch" ]]; then
         BuildFlags="$BuildFlags -mcpu=$cpu"
         ExtraFlags="$ExtraFlags --with-cpu=$cpu"
@@ -604,7 +618,11 @@ function BuildGlibc() {
     # All tests are expected to pass on certain platforms
     case $arch in
         i[3456]86 | athlon | x86_64 | ia64 | ppc | ppc64)
-            check_flags=""
+            if [ "`CompareKver %{check_min_kver}`" -lt 0 ]; then
+                check_flags=""
+            else
+                check_flags="-k"
+            fi
             ;;
         *)
             check_flags="-k"
@@ -757,9 +775,6 @@ install -m 0644 %{_sourcedir}/nsswitch.conf %{buildroot}%{_sysconfdir}/nsswitch.
 # useless
 rm -rf %{buildroot}%{_datadir}/zoneinfo/{posix,right}
 
-# don't include ld.so.cache
-rm -f %{buildroot}%{_sysconfdir}/ld.so.cache
-
 # Create default ldconfig configuration file
 echo "/usr/local/lib" > %{buildroot}%{_sysconfdir}/ld.so.conf
 echo "/usr/X11R6/lib" >> %{buildroot}%{_sysconfdir}/ld.so.conf
@@ -770,6 +785,10 @@ fi
 chmod 0644 %{buildroot}%{_sysconfdir}/ld.so.conf
 echo "include %{_sysconfdir}/ld.so.conf.d/*.conf" >> %{buildroot}%{_sysconfdir}/ld.so.conf
 mkdir -p %{buildroot}%{_sysconfdir}/ld.so.conf.d
+
+# ldconfig cache
+mkdir -p %{buildroot}%{_var}/cache/ldconfig
+touch %{buildroot}%{_var}/cache/ldconfig/aux-cache
 
 # Include %{_libdir}/gconv/gconv-modules.cache
 > %{buildroot}%{_libdir}/gconv/gconv-modules.cache
@@ -799,8 +818,8 @@ popd
 # rquota.x and rquota.h are now provided by quota
 rm -f %{buildroot}%{_includedir}/rpcsvc/rquota.[hx]
 
-# hardline identical locale files together
-gcc -O2 -o build-%{_target_cpu}-linux/hardlink fedora/hardlink.c
+# hardlink identical locale files together
+gcc -O2 -o build-%{_target_cpu}-linux/hardlink redhat/hardlink.c
 build-%{_target_cpu}-linux/hardlink -vc %{buildroot}%{_datadir}/locale
 
 install -m 0644 nscd/nscd.conf %{buildroot}%{_sysconfdir}
@@ -815,6 +834,7 @@ rm -rf %{buildroot}%{_includedir}/netatalk/
 
 # these are in the timezone package
 rm -f %{buildroot}%{_sbindir}/{zdump,zic}
+rm -f %{buildroot}%{_sysconfdir}/localtime
 
 # Build file list for devel package
 find %{buildroot}%{_includedir} -type f -or -type l > devel.filelist
@@ -828,19 +848,6 @@ find %{buildroot}%{_prefix}/lib -maxdepth 1 -name "*.so" -o -name "*.o" | egrep 
 %endif
 perl -pi -e "s|%{buildroot}||" devel.filelist
 
-if [[ "%{_slibdir}" != "%{_libdir}" ]]; then
-    mkdir -p %{buildroot}%{_libdir}
-    mv -f %{buildroot}%{_slibdir}/lib{pcprofile,memusage}.so %{buildroot}%{_libdir}
-    [[ -f %{buildroot}/lib/libmemusage.so ]] &&
-        mv -f %{buildroot}/lib/lib{pcprofile,memusage}.so %{buildroot}%{_prefix}/lib/
-    for i in %{buildroot}%{_prefix}/bin/{xtrace,memusage}; do
-        cp -a $i $i.tmp
-        sed -e 's~=%{_slibdir}/libpcprofile.so~=%{_libdir}/libpcprofile.so~' \
-            -e 's~=%{_slibdir}/libmemusage.so~=%{_libdir}/libmemusage.so~' \
-        $i.tmp > $i
-        chmod 0755 $i; rm -f $i.tmp
-    done
-fi
 
 # Copy Kernel-Headers
 mkdir -p %{buildroot}%{_includedir}
@@ -960,7 +967,6 @@ fi
 %files -f rpm.filelist
 %defattr(-,root,root)
 # configs
-%config(noreplace) %verify(not size md5 mtime) /etc/localtime
 %config(noreplace) %verify(not size md5 mtime) /etc/nsswitch.conf
 %config(noreplace) %verify(not size md5 mtime) /etc/ld.so.conf
 %dir %{_sysconfdir}/ld.so.conf.d
@@ -1022,6 +1028,9 @@ fi
 %defattr(-,root,root)
 /sbin/ldconfig
 %{_mandir}/man8/ldconfig*
+%ghost %{_sysconfdir}/ld.so.cache
+%dir %{_var}/cache/ldconfig
+%ghost %{_var}/cache/ldconfig/aux-cache
 
 
 #
@@ -1030,11 +1039,11 @@ fi
 %files utils
 %defattr(-,root,root)
 %if %{build_biarch}
-%{_prefix}/lib/libmemusage.so
-%{_prefix}/lib/libpcprofile.so
+%{_slibdir32}/libmemusage.so
+%{_slibdir32}/libpcprofile.so
 %endif
-%{_libdir}/libmemusage.so
-%{_libdir}/libpcprofile.so
+%{_slibdir}/libmemusage.so
+%{_slibdir}/libpcprofile.so
 %{_bindir}/memusage
 %{_bindir}/memusagestat
 %{_bindir}/mtrace
@@ -1058,7 +1067,10 @@ fi
 %{_includedir}/linux
 %{_includedir}/asm
 %{_includedir}/asm-generic
+%{_includedir}/mtd
+%{_includedir}/rdma
 %{_includedir}/sound
+%{_includedir}/video
 %ifarch x86_64
 %dir %{_includedir}/asm-i386
 %{_includedir}/asm-i386/*.h
@@ -1162,6 +1174,34 @@ fi
 
 
 %changelog
+* Sat Dec 08 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.1
+- 2.6.1
+- don't include /etc/localtime in the file list; the timezone package
+  will take care of keeping it up to date
+- update to 2.6.22-3mdv kernel headers
+- drop P500, P502, P602 due to the updated headers
+- drop P100-P138, all merged upstream
+- drop P302: don't worry about ALT's info policy
+- drop P330: we use /var/db for nscd storage, not /var/lib
+- drop P500: no longer required
+- drop P602: kernel headers have audit support now
+- rediff P301, P319, P324, P327
+- updated P505 from Mandriva
+- P0-P24: various fixes from upstream (synced to Mandriva 2.6.1-4mdv)
+- P506: patch from Mandriva, from SUSE, rediffed against our 2.6.1, 
+  to speed up ldconfig
+- build libidn support
+- replace S1 with the redhat equivalent
+- increase minimum buildreq version on binutils, to 2.16.91.0.7 so that
+  we have a suitable linker for -Wl,--hash-style=both
+- provide rtld(GNU_HASH)
+- use Mandriva's CompareKver() function to test if we can successfully
+  run tests with the current running kernel
+- add -mtune=generic to the BuildFlags
+- ldconfig's cache is now in /var/cache/ldconfig/
+- libmemusage.so and libpcprofile.so are now in /lib(64)
+- enable %%build_check by default
+
 * Fri Sep 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.5
 - rebuild with new binutils
 
