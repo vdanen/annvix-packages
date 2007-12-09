@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		sqlite
-%define version 	3.5.2
+%define version 	3.5.3
 %define release		%_revrel
 
 %define	major		0
@@ -173,7 +173,7 @@ make doc
 
 
 %check
-make test
+make fulltest
 
 
 %install
@@ -225,10 +225,14 @@ chrpath -d %{buildroot}%{_bindir}/*
 
 %files doc
 %defattr(-,root,root)
-%doc doc/*.html doc/*.gif README
+%doc doc/*.html README
 
 
 %changelog
+* Sun Dec 09 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.5.3
+- 3.5.3
+- run the full test, "make test" is now just a quick test
+
 * Sat Dec 08 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.5.2
 - rebuild against new tcl, ncurses
 
