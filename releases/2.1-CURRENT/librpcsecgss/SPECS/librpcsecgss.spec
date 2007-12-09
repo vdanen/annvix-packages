@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		librpcsecgss
-%define version		0.16
+%define version		0.17
 %define release		%_revrel
 
 %define	major		2
@@ -112,6 +112,9 @@ This package contains the documentation for %{name}.
 
 
 %changelog
+* Sun Dec 09 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.17
+- 0.17
+
 * Mon Sep 24 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.16
 - 0.16
 
