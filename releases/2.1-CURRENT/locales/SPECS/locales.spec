@@ -12,7 +12,7 @@
 %define version		%{glibc_ver}
 %define release		%_revrel
 
-%define glibc_ver	2.5
+%define glibc_ver	2.6.1
 %define glibc_epoch	6
 
 # FIXME: please check on next build those we really need
@@ -254,6 +254,9 @@ fi
 
 
 %changelog
+* Sat Dec 08 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.5
+- glibc 2.6.1
+
 * Sun Nov 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.5
 - drop the prereq
 - clean the spec
