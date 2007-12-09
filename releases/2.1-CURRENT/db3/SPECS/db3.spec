@@ -318,6 +318,9 @@ rm -rf	%{buildroot}/usr/docs \
 
 
 %changelog
+* Sat Dec 08 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.3.11
+- rebuild against new tcl
+
 * Sun Nov 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.3.11
 - rebuild
 
