@@ -332,6 +332,9 @@ rm -f modules-list main.list
 
 
 %changelog
+* Sun Dec 09 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.5.1
+- rebuild against new openssl, ncurses, tcl, tk
+
 * Tue Dec 04 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.5.1
 - rebuild against new sqlite3
 - skip the sqlite test... most of it passes, but it segfaults at the
