@@ -229,6 +229,9 @@ chrpath -d %{buildroot}%{_bindir}/*
 
 
 %changelog
+* Sat Dec 08 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.5.2
+- rebuild against new tcl, ncurses
+
 * Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.5.2
 - 3.5.2
 - drop P0, P1; no longer needed
