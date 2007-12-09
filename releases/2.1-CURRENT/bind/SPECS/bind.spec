@@ -9,10 +9,10 @@
 
 %define revision	$Rev$
 %define name		bind
-%define version		9.4.1
+%define version		9.4.2
 %define release		%_revrel
 
-%define their_version	9.4.1-P1
+%define their_version	9.4.2
 
 Summary:	A DNS (Domain Name System) server
 Name:		%{name}
@@ -35,11 +35,7 @@ Source10:	named.run
 Source11:	named.finish
 Source12:	named-log.run
 #Source13:       rndc.key
-#Patch1:        bind-9.3.2b2-fallback-to-second-server.diff
 Patch1:		bind-9.4.1-fallback-to-second-server.diff
-Patch2:		bind-9.3.0-mdk-libresolv.patch
-#Patch4:        bind-9.2.3-bsdcompat.patch
-Patch4:		bind-9.4.1-bsdcompat.patch
 Patch5:		bind-9.3.0beta2-libtool.diff
 Patch6:		libbind-9.3.1rc1-fix_h_errno.patch
 
@@ -122,8 +118,6 @@ This package contains the documentation for %{name}.
 %setup -q  -n %{name}-%{their_version} -a2 -a3 -a4 -a5
 %patch1 -p1 -b .fallback-to-second-server
 #%patch -p1 -b .overflow
-%patch2 -p1 -b .libresolv
-%patch4 -p1 -b .bsdcompat
 %patch5 -p1 -b .libtool
 %patch6 -p1 -b .fix_h_errno
 
@@ -132,6 +126,7 @@ tar -xjf %{_sourcedir}/dhcp-dynamic-dns-examples.tar.bz2
 
 
 %build
+%serverbuild
 %configure \
     --localstatedir=/var \
     --enable-ipv6 \
@@ -317,6 +312,12 @@ fi
 
 
 %changelog
+* Sat Dec 08 2007 Vincent Danen <vdanen-at-build.annvix.org> 9.4.2
+- 9.4.2
+- use %%serverbuild
+- updated L.ROOT-SERVERS.NET IP address
+- drop P2, P4: obsolete
+
 * Fri Sep 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 9.4.1-P1
 - fix source urls
 - this is actually 9.4.1-P1 which fixes CVE-2007-2925 and CVE-2007-2926
