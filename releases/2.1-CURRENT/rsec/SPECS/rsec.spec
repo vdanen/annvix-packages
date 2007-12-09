@@ -9,16 +9,16 @@
 
 %define revision	$Rev$
 %define name		rsec
-%define version		0.68
+%define version		0.69
 %define release		%_revrel
 
 Summary:	Security Reporting tool for Annvix
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-License:	GPL
+License:	GPLv2
 Group:		System/Base
-URL:		http://svn.annvix.org/cgi-bin/viewvc.cgi/rsec/?root=tools
+URL:		http://svn.annvix.org/cgi-bin/viewvc.cgi/tools/rsec/
 Source0:	%{name}-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -32,6 +32,7 @@ Requires:	gawk
 Requires:	mailx
 Requires:	setup >= 2.2.0-21mdk
 Requires:	iproute2
+Requires:	rkhunter >= 1.3.0
 Conflicts:	passwd < 0.67
 Conflicts:	msec
 
@@ -111,6 +112,11 @@ touch /var/log/security.log && chmod 0640 /var/log/security.log
 %doc AUTHORS COPYING ChangeLog
 
 %changelog
+* Sun Dec 09 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.69
+- 0.69
+- require rkhunter
+- update the URL and license
+
 * Sat Dec 01 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.68
 - 0.68
 - fix the %%install
