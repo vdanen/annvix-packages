@@ -29,6 +29,7 @@ Patch0:		e2fsprogs-1.36-autoconf.patch
 # (gb) strip references to home build dir
 Patch1:		e2fsprogs-1.36-strip-me.patch
 Patch2:		e2fsprogs-1.38-tst_ostype-buildfix.patch
+Patch3:		e2fsprogs-1.39-ubu-CVE-2007-5497.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	texinfo
@@ -98,6 +99,7 @@ This package contains the documentation for %{name}.
 %patch0 -p0
 %patch1 -p1 -b .strip-me
 %patch2 -p1 -b .tst_ostype
+%patch3 -p1 -b .cve-2007-5497
 rm -f configure
 autoconf
 
@@ -271,6 +273,9 @@ chmod +x %{buildroot}%{_bindir}/{mk_cmds,compile_et}
 
 
 %changelog
+* Mon Dec 10 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.39
+- P3: security fix for CVE-2007-5497
+
 * Mon Aug 14 2006 Vincent Danen <vdanen-at-build.annvix.org> 1.39
 - 1.39
 - use a direct-download url and add the gpg sig file
