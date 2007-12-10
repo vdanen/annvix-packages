@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		spamassassin
-%define version		3.2.1
+%define version		3.2.3
 %define release		%_revrel
 
 %define fname		Mail-SpamAssassin
@@ -58,6 +58,7 @@ Requires:	perl(Archive::Tar)
 Requires:	perl(IO::Zlib)
 Requires:	perl(Net::Ident)
 Requires:	perl-libwww-perl
+Requires:	perl-version
 Requires:	gnupg
 Requires(post):	rpm-helper
 Requires(preun): rpm-helper
@@ -228,6 +229,10 @@ echo "-c -m5 -H" >%{buildroot}%{_srvdir}/spamd/env/OPTIONS
 
 
 %changelog
+* Sun Dec 09 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.2.3
+- 3.2.3
+- requires perl-version
+
 * Mon Jul 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.2.1
 - 3.2.1
 - rediffed P0
