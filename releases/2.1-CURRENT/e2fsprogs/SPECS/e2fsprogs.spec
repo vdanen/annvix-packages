@@ -39,8 +39,7 @@ Patch13:	e2fsprogs-1.38-fdr-etcblkid.patch
 Patch14:	e2fsprogs-1.39-fdr-multilib.patch
 Patch15:	e2fsprogs-1.39-fdr-mkinstalldirs.patch
 Patch16:	e2fsprogs-1.40.2-fdr-warning-fixes.patch
-Patch17: 	e2fsprogs-1.40.2-fdr-swapfs.patch
-
+Patch17:	0001-libext2fs-Add-checks-to-prevent-integer-overflows-p.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	texinfo
@@ -120,7 +119,7 @@ This package contains the documentation for %{name}.
 %patch14 -p1 -b .multilib
 %patch15 -p1 -b .mkinstalldirs
 %patch16 -p1 -b .warnings
-%patch17 -p1 -b .swapfs
+%patch17 -p1 -b .cve-2007-5497
 
 rm -f configure
 autoconf
@@ -299,6 +298,9 @@ chmod +x %{buildroot}%{_bindir}/{mk_cmds,compile_et}
 
 
 %changelog
+* Mon Dec 10 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.40.2
+- P17: fixes CVE-2007-5497
+
 * Thu Nov 29 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.40.2
 - 1.40.2
 - tests go in %%check
