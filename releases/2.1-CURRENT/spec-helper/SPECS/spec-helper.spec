@@ -12,8 +12,6 @@
 %define version 	0.27.2
 %define release 	%_revrel
 
-%define distrib		Annvix
-
 Summary:	Tools to ease the creation of rpm packages
 Name:		%{name}
 Version:	%{version}
@@ -22,6 +20,7 @@ License:	GPL
 Group:		Development/Other
 URL:		http://www.mandriva.com
 Source0:	%{name}-%{version}.tar.bz2
+Patch0:		spec-helper-0.27.2-avx-compress_in_usr_local.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildArch:	noarch
@@ -33,7 +32,7 @@ Requires:	python
 Requires:	gettext
 
 %description
-Tools to ease the creation of rpm packages for the %{distrib} distribution.
+Tools to ease the creation of rpm packages for the Annvix distribution.
 Compress man pages using bzip2, strip executables, convert links...
 
 
@@ -47,6 +46,7 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
+%patch0 -p0
 
 
 %install
@@ -70,6 +70,9 @@ make install DESTDIR=%{buildroot} bindir=%{_bindir} rpmmacrosdir=%{_sys_macros_d
 
 
 %changelog
+* Mon Dec 10 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.27.2
+- P0: compress info and manpages found in /usr/local/share/...
+
 * Mon Oct 01 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.27.2
 - 0.27.2
 - drop P0; fixed upstream
