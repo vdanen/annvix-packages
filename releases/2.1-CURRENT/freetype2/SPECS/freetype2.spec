@@ -9,13 +9,12 @@
 
 %define revision	$Rev$
 %define name		freetype2
-%define	version		2.1.10
+%define	version		2.3.5
 %define release		%_revrel
 
 %define major		6
 %define libname		%mklibname freetype %{major}
 %define devname		%mklibname freetype -d
-%define odevname	%mklibname freetype 6 -d
 %define staticdevname	%mklibname freetype -d -s
 
 Summary:	A free and portable TrueType font rendering engine
@@ -25,26 +24,12 @@ Release:	%{release}
 License:	FreeType License/GPL
 Group:		System/Libraries
 URL:		http://www.freetype.org/
-Source0:	ftp://ftp.freetype.org/pub/freetype/freetype2/freetype-%{version}.tar.bz2
-# (fc) 2.1.10-2mdk CVS bug fixes, mostly for embolding
-Patch0:		freetype-2.1.10-cvsfixes.patch
-# (fc) 2.1.10-3mdk put back internal API, used by xorg (Mdk bug #14636) (David Turner)
-Patch1:		freetype-2.1.10-xorgfix.patch
-# (fc) 2.1.10-5mdk fix autofit render setup (CVS)
-Patch2:		freetype-2.1.10-fixautofit.patch
-# (fc) 2.1.10-5mdk fix memleak (CVS)
-Patch3:		freetype-2.1.10-memleak.patch
-Patch4:		freetype-2.1.10-CVE-2006-0747.patch
-Patch5:		freetype-2.1.10-ttkern-dos.patch
-Patch6:		freetype-2.1.10-CVE-2006-2661.patch
-Patch7:		freetype-2.1.10-CVE-2006-1861.patch
-Patch8:		freetype-2.1.10-CVE-2006-1861-2.patch
-Patch9:		freetype-2.1.10-CVE-2006-3467.patch
-Patch10:	freetype-2.1.9-rh-CVE-2007-2754.patch
+Source0:	http://download.savannah.gnu.org/releases/freetype/freetype-%{version}.tar.bz2
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	zlib-devel
 BuildRequires:	multiarch-utils
+BuildRequires:	pkgconfig
 
 %description
 The FreeType2 engine is a free and portable TrueType font rendering engine.
@@ -74,7 +59,7 @@ Group:		Development/C
 Requires:	%{libname} = %{version}
 Requires:	zlib-devel
 Provides:	%{name}-devel = %{version}-%{release}
-Obsoletes:	%{odevname}
+Obsoletes:	%mklibname freetype 6 -d
 
 %description -n %{devname}
 This package is only needed if you intend to develop or compile applications
@@ -96,17 +81,6 @@ developing programs which will use the FreeType2 library.
 
 %prep
 %setup -q -n freetype-%{version}
-%patch0 -p1 -b .cvsfixes
-%patch1 -p1 -b .xorgfix
-%patch2 -p1 -b .fixautofit
-%patch3 -p1 -b .memleak
-%patch4 -p1 -b .cve-2006-0747
-%patch5 -p1 -b .ttkern-dos
-%patch6 -p1 -b .cve-2006-2661
-%patch7 -p1 -b .cve-2006-1861
-%patch8 -p1 -b .cve-2006-1861-2
-%patch9 -p1 -b .cve-2006-3467
-%patch10 -p1 -b .cve-2007-2754
 
 
 %build
@@ -133,7 +107,7 @@ developing programs which will use the FreeType2 library.
 
 %files -n %{libname}
 %defattr(-, root, root)
-%{_libdir}/*.so.*
+%{_libdir}/*.so.%{major}*
 
 %files -n %{devname}
 %defattr(-, root, root)
@@ -156,6 +130,12 @@ developing programs which will use the FreeType2 library.
 
 
 %changelog
+* Sun Dec 09 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.3.5
+- 2.3.5
+- drop all patches, merged upstream
+- update download url
+- buildrequires pkgconfig
+
 * Fri Jul 20 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1.10
 - P10: security fix for CVE-2007-2754
 - implement devel naming policy
