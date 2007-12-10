@@ -48,9 +48,9 @@ Requires:	ipsvd
 Requires:	courier-base = %{version}
 Requires:	courier-authdaemon
 Requires(post):	afterboot
-Requires(post):	rpm-helper
+Requires(post):	rpm-helper >= 0.20
 Requires(postun): afterboot
-Requires(preun): rpm-helper
+Requires(preun): rpm-helper >= 0.20
 Conflicts:	uw-imap
 Conflicts:	bincimap
 Provides:	imap = %{version}
@@ -79,8 +79,8 @@ Group:		System/Servers
 Requires:	courier-base = %{version}
 Requires:	courier-authdaemon
 Requires:	ipsvd
-Requires(post):	rpm-helper
-Requires(preun): rpm-helper
+Requires(post):	rpm-helper >= 0.20
+Requires(preun): rpm-helper >= 0.20
 Provides:	pop = %{version}
 Provides:	pop-server = %{version}
 Provides:	%{name}-pop = %{version}
@@ -114,7 +114,7 @@ chmod 0644 maildir/README.sharedfolders.html imap/README.html
 
 
 %build
-%configure \
+%configure2_5x \
     --enable-unicode \
     --libexec=%{_libdir}/%{name} \
     --datadir=%{_datadir}/%{name} \
@@ -193,13 +193,11 @@ cp -f %{_sourcedir}/courier.pam %{buildroot}%{_sysconfdir}/pam.d/courier-imap
 cp -f %{_sourcedir}/courier.pam %{buildroot}%{_sysconfdir}/pam.d/courier-pop3
 chmod 0644 %{buildroot}%{_sysconfdir}/pam.d/*
 
-# relocate SSL files
-mkdir -p %{buildroot}%{_sysconfdir}/ssl/courier
-mv %{buildroot}%{_sysconfdir}/courier/*.cnf %{buildroot}%{_sysconfdir}/ssl/courier/
+rm -f %{buildroot}%{_sysconfdir}/courier/*.cnf
 
-perl -pi -e 's|TLS_CERTFILE=.*|TLS_CERTFILE=%{_sysconfdir}/ssl/courier/courier-imapd.pem|'\
+perl -pi -e 's|TLS_CERTFILE=.*|TLS_CERTFILE=%{_sysconfdir}/pki/tls/private/courier-imap.pem|'\
     %{buildroot}%{_sysconfdir}/courier/imapd-ssl
-perl -pi -e 's|TLS_CERTFILE=.*|TLS_CERTFILE=%{_sysconfdir}/ssl/courier/courier-pop3d.pem|'\
+perl -pi -e 's|TLS_CERTFILE=.*|TLS_CERTFILE=%{_sysconfdir}/pki/tls/private/courier-pop.pem|'\
     %{buildroot}%{_sysconfdir}/courier/pop3d-ssl
 
 
@@ -208,15 +206,19 @@ perl -pi -e 's|TLS_CERTFILE=.*|TLS_CERTFILE=%{_sysconfdir}/ssl/courier/courier-p
 
 
 %post
-if [ -f %{_datadir}/courier/imapd.pem ]; then
-    mv %{_datadir}/courier/imapd.pem %{_sysconfdir}/ssl/courier/
-    echo "Found and relocated imapd SSL cert to %{_sysconfdir}/ssl/courier"
-fi
+for cert in %{_datadir}/courier/imapd.pem %{_sysconfdir}/ssl/courier/courier-imapd.pem
+do
+    if [ -f $cert ]; then
+        mv $cert %{_sysconfdir}/pki/tls/private/courier-imap.pem
+        echo "Found and relocated imapd SSL cert to %{_sysconfdir}/pki/tls/private/"
+    fi
+done
 test -f %{_sysconfdir}/courier/imapd.rpmnew && %{_libdir}/courier-authlib/sysconftool %{_sysconfdir}/courier/imapd.rpmnew >/dev/null
 test -f %{_sysconfdir}/courier/imapd-ssl.rpmnew && %{_libdir}/courier-authlib/sysconftool %{_sysconfdir}/courier/imapd-ssl.rpmnew >/dev/null
 
 %_post_srv courier-imapd
 %_post_srv courier-imapds
+%create_ssl_certificate courier-imap true
 %_mkafterboot
 
 for i in courier-imapd courier-imapds
@@ -239,15 +241,19 @@ done
 
 
 %post -n courier-pop
-if [ -f %{_datadir}/courier/pop3d.pem ]; then
-    mv %{_datadir}/courier/pop3d.pem %{_sysconfdir}/ssl/courier/
-    echo "Found and relocated pop3d SSL cert to %{_sysconfdir}/ssl/courier"
-fi
+for cert in %{_datadir}/courier/pop3d.pem %{_sysconfdir}/ssl/courier/pop3d.pem
+do
+    if [ -f $cert ]; then
+        mv $cert %{_sysconfdir}/pki/tls/private/courier-pop.pem
+        echo "Found and relocated pop3d SSL cert to %{_sysconfdir}/pki/tls/private/"
+    fi
+done
 test -f %{_sysconfdir}/courier/pop3d.rpmnew && %{_libdir}/courier-authlib/sysconftool %{_sysconfdir}/courier/pop3d.rpmnew >/dev/null
 test -f %{_sysconfdir}/courier/pop3d-ssl.rpmnew && %{_libdir}/courier-authlib/sysconftool %{_sysconfdir}/courier/pop3d-ssl.rpmnew >/dev/null
 
 %_post_srv courier-pop3d
 %_post_srv courier-pop3ds
+%create_ssl_certificate courier-pop true
 
 for i in courier-pop3d courier-pop3ds
 do
@@ -267,7 +273,6 @@ done
 %config(noreplace) %{_sysconfdir}/pam.d/courier-imap
 %config(noreplace) %{_sysconfdir}/courier/imapd
 %config(noreplace) %{_sysconfdir}/courier/imapd-ssl
-%config(noreplace) %{_sysconfdir}/ssl/courier/imapd.cnf
 %{_bindir}/imapd
 %{_sbindir}/imaplogin
 %{_sbindir}/mkimapdcert
@@ -303,7 +308,6 @@ done
 %config(noreplace) %{_sysconfdir}/pam.d/courier-pop3
 %config(noreplace) %{_sysconfdir}/courier/pop3d
 %config(noreplace) %{_sysconfdir}/courier/pop3d-ssl
-%config(noreplace) %{_sysconfdir}/ssl/courier/pop3d.cnf
 %{_bindir}/pop3d
 %{_sbindir}/pop3login
 %{_sbindir}/mkpop3dcert
@@ -366,6 +370,9 @@ done
 
 
 %changelog
+* Sun Dec 09 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.2.1
+- use the rpm-helper ssl certificate scriptlets
+
 * Wed Oct 17 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.2.1
 - 4.2.1
 - build against new courier-authlib
