@@ -9,13 +9,12 @@
 
 %define revision	$Rev$
 %define name		mhash
-%define version		0.9.7.1
+%define version		0.9.9
 %define release		%_revrel
 
 %define major		2
 %define libname 	%mklibname %{name} %{major}
 %define devname		%mklibname %{name} -d
-%define odevname	%mklibname %{name} 2 -d
 
 Summary:	Thread-safe hash library
 Name:		%{name}
@@ -56,7 +55,7 @@ Summary:	Header files and libraries for developing apps which will use mhash
 Group:		Development/C
 Requires:	%{libname} = %{version}
 Provides:	%{name}-devel = %{version}-%{release}
-Obsoletes:	%{odevname}
+Obsoletes:	%mklibname %{name} 2 -d
 
 %description -n	%{devname}
 The mhash-devel package contains the header files and libraries needed
@@ -120,10 +119,13 @@ install -m 0644 include/mutils/*.h %{buildroot}%{_includedir}/mutils/
 
 %files doc
 %defattr(-, root, root)
-%doc AUTHORS COPYING INSTALL ChangeLog NEWS README TODO doc/*.txt doc/*.c doc/skid2* 
+%doc AUTHORS COPYING INSTALL ChangeLog NEWS README TODO doc/*.c doc/skid2* 
 
 
 %changelog
+* Sun Dec 09 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.9.9
+- 0.9.9
+
 * Tue Aug 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.9.7.1
 - implement devel naming policy
 - implement library provides policy
