@@ -30,6 +30,9 @@ Patch0:		openntpd-20040824p-avx-ntpuser.patch
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	openssl-static-devel
 BuildRequires:	autoconf2.5
+BuildRequires:	bison
+BuildRequires:	byacc
+BuildRequires:	groff-for-man
 
 Requires:	openssl
 Requires:	execline
@@ -119,6 +122,9 @@ install -m 0640 %{_sourcedir}/usr.sbin.ntpd.profile %{buildroot}%{_profiledir}/u
 
 
 %changelog
+* Tue Dec 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.9p1
+- fix buildrequires
+
 * Tue Jun 26 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.9p1
 - drop %%_touch_aa_reload; no longer needed
 
