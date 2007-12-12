@@ -1,0 +1,11 @@
+--- util-linux-2.12a/login-utils/login.c.biarch-utmp	2004-03-04 20:35:34.000000000 +0100
++++ util-linux-2.12a/login-utils/login.c	2004-07-19 18:27:26.031658627 +0200
+@@ -1377,7 +1393,7 @@
+ 	    lseek(fd, (off_t)pwd->pw_uid * sizeof(ll), SEEK_SET);
+ 	}
+ 	memset((char *)&ll, 0, sizeof(ll));
+-	time(&ll.ll_time);
++	ll.ll_time = time(NULL);
+ 	xstrncpy(ll.ll_line, tty_name, sizeof(ll.ll_line));
+ 	if (hostname)
+ 	    xstrncpy(ll.ll_host, hostname, sizeof(ll.ll_host));

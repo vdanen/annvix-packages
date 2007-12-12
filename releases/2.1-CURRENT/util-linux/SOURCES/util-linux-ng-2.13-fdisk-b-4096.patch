@@ -1,0 +1,11 @@
+--- util-linux-ng-2.13-rc3/fdisk/fdisk.c.kzak	2007-07-16 23:15:33.000000000 +0200
++++ util-linux-ng-2.13-rc3/fdisk/fdisk.c	2007-08-13 12:15:42.000000000 +0200
+@@ -2588,7 +2588,7 @@
+ 			*/
+ 			sector_size = atoi(optarg);
+ 			if (sector_size != 512 && sector_size != 1024 &&
+-			    sector_size != 2048)
++			    sector_size != 2048 && sector_size != 4096)
+ 				fatal(usage);
+ 			sector_offset = 2;
+ 			user_set_sector_size = 1;

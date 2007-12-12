@@ -1,0 +1,11 @@
+--- util-linux-2.13-pre7/mount/mount.c.users	2007-07-30 14:38:23.000000000 +0200
++++ util-linux-2.13-pre7/mount/mount.c	2007-07-30 14:39:55.000000000 +0200
+@@ -106,7 +106,7 @@ struct opt_map {
+ #define MS_NOSYS	(MS_NOAUTO|MS_USERS|MS_USER|MS_COMMENT|MS_ENCRYPT|MS_LOOP|MS_PAMCONSOLE)
+ 
+ /* Options that we keep from appearing in the options field in the mtab.  */
+-#define MS_NOMTAB	(MS_REMOUNT|MS_NOAUTO|MS_USERS|MS_USER|MS_PAMCONSOLE)
++#define MS_NOMTAB	(MS_REMOUNT|MS_NOAUTO|MS_USER|MS_PAMCONSOLE)
+ 
+ /* Options that we make ordinary users have by default.  */
+ #define MS_SECURE	(MS_NOEXEC|MS_NOSUID|MS_NODEV)

@@ -8,8 +8,8 @@
 # $Id$
 
 %define revision	$Rev$
-%define name		util-linux
-%define version		2.12r
+%define name		util-linux-ng
+%define version		2.13.0.1
 %define release		%_revrel
 
 Summary:	A collection of basic system utilities
@@ -18,106 +18,84 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		System/Base
-URL:		ftp://ftp.kernel.org/pub/linux/utils/util-linux/
-Source0:	ftp://ftp.kernel.org/pub/linux/utils/util-linux/%{name}-%{version}.tar.bz2
+URL:		http://userweb.kernel.org/~kzak/util-linux-ng/
+Source0:	ftp://ftp.kernel.org/pub/linux/utils/%{name}/v2.13/%{name}-%{version}.tar.bz2
 Source1:	login.pamd
-Source2:	chfn.pamd
-Source3:	chsh.pamd
-Source6:	mkcramfs.c
-Source7:	cramfs.h
+Source2:	remote.pamd
 Source8:	nologin.c
 Source9:	nologin.8
-Source10:	kbdrate.tar.bz2
-# Change default config to switch mandrake config
-Patch0:		util-linux-2.12q-mdkconf.patch
-# We don't want to compile chkdupexe
-Patch1:		util-linux-2.11o-nochkdupexe.patch
-# limit the length of gecos size (security problem)
-Patch2:		util-linux-2.11a-gecossize.patch
-# the group of the tty program is root (instead of tty)
-Patch21:	util-linux-2.9v-nonroot.patch
-# Make more use xstrncpy and be build always (we have TERMCAP)
-Patch27:	util-linux-2.11t-moretc.patch
-# fdisk: use 16 partitions as maximun
+#
+# 0-29 RedHat/Fedora
+#
+# 91174 - Patch to enabled remote service for login/pam
+Patch0:		util-linux-ng-2.13-login-pamstart.patch
+# RHEL/Fedora specific mount options
+Patch1:		util-linux-ng-2.13-mount-managed.patch
+Patch2:		util-linux-ng-2.13-mount-pamconsole.patch
+# add note about ATAPI IDE floppy to fdformat.8
+Patch3:		util-linux-ng-2.13-fdformat-man-ide.patch
+# 151635 - makeing /var/log/lastlog
+Patch4:		util-linux-ng-2.13-login-lastlog.patch
+# 199745 - Non-existant simpleinit(8) mentioned in ctrlaltdel(8)
+Patch5:		util-linux-ng-2.13-ctrlaltdel-man.patch
+# 218915 - fdisk -b 4K (move to upstream?)
+Patch6:		util-linux-ng-2.13-fdisk-b-4096.patch
+# 231192 - ipcs is not printing correct values on pLinux
+Patch7:		util-linux-ng-2.13-ipcs-32bit.patch
+# 174111 - mount allows loopback devices to be mounted more than once to the
+#	same mount point (move to upstream?)
+Patch8:		util-linux-ng-2.13-mount-twiceloop.patch
+# 165863 - swsusp swaps should be reinitialized
+Patch9:		util-linux-ng-2.13-swapon-swsuspend.patch
+# remove partitions
+Patch10:	util-linux-ng-2.13-blockdev-rmpart.patch
+#
+# 30-49 Mandriva
+#
 # misc documentation fixes for man pages
-Patch70:	util-linux-2.12q-miscfixes.patch
-# lot of cleanups for mkcramfs
-Patch100:	mkcramfs.patch
-# Make mkcramfs quieter, use --verbose for old behaviour
-Patch101:	mkcramfs-quiet.patch
-#
-########### START UNSUBMITTED
-#
-Patch105:	util-linux-2.12q-varargs.patch
-Patch106:	util-linux-2.12q-swaponsymlink-57301.patch
-Patch107:	util-linux-2.11x-procpartitions-37436.patch
-Patch109:	util-linux-2.11f-rawman.patch 
-Patch111:	util-linux-2.11t-mkfsman.patch
-Patch114:	util-linux-2.11t-dumboctal.patch
-Patch115:	util-linux-2.12q-fix-ioctl.patch
-Patch116:	util-linux-2.12q-autodav.patch
-Patch117:	util-linux-2.12-kbdrate-period-fix.patch
-Patch120:	util-linux-2.12q-compilation.patch
-########### END UNSUBMITTED.
-########
-# Allow raw(8) to bind raw devices whose device nodes do not yet exist
-Patch160:	raw-handle-nonpresent-devs.patch
-# Mount patches
-Patch201:	util-linux-2.11m-nolock-docs.patch
-Patch204:	util-linux-2.12q-2gb.patch
-Patch206:	util-linux-2.11m-kudzu.patch
-Patch207:	util-linux-2.12q-swapon.patch
-Patch209:	util-linux-2.12q-swapoff.patch
-Patch210:	util-linux-2.12-largefile.patch
-Patch211:	util-linux-2.12q-user_label_umount.patch
-Patch213:	util-linux-2.12q-loop-AES-v3.0c.patch
-Patch214:	util-linux-2.12q-set-as-encrypted.patch
-Patch215:	util-linux-2.12q-swapon-skip-encrypted.patch
-Patch216:	util-linux-2.12q-nfsmount.patch
-# remove mode= from udf mounts (architecture done so that more may come)
-Patch218:	util-linux-2.12q-mount-remove-silly-options-in-auto.patch
-Patch219:	util-linux-2.12-lower-LOOP_PASSWORD_MIN_LENGTH-for-AES.patch
-# load cryptoloop and cypher modules when use cryptoapi
-Patch220:	util-linux-2.12a-cryptoapi-load-module.patch
-# (fc) 2.12a-11mdk add support for pamconsole mount option (fedora)
-Patch221:	util-linux-2.12q-pamconsole.patch
-# (fc) 2.12a-11mdk add support for pamconsole mount option (fedora)
-Patch222:	util-linux-2.12a-managed.patch
-# nfs4 support (http://www.citi.umich.edu/projects/nfsv4/linux/util-linux-patches/2.12-3/)
-Patch223:	util-linux-2.12q-nfs4.patch
-# fortify fixes
-Patch224:	util-linux-2.12q-fortify.patch
-#
-# Mandriva Specific patches
-# fix compilation related with miscfixes
-Patch1000:	util-linux-2.11h-fix-compilation.patch
+Patch30:	util-linux-2.12q-miscfixes.patch
+Patch31:	util-linux-2.11t-mkfsman.patch
+Patch32:	util-linux-2.11t-dumboctal.patch
+Patch33:	util-linux-2.12q-fix-ioctl.patch
+Patch34:	util-linux-2.12q-autodav.patch
 # Added r & w options to chfn (lsb mandate)
-Patch1202:	util-linux-2.11o-chfn-lsb-usergroups.patch
-# handle biarch struct utmp[x]
-Patch1206:	util-linux-2.12a-biarch-utmp.patch
+Patch35:	util-linux-2.11o-chfn-lsb-usergroups.patch
+# handle biarch struct ll_time
+Patch36:	util-linux-2.13-pre7-biarch-ll_time.patch
 # do not hide users option in mtab
-Patch1207:	util-linux-2.12a-users.patch
-# use glibc syscall() to use syscalls, ban use of <asm/unistd.h>
-Patch1208:	util-linux-2.12q-llseek-syscall.patch
-# Try to detect if the cdrom we have is a cd-extra (track audio and later track data) not
-Patch1210:	util-linux-2.12q-mount_guess_fs_cdextra.patch
-# (blino) don't fail when using labels and -e option
-Patch1211:	util-linux-2.12r-mdk-label.patch
-Patch1212:	util-linux-2.12a-CVE-2006-7108.patch
-Patch1213:	util-linux-git-CVE-2007-5191.patch
-
-# Annvix patches
-Patch1250:	util-linux-2.12a-avx-noselinux.patch
+Patch37:	util-linux-2.13-pre7-users.patch
+# fdisk: reread partition table on block devices only
+Patch38:	util-linux-2.12r-rereadpt.patch
+# remove mode= from udf mounts (architecture done so that more may come)
+Patch39:	util-linux-ng-2.13-mount-remove-silly-options-in-auto.patch
+#
+# 50-59 crypto patches
+# loop-AES patch rediffed from Debian port to util-linux-ng
+# (conflicts with mount-twiceloop and swapon-swsuspend)
+# svn://svn.debian.org/pkg-loop-aes/trunk/loop-aes-utils/debian/patches/20loop-AES.dpatch
+Patch50:	util-linux-ng-2.13-loopAES.patch
+Patch51:	util-linux-2.12q-swapon-skip-encrypted.patch
+Patch52:	util-linux-2.12-lower-LOOP_PASSWORD_MIN_LENGTH-for-AES.patch
+# load cryptoloop and cypher modules when use cryptoapi
+Patch53:	util-linux-2.12a-cryptoapi-load-module.patch
+Patch54:	util-linux-ng-2.13-rc3-set-as-encrypted.patch
+#
+# 60+ submitted upstream
+#
+Patch60:	util-linux-ng-2.13-locale.patch
+Patch61:	util-linux-ng-2.13-mount-no-canonicalize-remote-fs.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	gcc
 BuildRequires:	sed
-BuildRequires:	pam-devel
 BuildRequires:	ncurses-devel
 BuildRequires:	termcap-devel
 BuildRequires:	texinfo
 BuildRequires:	slang-devel
 BuildRequires:	zlib-devel
+BuildRequires:	e2fsprogs-devel
+BuildRequires:	gettext-devel
+BuildRequires:	audit-devel
 
 Requires:	pam >= 0.66-4
 Requires:	shadow-utils >= 20000902-5
@@ -127,39 +105,23 @@ Requires(pre):	diffutils
 Requires(pre):	coreutils
 Requires(post):	info-install
 Requires(preun): info-install
+Obsoletes:	mount < 2.13
+Obsoletes:	losetup < 2.13
+Obsoletes:	linux32
+Obsoletes:	setarch <= 2.0
+Obsoletes:	util-linux < 2.13
+Provides:	mount = %{version}-%{release}
+Provides:	losetup = %{version}-%{release}
+Provides:	linux32 = %{version}-%{release}
+Provides:	setarch = %{version}-%{release}
+Provides:	util-linux = %{version}-%{release}
+
 
 %description
 The util-linux package contains a large variety of low-level system
 utilities that are necessary for a Linux system to function.  Among
 others, Util-linux contains the fdisk configuration tool and the
 login program.
-
-
-%package -n mount
-Summary:	Programs for mounting and unmounting filesystems
-Group:		System/Base
-
-%description -n mount
-The mount package contains the mount, umount, swapon and swapoff
-programs.  Accessible files on your system are arranged in one big
-tree or hierarchy.  These files can be spread out over several
-devices. The mount command attaches a filesystem on some device to
-your system's file tree.  The umount command detaches a filesystem
-from the tree.  Swapon and swapoff, respectively, specify and disable
-devices and files for paging and swapping.
-
-
-%package -n losetup
-Summary:	Programs for setting up and configuring loopback devices
-Group:		System/Configuration
-
-%description -n losetup
-Linux supports a special block device called the loop device, which
-maps a normal file onto a virtual block device.  This allows for the
-file to be used as a "virtual file system" inside another file.
-Losetup is used to associate loop devices with regular files or block
-devices, to detach loop devices and to query the status of a loop
-device.
 
 
 %package doc
@@ -171,94 +133,80 @@ This package contains the documentation for %{name}.
 
 
 %prep
-%setup -q -a 10 0n %{name}-%{version}
-
-%patch0 -p1 -b .rhconfig
-%patch1 -p1 -b .nochkdupexe
-%patch2 -p1 -b .gecos
-
-%patch21 -p1 -b .nonroot
-
-%patch27 -p1 -b .moretc
-
-%patch70 -p1 -b .miscfixes
-
-# mkcramfs
-cp %{_sourcedir}/cramfs.h %{_sourcedir}/mkcramfs.c .
-%patch100 -p1 -b .mkcramfs
-%patch101 -p1 -b .quiet
+%setup -q
 
 # nologin
 cp %{_sourcedir}/nologin.c %{_sourcedir}/nologin.8 .
  
-%patch1000 -p1 -b .fixes
-
-#LSB (sb)
-%patch1202 -p1
-
-%patch1206 -p1 -b .biarch-utmp
-%patch1207 -p1 -b .users
-%patch1208 -p1 -b .llseek-syscall
-
-%patch160 -p1
-
-# mount patches
-%patch201 -p1 -b .docbug
-%patch204 -p1 -b .2gb
-%patch206 -p1 -b .kudzu
-%patch207 -p1 -b .swapon
-%patch209 -p1 -b .swapoff
-%patch210 -p1 -b .largefile
-%patch211 -p1 -b .userumount
-%patch213 -p1 -b .loopAES
-%patch214 -p1 -b .encrypted
-%patch215 -p1 -b .swapon-encrypted
-%patch223 -p1 -b .nfs4
-%patch216 -p1 -b .nfsmount
-%patch218 -p1 -b .silly
-%patch219 -p1 -b .loopAES-password
-%patch220 -p1 -b .load-module
-
-%patch221 -p1 -b .pamconsole
-%patch222 -p1 -b .managed
-%patch224 -p1 -b .fortify
-
-%patch105 -p1 -b .varargs
-%patch106 -p1 -b .swaponsymlink
-%patch107 -p1 -b .procpartitions
-%patch109 -p1 -b .rawman
-%patch111 -p1 -b .mkfsman
-                                                               
-# Third time's the charm
-%patch114 -p1 -b .dumboctal
-%patch115 -p1 -b .fix-ioctl
-%patch116 -p1 -b .autodav
-%patch117 -p1 -b .kbdrate
-%patch120 -p1 -b .comp
-%patch1210 -p1 -b .cdextra
-%patch1211 -p1 -b .label
-%patch1212 -p1 -b .cve-2006-7108
-%patch1213 -p1 -b .cve-2007-5191
-
-%patch1250 -p0 -b .noselinux
-
-# USRLIB_DIR is %{_libdir}
-perl -pi -e "s|(USRLIB_DIR)\s*=\s*(.*)|\1=%{_libdir}|" ./MCONFIG
+#
+# RedHat/Fedora
+#
+%patch0 -p1
+%patch1 -p1
+%patch2 -p1
+%patch3 -p1
+%patch4 -p1
+%patch5 -p1
+%patch6 -p1
+%patch7 -p1
+%patch8 -p1
+%patch9 -p1
+%patch10 -p1
+#
+# Mandriva 
+#
+%patch30 -p1 -b .miscfixes
+%patch31 -p1 -b .mkfsman                                                      
+%patch32 -p1 -b .dumboctal
+%patch33 -p1 -b .fix-ioctl
+%patch34 -p1 -b .autodav
+%patch35 -p1 -b .lsb
+%patch36 -p1 -b .biarch-ll_time
+%patch37 -p1 -b .users
+%patch38 -p1 -b .rereadpt
+%patch39 -p1 -b .silly
+#
+# crypto support
+#
+%patch50 -p1 -b .loopAES
+%patch51 -p1 -b .swapon-encrypted
+%patch52 -p1 -b .loopAES-password
+%patch53 -p1 -b .load-module
+%patch54 -p1 -b .set-as-encrypted
+#
+# submitted upstream
+#
+%patch60 -p1 -b .locale
+%patch61 -p1 -b .no-canonicalize-remote-fs
 
 
 %build
+%serverbuild
 unset LINGUAS || :
 
-%configure
-make "OPT=%{optflags} -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE" \
-	HAVE_PIVOT_ROOT=yes %{?_smp_mflags}
-make CFLAGS="%{optflags}" -C partx %{?_smp_mflags}
+# rebuild build system for loop-AES patch
+./autogen.sh
 
-pushd rescuept
-    cc %{optflags} -o rescuept rescuept.c
-popd
+# CFLAGS
+%define make_cflags -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64
 
-gcc %{optflags} -o mkcramfs mkcramfs.c -I. -lz
+# (blino) build with -fno-ivopts to workaround a gcc 4.2 optimization bug:
+#         when mount/mount.c is optimized, guess_fstype_and_mount()
+#         is passed a char *types instead of char **types
+export CFLAGS="%{make_cflags} %{optflags} -fno-ivopts"
+%configure \
+    --bindir=/bin \
+    --sbindir=/sbin \
+    --disable-wall \
+    --enable-partx \
+    --enable-login-utils \
+    --enable-kill \
+    --enable-write \
+    --enable-arch \
+    --enable-raw \
+    --disable-makeinstall-chown
+
+make %{?_smp_mflags}
 
 gcc %{optflags} -o nologin nologin.c
 
@@ -278,27 +226,20 @@ mkdir -p %{buildroot}%{_sysconfdir}/{pam.d,security/console.apps}
 
 make install DESTDIR=%{buildroot} MANDIR=%{buildroot}/%{_mandir} INFODIR=%{buildroot}/%{_infodir}
 
-install -m 0755 mount/pivot_root %{buildroot}/sbin
-install -m 0644 mount/pivot_root.8 %{buildroot}%{_mandir}/man8
-install -m 0755 rescuept/rescuept %{buildroot}/sbin
-ln -f rescuept/README rescuept/README.rescuept
-install -m 0755 mkcramfs %{buildroot}/usr/bin
 install -m 0755 nologin %{buildroot}/sbin
 install -m 0644 nologin.8 %{buildroot}%{_mandir}/man8
-echo '.so man8/raw.8' > %{buildroot}%{_mandir}/man8/rawdevices.8
 
-install -m 0755 partx/{addpart,delpart,partx} %{buildroot}/sbin
+echo '.so man8/raw.8' > %{buildroot}%{_mandir}/man8/rawdevices.8
 
 # Correct mail spool path.
 perl -pi -e 's,/usr/spool/mail,/var/spool/mail,' %{buildroot}%{_mandir}/man1/login.1
 
 pushd %{buildroot}%{_sysconfdir}/pam.d
     install -m 0644 %{_sourcedir}/login.pamd login
+    install -m 0644 %{_sourcedir}/remote.pamd remote
 popd
 
-# We do not want dependencies on csh
-chmod 0644 %{buildroot}%{_datadir}/misc/getopt/*
-
+# this has dependencies on stuff in /usr
 mv %{buildroot}{/sbin/,/usr/sbin}/cfdisk
 
 ln -sf ../../sbin/hwclock %{buildroot}/usr/sbin/hwclock
@@ -307,19 +248,64 @@ ln -sf hwclock %{buildroot}/sbin/clock
 
 # move flock and logger in /bin, so they can be used if /usr isn't mounted
 for p in flock logger; do
-	mv %{buildroot}{%{_bindir},/bin}/$p
-	ln -sf ../../bin/$p %{buildroot}%{_bindir}/$p
+    mv %{buildroot}{%{_bindir},/bin}/${p}
+    ln -sf ../../bin/${p} %{buildroot}%{_bindir}/${p}
 done
 
-# remove stuff we don't want
+# remove stuff we don't want; vipw/vigr/chfn/chsh are in shadow-utils
+# and need to stay there due to tcb integration
 rm -f %{buildroot}%{_mandir}/man1/{line,newgrp,pg,chfn,chsh}.1*
 rm -f %{buildroot}%{_mandir}/man8/{vipw,vigr}.8*
 rm -f %{buildroot}%{_bindir}/{line,newgrp,pg,chfn,chsh}
 rm -f %{buildroot}%{_sbindir}/{vipw,vigr}
-rm -f %{buildroot}/sbin/sln
+
+
+# deprecated commands
+for p in /sbin/fsck.minix /sbin/mkfs.{bfs,minix} /usr/bin/chkdupexe %{_bindir}/scriptreplay; do
+    rm -f %{buildroot}${p}
+done
+
+# deprecated man pages
+for p in man1/chkdupexe.1 man8/fsck.minix.8 man8/mkfs.minix.8 man8/mkfs.bfs.8 man1/scriptreplay.1; do
+    rm -rf %{buildroot}%{_mandir}/${p}*
+done
+
+# we install getopt/getopt-*.{bash,tcsh} as doc files
+# note: versions <=2.12 use path "%{_datadir}/misc/getopt/*"
+chmod 644 getopt/getopt-*.{bash,tcsh}
+rm -f %{buildroot}%{_datadir}/getopt/*
+rmdir %{buildroot}%{_datadir}/getopt
+
+# /usr/sbin -> /sbin
+for p in addpart delpart partx; do
+    if [ -e %{buildroot}/usr/sbin/${p} ]; then
+        mv %{buildroot}/usr/sbin/${p} %{buildroot}/sbin/${p}
+    fi
+done
+
+# /usr/bin -> /bin
+for p in taskset; do
+    if [ -e %{buildroot}/usr/bin/${p} ]; then
+        mv %{buildroot}/usr/bin/${p} %{buildroot}/bin/${p}
+    fi
+done
+
+# /sbin -> /bin
+for p in raw; do
+    if [ -e %{buildroot}/sbin/${p} ]; then
+        mv %{buildroot}/sbin/${p} %{buildroot}/bin/${p}
+    fi
+done
 
 %kill_lang %{name}
 %find_lang %{name}
+
+mv -f %{name}.lang %{name}.files
+
+# create list of setarch(8) symlinks
+find  %{buildroot}%{_bindir}/ -regextype posix-egrep -type l \
+    -regex ".*(linux32|linux64|s390|s390x|i386|ppc|ppc64|ppc32|sparc|sparc64|sparc32|sparc32bash|mips|mips64|mips32|ia64|x86_64)$" \
+    -printf "%{_bindir}/%f\n" >> %{name}.files
 
 
 %clean
@@ -334,10 +320,10 @@ rm -f %{buildroot}/sbin/sln
 %_remove_install_info ipc.info
 
 
-%files -f %{name}.lang
+%files -f %{name}.files
 %defattr(-,root,root)
-%config(noreplace) %{_sysconfdir}/fdprm
 %config(noreplace) %{_sysconfdir}/pam.d/login
+%config(noreplace) %{_sysconfdir}/pam.d/remote
 /bin/arch
 /bin/dmesg
 /bin/flock
@@ -345,28 +331,12 @@ rm -f %{buildroot}/sbin/sln
 /bin/logger
 %attr(0755,root,root) /bin/login
 /bin/more
-/sbin/addpart
-/sbin/agetty
-/sbin/blockdev
-/sbin/clock
-/sbin/ctrlaltdel
-/sbin/delpart
-/sbin/elvtune
-/sbin/fdisk
-/sbin/fsck.cramfs
-/sbin/fsck.minix
-/sbin/hwclock
-/sbin/mkfs
-/sbin/mkfs.bfs
-/sbin/mkfs.cramfs
-/sbin/mkfs.minix
-/sbin/mkswap
-/sbin/nologin
-/sbin/partx
-/sbin/pivot_root
-/sbin/rescuept
-/sbin/sfdisk
+%attr(0700,root,root) /bin/mount
+/bin/raw
+/bin/taskset
+%attr(0700,root,root) /bin/umount
 %{_bindir}/cal
+%{_bindir}/chrt
 %{_bindir}/col
 %{_bindir}/colcrt
 %{_bindir}/colrm
@@ -377,78 +347,129 @@ rm -f %{buildroot}/sbin/sln
 %{_bindir}/flock
 %{_bindir}/getopt
 %{_bindir}/hexdump
+%{_bindir}/ionice
 %{_bindir}/ipcrm
 %{_bindir}/ipcs
 %{_bindir}/isosize
 %{_bindir}/logger
 %{_bindir}/look
 %{_bindir}/mcookie
-%{_bindir}/mkcramfs
 %{_bindir}/namei
-%{_bindir}/raw
 %{_bindir}/rename
 %{_bindir}/renice
 %{_bindir}/rev
 %{_bindir}/script
-%{_bindir}/setfdprm
+%{_bindir}/setarch
 %{_bindir}/setsid
 %{_bindir}/setterm
 %{_bindir}/tailf
 %{_bindir}/ul
 %{_bindir}/whereis
 %attr(0755,root,tty) %{_bindir}/write
+/sbin/addpart
+/sbin/agetty
+/sbin/blockdev
+/sbin/clock
+/sbin/ctrlaltdel
+/sbin/delpart
+/sbin/fdisk
+/sbin/fsck.cramfs
+/sbin/hwclock
+/sbin/losetup
+/sbin/mkfs
+/sbin/mkfs.cramfs
+/sbin/mkswap
+/sbin/nologin
+/sbin/partx
+/sbin/pivot_root
+/sbin/sfdisk
+/sbin/swapoff
+/sbin/swapon
 %{_sbindir}/cfdisk
 %{_sbindir}/clock
 %{_sbindir}/hwclock
 %{_sbindir}/readprofile
+%{_sbindir}/rtcwake
 %{_sbindir}/tunelp
-%ifarch %ix86
-%{_sbindir}/rdev
-%{_sbindir}/ramsize
-%{_sbindir}/rootflags
-%{_sbindir}/vidmode 
-%endif
-
-%{_mandir}/man1/*.1*
-%{_mandir}/man8/*.8*
-%exclude %{_mandir}/man8/mount.8*
-%exclude %{_mandir}/man8/swapoff.8*
-%exclude %{_mandir}/man8/swapon.8* 
-%exclude %{_mandir}/man8/umount.8* 
-%exclude %{_mandir}/man8/losetup.8*
-# XXX: sln.8 and tunelp.8 should be in glibc
-
-%{_infodir}/ipc.info*
-%{_datadir}/misc/getopt
-
-
-%files -n mount
-%defattr(-,root,root)
-%attr(0700,root,root) /bin/mount
-%attr(0700,root,root) /bin/umount
-/sbin/swapon
-/sbin/swapoff
+%{_mandir}/man1/arch.1*
+%{_mandir}/man1/cal.1*
+%{_mandir}/man1/chrt.1*
+%{_mandir}/man1/col.1*
+%{_mandir}/man1/colcrt.1*
+%{_mandir}/man1/colrm.1*
+%{_mandir}/man1/column.1*
+%{_mandir}/man1/ddate.1*
+%{_mandir}/man1/dmesg.1*
+%{_mandir}/man1/flock.1*
+%{_mandir}/man1/getopt.1*
+%{_mandir}/man1/hexdump.1*
+%{_mandir}/man1/ionice.1*
+%{_mandir}/man1/ipcrm.1*
+%{_mandir}/man1/ipcs.1*
+%{_mandir}/man1/kill.1*
+%{_mandir}/man1/logger.1*
+%{_mandir}/man1/login.1*
+%{_mandir}/man1/look.1*
+%{_mandir}/man1/mcookie.1*
+%{_mandir}/man1/more.1*
+%{_mandir}/man1/namei.1*
+%{_mandir}/man1/readprofile.1*
+%{_mandir}/man1/rename.1*
+%{_mandir}/man1/renice.1*
+%{_mandir}/man1/rev.1*
+%{_mandir}/man1/script.1*
+%{_mandir}/man1/setsid.1*
+%{_mandir}/man1/setterm.1*
+%{_mandir}/man1/tailf.1*
+%{_mandir}/man1/taskset.1*
+%{_mandir}/man1/ul.1*
+%{_mandir}/man1/whereis.1*
+%{_mandir}/man1/write.1*
 %{_mandir}/man5/fstab.5*
-%{_mandir}/man5/nfs.5*
+%{_mandir}/man8/addpart.8*
+%{_mandir}/man8/agetty.8*
+%{_mandir}/man8/blockdev.8*
+%{_mandir}/man8/cfdisk.8*
+%{_mandir}/man8/ctrlaltdel.8*
+%{_mandir}/man8/cytune.8*
+%{_mandir}/man8/delpart.8*
+%{_mandir}/man8/fdformat.8*
+%{_mandir}/man8/fdisk.8*
+%{_mandir}/man8/hwclock.8*
+%{_mandir}/man8/isosize.8*
+%{_mandir}/man8/losetup.8*
+%{_mandir}/man8/mkfs.8*
+%{_mandir}/man8/mkswap.8*
 %{_mandir}/man8/mount.8*
+%{_mandir}/man8/nologin.8*
+%{_mandir}/man8/partx.8*
+%{_mandir}/man8/pivot_root.8*
+%{_mandir}/man8/raw.8*
+%{_mandir}/man8/rawdevices.8*
+%{_mandir}/man8/rtcwake.8*
+%{_mandir}/man8/setarch.8*
+%{_mandir}/man8/sfdisk.8*
 %{_mandir}/man8/swapoff.8*
 %{_mandir}/man8/swapon.8*
+%{_mandir}/man8/tunelp.8*
 %{_mandir}/man8/umount.8*
-
-
-%files -n losetup
-%defattr(-,root,root)
-%{_mandir}/man8/losetup.8*
-/sbin/losetup
-
+%{_infodir}/ipc.info*
 
 %files doc
 %defattr(-,root,root)
-%doc */README.* HISTORY mount/README.mount
-%doc fdisk/sfdisk.examples
+%doc */README.* NEWS AUTHORS
+%doc getopt/getopt-*.{bash,tcsh}
 
 
 %changelog
+* Wed Dec 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.13.0.1
+- 2.13.0.1 (the new util-linux-ng)
+- obsoletes/provides mount, losetup, linux32, setarch
+- drop the separate mount, losetup packages
+- sync patches with Mandriva's 2.13-2mdv
+- add remote.pamd
+- use pam_loginuid in login/remote pam configs
+
 * Sat Nov 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.12r
 - P1213: security fix for CVE-2007-5191
 

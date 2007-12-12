@@ -1,8 +1,8 @@
---- util-linux-2.12q/mount/mount.c.silly	2005-09-18 02:31:01.000000000 +0200
-+++ util-linux-2.12q/mount/mount.c	2005-09-18 02:31:22.000000000 +0200
-@@ -467,6 +467,101 @@
- 	return ret;
+--- util-linux-ng-2.13/mount/mount.c.silly	2007-09-04 16:21:08.000000000 +0200
++++ util-linux-ng-2.13/mount/mount.c	2007-09-04 16:21:23.000000000 +0200
+@@ -375,6 +375,101 @@ append_context(const char *optname, char
  }
+ #endif
  
 +static void remove_non_handled_options(char* options, char* fs_type) {
 +
@@ -100,14 +100,15 @@
 +}
 +
  /*
-  * guess_fstype_and_mount()
-  *	Mount a single file system. Guess the type when unknown.
-@@ -494,6 +589,8 @@
-       }
-    }
- 
-+   if (*types) remove_non_handled_options(mount_opts, *types);
+  * Look for OPT in opt_map table and return mask value.
+  * If OPT isn't found, tack it onto extra_opts (which is non-NULL).
+@@ -610,6 +705,9 @@ do_mount_syscall (struct mountargs *args
+ static int
+ do_mount (struct mountargs *args, int *special, int *status) {
+ 	int ret;
 +
-    /* Accept a comma-separated list of types, and try them one by one */
-    /* A list like "nonfs,.." indicates types not to use */
-    if (*types && strncmp(*types, "no", 2) && index(*types,',')) {
++	if (args->type) remove_non_handled_options(args->data, args->type);
++
+ 	if (check_special_mountprog(args->spec, args->node, args->type,
+ 	                            args->flags, args->data, status)) {
+ 		*special = 1;

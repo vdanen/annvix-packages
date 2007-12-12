@@ -1,0 +1,11 @@
+--- util-linux-ng-2.13-rc3/mount/mount.c.xxx	2007-08-07 01:20:15.000000000 +0200
++++ util-linux-ng-2.13-rc3/mount/mount.c	2007-08-13 11:58:45.000000000 +0200
+@@ -182,6 +182,8 @@
+   { "norelatime", 0, 1, MS_RELATIME }, /* Update access time without regard
+ 					  to mtime/ctime */
+ #endif
++  { "kudzu", 0, 0, MS_COMMENT },	/* Silently remove this option (backwards compat use only - deprecated) */
++  { "managed", 0, 0, MS_COMMENT },	/* Silently remove this option */
+   { NULL,	0, 0, 0		}
+ };
+ 
