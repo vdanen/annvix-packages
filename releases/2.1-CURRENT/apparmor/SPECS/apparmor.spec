@@ -372,6 +372,9 @@ rm -f %{buildroot}%{_profiledir}/{bin,sbin,usr.sbin,usr.bin}.*
 
 
 %changelog
+* Wed Dec 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1
+- rebuild against new audit
+
 * Fri Oct 13 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1
 - add some requires
 - (re-)nuke the profiles that we either won't use or will be shipping
