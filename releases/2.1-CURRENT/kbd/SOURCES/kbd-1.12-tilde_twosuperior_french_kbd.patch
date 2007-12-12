@@ -1,0 +1,44 @@
+diff -Naur kbd-1.12.orig/data/keymaps/i386/azerty/fr-latin1.map kbd-1.12/data/keymaps/i386/azerty/fr-latin1.map
+--- kbd-1.12.orig/data/keymaps/i386/azerty/fr-latin1.map	2002-10-11 08:08:51.000000000 -0300
++++ kbd-1.12/data/keymaps/i386/azerty/fr-latin1.map	2007-05-15 16:24:09.000000000 -0300
+@@ -56,6 +56,7 @@
+ keycode  41 = twosuperior     
+ 	control keycode  41 = nul             
+ 	alt     keycode  41 = Meta_grave      
++	Shift   keycode  41 = tilde
+ keycode  42 = Shift           
+ keycode  43 = asterisk         mu              
+ 	control keycode  43 = Control_backslash
+diff -Naur kbd-1.12.orig/data/keymaps/i386/azerty/fr-latin9.map kbd-1.12/data/keymaps/i386/azerty/fr-latin9.map
+--- kbd-1.12.orig/data/keymaps/i386/azerty/fr-latin9.map	2002-10-12 20:47:01.000000000 -0300
++++ kbd-1.12/data/keymaps/i386/azerty/fr-latin9.map	2007-05-15 16:26:34.000000000 -0300
+@@ -236,6 +236,7 @@
+ keycode  41 =  +onehalf       +onequarter	guillemotleft	guillemotright
+ 	control keycode 41 = nul
+ 	alt     keycode 41 = Meta_grave
++	Shift   keycode  41 = tilde
+ 
+ keycode  42 = CapsShift
+ 
+diff -Naur kbd-1.12.orig/data/keymaps/i386/azerty/fr.map kbd-1.12/data/keymaps/i386/azerty/fr.map
+--- kbd-1.12.orig/data/keymaps/i386/azerty/fr.map	2002-10-11 08:08:51.000000000 -0300
++++ kbd-1.12/data/keymaps/i386/azerty/fr.map	2007-05-15 16:24:01.000000000 -0300
+@@ -56,6 +56,7 @@
+ keycode  41 = asterisk         asciitilde      
+ 	control keycode  41 = nul             
+ 	alt     keycode  41 = Meta_grave      
++	Shift   keycode  41 = tilde
+ keycode  42 = Shift           
+ keycode  43 = asterisk         numbersign      
+ 	control keycode  43 = Control_backslash
+diff -Naur kbd-1.12.orig/data/keymaps/i386/azerty/fr-pc.map kbd-1.12/data/keymaps/i386/azerty/fr-pc.map
+--- kbd-1.12.orig/data/keymaps/i386/azerty/fr-pc.map	2002-10-11 08:08:51.000000000 -0300
++++ kbd-1.12/data/keymaps/i386/azerty/fr-pc.map	2007-05-15 16:24:51.000000000 -0300
+@@ -61,6 +61,7 @@
+ keycode  41 = twosuperior
+ 	control keycode  41 = nul             
+ 	alt     keycode  41 = Meta_grave      
++	Shift   keycode  41 = tilde
+ keycode  42 = Shift           
+ keycode  43 = asterisk         mu
+ 	control keycode  43 = Control_backslash

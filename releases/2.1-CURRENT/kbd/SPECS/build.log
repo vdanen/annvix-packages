@@ -1,0 +1,509 @@
+Executing(%prep): /bin/sh -e /home/vdanen/tmp/rpm-tmp.26601
++ umask 022
++ cd /home/vdanen/svn/2.1-CURRENT/kbd/BUILD
++ '[' 1 -eq 1 ']'
++ '[' 1 -eq 1 ']'
++ '[' 1 -eq 1 ']'
++ cd /home/vdanen/svn/2.1-CURRENT/kbd/BUILD
++ rm -rf kbd-1.12
++ /usr/bin/bzip2 -dc /home/vdanen/svn/2.1-CURRENT/kbd/SOURCES/kbd-1.12.tar.bz2
++ tar -xf -
++ STATUS=0
++ '[' 0 -ne 0 ']'
++ cd kbd-1.12
++ /usr/bin/bzip2 -dc /home/vdanen/svn/2.1-CURRENT/kbd/SOURCES/ucwfonts.tar.bz2
++ tar -xf -
++ STATUS=0
++ '[' 0 -ne 0 ']'
++ echo 'Patch #0 (kbd-1.12-mandriva.patch):'
+Patch #0 (kbd-1.12-mandriva.patch):
++ patch -p1 -s
++ echo 'Patch #1 (kbd-1.12-tilde_twosuperior_french_kbd.patch):'
+Patch #1 (kbd-1.12-tilde_twosuperior_french_kbd.patch):
++ patch -p1 -s
++ echo 'Patch #3 (kbd-1.12-thai_ksym_deb.patch):'
+Patch #3 (kbd-1.12-thai_ksym_deb.patch):
++ patch -p1 -s
++ echo 'Patch #4 (kbd-1.12-data_thai.patch):'
+Patch #4 (kbd-1.12-data_thai.patch):
++ patch -p1 -s
++ echo 'Patch #5 (kbd-1.12-unicode_start_no_loadkeys.patch):'
+Patch #5 (kbd-1.12-unicode_start_no_loadkeys.patch):
++ patch -p1 -s
++ echo 'Patch #6 (kbd-1.12-unicode_only_in_linux_vt.patch):'
+Patch #6 (kbd-1.12-unicode_only_in_linux_vt.patch):
++ patch -p1 -s
++ mkdir mac_frnew
++ pushd mac_frnew
+~/svn/2.1-CURRENT/kbd/BUILD/kbd-1.12/mac_frnew ~/svn/2.1-CURRENT/kbd/BUILD/kbd-1.12
++ tar -zxf /home/vdanen/svn/2.1-CURRENT/kbd/SOURCES/kbd-mac-fr-4.1.tar.gz
++ gunzip mac-fr-ext_new.kmap.gz
++ mv mac-fr-ext_new.kmap ../data/keymaps/mac/all/mac-fr-ext_new.map
++ popd
+~/svn/2.1-CURRENT/kbd/BUILD/kbd-1.12
++ rm -rf mac_frnew
++ pushd data
+~/svn/2.1-CURRENT/kbd/BUILD/kbd-1.12/data ~/svn/2.1-CURRENT/kbd/BUILD/kbd-1.12
++ tar -jxf /home/vdanen/svn/2.1-CURRENT/kbd/SOURCES/kbd-mdv-keymaps-20071113.tar.bz2
++ cp keymaps/i386/include/delete.inc keymaps/i386/include/delete.map
++ popd
+~/svn/2.1-CURRENT/kbd/BUILD/kbd-1.12
++ exit 0
+Executing(%build): /bin/sh -e /home/vdanen/tmp/rpm-tmp.13498
++ umask 022
++ cd /home/vdanen/svn/2.1-CURRENT/kbd/BUILD
++ cd kbd-1.12
++ '[' 1 -eq 1 ']'
++ '[' 1 -eq 1 ']'
++ ./configure --datadir=/usr/lib/kbd --mandir=/usr/share/man
+Configuring for DATADIR=/usr/lib/kbd
+Configuring for MANDIR=/usr/share/man
+checking for gcc
+gcc is /usr/bin/gcc
+You have <locale.h>
+You have <libintl.h> and gettext()
+Assuming that you want to enable NLS support.
+(Otherwise, edit defines.h and delete the line with ENABLE_NLS)
+
+Done. You can run make now.
++ make -j2
+for i in src openvt po data; do make -C $i all || exit 1; done
+make[1]: Entering directory `/home/vdanen/svn/2.1-CURRENT/kbd/BUILD/kbd-1.12/src'
+gcc -c -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -DDATADIR=\"/usr/lib/kbd\" dumpkeys.c
+gcc -c -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -DDATADIR=\"/usr/lib/kbd\" ksyms.c
+dumpkeys.c: In function 'dump_funcs':
+dumpkeys.c:506: warning: pointer targets in assignment differ in signedness
+gcc -c -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -DDATADIR=\"/usr/lib/kbd\" xmalloc.c
+gcc -c -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -DDATADIR=\"/usr/lib/kbd\" getfd.c
+bison -y  loadkeys.y 
+flex -8  -t analyze.l > analyze.c
+gcc -c -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -DDATADIR=\"/usr/lib/kbd\" findfile.c
+mv -f y.tab.c loadkeys.c
+gcc -c -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -DDATADIR=\"/usr/lib/kbd\" showkey.c
+gcc -c -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -DDATADIR=\"/usr/lib/kbd\" setfont.c
+gcc -c -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -DDATADIR=\"/usr/lib/kbd\" mapscrn.c
+mapscrn.c: In function 'parsemap':
+mapscrn.c:103: warning: pointer targets in passing argument 1 of 'ctoi' differ in signedness
+mapscrn.c:104: warning: pointer targets in passing argument 1 of 'ctoi' differ in signedness
+mapscrn.c: In function 'ctoi':
+mapscrn.c:215: warning: pointer targets in passing argument 1 of 'strlen' differ in signedness
+mapscrn.c:215: warning: pointer targets in passing argument 1 of 'strlen' differ in signedness
+mapscrn.c:215: warning: pointer targets in passing argument 1 of '__builtin_strcmp' differ in signedness
+mapscrn.c:215: warning: pointer targets in passing argument 1 of 'strlen' differ in signedness
+mapscrn.c:215: warning: pointer targets in passing argument 1 of '__builtin_strcmp' differ in signedness
+mapscrn.c:215: warning: pointer targets in passing argument 1 of '__builtin_strcmp' differ in signedness
+mapscrn.c:215: warning: pointer targets in passing argument 1 of '__builtin_strcmp' differ in signedness
+mapscrn.c:215: warning: pointer targets in passing argument 1 of 'strncmp' differ in signedness
+mapscrn.c:216: warning: pointer targets in passing argument 1 of '__builtin_strspn' differ in signedness
+mapscrn.c:216: warning: pointer targets in passing argument 1 of '__strspn_c1' differ in signedness
+mapscrn.c:216: warning: pointer targets in passing argument 1 of '__strspn_c2' differ in signedness
+mapscrn.c:216: warning: pointer targets in passing argument 1 of '__strspn_c3' differ in signedness
+mapscrn.c:216: warning: pointer targets in passing argument 1 of '__builtin_strspn' differ in signedness
+mapscrn.c:216: warning: pointer targets in passing argument 1 of '__builtin_strspn' differ in signedness
+mapscrn.c:216: warning: pointer targets in passing argument 1 of 'strlen' differ in signedness
+mapscrn.c:217: warning: pointer targets in passing argument 1 of 'sscanf' differ in signedness
+mapscrn.c:220: warning: pointer targets in passing argument 1 of '__builtin_strspn' differ in signedness
+mapscrn.c:220: warning: pointer targets in passing argument 1 of '__strspn_c1' differ in signedness
+mapscrn.c:220: warning: pointer targets in passing argument 1 of '__strspn_c2' differ in signedness
+mapscrn.c:220: warning: pointer targets in passing argument 1 of '__strspn_c3' differ in signedness
+mapscrn.c:220: warning: pointer targets in passing argument 1 of '__builtin_strspn' differ in signedness
+mapscrn.c:220: warning: pointer targets in passing argument 1 of '__builtin_strspn' differ in signedness
+mapscrn.c:220: warning: pointer targets in passing argument 1 of 'strlen' differ in signedness
+mapscrn.c:221: warning: pointer targets in passing argument 1 of 'sscanf' differ in signedness
+mapscrn.c:223: warning: pointer targets in passing argument 1 of '__builtin_strspn' differ in signedness
+mapscrn.c:223: warning: pointer targets in passing argument 1 of '__strspn_c1' differ in signedness
+mapscrn.c:223: warning: pointer targets in passing argument 1 of '__strspn_c2' differ in signedness
+mapscrn.c:223: warning: pointer targets in passing argument 1 of '__strspn_c3' differ in signedness
+mapscrn.c:223: warning: pointer targets in passing argument 1 of '__builtin_strspn' differ in signedness
+mapscrn.c:223: warning: pointer targets in passing argument 1 of '__builtin_strspn' differ in signedness
+mapscrn.c:223: warning: pointer targets in passing argument 1 of 'strlen' differ in signedness
+mapscrn.c:224: warning: pointer targets in passing argument 1 of 'sscanf' differ in signedness
+mapscrn.c:226: warning: pointer targets in passing argument 1 of 'strlen' differ in signedness
+mapscrn.c:226: warning: pointer targets in passing argument 1 of 'strlen' differ in signedness
+mapscrn.c:226: warning: pointer targets in passing argument 1 of '__builtin_strcmp' differ in signedness
+mapscrn.c:226: warning: pointer targets in passing argument 1 of 'strlen' differ in signedness
+mapscrn.c:226: warning: pointer targets in passing argument 1 of '__builtin_strcmp' differ in signedness
+mapscrn.c:226: warning: pointer targets in passing argument 1 of '__builtin_strcmp' differ in signedness
+mapscrn.c:226: warning: pointer targets in passing argument 1 of '__builtin_strcmp' differ in signedness
+mapscrn.c:226: warning: pointer targets in passing argument 1 of 'strncmp' differ in signedness
+mapscrn.c:226: warning: pointer targets in passing argument 1 of 'strlen' differ in signedness
+mapscrn.c:227: warning: pointer targets in passing argument 1 of '__builtin_strspn' differ in signedness
+mapscrn.c:227: warning: pointer targets in passing argument 1 of '__strspn_c1' differ in signedness
+mapscrn.c:227: warning: pointer targets in passing argument 1 of '__strspn_c2' differ in signedness
+mapscrn.c:227: warning: pointer targets in passing argument 1 of '__strspn_c3' differ in signedness
+mapscrn.c:227: warning: pointer targets in passing argument 1 of '__builtin_strspn' differ in signedness
+mapscrn.c:227: warning: pointer targets in passing argument 1 of '__builtin_strspn' differ in signedness
+mapscrn.c:228: warning: pointer targets in passing argument 1 of 'sscanf' differ in signedness
+mapscrn.c:230: warning: pointer targets in passing argument 1 of 'strlen' differ in signedness
+mapscrn.c:235: warning: pointer targets in initialization differ in signedness
+mapscrn.c: In function 'loadnewmap':
+mapscrn.c:128: warning: 'lineno' may be used uninitialized in this function
+gcc -c -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -DDATADIR=\"/usr/lib/kbd\" loadunimap.c
+gcc -c -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -DDATADIR=\"/usr/lib/kbd\" kdmapop.c
+gcc -c -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -DDATADIR=\"/usr/lib/kbd\" kdfontop.c
+kdfontop.c: In function 'getfont':
+kdfontop.c:158: warning: pointer targets in assignment differ in signedness
+kdfontop.c: In function 'putfont':
+kdfontop.c:236: warning: pointer targets in assignment differ in signedness
+kdfontop.c:257: warning: pointer targets in assignment differ in signedness
+gcc -c -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -DDATADIR=\"/usr/lib/kbd\" psffontop.c
+gcc -c -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -DDATADIR=\"/usr/lib/kbd\" utf8.c
+utf8.c: In function 'from_utf8':
+utf8.c:47: warning: pointer targets in assignment differ in signedness
+gcc -c -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -DDATADIR=\"/usr/lib/kbd\" showconsolefont.c
+gcc -c -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -DDATADIR=\"/usr/lib/kbd\" setleds.c
+gcc -c -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -DDATADIR=\"/usr/lib/kbd\" setmetamode.c
+gcc -c -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -DDATADIR=\"/usr/lib/kbd\" kbd_mode.c
+gcc -c -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -DDATADIR=\"/usr/lib/kbd\" chvt.c
+gcc -c -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -DDATADIR=\"/usr/lib/kbd\" deallocvt.c
+gcc -c -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -DDATADIR=\"/usr/lib/kbd\" psfxtable.c
+gcc -c -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -DDATADIR=\"/usr/lib/kbd\" kbdrate.c
+gcc -c -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -DDATADIR=\"/usr/lib/kbd\" fgconsole.c
+gcc -c -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -DDATADIR=\"/usr/lib/kbd\" getkeycodes.c
+gcc -c -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -DDATADIR=\"/usr/lib/kbd\" setkeycodes.c
+gcc -c -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -DDATADIR=\"/usr/lib/kbd\" resizecons.c
+gcc -O2 -Wall -Wmissing-prototypes -Wstrict-prototypes -DDATADIR=\"/usr/lib/kbd\" -DMAIN -c mapscrn.c -o main_mapscrn.o
+mapscrn.c: In function 'parsemap':
+mapscrn.c:103: warning: pointer targets in passing argument 1 of 'ctoi' differ in signedness
+mapscrn.c:104: warning: pointer targets in passing argument 1 of 'ctoi' differ in signedness
+mapscrn.c: In function 'ctoi':
+mapscrn.c:215: warning: pointer targets in passing argument 1 of 'strlen' differ in signedness
+mapscrn.c:215: warning: pointer targets in passing argument 1 of 'strlen' differ in signedness
+mapscrn.c:215: warning: pointer targets in passing argument 1 of '__builtin_strcmp' differ in signedness
+mapscrn.c:215: warning: pointer targets in passing argument 1 of 'strlen' differ in signedness
+mapscrn.c:215: warning: pointer targets in passing argument 1 of '__builtin_strcmp' differ in signedness
+mapscrn.c:215: warning: pointer targets in passing argument 1 of '__builtin_strcmp' differ in signedness
+mapscrn.c:215: warning: pointer targets in passing argument 1 of '__builtin_strcmp' differ in signedness
+mapscrn.c:215: warning: pointer targets in passing argument 1 of 'strncmp' differ in signedness
+mapscrn.c:216: warning: pointer targets in passing argument 1 of '__builtin_strspn' differ in signedness
+mapscrn.c:216: warning: pointer targets in passing argument 1 of '__strspn_c1' differ in signedness
+mapscrn.c:216: warning: pointer targets in passing argument 1 of '__strspn_c2' differ in signedness
+mapscrn.c:216: warning: pointer targets in passing argument 1 of '__strspn_c3' differ in signedness
+mapscrn.c:216: warning: pointer targets in passing argument 1 of '__builtin_strspn' differ in signedness
+mapscrn.c:216: warning: pointer targets in passing argument 1 of '__builtin_strspn' differ in signedness
+mapscrn.c:216: warning: pointer targets in passing argument 1 of 'strlen' differ in signedness
+mapscrn.c:217: warning: pointer targets in passing argument 1 of 'sscanf' differ in signedness
+mapscrn.c:220: warning: pointer targets in passing argument 1 of '__builtin_strspn' differ in signedness
+mapscrn.c:220: warning: pointer targets in passing argument 1 of '__strspn_c1' differ in signedness
+mapscrn.c:220: warning: pointer targets in passing argument 1 of '__strspn_c2' differ in signedness
+mapscrn.c:220: warning: pointer targets in passing argument 1 of '__strspn_c3' differ in signedness
+mapscrn.c:220: warning: pointer targets in passing argument 1 of '__builtin_strspn' differ in signedness
+mapscrn.c:220: warning: pointer targets in passing argument 1 of '__builtin_strspn' differ in signedness
+mapscrn.c:220: warning: pointer targets in passing argument 1 of 'strlen' differ in signedness
+mapscrn.c:221: warning: pointer targets in passing argument 1 of 'sscanf' differ in signedness
+mapscrn.c:223: warning: pointer targets in passing argument 1 of '__builtin_strspn' differ in signedness
+mapscrn.c:223: warning: pointer targets in passing argument 1 of '__strspn_c1' differ in signedness
+mapscrn.c:223: warning: pointer targets in passing argument 1 of '__strspn_c2' differ in signedness
+mapscrn.c:223: warning: pointer targets in passing argument 1 of '__strspn_c3' differ in signedness
+mapscrn.c:223: warning: pointer targets in passing argument 1 of '__builtin_strspn' differ in signedness
+mapscrn.c:223: warning: pointer targets in passing argument 1 of '__builtin_strspn' differ in signedness
+mapscrn.c:223: warning: pointer targets in passing argument 1 of 'strlen' differ in signedness
+mapscrn.c:224: warning: pointer targets in passing argument 1 of 'sscanf' differ in signedness
+mapscrn.c:226: warning: pointer targets in passing argument 1 of 'strlen' differ in signedness
+mapscrn.c:226: warning: pointer targets in passing argument 1 of 'strlen' differ in signedness
+mapscrn.c:226: warning: pointer targets in passing argument 1 of '__builtin_strcmp' differ in signedness
+mapscrn.c:226: warning: pointer targets in passing argument 1 of 'strlen' differ in signedness
+mapscrn.c:226: warning: pointer targets in passing argument 1 of '__builtin_strcmp' differ in signedness
+mapscrn.c:226: warning: pointer targets in passing argument 1 of '__builtin_strcmp' differ in signedness
+mapscrn.c:226: warning: pointer targets in passing argument 1 of '__builtin_strcmp' differ in signedness
+mapscrn.c:226: warning: pointer targets in passing argument 1 of 'strncmp' differ in signedness
+mapscrn.c:226: warning: pointer targets in passing argument 1 of 'strlen' differ in signedness
+mapscrn.c:227: warning: pointer targets in passing argument 1 of '__builtin_strspn' differ in signedness
+mapscrn.c:227: warning: pointer targets in passing argument 1 of '__strspn_c1' differ in signedness
+mapscrn.c:227: warning: pointer targets in passing argument 1 of '__strspn_c2' differ in signedness
+mapscrn.c:227: warning: pointer targets in passing argument 1 of '__strspn_c3' differ in signedness
+mapscrn.c:227: warning: pointer targets in passing argument 1 of '__builtin_strspn' differ in signedness
+mapscrn.c:227: warning: pointer targets in passing argument 1 of '__builtin_strspn' differ in signedness
+mapscrn.c:228: warning: pointer targets in passing argument 1 of 'sscanf' differ in signedness
+mapscrn.c:230: warning: pointer targets in passing argument 1 of 'strlen' differ in signedness
+mapscrn.c:235: warning: pointer targets in initialization differ in signedness
+mapscrn.c: In function 'loadnewmap':
+mapscrn.c:128: warning: 'lineno' may be used uninitialized in this function
+gcc -O2 -Wall -Wmissing-prototypes -Wstrict-prototypes -DDATADIR=\"/usr/lib/kbd\" -DMAIN -c loadunimap.c -o main_loadunimap.o
+gcc -c -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -DDATADIR=\"/usr/lib/kbd\" screendump.c
+screendump.c: In function 'main':
+screendump.c:147: warning: pointer targets in assignment differ in signedness
+gcc -c -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -DDATADIR=\"/usr/lib/kbd\" setlogcons.c
+gcc -c -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -DDATADIR=\"/usr/lib/kbd\" setvesablank.c
+gcc -O2  -s  spawn_console.c   -o spawn_console
+spawn_console.c: In function 'main':
+spawn_console.c:33: warning: incompatible implicit declaration of built-in function 'exit'
+gcc -O2  -s  spawn_login.c   -o spawn_login
+gcc -c -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -DDATADIR=\"/usr/lib/kbd\" getunimap.c
+gcc -c -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -DDATADIR=\"/usr/lib/kbd\" clrunimap.c
+gcc -O2  -s  outpsfheader.c   -o outpsfheader
+gcc -c -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -DDATADIR=\"/usr/lib/kbd\" setpalette.c
+outpsfheader.c: In function 'usage':
+outpsfheader.c:9: warning: incompatible implicit declaration of built-in function 'exit'
+outpsfheader.c: In function 'main':
+outpsfheader.c:36: warning: incompatible implicit declaration of built-in function 'exit'
+outpsfheader.c:54: warning: incompatible implicit declaration of built-in function 'exit'
+gcc -s  dumpkeys.o ksyms.o xmalloc.o getfd.o   -o dumpkeys
+gcc -c -O2 -DDATADIR=\"/usr/lib/kbd\" loadkeys.c
+gcc -s  showkey.o getfd.o   -o showkey
+gcc -s  setfont.o findfile.o xmalloc.o getfd.o mapscrn.o loadunimap.o kdmapop.o kdfontop.o psffontop.o utf8.o   -o setfont
+gcc -s  showconsolefont.o xmalloc.o getfd.o kdmapop.o kdfontop.o   -o showconsolefont
+gcc -s  setleds.o   -o setleds
+gcc -s  setmetamode.o   -o setmetamode
+gcc -s  kbd_mode.o getfd.o   -o kbd_mode
+gcc -s  chvt.o getfd.o   -o chvt
+gcc -s  deallocvt.o getfd.o   -o deallocvt
+gcc -s  psfxtable.o psffontop.o xmalloc.o utf8.o   -o psfxtable
+gcc -s  kbdrate.o   -o kbdrate
+gcc -s  fgconsole.o getfd.o   -o fgconsole
+gcc -s  getkeycodes.o getfd.o   -o getkeycodes
+gcc -s  setkeycodes.o getfd.o   -o setkeycodes
+gcc -s  resizecons.o findfile.o xmalloc.o getfd.o   -o resizecons
+gcc -s main_mapscrn.o findfile.o psffontop.o utf8.o xmalloc.o getfd.o kdmapop.o -o mapscrn
+gcc -s main_loadunimap.o findfile.o psffontop.o utf8.o xmalloc.o getfd.o kdmapop.o -o loadunimap
+gcc -s  screendump.o xmalloc.o   -o screendump
+gcc -s  setlogcons.o getfd.o   -o setlogcons
+gcc -s  setvesablank.o getfd.o   -o setvesablank
+gcc -s  getunimap.o xmalloc.o getfd.o kdmapop.o   -o getunimap
+gcc -s  clrunimap.o getfd.o kdmapop.o   -o clrunimap
+gcc -s  setpalette.o getfd.o   -o setpalette
+gcc -s  loadkeys.o ksyms.o xmalloc.o findfile.o getfd.o   -o loadkeys
+make[1]: Leaving directory `/home/vdanen/svn/2.1-CURRENT/kbd/BUILD/kbd-1.12/src'
+make[1]: Entering directory `/home/vdanen/svn/2.1-CURRENT/kbd/BUILD/kbd-1.12/openvt'
+gcc -O2 -Wall -ansi   -c -o openvt.o openvt.c
+gcc -O2 -Wall -ansi   -c -o getfd.o getfd.c
+gcc -O2 -Wall -ansi -s   openvt.o getfd.o   -o openvt
+make[1]: Leaving directory `/home/vdanen/svn/2.1-CURRENT/kbd/BUILD/kbd-1.12/openvt'
+make[1]: Entering directory `/home/vdanen/svn/2.1-CURRENT/kbd/BUILD/kbd-1.12/po'
+xgettext --default-domain=kbd --directory=.. \
+	  --add-comments --keyword=_ --keyword=N_ \
+	  --files-from=POTFILES.in 
+msgfmt -o cs.gmo cs.po
+msgfmt -o da.gmo da.po
+msgfmt -o de.gmo de.po
+mv kbd.po kbd.pot
+msgfmt -o es.gmo es.po
+msgfmt -o fr.gmo fr.po
+msgfmt -o gr.gmo gr.po
+msgfmt -o nl.gmo nl.po
+msgfmt -o pl.gmo pl.po
+msgfmt -o ro.gmo ro.po
+msgfmt -o ru.gmo ru.po
+msgfmt -o sv.gmo sv.po
+msgfmt -o tr.gmo tr.po
+rm -f cat-id-tbl.tmp
+sed -f ./po2tbl.sed kbd.pot \
+		| sed -e "s/@PACKAGE NAME@/kbd/" > cat-id-tbl.tmp
+if cmp -s cat-id-tbl.tmp cat-id-tbl.c; then \
+	  rm cat-id-tbl.tmp; \
+	else \
+	  echo cat-id-tbl.c changed; \
+	  rm -f cat-id-tbl.c; \
+	  mv cat-id-tbl.tmp cat-id-tbl.c; \
+	fi
+rm -f stamp-cat-id && echo timestamp > stamp-cat-id
+make[1]: Leaving directory `/home/vdanen/svn/2.1-CURRENT/kbd/BUILD/kbd-1.12/po'
+make[1]: Entering directory `/home/vdanen/svn/2.1-CURRENT/kbd/BUILD/kbd-1.12/data'
+cp -r keymaps keymaps_Z
+cp -r consolefonts consolefonts_Z
+cp -r partialfonts partialfonts_Z
+cd consolefonts_Z && gzip -f -9 * && gunzip ERRORS* README*
+cd keymaps_Z && gzip -f -9 */*.map */*/*.map
+cd partialfonts_Z && gzip -f -9 *
+make[1]: Leaving directory `/home/vdanen/svn/2.1-CURRENT/kbd/BUILD/kbd-1.12/data'
+
+Done. You can now do  make install
++ exit 0
+Executing(%install): /bin/sh -e /home/vdanen/tmp/rpm-tmp.44288
++ umask 022
++ cd /home/vdanen/svn/2.1-CURRENT/kbd/BUILD
++ cd kbd-1.12
++ '[' 1 -eq 1 ']'
++ '[' -n /override/kbd-1.12 -a /override/kbd-1.12 '!=' / ']'
++ rm -rf /override/kbd-1.12
++ make DESTDIR=/override/kbd-1.12 install
+for i in src openvt po; do make -C $i install || exit 1; done
+make[1]: Entering directory `/home/vdanen/svn/2.1-CURRENT/kbd/BUILD/kbd-1.12/src'
+install -d -m 0755 /override/kbd-1.12/usr/bin /override/kbd-1.12/bin
+install -s -m 0755  dumpkeys loadkeys showkey setfont showconsolefont setleds setmetamode kbd_mode chvt deallocvt psfxtable kbdrate fgconsole getkeycodes setkeycodes resizecons mapscrn loadunimap /override/kbd-1.12/usr/bin
+install -c -m 0755  unicode_start unicode_stop /override/kbd-1.12/usr/bin
+for i in psfaddtable psfgettable psfstriptable; do \
+		rm -f /override/kbd-1.12/usr/bin/$i; ln -s psfxtable /override/kbd-1.12/usr/bin/$i; \
+	done
+rm -f /override/kbd-1.12/usr/bin/loadkeys
+install -s -m 0755  loadkeys /override/kbd-1.12/bin
+You may also want to add psf.magic to /usr/lib/magic
+make[1]: Leaving directory `/home/vdanen/svn/2.1-CURRENT/kbd/BUILD/kbd-1.12/src'
+make[1]: Entering directory `/home/vdanen/svn/2.1-CURRENT/kbd/BUILD/kbd-1.12/openvt'
+install -d -m 755 /override/kbd-1.12/usr/bin /override/kbd-1.12//usr/share/man/man1
+install openvt /override/kbd-1.12/usr/bin
+install -m 644 openvt.1 /override/kbd-1.12//usr/share/man/man1
+make[1]: Leaving directory `/home/vdanen/svn/2.1-CURRENT/kbd/BUILD/kbd-1.12/openvt'
+make[1]: Entering directory `/home/vdanen/svn/2.1-CURRENT/kbd/BUILD/kbd-1.12/po'
+msgfmt -o da.gmo da.po
+msgfmt -o fr.gmo fr.po
+msgfmt -o sv.gmo sv.po
+msgfmt -o tr.gmo tr.po
+../mkinstalldirs /override/kbd-1.12/usr/share;
+mkdir /override/kbd-1.12/usr/share/locale
+mkdir /override/kbd-1.12/usr/share/locale/cs
+mkdir /override/kbd-1.12/usr/share/locale/cs/LC_MESSAGES
+installing cs.gmo as /override/kbd-1.12/usr/share/locale/cs/LC_MESSAGES/kbd.mo
+mkdir /override/kbd-1.12/usr/share/locale/da
+mkdir /override/kbd-1.12/usr/share/locale/da/LC_MESSAGES
+install: cannot stat `da.gmo': No such file or directory
+installing da.gmo as /override/kbd-1.12/usr/share/locale/da/LC_MESSAGES/kbd.mo
+mkdir /override/kbd-1.12/usr/share/locale/de
+mkdir /override/kbd-1.12/usr/share/locale/de/LC_MESSAGES
+installing de.gmo as /override/kbd-1.12/usr/share/locale/de/LC_MESSAGES/kbd.mo
+mkdir /override/kbd-1.12/usr/share/locale/es
+mkdir /override/kbd-1.12/usr/share/locale/es/LC_MESSAGES
+installing es.gmo as /override/kbd-1.12/usr/share/locale/es/LC_MESSAGES/kbd.mo
+mkdir /override/kbd-1.12/usr/share/locale/fr
+mkdir /override/kbd-1.12/usr/share/locale/fr/LC_MESSAGES
+install: cannot stat `fr.gmo': No such file or directory
+installing fr.gmo as /override/kbd-1.12/usr/share/locale/fr/LC_MESSAGES/kbd.mo
+mkdir /override/kbd-1.12/usr/share/locale/gr
+mkdir /override/kbd-1.12/usr/share/locale/gr/LC_MESSAGES
+installing gr.gmo as /override/kbd-1.12/usr/share/locale/gr/LC_MESSAGES/kbd.mo
+mkdir /override/kbd-1.12/usr/share/locale/nl
+mkdir /override/kbd-1.12/usr/share/locale/nl/LC_MESSAGES
+installing nl.gmo as /override/kbd-1.12/usr/share/locale/nl/LC_MESSAGES/kbd.mo
+mkdir /override/kbd-1.12/usr/share/locale/pl
+mkdir /override/kbd-1.12/usr/share/locale/pl/LC_MESSAGES
+installing pl.gmo as /override/kbd-1.12/usr/share/locale/pl/LC_MESSAGES/kbd.mo
+mkdir /override/kbd-1.12/usr/share/locale/ro
+mkdir /override/kbd-1.12/usr/share/locale/ro/LC_MESSAGES
+installing ro.gmo as /override/kbd-1.12/usr/share/locale/ro/LC_MESSAGES/kbd.mo
+mkdir /override/kbd-1.12/usr/share/locale/ru
+mkdir /override/kbd-1.12/usr/share/locale/ru/LC_MESSAGES
+installing ru.gmo as /override/kbd-1.12/usr/share/locale/ru/LC_MESSAGES/kbd.mo
+mkdir /override/kbd-1.12/usr/share/locale/sv
+mkdir /override/kbd-1.12/usr/share/locale/sv/LC_MESSAGES
+install: cannot stat `sv.gmo': No such file or directory
+installing sv.gmo as /override/kbd-1.12/usr/share/locale/sv/LC_MESSAGES/kbd.mo
+mkdir /override/kbd-1.12/usr/share/locale/tr
+mkdir /override/kbd-1.12/usr/share/locale/tr/LC_MESSAGES
+install: cannot stat `tr.gmo': No such file or directory
+installing tr.gmo as /override/kbd-1.12/usr/share/locale/tr/LC_MESSAGES/kbd.mo
+make[1]: Leaving directory `/home/vdanen/svn/2.1-CURRENT/kbd/BUILD/kbd-1.12/po'
+cd data && make install
+make[1]: Entering directory `/home/vdanen/svn/2.1-CURRENT/kbd/BUILD/kbd-1.12/data'
+install -d -m 755 /override/kbd-1.12//usr/lib/kbd
+install -d -m 755 /override/kbd-1.12//usr/lib/kbd/consolefonts
+install -m 644 consolefonts_Z/* /override/kbd-1.12//usr/lib/kbd/consolefonts
+install -d -m 755 /override/kbd-1.12//usr/lib/kbd/consolefonts/partialfonts
+install -m 644 partialfonts_Z/* /override/kbd-1.12//usr/lib/kbd/consolefonts/partialfonts
+install -d -m 755 /override/kbd-1.12//usr/lib/kbd/consoletrans
+install -m 644 consoletrans/* /override/kbd-1.12//usr/lib/kbd/consoletrans
+install -d -m 755 /override/kbd-1.12//usr/lib/kbd/unimaps
+install -m 644 unimaps/* /override/kbd-1.12//usr/lib/kbd/unimaps
+install -d -m 755 /override/kbd-1.12//usr/lib/kbd/keymaps
+install -d -m 755 /override/kbd-1.12//usr/lib/kbd/keymaps/i386
+install -d -m 755 /override/kbd-1.12//usr/lib/kbd/keymaps/mac
+for i in include sun amiga atari i386/azerty i386/dvorak i386/fgGIod i386/qwerty i386/qwertz i386/include mac/include mac/all; do \
+		install -d -m 755 /override/kbd-1.12//usr/lib/kbd/keymaps/$i ;\
+		install -m 644 keymaps_Z/$i/* /override/kbd-1.12//usr/lib/kbd/keymaps/$i ;\
+	done
+rm -f /override/kbd-1.12//usr/lib/kbd/keymaps/ppc; ln -s mac /override/kbd-1.12//usr/lib/kbd/keymaps/ppc
+make[1]: Leaving directory `/home/vdanen/svn/2.1-CURRENT/kbd/BUILD/kbd-1.12/data'
+cd man && make install
+make[1]: Entering directory `/home/vdanen/svn/2.1-CURRENT/kbd/BUILD/kbd-1.12/man'
+for i in man?; do \
+		install -d -m 755 /override/kbd-1.12//usr/share/man/$i; \
+		install -m 644 $i/*.[0-9] /override/kbd-1.12//usr/share/man/$i; \
+	done
+rm -f /override/kbd-1.12//usr/share/man/man5/keytables.5
+make[1]: Leaving directory `/home/vdanen/svn/2.1-CURRENT/kbd/BUILD/kbd-1.12/man'
++ ln -s fr-latin9.map.gz /override/kbd-1.12/usr/lib/kbd/keymaps/i386/azerty/fr-latin0.map.gz
++ ln -s us-acentos.map.gz /override/kbd-1.12/usr/lib/kbd/keymaps/i386/qwerty/us-intl.map.gz
++ ln -s mac-us.map.gz /override/kbd-1.12/usr/lib/kbd/keymaps/mac/all/mac-br-abnt2.map.gz
++ ln -s mac-us.map.gz /override/kbd-1.12/usr/lib/kbd/keymaps/mac/all/mac-gr.map.gz
++ ln -s mac-us.map.gz /override/kbd-1.12/usr/lib/kbd/keymaps/mac/all/mac-no-latin1.map.gz
++ ln -s mac-us.map.gz /override/kbd-1.12/usr/lib/kbd/keymaps/mac/all/mac-cz-us-qwertz.map.gz
++ ln -s mac-us.map.gz /override/kbd-1.12/usr/lib/kbd/keymaps/mac/all/mac-hu.map.gz
++ ln -s mac-us.map.gz /override/kbd-1.12/usr/lib/kbd/keymaps/mac/all/mac-Pl02.map.gz
++ ln -s mac-us.map.gz /override/kbd-1.12/usr/lib/kbd/keymaps/mac/all/mac-ru1.map.gz
++ ln -s mac-us.map.gz /override/kbd-1.12/usr/lib/kbd/keymaps/mac/all/mac-jp106.map.gz
++ ln -s iso07u-16.psfu.gz /override/kbd-1.12/usr/lib/kbd/consolefonts/iso07.f16.psfu.gz
++ ln -s lat2-16.psfu.gz /override/kbd-1.12/usr/lib/kbd/consolefonts/lat2-sun16.psfu.gz
++ ln -s lat5-16.psfu.gz /override/kbd-1.12/usr/lib/kbd/consolefonts/lat5u-16.psfu.gz
++ for toggle_file in alt_shift_toggle caps_toggle ctrl_alt_toggle ctrl_shift_toggle lwin_toggle menu_toggle rwin_toggle toggle
++ cp /override/kbd-1.12/usr/lib/kbd/keymaps/i386/include/alt_shift_toggle.inc /override/kbd-1.12/usr/lib/kbd/keymaps/i386/include/alt_shift_toggle.map
++ gzip /override/kbd-1.12/usr/lib/kbd/keymaps/i386/include/alt_shift_toggle.map
++ for toggle_file in alt_shift_toggle caps_toggle ctrl_alt_toggle ctrl_shift_toggle lwin_toggle menu_toggle rwin_toggle toggle
++ cp /override/kbd-1.12/usr/lib/kbd/keymaps/i386/include/caps_toggle.inc /override/kbd-1.12/usr/lib/kbd/keymaps/i386/include/caps_toggle.map
++ gzip /override/kbd-1.12/usr/lib/kbd/keymaps/i386/include/caps_toggle.map
++ for toggle_file in alt_shift_toggle caps_toggle ctrl_alt_toggle ctrl_shift_toggle lwin_toggle menu_toggle rwin_toggle toggle
++ cp /override/kbd-1.12/usr/lib/kbd/keymaps/i386/include/ctrl_alt_toggle.inc /override/kbd-1.12/usr/lib/kbd/keymaps/i386/include/ctrl_alt_toggle.map
++ gzip /override/kbd-1.12/usr/lib/kbd/keymaps/i386/include/ctrl_alt_toggle.map
++ for toggle_file in alt_shift_toggle caps_toggle ctrl_alt_toggle ctrl_shift_toggle lwin_toggle menu_toggle rwin_toggle toggle
++ cp /override/kbd-1.12/usr/lib/kbd/keymaps/i386/include/ctrl_shift_toggle.inc /override/kbd-1.12/usr/lib/kbd/keymaps/i386/include/ctrl_shift_toggle.map
++ gzip /override/kbd-1.12/usr/lib/kbd/keymaps/i386/include/ctrl_shift_toggle.map
++ for toggle_file in alt_shift_toggle caps_toggle ctrl_alt_toggle ctrl_shift_toggle lwin_toggle menu_toggle rwin_toggle toggle
++ cp /override/kbd-1.12/usr/lib/kbd/keymaps/i386/include/lwin_toggle.inc /override/kbd-1.12/usr/lib/kbd/keymaps/i386/include/lwin_toggle.map
++ gzip /override/kbd-1.12/usr/lib/kbd/keymaps/i386/include/lwin_toggle.map
++ for toggle_file in alt_shift_toggle caps_toggle ctrl_alt_toggle ctrl_shift_toggle lwin_toggle menu_toggle rwin_toggle toggle
++ cp /override/kbd-1.12/usr/lib/kbd/keymaps/i386/include/menu_toggle.inc /override/kbd-1.12/usr/lib/kbd/keymaps/i386/include/menu_toggle.map
++ gzip /override/kbd-1.12/usr/lib/kbd/keymaps/i386/include/menu_toggle.map
++ for toggle_file in alt_shift_toggle caps_toggle ctrl_alt_toggle ctrl_shift_toggle lwin_toggle menu_toggle rwin_toggle toggle
++ cp /override/kbd-1.12/usr/lib/kbd/keymaps/i386/include/rwin_toggle.inc /override/kbd-1.12/usr/lib/kbd/keymaps/i386/include/rwin_toggle.map
++ gzip /override/kbd-1.12/usr/lib/kbd/keymaps/i386/include/rwin_toggle.map
++ for toggle_file in alt_shift_toggle caps_toggle ctrl_alt_toggle ctrl_shift_toggle lwin_toggle menu_toggle rwin_toggle toggle
++ cp /override/kbd-1.12/usr/lib/kbd/keymaps/i386/include/toggle.inc /override/kbd-1.12/usr/lib/kbd/keymaps/i386/include/toggle.map
++ gzip /override/kbd-1.12/usr/lib/kbd/keymaps/i386/include/toggle.map
++ mkdir -p /override/kbd-1.12/etc/profile.d
++ install -m 0755 /home/vdanen/svn/2.1-CURRENT/kbd/SOURCES/configure_keyboard.sh /override/kbd-1.12//etc/profile.d/configure_keyboard.sh
++ mkdir -p /override/kbd-1.12/etc/init.d
++ install -m 0755 /home/vdanen/svn/2.1-CURRENT/kbd/SOURCES/keytable.init /override/kbd-1.12/etc/init.d/keytable
++ mkdir -p /override/kbd-1.12/bin
++ mv /override/kbd-1.12/usr/bin/unicode_start /override/kbd-1.12/usr/bin/unicode_stop /override/kbd-1.12/bin
++ ln -s ../../bin/unicode_start /override/kbd-1.12/usr/bin/unicode_start
++ ln -s ../../bin/unicode_stop /override/kbd-1.12/usr/bin/unicode_stop
++ mv /override/kbd-1.12/usr/bin/setfont /override/kbd-1.12/bin
++ ln -s ../../bin/setfont /override/kbd-1.12/usr/bin/setfont
++ mkdir /override/kbd-1.12/sbin
++ install -m 0755 /home/vdanen/svn/2.1-CURRENT/kbd/SOURCES/setsysfont /override/kbd-1.12/sbin
++ /usr/lib/rpm/annvix/kill-lang.sh /override/kbd-1.12 kbd
++ /usr/lib/rpm/annvix/find-lang.pl /override/kbd-1.12 kbd
++ '[' -n '' ']'
++ /usr/share/spec-helper/clean_files
++ '[' -n '' ']'
++ /usr/share/spec-helper/compress_files .bz2
++ '[' -n '' ']'
++ /usr/share/spec-helper/strip_files
++ '[' -n '' ']'
++ /usr/share/spec-helper/relink_symlinks
++ '[' -n '' ']'
++ /usr/share/spec-helper/clean_perl
++ '[' -n '' ']'
++ /usr/share/spec-helper/lib_symlinks
++ '[' -n '' ']'
++ /usr/share/spec-helper/gprintify
+Gprintifying init scripts...done
++ '[' -n '' ']'
++ /usr/share/spec-helper/fix-mo
++ '[' -n '' ']'
++ /usr/share/spec-helper/translate_menu.pl
++ '[' -n '' ']'
++ /usr/share/spec-helper/fixpamd
++ '[' -n '' ']'
++ /usr/share/spec-helper/remove_info_dir
++ '[' -n '' ']'
++ /usr/share/spec-helper/fix-eol
+Processing files: kbd-1.12-7687avx
+Finding  Provides: /usr/lib/rpm/annvix/filter.sh ' ' ' ' '/override/kbd-1.12' /usr/lib/rpm/annvix/find-provides
+Finding  Requires: /usr/lib/rpm/annvix/filter.sh ' ' ' ' '/override/kbd-1.12' /usr/lib/rpm/annvix/find-requires /override/kbd-1.12 i586
+Provides: console-tools = 1.12-7687avx
+Requires(interp): /bin/sh /bin/sh
+Requires(rpmlib): rpmlib(VersionedDependencies) <= 3.0.3-1 rpmlib(PayloadFilesHavePrefix) <= 4.0-1 rpmlib(CompressedFileNames) <= 3.0.4-1
+Requires(post): /bin/sh
+Requires(preun): /bin/sh
+Requires: rpmlib(VersionedDependencies) <= 3.0.3-1 /bin/sh /bin/sh rpmlib(PayloadFilesHavePrefix) <= 4.0-1 rpmlib(CompressedFileNames) <= 3.0.4-1 bash libc.so.6 libc.so.6(GLIBC_2.0) libc.so.6(GLIBC_2.1) libc.so.6(GLIBC_2.3)
+Conflicts: util-linux < 2.13
+Obsoletes: console-tools <= 0.2.3-7863avx
+Checking for unpackaged file(s): /usr/lib/rpm/check-files /override/kbd-1.12
+Wrote: /home/vdanen/svn/2.1-CURRENT/kbd/SRPMS/kbd-1.12-7687avx.src.rpm
+Wrote: /home/vdanen/svn/2.1-CURRENT/kbd/RPMS/i586/kbd-1.12-7687avx.i586.rpm
+Executing(%clean): /bin/sh -e /home/vdanen/tmp/rpm-tmp.69898
++ umask 022
++ cd /home/vdanen/svn/2.1-CURRENT/kbd/BUILD
++ cd kbd-1.12
++ '[' -n /override/kbd-1.12 -a /override/kbd-1.12 '!=' / ']'
++ rm -rf /override/kbd-1.12
++ exit 0

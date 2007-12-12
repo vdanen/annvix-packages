@@ -1,0 +1,21 @@
+--- kbd-1.12/src/unicode_stop.orig	2007-11-14 11:13:47.000000000 -0200
++++ kbd-1.12/src/unicode_stop	2007-11-14 11:15:51.000000000 -0200
+@@ -1,4 +1,5 @@
+ #!/bin/sh
+ # stop unicode
++[ "`/sbin/consoletype`" = "vt" ] || exit 0
+ kbd_mode -a
+ echo -n -e '\033%@'
+--- kbd-1.12/src/unicode_start.orig	2007-11-14 11:13:53.000000000 -0200
++++ kbd-1.12/src/unicode_start	2007-11-14 11:15:39.000000000 -0200
+@@ -1,6 +1,8 @@
+ #!/bin/sh
+-# Enables Unicode processing in the current console.
+-#
++# Enables Unicode processing in the current linux vt.
++
++[ "`/sbin/consoletype`" = "vt" ] || exit 0
++
+ # 1. The input side: the keyboard driver.
+ 
+ # Set the keyboard driver in Unicode mode. (Default is ASCII mode.)
