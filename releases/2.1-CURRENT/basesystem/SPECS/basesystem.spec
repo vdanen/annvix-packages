@@ -29,7 +29,7 @@ Requires:	annvix-release
 Requires:	apparmor
 Requires:	bootloader
 Requires:	common-licenses
-Requires:	console-tools
+Requires:	kbd
 Requires:	coreutils
 Requires:	crond
 Requires:	crontabs
@@ -94,6 +94,9 @@ should never be removed.
 
 
 %changelog
+* Wed Dec 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1
+- require kbd instead of console-tools
+
 * Sun Oct 07 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1
 - requires module-init-tools, not modutils
 
