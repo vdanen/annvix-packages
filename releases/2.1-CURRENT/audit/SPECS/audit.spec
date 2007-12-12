@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name 		audit
-%define version 	1.2.9
+%define version 	1.6.1
 %define release 	%_revrel
 
 %define major		0
@@ -27,8 +27,10 @@ Source0:	http://people.redhat.com/sgrubb/audit/%{name}-%{version}.tar.gz
 Source1:	auditd.run
 Source2:	auditd.finish
 Source3:	auditd-log.run
-Patch0:		audit-1.2.5-avx-makefile.patch
-Patch1:		audit-1.2.9-avx-config.patch
+Patch1:		audit-1.6.1-avx-config.patch
+Patch2:		audit-1.6.1-mdv-sendmail.patch
+Patch3:		audit-1.6.1-mdv-offt.patch
+Patch4:		audit-1.6.1-avx-no-system-config-audit.patch
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildRequires:	libtool
@@ -36,6 +38,8 @@ BuildRequires:	swig
 BuildRequires:	automake1.9
 BuildRequires:	autoconf2.5
 BuildRequires:	glibc-devel
+BuildRequires:	gettext-devel
+BuildRequires:	python-devel
 
 Requires:	%{libname} = %{version}-%{release}
 Requires(post):	rpm-helper
@@ -71,13 +75,13 @@ for developing applications that need to use the audit framework
 libraries.
 
 
-%package -n %{libname}-python
-Summary:	Python bindings for libaudit
-Group:		Development/Libraries
+%package -n python-audit
+Summary:	Python bindings for audit
+Group:		Development/Python
 Requires:	%{libname} = %{version}
-Requires:	glibc-devel
+Obsoletes:	%{libname}-python
 
-%description -n %{libname}-python
+%description -n python-audit
 This package contains the bindings so that libaudit can be used by
 python.
 
@@ -92,53 +96,41 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
-%patch0 -p1 -b .avx
 %patch1 -p1 -b .config
+%patch2 -p1 -b .sendmail
+%patch3 -p1 -b .offt
+%patch4 -p1 -b .no-system-config-audit
 
-# this is hard-coded for some stupid reason
-perl -pi -e s'|/lib/python2.4/site-packages|/%{_lib}/python%{pyver}/site-packages|' audisp/Makefile
 
 %build
 %serverbuild
-autoreconf -fv --install
-CFLAGS="%{optflags}" \
-    %configure \
-        --sbindir=/sbin \
-        --libdir=/%{_lib} \
-        --with-apparmor
+
+aclocal && autoconf && autoheader && automake
+
+%configure2_5x \
+    --sbindir=/sbin \
+    --libdir=/%{_lib} \
+    --libexecdir=%{_sbindir} \
+    --with-apparmor
 make
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
-mkdir -p %{buildroot}/{sbin,%{_mandir}/man8,%{_lib}}
-mkdir -p %{buildroot}%{_sysconfdir}/sysconfig
-mkdir -p %{buildroot}{%{_includedir},%{_libdir}}
-make DESTDIR=%{buildroot} pythondir=%{_libdir}/python%{pyver}/site-packages install
+%makeinstall_std
 
 mkdir -p %{buildroot}%{_srvdir}/auditd/log
 install -m 0740 %{_sourcedir}/auditd.run %{buildroot}%{_srvdir}/auditd/run
 install -m 0740 %{_sourcedir}/auditd-log.run %{buildroot}%{_srvdir}/auditd/log/run
 install -m 0740 %{_sourcedir}/auditd.finish %{buildroot}%{_srvdir}/auditd/finish
 
-# the Makefile doesn't handle much of this gracefully
-install -m 0644 lib/libaudit.h %{buildroot}%{_includedir}/
-mv %{buildroot}/%{_lib}/libaudit.a %{buildroot}%{_libdir}/
-
-pushd %{buildroot}%{_libdir}
-    LIBNAME="`basename \`ls %{buildroot}/%{_lib}/libaudit.so.*.*.*\``"
-    ln -s ../../%{_lib}/${LIBNAME} libaudit.so
-popd
-
 # remove unwanted files
 rm -f %{buildroot}/%{_lib}/libaudit.{so,la}
-rm -f %{buildroot}%{_libdir}/python%{pyver}/site-packages/_audit.{a,la}
+rm -f %{buildroot}%{py_siteplatdir}/*.{a,la}
 rm -rf %{buildroot}%{_sysconfdir}/rc.d
 rm -f %{buildroot}%{_sysconfdir}/sysconfig/auditd
 
-# rpm isn't stripping /sbin/auditd
-strip %{buildroot}/sbin/auditd
 
 
 %post -n %{libname} -p /sbin/ldconfig
@@ -159,39 +151,40 @@ strip %{buildroot}/sbin/auditd
 
 %files
 %defattr(-,root,root)
-%attr(0750,root,root) /sbin/auditctl
-%attr(0750,root,root) /sbin/auditd
-%attr(0750,root,root) /sbin/ausearch
-%attr(0750,root,root) /sbin/aureport
-%attr(0750,root,root) /sbin/autrace
-%attr(0750,root,root) /sbin/audispd
-%attr(0770,root,root) %dir %{_sysconfdir}/audit
-%config(noreplace) %attr(0640,root,root) %{_sysconfdir}/audit/auditd.conf
-%config(noreplace) %attr(0640,root,root) %{_sysconfdir}/audit/audit.rules
-%{_libdir}/python%{pyver}/site-packages/AuditMsg.py*
+/sbin/*
+%dir %{_sysconfdir}/audit
+%dir %{_sysconfdir}/audisp
+%dir %{_sysconfdir}/audisp/plugins.d
+%config(noreplace) %{_sysconfdir}/audisp/audispd.conf
+%config(noreplace) %{_sysconfdir}/audisp/plugins.d/af_unix.conf
+%config(noreplace) %{_sysconfdir}/audisp/plugins.d/syslog.conf
+%config(noreplace) %{_sysconfdir}/audit/auditd.conf
+%config(noreplace) %{_sysconfdir}/audit/audit.rules
 %dir %attr(0750,root,admin) %{_srvdir}/auditd
 %dir %attr(0750,root,admin) %{_srvdir}/auditd/log
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/auditd/run
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/auditd/log/run
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/auditd/finish
+%{_mandir}/man5/*
 %{_mandir}/man8/*
 
 %files -n %{libname}
 %defattr(-,root,root)
-/%{_lib}/libaudit.so.*
+/%{_lib}/lib*.so.*
 %config(noreplace) %attr(0640,root,root) %{_sysconfdir}/libaudit.conf
 
 %files -n %{devname}
 %defattr(-,root,root)
-%{_includedir}/libaudit.h
-%{_libdir}/libaudit.a
-%{_libdir}/libaudit.so
+%{_includedir}/*.h
+/%{_lib}/*.a
+/%{_lib}/*.la
+/%{_lib}/*.so
 %{_mandir}/man3/*
 
-%files -n %{libname}-python
+%files -n python-audit
 %defattr(-,root,root)
-%{_libdir}/python%{pyver}/site-packages/_audit.so
-%{_libdir}/python%{pyver}/site-packages/audit.py*
+%{py_platsitedir}/*
+%{py_purelibdir}/*
 
 %files doc
 %defattr(-,root,root)
@@ -199,6 +192,17 @@ strip %{buildroot}/sbin/auditd
 
 
 %changelog
+* Tue Dec 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.6.1
+- 1.6.1
+- updated buildrequires
+- rename %%libname-python to python-audit
+- use %%configure2_5x and %%makeinstall_std to ease the build
+- dropped P0
+- rediffed P1
+- P2: fix the sendmail check
+- P3: fix "config file too large" on x86_64
+- P4: don't build or try to build system-config-audit
+
 * Thu Sep 13 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2.9
 - implement devel naming policy
 - implement library provides policy

@@ -1,19 +1,19 @@
---- audit-1.2.9/init.d/auditd.conf.avx	2006-11-17 16:39:59.000000000 -0700
-+++ audit-1.2.9/init.d/auditd.conf	2006-11-17 16:41:05.000000000 -0700
-@@ -2,13 +2,15 @@
+--- audit-1.6.1/init.d/auditd.conf.config	2007-08-24 09:11:52.000000000 -0600
++++ audit-1.6.1/init.d/auditd.conf	2007-12-11 19:56:52.733798500 -0700
+@@ -2,14 +2,15 @@
  # This file controls the configuration of the audit daemon
  #
  
 -log_file = /var/log/audit/audit.log
-+# log_file is commented because all logging is done to /var/log/system/audit/current
++# all logging is done via /var/log/system/audit/current instead
 +#log_file = /var/log/audit/audit.log
  log_format = RAW
+ log_group = root
  priority_boost = 3
  flush = INCREMENTAL
  freq = 20
  num_logs = 4
 -dispatcher = /sbin/audispd
-+# we don't need the dispatcher
 +#dispatcher = /sbin/audispd
  disp_qos = lossy
  max_log_file = 5 
