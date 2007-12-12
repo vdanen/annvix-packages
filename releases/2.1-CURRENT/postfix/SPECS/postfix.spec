@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		postfix
-%define version		2.4.5
+%define version		2.4.6
 %define release 	%_revrel
 %define epoch		1
 
@@ -455,6 +455,9 @@ done
 
 
 %changelog
+* Tue Dec 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.4.6
+- 2.4.6
+
 * Fri Sep 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.4.5
 - rebuild against new pcre
 - coreutils already provides fileutils
