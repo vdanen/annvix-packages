@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		initscripts
-%define version		8.37.1
+%define version		8.38
 %define release		%_revrel
 
 Summary:	The inittab file and the /etc/init.d scripts
@@ -197,7 +197,6 @@ chmod 0600 /var/log/btmp
 %attr(0700,root,root) /sbin/netreport
 /sbin/ppp-watch
 /sbin/service
-/sbin/setsysfont
 /usr/bin/*
 %attr(0700,root,root) /usr/sbin/usernetctl
 
@@ -214,6 +213,10 @@ chmod 0600 /var/log/btmp
 
 
 %changelog
+* Wed Dec 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.38
+- 8.38
+- drop setsysfont; kbd provides it now
+
 * Sun Oct 07 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.37.1
 - requires module-init-tools, not modutils
 
