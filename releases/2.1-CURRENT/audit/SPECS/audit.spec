@@ -126,7 +126,6 @@ install -m 0740 %{_sourcedir}/auditd-log.run %{buildroot}%{_srvdir}/auditd/log/r
 install -m 0740 %{_sourcedir}/auditd.finish %{buildroot}%{_srvdir}/auditd/finish
 
 # remove unwanted files
-rm -f %{buildroot}/%{_lib}/libaudit.{so,la}
 rm -f %{buildroot}%{py_siteplatdir}/*.{a,la}
 rm -rf %{buildroot}%{_sysconfdir}/rc.d
 rm -f %{buildroot}%{_sysconfdir}/sysconfig/auditd
@@ -202,6 +201,7 @@ rm -f %{buildroot}%{_sysconfdir}/sysconfig/auditd
 - P2: fix the sendmail check
 - P3: fix "config file too large" on x86_64
 - P4: don't build or try to build system-config-audit
+- don't delete the development files we want
 
 * Thu Sep 13 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2.9
 - implement devel naming policy
