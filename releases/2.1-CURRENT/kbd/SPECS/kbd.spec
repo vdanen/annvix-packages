@@ -5,9 +5,9 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-# $Id: zsh.spec 7687 2007-09-22 01:18:38Z vdanen $
+# $Id$
 
-%define revision	$Rev: 7687 $
+%define revision	$Rev$
 %define name		kbd
 %define version		1.12
 %define release		%_revrel
