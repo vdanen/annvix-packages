@@ -191,7 +191,7 @@ libtoolize --copy --force; aclocal-1.7; automake-1.7 --copy --add-missing; autoc
 
 %changelog
 * Tue Dec 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0.35
-- rebuild against new freetype2
+- rebuild against new freetype2, fontconfig
 
 * Wed Nov 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0.35
 - rebuild against new gettext
