@@ -22,8 +22,8 @@ URL:		http://userweb.kernel.org/~kzak/util-linux-ng/
 Source0:	ftp://ftp.kernel.org/pub/linux/utils/%{name}/v2.13/%{name}-%{version}.tar.bz2
 Source1:	login.pamd
 Source2:	remote.pamd
-Source8:	nologin.c
-Source9:	nologin.8
+Source3:	nologin.c
+Source4:	nologin.8
 #
 # 0-29 RedHat/Fedora
 #
@@ -469,6 +469,7 @@ find  %{buildroot}%{_bindir}/ -regextype posix-egrep -type l \
 - sync patches with Mandriva's 2.13-2mdv
 - add remote.pamd
 - use pam_loginuid in login/remote pam configs
+- re-number patches and sources
 
 * Sat Nov 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.12r
 - P1213: security fix for CVE-2007-5191
