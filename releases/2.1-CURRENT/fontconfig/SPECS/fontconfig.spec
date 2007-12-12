@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		fontconfig
-%define version		2.3.2
+%define version		2.5.0
 %define release		%_revrel
 
 %define major		1
@@ -25,11 +25,7 @@ Release:	%{release}
 License:	MIT
 Group:		System/X11
 URL:		http://fontconfig.org/
-Source:		http://fontconfig.org/release/fontconfig-%{version}.tar.bz2
-Patch0:		fontconfig-2.3.2-libtool.patch
-Patch1:		fontconfig-2.2.98-blacklist.patch
-Patch2:		fontconfig-2.3.2-defaultconfig.patch
-Patch3:		fontconfig-2.3.2-includeconf.patch
+Source:		http://fontconfig.org/release/fontconfig-%{version}.tar.gz
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	ed
@@ -82,11 +78,6 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
-%patch0 -p1 -b .libtool
-%patch1 -p1 -b .blacklist
-%patch2 -p1 -b .defaultconfig
-%patch3 -p1 -b .includeconf
-autoconf
 
 
 %build
@@ -103,6 +94,7 @@ make
 # remove unpackaged files
 rm -rf %{buildroot}%{_datadir}/doc/fontconfig
 rm -rf %{buildroot}%{_sysconfdir}/fonts/conf.d
+rm -rf %{buildroot}%{_sysconfdir}/fonts/conf.avail
 
 
 %clean
@@ -120,6 +112,7 @@ rm -rf %{buildroot}%{_sysconfdir}/fonts/conf.d
 %files
 %defattr(-,root,root)
 %{_bindir}/fc-cache
+%{_bindir}/fc-cat
 %{_bindir}/fc-match
 %{_bindir}/fc-list
 %dir %{_sysconfdir}/fonts
@@ -146,6 +139,10 @@ rm -rf %{buildroot}%{_sysconfdir}/fonts/conf.d
 
 
 %changelog
+* Tue Dec 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.5.0
+- 2.5.0
+- drop all patches
+
 * Sun Sep 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.3.2
 - implement devel naming policy
 - implement library provides policy
