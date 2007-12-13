@@ -120,6 +120,9 @@ install -m 0644 %{_sourcedir}/98_aide.afterboot %{buildroot}%{_datadir}/afterboo
 
 
 %changelog
+* Wed Dec 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.13.1
+- rebuild against new mhash
+
 * Mon Jun 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.13.1
 - rebuild with SSP
 - update the config to not watch /dev/pts/*
