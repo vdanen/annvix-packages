@@ -13,7 +13,7 @@
 %define release		%_revrel
 %define epoch		1
 
-%define phpversion	5.2.4
+%define phpversion	5.2.5
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir		%{_libdir}/php
 
