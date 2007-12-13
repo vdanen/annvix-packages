@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		libtool
-%define version		1.5.22
+%define version		1.5.24
 %define release		%_revrel
 
 %define major		3
@@ -47,8 +47,6 @@ Patch2:		libtool-1.5.6-ltmain-SED.patch
 Patch3:		libtool-1.5.6-libtoolize--config-only.patch
 Patch4:		libtool-1.5.6-test-dependency.patch
 Patch5:		libtool-1.5-testfailure.patch
-Patch6:		libtool-1.5.22-mdv-old-libtool.patch
-Patch7:		libtool-1.5.22-mdv-fix-link.test.patch
 Patch8:		libtool-1.5.22-fdr-anygcc.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -112,11 +110,9 @@ This package contains the documentation for %{name}.
 %patch3 -p1 -b .libtoolize--config-only
 %patch4 -p1 -b .test-dependency
 %patch5 -p1
-%patch6 -p1 -b .old-libtool
-%patch7 -p1 -b .fix_test.link
 %patch8 -p1 -b .anygcc
 
-ACLOCAL=aclocal-1.8 AUTOMAKE=automake-1.8 ./bootstrap
+./bootstrap
 
 
 %build
@@ -226,6 +222,11 @@ mv libltdl/README libltdl/README.libltdl
 
 
 %changelog
+* Wed Dec 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.5.24
+- 1.5.24
+- update P1 from Mandriva
+- drop P6, P7: merged upstream
+
 * Sat Oct 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.5.22
 - 1.5.22
 - libs are LGPL licensed
