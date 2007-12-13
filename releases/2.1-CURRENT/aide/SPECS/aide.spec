@@ -31,7 +31,7 @@ BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	flex
 BuildRequires:	glibc-devel
 BuildRequires:	glibc-static-devel
-BuildRequires:	libmhash-devel
+BuildRequires:	mhash-devel
 BuildRequires:	zlib-devel
 BuildRequires:	bison
 
@@ -122,6 +122,7 @@ install -m 0644 %{_sourcedir}/98_aide.afterboot %{buildroot}%{_datadir}/afterboo
 %changelog
 * Wed Dec 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.13.1
 - rebuild against new mhash
+- fix buildrequires
 
 * Mon Jun 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.13.1
 - rebuild with SSP
