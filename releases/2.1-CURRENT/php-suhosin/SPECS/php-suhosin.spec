@@ -9,11 +9,11 @@
 
 %define revision	$Rev$
 %define name		php-%{modname}
-%define version		0.9.20
+%define version		0.9.22
 %define release		%_revrel
 %define epoch		1
 
-%define phpversion	5.2.3
+%define phpversion	5.2.5
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir		%{_libdir}/php
 
@@ -30,8 +30,8 @@ Epoch:		%{epoch}
 License:	PHP License
 Group:		Development/PHP
 URL:		http://www.hardened-php.net/suhosin/
-Source0:	%{modname}-%{version}.tgz
-Source1:	%{modname}-%{version}.tgz.sig
+Source0:	http://www.hardened-php.net/suhosin/_media/suhosin-%{version}.tgz
+Source1:	http://www.hardened-php.net/suhosin/_media/suhosin-%{version}.tgz.sig
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:  php-devel >= %{phpversion}
@@ -94,6 +94,10 @@ install -m 0755 %{soname} %{buildroot}%{phpdir}/extensions/
 
 
 %changelog
+* Wed Dec 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.9.22
+- 0.9.22
+- php 5.2.5
+
 * Wed Sep 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.9.20
 - php 5.2.4
 - use %%serverbuild
