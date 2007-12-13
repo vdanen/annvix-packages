@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		sudo
-%define version		1.6.9p6
+%define version		1.6.9p9
 %define release		%_revrel
 %define epoch		1
 
@@ -25,7 +25,6 @@ Source:		ftp://ftp.sudo.ws/pub/sudo/%{name}-%{version}.tar.gz
 Source1:	ftp://ftp.sudo.ws/pub/sudo/%{name}-%{version}.tar.gz.sig
 Source2:	sudoers.annvix
 Source3:	sudo.pam
-Source4:	sudo.logrotate
 Source4:	sudo.logrotate
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -56,16 +55,16 @@ This package contains the documentation for %{name}.
 %serverbuild
 
 CFLAGS="%{optflags} -D_GNU_SOURCE" \
-%configure --prefix=%{_prefix} \
+%configure2_5x  \
     --with-logging=both \
-    --with-logpath=/var/log/sudo.log \
+    --with-logpath=%{_logdir}/sudo.log \
     --with-editor=/bin/vi \
     --enable-log-host \
     --disable-log-wrap \
     --with-pam \
     --with-env-editor \
     --with-noexec=no \
-    --with-secure-path="/sbin:/usr/sbin:/bin:/usr/bin:/usr/local/sbin:/usr/local/bin" \
+    --with-secure-path="/sbin:%{_sbindir}:/bin:%{_bindir}:/usr/local/sbin:/usr/local/bin" \
     CFLAGS="%{optflags} -D_GNU_SOURCE"
 
 %make
@@ -83,17 +82,17 @@ chmod 0700 %{buildroot}/var/run/sudo
 
 # Install sample pam file
 mkdir -p %{buildroot}%{_sysconfdir}/pam.d
-install -m 0644 %{SOURCE3} %{buildroot}%{_sysconfdir}/pam.d/sudo
+install -m 0644 %{_sourcedir}/sudo.pam %{buildroot}%{_sysconfdir}/pam.d/sudo
 
 # Install logrotate file
 mkdir -p %{buildroot}%{_sysconfdir}/logrotate.d
-install -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/logrotate.d/sudo
+install -m 0644 %{_sourcedir}/sudo.logrotate %{buildroot}%{_sysconfdir}/logrotate.d/sudo
 
 chmod 0755 %{buildroot}%{_bindir}/sudo
 chmod 0755 %{buildroot}%{_sbindir}/visudo
 
 # install our sudoers file
-install -m 0440 %{SOURCE2} %{buildroot}%{_sysconfdir}/sudoers
+install -m 0440 %{_sourcedir}/sudoers.annvix %{buildroot}%{_sysconfdir}/sudoers
 
 
 %clean
@@ -118,6 +117,10 @@ install -m 0440 %{SOURCE2} %{buildroot}%{_sysconfdir}/sudoers
 
 
 %changelog
+* Wed Dec 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.6.9p9
+- 1.6.9p9
+- use more macros for paths
+
 * Wed Oct 17 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.6.9p6
 - 1.6.9p6
 
