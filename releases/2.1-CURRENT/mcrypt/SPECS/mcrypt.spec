@@ -77,6 +77,9 @@ This package contains the documentation for %{name}.
 
 
 %changelog
+* Wed Dec 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.6
+- rebuild against new mhash
+
 * Sat Sep 8 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.6
 - 2.6.6
 - fix build dependencies
