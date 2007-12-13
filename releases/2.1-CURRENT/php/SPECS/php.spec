@@ -9,14 +9,14 @@
 
 %define revision	$Rev$
 %define name		php
-%define version		5.2.4
+%define version		5.2.5
 %define release		%_revrel
 %define epoch		2
 
 %define libversion	5
 %define libname		%mklibname php_common %{libversion}
 
-%define suhosin_ver	5.2.4-0.9.6.2
+%define suhosin_ver	5.2.5-0.9.6.2
 
 %define _requires_exceptions BEGIN\\|mkinstalldirs\\|pear(\\|/usr/bin/tclsh
 
@@ -1606,6 +1606,10 @@ fi
 
 
 %changelog
+* Sun Sep 23 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.4
+- 5.2.5
+- suhosin patch 5.2.5-0.9.6.2
+
 * Sun Sep 23 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.4
 - rebuild against new pam
 
