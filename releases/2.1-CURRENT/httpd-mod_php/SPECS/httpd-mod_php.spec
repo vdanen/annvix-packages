@@ -14,7 +14,7 @@
 
 # Module-Specific definitions
 %define apache_version	2.2.6
-%define phpversion	5.2.4
+%define phpversion	5.2.5
 %define mod_name	mod_php
 %define mod_conf	70_%{mod_name}.conf
 %define mod_so		%{mod_name}5.so
@@ -115,6 +115,9 @@ install -m 0644 %{_sourcedir}/%{mod_conf} %{buildroot}%{_sysconfdir}/httpd/modul
 
 
 %changelog
+* Wed Dec 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.6_5.2.5
+- php 5.2.5
+
 * Sat Sep 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.6_5.2.4
 - apache 2.2.6
 
