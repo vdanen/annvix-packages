@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		glib%{api_version}
-%define version		2.14.3
+%define version		2.14.4
 %define release		%_revrel
 
 %define api_version	2.0
@@ -174,6 +174,9 @@ install -m 0755 %{_sourcedir}/glib20.csh %{buildroot}%{_sysconfdir}/profile.d/gl
 
 
 %changelog
+* Wed Dec 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.14.4
+- 2.14.4
+
 * Wed Nov 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.14.3
 - 2.14.3
 - rebuild against new gettext
