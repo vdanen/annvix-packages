@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		samba
-%define version		3.0.27a
+%define version		3.0.28
 %define release		%_revrel
 
 %define smbldapver	0.9.2
@@ -850,6 +850,9 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Thu Dec 13 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0.28
+- 3.0.28: fixes CVE-2007-6015
+
 * Tue Nov 27 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0.27a
 - 3.0.27a
 - drop P14; fixed upstream
