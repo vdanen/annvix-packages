@@ -14,7 +14,7 @@
 
 # Module-Specific definitions
 %define apache_version	2.2.6
-%define mod_version	2.1.2
+%define mod_version	2.1.3
 %define mod_name	mod_security2
 %define mod_conf	82_%{mod_name}.conf
 %define mod_so		%{mod_name}.so
@@ -29,6 +29,7 @@ URL:		http://www.modsecurity.org/
 Source0:	http://www.modsecurity.org/download/modsecurity-apache_%{mod_version}.tar.gz
 Source1:	http://www.modsecurity.org/download/modsecurity-apache_%{mod_version}.tar.gz.asc
 Source2:	http://www.modsecurity.org/download/modsecurity-core-rules_2.0-1.2.tar.gz
+Source3:	mod_security2.logrotate
 Source4:	%{mod_conf}
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -67,22 +68,24 @@ CFLAGS=`%{_sbindir}/apxs -q CFLAGS`
     top_dir="%{_libdir}/httpd" \
     INCLUDES="-I%{_includedir}/libxml2" \
     DEFS="-DWITH_LIBXML2 -DWITH_PCRE_STUDY" \
-    CFLAGS="$CFLAGS -Wl,-lxml2"
+    LIBS="-L%{_libdir} -Wl,-lxml2" \
+    CFLAGS="$CFLAGS"
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 mkdir -p %{buildroot}%{_libdir}/httpd-extramodules
-mkdir -p %{buildroot}%{_sysconfdir}/httpd/modules.d
+mkdir -p %{buildroot}%{_sysconfdir}/{httpd/{modules.d,conf/modsecurity/blocking},logrotate.d}
 mkdir -p %{buildroot}{%{_sbindir},%{_sysconfdir}/httpd/conf/modsecurity}
 
 install -m 0755 apache2/.libs/*.so %{buildroot}%{_libdir}/httpd-extramodules/
 install -m 0644 %{_sourcedir}/%{mod_conf} %{buildroot}%{_sysconfdir}/httpd/modules.d/%{mod_conf}
+install -m 0644 %{_sourcedir}/mod_security2.logrotate %{buildroot}%{_sysconfdir}/logrotate.d/mod_security2
 
-for conf in `ls -1 modsecurity_crs*conf`; do
-    install -m 0644 ${conf} %{buildroot}%{_sysconfdir}/httpd/conf/modsecurity/
-done
+install -m 0644 rules/*.conf %{buildroot}%{_sysconfdir}/httpd/conf/modsecurity/
+install -m 0644 rules/blocking/*.conf %{buildroot}%{_sysconfdir}/httpd/conf/modsecurity/blocking/
+cp -f rules/README README.rules
 
 
 %clean
@@ -91,17 +94,25 @@ done
 
 %files
 %defattr(-,root,root)
-%dir %attr(0755,root,root) %config(noreplace) %{_sysconfdir}/httpd/conf/modsecurity
-%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/conf/modsecurity/*
-%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/httpd/modules.d/%{mod_conf}
-%attr(0755,root,root) %{_libdir}/httpd-extramodules/%{mod_so}
+%config(noreplace) %{_sysconfdir}/logrotate.d/%{mod_name}
+%dir %{_sysconfdir}/httpd/conf/modsecurity
+%dir %{_sysconfdir}/httpd/conf/modsecurity/blocking
+%config(noreplace) %{_sysconfdir}/httpd/conf/modsecurity/*.conf
+%config(noreplace) %{_sysconfdir}/httpd/conf/modsecurity/blocking/*.conf
+%config(noreplace) %{_sysconfdir}/httpd/modules.d/%{mod_conf}
+%{_libdir}/httpd-extramodules/%{mod_so}
 
 %files doc
 %defattr(-,root,root)
-%doc CHANGELOG CHANGES LICENSE README README.TXT doc/*
+%doc CHANGELOG CHANGES LICENSE README README.TXT README.rules doc/*
 
 
 %changelog
+* Wed Dec 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.6_2.1.3
+- 2.1.3
+- include the extra rules, but don't enable them by default
+- include a logrotate script
+
 * Sat Sep 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.6_2.1.2
 - 2.1.2
 - apache 2.2.6

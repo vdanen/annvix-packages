@@ -1,0 +1,13 @@
+/var/log/httpd/modsec_audit.log  /var/log/httpd/modsec_debug.log {
+    rotate 5
+    monthly
+    missingok
+    notifempty
+    nocompress
+    postrotate
+        # only restart if httpd is really running
+        if [ "`/sbin/sv status /service/httpd 2>/dev/null | cut -d ';' -f 1 | egrep -q '^run: ' ; echo $?`" == "0" ]; then
+                /usr/sbin/srv --reload httpd >/dev/null 2>&1
+        fi
+    endscript
+}
