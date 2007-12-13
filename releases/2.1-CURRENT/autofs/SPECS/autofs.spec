@@ -69,6 +69,7 @@ Patch41:	autofs-5.0.2-check-mtab-updated.patch
 Patch42:	autofs-5.0.2-basedn-with-spaces-fix-2.patch
 Patch43:	autofs-5.0.2-master-check-underscore.patch
 Patch44:	autofs-5.0.2-add-ldap-schema-discovery-fix-2.patch
+Patch45:	autofs-5.0.2-hosts-nosuid-default.patch
 Patch100:	autofs-5.0.2-mdv-rename-configuration-file.patch
 Patch101:	autofs-5.0.2-mdv-separate-config-files.patch
 Patch102:	autofs-5.0.2-avx-config_fixes.patch
@@ -148,6 +149,7 @@ This package contains the documentation for %{name}.
 %patch42 -p1
 %patch43 -p1
 %patch44 -p1
+%patch45 -p1
 
 %patch100 -p1
 %patch101 -p1
@@ -221,6 +223,10 @@ install -m 0740 %{_sourcedir}/autofs-log.run %{buildroot}%{_srvdir}/autofs/log/r
 
 
 %changelog
+* Thu Dec 13 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.0.2
+- P45: make the hosts map mount nosuid by default (CVE-2007-5964)
+- rediff P102
+
 * Sat Nov 10 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.0.2
 - buildrequires xml-devel
 - disable sasl support as it breaks the ldap module and is non-functional anyways
