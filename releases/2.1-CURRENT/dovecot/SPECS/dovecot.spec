@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		dovecot
-%define version		1.0.5
+%define version		1.0.8
 %define release		%_revrel
 	
 
@@ -137,9 +137,6 @@ for folder in lib lib-auth lib-charset lib-dict lib-imap lib-index lib-mail lib-
     install -p -m644 src/$folder/*.a %{buildroot}%{_datadir}/%{name}/$folder/
 done
 
-
-# generate ghost .pem file
-mkdir -p %{buildroot}%{_sysconfdir}/ssl/dovecot/{certs,private}
 # Clean up buildroot
 rm -rf %{buildroot}%{_datadir}/doc/dovecot/
 
@@ -155,29 +152,7 @@ rm -rf %{buildroot}%{_datadir}/doc/dovecot/
 
 %post
 %_post_srv dovecot
-
-# TODO
-# move this somewhere else, because these commands is "dangerous" as rpmlint say
-#
-# create a ssl cert
-if [ ! -f %{_sysconfdir}/ssl/dovecot/certs/dovecot.pem ]; then
-pushd %{_sysconfdir}/ssl/dovecot &>/dev/null
-umask 077
-cat << EOF | openssl req -new -x509 -days 365 -nodes -out certs/dovecot.pem -keyout private/dovecot.pem &>/dev/null
---
-SomeState
-SomeCity
-SomeOrganization
-SomeOrganizationalUnit
-localhost.localdomain
-root@localhost.localdomain
-EOF
-chown root:root private/dovecot.pem certs/dovecot.pem
-chmod 0600 private/dovecot.pem certs/dovecot.pem
-popd &>/dev/null
-fi
-exit 0
-
+%create_ssl_certificate dovecot false
 
 %preun
 %_preun_srv dovecot
@@ -190,9 +165,6 @@ exit 0
 
 %files
 %defattr(-,root,root)
-%dir %{_sysconfdir}/ssl/%{name}
-%dir %{_sysconfdir}/ssl/%{name}/certs
-%attr(0600,root,root) %dir %{_sysconfdir}/ssl/%{name}/private
 %dir %{_sysconfdir}/dovecot
 %dir %{_libdir}/%{name}
 %{_libdir}/%{name}/*
@@ -253,6 +225,11 @@ exit 0
 
 
 %changelog
+* Wed Dec 12 2007 Vincent Danen <vdanen-at-build.annvix.org>  1.0.8
+- 1.0.8
+- update P0 to reflect new SSL certificate files
+- use %%create_ssl_certificate
+
 * Sat Sep 22 2007 Vincent Danen <vdanen-at-build.annvix.org>  1.0.5
 - 1.0.5
 - include gpg sig

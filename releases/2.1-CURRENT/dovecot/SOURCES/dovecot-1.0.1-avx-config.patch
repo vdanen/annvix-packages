@@ -24,8 +24,8 @@
  # certificate, just make sure to update the domains in dovecot-openssl.cnf
 -#ssl_cert_file = /etc/ssl/certs/dovecot.pem
 -#ssl_key_file = /etc/ssl/private/dovecot.pem
-+#ssl_cert_file = /etc/ssl/dovecot/certs/dovecot.pem
-+#ssl_key_file = /etc/ssl/dovecot/private/dovecot.pem
++#ssl_cert_file = /etc/pki/tls/certs/dovecot.pem
++#ssl_key_file = /etc/pki/tls/private/dovecot.pem
  
  # If key file is password protected, give the password here. Alternatively
  # give it when starting dovecot with -p parameter.
