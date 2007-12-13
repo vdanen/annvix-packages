@@ -65,6 +65,7 @@ Patch16:	samba-CVE-2007-5398.patch
 Patch17:	samba-cvs-bug5087.patch
 Patch18:	samba-3.0.27a-git-regression-fix.patch
 Patch19:	samba3-deb-regression-fix.patch
+Patch20:	samba-CVE-2007-6015.patch
 
 BuildRoot:      %{_buildroot}/%{name}-%{version}
 BuildRequires:  pam-devel
@@ -276,6 +277,7 @@ popd
 %patch17 -p0 -b .bug5087
 %patch18 -p1 -b .regression-git
 %patch19 -p1 -b .regression-deb
+%patch20 -p1 -b .cve-2007-6015
 
 # patches from cvs/samba team
 
@@ -866,6 +868,9 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Thu Dec 13 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0.25a
+- P20: security fix for CVE-2007-6015
+
 * Tue Nov 27 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0.25a
 - P18: another regression fix from the samba team
 - P19: another regression fix from Debian
