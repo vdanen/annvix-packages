@@ -134,7 +134,7 @@ fi
 
 
 %changelog
-* Mon Aug 20 2007 Vincent Danen <vdanen-at-build.annvix.org> 6.4-pre1
+* Wed Dec 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 6.4-pre1
 - cleanup the logrotate script
 
 * Mon Aug 20 2007 Vincent Danen <vdanen-at-build.annvix.org> 6.4-pre1
