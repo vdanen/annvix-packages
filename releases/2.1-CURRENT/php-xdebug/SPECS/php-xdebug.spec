@@ -9,11 +9,11 @@
 
 %define revision	$Rev$
 %define name		php-%{modname}
-%define version		2.0.0
+%define version		2.0.2
 %define release		%_revrel
 %define epoch		1
 
-%define phpversion	5.2.4
+%define phpversion	5.2.5
 %define phpsource       %{_prefix}/src/php-devel
 %define phpdir		%{_libdir}/php
 
@@ -30,7 +30,7 @@ Epoch:		%{epoch}
 License:	PHP License
 Group:		Development/PHP
 URL:		http://xdebug.org/
-Source0:	http://xdebug.org/files/%{modname}-%{version}.tgz
+Source0:	http://xdebug.org/files/xdebug-%{version}.tgz
 Source1:	xdebug.ini
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -116,6 +116,10 @@ perl -pi -e 's|/usr/lib|%{_libdir}|g' %{buildroot}%{_sysconfdir}/php.d/%{inifile
 
 
 %changelog
+* Wed Dec 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0.2
+- 2.0.2
+- php 5.2.5
+
 * Wed Sep 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0.0
 - 2.0.0 final
 - php 5.2.4
