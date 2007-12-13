@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		squid
-%define version		2.6.STABLE16
+%define version		2.6.STABLE17
 %define release		%_revrel
 
 ## Redefine configure values.
@@ -311,6 +311,9 @@ fi
 
 
 %changelog
+* Thu Dec 13 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.STABLE17
+- 2.6.STABLE17
+
 * Sun Sep 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.STABLE16
 - 2.6.STABLE16
 - updated P1
