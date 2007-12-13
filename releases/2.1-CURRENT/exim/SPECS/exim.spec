@@ -18,7 +18,7 @@ Summary:	The exim mail transfer agent
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-License:	GPL
+License:	GPLv2+
 Group:		System/Servers
 URL:		http://www.exim.org
 Source:		ftp://ftp.exim.org/pub/exim/exim4/%{name}-%{version}.tar.bz2
@@ -366,6 +366,9 @@ fi
 
 
 %changelog
+* Wed Dec 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.68
+- rebuild against new openssl
+
 * Tue Dec 04 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.68
 - rebuild against new sqlite3
 
