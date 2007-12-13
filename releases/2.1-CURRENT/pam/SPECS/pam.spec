@@ -300,6 +300,9 @@ fi
 
 
 %changelog
+* Wed Dec 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.99.8.1
+- rebuild against new audit
+
 * Wed Nov 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.99.8.1
 - rebuild against new glib2.0
 - don't use install in %%post to avoid a circular dependency on coreutils
