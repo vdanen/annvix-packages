@@ -1,11 +1,10 @@
 /var/log/pacct {
     create 640 root admin
+    missingok
     daily
     rotate 31
-    compress
-    missingok
     prerotate
-        /sbin/accton
+        /sbin/accton off
     endscript
     postrotate
         /sbin/accton /var/log/pacct
@@ -13,13 +12,9 @@
 }
 /var/log/savacct {
     create 640 root admin
-    monthly
-    compress
     missingok
 }
 /var/log/usracct {
     create 640 root admin
-    monthly
-    compress
     missingok
 }

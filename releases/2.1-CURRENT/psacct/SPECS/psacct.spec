@@ -135,6 +135,9 @@ fi
 
 %changelog
 * Mon Aug 20 2007 Vincent Danen <vdanen-at-build.annvix.org> 6.4-pre1
+- cleanup the logrotate script
+
+* Mon Aug 20 2007 Vincent Danen <vdanen-at-build.annvix.org> 6.4-pre1
 - first Annvix build
 - this is really 6.4-pre1 but since pre1 is already over 7mos old, for the
   sake of simplicty we'll just call it 6.4
