@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		grep
-%define version 	2.5.1a
+%define version 	2.5.3
 %define release 	%_revrel
 
 %define _bindir 	/bin
@@ -21,8 +21,24 @@ Release:	%{release}
 License:	GPL
 Group:		File Tools
 URL:		http://www.gnu.org/software/grep/grep.html
-Source:		ftp://ftp.gnu.org/pub/gnu/grep/%{name}-%{version}.tar.bz2
-Patch1:		grep-2.5.1-i18n-0.1.patch
+Source0:	ftp://ftp.gnu.org/pub/gnu/grep/%{name}-%{version}.tar.bz2
+Patch0:		grep-2.5.1a-mdv-mbcset.patch
+# fix tests:
+# - GREP_COLOR conflicts with test foad1.sh
+# - in yesno.sh "-m 5 -C 1" test expects the context not to be printed after 5 matches,
+#   it seems quite valid to display the context even in that case. (same for -m 2 -C 1)
+Patch1:		grep-2.5.3-mdv-fix-tests.patch
+# patches from debian
+Patch10:	2-man_rgrep.patch
+Patch11:	55-bigfile.patch
+Patch12:	60-dfa.c-case_fold.patch
+Patch13:	61-dfa.c-case_fold-charclass.patch
+Patch14:	63-dfa.c-case_fold-range.patch
+Patch15:	64-egf-speedup.patch
+Patch16:	65-dfa-optional.patch
+Patch17:	66-match_icase.patch
+Patch18:	67-w.patch
+Patch19:	68-no-grep.texi.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	gettext
@@ -48,13 +64,24 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
-%patch1 -p1 -b .i18n
+%patch0 -p0 -b .mbcset
+%patch1 -p1
+%patch10 -p0
+%patch11 -p0
+%patch12 -p0
+%patch13 -p0
+%patch14 -p0
+%patch15 -p0
+%patch16 -p0
+%patch17 -p0
+%patch18 -p0
+%patch19 -p0
 
 
 %build
 %configure2_5x \
     --exec-prefix=/ \
-    --without-included-regex
+
 %make
 
 
@@ -87,6 +114,12 @@ rm -rf %{buildroot}%{_infodir}
 
 
 %changelog
+* Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.5.3
+- 2.5.3
+- drop P0
+- --without-included-regex is the default, so drop it from %%configure
+- merge patches from Mandriva (P0, P1) and Debian (P10-P19)
+
 * Fri Sep 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.5.1a
 - rebuild against new pcre
 - drop the big ChangeLog (NEWS is sufficient)
