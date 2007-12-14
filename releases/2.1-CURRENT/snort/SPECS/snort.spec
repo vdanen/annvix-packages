@@ -650,6 +650,9 @@ update-alternatives --remove %{name} %{_sbindir}/%{name}-inline+flexresp
 
 
 %changelog
+* Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.7.0
+- rebuild against new mysql, openssl
+
 * Tue Jul 24 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.7.0
 - 2.7.0.1
 - updated P0 from Mandriva due to mysqlclient check changes
