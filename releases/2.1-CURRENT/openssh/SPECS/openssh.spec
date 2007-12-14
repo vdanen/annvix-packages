@@ -337,6 +337,9 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.7p1
+- rebuild against new openssl
+
 * Thu Sep 27 2007 Ying-Hung Chen <ying-at-yingternet.com> 4.7p1
 - 4.7p1
 - Update Patch1
