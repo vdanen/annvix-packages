@@ -15,9 +15,7 @@
 %define major		6
 %define libname		%mklibname xext %{major}
 %define devname		%mklibname xext -d
-%define odevname	%mklibname xext 6 -d
 %define staticdevname	%mklibname xext -d -s
-%define ostaticdevname	%mklibname xext 6 -d -s
 
 Summary:	Misc X Extension Library
 Name:		%{name}
@@ -56,7 +54,7 @@ Group:		Development/C
 Requires:	%{libname} = %{version}
 Requires:	x11-proto-devel >= 1.0.0
 Provides:	%{name}-devel = %{version}-%{release}
-Obsoletes:	%{odevname}
+Obsoletes:	%{mklibname xext 6 -d}
 Conflicts:	libxorg-x11-devel < 7.0
 
 %description -n %{devname}
@@ -68,7 +66,7 @@ Summary:	Static development files for %{name}
 Group:		Development/C
 Requires:	%{devname} = %{version}
 Provides:	%{name}-static-devel = %{version}-%{release}
-Obsoletes:	%{ostaticdevname}
+Obsoletes:	%{mklibname xext 6 -d -s}
 Conflicts:	libxorg-x11-static-devel < 7.0
 
 %description -n %{staticdevname}
@@ -116,6 +114,9 @@ Static development files for %{name}
 
 
 %changelog
+* Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0.3
+- rebuild against new libx11
+
 * Sun Sep 9 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0.3
 - implement devel naming policy
 - implement library provides policy
