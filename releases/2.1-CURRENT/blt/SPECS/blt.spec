@@ -182,6 +182,9 @@ done
 
 
 %changelog
+* Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.4z
+- rebuild against new libx11
+
 * Fri Dec 07 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.4z
 - rebuild against new tcl, tk
 - P5: fixes build for tcl 8.5, but also 8.4.14
