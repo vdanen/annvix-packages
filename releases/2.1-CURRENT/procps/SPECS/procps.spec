@@ -171,6 +171,9 @@ rm -f /etc/psdevtab /etc/psdatabase
 
 
 %changelog
+* Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.2.7
+- rebuild against new ncurses
+
 * Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.2.7
 - 3.2.7
 - drop P1, P2: no longer required
