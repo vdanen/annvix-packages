@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		tcpdump
-%define version		3.9.7
+%define version		3.9.8
 %define release		%_revrel
 %define epoch		2
 
@@ -75,6 +75,9 @@ libtoolize --copy --force
 
 
 %changelog
+* Thu Dec 13 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.9.8
+- 3.9.8
+
 * Mon Sep 17 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.9.7
 - 3.9.7; fixes CVE-2007-3798
 - drop P0; fixed upstream
