@@ -15,7 +15,6 @@
 %define libname		%mklibname xt 6
 %define devname		%mklibname xt -d
 %define staticdevname	%mklibname xt -d -s
-%define odevname	%mklibname xt 6 -d
 
 Summary:	X Toolkit Library
 Name:		%{name}
@@ -56,7 +55,7 @@ Requires:	libx11-devel >= 1.0.0
 Requires:	libsm-devel >= 1.0.0
 Provides:	%{name}-devel = %{version}-%{release}
 Provides:	xt-devel = %{version}-%{release}
-Obsoletes:	%{odevname}
+Obsoletes:	%mklibname xt 6 -d
 Conflicts:	libxorg-x11-devel < 7.0
 
 %description -n %{devname}
@@ -155,6 +154,9 @@ Static development files for %{name}
 
 
 %changelog
+* Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0.5
+- rebuild against new libx11
+
 * Thu Jun 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0.5
 - implement devel naming policy
 - implement library provides policy
