@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		libpcap
-%define version		0.9.7
+%define version		0.9.8
 %define release		%_revrel
 
 %define	major		0
@@ -84,6 +84,7 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
+rm -rf doc/CVS
 
 
 %build
@@ -141,6 +142,9 @@ install -m 0644 pcap-int.h %{buildroot}%{_includedir}/
 
 
 %changelog
+* Thu Dec 13 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.9.8
+- 0.9.8
+
 * Sat Sep 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.9.7
 - 0.9.7
 - use %%serverbuild
