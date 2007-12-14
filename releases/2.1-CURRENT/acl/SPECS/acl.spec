@@ -128,6 +128,9 @@ rm -rf %{buildroot}%{_docdir}/acl
 
 
 %changelog
+* Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.44
+- rebuild against new attr
+
 * Mon Jun 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.44
 - rebuild with SSP
 
