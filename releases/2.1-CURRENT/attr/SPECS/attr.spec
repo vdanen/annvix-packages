@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		attr
-%define version 	2.4.38
+%define version 	2.4.39
 %define release 	%_revrel
 
 %define major		1
@@ -134,6 +134,9 @@ rm -rf %{buildroot}/%{_lib}/libattr.{a,la} %{buildroot}%{_libdir}/libattr.la
 
 
 %changelog
+* Thu Dec 13 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.4.39
+- 2.4.39
+
 * Mon Jun 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.4.38
 - rebuild with SSP
 
