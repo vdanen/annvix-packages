@@ -16,8 +16,6 @@
 %define libname		%mklibname mysql %{major}
 %define devname		%mklibname mysql -d
 %define staticdevname	%mklibname mysql -d -s
-%define odevname	%mklibname mysql 15 -d
-%define oldlibname	%mklibname mysql 14
 %define mysqld_user	mysql
 
 %global make_test	1
@@ -125,7 +123,7 @@ This package contains MySQL benchmark scripts and data.
 Summary:        MySQL shared libraries
 Group:          System/Libraries
 Provides:	lib%{name} = %{version}-%{release}
-Obsoletes:	%{oldlibname}
+Obsoletes:	%mklibname mysql 14
 
 %description -n %{libname}
 This package contains the shared libraries (*.so*) which certain
@@ -140,8 +138,8 @@ Requires:	mysql = %{version}
 Requires:	mysql-client = %{version}
 Provides:	%{name}-devel = %{version}-%{release}
 Provides:	MySQL-devel = %{version}-%{release}
-Obsoletes:	%{odevname}
-Obsoletes:	%{oldlibname}-devel
+Obsoletes:	%mklibname mysql 15 -d
+Obsoletes:	%mklibname mysql 14 -d
 Obsoletes:	MySQL-devel
 
 %description -n %{devname}
@@ -480,6 +478,7 @@ fi
 %{_datadir}/mysql/mysql_test_data_timezone.sql
 %{_datadir}/mysql/*.ini
 %{_datadir}/mysql/errmsg.txt
+%{_datadir}/mysql/mysqld_multi.server
 %{_datadir}/afterboot/05_mysql
 %dir %{_libdir}/mysql
 %{_mandir}/man1/innochecksum.1*
@@ -609,7 +608,7 @@ fi
 %files doc
 %defattr(-,root,root)
 %doc INSTALL-SOURCE README.sql-bench README COPYING
-%doc support-files/*.cnf SSL/NOTES SSL/run* SSL/*.pem
+%doc support-files/*.cnf SSL/NOTES SSL/run*
 
 
 %changelog
@@ -618,6 +617,7 @@ fi
 - updated P1 from Mandriva
 - drop P11, fixed upstream
 - disable the mysqlcheck and the various ssl tests that are failing
+- fix the filelist
  
 * Mon Jul 23 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.0.45
 - 5.0.45 (fixes CVE-2007-1420, CVE-2007-2583, CVE-2007-2691, CVE-2007-2692,
