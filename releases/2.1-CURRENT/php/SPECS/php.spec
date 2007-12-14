@@ -1606,7 +1606,10 @@ fi
 
 
 %changelog
-* Sun Sep 23 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.4
+* Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.4
+- rebuild against new mysql
+
+* Wed Dec 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.4
 - 5.2.5
 - suhosin patch 5.2.5-0.9.6.2
 
