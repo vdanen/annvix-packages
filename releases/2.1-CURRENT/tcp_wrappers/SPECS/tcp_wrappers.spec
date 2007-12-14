@@ -70,6 +70,7 @@ Summary:	A security library which acts as a wrapper for TCP daemons
 Group:		Development/C
 Requires:	%{libname} = %{version}
 Provides:	%{name}-devel = %{version}-%{release}
+Provides:	wrap-devel = %{version}-%{release}
 Obsoletes:	%{name}-devel
 Obsoletes:	%mklibname wrap 0 -d
 
@@ -168,6 +169,9 @@ install -m 0755 try-from %{buildroot}%{_sbindir}
 
 
 %changelog
+* Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 7.6
+- provides wrap-devel
+
 * Sat Sep 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 7.6
 - implement devel naming policy
 - implement library provides policy
