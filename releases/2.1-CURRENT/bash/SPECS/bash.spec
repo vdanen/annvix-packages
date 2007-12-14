@@ -134,12 +134,12 @@ mv doc/README .
 %patch36 -p0 -b .017
 %patch37 -p0 -b .018
 %patch38 -p0 -b .019
-%patch39 -p0 -b .020
-%patch40 -p0 -b .021
-%patch41 -p0 -b .022
-%patch42 -p0 -b .023
-%patch43 -p0 -b .024
-%patch44 -p0 -b .025
+#%patch39 -p0 -b .020
+#%patch40 -p0 -b .021
+#%patch41 -p0 -b .022
+#%patch42 -p0 -b .023
+#%patch43 -p0 -b .024
+#%patch44 -p0 -b .025
 
 echo %{version} > _distribution
 echo %{release} > _patchlevel
@@ -299,6 +299,10 @@ rm -rf %{buildroot}%{_datadir}/locale
 
 
 %changelog
+* Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.2
+- don't apply P39-P44; P39 causes a problem with user aliases and the rest
+  don't apply without it
+
 * Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.2
 - test profile scripts for readabiliy, not whether they're executable (/etc/bashrc)
 - P37-P44: update to patchlevel 025
