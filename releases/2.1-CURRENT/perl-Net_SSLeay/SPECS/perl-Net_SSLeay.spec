@@ -88,6 +88,9 @@ perl -p -i -e 's|/usr/local/bin|/usr/bin|g;' *.pm examples/*
 
 
 %changelog
+* Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.30
+- rebuild against new openssl
+
 * Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.30
 - rebuild
 - don't make test as secure.worldgaming.net no longer exists
