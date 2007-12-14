@@ -87,6 +87,9 @@ install -m 0755 ipv6logstats/ipv6logstats %{buildroot}%{_bindir}/
 
 
 %changelog
+* Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.46
+- rebuild against new openssl
+
 * Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.46
 - rebuild
 
