@@ -174,6 +174,9 @@ rm -f %{buildroot}%{_bindir}/texi2pdf
 
 
 %changelog
+* Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.11
+- rebuild against new ncurses
+
 * Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.11
 - 4.11
 - drop P4; applied upstream
