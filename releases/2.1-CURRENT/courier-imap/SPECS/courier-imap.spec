@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		courier-imap
-%define version		4.2.1
+%define version		4.3.0
 %define release		%_revrel
 
 Summary:	Courier-IMAP is an IMAP server that uses Maildirs
@@ -35,8 +35,8 @@ Source12:	MAX_CONN.env
 Source13:	MAX_PER_HOST.env
 Source14:	IP.env
 Patch0: 	courier-imap-4.1.1-pam_service_name.diff
-Patch1:		courier-imap-4.2.1-avx-cert_location.patch
-Patch2:		courier-imap-4.1.1-avx-tcpsvd_configs.patch
+Patch1:		courier-imap-4.3.0-avx-cert_location.patch
+Patch2:		courier-imap-4.3.0-avx-tcpsvd_configs.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	openssl-devel
@@ -370,6 +370,10 @@ done
 
 
 %changelog
+* Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.3.0
+- 4.3.0
+- rediff P1, P2
+
 * Sun Dec 09 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.2.1
 - use the rpm-helper ssl certificate scriptlets
 

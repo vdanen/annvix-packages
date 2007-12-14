@@ -1,5 +1,101 @@
---- courier-imap-4.1.1/imap/imapd.dist.in.avx	2006-12-30 23:39:48.000000000 -0700
-+++ courier-imap-4.1.1/imap/imapd.dist.in	2006-12-30 23:53:10.000000000 -0700
+--- courier-imap-4.3.0/imap/imapd-ssl.dist.in.tcpsvd	2007-11-22 07:23:05.000000000 -0700
++++ courier-imap-4.3.0/imap/imapd-ssl.dist.in	2007-12-14 15:08:24.730883000 -0700
+@@ -8,71 +8,38 @@
+ #  Copyright 2000 - 2007 Double Precision, Inc.  See COPYING for
+ #  distribution information.
+ #
++#
++# imapds configuration file for courier-imap on Annvix
++#
++# This configuration file is used instead of what you might be used to
++# seeing from a "stock" courier-imap because Annvix does not use
++# couriertcpd but uses tcpsvd instead so a lot of the stuff that is
++# normally here is not required
++#
++# Many options can be set in /var/service/courier-imapds/env using the
++# environment files MAX_CONN, MAX_MEM, IP, and PORT:
++#
++#   MAX_MEM	 - the maximum memory to allow courier-imap to use
++#   MAX_CONN	 - the maximum number of concurrent connections
++#   MAX_PER_HOST - the maximum number of conncurrent connections per host
++#		   (the old MAXPERIP setting)
++#   IP		 - the IP address to bind to (default: 0 (all))
++#		   (the old ADDRESS setting)
++#   PORT	 - the TCP port to listen to (default: 143)
++#
+ #  This configuration file sets various options for the Courier-IMAP server
+ #  when used to handle SSL IMAP connections.
+ #
+-#  SSL and non-SSL connections are handled by a dedicated instance of the
+-#  couriertcpd daemon.  If you are accepting both SSL and non-SSL IMAP
+-#  connections, you will start two instances of couriertcpd, one on the
+-#  IMAP port 143, and another one on the IMAP-SSL port 993.
+-#
+ #  Download OpenSSL from http://www.openssl.org/
+ #
++# use ./env/PORT
+ ##NAME: SSLPORT:1
+-#
+-#  Options in the imapd-ssl configuration file AUGMENT the options in the
+-#  imapd configuration file.  First the imapd configuration file is read,
+-#  then the imapd-ssl configuration file, so we do not have to redefine
+-#  anything.
+-#
+-#  However, some things do have to be redefined.  The port number is
+-#  specified by SSLPORT, instead of PORT.  The default port is port 993.
+-#
+-#  Multiple port numbers can be separated by commas.  When multiple port
+-#  numbers are used it is possibly to select a specific IP address for a
+-#  given port as "ip.port".  For example, "127.0.0.1.900,192.68.0.1.900"
+-#  accepts connections on port 900 on IP addresses 127.0.0.1 and 192.68.0.1
+-#  The SSLADDRESS setting is a default for ports that do not have
+-#  a specified IP address.
+-
+-SSLPORT=993
+-
++# use ./env/IP
+ ##NAME: SSLADDRESS:0
+-#
+-#  Address to listen on, can be set to a single IP address.
+-#
+-# SSLADDRESS=127.0.0.1
+-
+-SSLADDRESS=0
+-
++# unused
+ ##NAME: SSLPIDFILE:0
+-#
+-# That's the SSL IMAP port we'll listen on.
+-# Feel free to redefine MAXDAEMONS, TCPDOPTS, and MAXPERIP.
+-
+-SSLPIDFILE=@piddir@/imapd-ssl.pid
+-
+ ##NAME: SSLLOGGEROPTS:0
+-#
+-# courierlogger(1) options.                                        
+-#
+-
+-SSLLOGGEROPTS="-name=imapd-ssl"
+-
+ ##NAME: IMAPDSSLSTART:0
+-#
+-# Different pid files, so that both instances of couriertcpd can coexist
+-# happily.
+-#
+-# You can also redefine IMAP_CAPABILITY, although I can't
+-# think of why you'd want to do that.
+-#
+-#
+-# Ok, the following settings are new to imapd-ssl:
+-#
+-#  Whether or not to start IMAP over SSL on simap port:
+-
+-IMAPDSSLSTART=NO
+ 
+ ##NAME: IMAPDSTARTTLS:0
+ #
+--- courier-imap-4.3.0/imap/imapd.dist.in.tcpsvd	2006-02-25 10:14:40.000000000 -0700
++++ courier-imap-4.3.0/imap/imapd.dist.in	2007-12-14 15:08:24.726882750 -0700
 @@ -8,34 +8,32 @@
  #  Copyright 1998 - 2006 Double Precision, Inc.  See COPYING for
  #  distribution information.
@@ -134,21 +230,20 @@
  
  ##NAME: MAILDIRPATH:0
  #
---- courier-imap-4.1.1/imap/imapd-ssl.dist.in.avx	2006-12-30 23:53:40.000000000 -0700
-+++ courier-imap-4.1.1/imap/imapd-ssl.dist.in	2006-12-30 23:56:11.000000000 -0700
-@@ -8,71 +8,38 @@
- #  Copyright 2000 - 2004 Double Precision, Inc.  See COPYING for
+--- courier-imap-4.3.0/imap/pop3d-ssl.dist.in.tcpsvd	2007-11-22 07:23:06.000000000 -0700
++++ courier-imap-4.3.0/imap/pop3d-ssl.dist.in	2007-12-14 15:12:27.198036250 -0700
+@@ -8,61 +8,39 @@
+ #  Copyright 2000-2007 Double Precision, Inc.  See COPYING for
  #  distribution information.
  #
-+#
-+# imapds configuration file for courier-imap on Annvix
++# pop3ds configuration file for courier-imap on Annvix
 +#
 +# This configuration file is used instead of what you might be used to
 +# seeing from a "stock" courier-imap because Annvix does not use
 +# couriertcpd but uses tcpsvd instead so a lot of the stuff that is
 +# normally here is not required
 +#
-+# Many options can be set in /var/service/courier-imapds/env using the
++# Many options can be set in /var/service/courier-pop3ds/env using the
 +# environment files MAX_CONN, MAX_MEM, IP, and PORT:
 +#
 +#   MAX_MEM	 - the maximum memory to allow courier-imap to use
@@ -159,26 +254,27 @@
 +#		   (the old ADDRESS setting)
 +#   PORT	 - the TCP port to listen to (default: 143)
 +#
++#
  #  This configuration file sets various options for the Courier-IMAP server
- #  when used to handle SSL IMAP connections.
+ #  when used to handle SSL POP3 connections.
  #
 -#  SSL and non-SSL connections are handled by a dedicated instance of the
--#  couriertcpd daemon.  If you are accepting both SSL and non-SSL IMAP
+-#  couriertcpd daemon.  If you are accepting both SSL and non-SSL POP3
 -#  connections, you will start two instances of couriertcpd, one on the
--#  IMAP port 143, and another one on the IMAP-SSL port 993.
+-#  POP3 port 110, and another one on the POP3-SSL port 995.
 -#
  #  Download OpenSSL from http://www.openssl.org/
  #
 +# use ./env/PORT
- ##NAME: SSLPORT:1
--#
--#  Options in the imapd-ssl configuration file AUGMENT the options in the
--#  imapd configuration file.  First the imapd configuration file is read,
--#  then the imapd-ssl configuration file, so we do not have to redefine
+ ##NAME: SSLPORT:0
+ #
+-#  Options in the pop3d-ssl configuration file AUGMENT the options in the
+-#  pop3d configuration file.  First the pop3d configuration file is read,
+-#  then the pop3d-ssl configuration file, so we do not have to redefine
 -#  anything.
 -#
 -#  However, some things do have to be redefined.  The port number is
--#  specified by SSLPORT, instead of PORT.  The default port is port 993.
+-#  specified by SSLPORT, instead of PORT.  The default port is port 995.
 -#
 -#  Multiple port numbers can be separated by commas.  When multiple port
 -#  numbers are used it is possibly to select a specific IP address for a
@@ -187,7 +283,7 @@
 -#  The SSLADDRESS setting is a default for ports that do not have
 -#  a specified IP address.
 -
--SSLPORT=993
+-SSLPORT=995
 -
 +# use ./env/IP
  ##NAME: SSLADDRESS:0
@@ -201,37 +297,27 @@
 +# unused
  ##NAME: SSLPIDFILE:0
 -#
--# That's the SSL IMAP port we'll listen on.
--# Feel free to redefine MAXDAEMONS, TCPDOPTS, and MAXPERIP.
 -
--SSLPIDFILE=@piddir@/imapd-ssl.pid
+-SSLPIDFILE=@piddir@/pop3d-ssl.pid
 -
  ##NAME: SSLLOGGEROPTS:0
 -#
 -# courierlogger(1) options.                                        
 -#
 -
--SSLLOGGEROPTS="-name=imapd-ssl"
+-SSLLOGGEROPTS="-name=pop3d-ssl"
 -
- ##NAME: IMAPDSSLSTART:0
+ ##NAME: POP3DSSLSTART:0
 -#
--# Different pid files, so that both instances of couriertcpd can coexist
--# happily.
--#
--# You can also redefine IMAP_CAPABILITY, although I can't
--# think of why you'd want to do that.
--#
--#
--# Ok, the following settings are new to imapd-ssl:
--#
--#  Whether or not to start IMAP over SSL on simap port:
+-#  Whether or not to start POP3 over SSL on spop3 port:
 -
--IMAPDSSLSTART=NO
- 
- ##NAME: IMAPDSTARTTLS:0
+-POP3DSSLSTART=NO
+-
+ ##NAME: POP3_STARTTLS:0
  #
---- courier-imap-4.1.1/imap/pop3d.dist.in.avx	2006-12-30 23:56:36.000000000 -0700
-+++ courier-imap-4.1.1/imap/pop3d.dist.in	2006-12-30 23:58:28.000000000 -0700
+ # Whether or not to implement the POP3 STLS extension:
+--- courier-imap-4.3.0/imap/pop3d.dist.in.tcpsvd	2005-07-05 06:43:57.000000000 -0600
++++ courier-imap-4.3.0/imap/pop3d.dist.in	2007-12-14 15:08:24.730883000 -0700
 @@ -10,23 +10,31 @@
  #
  #  Courier POP3 daemon configuration
@@ -348,91 +434,4 @@
 -POP3DSTART=NO
  
  ##NAME: MAILDIRPATH:0
- #
---- courier-imap-4.1.1/imap/pop3d-ssl.dist.in.avx	2006-12-30 23:59:04.000000000 -0700
-+++ courier-imap-4.1.1/imap/pop3d-ssl.dist.in	2006-12-31 00:00:18.000000000 -0700
-@@ -8,62 +8,38 @@
- #  Copyright 2000-2004 Double Precision, Inc.  See COPYING for
- #  distribution information.
- #
-+# pop3ds configuration file for courier-imap on Annvix
-+#
-+# This configuration file is used instead of what you might be used to
-+# seeing from a "stock" courier-imap because Annvix does not use
-+# couriertcpd but uses tcpsvd instead so a lot of the stuff that is
-+# normally here is not required
-+#
-+# Many options can be set in /var/service/courier-pop3ds/env using the
-+# environment files MAX_CONN, MAX_MEM, IP, and PORT:
-+#
-+#   MAX_MEM	 - the maximum memory to allow courier-imap to use
-+#   MAX_CONN	 - the maximum number of concurrent connections
-+#   MAX_PER_HOST - the maximum number of conncurrent connections per host
-+#		   (the old MAXPERIP setting)
-+#   IP		 - the IP address to bind to (default: 0 (all))
-+#		   (the old ADDRESS setting)
-+#   PORT	 - the TCP port to listen to (default: 143)
-+#
-+#
- #  This configuration file sets various options for the Courier-IMAP server
- #  when used to handle SSL POP3 connections.
- #
--#  SSL and non-SSL connections are handled by a dedicated instance of the
--#  couriertcpd daemon.  If you are accepting both SSL and non-SSL POP3
--#  connections, you will start two instances of couriertcpd, one on the
--#  POP3 port 110, and another one on the POP3-SSL port 995.
--#
- #  Download OpenSSL from http://www.openssl.org/
- #
-+# use ./env/PORT
- ##NAME: SSLPORT:0
--#
--#  Options in the pop3d-ssl configuration file AUGMENT the options in the
--#  pop3d configuration file.  First the pop3d configuration file is read,
--#  then the pop3d-ssl configuration file, so we do not have to redefine
--#  anything.
--#
--#  However, some things do have to be redefined.  The port number is
--#  specified by SSLPORT, instead of PORT.  The default port is port 995.
--#
--#  Multiple port numbers can be separated by commas.  When multiple port
--#  numbers are used it is possibly to select a specific IP address for a
--#  given port as "ip.port".  For example, "127.0.0.1.900,192.68.0.1.900"
--#  accepts connections on port 900 on IP addresses 127.0.0.1 and 192.68.0.1
--#  The SSLADDRESS setting is a default for ports that do not have
--#  a specified IP address.
--
--SSLPORT=995
--
-+# use ./env/IP
- ##NAME: SSLADDRESS:0
--#
--#  Address to listen on, can be set to a single IP address.
--#
--# SSLADDRESS=127.0.0.1
--
--SSLADDRESS=0
--
-+# unused
- ##NAME: SSLPIDFILE:0
--#
--#
--#
--
--SSLPIDFILE=@piddir@/pop3d-ssl.pid
--
- ##NAME: SSLLOGGEROPTS:0
--#
--# courierlogger(1) options.                                              
--#
--
--SSLLOGGEROPTS="-name=pop3d-ssl"
--
- ##NAME: POP3DSSLSTART:0
--#
--#  Whether or not to start POP3 over SSL on spop3 port:
--
--POP3DSSLSTART=NO
- 
- ##NAME: POP3_STARTTLS:0
  #
