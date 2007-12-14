@@ -19,7 +19,7 @@ Release:	%{release}
 License:	GPL
 Group:		System/Servers
 URL:		http://www.pureftpd.org
-Source:		http://download.pureftpd.org/pub/pure-ftpd/releases/%{name}-%{version}.tar.bz2
+Source0:	http://download.pureftpd.org/pub/pure-ftpd/releases/%{name}-%{version}.tar.bz2
 Source2:	pure-ftpd.logrotate
 Source4:	pureftpd.run
 Source5:	pureftpd-log.run
@@ -67,7 +67,6 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
-%setup -q -D -T -a 2
 
 %patch0 -p1 -b .mdkconf
 %patch1 -p1 -b .pureconfig
@@ -207,6 +206,7 @@ done
 %changelog
 * Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0.21
 - rebuild against new mysql, openssl
+- fix the build
 
 * Sat Sep 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0.21
 - rebuild against new postgresql, pam, openldap
