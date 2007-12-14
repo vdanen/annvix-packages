@@ -151,7 +151,6 @@ chmod a+x tests/ls/x-option
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-[[ -f ChangeLog ]] && bzip2 -9f ChangeLog
 # for help2man:
 export PATH=$PATH:RPM_BUILD_ROOT/man
 
@@ -225,10 +224,14 @@ true
 
 %files doc
 %defattr(-,root,root)
-%doc README ABOUT-NLS ChangeLog.bz2 NEWS THANKS TODO old/*
+%doc README ABOUT-NLS NEWS THANKS TODO old/*
 
 
 %changelog
+* Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 6.9
+- rebuild against new attr
+- don't package the Changelog, we have NEWS
+
 * Sat Oct 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 6.9
 - remove the %%optflags re-define as it's not taking our old CFLAGS
   definitions so everything is built unoptimized and unprotected
