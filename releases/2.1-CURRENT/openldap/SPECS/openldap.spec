@@ -865,6 +865,9 @@ fi
 
 
 %changelog
+* Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.3.39
+- rebuild against new ncurses, openssl
+
 * Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.3.39
 - rebuild against new unixODBC
 - fix spacing in sudo.schema
