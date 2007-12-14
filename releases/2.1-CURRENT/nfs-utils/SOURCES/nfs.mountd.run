@@ -6,14 +6,15 @@ PATH="/sbin:/usr/sbin:/bin:/usr/bin"
 # this service depends on nfs.statd
 
 envdir=/etc/sysconfig/env/nfs
-[[ -f ${envdir}/MOUNTD_NFS_V2 ]] && MOUNTD_NFS_V2="$(head -1 ${envdir}/MOUNTD_NFS_V2)"
-[[ -f ${envdir}/MOUNTD_NFS_V3 ]] && MOUNTD_NFS_V3="$(head -1 ${envdir}/MOUNTD_NFS_V3)"
-[[ -f ${envdir}/MOUNTD_PORT ]]   && MOUNTD_PORT="$(head -1 ${envdir}/MOUNTD_PORT)"
-[[ -f ${envdir}/MOUNTD_TCP ]]    && MOUNTD_TCP="$(head -1 ${envdir}/MOUNTD_TCP)"
-[[ -f ${envdir}/MOUNTD_OPTS ]]   && MOUNTD_OPTS="$(head -1 ${envdir}/MOUNTD_OPTS)"
-[[ -f ${envdir}/RPCNFSDCOUNT ]]  && RPCNFSDCOUNT="$(head -1 ${envdir}/RPCNFSDCOUNT)"
-[[ -f ${envdir}/LOCKD_TCPPORT ]] && LOCKD_TCPPORT="$(head -1 ${envdir}/LOCKD_TCPPORT)"
-[[ -f ${envdir}/LOCKD_UDPPORT ]] && LOCKD_UDPPORT="$(head -1 ${envdir}/LOCKD_UDPPORT)"
+[[ -f ${envdir}/MOUNTD_NFS_V2 ]]   && MOUNTD_NFS_V2="$(head -1 ${envdir}/MOUNTD_NFS_V2)"
+[[ -f ${envdir}/MOUNTD_NFS_V3 ]]   && MOUNTD_NFS_V3="$(head -1 ${envdir}/MOUNTD_NFS_V3)"
+[[ -f ${envdir}/MOUNTD_PORT ]]     && MOUNTD_PORT="$(head -1 ${envdir}/MOUNTD_PORT)"
+[[ -f ${envdir}/MOUNTD_TCP ]]      && MOUNTD_TCP="$(head -1 ${envdir}/MOUNTD_TCP)"
+[[ -f ${envdir}/MOUNTD_OPTS ]]     && MOUNTD_OPTS="$(head -1 ${envdir}/MOUNTD_OPTS)"
+[[ -f ${envdir}/RPCNFSDCOUNT ]]    && RPCNFSDCOUNT="$(head -1 ${envdir}/RPCNFSDCOUNT)"
+[[ -f ${envdir}/RPCNFSDOPTIONS ]]  && RPCNFSDOPTIONS="$(head -1 ${envdir}/RPCNFSDOPTIONS)"
+[[ -f ${envdir}/LOCKD_TCPPORT ]]   && LOCKD_TCPPORT="$(head -1 ${envdir}/LOCKD_TCPPORT)"
+[[ -f ${envdir}/LOCKD_UDPPORT ]]   && LOCKD_UDPPORT="$(head -1 ${envdir}/LOCKD_UDPPORT)"
 
 [[ -n "${MOUNTD_OPTS}" ]]   && RPCMOUNTDOPTS="${RPCMOUNTDOPTS} ${MOUNTD_OPTS}"
 [[ -z "${MOUNTD_NFS_V2}" ]] && MOUNTD_NFS_V2="default"
@@ -36,5 +37,5 @@ trap 'exit 2' 1 2 3 15
 
 /usr/sbin/exportfs -f 2>&1
 /usr/sbin/exportfs -r 2>&1
-/usr/sbin/rpc.nfsd -- ${RPCNFSDCOUNT} 2>&1
+/usr/sbin/rpc.nfsd -- ${RPCNFSDCOUNT} ${RPCNFSDOPTIONS} 2>&1
 exec /usr/sbin/rpc.mountd -F ${RPCMOUNTDOPTS} 2>&1

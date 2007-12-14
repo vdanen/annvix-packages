@@ -1,0 +1,36 @@
+Print clnt directory name being processed in the "handling upcall" message
+
+From: Kevin Coffman <kwc@citi.umich.edu>
+
+Make debugging easier by printing the full clnt directory name in
+the "handling xxx upcall" messages.  (This allows us to verify
+whether a callback authentication callback has been received.)
+
+Signed-off-by: Kevin Coffman <kwc@citi.umich.edu>
+---
+
+ utils/gssd/gssd_proc.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/utils/gssd/gssd_proc.c b/utils/gssd/gssd_proc.c
+index 89d5fdf..d9069ae 100644
+--- a/utils/gssd/gssd_proc.c
++++ b/utils/gssd/gssd_proc.c
+@@ -734,7 +734,7 @@ handle_krb5_upcall(struct clnt_info *clp)
+ 	char			**ccname;
+ 	int			create_resp = -1;
+ 
+-	printerr(1, "handling krb5 upcall\n");
++	printerr(1, "handling krb5 upcall (%s)\n", clp->dirname);
+ 
+ 	token.length = 0;
+ 	token.value = NULL;
+@@ -844,7 +844,7 @@ handle_spkm3_upcall(struct clnt_info *clp)
+ 	struct authgss_private_data pd;
+ 	gss_buffer_desc		token;
+ 
+-	printerr(2, "handling spkm3 upcall\n");
++	printerr(2, "handling spkm3 upcall (%s)\n", clp->dirname);
+ 
+ 	token.length = 0;
+ 	token.value = NULL;
