@@ -455,6 +455,9 @@ done
 
 
 %changelog
+* Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.4.6
+- rebuild against new mysql
+
 * Tue Dec 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.4.6
 - 2.4.6
 
