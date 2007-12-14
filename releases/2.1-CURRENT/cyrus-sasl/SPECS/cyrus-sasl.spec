@@ -15,7 +15,6 @@
 %define major		2
 %define libname		%mklibname sasl %{major}
 %define devname		%mklibname sasl -d
-%define odevname	%mklibname sasl 2 -d
 %define sasl2_db_fname	/var/lib/sasl2/sasl.db
 
 Summary:	SASL is the Simple Authentication and Security Layer
@@ -87,7 +86,7 @@ Group:		Development/C
 Requires:	%{libname} = %{version}
 Provides:	%{name}-devel = %{version}-%{release}
 Provides:	libsasl-devel = %{version}-%{release}
-Obsoletes:	%{odevname}
+Obsoletes:	%mklibname sasl 2 -d
 
 %description -n %{devname}
 SASL is the Simple Authentication and Security Layer, 
@@ -524,6 +523,9 @@ fi
 
  
 %changelog
+* Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1.22
+- rebuild against new mysql
+
 * Sat Sep 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1.22
 - rebuild against new postgresql, pam, openldap
 - /etc/sasl2 should be in the main package, not the libs
