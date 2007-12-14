@@ -242,6 +242,9 @@ cp test-images/* %{buildroot}%{_datadir}/printconf/tests/
 
 
 %changelog
+* Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 10.34
+- rebuild against new libx11
+
 * Tue Nov 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 10.34
 - P16: security fix for CVE-2007-2721
 
