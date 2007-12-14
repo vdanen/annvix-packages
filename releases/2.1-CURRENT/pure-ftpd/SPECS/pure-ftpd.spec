@@ -205,6 +205,9 @@ done
 
 
 %changelog
+* Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0.21
+- rebuild against new mysql, openssl
+
 * Sat Sep 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0.21
 - rebuild against new postgresql, pam, openldap
 
