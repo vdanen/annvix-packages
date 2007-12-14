@@ -9,13 +9,12 @@
 
 %define revision	$Rev$
 %define name		libx11
-%define version 	1.1.1
+%define version 	1.1.3
 %define release 	%_revrel
 
 %define libname		%mklibname x11_ 6
 %define devname		%mklibname x11 -d
 %define staticdevname	%mklibname x11 -d -s
-%define odevname	%mklibname x11_ 6 -d
 %define libxorgoldname	%mklibname xorg-x11
 
 Summary:	X library
@@ -26,7 +25,6 @@ License:	MIT
 Group:		Development/C
 URL:		http://xorg.freedesktop.org
 Source0:	http://xorg.freedesktop.org/releases/individual/lib/libX11-%{version}.tar.bz2
-Patch0:		libx11-CVE-2007-1667.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	libxau-devel >= 1.0.0
@@ -65,7 +63,7 @@ Requires:	%{libname} = %{version}
 Requires:	x11-proto-devel >= 1.0.0
 Provides:	%{name}-devel = %{version}-%{release}
 Provides:	x11-devel = %{version}-%{release}
-Obsoletes:	%{odevname}
+Obsoletes:	%mklibname x11_ 6 -d
 Conflicts:	%{libxorgoldname}-devel < 7.0
 
 %description -n %{devname}
@@ -96,11 +94,10 @@ Common files used by X.org
 
 %prep
 %setup -q -n libX11-%{version}
-%patch0 -p1 -b .cve-2007-1667
 
 
 %build
-aclocal && libtoolize --force && automake && autoconf
+aclocal && libtoolize --force && autoheader && automake -a && autoconf
 %configure2_5x \
     --x-includes=%{_includedir} \
     --x-libraries=%{_libdir} \
@@ -169,11 +166,15 @@ fi
 %{_datadir}/X11/XKeysymDB
 
 %changelog
-* Thu Jun 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.1.5
+* Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.1.3
+- 1.1.3
+- drop P0; merged upstream
+
+* Thu Jun 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.1.1
 - implement devel naming policy
 - implement library provides policy
 
-* Wed Apr 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.1.5
+* Wed Apr 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.1.1
 - first Annvix package
 
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8
