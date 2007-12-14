@@ -141,6 +141,9 @@ make DESTDIR=%{buildroot} install
 
 
 %changelog
+* fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.4k
+- rebuild against new libx11
+
 * Fri Sep 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.4k
 - implement devel naming policy
 - implement library provides policy
