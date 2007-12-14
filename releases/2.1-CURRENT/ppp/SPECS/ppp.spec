@@ -276,6 +276,9 @@ rm -rf %{buildroot}%{_libdir}/*rad*
 
 
 %changelog
+* Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.4.4
+- rebuild against new openssl
+
 * Sun Sep 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.4.4
 - rebuild against new pam
 
