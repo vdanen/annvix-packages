@@ -183,6 +183,9 @@ chmod 0755 %{buildroot}%{_libdir}/*.so*
 
 
 %changelog
+* Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.4.14        
+- rebuild against new libx11
+
 * Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.4.14        
 - 8.4.14
 - development package requires x11-devel
