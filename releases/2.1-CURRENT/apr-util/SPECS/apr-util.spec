@@ -247,6 +247,9 @@ rm -f %{buildroot}%{_libdir}/aprutil.exp
 
 
 %changelog
+* Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2.12
+- rebuild against new mysql
+
 * Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2.12
 - 1.2.12
 - rebuild against new apr
