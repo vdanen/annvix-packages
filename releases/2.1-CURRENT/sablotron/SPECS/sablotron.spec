@@ -139,6 +139,9 @@ chmod 0644 %{buildroot}%{_mandir}/man1/*
 
 
 %changelog
+* Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0.2
+- rebuild against new ncurses
+
 * Thu Jun 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0.2
 - implement devel naming policy
 - implement library provides policy
