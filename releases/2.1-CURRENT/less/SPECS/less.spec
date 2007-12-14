@@ -153,6 +153,9 @@ install -m 0644 lessecho.1 %{buildroot}%{_mandir}/man1
 
 
 %changelog
+* Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 416
+- rebuild against new ncurses
+
 * Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 416
 - 416
 
