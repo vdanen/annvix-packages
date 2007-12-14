@@ -84,6 +84,9 @@ make test
 
 
 %changelog
+* Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.57
+- rebuild against new openssl
+
 * Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.57
 - 0.57
 - drop P1, no longer required
