@@ -43,7 +43,7 @@ Patch6:		cyrus-sasl-2.1.22-mdk-sed_syntax.diff
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:  autoconf
-BuildRequires:	automake1.8
+BuildRequires:	automake1.7
 BuildRequires:	db4-devel
 BuildRequires:	pam-devel
 BuildRequires:	krb5-devel
@@ -259,15 +259,15 @@ perl -pi -e "s|/lib\b|/%{_lib}|g" configure.in
 
 rm -f config/ltconfig config/libtool.m4
 libtoolize -f -c
-aclocal-1.8 -I config -I cmulocal
-automake-1.8 -a -c -f
+aclocal-1.7 -I config -I cmulocal
+automake-1.7 -a -c -f
 autoheader
 autoconf -f
 pushd saslauthd
     rm -f config/ltconfig
     libtoolize -f -c
-    aclocal-1.8 -I ../config -I ../cmulocal
-    automake-1.8 -a -c -f
+    aclocal-1.7 -I ../config -I ../cmulocal
+    automake-1.7 -a -c -f
     autoheader
     autoconf -f
 popd
@@ -295,6 +295,8 @@ export LDFLAGS="-L%{_libdir}"
     --enable-sql \
     --with-mysql=%{_prefix} \
     --with-pgsql=%{_prefix} \
+    --with-gssapi \
+    --disable-gss_mutexes \
     --without-sqlite \
     --without-srp --without-srp-setpass \
     --enable-ntlm \
@@ -303,8 +305,6 @@ export LDFLAGS="-L%{_libdir}"
     --with-dbpath=%{sasl2_db_fname} \
     --with-saslauthd=/var/lib/sasl2 \
     --with-authdaemond=/var/run/authdaemon.courier-imap/socket
-# when we move to krb4 add --with-gssapi and --disable-gss_mutexes to configure above
-# as krb5-1.4.x is threadsafe and 1.3.x is not
 
 # ugly hack: there is an ordering problem introduced in 2.1.21 
 # when --enable-static is given to ./configure which calling 
@@ -320,7 +320,6 @@ install saslauthd/LDAP_SASLAUTHD README.ldap
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}/var/lib/sasl2
 mkdir -p %{buildroot}%{_sysconfdir}/sasl2
-
 
 make install DESTDIR=%{buildroot}
 
@@ -525,6 +524,8 @@ fi
 %changelog
 * Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1.22
 - rebuild against new mysql
+- enable GSSAPI support
+- go back to automake1.7, as it doesn't build properly with automake1.8
 
 * Sat Sep 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1.22
 - rebuild against new postgresql, pam, openldap
