@@ -78,6 +78,9 @@ mkdir -p %{buildroot}%{_mandir}/man1
 
 
 %changelog
+* Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.9b
+- rebuild against new ncurses
+
 * Wed Oct 17 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.9b
 - 1.1-20070930
 - correct license
