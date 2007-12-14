@@ -15,9 +15,7 @@
 %define major		10
 %define libname		%mklibname net-snmp %{major}
 %define devname		%mklibname %{name} -d
-%define odevname	%mklibname %{name} 10 -d
 %define staticdevname	%mklibname %{name} -d -s
-%define ostaticdevname	%mklibname %{name} 10 -d -s
 
 Summary:	A collection of SNMP protocol tools and libraries
 Name: 		%{name}
@@ -101,7 +99,7 @@ Group:		Development/C
 Provides:	%{name}-devel = %{version}-%{release}
 Requires:	%{libname} = %{version}
 Requires:	tcp_wrappers-devel
-Obsoletes:	%{odevname}
+Obsoletes:	%mklibname %{name} 10 -d
 
 %description -n	%{devname}
 The %{devname} package contains the development libraries and header
@@ -114,7 +112,7 @@ Group:		Development/C
 Provides:	%{name}-static-devel = %{version}-%{release}
 Requires:	%{devname} = %{version}
 Requires:	%{libname} = %{version}
-Obsoletes:	%{ostaticdevname}
+Obsoletes:	%mklibname %{name} 10 -d -s
 
 %description -n	%{staticdevname}
 The %{staticdevname} package contains the static development
@@ -486,6 +484,9 @@ file %{buildroot}%{_sbindir}/* | grep ELF | cut -d':' -f1 | xargs strip || :
 
 
 %changelog
+* Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.4.1
+- rebuild against new openssl
+
 * Sat Sep 8 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.4.1
 - 5.4.1
 - drop upstream/obsolete patches P20, P23, P29, P30, P31, P32, P51
