@@ -366,6 +366,9 @@ fi
 
 
 %changelog
+* Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.68
+- rebuild against new mysql
+
 * Wed Dec 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.68
 - rebuild against new openssl
 
