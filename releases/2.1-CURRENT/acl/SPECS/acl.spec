@@ -15,7 +15,6 @@
 %define major		1
 %define libname		%mklibname %{name} %{major}
 %define devname		%mklibname %{name} -d
-%define odevname	%mklibname %{name} 1 -d
 
 Summary:	Command for manipulating access control lists
 Name:		%{name}
@@ -52,7 +51,7 @@ Summary:	Access control list static libraries and headers
 Group:		Development/C
 Requires:	%{libname} = %{version}
 Provides:	%{name}-devel = %{version}-%{release}
-Obsoletes:	%{odevname}
+Obsoletes:	%mklibname %{name} 1 -d
 
 %description -n %{devname}
 This package contains static libraries and header files needed to develop
