@@ -10,7 +10,7 @@
 %define	module		Compress-Zlib
 %define	revision	$Rev$
 %define	name		perl-%{module}
-%define	version		2.005
+%define	version		2.008
 %define	release		%_revrel
 
 Summary:	Perl interface to the zlib compression library
@@ -20,13 +20,14 @@ Release:	%{release}
 License:	GPL or Artistic
 Group:		Development/Perl
 URL:		http://search.cpan.org/dist/%{module}/
-Source0:	ftp://ftp.perl.org/pub/CPAN/modules/by-module/Compress/%{module}-%{version}.tar.gz
+Source0:	ftp://ftp.perl.org/pub/CPAN/modules/by-module/Compress/Compress-Zlib-%{version}.tar.gz
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel
 BuildRequires:	zlib-devel
 BuildRequires:	perl(IO::Compress::Gzip) >= %{version}
 BuildRequires:	perl(Compress::Raw::Zlib) >= %{version}
+BuildArch:	noarch
 
 %description
 The Compress::Zlib module provides a Perl interface to the zlib compression
@@ -75,6 +76,11 @@ make test
 
 
 %changelog
+* Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.008
+- 2.008
+- this is a noarch package
+- fix buildrequires
+
 * Mon Jul 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.005
 - 2.005
 - updated buildrequires
