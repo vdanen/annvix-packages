@@ -375,6 +375,9 @@ test -f %{_sysconfdir}/courier/authpgsqlrc.rpmnew && %{_libdir}/courier-authlib/
 
 
 %changelog
+* Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.60.2
+- rebuild against new mysql
+
 * Wed Oct 17 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.60.2
 - 0.60.2
 
