@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		dovecot
-%define version		1.0.8
+%define version		1.0.9
 %define release		%_revrel
 	
 
@@ -225,6 +225,9 @@ rm -rf %{buildroot}%{_datadir}/doc/dovecot/
 
 
 %changelog
+* Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org>  1.0.9
+- 1.0.9
+
 * Wed Dec 12 2007 Vincent Danen <vdanen-at-build.annvix.org>  1.0.8
 - 1.0.8
 - update P0 to reflect new SSL certificate files
