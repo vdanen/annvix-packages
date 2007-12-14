@@ -96,6 +96,9 @@ rm -rf %{buildroot}%{_datadir}/doc/xfsdump/
 
 
 %changelog
+* Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.46
+- rebuild against new attr
+
 * Sat Dec 1 2007 Ying-Hung Chen <ying-at-yingternet.com> 2.2.46
 - 2.2.46
 
