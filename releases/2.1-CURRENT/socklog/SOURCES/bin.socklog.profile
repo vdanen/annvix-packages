@@ -1,7 +1,7 @@
 # vim:syntax=apparmor
 # Last Modified: Mon Jun 18 16:59:58 2007
 #
-# $Id: usr.sbin.ntpd.profile 7395 2007-06-18 23:40:50Z vdanen $
+# $Id$
 
 #include <tunables/global>
 
