@@ -253,6 +253,9 @@ fi
 
 
 %changelog
+* Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.97
+- rebuild against new ncurses
+
 * Fri Sep 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.97
 - rebuild with new binutils
 
