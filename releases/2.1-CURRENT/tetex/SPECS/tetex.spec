@@ -534,6 +534,9 @@ rm -f filelist.*
 
 
 %changelog
+* Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0
+- rebuild against new libx11
+
 * Tue Nov 20 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0
 - P44: security fix for CVE-2007-{4352,5392,5393}
 - P45: security fix for CVE-2007-5935
