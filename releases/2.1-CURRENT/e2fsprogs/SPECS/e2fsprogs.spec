@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		e2fsprogs
-%define version		1.40.2
+%define version		1.40.3
 %define release		%_revrel
 
 %define	_root_sbindir	/sbin
@@ -37,9 +37,9 @@ Patch11:	e2fsprogs-1.38-fdr-no_pottcdate.patch
 Patch12:	e2fsprogs-1.39-fdr-blkid-devmapper.patch
 Patch13:	e2fsprogs-1.38-fdr-etcblkid.patch
 Patch14:	e2fsprogs-1.39-fdr-multilib.patch
-Patch15:	e2fsprogs-1.39-fdr-mkinstalldirs.patch
+Patch15:	e2fsprogs-1.40.3-fdr-mkinstalldirs.patch
 Patch16:	e2fsprogs-1.40.2-fdr-warning-fixes.patch
-Patch17:	0001-libext2fs-Add-checks-to-prevent-integer-overflows-p.patch
+Patch18:	e2fsprogs-1.40.2-fdr-protect-open-ops.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	texinfo
@@ -119,7 +119,7 @@ This package contains the documentation for %{name}.
 %patch14 -p1 -b .multilib
 %patch15 -p1 -b .mkinstalldirs
 %patch16 -p1 -b .warnings
-%patch17 -p1 -b .cve-2007-5497
+%patch18 -p1 -b .protect-open-ops
 
 rm -f configure
 autoconf
@@ -129,9 +129,6 @@ chmod 0644 po/*.po
 
 
 %build
-OPT_FLAGS=`echo %{optflags} | sed -e "s/-fomit-frame-pointer//g"`
-# (gb) 1.23-3mdk: e2fsck may work will full optimizations but without strict-aliasing
-CFLAGS="%{optflags} -fno-omit-frame-pointer -O1 -fno-strict-aliasing"
 %configure2_5x \
     --enable-elf-shlibs
 make libs progs docs
@@ -140,6 +137,8 @@ cp -af e2fsck/e2fsck.shared e2fsck/e2fsck
 
 
 %check
+# to make lib/ss test pass
+export PATH=$PATH:.
 # all tests should pass, but on x86_64 we get:
 # r_move_itable: resize2fs with resize_inode: failed
 # r_resize_inode: resize2fs with resize_inode: failed
@@ -147,16 +146,17 @@ cp -af e2fsck/e2fsck.shared e2fsck/e2fsck
 %ifarch x86_64
 make check || :
 %else
-make check
+ make check
 %endif
+
+make check
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 export PATH=/sbin:$PATH
 
-make install install-libs \
-    DESTDIR="%{buildroot}" \
+%makeinstall_std install-libs \
     root_sbindir=%{_root_sbindir} \
     root_libdir=%{_root_libdir}
 
@@ -298,6 +298,13 @@ chmod +x %{buildroot}%{_bindir}/{mk_cmds,compile_et}
 
 
 %changelog
+* Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.40.3
+- 1.40.3
+- updated P15
+- P18: protect ->open ops rom glibc open-create-mode-checker (Fedora)
+- build with optimizations now that it can be done so safely
+- drop P17; merged upstream
+
 * Mon Dec 10 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.40.2
 - P17: fixes CVE-2007-5497
 
