@@ -24,7 +24,7 @@ Source0:	http://search.cpan.org/CPAN/authors/id/A/AG/AGROLMS/%{module}-%{version
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel
-BuildRequires:	gssapi-devel
+BuildRequires:	gssglue-devel
 BuildRequires:	krb5-devel
 
 %description
@@ -34,17 +34,17 @@ MIT.
 
 Since 0.14 it also compiles and works with Heimdal. Lacks of Heimdal support
 are gss_release_oid(), gss_str_to_oid() and fail of some tests. Have a look
-at the tests in t/ directory too see what tests fail on Heimdal ( the *.t tests
-are just skipping them at the moment)
+at the tests in t/ directory too see what tests fail on Heimdal ( the *.t
+tests are just skipping them at the moment)
 
-The API presented by this module is a mildly object oriented reinterpretation
-of the C API, where opaque C structures are Perl objects, but the style of
-function call has been left mostly untouched. As a result, most routines modify
-one or more of the parameters passed to them, reflecting the C call-by-reference
-(or call-by-value-return) semantics.
+The API presented by this module is a mildly object oriented
+reinterpretation of the C API, where opaque C structures are Perl objects,
+but the style of function call has been left mostly untouched. As a result,
+most routines modify one or more of the parameters passed to them,
+reflecting the C call-by-reference (or call-by-value-return) semantics.
 
-All users of this module are therefore strongly advised to localize all usage
-of these routines to minimize pain if and when the API changes.
+All users of this module are therefore strongly advised to localize all
+usage of these routines to minimize pain if and when the API changes.
 
 
 %package doc
@@ -88,6 +88,7 @@ make test
 %changelog
 * Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.24
 - rebuild against new krb5
+- fix buildrequires
 
 * Mon Jul 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.24
 - first Annvix build
