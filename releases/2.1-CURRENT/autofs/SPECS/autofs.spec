@@ -223,6 +223,9 @@ install -m 0740 %{_sourcedir}/autofs-log.run %{buildroot}%{_srvdir}/autofs/log/r
 
 
 %changelog
+* Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.0.2
+- rebuild against new krb5
+
 * Thu Dec 13 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.0.2
 - P45: make the hosts map mount nosuid by default (CVE-2007-5964)
 - rediff P102
