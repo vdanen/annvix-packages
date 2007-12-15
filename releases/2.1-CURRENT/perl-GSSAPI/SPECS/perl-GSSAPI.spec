@@ -86,6 +86,9 @@ make test
 %doc Changes README
 
 %changelog
+* Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.24
+- rebuild against new krb5
+
 * Mon Jul 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.24
 - first Annvix build
 
