@@ -522,6 +522,9 @@ fi
 
  
 %changelog
+* Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1.22
+- rebuild against new krb5
+
 * Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1.22
 - rebuild against new mysql
 - enable GSSAPI support
