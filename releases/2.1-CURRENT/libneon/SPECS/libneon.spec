@@ -15,9 +15,7 @@
 %define	major		0.24
 %define libname		%mklibname neon %{major}
 %define devname		%mklibname neon -d
-%define odevname	%mklibname neon 0.24 -d
 %define staticdevname	%mklibname neon -d -s
-%define ostaticdevname	%mklibname neon -d -s 0.24
 
 Summary: 	An HTTP and WebDAV client library, with a C interface
 Name: 		%{name}
@@ -70,7 +68,7 @@ Group:		Development/C++
 Requires:	%{libname} = %{version}
 Provides:	libneon-devel = %{version}-%{release}
 Provides:	neon-devel = %{version}-%{release}
-Obsoletes:	%{odevname}
+Obsoletes:	%mklibname neon 0.24 -d
 
 %description -n	%{devname}
 This package contains the headers that programmers will need to develop
@@ -83,7 +81,7 @@ Group:		Development/C++
 Requires:	%{devname} = %{version}
 Provides:	libneon-static-devel = %{version}-%{release}
 Provides:	neon-static-devel = %{version}-%{release}
-Obsoletes:	%{ostaticdevname}
+Obsoletes:	%mklibname neon -d -s 0.24
 
 %description -n	%{staticdevname}
 Static %{libname} library.
@@ -178,6 +176,9 @@ rm -rf %{buildroot}%{_datadir}/doc
 
 
 %changelog
+* Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.24.7
+- rebuild against new openssl
+
 * Sun Sep 23 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.24.7
 - rebuild against new libxmlrpc
 
