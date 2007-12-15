@@ -225,6 +225,9 @@ rm -rf %{buildroot}%{_datadir}/doc/dovecot/
 
 
 %changelog
+* Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org>  1.0.9
+- rebuild against new krb5
+
 * Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org>  1.0.9
 - 1.0.9
 
