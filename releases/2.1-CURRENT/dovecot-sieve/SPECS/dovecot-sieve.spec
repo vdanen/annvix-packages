@@ -73,6 +73,9 @@ rm -f %{buildroot}/%{_datadir}/dovecot/lda/*.a
 
 
 %changelog
+* Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvi.org> 1.0.2
+- rebuild against new dovecot
+
 * Sat Sep 22 2007 Vincent Danen <vdanen-at-build.annvi.org> 1.0.2
 - 1.0.2
 - rebuild against new dovecot
