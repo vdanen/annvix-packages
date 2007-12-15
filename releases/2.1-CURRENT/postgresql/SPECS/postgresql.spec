@@ -626,6 +626,9 @@ fi
 
 
 %changelog
+* Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.2.5
+- rebuild against new openssl, ncurses
+
 * Sun Sep 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.2.5
 - rebuild against new pam
 
