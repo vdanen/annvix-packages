@@ -179,6 +179,9 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.12.13
+- rebuild against new krb5
+
 * Sun Nov 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.12.13
 - don't build with FORTIFY_SOURCE as per mdv bug #31848 (causes cvs to crash)
 
