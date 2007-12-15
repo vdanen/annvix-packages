@@ -115,6 +115,9 @@ rm -rf %{buildroot}%{_libdir}/libnss_ldap.so.2
 
 
 %changelog
+* Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 259
+- rebuild against new krb5
+
 * Thu Dec 13 2007 Vincent Danen <vdanen-at-build.annvix.org> 259
 - 259
 
