@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		nmap
-%define version		4.20
+%define version		4.50
 %define release		%_revrel
 %define epoch		1
 
@@ -57,14 +57,14 @@ perl  -pi -e 's|/lib\b|/%{_lib}|g' configure*
     --with-openssl=%{_prefix} \
     --with-libpcap=%{_prefix} \
     --with-libpcre=%{_prefix} \
-    --without-nmapfe
+    --without-zenmap
 
 %make 
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-%makeinstall nmapdatadir=%{buildroot}%{_datadir}/nmap
+%makeinstall_std nmapdatadir=%{_datadir}/nmap
 
 
 %clean
@@ -75,6 +75,8 @@ perl  -pi -e 's|/lib\b|/%{_lib}|g' configure*
 %defattr(-,root,root)
 %{_bindir}/nmap
 %{_datadir}/%{name}
+%dir %{_libdir}/nmap
+%{_libdir}/nmap/nselib-bin/bit.so
 %{_mandir}/man1/nmap.1*
 
 %files doc
@@ -83,6 +85,9 @@ perl  -pi -e 's|/lib\b|/%{_lib}|g' configure*
 
 
 %changelog
+* Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.50
+- 4.50
+
 * Fri Sep 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.20
 - 4.20
 - rebuild against new pcre
