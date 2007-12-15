@@ -850,6 +850,9 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0.28
+- rebuild against new krb5
+
 * Thu Dec 13 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0.28
 - 3.0.28: fixes CVE-2007-6015
 
