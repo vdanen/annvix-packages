@@ -31,6 +31,7 @@ BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	groff-for-man
 BuildRequires:	openssl-devel
 BuildRequires:	zlib-devel
+BuildRequires:	krb5-devel
 
 Provides:	webfetch
 Requires:	%{libname} = %{version}
@@ -146,6 +147,9 @@ rm -rf examples/{.libs,.deps,*.o}
 
 
 %changelog
+* Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 7.17.1
+- rebuild against new krb5
+
 * Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 7.17.1
 - 7.17.1
 - enable kerberos support
