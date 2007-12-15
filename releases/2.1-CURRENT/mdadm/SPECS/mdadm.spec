@@ -72,6 +72,8 @@ This package contains the documentation for %{name}.
 %setup -q
 %patch0 -p1 -b .werror
 
+perl -pi -e 's|-Werror||' Makefile
+
 chmod 0644 ChangeLog
 
 
@@ -134,6 +136,9 @@ install -m 0740 %{_sourcedir}/mdadm-log.run %{buildroot}%{_srvdir}/mdadm/log/run
 
 
 %changelog
+* Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.4
+- remove -Werror to fix the build
+
 * Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.4
 - 2.6.4
 
