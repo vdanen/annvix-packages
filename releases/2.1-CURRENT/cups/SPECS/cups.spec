@@ -267,6 +267,9 @@ chgrp -R sys %{_sysconfdir}/cups %{_var}/*/cups
 
 
 %changelog
+* Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.3.4
+- rebuild against new openssl
+
 * Tue Nov 20 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.3.4
 - P0: security fix for CVE-2007-{4352,5392,5393} (embedded xpdf)
 
