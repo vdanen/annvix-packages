@@ -7,7 +7,7 @@
 #
 # $Id: libnfsidmap.spec 8129 2007-12-09 17:11:06Z vdanen $
 
-%define revision	$rev: 6159 $
+%define revision	$Rev$
 %define name		libnfsidmap
 %define version		0.20
 %define release		%_revrel
