@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		krb5
-%define version		1.5.1
+%define version		1.6.3
 %define release		%_revrel
 
 %define major		3
@@ -24,17 +24,17 @@ Release:	%{release}
 License:	MIT
 Group:		System/Libraries
 URL:		http://web.mit.edu/kerberos/www/
-# from http://web.mit.edu/kerberos/dist/krb5/1.4/krb5-%{version}-signed.tar
+# from http://web.mit.edu/kerberos/dist/krb5/1.6/krb5-%{version}-signed.tar
 Source0:	%{name}-%{version}.tar.gz
-Source1:	krb5.conf
-Source2:	kdcrotate
-Source3:	kdc.conf
-Source4:	kadm5.acl
-Source5:	krsh
-Source6:	krlogin
-Source7:	statglue.c
-Source8:	Mandrake-Kerberos-HOWTO.html
-Source9:	%{name}-%{version}.tar.gz.asc
+Source1:	%{name}-%{version}.tar.gz.asc
+Source2:	krb5.conf
+Source3:	kdcrotate
+Source4:	kdc.conf
+Source5:	kadm5.acl
+Source6:	krsh
+Source7:	krlogin
+Source8:	statglue.c
+Source9:	Mandriva-Kerberos-HOWTO.html
 Source10:	http://web.mit.edu/kerberos/www/advisories/2003-004-krb4_patchkit.tar.gz
 Source11:	http://web.mit.edu/kerberos/www/advisories/2003-004-krb4_patchkit.sig
 Source12:	ktelnet.run
@@ -49,6 +49,7 @@ Source20:	krb5kdc.run
 Source21:	krb5kdc-log.run
 Source22:	08_kftp.afterboot
 Source23:	08_ktelnet.afterboot
+Source24:	krb5-ldap.conf.sample
 Patch0:		krb5-1.2.2-telnetbanner.patch
 Patch1:		krb5-1.2.5-biarch-utmp.patch
 Patch3:		krb5-1.3-mdk-no-rpath.patch
@@ -56,22 +57,12 @@ Patch5:		krb5-1.3-fdr-large-file.patch
 Patch6:		krb5-1.5.1-mdv-ksu-path.patch
 Patch7:		krb5-1.3-fdr-ksu-access.patch
 Patch8:		krb5-1.3-fdr-pass-by-address.patch
-
 Patch9:		krb5-1.3-fdr-ftp-glob.patch
 Patch11:	krb5-1.3.3-fdr-rcp-sendlarge.patch
 # (gb) preserve file names when generating files from *.et (multiarch fixes)
 Patch17:	krb5-1.3.6-et-preserve-file-names.patch
 # http://qa.mandriva.com/show_bug.cgi?id=9410
 Patch18:	krb5-1.4.1-ftplfs.patch
-Patch19:	2006-002-patch.txt
-Patch20:	2006-003-patch.txt
-Patch21:        http://web.mit.edu/kerberos/advisories/2007-001-patch.txt
-Patch22:        http://web.mit.edu/kerberos/advisories/2007-002-patch.txt
-Patch23:        http://web.mit.edu/kerberos/advisories/2007-003-patch.txt
-Patch24:	krb5-1.5-MITKRB5-SA-2007-004.patch
-Patch25:	krb5-1.5-MITKRB5-SA-2007-005.patch
-Patch26:	krb5-1.5.2-CVE-2007-3999_4000.patch
-Patch27:	krb5-1.5.2-CVE-2007-4743.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	bison
@@ -83,8 +74,10 @@ BuildRequires:	tcl-devel
 BuildRequires:	e2fsprogs-devel
 BuildRequires:	chrpath
 BuildRequires:	multiarch-utils >= 1.0.3
+BuildRequires:	openldap-devel
 
 Requires(pre):	info-install
+Conflicts:	%{libname} < 1.6.3
 
 %description
 Kerberos V5 is a trusted-third-party network authentication system,
@@ -109,6 +102,7 @@ need to install this package.
 %package -n %{libname}
 Summary:	The shared libraries used by Kerberos 5
 Group:		System/Libraries
+Requires:	%{name} = %{version}
 Provides:	lib%{name} = %{version}-%{release}
 
 %description -n %{libname}
@@ -124,6 +118,7 @@ Requires:	%{libname} = %{version}
 Requires:	%{name}-workstation = %{version}
 Requires:	words
 Requires(pre):	install-info
+Provides:	kerberos-server
 
 %description server
 Kerberos is a network authentication system.  The krb5-server package
@@ -138,6 +133,7 @@ Summary:	Kerberos 5 programs for use on workstations
 Group:		System/Base
 Requires:	%{libname} = %{version}
 Requires(pre):	install-info
+Provides:	kerberos-workstation
 
 %description workstation
 Kerberos is a network authentication system.  The krb5-workstation
@@ -236,15 +232,8 @@ This package contains the documentation for %{name}.
 %patch11 -p1 -b .rcp-sendlarge
 %patch17 -p1 -b .et-preserve-file-names
 %patch18 -p1 -b .lfs
-%patch19 -p0 -b .cve-2006-6143
-%patch20 -p0 -b .cve-2006-6144
-%patch21 -p0 -b .cve-2007-0956
-%patch22 -p0 -b .cve-2007-0957
-%patch23 -p0 -b .cve-2007-1216
-%patch24 -p0 -b .cve-2007-2442_2443
-%patch25 -p0 -b .cve-2007-2798
-%patch26 -p1 -b .cve-2007-3999_4000
-%patch27 -p1 -b .cve-2007-4743
+
+cp %{_sourcedir}/krb5-ldap.conf.sample .
 
 find . -type f -name "*.fixinfo" -exec rm -fv "{}" ";"
 gzip doc/*.ps
@@ -261,18 +250,13 @@ find . -name "*.[ch]"|xargs grep -r -l "extern int errno;" * | xargs perl -p -i 
 cd src
 %{?__cputoolize: %{__cputoolize} -c config}
 
-# Can't use %%configure because we don't use the default mandir.
-#--with-ccopts="$RPM_OPT_FLAGS $ARCH_OPT_FLAGS -fPIC" \
-LDCOMBINE_TAIL="-lc"; export LDCOMBINE_TAIL
 DEFINES="-D_FILE_OFFSET_BITS=64" ; export DEFINES
-# res_search is #define's as __res_search thus failing the name lookup
-# in libresolv. Should make a clean patch to *.m4 so that <resolv.h>
-# is #include'd prior to checking for that symbol
-# CFLAGS=="$RPM_OPT_FLAGS $ARCH_OPT_FLAGS $DEFINES -fPIC" \
-env ac_cv_lib_resolv_res_search=yes ./configure \
+# %%configure doesn't expand properly for some reason
+./configure \
     --prefix=%{_prefix} \
+    --sysconfdir=%{_sysconfdir} \
     --infodir=%{_infodir} \
-    --mandir=%{buildroot}%{_mandir} \
+    --mandir=%{_mandir} \
     --localstatedir=%{_sysconfdir}/kerberos \
     --without-krb4 \
     --enable-dns-for-realm \
@@ -281,16 +265,11 @@ env ac_cv_lib_resolv_res_search=yes ./configure \
     --with-system-ss \
     --libexecdir=%{_libdir} \
     --libdir=%{_libdir} \
-    --enable-shared   \
-    --disable-static  
+    --enable-shared \
+    --disable-static \
+    --with-ldap
 
-# some rpath cleanups
-find . -name Makefile | xargs perl -p -i -e 's@-Wl,-rpath -Wl,\$\(PROG_RPATH\)+@@';
-find . -name Makefile | xargs perl -p -i -e 's@PROG_RPATH\=\$\(KRB5_LIBDIR\)+@PROG_RPATH\=@';
-find . -name Makefile | xargs perl -p -i -e 's/TCL_RPATH\s+\=\s+\@TCL_RPATH\@+/TCL_RPATH\=/';
-find . -name Makefile | xargs perl -p -i -e 's/PROG_RPATH\s+\=\s+\$\(TCL_RPATH\)+/TCL_RPATH\=/';
-find . -name Makefile | xargs perl -p -i -e 's/\@SHLIB_RPATH_DIRS\@+//';
-%make RPATH_FLAG= PROG_RPATH= LDCOMBINE='%{__cc} -shared -Wl,-soname=lib$(LIB)$(SHLIBSEXT) $(CFLAGS)'
+%make
 
 # Run the test suite.  Won't run in the build system because /dev/pts is
 # not available for telnet tests and so on.
@@ -299,6 +278,9 @@ find . -name Makefile | xargs perl -p -i -e 's/\@SHLIB_RPATH_DIRS\@+//';
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+pushd src
+    %makeinstall_std
+popd
 
 # Our shell scripts.
 mkdir -p %{buildroot}%{_bindir}
@@ -335,17 +317,10 @@ cp %{_sourcedir}/krb5.conf %{buildroot}/%{_sysconfdir}/krb5.conf
 mkdir -p %{buildroot}%{_sbindir}
 cp %{_sourcedir}/kdcrotate %{buildroot}%{_sbindir}/kdcrotate
 
-# The rest of the binaries and libraries and docs.
-pushd src
-find . -name Makefile | xargs perl -p -i -e "s@ %{_libdir}@ %{buildroot}%{_libdir}@";
-make prefix=%{buildroot}%{_prefix} \
-    localstatedir=%{buildroot}%{_sysconfdir}/kerberos \
-    infodir=%{buildroot}%{_infodir} \
-    libdir=%{buildroot}%{_libdir} install
-popd
-
-# Fixup strange shared library permissions.
+# fix some permissions
 chmod 0755 %{buildroot}%{_libdir}/*.so*
+find %{buildroot}%{_includedir} -type d | xargs chmod 0755
+find %{buildroot}%{_includedir} -type f | xargs chmod 0644
 
 mkdir -p %{buildroot}%{_srvdir}/{ktelnet,kftp,kadmind,kpropd,krb5kdc}/log
 install -m 0740 %{_sourcedir}/ktelnet.run %{buildroot}%{_srvdir}/ktelnet/run
@@ -369,17 +344,13 @@ mkdir -p %{buildroot}%{_datadir}/afterboot
 install -m 0644 %{_sourcedir}/08_kftp.afterboot %{buildroot}%{_datadir}/afterboot/08_kftp
 install -m 0644 %{_sourcedir}/08_ktelnet.afterboot %{buildroot}%{_datadir}/afterboot/08_ktelnet
 
-cp %{_sourcedir}/Mandrake-Kerberos-HOWTO.html %{_builddir}/%{name}-%{version}/doc/Mandrake-Kerberos-HOWTO.html
+cp %{_sourcedir}/Mandriva-Kerberos-HOWTO.html %{_builddir}/%{name}-%{version}/doc/Annvix-Kerberos-HOWTO.html
 
 find %{buildroot} -name "*\.h" | xargs perl -p -i -e "s|\<com_err|\<et/com_err|";
 find %{buildroot} -name "*\.h" | xargs perl -p -i -e "s|\"com_err|\"et/com_err|";
 
 find %{_builddir}/%{name}-%{version} -name "*\.h" | xargs perl -p -i -e "s|\<com_err|\<et/com_err|";
 find %{_builddir}/%{name}-%{version} -name "*\.h" | xargs perl -p -i -e "s|\"com_err|\"et/com_err|";
-
-# strip rpath
-chrpath -d %{buildroot}%{_libdir}/*so*
-strip %{buildroot}%{_bindir}/ksu
 
 # dump un-FHS examples location (files included in doc list now)
 rm -Rf %{buildroot}/%{_datadir}/examples
@@ -400,6 +371,9 @@ pushd %{buildroot}/var
     ln -s ..%{_sysconfdir}/kerberos .
 popd
 
+# install missing manpages
+mkdir -p %{buildroot}%{_mandir}/man8
+install -m 0644 src/plugins/kdb/ldap/ldap_util/kdb5_ldap_util.M %{buildroot}%{_mandir}/man8/kdb5_ldap_util.8
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -464,6 +438,12 @@ popd >/dev/null 2>&1
 %postun -n ftp-server-krb5
 %_mkafterboot
 
+
+%files
+%defattr(-,root,root)
+%config(noreplace) %{_sysconfdir}/krb5.conf
+%dir %{_libdir}/krb5
+%dir %{_libdir}/krb5/plugins
 
 %files workstation
 %defattr(-,root,root)
@@ -541,6 +521,8 @@ popd >/dev/null 2>&1
 %{_mandir}/man8/kadmind.8*
 %{_sbindir}/kdb5_util
 %{_mandir}/man8/kdb5_util.8*
+%{_sbindir}/kdb5_ldap_util
+%{_mandir}/man8/kdb5_ldap_util.8*
 %{_sbindir}/kprop
 %{_mandir}/man8/kprop.8*
 %{_sbindir}/kpropd
@@ -561,14 +543,13 @@ popd >/dev/null 2>&1
 %{_datadir}/gnats/mit
 %dir %{_libdir}/krb5/plugins/kdb
 %{_libdir}/krb5/plugins/kdb/db2.so
+%{_libdir}/krb5/plugins/kdb/kldap.so
+%{_libdir}/krb5/plugins/preauth/pkinit.so
 
 
 %files -n %{libname}
 %defattr(-,root,root)
-%config(noreplace) %{_sysconfdir}/krb5.conf
 %{_libdir}/lib*.so.*
-%dir %{_libdir}/krb5
-%dir %{_libdir}/krb5/plugins
 
 
 %files -n %{devname}
@@ -637,11 +618,22 @@ popd >/dev/null 2>&1
 %doc README
 %doc doc/*.html doc/user*.ps.gz src/config-files/services.append src/config-files/krb5.conf
 %attr(0755,root,root) %doc src/config-files/convert-config-files
-%doc src/config-files/kdc.conf
+%doc src/config-files/kdc.conf src/plugins/kdb/ldap/libkdb_ldap/kerberos.schema
+%doc krb5-ldap.conf.sample
 %doc doc/api doc/implement doc/kadm5 doc/kadmin doc/krb5-protocol doc/rpc
 
 
 %changelog
+* Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.6.3
+- 1.6.3
+- drop P19, P20, P21, P22, P23, P24, P25, P26, P27: merged upstream
+- krb5-server provides kerberos-server
+- krb5-workstation provides kerberos-workstation
+- enable LDAP backend
+- move the non-lib contents of the lib package to the new krb5 package
+  as config files and such should not be in a lib package, just the libs
+- rely more on the defaults in krb5.conf and remove historical options
+
 * Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.5.1
 - rebuild against new e2fsprogs
 - update the buildreqs

@@ -1,0 +1,36 @@
+[libdefaults]
+	default_realm = EXAMPLE.COM
+	dns_lookup_kdc = false
+	dns_looup_realm = false
+
+[realms]
+	EXAMPLE.COM = {
+		kdc = kdc.example.com
+		admin_server = kdc.example.com
+		kpasswd_server = kdc.example.com
+		default_domain = example.com
+		database_module = ldap
+	}
+
+[logging]
+	default = FILE:/var/log/kerberos/krb5libs.log
+	kdc = FILE:/var/log/kerberos/krb5kdc.log
+	admin_server = FILE:/var/log/kerberos/kadmind.log
+
+[domain_realm]
+	.example.com = EXAMPLE.COM
+
+[dbdefaults]
+	database_module = ldap
+	
+[dbmodules]
+	ldap = {
+		db_library = kldap
+		ldap_kerberos_container_dn = "ou=Kerberos Realms,dc=example,dc=com"
+		ldap_kdc_dn = "uid=Account Admin,ou=System Accounts,dc=example,dc=com"
+		ldap_kadmind_dn = "uid=Account Admin,ou=System Accounts,dc=example,dc=com"
+		ldap_service_password_file = /etc/kerberos/krb5kdc/ldap.service
+		ldap_servers = ldap://ldap.example.com
+		ldap_conns_per_server = 5
+	}
+
