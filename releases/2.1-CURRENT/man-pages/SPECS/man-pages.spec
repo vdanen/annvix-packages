@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		man-pages
-%define version		2.69
+%define version		2.72
 %define release 	%_revrel
 
 Summary:	English man (manual) pages from the Linux Documentation Project
@@ -133,6 +133,10 @@ mkdir -p  %{buildroot}{%{_mandir}/en,/var/catman/}
 
 
 %changelog
+* Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.72
+- 2.72
+- update P0 to modify the right manpage
+
 * Wed Dec 05 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.69
 - 2.69
 - update URL
