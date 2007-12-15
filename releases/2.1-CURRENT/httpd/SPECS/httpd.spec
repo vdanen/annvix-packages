@@ -1408,6 +1408,9 @@ fi
 
 
 %changelog
+* Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.6
+- rebuild against new openssl
+
 * Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.6
 - rebuild against new apr and apr-util
 - fix %%pre mod_ssl
