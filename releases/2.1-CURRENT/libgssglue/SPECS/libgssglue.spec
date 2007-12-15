@@ -122,6 +122,9 @@ mkdir -p %{buildroot}%{_sysconfdir}
 
 
 %changelog
+* Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.1
+- rebuild against new krb5
+
 * Fri Sep 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.1
 - libgssglue 0.1 replace libgssapi 0.10
 
