@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		curl
-%define version 	7.17.0
+%define version 	7.17.1
 %define release		%_revrel
 
 %define major		4
@@ -28,11 +28,9 @@ Source1:	http://curl.haxx.se/download/%{name}-%{version}.tar.bz2.asc
 Patch0:		curl-7.10.4-compat-location-trusted.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	bison
 BuildRequires:	groff-for-man
 BuildRequires:	openssl-devel
 BuildRequires:	zlib-devel
-BuildRequires:	chrpath
 
 Provides:	webfetch
 Requires:	%{libname} = %{version}
@@ -89,7 +87,12 @@ export LIBS="-L%{_libdir} $LIBS"
 %configure2_5x \
     --with-ssl \
     --with-zlib \
-    --with-random
+    --with-random \
+    --with-krb5 \
+    --enable-nonblocking \
+    --enable-thread \
+    --enable-crypto-auth \
+    --with-gssapi=%{_prefix}
 %make
 
 
@@ -100,9 +103,6 @@ make check
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
-
-chrpath -d %{buildroot}%{_bindir}/curl
-chrpath -d %{buildroot}%{_libdir}/*.so*
 
 # we can't nuke some files in docs/examples because the tests want them
 cp -av docs/examples examples
@@ -146,6 +146,11 @@ rm -rf examples/{.libs,.deps,*.o}
 
 
 %changelog
+* Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 7.17.1
+- 7.17.1
+- enable kerberos support
+- don't use chrpath, and fix buildreqs accordingly
+
 * Sun Sep 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 7.17.0
 - 7.17.0
 - implement devel naming policy
