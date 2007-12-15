@@ -146,10 +146,8 @@ export PATH=$PATH:.
 %ifarch x86_64
 make check || :
 %else
- make check
-%endif
-
 make check
+%endif
 
 
 %install
