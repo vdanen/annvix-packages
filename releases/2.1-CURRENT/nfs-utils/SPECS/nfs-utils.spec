@@ -370,6 +370,9 @@ rm -f %{buildroot}%{_mandir}/man8/rpcdebug.8
 
 
 %changelog
+* Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.1.1
+- rebuild against new krb5
+
 * Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.1.1
 - 1.1.1
 - drop P2; no longer required
