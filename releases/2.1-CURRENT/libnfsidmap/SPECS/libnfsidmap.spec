@@ -5,7 +5,7 @@
 #
 # Please submit bugfixes or comments via http://bugs.annvix.org/
 #
-# $Id$
+# $Id: libnfsidmap.spec 8129 2007-12-09 17:11:06Z vdanen $
 
 %define revision	$rev: 6159 $
 %define name		libnfsidmap
