@@ -15,7 +15,6 @@
 %define libname		%mklibname sm 6
 %define devname		%mklibname sm -d
 %define staticdevname	%mklibname sm -d -s
-%define odevname	%mklibname sm 6 -d
 
 Summary:	X Session Management Library
 Name:		%{name}
@@ -55,7 +54,7 @@ Requires:	libice-devel >= 1.0.0
 Requires:	x11-proto-devel >= 1.0.0
 Provides:	%{name}-devel = %{version}-%{release}
 Provides:	sm-devel = %{version}-%{release}
-Obsoletes:	%{odevname}
+Obsoletes:	%mklibname sm 6 -d
 Conflicts:	libxorg-x11-devel < 7.0
 
 %description -n %{devname}
@@ -118,6 +117,9 @@ Static development files for %{name}
 
 
 %changelog
+* Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0.1
+- get rid of %%odevname
+
 * Thu Jun 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0.1
 - implement devel naming policy
 - implement library provides policy
