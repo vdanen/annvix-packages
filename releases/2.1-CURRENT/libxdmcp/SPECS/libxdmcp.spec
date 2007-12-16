@@ -15,7 +15,6 @@
 %define libname		%mklibname xdmcp 6
 %define devname		%mklibname xdmcp -d
 %define staticdevname	%mklibname xdmcp -d -s
-%define odevname	%mklibname xdmcp 6 -d
 
 Summary:	X Display Manager Control Protocol library
 Name:		%{name}
@@ -52,7 +51,7 @@ Requires:	%{libname} = %{version}
 Requires:	x11-proto-devel >= 1.0.0
 Provides:	%{name}-devel = %{version}-%{release}
 Provides:	xdmcp-devel = %{version}-%{release}
-Obsoletes:	%{odevname}
+Obsoletes:	%mklibname xdmcp 6 -d
 Conflicts:	libxorg-x11-devel < 7.0
 
 %description -n %{devname}
@@ -112,6 +111,9 @@ Static development files for %{name}
 
 
 %changelog
+* Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0.2
+- get rid of %%odevname
+
 * Thu Jun 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0.2
 - implement devel naming policy
 - implement library provides policy
