@@ -16,7 +16,6 @@
 %define major		2
 %define libname		%mklibname amu %{major}
 %define devname		%mklibname amu -d
-%define odevname	%mklibname amu 2 -d
 
 Summary:	Automount utilities including an updated version of Amd
 Name:		%{name}
@@ -75,7 +74,7 @@ Group:          Development/C
 Requires:       %{libname} = %{epoch}:%{version}
 Provides:       amu-devel = %{version}-%{release}
 Provides:	%{name}-devel = %{version}-%{release}
-Obsoletes:	%{odevname}
+Obsoletes:	%mklibname amu 2 -d
 
 %description -n %{devname}
 Development headers, and files for development from the am-utils package.
@@ -194,6 +193,9 @@ rm -f %{buildroot}/amd
 
 
 %changelog
+* Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 6.1.5
+- get rid of %%odevname
+
 * Mon Jun 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 6.1.5
 - rebuild with SSP
 
