@@ -15,7 +15,6 @@
 %define major		6
 %define libname		%mklibname %{name} %{major}
 %define devname		%mklibname %{name} -d
-%define odevname	%mklibname %{name} 6 -d
 
 Summary:	An open source cryptography library
 Name:		%{name}
@@ -51,7 +50,7 @@ Summary:	Files needed for developing applications with beecrypt
 Group:		Development/C
 Requires:	%{libname} = %{version}
 Provides:	%{name}-devel = %{version}-%{release}
-Obsoletes:	%{odevname}
+Obsoletes:	%mklibname %{name} 6 -d
 
 %description -n %{devname}
 Beecrypt is a general-purpose cryptography library.  This package contains
@@ -140,6 +139,9 @@ rm -f %{buildroot}%{py_platsitedir}/_bc.*a
 
 
 %changelog
+* Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.1.2
+- get rid of %%odevname
+
 * Tue Jun 26 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.1.2
 - 4.1.2
 - synced patches with Fedora
