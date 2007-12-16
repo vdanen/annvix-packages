@@ -15,7 +15,6 @@
 %define major		0
 %define libname		%mklibname %{name} %{major}
 %define devname		%mklibname %{name} -d
-%define odevname	%mklibname %{name} 0 -d
 
 Summary:	Debian's Advanced Packaging Tool with RPM support 
 Name:		%{name}
@@ -66,7 +65,7 @@ Summary:	Development files for %{name}
 Group:		Development/C
 Requires:	%{libname} = %{version}
 Provides:	%{name}-devel = %{version}-%{release}
-Obsoletes:	%{odevname}
+Obsoletes:	%mklibname %{name} 0 -d
 
 %description -n %{devname}
 This package contains the header files and static libraries for
@@ -205,6 +204,9 @@ install -m 0600 contrib/gpg-check/gpg-import.lua %{buildroot}%{_datadir}/apt/scr
 
 
 %changelog
+* Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.5.15lorg3.2
+- get rid of %%odevname
+
 * Wed Dec 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.5.15lorg3.2
 - rebuild against new ncurses
 
