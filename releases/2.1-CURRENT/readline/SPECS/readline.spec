@@ -15,7 +15,6 @@
 %define major		5
 %define libname		%mklibname %{name} %{major}
 %define devname		%mklibname %{name} -d
-%define odevname	%mklibname %{name} 5 -d
 
 Summary:	Library for reading lines from a terminal
 Name:		%{name}
@@ -56,7 +55,7 @@ Group:		Development/C
 Requires:	%{libname} = %{version}-%{release}
 Provides:	lib%{name}-devel = %{version}-%{release}
 Provides:	%{name}-devel = %{version}-%{release}
-Obsoletes:	%{odevname}
+Obsoletes:	%mklibname %{name} 5 -d
 Conflicts:	%{_lib}readline4-devel
 
 %description -n %{devname}
@@ -156,6 +155,9 @@ chmod 0755 support/{config.rpath,mkinstalldirs}
 
 
 %changelog
+* Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2
+- get rid of %%odevname
+
 * Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2
 - rebuild
 
