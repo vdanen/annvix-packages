@@ -16,7 +16,6 @@
 %define major		0
 %define libname		%mklibname %{name} %{major}
 %define devname		%mklibname %{name} -d
-%define odevname	%mklibname %{name} 0 -d
 
 Summary: 	XSLT, XPath and DOM processor
 Name: 		%{name}
@@ -67,7 +66,7 @@ Requires: 	sablotron = %{version}
 Group: 		System/Libraries
 Requires: 	%{libname} = %{version}
 Provides: 	%{name}-devel = %{version}-%{release}
-Obsoletes:	%{odevname}
+Obsoletes:	%mklibname %{name} 0 -d
 
 %description -n %{devname}
 These are the development libraries and header files for Sablotron
@@ -139,6 +138,9 @@ chmod 0644 %{buildroot}%{_mandir}/man1/*
 
 
 %changelog
+* Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0.2
+- get rid of %%odevname
+
 * Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0.2
 - rebuild against new ncurses
 
