@@ -95,6 +95,9 @@ install -m 0750 %{_sourcedir}/kheader-avx.init %{buildroot}%{_initrddir}/kheader
 
 
 %changelog
+* Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.6
+- rebuild
+
 * Wed Apr 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.6
 - add requires on perl(MDK::Common)
 
