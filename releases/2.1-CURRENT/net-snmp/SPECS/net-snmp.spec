@@ -224,6 +224,10 @@ autoconf
 export LDFLAGS="-L%{_libdir}"
 %endif
 
+export CFLAGS="$CFLAGS -fPIC"
+export CXXFLAGS="$CXXFLAGS -fPIC"
+export FFLAGS="$FFLAGS -fPIC"
+
 %configure2_5x \
     --without-rpm \
     --enable-static \
@@ -241,7 +245,7 @@ export LDFLAGS="-L%{_libdir}"
     --with-sys-contact="root@localhost" \
     --with-default-snmp-version="3"
 
-#sed -i -e "s,^#define HAVE_GETMNTENT,#define HAVE_GETMNTENT 1," include/net-snmp/net-snmp-config.h
+sed -i -e "s,^#define HAVE_GETMNTENT,#define HAVE_GETMNTENT 1," include/net-snmp/net-snmp-config.h
 make
 
 # more verbose tests
@@ -484,6 +488,9 @@ file %{buildroot}%{_sbindir}/* | grep ELF | cut -d':' -f1 | xargs strip || :
 
 
 %changelog
+* Sun Dec 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.4.1
+- fix the build
+
 * Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.4.1
 - rebuild against new openssl
 
