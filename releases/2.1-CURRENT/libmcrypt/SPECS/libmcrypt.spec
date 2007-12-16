@@ -15,9 +15,7 @@
 %define major		4
 %define libname		%mklibname mcrypt %{major}
 %define devname		%mklibname mcrypt -d
-%define odevname	%mklibname mcrypt 4 -d
 %define staticdevname	%mklibname mcrypt -d -s
-%define ostaticdevname	%mklibname mcrypt 4 -d -s
 
 Summary:	Thread-safe data encryption library
 Name:		%{name}
@@ -60,7 +58,7 @@ Summary:	Header files and libraries for developing apps with libmcrypt
 Group:		Development/C
 Requires:	%{libname} = %{version}
 Provides:	%{name}-devel = %{version}-%{release}
-Obsoletes:	%{odevname}
+Obsoletes:	%mklibname mcrypt 4 -d
 
 %description -n %{devname}
 This package contains the header files and libraries needed to
@@ -74,7 +72,7 @@ Group:		Development/C
 Requires:	%{libname} = %{version}
 Requires:	%{name}-devel = %{version}
 Provides:	%{name}-static-devel = %{version}-%{release}
-Obsoletes:	%{ostaticdevname}
+Obsoletes:	%mklibname mcrypt 4 -d -s
 
 %description -n %{staticdevname}
 This package contains the static libraries needed to
@@ -175,6 +173,9 @@ make check
 
 
 %changelog
+* Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.5.8
+- get rid of %%odevname
+
 * Sat Sep 8 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.5.8
 - 2.5.8
 - implement devel naming policy
