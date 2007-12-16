@@ -15,9 +15,7 @@
 %define major		62
 %define libname		%mklibname jpeg %{major}
 %define devname		%mklibname jpeg -d
-%define odevname	%mklibname jpeg 62 -d
 %define staticdevname	%mklibname jpeg -d -s
-%define ostaticdevname	%mklibname jpeg 62 -d -s
 
 Summary:	A library for manipulating JPEG image format files
 Name:		%{name}
@@ -58,7 +56,7 @@ Group:		Development/C
 Requires:	%{libname} = %{version}
 Provides:	jpeg-devel = %{version}-%{release}
 Provides:	%{name}-devel = %{version}-%{release}
-Obsoletes:	%{odevname}
+Obsoletes:	%mklibname jpeg 62 -d
 
 %description -n %{devname}
 The libjpeg-devel package includes the header files necessary for 
@@ -72,7 +70,7 @@ Group:		Development/C
 Requires:	%{devname} = %{version}-%{release}
 Provides:	%{name}-static-devel = %{version}-%{release}
 Provides:	jpeg-static-devel = %{version}-%{release}
-Obsoletes:	%{ostaticdevname}
+Obsoletes:	%mklibname jpeg 62 -d -s
 
 %description -n %{staticdevname}
 The libjpeg-devel package includes the static librariesnecessary for 
@@ -178,6 +176,9 @@ install -m 0755 exifautotran %{buildroot}%{_bindir}
 
 
 %changelog
+* Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 6b
+- get rid of %%odevname
+
 * Sat Sep 8 2007 Vincent Danen <vdanen-at-build.annvix.org> 6b
 - implement devel naming policy
 - implement library provides policy
