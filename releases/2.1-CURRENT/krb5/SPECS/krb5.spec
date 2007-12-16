@@ -15,7 +15,6 @@
 %define major		3
 %define libname		%mklibname %{name} %{major}
 %define devname		%mklibname %{name} -d
-%define odevname	%mklibname %{name} 3 -d
 
 Summary:	The Kerberos network authentication system
 Name:		%{name}
@@ -90,7 +89,7 @@ Summary:	Development files needed for compiling Kerberos 5 programs
 Group:		Development/Other
 Requires:	%{libname} = %{version}
 Provides:	%{name}-devel = %{version}-%{release}
-Obsoletes:	%{odevname}
+Obsoletes:	%mklibname %{name} 3 -d
 
 %description -n %{devname}
 Kerberos is a network authentication system.  The krb5-devel package
@@ -624,6 +623,9 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.6.3
+- rebuild against new e2fsprogs
+
 * Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.6.3
 - 1.6.3
 - drop P19, P20, P21, P22, P23, P24, P25, P26, P27: merged upstream
