@@ -140,6 +140,9 @@ rm -rf %{buildroot}%{_datadir}/locale
 
 
 %changelog
+* Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.6.1
+- rebuild against new e2fsprogs
+
 * Wed Dec 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.6.1
 - rebuild against new glib2.0
 
