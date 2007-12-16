@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		setup
-%define version 	2.9.1
+%define version 	2.9.2
 %define release 	%_revrel
 
 Summary:	A set of system configuration and setup files
@@ -104,12 +104,15 @@ fi
 %attr(0644,root,admin) %config(noreplace) /etc/sysconfig/env/ulimits/MAX_DATASEG_SIZE
 %attr(0644,root,admin) %config(noreplace) /etc/sysconfig/env/ulimits/MAX_OPEN_FILES
 %attr(0644,root,admin) %config(noreplace) /etc/sysconfig/env/ulimits/MAX_USER_PROCS
-%dir /etc/profile.d
-%config(noreplace) /etc/profile.d/*
 %verify(not md5 size mtime) /var/log/lastlog
 
 
 %changelog
+* Sun Dec 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.9.2
+- 2.9.2: don't provide the xhost.* profile.d scripts; we don't need to
+  set ssh X support when we don't have X
+- don't own /etc/profile.d; filesystem already does that
+
 * Sat Oct 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.9.1
 - 2.9.1: don't provide bashrc anymore, bash does
 
