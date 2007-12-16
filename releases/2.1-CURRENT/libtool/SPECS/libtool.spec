@@ -15,7 +15,6 @@
 %define major		3
 %define libname		%mklibname ltdl %{major}
 %define devname		%mklibname ltdl -d
-%define odevname	%mklibname ltdl 3 -d
 
 # define biarch platforms
 %define biarches 	x86_64 ppc64 sparc64
@@ -88,7 +87,7 @@ Requires:	%{name} = %{version}
 Requires:	%{libname} = %{version}
 Provides:	libltdl-devel = %{version}-%{release}
 Provides:	%{name}-devel = %{version}-%{release}
-Obsoletes:	%{odevname}
+Obsoletes:	%mklibname ltdl 3 -d
 
 %description -n %{devname}
 Development headers, and files for development from the libtool package.
@@ -222,6 +221,9 @@ mv libltdl/README libltdl/README.libltdl
 
 
 %changelog
+* Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.5.24
+- get rid of %%odevname
+
 * Wed Dec 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.5.24
 - 1.5.24
 - update P1 from Mandriva
