@@ -32,9 +32,9 @@
 %define mklibname(ds)	%{_lib}%{1}%{?2:%{2}}%{?3:_%{3}}%{-s:-static}%{-d:-devel}
 %endif
 
-%define lib64arches	x86_64 ppc64
+%define lib64arches	x86_64
 
-#%ifarch ppc x86_64 amd64 ppc64 athlon pentium3 pentium4
+#%ifarch x86_64 athlon pentium3 pentium4
 #%define buildnptl	1
 #%else
 %define buildnptl	0
@@ -254,7 +254,7 @@ the installed RPM database as well as files on the filesystem.
 
 
 %package -n popt-data
-Summary:	popt static data
+Summary:	Popt static data
 Group:		System/Libraries
 Version:	%{poptver}
 Release:	%{release}
@@ -388,7 +388,7 @@ CFLAGS="%{optflags} -fPIC" CXXFLAGS="%{optflags} -fPIC" \
 %endif
         --with-python=%{pyver} \
         --with-glob \
-        --with-apidocs \
+        --without-apidocs \
         --without-selinux
 
 # We should use the zlib provided with rpm:
@@ -418,18 +418,15 @@ ln -sf libpopt.so.0 %{buildroot}%{_libdir}/libpopt.so
 
 rm -f %{buildroot}%{_prefix}/lib/rpmpopt
 ln -s rpm/rpmpopt-%{rpmversion} %{buildroot}%{_prefix}/lib/rpmpopt
-%ifarch ppc powerpc
-ln -sf ppc-annvix-linux %{buildroot}%{rpmdir}/powerpc-annvix-linux
-%endif
 
 mv -f %{buildroot}/%{rpmdir}/rpmdiff %{buildroot}/%{_bindir}
 
 # Save list of packages through cron
 mkdir -p %{buildroot}/etc/cron.daily
-install -m 755 scripts/rpm.daily %{buildroot}/etc/cron.daily/rpm
+install -m 0755 scripts/rpm.daily %{buildroot}/etc/cron.daily/rpm
 
 mkdir -p %{buildroot}/etc/logrotate.d
-install -m 644 scripts/rpm.log %{buildroot}/etc/logrotate.d/rpm
+install -m 0644 scripts/rpm.log %{buildroot}/etc/logrotate.d/rpm
 
 mkdir -p %{buildroot}/etc/rpm/
 cat << E_O_F > %{buildroot}/etc/rpm/macros.cdb
@@ -446,8 +443,6 @@ for dbi in \
 do
     touch %{buildroot}/var/lib/rpm/$dbi
 done
-
-find apidocs -type f | xargs perl -p -i -e "s@$RPM_BUILD_DIR/%{name}-%{version}@@g"
 
 test -d doc-copy || mkdir doc-copy
 rm -rf doc-copy/*
@@ -520,16 +515,6 @@ elif [ ! -f /var/lib/rpm/Packages ]; then
     /bin/rpm --initdb
 fi
 
-#for i in `ls -1 /etc/RPM-GPG-KEYS/*.asc`
-#do
-#    key=`basename $i|cut -f 1 -d '.'`
-#    if [ "`rpm -q gpg-pubkey-$key|grep 'not installed'`" ]; then
-#        rpm --import $i
-#        echo "NOTICE: imported new GPG key $i"
-#    fi
-#done
-
-
 
 %postun
 /usr/share/rpm-helper/del-user rpm $1 rpm
@@ -538,14 +523,19 @@ fi
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
 
+
 %post -n %{libpoptname} -p /sbin/ldconfig
 %postun -n %{libpoptname} -p /sbin/ldconfig
 
 
-
-%define	rpmattr		%attr(0755, rpm, rpm)
 %files -f %{name}.lang
 %defattr(-,root,root)
+%config(noreplace,missingok) %{_sysconfdir}/cron.daily/rpm
+%config(noreplace,missingok) %{_sysconfdir}/logrotate.d/rpm
+%{_sysconfdir}/rpm
+%dir %{_sysconfdir}/RPM-GPG-KEYS
+%{_sysconfdir}/RPM-GPG-KEYS/*.asc
+
 %attr(0755,rpm,rpm) /bin/rpm
 %attr(0755,rpm,rpm) %{_bindir}/rpm2cpio
 %attr(0755,rpm,rpm) %{_bindir}/gendiff
@@ -555,11 +545,7 @@ fi
 %attr(0755,rpm,rpm) %{_bindir}/rpmquery
 %attr(0755,rpm,rpm) %{_bindir}/rpmverify
 
-%dir %{_localstatedir}/spool/repackage
 %dir %{rpmdir}
-%{_sysconfdir}/rpm
-%dir %{_sysconfdir}/RPM-GPG-KEYS
-%{_sysconfdir}/RPM-GPG-KEYS/*.asc
 %attr(0755,rpm,rpm) %{rpmdir}/config.guess
 %attr(0755,rpm,rpm) %{rpmdir}/config.sub
 %attr(0755,rpm,rpm) %{rpmdir}/convertrpmrc.sh
@@ -570,122 +556,83 @@ fi
 %attr(0755,rpm,rpm) %{rpmdir}/rpm[deiukqv]
 %attr(0644,rpm,rpm) %{rpmdir}/rpmpopt*
 %attr(0644,rpm,rpm) %{rpmdir}/rpmrc
+%attr(0755,rpm,rpm) %{rpmdir}/rpm2cpio.sh
+%attr(0755,rpm,rpm) %{rpmdir}/tgpg
 
 %{_prefix}/lib/rpmpopt
 %{_prefix}/lib/rpm/rpmrc
-%rpmattr %{rpmdir}/rpm2cpio.sh
-%rpmattr %{rpmdir}/tgpg
 
 %ifarch i386 i486 i586 i686 k6 athlon
 %attr(-,rpm,rpm) %{rpmdir}/i*86-*
-#%attr(-,rpm,rpm) %{rpmdir}/k6*
 %attr(-,rpm,rpm) %{rpmdir}/athlon*
 %attr(-,rpm,rpm) %{rpmdir}/pentium*
 %endif
-%ifarch alpha
-%attr(-,rpm,rpm) %{rpmdir}/alpha*
-%endif
-%ifarch sparc sparc64
-%attr(-,rpm,rpm) %{rpmdir}/sparc*
-%endif
-%ifarch ppc powerpc
-%attr(-,rpm,rpm) %{rpmdir}/ppc-*
-%attr(-,rpm,rpm) %{rpmdir}/ppc64-*
-%attr(-,rpm,rpm) %{rpmdir}/powerpc-*
-%endif
-%ifarch ppc powerpc ppc64
-%attr(-,rpm,rpm) %{rpmdir}/ppc*series-*
-%endif
-%ifarch ppc64
-%attr(-,rpm,rpm) %{rpmdir}/ppc-*
-%attr(-,rpm,rpm) %{rpmdir}/ppc64-*
-%endif
-%ifarch ia64
-%attr(-,rpm,rpm) %{rpmdir}/ia64-*
-%endif
 %ifarch x86_64
-#%attr(-,rpm,rpm) %{rpmdir}/amd64-*
 %attr(-,rpm,rpm) %{rpmdir}/x86_64-*
 %endif
 %attr(-,rpm,rpm) %{rpmdir}/noarch*
 
-%{_prefix}/src/rpm/RPMS/*
-%{_datadir}/man/man[18]/*.[18]*
+%dir %{_localstatedir}/spool/repackage
+%attr(0755,rpm,rpm) %dir %{_localstatedir}/lib/rpm
 
-%config(noreplace,missingok)	%{_sysconfdir}/cron.daily/rpm
-%config(noreplace,missingok)	%{_sysconfdir}/logrotate.d/rpm
+%attr(0644,rpm,rpm) %verify(not md5 size mtime) %ghost %config(missingok,noreplace) /var/lib/rpm/Basenames
+%attr(0644,rpm,rpm) %verify(not md5 size mtime) %ghost %config(missingok,noreplace) /var/lib/rpm/Conflictname
+%attr(0644,rpm,rpm) %verify(not md5 size mtime) %ghost %config(missingok,noreplace) /var/lib/rpm/__db.0*
+%attr(0644,rpm,rpm) %verify(not md5 size mtime) %ghost %config(missingok,noreplace) /var/lib/rpm/Dirnames
+%attr(0644,rpm,rpm) %verify(not md5 size mtime) %ghost %config(missingok,noreplace) /var/lib/rpm/Group
+%attr(0644,rpm,rpm) %verify(not md5 size mtime) %ghost %config(missingok,noreplace) /var/lib/rpm/Installtid
+%attr(0644,rpm,rpm) %verify(not md5 size mtime) %ghost %config(missingok,noreplace) /var/lib/rpm/Name
+%attr(0644,rpm,rpm) %verify(not md5 size mtime) %ghost %config(missingok,noreplace) /var/lib/rpm/Packages
+%attr(0644,rpm,rpm) %verify(not md5 size mtime) %ghost %config(missingok,noreplace) /var/lib/rpm/Providename
+%attr(0644,rpm,rpm) %verify(not md5 size mtime) %ghost %config(missingok,noreplace) /var/lib/rpm/Provideversion
+%attr(0644,rpm,rpm) %verify(not md5 size mtime) %ghost %config(missingok,noreplace) /var/lib/rpm/Removetid
+%attr(0644,rpm,rpm) %verify(not md5 size mtime) %ghost %config(missingok,noreplace) /var/lib/rpm/Requirename
+%attr(0644,rpm,rpm) %verify(not md5 size mtime) %ghost %config(missingok,noreplace) /var/lib/rpm/Requireversion
+%attr(0644,rpm,rpm) %verify(not md5 size mtime) %ghost %config(missingok,noreplace) /var/lib/rpm/Triggername
+%{_mandir}/man[18]/*.[18]*
 
-%attr(0755,rpm,rpm)	%dir %{_localstatedir}/lib/rpm
-
-%define	rpmdbattr %attr(0644, rpm, rpm) %verify(not md5 size mtime) %ghost %config(missingok,noreplace)
-
-%rpmdbattr	/var/lib/rpm/Basenames
-%rpmdbattr	/var/lib/rpm/Conflictname
-%rpmdbattr	/var/lib/rpm/__db.0*
-%rpmdbattr	/var/lib/rpm/Dirnames
-%rpmdbattr	/var/lib/rpm/Group
-%rpmdbattr	/var/lib/rpm/Installtid
-%rpmdbattr	/var/lib/rpm/Name
-%rpmdbattr	/var/lib/rpm/Packages
-%rpmdbattr	/var/lib/rpm/Providename
-%rpmdbattr	/var/lib/rpm/Provideversion
-%rpmdbattr	/var/lib/rpm/Removetid
-%rpmdbattr	/var/lib/rpm/Requirename
-%rpmdbattr	/var/lib/rpm/Requireversion
-%rpmdbattr	/var/lib/rpm/Triggername
 
 %files build
 %defattr(-,root,root)
-%dir %{_prefix}/src/rpm
-%dir %{_prefix}/src/rpm/BUILD
-%dir %{_prefix}/src/rpm/SPECS
-%dir %{_prefix}/src/rpm/SOURCES
-%dir %{_prefix}/src/rpm/SRPMS
-%dir %{_prefix}/src/rpm/RPMS
+%attr(0755,rpm,rpm) %{_bindir}/rpmbuild
+%{_prefix}/src/rpm
 %attr(1777,root,root) %dir /override
-%rpmattr	%{_bindir}/rpmbuild
-%rpmattr	%{_prefix}/lib/rpm/brp-*
-%rpmattr	%{_prefix}/lib/rpm/check-files
-%rpmattr	%{_prefix}/lib/rpm/check-prereqs
-#%rpmattr	%{_prefix}/lib/rpm/config.site
-#%rpmattr	%{_prefix}/lib/rpm/cross-build
-#%rpmattr	%{_prefix}/lib/rpm/filter.sh
-%rpmattr	%{_prefix}/lib/rpm/freshen.sh
-%rpmattr	%{_prefix}/lib/rpm/debugedit
-%rpmattr	%{_prefix}/lib/rpm/executabledeps.sh
-%rpmattr	%{_prefix}/lib/rpm/find-debuginfo.sh
-%rpmattr	%{_prefix}/lib/rpm/find-lang.sh
-%rpmattr	%{_prefix}/lib/rpm/find-prov.pl
-%rpmattr	%{_prefix}/lib/rpm/find-provides
-%rpmattr	%{_prefix}/lib/rpm/find-provides.perl
-%rpmattr	%{_prefix}/lib/rpm/find-req.pl
-%rpmattr	%{_prefix}/lib/rpm/find-requires
-%rpmattr	%{_prefix}/lib/rpm/find-requires.perl
-%rpmattr	%{_prefix}/lib/rpm/get_magic.pl
-%rpmattr	%{_prefix}/lib/rpm/getpo.sh
-%rpmattr	%{_prefix}/lib/rpm/http.req
-%rpmattr	%{_prefix}/lib/rpm/javadeps
-%rpmattr	%{_prefix}/lib/rpm/javadeps.sh
-%rpmattr	%{_prefix}/lib/rpm/libtooldeps.sh
-%rpmattr	%{_prefix}/lib/rpm/magic
-%rpmattr	%{_prefix}/lib/rpm/magic.mgc
-%rpmattr	%{_prefix}/lib/rpm/magic.mime
-%rpmattr	%{_prefix}/lib/rpm/magic.mime.mgc
-%rpmattr	%{_prefix}/lib/rpm/magic.prov
-%rpmattr	%{_prefix}/lib/rpm/magic.req
-%rpmattr	%{_prefix}/lib/rpm/perldeps.pl
-%rpmattr	%{_prefix}/lib/rpm/perl.prov
-%rpmattr	%{_prefix}/lib/rpm/perl.req
-%rpmattr	%{_prefix}/lib/rpm/pkgconfigdeps.sh
-
-%rpmattr	%{_prefix}/lib/rpm/rpm[bt]
-%rpmattr	%{_prefix}/lib/rpm/rpmdeps
-#%rpmattr	%{_prefix}/lib/rpm/trpm
-%rpmattr	%{_prefix}/lib/rpm/u_pkg.sh
-%rpmattr	%{_prefix}/lib/rpm/vpkg-provides.sh
-%rpmattr	%{_prefix}/lib/rpm/vpkg-provides2.sh
-%rpmattr	%{_prefix}/lib/rpm/pythondeps.sh
-
+%attr(0755,rpm,rpm) %{_prefix}/lib/rpm/brp-*
+%attr(0755,rpm,rpm) %{_prefix}/lib/rpm/check-files
+%attr(0755,rpm,rpm) %{_prefix}/lib/rpm/check-prereqs
+%attr(0755,rpm,rpm) %{_prefix}/lib/rpm/freshen.sh
+%attr(0755,rpm,rpm) %{_prefix}/lib/rpm/debugedit
+%attr(0755,rpm,rpm) %{_prefix}/lib/rpm/executabledeps.sh
+%attr(0755,rpm,rpm) %{_prefix}/lib/rpm/find-debuginfo.sh
+%attr(0755,rpm,rpm) %{_prefix}/lib/rpm/find-lang.sh
+%attr(0755,rpm,rpm) %{_prefix}/lib/rpm/find-prov.pl
+%attr(0755,rpm,rpm) %{_prefix}/lib/rpm/find-provides
+%attr(0755,rpm,rpm) %{_prefix}/lib/rpm/find-provides.perl
+%attr(0755,rpm,rpm) %{_prefix}/lib/rpm/find-req.pl
+%attr(0755,rpm,rpm) %{_prefix}/lib/rpm/find-requires
+%attr(0755,rpm,rpm) %{_prefix}/lib/rpm/find-requires.perl
+%attr(0755,rpm,rpm) %{_prefix}/lib/rpm/get_magic.pl
+%attr(0755,rpm,rpm) %{_prefix}/lib/rpm/getpo.sh
+%attr(0755,rpm,rpm) %{_prefix}/lib/rpm/http.req
+%attr(0755,rpm,rpm) %{_prefix}/lib/rpm/javadeps
+%attr(0755,rpm,rpm) %{_prefix}/lib/rpm/javadeps.sh
+%attr(0755,rpm,rpm) %{_prefix}/lib/rpm/libtooldeps.sh
+%attr(0755,rpm,rpm) %{_prefix}/lib/rpm/magic
+%attr(0755,rpm,rpm) %{_prefix}/lib/rpm/magic.mgc
+%attr(0755,rpm,rpm) %{_prefix}/lib/rpm/magic.mime
+%attr(0755,rpm,rpm) %{_prefix}/lib/rpm/magic.mime.mgc
+%attr(0755,rpm,rpm) %{_prefix}/lib/rpm/magic.prov
+%attr(0755,rpm,rpm) %{_prefix}/lib/rpm/magic.req
+%attr(0755,rpm,rpm) %{_prefix}/lib/rpm/perldeps.pl
+%attr(0755,rpm,rpm) %{_prefix}/lib/rpm/perl.prov
+%attr(0755,rpm,rpm) %{_prefix}/lib/rpm/perl.req
+%attr(0755,rpm,rpm) %{_prefix}/lib/rpm/pkgconfigdeps.sh
+%attr(0755,rpm,rpm) %{_prefix}/lib/rpm/rpm[bt]
+%attr(0755,rpm,rpm) %{_prefix}/lib/rpm/rpmdeps
+%attr(0755,rpm,rpm) %{_prefix}/lib/rpm/u_pkg.sh
+%attr(0755,rpm,rpm) %{_prefix}/lib/rpm/vpkg-provides.sh
+%attr(0755,rpm,rpm) %{_prefix}/lib/rpm/vpkg-provides2.sh
+%attr(0755,rpm,rpm) %{_prefix}/lib/rpm/pythondeps.sh
 %{_mandir}/man8/rpmbuild.8*
 %{_mandir}/man8/rpmdeps.8*
 
@@ -711,6 +658,7 @@ fi
 
 %files -n %{devname}
 %defattr(-,root,root)
+%attr(0755,rpm,rpm) %{_bindir}/rpmgraph
 %{_includedir}/rpm
 %{_libdir}/librpm.a
 %{_libdir}/librpm.la
@@ -724,17 +672,16 @@ fi
 %{_libdir}/librpmbuild.a
 %{_libdir}/librpmbuild.la
 %{_libdir}/librpmbuild.so
-%{_datadir}/man/man3/RPM*
-%rpmattr	%{rpmdir}/rpmcache
-%rpmattr	%{rpmdir}/rpmdb_deadlock
-%rpmattr	%{rpmdir}/rpmdb_dump
-%rpmattr	%{rpmdir}/rpmdb_load
-%rpmattr	%{rpmdir}/rpmdb_loadcvt
-%rpmattr	%{rpmdir}/rpmdb_svc
-%rpmattr	%{rpmdir}/rpmdb_stat
-%rpmattr	%{rpmdir}/rpmdb_verify
-%rpmattr	%{rpmdir}/rpmfile
-%rpmattr	%{_bindir}/rpmgraph
+%{_mandir}/man3/RPM*
+%attr(0755,rpm,rpm) %{rpmdir}/rpmcache
+%attr(0755,rpm,rpm) %{rpmdir}/rpmdb_deadlock
+%attr(0755,rpm,rpm) %{rpmdir}/rpmdb_dump
+%attr(0755,rpm,rpm) %{rpmdir}/rpmdb_load
+%attr(0755,rpm,rpm) %{rpmdir}/rpmdb_loadcvt
+%attr(0755,rpm,rpm) %{rpmdir}/rpmdb_svc
+%attr(0755,rpm,rpm) %{rpmdir}/rpmdb_stat
+%attr(0755,rpm,rpm) %{rpmdir}/rpmdb_verify
+%attr(0755,rpm,rpm) %{rpmdir}/rpmfile
 
 
 %files -n popt-data -f popt.lang
@@ -755,6 +702,7 @@ fi
 %{_libdir}/libpopt.so
 %{_datadir}/man/man3/popt.3*
 
+
 %files doc
 %defattr(-,root,root)
 %doc RPM-PGP-KEY RPM-GPG-KEY GROUPS CHANGES doc/manual/[a-z]*
@@ -763,6 +711,11 @@ fi
 
 
 %changelog
+* Sun Dec 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.4.5
+- don't build the apidocs since we don't include them anyways
+- clean file list
+- remove support for archs we do not support
+
 * Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.4.5
 - get rid of %%odevname
 - rebuild against new openssl, sqlite3
