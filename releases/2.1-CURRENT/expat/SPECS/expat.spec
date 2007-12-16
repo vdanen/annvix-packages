@@ -15,7 +15,6 @@
 %define major		1
 %define libname		%mklibname %{name} %{major}
 %define devname		%mklibname %{name} -d
-%define odevname	%mklibname %{name} 0 -d
 
 Summary:	Expat is an XML parser written in C
 Name:		%{name}
@@ -50,7 +49,7 @@ Summary:	Development environment for the expat XML parser
 Group:		Development/C
 Requires:	%{libname} = %{version}
 Provides:	%{name}-devel = %{version}-%{release}
-Obsoletes:	%{odevname}
+Obsoletes:	%mklibname %{name} 0 -d
 
 %description -n %{devname}
 Development environment for the expat XML parser
@@ -100,6 +99,9 @@ Development environment for the expat XML parser
 
 
 %changelog
+* Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0.1
+- get rid of %%odevname
+
 * Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0.1
 - rebuild
 
