@@ -78,6 +78,9 @@ install -m 0644 sash.1 %{buildroot}%{_mandir}/man8/sash.8
 
 
 %changelog
+* Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.7
+- rebuild against new e2fsprogs
+
 * Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.7
 - rebuild against new e2fsprogs
 - update the buildreqs
