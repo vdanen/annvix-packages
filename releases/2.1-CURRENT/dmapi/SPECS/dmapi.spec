@@ -118,6 +118,9 @@ rm -rf %{buildroot}%{_datadir}/doc/dmapi
 
 
 %changelog
+* Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.5
+- rebuild against new e2fsprogs
+
 * Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.5
 - rebuild against new e2fsprogs
 - update the buildreqs
