@@ -15,7 +15,6 @@
 %define major		2
 %define libname		%mklibname %{name} %{major}
 %define devname		%mklibname %{name} -d
-%define odevname	%mklibname %{name} 2 -d
 %define staticdevname	%mklibname %{name} -d -s
 
 Summary:	A library used to create PNG, JPEG, or WBMP images
@@ -74,7 +73,7 @@ Group:		Development/C
 Requires:	%{libname} = %{version}
 Provides:	lib%{name}-devel = %{version}-%{release}
 Provides:	%{name}-devel = %{version}-%{release}
-Obsoletes:	%{odevname}
+Obsoletes:	%mklibname %{name} 2 -d
 
 %description -n	%{devname}
 These are the development libraries and header files for gd,
@@ -190,6 +189,9 @@ libtoolize --copy --force; aclocal-1.7; automake-1.7 --copy --add-missing; autoc
 
 
 %changelog
+* Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0.35
+- get rid of %%odevname
+
 * Tue Dec 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0.35
 - rebuild against new freetype2, fontconfig
 
