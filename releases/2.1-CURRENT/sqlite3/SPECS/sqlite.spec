@@ -25,7 +25,6 @@ License:	Public Domain
 Group:		System/Libraries
 URL:		http://www.sqlite.org/
 Source0:	http://www.sqlite.org/%{name}-%{version}.tar.gz
-Patch0:		sqlite-3.5.2-avx-skip_tests.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}-%{release}
 BuildRequires:	chrpath
@@ -147,14 +146,7 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q -n %{name}-%{version}
-%ifarch x86_64
-# x86_64 fails thus on io-4.2.2, so we just ommit the test as everything else passes:
-#
-# Expected: [0xFFFFFFFF]
-#      Got: [0xFFFFFFFFFFFFFFFF]
-#
-%patch0 -p1 -b .x86_64-skip_tests
-%endif
+
 
 %build
 %serverbuild
@@ -231,6 +223,7 @@ chrpath -d %{buildroot}%{_bindir}/*
 %changelog
 * Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.5.4
 - 3.5.4
+- drop P0; no longer required (all tests pass on x86_64)
 
 * Sun Dec 09 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.5.3
 - 3.5.3
