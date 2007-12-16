@@ -163,6 +163,9 @@ rm -rf %{buildroot}%{_datadir}/locale
 %doc doc/CHANGES.gz doc/COPYING doc/CREDITS doc/PORTING README
 
 %changelog
+* Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.9.4
+- rebuild against new e2fsprogs
+
 * Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.9.4
 - rebuild against new e2fsprogs
 - drop the unnecessary aclocal/autoconf calls
