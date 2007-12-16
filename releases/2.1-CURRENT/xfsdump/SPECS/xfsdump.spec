@@ -96,6 +96,9 @@ rm -rf %{buildroot}%{_datadir}/doc/xfsdump/
 
 
 %changelog
+* Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.46
+- rebuild against new e2fsprogs
+
 * Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.46
 - rebuild against new attr
 
