@@ -122,6 +122,9 @@ popd
 
 
 %changelog
+* Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.4b40
+- rebuild against new e2fsprogs
+
 * Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.4b40
 - rebuild against new openssl
 
