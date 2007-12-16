@@ -87,6 +87,7 @@ ln -s reiserfsck.8 %{buildroot}%{_mandir}/man8/fsck.reiserfs.8
 %changelog
 * Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.6.19
 - rebuild against new e2fsprogs
+- P2 was 0 bytes before; really apply the patch and commit it
 
 * Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.6.19
 - update the description
