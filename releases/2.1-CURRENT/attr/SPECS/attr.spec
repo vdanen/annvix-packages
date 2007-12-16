@@ -15,7 +15,6 @@
 %define major		1
 %define libname		%mklibname %{name} %{major}
 %define devname		%mklibname %{name} -d
-%define odevname	%mklibname %{name} 1 -d
 
 Summary:	Utility for managing filesystem extended attributes
 Name:		%{name}
@@ -52,7 +51,7 @@ Summary:	Extended attribute static libraries and headers
 Group:		Development/C
 Requires:	%{libname} = %{version}
 Provides:	%{name}-devel = %{version}-%{release}
-Obsoletes:	%{odevname}
+Obsoletes:	%mklibname %{name} 1 -d
 
 %description -n %{devname}
 This package contains the libraries and header files needed to
@@ -134,6 +133,9 @@ rm -rf %{buildroot}/%{_lib}/libattr.{a,la} %{buildroot}%{_libdir}/libattr.la
 
 
 %changelog
+* Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.4.39
+- get rid of %%odevname
+
 * Thu Dec 13 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.4.39
 - 2.4.39
 
