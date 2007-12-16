@@ -116,6 +116,9 @@ install -m 0740 %{_sourcedir}/rpc.rquotad-log.run %{buildroot}%{_srvdir}/rpc.rqu
 
 
 %changelog
+* Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.13
+- rebuild against new e2fsprogs
+
 * Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.13
 - rebuild against new e2fsprogs
 - update the buildreqs
