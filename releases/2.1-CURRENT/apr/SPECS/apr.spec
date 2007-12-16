@@ -228,6 +228,9 @@ rm -f %{buildroot}%{_libdir}/apr.exp
 
 
 %changelog
+* Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2.12
+- rebuild against new e2fsprogs
+
 * Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2.12
 - rebuild against new openssl
 
