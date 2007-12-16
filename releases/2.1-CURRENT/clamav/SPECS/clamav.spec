@@ -15,7 +15,6 @@
 %define	major		2
 %define libname		%mklibname %{name} %{major}
 %define devname		%mklibname %{name} -d
-%define odevname	%mklibname %{name} 1 -d
 
 Summary:	An anti-virus utility for Unix
 Name:		%{name}
@@ -106,7 +105,7 @@ Group:		Development/C
 Requires:	%{libname} = %{version}
 Provides:	%{name}-devel = %{version}-%{release}
 Obsoletes:	%{name}-devel
-Obsoletes:	%{odevname}
+Obsoletes:	%mklibname %{name} 1 -d
 
 %description -n	%{devname}
 This package contains the static %{libname} library and its header
@@ -285,6 +284,9 @@ done
 
       
 %changelog
+* Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.91.2
+- get rid of %%odevname
+
 * Fri Aug 31 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.91.2
 - 0.91.2: fixes CVE-2007-4510, CVE-2007-4560
 - fixed source urls
