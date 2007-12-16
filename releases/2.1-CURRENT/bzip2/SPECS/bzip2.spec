@@ -15,7 +15,6 @@
 %define major		1
 %define libname		%mklibname %{name}_ %{major}
 %define devname		%mklibname %{name} -d
-%define odevname	%mklibname %{name}_ 1 -d
 
 Summary:	Extremely powerful file compression utility
 Name:		%{name}
@@ -65,7 +64,7 @@ Requires:	%{libname} = %{version}
 Provides:	lib%{name}-devel = %{version}-%{release}
 Provides:	%{name}-devel = %{version}-%{release}
 Obsoletes:	%{name}-devel
-Obsoletes:	%{odevname}
+Obsoletes:	%mklibname %{name}_ 1 -d
 
 %description -n %{devname}
 Header files and static library of bzip2 functions, for developing apps which
@@ -140,6 +139,9 @@ install -m 0644 bzlib_private.h %{buildroot}%{_includedir}/
 
 
 %changelog
+* Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0.4
+- get rid of %%odevname
+
 * Tue Jul 31 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0.4
 - 1.0.4
 - drop P2: it doesn't work with large files
