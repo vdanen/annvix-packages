@@ -1,4 +1,4 @@
-#
+de#
 # spec file for package elfutils
 #
 # Package for the Annvix Linux distribution: http://annvix.org/
@@ -15,9 +15,7 @@
 %define major		1
 %define libname		%mklibname %{name} %{major}
 %define devname		%mklibname %{name} -d
-%define odevname	%mklibname %{name} 1 -d
 %define staticdevname	%mklibname %{name} -d -s
-%define ostaticdevname	%mklibname %{name} 1 -d -s
 
 %define _programprefix 	eu-
 
@@ -61,7 +59,7 @@ Group:		Development/Other
 Requires:	%{libname} = %{version}
 Provides:	%{name}-devel = %{version}-%{release}
 Provides:	lib%{name}-devel = %{version}-%{release}
-Obsoletes:	%{odevname}
+Obsoletes:	%mklibname %{name} 1 -d
 
 %description -n %{devname}
 This package contains the headers and dynamic libraries to create
@@ -80,7 +78,7 @@ Group:		Development/Other
 Requires:	%{devname} = %{version}
 Provides:	%{name}-static-devel = %{version}-%{release}
 Provides:	lib%{name}-static-devel = %{version}-%{release}
-Obsoletes:	%{ostaticdevname}
+Obsoletes:	%mklibname %{name} 1 -d -s
 
 %description -n %{staticdevname}
 This package contains the static libraries to create applications for
@@ -225,6 +223,9 @@ chmod +x %{buildroot}%{_libdir}/elfutils/lib*.so*
 
 
 %changelog
+* Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.129
+- get rid of %%odevname
+
 * Sun Sep 9 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.129
 - 0.129
 - P0-P1: new upstream patches from Red Hat
