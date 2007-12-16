@@ -1,4 +1,4 @@
-de#
+#
 # spec file for package elfutils
 #
 # Package for the Annvix Linux distribution: http://annvix.org/
