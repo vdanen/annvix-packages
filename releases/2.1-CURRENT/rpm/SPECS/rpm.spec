@@ -22,10 +22,8 @@
 %define libpoptver	0
 %define libname		%mklibname rpm %{libver}
 %define devname		%mklibname rpm -d
-%define odevname	%mklibname rpm 4.4 -d
 %define libpoptname	%mklibname popt %{libpoptver}
 %define devpoptname	%mklibname popt -d
-%define odevpoptname	%mklibname popt 0 -d
 
 %define url		ftp://ftp.rpm.org/pub/rpm/dist/rpm-4.0.x
 
@@ -196,7 +194,7 @@ Requires:	popt-devel = %{poptver}-%{release}
 Provides:	librpm-devel = %{version}-%{release}
 Provides:	rpm-devel = %{version}-%{release}
 Obsoletes:	rpm-devel < 4.4.1
-Obsoletes:	%{odevname}
+Obsoletes:	%mklibname rpm 4.4 -d
 
 %description -n %{devname}
 This package contains the RPM C library and header files.  These
@@ -295,7 +293,7 @@ Requires:	popt = %{poptver}-%{release}
 Provides:	popt-devel = %{poptver}-%{release}
 Provides:	libpopt-devel = %{poptver}-%{release}
 Obsoletes:	popt-devel <= 1.8.3
-Obsoletes:	%{odevpoptname}
+Obsoletes:	%mklibname popt 0 -d
 
 %description -n %{devpoptname}
 Popt is a C library for parsing command line parameters.  Popt was
@@ -765,6 +763,10 @@ fi
 
 
 %changelog
+* Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.4.5
+- get rid of %%odevname
+- rebuild against new openssl, sqlite3
+
 * Tue Dec 04 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.4.5
 - rebuild against new sqlite3
 
