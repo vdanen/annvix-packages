@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		sqlite
-%define version 	3.5.3
+%define version 	3.5.4
 %define release		%_revrel
 
 %define	major		0
@@ -229,6 +229,9 @@ chrpath -d %{buildroot}%{_bindir}/*
 
 
 %changelog
+* Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.5.4
+- 3.5.4
+
 * Sun Dec 09 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.5.3
 - 3.5.3
 - run the full test, "make test" is now just a quick test
