@@ -68,6 +68,7 @@ Requires:	pam_tcb
 Requires:	pam_passwdqc
 Requires(pre):	rpm-helper
 Requires(pre):	setup >= 2.5-5735avx
+Requires(post): coreutils
 Obsoletes:	pamconfig
 Provides:	pamconfig
 
@@ -238,10 +239,10 @@ done
 
 %post
 if [ ! -f /var/log/faillog ]; then
-    cp -a /dev/null /var/log/faillog && chmod 0600 /var/log/faillog
+    install -m 0600 /dev/null /var/log/faillog
 fi
 if [ ! -f /var/log/tallylog ]; then
-    cp -a /dev/null /var/log/tallylog && chmod 0600 /var/log/tallylog
+    install -m 0600 /dev/null /var/log/tallylog
 fi
 
 
@@ -300,6 +301,11 @@ fi
 
 
 %changelog
+* Sun Dec 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.99.8.1
+- use install in %%post, otherwise we have character devices as log files
+  which clearly is incorrect
+- requires(post) coreutils for the use of install
+
 * Wed Dec 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.99.8.1
 - rebuild against new glib2.0
 
