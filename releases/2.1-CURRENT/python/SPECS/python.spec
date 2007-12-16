@@ -18,7 +18,6 @@
 %define major		%{dirver}
 %define libname		%mklibname %{name} %{major}
 %define devname		%mklibname %{name} -d
-%define odevname	%mklibname %{name} 2.5 -d
 
 Summary:	An interpreted, interactive object-oriented programming language
 Name:		%{name}
@@ -33,6 +32,7 @@ Source1:	http://www.python.org/ftp/python/doc/%{docver}/html-%{docver}.tar.bz2
 Source2:	python-2.5-base.list
 Source3:	exclude.py
 
+Patch0:		http://bugs.python.org/file8592/python-2.5.CVE-2007-4965-int-overflow.patch
 # Don't include /usr/local/* in search path
 Patch3:		Python-2.3-no-local-incpath.patch
 
@@ -99,7 +99,7 @@ Group:		Development/Python
 Requires:	%{name} = %{version}
 Requires:	%{libname} = %{version}
 Provides:	%{name}-devel = %{version}-%{release}
-Obsoletes:	%{odevname}
+Obsoletes:	%mklibname %{name} 2.5 -d
 
 %description -n %{devname}
 The Python programming language's interpreter can be extended with
@@ -140,6 +140,7 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q -n Python-%{version}
+%patch0 -p1
 # no-local-incpath
 %patch3 -p1
 # lib64
@@ -332,6 +333,10 @@ rm -f modules-list main.list
 
 
 %changelog
+* Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.5.1
+- get rid of %%odevname
+- P0: fixes CVE-2007-4965
+
 * Sun Dec 09 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.5.1
 - rebuild against new openssl, ncurses, tcl, tk, sqlite
 - re-enable sqlite test
