@@ -15,9 +15,7 @@
 %define major		1
 %define libname		%mklibname magic %{major}
 %define devname		%mklibname magic -d
-%define odevname	%mklibname magic -d 1
 %define staticdevname	%mklibname magic -d -s
-%define ostaticdevname	%mklibname magic -d -s 1
 
 Summary:	A utility for determining file types
 Name:		%{name}
@@ -63,7 +61,7 @@ Summary:	Development files to build applications that handle magic files
 Group:		Development/C
 Requires:	%{libname} = %{version}
 Provides:	%{name}-devel = %{version}-%{release}
-Obsoletes:	%{odevname}
+Obsoletes:	%mklibname magic -d 1
 
 %description -n %{devname}
 The file command is used to identify a particular file according to the
@@ -80,7 +78,7 @@ Summary:	Static library to build applications that handle magic files
 Group:		Development/C
 Requires:	%{devname} = %{version}
 Provides:	%{name}-static-devel = %{version}-%{release}
-Obsoletes:	%{ostaticdevname}
+Obsoletes:	%mklibname magic -d -s 1
 
 %description -n %{staticdevname}
 The file command is used to identify a particular file according to the
@@ -158,6 +156,9 @@ install -m 0644 src/file.h %{buildroot}%{_includedir}/
 
 
 %changelog
+* Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.21
+- get rid of %%odevname
+
 * Sat Aug 18 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.21
 - 4.21
 - use the included magic.mime instead of our own
