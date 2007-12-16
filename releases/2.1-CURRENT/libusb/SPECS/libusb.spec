@@ -16,9 +16,7 @@
 %define major		4
 %define libname		%mklibname usb %{api} %{major}
 %define devname		%mklibname usb %{api} -d
-%define odevname	%mklibname usb %{api} 4 -d
 %define staticdevname	%mklibname usb %{api} -d -s
-%define ostaticdevname	%mklibname usb %{api} 4 -d -s
 %define basiclibname	%{name}%{api}
 
 Summary:	Libusb is a library which allows userspace access to USB devices
@@ -51,7 +49,7 @@ Summary:        Libusb is a library which allows userspace access to USB devices
 Group:          Development/C
 Provides:	%{name}-devel = %{version}-%{release}
 Provides:	%{basiclibname}-devel = %{version}-%{release}
-Obsoletes:	%{odevname}
+Obsoletes:	%mklibname usb %{api} 4 -d
 Requires:	%{libname} = %{version}
 
 %description -n	%{devname}
@@ -65,7 +63,7 @@ Summary:        Static libraries for libusb
 Group:          Development/C
 Provides:	%{name}-static-devel = %{version}-%{release}
 Provides:	%{basiclibname}-static-devel = %{version}-%{release}
-Obsoletes:	%{ostaticdevname}
+Obsoletes:	%mklibname usb %{api} 4 -d -s
 Requires:	%{devname} = %{version}
 
 %description -n	%{staticdevname}
@@ -144,6 +142,9 @@ ln -s ../usr/lib/libusb.la %{buildroot}/%{_lib}
 
 
 %changelog
+* Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.1.12
+- get rid of %%odevname
+
 * Fri Sep 7 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.1.12
 - implement devel naming policy
 - implement library provides policy
