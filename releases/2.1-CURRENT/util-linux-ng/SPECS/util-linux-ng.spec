@@ -462,6 +462,9 @@ find  %{buildroot}%{_bindir}/ -regextype posix-egrep -type l \
 
 
 %changelog
+* Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.13.0.1
+- rebuild against new e2fsprogs
+
 * Wed Dec 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.13.0.1
 - 2.13.0.1 (the new util-linux-ng)
 - obsoletes/provides mount, losetup, linux32, setarch
