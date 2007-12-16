@@ -21,6 +21,7 @@ Group:		Archiving
 URL:		http://www.gnu.org/software/cpio
 Source0:	ftp://ftp.gnu.org/pub/gnu/%{name}/%{name}-%{version}.tar.bz2
 Source1:	ftp://ftp.gnu.org/pub/gnu/%{name}/%{name}-%{version}.tar.bz2.sig
+Patch0:		cpio-2.7-CVE-2007-4476.patch
 Patch1:		cpio-2.7-mdv-svr4compat.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -53,6 +54,7 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
+%patch0 -p1 -b .cve-2007-4476
 %patch1 -p1 -b .svr4compat
 
 
@@ -104,6 +106,9 @@ rm -f %{buildroot}%{_mandir}/man1/mt.1
 
 
 %changelog
+* Sun Dec 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.9
+- P0: security fix for CVE-2007-4476
+
 * Sun Nov 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.9
 - 2.9
 - drop P0, P2, P3, P4, P5, P6, P7, P8: fixed upstream or no longer needed
