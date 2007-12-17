@@ -70,6 +70,10 @@ rm -f config.h
 #echo '#define HAVE_INET_NTOP 1' >> config.h
 #echo '#define HAVE_INET_PTON 1' >> config.h
 
+# work around a bug in either the kernel or glibc
+perl -pi -e 's:^#define HAVE_LUTIMES 1$:/* #undef HAVE_LUTIMES */:' config.h
+
+%make proto
 %make
 
 
@@ -137,6 +141,7 @@ popd >/dev/null 2>&1
 %changelog
 * Mon Dec 17 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.9
 - quiet %%post more
+- fix the build
 
 * Sat Aug 18 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.9
 - P0: security fix for CVE-2007-4091
