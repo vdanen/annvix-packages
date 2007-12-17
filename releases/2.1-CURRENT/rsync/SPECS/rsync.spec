@@ -104,7 +104,7 @@ echo "873" >%{buildroot}%{_srvdir}/rsync/env/PORT
 %_mkafterboot
 pushd %{_srvdir}/rsync >/dev/null 2>&1
     ipsvd-cdb peers.cdb peers.cdb.tmp peers/
-popd
+popd >/dev/null 2>&1
 
 
 %preun
@@ -135,6 +135,9 @@ popd
 
 
 %changelog
+* Mon Dec 17 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.9
+- quiet %%post more
+
 * Sat Aug 18 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.9
 - P0: security fix for CVE-2007-4091
 
