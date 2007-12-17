@@ -9,13 +9,12 @@
 
 %define revision	$Rev$
 %define name		cups
-%define version		1.3.4
+%define version		1.3.5
 %define release		%_revrel
 
 %define major		2
 %define libname		%mklibname %{name} %{major}
 %define devname		%mklibname %{name} -d
-%define odevname	%mklibname %{name} 2 -d
 
 Summary:	Common Unix Printing System
 Name:		%{name}
@@ -28,7 +27,6 @@ Source0:	ftp://ftp.easysw.com/pub/cups/%{version}/%{name}-%{version}-source.tar.
 Source1:	cupsd.run
 Source2:	cupsd-log.run
 Source3:	cups.pam
-Patch0:		cups-1.3.0-xpdf-3.01-CVE-2007-4352_5392_5393.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	openssl-devel
@@ -78,7 +76,7 @@ Requires:	cups = %{version}
 Requires:	openssl
 Requires:	openssl-devel
 Provides:	%{name}-devel = %{version}-%{release}
-Obsoletes:	%{odevname}
+Obsoletes:	%mklibname %{name} 2 -d
 
 %description -n %{devname}
 The Common Unix Printing System provides a portable printing layer for
@@ -97,7 +95,6 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
-%patch0 -p1 -b .cve-2007-4352_5392_5393
 
 # fix the makefiles so they don't set file ownerships
 perl -p -i -e "s/ -o \\$.CUPS_USER.//" scheduler/Makefile
@@ -267,6 +264,12 @@ chgrp -R sys %{_sysconfdir}/cups %{_var}/*/cups
 
 
 %changelog
+* Mon Dec 17 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.3.5
+- 1.3.5: fixes CVE-2007-4352, CVE-2007-5392, CVE-2007-5393,
+  CVE-2007-5849
+- drop P0; fixed upstream
+- get rid of %%odevname
+
 * Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.3.4
 - rebuild against new openssl
 
