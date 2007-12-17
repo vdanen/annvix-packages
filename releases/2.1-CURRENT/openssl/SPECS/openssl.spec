@@ -320,11 +320,6 @@ rm -rf %{buildroot}%{_prefix}/lib
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
-%post
-echo "Please note that OPENSSLDIR has moved from %{_libdir}/ssl to"
-echo "%{_sysconfdir}/pki/tls"
-
-
 %post -n %{libname} -p /sbin/ldconfig
 %postun -n %{libname} -p /sbin/ldconfig
 
@@ -374,6 +369,9 @@ echo "%{_sysconfdir}/pki/tls"
 
 
 %changelog
+* Mon Dec 17 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.9.8g
+- remove the note in post, that was 2.0-RELEASE-specific
+
 * Fri Dec 07 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.9.8g
 - 0.9.8g
 - updated P2 from Mandriva
