@@ -84,6 +84,9 @@ touch %{buildroot}%{_datadir}/rpmlint/GROUPS
 
 
 %changelog
+* Mon Dec 17 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.81
+- updated config
+
 * Mon Oct 01 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.81
 - 0.81
 - updated config
