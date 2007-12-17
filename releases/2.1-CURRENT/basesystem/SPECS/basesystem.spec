@@ -33,7 +33,7 @@ Requires:	kbd
 Requires:	coreutils
 Requires:	crond
 Requires:	crontabs
-Requires:	dev
+Requires:	makedev
 Requires:	e2fsprogs
 Requires:	etcskel
 Requires:	filesystem
@@ -94,6 +94,9 @@ should never be removed.
 
 
 %changelog
+* Mon Dec 17 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1
+- require makedev instead of dev
+
 * Wed Dec 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1
 - require kbd instead of console-tools
 
