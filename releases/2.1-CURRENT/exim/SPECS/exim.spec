@@ -366,6 +366,9 @@ fi
 
 
 %changelog
+* Tue Dec 18 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.68
+- rebuild against new sqlite3
+
 * Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.68
 - rebuild against new mysql
 
