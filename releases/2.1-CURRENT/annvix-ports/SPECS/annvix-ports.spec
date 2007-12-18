@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		annvix-ports
-%define version		1.6
+%define version		1.7
 %define release		%_revrel
 
 %define _portsprefix	/usr/local
@@ -95,6 +95,9 @@ fi
 
 
 %changelog
+* Mon Dec 17 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.7
+- 1.7
+
 * Wed Apr 18 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.6
 - 1.6 (minor fixes)
 
