@@ -122,6 +122,9 @@ for i in en@boldquot en@quot ; do rm -rf %{buildroot}%{_datadir}/locale/$i; done
 
 
 %changelog
+* Tue Dec 18 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.4.7
+- rebuild against new curl
+
 * Sat Sep 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.4.7
 - use parallel build
 - remove sparc conditionals
