@@ -1606,10 +1606,13 @@ fi
 
 
 %changelog
-* Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.4
+* Tue Dec 18 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.5
+- rebuild against new sqlite3, curl
+
+* Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.5
 - rebuild against new mysql
 
-* Wed Dec 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.4
+* Wed Dec 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.2.5
 - 5.2.5
 - suhosin patch 5.2.5-0.9.6.2
 
