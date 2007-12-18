@@ -81,9 +81,6 @@ mkdir -p %{buildroot}%{devrootdir}
 
 
 %post
-/usr/sbin/useradd -c "virtual console memory owner" -u 69 \
-    -s /sbin/nologin -r -d /dev vcsa 2> /dev/null || :
-
 #- when devfs or udev is used, upgrade and install can be done easily :)
 if [[ -e /dev/.devfsd ]] || [[ -e /dev/.udev.tdb ]] || [[ -d /dev/.udevdb/ ]]; then
     [[ -d %{devrootdir} ]] || mkdir %{devrootdir}
@@ -136,6 +133,9 @@ fi
 
 
 %changelog
+* Mon Dec 17 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.4
+- don't add the user vcsa; we dropped that pre-2.0-RELEASE
+
 * Wed Apr 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.4
 - add requires on perl(MDK::Common)
 
