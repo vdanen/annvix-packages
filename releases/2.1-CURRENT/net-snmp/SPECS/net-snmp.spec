@@ -53,6 +53,7 @@ Patch50:	net-snmp-5.4.1-mdv-64bit-fixes.patch
 Patch52:	net-snmp-5.4.1-mdv-no_bundled_libtool.patch
 Patch53:	net-snmp-5.4.1-mdv-no_perlinstall.patch
 Patch54:	net-snmp-5.4.1-avx-disabled_tests.patch
+Patch55:	net-snmp-5.4.1-pld-lvalue.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	autoconf2.5 >= 2.59
@@ -186,9 +187,7 @@ This package contains the documentation for %{name}.
 # OE: added from fedora
 %patch21 -p1 -b .ipv6-sock-close
 %patch22 -p1 -b .readonly
-%ifnarch ia64
 %patch24 -p1 -b .pie
-%endif
 %patch25 -p1 -b .64bit
 %patch26 -p1 -b .dir-fix
 %patch27 -p1 -b .file_offset
@@ -199,6 +198,7 @@ This package contains the documentation for %{name}.
 %patch52 -p0 -b .libtool
 %patch53 -p0 -b .no_perlinstall
 %patch54 -p0
+%patch55 -p1 -b .lvalue
 
 cat %{_datadir}/aclocal/libtool.m4 >> aclocal.m4
 
@@ -220,7 +220,7 @@ autoconf
 %build
 %serverbuild
 
-%ifarch ia64 x86_64 s390x ppc64
+%ifarch x86_64
 export LDFLAGS="-L%{_libdir}"
 %endif
 
@@ -488,6 +488,10 @@ file %{buildroot}%{_sbindir}/* | grep ELF | cut -d':' -f1 | xargs strip || :
 
 
 %changelog
+* Tue Dec 18 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.4.1
+- P55: don't cast possible lvalue (from PLD)
+- remove some arch-based conditionals for archs we don't support
+
 * Sun Dec 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.4.1
 - fix the build
 
