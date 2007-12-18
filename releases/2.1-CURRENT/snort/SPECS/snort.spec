@@ -33,6 +33,7 @@ Patch0:		snort-2.7.0.1-mdv-lib64.patch
 # (oe): make -L work as stated in the man page.
 Patch1:		snort-2.6.1.5-mdv-no_timestamp.patch
 Patch2:		snort-2.6.1-mdv-plugins_fix.patch
+Patch3:		snort-2.7.0.1-avx-config.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	libpcap-devel >= 0.6
@@ -178,6 +179,7 @@ This package contains the documentation for %{name}.
 %patch0 -p1 -b .lib64
 %patch1 -p1 -b .no_timestamp
 %patch2 -p1 -b .plugins_fix
+%patch3 -p1 -b .config
 
 # fix some docs
 mv docs rule-docs
@@ -464,7 +466,6 @@ popd
 }
 
 install %{name}.8* %{buildroot}%{_mandir}/man8
-perl -pi -e "s|var RULE_PATH ../rules|var RULE_PATH rules|" etc/%{name}.conf
 
 install -m 0644 etc/*.conf %{buildroot}/%{_sysconfdir}/%{name}/
 install -m 0644 etc/*.config %{buildroot}/%{_sysconfdir}/%{name}/
@@ -493,7 +494,7 @@ strip %{buildroot}%{_sbindir}/%{name}-*
 rm -f doc/README.SNMP.SNMP
 
 # fix libexecdir                                                                                                                                                                   
-perl -pi -e "s|/usr/local/lib/snort_|%{_libdir}/%{name}|g" %{buildroot}%{_sysconfdir}/%{name}/snort.conf
+perl -pi -e "s|/usr/local/lib/snort_|%{_libdir}/%{name}/|g" %{buildroot}%{_sysconfdir}/%{name}/snort.conf
 
 
 %clean
@@ -650,10 +651,15 @@ update-alternatives --remove %{name} %{_sbindir}/%{name}-inline+flexresp
 
 
 %changelog
-* Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.7.0
+* Mon Dec 17 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.7.0.1
+- P3: comment non-existant rules and include community rules in config
+- fix the perl rewrite of the config file for lib paths
+- refresh the Community Rules (2007-04-27)
+
+* Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.7.0.1
 - rebuild against new mysql, openssl
 
-* Tue Jul 24 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.7.0
+* Tue Jul 24 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.7.0.1
 - 2.7.0.1
 - updated P0 from Mandriva due to mysqlclient check changes
 - don't bzip2 the manpages manually
