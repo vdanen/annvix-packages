@@ -333,6 +333,9 @@ rm -f modules-list main.list
 
 
 %changelog
+* Tue Dec 18 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.5.1
+- rebuild against new sqlite3
+
 * Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.5.1
 - get rid of %%odevname
 - P0: fixes CVE-2007-4965
