@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		annvix-ports
-%define version		1.7
+%define version		1.8
 %define release		%_revrel
 
 %define _portsprefix	/usr/local
@@ -18,8 +18,8 @@ Summary:	Annvix ports package
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-License:	GPL
-URL:		http://svn.annvix.org/cgi-bin/viewvc.cgi/ports/?root=tools
+License:	GPLv2
+URL:		http://svn.annvix.org/cgi-bin/viewvc.cgi/tools/ports/
 Group:		System/Configuration
 Source0:	%{name}-%{version}.tar.bz2
 
@@ -95,6 +95,9 @@ fi
 
 
 %changelog
+* Tue Dec 18 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.7
+- 1.8
+
 * Mon Dec 17 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.7
 - 1.7
 
