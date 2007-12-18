@@ -378,7 +378,8 @@ if [ "$1" == "1" ]; then
     # Initialize database
     export TMPDIR="%{_localstatedir}/mysql/.tmp"
     export TMP="${TMPDIR}"
-    HOME=/var/lib/mysql /sbin/chpst -u %{mysqld_user} /bin/sh -c %{_bindir}/mysql_install_db --rpm --user=%{mysqld_user}
+    export HOME=/var/lib/mysql
+    execdir=%{_sbindir} /sbin/chpst -u %{mysqld_user} /bin/sh -c %{_bindir}/mysql_install_db --rpm --user=%{mysqld_user}
 
     if [ ! -f /root/.my.cnf ]; then
         echo "[mysqladmin]" >/root/.my.cnf
@@ -612,6 +613,9 @@ fi
 
 
 %changelog
+* Tue Dec 18 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.0.51
+- fix the call to mysql_install_db
+
 * Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.0.51
 - 5.0.51 (fixes CVE-2007-5969)
 - updated P1 from Mandriva
