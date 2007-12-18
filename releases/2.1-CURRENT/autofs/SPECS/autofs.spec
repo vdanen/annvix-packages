@@ -195,6 +195,9 @@ install -m 0740 %{_sourcedir}/autofs-log.run %{buildroot}%{_srvdir}/autofs/log/r
 
 
 %post
+if [ "`grep -q autofs4 %{_sysconfdir}/modprobe.preload; echo $?`" == "1" ]; then
+    echo "autofs4" >>%{_sysconfdir}/modprobe.preload
+fi
 %_post_srv autofs
 
 
@@ -223,6 +226,10 @@ install -m 0740 %{_sourcedir}/autofs-log.run %{buildroot}%{_srvdir}/autofs/log/r
 
 
 %changelog
+* Mon Dec 17 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.0.2
+- add autofs4 module to /etc/modprobe.preload if it's not already there
+  so that autofs can run "out of the box"
+
 * Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.0.2
 - rebuild against new krb5
 
