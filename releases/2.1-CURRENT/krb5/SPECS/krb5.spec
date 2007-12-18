@@ -116,7 +116,7 @@ Summary:	The server programs for Kerberos 5
 Requires:	%{libname} = %{version}
 Requires:	%{name}-workstation = %{version}
 Requires:	words
-Requires(pre):	install-info
+Requires(pre):	info-install
 Provides:	kerberos-server
 
 %description server
@@ -131,7 +131,7 @@ package).
 Summary:	Kerberos 5 programs for use on workstations
 Group:		System/Base
 Requires:	%{libname} = %{version}
-Requires(pre):	install-info
+Requires(pre):	info-install
 Provides:	kerberos-workstation
 
 %description workstation
@@ -623,6 +623,9 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Mon Dec 17 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.6.3
+- s/install-info/info-install/
+
 * Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.6.3
 - rebuild against new e2fsprogs
 
