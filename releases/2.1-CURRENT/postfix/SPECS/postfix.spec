@@ -455,6 +455,10 @@ done
 
 
 %changelog
+* Mon Dec 17 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.4.6
+- update the default config to not show Mandriva branding or the
+  postfix version
+
 * Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.4.6
 - rebuild against new mysql
 
