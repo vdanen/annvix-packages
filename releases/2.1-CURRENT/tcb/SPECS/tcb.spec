@@ -49,6 +49,7 @@ package.
 Summary:        Libraries and tools implementing the tcb password shadowing scheme
 Group:          System/Libraries
 Requires:	glibc-crypt_blowfish
+Requires(pre):	shadow-utils
 Provides:	lib%{name} = %{version}-%{release}
 
 %description -n %{libname}
@@ -191,6 +192,9 @@ fi
 
 
 %changelog
+* Mon Dec 17 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0.2
+- libtcb require shadow-utils in %%pre to ensure we can use groupadd
+
 * Sat Sep 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0.2
 - 1.0.2
 - rebuild against new pam
