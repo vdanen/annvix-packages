@@ -225,6 +225,10 @@ rm -rf %{buildroot}%{_datadir}/doc/dovecot/
 
 
 %changelog
+* Mon Dec 17 2007 Vincent Danen <vdanen-at-build.annvix.org>  1.0.9
+- update P0 to point to the SSL certificates or it uses compiled-in
+  defaults and craps out on start
+
 * Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org>  1.0.9
 - rebuild against new krb5
 
