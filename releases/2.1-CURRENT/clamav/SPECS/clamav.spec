@@ -9,10 +9,10 @@
 
 %define revision	$Rev$
 %define name		clamav
-%define version		0.91.2
+%define version		0.92
 %define release		%_revrel
 
-%define	major		2
+%define	major		3
 %define libname		%mklibname %{name} %{major}
 %define devname		%mklibname %{name} -d
 
@@ -29,7 +29,7 @@ Source4:	clamd.run
 Source5:	clamd-log.run
 Source6:	freshclam.run
 Source7:	freshclam-log.run
-Patch0:		clamav-0.91.1-avx-config.patch
+Patch0:		clamav-0.92-avx-config.patch
 Patch1:		clamav-0.90.2-avx-stderr.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -93,7 +93,6 @@ The actual virus database for %{name}
 Summary:	Shared libraries for %{name}
 Group:          System/Libraries
 Provides:	lib%{name} = %{version}-%{release}
-Obsoletes:	%{mklibname clamav 1}-devel
 
 %description -n	%{libname}
 Shared libraries for %{name}
@@ -284,6 +283,10 @@ done
 
       
 %changelog
+* Tue Dec 18 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.92
+- 0.92
+- rediff P0
+
 * Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.91.2
 - get rid of %%odevname
 
