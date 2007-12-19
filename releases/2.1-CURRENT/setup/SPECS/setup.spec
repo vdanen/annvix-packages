@@ -72,11 +72,9 @@ fi
 
 
 %posttrans
-pwconv 2>/dev/null >/dev/null  || :
-grpconv 2>/dev/null >/dev/null  || :
-
 if [ -x /usr/sbin/nscd ]; then
-    nscd -i passwd -i group || :
+    nscd -i passwd || :
+    nscd -i group || :
 fi
 
 
@@ -108,6 +106,12 @@ fi
 
 
 %changelog
+* Tue Dec 18 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.9.2
+- don't call pwconv and grpconv; they don't seem to play too well without
+  /etc/shadow
+- call nscd twice as it doesn't seem we can invalidate two caches with
+  a single call
+
 * Sun Dec 16 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.9.2
 - 2.9.2: don't provide the xhost.* profile.d scripts; we don't need to
   set ssh X support when we don't have X
