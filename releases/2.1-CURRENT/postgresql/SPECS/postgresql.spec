@@ -420,14 +420,6 @@ if [ ! -f $PGDATA/PG_VERSION ] && [ ! -d $PGDATA/base ]; then
     [ ! -f $PGDATA/PG_VERSION ] && echo "Database was NOT successfully initalized!"
 fi
 
-if [ $1 -gt 1 ]; then
-    echo "" 
-    echo "After install, you must run %{_docdir}/%{name}-doc-%{version}/CAN-2005-1409-1410-update-dbs.sh"
-    echo "in order to upgrade your databases to protect against the vulnerabilities described in CAN-2005-1409"
-    echo "and CAN-2005-1410.  PostgreSQL must be running when you run this script.  Note that this script is"
-    echo "provided in the postgresql-doc package."
-    echo "" 
-fi
 %_post_srv postgresql
 
 
@@ -626,6 +618,11 @@ fi
 
 
 %changelog
+* Wed Dec 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.2.5
+- update the afterboot snippet
+- drop the note in %%post regarding database upgrades pertaining to
+  CAN-2005-1409 and CAN-2005-1410
+
 * Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.2.5
 - rebuild against new openssl, ncurses
 

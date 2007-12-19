@@ -8,21 +8,21 @@ likely should be doing this more often as well.
 .LP
 To protect your data you should make a backup copy of your
 \fI/var/lib/pgsql/pg_hba.conf\fR file.  You should also dump the contents of
-your database which can be done with the \fBpg_dumpall\fR command like this:
+your database which can be done with the \fBpg_dumpall\fR(1) command like this:
 .IP
-\fB/sbin/chpst -u postgres /usr/bin/pg_dumpall -b -o -Fc >$backup\fR
+\fB/sbin/chpst -u postgres /usr/bin/pg_dumpall >$backup\fR
 .LP
 where \fI$backup\fR is the backup file to contain the database contents.
 .LP
 To restore the contents of the file, use:
 .IP
-\fB/sbin/chpst -u postgres /usr/bin/pg_restore -Fc -o -f $backup\fR
+\fB/sbin/chpst -u postgres /usr/bin/psql -f $backup\fR
 .LP
 This will restore the contents of your backup file to the PostgreSQL
 database.
 .LP
 To quickly setup PostgreSQL for use, become root (using sudo(8)) and then
-su(1) to the \fIpostgres\fR user.  Use the createuser(1) command to create a
+su(1) to the \fIpostgres\fR user.  Use the \fBcreateuser\fR(1) command to create a
 user to access the database.  Log out from the postgres user and ensure that
 the postgresql service is running, then log out from root and test the
 connection by connecting to the server (\fBpsql -U [username\fR).
@@ -35,22 +35,22 @@ version of PostgreSQL to another (for instance to upgrade from 7.3.x to
 upgrade, re-initialize the database, then restore the contents of the
 database.  This can be done by following these steps:
 .sp
-  # srv stop postgresql
-.br
   # /sbin/chpst -u postgres /usr/bin/pg_dumpall > outputfile
+.br
+  # srv --down postgresql
 .br
   # mv /var/lib/pgsql /var/lib/pgsql.bk
 .br
-  # urpmi postgresql-server
+  # apt-get update postgresql-server
 .br
-  # srv start postgresql
+  # srv --up postgresql
 .br
-  # /sbin/chpst -u postgres /usr/bin/psql -d template1 -f outputfile
+  # /sbin/chpst -u postgres /usr/bin/psql -f outputfile
 .LP
 At this point you should be back up and running with your upgraded PostgreSQL
 database.  It is always advisable to read the PostgreSQL manual online
 (specifically the parts dealing with upgrades) prior to upgrading.  The RPM
 package for postgresql-server should initialize a new database if an existing
-one is not present (which is why it is important to move /var/lib/pgsql prior
-to upgrading the server).  If you do not do this, you will need to use initdb
+one is not present (which is why it is important to move \fI/var/lib/pgsql\fR prior
+to upgrading the server).  If you do not do this, you will need to use \fBinitdb\fR(1)
 manually to initialize the new database.
