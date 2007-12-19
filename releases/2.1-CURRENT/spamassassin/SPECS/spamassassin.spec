@@ -60,6 +60,7 @@ Requires:	perl(Net::Ident)
 Requires:	perl-libwww-perl
 Requires:	perl-version
 Requires:	gnupg
+Requires:	re2c
 Requires(post):	rpm-helper
 Requires(preun): rpm-helper
 
@@ -229,6 +230,9 @@ echo "-c -m5 -H" >%{buildroot}%{_srvdir}/spamd/env/OPTIONS
 
 
 %changelog
+* Wed Dec 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.2.3
+- requires re2c
+
 * Sun Dec 09 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.2.3
 - 3.2.3
 - requires perl-version
