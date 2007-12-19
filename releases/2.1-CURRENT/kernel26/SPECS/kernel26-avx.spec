@@ -12,7 +12,7 @@
 %define kernelversion	2
 %define patchlevel	6
 %define sublevel	22
-%define minlevel	14
+%define minlevel	15
 %define avxrelease	%(echo %{revision}|cut -d ' ' -f 2)
 
 %define kversion	%{kernelversion}.%{patchlevel}.%{sublevel}.%{minlevel}
@@ -62,6 +62,10 @@
 %endif
 # there are places where parallel make don't work
 %define smake		make
+# Parallelize xargs invocations on smp machines
+%define kxargs xargs %([ -z "$RPM_BUILD_NCPUS" ] \\\
+    && RPM_BUILD_NCPUS="`/usr/bin/getconf _NPROCESSORS_ONLN`"; \\\
+    [ "$RPM_BUILD_NCPUS" -gt 1 ] && echo "-P $RPM_BUILD_NCPUS")
 
 %define target_arch	%(echo %{_arch})
 %define target_cpu	%(echo %{_target_cpu})
@@ -125,7 +129,6 @@ BuildRequires:	gcc >= 3.3.1-5avx
 BuildRequires:	module-init-tools
 
 Provides:	module-info
-Provides:	linux = %{kversion}
 Autoreqprov:	no
 Requires:	%{requires1}
 Requires:	%{requires2}
@@ -267,7 +270,7 @@ kernel modules at load time.
 pushd %{_sourcedir}
     if [ -d patches ]; then
         cp -a patches %{patches_ver}
-        find %{patches_ver} -name .svn -print|xargs rm -rf
+        find %{patches_ver} -name .svn -print | %{kxargs} rm -rf
         rm -f linux-%{patches_ver}.tar.bz2
         tar cjf linux-%{patches_ver}.tar.bz2 %{patches_ver} && rm -rf %{patches_ver}
     fi
@@ -302,7 +305,7 @@ pushd %{src_dir}
     LC_ALL=C perl -p -i -e "s/^SUBLEVEL.*/SUBLEVEL = %{sublevel}/" Makefile
 
     # get rid of unwanted files
-    find . -name '*~' -o -name '*.orig' -o -name '*.append' | xargs rm -f
+    find . -name '*~' -o -name '*.orig' -o -name '*.append' | %{kxargs} rm -f
 popd
 
 
@@ -617,7 +620,7 @@ cp %{_sourcedir}/README.annvix-kernel-sources %{target_source}/
 %endif
 
 # Gzip modules
-find %{target_modules} -type f -name '*.ko' | xargs gzip -9f
+find %{target_modules} -type f -name '*.ko' | %{kxargs} gzip -9f
 
 for i in %{target_modules}/*; do
     rm -f $i/build $i/source $i/modules.*
@@ -635,7 +638,7 @@ pushd %{target_modules}
         pushd $i
             echo "Creating module.description for $i"
             modules=`find . -name "*.ko.gz"`
-            echo $modules | xargs /sbin/modinfo \
+            echo $modules | %{kxargs} /sbin/modinfo \
               | perl -lne 'print "$name\t$1" if $name && /^description:\s*(.*)/; $name = $1 if m!^filename:\s*(.*)\.k?o!; $name =~ s!.*/!!' > modules.description
         popd
     done
@@ -791,6 +794,17 @@ exit 0
 
 
 %changelog
+* Wed Dec 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.22.15
+- 2.6.22.15; fixes CVE-2007-5966, CVE-2007-6417
+- ZZ01: patch to fix CVE-2007-6206
+- make only the virtual kernel provide 'linux'
+- parallelize xargs invocations for smp machines (herton)
+- update scripts/apply_patches from Mandriva (v0.4):
+  - really use the series file now, taking the patches in their order
+  - fix usage output
+  - make sure no patches are forgotten in the patches directory; if a
+    patch isn't listed in series, exit with an error
+
 * Thu Nov 29 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.22.14
 - adjust provides to ease apt upgrades
 
