@@ -47,7 +47,7 @@ without an X server (i.e, over a network).
 Summary:	X Library
 Group:		Development/C
 Provides:	%{name} = %{version}
-Conflicts:	%{libxorgoldname} < 7.0
+Obsoletes:	%{libxorgoldname} < 7.0
 
 %description -n %{libname}
 %{name} contains the shared libraries that most X programs
@@ -64,7 +64,7 @@ Requires:	x11-proto-devel >= 1.0.0
 Provides:	%{name}-devel = %{version}-%{release}
 Provides:	x11-devel = %{version}-%{release}
 Obsoletes:	%mklibname x11_ 6 -d
-Conflicts:	%{libxorgoldname}-devel < 7.0
+Obsoletes:	%{libxorgoldname}-devel < 7.0
 
 %description -n %{devname}
 %{name} includes the libraries, header files and documentation
@@ -78,7 +78,7 @@ Group:		Development/C
 Requires:	%{devname} = %{version}
 Provides:	%{name}-static-devel = %{version}-%{release}
 Provides:	x11-static-devel = %{version}-%{release}
-Conflicts:	%{libxorgoldname}-static-devel < 7.0
+Obsoletes:	%{libxorgoldname}-static-devel < 7.0
 
 %description -n %{staticdevname}
 Static development files for %{name}
@@ -166,6 +166,10 @@ fi
 %{_datadir}/X11/XKeysymDB
 
 %changelog
+* Thu Dec 20 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.1.3
+- instead of conflicting with libxorg-x11*, try obsoleting them to
+  ease the upgrade
+
 * Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.1.3
 - 1.1.3
 - drop P0; merged upstream
