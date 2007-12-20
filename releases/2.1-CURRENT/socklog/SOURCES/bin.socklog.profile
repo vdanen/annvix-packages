@@ -1,5 +1,4 @@
 # vim:syntax=apparmor
-# Last Modified: Mon Jun 18 16:59:58 2007
 #
 # $Id$
 
@@ -7,6 +6,7 @@
 
 /bin/socklog {
   #include <abstractions/base>
+  #include <abstractions/nameservice>
 
   # this is only needed when socklog listens to UDP ports (i.e. to receive
   # remote syslog messages)

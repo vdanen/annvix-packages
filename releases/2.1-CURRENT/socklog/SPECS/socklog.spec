@@ -254,6 +254,9 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Thu Dec 20 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1.0
+- update the apparmor profile so socklog-udp works
+
 * Tue Jun 26 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1.0
 - drop the %%_touch_aa_reload macro
 
