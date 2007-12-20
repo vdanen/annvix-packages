@@ -236,7 +236,7 @@ popd
 
 # utils
 pushd utils
-    %makeinstall_std PERLDIR=%{buildroot}%{_libdir}/perl5/vendor_perl/Immunix
+    %makeinstall_std PERLDIR=%{buildroot}%{perl_vendorlib}/Immunix
 popd
 
 # mod_apparmor
@@ -343,7 +343,7 @@ rm -f %{buildroot}%{_profiledir}/{bin,sbin,usr.sbin,usr.bin}.*
 %config(noreplace) %{_sysconfdir}/apparmor/severity.db
 %{_datadir}/locale/*/*/apparmor-utils.mo
 %{_sbindir}/*
-%{_libdir}/perl5/vendor_perl/Immunix
+%{perl_vendorlib}/Immunix
 %{_var}/log/apparmor
 %{_mandir}/man5/logprof.conf.5*
 %{_mandir}/man8/aa-autodep.8*
@@ -372,6 +372,10 @@ rm -f %{buildroot}%{_profiledir}/{bin,sbin,usr.sbin,usr.bin}.*
 
 
 %changelog
+* Thu Dec 20 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1
+- use %%perl_vendorlib to install the Immunix perl modules otherwise
+  they are not found on x86_64
+
 * Wed Dec 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1
 - rebuild against new audit
 
