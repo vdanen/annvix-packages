@@ -204,6 +204,11 @@ install -m 0600 contrib/gpg-check/gpg-import.lua %{buildroot}%{_datadir}/apt/scr
 
 
 %changelog
+* Wed Dec 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.5.15lorg3.2
+- fix annvix.conf; we do not want to allow duplicate kernel packages anymore
+  since only one package should provide kernel (keeping this impedes the
+  ability of apt to dist-upgrade the kernel)
+
 * Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.5.15lorg3.2
 - get rid of %%odevname
 
