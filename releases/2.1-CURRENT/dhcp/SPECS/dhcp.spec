@@ -261,7 +261,7 @@ rm -rf %{_localstatedir}/dhcp/dhclient.leases
 %files server
 %defattr(-,root,root)
 %config(noreplace) %ghost %{_localstatedir}/dhcp/dhcpd.leases
-%{_sysconfdir}/dhcpd.conf
+%config(noreplace) %{_sysconfdir}/dhcpd.conf
 %{_sbindir}/dhcpd
 %{_sbindir}/update_dhcp.pl
 %{_sbindir}/dhcpreport.pl
@@ -317,6 +317,9 @@ rm -rf %{_localstatedir}/dhcp/dhclient.leases
 
 
 %changelog
+* Thu Dec 20 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0.6
+- mark /etc/dhcpd.conf as %%config(noreplace)
+
 * Wed Oct 17 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0.6
 - 3.0.6
 - install the config file as a config, not as a sample
