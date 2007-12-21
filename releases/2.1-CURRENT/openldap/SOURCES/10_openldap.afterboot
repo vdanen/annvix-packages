@@ -5,8 +5,7 @@ The OpenLDAP server is an open source implementation of the Lightweight Director
 Access Protocol.  It is most often used when a database is required that is read-often
 and write-little (such as for user authentication, shared address books, etc.).
 .LP
-Annvix 1.0-RELEASE shipped with OpenLDAP 2.1.29 whereas Annvix 1.1-RELEASE shipped
-with OpenLDAP 2.3.9; the latest release of OpenLDAP at that time.  As a result, data
+Each version of Annvix typically provides a newer stable release of OpenLDAP.  As a result, data
 needs to be migrated from the old version to the newer version.  Although the RPM
 scripts attempt to do this in a sane way, as a precaution, users should backup their
 LDAP data prior to the upgrade.
@@ -35,11 +34,11 @@ If you backed up just a specific base DN, use:
 .IP
 \fB/usr/sbin/slapadd -cv -b "dc=example,dc=com" -l ldap-backup.ldif\fR
 .LP
-When using \fBslapadd\fR(8), be sure that \fBslapd\fR(8) is not running to ensure consistency
+When using slapadd, be sure that slapd is not running to ensure consistency
 of the database.
 .LP
-You should only use \fBslapcat\fR(8) and \fBslapadd\fR(8) together, and not as a replacement
-for using \fBldapadd\fR(1) because they do no schema checking or other coherency checks.
+You should only use slapcat and slapadd together, and not as a replacement
+for using ldapadd because they do no schema checking or other coherency checks.
 .LP
 Creating backups of your OpenLDAP server periodically is a good idea to protect against
 corruption, unexpected changes, and especially upgrades.
