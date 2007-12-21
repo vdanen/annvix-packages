@@ -5,9 +5,9 @@
 A better idea would be to wrap the service with SSL or to use SSH instead, but
 for anonymous read-only CVS using pserver has it's advantages.  The cvspserver
 service allows for unencrypted access to the CVS repositories.  It uses the
-tcpsvd(8) daemon to listen to connections, which allows us to use some
+\fBtcpsvd\fR(8) daemon to listen to connections, which allows us to use some
 complex rules to determine access to the service.  The \fI/service/cvspserver/peers\fR
 directory contains the rules which, by default, are to allow all connections.
 .LP
-Please read the ipsvd-instruct(5) manpage for more information on how to tailor
+Please read the \fBipsvd-instruct\fR(5) manpage for more information on how to tailor
 this directory to set more appropriate access restrictions.

@@ -179,6 +179,9 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Fri Dec 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.12.13
+- update the afterboot snippet
+
 * Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.12.13
 - rebuild against new krb5
 
