@@ -70,6 +70,7 @@ Patch42:	autofs-5.0.2-basedn-with-spaces-fix-2.patch
 Patch43:	autofs-5.0.2-master-check-underscore.patch
 Patch44:	autofs-5.0.2-add-ldap-schema-discovery-fix-2.patch
 Patch45:	autofs-5.0.2-hosts-nosuid-default.patch
+Patch46:	autofs-5.0.2-hosts-nodev-default.patch
 Patch100:	autofs-5.0.2-mdv-rename-configuration-file.patch
 Patch101:	autofs-5.0.2-mdv-separate-config-files.patch
 Patch102:	autofs-5.0.2-avx-config_fixes.patch
@@ -150,6 +151,7 @@ This package contains the documentation for %{name}.
 %patch43 -p1
 %patch44 -p1
 %patch45 -p1
+%patch46 -p1
 
 %patch100 -p1
 %patch101 -p1
@@ -226,6 +228,9 @@ fi
 
 
 %changelog
+* Fri Dec 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.0.2
+- P46: make the hosts mak mount nodev by default too (CVE-2007-6285)
+
 * Mon Dec 17 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.0.2
 - add autofs4 module to /etc/modprobe.preload if it's not already there
   so that autofs can run "out of the box"
