@@ -623,6 +623,9 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Fri Dec 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.6.3
+- update the afterboot snippets
+
 * Mon Dec 17 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.6.3
 - s/install-info/info-install/
 
