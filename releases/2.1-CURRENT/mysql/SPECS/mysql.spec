@@ -613,6 +613,9 @@ fi
 
 
 %changelog
+* Fri Dec 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.0.51
+- update the afterboot snippet
+
 * Tue Dec 18 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.0.51
 - fix the call to mysql_install_db
 
