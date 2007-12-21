@@ -19,7 +19,7 @@ files.  By default, \fI/etc/aide.conf\fR is mode 0600 and \fI/var/lib/aide\fR is
 By default, AIDE performs a check every day via cron, which will be sent to the
 root user on the local system by default, so you'll want to make sure that you receive
 the root user's email on this system.  To run a check manually or to check for specific
-things, you can use aide(1) directly or use Annvix's AIDE check and update scripts
+things, you can use \fBaide\fR(1) directly or use Annvix's AIDE check and update scripts
 (\fB/etc/cron.daily/aide\fR and \fB/usr/sbin/aideupdate\fR respectively).
 .LP
 As you upgrade your system with new packages, make changes to configuration files, etc.
@@ -40,9 +40,9 @@ database.  Practicing this will make AIDE a much more valuable and reliable tool
 .LP
 Because AIDE does not use any encryption or crytographic verification of the database, and
 because the database is a plaintext file, the Annvix AIDE package ships with wrapper scripts
-that enforce the use of gpg(1) to perform verification of the database.  Although this is
-not manadatory, if you opt not to use gpg(1) for verification, you will need to modify or
-replace the \fI/etc/cron.daily/aidecheck\fB script so that gpg(1) is not used.
+that enforce the use of \fBgpg\fR(1) to perform verification of the database.  Although this is
+not manadatory, if you opt not to use gpg for verification, you will need to modify or
+replace the \fI/etc/cron.daily/aidecheck\fB script so that gpg is not used.
 .LP
 Rather than using the \fI--init\fR option with \fBaide\fR you should use the Annvix
 \fBaideinit\fR wrapper script.  This script will generate an initial database and will
@@ -55,12 +55,12 @@ To create a new gpg key and initialize the database, execute:
 .IP
 aideinit
 .LP
-Once the database and gpg(1) private key is generated, you can use \fB/etc/cron.daily/aide\fR to
+Once the database and gpg private key is generated, you can use \fB/etc/cron.daily/aide\fR to
 check the database against the current filesystem and \fBaideupdate\fR to update the database.
-These scripts make use of gpg(1)'s ability to create a detached signature of a file to verify
+These scripts make use of gpg's ability to create a detached signature of a file to verify
 it's validity.  The cron check script will alert you if the file has changed or if the detached
 signature is missing, as will the update script.  When you run \fBaideupdate\fR you will need
-to provide your gpg(1) passphrase to create a new detached signature of the database.
+to provide your gpg passphrase to create a new detached signature of the database.
 .LP
 When \fBaideupdate\fR is run, the old database file is rotated out, compressed, and renamed to
 \fIaide-[hostname]-[datestamp]-[timestamp].db.gz\fR in the \fI/var/lib/aide\fR directory.  The
