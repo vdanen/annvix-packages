@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		subversion
-%define svn_version	1.4.5
+%define svn_version	1.4.6
 %define release		%_revrel
 
 %define apache_version	2.2.6
@@ -511,6 +511,9 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Fri Dec 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.4.6
+- 1.4.6
+
 * Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.4.5
 - rebuild against new apr and apr-util
 - fix the versioning of mod_dontdothat
