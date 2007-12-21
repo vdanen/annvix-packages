@@ -370,6 +370,9 @@ done
 
 
 %changelog
+* Fri Dec 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.3.0
+- update the afterboot snippet
+
 * Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.3.0
 - 4.3.0
 - rediff P1, P2
