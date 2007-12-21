@@ -139,6 +139,9 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Fri Dec 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.9
+- update the afterboot snippet
+
 * Mon Dec 17 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.9
 - quiet %%post more
 - fix the build
