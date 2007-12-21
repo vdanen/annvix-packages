@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		initscripts
-%define version		8.38
+%define version		8.39
 %define release		%_revrel
 
 Summary:	The inittab file and the /etc/init.d scripts
@@ -151,6 +151,7 @@ chmod 0600 /var/log/btmp
 /etc/sysconfig/network-scripts/ifup-ppp
 /etc/sysconfig/network-scripts/ifup-sl
 /etc/sysconfig/network-scripts/ifup-routes
+/etc/sysconfig/network-scripts/ifup-tunnel
 /etc/sysconfig/network-scripts/ifup-plip
 /etc/sysconfig/network-scripts/ifup-plusb
 /etc/sysconfig/network-scripts/ifup-bnep
@@ -160,7 +161,9 @@ chmod 0600 /var/log/btmp
 /etc/sysconfig/network-scripts/ifup-ipv6
 /etc/sysconfig/network-scripts/ifdown-ipv6
 /etc/sysconfig/network-scripts/ifup-sit
+/etc/sysconfig/network-scripts/ifdown-routes
 /etc/sysconfig/network-scripts/ifdown-sit
+/etc/sysconfig/network-scripts/ifdown-tunnel
 /etc/sysconfig/network-scripts/ifup-aliases
 %dir /etc/sysconfig/network-scripts/hostname.d
 
@@ -213,6 +216,9 @@ chmod 0600 /var/log/btmp
 
 
 %changelog
+* Thu Dec 20 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.39
+- 8.39; merged network-scripts and functions from Mandriva's 8.54
+
 * Wed Dec 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.38
 - 8.38
 - drop setsysfont; kbd provides it now
