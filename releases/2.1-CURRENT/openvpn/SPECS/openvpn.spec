@@ -149,6 +149,9 @@ install -m 0644 %{_sourcedir}/06_openvpn.afterboot %{buildroot}%{_datadir}/after
 
 
 %changelog
+* Fri Dec 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0.9
+- update the afterboot snippet
+
 * Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0.9
 - rebuild against new openssl
 
