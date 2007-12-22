@@ -160,7 +160,7 @@ mkdir -p %{buildroot}%{_libdir}/ssh
 
 install -m 0644 %{_sourcedir}/sshd.pam %{buildroot}%{_sysconfdir}/pam.d/sshd
 install -m 0640 %{_sourcedir}/denyusers.pam %{buildroot}%{_sysconfdir}/ssh/denyusers.pam
-install -m 0755 %{_sourcedir}/ssh-client.sh %{buildroot}%{_sysconfdir}/profile.d/
+install -m 0755 %{_sourcedir}/ssh-client.sh %{buildroot}%{_sysconfdir}/profile.d/90ssh-client.sh
 
 if [[ -f sshd_config.out ]]; then 
     install -m 0600 sshd_config.out %{buildroot}%{_sysconfdir}/ssh/sshd_config
@@ -293,7 +293,7 @@ popd >/dev/null 2>&1
 %files clients
 %defattr(-,root,root)
 %config(noreplace) %{_sysconfdir}/ssh/ssh_config
-%attr(0755,root,root) %config(noreplace) %{_sysconfdir}/profile.d/ssh-client.sh
+%{_sysconfdir}/profile.d/90ssh-client.sh
 %{_bindir}/ssh
 %{_bindir}/ssh-agent
 %{_bindir}/ssh-add
@@ -337,6 +337,9 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Sat Dec 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.7p1
+- order the profile.d/ script and drop executable bit
+
 * Fri Dec 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.7p1
 - update the afterboot snippet
 
