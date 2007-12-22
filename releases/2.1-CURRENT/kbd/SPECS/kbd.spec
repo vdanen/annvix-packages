@@ -123,8 +123,8 @@ do
 done
 
 mkdir -p %{buildroot}%{_sysconfdir}/profile.d
-install -m 0755 %{_sourcedir}/configure_keyboard.sh \
-    %{buildroot}/%{_sysconfdir}/profile.d/configure_keyboard.sh
+install -m 0644 %{_sourcedir}/configure_keyboard.sh \
+    %{buildroot}/%{_sysconfdir}/profile.d/01configure_keyboard.sh
 
 mkdir -p %{buildroot}%{_initrddir}
 install -m 0755 %{_sourcedir}/keytable.init %{buildroot}%{_initrddir}/keytable
@@ -158,7 +158,7 @@ install -m 0755 %{_sourcedir}/setsysfont %{buildroot}/sbin
 
 %files -f %{name}.lang
 %defattr(-,root,root)
-%config(noreplace) %{_sysconfdir}/profile.d/configure_keyboard.sh
+%{_sysconfdir}/profile.d/01configure_keyboard.sh
 %config(noreplace) %{_initrddir}/keytable
 %{_bindir}/chvt
 %{_bindir}/deallocvt
@@ -219,7 +219,10 @@ install -m 0755 %{_sourcedir}/setsysfont %{buildroot}/sbin
 
 
 %changelog
-* Fri Sep 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.12
+* Sat Dec 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.12
+- order the profile.d/ scripts and drop executable bit
+
+* Wed Dec 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.12
 - first Annvix build (replaces console-tools)
 
 # vim: expandtab:shiftwidth=8:tabstop=8:softtabstop=8
