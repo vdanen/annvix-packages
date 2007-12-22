@@ -185,11 +185,13 @@ mkdir -p %{buildroot}%{_sysconfdir}
 rm -f %{buildroot}%{_sysconfdir}/init.d/%{name}
 rm -f %{buildroot}%{_mandir}/man8/autofs*
 
-mkdir -p %{buildroot}%{_srvdir}/autofs/{log,peers,env}
+mkdir -p %{buildroot}%{_srvdir}/autofs/{log,peers,env,depends}
 install -m 0740 %{_sourcedir}/autofs.run %{buildroot}%{_srvdir}/autofs/run
 install -m 0740 %{_sourcedir}/autofs.finish %{buildroot}%{_srvdir}/autofs/finish
 install -m 0740 %{_sourcedir}/autofs-log.run %{buildroot}%{_srvdir}/autofs/log/run
 >%{buildroot}%{_srvdir}/autofs/env/OPTIONS
+
+%_mkdepends autofs nfs.statd
 
 
 %clean
@@ -216,10 +218,13 @@ fi
 %{_mandir}/*/*
 %dir %attr(0750,root,admin) %{_srvdir}/autofs
 %dir %attr(0750,root,admin) %{_srvdir}/autofs/log
+%dir %attr(0750,root,admin) %{_srvdir}/autofs/depends
+%dir %attr(0750,root,admin) %{_srvdir}/autofs/env
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/autofs/run
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/autofs/finish
 %config(noreplace) %attr(0740,root,admin) %{_srvdir}/autofs/log/run
 %attr(0640,root,admin) %{_srvdir}/autofs/env/OPTIONS
+%config(noreplace) %attr(0740,root,admin) %{_srvdir}/autofs/depends/nfs.statd
 
 
 %files doc
@@ -228,6 +233,10 @@ fi
 
 
 %changelog
+* Fri Dec 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.0.2
+- autofs depends on nfs.statd to work properly
+- own the envdir as well
+
 * Fri Dec 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.0.2
 - P46: make the hosts mak mount nodev by default too (CVE-2007-6285)
 
