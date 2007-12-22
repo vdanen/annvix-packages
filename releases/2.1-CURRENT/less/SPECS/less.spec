@@ -88,8 +88,7 @@ pushd lesspipe-%{lessp_ver}
 popd
 
 mkdir -p %{buildroot}%{_sysconfdir}/profile.d/
-cat << EOF > %{buildroot}%{_sysconfdir}/profile.d/less.sh
-#!/bin/sh
+cat << EOF > %{buildroot}%{_sysconfdir}/profile.d/20less.sh
 CHARSET=\$(locale charmap 2> /dev/null) 
 case "\$CHARSET" in 
        UTF-8) 
@@ -103,8 +102,7 @@ esac
 export LESSOPEN="|/usr/bin/lesspipe.sh %s"
 EOF
 
-cat << EOF > %{buildroot}%{_sysconfdir}/profile.d/less.csh
-#!/bin/csh
+cat << EOF > %{buildroot}%{_sysconfdir}/profile.d/20less.csh
 if ! ( \$?LESSCHARSET ) then
 	set CHARSET=\ocale charmap\
 +	if ( "\$CHARSET" == "UTF-8" ) then
@@ -144,7 +142,7 @@ install -m 0644 lessecho.1 %{buildroot}%{_mandir}/man1
 %defattr(-,root,root)
 %attr(755,root,root) %{_bindir}/*
 %{_mandir}/man1/*
-%attr(755,root,root)%_sysconfdir/profile.d/*
+%{_sysconfdir}/profile.d/*
 
 %files doc
 %defattr(-,root,root)
@@ -153,6 +151,9 @@ install -m 0644 lessecho.1 %{buildroot}%{_mandir}/man1
 
 
 %changelog
+* Sat Dec 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 416
+- order the profile.d/ scripts and drop executable bit
+
 * Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 416
 - rebuild against new ncurses
 
