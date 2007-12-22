@@ -108,6 +108,10 @@ popd
 
 
 %changelog
+* Fri Dec 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.7.1
+- remove the memory restrictions set by chpst; right now they're causing
+  problems and they're not really required anyways
+
 * Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.7.1
 - rebuild
 
