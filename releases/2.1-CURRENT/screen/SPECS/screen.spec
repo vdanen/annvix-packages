@@ -99,8 +99,7 @@ install -c -m 0644 etc/screenrc %{buildroot}%{_sysconfdir}/skel/.screenrc
 
 mkdir -p %{buildroot}%{_sysconfdir}/profile.d
 
-cat > %{buildroot}%{_sysconfdir}/profile.d/screen.sh <<EOF
-#!/bin/sh
+cat > %{buildroot}%{_sysconfdir}/profile.d/20screen.sh <<EOF
 # %{_sysconfdir}/profile.d/screen.sh
 
 if [ -z "\$SCREENDIR" ]; then
@@ -126,7 +125,7 @@ EOF
 %{_bindir}/screen
 %{_mandir}/man1/screen.1*
 %{_infodir}/screen.info*
-%attr(755,root,root) %config(noreplace) %{_sysconfdir}/profile.d/screen.sh
+%config(noreplace) %{_sysconfdir}/profile.d/20screen.sh
 %config(noreplace) %{_sysconfdir}/screenrc
 %attr(644,root,root) %config(noreplace) %{_sysconfdir}/skel/.screenrc
 %{_datadir}/screen/
@@ -137,6 +136,9 @@ EOF
 
 
 %changelog
+* Sat Dec 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.0.3
+- order the profile.d/ script and drop executable bit
+
 * Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.0.3
 - rebuild against new ncurses
 
