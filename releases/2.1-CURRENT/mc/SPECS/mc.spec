@@ -95,7 +95,8 @@ perl -p -i -e 's/rm -f \"/rm -rf \"/g' lib/mc-wrapper.sh
 
 %makeinstall
 
-install lib/{mc.sh,mc.csh} %{buildroot}%{_sysconfdir}/profile.d
+install -m 0644 lib/mc.sh %{buildroot}%{_sysconfdir}/profile.d/20mc.sh
+install -m 0644 lib/mc.csh %{buildroot}%{_sysconfdir}/profile.d/20mc.csh
 
 # remove unwanted locale files
 rm -rf %{buildroot}%{_datadir}/locale
@@ -130,7 +131,7 @@ rm -rf %{buildroot}%{_datadir}/locale
 %dir %{_datadir}/mc
 %dir %{_datadir}/mc/bin
 %_datadir/mc/bin/*
-%config(noreplace) %{_sysconfdir}/profile.d/*
+%{_sysconfdir}/profile.d/*
 %{_datadir}/mc/syntax/
 #%{_datadir}/mc/term/
 
@@ -140,6 +141,9 @@ rm -rf %{buildroot}%{_datadir}/locale
 
 
 %changelog
+* Sat Dec 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.6.1
+- order the profile.d/ scripts and drop executable bit
+
 * Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.6.1
 - rebuild against new e2fsprogs
 
