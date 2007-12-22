@@ -866,6 +866,9 @@ fi
 
 %changelog
 * Fri Dec 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.3.39
+- more changes to the afterboot snippet
+
+* Fri Dec 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.3.39
 - update the afterboot snippet
 
 * Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.3.39

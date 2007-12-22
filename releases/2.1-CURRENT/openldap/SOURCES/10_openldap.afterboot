@@ -14,11 +14,11 @@ Making a backup of the LDAP database is as simple as using \fBslapcat\fR(8) to c
 to the database and create a "dump" of the database to an LDIF file which could then
 be used to re-create the LDAP directory on a a fresh install.  To do so, use:
 .IP
-\fB/usr/sbin/slapcat >ldap-backup.ldif\fR
+# /usr/sbin/slapcat >ldap-backup.ldif
 .LP
 or, if you wish to only create an LDIF file of a particular base DN, use:
 .IP
-\fB/usr/sbin/slapcat -b "dc=example,dc=com" >ldap-backup.ldif\fR
+# /usr/sbin/slapcat -b "dc=example,dc=com" >ldap-backup.ldif
 .LP
 The OpenLDAP server daemon (\fBslapd\fR(8)) should not be running to ensure consistency
 between the database and the generated LDIF file.  It reads the database files directly;
@@ -28,11 +28,11 @@ Once you have the backup, you can upgrade OpenLDAP.  If there are any problems w
 import, or if you are migrating the data from one system to another, use the \fBslapadd\fR(8)
 program to import the data:
 .IP
-\fB/usr/sbin/slapadd -cv -l ldap-backup.ldif\fR
+# /usr/sbin/slapadd -cv -l ldap-backup.ldif
 .LP
 If you backed up just a specific base DN, use:
 .IP
-\fB/usr/sbin/slapadd -cv -b "dc=example,dc=com" -l ldap-backup.ldif\fR
+# /usr/sbin/slapadd -cv -b "dc=example,dc=com" -l ldap-backup.ldif
 .LP
 When using slapadd, be sure that slapd is not running to ensure consistency
 of the database.
