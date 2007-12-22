@@ -1,6 +1,3 @@
-#!/bin/sh
-# Linux-Mandrake configuration: Chmouel Boudjnah <chmouel@mandrakesoft.com>
-#
 # Common Aliases for a system.
 #
 # The Semantic is :
@@ -9,13 +6,13 @@
 #	If there is no ~/.alias but the user has specified a
 #	IGNORE_SYSTEM_ALIASES then don't do any system aliases.
 
-[ -f ~/.alias ] && [ -z $LOAD_SYSTEM_ALIASES ] && return 0
-[ -n "$IGNORE_SYSTEM_ALIASES" ] && return 0
+[ -f ~/.alias ] && [ -z ${LOAD_SYSTEM_ALIASES} ] && return 0
+[ -n "${IGNORE_SYSTEM_ALIASES}" ] && return 0
 
 if [ -f ~/.dir_colors ]; then
-	eval `dircolors --sh ~/.dir_colors`
+    eval `dircolors --sh ~/.dir_colors`
 else
-	eval `dircolors --sh /etc/DIR_COLORS`
+    eval `dircolors --sh /etc/DIR_COLORS`
 fi
 
 # Don't define aliases in plain Bourne shell
@@ -24,26 +21,24 @@ fi
 # default ls options
 LS_OPTIONS="-F"
 
-# this should be removed once the bug with ls and multibytes locales is fixed
-[ -r /etc/profile.d/lang.sh ] && . /etc/profile.d/lang.sh
-case "$LC_ALL$LC_CTYPE" in
-    ja*|ko*|zh*) LS_OPTIONS="$LS_OPTIONS --show-control-chars" ;;
+case "${LC_ALL}${LC_CTYPE}" in
+    ja*|ko*|zh*) LS_OPTIONS="${LS_OPTIONS} --show-control-chars" ;;
     *) if [ "`locale charmap`" = "UTF-8" ]; then
-        LS_OPTIONS="$LS_OPTIONS --show-control-chars"
+           LS_OPTIONS="${LS_OPTIONS} --show-control-chars"
        fi ;;
 esac
 
 # emacs doesn't support color
-if [ $TERM != "emacs" ];then
-    LS_OPTIONS="$LS_OPTIONS --color=auto"
+if [ ${TERM} != "emacs" ];then
+    LS_OPTIONS="${LS_OPTIONS} --color=auto"
 fi
 
-alias ls="ls $LS_OPTIONS"
+alias ls="ls ${LS_OPTIONS}"
 
 alias d="ls"                                                  
 alias l="ls"       		# classical listing.
 alias ll="ls -l"   		# List detailled. 
-alias la='ls -a'     	# List all.               
+alias la='ls -a'     		# List all.               
 alias lsd="ls -d */"		# List only the directory.
 alias cd..="cd .."		
 alias s="cd .."

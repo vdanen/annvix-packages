@@ -247,7 +247,7 @@ mkdir -p %{buildroot}%{_sysconfdir}/{skel,profile.d}
 install -m 0644 %{_sourcedir}/dot-bashrc %{buildroot}%{_sysconfdir}/skel/.bashrc
 install -m 0644 %{_sourcedir}/dot-bash_profile %{buildroot}%{_sysconfdir}/skel/.bash_profile
 install -m 0644 %{_sourcedir}/dot-bash_logout %{buildroot}%{_sysconfdir}/skel/.bash_logout
-install -m 0755 %{_sourcedir}/alias.sh %{buildroot}%{_sysconfdir}/profile.d/alias.sh
+install -m 0644 %{_sourcedir}/alias.sh %{buildroot}%{_sysconfdir}/profile.d/11alias.sh
 install -m 0644 %{_sourcedir}/bashrc %{buildroot}%{_sysconfdir}/bashrc
 
 ln -s bash %{buildroot}/bin/rbash
@@ -278,7 +278,7 @@ rm -rf %{buildroot}%{_datadir}/locale
 %defattr(-,root,root)
 %config(noreplace) %{_sysconfdir}/skel/.b*
 %config(noreplace) %{_sysconfdir}/bashrc
-%{_sysconfdir}/profile.d/alias.sh
+%{_sysconfdir}/profile.d/11alias.sh
 /bin/rbash
 /bin/bash
 /bin/bash3
@@ -299,6 +299,9 @@ rm -rf %{buildroot}%{_datadir}/locale
 
 
 %changelog
+* Sat Dec 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.2
+- order the profile.d/ script and drop executable bit
+
 * Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.2
 - don't apply P39-P44; P39 causes a problem with user aliases and the rest
   don't apply without it
