@@ -10,13 +10,13 @@ To protect your data you should make a backup copy of your
 \fI/var/lib/pgsql/pg_hba.conf\fR file.  You should also dump the contents of
 your database which can be done with the \fBpg_dumpall\fR(1) command like this:
 .IP
-\fB/sbin/chpst -u postgres /usr/bin/pg_dumpall >$backup\fR
+# /sbin/chpst -u postgres /usr/bin/pg_dumpall >$backup
 .LP
 where \fI$backup\fR is the backup file to contain the database contents.
 .LP
 To restore the contents of the file, use:
 .IP
-\fB/sbin/chpst -u postgres /usr/bin/psql -f $backup\fR
+# /sbin/chpst -u postgres /usr/bin/psql -f $backup
 .LP
 This will restore the contents of your backup file to the PostgreSQL
 database.
@@ -34,18 +34,18 @@ version of PostgreSQL to another (for instance to upgrade from 7.3.x to
 8.0.x).  Essentially, you will need to dump the contents of your database,
 upgrade, re-initialize the database, then restore the contents of the
 database.  This can be done by following these steps:
-.sp
-  # /sbin/chpst -u postgres /usr/bin/pg_dumpall > outputfile
+.IP
+# /sbin/chpst -u postgres /usr/bin/pg_dumpall > outputfile
 .br
-  # srv --down postgresql
+# srv --down postgresql
 .br
-  # mv /var/lib/pgsql /var/lib/pgsql.bk
+# mv /var/lib/pgsql /var/lib/pgsql.bk
 .br
-  # apt-get update postgresql-server
+# apt-get update postgresql-server
 .br
-  # srv --up postgresql
+# srv --up postgresql
 .br
-  # /sbin/chpst -u postgres /usr/bin/psql -f outputfile
+# /sbin/chpst -u postgres /usr/bin/psql -f outputfile
 .LP
 At this point you should be back up and running with your upgraded PostgreSQL
 database.  It is always advisable to read the PostgreSQL manual online
