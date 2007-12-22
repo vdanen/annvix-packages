@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		afterboot
-%define version 	0.3
+%define version 	0.4
 %define release 	%_revrel
 
 Summary:	Dynamic afterboot manpage
@@ -58,6 +58,9 @@ touch %{buildroot}%{_mandir}/man8/afterboot.8.bz2
 
 
 %changelog
+* Fri Dec 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.4
+- 0.4
+
 * Wed Dec 05 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.3
 - 0.3
 - update URL
