@@ -101,7 +101,7 @@ ln -s tcsh.1 %{buildroot}%{_mandir}/man1/csh.1
 ln -sf tcsh %{buildroot}/bin/csh
 
 mkdir -p %{buildroot}%{_sysconfdir}/profile.d/
-install %{_sourcedir}/alias.csh %{buildroot}%{_sysconfdir}/profile.d/alias.csh
+install -m 0644 %{_sourcedir}/alias.csh %{buildroot}%{_sysconfdir}/profile.d/11alias.csh
 
 
 %clean
@@ -120,7 +120,7 @@ install %{_sourcedir}/alias.csh %{buildroot}%{_sysconfdir}/profile.d/alias.csh
 
 %files
 %defattr(-,root,root)
-%config(noreplace) %{_sysconfdir}/profile.d/*
+%{_sysconfdir}/profile.d/11alias.csh
 /bin/*
 %{_mandir}/*/*
 
@@ -131,6 +131,9 @@ install %{_sourcedir}/alias.csh %{buildroot}%{_sysconfdir}/profile.d/alias.csh
 
 
 %changelog
+* Sat Dec 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 6.14
+- order the profile.d/ script and drop executable bit
+
 * Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 6.14
 - sync patches with Mandriva 6.14-4mdv, which synced most patches to Fedora
 
