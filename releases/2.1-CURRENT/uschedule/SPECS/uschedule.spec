@@ -28,6 +28,7 @@ BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	dietlibc-devel >= 0.20
 
 Requires:	srv
+Requires:	execline
 
 %description
 uschedule is not cron and uschedule is not at - it does offer
@@ -112,6 +113,7 @@ popd
 - the problem was the memory restrictions were too heavy, newer bash
   apparently requires more memory (or glibc, or something); so put the
   memory limits back but use execlineb instead of bash for the runscripts
+- requires execline
 
 * Fri Dec 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.7.1
 - remove the memory restrictions set by chpst; right now they're causing
