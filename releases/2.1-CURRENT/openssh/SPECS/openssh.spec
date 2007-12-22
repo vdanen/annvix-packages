@@ -160,7 +160,7 @@ mkdir -p %{buildroot}%{_libdir}/ssh
 
 install -m 0644 %{_sourcedir}/sshd.pam %{buildroot}%{_sysconfdir}/pam.d/sshd
 install -m 0640 %{_sourcedir}/denyusers.pam %{buildroot}%{_sysconfdir}/ssh/denyusers.pam
-install -m 0755 %{_sourcedir}/ssh-client.sh %{buildroot}%{_sysconfdir}/profile.d/90ssh-client.sh
+install -m 0644 %{_sourcedir}/ssh-client.sh %{buildroot}%{_sysconfdir}/profile.d/90ssh-client.sh
 
 if [[ -f sshd_config.out ]]; then 
     install -m 0600 sshd_config.out %{buildroot}%{_sysconfdir}/ssh/sshd_config
