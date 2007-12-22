@@ -121,6 +121,9 @@ install -m 0644 %{_sourcedir}/98_aide.afterboot %{buildroot}%{_datadir}/afterboo
 
 %changelog
 * Fri Dec 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.13.1
+- more changes to the afterboot snippet
+
+* Fri Dec 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.13.1
 - update the afterboot snippet
 
 * Wed Dec 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.13.1

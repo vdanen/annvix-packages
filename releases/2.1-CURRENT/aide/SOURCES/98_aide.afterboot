@@ -9,7 +9,7 @@ configuration in order for it to be completely useful; to do this edit the
 .LP
 To begin, execute:
 .IP
-aideinit
+# aideinit
 .LP
 to initialize the database.  Unlike Tripwire, AIDE uses no encryption to protect the
 configuration or database files so you must ensure that only root has access to these
@@ -53,7 +53,7 @@ one host to import on the other.
 .LP
 To create a new gpg key and initialize the database, execute:
 .IP
-aideinit
+# aideinit
 .LP
 Once the database and gpg private key is generated, you can use \fB/etc/cron.daily/aide\fR to
 check the database against the current filesystem and \fBaideupdate\fR to update the database.
