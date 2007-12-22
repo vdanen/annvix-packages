@@ -124,8 +124,8 @@ This package contains the documentation for %{name}.
 %makeinstall_std
 
 mkdir -p %{buildroot}%{_sysconfdir}/profile.d
-install -m 0755 %{_sourcedir}/glib20.sh %{buildroot}%{_sysconfdir}/profile.d/glib20.sh
-install -m 0755 %{_sourcedir}/glib20.csh %{buildroot}%{_sysconfdir}/profile.d/glib20.csh
+install -m 0644 %{_sourcedir}/glib20.sh %{buildroot}%{_sysconfdir}/profile.d/20glib20.sh
+install -m 0644 %{_sourcedir}/glib20.csh %{buildroot}%{_sysconfdir}/profile.d/20glib20.csh
 
 %kill_lang glib20
 %find_lang glib20
@@ -141,7 +141,7 @@ install -m 0755 %{_sourcedir}/glib20.csh %{buildroot}%{_sysconfdir}/profile.d/gl
 
 %files -n %{libname} -f glib20.lang
 %defattr(-,root,root)
-%config(noreplace) %{_sysconfdir}/profile.d/*
+%{_sysconfdir}/profile.d/*
 %{_libdir}/libglib-%{api_version}.so.*
 %{_libdir}/libgmodule-%{api_version}.so.*
 %{_libdir}/libgthread-%{api_version}.so.*
@@ -174,6 +174,9 @@ install -m 0755 %{_sourcedir}/glib20.csh %{buildroot}%{_sysconfdir}/profile.d/gl
 
 
 %changelog
+* Sat Dec 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.14.4
+- order the profile.d/ scripts and drop executable bit
+
 * Wed Dec 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.14.4
 - 2.14.4
 
