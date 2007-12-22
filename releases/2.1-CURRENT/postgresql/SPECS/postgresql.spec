@@ -618,6 +618,9 @@ fi
 
 
 %changelog
+* Fri Dec 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.2.5
+- update the afterboot snippet
+
 * Wed Dec 19 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.2.5
 - update the afterboot snippet
 - drop the note in %%post regarding database upgrades pertaining to

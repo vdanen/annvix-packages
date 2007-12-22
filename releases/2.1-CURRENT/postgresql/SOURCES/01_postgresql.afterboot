@@ -21,8 +21,8 @@ To restore the contents of the file, use:
 This will restore the contents of your backup file to the PostgreSQL
 database.
 .LP
-To quickly setup PostgreSQL for use, become root (using sudo(8)) and then
-su(1) to the \fIpostgres\fR user.  Use the \fBcreateuser\fR(1) command to create a
+To quickly setup PostgreSQL for use, become root (using \fBsudo\fR(8)) and then
+\fBsu\fR(1) to the \fIpostgres\fR user.  Use the \fBcreateuser\fR(1) command to create a
 user to access the database.  Log out from the postgres user and ensure that
 the postgresql service is running, then log out from root and test the
 connection by connecting to the server (\fBpsql -U [username\fR).
