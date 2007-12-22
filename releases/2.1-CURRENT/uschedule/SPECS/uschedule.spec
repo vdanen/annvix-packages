@@ -109,6 +109,11 @@ popd
 
 %changelog
 * Fri Dec 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.7.1
+- the problem was the memory restrictions were too heavy, newer bash
+  apparently requires more memory (or glibc, or something); so put the
+  memory limits back but use execlineb instead of bash for the runscripts
+
+* Fri Dec 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.7.1
 - remove the memory restrictions set by chpst; right now they're causing
   problems and they're not really required anyways
 
