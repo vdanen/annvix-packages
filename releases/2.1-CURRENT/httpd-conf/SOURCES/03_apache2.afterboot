@@ -2,7 +2,7 @@
 \fBApache2\fR
 .LP 
 The Apache webserver is the most popular webserver on the internet.  Annvix
-provides the 2.0.x versions of Apache.  Although the PHP team discourages the
+provides the 2.2.x versions of Apache.  Although the PHP team discourages the
 use of Apache2 and PHP, it is due to Apache2's threading and is (mostly)
 resolved by using the prefork MPM, which is how the package is built, although
 the worker MPM is also provided.
@@ -12,4 +12,4 @@ used for Apache.
 .LP
 To start the Apache service, add it using srv:
 .IP
-srv add httpd
+# srv --add httpd

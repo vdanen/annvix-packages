@@ -211,6 +211,9 @@ rm -rf %{buildroot}%{_datadir}/ADVX
 
 
 %changelog
+* Fri Dec 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.6
+- update the afterboot snippet
+
 * Fri Sep 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.6
 - 2.2.6
 - add mod_speling clause to the config
