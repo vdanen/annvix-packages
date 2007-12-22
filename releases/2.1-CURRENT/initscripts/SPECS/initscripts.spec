@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		initscripts
-%define version		8.39
+%define version		8.40
 %define release		%_revrel
 
 Summary:	The inittab file and the /etc/init.d scripts
@@ -182,10 +182,10 @@ chmod 0600 /var/log/btmp
 
 /etc/profile.d/10lang.sh
 /etc/profile.d/10lang.csh
-/etc/profile.d/inputrc.sh
-/etc/profile.d/inputrc.csh
-/etc/profile.d/tmpdir.sh
-/etc/profile.d/tmpdir.csh
+/etc/profile.d/10inputrc.sh
+/etc/profile.d/10inputrc.csh
+/etc/profile.d/10tmpdir.sh
+/etc/profile.d/10tmpdir.csh
 
 /bin/doexec
 /bin/ipcalc
@@ -216,6 +216,10 @@ chmod 0600 /var/log/btmp
 
 
 %changelog
+* Sat Dec 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.40
+- 8.40
+- order the profile.d/ scripts and drop executable bit
+
 * Thu Dec 20 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.39
 - 8.39; merged network-scripts and functions from Mandriva's 8.54
 
