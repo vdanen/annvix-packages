@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		setup
-%define version 	2.9.2
+%define version 	2.9.3
 %define release 	%_revrel
 
 Summary:	A set of system configuration and setup files
@@ -106,6 +106,9 @@ fi
 
 
 %changelog
+* Sat Dec 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.9.3
+- 2.9.3: /etc/profile.d/ scripts don't need to be executable, just exist
+
 * Tue Dec 18 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.9.2
 - don't call pwconv and grpconv; they don't seem to play too well without
   /etc/shadow
