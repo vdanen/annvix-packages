@@ -120,6 +120,9 @@ install -m 0644 %{_sourcedir}/98_aide.afterboot %{buildroot}%{_datadir}/afterboo
 
 
 %changelog
+* Tue Dec 25 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.13.1
+- update the config to watch /var/log/service/ and to ignore /dev/shm
+
 * Fri Dec 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.13.1
 - more changes to the afterboot snippet
 
