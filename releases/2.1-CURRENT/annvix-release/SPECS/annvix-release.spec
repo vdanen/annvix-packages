@@ -9,18 +9,18 @@
 
 %define revision	$Rev$
 %define name		annvix-release
-%define version		2.1
+%define version		3.0
 %define release		%_revrel
 
-%define distrib		Fenris
-%define realversion 	2.1-CURRENT
+%define distrib		Freya
+%define realversion 	3.0-RELEASE
 %define macrofile	%build_sysmacrospath
 
 Summary:	Annvix release file
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-License:	GPL
+License:	GPLv2
 URL:		http://annvix.org/
 Group:		System/Configuration
 Source0:	CREDITS
@@ -86,6 +86,9 @@ EOF
 
 
 %changelog
+* Wed Dec 26 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0
+- 3.0-RELEASE (Freya)
+
 * Tue Apr 10 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1
 - 2.1-CURRENT (Fenris)
 
