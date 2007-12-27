@@ -129,7 +129,7 @@ echo "5140" >%{buildroot}%{_srvdir}/socklog-tcp/env/PORT
 echo "514" >%{buildroot}%{_srvdir}/socklog-udp/env/PORT
 
 # install our default config files
-mkdir -p %{buildroot}/var/log/system
+mkdir -p %{buildroot}/var/log/system/kmsg
 pushd socklog-config
     cp -av * %{buildroot}/var/log/system/
     find %{buildroot}/var/log/system -name config -exec chmod 0640 {} \;
@@ -151,6 +151,9 @@ install -m 0640 %{_sourcedir}/bin.socklog.profile %{buildroot}%{_profiledir}/bin
 %post
 %_post_srv socklog-unix
 %_post_srv socklog-klog
+if [ -d /var/log/system/kern ]; then
+    rm -rf /var/log/system/kern
+fi
 
 
 %preun
@@ -208,8 +211,6 @@ popd >/dev/null 2>&1
 %attr(0640,root,syslogd) %config(noreplace) /var/log/system/debug/config
 %attr(0770,root,syslogd) %dir /var/log/system/ftp
 %attr(0640,root,syslogd) %config(noreplace) /var/log/system/ftp/config
-%attr(0770,root,syslogd) %dir /var/log/system/kern
-%attr(0640,root,syslogd) %config(noreplace) /var/log/system/kern/config
 %attr(0770,root,syslogd) %dir /var/log/system/local
 %attr(0640,root,syslogd) %config(noreplace) /var/log/system/local/config
 %attr(0770,root,syslogd) %dir /var/log/system/mail
@@ -222,6 +223,7 @@ popd >/dev/null 2>&1
 %attr(0640,root,syslogd) %config(noreplace) /var/log/system/syslog/config
 %attr(0770,root,syslogd) %dir /var/log/system/user
 %attr(0640,root,syslogd) %config(noreplace) /var/log/system/user/config
+%attr(0770,root,syslogd) %dir /var/log/system/kmsg
 %config(noreplace) %attr(0640,root,root) %{_profiledir}/bin.socklog
 
 %files remote
@@ -254,6 +256,12 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Thu Dec 27 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1.0
+- drop /var/log/system/kern; the kernel facility is logged via socklog-klog
+  and ends up in/var/log/system/kmsg which means kern/ was always empty
+- own /var/log/system/kmsg
+- remove /var/log/system/kern in %%post
+
 * Thu Dec 20 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1.0
 - update the apparmor profile so socklog-udp works
 

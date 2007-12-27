@@ -10,7 +10,6 @@
     /var/log/system/daemon
     /var/log/system/debug
     /var/log/system/ftp
-    /var/log/system/kern
     /var/log/system/local
     /var/log/system/mail
     /var/log/system/messages
