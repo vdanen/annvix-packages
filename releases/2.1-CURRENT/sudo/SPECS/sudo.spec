@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		sudo
-%define version		1.6.9p9
+%define version		1.6.9p10
 %define release		%_revrel
 %define epoch		1
 
@@ -117,6 +117,9 @@ install -m 0440 %{_sourcedir}/sudoers.annvix %{buildroot}%{_sysconfdir}/sudoers
 
 
 %changelog
+* Sat Dec 29 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.6.9p10
+- 1.6.9p10
+
 * Wed Dec 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.6.9p9
 - 1.6.9p9
 - use more macros for paths
