@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		rsec
-%define version		0.69
+%define version		0.69.1
 %define release		%_revrel
 
 Summary:	Security Reporting tool for Annvix
@@ -112,6 +112,9 @@ touch /var/log/security.log && chmod 0640 /var/log/security.log
 %doc AUTHORS COPYING ChangeLog
 
 %changelog
+* Sat Dec 29 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.69.1
+- 0.69.1
+
 * Sun Dec 09 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.69
 - 0.69
 - require rkhunter
