@@ -256,6 +256,9 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Sat Dec 29 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1.0
+- rebuild with new %%_aa_reload macro definition
+
 * Thu Dec 27 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1.0
 - drop /var/log/system/kern; the kernel facility is logged via socklog-klog
   and ends up in/var/log/system/kmsg which means kern/ was always empty
