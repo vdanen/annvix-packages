@@ -65,6 +65,7 @@ Patch38:	net-tools-1.60-ifaceopt.patch
 Patch39:	net-tools-1.60-trim_iface.patch
 Patch40:	net-tools-1.60-stdo.patch
 Patch41:	net-tools-1.60-statistics.patch
+Patch42:	net-tools-1.60-mdv-netdevice.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	gettext
@@ -120,6 +121,7 @@ This package contains the documentation for %{name}.
 %patch39 -p1 -b .trim-iface
 %patch40 -p1 -b .stdo
 %patch41 -p1 -b .statistics
+%patch42 -p1 -b .netdevice
 
 cp %{_sourcedir}/net-tools-1.60-config.h config.h
 cp %{_sourcedir}/net-tools-1.60-config.make config.make
@@ -182,6 +184,7 @@ rm -f %{buildroot}%{_mandir}/man8/rarp.8*
 %changelog
 * Sat Dec 29 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.60
 - rebuild with new %%_aa_reload macro definition
+- P42: fixes the build
 
 * Wed Nov 28 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.60
 - add apparmor profile (from Mandriva)
