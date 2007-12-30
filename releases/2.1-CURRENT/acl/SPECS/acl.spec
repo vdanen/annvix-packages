@@ -37,7 +37,7 @@ manipulating access control lists.
 
 
 %package -n %{libname}
-Summary:	Main library for %{libname_orig}
+Summary:	Main library for libacl
 Group:		System/Libraries
 Provides:	lib%{name} = %{version}-%{release}
 
@@ -127,6 +127,9 @@ rm -rf %{buildroot}%{_docdir}/acl
 
 
 %changelog
+* Sun Dec 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.44
+- fix summary
+
 * Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.44
 - rebuild against new attr
 
