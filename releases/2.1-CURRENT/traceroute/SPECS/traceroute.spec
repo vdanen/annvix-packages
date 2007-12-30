@@ -78,6 +78,9 @@ install -m 0640 %{_sourcedir}/usr.sbin.traceroute.profile %{buildroot}%{_profile
 
 
 %changelog
+* Sat Dec 29 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.4a12
+- rebuild with new %%_aa_reload macro definition
+
 * Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.4a12
 - add an apparmor profile
 
