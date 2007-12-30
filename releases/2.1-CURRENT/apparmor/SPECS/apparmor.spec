@@ -372,6 +372,9 @@ rm -f %{buildroot}%{_profiledir}/{bin,sbin,usr.sbin,usr.bin}.*
 
 
 %changelog
+* Sat Dec 29 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1
+- rebuild with new %%_aa_reload macro definition
+
 * Thu Dec 20 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1
 - use %%perl_vendorlib to install the Immunix perl modules otherwise
   they are not found on x86_64
