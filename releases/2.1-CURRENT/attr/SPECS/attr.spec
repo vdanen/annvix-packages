@@ -37,7 +37,7 @@ SGI IRIX tool of the same name.
 
 
 %package -n %{libname}
-Summary:	Main library for %{libname_orig}
+Summary:	Main library for libattr
 Group:		System/Libraries
 Provides:	lib%{name} = %{version}-%{release}
 
@@ -133,6 +133,9 @@ rm -rf %{buildroot}/%{_lib}/libattr.{a,la} %{buildroot}%{_libdir}/libattr.la
 
 
 %changelog
+* Sun Dec 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.4.39
+- fix summary
+
 * Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.4.39
 - get rid of %%odevname
 
