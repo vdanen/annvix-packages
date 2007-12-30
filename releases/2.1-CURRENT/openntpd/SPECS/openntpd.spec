@@ -122,6 +122,9 @@ install -m 0640 %{_sourcedir}/usr.sbin.ntpd.profile %{buildroot}%{_profiledir}/u
 
 
 %changelog
+* Sat Dec 29 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.9p1
+- rebuild with new %%_aa_reload macro definition
+
 * Tue Dec 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.9p1
 - fix buildrequires
 
