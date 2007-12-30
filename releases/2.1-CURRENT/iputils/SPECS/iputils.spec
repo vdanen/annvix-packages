@@ -113,6 +113,9 @@ install -m 0640 %{_sourcedir}/bin.ping.profile %{buildroot}%{_profiledir}/bin.pi
 
 
 %changelog
+* Sat Dec 29 2007 Vincent Danen <vdanen-at-build.annvix.org> 20070202
+- rebuild with new %%_aa_reload macro definition
+
 * Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 20070202
 - 20070202
 - bonding 1.1.0
