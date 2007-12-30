@@ -1,0 +1,88 @@
+--- mkinitrd-4.2.17/nash/mount_by_label.c.uuid	2007-06-30 20:43:32.000000000 +0400
++++ mkinitrd-4.2.17/nash/mount_by_label.c	2007-06-30 20:46:12.000000000 +0400
+@@ -38,7 +38,7 @@
+ 
+ static struct uuidCache_s {
+ 	struct uuidCache_s *next;
+-	char uuid[16];
++	char *uuid;
+ 	char *device;
+ 	char *label;
+ 	int major, minor;
+@@ -100,7 +100,7 @@ uuidcache_addentry(char * device, int ma
+ 	last->device = device;
+ 	last->major = major;
+ 	last->minor = minor;
+-	memcpy(last->uuid, uuid, sizeof(last->uuid));
++	last->uuid = uuid;
+ }
+ 
+ static void
+@@ -299,7 +299,7 @@ get_spec_by_x(int n, const char *t, int 
+ 	while(uc) {
+ 		switch (n) {
+ 		case UUID:
+-			if (!memcmp(t, uc->uuid, sizeof(uc->uuid))) {
++			if (!strcmp(t, uc->uuid)) {
+ 				*majorPtr = uc->major;
+ 				*minorPtr = uc->minor;
+ 				return uc->device;
+@@ -318,36 +318,9 @@ get_spec_by_x(int n, const char *t, int 
+ 	return NULL;
+ }
+ 
+-static unsigned char
+-fromhex(char c) {
+-	if (isdigit(c))
+-		return (c - '0');
+-	else if (islower(c))
+-		return (c - 'a' + 10);
+-	else
+-		return (c - 'A' + 10);
+-}
+-
+ char *
+ get_spec_by_uuid(const char *s, int * major, int * minor) {
+-	unsigned char uuid[16];
+-	int i;
+-
+-	if (strlen(s) != 36 ||
+-	    s[8] != '-' || s[13] != '-' || s[18] != '-' || s[23] != '-')
+-		goto bad_uuid;
+-	for (i=0; i<16; i++) {
+-	    if (*s == '-') s++;
+-	    if (!isxdigit(s[0]) || !isxdigit(s[1]))
+-		    goto bad_uuid;
+-	    uuid[i] = ((fromhex(s[0])<<4) | fromhex(s[1]));
+-	    s += 2;
+-	}
+-	return get_spec_by_x(UUID, (char *)uuid, major, minor);
+-
+- bad_uuid:
+-	fprintf(stderr, _("mount: bad UUID"));
+-	return 0;
++	return get_spec_by_x(UUID, s, major, minor);
+ }
+ 
+ char *
+@@ -357,19 +330,12 @@ get_spec_by_volume_label(const char *s, 
+ 
+ int display_uuid_cache(void) {
+ 	struct uuidCache_s * u;
+-	size_t i;
+ 
+ 	uuidcache_init();
+ 
+ 	u = uuidCache;
+ 	while (u) {
+-	    printf("%s %s ", u->device, u->label);
+-	    for (i = 0; i < sizeof(u->uuid); i++) {
+-		if (i == 4 || i == 6 || i == 8 || i == 10)
+-		    printf("-");
+-		printf("%x", u->uuid[i] & 0xff);
+-	    }
+-	    printf("\n");
++	    printf("%s %s %s\n", u->device, u->label, u->uuid);
+ 	    u = u->next;
+ 	}
+ 

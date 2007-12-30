@@ -1,0 +1,16 @@
+--- mkinitrd-4.2.17/nash/nash.c.switchroot	2007-04-23 21:03:37.000000000 +0200
++++ mkinitrd-4.2.17/nash/nash.c	2007-04-25 19:12:04.000000000 +0200
+@@ -960,10 +960,9 @@
+     int fd, i = 0, moveDev = 0;
+ 
+     cmd = getArg(cmd, end, &new);
+-    if (cmd) {
+-        if (!strcmp(new, "--movedev"))
+-            moveDev = 1;
+-        cmd = getArg(cmd, end, &new);
++    if (cmd && !strcmp(new, "--movedev")) {
++	moveDev = 1;
++	cmd = getArg(cmd, end, &new);
+     }
+ 
+     if (!cmd) {

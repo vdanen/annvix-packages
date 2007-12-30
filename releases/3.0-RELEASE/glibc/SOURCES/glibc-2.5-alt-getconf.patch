@@ -1,0 +1,64 @@
+2005-09-05  Dmitry V. Levin  <ldv@altlinux.org>
+
+	* sysdeps/generic/bits/confname.h: Define _CS_LIBDIR and _CS_SLIB.
+	* posix/confstr.c: Handle these new values.
+	* posix/getconf.c: Likewise.
+	* posix/Makefile (CFLAGS-confstr.c): Add -DLIBDIR and -DSLIB.
+
+--- glibc-2.5.orig/bits/confname.h
++++ glibc-2.5/bits/confname.h
+@@ -515,6 +515,10 @@ # define _CS_V6_WIDTH_RESTRICTED_ENVS	_C
+ #define _CS_GNU_LIBC_VERSION	_CS_GNU_LIBC_VERSION
+     _CS_GNU_LIBPTHREAD_VERSION,
+ #define _CS_GNU_LIBPTHREAD_VERSION	_CS_GNU_LIBPTHREAD_VERSION
++    _CS_LIBDIR = 100,
++#define _CS_LIBDIR	_CS_LIBDIR
++    _CS_SLIB,
++#define _CS_SLIB	_CS_SLIB
+ 
+     _CS_LFS_CFLAGS = 1000,
+ #define _CS_LFS_CFLAGS	_CS_LFS_CFLAGS
+--- glibc-2.5.orig/posix/Makefile
++++ glibc-2.5/posix/Makefile
+@@ -146,6 +146,7 @@ CFLAGS-waitpid.c = -fexceptions -fasynch
+ CFLAGS-getopt.c = -fexceptions
+ CFLAGS-wordexp.c = -fexceptions
+ CFLAGS-wordexp.os = -fomit-frame-pointer
++CFLAGS-confstr.c += -DLIBDIR='"$(libdir)"' -DSLIB='"$(shell basename $(slibdir))"'
+ CFLAGS-sysconf.c = -fexceptions -DGETCONF_DIR='"$(libexecdir)/getconf"'
+ CFLAGS-pathconf.c = -fexceptions
+ CFLAGS-fpathconf.c = -fexceptions
+--- glibc-2.5.orig/posix/confstr.c
++++ glibc-2.5/posix/confstr.c
+@@ -260,6 +260,16 @@ #else
+       return 0;
+ #endif
+ 
++    case _CS_LIBDIR:
++      string = LIBDIR;
++      string_len = sizeof LIBDIR;
++      break;
++
++    case _CS_SLIB:
++      string = SLIB;
++      string_len = sizeof SLIB;
++      break;
++
+     default:
+       __set_errno (EINVAL);
+       return 0;
+--- glibc-2.5.orig/posix/getconf.c
++++ glibc-2.5/posix/getconf.c
+@@ -863,6 +863,12 @@ #endif
+ #ifdef _CS_GNU_LIBPTHREAD_VERSION
+     { "GNU_LIBPTHREAD_VERSION", _CS_GNU_LIBPTHREAD_VERSION, CONFSTR },
+ #endif
++#ifdef _CS_LIBDIR
++    { "LIBDIR", _CS_LIBDIR, CONFSTR },
++#endif
++#ifdef _CS_SLIB
++    { "SLIB", _CS_SLIB, CONFSTR },
++#endif
+ #ifdef _PC_2_SYMLINKS
+     { "POSIX2_SYMLINKS", _PC_2_SYMLINKS, PATHCONF },
+ #endif

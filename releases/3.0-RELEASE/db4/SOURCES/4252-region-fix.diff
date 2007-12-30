@@ -1,0 +1,13 @@
+--- db4-4.2.52/mp/mp_region.c.orig	2006-07-23 14:13:37.513511000 -0700
++++ db4-4.2.52/mp/mp_region.c	2006-07-23 14:16:12.206148000 -0700
+@@ -43,9 +43,7 @@
+ 	int htab_buckets, ret;
+ 
+ 	/* Figure out how big each cache region is. */
+-	reg_size = (dbenv->mp_gbytes / dbenv->mp_ncache) * GIGABYTE;
+-	reg_size += ((dbenv->mp_gbytes %
+-	    dbenv->mp_ncache) * GIGABYTE) / dbenv->mp_ncache;
++	reg_size = GIGABYTE / dbenv->mp_ncache * dbenv->mp_gbytes;
+ 	reg_size += dbenv->mp_bytes / dbenv->mp_ncache;
+ 
+ 	/*

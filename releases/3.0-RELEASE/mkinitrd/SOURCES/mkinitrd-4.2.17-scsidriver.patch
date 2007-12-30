@@ -1,0 +1,75 @@
+2006-04-09  Luca Berra <bluca@vodka.it>
+
+        * fixes verif_scsidriver when mkinitrd knows more than
+          modprobe.conf (#20877)
+
+2006-04-18  Luca Berra <bluca@vodka.it>
+
+	* fallback nicely when probing fails
+
+--- mkinitrd-4.2.17/mkinitrd.scsidriver
++++ mkinitrd-4.2.17/mkinitrd
+@@ -265,7 +265,10 @@
+ 		if [ "${foo##*/}" = "sd" ]; then
+ 		    foo=`readlink -f /sys/class/scsi_host/host$i/device/../driver`
+ 		    if [ -z "$foo" ]; then
+-			echo -n "WEIRD"
++			# Fallback to old method if we haven't found the driver.
++			# This happens for some scsi drives like aic7xxx_old that don't
++			# provide a driver link.
++			echo -n "FALLBACK"
+ 			return
+ 		    fi
+ 		    drv="$drv ${foo##*/}"
+@@ -310,7 +313,7 @@
+ 		    # Fallback to old method if we haven't found the driver.
+ 		    # This happens for example for SATA drivers that aren't populating
+ 		    # /proc/scsi. FL [Thu Sep  2 10:30:42 2004]
+-		    echo "FALLBACK"
++		    echo -n "FALLBACK"
+ 		    return
+ 		fi
+ 	    done
+@@ -318,11 +319,15 @@
+ }
+ 
+ verif_scsidriver() {
+-    local pb known found
++    local all_known wanted pb known found wouldlike
+     all_known=$(grep -E '^[[:space:]]*(alias|probeall|install)[[:space:]]+scsi_hostadapter' $modulefile | \
+ 	           sed 's/^.*scsi_hostadapter//;s/\/sbin\/modprobe//g;s/;//g;s/\/bin\/true//;s/||//')
+ 
+     for wanted in $*; do
++	if [ "${wanted}" = "FALLBACK" ]; then
++	    echo $all_known
++	    return
++	fi
+ 	found=
+ 	for known in $all_known; do
+ 	    [ "$known" = "$wanted" ] && found=1
+@@ -333,11 +334,14 @@
+ 		ahci:ata_piix|ata_piix:ahci) found=1;;
+ 	    esac
+ 	done
+-	[ -n "$found" ] || pb=1
++	if [ -z "$found" ]; then
++	    pb=1
++	    wouldlike="$wouldlike -$wanted"
++	fi
+     done
+ 
+     if [ -n "$pb" ]; then
+-	echo $all_known
++	echo $all_known $wouldlike
+     else
+ 	echo $*
+     fi
+@@ -352,7 +359,7 @@
+     local sddev=$1
+     shift
+ 
+-    local f drv
++    local f drv wanted
+     for wanted in $*; do
+ 	case $wanted in
+ 	    # determine new module from pcimap (mptfc, mptspi)

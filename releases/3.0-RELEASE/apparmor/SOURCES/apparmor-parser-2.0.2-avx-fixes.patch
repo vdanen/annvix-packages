@@ -1,0 +1,118 @@
+--- rc.apparmor.functions.avx	2007-05-14 01:42:59.000000000 -0600
++++ rc.apparmor.functions	2007-06-12 16:32:55.093041500 -0600
+@@ -30,6 +30,9 @@
+ 
+ # Some nice defines that we use
+ 
++# we need to source this so we can get all the e* functions
++. /etc/init.d/rc.functions.sh
++
+ CONFIG_DIR=/etc/apparmor
+ MODULE=apparmor
+ OLD_MODULE=subdomain
+@@ -113,6 +116,35 @@
+ 	return 1
+ }
+ 
++function aa_log_success_msg() {
++    eend "$*"
++}
++                
++function aa_log_warning_msg() {
++    ewarn "$*"
++    eend 0
++}
++                                
++function aa_log_failure_msg() {
++    eend 1 "$*"
++}
++
++function aa_log_skipped_msg() {
++    ewarn "$*"
++    eend 0
++}
++                                                
++function aa_action() {
++    STRING=$1
++    shift
++    cmd="$@"
++    ebegin "${STRING}"
++    ${cmd}
++    rc=$?
++    eend ${rc}
++    return ${rc}
++}
++
+ parse_profiles() {
+ 	# get parser arg
+ 	case "$1" in
+@@ -128,7 +160,7 @@
+ 			exit 1
+ 			;;
+ 	esac
+-	echo -n "$PARSER_MSG"
++	ebegin "${PARSER_MSG}"
+ 	# run the parser on all of the apparmor profiles
+ 	if [ ! -f "$PARSER" ]; then
+ 		aa_log_failure_msg "- AppArmor parser not found"
+@@ -147,13 +179,13 @@
+ 
+ 	for profile in $PROFILE_DIR/*; do
+ 		if skip_profile "${profile}" ; then
+-			echo " Skipping profile $profile"
++			einfo " Skipping profile $profile"
+ 			logger -t "AppArmor(init)" -p daemon.warn "Skipping profile $profile"
+ 			STATUS=2
+ 		elif [ -f "${profile}" ] ; then
+ 			$PARSER $ABSTRACTIONS $PARSER_ARGS "$profile" > /dev/null
+ 			if [ $? -ne 0 ]; then
+-				echo " Profile $profile failed to load"
++				einfo " Profile $profile failed to load"
+ 				STATUS=1
+ 			fi
+ 		fi
+@@ -365,7 +397,7 @@
+ }
+ 
+ apparmor_stop() {
+-	echo -n "Unloading AppArmor profiles "
++	ebegin "Unloading AppArmor profiles "
+ 	remove_profiles
+ 	return $?
+ }
+@@ -451,10 +483,10 @@
+ 		return $?
+ 	fi
+ 	if ! grep -qE "^(subdomain|apparmor)[[:space:]]" /proc/modules ; then
+-		echo "AppArmor is not loaded."
++		einfo "AppArmor is not loaded."
+ 		rc=1
+ 	else
+-		echo "AppArmor is enabled,"
++		einfo "AppArmor is enabled,"
+ 		rc=0
+ 	fi
+ 	echo "Install the apparmor-utils package to receive more detailed"
+--- Makefile.avx	2007-05-14 01:42:59.000000000 -0600
++++ Makefile	2007-06-12 16:36:14.713257000 -0600
+@@ -122,7 +122,7 @@
+ techdoc.txt: techdoc/index.html
+ 	w3m -dump $< > $@
+ 
+-all: 	$(TOOLS) $(MANPAGES) ${HTMLMANPAGES} techdoc.pdf techdoc/index.html
++all: 	$(TOOLS) $(MANPAGES) ${HTMLMANPAGES} 
+ 	$(Q)make -C po all
+ 	$(Q)make -s tests
+ 
+@@ -222,6 +222,11 @@
+ 	ln -sf rcapparmor $(DESTDIR)/sbin/rcsubdomain
+ 	ln -sf /etc/init.d/aaeventd $(DESTDIR)/sbin/rcaaeventd
+ 
++.PHONY: install-annvix
++install-annvix:
++	install -m 755 -d $(DESTDIR)/etc/init.d
++	install -m 755 rc.apparmor.$(subst install-,,$@) $(DESTDIR)/etc/init.d/apparmor
++
+ .PHONY: install-slackware
+ install-slackware:
+ 	install -m 755 -d $(APPARMOR_BIN_PREFIX)/install

@@ -1,0 +1,11 @@
+--- lesspipe-1.53/lesspipe.sh.in~	2006-04-11 14:51:07.000000000 +0200
++++ lesspipe-1.53/lesspipe.sh.in	2006-04-11 14:52:14.000000000 +0200
+@@ -53,7 +53,7 @@
+ fi
+ tmp=/tmp/.lesspipe.$$				# temp file name
+ trap 'rm -f $tmp $tmp.dvi $tmp. $tmp.. $tmp... $tmp.1' 0
+-trap - PIPE
++trap - 13
+ 
+ show () {
+ #  if [[ "$1" = *.pod || "$1" = *.pm ]]; then

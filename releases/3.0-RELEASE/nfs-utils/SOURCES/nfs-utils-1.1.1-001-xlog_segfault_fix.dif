@@ -1,0 +1,49 @@
+Fix logging segfaults on amd64
+
+From: Steve Langasek <vorlon@debian.org>
+
+It seems an error crept into nfs-utils 1.1.1 just before release,
+so exportfs -r segfaults on amd64 whenever there is a warning.
+The attached patch, from Steve Langasek, fixes the issue
+(an abuse of va_list).
+
+Signed-off-by: Kevin Coffman <kwc@citi.umich.edu>
+Signed-off-by: Steinar H. Gunderson <sesse@debian.org>
+Signed-off-by: Steve Langasek <vorlon@debian.org>
+---
+
+ support/nfs/xlog.c |    8 +++++++-
+ 1 files changed, 7 insertions(+), 1 deletions(-)
+
+diff --git a/support/nfs/xlog.c b/support/nfs/xlog.c
+index 26123c5..eefb7b2 100644
+--- a/support/nfs/xlog.c
++++ b/support/nfs/xlog.c
+@@ -133,9 +133,13 @@ xlog_enabled(int fac)
+ void
+ xlog_backend(int kind, const char *fmt, va_list args)
+ {
++	va_list args2;
++
+ 	if (!(kind & (L_ALL)) && !(logging && (kind & logmask)))
+ 		return;
+ 
++	va_copy(args2, args);
++
+ 	if (log_syslog) {
+ 		switch (kind) {
+ 		case L_FATAL:
+@@ -172,10 +176,12 @@ xlog_backend(int kind, const char *fmt, va_list args)
+ 		fprintf(stderr, "%s: ", log_name);
+ #endif
+ 
+-		vfprintf(stderr, fmt, args);
++		vfprintf(stderr, fmt, args2);
+ 		fprintf(stderr, "\n");
+ 	}
+ 
++	va_end(args2);
++
+ 	if (kind == L_FATAL)
+ 		exit(1);
+ }

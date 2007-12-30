@@ -1,0 +1,12 @@
+--- snort-2.6.1.5/src/output-plugins/spo_log_tcpdump.c.no_timestamp	2007-03-14 13:58:10.000000000 -0300
++++ snort-2.6.1.5/src/output-plugins/spo_log_tcpdump.c	2007-07-04 17:08:50.000000000 -0300
+@@ -308,8 +308,7 @@
+     //strftime(timebuf,9,"%m%d@%H%M",loc_time);
+ 
+     if(data->filename[0] == '/')
+-        value = SnortSnprintf(logdir, STD_BUF, "%s.%lu", data->filename, 
+-                              (unsigned long)curr_time);
++        value = SnortSnprintf(logdir, STD_BUF, "%s", data->filename);
+     else
+         value = SnortSnprintf(logdir, STD_BUF, "%s/%s.%lu", pv.log_dir, 
+                               data->filename, (unsigned long)curr_time);

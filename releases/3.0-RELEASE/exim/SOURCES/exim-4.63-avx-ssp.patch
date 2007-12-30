@@ -1,0 +1,11 @@
+--- OS/Makefile-Linux~	2006-10-31 22:43:55.000000000 -0700
++++ OS/Makefile-Linux	2006-10-31 22:43:55.000000000 -0700
+@@ -14,7 +14,7 @@
+ DBMLIB = -ldb
+ USE_DB = yes
+ 
+-LIBS = -lnsl -lcrypt -lm
++LIBS = -lnsl -lcrypt -lm -lssp
+ LIBRESOLV = -lresolv
+ 
+ X11=/usr/X11R6

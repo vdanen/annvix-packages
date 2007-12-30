@@ -1,0 +1,11 @@
+--- nfs-utils-1.1.1/utils/mount/mount.c.bak	2007-10-19 05:07:28.000000000 +0200
++++ nfs-utils-1.1.1/utils/mount/mount.c	2007-12-12 20:27:45.054651566 +0100
+@@ -394,7 +394,7 @@
+ 	if (!fake)
+ 		print_one(spec, mount_point, fs_type, mount_opts);
+ 
+-	if (!nomtab)
++	if (!nomtab && mtab_is_writable())
+ 		ret = add_mtab(spec, mount_point, fs_type, flags, *extra_opts,
+ 				0, 0 /* these are always zero for NFS */ );
+ 	return ret;

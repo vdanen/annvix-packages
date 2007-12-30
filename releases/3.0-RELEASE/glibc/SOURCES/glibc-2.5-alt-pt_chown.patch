@@ -1,0 +1,10 @@
+--- glibc-2.6.orig/login/Makefile
++++ glibc-2.6/login/Makefile
+@@ -30,7 +30,6 @@ routines := getutent getutent_r getutid 
+ CFLAGS-grantpt.c = -DLIBEXECDIR='"$(libexecdir)"'
+ 
+ others = utmpdump pt_chown
+-install-others = $(inst_libexecdir)/pt_chown
+ 
+ distribute := utmp-private.h utmp-equal.h pty-private.h
+ 

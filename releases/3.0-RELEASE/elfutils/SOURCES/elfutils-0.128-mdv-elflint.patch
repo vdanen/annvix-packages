@@ -1,0 +1,11 @@
+diff -Naur elfutils-0.128/src/elflint.c elfutils-0.128.tpg/src/elflint.c
+--- elfutils-0.128/src/elflint.c	2007-06-05 23:42:23.000000000 +0000
++++ elfutils-0.128.tpg/src/elflint.c	2007-07-14 14:09:59.000000000 +0000
+@@ -1496,7 +1496,6 @@
+       [DT_JMPREL] = { [DT_PLTRELSZ] = true, [DT_PLTREL] = true },
+       [DT_RUNPATH] = { [DT_STRTAB] = true },
+       [DT_PLTREL] = { [DT_JMPREL] = true },
+-      [DT_PLTRELSZ] = { [DT_JMPREL] = true }
+     };
+   bool has_dt[DT_NUM];
+   bool has_val_dt[DT_VALNUM];

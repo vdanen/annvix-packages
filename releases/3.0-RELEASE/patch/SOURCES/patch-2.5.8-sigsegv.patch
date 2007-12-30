@@ -1,0 +1,39 @@
+--- ./inp.c.tv	2002-06-03 07:37:17.000000000 +0200
++++ ./inp.c	2002-10-31 13:16:50.000000000 +0100
+@@ -79,6 +79,14 @@
+     }
+ }
+ 
++void
++reset_scan_input_vars()
++{
++ using_plan_a = 1;
++ i_buffer = NULL;
++ i_ptr = NULL;
++}
++
+ /* Construct the line index, somehow or other. */
+ 
+ void
+--- ./patch.c.tv	2002-05-28 22:02:35.000000000 +0200
++++ ./patch.c	2002-10-31 13:16:50.000000000 +0100
+@@ -214,7 +214,10 @@
+ 
+ 	/* find out where all the lines are */
+ 	if (!skip_rest_of_patch)
+-	    scan_input (inname);
++          scan_input (inname);
++        else
++          reset_scan_input_vars ();
++        
+ 
+ 	/* from here on, open no standard i/o files, because malloc */
+ 	/* might misfire and we can't catch it easily */
+--- ./inp.h.tv	2002-05-28 09:12:03.000000000 +0200
++++ ./inp.h	2002-10-31 13:18:00.000000000 +0100
+@@ -26,4 +26,5 @@
+ char const *ifetch (LINENUM, int, size_t *);
+ void get_input_file (char const *, char const *);
+ void re_input (void);
++void reset_scan_input_vars PARAMS (());
+ void scan_input (char *);

@@ -1,0 +1,238 @@
+ 2007-07-10  Ulrich Drepper  <drepper@redhat.com>
+
+	[BZ #4773]
+	* time/strptime_l.c (__strptime_internal): Implement greedy
+	matching of weekday and month names.
+	* Makefile: Add rules to build and run tst-strptime.
+	* tst-strptime.c: New file.
+
+===================================================================
+RCS file: /cvs/glibc/libc/time/strptime_l.c,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -u -r1.8 -r1.9
+--- libc/time/strptime_l.c	2007/02/09 01:32:17	1.8
++++ libc/time/strptime_l.c	2007/07/10 22:13:53	1.9
+@@ -264,18 +264,26 @@
+ #endif
+ 
+   const char *rp_backup;
++  const char *rp_longest;
+   int cnt;
++  int cnt_longest;
+   size_t val;
+-  int have_I, is_pm;
+-  int century, want_century;
++  int have_I;
++  int is_pm;
++  int century;
++  int want_century;
+   int want_era;
+-  int have_wday, want_xday;
++  int have_wday;
++  int want_xday;
+   int have_yday;
+-  int have_mon, have_mday;
+-  int have_uweek, have_wweek;
++  int have_mon;
++  int have_mday;
++  int have_uweek;
++  int have_wweek;
+   int week_no;
+   size_t num_eras;
+   struct era_entry *era;
++  enum ptime_locale_status decided_longest;
+ 
+   have_I = is_pm = 0;
+   century = -1;
+@@ -325,81 +333,112 @@
+ 	case 'a':
+ 	case 'A':
+ 	  /* Match day of week.  */
++	  rp_longest = NULL;
++	  decided_longest = *decided;
++	  cnt_longest = -1;
+ 	  for (cnt = 0; cnt < 7; ++cnt)
+ 	    {
++	      const char *trp;
+ #ifdef _NL_CURRENT
+ 	      if (*decided !=raw)
+ 		{
+-		  if (match_string (_NL_CURRENT (LC_TIME, DAY_1 + cnt), rp))
++		  trp = rp;
++		  if (match_string (_NL_CURRENT (LC_TIME, DAY_1 + cnt), trp)
++		      && trp > rp_longest)
+ 		    {
++		      rp_longest = trp;
++		      cnt_longest = cnt;
+ 		      if (*decided == not
+ 			  && strcmp (_NL_CURRENT (LC_TIME, DAY_1 + cnt),
+ 				     weekday_name[cnt]))
+-			*decided = loc;
+-		      break;
++			decided_longest = loc;
+ 		    }
+-		  if (match_string (_NL_CURRENT (LC_TIME, ABDAY_1 + cnt), rp))
++		  trp = rp;
++		  if (match_string (_NL_CURRENT (LC_TIME, ABDAY_1 + cnt), trp)
++		      && trp > rp_longest)
+ 		    {
++		      rp_longest = trp;
++		      cnt_longest = cnt;
+ 		      if (*decided == not
+ 			  && strcmp (_NL_CURRENT (LC_TIME, ABDAY_1 + cnt),
+ 				     ab_weekday_name[cnt]))
+-			*decided = loc;
+-		      break;
++			decided_longest = loc;
+ 		    }
+ 		}
+ #endif
+ 	      if (*decided != loc
+-		  && (match_string (weekday_name[cnt], rp)
+-		      || match_string (ab_weekday_name[cnt], rp)))
+-		{
+-		  *decided = raw;
+-		  break;
++		  && (((trp = rp, match_string (weekday_name[cnt], trp))
++		       && trp > rp_longest)
++		      || ((trp = rp, match_string (ab_weekday_name[cnt], rp))
++			  && trp > rp_longest)))
++		{
++		  rp_longest = trp;
++		  cnt_longest = cnt;
++		  decided_longest = raw;
+ 		}
+ 	    }
+-	  if (cnt == 7)
++	  if (rp_longest == NULL)
+ 	    /* Does not match a weekday name.  */
+ 	    return NULL;
+-	  tm->tm_wday = cnt;
++	  rp = rp_longest;
++	  *decided = decided_longest;
++	  tm->tm_wday = cnt_longest;
+ 	  have_wday = 1;
+ 	  break;
+ 	case 'b':
+ 	case 'B':
+ 	case 'h':
+ 	  /* Match month name.  */
++	  rp_longest = NULL;
++	  decided_longest = *decided;
++	  cnt_longest = -1;
+ 	  for (cnt = 0; cnt < 12; ++cnt)
+ 	    {
++	      const char *trp;
+ #ifdef _NL_CURRENT
+ 	      if (*decided !=raw)
+ 		{
+-		  if (match_string (_NL_CURRENT (LC_TIME, MON_1 + cnt), rp))
++		  trp = rp;
++		  if (match_string (_NL_CURRENT (LC_TIME, MON_1 + cnt), trp)
++		      && trp > rp_longest)
+ 		    {
++		      rp_longest = trp;
++		      cnt_longest = cnt;
+ 		      if (*decided == not
+ 			  && strcmp (_NL_CURRENT (LC_TIME, MON_1 + cnt),
+ 				     month_name[cnt]))
+-			*decided = loc;
+-		      break;
++			decided_longest = loc;
+ 		    }
+-		  if (match_string (_NL_CURRENT (LC_TIME, ABMON_1 + cnt), rp))
++		  trp = rp;
++		  if (match_string (_NL_CURRENT (LC_TIME, ABMON_1 + cnt), trp)
++		      && trp > rp_longest)
+ 		    {
++		      rp_longest = trp;
++		      cnt_longest = cnt;
+ 		      if (*decided == not
+ 			  && strcmp (_NL_CURRENT (LC_TIME, ABMON_1 + cnt),
+ 				     ab_month_name[cnt]))
+-			*decided = loc;
+-		      break;
++			decided_longest = loc;
+ 		    }
+ 		}
+ #endif
+-	      if (match_string (month_name[cnt], rp)
+-		  || match_string (ab_month_name[cnt], rp))
+-		{
+-		  *decided = raw;
+-		  break;
++	      if (*decided != loc
++		  && (((trp = rp, match_string (month_name[cnt], trp))
++		       && trp > rp_longest)
++		      || ((trp = rp, match_string (ab_month_name[cnt], trp))
++			  && trp > rp_longest)))
++		{
++		  rp_longest = trp;
++		  cnt_longest = cnt;
++		  decided_longest = raw;
+ 		}
+ 	    }
+-	  if (cnt == 12)
++	  if (rp_longest == NULL)
+ 	    /* Does not match a month name.  */
+ 	    return NULL;
+-	  tm->tm_mon = cnt;
++	  rp = rp_longest;
++	  *decided = decided_longest;
++	  tm->tm_mon = cnt_longest;
+ 	  have_mon = 1;
+ 	  want_xday = 1;
+ 	  break;
+===================================================================
+RCS file: /cvs/glibc/libc/localedata/Makefile,v
+retrieving revision 1.105
+retrieving revision 1.106
+diff -u -r1.105 -r1.106
+--- libc/localedata/Makefile	2007/03/14 22:32:43	1.105
++++ libc/localedata/Makefile	2007/07/10 22:12:52	1.106
+@@ -93,7 +93,7 @@
+ 
+ tests = $(locale_test_suite) tst-digits tst-setlocale bug-iconv-trans \
+ 	tst-leaks tst-mbswcs6 tst-xlocale1 tst-xlocale2 bug-usesetlocale \
+-	tst-strfmon1 tst-sscanf
++	tst-strfmon1 tst-sscanf tst-strptime
+ ifeq (yes,$(build-shared))
+ ifneq (no,$(PERL))
+ tests: $(objpfx)mtrace-tst-leaks
+@@ -284,6 +284,7 @@
+ tst-xlocale1-ENV = $(TEST_MBWC_ENV)
+ tst-xlocale2-ENV = $(TEST_MBWC_ENV)
+ tst-strfmon1-ENV = $(TEST_MBWC_ENV)
++tst-strptime-ENV = $(TEST_MBWC_ENV)
+ 
+ tst-setlocale-ENV = LOCPATH=$(common-objpfx)localedata LC_ALL=ja_JP.EUC-JP
+ 
+/cvs/glibc/libc/localedata/tst-strptime.c,v  -->  standard output
+revision 1.1
+--- libc/localedata/tst-strptime.c
++++ libc/localedata/tst-strptime.c	2007-07-11 05:55:11.854951000 +0000
+@@ -0,0 +1,23 @@
++#include <locale.h>
++#include <time.h>
++#include <stdio.h>
++
++static int
++do_test (void)
++{
++  if (setlocale (LC_ALL, "vi_VN.TCVN5712-1") == NULL)
++    {
++      puts ("cannot set locale");
++      return 1;
++    }
++  struct tm tm;
++  /* This is November in Vietnamese encoded using TCVN5712-1.  */
++  static const char s[] = "\
++\x54\x68\xb8\x6e\x67\x20\x6d\xad\xea\x69\x20\x6d\xe9\x74";
++  char *r = strptime (s, "%b", &tm);
++  printf ("r = %p, r-s = %ju, tm.tm_mon = %d\n", r, r - s, tm.tm_mon);
++  return r == NULL || r - s != 14 || tm.tm_mon != 10;
++}
++
++#define TEST_FUNCTION do_test ()
++#include "../test-skeleton.c"

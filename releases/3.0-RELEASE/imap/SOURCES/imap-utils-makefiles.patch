@@ -1,0 +1,100 @@
+diff -U 2 --recursive imap-utils.orig/chkmail/Makefile imap-utils/chkmail/Makefile
+--- imap-utils.orig/chkmail/Makefile	2003-04-27 15:12:09.000000000 +0200
++++ imap-utils/chkmail/Makefile	2003-04-27 15:42:12.000000000 +0200
+@@ -18,5 +18,5 @@
+ 
+ 
+-C = ../imap/c-client
++C = ../c-client
+ CCLIENTLIB = $C/c-client.a
+ 
+diff -U 2 --recursive imap-utils.orig/dmail/Makefile imap-utils/dmail/Makefile
+--- imap-utils.orig/dmail/Makefile	2003-04-27 15:12:09.000000000 +0200
++++ imap-utils/dmail/Makefile	2003-04-27 15:42:12.000000000 +0200
+@@ -18,5 +18,5 @@
+ 
+ 
+-C = ../imap/c-client
++C = ../c-client
+ CCLIENTLIB = $C/c-client.a
+ 
+diff -U 2 --recursive imap-utils.orig/icat/Makefile imap-utils/icat/Makefile
+--- imap-utils.orig/icat/Makefile	2003-04-27 15:12:09.000000000 +0200
++++ imap-utils/icat/Makefile	2003-04-27 15:42:12.000000000 +0200
+@@ -17,5 +17,5 @@
+ # CPYRIGHT, included with this Distribution.
+ 
+-C = ../imap/c-client
++C = ../c-client
+ CCLIENTLIB = $C/c-client.a
+ SHELL = /bin/sh
+diff -U 2 --recursive imap-utils.orig/ifrom/Makefile imap-utils/ifrom/Makefile
+--- imap-utils.orig/ifrom/Makefile	2003-04-27 15:12:09.000000000 +0200
++++ imap-utils/ifrom/Makefile	2003-04-27 15:42:12.000000000 +0200
+@@ -17,5 +17,5 @@
+ # CPYRIGHT, included with this Distribution.
+ 
+-C = ../imap/c-client
++C = ../c-client
+ CCLIENTLIB = $C/c-client.a
+ SHELL = /bin/sh
+diff -U 2 --recursive imap-utils.orig/imapcopy/Makefile imap-utils/imapcopy/Makefile
+--- imap-utils.orig/imapcopy/Makefile	2003-04-27 15:12:09.000000000 +0200
++++ imap-utils/imapcopy/Makefile	2003-04-27 15:42:12.000000000 +0200
+@@ -18,5 +18,5 @@
+ 
+ 
+-C = ../imap/c-client
++C = ../c-client
+ CCLIENTLIB = $C/c-client.a
+ 
+diff -U 2 --recursive imap-utils.orig/imapxfer/Makefile imap-utils/imapxfer/Makefile
+--- imap-utils.orig/imapxfer/Makefile	2003-04-27 15:12:09.000000000 +0200
++++ imap-utils/imapxfer/Makefile	2003-04-27 15:42:12.000000000 +0200
+@@ -18,5 +18,5 @@
+ 
+ 
+-C = ../imap/c-client
++C = ../c-client
+ CCLIENTLIB = $C/c-client.a
+ 
+diff -U 2 --recursive imap-utils.orig/mbxcopy/Makefile imap-utils/mbxcopy/Makefile
+--- imap-utils.orig/mbxcopy/Makefile	2003-04-27 15:12:09.000000000 +0200
++++ imap-utils/mbxcopy/Makefile	2003-04-27 15:42:12.000000000 +0200
+@@ -18,5 +18,5 @@
+ 
+ 
+-C = ../imap/c-client
++C = ../c-client
+ CCLIENTLIB = $C/c-client.a
+ 
+diff -U 2 --recursive imap-utils.orig/mbxcreat/Makefile imap-utils/mbxcreat/Makefile
+--- imap-utils.orig/mbxcreat/Makefile	2003-04-27 15:12:09.000000000 +0200
++++ imap-utils/mbxcreat/Makefile	2003-04-27 15:42:12.000000000 +0200
+@@ -18,5 +18,5 @@
+ 
+ 
+-C = ../imap/c-client
++C = ../c-client
+ CCLIENTLIB = $C/c-client.a
+ 
+diff -U 2 --recursive imap-utils.orig/mbxcvt/Makefile imap-utils/mbxcvt/Makefile
+--- imap-utils.orig/mbxcvt/Makefile	2003-04-27 15:12:09.000000000 +0200
++++ imap-utils/mbxcvt/Makefile	2003-04-27 15:42:12.000000000 +0200
+@@ -18,5 +18,5 @@
+ 
+ 
+-C = ../imap/c-client
++C = ../c-client
+ CCLIENTLIB = $C/c-client.a
+ 
+diff -U 2 --recursive imap-utils.orig/tmail/Makefile imap-utils/tmail/Makefile
+--- imap-utils.orig/tmail/Makefile	2003-04-27 15:12:09.000000000 +0200
++++ imap-utils/tmail/Makefile	2003-04-27 15:42:12.000000000 +0200
+@@ -18,5 +18,5 @@
+ 
+ 
+-C = ../imap/c-client
++C = ../c-client
+ CCLIENTLIB = $C/c-client.a
+ 

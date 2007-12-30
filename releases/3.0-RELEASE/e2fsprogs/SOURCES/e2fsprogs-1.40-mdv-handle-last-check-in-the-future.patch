@@ -1,0 +1,52 @@
+--- e2fsprogs-1.40/e2fsck/problem.h.check-future	2007-06-21 17:59:05.000000000 +0200
++++ e2fsprogs-1.40/e2fsck/problem.h	2007-08-02 02:07:55.000000000 +0200
+@@ -196,6 +196,9 @@ struct problem_context {
+ /* Superblock hint for external journal incorrect */
+ #define PR_0_DIRHASH_HINT			0x000034
+ 
++/* Last check time is in the future */
++#define PR_0_FUTURE_SB_LAST_CHECK		0x000035
++
+ /*
+  * Pass 1 errors
+  */
+--- e2fsprogs-1.40/e2fsck/super.c.check-future	2007-06-04 06:48:01.000000000 +0200
++++ e2fsprogs-1.40/e2fsck/super.c	2007-08-02 01:50:01.000000000 +0200
+@@ -729,6 +729,13 @@ void check_super_block(e2fsck_t ctx)
+ 			ext2fs_mark_super_dirty(fs);
+ 		}
+ 	}
++	if (fs->super->s_lastcheck > ctx->now) {
++		pctx.num = fs->super->s_lastcheck;
++		if (fix_problem(ctx, PR_0_FUTURE_SB_LAST_CHECK, &pctx)) {
++			fs->super->s_lastcheck = ctx->now;
++			ext2fs_mark_super_dirty(fs);
++		}
++	}
+ 
+ 	/*
+ 	 * Move the ext3 journal file, if necessary.
+--- e2fsprogs-1.40/e2fsck/problem.c.check-future	2007-06-21 17:59:05.000000000 +0200
++++ e2fsprogs-1.40/e2fsck/problem.c	2007-08-02 01:50:01.000000000 +0200
+@@ -342,6 +342,11 @@ static struct e2fsck_problem problem_tab
+ 	  N_("@S last write time is in the future.  "),
+ 	  PROMPT_FIX, PR_PREEN_OK },
+ 
++	/* Last check time is in the future */
++	{ PR_0_FUTURE_SB_LAST_CHECK,
++	  N_("@S last check time is in the future.  "),
++	  PROMPT_FIX, PR_PREEN_OK },
++
+ 	{ PR_0_EXTERNAL_JOURNAL_HINT,
+ 	  N_("@S hint for external superblock @s %X.  "),
+ 	     PROMPT_FIX, PR_PREEN_OK },
+--- e2fsprogs-1.40/tests/f_dup_resize/expect.1.check-future	2005-09-06 11:40:14.000000000 +0200
++++ e2fsprogs-1.40/tests/f_dup_resize/expect.1	2007-08-02 01:50:01.000000000 +0200
+@@ -1,5 +1,7 @@
+ Resize inode not valid.  Recreate? yes
+ 
++Superblock last check time is in the future.  Fix? yes
++
+ Pass 1: Checking inodes, blocks, and sizes
+ 
+ Running additional passes to resolve blocks claimed by more than one inode...

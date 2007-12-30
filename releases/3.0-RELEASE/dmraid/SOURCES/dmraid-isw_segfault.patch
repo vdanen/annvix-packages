@@ -1,0 +1,45 @@
+This patch fixes a dmraid segmentation fault issue found when running [dmraid 
+-r -E] on an Intel isw format mirror set.
+
+Signed-off-by: Ying Fang <ying.fang@intel.com>
+Signed-off-by: Jason Gaston <jason.d.gaston@intel.com>
+
+--- lib/format/ataraid/isw.c.org	2007-06-29 13:43:31.000000000 -0700
++++ lib/format/ataraid/isw.c	2007-06-29 11:30:50.000000000 -0700
+@@ -264,28 +264,25 @@
+ 	/* Get the rounded up value for the metadata blocks */
+ 	size_t blocks = div_up((*isw)->mpb_size, ISW_DISK_BLOCK_SIZE);
+ 
+-	/* No extended metadata to read ? */
+-	if (blocks < 2)
+-		return 1;
+-
+ 	/*
+ 	 * Allocate memory for the extended Intel superblock
+ 	 * and read it in. Reserve one more disk block in order
+ 	 * to be able to file the metadata in the proper sequence.
+-	 * (ie, sectors 1, 2-n, 1 in core so that the filing can start at 2).
++	 * (ie, sectors 1, 2, 1 in core so that the filing can start at 2).
+ 	 */
+ 	*size = blocks * ISW_DISK_BLOCK_SIZE;
+ 	*isw_sboffset -= *size - ISW_DISK_BLOCK_SIZE;
+ 
+ 	if ((isw_tmp = alloc_private(lc, handler,
+ 				     *size + ISW_DISK_BLOCK_SIZE))) {
++		/*Copy in first metadata sector. */
++		memcpy(isw_tmp, *isw, ISW_DISK_BLOCK_SIZE);
++
++
+ 		/* Read extended metadata to offset ISW_DISK_BLOCK_SIZE */
+-		if (read_file(lc, handler, di->path,
++		if ((blocks > 1)&&(!read_file(lc, handler, di->path,
+ 			      (void*) isw_tmp + ISW_DISK_BLOCK_SIZE,
+-			      *size - ISW_DISK_BLOCK_SIZE, *isw_sboffset))
+-			/* Copy in first metadata sector. */
+-			memcpy(isw_tmp, *isw, ISW_DISK_BLOCK_SIZE);
+-		else {
++			      *size - ISW_DISK_BLOCK_SIZE, *isw_sboffset))){
+ 			dbg_free(isw_tmp);
+ 			isw_tmp = NULL;
+ 		}
+

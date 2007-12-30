@@ -1,0 +1,15 @@
+--- glibc-2.5-20061008T1257/nscd/nscd.conf.avx	2007-09-13 11:23:44.084356750 -0600
++++ glibc-2.5-20061008T1257/nscd/nscd.conf	2007-09-13 11:23:44.088357000 -0600
+@@ -60,7 +60,11 @@
+ 	max-db-size		group		33554432
+ 	auto-propagate		group		yes
+ 
+-	enable-cache		hosts		yes
++# NOTE: using the host cache will cause your local system to not be able to
++# trust forward/reverse lookup checks.  If your system requires this, use a
++# caching DNS server instead.  By default, host caching is disabled.
++
++	enable-cache		hosts		no
+ 	positive-time-to-live	hosts		3600
+ 	negative-time-to-live	hosts		20
+ 	suggested-size		hosts		211

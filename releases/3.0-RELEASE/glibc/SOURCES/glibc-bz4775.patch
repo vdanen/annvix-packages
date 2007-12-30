@@ -1,0 +1,1916 @@
+ 2007-07-12  Jakub Jelinek  <jakub@redhat.com>
+
+	[BZ #4775]
+	* math/tgmath.h (__tgmath_real_type_sub): Formatting.
+	(__tgmath_real_type): Fix if expr is const int or other const
+	qualified integral type.
+	(__TGMATH_UNARY_REAL_ONLY): Rewritten to avoid using statement
+	expressions and handle const qualified arguments.
+	(__TGMATH_BINARY_FIRST_REAL_ONLY, __TGMATH_UNARY_REAL_IMAG,
+	__TGMATH_UNARY_REAL_IMAG_RET_REAL): Likewise.
+	(__TGMATH_UNARY_REAL_RET_ONLY): Rewritten to avoid using
+	statement expressions.
+	(__TGMATH_BINARY_REAL_ONLY, __TGMATH_TERNARY_FIRST_SECOND_REAL_ONLY,
+	__TGMATH_TERNARY_REAL_ONLY, __TGMATH_BINARY_REAL_IMAG): Likewise.
+	(__TGMATH_UNARY_IMAG): Define.
+	(conj, cproj): Use __TGMATH_UNARY_IMAG macro.
+	* math/Makefile (tests): Add test-tgmath2.
+	(CFLAGS-test-tgmath2.c): Add.
+	* math/test-tgmath.c (fy, dy, ly, fz, dz, lz, count_cdouble,
+	count_cfloat, count_cldouble): New variables.
+	(NCCALLS): Define.
+	(main): Check number of complex calls as well.
+	(F(compile_test)): Add complex tests and tests with const qualified
+	arguments.
+	(y, z, ccount): Define.
+	(F(cacos), F(casin), F(catan), F(ccos), F(csin), F(ctan), F(cacosh),
+	F(casinh), F(catanh), F(ccosh), F(csinh), F(ctanh), F(cexp), F(clog),
+	F(csqrt), F(cpow), F(cabs), F(carg), F(creal), F(cimag), F(conj),
+	F(cproj)): New functions.
+	* math/test-tgmath2.c: New test.
+
+===================================================================
+RCS file: /cvs/glibc/libc/math/tgmath.h,v
+retrieving revision 1.25
+retrieving revision 1.26
+diff -u -r1.25 -r1.26
+--- libc/math/tgmath.h	2005/10/15 00:13:49	1.25
++++ libc/math/tgmath.h	2007/07/12 18:09:46	1.26
+@@ -1,4 +1,4 @@
+-/* Copyright (C) 1997, 1998, 1999, 2000, 2001, 2003, 2004, 2005
++/* Copyright (C) 1997, 1998, 1999, 2000, 2001, 2003, 2004, 2005, 2007
+    Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+ 
+@@ -53,202 +53,187 @@
+ /* The tgmath real type for T, where E is 0 if T is an integer type and
+    1 for a floating type.  */
+ # define __tgmath_real_type_sub(T, E) \
+-  __typeof__(*(0 ? (__typeof__ (0 ? (double *) 0 : (void *) (E))) 0	      \
+-		 : (__typeof__ (0 ? (T *) 0 : (void *) (!(E)))) 0))
++  __typeof__ (*(0 ? (__typeof__ (0 ? (double *) 0 : (void *) (E))) 0	      \
++		  : (__typeof__ (0 ? (T *) 0 : (void *) (!(E)))) 0))
+ 
+ /* The tgmath real type of EXPR.  */
+ # define __tgmath_real_type(expr) \
+-  __tgmath_real_type_sub(__typeof__(expr), __floating_type(__typeof__(expr)))
++  __tgmath_real_type_sub (__typeof__ ((__typeof__ (expr)) 0),		      \
++			  __floating_type (__typeof__ (expr)))
+ 
+ 
+ /* We have two kinds of generic macros: to support functions which are
+    only defined on real valued parameters and those which are defined
+    for complex functions as well.  */
+ # define __TGMATH_UNARY_REAL_ONLY(Val, Fct) \
+-     (__extension__ ({ __tgmath_real_type (Val) __tgmres;		      \
+-		       if (sizeof (Val) == sizeof (double)		      \
+-			   || __builtin_classify_type (Val) != 8)	      \
+-			 __tgmres = Fct (Val);				      \
+-		       else if (sizeof (Val) == sizeof (float))		      \
+-			 __tgmres = Fct##f (Val);			      \
+-		       else						      \
+-			 __tgmres = __tgml(Fct) (Val);			      \
+-		       __tgmres; }))
++     (__extension__ ((sizeof (Val) == sizeof (double)			      \
++		      || __builtin_classify_type (Val) != 8)		      \
++		     ? (__tgmath_real_type (Val)) Fct (Val)		      \
++		     : (sizeof (Val) == sizeof (float))			      \
++		     ? (__tgmath_real_type (Val)) Fct##f (Val)		      \
++		     : (__tgmath_real_type (Val)) __tgml(Fct) (Val)))
+ 
+ # define __TGMATH_UNARY_REAL_RET_ONLY(Val, RetType, Fct) \
+-     (__extension__ ({ RetType __tgmres;				      \
+-		       if (sizeof (Val) == sizeof (double)		      \
+-			   || __builtin_classify_type (Val) != 8)	      \
+-			 __tgmres = Fct (Val);				      \
+-		       else if (sizeof (Val) == sizeof (float))		      \
+-			 __tgmres = Fct##f (Val);			      \
+-		       else						      \
+-			 __tgmres = __tgml(Fct) (Val);			      \
+-		       __tgmres; }))
++     (__extension__ ((sizeof (Val) == sizeof (double)			      \
++		      || __builtin_classify_type (Val) != 8)		      \
++		     ? (RetType) Fct (Val)				      \
++		     : (sizeof (Val) == sizeof (float))			      \
++		     ? (RetType) Fct##f (Val)				      \
++		     : (RetType) __tgml(Fct) (Val)))
+ 
+ # define __TGMATH_BINARY_FIRST_REAL_ONLY(Val1, Val2, Fct) \
+-     (__extension__ ({ __tgmath_real_type (Val1) __tgmres;		      \
+-		       if (sizeof (Val1) == sizeof (double)		      \
+-			   || __builtin_classify_type (Val1) != 8)	      \
+-			 __tgmres = Fct (Val1, Val2);			      \
+-		       else if (sizeof (Val1) == sizeof (float))	      \
+-			 __tgmres = Fct##f (Val1, Val2);		      \
+-		       else						      \
+-			 __tgmres = __tgml(Fct) (Val1, Val2);		      \
+-		       __tgmres; }))
++     (__extension__ ((sizeof (Val1) == sizeof (double)			      \
++		      || __builtin_classify_type (Val1) != 8)		      \
++		     ? (__tgmath_real_type (Val1)) Fct (Val1, Val2)	      \
++		     : (sizeof (Val1) == sizeof (float))		      \
++		     ? (__tgmath_real_type (Val1)) Fct##f (Val1, Val2)	      \
++		     : (__tgmath_real_type (Val1)) __tgml(Fct) (Val1, Val2)))
+ 
+ # define __TGMATH_BINARY_REAL_ONLY(Val1, Val2, Fct) \
+-     (__extension__ ({ __typeof((__tgmath_real_type (Val1)) 0		      \
+-				+ (__tgmath_real_type (Val2)) 0) __tgmres;    \
+-		       if ((sizeof (Val1) > sizeof (double)		      \
+-			    || sizeof (Val2) > sizeof (double))		      \
+-			   && __builtin_classify_type ((Val1) + (Val2)) == 8) \
+-			 __tgmres = __tgml(Fct) (Val1, Val2);		      \
+-		       else if (sizeof (Val1) == sizeof (double)	      \
+-				|| sizeof (Val2) == sizeof (double)	      \
+-				|| __builtin_classify_type (Val1) != 8	      \
+-				|| __builtin_classify_type (Val2) != 8)	      \
+-			 __tgmres = Fct (Val1, Val2);			      \
+-		       else						      \
+-			 __tgmres = Fct##f (Val1, Val2);		      \
+-		       __tgmres; }))
++     (__extension__ (((sizeof (Val1) > sizeof (double)			      \
++		       || sizeof (Val2) > sizeof (double))		      \
++		      && __builtin_classify_type ((Val1) + (Val2)) == 8)      \
++		     ? (__typeof ((__tgmath_real_type (Val1)) 0		      \
++				   + (__tgmath_real_type (Val2)) 0))	      \
++		       __tgml(Fct) (Val1, Val2)				      \
++		     : (sizeof (Val1) == sizeof (double)		      \
++			|| sizeof (Val2) == sizeof (double)		      \
++			|| __builtin_classify_type (Val1) != 8		      \
++			|| __builtin_classify_type (Val2) != 8)		      \
++		     ? (__typeof ((__tgmath_real_type (Val1)) 0		      \
++				   + (__tgmath_real_type (Val2)) 0))	      \
++		       Fct (Val1, Val2)					      \
++		     : (__typeof ((__tgmath_real_type (Val1)) 0		      \
++				   + (__tgmath_real_type (Val2)) 0))	      \
++		       Fct##f (Val1, Val2)))
+ 
+ # define __TGMATH_TERNARY_FIRST_SECOND_REAL_ONLY(Val1, Val2, Val3, Fct) \
+-     (__extension__ ({ __typeof((__tgmath_real_type (Val1)) 0		      \
+-				+ (__tgmath_real_type (Val2)) 0) __tgmres;    \
+-		       if ((sizeof (Val1) > sizeof (double)		      \
+-			    || sizeof (Val2) > sizeof (double))		      \
+-			   && __builtin_classify_type ((Val1) + (Val2)) == 8) \
+-			 __tgmres = __tgml(Fct) (Val1, Val2, Val3);	      \
+-		       else if (sizeof (Val1) == sizeof (double)	      \
+-				|| sizeof (Val2) == sizeof (double)	      \
+-				|| __builtin_classify_type (Val1) != 8	      \
+-				|| __builtin_classify_type (Val2) != 8)	      \
+-			 __tgmres = Fct (Val1, Val2, Val3);		      \
+-		       else						      \
+-			 __tgmres = Fct##f (Val1, Val2, Val3);		      \
+-		       __tgmres; }))
++     (__extension__ (((sizeof (Val1) > sizeof (double)			      \
++		       || sizeof (Val2) > sizeof (double))		      \
++		      && __builtin_classify_type ((Val1) + (Val2)) == 8)      \
++		     ? (__typeof ((__tgmath_real_type (Val1)) 0		      \
++				   + (__tgmath_real_type (Val2)) 0))	      \
++		       __tgml(Fct) (Val1, Val2, Val3)			      \
++		     : (sizeof (Val1) == sizeof (double)		      \
++			|| sizeof (Val2) == sizeof (double)		      \
++			|| __builtin_classify_type (Val1) != 8		      \
++			|| __builtin_classify_type (Val2) != 8)		      \
++		     ? (__typeof ((__tgmath_real_type (Val1)) 0		      \
++				   + (__tgmath_real_type (Val2)) 0))	      \
++		       Fct (Val1, Val2, Val3)				      \
++		     : (__typeof ((__tgmath_real_type (Val1)) 0		      \
++				   + (__tgmath_real_type (Val2)) 0))	      \
++		       Fct##f (Val1, Val2, Val3)))
+ 
+ # define __TGMATH_TERNARY_REAL_ONLY(Val1, Val2, Val3, Fct) \
+-     (__extension__ ({ __typeof((__tgmath_real_type (Val1)) 0		      \
+-				+ (__tgmath_real_type (Val2)) 0		      \
+-				+ (__tgmath_real_type (Val3)) 0) __tgmres;    \
+-		       if ((sizeof (Val1) > sizeof (double)		      \
+-			    || sizeof (Val2) > sizeof (double)		      \
+-			    || sizeof (Val3) > sizeof (double))		      \
+-			   && __builtin_classify_type ((Val1) + (Val2)	      \
+-						       + (Val3)) == 8)	      \
+-			 __tgmres = __tgml(Fct) (Val1, Val2, Val3);	      \
+-		       else if (sizeof (Val1) == sizeof (double)	      \
+-				|| sizeof (Val2) == sizeof (double)	      \
+-				|| sizeof (Val3) == sizeof (double)	      \
+-				|| __builtin_classify_type (Val1) != 8	      \
+-				|| __builtin_classify_type (Val2) != 8	      \
+-				|| __builtin_classify_type (Val3) != 8)	      \
+-			 __tgmres = Fct (Val1, Val2, Val3);		      \
+-		       else						      \
+-			 __tgmres = Fct##f (Val1, Val2, Val3);		      \
+-		       __tgmres; }))
++     (__extension__ (((sizeof (Val1) > sizeof (double)			      \
++		       || sizeof (Val2) > sizeof (double)		      \
++		       || sizeof (Val3) > sizeof (double))		      \
++		      && __builtin_classify_type ((Val1) + (Val2) + (Val3))   \
++			 == 8)						      \
++		     ? (__typeof ((__tgmath_real_type (Val1)) 0		      \
++				   + (__tgmath_real_type (Val2)) 0	      \
++				   + (__tgmath_real_type (Val3)) 0))	      \
++		       __tgml(Fct) (Val1, Val2, Val3)			      \
++		     : (sizeof (Val1) == sizeof (double)		      \
++			|| sizeof (Val2) == sizeof (double)		      \
++			|| sizeof (Val3) == sizeof (double)		      \
++			|| __builtin_classify_type (Val1) != 8		      \
++			|| __builtin_classify_type (Val2) != 8		      \
++			|| __builtin_classify_type (Val3) != 8)		      \
++		     ? (__typeof ((__tgmath_real_type (Val1)) 0		      \
++				   + (__tgmath_real_type (Val2)) 0	      \
++				   + (__tgmath_real_type (Val3)) 0))	      \
++		       Fct (Val1, Val2, Val3)				      \
++		     : (__typeof ((__tgmath_real_type (Val1)) 0		      \
++				   + (__tgmath_real_type (Val2)) 0	      \
++				   + (__tgmath_real_type (Val3)) 0))	      \
++		       Fct##f (Val1, Val2, Val3)))
+ 
+ /* XXX This definition has to be changed as soon as the compiler understands
+    the imaginary keyword.  */
+ # define __TGMATH_UNARY_REAL_IMAG(Val, Fct, Cfct) \
+-     (__extension__ ({ __tgmath_real_type (Val) __tgmres;		      \
+-		       if (sizeof (__real__ (Val)) > sizeof (double)	      \
+-			   && __builtin_classify_type (__real__ (Val)) == 8)  \
+-			 {						      \
+-			   if (sizeof (__real__ (Val)) == sizeof (Val))	      \
+-			     __tgmres = __tgml(Fct) (Val);		      \
+-			   else						      \
+-			     __tgmres = __tgml(Cfct) (Val);		      \
+-			 }						      \
+-		       else if (sizeof (__real__ (Val)) == sizeof (double)    \
+-				|| __builtin_classify_type (__real__ (Val))   \
+-				   != 8)				      \
+-			 {						      \
+-			   if (sizeof (__real__ (Val)) == sizeof (Val))	      \
+-			     __tgmres = Fct (Val);			      \
+-			   else						      \
+-			     __tgmres = Cfct (Val);			      \
+-			 }						      \
+-		       else						      \
+-			 {						      \
+-			   if (sizeof (__real__ (Val)) == sizeof (Val))	      \
+-			     __tgmres = Fct##f (Val);			      \
+-			   else						      \
+-			     __tgmres = Cfct##f (Val);			      \
+-			 }						      \
+-		       __tgmres; }))
++     (__extension__ ((sizeof (__real__ (Val)) == sizeof (double)	      \
++		      || __builtin_classify_type (__real__ (Val)) != 8)	      \
++		     ? ((sizeof (__real__ (Val)) == sizeof (Val))	      \
++			? (__tgmath_real_type (Val)) Fct (Val)		      \
++			: (__tgmath_real_type (Val)) Cfct (Val))	      \
++		     : (sizeof (__real__ (Val)) == sizeof (float))	      \
++		     ? ((sizeof (__real__ (Val)) == sizeof (Val))	      \
++			? (__tgmath_real_type (Val)) Fct##f (Val)	      \
++			: (__tgmath_real_type (Val)) Cfct##f (Val))	      \
++		     : ((sizeof (__real__ (Val)) == sizeof (Val))	      \
++			? (__tgmath_real_type (Val)) __tgml(Fct) (Val)	      \
++			: (__tgmath_real_type (Val)) __tgml(Cfct) (Val))))
++
++# define __TGMATH_UNARY_IMAG(Val, Cfct) \
++     (__extension__ ((sizeof (__real__ (Val)) == sizeof (double)	      \
++		      || __builtin_classify_type (__real__ (Val)) != 8)	      \
++		     ? (__typeof__ ((__tgmath_real_type (Val)) 0	      \
++				    + _Complex_I)) Cfct (Val)		      \
++		     : (sizeof (__real__ (Val)) == sizeof (float))	      \
++		     ? (__typeof__ ((__tgmath_real_type (Val)) 0	      \
++				    + _Complex_I)) Cfct##f (Val)	      \
++		     : (__typeof__ ((__tgmath_real_type (Val)) 0	      \
++				    + _Complex_I)) __tgml(Cfct) (Val)))
+ 
+ /* XXX This definition has to be changed as soon as the compiler understands
+    the imaginary keyword.  */
+ # define __TGMATH_UNARY_REAL_IMAG_RET_REAL(Val, Fct, Cfct) \
+-     (__extension__ ({ __tgmath_real_type (Val) __tgmres;		      \
+-		       if (sizeof (__real__ (Val)) > sizeof (double)	      \
+-			   && __builtin_classify_type (__real__ (Val)) == 8)  \
+-			 {						      \
+-			   if (sizeof (__real__ (Val)) == sizeof (Val))	      \
+-			     __tgmres = __tgml(Fct) (Val);		      \
+-			   else						      \
+-			     __tgmres = __tgml(Cfct) (Val);		      \
+-			 }						      \
+-		       else if (sizeof (__real__ (Val)) == sizeof (double)    \
+-				|| __builtin_classify_type (__real__ (Val))   \
+-				   != 8)				      \
+-			 {						      \
+-			   if (sizeof (__real__ (Val)) == sizeof (Val))	      \
+-			     __tgmres = Fct (Val);			      \
+-			   else						      \
+-			     __tgmres = Cfct (Val);			      \
+-			 }						      \
+-		       else						      \
+-			 {						      \
+-			   if (sizeof (__real__ (Val)) == sizeof (Val))	      \
+-			     __tgmres = Fct##f (Val);			      \
+-			   else						      \
+-			     __tgmres = Cfct##f (Val);			      \
+-			 }						      \
+-		       __real__ __tgmres; }))
++     (__extension__ ((sizeof (__real__ (Val)) == sizeof (double)	      \
++		      || __builtin_classify_type (__real__ (Val)) != 8)	      \
++		     ? ((sizeof (__real__ (Val)) == sizeof (Val))	      \
++			? (__typeof__ (__real__ (__tgmath_real_type (Val)) 0))\
++			  Fct (Val)					      \
++			: (__typeof__ (__real__ (__tgmath_real_type (Val)) 0))\
++			  Cfct (Val))					      \
++		     : (sizeof (__real__ (Val)) == sizeof (float))	      \
++		     ? ((sizeof (__real__ (Val)) == sizeof (Val))	      \
++			? (__typeof__ (__real__ (__tgmath_real_type (Val)) 0))\
++			  Fct##f (Val)					      \
++			: (__typeof__ (__real__ (__tgmath_real_type (Val)) 0))\
++			  Cfct##f (Val))				      \
++		     : ((sizeof (__real__ (Val)) == sizeof (Val))	      \
++			? (__typeof__ (__real__ (__tgmath_real_type (Val)) 0))\
++			  __tgml(Fct) (Val)				      \
++			: (__typeof__ (__real__ (__tgmath_real_type (Val)) 0))\
++			  __tgml(Cfct) (Val))))
+ 
+ /* XXX This definition has to be changed as soon as the compiler understands
+    the imaginary keyword.  */
+ # define __TGMATH_BINARY_REAL_IMAG(Val1, Val2, Fct, Cfct) \
+-     (__extension__ ({ __typeof((__tgmath_real_type (Val1)) 0		      \
+-				+ (__tgmath_real_type (Val2)) 0) __tgmres;    \
+-		       if ((sizeof (__real__ (Val1)) > sizeof (double)	      \
+-			    || sizeof (__real__ (Val2)) > sizeof (double))    \
+-			   && __builtin_classify_type (__real__ (Val1)	      \
+-						       + __real__ (Val2))     \
+-			      == 8)					      \
+-			 {						      \
+-			   if (sizeof (__real__ (Val1)) == sizeof (Val1)      \
+-			       && sizeof (__real__ (Val2)) == sizeof (Val2))  \
+-			     __tgmres = __tgml(Fct) (Val1, Val2);	      \
+-			   else						      \
+-			     __tgmres = __tgml(Cfct) (Val1, Val2);	      \
+-			 }						      \
+-		       else if (sizeof (__real__ (Val1)) == sizeof (double)   \
+-				|| sizeof (__real__ (Val2)) == sizeof(double) \
+-				|| (__builtin_classify_type (__real__ (Val1)) \
+-				    != 8)				      \
+-				|| (__builtin_classify_type (__real__ (Val2)) \
+-				    != 8))				      \
+-			 {						      \
+-			   if (sizeof (__real__ (Val1)) == sizeof (Val1)      \
+-			       && sizeof (__real__ (Val2)) == sizeof (Val2))  \
+-			     __tgmres = Fct (Val1, Val2);		      \
+-			   else						      \
+-			     __tgmres = Cfct (Val1, Val2);		      \
+-			 }						      \
+-		       else						      \
+-			 {						      \
+-			   if (sizeof (__real__ (Val1)) == sizeof (Val1)      \
+-			       && sizeof (__real__ (Val2)) == sizeof (Val2))  \
+-			     __tgmres = Fct##f (Val1, Val2);		      \
+-			   else						      \
+-			     __tgmres = Cfct##f (Val1, Val2);		      \
+-			 }						      \
+-		       __tgmres; }))
++     (__extension__ (((sizeof (__real__ (Val1)) > sizeof (double)	      \
++		       || sizeof (__real__ (Val2)) > sizeof (double))	      \
++		      && __builtin_classify_type (__real__ (Val1)	      \
++						  + __real__ (Val2)) == 8)    \
++		     ? ((sizeof (__real__ (Val1)) == sizeof (Val1)	      \
++			 && sizeof (__real__ (Val2)) == sizeof (Val2))	      \
++			? (__typeof ((__tgmath_real_type (Val1)) 0	      \
++				   + (__tgmath_real_type (Val2)) 0))	      \
++			  __tgml(Fct) (Val1, Val2)			      \
++			: (__typeof ((__tgmath_real_type (Val1)) 0	      \
++				   + (__tgmath_real_type (Val2)) 0))	      \
++			  __tgml(Cfct) (Val1, Val2))			      \
++		     : (sizeof (__real__ (Val1)) == sizeof (double)	      \
++			|| sizeof (__real__ (Val2)) == sizeof (double)	      \
++			|| __builtin_classify_type (__real__ (Val1)) != 8     \
++			|| __builtin_classify_type (__real__ (Val2)) != 8)    \
++		     ? ((sizeof (__real__ (Val1)) == sizeof (Val1)	      \
++			 && sizeof (__real__ (Val2)) == sizeof (Val2))	      \
++			? (__typeof ((__tgmath_real_type (Val1)) 0	      \
++				   + (__tgmath_real_type (Val2)) 0))	      \
++			  Fct (Val1, Val2)				      \
++			: (__typeof ((__tgmath_real_type (Val1)) 0	      \
++				   + (__tgmath_real_type (Val2)) 0))	      \
++			  Cfct (Val1, Val2))				      \
++		     : ((sizeof (__real__ (Val1)) == sizeof (Val1)	      \
++			 && sizeof (__real__ (Val2)) == sizeof (Val2))	      \
++			? (__typeof ((__tgmath_real_type (Val1)) 0	      \
++				   + (__tgmath_real_type (Val2)) 0))	      \
++			  Fct##f (Val1, Val2)				      \
++			: (__typeof ((__tgmath_real_type (Val1)) 0	      \
++				   + (__tgmath_real_type (Val2)) 0))	      \
++			  Cfct##f (Val1, Val2))))
+ #else
+ # error "Unsupported compiler; you cannot use <tgmath.h>"
+ #endif
+@@ -447,10 +432,10 @@
+ #define carg(Val) __TGMATH_UNARY_REAL_IMAG_RET_REAL (Val, carg, carg)
+ 
+ /* Complex conjugate of Z.  */
+-#define conj(Val) __TGMATH_UNARY_REAL_IMAG (Val, conj, conj)
++#define conj(Val) __TGMATH_UNARY_IMAG (Val, conj)
+ 
+ /* Projection of Z onto the Riemann sphere.  */
+-#define cproj(Val) __TGMATH_UNARY_REAL_IMAG (Val, cproj, cproj)
++#define cproj(Val) __TGMATH_UNARY_IMAG (Val, cproj)
+ 
+ 
+ /* Decomposing complex values.  */
+/cvs/glibc/libc/math/test-tgmath2.c,v  -->  standard output
+revision 1.1
+--- libc/math/test-tgmath2.c
++++ libc/math/test-tgmath2.c	2007-07-18 14:12:27.392940000 +0000
+@@ -0,0 +1,488 @@
++/* Test compilation of tgmath macros.
++   Copyright (C) 2007 Free Software Foundation, Inc.
++   This file is part of the GNU C Library.
++   Contributed by Jakub Jelinek <jakub@redhat.com>, 2007.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++#ifndef HAVE_MAIN
++#undef __NO_MATH_INLINES
++#define __NO_MATH_INLINES 1
++#include <math.h>
++#include <complex.h>
++#include <stdio.h>
++#include <string.h>
++#include <tgmath.h>
++
++//#define DEBUG
++
++typedef complex float cfloat;
++typedef complex double cdouble;
++#ifndef NO_LONG_DOUBLE
++typedef long double ldouble;
++typedef complex long double cldouble;
++#else
++typedef double ldouble;
++typedef complex double cldouble;
++#endif
++
++float vfloat1, vfloat2, vfloat3;
++double vdouble1, vdouble2, vdouble3;
++ldouble vldouble1, vldouble2, vldouble3;
++cfloat vcfloat1, vcfloat2, vcfloat3;
++cdouble vcdouble1, vcdouble2, vcdouble3;
++cldouble vcldouble1, vcldouble2, vcldouble4;
++int vint1, vint2, vint3;
++long int vlong1, vlong2, vlong3;
++long long int vllong1, vllong2, vllong3;
++const float Vfloat1 = 1, Vfloat2 = 2, Vfloat3 = 3;
++const double Vdouble1 = 1, Vdouble2 = 2, Vdouble3 = 3;
++const ldouble Vldouble1 = 1, Vldouble2 = 2, Vldouble3 = 3;
++const cfloat Vcfloat1 = 1, Vcfloat2 = 2, Vcfloat3 = 3;
++const cdouble Vcdouble1 = 1, Vcdouble2 = 2, Vcdouble3 = 3;
++const cldouble Vcldouble1 = 1, Vcldouble2 = 2, Vcldouble4 = 3;
++const int Vint1 = 1, Vint2 = 2, Vint3 = 3;
++const long int Vlong1 = 1, Vlong2 = 2, Vlong3 = 3;
++const long long int Vllong1 = 1, Vllong2 = 2, Vllong3 = 3;
++enum
++  {
++    Tfloat = 0,
++    Tcfloat,
++    Tdouble,
++    Tcdouble,
++#ifndef NO_LONG_DOUBLE
++    Tldouble,
++    Tcldouble,
++#else
++    Tldouble = Tdouble,
++    Tcldouble = Tcdouble,
++#endif
++    Tlast
++  };
++enum
++  {
++    C_cos = 0,
++    C_fabs,
++    C_cabs,
++    C_conj,
++    C_expm1,
++    C_lrint,
++    C_ldexp,
++    C_atan2,
++    C_remquo,
++    C_pow,
++    C_fma,
++    C_last
++  };
++int count;
++int counts[Tlast][C_last];
++
++int
++test (const int Vint4, const long long int Vllong4)
++{
++  int result = 0;
++  int quo = 0;
++
++#define FAIL(str) \
++  do								\
++    {								\
++      printf ("%s failure on line %d\n", (str), __LINE__);	\
++      result = 1;						\
++    }								\
++  while (0)
++#define TEST_TYPE_ONLY(expr, rettype) \
++  do								\
++    {								\
++      __typeof__ (expr) texpr = 0;				\
++      __typeof__ (rettype) ttype = 0, *ptype;			\
++      if (sizeof (expr) != sizeof (rettype))			\
++	FAIL ("type");						\
++      if (__alignof__ (expr) != __alignof__ (rettype))		\
++	FAIL ("type");						\
++      __asm ("" : "=r" (ptype) : "0" (&ttype), "r" (&texpr));	\
++      if (&texpr == ptype)					\
++	FAIL ("type");						\
++    }								\
++  while (0)
++#define TEST2(expr, type, rettype, fn) \
++  do								\
++    {								\
++      __typeof__ (expr) texpr = 0;				\
++      TEST_TYPE_ONLY (expr, rettype);				\
++      if (count != 0)						\
++	FAIL ("internal error");				\
++      if (counts[T##type][C_##fn] != 0)				\
++	FAIL ("internal error");				\
++      texpr = expr;						\
++      __asm __volatile ("" : : "r" (&texpr));			\
++      if (count != 1 || counts[T##type][C_##fn] != 1)		\
++	{							\
++	  FAIL ("wrong function called");			\
++	  memset (counts, 0, sizeof (counts));			\
++	}							\
++      count = 0;						\
++      counts[T##type][C_##fn] = 0;				\
++    }								\
++  while (0)
++#define TEST(expr, type, fn) TEST2(expr, type, type, fn)
++
++  TEST (cos (vfloat1), float, cos);
++  TEST (cos (vdouble1), double, cos);
++  TEST (cos (vldouble1), ldouble, cos);
++  TEST (cos (vint1), double, cos);
++  TEST (cos (vllong1), double, cos);
++  TEST (cos (vcfloat1), cfloat, cos);
++  TEST (cos (vcdouble1), cdouble, cos);
++  TEST (cos (vcldouble1), cldouble, cos);
++  TEST (cos (Vfloat1), float, cos);
++  TEST (cos (Vdouble1), double, cos);
++  TEST (cos (Vldouble1), ldouble, cos);
++  TEST (cos (Vint1), double, cos);
++  TEST (cos (Vllong1), double, cos);
++  TEST (cos (Vcfloat1), cfloat, cos);
++  TEST (cos (Vcdouble1), cdouble, cos);
++  TEST (cos (Vcldouble1), cldouble, cos);
++
++  TEST (fabs (vfloat1), float, fabs);
++  TEST (fabs (vdouble1), double, fabs);
++  TEST (fabs (vldouble1), ldouble, fabs);
++  TEST (fabs (vint1), double, fabs);
++  TEST (fabs (vllong1), double, fabs);
++  TEST (fabs (vcfloat1), float, cabs);
++  TEST (fabs (vcdouble1), double, cabs);
++  TEST (fabs (vcldouble1), ldouble, cabs);
++  TEST (fabs (Vfloat1), float, fabs);
++  TEST (fabs (Vdouble1), double, fabs);
++  TEST (fabs (Vldouble1), ldouble, fabs);
++#ifndef __OPTIMIZE__
++  /* GCC is too smart to optimize these out.  */
++  TEST (fabs (Vint1), double, fabs);
++  TEST (fabs (Vllong1), double, fabs);
++#else
++  TEST_TYPE_ONLY (fabs (vllong1), double);
++  TEST_TYPE_ONLY (fabs (vllong1), double);
++#endif
++  TEST (fabs (Vint4), double, fabs);
++  TEST (fabs (Vllong4), double, fabs);
++  TEST (fabs (Vcfloat1), float, cabs);
++  TEST (fabs (Vcdouble1), double, cabs);
++  TEST (fabs (Vcldouble1), ldouble, cabs);
++
++  TEST (conj (vfloat1), cfloat, conj);
++  TEST (conj (vdouble1), cdouble, conj);
++  TEST (conj (vldouble1), cldouble, conj);
++  TEST (conj (vint1), cdouble, conj);
++  TEST (conj (vllong1), cdouble, conj);
++  TEST (conj (vcfloat1), cfloat, conj);
++  TEST (conj (vcdouble1), cdouble, conj);
++  TEST (conj (vcldouble1), cldouble, conj);
++  TEST (conj (Vfloat1), cfloat, conj);
++  TEST (conj (Vdouble1), cdouble, conj);
++  TEST (conj (Vldouble1), cldouble, conj);
++  TEST (conj (Vint1), cdouble, conj);
++  TEST (conj (Vllong1), cdouble, conj);
++  TEST (conj (Vcfloat1), cfloat, conj);
++  TEST (conj (Vcdouble1), cdouble, conj);
++  TEST (conj (Vcldouble1), cldouble, conj);
++
++  TEST (expm1 (vfloat1), float, expm1);
++  TEST (expm1 (vdouble1), double, expm1);
++  TEST (expm1 (vldouble1), ldouble, expm1);
++  TEST (expm1 (vint1), double, expm1);
++  TEST (expm1 (vllong1), double, expm1);
++  TEST (expm1 (Vfloat1), float, expm1);
++  TEST (expm1 (Vdouble1), double, expm1);
++  TEST (expm1 (Vldouble1), ldouble, expm1);
++  TEST (expm1 (Vint1), double, expm1);
++  TEST (expm1 (Vllong1), double, expm1);
++
++  TEST2 (lrint (vfloat1), float, long int, lrint);
++  TEST2 (lrint (vdouble1), double, long int, lrint);
++  TEST2 (lrint (vldouble1), ldouble, long int, lrint);
++  TEST2 (lrint (vint1), double, long int, lrint);
++  TEST2 (lrint (vllong1), double, long int, lrint);
++  TEST2 (lrint (Vfloat1), float, long int, lrint);
++  TEST2 (lrint (Vdouble1), double, long int, lrint);
++  TEST2 (lrint (Vldouble1), ldouble, long int, lrint);
++  TEST2 (lrint (Vint1), double, long int, lrint);
++  TEST2 (lrint (Vllong1), double, long int, lrint);
++
++  TEST (ldexp (vfloat1, 6), float, ldexp);
++  TEST (ldexp (vdouble1, 6), double, ldexp);
++  TEST (ldexp (vldouble1, 6), ldouble, ldexp);
++  TEST (ldexp (vint1, 6), double, ldexp);
++  TEST (ldexp (vllong1, 6), double, ldexp);
++  TEST (ldexp (Vfloat1, 6), float, ldexp);
++  TEST (ldexp (Vdouble1, 6), double, ldexp);
++  TEST (ldexp (Vldouble1, 6), ldouble, ldexp);
++  TEST (ldexp (Vint1, 6), double, ldexp);
++  TEST (ldexp (Vllong1, 6), double, ldexp);
++
++#define FIRST(x, y) (y, x)
++#define SECOND(x, y) (x, y)
++#define NON_LDBL_TEST(fn, argm, arg, type, fnt) \
++  TEST (fn argm (arg, vfloat1), type, fnt); \
++  TEST (fn argm (arg, vdouble1), type, fnt); \
++  TEST (fn argm (arg, vint1), type, fnt); \
++  TEST (fn argm (arg, vllong1), type, fnt); \
++  TEST (fn argm (arg, Vfloat1), type, fnt); \
++  TEST (fn argm (arg, Vdouble1), type, fnt); \
++  TEST (fn argm (arg, Vint1), type, fnt); \
++  TEST (fn argm (arg, Vllong1), type, fnt);
++#define NON_LDBL_CTEST(fn, argm, arg, type, fnt) \
++  NON_LDBL_TEST(fn, argm, arg, type, fnt); \
++  TEST (fn argm (arg, vcfloat1), type, fnt); \
++  TEST (fn argm (arg, vcdouble1), type, fnt); \
++  TEST (fn argm (arg, Vcfloat1), type, fnt); \
++  TEST (fn argm (arg, Vcdouble1), type, fnt);
++#define BINARY_TEST(fn, fnt) \
++  TEST (fn (vfloat1, vfloat2), float, fnt); \
++  TEST (fn (Vfloat1, vfloat2), float, fnt); \
++  TEST (fn (vfloat1, Vfloat2), float, fnt); \
++  TEST (fn (Vfloat1, Vfloat2), float, fnt); \
++  TEST (fn (vldouble1, vldouble2), ldouble, fnt); \
++  TEST (fn (Vldouble1, vldouble2), ldouble, fnt); \
++  TEST (fn (vldouble1, Vldouble2), ldouble, fnt); \
++  TEST (fn (Vldouble1, Vldouble2), ldouble, fnt); \
++  NON_LDBL_TEST (fn, FIRST, vldouble2, ldouble, fnt); \
++  NON_LDBL_TEST (fn, SECOND, vldouble2, ldouble, fnt); \
++  NON_LDBL_TEST (fn, FIRST, Vldouble2, ldouble, fnt); \
++  NON_LDBL_TEST (fn, SECOND, Vldouble2, ldouble, fnt); \
++  NON_LDBL_TEST (fn, FIRST, vdouble2, double, fnt); \
++  NON_LDBL_TEST (fn, SECOND, vdouble2, double, fnt); \
++  NON_LDBL_TEST (fn, FIRST, Vdouble2, double, fnt); \
++  NON_LDBL_TEST (fn, SECOND, Vdouble2, double, fnt); \
++  NON_LDBL_TEST (fn, FIRST, vint2, double, fnt); \
++  NON_LDBL_TEST (fn, SECOND, vint2, double, fnt); \
++  NON_LDBL_TEST (fn, FIRST, Vint2, double, fnt); \
++  NON_LDBL_TEST (fn, SECOND, Vint2, double, fnt); \
++  NON_LDBL_TEST (fn, FIRST, vllong2, double, fnt); \
++  NON_LDBL_TEST (fn, SECOND, vllong2, double, fnt); \
++  NON_LDBL_TEST (fn, FIRST, Vllong2, double, fnt); \
++  NON_LDBL_TEST (fn, SECOND, Vllong2, double, fnt);
++#define BINARY_CTEST(fn, fnt) \
++  BINARY_TEST (fn, fnt); \
++  TEST (fn (vcfloat1, vfloat2), cfloat, fnt); \
++  TEST (fn (Vcfloat1, vfloat2), cfloat, fnt); \
++  TEST (fn (vcfloat1, Vfloat2), cfloat, fnt); \
++  TEST (fn (Vcfloat1, Vfloat2), cfloat, fnt); \
++  TEST (fn (vcldouble1, vldouble2), cldouble, fnt); \
++  TEST (fn (Vcldouble1, vldouble2), cldouble, fnt); \
++  TEST (fn (vcldouble1, Vldouble2), cldouble, fnt); \
++  TEST (fn (Vcldouble1, Vldouble2), cldouble, fnt); \
++  TEST (fn (vcfloat1, vfloat2), cfloat, fnt); \
++  TEST (fn (Vcfloat1, vfloat2), cfloat, fnt); \
++  TEST (fn (vcfloat1, Vfloat2), cfloat, fnt); \
++  TEST (fn (Vcfloat1, Vfloat2), cfloat, fnt); \
++  TEST (fn (vcldouble1, vldouble2), cldouble, fnt); \
++  TEST (fn (Vcldouble1, vldouble2), cldouble, fnt); \
++  TEST (fn (vcldouble1, Vldouble2), cldouble, fnt); \
++  TEST (fn (Vcldouble1, Vldouble2), cldouble, fnt); \
++  TEST (fn (vcfloat1, vcfloat2), cfloat, fnt); \
++  TEST (fn (Vcfloat1, vcfloat2), cfloat, fnt); \
++  TEST (fn (vcfloat1, Vcfloat2), cfloat, fnt); \
++  TEST (fn (Vcfloat1, Vcfloat2), cfloat, fnt); \
++  TEST (fn (vcldouble1, vcldouble2), cldouble, fnt); \
++  TEST (fn (Vcldouble1, vcldouble2), cldouble, fnt); \
++  TEST (fn (vcldouble1, Vcldouble2), cldouble, fnt); \
++  TEST (fn (Vcldouble1, Vcldouble2), cldouble, fnt); \
++  NON_LDBL_CTEST (fn, FIRST, vcldouble2, cldouble, fnt); \
++  NON_LDBL_CTEST (fn, SECOND, vcldouble2, cldouble, fnt); \
++  NON_LDBL_CTEST (fn, FIRST, Vcldouble2, cldouble, fnt); \
++  NON_LDBL_CTEST (fn, SECOND, Vcldouble2, cldouble, fnt); \
++  NON_LDBL_CTEST (fn, FIRST, vcdouble2, cdouble, fnt); \
++  NON_LDBL_CTEST (fn, SECOND, vcdouble2, cdouble, fnt); \
++  NON_LDBL_CTEST (fn, FIRST, Vcdouble2, cdouble, fnt); \
++  NON_LDBL_CTEST (fn, SECOND, Vcdouble2, cdouble, fnt);
++
++  BINARY_TEST (atan2, atan2);
++
++#define my_remquo(x, y) remquo (x, y, &quo)
++  BINARY_TEST (my_remquo, remquo);
++#undef my_remquo
++
++  BINARY_CTEST (pow, pow);
++
++  /* Testing all arguments of fma would be just too expensive,
++     so test just some.  */
++#define my_fma(x, y) fma (x, y, vfloat3)
++  BINARY_TEST (my_fma, fma);
++#undef my_fma
++#define my_fma(x, y) fma (x, vfloat3, y)
++  BINARY_TEST (my_fma, fma);
++#undef my_fma
++#define my_fma(x, y) fma (Vfloat3, x, y)
++  BINARY_TEST (my_fma, fma);
++#undef my_fma
++  TEST (fma (vdouble1, Vdouble2, vllong3), double, fma);
++  TEST (fma (vint1, Vint2, vint3), double, fma);
++  TEST (fma (Vldouble1, vldouble2, Vldouble3), ldouble, fma);
++  TEST (fma (vldouble1, vint2, Vdouble3), ldouble, fma);
++
++  return result;
++}
++
++int
++main (void)
++{
++  return test (vint1, vllong1);
++}
++
++/* Now generate the three functions.  */
++#define HAVE_MAIN
++
++#define F(name) name
++#define TYPE double
++#define CTYPE cdouble
++#define T Tdouble
++#define C Tcdouble
++#include "test-tgmath2.c"
++
++#define F(name) name##f
++#define TYPE float
++#define CTYPE cfloat
++#define T Tfloat
++#define C Tcfloat
++#include "test-tgmath2.c"
++
++#ifndef NO_LONG_DOUBLE
++#define F(name) name##l
++#define TYPE ldouble
++#define CTYPE cldouble
++#define T Tldouble
++#define C Tcldouble
++#include "test-tgmath2.c"
++#endif
++
++#else
++
++#ifdef DEBUG
++#define P() puts (__FUNCTION__); count++
++#else
++#define P() count++;
++#endif
++
++TYPE
++(F(cos)) (TYPE x)
++{
++  counts[T][C_cos]++;
++  P ();
++  return x;
++}
++
++CTYPE
++(F(ccos)) (CTYPE x)
++{
++  counts[C][C_cos]++;
++  P ();
++  return x;
++}
++
++TYPE
++(F(fabs)) (TYPE x)
++{
++  counts[T][C_fabs]++;
++  P ();
++  return x;
++}
++
++TYPE
++(F(cabs)) (CTYPE x)
++{
++  counts[T][C_cabs]++;
++  P ();
++  return x;
++}
++
++CTYPE
++(F(conj)) (CTYPE x)
++{
++  counts[C][C_conj]++;
++  P ();
++  return x;
++}
++
++TYPE
++(F(expm1)) (TYPE x)
++{
++  counts[T][C_expm1]++;
++  P ();
++  return x;
++}
++
++long int
++(F(lrint)) (TYPE x)
++{
++  counts[T][C_lrint]++;
++  P ();
++  return x;
++}
++
++TYPE
++(F(ldexp)) (TYPE x, int y)
++{
++  counts[T][C_ldexp]++;
++  P ();
++  return x + y;
++}
++
++TYPE
++(F(atan2)) (TYPE x, TYPE y)
++{
++  counts[T][C_atan2]++;
++  P ();
++  return x + y;
++}
++
++TYPE
++(F(remquo)) (TYPE x, TYPE y, int *z)
++{
++  counts[T][C_remquo]++;
++  P ();
++  return x + y + *z;
++}
++
++TYPE
++(F(pow)) (TYPE x, TYPE y)
++{
++  counts[T][C_pow]++;
++  P ();
++  return x + y;
++}
++
++CTYPE
++(F(cpow)) (CTYPE x, CTYPE y)
++{
++  counts[C][C_pow]++;
++  P ();
++  return x + y;
++}
++
++TYPE
++(F(fma)) (TYPE x, TYPE y, TYPE z)
++{
++  counts[T][C_fma]++;
++  P ();
++  return x + y + z;
++}
++
++#undef F
++#undef TYPE
++#undef CTYPE
++#undef T
++#undef C
++#undef P
++#endif
+===================================================================
+RCS file: /cvs/glibc/libc/math/test-tgmath.c,v
+retrieving revision 1.6
+retrieving revision 1.7
+diff -u -r1.6 -r1.7
+--- libc/math/test-tgmath.c	2004/04/04 09:30:57	1.6
++++ libc/math/test-tgmath.c	2007/07/12 18:10:22	1.7
+@@ -1,5 +1,5 @@
+ /* Test compilation of tgmath macros.
+-   Copyright (C) 2001, 2003, 2004 Free Software Foundation, Inc.
++   Copyright (C) 2001, 2003, 2004, 2007 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+    Contributed by Jakub Jelinek <jakub@redhat.com> and
+    Ulrich Drepper <drepper@redhat.com>, 2001.
+@@ -37,13 +37,23 @@
+ float fx;
+ double dx;
+ long double lx;
++const float fy = 1.25;
++const double dy = 1.25;
++const long double ly = 1.25;
++complex float fz;
++complex double dz;
++complex long double lz;
+ 
+ int count_double;
+ int count_float;
+ int count_ldouble;
++int count_cdouble;
++int count_cfloat;
++int count_cldouble;
+ 
+ #define NCALLS     115
+ #define NCALLS_INT 4
++#define NCCALLS    47
+ 
+ int
+ main (void)
+@@ -51,13 +61,14 @@
+   int result = 0;
+ 
+   count_float = count_double = count_ldouble = 0;
++  count_cfloat = count_cdouble = count_cldouble = 0;
+   compile_test ();
+-  if (count_float != 0)
++  if (count_float != 0 || count_cfloat != 0)
+     {
+       puts ("float function called for double test");
+       result = 1;
+     }
+-  if (count_ldouble != 0)
++  if (count_ldouble != 0 || count_cldouble != 0)
+     {
+       puts ("long double function called for double test");
+       result = 1;
+@@ -74,15 +85,28 @@
+ 	      count_double);
+       result = 1;
+     }
++  if (count_cdouble < NCCALLS)
++    {
++      printf ("double complex functions not called often enough (%d)\n",
++	      count_cdouble);
++      result = 1;
++    }
++  else if (count_cdouble > NCCALLS)
++    {
++      printf ("double complex functions called too often (%d)\n",
++	      count_cdouble);
++      result = 1;
++    }
+ 
+   count_float = count_double = count_ldouble = 0;
++  count_cfloat = count_cdouble = count_cldouble = 0;
+   compile_testf ();
+-  if (count_double != 0)
++  if (count_double != 0 || count_cdouble != 0)
+     {
+       puts ("double function called for float test");
+       result = 1;
+     }
+-  if (count_ldouble != 0)
++  if (count_ldouble != 0 || count_cldouble != 0)
+     {
+       puts ("long double function called for float test");
+       result = 1;
+@@ -98,16 +122,29 @@
+ 	      count_double);
+       result = 1;
+     }
++  if (count_cfloat < NCCALLS)
++    {
++      printf ("float complex functions not called often enough (%d)\n",
++	      count_cfloat);
++      result = 1;
++    }
++  else if (count_cfloat > NCCALLS)
++    {
++      printf ("float complex functions called too often (%d)\n",
++	      count_cfloat);
++      result = 1;
++    }
+ 
+ #ifndef NO_LONG_DOUBLE
+   count_float = count_double = count_ldouble = 0;
++  count_cfloat = count_cdouble = count_cldouble = 0;
+   compile_testl ();
+-  if (count_float != 0)
++  if (count_float != 0 || count_cfloat != 0)
+     {
+       puts ("float function called for long double test");
+       result = 1;
+     }
+-  if (count_double != 0)
++  if (count_double != 0 || count_cdouble != 0)
+     {
+       puts ("double function called for long double test");
+       result = 1;
+@@ -124,6 +161,18 @@
+ 	      count_double);
+       result = 1;
+     }
++  if (count_cldouble < NCCALLS)
++    {
++      printf ("long double complex functions not called often enough (%d)\n",
++	      count_cldouble);
++      result = 1;
++    }
++  else if (count_cldouble > NCCALLS)
++    {
++      printf ("long double complex functions called too often (%d)\n",
++	      count_cldouble);
++      result = 1;
++    }
+ #endif
+ 
+   return result;
+@@ -136,20 +185,29 @@
+ #define TYPE double
+ #define TEST_INT 1
+ #define x dx
++#define y dy
++#define z dz
+ #define count count_double
++#define ccount count_cdouble
+ #include "test-tgmath.c"
+ 
+ #define F(name) name##f
+ #define TYPE float
+ #define x fx
++#define y fy
++#define z fz
+ #define count count_float
++#define ccount count_cfloat
+ #include "test-tgmath.c"
+ 
+ #ifndef NO_LONG_DOUBLE
+ #define F(name) name##l
+ #define TYPE long double
+ #define x lx
++#define y ly
++#define z lz
+ #define count count_ldouble
++#define ccount count_cldouble
+ #include "test-tgmath.c"
+ #endif
+ 
+@@ -165,7 +223,9 @@
+ F(compile_test) (void)
+ {
+   TYPE a, b, c = 1.0;
++  complex TYPE d;
+   int i;
++  int saved_count;
+   long int j;
+   long long int k;
+ 
+@@ -228,14 +288,137 @@
+   c = fma (i, b, i);
+   a = pow (i, c);
+ #endif
++  x = a + b + c + i + j + k;
++
++  saved_count = count;
++  if (ccount != 0)
++    ccount = -10000;
++
++  d = cos (cos (z));
++  z = acos (acos (d));
++  d = sin (sin (z));
++  z = asin (asin (d));
++  d = tan (tan (z));
++  z = atan (atan (d));
++  d = cosh (cosh (z));
++  z = acosh (acosh (d));
++  d = sinh (sinh (z));
++  z = asinh (asinh (d));
++  d = tanh (tanh (z));
++  z = atanh (atanh (d));
++  d = exp (exp (z));
++  z = log (log (d));
++  d = sqrt (sqrt (z));
++  z = conj (conj (d));
++  d = fabs (conj (a));
++  z = pow (pow (a, d), pow (b, z));
++  d = cproj (cproj (z));
++  z += fabs (cproj (a));
++  a = carg (carg (z));
++  b = creal (creal (d));
++  c = cimag (cimag (z));
++  x += a + b + c + i + j + k;
++  z += d;
++
++  if (saved_count != count)
++    count = -10000;
++
++  if (0)
++    {
++      a = cos (y);
++      a = acos (y);
++      a = sin (y);
++      a = asin (y);
++      a = tan (y);
++      a = atan (y);
++      a = atan2 (y, y);
++      a = cosh (y);
++      a = acosh (y);
++      a = sinh (y);
++      a = asinh (y);
++      a = tanh (y);
++      a = atanh (y);
++      a = exp (y);
++      a = log (y);
++      a = log10 (y);
++      a = ldexp (y, 5);
++      a = frexp (y, &i);
++      a = expm1 (y);
++      a = log1p (y);
++      a = logb (y);
++      a = exp2 (y);
++      a = log2 (y);
++      a = pow (y, y);
++      a = sqrt (y);
++      a = hypot (y, y);
++      a = cbrt (y);
++      a = ceil (y);
++      a = fabs (y);
++      a = floor (y);
++      a = fmod (y, y);
++      a = nearbyint (y);
++      a = round (y);
++      a = trunc (y);
++      a = remquo (y, y, &i);
++      j = lrint (y) + lround (y);
++      k = llrint (y) + llround (y);
++      a = erf (y);
++      a = erfc (y);
++      a = tgamma (y);
++      a = lgamma (y);
++      a = rint (y);
++      a = nextafter (y, y);
++      a = nexttoward (y, y);
++      a = remainder (y, y);
++      a = scalb (y, (const TYPE) (6));
++      k = scalbn (y, 7) + scalbln (y, 10l);
++      i = ilogb (y);
++      a = fdim (y, y);
++      a = fmax (y, y);
++      a = fmin (y, y);
++      a = fma (y, y, y);
++
++#ifdef TEST_INT
++      a = atan2 (i, y);
++      a = remquo (i, y, &i);
++      a = fma (i, y, i);
++      a = pow (i, y);
++#endif
++
++      d = cos ((const complex TYPE) z);
++      d = acos ((const complex TYPE) z);
++      d = sin ((const complex TYPE) z);
++      d = asin ((const complex TYPE) z);
++      d = tan ((const complex TYPE) z);
++      d = atan ((const complex TYPE) z);
++      d = cosh ((const complex TYPE) z);
++      d = acosh ((const complex TYPE) z);
++      d = sinh ((const complex TYPE) z);
++      d = asinh ((const complex TYPE) z);
++      d = tanh ((const complex TYPE) z);
++      d = atanh ((const complex TYPE) z);
++      d = exp ((const complex TYPE) z);
++      d = log ((const complex TYPE) z);
++      d = sqrt ((const complex TYPE) z);
++      d = pow ((const complex TYPE) z, (const complex TYPE) z);
++      d = fabs ((const complex TYPE) z);
++      d = carg ((const complex TYPE) z);
++      d = creal ((const complex TYPE) z);
++      d = cimag ((const complex TYPE) z);
++      d = conj ((const complex TYPE) z);
++      d = cproj ((const complex TYPE) z);
++    }
+ }
+ #undef x
++#undef y
++#undef z
+ 
+ 
+ TYPE
+ (F(cos)) (TYPE x)
+ {
+   ++count;
++  P ();
+   return x;
+ }
+ 
+@@ -243,7 +426,7 @@
+ (F(acos)) (TYPE x)
+ {
+   ++count;
+-  P();
++  P ();
+   return x;
+ }
+ 
+@@ -251,7 +434,7 @@
+ (F(sin)) (TYPE x)
+ {
+   ++count;
+-  P();
++  P ();
+   return x;
+ }
+ 
+@@ -259,7 +442,7 @@
+ (F(asin)) (TYPE x)
+ {
+   ++count;
+-  P();
++  P ();
+   return x;
+ }
+ 
+@@ -267,7 +450,7 @@
+ (F(tan)) (TYPE x)
+ {
+   ++count;
+-  P();
++  P ();
+   return x;
+ }
+ 
+@@ -275,7 +458,7 @@
+ (F(atan)) (TYPE x)
+ {
+   ++count;
+-  P();
++  P ();
+   return x;
+ }
+ 
+@@ -283,7 +466,7 @@
+ (F(atan2)) (TYPE x, TYPE y)
+ {
+   ++count;
+-  P();
++  P ();
+   return x + y;
+ }
+ 
+@@ -291,7 +474,7 @@
+ (F(cosh)) (TYPE x)
+ {
+   ++count;
+-  P();
++  P ();
+   return x;
+ }
+ 
+@@ -299,7 +482,7 @@
+ (F(acosh)) (TYPE x)
+ {
+   ++count;
+-  P();
++  P ();
+   return x;
+ }
+ 
+@@ -307,7 +490,7 @@
+ (F(sinh)) (TYPE x)
+ {
+   ++count;
+-  P();
++  P ();
+   return x;
+ }
+ 
+@@ -315,7 +498,7 @@
+ (F(asinh)) (TYPE x)
+ {
+   ++count;
+-  P();
++  P ();
+   return x;
+ }
+ 
+@@ -323,7 +506,7 @@
+ (F(tanh)) (TYPE x)
+ {
+   ++count;
+-  P();
++  P ();
+   return x;
+ }
+ 
+@@ -331,7 +514,7 @@
+ (F(atanh)) (TYPE x)
+ {
+   ++count;
+-  P();
++  P ();
+   return x;
+ }
+ 
+@@ -339,7 +522,7 @@
+ (F(exp)) (TYPE x)
+ {
+   ++count;
+-  P();
++  P ();
+   return x;
+ }
+ 
+@@ -347,7 +530,7 @@
+ (F(log)) (TYPE x)
+ {
+   ++count;
+-  P();
++  P ();
+   return x;
+ }
+ 
+@@ -355,7 +538,7 @@
+ (F(log10)) (TYPE x)
+ {
+   ++count;
+-  P();
++  P ();
+   return x;
+ }
+ 
+@@ -363,23 +546,23 @@
+ (F(ldexp)) (TYPE x, int y)
+ {
+   ++count;
+-  P();
+-  return x;
++  P ();
++  return x + y;
+ }
+ 
+ TYPE
+ (F(frexp)) (TYPE x, int *y)
+ {
+   ++count;
+-  P();
+-  return x;
++  P ();
++  return x + *y;
+ }
+ 
+ TYPE
+ (F(expm1)) (TYPE x)
+ {
+   ++count;
+-  P();
++  P ();
+   return x;
+ }
+ 
+@@ -387,7 +570,7 @@
+ (F(log1p)) (TYPE x)
+ {
+   ++count;
+-  P();
++  P ();
+   return x;
+ }
+ 
+@@ -395,7 +578,7 @@
+ (F(logb)) (TYPE x)
+ {
+   ++count;
+-  P();
++  P ();
+   return x;
+ }
+ 
+@@ -403,7 +586,7 @@
+ (F(exp2)) (TYPE x)
+ {
+   ++count;
+-  P();
++  P ();
+   return x;
+ }
+ 
+@@ -411,7 +594,7 @@
+ (F(log2)) (TYPE x)
+ {
+   ++count;
+-  P();
++  P ();
+   return x;
+ }
+ 
+@@ -419,7 +602,7 @@
+ (F(pow)) (TYPE x, TYPE y)
+ {
+   ++count;
+-  P();
++  P ();
+   return x + y;
+ }
+ 
+@@ -427,7 +610,7 @@
+ (F(sqrt)) (TYPE x)
+ {
+   ++count;
+-  P();
++  P ();
+   return x;
+ }
+ 
+@@ -435,7 +618,7 @@
+ (F(hypot)) (TYPE x, TYPE y)
+ {
+   ++count;
+-  P();
++  P ();
+   return x + y;
+ }
+ 
+@@ -443,7 +626,7 @@
+ (F(cbrt)) (TYPE x)
+ {
+   ++count;
+-  P();
++  P ();
+   return x;
+ }
+ 
+@@ -451,7 +634,7 @@
+ (F(ceil)) (TYPE x)
+ {
+   ++count;
+-  P();
++  P ();
+   return x;
+ }
+ 
+@@ -459,7 +642,7 @@
+ (F(fabs)) (TYPE x)
+ {
+   ++count;
+-  P();
++  P ();
+   return x;
+ }
+ 
+@@ -467,7 +650,7 @@
+ (F(floor)) (TYPE x)
+ {
+   ++count;
+-  P();
++  P ();
+   return x;
+ }
+ 
+@@ -475,7 +658,7 @@
+ (F(fmod)) (TYPE x, TYPE y)
+ {
+   ++count;
+-  P();
++  P ();
+   return x + y;
+ }
+ 
+@@ -483,7 +666,7 @@
+ (F(nearbyint)) (TYPE x)
+ {
+   ++count;
+-  P();
++  P ();
+   return x;
+ }
+ 
+@@ -491,7 +674,7 @@
+ (F(round)) (TYPE x)
+ {
+   ++count;
+-  P();
++  P ();
+   return x;
+ }
+ 
+@@ -499,7 +682,7 @@
+ (F(trunc)) (TYPE x)
+ {
+   ++count;
+-  P();
++  P ();
+   return x;
+ }
+ 
+@@ -507,15 +690,15 @@
+ (F(remquo)) (TYPE x, TYPE y, int *i)
+ {
+   ++count;
+-  P();
+-  return x + y;
++  P ();
++  return x + y + *i;
+ }
+ 
+ long int
+ (F(lrint)) (TYPE x)
+ {
+   ++count;
+-  P();
++  P ();
+   return x;
+ }
+ 
+@@ -523,7 +706,7 @@
+ (F(lround)) (TYPE x)
+ {
+   ++count;
+-  P();
++  P ();
+   return x;
+ }
+ 
+@@ -531,7 +714,7 @@
+ (F(llrint)) (TYPE x)
+ {
+   ++count;
+-  P();
++  P ();
+   return x;
+ }
+ 
+@@ -539,7 +722,7 @@
+ (F(llround)) (TYPE x)
+ {
+   ++count;
+-  P();
++  P ();
+   return x;
+ }
+ 
+@@ -547,7 +730,7 @@
+ (F(erf)) (TYPE x)
+ {
+   ++count;
+-  P();
++  P ();
+   return x;
+ }
+ 
+@@ -555,7 +738,7 @@
+ (F(erfc)) (TYPE x)
+ {
+   ++count;
+-  P();
++  P ();
+   return x;
+ }
+ 
+@@ -563,7 +746,7 @@
+ (F(tgamma)) (TYPE x)
+ {
+   ++count;
+-  P();
++  P ();
+   return x;
+ }
+ 
+@@ -571,7 +754,7 @@
+ (F(lgamma)) (TYPE x)
+ {
+   ++count;
+-  P();
++  P ();
+   return x;
+ }
+ 
+@@ -579,7 +762,7 @@
+ (F(rint)) (TYPE x)
+ {
+   ++count;
+-  P();
++  P ();
+   return x;
+ }
+ 
+@@ -587,7 +770,7 @@
+ (F(nextafter)) (TYPE x, TYPE y)
+ {
+   ++count;
+-  P();
++  P ();
+   return x + y;
+ }
+ 
+@@ -595,15 +778,15 @@
+ (F(nexttoward)) (TYPE x, long double y)
+ {
+   ++count;
+-  P();
+-  return x;
++  P ();
++  return x + y;
+ }
+ 
+ TYPE
+ (F(remainder)) (TYPE x, TYPE y)
+ {
+   ++count;
+-  P();
++  P ();
+   return x + y;
+ }
+ 
+@@ -611,7 +794,7 @@
+ (F(scalb)) (TYPE x, TYPE y)
+ {
+   ++count;
+-  P();
++  P ();
+   return x + y;
+ }
+ 
+@@ -619,23 +802,23 @@
+ (F(scalbn)) (TYPE x, int y)
+ {
+   ++count;
+-  P();
+-  return x;
++  P ();
++  return x + y;
+ }
+ 
+ TYPE
+ (F(scalbln)) (TYPE x, long int y)
+ {
+   ++count;
+-  P();
+-  return x;
++  P ();
++  return x + y;
+ }
+ 
+ int
+ (F(ilogb)) (TYPE x)
+ {
+   ++count;
+-  P();
++  P ();
+   return x;
+ }
+ 
+@@ -643,7 +826,7 @@
+ (F(fdim)) (TYPE x, TYPE y)
+ {
+   ++count;
+-  P();
++  P ();
+   return x + y;
+ }
+ 
+@@ -651,7 +834,7 @@
+ (F(fmin)) (TYPE x, TYPE y)
+ {
+   ++count;
+-  P();
++  P ();
+   return x + y;
+ }
+ 
+@@ -659,7 +842,7 @@
+ (F(fmax)) (TYPE x, TYPE y)
+ {
+   ++count;
+-  P();
++  P ();
+   return x + y;
+ }
+ 
+@@ -667,12 +850,189 @@
+ (F(fma)) (TYPE x, TYPE y, TYPE z)
+ {
+   ++count;
+-  P();
++  P ();
+   return x + y + z;
+ }
+ 
++complex TYPE
++(F(cacos)) (complex TYPE x)
++{
++  ++ccount;
++  P ();
++  return x;
++}
++
++complex TYPE
++(F(casin)) (complex TYPE x)
++{
++  ++ccount;
++  P ();
++  return x;
++}
++
++complex TYPE
++(F(catan)) (complex TYPE x)
++{
++  ++ccount;
++  P ();
++  return x;
++}
++
++complex TYPE
++(F(ccos)) (complex TYPE x)
++{
++  ++ccount;
++  P ();
++  return x;
++}
++
++complex TYPE
++(F(csin)) (complex TYPE x)
++{
++  ++ccount;
++  P ();
++  return x;
++}
++
++complex TYPE
++(F(ctan)) (complex TYPE x)
++{
++  ++ccount;
++  P ();
++  return x;
++}
++
++complex TYPE
++(F(cacosh)) (complex TYPE x)
++{
++  ++ccount;
++  P ();
++  return x;
++}
++
++complex TYPE
++(F(casinh)) (complex TYPE x)
++{
++  ++ccount;
++  P ();
++  return x;
++}
++
++complex TYPE
++(F(catanh)) (complex TYPE x)
++{
++  ++ccount;
++  P ();
++  return x;
++}
++
++complex TYPE
++(F(ccosh)) (complex TYPE x)
++{
++  ++ccount;
++  P ();
++  return x;
++}
++
++complex TYPE
++(F(csinh)) (complex TYPE x)
++{
++  ++ccount;
++  P ();
++  return x;
++}
++
++complex TYPE
++(F(ctanh)) (complex TYPE x)
++{
++  ++ccount;
++  P ();
++  return x;
++}
++
++complex TYPE
++(F(cexp)) (complex TYPE x)
++{
++  ++ccount;
++  P ();
++  return x;
++}
++
++complex TYPE
++(F(clog)) (complex TYPE x)
++{
++  ++ccount;
++  P ();
++  return x;
++}
++
++complex TYPE
++(F(csqrt)) (complex TYPE x)
++{
++  ++ccount;
++  P ();
++  return x;
++}
++
++complex TYPE
++(F(cpow)) (complex TYPE x, complex TYPE y)
++{
++  ++ccount;
++  P ();
++  return x + y;
++}
++
++TYPE
++(F(cabs)) (complex TYPE x)
++{
++  ++ccount;
++  P ();
++  return x;
++}
++
++TYPE
++(F(carg)) (complex TYPE x)
++{
++  ++ccount;
++  P ();
++  return x;
++}
++
++TYPE
++(F(creal)) (complex TYPE x)
++{
++  ++ccount;
++  P ();
++  return __real__ x;
++}
++
++TYPE
++(F(cimag)) (complex TYPE x)
++{
++  ++ccount;
++  P ();
++  return __imag__ x;
++}
++
++complex TYPE
++(F(conj)) (complex TYPE x)
++{
++  ++ccount;
++  P ();
++  return x;
++}
++
++complex TYPE
++(F(cproj)) (complex TYPE x)
++{
++  ++ccount;
++  P ();
++  return x;
++}
++
+ #undef F
+ #undef TYPE
+ #undef count
++#undef ccount
+ #undef TEST_INT
+ #endif
+===================================================================
+RCS file: /cvs/glibc/libc/math/Makefile,v
+retrieving revision 1.129
+retrieving revision 1.130
+diff -u -r1.129 -r1.130
+--- libc/math/Makefile	2006/02/28 07:05:45	1.129
++++ libc/math/Makefile	2007/07/12 18:10:35	1.130
+@@ -90,7 +90,7 @@
+ # Rules for the test suite.
+ tests = test-matherr test-fenv atest-exp atest-sincos atest-exp2 basic-test \
+ 	test-misc test-fpucw tst-definitions test-tgmath test-tgmath-ret \
+-	bug-nextafter bug-nexttoward bug-tgmath1 test-tgmath-int
++	bug-nextafter bug-nexttoward bug-tgmath1 test-tgmath-int test-tgmath2
+ # We do the `long double' tests only if this data type is available and
+ # distinct from `double'.
+ test-longdouble-yes = test-ldouble test-ildoubl
+@@ -129,6 +129,7 @@
+ CFLAGS-test-double.c = -fno-inline -ffloat-store -fno-builtin
+ CFLAGS-test-ldouble.c = -fno-inline -ffloat-store -fno-builtin
+ CFLAGS-test-tgmath.c = -fno-builtin
++CFLAGS-test-tgmath2.c = -fno-builtin
+ CFLAGS-test-tgmath-ret.c = -fno-builtin
+ CPPFLAGS-test-ifloat.c = -U__LIBC_INTERNAL_MATH_INLINES -D__FAST_MATH__ \
+ 			 -DTEST_FAST_MATH -fno-builtin

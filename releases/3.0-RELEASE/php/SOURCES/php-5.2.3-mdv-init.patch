@@ -1,0 +1,11 @@
+--- Zend/zend.h	2007-04-26 21:08:58.000000000 +0200
++++ Zend/zend.h.oden	2007-06-20 12:56:16.000000000 +0200
+@@ -565,7 +565,7 @@
+ 	(z)->refcount = 1;		\
+ 	(z)->is_ref = 0;
+ 
+-#define INIT_ZVAL(z) z = zval_used_for_init;
++#define INIT_ZVAL(z) memcpy(&z, &zval_used_for_init, sizeof(zval_used_for_init))
+ 
+ #define ALLOC_INIT_ZVAL(zp)						\
+ 	ALLOC_ZVAL(zp);		\

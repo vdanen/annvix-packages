@@ -1,0 +1,18 @@
+#!/bin/execlineb
+
+/bin/fdmove -c 2 1
+
+/sbin/chpst -e /etc/sysconfig/env/tcpsvd/
+/sbin/chpst -e ./env/
+
+/bin/multisubstitute {
+    import -D "localhost" HOSTNAME
+    import -D 0 IP
+    import -D 21 PORT
+    import -D 20 MAX_CONN
+    import -D 5 MAX_PER_HOST
+    import -D 20 MAX_BACKLOG
+}
+                        
+/sbin/tcpsvd -v -l ${HOSTNAME} -x peers.cdb -c ${MAX_CONN} -C ${MAX_PER_HOST} -b ${MAX_BACKLOG} ${IP} ${PORT}
+    /usr/sbin/ftpd -l -E -a

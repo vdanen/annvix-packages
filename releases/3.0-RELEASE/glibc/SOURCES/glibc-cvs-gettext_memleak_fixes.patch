@@ -1,0 +1,89 @@
+Hi!
+
+Although we store strduped encoding in convd->encoding, when we return NULL
+because __gconv_open failed, we haven't yet done domain->nconversions++
+and therefore that string will be definitely leaked.
+
+While testing this I also discovered that _nl_find_domain
+can leak memory on failure and so can dl-load.  The patch below fixes
+the two spots in intl and one in dl-load.c, though I'm afraid there are
+many other places in ld.so which can leak memory, as _dl_signal_*error
+is used pretty heavily.  E.g. when
+          /* It's a new directory.  Create an entry and add it.  */
+          dirp = (struct r_search_path_elem *)
+            malloc (sizeof (*dirp) + ncapstr * sizeof (enum r_dir_status)
+                    + where_len + len + 1);
+          if (dirp == NULL)
+            _dl_signal_error (ENOMEM, NULL, NULL,
+                              N_("cannot create cache for search path"));
+in fillin_rpath calls _dl_signal_error, copy and result in decompose_rpath
+are leaked.
+
+ 2007-08-03  Jakub Jelinek  <jakub@redhat.com>
+ 
+	* intl/dcigettext.c (_nl_find_msg): Free encoding if __gconv_open
+	failed.
+	* intl/finddomain.c (_nl_find_domain): Free normalized_codeset
+	on failure.
+
+	* elf/dl-load.c (decompose_rpath): Free copy if result couldn't be
+	allocated.
+
+===================================================================
+RCS file: /cvs/glibc/libc/elf/dl-load.c,v
+retrieving revision 1.287
+retrieving revision 1.288
+diff -u -r1.287 -r1.288
+--- libc/elf/dl-load.c	2007/07/12 18:15:27	1.287
++++ libc/elf/dl-load.c	2007/08/03 15:50:24	1.288
+@@ -578,6 +578,7 @@
+ 						  * sizeof (*result));
+   if (result == NULL)
+     {
++      free (copy);
+       errstring = N_("cannot create cache for search path");
+     signal_error:
+       _dl_signal_error (ENOMEM, NULL, NULL, errstring);
+===================================================================
+RCS file: /cvs/glibc/libc/intl/finddomain.c,v
+retrieving revision 1.36
+retrieving revision 1.37
+diff -u -r1.36 -r1.37
+--- libc/intl/finddomain.c	2007/07/12 18:16:39	1.36
++++ libc/intl/finddomain.c	2007/08/03 15:50:10	1.37
+@@ -143,7 +143,7 @@
+ 
+   if (retval == NULL)
+     /* This means we are out of core.  */
+-    return NULL;
++    goto out;
+ 
+   if (retval->decided <= 0)
+     _nl_load_domain (retval, domainbinding);
+@@ -159,6 +159,7 @@
+ 	}
+     }
+ 
++out:
+   /* The space for normalized_codeset is dynamically allocated.  Free it.  */
+   if (mask & XPG_NORM_CODESET)
+     free ((void *) normalized_codeset);
+===================================================================
+RCS file: /cvs/glibc/libc/intl/dcigettext.c,v
+retrieving revision 1.54
+retrieving revision 1.55
+diff -u -r1.54 -r1.55
+--- libc/intl/dcigettext.c	2007/07/28 19:00:59	1.54
++++ libc/intl/dcigettext.c	2007/08/03 15:49:59	1.55
+@@ -949,7 +949,10 @@
+ 			   nothing to do.  Otherwise do not use the
+ 			   translation at all.  */
+ 			if (__builtin_expect (r != __GCONV_NULCONV, 1))
+-			  return NULL;
++			  {
++			    free ((char *) encoding);
++			    return NULL;
++			  }
+ 
+ 			convd->conv = (__gconv_t) -1;
+ 		      }

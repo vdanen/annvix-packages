@@ -1,0 +1,268 @@
+--- mkinitrd-4.2.17/nash/nash.c.resume	2007-08-04 22:47:35.000000000 +0400
++++ mkinitrd-4.2.17/nash/nash.c	2007-08-04 22:47:35.000000000 +0400
+@@ -33,6 +33,7 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
++#include <limits.h>
+ #include <sys/ioctl.h>
+ #include <sys/mount.h>
+ #include <sys/socket.h>
+@@ -271,6 +272,78 @@
+     return NULL;
+ }
+ 
++static char *getpathbylabel(const char *label)
++{
++	char *device;
++	int major, minor;
++
++	if ((device = get_spec_by_volume_label(label, &major, &minor)) == NULL)
++		return NULL;
++
++	if (smartmknod(device, S_IFBLK | 0600, makedev(major, minor)) < 0)
++		return NULL;
++
++	return device;
++}
++
++static char *getpathbyrdev(const char *rdevstr)
++{
++	FILE *fp;
++	char line[128];
++	char *device = NULL;
++	static char buffer[128] = "/dev/";
++	int dmajor, dminor;
++	unsigned long rdev;
++
++	/* getpathbyrdev() is only called if isdigit(rdevstr[0]) */
++	errno = 0;
++	if ((rdev = strtoul(rdevstr, NULL, 16)) == ULONG_MAX && errno == ERANGE)
++		return NULL;
++	dmajor = (rdev >> 8) & 0xff;
++	dminor = rdev & 0xff;
++
++	if ((fp = fopen("/proc/partitions", "r")) == NULL)
++		return NULL;
++
++	while ((fgets(line, sizeof(line), fp)) != NULL) {
++		int major, minor;
++		unsigned long long nblocks;
++		if (sscanf(line, "%d %d %llu %s", &major, &minor, &nblocks, &buffer[5]) == 4) {
++			if (major == dmajor && minor == dminor) {
++				device = buffer;
++				break;
++			}
++		}
++	}
++	fclose(fp);
++
++	return device;
++}
++
++static char *getpathbyname(const char *name)
++{
++	char *cp, *buf = strdup(name);
++	cp = buf;
++	while (*cp && !isspace(*cp))
++		cp++;
++	*cp = '\0';
++	return buf;
++}
++
++static char *getpathbyspec(const char *spec)
++{
++	char *path;
++
++	if (strncmp(spec, "LABEL=", 6) == 0)
++		path = getpathbylabel(spec + 6);
++	else if (isxdigit(spec[0]))
++		path = getpathbyrdev(spec);
++	else
++		path = getpathbyname(spec);
++
++	return path;
++}
++
+ int mountCommand(char * cmd, char * end) {
+     char * fsType = NULL;
+     char * device;
+@@ -1086,6 +1159,132 @@
+     return 0;
+ }
+ 
++/* 2.6 magic swsusp stuff */
++static int
++resumeCommand(char * cmd, char * end)
++{
++    char * resumedev = NULL;
++    char * resume = NULL;
++    int fd;
++    struct stat sb;
++    char buf[25];
++    char uswresume_bin[] = "/bin/resume";
++    char uswconfig[] = "/etc/suspend.conf";
++    char uswresume_key[] = "resume device";
++
++    if (access("/sys/power/resume", W_OK)) {
++        /* eprintf("/sys/power/resume doesn't exist, can't resume!\n");*/
++        return 0;
++    }
++
++    if (getKernelArg("noresume")) {
++        printf("noresume passed, not resuming...\n");
++        return 0;
++    }
++
++    resume = getKernelArg("resume=");
++    if (resume) {
++	char *chptr = resume;
++	while (*chptr && !isspace(*chptr)) chptr++;
++	*chptr = '\0';
++        resumedev = getpathbyspec(resume);
++        if (resumedev == NULL) {
++            printf("Could not resolve resume device (%s)\n", resume);
++        } else if (access(resumedev, R_OK)) {
++            printf("Unable to access resume device (%s)\n", resumedev);
++            resumedev = NULL;
++        }
++    } else {
++        printf("No resume device specified\n");
++    }
++
++    do {
++        printf("Trying userspace resume from %s\n", resumedev ? resumedev : "suspend.conf file");
++
++        if (access(uswresume_bin, X_OK)) {
++            printf("No resume binary\n");
++            break;
++        }
++
++        if (smartmknod("/dev/snapshot", S_IFCHR | 0600, makedev(10, 231))) {
++            printf("Failed to create /dev/snapshot\n");
++            break;
++        }
++
++        if (!resumedev) {
++               FILE *conf = fopen(uswconfig, "r");
++               char line[256];
++               int has_resume_key = 0;
++               if (!conf < 0)
++                   break;
++               while (fgets(line, sizeof(line), conf)) {
++                   if (!strncmp(line, uswresume_key, strlen(uswresume_key))) {
++        	       char *conf_resumedev = strchr(line, '/');
++        	       if (conf_resumedev) {
++                           char *end = strchr(conf_resumedev, '\n');
++                           if (end) *end = '\0';
++                           if (!access(conf_resumedev, R_OK)) {
++                               has_resume_key = 1;
++                           } else {
++                               printf("Unable to access suspend.conf resume device (%s)\n", conf_resumedev);
++                           }
++                       }
++                       break;
++                   }
++               }
++               fclose(conf);
++               if (!has_resume_key) {
++                   printf("No resume device in suspend.conf\n");
++                   break;
++               }
++        }
++        if (resumedev) {
++            otherCommand(uswresume_bin, resumedev, resumedev + strlen(resumedev), 1);
++        } else {
++            otherCommand(uswresume_bin, uswresume_bin, NULL, 1);
++        }
++    } while (0);
++
++    if (!resumedev)
++        return 1;
++
++    printf("Trying in-kernel resume from %s\n", resumedev);
++
++    fd = open(resumedev, O_RDONLY);
++    if (fd < 0)
++        return 1;
++    if (lseek(fd, getpagesize() - 10, SEEK_SET) != getpagesize() - 10) {
++        close(fd);
++        return 1;
++    }
++    if (read(fd, &buf, 6) != 6) {
++        close(fd);
++        return 1;
++    }
++    if (strncmp(buf, "S1SUSP", 6) && strncmp(buf, "S2SUSP", 6)) {
++        printf("No suspend signature on swap, not resuming.\n");
++        close(fd);
++        return 1;
++    }
++
++    if (fstat(fd, &sb)) {
++        close(fd);
++        return 1;
++    }
++    close(fd);
++
++    printf("Resuming from %s.\n", resumedev);
++    fflush(stdout);
++    fd = open("/sys/power/resume", O_WRONLY);
++    memset(buf, '\0', 20);
++    snprintf(buf, 20, "%d:%d", major(sb.st_rdev), minor(sb.st_rdev));
++    write(fd, buf, 20);
++    close(fd);
++
++    printf("Resume failed.  Continuing with normal startup.\n");
++    return 0;
++}
++
+ int mkrootdevCommand(char * cmd, char * end) {
+     char * path;
+     char *root, * chptr;
+@@ -1923,6 +2122,8 @@
+ 	    rc = pivotrootCommand(chptr, end);
+         else if (!strncmp(start, "switchroot", MAX(10, chptr - start)))
+             rc = switchrootCommand(chptr, end);
++	else if (!strncmp(start, "resume", MAX(6, chptr - start)))
++		rc = resumeCommand(chptr, end);
+ 	else if (!strncmp(start, "mkrootdev", MAX(9, chptr - start)))
+ 	    rc = mkrootdevCommand(chptr, end);
+ 	else if (!strncmp(start, "umount", MAX(6, chptr - start)))
+--- mkinitrd-4.2.17/mkinitrd.resume	2007-08-04 22:47:35.000000000 +0400
++++ mkinitrd-4.2.17/mkinitrd	2007-08-04 22:47:35.000000000 +0400
+@@ -67,7 +67,7 @@
+     echo "       [--with=<module>] [--omit-scsi-modules] [--omit-raid-modules]" >&2
+     echo "       [--image-version] [--fstab=<fstab>] [--nocompress]" >&2
+     echo "       [--builtin=<module>] [--nopivot] [--noudev] [--allow-missing]" >&2
+-    echo "       [--tmpdir=<tmpdir>] [--initrdfs=<fs>]" >&2
++    echo "       [--tmpdir=<tmpdir>] [--initrdfs=<fs>] [--noresume]" >&2
+     echo "       [--dsdt[=<dsdt.aml>]] [--lvm-version=<1|2>] [--force-usb]" >&2
+     echo "       [--debug-busybox=<start|modload|pivot|exit>]" >&2
+     echo "       <initrd-image> <kernel-version>" >&2
+@@ -465,6 +465,10 @@
+ 		*) echo "Unsupported initrd fs ($initrdfs)." 1>&2 ; exit 1 ;;
+ 		esac
+ 	    ;;
++
++	--noresume)
++		noresume=1
++		;;
+ 	    
+ 	--version)
+ 	    echo "mkinitrd: version $VERSION"
+@@ -1159,6 +1163,14 @@
+     rootdev=/dev/root
+ fi
+ 
++if [ -z "$noresume" ]; then
++    if [ -x /usr/sbin/resume ]; then
++	inst /usr/sbin/resume $MNTIMAGE/bin
++	cp /etc/suspend.conf $MNTIMAGE/etc
++    fi
++    echo "resume" >> $RCFILE
++fi
++
+ if [ -n "$fatxloop" ]; then
+     echo "echo Run losetup since root device is mounted on loopback (Xbox)" >> $RCFILE
+     echo "losetup /dev/root /fatx/mandriva/rootfs" >> $RCFILE

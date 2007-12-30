@@ -1,0 +1,35 @@
+diff -urN squid-2.5.STABLE5/src/client_side.c squid-2.5.STABLE5-modified/src/client_side.c
+--- squid-2.5.STABLE5/src/client_side.c	2004-02-18 19:51:16.000000000 +0100
++++ squid-2.5.STABLE5-modified/src/client_side.c	2004-06-10 13:31:36.239797562 +0200
+@@ -84,6 +84,7 @@
+ static const char *const crlf = "\r\n";
+ 
+ #define FAILURE_MODE_TIME 300
++#define DANSGUARDIAN_IP_FORWARD
+ 
+ /* Local functions */
+ 
+@@ -809,6 +810,9 @@
+     clientHttpRequest **H;
+     ConnStateData *conn = http->conn;
+     StoreEntry *e;
++#ifdef DANSGUARDIAN_IP_FORWARD
++    String   s;
++#endif
+     request_t *request = http->request;
+     MemObject *mem = NULL;
+     debug(33, 3) ("httpRequestFree: %s\n", storeUrl(http->entry));
+@@ -835,6 +839,13 @@
+ 	    http->al.http.content_type = strBuf(mem->reply->content_type);
+ 	}
+ 	http->al.cache.caddr = conn->log_addr;
++#ifdef DANSGUARDIAN_IP_FORWARD
++ if (httpHeaderHas(&request->header, HDR_X_FORWARDED_FOR)) {
++     s = httpHeaderGetList(&request->header, HDR_X_FORWARDED_FOR);
++     if (! inet_pton (AF_INET,strBuf(s),&http->al.cache.caddr))
++       http->al.cache.caddr = conn->log_addr;
++ }
++#endif
+ 	http->al.cache.size = http->out.size;
+ 	http->al.cache.code = http->log_type;
+ 	http->al.cache.msec = tvSubMsec(http->start, current_time);

@@ -1,0 +1,44 @@
+.LP 
+\fBOpenLDAP\fR
+.LP 
+The OpenLDAP server is an open source implementation of the Lightweight Directory
+Access Protocol.  It is most often used when a database is required that is read-often
+and write-little (such as for user authentication, shared address books, etc.).
+.LP
+Each version of Annvix typically provides a newer stable release of OpenLDAP.  As a result, data
+needs to be migrated from the old version to the newer version.  Although the RPM
+scripts attempt to do this in a sane way, as a precaution, users should backup their
+LDAP data prior to the upgrade.
+.LP
+Making a backup of the LDAP database is as simple as using \fBslapcat\fR(8) to connect
+to the database and create a "dump" of the database to an LDIF file which could then
+be used to re-create the LDAP directory on a a fresh install.  To do so, use:
+.IP
+# /usr/sbin/slapcat >ldap-backup.ldif
+.LP
+or, if you wish to only create an LDIF file of a particular base DN, use:
+.IP
+# /usr/sbin/slapcat -b "dc=example,dc=com" >ldap-backup.ldif
+.LP
+The OpenLDAP server daemon (\fBslapd\fR(8)) should not be running to ensure consistency
+between the database and the generated LDIF file.  It reads the database files directly;
+you will have to be on the server itself in order to execute the command.
+.LP
+Once you have the backup, you can upgrade OpenLDAP.  If there are any problems with the
+import, or if you are migrating the data from one system to another, use the \fBslapadd\fR(8)
+program to import the data:
+.IP
+# /usr/sbin/slapadd -cv -l ldap-backup.ldif
+.LP
+If you backed up just a specific base DN, use:
+.IP
+# /usr/sbin/slapadd -cv -b "dc=example,dc=com" -l ldap-backup.ldif
+.LP
+When using slapadd, be sure that slapd is not running to ensure consistency
+of the database.
+.LP
+You should only use slapcat and slapadd together, and not as a replacement
+for using ldapadd because they do no schema checking or other coherency checks.
+.LP
+Creating backups of your OpenLDAP server periodically is a good idea to protect against
+corruption, unexpected changes, and especially upgrades.

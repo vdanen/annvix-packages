@@ -1,0 +1,71 @@
+--- mkinitrd-4.2.17/mkinitrd.omit_ide	2007-08-15 19:28:46.000000000 +0400
++++ mkinitrd-4.2.17/mkinitrd	2007-08-15 19:29:34.000000000 +0400
+@@ -64,8 +64,8 @@ fstab="/etc/fstab"
+ IGNOREMODS="$IGNOREMODS ppa imm ide-scsi"
+ 
+ usage () {
+-    echo "usage: `basename $0` [--version] [-v] [-f] [--preload <module>]" >&2
+-    echo "       [--with=<module>] [--omit-scsi-modules] [--omit-raid-modules]" >&2
++    echo "usage: `basename $0` [--version] [-v] [-f] [--preload <module>] [--with=<module>]" >&2
++    echo "       [--omit-scsi-modules] [--omit-raid-modules] [--omit-ide-modules]" >&2
+     echo "       [--image-version] [--fstab=<fstab>] [--nocompress]" >&2
+     echo "       [--builtin=<module>] [--nopivot] [--noudev] [--allow-missing]" >&2
+     echo "       [--tmpdir=<tmpdir>] [--initrdfs=<fs>] [--noresume] [--noresume2]" >&2
+@@ -538,6 +538,9 @@ while [ $# -gt 0 ]; do
+ 	--omit-raid-modules)
+ 	    noraid=1;
+ 	    ;;
++	--omit-ide-modules)
++	    noide=1;
++	    ;;
+ 	--lvm-version*)
+ 	    if echo $1 | grep -q '=' ; then
+ 	    	lvmver=`echo $1 | sed 's/^--lvm-version=//'`
+@@ -937,15 +940,17 @@ if [ -n "$scsimodules" ]; then
+     findmodule scsi_wait_scan
+ fi
+ 
+-for idedev in $nonscsidevices; do
+-    major=$((0x$(stat -L -c '%t' $idedev)))
+-    is_ide=`awk -v major=$major '$1 == major && $2 ~ /^ide[0-9]/ {print $2}' /proc/devices`
+-    if [ -n "$is_ide" ]; then
+-	idedevices="$idedevices $idedev"
+-    else
+-	nonidedevices="$nonidedevices $idedev"
+-    fi
+-done
++if [ -z "$noide" ]; then
++    for idedev in $nonscsidevices; do
++	major=$((0x$(stat -L -c '%t' $idedev)))
++	is_ide=`awk -v major=$major '$1 == major && $2 ~ /^ide[0-9]/ {print $2}' /proc/devices`
++	if [ -n "$is_ide" ]; then
++	    idedevices="$idedevices $idedev"
++	else
++	    nonidedevices="$nonidedevices $idedev"
++	fi
++    done
++fi
+ 
+ if [ -n "$idedevices" ]; then
+     # are we using modular ide?
+--- mkinitrd-4.2.17/mkinitrd.8.omit_ide	2007-08-15 19:28:45.000000000 +0400
++++ mkinitrd-4.2.17/mkinitrd.8	2007-08-15 19:33:09.000000000 +0400
+@@ -6,6 +6,7 @@ mkinitrd \- creates initial ramdisk imag
+ \fBmkinitrd\fR [--version] [-v] [-f] 
+          [--preload=\fImodule\fR] [--with=\fImodule\fR]
+          [--omit-scsi-modules] [--omit-raid-modules]
++         [--omit-ide-modules]
+          [--image-version] [--fstab=\fIfstab\fR] [--nocompress]
+          [--builtin=\fImodule\fR] [--nopivot] [--noudev]
+          [--allow-missing] [--tmpdir=\fItmpdir\fR]
+@@ -109,6 +110,10 @@ Do not load any scsi modules, including 
+ modules, even if they are present.
+ 
+ .TP
++\fB-\-omit-ide-modules 
++Do not load any IDE modules, even if they are present.
++
++.TP
+ \fB-\-preload=\fR\fImodule\fR
+ Load the module \fImodule\fR in the initial ramdisk image. The module gets
+ loaded before any autodetected modules.

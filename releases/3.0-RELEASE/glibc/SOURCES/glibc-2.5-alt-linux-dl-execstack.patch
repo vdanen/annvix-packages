@@ -1,0 +1,22 @@
+# Fix mprotect return code handling in _dl_make_stack_executable().
+
+--- glibc-2.5.orig/sysdeps/unix/sysv/linux/dl-execstack.c
++++ glibc-2.5/sysdeps/unix/sysv/linux/dl-execstack.c
+@@ -89,7 +89,7 @@ # if _STACK_GROWS_DOWN
+ 	page -= size;
+       else
+ 	{
+-	  if (errno != ENOMEM)	/* Unexpected failure mode.  */
++	  if (errno != ENOMEM && errno != EFAULT)	/* Unexpected failure mode.  */
+ 	    {
+ 	      result = errno;
+ 	      goto out;
+@@ -115,7 +115,7 @@ # elif _STACK_GROWS_UP
+ 	page += size;
+       else
+ 	{
+-	  if (errno != ENOMEM)	/* Unexpected failure mode.  */
++	  if (errno != ENOMEM && errno != EFAULT)	/* Unexpected failure mode.  */
+ 	    {
+ 	      result = errno;
+ 	      goto out;

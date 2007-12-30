@@ -1,0 +1,37 @@
+--- groff-1.19.2/contrib/groffer/groffer2.sh.cve-2004-0969	2005-08-22 16:13:05.000000000 -0600
++++ groff-1.19.2/contrib/groffer/groffer2.sh	2007-04-26 11:45:01.916120500 -0600
+@@ -4168,33 +4168,7 @@
+       _TMP_DIR="${mi_dir}"'/';
+       ;;
+     esac;
+-    _TMP_DIR="${_TMP_DIR}groffer${_PROCESS_ID}";
+-    if obj _TMP_DIR rm_tree
+-    then
+-      :
+-    else
+-      mi_tdir_="${_TMP_DIR}"_;
+-      mi_n=1;
+-      mi_tdir_n="${mi_tdir_}${mi_n}";
+-      while obj mi_tdir_n is_existing
+-      do
+-        if obj mi_tdir_n rm_tree
+-        then
+-          # directory could not be removed
+-          mi_n="$(expr "${mi_n}" + 1)";
+-          mi_tdir_n="${mi_tdir_}${mi_n}";
+-          continue;
+-        fi;
+-      done;
+-      _TMP_DIR="${mi_tdir_n}";
+-    fi;
+-    eval mkdir "${_TMP_DIR}";
+-    if is_not_equal "$?" 0
+-    then
+-      obj _TMP_DIR rm_tree;
+-      _TMP_DIR='';
+-      continue;
+-    fi;
++    _TMP_DIR="$(mktemp -d ${_TMP_DIR}groffer.XXXXXX)";
+     if obj _TMP_DIR is_dir && obj _TMP_DIR is_writable
+     then
+       # $_TMP_DIR can now be used as temporary directory

@@ -1,0 +1,17 @@
+=== Configure
+==================================================================
+--- Configure	(revision 2)
++++ Configure	(local)
+@@ -6871,10 +6871,10 @@
+ foreach $d (@candidates) {
+     if ($d lt $version) {
+ 	if ($d ge $api_versionstring) {
+-	    unshift(@inc_version_list, grep { -d } "$d/$archname", $d);
++	    unshift(@inc_version_list, "$d/$archname", $d);
+ 	}
+ 	elsif ($d ge "5.005") {
+-	    unshift(@inc_version_list, grep { -d } $d);
++	    unshift(@inc_version_list, $d);
+ 	}
+     }
+     else {

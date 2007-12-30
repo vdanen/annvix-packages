@@ -1,0 +1,131 @@
+--- snort-2.7.0.1/configure.in.lib64	2007-07-26 22:09:00.000000000 +0200
++++ snort-2.7.0.1/configure.in	2007-09-04 14:43:16.000000000 +0200
+@@ -129,6 +129,31 @@
+     extra_incl=-I/sw/include
+ esac
+ 
++case $host in
++*-*-linux*)
++  # Test if the compiler is 64bit
++  echo 'int i;' > conftest.$ac_ext
++  snort_cv_cc_64bit_output=no
++  if AC_TRY_EVAL(ac_compile); then
++    case `/usr/bin/file conftest.$ac_objext` in
++    *"ELF 64"*)
++     snort_cv_cc_64bit_output=yes
++      ;;
++    esac
++  fi
++  rm -rf conftest*
++  ;;
++esac
++
++case $host_cpu:$snort_cv_cc_64bit_output in
++powerpc64:yes | s390x:yes | sparc64:yes | x86_64:yes)
++  snort_libname="lib64"
++  ;;
++*:*)
++  snort_libname="lib"
++  ;;
++esac
++
+ # any sparc platform has to have this one defined.
+ AC_MSG_CHECKING(for sparc alignment)
+ if eval "echo $host_cpu|grep -i sparc >/dev/null"; then
+@@ -526,7 +551,7 @@
+         done
+       fi
+       if test -z "$MYSQL_LIB_DIR"; then
+-        str="$i/lib/libmysqlclient.*"
++        str="$i/$snort_libname/libmysqlclient.*"
+         for j in `echo $str`; do
+           if test -r $j; then
+             MYSQL_LIB_DIR=$i/lib
+@@ -579,7 +604,7 @@
+       if test "$mysql_fail" != "no"; then
+         tmp=""
+         for i in $mysql_lib_directory; do
+-          tmp="$tmp $i $i/lib $i/mysql $i/mysql/lib $i/lib/mysql"
++          tmp="$tmp $i $i/lib $i/mysql $i/mysql/lib $i/lib/mysql $i/$snort_libname/mysql"
+         done
+         FAIL_MESSAGE("mysqlclient library (libmysqlclient.*)", $tmp)
+       else
+@@ -635,19 +660,19 @@
+     fi
+   else
+ 
+-    str="$ODBC_DIR/lib/libodbc.*"
++    str="$ODBC_DIR/$snort_libname/libodbc.*"
+     for j in `echo $str`; do
+       if test -r $j; then 
+-        ODBC_LIB_DIR="$ODBC_DIR/lib"
++        ODBC_LIB_DIR="$ODBC_DIR/$snort_libname"
+         ODBC_LIB="odbc"
+       fi
+     done
+ 
+ dnl    if test -z "$ODBC_LIB_DIR"; then
+-dnl      str="$ODBC_DIR/lib/libiodbc.*"
++dnl      str="$ODBC_DIR/$snort_libname/libiodbc.*"
+ dnl      for j in `echo $str`; do
+ dnl        if test -r $j; then 
+-dnl          ODBC_LIB_DIR="$ODBC_DIR/lib"
++dnl          ODBC_LIB_DIR="$ODBC_DIR/$snort_libname"
+ dnl          ODBC_LIB="iodbc"
+ dnl        fi
+ dnl      done
+@@ -655,7 +680,7 @@
+ 
+     if test -z "$ODBC_LIB_DIR"; then
+       if test "$odbc_fail" != "no"; then
+-        FAIL_MESSAGE("odbc library (libodbc)", "$ODBC_DIR/lib")
++	 FAIL_MESSAGE("odbc library (libodbc)", "$ODBC_DIR/$snort_libname")
+       else
+         AC_MSG_RESULT(no)
+       fi
+@@ -738,7 +763,7 @@
+ 
+   if test -z "$POSTGRESQL_DIR"; then
+     for dir in $postgresql_directory; do
+-       for i in lib lib/pgsql; do
++       for i in $snort_libname $snort_libname/pgsql; do
+          str="$dir/$i/libpq.*"
+          for j in `echo $str`; do
+            if test -r $j; then
+@@ -755,7 +780,8 @@
+   if test -z "$POSTGRESQL_LIB_DIR"; then
+      if test "$postgresql_fail" != "no"; then
+        FAIL_MESSAGE("postgresql library libpq",
+-       "$POSTGRESQL_DIR/lib $POSTGRESQL_DIR/lib/pgsql")
++       "$POSTGRESQL_DIR/$snort_libname $POSTGRESQL_DIR/$snort_libname/pgsql")
++
+      else
+        AC_MSG_RESULT(no);
+      fi
+@@ -815,7 +841,7 @@
+     for i in rdbms/demo rdbms/public network/public; do
+       ORACLE_CPP_FLAGS="$ORACLE_CPP_FLAGS -I$ORACLE_DIR/$i"
+     done
+-    ORACLE_LIB_DIR="$ORACLE_DIR/lib"
++    ORACLE_LIB_DIR="$ORACLE_DIR/$snort_libname"
+     AC_MSG_RESULT(yes)
+ 
+     LDFLAGS="${LDFLAGS} -L${ORACLE_LIB_DIR}"
+@@ -1093,7 +1119,7 @@
+   fi
+ 
+   if test `libnet-config --cflags | wc -c` = "1"; then
+-    CPPFLAGS="${CPPFLAGS} -I/usr/local/include -I/sw/include"
++    CPPFLAGS="${CPPFLAGS}"
+     LIBNET_CONFIG_BROKEN_CFLAGS=yes
+   fi
+ 
+@@ -1101,7 +1127,7 @@
+     AC_MSG_WARN(libnet-config --libs is broken on your system.  If you)
+     AC_MSG_WARN(are using a precompiled package please notify the)
+     AC_MSG_WARN(maintainer.)
+-    LDFLAGS="${LDFLAGS} -L/usr/local/lib -L/sw/lib"
++    LDFLAGS="${LDFLAGS}"
+     LIBS="${LIBS} -lnet"
+   fi
+ 

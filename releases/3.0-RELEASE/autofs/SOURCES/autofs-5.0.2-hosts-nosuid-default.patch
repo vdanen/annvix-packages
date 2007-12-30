@@ -1,0 +1,76 @@
+diff -up autofs-5.0.1/modules/parse_sun.c.hosts-nosuid-default autofs-5.0.1/modules/parse_sun.c
+--- autofs-5.0.1/modules/parse_sun.c.hosts-nosuid-default	2007-12-05 17:07:25.000000000 +0900
++++ autofs-5.0.1/modules/parse_sun.c	2007-12-05 17:07:55.000000000 +0900
+@@ -496,6 +496,7 @@ static int sun_mount(struct autofs_point
+ 	int rv, cur_state;
+ 	char *mountpoint;
+ 	char *what;
++	char *type;
+ 
+ 	if (*options == '\0')
+ 		options = NULL;
+@@ -585,6 +586,36 @@ static int sun_mount(struct autofs_point
+ 	mountpoint = alloca(namelen + 1);
+ 	sprintf(mountpoint, "%.*s", namelen, name);
+ 
++	type = ap->entry->maps->type;
++	if (type && !strcmp(type, "hosts")) {
++		if (options) {
++			if (!strstr(options, "suid")) {
++				char *tmp = alloca(strlen(options) + 8);
++				if (!tmp) {
++					error(ap->logopt, MODPREFIX
++					      "alloca failed for options");
++					if (nonstrict)
++						return -1;
++					return 1;
++				}
++				strcpy(tmp, options);
++				strcat(tmp, ",nosuid");
++				options = tmp;
++			}
++		} else {
++			char *tmp = alloca(7);
++			if (!tmp) {
++				error(ap->logopt,
++				      MODPREFIX "alloca failed for options");
++				if (nonstrict)
++					return -1;
++				return 1;
++			}
++			strcpy(tmp, "nosuid");
++			options = tmp;
++		}
++	}
++
+ 	pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &cur_state);
+ 	if (!strcmp(fstype, "nfs")) {
+ 		what = alloca(loclen + 1);
+diff -up autofs-5.0.1/samples/auto.master.hosts-nosuid-default autofs-5.0.1/samples/auto.master
+--- autofs-5.0.1/samples/auto.master.hosts-nosuid-default	2007-12-05 17:07:24.000000000 +0900
++++ autofs-5.0.1/samples/auto.master	2007-12-05 17:07:55.000000000 +0900
+@@ -7,6 +7,11 @@
+ # For details of the format look at autofs(5).
+ #
+ /misc	/etc/auto.misc
++#
++# NOTE: mounts done from a hosts map will be mounted with the
++#	"nosuid" option unless the "suid" option is explicitly
++#	given.
++#
+ /net	-hosts
+ #
+ # Include central master map if it can be found using
+diff -up autofs-5.0.1/man/auto.master.5.in.hosts-nosuid-default autofs-5.0.1/man/auto.master.5.in
+--- autofs-5.0.1/man/auto.master.5.in.hosts-nosuid-default	2007-12-05 17:07:25.000000000 +0900
++++ autofs-5.0.1/man/auto.master.5.in	2007-12-05 17:07:55.000000000 +0900
+@@ -196,6 +196,9 @@ For example, with an entry in the master
+ .hy
+ accessing /net/myserver will mount exports from myserver on directories below
+ /net/myserver.
++.P
++NOTE: mounts done from a hosts map will be mounted with the "nosuid" option
++unless the "suid" option is explicitly given in the master map entry.
+ .SH LDAP MAPS
+ If the map type \fBldap\fP is specified the mapname is of the form
+ \fB[//servername/]dn\fP, where the optional \fBservername\fP is

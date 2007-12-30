@@ -1,0 +1,25 @@
+#!/bin/sh
+#
+# Annvix script to remove supervised service via rpm scriptlet
+#
+# Copyright (c) 2005 Vincent Danen <vdanen@annvix.org>
+#
+# $Id$
+
+if [ $# != 3 ]; then
+    echo "usage: ${0} <pkg name> <number installed> <service name>" 1>&2
+    exit 1
+fi
+
+pkg="${1}"				# name of the package
+num="${2}"				# number of packages installed
+srv="${3}"				# name of the service
+
+if [ ${num} = 0 ]; then
+    if [ -d /service/${srv} ]; then
+	/usr/sbin/srv --down ${srv} >/dev/null 2>&1 || :
+	/usr/sbin/srv --del ${srv}
+    fi
+fi
+
+# del-srv ends here

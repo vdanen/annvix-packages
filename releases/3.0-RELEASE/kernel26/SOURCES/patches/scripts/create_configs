@@ -1,0 +1,401 @@
+#!/usr/bin/perl
+
+# Copyright (C) 2002 by MandrakeSoft,
+# Juan Quintela <quintela@mandrakesoft.com>, 
+# Redistribution of this file is permitted under the terms of the GNU 
+# Public License (GPL)
+
+# stolen from use MDK::Common;
+
+sub dirname { local $_ = shift; s|[^/]*/*\s*$||; s|(.)/*$|$1|; $_ || '.' }
+sub basename { local $_ = shift; s|/*\s*$||; s|.*/||; $_ }
+
+
+my $version=0.5;
+
+my $acpi=1;
+my $user_cpu="none";
+my $user_nprocs="none";
+my $user_mem="none";
+my $user_name="none";
+my $debug=0;
+my $minimal=0;
+my $verbose=0;
+my $configs_dir="";
+
+my @archs = qw(i386 x86_64);
+
+my @configs = (
+     [ qw(i686 smp 64GB  smp) ],
+
+     [ qw(x86_64 smp none smp) ]
+);
+
+my %cpu2arch = (
+    i386   => i386,
+    i486   => i386,
+    i586   => i386,
+    i686   => i386,
+    p3     => i386,
+    athlon => i386,
+
+    x86_64 => x86_64
+);
+
+sub dprint { print @_ if $verbose; }
+
+sub mysystem { dprint @_, "\n"; system(@_); $? and die qq("@_" failed\n) }
+
+my (%values, %to_add);
+
+sub config_init_globals {
+    %values = %to_add = ();
+}
+
+sub config_nproc {
+    my ($nproc) = @_;
+    
+    if ($nproc eq "smp" ) {
+	$values{SMP} = "y";
+	$to_add{NR_CPUS} = "32";
+	$to_add{HOTPLUG_CPU } = "n";
+	$to_add{PREEMPT_BKL} = "n";
+    } else {
+	$values{SMP} = "n";
+    }
+}
+
+sub config_nproc_x86 {
+    my ($nproc) = @_;
+    
+    config_nproc($nproc);
+
+    if ($nproc eq "smp") {
+	$to_add{HOTPLUG_CPU} = "y";
+	$to_add{HOTPLUG_CPU} = "y";
+	$to_add{SCHED_SMT} = "y";
+	$to_add{IRQBALANCE} = "n";
+	$to_add{CPUSETS} = "n";
+	$to_add{NUMA} = "n";
+	$to_add{SCHED_MC} = "y";
+    } else {
+	$to_add{X86_UP_APIC} = "y";
+	$to_add{X86_UP_IOAPIC} = "y";
+	$values{I8K} = "m";
+	$values{TOSHIBA} = "m";
+	$values{SONYPI} = "m";
+	$values{VIDEO_MEYE} = "m";
+    }
+}
+
+sub config_nproc_x86_64 {
+    my ($nproc) = @_;
+
+    config_nproc($nproc);	
+    
+    if ($nproc eq "smp" ) {
+        $to_add{HOTPLUG_CPU} = "y";
+        $to_add{SCHED_SMT} = "n";
+        $to_add{K8_NUMA} = "y";
+        $to_add{X86_64_ACPI_NUMA} = "y";
+        $to_add{NUMA_EMU} = "n";
+        $to_add{ACPI_NUMA} = "y";
+        $to_add{NUMA} = "y";
+        $to_add{CPUSETS} = "n";
+        $to_add{SCHED_MC} = "y";
+        $to_add{MIGRATION} = "y";
+    } else {
+	# nothing from now
+    }
+}
+
+sub config_x86_highmem {
+    my ($mem) = @_;
+    
+    if ($mem eq "1GB" ) {
+	$values{HIGHMEM}= "n";
+	$values{HIGHMEM4G}= "n" ;
+	$values{HIGHMEM64G}= "n";
+	$values{NOHIGHMEM}= "y" ;
+	$values{HIGHPTE}= "n";
+	$values{VMSPLIT_3G} = "y";
+	$values{VMSPLIT_3G_OPT} = "n";
+	$values{VMSPLIT_2G} = "n";
+	$values{VMSPLIT_1G} = "n";
+    } elsif ($mem eq "4GB" ) {
+	$values{HIGHMEM}= "y";
+	$values{NOHIGHMEM}= "n" ;
+	$values{HIGHMEM4G}= "y" ;
+	$values{HIGHMEM64G}= "n" ;
+	$values{HIGHPTE}= "n";
+	$values{VMSPLIT_3G} = "y";
+	$values{VMSPLIT_3G_OPT} = "n";
+	$values{VMSPLIT_2G} = "n";
+	$values{VMSPLIT_1G} = "n";
+    } elsif ($mem eq "64GB") {
+	$values{HIGHMEM}= "y";
+	$values{NOHIGHMEM}= "n" ;
+	$values{HIGHMEM4G}= "n" ;
+	$values{HIGHMEM64G}= "y" ;
+	$values{HIGHPTE}= "n";
+	$values{VMSPLIT_3G} = "y";
+	$values{VMSPLIT_3G_OPT} = "n";
+	$values{VMSPLIT_2G} = "n";
+	$values{VMSPLIT_1G} = "n";
+	$to_add{I2O_EXT_ADAPTEC_DMA64} = "y";
+    }
+}
+
+sub config_x86_cpu {
+    my ($cpu) = @_;
+
+    if ($cpu eq "i386") {
+	$values{M686} = "n";
+	$values{M386} = "y";
+    } elsif ($cpu eq "i486") {
+	$values{M686} = "n";
+	$values{M486} = "y";
+    } elsif ($cpu eq "i586") {
+	$values{M686} = "n";
+	$values{M586} = "y";
+    } elsif ($cpu eq "i686") {
+        # nothing to do
+    } elsif ($cpu eq "p3") {
+	$values{M686} = "n";
+	$values{MPENTIUMIII} = "y";
+    } elsif ($cpu eq "athlon") {
+	$values{M686} = "n";
+	$values{MK7} = "y";
+    }
+}
+
+sub config_smp {
+    my ($name) =@_;
+
+	$values{PREEMPT_NONE} = "y";
+	$values{PREEMPT_VOLUNTARY} = "n";
+	$values{CPUSETS} = "y";
+	$values{HZ_100} = "y";
+	$values{HZ_1000} = "n";
+	$values{HZ} = "100";
+	$values{SWAP_PREFETCH} = "n";
+	$values{SERIAL_8250_NR_UARTS} = "32";
+	$values{SERIAL_8250_MANY_PORTS} = "y";
+	$values{DRBD} = "m";
+	$to_add{SERIAL_8250_FOURPORT} = "m";
+	$to_add{SERIAL_8250_ACCENT} = "m";
+	$to_add{SERIAL_8250_BOCA} = "m";
+	$to_add{SERIAL_8250_EXAR_ST16C554} = "m";
+	$to_add{SERIAL_8250_HUB6} = "m";
+}
+
+sub config_i386 {
+    my ($cpu, $nproc, $mem, $name) = @_;
+    dprint "config i386\n";
+
+    if ($debug == 0) {
+	$values{KALLSYMS_ALL} = "n";
+	$values{ACPI_DEBUG} = "n";
+	$values{DEBUG_STACKOVERFLOW} = "n";
+	$values{DEBUG_HIGHMEM} = "n";
+	$values{DEBUG_SLAB} = "n";
+	$values{SOFTWARE_SUSPEND_DEBUG} = "n";
+	$values{KGDB} = "n";
+	$values{KDB} = "n";
+	$to_add{DEBUG_PAGEALLOC} = "n";
+    }
+
+    config_x86_cpu($cpu);
+    config_nproc_x86($nproc);
+    config_x86_highmem($mem);
+
+    $values{ACPI_HT_ONLY}= "y" unless $acpi;
+    $to_add{USB_STORAGE_ONETOUCH} = "y";
+
+    config_smp() if $name eq "smp";
+}
+
+sub config_x86_64 {
+    my ($cpu, $nproc, $mem, $name) = @_;
+    dprint "config x86_64\n";
+
+    if ($debug == 0) {
+	$values{KALLSYMS_ALL} = "n";
+	$values{ACPI_DEBUG} = "n";
+	$values{DEBUG_INFO} = "n";
+	$values{DEBUG_HIGHMEM} = "n";
+	$values{DEBUG_SLAB} = "n";
+	$values{KGDB} = "n";
+	$values{KDB} = "n";
+    }
+
+    config_nproc_x86_64($nproc);
+
+    $values{ACPI_HT_ONLY}= "y" unless $acpi;
+    $to_add{USB_STORAGE_ONETOUCH} = "n";
+
+    config_smp() if $name eq "smp";
+}
+
+sub modify_config {
+    my ($old_file, $new_file) = @_;
+
+    dprint "modify_config $old_file $new_file\n";
+
+    open(IN, "$old_file") || die "can't open $old_file";
+    open(OUT, ">$new_file") || die "can't open $new_file";
+    
+    while (my ($key, $v) = each %to_add) {
+	if ($v eq "n") {
+	    dprint "disabling $key\n";
+	    $line = "# CONFIG_$key is not set\n";
+	} else {
+	    dprint "enabling $key with value $v\n";
+	    $line = "CONFIG_$key=$v\n";
+	}
+	print OUT $line;
+    }
+
+    while(<IN>) {
+	my $line = $_;
+
+	if (/^#\s*CONFIG_([A-Za-z_0-9]+)\s+is not set/) { 
+	    $key = $1;
+	} elsif (/^CONFIG_([A-Za-z_0-9]+)=/) {
+	    $key = $1;
+	}
+	dprint "dealing with key=$key and value**$values{$key}**\n";
+
+	if (exists $values{$key}) {
+	    if ($values{$key} eq "n") {
+		dprint "disabling $key\n";
+		$line = "# CONFIG_$key is not set\n";
+	    } else {
+		dprint "enabling $key with value $values{$key}\n";
+		$line = "CONFIG_$key=$values{$key}\n";
+	    }
+	}
+	print OUT $line;
+    }
+}
+
+
+sub config_name {
+    my ($cpu, $nproc, $mem, $name) = @_;
+    dprint "creating config name $cpu $nproc $mem $name\n";
+
+    if ( $name eq 'default' ) {
+	return "";
+    } elsif ($name eq 'none') {
+	@options = ($cpu, $nproc, $mem);
+	return "-" . join('-',grep(!/^none$/, @options));
+    } else {
+	return "-$name";
+    }
+}
+
+sub create_config {
+    my ($cpu, $nproc, $mem, $name) = @_;
+
+    my $arch = $cpu2arch{$cpu};
+    dprint "creating config $arch $cpu $nproc $mem $name\n";
+
+    config_init_globals();
+
+    # Notice that here we don't need make mrproper, because we are not
+    # going to compile (yet).
+
+    "config_$arch"->($cpu, $nproc, $mem, $name);
+    if ( "$arch" eq "xen" ) {
+        modify_config("arch/$arch/defconfig-$name", ".config");
+    } else {
+        modify_config("arch/$arch/defconfig-maximum", ".config");
+    }
+
+    mysystem("make ARCH=$arch oldconfig");
+
+    my $extension = config_name($cpu, $nproc, $mem, $name);
+    mysystem("install -m 644 .config arch/$arch/defconfig$extension");
+}
+
+sub create_all_configs {
+    foreach my $config (@configs) {
+	create_config @$config;
+    }
+}
+
+sub copy_all_defconfigs {
+    foreach my $arch (@archs) {
+	$file = "$configs_dir/$arch.config";
+	if ( -f $file ) {
+            dprint "dealing with $arch\n";
+	    mysystem "install -m 644 $file arch/$arch/defconfig-maximum";
+	} else {
+	    die "file $file don't exist";
+	}
+    }
+}
+
+sub usage {
+    my $name=basename($0);
+    print STDERR "usage: $name [-v] [--configs_dir=<configs_dir>]";
+    print STDERR "\t(ex: $name --configs_dir=../configs";
+}
+
+
+while ( $ARGV[0] =~ /^-/ ) {
+    $_ = shift;
+    if (m/^--verbose/) {
+	$verbose++;
+    } elsif (m/^-v/) {
+	$verbose++;
+    } elsif (m/^--acpi/) {
+	$acpi=1;
+    } elsif (m/^--no-acpi/) {
+	$acpi=0;
+    } elsif (m/^--debug/) {
+	$debug=1;
+    } elsif (m/^--no-debug/) {
+	$debug=0;
+    } elsif (m/^--minimal/) {
+	$minimal=1;
+    } elsif (m/^--no-minimal/) {
+	$minimal=0;
+    } elsif (m/^--user_cpu=(.*)/) {
+	$user_cpu=$1;
+    } elsif (m/^--user_nprocs=(.*)/) {
+	$user_nprocs=$1;
+    } elsif (m/^--user_mem=(.*)/) {
+	$user_mem=$1;
+    } elsif (m/^--user_name=(.*)/) {
+	$user_name=$1;
+    } elsif (m/^--configs_dir=(.*)/) {
+	$configs_dir=$1;
+    } else {
+	usage();
+	die "Unknow option $_";
+    }
+}
+
+if ("$configs_dir" eq "" ) {
+    $configs_dir= dirname($0) . "/../configs";
+}
+
+if (! -d "$configs_dir" ) {
+    die "$configs_dir is not a directory\n";
+}
+
+dprint "configs dir is: $configs_dir\n";
+dprint "acpi option value is: $acpi\n";
+dprint "cpu option value is: $user_cpu\n";
+dprint "nprocs option value is: $user_nprocs\n";
+dprint "mem option value is: $user_mem\n";
+dprint "name option value is: $user_name\n";
+dprint "debug option value is: $debug\n";
+dprint "mimimal option value is: $minimal\n";
+
+copy_all_defconfigs();
+create_all_configs();
+
+exit 0;
+

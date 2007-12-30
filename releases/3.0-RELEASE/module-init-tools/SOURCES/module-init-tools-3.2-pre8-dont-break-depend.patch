@@ -1,0 +1,11 @@
+--- module-init-tools-3.2-pre8/libmodprobe.c.dont-break-depend	2005-06-01 13:26:28.000000000 +0200
++++ module-init-tools-3.2-pre8/libmodprobe.c	2005-08-06 17:09:46.000000000 +0200
+@@ -808,7 +808,7 @@
+ 
+ 	/* Do things we (or parent) depend on first, but don't die if
+ 	 * they fail. */
+-	if (!list_empty(list)) {
++	while (!list_empty(list)) {
+ 		insmod(list, NOFAIL(strdup("")), NULL, 0, warn,
+ 		       dry_run, verbose, options, commands, 0, ignore_proc,
+ 		       strip_vermagic, strip_modversion, cmdline_opts);

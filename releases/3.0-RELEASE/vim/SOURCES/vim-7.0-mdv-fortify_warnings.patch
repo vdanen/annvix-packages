@@ -1,0 +1,12 @@
+diff -Naur vim70.orig/src/structs.h vim70/src/structs.h
+--- vim70.orig/src/structs.h	2006-04-09 17:57:46.000000000 +0000
++++ vim70/src/structs.h	2006-10-13 13:23:05.000000000 +0000
+@@ -1082,7 +1082,7 @@
+ {
+     typval_T	di_tv;		/* type and value of the variable */
+     char_u	di_flags;	/* flags (only used for variable) */
+-    char_u	di_key[1];	/* key (actually longer!) */
++    char_u	di_key[10];	/* key (actually longer!) */
+ };
+ 
+ typedef struct dictitem_S dictitem_T;

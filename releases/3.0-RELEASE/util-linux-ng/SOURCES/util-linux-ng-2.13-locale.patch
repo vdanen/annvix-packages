@@ -1,0 +1,21 @@
+diff --git a/include/nls.h b/include/nls.h
+index f571ca5..a7e9ca1 100644
+--- a/include/nls.h
++++ b/include/nls.h
+@@ -7,6 +7,8 @@ int main(int argc, char *argv[]);
+ #define LOCALEDIR "/usr/share/locale"
+ #endif
+ 
++# include <locale.h>
++
+ #ifdef ENABLE_NLS
+ # include <libintl.h>
+ # define _(Text) gettext (Text)
+@@ -16,7 +18,6 @@ int main(int argc, char *argv[]);
+ #  define N_(String) (String)
+ # endif
+ #else
+-# include <locale.h>
+ # undef bindtextdomain
+ # define bindtextdomain(Domain, Directory) /* empty */
+ # undef textdomain

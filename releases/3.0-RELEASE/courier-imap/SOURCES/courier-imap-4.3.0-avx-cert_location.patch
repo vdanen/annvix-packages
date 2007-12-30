@@ -1,0 +1,210 @@
+--- courier-imap-4.3.0/imap/mkimapdcert.8.in.avx	2007-04-22 09:33:32.000000000 -0600
++++ courier-imap-4.3.0/imap/mkimapdcert.8.in	2007-12-14 15:05:35.196287750 -0700
+@@ -21,18 +21,18 @@
+ .SH "DESCRIPTION"
+ .PP
+ IMAP over SSL requires a valid, signed, X.509 certificate. The default location for the certificate file is
+-\fI@datadir@/imapd.pem\fR.
++\fI@sysconfdir@/pki/tls/private/courier-imap.pem\fR.
+ \fBmkimapdcert\fR
+ generates a self\-signed X.509 certificate, mainly for testing. For production use the X.509 certificate must be signed by a recognized certificate authority, in order for mail clients to accept the certificate.
+ .PP
+ 
+-\fI@datadir@/imapd.pem\fR
++\fI@sysconfdir@/pki/tls/private/courier-imap.pem\fR
+ must be owned by the @mailuser@ user and have no group or world permissions. The
+ \fBmkimapdcert\fR
+ command will enforce this. To prevent an unfortunate accident,
+ \fBmkimapdcert\fR
+ will not work if
+-\fB@datadir@/imapd.pem\fR
++\fB@sysconfdir@/pki/tls/private/courier-imap.pem\fR
+ already exists.
+ .PP
+ 
+@@ -42,7 +42,7 @@
+ to be installed.
+ .SH "FILES"
+ .PP
+-@datadir@/imapd.pem
++@sysconfdir@/pki/tls/private/courier-imap.pem
+ .RS 4
+ X.509 certificate.
+ .RE
+--- courier-imap-4.3.0/imap/mkpop3dcert.8.in.avx	2007-04-22 09:33:36.000000000 -0600
++++ courier-imap-4.3.0/imap/mkpop3dcert.8.in	2007-12-14 15:05:56.689631000 -0700
+@@ -21,18 +21,18 @@
+ .SH "DESCRIPTION"
+ .PP
+ POP3 over SSL requires a valid, signed, X.509 certificate. The default location for the certificate file is
+-\fI@datadir@/pop3d.pem\fR.
++\fI@sysconfdir@/pki/tls/private/courier-pop.pem\fR.
+ \fBmkpop3dcert\fR
+ generates a self\-signed X.509 certificate, mainly for testing. For production use the X.509 certificate must be signed by a recognized certificate authority, in order for mail clients to accept the certificate.
+ .PP
+ 
+-\fI@datadir@/pop3d.pem\fR
++\fI@sysconfdir@/pki/tls/private/courier-pop.pem\fR
+ must be owned by the @mailuser@ user and have no group or world permissions. The
+ \fBmkpop3dcert\fR
+ command will enforce this. To prevent an unfortunate accident,
+ \fBmkpop3dcert\fR
+ will not work if
+-\fB@datadir@/pop3d.pem\fR
++\fB@sysconfdir@/pki/tls/private/courier-pop.pem\fR
+ already exists.
+ .PP
+ 
+@@ -42,7 +42,7 @@
+ to be installed.
+ .SH "FILES"
+ .PP
+-@datadir@/pop3d.pem
++@sysconfdir@/pki/tls/private/courier-pop.pem
+ .RS 4
+ X.509 certificate.
+ .RE
+--- courier-imap-4.3.0/imap/mkimapdcert.in.avx	2007-11-04 13:50:15.000000000 -0700
++++ courier-imap-4.3.0/imap/mkimapdcert.in	2007-12-14 15:02:15.081248750 -0700
+@@ -18,19 +18,19 @@
+ 
+ prefix="@prefix@"
+ 
+-if test -f @mydatadir@/imapd.pem
++if test -f @syconfdir@/pki/tls/private/courier-imap.pem
+ then
+-	echo "@mydatadir@/imapd.pem already exists."
++	echo "@sysconfdir@/pki/tls/private/courier-imap.pem already exists."
+ 	exit 1
+ fi
+ 
+ umask 077
+ 
+ cleanup() {
+-	rm -f @mydatadir@/imapd.pem
+-	rm -f @mydatadir@/imapd.rand
+-	rm -f @mydatadir@/imapd.key
+-	rm -f @mydatadir@/imapd.cert
++	rm -f @sysconfdir@/pki/tls/private/courier-imap.pem
++	rm -f @sysconfdir@/pki/tls/private/courier-imap.rand
++	rm -f @sysconfdir@/pki/tls/private/courier-imap.key
++	rm -f @sysconfdir@/pki/tls/private/courier-imap.cert
+ 	exit 1
+ }
+ 
+@@ -38,25 +38,25 @@
+ 
+ if test "@ssllib@" = "openssl"
+ then
+-	cp /dev/null @mydatadir@/imapd.pem
+-	chmod 600 @mydatadir@/imapd.pem
+-	chown @mailuser@ @mydatadir@/imapd.pem
++	cp /dev/null @sysconfdir@/pki/tls/private/courier-imap.pem
++	chmod 600 @sysconfdir@/pki/tls/private/courier-imap.pem
++	chown @mailuser@ @sysconfdir@/pki/tls/private/courier-imap.pem
+ 
+-	dd if=@RANDOMV@ of=@mydatadir@/imapd.rand count=1 2>/dev/null
++	dd if=@RANDOMV@ of=@sysconfdir@/pki/tls/private/courier-imap.rand count=1 2>/dev/null
+ 	@OPENSSL@ req -new -x509 -days 365 -nodes \
+-		  -config @sysconfdir@/imapd.cnf -out @mydatadir@/imapd.pem -keyout @mydatadir@/imapd.pem || cleanup
+-	@OPENSSL@ gendh -rand @mydatadir@/imapd.rand 512 >>@mydatadir@/imapd.pem || cleanup
+-	@OPENSSL@ x509 -subject -dates -fingerprint -noout -in @mydatadir@/imapd.pem || cleanup
+-	rm -f @mydatadir@/imapd.rand
++		  -config @sysconfdir@/courier-imap.cnf -out @sysconfdir@/pki/tls/private/courier-imap.pem -keyout @sysconfdir@/pki/tls/private/courier-imap.pem || cleanup
++	@OPENSSL@ gendh -rand @sysconfdir@/pki/tls/private/courier-imap.rand 512 >>@sysconfdir@/pki/tls/private/courier-imap.pem || cleanup
++	@OPENSSL@ x509 -subject -dates -fingerprint -noout -in @sysconfdir@/pki/tls/private/courier-imap.pem || cleanup
++	rm -f @sysconfdir@/pki/tls/private/courier-imap.rand
+ else
+-	cp /dev/null @mydatadir@/imapd.key
+-	chmod 600 @mydatadir@/imapd.key
+-	cp /dev/null @mydatadir@/imapd.cert
+-	chmod 600 @mydatadir@/imapd.cert
+-
+-	@CERTTOOL@ --generate-privkey --outfile imapd.key
+-	@CERTTOOL@ --generate-self-signed --load-privkey imapd.key --outfile imapd.cert --template @sysconfdir@/imapd.cnf
+-	@CERTTOOL@ --generate-dh-params >>imapd.cert
+-	cat imapd.key imapd.cert >imapd.pem
+-	rm -f imapd.key imapd.cert
++	cp /dev/null @sysconfdir@/pki/tls/private/courier-imap.key
++	chmod 600 @sysconfdir@/pki/tls/private/courier-imap.key
++	cp /dev/null @sysconfdir@/pki/tls/private/courier-imap.cert
++	chmod 600 @sysconfdir@/pki/tls/private/courier-imap.cert
++
++	@CERTTOOL@ --generate-privkey --outfile courier-imap.key
++	@CERTTOOL@ --generate-self-signed --load-privkey courier-imap.key --outfile courier-imap.cert --template @sysconfdir@/courier-imap.cnf
++	@CERTTOOL@ --generate-dh-params >>courier-imap.cert
++	cat courier-imap.key courier-imap.cert >courier-imap.pem
++	rm -f courier-imap.key courier-imap.cert
+ fi
+--- courier-imap-4.3.0/imap/mkpop3dcert.in.avx	2007-11-04 13:50:15.000000000 -0700
++++ courier-imap-4.3.0/imap/mkpop3dcert.in	2007-12-14 15:04:58.273980250 -0700
+@@ -18,19 +18,19 @@
+ 
+ prefix="@prefix@"
+ 
+-if test -f @mydatadir@/pop3d.pem
++if test -f @sysconfdir@/pki/tls/private/courier-pop.pem
+ then
+-	echo "@mydatadir@/pop3d.pem already exists."
++	echo "@sysconfdir@/pki/tls/private/courier-pop.pem already exists."
+ 	exit 1
+ fi
+ 
+ umask 077
+ 
+ cleanup() {
+-	rm -f @mydatadir@/pop3d.pem
+-	rm -f @mydatadir@/pop3d.rand
+-	rm -f @mydatadir@/pop3d.key
+-	rm -f @mydatadir@/pop3d.cert
++	rm -f @sysconfdir@/pki/tls/private/courier-pop.pem
++	rm -f @sysconfdir@/pki/tls/private/courier-pop.rand
++	rm -f @sysconfdir@/pki/tls/private/courier-pop.key
++	rm -f @sysconfdir@/pki/tls/private/courier-pop.cert
+ 	exit 1
+ }
+ 
+@@ -38,25 +38,25 @@
+ 
+ if test "@ssllib@" = "openssl"
+ then
+-	cp /dev/null @mydatadir@/pop3d.pem
+-	chmod 600 @mydatadir@/pop3d.pem
+-	chown @mailuser@ @mydatadir@/pop3d.pem
++	cp /dev/null @sysconfdir@/pki/tls/private/courier-pop.pem
++	chmod 600 @sysconfdir@/pki/tls/private/courier-pop.pem
++	chown @mailuser@ @sysconfdir@/pki/tls/private/courier-pop.pem
+ 
+-	dd if=@RANDOMV@ of=@mydatadir@/pop3d.rand count=1 2>/dev/null
++	dd if=@RANDOMV@ of=@sysconfdir@/pki/tls/private/courier-pop.rand count=1 2>/dev/null
+ 	@OPENSSL@ req -new -x509 -days 365 -nodes \
+-		  -config @sysconfdir@/pop3d.cnf -out @mydatadir@/pop3d.pem -keyout @mydatadir@/pop3d.pem || cleanup
+-	@OPENSSL@ gendh -rand @mydatadir@/pop3d.rand 512 >>@mydatadir@/pop3d.pem || cleanup
+-	@OPENSSL@ x509 -subject -dates -fingerprint -noout -in @mydatadir@/pop3d.pem || cleanup
+-	rm -f @mydatadir@/pop3d.rand
++		  -config @sysconfdir@/courier-pop.cnf -out @sysconfdir@/pki/tls/private/courier-pop.pem -keyout @sysconfdir@/pki/tls/private/courier-pop.pem || cleanup
++	@OPENSSL@ gendh -rand @sysconfdir@/pki/tls/private/courier-pop.rand 512 >>@sysconfdir@/pki/tls/private/courier-pop.pem || cleanup
++	@OPENSSL@ x509 -subject -dates -fingerprint -noout -in @sysconfdir@/pki/tls/private/courier-pop.pem || cleanup
++	rm -f @sysconfdir@/pki/tls/private/courier-pop.rand
+ else
+-	cp /dev/null @mydatadir@/pop3d.key
+-	chmod 600 @mydatadir@/pop3d.key
+-	cp /dev/null @mydatadir@/pop3d.cert
+-	chmod 600 @mydatadir@/pop3d.cert
+-
+-	@CERTTOOL@ --generate-privkey --outfile pop3d.key
+-	@CERTTOOL@ --generate-self-signed --load-privkey pop3d.key --outfile pop3d.cert --template @sysconfdir@/pop3d.cnf
+-	@CERTTOOL@ --generate-dh-params >>pop3d.cert
+-	cat pop3d.key pop3d.cert >pop3d.pem
+-	rm -f pop3d.key pop3d.cert
++	cp /dev/null @sysconfdir@/pki/tls/private/courier-pop.key
++	chmod 600 @sysconfdir@/pki/tls/private/courier-pop.key
++	cp /dev/null @sysconfdir@/pki/tls/private/courier-pop.cert
++	chmod 600 @sysconfdir@/pki/tls/private/courier-pop.cert
++
++	@CERTTOOL@ --generate-privkey --outfile courier-pop.key
++	@CERTTOOL@ --generate-self-signed --load-privkey courier-pop.key --outfile courier-pop.cert --template @sysconfdir@/courier-pop.cnf
++	@CERTTOOL@ --generate-dh-params >>courier-pop.cert
++	cat courier-pop.key courier-pop.cert >courier-pop.pem
++	rm -f courier-pop.key courier-pop.cert
+ fi

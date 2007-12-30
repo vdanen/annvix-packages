@@ -1,0 +1,56 @@
+ 2007-06-17  Andreas Schwab  <schwab@suse.de>
+
+	* sysdeps/generic/initfini.c: Tell gcc about the nonstandard sections.
+	* sysdeps/pthread/pt-initfini.c: Tell gcc about the nonstandard
+	sections.
+
+===================================================================
+RCS file: /cvs/glibc/libc/nptl/sysdeps/pthread/pt-initfini.c,v
+retrieving revision 1.4
+retrieving revision 1.5
+diff -u -r1.4 -r1.5
+--- libc/nptl/sysdeps/pthread/pt-initfini.c	2005/02/26 01:33:57	1.4
++++ libc/nptl/sysdeps/pthread/pt-initfini.c	2007/06/17 18:02:01	1.5
+@@ -72,7 +72,7 @@
+ }
+ 
+ SECTION (".init");
+-extern void _init (void);
++extern void __attribute__ ((section (".init"))) _init (void);
+ void
+ _init (void)
+ {
+@@ -93,7 +93,7 @@
+ asm ("\n/*@_fini_PROLOG_BEGINS*/");
+ 
+ SECTION (".fini");
+-extern void _fini (void);
++extern void __attribute__ ((section (".fini"))) _fini (void);
+ void
+ _fini (void)
+ {
+===================================================================
+RCS file: /cvs/glibc/libc/sysdeps/generic/initfini.c,v
+retrieving revision 1.9
+retrieving revision 1.10
+diff -u -r1.9 -r1.10
+--- libc/sysdeps/generic/initfini.c	2004/08/16 04:50:53	1.9
++++ libc/sysdeps/generic/initfini.c	2007/06/17 18:02:40	1.10
+@@ -81,7 +81,7 @@
+ }
+ 
+ SECTION (".init");
+-extern void _init (void);
++extern void __attribute__ ((section (".init"))) _init (void);
+ void
+ _init (void)
+ {
+@@ -107,7 +107,7 @@
+ asm ("\n/*@_fini_PROLOG_BEGINS*/");
+ 
+ SECTION (".fini");
+-extern void _fini (void);
++extern void __attribute__ ((section (".fini"))) _fini (void);
+ void
+ _fini (void)
+ {

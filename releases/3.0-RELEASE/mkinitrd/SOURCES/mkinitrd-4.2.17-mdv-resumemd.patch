@@ -1,0 +1,80 @@
+--- mkinitrd-4.2.17/mkinitrd.resumemd	2006-09-14 21:50:26.000000000 +0200
++++ mkinitrd-4.2.17/mkinitrd	2006-09-14 21:50:01.000000000 +0200
+@@ -224,8 +224,6 @@
+ mddev() {
+     local -i major
+     local dev md mddevs
+-    local stack=${2-0}
+-    : ${stacked_md=0}
+     major=$((0x$(stat -L -c '%t' $1)))
+     if [ $major = 9 ]; then
+ 	# need to reverse the raiddevices list to account for
+@@ -237,10 +235,8 @@
+ 	[ -x /sbin/mdadm ] && mddevs=$(/sbin/mdadm -Dv $1 | awk '$1$2$3$4$NF ~ /^[0-9]+\// {print $NF}')
+ 	[ -z "$mddevs" ] && \
+ 	mddevs=$(awk '/^'$md'[[:space:]]*:/ {for (i=5;i<=NF;i++) {sub("\\[[0-9]*\\]","",$i); print "/dev/" $i } }' /proc/mdstat)
+-	[ -n "$mddevs" ] && stack=$(($stack + 1))
+-	[ $stack -gt $stacked_md ] && stacked_md=$stack
+ 	for dev in $mddevs; do
+-	    mddev $dev $stack
++	    mddev $dev
+ 	done
+     else
+ 	nonraiddevices="$nonraiddevices $1"
+@@ -1178,6 +1174,15 @@
+ 
+ if [ -n "$raiddevices" ]; then
+     echo "echo Activating md devices" >> $RCFILE
++    if [ -z "$noresume" -o -z "$noresume2" ]; then
++	if [ ! -x /sbin/mdadm ]; then
++	    echo "WARNING: resume disabled if booting from md and mdadm is not available" >&2
++	    noresume=1
++	    noresume2=1
++	else
++	    echo "echo 1 > /sys/module/md_mod/parameters/start_ro" >> $RCFILE
++	fi
++    fi
+     [ -x /sbin/mdadm ] && echo "DEVICE partitions" >| $MNTIMAGE/etc/mdadm.conf
+     for dev in $raiddevices; do
+ 	md=${dev##*/}
+@@ -1189,18 +1194,14 @@
+     	fi
+     done
+     if [ -x /sbin/mdassemble ]; then
+-	cp $verbose -aL /sbin/mdassemble $MNTIMAGE/sbin
+-	raidstart_command="mdassemble"
++	inst /sbin/mdassemble $MNTIMAGE/sbin
++    	echo mdassemble >> $RCFILE
+     elif [ -x /sbin/mdadm ]; then
+ 	inst /sbin/mdadm $MNTIMAGE/sbin
+-	raidstart_command="mdadm -A -s"
++	echo "mdadm -A -s" >> $RCFILE
+     else
+-	raidstart_command="raidautorun /dev/md${md}"
++	echo "raidautorun /dev/md${md}" >> $RCFILE
+     fi
+-    while [ $stacked_md -gt 0 ]; do
+-	echo $raidstart_command >> $RCFILE
+-	stacked_md=$(($stacked_md - 1))
+-    done
+ fi
+ 
+ if [ -n "$loopDev" ]; then
+@@ -1283,6 +1284,17 @@
+ [[ -z "$noresume" ]] && echo "resume" >> $RCFILE
+ [[ -z "$noresume2" ]] && echo "echo > /proc/suspend2/do_resume" >> $RCFILE
+ 
++if [ -z "$noresume" -o -z "$noresume2" ] && [ -n "$raiddevices" ]; then
++    echo "echo 0 > /sys/module/md_mod/parameters/start_ro" >> $RCFILE
++    if [ -x /sbin/mdassemble ]; then
++	echo "mdassemble" >> $RCFILE
++    else
++	for dev in $raiddevices; do
++	    echo "mdadm --readwrite $dev" >> $RCFILE
++        done
++    fi
++fi
++
+ if [ -n "$fatxloop" ]; then
+     echo "echo Run losetup since root device is mounted on loopback (Xbox)" >> $RCFILE
+     echo "losetup /dev/root /fatx/mandriva/rootfs" >> $RCFILE

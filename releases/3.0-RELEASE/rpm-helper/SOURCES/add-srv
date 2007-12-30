@@ -1,0 +1,39 @@
+#!/bin/sh
+#
+# Annvix script to restart supervised service via rpm scriptlet
+#
+# Copyright (c) 2005 Vincent Danen <vdanen@annvix.org>
+#
+# $Id$
+
+if [ $# != 3 ]; then
+    echo "usage: ${0} <pkg name> <number installed> <service name>" 1>&2
+    exit 1
+fi
+
+pkg="${1}"				# name of the package
+num="${2}"				# number of packages installed
+srv="${3}"				# name of the service
+
+if [ ${num} != 1 ]; then
+    # Upgrade mode: restart the service if already running
+    if [ -d /service/${srv} ]; then
+        SRVSTAT=`/sbin/sv status /service/${srv} 2>/dev/null | cut -d ';' -f 1 | egrep -q '^run: ' ; echo $?`
+        if [ "${SRVSTAT}" = "0" ]; then
+	    /usr/sbin/srv --restart ${srv} || :
+	    # restart services that depend of portmap
+	    if [ "${srv}" = "portmap" ]; then
+	        for s in amd autofs bootparamd clusternfs mcserv nfs nfslock ypserv ypbind yppasswdd ypxfrd; do
+		    if [ -d /service/${s} ]; then
+		        PSRVSTAT=`/sbin/sv status /service/${s} 2>/dev/null | cut -d ';' -f 1 | egrep -q '^run: ' ; echo $?`
+		        if [ "${PSRVSTAT}" = "0" ]; then
+			    /usr/sbin/srv --restart ${srv} || :
+		        fi
+		    fi
+	        done
+	    fi
+        fi
+    fi
+fi
+
+# add-srv ends here

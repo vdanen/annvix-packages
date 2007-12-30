@@ -1,0 +1,40 @@
+--- mkinitrd-4.2.17/mkinitrd.resume2	2007-01-18 12:50:33.000000000 +0100
++++ mkinitrd-4.2.17/mkinitrd	2007-01-18 12:50:33.000000000 +0100
+@@ -69,7 +69,7 @@
+     echo "       [--with=<module>] [--omit-scsi-modules] [--omit-raid-modules]" >&2
+     echo "       [--image-version] [--fstab=<fstab>] [--nocompress]" >&2
+     echo "       [--builtin=<module>] [--nopivot] [--noudev] [--allow-missing]" >&2
+-    echo "       [--tmpdir=<tmpdir>] [--initrdfs=<fs>] [--noresume]" >&2
++    echo "       [--tmpdir=<tmpdir>] [--initrdfs=<fs>] [--noresume] [--noresume2]" >&2
+     echo "       [--dsdt[=<dsdt.aml>]] [--lvm-version=<1|2>] [--force-usb]" >&2
+     echo "       [--force-evms] [--debug-busybox=<start|modload|pivot|exit>]" >&2
+     echo "       <initrd-image> <kernel-version>" >&2
+@@ -510,6 +510,10 @@
+ 		noresume=1
+ 		;;
+ 	    
++	--noresume2)
++		noresume2=1
++		;;
++	    
+ 	--version)
+ 	    echo "mkinitrd: version $VERSION"
+ 	    exit 0
+@@ -1013,6 +1017,9 @@
+     findmodule $n
+ done
+ 
++#add lzf compression for suspend2
++[[ -z "$noresume2" ]] && findmodule -lzf
++
+ if [ -n "$verbose" ]; then
+     echo "Using modules: $MODULES"
+ fi
+@@ -1280,6 +1287,7 @@
+     fi
+     echo "resume" >> $RCFILE
+ fi
++[[ -z "$noresume2" ]] && echo "echo 1 > /sys/power/suspend2/do_resume" >> $RCFILE
+ 
+ if [ -n "$fatxloop" ]; then
+     echo "echo Run losetup since root device is mounted on loopback (Xbox)" >> $RCFILE

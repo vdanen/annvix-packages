@@ -1,0 +1,11 @@
+--- aa-eventd.avx	2006-08-09 23:37:41.000000000 -0600
++++ aa-eventd	2006-08-09 23:37:53.000000000 -0600
+@@ -978,7 +978,7 @@
+ # fork off into the background.  we need to do this before we connect to
+ # the db, otherwise, we'll get an ugly error about rolling back a
+ # connection that's being destroyed
+-daemonize;
++#daemonize;
+ 
+ # automagically reap child processes
+ $SIG{INT} = \&sig_handler;

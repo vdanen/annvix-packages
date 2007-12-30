@@ -1,0 +1,70 @@
+# blino: adapt to canonicalize_mountpoint() modifications
+#        introduced in commit 89fde75b38cf8c99c1cc5c6b6c206de521e551f4
+
+commit 313c2fbe1fd5864ddaf78d1d253b0581aaaa2188
+Author: Karel Zak <kzak@redhat.com>
+Date:   Wed Nov 21 01:46:57 2007 +0100
+
+    mount: don't call canonicalize(SPEC) for cifs, smbfs and nfs
+    
+    When calling "mount -t smbfs //foo/bar /mnt/foo", mount.smbfs will be
+    called with /foo/bar if /foo/bar exists locally, and will display its
+    usage.
+    
+    The patch also removes duplicate canonicalize() from mounted()
+    function.
+    
+    Reported-By: Pascal Terjan <pterjan@linuxfr.org>
+    Signed-off-by: Karel Zak <kzak@redhat.com>
+
+diff --git a/mount/mount.c b/mount/mount.c
+index 4d2fefb..60fe4fe 100644
+--- a/mount/mount.c
++++ b/mount/mount.c
+@@ -1418,11 +1418,6 @@ mount_one (const char *spec, const char *node, const char *types,
+ 	/* Merge the fstab and command line options.  */
+ 	opts = append_opt(opts, cmdlineopts, NULL);
+ 
+-	/* Handle possible LABEL= and UUID= forms of spec */
+-	nspec = fsprobe_get_devname_for_mounting(spec);
+-	if (nspec)
+-		spec = nspec;
+-
+ 	if (types == NULL && !mounttype && !is_existing_file(spec)) {
+ 		if (strchr (spec, ':') != NULL) {
+ 			types = "nfs";
+@@ -1439,6 +1434,15 @@ mount_one (const char *spec, const char *node, const char *types,
+ 		}
+ 	}
+ 
++	/* Handle possible LABEL= and UUID= forms of spec */
++	if (types == NULL || (strncmp(types, "nfs", 3) &&
++			      strncmp(types, "cifs", 4) &&
++			      strncmp(types, "smbfs", 5))) {
++		nspec = fsprobe_get_devname_for_mounting(spec);
++		if (nspec)
++			spec = nspec;
++	}
++
+ 	/*
+ 	 * Try to mount the file system. When the exit status is EX_BG,
+ 	 * we will retry in the background. Otherwise, we're done.
+@@ -1472,15 +1476,14 @@ mount_one (const char *spec, const char *node, const char *types,
+ static int
+ mounted (const char *spec0, const char *node0) {
+ 	struct mntentchn *mc, *mc0;
+-	char *spec, *node;
++	const char *spec, *node;
+ 	int ret = 0;
+ 
+ 	/* Handle possible UUID= and LABEL= in spec */
+-	spec0 = fsprobe_get_devname(spec0);
+-	if (!spec0)
++	spec = fsprobe_get_devname(spec0);
++	if (!spec)
+ 		return ret;
+ 
+-	spec = canonicalize(spec0);
+ 	node = canonicalize(node0);
+ 
+ 	mc0 = mtab_head();

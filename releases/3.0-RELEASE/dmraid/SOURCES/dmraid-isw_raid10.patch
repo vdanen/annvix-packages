@@ -1,0 +1,432 @@
+This patch adds raid10(0+1) nested raid level support to the Intel isw 
+metadata format handler in dmraid 1.0.0.rc14. 
+
+Signed-off-by: Jason Gaston <jason.d.gaston@intel.com>
+
+--- 1.0.0.rc14/lib/format/ataraid/isw.c.orig	2006-09-22 11:11:37.000000000 -0700
++++ 1.0.0.rc14/lib/format/ataraid/isw.c	2007-06-28 14:06:31.000000000 -0700
+@@ -25,30 +25,59 @@
+ #endif
+ 
+ static const char *handler = HANDLER;
++static struct isw_disk *_get_disk(struct isw *isw, struct dev_info *di);
++int is_raid10(struct isw *isw);
+ 
+-/*
+- * Make up RAID set name from family_num and volume name.
+- */
+-static size_t _name(struct isw *isw, struct isw_dev *dev,
+-		     char *str, size_t len)
++static size_t _name(struct isw *isw, char *str, size_t len, int subset,
++						int num, struct isw_dev *dev)
+ {
+-	return snprintf(str, len, dev ? "isw_%u_%s" : "isw_%u",
++	switch(subset) {
++	case 2:
++		return snprintf(str, len, "isw_%u", isw->family_num);
++	case 1:
++		if(!is_raid10(isw))
++			return snprintf(str, len, "isw_%u_%s",
+ 			isw->family_num, (char*) dev->volume);
+-}
++		else	
++			return snprintf(str, len, "isw_%u_%s-%u",
++				isw->family_num, (char*) dev->volume, num);
++	case 0:
++		return snprintf(str, len, "isw_%u_%s", isw->family_num,
++							(char*) dev->volume);
++	}
++	return 0;
++}
++
++static char *name(struct lib_context *lc, struct raid_dev *rd,
++						unsigned int subset)
++{
++	size_t len;
++	char *ret = NULL;
++	int id = 0;
++	struct isw *isw = META(rd, isw);
++	struct isw_disk *disk = isw->disk;
++	struct isw_dev *dev = (struct isw_dev*) (isw->disk + isw->num_disks);
+ 
+-static char *name(struct lib_context *lc, struct isw *isw, struct isw_dev *dev)
+-{
+-        size_t len;
+-        char *ret;
++	if((subset == 1) && (is_raid10(isw))) {
++		if ((disk = _get_disk(isw, rd->di))) {
++			if(disk == isw->disk)	id = 0;
++			else if(disk == isw->disk + 1)	id = 1;
++			else if(disk == isw->disk + 2)	id = 2;
++			else if(disk == isw->disk + 3)	id = 3;
++			else return ret;
++		}
++		id = id % 2;
++	}
+ 
+-        if ((ret = dbg_malloc((len = _name(isw, dev, NULL, 0) + 1)))) {
+-                _name(isw, dev, ret, len);
+-		mk_alpha(lc, ret + HANDLER_LEN, len - HANDLER_LEN -
+-			 (dev ? strlen((char*) dev->volume) - 2 : 1));
+-        } else
++	if ((ret = dbg_malloc((len = _name(isw, ret, 0, subset, id,
++							dev) + 1)))) {
++					_name(isw, ret, len, subset, id, dev);
++		mk_alpha(lc, ret + HANDLER_LEN, snprintf(ret, 0, "%u",
++							isw->family_num));
++	} else
+ 		log_alloc_err(lc, handler);
+ 
+-        return ret;
++	return ret;
+ }
+ 
+ /* Find a disk table slot by serial number. */
+@@ -59,7 +88,7 @@
+ 
+ 		do {
+ 			if (!strncmp(di->serial, (const char*) disk->serial,
+-				     MAX_RAID_SERIAL_LEN))
++							MAX_RAID_SERIAL_LEN))
+ 				return disk;
+ 		} while (++disk < isw->disk + isw->num_disks);
+ 	}
+@@ -102,21 +131,38 @@
+ }
+ 
+ /* Neutralize disk type. */
+-static enum type type(struct raid_dev *rd)
++static enum type type(struct isw *isw)
+ {
+ 	/* Mapping of Intel types to generic types. */
+ 	static struct types types[] = {
+ 	        { ISW_T_RAID0, t_raid0},
+ 	        { ISW_T_RAID1, t_raid1},
+ 	        { ISW_T_RAID5, t_raid5_la},
++	        { ISW_T_RAID10, t_raid0},
+ 	        { 0, t_undef},
+ 	};
+-	struct isw_dev *dev = rd->private.ptr;
++
++	struct isw_dev *dev = (struct isw_dev*) (isw->disk + isw->num_disks);
++	
++	if(is_raid10(isw))
++		dev->vol.map.raid_level = ISW_T_RAID10;
+ 
+ 	return dev ? rd_type(types, (unsigned int) dev->vol.map.raid_level) :
+ 		     t_group;
+ }
+ 
++int is_raid10(struct isw *isw)
++{
++	int ret;
++	struct isw_dev *dev = (struct isw_dev*) (isw->disk + isw->num_disks);
++
++	ret = ((dev->vol.map.raid_level == ISW_T_RAID10) ||
++			(dev->vol.map.raid_level == ISW_T_RAID1 &&
++			isw->num_disks > 3));
++
++	return ret;
++}
++
+ /*
+  * Generate checksum of Raid metadata for mpb_size/sizeof(u32) words
+  * (checksum field itself ignored for this calculation).
+@@ -298,7 +344,8 @@
+ }
+ 
+ /* Check for RAID disk ok. */
+-static int disk_ok(struct lib_context *lc, struct dev_info *di, struct isw *isw)
++static int disk_ok(struct lib_context *lc, struct dev_info *di,
++						struct isw *isw)
+ {
+ 	struct isw_disk *disk = get_disk(lc, di, isw);
+ 
+@@ -306,15 +353,15 @@
+ }
+ 
+ static void *isw_read_metadata(struct lib_context *lc, struct dev_info *di,
+-			       size_t *sz, uint64_t *offset,
+-			       union read_info *info)
++						size_t *sz, uint64_t *offset,
++						union read_info *info)
+ {
+ 	size_t size = ISW_DISK_BLOCK_SIZE;
+ 	uint64_t isw_sboffset = ISW_CONFIGOFFSET;
+ 	struct isw *isw;
+ 
+ 	if (!(isw = alloc_private_and_read(lc, handler, size,
+-					   di->path, isw_sboffset)))
++					di->path, isw_sboffset)))
+ 		goto out;
+ 
+ 	/*
+@@ -391,7 +438,7 @@
+  */
+ /* Check state if isw device map. */
+ static int _check_map_state(struct lib_context *lc, struct raid_dev *rd,
+-			    struct isw_dev *dev)
++							struct isw_dev *dev)
+ {
+ 	/* FIXME: FAILED_MAP etc. */
+ 	switch (dev->vol.map.map_state) {
+@@ -415,20 +462,27 @@
+ 	struct raid_dev *r;
+ 
+ 	if (!_check_map_state(lc, rd, dev) ||
+-	    !(r = alloc_raid_dev(lc, handler)))
++		!(r = alloc_raid_dev(lc, handler)))
+ 		return NULL;
+ 
+ 	if (!(r->private.ptr = alloc_private(lc, handler, sizeof(*dev))))
+ 		goto free;
+-
+ 	memcpy(r->private.ptr, dev, sizeof(*dev));
+-	if ((r->type = type(r)) == t_undef) {
++
++	if (!(r->meta_areas = alloc_meta_areas(lc, rd, handler, 1)))
++		return 0;
++
++	r->meta_areas->offset = rd->meta_areas->offset;
++	r->meta_areas->size = rd->meta_areas->size; 
++	r->meta_areas->area = rd->meta_areas->area; 
++
++	if ((r->type = type(isw)) == t_undef) {
+ 		log_err(lc, "%s: RAID type %u not supported",
+ 			handler, (unsigned int) dev->vol.map.raid_level);
+ 		goto free;
+ 	}
+ 
+-        if (!(r->name = name(lc, isw, dev)))
++        if (!(r->name = name(lc, rd, 1)))
+ 		goto free;
+ 
+ 	r->di = rd->di;
+@@ -460,43 +514,73 @@
+ 	return _get_disk(isw, RD(new)->di) < _get_disk(isw, RD(pos)->di);
+ }
+ 
++static void super_created(struct raid_set *super, void *private)
++{
++	super->type   = t_raid1;
++	super->stride = ((struct isw_dev*) private)->vol.map.blocks_per_strip;
++}
++
++static int set_sort(struct list_head *pos, struct list_head *new)
++{
++	return 0;
++}
++
+ /*
+  * rs_group contains the top-level group RAID set (type: t_group) on entry
+  * and shall be returned on success (or NULL on error).
+  */
+ static struct raid_set *group_rd(struct lib_context *lc,
+-				   struct raid_set *rs_group,
+-				   struct raid_dev *rd_meta)
++				struct raid_set *rs_group,
++				struct raid_dev *rd_meta)
+ {
+ 	unsigned int d;
+ 	void *private;
+ 	struct isw *isw = META(rd_meta, isw);
+ 	struct isw_dev *dev;
+ 	struct raid_dev *rd;
+-	struct raid_set *rs;
+-
++	struct raid_set *rs, *ss;
++	char *nm = NULL;
++		
+ 	/* Loop the device/volume table. */
+ 	for (d = 0; d < isw->num_raid_devs; d++) {
+ 		dev = raiddev(isw, d);
+-
++		
+ 		if (!(rd = _create_rd(lc, rd_meta, isw, dev)))
+ 			return NULL;
+ 
+-		if (!(rs = find_or_alloc_raid_set(lc, rd->name, FIND_ALL,
+-				      		  rd, &rs_group->sets,
+-						  create_rs, dev))) {
+-			free_raid_dev(lc, &rd);
+-			return NULL;
++		if(is_raid10(isw)) {
++			nm = name(lc, rd, 0);
++			ss = find_or_alloc_raid_set(lc, nm, FIND_TOP, rd,
++						LC_RS(lc), super_created, dev);
++	 		if (!(rs = find_or_alloc_raid_set(lc, rd->name,
++					FIND_ALL, rd, &ss->sets, create_rs,
++					dev))) {
++				free_raid_dev(lc, &rd);
++				return NULL;
++			}
++		} else {
++			if (!(rs = find_or_alloc_raid_set(lc, rd->name,
++						FIND_ALL, rd, &rs_group->sets,
++						create_rs, dev))) {
++				free_raid_dev(lc, &rd);
++				return NULL;
++			}
+ 		}
+ 
++		rs->status = s_ok;
++
+ 		/* Save and set to enable dev_sort(). */
+ 		private = rd->private.ptr;
+ 		rd->private.ptr = isw;
+-
+ 		list_add_sorted(lc, &rs->devs, &rd->devs, dev_sort);
+-
+ 		/* Restore. */
+ 		rd->private.ptr = private;
++
++		if(is_raid10(isw)) {
++			ss = join_superset(lc, name, super_created, set_sort,
++								rs, rd);
++			return ss;
++		}
+ 	}
+ 
+ 	return rs_group;
+@@ -504,31 +588,35 @@
+ 
+ /* Add an Intel SW RAID device to a set */
+ static struct raid_set *isw_group(struct lib_context *lc,
+-				    struct raid_dev *rd_meta)
++		struct raid_dev *rd_meta)
+ {
+-	struct raid_set *rs_group;
++	struct raid_set *rs_group = NULL;
++	struct isw *isw = META(rd_meta, isw);
+ 
+ 	if (T_SPARE(rd_meta))
+ 		return NULL;
+ 
+-	/*
+-	 * Once we get here, an Intel SW RAID disk containing a metadata area
+-	 * with a volume table has been discovered by isw_read.
+-	 */
+-	/* Check if a top level group RAID set already exists. */
+-	if (!(rs_group = find_or_alloc_raid_set(lc, rd_meta->name, FIND_TOP,
+-				      		rd_meta, LC_RS(lc),
+-						NO_CREATE, NO_CREATE_ARG)))
+-		return NULL;
++	if(!is_raid10(isw)) {
++		/*
++	 	* Once we get here, an Intel SW RAID disk containing a metadata
++		* area with a volume table has been discovered by isw_read.
++	 	*/
++		/* Check if a top level group RAID set already exists. */
++		if (!(rs_group = find_or_alloc_raid_set(lc, rd_meta->name,
++				FIND_TOP, rd_meta, LC_RS(lc),
++				NO_CREATE, NO_CREATE_ARG)))
++			return NULL;
+ 
+-	/*
+-	 * Add the whole underlying (meta) RAID device to the group set.
+-	 * Sorting is no problem here, because RAID sets and devices will
+-	 * be created for all the Volumes of an ISW set and those need sorting.
+-	 */
+-	rd_meta->private.ptr = rd_meta->meta_areas->area;
+-	list_add_sorted(lc, &rs_group->devs, &rd_meta->devs, dev_sort);
+-	rd_meta->private.ptr = NULL;
++		/*
++	 	* Add the whole underlying (meta) RAID device to the group set.
++	 	* Sorting is no problem here, because RAID sets and devices
++	 	* will be created for all the Volumes of an ISW set and those
++		* need sorting.
++	 	*/
++		rd_meta->private.ptr = rd_meta->meta_areas->area;
++		list_add_sorted(lc, &rs_group->devs, &rd_meta->devs, dev_sort);
++		rd_meta->private.ptr = NULL;
++	}
+ 
+ 	/*
+ 	 * We need to run through the volume table and create a RAID set and
+@@ -552,17 +640,16 @@
+ }
+ 
+ static int check_rd(struct lib_context *lc, struct raid_set *rs,
+-		    struct raid_dev *rd, void *context)
++				struct raid_dev *rd, void *context)
+ {
+ 	struct isw_dev *dev = rd->private.ptr;
+ 
+ 	/* FIXME: more status checks ? */
+ 	if (dev->status)
+ 		LOG_ERR(lc, 0, "%s device for volume \"%s\" broken on %s "
+-			"in RAID set \"%s\"",
+-			handler, dev->volume, rd->di->path, rs->name);
+-
+-	return 1;
++				"in RAID set \"%s\"", handler, dev->volume,
++				rd->di->path, rs->name);
++		return 1;
+ }
+ 
+ static int _isw_check(struct lib_context *lc, struct raid_set *rs)
+@@ -572,9 +659,14 @@
+ 
+ static int isw_check(struct lib_context *lc, struct raid_set *rs)
+ {
+-	return T_GROUP(rs) ? _isw_check(lc, rs) : 0;
++	/* If it is a stacked set like RAID10 */
++	if((!T_GROUP(rs)) && SETS(rs)) {
++		return check_raid_set(lc, rs, devices, NULL,
++				NO_CHECK_RD, NULL, handler);
++	} else {
++		return T_GROUP(rs) ? _isw_check(lc, rs) : 0;
++	}
+ }
+-
+ /*
+  * IO error event handler.
+  */
+@@ -585,7 +677,7 @@
+ 	struct isw_disk *disk;
+ 
+ 	if (!(disk = get_disk(lc, rd->di, isw)))
+-		LOG_ERR(lc, 0, "%s: disk", handler);
++			LOG_ERR(lc, 0, "%s: disk", handler);
+ 
+ 	/* Avoid write trashing. */
+ 	if (S_BROKEN(status(lc, rd)))
+@@ -629,7 +721,7 @@
+ 	for (i = 0; i < ISW_FILLERS; i++) {
+ 		if (isw->filler[i])
+         		P("filler[%i]: %u", isw,
+-			  isw->filler[i], i, isw->filler[i]);
++					isw->filler[i], i, isw->filler[i]);
+ 	}
+ 
+ 	/* Disk table. */
+@@ -744,7 +836,7 @@
+ static struct dmraid_format isw_format = {
+ 	.name	= HANDLER,
+ 	.descr	= "Intel Software RAID",
+-	.caps	= "0,1",
++	.caps	= "0,1,10",
+ 	.format = FMT_RAID,
+ 	.read	= isw_read,
+ 	.write	= isw_write,
+@@ -797,5 +889,7 @@
+ 	rd->status = status(lc, rd);
+ 	rd->type   = t_group;
+ 
+-        return (rd->name = name(lc, isw, NULL)) ? 1 : 0;
++        return (rd->name = name(lc, rd, 2)) ? 1 : 0;
+ }
++
++
+--- 1.0.0.rc14/lib/format/ataraid/isw.h.orig	2006-01-24 07:02:54.000000000 
+-0800
++++ 1.0.0.rc14/lib/format/ataraid/isw.h	2007-06-27 15:24:19.000000000 -0700
+@@ -68,6 +68,7 @@
+ 	uint8_t  raid_level;
+ #define	ISW_T_RAID0	0
+ #define	ISW_T_RAID1	1
++#define	ISW_T_RAID10	2
+ #define	ISW_T_RAID5	5		// since metadata version 1.2.02 ?
+ 	uint8_t  num_members;		// number of member disks
+ 	uint8_t  reserved[3];
+

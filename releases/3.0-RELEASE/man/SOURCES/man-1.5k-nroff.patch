@@ -1,0 +1,12 @@
+--- man-1.5k/src/man.conf.in.aaa	2003-01-08 17:54:10.000000000 +0100
++++ man-1.5k/src/man.conf.in	2003-01-08 17:55:34.000000000 +0100
+@@ -95,7 +95,8 @@
+ #
+ TROFF		@troff@
+ NROFF		@nroff@
+-JNROFF		@jnroff@
++# not used, the nroff script determines what to do for Japanese
++#JNROFF		@jnroff@
+ EQN		@eqn@
+ NEQN		@neqn@
+ JNEQN		@jneqn@

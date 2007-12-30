@@ -1,0 +1,33 @@
+# This logname can be set in /etc/my.cnf
+# by setting the variable "err-log"
+# in the [safe_mysqld] section as follows:
+#
+# [mysqld_safe]
+# err-log=/var/log/mysqld/mysqld.log
+#
+# If the root user has a password you have to create a
+# /root/.my.cnf configuration file with the following
+# content:
+#
+# [mysqladmin]
+# password = <secret> 
+# user= root
+#
+# where "<secret>" is the password. 
+#
+# ATTENTION: This /root/.my.cnf should be readable ONLY
+# for root !
+
+/var/log/mysqld/mysqld.log /var/log/mysqld/mysqlmanager.log {
+    notifempty
+    missingok
+    compress
+    rotate 3
+    create 0640 mysql mysql
+    postrotate
+        # only restart if mysqld is really running
+	if [ "`sv status /service/mysqld 2>/dev/null | cut -d ';' -f 1 | egrep -q '^run: ' ; echo $?`" == "0" ]; then
+                /usr/sbin/srv --restart mysqld
+        fi
+    endscript
+}

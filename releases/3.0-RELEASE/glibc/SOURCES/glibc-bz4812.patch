@@ -1,0 +1,21 @@
+ 2007-07-20  Jakub Jelinek  <jakub@redhat.com>
+ 
+	[BZ #4816]
+	* manual/signal.texi (Non-atomic Example): Make memory var volatile.
+
+===================================================================
+RCS file: /cvs/glibc/libc/manual/signal.texi,v
+retrieving revision 1.72
+retrieving revision 1.73
+diff -u -r1.72 -r1.73
+--- libc/manual/signal.texi	2006/11/10 21:10:22	1.72
++++ libc/manual/signal.texi	2007/07/20 08:03:19	1.73
+@@ -1966,7 +1966,7 @@
+ #include <signal.h>
+ #include <stdio.h>
+ 
+-struct two_words @{ int a, b; @} memory;
++volatile struct two_words @{ int a, b; @} memory;
+ 
+ void
+ handler(int signum)

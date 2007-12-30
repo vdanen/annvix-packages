@@ -1,0 +1,45 @@
+--- scripts/mysql_install_db.sh	2007-11-15 15:06:33.000000000 +0100
++++ scripts/mysql_install_db.sh.oden	2007-12-06 18:38:41.000000000 +0100
+@@ -209,7 +209,9 @@
+ then
+   basedir="@prefix@"
+   bindir="@bindir@"
+-  mysqld="@libexecdir@/mysqld"
++  # Use the mysqld-max binary by default if the user doesn't specify a binary
++  if test -x "@libexecdir@/mysqld"; then mysqld="@libexecdir@/mysqld"; fi
++  if test -x "@libexecdir@/mysqld-max"; then mysqld="@libexecdir@/mysqld-max"; fi
+   pkgdatadir="@pkgdatadir@"
+ else
+   bindir="$basedir/bin"
+@@ -256,6 +258,22 @@
+   fi
+ done
+ 
++# Use the mysqld-max binary by default if the user doesn't specify a binary
++if test -x $execdir/mysqld-max; then
++    mysqld=$execdir/mysqld-max
++elif test -x $execdir/mysqld; then
++    mysqld=$execdir/mysqld
++else
++    if test "$in_rpm" -eq 1; then
++	echo "FATAL ERROR $execdir/mysqld not found!"
++	exit 1
++    else
++	echo "Didn't find $execdir/mysqld"
++	echo "You should do a 'make install' before executing this script"
++	exit 1
++    fi
++fi
++
+ # Set up Windows-specific paths
+ if test "$windows" -eq 1
+ then
+@@ -316,7 +334,7 @@
+   if test ! -d $dir
+   then
+     mkdir -p $dir
+-    chmod 700 $dir
++    chmod 711 $dir
+   fi
+   if test -w / -a ! -z "$user"
+   then

@@ -1,0 +1,14 @@
+--- am-utils-6.1.5/amd/amd.c.avx	2006-12-16 16:07:57.000000000 -0700
++++ am-utils-6.1.5/amd/amd.c	2006-12-16 16:07:57.000000000 -0700
+@@ -542,8 +542,9 @@
+   }
+ #endif /* HAVE_MAP_NIS */
+ 
+-  if (!amuDebug(D_DAEMON))
+-    ppid = daemon_mode();
++/* never enter daemon mode */
++/*  if (!amuDebug(D_DAEMON))
++    ppid = daemon_mode(); */
+ 
+   /*
+    * Lock process text and data segment in memory.

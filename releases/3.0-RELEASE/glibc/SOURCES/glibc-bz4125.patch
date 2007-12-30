@@ -1,0 +1,231 @@
+ 2007-06-16  Andreas Jaeger  <aj@suse.de>
+
+	[BZ #4125]
+	* sysdeps/unix/sysv/linux/sys/ptrace.h
+	(PTRACE_O_TRACESYSGOOD, PTRACE_O_TRACEFORK,
+	PTRACE_O_TRACEVFORK, PTRACE_O_TRACECLONE, PTRACE_O_TRACEEXEC,
+	PTRACE_O_TRACEVFORKDONE, PTRACE_O_TRACEEXIT, PTRACE_O_MASK, 
+	PTRACE_EVENT_FORK, PTRACE_EVENT_VFORK, PTRACE_EVENT_CLONE,
+	PTRACE_EVENT_EXEC, PTRACE_EVENT_VFORK_DONE, PTRACE_EVENT_EXIT):
+	Define.
+	* sysdeps/unix/sysv/linux/powerpc/sys/ptrace.h: Likewise.
+	* sysdeps/unix/sysv/linux/ia64/sys/ptrace.h: Likewise.
+	* sysdeps/unix/sysv/linux/sparc/sys/ptrace.h: Likewise.
+	* sysdeps/unix/sysv/linux/s390/sys/ptrace.h: Likewise.
+
+===================================================================
+RCS file: /cvs/glibc/libc/sysdeps/unix/sysv/linux/sys/ptrace.h,v
+retrieving revision 1.15
+retrieving revision 1.16
+diff -u -r1.15 -r1.16
+--- libc/sysdeps/unix/sysv/linux/sys/ptrace.h	2006/09/18 13:46:13	1.15
++++ libc/sysdeps/unix/sysv/linux/sys/ptrace.h	2007/06/17 17:29:47	1.16
+@@ -1,5 +1,5 @@
+ /* `ptrace' debugger support interface.  Linux version.
+-   Copyright (C) 1996-1999,2000,2006 Free Software Foundation, Inc.
++   Copyright (C) 1996-1999,2000,2006,2007 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+ 
+    The GNU C Library is free software; you can redistribute it and/or
+@@ -129,6 +129,29 @@
+ #define PT_SETSIGINFO PTRACE_SETSIGINFO
+ };
+ 
++
++/* Options set using PTRACE_SETOPTIONS.  */
++enum __ptrace_setoptions {
++  PTRACE_O_TRACESYSGOOD	= 0x00000001,
++  PTRACE_O_TRACEFORK	= 0x00000002,
++  PTRACE_O_TRACEVFORK   = 0x00000004,
++  PTRACE_O_TRACECLONE	= 0x00000008,
++  PTRACE_O_TRACEEXEC	= 0x00000010,
++  PTRACE_O_TRACEVFORKDONE = 0x00000020,
++  PTRACE_O_TRACEEXIT	= 0x00000040,
++  PTRACE_O_MASK		= 0x0000007f
++};
++
++/* Wait extended result codes for the above trace options.  */
++enum __ptrace_eventcodes {
++  PTRACE_EVENT_FORK	= 1,
++  PTRACE_EVENT_VFORK	= 2,
++  PTRACE_EVENT_CLONE	= 3,
++  PTRACE_EVENT_EXEC	= 4,
++  PTRACE_EVENT_VFORK_DONE = 5,
++  PTRACE_EVENT_EXIT	= 6
++};
++
+ /* Perform process tracing functions.  REQUEST is one of the values
+    above, and determines the action to be taken.
+    For all requests except PTRACE_TRACEME, PID specifies the process to be
+===================================================================
+RCS file: /cvs/glibc/libc/sysdeps/unix/sysv/linux/ia64/sys/ptrace.h,v
+retrieving revision 1.4
+retrieving revision 1.5
+diff -u -r1.4 -r1.5
+--- libc/sysdeps/unix/sysv/linux/ia64/sys/ptrace.h	2006/09/18 13:47:30	1.4
++++ libc/sysdeps/unix/sysv/linux/ia64/sys/ptrace.h	2007/06/17 17:29:47	1.5
+@@ -1,5 +1,5 @@
+ /* `ptrace' debugger support interface.  Linux/ia64 version.
+-   Copyright (C) 2001, 2006 Free Software Foundation, Inc.
++   Copyright (C) 2001, 2006, 2007 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+ 
+    The GNU C Library is free software; you can redistribute it and/or
+@@ -127,6 +127,28 @@
+     struct ia64_fpreg fr[128];
+   };
+ 
++/* Options set using PTRACE_SETOPTIONS.  */
++enum __ptrace_setoptions {
++  PTRACE_O_TRACESYSGOOD	= 0x00000001,
++  PTRACE_O_TRACEFORK	= 0x00000002,
++  PTRACE_O_TRACEVFORK   = 0x00000004,
++  PTRACE_O_TRACECLONE	= 0x00000008,
++  PTRACE_O_TRACEEXEC	= 0x00000010,
++  PTRACE_O_TRACEVFORKDONE = 0x00000020,
++  PTRACE_O_TRACEEXIT	= 0x00000040,
++  PTRACE_O_MASK		= 0x0000007f
++};
++
++/* Wait extended result codes for the above trace options.  */
++enum __ptrace_eventcodes {
++  PTRACE_EVENT_FORK	= 1,
++  PTRACE_EVENT_VFORK	= 2,
++  PTRACE_EVENT_CLONE	= 3,
++  PTRACE_EVENT_EXEC	= 4,
++  PTRACE_EVENT_VFORK_DONE = 5,
++  PTRACE_EVENT_EXIT	= 6
++};
++
+ /* Perform process tracing functions.  REQUEST is one of the values
+    above, and determines the action to be taken.
+    For all requests except PTRACE_TRACEME, PID specifies the process to be
+===================================================================
+RCS file: /cvs/glibc/libc/sysdeps/unix/sysv/linux/powerpc/sys/ptrace.h,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -u -r1.3 -r1.4
+--- libc/sysdeps/unix/sysv/linux/powerpc/sys/ptrace.h	2006/09/18 13:46:59	1.3
++++ libc/sysdeps/unix/sysv/linux/powerpc/sys/ptrace.h	2007/06/17 17:29:47	1.4
+@@ -1,5 +1,5 @@
+ /* `ptrace' debugger support interface.  Linux version.
+-   Copyright (C) 2001, 2006 Free Software Foundation, Inc.
++   Copyright (C) 2001, 2006, 2007 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+ 
+    The GNU C Library is free software; you can redistribute it and/or
+@@ -99,6 +99,28 @@
+ #define PT_SETSIGINFO PTRACE_SETSIGINFO
+ };
+ 
++/* Options set using PTRACE_SETOPTIONS.  */
++enum __ptrace_setoptions {
++  PTRACE_O_TRACESYSGOOD	= 0x00000001,
++  PTRACE_O_TRACEFORK	= 0x00000002,
++  PTRACE_O_TRACEVFORK   = 0x00000004,
++  PTRACE_O_TRACECLONE	= 0x00000008,
++  PTRACE_O_TRACEEXEC	= 0x00000010,
++  PTRACE_O_TRACEVFORKDONE = 0x00000020,
++  PTRACE_O_TRACEEXIT	= 0x00000040,
++  PTRACE_O_MASK		= 0x0000007f
++};
++
++/* Wait extended result codes for the above trace options.  */
++enum __ptrace_eventcodes {
++  PTRACE_EVENT_FORK	= 1,
++  PTRACE_EVENT_VFORK	= 2,
++  PTRACE_EVENT_CLONE	= 3,
++  PTRACE_EVENT_EXEC	= 4,
++  PTRACE_EVENT_VFORK_DONE = 5,
++  PTRACE_EVENT_EXIT	= 6
++};
++
+ /* Perform process tracing functions.  REQUEST is one of the values
+    above, and determines the action to be taken.
+    For all requests except PTRACE_TRACEME, PID specifies the process to be
+===================================================================
+RCS file: /cvs/glibc/libc/sysdeps/unix/sysv/linux/s390/sys/ptrace.h,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -u -r1.3 -r1.4
+--- libc/sysdeps/unix/sysv/linux/s390/sys/ptrace.h	2006/09/18 13:46:59	1.3
++++ libc/sysdeps/unix/sysv/linux/s390/sys/ptrace.h	2007/06/17 17:29:48	1.4
+@@ -1,5 +1,5 @@
+ /* `ptrace' debugger support interface.  Linux version.
+-   Copyright (C) 2000, 2006 Free Software Foundation, Inc.
++   Copyright (C) 2000, 2006, 2007 Free Software Foundation, Inc.
+    Contributed by Denis Joseph Barrow (djbarrow@de.ibm.com).
+    This file is part of the GNU C Library.
+ 
+@@ -138,6 +138,28 @@
+ #define PT_SETSIGINFO PTRACE_SETSIGINFO
+ };
+ 
++/* Options set using PTRACE_SETOPTIONS.  */
++enum __ptrace_setoptions {
++  PTRACE_O_TRACESYSGOOD	= 0x00000001,
++  PTRACE_O_TRACEFORK	= 0x00000002,
++  PTRACE_O_TRACEVFORK   = 0x00000004,
++  PTRACE_O_TRACECLONE	= 0x00000008,
++  PTRACE_O_TRACEEXEC	= 0x00000010,
++  PTRACE_O_TRACEVFORKDONE = 0x00000020,
++  PTRACE_O_TRACEEXIT	= 0x00000040,
++  PTRACE_O_MASK		= 0x0000007f
++};
++
++/* Wait extended result codes for the above trace options.  */
++enum __ptrace_eventcodes {
++  PTRACE_EVENT_FORK	= 1,
++  PTRACE_EVENT_VFORK	= 2,
++  PTRACE_EVENT_CLONE	= 3,
++  PTRACE_EVENT_EXEC	= 4,
++  PTRACE_EVENT_VFORK_DONE = 5,
++  PTRACE_EVENT_EXIT	= 6
++};
++
+ /* Perform process tracing functions.  REQUEST is one of the values
+    above, and determines the action to be taken.
+    For all requests except PTRACE_TRACEME, PID specifies the process to be
+===================================================================
+RCS file: /cvs/glibc/libc/sysdeps/unix/sysv/linux/sparc/sys/ptrace.h,v
+retrieving revision 1.6
+retrieving revision 1.7
+diff -u -r1.6 -r1.7
+--- libc/sysdeps/unix/sysv/linux/sparc/sys/ptrace.h	2006/09/18 13:46:59	1.6
++++ libc/sysdeps/unix/sysv/linux/sparc/sys/ptrace.h	2007/06/17 17:29:48	1.7
+@@ -1,5 +1,5 @@
+ /* `ptrace' debugger support interface.  Linux/SPARC version.
+-   Copyright (C) 1996, 1997, 1998, 1999, 2000, 2006
++   Copyright (C) 1996, 1997, 1998, 1999, 2000, 2006, 2007
+    Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+ 
+@@ -183,6 +183,28 @@
+ #define PT_SETSIGINFO PTRACE_SETSIGINFO
+ };
+ 
++/* Options set using PTRACE_SETOPTIONS.  */
++enum __ptrace_setoptions {
++  PTRACE_O_TRACESYSGOOD	= 0x00000001,
++  PTRACE_O_TRACEFORK	= 0x00000002,
++  PTRACE_O_TRACEVFORK   = 0x00000004,
++  PTRACE_O_TRACECLONE	= 0x00000008,
++  PTRACE_O_TRACEEXEC	= 0x00000010,
++  PTRACE_O_TRACEVFORKDONE = 0x00000020,
++  PTRACE_O_TRACEEXIT	= 0x00000040,
++  PTRACE_O_MASK		= 0x0000007f
++};
++
++/* Wait extended result codes for the above trace options.  */
++enum __ptrace_eventcodes {
++  PTRACE_EVENT_FORK	= 1,
++  PTRACE_EVENT_VFORK	= 2,
++  PTRACE_EVENT_CLONE	= 3,
++  PTRACE_EVENT_EXEC	= 4,
++  PTRACE_EVENT_VFORK_DONE = 5,
++  PTRACE_EVENT_EXIT	= 6
++};
++
+ /* Perform process tracing functions.  REQUEST is one of the values
+    above, and determines the action to be taken.
+    For all requests except PTRACE_TRACEME, PID specifies the process to be

@@ -1,0 +1,11 @@
+--- ./lib/e2p/Makefile.in.tst_ostype	2005-06-29 19:42:20.000000000 +0200
++++ ./lib/e2p/Makefile.in	2005-08-04 17:56:47.000000000 +0200
+@@ -66,7 +66,7 @@
+ 
+ tst_ostype: $(srcdir)/ostype.c
+ 	@echo "	LD $@"
+-	@$(CC) -DTEST_PROGRAM -I$(top_srcdir)/lib -o tst_ostype \
++	@$(CC) -DTEST_PROGRAM -DTEST_PROGRAM -I$(top_srcdir)/lib -o tst_ostype \
+ 		$(srcdir)/ostype.c $(ALL_CFLAGS)
+ 
+ check::	tst_ostype

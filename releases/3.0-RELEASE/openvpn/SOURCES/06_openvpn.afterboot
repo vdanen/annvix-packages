@@ -1,0 +1,33 @@
+.LP
+\fBOpenVPN\fR
+.LP
+OpenVPN allows users to create virtual private networks quickly and easily,
+and you can connect to more than one at a time.  The Annvix default is to use
+\fI/etc/openvpn/local.conf\fR with the OpenVPN runscript, which allows you to
+have one VPN definition.  If more are required, make a copy of the OpenVPN
+service and modify \fI./env/NAME\fR accordingly.
+.LP
+For instance:
+.IP
+# cd /var/service
+.br
+# cp -av openvpn openvpn-new
+.br
+# rm -rf openvpn-new/supervise openvpn-new/log/supervise
+.br
+# perl -pi -e 's|openvpn|openvpn-new|g' openvpn-new/log/run
+.br
+# echo "otherlan" >openvpn-new/env/NAME
+.LP
+In this instance, the new "openvpn-new" service can now be added normally
+via \fBsrv\fR(8) and the configuration file for this service must be named
+according to what the NAME variable was set at.  In this case it would be
+\fI/etc/openvpn/otherlan.conf\fR.
+.LP
+If you need to define new routes, use \fI/etc/init.d/rc.local\fR to accomplish
+that.  You may also want to add the "tun" device there as well, for instance,
+you might added the following to \fIrc.local\fR:
+.IP
+modprobe tun
+.br
+route add -net 10.0.66.0 netmask 255.255.255.0 gw 192.168.0.10

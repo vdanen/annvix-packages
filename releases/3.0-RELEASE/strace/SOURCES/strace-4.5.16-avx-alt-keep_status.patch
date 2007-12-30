@@ -1,0 +1,98 @@
+--- strace.c.keep_status	2007-08-03 04:02:00.000000000 -0600
++++ strace.c	2007-11-30 23:33:02.069876750 -0700
+@@ -85,6 +85,9 @@ static int iflag = 0, interactive = 0, p
+ /* Sometimes we want to print only succeeding syscalls. */
+ int not_failing_only = 0;
+ 
++static int keep_status = 0;
++static int return_code = 0;
++
+ static char *username = NULL;
+ uid_t run_uid;
+ gid_t run_gid;
+@@ -150,7 +153,7 @@ FILE *ofp;
+ int exitval;
+ {
+ 	fprintf(ofp, "\
+-usage: strace [-dffhiqrtttTvVxx] [-a column] [-e expr] ... [-o file]\n\
++usage: strace [-dffhikqrtttTvVxx] [-a column] [-e expr] ... [-o file]\n\
+               [-p pid] ... [-s strsize] [-u username] [-E var=val] ...\n\
+               [command [arg ...]]\n\
+    or: strace -c [-e expr] ... [-O overhead] [-S sortby] [-E var=val] ...\n\
+@@ -159,6 +162,7 @@ usage: strace [-dffhiqrtttTvVxx] [-a col
+ -f -- follow forks, -ff -- with output into separate files\n\
+ -F -- attempt to follow vforks, -h -- print help message\n\
+ -i -- print instruction pointer at time of syscall\n\
++-k -- attempt to keep exit status of the first traced process\n\
+ -q -- suppress messages about attaching, detaching, etc.\n\
+ -r -- print relative timestamp, -t -- absolute timestamp, -tt -- with usecs\n\
+ -T -- print time spent in each syscall, -V -- print version\n\
+@@ -645,7 +649,7 @@ char *argv[];
+ 	qualify("verbose=all");
+ 	qualify("signal=all");
+ 	while ((c = getopt(argc, argv,
+-		"+cdfFhiqrtTvVxza:e:o:O:p:s:S:u:E:")) != EOF) {
++		"+cdfFhikqrtTvVxza:e:o:O:p:s:S:u:E:")) != EOF) {
+ 		switch (c) {
+ 		case 'c':
+ 			cflag++;
+@@ -666,6 +670,9 @@ char *argv[];
+ 		case 'i':
+ 			iflag++;
+ 			break;
++		case 'k':
++			keep_status++;
++			break;
+ 		case 'q':
+ 			qflag++;
+ 			break;
+@@ -858,7 +865,7 @@ char *argv[];
+ 	if (trace() < 0)
+ 		exit(1);
+ 	cleanup();
+-	exit(0);
++	exit(return_code);
+ }
+ 
+ int
+@@ -2291,6 +2298,8 @@ Process %d attached (waiting for parent)
+ 			continue;
+ 		}
+ 		if (WIFSIGNALED(status)) {
++			if (keep_status)
++				return_code = 128 + WTERMSIG(status);
+ 			if (!cflag
+ 			    && (qual_flags[WTERMSIG(status)] & QUAL_SIGNAL)) {
+ 				printleader(tcp);
+@@ -2310,6 +2319,8 @@ Process %d attached (waiting for parent)
+ 			continue;
+ 		}
+ 		if (WIFEXITED(status)) {
++			if (keep_status)
++				return_code = WEXITSTATUS(status);
+ 			if (debug)
+ 				fprintf(stderr, "pid %u exited\n", pid);
+ 			if ((tcp->flags & TCB_ATTACHED)
+--- strace.1.keep_status	2006-04-25 01:48:03.000000000 -0600
++++ strace.1	2007-11-30 23:31:56.093753500 -0700
+@@ -43,7 +43,7 @@
+ .SH SYNOPSIS
+ .B strace
+ [
+-.B \-dffhiqrtttTvxx
++.B \-dffhikqrtttTvxx
+ ]
+ [
+ .BI \-a column
+@@ -280,6 +280,11 @@
+ automatically when output is redirected to a file and the command
+ is run directly instead of attaching.
+ .TP
++.B \-k
++Attempt to keep exit status of the first traced process, and return
++it to the caller.  Main purpose of this option is to exit with nonzero
++code in case of unsucessful exit of the first traced process.
++.TP
+ .B \-r
+ Print a relative timestamp upon entry to each system call.  This
+ records the time difference between the beginning of successive

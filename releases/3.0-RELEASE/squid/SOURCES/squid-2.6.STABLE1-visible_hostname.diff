@@ -1,0 +1,11 @@
+--- src/cf.data.pre	2006-06-30 17:23:05.000000000 -0400
++++ src/cf.data.pre.oden	2006-07-19 18:30:27.000000000 -0400
+@@ -3271,7 +3271,7 @@
+ NAME: visible_hostname
+ TYPE: string
+ LOC: Config.visibleHostname
+-DEFAULT: none
++DEFAULT: unconfigured
+ DOC_START
+ 	If you want to present a special hostname in error messages, etc,
+ 	define this.  Otherwise, the return value of gethostname()

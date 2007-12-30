@@ -1,0 +1,11 @@
+--- lib/depends.c.ordering	2005-11-30 19:01:30.000000000 +0100
++++ lib/depends.c	2005-11-30 19:09:04.000000000 +0100
+@@ -1215,7 +1215,7 @@ zapRelation(rpmte q, rpmte p,
+ 	 * Attempt to unravel a dependency loop by eliminating Requires's.
+ 	 */
+ 	/*@-branchstate@*/
+-	if (zap) {
++	if (zap && !( isErasePreReq(Flags) || isInstallPreReq(Flags))) {
+ 	    rpmMessage(msglvl,
+ 			_("removing %s \"%s\" from tsort relations.\n"),
+ 			(rpmteNEVRA(p) ?  rpmteNEVRA(p) : "???"), dp);

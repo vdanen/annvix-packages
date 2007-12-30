@@ -1,0 +1,11 @@
+--- configure.ac.orig	2005-12-14 15:03:17.000000000 +0100
++++ configure.ac	2005-12-14 15:03:41.000000000 +0100
+@@ -1458,7 +1458,7 @@
+   ])
+ AC_CONFIG_COMMANDS([default],[[	echo timestamp > popt/stamp-h.in
+ 	echo timestamp > stamp-h.in
+-	[ -d perl ] && cd perl && perl Makefile.PL
++	[ -d perl ] && cd perl && perl Makefile.PL INSTALLDIRS=vendor
+   
+ ]],[[]])
+ AC_OUTPUT

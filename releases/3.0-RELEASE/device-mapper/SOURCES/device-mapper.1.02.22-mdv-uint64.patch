@@ -1,0 +1,20 @@
+--- device-mapper.1.02.22/dmsetup/dmsetup.c	2007-08-21 09:26:06.000000000 -0700
++++ device-mapper.1.02.22/dmsetup/dmsetup.c.new	2007-08-21 23:36:30.000000000 -0700
+@@ -756,7 +756,7 @@ static int _process_all(int argc, char *
+ 
+ static uint64_t _get_device_size(const char *name)
+ {
+-	uint64_t start, length, size = UINT64_C(0);
++	uint64_t start, length, size = 0ull;
+ 	struct dm_info info;
+ 	char *target_type, *params;
+ 	struct dm_task *dmt;
+@@ -809,7 +809,7 @@ static int _error_device(int argc __attr
+ 	if (!_set_task_device(dmt, name, 0))
+ 		goto error;
+ 
+-	if (!dm_task_add_target(dmt, UINT64_C(0), size, "error", ""))
++	if (!dm_task_add_target(dmt, 0ull, size, "error", ""))
+ 		goto error;
+ 
+ 	if (_switches[READ_ONLY] && !dm_task_set_ro(dmt))

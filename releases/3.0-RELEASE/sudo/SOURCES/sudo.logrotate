@@ -1,0 +1,5 @@
+/var/log/sudo.log {
+    missingok
+    monthly
+    compress
+}

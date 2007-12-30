@@ -1,0 +1,140 @@
+2005-01-21  Gwenole Beauchesne  <gbeauchesne@mandrakesoft.com>
+
+	* remake.c (BIARCH_PLATFORM): Define.
+	(IS_MODE_32_BIT): Detect underlying personality.
+	(library_search): Use only directories that match the current
+	running mode.
+
+2004-10-11  Gwenole Beauchesne  <gbeauchesne@mandrakesoft.com>
+
+	* remake.c (library_search): Add lib64 dirs if available.
+	* configure.in: Check for lib64 dirs.
+
+--- make-3.80/remake.c.lib64	2002-08-07 20:11:19.000000000 -0400
++++ make-3.80/remake.c	2005-01-21 05:18:11.599027359 -0500
+@@ -41,6 +41,24 @@ Boston, MA 02111-1307, USA.  */
+ #include <io.h>
+ #endif
+ 
++/* Define biarch platforms.  */
++#if defined(__biarch__)
++#define BIARCH_PLATFORM
++#elif defined(__linux__) && \
++	(defined(__x86_64__) || defined(__powerpc64__) || \
++	 defined(__s390x__)  || defined(__sparc_v9__))
++#define BIARCH_PLATFORM
++#endif
++
++/* Define IS_MODE_32_BIT if we are running under a 32-bit personality.  */
++#ifdef BIARCH_PLATFORM
++#if defined(__linux__)
++#include <sys/syscall.h>
++#include <sys/personality.h>
++#define IS_MODE_32_BIT ((syscall(SYS_personality, 0xffffffff) & PER_MASK) == PER_LINUX32)
++#endif
++#endif
++
+ extern int try_implicit_rule PARAMS ((struct file *file, unsigned int depth));
+ 
+ 
+@@ -1293,11 +1311,30 @@ library_search (lib, mtime_ptr)
+      char **lib;
+      FILE_TIMESTAMP *mtime_ptr;
+ {
+-  static char *dirs[] =
++  enum
++    {
++      MODE_32_BIT = 1,
++      MODE_64_BIT = 2,
++#ifdef BIARCH_PLATFORM
++      MODE_NATIVE = MODE_64_BIT
++#else
++      MODE_NATIVE = MODE_32_BIT
++#endif
++    };
++  struct dir
++  {
++    const char *name;
++    int mode;
++  };
++  static const struct dir dirs[] =
+     {
+ #ifndef _AMIGA
+-      "/lib",
+-      "/usr/lib",
++#if HAVE_LIB64DIRS
++      { "/lib64",	MODE_64_BIT },
++      { "/usr/lib64",	MODE_64_BIT },
++#endif
++      { "/lib",		MODE_32_BIT | MODE_NATIVE },
++      { "/usr/lib",	MODE_32_BIT | MODE_NATIVE },
+ #endif
+ #if defined(WINDOWS32) && !defined(LIBDIR)
+ /*
+@@ -1306,8 +1343,8 @@ library_search (lib, mtime_ptr)
+  */
+ #define LIBDIR "."
+ #endif
+-      LIBDIR,			/* Defined by configuration.  */
+-      0
++      { LIBDIR,		MODE_NATIVE }, /* Defined by configuration.  */
++      { 0, 0 }
+     };
+ 
+   static char *libpatterns = NULL;
+@@ -1319,7 +1356,15 @@ library_search (lib, mtime_ptr)
+   char *p, *p2;
+   unsigned int len;
+ 
+-  char *file, **dp;
++  char *file;
++  const struct dir *dp;
++
++  /* Check for running mode (personality).  */
++  int mode = MODE_NATIVE;
++#ifdef BIARCH_PLATFORM
++  if (IS_MODE_32_BIT)
++    mode = MODE_32_BIT;
++#endif
+ 
+   /* If we don't have libpatterns, get it.  */
+   if (!libpatterns)
+@@ -1387,9 +1432,9 @@ library_search (lib, mtime_ptr)
+ 
+       if (!buflen)
+ 	{
+-	  for (dp = dirs; *dp != 0; ++dp)
++	  for (dp = dirs; dp->name != 0; ++dp)
+ 	    {
+-	      int l = strlen (*dp);
++	      int l = strlen (dp->name);
+ 	      if (l > libdir_maxlen)
+ 		libdir_maxlen = l;
+ 	    }
+@@ -1402,9 +1447,12 @@ library_search (lib, mtime_ptr)
+ 	  buf = xrealloc (buf, libdir_maxlen + buflen + 2);
+ 	}
+ 
+-      for (dp = dirs; *dp != 0; ++dp)
++      for (dp = dirs; dp->name != 0; ++dp)
+ 	{
+-	  sprintf (buf, "%s/%s", *dp, libbuf);
++	  /* skip dirs which don't fit in the running mode.  */
++	  if ((dp->mode & mode) == 0)
++	    continue;
++	  sprintf (buf, "%s/%s", dp->name, libbuf);
+ 	  mtime = name_mtime (buf);
+ 	  if (mtime != NONEXISTENT_MTIME)
+ 	    {
+--- make-3.80/configure.lib64	2005-01-21 05:07:14.795535969 -0500
++++ make-3.80/configure	2005-01-21 05:07:14.804537785 -0500
+@@ -11247,6 +11247,9 @@ fi
+ 
+ DEFS=-DHAVE_CONFIG_H
+ 
++# have lib64 dirs?
++[[ -d /lib64 ]] && DEFS="$DEFS -DHAVE_LIB64DIRS"
++
+ ac_libobjs=
+ ac_ltlibobjs=
+ for ac_i in : $LIBOBJS; do test "x$ac_i" = x: && continue

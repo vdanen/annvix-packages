@@ -1,0 +1,26 @@
+--- mkinitrd-4.2.17/mkinitrd.scsi_wait_scan	2007-09-07 15:16:49.000000000 +0200
++++ mkinitrd-4.2.17/mkinitrd	2007-09-07 15:20:21.000000000 +0200
+@@ -246,6 +246,7 @@ dmraidev() {
+ 	findmodule -dm-mod
+ 	findmodule -dm-mirror
+ 	findmodule -sd_mod
++	findmodule -scsi_wait_scan
+ 	nonraiddevices="$nonraiddevices $dev"
+     else
+ 	nonraiddevices="$nonraiddevices $1"
+@@ -642,6 +643,7 @@ if [ -n "$forceusb" ]; then
+     findmodule usbhid
+     findmodule sd_mod
+     findmodule usb-storage
++    findmodule -scsi_wait_scan
+ fi
+ 
+ kbddrivers="$(awk '
+@@ -932,6 +934,7 @@ if [ -n "$scsimodules" ]; then
+ 	findmodule $n
+     done
+     findmodule sd_mod
++    findmodule -scsi_wait_scan
+ fi
+ 
+ for idedev in $nonscsidevices; do

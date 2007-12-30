@@ -1,0 +1,12 @@
+#!/bin/sh
+
+/usr/sbin/tmpwatch 10d /tmp
+/usr/sbin/tmpwatch 30d /var/tmp
+
+[ -f /etc/sysconfig/i18n ] && . /etc/sysconfig/i18n
+
+for d in /var/{cache/man,catman}/{cat?,X11R6/cat?,local/cat?,${LANG}/cat?}; do
+    if [ -d "${d}" ]; then
+        /usr/sbin/tmpwatch -f 30d "${d}"
+    fi
+done

@@ -1,0 +1,13 @@
+--- unix/tcl.m4~	2005-06-29 18:40:33.000000000 +0200
++++ unix/tcl.m4	2005-12-29 18:17:43.000000000 +0100
+@@ -1173,8 +1173,8 @@
+ 		DL_OBJS="tclLoadDl.o"
+ 		DL_LIBS="-ldl"
+ 		LDFLAGS="$LDFLAGS -Wl,--export-dynamic"
+-		CC_SEARCH_FLAGS='-Wl,-rpath,${LIB_RUNTIME_DIR}'
+-		LD_SEARCH_FLAGS=${CC_SEARCH_FLAGS}
++		CC_SEARCH_FLAGS=""
++		LD_SEARCH_FLAGS=""
+ 	    else
+ 		AC_CHECK_HEADER(dld.h, [
+ 		    SHLIB_LD="ld -shared"

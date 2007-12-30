@@ -1,0 +1,66 @@
+--- device-mapper.1.02.09/dmeventd/Makefile.in.pkgconfig	2007-02-14 07:20:17.000000000 +0100
++++ device-mapper.1.02.09/dmeventd/Makefile.in	2007-02-14 07:20:17.000000000 +0100
+@@ -55,7 +55,7 @@ install_dynamic: libdevmapper-event.$(LI
+ 
+ install_pkgconfig:
+ 	$(INSTALL) -D $(OWNER) $(GROUP) -m 444 libdevmapper-event.pc \
+-		$(usrlibdir)/pkgconfig/devmapper-event.pc
++		$(libdir)/pkgconfig/devmapper-event.pc
+ 
+ install_static: libdevmapper-event.a
+ 	$(INSTALL) -D $(OWNER) $(GROUP) -m 555 $(STRIP) $< \
+--- device-mapper.1.02.09/lib/Makefile.in.pkgconfig	2007-02-14 07:20:17.000000000 +0100
++++ device-mapper.1.02.09/lib/Makefile.in	2007-02-14 07:20:17.000000000 +0100
+@@ -88,7 +88,7 @@ install_ioctl: ioctl/libdevmapper.$(LIB_
+ 
+ install_pkgconfig:
+ 	$(INSTALL) -D $(OWNER) $(GROUP) -m 444 libdevmapper.pc \
+-		$(usrlibdir)/pkgconfig/devmapper.pc
++		$(libdir)/pkgconfig/devmapper.pc
+ 
+ install_ioctl_static: ioctl/libdevmapper.a
+ 	$(INSTALL) -D $(OWNER) $(GROUP) -m 555 $(STRIP) $< \
+--- device-mapper.1.02.09/lib/libdevmapper.pc.in.pkgconfig	2006-04-19 17:23:10.000000000 +0200
++++ device-mapper.1.02.09/lib/libdevmapper.pc.in	2007-02-14 07:20:17.000000000 +0100
+@@ -8,4 +8,4 @@ Description: device-mapper library
+ Version: @DM_LIB_VERSION@
+ Cflags: -I${includedir} 
+ Libs: -L${libdir} -ldevmapper
+-Libs.private: -lselinux -lsepol
++Libs.private: @SELIBS@
+
+--- device-mapper.1.02.22/configure.in	2007-08-14 12:11:31.000000000 -0700
++++ device-mapper.1.02.22/configure.in.new	2007-08-22 03:32:44.000000000 -0700
+@@ -230,6 +230,7 @@ if test x$SELINUX = xyes; then
+ 	if test x$HAVE_SEPOL = xyes; then
+ 		AC_DEFINE([HAVE_SEPOL], 1, [Define to 1 if sepol_check_context is available.])
+ 		LIBS="-lsepol $LIBS"
++		SELIBS="-lsepol $SELIBS"
+ 	fi
+ 
+ 	AC_CHECK_LIB(selinux, is_selinux_enabled, HAVE_SELINUX=yes, HAVE_SELINUX=no)
+@@ -237,6 +238,7 @@ if test x$SELINUX = xyes; then
+ 	if test x$HAVE_SELINUX = xyes; then
+ 		AC_DEFINE([HAVE_SELINUX], 1, [Define to 1 if selinux is available.])
+ 		LIBS="-lselinux $LIBS"
++		SELIBS="-lsepol $SELIBS"
+ 	else
+ 		AC_MSG_WARN(Disabling selinux)
+ 	fi
+@@ -352,7 +354,7 @@ fi
+ AC_MSG_RESULT($interface)
+ 
+ if test "-f VERSION" ; then
+-  DM_LIB_VERSION="\"`cat VERSION|sed -e \"s/([[0-9.]]*)/\0-$interface/\"`\""
++  DM_LIB_VERSION=\""`cat VERSION|sed -n \"/\([[0-9.]]*\).*/s//\1-$interface/p\"`"\"
+ else
+   DM_LIB_VERSION="Unknown version ($interface)"
+ fi
+@@ -391,6 +396,7 @@ AC_SUBST(STATIC_LINK)
+ AC_SUBST(OWNER)
+ AC_SUBST(GROUP)
+ AC_SUBST(LIBS)
++AC_SUBST(SELIBS)
+ AC_SUBST(interface)
+ AC_SUBST(kerneldir)
+ AC_SUBST(missingkernel)

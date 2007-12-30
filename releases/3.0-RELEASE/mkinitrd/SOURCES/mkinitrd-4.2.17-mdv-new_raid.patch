@@ -1,0 +1,33 @@
+--- mkinitrd-4.2.17/mkinitrd.new_raid	2007-04-21 13:41:47.000000000 +0200
++++ mkinitrd-4.2.17/mkinitrd	2007-04-21 13:45:34.000000000 +0200
+@@ -784,6 +784,7 @@
+ 			evms_plugins="$evms_plugins md";;
+ 		    MDRaid5RegMgr)
+ 		    	findmodule -raid5
++		    	findmodule -raid456
+ 			evms_plugins="$evms_plugins md";;
+ 		    "MD Multipath")
+ 		    	findmodule -multipath
+@@ -852,6 +853,7 @@
+     findmodule -raid0
+     findmodule -raid1
+     findmodule -raid5
++    findmodule -raid456
+     evms_plugins="$evms_plugins bbr"
+     evms_plugins="$evms_plugins bbr_seg"
+     evms_plugins="$evms_plugins bsd"
+@@ -901,8 +903,12 @@
+ 	md=md${md#md} # /dev/md/0 and /dev/md0 become md0
+ 	level=$(awk '/^'$md'[[:space:]]*:/ { print $4 }' /proc/mdstat)
+ 	case $level in
+-	    linear|multipath|raid[0156])
+-		findmodule $level
++	    linear|multipath|raid[01]|raid10)
++		findmodule -$level
++		;;
++	    raid[456])
++		findmodule -$level
++		findmodule -raid456
+ 		;;
+ 	    *)
+ 		echo "raid level $level (in /proc/mdstat) not recognized" >&2

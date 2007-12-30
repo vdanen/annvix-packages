@@ -1,0 +1,9 @@
+#!/bin/execlineb
+
+/bin/fdmove -c 2 1
+
+# sometimes automount doesn't want to die, despite
+# it being forced so we'll make extra sure and run a
+# killall on any remaining automount processes
+
+/usr/bin/killall -9 automount

@@ -1,0 +1,16 @@
+This patch suppresses the timeout error message we get since it can't talk
+to init via /dev/initctl (runit doesn't use this)
+ 
+--- sysvinit-2.86/src/shutdown.c~	2006-02-01 20:36:08.000000000 -0700
++++ sysvinit-2.86/src/shutdown.c	2006-02-01 20:36:08.000000000 -0700
+@@ -173,8 +173,8 @@
+                                                                                 
+         fprintf(stderr, "shutdown: ");
+         if (got_alrm) {
+-                fprintf(stderr, "timeout opening/writing control channel %s\n",
+-                        INIT_FIFO);
++                /* fprintf(stderr, "timeout opening/writing control channel %s\n",
++                        INIT_FIFO); */
+         } else {
+                 perror(INIT_FIFO);
+         }

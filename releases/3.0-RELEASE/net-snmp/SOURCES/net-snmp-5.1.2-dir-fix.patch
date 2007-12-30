@@ -1,0 +1,11 @@
+--- net-snmp-5.1.2/net-snmp-config.in.dir-fix	2004-06-17 15:39:28.000000000 +0200
++++ net-snmp-5.1.2/net-snmp-config.in	2004-11-16 10:26:28.928414992 +0100
+@@ -249,7 +249,7 @@
+       echo "  " $line
+       echo $line >> $outfile
+ 
+-      outfile="@datadir@/snmp/snmpd.conf"
++      outfile="/etc/snmp/snmpd.conf"
+       line="$token $user"
+       echo "adding the following line to $outfile:"
+       echo "  " $line

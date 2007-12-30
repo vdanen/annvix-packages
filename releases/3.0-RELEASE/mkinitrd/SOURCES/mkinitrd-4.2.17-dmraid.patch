@@ -1,0 +1,142 @@
+2007-06-10  Luca Berra <bluca@vodka.it>
+	* support for group sets, e.g. isw.
+
+2006-09-12  Luca Berra <bluca@vodka.it>
+	* support for raid10 fakeraids
+	* support for lvm and md over dmraid
+
+2006-04-09  Luca Berra <bluca@vodka.it>
+        * fix another silly dmraid command line option bug
+
+2006-04-18 Luca Berra <bluca@vodka.it>
+	* ignore locking
+
+--- mkinitrd-4.2.17/mkinitrd.dmraid	2006-09-13 11:18:36.000000000 +0200
++++ mkinitrd-4.2.17/mkinitrd	2006-09-13 11:20:50.000000000 +0200
+@@ -221,7 +221,7 @@
+ 
+ mddev() {
+     local -i major
+-    local dev md
++    local dev md mddevs
+     local stack=${2-0}
+     : ${stacked_md=0}
+     major=$((0x$(stat -L -c '%t' $1)))
+@@ -231,6 +231,9 @@
+ 	raiddevices="$1 $raiddevices"
+ 	md=${1##*/}
+ 	md=md${md#md} # /dev/md/0 and /dev/md0 become md0
++	mddevs=""
++	[ -x /sbin/mdadm ] && mddevs=$(/sbin/mdadm -Dv $1 | awk '$1$2$3$4$NF ~ /^[0-9]+\// {print $NF}')
++	[ -z "$mddevs" ] && \
+ 	mddevs=$(awk '/^'$md'[[:space:]]*:/ {for (i=5;i<=NF;i++) {sub("\\[[0-9]*\\]","",$i); print "/dev/" $i } }' /proc/mdstat)
+ 	[ -n "$mddevs" ] && stack=$(($stack + 1))
+ 	[ $stack -gt $stacked_md ] && stacked_md=$stack
+@@ -242,6 +245,28 @@
+     fi
+ }
+ 
++dmraidev() {
++    local dev raid major
++    major=$((0x$(stat -L -c '%t' $1)))
++    if [ -x /sbin/dmraid -a "$major" = "$dm_major" ]; then
++	for raid in `/sbin/dmraid -sa -c -g`; do
++	    [ ${1#*/$raid} != ${1} ] && \
++		dev=`/sbin/dmraid -r -c -c | awk -F: -v raid=$raid '$3 ~ raid {print $1}'`	
++		[ -n "$dev" ] && break
++	done
++    fi
++    if [ -n "$dev" ]; then
++	root_dmraid=1
++	need_dmnod=1
++	findmodule -dm-mod
++	findmodule -dm-mirror
++	findmodule -sd_mod
++	nonraiddevices="$nonraiddevices $dev"
++    else
++	nonraiddevices="$nonraiddevices $1"
++    fi
++}
++
+ scsidriver() {
+     local -i major minor count i
+     local foo bus j drv
+@@ -702,17 +726,8 @@
+ 	root_lvm=1
+ 	rootvg=`/sbin/lvm2 lvdisplay $fstabrootdev | /bin/awk '/VG Name/ { print $NF }'`
+ 	pvs=$(/sbin/lvm2 vgdisplay -v ${rootvg} | /bin/awk '/PV Name/ { print $NF }')
+-    elif [ -x /sbin/dmraid ]; then
+-	for i in `/sbin/dmraid -sa -c`; do
+-	    if [ ${fstabrootdev#*/$i} != ${fstabrootdev} ]; then
+-		nonraiddevices=`/sbin/dmraid -r -cc|awk -F: -v set=$i '$3 == set {print $1}'`	
+-		root_dmraid=1
+-		findmodule -dm-mod
+-		findmodule -dm-mirror
+-		findmodule -sd_mod
+-		need_dmnod=1
+-	    fi
+-	done
++    else
++	dmraidev ${fstabrootdev}
+     fi
+     if [ -z "$pvs" -a -x /sbin/evms_query  ]; then
+ 	if /sbin/evms_query info ${fstabrootdev} > /dev/null 2>&1; then
+@@ -804,6 +819,15 @@
+     mddev $rootdev
+ fi
+ 
++# now we check if some are fakeraids
++if [ -n "nonraiddevices" ]; then
++    pvs="$nonraiddevices"
++    nonraiddevices=""
++    for dev in $pvs; do
++	dmraidev $dev
++    done
++fi
++
+ if [ -n "$raiddevices" -a -z "$noraid" ]; then
+     for md in $raiddevices; do
+ 	md=${md##*/}
+@@ -1059,6 +1083,17 @@
+     echo "mount -t fatx /dev/hda50 /fatx" >> $RCFILE
+ fi
+ 
++if [ -n "$need_dmnod" ]; then
++	echo "echo Making device-mapper control node" >> $RCFILE
++	echo "mkdmnod" >> $RCFILE
++fi
++if [ -n "$root_dmraid" ]; then
++    inst /sbin/dmraid-static $MNTIMAGE/sbin/dmraid
++    echo "echo Activating device-mapper raid devices" >> $RCFILE
++    echo "dmraid -ay -i" >> $RCFILE
++    rootdev=$fstabrootdev
++fi
++
+ if [ -n "$raiddevices" ]; then
+     echo "echo Activating md devices" >> $RCFILE
+     [ -x /sbin/mdadm ] && echo "DEVICE partitions" >| $MNTIMAGE/etc/mdadm.conf
+@@ -1086,10 +1121,6 @@
+     done
+ fi
+ 
+-if [ -n "$need_dmnod" ]; then
+-	echo "echo Making device-mapper control node" >> $RCFILE
+-	echo "mkdmnod" >> $RCFILE
+-fi
+ if [ -n "$loopDev" ]; then
+     loopDev_major=$((0x$(stat -L -c '%t' $loopDev)))
+     loopDev_minor=$((0x$(stat -L -c '%T' $loopDev)))
+@@ -1148,13 +1179,6 @@
+ 	echo "umount /etc" >> $RCFILE
+     fi
+     rootdev=$fstabrootdev
+-elif [ -n "$root_dmraid" ]; then
+-    inst /sbin/dmraid-static $MNTIMAGE/sbin/dmraid
+-    mkdir -p $MNTIMAGE/var/lock/dmraid
+-    touch $MNTIMAGE/var/lock/dmraid/.lock
+-    echo "echo Activating device-mapper raid devices" >> $RCFILE
+-    echo "dmraid -ay" >> $RCFILE
+-    rootdev=$fstabrootdev
+ elif [ -n "$root_evms" ]; then
+     evms_version=`/sbin/evms_query info|awk '$2 == "Version:" {print $3}'`
+     for foo in $evms_plugins; do

@@ -1,0 +1,64 @@
+--- lib/psm.c.orig	2005-11-17 12:43:19.000000000 +0100
++++ lib/psm.c	2005-11-30 17:06:00.000000000 +0100
+@@ -2245,6 +2245,16 @@ assert(psm->mi == NULL);
+ 	    rc = rpmdbAdd(rpmtsGetRdb(ts), rpmtsGetTid(ts), fi->h,
+ 				NULL, NULL);
+ 	(void) rpmswExit(rpmtsOp(ts, RPMTS_OP_DBADD), 0);
++#if HAVE_SYSLOG_H
++        {
++	  char *s;
++
++	  s = headerSprintf(fi->h, "%{NAME}-%{VERSION}-%{RELEASE}",
++			    rpmTagTable, rpmHeaderFormats, NULL);
++	  syslog(LOG_NOTICE, "[RPM] %s installed\n", s);
++	  s = _free(s);
++	 }
++#endif
+ 
+ 	if (rc != RPMRC_OK) break;
+ 
+@@ -2275,6 +2285,16 @@ assert(psm->mi == NULL);
+ 	rc = rpmdbRemove(rpmtsGetRdb(ts), rpmtsGetTid(ts), fi->record,
+ 				NULL, NULL);
+ 	(void) rpmswExit(rpmtsOp(ts, RPMTS_OP_DBREMOVE), 0);
++#if HAVE_SYSLOG_H
++        {
++	  char *s;
++
++	  s = headerSprintf(fi->h, "%{NAME}-%{VERSION}-%{RELEASE}",
++			    rpmTagTable, rpmHeaderFormats, NULL);
++	  syslog(LOG_NOTICE, "[RPM] %s removed\n", s);
++	  s = _free(s);
++	}
++#endif
+ 
+ 	if (rc != RPMRC_OK) break;
+ 
+--- system.h.orig	2005-10-11 21:13:52.000000000 +0200
++++ system.h	2005-11-30 16:50:28.000000000 +0100
+@@ -9,6 +9,10 @@
+ #include "config.h"
+ #endif
+ 
++#if HAVE_SYSLOG_H
++#include <syslog.h>
++#endif
++
+ #include <sys/types.h>
+ 
+ #if defined(__LCLINT__)
+--- configure.ac.orig	2005-11-05 22:21:17.000000000 +0100
++++ configure.ac	2005-11-30 16:50:28.000000000 +0100
+@@ -404,6 +404,12 @@
+ fi
+ 
+ dnl
++dnl Checking syslog
++dnl
++
++AC_CHECK_HEADERS(syslog.h)
++
++dnl
+ dnl Check for features
+ dnl
+ 

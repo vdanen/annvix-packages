@@ -1,0 +1,17 @@
+# Fix _dl_osversion_init()function to not assume too old kernel version.
+
+--- glibc-2.5.orig/sysdeps/unix/sysv/linux/dl-librecon.h
++++ glibc-2.5/sysdeps/unix/sysv/linux/dl-librecon.h
+@@ -40,7 +40,11 @@ _dl_osversion_init (char *assume_kernel)
+ 	break;
+     }
+   if (osversion)
+-    GLRO(dl_osversion) = osversion;
++    {
++      if (__LINUX_KERNEL_VERSION > 0 && osversion < __LINUX_KERNEL_VERSION)
++	osversion = __LINUX_KERNEL_VERSION;
++      GLRO(dl_osversion) = osversion;
++    }
+ }
+ 
+ /* Recognizing extra environment variables.  */

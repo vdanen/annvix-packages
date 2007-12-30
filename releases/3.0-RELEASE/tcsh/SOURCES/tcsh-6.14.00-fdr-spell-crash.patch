@@ -1,0 +1,12 @@
+--- tcsh-6.14.00/tw.parse.c.spell-crash	2006-08-16 19:10:16.000000000 +0200
++++ tcsh-6.14.00/tw.parse.c	2006-08-16 19:11:51.000000000 +0200
+@@ -1668,7 +1668,8 @@
+ 	return (-1);
+     }
+ 
+-    numitems = tw_collect(command, looking, exp_dir, exp_name, 
++    exp_name[0] = '\0';
++    numitems = tw_collect(command, looking, exp_dir, exp_name,
+ 			  &target, pat, flags, dir_fd);
+     if (numitems == -1)
+ 	return -1;

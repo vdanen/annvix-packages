@@ -1,0 +1,160 @@
+Hi!
+
+http://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=248281
+As the testcase below shows, if one of proc_file_chain streams has
+fileno () == 1 (for "r" popen, resp. 0 for "w" popen), we close
+that stream already in dup2 above this loop and the close in the loop
+closes not the previous popen's file descriptor, but stdout (resp.
+stdin) of the popen child.
+
+ 2007-07-16  Jakub Jelinek  <jakub@redhat.com>
+
+	* libio/iopopen.c (_IO_new_proc_open): Don't close child_std_end
+	if one of proc_file_chain streams has that fileno.
+	* stdio-common/Makefile (tests): Add tst-popen2.
+	* stdio-common/tst-popen2.c: New test.
+
+===================================================================
+RCS file: /cvs/glibc/libc/libio/iopopen.c,v
+retrieving revision 1.33
+retrieving revision 1.34
+diff -u -r1.33 -r1.34
+--- libc/libio/iopopen.c	2004/09/14 04:24:45	1.33
++++ libc/libio/iopopen.c	2007/07/19 17:02:07	1.34
+@@ -1,4 +1,5 @@
+-/* Copyright (C) 1993, 1997-2002, 2003, 2004 Free Software Foundation, Inc.
++/* Copyright (C) 1993, 1997-2002, 2003, 2004, 2007
++   Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+    Written by Per Bothner <bothner@cygnus.com>.
+ 
+@@ -169,7 +170,15 @@
+          popen() calls that remain open in the parent process are closed
+ 	 in the new child process." */
+       for (p = proc_file_chain; p; p = p->next)
+-	_IO_close (_IO_fileno ((_IO_FILE *) p));
++	{
++	  int fd = _IO_fileno ((_IO_FILE *) p);
++
++	  /* If any stream from previous popen() calls has fileno
++	     child_std_end, it has been already closed by the dup2 syscall
++	     above.  */
++	  if (fd != child_std_end)
++	    _IO_close (fd);
++	}
+ 
+       _IO_execl ("/bin/sh", "sh", "-c", command, (char *) 0);
+       _IO__exit (127);
+===================================================================
+RCS file: /cvs/glibc/libc/stdio-common/Makefile,v
+retrieving revision 1.104
+retrieving revision 1.105
+diff -u -r1.104 -r1.105
+--- libc/stdio-common/Makefile	2007/07/08 04:41:08	1.104
++++ libc/stdio-common/Makefile	2007/07/19 17:02:55	1.105
+@@ -55,7 +55,7 @@
+ 	 tst-perror tst-sprintf tst-rndseek tst-fdopen tst-fphex bug14 bug15 \
+ 	 tst-popen tst-unlockedio tst-fmemopen2 tst-put-error tst-fgets \
+ 	 tst-fwrite bug16 bug17 tst-swscanf tst-sprintf2 bug18 bug18a \
+-	 bug19 bug19a
++	 bug19 bug19a tst-popen2
+ 
+ test-srcs = tst-unbputc tst-printf
+ 
+/cvs/glibc/libc/stdio-common/tst-popen2.c,v  -->  standard output
+revision 1.1
+--- libc/stdio-common/tst-popen2.c
++++ libc/stdio-common/tst-popen2.c	2007-07-24 15:29:37.505344000 +0000
+@@ -0,0 +1,92 @@
++#include <stdio.h>
++#include <string.h>
++#include <unistd.h>
++
++static int
++do_test (void)
++{
++  int fd = dup (fileno (stdout));
++  if (fd <= 1)
++    {
++      puts ("dup failed");
++      return 1;
++    }
++
++  FILE *f1 = fdopen (fd, "w");
++  if (f1 == NULL)
++    {
++      printf ("fdopen failed: %m\n");
++      return 1;
++    }
++
++  fclose (stdout);
++
++  FILE *f2 = popen ("echo test1", "r");
++  if (f2 == NULL)
++    {
++      fprintf (f1, "1st popen failed: %m\n");
++      return 1;
++    }
++  FILE *f3 = popen ("echo test2", "r");
++  if (f2 == NULL || f3 == NULL)
++    {
++      fprintf (f1, "2nd popen failed: %m\n");
++      return 1;
++    }
++
++  char *line = NULL;
++  size_t len = 0;
++  int result = 0;
++  if (getline (&line, &len, f2) != 6)
++    {
++      fputs ("could not read line from 1st popen\n", f1);
++      result = 1;
++    }
++  else if (strcmp (line, "test1\n") != 0)
++    {
++      fprintf (f1, "read \"%s\"\n", line);
++      result = 1;
++    }
++
++  if (getline (&line, &len, f2) != -1)
++    {
++      fputs ("second getline did not return -1\n", f1);
++      result = 1;
++    }
++
++  if (getline (&line, &len, f3) != 6)
++    {
++      fputs ("could not read line from 2nd popen\n", f1);
++      result = 1;
++    }
++  else if (strcmp (line, "test2\n") != 0)
++    {
++      fprintf (f1, "read \"%s\"\n", line);
++      result = 1;
++    }
++
++  if (getline (&line, &len, f3) != -1)
++    {
++      fputs ("second getline did not return -1\n", f1);
++      result = 1;
++    }
++
++  int ret = pclose (f2);
++  if (ret != 0)
++    {
++      fprintf (f1, "1st pclose returned %d\n", ret);
++      result = 1;
++    }
++
++  ret = pclose (f3);
++  if (ret != 0)
++    {
++      fprintf (f1, "2nd pclose returned %d\n", ret);
++      result = 1;
++    }
++
++  return result;
++}
++
++#define TEST_FUNCTION do_test ()
++#include "../test-skeleton.c"

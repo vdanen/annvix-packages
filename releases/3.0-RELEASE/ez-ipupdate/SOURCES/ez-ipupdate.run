@@ -1,0 +1,14 @@
+#!/bin/execlineb
+
+/bin/fdmove -c 2 1
+
+/bin/export PATH "/sbin:/bin:/usr/sbin:/usr/bin"
+
+/bin/ifthenelse { /usr/bin/test ! -f /etc/ez-ipupdate.conf }
+{
+    /bin/echo "configuration file /etc/ez-ipupdate.conf is missing"
+}
+{
+        /usr/bin/ez-ipupdate -d -f -c /etc/ez-ipupdate.conf
+}
+                                            

@@ -1,0 +1,77 @@
+--- tcsh-6.14.00/sh.h.wide-seeks	2005-03-25 19:46:41.000000000 +0100
++++ tcsh-6.14.00/sh.h	2006-09-26 18:26:33.000000000 +0200
+@@ -801,6 +801,13 @@
+  * exactly one if the input is seekable and tell is available.
+  * In other cases, the shell buffers enough blocks to keep all loops
+  * in the buffer.
++ *
++ * If (WIDE_STRINGS && cantell), fbobp is always a byte offset, but
++ * (fseekp - fbobp) and (feobp - fbobp) are character offsets (usable for
++ * fbuf indexing).
++ *
++ * If (!cantell), all offsets are character offsets; if (!WIDE_STRINGS), there
++ * is no difference between byte and character offsets.
+  */
+ EXTERN struct Bin {
+     off_t   Bfseekp;		/* Seek pointer, generally != lseek() value */
+@@ -824,7 +831,7 @@
+ #define TCSH_F_SEEK	 2		/* File seek */
+ #define TCSH_E_SEEK	 3		/* Eval seek */
+     union {
+-	off_t _f_seek;
++	off_t _f_seek;		/* A byte offset if (cantell) */
+ 	Char* _c_seek;
+     } fc;
+ #define f_seek fc._f_seek
+--- tcsh-6.14.00/sh.lex.c.wide-seeks	2006-09-26 18:26:33.000000000 +0200
++++ tcsh-6.14.00/sh.lex.c	2006-09-26 18:28:10.000000000 +0200
+@@ -1694,7 +1694,8 @@
+     char cbuf[BUFSIZE + 1];
+     ssize_t res, r;
+     size_t partial;
+-    
++    int err;
++
+     assert (nchars <= sizeof(cbuf)/sizeof(*cbuf));
+     USE(use_fclens);
+     res = 0;
+@@ -1736,7 +1737,11 @@
+ 	    memmove(cbuf, cbuf + i, partial - i);
+ 	partial -= i;
+     } while (partial != 0 && nchars != 0);
+-    /* Throwing away possible partial multibyte characters on error */
++    /* Throwing away possible partial multibyte characters on error if the
++       stream is not seekable */
++    err = errno;
++    lseek(fildes, -(off_t)partial, L_INCR);
++    errno = err;
+     return res != 0 ? res : r;
+ }
+ 
+@@ -1753,7 +1758,13 @@
+ 	    (void) lseek(SHIN, fseekp, L_SET);
+ 	}
+ 	if (fseekp == feobp) {
+-	    fbobp = feobp;
++ 	    off_t bytes;
++ 	    size_t i;
++
++ 	    bytes = fbobp;
++ 	    for (i = 0; i < (size_t)(feobp - fbobp); i++)
++ 		bytes += fclens[i];
++ 	    fbobp = fseekp = feobp = bytes;
+ 	    do
+ 		c = wide_read(SHIN, fbuf[0], BUFSIZE, 1);
+ 	    while (c < 0 && errno == EINTR);
+@@ -1926,9 +1937,9 @@
+ 	return;
+     case TCSH_F_SEEK:
+ #ifdef WIDE_STRINGS
+-	if (cantell && fseekp >= fbobp && fseekp < feobp) {
++	if (cantell && fseekp >= fbobp && fseekp <= feobp) {
+ 	    size_t i;
+-	    
++
+ 	    l->f_seek = fbobp;
+ 	    for (i = 0; i < fseekp - fbobp; i++)
+ 		l->f_seek += fclens[i];

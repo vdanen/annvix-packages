@@ -1,0 +1,46 @@
+#!/bin/sh
+
+# this runs courier-imap's IMAPS daemon supervised
+# unfortunately, due to how courier-imap works, we need to jump through
+# hoops in order for it all to work
+
+set -a
+
+PATH="/sbin:/usr/sbin:/bin:/usr/bin"
+
+# defaults; then source the imap configurations
+TLS_CACHEFILE=""
+PORT="993"
+IP="0"
+MAX_MEM="14000000"
+MAX_CONN="250"
+MAX_PER_HOST="4"
+
+[ -f /etc/courier/imapd ] && . /etc/courier/imapd
+[ -f /etc/courier/imapd-ssl ] && . /etc/courier/imapd-ssl   
+
+# source sysconfig file
+[[ -f ./env/MAX_PER_HOST ]] && MAX_PER_HOST="$(head -1 ./env/MAX_PER_HOST)"
+[[ -f ./env/MAX_CONN ]] && MAX_CONN="$(head -1 ./env/MAX_CONN)"
+[[ -f ./env/MAX_MEM ]] && MAX_MEM="$(head -1 ./env/MAX_MEM)"
+[[ -f ./env/PORT ]] && PORT="$(head -1 ./env/PORT)"
+[[ -f ./env/IP ]] && IP="$(head -1 ./env/IP)"
+
+HOSTNAME="`hostname --fqdn`"
+
+LIBAUTHMODULES=""
+for f in `echo ${AUTHMODULES}`
+do
+    LIBAUTHMODULES="${LIBAUTHMODULES} /usr/lib/courier/authlib/${f}"
+done
+
+IMAP_TLS=1; export IMAP_TLS
+
+if [ "${TLS_CACHEFILE}" != "" ]; then
+  rm -f ${TLS_CACHEFILE}
+fi
+
+exec /sbin/chpst -m "${MAX_MEM}" \
+  /sbin/tcpsvd -c"${MAX_CONN}" -C"${MAX_PER_HOST}" -v -l"${HOSTNAME}" -x peers.cdb \
+  ${IP} ${PORT} /usr/bin/couriertls -server -tcpd /usr/sbin/imaplogin ${LIBAUTHMODULES} \
+  /usr/bin/imapd Maildir 2>&1

@@ -1,0 +1,44 @@
+--- files/rkhunter.conf.avx-conf	2007-09-01 07:05:26.000000000 -0600
++++ files/rkhunter.conf	2007-12-03 19:40:51.980938250 -0700
+@@ -75,7 +75,7 @@
+ # important files will be written to this directory, so be
+ # sure that the directory permissions are tight.
+ #
+-#TMPDIR=/var/lib/rkhunter/tmp
++TMPDIR=/var/lib/rkhunter/tmp
+ 
+ #
+ # Specify the database directory to use.
+@@ -107,7 +107,7 @@
+ #
+ # Specify the log file pathname.
+ #
+-LOGFILE=/var/log/rkhunter.log
++LOGFILE=/var/log/security/rkhunter.log
+ 
+ #
+ # Set the following option to 1 if the log file is to be appended to
+--- files/os.dat.avx-conf	2007-06-14 14:51:07.000000000 -0600
++++ files/os.dat	2007-12-03 19:37:25.204015500 -0700
+@@ -223,6 +223,10 @@
+ 804:Gentoo Linux 1.12 (sparc):/usr/bin/md5sum:/bin:
+ 805:Gentoo Linux 1.12 (sparc64):/usr/bin/md5sum:/bin:
+ 806:Gentoo Linux 1.12 (x86_64):/usr/bin/md5sum:/bin:
++850:Annvix release 2.0-RELEASE (Surtr) for i586:/usr/bin/md5sum:/bin:
++851:Annvix release 2.0-RELEASE (Surtr) for x86_64:/usr/bin/md5sum:/bin:
++852:Annvix release 2.1-CURRENT (Fenris) for i586:/usr/bin/md5sum:/bin:
++853:Annvix release 2.1-CURRENT (Fenris) for x86_64:/usr/bin/md5sum:/bin:
+ 981:Debian lenny/sid (i386):/usr/bin/md5sum:/bin:
+ 982:Debian lenny/sid (sparc64):/usr/bin/md5sum:/bin:
+ 983:Debian lenny/sid (arm):/usr/bin/md5sum:/bin:
+--- files/rkhunter.avx-conf	2007-12-03 19:39:39.208390250 -0700
++++ files/rkhunter	2007-12-03 19:39:39.212390500 -0700
+@@ -10850,7 +10850,7 @@
+ 
+ NOLOG=0
+ RKHLOGFILE=""
+-DFLT_LOGFILE="/var/log/rkhunter.log"
++DFLT_LOGFILE="/var/log/security/rkhunter.log"
+ 
+ # Set to have the logfile appended to rather than overwritten.
+ APPEND_LOG=0

@@ -1,0 +1,12 @@
+--- mod_auth_remote.c	2005-12-15 16:55:11.000000000 +0100
++++ mod_auth_remote.c.oden	2005-12-15 16:54:15.000000000 +0100
+@@ -99,7 +99,8 @@
+ static int get_remote_auth(char *user, const char *passwd,
+                            remote_auth_config_rec *conf, request_rec *r)
+ {
+-  int bytes = 0, itemp = 0;
++  apr_size_t bytes = 0;
++  int itemp = 0;
+   char *user_pass, *encoded, *req_b,*rbuff;
+   apr_status_t val;
+   apr_socket_t *socket;

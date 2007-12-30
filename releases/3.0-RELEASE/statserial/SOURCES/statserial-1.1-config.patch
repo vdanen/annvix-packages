@@ -1,0 +1,25 @@
+--- statserial-1.1/Makefile.config	1994-12-17 21:16:09.000000000 -0500
++++ statserial-1.1/Makefile	2004-10-26 17:03:47.334908296 -0400
+@@ -7,17 +7,17 @@ LD	= gcc
+ 
+ # for production code
+ CFLAGS	= -Wall -O3 -fomit-frame-pointer
+-LDFLAGS = -s -N
++LDFLAGS = -static
+ 
+ statserial:	statserial.o
+-	$(LD) $(LDFLAGS) -o statserial statserial.o -lcurses
++	$(CC) $(LDFLAGS) -o statserial statserial.o -lncurses
+ 
+ statserial.o: statserial.c
+-	$(CC) $(CFLAGS) -c statserial.c
++	$(CC) -I/usr/include/ncurses $(CFLAGS) -c statserial.c
+ 
+ install: statserial
+-	install -m 555 statserial /usr/local/bin/statserial
+-	install -m 444 statserial.1 /usr/local/man/man1/statserial.1
++	install -m 555 statserial /usr/bin/statserial
++	install -m 444 statserial.1 /usr/man/man1/statserial.1
+ 
+ clean:
+ 	$(RM) statserial statserial.o core *~
