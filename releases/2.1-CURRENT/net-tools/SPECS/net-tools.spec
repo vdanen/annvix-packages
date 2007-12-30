@@ -180,6 +180,9 @@ rm -f %{buildroot}%{_mandir}/man8/rarp.8*
 
 
 %changelog
+* Sat Dec 29 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.60
+- rebuild with new %%_aa_reload macro definition
+
 * Wed Nov 28 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.60
 - add apparmor profile (from Mandriva)
 
