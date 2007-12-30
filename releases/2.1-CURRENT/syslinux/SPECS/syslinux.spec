@@ -92,11 +92,9 @@ chmod +x add_crc
 %make DATE="Annvix"
 mv isolinux.bin isolinux.bin.normal
 
-perl -pi -e 's,^(isolinux_dir.*)/isolinux,$1/x86_64/isolinux,' isolinux.asm
-%make DATE="Mandriva Linux" isolinux.bin
+%make DATE="Annvix" isolinux.bin
 mv isolinux.bin isolinux-x86_64.bin
 
-perl -pi -e 's,^(isolinux_dir.*)/x86_64/isolinux,$1/i586/isolinux,' isolinux.asm
 %make DATE="Annvix" isolinux.bin
 mv isolinux.bin isolinux-i586.bin
 
@@ -160,6 +158,10 @@ install -m 0644 isolinux-x86_64.bin %{buildroot}%{_prefix}/lib/syslinux/
 
 
 %changelog
+* Sat Dec 29 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.51
+- don't change where isolinux looks for it's config files (i.e. in
+  x86_64/isolinux or i586/isolinux)
+
 * Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.51
 - 3.51
 - drop P0, merged upstream
