@@ -26,6 +26,7 @@ URL:		http://www.xmlsoft.org/
 Source0:	ftp://xmlsoft.org/libxml2/%{name}-%{version}.tar.gz
 # (fc) 2.4.23-3mdk remove references to -L/usr/lib
 Patch1:		libxml2-2.4.23-libdir.patch
+Patch2:		libxml2-CVE-2007-6284.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	python-devel >= %{pyver}
@@ -121,6 +122,7 @@ This package contains the documentation for %{name}.
 %prep
 %setup -q
 %patch1 -p1 -b .libdir
+%patch2 -p0 -b .cve-2007-6284
 
 # needed by patch 1
 autoreconf
@@ -205,6 +207,9 @@ rm -rf	%{buildroot}%{_prefix}/doc \
 
 
 %changelog
+* Fri Jan 11 2008 Vincent Danen <vdanen-at-build.annivix.org> 2.6.30
+- P2: security fix for CVE-2007-6284
+
 * Sun Nov 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.30
 - 2.6.30
 - use autoreconf instead of calling each bit manually
