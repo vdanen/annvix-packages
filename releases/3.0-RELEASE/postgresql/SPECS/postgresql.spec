@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		postgresql
-%define version		8.2.5
+%define version		8.2.6
 %define release		%_revrel
 
 %define pyver		%(python -c 'import sys;print(sys.version[0:3])')
@@ -618,6 +618,10 @@ fi
 
 
 %changelog
+* Fri Jan 11 2008 Vincent Danen <vdanen-at-build.annivix.org> 8.2.6
+- 8.2.6: fixes CVE-2007-6600, CVE-2007-4769, CVE-2007-4772, CVE-2007-6067,
+  CVE-2007-6601, CVE-2007-3278
+
 * Fri Dec 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.2.5
 - more changes to the afterboot snippet
 
