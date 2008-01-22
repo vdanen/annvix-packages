@@ -794,6 +794,12 @@ exit 0
 
 
 %changelog
+* Tue Jan 22 2008 Vincent Danen <vdanen-at-build.annivix.org> 2.6.22.16
+- set CONFIG_HIGHMEM=64G off and enable HIGHMEM4G instead (x86)
+- disable CONFIG_RESOURCES_64BIT (x86)
+- hopefully these will solve the "PANIC: CPU too old for this kernel" that
+  some people are seeing
+
 * Thu Jan 17 2008 Vincent Danen <vdanen-at-build.annivix.org> 2.6.22.16
 - 2.6.22.16; fixes CVE-2008-0001
 
