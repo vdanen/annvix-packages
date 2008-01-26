@@ -13,7 +13,7 @@
 %define release 	%_revrel
 
 # Module-Specific definitions
-%define apache_version	2.2.6
+%define apache_version	2.2.8
 %define mod_version	2.1.3
 %define mod_name	mod_security2
 %define mod_conf	82_%{mod_name}.conf
@@ -108,6 +108,9 @@ cp -f rules/README README.rules
 
 
 %changelog
+* Sat Jan 26 2008 Vincent Danen <vdanen-at-build.annivix.org> 2.2.8_2.1.3
+- apache 2.2.8
+
 * Wed Dec 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.6_2.1.3
 - 2.1.3
 - include the extra rules, but don't enable them by default
