@@ -13,7 +13,7 @@
 %define release 	%_revrel
 
 # Module-Specific definitions
-%define apache_version	2.2.6
+%define apache_version	2.2.8
 %define mod_version	3.0.0
 %define mod_name	mod_auth_mysql
 %define mod_conf	12_%{mod_name}.conf
@@ -86,6 +86,9 @@ install -m 0644 %{_sourcedir}/%{mod_conf} %{buildroot}%{_sysconfdir}/httpd/modul
 
 
 %changelog
+* Sat Jan 26 2008 Vincent Danen <vdanen-at-build.annivix.org> 2.2.8_3.0.0
+- apache 2.2.8
+
 * Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.6_3.0.0
 - rebuild against new mysql
 
