@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		httpd
-%define version		2.2.6
+%define version		2.2.8
 %define release		%_revrel
 
 # not everyone uses this, so define it here
@@ -19,6 +19,11 @@
 %define ap_version	%{version}
 %define ap_release	%{release}
 %define srcdir		%{_prefix}/src/httpd-%{version}
+
+# define the maximum number of dynamic modules
+%define defmaxmods	128
+# define the maximum number of concurrent servers
+%define defservlimit	1024
 
 Summary:	Apache web server (prefork mpm)
 Name:		%{name}
@@ -62,7 +67,7 @@ Patch5:		httpd-2.0.48-bsd-ipv6-fix.diff
 #
 # OE: prepare for the mod_limitipconn module found here:
 # http://dominia.org/djao/limitipconn.html
-Patch6:		apachesrc.diff
+Patch6:		httpd-limitipconn.diff
 # JMD: fix suexec path so we can have both versions of Apache and both
 # versions of suexec
 Patch7:		apache2-suexec.patch
@@ -76,10 +81,8 @@ Patch13:	httpd-2.2.0-authnoprov.patch
 Patch14:	certwatch-avx-annvix.patch
 Patch15:	httpd-2.2.4-mdv-fix_extra_htaccess_check.patch
 Patch16:	httpd-bug36780.patch
-Patch17:	worker_init_patch_plus_r572937_2.2.x.patch
 Patch18:	httpd-bug42829.patch
 Patch19:	httpd-bug43415.patch
-Patch20:	httpd-2.2.6-ssllibver.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	apr-devel >= 1:1.2.11
@@ -567,7 +570,7 @@ This package contains the documentation for %{name}.
 %patch3 -p1 -b .corelimit.droplet
 %patch4 -p1 -b .debuglog.droplet
 %patch5 -p1 -b .bsd-ipv6.droplet
-%patch6 -p1 -b .apachesrc.droplet
+%patch6 -p1 -b .limitipcon.droplet
 %patch7 -p0 -b .apache2-suexec.droplet
 %patch8 -p1 -b .apxs.droplet
 %patch9 -p1 -b .disablemods.droplet
@@ -578,10 +581,8 @@ This package contains the documentation for %{name}.
 %patch14 -p0 -b .certwatch.droplet
 %patch15 -p0 -b .fix_extra_htaccess_check.droplet
 %patch16 -p1 -b .oldflush.droplet
-%patch17 -p0 -b .worker_init_patch_plus_r572937_2.2.x.droplet
 %patch18 -p0 -b .bug42829.droplet
 %patch19 -p1 -b .bug43415.droplet
-%patch20 -p1 -b .ssllibver.droplet
 
 # forcibly prevent use of bundled apr, apr-util, pcre
 rm -rf srclib/{apr,apr-util,pcre}
@@ -631,13 +632,13 @@ cat >> config.layout << EOF
 EOF
 
 # Fix DYNAMIC_MODULE_LIMIT
-perl -pi -e "s/DYNAMIC_MODULE_LIMIT 64/DYNAMIC_MODULE_LIMIT 128/;" include/httpd.h
+perl -pi -e "s/DYNAMIC_MODULE_LIMIT 64/DYNAMIC_MODULE_LIMIT %{defmaxmods}/;" include/httpd.h
 
 # don't try to touch srclib
 perl -pi -e "s|^SUBDIRS = .*|SUBDIRS = os server modules support|g" Makefile.in
 
 # bump server limit
-perl -pi -e "s|DEFAULT_SERVER_LIMIT 256|DEFAULT_SERVER_LIMIT 1024|g" server/mpm/prefork/prefork.c
+perl -pi -e "s|DEFAULT_SERVER_LIMIT 256|DEFAULT_SERVER_LIMIT %{defservlimit}|g" server/mpm/prefork/prefork.c
 
 # prepare the httpd-source package
 rm -rf $RPM_BUILD_DIR/tmp-httpd-%{version}; mkdir -p $RPM_BUILD_DIR/tmp-httpd-%{version}/usr/src
@@ -1259,6 +1260,7 @@ fi
 %{_libdir}/httpd/mod_setenvif.so
 %{_libdir}/httpd/mod_speling.so
 %{_libdir}/httpd/mod_status.so
+%{_libdir}/httpd/mod_substitute.so
 %{_libdir}/httpd/mod_unique_id.so
 %{_libdir}/httpd/mod_usertrack.so
 %{_libdir}/httpd/mod_version.so
@@ -1408,6 +1410,12 @@ fi
 
 
 %changelog
+* Sat Jan 26 2008 Vincent Danen <vdanen-at-build.annivix.org> 2.2.8
+- 2.2.8: security fixes for CVE-2007-6421, CVE-2007-6422, CVE-2007-6388,
+  and CVE-2007-5000
+- drop upstream patches: P17, P20
+- update perl framework (S4) to r609180
+
 * Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.6
 - rebuild against new openssl
 
