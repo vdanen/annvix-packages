@@ -13,7 +13,7 @@
 %define release 	%_revrel
 
 # Module-Specific definitions
-%define apache_version	2.2.6
+%define apache_version	2.2.8
 %define mod_version	2.0.3
 %define mod_name	mod_perl
 %define mod_conf	75_%{mod_name}.conf
@@ -170,6 +170,9 @@ rm -f %{buildroot}%{_mandir}/man3/Bundle::ApacheTest.3pm
 
 
 %changelog
+* Sat Jan 26 2008 Vincent Danen <vdanen-at-build.annivix.org> 2.2.8_2.0.3
+- apache 2.2.8
+
 * Sat Sep 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.6_2.0.3
 - apache 2.2.6
 - drop the old P1; no longer required
