@@ -13,7 +13,7 @@
 %define release 	%_revrel
 
 # Module-Specific definitions
-%define apache_version	2.2.6
+%define apache_version	2.2.8
 %define mod_name	mod_suexec
 %define mod_conf	69_%{mod_name}.conf
 %define mod_so		%{mod_name}.so
@@ -116,6 +116,9 @@ install -m 0644 %{_sourcedir}/%{mod_conf} %{buildroot}%{_sysconfdir}/httpd/modul
 
 
 %changelog
+* Sat Jan 26 2008 Vincent Danen <vdanen-at-build.annivix.org> 2.2.8
+- apache 2.2.8
+
 * Sat Sep 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.6
 - apache 2.2.6
 - don't put the module in httpd-extramodules as this isn't a third-party
