@@ -13,7 +13,7 @@
 %define release 	%_revrel
 
 # Module-Specific definitions
-%define apache_version	2.2.6
+%define apache_version	2.2.8
 %define mod_version	2.2
 %define mod_name	mod_auth_shadow
 %define mod_conf	83_%{mod_name}.conf
@@ -93,6 +93,9 @@ install -m 4755 validate %{buildroot}%{_sbindir}/
 
 
 %changelog
+* Sat Jan 26 2008 Vincent Danen <vdanen-at-build.annivix.org> 2.2.8_2.2
+- apache 2.2.8
+
 * Sat Sep 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.6_2.2
 - 2.2
 - apache 2.2.6
