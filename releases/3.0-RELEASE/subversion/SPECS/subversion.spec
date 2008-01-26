@@ -12,7 +12,7 @@
 %define svn_version	1.4.6
 %define release		%_revrel
 
-%define apache_version	2.2.6
+%define apache_version	2.2.8
 %define mod_version 	%{apache_version}_%{svn_version}
 %define mod_dav_name	mod_dav_svn
 %define mod_dav_conf	46_%{mod_dav_name}.conf
@@ -511,6 +511,9 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Sat Jan 26 2008 Vincent Danen <vdanen-at-build.annivix.org> 1.4.6
+- apache 2.2.8
+
 * Fri Dec 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.4.6
 - 1.4.6
 
