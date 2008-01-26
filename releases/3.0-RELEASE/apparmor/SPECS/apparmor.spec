@@ -372,6 +372,9 @@ rm -f %{buildroot}%{_profiledir}/{bin,sbin,usr.sbin,usr.bin}.*
 
 
 %changelog
+* Sat Jan 26 2008 Vincent Danen <vdanen-at-build.annivix.org> 2.1
+- apache 2.2.8
+
 * Sat Dec 29 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1
 - rebuild with new %%_aa_reload macro definition
 
