@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		httpd-conf
-%define version		2.2.6
+%define version		2.2.8
 %define release		%_revrel
 
 %define compat_dir	/etc/httpd
@@ -211,6 +211,9 @@ rm -rf %{buildroot}%{_datadir}/ADVX
 
 
 %changelog
+* Sat Jan 26 2008 Vincent Danen <vdanen-at-build.annivix.org> 2.2.8
+- apache 2.2.8
+
 * Fri Dec 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.6
 - update the afterboot snippet
 
