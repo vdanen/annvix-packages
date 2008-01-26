@@ -14,7 +14,7 @@
 %define epoch		1
 
 # Module-Specific definitions
-%define apache_version	2.2.6
+%define apache_version	2.2.8
 %define mod_version	1.5.7
 %define mod_name	mod_auth_radius
 %define mod_conf	14_%{mod_name}.conf
@@ -88,6 +88,9 @@ install -m 0644 %{_sourcedir}/%{mod_conf} %{buildroot}%{_sysconfdir}/httpd/modul
 
 
 %changelog
+* Sat Jan 26 2008 Vincent Danen <vdanen-at-build.annivix.org> 2.2.8_1.5.7
+- apache 2.2.8
+
 * Sat Sep 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.6_1.5.7
 - apache 2.2.6
 
