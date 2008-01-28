@@ -27,6 +27,8 @@ Source5:	rsync.run
 Source6:	rsync-log.run
 Source7:	07_rsync.afterboot
 Patch0:		rsync-2.6.9-suse-CVE-2007-4091.patch
+Patch1:		munge-symlinks-2.6.9-CVE-2007-6199.diff
+Patch2:		daemon-exclude-2.6.9-CVE-2007-6200.diff
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	popt-devel
@@ -59,6 +61,8 @@ This package contains the documentation for %{name}.
 %prep
 %setup -q
 %patch0 -p1 -b .cve-2007-4091
+%patch1 -p1 -b .cve-2007-6199
+%patch2 -p1 -b .cve-2007-6200
 
 
 %build
@@ -139,6 +143,10 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Mon Jan 28 2008 Vincent Danen <vdanen-at-build.annivix.org> 2.6.9
+- P1: security fix for CVE-2007-6199
+- P2: security fix for CVE-2007-6200
+
 * Fri Dec 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.6.9
 - update the afterboot snippet
 
