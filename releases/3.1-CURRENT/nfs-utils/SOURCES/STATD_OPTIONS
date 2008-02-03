@@ -1,0 +1,7 @@
+
+
+# This file defines options for rpc.statd.
+#
+# See rpc.statd(8) for the available options and information; an example
+# might be '--port 4000 --outgoing-port 4001'.  Make sure you set the options
+# on the first line of this file.  Everything below the first line is ignored.

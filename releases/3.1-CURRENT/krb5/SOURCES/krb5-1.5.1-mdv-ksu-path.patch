@@ -1,0 +1,11 @@
+--- krb5-1.5.1/src/clients/ksu/Makefile.in.ksu-path	2006-05-24 18:19:23.000000000 -0300
++++ krb5-1.5.1/src/clients/ksu/Makefile.in	2006-11-29 19:00:09.000000000 -0200
+@@ -2,7 +2,7 @@
+ myfulldir=clients/ksu
+ mydir=clients/ksu
+ BUILDTOP=$(REL)..$(S)..
+-DEFINES = -DGET_TGT_VIA_PASSWD -DPRINC_LOOK_AHEAD -DCMD_PATH='"/bin /local/bin"'
++DEFINES = -DGET_TGT_VIA_PASSWD -DPRINC_LOOK_AHEAD -DCMD_PATH='"/sbin /usr/sbin /bin /usr/bin /usr/X11R6/bin"'
+ DEFS=
+ 
+ PROG_LIBPATH=-L$(TOPLIBD)

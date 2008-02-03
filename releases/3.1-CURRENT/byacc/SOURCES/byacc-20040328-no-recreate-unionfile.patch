@@ -1,0 +1,10 @@
+--- byacc-20040328/output.c.bak	2004-03-29 03:49:15.000000000 +0800
++++ byacc-20040328/output.c	2004-12-29 23:49:44.209351440 +0800
+@@ -811,7 +811,6 @@
+     if (dflag && unionized)
+     {
+ 	rewind(union_file);
+-	union_file = tmpfile();
+ 	if (union_file == NULL) open_error("union_file");
+ 	while ((c = getc(union_file)) != EOF)
+ 	    putc(c, defines_file);

@@ -1,0 +1,17 @@
+--- configure.in	2003-11-06 03:11:41.000000000 +0100
++++ configure.in.oden	2003-11-27 02:41:12.000000000 +0100
+@@ -1541,14 +1541,6 @@
+   AC_CHECK_LIB(bz2, bzread, [_rpmlibs="$_rpmlibs -lbz2"],
+      AC_CHECK_LIB(bz2, BZ2_bzread, [_rpmlibs="$_rpmlibs -lbz2"],))
+ 
+-  # two variants of db1 need checking.
+-  AC_CHECK_LIB(db1, dbopen, [_rpmlibs="-ldb1 $_rpmlibs"],
+-     AC_CHECK_LIB(db, dbopen, [_rpmlibs="-ldb $_rpmlibs"]))
+-
+-  # two variants of db3 need checking.
+-  AC_CHECK_LIB(db-3.1, db_create, [_rpmlibs="-ldb-3.1 $_rpmlibs"],
+-    AC_CHECK_LIB(db-3.0, db_create, [_rpmlibs="-ldb-3.0 $_rpmlibs"]))
+-  
+   # rpm-3.0.5 and later needs popt.
+   AC_CHECK_LIB(popt, poptParseArgvString, [_rpmlibs="-lpopt $_rpmlibs"])
+   

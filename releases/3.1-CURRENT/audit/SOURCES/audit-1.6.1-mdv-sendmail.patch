@@ -1,0 +1,11 @@
+--- audit-1.6.1/system-config-audit/src/global_dialog.py~	2007-06-13 18:44:06.000000000 -0300
++++ audit-1.6.1/system-config-audit/src/global_dialog.py	2007-09-24 10:22:26.000000000 -0300
+@@ -442,7 +442,7 @@
+         Return an error message, or None if no error is detected.
+ 
+         '''
+-        if os.access(_email_command, os.X_OK):
++        if not os.access(_email_command, os.X_OK):
+             return (_('Email requested but %s is not executable') %
+                     _email_command)
+         return None

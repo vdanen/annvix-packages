@@ -1,0 +1,21 @@
+--- tcsh-6.14.00/tc.func.c.remotehost	2006-09-09 04:05:48.000000000 +0200
++++ tcsh-6.14.00/tc.func.c	2006-09-09 04:05:52.000000000 +0200
+@@ -2250,14 +2250,13 @@
+     jmp_buf_t osetexit;
+     getexit(osetexit);
+ 
+-    (void) alarm(2);
+-
+-    if (setexit() == 0)
++    if (setexit() == 0) {
++	(void) alarm(2);
+ 	getremotehost();
+-
++    }
++    (void) alarm(0);
+     resexit(osetexit);
+ 
+-    (void) alarm(0);
+     (void) sigset(SIGALRM, osig);
+ 
+ #ifdef YPBUGS

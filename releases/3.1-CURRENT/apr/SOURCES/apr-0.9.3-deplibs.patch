@@ -1,0 +1,16 @@
+
+- link libapr against libraries on which it depends
+- re-order link line so that -pthread can be passed down to the
+compiler driver with an appropriate LT_LDFLAGS
+
+--- apr-0.9.3/configure.in.deplibs	2003-05-07 22:13:30.000000000 +0100
++++ apr-0.9.3/configure.in	2003-05-07 22:13:23.000000000 +0100
+@@ -159,7 +159,7 @@
+ if test "x$use_libtool" = "xyes"; then
+       lt_compile='$(LIBTOOL) $(LTFLAGS) --mode=compile $(COMPILE) -c $< && touch $@'
+       LT_VERSION="-version-info `$get_version libtool $version_hdr APR`"
+-      link="\$(LIBTOOL) \$(LTFLAGS) --mode=link \$(LT_LDFLAGS) \$(COMPILE) ${LT_VERSION} \$(ALL_LDFLAGS) -o \$@"
++      link="\$(LIBTOOL) \$(LTFLAGS) --mode=link \$(COMPILE) \$(LT_LDFLAGS) ${LT_VERSION} \$(ALL_LDFLAGS) -o \$@"
+       so_ext='lo'
+       lib_target='-rpath $(libdir) $$objects'
+       export_lib_target='-rpath \$(libdir) \$\$objects'

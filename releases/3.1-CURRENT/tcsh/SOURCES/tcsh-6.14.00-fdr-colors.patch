@@ -1,0 +1,14 @@
+--- tcsh-6.14.00/tw.color.c.colors	2006-03-23 02:59:40.000000000 +0100
++++ tcsh-6.14.00/tw.color.c	2006-03-23 03:00:44.000000000 +0100
+@@ -80,6 +80,11 @@
+ #endif
+     VAR(NOS, "rc", "m"),	/* Right code */
+     VAR(NOS, "ec", ""),		/* End code (replaces lc+no+rc) */
++    VAR(NOS, "su", ""),		/* Setuid file (u+s) */
++    VAR(NOS, "sg", ""),		/* Setgid file (g+s) */
++    VAR(NOS, "tw", ""),		/* Sticky and other writable dir (+t,o+w) */
++    VAR(NOS, "ow", ""),		/* Other writable dir (o+w) but not sticky */
++    VAR(NOS, "st", ""),		/* Sticky dir (+t) but not other writable */
+ };
+ 
+ enum FileType {

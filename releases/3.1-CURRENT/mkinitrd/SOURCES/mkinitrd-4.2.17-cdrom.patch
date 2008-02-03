@@ -1,0 +1,216 @@
+--- mkinitrd-4.2.17/nash/mount_by_label.c.cdrom	2007-08-24 12:55:59.000000000 +0200
++++ mkinitrd-4.2.17/nash/mount_by_label.c	2007-08-24 12:56:17.000000000 +0200
+@@ -29,7 +29,9 @@
+ #define BLKGETSIZE64 _IOR(0x12,114,size_t)
+ 
+ #define PROC_PARTITIONS "/proc/partitions"
++#define PROC_CDROMS	"/proc/sys/dev/cdrom/info"
+ #define DEVLABELDIR	"/dev"
++#define SYS_BLOCK	"/sys/block"
+ 
+ #define _(str) (str)
+ 
+@@ -43,7 +45,7 @@ static struct uuidCache_s {
+ 
+ /* for now, only ext2, ext3 and xfs are supported */
+ static int
+-get_label_uuid(const char *device, char **label, char **uuid) {
++get_label_uuid(const char *device, char **label, char **uuid, int iso_only) {
+ 	int rv = 1;
+         uint64_t size;
+         struct volume_id *vid = NULL;
+@@ -57,8 +59,10 @@ get_label_uuid(const char *device, char 
+                 size = 0;
+         }
+ 
+-        if (volume_id_probe_all(vid, 0, size) != 0) {
+-                goto exit;
++	if (iso_only ?
++	    volume_id_probe_iso9660(vid, 0, size) != 0 :
++	    volume_id_probe_all(vid, 0, size) != 0) {
++		goto exit;
+         }
+ 
+         if (vid->label[0] != '\0') {
+@@ -99,21 +103,57 @@ uuidcache_addentry(char * device, int ma
+ }
+ 
+ static void
+-uuidcache_init(void) {
++uuidcache_check_device(const char *device_name, int ma, int mi, int iso_only) {
++	char device[110];
++	char *uuid, *label;
++	char * ptr;
++	char * deviceDir = NULL;
++	int mustRemove = 0;
++	int mustRemoveDir = 0;
++	int i;
++
++	sprintf(device, "%s/%s", DEVLABELDIR, device_name);
++	if (access(device, F_OK)) {
++		ptr = device;
++		i = 0;
++		while (*ptr)
++			if (*ptr++ == '/')
++				i++;
++		if (i > 2) {
++			deviceDir = alloca(strlen(device) + 1);
++			strcpy(deviceDir, device);
++			ptr = deviceDir + (strlen(device) - 1);
++			while (*ptr != '/')
++				*ptr-- = '\0';
++			if (mkdir(deviceDir, 0644)) {
++				printf("mkdir: cannot create directory %s: %d\n", deviceDir, errno);
++			} else {
++				mustRemoveDir = 1;
++			}
++		}
++
++		mknod(device, S_IFBLK | 0600, makedev(ma, mi));
++		mustRemove = 1;
++	}
++	if (!get_label_uuid(device, &label, &uuid, iso_only))
++		uuidcache_addentry(strdup(device), ma, mi, 
++				   label, uuid);
++
++	if (mustRemove) unlink(device);
++	if (mustRemoveDir) rmdir(deviceDir);
++}
++
++static void
++uuidcache_init_partitions(void) {
+ 	char line[100];
+ 	char *s;
+ 	int ma, mi, sz;
+ 	static char ptname[100];
+ 	FILE *procpt;
+-	char *uuid, *label;
+-	char device[110];
+ 	int firstPass;
+ 	int handleOnFirst;
+ 	char * chptr, * endptr;
+ 
+-	if (uuidCache)
+-		return;
+-
+ 	procpt = fopen(PROC_PARTITIONS, "r");
+ 	if (!procpt) {
+ 		static int warn = 0;
+@@ -169,41 +209,7 @@ uuidcache_init(void) {
+ 		for(s = ptname; *s; s++);
+ 
+ 		if (isdigit(s[-1])) {
+-			char * ptr;
+-			char * deviceDir = NULL;
+-			int mustRemove = 0;
+-			int mustRemoveDir = 0;
+-			int i;
+-
+-			sprintf(device, "%s/%s", DEVLABELDIR, ptname);
+-			if (access(device, F_OK)) {
+-			    ptr = device;
+-			    i = 0;
+-			    while (*ptr)
+-				if (*ptr++ == '/')
+-				    i++;
+-			    if (i > 2) {
+-				deviceDir = alloca(strlen(device) + 1);
+-				strcpy(deviceDir, device);
+-				ptr = deviceDir + (strlen(device) - 1);
+-				while (*ptr != '/')
+-				    *ptr-- = '\0';
+-				if (mkdir(deviceDir, 0644)) {
+-				    printf("mkdir: cannot create directory %s: %d\n", deviceDir, errno);
+-				} else {
+-				    mustRemoveDir = 1;
+-				}
+-			    }
+-
+-			    mknod(device, S_IFBLK | 0600, makedev(ma, mi));
+-			    mustRemove = 1;
+-			}
+-			if (!get_label_uuid(device, &label, uuid))
+-				uuidcache_addentry(strdup(device), ma, mi, 
+-						   label, uuid);
+-
+-			if (mustRemove) unlink(device);
+-			if (mustRemoveDir) rmdir(deviceDir);
++		  uuidcache_check_device(ptname, ma, mi, 0);
+ 		}
+ 	    }
+ 	}
+@@ -211,6 +217,74 @@ uuidcache_init(void) {
+ 	fclose(procpt);
+ }
+ 
++static int
++dev_get_major_minor(char *device_name, int *major, int *minor) {
++	char * dev_path;
++	int fd;
++	char dev[7];
++	char *major_ptr, *minor_ptr;
++
++	dev_path = alloca(strlen(SYS_BLOCK) + strlen(device_name) + 6);
++	sprintf(dev_path, "%s/%s/dev", SYS_BLOCK, device_name);
++
++	fd = open(dev_path, O_RDONLY);
++	if (!dev_path) return 1;
++	read(fd, dev, sizeof(dev));
++	close(fd);
++
++	major_ptr = dev;
++	minor_ptr = strchr(dev, ':');
++	if (!minor_ptr) return 1;
++	*minor_ptr++ = '\0';
++
++	*major = strtol(major_ptr, NULL, 10);
++	*minor = strtol(minor_ptr, NULL, 10);
++
++	return 0;
++}
++
++static void
++uuidcache_init_cdroms(void) {
++	char line[100];
++	int ma, mi;
++	FILE *proccd;
++
++	proccd = fopen(PROC_CDROMS, "r");
++	if (!proccd) {
++		static int warn = 0;
++		if (!warn++)
++		    fprintf (stderr, _("mount: could not open %s, so UUID and LABEL "
++			     "conversion cannot be done for CD-Roms.\n"),
++		       PROC_CDROMS);
++		return;
++	}
++
++	while (fgets(line, sizeof(line), proccd)) {
++		const char * drive_name_string = "drive name:\t\t";
++		if (!strncmp(line, drive_name_string, strlen(drive_name_string))) {
++			char * device_name;
++			device_name = strtok(line + strlen(drive_name_string), "\t\n");
++			while (device_name) {
++				dev_get_major_minor(device_name, &ma, &mi);
++				uuidcache_check_device(device_name, ma, mi, 1);
++				device_name = strtok(NULL, "\t\n");
++			}
++			break;
++		}
++	}
++
++	fclose(proccd);
++}
++
++static void
++uuidcache_init(void) {
++	if (uuidCache)
++		return;
++
++	uuidcache_init_partitions();
++	uuidcache_init_cdroms();
++}
++
+ #define UUID   1
+ #define VOL    2
+ 

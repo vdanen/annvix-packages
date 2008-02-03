@@ -1,0 +1,19 @@
+#!/bin/sh
+PATH="/sbin:/usr/sbin:/bin:/usr/bin"
+
+# this runs rpc.statd supervised
+
+# this service depends on portmap
+
+# load sunrpc here so we can ensure it's loaded first
+if [ -x /sbin/lsmod -a -x /sbin/modprobe ]; then
+    if ! /sbin/lsmod | grep sunrpc >/dev/null ; then
+        /sbin/modprobe sunrpc || exit 1
+    fi
+fi
+
+STATD_OPTIONS=""
+envdir=/etc/sysconfig/env/nfs
+[[ -f ${envdir}/STATD_OPTIONS ]] && STATD_OPTIONS="$(head -1 ${envdir}/STATD_OPTIONS)"
+
+exec /sbin/rpc.statd -F ${STATD_OPTIONS} 2>&1

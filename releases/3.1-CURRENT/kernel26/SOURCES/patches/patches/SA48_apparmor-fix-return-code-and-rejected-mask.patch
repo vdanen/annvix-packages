@@ -1,0 +1,31 @@
+thomas,
+
+here is a small bug fix to the apparmor module that corrects the
+return error code and rejected_mask, when a pathname lookup
+fails because the path had become disconnected, or is too long.
+
+You can choose not to apply, and the only consequence is the that the
+error code will be EACCES instead of ENOENT or ENAMETOOLONG, and the
+rejected_mask in the logs will be nonsense.
+
+Signed-off-by: John Johansen <jjohansen@suse.de>
+
+---
+ security/apparmor/main.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+--- a/security/apparmor/main.c
++++ b/security/apparmor/main.c
+@@ -191,8 +191,10 @@ static int aa_perm_dentry(struct aa_prof
+ 		 */
+ 		if (PTR_ERR(sa->name) == -ENOENT && (check & AA_CHECK_FD))
+ 			sa->denied_mask = 0;
+-		else
+-			sa->denied_mask = PTR_ERR(sa->name);
++		else {
++			sa->denied_mask = sa->requested_mask;
++			sa->error_code = PTR_ERR(sa->name);
++		}
+ 		sa->name = NULL;
+ 	} else
+ 		sa->denied_mask = aa_file_denied(profile, sa->name,

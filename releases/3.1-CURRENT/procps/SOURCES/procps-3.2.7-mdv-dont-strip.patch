@@ -1,0 +1,13 @@
+Don't strip files though make command in specfile now overrides CFLAGS.
+
+--- procps-3.2.7/Makefile.dont-strip	2006-06-24 11:02:25.000000000 +0200
++++ procps-3.2.7/Makefile	2007-03-10 12:18:09.000000000 +0100
+@@ -102,7 +102,7 @@ PKG_CFLAGS   := -fno-common -ffast-math 
+   -Wstrict-prototypes -Wmissing-prototypes
+ # Note that some stuff below is conditional on CFLAGS containing
+ # an option that starts with "-g". (-g, -g2, -g3, -ggdb, etc.)
+-CFLAGS       := -O2 -s
++CFLAGS       := -O2
+ ALL_CFLAGS   := $(PKG_CFLAGS) $(CFLAGS)
+ 
+ PKG_LDFLAGS  := -Wl,-warn-common

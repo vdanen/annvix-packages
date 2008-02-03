@@ -1,0 +1,66 @@
+--- perl-5.8.8/lib/Math/Trig.pm.pix	2005-11-28 04:13:30.000000000 +0100
++++ perl-5.8.8/lib/Math/Trig.pm	2007-11-15 15:45:10.000000000 +0100
+@@ -193,7 +193,7 @@ sub great_circle_waypoint {
+     my $z = $A * sin($lat0)                + $B * sin($lat1);
+ 
+     my $theta = atan2($y, $x);
+-    my $phi   = atan2($z, sqrt($x*$x + $y*$y));
++    my $phi   = acos($z);
+     
+     return ($theta, $phi);
+ }
+--- perl-5.8.8/lib/Math/Trig.t.pix	2005-09-14 15:16:59.000000000 +0200
++++ perl-5.8.8/lib/Math/Trig.t	2007-11-15 16:10:15.000000000 +0100
+@@ -236,7 +236,7 @@ use Math::Trig ':radial';
+     print 'not ' unless (near($lon, $London[0]));
+     print "ok 31\n";
+ 
+-    print 'not ' unless (near($lat, $pip2 - $London[1]));
++    print 'not ' unless (near($lat, $London[1]));
+     print "ok 32\n";
+ 
+     ($lon, $lat) = great_circle_waypoint(@London, @Tokyo, 1.0);
+@@ -244,7 +244,7 @@ use Math::Trig ':radial';
+     print 'not ' unless (near($lon, $Tokyo[0]));
+     print "ok 33\n";
+ 
+-    print 'not ' unless (near($lat, $pip2 - $Tokyo[1]));
++    print 'not ' unless (near($lat, $Tokyo[1]));
+     print "ok 34\n";
+ 
+     ($lon, $lat) = great_circle_waypoint(@London, @Tokyo, 0.5);
+@@ -252,7 +252,7 @@ use Math::Trig ':radial';
+     print 'not ' unless (near($lon, 1.55609593577679)); # 89.1577 E
+     print "ok 35\n";
+ 
+-    print 'not ' unless (near($lat, 1.20296099733328)); # 68.9246 N
++    print 'not ' unless (near($lat, 0.36783532946162)); # 68.93 N
+     print "ok 36\n";
+ 
+     ($lon, $lat) = great_circle_midpoint(@London, @Tokyo);
+@@ -260,7 +260,7 @@ use Math::Trig ':radial';
+     print 'not ' unless (near($lon, 1.55609593577679)); # 89.1577 E
+     print "ok 37\n";
+ 
+-    print 'not ' unless (near($lat, 1.20296099733328)); # 68.9246 N
++    print 'not ' unless (near($lat, 0.367835329461615)); # 68.93 N
+     print "ok 38\n";
+ 
+     ($lon, $lat) = great_circle_waypoint(@London, @Tokyo, 0.25);
+@@ -268,14 +268,14 @@ use Math::Trig ':radial';
+     print 'not ' unless (near($lon, 0.516073562850837)); # 29.5688 E
+     print "ok 39\n";
+ 
+-    print 'not ' unless (near($lat, 1.170565013391510)); # 67.0684 N
++    print 'not ' unless (near($lat, 0.400231313403387)); # 67.07 N
+     print "ok 40\n";
+     ($lon, $lat) = great_circle_waypoint(@London, @Tokyo, 0.75);
+ 
+     print 'not ' unless (near($lon, 2.17494903805952)); # 124.6154 E
+     print "ok 41\n";
+ 
+-    print 'not ' unless (near($lat, 0.952987032741305)); # 54.6021 N
++    print 'not ' unless (near($lat, 0.617809294053591)); # 54.60 N
+     print "ok 42\n";
+ 
+     use Math::Trig 'great_circle_destination';

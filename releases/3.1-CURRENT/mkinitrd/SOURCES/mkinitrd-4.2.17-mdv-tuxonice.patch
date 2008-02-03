@@ -1,0 +1,10 @@
+--- mkinitrd-4.2.17/mkinitrd.tuxonice	2007-09-20 20:15:28.000000000 +0300
++++ mkinitrd-4.2.17/mkinitrd	2007-09-20 20:36:09.000000000 +0300
+@@ -1295,6 +1295,7 @@ if [ -z "$noresume" ]; then
+     echo "resume" >> $RCFILE
+ fi
+ [[ -z "$noresume2" ]] && echo "echo 1 > /sys/power/suspend2/do_resume" >> $RCFILE
++[[ -z "$noresume2" ]] && echo "echo 1 > /sys/power/tuxonice/do_resume" >> $RCFILE
+ 
+ if [ -z "$noresume" -o -z "$noresume2" ] && [ -n "$raiddevices" ]; then
+     echo "echo 0 > /sys/module/md_mod/parameters/start_ro" >> $RCFILE

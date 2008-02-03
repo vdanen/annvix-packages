@@ -1,0 +1,27 @@
+diff --git a/Makefile.in b/Makefile.in
+index ecdc551..3391f04 100644
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -44,11 +44,11 @@ Makefile : $(VPATH)/configure $(VPATH)/Makefile.in
+ check : $(progname) $(VPATH)/testsuite/check.sh
+ 	@$(VPATH)/testsuite/check.sh $(VPATH)/testsuite
+ 
+-install : all install-info
++install : all install-info install-man
+ 	if test ! -d $(DESTDIR)$(bindir) ; then $(INSTALL) -d $(DESTDIR)$(bindir) ; fi
+ 	$(INSTALL_PROGRAM) ./$(progname) $(DESTDIR)$(bindir)/$(progname)
+ 	-rm -f $(DESTDIR)$(bindir)/r$(progname)
+-	cd $(DESTDIR)$(bindir) ; ln $(progname) r$(progname)
++	cd $(DESTDIR)$(bindir) ; ln -s $(progname) r$(progname)
+ 
+ install-info :
+ 	if test ! -d $(DESTDIR)$(infodir) ; then $(INSTALL) -d $(DESTDIR)$(infodir) ; fi
+@@ -59,7 +59,7 @@ install-man :
+ 	if test ! -d $(DESTDIR)$(mandir)/man1 ; then $(INSTALL) -d $(DESTDIR)$(mandir)/man1 ; fi
+ 	$(INSTALL_DATA) $(VPATH)/doc/$(progname).1 $(DESTDIR)$(mandir)/man1/$(progname).1
+ 	-rm -f $(DESTDIR)$(mandir)/man1/r$(progname).1
+-	cd $(DESTDIR)$(mandir)/man1 ; ln $(progname).1 r$(progname).1
++	cd $(DESTDIR)$(mandir)/man1 ; ln -s $(progname).1 r$(progname).1
+ 
+ install-strip : all
+ 	$(MAKE) INSTALL_PROGRAM='$(INSTALL_PROGRAM) -s' install

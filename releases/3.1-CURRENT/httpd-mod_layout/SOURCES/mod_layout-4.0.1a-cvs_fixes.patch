@@ -1,0 +1,90 @@
+diff -Naur mod_layout-4.0.1a/ChangeLog mod_layout2/ChangeLog
+--- mod_layout-4.0.1a/ChangeLog	2002-10-21 21:38:17.000000000 +0200
++++ mod_layout2/ChangeLog	2004-03-25 21:12:06.000000000 +0100
+@@ -1,3 +1,8 @@
++* Fix by Steve.Caligo@cie.etat.lu for chunk problems on long pages
++
++Version 4.0.2a Fri Aug 29 10:30:26 PDT 2003
++* Fix by Alessandro Zummo <azummo@towertech.it> for appended headers
++
+ Version 4.0.1a Oct 21 2002
+ * Fixed the compile bugs for change in the filter API
+ * Fixed the problem where static documents no longer worked after the filter fiasco
+diff -Naur mod_layout-4.0.1a/mod_layout.c mod_layout2/mod_layout.c
+--- mod_layout-4.0.1a/mod_layout.c	2002-10-01 08:23:56.000000000 +0200
++++ mod_layout2/mod_layout.c	2004-04-30 19:44:49.000000000 +0200
+@@ -130,7 +130,10 @@
+ 
+ 	if (isOn(cfg->append_header) || isOn(cfg->append_footer))  {
+ 		if (isOn(cfg->append_header) && isOn(cfg->append_footer))  {
+-			cfg->layouts = ap_append_arrays(p, cfg_origin->layouts, cfg_new->layouts);
++			if (cfg_origin->layouts)
++				cfg->layouts = ap_append_arrays(p, cfg_origin->layouts, cfg_new->layouts);
++			else
++				cfg->layouts = cfg_new->layouts;
+ 			cfg->header_enabled = cfg_new->header_enabled ? cfg_new->header_enabled : cfg_origin->header_enabled;
+ 			cfg->footer_enabled = cfg_new->footer_enabled ? cfg_new->footer_enabled : cfg_origin->header_enabled;
+ 		} else if (isOn(cfg->append_header)) {
+@@ -323,10 +326,11 @@
+ 			continue;
+ 		}
+ 		apr_bucket_read(e, &str, &len, APR_NONBLOCK_READ);
++
+ 		if (ctx->output) {
+-			ctx->output = apr_pstrcat(r->pool, ctx->output, str, NULL);
++			ctx->output = apr_psprintf(r->pool,"%s%.*s", ctx->output, len, str);
+ 		} else {
+-			ctx->output = apr_pstrcat(r->pool, str, NULL);
++			ctx->output = apr_pstrndup(r->pool, str, len);
+ 		}
+ 	} 
+ 
+diff -Naur mod_layout-4.0.1a/utility.c mod_layout2/utility.c
+--- mod_layout-4.0.1a/utility.c	2002-10-01 08:36:02.000000000 +0200
++++ mod_layout2/utility.c	2003-08-29 22:27:38.000000000 +0200
+@@ -1,6 +1,6 @@
+ /* 
+ **  utility.c -- Apache layout module
+-**  $Revision: 1.2 $
++**  $Revision: 1.3 $
+ */
+ 
+ #include "mod_layout.h"
+@@ -8,9 +8,11 @@
+ LAYOUT_EXPORT(apr_array_header_t *) layout_array_push_kind(apr_pool_t *p, apr_array_header_t *origin, apr_array_header_t *new, int kind) {
+ 	apr_array_header_t *returnable = NULL;
+ 	int x = 0;
+-	layout_string **layouts;
++	layout_string **new_layouts;
++	layout_string **origin_layouts;
+ 
+-	layouts = (layout_string **) new->elts;
++	new_layouts = (layout_string **) new->elts;
++	origin_layouts = (layout_string **) origin->elts;
+ 
+ 	if (!origin && !new) {
+ 		return NULL;
+@@ -21,13 +23,19 @@
+ 	}
+ 
+ 	/* Size of new plus some padding */
+-	returnable = ap_make_array (p, new->nelts + 2, sizeof (layout_string *));
++	returnable = ap_make_array (p, new->nelts + 2 + origin->nelts, sizeof (layout_string *));
++	/* Copy in the origin pieces */
++	for (x = 0; x < origin->nelts; x++) {
++		if (origin_layouts[x]->kind == kind) {
++			*(layout_string **) ap_push_array (returnable) = (layout_string *) origin_layouts[x];
++		}
++	}
++	/* Copy in the new pieces */
+ 	for (x = 0; x < new->nelts; x++) {
+-		if (layouts[x]->kind == kind) {
+-			*(layout_string **) ap_push_array (returnable) = (layout_string *) layouts[x];
++		if (new_layouts[x]->kind == kind) {
++			*(layout_string **) ap_push_array (returnable) = (layout_string *) new_layouts[x];
+ 		}
+ 	}
+-	ap_array_cat(returnable, new);
+ 	return returnable;
+ }
+ 

@@ -1,0 +1,406 @@
+# ncurses 5.6 - patch 20070908 - Thomas E. Dickey
+#
+# ------------------------------------------------------------------------------
+#
+# Ncurses 5.6 is at
+# 	ftp.gnu.org:/pub/gnu
+#
+# Patches for ncurses 5.6 are in the subdirectory
+# 	ftp://invisible-island.net/ncurses/5.6
+#
+# ------------------------------------------------------------------------------
+# patch by Thomas E. Dickey <dickey@invisible-island.net>
+# created  Sat Sep  8 22:25:05 UTC 2007
+# ------------------------------------------------------------------------------
+# MANIFEST                                        |    2 
+# NEWS                                            |    9 ++-
+# dist.mk                                         |    4 -
+# include/curses.h.in                             |    5 +
+# man/curs_opaque.3x                              |    6 +-
+# ncurses-5.6-20070908/ncurses/base/use_window.c  |   47 +++++++++++++++++
+# ncurses-5.6-20070908/ncurses/tinfo/use_screen.c |   60 ++++++++++++++++++++++
+# ncurses/base/lib_set_term.c                     |   10 +--
+# ncurses/curses.priv.h                           |   18 ++++--
+# ncurses/modules                                 |    4 +
+# ncurses/tinfo/lib_data.c                        |    6 +-
+# 11 files changed, 151 insertions(+), 20 deletions(-)
+# ------------------------------------------------------------------------------
+Index: MANIFEST
+--- ncurses-5.6-20070901+/MANIFEST	2007-08-18 23:14:30.000000000 +0000
++++ ncurses-5.6-20070908/MANIFEST	2007-09-08 21:31:21.000000000 +0000
+@@ -803,6 +803,7 @@
+ ./ncurses/base/safe_sprintf.c
+ ./ncurses/base/sigaction.c
+ ./ncurses/base/tries.c
++./ncurses/base/use_window.c
+ ./ncurses/base/version.c
+ ./ncurses/base/vsscanf.c
+ ./ncurses/base/wresize.c
+@@ -863,6 +864,7 @@
+ ./ncurses/tinfo/setbuf.c
+ ./ncurses/tinfo/strings.c
+ ./ncurses/tinfo/trim_sgr0.c
++./ncurses/tinfo/use_screen.c
+ ./ncurses/tinfo/write_entry.c
+ ./ncurses/trace/README
+ ./ncurses/trace/lib_trace.c
+Index: NEWS
+Prereq:  1.1162 
+--- ncurses-5.6-20070901+/NEWS	2007-09-02 00:01:06.000000000 +0000
++++ ncurses-5.6-20070908/NEWS	2007-09-08 21:55:19.000000000 +0000
+@@ -25,7 +25,7 @@
+ -- sale, use or other dealings in this Software without prior written        --
+ -- authorization.                                                            --
+ -------------------------------------------------------------------------------
+--- $Id: NEWS,v 1.1162 2007/09/02 00:01:06 tom Exp $
++-- $Id: NEWS,v 1.1166 2007/09/08 21:55:19 tom Exp $
+ -------------------------------------------------------------------------------
+ 
+ This is a log of changes that ncurses has gone through since Zeyd started
+@@ -45,6 +45,13 @@
+ Changes through 1.9.9e did not credit all contributions;
+ it is not possible to add this information.
+ 
++20070908
++	+ add use_window() and use_screen() functions, to develop into support
++	  for threaded library (incomplete).
++	+ fix typos in man/curs_opaque.3x which kept the install script from
++	  creating symbolic links to two aliases created in 20070818 (report by
++	  Rong-En Fan).
++
+ 20070901
+ 	+ remove a spurious newline from output of html.m4, which caused links
+ 	  for Ada95 html to be incorrect for the files generated using m4.
+Index: dist.mk
+Prereq:  1.608 
+--- ncurses-5.6-20070901+/dist.mk	2007-08-25 13:46:49.000000000 +0000
++++ ncurses-5.6-20070908/dist.mk	2007-09-08 18:37:50.000000000 +0000
+@@ -25,7 +25,7 @@
+ # use or other dealings in this Software without prior written               #
+ # authorization.                                                             #
+ ##############################################################################
+-# $Id: dist.mk,v 1.608 2007/08/25 13:46:49 tom Exp $
++# $Id: dist.mk,v 1.609 2007/09/08 18:37:50 tom Exp $
+ # Makefile for creating ncurses distributions.
+ #
+ # This only needs to be used directly as a makefile by developers, but
+@@ -37,7 +37,7 @@
+ # These define the major/minor/patch versions of ncurses.
+ NCURSES_MAJOR = 5
+ NCURSES_MINOR = 6
+-NCURSES_PATCH = 20070825
++NCURSES_PATCH = 20070908
+ 
+ # We don't append the patch to the version, since this only applies to releases
+ VERSION = $(NCURSES_MAJOR).$(NCURSES_MINOR)
+Index: include/curses.h.in
+Prereq:  1.177 
+--- ncurses-5.6-20070901+/include/curses.h.in	2007-08-18 18:35:01.000000000 +0000
++++ ncurses-5.6-20070908/include/curses.h.in	2007-09-08 21:24:55.000000000 +0000
+@@ -32,7 +32,7 @@
+  *     and: Thomas E. Dickey                        1996-on                 *
+  ****************************************************************************/
+ 
+-/* $Id: curses.h.in,v 1.177 2007/08/18 18:35:01 tom Exp $ */
++/* $Id: curses.h.in,v 1.178 2007/09/08 21:24:55 tom Exp $ */
+ 
+ #ifndef __NCURSES_H
+ #define __NCURSES_H
+@@ -826,6 +826,7 @@
+  * These functions are extensions - not in X/Open Curses.
+  */
+ #if @NCURSES_EXT_FUNCS@
++typedef int (*NCURSES_CALLBACK)(WINDOW *, void *);
+ extern NCURSES_EXPORT(bool) is_term_resized (int, int);
+ extern NCURSES_EXPORT(char *) keybound (int, int);
+ extern NCURSES_EXPORT(const char *) curses_version (void);
+@@ -838,6 +839,8 @@
+ extern NCURSES_EXPORT(int) use_default_colors (void);
+ extern NCURSES_EXPORT(int) use_extended_names (bool);
+ extern NCURSES_EXPORT(int) use_legacy_coding (int);
++extern NCURSES_EXPORT(int) use_screen (SCREEN *, NCURSES_CALLBACK, void *);
++extern NCURSES_EXPORT(int) use_window (WINDOW *, NCURSES_CALLBACK, void *);
+ extern NCURSES_EXPORT(int) wresize (WINDOW *, int, int);
+ extern NCURSES_EXPORT(void) nofilter(void);
+ 
+Index: man/curs_opaque.3x
+Prereq:  1.5 
+--- ncurses-5.6-20070901+/man/curs_opaque.3x	2007-08-18 18:14:52.000000000 +0000
++++ ncurses-5.6-20070908/man/curs_opaque.3x	2007-09-08 18:49:13.000000000 +0000
+@@ -26,7 +26,7 @@
+ .\" authorization.                                                           *
+ .\"***************************************************************************
+ .\"
+-.\" $Id: curs_opaque.3x,v 1.5 2007/08/18 18:14:52 tom Exp $
++.\" $Id: curs_opaque.3x,v 1.6 2007/09/08 18:49:13 tom Exp $
+ .TH curs_opaque 3X ""
+ .na
+ .hy 0
+@@ -66,9 +66,9 @@
+ .br
+ \fBbool is_syncok(const WINDOW *win);\fR
+ .br
+-\fBWINDOW * wgetparent (const WINDOW *win);\fR
++\fBWINDOW * wgetparent(const WINDOW *win);\fR
+ .br
+-\fBint wgetscrreg (const WINDOW *win, int *top, int *bottom);\fR
++\fBint wgetscrreg(const WINDOW *win, int *top, int *bottom);\fR
+ .br
+ .SH DESCRIPTION
+ This implementation provides functions which return properties
+Index: ncurses/base/lib_set_term.c
+Prereq:  1.99 
+--- ncurses-5.6-20070901+/ncurses/base/lib_set_term.c	2007-09-01 21:36:25.000000000 +0000
++++ ncurses-5.6-20070908/ncurses/base/lib_set_term.c	2007-09-08 21:23:43.000000000 +0000
+@@ -44,7 +44,7 @@
+ #include <term.h>		/* cur_term */
+ #include <tic.h>
+ 
+-MODULE_ID("$Id: lib_set_term.c,v 1.99 2007/09/01 21:36:25 tom Exp $")
++MODULE_ID("$Id: lib_set_term.c,v 1.100 2007/09/08 21:23:43 tom Exp $")
+ 
+ NCURSES_EXPORT(SCREEN *)
+ set_term(SCREEN *screenp)
+@@ -53,7 +53,7 @@
+ 
+     T((T_CALLED("set_term(%p)"), screenp));
+ 
+-    _nc_lock_mutex(set_SP);
++    _nc_lock_global(set_SP);
+ 
+     oldSP = SP;
+     _nc_set_screen(screenp);
+@@ -67,7 +67,7 @@
+     COLOR_PAIRS = SP->_pair_count;
+ #endif
+ 
+-    _nc_unlock_mutex(set_SP);
++    _nc_unlock_global(set_SP);
+ 
+     T((T_RETURN("%p"), oldSP));
+     return (oldSP);
+@@ -94,7 +94,7 @@
+ 
+     T((T_CALLED("delscreen(%p)"), sp));
+ 
+-    _nc_lock_mutex(set_SP);
++    _nc_lock_global(set_SP);
+     while (*scan) {
+ 	if (*scan == sp) {
+ 	    *scan = sp->_next_screen;
+@@ -168,7 +168,7 @@
+ #endif
+ 	_nc_set_screen(0);
+     }
+-    _nc_unlock_mutex(set_SP);
++    _nc_unlock_global(set_SP);
+ 
+     returnVoid;
+ }
+Index: ncurses/base/use_window.c
+--- /dev/null	2007-09-08 18:28:41.296507000 +0000
++++ ncurses-5.6-20070908/ncurses/base/use_window.c	2007-09-08 21:35:33.000000000 +0000
+@@ -0,0 +1,47 @@
++/****************************************************************************
++ * Copyright (c) 2007 Free Software Foundation, Inc.                        *
++ *                                                                          *
++ * Permission is hereby granted, free of charge, to any person obtaining a  *
++ * copy of this software and associated documentation files (the            *
++ * "Software"), to deal in the Software without restriction, including      *
++ * without limitation the rights to use, copy, modify, merge, publish,      *
++ * distribute, distribute with modifications, sublicense, and/or sell       *
++ * copies of the Software, and to permit persons to whom the Software is    *
++ * furnished to do so, subject to the following conditions:                 *
++ *                                                                          *
++ * The above copyright notice and this permission notice shall be included  *
++ * in all copies or substantial portions of the Software.                   *
++ *                                                                          *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS  *
++ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF               *
++ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.   *
++ * IN NO EVENT SHALL THE ABOVE COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,   *
++ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR    *
++ * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR    *
++ * THE USE OR OTHER DEALINGS IN THE SOFTWARE.                               *
++ *                                                                          *
++ * Except as contained in this notice, the name(s) of the above copyright   *
++ * holders shall not be used in advertising or otherwise to promote the     *
++ * sale, use or other dealings in this Software without prior written       *
++ * authorization.                                                           *
++ ****************************************************************************/
++
++/****************************************************************************
++ *     Author: Thomas E. Dickey                        2007                 *
++ ****************************************************************************/
++
++#include <curses.priv.h>
++
++MODULE_ID("$Id: use_window.c,v 1.1 2007/09/08 21:35:33 tom Exp $")
++
++NCURSES_EXPORT(int)
++use_window(WINDOW *win, NCURSES_CALLBACK func, void *data)
++{
++    int code = OK;
++
++    T((T_CALLED("use_window(%p,%p,%p)"), win, func, data));
++    _nc_lock_window(win);
++    code = func(win, data);
++    _nc_unlock_window(win);
++    returnCode(code);
++}
+Index: ncurses/curses.priv.h
+Prereq:  1.338 
+--- ncurses-5.6-20070901+/ncurses/curses.priv.h	2007-09-01 21:35:50.000000000 +0000
++++ ncurses-5.6-20070908/ncurses/curses.priv.h	2007-09-08 21:44:40.000000000 +0000
+@@ -34,7 +34,7 @@
+ 
+ 
+ /*
+- * $Id: curses.priv.h,v 1.338 2007/09/01 21:35:50 tom Exp $
++ * $Id: curses.priv.h,v 1.340 2007/09/08 21:44:40 tom Exp $
+  *
+  *	curses.priv.h
+  *
+@@ -303,16 +303,22 @@
+ #ifdef USE_PTHREADS
+ #if USE_REENTRANT
+ #include <pthread.h>
+-#define _nc_lock_mutex(name)	pthread_mutex_lock(&_nc_globals.mutex_##name)
+-#define _nc_unlock_mutex(name)	pthread_mutex_unlock(&_nc_globals.mutex_##name)
++#define _nc_lock_global(name)	pthread_mutex_lock(&_nc_globals.mutex_##name)
++#define _nc_unlock_global(name)	pthread_mutex_unlock(&_nc_globals.mutex_##name)
+ #else
+ #error POSIX threads requires --enable-reentrant option
+ #endif
+ #else
+-#define _nc_lock_mutex(name)	/* nothing */
+-#define _nc_unlock_mutex(name)	/* nothing */
++#define _nc_lock_global(name)	/* nothing */
++#define _nc_unlock_global(name)	/* nothing */
+ #endif
+ 
++#define _nc_lock_screen(name)	/* nothing */
++#define _nc_unlock_screen(name)	/* nothing */
++
++#define _nc_lock_window(name)	/* nothing */
++#define _nc_unlock_window(name)	/* nothing */
++
+ /*
+  * Definitions for color pairs
+  */
+@@ -552,6 +558,8 @@
+ 
+ #ifdef USE_PTHREADS
+        pthread_mutex_t	mutex_set_SP;
++       pthread_mutex_t	mutex_use_screen;
++       pthread_mutex_t	mutex_windowlist;
+ #endif
+ } NCURSES_GLOBALS;
+ 
+Index: ncurses/modules
+Prereq:  1.110 
+--- ncurses-5.6-20070901+/ncurses/modules	2007-06-12 20:21:42.000000000 +0000
++++ ncurses-5.6-20070908/ncurses/modules	2007-09-08 22:03:34.000000000 +0000
+@@ -1,4 +1,4 @@
+-# $Id: modules,v 1.110 2007/06/12 20:21:42 tom Exp $
++# $Id: modules,v 1.112 2007/09/08 22:03:34 tom Exp $
+ ##############################################################################
+ # Copyright (c) 1998-2006,2007 Free Software Foundation, Inc.                #
+ #                                                                            #
+@@ -152,6 +152,8 @@
+ lib_print	lib		$(tinfo)	../include/term.h
+ resizeterm	lib		$(base)		../include/term.h
+ trace_xnames	lib		$(trace)	../include/term.h $(INCDIR)/term_entry.h
++use_screen	lib		$(tinfo)
++use_window	lib		$(base)
+ wresize		lib		$(base)		../include/term.h
+ 
+ # Support for termcap (and tic, etc.), which can be a separate library
+Index: ncurses/tinfo/lib_data.c
+Prereq:  1.28 
+--- ncurses-5.6-20070901+/ncurses/tinfo/lib_data.c	2007-09-01 21:35:54.000000000 +0000
++++ ncurses-5.6-20070908/ncurses/tinfo/lib_data.c	2007-09-08 21:59:56.000000000 +0000
+@@ -41,7 +41,7 @@
+ 
+ #include <curses.priv.h>
+ 
+-MODULE_ID("$Id: lib_data.c,v 1.28 2007/09/01 21:35:54 tom Exp $")
++MODULE_ID("$Id: lib_data.c,v 1.30 2007/09/08 21:59:56 tom Exp $")
+ 
+ /*
+  * OS/2's native linker complains if we don't initialize public data when
+@@ -177,7 +177,9 @@
+ 
+ #endif /* TRACE */
+ #ifdef USE_PTHREADS
+-    PTHREAD_MUTEX_INITIALIZER	/* mutex_set_SP */
++    PTHREAD_MUTEX_INITIALIZER,	/* mutex_set_SP */
++    PTHREAD_MUTEX_INITIALIZER,	/* mutex_use_screen */
++    PTHREAD_MUTEX_INITIALIZER,	/* mutex_windowlist */
+ #endif
+ };
+ 
+Index: ncurses/tinfo/use_screen.c
+--- /dev/null	2007-09-08 18:28:41.296507000 +0000
++++ ncurses-5.6-20070908/ncurses/tinfo/use_screen.c	2007-09-08 21:46:48.000000000 +0000
+@@ -0,0 +1,60 @@
++/****************************************************************************
++ * Copyright (c) 2007 Free Software Foundation, Inc.                        *
++ *                                                                          *
++ * Permission is hereby granted, free of charge, to any person obtaining a  *
++ * copy of this software and associated documentation files (the            *
++ * "Software"), to deal in the Software without restriction, including      *
++ * without limitation the rights to use, copy, modify, merge, publish,      *
++ * distribute, distribute with modifications, sublicense, and/or sell       *
++ * copies of the Software, and to permit persons to whom the Software is    *
++ * furnished to do so, subject to the following conditions:                 *
++ *                                                                          *
++ * The above copyright notice and this permission notice shall be included  *
++ * in all copies or substantial portions of the Software.                   *
++ *                                                                          *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS  *
++ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF               *
++ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.   *
++ * IN NO EVENT SHALL THE ABOVE COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,   *
++ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR    *
++ * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR    *
++ * THE USE OR OTHER DEALINGS IN THE SOFTWARE.                               *
++ *                                                                          *
++ * Except as contained in this notice, the name(s) of the above copyright   *
++ * holders shall not be used in advertising or otherwise to promote the     *
++ * sale, use or other dealings in this Software without prior written       *
++ * authorization.                                                           *
++ ****************************************************************************/
++
++/****************************************************************************
++ *     Author: Thomas E. Dickey                        2007                 *
++ ****************************************************************************/
++
++#include <curses.priv.h>
++
++MODULE_ID("$Id: use_screen.c,v 1.2 2007/09/08 21:46:48 tom Exp $")
++
++NCURSES_EXPORT(int)
++use_screen(SCREEN *screen, NCURSES_CALLBACK func, void *data)
++{
++    SCREEN *save_SP;
++    int code = OK;
++
++    T((T_CALLED("use_window(%p,%p,%p)"), screen, func, data));
++
++    /*
++     * FIXME - add a flag so a given thread can check if _it_ has already
++     * recurred through this point, return an error if so.
++     */
++    _nc_lock_global(use_screen);
++    save_SP = SP;
++    set_term(screen);
++
++    code = func(screen->_stdscr, data);
++
++    set_term(save_SP);
++    _nc_unlock_global(use_screen);
++    returnCode(code);
++
++    return 0;
++}

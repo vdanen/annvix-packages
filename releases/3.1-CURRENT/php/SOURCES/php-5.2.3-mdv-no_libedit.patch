@@ -1,0 +1,58 @@
+--- ext/readline/config.m4	2005-11-29 00:04:01.000000000 +0100
++++ ext/readline/config.m4.oden	2007-06-20 13:23:06.000000000 +0200
+@@ -2,13 +2,8 @@
+ dnl $Id: config.m4,v 1.25.2.3 2005/11/28 23:04:01 sniper Exp $
+ dnl
+ 
+-PHP_ARG_WITH(libedit,for libedit readline replacement, 
+-[  --with-libedit[=DIR]    Include libedit readline replacement (CLI/CGI only)])
+-
+-if test "$PHP_LIBEDIT" = "no"; then
+-  PHP_ARG_WITH(readline,for readline support,
++PHP_ARG_WITH(readline,for readline support,
+   [  --with-readline[=DIR]   Include readline support (CLI/CGI only)])
+-fi
+ 
+ if test "$PHP_READLINE" && test "$PHP_READLINE" != "no"; then
+   for i in $PHP_READLINE /usr/local /usr; do
+@@ -61,18 +56,6 @@
+ 
+   AC_DEFINE(HAVE_LIBREADLINE, 1, [ ])
+ 
+-elif test "$PHP_LIBEDIT" != "no"; then
+-
+-  for i in $PHP_LIBEDIT /usr/local /usr; do
+-    test -f $i/include/readline/readline.h && LIBEDIT_DIR=$i && break
+-  done
+-
+-  if test -z "$LIBEDIT_DIR"; then
+-    AC_MSG_ERROR(Please reinstall libedit - I cannot find readline.h)
+-  fi
+-
+-  PHP_ADD_INCLUDE($LIBEDIT_DIR/include)
+-
+   AC_CHECK_LIB(ncurses, tgetent,
+   [
+     PHP_ADD_LIBRARY(ncurses,,READLINE_SHARED_LIBADD)
+@@ -82,20 +65,9 @@
+       PHP_ADD_LIBRARY(termcap,,READLINE_SHARED_LIBADD)
+     ])
+   ])
+-
+-  PHP_CHECK_LIBRARY(edit, readline,
+-  [
+-    PHP_ADD_LIBRARY_WITH_PATH(edit, $LIBEDIT_DIR/$PHP_LIBDIR, READLINE_SHARED_LIBADD)  
+-  ], [
+-    AC_MSG_ERROR(edit library required by readline not found)
+-  ], [
+-    -L$READLINE_DIR/$PHP_LIBDIR 
+-  ])
+-
+-  AC_DEFINE(HAVE_LIBEDIT, 1, [ ])
+ fi
+ 
+-if test "$PHP_READLINE" != "no" || test "$PHP_LIBEDIT" != "no"; then
++if test "$PHP_READLINE" != "no"; then
+   AC_CHECK_FUNCS([rl_completion_matches])
+   PHP_NEW_EXTENSION(readline, readline.c, $ext_shared, cli)
+   PHP_SUBST(READLINE_SHARED_LIBADD)

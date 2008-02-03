@@ -1,0 +1,79 @@
+--- doxygen-1.5.2/src/pngenc.cpp.syspng	2007-02-20 19:27:38.000000000 +0100
++++ doxygen-1.5.2/src/pngenc.cpp	2007-04-20 14:55:28.000000000 +0200
+@@ -25,7 +25,7 @@
+ #endif
+ 
+ #define ALL_STATIC
+-#include <../libpng/png.h>
++#include <png.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
+--- doxygen-1.5.2/Makefile.in.syspng	2006-10-30 20:52:25.000000000 +0100
++++ doxygen-1.5.2/Makefile.in	2007-04-20 14:53:58.000000000 +0200
+@@ -7,7 +7,6 @@
+ 	cd doc ; $(MAKE) clean
+ 	cd qtools ; $(MAKE) clean
+ 	cd src ; $(MAKE) clean
+-	cd libpng ; $(MAKE) clean
+ 	cd libmd5 ; $(MAKE) clean
+ 	cd addon/doxywizard ; $(MAKE) clean
+ 	cd addon/doxmlparser/src ; $(MAKE) clean
+@@ -18,7 +17,6 @@
+ 
+ distclean: clean
+ 	cd src ; $(MAKE) distclean
+-	cd libpng ; $(MAKE) distclean
+ 	cd libmd5 ; $(MAKE) distclean
+ 	cd addon/doxywizard ; $(MAKE) distclean
+ 	cd addon/doxmlparser/src ; $(MAKE) distclean
+@@ -32,11 +30,10 @@
+ 	-rm -f objects/*.o
+ 	-rm -f src/Makefile.doxygen src/Makefile.libdoxygen 
+ 	-rm -f src/Makefile.doxytag src/Makefile.libdoxycfg
+-	-rm -f libpng/Makefile.libpng
+ 	-rm -f libmd5/Makefile.libmd5
+ 	-rm -f Makefile qtools/Makefile src/Makefile examples/Makefile doc/Makefile 
+ 	-rm -f .makeconfig .tmakeconfig
+-	-rm -f src/doxygen.pro src/libdoxygen.pro src/doxytag.pro qtools/qtools.pro src/libdoxycfg.pro libpng/libpng.pro libmd5/libmd5.pro
++	-rm -f src/doxygen.pro src/libdoxygen.pro src/doxytag.pro qtools/qtools.pro src/libdoxycfg.pro libmd5/libmd5.pro
+ 	-rm -f src/version.cpp
+ 	-rm -r addon/doxywizard/Makefile
+ 	-rm -f addon/doxywizard/Makefile.doxywizard
+@@ -82,7 +79,7 @@
+ pdf: docs
+ 	cd latex ; $(MAKE)
+ 
+-DISTFILES =  Doxyfile libpng libmd5 addon tmake doc wintools examples bin lib objects \
++DISTFILES =  Doxyfile libmd5 addon tmake doc wintools examples bin lib objects \
+              qtools src configure configure.bin Makefile.in Makefile.win_nmake.in \
+              Makefile.win_make.in INSTALL make.bat LANGUAGE.HOWTO LICENSE PLATFORMS \
+              VERSION packages winbuild
+--- doxygen-1.5.2/configure.syspng	2007-04-20 14:50:23.000000000 +0200
++++ doxygen-1.5.2/configure	2007-04-20 14:54:12.000000000 +0200
+@@ -531,7 +531,7 @@
+ EOF
+ fi
+ 
+-f_inmakefiles="Makefile.in qtools/Makefile.in src/Makefile.in examples/Makefile.in doc/Makefile.in addon/doxywizard/Makefile.in addon/doxmlparser/src/Makefile.in addon/doxmlparser/test/Makefile.in addon/doxmlparser/examples/metrics/Makefile.in libpng/Makefile.in libmd5/Makefile.in addon/doxyapp/Makefile.in"
++f_inmakefiles="Makefile.in qtools/Makefile.in src/Makefile.in examples/Makefile.in doc/Makefile.in addon/doxywizard/Makefile.in addon/doxmlparser/src/Makefile.in addon/doxmlparser/test/Makefile.in addon/doxmlparser/examples/metrics/Makefile.in libmd5/Makefile.in addon/doxyapp/Makefile.in"
+ 
+ for i in $f_inmakefiles ; do
+      SRC=$i
+@@ -548,7 +548,6 @@
+        echo "" >> $DST
+        echo "all: src/version.cpp " >> $DST
+        echo "	\$(MAKE) -C qtools" >> $DST
+-       echo "	\$(MAKE) -C libpng" >> $DST
+        echo "	\$(MAKE) -C libmd5" >> $DST
+        echo "	\$(MAKE) -C src" >> $DST
+        if test $f_wizard = YES; then
+@@ -568,7 +567,7 @@
+      echo "  Created $DST from $SRC..."
+ done
+ 
+-f_inprofiles="qtools/qtools.pro.in src/libdoxygen.pro.in src/libdoxycfg.pro.in src/doxygen.pro.in src/doxytag.pro.in addon/doxywizard/doxywizard.pro.in addon/doxmlparser/src/doxmlparser.pro.in addon/doxmlparser/test/xmlparse.pro.in addon/doxmlparser/examples/metrics/metrics.pro.in libpng/libpng.pro.in libmd5/libmd5.pro.in addon/doxyapp/doxyapp.pro.in" 
++f_inprofiles="qtools/qtools.pro.in src/libdoxygen.pro.in src/libdoxycfg.pro.in src/doxygen.pro.in src/doxytag.pro.in addon/doxywizard/doxywizard.pro.in addon/doxmlparser/src/doxmlparser.pro.in addon/doxmlparser/test/xmlparse.pro.in addon/doxmlparser/examples/metrics/metrics.pro.in libmd5/libmd5.pro.in addon/doxyapp/doxyapp.pro.in" 
+ 
+ for i in $f_inprofiles ; do
+      SRC=$i

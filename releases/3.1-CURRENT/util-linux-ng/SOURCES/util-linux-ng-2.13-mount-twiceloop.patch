@@ -1,0 +1,71 @@
+--- util-linux-ng-2.13-rc3/mount/fstab.c.kzak	2007-07-31 12:39:42.000000000 +0200
++++ util-linux-ng-2.13-rc3/mount/fstab.c	2007-08-13 12:24:40.000000000 +0200
+@@ -264,6 +264,27 @@
+ 	return (ct == 1);
+ }
+ 
++/*
++ * Given the loop file LOOPFILE, and the mount point DIR, check that
++ * same file is already mounted on same directory 
++ *
++ * Don't forget there's 
++ *   /path/loopfile /path/dir loop=/dev/loop0
++ * in mtab for loop devices.
++ */
++int
++is_mounted_same_loopfile(const char *loopfile, const char *dir) {
++	struct mntentchn *mc, *mc0;
++	int ct = 0;
++
++	mc0 = mtab_head();
++	for (mc = mc0->prev; mc && mc != mc0; mc = mc->prev)
++		if (streq(mc->m.mnt_fsname, loopfile) && 
++		    streq(mc->m.mnt_dir, dir))
++			ct++;
++	return (ct == 1);
++}
++
+ /* Given the name FILE, try to find the option "loop=FILE" in mtab.  */ 
+ struct mntentchn *
+ getmntoptfile (const char *file) {
+--- util-linux-ng-2.13-rc3/mount/fstab.h.kzak	2007-05-30 10:18:12.000000000 +0200
++++ util-linux-ng-2.13-rc3/mount/fstab.h	2007-08-13 12:24:40.000000000 +0200
+@@ -5,6 +5,7 @@
+ int mtab_is_writable(void);
+ int mtab_does_not_exist(void);
+ int is_mounted_once(const char *name);
++int is_mounted_same_loopfile(const char *loopfile, const char *dir);
+ 
+ struct mntentchn {
+ 	struct mntentchn *nxt, *prev;
+--- util-linux-ng-2.13-rc3/mount/mount.c.kzak	2007-08-13 12:23:13.000000000 +0200
++++ util-linux-ng-2.13-rc3/mount/mount.c	2007-08-13 12:29:01.000000000 +0200
+@@ -853,7 +853,7 @@
+ 
+ static int
+ loop_check(const char **spec, const char **type, int *flags,
+-	   int *loop, const char **loopdev, const char **loopfile) {
++	   int *loop, const char **loopdev, const char **loopfile, const char *dir) {
+   int looptype;
+   unsigned long long offset;
+ 
+@@ -894,6 +894,10 @@
+ 
+       offset = opt_offset ? strtoull(opt_offset, NULL, 0) : 0;
+ 
++      if (is_mounted_same_loopfile(*loopfile, dir)) {
++        error(_("mount: %s already mounted on %s"), *loopfile, dir);
++	return EX_FAIL;
++      }
+       do {
+         if (!*loopdev || !**loopdev)
+ 	  *loopdev = find_unused_loop_device();
+@@ -1079,7 +1083,7 @@
+        * stale assignments of files to loop devices. Nasty when used for
+        * encryption.
+        */
+-      res = loop_check(&spec, &types, &flags, &loop, &loopdev, &loopfile);
++      res = loop_check(&spec, &types, &flags, &loop, &loopdev, &loopfile, node);
+       if (res)
+ 	  goto out;
+   }

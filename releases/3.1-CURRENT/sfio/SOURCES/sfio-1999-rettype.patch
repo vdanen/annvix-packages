@@ -1,0 +1,66 @@
+--- sfio-1999/src/lib/sfio/Sfio_dc/sfdcdio.c.rettype	Wed Mar 18 22:58:13 1998
++++ sfio-1999/src/lib/sfio/Sfio_dc/sfdcdio.c	Mon Oct 15 15:04:46 2001
+@@ -102,7 +102,7 @@
+ }
+ 
+ #if __STD_C
+-static dioexcept(Sfio_t* f, int type, Void_t* data, Sfdisc_t* disc)
++static int dioexcept(Sfio_t* f, int type, Void_t* data, Sfdisc_t* disc)
+ #else
+ static dioexcept(f,type,data,disc)
+ Sfio_t*		f;
+--- sfio-1999/src/lib/sfio/Sfio_dc/sfdcfilter.c.rettype	Thu Mar 19 11:10:25 1998
++++ sfio-1999/src/lib/sfio/Sfio_dc/sfdcfilter.c	Mon Oct 15 15:05:26 2001
+@@ -103,7 +103,7 @@
+ 
+ /* on close, remove the discipline */
+ #if __STD_C
+-static filterexcept(Sfio_t* f, int type, Void_t* data, Sfdisc_t* disc)
++static int filterexcept(Sfio_t* f, int type, Void_t* data, Sfdisc_t* disc)
+ #else
+ static filterexcept(f,type,data,disc)
+ Sfio_t*		f;
+--- sfio-1999/src/lib/sfio/Sfio_dc/sfdcseekable.c.rettype	Thu Mar 19 11:11:36 1998
++++ sfio-1999/src/lib/sfio/Sfio_dc/sfdcseekable.c	Mon Oct 15 15:09:49 2001
+@@ -126,7 +126,7 @@
+ 
+ /* on close, remove the discipline */
+ #if __STD_C
+-static skexcept(Sfio_t* f, int type, Void_t* data, Sfdisc_t* disc)
++static int skexcept(Sfio_t* f, int type, Void_t* data, Sfdisc_t* disc)
+ #else
+ static skexcept(f,type,data,disc)
+ Sfio_t*		f;
+--- sfio-1999/src/lib/sfio/Sfio_dc/sfdctee.c.rettype	Tue Jun  1 11:22:34 1999
++++ sfio-1999/src/lib/sfio/Sfio_dc/sfdctee.c	Mon Oct 15 15:10:45 2001
+@@ -37,7 +37,7 @@
+ 
+ /* on close, remove the discipline */
+ #if __STD_C
+-static teeexcept(Sfio_t* f, int type, Void_t* data, Sfdisc_t* disc)
++static int teeexcept(Sfio_t* f, int type, Void_t* data, Sfdisc_t* disc)
+ #else
+ static teeexcept(f,type,data,disc)
+ Sfio_t*		f;
+--- sfio-1999/src/lib/sfio/Sfio_dc/sfdcsubstream.c.rettype	Tue Jun  1 11:21:56 1999
++++ sfio-1999/src/lib/sfio/Sfio_dc/sfdcsubstream.c	Mon Oct 15 15:10:14 2001
+@@ -133,7 +133,7 @@
+ }
+ 
+ #if __STD_C
+-static streamexcept(Sfio_t* f, int type, Void_t* data, Sfdisc_t* disc)
++static int streamexcept(Sfio_t* f, int type, Void_t* data, Sfdisc_t* disc)
+ #else
+ static streamexcept(f, type, data, disc)
+ Sfio_t*		f;
+--- sfio-1999/src/lib/sfio/Sfio_dc/sfdcunion.c.rettype	Thu Mar 19 10:04:05 1998
++++ sfio-1999/src/lib/sfio/Sfio_dc/sfdcunion.c	Mon Oct 15 15:11:18 2001
+@@ -124,7 +124,7 @@
+ 
+ /* on close, remove the discipline */
+ #if __STD_C
+-static unexcept(Sfio_t* f, int type, Void_t* data, Sfdisc_t* disc)
++static int unexcept(Sfio_t* f, int type, Void_t* data, Sfdisc_t* disc)
+ #else
+ static unexcept(f,type,data,disc)
+ Sfio_t*		f;

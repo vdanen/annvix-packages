@@ -1,0 +1,73 @@
+# Introduce and export __locale_getenv.
+
+--- glibc-2.5.orig/abilist/libc.abilist
++++ glibc-2.5/abilist/libc.abilist
+@@ -255,6 +255,7 @@ GLIBC_2.0 i.86-.*-linux.*/notls i.86-.*-
+  __libc_realloc F
+  __libc_start_main F
+  __libc_valloc F
++ __locale_getenv F
+  __lseek F
+  __lxstat F
+  __mbrlen F
+--- glibc-2.5.orig/include/stdlib.h
++++ glibc-2.5/include/stdlib.h
+@@ -27,6 +27,7 @@ libc_hidden_proto (bsearch)
+ libc_hidden_proto (qsort)
+ libc_hidden_proto (lrand48_r)
+ libc_hidden_proto (wctomb)
++libc_hidden_proto (__locale_getenv)
+ libc_hidden_proto (__secure_getenv)
+ libc_hidden_proto (__strtof_internal)
+ libc_hidden_proto (__strtod_internal)
+--- glibc-2.5.orig/stdlib/Versions
++++ glibc-2.5/stdlib/Versions
+@@ -90,6 +90,8 @@ libc {
+     # used by new G++ ABI
+     __cxa_atexit; __cxa_finalize;
+   }
++  GLIBC_2.2.4 {
++    __locale_getenv;
+   GLIBC_2.3 {
+     # Silent change in SUS.
+     realpath;
+--- glibc-2.5.orig/stdlib/secure-getenv.c
++++ glibc-2.5/stdlib/secure-getenv.c
+@@ -18,6 +18,7 @@
+ 
+ #include <stdlib.h>
+ #include <unistd.h>
++#include <string.h>
+ 
+ /* Some programs and especially the libc itself have to be careful
+    what values to accept from the environment.  This special version
+@@ -29,3 +30,15 @@ __secure_getenv (name)
+   return __libc_enable_secure ? NULL : getenv (name);
+ }
+ libc_hidden_def (__secure_getenv)
++
++char *
++__locale_getenv (name)
++     const char *name;
++{
++  char *value = getenv (name);
++  if ( value &&
++      __libc_enable_secure && (('.' == value[0]) || strchr(value, '/')) )
++    return NULL;
++  return value;
++}
++libc_hidden_def (__locale_getenv)
+--- glibc-2.5.orig/stdlib/stdlib.h
++++ glibc-2.5/stdlib/stdlib.h
+@@ -665,6 +665,11 @@ __END_NAMESPACE_STD
+ extern char *__secure_getenv (__const char *__name)
+      __THROW __nonnull ((1)) __wur;
+ 
++/* This function is similar to the above but returns NULL if the
++   program is running with SUID or SGID enabled and value starts
++   with "." symbol or contains "/" symbols.  */
++extern char *__locale_getenv (__const char *__name) __THROW __nonnull ((1)) __wur;
++
+ #if defined __USE_SVID || defined __USE_XOPEN
+ /* The SVID says this is in <stdio.h>, but this seems a better place.	*/
+ /* Put STRING, which is of the form "NAME=VALUE", in the environment.

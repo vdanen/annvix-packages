@@ -1,0 +1,11 @@
+--- bdflush-1.5/bdflush.c.orig	Mon Jun 19 01:05:53 2000
++++ bdflush-1.5/bdflush.c	Mon Jun 19 01:17:48 2000
+@@ -14,7 +14,7 @@
+ #include <stdio.h>
+ #include <sys/types.h>
+ #include <unistd.h>
+-#include <limits.h>
++#include <linux/limits.h>
+ #include <signal.h>
+ #include <string.h>
+ #include <stdlib.h>

@@ -1,0 +1,16 @@
+--- dbd/apr_dbd_mysql.c	2006-07-17 11:40:19.000000000 +0200
++++ dbd/apr_dbd_mysql.c.oden	2006-07-17 11:41:34.000000000 +0200
+@@ -45,13 +45,8 @@
+ #include <ctype.h>
+ #include <stdlib.h>
+ 
+-#ifdef HAVE_MYSQL_H
+-#include <mysql.h>
+-#include <errmsg.h>
+-#elif defined(HAVE_MYSQL_MYSQL_H)
+ #include <mysql/mysql.h>
+ #include <mysql/errmsg.h>
+-#endif
+ 
+ #include "apr_strings.h"
+ 

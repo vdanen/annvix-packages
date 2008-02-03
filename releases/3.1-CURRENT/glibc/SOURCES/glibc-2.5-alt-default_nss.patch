@@ -1,0 +1,11 @@
+--- glibc-2.5.orig/nis/nss-default.c
++++ glibc-2.5/nis/nss-default.c
+@@ -27,7 +27,7 @@ #include <libnsl.h>
+ 
+ 
+ /* Path of the file.  */
+-static const char default_nss[] = "/etc/default/nss";
++static const char default_nss[] = "/etc/nss.conf";
+ 
+ /* Flags once read from the file.  */
+ static int default_nss_flags;

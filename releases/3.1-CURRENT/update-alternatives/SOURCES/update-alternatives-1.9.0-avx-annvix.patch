@@ -1,0 +1,50 @@
+--- update-alternatives.8.avx	2007-07-22 02:54:38.000000000 -0600
++++ update-alternatives.8	2007-09-25 21:42:18.091961500 -0600
+@@ -4,9 +4,9 @@
+ .\" it under the terms of the GNU General Public License as published
+ .\" by the Free Software Foundation; either version 2 of the License, or
+ .\" (at your option) any later version.  There is NO WARRANTY.  You can
+-.\" find the GNU GPL in /usr/share/common-licenses/GPL on any Mandriva
++.\" find the GNU GPL in /usr/share/common-licenses/GPL on any Annvix
+ .\" system.
+-.TH UPDATE\-ALTERNATIVES 8 "2007-07-22" "Mandriva" "Mandriva Linux"
++.TH UPDATE\-ALTERNATIVES 8 "2007-07-22" "Annvix" "Annvix Linux"
+ .SH NAME
+ update\-alternatives \- maintain symbolic links determining default commands
+ .
+@@ -18,7 +18,7 @@
+ .SH DESCRIPTION
+ .B update\-alternatives
+ creates, removes, maintains and displays information about the symbolic
+-links comprising the Mandriva Linux alternatives system.
++links comprising the Annvix alternatives system.
+ .PP
+ It is possible for several programs fulfilling the same or similar
+ functions to be installed on a single system at the same time.
+@@ -28,7 +28,7 @@
+ to make a good choice for an editor to invoke if the
+ user has not specified a particular preference.
+ .PP
+-Mandriva's alternatives system aims to solve this problem.
++Annvix's alternatives system aims to solve this problem.
+ A generic name in the filesystem is
+ shared by all files providing interchangeable functionality.
+ The alternatives system and the system administrator
+@@ -70,7 +70,7 @@
+ .B post
+ or
+ .B postun
+-scripts in Mandriva Linux packages.
++scripts in Annvix Linux packages.
+ .PP
+ It is often useful for a number of alternatives to be synchronised,
+ so that they are changed as a group; for example, when several versions
+@@ -379,7 +379,7 @@
+ .RE
+ .
+ .SH BUGS
+-If you find a bug, please report it using the Mandriva bug-tracking system,
++If you find a bug, please report it using the Annvix bug-tracking system,
+ or, if that is not possible, email the author directly.
+ .PP
+ If you find any discrepancy between the operation of

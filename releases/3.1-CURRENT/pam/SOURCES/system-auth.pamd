@@ -1,0 +1,13 @@
+#%PAM-1.0
+# $Id$
+
+auth		required	pam_env.so
+auth		required	pam_tcb.so shadow fork nullok prefix=$2a$ count=8
+
+account		required	pam_tcb.so shadow fork
+
+password	required	pam_passwdqc.so min=disabled,12,8,6,5 max=40 passphrase=3 match=4 similar=deny random=42 enforce=everyone retry=3
+password	required	pam_tcb.so use_authtok shadow write_to=tcb fork nullok prefix=$2a$ count=8
+
+session		required	pam_limits.so
+session		required	pam_tcb.so

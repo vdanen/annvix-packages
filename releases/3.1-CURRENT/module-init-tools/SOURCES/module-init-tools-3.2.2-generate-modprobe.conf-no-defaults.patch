@@ -1,0 +1,61 @@
+--- module-init-tools-3.2.2/generate-modprobe.conf.generate-modprobe.conf-no-defaults	2004-07-12 08:11:46.000000000 +0200
++++ module-init-tools-3.2.2/generate-modprobe.conf	2005-12-16 14:27:43.000000000 +0100
+@@ -3,17 +3,38 @@
+ # Naive shell script to translate modules.conf + defaults to modprobe.conf
+ # Normal caveats apply, as with any machine translation.
+ if [ $# -gt 2 ] || [ x"$1" = x--help ]; then
+-    echo "Usage: $0 [--stdin] [modprobe.conf]"
++    echo "Usage: $0 [--stdin|--use-modprobe-c] [modprobe.conf]"
+     echo "   Converts your current modules setup to modprobe.conf."
+     echo "   Don't trust it too much."
+     echo " Version 0.1"
+     exit 1
+ fi
+ 
+-STDIN=
+-if [ "$1" = "--stdin" ]; then
+-  STDIN=1
+-  shift
++DEFAULT_MODPROBE_CONF="/etc/modules.conf"
++[ -n "$TESTING_MODPROBE_CONF" ] && DEFAULT_MODPROBE_CONF=$TESTING_MODPROBE_CONF
++
++while [ $# -gt 0 ]; do
++    case "$1" in
++	--stdin )
++	    STDIN=1
++	;;
++	--use-modprobe-c )
++	    DEFAULT_MODPROBE_CONF=
++	;;
++	* )
++	    break
++	;;
++    esac
++    shift
++done
++
++if [ -n "$STDIN" -a -n "$DEFAULT_MODPROBE_CONF" ]; then
++    usage
++fi
++
++
++if [ $# -gt 1 ]; then
++    usage
+ fi
+ 
+ # Set up output if specified.
+@@ -22,8 +43,12 @@
+ MODPROBECONF=`mktemp /tmp/modprobe.XXXXXX || tempfile || echo /tmp/modprobe.$$`
+ trap "rm -f $MODPROBECONF" 0
+ 
+-if [ x"$TESTING_MODPROBE_CONF" != x ]; then
+-    cp $TESTING_MODPROBE_CONF $MODPROBECONF
++if [ x"$DEFAULT_MODPROBE_CONF" != x ]; then
++    if [ ! -f $DEFAULT_MODPROBE_CONF ]; then
++	echo $DEFAULT_MODPROBE_CONF not found. Exiting ... >&2
++	exit 0
++    fi
++    cp $DEFAULT_MODPROBE_CONF $MODPROBECONF
+ elif [ "$STDIN" = "1" ]; then
+     cat > $MODPROBECONF
+ elif [ -x /sbin/modprobe.old ]; then

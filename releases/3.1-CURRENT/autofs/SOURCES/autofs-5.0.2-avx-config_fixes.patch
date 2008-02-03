@@ -1,0 +1,11 @@
+--- autofs-5.0.2/samples/auto.master.orig	2007-12-13 11:35:46.559546500 -0700
++++ autofs-5.0.2/samples/auto.master	2007-12-13 12:01:23.068092250 -0700
+@@ -4,7 +4,7 @@
+ # key [ -mount-options-separated-by-comma ] location
+ # For details of the format look at autofs(5).
+ #
+-/misc	/etc/auto.misc
++#/misc	/etc/auto.misc
+ #
+ # NOTE: mounts done from a hosts map will be mounted with the
+ #	"nosuid" option unless the "suid" option is explicitly

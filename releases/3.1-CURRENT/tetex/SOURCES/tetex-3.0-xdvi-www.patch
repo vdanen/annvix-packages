@@ -1,0 +1,39 @@
+--- tetex-src-3.0/texk/xdvik/gui/xm_prefsP.h.browser	2005-03-10 14:51:00.847773477 +0100
++++ tetex-src-3.0/texk/xdvik/gui/xm_prefsP.h	2005-03-10 14:53:56.619909910 +0100
+@@ -96,8 +96,10 @@
+ #define Xdvi_APPLY_STR				"Apply"
+ 
+ #define Xdvi_PREFS_BROWSER_DEFAULTS \
++	"www-browser %s\n" \
++	"mozilla-firefox -remote 'openURL(%s,new-window)'\n" \
+ 	"mozilla -remote 'openURL(%s,new-window)'\n" \
+-	"netscape -raise -remote 'openURL(%s,new-window)'\n" \
++	"xterm -e w3m %s\n" \
+ 	"xterm -e lynx %s\n" \
+ 	Xdvi_ADD_COMMAND_STR
+ #define Xdvi_PREFS_EDITOR_DEFAULTS \
+--- tetex-src-3.0/texk/xdvik/browser.c.browser	2005-03-10 14:51:00.846773529 +0100
++++ tetex-src-3.0/texk/xdvik/browser.c	2005-03-10 14:53:56.618909963 +0100
+@@ -39,7 +39,10 @@
+ #include "statusline.h"
+ 
+ static const char *const default_browser_cmd =
+-	"netscape -raise -remote \"openURL(%s,new-window)\""
++	"www-browser %s"
++	":mozilla-firefox -remote \"openURL(%s,new-window)\""
++	":mozilla -remote \"openURL(%s,new-window)\""
++	":xterm -e w3m %s"
+ 	":xterm -e lynx %s"
+ 	":xterm -e wget %s";
+ 
+--- tetex-src-3.0/texk/xdvik/xdvi.1.in.browser	2005-03-10 14:51:00.851773268 +0100
++++ tetex-src-3.0/texk/xdvik/xdvi.1.in	2005-03-10 14:53:56.624909649 +0100
+@@ -365,7 +365,7 @@
+ .B WWWBROWSER
+ (in that order) are used to determine the browser command. If these are
+ not set either, the following default value is used:
+-.SB netscape -raise -remote "openURL(%s,new-window)":xterm -e lynx %s:xterm -e wget %s
++.SB www-browser %s:mozilla-firefox -remote -remote "openURL(%s,new-window)":mozilla -remote "openURL(%s,new-window)":xterm -e w3m %s:xterm -e lynx %s:xterm -e wget %s
+ .\"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+ .TP
+ .BI \-bw " width"

@@ -1,0 +1,14 @@
+# Change ldconfig to exit during distribution install.
+
+--- glibc-2.5.orig/elf/ldconfig.c
++++ glibc-2.5/elf/ldconfig.c
+@@ -1168,6 +1168,9 @@ main (int argc, char **argv)
+ {
+   int remaining;
+ 
++  if (getenv ("RPM_INSTALL_NAME") && getenv ("DURING_INSTALL"))
++    exit (0);
++  
+   /* Parse and process arguments.  */
+   argp_parse (&argp, argc, argv, 0, &remaining, NULL);
+ 

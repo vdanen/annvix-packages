@@ -1,0 +1,11 @@
+--- iputils-s20070202/rdisc.c.s_addr	2007-04-20 18:15:15.000000000 +0200
++++ iputils-s20070202/rdisc.c	2007-04-20 18:15:34.000000000 +0200
+@@ -874,7 +874,7 @@
+ 				((max_adv_int - min_adv_int) 
+ 				 * (random() % 1000)/1000);
+ 		} else {
+-			sin.sin_addr = ip->saddr;
++			sin.sin_addr.s_addr = ip->saddr;
+ 			if (!is_directly_connected(sin.sin_addr)) {
+ 				if (verbose)
+ 					logtrace("ICMP %s from %s: source not directly connected\n",

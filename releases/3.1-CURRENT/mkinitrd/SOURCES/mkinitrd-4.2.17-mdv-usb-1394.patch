@@ -1,0 +1,15 @@
+--- mkinitrd-4.2.17/mkinitrd.usb-1394	2007-09-22 12:31:03.000000000 +0200
++++ mkinitrd-4.2.17/mkinitrd	2007-09-22 12:31:13.000000000 +0200
+@@ -927,8 +927,10 @@ if [ -n "$scsimodules" ]; then
+ 	    (*" $n "*) echo skip dups; continue;;
+ 	esac
+ 	done_scsimodules="$done_scsimodules $n"
+-	[ $n = usb-storage ] && usbdriver
+-	[ $n = sbp2 ] && ieee1394driver
++	n_=${n#-}
++	n_=${n_//-/_}
++	[ $n_ = usb_storage ] && usbdriver
++	[ $n_ = sbp2 ] && ieee1394driver
+ 	findmodule $n
+     done
+     findmodule sd_mod

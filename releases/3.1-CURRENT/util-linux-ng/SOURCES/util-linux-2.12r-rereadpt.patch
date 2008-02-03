@@ -1,0 +1,21 @@
+--- util-linux-2.12r/fdisk/fdisk.c.rereadpt	2007-07-27 13:50:32.000000000 +0200
++++ util-linux-2.12r/fdisk/fdisk.c	2007-07-27 13:52:21.000000000 +0200
+@@ -2163,6 +2163,10 @@ void
+ reread_partition_table(int leave) {
+ 	int error = 0;
+ 	int i;
++	struct stat statbuf;
++
++	fstat(fd, &statbuf);
++	if(S_ISBLK(statbuf.st_mode)) { /* block device */
+ 
+ 	printf(_("Calling ioctl() to re-read partition table.\n"));
+ 	sync();
+@@ -2187,6 +2191,7 @@ reread_partition_table(int leave) {
+ 			 "at the next reboot.\n"),
+ 			error, strerror(error));
+ 	}
++	} /* block device */
+ 
+ 	if (dos_changed)
+ 	    printf(

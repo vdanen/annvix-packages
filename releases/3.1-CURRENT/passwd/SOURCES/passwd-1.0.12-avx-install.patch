@@ -1,0 +1,48 @@
+--- Makefile.avx	2006-12-29 17:57:13.000000000 -0700
++++ Makefile	2006-12-29 17:57:28.000000000 -0700
+--- Makefile.avx	2006-12-29 18:13:32.000000000 -0700
++++ Makefile	2006-12-29 18:15:17.000000000 -0700
+@@ -20,16 +20,14 @@
+ 
+ PROJECT = passwd
+ VERSION = $(shell sed '/^Version: */!d;s///;q' passwd.spec)
+-MAN8PAGES = $(PROJECT).8
+-TARGETS = $(PROJECT) wrapper $(MAN8PAGES)
++TARGETS = $(PROJECT) wrapper
+ 
+ DESTDIR =
+-libdir=/usr/lib
++libdir=/lib
+ bindir=/usr/bin
+ sbindir=/usr/sbin
+ mandir=/usr/share/man
+ pamdir=/etc/pam.d
+-facdir=/etc/control.d/facilities
+ 
+ CPPFLAGS = -D_GNU_SOURCE -DPROJECT_VERSION=\"$(VERSION)\"
+ CFLAGS = -pipe -Wall -Werror -W -O2
+@@ -39,24 +37,17 @@
+ LN_S = ln -sf
+ MKDIR_P = mkdir -p
+ INSTALL = install
+-HELP2MAN = help2man -N -s8 -i $(PROJECT).inc
+ 
+ .PHONY:	all install clean indent
+ 
+ all: $(TARGETS)
+ 
+-$(PROJECT).8: wrapper $(PROJECT).inc
+-	$(MKDIR_P) tmp
+-	$(LN_S) ../$< tmp/$(PROJECT)
+-	$(HELP2MAN) ./tmp/$(PROJECT) > $@
+-
+ install:
+ 	$(INSTALL) -pD -m755 $(PROJECT) $(DESTDIR)$(bindir)/$(PROJECT)
+ 	$(INSTALL) -pD -m700 wrapper $(DESTDIR)$(sbindir)/$(PROJECT)
+ 	$(INSTALL) -pD -m644 $(PROJECT).1 $(DESTDIR)$(mandir)/man1/$(PROJECT).1
+ 	$(INSTALL) -pD -m644 $(PROJECT).8 $(DESTDIR)$(mandir)/man8/$(PROJECT).8
+ 	$(INSTALL) -pD -m640 $(PROJECT).pamd $(DESTDIR)$(pamdir)/$(PROJECT)
+-	$(INSTALL) -pD -m755 $(PROJECT).control $(DESTDIR)$(facdir)/$(PROJECT)
+ 
+ clean:
+ 	$(RM) $(TARGETS) *~ core

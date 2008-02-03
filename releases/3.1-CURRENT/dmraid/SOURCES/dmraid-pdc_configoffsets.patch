@@ -1,0 +1,11 @@
+--- ./lib/format/ataraid/pdc.h.pdc_configoffsets	2007-09-12 19:58:02.000000000 +0200
++++ ./lib/format/ataraid/pdc.h	2007-09-12 20:00:07.000000000 +0200
+@@ -13,7 +13,7 @@
+ 
+ #include <stdint.h>
+ 
+-#define PDC_CONFIGOFFSETS	63,255,256,16,399,735
++#define PDC_CONFIGOFFSETS	63,255,256,16,399,735,675,991
+ #define	PDC_DATAOFFSET 0
+ 
+ /* maximum device size (sectors) which can be detected by some pdc card */

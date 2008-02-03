@@ -1,0 +1,24 @@
+--- mkinitrd-4.2.17/mkinitrd.ide	2006-08-27 02:49:32.000000000 +0200
++++ mkinitrd-4.2.17/mkinitrd	2006-08-27 03:07:37.000000000 +0200
+@@ -926,12 +926,20 @@
+     # are we using modular ide?
+     if [ -f $modulefile ]; then
+ 	idemodules=$(grep -E '^[[:space:]]*(alias|probeall|install)[[:space:]]+ide-controller[0-9]*[[:space:]]' $modulefile | sed 's/^.*ide-controller[0-9]*//;s/\/sbin\/modprobe//g;s/;//g;s/\/bin\/true//;s/||//')
++	# add any ide modules that ended in scsi_hostadapter
++	for scsi_hostadapter in `grep -E '^[[:space:]]*(alias|probeall|install)[[:space:]]+scsi_hostadapter' $modulefile | \
++	    sed 's/^.*scsi_hostadapter//;s/\/sbin\/modprobe//g;s/;//g;s/\/bin\/true//;s/||//'`; do
++		if modinfo -F filename ${scsi_hostadapter} | grep -qs /drivers/ide/; then
++			idemodules="$idemodules $scsi_hostadapter"
++		fi
++	done
+     fi
+ 
+     for idemodule in $idemodules; do
+-	findmodule $idemodule
++	findmodule -$idemodule
+     done
+ 
++
+     # Debian patch
+     findmodule -ide-mod
+     findmodule -ide-probe-mod

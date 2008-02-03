@@ -1,0 +1,121 @@
+ 2007-06-18  Jakub Jelinek  <jakub@redhat.com>
+             Tomas Janousek  <tjanouse@redhat.com>
+             Ulrich Drepper  <drepper@redhat.com>
+
+	[BZ #4647]
+	* resolv/res_send.c (send_dg): Remove socket_pf.  Use ipv6_unavail
+	member in __res_state, only convaddr4to6 if nssocks[ns] is a PF_INET6
+	socket.
+	* resolv/resolv.h (__res_state): Add ipv6_unavail member.  Make
+	unused member a bitmap.
+	* resolv/res_init.c (__res_vinit): Reset ipv6_unavail if IPv6
+	servers are configured.
+
+===================================================================
+RCS file: /cvs/glibc/libc/resolv/res_init.c,v
+retrieving revision 1.45
+retrieving revision 1.46
+diff -u -r1.45 -r1.46
+--- libc/resolv/res_init.c	2007/02/09 23:41:46	1.45
++++ libc/resolv/res_init.c	2007/06/18 22:01:34	1.46
+@@ -241,8 +241,8 @@
+ 	 line[sizeof(name) - 1] == '\t'))
+ 
+ 	if ((fp = fopen(_PATH_RESCONF, "rc")) != NULL) {
+-		/* No threads use this stream.  */
+-		__fsetlocking (fp, FSETLOCKING_BYCALLER);
++	    /* No threads use this stream.  */
++	    __fsetlocking (fp, FSETLOCKING_BYCALLER);
+ 	    /* read the config file */
+ 	    while (fgets_unlocked(buf, sizeof(buf), fp) != NULL) {
+ 		/* skip comments */
+@@ -397,8 +397,11 @@
+ 	    if (nserv > 1)
+ 		statp->nscount = nserv;
+ #ifdef _LIBC
+-	    if (nservall - nserv > 0)
++	    if (nservall - nserv > 0) {
+ 		statp->_u._ext.nscount6 = nservall - nserv;
++		/* We try IPv6 servers again.  */
++		statp->ipv6_unavail = false;
++	    }
+ #endif
+ #ifdef RESOLVSORT
+ 	    statp->nsort = nsort;
+===================================================================
+RCS file: /cvs/glibc/libc/resolv/resolv.h,v
+retrieving revision 1.43
+retrieving revision 1.44
+diff -u -r1.43 -r1.44
+--- libc/resolv/resolv.h	2007/02/09 23:45:50	1.43
++++ libc/resolv/resolv.h	2007/06/18 22:01:45	1.44
+@@ -110,21 +110,25 @@
+ 		nsaddr_list[MAXNS];	/* address of name server */
+ # define nsaddr	nsaddr_list[0]		/* for backward compatibility */
+ 	u_short	id;			/* current message id */
++	/* 2 byte hole here.  */
+ 	char	*dnsrch[MAXDNSRCH+1];	/* components of domain to search */
+ 	char	defdname[256];		/* default domain (deprecated) */
+ 	u_long	pfcode;			/* RES_PRF_ flags - see below. */
+ 	unsigned ndots:4;		/* threshold for initial abs. query */
+ 	unsigned nsort:4;		/* number of elements in sort_list[] */
+-	char	unused[3];
++	unsigned ipv6_unavail:1;	/* connecting to IPv6 server failed */
++	unsigned unused:23;
+ 	struct {
+ 		struct in_addr	addr;
+ 		u_int32_t	mask;
+ 	} sort_list[MAXRESOLVSORT];
++	/* 4 byte hole here on 64-bit architectures.  */
+ 	res_send_qhook qhook;		/* query hook */
+ 	res_send_rhook rhook;		/* response hook */
+ 	int	res_h_errno;		/* last one set for this context */
+ 	int	_vcsock;		/* PRIVATE: for res_send VC i/o */
+ 	u_int	_flags;			/* PRIVATE: see below */
++	/* 4 byte hole here on 64-bit architectures.  */
+ 	union {
+ 		char	pad[52];	/* On an i386 this means 512b total. */
+ 		struct {
+===================================================================
+RCS file: /cvs/glibc/libc/resolv/res_send.c,v
+retrieving revision 1.50
+retrieving revision 1.51
+diff -u -r1.50 -r1.51
+--- libc/resolv/res_send.c	2007/02/09 23:45:12	1.50
++++ libc/resolv/res_send.c	2007/06/18 22:01:57	1.51
+@@ -813,17 +813,20 @@
+ 	struct pollfd pfd[1];
+         int ptimeout;
+ 	struct sockaddr_in6 from;
+-	static int socket_pf = 0;
+ 	socklen_t fromlen;
+ 	int resplen, seconds, n;
+ 
+ 	if (EXT(statp).nssocks[ns] == -1) {
+ 		/* only try IPv6 if IPv6 NS and if not failed before */
+-		if ((EXT(statp).nscount6 > 0) && (socket_pf != PF_INET)) {
++		if ((EXT(statp).nscount6 > 0) && !statp->ipv6_unavail) {
+ 			EXT(statp).nssocks[ns] =
+ 			    socket(PF_INET6, SOCK_DGRAM, 0);
+-			socket_pf = EXT(statp).nssocks[ns] < 0 ? PF_INET
+-			                                       : PF_INET6;
++			if (EXT(statp).nssocks[ns] < 0)
++			    statp->ipv6_unavail = errno == EAFNOSUPPORT;
++			/* If IPv6 socket and nsap is IPv4, make it
++			   IPv4-mapped */
++			else if (nsap->sin6_family == AF_INET)
++			    convaddr4to6(nsap);
+ 		}
+ 		if (EXT(statp).nssocks[ns] < 0)
+ 			EXT(statp).nssocks[ns] = socket(PF_INET, SOCK_DGRAM, 0);
+@@ -832,9 +835,7 @@
+ 			Perror(statp, stderr, "socket(dg)", errno);
+ 			return (-1);
+ 		}
+-		/* If IPv6 socket and nsap is IPv4, make it IPv4-mapped */
+-		if ((socket_pf == PF_INET6) && (nsap->sin6_family == AF_INET))
+-			convaddr4to6(nsap);
++
+ 		/*
+ 		 * On a 4.3BSD+ machine (client and server,
+ 		 * actually), sending to a nameserver datagram

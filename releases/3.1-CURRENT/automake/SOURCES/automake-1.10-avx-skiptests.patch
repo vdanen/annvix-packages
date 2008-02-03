@@ -1,0 +1,55 @@
+--- automake-1.10/tests/Makefile.in.skiptests	2006-10-15 11:25:25.000000000 -0600
++++ automake-1.10/tests/Makefile.in	2007-10-06 14:22:21.548923000 -0600
+@@ -194,7 +194,6 @@
+ autohdr4.test \
+ automake.test \
+ auxdir.test \
+-auxdir2.test \
+ auxdir3.test \
+ auxdir4.test \
+ backsl.test \
+@@ -258,7 +257,6 @@
+ cond14.test \
+ cond15.test \
+ cond16.test \
+-cond17.test \
+ cond18.test \
+ cond19.test \
+ cond20.test \
+@@ -681,7 +679,6 @@
+ targetclash.test \
+ txinfo.test \
+ txinfo2.test \
+-txinfo3.test \
+ txinfo4.test \
+ txinfo5.test \
+ txinfo6.test \
+@@ -689,20 +686,11 @@
+ txinfo8.test \
+ txinfo9.test \
+ txinfo10.test \
+-txinfo13.test \
+-txinfo16.test \
+ txinfo17.test \
+-txinfo18.test \
+ txinfo19.test \
+ txinfo20.test \
+-txinfo21.test \
+-txinfo22.test \
+-txinfo23.test \
+-txinfo24.test \
+-txinfo25.test \
+ txinfo26.test \
+ txinfo27.test \
+-txinfo28.test \
+ txinfo29.test \
+ txinfo30.test \
+ txinfo31.test \
+@@ -719,7 +707,6 @@
+ version3.test \
+ version4.test \
+ version6.test \
+-version7.test \
+ version8.test \
+ vpath.test \
+ vtexi.test \

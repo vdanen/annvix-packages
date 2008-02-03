@@ -1,0 +1,20 @@
+--- netpbm-10.34/converter/other/bmptopnm.c.bmptopnm	2006-07-13 18:58:30.000000000 +0200
++++ netpbm-10.34/converter/other/bmptopnm.c	2006-07-13 18:58:30.000000000 +0200
+@@ -1262,7 +1262,7 @@ readBmp(FILE *               const ifP, 
+         xel **               const colormapP,
+         bool                 const verbose) {
+ 
+-    xel * colormap;  /* malloc'ed */
++    xel * colormap = NULL;  /* malloc'ed */
+     unsigned int pos;
+         /* Current byte position in the BMP file */
+ 
+@@ -1469,7 +1469,7 @@ main(int argc, char ** argv) {
+         writeRasterGen(BMPraster, cols, rows, outputType, cBitCount,
+                        pixelformat, colormap); 
+     }
+-    free(colormap);
++    if (colormap) free(colormap);
+     free(BMPraster);
+ 
+     return 0;

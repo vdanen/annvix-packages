@@ -1,0 +1,32 @@
+--- shadow-4.0.12/src/usermod.c.unlock	2007-03-19 15:27:59.000000000 -0300
++++ shadow-4.0.12/src/usermod.c	2007-03-19 15:28:00.000000000 -0300
+@@ -926,7 +926,7 @@
+ 		fail_exit (E_PW_UPDATE);
+ 	}
+ 	if (is_shadow_pwd)
+-		spw_unlock ();
++		(void) spw_unlock ();
+ 	(void) pw_unlock ();
+ 
+ 	/*
+--- shadow-4.0.12/src/useradd.c.unlock	2007-03-19 15:28:32.000000000 -0300
++++ shadow-4.0.12/src/useradd.c	2007-03-19 15:37:48.000000000 -0300
+@@ -1308,10 +1308,16 @@ static void close_files (void)
+ 				 Prog);
+ 			fail_exit (E_GRP_UPDATE);
+ 		}
+-		if (is_shadow_grp)
+-			sgr_unlock ();
+ #endif
+ 	}
++	if (is_shadow_pwd)
++		(void) spw_unlock ();
++	(void) pw_unlock ();
++	(void) gr_unlock ();
++#ifdef	SHADOWGRP
++	if (is_shadow_grp)
++		(void) sgr_unlock ();
++#endif
+ }
+ 
+ /*

@@ -1,0 +1,9 @@
+#!/bin/sh
+PATH="/sbin:/usr/sbin:/bin:/usr/bin"
+
+# make sure Daemonize is set to no in pure-ftpd.conf
+
+PUREFTPD=`/usr/sbin/pure-config.pl /etc/pure-ftpd/pure-ftpd.conf`
+
+exec 2>&1
+exec $PUREFTPD

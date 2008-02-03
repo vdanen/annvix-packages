@@ -1,0 +1,24 @@
+--- squid-2.6.STABLE5/src/Makefile.am.avx	2006-10-29 17:07:33.000000000 -0700
++++ squid-2.6.STABLE5/src/Makefile.am	2006-12-09 14:44:30.000000000 -0700
+@@ -314,17 +314,17 @@
+ DEFAULT_CONFIG_FILE     = $(sysconfdir)/squid.conf
+ DEFAULT_MIME_TABLE	= $(sysconfdir)/mime.conf
+ DEFAULT_DNSSERVER       = $(libexecdir)/`echo dnsserver | sed '$(transform);s/$$/$(EXEEXT)/'`
+-DEFAULT_LOG_PREFIX	= $(localstatedir)/logs
++DEFAULT_LOG_PREFIX	= $(localstatedir)/log/squid
+ DEFAULT_CACHE_LOG       = $(DEFAULT_LOG_PREFIX)/cache.log
+ DEFAULT_ACCESS_LOG      = $(DEFAULT_LOG_PREFIX)/access.log
+ DEFAULT_STORE_LOG       = $(DEFAULT_LOG_PREFIX)/store.log
+ DEFAULT_PID_FILE        = $(DEFAULT_LOG_PREFIX)/squid.pid
+-DEFAULT_SWAP_DIR        = $(localstatedir)/cache
++DEFAULT_SWAP_DIR        = $(localstatedir)/spool/squid
+ DEFAULT_PINGER		= $(libexecdir)/`echo pinger | sed '$(transform);s/$$/$(EXEEXT)/'`
+ DEFAULT_UNLINKD		= $(libexecdir)/`echo unlinkd | sed '$(transform);s/$$/$(EXEEXT)/'`
+ DEFAULT_DISKD		= $(libexecdir)/`echo diskd-daemon | sed '$(transform);s/$$/$(EXEEXT)/'`
+-DEFAULT_ICON_DIR	= $(datadir)/icons
+-DEFAULT_ERROR_DIR	= $(datadir)/errors/@ERR_DEFAULT_LANGUAGE@
++DEFAULT_ICON_DIR	= $(libexecdir)/icons
++DEFAULT_ERROR_DIR	= $(libexecdir)/errors/@ERR_DEFAULT_LANGUAGE@
+ DEFAULT_MIB_PATH	= $(datadir)/mib.txt
+ DEFAULT_HOSTS		= @OPT_DEFAULT_HOSTS@
+ 

@@ -1,0 +1,42 @@
+--- aa-eventd.avx	2007-09-10 14:41:03.000000000 -0600
++++ aa-eventd	2007-10-12 23:17:25.515118000 -0600
+@@ -46,7 +46,7 @@ my $dbdir  = "/var/log/$productname";
+ my $cfgfile = "$cfgdir/notify.cfg";
+ my $errlog  = "$dbdir/event-dispatch.log";
+ 
+-my $logfile    = "/var/log/audit/audit.log";
++my $logfile    = "/var/log/system/audit/current";
+ my $syslogfile = "/var/log/messages";
+ 
+ ##########################################################################
+--- genprof.avx	2007-08-14 17:07:40.000000000 -0600
++++ genprof	2007-10-12 23:18:26.422924500 -0600
+@@ -118,7 +118,7 @@ my $syslog         = 1;
+ my $logmark        = "";
+ my $done_profiling = 0;
+ 
+-$syslog = 0 if (-e "/var/log/audit/audit.log");
++$syslog = 0 if (-e "/var/log/system/audit/current");
+ 
+ while (not $done_profiling) {
+     if ($syslog) {
+@@ -168,7 +168,7 @@ sub usage {
+ }
+ 
+ sub last_audit_entry_time {
+-    local $_ = `tail -1 /var/log/audit/audit.log`;
++    local $_ = `tail -1 /var/log/system/audit/current`;
+     my $logmark;
+     if (/^*msg\=audit\((\d+\.\d+\:\d+).*\).*$/) {
+         $logmark = $1;
+--- logprof.conf.avx	2007-10-12 23:21:46.303416250 -0600
++++ logprof.conf	2007-10-12 23:21:46.303416250 -0600
+@@ -12,7 +12,7 @@
+ [settings]
+   profiledir = /etc/apparmor.d /etc/subdomain.d
+   inactive_profiledir = /etc/apparmor/profiles/extras/
+-  logfiles = /var/log/audit/audit.log /var/log/messages /var/log/syslog
++  logfiles = /var/log/system/audit/current /var/log/messages /var/log/syslog
+ 
+   parser = /sbin/apparmor_parser /sbin/subdomain_parser
+   ldd = /usr/bin/ldd

@@ -1,0 +1,19 @@
+--- server/mpm/prefork/prefork.c	2007-07-17 16:48:25.000000000 +0200
++++ server/mpm/prefork/prefork.c.oden	2007-09-12 14:31:36.000000000 +0200
+@@ -330,8 +330,6 @@
+ 
+ static void stop_listening(int sig)
+ {
+-    ap_close_listeners();
+-
+     /* For a graceful stop, we want the child to exit when done */
+     die_now = 1;
+ }
+@@ -657,6 +655,7 @@
+             die_now = 1;
+         }
+     }
++    ap_close_listeners();
+     clean_child_exit(0);
+ }
+ 

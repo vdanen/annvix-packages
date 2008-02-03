@@ -1,0 +1,27 @@
+--- Mail-SpamAssassin-3.2.1/Makefile.PL.fixbang	2007-06-08 06:56:25.000000000 -0600
++++ Mail-SpamAssassin-3.2.1/Makefile.PL	2007-07-16 14:23:30.911757750 -0600
+@@ -1125,19 +1125,19 @@
+ 		  -DPERL_TAINT="$(PERL_TAINT)"
+ 
+ spamassassin: spamassassin.raw
+-	$(PREPROCESS) $(FIXBYTES) $(FIXVARS) $(FIXBANG) -m$(PERM_RWX) -i$? -o$@
++	$(PREPROCESS) $(FIXBYTES) $(FIXVARS) -m$(PERM_RWX) -i$? -o$@
+ 
+ sa-learn: sa-learn.raw
+-	$(PREPROCESS) $(FIXBYTES) $(FIXVARS) $(FIXBANG) -m$(PERM_RWX) -i$? -o$@
++	$(PREPROCESS) $(FIXBYTES) $(FIXVARS) -m$(PERM_RWX) -i$? -o$@
+ 
+ sa-update: sa-update.raw build_rules
+-	$(PREPROCESS) $(FIXBYTES) $(FIXVARS) $(FIXBANG) -m$(PERM_RWX) -isa-update.raw -osa-update
++	$(PREPROCESS) $(FIXBYTES) $(FIXVARS) -m$(PERM_RWX) -isa-update.raw -osa-update
+ 
+ sa-compile: sa-compile.raw
+-	$(PREPROCESS) $(FIXBYTES) $(FIXVARS) $(FIXBANG) -m$(PERM_RWX) -isa-compile.raw -osa-compile
++	$(PREPROCESS) $(FIXBYTES) $(FIXVARS) -m$(PERM_RWX) -isa-compile.raw -osa-compile
+ 
+ spamd/spamd: spamd/spamd.raw
+-	$(PREPROCESS) $(FIXBYTES) $(FIXVARS) $(FIXBANG) -m$(PERM_RWX) -i$? -o$@
++	$(PREPROCESS) $(FIXBYTES) $(FIXVARS) -m$(PERM_RWX) -i$? -o$@
+ 
+ build_rules: 
+ 	$(PERL) build/mkrules --exit_on_no_src --src rulesrc --out rules --manifest MANIFEST --manifestskip MANIFEST.SKIP

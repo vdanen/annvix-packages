@@ -1,0 +1,378 @@
+--- file/src/fsmagic.c.coloring	2005-11-01 00:22:32.000000000 +0100
++++ file/src/fsmagic.c	2005-11-30 17:23:09.000000000 +0100
+@@ -60,12 +60,186 @@
+ FILE_RCSID("@(#)$Id: fsmagic.c,v 1.46 2005/06/25 15:52:14 christos Exp $")
+ #endif	/* lint */
+ 
++#include <fcntl.h>
++#include <regex.h>
++
++#define RE_DEVEL_LIBDIR "(/usr(/X11R6)?)?/lib(|64)(/gcc(-lib)?/.+)?/"
++static const char re_devel_symlink[] = RE_DEVEL_LIBDIR "[^/]+\\.so$";
++static const char re_devel_archive[] = RE_DEVEL_LIBDIR "[^/]+\\.a$";
++
+ protected int
+-file_fsmagic(struct magic_set *ms, const char *fn, struct stat *sb)
++is_devel_symlink(const char *fn)
++{
++    enum {
++	RE_STATUS_INIT,
++	RE_STATUS_ERROR,
++	RE_STATUS_RUN
++    };
++    static int re_status = RE_STATUS_INIT;
++    static regex_t re;
++    int err;
++
++    switch (re_status) {
++    case RE_STATUS_INIT:
++	err = regcomp(&re, re_devel_symlink, REG_EXTENDED);
++	if (err != REG_NOERROR) {
++	    re_status = RE_STATUS_ERROR;
++	    return 0;
++	}
++	/* fall through */
++    case RE_STATUS_RUN:
++    {
++	regmatch_t pmatch[1];
++	err = regexec(&re, fn, sizeof(pmatch)/sizeof(pmatch[0]), pmatch, 0);
++	return err == 0;
++    }
++    case RE_STATUS_ERROR:
++    default:
++	return 0;
++    }
++}
++
++protected int
++is_devel_archive(const char *fn)
++{
++    enum {
++	RE_STATUS_INIT,
++	RE_STATUS_ERROR,
++	RE_STATUS_RUN
++    };
++    static int re_status = RE_STATUS_INIT;
++    static regex_t re;
++    int err;
++
++    switch (re_status) {
++    case RE_STATUS_INIT:
++	err = regcomp(&re, re_devel_archive, REG_EXTENDED);
++	if (err != REG_NOERROR) {
++	    re_status = RE_STATUS_ERROR;
++	    return 0;
++	}
++	/* fall through */
++    case RE_STATUS_RUN:
++    {
++	regmatch_t pmatch[1];
++	err = regexec(&re, fn, sizeof(pmatch)/sizeof(pmatch[0]), pmatch, 0);
++	return err == 0;
++    }
++    case RE_STATUS_ERROR:
++    default:
++	return 0;
++    }
++}
++
++/* Static archive parser derived from X.org code.  */
++#define ARMAG	"!<arch>\n"
++#define SARMAG	8
++
++struct ar_hdr {
++    char ar_name[16];
++    char ar_date[12];
++    char ar_uid[6];
++    char ar_gid[6];
++    char ar_mode[8];
++    char ar_size[10];
++    char ar_fmag[2];
++};
++
++#define ELFMAG	"\177ELF"
++#define SELFMAG	4
++
++#define EI_NIDENT	16
++#define EI_CLASS	4
++#define ELFCLASS32	1
++#define ELFCLASS64	2
++
++protected int
++classify_archive_fd(int arfd)
++{
++    unsigned char armagic[SARMAG];
++    unsigned char e_ident[EI_NIDENT];
++    struct ar_hdr hdr;
++    unsigned int size;
++    unsigned int offset;
++
++    /* Check archive magic.  */
++    read(arfd, armagic, SARMAG);
++    if (strncmp(armagic, ARMAG, SARMAG) != 0)
++	return -1;
++
++    /* Sequentially read all the contents until an object is found.  */
++    while (read(arfd, &hdr, sizeof(struct ar_hdr))) {
++	sscanf(hdr.ar_size, "%u", &size);
++	offset = lseek(arfd, 0, SEEK_CUR);
++
++	/* Skip Symbol Table.  */
++	if ((hdr.ar_name[0] == '/' && hdr.ar_name[1] == ' ') ||
++	    strncmp(hdr.ar_name, "__.SYMDEF", 9) == 0) {
++	    /* If the file name is NULL, then it is a symbol table */
++	    offset = lseek(arfd, offset + size, SEEK_SET);
++	    if (offset & 0x1)	/* odd value */
++		offset = lseek(arfd, 1, SEEK_CUR);	/* make it an even boundary */
++	    continue;
++	}
++
++	/* Skip String Table.  */
++	if (hdr.ar_name[0] == '/' && hdr.ar_name[1] == '/') {
++	    /* If the file name is '/', then it is a string table */
++	    offset = lseek(arfd, size, SEEK_CUR);
++	    if (offset & 0x1)	/* odd value */
++		offset = lseek(arfd, 1, SEEK_CUR);	/* make it an even boundary */
++	    continue;
++	}
++
++	/* Reajust offset for BSD 4.4 style long member name.  */
++	if (hdr.ar_name[0] == '#' && hdr.ar_name[1] == '1' &&
++	    hdr.ar_name[2] == '/') {
++	    int namesz;
++	    if (sscanf(&hdr.ar_name[3], "%d", &namesz) != 1)
++		return -1;
++	    offset += namesz;
++	    size -= namesz;
++	}
++
++	/* Check for an ELF object.  */
++	read(arfd, e_ident, sizeof(e_ident));
++	if (strncmp(&e_ident[0], ELFMAG, SELFMAG) == 0) {
++	    switch (e_ident[EI_CLASS]) {
++	    case ELFCLASS32: return 32;
++	    case ELFCLASS64: return 64;
++	    }
++	}
++
++	offset = lseek(arfd, offset + size, SEEK_SET);
++	if (offset & 0x1)	/* odd value */
++	    lseek(arfd, 1, SEEK_CUR);	/* make it an even boundary */
++  }
++
++  return -1;
++}
++
++protected int
++classify_archive(const char *archive_filename)
++{
++    int elf_class;
++    int fd;
++
++    if ((fd = open(archive_filename, O_RDONLY)) < 0)
++	return -1;
++
++    elf_class = classify_archive_fd(fd);
++    close(fd);
++    return elf_class;
++}
++
++protected int
++file_fsmagic(struct magic_set *ms, const char *fn, struct stat *sb, int fdepth)
+ {
+ 	int ret = 0;
+ #ifdef	S_IFLNK
+ 	char buf[BUFSIZ+4];
++	char buf2[BUFSIZ+BUFSIZ+4];
++	char *dbuf = buf;
+ 	int nch;
+ 	struct stat tstatbuf;
+ #endif
+@@ -226,7 +400,6 @@ file_fsmagic(struct magic_set *ms, const
+ 		}
+ 		else {
+ 			char *tmp;
+-			char buf2[BUFSIZ+BUFSIZ+4];
+ 
+ 			if ((tmp = strrchr(fn,  '/')) == NULL) {
+ 				tmp = buf; /* in current directory anyway */
+@@ -259,16 +432,33 @@ file_fsmagic(struct magic_set *ms, const
+ 					return -1;
+ 				return 1;
+ 			}
++			dbuf = tmp;
+ 		}
+ 
+ 		/* Otherwise, handle it. */
+ 		if ((ms->flags & MAGIC_SYMLINK) != 0) {
+ 			const char *p;
+ 			ms->flags &= MAGIC_SYMLINK;
+-			p = magic_file(ms, buf);
++			p = magic_do_file(ms, buf, fdepth + 1);
+ 			ms->flags |= MAGIC_SYMLINK;
+ 			return p != NULL ? 1 : -1;
++		} else if ((ms->flags & MAGIC_DEVEL_SYMLINK) != 0) {
++			const char *p;
++			ms->flags &= MAGIC_DEVEL_SYMLINK;
++			p = magic_do_file(ms, dbuf, fdepth + 1);
++			ms->flags |= MAGIC_DEVEL_SYMLINK;
++			return p != NULL ? 1 : -1;
+ 		} else { /* just print what it points to */
++			/* special output for -devel .so symlinks */
++			if (fdepth == 0 && is_devel_symlink(fn)) {
++				const char *p;
++				if (file_printf(ms, "symbolic link to ") == -1)
++					return -1;
++				ms->flags |= MAGIC_DEVEL_SYMLINK;
++				p = magic_do_file(ms, dbuf, fdepth + 1);
++				ms->flags &= ~MAGIC_DEVEL_SYMLINK;
++				return p != NULL ? 1 : -1;
++			}
+ 			if (file_printf(ms, "symbolic link to `%s'",
+ 			    buf) == -1)
+ 				return -1;
+@@ -309,5 +499,15 @@ file_fsmagic(struct magic_set *ms, const
+ 			return -1;
+ 		return 1;
+ 	}
++
++	/* Check for static archives in usual development libdirs.  */
++	if (is_devel_archive(fn)) {
++		int ar_class = classify_archive(fn);
++		if (ar_class == 32 || ar_class == 64) {
++			if (file_printf(ms, "ar archive with %d-bit ELF objects", ar_class) == -1)
++				return -1;
++			return 1;
++		}
++	}
+ 	return 0;
+ }
+--- file/src/file.h.coloring	2005-11-01 01:32:31.000000000 +0100
++++ file/src/file.h	2005-11-30 17:23:09.000000000 +0100
+@@ -262,7 +262,7 @@
+ protected int file_buffer(struct magic_set *ms, int, const void *, size_t)
+ 	/*@globals fileSystem, internalState @*/
+ 	/*@modifies ms, fileSystem, internalState @*/;
+-protected int file_fsmagic(struct magic_set *ms, /*@null@*/ const char *fn, struct stat *sb)
++protected int file_fsmagic(struct magic_set *ms, /*@null@*/ const char *fn, struct stat *sb, int fdepth)
+ 	/*@modifies ms, sb @*/;
+ protected int file_pipe2file(struct magic_set *ms, int fd, const void *startbuf, size_t nbytes)
+ 	/*@globals errno, fileSystem, internalState @*/
+--- file/src/magic.c.coloring	2005-11-01 01:36:31.000000000 +0100
++++ file/src/magic.c	2005-11-30 17:23:09.000000000 +0100
+@@ -225,6 +225,12 @@ close_and_restore(const struct magic_set
+ public const char *
+ magic_file(struct magic_set *ms, const char *inname)
+ {
++	return magic_do_file(ms, inname, 0);
++}
++
++const char *
++magic_do_file(struct magic_set *ms, const char *inname, int fdepth)
++{
+ 	int	fd = 0;
+ 	int	rv = -1;
+ 	unsigned char *buf;
+@@ -239,10 +245,12 @@ magic_file(struct magic_set *ms, const c
+ 	if ((buf = malloc(HOWMANY + SLOP)) == NULL)
+ 		return NULL;
+ 
+-	if (file_reset(ms) == -1)
+-		goto done;
++	if (fdepth == 0) {
++		if (file_reset(ms) == -1)
++			goto done;
++	}
+ 
+-	switch (file_fsmagic(ms, inname, st)) {
++	switch (file_fsmagic(ms, inname, st, fdepth)) {
+ 	case -1:
+ 		goto done;
+ 	case 0:
+--- file/src/magic.h.coloring	2005-11-01 01:37:05.000000000 +0100
++++ file/src/magic.h	2005-11-30 17:23:09.000000000 +0100
+@@ -32,6 +32,7 @@
+ #define	MAGIC_NONE		0x000	/* No flags */
+ #define	MAGIC_DEBUG		0x001	/* Turn on debugging */
+ #define	MAGIC_SYMLINK		0x002	/* Follow symlinks */
++#define MAGIC_DEVEL_SYMLINK	0x400	/* Follow devel symlinks */
+ #define	MAGIC_COMPRESS		0x004	/* Check inside compressed files */
+ #define	MAGIC_DEVICES		0x008	/* Look at the contents of devices */
+ #define	MAGIC_MIME		0x010	/* Return a mime string */
+@@ -41,6 +42,11 @@
+ #define	MAGIC_RAW		0x100	/* Don't translate unprintable chars */
+ #define	MAGIC_ERROR		0x200	/* Handle ENOENT etc as real errors */
+ 
++/* our  compilers support the "hidden" visibility */
++#ifndef hidden
++#define hidden __attribute__((visibility("hidden")))
++#endif
++
+ #ifdef __cplusplus
+ extern "C" {
+ #endif
+@@ -56,6 +62,10 @@
+ 	/*@modifies ms, fileSystem @*/;
+ 
+ /*@null@*/ /*@observer@*/
++extern hidden const char *magic_do_file(magic_t ms, /*@null@*/ const char * inname, int fdepth)
++	/*@globals fileSystem, internalState @*/
++	/*@modifies ms, fileSystem, internalState @*/;
++/*@null@*/ /*@observer@*/
+ const char *magic_file(magic_t ms, /*@null@*/ const char * inname)
+ 	/*@globals fileSystem, internalState @*/
+ 	/*@modifies ms, fileSystem, internalState @*/;
+--- build/rpmfc.c.coloring	2005-11-14 23:57:52.000000000 +0100
++++ build/rpmfc.c	2005-11-30 17:23:09.000000000 +0100
+@@ -435,6 +435,10 @@ static struct rpmfcTokens_s rpmfcTokens[
+   { " not stripped",		RPMFC_NOTSTRIPPED },
+   { " archive",			RPMFC_ARCHIVE },
+ 
++  { "ar archive with 32-bit ELF",	RPMFC_ELF32|RPMFC_STATIC|RPMFC_LIBRARY|RPMFC_ARCHIVE|RPMFC_INCLUDE },
++  { "ar archive with 64-bit ELF",	RPMFC_ELF64|RPMFC_STATIC|RPMFC_LIBRARY|RPMFC_ARCHIVE|RPMFC_INCLUDE },
++  { "symbolic link to ELF 32-bit",	RPMFC_ELF32|RPMFC_SYMLINK|RPMFC_INCLUDE },
++  { "symbolic link to ELF 64-bit",	RPMFC_ELF64|RPMFC_SYMLINK|RPMFC_INCLUDE },
+   { "ELF 32-bit",		RPMFC_ELF32|RPMFC_INCLUDE },
+   { "ELF 64-bit",		RPMFC_ELF64|RPMFC_INCLUDE },
+ 
+@@ -700,7 +704,7 @@ static int rpmfcSCRIPT(rpmfc fc)
+ 	*se = '\0';
+ 	se++;
+ 
+-	if (is_executable) {
++	if (is_executable && !fc->skipReq) {
+ 	    /* Add to package requires. */
+ 	    ds = rpmdsSingle(RPMTAG_REQUIRENAME, s, "", RPMSENSE_FIND_REQUIRES);
+ 	    xx = rpmdsMerge(&fc->requires, ds);
+@@ -1288,6 +1292,7 @@ int rpmfcGenerateDepends(const Spec spec
+     char buf[BUFSIZ];
+     const char * N;
+     const char * EVR;
++    int externalDepsGenerator = 0;
+     int genConfigDeps;
+     int c;
+     int rc = 0;
+@@ -1304,9 +1309,10 @@ int rpmfcGenerateDepends(const Spec spec
+     /* If new-fangled dependency generation is disabled ... */
+     if (!rpmExpandNumeric("%{?_use_internal_dependency_generator}")) {
+ 	/* ... then generate dependencies using %{__find_requires} et al. */
++	externalDepsGenerator = 1;
+ 	rc = rpmfcGenerateDependsHelper(spec, pkg, fi);
+-	printDeps(pkg->header);
+-	return rc;
++	if (rc)
++	    return rc;
+     }
+ 
+     /* Extract absolute file paths in argv format. */
+@@ -1331,8 +1337,8 @@ int rpmfcGenerateDepends(const Spec spec
+ /*@=boundswrite@*/
+ 
+     fc = rpmfcNew();
+-    fc->skipProv = !pkg->autoProv;
+-    fc->skipReq = !pkg->autoReq;
++    fc->skipProv = externalDepsGenerator || !pkg->autoProv;
++    fc->skipReq = externalDepsGenerator || !pkg->autoReq;
+     fc->tracked = 0;
+     fc->brlen = (spec->buildRootURL ? strlen(spec->buildRootURL) : 0);
+ 

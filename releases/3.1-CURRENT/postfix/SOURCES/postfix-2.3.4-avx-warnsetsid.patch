@@ -1,0 +1,15 @@
+--- postfix-2.3.4/src/master/master.c.warnsetsid	2005-06-01 10:08:07.000000000 -0600
++++ postfix-2.3.4/src/master/master.c	2006-12-09 17:52:00.000000000 -0700
+@@ -331,9 +331,11 @@
+      * Run in a separate process group, so that "postfix stop" can terminate
+      * all MTA processes cleanly. Give up if we can't separate from our
+      * parent process. We're not supposed to blow away the parent.
++     *
++     * ANNVIX: to run master supervised, we change this from being fatal to being a warning
+      */
+     if (debug_me == 0 && master_detach != 0 && setsid() == -1 && getsid(0) != getpid())
+-	msg_fatal("unable to set session and process group ID: %m");
++	msg_warn("unable to set session and process group ID: %m");
+ 
+     /*
+      * Make some room for plumbing with file descriptors. XXX This breaks

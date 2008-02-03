@@ -1,0 +1,16 @@
+2007-03-10  Gwenole Beauchesne  <gbeauchesne@mandriva.com>
+
+	* sysctl.c (ReadSetting): Allocate one more byte for trailing
+	slash, aka fix buffer overflow.
+
+--- procps-3.2.7/sysctl.c.fix-buffer-overflow	2007-03-10 12:11:31.000000000 +0100
++++ procps-3.2.7/sysctl.c	2007-03-10 12:12:19.000000000 +0100
+@@ -136,7 +136,7 @@ static int ReadSetting(const char *restr
+    }
+ 
+    /* used to open the file */
+-   tmpname = malloc(strlen(name)+strlen(PROC_PATH)+1);
++   tmpname = malloc(strlen(name)+strlen(PROC_PATH)+2);
+    strcpy(tmpname, PROC_PATH);
+    strcat(tmpname, name); 
+    slashdot(tmpname+strlen(PROC_PATH),'.','/'); /* change . to / */

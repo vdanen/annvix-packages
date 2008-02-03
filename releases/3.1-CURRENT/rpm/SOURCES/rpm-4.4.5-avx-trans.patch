@@ -1,0 +1,17 @@
+--- rpmpopt.in~	2007-06-18 19:09:23.195240250 -0600
++++ rpmpopt.in	2007-06-18 19:09:23.195240250 -0600
+@@ -32,6 +32,14 @@
+ %|POSTUNPROG?{ (using %{POSTUNPROG})}|:\n%{POSTUN}\n}:\
+ {%|POSTUNPROG?{postuninstall program: %{POSTUNPROG}\n}|}|\
+ \
++%|PRETRANS?{pretransaction scriptlet\
++%|PRETRANSPROG?{ (using %{PRETRANSPROG})}|:\n%{PRETRANS}\n}:\
++{%|PRETRANSPROG?{pretransaction program: %{PRETRANSPROG}\n}|}|\
++\
++%|POSTTRANS?{posttransaction scriptlet\
++%|POSTTRANSPROG?{ (using %{POSTTRANSPROG})}|:\n%{POSTTRANS}\n}:\
++{%|POSTTRANSPROG?{posttransaction program: %{POSTTRANSPROG}\n}|}|\
++\
+ %|VERIFYSCRIPT?{verify scriptlet:\n%{VERIFYSCRIPT}\n}|\
+ ' \
+ 	--POPTdesc=$"list install/erase scriptlets from package(s)"

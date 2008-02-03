@@ -1,0 +1,10 @@
+--- module-init-tools-3.2-pre8/libmodprobe.c.modprobe-default	2005-08-06 17:20:02.000000000 +0200
++++ module-init-tools-3.2-pre8/libmodprobe.c	2005-08-06 17:20:02.000000000 +0200
+@@ -1189,6 +1189,7 @@
+ 
+ static const char *default_configs[] = 
+ {
++	"/lib/module-init-tools/modprobe.default",
+ 	"/etc/modprobe.conf",
+ 	"/etc/modprobe.d",
+ };

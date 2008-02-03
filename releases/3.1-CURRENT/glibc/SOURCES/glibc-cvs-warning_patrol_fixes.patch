@@ -1,0 +1,1529 @@
+Hi!
+
+I spent some time today trying to get rid of a bunch of warnings.
+This patch cures iconvdata/, mostly
+warning:.*pointer targets in.*differ in signedness
+warning:.*unused variable
+and some
+warning:.*may be used uninitialized in this function
+
+Most of this is hopefully not controversial and one of the may be used
+unitialized warnings even showed what looked like a real bug - see
+ucs4_to_jisx0212 routine, where if cp[0] was != '\0', but cp[1], it would
+return 2 as if both s[0] and s[1] were set, but only s[0] would be set
+and s[1] left unitialized.  By inspection I found the table fortunately
+doesn't contain such strings, so it is pointless to special case it
+(furthermore incorrectly), __jisx0212_from_ucs table either contains
+both chars '\0', or none of them '\0'.
+The only slightly controversial changes are in euc-jp-ms.c (the hunk
+initializing endp) and in euc-kr.c - this is a gcc fault for not being
+to determine very complex graphs which initialize the var in some leafs
+and not in others, but IMHO the workaround is very cheap (in euc-kr.c
+it is even on very rarely executed branch) and helps both gcc 4.1 and
+gcc 4.3 not to warn about this.  I have left a few places where
+gcc 4.1 warns about may be unitialized vars, but gcc 4.3 no longer does.
+Tested with gcc 4.1 and gcc 4.3 on x86_64-linux.
+
+ 2007-07-26  Jakub Jelinek  <jakub@redhat.com>
+
+	* iconvdata/gbk.c (BODY): Make buf and cp char instead of unsigned
+	char array resp. pointer.
+	* iconvdata/iso-2022-kr.c (BODY): Make buf unsigned char instead of
+	char array.
+	* iconvdata/cns11643.h (cns11643_to_ucs4): Change first argument
+	to const unsigned char **.
+	(ucs4_to_cns11643): Change second argument to unsigned char *.
+	* iconvdata/euc-tw.c (BODY): Change endp type to
+	const unsigned char *.
+	* iconvdata/iso-ir-165.h (ucs4_to_isoir165): Change second argument
+	to unsigned char *.
+	* iconvdata/ibm1008_420.c (LOOP_NEED_FLAGS): Don't define.
+	* iconvdata/iso-2022-cn.c (BODY): Change buf to unsigned char array.
+	* iconvdata/iso-2022-cn-ext.c (BODY): Change buf, tmpbuf, tmp
+	types to unsigned char pointers/arrays instead of char.
+	* iconvdata/jis0201.h (ucs4_to_jisx0201): Change second argument
+	to unsigned char *.
+	* iconvdata/jis0208.h (ucs4_to_jisx0208): Likewise.
+	* iconvdata/jis0212.h: Include assert.h.
+	(ucs4_to_jisx0212): Change second argument to unsigned char *.
+	assert that if cp[0] is not '\0', cp[1] is not '\0' either instead
+	of trying to handle that.
+	* iconvdata/euc-kr.c (euckr_from_ucs4): Initialize also cp[1] to
+	shut up a warning.
+	* iconvdata/euc-jp-ms.c (from_ucs4_lat1, from_ucs4_greek,
+	from_ucs4_cjk, from_ucs4_cjkcpt, from_ucs4_extra): Change type to
+	two dimensional const unsigned char arrays.
+	(BODY): Cast "" to (const unsigned char *) for assignment to cp.
+	Initialize endp to inptr to shut up a warning.
+
+--- libc/iconvdata/gbk.c.jj	2007-07-26 09:43:30.000000000 +0200
++++ libc/iconvdata/gbk.c	2007-07-26 13:17:14.000000000 +0200
+@@ -13213,8 +13213,8 @@ static const char __gbk_from_ucs4_tab12[
+ #define BODY \
+   {									      \
+     uint32_t ch = get32 (inptr);					      \
+-    unsigned char buf[2];						      \
+-    const unsigned char *cp = buf;					      \
++    char buf[2];							      \
++    const char *cp = buf;						      \
+ 									      \
+     if (ch <= L'\x7f')							      \
+       /* It's plain ASCII.  */						      \
+--- libc/iconvdata/iso-2022-kr.c.jj	2002-06-28 23:13:14.000000000 +0200
++++ libc/iconvdata/iso-2022-kr.c	2007-07-26 13:17:14.000000000 +0200
+@@ -1,5 +1,5 @@
+ /* Conversion module for ISO-2022-KR.
+-   Copyright (C) 1998, 1999, 2000-2002 Free Software Foundation, Inc.
++   Copyright (C) 1998, 1999, 2000-2002, 2007 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1998.
+ 
+@@ -223,7 +223,7 @@ enum
+       }									      \
+     else								      \
+       {									      \
+-	char buf[2];							      \
++	unsigned char buf[2];						      \
+ 	size_t written;							      \
+ 									      \
+ 	written = ucs4_to_ksc5601 (ch, buf, 2);				      \
+--- libc/iconvdata/cns11643.h.jj	2003-06-11 23:40:42.000000000 +0200
++++ libc/iconvdata/cns11643.h	2007-07-26 13:17:14.000000000 +0200
+@@ -1,5 +1,6 @@
+ /* Access functions for CNS 11643 handling.
+-   Copyright (C) 1998,1999,2000,2001,2002,2003 Free Software Foundation, Inc.
++   Copyright (C) 1998,1999,2000,2001,2002,2003,2007
++   Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1998.
+ 
+@@ -41,7 +42,7 @@ extern const uint32_t __cns11643l15_to_u
+ 
+ static inline uint32_t
+ __attribute ((always_inline))
+-cns11643_to_ucs4 (const char **s, size_t avail, unsigned char offset)
++cns11643_to_ucs4 (const unsigned char **s, size_t avail, unsigned char offset)
+ {
+   unsigned char ch = *(*s);
+   unsigned char ch2;
+@@ -142,7 +143,7 @@ extern const char __cns11643_from_ucs4p2
+ 
+ static inline size_t
+ __attribute ((always_inline))
+-ucs4_to_cns11643 (uint32_t wch, char *s, size_t avail)
++ucs4_to_cns11643 (uint32_t wch, unsigned char *s, size_t avail)
+ {
+   unsigned int ch = (unsigned int) wch;
+   char buf[2];
+--- libc/iconvdata/euc-tw.c.jj	2003-03-26 08:58:49.000000000 +0100
++++ libc/iconvdata/euc-tw.c	2007-07-26 13:17:14.000000000 +0200
+@@ -1,5 +1,6 @@
+ /* Mapping tables for EUC-TW handling.
+-   Copyright (C) 1998, 1999, 2000-2002, 2003 Free Software Foundation, Inc.
++   Copyright (C) 1998, 1999, 2000-2002, 2003, 2007
++   Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1998.
+ 
+@@ -74,7 +75,7 @@
+ 	if (ch == 0x8e)							      \
+ 	  {								      \
+ 	    /* This is code set 2: CNS 11643, planes 1 to 16.  */	      \
+-	    const char *endp = inptr + 1;				      \
++	    const unsigned char *endp = inptr + 1;			      \
+ 									      \
+ 	    ch = cns11643_to_ucs4 (&endp, inend - inptr - 1, 0x80);	      \
+ 									      \
+--- libc/iconvdata/iso-ir-165.h.jj	2003-06-13 22:40:36.000000000 +0200
++++ libc/iconvdata/iso-ir-165.h	2007-07-26 13:17:14.000000000 +0200
+@@ -1,6 +1,6 @@
+ /* Tables for conversion to and from ISO-IR-165.
+    converting from UCS using gaps.
+-   Copyright (C) 2000, 2003 Free Software Foundation, Inc.
++   Copyright (C) 2000, 2003, 2007 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+    Contributed by Ulrich Drepper <drepper@cygnus.com>, 2000.
+ 
+@@ -72,7 +72,7 @@ extern const char __isoir165_from_tab[];
+ 
+ static inline size_t
+ __attribute ((always_inline))
+-ucs4_to_isoir165 (uint32_t wch, char *s, size_t avail)
++ucs4_to_isoir165 (uint32_t wch, unsigned char *s, size_t avail)
+ {
+   unsigned int ch = (unsigned int) wch;
+   const char *cp;
+--- libc/iconvdata/euc-jp-ms.c.jj	2003-08-14 10:37:44.000000000 +0200
++++ libc/iconvdata/euc-jp-ms.c	2007-07-26 18:40:11.000000000 +0200
+@@ -1,5 +1,5 @@
+ /* Mapping tables for EUCJP-MS handling.
+-   Copyright (C) 1998,1999,2000,2001,2003 Free Software Foundation, Inc.
++   Copyright (C) 1998,1999,2000,2001,2003,2007 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+    Contributed by MORIYAMA Masayuki <msyk@mtg.biglobe.ne.jp>, 2003.
+ 
+@@ -158,7 +158,7 @@ static const uint16_t cjk_block_ibm[268]
+  /* 0x8ff4fd */ 0xfa2d, 0x9ed1
+ };
+ 
+-static const char from_ucs4_lat1[256][2] =
++static const unsigned char from_ucs4_lat1[256][2] =
+ {
+   /* start = 0x0000, end = 0x00ff */
+   [    0] = "\x00\x00",  [    1] = "\x01\x00",  [    2] = "\x02\x00",
+@@ -244,7 +244,7 @@ static const char from_ucs4_lat1[256][2]
+   [  255] = "\xab\x73"
+ };
+ 
+-static const char from_ucs4_greek[864][2] =
++static const unsigned char from_ucs4_greek[864][2] =
+ {
+   /* start = 0x0100, end = 0x045f */
+   [    0] = "\xaa\x27",  [    1] = "\xab\x27",  [    2] = "\xaa\x25",
+@@ -351,7 +351,7 @@ static const char from_ucs4_greek[864][2
+   [  860] = "\xa7\x7c",  [  862] = "\xa7\x7d",  [  863] = "\xa7\x7e"
+ };
+ 
+-static const char from_ucs4_cjk[32662][2] =
++static const unsigned char from_ucs4_cjk[32662][2] =
+ {
+   /* start = 0x2010, end = 0x9fa5 */
+   [    0] = "\xa1\xbe",  [    4] = "\xa1\xbd",  [    5] = "\xa1\xbd",
+@@ -4556,7 +4556,7 @@ static const char from_ucs4_cjk[32662][2
+   [32661] = "\xed\x63"
+ };
+ 
+-static const char from_ucs4_cjkcpt[261][2] =
++static const unsigned char from_ucs4_cjkcpt[261][2] =
+ {
+   /* start = 0xf929, end = 0xfa2d */
+   [    0] = "\xf4\x45",  [  179] = "\xf4\x72",  [  229] = "\xf4\x34",
+@@ -4573,7 +4573,7 @@ static const char from_ucs4_cjkcpt[261][
+   [  260] = "\xf4\x7d"
+ };
+ 
+-static const char from_ucs4_extra[229][2] =
++static const unsigned char from_ucs4_extra[229][2] =
+ {
+   /* start = 0xff01, end = 0xffe5 */
+   [    0] = "\xa1\xaa",  [    1] = "\xf4\x2a",  [    2] = "\xa1\xf4",
+@@ -4719,7 +4719,7 @@ static const char from_ucs4_extra[229][2
+ 	  }								      \
+ 	else								      \
+ 	  {								      \
+-	    const unsigned char *endp;					      \
++	    const unsigned char *endp = inptr;				      \
+ 	    int mblen = 1;						      \
+ 									      \
+ 	    if (__builtin_expect(ch == 0x8f, 0))			      \
+@@ -4758,7 +4758,7 @@ static const char from_ucs4_extra[229][2
+ 		              ch = __UNKNOWN_10646_CHAR;		      \
+ 		          }						      \
+ 		        else						      \
+-			    ch = __UNKNOWN_10646_CHAR;			      \
++			  ch = __UNKNOWN_10646_CHAR;			      \
+ 		      }							      \
+ 		    else if (ch2 <= 0xfe)				      \
+ 		      {							      \
+@@ -4766,7 +4766,7 @@ static const char from_ucs4_extra[229][2
+ 		        endp = inptr + mblen;				      \
+ 		      }							      \
+ 		    else						      \
+-		        ch = __UNKNOWN_10646_CHAR;			      \
++		      ch = __UNKNOWN_10646_CHAR;			      \
+ 		  }							      \
+ 	      }								      \
+ 	    else if (__builtin_expect(0xa1 <= ch, 1))			      \
+@@ -4804,10 +4804,10 @@ static const char from_ucs4_extra[229][2
+ 		    endp = inptr + mblen;				      \
+ 		  }							      \
+ 	        else							      \
+-		    ch = __UNKNOWN_10646_CHAR;				      \
++		  ch = __UNKNOWN_10646_CHAR;				      \
+ 	      }								      \
+ 	    else							      \
+-	        ch = __UNKNOWN_10646_CHAR;				      \
++	      ch = __UNKNOWN_10646_CHAR;				      \
+ 									      \
+ 	    if (__builtin_expect (ch, 1) == 0)				      \
+ 	      {								      \
+@@ -4880,7 +4880,7 @@ static const char from_ucs4_extra[229][2
+ 	  {								      \
+ 	    UNICODE_TAG_HANDLER (ch, 4);				      \
+ 	    /* Illegal character.  */					      \
+-	    cp = "";							      \
++	    cp = (const unsigned char *) "";				      \
+ 	  }								      \
+       }									      \
+     else								      \
+--- libc/iconvdata/ibm1008_420.c.jj	2005-09-30 00:06:32.000000000 +0200
++++ libc/iconvdata/ibm1008_420.c	2007-07-26 13:17:14.000000000 +0200
+@@ -176,7 +176,6 @@ static const char __from_ibm420_to_ibm10
+     *outptr++ = ch;							      \
+     ++inptr;								      \
+   }
+-#define LOOP_NEED_FLAGS
+ #include <iconv/loop.c>
+ 
+ 
+@@ -190,7 +189,6 @@ static const char __from_ibm420_to_ibm10
+     *outptr++ = ch;							      \
+     ++inptr;								      \
+   }
+-#define LOOP_NEED_FLAGS
+ #include <iconv/loop.c>
+ 
+ /* Now define the toplevel functions.  */
+--- libc/iconvdata/iso-2022-cn.c.jj	2002-06-28 23:13:14.000000000 +0200
++++ libc/iconvdata/iso-2022-cn.c	2007-07-26 13:17:14.000000000 +0200
+@@ -1,5 +1,5 @@
+ /* Conversion module for ISO-2022-CN.
+-   Copyright (C) 1999, 2000-2002 Free Software Foundation, Inc.
++   Copyright (C) 1999, 2000-2002, 2007 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1999.
+ 
+@@ -263,7 +263,7 @@ enum
+       }									      \
+     else								      \
+       {									      \
+-	char buf[2];							      \
++	unsigned char buf[2];						      \
+ 	int used;							      \
+ 	size_t written = 0;						      \
+ 									      \
+--- libc/iconvdata/iso-2022-cn-ext.c.jj	2004-03-07 10:33:54.000000000 +0100
++++ libc/iconvdata/iso-2022-cn-ext.c	2007-07-26 13:17:14.000000000 +0200
+@@ -1,5 +1,5 @@
+ /* Conversion module for ISO-2022-CN-EXT.
+-   Copyright (C) 2000-2002, 2004 Free Software Foundation, Inc.
++   Copyright (C) 2000-2002, 2004, 2007 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+    Contributed by Ulrich Drepper <drepper@cygnus.com>, 2000.
+ 
+@@ -304,8 +304,8 @@ enum
+       {									      \
+ 	/* This is a character from CNS 11643 plane 3 or higher.	      \
+ 	   XXX Currently GB7590 and GB13132 are not supported.  */	      \
+-	char buf[3];							      \
+-	const char *tmp = buf;						      \
++	unsigned char buf[3];						      \
++	const unsigned char *tmp = buf;					      \
+ 									      \
+ 	buf[1] = inptr[2];						      \
+ 	buf[2] = inptr[3];						      \
+@@ -426,7 +426,7 @@ enum
+       }									      \
+     else								      \
+       {									      \
+-	char buf[2];							      \
++	unsigned char buf[2];						      \
+ 	int used;							      \
+ 									      \
+ 	if (set == GB2312_set || ((ann & SO_ann) != CNS11643_1_ann	      \
+@@ -456,7 +456,7 @@ enum
+ 	      used = CNS11643_2_set;					      \
+ 	    else							      \
+ 	      {								      \
+-		char tmpbuf[3];						      \
++		unsigned char tmpbuf[3];				      \
+ 									      \
+ 		switch (0)						      \
+ 		  {							      \
+--- libc/iconvdata/jis0208.h.jj	2005-09-23 20:47:44.000000000 +0200
++++ libc/iconvdata/jis0208.h	2007-07-26 13:17:14.000000000 +0200
+@@ -1,5 +1,6 @@
+ /* Access functions for JISX0208 conversion.
+-   Copyright (C) 1997,1998,1999,2000,2003,2005 Free Software Foundation, Inc.
++   Copyright (C) 1997,1998,1999,2000,2003,2005,2007
++   Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1997.
+ 
+@@ -75,7 +76,7 @@ jisx0208_to_ucs4 (const unsigned char **
+ 
+ static inline size_t
+ __attribute ((always_inline))
+-ucs4_to_jisx0208 (uint32_t wch, char *s, size_t avail)
++ucs4_to_jisx0208 (uint32_t wch, unsigned char *s, size_t avail)
+ {
+   unsigned int ch = (unsigned int) wch;
+   const char *cp;
+--- libc/iconvdata/jis0201.h.jj	2003-06-11 23:40:42.000000000 +0200
++++ libc/iconvdata/jis0201.h	2007-07-26 13:17:14.000000000 +0200
+@@ -1,5 +1,5 @@
+ /* Access functions for JISX0201 conversion.
+-   Copyright (C) 1997, 1998, 1999, 2003 Free Software Foundation, Inc.
++   Copyright (C) 1997, 1998, 1999, 2003, 2007 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1997.
+ 
+@@ -40,9 +40,9 @@ jisx0201_to_ucs4 (char ch)
+ 
+ static inline size_t
+ __attribute ((always_inline))
+-ucs4_to_jisx0201 (uint32_t wch, char *s)
++ucs4_to_jisx0201 (uint32_t wch, unsigned char *s)
+ {
+-  char ch;
++  unsigned char ch;
+ 
+   if (wch == 0xa5)
+     ch = '\x5c';
+--- libc/iconvdata/jis0212.h.jj	2003-06-11 23:40:42.000000000 +0200
++++ libc/iconvdata/jis0212.h	2007-07-26 18:33:35.000000000 +0200
+@@ -1,5 +1,5 @@
+ /* Access functions for JISX0212 conversion.
+-   Copyright (C) 1997, 1998, 1999, 2003 Free Software Foundation, Inc.
++   Copyright (C) 1997, 1998, 1999, 2003, 2007 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1997.
+ 
+@@ -21,6 +21,7 @@
+ #ifndef _JIS0212_H
+ #define _JIS0212_H	1
+ 
++#include <assert.h>
+ #include <gconv.h>
+ #include <stdint.h>
+ 
+@@ -79,7 +80,7 @@ jisx0212_to_ucs4 (const unsigned char **
+ 
+ static inline size_t
+ __attribute ((always_inline))
+-ucs4_to_jisx0212 (uint32_t wch, char *s, size_t avail)
++ucs4_to_jisx0212 (uint32_t wch, unsigned char *s, size_t avail)
+ {
+   const struct jisx0212_idx *rp = __jisx0212_from_ucs_idx;
+   unsigned int ch = (unsigned int) wch;
+@@ -98,14 +99,11 @@ ucs4_to_jisx0212 (uint32_t wch, char *s,
+     return __UNKNOWN_10646_CHAR;
+ 
+   s[0] = cp[0];
+-  if (cp[1] != '\0')
+-    {
+-      if (avail < 2)
+-	return 0;
+-
+-      s[1] = cp[1];
+-    }
++  assert (cp[1] != '\0');
++  if (avail < 2)
++    return 0;
+ 
++  s[1] = cp[1];
+   return 2;
+ }
+ 
+--- libc/iconvdata/euc-kr.c.jj	2007-07-26 14:06:38.000000000 +0200
++++ libc/iconvdata/euc-kr.c	2007-07-26 14:06:55.000000000 +0200
+@@ -1,5 +1,6 @@
+ /* Mapping tables for EUC-KR handling.
+-   Copyright (C) 1998, 1999, 2000-2002, 2003 Free Software Foundation, Inc.
++   Copyright (C) 1998, 1999, 2000-2002, 2003, 2007
++   Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+    Contributed by Jungshik Shin <jshin@pantheon.yale.edu>
+    and Ulrich Drepper <drepper@cygnus.com>, 1998.
+@@ -46,7 +47,7 @@ euckr_from_ucs4 (uint32_t ch, unsigned c
+ 	  cp[1] |= 0x80;
+ 	}
+       else
+-	cp[0] = '\0';
++	cp[0] = cp[1] = '\0';
+     }
+   else
+     {
+
+	Jakub
+
+Hi!
+
+Here is a bunch of hopefully non-controversial warning fixes of various
+kinds.  In fnmatch.c the warnings are gcc's fault, but rearranging the
+code like done in the patch might even improve the most common case
+and shuts the warning up.  zdump.c apparently relies on signed overflows,
+so I have added -fwrapv instead of making the code conformant.
+
+ 2007-07-26  Jakub Jelinek  <jakub@redhat.com>
+
+	* nss/nsswitch.c (__nss_lookup_function): Don't cast &ni->known to
+	void **.
+	* nss/nsswitch.h (service_user): Use void * type for KNOWN field.
+
+	* nss/nss_files/files-hosts.c (LINE_PARSER): Cast host_addr to
+	char * to avoid warning.
+	* nis/nss_nis/nis-hosts.c (LINE_PARSER): Likewise.
+
+	* timezone/Makefile (CFLAGS-zdump.c): Add -fwrapv.
+
+	* locale/programs/ld-ctype.c (ctype_finish, set_class_defaults,
+	allocate_arrays): Cast second argument to charmap_find_symbol
+	to char * to avoid warnings.
+
+	* locale/programs/repertoire.c (repertoire_new_char): Change
+	from_nr, to_nr and cnt to unsigned long, adjust printf format
+	string.
+
+	* locale/programs/ld-collate.c (insert_value, handle_ellipsis):
+	Cast second argument to new_element to char * to avoid warnings.
+
+	* locale/weightwc.h (findidx): Cast &extra[-i] to const int32_t *.
+
+	* intl/gettextP.h (struct loaded_domain): Change plural to const
+	struct expression *.
+	* intl/plural-eval.c (plural_eval): Change first argument to
+	const struct expression *.
+	* intl/plural-exp.c (EXTRACT_PLURAL_EXPRESSION): Change first
+	argument to const struct expression **.
+	* intl/plural-exp.h (EXTRACT_PLURAL_EXPRESSION, plural_eval): Adjust
+	prototypes.
+	* intl/loadmsgcat (_nl_unload_domain): Cast away const
+	in call to __gettext_free_exp.
+
+	* posix/fnmatch.c (fnmatch): Rearrange code to avoid maybe
+	unitialized wstring/wpattern var warnings.
+
+	* posix/runtests.c (struct a_test): Make data field const char *.
+
+	* stdio-common/tst-sprintf2.c (main): Don't declere u, v and buf
+	vars if not LDBL_MANT_DIG >= 106.
+
+	* stdio-common/Makefile (CFLAGS-vfwprintf.c): Add -Wno-unitialized.
+
+	* stdio-common/vfprintf.c (vfprintf): Cast first arugment to
+	__find_specmb to avoid warning.
+
+	* rt/tst-mqueue1.c (do_one_test): Add casts to avoid warnings.
+
+	* debug/test-strcpy_chk.c (do_tests, do_random_tests): Add casts
+	to avoid warnings.
+
+	* sysdeps/ieee754/ldbl-96/s_roundl.c (huge): Add L suffix to
+	initializer.
+
+	* sysdeps/unix/clock_gettime.c (clock_gettime): Only define
+	tv var when it will be actually used.
+
+	* sunrpc/rpc_cmsg.c (xdr_callmsg): Cast IXDR_PUT_* to void
+	to avoid warnings.
+nptl/
+	* tst-locale2.c (useless): Add return statement.
+
+--- libc/nss/nsswitch.c.jj	2007-01-15 23:25:28.000000000 +0100
++++ libc/nss/nsswitch.c	2007-07-26 13:17:14.000000000 +0200
+@@ -281,7 +281,7 @@ __nss_lookup_function (service_user *ni,
+      enough to a pointer to our structure to use as a lookup key that
+      will be passed to `known_compare' (above).  */
+ 
+-  found = __tsearch (&fct_name, (void **) &ni->known, &known_compare);
++  found = __tsearch (&fct_name, &ni->known, &known_compare);
+   if (*found != &fct_name)
+     /* The search found an existing structure in the tree.  */
+     result = ((known_function *) *found)->fct_ptr;
+@@ -298,7 +298,7 @@ __nss_lookup_function (service_user *ni,
+ 	remove_from_tree:
+ 	  /* Oops.  We can't instantiate this node properly.
+ 	     Remove it from the tree.  */
+-	  __tdelete (&fct_name, (void **) &ni->known, &known_compare);
++	  __tdelete (&fct_name, &ni->known, &known_compare);
+ 	  result = NULL;
+ 	}
+       else
+--- libc/nss/nsswitch.h.jj	2004-05-26 08:40:24.000000000 +0200
++++ libc/nss/nsswitch.h	2007-07-26 13:17:14.000000000 +0200
+@@ -1,4 +1,5 @@
+-/* Copyright (C) 1996-1999,2001,2002,2003,2004 Free Software Foundation, Inc.
++/* Copyright (C) 1996-1999,2001,2002,2003,2004,2007
++   Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+ 
+    The GNU C Library is free software; you can redistribute it and/or
+@@ -66,7 +67,7 @@ typedef struct service_user
+   /* Link to the underlying library object.  */
+   service_library *library;
+   /* Collection of known functions.  */
+-  struct entry *known;
++  void *known;
+   /* Name of the service (`files', `dns', `nis', ...).  */
+   char name[0];
+ } service_user;
+--- libc/nss/nss_files/files-hosts.c.jj	2007-05-04 11:38:29.000000000 +0200
++++ libc/nss/nss_files/files-hosts.c	2007-07-26 13:17:14.000000000 +0200
+@@ -86,7 +86,7 @@ LINE_PARSER
+    result->h_length = af == AF_INET ? INADDRSZ : IN6ADDRSZ;
+ 
+    /* Store a pointer to the address in the expected form.  */
+-   entdata->h_addr_ptrs[0] = entdata->host_addr;
++   entdata->h_addr_ptrs[0] = (char *) entdata->host_addr;
+    entdata->h_addr_ptrs[1] = NULL;
+    result->h_addr_list = entdata->h_addr_ptrs;
+ 
+--- libc/nis/nss_nis/nis-hosts.c.jj	2007-05-04 11:38:29.000000000 +0200
++++ libc/nis/nss_nis/nis-hosts.c	2007-07-26 13:43:49.000000000 +0200
+@@ -88,7 +88,7 @@ LINE_PARSER
+      return 0;
+ 
+    /* Store a pointer to the address in the expected form.  */
+-   entdata->h_addr_ptrs[0] = entdata->host_addr;
++   entdata->h_addr_ptrs[0] = (char *) entdata->host_addr;
+    entdata->h_addr_ptrs[1] = NULL;
+    result->h_addr_list = entdata->h_addr_ptrs;
+ 
+--- libc/nptl/tst-locale2.c.jj	2007-04-23 10:54:02.000000000 +0200
++++ libc/nptl/tst-locale2.c	2007-07-26 19:24:40.000000000 +0200
+@@ -11,4 +11,5 @@ useless (void *a)
+ {
+   pthread_t th;
+   pthread_create (&th, 0, useless, a);
++  return NULL;
+ }
+--- libc/timezone/Makefile.jj	2005-04-15 22:09:08.000000000 +0200
++++ libc/timezone/Makefile	2007-07-26 13:40:46.000000000 +0200
+@@ -1,4 +1,4 @@
+-# Copyright (C) 1998,1999,2000,2002,2005 Free Software Foundation, Inc.
++# Copyright (C) 1998,1999,2000,2002,2005,2007 Free Software Foundation, Inc.
+ # This file is part of the GNU C Library.
+ 
+ # The GNU C Library is free software; you can redistribute it and/or
+@@ -166,7 +166,8 @@ tz-cflags = -DTZDIR='"$(zonedir)"' \
+ 	    -DTZDEFRULES='"$(posixrules-file)"' \
+ 	    -DTM_GMTOFF=tm_gmtoff -DTM_ZONE=tm_zone
+ 
+-CFLAGS-zdump.c = -Wno-strict-prototypes -DNOID $(tz-cflags) -DHAVE_GETTEXT
++CFLAGS-zdump.c = -fwrapv -Wno-strict-prototypes -DNOID $(tz-cflags) \
++		 -DHAVE_GETTEXT
+ CFLAGS-zic.c = -Wno-strict-prototypes -DNOID $(tz-cflags) -DHAVE_GETTEXT
+ CFLAGS-ialloc.c = -Wno-strict-prototypes -DNOID -DHAVE_GETTEXT
+ CFLAGS-scheck.c = -Wno-strict-prototypes -DNOID -DHAVE_GETTEXT
+--- libc/locale/programs/ld-ctype.c.jj	2007-07-16 09:58:46.000000000 +0200
++++ libc/locale/programs/ld-ctype.c	2007-07-26 13:36:02.000000000 +0200
+@@ -649,7 +649,8 @@ character <SP> not defined in character 
+ 	    /* Find the UCS value for `bytes'.  */
+ 	    int inner;
+ 	    uint32_t wch;
+-	    struct charseq *seq = charmap_find_symbol (charmap, bytes, nbytes);
++	    struct charseq *seq
++	      = charmap_find_symbol (charmap, (char *) bytes, nbytes);
+ 
+ 	    if (seq == NULL)
+ 	      wch = ILLEGAL_CHAR_VALUE;
+@@ -750,7 +751,7 @@ character <SP> not defined in character 
+       for (cnt = 0; cnt < 10; ++cnt)
+ 	{
+ 	  ctype->mbdigits[cnt] = charmap_find_symbol (charmap,
+-						      digits + cnt, 1);
++						      (char *) digits + cnt, 1);
+ 	  if (ctype->mbdigits[cnt] == NULL)
+ 	    {
+ 	      ctype->mbdigits[cnt] = charmap_find_symbol (charmap,
+@@ -3470,7 +3471,8 @@ set_class_defaults (struct locale_ctype_
+       for (cnt = ctype->outdigits_act; cnt < 10; ++cnt)
+ 	{
+ 	  ctype->mboutdigits[cnt] = charmap_find_symbol (charmap,
+-							 digits + cnt, 1);
++							 (char *) digits + cnt,
++							 1);
+ 
+ 	  if (ctype->mboutdigits[cnt] == NULL)
+ 	    ctype->mboutdigits[cnt] = charmap_find_symbol (charmap,
+@@ -4025,7 +4027,7 @@ allocate_arrays (struct locale_ctype_t *
+ 		int inner;
+ 		uint32_t wch;
+ 		struct charseq *seq =
+-		  charmap_find_symbol (charmap, bytes, nbytes);
++		  charmap_find_symbol (charmap, (char *) bytes, nbytes);
+ 
+ 		if (seq == NULL)
+ 		  wch = ILLEGAL_CHAR_VALUE;
+--- libc/locale/programs/repertoire.c.jj	2007-07-16 09:58:46.000000000 +0200
++++ libc/locale/programs/repertoire.c	2007-07-26 13:34:24.000000000 +0200
+@@ -1,4 +1,4 @@
+-/* Copyright (C) 1998-2002,2004,2005 Free Software Foundation, Inc.
++/* Copyright (C) 1998-2002,2004,2005,2007 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1998.
+ 
+@@ -393,7 +393,7 @@ repertoire_new_char (struct linereader *
+   const char *cp;
+   char *buf = NULL;
+   int prefix_len, len1, len2;
+-  unsigned int from_nr, to_nr, cnt;
++  unsigned long int from_nr, to_nr, cnt;
+ 
+   if (to == NULL)
+     {
+@@ -462,7 +462,7 @@ hexadecimal range format should use only
+     {
+       uint32_t this_value = value + (cnt - from_nr);
+ 
+-      obstack_printf (ob, decimal_ellipsis ? "%.*s%0*d" : "%.*s%0*X",
++      obstack_printf (ob, decimal_ellipsis ? "%.*s%0*ld" : "%.*s%0*lX",
+ 		      prefix_len, from, len1 - prefix_len, cnt);
+       obstack_1grow (ob, '\0');
+ 
+--- libc/locale/programs/ld-collate.c.jj	2007-07-24 10:50:54.000000000 +0200
++++ libc/locale/programs/ld-collate.c	2007-07-26 13:17:14.000000000 +0200
+@@ -990,7 +990,8 @@ insert_value (struct linereader *ldfile,
+ 	  uint32_t wcs[2] = { wc, 0 };
+ 
+ 	  /* We have to allocate an entry.  */
+-	  elem = new_element (collate, seq != NULL ? seq->bytes : NULL,
++	  elem = new_element (collate,
++			      seq != NULL ? (char *) seq->bytes : NULL,
+ 			      seq != NULL ? seq->nbytes : 0,
+ 			      wc == ILLEGAL_CHAR_VALUE ? NULL : wcs,
+ 			      symstr, symlen, 1);
+@@ -1385,7 +1386,8 @@ order for `%.*s' already defined at %s:%
+ 
+ 		      /* We have to allocate an entry.  */
+ 		      elem = new_element (collate,
+-					  seq != NULL ? seq->bytes : NULL,
++					  seq != NULL
++					  ? (char *) seq->bytes : NULL,
+ 					  seq != NULL ? seq->nbytes : 0,
+ 					  wc == ILLEGAL_CHAR_VALUE
+ 					  ? NULL : wcs, buf, lenfrom, 1);
+--- libc/locale/weightwc.h.jj	2005-03-06 08:15:49.000000000 +0100
++++ libc/locale/weightwc.h	2007-07-26 13:17:14.000000000 +0200
+@@ -1,4 +1,4 @@
+-/* Copyright (C) 1996-2001,2003,2004,2005 Free Software Foundation, Inc.
++/* Copyright (C) 1996-2001,2003,2004,2005,2007 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+    Written by Ulrich Drepper, <drepper@cygnus.com>.
+ 
+@@ -31,7 +31,7 @@ findidx (const wint_t **cpp)
+ 
+   /* Oh well, more than one sequence starting with this byte.
+      Search for the correct one.  */
+-  const int32_t *cp = &extra[-i];
++  const int32_t *cp = (const int32_t *) &extra[-i];
+   while (1)
+     {
+       size_t nhere;
+--- libc/intl/gettextP.h.jj	2005-04-05 00:29:14.000000000 +0200
++++ libc/intl/gettextP.h	2007-07-26 13:17:14.000000000 +0200
+@@ -1,5 +1,6 @@
+ /* Header describing internals of libintl library.
+-   Copyright (C) 1995-1999, 2000, 2001, 2004-2005 Free Software Foundation, Inc.
++   Copyright (C) 1995-1999, 2000, 2001, 2004-2005, 2007
++   Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+    Written by Ulrich Drepper <drepper@cygnus.com>, 1995.
+ 
+@@ -147,7 +148,7 @@ struct loaded_domain
+   struct converted_domain *conversions;
+   size_t nconversions;
+ 
+-  struct expression *plural;
++  const struct expression *plural;
+   unsigned long int nplurals;
+ };
+ 
+--- libc/intl/plural-eval.c.jj	2001-11-27 23:52:33.000000000 +0100
++++ libc/intl/plural-eval.c	2007-07-26 13:17:14.000000000 +0200
+@@ -1,5 +1,5 @@
+ /* Plural expression evaluation.
+-   Copyright (C) 2000, 2001 Free Software Foundation, Inc.
++   Copyright (C) 2000, 2001, 2007 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+ 
+    The GNU C Library is free software; you can redistribute it and/or
+@@ -17,14 +17,14 @@
+    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+    02111-1307 USA.  */
+ 
+-static unsigned long int plural_eval (struct expression *pexp,
++static unsigned long int plural_eval (const struct expression *pexp,
+ 				      unsigned long int n)
+      internal_function;
+ 
+ static unsigned long int
+ internal_function
+ plural_eval (pexp, n)
+-     struct expression *pexp;
++     const struct expression *pexp;
+      unsigned long int n;
+ {
+   switch (pexp->nargs)
+--- libc/intl/plural-exp.c.jj	2005-12-21 05:17:04.000000000 +0100
++++ libc/intl/plural-exp.c	2007-07-26 13:17:14.000000000 +0200
+@@ -1,5 +1,5 @@
+ /* Expression parsing for plural form selection.
+-   Copyright (C) 2000, 2001, 2005 Free Software Foundation, Inc.
++   Copyright (C) 2000, 2001, 2005, 2007 Free Software Foundation, Inc.
+    Written by Ulrich Drepper <drepper@cygnus.com>, 2000.
+    This file is part of the GNU C Library.
+ 
+@@ -99,7 +99,7 @@ void
+ internal_function
+ EXTRACT_PLURAL_EXPRESSION (nullentry, pluralp, npluralsp)
+      const char *nullentry;
+-     struct expression **pluralp;
++     const struct expression **pluralp;
+      unsigned long int *npluralsp;
+ {
+   if (nullentry != NULL)
+--- libc/intl/loadmsgcat.c.jj	2005-04-05 00:33:01.000000000 +0200
++++ libc/intl/loadmsgcat.c	2007-07-26 13:17:14.000000000 +0200
+@@ -1276,7 +1276,7 @@ _nl_unload_domain (domain)
+   size_t i;
+ 
+   if (domain->plural != &__gettext_germanic_plural)
+-    __gettext_free_exp (domain->plural);
++    __gettext_free_exp ((struct expression *) domain->plural);
+ 
+   for (i = 0; i < domain->nconversions; i++)
+     {
+--- libc/intl/plural-exp.h.jj	2005-12-21 05:20:42.000000000 +0100
++++ libc/intl/plural-exp.h	2007-07-26 13:17:14.000000000 +0200
+@@ -1,5 +1,5 @@
+ /* Expression parsing and evaluation for plural form selection.
+-   Copyright (C) 2000, 2001, 2002, 2005 Free Software Foundation, Inc.
++   Copyright (C) 2000, 2001, 2002, 2005, 2007 Free Software Foundation, Inc.
+    Written by Ulrich Drepper <drepper@cygnus.com>, 2000.
+    This file is part of the GNU C Library.
+ 
+@@ -114,13 +114,12 @@ extern void FREE_EXPRESSION PARAMS ((str
+      internal_function;
+ extern int PLURAL_PARSE PARAMS ((void *arg));
+ extern const struct expression GERMANIC_PLURAL attribute_hidden;
+-extern void EXTRACT_PLURAL_EXPRESSION PARAMS ((const char *nullentry,
+-					       struct expression **pluralp,
+-					       unsigned long int *npluralsp))
+-     internal_function;
++extern void EXTRACT_PLURAL_EXPRESSION PARAMS
++  ((const char *nullentry, const struct expression **pluralp,
++    unsigned long int *npluralsp)) internal_function;
+ 
+ #if !defined (_LIBC) && !defined (IN_LIBINTL)
+-extern unsigned long int plural_eval PARAMS ((struct expression *pexp,
++extern unsigned long int plural_eval PARAMS ((const struct expression *pexp,
+ 					      unsigned long int n));
+ #endif
+ 
+--- libc/posix/fnmatch.c.jj	2007-04-04 20:30:46.000000000 +0200
++++ libc/posix/fnmatch.c	2007-07-26 13:17:14.000000000 +0200
+@@ -351,10 +351,14 @@ fnmatch (pattern, string, flags)
+ 	       already done?  */
+ 	    return -1;
+ 	  if (p)
+-	    memset (&ps, '\0', sizeof (ps));
++	    {
++	      memset (&ps, '\0', sizeof (ps));
++	      goto prepare_wpattern;
++	    }
+ 	}
+-      if (__builtin_expect (p != NULL, 0))
++      else
+ 	{
++	prepare_wpattern:
+ 	  n = mbsrtowcs (NULL, &pattern, 0, &ps);
+ 	  if (__builtin_expect (n == (size_t) -1, 0))
+ 	    /* Something wrong.
+@@ -383,10 +387,14 @@ fnmatch (pattern, string, flags)
+ 	       already done?  */
+ 	    return -1;
+ 	  if (p)
+-	    memset (&ps, '\0', sizeof (ps));
++	    {
++	      memset (&ps, '\0', sizeof (ps));
++	      goto prepare_wstring;
++	    }
+ 	}
+-      if (__builtin_expect (p != NULL, 0))
++      else
+ 	{
++	prepare_wstring:
+ 	  n = mbsrtowcs (NULL, &string, 0, &ps);
+ 	  if (__builtin_expect (n == (size_t) -1, 0))
+ 	    /* Something wrong.
+--- libc/posix/runtests.c.jj	2003-11-13 19:38:32.000000000 +0100
++++ libc/posix/runtests.c	2007-07-26 19:22:12.000000000 +0200
+@@ -36,7 +36,7 @@ struct a_test
+ {
+   int expected;
+   const char * pattern;
+-  const unsigned char * data;
++  const char * data;
+ };
+ 
+ static const struct a_test the_tests[] =
+--- libc/stdio-common/tst-sprintf2.c.jj	2007-06-08 09:13:56.000000000 +0200
++++ libc/stdio-common/tst-sprintf2.c	2007-07-26 19:19:09.000000000 +0200
+@@ -6,8 +6,10 @@
+ int
+ main (void)
+ {
++#if LDBL_MANT_DIG >= 106
+   volatile union { long double l; long long x[2]; } u, v;
+   char buf[64];
++#endif
+   int result = 0;
+ 
+ #if LDBL_MANT_DIG == 106 || LDBL_MANT_DIG == 113
+--- libc/stdio-common/Makefile.jj	2007-07-19 19:46:48.000000000 +0200
++++ libc/stdio-common/Makefile	2007-07-26 13:58:43.000000000 +0200
+@@ -78,6 +78,7 @@ $(objpfx)tst-printf.out: $(objpfx)tst-pr
+ endif
+ 
+ CFLAGS-vfprintf.c = -Wno-uninitialized
++CFLAGS-vfwprintf.c = -Wno-uninitialized
+ CFLAGS-tst-printf.c = -Wno-format
+ CFLAGS-tstdiomisc.c = -Wno-format
+ CFLAGS-scanf4.c = -Wno-format
+--- libc/stdio-common/vfprintf.c.jj	2007-05-21 23:33:53.000000000 +0200
++++ libc/stdio-common/vfprintf.c	2007-07-26 13:17:14.000000000 +0200
+@@ -1298,7 +1298,7 @@ vfprintf (FILE *s, const CHAR_T *format,
+   memset (&mbstate, '\0', sizeof (mbstate_t));
+ 
+   /* Find the first format specifier.  */
+-  f = lead_str_end = __find_specmb (format, &mbstate);
++  f = lead_str_end = __find_specmb ((const UCHAR_T *) format, &mbstate);
+ #endif
+ 
+   /* Lock stream.  */
+--- libc/rt/tst-mqueue1.c.jj	2004-04-16 21:36:42.000000000 +0200
++++ libc/rt/tst-mqueue1.c	2007-07-26 19:27:01.000000000 +0200
+@@ -1,5 +1,5 @@
+ /* Test message queue passing.
+-   Copyright (C) 2004 Free Software Foundation, Inc.
++   Copyright (C) 2004, 2007 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+    Contributed by Jakub Jelinek <jakub@redhat.com>, 2004.
+ 
+@@ -85,7 +85,7 @@ do_one_test (mqd_t q, const char *name, 
+   else
+     result |= check_attrs (&attr, nonblock, 0);
+ 
+-  if (mq_receive (q, &v[0], 1, NULL) != -1)
++  if (mq_receive (q, (char *) &v[0], 1, NULL) != -1)
+     {
+       puts ("mq_receive on O_WRONLY mqd_t unexpectedly succeeded");
+       result = 1;
+@@ -109,9 +109,9 @@ do_one_test (mqd_t q, const char *name, 
+   for (int i = 0; i < 10; ++i)
+     {
+       if (i & 1)
+-	ret = mq_send (q, &v[i], 1, v[i] >> 4);
++	ret = mq_send (q, (char *) &v[i], 1, v[i] >> 4);
+       else
+-	ret = mq_timedsend (q, &v[i], 1, v[i] >> 4, &ts);
++	ret = mq_timedsend (q, (char *) &v[i], 1, v[i] >> 4, &ts);
+ 
+       if (ret)
+ 	{
+@@ -120,7 +120,7 @@ do_one_test (mqd_t q, const char *name, 
+ 	}
+     }
+ 
+-  ret = mq_timedsend (q, &v[10], 1, 8, &ts);
++  ret = mq_timedsend (q, (char *) &v[10], 1, 8, &ts);
+   if (ret != -1)
+     {
+       puts ("mq_timedsend on full queue did not fail");
+@@ -135,7 +135,7 @@ do_one_test (mqd_t q, const char *name, 
+ 
+   if (nonblock)
+     {
+-      ret = mq_send (q, &v[10], 1, 8);
++      ret = mq_send (q, (char *) &v[10], 1, 8);
+       if (ret != -1)
+ 	{
+ 	  puts ("mq_send on full non-blocking queue did not fail");
+@@ -194,7 +194,7 @@ do_one_test (mqd_t q, const char *name, 
+       unsigned int prio;
+       ssize_t rets;
+ 
+-      if (mq_send (q, &v[0], 1, 1) != -1)
++      if (mq_send (q, (char *) &v[0], 1, 1) != -1)
+ 	{
+ 	  puts ("mq_send on O_RDONLY mqd_t unexpectedly succeeded");
+ 	  result = 1;
+@@ -208,9 +208,9 @@ do_one_test (mqd_t q, const char *name, 
+       for (int i = 0; i < 10; ++i)
+ 	{
+ 	  if (i & 1)
+-	    rets = mq_receive (q, &vr[i], 1, &prio);
++	    rets = mq_receive (q, (char *) &vr[i], 1, &prio);
+ 	  else
+-	    rets = mq_timedreceive (q, &vr[i], 1, &prio, &ts);
++	    rets = mq_timedreceive (q, (char *) &vr[i], 1, &prio, &ts);
+ 
+ 	  if (rets != 1)
+ 	    {
+@@ -236,7 +236,7 @@ do_one_test (mqd_t q, const char *name, 
+ 	  result = 1;
+ 	}
+ 
+-      rets = mq_timedreceive (q, &vr[10], 1, &prio, &ts);
++      rets = mq_timedreceive (q, (char *) &vr[10], 1, &prio, &ts);
+       if (rets != -1)
+ 	{
+ 	  puts ("mq_timedreceive on empty queue did not fail");
+@@ -251,7 +251,7 @@ do_one_test (mqd_t q, const char *name, 
+ 
+       if (nonblock)
+ 	{
+-	  ret = mq_receive (q, &vr[10], 1, &prio);
++	  ret = mq_receive (q, (char *) &vr[10], 1, &prio);
+ 	  if (ret != -1)
+ 	    {
+ 	      puts ("mq_receive on empty non-blocking queue did not fail");
+--- libc/debug/test-strcpy_chk.c.jj	2004-11-13 04:12:23.000000000 +0100
++++ libc/debug/test-strcpy_chk.c	2007-07-26 19:33:23.000000000 +0200
+@@ -141,8 +141,8 @@ do_test (size_t align1, size_t align2, s
+   if (align2 + len >= page_size)
+     return;
+ 
+-  s1 = buf1 + align1;
+-  s2 = buf2 + align2;
++  s1 = (char *) buf1 + align1;
++  s2 = (char *) buf2 + align2;
+ 
+   for (i = 0; i < len; i++)
+     s1[i] = 32 + 23 * i % (max_char - 32);
+@@ -233,7 +233,9 @@ do_random_tests (void)
+ 		  chk_fail_ok = 1;
+ 		  if (setjmp (chk_fail_buf) == 0)
+ 		    {
+-		      res = CALL (impl, p2 + align2, p1 + align1, dlen);
++		      res = (unsigned char *)
++			    CALL (impl, (char *) p2 + align2,
++				  (char *) p1 + align1, dlen);
+ 		      printf ("Iteration %zd - did not __chk_fail\n", n);
+ 		      chk_fail_ok = 0;
+ 		      ret = 1;
+@@ -242,7 +244,8 @@ do_random_tests (void)
+ 	      continue;
+ 	    }
+ 	  memset (p2 - 64, '\1', 512 + 64);
+-	  res = CALL (impl, p2 + align2, p1 + align1, dlen);
++	  res = (unsigned char *)
++		CALL (impl, (char *) p2 + align2, (char *) p1 + align1, dlen);
+ 	  if (res != STRCPY_RESULT (p2 + align2, len))
+ 	    {
+ 	      printf ("\
+--- libc/sysdeps/ieee754/ldbl-96/s_roundl.c.jj	2001-07-06 06:55:55.000000000 +0200
++++ libc/sysdeps/ieee754/ldbl-96/s_roundl.c	2007-07-26 13:37:05.000000000 +0200
+@@ -1,5 +1,5 @@
+ /* Round long double to integer away from zero.
+-   Copyright (C) 1997 Free Software Foundation, Inc.
++   Copyright (C) 1997, 2007 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1997.
+ 
+@@ -23,7 +23,7 @@
+ #include "math_private.h"
+ 
+ 
+-static const long double huge = 1.0e4930;
++static const long double huge = 1.0e4930L;
+ 
+ 
+ long double
+--- libc/sysdeps/unix/clock_gettime.c.jj	2005-07-13 08:25:07.000000000 +0200
++++ libc/sysdeps/unix/clock_gettime.c	2007-07-26 13:17:14.000000000 +0200
+@@ -1,5 +1,5 @@
+ /* clock_gettime -- Get the current time from a POSIX clockid_t.  Unix version.
+-   Copyright (C) 1999-2004, 2005 Free Software Foundation, Inc.
++   Copyright (C) 1999-2004, 2005, 2007 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+ 
+    The GNU C Library is free software; you can redistribute it and/or
+@@ -93,7 +93,6 @@ int
+ clock_gettime (clockid_t clock_id, struct timespec *tp)
+ {
+   int retval = -1;
+-  struct timeval tv;
+ 
+   switch (clock_id)
+     {
+@@ -103,9 +102,12 @@ clock_gettime (clockid_t clock_id, struc
+ 
+ #ifndef HANDLED_REALTIME
+     case CLOCK_REALTIME:
+-      retval = gettimeofday (&tv, NULL);
+-      if (retval == 0)
+-	TIMEVAL_TO_TIMESPEC (&tv, tp);
++      {
++	struct timeval tv;
++	retval = gettimeofday (&tv, NULL);
++	if (retval == 0)
++	  TIMEVAL_TO_TIMESPEC (&tv, tp);
++      }
+       break;
+ #endif
+ 
+--- libc/sunrpc/rpc_cmsg.c.jj	2002-02-26 02:43:56.000000000 +0100
++++ libc/sunrpc/rpc_cmsg.c	2007-07-26 13:17:14.000000000 +0200
+@@ -67,27 +67,27 @@ xdr_callmsg (XDR *xdrs, struct rpc_msg *
+ 			+ RNDUP (cmsg->rm_call.cb_verf.oa_length));
+       if (buf != NULL)
+ 	{
+-	  IXDR_PUT_LONG (buf, cmsg->rm_xid);
+-	  IXDR_PUT_ENUM (buf, cmsg->rm_direction);
++	  (void) IXDR_PUT_LONG (buf, cmsg->rm_xid);
++	  (void) IXDR_PUT_ENUM (buf, cmsg->rm_direction);
+ 	  if (cmsg->rm_direction != CALL)
+ 	    return FALSE;
+-	  IXDR_PUT_LONG (buf, cmsg->rm_call.cb_rpcvers);
++	  (void) IXDR_PUT_LONG (buf, cmsg->rm_call.cb_rpcvers);
+ 	  if (cmsg->rm_call.cb_rpcvers != RPC_MSG_VERSION)
+ 	    return FALSE;
+-	  IXDR_PUT_LONG (buf, cmsg->rm_call.cb_prog);
+-	  IXDR_PUT_LONG (buf, cmsg->rm_call.cb_vers);
+-	  IXDR_PUT_LONG (buf, cmsg->rm_call.cb_proc);
++	  (void) IXDR_PUT_LONG (buf, cmsg->rm_call.cb_prog);
++	  (void) IXDR_PUT_LONG (buf, cmsg->rm_call.cb_vers);
++	  (void) IXDR_PUT_LONG (buf, cmsg->rm_call.cb_proc);
+ 	  oa = &cmsg->rm_call.cb_cred;
+-	  IXDR_PUT_ENUM (buf, oa->oa_flavor);
+-	  IXDR_PUT_INT32 (buf, oa->oa_length);
++	  (void) IXDR_PUT_ENUM (buf, oa->oa_flavor);
++	  (void) IXDR_PUT_INT32 (buf, oa->oa_length);
+ 	  if (oa->oa_length)
+ 	    {
+ 	      memcpy ((caddr_t) buf, oa->oa_base, oa->oa_length);
+ 	      buf = (int32_t *) ((char *) buf + RNDUP (oa->oa_length));
+ 	    }
+ 	  oa = &cmsg->rm_call.cb_verf;
+-	  IXDR_PUT_ENUM (buf, oa->oa_flavor);
+-	  IXDR_PUT_INT32 (buf, oa->oa_length);
++	  (void) IXDR_PUT_ENUM (buf, oa->oa_flavor);
++	  (void) IXDR_PUT_INT32 (buf, oa->oa_length);
+ 	  if (oa->oa_length)
+ 	    {
+ 	      memcpy ((caddr_t) buf, oa->oa_base, oa->oa_length);
+
+	Jakub
+
+Hi!
+
+These are workarounds for warnings, though aren't terribly expensive
+and aren't in performance critical code.  Neither gcc 4.1 nor 4.3
+is able to figure these cases.
+
+ 2007-07-26  Jakub Jelinek  <jakub@redhat.com>
+
+	* nscd/selinux.c (preserve_capabilities): Initialize new_caps
+	to avoid warning.
+	* iconv/gconv_open.c (__gconv_open): Initialize ptr to avoid
+	warning.
+	* nis/nis_subr.c (nis_getnames): Initialize saveptr to avoid
+	warning.
+	* resolv/inet_ntop.c (inet_ntop6): Initialize best.len and cur.len
+	to avoid warnings.
+
+--- libc/nscd/selinux.c.jj	2007-04-23 10:54:02.000000000 +0200
++++ libc/nscd/selinux.c	2007-07-26 13:17:14.000000000 +0200
+@@ -180,7 +180,7 @@ preserve_capabilities (void)
+     }
+ 
+   cap_t tmp_caps = cap_init ();
+-  cap_t new_caps;
++  cap_t new_caps = NULL;
+   if (tmp_caps != NULL)
+     new_caps = cap_init ();
+ 
+--- libc/iconv/gconv_open.c.jj	2005-12-21 08:27:27.000000000 +0100
++++ libc/iconv/gconv_open.c	2007-07-26 13:17:14.000000000 +0200
+@@ -1,5 +1,5 @@
+ /* Find matching transformation algorithms and initialize steps.
+-   Copyright (C) 1997,1998,1999,2000,2001,2004,2005
++   Copyright (C) 1997,1998,1999,2000,2001,2004,2005,2007
+ 	Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1997.
+@@ -56,7 +56,7 @@ __gconv_open (const char *toset, const c
+ 	  /* Make copy without the error handling description.  */
+ 	  char *newtoset = (char *) alloca (errhand - toset + 1);
+ 	  char *tok;
+-	  char *ptr;
++	  char *ptr = NULL /* Work around a bogus warning */;
+ 
+ 	  newtoset[errhand - toset] = '\0';
+ 	  toset = memcpy (newtoset, toset, errhand - toset);
+--- libc/nis/nis_subr.c.jj	2006-12-11 21:31:22.000000000 +0100
++++ libc/nis/nis_subr.c	2007-07-26 13:41:45.000000000 +0200
+@@ -112,7 +112,7 @@ nis_getnames (const_nis_name name)
+   size_t name_len = strlen (name);
+   char *path;
+   int pos = 0;
+-  char *saveptr;
++  char *saveptr = NULL;
+   int have_point;
+   const char *cp;
+   const char *cp2;
+--- libc/resolv/inet_ntop.c.jj	2007-05-04 11:38:29.000000000 +0200
++++ libc/resolv/inet_ntop.c	2007-07-26 13:17:14.000000000 +0200
+@@ -138,6 +138,8 @@ inet_ntop6(src, dst, size)
+ 		words[i / 2] = (src[i] << 8) | src[i + 1];
+ 	best.base = -1;
+ 	cur.base = -1;
++	best.len = 0;
++	cur.len = 0;
+ 	for (i = 0; i < (NS_IN6ADDRSZ / NS_INT16SZ); i++) {
+ 		if (words[i] == 0) {
+ 			if (cur.base == -1)
+
+	Jakub
+
+Hi!
+
+In ld-monetary gcc complains about 
+signed_char_var < -128 || signed_char_var > 127
+check which is always false due to signed char range.  The patch below just
+disables range checking for the two vars that want full signed char range
+to be allowed.  If we want to do any range checking even there, we'd need
+to check much earlier (when the unsigned long val.num is assigned to the
+signed char, see whether we lost any bits in the conversion).
+
+The rest are aliasing violations.  In the first two cases the patch
+will give a few cycle hit in functions that take a lot of time to execute
+though, copying two longs isn't IMHO too expensive over possibility of
+incorrectly generated code.
+
+The last one is also aliasing violation, solved by peeling off the first
+iteration.
+
+2007-07-26  Jakub Jelinek  <jakub@redhat.com>
+
+	* locale/programs/ld-monetary.c (monetary_finish): Avoid range check
+	for int_frac_digits and frac_digits.
+
+	* login/logout.c (logout): Avoid aliasing violation.
+	* login/logwtmp.c (logwtmp): Likewise.
+
+	* libio/genops.c (_IO_un_link): Avoid aliasing violation.
+
+--- libc/locale/programs/ld-monetary.c.jj	2007-07-16 09:58:46.000000000 +0200
++++ libc/locale/programs/ld-monetary.c	2007-07-26 18:57:19.000000000 +0200
+@@ -1,4 +1,5 @@
+-/* Copyright (C) 1995-1999,2000,2001,2002,2005 Free Software Foundation, Inc.
++/* Copyright (C) 1995-1999,2000,2001,2002,2005,2007
++   Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+    Contributed by Ulrich Drepper <drepper@gnu.org>, 1995.
+ 
+@@ -279,13 +280,14 @@ not correspond to a valid name in ISO 42
+        monetary->cat = initval;						      \
+     }									      \
+   else if ((monetary->cat < min || monetary->cat > max)			      \
++	   && min < max							      \
+ 	   && !be_quiet && !nothing)					      \
+     WITH_CUR_LOCALE (error (0, 0, _("\
+ %s: value for field `%s' must be in range %d...%d"),			      \
+ 			    "LC_MONETARY", #cat, min, max))
+ 
+-  TEST_ELEM (int_frac_digits, -128, 127, -1);
+-  TEST_ELEM (frac_digits, -128, 127, -1);
++  TEST_ELEM (int_frac_digits, 1, 0, -1);
++  TEST_ELEM (frac_digits, 1, 0, -1);
+   TEST_ELEM (p_cs_precedes, -1, 1, -1);
+   TEST_ELEM (p_sep_by_space, -1, 2, -1);
+   TEST_ELEM (n_cs_precedes, -1, 1, -1);
+--- libc/login/logout.c.jj	2002-10-24 01:49:21.000000000 +0200
++++ libc/login/logout.c	2007-07-26 13:17:14.000000000 +0200
+@@ -1,4 +1,4 @@
+-/* Copyright (C) 1996, 1997, 2002 Free Software Foundation, Inc.
++/* Copyright (C) 1996, 1997, 2002, 2007 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1996.
+ 
+@@ -51,15 +51,10 @@ logout (const char *line)
+       bzero (ut->ut_host, sizeof ut->ut_host);
+ #endif
+ #if _HAVE_UT_TV - 0
+-  if (sizeof (ut->ut_tv) == sizeof (struct timeval))
+-    __gettimeofday ((struct timeval *) &ut->ut_tv, NULL);
+-  else
+-    {
+       struct timeval tv;
+       __gettimeofday (&tv, NULL);
+       ut->ut_tv.tv_sec = tv.tv_sec;
+       ut->ut_tv.tv_usec = tv.tv_usec;
+-    }
+ #else
+       ut->ut_time = time (NULL);
+ #endif
+--- libc/login/logwtmp.c.jj	2002-10-24 01:49:21.000000000 +0200
++++ libc/login/logwtmp.c	2007-07-26 13:17:14.000000000 +0200
+@@ -44,15 +44,10 @@ logwtmp (const char *line, const char *n
+ #endif
+ 
+ #if _HAVE_UT_TV - 0
+-  if (sizeof (ut.ut_tv) == sizeof (struct timeval))
+-    __gettimeofday ((struct timeval *) &ut.ut_tv, NULL);
+-  else
+-    {
+-      struct timeval tv;
+-      __gettimeofday (&tv, NULL);
+-      ut.ut_tv.tv_sec = tv.tv_sec;
+-      ut.ut_tv.tv_usec = tv.tv_usec;
+-    }
++  struct timeval tv;
++  __gettimeofday (&tv, NULL);
++  ut.ut_tv.tv_sec = tv.tv_sec;
++  ut.ut_tv.tv_usec = tv.tv_usec;
+ #else
+   ut.ut_time = time (NULL);
+ #endif
+--- libc/libio/genops.c.jj	2007-04-23 10:54:00.000000000 +0200
++++ libc/libio/genops.c	2007-07-26 13:17:14.000000000 +0200
+@@ -64,23 +64,29 @@ _IO_un_link (fp)
+ {
+   if (fp->file._flags & _IO_LINKED)
+     {
+-      struct _IO_FILE_plus **f;
++      struct _IO_FILE **f;
+ #ifdef _IO_MTSAFE_IO
+       _IO_cleanup_region_start_noarg (flush_cleanup);
+       _IO_lock_lock (list_all_lock);
+       run_fp = (_IO_FILE *) fp;
+       _IO_flockfile ((_IO_FILE *) fp);
+ #endif
+-      for (f = &INTUSE(_IO_list_all); *f;
+-	   f = (struct _IO_FILE_plus **) &(*f)->file._chain)
++      if (INTUSE(_IO_list_all) == NULL)
++	;
++      else if (fp == INTUSE(_IO_list_all))
+ 	{
+-	  if (*f == fp)
++	  INTUSE(_IO_list_all)
++	    = (struct _IO_FILE_plus *) INTUSE(_IO_list_all)->file._chain;
++	  ++_IO_list_all_stamp;
++	}
++      else
++	for (f = &INTUSE(_IO_list_all)->file._chain; *f; f = &(*f)->_chain)
++	  if (*f == (_IO_FILE *) fp)
+ 	    {
+-	      *f = (struct _IO_FILE_plus *) fp->file._chain;
++	      *f = fp->file._chain;
+ 	      ++_IO_list_all_stamp;
+ 	      break;
+ 	    }
+-	}
+       fp->file._flags &= ~_IO_LINKED;
+ #ifdef _IO_MTSAFE_IO
+       _IO_funlockfile ((_IO_FILE *) fp);
+
+	Jakub
+
+Hi!
+
+This shuts up a few warnings which didn't show in x86_64-linux build,
+but do show in i686-linux build.
+
+2007-07-30  Jakub Jelinek  <jakub@redhat.com>
+
+	* stdlib/tst-strtod2.c (do_test): Use %tu in fmt string for ptrdiff_t
+	value.
+
+	* stdio-common/tst-fmemopen2.c (do_test): Avoid fmt string warning
+	if off_t is different rank from size_t.
+
+	* sysdeps/generic/unwind-dw2.c (extract_cie_info, execute_cfa_program,
+	uw_frame_state_for): Avoid type punning warnings.
+	* sysdeps/generic/unwind-dw2-fde-glibc.c
+	(_Unwind_IteratePhdrCallback): Likewise.
+	* sysdeps/generic/unwind-dw2-fde.c (_Unwind_Find_FDE): Likewise.
+	(binary_search_single_encoding_fdes, binary_search_mixed_encoding_fdes,
+	get_cie_encoding, linear_search_fdes): Don't mix char and unsigned char
+	pointers.
+nptl/
+	* tst-rwlock14.c (do_test): Avoid warnings on 32-bit arches.
+localedata/
+	* tst-strptime.c (do_test): Use %tu in fmt string for ptrdiff_t value.
+
+--- libc/stdlib/tst-strtod2.c.jj	2007-07-30 19:13:57.000000000 +0200
++++ libc/stdlib/tst-strtod2.c	2007-07-30 19:13:57.000000000 +0200
+@@ -32,7 +32,7 @@ do_test (void)
+ 	}
+       if (ep != tests[i].str + tests[i].offset)
+ 	{
+-	  printf ("test %zu strtod parsed %ju characters, expected %zu\n",
++	  printf ("test %zu strtod parsed %tu characters, expected %zu\n",
+ 		  i, ep - tests[i].str, tests[i].offset);
+ 	  status = 1;
+ 	}
+--- libc/localedata/tst-strptime.c.jj	2007-07-11 00:12:28.000000000 +0200
++++ libc/localedata/tst-strptime.c	2007-07-30 19:13:23.000000000 +0200
+@@ -15,7 +15,7 @@ do_test (void)
+   static const char s[] = "\
+ \x54\x68\xb8\x6e\x67\x20\x6d\xad\xea\x69\x20\x6d\xe9\x74";
+   char *r = strptime (s, "%b", &tm);
+-  printf ("r = %p, r-s = %ju, tm.tm_mon = %d\n", r, r - s, tm.tm_mon);
++  printf ("r = %p, r-s = %tu, tm.tm_mon = %d\n", r, r - s, tm.tm_mon);
+   return r == NULL || r - s != 14 || tm.tm_mon != 10;
+ }
+ 
+--- libc/nptl/tst-rwlock14.c.jj	2007-07-30 19:23:34.000000000 +0200
++++ libc/nptl/tst-rwlock14.c	2007-07-30 19:30:46.000000000 +0200
+@@ -1,4 +1,4 @@
+-/* Copyright (C) 2004 Free Software Foundation, Inc.
++/* Copyright (C) 2004, 2007 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+    Contributed by Ulrich Drepper <drepper@redhat.com>, 2004.
+ 
+@@ -130,8 +130,8 @@ do_test (void)
+       result = 1;
+     }
+ 
+-  ts.tv_nsec = 0x100001000LL;
+-  if (ts.tv_nsec != 0x100001000LL)
++  ts.tv_nsec = (__typeof (ts.tv_nsec)) 0x100001000LL;
++  if ((__typeof (ts.tv_nsec)) 0x100001000LL != 0x100001000LL)
+     ts.tv_nsec = 2000000000;
+ 
+   e = pthread_rwlock_timedrdlock (&r, &ts);
+--- libc/stdio-common/tst-fmemopen2.c.jj	2007-07-30 19:16:50.000000000 +0200
++++ libc/stdio-common/tst-fmemopen2.c	2007-07-30 19:16:50.000000000 +0200
+@@ -28,7 +28,7 @@ do_test (void)
+   o = ftello (fp);
+   if (o != 0)
+     {
+-      printf ("second ftello returned %ld, expected %zu\n", o, (off_t) 0);
++      printf ("second ftello returned %ld, expected 0\n", o);
+       result = 1;
+     }
+   if (fseeko (fp, 0, SEEK_END) != 0)
+--- libc/sysdeps/generic/unwind-dw2.c.jj	2006-05-02 02:45:11.000000000 +0200
++++ libc/sysdeps/generic/unwind-dw2.c	2007-07-30 19:45:31.000000000 +0200
+@@ -1,5 +1,5 @@
+ /* DWARF2 exception handling and frame unwind runtime interface routines.
+-   Copyright (C) 1997,1998,1999,2000,2001,2002,2003,2005,2006
++   Copyright (C) 1997,1998,1999,2000,2001,2002,2003,2005,2006,2007
+    	Free Software Foundation, Inc.
+ 
+    This file is part of the GNU C Library.
+@@ -309,8 +309,9 @@ extract_cie_info (struct dwarf_cie *cie,
+       /* "P" indicates a personality routine in the CIE augmentation.  */
+       else if (aug[0] == 'P')
+ 	{
+-	  p = read_encoded_value (context, *p, p + 1,
+-				  (_Unwind_Ptr *) &fs->personality);
++	  _Unwind_Ptr personality;
++	  p = read_encoded_value (context, *p, p + 1, &personality);
++	  fs->personality = (_Unwind_Personality_Fn) personality;
+ 	  aug += 1;
+ 	}
+ 
+@@ -771,8 +772,12 @@ execute_cfa_program (const unsigned char
+       else switch (insn)
+ 	{
+ 	case DW_CFA_set_loc:
+-	  insn_ptr = read_encoded_value (context, fs->fde_encoding,
+-					 insn_ptr, (_Unwind_Ptr *) &fs->pc);
++	  {
++	    _Unwind_Ptr pc;
++	    insn_ptr = read_encoded_value (context, fs->fde_encoding,
++					   insn_ptr, &pc);
++	    fs->pc = (void *) pc;
++	  }
+ 	  break;
+ 
+ 	case DW_CFA_advance_loc1:
+@@ -992,8 +997,11 @@ uw_frame_state_for (struct _Unwind_Conte
+       insn = aug + i;
+     }
+   if (fs->lsda_encoding != DW_EH_PE_omit)
+-    aug = read_encoded_value (context, fs->lsda_encoding, aug,
+-			      (_Unwind_Ptr *) &context->lsda);
++    {
++      _Unwind_Ptr lsda;
++      aug = read_encoded_value (context, fs->lsda_encoding, aug, &lsda);
++      context->lsda = (void *) lsda;
++    }
+ 
+   /* Then the insns in the FDE up to our target PC.  */
+   if (insn == NULL)
+--- libc/sysdeps/generic/unwind-dw2-fde-glibc.c.jj	2004-05-25 20:48:24.000000000 +0200
++++ libc/sysdeps/generic/unwind-dw2-fde-glibc.c	2007-07-30 19:46:17.000000000 +0200
+@@ -1,4 +1,4 @@
+-/* Copyright (C) 2001, 2002 Free Software Foundation, Inc.
++/* Copyright (C) 2001, 2002, 2007 Free Software Foundation, Inc.
+    Contributed by Jakub Jelinek <jakub@redhat.com>.
+ 
+    This file is part of the GNU C Library.
+@@ -235,10 +235,11 @@ _Unwind_IteratePhdrCallback (struct dl_p
+   if (data->ret != NULL)
+     {
+       unsigned int encoding = get_fde_encoding (data->ret);
++      _Unwind_Ptr func;
+       read_encoded_value_with_base (encoding,
+ 				    base_from_cb_data (encoding, data),
+-				    data->ret->pc_begin,
+-				    (_Unwind_Ptr *)&data->func);
++				    data->ret->pc_begin, &func);
++      data->func = (void *) func;
+     }
+   return 1;
+ }
+--- libc/sysdeps/generic/unwind-dw2-fde.c.jj	2006-04-07 22:50:31.000000000 +0200
++++ libc/sysdeps/generic/unwind-dw2-fde.c	2007-07-30 19:45:55.000000000 +0200
+@@ -1,5 +1,5 @@
+ /* Subroutines needed for unwinding stack frames for exception handling.  */
+-/* Copyright (C) 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2006
++/* Copyright (C) 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2006, 2007
+    Free Software Foundation, Inc.
+    Contributed by Jason Merrill <jason@cygnus.com>.
+ 
+@@ -301,7 +301,8 @@ get_cie_encoding (struct dwarf_cie *cie)
+   if (aug[0] != 'z')
+     return DW_EH_PE_absptr;
+ 
+-  p = aug + strlen (aug) + 1;		/* Skip the augmentation string.  */
++  /* Skip the augmentation string.  */
++  p = aug + strlen ((const char *) aug) + 1;
+   p = read_uleb128 (p, &utmp);		/* Skip code alignment.  */
+   p = read_sleb128 (p, &stmp);		/* Skip data alignment.  */
+   p++;					/* Skip return address column.  */
+@@ -838,7 +839,7 @@ linear_search_fdes (struct object *ob, f
+       else
+ 	{
+ 	  _Unwind_Ptr mask;
+-	  const char *p;
++	  const unsigned char *p;
+ 
+ 	  p = read_encoded_value_with_base (encoding, base,
+ 					    this_fde->pc_begin, &pc_begin);
+@@ -908,7 +909,7 @@ binary_search_single_encoding_fdes (stru
+       size_t i = (lo + hi) / 2;
+       fde *f = vec->array[i];
+       _Unwind_Ptr pc_begin, pc_range;
+-      const char *p;
++      const unsigned char *p;
+ 
+       p = read_encoded_value_with_base (encoding, base, f->pc_begin,
+ 					&pc_begin);
+@@ -936,7 +937,7 @@ binary_search_mixed_encoding_fdes (struc
+       size_t i = (lo + hi) / 2;
+       fde *f = vec->array[i];
+       _Unwind_Ptr pc_begin, pc_range;
+-      const char *p;
++      const unsigned char *p;
+       int encoding;
+ 
+       encoding = get_fde_encoding (f);
+@@ -1046,6 +1047,7 @@ _Unwind_Find_FDE (void *pc, struct dwarf
+   if (f)
+     {
+       int encoding;
++      _Unwind_Ptr func;
+ 
+       bases->tbase = ob->tbase;
+       bases->dbase = ob->dbase;
+@@ -1054,7 +1056,8 @@ _Unwind_Find_FDE (void *pc, struct dwarf
+       if (ob->s.b.mixed_encoding)
+ 	encoding = get_fde_encoding (f);
+       read_encoded_value_with_base (encoding, base_from_object (encoding, ob),
+-				    f->pc_begin, (_Unwind_Ptr *)&bases->func);
++				    f->pc_begin, &func);
++      bases->func = (void *) func;
+     }
+ 
+   return f;
+
+	Jakub
+

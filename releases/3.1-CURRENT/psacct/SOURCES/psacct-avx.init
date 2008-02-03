@@ -1,0 +1,42 @@
+#!/bin/bash
+#
+# This script turns process accounting on and off
+#
+# This runscript was written for Annvix (http://annvix.org/)
+#
+# $Id$
+
+. /etc/init.d/rc.functions.sh
+
+order=04
+
+case "${1}" in
+    start)
+        ebegin "Starting process accounting"
+        /sbin/accton /var/log/pacct >/dev/null 2>&1
+        retval=$?
+        eend ${retval}
+        [ ${retval} -eq 0 ] && touch /var/lock/subsys/psacct
+        ;;
+ status)
+        if [ -f /var/lock/subsys/psacct ]; then
+            printf "process accounting is enabled\n"
+            exit 0
+	else
+            printf "process accounting is disabled\n"
+            exit 3
+        fi
+        ;;
+ stop)
+        ebegin "Disabling process accounting"
+        /sbin/accton off >/dev/null 2>&1
+        rm -f /var/lock/subsys/psacct
+        eend $?
+        ;;
+ *)
+        printf "Usage: $0 {start|stop|status}\n"
+        exit 1
+        ;;
+esac
+
+exit 0

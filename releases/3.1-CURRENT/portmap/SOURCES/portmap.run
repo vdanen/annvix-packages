@@ -1,0 +1,16 @@
+#!/bin/execlineb
+/bin/fdmove -c 2 1
+
+/bin/export PATH "/sbin:/usr/sbin:/bin:/usr/bin"
+
+/sbin/chpst -e ./env/
+
+/bin/import BIND_HOST
+
+/bin/ifthenelse { /usr/bin/test ! -z ${BIND_HOST} }
+{
+    /sbin/portmap -f -t /var/empty -i ${BIND_HOST}
+}
+{
+    /sbin/portmap -f -t /var/empty
+}

@@ -1,0 +1,116 @@
+gssd: read port and principal name from info file
+
+From: Olga Kornievskaia <aglo@citi.umich.edu>
+
+Somebody might be running a server on a non-standard port for some
+reason.  Or we might be doing a callbacks (which aren't generally going
+to be to port 2049).  So instead of assuming the standard nfs port, we
+should read the port out of the info file in rpc_pipefs, if that line
+exists (which it will in recent kernels).
+
+It's less likely that we'd be interested in supporting servers with
+principal names other than nfs@server-host-domain, but in the case where
+a server is doing a callback to the client it is possible that the
+target of the callback may be something else, so we also need to get the
+principal name out of the info file.
+
+These extra lines in the info file will only be available only on newer
+kernels so we should fall back on the defaults in the case where they
+aren't found.
+
+Signed-off-by: J. Bruce Fields <bfields@citi.umich.edu>
+Signed-off-by: Kevin Coffman <kwc@citi.umcih.edu>
+---
+
+ utils/gssd/gssd.h      |    1 +
+ utils/gssd/gssd_proc.c |   24 ++++++++++++++++++++----
+ 2 files changed, 21 insertions(+), 4 deletions(-)
+
+diff --git a/utils/gssd/gssd.h b/utils/gssd/gssd.h
+index 65182a5..5d88fd8 100644
+--- a/utils/gssd/gssd.h
++++ b/utils/gssd/gssd.h
+@@ -82,6 +82,7 @@ struct clnt_info {
+ 	int			krb5_poll_index;
+ 	int			spkm3_fd;
+ 	int			spkm3_poll_index;
++	int			port;
+ };
+ 
+ void init_client_list(void);
+diff --git a/utils/gssd/gssd_proc.c b/utils/gssd/gssd_proc.c
+index 40c0b9a..89d5fdf 100644
+--- a/utils/gssd/gssd_proc.c
++++ b/utils/gssd/gssd_proc.c
+@@ -102,7 +102,7 @@ int pollsize;  /* the size of pollaray (in pollfd's) */
+ /* XXX buffer problems: */
+ static int
+ read_service_info(char *info_file_name, char **servicename, char **servername,
+-		  int *prog, int *vers, char **protocol) {
++		  int *prog, int *vers, char **protocol, int *port) {
+ #define INFOBUFLEN 256
+ 	char		buf[INFOBUFLEN];
+ 	static char	dummy[128];
+@@ -112,6 +112,9 @@ read_service_info(char *info_file_name, char **servicename, char **servername,
+ 	char		program[16];
+ 	char		version[16];
+ 	char		protoname[16];
++	char		princname[128];
++	char		cb_port[128];
++	char		*p;
+ 	in_addr_t	inaddr;
+ 	int		fd = -1;
+ 	struct hostent	*ent = NULL;
+@@ -136,13 +139,19 @@ read_service_info(char *info_file_name, char **servicename, char **servername,
+ 		   service, program, version,
+ 		   address,
+ 		   protoname);
+-
+ 	if (numfields == 5) {
+ 		strcpy(protoname, "tcp");
+ 	} else if (numfields != 6) {
+ 		goto fail;
+ 	}
+ 
++	princname[0] = '\0';
++	if ((p = strstr(buf, "principal name:")) != NULL)
++		sscanf(p, "principal name: %127s\n", princname);
++	cb_port[0] = '\0';
++	if ((p = strstr(buf, "port")) != NULL)
++		sscanf(p, "port: %127s\n", cb_port);
++
+ 	/* check service, program, and version */
+ 	if (memcmp(service, "nfs", 3))
+ 		return -1;
+@@ -167,7 +176,12 @@ read_service_info(char *info_file_name, char **servicename, char **servername,
+ 	if (!(*servername = calloc(strlen(ent->h_name) + 1, 1)))
+ 		goto fail;
+ 	memcpy(*servername, ent->h_name, strlen(ent->h_name));
+-	snprintf(buf, INFOBUFLEN, "%s@%s", service, ent->h_name);
++	if (princname[0] != '\0')
++		printerr(2, "info file contains princname=%s\n", princname);
++
++	snprintf(buf, INFOBUFLEN, "nfs@%s", ent->h_name);
++	if (cb_port[0] != '\0')
++		*port = atoi(cb_port);
+ 	if (!(*servicename = calloc(strlen(buf) + 1, 1)))
+ 		goto fail;
+ 	memcpy(*servicename, buf, strlen(buf));
+@@ -246,7 +260,7 @@ process_clnt_dir_files(struct clnt_info * clp)
+ 	if ((clp->servicename == NULL) &&
+ 	     read_service_info(info_file_name, &clp->servicename,
+ 				&clp->servername, &clp->prog, &clp->vers,
+-				&clp->protocol))
++				&clp->protocol, &clp->port))
+ 		return -1;
+ 	return 0;
+ }
+@@ -628,6 +642,8 @@ int create_auth_rpc_client(struct clnt_info *clp,
+ 			 clp->servername, uid);
+ 		goto out_fail;
+ 	}
++	if (clp->port)
++		((struct sockaddr_in *)a->ai_addr)->sin_port = htons(clp->port);
+ 	if (a->ai_protocol == IPPROTO_TCP) {
+ 		if ((rpc_clnt = clnttcp_create(
+ 					(struct sockaddr_in *) a->ai_addr,

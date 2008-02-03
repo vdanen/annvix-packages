@@ -1,0 +1,27 @@
+--- admin/uschedule-0.7.1/src/uo_now.c.avx	2004-05-12 23:16:18.000000000 -0600
++++ admin/uschedule-0.7.1/src/uo_now.c	2006-12-14 10:26:32.174090750 -0700
+@@ -24,4 +24,23 @@
+ #include "uotime.h"
+ #include <time.h>
+ 
+-uo_sec70_t uo_now(void) { return time(0);}
++uo_sec70_t uo_now(void) { 
++
++    /* this used to return the current seconds since epoch but
++       made no provisions for localtime so the TIMESPEC would
++       always be UTC rather than local time (so for someone in
++       MST7MDT, using '+03:00' would end up really being
++       '+07:03:00' which is what we want, so adjust the seconds
++       since epoch to reflect localtime (vdanen -- 12/14/2006)
++    */
++    long loct;
++    time_t now;
++    struct tm *dc;
++
++    time(&now);
++    dc = localtime(&now);
++
++    loct = now + dc->tm_gmtoff;
++    
++    return loct;
++}

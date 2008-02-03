@@ -1,0 +1,14 @@
+2006-05-16  Gwenole Beauchesne  <gbeauchesne@mandriva.com>
+
+	* scripts/check-local-headers.sh: Filter out multiarch headers.
+
+--- glibc-2.6.orig/scripts/check-local-headers.sh	2007-03-26 17:41:05.000000000 -0300
++++ glibc-2.6/scripts/check-local-headers.sh	2007-06-25 14:47:30.000000000 -0300
+@@ -30,6 +30,7 @@
+ fgrep -v "$includedir/asm" |
+ fgrep -v "$includedir/linux" |
+ fgrep -v "$includedir/selinux" |
++fgrep -v "$includedir/multiarch-" |
+ fgrep -v "$includedir/sys/capability.h" |
+ fgrep -v "$includedir/gd"; then
+   # If we found a match something is wrong.

@@ -1,0 +1,199 @@
+--- Makefile.avx	2007-09-06 04:37:12.000000000 -0600
++++ Makefile	2007-12-03 19:06:11.360960250 -0700
+@@ -5,7 +5,8 @@
+ SCRIPT_FILES = add-user del-user add-service del-service create-file \
+ 	       add-group del-group add-shell del-shell verify-shell \
+ 	       add-syslog del-syslog add-webapp del-webapp \
+-	       get-password create-ssl-certificate
++	       get-password create-ssl-certificate \
++	       add-srv del-srv mkdepends
+ MACROS_FILES = rpm-helper.macros
+ CONF_FILES   = ssl
+ FILES        = AUTHORS README COPYING NEWS Makefile \
+--- add-group.avx	2007-02-15 07:18:09.000000000 -0700
++++ add-group	2007-04-18 22:25:03.561826000 -0600
+@@ -11,16 +11,17 @@
+ #---------------------------------------------------------------
+ 
+ if [ $# -lt 3 ]; then
+-    echo "usage: $0 <pkg name> <num installed> <group name> [<user1>,<user2>...]" 1>&2
++    echo "usage: $0 <pkg name> <num installed> <group name> <gid> [<user1>,<user2>...]" 1>&2
+     exit 1
+ fi
+ 
+ pkg=$1				# name of the package
+ num=$2				# number of packages installed
+ name=$3				# name of the group
+-users=$4			# users to add to this group
++gid=$4				# gid of group
++users=$5			# users to add to this group
+ 
+-/usr/sbin/groupadd -r $name > /dev/null 2>&1
++/usr/sbin/groupadd -g $gid -r $name > /dev/null 2>&1
+ 
+ if [ -n "$users" ]; then
+     SAVED_IFS="$IFS"
+--- add-service.avx	2007-02-15 07:18:09.000000000 -0700
++++ add-service	2007-04-18 22:25:03.561826000 -0600
+@@ -19,77 +19,29 @@
+ num=$2				# number of packages installed
+ srv=$3				# name of the service
+ 
+-add_chkconfig_service() {
+-    srv=$1
+-
+-    /sbin/chkconfig --add $srv
+-
+-    if [ -r /etc/sysconfig/system ]; then
+-	. /etc/sysconfig/system
+-    fi
+-
+-    if [ -z "$ADD_SERVICES_TO_CURRENT_PROFILE_ONLY" ]; then
+-	# add the service to all the profiles at once
+-	if [ -d /etc/netprofile/profiles/default/services ]; then
+-	    for dir in /etc/netprofile/profiles/*/services; do
+-		touch $dir/$srv
+-	    done
+-	fi
+-    fi
+-}
+-
+-add_service() {
+-    # Add the service
+-    if [ -r /etc/sysconfig/msec ]; then
+-	. /etc/sysconfig/msec
+-    fi
+-    
+-    # High security: add only authorized services
+-    LIST=/etc/security/msec/server
+-
+-    # during the install the symlink isn't done so find the right file
+-    # by ourselves
+-    if [ -n "$DURING_INSTALL" -a ! -f $LIST ]; then
+-	LIST=/etc/security/msec/server.$SECURE_LEVEL
+-    fi
+-
+-    if [ -f $LIST ]; then
+-	if grep -q "^${srv}$" $LIST ; then
+-	    add_chkconfig_service $srv
+-	fi
+-    else
+-	# Low security: install all the services
+-	add_chkconfig_service $srv
+-    fi
+-}
+-
+ if [ $num = 1 ]; then
+     # First install mode
+-    add_service
++    /sbin/rc-update add ${srv} default
+ else
+     # Upgrade mode
+ 
+     # if the service is activated, add it again to be able to handle
+     # changes in start/stop levels
+-    set -- /etc/rc3.d/S??$srv
++    set -- /etc/runlevels/default/*${srv}
+     if [ $# -gt 1 ]; then
+-	echo 1>&2 "add-service: Error: $srv appears multiple times: $*"
+-    fi
+-    if [ -f "$1" ]; then
+-	/sbin/chkconfig --add $srv
++	echo 1>&2 "add-service: Error: ${srv} appears multiple times: $*"
++	echo 1>&2 "add-service: Fixing previous errors"
++	# if we get here, we need to delete the multiples and re-add the service
++	rm -f $*
++	/sbin/rc-update add ${srv} default >/dev/null 2>&1 || :
++    elif [ -L "$1" ]; then
++        /sbin/rc-update del ${srv} default >/dev/null 2>&1 || :
++        /sbin/rc-update add ${srv} default >/dev/null 2>&1 || :
+     fi
+ 
+     # restart the service if already running
+-    if [ -f /var/lock/subsys/$srv ]; then
+-	/sbin/service $srv restart > /dev/null 2>/dev/null || :
+-	# restart services that depend of portmap
+-	if [ $srv = portmap ]; then
+-	    for s in amd autofs bootparamd clusternfs mcserv nfs nfslock ypserv ypbind yppasswdd ypxfrd; do
+-		if [ -f /var/lock/subsys/$s ]; then
+-		    /sbin/service $s restart > /dev/null 2>/dev/null || :
+-		fi
+-	    done
+-	fi
++    if [ -f /var/lock/subsys/${srv} ]; then
++	/sbin/service ${srv} restart > /dev/null 2>/dev/null || :
+     fi
+ fi
+ 
+--- add-user.avx	2007-02-15 07:18:09.000000000 -0700
++++ add-user	2007-04-18 22:25:03.561826000 -0600
+@@ -11,7 +11,7 @@
+ #---------------------------------------------------------------
+ 
+ if [ $# -lt 5 ]; then
+-    echo "usage: $0 <pkg name> <num installed> <user name> <home dir> <shell>" 1>&2
++    echo "usage: $0 <pkg name> <num installed> <user name> <home dir> <shell> <uid>" 1>&2
+     exit 1
+ fi
+ 
+@@ -20,8 +20,9 @@
+ name=$3				# name of the user
+ dir=$4				# home directory
+ shell=$5			# shell
++uid=$6				# uid to use
+ 
+-/usr/sbin/useradd -r -M -s $shell -d $dir -c "system user for $pkg" $name > /dev/null 2>&1
++/usr/sbin/useradd -r -M -u $uid -s $shell -d $dir -c "system user for $pkg" $name > /dev/null 2>&1
+ 
+ exit 0
+ 
+--- del-service.avx	2007-02-15 07:18:09.000000000 -0700
++++ del-service	2007-04-18 22:25:03.565828250 -0600
+@@ -21,7 +21,7 @@
+ 
+ if [ $num = 0 ]; then
+     /sbin/service $srv stop > /dev/null 2>/dev/null || :
+-    /sbin/chkconfig --del $srv
++    /sbin/rc-update del ${srv}
+ fi
+ 
+ # del-service ends here
+--- rpm-helper.macros.in.avx	2007-03-07 05:19:37.000000000 -0700
++++ rpm-helper.macros.in	2007-04-18 22:28:40.361107750 -0600
+@@ -22,7 +22,7 @@
+ %{nil}
+ 
+ %_add_user_helper %_rpm_helper_dir/add-user
+-%_pre_useradd() %_add_user_helper %{name} $1 %{1} %{2} %{3} \
++%_pre_useradd() %_add_user_helper %{name} $1 %{1} %{2} %{3} %{4} \
+ %{nil}
+ 
+ %_del_user_helper %_rpm_helper_dir/del-user
+@@ -30,7 +30,7 @@
+ %{nil}
+ 
+ %_add_group_helper %_rpm_helper_dir/add-group
+-%_pre_groupadd() %_add_group_helper %{name} $1 %{1} %{?2:%2} \
++%_pre_groupadd() %_add_group_helper %{name} $1 %{1} %{2} %{?3:%3} \
+ %{nil}
+ 
+ %_del_group_helper %_rpm_helper_dir/del-group
+@@ -63,3 +63,18 @@
+ %_postun_webapp() %_del_webapp_helper %{name} $1 \
+ %{nil}
+ 
++
++# service macros
++%_add_srv_helper %_rpm_helper_dir/add-srv
++%_post_srv() %_add_srv_helper %{name} $1 %{1} \
++%{nil}
++
++%_del_srv_helper %_rpm_helper_dir/del-srv
++%_preun_srv() %_del_srv_helper %{name} $1 %{1} \
++%{nil}
++
++%_mkdepends %_rpm_helper_dir/mkdepends
++
++# afterboot macros
++%_mkafterboot        if [[ -f %{_datadir}/afterboot/mkafterboot ]]; then %{_datadir}/afterboot/mkafterboot; fi \
++%{nil}

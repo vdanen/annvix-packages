@@ -1,0 +1,13 @@
+# default: off
+# description: The IMAPS service allows remote users to access their mail \
+#	       using an IMAP client with SSL support such as Netscape \
+#	       Communicator or fetchmail.
+service imaps
+{
+	socket_type		= stream
+	wait			= no
+	user			= root
+	server			= /usr/sbin/imapsd
+	log_on_success		+= DURATION
+	disable			= yes
+}

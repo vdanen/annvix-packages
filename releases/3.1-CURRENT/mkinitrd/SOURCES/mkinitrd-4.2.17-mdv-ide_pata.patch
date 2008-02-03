@@ -1,0 +1,11 @@
+--- mkinitrd-4.2.17/mkinitrd.ide_pata	2007-08-27 16:35:45.000000000 +0200
++++ mkinitrd-4.2.17/mkinitrd	2007-08-27 16:36:47.000000000 +0200
+@@ -959,7 +959,7 @@ if [ -n "$idedevices" ]; then
+ 	# add any ide modules that ended in scsi_hostadapter
+ 	for scsi_hostadapter in `grep -E '^[[:space:]]*(alias|probeall|install)[[:space:]]+scsi_hostadapter' $modulefile | \
+ 	    sed 's/^.*scsi_hostadapter//;s/\/sbin\/modprobe//g;s/;//g;s/\/bin\/true//;s/||//'`; do
+-		if modinfo -k $kernel -F filename ${scsi_hostadapter} | grep -qs /drivers/ide/; then
++		if modinfo -k $kernel -F filename ${scsi_hostadapter} | egrep -qs '/drivers/(ide/|ata/pata_)'; then
+ 			idemodules="$idemodules $scsi_hostadapter"
+ 		fi
+ 	done

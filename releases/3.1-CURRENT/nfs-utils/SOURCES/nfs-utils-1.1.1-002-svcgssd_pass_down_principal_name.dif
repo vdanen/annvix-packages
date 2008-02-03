@@ -1,0 +1,198 @@
+svcgssd: pass principal name down on succesful context negotiation
+
+From: Olga Kornievskaia <aglo@citi.umich.edu>
+
+When an ordinary user authenticates, uid's and gid's are all the kernel
+needs to know about who authenticated.  But when someone with a
+"service" principal authenticates--perhaps an unattended client doing
+something using creds from its keytab, or a server callback back to a
+client--then it's useful for the kernel to know the principal.
+
+In the first case, the client in question might be doing a setclientid,
+which establishes the principal that we'll need to call back to do if we
+ever do a callback to that client.  So the kernel remembers the
+principal that did that authentication so it can tell gssd who to
+authenticate to when it initializes a principal for the callback
+channel.
+
+In the second case, the client recieving the callback needs to compare
+the name of the principal that authenticated to the name it would expect
+(based on the hostname of the server) before accepting the callback.
+
+We assume that, at least in the case of krb5, gssapi will give us the
+name in the form
+
+	service/host@REALM
+
+We then pass this down to the kernel in the form
+
+	nfs@host
+
+which is the form we'll need to feed into gssapi to authenticate to that
+host.
+
+Signed-off-by: J. Bruce Fields <bfields@citi.umich.edu>
+Signed-off-by: Kevin Coffman <kwc@citi.umich.edu>
+---
+
+ utils/gssd/svcgssd_proc.c |   84 ++++++++++++++++++++++++++++++++++++++++++---
+ 1 files changed, 79 insertions(+), 5 deletions(-)
+
+diff --git a/utils/gssd/svcgssd_proc.c b/utils/gssd/svcgssd_proc.c
+index 794c2f4..065866f 100644
+--- a/utils/gssd/svcgssd_proc.c
++++ b/utils/gssd/svcgssd_proc.c
+@@ -51,6 +51,7 @@
+ #include "gss_util.h"
+ #include "err_util.h"
+ #include "context.h"
++#include "gss_oids.h"
+ 
+ extern char * mech2file(gss_OID mech);
+ #define SVCGSSD_CONTEXT_CHANNEL "/proc/net/rpc/auth.rpcsec.context/channel"
+@@ -66,8 +67,30 @@ struct svc_cred {
+ };
+ 
+ static int
++get_krb5_hostbased_name (gss_buffer_desc name, char **hostbased_name)
++{
++	char *p, *sname = NULL;
++	if (strchr(name.value, '@') && strchr(name.value, '/')) {
++		if (!(sname = calloc(name.length, 1))) {
++			printerr(0, "ERROR: get_krb5_hostbased_name failed "
++				 "to allocate %d bytes\n", name.length);
++			goto out_err;
++		}
++		/* read in name and instance and replace '/' with '@' */
++		sscanf(name.value, "%[^@]", sname);
++		p = strchr(sname, '/');
++		p[0] = '@';
++	}
++	*hostbased_name = sname;
++	return 0;
++out_err:
++	return -1;
++}
++
++static int
+ do_svc_downcall(gss_buffer_desc *out_handle, struct svc_cred *cred,
+-		gss_OID mech, gss_buffer_desc *context_token)
++		gss_OID mech, gss_buffer_desc *context_token,
++		char *client_name)
+ {
+ 	FILE *f;
+ 	int i;
+@@ -91,8 +114,9 @@ do_svc_downcall(gss_buffer_desc *out_handle, struct svc_cred *cred,
+ 	qword_printint(f, cred->cr_gid);
+ 	qword_printint(f, cred->cr_ngroups);
+ 	printerr(2, "mech: %s, hndl len: %d, ctx len %d, timeout: %d, "
+-		 "uid: %d, gid: %d, num aux grps: %d:\n",
++		 "clnt: %s, uid: %d, gid: %d, num aux grps: %d:\n",
+ 		 fname, out_handle->length, context_token->length, 0x7fffffff,
++		 client_name ? client_name : "<null>",
+ 		 cred->cr_uid, cred->cr_gid, cred->cr_ngroups);
+ 	for (i=0; i < cred->cr_ngroups; i++) {
+ 		qword_printint(f, cred->cr_groups[i]);
+@@ -100,6 +124,8 @@ do_svc_downcall(gss_buffer_desc *out_handle, struct svc_cred *cred,
+ 	}
+ 	qword_print(f, fname);
+ 	qword_printhex(f, context_token->value, context_token->length);
++	if (client_name)
++		qword_print(f, client_name);
+ 	err = qword_eol(f);
+ 	fclose(f);
+ 	return err;
+@@ -294,6 +320,45 @@ print_hexl(const char *description, unsigned char *cp, int length)
+ }
+ #endif
+ 
++static int
++get_hostbased_client_name(gss_name_t client_name, gss_OID mech,
++			  char **hostbased_name)
++{
++	u_int32_t	maj_stat, min_stat;
++	gss_buffer_desc	name;
++	gss_OID		name_type = GSS_C_NO_OID;
++	char		*cname;
++	int		res = -1;
++
++	/* get the client name and for service principals only
++	 * add it after the context (service name used for
++	 * authenticating callbacks) */
++	maj_stat = gss_display_name(&min_stat, client_name, &name, &name_type);
++	if (maj_stat != GSS_S_COMPLETE) {
++		pgsserr("get_hostbased_client_name: gss_display_name",
++			maj_stat, min_stat, mech);
++		goto out_err;
++	}
++	if (name.length >= 0xffff) { /* be certain name.length+1 doesn't overflow */
++		printerr(0, "ERROR: get_hostbased_client_name: "
++			 "received gss_name is too long (%d bytes)\n",
++			 name.length);
++		goto out_rel_buf;
++	}
++	/* For Kerberos, transform the NT_KRB5_PRINCIPAL to
++	 * NT_HOSTBASED_SERVICE */
++	if (g_OID_equal(&krb5oid, mech)) {
++		if (!get_krb5_hostbased_name(name, &cname))
++			*hostbased_name = cname;
++	}
++	/* For SPKM3, do ??? */
++	res = 0;
++out_rel_buf:
++	gss_release_buffer(&min_stat, &name);
++out_err:
++	return res;
++}
++
+ void
+ handle_nullreq(FILE *f) {
+ 	/* XXX initialize to a random integer to reduce chances of unnecessary
+@@ -320,6 +385,7 @@ handle_nullreq(FILE *f) {
+ 	static char		*lbuf = NULL;
+ 	static int		lbuflen = 0;
+ 	static char		*cp;
++	char			*hostbased_name = NULL;
+ 
+ 	printerr(1, "handling null request\n");
+ 
+@@ -385,8 +451,12 @@ handle_nullreq(FILE *f) {
+ 		gss_release_name(&ignore_min_stat, &client_name);
+ 		goto out_err;
+ 	}
+-	gss_release_name(&ignore_min_stat, &client_name);
+-
++	if (get_hostbased_client_name(client_name, mech, &hostbased_name)) {
++		/* get_hostbased_client_name() prints error msg */
++		maj_stat = GSS_S_BAD_NAME; /* XXX ? */
++		gss_release_name(&ignore_min_stat, &client_name);
++		goto out_err;
++	}
+ 
+ 	/* Context complete. Pass handle_seq in out_handle to use
+ 	 * for context lookup in the kernel. */
+@@ -400,12 +470,14 @@ handle_nullreq(FILE *f) {
+ 		printerr(0, "WARNING: handle_nullreq: "
+ 			    "serialize_context_for_kernel failed\n");
+ 		maj_stat = GSS_S_FAILURE;
++		gss_release_name(&ignore_min_stat, &client_name);
+ 		goto out_err;
+ 	}
+ 	/* We no longer need the gss context */
+ 	gss_delete_sec_context(&ignore_min_stat, &ctx, &ignore_out_tok);
+ 
+-	do_svc_downcall(&out_handle, &cred, mech, &ctx_token);
++	do_svc_downcall(&out_handle, &cred, mech, &ctx_token, hostbased_name);
++	gss_release_name(&ignore_min_stat, &client_name);
+ continue_needed:
+ 	send_response(f, &in_handle, &in_tok, maj_stat, min_stat,
+ 			&out_handle, &out_tok);
+@@ -414,6 +486,8 @@ out:
+ 		free(ctx_token.value);
+ 	if (out_tok.value != NULL)
+ 		gss_release_buffer(&ignore_min_stat, &out_tok);
++	if (hostbased_name)
++		free(hostbased_name);
+ 	printerr(1, "finished handling null request\n");
+ 	return;
+ 

@@ -1,0 +1,72 @@
+Handle dsdt override support in initramfs. Also allow to use /boot/DSDT.aml
+and dsdt.aml. 
+
+Rtp
+
+--- mkinitrd-4.2.17/mkinitrd.initramfs-dsdt	2006-09-07 08:38:44.000000000 +0200
++++ mkinitrd-4.2.17/mkinitrd	2006-09-07 08:44:23.000000000 +0200
+@@ -49,7 +49,7 @@
+ rc=0
+ 
+-DEFAULT_DSDT_FILE="/boot/dsdt.aml"
+-dsdt_file=""
++DEFAULT_DSDT_FILES="/boot/dsdt.aml /boot/DSDT.aml"
++dsdt_files=""
+ 
+ IMAGESIZE=100
+ NB_INODES=100
+@@ -60,6 +60,8 @@
+ 
+ [ -f /etc/sysconfig/mkinitrd ] && source /etc/sysconfig/mkinitrd
+ 
++[ -z "$dsdt_files" -a -n "$dsdt_file" ] && dsdt_files="$dsdt_file"
++
+ IGNOREMODS="$IGNOREMODS ppa imm ide-scsi"
+ 
+ usage () {
+@@ -542,9 +544,9 @@
+ 	    ;;
+ 	--dsdt*)
+ 	    if echo $1 | grep '=' >/dev/null ; then
+-	    	dsdt_file=`echo $1 | sed 's/^--dsdt=//'`
++	    	dsdt_files=`echo $1 | sed 's/^--dsdt=//'`
+ 	    else
+-		dsdt_file=$DEFAULT_DSDT_FILE
++		dsdt_files=$DEFAULT_DSDT_FILES
+ 	    fi		    
+ 	    ;;
+ 	--debug-busybox*)
+@@ -1323,6 +1325,14 @@
+ 	genromfs -d "$MNTIMAGE" -f "$IMAGE"
+ 	;;
+     initramfs)
++	if [[ -n "$dsdt_files" ]]; then
++		for dsdt_file in $dsdt_files; do
++			if [[ -f $dsdt_file ]]; then
++				cp -aL $dsdt_file $MNTIMAGE/DSDT.aml
++			fi
++		done
++		dsdt_files=""
++	fi
+ 	(cd $MNTIMAGE; find . | cpio --quiet -c -o) >| $IMAGE || exit 1
+ 	;;
+ esac
+@@ -1333,10 +1343,14 @@
+     cp -a $IMAGE $target || exit 1
+ fi
+ 
+-if [[ -n "$dsdt_file" && -f "$dsdt_file" ]]; then
+-    echo -n "INITRDDSDT123DSDT123" >> $target
+-    cat "$dsdt_file" >> $target
+-    echo -n "INITRDDSDT321DSDT321" >> $target
++if [[ -n "$dsdt_files" ]]; then
++   for dsdt_file in $dsdt_files; do
++      if [[ -f $dsdt_file ]]; then
++	 echo -n "INITRDDSDT123DSDT123" >> $target
++	 cat "$dsdt_file" >> $target
++	 echo -n "INITRDDSDT321DSDT321" >> $target
++      fi
++   done
+ fi
+ 
+ exit $rc

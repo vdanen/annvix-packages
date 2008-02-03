@@ -1,0 +1,41 @@
+--- module-init-tools-3.3-pre11/modprobe.c.preferred	2007-09-11 19:20:10.000000000 +0200
++++ module-init-tools-3.3-pre11/modprobe.c	2007-09-11 19:20:51.000000000 +0200
+@@ -24,6 +24,8 @@
+ #include "modprobe.h"
+ 
+ 
++#define PREFERRED_ALIASES "/lib/module-init-tools/ldetect-lst-modules.alias"
++
+ static struct option options[] = { { "verbose", 0, NULL, 'v' },
+ 				   { "version", 0, NULL, 'V' },
+ 				   { "config", 1, NULL, 'C' },
+@@ -223,6 +225,8 @@ int main(int argc, char *argv[])
+ 
+ 		read_toplevel_config(config, "", 1, 0,
+ 			     &modoptions, &commands, &aliases, &blacklist);
++		read_config(PREFERRED_ALIASES, "", 1, 0,&modoptions, &commands,
++			    &aliases, &blacklist);
+ 		read_config(aliasfilename, "", 1, 0,&modoptions, &commands,
+ 			    &aliases, &blacklist);
+ 		read_config(symfilename, "", 1, 0, &modoptions, &commands,
+@@ -268,10 +272,19 @@ int main(int argc, char *argv[])
+ 			if (list_empty(&list)
+ 			    && !find_command(modulearg, commands))
+ 			{
+-				read_config(aliasfilename, modulearg, 0,
++			    char *alias_filelist[] = {
++			        PREFERRED_ALIASES,
++				aliasfilename,
++				NULL,
++			    };
++			    char **alias_file = alias_filelist;
++			    while (!aliases && *alias_file) {
++				read_config(*alias_file, modulearg, 0,
+ 					    remove, &modoptions, &commands,
+ 					    &aliases, &blacklist);
+ 				aliases = apply_blacklist(aliases, blacklist);
++				alias_file++;
++			    }
+ 			}
+ 		}
+ 

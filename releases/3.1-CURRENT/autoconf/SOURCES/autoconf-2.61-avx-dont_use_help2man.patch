@@ -1,0 +1,53 @@
+--- autoconf-2.61/man/Makefile.am.dont_use_help2man	2006-08-24 16:56:47.000000000 -0600
++++ autoconf-2.61/man/Makefile.am	2007-10-06 11:40:08.664094000 -0600
+@@ -62,17 +62,4 @@
+ 	    (cd $$dir && $(MAKE) $(AM_MAKEFLAGS) $$program) || exit; \
+ 	  done;; \
+ 	esac
+-	echo "Updating man page $@"
+-	PATH="$(top_builddir)/tests$(PATH_SEPARATOR)$(top_srcdir)/build-aux$(PATH_SEPARATOR)$$PATH"; \
+-	export PATH; \
+-	$(HELP2MAN) \
+-	    --include=$*.x \
+-	    --include=$(srcdir)/common.x \
+-	    --output=$@.t `echo '$*' | sed 's,.*/,,'`
+-	if sed $(remove_time_stamp) $@ >$@a.t 2>/dev/null && \
+-	   sed $(remove_time_stamp) $@.t | cmp $@a.t - >/dev/null 2>&1; then \
+-		touch $@; \
+-	else \
+-		mv $@.t $@; \
+-	fi
+ 	rm -f $@*.t
+--- autoconf-2.61/man/Makefile.in.dont_use_help2man	2006-10-16 14:58:45.000000000 -0600
++++ autoconf-2.61/man/Makefile.in	2007-10-06 11:40:38.733973250 -0600
+@@ -386,19 +386,6 @@
+ 	    (cd $$dir && $(MAKE) $(AM_MAKEFLAGS) $$program) || exit; \
+ 	  done;; \
+ 	esac
+-	echo "Updating man page $@"
+-	PATH="$(top_builddir)/tests$(PATH_SEPARATOR)$(top_srcdir)/build-aux$(PATH_SEPARATOR)$$PATH"; \
+-	export PATH; \
+-	$(HELP2MAN) \
+-	    --include=$*.x \
+-	    --include=$(srcdir)/common.x \
+-	    --output=$@.t `echo '$*' | sed 's,.*/,,'`
+-	if sed $(remove_time_stamp) $@ >$@a.t 2>/dev/null && \
+-	   sed $(remove_time_stamp) $@.t | cmp $@a.t - >/dev/null 2>&1; then \
+-		touch $@; \
+-	else \
+-		mv $@.t $@; \
+-	fi
+ 	rm -f $@*.t
+ # Tell versions [3.59,3.63) of GNU make to not export all variables.
+ # Otherwise a system limit (for SysV at least) may be exceeded.
+--- autoconf-2.61/Makefile.in.dont_use_help2man	2006-11-17 12:05:17.000000000 -0700
++++ autoconf-2.61/Makefile.in	2007-10-06 11:41:30.181188500 -0600
+@@ -95,7 +95,7 @@
+ EMACSLOADPATH = @EMACSLOADPATH@
+ EXPR = @EXPR@
+ GREP = @GREP@
+-HELP2MAN = @HELP2MAN@
++#HELP2MAN = @HELP2MAN@
+ INSTALL = @INSTALL@
+ INSTALL_DATA = @INSTALL_DATA@
+ INSTALL_PROGRAM = @INSTALL_PROGRAM@

@@ -1,0 +1,30 @@
+#!/bin/sh
+#
+# script to handle nut upssched commands
+#
+# this script doesn't do much but wall information although it can be
+# customized to send emails, pages, etc.
+
+case ${1} in
+    commbad)
+        wall "Lost communications with the UPS!"
+        ;;
+    commok)
+        wall "Restored communications to the UPS"
+        ;;
+    onbattwarn)
+        wall "The UPS is currently running on battery power!"
+        ;;
+    ups-back-on-power)
+        wall "The UPS is back online!"
+        ;;
+    shutdownslaves)
+        logger -t ups_command "Sending shutdown signals to slaves"
+        /usr/sbin/upsmon -c fsd
+        ;;
+    *)
+        logger -t ups_command "Unrecognized command: ${1}"
+        ;;
+esac
+
+exit 0

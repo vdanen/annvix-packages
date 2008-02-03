@@ -1,0 +1,77 @@
+2006-04-03  Gwenole Beauchesne  <gbeauchesne@mandriva.com>
+
+	* Handle migrations from mptscsih to mptspi and mptfc.
+
+--- mkinitrd-4.2.17/mkinitrd.migrate-mptscsih	2006-04-03 18:14:45.000000000 +0200
++++ mkinitrd-4.2.17/mkinitrd	2006-04-03 18:16:46.000000000 +0200
+@@ -326,6 +326,11 @@ verif_scsidriver() {
+ 	found=
+ 	for known in $all_known; do
+ 	    [ "$known" = "$wanted" ] && found=1
++	    # XXX exceptions for new module names not updated in modprobe.conf
++	    case "$known:$wanted" in
++		mptscsih:mptspi|mptscsih:mptfc) found=1;;
++		mptspi:mptscsih|mptfc:mptscsih) found=1;;
++	    esac
+ 	done
+ 	[ -n "$found" ] || pb=1
+     done
+@@ -337,6 +342,36 @@ verif_scsidriver() {
+     fi
+ }
+ 
++function migrate_scsidriver() {
++    local sddev=$1
++    shift
++
++    local f drv
++    for wanted in $*; do
++	case $wanted in
++	    # determine new module from pcimap (mptfc, mptspi)
++	    mptscsih|mptbase)
++		local dev vendor device pcimap
++		dev=${sddev##*/}
++		dev=${dev%%[0-9]*}
++		f=$(readlink /sys/block/$dev/device) && {
++		    vendor=$(cat /sys/block/$dev/${f%/host*}/vendor)
++		    device=$(cat /sys/block/$dev/${f%/host*}/device)
++		    pcimap=$(printf "0x%08x 0x%08x" $vendor $device)
++		    wanted=`sed -n "/^\([^ ]*\)  *$pcimap.*/s//\1/p" /lib/modules/$kernel/modules.pcimap`
++		}
++		;;
++	    # assume mptscsih if mptspi was used but it's not in older pcimap
++	    mptspi|mptfc)
++		grep -q $wanted /lib/modules/$kernel/modules.pcimap || wanted="mptscsih"
++		;;
++	esac
++	[[ -n "$wanted" ]] && drv="$drv $wanted"
++    done
++
++    echo $drv
++}
++
+ usbdriver() {
+     local driver
+     local usbdrivers=$(grep -E '^[[:space:]]*(alias|probeall|install)[[:space:]]+usb-interface' $modulefile | sed 's/^.*usb-interface//;s/\/sbin\/modprobe//g;s/;//g;s/\/bin\/true//;s/||//')
+@@ -770,6 +805,7 @@ fi
+ if [ -z "$noscsi" ]; then
+     for sddev in $nonraiddevices; do
+ 	scsidriver=$(scsidriver $sddev)
++	scsidriver=$(migrate_scsidriver $sddev $scsidriver)
+ 	scsidriver=$(verif_scsidriver $scsidriver)
+ 	if [ -n "$scsidriver" ]; then
+ 
+@@ -787,7 +823,13 @@ if [ -z "$noscsi" ]; then
+ fi
+ 
+ if [ -n "$scsimodules" ]; then
++    done_scsimodules=""
+     for n in $scsimodules; do
++	# ensure we don't generate twice the same modules
++	case " $done_scsimodules " in
++	    (*" $n "*) echo skip dups; continue;;
++	esac
++	done_scsimodules="$done_scsimodules $n"
+ 	[ $n = usb-storage ] && usbdriver
+ 	[ $n = sbp2 ] && ieee1394driver
+ 	findmodule $n

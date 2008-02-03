@@ -1,0 +1,112 @@
+From db6041b3a569d78f5716baa5a134a3a857014337 Mon Sep 17 00:00:00 2001
+From: Karel Zak <kzak@redhat.com>
+Date: Wed, 30 May 2007 13:22:51 +0200
+Subject: [PATCH] mount: automatically reinitialize swap with old swsuspend data
+
+We have to reinitialize swap area with old (=useless) software suspend
+data. The problem is that if we don't do it, then we get data
+corruption the next time with suspended on.
+
+Signed-off-by: Karel Zak <kzak@redhat.com>
+---
+ mount/swapon.c |   63 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 63 insertions(+), 0 deletions(-)
+
+diff --git a/mount/swapon.c b/mount/swapon.c
+index ed91afc..3f9b442 100644
+--- a/mount/swapon.c
++++ b/mount/swapon.c
+@@ -10,6 +10,9 @@
+ #include <errno.h>
+ #include <sys/stat.h>
+ #include <unistd.h>
++#include <sys/types.h>
++#include <sys/wait.h>
++#include <fcntl.h>
+ #include "xmalloc.h"
+ #include "swap_constants.h"
+ #include "nls.h"
+@@ -17,6 +20,8 @@
+ #include "realpath.h"
+ #include "mount_paths.h"
+ 
++#define PATH_MKSWAP	"/sbin/mkswap"
++
+ #ifdef HAVE_SYS_SWAP_H
+ # include <sys/swap.h>
+ #endif
+@@ -158,6 +163,52 @@ display_summary(void)
+ }
+ 
+ static int
++swap_is_swsuspend(const char *device) {
++	const char *type = fsprobe_get_fstype_by_devname(device);
++
++	return (type && strcmp(type, "swsuspend") == 0) ? 1 : 0;
++}
++
++/* calls mkswap */
++static int
++swap_reinitialize(const char *device) {
++	const char *label = fsprobe_get_label_by_devname(device);
++	pid_t pid;
++	int status, ret;
++
++	switch((pid=fork())) {
++	case -1: /* fork error */
++		fprintf(stderr, _("%s: cannot fork: %s\n"),
++			progname, strerror(errno));
++		return -1;
++
++	case 0:	/* child */
++		if (label && *label)
++			execl(PATH_MKSWAP, PATH_MKSWAP, "-L", label, device, NULL);
++		else
++			execl(PATH_MKSWAP, PATH_MKSWAP, device, NULL);
++		exit(1); /* error  */
++
++	default: /* parent */
++		do {
++			if ((ret = waitpid(pid, &status, 0)) < 0
++					&& errno == EINTR)
++				continue;
++			else if (ret < 0) {
++				fprintf(stderr, _("%s: waitpid: %s\n"),
++					progname, strerror(errno));
++				return -1;
++			}
++		} while (0);
++
++		/* mkswap returns: 0=suss, 1=error */
++		if (WIFEXITED(status) && WEXITSTATUS(status)==0)
++			return 0; /* ok */
++	}
++	return -1; /* error */
++}
++
++static int
+ do_swapon(const char *orig_special, int prio, int canonic) {
+ 	int status;
+ 	struct stat st;
+@@ -179,6 +230,18 @@ do_swapon(const char *orig_special, int prio, int canonic) {
+ 		return -1;
+ 	}
+ 
++	/* We have to reinitialize swap with old (=useless) software suspend
++	 * data. The problem is that if we don't do it, then we get data
++	 * corruption the next time with suspended on.
++	 */
++	if (swap_is_swsuspend(special)) {
++		fprintf(stdout, _("%s: %s: software suspend data detected. "
++					"Reinitializing the swap.\n"),
++			progname, special);
++		if (swap_reinitialize(special) < 0)
++			return -1;
++	}
++
+ 	/* people generally dislike this warning - now it is printed
+ 	   only when `verbose' is set */
+ 	if (verbose) {
+-- 
+1.5.2.2
+

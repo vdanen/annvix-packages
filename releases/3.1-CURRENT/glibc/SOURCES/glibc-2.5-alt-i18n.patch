@@ -1,0 +1,40 @@
+# Support more ru_* locales.
+
+--- glibc-2.5.orig/localedata/SUPPORTED
++++ glibc-2.5/localedata/SUPPORTED
+@@ -301,10 +301,12 @@ pt_PT@euro/ISO-8859-15 \
+ ro_RO.UTF-8/UTF-8 \
+ ro_RO/ISO-8859-2 \
+ ru_RU.KOI8-R/KOI8-R \
++ru_RU.CP1251/CP1251 \
+ ru_RU.UTF-8/UTF-8 \
+-ru_RU/ISO-8859-5 \
++ru_RU.ISO-8859-5/ISO-8859-5 \
+ ru_UA.UTF-8/UTF-8 \
+-ru_UA/KOI8-U \
++ru_UA.CP1251/CP1251 \
++ru_UA.KOI8-U/KOI8-U \
+ rw_RW/UTF-8 \
+ se_NO/UTF-8 \
+ si_LK/UTF-8 \
+@@ -352,7 +354,8 @@ tr_TR/ISO-8859-9 \
+ ts_ZA/UTF-8 \
+ tt_RU.UTF-8/UTF-8 \
+ uk_UA.UTF-8/UTF-8 \
+-uk_UA/KOI8-U \
++uk_UA.KOI8-U/KOI8-U \
++uk_UA.CP1251/CP1251 \
+ ur_PK/UTF-8 \
+ uz_UZ/ISO-8859-1 \
+ uz_UZ@cyrillic/UTF-8 \
+--- glibc-2.5.orig/po/ru.po
++++ glibc-2.5/po/ru.po
+@@ -1810,7 +1810,7 @@ #. TRANS Operation not permitted; only t
+ #. TRANS or processes with special privileges can perform the operation.
+ #: stdio-common/../sysdeps/gnu/errlist.c:17
+ msgid "Operation not permitted"
+-msgstr "Операция не позволяется"
++msgstr "Операция не позволена"
+ 
+ #. TRANS No such file or directory.  This is a ``file doesn't exist'' error
+ #. TRANS for ordinary files that are referenced in contexts where they are

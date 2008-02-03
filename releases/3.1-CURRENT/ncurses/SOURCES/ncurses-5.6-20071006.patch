@@ -1,0 +1,154 @@
+# ncurses 5.6 - patch 20071006 - Thomas E. Dickey
+#
+# ------------------------------------------------------------------------------
+#
+# Ncurses 5.6 is at
+# 	ftp.gnu.org:/pub/gnu
+#
+# Patches for ncurses 5.6 are in the subdirectory
+# 	ftp://invisible-island.net/ncurses/5.6
+#
+# ------------------------------------------------------------------------------
+# patch by Thomas E. Dickey <dickey@invisible-island.net>
+# created  Sat Oct  6 23:01:06 UTC 2007
+# ------------------------------------------------------------------------------
+# NEWS                  |    8 +++++++-
+# dist.mk               |    4 ++--
+# include/ncurses_defs  |    3 ++-
+# ncurses/curses.priv.h |   36 ++++++++++++++++++++++++++++++++----
+# 4 files changed, 43 insertions(+), 8 deletions(-)
+# ------------------------------------------------------------------------------
+Index: NEWS
+Prereq:  1.1171 
+--- ncurses-5.6-20070929+/NEWS	2007-09-29 21:53:42.000000000 +0000
++++ ncurses-5.6-20071006/NEWS	2007-10-06 21:32:14.000000000 +0000
+@@ -25,7 +25,7 @@
+ -- sale, use or other dealings in this Software without prior written        --
+ -- authorization.                                                            --
+ -------------------------------------------------------------------------------
+--- $Id: NEWS,v 1.1171 2007/09/29 21:53:42 tom Exp $
++-- $Id: NEWS,v 1.1172 2007/10/06 21:32:14 tom Exp $
+ -------------------------------------------------------------------------------
+ 
+ This is a log of changes that ncurses has gone through since Zeyd started
+@@ -45,6 +45,12 @@
+ Changes through 1.9.9e did not credit all contributions;
+ it is not possible to add this information.
+ 
++20071006
++	+ add code to curses.priv.h ifdef'd with NCURSES_CHAR_EQ, which
++	  changes the CharEq() macro to an inline function to allow comparing
++	  cchar_t struct's without comparing gaps in a possibly unpacked
++	  memory layout (report by Miroslav Lichvar).
++
+ 20070929
+ 	+ add new functions to lib_trace.c to setup mutex's for the _tracef()
+ 	  calls within the ncurses library.
+Index: dist.mk
+Prereq:  1.611 
+--- ncurses-5.6-20070929+/dist.mk	2007-09-29 15:48:09.000000000 +0000
++++ ncurses-5.6-20071006/dist.mk	2007-10-06 19:39:13.000000000 +0000
+@@ -25,7 +25,7 @@
+ # use or other dealings in this Software without prior written               #
+ # authorization.                                                             #
+ ##############################################################################
+-# $Id: dist.mk,v 1.611 2007/09/29 15:48:09 tom Exp $
++# $Id: dist.mk,v 1.612 2007/10/06 19:39:13 tom Exp $
+ # Makefile for creating ncurses distributions.
+ #
+ # This only needs to be used directly as a makefile by developers, but
+@@ -37,7 +37,7 @@
+ # These define the major/minor/patch versions of ncurses.
+ NCURSES_MAJOR = 5
+ NCURSES_MINOR = 6
+-NCURSES_PATCH = 20070929
++NCURSES_PATCH = 20071006
+ 
+ # We don't append the patch to the version, since this only applies to releases
+ VERSION = $(NCURSES_MAJOR).$(NCURSES_MINOR)
+Index: include/ncurses_defs
+Prereq:  1.34 
+--- ncurses-5.6-20070929+/include/ncurses_defs	2007-04-28 18:48:33.000000000 +0000
++++ ncurses-5.6-20071006/include/ncurses_defs	2007-10-06 21:18:16.000000000 +0000
+@@ -1,4 +1,4 @@
+-# $Id: ncurses_defs,v 1.34 2007/04/28 18:48:33 tom Exp $
++# $Id: ncurses_defs,v 1.35 2007/10/06 21:18:16 tom Exp $
+ ##############################################################################
+ # Copyright (c) 2000-2006,2007 Free Software Foundation, Inc.                #
+ #                                                                            #
+@@ -158,6 +158,7 @@
+ HAVE_WRESIZE
+ HAVE__DOSCAN
+ MIXEDCASE_FILENAMES
++NCURSES_CHAR_EQ
+ NCURSES_EXPANDED
+ NCURSES_EXT_COLORS
+ NCURSES_EXT_FUNCS
+Index: ncurses/curses.priv.h
+Prereq:  1.343 
+--- ncurses-5.6-20070929+/ncurses/curses.priv.h	2007-09-29 21:33:24.000000000 +0000
++++ ncurses-5.6-20071006/ncurses/curses.priv.h	2007-10-06 21:29:02.000000000 +0000
+@@ -34,7 +34,7 @@
+ 
+ 
+ /*
+- * $Id: curses.priv.h,v 1.343 2007/09/29 21:33:24 tom Exp $
++ * $Id: curses.priv.h,v 1.344 2007/10/06 21:29:02 tom Exp $
+  *
+  *	curses.priv.h
+  *
+@@ -936,6 +936,35 @@
+ #define NulColor	/* nothing */
+ #endif
+ 
++#define AttrEq(a,b)	((a).attr == (b).attr)
++#define ExtcEq(a,b)	((a).ext_color == (b).ext_color)
++#define TextEq(a,b)	(!memcmp((a).chars, (b).chars, sizeof(a.chars)))
++
++/*
++ * cchar_t may not be packed, e.g., on a 64-bit platform.
++ *
++ * Set "NCURSES_CHAR_EQ" to use a workaround that compares the structure
++ * member-by-member so that valgrind will not see compares against the
++ * uninitialized filler bytes.
++ */
++#if NCURSES_CHAR_EQ
++#if defined(USE_TERMLIB) && !defined(NEED_NCURSES_CH_T)
++#else
++static NCURSES_INLINE int
++_nc_char_eq(NCURSES_CH_T a, NCURSES_CH_T b)
++{
++#if NCURSES_EXT_COLORS
++    return (AttrEq(a,b) && TextEq(a,b) && ExtcEq(a,b));
++#else
++    return (AttrEq(a,b) && TextEq(a,b));
++#endif
++}
++#define CharEq(a,b)	_nc_char_eq(a,b)
++#endif
++#else
++#define CharEq(a,b)	(!memcmp(&(a), &(b), sizeof(a)))
++#endif
++
+ #define NulChar		0,0,0,0	/* FIXME: see CCHARW_MAX */
+ #define CharOf(c)	((c).chars[0])
+ #define AttrOf(c)	((c).attr)
+@@ -944,7 +973,6 @@
+ #define SetAttr(c,a)	AttrOf(c) =   ((a) & A_ATTRIBUTES) | WidecExt(c)
+ #define NewChar2(c,a)	{ a, { c, NulChar } NulColor }
+ #define NewChar(ch)	NewChar2(ChCharOf(ch), ChAttrOf(ch))
+-#define CharEq(a,b)	(!memcmp(&(a), &(b), sizeof(a)))
+ #define SetChar(ch,c,a) do {							    \
+ 			    NCURSES_CH_T *_cp = &ch;				    \
+ 			    memset(_cp, 0, sizeof(ch));				    \
+@@ -981,8 +1009,8 @@
+ 			    COUNT_OUTCHARS(PUTC_i);				    \
+ 			} } } while (0)
+ 
+-#define BLANK		{ WA_NORMAL, {' '} NulColor }
+-#define ZEROS		{ WA_NORMAL, {'\0'} NulColor }
++#define BLANK		NewChar2(' ', WA_NORMAL)
++#define ZEROS		NewChar2('\0', WA_NORMAL)
+ #define ISBLANK(ch)	((ch).chars[0] == L' ' && (ch).chars[1] == L'\0')
+ 
+ 	/*

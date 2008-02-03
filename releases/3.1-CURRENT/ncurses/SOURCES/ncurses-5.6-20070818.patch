@@ -1,0 +1,3161 @@
+# ncurses 5.6 - patch 20070818 - Thomas E. Dickey
+#
+# ------------------------------------------------------------------------------
+#
+# Ncurses 5.6 is at
+# 	ftp.gnu.org:/pub/gnu
+#
+# Patches for ncurses 5.6 are in the subdirectory
+# 	ftp://invisible-island.net/ncurses/5.6
+#
+# ------------------------------------------------------------------------------
+# patch by Thomas E. Dickey <dickey@invisible-island.net>
+# created  Sun Aug 19 00:27:58 UTC 2007
+# ------------------------------------------------------------------------------
+# MANIFEST                                       |    3 
+# NEWS                                           |   16 
+# dist.mk                                        |    4 
+# include/MKterm.h.awk.in                        |   42 -
+# include/curses.h.in                            |   28 -
+# man/curs_opaque.3x                             |   37 -
+# misc/terminfo.src                              |   17 
+# ncurses-5.6-20070818/ncurses/tinfo/MKcodes.awk |  150 ++++++
+# ncurses-5.6-20070818/test/test_arrays.c        |   78 +++
+# ncurses-5.6-20070818/test/test_opaque.c        |  421 ++++++++++++++++
+# ncurses/Makefile.in                            |   23 
+# ncurses/base/MKkeyname.awk                     |    4 
+# ncurses/base/MKlib_gen.sh                      |    8 
+# ncurses/llib-lncurses                          |  549 ++++++++++++----------
+# ncurses/llib-lncursesw                         |  573 ++++++++++++-----------
+# ncurses/tinfo/MKnames.awk                      |  211 +++++---
+# ncurses/tinfo/comp_hash.c                      |   10 
+# test/README                                    |  112 ++--
+# test/modules                                   |    4 
+# test/programs                                  |    4 
+# 20 files changed, 1581 insertions(+), 713 deletions(-)
+# ------------------------------------------------------------------------------
+Index: MANIFEST
+--- ncurses-5.6-20070812+/MANIFEST	2007-07-28 23:19:51.000000000 +0000
++++ ncurses-5.6-20070818/MANIFEST	2007-08-18 23:14:30.000000000 +0000
+@@ -813,6 +813,7 @@
+ ./ncurses/modules
+ ./ncurses/tinfo/MKcaptab.awk
+ ./ncurses/tinfo/MKcaptab.sh
++./ncurses/tinfo/MKcodes.awk
+ ./ncurses/tinfo/MKfallback.sh
+ ./ncurses/tinfo/MKkeys_list.sh
+ ./ncurses/tinfo/MKnames.awk
+@@ -1001,10 +1002,12 @@
+ ./test/savescreen.sh
+ ./test/tclock.c
+ ./test/test.priv.h
++./test/test_arrays.c
+ ./test/test_get_wstr.c
+ ./test/test_getstr.c
+ ./test/test_instr.c
+ ./test/test_inwstr.c
++./test/test_opaque.c
+ ./test/testaddch.c
+ ./test/testcurs.c
+ ./test/testscanw.c
+Index: NEWS
+Prereq:  1.1151 
+--- ncurses-5.6-20070812+/NEWS	2007-08-12 13:56:58.000000000 +0000
++++ ncurses-5.6-20070818/NEWS	2007-08-18 22:31:19.000000000 +0000
+@@ -25,7 +25,7 @@
+ -- sale, use or other dealings in this Software without prior written        --
+ -- authorization.                                                            --
+ -------------------------------------------------------------------------------
+--- $Id: NEWS,v 1.1151 2007/08/12 13:56:58 tom Exp $
++-- $Id: NEWS,v 1.1155 2007/08/18 22:31:19 tom Exp $
+ -------------------------------------------------------------------------------
+ 
+ This is a log of changes that ncurses has gone through since Zeyd started
+@@ -45,6 +45,20 @@
+ Changes through 1.9.9e did not credit all contributions;
+ it is not possible to add this information.
+ 
++20070818
++	+ add 9term terminal description (request by Juhapekka Tolvanen) -TD
++	+ modify comp_hash.c's string output to avoid misinterpreting a null
++	  "\0" followed by a digit.
++	+ modify MKnames.awk and MKcodes.awk to support big-strings.
++	  This only applies to the cases (broken linker, reentrant) where
++	  the corresponding arrays are accessed via wrapper functions.
++	+ split MKnames.awk into two scripts, eliminating the shell redirection
++	  which complicated the make process and also the bogus timestamp file
++	  which was introduced to fix "make -j".
++	+ add test/test_opaque.c, test/test_arrays.c
++	+ add wgetscrreg() and wgetparent() for applications that may need it
++	  when NCURSES_OPAQUE is defined (prompted by Bryan Christ).
++
+ 20070812
+ 	+ amend treatment of infocmp "-r" option to retain the 1023-byte limit
+ 	  unless "-T" is given (cf: 981017).
+Index: dist.mk
+Prereq:  1.606 
+--- ncurses-5.6-20070812+/dist.mk	2007-08-12 12:34:46.000000000 +0000
++++ ncurses-5.6-20070818/dist.mk	2007-08-18 09:36:09.000000000 +0000
+@@ -25,7 +25,7 @@
+ # use or other dealings in this Software without prior written               #
+ # authorization.                                                             #
+ ##############################################################################
+-# $Id: dist.mk,v 1.606 2007/08/12 12:34:46 tom Exp $
++# $Id: dist.mk,v 1.607 2007/08/18 09:36:09 tom Exp $
+ # Makefile for creating ncurses distributions.
+ #
+ # This only needs to be used directly as a makefile by developers, but
+@@ -37,7 +37,7 @@
+ # These define the major/minor/patch versions of ncurses.
+ NCURSES_MAJOR = 5
+ NCURSES_MINOR = 6
+-NCURSES_PATCH = 20070812
++NCURSES_PATCH = 20070818
+ 
+ # We don't append the patch to the version, since this only applies to releases
+ VERSION = $(NCURSES_MAJOR).$(NCURSES_MINOR)
+Index: include/MKterm.h.awk.in
+Prereq:  1.48 
+--- ncurses-5.6-20070812+/include/MKterm.h.awk.in	2007-04-28 20:35:34.000000000 +0000
++++ ncurses-5.6-20070818/include/MKterm.h.awk.in	2007-08-18 11:44:26.000000000 +0000
+@@ -34,7 +34,7 @@
+ 		    print  "/*    and: Thomas E. Dickey                        1995-on                  */"
+ 		    print  "/****************************************************************************/"
+ 		    print  ""
+-		    print  "/* $Id: MKterm.h.awk.in,v 1.48 2007/04/28 20:35:34 tom Exp $ */"
++		    print  "/* $Id: MKterm.h.awk.in,v 1.49 2007/08/18 11:44:26 tom Exp $ */"
+ 		    print  ""
+ 		    print  "/*"
+ 		    print  "**	term.h -- Definition of struct term"
+@@ -230,26 +230,26 @@
+ 			print  ""
+ 			print  "extern NCURSES_EXPORT_VAR(TERMINAL *) cur_term;"
+ 			print  ""
+-			print  "#if BROKEN_LINKER"
+-			print  "#define boolnames  _nc_boolnames()"
+-			print  "#define boolcodes  _nc_boolcodes()"
+-			print  "#define boolfnames _nc_boolfnames()"
+-			print  "#define numnames   _nc_numnames()"
+-			print  "#define numcodes   _nc_numcodes()"
+-			print  "#define numfnames  _nc_numfnames()"
+-			print  "#define strnames   _nc_strnames()"
+-			print  "#define strcodes   _nc_strcodes()"
+-			print  "#define strfnames  _nc_strfnames()"
+-			print  ""
+-			print  "extern NCURSES_EXPORT(NCURSES_CONST char * const *) _nc_boolnames (void);"
+-			print  "extern NCURSES_EXPORT(NCURSES_CONST char * const *) _nc_boolcodes (void);"
+-			print  "extern NCURSES_EXPORT(NCURSES_CONST char * const *) _nc_boolfnames (void);"
+-			print  "extern NCURSES_EXPORT(NCURSES_CONST char * const *) _nc_numnames (void);"
+-			print  "extern NCURSES_EXPORT(NCURSES_CONST char * const *) _nc_numcodes (void);"
+-			print  "extern NCURSES_EXPORT(NCURSES_CONST char * const *) _nc_numfnames (void);"
+-			print  "extern NCURSES_EXPORT(NCURSES_CONST char * const *) _nc_strnames (void);"
+-			print  "extern NCURSES_EXPORT(NCURSES_CONST char * const *) _nc_strcodes (void);"
+-			print  "extern NCURSES_EXPORT(NCURSES_CONST char * const *) _nc_strfnames (void);"
++			print  "#if @BROKEN_LINKER@ || @cf_cv_enable_reentrant@"
++			print  "NCURSES_WRAPPED_VAR(NCURSES_CONST char * const *, boolnames);"
++			print  "NCURSES_WRAPPED_VAR(NCURSES_CONST char * const *, boolcodes);"
++			print  "NCURSES_WRAPPED_VAR(NCURSES_CONST char * const *, boolfnames);"
++			print  "NCURSES_WRAPPED_VAR(NCURSES_CONST char * const *, numnames);"
++			print  "NCURSES_WRAPPED_VAR(NCURSES_CONST char * const *, numcodes);"
++			print  "NCURSES_WRAPPED_VAR(NCURSES_CONST char * const *, numfnames);"
++			print  "NCURSES_WRAPPED_VAR(NCURSES_CONST char * const *, strnames);"
++			print  "NCURSES_WRAPPED_VAR(NCURSES_CONST char * const *, strcodes);"
++			print  "NCURSES_WRAPPED_VAR(NCURSES_CONST char * const *, strfnames);"
++			print  ""
++			print  "#define boolnames  NCURSES_PUBLIC_VAR(boolnames())"
++			print  "#define boolcodes  NCURSES_PUBLIC_VAR(boolcodes())"
++			print  "#define boolfnames NCURSES_PUBLIC_VAR(boolfnames())"
++			print  "#define numnames   NCURSES_PUBLIC_VAR(numnames())"
++			print  "#define numcodes   NCURSES_PUBLIC_VAR(numcodes())"
++			print  "#define numfnames  NCURSES_PUBLIC_VAR(numfnames())"
++			print  "#define strnames   NCURSES_PUBLIC_VAR(strnames())"
++			print  "#define strcodes   NCURSES_PUBLIC_VAR(strcodes())"
++			print  "#define strfnames  NCURSES_PUBLIC_VAR(strfnames())"
+ 			print  ""
+ 			print  "#else"
+ 			print  ""
+Index: include/curses.h.in
+Prereq:  1.174 
+--- ncurses-5.6-20070812+/include/curses.h.in	2007-06-23 15:56:44.000000000 +0000
++++ ncurses-5.6-20070818/include/curses.h.in	2007-08-18 18:35:01.000000000 +0000
+@@ -32,7 +32,7 @@
+  *     and: Thomas E. Dickey                        1996-on                 *
+  ****************************************************************************/
+ 
+-/* $Id: curses.h.in,v 1.174 2007/06/23 15:56:44 tom Exp $ */
++/* $Id: curses.h.in,v 1.177 2007/08/18 18:35:01 tom Exp $ */
+ 
+ #ifndef __NCURSES_H
+ #define __NCURSES_H
+@@ -712,7 +712,7 @@
+ extern NCURSES_EXPORT(int) standend (void);				/* generated */
+ extern NCURSES_EXPORT(int) start_color (void);				/* implemented */
+ extern NCURSES_EXPORT(WINDOW *) subpad (WINDOW *, int, int, int, int);	/* implemented */
+-extern NCURSES_EXPORT(WINDOW *) subwin (WINDOW *,int,int,int,int);	/* implemented */
++extern NCURSES_EXPORT(WINDOW *) subwin (WINDOW *, int, int, int, int);	/* implemented */
+ extern NCURSES_EXPORT(int) syncok (WINDOW *, bool);			/* implemented */
+ extern NCURSES_EXPORT(chtype) termattrs (void);				/* implemented */
+ extern NCURSES_EXPORT(char *) termname (void);				/* implemented */
+@@ -845,16 +845,18 @@
+  * These extensions provide access to information stored in the WINDOW even
+  * when NCURSES_OPAQUE is set:
+  */
+-extern NCURSES_EXPORT(bool) is_cleared (WINDOW *);	/* generated */
+-extern NCURSES_EXPORT(bool) is_idcok (WINDOW *);	/* generated */
+-extern NCURSES_EXPORT(bool) is_idlok (WINDOW *);	/* generated */
+-extern NCURSES_EXPORT(bool) is_immedok (WINDOW *);	/* generated */
+-extern NCURSES_EXPORT(bool) is_keypad (WINDOW *);	/* generated */
+-extern NCURSES_EXPORT(bool) is_leaveok (WINDOW *);	/* generated */
+-extern NCURSES_EXPORT(bool) is_nodelay (WINDOW *);	/* generated */
+-extern NCURSES_EXPORT(bool) is_notimeout (WINDOW *);	/* generated */
+-extern NCURSES_EXPORT(bool) is_scrollok (WINDOW *);	/* generated */
+-extern NCURSES_EXPORT(bool) is_syncok (WINDOW *);	/* generated */
++extern NCURSES_EXPORT(WINDOW *) wgetparent (const WINDOW *);	/* generated */
++extern NCURSES_EXPORT(bool) is_cleared (const WINDOW *);	/* generated */
++extern NCURSES_EXPORT(bool) is_idcok (const WINDOW *);		/* generated */
++extern NCURSES_EXPORT(bool) is_idlok (const WINDOW *);		/* generated */
++extern NCURSES_EXPORT(bool) is_immedok (const WINDOW *);	/* generated */
++extern NCURSES_EXPORT(bool) is_keypad (const WINDOW *);		/* generated */
++extern NCURSES_EXPORT(bool) is_leaveok (const WINDOW *);	/* generated */
++extern NCURSES_EXPORT(bool) is_nodelay (const WINDOW *);	/* generated */
++extern NCURSES_EXPORT(bool) is_notimeout (const WINDOW *);	/* generated */
++extern NCURSES_EXPORT(bool) is_scrollok (const WINDOW *);	/* generated */
++extern NCURSES_EXPORT(bool) is_syncok (const WINDOW *);		/* generated */
++extern NCURSES_EXPORT(int) wgetscrreg (const WINDOW *, int *, int *); /* generated */
+ 
+ #else
+ #define curses_version() NCURSES_VERSION
+@@ -1141,6 +1143,8 @@
+ #define is_notimeout(win)	((win)->_notimeout)
+ #define is_scrollok(win)	((win)->_scroll)
+ #define is_syncok(win)		((win)->_sync)
++#define wgetparent(win)		((win) ? (win)->_parent : 0)
++#define wgetscrreg(win,t,b)	((win) ? (*(t) = (win)->_regtop, *(b) = (win)->_regbottom, OK) : ERR)
+ #endif
+ #endif
+ 
+Index: man/curs_opaque.3x
+Prereq:  1.3 
+--- ncurses-5.6-20070812+/man/curs_opaque.3x	2007-05-12 17:04:47.000000000 +0000
++++ ncurses-5.6-20070818/man/curs_opaque.3x	2007-08-18 18:14:52.000000000 +0000
+@@ -26,7 +26,7 @@
+ .\" authorization.                                                           *
+ .\"***************************************************************************
+ .\"
+-.\" $Id: curs_opaque.3x,v 1.3 2007/05/12 17:04:47 tom Exp $
++.\" $Id: curs_opaque.3x,v 1.5 2007/08/18 18:14:52 tom Exp $
+ .TH curs_opaque 3X ""
+ .na
+ .hy 0
+@@ -40,31 +40,35 @@
+ \fBis_nodelay\fR,
+ \fBis_timeout\fR,
+ \fBis_scrollok\fR,
+-\fBis_syncok\fR - \fBcurses\fR output options
++\fBis_syncok\fR - \fBcurses\fR window properties
+ .ad
+ .hy
+ .SH SYNOPSIS
+ \fB#include <curses.h>\fR
+ .sp
+-\fBbool is_cleared(WINDOW *win);\fR
++\fBbool is_cleared(const WINDOW *win);\fR
+ .br
+-\fBbool is_idcok(WINDOW *win);\fR
++\fBbool is_idcok(const WINDOW *win);\fR
+ .br
+-\fBbool is_idlok(WINDOW *win);\fR
++\fBbool is_idlok(const WINDOW *win);\fR
+ .br
+-\fBbool is_immedok(WINDOW *win);\fR
++\fBbool is_immedok(const WINDOW *win);\fR
+ .br
+-\fBbool is_keypad(WINDOW *win);\fR
++\fBbool is_keypad(const WINDOW *win);\fR
+ .br
+-\fBbool is_leaveok(WINDOW *win);\fR
++\fBbool is_leaveok(const WINDOW *win);\fR
+ .br
+-\fBbool is_nodelay(WINDOW *win);\fR
++\fBbool is_nodelay(const WINDOW *win);\fR
+ .br
+-\fBbool is_notimeout(WINDOW *win);\fR
++\fBbool is_notimeout(const WINDOW *win);\fR
+ .br
+-\fBbool is_scrollok(WINDOW *win);\fR
++\fBbool is_scrollok(const WINDOW *win);\fR
+ .br
+-\fBbool is_syncok(WINDOW *win);\fR
++\fBbool is_syncok(const WINDOW *win);\fR
++.br
++\fBWINDOW * wgetparent (const WINDOW *win);\fR
++.br
++\fBint wgetscrreg (const WINDOW *win, int *top, int *bottom);\fR
+ .br
+ .SH DESCRIPTION
+ This implementation provides functions which return properties
+@@ -100,8 +104,15 @@
+ .TP 5
+ \fBis_syncok\fR
+ returns the value set in \fBsyncok\fR
++.TP 5
++\fBwgetparent\fR
++returns the parent WINDOW pointer for subwindows,
++or NULL for windows having no parent.
++.TP 5
++\fBwgetscrreg\fR
++returns the top and bottom rows for the scrolling margin as set in \fBwsetscrreg\fP.
+ .SH RETURN VALUE
+-These functions all return TRUE or FALSE.
++These functions all return TRUE or FALSE, except as noted.
+ .SH NOTES
+ Both a macro and a function are provided for each name.
+ .SH PORTABILITY
+Index: misc/terminfo.src
+--- ncurses-5.6-20070812+/misc/terminfo.src	2007-07-14 19:17:05.000000000 +0000
++++ ncurses-5.6-20070818/misc/terminfo.src	2007-08-18 22:27:38.000000000 +0000
+@@ -6,8 +6,8 @@
+ # Report bugs and new terminal descriptions to
+ #	bug-ncurses@gnu.org
+ #
+-#	$Revision: 1.308 $
+-#	$Date: 2007/07/14 19:17:05 $
++#	$Revision: 1.310 $
++#	$Date: 2007/08/18 22:27:38 $
+ #
+ # The original header is preserved below for reference.  It is noted that there
+ # is a "newer" version which differs in some cosmetic details (but actually
+@@ -317,6 +317,16 @@
+ 	OTbs,
+ 	bel=^G, cr=^M, cud1=^J, ind=^J,
+ 
++# This is almost the same as "dumb", but with no prespecified width.
++# DEL and ^C are hardcoded to act as kill characters.
++# ^D acts as a line break (just like newline).
++# It also interprets
++#      \033];xxx\007 
++# for compatibility with xterm -TD
++9term|Plan9 terminal emulator for X,
++	am,
++	OTnl=^J, bel=^G, cud1=^J,
++
+ #### ANSI.SYS/ISO 6429/ECMA-48 Capabilities
+ #
+ # See the end-of-file comment for more on these.
+@@ -21511,6 +21521,9 @@
+ #	* restore section of pre-ncurses-4.2 changelog to fix attribution -TD
+ #	* add konsole-256color entry -TD
+ #
++# 2007-08-18
++#	* add 9term entry (request by Juhapekka Tolvanen) -TD
++#
+ # The following sets edit modes for GNU EMACS.
+ # Local Variables:
+ # fill-prefix:"\t"
+Index: ncurses/Makefile.in
+Prereq:  1.110 
+--- ncurses-5.6-20070812+/ncurses/Makefile.in	2007-07-28 20:24:39.000000000 +0000
++++ ncurses-5.6-20070818/ncurses/Makefile.in	2007-08-18 19:29:31.000000000 +0000
+@@ -1,4 +1,4 @@
+-# $Id: Makefile.in,v 1.110 2007/07/28 20:24:39 tom Exp $
++# $Id: Makefile.in,v 1.111 2007/08/18 19:29:31 tom Exp $
+ ##############################################################################
+ # Copyright (c) 1998-2006,2007 Free Software Foundation, Inc.                #
+ #                                                                            #
+@@ -151,8 +151,7 @@
+ 	./names.c \
+ 	./unctrl.c \
+ 	init_keytry.h \
+-	keys.list \
+-	names-stamp
++	keys.list
+ 
+ TEST_DEPS	= ../lib/@LIB_PREFIX@ncurses@DFT_DEP_SUFFIX@
+ TEST_ARGS	= @LDFLAGS_STATIC@ @TEST_ARGS@ @LDFLAGS_SHARED@ 
+@@ -197,7 +196,8 @@
+ 
+ make_keys$(BUILD_EXEEXT) : \
+ 		$(tinfo)/make_keys.c \
+-		names-stamp
++		codes.c \
++		names.c
+ 	$(BUILD_CC) -o $@ $(BUILD_CCFLAGS) $(tinfo)/make_keys.c $(BUILD_LDFLAGS) $(BUILD_LIBS)
+ 
+ make_hash$(BUILD_EXEEXT) : \
+@@ -218,18 +218,11 @@
+ ./lib_keyname.c: keys.list $(base)/MKkeyname.awk
+ 	$(AWK) -f $(base)/MKkeyname.awk bigstrings=$(USE_BIG_STRINGS) keys.list > $@
+ 
+-names-stamp: $(tinfo)/MKnames.awk
+-	$(AWK) -f $(tinfo)/MKnames.awk bigstrings=$(USE_BIG_STRINGS) $(srcdir)/../include/@TERMINFO_CAPS@
+-	cat namehdr boolnames boolfnames numnames numfnames strnames strfnames nameftr >names.c
+-	cat namehdr boolcodes numcodes strcodes codeftr >codes.c
+-	-rm -f namehdr nameftr codeftr boolnames boolfnames boolcodes numnames numfnames numcodes strnames strfnames strcodes
+-	@echo >$@
++./codes.c: $(tinfo)/MKcodes.awk
++	$(AWK) -f $(tinfo)/MKcodes.awk bigstrings=$(USE_BIG_STRINGS) $(srcdir)/../include/@TERMINFO_CAPS@ >$@
+ 
+-./names.c: names-stamp
+-	@echo made $@
+-
+-./codes.c: names-stamp
+-	@echo made $@
++./names.c: $(tinfo)/MKnames.awk
++	$(AWK) -f $(tinfo)/MKnames.awk bigstrings=$(USE_BIG_STRINGS) $(srcdir)/../include/@TERMINFO_CAPS@ >$@
+ 
+ ./unctrl.c: $(base)/MKunctrl.awk
+ 	echo | $(AWK) -f $(base)/MKunctrl.awk bigstrings=$(USE_BIG_STRINGS) >$@
+Index: ncurses/base/MKkeyname.awk
+Prereq:  1.37 
+--- ncurses-5.6-20070812+/ncurses/base/MKkeyname.awk	2007-07-28 21:47:21.000000000 +0000
++++ ncurses-5.6-20070818/ncurses/base/MKkeyname.awk	2007-08-18 18:41:18.000000000 +0000
+@@ -1,4 +1,4 @@
+-# $Id: MKkeyname.awk,v 1.37 2007/07/28 21:47:21 tom Exp $
++# $Id: MKkeyname.awk,v 1.38 2007/08/18 18:41:18 tom Exp $
+ ##############################################################################
+ # Copyright (c) 1999-2006,2007 Free Software Foundation, Inc.                #
+ #                                                                            #
+@@ -39,7 +39,7 @@
+ /^[^#]/ {
+ 		if (bigstrings) {
+ 			if (first)  {
+-				print "struct kn { int offset; int code; };"
++				print "struct kn { short offset; int code; };"
+ 				print "static const struct kn _nc_key_names[] = {"
+ 			}
+ 			printf "\t{ %d, %s },\n", offset, $1
+Index: ncurses/base/MKlib_gen.sh
+Prereq:  1.28 
+--- ncurses-5.6-20070812+/ncurses/base/MKlib_gen.sh	2007-03-10 17:15:33.000000000 +0000
++++ ncurses-5.6-20070818/ncurses/base/MKlib_gen.sh	2007-08-18 13:17:14.000000000 +0000
+@@ -2,7 +2,7 @@
+ #
+ # MKlib_gen.sh -- generate sources from curses.h macro definitions
+ #
+-# ($Id: MKlib_gen.sh,v 1.28 2007/03/10 17:15:33 tom Exp $)
++# ($Id: MKlib_gen.sh,v 1.29 2007/08/18 13:17:14 tom Exp $)
+ #
+ ##############################################################################
+ # Copyright (c) 1998-2006,2007 Free Software Foundation, Inc.                #
+@@ -406,7 +406,11 @@
+ | sed -e 's/NCURSES_EXPORT(\(.*\)) \(.*\) (\(.*\))/\1 \2(\3)/' \
+ | sed -f $ED2 \
+ | $AWK -f $AW1 using=$USE \
+-| sed -e 's/^\([a-z_][a-z_]*[ *]*\)/\1 gen_/' -e 's/  / /g' >>$TMP
++| sed \
++	-e 's/ [ ]*$//g' \
++	-e 's/^\([a-zA-Z_][a-zA-Z_]*[ *]*\)/\1 gen_/' \
++	-e 's/gen_$//' \
++	-e 's/  / /g' >>$TMP
+ 
+ $preprocessor $TMP 2>/dev/null \
+ | sed \
+Index: ncurses/llib-lncurses
+--- ncurses-5.6-20070812+/ncurses/llib-lncurses	2006-10-28 22:20:51.000000000 +0000
++++ ncurses-5.6-20070818/ncurses/llib-lncurses	2007-08-18 22:56:19.000000000 +0000
+@@ -1,5 +1,5 @@
+ /****************************************************************************
+- * Copyright (c) 1998-2005,2006 Free Software Foundation, Inc.              *
++ * Copyright (c) 1998-2006,2007 Free Software Foundation, Inc.              *
+  *                                                                          *
+  * Permission is hereby granted, free of charge, to any person obtaining a  *
+  * copy of this software and associated documentation files (the            *
+@@ -27,7 +27,7 @@
+  ****************************************************************************/
+ 
+ /****************************************************************************
+- *  Author: Thomas E. Dickey 1996-2006                                      *
++ *  Author: Thomas E. Dickey 1996-2007                                      *
+  ****************************************************************************/
+ /* LINTLIBRARY */
+ 
+@@ -1017,6 +1017,11 @@
+ 		WINDOW	*z)
+ 		{ return(*(int *)0); }
+ 
++#undef getattrs
++int	getattrs(
++		const WINDOW *z)
++		{ return(*(int *)0); }
++
+ #undef getcurx
+ int	getcurx(
+ 		const WINDOW *z)
+@@ -1057,6 +1062,68 @@
+ 		const WINDOW *z)
+ 		{ return(*(int *)0); }
+ 
++#undef wgetparent
++WINDOW	*wgetparent(
++		const WINDOW *z)
++		{ return(*(WINDOW **)0); }
++
++#undef is_cleared
++NCURSES_BOOL is_cleared(
++		const WINDOW *z)
++		{ return(*(NCURSES_BOOL *)0); }
++
++#undef is_idcok
++NCURSES_BOOL is_idcok(
++		const WINDOW *z)
++		{ return(*(NCURSES_BOOL *)0); }
++
++#undef is_idlok
++NCURSES_BOOL is_idlok(
++		const WINDOW *z)
++		{ return(*(NCURSES_BOOL *)0); }
++
++#undef is_immedok
++NCURSES_BOOL is_immedok(
++		const WINDOW *z)
++		{ return(*(NCURSES_BOOL *)0); }
++
++#undef is_keypad
++NCURSES_BOOL is_keypad(
++		const WINDOW *z)
++		{ return(*(NCURSES_BOOL *)0); }
++
++#undef is_leaveok
++NCURSES_BOOL is_leaveok(
++		const WINDOW *z)
++		{ return(*(NCURSES_BOOL *)0); }
++
++#undef is_nodelay
++NCURSES_BOOL is_nodelay(
++		const WINDOW *z)
++		{ return(*(NCURSES_BOOL *)0); }
++
++#undef is_notimeout
++NCURSES_BOOL is_notimeout(
++		const WINDOW *z)
++		{ return(*(NCURSES_BOOL *)0); }
++
++#undef is_scrollok
++NCURSES_BOOL is_scrollok(
++		const WINDOW *z)
++		{ return(*(NCURSES_BOOL *)0); }
++
++#undef is_syncok
++NCURSES_BOOL is_syncok(
++		const WINDOW *z)
++		{ return(*(NCURSES_BOOL *)0); }
++
++#undef wgetscrreg
++int	wgetscrreg(
++		const WINDOW *a1, 
++		int	*a2, 
++		int	*z)
++		{ return(*(int *)0); }
++
+ #undef mouse_trafo
+ NCURSES_BOOL mouse_trafo(
+ 		int	*a1, 
+@@ -2093,40 +2160,11 @@
+ /* ./tinfo/add_tries.c */
+ 
+ #undef _nc_add_to_try
+-void	_nc_add_to_try(
+-		struct tries **tree, 
++int	_nc_add_to_try(
++		TRIES	**tree, 
+ 		const char *str, 
+ 		unsigned code)
+-		{ /* void */ }
+-
+-/* ./tinfo/alloc_entry.c */
+-
+-#undef _nc_init_entry
+-void	_nc_init_entry(
+-		TERMTYPE *const tp)
+-		{ /* void */ }
+-
+-#undef _nc_copy_entry
+-ENTRY	*_nc_copy_entry(
+-		ENTRY	*oldp)
+-		{ return(*(ENTRY **)0); }
+-
+-#undef _nc_save_str
+-char	*_nc_save_str(
+-		const char *const string)
+-		{ return(*(char **)0); }
+-
+-#undef _nc_wrap_entry
+-void	_nc_wrap_entry(
+-		ENTRY	*const ep, 
+-		NCURSES_BOOL copy_strings)
+-		{ /* void */ }
+-
+-#undef _nc_merge_entry
+-void	_nc_merge_entry(
+-		TERMTYPE *const to, 
+-		TERMTYPE *const from)
+-		{ /* void */ }
++		{ return(*(int *)0); }
+ 
+ /* ./tinfo/alloc_ttype.c */
+ 
+@@ -2142,22 +2180,6 @@
+ 		TERMTYPE *src)
+ 		{ /* void */ }
+ 
+-/* ./tinfo/captoinfo.c */
+-
+-#undef _nc_captoinfo
+-char	*_nc_captoinfo(
+-		const char *cap, 
+-		const char *s, 
+-		int const parameterized)
+-		{ return(*(char **)0); }
+-
+-#undef _nc_infotocap
+-char	*_nc_infotocap(
+-		const char *cap, 
+-		const char *str, 
+-		int const parameterized)
+-		{ return(*(char **)0); }
+-
+ /* ./codes.c */
+ 
+ #undef boolcodes
+@@ -2167,31 +2189,7 @@
+ #undef strcodes
+ char	*const strcodes[] = {0};
+ 
+-/* ./comp_captab.c */
+-
+-#include <ncurses_cfg.h>
+-
+-#undef _nc_info_hash_table
+-const struct name_table_entry *const _nc_info_hash_table[995] = {0};
+-#undef _nc_cap_hash_table
+-const struct name_table_entry *const _nc_cap_hash_table[995] = {0};
+-#undef _nc_capalias_table
+-const struct alias _nc_capalias_table[] = {0};
+-#undef _nc_infoalias_table
+-const struct alias _nc_infoalias_table[] = {0};
+-
+-#undef _nc_get_table
+-const struct name_table_entry *_nc_get_table(
+-		NCURSES_BOOL termcap)
+-		{ return(*(const struct name_table_entry **)0); }
+-
+-#undef _nc_get_hash_table
+-const struct name_table_entry *const *_nc_get_hash_table(
+-		NCURSES_BOOL termcap)
+-		{ return(*(const struct name_table_entry **)0); }
+-
+ /* ./tinfo/comp_error.c */
+-
+ #undef _nc_suppress_warnings
+ NCURSES_BOOL _nc_suppress_warnings;
+ #undef _nc_curr_line
+@@ -2236,134 +2234,6 @@
+ 		...)
+ 		{ /* void */ }
+ 
+-/* ./tinfo/comp_expand.c */
+-
+-#undef _nc_tic_expand
+-char	*_nc_tic_expand(
+-		const char *srcp, 
+-		NCURSES_BOOL tic_format, 
+-		int	numbers)
+-		{ return(*(char **)0); }
+-
+-/* ./tinfo/comp_hash.c */
+-
+-#include <hashsize.h>
+-
+-#undef _nc_find_entry
+-struct name_table_entry const *_nc_find_entry(
+-		const char *string, 
+-		const struct name_table_entry *const *hash_table)
+-		{ return(*(struct name_table_entry const **)0); }
+-
+-#undef _nc_find_type_entry
+-struct name_table_entry const *_nc_find_type_entry(
+-		const char *string, 
+-		int	type, 
+-		const struct name_table_entry *table)
+-		{ return(*(struct name_table_entry const **)0); }
+-
+-/* ./tinfo/comp_parse.c */
+-
+-#undef _nc_check_termtype2
+-void	(*_nc_check_termtype2)(
+-		TERMTYPE *p1, 
+-		NCURSES_BOOL p2);
+-#undef _nc_check_termtype
+-void	(*_nc_check_termtype)(
+-		TERMTYPE *p1);
+-#undef _nc_head
+-ENTRY	*_nc_head;
+-#undef _nc_tail
+-ENTRY	*_nc_tail;
+-
+-#undef _nc_free_entries
+-void	_nc_free_entries(
+-		ENTRY	*headp)
+-		{ /* void */ }
+-
+-#undef _nc_delink_entry
+-ENTRY	*_nc_delink_entry(
+-		ENTRY	*headp, 
+-		TERMTYPE *tterm)
+-		{ return(*(ENTRY **)0); }
+-
+-#undef _nc_free_entry
+-void	_nc_free_entry(
+-		ENTRY	*headp, 
+-		TERMTYPE *tterm)
+-		{ /* void */ }
+-
+-#undef _nc_entry_match
+-NCURSES_BOOL _nc_entry_match(
+-		char	*n1, 
+-		char	*n2)
+-		{ return(*(NCURSES_BOOL *)0); }
+-
+-#undef _nc_read_entry_source
+-void	_nc_read_entry_source(
+-		FILE	*fp, 
+-		char	*buf, 
+-		int	literal, 
+-		NCURSES_BOOL silent, 
+-		NCURSES_BOOL (*hook)(
+-		ENTRY	*p1))
+-		{ /* void */ }
+-
+-#undef _nc_resolve_uses2
+-int	_nc_resolve_uses2(
+-		NCURSES_BOOL fullresolve, 
+-		NCURSES_BOOL literal)
+-		{ return(*(int *)0); }
+-
+-#undef _nc_resolve_uses
+-int	_nc_resolve_uses(
+-		NCURSES_BOOL fullresolve)
+-		{ return(*(int *)0); }
+-
+-/* ./tinfo/comp_scan.c */
+-
+-#undef _nc_syntax
+-int	_nc_syntax;
+-#undef _nc_curr_file_pos
+-long	_nc_curr_file_pos;
+-#undef _nc_comment_start
+-long	_nc_comment_start;
+-#undef _nc_comment_end
+-long	_nc_comment_end;
+-#undef _nc_start_line
+-long	_nc_start_line;
+-#undef _nc_curr_token
+-struct token _nc_curr_token;
+-#undef _nc_disable_period
+-NCURSES_BOOL _nc_disable_period;
+-
+-#undef _nc_reset_input
+-void	_nc_reset_input(
+-		FILE	*fp, 
+-		char	*buf)
+-		{ /* void */ }
+-
+-#undef _nc_get_token
+-int	_nc_get_token(
+-		NCURSES_BOOL silent)
+-		{ return(*(int *)0); }
+-
+-#undef _nc_trans_string
+-int	_nc_trans_string(
+-		char	*ptr, 
+-		char	*last)
+-		{ return(*(int *)0); }
+-
+-#undef _nc_push_token
+-void	_nc_push_token(
+-		int	tokclass)
+-		{ /* void */ }
+-
+-#undef _nc_panic_mode
+-void	_nc_panic_mode(
+-		char	ch)
+-		{ /* void */ }
+-
+ /* ./tinfo/db_iterator.c */
+ 
+ #undef _nc_tic_dir
+@@ -2400,6 +2270,34 @@
+ 		size_t	amount)
+ 		{ return(*(void **)0); }
+ 
++/* ./tinfo/entries.c */
++
++#undef _nc_head
++ENTRY	*_nc_head;
++#undef _nc_tail
++ENTRY	*_nc_tail;
++
++#undef _nc_free_entry
++void	_nc_free_entry(
++		ENTRY	*headp, 
++		TERMTYPE *tterm)
++		{ /* void */ }
++
++#undef _nc_free_entries
++void	_nc_free_entries(
++		ENTRY	*headp)
++		{ /* void */ }
++
++#undef _nc_delink_entry
++ENTRY	*_nc_delink_entry(
++		ENTRY	*headp, 
++		TERMTYPE *tterm)
++		{ return(*(ENTRY **)0); }
++
++#undef _nc_leaks_tinfo
++void	_nc_leaks_tinfo(void)
++		{ /* void */ }
++
+ /* ./fallback.c */
+ 
+ #undef _nc_fallback
+@@ -2442,7 +2340,7 @@
+ #include <init_keytry.h>
+ 
+ #undef _nc_tinfo_fkeys
+-struct tinfo_fkeys _nc_tinfo_fkeys[];
++const struct tinfo_fkeys _nc_tinfo_fkeys[] = {0};
+ 
+ #endif
+ 
+@@ -2509,6 +2407,10 @@
+ SCREEN	*_nc_screen_chain;
+ #undef SP
+ SCREEN	*SP;
++#undef _nc_globals
++NCURSES_GLOBALS _nc_globals;
++#undef _nc_prescreen
++NCURSES_PRESCREEN _nc_prescreen;
+ 
+ /* ./tinfo/lib_has_cap.c */
+ 
+@@ -2536,8 +2438,7 @@
+ 
+ /* ./lib_keyname.c */
+ 
+-#undef _nc_key_names
+-const struct kn _nc_key_names[] = {0};
++struct kn { short offset; int code; };
+ 
+ #undef keyname
+ char	*keyname(
+@@ -2677,7 +2578,7 @@
+ 
+ #undef _nc_handle_sigwinch
+ int	_nc_handle_sigwinch(
+-		int	enable)
++		int	update)
+ 		{ return(*(int *)0); }
+ 
+ #undef use_env
+@@ -2685,6 +2586,12 @@
+ 		NCURSES_BOOL f)
+ 		{ /* void */ }
+ 
++#undef _nc_get_screensize
++void	_nc_get_screensize(
++		int	*linep, 
++		int	*colp)
++		{ /* void */ }
++
+ #undef _nc_update_screensize
+ void	_nc_update_screensize(void)
+ 		{ /* void */ }
+@@ -2785,14 +2692,6 @@
+ 
+ /* ./tinfo/lib_tparm.c */
+ 
+-typedef struct {
+-    union {
+- int num;
+- char *str;
+-    } data;
+-    NCURSES_BOOL num_type;
+-} stack_frame;
+-
+ #undef _nc_tparm_err
+ int	_nc_tparm_err;
+ 
+@@ -3047,26 +2946,6 @@
+ #undef strfnames
+ char	*const strfnames[] = {0};
+ 
+-/* ./tinfo/parse_entry.c */
+-
+-#undef _nc_parse_entry
+-int	_nc_parse_entry(
+-		struct entry *entryp, 
+-		int	literal, 
+-		NCURSES_BOOL silent)
+-		{ return(*(int *)0); }
+-
+-#undef _nc_capcmp
+-int	_nc_capcmp(
+-		const char *s, 
+-		const char *t)
+-		{ return(*(int *)0); }
+-
+-typedef struct {
+-    const char *from;
+-    const char *to;
+-} assoc;
+-
+ /* ./tinfo/read_entry.c */
+ 
+ #include <hashed_db.h>
+@@ -3144,11 +3023,6 @@
+ 
+ /* ./trace/trace_buf.c */
+ 
+-typedef struct {
+-    char *text;
+-    size_t size;
+-} LIST;
+-
+ #undef _nc_trace_buf
+ char	*_nc_trace_buf(
+ 		int	bufnum, 
+@@ -3165,14 +3039,14 @@
+ 
+ #undef _nc_trace_tries
+ void	_nc_trace_tries(
+-		struct tries *tree)
++		TRIES	*tree)
+ 		{ /* void */ }
+ 
+ /* ./base/tries.c */
+ 
+ #undef _nc_expand_try
+ char	*_nc_expand_try(
+-		struct tries *tree, 
++		TRIES	*tree, 
+ 		unsigned code, 
+ 		int	*count, 
+ 		size_t	len)
+@@ -3180,13 +3054,13 @@
+ 
+ #undef _nc_remove_key
+ int	_nc_remove_key(
+-		struct tries **tree, 
++		TRIES	**tree, 
+ 		unsigned code)
+ 		{ return(*(int *)0); }
+ 
+ #undef _nc_remove_string
+ int	_nc_remove_string(
+-		struct tries **tree, 
++		TRIES	**tree, 
+ 		const char *string)
+ 		{ return(*(int *)0); }
+ 
+@@ -3236,6 +3110,195 @@
+ 		int	len)
+ 		{ return(*(const char **)0); }
+ 
++/* ./tinfo/alloc_entry.c */
++
++#undef _nc_init_entry
++void	_nc_init_entry(
++		TERMTYPE *const tp)
++		{ /* void */ }
++
++#undef _nc_copy_entry
++ENTRY	*_nc_copy_entry(
++		ENTRY	*oldp)
++		{ return(*(ENTRY **)0); }
++
++#undef _nc_save_str
++char	*_nc_save_str(
++		const char *const string)
++		{ return(*(char **)0); }
++
++#undef _nc_wrap_entry
++void	_nc_wrap_entry(
++		ENTRY	*const ep, 
++		NCURSES_BOOL copy_strings)
++		{ /* void */ }
++
++#undef _nc_merge_entry
++void	_nc_merge_entry(
++		TERMTYPE *const to, 
++		TERMTYPE *const from)
++		{ /* void */ }
++
++/* ./tinfo/captoinfo.c */
++
++#undef _nc_captoinfo
++char	*_nc_captoinfo(
++		const char *cap, 
++		const char *s, 
++		int const parameterized)
++		{ return(*(char **)0); }
++
++#undef _nc_infotocap
++char	*_nc_infotocap(
++		const char *cap, 
++		const char *str, 
++		int const parameterized)
++		{ return(*(char **)0); }
++
++/* ./comp_captab.c */
++
++#include <hashsize.h>
++
++#undef _nc_get_table
++const struct name_table_entry *_nc_get_table(
++		NCURSES_BOOL termcap)
++		{ return(*(const struct name_table_entry **)0); }
++
++#undef _nc_get_hash_table
++const short *_nc_get_hash_table(
++		NCURSES_BOOL termcap)
++		{ return(*(const short **)0); }
++
++#undef _nc_get_alias_table
++const struct alias *_nc_get_alias_table(
++		NCURSES_BOOL termcap)
++		{ return(*(const struct alias **)0); }
++
++/* ./tinfo/comp_expand.c */
++
++#undef _nc_tic_expand
++char	*_nc_tic_expand(
++		const char *srcp, 
++		NCURSES_BOOL tic_format, 
++		int	numbers)
++		{ return(*(char **)0); }
++
++/* ./tinfo/comp_hash.c */
++
++#undef _nc_find_entry
++struct name_table_entry const *_nc_find_entry(
++		const char *string, 
++		const short *hash_table)
++		{ return(*(struct name_table_entry const **)0); }
++
++#undef _nc_find_type_entry
++struct name_table_entry const *_nc_find_type_entry(
++		const char *string, 
++		int	type, 
++		const struct name_table_entry *table)
++		{ return(*(struct name_table_entry const **)0); }
++
++/* ./tinfo/comp_parse.c */
++
++#undef _nc_check_termtype2
++void	(*_nc_check_termtype2)(
++		TERMTYPE *p1, 
++		NCURSES_BOOL p2);
++#undef _nc_check_termtype
++void	(*_nc_check_termtype)(
++		TERMTYPE *p1);
++
++#undef _nc_entry_match
++NCURSES_BOOL _nc_entry_match(
++		char	*n1, 
++		char	*n2)
++		{ return(*(NCURSES_BOOL *)0); }
++
++#undef _nc_read_entry_source
++void	_nc_read_entry_source(
++		FILE	*fp, 
++		char	*buf, 
++		int	literal, 
++		NCURSES_BOOL silent, 
++		NCURSES_BOOL (*hook)(
++		ENTRY	*p1))
++		{ /* void */ }
++
++#undef _nc_resolve_uses2
++int	_nc_resolve_uses2(
++		NCURSES_BOOL fullresolve, 
++		NCURSES_BOOL literal)
++		{ return(*(int *)0); }
++
++#undef _nc_resolve_uses
++int	_nc_resolve_uses(
++		NCURSES_BOOL fullresolve)
++		{ return(*(int *)0); }
++
++/* ./tinfo/comp_scan.c */
++
++#undef _nc_syntax
++int	_nc_syntax;
++#undef _nc_curr_file_pos
++long	_nc_curr_file_pos;
++#undef _nc_comment_start
++long	_nc_comment_start;
++#undef _nc_comment_end
++long	_nc_comment_end;
++#undef _nc_start_line
++long	_nc_start_line;
++#undef _nc_curr_token
++struct token _nc_curr_token;
++#undef _nc_disable_period
++NCURSES_BOOL _nc_disable_period;
++
++#undef _nc_reset_input
++void	_nc_reset_input(
++		FILE	*fp, 
++		char	*buf)
++		{ /* void */ }
++
++#undef _nc_get_token
++int	_nc_get_token(
++		NCURSES_BOOL silent)
++		{ return(*(int *)0); }
++
++#undef _nc_trans_string
++int	_nc_trans_string(
++		char	*ptr, 
++		char	*last)
++		{ return(*(int *)0); }
++
++#undef _nc_push_token
++void	_nc_push_token(
++		int	tokclass)
++		{ /* void */ }
++
++#undef _nc_panic_mode
++void	_nc_panic_mode(
++		char	ch)
++		{ /* void */ }
++
++/* ./tinfo/parse_entry.c */
++
++#undef _nc_parse_entry
++int	_nc_parse_entry(
++		struct entry *entryp, 
++		int	literal, 
++		NCURSES_BOOL silent)
++		{ return(*(int *)0); }
++
++#undef _nc_capcmp
++int	_nc_capcmp(
++		const char *s, 
++		const char *t)
++		{ return(*(int *)0); }
++
++typedef struct {
++    const char *from;
++    const char *to;
++} assoc;
++
+ /* ./tinfo/write_entry.c */
+ 
+ #undef _nc_set_writedir
+Index: ncurses/llib-lncursesw
+--- ncurses-5.6-20070812+/ncurses/llib-lncursesw	2006-12-17 17:37:36.000000000 +0000
++++ ncurses-5.6-20070818/ncurses/llib-lncursesw	2007-08-18 23:01:48.000000000 +0000
+@@ -1066,6 +1066,11 @@
+ 		WINDOW	*z)
+ 		{ return(*(int *)0); }
+ 
++#undef getattrs
++int	getattrs(
++		const WINDOW *z)
++		{ return(*(int *)0); }
++
+ #undef getcurx
+ int	getcurx(
+ 		const WINDOW *z)
+@@ -1106,6 +1111,68 @@
+ 		const WINDOW *z)
+ 		{ return(*(int *)0); }
+ 
++#undef wgetparent
++WINDOW	*wgetparent(
++		const WINDOW *z)
++		{ return(*(WINDOW **)0); }
++
++#undef is_cleared
++NCURSES_BOOL is_cleared(
++		const WINDOW *z)
++		{ return(*(NCURSES_BOOL *)0); }
++
++#undef is_idcok
++NCURSES_BOOL is_idcok(
++		const WINDOW *z)
++		{ return(*(NCURSES_BOOL *)0); }
++
++#undef is_idlok
++NCURSES_BOOL is_idlok(
++		const WINDOW *z)
++		{ return(*(NCURSES_BOOL *)0); }
++
++#undef is_immedok
++NCURSES_BOOL is_immedok(
++		const WINDOW *z)
++		{ return(*(NCURSES_BOOL *)0); }
++
++#undef is_keypad
++NCURSES_BOOL is_keypad(
++		const WINDOW *z)
++		{ return(*(NCURSES_BOOL *)0); }
++
++#undef is_leaveok
++NCURSES_BOOL is_leaveok(
++		const WINDOW *z)
++		{ return(*(NCURSES_BOOL *)0); }
++
++#undef is_nodelay
++NCURSES_BOOL is_nodelay(
++		const WINDOW *z)
++		{ return(*(NCURSES_BOOL *)0); }
++
++#undef is_notimeout
++NCURSES_BOOL is_notimeout(
++		const WINDOW *z)
++		{ return(*(NCURSES_BOOL *)0); }
++
++#undef is_scrollok
++NCURSES_BOOL is_scrollok(
++		const WINDOW *z)
++		{ return(*(NCURSES_BOOL *)0); }
++
++#undef is_syncok
++NCURSES_BOOL is_syncok(
++		const WINDOW *z)
++		{ return(*(NCURSES_BOOL *)0); }
++
++#undef wgetscrreg
++int	wgetscrreg(
++		const WINDOW *a1, 
++		int	*a2, 
++		int	*z)
++		{ return(*(int *)0); }
++
+ #undef add_wch
+ int	add_wch(
+ 		const cchar_t *z)
+@@ -2529,14 +2596,6 @@
+ 		void	*opts)
+ 		{ return(*(int *)0); }
+ 
+-/* ./widechar/lib_get_wch.c */
+-
+-#undef wget_wch
+-int	wget_wch(
+-		WINDOW	*win, 
+-		wint_t	*result)
+-		{ return(*(int *)0); }
+-
+ /* ./widechar/lib_erasewchar.c */
+ 
+ #undef erasewchar
+@@ -2549,6 +2608,14 @@
+ 		wchar_t	*wch)
+ 		{ return(*(int *)0); }
+ 
++/* ./widechar/lib_get_wch.c */
++
++#undef wget_wch
++int	wget_wch(
++		WINDOW	*win, 
++		wint_t	*result)
++		{ return(*(int *)0); }
++
+ /* ./widechar/lib_get_wstr.c */
+ 
+ #undef wgetn_wstr
+@@ -2614,6 +2681,13 @@
+ 		wchar_t	*wstr)
+ 		{ return(*(int *)0); }
+ 
++/* ./widechar/lib_key_name.c */
++
++#undef key_name
++char	*key_name(
++		wchar_t	c)
++		{ return(*(char **)0); }
++
+ /* ./widechar/lib_pecho_wchar.c */
+ 
+ #undef pecho_wchar
+@@ -2832,40 +2906,11 @@
+ /* ./tinfo/add_tries.c */
+ 
+ #undef _nc_add_to_try
+-void	_nc_add_to_try(
+-		struct tries **tree, 
++int	_nc_add_to_try(
++		TRIES	**tree, 
+ 		const char *str, 
+ 		unsigned code)
+-		{ /* void */ }
+-
+-/* ./tinfo/alloc_entry.c */
+-
+-#undef _nc_init_entry
+-void	_nc_init_entry(
+-		TERMTYPE *const tp)
+-		{ /* void */ }
+-
+-#undef _nc_copy_entry
+-ENTRY	*_nc_copy_entry(
+-		ENTRY	*oldp)
+-		{ return(*(ENTRY **)0); }
+-
+-#undef _nc_save_str
+-char	*_nc_save_str(
+-		const char *const string)
+-		{ return(*(char **)0); }
+-
+-#undef _nc_wrap_entry
+-void	_nc_wrap_entry(
+-		ENTRY	*const ep, 
+-		NCURSES_BOOL copy_strings)
+-		{ /* void */ }
+-
+-#undef _nc_merge_entry
+-void	_nc_merge_entry(
+-		TERMTYPE *const to, 
+-		TERMTYPE *const from)
+-		{ /* void */ }
++		{ return(*(int *)0); }
+ 
+ /* ./tinfo/alloc_ttype.c */
+ 
+@@ -2881,22 +2926,6 @@
+ 		TERMTYPE *src)
+ 		{ /* void */ }
+ 
+-/* ./tinfo/captoinfo.c */
+-
+-#undef _nc_captoinfo
+-char	*_nc_captoinfo(
+-		const char *cap, 
+-		const char *s, 
+-		int const parameterized)
+-		{ return(*(char **)0); }
+-
+-#undef _nc_infotocap
+-char	*_nc_infotocap(
+-		const char *cap, 
+-		const char *str, 
+-		int const parameterized)
+-		{ return(*(char **)0); }
+-
+ /* ./codes.c */
+ 
+ #undef boolcodes
+@@ -2906,31 +2935,7 @@
+ #undef strcodes
+ char	*const strcodes[] = {0};
+ 
+-/* ./comp_captab.c */
+-
+-#include <ncurses_cfg.h>
+-
+-#undef _nc_info_hash_table
+-const struct name_table_entry *const _nc_info_hash_table[995] = {0};
+-#undef _nc_cap_hash_table
+-const struct name_table_entry *const _nc_cap_hash_table[995] = {0};
+-#undef _nc_capalias_table
+-const struct alias _nc_capalias_table[] = {0};
+-#undef _nc_infoalias_table
+-const struct alias _nc_infoalias_table[] = {0};
+-
+-#undef _nc_get_table
+-const struct name_table_entry *_nc_get_table(
+-		NCURSES_BOOL termcap)
+-		{ return(*(const struct name_table_entry **)0); }
+-
+-#undef _nc_get_hash_table
+-const struct name_table_entry *const *_nc_get_hash_table(
+-		NCURSES_BOOL termcap)
+-		{ return(*(const struct name_table_entry **)0); }
+-
+ /* ./tinfo/comp_error.c */
+-
+ #undef _nc_suppress_warnings
+ NCURSES_BOOL _nc_suppress_warnings;
+ #undef _nc_curr_line
+@@ -2975,134 +2980,6 @@
+ 		...)
+ 		{ /* void */ }
+ 
+-/* ./tinfo/comp_expand.c */
+-
+-#undef _nc_tic_expand
+-char	*_nc_tic_expand(
+-		const char *srcp, 
+-		NCURSES_BOOL tic_format, 
+-		int	numbers)
+-		{ return(*(char **)0); }
+-
+-/* ./tinfo/comp_hash.c */
+-
+-#include <hashsize.h>
+-
+-#undef _nc_find_entry
+-struct name_table_entry const *_nc_find_entry(
+-		const char *string, 
+-		const struct name_table_entry *const *hash_table)
+-		{ return(*(struct name_table_entry const **)0); }
+-
+-#undef _nc_find_type_entry
+-struct name_table_entry const *_nc_find_type_entry(
+-		const char *string, 
+-		int	type, 
+-		const struct name_table_entry *table)
+-		{ return(*(struct name_table_entry const **)0); }
+-
+-/* ./tinfo/comp_parse.c */
+-
+-#undef _nc_check_termtype2
+-void	(*_nc_check_termtype2)(
+-		TERMTYPE *p1, 
+-		NCURSES_BOOL p2);
+-#undef _nc_check_termtype
+-void	(*_nc_check_termtype)(
+-		TERMTYPE *p1);
+-#undef _nc_head
+-ENTRY	*_nc_head;
+-#undef _nc_tail
+-ENTRY	*_nc_tail;
+-
+-#undef _nc_free_entries
+-void	_nc_free_entries(
+-		ENTRY	*headp)
+-		{ /* void */ }
+-
+-#undef _nc_delink_entry
+-ENTRY	*_nc_delink_entry(
+-		ENTRY	*headp, 
+-		TERMTYPE *tterm)
+-		{ return(*(ENTRY **)0); }
+-
+-#undef _nc_free_entry
+-void	_nc_free_entry(
+-		ENTRY	*headp, 
+-		TERMTYPE *tterm)
+-		{ /* void */ }
+-
+-#undef _nc_entry_match
+-NCURSES_BOOL _nc_entry_match(
+-		char	*n1, 
+-		char	*n2)
+-		{ return(*(NCURSES_BOOL *)0); }
+-
+-#undef _nc_read_entry_source
+-void	_nc_read_entry_source(
+-		FILE	*fp, 
+-		char	*buf, 
+-		int	literal, 
+-		NCURSES_BOOL silent, 
+-		NCURSES_BOOL (*hook)(
+-		ENTRY	*p1))
+-		{ /* void */ }
+-
+-#undef _nc_resolve_uses2
+-int	_nc_resolve_uses2(
+-		NCURSES_BOOL fullresolve, 
+-		NCURSES_BOOL literal)
+-		{ return(*(int *)0); }
+-
+-#undef _nc_resolve_uses
+-int	_nc_resolve_uses(
+-		NCURSES_BOOL fullresolve)
+-		{ return(*(int *)0); }
+-
+-/* ./tinfo/comp_scan.c */
+-
+-#undef _nc_syntax
+-int	_nc_syntax;
+-#undef _nc_curr_file_pos
+-long	_nc_curr_file_pos;
+-#undef _nc_comment_start
+-long	_nc_comment_start;
+-#undef _nc_comment_end
+-long	_nc_comment_end;
+-#undef _nc_start_line
+-long	_nc_start_line;
+-#undef _nc_curr_token
+-struct token _nc_curr_token;
+-#undef _nc_disable_period
+-NCURSES_BOOL _nc_disable_period;
+-
+-#undef _nc_reset_input
+-void	_nc_reset_input(
+-		FILE	*fp, 
+-		char	*buf)
+-		{ /* void */ }
+-
+-#undef _nc_get_token
+-int	_nc_get_token(
+-		NCURSES_BOOL silent)
+-		{ return(*(int *)0); }
+-
+-#undef _nc_trans_string
+-int	_nc_trans_string(
+-		char	*ptr, 
+-		char	*last)
+-		{ return(*(int *)0); }
+-
+-#undef _nc_push_token
+-void	_nc_push_token(
+-		int	tokclass)
+-		{ /* void */ }
+-
+-#undef _nc_panic_mode
+-void	_nc_panic_mode(
+-		char	ch)
+-		{ /* void */ }
+-
+ /* ./tinfo/db_iterator.c */
+ 
+ #undef _nc_tic_dir
+@@ -3139,6 +3016,34 @@
+ 		size_t	amount)
+ 		{ return(*(void **)0); }
+ 
++/* ./tinfo/entries.c */
++
++#undef _nc_head
++ENTRY	*_nc_head;
++#undef _nc_tail
++ENTRY	*_nc_tail;
++
++#undef _nc_free_entry
++void	_nc_free_entry(
++		ENTRY	*headp, 
++		TERMTYPE *tterm)
++		{ /* void */ }
++
++#undef _nc_free_entries
++void	_nc_free_entries(
++		ENTRY	*headp)
++		{ /* void */ }
++
++#undef _nc_delink_entry
++ENTRY	*_nc_delink_entry(
++		ENTRY	*headp, 
++		TERMTYPE *tterm)
++		{ return(*(ENTRY **)0); }
++
++#undef _nc_leaks_tinfo
++void	_nc_leaks_tinfo(void)
++		{ /* void */ }
++
+ /* ./fallback.c */
+ 
+ #undef _nc_fallback
+@@ -3181,7 +3086,7 @@
+ #include <init_keytry.h>
+ 
+ #undef _nc_tinfo_fkeys
+-struct tinfo_fkeys _nc_tinfo_fkeys[];
++const struct tinfo_fkeys _nc_tinfo_fkeys[] = {0};
+ 
+ #endif
+ 
+@@ -3248,6 +3153,10 @@
+ SCREEN	*_nc_screen_chain;
+ #undef SP
+ SCREEN	*SP;
++#undef _nc_globals
++NCURSES_GLOBALS _nc_globals;
++#undef _nc_prescreen
++NCURSES_PRESCREEN _nc_prescreen;
+ 
+ /* ./tinfo/lib_has_cap.c */
+ 
+@@ -3275,19 +3184,13 @@
+ 
+ /* ./lib_keyname.c */
+ 
+-#undef _nc_key_names
+-const struct kn _nc_key_names[] = {0};
++struct kn { short offset; int code; };
+ 
+ #undef keyname
+ char	*keyname(
+ 		int	c)
+ 		{ return(*(char **)0); }
+ 
+-#undef key_name
+-char	*key_name(
+-		wchar_t	c)
+-		{ return(*(char **)0); }
+-
+ /* ./tinfo/lib_longname.c */
+ 
+ #undef longname
+@@ -3421,7 +3324,7 @@
+ 
+ #undef _nc_handle_sigwinch
+ int	_nc_handle_sigwinch(
+-		int	enable)
++		int	update)
+ 		{ return(*(int *)0); }
+ 
+ #undef use_env
+@@ -3429,6 +3332,12 @@
+ 		NCURSES_BOOL f)
+ 		{ /* void */ }
+ 
++#undef _nc_get_screensize
++void	_nc_get_screensize(
++		int	*linep, 
++		int	*colp)
++		{ /* void */ }
++
+ #undef _nc_update_screensize
+ void	_nc_update_screensize(void)
+ 		{ /* void */ }
+@@ -3529,14 +3438,6 @@
+ 
+ /* ./tinfo/lib_tparm.c */
+ 
+-typedef struct {
+-    union {
+- int num;
+- char *str;
+-    } data;
+-    NCURSES_BOOL num_type;
+-} stack_frame;
+-
+ #undef _nc_tparm_err
+ int	_nc_tparm_err;
+ 
+@@ -3802,26 +3703,6 @@
+ #undef strfnames
+ char	*const strfnames[] = {0};
+ 
+-/* ./tinfo/parse_entry.c */
+-
+-#undef _nc_parse_entry
+-int	_nc_parse_entry(
+-		struct entry *entryp, 
+-		int	literal, 
+-		NCURSES_BOOL silent)
+-		{ return(*(int *)0); }
+-
+-#undef _nc_capcmp
+-int	_nc_capcmp(
+-		const char *s, 
+-		const char *t)
+-		{ return(*(int *)0); }
+-
+-typedef struct {
+-    const char *from;
+-    const char *to;
+-} assoc;
+-
+ /* ./tinfo/read_entry.c */
+ 
+ #include <hashed_db.h>
+@@ -3899,11 +3780,6 @@
+ 
+ /* ./trace/trace_buf.c */
+ 
+-typedef struct {
+-    char *text;
+-    size_t size;
+-} LIST;
+-
+ #undef _nc_trace_buf
+ char	*_nc_trace_buf(
+ 		int	bufnum, 
+@@ -3920,14 +3796,14 @@
+ 
+ #undef _nc_trace_tries
+ void	_nc_trace_tries(
+-		struct tries *tree)
++		TRIES	*tree)
+ 		{ /* void */ }
+ 
+ /* ./base/tries.c */
+ 
+ #undef _nc_expand_try
+ char	*_nc_expand_try(
+-		struct tries *tree, 
++		TRIES	*tree, 
+ 		unsigned code, 
+ 		int	*count, 
+ 		size_t	len)
+@@ -3935,13 +3811,13 @@
+ 
+ #undef _nc_remove_key
+ int	_nc_remove_key(
+-		struct tries **tree, 
++		TRIES	**tree, 
+ 		unsigned code)
+ 		{ return(*(int *)0); }
+ 
+ #undef _nc_remove_string
+ int	_nc_remove_string(
+-		struct tries **tree, 
++		TRIES	**tree, 
+ 		const char *string)
+ 		{ return(*(int *)0); }
+ 
+@@ -4013,6 +3889,195 @@
+ 		int	len)
+ 		{ return(*(const char **)0); }
+ 
++/* ./tinfo/alloc_entry.c */
++
++#undef _nc_init_entry
++void	_nc_init_entry(
++		TERMTYPE *const tp)
++		{ /* void */ }
++
++#undef _nc_copy_entry
++ENTRY	*_nc_copy_entry(
++		ENTRY	*oldp)
++		{ return(*(ENTRY **)0); }
++
++#undef _nc_save_str
++char	*_nc_save_str(
++		const char *const string)
++		{ return(*(char **)0); }
++
++#undef _nc_wrap_entry
++void	_nc_wrap_entry(
++		ENTRY	*const ep, 
++		NCURSES_BOOL copy_strings)
++		{ /* void */ }
++
++#undef _nc_merge_entry
++void	_nc_merge_entry(
++		TERMTYPE *const to, 
++		TERMTYPE *const from)
++		{ /* void */ }
++
++/* ./tinfo/captoinfo.c */
++
++#undef _nc_captoinfo
++char	*_nc_captoinfo(
++		const char *cap, 
++		const char *s, 
++		int const parameterized)
++		{ return(*(char **)0); }
++
++#undef _nc_infotocap
++char	*_nc_infotocap(
++		const char *cap, 
++		const char *str, 
++		int const parameterized)
++		{ return(*(char **)0); }
++
++/* ./comp_captab.c */
++
++#include <hashsize.h>
++
++#undef _nc_get_table
++const struct name_table_entry *_nc_get_table(
++		NCURSES_BOOL termcap)
++		{ return(*(const struct name_table_entry **)0); }
++
++#undef _nc_get_hash_table
++const short *_nc_get_hash_table(
++		NCURSES_BOOL termcap)
++		{ return(*(const short **)0); }
++
++#undef _nc_get_alias_table
++const struct alias *_nc_get_alias_table(
++		NCURSES_BOOL termcap)
++		{ return(*(const struct alias **)0); }
++
++/* ./tinfo/comp_expand.c */
++
++#undef _nc_tic_expand
++char	*_nc_tic_expand(
++		const char *srcp, 
++		NCURSES_BOOL tic_format, 
++		int	numbers)
++		{ return(*(char **)0); }
++
++/* ./tinfo/comp_hash.c */
++
++#undef _nc_find_entry
++struct name_table_entry const *_nc_find_entry(
++		const char *string, 
++		const short *hash_table)
++		{ return(*(struct name_table_entry const **)0); }
++
++#undef _nc_find_type_entry
++struct name_table_entry const *_nc_find_type_entry(
++		const char *string, 
++		int	type, 
++		const struct name_table_entry *table)
++		{ return(*(struct name_table_entry const **)0); }
++
++/* ./tinfo/comp_parse.c */
++
++#undef _nc_check_termtype2
++void	(*_nc_check_termtype2)(
++		TERMTYPE *p1, 
++		NCURSES_BOOL p2);
++#undef _nc_check_termtype
++void	(*_nc_check_termtype)(
++		TERMTYPE *p1);
++
++#undef _nc_entry_match
++NCURSES_BOOL _nc_entry_match(
++		char	*n1, 
++		char	*n2)
++		{ return(*(NCURSES_BOOL *)0); }
++
++#undef _nc_read_entry_source
++void	_nc_read_entry_source(
++		FILE	*fp, 
++		char	*buf, 
++		int	literal, 
++		NCURSES_BOOL silent, 
++		NCURSES_BOOL (*hook)(
++		ENTRY	*p1))
++		{ /* void */ }
++
++#undef _nc_resolve_uses2
++int	_nc_resolve_uses2(
++		NCURSES_BOOL fullresolve, 
++		NCURSES_BOOL literal)
++		{ return(*(int *)0); }
++
++#undef _nc_resolve_uses
++int	_nc_resolve_uses(
++		NCURSES_BOOL fullresolve)
++		{ return(*(int *)0); }
++
++/* ./tinfo/comp_scan.c */
++
++#undef _nc_syntax
++int	_nc_syntax;
++#undef _nc_curr_file_pos
++long	_nc_curr_file_pos;
++#undef _nc_comment_start
++long	_nc_comment_start;
++#undef _nc_comment_end
++long	_nc_comment_end;
++#undef _nc_start_line
++long	_nc_start_line;
++#undef _nc_curr_token
++struct token _nc_curr_token;
++#undef _nc_disable_period
++NCURSES_BOOL _nc_disable_period;
++
++#undef _nc_reset_input
++void	_nc_reset_input(
++		FILE	*fp, 
++		char	*buf)
++		{ /* void */ }
++
++#undef _nc_get_token
++int	_nc_get_token(
++		NCURSES_BOOL silent)
++		{ return(*(int *)0); }
++
++#undef _nc_trans_string
++int	_nc_trans_string(
++		char	*ptr, 
++		char	*last)
++		{ return(*(int *)0); }
++
++#undef _nc_push_token
++void	_nc_push_token(
++		int	tokclass)
++		{ /* void */ }
++
++#undef _nc_panic_mode
++void	_nc_panic_mode(
++		char	ch)
++		{ /* void */ }
++
++/* ./tinfo/parse_entry.c */
++
++#undef _nc_parse_entry
++int	_nc_parse_entry(
++		struct entry *entryp, 
++		int	literal, 
++		NCURSES_BOOL silent)
++		{ return(*(int *)0); }
++
++#undef _nc_capcmp
++int	_nc_capcmp(
++		const char *s, 
++		const char *t)
++		{ return(*(int *)0); }
++
++typedef struct {
++    const char *from;
++    const char *to;
++} assoc;
++
+ /* ./tinfo/write_entry.c */
+ 
+ #undef _nc_set_writedir
+Index: ncurses/tinfo/MKcodes.awk
+--- /dev/null	2007-08-19 00:25:34.088494000 +0000
++++ ncurses-5.6-20070818/ncurses/tinfo/MKcodes.awk	2007-08-18 21:00:00.000000000 +0000
+@@ -0,0 +1,150 @@
++##############################################################################
++# Copyright (c) 1998-2006,2007 Free Software Foundation, Inc.                #
++#                                                                            #
++# Permission is hereby granted, free of charge, to any person obtaining a    #
++# copy of this software and associated documentation files (the "Software"), #
++# to deal in the Software without restriction, including without limitation  #
++# the rights to use, copy, modify, merge, publish, distribute, distribute    #
++# with modifications, sublicense, and/or sell copies of the Software, and to #
++# permit persons to whom the Software is furnished to do so, subject to the  #
++# following conditions:                                                      #
++#                                                                            #
++# The above copyright notice and this permission notice shall be included in #
++# all copies or substantial portions of the Software.                        #
++#                                                                            #
++# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR #
++# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,   #
++# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL    #
++# THE ABOVE COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER      #
++# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING    #
++# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER        #
++# DEALINGS IN THE SOFTWARE.                                                  #
++#                                                                            #
++# Except as contained in this notice, the name(s) of the above copyright     #
++# holders shall not be used in advertising or otherwise to promote the sale, #
++# use or other dealings in this Software without prior written               #
++# authorization.                                                             #
++##############################################################################
++# $Id: MKcodes.awk,v 1.2 2007/08/18 21:00:00 tom Exp $
++function large_item(value) {
++	result = sprintf("%d,", offset);
++	offset = offset + length(value) + 1;
++	offcol = offcol + length(result) + 2;
++	if (offcol > 70) {
++		result = result "\n";
++		offcol = 0;
++	} else {
++		result = result " ";
++	}
++	bigstr = bigstr sprintf("\"%s\\0\" ", value);
++	bigcol = bigcol + length(value) + 5;
++	if (bigcol > 70) {
++		bigstr = bigstr "\\\n";
++		bigcol = 0;
++	}
++	return result;
++}
++
++function small_item(value) {
++	return sprintf("\t\t\"%s\",\n", value);
++}
++
++function print_strings(name,value) {
++	printf  "DCL(%s) = {\n", name
++	print  value
++	print  "\t\t(NCURSES_CONST char *)0,"
++	print  "};"
++	print  ""
++}
++
++function print_offsets(name,value) {
++	printf  "static const short _nc_offset_%s[] = {\n", name
++	printf "%s",  value
++	print  "};"
++	print  ""
++	printf "static char ** ptr_%s = 0;\n", name
++	print  ""
++}
++
++BEGIN	{
++		print  "/* This file was generated by MKcodes.awk */"
++		print  ""
++		print  "#include <curses.priv.h>"
++		print  ""
++		print  "#define IT NCURSES_CONST char * const"
++		print  ""
++		offset = 0;
++		offcol = 0;
++		bigcol = 0;
++	}
++
++$1 ~ /^#/		{next;}
++
++$1 == "SKIPWARN"	{next;}
++
++$3 == "bool"	{
++			small_boolcodes = small_boolcodes small_item($4);
++			large_boolcodes = large_boolcodes large_item($4);
++		}
++
++$3 == "num"	{
++			small_numcodes = small_numcodes small_item($4);
++			large_numcodes = large_numcodes large_item($4);
++		}
++
++$3 == "str"	{
++			small_strcodes = small_strcodes small_item($4);
++			large_strcodes = large_strcodes large_item($4);
++		}
++
++END	{
++		print  ""
++		print  "#if BROKEN_LINKER || USE_REENTRANT"
++		print  ""
++		print  "#include <term.h>"
++		print  ""
++		if (bigstrings) {
++			printf "static const char _nc_code_blob[] = \n"
++			printf "%s;\n", bigstr;
++			print_offsets("boolcodes", large_boolcodes);
++			print_offsets("numcodes", large_numcodes);
++			print_offsets("strcodes", large_strcodes);
++			print  ""
++			print  "static IT *"
++			print  "alloc_array(char ***value, const short *offsets, unsigned size)"
++			print  "{"
++			print  "	if (*value == 0) {"
++			print  "		if ((*value = typeCalloc(char *, size + 1)) != 0) {"
++			print  "			unsigned n;"
++			print  "			for (n = 0; n < size; ++n) {"
++			print  "				(*value)[n] = _nc_code_blob + offsets[n];"
++			print  "			}"
++			print  "		}"
++			print  "	}"
++			print  "	return *value;"
++			print  "}"
++			print  ""
++			print  "#define FIX(it) NCURSES_IMPEXP IT * NCURSES_API _nc_##it(void) { return alloc_array(&ptr_##it, _nc_offset_##it, SIZEOF(_nc_offset_##it)); }"
++		} else {
++			print  "#define DCL(it) static IT data##it[]"
++			print  ""
++			print_strings("boolcodes", small_boolcodes);
++			print_strings("numcodes", small_numcodes);
++			print_strings("strcodes", small_strcodes);
++			print  "#define FIX(it) NCURSES_IMPEXP IT * NCURSES_API _nc_##it(void) { return data##it; }"
++		}
++		print  ""
++		print  "FIX(boolcodes)"
++		print  "FIX(numcodes)"
++		print  "FIX(strcodes)"
++		print  ""
++		print  "#else"
++		print  ""
++		print  "#define DCL(it) NCURSES_EXPORT_VAR(IT) it[]"
++		print  ""
++		print_strings("boolcodes", small_boolcodes);
++		print_strings("numcodes", small_numcodes);
++		print_strings("strcodes", small_strcodes);
++		print  ""
++		print  "#endif /* BROKEN_LINKER */"
++	}
+Index: ncurses/tinfo/MKnames.awk
+Prereq:  1.12 
+--- ncurses-5.6-20070812+/ncurses/tinfo/MKnames.awk	2006-04-22 21:46:17.000000000 +0000
++++ ncurses-5.6-20070818/ncurses/tinfo/MKnames.awk	2007-08-18 21:37:52.000000000 +0000
+@@ -1,5 +1,5 @@
+ ##############################################################################
+-# Copyright (c) 1998-2000,2006 Free Software Foundation, Inc.                #
++# Copyright (c) 2007 Free Software Foundation, Inc.                          #
+ #                                                                            #
+ # Permission is hereby granted, free of charge, to any person obtaining a    #
+ # copy of this software and associated documentation files (the "Software"), #
+@@ -25,101 +25,144 @@
+ # use or other dealings in this Software without prior written               #
+ # authorization.                                                             #
+ ##############################################################################
+-# $Id: MKnames.awk,v 1.12 2006/04/22 21:46:17 tom Exp $
+-BEGIN		{
+-			print  "/* This file was generated by MKnames.awk */" > "namehdr"
+-			print  ""				> "namehdr"
+-			print  "#include <curses.priv.h>"	> "namehdr"
+-			print  ""				> "namehdr"
+-			print  "#define IT NCURSES_CONST char * const"	> "namehdr"
+-			print  ""				> "namehdr"
+-			print  "#if BROKEN_LINKER"		> "namehdr"
+-			print  "#include <term.h>"		> "namehdr"
+-			print  "#define DCL(it) static IT data##it[]" > "namehdr"
+-			print  "#else"				> "namehdr"
+-			print  "#define DCL(it) NCURSES_EXPORT_VAR(IT) it[]"	> "namehdr"
+-			print  "#endif"				> "namehdr"
+-			print  ""				> "namehdr"
+-			print  "/*"				> "boolnames"
+-			print  " *	names.c - Arrays of capability names and codes"  > "boolnames"
+-			print  " *"				> "boolnames"
+-			print  " */"				> "boolnames"
+-			print  ""				> "boolnames"
+-			print  "DCL(boolnames)  = {"		> "boolnames"
+-			print  "DCL(boolfnames) = {"		> "boolfnames"
+-			print  "DCL(boolcodes)  = {"		> "boolcodes"
+-			print  "DCL(numnames)   = {"		> "numnames"
+-			print  "DCL(numfnames)  = {"		> "numfnames"
+-			print  "DCL(numcodes)   = {"		> "numcodes"
+-			print  "DCL(strnames)   = {"		> "strnames"
+-			print  "DCL(strfnames)  = {"		> "strfnames"
+-			print  "DCL(strcodes)   = {"		> "strcodes"
+-		}
++# $Id: MKnames.awk,v 1.16 2007/08/18 21:37:52 tom Exp $
++function large_item(value) {
++	result = sprintf("%d,", offset);
++	offset = offset + length(value) + 1;
++	offcol = offcol + length(result) + 2;
++	if (offcol > 70) {
++		result = result "\n";
++		offcol = 0;
++	} else {
++		result = result " ";
++	}
++	bigstr = bigstr sprintf("\"%s\\0\" ", value);
++	bigcol = bigcol + length(value) + 5;
++	if (bigcol > 70) {
++		bigstr = bigstr "\\\n";
++		bigcol = 0;
++	}
++	return result;
++}
++
++function small_item(value) {
++	return sprintf("\t\t\"%s\",\n", value);
++}
++
++function print_strings(name,value) {
++	printf  "DCL(%s) = {\n", name
++	print  value
++	print  "\t\t(NCURSES_CONST char *)0,"
++	print  "};"
++	print  ""
++}
++
++function print_offsets(name,value) {
++	printf  "static const short _nc_offset_%s[] = {\n", name
++	printf "%s",  value
++	print  "};"
++	print  ""
++	printf "static char ** ptr_%s = 0;\n", name
++	print  ""
++}
++
++BEGIN	{
++		print  "/* This file was generated by MKnames.awk */"
++		print  ""
++		print  "#include <curses.priv.h>"
++		print  ""
++		print  "#define IT NCURSES_CONST char * const"
++		print  ""
++		offset = 0;
++		offcol = 0;
++		bigcol = 0;
++	}
+ 
+ $1 ~ /^#/		{next;}
+ 
+ $1 == "SKIPWARN"	{next;}
+ 
+ $3 == "bool"	{
+-			printf "\t\t\"%s\",\n", $2 > "boolnames"
+-			printf "\t\t\"%s\",\n", $1 > "boolfnames"
+-			printf "\t\t\"%s\",\n", $4 > "boolcodes"
++			small_boolnames = small_boolnames small_item($2);
++			large_boolnames = large_boolnames large_item($2);
++			small_boolfnames = small_boolfnames small_item($1);
++			large_boolfnames = large_boolfnames large_item($1);
+ 		}
+ 
+ $3 == "num"	{
+-			printf "\t\t\"%s\",\n", $2 > "numnames"
+-			printf "\t\t\"%s\",\n", $1 > "numfnames"
+-			printf "\t\t\"%s\",\n", $4 > "numcodes"
++			small_numnames = small_numnames small_item($2);
++			large_numnames = large_numnames large_item($2);
++			small_numfnames = small_numfnames small_item($1);
++			large_numfnames = large_numfnames large_item($1);
+ 		}
+ 
+ $3 == "str"	{
+-			printf "\t\t\"%s\",\n", $2 > "strnames"
+-			printf "\t\t\"%s\",\n", $1 > "strfnames"
+-			printf "\t\t\"%s\",\n", $4 > "strcodes"
++			small_strnames = small_strnames small_item($2);
++			large_strnames = large_strnames large_item($2);
++			small_strfnames = small_strfnames small_item($1);
++			large_strfnames = large_strfnames large_item($1);
+ 		}
+ 
+-END		{
+-			print  "\t\t(NCURSES_CONST char *)0," > "boolnames"
+-			print  "};" > "boolnames"
+-			print  "" > "boolnames"
+-			print  "\t\t(NCURSES_CONST char *)0," > "boolfnames"
+-			print  "};" > "boolfnames"
+-			print  "" > "boolfnames"
+-			print  "\t\t(NCURSES_CONST char *)0," > "boolcodes"
+-			print  "};" > "boolcodes"
+-			print  "" > "boolcodes"
+-			print  "\t\t(NCURSES_CONST char *)0," > "numnames"
+-			print  "};" > "numnames"
+-			print  "" > "numnames"
+-			print  "\t\t(NCURSES_CONST char *)0," > "numfnames"
+-			print  "};" > "numfnames"
+-			print  "" > "numfnames"
+-			print  "\t\t(NCURSES_CONST char *)0," > "numcodes"
+-			print  "};" > "numcodes"
+-			print  "" > "numcodes"
+-			print  "\t\t(NCURSES_CONST char *)0," > "strnames"
+-			print  "};" > "strnames"
+-			print  "" > "strnames"
+-			print  "\t\t(NCURSES_CONST char *)0," > "strfnames"
+-			print  "};" > "strfnames"
+-			print  "" > "strfnames"
+-			print  "\t\t(NCURSES_CONST char *)0," > "strcodes"
+-			print  "};"				> "strcodes"
+-			print  ""				> "strcodes"
+-			print  "#if BROKEN_LINKER"		> "nameftr"
+-			print  "#define FIX(it) NCURSES_IMPEXP IT * NCURSES_API _nc_##it(void) { return data##it; }" > "nameftr"
+-			print  "FIX(boolnames)"			> "nameftr"
+-			print  "FIX(boolfnames)"		> "nameftr"
+-			print  "FIX(numnames)"			> "nameftr"
+-			print  "FIX(numfnames)"			> "nameftr"
+-			print  "FIX(strnames)"			> "nameftr"
+-			print  "FIX(strfnames)"			> "nameftr"
+-			print  "#endif /* BROKEN_LINKER */"	> "nameftr"
+-			print  ""				> "codeftr"
+-			print  "#if BROKEN_LINKER"		> "codeftr"
+-			print  "#define FIX(it) NCURSES_IMPEXP IT * NCURSES_API _nc_##it(void) { return data##it; }" > "codeftr"
+-			print  "FIX(boolcodes)"			> "codeftr"
+-			print  "FIX(numcodes)"			> "codeftr"
+-			print  "FIX(strcodes)"			> "codeftr"
+-			print  "#endif /* BROKEN_LINKER */"	> "codeftr"
++END	{
++		print  ""
++		print  "#if BROKEN_LINKER || USE_REENTRANT"
++		print  ""
++		print  "#include <term.h>"
++		print  ""
++		if (bigstrings) {
++			printf "static const char _nc_name_blob[] = \n"
++			printf "%s;\n", bigstr;
++			print_offsets("boolfnames", large_boolfnames);
++			print_offsets("boolnames", large_boolnames);
++			print_offsets("numfnames", large_numfnames);
++			print_offsets("numnames", large_numnames);
++			print_offsets("strfnames", large_strfnames);
++			print_offsets("strnames", large_strnames);
++			print  ""
++			print  "static IT *"
++			print  "alloc_array(char ***value, const short *offsets, unsigned size)"
++			print  "{"
++			print  "	if (*value == 0) {"
++			print  "		if ((*value = typeCalloc(char *, size + 1)) != 0) {"
++			print  "			unsigned n;"
++			print  "			for (n = 0; n < size; ++n) {"
++			print  "				(*value)[n] = _nc_name_blob + offsets[n];"
++			print  "			}"
++			print  "		}"
++			print  "	}"
++			print  "	return *value;"
++			print  "}"
++			print  ""
++			print  "#define FIX(it) NCURSES_IMPEXP IT * NCURSES_API _nc_##it(void) { return alloc_array(&ptr_##it, _nc_offset_##it, SIZEOF(_nc_offset_##it)); }"
++		} else {
++			print  "#define DCL(it) static IT data##it[]"
++			print  ""
++			print_strings("boolnames", small_boolnames);
++			print_strings("boolfnames", small_boolfnames);
++			print_strings("numnames", small_numnames);
++			print_strings("numfnames", small_numfnames);
++			print_strings("strnames", small_strnames);
++			print_strings("strfnames", small_strfnames);
++			print  "#define FIX(it) NCURSES_IMPEXP IT * NCURSES_API _nc_##it(void) { return data##it; }"
+ 		}
++		print  ""
++		print  "FIX(boolnames)"
++		print  "FIX(boolfnames)"
++		print  "FIX(numnames)"
++		print  "FIX(numfnames)"
++		print  "FIX(strnames)"
++		print  "FIX(strfnames)"
++		print  ""
++		print  "#else"
++		print  ""
++		print  "#define DCL(it) NCURSES_EXPORT_VAR(IT) it[]"
++		print  ""
++		print_strings("boolnames", small_boolnames);
++		print_strings("boolfnames", small_boolfnames);
++		print_strings("numnames", small_numnames);
++		print_strings("numfnames", small_numfnames);
++		print_strings("strnames", small_strnames);
++		print_strings("strfnames", small_strfnames);
++		print  ""
++		print  "#endif /* BROKEN_LINKER */"
++	}
+Index: ncurses/tinfo/comp_hash.c
+Prereq:  1.32 
+--- ncurses-5.6-20070812+/ncurses/tinfo/comp_hash.c	2007-08-12 00:40:27.000000000 +0000
++++ ncurses-5.6-20070818/ncurses/tinfo/comp_hash.c	2007-08-18 21:42:25.000000000 +0000
+@@ -50,7 +50,7 @@
+ #define DEBUG(level, params)	/*nothing */
+ #endif
+ 
+-MODULE_ID("$Id: comp_hash.c,v 1.32 2007/08/12 00:40:27 tom Exp $")
++MODULE_ID("$Id: comp_hash.c,v 1.33 2007/08/18 21:42:25 tom Exp $")
+ 
+ static int hash_function(const char *);
+ 
+@@ -299,17 +299,17 @@
+ 	int len = 0;
+ 	int nxt;
+ 
+-	printf("static const char %s_names_text[] = \"\\\n", root_name);
++	printf("static const char %s_names_text[] = \\\n", root_name);
+ 	for (n = 0; n < CAPTABSIZE; n++) {
+-	    nxt = strlen(name_table[n].nte_name) + 2;
++	    nxt = strlen(name_table[n].nte_name) + 5;
+ 	    if (nxt + len > 72) {
+ 		printf("\\\n");
+ 		len = 0;
+ 	    }
+-	    printf("%s\\0", name_table[n].nte_name);
++	    printf("\"%s\\0\" ", name_table[n].nte_name);
+ 	    len += nxt;
+ 	}
+-	printf("\";\n\n");
++	printf(";\n\n");
+ 
+ 	len = 0;
+ 	printf("static name_table_data const %s_names_data[] =\n",
+Index: test/README
+Prereq:  1.34 
+--- ncurses-5.6-20070812+/test/README	2007-07-21 22:41:06.000000000 +0000
++++ ncurses-5.6-20070818/test/README	2007-08-18 23:12:24.000000000 +0000
+@@ -25,7 +25,7 @@
+ -- sale, use or other dealings in this Software without prior written        --
+ -- authorization.                                                            --
+ -------------------------------------------------------------------------------
+--- $Id: README,v 1.34 2007/07/21 22:41:06 tom Exp $
++-- $Id: README,v 1.35 2007/08/18 23:12:24 tom Exp $
+ -------------------------------------------------------------------------------
+ 
+ The programs in this directory are designed to test your newest toy :-)
+@@ -213,9 +213,9 @@
+ COLORS				test: echochar ncurses savescreen xmas
+ COLOR_PAIR			test: background blue bs cardfile demo_forms demo_menus demo_panels echochar filter firework gdc hanoi ins_wide inserts knight ncurses newdemo rain savescreen tclock testaddch testcurs view worm xmas
+ COLOR_PAIRS			test: echochar ncurses newdemo savescreen
+-COLS				test: cardfile demo_altkeys demo_defkey demo_forms demo_keyok demo_menus demo_panels echochar edit_field firework foldkeys hashtest inch_wide inchs ins_wide inserts lrtest movewindow ncurses newdemo rain savescreen tclock test_get_wstr test_getstr test_instr test_inwstr testcurs view worm
++COLS				test: cardfile demo_altkeys demo_defkey demo_forms demo_keyok demo_menus demo_panels echochar edit_field firework foldkeys hashtest inch_wide inchs ins_wide inserts lrtest movewindow ncurses newdemo rain savescreen tclock test_get_wstr test_getstr test_instr test_inwstr test_opaque testcurs view worm
+ ESCDELAY			lib: ncurses
+-LINES				test: cardfile demo_defkey demo_keyok demo_menus demo_panels echochar edit_field firework hanoi hashtest inch_wide inchs ins_wide inserts lrtest movewindow ncurses newdemo rain savescreen tclock test_get_wstr test_getstr test_instr test_inwstr testcurs view worm xmas
++LINES				test: cardfile demo_defkey demo_keyok demo_menus demo_panels echochar edit_field firework hanoi hashtest inch_wide inchs ins_wide inserts lrtest movewindow ncurses newdemo rain savescreen tclock test_get_wstr test_getstr test_instr test_inwstr test_opaque testcurs view worm xmas
+ PAIR_NUMBER			test: ncurses
+ PC				lib: ncurses
+ SP				lib: ncurses
+@@ -241,20 +241,20 @@
+ attron				test: bs echochar filter gdc ncurses
+ attrset				test: bs firework gdc hanoi ncurses rain tclock testaddch testcurs
+ baudrate			lib: ncurses
+-beep				test: blue bs cardfile chgat demo_forms demo_menus demo_panels edit_field hanoi inch_wide inchs ins_wide inserts knight movewindow ncurses savescreen tclock test_get_wstr test_getstr test_instr test_inwstr testcurs view xmas
++beep				test: blue bs cardfile chgat demo_forms demo_menus demo_panels edit_field hanoi inch_wide inchs ins_wide inserts knight movewindow ncurses savescreen tclock test_get_wstr test_getstr test_instr test_inwstr test_opaque testcurs view xmas
+ bkgd				test: background cardfile demo_forms ncurses savescreen tclock view
+ bkgdset				test: background ncurses testaddch
+ bkgrnd				test: ncurses
+ bkgrndset			test: ncurses
+-boolcodes			progs: dump_entry
+-boolfnames			progs: dump_entry
+-boolnames			progs: dump_entry infocmp
++boolcodes			test: test_arrays progs: dump_entry
++boolfnames			test: test_arrays progs: dump_entry
++boolnames			test: test_arrays progs: dump_entry infocmp
+ border				-
+ border_set			-
+-box				test: cardfile chgat demo_forms demo_menus demo_panels edit_field inch_wide inchs ins_wide inserts lrtest ncurses newdemo redraw test_get_wstr test_getstr test_instr test_inwstr testcurs
++box				test: cardfile chgat demo_forms demo_menus demo_panels edit_field inch_wide inchs ins_wide inserts lrtest ncurses newdemo redraw test_get_wstr test_getstr test_instr test_inwstr test_opaque testcurs
+ box_set				test: ncurses
+ can_change_color		test: ncurses
+-cbreak				test: background blue bs cardfile chgat color_set demo_altkeys demo_defkey demo_forms demo_keyok demo_menus demo_panels ditto filter firework foldkeys gdc hanoi hashtest inch_wide inchs ins_wide inserts knight lrtest movewindow ncurses newdemo savescreen tclock test_get_wstr test_getstr test_instr test_inwstr testcurs view worm xmas
++cbreak				test: background blue bs cardfile chgat color_set demo_altkeys demo_defkey demo_forms demo_keyok demo_menus demo_panels ditto filter firework foldkeys gdc hanoi hashtest inch_wide inchs ins_wide inserts knight lrtest movewindow ncurses newdemo savescreen tclock test_get_wstr test_getstr test_instr test_inwstr test_opaque testcurs view worm xmas
+ chgat				test: chgat
+ clear				test: blue bs gdc ncurses testcurs xmas
+ clearok				test: bs knight
+@@ -275,14 +275,14 @@
+ delch				-
+ deleteln			-
+ delscreen			test: dots_mvcur
+-delwin				test: cardfile chgat demo_forms demo_menus demo_panels edit_field inch_wide inchs ins_wide inserts movewindow ncurses newdemo redraw test_get_wstr test_getstr test_instr test_inwstr testcurs
+-derwin				test: cardfile chgat demo_forms demo_menus inch_wide inchs ins_wide inserts movewindow ncurses test_get_wstr test_getstr test_instr test_inwstr
++delwin				test: cardfile chgat demo_forms demo_menus demo_panels edit_field inch_wide inchs ins_wide inserts movewindow ncurses newdemo redraw test_get_wstr test_getstr test_instr test_inwstr test_opaque testcurs
++derwin				test: cardfile chgat demo_forms demo_menus inch_wide inchs ins_wide inserts movewindow ncurses test_get_wstr test_getstr test_instr test_inwstr test_opaque
+ doupdate			test: cardfile demo_menus demo_panels edit_field ins_wide inserts knight movewindow ncurses redraw savescreen test_get_wstr test_getstr
+ dupwin				test: edit_field
+ echo				test: bs hanoi ncurses test_get_wstr test_getstr testcurs testscanw
+ echo_wchar			test: ncurses
+ echochar			test: echochar ncurses
+-endwin				test: background blue bs cardfile chgat color_set demo_altkeys demo_defkey demo_forms demo_keyok demo_menus demo_panels ditto dots_mvcur echochar filter firework firstlast foldkeys gdc hanoi hashtest inch_wide inchs ins_wide inserts keynames knight lrtest movewindow ncurses newdemo rain redraw savescreen tclock test_get_wstr test_getstr test_instr test_inwstr testaddch testcurs testscanw view worm xmas
++endwin				test: background blue bs cardfile chgat color_set demo_altkeys demo_defkey demo_forms demo_keyok demo_menus demo_panels ditto dots_mvcur echochar filter firework firstlast foldkeys gdc hanoi hashtest inch_wide inchs ins_wide inserts keynames knight lrtest movewindow ncurses newdemo rain redraw savescreen tclock test_get_wstr test_getstr test_instr test_inwstr test_opaque testaddch testcurs testscanw view worm xmas
+ erase				test: cardfile demo_menus filter firework firstlast hanoi lrtest ncurses tclock testcurs
+ erasechar			lib: ncurses
+ erasewchar			-
+@@ -300,8 +300,8 @@
+ getch				test: background blue bs chgat color_set demo_altkeys ditto filter firework firstlast foldkeys hanoi hashtest lrtest rain savescreen tclock testaddch testcurs view worm xmas
+ getcurx				test: bs chgat demo_altkeys demo_defkey demo_panels foldkeys movewindow ncurses redraw savescreen test_get_wstr test_getstr testcurs
+ getcury				test: bs chgat demo_altkeys demo_defkey demo_panels edit_field foldkeys movewindow ncurses redraw savescreen testcurs
+-getmaxx				test: chgat demo_panels inch_wide inchs movewindow ncurses newdemo redraw test_get_wstr test_getstr test_instr test_inwstr testcurs
+-getmaxy				test: chgat demo_forms demo_panels inch_wide inchs movewindow ncurses newdemo redraw test_get_wstr test_getstr test_instr test_inwstr testcurs
++getmaxx				test: chgat demo_panels inch_wide inchs movewindow ncurses newdemo redraw test_get_wstr test_getstr test_instr test_inwstr test_opaque testcurs
++getmaxy				test: chgat demo_forms demo_panels inch_wide inchs movewindow ncurses newdemo redraw test_get_wstr test_getstr test_instr test_inwstr test_opaque testcurs
+ getmouse			test: bs knight movewindow ncurses
+ getn_wstr			test: test_get_wstr
+ getnstr				test: filter ncurses test_getstr
+@@ -316,9 +316,9 @@
+ has_key				lib: ncurses
+ hline				test: gdc ncurses
+ hline_set			-
+-idcok				-
+-idlok				test: ncurses testscanw view
+-immedok				-
++idcok				test: test_opaque
++idlok				test: ncurses test_opaque testscanw view
++immedok				test: test_opaque
+ in_wch				test: inch_wide
+ in_wchnstr			test: inch_wide
+ in_wchstr			test: inch_wide
+@@ -327,7 +327,7 @@
+ inchstr				test: inchs
+ init_color			test: ncurses
+ init_pair			test: background blue bs cardfile chgat color_set demo_forms demo_menus demo_panels echochar filter firework gdc hanoi ins_wide inserts knight ncurses newdemo rain savescreen tclock testaddch testcurs view worm xmas
+-initscr				test: background blue bs cardfile chgat color_set demo_defkey demo_forms demo_keyok demo_menus demo_panels echochar firework firstlast gdc hanoi hashtest inch_wide inchs ins_wide inserts knight lrtest movewindow ncurses newdemo rain redraw savescreen tclock test_get_wstr test_getstr test_instr test_inwstr testaddch testcurs testscanw view worm xmas
++initscr				test: background blue bs cardfile chgat color_set demo_defkey demo_forms demo_keyok demo_menus demo_panels echochar firework firstlast gdc hanoi hashtest inch_wide inchs ins_wide inserts knight lrtest movewindow ncurses newdemo rain redraw savescreen tclock test_get_wstr test_getstr test_instr test_inwstr test_opaque testaddch testcurs testscanw view worm xmas
+ innstr				test: test_instr
+ innwstr				test: test_inwstr
+ ins_nwstr			test: ins_wide
+@@ -341,17 +341,17 @@
+ instr				test: test_instr
+ intrflush			test: demo_forms movewindow
+ inwstr				test: test_inwstr
+-is_cleared			-
+-is_idcok			-
+-is_idlok			-
+-is_immedok			-
+-is_keypad			test: ncurses
+-is_leaveok			-
++is_cleared			test: test_opaque
++is_idcok			test: test_opaque
++is_idlok			test: test_opaque
++is_immedok			test: test_opaque
++is_keypad			test: ncurses test_opaque
++is_leaveok			test: test_opaque
+ is_linetouched			lib: form
+-is_nodelay			-
+-is_notimeout			-
+-is_scrollok			test: ncurses
+-is_syncok			-
++is_nodelay			test: test_opaque
++is_notimeout			test: test_opaque
++is_scrollok			test: ncurses test_opaque
++is_syncok			test: test_opaque
+ is_term_resized			-
+ is_wintouched			lib: ncurses
+ isendwin			-
+@@ -360,10 +360,10 @@
+ keybound			test: demo_altkeys demo_defkey
+ keyname				test: demo_altkeys demo_defkey demo_keyok demo_menus edit_field foldkeys keynames movewindow ncurses redraw testcurs view progs: tic
+ keyok				test: demo_keyok foldkeys
+-keypad				test: bs cardfile chgat demo_altkeys demo_defkey demo_forms demo_keyok demo_menus demo_panels edit_field filter firework foldkeys hashtest inch_wide inchs ins_wide inserts keynames knight lrtest movewindow ncurses redraw savescreen tclock test_get_wstr test_getstr test_instr test_inwstr testcurs testscanw view
++keypad				test: bs cardfile chgat demo_altkeys demo_defkey demo_forms demo_keyok demo_menus demo_panels edit_field filter firework foldkeys hashtest inch_wide inchs ins_wide inserts keynames knight lrtest movewindow ncurses redraw savescreen tclock test_get_wstr test_getstr test_instr test_inwstr test_opaque testcurs testscanw view
+ killchar			lib: ncurses
+ killwchar			-
+-leaveok				test: hanoi
++leaveok				test: hanoi test_opaque
+ longname			test: testcurs progs: tput
+ mcprint				-
+ meta				test: ncurses
+@@ -427,7 +427,7 @@
+ mvwdelch			test: ncurses
+ mvwget_wch			-
+ mvwget_wstr			test: test_get_wstr
+-mvwgetch			test: inch_wide inchs test_get_wstr test_getstr test_instr test_inwstr
++mvwgetch			test: inch_wide inchs test_get_wstr test_getstr test_instr test_inwstr test_opaque
+ mvwgetn_wstr			test: test_get_wstr
+ mvwgetnstr			test: test_getstr
+ mvwgetstr			test: test_getstr
+@@ -454,23 +454,23 @@
+ mvwscanw			test: testcurs
+ mvwvline			test: ins_wide inserts movewindow
+ mvwvline_set			-
+-napms				test: demo_panels dots dots_mvcur echochar firework gdc hanoi lrtest ncurses railroad rain tclock testcurs view worm xmas progs: tset
++napms				test: demo_panels dots dots_mvcur echochar firework gdc hanoi lrtest ncurses railroad rain tclock test_opaque testcurs view worm xmas progs: tset
+ newpad				test: edit_field ncurses testcurs
+ newscr				lib: ncurses
+ newterm				test: demo_altkeys ditto dots_mvcur filter foldkeys gdc keynames
+-newwin				test: cardfile chgat demo_defkey demo_forms demo_keyok demo_menus demo_panels edit_field firstlast inch_wide inchs ins_wide inserts knight movewindow ncurses newdemo redraw test_get_wstr test_getstr test_instr test_inwstr testcurs xmas
++newwin				test: cardfile chgat demo_defkey demo_forms demo_keyok demo_menus demo_panels edit_field firstlast inch_wide inchs ins_wide inserts knight movewindow ncurses newdemo redraw test_get_wstr test_getstr test_instr test_inwstr test_opaque testcurs xmas
+ nl				test: demo_forms ncurses rain testcurs
+ nocbreak			test: testcurs
+-nodelay				test: firework gdc lrtest ncurses newdemo rain tclock view xmas
+-noecho				test: background bs cardfile chgat color_set demo_altkeys demo_defkey demo_forms demo_keyok demo_menus demo_panels ditto firework firstlast foldkeys gdc hanoi hashtest inch_wide inchs ins_wide inserts knight lrtest movewindow ncurses rain redraw savescreen tclock test_get_wstr test_getstr test_instr test_inwstr testcurs view worm xmas
++nodelay				test: firework gdc lrtest ncurses newdemo rain tclock test_opaque view xmas
++noecho				test: background bs cardfile chgat color_set demo_altkeys demo_defkey demo_forms demo_keyok demo_menus demo_panels ditto firework firstlast foldkeys gdc hanoi hashtest inch_wide inchs ins_wide inserts knight lrtest movewindow ncurses rain redraw savescreen tclock test_get_wstr test_getstr test_instr test_inwstr test_opaque testcurs view worm xmas
+ nofilter			-
+ nonl				test: bs demo_forms hashtest movewindow ncurses view worm xmas
+ noqiflush			-
+ noraw				test: demo_forms demo_menus ncurses testcurs
+-notimeout			-
+-numcodes			progs: dump_entry
+-numfnames			progs: dump_entry
+-numnames			progs: dump_entry infocmp
++notimeout			test: test_opaque
++numcodes			test: test_arrays progs: dump_entry
++numfnames			test: test_arrays progs: dump_entry
++numnames			test: test_arrays progs: dump_entry infocmp
+ ospeed				progs: tset
+ overlay				test: ncurses testcurs xmas
+ overwrite			test: ncurses savescreen
+@@ -501,7 +501,7 @@
+ scr_set				test: savescreen
+ scrl				test: view
+ scroll				test: testcurs
+-scrollok			test: demo_altkeys demo_defkey demo_keyok demo_panels ditto foldkeys hashtest knight ncurses redraw testcurs testscanw view
++scrollok			test: demo_altkeys demo_defkey demo_keyok demo_panels ditto foldkeys hashtest knight ncurses redraw test_opaque testcurs testscanw view
+ set_curterm			lib: ncurses
+ set_term			test: ditto
+ setcchar			test: demo_panels ins_wide ncurses view
+@@ -527,13 +527,13 @@
+ standend			test: blue gdc ncurses worm
+ standout			test: blue ncurses
+ start_color			test: background blue bs cardfile chgat color_set demo_forms demo_menus demo_panels echochar filter firework gdc hanoi ins_wide inserts knight ncurses newdemo rain savescreen tclock testaddch testcurs view worm xmas
+-stdscr				test: bs chgat demo_altkeys demo_forms demo_menus demo_panels ditto filter firework foldkeys gdc hanoi hashtest inch_wide inchs ins_wide inserts keynames knight lrtest movewindow ncurses rain redraw savescreen tclock test_get_wstr test_getstr test_instr test_inwstr testcurs testscanw view xmas
+-strcodes			progs: dump_entry
+-strfnames			progs: dump_entry
+-strnames			test: foldkeys progs: dump_entry infocmp tic
++stdscr				test: bs chgat demo_altkeys demo_forms demo_menus demo_panels ditto filter firework foldkeys gdc hanoi hashtest inch_wide inchs ins_wide inserts keynames knight lrtest movewindow ncurses rain redraw savescreen tclock test_get_wstr test_getstr test_instr test_inwstr test_opaque testcurs testscanw view xmas
++strcodes			test: test_arrays progs: dump_entry
++strfnames			test: test_arrays progs: dump_entry
++strnames			test: foldkeys test_arrays progs: dump_entry infocmp tic
+ subpad				test: testcurs
+ subwin				test: movewindow ncurses newdemo testcurs
+-syncok				-
++syncok				test: test_opaque
+ term_attrs			test: ncurses
+ termattrs			test: ncurses testcurs
+ termname			test: testcurs
+@@ -547,7 +547,7 @@
+ tigetstr			test: blue demo_defkey foldkeys testcurs progs: tput
+ timeout				test: rain savescreen
+ touchline			test: chgat
+-touchwin			test: chgat demo_menus edit_field filter firstlast inch_wide inchs ins_wide inserts movewindow ncurses redraw test_get_wstr test_getstr test_instr test_inwstr xmas
++touchwin			test: chgat demo_menus edit_field filter firstlast inch_wide inchs ins_wide inserts movewindow ncurses redraw test_get_wstr test_getstr test_instr test_inwstr test_opaque xmas
+ tparm				test: dots dots_mvcur progs: tic tput
+ tputs				test: dots dots_mvcur railroad progs: clear tset
+ trace				test: demo_menus hanoi hashtest lrtest ncurses testcurs view worm
+@@ -575,7 +575,7 @@
+ wadd_wch			test: inch_wide
+ wadd_wchnstr			lib: form
+ wadd_wchstr			-
+-waddch				test: demo_forms demo_panels firstlast inch_wide inchs knight ncurses test_get_wstr test_getstr test_instr test_inwstr
++waddch				test: demo_forms demo_panels firstlast inch_wide inchs knight ncurses test_get_wstr test_getstr test_instr test_inwstr test_opaque
+ waddchnstr			lib: ncurses
+ waddchstr			-
+ waddnstr			lib: menu
+@@ -596,7 +596,7 @@
+ wborder				lib: ncurses
+ wborder_set			lib: ncurses
+ wchgat				test: chgat test_get_wstr test_getstr view
+-wclear				test: ncurses testcurs
++wclear				test: ncurses test_opaque testcurs
+ wclrtobot			test: firstlast inch_wide inchs ncurses test_instr test_inwstr testcurs
+ wclrtoeol			test: chgat demo_defkey demo_keyok demo_panels firstlast inch_wide inchs ins_wide inserts knight ncurses test_instr test_inwstr testcurs
+ wcolor_set			lib: ncurses
+@@ -606,13 +606,15 @@
+ wecho_wchar			lib: ncurses
+ wechochar			lib: ncurses
+ wenclose			lib: form
+-werase				test: cardfile demo_forms demo_menus demo_panels edit_field firstlast knight ncurses newdemo test_get_wstr test_getstr testcurs xmas
++werase				test: cardfile demo_forms demo_menus demo_panels edit_field firstlast knight ncurses newdemo test_get_wstr test_getstr test_opaque testcurs xmas
+ wget_wch			test: ins_wide ncurses
+ wget_wstr			test: test_get_wstr
+ wgetbkgrnd			lib: ncurses
+-wgetch				test: cardfile chgat demo_defkey demo_keyok demo_menus demo_panels edit_field gdc inserts knight movewindow ncurses newdemo redraw testcurs
++wgetch				test: cardfile chgat demo_defkey demo_keyok demo_menus demo_panels edit_field gdc inserts knight movewindow ncurses newdemo redraw test_opaque testcurs
+ wgetn_wstr			test: ncurses test_get_wstr
+ wgetnstr			test: ncurses test_getstr
++wgetparent			test: test_opaque
++wgetscrreg			test: test_opaque
+ wgetstr				test: test_getstr
+ whline				test: testcurs
+ whline_set			lib: ncurses
+@@ -635,17 +637,17 @@
+ winstr				test: test_instr
+ winwstr				test: test_inwstr
+ wmouse_trafo			lib: form
+-wmove				test: chgat demo_altkeys demo_defkey demo_keyok demo_menus demo_panels firstlast foldkeys inch_wide inchs ins_wide inserts knight movewindow ncurses newdemo redraw test_get_wstr test_getstr test_instr test_inwstr testcurs
+-wnoutrefresh			test: demo_menus edit_field inch_wide inchs ins_wide inserts knight movewindow ncurses redraw test_get_wstr test_getstr test_instr test_inwstr
+-wprintw				test: chgat demo_defkey demo_forms demo_keyok demo_menus demo_panels edit_field inch_wide inchs ins_wide inserts knight movewindow ncurses test_get_wstr test_getstr test_instr test_inwstr testcurs
++wmove				test: chgat demo_altkeys demo_defkey demo_keyok demo_menus demo_panels firstlast foldkeys inch_wide inchs ins_wide inserts knight movewindow ncurses newdemo redraw test_get_wstr test_getstr test_instr test_inwstr test_opaque testcurs
++wnoutrefresh			test: demo_menus edit_field inch_wide inchs ins_wide inserts knight movewindow ncurses redraw test_get_wstr test_getstr test_instr test_inwstr test_opaque
++wprintw				test: chgat demo_defkey demo_forms demo_keyok demo_menus demo_panels edit_field inch_wide inchs ins_wide inserts knight movewindow ncurses test_get_wstr test_getstr test_instr test_inwstr test_opaque testcurs
+ wredrawln			test: redraw
+ wrefresh			test: chgat demo_forms demo_keyok demo_menus demo_panels edit_field firstlast knight lrtest movewindow ncurses newdemo redraw savescreen tclock testcurs view xmas
+ wresize				test: cardfile ncurses
+ wscanw				test: testcurs
+ wscrl				test: ncurses testcurs
+ wsetscrreg			test: ncurses testcurs
+-wstandend			test: xmas
+-wstandout			test: xmas
++wstandend			test: test_opaque xmas
++wstandout			test: test_opaque xmas
+ wsyncdown			test: movewindow
+ wsyncup				lib: form
+ wtimeout			test: ncurses
+Index: test/modules
+Prereq:  1.34 
+--- ncurses-5.6-20070812+/test/modules	2007-07-21 18:27:57.000000000 +0000
++++ ncurses-5.6-20070818/test/modules	2007-08-18 17:57:08.000000000 +0000
+@@ -1,4 +1,4 @@
+-# $Id: modules,v 1.34 2007/07/21 18:27:57 tom Exp $
++# $Id: modules,v 1.36 2007/08/18 17:57:08 tom Exp $
+ ##############################################################################
+ # Copyright (c) 1998-2006,2007 Free Software Foundation, Inc.                #
+ #                                                                            #
+@@ -73,10 +73,12 @@
+ redraw		progs		$(srcdir)	$(HEADER_DEPS)
+ savescreen	progs		$(srcdir)	$(HEADER_DEPS)
+ tclock		progs		$(srcdir)	$(HEADER_DEPS)
++test_arrays	progs		$(srcdir)	$(HEADER_DEPS)
+ test_get_wstr	progs		$(srcdir)	$(HEADER_DEPS)
+ test_getstr	progs		$(srcdir)	$(HEADER_DEPS)
+ test_instr	progs		$(srcdir)	$(HEADER_DEPS)
+ test_inwstr	progs		$(srcdir)	$(HEADER_DEPS)
++test_opaque	progs		$(srcdir)	$(HEADER_DEPS)
+ testaddch	progs		$(srcdir)	$(HEADER_DEPS)
+ testcurs	progs		$(srcdir)	$(HEADER_DEPS)
+ testscanw	progs		$(srcdir)	$(HEADER_DEPS)
+Index: test/programs
+Prereq:  1.11 
+--- ncurses-5.6-20070812+/test/programs	2007-07-21 18:29:01.000000000 +0000
++++ ncurses-5.6-20070818/test/programs	2007-08-18 17:57:00.000000000 +0000
+@@ -1,4 +1,4 @@
+-# $Id: programs,v 1.11 2007/07/21 18:29:01 tom Exp $
++# $Id: programs,v 1.13 2007/08/18 17:57:00 tom Exp $
+ ##############################################################################
+ # Copyright (c) 2006,2007 Free Software Foundation, Inc.                     #
+ #                                                                            #
+@@ -70,10 +70,12 @@
+ redraw		$(LDFLAGS_CURSES)	$(LOCAL_LIBS)	redraw
+ savescreen	$(LDFLAGS_CURSES)	$(LOCAL_LIBS)	savescreen
+ tclock		$(LDFLAGS_CURSES)	$(LOCAL_LIBS)	tclock
++test_arrays	$(LDFLAGS_TINFO)	$(LOCAL_LIBS)	test_arrays
+ test_get_wstr	$(LDFLAGS_CURSES)	$(LOCAL_LIBS)	test_get_wstr
+ test_getstr	$(LDFLAGS_CURSES)	$(LOCAL_LIBS)	test_getstr
+ test_instr	$(LDFLAGS_CURSES)	$(LOCAL_LIBS)	test_instr
+ test_inwstr	$(LDFLAGS_CURSES)	$(LOCAL_LIBS)	test_inwstr
++test_opaque	$(LDFLAGS_CURSES)	$(LOCAL_LIBS)	test_opaque
+ testaddch	$(LDFLAGS_CURSES)	$(LOCAL_LIBS)	testaddch
+ testcurs	$(LDFLAGS_CURSES)	$(LOCAL_LIBS)	testcurs
+ testscanw	$(LDFLAGS_CURSES)	$(LOCAL_LIBS)	testscanw
+Index: test/test_arrays.c
+--- /dev/null	2007-08-19 00:25:34.088494000 +0000
++++ ncurses-5.6-20070818/test/test_arrays.c	2007-08-18 18:02:35.000000000 +0000
+@@ -0,0 +1,78 @@
++/****************************************************************************
++ * Copyright (c) 2007 Free Software Foundation, Inc.                        *
++ *                                                                          *
++ * Permission is hereby granted, free of charge, to any person obtaining a  *
++ * copy of this software and associated documentation files (the            *
++ * "Software"), to deal in the Software without restriction, including      *
++ * without limitation the rights to use, copy, modify, merge, publish,      *
++ * distribute, distribute with modifications, sublicense, and/or sell       *
++ * copies of the Software, and to permit persons to whom the Software is    *
++ * furnished to do so, subject to the following conditions:                 *
++ *                                                                          *
++ * The above copyright notice and this permission notice shall be included  *
++ * in all copies or substantial portions of the Software.                   *
++ *                                                                          *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS  *
++ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF               *
++ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.   *
++ * IN NO EVENT SHALL THE ABOVE COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,   *
++ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR    *
++ * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR    *
++ * THE USE OR OTHER DEALINGS IN THE SOFTWARE.                               *
++ *                                                                          *
++ * Except as contained in this notice, the name(s) of the above copyright   *
++ * holders shall not be used in advertising or otherwise to promote the     *
++ * sale, use or other dealings in this Software without prior written       *
++ * authorization.                                                           *
++ ****************************************************************************/
++/*
++ * $Id: test_arrays.c,v 1.1 2007/08/18 18:02:35 tom Exp $
++ *
++ * Author: Thomas E Dickey
++ *
++ * Demonstrate the public arrays from the terminfo library.
++
++extern NCURSES_EXPORT_VAR(NCURSES_CONST char * const ) boolnames[];
++extern NCURSES_EXPORT_VAR(NCURSES_CONST char * const ) boolcodes[];
++extern NCURSES_EXPORT_VAR(NCURSES_CONST char * const ) boolfnames[];
++extern NCURSES_EXPORT_VAR(NCURSES_CONST char * const ) numnames[];
++extern NCURSES_EXPORT_VAR(NCURSES_CONST char * const ) numcodes[];
++extern NCURSES_EXPORT_VAR(NCURSES_CONST char * const ) numfnames[];
++extern NCURSES_EXPORT_VAR(NCURSES_CONST char * const ) strnames[];
++extern NCURSES_EXPORT_VAR(NCURSES_CONST char * const ) strcodes[];
++extern NCURSES_EXPORT_VAR(NCURSES_CONST char * const ) strfnames[];
++
++ */
++
++#include <test.priv.h>
++
++#define DUMP(name) dump_array(#name, name)
++
++static void
++dump_array(const char *name, NCURSES_CONST char *const *list)
++{
++    int n;
++
++    printf("%s:\n", name);
++    for (n = 0; list[n] != 0; ++n) {
++	printf("%5d:%s\n", n, list[n]);
++    }
++}
++
++int
++main(int argc GCC_UNUSED, char *argv[]GCC_UNUSED)
++{
++    DUMP(boolnames);
++    DUMP(boolcodes);
++    DUMP(boolfnames);
++
++    DUMP(numnames);
++    DUMP(numcodes);
++    DUMP(numfnames);
++
++    DUMP(strnames);
++    DUMP(strcodes);
++    DUMP(strfnames);
++
++    ExitProgram(EXIT_SUCCESS);
++}
+Index: test/test_opaque.c
+--- /dev/null	2007-08-19 00:25:34.088494000 +0000
++++ ncurses-5.6-20070818/test/test_opaque.c	2007-08-18 17:51:51.000000000 +0000
+@@ -0,0 +1,421 @@
++/****************************************************************************
++ * Copyright (c) 2007 Free Software Foundation, Inc.                        *
++ *                                                                          *
++ * Permission is hereby granted, free of charge, to any person obtaining a  *
++ * copy of this software and associated documentation files (the            *
++ * "Software"), to deal in the Software without restriction, including      *
++ * without limitation the rights to use, copy, modify, merge, publish,      *
++ * distribute, distribute with modifications, sublicense, and/or sell       *
++ * copies of the Software, and to permit persons to whom the Software is    *
++ * furnished to do so, subject to the following conditions:                 *
++ *                                                                          *
++ * The above copyright notice and this permission notice shall be included  *
++ * in all copies or substantial portions of the Software.                   *
++ *                                                                          *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS  *
++ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF               *
++ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.   *
++ * IN NO EVENT SHALL THE ABOVE COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,   *
++ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR    *
++ * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR    *
++ * THE USE OR OTHER DEALINGS IN THE SOFTWARE.                               *
++ *                                                                          *
++ * Except as contained in this notice, the name(s) of the above copyright   *
++ * holders shall not be used in advertising or otherwise to promote the     *
++ * sale, use or other dealings in this Software without prior written       *
++ * authorization.                                                           *
++ ****************************************************************************/
++/*
++ * $Id: test_opaque.c,v 1.4 2007/08/18 17:51:51 tom Exp $
++ *
++ * Author: Thomas E Dickey
++ *
++ * Demonstrate the opaque functions from the curses library.
++
++       WINDOW * wgetparent (const WINDOW *);
++       bool is_cleared(const WINDOW *win);
++       bool is_idcok(const WINDOW *win);
++       bool is_idlok(const WINDOW *win);
++       bool is_immedok(const WINDOW *win);
++       bool is_keypad(const WINDOW *win);
++       bool is_leaveok(const WINDOW *win);
++       bool is_nodelay(const WINDOW *win);
++       bool is_notimeout(const WINDOW *win);
++       bool is_scrollok(const WINDOW *win);
++       bool is_syncok(const WINDOW *win);
++       int wgetscrreg (const WINDOW *, int *, int *);
++ */
++
++#include <test.priv.h>
++
++#define BASE_Y 6
++#define MAX_COLS 1024
++
++static bool
++Quit(int ch)
++{
++    return (ch == 'q' || ch == QUIT || ch == ESCAPE);
++}
++
++typedef bool(*BoolOpaque) (WINDOW *, int);
++
++static bool
++test_opaque_cleared(WINDOW *win, int mode)
++{
++    if (mode >= 0) {
++	if (mode)
++	    wclear(win);
++    }
++    return is_cleared(win);
++}
++
++static bool
++test_opaque_idcok(WINDOW *win, int mode)
++{
++    if (mode >= 0) {
++	idcok(win, mode);
++    }
++    return is_idcok(win);
++}
++
++static bool
++test_opaque_idlok(WINDOW *win, int mode)
++{
++    if (mode >= 0) {
++	idlok(win, mode);
++    }
++    return is_idlok(win);
++}
++
++static bool
++test_opaque_immedok(WINDOW *win, int mode)
++{
++    if (mode >= 0) {
++	immedok(win, mode);
++    }
++    return is_immedok(win);
++}
++
++static bool
++test_opaque_keypad(WINDOW *win, int mode)
++{
++    if (mode >= 0) {
++	keypad(win, mode);
++    }
++    return is_keypad(win);
++}
++
++static bool
++test_opaque_leaveok(WINDOW *win, int mode)
++{
++    if (mode >= 0) {
++	leaveok(win, mode);
++    }
++    return is_leaveok(win);
++}
++
++static bool
++test_opaque_nodelay(WINDOW *win, int mode)
++{
++    if (mode >= 0) {
++	nodelay(win, mode);
++    }
++    return is_nodelay(win);
++}
++
++static bool
++test_opaque_notimeout(WINDOW *win, int mode)
++{
++    if (mode >= 0) {
++	notimeout(win, mode);
++    }
++    return is_notimeout(win);
++}
++
++static bool
++test_opaque_scrollok(WINDOW *win, int mode)
++{
++    if (mode >= 0) {
++	scrollok(win, mode);
++    }
++    return is_scrollok(win);
++}
++
++static bool
++test_opaque_syncok(WINDOW *win, int mode)
++{
++    if (mode >= 0) {
++	syncok(win, mode);
++    }
++    return is_syncok(win);
++}
++
++static int
++status_y(WINDOW *stswin, int cell)
++{
++    return (cell % getmaxy(stswin));
++}
++
++static int
++status_x(WINDOW *stswin, int cell)
++{
++    return (15 * (cell / getmaxy(stswin)));
++}
++
++static void
++to_keyword(WINDOW *stswin, int cell)
++{
++    wmove(stswin, status_y(stswin, cell), status_x(stswin, cell));
++}
++
++static void
++to_result(WINDOW *stswin, int cell, bool before)
++{
++    int y = status_y(stswin, cell);
++    int x = status_x(stswin, cell) + 11;
++    if (!before)
++	++x;
++    wmove(stswin, y, x);
++}
++
++static void
++show_keyword(WINDOW *stswin, int cell, int active, const char *name)
++{
++    to_keyword(stswin, cell);
++    if (active == cell)
++	wstandout(stswin);
++    wprintw(stswin, "%s:", name);
++    if (active == cell)
++	wstandend(stswin);
++}
++/* *INDENT-OFF* */
++static struct {
++    const char *name;
++    BoolOpaque func;
++} bool_funcs[] = {
++    { "cleared",   test_opaque_cleared },
++    { "idcok",     test_opaque_idcok },
++    { "idlok",     test_opaque_idlok },
++    { "immedok",   test_opaque_immedok },
++    { "keypad",    test_opaque_keypad },
++    { "leaveok",   test_opaque_leaveok },
++    { "nodelay",   test_opaque_nodelay },
++    { "notimeout", test_opaque_notimeout },
++    { "scrollok",  test_opaque_scrollok },
++    { "syncok",    test_opaque_syncok }
++};
++/* *INDENT-ON* */
++
++/*
++ * Display and/or allow update for the properties accessed in the opaque
++ * window.  Some may change state after refreshing the window, so we
++ * distinguish between them using the 'before' parameter.
++ */
++static int
++show_opaque(WINDOW *stswin, WINDOW *txtwin, bool before, int active)
++{
++    int n;
++    int top, bottom;
++
++    if (before) {
++	werase(stswin);
++    }
++    for (n = 0; n < (int) SIZEOF(bool_funcs); ++n) {
++	show_keyword(stswin, n, active, bool_funcs[n].name);
++
++	to_result(stswin, n, before);
++	wprintw(stswin, "%c", bool_funcs[n].func(txtwin, -1) ? 'T' : 'F');
++    }
++
++    show_keyword(stswin, n, active, "wgetparent");
++    to_result(stswin, n, TRUE);
++    wprintw(stswin, "%p", wgetparent(txtwin));
++
++    ++n;
++    show_keyword(stswin, n, active, "wgetscrreg");
++    to_result(stswin, n, TRUE);
++    if (wgetscrreg(txtwin, &top, &bottom) == OK)
++	wprintw(stswin, "%d,%d", top, bottom);
++
++    wnoutrefresh(stswin);
++    return active;
++}
++
++static int
++test_opaque(int level, char **argv, WINDOW *stswin)
++{
++    WINDOW *txtbox = 0;
++    WINDOW *txtwin = 0;
++    FILE *fp;
++    int ch;
++    int txt_x = 0, txt_y = 0;
++    int base_y;
++    bool in_status = FALSE;
++    int active = 0;
++
++    if (argv[level] == 0) {
++	beep();
++	return FALSE;
++    }
++
++    if (level > 1) {
++	txtbox = newwin(LINES - BASE_Y, COLS - level, BASE_Y, level);
++	box(txtbox, 0, 0);
++	wnoutrefresh(txtbox);
++
++	txtwin = derwin(txtbox,
++			getmaxy(txtbox) - 2,
++			getmaxx(txtbox) - 2,
++			1, 1);
++	base_y = 0;
++    } else {
++	txtwin = stdscr;
++	base_y = BASE_Y;
++    }
++
++    keypad(txtwin, TRUE);	/* enable keyboard mapping */
++    (void) cbreak();		/* take input chars one at a time, no wait for \n */
++    (void) noecho();		/* don't echo input */
++
++    txt_y = base_y;
++    txt_x = 0;
++    wmove(txtwin, txt_y, txt_x);
++
++    if ((fp = fopen(argv[level], "r")) != 0) {
++	while ((ch = fgetc(fp)) != EOF) {
++	    if (waddch(txtwin, UChar(ch)) != OK) {
++		break;
++	    }
++	}
++	fclose(fp);
++    } else {
++	wprintw(txtwin, "Cannot open:\n%s", argv[1]);
++    }
++
++    for (;;) {
++	if (in_status) {
++	    to_keyword(stswin, active);
++
++	    ch = wgetch(stswin);
++	    show_opaque(stswin, txtwin, TRUE, active);
++	    if (Quit(ch))
++		break;
++
++	    switch (ch) {
++	    case '\t':
++		in_status = FALSE;
++		break;
++	    case KEY_DOWN:
++	    case 'j':
++		if (active < (int) SIZEOF(bool_funcs) - 1)
++		    active++;
++		else
++		    beep();
++		break;
++	    case KEY_UP:
++	    case 'k':
++		if (active > 0)
++		    active--;
++		else
++		    beep();
++		break;
++	    case ' ':
++		bool_funcs[active].func(txtwin,
++									 !bool_funcs[active].func(txtwin, -1));
++		break;
++	    default:
++		beep();
++		break;
++	    }
++	    show_opaque(stswin, txtwin, FALSE, in_status ? active : -1);
++	} else {
++	    ch = mvwgetch(txtwin, txt_y, txt_x);
++	    show_opaque(stswin, txtwin, TRUE, -1);
++	    if (Quit(ch))
++		break;
++
++	    switch (ch) {
++	    case '\t':
++		in_status = TRUE;
++		break;
++	    case KEY_DOWN:
++	    case 'j':
++		if (txt_y < getmaxy(txtwin) - 1)
++		    txt_y++;
++		else
++		    beep();
++		break;
++	    case KEY_UP:
++	    case 'k':
++		if (txt_y > base_y)
++		    txt_y--;
++		else
++		    beep();
++		break;
++	    case KEY_LEFT:
++	    case 'h':
++		if (txt_x > 0)
++		    txt_x--;
++		else
++		    beep();
++		break;
++	    case KEY_RIGHT:
++	    case 'l':
++		if (txt_x < getmaxx(txtwin) - 1)
++		    txt_x++;
++		else
++		    beep();
++		break;
++	    case 'w':
++		test_opaque(level + 1, argv, stswin);
++		if (txtbox != 0) {
++		    touchwin(txtbox);
++		    wnoutrefresh(txtbox);
++		} else {
++		    touchwin(txtwin);
++		    wnoutrefresh(txtwin);
++		}
++		break;
++	    default:
++		beep();
++		napms(100);
++		break;
++	    }
++
++	    show_opaque(stswin, txtwin, FALSE, -1);
++	}
++    }
++    if (level > 1) {
++	delwin(txtwin);
++	delwin(txtbox);
++    }
++    return TRUE;
++}
++
++int
++main(int argc, char *argv[])
++{
++    WINDOW *stsbox;
++    WINDOW *stswin;
++
++    setlocale(LC_ALL, "");
++
++    if (argc < 2) {
++	fprintf(stderr, "usage: %s file\n", argv[0]);
++	return EXIT_FAILURE;
++    }
++
++    initscr();
++
++    stsbox = derwin(stdscr, BASE_Y, COLS, 0, 0);
++    box(stsbox, 0, 0);
++    wnoutrefresh(stsbox);
++
++    stswin = derwin(stsbox, BASE_Y - 2, COLS - 2, 1, 1);
++    keypad(stswin, TRUE);
++
++    test_opaque(1, argv, stswin);
++
++    endwin();
++    ExitProgram(EXIT_SUCCESS);
++}

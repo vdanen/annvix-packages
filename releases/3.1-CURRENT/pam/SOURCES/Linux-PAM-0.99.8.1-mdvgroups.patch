@@ -1,0 +1,37 @@
+--- Linux-PAM-0.99.8.1/modules/pam_console/50-default.perms.mdvgroups	2007-08-13 13:04:13.000000000 +0200
++++ Linux-PAM-0.99.8.1/modules/pam_console/50-default.perms	2007-08-13 13:07:13.000000000 +0200
+@@ -37,13 +37,13 @@
+ 
+ # permission definitions
+ <console>  0660 <floppy>     0660 root.floppy
+-<console>  0600 <sound>      0600 root
+-<console>  0600 <cdrom>      0660 root.disk
++<console>  0600 <sound>      0600 root.audio
++<console>  0600 <cdrom>      0660 root.cdrom
+ <console>  0600 <pilot>      0660 root.uucp
+ <console>  0600 <jaz>        0660 root.disk
+ <console>  0600 <zip>        0660 root.disk
+ <console>  0600 <ls120>      0660 root.disk
+-<console>  0600 <scanner>    0600 root
++<console>  0600 <scanner>    0600 root.usb
+ <console>  0600 <camera>     0600 root.disk
+ <console>  0600 <memstick>   0600 root.disk
+ <console>  0600 <flash>      0600 root.disk
+@@ -52,7 +52,7 @@
+ <console>  0600 <fb>         0600 root
+ <console>  0600 <kbd>        0600 root
+ <console>  0600 <joystick>   0600 root
+-<console>  0600 <v4l>        0600 root
++<console>  0600 <v4l>        0600 root.video
+ <console>  0700 <gpm>	     0700 root
+ <console>  0600 <mainboard>  0600 root
+ <console>  0600 <rio500>     0600 root
+@@ -60,7 +60,7 @@
+ <console>  0600 <bluetooth>  0600 root
+ <console>  0600 <raw1394>    0600 root
+ <console>  0600 <irda>       0600 root
+-<console>  0600 <dvb>        0600 root
++<console>  0600 <dvb>        0600 root.video
+ <console>  0600 <firewire>   0600 root
+ 
+ <xconsole> 0600 /dev/console 0600 root.root

@@ -1,0 +1,53 @@
+diff -Naur squid-2.6.STABLE1/configure.in squid-2.6.STABLE1.oden/configure.in
+--- squid-2.6.STABLE1/configure.in	2006-07-01 20:42:47.000000000 +0200
++++ squid-2.6.STABLE1.oden/configure.in	2006-07-19 19:30:02.000000000 +0200
+@@ -2049,7 +2049,7 @@
+ AC_SUBST(LIB_LBER)
+ 
+ dnl Check for libdb
+-DBLIB=
++LIB_DB=
+ dnl 1.85
+ AC_CACHE_CHECK(if dbopen needs -ldb,ac_cv_dbopen_libdb, [
+ SAVED_LIBS="$LIBS"; LIBS="$LIBS -ldb"
+@@ -2061,9 +2061,9 @@
+ #include <limits.h>
+ #endif
+ #if HAVE_DB_185_H
+-#include <db_185.h>
++#include <db4/db_185.h>
+ #elif HAVE_DB_H
+-#include <db.h>
++#include <db4/db.h>
+ #endif],
+     [dbopen((void *)0L, 0, 0, DB_HASH, (void *)0L)],
+     ac_cv_dbopen_libdb="yes",
+diff -Naur squid-2.6.STABLE1/helpers/external_acl/session/Makefile.am squid-2.6.STABLE1.oden/helpers/external_acl/session/Makefile.am
+--- squid-2.6.STABLE1/helpers/external_acl/session/Makefile.am	2006-05-22 22:43:38.000000000 +0200
++++ squid-2.6.STABLE1.oden/helpers/external_acl/session/Makefile.am	2006-07-19 19:52:42.000000000 +0200
+@@ -11,6 +11,6 @@
+ EXTRA_DIST			= squid_session.8
+ squid_session_SOURCES		= squid_session.c
+ 
+-LDADD = $(LIB_DB) 
++LDADD = -ldb
+ 
+ INCLUDES	= -I. -I$(top_builddir)/include -I$(top_srcdir)/include
+diff -Naur squid-2.6.STABLE1/helpers/external_acl/session/squid_session.c squid-2.6.STABLE1.oden/helpers/external_acl/session/squid_session.c
+--- squid-2.6.STABLE1/helpers/external_acl/session/squid_session.c	2006-05-22 22:43:38.000000000 +0200
++++ squid-2.6.STABLE1.oden/helpers/external_acl/session/squid_session.c	2006-07-19 19:52:53.000000000 +0200
+@@ -31,13 +31,7 @@
+ #include <string.h>
+ #include <time.h>
+ 
+-#if defined(HAVE_DB_185_H)
+-#include <db_185.h>
+-#elif defined(HAVE_DB_H)
+-#include <db.h>
+-#else
+-#include <db_185.h>
+-#endif
++#include <db4/db_185.h>
+ 
+ static int session_ttl = 3600;
+ char *db_path = NULL;

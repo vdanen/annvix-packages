@@ -1,0 +1,39 @@
+# sudoers file.
+#
+# This file MUST be edited with the 'visudo' command as root.
+#
+# See the sudoers(5) man page for the details on how to write a sudoers file.
+#
+
+# Host alias specification
+
+# User alias specification
+
+# Cmnd alias specification
+
+# /bin/su no longer has the suid bit, so to use it, one must have access via sudo
+Cmnd_Alias	SU =		/bin/su
+
+# grant access to apt and friends; by default this is not assigned to the admin group
+# and should be enabled on a per-user basis
+Cmnd_Alias	APT =		/usr/bin/apt-get, /usr/bin/apt-cache, /usr/bin/apt-cdrom, \
+				/usr/bin/apt-config, /usr/bin/apt-shell
+
+# grant access to mount, umount filesystems
+Cmnd_Alias	MOUNT =		/bin/mount, /bin/umount
+
+# grant access to various network tools that used to be suid
+Cmnd_Alias 	NET_TOOLS =	/bin/ping, /usr/bin/ping6, /sbin/netreport, \
+				/usr/sbin/traceroute, /usr/sbin/traceroute6, /usr/sbin/usernetctl
+
+# grant access to various user-management tools that used to be suid
+Cmnd_Alias 	USER_MGMT =	/usr/bin/chage, /usr/bin/expiry, /usr/bin/chsh, \
+				/usr/bin/gpasswd, /usr/bin/newgrp
+
+# Defaults specification
+Defaults 	env_reset	# reset the environment
+Defaults 	tty_tickets	# authenticate on a per-tty basis
+
+# User privilege specification
+root		ALL=(ALL) ALL
+%admin		ALL=(ALL) SU, NET_TOOLS, USER_MGMT, MOUNT

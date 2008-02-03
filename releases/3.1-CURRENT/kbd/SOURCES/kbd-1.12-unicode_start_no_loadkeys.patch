@@ -1,0 +1,11 @@
+--- kbd-1.12/src/unicode_start.orig	2007-05-30 11:42:14.000000000 -0300
++++ kbd-1.12/src/unicode_start	2007-05-30 11:42:23.000000000 -0300
+@@ -18,7 +18,7 @@
+ # produce UTF-8 encoded multibyte sequences, instead of single bytes
+ # >= 0x80 in a legacy 8-bit encoding.
+ 
+-dumpkeys | loadkeys --unicode
++#dumpkeys | loadkeys --unicode
+ 
+ # 2. The output side: the console screen.
+ 

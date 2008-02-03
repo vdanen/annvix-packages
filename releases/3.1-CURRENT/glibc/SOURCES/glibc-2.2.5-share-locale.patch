@@ -1,0 +1,33 @@
+--- glibc-2.2.5/sysdeps/unix/sysv/linux/configure.in.share-locale	2002-01-29 04:23:58.000000000 +0100
++++ glibc-2.2.5/sysdeps/unix/sysv/linux/configure.in	2002-08-19 10:58:27.000000000 +0200
+@@ -147,7 +147,7 @@ if test "$prefix" = "/usr" -o "$prefix" 
+     if test "$libdir" = '${exec_prefix}/lib'; then
+       libdir='${exec_prefix}/lib64';
+       # Locale data can be shared between 32bit and 64bit libraries
+-      libc_cv_localedir='${exec_prefix}/lib/locale'
++      libc_cv_localedir='${datadir}/locale'
+     fi
+   else
+     libc_cv_slibdir="/lib"
+--- glibc-2.2.5/sysdeps/unix/sysv/linux/configure.share-locale	2002-01-29 05:01:49.000000000 +0100
++++ glibc-2.2.5/sysdeps/unix/sysv/linux/configure	2002-08-19 10:58:52.000000000 +0200
+@@ -179,7 +179,7 @@ if test "$prefix" = "/usr" -o "$prefix" 
+     if test "$libdir" = '${exec_prefix}/lib'; then
+       libdir='${exec_prefix}/lib64';
+       # Locale data can be shared between 32bit and 64bit libraries
+-      libc_cv_localedir='${exec_prefix}/lib/locale'
++      libc_cv_localedir='${datadir}/locale'
+     fi
+   else
+     libc_cv_slibdir="/lib"
+--- glibc-2.2.5/Makeconfig.share-locale	2002-03-15 00:36:06.000000000 +0100
++++ glibc-2.2.5/Makeconfig	2002-08-19 10:54:49.000000000 +0200
+@@ -207,7 +207,7 @@ inst_zonedir = $(install_root)$(zonedir)
+ 
+ # Where to install the locale files.
+ ifndef localedir
+-localedir = $(libdir)/locale
++localedir = $(datadir)/locale
+ endif
+ inst_localedir = $(install_root)$(localedir)
+ 

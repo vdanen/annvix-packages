@@ -1,0 +1,14 @@
+--- mkinitrd-4.2.17/mkinitrd.avx	2006-08-06 14:13:39.000000000 -0600
++++ mkinitrd-4.2.17/mkinitrd	2006-08-06 14:13:39.000000000 -0600
+@@ -1251,11 +1251,7 @@
+ 
+     if [ -n "$kernel25" -a "$initrdfs" = "initramfs" ]; then
+ 	echo "echo Switching to new root" >> $RCFILE
+-	if [ -n "$USE_UDEV" ]; then
+ 	    echo "switchroot --movedev /sysroot" >> $RCFILE
+-	else
+-	    echo "switchroot /sysroot" >> $RCFILE
+-	fi
+     else	
+ 	echo "echo 0x0100 > /proc/sys/kernel/real-root-dev" >> $RCFILE
+ 	echo "pivot_root /sysroot /sysroot/initrd" >> $RCFILE

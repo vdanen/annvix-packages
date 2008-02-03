@@ -1,0 +1,11 @@
+--- ./src/Makefile.tv	2006-05-09 16:01:50.000000000 +0200
++++ ./src/Makefile	2006-05-09 16:01:52.000000000 +0200
+@@ -1727,7 +1727,7 @@
+ testclean:
+ 	cd testdir; $(MAKE) -f Makefile clean
+ 	if test -d $(PODIR); then \
+-		cd $(PODIR); $(MAKE) checkclean; \
++		cd $(PODIR); $(MAKE) clean; \
+ 	fi
+ 
+ #

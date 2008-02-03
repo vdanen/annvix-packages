@@ -1,0 +1,53 @@
+# Revert symlink handling changes in search_dir().
+
+#Revert all these changes:
+#----------------------------
+#revision 1.40
+#date: 2003/08/26 08:07:19;  author: drepper;  state: Exp;  lines: +1 -1
+#(search_dir): When checking for GNU-style .so link file use the real
+#file name, not the resolved name we got by following the symlinks.
+#----------------------------
+#revision 1.39
+#date: 2003/08/25 21:49:35;  author: drepper;  state: Exp;  lines: +21 -4
+#(search_dir): Treat symlink as regular file if it won't point to itself unless
+#it is .so symlink for the linker.
+#----------------------------
+#revision 1.38
+#date: 2003/08/25 09:05:09;  author: drepper;  state: Exp;  lines: +6 -13
+#(search_dir): Revert patch of 2003-7-21.
+#----------------------------
+#revision 1.34
+#date: 2003/07/21 20:17:16;  author: drepper;  state: Exp;  lines: +10 -3
+#(search_dir): Treat symlink as regular file if it won't point to itself.
+#----------------------------
+--- glibc-2.5.orig/elf/ldconfig.c
++++ glibc-2.5/elf/ldconfig.c
+@@ -816,27 +816,10 @@ #endif
+ 	  continue;
+ 	}
+ 
+-
+-      /* A link may just point to itself.  */
+-      if (is_link)
+-	{
+-	  /* If the path the link points to isn't its soname and it is not
+-	     .so symlink for ld(1) only, we treat it as a normal file.  */
+-	  const char *real_base_name = basename (real_file_name);
+-
+-	  if (strcmp (real_base_name, soname) != 0)
+-	    {
+-	      len = strlen (real_base_name);
+-	      if (len < strlen (".so")
+-		  || strcmp (real_base_name + len - strlen (".so"), ".so") != 0
+-		  || strncmp (real_base_name, soname, len) != 0)
+-		is_link = 0;
+-	    }
+-        }
+-
+       if (real_name != real_file_name)
+ 	free (real_name);
+ 
++      /* Links will just point to itself.  */
+       if (is_link)
+ 	{
+ 	  free (soname);

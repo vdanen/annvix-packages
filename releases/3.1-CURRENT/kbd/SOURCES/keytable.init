@@ -1,0 +1,64 @@
+#!/bin/sh
+#
+# This script loads the selected keyboard map as configured in
+# /etc/sysconfig/keyboard.
+#
+# $Id$
+
+. /etc/init.d/functions
+
+order=30
+name="keytable"
+
+[ -f /etc/sysconfig/keyboard ] || exit 0
+
+[ -x /bin/loadkeys ] || exit 0
+
+# If CHARSET is not defined, try to see what the current
+# locale encoding is (we only want to know if it is UTF-8 or not)
+if [ -z "${CHARSET}" ]; then CHARSET="`get_locale_encoding`" ; fi
+
+# Use "-u" for cases when the keytable isn't unicode ready
+if [ "${CHARSET}" = "UTF-8" ]; then
+    LOADKEYS="/bin/loadkeys -u"
+else
+    LOADKEYS="/bin/loadkeys"
+fi
+
+case "${1}" in
+    start)
+        # Read the keyboard config
+        . /etc/sysconfig/keyboard
+        if [ "${KEYTABLE:-bogus}" != "bogus" ]; then
+            # load the keyboard map
+            ebegin "Loading keymap ${KEYTABLE}"
+            ${LOADKEYS} ${KEYTABLE} >/dev/null 2>&1
+            eend $?
+        fi
+
+        if [ "$BACKSPACE" = "BackSpace" ]; then
+            ${LOADKEYS} backspace >/dev/null 2>&1
+        else
+            ${LOADKEYS} delete >/dev/null 2>&1
+        fi
+
+        if [ -n "${GRP_TOGGLE}" ]; then
+            ebegin "Loading toggle definition: ${GRP_TOGGLE}"
+            ${LOADKEYS} ${GRP_TOGGLE} >/dev/null 2>&1
+            eend $?
+        fi
+
+        touch /var/lock/subsys/keytable
+        ;;
+    stop)
+        rm -f /var/lock/subsys/keytable
+        ;;
+    restart|reload)
+        ${0} start
+        ;;
+    *)
+        printf "Usage: ${0} {start|stop|restart|reload}\n"
+        exit 1
+esac
+
+exit 0

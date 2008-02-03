@@ -1,0 +1,37 @@
+diff -Naur postfix-2.4.3/src/util/get_hostname.c postfix-2.4.3.new/src/util/get_hostname.c
+--- postfix-2.4.3/src/util/get_hostname.c	2007-05-31 08:08:21.000000000 +0800
++++ postfix-2.4.3.new/src/util/get_hostname.c	2007-06-18 21:54:58.026189000 +0800
+@@ -33,6 +33,7 @@
+ #include <sys/param.h>
+ #include <string.h>
+ #include <unistd.h>
++#include <netdb.h>
+ 
+ #if (MAXHOSTNAMELEN < 256)
+ #undef MAXHOSTNAMELEN
+@@ -55,6 +56,8 @@
+ const char *get_hostname(void)
+ {
+     char    namebuf[MAXHOSTNAMELEN + 1];
++	struct  hostent *byName, *byAddr;
++	struct  in_addr hostaddr;
+ 
+     /*
+      * The gethostname() call is not (or not yet) in ANSI or POSIX, but it is
+@@ -74,6 +77,16 @@
+ 	if (gethostname(namebuf, sizeof(namebuf)) < 0)
+ 	    msg_fatal("gethostname: %m");
+ 	namebuf[MAXHOSTNAMELEN] = 0;
++
++	/* Sometimes gethostname does not return a FQDN, usually gethostbyaddr() will */
++	byName = gethostbyname(namebuf);
++	if (byName->h_addr) {
++		memcpy((char *) &hostaddr, byName->h_addr, sizeof(hostaddr));
++		byAddr = gethostbyaddr((char *)&hostaddr, sizeof(hostaddr), AF_INET);
++		strncpy(namebuf, byAddr->h_name, sizeof(namebuf));
++		namebuf[MAXHOSTNAMELEN] = 0;
++	}
++	
+ 	/* DO NOT CALL GETHOSTBYNAME FROM THIS FUNCTION */
+ 	if (valid_hostname(namebuf, DO_GRIPE) == 0)
+ 	    msg_fatal("unable to use my own hostname");

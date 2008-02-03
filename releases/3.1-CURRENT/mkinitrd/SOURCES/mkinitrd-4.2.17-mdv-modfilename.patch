@@ -1,0 +1,53 @@
+--- mkinitrd-4.2.17/mkinitrd.modfilename	2007-08-29 11:48:55.000000000 +0200
++++ mkinitrd-4.2.17/mkinitrd	2007-08-29 11:53:20.000000000 +0200
+@@ -101,6 +101,7 @@ moduledep() {
+ }
+ 
+ findmodule() {
++    local zfmPath
+     skiperrors=""
+ 
+     if [ $1 == "--skiperrors" ]; then
+@@ -142,15 +143,9 @@ findmodule() {
+  	[ "$i" = "$modName" ] && return
+     done
+ 
+-    moduledep $modName
+-    for i in $deps; do
+-	findmodule $i
+-    done
+-
+-    for modExt in o.gz o ko.gz ko ; do
+-	fmPath=`(cd /lib/modules/$kernel; find . -type f -name $modName.$modExt | grep -v "^./build")`
+-	[ -n "$fmPath" ] && break
+-    done
++    # use modinfo to find module filename (potentially with dashes)
++    # from a module name (potentially with underscores)
++    fmPath=`modinfo -k $kernel -F filename ${modName} 2>/dev/null`
+ 
+     if [ -z "$fmPath" ]; then
+ 	if [ -n "$skiperrors" ]; then
+@@ -168,6 +163,14 @@ findmodule() {
+     fi
+ 
+     zfmPath=${fmPath%.gz}
++    zofmPath=${zfmPath%.ko}
++    modfile=${zofmPath##*/}
++ 
++    moduledep $modfile
++    for i in $deps; do
++	findmodule $i
++    done
++
+     # only need to add each module once
+     if ! echo $MODULES | grep -q "$zfmPath" 2>/dev/null ; then
+ 	MODULES="$MODULES $zfmPath"
+@@ -1081,7 +1084,7 @@ inst /sbin/nash "$MNTIMAGE/bin/nash"
+ ln -s ../bin/nash $MNTIMAGE/sbin/modprobe
+ 
+ for MODULE in $MODULES; do
+-    f="/lib/modules/$kernel/$MODULE"
++    f="$MODULE"
+     if [ -e $f ]; then
+ 	cp $verbose -a $f $MNTIMAGE/lib
+     else

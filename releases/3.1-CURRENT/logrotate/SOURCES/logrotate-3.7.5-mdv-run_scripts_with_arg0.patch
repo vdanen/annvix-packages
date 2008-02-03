@@ -1,0 +1,13 @@
+diff --git a/logrotate.c b/logrotate.c
+index 9f10a10..2821ce7 100644
+--- a/logrotate.c
++++ b/logrotate.c
+@@ -149,7 +149,7 @@ static int runScript(char *logfn, char *script)
+     }
+ 
+     if (!fork()) {
+-	execl("/bin/sh", "sh", "-c", script, NULL);
++	execl("/bin/sh", "sh", "-c", script, "[logrotate script]", NULL);
+ 	exit(1);
+     }
+ 

@@ -1,0 +1,40 @@
+diff -Naur net-snmp-5.4.1/perl/OID/OID.xs net-snmp-5.4.1.oden/perl/OID/OID.xs
+--- net-snmp-5.4.1/perl/OID/OID.xs	2006-10-25 18:16:24.000000000 +0200
++++ net-snmp-5.4.1.oden/perl/OID/OID.xs	2007-08-08 11:01:27.000000000 +0200
+@@ -178,16 +178,19 @@
+ nso_newptr(initstring)
+     char *initstring
+     CODE:
++        size_t len;
+         if (get_tree_head() == NULL)
+             netsnmp_init_mib();
+         RETVAL = SNMP_MALLOC_TYPEDEF(netsnmp_oid);
+         RETVAL->name = RETVAL->namebuf;
+         RETVAL->len = sizeof(RETVAL->namebuf)/sizeof(RETVAL->namebuf[0]);
+-        if (!snmp_parse_oid(initstring, (oid *) RETVAL->name, &RETVAL->len)) {
++        if (!snmp_parse_oid(initstring, (oid *) RETVAL->name, &len)) {
+             snmp_log(LOG_ERR, "Can't parse: %s\n", initstring);
+             RETVAL->len = 0;
+             RETVAL = NULL;
+         }
++        else
++            RETVAL->len = len;
+     OUTPUT:
+         RETVAL
+ 
+diff -Naur net-snmp-5.4.1/snmplib/scapi.c net-snmp-5.4.1.oden/snmplib/scapi.c
+--- net-snmp-5.4.1/snmplib/scapi.c	2006-09-15 14:47:01.000000000 +0200
++++ net-snmp-5.4.1.oden/snmplib/scapi.c	2007-08-08 10:59:41.000000000 +0200
+@@ -271,8 +271,10 @@
+     int             properlength;
+ 
+     u_char          buf[SNMP_MAXBUF_SMALL];
+-#if  defined(NETSNMP_USE_OPENSSL) || defined(NETSNMP_USE_PKCS11)
+-    size_t             buf_len = sizeof(buf);
++#ifdef NETSNMP_USE_OPENSSL
++    unsigned int    buf_len = sizeof(buf);
++#elif defined(NETSNMP_USE_PKCS11)
++    size_t          buf_len = sizeof(buf);
+ #endif
+ 
+     DEBUGTRACE;

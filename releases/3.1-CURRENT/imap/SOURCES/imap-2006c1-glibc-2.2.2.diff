@@ -1,0 +1,60 @@
+diff -Naur imap-2006c1/src/osdep/unix/env_unix.c imap-2006c1.oden/src/osdep/unix/env_unix.c
+--- imap-2006c1/src/osdep/unix/env_unix.c	2006-09-15 19:00:55.000000000 +0200
++++ imap-2006c1.oden/src/osdep/unix/env_unix.c	2006-10-26 16:35:48.000000000 +0200
+@@ -26,6 +26,7 @@
+  * Last Edited:	15 September 2006
+  */
+ 
++#include <time.h>
+ #include <grp.h>
+ #include <signal.h>
+ #include <sys/wait.h>
+diff -Naur imap-2006c1/src/osdep/unix/mh.c imap-2006c1.oden/src/osdep/unix/mh.c
+--- imap-2006c1/src/osdep/unix/mh.c	2006-10-20 00:23:57.000000000 +0200
++++ imap-2006c1.oden/src/osdep/unix/mh.c	2006-10-26 16:37:40.000000000 +0200
+@@ -36,11 +36,11 @@
+ #include <pwd.h>
+ #include <sys/stat.h>
+ #include <sys/time.h>
++#include <time.h>
+ #include "misc.h"
+ #include "dummy.h"
+ #include "fdstring.h"
+ 
+-
+ /* Build parameters */
+ 
+ #define MHPROFILE ".mh_profile"
+diff -Naur imap-2006c1/src/osdep/unix/mx.c imap-2006c1.oden/src/osdep/unix/mx.c
+--- imap-2006c1/src/osdep/unix/mx.c	2006-10-23 00:43:08.000000000 +0200
++++ imap-2006c1.oden/src/osdep/unix/mx.c	2006-10-26 16:38:18.000000000 +0200
+@@ -36,6 +36,7 @@
+ #include <pwd.h>
+ #include <sys/stat.h>
+ #include <sys/time.h>
++#include <time.h>
+ #include "misc.h"
+ #include "dummy.h"
+ #include "fdstring.h"
+diff -Naur imap-2006c1/src/osdep/unix/news.c imap-2006c1.oden/src/osdep/unix/news.c
+--- imap-2006c1/src/osdep/unix/news.c	2006-08-31 03:44:30.000000000 +0200
++++ imap-2006c1.oden/src/osdep/unix/news.c	2006-10-26 16:36:32.000000000 +0200
+@@ -35,6 +35,7 @@
+ #include "osdep.h"
+ #include <sys/stat.h>
+ #include <sys/time.h>
++#include <time.h>
+ #include "misc.h"
+ #include "newsrc.h"
+ #include "fdstring.h"
+diff -Naur imap-2006c1/src/osdep/unix/phile.c imap-2006c1.oden/src/osdep/unix/phile.c
+--- imap-2006c1/src/osdep/unix/phile.c	2006-08-31 04:02:29.000000000 +0200
++++ imap-2006c1.oden/src/osdep/unix/phile.c	2006-10-26 16:36:11.000000000 +0200
+@@ -37,6 +37,7 @@
+ #include <pwd.h>
+ #include <sys/stat.h>
+ #include <sys/time.h>
++#include <time.h>
+ #include "rfc822.h"
+ #include "misc.h"
+ #include "dummy.h"

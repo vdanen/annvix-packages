@@ -1,0 +1,11 @@
+--- configure.in	2005-02-08 02:45:06.000000000 +0100
++++ configure.in.new	2005-12-29 17:21:05.000000000 +0100
+@@ -368,7 +368,7 @@
+ cp ${srcdir}/Dbgconfigure ${srcdir}/tcldbg.h ${srcdir}/tcldbgcf.h.in ${srcdir}/install-sh ${tmpdir}
+ cp $srcdir/DbgMkfl.in ${tmpdir}/Makefile.in
+ cp $srcdir/DbgpkgInd.in ${tmpdir}/pkgIndex.in
+-(cd $tmpdir; ${CONFIG_SHELL-/bin/sh} Dbgconfigure --with-tclinclude=$TCLHDIR $dbg_config_flags)
++(cd $tmpdir; ${CONFIG_SHELL-/bin/sh} Dbgconfigure --prefix $prefix $dbg_config_flags)
+ cp ${tmpdir}/tcldbgcf.h .
+ rm -rf $tmpdir
+ test -n "$verbose" && echo "configured Tcl debugger"

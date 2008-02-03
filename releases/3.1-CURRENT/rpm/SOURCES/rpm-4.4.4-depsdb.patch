@@ -1,0 +1,25 @@
+Index: rpmdb/sqlite.c
+===================================================================
+RCS file: /cvs/devel/rpm/rpmdb/sqlite.c,v
+retrieving revision 1.3.2.33
+diff -u -b -B -w -p -r1.3.2.33 sqlite.c
+--- rpmdb/sqlite.c	9 Nov 2005 18:08:31 -0000	1.3.2.33
++++ rpmdb/sqlite.c	17 Jan 2006 17:53:18 -0000
+@@ -726,13 +726,15 @@ static int sql_initDB(dbiIndex dbi)
+ 	}
+ if (_debug)
+ fprintf(stderr, "\t%s(%d) type(%d) keytype %s\n", tagName(dbi->dbi_rpmtag), dbi->dbi_rpmtag, tagType(dbi->dbi_rpmtag), keytype);
+-	sprintf(cmd, "CREATE TABLE '%s' (key %s, value %s)",
++	sprintf(cmd, "CREATE %sTABLE '%s' (key %s, value %s)",
++            dbi->dbi_rpmtag == RPMDBI_DEPENDS ? "TEMPORARY " : " ",
+ 			dbi->dbi_subfile, keytype, valtype);
+ 	rc = sqlite3_exec(sqldb->db, cmd, NULL, NULL, (char **)&scp->pzErrmsg);
+ 	if (rc)
+ 	    goto exit;
+ 
+-	sprintf(cmd, "CREATE TABLE 'db_info' (endian TEXT)");
++	sprintf(cmd, "CREATE %sTABLE 'db_info' (endian TEXT)",
++            dbi->dbi_rpmtag == RPMDBI_DEPENDS ? "TEMPORARY " : " ");
+ 	rc = sqlite3_exec(sqldb->db, cmd, NULL, NULL, (char **)&scp->pzErrmsg);
+ 	if (rc)
+ 	    goto exit;

@@ -1,0 +1,12 @@
+--- lib/poptQV.c.orig	2005-12-14 14:24:34.000000000 +0100
++++ lib/poptQV.c	2005-12-14 14:25:50.000000000 +0100
+@@ -296,6 +296,9 @@
+  { "nodoc", '\0', POPT_BIT_SET|POPT_ARGFLAG_DOC_HIDDEN,
+ 	&rpmQVKArgs.qva_fflags, RPMFILE_DOC,
+         N_("skip %%doc files"), NULL },
++ { "ghost", '\0', POPT_BIT_CLR|POPT_ARGFLAG_DOC_HIDDEN,
++	&rpmQVKArgs.qva_fflags, RPMFILE_GHOST,
++        N_("include %%ghost files"), NULL },
+  { "noghost", '\0', POPT_BIT_SET|POPT_ARGFLAG_DOC_HIDDEN,
+ 	&rpmQVKArgs.qva_fflags, RPMFILE_GHOST,
+         N_("skip %%ghost files"), NULL },

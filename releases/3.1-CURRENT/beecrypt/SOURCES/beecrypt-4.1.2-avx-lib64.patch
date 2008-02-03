@@ -1,0 +1,55 @@
+--- Makefile.am~	2007-06-26 09:55:01.164687000 -0600
++++ Makefile.am	2007-06-26 09:55:01.164687000 -0600
+@@ -45,7 +45,7 @@
+ 
+ BEECRYPT_OBJECTS = aes.lo aesopt.lo base64.lo beecrypt.lo blockmode.lo blockpad.lo blowfish.lo blowfishopt.lo dhaes.lo dldp.lo dlkp.lo dlpk.lo dlsvdp-dh.lo dsa.lo elgamal.lo endianness.lo entropy.lo fips186.lo hmac.lo hmacmd5.lo hmacsha1.lo hmacsha256.lo md5.lo memchunk.lo mp.lo mpopt.lo mpbarrett.lo mpnumber.lo mpprime.lo mtprng.lo pkcs1.lo pkcs12.lo rsa.lo rsakp.lo rsapk.lo sha1.lo sha1opt.lo sha256.lo sha384.lo sha512.lo timestamp.lo
+ 
+-libaltdir=$(prefix)/lib@LIBALT@
++libaltdir=$(libdir)
+ 
+ libalt_LTLIBRARIES = libbeecrypt.la
+ 
+--- c++/provider/Makefile.am~	2007-06-26 09:55:46.249739750 -0600
++++ c++/provider/Makefile.am	2007-06-26 09:55:46.249739750 -0600
+@@ -4,7 +4,7 @@
+ 
+ AUTOMAKE_OPTIONS = gnu no-dependencies
+ 
+-pkgaltlibdir=$(prefix)/lib@LIBALT@/beecrypt
++pkgaltlibdir=$(libdir)/beecrypt
+ pkgaltlib_LTLIBRARIES = base.la
+ 
+ nodist_sysconf_DATA = beecrypt.conf
+--- c++/Makefile.am~	2007-06-26 09:56:27.620325250 -0600
++++ c++/Makefile.am	2007-06-26 09:56:27.624325500 -0600
+@@ -8,7 +8,7 @@
+ 
+ SUBDIRS = lang io nio util security crypto beeyond . provider
+ 
+-libaltdir=$(prefix)/lib@LIBALT@
++libaltdir=$(libdir)
+ cxxdir=$(pkgincludedir)/c++
+ 
+ libalt_LTLIBRARIES = libbeecrypt_cxx.la
+--- java/Makefile.am~	2007-06-26 09:57:04.186610500 -0600
++++ java/Makefile.am	2007-06-26 09:57:04.186610500 -0600
+@@ -26,7 +26,7 @@
+ 
+ INCLUDES = -I$(top_srcdir)/.. @JAVAINC@
+ 
+-libaltdir=$(prefix)/lib@LIBALT@
++libaltdir=$(libdir)
+ 
+ libalt_LTLIBRARIES = libbeecrypt_java.la
+ 
+--- python/Makefile.am~	2007-06-26 10:03:11.697536250 -0600
++++ python/Makefile.am	2007-06-26 10:03:11.697536250 -0600
+@@ -17,7 +17,7 @@
+ 
+ LDADD =
+ 
+-pythondir = @PYTHONLIB@
++pythondir = $(libdir)/python2.5/site-packages
+ python_LTLIBRARIES = _bc.la
+ 
+ _bc_la_SOURCES = _bc-py.c mpw-py.c rng-py.c

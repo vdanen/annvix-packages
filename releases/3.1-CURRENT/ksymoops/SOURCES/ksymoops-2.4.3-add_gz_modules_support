@@ -1,0 +1,13 @@
+Binary files ksymoops-2.4.3-orig/ksymoops and ksymoops-2.4.3/ksymoops differ
+diff -urN --exclude-from=/home/quintela/config/misc/dontdiff ksymoops-2.4.3-orig/object.c ksymoops-2.4.3/object.c
+--- ksymoops-2.4.3-orig/object.c	Mon Jul 30 17:58:35 2001
++++ ksymoops-2.4.3/object.c	Wed Feb  6 18:48:31 2002
+@@ -117,7 +117,7 @@
+     char *cmd, *line = NULL;
+     int size = 0, files = 0;
+     static char const procname[] = "find_objects";
+-    static char const options[] = " -follow '(' -path '*/build' -prune ')' -o -name '*.o' -print";
++    static char const options[] = " -follow  '(' -path '*/build' -prune ')' -o -name '*.o' -o -name '*.o.gz' -print";
+ 
+     cmd = malloc(strlen(path_find)+1+strlen(dir)+strlen(options)+1);
+     if (!cmd)

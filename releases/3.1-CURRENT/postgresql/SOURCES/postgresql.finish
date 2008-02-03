@@ -1,0 +1,19 @@
+#!/bin/sh
+PATH="/sbin:/usr/sbin:/bin:/usr/bin"
+
+# this is executed after the run script exits
+
+if [ -f /etc/sysconfig/postgresql ]; then
+  . /etc/sysconfig/postgresql
+else
+  PGPORT=5432
+  PGDATA="/var/lib/pgsql/data"
+  USETCP="0"
+  USESSL="0"
+fi
+
+if [ ! -f $PGDATA/PG_VERSION ] && [ ! -d $PGDATA/base/template1 ]; then
+  PGDATA="/var/lib/pgsql/data"
+fi
+
+rm -f $PGDATA/postmaster.pid

@@ -1,0 +1,49 @@
+#!/bin/sh
+PATH="/sbin:/usr/sbin:/bin:/usr/bin"
+
+# this runs rpc.gssd supervised
+
+# this service depends on nfs.statd and rpc.svcgssd
+
+envdir=/etc/sysconfig/env/nfs
+[[ -f ${envdir}/SECURE_NFS ]]      && SECURE_NFS="$(head -1 ${envdir}/SECURE_NFS)"
+[[ -f ${envdir}/SECURE_NFS_MODS ]] && SECURE_NFS_MODS="$(head -1 ${envdir}/SECURE_NFS_MODS)"
+[[ -f ${envdir}/RPCGSSD_OPTS ]]    && RPCGSSD_OPTS="$(head -1 ${envdir}/RPCGSSD_OPTS)"
+
+if [ "${SECURE_NFS}" != "yes" ]; then
+    echo "rpc.gssd is not required because ${envdir}/SECURE_NFS is not set to 'yes'"
+    exit 0
+fi
+
+if ! [ -f /etc/krb5.keytab ]; then
+    echo "Fatal error: /etc/krb5.keytab does not exist!"
+    exit 1
+fi
+if [ -z `echo -e "rkt /etc/krb5.keytab\nl" | ktutil | awk '{ print $3}' | grep "^nfs\/"` ]; then
+    echo "Fatal error: No NFS key detected in /etc.krb5.keytab!"
+    exit 1
+fi
+
+[[ -z "${SECURE_NFS_MODS}" ]] && SECURE_NFS_MODS="des rpcsec_gss_krb5"
+
+if [ -x /sbin/lsmod -a -x /sbin/modprobe ]; then
+    for i in ${SECURE_NFS_MODS}
+    do
+        if ! /sbin/lsmod | grep ${i} >/dev/null ; then
+            /sbin/modprobe ${i} || exit 1
+        fi
+    done
+fi
+
+RPCMTAB="`grep -v '^#' /proc/mounts | awk '{ if ($3 ~ /^rpc_pipefs$/ ) print $2}'`"
+if [ -z "${RPCMTAB}" ]; then
+    echo "Fatal error: RPC MTAB does not exist."
+    exit 1
+fi
+
+# final sanity check, rpc.gssd won't start without this symlink
+if [ ! -L /usr/lib/libgssapi_krb5.so ]; then
+    ln -s libgssapi_krb5.so.2 /usr/lib/libgssapi_krb5.so
+fi
+
+exec /usr/sbin/rpc.gssd -f ${RPCGSSD_OPTS} 2>&1

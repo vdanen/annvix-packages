@@ -1,0 +1,65 @@
+diff -Naur openssh-4.7p1/contrib/redhat/sshd.pam openssh-4.7p1.new/contrib/redhat/sshd.pam
+--- openssh-4.7p1/contrib/redhat/sshd.pam	2004-07-21 09:01:41.000000000 +0800
++++ openssh-4.7p1.new/contrib/redhat/sshd.pam	2007-09-27 04:16:56.365518000 +0800
+@@ -1,4 +1,5 @@
+ #%PAM-1.0
++auth       required     pam_listfile.so item=user sense=deny file=/etc/ssh/denyusers.pam
+ auth       required     pam_stack.so service=system-auth
+ auth       required     pam_nologin.so
+ account    required     pam_stack.so service=system-auth
+diff -Naur openssh-4.7p1/ssh_config openssh-4.7p1.new/ssh_config
+--- openssh-4.7p1/ssh_config	2007-06-11 12:04:42.000000000 +0800
++++ openssh-4.7p1.new/ssh_config	2007-09-27 04:17:45.192968000 +0800
+@@ -43,3 +43,8 @@
+ #   Tunnel no
+ #   TunnelDevice any:any
+ #   PermitLocalCommand no
++
++Host *
++  Protocol 2,1
++  StrictHostKeyChecking ask
++  HashKnownHosts yes
+diff -Naur openssh-4.7p1/sshd_config openssh-4.7p1.new/sshd_config
+--- openssh-4.7p1/sshd_config	2007-03-21 17:42:25.000000000 +0800
++++ openssh-4.7p1.new/sshd_config	2007-09-27 04:17:33.314290000 +0800
+@@ -23,8 +23,8 @@
+ # HostKey for protocol version 1
+ #HostKey /etc/ssh/ssh_host_key
+ # HostKeys for protocol version 2
+-#HostKey /etc/ssh/ssh_host_rsa_key
+-#HostKey /etc/ssh/ssh_host_dsa_key
++HostKey /etc/ssh/ssh_host_rsa_key
++HostKey /etc/ssh/ssh_host_dsa_key
+ 
+ # Lifetime and size of ephemeral version 1 server key
+ #KeyRegenerationInterval 1h
+@@ -38,9 +38,9 @@
+ # Authentication:
+ 
+ #LoginGraceTime 2m
+-#PermitRootLogin yes
++PermitRootLogin no
+ #StrictModes yes
+-#MaxAuthTries 6
++MaxAuthTries 4
+ 
+ #RSAAuthentication yes
+ #PubkeyAuthentication yes
+@@ -84,7 +84,7 @@
+ # and ChallengeResponseAuthentication to 'no'.
+ #UsePAM no
+ 
+-#AllowTcpForwarding yes
++AllowTcpForwarding no
+ #GatewayPorts no
+ #X11Forwarding no
+ #X11DisplayOffset 10
+@@ -93,7 +93,7 @@
+ #PrintLastLog yes
+ #TCPKeepAlive yes
+ #UseLogin no
+-#UsePrivilegeSeparation yes
++UsePrivilegeSeparation yes
+ #PermitUserEnvironment no
+ #Compression delayed
+ #ClientAliveInterval 0

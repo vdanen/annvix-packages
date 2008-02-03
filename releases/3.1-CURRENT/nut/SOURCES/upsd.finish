@@ -1,0 +1,4 @@
+#!/bin/execlineb
+
+# nut should be finished by this point so we just need to stop upsdrvctl
+/sbin/upsdrvctl stop

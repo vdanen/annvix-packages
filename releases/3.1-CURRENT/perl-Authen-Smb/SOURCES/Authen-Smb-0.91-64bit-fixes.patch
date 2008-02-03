@@ -1,0 +1,10 @@
+--- Authen-Smb-0.91/smbval/smblib.c.64bit-fixes	1999-06-07 03:54:23.000000000 +0200
++++ Authen-Smb-0.91/smbval/smblib.c	2003-09-17 13:35:54.000000000 +0200
+@@ -25,6 +25,7 @@
+ 
+ #include "config.h"
+ #include <malloc.h>
++#include <string.h>
+ 
+ int SMBlib_errno;
+ int SMBlib_SMB_Error;
