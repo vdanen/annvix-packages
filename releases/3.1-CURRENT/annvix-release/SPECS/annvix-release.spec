@@ -9,11 +9,11 @@
 
 %define revision	$Rev$
 %define name		annvix-release
-%define version		3.0
+%define version		3.1
 %define release		%_revrel
 
-%define distrib		Freya
-%define realversion 	3.0-RELEASE
+%define distrib		Gaia
+%define realversion 	3.1-CURRENT
 %define macrofile	%build_sysmacrospath
 
 Summary:	Annvix release file
@@ -86,6 +86,9 @@ EOF
 
 
 %changelog
+* Sun Feb 03 2008 Vincent Danen <vdanen-at-build.annivix.org> 3.1
+- 3.1-CURRENT (Gaia)
+
 * Wed Dec 26 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0
 - 3.0-RELEASE (Freya)
 
