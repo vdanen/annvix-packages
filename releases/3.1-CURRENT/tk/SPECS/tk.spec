@@ -32,6 +32,7 @@ Requires:	%{libname} = %{version}
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	tcl-devel >= %{version}
 BuildRequires:	libx11-devel
+BuildRequires:	autoconf2.1
 
 Requires:	%{libname} = %{version}
 
@@ -187,6 +188,7 @@ chmod 0755 %{buildroot}%{_libdir}/*.so*
 %changelog
 * Thu Feb 07 2008 Vincent Danen <vdanen-at-build.annvix.org> 8.4.14
 - P2: security for for CVE-2008-0553
+- buildrequires autoconf2.1
 
 * Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.4.14
 - rebuild against new libx11
