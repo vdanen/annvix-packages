@@ -26,6 +26,7 @@ URL:		http://tcl.sourceforge.net/
 Source0:	http://prdownloads.sourceforge.net/tcl/%{name}%{version}-src.tar.gz
 Patch0:		tk8.4.11-rpath.diff
 Patch1:		tk8.4.11-soname.diff
+Patch2:		tk-cvs-CVE-2008-0553.patch
 Requires:	%{libname} = %{version}
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -71,6 +72,7 @@ This package contains development files for %{name}.
 %setup -q -n %{name}%{version}
 %patch0 -p0 -b .rpath
 %patch1 -p1 -b .soname
+%patch2 -p0 -b .cve-2008-0553
 
 
 %build
@@ -183,7 +185,10 @@ chmod 0755 %{buildroot}%{_libdir}/*.so*
 
 
 %changelog
-* Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.4.14        
+* Thu Feb 07 2008 Vincent Danen <vdanen-at-build.annivix.org> 8.4.14
+- P2: security for for CVE-2008-0553
+
+* Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.4.14
 - rebuild against new libx11
 
 * Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.4.14        
