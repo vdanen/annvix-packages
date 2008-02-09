@@ -78,4 +78,3 @@ SL61_avx-openwall-harden_proc.patch
 ##
 ## security fixes
 ##
-ZZ01_CVE-2007-6206_git.patch
