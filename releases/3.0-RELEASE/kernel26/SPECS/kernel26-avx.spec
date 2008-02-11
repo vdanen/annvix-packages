@@ -12,7 +12,7 @@
 %define kernelversion	2
 %define patchlevel	6
 %define sublevel	22
-%define minlevel	17
+%define minlevel	18
 %define avxrelease	%(echo %{revision}|cut -d ' ' -f 2)
 
 %define kversion	%{kernelversion}.%{patchlevel}.%{sublevel}.%{minlevel}
@@ -794,6 +794,9 @@ exit 0
 
 
 %changelog
+* Mon Feb 11 2008 Vincent Danen <vdanen-at-build.annvix.org> 2.6.22.18
+- 2.6.22.18: fixes CVE-2008-0600
+
 * Fri Feb 08 2008 Vincent Danen <vdanen-at-build.annvix.org> 2.6.22.17
 - 2.6.22.17: fixes CVE-2007-6206, CVE-2008-0007
 - drop PZZ01; fixed upstream
