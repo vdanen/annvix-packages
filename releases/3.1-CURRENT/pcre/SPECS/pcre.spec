@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		pcre
-%define version		7.4
+%define version		7.6
 %define	release		%_revrel
 
 %define major		0
@@ -81,7 +81,10 @@ This package contains the documentation for %{name}.
 
 
 %build
-%configure2_5x --enable-utf8
+%configure2_5x \
+    --enable-utf8 \
+    --enable-unicode-properties
+
 %make
 
 
@@ -144,6 +147,10 @@ rm -f %{buildroot}%{_docdir}/%{name}/{AUTHORS,ChangeLog,COPYING,LICENCE,NEWS,REA
 
 
 %changelog
+* Tue Feb 12 2008 Vincent Danen <vdanen-at-build.annvix.org> 7.6
+- 7.6
+- enable unicode properties
+
 * Thu Nov 08 2007 Vincent Danen <vdanen-at-build.annvix.org> 7.4
 - 7.4
 
