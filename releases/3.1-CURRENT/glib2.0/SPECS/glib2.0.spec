@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		glib%{api_version}
-%define version		2.14.4
+%define version		2.15.5
 %define release		%_revrel
 
 %define api_version	2.0
@@ -24,7 +24,7 @@ Release:	%{release}
 License:	LGPL
 Group:		System/Libraries
 URL:		http://www.gtk.org
-Source0:	ftp://ftp.gnome.org/pub/GNOME/sources/glib/2.14/glib-%{version}.tar.bz2
+Source0:	ftp://ftp.gnome.org/pub/GNOME/sources/glib/2.15/glib-%{version}.tar.bz2
 Source1:	glib20.sh
 Source2:	glib20.csh
 
@@ -33,6 +33,7 @@ BuildRequires:	gettext
 BuildRequires:	pkgconfig >= 0.12
 BuildRequires:	libtool >= 1.4.2-2mdk
 BuildRequires:	locales-en
+BuildRequires:	pcre-devel
 
 Requires:	common-licenses
 
@@ -69,6 +70,7 @@ Group:		Development/C
 Provides:	glib2-devel = %{version}-%{release}
 Provides:	libglib2-devel = %{version}-%{release}
 Provides:	lib%{name}-devel = %{version}-%{release}
+Provides:	libglib-devel = %{version}-%{release}
 Requires:	%{libname} = %{version}
 Requires:	pkgconfig >= 0.12
 Requires:	glib-gettextize >= %{version}
@@ -111,6 +113,7 @@ This package contains the documentation for %{name}.
 %define __libtoolize /bin/true
 
 %configure2_5x \
+    --with-pcre=system \
     --enable-static \
     --enable-gtk-doc=no
 
@@ -130,6 +133,7 @@ install -m 0644 %{_sourcedir}/glib20.csh %{buildroot}%{_sysconfdir}/profile.d/20
 %kill_lang glib20
 %find_lang glib20
 
+rm -f %{buildroot}%{_libdir}/gio/modules/lib*a
 
 %clean
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
@@ -146,6 +150,7 @@ install -m 0644 %{_sourcedir}/glib20.csh %{buildroot}%{_sysconfdir}/profile.d/20
 %{_libdir}/libgmodule-%{api_version}.so.*
 %{_libdir}/libgthread-%{api_version}.so.*
 %{_libdir}/libgobject-%{api_version}.so.*
+%{_libdir}/libgio-%{api_version}.so.*
 
 %files -n %{devname}
 %defattr(-,root,root)
@@ -160,6 +165,7 @@ install -m 0644 %{_sourcedir}/glib20.csh %{buildroot}%{_sysconfdir}/profile.d/20
 %{_bindir}/glib-genmarshal
 %{_bindir}/glib-mkenums
 %{_bindir}/gobject-query
+%{_bindir}/gtester*
 
 %files -n glib-gettextize
 %defattr(-,root,root)
@@ -174,6 +180,11 @@ install -m 0644 %{_sourcedir}/glib20.csh %{buildroot}%{_sysconfdir}/profile.d/20
 
 
 %changelog
+* Tue Feb 12 2008 Vincent Danen <vdanen-at-build.annvix.org> 2.15.5
+- 2.15.5
+- build with system pcre
+- lib(64)glib2.0-devel provides libglib-devel
+
 * Sat Dec 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.14.4
 - order the profile.d/ scripts and drop executable bit
 
