@@ -10,7 +10,7 @@
 %define module		Tk
 %define revision	$Rev$
 %define name		perl-%{module}
-%define version 	804.027
+%define version 	804.028
 %define release 	%_revrel
 
 %define _requires_exceptions Watch
@@ -21,12 +21,14 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL or Artistic
 Group:		Development/Perl
-URL:		http://www.cpan.org
-Source:		ftp://sunsite.doc.ic.ac.uk/packages/CPAN/modules/by-module/%{module}/%{module}-%{version}.tar.bz2
+URL:		http://search.cpan.org/dist/%{module}
+Source:		http://www.cpan.org/modules/by-module/Tk/Tk-%{version}.tar.gz
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel
-BuildRequires:	libx11-devel
+BuildRequires:	x11-devel
+BuildRequires:	jpeg-devel
+BuildRequires:	png-devel
 
 Provides:	perl(Tk::LabRadio)
 Provides:	perl(Tk::TextReindex)
@@ -132,42 +134,48 @@ rm -f %{buildroot}%{perl_vendorarch}/Tk/README.Adjust
 
 
 %changelog
-* Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 800.027
+* Tue Feb 12 2008 Vincent Danen <vdanen-at-build.annvix.org> 804.028
+- 804.028
+- buildrequires jpeg-devel and png-devel
+- fix changelog
+- fix url and source url
+
+* Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 804.027
 - rebuild against new libx11
 
-* Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 800.027
+* Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 804.027
 - rebuild
 
-* Thu Apr 26 2007 Vincent Danen <vdanen-at-build.annvix.org> 800.027
+* Thu Apr 26 2007 Vincent Danen <vdanen-at-build.annvix.org> 804.027
 - build against modular X
 
-* Wed Dec 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 800.027
+* Wed Dec 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 804.027
 - spec cleaning
 
-* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 800.027
+* Sun Jul 23 2006 Vincent Danen <vdanen-at-build.annvix.org> 804.027
 - move the rest of the docs
 
-* Sat May 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 800.027
+* Sat May 13 2006 Vincent Danen <vdanen-at-build.annvix.org> 804.027
 - rebuild against perl 5.8.8
 - create -doc subpackage
 
-* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 800.027
+* Thu Jan 12 2006 Vincent Danen <vdanen-at-build.annvix.org> 804.027
 - Clean rebuild
 
-* Tue Dec 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 800.027
+* Tue Dec 27 2005 Vincent Danen <vdanen-at-build.annvix.org> 804.027
 - Obfuscate email addresses and new tagging
 - Uncompress patches
 
-* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 800.027-4avx
+* Sat Sep 10 2005 Vincent Danen <vdanen-at-build.annvix.org> 804.027-4avx
 - rebuild against perl 5.8.7
 
-* Thu Aug 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 800.027-3avx
+* Thu Aug 11 2005 Vincent Danen <vdanen-at-build.annvix.org> 804.027-3avx
 - bootstrap build (new gcc, new glibc)
 
-* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 800.027-2avx
+* Fri Jun 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 804.027-2avx
 - bootstrap build
 
-* Thu Feb 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 800.027-1avx
+* Thu Feb 03 2005 Vincent Danen <vdanen-at-build.annvix.org> 804.027-1avx
 - 804.027
 - spec cleanups
 
