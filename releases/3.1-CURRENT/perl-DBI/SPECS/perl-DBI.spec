@@ -11,7 +11,7 @@
 
 %define revision	$Rev$
 %define name		perl-%{module}
-%define version 	1.601
+%define version 	1.602
 %define release 	%_revrel
 
 Summary:	The Perl Database Interface
@@ -143,6 +143,9 @@ rm -f %{buildroot}%{_mandir}/man3pm/TASKS.3pm*
 
 
 %changelog
+* Sun Feb 17 2008 Vincent Danen <vdanen-at-build.annvix.org> 1.602
+- 1.602
+
 * Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.601
 - 1.601
 
