@@ -9,12 +9,11 @@
 
 %define revision	$Rev$
 %define	name		mrtg
-%define version		2.15.2
+%define version		2.16.1
 %define release		%_revrel
 
 %define _provides_exceptions perl(.*)
-#|%{_bindir}/ksh\\|%{_bindir}/expect
-%define _requires_exceptions perl(MRTG_lib)\\|perl(locales_mrtg)\\|perl(stat.pl)\\|perl(find.pl)\\|perl(MRP::BaseClass)\\|%{_bindir}/ksh\\|%{_bindir}/expect\\|pear(.*.inc.php)\\|perl(Net::SNMP)\\|perl(BER)\\|perl(SNMP_Session)
+%define _requires_exceptions \\(perl(\\(MRTG_lib\\|MRP::BaseClass\\|Net::SNMP)\\)\\|pear(.*)\\)
 
 Summary:	Multi Router Traffic Grapher
 Name:		%{name}
@@ -22,7 +21,7 @@ Version:	%{version}
 Release:	%{release}
 License:	GPL
 Group:		Networking/Other
-URL:		http://www.mrtg.org/
+URL:		http://oss.oetiker.ch/mrtg/
 Source0:	http://oss.oetiker.ch/mrtg/pub/%{name}-%{version}.tar.gz
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
@@ -44,7 +43,6 @@ Summary:	Multi Router Traffic Grapher contribs
 Group:		Networking/Other
 Requires:	%{name} = %{version}
 Requires:	expect
-Requires:	pdksh
 
 %description contribs
 Contributed softwares for The Multi Router Traffic Grapher (MRTG)
@@ -67,7 +65,10 @@ perl -pi -e "s|^sleep .*||g" configure*
 # fix perl path
 find -type f | xargs perl -pi \
     -e 's|(?:/\w+)+/perl|%{_bindir}/perl|g;' \
-    -e 's|c:\\\perl\\\bin|%{_bindir}/perl|g;'
+    -e 's|c:\\perl\\bin|%{_bindir}/perl|g;'
+# make the sole ksh script use sh instead (should work)
+perl -pi -e 's|^#!/usr/bin/ksh|#!/bin/sh|' contrib/adm-mrtg/adm-mrtg
+
 
 %build
 %configure2_5x LIBS="-lXpm -lX11"
@@ -78,11 +79,27 @@ find -type f | xargs perl -pi \
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 %makeinstall_std
 
-mkdir -p %{buildroot}%{_datadir}
+mkdir -p %{buildroot}%{_datadir}/mrtg/contrib
 mkdir -p %{buildroot}/var/www/html/mrtg
 mkdir -p %{buildroot}%{perl_vendorarch}
 
-find contrib | cpio -dpm %{buildroot}%{_datadir}/mrtg
+# contribs
+for contrib in \
+    14all accesslistmon adm-mrtg apc_ups ascendget atmmaker \
+    cfgmaker_ATM cfgmaker_cisco cfgmaker_dlci cisco_BPX_MGX ciscoindex \
+    cisco_ipaccounting cisco_tftp cpuinfo cpumon \
+    diskmon get-active get-equi get-multiserial GetSNMPLinesUP \
+    ipchainacc ipchains ipfilter iptables_acc iptables-accounting \
+    iptables_acc_snmp ircstats ircstats2 IxDisk jm linux_stat \
+    meminfo monitor mrtg-archiver mrtg-archiver-script mrtg-dynip \
+    mrtgidx mrtgindex.cgi mrtg-ipacc mrtg-ipget mrtg-mail \
+    mrtg.php mrtg_php_portal mrtgrq \
+    net-hosts NSI nt_n_cisco nt-services \
+    ovmrtg ping-probe PMLines portmasters procmem \
+    routers rumb-stat snmpping stat stfc switchmaker \
+    TCH TotalControlModem TTrafic whodo xlsummary; do
+        cp -pr contrib/${contrib} %{buildroot}/%{_datadir}/mrtg/contrib/
+done
 
 install -m 0644 images/*.png %{buildroot}/var/www/html/mrtg
 install -m 0644 -c lib/mrtg2/{Pod/*pm,*pm} %{buildroot}%{perl_vendorarch}/
@@ -109,9 +126,16 @@ chrpath -d %{buildroot}%{_bindir}/rateup
 # clean up
 mv %{buildroot}%{_datadir}/doc/mrtg2 .
 
+# drop private versions of perl modules
+rm -f %{buildroot}%{_datadir}/%{name}/lib/SNMP_Session.pm
+rm -f %{buildroot}%{_datadir}/%{name}/lib/SNMP_util.pm
+rm -f %{buildroot}%{_datadir}/%{name}/lib/BER.pm
+rm -rf %{buildroot}%{_datadir}/%{name}/pod
+rm -rf %{buildroot}%{_datadir}/%{name}/contrib/whodo/GIFgraph
+
 
 %clean
-[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+#[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 
 
 %files
@@ -161,7 +185,18 @@ mv %{buildroot}%{_datadir}/doc/mrtg2 .
 
 
 %changelog
-* Sun Sep 23 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.152
+* Sun Feb 17 2008 Vincent Danen <vdanen-at-build.annvix.org> 2.16.1
+- 2.16.1
+- fix url
+- don't install all contrib modules
+- cleanup private copies of perl modules
+- cleanup require exceptions
+- drop requires on pdksh and make the one script that uses ksh use sh
+  instead
+- keep the requires exclusion on Net::SNMP for now as it will require a
+  whole host of perl crypto modules
+
+* Sun Sep 23 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.15.2
 - 2.15.2
 - build against new gd
 - cleanup the configure call
