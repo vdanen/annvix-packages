@@ -9,7 +9,7 @@
 %define	module		IO-Socket-SSL
 %define revision	$Rev$
 %define name		perl-%{module}
-%define version		1.11
+%define version		1.13
 %define release		%_revrel
 
 Summary:	%{module} perl module
@@ -72,6 +72,9 @@ make
 
 
 %changelog
+* Sun Feb 17 2008 Vincent Danen <vdanen-at-build.annvix.org> 1.13
+- 1.13
+
 * Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.11
 - 1.11
 
