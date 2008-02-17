@@ -51,7 +51,11 @@ perl Makefile.PL INSTALLDIRS=vendor
 
 
 %check
-#make test
+# these tests fail, ref: http://rt.cpan.org//Ticket/Display.html?id=32570
+rm -f t/06error.t
+rm -f t/07busy.t
+rm -f t/08create_function.t
+make test
 
 
 %install
@@ -75,7 +79,10 @@ perl Makefile.PL INSTALLDIRS=vendor
 
 
 %changelog
-* Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.14        
+* Sun Feb 17 2008 Vincent Danen <vdanen-at-build.annvix.org> 1.14
+- re-enable the tests and disable those tests that fail
+
+* Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.14
 - 1.14
 - disable the tests for now, one result is "dubious"
 
