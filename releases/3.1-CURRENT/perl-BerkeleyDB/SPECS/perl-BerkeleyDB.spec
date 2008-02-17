@@ -10,7 +10,7 @@
 %define module		BerkeleyDB
 %define revision	$Rev$
 %define name		perl-%{module}
-%define version		0.31
+%define version		0.33
 %define release		%_revrel
 
 Summary:	Perl module for BerkeleyDB 2.x and greater
@@ -20,7 +20,7 @@ Release:	%{release}
 License:	GPL or Artistic
 Group:		Development/Perl
 URL:		http://search.cpan.org/dist/%{module}/
-Source0:	http://www.cpan.org/modules/by-module/BerkeleyDB/%{module}-%{version}.tar.gz
+Source0:	http://www.cpan.org/modules/by-module/BerkeleyDB/BerkeleyDB-%{version}.tar.gz
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	db4-devel
@@ -50,6 +50,9 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q -n %{module}-%{version}
+
+# fix documentation permissions
+chmod 0644 README Changes
 
 
 %build
@@ -82,6 +85,9 @@ make test
 
 
 %changelog
+* Sun Feb 17 2008 Vincent Danen <vdanen-at-build.annvix.org> 0.33
+- 0.33
+
 * Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.26
 - rebuild
 
