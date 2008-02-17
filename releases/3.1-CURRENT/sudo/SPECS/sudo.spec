@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		sudo
-%define version		1.6.9p10
+%define version		1.6.9p12
 %define release		%_revrel
 %define epoch		1
 
@@ -18,7 +18,7 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{release}
 Epoch:		%{epoch}
-License:	GPL
+License:	GPLv2+
 Group:		System/Base
 URL:		http://www.sudo.ws/
 Source:		ftp://ftp.sudo.ws/pub/sudo/%{name}-%{version}.tar.gz
@@ -112,11 +112,16 @@ install -m 0440 %{_sourcedir}/sudoers.annvix %{buildroot}%{_sysconfdir}/sudoers
 
 %files doc
 %defattr(-,root,root)
-%doc BUGS CHANGES HISTORY INSTALL PORTING README
+%doc BUGS CHANGES HISTORY PORTING README
 %doc TROUBLESHOOTING UPGRADE sample.sudoers
 
 
 %changelog
+* Sun Feb 17 2008 Vincent Danen <vdanen-at-build.annvix.org> 1.6.9p12
+- 1.6.9p12
+- don't package INSTALL
+- update license
+
 * Sat Dec 29 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.6.9p10
 - 1.6.9p10
 
