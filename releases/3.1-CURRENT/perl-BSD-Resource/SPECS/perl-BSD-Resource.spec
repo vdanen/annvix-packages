@@ -10,7 +10,7 @@
 %define	revision	$Rev$
 %define	name		perl-%{module}
 %define	module		BSD-Resource
-%define	version		1.28
+%define	version		1.29
 %define	release		%_revrel
 
 Summary:	%{module} module for perl 
@@ -20,7 +20,7 @@ Release:	%{release}
 License:	GPL or Artistic
 Group:		Development/Perl
 URL:		http://search.cpan.org/dist/%{module}/
-Source0:	ftp://ftp.perl.org/pub/CPAN/modules/by-module/BSD/%{module}-%{version}.tar.gz
+Source0:	ftp://ftp.perl.org/pub/CPAN/modules/by-module/BSD/BSD-Resource-%{version}.tar.gz
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl-devel
@@ -70,6 +70,9 @@ make test
 
 
 %changelog
+* Sun Feb 17 2008 Vincent Danen <vdanen-at-build.annvix.org> 1.29
+- 1.29
+
 * Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.28
 - rebuild
 
