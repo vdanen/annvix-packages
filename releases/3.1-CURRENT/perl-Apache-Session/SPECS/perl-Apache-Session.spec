@@ -10,7 +10,7 @@
 %define revision	$Rev$
 %define name		perl-%{module}
 %define module		Apache-Session
-%define version		1.84
+%define version		1.86
 %define release		%_revrel
 %define epoch		1
 
@@ -86,6 +86,9 @@ find %{buildroot}%{_prefix} -type f -print | sed "s@^%{buildroot}@@g" | grep -v 
 
 
 %changelog
+* Sun Feb 17 2008 Vincent Danen <vdanen-at-build.annvix.org> 1.86
+- 1.86
+
 * Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.84
 - 1.84
 
