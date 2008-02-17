@@ -10,7 +10,7 @@
 %define	module		DBD-mysql
 %define	revision	$Rev$
 %define	name		perl-%{module}
-%define version 	4.005
+%define version 	4.006
 %define release 	%_revrel
 
 Summary:	MySQL Perl bindings
@@ -49,6 +49,8 @@ This package contains the documentation for %{name}.
 %prep
 %setup -q -n %{module}-%{version}
 
+# fix documentation permissions
+chmod 0644 README ChangeLog
 
 %build
 perl Makefile.PL INSTALLDIRS=vendor
@@ -80,6 +82,9 @@ perl Makefile.PL INSTALLDIRS=vendor
 
 
 %changelog
+* Sun Feb 17 2008 Vincent Danen <vdanen-at-build.annvix.org> 4.006
+- 4.006
+
 * Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.005
 - rebuild against new mysql
 
