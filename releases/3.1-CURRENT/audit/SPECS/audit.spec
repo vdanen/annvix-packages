@@ -126,7 +126,7 @@ install -m 0740 %{_sourcedir}/auditd-log.run %{buildroot}%{_srvdir}/auditd/log/r
 install -m 0740 %{_sourcedir}/auditd.finish %{buildroot}%{_srvdir}/auditd/finish
 
 # remove unwanted files
-rm -f %{buildroot}%{py_purelibdir}/site-packages/*.{a,la}
+rm -f %{buildroot}%{py_platsitedir}/*.{a,la}
 rm -rf %{buildroot}%{_sysconfdir}/rc.d
 rm -f %{buildroot}%{_sysconfdir}/sysconfig/auditd
 
@@ -186,7 +186,7 @@ rm -f %{buildroot}%{_sysconfdir}/sysconfig/auditd
 %defattr(-,root,root)
 %{py_platsitedir}/*.so
 %{py_platsitedir}/auparse*.egg-info
-%{py_purelibdir}/site-packages/audit.p*
+%{py_platsitedir}/audit.p*
 
 %files doc
 %defattr(-,root,root)
@@ -199,6 +199,7 @@ rm -f %{buildroot}%{_sysconfdir}/sysconfig/auditd
 - drop P3
 - rediff P1, P4
 - update license
+- fix python paths
 
 * Tue Dec 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.6.1
 - 1.6.1
