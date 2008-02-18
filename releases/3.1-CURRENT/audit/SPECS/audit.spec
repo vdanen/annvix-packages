@@ -186,7 +186,7 @@ rm -f %{buildroot}%{_sysconfdir}/sysconfig/auditd
 %defattr(-,root,root)
 %{py_platsitedir}/*.so
 %{py_platsitedir}/auparse*.egg-info
-%{py_platsitedir}/audit.p*
+%{py_purelibdir}/site-packages/audit.p*
 
 %files doc
 %defattr(-,root,root)
