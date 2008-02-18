@@ -55,6 +55,7 @@ Conflicts:	uw-imap
 Conflicts:	bincimap
 Provides:	imap = %{version}
 Provides:	imap-server = %{version}
+Provides:	imaps-server = %{version}
 
 %description
 Courier-IMAP is an IMAP server for Maildir mailboxes.  This package contains
@@ -82,7 +83,8 @@ Requires:	ipsvd
 Requires(post):	rpm-helper >= 0.20
 Requires(preun): rpm-helper >= 0.20
 Provides:	pop = %{version}
-Provides:	pop-server = %{version}
+Provides:	pop3-server = %{version}
+Provides:	pop3s-server = %{version}
 Provides:	%{name}-pop = %{version}
 Conflicts:	uw-imap-pop
 Obsoletes:	%{name}-pop
@@ -370,6 +372,9 @@ done
 
 
 %changelog
+* Mon Feb 18 2008 Vincent Danen <vdanen-at-build.annvix.org> 4.3.0
+- update provides to work with our task package
+
 * Fri Dec 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 4.3.0
 - update the afterboot snippet
 
