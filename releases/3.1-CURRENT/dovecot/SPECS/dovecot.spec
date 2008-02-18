@@ -39,10 +39,10 @@ BuildRequires:	postgresql-devel
 BuildRequires:	gssglue-devel
 BuildRequires:	krb5-devel
 
-Provides:	imap-server
-Provides:	pop3-server
-Provides:	imaps-server
-Provides:	pop3s-server
+Provides:	imap-server = %{version}
+Provides:	pop3-server = %{version}
+Provides:	imaps-server = %{version}
+Provides:	pop3s-server = %{version}
 Requires(pre):	rpm-helper
 Requires(post):	rpm-helper
 Requires(preun): rpm-helper
@@ -225,6 +225,9 @@ rm -rf %{buildroot}%{_datadir}/doc/dovecot/
 
 
 %changelog
+* Mon Feb 18 2008 Vincent Danen <vdanen-at-build.annvix.org> 1.0.10
+- update provides to work with our task package
+
 * Sat Dec 29 2007 Vincent Danen <vdanen-at-build.annvix.org>  1.0.10
 - 1.0.10
 
