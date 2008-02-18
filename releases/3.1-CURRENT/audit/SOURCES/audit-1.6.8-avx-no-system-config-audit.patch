@@ -1,0 +1,22 @@
+--- audit-1.6.8/configure.ac.no-system-config-audit	2008-02-04 07:24:00.000000000 -0700
++++ audit-1.6.8/configure.ac	2008-02-18 12:58:05.693171549 -0700
+@@ -124,7 +124,6 @@
+ fi
+ AM_CONDITIONAL(HAVE_PRELUDE, test x$have_prelude = xyes)
+ 
+-AC_CONFIG_SUBDIRS([system-config-audit])
+ AC_OUTPUT(Makefile lib/Makefile auparse/Makefile auparse/test/Makefile src/Makefile src/mt/Makefile swig/Makefile docs/Makefile init.d/Makefile audisp/Makefile audisp/plugins/Makefile audisp/plugins/builtins/Makefile audisp/plugins/prelude/Makefile audisp/plugins/remote/Makefile audisp/plugins/zos-remote/Makefile bindings/Makefile bindings/python/Makefile tools/Makefile tools/aulastlog/Makefile)
+ 
+ echo .
+--- audit-1.6.8/Makefile.am.no-system-config-audit	2008-01-07 09:17:33.000000000 -0700
++++ audit-1.6.8/Makefile.am	2008-02-18 12:58:53.210118690 -0700
+@@ -21,8 +21,7 @@
+ #   Rickard E. (Rik) Faith <faith@redhat.com>
+ #
+ 
+-SUBDIRS = lib auparse src/mt src audisp tools swig bindings init.d \
+-	docs system-config-audit
++SUBDIRS = lib auparse src/mt src audisp tools swig bindings init.d docs
+ EXTRA_DIST = ChangeLog AUTHORS NEWS README README-install audit.spec \
+ 	contrib/capp.rules contrib/nispom.rules contrib/lspp.rules \
+ 	contrib/skeleton.c contrib/avc_snap contrib/avc_syslog \

@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name 		audit
-%define version 	1.6.1
+%define version 	1.6.8
 %define release 	%_revrel
 
 %define major		0
@@ -20,17 +20,16 @@ Summary:	User-space tools for Linux 2.6 kernel auditing
 Name: 		%{name}
 Version: 	%{version}
 Release: 	%{release}
-License:	GPL
+License:	GPLv2+
 Group:		Monitoring
 URL: 		http://people.redhat.com/sgrubb/audit/
 Source0:	http://people.redhat.com/sgrubb/audit/%{name}-%{version}.tar.gz
 Source1:	auditd.run
 Source2:	auditd.finish
 Source3:	auditd-log.run
-Patch1:		audit-1.6.1-avx-config.patch
+Patch1:		audit-1.6.8-avx-config.patch
 Patch2:		audit-1.6.1-mdv-sendmail.patch
-Patch3:		audit-1.6.1-mdv-offt.patch
-Patch4:		audit-1.6.1-avx-no-system-config-audit.patch
+Patch4:		audit-1.6.8-avx-no-system-config-audit.patch
 
 BuildRoot: 	%{_buildroot}/%{name}-%{version}
 BuildRequires:	libtool
@@ -98,8 +97,9 @@ This package contains the documentation for %{name}.
 %setup -q
 %patch1 -p1 -b .config
 %patch2 -p1 -b .sendmail
-%patch3 -p1 -b .offt
 %patch4 -p1 -b .no-system-config-audit
+
+find -type d -name ".libs" | xargs rm -rf
 
 
 %build
@@ -112,7 +112,7 @@ aclocal && autoconf && autoheader && automake
     --libdir=/%{_lib} \
     --libexecdir=%{_sbindir} \
     --with-apparmor
-make
+%make
 
 
 %install
@@ -126,7 +126,7 @@ install -m 0740 %{_sourcedir}/auditd-log.run %{buildroot}%{_srvdir}/auditd/log/r
 install -m 0740 %{_sourcedir}/auditd.finish %{buildroot}%{_srvdir}/auditd/finish
 
 # remove unwanted files
-rm -f %{buildroot}%{py_siteplatdir}/*.{a,la}
+rm -f %{buildroot}%{py_purelibdir}/site-packages/*.{a,la}
 rm -rf %{buildroot}%{_sysconfdir}/rc.d
 rm -f %{buildroot}%{_sysconfdir}/sysconfig/auditd
 
@@ -154,9 +154,11 @@ rm -f %{buildroot}%{_sysconfdir}/sysconfig/auditd
 %dir %{_sysconfdir}/audit
 %dir %{_sysconfdir}/audisp
 %dir %{_sysconfdir}/audisp/plugins.d
+%config(noreplace) %{_sysconfdir}/audisp/zos-remote.conf
 %config(noreplace) %{_sysconfdir}/audisp/audispd.conf
 %config(noreplace) %{_sysconfdir}/audisp/plugins.d/af_unix.conf
 %config(noreplace) %{_sysconfdir}/audisp/plugins.d/syslog.conf
+%config(noreplace) %{_sysconfdir}/audisp/plugins.d/audispd-zos-remote.conf
 %config(noreplace) %{_sysconfdir}/audit/auditd.conf
 %config(noreplace) %{_sysconfdir}/audit/audit.rules
 %dir %attr(0750,root,admin) %{_srvdir}/auditd
@@ -182,15 +184,22 @@ rm -f %{buildroot}%{_sysconfdir}/sysconfig/auditd
 
 %files -n python-audit
 %defattr(-,root,root)
-%{py_platsitedir}/*
-%{py_purelibdir}/*
+%{py_platsitedir}/*.so
+%{py_platsitedir}/auparse*.egg-info
+%{py_purelibdir}/site-packages/audit.p*
 
 %files doc
 %defattr(-,root,root)
-%doc README COPYING ChangeLog sample.rules contrib/capp.rules contrib/lspp.rules contrib/skeleton.c
+%doc README COPYING ChangeLog contrib/capp.rules contrib/lspp.rules contrib/skeleton.c
 
 
 %changelog
+* Mon Feb 18 2008 Vincent Danen <vdanen-at-build.annvix.org> 1.6.8
+- 1.6.8
+- drop P3
+- rediff P1, P4
+- update license
+
 * Tue Dec 11 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.6.1
 - 1.6.1
 - updated buildrequires
