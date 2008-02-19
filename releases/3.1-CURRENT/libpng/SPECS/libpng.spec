@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		libpng
-%define version		1.2.23
+%define version		1.2.25
 %define release		%_revrel
 %define epoch		2
 
@@ -23,7 +23,7 @@ Name: 		%{name}
 Version: 	%{version}
 Release:	%{release}
 Epoch: 		%{epoch}
-License: 	GPL-like
+License: 	zlib
 Group: 		System/Libraries
 URL: 		http://www.libpng.org/pub/png/libpng.html
 Source: 	http://prdownloads.sourceforge.net/libpng/%{name}-%{version}.tar.bz2
@@ -155,6 +155,10 @@ rm -rf %{buildroot}{%{_prefix}/man,%{_libdir}/lib*.la}
 
 
 %changelog
+* Mon Feb 18 2008 Vincent Danen <vdanen-at-build.annvix.org> 1.2.25
+- 1.2.25
+- update license
+
 * Tue Nov 20 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.2.23
 - 1.2.23 (fixes CVE-2007-5269)
 - move the man5 manpages to the -devel package
