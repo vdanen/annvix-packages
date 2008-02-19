@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		timezone
-%define version		2007j
+%define version		2007k
 %define release		%_revrel
 %define epoch		6
 
@@ -109,6 +109,11 @@ fi
 
 
 %changelog
+* Mon Feb 18 2008 Vincent Danen <vdanen-at-build.annvix.org> 2007k
+- 2007k
+- update-localtime.sh now uses 'install -m' to ensure correct permissions
+- update P1 from Mandriva
+
 * Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 2007j
 - fix update-localtime to not try to copy a timezone file if /etc/localtime
   is a symlink

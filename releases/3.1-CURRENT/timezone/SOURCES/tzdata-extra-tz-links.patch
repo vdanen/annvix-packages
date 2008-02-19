@@ -1,6 +1,6 @@
---- tzdata/tzdata2007j/backward.org	2007-12-06 00:17:09.888241000 -0700
-+++ tzdata/tzdata2007j/backward	2007-12-06 00:17:06.170150750 -0700
-@@ -107,3 +107,18 @@
+--- tzdata/tzdata2007k/backward.orig	2007-12-31 13:23:09.000000000 -0200
++++ tzdata/tzdata2007k/backward	2008-01-02 10:55:32.000000000 -0200
+@@ -108,3 +108,18 @@ Link	Etc/UTC			UTC
  Link	Etc/UTC			Universal
  Link	Europe/Moscow		W-SU
  Link	Etc/UTC			Zulu

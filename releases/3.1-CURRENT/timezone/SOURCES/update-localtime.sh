@@ -12,5 +12,5 @@ if [ -z "${ZONE}" ]; then
 fi
 
 if [ -f ${zonedir}/${ZONE} ] && [ ! -L ${localtime_file} ]; then
-    cp -f ${zonedir}/${ZONE} ${localtime_file}
+    install -m 0644 ${zonedir}/${ZONE} ${localtime_file}
 fi
