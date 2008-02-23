@@ -12,7 +12,7 @@
 %define version		2.1
 %define release		%_revrel
 
-%define svnrel		961
+%define svnrel		1076
 
 %define major		1
 %define libname		%mklibname apparmor %{major}
@@ -31,13 +31,12 @@ Source0:	%{name}-%{version}-%{svnrel}.tar.gz
 Source1:	01_mod_apparmor.conf
 Source2:	apparmor-avx.init
 Patch0:		apparmor-2.1-961-mdv-ldflags.patch
-Patch1:		apparmor-parser-2.0.2-avx-fixes.patch
+Patch1:		apparmor-2.1-1076-avx-annvix_fixes.patch
 Patch2:		apparmor-2.1-961-avx-socklog.patch
 Patch3:		apparmor-utils-2.0-avx-nofork.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	flex >= 2.5.33
-#BuildRequires:	latex2html
 BuildRequires:	bison
 BuildRequires:	perl-devel
 BuildRequires:	pam-devel
@@ -51,7 +50,7 @@ BuildRequires:	libpcap-devel
 Requires:	apparmor-parser
 Requires:	apparmor-utils
 Requires:	apparmor-profiles
-Requires:	%{libname}
+Requires:	lib%{name}
 
 %description
 AppArmor is a security framework that proactively protects the operating system
@@ -154,9 +153,7 @@ This package is part of a suite of tools that used to be named SubDomain.
 pushd changehat/pam_apparmor
 %patch0 -p0 -b .ldflags
 popd
-pushd parser
-%patch1 -p0 -b .avx
-popd
+%patch1 -p0 -b .avx-initscripts
 pushd utils
 %patch2 -p0 -b .avx-socklog
 %patch3 -p0 -b .avx-nofork
@@ -372,6 +369,11 @@ rm -f %{buildroot}%{_profiledir}/{bin,sbin,usr.sbin,usr.bin}.*
 
 
 %changelog
+* Fri Feb 22 2008 Vincent Danen <vdanen-at-build.annvix.org> 2.1
+- update to svn rel 1076
+- rebuild against new audit
+- rediff P1
+
 * Sat Jan 26 2008 Vincent Danen <vdanen-at-build.annivix.org> 2.1
 - apache 2.2.8
 

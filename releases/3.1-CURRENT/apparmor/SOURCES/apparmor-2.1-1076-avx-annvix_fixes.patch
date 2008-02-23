@@ -1,5 +1,5 @@
---- rc.apparmor.functions.avx	2007-05-14 01:42:59.000000000 -0600
-+++ rc.apparmor.functions	2007-06-12 16:32:55.093041500 -0600
+--- parser/rc.apparmor.functions.avx	2008-01-08 12:53:28.000000000 -0700
++++ parser/rc.apparmor.functions	2008-02-22 20:45:55.159847584 -0700
 @@ -30,6 +30,9 @@
  
  # Some nice defines that we use
@@ -10,7 +10,7 @@
  CONFIG_DIR=/etc/apparmor
  MODULE=apparmor
  OLD_MODULE=subdomain
-@@ -113,6 +116,35 @@
+@@ -136,6 +139,35 @@
  	return 1
  }
  
@@ -46,7 +46,7 @@
  parse_profiles() {
  	# get parser arg
  	case "$1" in
-@@ -128,7 +160,7 @@
+@@ -151,7 +183,7 @@
  			exit 1
  			;;
  	esac
@@ -55,7 +55,7 @@
  	# run the parser on all of the apparmor profiles
  	if [ ! -f "$PARSER" ]; then
  		aa_log_failure_msg "- AppArmor parser not found"
-@@ -147,13 +179,13 @@
+@@ -170,13 +202,13 @@
  
  	for profile in $PROFILE_DIR/*; do
  		if skip_profile "${profile}" ; then
@@ -71,7 +71,7 @@
  				STATUS=1
  			fi
  		fi
-@@ -365,7 +397,7 @@
+@@ -389,7 +421,7 @@
  }
  
  apparmor_stop() {
@@ -80,10 +80,10 @@
  	remove_profiles
  	return $?
  }
-@@ -451,10 +483,10 @@
+@@ -475,10 +507,10 @@
  		return $?
  	fi
- 	if ! grep -qE "^(subdomain|apparmor)[[:space:]]" /proc/modules ; then
+ 	if ! is_apparmor_present apparmor subdomain ; then
 -		echo "AppArmor is not loaded."
 +		einfo "AppArmor is not loaded."
  		rc=1
@@ -93,18 +93,18 @@
  		rc=0
  	fi
  	echo "Install the apparmor-utils package to receive more detailed"
---- Makefile.avx	2007-05-14 01:42:59.000000000 -0600
-+++ Makefile	2007-06-12 16:36:14.713257000 -0600
+--- parser/Makefile.avx-no_techdoc	2008-01-08 12:53:28.000000000 -0700
++++ parser/Makefile	2008-02-22 22:39:27.869301589 -0700
 @@ -122,7 +122,7 @@
  techdoc.txt: techdoc/index.html
  	w3m -dump $< > $@
  
 -all: 	$(TOOLS) $(MANPAGES) ${HTMLMANPAGES} techdoc.pdf techdoc/index.html
-+all: 	$(TOOLS) $(MANPAGES) ${HTMLMANPAGES} 
++all: 	$(TOOLS) $(MANPAGES) ${HTMLMANPAGES}
  	$(Q)make -C po all
  	$(Q)make -s tests
  
-@@ -222,6 +222,11 @@
+@@ -233,6 +233,11 @@
  	ln -sf rcapparmor $(DESTDIR)/sbin/rcsubdomain
  	ln -sf /etc/init.d/aaeventd $(DESTDIR)/sbin/rcaaeventd
  
