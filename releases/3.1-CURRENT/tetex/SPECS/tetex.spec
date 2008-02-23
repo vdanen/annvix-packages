@@ -96,8 +96,8 @@ BuildRequires:	automake1.7
 BuildRequires:	ncurses-devel
 BuildRequires:	png-devel
 BuildRequires:	xpm-devel
-BuildRequires:	libx11-devel
-BuildRequires:	libxt-devel
+BuildRequires:	x11-devel
+BuildRequires:	xt-devel
 
 Requires:	tmpwatch
 Requires:	dialog
@@ -536,6 +536,7 @@ rm -f filelist.*
 %changelog
 * Fri Feb 22 2008 Vincent Danen <vdanen-at-build.annvix.org> 3.0
 - rebuild against new libpng
+- fix buildrequires
 
 * Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0
 - rebuild against new libx11
