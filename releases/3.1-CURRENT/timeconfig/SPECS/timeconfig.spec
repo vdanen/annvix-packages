@@ -91,6 +91,9 @@ fi
 
 
 %changelog
+* Fri Feb 22 2008 Vincent Danen <vdanen-at-build.annvix.org> 3.2
+- rebuild against new slang
+
 * Wed Nov 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.2
 - rebuild against new gettext
 
