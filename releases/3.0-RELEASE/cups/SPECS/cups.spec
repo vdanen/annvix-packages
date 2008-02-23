@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		cups
-%define version		1.3.5
+%define version		1.3.6
 %define release		%_revrel
 
 %define major		2
@@ -169,8 +169,6 @@ mkdir -p %{buildroot}%{_includedir}/cups
 install -m 0644 cups/debug.h  %{buildroot}%{_includedir}/cups/
 install -m 0644 cups/string.h %{buildroot}%{_includedir}/cups/
 install -m 0644 config.h %{buildroot}%{_includedir}/cups/
-#install -m 0755 cups/libcups.a %{buildroot}%{_libdir}/
-#install -m 0755 filter/libcupsimage.a %{buildroot}%{_libdir}/
 
 %multiarch_includes %{buildroot}%{_includedir}/cups/config.h
 
@@ -183,6 +181,9 @@ touch %{buildroot}%{_sysconfdir}/cups/client.conf
 # pam
 cp -f %{_sourcedir}/cups.pam %{buildroot}%{_sysconfdir}/pam.d/cups
 chmod 0644 %{buildroot}%{_sysconfdir}/pam.d/cups
+
+# remove spurious executable permissions
+chmod -x %{buildroot}%{_libdir}/libcups*.a
 
 
 %post
@@ -230,15 +231,14 @@ chgrp -R sys %{_sysconfdir}/cups %{_var}/*/cups
 %{_libdir}/cups
 %endif
 %{_datadir}/cups
-#%{_datadir}/locale/*/*
 %{_mandir}/man1/*
 %{_mandir}/man5/*
 %{_mandir}/man7/*
 %{_mandir}/man8/*
 %{_var}/log/cups
-%dir %attr(0710,lp,sys) %{_var}/spool/cups
-%dir %attr(1700,lp,sys) %{_var}/spool/cups/tmp
-%dir %attr(0775,lp,sys) %{_var}/cache/cups
+%dir %attr(0710,root,sys) %{_var}/spool/cups
+%dir %attr(1770,root,sys) %{_var}/spool/cups/tmp
+%dir %attr(0775,root,sys) %{_var}/cache/cups
 %attr(0511,lp,sys) %{_var}/run/cups/certs
 %dir %attr(0750,root,admin) %{_srvdir}/cupsd
 %dir %attr(0750,root,admin) %{_srvdir}/cupsd/log
@@ -264,6 +264,11 @@ chgrp -R sys %{_sysconfdir}/cups %{_var}/*/cups
 
 
 %changelog
+* Fri Feb 22 2008 Vincent Danen <vdanen-at-build.annvix.org> 1.3.6
+- 1.3.6: fixes CVE-2008-0882
+- fix permissions
+- fix some rpmlint warnings
+
 * Mon Dec 17 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.3.5
 - 1.3.5: fixes CVE-2007-4352, CVE-2007-5392, CVE-2007-5393,
   CVE-2007-5849
