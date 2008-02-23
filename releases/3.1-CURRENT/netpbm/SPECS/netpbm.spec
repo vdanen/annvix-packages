@@ -47,8 +47,8 @@ BuildRequires:	flex
 BuildRequires:	png-devel
 BuildRequires:	jpeg-devel
 BuildRequires:	tiff-devel
-BuildRequires:	libx11-devel
-BuildRequires:	libxml2-devel
+BuildRequires:	x11-devel
+BuildRequires:	xml-devel
 
 Requires:	%{libname} = %{version}-%{release}
 
@@ -244,6 +244,7 @@ cp test-images/* %{buildroot}%{_datadir}/printconf/tests/
 %changelog
 * Fri Feb 22 2008 Vincent Danen <vdanen-at-build.annvix.org> 10.34
 - rebuild against new libpng
+- fix buildrequires
 
 * Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 10.34
 - rebuild against new libx11
