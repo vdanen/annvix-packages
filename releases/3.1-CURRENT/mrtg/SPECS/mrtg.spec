@@ -185,6 +185,9 @@ rm -rf %{buildroot}%{_datadir}/%{name}/contrib/whodo/GIFgraph
 
 
 %changelog
+* Fri Feb 22 2008 Vincent Danen <vdanen-at-build.annvix.org> 2.16.1
+- rebuild against new libpng
+
 * Sun Feb 17 2008 Vincent Danen <vdanen-at-build.annvix.org> 2.16.1
 - 2.16.1
 - fix url
