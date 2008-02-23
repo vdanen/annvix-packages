@@ -18,7 +18,7 @@
 %define tetexversion	3.0
 %define texmfversion	3.0
 %define texmfsrcversion	3.0
-%define texmfggversion	3.0k
+%define texmfggversion	3.0m
 %define xmltexname	xmltex
 %define xmltexversion	1.9
 %define csidxversion	19990820
@@ -534,6 +534,9 @@ rm -f filelist.*
 
 
 %changelog
+* Fri Feb 22 2008 Vincent Danen <vdanen-at-build.annvix.org> 3.0
+- rebuild against new libpng
+
 * Fri Dec 14 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.0
 - rebuild against new libx11
 
