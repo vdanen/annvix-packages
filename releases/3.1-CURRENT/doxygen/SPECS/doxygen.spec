@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		doxygen
-%define version 	1.5.4
+%define version 	1.5.5
 %define release 	%_revrel
 
 Summary:	Doxygen is THE documentation system for C/C++
@@ -82,6 +82,9 @@ install -s bin/doxy* %{buildroot}%{_bindir}
 
 
 %changelog
+* Fri Feb 22 2008 Vincent Danen <vdanen-at-build.annvix.org> 1.5.5
+- 1.5.5
+
 * Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.5.4
 - 1.5.4
 - P1: use system libpng
