@@ -152,6 +152,9 @@ rm -rf  %{buildroot}%{_libdir}/python{1.5,2.0,2.1,2.2,2.3.2.4}
 
 
 %changelog
+* Fri Feb 22 2008 Vincent Danen <vdanen-at-build.annvix.org> 0.52.6
+- rebuild against new slang
+
 * Sat Sep 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.52.6
 - 0.52.6
 - updated P1 from Mandriva
