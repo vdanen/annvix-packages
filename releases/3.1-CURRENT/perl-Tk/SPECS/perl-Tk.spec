@@ -134,6 +134,9 @@ rm -f %{buildroot}%{perl_vendorarch}/Tk/README.Adjust
 
 
 %changelog
+* Fri Feb 22 2008 Vincent Danen <vdanen-at-build.annvix.org> 804.028
+- rebuild against new libpng
+
 * Tue Feb 12 2008 Vincent Danen <vdanen-at-build.annvix.org> 804.028
 - 804.028
 - buildrequires jpeg-devel and png-devel
