@@ -18,7 +18,7 @@
 %define tetexversion	3.0
 %define texmfversion	3.0
 %define texmfsrcversion	3.0
-%define texmfggversion	3.0m
+%define texmfggversion	3.0k
 %define xmltexname	xmltex
 %define xmltexversion	1.9
 %define csidxversion	19990820
