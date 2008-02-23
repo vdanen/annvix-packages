@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		sudo
-%define version		1.6.9p12
+%define version		1.6.9p13
 %define release		%_revrel
 %define epoch		1
 
@@ -29,6 +29,8 @@ Source4:	sudo.logrotate
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:  pam-devel
+BuildRequires:	bison
+BuildRequires:	groff-for-man
 
 Requires:	pam
 
@@ -54,8 +56,9 @@ This package contains the documentation for %{name}.
 %build
 %serverbuild
 
-CFLAGS="%{optflags} -D_GNU_SOURCE" \
+export CFLAGS="%{optflags} -D_GNU_SOURCE"
 %configure2_5x  \
+    --without-rpath \
     --with-logging=both \
     --with-logpath=%{_logdir}/sudo.log \
     --with-editor=/bin/vi \
@@ -64,8 +67,7 @@ CFLAGS="%{optflags} -D_GNU_SOURCE" \
     --with-pam \
     --with-env-editor \
     --with-noexec=no \
-    --with-secure-path="/sbin:%{_sbindir}:/bin:%{_bindir}:/usr/local/sbin:/usr/local/bin" \
-    CFLAGS="%{optflags} -D_GNU_SOURCE"
+    --with-secure-path="/sbin:%{_sbindir}:/bin:%{_bindir}:/usr/local/sbin:/usr/local/bin"
 
 %make
 
@@ -74,7 +76,7 @@ CFLAGS="%{optflags} -D_GNU_SOURCE" \
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}%{_prefix}
 
-%makeinstall \
+%makeinstall_std \
 install_uid=$UID install_gid=$(id -g) sudoers=uid=$UID sudoers_gid=$(id -g)
 
 mkdir -p %{buildroot}/var/run/sudo
@@ -117,6 +119,11 @@ install -m 0440 %{_sourcedir}/sudoers.annvix %{buildroot}%{_sysconfdir}/sudoers
 
 
 %changelog
+* Fri Feb 22 2008 Vincent Danen <vdanen-at-build.annvix.org> 1.6.9p13
+- 1.6.9p13
+- buildrequires bison, groff-for-man
+- build without rpath and cleanup how CFLAGS are defined
+
 * Sun Feb 17 2008 Vincent Danen <vdanen-at-build.annvix.org> 1.6.9p12
 - 1.6.9p12
 - don't package INSTALL
