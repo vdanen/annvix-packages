@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		slang
-%define version 	2.1.1
+%define version 	2.1.3
 %define release 	%_revrel
 
 %define major		2
@@ -24,9 +24,10 @@ License:	GPLv2+
 Group:		System/Libraries
 URL:		http://www.s-lang.org
 Source0:	ftp://space.mit.edu/pub/davis/slang/v2.1/%{name}-%{version}.tar.bz2
-Source1:	ftp://space.mit.edu/pub/davis/slang/v2.1/%{name}-%{version}.tar.bz2.sig
+Source1:	ftp://space.mit.edu/pub/davis/slang/v2.1/%{name}-%{version}.tar.bz2.asc
 Patch0:		slang-2.1.0-mdv-no_glibc_private.patch
-Patch1:		slang-2.1.0-mdv-slsh_install.patch
+Patch1:		slang-2.1.3-fdr-makefile.patch
+Patch2:		slang-2.0.5-fdr-LANG.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	glibc-devel
@@ -34,6 +35,7 @@ BuildRequires:	libtool
 BuildRequires:	autoconf2.5
 BuildRequires:	pcre-devel
 BuildRequires:	png-devel
+BuildRequires:	x11-devel
 
 %description
 S-Lang is an interpreted language and a programming library.  The
@@ -85,7 +87,8 @@ This package contains the documentation for %{name}.
 %prep
 %setup -q
 %patch0 -p1 -b .no_glibc_private
-%patch1 -p1 -b .slsh_install
+%patch1 -p1
+%patch2 -p1
 
 
 %build
@@ -100,10 +103,10 @@ make check
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
-make DESTDIR=%{buildroot} install
+%makeinstall_std DESTDIR=%{buildroot} install
 
 # Remove unpackages files
-rm -rf	%{buildroot}%{_docdir}/slang
+rm -rf	%{buildroot}%{_docdir}/{slang,slsh}
 rm -f %{buildroot}%{_bindir}/slsh
 rm -rf %{buildroot}%{_datadir}/slsh
 rm -rf %{buildroot}%{_mandir}
@@ -135,6 +138,12 @@ rm -rf %{buildroot}%{_sysconfdir}
 
 
 %changelog
+* Fri Feb 22 2008 Vincent Danen <vdanen-at-build.annvix.org> 2.1.3
+- 2.1.3
+- drop P1; we don't ship slsh anyways, and it's no longer required
+- new P1, P2 from Fedora
+- buildrequires x11-devel
+
 * Sat Sep 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.1.1
 - 2.1.1
 - drop UTF8 patches; implemented upstream
