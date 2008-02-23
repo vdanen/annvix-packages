@@ -158,6 +158,9 @@ install -m 0644 isolinux-x86_64.bin %{buildroot}%{_prefix}/lib/syslinux/
 
 
 %changelog
+* Fri Feb 22 2008 Vincent Danen <vdanen-at-build.annvix.org> 3.51
+- rebuild against new libpng
+
 * Sat Dec 29 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.51
 - don't change where isolinux looks for it's config files (i.e. in
   x86_64/isolinux or i586/isolinux)
