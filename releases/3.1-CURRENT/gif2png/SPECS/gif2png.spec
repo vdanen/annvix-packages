@@ -23,7 +23,7 @@ Source:		http://www.catb.org/~esr/gif2png/%{name}-%{version}.tar.gz
 Patch0:		gif2png-2.5.1-gentoo-libpng_compile_fixes.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
-BuildRequires:	libpng-devel
+BuildRequires:	png-devel
 BuildRequires:	zlib-devel
 
 Requires:	python
@@ -72,6 +72,10 @@ This package contains the documentation for %{name}.
 
 
 %changelog
+* Fri Feb 22 2008 Vincent Danen <vdanen-at-build.annvix.org> 2.5.1
+- rebuild against new libpng
+- fix buildrequires
+
 * Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.5.1
 - 2.5.1
 - P0: patch from Gentoo to build against libpng 1.2.12+
