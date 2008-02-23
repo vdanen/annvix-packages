@@ -189,6 +189,9 @@ libtoolize --copy --force; aclocal-1.7; automake-1.7 --copy --add-missing; autoc
 
 
 %changelog
+* Fri Feb 22 2008 Vincent Danen <vdanen-at-build.annvix.org> 2.0.35
+- rebuild against new libpng
+
 * Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.0.35
 - get rid of %%odevname
 
