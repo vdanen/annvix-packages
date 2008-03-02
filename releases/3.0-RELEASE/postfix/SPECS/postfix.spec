@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		postfix
-%define version		2.4.6
+%define version		2.4.7
 %define release 	%_revrel
 %define epoch		1
 
@@ -455,6 +455,9 @@ done
 
 
 %changelog
+* Thu Mar 2 2008 Ying-Hung Chen <ying-at-yingternet.com> 2.4.7
+- 2.4.7
+
 * Mon Dec 17 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.4.6
 - update the default config to not show Mandriva branding or the
   postfix version
