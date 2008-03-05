@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		openldap
-%define version		2.3.39
+%define version		2.3.41
 %define release		%_revrel
 
 %define major 		2.3_0
@@ -865,6 +865,9 @@ fi
 
 
 %changelog
+* Wed Mar 05 2008 Vincent Danen <vdanen-at-build.annvix.org> 2.3.41
+- 2.3.41: fixes CVE-2008-0658
+
 * Fri Dec 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.3.39
 - more changes to the afterboot snippet
 
