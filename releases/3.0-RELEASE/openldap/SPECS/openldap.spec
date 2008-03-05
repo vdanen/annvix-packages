@@ -117,6 +117,8 @@ Patch14:	MigrationTools-45-i18n.patch
 Patch15:	MigrationTools-45-structural.patch
 # preserves the temp file used to import data if an error occured
 Patch16:	MigrationTools-40-preserveldif.patch
+# security
+Patch17:	openldap-2.3.38-CVE-2008-0658.patch
 # db 4.2.52 patches
 Patch100:	http://www.oracle.com/technology/products/berkeley-db/db/update/4.2.52/patch.4.2.52.1
 Patch101:	http://www.oracle.com/technology/products/berkeley-db/db/update/4.2.52/patch.4.2.52.2
@@ -317,6 +319,8 @@ pushd MigrationTools-%{migtools_ver}
 %patch15 -p2 -b .account
 %patch16 -p1 -b .preserve
 popd
+
+%patch17 -p1 -b .cve-2008-0658
 
 # patches from CVS
 
@@ -865,6 +869,9 @@ fi
 
 
 %changelog
+* Wed Mar 05 2008 Vincent Danen <vdanen-at-build.annvix.org> 2.3.39
+- P17: security fix for CVE-2008-0658
+
 * Fri Dec 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.3.39
 - more changes to the afterboot snippet
 
