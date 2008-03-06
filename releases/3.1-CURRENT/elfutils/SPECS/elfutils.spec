@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		elfutils
-%define version		0.129
+%define version		0.131
 %define release		%_revrel
 
 %define major		1
@@ -27,7 +27,7 @@ Summary:	A collection of utilities and DSOs to handle compiled objects
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-License:	GPL
+License:	GPLv2+
 Group:		Development/Other
 Source:		ftp://sources.redhat.com/pub/systemtap/elfutils/%{name}-%{version}.tar.gz
 # these 2 patches are from ftp://sources.redhat.com/pub/systemtap/elfutils/
@@ -37,8 +37,8 @@ Patch2:		elfutils-0.128-mdv-elflint.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	gcc >= 3.4
-BuildRequires:	sharutils
-BuildRequires:	libtool-devel
+BuildRequires:	bison
+BuildRequires:	flex
 
 Requires:	%{libname} = %{version}-%{release}
 
@@ -180,6 +180,7 @@ chmod +x %{buildroot}%{_libdir}/elfutils/lib*.so*
 %{_bindir}/eu-elfcmp
 %{_bindir}/eu-findtextrel
 %{_bindir}/eu-elflint
+%{_bindir}/eu-make-debug-archive
 %{_bindir}/eu-nm
 %{_bindir}/eu-ranlib
 %{_bindir}/eu-readelf
@@ -223,6 +224,12 @@ chmod +x %{buildroot}%{_libdir}/elfutils/lib*.so*
 
 
 %changelog
+* Wed Mar 05 2008 Vincent Danen <vdanen-at-build.annvix.org> 0.131
+- 0.131
+- updated upstream P0
+- buildrequires bison and flex
+- drop unneeded buildreq on libtool-devel and sharutils
+
 * Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.129
 - get rid of %%odevname
 
