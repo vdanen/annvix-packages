@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		pciutils
-%define version		2.2.6
+%define version		2.2.9
 %define release		%_revrel
 
 Summary:	PCI bus related utilities
@@ -114,6 +114,9 @@ install libpci.a.diet %{buildroot}%{_prefix}/lib/dietlibc/lib-%{_arch}/libpci.a
 
 
 %changelog
+* Wed Mar 05 2008 Vincent Danen <vdanen-at-build.annvix.org> 2.2.9
+- 2.2.9
+
 * Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.2.6
 - 2.2.6
 - updated patches from Mandriva 2.2.6-3mdv
