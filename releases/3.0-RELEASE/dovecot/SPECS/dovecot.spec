@@ -170,7 +170,7 @@ rm -rf %{buildroot}%{_datadir}/doc/dovecot/
 %{_libdir}/%{name}/*
 %{_sbindir}/*
 %attr(0700,root,root) %dir %{_var}/%{_lib}/%{name}
-%config(noreplace) %{_sysconfdir}/dovecot/*.conf
+%attr(0640,root,root) %config(noreplace) %{_sysconfdir}/dovecot/*.conf
 %config(noreplace) %{_sysconfdir}/pam.d/%{name}
 %dir %{_datadir}/%{name}
 %{_datadir}/%{name}/*.la
@@ -225,6 +225,10 @@ rm -rf %{buildroot}%{_datadir}/doc/dovecot/
 
 
 %changelog
+* Thu Mar 06 2008 Vincent Danen <vdanen-at-build.annvix.org> 1.0.10
+- tighten permissions on the configuration file so it's no longer world-
+  readable, as per Red Hat bug #436287
+
 * Sat Dec 29 2007 Vincent Danen <vdanen-at-build.annvix.org>  1.0.10
 - 1.0.10
 
