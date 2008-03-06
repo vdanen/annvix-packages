@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		nasm
-%define version		2.00
+%define version		2.02
 %define release		%_revrel
 
 Summary:	The Netwide Assembler, a portable x86 assembler with Intel-like syntax
@@ -90,6 +90,8 @@ mkdir -p %{buildroot}{%{_bindir},%{_infodir},%{_mandir}/man1}
 %{_bindir}/rdf2bin
 %{_bindir}/rdf2ihx
 %{_bindir}/rdf2com
+%{_mandir}/man1/ldrdf.1*
+%{_mandir}/man1/rd*.1*
 
 %files doc
 %defattr(-,root,root)
@@ -98,6 +100,9 @@ mkdir -p %{buildroot}{%{_bindir},%{_infodir},%{_mandir}/man1}
 
 
 %changelog
+* Wed Mar 05 2008 Vincent Danen <vdanen-at-build.annvix.org> 2.02
+- 2.02
+
 * Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.00
 - 2.00
 - buildrequires: glibc-static-devel
