@@ -158,6 +158,9 @@ install -m 0644 isolinux-x86_64.bin %{buildroot}%{_prefix}/lib/syslinux/
 
 
 %changelog
+* Wed Mar 05 2008 Vincent Danen <vdanen-at-build.annvix.org> 3.51
+- rebuild with new nasm
+
 * Fri Feb 22 2008 Vincent Danen <vdanen-at-build.annvix.org> 3.51
 - rebuild against new libpng
 
