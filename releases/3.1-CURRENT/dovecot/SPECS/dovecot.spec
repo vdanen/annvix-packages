@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		dovecot
-%define version		1.0.10
+%define version		1.0.12
 %define release		%_revrel
 	
 
@@ -225,7 +225,8 @@ rm -rf %{buildroot}%{_datadir}/doc/dovecot/
 
 
 %changelog
-* Thu Mar 06 2008 Vincent Danen <vdanen-at-build.annvix.org> 1.0.10
+* Thu Mar 06 2008 Vincent Danen <vdanen-at-build.annvix.org> 1.0.12
+- 1.0.12
 - tighten permissions on the configuration file so it's no longer world-
   readable, as per Red Hat bug #436287
 
