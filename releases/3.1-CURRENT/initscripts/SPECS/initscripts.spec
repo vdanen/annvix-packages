@@ -178,7 +178,7 @@ chmod 0600 /var/log/btmp
 /etc/ppp/ipv6-up
 /etc/ppp/ipv6-down
 
-/etc/init.d/*
+%attr(0750,root,admin) /etc/init.d/functions
 
 /etc/profile.d/10lang.sh
 /etc/profile.d/10lang.csh
@@ -216,6 +216,9 @@ chmod 0600 /var/log/btmp
 
 
 %changelog
+* Fri Mar 07 2008 Vincent Danen <vdanen-at-build.annvix.org> 8.40
+- fix perms on initscript (bug #64)
+
 * Sat Dec 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.40
 - 8.40
 - order the profile.d/ scripts and drop executable bit
