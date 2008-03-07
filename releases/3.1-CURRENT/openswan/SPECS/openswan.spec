@@ -127,7 +127,7 @@ rm -rf %{buildroot}%{_sysconfdir}/%{name}/ipsec.d/examples
 %attr(0700,root,root) %dir %{_sysconfdir}/%{name}/ipsec.d/private
 %attr(0700,root,root) %dir %{_sysconfdir}/%{name}/ipsec.d/policies
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/%{name}/ipsec.d/policies/*
-%config(noreplace) %{_initrddir}/ipsec
+%attr(0750,root,admin) %{_initrddir}/ipsec
 %{_libdir}/ipsec
 %{_sbindir}/ipsec
 %{_mandir}/*/*
@@ -139,6 +139,10 @@ rm -rf %{buildroot}%{_sysconfdir}/%{name}/ipsec.d/examples
 
 
 %changelog
+* Fri Mar 07 2008 Vincent Danen <vdanen-at-build.annvix.org> 2.4.7
+- fix perms on initscript (bug #64)
+- initscript is not %%config(noreplace)
+
 * Sun Sep 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 2.4.7
 - rebuild against new pam
 
