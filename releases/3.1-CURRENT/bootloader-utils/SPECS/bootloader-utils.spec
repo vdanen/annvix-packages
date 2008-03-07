@@ -74,7 +74,7 @@ install -m 0750 %{_sourcedir}/kheader-avx.init %{buildroot}%{_initrddir}/kheader
 %files
 %defattr(-,root,root)
 %config(noreplace) /etc/sysconfig/installkernel
-%{_initrddir}/kheader
+%attr(0750,root,admin) %{_initrddir}/kheader
 /sbin/installkernel
 /sbin/kernel_remove_initrd
 %{_sbindir}/detectloader
@@ -95,6 +95,9 @@ install -m 0750 %{_sourcedir}/kheader-avx.init %{buildroot}%{_initrddir}/kheader
 
 
 %changelog
+* Fri Mar 07 2008 Vincent Danen <vdanen-at-build.annvix.org> 1.6
+- fix perms on initscript (bug #64)
+
 * Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.6
 - rebuild
 
