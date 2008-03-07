@@ -57,6 +57,8 @@ BuildRequires:	glibc-devel
 Conflicts:	util-linux < 2.13
 Obsoletes:	console-tools <= 0.2.3-7863avx
 Provides:	console-tools = %{version}-%{release}
+Requires(post):	rpm-helper
+Requires(preun): rpm-helper
 
 %description
 This package contains utilities to load console fonts and keyboard maps.
@@ -127,7 +129,7 @@ install -m 0644 %{_sourcedir}/configure_keyboard.sh \
     %{buildroot}/%{_sysconfdir}/profile.d/01configure_keyboard.sh
 
 mkdir -p %{buildroot}%{_initrddir}
-install -m 0755 %{_sourcedir}/keytable.init %{buildroot}%{_initrddir}/keytable
+install -m 0750 %{_sourcedir}/keytable.init %{buildroot}%{_initrddir}/keytable
 
 # some scripts expects setfont and unicode_{start,stop} inside /bin
 mkdir -p %{buildroot}/bin
@@ -159,7 +161,7 @@ install -m 0755 %{_sourcedir}/setsysfont %{buildroot}/sbin
 %files -f %{name}.lang
 %defattr(-,root,root)
 %{_sysconfdir}/profile.d/01configure_keyboard.sh
-%config(noreplace) %{_initrddir}/keytable
+%attr(0750,root,admin) %{_initrddir}/keytable
 %{_bindir}/chvt
 %{_bindir}/deallocvt
 %{_bindir}/dumpkeys
@@ -219,6 +221,11 @@ install -m 0755 %{_sourcedir}/setsysfont %{buildroot}/sbin
 
 
 %changelog
+* Fri Mar 07 2008 Vincent Danen <vdanen-at-build.annvix.org> 1.12
+- fix perms on initscript (bug #64)
+- initscript is not %%config(noreplace)
+- add requires on rpm-helper
+
 * Sat Dec 22 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.12
 - order the profile.d/ scripts and drop executable bit
 
