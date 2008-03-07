@@ -88,7 +88,7 @@ export DONT_GPRINTIFY=1
 %files
 %defattr(-,root,root)
 %attr(0700,root,root) %dir %{_sysconfdir}/%{name}
-%attr(0750,root,root) %{_initrddir}/shorewall
+%attr(0750,root,admin) %{_initrddir}/shorewall
 %config(noreplace) %{_sysconfdir}/%{name}/*
 %attr(0700,root,root) %dir %{_datadir}/%{name}
 %attr(0640,root,root) %{_datadir}/%{name}/*
@@ -104,6 +104,9 @@ export DONT_GPRINTIFY=1
 
 
 %changelog
+* Fri Mar 07 2008 Vincent Danen <vdanen-at-build.annvix.org> 3.4.6
+- fix perms on initscript (bug #64)
+
 * Tue Dec 04 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.4.6
 - 3.4.6 ( please refer to http://www.shorewall.net/upgrade_issues.htm#V3.4.0 )
 
