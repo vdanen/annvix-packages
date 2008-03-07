@@ -9,14 +9,14 @@
 
 %define revision	$Rev$
 %define name		iptables
-%define version		1.3.8
+%define version		1.4.0
 %define release		%_revrel
 
 Summary:	Tools for managing Linux kernel packet filtering capabilities
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-License:	GPL
+License:	GPLv2+
 Group:		System/Kernel and hardware
 URL:		http://netfilter.org/
 
@@ -27,18 +27,16 @@ Source3:	ip6tables-avx.init
 Source4:	iptables.config
 Source5:	ip6tables.config
 Source6:	iptables-kernel-headers.tar.bz2
-Patch1:		iptables-1.3.8-stealth_grsecurity.patch 
 Patch2:		iptables-1.2.8-imq.patch 
 Patch3:		iptables-1.3.5-libiptc.h.patch 
 Patch6:		iptables-1.3.3-IFWLOG_extension.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	perl
-BuildRequires:  kernel-source >= 2.4.24-3avx
+BuildRequires:  kernel-source
 
 Requires(post):	rpm-helper
 Requires(preun): rpm-helper
-Requires:	kernel >= 2.4.25-3avx
 Provides:	userspace-ipfilter
 Conflicts:	ipchains
 
@@ -66,7 +64,8 @@ IPv6 is the next version of the IP protocol.
 %package devel
 Summary:	Development package for iptables
 Group:		Development/C
-Requires:	%{name} = %{version}
+Requires:	%{name} = %{version}-%{release}
+#Requires:	kernel-headers
 
 %description devel
 The development files for iptables.
@@ -82,7 +81,6 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q -a 6
-%patch1 -p1 -b .stealth
 %patch2 -p1 -b .imq
 %patch3 -p1 -b .libiptc
 %patch6 -p1 -b .IFWLOG
@@ -94,35 +92,47 @@ find . -type f | xargs perl -pi -e "s,/usr/local,%{_prefix},g"
 
 %build
 %serverbuild
-OPT="%{optflags} -DNDEBUG"
+OPT="%{optflags} -fPIC -DNDEBUG -DNETLINK_NFLOG=5"
 
-make COPT_FLAGS="$OPT" KERNEL_DIR=$PWD/linux-2.6-vanilla LIBDIR=/lib all
+make \
+    LD=gcc \
+    COPT_FLAGS="${OPT}" \
+    KBUILD_OUTPUT=/usr/src/linux \
+    KERNEL_DIR=$PWD/linux-2.6-vanilla \
+    LIBDIR=/lib \
+    all
+# XX: once we have kernel-headers, KERNEL_DIR=/usr/src/linux
 
 
 %install
 [ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
 # Dunno why this happens. -- Geoff
 %makeinstall_std \
+    COPT_FLAGS="${OPT}" \
+    LD=gcc \
     BINDIR=/sbin \
     MANDIR=%{_mandir} \
     LIBDIR=/lib \
-    COPT_FLAGS="%{optflags} -DNETLINK_NFLOG=4" \
-    KERNEL_DIR=/usr \
-    install-experimental
+    KERNEL_DIR=%{_prefix} \
+    install install-experimental
 
-make install-devel \
+make \
     DESTDIR=%{buildroot} \
-    KERNEL_DIR=/usr \
+    COPT_FLAGS="${OPT}" \
+    LD=gcc \
+    KERNEL_DIR=%{_prefix} \
     BINDIR=/sbin \
     LIBDIR=%{_libdir} \
-    MANDIR=%{_mandir}
+    MANDIR=%{_mandir} \
+    INCDIR=%{_includedir} \
+    install-devel
 
 install -m 0644 libiptc/libiptc.a -D %{buildroot}%{_libdir}/libiptc.a
 
-install -c -D -m 0755 %{_sourcedir}/iptables-avx.init %{buildroot}%{_initrddir}/iptables
-install -c -D -m 0755 %{_sourcedir}/ip6tables-avx.init %{buildroot}%{_initrddir}/ip6tables
-install -c -D -m 0644 %{_sourcedir}/iptables.config iptables.sample
-install -c -D -m 0644 %{_sourcedir}/ip6tables.config ip6tables.sample
+install -c -D -m 0750 %{_sourcedir}/iptables-avx.init %{buildroot}%{_initrddir}/iptables
+install -c -D -m 0750 %{_sourcedir}/ip6tables-avx.init %{buildroot}%{_initrddir}/ip6tables
+install -c -D -m 0640 %{_sourcedir}/iptables.config iptables.sample
+install -c -D -m 0640 %{_sourcedir}/ip6tables.config ip6tables.sample
 
 
 %clean
@@ -148,7 +158,7 @@ rm -rf %{_builddir}/file.list.%{name}
 
 %files
 %defattr(-,root,root,0755)
-%config(noreplace) %{_initrddir}/iptables
+%attr(0750,root,admin) %{_initrddir}/iptables
 /sbin/iptables
 /sbin/iptables-save
 /sbin/iptables-restore
@@ -156,10 +166,11 @@ rm -rf %{_builddir}/file.list.%{name}
 %{_mandir}/*/iptables*
 %dir /lib/iptables
 /lib/iptables/libipt*
+/lib/iptables/libxt*
 
 %files ipv6
 %defattr(-,root,root,0755)
-%config(noreplace) %{_initrddir}/ip6tables
+%attr(0750,root,admin) %{_initrddir}/ip6tables
 /sbin/ip6tables
 /sbin/ip6tables-save
 /sbin/ip6tables-restore
@@ -179,6 +190,15 @@ rm -rf %{_builddir}/file.list.%{name}
 
 
 %changelog
+* Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.4.0
+- 1.4.0
+- fix perms on initscript (bug #64)
+- initscripts are not %%config(noreplace)
+- drop world readable perms on iptables sample config files
+- drop useless kernel requires
+- drop P1; we don't use grsecurity
+- use -fPIC
+
 * Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.3.8
 - 1.3.8
 - drop P4, no longer required
