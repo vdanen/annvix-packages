@@ -268,13 +268,13 @@ fi
 %attr(0640,root,admin) %config(noreplace) %{_sysconfdir}/sysconfig/env/runit/STAGE_3_TIMEOUT
 %attr(0640,root,admin) %config(noreplace) %{_sysconfdir}/sysconfig/env/runit/GETTY_TIMEOUT
 %attr(0640,root,admin) %config(noreplace) %{_sysconfdir}/sysconfig/env/runit/CTRLALTDEL_TIMEOUT
-%attr(0700,root,root) %{_initrddir}/rc.functions.sh
-%attr(0700,root,root) %config(noreplace) %{_initrddir}/rc.local
-%attr(0700,root,root) %config(noreplace) %{_initrddir}/rc.local-stop
-%attr(0755,root,root) %{_initrddir}/consmap.sh
-%attr(0700,root,root) %{_initrddir}/netfs
-%attr(0700,root,root) %{_initrddir}/network
-%attr(0700,root,root) %{_initrddir}/usb
+%attr(0750,root,admin) %{_initrddir}/rc.functions.sh
+%attr(0750,root,admin) %config(noreplace) %{_initrddir}/rc.local
+%attr(0750,root,admin) %config(noreplace) %{_initrddir}/rc.local-stop
+%attr(0750,root,admin) %{_initrddir}/consmap.sh
+%attr(0750,root,admin) %{_initrddir}/netfs
+%attr(0750,root,admin) %{_initrddir}/network
+%attr(0750,root,admin) %{_initrddir}/usb
 %dir %attr(0750,root,admin) %{_sysconfdir}/runlevels/default
 %dir %attr(0750,root,admin) %{_sysconfdir}/runlevels/default/service
 %dir %attr(0750,root,admin) %{_sysconfdir}/runlevels/single
@@ -291,6 +291,9 @@ fi
 
 
 %changelog
+* Fri Mar 07 2008 Vincent Danen <vdanen-at-build.annvix.org> 1.8.0
+- fix perms on initscripts (bug #64)
+
 * Sat Dec 29 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.8.0
 - annvix-runit 0.18
 
