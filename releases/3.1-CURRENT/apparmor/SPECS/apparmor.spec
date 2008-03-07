@@ -318,8 +318,8 @@ rm -f %{buildroot}%{_profiledir}/{bin,sbin,usr.sbin,usr.bin}.*
 %dir %{_sysconfdir}/apparmor
 %config(noreplace) %{_sysconfdir}/apparmor/subdomain.conf
 #%{_initrddir}/aaeventd
-%{_initrddir}/apparmor
-%{_initrddir}/apparmor.functions
+%attr(0750,root,admin) %{_initrddir}/apparmor
+%attr(0750,root,admin) %{_initrddir}/apparmor.functions
 /sbin/*
 %{_mandir}/man5/apparmor.d.5*
 %{_mandir}/man5/apparmor.vim.5*
@@ -369,6 +369,9 @@ rm -f %{buildroot}%{_profiledir}/{bin,sbin,usr.sbin,usr.bin}.*
 
 
 %changelog
+* Fri Mar 07 2008 Vincent Danen <vdanen-at-build.annvix.org> 2.1
+- fix perms on initscript (bug #64)
+
 * Fri Feb 22 2008 Vincent Danen <vdanen-at-build.annvix.org> 2.1
 - update to svn rel 1076
 - rebuild against new audit
