@@ -115,7 +115,7 @@ rm -rf %{buildroot}%{_docdir}/%{name}-%{version}
 %{_sbindir}/pppoe-status
 %{_sbindir}/pppoe-stop
 %{_mandir}/man[58]/*
-%config(noreplace)%{_initrddir}/pppoe
+%attr(0750,root,admin) %{_initrddir}/pppoe
 
 %files doc
 %defattr(-,root,root)
@@ -123,6 +123,10 @@ rm -rf %{buildroot}%{_docdir}/%{name}-%{version}
 
 
 %changelog
+* Fri Mar 07 2008 Vincent Danen <vdanen-at-build.annvix.org> 3.8
+- fix perms on initscript (bug #64)
+- initscript is not %%config(noreplace)
+
 * Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 3.8
 - use %%serverbuild
 
