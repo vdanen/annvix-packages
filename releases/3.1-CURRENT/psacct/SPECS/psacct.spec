@@ -122,7 +122,7 @@ fi
 %{_mandir}/man8/sa.8*
 %{_infodir}/accounting.info*
 %config(noreplace) %{_sysconfdir}/logrotate.d/psacct
-%{_initrddir}/psacct
+%attr(0750,root,admin) %{_initrddir}/psacct
 %ghost /var/log/pacct
 %ghost /var/log/usracct
 %ghost /var/log/savacct
@@ -134,6 +134,9 @@ fi
 
 
 %changelog
+* Fri Mar 07 2008 Vincent Danen <vdanen-at-build.annvix.org> 6.4-pre1
+- fix perms on initscript (bug #64)
+
 * Wed Dec 12 2007 Vincent Danen <vdanen-at-build.annvix.org> 6.4-pre1
 - cleanup the logrotate script
 
