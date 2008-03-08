@@ -794,6 +794,11 @@ exit 0
 
 
 %changelog
+* Sat Mar 08 2008 Vincent Danen <vdanen-at-build.annvix.org> 2.6.22.19
+- 2.6.22.19: fixes CVE-2007-3731
+- really set CONFIG_HIGHMEM=4GB (has to be done via scripts/create_configs)
+  which should finally fix bug #65
+
 * Mon Feb 11 2008 Vincent Danen <vdanen-at-build.annvix.org> 2.6.22.18
 - 2.6.22.18: fixes CVE-2008-0600
 
