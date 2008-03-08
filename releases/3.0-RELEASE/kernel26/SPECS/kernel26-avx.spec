@@ -12,7 +12,7 @@
 %define kernelversion	2
 %define patchlevel	6
 %define sublevel	22
-%define minlevel	18
+%define minlevel	19
 %define avxrelease	%(echo %{revision}|cut -d ' ' -f 2)
 
 %define kversion	%{kernelversion}.%{patchlevel}.%{sublevel}.%{minlevel}
