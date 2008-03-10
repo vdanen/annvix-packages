@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		dovecot
-%define version		1.0.12
+%define version		1.0.13
 %define release		%_revrel
 	
 
@@ -225,6 +225,9 @@ rm -rf %{buildroot}%{_datadir}/doc/dovecot/
 
 
 %changelog
+* Thu Mar 06 2008 Vincent Danen <vdanen-at-build.annvix.org> 1.0.13
+- 1.0.13: security fixes (user login without valid password; CVE-2008-1218)
+
 * Thu Mar 06 2008 Vincent Danen <vdanen-at-build.annvix.org> 1.0.12
 - 1.0.12
 - tighten permissions on the configuration file so it's no longer world-

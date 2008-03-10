@@ -1,7 +1,0 @@
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQBHzkiEyUhSUUBViskRArFPAJ4niZZ2ypdCKJmvKC08EoINKfHHywCfUh96
-24KwpUipnR7jzfnLL4hpI/g=
-=OBxM
------END PGP SIGNATURE-----
