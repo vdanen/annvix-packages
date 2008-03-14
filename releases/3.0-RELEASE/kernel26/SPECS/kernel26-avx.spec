@@ -794,6 +794,9 @@ exit 0
 
 
 %changelog
+* Mon Mar 10 2008 Vincent Danen <vdanen-at-build.annvix.org> 2.6.22.19
+- drop the supported arch from i686 to i586 as per tmb's note in bugzilla
+
 * Sat Mar 08 2008 Vincent Danen <vdanen-at-build.annvix.org> 2.6.22.19
 - 2.6.22.19: fixes CVE-2007-3731
 - really set CONFIG_HIGHMEM=4GB (has to be done via scripts/create_configs)

@@ -26,7 +26,7 @@ my $configs_dir="";
 my @archs = qw(i386 x86_64);
 
 my @configs = (
-     [ qw(i686 smp 4GB  smp) ],
+     [ qw(i586 smp 1GB smp) ],
 
      [ qw(x86_64 smp none smp) ]
 );
@@ -122,6 +122,8 @@ sub config_x86_highmem {
 	$values{VMSPLIT_3G_OPT} = "n";
 	$values{VMSPLIT_2G} = "n";
 	$values{VMSPLIT_1G} = "n";
+	$to_add{X86_PAE} = "n";
+	$to_add{MMC_SPI} = "m";
     } elsif ($mem eq "4GB" ) {
 	$values{HIGHMEM}= "y";
 	$values{NOHIGHMEM}= "n" ;
