@@ -794,6 +794,9 @@ exit 0
 
 
 %changelog
+* Mon Mar 17 2008 Vincent Danen <vdanen-at-build.annvix.org> 2.6.22.19
+- set the memory support back to 4GB
+
 * Mon Mar 10 2008 Vincent Danen <vdanen-at-build.annvix.org> 2.6.22.19
 - drop the supported arch from i686 to i586 as per tmb's note in bugzilla
 
