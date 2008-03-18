@@ -148,7 +148,7 @@ rm -f %{buildroot}%{_docdir}/%{name}/{AUTHORS,ChangeLog,COPYING,LICENCE,NEWS,REA
 
 %changelog
 * Tue Feb 12 2008 Vincent Danen <vdanen-at-build.annvix.org> 7.6
-- 7.6
+- 7.6: fixes CVE-2008-0674
 - enable unicode properties
 
 * Thu Nov 08 2007 Vincent Danen <vdanen-at-build.annvix.org> 7.4
