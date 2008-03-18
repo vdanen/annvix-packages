@@ -26,7 +26,7 @@ my $configs_dir="";
 my @archs = qw(i386 x86_64);
 
 my @configs = (
-     [ qw(i586 smp 1GB smp) ],
+     [ qw(i586 smp 4GB smp) ],
 
      [ qw(x86_64 smp none smp) ]
 );
