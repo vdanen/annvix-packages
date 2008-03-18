@@ -20,6 +20,7 @@ License:	GPL
 Group:		Publishing
 URL:		http://www.ghostscript.com/awki/Index
 Source0:	ftp://mirror.cs.wisc.edu/pub/mirrors/ghost/GPL/gs860/%{name}-%{version}.tar.bz2
+Patch0:		ghostscript-CVE-2008-0411.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	gettext-devel
@@ -46,6 +47,7 @@ This package contains the documentation for %{name}.
 
 %prep
 %setup -q
+%patch0 -p0 -b .cve-2008-0411
 
 
 %build
@@ -101,6 +103,9 @@ rm -rf %{buildroot}%{_mandir}/de
 
 
 %changelog
+* Tue Mar 18 2008 Vincent Danen <vdanen-at-build.annvix.org> 8.60
+- P0: security fix for CVE-2008-0411
+
 * Fri Nov 30 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.60
 - 8.60
 
