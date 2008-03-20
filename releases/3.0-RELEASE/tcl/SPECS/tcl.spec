@@ -28,6 +28,7 @@ Patch0:		tcl-8.4.11-rpath.patch
 Patch1:		tcl8.4.11-soname.diff
 Patch2:		tcl-8.4.2-dlopen.patch
 Patch3:		tcl-8.4.12-lib64-auto_path.patch
+Patch4:		tcl-8.4.15-rh-CVE-2007-4772.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -69,6 +70,7 @@ This package contains development files for %{name}.
 %patch1 -p1 -b .soname
 %patch2 -p1 -b .dlopen
 %patch3 -p1 -b .lib64
+%patch4 -p1 -b .cve-2007-4772
 
 
 %build
@@ -178,6 +180,9 @@ chmod 0755 %{buildroot}%{_libdir}/*.so*
 
 
 %changelog
+* Thu Mar 20 2008 Vincent Danen <vdanen-at-build.annvix.org> 8.4.14
+- P4: security fix for CVE-2007-4772
+
 * Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 8.4.14
 - 8.4.14
 
