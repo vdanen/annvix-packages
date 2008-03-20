@@ -10,7 +10,7 @@
 %define module		Net-DNS
 %define revision	$Rev$
 %define name		perl-%{module}
-%define version		0.61
+%define version		0.63
 %define release		%_revrel
 
 Summary:	Perl interface to the DNS resolver
@@ -20,7 +20,7 @@ Release:	%{release}
 License:	GPL or Artistic
 Group:		Development/Perl
 URL:		http://search.cpan.org/dist/%{module}
-Source0:	http://search.cpan.org/CPAN/authors/id/O/OL/OLAF/%{module}-%{version}.tar.gz
+Source0:	http://search.cpan.org/CPAN/authors/id/O/OL/OLAF/Net-DNS-%{version}.tar.gz
 
 BuildRequires:	perl-devel
 BuildRequires:	perl(Digest::HMAC)
@@ -79,6 +79,9 @@ make test
 
 
 %changelog
+* Thu Mar 20 2008 Vincent Danen <vdanen-at-build.annvix.org> 0.63
+- 0.63: fixes CVE-2007-6341
+
 * Thu Dec 06 2007 Vincent Danen <vdanen-at-build.annvix.org> 0.61
 - 0.61
 
