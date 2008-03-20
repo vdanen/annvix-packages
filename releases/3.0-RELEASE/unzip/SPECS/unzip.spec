@@ -24,6 +24,7 @@ Source0:	ftp://ftp.icce.rug.nl/infozip/src/%{name}%{src_ver}.tar.bz2
 Patch1:		unzip542-size-64bit.patch
 Patch2:		unzip-5.52-CAN-2005-2475.patch
 Patch3:		unzip-5.52-CVE-2005-4667.patch
+Patch4:		unzip-5.52-deb-CVE-2008-0888.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 
@@ -50,6 +51,8 @@ This package contains the documentation for %{name}.
 %patch1 -p0
 %patch2 -p1 -b .can-2005-2475
 %patch3 -p1 -b .cve-2005-4667
+%patch4 -p0 -b .cve-2008-0888
+
 
 %build
 %ifarch %{ix86}
@@ -101,6 +104,9 @@ EOF
 
 
 %changelog
+* Thu Mar 20 2008 Vincent Danen <vdanen-at-build.annvix.org> 5.52
+- P4: security fix for CVE-2008-0888
+
 * Mon Dec 03 2007 Vincent Danen <vdanen-at-build.annvix.org> 5.52
 - rebuild
 
