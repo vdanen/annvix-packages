@@ -62,6 +62,10 @@ Patch11:	krb5-1.3.3-fdr-rcp-sendlarge.patch
 Patch17:	krb5-1.3.6-et-preserve-file-names.patch
 # http://qa.mandriva.com/show_bug.cgi?id=9410
 Patch18:	krb5-1.4.1-ftplfs.patch
+Patch19:	krb5-1.6.1-rh-CVE-2007-5901.patch
+Patch20:	krb5-1.6.1-rh-CVE-2007-5971.patch
+Patch21:	krb5-1.6.1-rh-CVE-2008-0062_0063.patch
+Patch22:	krb5-1.6.1-rh-CVE-2008-0947.patch
 
 BuildRoot:	%{_buildroot}/%{name}-%{version}
 BuildRequires:	bison
@@ -231,6 +235,10 @@ This package contains the documentation for %{name}.
 %patch11 -p1 -b .rcp-sendlarge
 %patch17 -p1 -b .et-preserve-file-names
 %patch18 -p1 -b .lfs
+%patch19 -p0 -b .cve-2007-5901
+%patch20 -p0 -b .cve-2007-5971
+%patch21 -p0 -b .cve-2008-0062_0063
+%patch22 -p0 -b .cve-2008-0947
 
 cp %{_sourcedir}/krb5-ldap.conf.sample .
 
@@ -623,6 +631,12 @@ popd >/dev/null 2>&1
 
 
 %changelog
+* Thu Mar 20 2008 Vincent Danen <vdanen-at-build.annvix.org> 1.6.3
+- P19: security fix for CVE-2007-5901
+- P20: security fix for CVE-2007-5971
+- P21: security fix for CVE-2008-0062 and CVE-2008-0063
+- P22: security fix for CVE-2008-0947
+
 * Fri Dec 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.6.3
 - update the afterboot snippets
 
