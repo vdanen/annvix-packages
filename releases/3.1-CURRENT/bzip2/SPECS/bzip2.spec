@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		bzip2
-%define version		1.0.4
+%define version		1.0.5
 %define release		%_revrel
 
 %define major		1
@@ -139,6 +139,9 @@ install -m 0644 bzlib_private.h %{buildroot}%{_includedir}/
 
 
 %changelog
+* Fri Mar 21 2008 Vincent Danen <vdanen-at-build.annvix.org> 1.0.5
+- 1.0.5: fixes CVE-2008-1372
+
 * Sat Dec 15 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.0.4
 - get rid of %%odevname
 
