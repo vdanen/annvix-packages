@@ -9,7 +9,7 @@
 
 %define revision	$Rev$
 %define name		gnupg
-%define version 	1.4.8
+%define version 	1.4.9
 %define release		%_revrel
 
 Summary:	GNU privacy guard - a free PGP replacement
@@ -122,6 +122,9 @@ for i in en@boldquot en@quot ; do rm -rf %{buildroot}%{_datadir}/locale/$i; done
 
 
 %changelog
+* Wed Mar 26 2008 Vincent Danen <vdanen-at-build.annvix.org> 1.4.9
+- 1.4.9: fixes a possible memory corruption bug while importing keys
+
 * Fri Dec 21 2007 Vincent Danen <vdanen-at-build.annvix.org> 1.4.8
 - 1.4.8
 
