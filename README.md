@@ -1,4 +1,4 @@
-# Annvix ports
+# Annvix packages
 
 This is an *archived* repository of _packages_ for the Annvix operating system.
 
