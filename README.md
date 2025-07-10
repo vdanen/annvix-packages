@@ -1,0 +1,5 @@
+# Annvix ports
+
+This is an *archived* repository of _packages_ for the Annvix operating system.
+
+Annvix hasn't been developed since 2008, but some of it is still an interesting reference.
